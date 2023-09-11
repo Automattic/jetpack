@@ -1,0 +1,6 @@
+{
+	"name": "automattic/jp-monorepo",
+	"require": {
+		"automattic/jp-a": "*"
+	}
+}

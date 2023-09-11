@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import { useCallback, useState } from 'react';
-import { useDispatch, useSelect } from '@wordpress/data';
 import restApi from '@automattic/jetpack-api';
-
-/**
- * Internal dependencies
- */
-import trackAndBumpMCStats from '../tools/tracking';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback, useState } from 'react';
 import { STORE_ID } from '../state/store';
+import trackAndBumpMCStats from '../tools/tracking';
 
 /**
  * Custom hook to handle the migration action.
@@ -21,7 +14,7 @@ export default onMigrated => {
 	const [ isMigrating, setIsMigrating ] = useState( false );
 
 	const isActionInProgress = useSelect( select => select( STORE_ID ).getIsActionInProgress(), [] );
-	const { setIsActionInProgress } = useDispatch( STORE_ID );
+	const { setIsActionInProgress, setErrorType, clearErrorType } = useDispatch( STORE_ID );
 
 	/**
 	 * Initiate the migration.
@@ -32,6 +25,7 @@ export default onMigrated => {
 
 			setIsActionInProgress( true );
 			setIsMigrating( true );
+			clearErrorType();
 
 			restApi
 				.migrateIDC()
@@ -45,10 +39,19 @@ export default onMigrated => {
 				.catch( error => {
 					setIsActionInProgress( false );
 					setIsMigrating( false );
+					setErrorType( 'migrate' );
+
 					throw error;
 				} );
 		}
-	}, [ setIsMigrating, onMigrated, isActionInProgress, setIsActionInProgress ] );
+	}, [
+		setIsMigrating,
+		onMigrated,
+		isActionInProgress,
+		setIsActionInProgress,
+		setErrorType,
+		clearErrorType,
+	] );
 
 	return {
 		isMigrating,

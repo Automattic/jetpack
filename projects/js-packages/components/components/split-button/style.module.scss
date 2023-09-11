@@ -1,0 +1,21 @@
+.split-button {
+    --actions-size: 28px;
+    display: flex;
+    height: var(--actions-size);
+    border-radius: var(--jp-border-radius);
+
+    & > .button:first-child {
+        border-radius: var(--jp-border-radius) 0 0 var(--jp-border-radius);
+    }
+
+    & > :global(.components-dropdown) > .button {
+        border-radius: 0 var(--jp-border-radius) var(--jp-border-radius) 0;
+    }
+}
+
+.button {
+	font-size: var(--font-body-extra-small);
+	border-radius: var(--jp-border-radius);
+	height: var(--actions-size);
+	line-height: var(--actions-size);
+}

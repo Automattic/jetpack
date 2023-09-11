@@ -1,30 +1,35 @@
-/**
- * Internal dependencies
- */
+import { registerPlugin } from '@wordpress/plugins';
 import registerJetpackBlock from '../../shared/register-jetpack-block';
-import { name, settings } from '.';
+import RemoveBlockKeepContent from './_inc/remove-block-keep-content';
+import { name as buttonsBlockName, settings as buttonsBlockSettings } from './buttons/.';
 import {
 	name as loggedOutViewBlockName,
-	settings as loggedOutViewBlockSettings
+	settings as loggedOutViewBlockSettings,
 } from './logged-out-view/.';
 import {
-	name as subscriberViewBlockName,
-	settings as subscriberViewBlockSettings
-} from './subscriber-view/.';
-import {
-	name as buttonsBlockName,
-	settings as buttonsBlockSettings
-} from './buttons/.';
-import {
 	name as loginButtonBlockName,
-	settings as loginButtonBlockSettings
+	settings as loginButtonBlockSettings,
 } from './login-button/.';
+import {
+	name as subscriberViewBlockName,
+	settings as subscriberViewBlockSettings,
+} from './subscriber-view/.';
+import { name, settings } from '.';
 
 const prefix = false;
-registerJetpackBlock( name, settings, [
-	{ name: loggedOutViewBlockName, settings: loggedOutViewBlockSettings },
-	{ name: subscriberViewBlockName, settings: subscriberViewBlockSettings },
-	{ name: buttonsBlockName, settings: buttonsBlockSettings },
-	{ name: loginButtonBlockName, settings: loginButtonBlockSettings },
-], prefix );
 
+registerJetpackBlock(
+	name,
+	settings,
+	[
+		{ name: loggedOutViewBlockName, settings: loggedOutViewBlockSettings },
+		{ name: subscriberViewBlockName, settings: subscriberViewBlockSettings },
+		{ name: buttonsBlockName, settings: buttonsBlockSettings },
+		{ name: loginButtonBlockName, settings: loginButtonBlockSettings },
+	],
+	prefix
+);
+
+registerPlugin( 'block-settings-remove-block-keep-content', {
+	render: RemoveBlockKeepContent,
+} );

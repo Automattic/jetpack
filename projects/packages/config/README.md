@@ -15,8 +15,8 @@ Add every other package you're planning to configure:
 
 ```
 composer require automattic/jetpack-sync
-composer require automattic/jetpack-tracking
-composer require automattic/jetpack-terms-of-service
+composer require automattic/jetpack-options
+composer require automattic/jetpack-my-jetpack
 ```
 
 In your code initialize the configuration package at or before
@@ -107,6 +107,25 @@ add its slug to the config class property:
     );
 ```
 
+## The ensure_options call
+
+Each consumer will initialize your package from its own instance of the `Config` class, and each consumer can call `$config->ensure( 'your-feature', $options )` passing different options.
+
+Your package will need to handle these options and decide what to do with them when different consumers pass diferent options.
+
+You do that by creating a `ensure_options_{$package_slug}` method to the `Config` class. For example:
+
+```
+
+public function ensure_options_configurable_package() {
+    $options = $this->get_feature_options( 'configurable_package' );
+    Configurable_Package::handle_initialization_options( $options );
+	return true;
+}
+```
+
+This method will be called every time a different consumer "ensures" your feature and pass some options. It will run BEFORE the `enable_$feature` method is called, so your package must be prepare to receive and treat this options before it is initialized. By the time it is initialized, it should have received all the different options consumers have passed and decided what to do with them.
+
 ## The ensure call
 
 Finally you need to add a block that will check if your package is
@@ -130,3 +149,15 @@ your package as shown in the first section of this README.
 The Config package does not have any composer package dependencies. The consumer plugins must require the packages that they need.
 
 Before using a package class, the Config package will verify that the class exists using the `Config::ensure_class()` method. This allows the consumer plugins to use the Config package to enable and initialize Jetpack features while requiring only the packages that they need.
+
+## Using this package in your WordPress plugin
+
+If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
+
+## Security
+
+Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
+
+## License
+
+jetpack-config is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)

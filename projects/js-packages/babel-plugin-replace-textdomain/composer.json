@@ -5,18 +5,11 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"scripts": {
 		"test-js": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm install",
 			"pnpm run test"
-		],
-		"test-coverage": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm install",
-			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [

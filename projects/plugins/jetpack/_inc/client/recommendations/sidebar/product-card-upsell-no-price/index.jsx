@@ -1,23 +1,13 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useEffect } from 'react';
-
-/**
- * Internal dependencies
- */
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
-import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
+import React, { useCallback, useEffect } from 'react';
+import withUpgradeUrl from '../../hoc/with-upgrade-url';
+import RecommendedHeader from '../recommended-header';
+import { SidebarCard } from '../sidebar-card';
 
-/**
- * Style dependencies
- */
-import './style.scss';
-
-const ProductCardUpsellNoPrice = props => {
+const ProductCardUpsellNoPriceComponent = props => {
 	const { upgradeUrl } = props;
 
 	useEffect( () => {
@@ -39,19 +29,12 @@ const ProductCardUpsellNoPrice = props => {
 	];
 
 	return (
-		<div className="jp-recommendations-product-card-upsell-no-price">
-			<div className="jp-recommendations-product-card-upsell-no-price__header-chrome">
-				<img src={ imagePath + '/star.svg' } alt="" />
-				{ __( 'Recommended premium product', 'jetpack' ) }
-			</div>
-			<div className="jp-recommendations-product-card-upsell-no-price__padding">
+		<SidebarCard header={ <RecommendedHeader /> }>
+			<div>
 				<h2>{ __( 'Powerful security, performance, and marketing', 'jetpack' ) }</h2>
-				<ul>
+				<ul className="jp-recommendations-sidebar-card__features">
 					{ features.map( feature => (
-						<li key={ feature }>
-							<Gridicon icon="checkmark-circle" />
-							{ feature }
-						</li>
+						<li key={ feature }>{ feature }</li>
 					) ) }
 				</ul>
 				<p>
@@ -61,7 +44,7 @@ const ProductCardUpsellNoPrice = props => {
 					) }
 				</p>
 				<Button
-					primary
+					rna
 					href={ upgradeUrl }
 					onClick={ onLearnMoreClick }
 					target="blank"
@@ -71,8 +54,10 @@ const ProductCardUpsellNoPrice = props => {
 					<Gridicon icon="external" />
 				</Button>
 			</div>
-		</div>
+		</SidebarCard>
 	);
 };
+
+const ProductCardUpsellNoPrice = withUpgradeUrl( ProductCardUpsellNoPriceComponent );
 
 export { ProductCardUpsellNoPrice };

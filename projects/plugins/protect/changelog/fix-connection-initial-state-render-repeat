@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use the new method to render Connection initial state.

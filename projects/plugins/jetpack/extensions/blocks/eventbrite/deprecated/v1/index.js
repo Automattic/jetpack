@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
 import { RichText, getColorClassName } from '@wordpress/block-editor';
-import { isEmpty, omit, pick, some } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { createBlock } from '@wordpress/blocks';
 import { _x } from '@wordpress/i18n';
+import classnames from 'classnames';
+import { isEmpty, omit, pick, some } from 'lodash';
 
 /**
  * Deprecation reasons:

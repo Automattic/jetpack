@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { getIconColor } from '../../shared/block-icons';
+import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 import edit from './edit';
 import icon from './icon';
-import save from './save';
 import imgExampleAfter from './img-example-after.png';
 import imgExampleBefore from './img-example-before.png';
-import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
-import { getIconColor } from '../../shared/block-icons';
+import save from './save';
 
 export const name = 'image-compare';
 
@@ -35,6 +28,10 @@ export const settings = {
 		_x( 'side by side', 'block search term', 'jetpack' ),
 		_x( 'slider', 'block search term', 'jetpack' ),
 	],
+
+	supports: {
+		align: [ 'wide', 'full' ],
+	},
 
 	attributes: {
 		imageBefore: {

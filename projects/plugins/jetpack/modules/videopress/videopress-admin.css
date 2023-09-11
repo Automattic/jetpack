@@ -97,7 +97,8 @@
 }
 
 .compat-field-video-rating input[type="radio"],
-.compat-field-display_embed input[type="checkbox"]{
+.compat-field-display_embed input[type="checkbox"],
+.compat-field-allow_download input[type="checkbox"] {
 	margin-top: -1px !important;
 	margin-right: 5px !important;
 	margin-left: 5px !important;

@@ -1,0 +1,89 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V2.12
+ *
+ * Copyright 2017, ZeroBSCRM.com
+ *
+ * Date: 19/08/2017
+ */
+
+ // this file is referenced in Mike's new ZBS dash
+
+a, a:visited{
+  text-decoration: none;
+}
+a:focus{
+  outline:none;
+}
+
+.progress {
+    -webkit-box-shadow: none !important;
+    background-color: #f5f5f5;
+    box-shadow: none !important;
+    height: 10px;
+    margin-bottom: 18px;
+    overflow: hidden;
+}
+
+.img-rounded{
+  border-radius:50%;
+  float:left;
+  margin-right:5px;
+}
+
+.jpcrm-avatar-small {
+  width: 25px;
+}
+
+.dashboard-custom-choices {
+	ul {
+		margin-left: 30px;
+	}
+}
+
+body ::-webkit-scrollbar-track{
+background:white;
+}
+
+.day-or-month div.button {
+	color: var(--jp-black);
+  border-color: var(--jp-black);
+  background: var(--jp-white);
+}
+
+#settings_dashboard_sales_funnel_display, #settings_dashboard_recent_activity_display {
+	flex: 0 1 30%;
+}
+
+#settings_dashboard_revenue_chart_display, #settings_dashboard_latest_contacts_display {
+	flex: 0 1 70%;
+}
+
+#settings_dashboard_recent_activity_display {
+	.jpcrm-listview-table-container {
+		padding: 0 20px 20px 20px;
+
+		.x_ago {
+			margin: 15px 0 5px 0;
+			font-weight: 600;
+		}
+
+		.feed-item {
+			padding-left: 10px;
+			display: flex;
+			align-items: center;
+			margin-bottom:10px;
+			margin-top:10px;
+
+			.ui.avatar.img.img-rounded {
+					margin-right: 10px;
+			}
+		}
+	}
+}
+
+.jpcrm-dashcard {
+	margin: 10px;
+	padding: 10px;
+}

@@ -3,13 +3,19 @@
 	"description": "A custom installer plugin for Composer to move Jetpack packages out of `vendor/` so WordPress's translation infrastructure will find their strings.",
 	"type": "composer-plugin",
 	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"jetpack",
+		"composer",
+		"plugin",
+		"i18n"
+	],
 	"require": {
 		"composer-plugin-api": "^2.1.0"
 	},
 	"require-dev": {
-		"composer/composer": "^2.1",
-		"yoast/phpunit-polyfills": "1.0.2",
-		"automattic/jetpack-changelogger": "^3.0"
+		"composer/composer": "^2.2 || ^2.4",
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -20,12 +26,7 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"test-coverage": [
-			"@composer install",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-		],
 		"test-php": [
-			"@composer install",
 			"@composer phpunit"
 		]
 	},
@@ -41,6 +42,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"plugin-modifies-install-path": true,
 		"class": "Automattic\\Jetpack\\Composer\\Plugin",
 		"mirror-repo": "Automattic/jetpack-composer-plugin",
 		"changelogger": {
@@ -48,7 +50,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-master": "0.2.x-dev"
+			"dev-trunk": "1.1.x-dev"
 		}
 	}
 }

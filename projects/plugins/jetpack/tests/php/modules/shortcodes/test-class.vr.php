@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Shortcodes_VR extends WP_UnitTestCase {
 	 * @since 4.5
 	 */
 	public function test_shortcodes_vr_exists() {
-		$this->assertEquals( shortcode_exists( 'vr' ), true );
+		$this->assertTrue( shortcode_exists( 'vr' ) );
 	}
 
 	/**

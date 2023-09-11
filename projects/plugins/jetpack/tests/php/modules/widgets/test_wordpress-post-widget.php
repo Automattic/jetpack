@@ -5,9 +5,16 @@ require __DIR__ . '/../../../../modules/widgets/wordpress-post-widget.php';
 class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 	/**
+	 * Jetpack_Display_Posts_Widget object.
+	 *
+	 * @var Jetpack_Display_Posts_Widget
+	 */
+	private $inst;
+
+	/**
 	 * WP_Test_Jetpack_Display_Posts_Widget constructor.
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
 		$this->inst = new Jetpack_Display_Posts_Widget();
 		remove_action( 'shutdown', 'jetpack_display_posts_conditionally_set_cron_run_status' );
@@ -16,7 +23,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test parse_service_response when called with a WP_Error
 	 */
-	function test_parse_service_response_wp_error() {
+	public function test_parse_service_response_wp_error() {
 
 		$input_data = new WP_Error( 'test_case', 'TEST CASE', 'mydata' );
 
@@ -27,13 +34,12 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( array( 'general_error' ), $result->get_error_codes() );
 		$this->assertEquals( array( 'An error occurred fetching the remote data.' ), $result->get_error_messages() );
 		$this->assertEquals( array( 'TEST CASE' ), $result->get_error_data() );
-
 	}
 
 	/**
 	 * Test parse_service_response when called with a WP_Error
 	 */
-	function test_parse_service_response_bad_request() {
+	public function test_parse_service_response_bad_request() {
 
 		$input_data = array(
 			'response' => array(
@@ -49,13 +55,12 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( array( 'http_error' ), $result->get_error_codes() );
 		$this->assertEquals( array( 'An error occurred fetching the remote data.' ), $result->get_error_messages() );
 		$this->assertEquals( 'TESTING, ATTENTION', $result->get_error_data() );
-
 	}
 
 	/**
 	 * Test parse_service_response when called with missing body
 	 */
-	function test_parse_service_response_missing_body() {
+	public function test_parse_service_response_missing_body() {
 
 		$input_data = array(
 			'some'     => array(),
@@ -73,13 +78,12 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( array( 'no_body' ), $result->get_error_codes() );
 		$this->assertEquals( array( 'Invalid remote response.' ), $result->get_error_messages() );
 		$this->assertEquals( 'No body in response.', $result->get_error_data() );
-
 	}
 
 	/**
 	 * Test parse_service_response when called with broken body
 	 */
-	function test_parse_service_response_invalid_body_json() {
+	public function test_parse_service_response_invalid_body_json() {
 
 		$input_data = array(
 			'response' => array(
@@ -95,13 +99,12 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( array( 'no_body' ), $result->get_error_codes() );
 		$this->assertEquals( array( 'Invalid remote response.' ), $result->get_error_messages() );
 		$this->assertEquals( 'Invalid JSON from remote.', $result->get_error_data() );
-
 	}
 
 	/**
 	 * Test parse_service_response when called with body that has error
 	 */
-	function test_parse_service_response_body_has_error() {
+	public function test_parse_service_response_body_has_error() {
 
 		$input_data = array(
 			'response' => array(
@@ -119,13 +122,12 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( array( 'remote_error' ), $result->get_error_codes() );
 		$this->assertEquals( array( 'It looks like the WordPress site URL is incorrectly configured. Please check it in your widget settings.' ), $result->get_error_messages() );
 		$this->assertEquals( 'test error', $result->get_error_data() );
-
 	}
 
 	/**
 	 * Test parse_service_response when called with body that has error
 	 */
-	function test_parse_service_response_valid_body() {
+	public function test_parse_service_response_valid_body() {
 
 		$input_data = array(
 			'response' => array(
@@ -142,13 +144,12 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$expected_value->mydata = 'your data';
 
 		$this->assertEquals( $expected_value, $result );
-
 	}
 
 	/**
 	 * Test what value returns get_site_hash
 	 */
-	function test_get_site_hash() {
+	public function test_get_site_hash() {
 
 		$result = $this->inst->get_site_hash( 'http://test.com' );
 
@@ -158,7 +159,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test fetch_blog_data with invalid site info
 	 */
-	function test_fetch_blog_data_invalid_site_info() {
+	public function test_fetch_blog_data_invalid_site_info() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods(
@@ -199,7 +200,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$current_time = time();
 
 		$this->assertTrue( abs( $current_time - $result['site_info']['last_check'] ) < 10 );
-		$this->assertTrue( empty( $result['site_info']['last_update'] ) );
+		$this->assertEmpty( $result['site_info']['last_update'] );
 
 		unset( $result['site_info']['last_check'], $result['site_info']['last_update'] );
 
@@ -222,7 +223,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test fetch_blog_data with invalid posts info
 	 */
-	function test_fetch_blog_data_invalid_post_info() {
+	public function test_fetch_blog_data_invalid_post_info() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods(
@@ -270,7 +271,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertTrue( abs( $current_time - $result['site_info']['last_update'] ) < 10 );
 
 		$this->assertTrue( abs( $current_time - $result['posts']['last_check'] ) < 10 );
-		$this->assertTrue( empty( $result['posts']['last_update'] ) );
+		$this->assertEmpty( $result['posts']['last_update'] );
 
 		unset( $result['site_info']['last_check'], $result['site_info']['last_update'] );
 		unset( $result['posts']['last_check'], $result['posts']['last_update'] );
@@ -292,7 +293,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test fetch_blog_data with invalid posts info
 	 */
-	function test_fetch_blog_data_invalid_post_info_predefined_data() {
+	public function test_fetch_blog_data_invalid_post_info_predefined_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods(
@@ -351,7 +352,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertTrue( abs( $current_time - $result['site_info']['last_update'] ) < 10 );
 
 		$this->assertTrue( abs( $current_time - $result['posts']['last_check'] ) < 10 );
-		$this->assertTrue( empty( $result['posts']['last_update'] ) );
+		$this->assertTrue( empty( $result['posts']['last_update'] ) ); // phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertEmpty -- We need the potential error suppression.
 
 		unset( $result['site_info']['last_check'], $result['site_info']['last_update'] );
 		unset( $result['posts']['last_check'], $result['posts']['last_update'] );
@@ -373,7 +374,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test fetch_blog_data with fully valid values
 	 */
-	function test_fetch_blog_data_valid() {
+	public function test_fetch_blog_data_valid() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods(
@@ -441,7 +442,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test fetch_blog_data with only site info fetching
 	 */
-	function test_fetch_blog_data_only_site_info() {
+	public function test_fetch_blog_data_only_site_info() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods(
@@ -503,7 +504,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test fetch_blog_data with fully valid values
 	 */
-	function test_get_blog_data_invalid_cache() {
+	public function test_get_blog_data_invalid_cache() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods( array( 'get_site_hash', 'wp_get_option' ) )
@@ -536,7 +537,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test fetch_blog_data with fully valid values
 	 */
-	function test_get_blog_data_valid_cache() {
+	public function test_get_blog_data_valid_cache() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods( array( 'get_site_hash', 'wp_get_option' ) )
@@ -561,7 +562,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test parse_posts_response with valid data
 	 */
-	function test_parse_posts_response_valid() {
+	public function test_parse_posts_response_valid() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods( array( 'format_posts_for_storage' ) )
@@ -585,7 +586,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test parse_posts_response with WP_Error
 	 */
-	function test_parse_posts_response_wp_error() {
+	public function test_parse_posts_response_wp_error() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods( array( 'format_posts_for_storage' ) )
@@ -613,7 +614,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test parse_posts_response with invalid data
 	 */
-	function test_parse_posts_response_invalid_data() {
+	public function test_parse_posts_response_invalid_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods( array( 'format_posts_for_storage' ) )
@@ -647,7 +648,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test parse_site_info_response with valid data
 	 */
-	function test_parse_site_info_response_valid() {
+	public function test_parse_site_info_response_valid() {
 
 		$service_response_test_valid_data = (object) ( array(
 			'ID' => 55,
@@ -656,13 +657,12 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$result = $this->inst->parse_site_info_response( $service_response_test_valid_data );
 
 		$this->assertEquals( $service_response_test_valid_data, $result );
-
 	}
 
 	/**
 	 * Test parse_site_info_response with WP_Error
 	 */
-	function test_parse_site_info_response_wp_error() {
+	public function test_parse_site_info_response_wp_error() {
 
 		$service_response_test_wp_err = new WP_Error( 'test code', 'test message', 'test_data' );
 
@@ -682,7 +682,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test parse_site_info_response with WP_Error
 	 */
-	function test_parse_site_info_response_invalid_data() {
+	public function test_parse_site_info_response_invalid_data() {
 
 		$service_response_test_invalid_data = (object) ( array(
 			'not_valid' => 55,
@@ -708,7 +708,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test format_posts_for_storage with valid data
 	 */
-	function tests_format_posts_for_storage_valid() {
+	public function tests_format_posts_for_storage_valid() {
 
 		$posts_list_test = (object) ( array(
 			'posts' => array(
@@ -781,7 +781,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test format_posts_for_storage with invalid data
 	 */
-	function tests_format_posts_for_storage_invalid() {
+	public function tests_format_posts_for_storage_invalid() {
 
 		$posts_list_test = (object) ( array(
 			'posts' => 'invalid posts',
@@ -797,7 +797,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test cron_task with valid data
 	 */
-	function test_cron_task_valid_data() {
+	public function test_cron_task_valid_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods( array( 'get_instances_sites', 'update_instance', 'should_cron_be_running' ) )
@@ -828,7 +828,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test cron_task with invalid data
 	 */
-	function test_cron_task_no_data() {
+	public function test_cron_task_no_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods( array( 'get_instances_sites', 'update_instance', 'should_cron_be_running' ) )
@@ -854,7 +854,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test cron_task with no data
 	 */
-	function test_cron_task_invalid_data() {
+	public function test_cron_task_invalid_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods( array( 'get_instances_sites', 'update_instance', 'should_cron_be_running' ) )
@@ -880,7 +880,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test cron_task with no data
 	 */
-	function test_cron_task_cron_should_not_be_running() {
+	public function test_cron_task_cron_should_not_be_running() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods(
@@ -911,7 +911,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test get_instances_sites with valid data
 	 */
-	function test_get_instances_sites_valid_data() {
+	public function test_get_instances_sites_valid_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods( array( 'wp_get_option' ) )
@@ -945,7 +945,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test get_instances_sites with invalid data
 	 */
-	function test_get_instances_sites_invalid_data() {
+	public function test_get_instances_sites_invalid_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods( array( 'wp_get_option' ) )
@@ -965,7 +965,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test get_instances_sites with invalid data, part 2
 	 */
-	function test_get_instances_sites_invalid_data_2() {
+	public function test_get_instances_sites_invalid_data_2() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods( array( 'wp_get_option' ) )
@@ -985,7 +985,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test get_instances_sites with invalid data, part 2
 	 */
-	function test_get_instances_sites_empty_data() {
+	public function test_get_instances_sites_empty_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods( array( 'wp_get_option' ) )
@@ -1005,7 +1005,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test get_instances_sites with invalid data, part 2
 	 */
-	function test_get_instances_sites_broken_data() {
+	public function test_get_instances_sites_broken_data() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods( array( 'wp_get_option' ) )
@@ -1043,7 +1043,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test update_instance with valid data, new option
 	 */
-	function test_update_instance_valid_data_new_option() {
+	public function test_update_instance_valid_data_new_option() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods(
@@ -1088,7 +1088,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test update_instance with valid data, update option
 	 */
-	function test_update_instance_valid_data_update_option() {
+	public function test_update_instance_valid_data_update_option() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods(
@@ -1131,7 +1131,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test extract_errors_from_blog_data with WP_Error input
 	 */
-	function test_extract_errors_from_blog_data_wp_error() {
+	public function test_extract_errors_from_blog_data_wp_error() {
 		$input_data = new WP_Error( 'test_case', 'TEST CASE', 'mydata' );
 
 		$result = $this->inst->extract_errors_from_blog_data( $input_data );
@@ -1149,7 +1149,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test extract_errors_from_blog_data with array error in site_info
 	 */
-	function test_extract_errors_from_blog_data_array_error_site_info() {
+	public function test_extract_errors_from_blog_data_array_error_site_info() {
 
 		$input_data = array(
 			'site_info' => array(
@@ -1173,7 +1173,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test extract_errors_from_blog_data with array error in posts
 	 */
-	function test_extract_errors_from_blog_data_array_error_posts() {
+	public function test_extract_errors_from_blog_data_array_error_posts() {
 
 		$input_data = array(
 			'site_info' => array(
@@ -1197,7 +1197,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test extract_errors_from_blog_data with valid WP_Error in site_info
 	 */
-	function test_extract_errors_from_blog_data_valid_wp_error_site_info() {
+	public function test_extract_errors_from_blog_data_valid_wp_error_site_info() {
 
 		$input_data = array(
 			'site_info' => array(
@@ -1221,7 +1221,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test extract_errors_from_blog_data with valid WP_Error in posts
 	 */
-	function test_extract_errors_from_blog_data_valid_wp_error_posts() {
+	public function test_extract_errors_from_blog_data_valid_wp_error_posts() {
 
 		$input_data = array(
 			'site_info' => array(
@@ -1245,7 +1245,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test extract_errors_from_blog_data with valid WP_Error with array debug
 	 */
-	function test_extract_errors_from_blog_data_valid_wp_error_posts_array_debug() {
+	public function test_extract_errors_from_blog_data_valid_wp_error_posts_array_debug() {
 
 		$input_data = array(
 			'site_info' => array(
@@ -1269,7 +1269,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test extract_errors_from_blog_data with errors that are not WP_Error or array
 	 */
-	function test_extract_errors_from_blog_data_no_errors() {
+	public function test_extract_errors_from_blog_data_no_errors() {
 
 		$input_data = array(
 			'site_info' => array(
@@ -1294,7 +1294,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	 * Test if jetpack_display_posts_widget_cron_intervals is working correctly with
 	 * predefined list of cron schedule.
 	 */
-	function test_jetpack_display_posts_widget_cron_intervals_predefined_schedule() {
+	public function test_jetpack_display_posts_widget_cron_intervals_predefined_schedule() {
 
 		$predefine_schedules = array(
 			'minutes_5'  => array(
@@ -1325,14 +1325,13 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		);
 
 		$this->assertEquals( $expected_result, $result );
-
 	}
 
 	/**
 	 * Test if jetpack_display_posts_widget_cron_intervals is working correctly with
 	 * no predefined cron schedules.
 	 */
-	function test_jetpack_display_posts_widget_cron_intervals_no_predefined_schedule() {
+	public function test_jetpack_display_posts_widget_cron_intervals_no_predefined_schedule() {
 
 		$predefine_schedules = array();
 
@@ -1346,14 +1345,13 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		);
 
 		$this->assertEquals( $expected_result, $result );
-
 	}
 
 	/**
 	 * Test if jetpack_display_posts_widget_cron_intervals is working correctly with
 	 * minutes_10 interval already defined.
 	 */
-	function test_jetpack_display_posts_widget_cron_intervals_predefined_schedule_no_overwrite() {
+	public function test_jetpack_display_posts_widget_cron_intervals_predefined_schedule_no_overwrite() {
 
 		$predefine_schedules = array(
 			'minutes_5'  => array(
@@ -1388,13 +1386,12 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		);
 
 		$this->assertEquals( $expected_result, $result );
-
 	}
 
 	/**
 	 * Test fetch_service_endpoint with no possible cache hits
 	 */
-	function test_fetch_service_endpoint_no_cache_hits() {
+	public function test_fetch_service_endpoint_no_cache_hits() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods(
@@ -1434,7 +1431,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	/**
 	 * Test fetch_service_endpoint with cache hits
 	 */
-	function test_fetch_service_endpoint_with_cache_hits() {
+	public function test_fetch_service_endpoint_with_cache_hits() {
 		/** @var Jetpack_Display_Posts_Widget $mock */
 		$mock = $this->getMockBuilder( 'Jetpack_Display_Posts_Widget' )
 					->setMethods(
@@ -1471,7 +1468,6 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( 'first test', $result1 );
 		$this->assertEquals( 'second test', $result2 );
 		$this->assertEquals( 'first test', $result1_again );
-
 	}
 
 }

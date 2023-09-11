@@ -1,17 +1,5 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
-import '@testing-library/jest-dom/extend-expect';
-import userEvent from '@testing-library/user-event';
 import { fireEvent, render, screen } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
+import userEvent from '@testing-library/user-event';
 import GoogleCalendarInspectorControls from '../controls';
 
 describe( 'GoogleCalendarInspectorControls', () => {
@@ -20,7 +8,8 @@ describe( 'GoogleCalendarInspectorControls', () => {
 
 	const defaultProps = {
 		className: 'calendar-embed-form',
-		embedValue: 'https://calendar.google.com/calendar/embed?src=c_rr8cguo95gga9im2vs4tqi939g%40group.calendar.google.com&ctz=Australia%2FBrisbane',
+		embedValue:
+			'https://calendar.google.com/calendar/embed?src=c_rr8cguo95gga9im2vs4tqi939g%40group.calendar.google.com&ctz=Australia%2FBrisbane',
 		onChange,
 		onSubmit,
 	};
@@ -38,23 +27,28 @@ describe( 'GoogleCalendarInspectorControls', () => {
 	} );
 
 	test( 'shows embed form when calendar settings expanded', async () => {
+		const user = userEvent.setup();
 		render( <GoogleCalendarInspectorControls { ...defaultProps } /> );
 
-		userEvent.click( screen.getByText( 'Calendar settings' ) );
+		await user.click( screen.getByText( 'Calendar settings' ) );
 
 		const button = await screen.findByText( 'Embed' );
 
 		expect( button ).toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( button.closest( 'form' ) ).toHaveClass( defaultProps.className );
 		expect( screen.getByLabelText( 'Google Calendar URL or iframe' ) ).toBeInTheDocument();
-		expect( screen.getByPlaceholderText( 'Enter URL or iframe to embed here…' ) ).toBeInTheDocument();
+		expect(
+			screen.getByPlaceholderText( 'Enter URL or iframe to embed here…' )
+		).toBeInTheDocument();
 		expect( screen.getByText( defaultProps.embedValue ) ).toBeInTheDocument();
 	} );
 
 	test( 'calls onSubmit when button clicked', async () => {
+		const user = userEvent.setup();
 		render( <GoogleCalendarInspectorControls { ...defaultProps } /> );
 
-		userEvent.click( screen.getByText( 'Calendar settings' ) );
+		await user.click( screen.getByText( 'Calendar settings' ) );
 		const button = await screen.findByText( 'Embed' );
 		await fireEvent.submit( button );
 
@@ -62,11 +56,13 @@ describe( 'GoogleCalendarInspectorControls', () => {
 	} );
 
 	test( 'calls onChange when user updates embed value', async () => {
+		const user = userEvent.setup();
 		render( <GoogleCalendarInspectorControls { ...defaultProps } /> );
 
-		userEvent.click( screen.getByText( 'Calendar settings' ) );
+		await user.click( screen.getByText( 'Calendar settings' ) );
 		const textarea = await screen.findByLabelText( 'Google Calendar URL or iframe' );
-		userEvent.paste( textarea, 'https://calendar.google.com/calendar/embed?src=newcalendarurl' );
+		await user.click( textarea );
+		await user.paste( 'https://calendar.google.com/calendar/embed?src=newcalendarurl' );
 
 		expect( onChange ).toHaveBeenCalled();
 	} );

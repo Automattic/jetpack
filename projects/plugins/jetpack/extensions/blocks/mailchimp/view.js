@@ -1,20 +1,10 @@
-/**
- * External dependencies
- */
 import domReady from '@wordpress/dom-ready';
+import emailValidator from 'email-validator';
 // NOTE: We only import the debounce package here for to reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
 
-/**
- * Internal dependencies
- */
-import emailValidator from 'email-validator';
-
-/**
- * Internal dependencies
- */
 import './view.scss';
 
 const blockClassName = 'wp-block-jetpack-mailchimp';

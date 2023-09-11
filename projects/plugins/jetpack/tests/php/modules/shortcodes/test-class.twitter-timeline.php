@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Shortcodes_TwitterTimeline extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_twitter_timeline_exists() {
-		$this->assertEquals( shortcode_exists( 'twitter-timeline' ), true );
+		$this->assertTrue( shortcode_exists( 'twitter-timeline' ) );
 	}
 
 	/**

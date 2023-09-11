@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Tests for the changelogger squash command.
  *
  * @package automattic/jetpack-changelogger
  */
-
-// phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 namespace Automattic\Jetpack\Changelogger\Tests;
 
@@ -224,7 +222,7 @@ class SquashCommandTest extends CommandTestCase {
 				array(),
 				array(),
 				SquashCommand::FATAL_EXIT,
-				array( '{^Regex match failed: Delimiter must not be alphanumeric or backslash$}' ),
+				array( '{^Regex match failed: Delimiter must not be alphanumeric(?: or backslash|, backslash, or NUL)$}' ),
 			),
 			'Squash by regex, regex matches nothing'      => array(
 				array(

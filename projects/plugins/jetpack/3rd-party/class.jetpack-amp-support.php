@@ -1,6 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
 use Automattic\Jetpack\Sync\Functions;
 
 /**
@@ -124,11 +125,21 @@ class Jetpack_AMP_Support {
 	}
 
 	/**
+	 * Determines whether the legacy AMP post templates are being used.
+	 *
+	 * @since 10.6.0
+	 *
+	 * @return bool
+	 */
+	public static function is_amp_legacy() {
+		return ( function_exists( 'amp_is_legacy' ) && amp_is_legacy() );
+	}
+
+	/**
 	 * Remove content filters added by Jetpack.
 	 */
 	public static function amp_disable_the_content_filters() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			add_filter( 'videopress_show_2015_player', '__return_true' );
 			add_filter( 'protected_embeds_use_form_post', '__return_false' );
 			remove_filter( 'the_title', 'widont' );
 		}
@@ -167,10 +178,12 @@ class Jetpack_AMP_Support {
 	 * @since 6.2.1
 	 */
 	public static function add_stats_pixel() {
-		if ( ! has_action( 'wp_footer', 'stats_footer' ) ) {
+		if ( ! has_action( 'wp_footer', array( Stats_Tracking_Pixel::class, 'add_amp_pixel' ) ) ) {
 			return;
 		}
-		stats_render_amp_footer( stats_build_view_data() );
+
+		$stats_data = Stats_Tracking_Pixel::build_view_data();
+		Stats_Tracking_Pixel::render_amp_footer( $stats_data );
 	}
 
 	/**
@@ -323,10 +336,10 @@ class Jetpack_AMP_Support {
 	 * @return array Dimensions.
 	 */
 	private static function extract_image_dimensions_from_getimagesize( $dimensions ) {
-		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'jetpack_require_lib' ) ) ) {
+		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'require_lib' ) ) ) {
 			return $dimensions;
 		}
-		jetpack_require_lib( 'wpcom/imagesize' );
+		require_lib( 'wpcom/imagesize' );
 
 		foreach ( $dimensions as $url => $value ) {
 			if ( is_array( $value ) ) {
@@ -426,7 +439,11 @@ class Jetpack_AMP_Support {
 	 * Enqueues the AMP specific sharing styles for the sharing icons.
 	 */
 	public static function amp_enqueue_sharing_css() {
-		if ( self::is_amp_request() ) {
+		if (
+			Jetpack::is_module_active( 'sharedaddy' )
+			&& self::is_amp_request()
+			&& ! self::is_amp_legacy()
+		) {
 			wp_enqueue_style( 'sharedaddy-amp', plugin_dir_url( __DIR__ ) . 'modules/sharedaddy/amp-sharing.css', array( 'social-logos' ), JETPACK__VERSION );
 		}
 	}
@@ -436,7 +453,7 @@ class Jetpack_AMP_Support {
 	 */
 	public static function amp_reader_sharing_css() {
 		// If sharing is not enabled, we should not proceed to render the CSS.
-		if ( ! defined( 'JETPACK_SOCIAL_LOGOS_DIR' ) | ! defined( 'JETPACK_SOCIAL_LOGOS_URL' ) || ! defined( 'WP_SHARING_PLUGIN_DIR' ) ) {
+		if ( ! defined( 'JETPACK_SOCIAL_LOGOS_DIR' ) || ! defined( 'JETPACK_SOCIAL_LOGOS_URL' ) || ! defined( 'WP_SHARING_PLUGIN_DIR' ) ) {
 			return;
 		}
 
@@ -541,7 +558,3 @@ class Jetpack_AMP_Support {
 		return $options_safelist;
 	}
 }
-
-add_action( 'init', array( 'Jetpack_AMP_Support', 'init' ), 1 );
-
-add_action( 'admin_init', array( 'Jetpack_AMP_Support', 'admin_init' ), 1 );

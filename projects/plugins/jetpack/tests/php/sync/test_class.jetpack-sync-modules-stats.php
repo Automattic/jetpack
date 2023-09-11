@@ -30,7 +30,6 @@ class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
 
 		$this->assertEquals( self::TEST_STAT_VALUE, $action->args[0][ self::TEST_STAT_NAME ] );
-
 	}
 
 	/**
@@ -70,8 +69,8 @@ class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Run it in multi site mode' );
 		}
 
-		$user_id         = $this->factory->user->create();
-		$mu_blog_user_id = $this->factory->user->create();
+		$user_id         = self::factory()->user->create();
+		$mu_blog_user_id = self::factory()->user->create();
 
 		// Create a different blog.
 		$suppress      = $wpdb->suppress_errors();
@@ -80,6 +79,8 @@ class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 
 		// Create a user from within that blog (won't be synced).
 		switch_to_blog( $other_blog_id );
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::update_option( 'id', 1234 );
 
 		add_user_to_blog( $other_blog_id, $mu_blog_user_id, 'administrator' );
 
@@ -97,6 +98,8 @@ class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
 
+		\Jetpack_Options::delete_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::delete_option( 'id', 1234 );
 		restore_current_blog();
 
 		$this->assertEquals( self::TEST_STAT_VALUE, $action->args[0][ self::TEST_STAT_NAME ] );

@@ -38,11 +38,13 @@ class Dummy_Class {
 		require_once 'bar.php';
 		$u->clone = clone $x;
 
-		// MediaWiki.Usage.DirUsage.
-		$u->dir = __DIR__;
-
 		// MediaWiki.Usage.DoubleNotOperator.
 		$u->bool = (bool) $u->bool;
+
+		// MediaWiki.Usage.ForbiddenFunctions
+		$u->builtin_forbidding = rtrim( $u->builtin_forbidding );
+		$u->added_forbidding   = mb_strlen( $u->added_forbidding );
+		$u->removed_forbidding = compact( 'x', 'u' );
 
 		// MediaWiki.Usage.InArrayUsage.
 		if (

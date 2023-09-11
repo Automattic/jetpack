@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 
 /**
@@ -23,6 +24,8 @@ class CLI {
 	 */
 	private $jetpack_boost;
 
+	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical_css', 'lazy_images', 'render_blocking_js' );
+
 	/**
 	 * CLI constructor.
 	 *
@@ -30,16 +33,6 @@ class CLI {
 	 */
 	public function __construct( $jetpack_boost ) {
 		$this->jetpack_boost = $jetpack_boost;
-	}
-
-	/**
-	 * Reset settings command.
-	 *
-	 * @subcommand reset-settings
-	 */
-	public function reset_settings() {
-		$this->jetpack_boost->config()->reset();
-		\WP_CLI::success( 'Reset settings successfully' );
 	}
 
 	/**
@@ -60,8 +53,8 @@ class CLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp jetpack-boost module activate critical-css
-	 * wp jetpack-boost module deactivate critical-css
+	 * wp jetpack-boost module activate critical_css
+	 * wp jetpack-boost module deactivate critical_css
 	 *
 	 * @param array $args Command arguments.
 	 */
@@ -72,9 +65,9 @@ class CLI {
 
 		if ( isset( $args[1] ) ) {
 			$module_slug = $args[1];
-			if ( ! in_array( $module_slug, Jetpack_Boost::AVAILABLE_MODULES_DEFAULT, true ) ) {
+			if ( ! in_array( $module_slug, self::MAKE_E2E_TESTS_WORK_MODULES, true ) ) {
 				\WP_CLI::error(
-					/* translators: %s refers to the module slug like 'critical-css' */
+				/* translators: %s refers to the module slug like 'critical-css' */
 					sprintf( __( "The '%s' module slug is invalid", 'jetpack-boost' ), $module_slug )
 				);
 			}
@@ -85,12 +78,30 @@ class CLI {
 
 		switch ( $action ) {
 			case 'activate':
-				$this->set_module_status( $module_slug, 'active' );
+				$this->set_module_status( $module_slug, true );
 				break;
 			case 'deactivate':
-				$this->set_module_status( $module_slug, 'inactive' );
+				$this->set_module_status( $module_slug, false );
 				break;
 		}
+	}
+
+	public function getting_started( $args ) {
+		$status = isset( $args[0] ) ? $args[0] : null;
+
+		if ( ! in_array( $status, array( 'true', 'false' ), true ) ) {
+			\WP_CLI::error(
+				/* translators: %s refers to the module slug like 'critical-css' */
+				sprintf( __( "The '%s' status is invalid", 'jetpack-boost' ), $status )
+			);
+		}
+
+		Config::set_getting_started( 'true' === $status );
+
+		\WP_CLI::success(
+			/* translators: %s refers to 'true' or 'false' */
+			sprintf( __( 'Getting started is set to %s', 'jetpack-boost' ), $status )
+		);
 	}
 
 	/**
@@ -100,10 +111,9 @@ class CLI {
 	 * @param string $status      Module status.
 	 */
 	private function set_module_status( $module_slug, $status ) {
-		$enable = 'active' === $status;
+		( new Status( $module_slug ) )->update( $status );
 
-		$this->jetpack_boost->set_module_status( $enable, $module_slug );
-		$status_label = $enable ? __( 'activated', 'jetpack-boost' ) : __( 'deactivated', 'jetpack-boost' );
+		$status_label = $status ? __( 'activated', 'jetpack-boost' ) : __( 'deactivated', 'jetpack-boost' );
 
 		/* translators: The %1$s refers to the module slug, %2$s refers to the module state (either activated or deactivated)*/
 		\WP_CLI::success(
@@ -142,7 +152,7 @@ class CLI {
 				if ( true === $result ) {
 					\WP_CLI::success( __( 'Boost is connected to WP.com', 'jetpack-boost' ) );
 				} else {
-					\WP_CLI::Error( __( 'Boost could not be connected to WP.com', 'jetpack-boost' ) );
+					\WP_CLI::error( __( 'Boost could not be connected to WP.com', 'jetpack-boost' ) );
 				}
 				break;
 			case 'deactivate':
@@ -177,7 +187,6 @@ class CLI {
 	public function reset() {
 		$this->jetpack_boost->deactivate();
 		$this->jetpack_boost->uninstall();
-		$this->jetpack_boost->config()->reset();
 		\WP_CLI::success( 'Reset successfully' );
 	}
 }

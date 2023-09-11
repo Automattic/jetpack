@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { noop, throttle } from 'lodash';
 import { _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import BarContainer from './bar-container';
 import { hasTouch } from 'lib/touch-detect';
+import { noop, throttle } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import BarContainer from './bar-container';
 import './style.scss';
 
 export default class ModuleChart extends React.Component {

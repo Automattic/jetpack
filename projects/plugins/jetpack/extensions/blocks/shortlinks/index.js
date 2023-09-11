@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
-import { get } from 'lodash';
 import { PanelBody } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { Component } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { get } from 'lodash';
 import ClipboardInput from '../../shared/clipboard-input';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 
@@ -29,7 +22,11 @@ class ShortlinksPanel extends Component {
 
 		return (
 			<JetpackPluginSidebar>
-				<PanelBody title={ __( 'Shortlink', 'jetpack' ) } className="jetpack-shortlinks__panel">
+				<PanelBody
+					title={ __( 'Shortlink', 'jetpack' ) }
+					className="jetpack-shortlinks__panel"
+					initialOpen={ false }
+				>
 					<ClipboardInput link={ shortlink } />
 				</PanelBody>
 			</JetpackPluginSidebar>

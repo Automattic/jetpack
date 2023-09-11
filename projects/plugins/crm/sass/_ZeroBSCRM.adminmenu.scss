@@ -1,0 +1,39 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.0
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 27/06/16
+ */
+
+.mobile {
+	#zbscrm-wpadminbar {
+		display:none;
+	}
+	#adminmenu {
+	    margin-top: 12px !important;
+	}
+
+}
+
+// this is used in tour to highlight menu items 
+.menu.ui .item.tourhighlight, 
+.ui.menu .ui.dropdown .menu>.item.tourhighlight {
+    background: #3f4347;
+    color: #8bc63f !important;
+}
+
+/* Full-screen mode */
+
+// open
+body.zbs-fullscreen {
+	#wpcontent, #wpfooter{
+		margin-left:0px !important; 
+		margin-top:-32px !important;
+	}
+	#wpadminbar, #adminmenuback, #adminmenuwrap{
+		display:none !important;
+	}
+}

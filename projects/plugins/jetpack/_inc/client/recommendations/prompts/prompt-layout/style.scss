@@ -1,11 +1,13 @@
+@import '../../mixin';
 @import '../../../scss/mixin_breakpoint.scss';
+@import '../../../scss/variables/colors';
 
 .jp-recommendations-question__content {
 	display: flex;
 	flex-direction: column;
 }
 
-.jp-recommendations-question__main--with-illustration .jp-recommendations-question__content {
+.jp-recommendations-question__main--with-sidebar .jp-recommendations-question__content {
 	@include breakpoint( '>660px' ) {
 		padding-right: 48px;
 	}
@@ -15,30 +17,42 @@
 	.progress-bar {
 		width: 70px;
 	}
+}
 
+.jp-recommendations-question__progress-bar-wrap {
+	display: flex;
+	align-items: center;
 	margin: 32px 32px 0 32px;
 
 	@include breakpoint( '<480px' ) {
 		margin: 16px 16px 32px 16px;
 	}
+
+	.jp-recommendations__new-badge {
+		margin-right: 1rem;
+	}
 }
 
 .jp-recommendations-question__question {
+	color: var( --jp-gray-80 );
+
 	font-size: 1.5rem;
-	margin: 32px 32px 0 32px;
+	margin: 2.5rem 2.5rem 1rem 2.5rem;
 
 	@include breakpoint( '<480px' ) {
-		margin: 0 16px 32px 16px;
+		margin: 0 1rem 2rem 1rem;
 	}
 }
 
 .jp-recommendations-question__description {
-	font-size: 16px;
+	color: var( --jp-gray-100 );
 
-	margin: 32px 32px 24px 32px;
+	font-size: 1rem;
+
+	margin: 1rem 2rem 2rem 2.5rem;
 
 	@include breakpoint( '<480px' ) {
-		margin: 0 16px 16px 16px;
+		margin: 0 1rem 1rem 1rem;
 	}
 
 	.gridicons-external {
@@ -50,10 +64,35 @@
 	}
 }
 
-.jp-recommendations-question__main--with-illustration .jp-recommendations-question__description {
+.jp-recommendations-question__description-list {
+	color: var( --jp-gray-100 );
+	font-size: 1rem;
+	margin: 0 2rem 2rem 2.5rem;
+
+	list-style-type: none;
+	padding: 0;
+
+	li {
+		background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
+		background-size: 1.25rem;
+		padding-left: 1.75rem;
+		margin-bottom: 0.5rem;
+	}
+
+	@include breakpoint( '<480px' ) {
+		margin: 0 1rem 0 1rem;
+	}
+}
+
+// When a description section follows the list, remove the extra margin from the top of the description.
+.jp-recommendations-question__description-list + .jp-recommendations-question__description {
+	margin-top: 0;
+}
+
+.jp-recommendations-question__main--with-sidebar .jp-recommendations-question__description {
 	margin-right: 0;
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoint( '<782px' ) {
 		margin-right: 32px;
 	}
 }
@@ -65,27 +104,62 @@
 }
 
 .jp-recommendations-question__illustration-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
 	width: 100%;
-	position: relative;
+	height: 100%;
 
-	img {
-		position: absolute;
-		bottom: 0;
-		right: 0;
-	}
-
-	@include breakpoint( '<660px' ) {
+	@include breakpoint( '<1040px' ) {
 		display: none;
 	}
 }
 
-.jp-recommendations-question__illustration-background {
+.jp-recommendations-question__illustration-picture {
+	display: flex;
+	justify-content: center;
+
 	width: 100%;
 }
 
-.jp-recommendations-question__illustration-foreground {
-	width: 75%;
-	margin: 10%;
+.jp-recommendations-question__sidebar-card {
+	width: 100%;
+}
+
+.jp-recommendations-question__illustration {
+	flex: 1;
+
+	max-width: 420px;
+}
+
+.jp-recommendations-question__checkmark {
+	margin-right: 8px;
+	display: flex;
+	align-items: center;
+	align-content: center;
+}
+
+.jp-recommendations-question__feature-enabled {
+	display: flex;
+	align-items: center;
+	align-content: center;
+	margin-bottom: 16px;
+
+	.gridicons-checkmark-circle {
+		fill: $green-primary;
+	}
+}
+
+.jp-recommendations-question__settings-button {
+	.components-external-link {
+		display: flex;
+		align-items: center;
+
+		&__icon {
+			margin-left: 4px;
+		}
+	}
 }
 
 .jp-recommendations-question__install-section {
@@ -93,7 +167,7 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: flex-end;
+	justify-content: center;
 
 	button {
 		margin-top: auto;
@@ -117,4 +191,13 @@
 	@include breakpoint( '<480px' ) {
 		padding: 64px 16px 0 16px;
 	}
+}
+
+.jp-recommendations-question__jump-nav {
+	display: flex;
+	justify-content: center;
+}
+
+.jp-recommendations-question__jump-nav-separator {
+	margin: 0 8px;
 }

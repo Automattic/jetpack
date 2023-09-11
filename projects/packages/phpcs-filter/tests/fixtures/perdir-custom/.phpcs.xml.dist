@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ruleset>
+    <config name="jetpack-filter-perdir-file" value="perdirfile.xml" />
+
+    <rule ref="Generic.ControlStructures.DisallowYodaConditions" />
+    <rule ref="Generic.PHP.ForbiddenFunctions">
+        <properties>
+            <property name="forbiddenFunctions" type="array">
+                <element key="delete" value="unset" />
+            </property>
+        </properties>
+    </rule>
+</ruleset>

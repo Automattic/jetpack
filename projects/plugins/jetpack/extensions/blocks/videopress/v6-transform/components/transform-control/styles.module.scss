@@ -1,0 +1,9 @@
+.wrapper {
+	padding: 16px;
+}
+
+.conversion-notice {
+	--spacing-base: 8px;
+
+	margin: 0 0 calc( var( --spacing-base ) * 3 ) 0; // 24px
+}

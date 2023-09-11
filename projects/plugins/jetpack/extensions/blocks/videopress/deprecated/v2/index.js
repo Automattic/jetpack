@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import save from './save';
 import { filterVideoPressClasses } from './utils';
 

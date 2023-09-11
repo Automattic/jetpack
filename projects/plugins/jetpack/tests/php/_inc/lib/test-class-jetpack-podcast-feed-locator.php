@@ -5,11 +5,9 @@
  * @package automattic/jetpack
  */
 
-// phpcs:ignoreFile Squiz.Commenting.FunctionComment.Missing
-
 require_once __DIR__ . '/mocks/class-simplepie-file.php';
 require_once __DIR__ . '/mocks/class-simplepie-locator.php';
-jetpack_require_lib( 'class-jetpack-podcast-feed-locator' );
+require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-feed-locator.php';
 
 /**
  * Class for testing the Jetpack_Podcast_Feed_Locator class.
@@ -59,7 +57,7 @@ FEED;
 	}
 
 	public function test_does_not_locate_non_podcast_feeds() {
-		$rss = <<<FEED
+		$rss  = <<<FEED
 <?xml version="1.0" encoding="UTF-8"?>
 <rss>
 	<channel>

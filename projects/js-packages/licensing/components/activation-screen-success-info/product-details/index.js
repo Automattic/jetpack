@@ -1,15 +1,10 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { getProductGroup } from '../../activation-screen/utils.js';
 
-/**
- * Internal dependencies
- */
-import { getProductGroup } from '../../activation-screen/utils';
+import './style.scss';
 
 /**
  * The Jetpack Product Details component.
@@ -28,14 +23,14 @@ const JetpackProductDetails = props => {
 
 	const productInfoMap = {
 		jetpack_anti_spam: {
-			title: __( 'Your Jetpack Anti-spam is active!', 'jetpack' ),
+			title: __( 'Jetpack Anti-spam is active!', 'jetpack' ),
 			text: __(
 				"We'll take care of everything from here. Now you can enjoy a spam-free site!",
 				'jetpack'
 			),
 		},
 		jetpack_backup: {
-			title: __( 'Your Jetpack Backup is active!', 'jetpack' ),
+			title: __( 'Jetpack Backup is active!', 'jetpack' ),
 			text: createInterpolateElement(
 				__(
 					'You can see your backups and restore your site on <a>cloud.jetpack.com</a>. If you ever lose access to your site, you can restore it there.',
@@ -47,7 +42,7 @@ const JetpackProductDetails = props => {
 			),
 		},
 		jetpack_complete: {
-			title: __( 'Your Jetpack Complete is active!', 'jetpack' ),
+			title: __( 'Jetpack Complete is active!', 'jetpack' ),
 			text: createInterpolateElement(
 				__(
 					'You can see your backups, security scans, and restore your site on <a>cloud.jetpack.com</a>. If you ever lose access to your site, you can restore it there.',
@@ -59,7 +54,7 @@ const JetpackProductDetails = props => {
 			),
 		},
 		jetpack_scan: {
-			title: __( 'Your Jetpack Scan is active!', 'jetpack' ),
+			title: __( 'Jetpack Scan is active!', 'jetpack' ),
 			text: createInterpolateElement(
 				__( 'You can see your security scans on <a>cloud.jetpack.com</a>.', 'jetpack' ),
 				{
@@ -68,14 +63,14 @@ const JetpackProductDetails = props => {
 			),
 		},
 		jetpack_search: {
-			title: __( 'Your Jetpack Search is active!', 'jetpack' ),
+			title: __( 'Jetpack Search is active!', 'jetpack' ),
 			text: __(
-				"Next, we'll help you customize your Search experience for your visitors.",
+				"Next, we'll help you customize the Search experience for your visitors.",
 				'jetpack'
 			),
 		},
 		jetpack_security: {
-			title: __( 'Your Jetpack Security is active!', 'jetpack' ),
+			title: __( 'Jetpack Security is active!', 'jetpack' ),
 			text: createInterpolateElement(
 				__(
 					'You can see your backups, security scans, and restore your site on <a>cloud.jetpack.com</a>. If you ever lose access to your site, you can restore it there.',
@@ -87,7 +82,7 @@ const JetpackProductDetails = props => {
 			),
 		},
 		jetpack_videopress: {
-			title: __( 'Your Jetpack Videopress is active!', 'jetpack' ),
+			title: __( 'Jetpack VideoPress is active!', 'jetpack' ),
 			text: __(
 				'Experience high-quality, ad-free video built specifically for WordPress.',
 				'jetpack'
@@ -100,9 +95,9 @@ const JetpackProductDetails = props => {
 	};
 
 	return (
-		<div>
+		<div className="jp-license-activation-screen-success-info--product-details">
 			<h1>
-				{ productInfoMap[ productGroup ].title }{ ' ' }
+				{ productInfoMap[ productGroup ].title }&nbsp;
 				{ String.fromCodePoint( 0x1f389 ) /* Celebration emoji 🎉 */ }
 			</h1>
 			<p>{ productInfoMap[ productGroup ].text }</p>

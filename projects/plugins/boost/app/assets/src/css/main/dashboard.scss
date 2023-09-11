@@ -1,42 +1,37 @@
-.jb-settings {
-	&, p {
-		font-size: 16px;
-	}
-
-	min-height: calc(100vh - 60px);
-	display: flex;
-	flex-direction: column;
-  	position: relative;
-  	overflow-x: hidden;
+.jb-feature-toggle__content h3:focus-visible, .jb-connection__title:focus-visible {
+	outline: none;
 }
 
 .jb-section {
-	margin-bottom: $padding;
+	padding-top: $padding;
+	padding-bottom: $padding;
+	isolation: isolate;
+	z-index: 10;
+
+	.jetpack-boost-jitm-card .jitm-card {
+		margin: 0 0 2.5rem auto;
+	}
+
+}
+
+.jb-link{
+	display:inline-block;
+	margin-top: 10px;
+	font-size:0.8em;
 }
 
 .jb-section--alt {
-	@extend .jb-section;
-	padding-top: $padding;
-	padding-bottom: $padding;
 	background-color: $alt_white;
 }
 
 .jb-section--scores {
-	margin-bottom: $halfling;
-  	position: relative;
-}
-
-.jb-section--main {
-	margin-top: $halfling;
-}
-
-.jb-section--subpage {
-	/* Shrink margin-top on sub-pages to bring <- go back button up */
-	margin-top: 8px;
+	position: relative;
+	z-index: 15;
 }
 
 .jb-container {
-	width: 80%;
+	width: 87.5%;
+	max-width: 1320px;
 	margin-left: auto;
 	margin-right: auto;
 
@@ -44,41 +39,33 @@
 		@extend .jb-container;
 		max-width: 744px;
 	}
-}
 
-.jb-settings-header {
-	display: flex;
-	justify-content: space-between;
-	height: 120px;
-	align-items: center;
-	position: relative;
-
-	&__logo {
-		display: flex;
-		height: 27px;
-
-		svg {
-			width: 100%;
-			height: auto;
-		}
-
-		@include breakpoint(md) {
-			height: 32px;
-		}
+	&--fixed {
+		max-width: 1080px;
+		width: auto;
+		padding-left: $spacing-unit * 2;
+		padding-right: $spacing-unit * 2;
 	}
 }
 
-.jb-settings-footer {
+.jb-dashboard-footer {
 	@extend .jb-container;
 
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-top: auto;
+	margin-top: $padding;
+	margin-bottom: $padding;
 	@include breakpoint( xs ) {
 		flex-direction: column;
 		justify-content: flex-start;
 	}
+}
+
+.jb-footer-note {
+	text-align: center;
+	margin-top: $halfling;
+	color: $gray_70;
 }
 
 .jb-signature--jetpack {
@@ -106,24 +93,24 @@
 		display: flex;
 		justify-content: flex-end;
 
-	  	> div {
-		  	display: flex;
+		> div {
+			display: flex;
 			flex-direction: column;
 
-		  	> div {
+			> div {
 				display: flex;
 			}
 		}
 
-	  	button {
-		  	margin-left: auto;
+		button {
+			margin-left: auto;
 
-		  	&.confirm {
+			&.confirm {
 				margin-left: 10px;
 			}
 		}
 
-	  	.checkbox {
+		.checkbox {
 			font-size: 12px;
 			margin-top: 10px;
 		}

@@ -26,6 +26,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+// phpcs:disable WordPress.WP.I18n.TextDomainMismatch
+
 /**
  * Notify the admin that the Jetpack Monorepo is not a plugin,
  * if they tried to install it as one.

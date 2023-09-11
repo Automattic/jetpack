@@ -1,9 +1,24 @@
 <?php
-require __DIR__ . '/../../../../modules/publicize.php';
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
+
+if ( ! function_exists( 'publicize_init' ) ) {
+	/**
+	 * Some tests rely on this function which won't get defined unless we mock lots
+	 * of things and require the module code. Instead we'll define it here.
+	 *
+	 * @return Publicize Object
+	 */
+	function publicize_init() {
+		global $publicize;
+
+		return $publicize;
+	}
+}
 
 /**
  * @group publicize
- * @covers Publicize
+ * @covers Jetpack_Publicize
  */
 class WP_Test_Publicize extends WP_UnitTestCase {
 
@@ -24,6 +39,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @var integer $user_id ID of current user.
 	 */
 	private $user_id;
+
+	private $publicize;
 
 	/**
 	 * Index in 'publicize_connections' test data of normal connection.
@@ -47,13 +64,18 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		global $publicize_ui;
+		$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
+
+		$this->setup_publicize_mock();
+
 		$this->publicize          = publicize_init();
 		$this->publicized_post_id = null;
 
-		$post_id    = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+		$post_id    = self::factory()->post->create( array( 'post_status' => 'draft' ) );
 		$this->post = get_post( $post_id );
 
-		$this->user_id = $this->factory->user->create();
+		$this->user_id = self::factory()->user->create();
 		wp_set_current_user( $this->user_id );
 
 		Jetpack_Options::update_options(
@@ -64,6 +86,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 						'id_number' => array(
 							'connection_data' => array(
 								'user_id'  => $this->user_id,
+								'id'       => '456',
 								'token_id' => 'test-unique-id456',
 								'meta'     => array(
 									'display_name' => 'test-display-name456',
@@ -76,6 +99,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 						'id_number' => array(
 							'connection_data' => array(
 								'user_id'  => 0,
+								'id'       => '123',
 								'token_id' => 'test-unique-id123',
 								'meta'     => array(
 									'display_name' => 'test-display-name123',
@@ -96,9 +120,23 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * Tear down.
 	 */
 	public function tear_down() {
+		unset( $GLOBALS['publicize'] );
+		unset( $GLOBALS['publicize_ui'] );
+
 		wp_set_current_user( $this->original_user );
 
 		parent::tear_down();
+	}
+
+	private function setup_publicize_mock() {
+		global $publicize;
+		$this->publicize = $this->getMockBuilder( 'Automattic\Jetpack\Publicize\Publicize' )->setMethods( array( 'test_connection' ) )->getMock();
+
+		$this->publicize->method( 'test_connection' )
+			->withAnyParameters()
+			->willReturn( true );
+
+		$publicize = $this->publicize;
 	}
 
 	public function test_fires_jetpack_publicize_post_on_save_as_published() {
@@ -126,7 +164,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	}
 
 	public function test_filter_can_prevent_publicize() {
-		add_filter( 'publicize_should_publicize_published_post', array( $this, 'prevent_publicize_post' ), 10, 2 );
+		add_filter( 'publicize_should_publicize_published_post', array( $this, 'prevent_publicize_post' ) );
 
 		$this->post->post_status = 'publish';
 
@@ -151,7 +189,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		unregister_post_type( 'foo' );
 	}
 
-	function assertPublicized( $should_have_publicized, $post ) {
+	public function assertPublicized( $should_have_publicized, $post ) {
 		if ( $should_have_publicized ) {
 			$this->assertEquals( $post->ID, $this->publicized_post_id, 'Is not the same post ID' );
 			$this->assertTrue( $this->in_publish_filter, 'Not in filter' );
@@ -161,7 +199,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		}
 	}
 
-	function set_post_flags_check( $flags, $post ) {
+	public function set_post_flags_check( $flags, $post ) {
 		if ( $flags['publicize_post'] ) {
 			$this->publicized_post_id = $post->ID;
 		}
@@ -169,7 +207,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		return $flags;
 	}
 
-	function prevent_publicize_post( $should_publicize, $post ) {
+	public function prevent_publicize_post() {
 		return false;
 	}
 
@@ -604,6 +642,21 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Test that newlines are not stripped from multiline custom messages
+	 * in the classic editor interface.
+	 */
+	public function test_newlines_preserved_with_custom_message() {
+		$_SERVER['REQUEST_METHOD'] = 'post';
+		$test_message              = "This is\na multiline\nmessage";
+		$_POST['wpas_title']       = $test_message;
+		$_POST['wpas']             = 'submit';
+
+		$this->post->post_status = 'publish';
+		$post_id                 = wp_insert_post( $this->post->to_array() );
+
+		$this->assertEquals( $test_message, get_post_meta( $post_id, $this->publicize->POST_MESS, true ) );
+	}
 	/**
 	 * Filter callback to uncheck checkbox for 'facebook' connection.
 	 *

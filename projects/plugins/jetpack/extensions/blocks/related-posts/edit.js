@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import { Path, SVG } from '@wordpress/components';
-import { Component, Fragment } from '@wordpress/element';
-import { get, isEmpty } from 'lodash';
-import { withSelect } from '@wordpress/data';
 import { compose, withInstanceId } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
+import { withSelect } from '@wordpress/data';
+import { Component, Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { get, isEmpty } from 'lodash';
 import { RelatedPostsBlockControls, RelatedPostsInspectorControls } from './controls';
 
 export const MAX_POSTS_TO_SHOW = 6;
@@ -65,6 +58,11 @@ function PlaceholderPostEdit( props ) {
 					{ __( 'August 3, 2018', 'jetpack' ) }
 				</div>
 			) }
+			{ props.displayAuthor && (
+				<div className="jp-related-posts-i2__post-author has-small-font-size">
+					{ __( 'by John Doe', 'jetpack' ) }
+				</div>
+			) }
 			{ props.displayContext && (
 				<div className="jp-related-posts-i2__post-context has-small-font-size">
 					{ __( 'In “Uncategorized”', 'jetpack' ) }
@@ -75,6 +73,10 @@ function PlaceholderPostEdit( props ) {
 }
 
 function RelatedPostsEditItem( props ) {
+	const contextText = props.post?.block_context?.text || '';
+	const contextLink = props.post?.block_context?.link || '';
+	const contextHasText = contextText !== '';
+	const contextHasLink = contextLink !== '';
 	return (
 		<div
 			className="jp-related-posts-i2__post"
@@ -106,9 +108,15 @@ function RelatedPostsEditItem( props ) {
 					{ props.post.date }
 				</div>
 			) }
-			{ props.displayContext && (
+			{ props.displayAuthor && (
+				<div className="jp-related-posts-i2__post-author has-small-font-size">
+					{ props.post.author }
+				</div>
+			) }
+			{ props.displayContext && contextHasText && (
 				<div className="jp-related-posts-i2__post-context has-small-font-size">
-					{ props.post.context }
+					{ contextHasLink && <a href={ contextLink }>{ contextText }</a> }
+					{ contextHasLink === false && contextText }
 				</div>
 			) }
 		</div>
@@ -149,7 +157,16 @@ function RelatedPostsPreviewRows( props ) {
 export class RelatedPostsEdit extends Component {
 	render() {
 		const { attributes, className, posts, setAttributes, instanceId, isInSiteEditor } = this.props;
-		const { displayContext, displayDate, displayThumbnails, postLayout, postsToShow } = attributes;
+		const {
+			displayAuthor,
+			displayContext,
+			displayDate,
+			displayHeadline,
+			displayThumbnails,
+			headline,
+			postLayout,
+			postsToShow,
+		} = attributes;
 
 		// To prevent the block from crashing, we need to limit ourselves to the
 		// posts returned by the backend - so if we want 6 posts, but only 3 are
@@ -171,6 +188,7 @@ export class RelatedPostsEdit extends Component {
 						displayThumbnails={ displayThumbnails }
 						displayDate={ displayDate }
 						displayContext={ displayContext }
+						displayAuthor={ displayAuthor }
 					/>
 				);
 			} else {
@@ -182,6 +200,7 @@ export class RelatedPostsEdit extends Component {
 						displayDate={ displayDate }
 						displayContext={ displayContext }
 						isInSiteEditor={ isInSiteEditor }
+						displayAuthor={ displayAuthor }
 					/>
 				);
 			}
@@ -201,6 +220,7 @@ export class RelatedPostsEdit extends Component {
 				</BlockControls>
 
 				<div className={ className } id={ `related-posts-${ instanceId }` }>
+					{ displayHeadline && <h3>{ headline }</h3> }
 					<div className={ previewClassName } data-layout={ postLayout }>
 						<RelatedPostsPreviewRows posts={ displayPosts } />
 					</div>

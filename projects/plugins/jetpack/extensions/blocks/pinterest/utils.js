@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { getPath } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
 import { URL_REGEX } from '.';
 
 /**

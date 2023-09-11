@@ -4,6 +4,7 @@
  */
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use WorDBless\BaseTestCase;
 
 /**
@@ -22,11 +23,8 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 
 	/**
 	 * Set up before each test
-	 *
-	 * @before
 	 */
 	protected function set_up() {
-		parent::setUp();
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'admin',
@@ -332,6 +330,38 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 		);
 
 		$this->assertTrue( $response );
+	}
+
+	/**
+	 * Unit test for the `validate_urls_for_idc_mitigation()` method.
+	 */
+	public function test_validate_urls_for_idc_mitigation() {
+		$url          = 'http://example.org';
+		$custom_param = 'test12345';
+
+		Constants::set_constant( 'WP_HOME', $url );
+		Constants::set_constant( 'WP_SITEURL', $url );
+
+		$response_filter = function ( array $response ) use ( $custom_param ) {
+			$response['custom_param'] = $custom_param;
+			return $response;
+		};
+
+		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', $response_filter );
+
+		$server   = new Jetpack_XMLRPC_Server();
+		$response = $server->validate_urls_for_idc_mitigation();
+
+		Constants::clear_single_constant( 'WP_HOME' );
+		Constants::clear_single_constant( 'WP_SITEURL' );
+		remove_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', $response_filter );
+
+		$expected = array(
+			'home'         => $url,
+			'siteurl'      => $url,
+			'custom_param' => $custom_param,
+		);
+		$this->assertEquals( $expected, $response );
 	}
 
 	/*

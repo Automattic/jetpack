@@ -64,6 +64,7 @@ class Defaults {
 		'infinite_scroll',
 		'infinite_scroll_google_analytics',
 		'jetpack-memberships-connected-account-id',
+		'jetpack-memberships-has-connected-account',
 		'jetpack-twitter-cards-site-tag',
 		'jetpack_activated',
 		'jetpack_allowed_xsite_search_ids',
@@ -87,6 +88,7 @@ class Defaults {
 		'jetpack_protect_key',
 		'jetpack_publicize_options',
 		'jetpack_relatedposts',
+		'jetpack_social_settings',
 		'jetpack_sso_match_by_email',
 		'jetpack_sso_require_two_step',
 		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.
@@ -95,11 +97,16 @@ class Defaults {
 		'jetpack_sync_settings_post_meta_whitelist',
 		'jetpack_sync_settings_post_types_blacklist',
 		'jetpack_sync_settings_taxonomies_blacklist',
+		'jetpack_sync_settings_dedicated_sync_enabled', // is Dedicated Sync flow enabled.
+		'jetpack_sync_settings_custom_queue_table_enabled', // is custom queue table enabled.
 		'jetpack_testimonial',
 		'jetpack_testimonial_posts_per_page',
 		'jetpack_wga',
 		'large_size_h',
 		'large_size_w',
+		'launch-status',
+		'launchpad_checklist_tasks_statuses',
+		'launchpad_screen',
 		'mailserver_login', // Not syncing contents, only the option name.
 		'mailserver_pass', // Not syncing contents, only the option name.
 		'mailserver_port',
@@ -138,6 +145,7 @@ class Defaults {
 		'stats_options',
 		'stb_enabled',
 		'stc_enabled',
+		'sm_enabled',
 		'sticky_posts',
 		'stylesheet',
 		'subscription_options',
@@ -168,9 +176,16 @@ class Defaults {
 		'wp_mobile_excerpt',
 		'wp_mobile_featured_images',
 		'wp_page_for_privacy_policy',
+		'wpcom_featured_image_in_email',
+		'wpcom_newsletter_categories_enabled',
 		'wpcom_is_fse_activated',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
+		'wpcom_reader_views_enabled',
+		'wpcom_subscription_emails_use_excerpt',
+		'videopress_private_enabled_for_site',
+		'wpcom_gifting_subscription',
+		'wpcom_site_setup',
 	);
 
 	/**
@@ -281,7 +296,9 @@ class Defaults {
 	 * @var array Default whitelist of callables.
 	 */
 	public static $default_callable_whitelist = array(
+		'get_loaded_extensions'            => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_loaded_extensions' ),
 		'get_plugins'                      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
+		'get_themes'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
 		'get_plugins_action_links'         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins_action_links' ),
 		'has_file_system_write_access'     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'file_system_write_access' ),
 		'home_url'                         => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
@@ -309,6 +326,7 @@ class Defaults {
 		'wp_get_environment_type'          => 'wp_get_environment_type',
 		'wp_max_upload_size'               => 'wp_max_upload_size',
 		'wp_version'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+		'active_modules'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_active_modules' ),
 	);
 
 	/**
@@ -375,6 +393,7 @@ class Defaults {
 	 * @var array Blacklisted post types.
 	 */
 	public static $blacklisted_post_types = array(
+		'_term_meta',
 		'ai1ec_event',
 		'ai_log', // Logger - https://github.com/alleyinteractive/logger.
 		'amp_validated_url', // AMP Validation Errors.
@@ -387,6 +406,7 @@ class Defaults {
 		'flamingo_outbound',
 		'http',
 		'idx_page',
+		'jetpack_inspect_log', // Jetpack Inspect dev tool. p1HpG7-nkd-p2
 		'jetpack_migration',
 		'jp_img_sitemap',
 		'jp_img_sitemap_index',
@@ -402,6 +422,7 @@ class Defaults {
 		'scheduled-action', // Action Scheduler - Job Queue for WordPress https://github.com/woocommerce/woocommerce/tree/e7762627c37ec1f7590e6cac4218ba0c6a20024d/includes/libraries/action-scheduler .
 		'secupress_log_action',
 		'sg_optimizer_jobs',
+		'sl-insta-media',
 		'snitch',
 		'vip-legacy-redirect',
 		'wp-rest-api-log', // https://wordpress.org/plugins/wp-rest-api-log/.
@@ -716,6 +737,7 @@ class Defaults {
 		'_wpas_feature_enabled',
 		'_wpas_is_tweetstorm',
 		'_wpas_mess',
+		'_wpas_options',
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.
 		'content_width',
 		'custom_css_add',
@@ -728,6 +750,7 @@ class Defaults {
 		'switch_like_status',
 		'videopress_guid',
 		'vimeo_poster_image',
+		'_jetpack_blogging_prompt_key',
 	);
 
 	/**
@@ -790,15 +813,21 @@ class Defaults {
 	 */
 	public static $default_theme_support_whitelist = array(
 		'align-wide',
+		'appearance-tools', // In Gutenberg.
 		'automatic-feed-links',
+		'block-templates',
+		'block-template-parts', // WP 6.1. Added via https://core.trac.wordpress.org/changeset/54176
 		'custom-background',
 		'custom-header',
 		'custom-logo',
 		'customize-selective-refresh-widgets',
 		'dark-editor-style',
+		'default-color-palette', // In Gutenberg.
+		'default-gradient-presets', // In Gutenberg.
 		'disable-custom-colors',
 		'disable-custom-font-sizes',
 		'disable-custom-gradients',
+		'disable-layout-styles', // WP 6.1. Added via https://core.trac.wordpress.org/changeset/54159
 		'editor-color-palette',
 		'editor-font-sizes',
 		'editor-gradient-presets',
@@ -1268,5 +1297,19 @@ class Defaults {
 			'max_chunks' => 10,
 		),
 	);
+
+	/**
+	 * Default for enabling dedicated Sync flow.
+	 *
+	 * @var int Bool-ish. Default 0.
+	 */
+	public static $default_dedicated_sync_enabled = 0;
+
+	/**
+	 * Default for enabling custom queue table for Sync.
+	 *
+	 * @var int Bool-ish. Default 0.
+	 */
+	public static $default_custom_queue_table_enabled = 0;
 
 }

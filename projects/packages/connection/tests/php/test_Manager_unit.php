@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -31,6 +32,20 @@ class ManagerTest extends TestCase {
 	 * @var int
 	 */
 	protected $user_id;
+
+	/**
+	 * Connection manager mock object.
+	 *
+	 * @var \Automattic\Jetpack\Connection\Manager
+	 */
+	protected $manager;
+
+	/**
+	 * Tokens mock object.
+	 *
+	 * @var \Automattic\Jetpack\Connection\Tokens
+	 */
+	protected $tokens;
 
 	const DEFAULT_TEST_CAPS = array( 'default_test_caps' );
 
@@ -101,6 +116,41 @@ class ManagerTest extends TestCase {
 			->will( $this->returnValue( false ) );
 
 		$this->assertFalse( $this->manager->is_active() );
+	}
+
+	/**
+	 * Test the `has_connected_owner` functionality when connected.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::has_connected_owner
+	 */
+	public function test_has_connected_owner_when_connected() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( $admin_id );
+
+		$this->assertTrue( $this->manager->has_connected_owner() );
+	}
+
+	/**
+	 * Test the `has_connected_owner` functionality when not connected.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::has_connected_owner
+	 */
+	public function test_has_connected_owner_when_not_connected() {
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( false );
+
+		$this->assertFalse( $this->manager->has_connected_owner() );
 	}
 
 	/**
@@ -286,6 +336,7 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_jetpack_connection_custom_caps( $in_offline_mode, $owner_exists, $custom_cap, $expected_caps ) {
 		// Mock the apply_filters( 'jetpack_offline_mode', ) call in Status::is_offline_mode.
+		StatusCache::clear();
 		add_filter(
 			'jetpack_offline_mode',
 			function () use ( $in_offline_mode ) {
@@ -299,6 +350,7 @@ class ManagerTest extends TestCase {
 
 		$caps = $this->manager->jetpack_connection_custom_caps( self::DEFAULT_TEST_CAPS, $custom_cap, 1, array() );
 		$this->assertEquals( $expected_caps, $caps );
+		StatusCache::clear();
 	}
 
 	/**
@@ -429,7 +481,7 @@ class ManagerTest extends TestCase {
 			)
 		);
 
-		$expected = new WP_Error( 'new_owner_not_admin', __( 'New owner is not admin', 'jetpack' ), array( 'status' => 400 ) );
+		$expected = new WP_Error( 'new_owner_not_admin', __( 'New owner is not admin', 'jetpack-connection' ), array( 'status' => 400 ) );
 
 		$result = $this->manager->update_connection_owner( $editor_id );
 
@@ -455,7 +507,7 @@ class ManagerTest extends TestCase {
 			->withAnyParameters()
 			->willReturn( $admin_id );
 
-		$expected = new WP_Error( 'new_owner_is_existing_owner', __( 'New owner is same as existing owner', 'jetpack' ), array( 'status' => 400 ) );
+		$expected = new WP_Error( 'new_owner_is_existing_owner', __( 'New owner is same as existing owner', 'jetpack-connection' ), array( 'status' => 400 ) );
 
 		$result = $this->manager->update_connection_owner( $admin_id );
 
@@ -477,7 +529,7 @@ class ManagerTest extends TestCase {
 			)
 		);
 
-		$expected = new WP_Error( 'new_owner_not_connected', __( 'New owner is not connected', 'jetpack' ), array( 'status' => 400 ) );
+		$expected = new WP_Error( 'new_owner_not_connected', __( 'New owner is not connected', 'jetpack-connection' ), array( 'status' => 400 ) );
 
 		$result = $this->manager->update_connection_owner( $admin_id );
 
@@ -513,7 +565,7 @@ class ManagerTest extends TestCase {
 		$this->manager->method( 'update_connection_owner_wpcom' )
 			->willReturn( false );
 
-		$expected = new WP_Error( 'error_setting_new_owner', __( 'Could not confirm new owner.', 'jetpack' ), array( 'status' => 500 ) );
+		$expected = new WP_Error( 'error_setting_new_owner', __( 'Could not confirm new owner.', 'jetpack-connection' ), array( 'status' => 500 ) );
 
 		$result = $this->manager->update_connection_owner( $admin_id );
 

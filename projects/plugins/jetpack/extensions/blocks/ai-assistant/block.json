@@ -1,0 +1,56 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/ai-assistant",
+	"title": "AI Assistant (Experimental)",
+	"description": "Automatically generate and modify content, powered by AI magic. The AI Assistant can be imprecise with information about people, places, or facts. We are experimenting with this feature and can tweak or remove it at any point.",
+	"keywords": [ "AI", "GPT", "AL", "Magic", "help", "assistant" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "text",
+	"icon": "<svg viewBox='0 0 32 32' width='32' height='32' xmlns='http://www.w3.org/2000/svg'><path d='M9.33301 5.33325L10.4644 8.20188L13.333 9.33325L10.4644 10.4646L9.33301 13.3333L8.20164 10.4646L5.33301 9.33325L8.20164 8.20188L9.33301 5.33325Z'/><path d='M21.3333 5.33333L22.8418 9.15817L26.6667 10.6667L22.8418 12.1752L21.3333 16L19.8248 12.1752L16 10.6667L19.8248 9.15817L21.3333 5.33333Z'/><path d='M14.6667 13.3333L16.5523 18.1144L21.3333 20L16.5523 21.8856L14.6667 26.6667L12.781 21.8856L8 20L12.781 18.1144L14.6667 13.3333Z'/></svg>",
+	"supports": {
+		"html": false,
+		"multiple": true,
+		"reusable": false
+	},
+	"attributes": {
+		"content": {
+			"type": "string"
+		},
+
+		"originalContent": {
+			"type": "string"
+		},
+
+		"promptType": {
+			"type": "string"
+		},
+
+		"originalMessages": {
+			"type": "array",
+			"default": []
+		},
+
+		"messages": {
+			"type": "array",
+			"default": []
+		},
+
+		"useGutenbergSyntax": {
+			"type": "boolean",
+			"default": false
+		},
+
+		"useGpt4": {
+			"type": "boolean",
+			"default": false
+		},
+
+		"customSystemPrompt": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

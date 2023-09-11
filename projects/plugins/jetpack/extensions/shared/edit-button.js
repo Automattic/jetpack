@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { Button } from '@wordpress/components';
 
 export default ( { label, onClick } ) => (

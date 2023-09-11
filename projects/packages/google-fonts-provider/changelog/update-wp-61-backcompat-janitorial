@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+General: remove backwards-compatible functions now that package relies on WordPress 6.2.

@@ -23,14 +23,14 @@ html {
 	fill: #72af3a;
 }
 
-.jetpack-beta__master-head {
+.jetpack-beta__bleeding-edge-head {
 	background-color: #fff;
 	text-align: center;
 	box-shadow: 0 1px 0 rgba( 200, 215, 225, 0.5 ), 0 1px 2px #e9eff3;
 	padding: 0 1.25rem;
 }
 
-.jetpack-beta__master-head a {
+.jetpack-beta__bleeding-edge-head a {
 	text-decoration: none;
 }
 
@@ -50,7 +50,7 @@ html {
 	border-left: 3px solid #f04949;
 }
 
-.jetpack-beta__master-head span {
+.jetpack-beta__bleeding-edge-head span {
 	font-weight: 300;
 	display: inline-block;
 	font-size: 20px;
@@ -61,7 +61,7 @@ html {
 	top: -5px;
 	left: 5px;
 }
-.jetpack-beta__master-head .jetpack-beta-container {
+.jetpack-beta__bleeding-edge-head .jetpack-beta-container {
 	padding: 11px 0 6px;
 }
 

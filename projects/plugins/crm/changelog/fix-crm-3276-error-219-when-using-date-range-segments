@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Segments: Fixed error 219 occurring when using date ranges

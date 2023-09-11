@@ -1,13 +1,14 @@
 {
 	"private": true,
 	"description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/lazy-images/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Lazy Images"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/lazy-images"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -15,24 +16,23 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"scripts": {
-		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-js",
+		"build": "pnpm run clean && pnpm run build-js",
 		"build-js": "webpack",
-		"build-production": "pnpm run distclean && pnpm run install-if-deps-outdated && pnpm run build-production-js && pnpm run validate",
+		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "rm -rf dist",
-		"distclean": "rm -rf node_modules && pnpm run clean",
-		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"validate": "pnpm exec validate-es dist/"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^0.6.0-alpha",
-		"copy-webpack-plugin": "9.0.1",
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@wordpress/browserslist-config": "5.24.0",
+		"copy-webpack-plugin": "11.0.0",
 		"intersection-observer": "0.12.0",
-		"webpack": "5.64.1"
+		"webpack": "5.76.0",
+		"webpack-cli": "4.9.1"
 	},
 	"engines": {
-		"node": "^14.17.6 || ^16.7.0",
-		"pnpm": "^6.23.6",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

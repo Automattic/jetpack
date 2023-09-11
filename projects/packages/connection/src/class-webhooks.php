@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 
@@ -41,15 +43,40 @@ class Webhooks {
 		$webhooks = new static( $connection );
 
 		add_action( 'init', array( $webhooks, 'controller' ) );
+		add_action( 'load-toplevel_page_jetpack', array( $webhooks, 'fallback_jetpack_controller' ) );
+	}
+
+	/**
+	 * Jetpack plugin used to trigger this webhooks in Jetpack::admin_page_load()
+	 *
+	 * The Jetpack toplevel menu is still accessible for stand-alone plugins, and while there's no content for that page, there are still
+	 * actions from Calypso and WPCOM that reach that route regardless of the site having the Jetpack plugin or not. That's why we are still handling it here.
+	 */
+	public function fallback_jetpack_controller() {
+		$this->controller( true );
 	}
 
 	/**
 	 * The "controller" decides which handler we need to run.
+	 *
+	 * @param bool $force Do not check if it's a webhook request and just run the controller.
 	 */
-	public function controller() {
-		// The nonce is verified in specific handlers.
+	public function controller( $force = false ) {
+		if ( ! $force ) {
+			// The nonce is verified in specific handlers.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( empty( $_GET['handler'] ) || 'jetpack-connection-webhooks' !== $_GET['handler'] ) {
+				return;
+			}
+		}
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( empty( $_GET['handler'] ) || empty( $_GET['action'] ) || 'jetpack-connection-webhooks' !== $_GET['handler'] ) {
+		if ( isset( $_GET['connect_url_redirect'] ) ) {
+			$this->handle_connect_url_redirect();
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( empty( $_GET['action'] ) ) {
 			return;
 		}
 
@@ -58,10 +85,14 @@ class Webhooks {
 		switch ( $_GET['action'] ) {
 			case 'authorize':
 				$this->handle_authorize();
+				$this->do_exit();
 				break;
+			case 'authorize_redirect':
+				$this->handle_authorize_redirect();
+				$this->do_exit();
+				break;
+			// Class Jetpack::admin_page_load() still handles other cases.
 		}
-
-		$this->do_exit();
 	}
 
 	/**
@@ -119,9 +150,62 @@ class Webhooks {
 	}
 
 	/**
+	 * The authorhize_redirect webhook handler
+	 */
+	public function handle_authorize_redirect() {
+		$authorize_redirect_handler = new Webhooks\Authorize_Redirect( $this->connection );
+		$authorize_redirect_handler->handle();
+	}
+
+	/**
 	 * The `exit` is wrapped into a method so we could mock it.
 	 */
 	protected function do_exit() {
 		exit;
+	}
+
+	/**
+	 * Handle the `connect_url_redirect` action,
+	 * which is usually called to repeat an attempt for user to authorize the connection.
+	 *
+	 * @return void
+	 */
+	public function handle_connect_url_redirect() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
+		$from = ! empty( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : 'iframe';
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes, sanitization happens in get_authorization_url()
+		$redirect = ! empty( $_GET['redirect_after_auth'] ) ? wp_unslash( $_GET['redirect_after_auth'] ) : false;
+
+		add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
+
+		if ( ! $this->connection->is_user_connected() ) {
+			if ( ! $this->connection->is_connected() ) {
+				$this->connection->register();
+			}
+
+			$connect_url = add_query_arg( 'from', $from, $this->connection->get_authorization_url( null, $redirect ) );
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
+			if ( isset( $_GET['notes_iframe'] ) ) {
+				$connect_url .= '&notes_iframe';
+			}
+			wp_safe_redirect( $connect_url );
+			$this->do_exit();
+		} elseif ( ! isset( $_GET['calypso_env'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
+			( new CookieState() )->state( 'message', 'already_authorized' );
+			wp_safe_redirect( $redirect );
+			$this->do_exit();
+		} else {
+			$connect_url = add_query_arg(
+				array(
+					'from'               => $from,
+					'already_authorized' => true,
+				),
+				$this->connection->get_authorization_url()
+			);
+			wp_safe_redirect( $connect_url );
+			$this->do_exit();
+		}
 	}
 }

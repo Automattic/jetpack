@@ -16,6 +16,13 @@ use PHPUnit\Framework\TestCase;
 class VersionSelectorTest extends TestCase {
 
 	/**
+	 * The Version_Selector instance.
+	 *
+	 * @var Version_Selector
+	 */
+	private $version_selector;
+
+	/**
 	 * This is called before each test.
 	 *
 	 * @before

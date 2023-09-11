@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<phpunit
+	bootstrap="tests/bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	convertDeprecationsToExceptions="true"
+	>
+
+	<testsuites>
+		<testsuite name="unit">
+			<directory suffix=".php">./tests/php/</directory>
+		</testsuite>
+	</testsuites>
+
+	<filter>
+		<whitelist processUncoveredFilesFromWhitelist="false">
+			<!-- Better to only include "src" than to add "." and then exclude "tests", "vendor", and so on, as PHPUnit still scans the excluded directories. -->
+			<!-- Add additional lines for any files or directories outside of src/ that need coverage. -->
+			<directory suffix=".php">src</directory>
+		</whitelist>
+	</filter>
+</phpunit>

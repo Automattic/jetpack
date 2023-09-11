@@ -16,6 +16,12 @@ class Plugin_Storage {
 
 	const ACTIVE_PLUGINS_OPTION_NAME = 'jetpack_connection_active_plugins';
 
+	/**
+	 * Options where disabled plugins were stored
+	 *
+	 * @deprecated since 1.39.0.
+	 * @var string
+	 */
 	const PLUGINS_DISABLED_OPTION_NAME = 'jetpack_connection_disabled_plugins';
 
 	/**
@@ -93,18 +99,20 @@ class Plugin_Storage {
 	 * Even if you don't use Jetpack Config, it may be introduced later by other plugins,
 	 * so please make sure not to run the method too early in the code.
 	 *
-	 * @param bool $connected_only Exclude plugins that were explicitly disconnected.
+	 * @since 1.39.0 deprecated the $connected_only argument.
+	 *
+	 * @param null $deprecated null plugins that were explicitly disconnected. Deprecated, there's no such a thing as disconnecting only specific plugins anymore.
 	 *
 	 * @return array|WP_Error
 	 */
-	public static function get_all( $connected_only = false ) {
+	public static function get_all( $deprecated = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$maybe_error = self::ensure_configured();
 
 		if ( $maybe_error instanceof WP_Error ) {
 			return $maybe_error;
 		}
 
-		return $connected_only ? array_diff_key( self::$plugins, array_flip( self::get_all_disabled_plugins() ) ) : self::$plugins;
+		return self::$plugins;
 	}
 
 	/**
@@ -138,7 +146,7 @@ class Plugin_Storage {
 	 */
 	private static function ensure_configured() {
 		if ( ! self::$configured ) {
-			return new WP_Error( 'too_early', __( 'You cannot call this method until Jetpack Config is configured', 'jetpack' ) );
+			return new WP_Error( 'too_early', __( 'You cannot call this method until Jetpack Config is configured', 'jetpack-connection' ) );
 		}
 
 		if ( is_multisite() && get_current_blog_id() !== self::$current_blog_id ) {
@@ -164,6 +172,7 @@ class Plugin_Storage {
 		}
 
 		// If a plugin was activated or deactivated.
+		// self::$plugins is populated in Config::ensure_options_connection().
 		$number_of_plugins_differ = count( self::$plugins ) !== count( (array) get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() ) );
 
 		if ( $number_of_plugins_differ || true === self::$refresh_connected_plugins ) {
@@ -171,7 +180,6 @@ class Plugin_Storage {
 		}
 
 		self::$configured = true;
-
 	}
 
 	/**
@@ -182,52 +190,79 @@ class Plugin_Storage {
 	public static function update_active_plugins_option() {
 		// Note: Since this options is synced to wpcom, if you change its structure, you have to update the sanitizer at wpcom side.
 		update_option( self::ACTIVE_PLUGINS_OPTION_NAME, self::$plugins );
+
+		if ( ! class_exists( 'Automattic\Jetpack\Sync\Settings' ) || ! \Automattic\Jetpack\Sync\Settings::is_sync_enabled() ) {
+			self::update_active_plugins_wpcom_no_sync_fallback();
+		}
 	}
 
 	/**
 	 * Add the plugin to the set of disconnected ones.
 	 *
+	 * @deprecated since 1.39.0.
+	 *
 	 * @param string $slug Plugin slug.
 	 *
 	 * @return bool
 	 */
-	public static function disable_plugin( $slug ) {
-		$disconnects = self::get_all_disabled_plugins();
-
-		if ( ! in_array( $slug, $disconnects, true ) ) {
-			$disconnects[] = $slug;
-			update_option( self::PLUGINS_DISABLED_OPTION_NAME, $disconnects );
-		}
-
+	public static function disable_plugin( $slug ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return true;
 	}
 
 	/**
 	 * Remove the plugin from the set of disconnected ones.
 	 *
+	 * @deprecated since 1.39.0.
+	 *
 	 * @param string $slug Plugin slug.
 	 *
 	 * @return bool
 	 */
-	public static function enable_plugin( $slug ) {
-		$disconnects = self::get_all_disabled_plugins();
-
-		$slug_index = array_search( $slug, $disconnects, true );
-		if ( false !== $slug_index ) {
-			unset( $disconnects[ $slug_index ] );
-			update_option( self::PLUGINS_DISABLED_OPTION_NAME, $disconnects );
-		}
-
+	public static function enable_plugin( $slug ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return true;
 	}
 
 	/**
 	 * Get all plugins that were disconnected by user.
 	 *
+	 * @deprecated since 1.39.0.
+	 *
 	 * @return array
 	 */
-	public static function get_all_disabled_plugins() {
-		return (array) get_option( self::PLUGINS_DISABLED_OPTION_NAME, array() );
+	public static function get_all_disabled_plugins() { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return array();
 	}
 
+	/**
+	 * Update active plugins option with current list of active plugins on WPCOM.
+	 * This is a fallback to ensure this option is always up to date on WPCOM in case
+	 * Sync is not present or disabled.
+	 *
+	 * @since 1.34.0
+	 */
+	private static function update_active_plugins_wpcom_no_sync_fallback() {
+		$connection = new Manager();
+		if ( ! $connection->is_connected() ) {
+			return;
+		}
+
+		$site_id = \Jetpack_Options::get_option( 'id' );
+
+		$body = wp_json_encode(
+			array(
+				'active_connected_plugins' => self::$plugins,
+			)
+		);
+
+		Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/jetpack-active-connected-plugins', $site_id ),
+			'2',
+			array(
+				'headers' => array( 'content-type' => 'application/json' ),
+				'method'  => 'POST',
+			),
+			$body,
+			'wpcom'
+		);
+	}
 }

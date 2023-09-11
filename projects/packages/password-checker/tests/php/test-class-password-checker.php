@@ -37,8 +37,6 @@ class Password_Checker_Test extends BaseTestCase {
 
 	/**
 	 * Initialize tests.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		$this->user_id = wp_insert_user(

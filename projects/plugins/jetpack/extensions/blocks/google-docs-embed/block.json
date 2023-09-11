@@ -1,0 +1,61 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/google-docs-embed",
+	"title": "Google Docs (Beta)",
+	"description": "Embed a Google Document.",
+	"keywords": [ "document", "gsuite", "doc" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "embed",
+	"icon": "<svg viewBox='0 0 64 88' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='M58,88H6c-3.3,0-6-2.7-6-6V6c0-3.3,2.7-6,6-6h36l22,22v60C64,85.3,61.3,88,58,88z' /><path fill='#FDFFFF' d='M42,0l22,22H42V0z' /><path fill='#FDFFFF' d='M50,39H14v-5h36V39z M50,46H14v5h36V46z M40,58H14v5h26V58z' /></svg>",
+	"supports": {
+		"align": [ "left", "right", "center", "wide", "full" ],
+		"anchor": true
+	},
+	"attributes": {
+		"url": {
+			"type": "string",
+			"default": ""
+		},
+		"aspectRatio": {
+			"type": "string"
+		},
+		"variation": {
+			"type": "string"
+		}
+	},
+	"variations": [
+		{
+			"name": "jetpack/google-docs",
+			"isDefault": true,
+			"title": "Google Docs",
+			"description": "Embed a Google Document.",
+			"icon": "<svg viewBox='0 0 64 88' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='M58,88H6c-3.3,0-6-2.7-6-6V6c0-3.3,2.7-6,6-6h36l22,22v60C64,85.3,61.3,88,58,88z' /><path fill='#FDFFFF' d='M42,0l22,22H42V0z' /><path fill='#FDFFFF' d='M50,39H14v-5h36V39z M50,46H14v5h36V46z M40,58H14v5h26V58z' /></svg>",
+			"keywords": [ "document", "gsuite", "doc" ],
+			"attributes": { "variation": "jetpack/google-docs" },
+			"isActive": [ "variation" ]
+		},
+		{
+			"name": "jetpack/google-sheets",
+			"isDefault": true,
+			"title": "Google Sheets",
+			"description": "Embed a Google Sheet.",
+			"icon": "<svg viewBox='0 0 64 88' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='M58,88H6c-3.3,0-6-2.7-6-6V6c0-3.3,2.7-6,6-6h36l22,22v60C64,85.3,61.3,88,58,88z' /><path fill='#FDFFFF' d='M42,0l22,22H42V0z' /><path fill='#FDFFFF' d='M12,34.5v28h40v-28H12z M17,39.5h12.5V46H17V39.5z M17,51h12.5v6.5H17V51z M47,57.5H34.5V51H47V57.5z M47,46 H34.5v-6.5H47V46z' /></svg>",
+			"keywords": [ "sheet", "spreadsheet" ],
+			"attributes": { "variation": "jetpack/google-sheets" },
+			"isActive": [ "variation" ]
+		},
+		{
+			"name": "jetpack/google-slides",
+			"isDefault": true,
+			"title": "Google Slides",
+			"description": "Embed a Google Slides presentation.",
+			"icon": "<svg viewBox='0 0 64 88' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='M58,88H6c-3.3,0-6-2.7-6-6V6c0-3.3,2.7-6,6-6h36l22,22v60C64,85.3,61.3,88,58,88z' /><path fill='#FDFFFF' d='M42,0l22,22H42V0z' /><path fill='#FDFFFF' d='M12,34.5v28h40v-28H12z M47,57.5H17v-18h30V57.5z' /></svg>",
+			"keywords": [ "slide", "presentation", "deck" ],
+			"attributes": { "variation": "jetpack/google-slides" },
+			"isActive": [ "variation" ]
+		}
+	],
+	"editorScript": "file:../editor-beta.js"
+}

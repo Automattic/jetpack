@@ -10,10 +10,10 @@ class WP_Test_Jetpack_Sync_Import extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event( 'export_wp' );
 		$this->assertTrue( (bool) $event );
-		$this->assertEquals( $event->args[0]['content'], 'all' );
+		$this->assertEquals( 'all', $event->args[0]['content'] );
 	}
 
-	function test_import_start_action_syncs_jetpack_sync_import_start() {
+	public function test_import_start_action_syncs_jetpack_sync_import_start() {
 		do_action( 'import_start', 'test-importer' );
 		$this->sender->do_sync();
 
@@ -22,7 +22,7 @@ class WP_Test_Jetpack_Sync_Import extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'Unknown Importer', $event->args[1] );
 	}
 
-	function test_import_done_action_syncs_jetpack_sync_import_end() {
+	public function test_import_done_action_syncs_jetpack_sync_import_end() {
 		do_action( 'import_done', 'test' );
 		$this->sender->do_sync();
 
@@ -31,7 +31,7 @@ class WP_Test_Jetpack_Sync_Import extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'Unknown Importer', $event->args[1] );
 	}
 
-	function test_import_end_action_syncs_jetpack_sync_import_end() {
+	public function test_import_end_action_syncs_jetpack_sync_import_end() {
 		do_action( 'import_end' );
 		$this->sender->do_sync();
 
@@ -40,7 +40,7 @@ class WP_Test_Jetpack_Sync_Import extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'Unknown Importer', $event->args[1] );
 	}
 
-	function test_import_end_and_import_done_action_syncs_jetpack_sync_import_end() {
+	public function test_import_end_and_import_done_action_syncs_jetpack_sync_import_end() {
 		do_action( 'import_end' );
 		do_action( 'import_done', 'test' );
 		$this->sender->do_sync();
@@ -49,7 +49,7 @@ class WP_Test_Jetpack_Sync_Import extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'unknown', $event->args[0] );
 	}
 
-	function test_import_done_and_import_end_action_syncs_jetpack_sync_import_end() {
+	public function test_import_done_and_import_end_action_syncs_jetpack_sync_import_end() {
 		do_action( 'import_done', 'test' );
 		do_action( 'import_end' );
 		$this->sender->do_sync();
@@ -58,7 +58,7 @@ class WP_Test_Jetpack_Sync_Import extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'test', $event->args[0] );
 	}
 
-	function test_import_sync_detects_known_importer_when_name_not_provided() {
+	public function test_import_sync_detects_known_importer_when_name_not_provided() {
 		$rss_importer = new RSS_Import();
 		$rss_importer->start_fake_rss_import();
 		$this->sender->do_sync();
@@ -67,7 +67,7 @@ class WP_Test_Jetpack_Sync_Import extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'rss', $event->args[0] );
 	}
 
-	function test_import_sync_sends_class_for_unknown_importer() {
+	public function test_import_sync_sends_class_for_unknown_importer() {
 		$unknown_importer = new Unknown_Import();
 		$unknown_importer->start_fake_import();
 		$this->sender->do_sync();
@@ -78,6 +78,7 @@ class WP_Test_Jetpack_Sync_Import extends WP_Test_Jetpack_Sync_Base {
 }
 
 // We try to detect importers based in extending `WP_Importer`. Mock that class, if needed.
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 if ( ! class_exists( 'WP_Importer', false ) ) {
 	class WP_Importer {}
 }
@@ -95,3 +96,4 @@ class Unknown_Import extends WP_Importer {
 		do_action( 'import_start' );
 	}
 }
+// phpcs:enable Generic.Files.OneObjectStructurePerFile.MultipleFound

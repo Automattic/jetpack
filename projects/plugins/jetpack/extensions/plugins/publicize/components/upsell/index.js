@@ -1,27 +1,22 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
-import { __, sprintf } from '@wordpress/i18n';
+import {
+	useSocialMediaConnections,
+	usePublicizeConfig,
+} from '@automattic/jetpack-publicize-components';
+import {
+	isAtomicSite,
+	isSimpleSite,
+	getRequiredPlan,
+} from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+import { __, sprintf } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
-import { getRequiredPlan } from '../../../../shared/plan-utils';
+import classNames from 'classnames';
 import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
-import usePublicizeConfig from '../../hooks/use-publicize-config';
-import { isAtomicSite, isSimpleSite } from '../../../../shared/site-type-utils';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 
 function getPanelDescription(
 	isPostPublished,
-	isRePublicizeFeatureEnabled,
 	isPublicizeEnabled,
 	hasConnections,
 	hasEnabledConnections
@@ -36,19 +31,17 @@ function getPanelDescription(
 		'jetpack'
 	);
 
-	// RePublicize feature is disabled.
-	if ( ! isRePublicizeFeatureEnabled ) {
-		if ( isPostPublished ) {
-			return start_your_posts_string;
-		}
-
-		return this_post_will_string;
-	}
-
 	// RePublicize feature is enabled.
 	// No connections.
 	if ( ! hasConnections ) {
 		return start_your_posts_string;
+	}
+
+	if ( isPostPublished && isPublicizeEnabled && ! hasEnabledConnections ) {
+		return __(
+			'Enable a connection to share this post by clicking on the share post button.',
+			'jetpack'
+		);
 	}
 
 	if ( ! isPublicizeEnabled || ! hasEnabledConnections ) {
@@ -65,9 +58,8 @@ function getPanelDescription(
 	);
 }
 
-export default function UpsellNotice( { isPostPublished } ) {
+export default function UpsellNotice() {
 	const {
-		isRePublicizeFeatureEnabled,
 		isRePublicizeUpgradableViaUpsell,
 		isRePublicizeFeatureAvailable,
 		isPublicizeEnabled: isPublicizeEnabledFromConfig,
@@ -75,9 +67,8 @@ export default function UpsellNotice( { isPostPublished } ) {
 	const requiredPlan = getRequiredPlan( 'republicize' );
 	const [ checkoutUrl, goToCheckoutPage, isRedirecting, planData ] = useUpgradeFlow( requiredPlan );
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
-	const isPublicizeEnabled =
-		isPublicizeEnabledFromConfig &&
-		! ( isRePublicizeUpgradableViaUpsell && isRePublicizeFeatureEnabled );
+	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isRePublicizeUpgradableViaUpsell;
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	/*
 	 * Publicize:
@@ -85,16 +76,11 @@ export default function UpsellNotice( { isPostPublished } ) {
 	 * or when the feature flag is disabled,
 	 * just show the feature description and bail early.
 	 */
-	if (
-		! isPostPublished ||
-		! isRePublicizeFeatureEnabled ||
-		( isPostPublished && isRePublicizeFeatureAvailable )
-	) {
+	if ( ! isPostPublished || ( isPostPublished && isRePublicizeFeatureAvailable ) ) {
 		return (
-			<div>
+			<div className="jetpack-publicize__upsell">
 				{ getPanelDescription(
 					isPostPublished,
-					isRePublicizeFeatureEnabled,
 					isPublicizeEnabled,
 					hasConnections,
 					hasEnabledConnections
@@ -113,8 +99,8 @@ export default function UpsellNotice( { isPostPublished } ) {
 
 	// Doc page URL.
 	const docPageUrl = isPureJetpackSite
-		? 'https://jetpack.com/support/publicize/#re-sharing-your-content'
-		: 'https://wordpress.com/support/publicize/#share-your-content-again';
+		? 'https://jetpack.com/support/jetpack-social/#re-sharing-your-content'
+		: 'https://wordpress.com/support/jetpack-social/#share-your-content-again';
 
 	const buttonText = __( 'Upgrade now', 'jetpack' );
 

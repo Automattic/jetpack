@@ -1,8 +1,10 @@
 import WpPage from '../wp-page.js';
+import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
 
 export default class PluginsPage extends WpPage {
 	constructor( page ) {
-		super( page, { expectedSelectors: [ '.search-box' ] } );
+		const url = `${ resolveSiteUrl() }/wp-admin/plugins.php`;
+		super( page, { expectedSelectors: [ '.search-box' ], url } );
 	}
 
 	async deactivatePlugin( pluginSlug ) {
@@ -18,8 +20,9 @@ export default class PluginsPage extends WpPage {
 	}
 
 	async isFullScreenPopupShown() {
-		const fullScreenCardSelector = '.jp-connect-full__container-card';
-		const connectButtonSelector = ".jp-connect-full__button-container a[href*='register']";
+		const fullScreenCardSelector = '.jp-connection__portal-contents';
+		const connectButtonSelector =
+			".jp-connection__portal-contents button[aria-label='Set up Jetpack']";
 		const isCardVisible = await this.isElementVisible( fullScreenCardSelector );
 		const isConnectButtonVisible = await this.isElementVisible( connectButtonSelector );
 		return isCardVisible && isConnectButtonVisible;
@@ -33,7 +36,6 @@ export default class PluginsPage extends WpPage {
 	}
 
 	async updateJetpack() {
-		await this.waitForTimeout( 2000 );
 		const updateCard = 'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"]';
 		const updateLink = 'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"] .update-link';
 		const isUpdatingMessage =
@@ -44,7 +46,7 @@ export default class PluginsPage extends WpPage {
 		await this.waitForElementToBeVisible( updateCard );
 		await this.click( updateLink );
 		await this.waitForElementToBeVisible( isUpdatingMessage );
-		await this.waitForElementToBeVisible( updatedMessage, 5 * 30000 );
+		await this.waitForElementToBeVisible( updatedMessage, 6 * 30000 );
 	}
 
 	async clickOnJetpackBoostSettingsLink() {

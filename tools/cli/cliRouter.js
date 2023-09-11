@@ -1,23 +1,18 @@
-/**
- * External dependencies
- */
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-
-/**
- * Internal dependencies
- */
-import { buildDefine } from './commands/build';
-import { watchDefine } from './commands/watch';
-import { installDefine } from './commands/install';
-import { cleanDefine } from './commands/clean';
-import { cliDefine } from './commands/cli';
-import { generateDefine } from './commands/generate';
-import { draftDefine } from './commands/draft';
-import { changelogDefine } from './commands/changelog';
-import { dockerDefine } from './commands/docker';
-import { testDefine } from './commands/test';
-import { releaseDefine } from './commands/release';
+import * as buildCommand from './commands/build.js';
+import { changelogDefine } from './commands/changelog.js';
+import { cleanDefine } from './commands/clean.js';
+import { cliDefine } from './commands/cli.js';
+import * as dependenciesCommand from './commands/dependencies.js';
+import { dockerDefine } from './commands/docker.js';
+import { draftDefine } from './commands/draft.js';
+import { generateDefine } from './commands/generate.js';
+import * as installCommand from './commands/install.js';
+import { releaseDefine } from './commands/release.js';
+import { rsyncDefine } from './commands/rsync.js';
+import { testDefine } from './commands/test.js';
+import { watchDefine } from './commands/watch.js';
 
 /**
  * The main CLI router function.
@@ -29,20 +24,24 @@ export async function cli() {
 	// Sets up the yargs instance.
 	let argv = yargs( hideBin( process.argv ) );
 
+	argv.scriptName( 'jetpack' );
+
 	/*
 	 * Adds the commands to the yargs instance. Help text will list commands in the order they are included here.
 	 * Let's keep it alphabetical.
 	 */
-	argv = buildDefine( argv );
+	argv.command( buildCommand );
 	argv = changelogDefine( argv );
 	argv = cleanDefine( argv );
 	argv = cliDefine( argv );
 	argv.completion( 'completion', 'Generate bash/zsh completions' ); // Placed here to keep things alphabetical.
+	argv.command( dependenciesCommand );
 	argv = dockerDefine( argv );
 	argv = draftDefine( argv );
 	argv = generateDefine( argv );
-	argv = installDefine( argv );
+	argv.command( installCommand );
 	argv = releaseDefine( argv );
+	argv = rsyncDefine( argv );
 	argv = testDefine( argv );
 	argv = watchDefine( argv );
 

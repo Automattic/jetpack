@@ -1,0 +1,41 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.0
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 02/06/16
+ */
+
+// This file is to be included on the transaction pages
+
+
+// WH modified 11/10/16 - as this selector affects "all transactions" page etc. too
+//.post-type-zerobs_transaction{
+#zeroBSCRM-transaction-meta-box {
+	input{
+		width: 90%;
+	}
+	.hide{
+		display:none;
+	}
+	.twitter-typeahead{
+		width: 90%;
+	}
+}
+
+#zeroBSCRM-transaction-meta-box #zbs-transaction-assignment-wrap {
+	input.zbstypeahead, .twitter-typeahead{
+		width: 100%;
+	}
+}
+
+.zbs-infobox-transaction {
+	margin: 0px !important;
+	padding: 0px !important;
+
+	.zbs-live i.zbs-help-ico {
+		font-size: unset;
+	}
+}

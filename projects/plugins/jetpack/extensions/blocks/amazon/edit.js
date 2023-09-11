@@ -1,18 +1,5 @@
-/**
- * External dependencies
- */
-import tinycolor from 'tinycolor2';
-import { __ } from '@wordpress/i18n';
-
-/**
- * WordPress dependencies
- */
-import {
-	BlockIcon,
-	ContrastChecker,
-	InspectorControls,
-	PanelColorSettings,
-} from '@wordpress/block-editor';
+import { ContrastChecker, InspectorControls, PanelColorSettings } from '@wordpress/block-editor';
+import { getBlockDefaultClassName } from '@wordpress/blocks';
 import {
 	Button,
 	ExternalLink,
@@ -22,14 +9,11 @@ import {
 	ToggleControl,
 	withNotices,
 } from '@wordpress/components';
-import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { useState } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import icon from './icon';
+import { __ } from '@wordpress/i18n';
+import tinycolor from 'tinycolor2';
 import data from './dummy-data';
+import icon from './icon';
 import './editor.scss';
 
 function AmazonEdit( {
@@ -80,7 +64,7 @@ function AmazonEdit( {
 		<Placeholder
 			label={ __( 'Amazon', 'jetpack' ) }
 			instructions={ __( 'Search by entering an Amazon product name or ID below.', 'jetpack' ) }
-			icon={ <BlockIcon icon={ icon } /> }
+			icon={ icon }
 			notices={ noticeUI } // TODO
 		>
 			<form>
@@ -92,7 +76,7 @@ function AmazonEdit( {
 					label={ __( 'Products', 'jetpack' ) }
 					onChange={ onChange }
 				/>
-				<Button isSecondary isLarge type="submit">
+				<Button variant="secondary" type="submit">
 					{ __( 'Preview', 'jetpack' ) }
 				</Button>
 			</form>
@@ -168,14 +152,8 @@ function AmazonEdit( {
 	);
 
 	const blockPreview = () => {
-		const {
-			title,
-			detailPageUrl,
-			listPrice,
-			imageUrlMedium,
-			imageWidthMedium,
-			imageHeightMedium,
-		} = data.products.filter( productDataItem => productDataItem.asin === asin )[ 0 ];
+		const { title, detailPageUrl, listPrice, imageUrlMedium, imageWidthMedium, imageHeightMedium } =
+			data.products.filter( productDataItem => productDataItem.asin === asin )[ 0 ];
 
 		// TODO - we should be able to get this from API in a neater way once we have access
 		const seller = 'TODO';
@@ -227,7 +205,7 @@ function AmazonEdit( {
 					<Button
 						href={ detailPageUrl }
 						icon={ icon }
-						isPrimary
+						variant="primary"
 						className={ `${ defaultClassName }-button` }
 						style={ {
 							color: buttonTextColor,

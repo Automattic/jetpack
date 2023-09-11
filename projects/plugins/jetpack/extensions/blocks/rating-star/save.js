@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { range } from 'lodash';
 
 // This is a dynamic block, meaning that its content is created on the server.

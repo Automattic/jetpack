@@ -122,18 +122,15 @@ $file_contents .= "\n\treturn isset( \$modules[ \$key ] ) ? \$modules[ \$key ] :
 /*
  * Create the jetpack_get_module_i18n_tag function.
  */
-$file_contents .= "
-
-// The lists of filenames below shouldn't be arbitrarily punctuated, but the sniff triggers anyway.
-// phpcs:disable Squiz.Commenting.InlineComment.InvalidEndChar
+$file_contents .= '
 
 /**
  * For a given module tag, return its translated version.
  *
- * @param string \$key Module tag as is in each module heading.
+ * @param string $key Module tag as is in each module heading.
  *
  * @return string
- */";
+ */';
 $file_contents .= "\nfunction jetpack_get_module_i18n_tag( \$key ) {
 \tstatic \$module_tags;
 \tif ( ! isset( \$module_tags ) ) {";

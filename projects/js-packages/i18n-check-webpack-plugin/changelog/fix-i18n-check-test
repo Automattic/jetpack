@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix a unit test that broke when we added i18n-loader to the webpack config.

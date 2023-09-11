@@ -67,7 +67,7 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	 * @since 10.2.0
 	 */
 	public function test_shortcodes_smartframe_exists() {
-		$this->assertEquals( shortcode_exists( 'smartframe' ), true );
+		$this->assertTrue( shortcode_exists( 'smartframe' ) );
 	}
 
 	/**

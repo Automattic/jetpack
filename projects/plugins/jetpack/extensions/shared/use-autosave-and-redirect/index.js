@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import { noop } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { useSelect, dispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
+import { noop } from 'lodash';
 
 function redirect( url, callback, shouldOpenNewWindow = false ) {
 	if ( callback ) {
@@ -33,7 +26,7 @@ export default function useAutosaveAndRedirect( redirectUrl, onRedirect = noop )
 	const isPostEditor = Object.keys( currentPost ).length > 0;
 
 	const isWidgetEditor = useSelect( select => {
-		if ( window.wp.customize ) {
+		if ( window.wp?.customize ) {
 			return true;
 		}
 

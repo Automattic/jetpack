@@ -1,24 +1,13 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-
-/**
- * WordPress dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Card from 'components/card';
-import { FEATURE_GOOGLE_ANALYTICS_JETPACK } from 'lib/plans/constants';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import analytics from 'lib/analytics';
+import { FEATURE_GOOGLE_ANALYTICS_JETPACK } from 'lib/plans/constants';
+import React, { Component } from 'react';
 
 export const GoogleAnalytics = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -47,7 +36,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 					>
 						{ createInterpolateElement(
 							__(
-								'Google Analytics is a free service that complements our <a>built-in stats</a> with different insights into your traffic. WordPress.com stats and Google Analytics use different methods to identify and track activity on your site, so they will normally show slightly different totals for your visits, views, etc.',
+								'Google Analytics is a free service that complements <a>Jetpack Stats</a> with different insights into your traffic. Jetpack Stats and Google Analytics use different methods to identify and track activity on your site, so they will normally show slightly different totals for your visits, views, etc.',
 								'jetpack'
 							),
 							{
@@ -67,6 +56,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackConfigureClick }
 							href={ this.props.configureUrl }
+							target="_blank"
 						>
 							{ __( 'Configure your Google Analytics settings', 'jetpack' ) }
 						</Card>

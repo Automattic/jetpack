@@ -8,7 +8,8 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Connection\Client;
-use Jetpack_Plan;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -27,6 +28,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
+		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
+		add_filter( 'block_editor_settings_all', array( $this, 'site_editor_dashboard_link' ) );
 
 		if ( ! $this->is_api_request ) {
 			add_filter( 'submenu_file', array( $this, 'override_the_theme_installer' ), 10, 2 );
@@ -65,23 +68,20 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_my_home_menu();
-		$this->add_inbox_menu();
-		$this->hide_search_menu_for_calypso();
+		$this->remove_gutenberg_menu();
+
+		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
+			$this->add_inbox_menu();
+		}
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu();
-			$nudge = $this->get_upsell_nudge();
-			if ( $nudge ) {
-				parent::add_upsell_nudge( $nudge );
-			}
-
 			$this->add_new_site_link();
 		}
 
 		$this->add_woocommerce_installation_menu();
-
 		ksort( $GLOBALS['menu'] );
 	}
 
@@ -112,38 +112,49 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds Users menu.
+	 */
+	public function add_users_menu() {
+		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
+
+		return parent::add_users_menu();
+	}
+
+	/**
 	 * Adds Plugins menu.
 	 */
 	public function add_plugins_menu() {
 		global $submenu;
+
+		// Calypso plugins screens link.
+		$plugins_slug = 'https://wordpress.com/plugins/' . $this->domain;
+
+		// Link to the Marketplace on sites that can't manage plugins.
 		if (
-			isset( $submenu['plugins.php'] )
-			/**
-			 * Whether to enable the marketplace feature entrypoint.
-			 * This filter is specific to WPCOM, that's why there is no
-			 * need to use `jetpack_` prefix.
-			 *
-			 * @use add_filter( 'wpcom_marketplace_enabled', '__return_true' );
-			 * @module masterbar
-			 * @since 10.3
-			 * @param bool $wpcom_marketplace_enabled Load the WordPress.com Marketplace feature. Default to false.
-			 */
-			&& apply_filters( 'wpcom_marketplace_enabled', false )
+			function_exists( 'wpcom_site_has_feature' ) &&
+			! wpcom_site_has_feature( \WPCOM_Features::MANAGE_PLUGINS )
 		) {
-			$plugins_submenu = $submenu['plugins.php'];
-			$slug_to_update  = 'plugin-install.php';
-
-			// Move "Add New" plugin submenu ( `plugin-install.php` ) to the top position.
-			foreach ( $plugins_submenu as $submenu_key => $submenu_keys ) {
-				if ( $submenu_keys[2] === $slug_to_update ) {
-					// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-					$submenu['plugins.php'] = array( $submenu_key => $plugins_submenu[ $submenu_key ] ) + $plugins_submenu;
-				}
-			}
-
-			$submenus_to_update = array( $slug_to_update => 'https://wordpress.com/plugins/' . $this->domain );
-			$this->update_submenus( 'plugins.php', $submenus_to_update );
+			add_menu_page( __( 'Plugins', 'jetpack' ), __( 'Plugins', 'jetpack' ), 'manage_options', $plugins_slug, null, 'dashicons-admin-plugins', '65' );
+			return;
 		}
+
+		if ( ! isset( $submenu['plugins.php'] ) ) {
+			return;
+		}
+
+		$plugins_submenu = $submenu['plugins.php'];
+
+		// Move "Add New" plugin submenu to the top position.
+		foreach ( $plugins_submenu as $submenu_key => $submenu_keys ) {
+			if ( 'plugin-install.php' === $submenu_keys[2] ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$submenu['plugins.php'] = array( $submenu_key => $plugins_submenu[ $submenu_key ] ) + $plugins_submenu;
+			}
+		}
+
+		$submenus_to_update = array( 'plugin-install.php' => $plugins_slug );
+
+		$this->update_submenus( 'plugins.php', $submenus_to_update );
 	}
 
 	/**
@@ -156,7 +167,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		// Add the menu item.
-		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/home', null, 'dashicons-arrow-left-alt2', 0 );
+		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/sites', null, 'dashicons-arrow-left-alt2', 0 );
 		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
 	}
 
@@ -189,7 +200,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			return;
 		}
 
-		$this->add_admin_menu_separator();
 		add_menu_page( __( 'Add New Site', 'jetpack' ), __( 'Add New Site', 'jetpack' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt' );
 	}
 
@@ -197,12 +207,17 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds site card component.
 	 */
 	public function add_site_card_menu() {
-		$default        = 'data:image/svg+xml,' . rawurlencode( '<svg class="gridicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Globe</title><rect fill-opacity="0" x="0" width="24" height="24"/><g><path fill="#fff" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18l2-2 1-1v-2h-2v-1l-1-1H9v3l2 2v1.93c-3.94-.494-7-3.858-7-7.93l1 1h2v-2h2l3-3V6h-2L9 5v-.41C9.927 4.21 10.94 4 12 4s2.073.212 3 .59V6l-1 1v2l1 1 3.13-3.13c.752.897 1.304 1.964 1.606 3.13H18l-2 2v2l1 1h2l.286.286C18.03 18.06 15.24 20 12 20z"/></g></svg>' );
+		$default        = plugins_url( 'globe-icon.svg', __FILE__ );
 		$icon           = get_site_icon_url( 32, $default );
 		$blog_name      = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
-		$is_coming_soon = ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' );
+		$is_coming_soon = ( new Status() )->is_coming_soon();
 
 		$badge = '';
+
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
+			$badge .= '<span class="site__badge site__badge-staging">' . esc_html__( 'Staging', 'jetpack' ) . '</span>';
+		}
+
 		if ( ( function_exists( 'site_is_private' ) && site_is_private() ) || $is_coming_soon ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',
@@ -311,6 +326,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @param string $plan The current WPCOM plan of the blog.
 	 */
 	public function add_upgrades_menu( $plan = null ) {
+
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
+			return;
+		}
 		$products = Jetpack_Plan::get();
 		if ( array_key_exists( 'product_name_short', $products ) ) {
 			$plan = $products['product_name_short'];
@@ -353,13 +372,25 @@ class Atomic_Admin_Menu extends Admin_Menu {
 				2
 			);
 		}
+
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
-		add_submenu_page( 'options-general.php', esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain, null, 12 );
 
 		// Page Optimize is active by default on all Atomic sites and registers a Settings > Performance submenu which
 		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
 		// performance settings already have a link to Page Optimize settings page.
 		$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
+	}
+
+	/**
+	 * Adds Tools menu entries.
+	 */
+	public function add_tools_menu() {
+		parent::add_tools_menu();
+
+		/**
+		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu.
+		 */
+		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
 	}
 
 	/**
@@ -380,17 +411,16 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	/**
 	 * Also remove the Gutenberg plugin menu.
 	 */
-	public function add_gutenberg_menus() {
+	public function remove_gutenberg_menu() {
 		// Always remove the Gutenberg menu.
 		remove_menu_page( 'gutenberg' );
-		parent::add_gutenberg_menus();
 	}
 
 	/**
 	 * Saves the sidebar state ( expanded / collapsed ) via an ajax request.
 	 */
 	public function ajax_sidebar_state() {
-		$expanded = filter_var( $_REQUEST['expanded'], FILTER_VALIDATE_BOOLEAN ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$expanded = isset( $_REQUEST['expanded'] ) ? filter_var( wp_unslash( $_REQUEST['expanded'] ), FILTER_VALIDATE_BOOLEAN ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		Client::wpcom_json_api_request_as_user(
 			'/me/preferences',
 			'2',
@@ -410,18 +440,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function wp_ajax_jitm_dismiss() {
 		check_ajax_referer( 'jitm_dismiss' );
 		$jitm = \Automattic\Jetpack\JITMS\JITM::get_instance();
-		$jitm->dismiss( $_REQUEST['id'], $_REQUEST['feature_class'] );
+		if ( isset( $_REQUEST['id'] ) && isset( $_REQUEST['feature_class'] ) ) {
+			$jitm->dismiss( sanitize_text_field( wp_unslash( $_REQUEST['id'] ) ), sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) ) );
+		}
 		wp_die();
-	}
-
-	/**
-	 * Hide Calypso Search menu for Atomic sites.
-	 *
-	 * For simple sites, where search dashboard doesn't exist, we use the Calypso page / menu item.
-	 * For Atomic sites, the admin-menu is originated from the sites and forwarded by WPCOM `public-api`.
-	 * We have search dashboard for Atomic/JP sites, so we need to hide the duplicated menu item.
-	 */
-	public function hide_search_menu_for_calypso() {
-		$this->hide_submenu_page( 'jetpack', 'https://wordpress.com/jetpack-search/' . $this->domain );
 	}
 }

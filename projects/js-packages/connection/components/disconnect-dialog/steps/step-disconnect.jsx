@@ -1,16 +1,9 @@
-/**
- * External Dependencies
- */
-import React from 'react';
-
-/**
- * Internal Dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
+import React, { useCallback, useEffect } from 'react';
 import ConnectedPlugins from '../../connected-plugins';
 
 /**
@@ -30,7 +23,45 @@ const StepDisconnect = props => {
 		disconnectingPlugin,
 		closeModal,
 		context,
+		trackModalClick,
 	} = props;
+
+	const trackLearnClick = useCallback(
+		() => trackModalClick( 'jetpack_disconnect_dialog_click_learn_about' ),
+		[ trackModalClick ]
+	);
+	const trackSupportClick = useCallback(
+		() => trackModalClick( 'jetpack_disconnect_dialog_click_support' ),
+		[ trackModalClick ]
+	);
+	const handleStayConnectedClick = useCallback( () => {
+		trackModalClick( 'jetpack_disconnect_dialog_click_stay_connected' );
+		closeModal();
+	}, [ trackModalClick, closeModal ] );
+	const handleDisconnectClick = useCallback(
+		e => {
+			trackModalClick( 'jetpack_disconnect_dialog_click_disconnect' );
+			onDisconnect( e );
+		},
+		[ trackModalClick, onDisconnect ]
+	);
+	const handleEscapePress = useCallback(
+		event => {
+			if ( event.key === 'Escape' && ! isDisconnecting ) {
+				handleStayConnectedClick();
+			}
+		},
+		[ handleStayConnectedClick, isDisconnecting ]
+	);
+
+	useEffect( () => {
+		document.addEventListener( 'keydown', handleEscapePress, false );
+
+		return () => {
+			document.removeEventListener( 'keydown', handleEscapePress, false );
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	/**
 	 * Render the disconnect button, allows for some variance based on context.
@@ -43,14 +74,14 @@ const StepDisconnect = props => {
 		if ( isDisconnecting ) {
 			buttonText = __( 'Disconnecting…', 'jetpack' );
 		} else if ( context === 'plugins' ) {
-			buttonText = __( 'Disconnect and Deactivate', 'jetpack' );
+			buttonText = __( 'Deactivate', 'jetpack' );
 		}
 
 		return (
 			<Button
-				isPrimary
+				variant="primary"
 				disabled={ isDisconnecting }
-				onClick={ onDisconnect }
+				onClick={ handleDisconnectClick }
 				className="jp-connection__disconnect-dialog__btn-disconnect"
 			>
 				{ buttonText }
@@ -62,10 +93,14 @@ const StepDisconnect = props => {
 	 * Show some fallback output if there are no connected plugins to show and no passed disconnect component.
 	 * This is a more generic message about disconnecting Jetpack.
 	 *
-	 * @returns {React.ElementType} - Fallback message for when there are no connected plugins or passed components to show.
+	 * @returns {React.ElementType|undefined} - Fallback message for when there are no connected plugins or passed components to show.
 	 */
 	const renderFallbackOutput = () => {
-		if ( ! connectedPlugins && ! disconnectStepComponent ) {
+		const hasOtherConnectedPlugins =
+			connectedPlugins &&
+			Object.keys( connectedPlugins ).filter( key => key !== disconnectingPlugin ).length;
+
+		if ( ! hasOtherConnectedPlugins && ! disconnectStepComponent ) {
 			return (
 				<div className="jp-connection__disconnect-dialog__step-copy">
 					<p className="jp-connection__disconnect-dialog__large-text">
@@ -76,6 +111,8 @@ const StepDisconnect = props => {
 				</div>
 			);
 		}
+
+		return undefined;
 	};
 
 	return (
@@ -92,7 +129,7 @@ const StepDisconnect = props => {
 
 			<div className="jp-connection__disconnect-dialog__actions">
 				<div className="jp-row">
-					<div className="lg-col-span-7 md-col-span-8 sm-col-span-4">
+					<div className="lg-col-span-8 md-col-span-9 sm-col-span-4">
 						<p>
 							{ createInterpolateElement(
 								__(
@@ -102,35 +139,35 @@ const StepDisconnect = props => {
 								{
 									strong: <strong></strong>,
 									jpConnectionInfoLink: (
-										<a
+										<ExternalLink
 											href={ getRedirectUrl(
 												'why-the-wordpress-com-connection-is-important-for-jetpack'
 											) }
-											rel="noopener noreferrer"
-											target="_blank"
 											className="jp-connection__disconnect-dialog__link"
+											onClick={ trackLearnClick }
 										/>
 									),
 									jpSupportLink: (
-										<a
+										<ExternalLink
 											href={ getRedirectUrl( 'jetpack-support' ) }
-											rel="noopener noreferrer"
-											target="_blank"
 											className="jp-connection__disconnect-dialog__link"
+											onClick={ trackSupportClick }
 										/>
 									),
 								}
 							) }
 						</p>
 					</div>
-					<div className="jp-connection__disconnect-dialog__button-wrap lg-col-span-5 md-col-span-8 sm-col-span-4">
+					<div className="jp-connection__disconnect-dialog__button-wrap lg-col-span-4 md-col-span-7 sm-col-span-4">
 						<Button
-							isPrimary
+							variant="primary"
 							disabled={ isDisconnecting }
-							onClick={ closeModal }
+							onClick={ handleStayConnectedClick }
 							className="jp-connection__disconnect-dialog__btn-dismiss"
 						>
-							{ __( 'Stay connected', 'jetpack' ) }
+							{ context === 'plugins'
+								? __( 'Cancel', 'jetpack' )
+								: __( 'Stay connected', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
 						</Button>
 						{ renderDisconnectButton() }
 					</div>
@@ -153,7 +190,7 @@ StepDisconnect.propTypes = {
 	/** An error that occurred during a request to disconnect. */
 	disconnectError: PropTypes.bool,
 	/** A component to be rendered as part of this step */
-	disconnectStepComponent: PropTypes.elementType,
+	disconnectStepComponent: PropTypes.element,
 	/** Plugins that are using the Jetpack connection. */
 	connectedPlugins: PropTypes.array,
 	/** The slug of the plugin that is initiating the disconnection. */
@@ -162,6 +199,8 @@ StepDisconnect.propTypes = {
 	closeModal: PropTypes.func,
 	/** Where this modal is being rendered. */
 	context: PropTypes.string,
+	/** Callback tracks link/btn clicks */
+	trackModalClick: PropTypes.func,
 };
 
 export default StepDisconnect;

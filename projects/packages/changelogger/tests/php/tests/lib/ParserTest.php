@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Tests for the changelog Parser base class.
  *
  * @package automattic/jetpack-changelogger
  */
-
-// phpcs:disable WordPress.WP.AlternativeFunctions
 
 namespace Automattic\Jetpack\Changelog\Tests;
 
@@ -38,7 +36,7 @@ class ParserTest extends TestCase {
 		}
 
 		$fp = fopen( 'php://memory', 'w+' );
-		fputs( $fp, 'Foo baz?' );
+		fwrite( $fp, 'Foo baz?' );
 		rewind( $fp );
 		$this->assertSame( 'Foo baz?', $mock->parseFromFile( $fp ) );
 	}
@@ -61,9 +59,9 @@ class ParserTest extends TestCase {
 		}
 
 		$fp = fopen( 'php://memory', 'w+' );
-		fputs( $fp, 'Foo baz?' );
+		fwrite( $fp, 'Foo baz?' );
 		$this->assertTrue( $mock->formatToFile( $fp, $changelog ) );
-		fputs( $fp, '!' );
+		fwrite( $fp, '!' );
 		rewind( $fp );
 		$this->assertSame( 'Foo baz?Formatted?!', stream_get_contents( $fp ) );
 

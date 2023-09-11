@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
+import { Spinner } from '@automattic/jetpack-components';
 import { Button, Dashicon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Spinner } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import extractHostname from '../../tools/extract-hostname';
+import PropTypes from 'prop-types';
+import React from 'react';
 import customContentShape from '../../tools/custom-content-shape';
+import extractHostname from '../../tools/extract-hostname';
 
 /**
  * Retrieve the migrated screen body.
@@ -31,13 +24,14 @@ const ScreenMigrated = props => {
 	return (
 		<React.Fragment>
 			<h2>
-				{ customContent.migratedTitle ||
-					__( 'Your Jetpack settings have migrated successfully', 'jetpack' ) }
+				{ customContent.migratedTitle
+					? createInterpolateElement( customContent.migratedTitle, { em: <em /> } )
+					: __( 'Your Jetpack settings have migrated successfully', 'jetpack' ) }
 			</h2>
 
 			<p>
-				{ customContent.migratedBodyText ||
-					createInterpolateElement(
+				{ createInterpolateElement(
+					customContent.migratedBodyText ||
 						sprintf(
 							/* translators: %1$s: The current site domain name. */
 							__(
@@ -46,10 +40,12 @@ const ScreenMigrated = props => {
 							),
 							currentHostName
 						),
-						{
-							hostname: <strong />,
-						}
-					) }
+					{
+						hostname: <strong />,
+						em: <em />,
+						strong: <strong />,
+					}
+				) }
 			</p>
 
 			<div className="jp-idc__idc-screen__card-migrated">

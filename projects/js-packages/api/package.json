@@ -1,30 +1,35 @@
 {
 	"name": "@automattic/jetpack-api",
-	"version": "0.8.1-alpha",
+	"version": "0.16.2",
 	"description": "Jetpack Api Package",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/api/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Api"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/api"
+	},
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@wordpress/url": "3.3.1",
-		"@automattic/jetpack-config": "workspace:^0.1.1-alpha",
-		"lodash": "4.17.21"
+		"@automattic/jetpack-config": "workspace:*",
+		"@wordpress/url": "3.42.0"
 	},
 	"devDependencies": {
-		"chai-fetch-mock": "3.0.0",
-		"fetch-mock": "9.11.0",
-		"jetpack-js-test-runner": "workspace:*",
-		"nyc": "15.1.0"
+		"jest": "29.4.3",
+		"jest-environment-jsdom": "29.4.3"
 	},
 	"type": "module",
 	"exports": {
 		".": "./index.jsx"
 	},
 	"scripts": {
-		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./test/*.jsx'"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
 	},
 	"engines": {
-		"node": "^14.17.6 || ^16.7.0",
-		"pnpm": "^6.23.6",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

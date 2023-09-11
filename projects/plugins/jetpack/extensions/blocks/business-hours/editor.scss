@@ -1,4 +1,4 @@
-@import '../../shared/styles/gutenberg-base-styles.scss';
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-jetpack-business-hours {
 	overflow: hidden;
@@ -51,7 +51,7 @@
 		.business-hours__day {
 			width: 44%;
 			display: flex;
-			align-items: start;
+			align-items: flex-start;
 
 			.business-hours__day-name {
 				width: 60%;

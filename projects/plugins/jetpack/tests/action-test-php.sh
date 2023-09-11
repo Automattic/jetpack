@@ -2,13 +2,11 @@
 
 set -eo pipefail
 
-. tests/maybe-downgrade-phpunit.sh
-
 echo "::group::Jetpack tests"
 phpunit
 echo "::endgroup::"
 
-if [[ "$WP_BRANCH" == "master" ]]; then
+if [[ "$WP_BRANCH" == "trunk" ]]; then
 	echo "::group::Jetpack multisite tests"
 	WP_MULTISITE=1 phpunit -c tests/php.multisite.xml
 	echo "::endgroup::"

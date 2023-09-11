@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import ReactDOM from 'react-dom';
+import * as WPElement from '@wordpress/element';
 import React from 'react';
 import { Provider } from 'react-redux';
-
-/**
- * Internal dependencies
- */
-import store from 'state/redux-store';
+import store from 'state/redux-store-minimal';
 import PluginDeactivation from './portals/plugin-deactivation';
 
 /**
@@ -17,12 +10,12 @@ import PluginDeactivation from './portals/plugin-deactivation';
 function initPluginsPageApp() {
 	const container = document.getElementById( 'jetpack-plugin-portal-app' );
 
-	ReactDOM.render(
+	const component = (
 		<Provider store={ store }>
 			<PluginDeactivation />
-		</Provider>,
-		container
+		</Provider>
 	);
+	WPElement.createRoot( container ).render( component );
 }
 
 if ( document.readyState !== 'loading' ) {

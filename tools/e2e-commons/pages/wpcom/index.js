@@ -1,5 +1,6 @@
 export { default as AuthorizePage } from './authorize.js';
 export { default as CheckoutPage } from './checkout.js';
+export { default as CompletePage } from './complete-plan.js';
 export { default as ConnectionsPage } from './connections.js';
 export { default as HomePage } from './home.js';
 export { default as LoginPage } from './login.js';

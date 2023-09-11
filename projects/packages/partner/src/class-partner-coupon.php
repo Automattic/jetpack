@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Connection\Client as Connection_Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
 
@@ -20,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class Jetpack_Partner_Coupon
  *
- * @since $$next_version$$
+ * @since 1.6.0
  */
 class Partner_Coupon {
 
@@ -39,6 +40,20 @@ class Partner_Coupon {
 	public static $added_option = 'partner_coupon_added';
 
 	/**
+	 * Name of "last availability check" transient.
+	 *
+	 * @var string
+	 */
+	public static $last_check_transient = 'jetpack_partner_coupon_last_check';
+
+	/**
+	 * Callable that executes a blog-authenticated request.
+	 *
+	 * @var callable
+	 */
+	protected $request_as_blog;
+
+	/**
 	 * Jetpack_Partner_Coupon
 	 *
 	 * @var Partner_Coupon|null
@@ -51,7 +66,14 @@ class Partner_Coupon {
 	 * @var array
 	 */
 	private static $supported_partners = array(
-		'IONOS' => 'IONOS',
+		'IONOS' => array(
+			'name' => 'IONOS',
+			'logo' => array(
+				'src'    => '/images/ionos-logo.jpg',
+				'width'  => 119,
+				'height' => 32,
+			),
+		),
 	);
 
 	/**
@@ -65,13 +87,24 @@ class Partner_Coupon {
 
 	/**
 	 * Get singleton instance of class.
+	 *
+	 * @return Partner_Coupon
 	 */
 	public static function get_instance() {
-		if ( is_null( self::$instance ) ) {
-			self::$instance = new Partner_Coupon();
+		if ( self::$instance === null ) {
+			self::$instance = new Partner_Coupon( array( Connection_Client::class, 'wpcom_json_api_request_as_blog' ) );
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param callable $request_as_blog Callable that executes a blog-authenticated request.
+	 */
+	public function __construct( $request_as_blog ) {
+		$this->request_as_blog = $request_as_blog;
 	}
 
 	/**
@@ -83,8 +116,6 @@ class Partner_Coupon {
 	public static function register_coupon_admin_hooks( $plugin_slug, $redirect_location ) {
 		$instance = self::get_instance();
 
-		add_action( 'admin_init', array( $instance, 'purge_coupon' ) );
-
 		// We have to use an anonymous function, so we can pass along relevant information
 		// and not have to hardcode values for a single plugin.
 		// This open up the opportunity for e.g. the "all-in-one" and backup plugins
@@ -93,6 +124,7 @@ class Partner_Coupon {
 			'admin_init',
 			function () use ( $plugin_slug, $redirect_location, $instance ) {
 				$instance->catch_coupon( $plugin_slug, $redirect_location );
+				$instance->maybe_purge_coupon( $plugin_slug );
 			}
 		);
 	}
@@ -105,7 +137,7 @@ class Partner_Coupon {
 	 */
 	public function catch_coupon( $plugin_slug, $redirect_location ) {
 		// Accept and store a partner coupon if present, and redirect to Jetpack connection screen.
-		$partner_coupon = isset( $_GET['jetpack-partner-coupon'] ) ? sanitize_text_field( $_GET['jetpack-partner-coupon'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$partner_coupon = isset( $_GET['jetpack-partner-coupon'] ) ? sanitize_text_field( wp_unslash( $_GET['jetpack-partner-coupon'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( $partner_coupon ) {
 			Jetpack_Options::update_options(
 				array(
@@ -127,27 +159,134 @@ class Partner_Coupon {
 	/**
 	 * Purge partner coupon.
 	 *
-	 * We automatically purge partner coupons after a certain amount of time to prevent
-	 * us from unnecessarily promoting a product for months or years in the future.
+	 * We try to remotely check if a coupon looks valid. We also automatically purge
+	 * partner coupons after a certain amount of time to prevent unnecessary look-ups
+	 * and/or promoting a product for months or years in the future due to unknown
+	 * errors.
+	 *
+	 * @param string $plugin_slug The plugin slug to differentiate between Jetpack connections.
 	 */
-	public function purge_coupon() {
+	public function maybe_purge_coupon( $plugin_slug ) {
+		// Only run coupon checks on Jetpack admin pages.
+		// The "admin-ui" package is responsible for registering the Jetpack admin
+		// page for all Jetpack plugins and has hardcoded the settings page to be
+		// "jetpack", so we shouldn't need to allow for dynamic/custom values.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['page'] ) || 'jetpack' !== $_GET['page'] ) {
+			return;
+		}
+
+		if ( ( new Status() )->is_offline_mode() ) {
+			return;
+		}
+
+		$connection = new Connection_Manager( $plugin_slug );
+		if ( ! $connection->is_connected() ) {
+			return;
+		}
+
+		if ( $this->maybe_purge_coupon_by_added_date() ) {
+			return;
+		}
+
+		// Limit checks to happen once a minute at most.
+		if ( get_transient( self::$last_check_transient ) ) {
+			return;
+		}
+
+		set_transient( self::$last_check_transient, true, MINUTE_IN_SECONDS );
+
+		$this->maybe_purge_coupon_by_availability_check();
+	}
+
+	/**
+	 * Purge coupon based on local added date.
+	 *
+	 * We automatically remove the coupon after a month to "self-heal" if
+	 * something in the claim process has broken with the site.
+	 *
+	 * @return bool Return whether we should skip further purge checks.
+	 */
+	protected function maybe_purge_coupon_by_added_date() {
 		$date = Jetpack_Options::get_option( self::$added_option, '' );
 
 		if ( empty( $date ) ) {
-			return;
+			return true;
 		}
 
 		$expire_date = strtotime( '+30 days', $date );
 		$today       = time();
 
 		if ( $today >= $expire_date ) {
-			Jetpack_Options::delete_option(
-				array(
-					self::$coupon_option,
-					self::$added_option,
-				)
-			);
+			$this->delete_coupon_data();
+
+			return true;
 		}
+
+		return false;
+	}
+
+	/**
+	 * Purge coupon based on availability check.
+	 *
+	 * @return bool Return whether we deleted coupon data.
+	 */
+	protected function maybe_purge_coupon_by_availability_check() {
+		$blog_id = Jetpack_Options::get_option( 'id', false );
+
+		if ( ! $blog_id ) {
+			return false;
+		}
+
+		$coupon = self::get_coupon();
+
+		if ( ! $coupon ) {
+			return false;
+		}
+
+		$response = call_user_func_array(
+			$this->request_as_blog,
+			array(
+				add_query_arg(
+					array( 'coupon_code' => $coupon['coupon_code'] ),
+					sprintf(
+						'/sites/%d/jetpack-partner/coupon/v1/site/coupon',
+						$blog_id
+					)
+				),
+				2,
+				array( 'method' => 'GET' ),
+				null,
+				'wpcom',
+			)
+		);
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if (
+			200 === wp_remote_retrieve_response_code( $response ) &&
+			is_array( $body ) &&
+			isset( $body['available'] ) &&
+			false === $body['available']
+		) {
+			$this->delete_coupon_data();
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Delete all coupon data.
+	 */
+	protected function delete_coupon_data() {
+		Jetpack_Options::delete_option(
+			array(
+				self::$coupon_option,
+				self::$added_option,
+			)
+		);
 	}
 
 	/**
@@ -208,8 +347,9 @@ class Partner_Coupon {
 		}
 
 		return array(
-			'name'   => $supported_partners[ $prefix ],
+			'name'   => $supported_partners[ $prefix ]['name'],
 			'prefix' => $prefix,
+			'logo'   => isset( $supported_partners[ $prefix ]['logo'] ) ? $supported_partners[ $prefix ]['logo'] : null,
 		);
 	}
 
@@ -227,7 +367,7 @@ class Partner_Coupon {
 		/**
 		 * Allow for plugins to register supported products.
 		 *
-		 * @since $$next_version$$
+		 * @since 1.6.0
 		 *
 		 * @param array A list of product details.
 		 * @return array
@@ -296,7 +436,7 @@ class Partner_Coupon {
 		/**
 		 * Allow external code to add additional supported partners.
 		 *
-		 * @since $$next_version$$
+		 * @since 1.6.0
 		 *
 		 * @param array $supported_partners A list of supported partners.
 		 * @return array
@@ -313,7 +453,7 @@ class Partner_Coupon {
 		/**
 		 * Allow external code to add additional supported presets.
 		 *
-		 * @since $$next_version$$
+		 * @since 1.6.0
 		 *
 		 * @param array $supported_presets A list of supported presets.
 		 * @return array

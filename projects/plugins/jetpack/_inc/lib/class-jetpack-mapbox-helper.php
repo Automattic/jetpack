@@ -41,7 +41,7 @@ class Jetpack_Mapbox_Helper {
 
 		// If on WordPress.com, try to return the access token straight away.
 		if ( self::is_wpcom() && defined( 'WPCOM_MAPBOX_ACCESS_TOKEN' ) ) {
-			jetpack_require_lib( 'mapbox-blocklist' );
+			require_lib( 'mapbox-blocklist' );
 			return wpcom_is_site_blocked_from_map_block( $site_id )
 				? self::format_access_token()
 				: self::format_access_token( WPCOM_MAPBOX_ACCESS_TOKEN, 'wpcom' );

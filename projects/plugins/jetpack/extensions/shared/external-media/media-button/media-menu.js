@@ -1,21 +1,12 @@
-/**
- * WordPress dependencies
- */
 import { Button, MenuItem, MenuGroup, Dropdown, NavigableMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { media } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
+import { Icon, media } from '@wordpress/icons';
 import MediaSources from './media-sources';
 
 function MediaButtonMenu( props ) {
 	const { mediaProps, open, setSelectedSource, isFeatured, isReplace, hasImage } = props;
 	const originalComponent = mediaProps.render;
-	let isPrimary = isFeatured;
-	let isSecondary = false;
-	let isTertiary = ! isFeatured;
+	let variant = 'tertiary';
 
 	if ( isReplace ) {
 		return (
@@ -39,15 +30,14 @@ function MediaButtonMenu( props ) {
 
 	if ( isFeatured ) {
 		label = __( 'Replace Image', 'jetpack' );
-		isPrimary = false;
-		isTertiary = false;
-		isSecondary = true;
+		variant = 'secondary';
 	}
 
 	return (
 		<>
 			<Dropdown
-				position="bottom right"
+				placement="bottom-start"
+				className="jetpack-external-media-button-menu__dropdown"
 				contentClassName="jetpack-external-media-button-menu__options"
 				renderToggle={ ( { isOpen, onToggle } ) => {
 					// override original button only when it's a simple button with text, or a featured image
@@ -60,15 +50,14 @@ function MediaButtonMenu( props ) {
 					}
 					return (
 						<Button
-							isPrimary={ isPrimary }
-							isSecondary={ isSecondary }
-							isTertiary={ isTertiary }
+							variant={ variant }
 							className="jetpack-external-media-button-menu"
 							aria-haspopup="true"
 							aria-expanded={ isOpen }
 							onClick={ onToggle }
 						>
-							{ label }
+							<div className="jetpack-external-media-button-menu__label">{ label }</div>
+							<Icon icon={ media } />
 						</Button>
 					);
 				} }

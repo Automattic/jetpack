@@ -1,4 +1,4 @@
-@import '../../shared/styles/gutenberg-base-styles.scss';
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-jetpack-map {
 	.wp-block-jetpack-map__gm-container {
@@ -8,6 +8,30 @@
 		min-height: 400px;
 		text-align: left;
 	}
+
+  	.mapkit-popup-content {
+	  background: #fff;
+	  border-radius: 3px;
+	  box-shadow: 0 1px 2px rgb(0 0 0 / 10%);
+	  max-width: 300px;
+	  min-width: 150px;
+	  padding: 10px 10px 15px;
+	  pointer-events: auto;
+
+	  h3 {
+		font-size: 1.3125em;
+		font-weight: 400;
+		margin-bottom: 0.5rem;
+	  }
+	  p {
+		margin-bottom: 0;
+	  }
+	}
+
+	.wp-block-jetpack-map__mb-container {
+	  height: 400px;
+	}
+
 	.mapboxgl-popup {
 		h3 {
 			font-size: 1.3125em;

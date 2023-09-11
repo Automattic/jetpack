@@ -1,40 +1,71 @@
-/**
- * External dependencies
- */
+import { jest } from '@jest/globals';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-import ShallowRenderer from 'react-test-renderer/shallow';
+import ConnectScreen from '../visual';
 
-/**
- * Internal dependencies
- */
-import ConnectScreen from '../index';
+const CONNECTION_BUTTON_LABEL = 'Setup Jetpack';
+const requiredProps = {
+	buttonLabel: CONNECTION_BUTTON_LABEL,
+};
 
 describe( 'ConnectScreen', () => {
-	const testProps = {
-		apiNonce: 'test',
-		apiRoot: 'https://example.org/wp-json/',
-		registrationNonce: 'test2',
-		redirectUri: 'https://example.org',
-	};
+	it( 'renders children', () => {
+		render(
+			<ConnectScreen { ...requiredProps }>
+				<p>Connect children</p>
+			</ConnectScreen>
+		);
+		expect( screen.getByText( 'Connect children' ) ).toBeInTheDocument();
+	} );
 
-	describe( 'Render the ConnectScreen component', () => {
-		const renderer = new ShallowRenderer();
-		renderer.render( <ConnectScreen { ...testProps } /> );
+	it( 'displays required terms of service text and a clickable connection button with the proper label text', () => {
+		render( <ConnectScreen { ...requiredProps } /> );
 
-		const wrapper = shallow( renderer.getRenderOutput() );
+		expect(
+			screen.getByText(
+				( content, { textContent } ) =>
+					content !== '' && // filter out parent/wrapper elements
+					textContent.startsWith(
+						`By clicking the ${ CONNECTION_BUTTON_LABEL } button, you agree to our Terms of Service`
+					)
+			)
+		).toBeInTheDocument();
 
-		it( 'component exists', () => {
-			expect( wrapper.find( 'ConnectScreen' ) ).to.exist;
-		} );
+		expect( screen.getByRole( 'button', { name: CONNECTION_BUTTON_LABEL } ) ).toBeEnabled();
+	} );
 
-		it( 'logo component exists', () => {
-			expect( wrapper.find( 'JetpackLogo' ) ).to.exist;
-		} );
+	it( 'applies correct href to terms of service', () => {
+		render( <ConnectScreen { ...requiredProps } /> );
+		const terms = screen.getByRole( 'link', { name: 'Terms of Service' } );
+		expect( terms ).toHaveAttribute( 'href', 'https://jetpack.com/redirect/?source=wpcom-tos' );
+		expect( terms ).toHaveAttribute( 'target', '_blank' );
+	} );
 
-		it( 'connect button exists', () => {
-			expect( wrapper.find( 'ConnectButton' ) ).to.exist;
-		} );
+	it( 'applies correct href to share', () => {
+		render( <ConnectScreen { ...requiredProps } /> );
+		const share = screen.getByRole( 'link', { name: 'share details' } );
+		expect( share ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-support-what-data-does-jetpack-sync'
+		);
+		expect( share ).toHaveAttribute( 'target', '_blank' );
+	} );
+
+	it( 'shows error into button', () => {
+		render( <ConnectScreen { ...requiredProps } displayButtonError /> );
+		expect( screen.getByText( 'An error occurred. Please try again.' ) ).toBeInTheDocument();
+	} );
+
+	// we have an acessibility breach into our loading state
+	it.todo( 'shows loading into button' );
+
+	it( 'calls handleButtonClick', async () => {
+		const user = userEvent.setup();
+		const handleButtonClick = jest.fn();
+		render( <ConnectScreen { ...requiredProps } handleButtonClick={ handleButtonClick } /> );
+		const button = screen.getByRole( 'button', { name: 'Setup Jetpack' } );
+		await user.click( button );
+		expect( handleButtonClick ).toHaveBeenCalled();
 	} );
 } );

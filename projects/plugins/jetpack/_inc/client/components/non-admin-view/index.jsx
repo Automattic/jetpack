@@ -1,24 +1,15 @@
-/**
- * External dependencies
- */
+import AtAGlance from 'at-a-glance/index.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
+import SearchableSettings from 'settings/index.jsx';
+import { getSiteConnectionStatus } from 'state/connection';
 import {
 	userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 	userIsSubscriber as _userIsSubscriber,
 } from 'state/initial-state';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
-import Navigation from 'components/navigation';
-import NavigationSettings from 'components/navigation-settings';
-import AtAGlance from 'at-a-glance/index.jsx';
-import SearchableSettings from 'settings/index.jsx';
-import { getSiteConnectionStatus } from 'state/connection';
 
 class NonAdminView extends React.Component {
 	shouldComponentUpdate( nextProps ) {
@@ -29,8 +20,8 @@ class NonAdminView extends React.Component {
 	}
 
 	renderMainContent = route => {
-		let pageComponent,
-			navComponent = <Navigation { ...this.props } />;
+		let pageComponent;
+
 		switch ( route ) {
 			case '/dashboard':
 			default:
@@ -42,7 +33,6 @@ class NonAdminView extends React.Component {
 			case '/sharing':
 			case '/performance':
 				if ( ! this.props.isSubscriber ) {
-					navComponent = <NavigationSettings { ...this.props } />;
 					pageComponent = (
 						<SearchableSettings
 							siteAdminUrl={ this.props.siteAdminUrl }
@@ -57,12 +47,7 @@ class NonAdminView extends React.Component {
 
 		window.wpNavMenuClassChange();
 
-		return (
-			<div>
-				{ navComponent }
-				{ pageComponent }
-			</div>
-		);
+		return <div>{ pageComponent }</div>;
 	};
 
 	render() {

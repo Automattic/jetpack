@@ -1,15 +1,9 @@
-/**
- * External dependencies
- */
 import { isMobile } from '@automattic/viewport';
+import classnames from 'classnames';
+import Popover from 'components/popover';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import classnames from 'classnames';
 
-/**
- * Internal dependencies
- */
-import Popover from 'components/popover';
 import './style.scss';
 
 /**

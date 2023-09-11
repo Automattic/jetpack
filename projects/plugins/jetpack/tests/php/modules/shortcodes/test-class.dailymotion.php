@@ -18,7 +18,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_exists() {
-		$this->assertEquals( shortcode_exists( 'dailymotion' ), true );
+		$this->assertTrue( shortcode_exists( 'dailymotion' ) );
 	}
 
 	/**

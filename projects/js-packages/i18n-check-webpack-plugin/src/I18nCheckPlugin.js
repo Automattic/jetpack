@@ -1,12 +1,12 @@
-const babel = require( '@babel/core' );
 const npath = require( 'path' );
+const babel = require( '@babel/core' );
 const webpack = require( 'webpack' );
-const PLUGIN_NAME = require( './plugin-name.js' );
-const GettextEntry = require( './GettextEntry.js' );
 const GettextEntries = require( './GettextEntries.js' );
+const GettextEntry = require( './GettextEntry.js' );
 const GettextExtractor = require( './GettextExtractor.js' );
-
-const debug = require( 'debug' )( PLUGIN_NAME + ':plugin' );
+const PLUGIN_NAME = require( './plugin-name.js' );
+const debug = require( 'debug' )( PLUGIN_NAME + ':plugin' ); // eslint-disable-line import/order
+const debugtiming = require( 'debug' )( PLUGIN_NAME + ':timing' ); // eslint-disable-line import/order
 
 const schema = {
 	title: `${ PLUGIN_NAME } plugin options`,
@@ -51,6 +51,10 @@ const schema = {
 			description: 'Set true to produce warnings rather than errors.',
 			type: 'boolean',
 		},
+		expectDomain: {
+			description: 'Set the expected text domain.',
+			type: 'string',
+		},
 		extractorOptions: {
 			description: 'Options for the extractor. Ignored if `extractor` was specified.',
 			type: 'object',
@@ -89,6 +93,7 @@ class I18nCheckPlugin {
 	#extractor;
 	#filter;
 	#reportkey;
+	#expectDomain;
 
 	constructor( options = {} ) {
 		webpack.validateSchema( schema, options, {
@@ -98,6 +103,7 @@ class I18nCheckPlugin {
 
 		this.#extractor = new GettextExtractor( options.extractorOptions );
 		this.#reportkey = options.warnOnly ? 'warnings' : 'errors';
+		this.#expectDomain = options.expectDomain;
 
 		if ( options.filter ) {
 			const filters = ( Array.isArray( options.filter ) ? options.filter : [ options.filter ] ).map(
@@ -187,11 +193,14 @@ class I18nCheckPlugin {
 					additionalAssets: true,
 				},
 				assets => {
+					const t0 = Date.now();
 					const promises = [];
 					for ( const filename of Object.keys( assets ) ) {
 						promises.push( this.#processAsset( compilation, filename, moduleCache ) );
 					}
-					return Promise.all( promises );
+					return Promise.all( promises ).finally( () => {
+						debugtiming( `Processed all assets in ${ Date.now() - t0 }ms` );
+					} );
 				}
 			);
 		} );
@@ -205,6 +214,7 @@ class I18nCheckPlugin {
 	 * @param {Map} moduleCache - Cache for processed modules.
 	 */
 	async #processAsset( compilation, filename, moduleCache ) {
+		const t0 = Date.now();
 		const asset = compilation.getAsset( filename );
 
 		// Detemine if we even need to process this asset. JavaScript assets seem to always
@@ -220,28 +230,36 @@ class I18nCheckPlugin {
 
 		// Extract strings from the source resources.
 		const sourceEntries = new Set();
+		const promises = [];
 		for ( const resource of asset.info.resources ) {
 			if ( ! moduleCache.has( resource ) ) {
-				const promise = new Promise( resolve => {
-					this.#extractor
-						.extractFromFile( resource, {
-							filename: npath.relative( compilation.compiler.context, resource ),
-						} )
-						.then( resolve );
+				const promise = this.#extractor.extractFromFile( resource, {
+					filename: npath.relative( compilation.compiler.context, resource ),
 				} );
 				moduleCache.set( resource, promise );
 			}
-			const resourceEntries = await moduleCache.get( resource );
-			resourceEntries.forEach( e => sourceEntries.add( e ) );
+			promises.push(
+				moduleCache.get( resource ).then( resourceEntries => {
+					resourceEntries.forEach( e => sourceEntries.add( e ) );
+				} )
+			);
 		}
 
 		// Extract strings from the asset.
 		const lintLogger = s => {
 			compilation[ this.#reportkey ].push( new Error( s ) );
 		};
-		const source = asset.source.source();
-		const babelFile = await this.#extractor.parse( source, { filename, lintLogger } );
-		const assetEntries = this.#extractor.extractFromAst( babelFile, { filename, lintLogger } );
+		let babelFile, assetEntries;
+		promises.push(
+			( async () => {
+				const source = asset.source.source();
+				babelFile = await this.#extractor.parse( source, { filename, lintLogger } );
+				assetEntries = this.#extractor.extractFromAst( babelFile, { filename, lintLogger } );
+			} )()
+		);
+
+		// Wait for all the extractions to complete.
+		await Promise.all( promises );
 
 		// Analyze. First, collect the missing entries and report any entries with lost translator comments.
 		const missingEntries = new GettextEntries();
@@ -334,7 +352,15 @@ class I18nCheckPlugin {
 					`${ filename }: Multiple textdomains are used: ${ Array.from( domains, JSON.stringify ).sort().join( ', ' ) }\nYou may want to use @automattic/babel-plugin-replace-textdomain to fix that.`
 				)
 			);
+		} else if ( this.#expectDomain && domains.size > 0 && ! domains.has( this.#expectDomain ) ) {
+			compilation[ this.#reportkey ].push(
+				new Error(
+					// prettier-ignore
+					`${ filename }: Expected textdomain ${ JSON.stringify( this.#expectDomain ) }, but the asset uses ${ Array.from( domains, JSON.stringify )[ 0 ] } instead.\nYou may want to use @automattic/babel-plugin-replace-textdomain to fix that.`
+				)
+			);
 		}
+		debugtiming( `Processed asset ${ filename } in ${ Date.now() - t0 }ms` );
 	}
 }
 

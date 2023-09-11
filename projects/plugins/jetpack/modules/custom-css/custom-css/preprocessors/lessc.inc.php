@@ -1,5 +1,4 @@
-<?php
-
+<?php // phpcs:disable -- Copy-pasted library. Not reformatting to facilitate identification of actual changes.
 /**
  * lessphp v0.5.0
  * https://leafo.net/lessphp

@@ -10,6 +10,8 @@
 
 namespace Automattic\Jetpack\Creative_Mail;
 
+use Automattic\Jetpack\Plugins_Installer;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -17,9 +19,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 const PLUGIN_SLUG = 'creative-mail-by-constant-contact';
 const PLUGIN_FILE = 'creative-mail-by-constant-contact/creative-mail-plugin.php';
 
-add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
-add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
 add_action( 'jetpack_activated_plugin', __NAMESPACE__ . '\configure_plugin', 10, 2 );
+
+// Check for the JITM action.
+if ( isset( $_GET['creative-mail-action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
+}
+
+if ( ! empty( $_GET['creative-mail-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
+}
 
 /**
  * Verify the intent to install Creative Mail, and kick off installation.
@@ -27,10 +36,6 @@ add_action( 'jetpack_activated_plugin', __NAMESPACE__ . '\configure_plugin', 10,
  * This works in tandem with a JITM set up in the JITM package.
  */
 function try_install() {
-	if ( ! isset( $_GET['creative-mail-action'] ) ) {
-		return;
-	}
-
 	check_admin_referer( 'creative-mail-install' );
 
 	$result   = false;
@@ -38,7 +43,7 @@ function try_install() {
 
 	// Attempt to install and activate the plugin.
 	if ( current_user_can( 'activate_plugins' ) ) {
-		switch ( $_GET['creative-mail-action'] ) {
+		switch ( $_GET['creative-mail-action'] ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Function only hooked if set.
 			case 'install':
 				$result = install_and_activate();
 				break;
@@ -67,8 +72,7 @@ function try_install() {
  * @return bool result of installation
  */
 function install_and_activate() {
-	jetpack_require_lib( 'plugins' );
-	$result = \Jetpack_Plugins::install_and_activate_plugin( PLUGIN_SLUG );
+	$result = Plugins_Installer::install_and_activate_plugin( PLUGIN_SLUG );
 
 	if ( is_wp_error( $result ) ) {
 		return false;
@@ -86,17 +90,13 @@ function activate() {
 	$result = activate_plugin( PLUGIN_FILE );
 
 	// Activate_plugin() returns null on success.
-	return is_null( $result );
+	return $result === null;
 }
 
 /**
  * Notify the user that the installation of Creative Mail failed.
  */
 function error_notice() {
-	if ( empty( $_GET['creative-mail-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return;
-	}
-
 	?>
 	<div class="notice notice-error is-dismissible">
 		<p><?php esc_html_e( 'There was an error installing Creative Mail.', 'jetpack' ); ?></p>

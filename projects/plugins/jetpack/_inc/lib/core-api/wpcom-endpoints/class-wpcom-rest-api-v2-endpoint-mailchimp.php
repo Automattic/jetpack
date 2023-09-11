@@ -1,4 +1,10 @@
 <?php
+/**
+ * API endpoints to interact with WordPress.com
+ * to get info from the Mailchimp API for use with the Mailchimp block.
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
@@ -11,13 +17,15 @@ use Automattic\Jetpack\Redirect;
  * @since 7.1
  */
 class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		$this->namespace                    = 'wpcom/v2';
 		$this->rest_base                    = 'mailchimp';
 		$this->wpcom_is_wpcom_only_endpoint = true;
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
-
 	}
 
 	/**
@@ -62,7 +70,7 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 		if ( ! $data ) {
 			return false;
 		}
-		return isset( $data['follower_list_id'], $data['keyring_id'] );
+		return isset( $data['follower_list_id'] ) && isset( $data['keyring_id'] );
 	}
 
 	/**

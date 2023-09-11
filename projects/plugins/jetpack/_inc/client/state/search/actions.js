@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { JETPACK_SEARCH_TERM } from 'state/action-types';
 
 export const filterSearch = term => {

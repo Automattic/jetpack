@@ -1,67 +1,76 @@
-/**
- * External dependencies
- */
-import React, { useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import ConnectButton from '../../connect-button';
+import PropTypes from 'prop-types';
+import React from 'react';
+import useConnection from '../../use-connection';
 import ConnectScreenVisual from './visual';
-import { STORE_ID } from '../../../state/store';
 
 /**
  * The Connection Screen component.
  *
  * @param {object} props -- The properties.
+ * @param {string?} props.title -- The Title.
+ * @param {string?} props.buttonLabel -- The Connect Button label.
+ * @param {string} props.apiRoot -- API root.
+ * @param {string} props.apiNonce -- API nonce.
+ * @param {string} props.registrationNonce -- Registration nonce.
+ * @param {string?} props.from -- Where the connection request is coming from.
+ * @param {string} props.redirectUri -- The redirect admin URI.
+ * @param {string[]?} props.images -- Images to display on the right side.
+ * @param {object[]} props.children -- Additional page elements to show before the call to action.
+ * @param {string?} props.assetBaseUrl -- The assets base URL.
+ * @param {object?} props.footer -- Additional page elements to show after the call to action.
+ * @param {boolean?} props.skipUserConnection -- Whether to not require a user connection and just redirect after site connection.
+ * @param {boolean?} props.autoTrigger -- Whether to initiate the connection process automatically upon rendering the component.
+ * @param {object?} props.logo -- The logo to display at the top of the component.
  * @returns {React.Component} The `ConnectScreen` component.
  */
-const ConnectScreen = props => {
+const ConnectScreen = ( {
+	title,
+	buttonLabel,
+	apiRoot,
+	apiNonce,
+	registrationNonce,
+	from,
+	redirectUri,
+	images,
+	children,
+	assetBaseUrl,
+	autoTrigger,
+	footer,
+	skipUserConnection,
+	logo,
+} ) => {
 	const {
-		title,
-		buttonLabel,
+		handleRegisterSite,
+		siteIsRegistering,
+		userIsConnecting,
+		registrationError,
+		isOfflineMode,
+	} = useConnection( {
+		registrationNonce,
+		redirectUri,
 		apiRoot,
 		apiNonce,
-		registrationNonce,
-		from,
-		redirectUri,
-		images,
-		children,
-		assetBaseUrl,
 		autoTrigger,
-	} = props;
+		from,
+		skipUserConnection,
+	} );
 
-	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
-
-	const renderConnectBtn = useCallback(
-		( label, trigger ) => {
-			return (
-				<ConnectButton
-					autoTrigger={ trigger }
-					apiRoot={ apiRoot }
-					apiNonce={ apiNonce }
-					registrationNonce={ registrationNonce }
-					from={ from }
-					redirectUri={ redirectUri }
-					connectLabel={ label }
-				/>
-			);
-		},
-		[ apiRoot, apiNonce, registrationNonce, from, redirectUri ]
-	);
+	const displayButtonError = Boolean( registrationError );
+	const buttonIsLoading = siteIsRegistering || userIsConnecting;
 
 	return (
 		<ConnectScreenVisual
 			title={ title }
-			autoTrigger={ autoTrigger }
-			buttonLabel={ buttonLabel }
 			images={ images }
 			assetBaseUrl={ assetBaseUrl }
-			isLoading={ ! connectionStatus.hasOwnProperty( 'isRegistered' ) }
-			renderConnectBtn={ renderConnectBtn }
+			buttonLabel={ buttonLabel }
+			handleButtonClick={ handleRegisterSite }
+			displayButtonError={ displayButtonError }
+			buttonIsLoading={ buttonIsLoading }
+			footer={ footer }
+			isOfflineMode={ isOfflineMode }
+			logo={ logo }
 		>
 			{ children }
 		</ConnectScreenVisual>
@@ -69,26 +78,18 @@ const ConnectScreen = props => {
 };
 
 ConnectScreen.propTypes = {
-	/** The Title. */
 	title: PropTypes.string,
-	/** The Connect Button label. */
 	buttonLabel: PropTypes.string,
-	/** API root. */
 	apiRoot: PropTypes.string.isRequired,
-	/** API nonce. */
 	apiNonce: PropTypes.string.isRequired,
-	/** Registration nonce. */
 	registrationNonce: PropTypes.string.isRequired,
-	/** Where the connection request is coming from. */
 	from: PropTypes.string,
-	/** The redirect admin URI. */
 	redirectUri: PropTypes.string.isRequired,
-	/** Whether to initiate the connection process automatically upon rendering the component. */
 	autoTrigger: PropTypes.bool,
-	/** Images to display on the right side. */
 	images: PropTypes.arrayOf( PropTypes.string ),
-	/** The assets base URL. */
 	assetBaseUrl: PropTypes.string,
+	skipUserConnection: PropTypes.bool,
+	logo: PropTypes.element,
 };
 
 ConnectScreen.defaultProps = {
@@ -97,6 +98,7 @@ ConnectScreen.defaultProps = {
 	images: [],
 	redirectUri: null,
 	autoTrigger: false,
+	skipUserConnection: false,
 };
 
 export default ConnectScreen;

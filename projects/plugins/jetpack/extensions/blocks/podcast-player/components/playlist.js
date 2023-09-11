@@ -1,15 +1,4 @@
-/**
- * External dependencies
- */
-
-/**
- * WordPress dependencies
- */
 import { memo } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import { STATE_ERROR, STATE_PLAYING } from '../../../store/media-source/constants';
 import Track from './track';
 

@@ -6,7 +6,7 @@
 - [ ] Check different predefined form types
 - [ ] Verify it renders as expected in both non-AMP and AMP views
 - [ ] Check in mobile view
-- [ ] Check in a older version of WordPress
+- [ ] Check in an older version of WordPress
 - [ ] Check with the Gutenberg plugin
 - [ ] Check without the Gutenberg plugin
 - [ ] Check in IE11

@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { assign } from 'lodash';
 import { combineReducers } from 'redux';
-
-/**
- * Internal dependencies
- */
 import {
 	USER_TRACKING_SETTINGS_FETCH,
 	USER_TRACKING_SETTINGS_FETCH_FAIL,

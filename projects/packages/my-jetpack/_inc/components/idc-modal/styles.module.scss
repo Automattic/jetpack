@@ -1,0 +1,21 @@
+.modal {
+	:global( .components-modal__frame ) {
+		border-left: 4px solid #E68B28;
+		border-top-left-radius: 4px;
+		border-bottom-left-radius: 4px;
+		max-height: 100%;
+	}
+
+	:global( .components-modal__content ) {
+		margin-top: 0;
+		padding: 0;
+	}
+
+	:global( .components-modal__header ) {
+		display: none;
+	}
+
+	.container :global( .jp-idc__idc-screen ) {
+		border: 0;
+	}
+}

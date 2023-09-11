@@ -2,22 +2,15 @@
  *WARNING: No ES6 modules here. Not transpiled! ****
  */
 
-/**
- * External dependencies
- */
 const fs = require( 'fs' );
-const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const webpack = jetpackWebpackConfig.webpack;
-const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
+const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const jsdom = require( 'jsdom' );
-
-/**
- * Internal dependencies
- */
 const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
+const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plugin' );
 
 /**
  * Internal variables
@@ -25,7 +18,6 @@ const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
 const editorSetup = path.join( __dirname, '../extensions', 'editor' );
 const viewSetup = path.join( __dirname, '../extensions', 'view' );
 const blockEditorDirectories = [ 'plugins', 'blocks' ];
-const noop = function () {};
 
 /**
  * Filters block editor scripts
@@ -122,6 +114,12 @@ const sharedWebpackConfig = {
 			DependencyExtractionPlugin: { injectPolyfill: true },
 		} ),
 	],
+	externals: {
+		...jetpackWebpackConfig.externals,
+		jetpackConfig: JSON.stringify( {
+			consumer_slug: 'jetpack',
+		} ),
+	},
 	module: {
 		strictExportPresence: true,
 		rules: [
@@ -150,12 +148,20 @@ const sharedWebpackConfig = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
+							postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
 						},
 					},
 					'sass-loader',
 				],
 			} ),
+
+			// Allow importing .svg files as React components by appending `?component` to the import, e.g. `import Logo from './logo.svg?component';`
+			{
+				test: /\.svg$/i,
+				issuer: /\.[jt]sx?$/,
+				resourceQuery: /component/,
+				use: [ '@svgr/webpack' ],
+			},
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),
@@ -182,6 +188,58 @@ module.exports = [
 					{
 						from: presetPath,
 						to: 'index.json',
+					},
+				],
+			} ),
+			new CopyWebpackPlugin( {
+				patterns: [
+					{
+						from: '**/block.json',
+						to: '[path][name][ext]',
+						context: path.join( __dirname, '../extensions/blocks' ),
+						noErrorOnMissing: true,
+						// Automatically link scripts and styles
+						transform( content, absoluteFrom ) {
+							let metadata = {};
+
+							try {
+								metadata = JSON.parse( content.toString() );
+							} catch ( e ) {}
+
+							const name = metadata.name.replace( 'jetpack/', '' );
+
+							if ( ! name ) {
+								return metadata;
+							}
+
+							const metadataDir = path.dirname( absoluteFrom );
+							let scriptName = 'editor';
+
+							if ( presetIndex.beta.includes( name ) ) {
+								scriptName += '-beta';
+							} else if ( presetIndex.experimental.includes( name ) ) {
+								scriptName += '-experimental';
+							}
+
+							const result = {
+								...metadata,
+								editorScript: `file:../${ scriptName }.js`,
+								editorStyle: `file:../${ scriptName }.css`,
+							};
+
+							if ( fs.existsSync( path.join( metadataDir, 'view.js' ) ) ) {
+								result.viewScript = 'file:./view.js';
+							}
+
+							if (
+								fs.existsSync( path.join( metadataDir, 'style.scss' ) ) ||
+								fs.existsSync( path.join( metadataDir, 'view.scss' ) )
+							) {
+								result.style = 'file:./view.css';
+							}
+
+							return JSON.stringify( result, null, 4 );
+						},
 					},
 				],
 			} ),
@@ -222,37 +280,9 @@ module.exports = [
 			),
 			new StaticSiteGeneratorPlugin( {
 				// The following mocks are required to make `@wordpress/` npm imports work with server-side rendering.
-				// Hopefully, most of them can be dropped once https://github.com/WordPress/gutenberg/pull/16227 lands.
 				globals: {
-					Mousetrap: {
-						init: noop,
-						prototype: {},
-					},
 					document: new jsdom.JSDOM().window.document,
-					navigator: {},
-					window: {
-						addEventListener: noop,
-						console: {
-							error: noop,
-							warn: noop,
-						},
-						// See https://github.com/WordPress/gutenberg/blob/f3b6379327ce3fb48a97cb52ffb7bf9e00e10130/packages/jest-preset-default/scripts/setup-globals.js
-						matchMedia: () => ( {
-							addListener: () => {},
-						} ),
-						navigator: { platform: '', userAgent: '' },
-						Node: {
-							TEXT_NODE: '',
-							ELEMENT_NODE: '',
-							DOCUMENT_POSITION_PRECEDING: '',
-							DOCUMENT_POSITION_FOLLOWING: '',
-						},
-						removeEventListener: noop,
-						URL: {},
-					},
-					CSS: {
-						supports: () => false,
-					},
+					window: {},
 				},
 			} ),
 			new RemoveAssetWebpackPlugin( {

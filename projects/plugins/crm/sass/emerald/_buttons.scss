@@ -1,0 +1,59 @@
+.jpcrm-button {
+	padding: 8px 24px;
+	text-decoration: none;
+	background: var(--jp-black);
+	color: var(--jp-white);
+	border: 1.5px solid var(--jp-black);
+	border-radius: 4px;
+	font-family: var(--jpcrm-font-family-emerald);
+	font-style: normal;
+	font-size: 16px;
+	line-height: 24px;
+	letter-spacing: -0.01em;
+	box-sizing: border-box;
+	display: inline-flex;
+	cursor: pointer;
+	justify-content: center;
+	align-items: center;
+	white-space: nowrap;
+
+	&.font-14px {
+		font-size: 14px;
+		line-height: 24px;
+	}
+
+	&:active,
+	&:focus,
+	&:hover {
+		background: var(--jp-gray-80);
+		color: var(--jp-white);
+	}
+
+	&.white-bg {
+		font-weight: 500;
+		background: var(--jp-white);
+		color: var(--jp-black);
+
+		&:hover {
+			background: var(--jp-gray-0);
+			color: var(--jp-gray-80);
+		}
+	}
+
+	&.transparent-bg {
+		font-weight: 500;
+		border: 0px;
+		background: transparent;
+		color: var(--jp-black);
+		padding: 8px 0px;
+
+		&:hover {
+			background: transparent;
+			color: var(--jp-gray-80);
+		}
+	}
+
+	&.zero-padding {
+		padding: 0px;
+	}
+}

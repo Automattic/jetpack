@@ -3,9 +3,10 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://jetpack.com/beta/
  * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
- * Version: 3.1.0
+ * Version: 3.1.6-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
+ * Update URI: https://jetpack.com/download-jetpack-beta/
  * License: GPLv2 or later
  * Text Domain: jetpack-beta
  *
@@ -34,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'JPBETA__PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
-define( 'JPBETA_VERSION', '3.1.0' );
+define( 'JPBETA_VERSION', '3.1.6-alpha' );
 
 define( 'JETPACK_BETA_PLUGINS_URL', 'https://betadownload.jetpack.me/plugins.json' );
 
@@ -57,7 +58,7 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 			sprintf(
 				/* translators: Placeholder is a link to a support document. */
 				__( 'Your installation of Jetpack Beta is incomplete. If you installed Jetpack Beta from GitHub, please refer to this document to set up your development environment: %1$s', 'jetpack-beta' ),
-				'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md'
 			)
 		);
 	}
@@ -84,7 +85,7 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 							),
 						)
 					),
-					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md'
 				);
 				?>
 			</p>
@@ -98,7 +99,7 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 
 add_action( 'init', array( Automattic\JetpackBeta\AutoupdateSelf::class, 'instance' ) );
 
-set_error_handler( array( Automattic\JetpackBeta\Hooks::class, 'custom_error_handler' ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+Automattic\JetpackBeta\Hooks::setup();
 
 register_activation_hook( __FILE__, array( Automattic\JetpackBeta\Hooks::class, 'activate' ) );
 register_deactivation_hook( __FILE__, array( Automattic\JetpackBeta\Hooks::class, 'deactivate' ) );

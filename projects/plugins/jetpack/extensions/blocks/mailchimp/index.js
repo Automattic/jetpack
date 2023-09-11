@@ -1,17 +1,11 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
 import { Path, SVG, G } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
+import transforms from './transforms';
 import './editor.scss';
-import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'mailchimp';
 
@@ -53,6 +47,16 @@ export const settings = {
 		_x( 'subscription', 'block search term', 'jetpack' ),
 		_x( 'newsletter', 'block search term', 'jetpack' ),
 	],
+	supports: {
+		align: [ 'wide', 'full' ],
+		color: {
+			gradients: true,
+		},
+		spacing: {
+			padding: true,
+			margin: true,
+		},
+	},
 	attributes: {
 		emailPlaceholder: {
 			type: 'string',
@@ -104,4 +108,5 @@ export const settings = {
 		innerBlocks: [ innerButtonBlock ],
 	},
 	deprecated: [ deprecatedV1 ],
+	transforms,
 };

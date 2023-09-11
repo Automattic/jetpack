@@ -54,12 +54,5 @@ function e2e_intercept_plan_data_request( $return, $r, $url ) {
 		);
 	}
 
-	if ( false !== stripos( $url, sprintf( '/sites/%d/jetpack-search/plan', $site_id ) ) ) {
-		return array(
-			'response' => array( 'code' => 200 ),
-			'body'     => sprintf( '{"search_subscriptions":[{"ID":"123","user_id":"456","blog_id":"%d","product_id":"2104","expiry":"2125-05-17","subscribed_date":"2021-05-17 05:34:09","renew":false,"auto_renew":true,"ownership_id":"123","most_recent_renew_date":"","subscription_status":"active","product_name":"Jetpack Search","product_name_en":"Jetpack Search","product_slug":"jetpack_search","product_type":"search","cost":50,"currency":"USD","bill_period":"365","available":"yes","multi":true,"support_document":null,"is_instant_search":true,"tier":"up_to_100_records"}],"supports_instant_search":true,"supports_only_classic_search":false,"supports_search":true,"default_upgrade_bill_period":"yearly"}', $site_id ),
-		);
-	}
-
 	return $return;
 }

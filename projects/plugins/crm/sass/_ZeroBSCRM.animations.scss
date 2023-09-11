@@ -1,0 +1,63 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V2.76+
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 29/04/18
+ */
+
+/*
+	Global styles for ZBS animations
+*/
+//https://stackoverflow.com/questions/15501585/how-do-i-make-a-div-vibrate-or-buzz-similar-to-the-ios-move-delete-app-feature
+@-webkit-keyframes zbs-shake {
+    0%, 100% {-webkit-transform: translateX(0) rotate(0deg) translateY(0);}
+    15%, 35%, 55%, 75%, 95% {-webkit-transform: translateX(-1px) rotate(-2deg) ;}
+    25%, 45%, 65%, 85% {-webkit-transform: translateX(1px) rotate(2deg); }
+    10%, 30%, 50%, 70%, 90% {-webkit-transform: translateY(1px);}    
+    20%, 40%, 60%, 80% {-webkit-transform: translateY(-1px); }
+}
+@-moz-keyframes zbs-shake {
+    0%, 100% {-moz-transform: translateX(0) rotate(0deg) translateY(0);}
+    15%, 35%, 55%, 75%, 95% {-moz-transform: translateX(-1px) rotate(-2deg) ;}
+    25%, 45%, 65%, 85% {-moz-transform: translateX(1px) rotate(2deg); }
+    10%, 30%, 50%, 70%, 90% {-moz-transform: translateY(1px);}    
+    20%, 40%, 60%, 80% {-moz-transform: translateY(-1px); }  
+}
+
+@-o-keyframes zbs-shake {
+     0%, 100% {-o-transform: translateX(0) rotate(0deg) translateY(0);}
+    15%, 35%, 55%, 75%, 95% {-o-transform: translateX(-1px) rotate(-2deg) ;}
+    25%, 45%, 65%, 85% {-o-transform: translateX(1px) rotate(2deg); }
+    10%, 30%, 50%, 70%, 90% {-o-transform: translateY(1px);}    
+    20%, 40%, 60%, 80% {-o-transform: translateY(-1px); }  
+}
+
+@keyframes zbs-shake {
+    0%, 100% {transform: translateX(0) rotate(0deg) translateY(0);}
+    15%, 35%, 55%, 75%, 95% {transform: translateX(-1px) rotate(-2deg) ;}
+    25%, 45%, 65%, 85% {transform: translateX(1px) rotate(2deg); }
+    10%, 30%, 50%, 70%, 90% {transform: translateY(1px);}    
+    20%, 40%, 60%, 80% {transform: translateY(-1px); }  
+}
+.zbs-shake {
+    -webkit-animation-name: zbs-shake;
+    -moz-animation-name: zbs-shake;
+    -o-animation-name: zbs-shake;
+    animation-name: zbs-shake;
+    -webkit-animation-duration: 2s;
+    -moz-animation-duration: 2s;
+    -o-animation-duration: 2s;
+    animation-duration: 2s;
+    -webkit-animation-fill-mode: both;
+    -moz-animation-fill-mode: both;
+    -o-animation-fill-mode: both;
+    animation-fill-mode: both;
+    -webkit-animation-iteration-count: infinite;
+    -moz-animation-iteration-count: infinite;    
+    -o-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-transition-timing-function:linear;    
+}

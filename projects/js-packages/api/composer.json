@@ -4,18 +4,11 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "3.0.x-dev"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"scripts": {
 		"test-js": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm install",
 			"pnpm run test"
-		],
-		"test-coverage": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm install",
-			"pnpx nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
 		]
 	},
 	"repositories": [
@@ -26,5 +19,13 @@
 				"monorepo": true
 			}
 		}
-	]
+	],
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-api",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-api/compare/v${old}...v${new}"
+		},
+		"autotagger": true,
+		"npmjs-autopublish": true
+	}
 }

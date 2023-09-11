@@ -1,8 +1,25 @@
+import jQuery from 'jquery';
+
 import '../css/jetpack-admin-jitm.scss';
 
 jQuery( document ).ready( function ( $ ) {
 	var templates = {
 		default: function ( envelope ) {
+			const EXTERNAL_LINK_ICON = `
+				<svg class="gridicon gridicons-external-link" height="17" width="17" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+					<g>
+						<path d="M19 13v6c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V7c0-1.105.895-2 2-2h6v2H5v12h12v-6h2zM13 3v2h4.586l-7.793 7.793 1.414 1.414L19 6.414V11h2V3h-8z" />
+					</g>
+				</svg>
+				`;
+
+			const CHECKMARK_ICON = `
+				<svg class="gridicon gridicons-checkmark" height="16" width="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+					<g>
+						<path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414" />
+					</g>
+				</svg>`;
+
 			var html =
 				'<div class="jitm-card jitm-banner ' +
 				( envelope.CTA.message ? 'has-call-to-action' : '' ) +
@@ -32,13 +49,13 @@ jQuery( document ).ready( function ( $ ) {
 								envelope.id +
 								'">' +
 								text +
+								EXTERNAL_LINK_ICON +
 								'</a>';
 						}
 
 						html +=
 							'<li>' +
-							'<svg class="gridicon gridicons-checkmark" height="16" width="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g>' +
-							'<path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414" /></g></svg>' +
+							CHECKMARK_ICON +
 							text +
 							'</li>';
 					}
@@ -66,16 +83,21 @@ jQuery( document ).ready( function ( $ ) {
 				var ctaClasses = 'jitm-button is-compact jptracks';
 				if ( envelope.CTA.primary && null === envelope.activate_module ) {
 					ctaClasses += ' is-primary';
+				} else {
+					ctaClasses += ' is-secondary';
 				}
 
 				var ajaxAction = envelope.CTA.ajax_action;
+				var externalLink = envelope.CTA.newWindow && ! ajaxAction;
 
 				html += '<div class="jitm-banner__action">';
 				html +=
 					'<a href="' +
-					envelope.url +
+					( envelope.CTA.hasOwnProperty( 'link' ) && envelope.CTA.link.length
+						? envelope.CTA.link
+						: envelope.url ) +
 					'" target="' +
-					( envelope.CTA.newWindow === false || ajaxAction ? '_self' : '_blank' ) +
+					( externalLink ? '_blank' : '_self' ) +
 					'" rel="noopener noreferrer" title="' +
 					envelope.CTA.message +
 					'" data-module="' +
@@ -88,6 +110,7 @@ jQuery( document ).ready( function ( $ ) {
 					( ajaxAction ? 'data-ajax-action="' + ajaxAction + '"' : '' ) +
 					'>' +
 					envelope.CTA.message +
+					( externalLink ? EXTERNAL_LINK_ICON : '' )
 					'</a>';
 				html += '</div>';
 			}
@@ -139,7 +162,7 @@ jQuery( document ).ready( function ( $ ) {
 		response.url = response.url + '&redirect=' + redirect;
 
 		var $template = templates[ template ]( response );
-		$template.find( '.jitm-banner__dismiss' ).click( render( $template ) );
+		$template.find( '.jitm-banner__dismiss' ).on( 'click', render( $template ) );
 
 		if ( $( '#jp-admin-notices' ).length > 0 ) {
 			// Add to Jetpack notices within the Jetpack settings app.
@@ -158,7 +181,7 @@ jQuery( document ).ready( function ( $ ) {
 		}
 
 		// Handle Module activation button if it exists.
-		$template.find( '#jitm-banner__activate a' ).click( function () {
+		$template.find( '#jitm-banner__activate a' ).on( 'click', function () {
 			var $activate_button = $( this );
 
 			// Do not allow any requests if the button is disabled.
@@ -193,7 +216,7 @@ jQuery( document ).ready( function ( $ ) {
 		} );
 
 		// Handle CTA ajax actions.
-		$template.find( '.jitm-button[data-ajax-action]' ).click( function ( e ) {
+		$template.find( '.jitm-button[data-ajax-action]' ).on( 'click', function ( e ) {
 			e.preventDefault();
 			var button = $( this );
 			button.attr( 'disabled', true );
@@ -221,7 +244,14 @@ jQuery( document ).ready( function ( $ ) {
 			var hash = location.hash;
 
 			hash = hash.replace( /#\//, '_' );
-			if ( '_dashboard' !== hash ) {
+
+			// We always include the hash if this is My Jetpack page
+			if ( message_path.includes( 'jetpack_page_my-jetpack' )) {
+				message_path = message_path.replace(
+					'jetpack_page_my-jetpack',
+					'jetpack_page_my-jetpack' + hash
+				);
+			} else if ( '_dashboard' !== hash ) {
 				message_path = message_path.replace(
 					'toplevel_page_jetpack',
 					'toplevel_page_jetpack' + hash
@@ -253,10 +283,20 @@ jQuery( document ).ready( function ( $ ) {
 
 	reFetch();
 
-	$( window ).bind( 'hashchange', function ( e ) {
-		var newURL = e.originalEvent.newURL;
+	$( window ).on( 'hashchange', function ( e ) {
+		const newURL = e.originalEvent.newURL;
+		const isJetpackPage = [
+			'jetpack',
+			'my-jetpack',
+			'jetpack-backup',
+			'jetpack-boost',
+			'jetpack-protect',
+			'jetpack-search',
+			'jetpack-social',
+			'jetpack-videopress',
+		].some( str => newURL.includes( `admin.php?page=${ str }` ) );
 
-		if ( newURL.indexOf( 'jetpack#/' ) >= 0 ) {
+		if ( isJetpackPage ) {
 			var jitm_card = document.querySelector( '.jitm-card' );
 			if ( jitm_card ) {
 				jitm_card.remove();

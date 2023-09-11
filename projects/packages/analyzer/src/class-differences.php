@@ -155,25 +155,33 @@ class Differences extends PersistentList {
 				case 'function_missing':
 					$this->add( new Differences\Function_Missing( Declarations\Function_::from_map( $obj->old_declaration ) ) );
 					break;
+				case 'function_moved':
+					$this->add(new Differences\Function_Moved( Declarations\Function_::from_map( $obj->old_declaration ), Declarations\Function_::from_map( $obj->new_declaration ) ) );
+					break;
 				case 'method_missing':
 					$this->add( new Differences\Class_Method_Missing( Declarations\Class_Method::from_map( $obj->old_declaration ) ) );
 					break;
-
+				case 'method_moved':
+					$this->add(new Differences\Class_Method_Moved( Declarations\Class_Method::from_map( $obj->old_declaration ), Declarations\Class_Method::from_map( $obj->new_declaration ) ) );
+					break;
 				case 'class_missing':
 					$this->add( new Differences\Class_Missing( Declarations\Class_::from_map( $obj->old_declaration ) ) );
 					break;
-
+				case 'class_moved':
+					$this->add(new Differences\Class_Moved( Declarations\Class_::from_map( $obj->old_declaration ), Declarations\Class_::from_map( $obj->new_declaration ) ) );
+					break;
 				case 'class_const_missing':
 					$this->add( new Differences\Class_Const_Missing( Declarations\Class_Const::from_map( $obj->old_declaration ) ) );
 					break;
-
 				case 'property_missing':
 					$this->add( new Differences\Class_Property_Missing( Declarations\Class_Property::from_map( $obj->old_declaration ) ) );
 					break;
-
+				case 'property_moved':
+					$this->add(new Differences\Class_Property_Moved( Declarations\Class_Property::from_map( $obj->old_declaration ), Declarations\Class_Property::from_map( $obj->new_declaration ) ) );
+					break;
 				default:
 					// TODO: Implement handlers to other difference types.
-					echo $obj->diff_type . " not implemented!\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo "Difference not implemented: " . $obj->diff_type . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					break;
 			}
 		}

@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.2.1-alpha';
+	const PACKAGE_VERSION = '0.2.22-alpha';
 
 	/**
 	 * Whether this class has been initialized
@@ -37,22 +37,32 @@ class Admin_Menu {
 	public static function init() {
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
+			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 		}
 	}
 
 	/**
-	 * Enqueue styles for the top level menu
+	 * Handles the Akismet menu item when used alongside other stand-alone plugins
 	 *
-	 * @return void
+	 * When Jetpack plugin is present, Akismet menu item is moved under the Jetpack top level menu, but if Akismet is active alongside other stand-alone plugins,
+	 * we use this method to move the menu item.
 	 */
-	public static function enqueue_style() {
-		wp_enqueue_style(
-			'jetpack-admin-ui',
-			plugin_dir_url( __FILE__ ) . 'css/jetpack-icon.css',
-			array(),
-			self::PACKAGE_VERSION
-		);
+	private static function handle_akismet_menu() {
+		if ( ! class_exists( 'Jetpack' ) && class_exists( 'Akismet_Admin' ) ) {
+			// Prevent Akismet from adding a menu item.
+			add_action(
+				'admin_menu',
+				function () {
+					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+				},
+				4
+			);
+
+			// Add an Anti-spam menu item for Jetpack.
+			self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
+
+		}
 	}
 
 	/**
@@ -63,22 +73,40 @@ class Admin_Menu {
 	public static function admin_menu_hook_callback() {
 		$can_see_toplevel_menu  = true;
 		$jetpack_plugin_present = class_exists( 'Jetpack_React_Page' );
+		$icon                   = method_exists( '\Automattic\Jetpack\Assets\Logo', 'get_base64_logo' )
+			? ( new \Automattic\Jetpack\Assets\Logo() )->get_base64_logo()
+			: 'dashicons-admin-plugins';
 
 		if ( ! $jetpack_plugin_present ) {
-			add_action( 'admin_print_scripts', array( __CLASS__, 'enqueue_style' ) );
 			add_menu_page(
 				'Jetpack',
 				'Jetpack',
 				'read',
 				'jetpack',
 				'__return_null',
-				'div',
+				$icon,
 				3
 			);
 
 			// If Jetpack plugin is not present, user will only be able to see this menu if they have enough capability to at least one of the sub menus being added.
 			$can_see_toplevel_menu = false;
 		}
+
+		/**
+		 * The add_sub_menu function has a bug and will not keep the right order of menu items.
+		 *
+		 * @see https://core.trac.wordpress.org/ticket/52035
+		 * Let's order the items before registering them.
+		 * Since this all happens after the Jetpack plugin menu items were added, all items will be added after Jetpack plugin items - unless position is very low number (smaller than the number of menu items present in Jetpack plugin).
+		 */
+		usort(
+			self::$menu_items,
+			function ( $a, $b ) {
+				$position_a = empty( $a['position'] ) ? 0 : $a['position'];
+				$position_b = empty( $b['position'] ) ? 0 : $b['position'];
+				return $position_a - $position_b;
+			}
+		);
 
 		foreach ( self::$menu_items as $menu_item ) {
 			if ( ! current_user_can( $menu_item['capability'] ) ) {

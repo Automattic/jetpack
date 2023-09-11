@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<ruleset>
+	<!-- Renaming all functions before being able to pass linting tests is too unrealistic for us at the moment. -->
+	<!-- We'll have to update all uses in all of our paid extensions as well, any community maintained plugins, etc. -->
+	<rule ref="WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid">
+		<severity>0</severity>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="zero-bs-crm" />
+			</property>
+		</properties>
+	</rule>
+	<rule ref="Jetpack.Functions.I18n">
+		<properties>
+			<property name="text_domain" value="zero-bs-crm" />
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.Utils.I18nTextDomainFixer">
+		<properties>
+			<property name="old_text_domain" type="array" />
+			<property name="new_text_domain" value="zero-bs-crm" />
+		</properties>
+	</rule>
+
+	<!-- This is being removed primarily because of White Label comment styles for now -->
+	<rule ref="Squiz.Commenting.InlineComment.WrongStyle">
+		<severity>0</severity> 
+	</rule>
+
+	<!-- Ideally we'd just configure PHPCompatibility with the right PHP version, but it uses <config> rather than <properties>. Sigh. -->
+	<!-- So instead we have to manually disable certain sniffs. -->
+	<rule ref="./.phpcs.dir.phpcompatibility.xml" />
+
+	<rule ref="Generic.Commenting.DocComment.MissingShort">
+		<severity>0</severity>
+	</rule>
+
+	<!-- Custom JPCRM escape function -->
+	<rule ref="WordPress.Security.EscapeOutput">
+		<properties>
+			<property name="customAutoEscapedFunctions" type="array" value="jpcrm_esc_link"/>
+		</properties>
+	</rule>
+</ruleset>

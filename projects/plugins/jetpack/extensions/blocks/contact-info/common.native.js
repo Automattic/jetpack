@@ -1,25 +1,10 @@
-/**
- * External dependencies
- */
 import { withPreferredColorScheme } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
 import simpleInput from '../../shared/simple-input';
-
 import styles from './style.scss';
 
 const CommonChildEdit = props => {
-	const {
-		setAttributes,
-		getStylesFromColorScheme,
-		type,
-		keyboardType,
-		save,
-		label,
-		attributeKey,
-	} = props;
+	const { setAttributes, getStylesFromColorScheme, type, keyboardType, save, label, attributeKey } =
+		props;
 	const { color: placeholderTextColor } = getStylesFromColorScheme(
 		styles.placeholder,
 		styles.placeholderDark

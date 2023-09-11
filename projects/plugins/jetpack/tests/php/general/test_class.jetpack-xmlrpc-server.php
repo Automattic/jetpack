@@ -4,7 +4,7 @@ use Automattic\Jetpack\Connection\Tokens;
 
 class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 
-	static $xmlrpc_admin = 0;
+	public static $xmlrpc_admin = 0;
 
 	public static function wpSetupBeforeClass( $factory ) {
 		$user_id = $factory->user->create();
@@ -170,7 +170,6 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		);
 
 		$this->assertSame( 1, did_action( 'jetpack_remote_connect_end' ), 'Action was not fired' );
-
 	}
 
 	/**

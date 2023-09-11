@@ -1,25 +1,11 @@
 /* global _wpmejsSettings, MediaElementPlayer */
 
-/**
- * External dependencies
- */
-import { debounce, throttle } from 'lodash';
-
-/**
- * WordPress dependencies
- */
+import { speak } from '@wordpress/a11y';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { speak } from '@wordpress/a11y';
-
-/**
- * Internal dependencies
- */
+import { debounce, throttle } from 'lodash';
 import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from '../../../store/media-source/constants';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 // MediaElement global settings.
@@ -98,7 +84,7 @@ function AudioPlayer( {
 		// Insert player into the DOM.
 		const mediaElement = new MediaElementPlayer( audio, {
 			...meJsSettings,
-			success: () => loadWhenReady && audio?.load()
+			success: () => loadWhenReady && audio?.load(),
 		} );
 
 		// Add the skip and jump buttons if needed

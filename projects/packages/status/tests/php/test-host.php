@@ -31,6 +31,9 @@ class Test_Host extends TestCase {
 	public function set_up() {
 		Monkey\setUp();
 
+		Functions\when( 'get_current_blog_id' )->justReturn( 1 );
+
+		Cache::clear();
 		$this->host_obj = new Host();
 	}
 
@@ -42,6 +45,10 @@ class Test_Host extends TestCase {
 	public function tear_down() {
 		Monkey\tearDown();
 		Constants::clear_constants();
+		Cache::clear();
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		unset( $_GET['calypso_env'] );
 	}
 
 	/**
@@ -53,22 +60,13 @@ class Test_Host extends TestCase {
 	}
 
 	/**
-	 * Tests if WoA Site based on option
-	 */
-	public function test_woa_site_based_on_option() {
-		$this->setup_atomic_constants();
-		Functions\when( 'get_option' )->justReturn( array( 'fruit' => 'apples' ) ); // Just need a non-empty value.
-		$this->assertTrue( $this->host_obj->is_woa_site() );
-	}
-
-	/**
-	 * Tests if WoA Site based on option
+	 * Tests if WoA Site based on constant
 	 */
 	public function test_woa_site_based_on_constant() {
 		$this->setup_atomic_constants();
 		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
-		Functions\when( 'get_option' )->justReturn( array() ); // Intentionally want to return empty the option.
 		$this->assertTrue( $this->host_obj->is_woa_site() );
+		$this->assertTrue( $this->host_obj->is_wpcom_platform() );
 	}
 
 	/**
@@ -77,7 +75,6 @@ class Test_Host extends TestCase {
 	public function test_atomic_not_woa() {
 		$this->setup_atomic_constants();
 		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', false );
-		Functions\when( 'get_option' )->justReturn( array() ); // Intentionally want to return empty the option.
 		$this->assertTrue( $this->host_obj->is_atomic_platform() );
 		$this->assertFalse( $this->host_obj->is_woa_site() );
 	}
@@ -97,6 +94,56 @@ class Test_Host extends TestCase {
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', false );
 		Constants::set_constant( 'ATOMIC_SITE_ID', false );
 		$this->assertFalse( $this->host_obj->is_atomic_platform() );
+	}
+
+	/**
+	 * Tests if a Simple Site based on constant
+	 */
+	public function test_simple_site_based_on_constant() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->assertTrue( $this->host_obj->is_wpcom_simple() );
+		$this->assertTrue( $this->host_obj->is_wpcom_platform() );
+	}
+
+	/**
+	 * Test result is cached.
+	 */
+	public function test_cached() {
+		$this->setup_atomic_constants();
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
+		$this->assertTrue( $this->host_obj->is_woa_site() );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', false );
+		$this->assertTrue( $this->host_obj->is_woa_site() );
+	}
+
+	/**
+	 * Tests getting the correct Calypso host.
+	 *
+	 * @covers Automattic\Jetpack\Status\Host::get_calypso_env
+	 * @dataProvider get_calypso_env_data_provider
+	 *
+	 * @param string $env Calypso environment (empty string if default).
+	 */
+	public function test_get_calypso_env( $env ) {
+		if ( $env ) {
+			$_GET['calypso_env'] = $env;
+		}
+
+		$this->assertEquals( $env, $this->host_obj->get_calypso_env() );
+	}
+
+	/**
+	 * Data provider for `test_get_calypso_env()` test method.
+	 *
+	 * @return array
+	 */
+	public function get_calypso_env_data_provider() {
+		return array(
+			'development' => array( 'development' ),
+			'wpcalypso'   => array( 'wpcalypso' ),
+			'horizon'     => array( 'horizon' ),
+			'default'     => array( '' ),
+		);
 	}
 
 }

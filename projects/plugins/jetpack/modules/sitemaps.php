@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( '1' == get_option( 'blog_public' ) ) { // loose comparison okay.
+if ( '1' == get_option( 'blog_public' ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 	include_once __DIR__ . '/sitemaps/sitemaps.php';
 
 	// Disable WordPress 5.5-era sitemaps.

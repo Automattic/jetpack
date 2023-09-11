@@ -1,10 +1,10 @@
 import { LoginPage, ConnectionsPage } from '../../wpcom/index.js';
 import logger from '../../../logger.cjs';
-import PageActions from '../../page-actions.js';
+import EditorCanvas from './editor-canvas.js';
 import axios from 'axios';
 import { resolveSiteUrl } from '../../../helpers/utils-helper.cjs';
 
-export default class MailchimpBlock extends PageActions {
+export default class MailchimpBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Mailchimp block' );
 		this.blockTitle = MailchimpBlock.title();
@@ -50,10 +50,26 @@ export default class MailchimpBlock extends PageActions {
 		} else {
 			logger.step( `Connecting Mailchimp` );
 
-			const formSelector = await this.waitForElementToBeVisible( this.setupFormBtnSel );
+			const formSelector = await this.canvas().waitForSelector( this.setupFormBtnSel );
 			const hrefProperty = await formSelector.getProperty( 'href' );
 			const connectionsUrl = await hrefProperty.jsonValue();
-			const wpComTab = await this.clickAndWaitForNewPage( this.setupFormBtnSel );
+			// const wpComTab = await this.clickAndWaitForNewPage( this.setupFormBtnSel );
+
+			const [ wpComTab ] = await Promise.all( [
+				this.page.context().waitForEvent( 'page' ),
+				this.canvas().click( this.setupFormBtnSel ),
+			] );
+
+			logger.action( 'Waiting for new page' );
+			await wpComTab.waitForLoadState();
+			await wpComTab.bringToFront();
+
+			// Quick fix for redirect URL not working with site ID
+			const workingUrl = connectionsUrl.replace(
+				/\d+/,
+				resolveSiteUrl().replace( 'https://', '' )
+			);
+			await wpComTab.goto( workingUrl );
 
 			if ( ! isLoggedIn ) {
 				await ( await LoginPage.init( wpComTab ) ).login();
@@ -71,8 +87,11 @@ export default class MailchimpBlock extends PageActions {
 					await wpComConnectionsPage.selectMailchimpList();
 					done = true;
 				} catch ( e ) {
+					logger.error( e );
 					if ( count > 4 ) {
-						throw new Error( `Mailchimp connection failed after ${ count } attempts` );
+						throw new Error(
+							`Mailchimp connection failed after ${ count } attempts.\nLast error: ${ e }`
+						);
 					}
 					logger.warn(
 						'Mailchimp connection failed. Attempt: ' + count + '; URL: ' + connectionsUrl
@@ -83,10 +102,10 @@ export default class MailchimpBlock extends PageActions {
 			}
 
 			await this.page.bringToFront();
-			await this.click( this.recheckConnectionLnkSel );
+			await this.canvas().click( this.recheckConnectionLnkSel );
 		}
 
-		await this.waitForElementToBeVisible( this.joinBtnSel );
+		await this.canvas().waitForSelector( this.joinBtnSel );
 	}
 
 	/**

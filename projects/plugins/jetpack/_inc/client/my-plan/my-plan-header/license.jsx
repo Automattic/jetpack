@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
-import React, { useState, useCallback } from 'react';
+import restApi from '@automattic/jetpack-api';
 import { __, _x } from '@wordpress/i18n';
-import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import Button from 'components/button';
-import TextInput from 'components/text-input';
 import {
 	successNotice as successNoticeAction,
 	errorNotice as errorNoticeAction,
 } from 'components/global-notices/state/notices/actions';
-import restApi from '@automattic/jetpack-api';
+import TextInput from 'components/text-input';
+import React, { useState, useCallback } from 'react';
+import { connect } from 'react-redux';
 import { updateUserLicensesCounts as updateUserLicensesCountsAction } from 'state/licensing';
 
 const License = ( { errorNotice, successNotice, updateUserLicensesCounts } ) => {

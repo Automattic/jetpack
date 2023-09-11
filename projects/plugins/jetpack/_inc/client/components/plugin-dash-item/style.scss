@@ -1,0 +1,64 @@
+@import '@automattic/jetpack-base-styles/style';
+@import '_inc/client/scss/variables/_colors.scss';
+@import '../../scss/mixin_breakpoint.scss';
+@import '../../scss/mixins/ui';
+
+.plugin-dash-item {
+	@include dashboard-card-shadow;
+
+	p {
+		font-size: var( --font-body-small );
+	}
+
+	.plugin-dash-item__section-header,
+	.plugin-dash-item__content,
+	.dops-banner {
+		width: 100%;
+		margin-bottom: 0;
+	}
+
+	.dops-banner.dops-card {
+		height: 100%;
+		border: 0;
+		box-shadow: none;
+
+		.dops-banner__icons {
+
+			.dops-banner__icon-circle{
+				background-color: $color-product;
+				height: 32px;
+				width: 32px;
+
+				.gridicon {
+					margin-bottom: 0;
+
+					g {
+						transform: none;
+					}
+				}
+			}
+
+			@include breakpoint( '<480px' ) {
+
+				.dops-banner__icon {
+					display: none;
+				}
+				.dops-banner__icon-circle {
+					display: block;
+				}
+			}
+		}
+	}
+
+	.plugin-dash-item__content {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		height: 100%;
+
+		.components-spinner {
+			margin-top: 0;
+		}
+	}
+
+}

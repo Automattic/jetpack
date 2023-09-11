@@ -5,8 +5,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.2",
-		"automattic/jetpack-changelogger": "^3.0"
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -14,7 +14,8 @@
 		]
 	},
 	"scripts": {
-		"build-development": "pnpm run storybook:build"
+		"build-development": "pnpm run storybook:build",
+		"test-js": "pnpm run test"
 	},
 	"repositories": [
 		{
@@ -28,6 +29,19 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"dependencies": {
+			"build": [
+				"js-packages/ai-client",
+				"js-packages/components",
+				"js-packages/connection",
+				"js-packages/idc",
+				"packages/my-jetpack",
+				"packages/search",
+				"plugins/protect",
+				"plugins/boost",
+				"packages/videopress"
+			]
+		},
 		"mirror-repo": "Automattic/jetpack-storybook"
 	}
 }

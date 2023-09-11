@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import classNames from 'classnames';
-import { isEmpty, forOwn, omit } from 'lodash';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import classNames from 'classnames';
 import Button from 'components/button';
 import SelectDropdown from 'components/select-dropdown';
+import { isEmpty, forOwn, omit } from 'lodash';
+import React from 'react';
 
 export const FormFieldset = props => {
 	return (
@@ -170,7 +163,7 @@ export class FormButton extends React.Component {
 		return (
 			<Button
 				{ ...omit( this.props, 'className' ) }
-				primary={ this.props.isPrimary }
+				variant={ this.props.isPrimary ? 'primary' : undefined }
 				className={ classNames( this.props.className, buttonClasses ) }
 			>
 				{ isEmpty( this.props.children ) ? this.getDefaultButtonAction() : this.props.children }
@@ -201,6 +194,7 @@ export class FormSelect extends React.Component {
 				onSelect={ this.handleOnSelect }
 				disabled={ this.props.disabled }
 				initialSelected={ this.props.value }
+				rna={ this.props.rna }
 			/>
 		);
 	}

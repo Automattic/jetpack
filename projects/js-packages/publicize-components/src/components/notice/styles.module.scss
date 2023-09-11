@@ -1,0 +1,60 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.notice {
+	font-size: 13px;
+	line-height: 24px;
+	margin: 5px 0 12px 0;
+	position: relative;
+}
+
+.notice--default {
+	color: $gray-700;
+}
+
+.notice--highlight,
+.notice--warning,
+.notice--error {
+	padding: 8px 16px;
+
+	a {
+		color: inherit;
+	}
+}
+
+.notice--warning {
+	background-color: lighten( $alert-yellow, 35% );
+	border-left: 2px solid $alert-yellow;
+}
+
+.notice--error {
+	background-color: lighten( $alert-red, 35% );
+	border-left: 2px solid $alert-red;
+}
+
+.notice--highlight {
+	padding: 12px 16px;
+	border: 1px solid var( --wp-components-color-accent, var( --wp-admin-theme-color, #007cba ) );
+	border-left-width: 4px;
+}
+
+.content {
+	padding-right: 25px;
+}
+
+.dismiss {
+	all: unset;
+	cursor: pointer;
+	position: absolute;
+	top: 12px;
+	right: 16px;
+
+	&:focus:not( :disabled ) {
+		box-shadow: inset 0 0 0 1px var( --wp-components-color-background, #fff ),
+			0 0 0 var( --wp-admin-border-width-focus )
+				var( --wp-components-color-accent, var( --wp-admin-theme-color, #007cba ) );
+	}
+}
+
+.actions {
+	margin-top: 12px;
+}

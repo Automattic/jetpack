@@ -23,7 +23,6 @@ class RedirectTest extends TestCase {
 	 */
 	public function set_up() {
 		Monkey\setUp();
-		$this->status = new Status();
 	}
 
 	/**
@@ -40,6 +39,8 @@ class RedirectTest extends TestCase {
 	 */
 	public function test_get_url() {
 		Functions\when( 'home_url' )->justReturn( 'https://example.org' );
+		Functions\when( 'get_current_blog_id' )->justReturn( 1 );
+		Functions\when( 'get_option' )->justReturn();
 
 		$url = Redirect::get_url( 'simple' );
 		$this->assertEquals( 'https://jetpack.com/redirect/?source=simple&site=example.org', $url );
@@ -91,7 +92,6 @@ class RedirectTest extends TestCase {
 		$v     = rawurlencode( 'key=value&key2=value2' );
 		$v_url = rawurlencode( 'https://wordpress.com/support' );
 		$this->assertEquals( 'https://jetpack.com/redirect/?url=' . $v_url . '&site=example.org&query=' . $v, $url );
-
 	}
 
 }

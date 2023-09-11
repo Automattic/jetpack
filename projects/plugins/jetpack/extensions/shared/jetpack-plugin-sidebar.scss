@@ -1,8 +1,8 @@
-@import 'styles/gutenberg-base-styles.scss';
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
-.edit-post-pinned-plugins,
-.edit-post-more-menu__content {
-	.components-icon-button {
+.interface-pinned-items,
+.interface-more-menu-dropdown__content {
+	.components-button {
 		.jetpack-logo {
 			width: 20px;
 			height: 20px;
@@ -19,9 +19,7 @@
 }
 
 .edit-post-pinned-plugins {
-	.components-icon-button,    // Gutenberg < 7.2.0. @TODO: Remove once we drop support
-	.components-button.has-icon // Gutenberg >= 7.2.0
-	 {
+	.components-button.has-icon {
 		&:not( .is-toggled ),
 		&:hover,
 		&.is-toggled,

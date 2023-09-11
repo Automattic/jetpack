@@ -1,0 +1,4 @@
+// Note we don't actually have git ignore these, this is for testing.
+gitignoredfile.php
+gitignored-but-overridden-file.php
+gitignoredir/

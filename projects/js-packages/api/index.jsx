@@ -1,9 +1,5 @@
-/**
- * External dependencies
- */
-import { assign } from 'lodash';
-import { addQueryArgs } from '@wordpress/url';
 import { jetpackConfigGet, jetpackConfigHas } from '@automattic/jetpack-config';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Helps create new custom error classes to better notify upper layers.
@@ -35,6 +31,7 @@ export const FetchNetworkError = createCustomError( 'FetchNetworkError' );
  */
 function JetpackRestApiClient( root, nonce ) {
 	let apiRoot = root,
+		wpcomOriginApiUrl = root,
 		headers = {
 			'X-WP-Nonce': nonce,
 		},
@@ -45,7 +42,7 @@ function JetpackRestApiClient( root, nonce ) {
 		postParams = {
 			method: 'post',
 			credentials: 'same-origin',
-			headers: assign( {}, headers, {
+			headers: Object.assign( {}, headers, {
 				'Content-type': 'application/json',
 			} ),
 		},
@@ -54,6 +51,17 @@ function JetpackRestApiClient( root, nonce ) {
 	const methods = {
 		setApiRoot( newRoot ) {
 			apiRoot = newRoot;
+		},
+		/**
+		 * Sets API root for search endpoints.
+		 * They are routed through wpcom API for wpcom simple sites,
+		 * so we add `/wp-json/wpcom-origin/` to this path on wpcom.
+		 * For non-wpcom sites, this is the same as apiRoot.
+		 *
+		 * @param {string} newRoot - API root for search endpoints.
+		 */
+		setWpcomOriginApiUrl( newRoot ) {
+			wpcomOriginApiUrl = newRoot;
 		},
 		setApiNonce( newNonce ) {
 			headers = {
@@ -66,7 +74,7 @@ function JetpackRestApiClient( root, nonce ) {
 			postParams = {
 				method: 'post',
 				credentials: 'same-origin',
-				headers: assign( {}, headers, {
+				headers: Object.assign( {}, headers, {
 					'Content-type': 'application/json',
 				} ),
 			};
@@ -322,6 +330,12 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
 
+		fetchSiteDiscount: () =>
+			getRequest( `${ apiRoot }jetpack/v4/site/discount`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( body => body.data ),
+
 		fetchSetupQuestionnaire: () =>
 			getRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, getParams )
 				.then( checkStatus )
@@ -339,6 +353,11 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchRecommendationsUpsell: () =>
 			getRequest( `${ apiRoot }jetpack/v4/recommendations/upsell`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		fetchRecommendationsConditional: () =>
+			getRequest( `${ apiRoot }jetpack/v4/recommendations/conditional`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
@@ -376,6 +395,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		fetchIntroOffers: () =>
+			getRequest( `${ apiRoot }jetpack/v4/intro-offers`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchVerifySiteGoogleStatus: keyringId => {
 			const request =
 				keyringId !== null
@@ -389,11 +413,6 @@ function JetpackRestApiClient( root, nonce ) {
 			postRequest( `${ apiRoot }jetpack/v4/verify-site/google`, postParams, {
 				body: JSON.stringify( { keyring_id: keyringId } ),
 			} )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
-
-		sendMobileLoginEmail: () =>
-			postRequest( `${ apiRoot }jetpack/v4/mobile/send-login-email`, postParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
@@ -427,6 +446,11 @@ function JetpackRestApiClient( root, nonce ) {
 
 		getUserLicensesCounts: () =>
 			getRequest( `${ apiRoot }jetpack/v4/licensing/user/counts`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		getUserLicenses: () =>
+			getRequest( `${ apiRoot }jetpack/v4/licensing/user/licenses`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
@@ -465,17 +489,51 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 		fetchSearchPlanInfo: () =>
-			getRequest( `${ apiRoot }jetpack/v4/search/plan`, getParams )
+			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/plan`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 		fetchSearchSettings: () =>
-			getRequest( `${ apiRoot }jetpack/v4/search/settings`, getParams )
+			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/settings`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 		updateSearchSettings: newSettings =>
-			postRequest( `${ apiRoot }jetpack/v4/search/settings`, postParams, {
+			postRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/settings`, postParams, {
 				body: JSON.stringify( newSettings ),
 			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchSearchStats: () =>
+			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/stats`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchWafSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/waf`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		updateWafSettings: newSettings =>
+			postRequest( `${ apiRoot }jetpack/v4/waf`, postParams, {
+				body: JSON.stringify( newSettings ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchWordAdsSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/wordads/settings`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		updateWordAdsSettings: newSettings =>
+			postRequest( `${ apiRoot }jetpack/v4/wordads/settings`, postParams, {
+				body: JSON.stringify( newSettings ),
+			} ),
+		fetchSearchPricing: () =>
+			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/pricing`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchMigrationStatus: () =>
+			getRequest( `${ apiRoot }jetpack/v4/migration/status`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchBackupUndoEvent: () =>
+			getRequest( `${ apiRoot }jetpack/v4/site/backup/undo-event`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 	};
@@ -516,7 +574,7 @@ function JetpackRestApiClient( root, nonce ) {
 	 * @returns {Promise<Response>} - the http response promise
 	 */
 	function postRequest( route, params, body ) {
-		return fetch( route, assign( {}, params, body ) ).catch( catchNetworkErrors );
+		return fetch( route, Object.assign( {}, params, body ) ).catch( catchNetworkErrors );
 	}
 
 	/**
@@ -551,7 +609,7 @@ function JetpackRestApiClient( root, nonce ) {
 		return responseOk ? statsData : {};
 	}
 
-	assign( this, methods );
+	Object.assign( this, methods );
 }
 
 const restApi = new JetpackRestApiClient();

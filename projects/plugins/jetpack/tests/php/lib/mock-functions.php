@@ -12,12 +12,19 @@ if ( ! function_exists( 'wp_cache_is_enabled' ) ) {
 	function wp_cache_is_enabled() {}
 }
 
-if ( ! function_exists( 'gutenberg_is_fse_theme' ) ) {
+if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
 	/**
-	 * Assume all themes are an FSE theme.
+	 * Mock feature support.
+	 *
+	 * @param string $feature The feature to check.
 	 */
-	function gutenberg_is_fse_theme() {
-		return true;
+	function wpcom_site_has_feature( $feature ) {
+		switch ( $feature ) {
+			case WPCOM_Features::ATOMIC:
+			case WPCOM_Features::MANAGE_PLUGINS:
+				return true;
+		}
+
+		return false;
 	}
 }
-

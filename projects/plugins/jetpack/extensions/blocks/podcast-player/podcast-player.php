@@ -17,7 +17,7 @@ const FEATURE_NAME = 'podcast-player';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
-	\jetpack_require_lib( 'class-jetpack-podcast-helper' );
+	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
 }
 
 /**
@@ -50,6 +50,13 @@ function register_block() {
 				),
 			),
 			'render_callback' => __NAMESPACE__ . '\render_block',
+			'supports'        => array(
+				'align'   => array( 'wide', 'full' ),
+				'spacing' => array(
+					'padding' => true,
+					'margin'  => true,
+				),
+			),
 			// Since Gutenberg #31873.
 			'style'           => 'wp-mediaelement',
 
@@ -97,7 +104,7 @@ function render_block( $attributes, $content ) {
 		return render_error( __( 'Your podcast URL is invalid and couldn\'t be embedded. Please double check your URL.', 'jetpack' ) );
 	}
 
-	if ( isset( $attributes['selectedEpisodes'] ) && count( $attributes['selectedEpisodes'] ) ) {
+	if ( ! empty( $attributes['selectedEpisodes'] ) ) {
 		$guids       = array_map(
 			function ( $episode ) {
 				return $episode['guid'];
@@ -157,15 +164,15 @@ function render_player( $player_data, $attributes ) {
 	$background_colors = get_colors( 'background', $attributes, 'background-color' );
 
 	$player_classes_name  = trim( "{$secondary_colors['class']} {$background_colors['class']}" );
-	$player_inline_style  = trim( "{$secondary_colors['style']} ${background_colors['style']}" );
+	$player_inline_style  = trim( "{$secondary_colors['style']} {$background_colors['style']}" );
 	$player_inline_style .= get_css_vars( $attributes );
-
-	$block_classname = Blocks::classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
-	$is_amp          = Blocks::is_amp_request();
+	$wrapper_attributes   = \WP_Block_Supports::get_instance()->apply_block_supports();
+	$block_classname      = Blocks::classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
+	$is_amp               = Blocks::is_amp_request();
 
 	ob_start();
 	?>
-	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
+	<div class="<?php echo esc_attr( $block_classname ); ?>"<?php echo ! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : ''; ?> id="<?php echo esc_attr( $instance_id ); ?>">
 		<section
 			class="jetpack-podcast-player <?php echo esc_attr( $player_classes_name ); ?>"
 			style="<?php echo esc_attr( $player_inline_style ); ?>"

@@ -1,17 +1,19 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
-import { getRedirectUrl, PricingCard } from '@automattic/jetpack-components';
+import {
+	ActionButton,
+	getRedirectUrl,
+	PricingCard,
+	TermsOfService,
+} from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
+import debugFactory from 'debug';
+import PropTypes from 'prop-types';
+import React from 'react';
 import ConnectScreenLayout from '../layout';
 import './style.scss';
+
+const debug = debugFactory( 'jetpack:connection:ConnectScreenRequiredPlanVisual' );
 
 /**
  * The Connection Screen Visual component for consumers that require a Plan.
@@ -22,7 +24,6 @@ import './style.scss';
 const ConnectScreenRequiredPlanVisual = props => {
 	const {
 		title,
-		autoTrigger,
 		buttonLabel,
 		children,
 		priceBefore,
@@ -30,43 +31,52 @@ const ConnectScreenRequiredPlanVisual = props => {
 		pricingIcon,
 		pricingTitle,
 		pricingCurrencyCode,
-		renderConnectBtn,
 		isLoading,
+		handleButtonClick,
+		displayButtonError,
+		buttonIsLoading,
+		logo,
+		isOfflineMode,
+		rna = false,
 	} = props;
 
-	const tos = createInterpolateElement(
-		__(
-			'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
-			'jetpack'
-		),
+	debug( 'props are %o', props );
+
+	const withSubscription = createInterpolateElement(
+		__( 'Already have a subscription? <connectButton/>', 'jetpack' ),
 		{
-			tosLink: (
-				<a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />
-			),
-			shareDetailsLink: (
-				<a
-					href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
-					rel="noopener noreferrer"
-					target="_blank"
+			connectButton: (
+				<ActionButton
+					label={ __( 'Log in to get started', 'jetpack' ) }
+					onClick={ handleButtonClick }
+					isLoading={ buttonIsLoading }
 				/>
 			),
 		}
 	);
 
-	const withSubscription = createInterpolateElement(
-		__( 'Already have a subscription? <connectButton/> to get started.', 'jetpack' ),
-		{
-			connectButton: renderConnectBtn( __( 'Log in', 'jetpack' ), false ),
-		}
-	);
+	const errorMessage = isOfflineMode
+		? createInterpolateElement( __( 'Unavailable in <a>Offline Mode</a>', 'jetpack' ), {
+				a: (
+					<a
+						href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
+		  } )
+		: undefined;
 
 	return (
 		<ConnectScreenLayout
 			title={ title }
-			className={
-				'jp-connection__connect-screen-required-plan' +
-				( isLoading ? ' jp-connection__connect-screen-required-plan__loading' : '' )
-			}
+			className={ classNames(
+				'jp-connection__connect-screen-required-plan',
+				isLoading ? 'jp-connection__connect-screen-required-plan__loading' : '',
+				rna ? 'rna' : ''
+			) }
+			logo={ logo }
+			rna={ rna }
 		>
 			<div className="jp-connection__connect-screen-required-plan__content">
 				{ children }
@@ -78,15 +88,24 @@ const ConnectScreenRequiredPlanVisual = props => {
 						priceBefore={ priceBefore }
 						currencyCode={ pricingCurrencyCode }
 						priceAfter={ priceAfter }
-						infoText={ tos }
 					>
-						{ renderConnectBtn( buttonLabel, autoTrigger ) }
+						<TermsOfService agreeButtonLabel={ buttonLabel } />
+						<ActionButton
+							label={ buttonLabel }
+							onClick={ handleButtonClick }
+							displayError={ displayButtonError || isOfflineMode }
+							errorMessage={ errorMessage }
+							isLoading={ buttonIsLoading }
+							isDisabled={ isOfflineMode }
+						/>
 					</PricingCard>
 				</div>
 
-				<div className="jp-connection__connect-screen-required-plan__with-subscription">
-					{ withSubscription }
-				</div>
+				{ ! isOfflineMode && (
+					<div className="jp-connection__connect-screen-required-plan__with-subscription">
+						{ withSubscription }
+					</div>
+				) }
 			</div>
 		</ConnectScreenLayout>
 	);
@@ -105,19 +124,28 @@ ConnectScreenRequiredPlanVisual.propTypes = {
 	title: PropTypes.string,
 	/** The Connect Button label. */
 	buttonLabel: PropTypes.string,
-	/** Whether to initiate the connection process automatically upon rendering the component. */
-	autoTrigger: PropTypes.bool,
 	/** The Pricing Card Icon. */
-	pricingIcon: PropTypes.string,
-	/** Connect button render function */
-	renderConnectBtn: PropTypes.func.isRequired,
+	pricingIcon: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 	/** Whether the connection status is still loading. */
-	isLoading: PropTypes.bool.isRequired,
+	isLoading: PropTypes.bool,
+	/** Callback that is applied into click for all buttons. */
+	handleButtonClick: PropTypes.func,
+	/** Whether the button error is active or not. */
+	displayButtonError: PropTypes.bool,
+	/** Whether the button loading state is active or not. */
+	buttonIsLoading: PropTypes.bool,
+	/** The logo to display at the top of the component. */
+	logo: PropTypes.element,
+	/** Whether the site is in offline mode. */
+	isOfflineMode: PropTypes.bool,
 };
 
 ConnectScreenRequiredPlanVisual.defaultProps = {
 	pricingCurrencyCode: 'USD',
-	autoTrigger: false,
+	isLoading: false,
+	buttonIsLoading: false,
+	displayButtonError: false,
+	handleButtonClick: () => {},
 };
 
 export default ConnectScreenRequiredPlanVisual;

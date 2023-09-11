@@ -1,17 +1,9 @@
-/**
- * External dependencies
- */
-import React, { useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import ConnectButton from '../../connect-button';
+import PropTypes from 'prop-types';
+import React from 'react';
+import useProductCheckoutWorkflow from '../../../hooks/use-product-checkout-workflow';
+import useConnection from '../../use-connection';
 import ConnectScreenRequiredPlanVisual from './visual';
-import { STORE_ID } from '../../../state/store';
 
 /**
  * The Connection Screen Visual component for consumers that require a Plan.
@@ -35,39 +27,55 @@ const ConnectScreenRequiredPlan = props => {
 		pricingIcon,
 		pricingTitle,
 		pricingCurrencyCode,
+		wpcomProductSlug,
+		siteProductAvailabilityHandler,
+		logo,
+		rna = false,
 	} = props;
 
-	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
+	const {
+		handleRegisterSite,
+		siteIsRegistering,
+		userIsConnecting,
+		registrationError,
+		isOfflineMode,
+	} = useConnection( {
+		registrationNonce,
+		redirectUri,
+		apiRoot,
+		apiNonce,
+		autoTrigger,
+		from,
+	} );
 
-	const renderConnectBtn = useCallback(
-		( label, trigger ) => {
-			return (
-				<ConnectButton
-					autoTrigger={ trigger }
-					apiRoot={ apiRoot }
-					apiNonce={ apiNonce }
-					registrationNonce={ registrationNonce }
-					from={ from }
-					redirectUri={ redirectUri }
-					connectLabel={ label }
-				/>
-			);
-		},
-		[ apiRoot, apiNonce, registrationNonce, from, redirectUri ]
-	);
+	const productSlug = wpcomProductSlug ? wpcomProductSlug : '';
+
+	const { run: handleCheckoutWorkflow, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+		productSlug,
+		redirectUrl: redirectUri,
+		siteProductAvailabilityHandler,
+		from,
+	} );
+
+	const displayButtonError = Boolean( registrationError );
+	const buttonIsLoading = siteIsRegistering || userIsConnecting || hasCheckoutStarted;
+	const handleButtonClick = productSlug ? handleCheckoutWorkflow : handleRegisterSite;
 
 	return (
 		<ConnectScreenRequiredPlanVisual
 			title={ title }
-			autoTrigger={ autoTrigger }
 			buttonLabel={ buttonLabel }
 			priceBefore={ priceBefore }
 			priceAfter={ priceAfter }
 			pricingIcon={ pricingIcon }
 			pricingTitle={ pricingTitle }
 			pricingCurrencyCode={ pricingCurrencyCode }
-			isLoading={ ! connectionStatus.hasOwnProperty( 'isRegistered' ) }
-			renderConnectBtn={ renderConnectBtn }
+			handleButtonClick={ handleButtonClick }
+			displayButtonError={ displayButtonError }
+			buttonIsLoading={ buttonIsLoading }
+			logo={ logo }
+			isOfflineMode={ isOfflineMode }
+			rna={ rna }
 		>
 			{ children }
 		</ConnectScreenRequiredPlanVisual>
@@ -94,13 +102,19 @@ ConnectScreenRequiredPlan.propTypes = {
 	/** The Pricing Card Title. */
 	pricingTitle: PropTypes.string.isRequired,
 	/** The Pricing Card Icon. */
-	icon: PropTypes.string,
+	pricingIcon: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 	/** Price before discount. */
 	priceBefore: PropTypes.number.isRequired,
 	/** Price after discount. */
 	priceAfter: PropTypes.number.isRequired,
 	/** The Currency code, eg 'USD'. */
 	pricingCurrencyCode: PropTypes.string,
+	/** The WordPress.com product slug. If specified, the connection/authorization flow will go through the Checkout page for this product'. */
+	wpcomProductSlug: PropTypes.string,
+	/** A callback that will be used to check whether the site already has the wpcomProductSlug. This will be checked after registration and the checkout will be skipped if it returns true. */
+	checkSiteHasWpcomProduct: PropTypes.func,
+	/** The logo to display at the top of the component. */
+	logo: PropTypes.element,
 };
 
 ConnectScreenRequiredPlan.defaultProps = {

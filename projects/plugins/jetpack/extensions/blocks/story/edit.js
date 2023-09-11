@@ -1,25 +1,14 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
-import { get, pick } from 'lodash';
-
-/**
- * WordPress dependencies
- */
+import { isBlobURL } from '@wordpress/blob';
+import { MediaPlaceholder } from '@wordpress/block-editor';
+import { withNotices } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { isBlobURL } from '@wordpress/blob';
-import { useDispatch } from '@wordpress/data';
-import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { withNotices } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import { icon } from '.';
+import classNames from 'classnames';
+import { get, pick } from 'lodash';
 import Controls from './controls';
 import StoryPlayer from './player';
+import { icon } from '.';
 import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image', 'video' ];
@@ -101,7 +90,7 @@ export default withNotices( function StoryEdit( {
 			isAppender={ hasImages }
 			className={ className }
 			disableMediaButtons={ hasImages && ! isSelected }
-			icon={ ! hasImages && <BlockIcon icon={ icon } /> }
+			icon={ ! hasImages && icon }
 			labels={ {
 				title: ! hasImages && __( 'Story', 'jetpack' ),
 				instructions:

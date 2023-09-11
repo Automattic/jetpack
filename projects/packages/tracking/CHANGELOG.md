@@ -5,6 +5,68 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.13] - 2023-07-06
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.14.12] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## [1.14.11] - 2022-11-01
+### Changed
+- Updated package dependencies.
+
+## [1.14.10] - 2022-07-06
+### Changed
+- Renaming master to trunk. [#24661]
+- Updated package dependencies.
+
+### Deprecated
+- Moved the options class into Connection. [#24095]
+
+## [1.14.9] - 2022-04-26
+### Changed
+- Updated package dependencies.
+
+## [1.14.8] - 2022-04-19
+### Changed
+- Updated package dependencies.
+
+## [1.14.7] - 2022-04-12
+### Removed
+- Removed tracking dependency.
+
+## [1.14.6] - 2022-04-05
+### Changed
+- Updated package dependencies.
+
+## [1.14.5] - 2022-03-29
+### Changed
+- Microperformance: Use === null instead of is_null
+
+## [1.14.4] - 2022-03-02
+### Changed
+- Updated composer.lock.
+
+## [1.14.3] - 2022-02-22
+### Changed
+- Updated package dependencies.
+
+## [1.14.2] - 2022-02-16
+### Fixed
+- Tracking script: add missing jQuery dependency.
+
+## [1.14.1] - 2022-01-25
+### Changed
+- Updated package dependencies.
+
+## [1.14.0] - 2022-01-04
+### Changed
+- Switch to pcov for code coverage.
+- Updated package dependencies
+- Updated package textdomain from `jetpack` to `jetpack-tracking`.
+
 ## [1.13.19] - 2021-12-14
 ### Changed
 - Updated package dependencies.
@@ -200,6 +262,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Create package for Jetpack Tracking
 
+[1.14.13]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.12...v1.14.13
+[1.14.12]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.11...v1.14.12
+[1.14.11]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.10...v1.14.11
+[1.14.10]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.9...v1.14.10
+[1.14.9]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.8...v1.14.9
+[1.14.8]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.7...v1.14.8
+[1.14.7]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.6...v1.14.7
+[1.14.6]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.5...v1.14.6
+[1.14.5]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.4...v1.14.5
+[1.14.4]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.3...v1.14.4
+[1.14.3]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.2...v1.14.3
+[1.14.2]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.1...v1.14.2
+[1.14.1]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.0...v1.14.1
+[1.14.0]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.19...v1.14.0
 [1.13.19]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.18...v1.13.19
 [1.13.18]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.17...v1.13.18
 [1.13.17]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.16...v1.13.17

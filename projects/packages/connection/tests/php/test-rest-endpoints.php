@@ -8,13 +8,14 @@ use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
-use Requests_Utility_CaseInsensitiveDictionary;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
 use WP_REST_Server;
+use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
 
 /**
  * Unit tests for the REST API endpoints.
@@ -23,6 +24,7 @@ use WP_REST_Server;
  * @see \Automattic\Jetpack\Connection\REST_Connector
  */
 class Test_REST_Endpoints extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	const BLOG_TOKEN = 'new.blogtoken';
 	const BLOG_ID    = 42;
@@ -156,11 +158,11 @@ class Test_REST_Endpoints extends TestCase {
 		};
 		add_filter( 'pre_option_' . Secrets::LEGACY_SECRETS_OPTION_NAME, $options_filter );
 
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_authorize' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
-		$this->request->set_body( '{ "state": "' . self::$user_id . '", "secret": "' . $secret_1 . '", "redirect_uri": "https://example.org", "code": "54321" }' );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_authorize' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "state": "' . self::$user_id . '", "secret": "' . $secret_1 . '", "redirect_uri": "https://example.org", "code": "54321" }' );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		remove_filter( 'pre_option_' . Secrets::LEGACY_SECRETS_OPTION_NAME, $options_filter );
@@ -175,11 +177,12 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `/jetpack/v4/connection` endpoint.
 	 */
 	public function test_connection() {
+		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 		try {
-			$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection' );
+			$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection' );
 
-			$response = $this->server->dispatch( $this->request );
+			$response = $this->server->dispatch( $request );
 			$data     = $response->get_data();
 
 			$this->assertFalse( $data['isActive'] );
@@ -187,6 +190,7 @@ class Test_REST_Endpoints extends TestCase {
 			$this->assertTrue( $data['offlineMode']['isActive'] );
 		} finally {
 			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			StatusCache::clear();
 		}
 	}
 
@@ -197,14 +201,14 @@ class Test_REST_Endpoints extends TestCase {
 		add_filter(
 			'jetpack_connection_status',
 			function ( $status_data ) {
-				$this->assertTrue( is_array( $status_data ) );
+				$this->assertIsArray( $status_data );
 				return array();
 			}
 		);
 		try {
-			$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection' );
+			$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection' );
 
-			$response = $this->server->dispatch( $this->request );
+			$response = $this->server->dispatch( $request );
 			$data     = $response->get_data();
 
 			$this->assertSame( array(), $data );
@@ -240,9 +244,9 @@ class Test_REST_Endpoints extends TestCase {
 
 		Connection_Plugin_Storage::configure();
 
-		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/plugins' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/plugins' );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 
 		$user->remove_cap( 'activate_plugins' );
 
@@ -367,18 +371,15 @@ class Test_REST_Endpoints extends TestCase {
 	public function test_connection_register() {
 		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
 
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$request->set_header( 'Content-Type', 'application/json' );
 
-		$this->request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
+		$request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
-
-		// Manually clears filter added by Manager::register().
-		remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
@@ -387,31 +388,6 @@ class Test_REST_Endpoints extends TestCase {
 		$this->assertNotFalse( get_option( Connection_Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
 
 		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
-		$this->assertFalse( $data['allowInplaceAuthorization'] );
-		$this->assertSame( '', $data['alternateAuthorizeUrl'] );
-	}
-
-	/**
-	 * Testing the `connection/register` endpoint with allow_inplace_authorization as true.
-	 */
-	public function test_connection_register_allow_inplace() {
-		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request_with_allow_inplace' ), 10, 3 );
-
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
-
-		$this->request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
-
-		$response = $this->server->dispatch( $this->request );
-		$data     = $response->get_data();
-
-		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request_with_allow_inplace' ), 10 );
-
-		$this->assertEquals( 200, $response->get_status() );
-		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize_iframe/' ) );
-
-		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
-		$this->assertTrue( $data['allowInplaceAuthorization'] );
 		$this->assertSame( '', $data['alternateAuthorizeUrl'] );
 	}
 
@@ -421,24 +397,20 @@ class Test_REST_Endpoints extends TestCase {
 	public function test_connection_register_with_alternate_auth_url() {
 		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request_with_alternate_auth_url' ), 10, 3 );
 
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$request->set_header( 'Content-Type', 'application/json' );
 
-		$this->request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
+		$request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request_with_alternate_auth_url' ), 10 );
-
-		// Manually clears filter added by Manager::register().
-		remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
 
 		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
-		$this->assertFalse( $data['allowInplaceAuthorization'] );
 		$this->assertSame( Redirect::get_url( 'https://dummy.com' ), $data['alternateAuthorizeUrl'] );
 	}
 
@@ -448,12 +420,12 @@ class Test_REST_Endpoints extends TestCase {
 	 */
 	public function test_set_user_token_unauthenticated() {
 		wp_set_current_user( 0 );
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
+		$request->set_header( 'Content-Type', 'application/json' );
 
-		$this->request->set_body( wp_json_encode( array( 'user_token' => 'test.test.1' ) ) );
+		$request->set_body( wp_json_encode( array( 'user_token' => 'test.test.1' ) ) );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		static::assertEquals( 'invalid_permission_update_user_token', $data['code'] );
@@ -465,12 +437,12 @@ class Test_REST_Endpoints extends TestCase {
 	 * Response: failed authorization.
 	 */
 	public function test_set_user_token_with_admin_user_fails_auth() {
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
+		$request->set_header( 'Content-Type', 'application/json' );
 
-		$this->request->set_body( wp_json_encode( array( 'user_token' => 'test.test.1' ) ) );
+		$request->set_body( wp_json_encode( array( 'user_token' => 'test.test.1' ) ) );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		static::assertEquals( 'invalid_permission_update_user_token', $data['code'] );
@@ -539,14 +511,14 @@ class Test_REST_Endpoints extends TestCase {
 
 		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
 
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
+		$request->set_header( 'Content-Type', 'application/json' );
 
 		$user_token = 'test.test.1';
 
-		$this->request->set_body( wp_json_encode( array( 'user_token' => $user_token ) ) );
+		$request->set_body( wp_json_encode( array( 'user_token' => $user_token ) ) );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		remove_action( 'jetpack_updated_user_token', $action_hook );
@@ -567,25 +539,25 @@ class Test_REST_Endpoints extends TestCase {
 		// Mock full connection established.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
 
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner' );
+		$request->set_header( 'Content-Type', 'application/json' );
 
 		// Attempt owner change without setting an owner.
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 400, $response->get_status() );
 		$this->assertEquals( 'Missing parameter(s): owner', $response->get_data()['message'] );
 
 		// Attempt owner change with bad user.
-		$this->request->set_body( wp_json_encode( array( 'owner' => 999 ) ) );
-		$response = $this->server->dispatch( $this->request );
+		$request->set_body( wp_json_encode( array( 'owner' => 999 ) ) );
+		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 400, $response->get_status() );
 		$this->assertEquals( 'New owner is not admin', $response->get_data()['message'] );
 
 		// Change owner to valid user but XML-RPC request to WPCOM failed.
 		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_failure' ), 10, 3 );
 
-		$this->request->set_body( wp_json_encode( array( 'owner' => self::$secondary_user_id ) ) );
-		$response = $this->server->dispatch( $this->request );
+		$request->set_body( wp_json_encode( array( 'owner' => self::$secondary_user_id ) ) );
+		$response = $this->server->dispatch( $request );
 
 		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_failure' ), 10 );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
@@ -599,15 +571,15 @@ class Test_REST_Endpoints extends TestCase {
 	 */
 	public function test_update_connection_owner_success() {
 		// Change owner to valid user.
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
-		$this->request->set_body( wp_json_encode( array( 'owner' => self::$secondary_user_id ) ) );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'owner' => self::$secondary_user_id ) ) );
 
 		// Mock full connection established.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
 		// Mock owner successfully updated on WPCOM.
 		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 
 		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
@@ -620,10 +592,10 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, when isActive is missing.
 	 */
 	public function test_disconnect_site_with_missing_param() {
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$request->set_header( 'Content-Type', 'application/json' );
 
-		$response      = $this->server->dispatch( $this->request );
+		$response      = $this->server->dispatch( $request );
 		$response_data = $response->get_data();
 
 		$this->assertSame( 400, $response->get_status() );
@@ -634,11 +606,11 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, when isActive is invalid.
 	 */
 	public function test_disconnect_site_with_invalid_param() {
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
-		$this->request->set_body( wp_json_encode( array( 'isActive' => 'should_be_bool_false' ) ) );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'isActive' => 'should_be_bool_false' ) ) );
 
-		$response      = $this->server->dispatch( $this->request );
+		$response      = $this->server->dispatch( $request );
 		$response_data = $response->get_data();
 
 		$this->assertSame( 400, $response->get_status() );
@@ -653,11 +625,11 @@ class Test_REST_Endpoints extends TestCase {
 		$user = wp_get_current_user();
 		$user->remove_cap( 'jetpack_disconnect' );
 
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
-		$this->request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 403, $response->get_status() );
 	}
@@ -667,11 +639,11 @@ class Test_REST_Endpoints extends TestCase {
 	 */
 	public function test_disconnect_site_site_not_connected() {
 
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
-		$this->request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
 
-		$response      = $this->server->dispatch( $this->request );
+		$response      = $this->server->dispatch( $request );
 		$response_data = $response->get_data();
 
 		$this->assertSame( 400, $response->get_status() );
@@ -682,16 +654,16 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, on success.
 	 */
 	public function test_disconnect_site_success() {
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
-		$this->request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
 
 		// Mock full connection established.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
 		// Mock site successfully disconnected on WPCOM.
 		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
 
-		$response      = $this->server->dispatch( $this->request );
+		$response      = $this->server->dispatch( $request );
 		$response_data = $response->get_data();
 
 		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
@@ -766,9 +738,9 @@ class Test_REST_Endpoints extends TestCase {
 		$user = wp_get_current_user();
 		$user->remove_cap( 'jetpack_connect_user' );
 
-		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/data' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/data' );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 403, $response->get_status() );
 		$this->assertEquals( REST_Connector::get_user_permissions_error_msg(), $response->get_data()['message'] );
@@ -780,9 +752,9 @@ class Test_REST_Endpoints extends TestCase {
 	public function test_get_user_connection_data_site_not_connected() {
 		$user = wp_get_current_user();
 
-		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/data' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/data' );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 200, $response->get_status() );
 
@@ -792,6 +764,7 @@ class Test_REST_Endpoints extends TestCase {
 				'isMaster'    => false,
 				'username'    => $user->user_login,
 				'id'          => $user->ID,
+				'blogId'      => false,
 				'wpcomUser'   => array(
 					'avatar' => false,
 				),
@@ -820,9 +793,9 @@ class Test_REST_Endpoints extends TestCase {
 		// Mock full connection.
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
 
-		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/data' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/data' );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10 );
 
@@ -834,6 +807,7 @@ class Test_REST_Endpoints extends TestCase {
 				'isMaster'    => false,
 				'username'    => $user->user_login,
 				'id'          => $user->ID,
+				'blogId'      => self::BLOG_ID,
 				'wpcomUser'   => array(
 					'avatar' => false,
 				),
@@ -869,9 +843,9 @@ class Test_REST_Endpoints extends TestCase {
 		$transient_key         = 'jetpack_connected_user_data_' . self::$user_id;
 		set_transient( $transient_key, $dummy_wpcom_user_data );
 
-		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/data' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/data' );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 
 		delete_transient( $transient_key );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
@@ -884,6 +858,7 @@ class Test_REST_Endpoints extends TestCase {
 				'isMaster'    => true,
 				'username'    => $user->user_login,
 				'id'          => $user->ID,
+				'blogId'      => self::BLOG_ID,
 				'wpcomUser'   => $dummy_wpcom_user_data,
 				'permissions' => array(
 					'connect'      => true,
@@ -974,7 +949,7 @@ class Test_REST_Endpoints extends TestCase {
 	 */
 	private static function get_register_request_mock_response( $allow_inplace_authorization = false, $alternate_authorization_url = '' ) {
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode(
 				array(
 					'jetpack_id'                  => '12345',
@@ -1056,7 +1031,7 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode( array( 'dummy_error' => true ) ),
 			'response' => array(
 				'code'    => 500,
@@ -1099,7 +1074,7 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode( $body ),
 			'response' => array(
 				'code'    => 200,
@@ -1123,7 +1098,7 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode( array( 'jetpack_secret' => self::BLOG_TOKEN ) ),
 			'response' => array(
 				'code'    => 200,
@@ -1147,7 +1122,7 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode( array( 'jetpack_secret_missing' => true ) ), // Meaningless body.
 			'response' => array(
 				'code'    => 200,
@@ -1171,7 +1146,7 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode(
 				array(
 					'access_token' => 'mock.token',
@@ -1293,10 +1268,10 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return WP_REST_Request
 	 */
 	private function build_reconnect_request() {
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/reconnect' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/reconnect' );
+		$request->set_header( 'Content-Type', 'application/json' );
 
-		return $this->request;
+		return $request;
 	}
 
 	/**

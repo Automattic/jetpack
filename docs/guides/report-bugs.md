@@ -50,7 +50,7 @@ If you believe you've come across a bug and you've worked through all the steps 
 
 You should also check to see if the potential bug is limited to one browser; this is especially important for any bugs that may be Javascript or jQuery-related, as some browsers are more likely to experience those issues than others.
 
-See which browsers Jetpack supports from [coding guidelines](../coding-guidelines.md#versions-supported) or from the [`package.json`](https://github.com/Automattic/jetpack/blob/master/package.json) file.
+See which browsers Jetpack supports from [coding guidelines](../coding-guidelines.md#versions-supported) or from [the `@wordpress/browserslist-config` package](https://www.npmjs.com/package/@wordpress/browserslist-config).
 
 ## Contribute and comment on existing issues
 

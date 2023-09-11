@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { SVG, Path } from '@wordpress/components';
 
 export default (

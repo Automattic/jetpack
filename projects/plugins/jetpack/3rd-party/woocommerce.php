@@ -23,12 +23,45 @@ function jetpack_woocommerce_integration() {
 	add_action( 'woocommerce_share', 'jetpack_woocommerce_social_share_icons', 10 );
 
 	/**
+	 * Add product post type to Jetpack sitemap while skipping hidden products.
+	 */
+	add_filter( 'jetpack_sitemap_post_types', 'jetpack_woocommerce_add_to_sitemap' );
+	add_filter( 'jetpack_sitemap_skip_post', 'jetpack_woocommerce_skip_hidden_products_in_sitemap', 10, 2 );
+
+	/**
 	 * Wrap in function exists check since this requires WooCommerce 3.3+.
 	 */
 	if ( function_exists( 'wc_get_default_products_per_row' ) ) {
 		add_filter( 'infinite_scroll_render_callbacks', 'jetpack_woocommerce_infinite_scroll_render_callback', 10 );
 		add_action( 'wp_enqueue_scripts', 'jetpack_woocommerce_infinite_scroll_style', 10 );
 	}
+}
+
+/**
+ * Add product post type to sitemap if Woocommerce is present.
+ *
+ * @param array $post_types Array of post types included in sitemap.
+ */
+function jetpack_woocommerce_add_to_sitemap( $post_types ) {
+	$post_types[] = 'product';
+
+	return $post_types;
+}
+
+/**
+ * Skip hidden products when generating the sitemap.
+ *
+ * @param bool    $skip Whether to skip the post.
+ * @param WP_Post $post The post object.
+ */
+function jetpack_woocommerce_skip_hidden_products_in_sitemap( $skip, $post ) {
+	if ( $post !== null && $post->post_type === 'product' ) {
+		$product = wc_get_product( $post->ID );
+		if ( $product ) {
+			$skip = ! $product->is_visible();
+		}
+	}
+	return $skip;
 }
 
 /**

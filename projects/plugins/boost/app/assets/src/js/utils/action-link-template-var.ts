@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import type { TemplateVars } from './copy-dom-template';
 
 /**

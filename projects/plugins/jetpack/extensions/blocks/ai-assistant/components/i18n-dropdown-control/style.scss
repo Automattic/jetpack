@@ -1,0 +1,14 @@
+.ai-assistant__i18n-dropdown {
+	width: 100%;
+
+	.components-dropdown-menu__toggle {
+		display: flex;
+		gap: 8px;
+		width: 100%;
+	}
+}
+
+.ai-assistant__i18n-dropdown__toggle-label {
+	flex-grow: 2;
+	text-align: left;
+}

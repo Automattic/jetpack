@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { Path } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import edit from './edit';
+import { __, _x } from '@wordpress/i18n';
 import renderMaterialIcon from '../../../shared/render-material-icon';
+import edit from './edit';
 import save from './save';
 
 const attributes = {

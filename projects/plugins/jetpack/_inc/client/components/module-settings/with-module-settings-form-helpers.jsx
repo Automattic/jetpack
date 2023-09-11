@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import React from 'react';
+import { connectModuleOptions } from 'components/module-settings/connect-module-options';
 import analytics from 'lib/analytics';
 import { each, get, omit } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import { connectModuleOptions } from 'components/module-settings/connect-module-options';
+import React from 'react';
 
 /**
  * High order component that provides a <form> with functionality
@@ -141,13 +134,14 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		 * if the form was initialized with an array
 		 * @param {String} settingName  the setting to get.
 		 * @param {String} module       the module related to the setting.
+		 * @param  {boolean} ignoreDisabledModules - Whether to ignore settings for disabled modules.
 		 * @returns {*}                 the current value of the settings.
 		 */
-		getOptionValue = ( settingName, module = '' ) => {
+		getOptionValue = ( settingName, module = '', ignoreDisabledModules = true ) => {
 			return get(
 				this.state.options,
 				settingName,
-				this.props.getSettingCurrentValue( settingName, module )
+				this.props.getSettingCurrentValue( settingName, module, ignoreDisabledModules )
 			);
 		};
 

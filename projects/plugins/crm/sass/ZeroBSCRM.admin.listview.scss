@@ -1,0 +1,53 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V2.2
+ *
+ * Copyright 2017, ZeroBSCRM.com
+ *
+ * Date: 29/07/2017
+ */
+
+ 	// Req.
+	@charset "UTF-8";
+
+	  
+  	// WH fixes for clashes between wp + semantic when nested
+	@import 'wp-semantic-fixes';
+
+	// semantic
+  	@import 'semantic-ui';
+
+	// WH/MS semantic add ins/additions
+	@import 'semantic-ui-additions';
+
+
+//weirdly this was not being applied in semantic.min.css on list view pages so adding here too
+.ui.dropdown .menu .left.menu {
+    left: auto !important;
+    right: 100%;
+    margin: 0em 0em 0em 0em !important;
+    border-radius: 0.28571429rem !important;
+}
+
+.ui.simple.dropdown:hover>.menu>.item:hover>.left{
+	left: auto !important;
+}
+
+//company contact images
+
+.zbs-co-img{
+	float:left;
+	img{
+		border-radius:50%;
+		max-width:30px;
+		height:auto;
+		margin-right:5px;
+	}
+}
+
+
+
+
+	// my actual list view page styles
+	@import 'ZeroBSCRM.listview';

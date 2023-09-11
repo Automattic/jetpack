@@ -1,0 +1,13 @@
+# Named ".eslintignore.root" rather than ".eslintignore" because there's no way to stop eslint from reading this after processing ignorePatterns in .eslintrc.js. Sigh.
+
+# Stuff not to lint in general.
+*.min.js
+**/changelog/
+
+# Storybook files
+**/@(storybook|stories)/**/*.js
+
+# Ignored by default, but we should check it
+!.github/
+!.prettierrc.js
+!.pnpmfile.cjs

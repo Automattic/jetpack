@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Widgets and Sidebars Library
  *
@@ -7,9 +7,12 @@
  *
  * Used by the REST API
  *
- * @autounit api widgets
+ * @package automattic/jetpack
  */
 
+/**
+ * Widgets and Sidebars Library
+ */
 class Jetpack_Widgets {
 
 	/**
@@ -31,18 +34,17 @@ class Jetpack_Widgets {
 	 * The output looks like:
 	 *
 	 * array(
-	 *	'id' => 'text-3',
-	 *	'sidebar' => 'sidebar-1',
-	 *	'position' => '0',
-	 *	'settings' => array(
-	 *		'title' => 'hello world'
-	 *	)
+	 *  'id' => 'text-3',
+	 *  'sidebar' => 'sidebar-1',
+	 *  'position' => '0',
+	 *  'settings' => array(
+	 *      'title' => 'hello world'
+	 *  )
 	 * )
 	 *
-	 *
-	 * @param string|integer $position The position of the widget in its sidebar.
-	 * @param string $widget_id The widget's id (eg: 'text-3').
-	 * @param string $sidebar The widget's sidebar id (eg: 'sidebar-1').
+	 * @param string|integer   $position The position of the widget in its sidebar.
+	 * @param string           $widget_id The widget's id (eg: 'text-3').
+	 * @param string           $sidebar The widget's sidebar id (eg: 'sidebar-1').
 	 * @param array (Optional) $settings The settings for the widget.
 	 *
 	 * @return array A normalized array representing this widget.
@@ -50,8 +52,8 @@ class Jetpack_Widgets {
 	public static function format_widget( $position, $widget_id, $sidebar, $settings = null ) {
 		if ( ! $settings ) {
 			$all_settings = get_option( self::get_widget_option_name( $widget_id ) );
-			$instance = self::get_widget_instance_key( $widget_id );
-			$settings = $all_settings[$instance];
+			$instance     = self::get_widget_instance_key( $widget_id );
+			$settings     = $all_settings[ $instance ];
 		}
 		$widget = array();
 
@@ -67,7 +69,7 @@ class Jetpack_Widgets {
 	/**
 	 * Return a widget's id_base from its id.
 	 *
-	 * @param string $widget_id The id of a widget. (eg: 'text-3')
+	 * @param string $widget_id The id of a widget. (eg: 'text-3').
 	 *
 	 * @return string The id_base of a widget (eg: 'text').
 	 */
@@ -80,7 +82,7 @@ class Jetpack_Widgets {
 	 * Determine a widget's option name (the WP option where the widget's settings
 	 * are stored - generally `widget_` + the widget's id_base).
 	 *
-	 * @param string $widget_id The id of a widget. (eg: 'text-3')
+	 * @param string $widget_id The id of a widget. (eg: 'text-3').
 	 *
 	 * @return string The option name of the widget's settings. (eg: 'widget_text')
 	 */
@@ -98,7 +100,7 @@ class Jetpack_Widgets {
 	 */
 	public static function get_widget_instance_key( $widget_id ) {
 		// Grab all numbers from the end of the id.
-		preg_match('/(\d+)$/', $widget_id, $matches );
+		preg_match( '/(\d+)$/', $widget_id, $matches );
 
 		return (int) $matches[0];
 	}
@@ -126,7 +128,7 @@ class Jetpack_Widgets {
 	 * @return array An array of all widgets (see format_widget).
 	 */
 	public static function get_all_widgets() {
-		$all_widgets = array();
+		$all_widgets      = array();
 		$sidebars_widgets = self::get_all_sidebars();
 
 		foreach ( $sidebars_widgets as $sidebar => $widgets ) {
@@ -148,8 +150,8 @@ class Jetpack_Widgets {
 	 */
 	public static function get_active_widgets() {
 		$active_widgets = array();
-		$all_widgets = self::get_all_widgets();
-		foreach( $all_widgets as $widget ) {
+		$all_widgets    = self::get_all_widgets();
+		foreach ( $all_widgets as $widget ) {
 			if ( 'wp_inactive_widgets' === $widget['sidebar'] ) {
 				continue;
 			}
@@ -164,7 +166,7 @@ class Jetpack_Widgets {
 	 * @return array An array of all widget IDs.
 	 */
 	public static function get_all_widget_ids() {
-		$all_widgets = array();
+		$all_widgets      = array();
 		$sidebars_widgets = self::get_all_sidebars();
 		foreach ( array_values( $sidebars_widgets ) as $widgets ) {
 			if ( ! is_array( $widgets ) ) {
@@ -204,7 +206,6 @@ class Jetpack_Widgets {
 	 */
 	public static function get_widgets_in_sidebar( $sidebar ) {
 		$sidebars = self::get_all_sidebars();
-
 
 		if ( ! $sidebars || ! is_array( $sidebars ) ) {
 			return null;
@@ -305,8 +306,11 @@ class Jetpack_Widgets {
 	public static function move_widget_to_sidebar( $widget, $sidebar, $position ) {
 		$sidebars_widgets = self::get_sidebars_widgets();
 
-		// If a position is passed and the sidebar isn't empty,
-		// splice the widget into the sidebar, update the sidebar option, and return the result
+		/*
+		 * If a position is passed and the sidebar isn't empty,
+		 * splice the widget into the sidebar,
+		 * update the sidebar option, and return the result.
+		 */
 		if ( isset( $widget['sidebar'] ) && isset( $widget['position'] ) ) {
 			array_splice( $sidebars_widgets[ $widget['sidebar'] ], $widget['position'], 1 );
 		}
@@ -316,9 +320,9 @@ class Jetpack_Widgets {
 			$sidebars_widgets[ $sidebar ] = array();
 		}
 
-		// If no position is passed, set one from items in sidebar
+		// If no position is passed, set one from items in sidebar.
 		if ( ! isset( $position ) ) {
-			$position = 0;
+			$position      = 0;
 			$last_position = self::get_last_position_in_sidebar( $sidebar );
 			if ( isset( $last_position ) && is_numeric( $last_position ) ) {
 				$position = $last_position + 1;
@@ -329,10 +333,16 @@ class Jetpack_Widgets {
 		if ( empty( $sidebars_widgets[ $sidebar ] ) ) {
 			$sidebars_widgets[ $sidebar ][] = $widget['id'];
 		} else {
-			array_splice( $sidebars_widgets[ $sidebar ], (int)$position, 0, $widget['id'] );
+			array_splice( $sidebars_widgets[ $sidebar ], (int) $position, 0, $widget['id'] );
 		}
 
-		set_theme_mod( 'sidebars_widgets', array( 'time' => time(), 'data' => $sidebars_widgets ) );
+		set_theme_mod(
+			'sidebars_widgets',
+			array(
+				'time' => time(),
+				'data' => $sidebars_widgets,
+			)
+		);
 		return update_option( 'sidebars_widgets', $sidebars_widgets );
 	}
 
@@ -365,21 +375,22 @@ class Jetpack_Widgets {
 	 * any existing widget with the same `$widget_id`.
 	 *
 	 * @param string $widget_id The id of a widget.
-	 * @param array $settings An associative array of settings to merge with any existing settings on this widget.
+	 * @param array  $settings An associative array of settings to merge with any existing settings on this widget.
 	 *
 	 * @return boolean|WP_Error True if update was successful.
 	 */
 	public static function set_widget_settings( $widget_id, $settings ) {
 		$widget_option_name = self::get_widget_option_name( $widget_id );
-		$widget_settings = get_option( $widget_option_name );
-		$instance_key = self::get_widget_instance_key( $widget_id );
-		$old_settings = $widget_settings[ $instance_key ];
+		$widget_settings    = get_option( $widget_option_name );
+		$instance_key       = self::get_widget_instance_key( $widget_id );
+		$old_settings       = $widget_settings[ $instance_key ];
+		$settings           = self::sanitize_widget_settings( $widget_id, $settings, $old_settings );
 
-		if ( ! $settings = self::sanitize_widget_settings( $widget_id, $settings, $old_settings ) ) {
+		if ( ! $settings ) {
 			return new WP_Error( 'invalid_data', 'Update failed.', 500 );
 		}
 		if ( is_array( $old_settings ) ) {
-			// array_filter prevents empty arguments from replacing existing ones
+			// array_filter prevents empty arguments from replacing existing ones.
 			$settings = wp_parse_args( array_filter( $settings ), $old_settings );
 		}
 
@@ -392,13 +403,15 @@ class Jetpack_Widgets {
 	 * Sanitize an associative array for saving.
 	 *
 	 * @param string $widget_id The id of a widget.
-	 * @param array $settings A widget settings array.
-	 * @param array $old_settings The existing widget settings array.
+	 * @param array  $settings A widget settings array.
+	 * @param array  $old_settings The existing widget settings array.
 	 *
 	 * @return array|false The settings array sanitized by `WP_Widget::update` or false if sanitization failed.
 	 */
 	private static function sanitize_widget_settings( $widget_id, $settings, $old_settings ) {
-		if ( ! $widget = self::get_registered_widget_object( self::get_widget_id_base( $widget_id ) ) ) {
+		$widget = self::get_registered_widget_object( self::get_widget_id_base( $widget_id ) );
+
+		if ( ! $widget ) {
 			return false;
 		}
 		$new_settings = $widget->update( $settings, $old_settings );
@@ -416,7 +429,7 @@ class Jetpack_Widgets {
 	 */
 	public static function remove_widget_settings( $widget ) {
 		$widget_option_name = self::get_widget_option_name( $widget['id'] );
-		$widget_settings = get_option( $widget_option_name );
+		$widget_settings    = get_option( $widget_option_name );
 		unset( $widget_settings[ self::get_widget_instance_key( $widget['id'] ) ] );
 		update_option( $widget_option_name, $widget_settings );
 	}
@@ -425,9 +438,9 @@ class Jetpack_Widgets {
 	 * Update a widget's settings, sidebar, and position. Returns the (updated)
 	 * formatted widget if successful or a WP_Error if it fails.
 	 *
-	 * @param string $widget_id The id of a widget to update.
-	 * @param string $sidebar (Optional) A sidebar to which this widget will be moved.
-	 * @param string|integer (Optional) A new position to which this widget will be moved within its new or existing sidebar.
+	 * @param string              $widget_id The id of a widget to update.
+	 * @param string              $sidebar (Optional) A sidebar to which this widget will be moved.
+	 * @param string|integer      $position (Optional) A new position to which this widget will be moved within its new or existing sidebar.
 	 * @param array|object|string $settings Settings to merge with the existing settings of the widget (will be passed through `decode_settings`).
 	 *
 	 * @return array|WP_Error The newly added widget as an associative array with all the above properties.
@@ -470,7 +483,7 @@ class Jetpack_Widgets {
 	 * Deletes a widget entirely including all its settings. Returns a WP_Error if
 	 * the widget could not be found. Otherwise returns an empty array.
 	 *
-	 * @param string $widget_id The id of a widget to delete. (eg: 'text-2')
+	 * @param string $widget_id The id of a widget to delete. (eg: 'text-2').
 	 *
 	 * @return array|WP_Error An empty array if successful.
 	 */
@@ -493,14 +506,14 @@ class Jetpack_Widgets {
 	 * @return array Decoded associative array of settings.
 	 */
 	public static function decode_settings( $settings ) {
-		// Treat as string in case JSON was passed
+		// Treat as string in case JSON was passed.
 		if ( is_object( $settings ) && property_exists( $settings, 'scalar' ) ) {
 			$settings = $settings->scalar;
 		}
 		if ( is_object( $settings ) ) {
 			$settings = (array) $settings;
 		}
-		// Attempt to decode JSON string
+		// Attempt to decode JSON string.
 		if ( is_string( $settings ) ) {
 			$settings = (array) json_decode( $settings );
 		}
@@ -510,9 +523,9 @@ class Jetpack_Widgets {
 	/**
 	 * Activate a new widget.
 	 *
-	 * @param string $id_base The id_base of the new widget (eg: 'text')
-	 * @param string $sidebar The id of the sidebar where this widget will go. Dependent on theme. (eg: 'sidebar-1')
-	 * @param string|integer $position (Optional) The position of the widget in the sidebar. Defaults to the last position.
+	 * @param string              $id_base The id_base of the new widget (eg: 'text').
+	 * @param string              $sidebar The id of the sidebar where this widget will go. Dependent on theme. (eg: 'sidebar-1').
+	 * @param string|integer      $position (Optional) The position of the widget in the sidebar. Defaults to the last position.
 	 * @param array|object|string $settings (Optional) An associative array of settings for this widget (will be passed through `decode_settings`). Varies by widget.
 	 *
 	 * @return array|WP_Error The newly added widget as an associative array with all the above properties except 'id_base' replaced with the generated 'id'.
@@ -541,7 +554,7 @@ class Jetpack_Widgets {
 		}
 
 		$widget_counter = 1 + self::get_last_widget_instance_key_with_id_base( $id_base );
-		$widget_id = $id_base . '-' . $widget_counter;
+		$widget_id      = $id_base . '-' . $widget_counter;
 		if ( 0 >= $widget_counter ) {
 			return new WP_Error( 'invalid_data', 'Error creating widget ID' . $widget_id, 500 );
 		}
@@ -585,7 +598,7 @@ class Jetpack_Widgets {
 
 		$added_widgets = array();
 
-		foreach( $widgets as $widget ) {
+		foreach ( $widgets as $widget ) {
 			$added_widgets[] = self::activate_widget( $widget['id_base'], $widget['sidebar'], $widget['position'], $widget['settings'] );
 		}
 
@@ -597,7 +610,7 @@ class Jetpack_Widgets {
 	 * `$id_base`. So if you pass in `text`, and there is a widget with the id
 	 * `text-2`, this function will return `2`.
 	 *
-	 * @param string $id_base The id_base of a type of widget. (eg: 'rss')
+	 * @param string $id_base The id_base of a type of widget. (eg: 'rss').
 	 *
 	 * @return integer The last instance key of that type of widget.
 	 */
@@ -605,11 +618,11 @@ class Jetpack_Widgets {
 		$similar_widgets = self::get_widgets_with_id_base( $id_base );
 
 		if ( ! empty( $similar_widgets ) ) {
-			// If the last widget with the same name is `text-3`, we want `text-4`
+			// If the last widget with the same name is `text-3`, we want `text-4`.
 			usort( $similar_widgets, __CLASS__ . '::sort_widgets' );
 
 			$last_widget = array_pop( $similar_widgets );
-			$last_val = (int) self::get_widget_instance_key( $last_widget['id'] );
+			$last_val    = (int) self::get_widget_instance_key( $last_widget['id'] );
 
 			return $last_val;
 		}
@@ -622,8 +635,8 @@ class Jetpack_Widgets {
 	 *
 	 * @since 5.4
 	 *
-	 * @param array $a
-	 * @param array $b
+	 * @param array $a A normalized array representing a widget.
+	 * @param array $b A normalized array representing a widget.
 	 *
 	 * @return int
 	 */
@@ -685,36 +698,36 @@ class Jetpack_Widgets {
 	 * Insert a new widget in a given sidebar.
 	 *
 	 * @param string $widget_id ID of the widget.
-	 * @param array $widget_options Content of the widget.
- 	 * @param string $sidebar ID of the sidebar to which the widget will be added.
- 	 *
- 	 * @return WP_Error|true True when data has been saved correctly, error otherwise.
-	*/
-	static function insert_widget_in_sidebar( $widget_id, $widget_options, $sidebar ) {
-		// Retrieve sidebars, widgets and their instances
+	 * @param array  $widget_options Content of the widget.
+	 * @param string $sidebar ID of the sidebar to which the widget will be added.
+	 *
+	 * @return WP_Error|true True when data has been saved correctly, error otherwise.
+	 */
+	public static function insert_widget_in_sidebar( $widget_id, $widget_options, $sidebar ) {
+		// Retrieve sidebars, widgets and their instances.
 		$sidebars_widgets = get_option( 'sidebars_widgets', array() );
 		$widget_instances = get_option( 'widget_' . $widget_id, array() );
 
-		// Retrieve the key of the next widget instance
+		// Retrieve the key of the next widget instance.
 		$numeric_keys = array_filter( array_keys( $widget_instances ), 'is_int' );
-		$next_key = $numeric_keys ? max( $numeric_keys ) + 1 : 2;
+		$next_key     = $numeric_keys ? max( $numeric_keys ) + 1 : 2;
 
-		// Add this widget to the sidebar
+		// Add this widget to the sidebar.
 		if ( ! isset( $sidebars_widgets[ $sidebar ] ) ) {
 			$sidebars_widgets[ $sidebar ] = array();
 		}
 		$sidebars_widgets[ $sidebar ][] = $widget_id . '-' . $next_key;
 
-		// Add the new widget instance
+		// Add the new widget instance.
 		$widget_instances[ $next_key ] = $widget_options;
 
-		// Store updated sidebars, widgets and their instances
+		// Store updated sidebars, widgets and their instances.
 		if (
 			! ( update_option( 'sidebars_widgets', $sidebars_widgets ) )
 			|| ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) )
 		) {
 			return new WP_Error( 'widget_update_failed', 'Failed to update widget or sidebar.', 400 );
-		};
+		}
 
 		return true;
 	}
@@ -723,17 +736,17 @@ class Jetpack_Widgets {
 	 * Update the content of an existing widget in a given sidebar.
 	 *
 	 * @param string $widget_id ID of the widget.
-	 * @param array $widget_options New content for the update.
- 	 * @param string $sidebar ID of the sidebar to which the widget will be added.
- 	 *
- 	 * @return WP_Error|true True when data has been updated correctly, error otherwise.
-	*/
-	static function update_widget_in_sidebar( $widget_id, $widget_options, $sidebar ) {
-		// Retrieve sidebars, widgets and their instances
+	 * @param array  $widget_options New content for the update.
+	 * @param string $sidebar ID of the sidebar to which the widget will be added.
+	 *
+	 * @return WP_Error|true True when data has been updated correctly, error otherwise.
+	 */
+	public static function update_widget_in_sidebar( $widget_id, $widget_options, $sidebar ) {
+		// Retrieve sidebars, widgets and their instances.
 		$sidebars_widgets = get_option( 'sidebars_widgets', array() );
 		$widget_instances = get_option( 'widget_' . $widget_id, array() );
 
-		// Retrieve index of first widget instance in that sidebar
+		// Retrieve index of first widget instance in that sidebar.
 		$widget_key = false;
 		foreach ( $sidebars_widgets[ $sidebar ] as $widget ) {
 			if ( strpos( $widget, $widget_id ) !== false ) {
@@ -742,23 +755,23 @@ class Jetpack_Widgets {
 			}
 		}
 
-		// There is no widget instance
+		// There is no widget instance.
 		if ( ! $widget_key ) {
 			return new WP_Error( 'invalid_data', 'No such widget.', 400 );
 		}
 
-		// Update the widget instance and option if the data has changed
+		// Update the widget instance and option if the data has changed.
 		if ( $widget_instances[ $widget_key ]['title'] !== $widget_options['title']
 			|| $widget_instances[ $widget_key ]['address'] !== $widget_options['address']
 		) {
 
 			$widget_instances[ $widget_key ] = array_merge( $widget_instances[ $widget_key ], $widget_options );
 
-			// Store updated widget instances and return Error when not successful
+			// Store updated widget instances and return Error when not successful.
 			if ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) ) {
 				return new WP_Error( 'widget_update_failed', 'Failed to update widget.', 400 );
-			};
-		};
+			}
+		}
 		return true;
 	}
 
@@ -766,10 +779,10 @@ class Jetpack_Widgets {
 	 * Retrieve the first active sidebar.
 	 *
 	 * @return string|WP_Error First active sidebar, error if none exists.
-	*/
-	static function get_first_sidebar() {
+	 */
+	public static function get_first_sidebar() {
 		$active_sidebars = get_option( 'sidebars_widgets', array() );
-		unset( $active_sidebars[ 'wp_inactive_widgets' ], $active_sidebars[ 'array_version' ] );
+		unset( $active_sidebars['wp_inactive_widgets'], $active_sidebars['array_version'] );
 
 		if ( empty( $active_sidebars ) ) {
 			return false;

@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import { unionBy, throttle, isEmpty } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { useState, useEffect, useCallback } from '@wordpress/element';
+import { unionBy, throttle, isEmpty } from 'lodash';
 
 export const possibleEmbed = /^\s*(http[s]?:\/\/|\<script)/;
 

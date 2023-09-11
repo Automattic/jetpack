@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import PropTypes from 'prop-types';
+import React from 'react';
 import customContentShape from '../../tools/custom-content-shape';
 
 /**
@@ -23,26 +16,32 @@ const ScreenNonAdmin = props => {
 
 	return (
 		<React.Fragment>
-			<h2>{ customContent.nonAdminTitle || __( 'Safe Mode has been activated', 'jetpack' ) }</h2>
+			<h2>
+				{ customContent.nonAdminTitle
+					? createInterpolateElement( customContent.nonAdminTitle, { em: <em /> } )
+					: __( 'Safe Mode has been activated', 'jetpack' ) }
+			</h2>
 
 			<p>
-				{ customContent.nonAdminBodyText ||
-					createInterpolateElement(
+				{ createInterpolateElement(
+					customContent.nonAdminBodyText ||
 						__(
 							'This site is in Safe Mode because there are 2 Jetpack-powered sites that appear to be duplicates. ' +
 								'2 sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>',
 							'jetpack'
 						),
-						{
-							safeModeLink: (
-								<a
-									href={ getRedirectUrl( 'jetpack-support-safe-mode' ) }
-									rel="noopener noreferrer"
-									target="_blank"
-								/>
-							),
-						}
-					) }
+					{
+						safeModeLink: (
+							<a
+								href={ customContent.supportURL || getRedirectUrl( 'jetpack-support-safe-mode' ) }
+								rel="noopener noreferrer"
+								target="_blank"
+							/>
+						),
+						em: <em />,
+						strong: <strong />,
+					}
+				) }
 			</p>
 
 			{ customContent.nonAdminBodyText ? (

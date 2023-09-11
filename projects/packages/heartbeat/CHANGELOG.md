@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.3] - 2023-07-06
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.5.2] - 2023-02-07
+### Changed
+- Updated package dependencies.
+
+## [1.5.1] - 2022-11-01
+### Changed
+- Updated package dependencies.
+
+## [1.5.0] - 2022-07-06
+### Changed
+- Renaming master to trunk. [#24661]
+- Updated package dependencies.
+
+### Deprecated
+- Removed Heartbeat by hoisting it into Connection. [#23910]
+
+## [1.4.1] - 2022-04-12
+### Changed
+- Updated package dependencies.
+
+## [1.4.0] - 2022-01-04
+### Changed
+- Updated package textdomain from `jetpack` to `jetpack-heartbeat`.
+
 ## [1.3.15] - 2021-12-14
 ### Changed
 - Updated package dependencies.
@@ -96,6 +124,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use new heartbeat package
 - Creates the Jetpack Heartbeat package
 
+[1.5.3]: https://github.com/Automattic/jetpack-heartbeat/compare/v1.5.2...v1.5.3
+[1.5.2]: https://github.com/Automattic/jetpack-heartbeat/compare/v1.5.1...v1.5.2
+[1.5.1]: https://github.com/Automattic/jetpack-heartbeat/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/Automattic/jetpack-heartbeat/compare/v1.4.1...v1.5.0
+[1.4.1]: https://github.com/Automattic/jetpack-heartbeat/compare/v1.4.0...v1.4.1
+[1.4.0]: https://github.com/Automattic/jetpack-heartbeat/compare/v1.3.15...v1.4.0
 [1.3.15]: https://github.com/Automattic/jetpack-heartbeat/compare/v1.3.14...v1.3.15
 [1.3.14]: https://github.com/Automattic/jetpack-heartbeat/compare/v1.3.13...v1.3.14
 [1.3.13]: https://github.com/Automattic/jetpack-heartbeat/compare/v1.3.12...v1.3.13

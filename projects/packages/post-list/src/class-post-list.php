@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Post_List;
  */
 class Post_List {
 
-	const PACKAGE_VERSION = '0.2.5-alpha';
+	const PACKAGE_VERSION = '0.4.6';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -144,9 +144,10 @@ class Post_List {
 		// We've already verified the nonce in the register method above, and we're not performing
 		// any action on these POST arguments.
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		if ( ! empty( $_POST['screen'] ) && 'edit-' === substr( $_POST['screen'], 0, 5 ) && ! empty( $_POST['post_type'] ) ) {
-			$this->maybe_customize_columns( $_POST['post_type'] );
-			$this->maybe_add_share_action( $_POST['post_type'] );
+		if ( ! empty( $_POST['screen'] ) && 'edit-' === substr( sanitize_key( $_POST['screen'] ), 0, 5 ) && ! empty( $_POST['post_type'] ) ) {
+			$type = sanitize_key( $_POST['post_type'] );
+			$this->maybe_customize_columns( $type );
+			$this->maybe_add_share_action( $type );
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 	}
@@ -167,10 +168,10 @@ class Post_List {
 		}
 
 		$url   = add_query_arg( 'jetpackSidebarIsOpen', 'true', $edit_url );
-		$text  = _x( 'Share', 'Share the post on social networks', 'jetpack' );
+		$text  = _x( 'Share', 'Share the post on social networks', 'jetpack-post-list' );
 		$title = _draft_or_post_title( $post );
 		/* translators: post title */
-		$label                 = sprintf( __( 'Share &#8220;%s&#8221; via Publicize', 'jetpack' ), $title );
+		$label                 = sprintf( __( 'Share &#8220;%s&#8221; via Jetpack Social', 'jetpack-post-list' ), $title );
 		$post_actions['share'] = sprintf( '<a href="%s" aria-label="%s">%s</a>', esc_url( $url ), esc_attr( $label ), esc_html( $text ) );
 		return $post_actions;
 	}
@@ -187,7 +188,7 @@ class Post_List {
 			return $columns;
 		}
 
-		$new_column = array( 'thumbnail' => '<span>' . __( 'Thumbnail', 'jetpack' ) . '</span>' );
+		$new_column = array( 'thumbnail' => '<span>' . __( 'Thumbnail', 'jetpack-post-list' ) . '</span>' );
 		$keys       = array_keys( $columns );
 		$position   = array_search( 'title', $keys, true );
 

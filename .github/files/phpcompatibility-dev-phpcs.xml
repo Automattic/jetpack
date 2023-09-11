@@ -3,6 +3,7 @@
 <!-- phpcs config file for use in the Github Action -->
 <ruleset>
 	<rule ref="../../.phpcs.config.xml" />
+	<config name="jetpack-filter-perdir-file" value=".phpcs.dir.phpcompatibility.xml"/>
 
 	<rule ref="PHPCompatibility">
 		<!-- Doesn't hurt anything, as long as we're also handling the non-Error case. -->

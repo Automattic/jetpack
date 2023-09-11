@@ -1,6 +1,11 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Fetch information about Publicize connections on a site, including tests and connection status.
+ *
+ * @package automattic/jetpack
+ */
 
-require_once dirname( __FILE__ ) . '/publicize-connections.php';
+require_once __DIR__ . '/publicize-connections.php';
 
 /**
  * Publicize: List Connection Test Result Data
@@ -10,6 +15,9 @@ require_once dirname( __FILE__ ) . '/publicize-connections.php';
  * @since 6.8
  */
 class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections {
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'publicize/connection-test-results';
@@ -47,23 +55,27 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 			'type'       => 'object',
 			'properties' => $this->get_connection_schema_properties() + array(
 				'test_success' => array(
-					'description' => __( 'Did the Publicize Connection test pass?', 'jetpack' ),
+					'description' => __( 'Did the Jetpack Social connection test pass?', 'jetpack' ),
 					'type'        => 'boolean',
 				),
+				'error_code'   => array(
+					'description' => __( 'Jetpack Social connection error code', 'jetpack' ),
+					'type'        => 'string',
+				),
 				'test_message' => array(
-					'description' => __( 'Publicize Connection success or error message', 'jetpack' ),
+					'description' => __( 'Jetpack Social connection success or error message', 'jetpack' ),
 					'type'        => 'string',
 				),
 				'can_refresh'  => array(
-					'description' => __( 'Can the current user refresh the Publicize Connection?', 'jetpack' ),
+					'description' => __( 'Can the current user refresh the Jetpack Social connection?', 'jetpack' ),
 					'type'        => 'boolean',
 				),
 				'refresh_text' => array(
-					'description' => __( 'Message instructing the user to refresh their Connection to the Publicize Service', 'jetpack' ),
+					'description' => __( 'Message instructing the user to refresh their Connection to the Jetpack Social service', 'jetpack' ),
 					'type'        => 'string',
 				),
 				'refresh_url'  => array(
-					'description' => __( 'URL for refreshing the Connection to the Publicize Service', 'jetpack' ),
+					'description' => __( 'URL for refreshing the Connection to the Jetpack Social service', 'jetpack' ),
 					'type'        => 'string',
 					'format'      => 'uri',
 				),
@@ -74,11 +86,14 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 	}
 
 	/**
-	 * @param WP_REST_Request
+	 * Get list of Publicize Connections.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
 	 * @see Publicize::get_publicize_conns_test_results()
 	 * @return WP_REST_Response suitable for 1-page collection
 	 */
-	public function get_items( $request ) {
+	public function get_items( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $publicize;
 
 		$items = $this->get_connections();
@@ -86,26 +101,32 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 		$test_results              = $publicize->get_publicize_conns_test_results();
 		$test_results_by_unique_id = array();
 		foreach ( $test_results as $test_result ) {
-			$test_results_by_unique_id[ $test_result['unique_id'] ] = $test_result;
+			$test_results_by_unique_id[ $test_result['connectionID'] ] = $test_result;
 		}
 
 		$mapping = array(
-			'test_success' => 'connectionTestPassed',
-			'test_message' => 'connectionTestMessage',
-			'can_refresh'  => 'userCanRefresh',
-			'refresh_text' => 'refreshText',
-			'refresh_url'  => 'refreshURL',
+			'test_success'  => 'connectionTestPassed',
+			'test_message'  => 'connectionTestMessage',
+			'error_code'    => 'connectionTestErrorCode',
+			'can_refresh'   => 'userCanRefresh',
+			'refresh_text'  => 'refreshText',
+			'refresh_url'   => 'refreshURL',
+			'connection_id' => 'connectionID',
 		);
 
 		foreach ( $items as &$item ) {
-			$test_result = $test_results_by_unique_id[ $item['id'] ];
+			$test_result = $test_results_by_unique_id[ $item['connection_id'] ];
 
 			foreach ( $mapping as $field => $test_result_field ) {
 				$item[ $field ] = $test_result[ $test_result_field ];
 			}
 		}
 
-		if ( 'linkedin' === $item['id'] && 'must_reauth' === $test_result['connectionTestPassed'] ) {
+		if (
+			isset( $item['id'] )
+			&& 'linkedin' === $item['id']
+			&& 'must_reauth' === $test_result['connectionTestPassed']
+		) {
 			$item['test_success'] = 'must_reauth';
 		}
 
@@ -117,5 +138,4 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 		return $response;
 	}
 }
-
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results' );

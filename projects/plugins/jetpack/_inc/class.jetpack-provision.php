@@ -194,7 +194,7 @@ class Jetpack_Provision {
 		}
 
 		// Add calypso env if set.
-		$calypso_env = Jetpack::get_calypso_env();
+		$calypso_env = ( new \Automattic\Jetpack\Status\Host() )->get_calypso_env();
 		if ( ! empty( $calypso_env ) ) {
 			$url = add_query_arg( array( 'calypso_env' => $calypso_env ), $url );
 		}

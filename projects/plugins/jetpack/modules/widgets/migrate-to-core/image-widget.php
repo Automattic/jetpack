@@ -89,7 +89,7 @@ function jetpack_migrate_image_widget() {
 			)
 		);
 
-		if ( count( $non_allowed_keys ) > 0 ) {
+		if ( $non_allowed_keys !== array() ) {
 			// skipping the widget in question.
 			continue;
 		}
@@ -155,8 +155,8 @@ function jetpack_migrate_image_widget() {
 
 				// Set correct size if dimensions fit.
 				if (
-					$media_image[ $id ]['width'] == $image_meta['width'] || // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-					$media_image[ $id ]['height'] == $image_meta['height'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+					$media_image[ $id ]['width'] == $image_meta['width'] || // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+					$media_image[ $id ]['height'] == $image_meta['height'] // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				) {
 					$media_image[ $id ]['size'] = 'full';
 				}
@@ -170,8 +170,8 @@ function jetpack_migrate_image_widget() {
 
 					// Set correct size if dimensions fit.
 					if (
-						$media_image[ $id ]['width'] == $image['width'] || // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-						$media_image[ $id ]['height'] == $image['height'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+						$media_image[ $id ]['width'] == $image['width'] || // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+						$media_image[ $id ]['height'] == $image['height'] // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					) {
 						$media_image[ $id ]['size'] = $size;
 					}
@@ -200,7 +200,7 @@ function jetpack_migrate_image_widget() {
 
 		// Now un-register old widgets and register new.
 		foreach ( $widgets_to_unregister as $id ) {
-			wp_unregister_sidebar_widget( "image-${id}" );
+			wp_unregister_sidebar_widget( "image-{$id}" );
 
 			// register new widget.
 			$media_image_widget = new WP_Widget_Media_Image();

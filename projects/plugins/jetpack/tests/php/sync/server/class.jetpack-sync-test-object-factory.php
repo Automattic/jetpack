@@ -1,8 +1,8 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName
 
 // special factory that creates transient versions of various WP objects
 class JetpackSyncTestObjectFactory {
-	static $default_post_props = array(
+	public static $default_post_props = array(
 		'post_title'            => 'The Title',
 		'post_content'          => 'The Content',
 		'post_name'             => 'the-title',
@@ -22,7 +22,7 @@ class JetpackSyncTestObjectFactory {
 		'guid'                  => '',
 	);
 
-	static $default_comment_props = array(
+	public static $default_comment_props = array(
 		'comment_author'       => 'foobar',
 		'comment_author_email' => 'foo@example.com',
 		'comment_author_url'   => 'http://example.com',
@@ -36,13 +36,13 @@ class JetpackSyncTestObjectFactory {
 		'user_id'              => '0',
 	);
 
-	static $default_user_props = array(
+	public static $default_user_props = array(
 		'user_url'            => 'http://example.com',
 		'user_activation_key' => '',
 		'user_status'         => 0,
 	);
 
-	static $default_term_props = array(
+	public static $default_term_props = array(
 		'term_group'  => 0,
 		'description' => '',
 		'parent'      => 0,
@@ -50,7 +50,7 @@ class JetpackSyncTestObjectFactory {
 		'filter'      => 'raw',
 	);
 
-	function post( $id, $props = array() ) {
+	public function post( $id, $props = array() ) {
 
 		$now     = current_time( 'mysql' );
 		$now_gmt = get_gmt_from_date( $now );
@@ -70,7 +70,7 @@ class JetpackSyncTestObjectFactory {
 		return new WP_Post( $post );
 	}
 
-	function comment( $id, $post_id, $props = array() ) {
+	public function comment( $id, $post_id, $props = array() ) {
 		$now     = current_time( 'mysql' );
 		$now_gmt = get_gmt_from_date( $now );
 
@@ -88,7 +88,7 @@ class JetpackSyncTestObjectFactory {
 		return new WP_Comment( $comment );
 	}
 
-	function user( $id, $username, $props = array() ) {
+	public function user( $id, $username, $props = array() ) {
 		$now = current_time( 'mysql' );
 
 		$user = (object) array_merge(
@@ -111,7 +111,7 @@ class JetpackSyncTestObjectFactory {
 		return new WP_User( $user );
 	}
 
-	function plugins() {
+	public function plugins() {
 		return array(
 			'polldaddy/crowdsignal.php' => array(
 				'Name'        => 'Polldaddy Polls & Ratings',
@@ -140,7 +140,7 @@ class JetpackSyncTestObjectFactory {
 		);
 	}
 
-	function term( $id, $props = array() ) {
+	public function term( $id, $props = array() ) {
 		$term = (object) array_merge(
 			self::$default_term_props,
 			$props,

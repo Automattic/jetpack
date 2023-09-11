@@ -216,6 +216,71 @@ class AssetsTest extends TestCase {
 	}
 
 	/**
+	 * Test that the `defer` attribute is properly added to the script tags for async scripts.
+	 */
+	public function test_defer_attribute_properly_added() {
+		Functions\expect( 'wp_enqueue_script' )
+			->once()
+			->with( 'handle', Assets::get_file_url_for_environment( '/minpath.js', '/path.js' ), array(), '123', true );
+		Assets::enqueue_async_script( 'handle', '/minpath.js', '/path.js', array(), '123', true );
+
+		$asset_instance = Assets::instance();
+
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$tag    = '<script src="/minpath.js" id="handle"></script>';
+		$actual = $asset_instance->script_add_async( $tag, 'handle' );
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$expected = '<script defer src="/minpath.js" id="handle"></script>';
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * Test that the `defer` attribute is properly added to the script tags for async scripts with translations.
+	 */
+	public function test_defer_attribute_properly_added_with_translations() {
+		Functions\expect( 'wp_enqueue_script' )
+			->once()
+			->with( 'handle', Assets::get_file_url_for_environment( '/minpath.js', '/path.js' ), array(), '123', true );
+		Assets::enqueue_async_script( 'handle', '/minpath.js', '/path.js', array(), '123', true );
+
+		$asset_instance = Assets::instance();
+
+		$translations =
+			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+			'<script id="handle-js-translations">
+			( function( domain, translations ) {
+				var localeData = translations.locale_data[ domain ] || translations.locale_data.messages;
+				localeData[""].domain = domain;
+				wp.i18n.setLocaleData( localeData, domain );
+			} )( "default", { "locale_data": { "messages": { "": {} } } } );
+			</script>';
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$tag    = $translations . '<script src="/minpath.js" id="handle"></script>';
+		$actual = $asset_instance->script_add_async( $tag, 'handle' );
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$expected = $translations . '<script defer src="/minpath.js" id="handle"></script>';
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * Test that the `defer` attribute is not added to incorrect script tags.
+	 */
+	public function test_defer_attribute_with_incorrect_tag() {
+		Functions\expect( 'wp_enqueue_script' )
+			->once()
+			->with( 'handle', Assets::get_file_url_for_environment( '/minpath.js', '/path.js' ), array(), '123', true );
+		Assets::enqueue_async_script( 'handle', '/minpath.js', '/path.js', array(), '123', true );
+
+		$asset_instance = Assets::instance();
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$tag    = '<scriptfoo src="/minpath.js" id="handle"></scriptfoo>';
+		$actual = $asset_instance->script_add_async( $tag, 'handle' );
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$expected = '<scriptfoo src="/minpath.js" id="handle"></scriptfoo>';
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
 	 * Test whether static resources are properly updated to use a WordPress.com static domain.
 	 *
 	 * @covers Automattic\Jetpack\Assets::staticize_subdomain
@@ -642,8 +707,9 @@ class AssetsTest extends TestCase {
 		);
 
 		$constants = $options['constants'] + array(
-			'ABSPATH'     => '/path/to/wordpress/',
-			'WP_LANG_DIR' => '/path/to/wordpress/wp-content/languages',
+			'ABSPATH'        => '/path/to/wordpress/',
+			'WP_CONTENT_DIR' => '/path/to/wordpress/wp-content',
+			'WP_LANG_DIR'    => '/path/to/wordpress/wp-content/languages',
 		);
 		foreach ( $constants as $k => $v ) {
 			Jetpack_Constants::set_constant( $k, $v );
@@ -657,6 +723,11 @@ class AssetsTest extends TestCase {
 				return "http://example.com$v";
 			}
 		);
+		Functions\expect( 'content_url' )->andReturnUsing(
+			function ( $v ) {
+				return "http://example.com/wp-content/$v";
+			}
+		);
 
 		$obj = Filters\expectApplied( 'jetpack_i18n_state' )->once()->with( $expect_filter );
 		if ( array_key_exists( 'filter', $options ) ) {
@@ -666,10 +737,24 @@ class AssetsTest extends TestCase {
 		$mock = $this->getMockBuilder( stdClass::class )
 			->setMethods( array( 'add', 'add_inline_script' ) )
 			->getMock();
-		$mock->expects( $this->once() )->method( 'add' )
-			->with( 'wp-jp-i18n-state', null, array( 'wp-i18n' ) );
-		$mock->expects( $this->once() )->method( 'add_inline_script' )
-			->with( 'wp-jp-i18n-state', $expect_js, 'before' );
+		$mock->expects( $this->exactly( 2 ) )->method( 'add' )
+			->withConsecutive(
+				array(
+					'wp-jp-i18n-loader',
+					$this->logicalOr(
+						'http://www.example.com/wp-content/plugins/jetpack/packages/assets/build/i18n-loader.js?minify=true',
+						'http://www.example.com/wp-content/plugins/jetpack/packages/assets/src/js/i18n-loader.js?minify=true'
+					),
+					array( 'wp-i18n' ),
+				),
+				array( 'wp-jp-i18n-state', null, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) )
+			);
+		$mock->expects( $this->exactly( 3 ) )->method( 'add_inline_script' )
+			->withConsecutive(
+				array( 'wp-jp-i18n-loader', $expect_js ),
+				array( 'wp-jp-i18n-state', 'wp.deprecated( "wp-jp-i18n-state", { alternative: "wp-jp-i18n-loader" } );' ),
+				array( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' )
+			);
 
 		Assets::wp_default_scripts_hook( $mock );
 	}
@@ -677,110 +762,161 @@ class AssetsTest extends TestCase {
 	/** Data provider for test_wp_default_scripts_hook. */
 	public function provide_wp_default_scripts_hook() {
 		$expect_filter = array(
-			'baseUrl'   => 'http://example.com/wp-content/languages/',
-			'locale'    => 'en_US',
-			'domainMap' => array(),
+			'baseUrl'     => 'http://example.com/wp-content/languages/',
+			'locale'      => 'en_US',
+			'domainMap'   => array(),
+			'domainPaths' => array(),
 		);
 
 		return array(
-			'Basic test'                       => array(
+			'Basic test'                         => array(
 				$expect_filter,
-				'wp.jpI18nState = {"baseUrl":"http://example.com/wp-content/languages/","locale":"en_US","domainMap":{}};',
+				'wp.jpI18nLoader.state = {"baseUrl":"http://example.com/wp-content/languages/","locale":"en_US","domainMap":{},"domainPaths":{}};',
 			),
-			'Basic test (2)'                   => array(
+			'Basic test (2)'                     => array(
 				array(
-					'baseUrl'   => 'http://example.com/wp-includes/languages/',
-					'locale'    => 'de_DE',
-					'domainMap' => array(
+					'baseUrl'     => 'http://example.com/wp-includes/languages/',
+					'locale'      => 'de_DE',
+					'domainMap'   => array(
 						'jetpack-foo' => 'plugins/jetpack',
 						'jetpack-bar' => 'themes/sometheme',
 						'core'        => 'default',
 					),
+					'domainPaths' => array(
+						'jetpack-foo' => 'path/to/foo/',
+					),
 				),
-				'wp.jpI18nState = {"baseUrl":"http://example.com/wp-includes/languages/","locale":"de_DE","domainMap":{"jetpack-foo":"plugins/jetpack","jetpack-bar":"themes/sometheme","core":"default"}};',
+				'wp.jpI18nLoader.state = {"baseUrl":"http://example.com/wp-includes/languages/","locale":"de_DE","domainMap":{"jetpack-foo":"plugins/jetpack","jetpack-bar":"themes/sometheme","core":"default"},"domainPaths":{"jetpack-foo":"path/to/foo/"}};',
 				array(
 					'constants'  => array( 'WP_LANG_DIR' => '/path/to/wordpress/wp-includes/languages' ),
 					'locale'     => 'de_DE',
 					'domain_map' => array(
-						'jetpack-foo' => array( 'jetpack', 'plugins', '1.2.3' ),
-						'jetpack-bar' => array( 'sometheme', 'themes', '1.2.3' ),
-						'core'        => array( 'default', 'core', '1.2.3' ),
+						'jetpack-foo' => array( 'jetpack', 'plugins', '1.2.3', 'path/to/foo' ),
+						'jetpack-bar' => array( 'sometheme', 'themes', '1.2.3', '' ),
+						'core'        => array( 'default', 'core', '1.2.3', '' ),
 					),
 				),
 			),
-			'Bad WP_LANG_DIR'                  => array(
+			'Bad WP_LANG_DIR'                    => array(
 				array( 'baseUrl' => false ) + $expect_filter,
 				'console.warn( "Failed to determine languages base URL. Is WP_LANG_DIR in the WordPress root?" );',
 				array(
 					'constants' => array( 'WP_LANG_DIR' => '/not/path/to/wordpress/wp-content/languages' ),
 				),
 			),
-			'Filter'                           => array(
-				array( 'baseUrl' => false ) + $expect_filter,
-				'wp.jpI18nState = {"baseUrl":"http://example.org/languages/","locale":"klingon","domainMap":{"foo":"plugins/bar"}};',
+			'WP_LANG_DIR in wp-includes'         => array(
+				array( 'baseUrl' => 'http://example.com/wp-includes/languages/' ) + $expect_filter,
+				'wp.jpI18nLoader.state = {"baseUrl":"http://example.com/wp-includes/languages/","locale":"en_US","domainMap":{},"domainPaths":{}};',
 				array(
-					'constants' => array( 'WP_LANG_DIR' => '/not/path/to/wordpress/wp-content/languages' ),
-					'filter'    => array(
-						'baseUrl'   => 'http://example.org/languages/',
-						'locale'    => 'klingon',
-						'domainMap' => array( 'foo' => 'plugins/bar' ),
+					'constants' => array( 'WP_LANG_DIR' => '/path/to/wordpress/wp-includes/languages' ),
+				),
+			),
+			'WP_CONTENT_DIR not in ABSPATH'      => array(
+				array( 'baseUrl' => 'http://example.com/wp-content/languages/' ) + $expect_filter,
+				'wp.jpI18nLoader.state = {"baseUrl":"http://example.com/wp-content/languages/","locale":"en_US","domainMap":{},"domainPaths":{}};',
+				array(
+					'constants' => array(
+						'ABSPATH'        => '/srv/htdocs/__wp__/',
+						'WP_CONTENT_DIR' => '/srv/htdocs/wp-content',
+						'WP_LANG_DIR'    => '/srv/htdocs/wp-content/languages',
 					),
 				),
 			),
-			'Bad filter: not array'            => array(
+			'Filter'                             => array(
+				array( 'baseUrl' => false ) + $expect_filter,
+				'wp.jpI18nLoader.state = {"baseUrl":"http://example.org/languages/","locale":"klingon","domainMap":{"foo":"plugins/bar"},"domainPaths":{"foo":"path/to/bar/"}};',
+				array(
+					'constants' => array( 'WP_LANG_DIR' => '/not/path/to/wordpress/wp-content/languages' ),
+					'filter'    => array(
+						'baseUrl'     => 'http://example.org/languages/',
+						'locale'      => 'klingon',
+						'domainMap'   => array( 'foo' => 'plugins/bar' ),
+						'domainPaths' => array( 'foo' => 'path/to/bar/' ),
+					),
+				),
+			),
+			'Bad filter: not array'              => array(
 				$expect_filter,
 				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
 				array( 'filter' => null ),
 			),
-			'Bad filter: baseUrl is not set'   => array(
+			'Bad filter: baseUrl is not set'     => array(
 				$expect_filter,
 				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
 				array(
 					'filter' => array(
+						'locale'      => 'en_US',
+						'domainMap'   => array(),
+						'domainPaths' => array(),
+					),
+				),
+			),
+			'Bad filter: locale is not set'      => array(
+				$expect_filter,
+				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
+				array(
+					'filter' => array(
+						'baseUrl'     => 'http://example.com/wp-content/languages/',
+						'domainMap'   => array(),
+						'domainPaths' => array(),
+					),
+				),
+			),
+			'Bad filter: locale is bad'          => array(
+				$expect_filter,
+				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
+				array(
+					'filter' => array(
+						'baseUrl'     => 'http://example.com/wp-content/languages/',
+						'locale'      => false,
+						'domainMap'   => array(),
+						'domainPaths' => array(),
+					),
+				),
+			),
+			'Bad filter: domainMap is not set'   => array(
+				$expect_filter,
+				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
+				array(
+					'filter' => array(
+						'baseUrl'     => 'http://example.com/wp-content/languages/',
+						'locale'      => 'en_US',
+						'domainPaths' => array(),
+					),
+				),
+			),
+			'Bad filter: domainMap is bad'       => array(
+				$expect_filter,
+				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
+				array(
+					'filter' => array(
+						'baseUrl'     => 'http://example.com/wp-content/languages/',
+						'locale'      => 'en_US',
+						'domainMap'   => (object) array(),
+						'domainPaths' => array(),
+					),
+				),
+			),
+			'Bad filter: domainPaths is not set' => array(
+				$expect_filter,
+				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
+				array(
+					'filter' => array(
+						'baseUrl'   => 'http://example.com/wp-content/languages/',
 						'locale'    => 'en_US',
 						'domainMap' => array(),
 					),
 				),
 			),
-			'Bad filter: locale is not set'    => array(
+			'Bad filter: domainPaths is bad'     => array(
 				$expect_filter,
 				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
 				array(
 					'filter' => array(
-						'baseUrl'   => 'http://example.com/wp-content/languages/',
-						'domainMap' => array(),
-					),
-				),
-			),
-			'Bad filter: locale is bad'        => array(
-				$expect_filter,
-				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
-				array(
-					'filter' => array(
-						'baseUrl'   => 'http://example.com/wp-content/languages/',
-						'locale'    => false,
-						'domainMap' => array(),
-					),
-				),
-			),
-			'Bad filter: domainMap is not set' => array(
-				$expect_filter,
-				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
-				array(
-					'filter' => array(
-						'baseUrl' => 'http://example.com/wp-content/languages/',
-						'locale'  => 'en_US',
-					),
-				),
-			),
-			'Bad filter: domainMap is bad'     => array(
-				$expect_filter,
-				'console.warn( "I18n state deleted by jetpack_i18n_state hook" );',
-				array(
-					'filter' => array(
-						'baseUrl'   => 'http://example.com/wp-content/languages/',
-						'locale'    => 'en_US',
-						'domainMap' => (object) array(),
+						'baseUrl'     => 'http://example.com/wp-content/languages/',
+						'locale'      => 'en_US',
+						'domainMap'   => array(),
+						'domainPaths' => (object) array(),
 					),
 				),
 			),
@@ -799,15 +935,15 @@ class AssetsTest extends TestCase {
 		Filters\expectAdded( 'ngettext_with_context_bar' )->once()->with( array( Assets::class, 'filter_ngettext_with_context' ), 10, 6 );
 		Filters\expectAdded( 'load_script_translation_file' )->once()->with( array( Assets::class, 'filter_load_script_translation_file' ), 10, 3 );
 
-		Assets::alias_textdomain( 'foo', 'one', 'plugins', '1.2.3' );
-		Assets::alias_textdomain( 'foo', 'two', 'plugins', '1.2.4' );
-		Assets::alias_textdomain( 'bar', 'one', 'themes', '1.2.3' );
-		Assets::alias_textdomain( 'bar', 'two', 'themes', '1.2.2' );
+		Assets::alias_textdomain( 'foo', 'one', 'plugins', '1.2.3', 'path/to/foo/1.2.3' );
+		Assets::alias_textdomain( 'foo', 'two', 'plugins', '1.2.4', 'path/to/foo/1.2.4' );
+		Assets::alias_textdomain( 'bar', 'one', 'themes', '1.2.3', 'path/to/bar/1.2.3' );
+		Assets::alias_textdomain( 'bar', 'two', 'themes', '1.2.2', 'path/to/bar/1.2.2' );
 
 		$this->assertEquals(
 			array(
-				'foo' => array( 'two', 'plugins', '1.2.4' ),
-				'bar' => array( 'one', 'themes', '1.2.3' ),
+				'foo' => array( 'two', 'plugins', '1.2.4', 'path/to/foo/1.2.4' ),
+				'bar' => array( 'one', 'themes', '1.2.3', 'path/to/bar/1.2.3' ),
 			),
 			TestingAccessWrapper::newFromClass( Assets::class )->domain_map
 		);
@@ -825,8 +961,8 @@ class AssetsTest extends TestCase {
 		Assets::alias_textdomains_from_file( __DIR__ . '/test-assets-files/i18n-map.php' );
 		$this->assertEquals(
 			array(
-				'foo' => array( 'target', 'plugins', '1.2.3' ),
-				'bar' => array( 'target', 'plugins', '4.5.6' ),
+				'foo' => array( 'target', 'plugins', '1.2.3', 'path/to/foo' ),
+				'bar' => array( 'target', 'plugins', '4.5.6', '' ),
 			),
 			TestingAccessWrapper::newFromClass( Assets::class )->domain_map
 		);
@@ -845,7 +981,7 @@ class AssetsTest extends TestCase {
 
 	/** Test filter_gettext. */
 	public function test_filter_gettext() {
-		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3' ) );
+		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3', '' ) );
 
 		Functions\expect( '__' )->once()->with( 'foo', 'newdomain' )->andReturn( 'oo-fay' );
 		Functions\expect( '__' )->never()->with( 'bar', 'newdomain' );
@@ -857,7 +993,7 @@ class AssetsTest extends TestCase {
 
 	/** Test filter_ngettext. */
 	public function test_filter_ngettext() {
-		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3' ) );
+		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3', '' ) );
 
 		Functions\expect( '_n' )->once()->with( 'foo', 'foos', 10, 'newdomain' )->andReturn( 'oos-fay' );
 		Functions\expect( '_n' )->never()->with( 'bar', 'bars', 42, 'newdomain' );
@@ -869,7 +1005,7 @@ class AssetsTest extends TestCase {
 
 	/** Test filter_gettext_with_context. */
 	public function test_filter_gettext_with_context() {
-		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3' ) );
+		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3', '' ) );
 
 		Functions\expect( '_x' )->once()->with( 'foo', 'context', 'newdomain' )->andReturn( 'oo-fay' );
 		Functions\expect( '_x' )->never()->with( 'bar', 'context', 'newdomain' );
@@ -881,7 +1017,7 @@ class AssetsTest extends TestCase {
 
 	/** Test filter_ngettext_with_context. */
 	public function test_filter_ngettext_with_context() {
-		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3' ) );
+		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3', '' ) );
 
 		Functions\expect( '_nx' )->once()->with( 'foo', 'foos', 10, 'context', 'newdomain' )->andReturn( 'oos-fay' );
 		Functions\expect( '_nx' )->never()->with( 'bar', 'bars', 42, 'context', 'newdomain' );
@@ -902,9 +1038,9 @@ class AssetsTest extends TestCase {
 	public function test_filter_load_script_translation_file( $args, $is_readable, $expect ) {
 		Jetpack_Constants::set_constant( 'WP_LANG_DIR', '/path/to/wordpress/wp-content/languages' );
 		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array(
-			'one'   => array( 'new1', 'plugins', '1.2.3' ),
-			'two'   => array( 'new2', 'themes', '1.2.3' ),
-			'three' => array( 'new3', 'core', '1.2.3' ),
+			'one'   => array( 'new1', 'plugins', '1.2.3', 'path/to/one' ),
+			'two'   => array( 'new2', 'themes', '1.2.3', '' ),
+			'three' => array( 'new3', 'core', '1.2.3', '' ),
 		);
 		Functions\when( 'is_readable' )->alias(
 			function ( $file ) use ( $is_readable ) {

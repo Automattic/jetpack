@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { forEach } from 'lodash';
 
 const LIVE_REGION_ARIA_ROLES = new Set( [ 'alert', 'status', 'log', 'marquee', 'timer' ] );

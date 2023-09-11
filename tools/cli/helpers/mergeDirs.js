@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import fs from 'fs';
 import path from 'path';
 
@@ -30,6 +27,8 @@ export default function mergeDirs( src, dest, name ) {
 
 		if ( stats.isDirectory() ) {
 			mergeDirs( srcFile, destFile );
+		} else if ( stats.isSymbolicLink() ) {
+			return;
 		} else if ( ! fs.existsSync( destFile ) ) {
 			copyFile( destFile, srcFile );
 		} else {
@@ -52,10 +51,10 @@ export default function mergeDirs( src, dest, name ) {
  *
  * Originally from https://github.com/binocarlos/merge-dirs/blob/master/src/index.js
  *
- * @param {string} file - File path
- * @param {string} location - New location.
+ * @param {string} file - Destination file path
+ * @param {string} location - Current location.
  */
-function copyFile( file, location ) {
+export function copyFile( file, location ) {
 	fs.mkdirSync( file.split( '/' ).slice( 0, -1 ).join( '/' ), { mode: 0x1ed, recursive: true } );
 	fs.writeFileSync( file, fs.readFileSync( location ) );
 }

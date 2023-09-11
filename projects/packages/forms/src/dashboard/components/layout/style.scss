@@ -1,0 +1,53 @@
+body.toplevel_page_jetpack-forms {
+	background-color: #fff;
+
+	#wpcontent {
+		padding-left: 0;
+	}
+}
+
+.jp-forms__layout {
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+
+	.jp-forms__logo {
+		margin: 40px 64px;
+
+		@media (max-width: 660px) {
+			margin: 40px 24px;
+		}
+	}
+}
+
+.jp-forms__layout-header {
+	background-color: #f9f9f9;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 48px 64px 16px;
+	width: 100%;
+
+	@media (max-width: 660px) {
+		padding: 48px 24px 32px;
+	}
+}
+
+.jp-forms__layout-title {
+	display: inline-flex;
+	font-size: 36px;
+	font-weight: bold;
+	height: 40px;
+	line-height: 40px;
+	margin: 0;
+}
+
+.jp-forms__layout-footer.jp-dashboard-footer {
+	box-sizing: border-box;
+	margin: 60px 0;
+	max-width: 100%;
+	padding-left: 64px;
+	padding-right: 64px;
+}

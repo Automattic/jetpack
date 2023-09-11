@@ -1,10 +1,7 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
+import { createBlock } from '@wordpress/blocks';
 import { Button } from '@wordpress/components';
 import { renderToString } from '@wordpress/element';
-import { createBlock } from '@wordpress/blocks';
+import { __, _x } from '@wordpress/i18n';
 
 /*
 	Fallback behaviour for unembeddable URLs.
@@ -18,7 +15,7 @@ export default function ErrorNotice( { fallbackUrl, onClick } ) {
 	return (
 		<>
 			{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }{ ' ' }
-			<Button isLink onClick={ handleOnButtonClick }>
+			<Button variant="link" onClick={ handleOnButtonClick }>
 				{ _x( 'Convert block to link', 'button label', 'jetpack' ) }
 			</Button>
 		</>

@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { RichText, useBlockProps } from '@wordpress/block-editor';
 import classnames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import { getVideoPressUrl } from './url';
 
 export default function VideoPressSave( props ) {

@@ -1,23 +1,15 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { DisconnectDialog } from '@automattic/jetpack-connection';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getFragment } from '@wordpress/url';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Button from 'components/button';
+import QuerySiteBenefits from 'components/data/query-site-benefits';
+import analytics from 'lib/analytics';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
 	isDisconnectingSite as _isDisconnectingSite,
@@ -38,15 +30,14 @@ import {
 	getApiNonce,
 	getApiRootUrl,
 	getInitialStateConnectedPlugins,
-	getInitialStateJetpackBenefits,
 	getPluginBaseUrl,
 	getUserWpComLogin,
 	getUserWpComId,
 	getSiteId,
 } from 'state/initial-state';
+import { getSiteBenefits } from 'state/site';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import './style.scss';
-import { DisconnectDialog } from '@automattic/jetpack-connection';
 import JetpackBenefits from '../jetpack-benefits';
 
 export class ConnectButton extends React.Component {
@@ -60,6 +51,8 @@ export class ConnectButton extends React.Component {
 		connectInPlace: PropTypes.bool,
 		customConnect: PropTypes.func,
 		autoOpenInDisconnectRoute: PropTypes.bool,
+		rna: PropTypes.bool,
+		compact: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -68,6 +61,8 @@ export class ConnectButton extends React.Component {
 		asLink: false,
 		connectInPlace: true,
 		autoOpenInDisconnectRoute: false,
+		rna: false,
+		compact: false,
 	};
 
 	constructor( props ) {
@@ -93,7 +88,7 @@ export class ConnectButton extends React.Component {
 		this.setState( { showModal: ! this.state.showModal } );
 	};
 
-	loadIframe = e => {
+	loadConnectionScreen = e => {
 		e.preventDefault();
 		// If the iframe is already loaded or we don't have a connectUrl yet, return.
 		if ( this.props.isAuthorizing || this.props.fetchingConnectUrl ) {
@@ -107,8 +102,14 @@ export class ConnectButton extends React.Component {
 			this.props.customConnect();
 		} else {
 			// Dispatch user in place authorization.
-			this.props.doConnectUser();
+			this.props.doConnectUser( null, this.props.from );
 		}
+	};
+
+	renderDisconnectStepComponent = () => {
+		return this.props.siteBenefits ? (
+			<JetpackBenefits siteBenefits={ this.props.siteBenefits } />
+		) : null;
 	};
 
 	renderUserButton = () => {
@@ -140,31 +141,17 @@ export class ConnectButton extends React.Component {
 				className: 'is-primary jp-jetpack-connect__button',
 				href: connectUrl,
 				disabled: this.props.fetchingConnectUrl || this.props.isAuthorizing,
+				onClick: this.loadConnectionScreen,
 			},
 			connectLegend =
 				this.props.connectLegend || __( 'Connect your WordPress.com account', 'jetpack' );
 
-		// Secondary users in-place connection flow
-
-		// Due to the limitation in how 3rd party cookies are handled in Safari,
-		// we're falling back to the original flow on Safari desktop and mobile,
-		// thus ignore the 'connectInPlace' property value.
-
-		// We also check the `doNotUseConnectionIframe` initial global state property.
-		// This will override the button's `connectInPlace` property.
-
-		if (
-			this.props.connectInPlace &&
-			! this.props.isSafari &&
-			! this.props.doNotUseConnectionIframe
-		) {
-			buttonProps.onClick = this.loadIframe;
-		}
-
 		return this.props.asLink ? (
 			<a { ...buttonProps }>{ connectLegend }</a>
 		) : (
-			<Button { ...buttonProps }>{ connectLegend }</Button>
+			<Button rna={ this.props.rna } compact={ this.props.compact } { ...buttonProps }>
+				{ connectLegend }
+			</Button>
 		);
 	};
 
@@ -209,6 +196,7 @@ export class ConnectButton extends React.Component {
 	render() {
 		return (
 			<div>
+				<QuerySiteBenefits />
 				{ ! this.props.isSiteConnected && (
 					<p className="jp-banner__tos-blurb">
 						{ createInterpolateElement(
@@ -217,18 +205,10 @@ export class ConnectButton extends React.Component {
 								'jetpack'
 							),
 							{
-								tosLink: (
-									<a
-										href={ getRedirectUrl( 'wpcom-tos' ) }
-										rel="noopener noreferrer"
-										target="_blank"
-									/>
-								),
+								tosLink: <ExternalLink href={ getRedirectUrl( 'wpcom-tos' ) } />,
 								shareDetailsLink: (
-									<a
+									<ExternalLink
 										href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
-										rel="noopener noreferrer"
-										target="_blank"
 									/>
 								),
 							}
@@ -236,7 +216,6 @@ export class ConnectButton extends React.Component {
 					</p>
 				) }
 				{ this.renderContent() }
-				{ this.props.children }
 				<DisconnectDialog
 					apiNonce={ this.props.apiNonce }
 					apiRoot={ this.props.apiRoot }
@@ -246,7 +225,7 @@ export class ConnectButton extends React.Component {
 						login: this.props.userWpComLogin,
 					} }
 					connectedSiteId={ this.props.connectedSiteId }
-					disconnectStepComponent={ <JetpackBenefits siteBenefits={ this.props.siteBenefits } /> }
+					disconnectStepComponent={ this.renderDisconnectStepComponent() }
 					onDisconnected={ this.handleDisconnected } // On disconnect, need to update the connection status in the app state.
 					isOpen={ this.state.showModal }
 					onClose={ this.toggleVisibility }
@@ -273,7 +252,7 @@ export default connect(
 			apiNonce: getApiNonce( state ),
 			apiRoot: getApiRootUrl( state ),
 			connectedPlugins: getInitialStateConnectedPlugins( state ),
-			siteBenefits: getInitialStateJetpackBenefits( state ),
+			siteBenefits: getSiteBenefits( state ),
 			pluginUrl: getPluginBaseUrl( state ),
 			userWpComLogin: getUserWpComLogin( state ),
 			userWpComId: getUserWpComId( state ),
@@ -291,8 +270,8 @@ export default connect(
 			unlinkUser: () => {
 				return dispatch( unlinkUser() );
 			},
-			doConnectUser: () => {
-				return dispatch( _connectUser() );
+			doConnectUser: ( featureLabel, from ) => {
+				return dispatch( _connectUser( featureLabel, from ) );
 			},
 		};
 	}

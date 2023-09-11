@@ -1,0 +1,43 @@
+#wpcom-api-request-tracker {
+	direction: ltr;
+	display: none;
+	position: fixed;
+	height: 33%;
+	min-height: 350px;
+	font-family: "Helvetica Neue", sans-serif;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: #f1f1f1;
+	z-index: 99000;
+	color: #000;
+	line-height: 150% !important;
+	text-align: left;
+	font-size: 12px;
+	border-top: 1px solid #cccccc;
+	padding: 15px;
+	overflow: auto;
+}
+
+#wpcom-api-request-tracker li {
+	list-style: disc;
+	margin-left: 15px;
+}
+
+#wpcom-api-request-tracker a {
+	border: 0;
+}
+
+.wpcom-api-request-tracker-visible #wpcom-api-request-tracker {
+	display: block;
+}
+
+.wpcom-api-request-tracker-maximized #wpcom-api-request-tracker {
+	position: fixed;
+	top: 28px;
+	height: auto;
+}
+
+body.wpcom-api-request-tracker-maximized.wpcom-api-request-tracker-visible {
+	overflow: hidden;
+}

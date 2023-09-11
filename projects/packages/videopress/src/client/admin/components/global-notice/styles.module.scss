@@ -1,0 +1,59 @@
+.notice {
+	margin: 0;
+	font-size: 16px;
+
+	// notice itself on error status
+	&:global(.is-error) {
+		background-color: var( --jp-red-0 );
+	}
+
+	// notice content
+	& :global( .components-notice__content ) {
+		display: flex;
+		align-items: center;
+		margin: 0;
+		padding: 12px 4px;
+
+		// left icon
+		& > svg {
+			fill: var( --jp-red-60 );
+		}
+	}
+
+	// action button
+	& :global( .is-link ) {
+		color: var( --jp-black );
+		font-size: 16px;
+		font-weight: 600;
+	}
+
+	// X close button
+	& :global( .components-notice__dismiss ) {
+		align-self: center;
+	}
+
+	&.is-warning {
+		color: var( --jp-yellow-40 );
+		.icon {
+			fill: var( --jp-yellow-40 );
+		}
+	}
+
+	&.is-info {
+		color: var( --jp-blue-40 );
+		.icon {
+			fill: var( --jp-blue-40 );
+		}
+	}
+
+	&.is-success {
+		color: var( --jp-green );
+		.icon {
+			fill: var( --jp-green );
+		}
+	}
+
+	.message {
+		margin-left: 8px;
+	}
+}

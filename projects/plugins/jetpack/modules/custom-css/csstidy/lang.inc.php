@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Localization of CSS Optimiser Interface of CSSTidy
  *
@@ -22,33 +21,32 @@
  *
  * @license https://opensource.org/licenses/lgpl-license.php GNU Lesser General Public License
  * @package csstidy
- * @author Florian Schmitz (floele at gmail dot com) 2005-2007
-  * @author Brett Zamir (brettz9 at yahoo dot com) 2007
+ * @author Florian Schmitz (floele at gmail dot com) 2005-2007, Brett Zamir (brettz9 at yahoo dot com) 2007
  */
 
-if ( isset( $_GET['lang'] ) ) {
-	$l = $_GET['lang'];
+if ( isset( $_GET['lang'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site, determening language for translations.
+	$l = sanitize_text_field( wp_unslash( $_GET['lang'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site, determining language for translations.
 } elseif ( isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ) {
-	$l = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+	$l = filter_var( wp_unslash( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) );
 	$l = strtolower( substr( $l, 0, 2 ) );
 } else {
 	$l = '';
 }
 
-$l = ( in_array( $l, array( 'de', 'fr', 'zh' ) ) ) ? $l : 'en';
+$l = ( in_array( $l, array( 'de', 'fr', 'zh' ), true ) ) ? $l : 'en';
 
 // note 5 in all but French, and 40 in all are orphaned
 
-$lang = array();
-$lang['en'][0] = 'CSS Formatter and Optimiser/Optimizer (based on CSSTidy ';
-$lang['en'][1] = 'CSS Formatter and Optimiser';
-$lang['en'][2] = '(based on';
-$lang['en'][3] = '(plaintext)';
-$lang['en'][4] = 'Important Note:';
-$lang['en'][6] = 'Your code should be well-formed. This is <strong>not a validator</strong> which points out errors in your CSS code. To make sure that your code is valid, use the <a href="https://jigsaw.w3.org/css-validator/">W3C Validator</a>.';
-$lang['en'][7] = 'all comments are removed';
-$lang['en'][8] = 'CSS Input:';
-$lang['en'][9] = 'CSS-Code:';
+$lang           = array();
+$lang['en'][0]  = 'CSS Formatter and Optimiser/Optimizer (based on CSSTidy ';
+$lang['en'][1]  = 'CSS Formatter and Optimiser';
+$lang['en'][2]  = '(based on';
+$lang['en'][3]  = '(plaintext)';
+$lang['en'][4]  = 'Important Note:';
+$lang['en'][6]  = 'Your code should be well-formed. This is <strong>not a validator</strong> which points out errors in your CSS code. To make sure that your code is valid, use the <a href="https://jigsaw.w3.org/css-validator/">W3C Validator</a>.';
+$lang['en'][7]  = 'all comments are removed';
+$lang['en'][8]  = 'CSS Input:';
+$lang['en'][9]  = 'CSS-Code:';
 $lang['en'][10] = 'CSS from URL:';
 $lang['en'][11] = 'Code Layout:';
 $lang['en'][12] = 'Compression&#160;(code&#160;layout):';
@@ -106,16 +104,15 @@ $lang['en'][64] = 'Code';
 $lang['en'][65] = 'CSS to style CSS output';
 $lang['en'][66] = 'You need to go to about:config in your URL bar, select \'signed.applets.codebase_principal_support\' in the filter field, and set its value to true in order to use this feature; however, be aware that doing so increases security risks.';
 
-
-$lang['de'][0] = 'CSS Formatierer und Optimierer (basierend auf CSSTidy ';
-$lang['de'][1] = 'CSS Formatierer und Optimierer';
-$lang['de'][2] = '(basierend auf';
-$lang['de'][3] = '(Textversion)';
-$lang['de'][4] = 'Wichtiger Hinweis:';
-$lang['de'][6] = 'Der CSS Code sollte wohlgeformt sein. Der CSS Code wird <strong>nicht auf Gültigkeit überprüft</strong>. Um sicherzugehen dass dein Code valide ist, benutze den <a href="https://jigsaw.w3.org/css-validator/">W3C Validierungsservice</a>.';
-$lang['de'][7] = 'alle Kommentare werden entfernt';
-$lang['de'][8] = 'CSS Eingabe:';
-$lang['de'][9] = 'CSS-Code:';
+$lang['de'][0]  = 'CSS Formatierer und Optimierer (basierend auf CSSTidy ';
+$lang['de'][1]  = 'CSS Formatierer und Optimierer';
+$lang['de'][2]  = '(basierend auf';
+$lang['de'][3]  = '(Textversion)';
+$lang['de'][4]  = 'Wichtiger Hinweis:';
+$lang['de'][6]  = 'Der CSS Code sollte wohlgeformt sein. Der CSS Code wird <strong>nicht auf Gültigkeit überprüft</strong>. Um sicherzugehen dass dein Code valide ist, benutze den <a href="https://jigsaw.w3.org/css-validator/">W3C Validierungsservice</a>.';
+$lang['de'][7]  = 'alle Kommentare werden entfernt';
+$lang['de'][8]  = 'CSS Eingabe:';
+$lang['de'][9]  = 'CSS-Code:';
 $lang['de'][10] = 'CSS von URL:';
 $lang['de'][11] = 'Code Layout:';
 $lang['de'][12] = 'Komprimierung&#160;(Code&#160;Layout):';
@@ -173,16 +170,15 @@ $lang['de'][64] = 'Code';
 $lang['de'][65] = 'CSS to style CSS output';
 $lang['de'][66] = 'You need to go to about:config in your URL bar, select \'signed.applets.codebase_principal_support\' in the filter field, and set its value to true in order to use this feature; however, be aware that doing so increases security risks.';
 
-
-$lang['fr'][0] = 'CSS Formatteur et Optimiseur (basé sur CSSTidy ';
-$lang['fr'][1] = 'CSS Formatteur et Optimiseur';
-$lang['fr'][2] = '(basé sur ';
-$lang['fr'][3] = '(Version texte)';
-$lang['fr'][4] = 'Note Importante&#160;:';
-$lang['fr'][6] = 'Votre code doit être valide. Ce n’est <strong>pas un validateur</strong> qui signale les erreurs dans votre code CSS. Pour être sûr que votre code est correct, utilisez le validateur&#160;: <a href="https://jigsaw.w3.org/css-validator/">W3C Validator</a>.';
-$lang['fr'][7] = 'tous les commentaires sont enlevés';
-$lang['fr'][8] = 'Champ CSS&#160;:';
-$lang['fr'][9] = 'Code CSS&#160;:';
+$lang['fr'][0]  = 'CSS Formatteur et Optimiseur (basé sur CSSTidy ';
+$lang['fr'][1]  = 'CSS Formatteur et Optimiseur';
+$lang['fr'][2]  = '(basé sur ';
+$lang['fr'][3]  = '(Version texte)';
+$lang['fr'][4]  = 'Note Importante&#160;:';
+$lang['fr'][6]  = 'Votre code doit être valide. Ce n’est <strong>pas un validateur</strong> qui signale les erreurs dans votre code CSS. Pour être sûr que votre code est correct, utilisez le validateur&#160;: <a href="https://jigsaw.w3.org/css-validator/">W3C Validator</a>.';
+$lang['fr'][7]  = 'tous les commentaires sont enlevés';
+$lang['fr'][8]  = 'Champ CSS&#160;:';
+$lang['fr'][9]  = 'Code CSS&#160;:';
 $lang['fr'][10] = 'CSS en provenance d’une URL&#160;:<br />';
 $lang['fr'][11] = 'Mise en page du code&#160;:';
 $lang['fr'][12] = 'Compression (mise en page du code)&#160;:';
@@ -240,16 +236,15 @@ $lang['fr'][64] = 'Code';
 $lang['fr'][65] = 'CSS pour colorier la sortie CSS';
 $lang['fr'][66] = 'Vous devez aller dans about:config dans votre barre d’adresse, selectionner \'signed.applets.codebase_principal_support\' dans le champ Filtre et attribuez-lui la valeur \'true\' pour utiliser cette fonctionnalité; toutefois, soyez conscient que cela augmente les risques de sécurité.';
 
-
-$lang['zh'][0] = 'CSS整形與最佳化工具(使用 CSSTidy ';
-$lang['zh'][1] = 'CSS整形與最佳化工具';
-$lang['zh'][2] = '(使用';
-$lang['zh'][3] = '(純文字)';
-$lang['zh'][4] = '重要事項:';
-$lang['zh'][6] = '你的原始碼必須是良構的(well-formed). 這個工具<strong>沒有內建驗證器(validator)</strong>. 驗證器能夠指出你CSS原始碼裡的錯誤. 請使用 <a href="https://jigsaw.w3.org/css-validator/">W3C 驗證器</a>, 確保你的原始碼合乎規範.';
-$lang['zh'][7] = '所有註解都移除了';
-$lang['zh'][8] = 'CSS 輸入:';
-$lang['zh'][9] = 'CSS 原始碼:';
+$lang['zh'][0]  = 'CSS整形與最佳化工具(使用 CSSTidy ';
+$lang['zh'][1]  = 'CSS整形與最佳化工具';
+$lang['zh'][2]  = '(使用';
+$lang['zh'][3]  = '(純文字)';
+$lang['zh'][4]  = '重要事項:';
+$lang['zh'][6]  = '你的原始碼必須是良構的(well-formed). 這個工具<strong>沒有內建驗證器(validator)</strong>. 驗證器能夠指出你CSS原始碼裡的錯誤. 請使用 <a href="https://jigsaw.w3.org/css-validator/">W3C 驗證器</a>, 確保你的原始碼合乎規範.';
+$lang['zh'][7]  = '所有註解都移除了';
+$lang['zh'][8]  = 'CSS 輸入:';
+$lang['zh'][9]  = 'CSS 原始碼:';
 $lang['zh'][10] = 'CSS 檔案網址(URL):';
 $lang['zh'][11] = '原始碼規劃:';
 $lang['zh'][12] = '壓縮程度(原始碼規劃):';

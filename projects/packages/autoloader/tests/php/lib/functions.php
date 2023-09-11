@@ -5,6 +5,8 @@
  * @package automattic/jetpack-autoloader
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
+
 /**
  * Since PHP8 added a warning for setting `$throw` to `false` in `spl_autoload_register()`,
  * we need to define the autoload functions in order for them to be registered.

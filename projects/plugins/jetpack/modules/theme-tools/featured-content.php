@@ -1,6 +1,13 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Theme Tools: functions for Featured Content enhancements.
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Constants;
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
 
@@ -34,6 +41,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * add_theme_support( 'featured-content' ).
 		 *
 		 * @see Featured_Content::init()
+		 * @var int
 		 */
 		public static $max_posts = 15;
 
@@ -44,6 +52,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * add_theme_support( 'featured-content' ).
 		 *
 		 * @see Featured_Content::init()
+		 * @var array
 		 */
 		public static $post_types = array( 'post' );
 
@@ -52,6 +61,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * a custom tag name that will be stored in this variable.
 		 *
 		 * @see Featured_Content::hide_featured_term
+		 * @var string
 		 */
 		public static $tag;
 
@@ -107,7 +117,9 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			}
 
 			add_filter( $theme_support[0]['filter'], array( __CLASS__, 'get_featured_posts' ) );
-			add_action( 'customize_register', array( __CLASS__, 'customize_register' ), 9 );
+			if ( ! wp_is_block_theme() ) {
+				add_action( 'customize_register', array( __CLASS__, 'customize_register' ), 9 );
+			}
 			add_action( 'admin_init', array( __CLASS__, 'register_setting' ) );
 			add_action( 'save_post', array( __CLASS__, 'delete_transient' ) );
 			add_action( 'delete_post_tag', array( __CLASS__, 'delete_post_tag' ) );
@@ -125,12 +137,12 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 				unset( $theme_support[0]['additional_post_types'] );
 			}
 
-			// Themes can allow Featured Content pages
+			// Themes can allow Featured Content pages.
 			if ( isset( $theme_support[0]['post_types'] ) ) {
 				self::$post_types = array_merge( self::$post_types, (array) $theme_support[0]['post_types'] );
 				self::$post_types = array_unique( self::$post_types );
 
-				// register post_tag support for each post type
+				// register post_tag support for each post type.
 				foreach ( self::$post_types as $post_type ) {
 					register_taxonomy_for_object_type( 'post_tag', $post_type );
 				}
@@ -147,7 +159,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			if ( self::get_setting( 'hide-tag' ) ) {
 				$settings = self::get_setting();
 
-				// This is done before setting filters for get_terms in order to avoid an infinite filter loop
+				// This is done before setting filters for get_terms in order to avoid an infinite filter loop.
 				self::$tag = get_term_by( 'name', $settings['tag-name'], 'post_tag' );
 
 				add_filter( 'get_terms', array( __CLASS__, 'hide_featured_term' ), 10, 3 );
@@ -178,7 +190,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			$featured_posts = get_posts(
 				array(
 					'include'          => $post_ids,
-					'posts_per_page'   => count( $post_ids ),
+					'posts_per_page'   => count( $post_ids ), // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
 					'post_type'        => self::$post_types,
 					'suppress_filters' => false,
 				)
@@ -280,6 +292,9 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * Flush the Post Tag relationships cache.
 		 *
 		 * Hooks in the "update_option_featured-content" action.
+		 *
+		 * @param array $prev Previous option data.
+		 * @param array $opts New option data.
 		 */
 		public static function flush_post_tag_cache( $prev, $opts ) {
 			if ( ! empty( $opts ) && ! empty( $opts['tag-id'] ) ) {
@@ -305,7 +320,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 *
 		 * @uses Featured_Content::get_featured_post_ids();
 		 * @uses Featured_Content::get_setting();
-		 * @param WP_Query $query
+		 * @param WP_Query $query WP_Query object.
 		 * @return WP_Query Possibly modified WP_Query
 		 */
 		public static function pre_get_posts( $query ) {
@@ -330,7 +345,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			$settings = self::get_setting();
 
 			// Bail if the user wants featured posts always displayed.
-			if ( true == $settings['show-all'] ) {
+			if ( $settings['show-all'] ) {
 				return;
 			}
 
@@ -362,7 +377,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		public static function delete_post_tag( $tag_id ) {
 			$settings = self::get_setting();
 
-			if ( empty( $settings['tag-id'] ) || $tag_id != $settings['tag-id'] ) {
+			if ( empty( $settings['tag-id'] ) || $tag_id != $settings['tag-id'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 				return;
 			}
 
@@ -381,6 +396,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 *
 		 * @param array $terms A list of term objects. This is the return value of get_terms().
 		 * @param array $taxonomies An array of taxonomy slugs.
+		 * @param array $args Array of get_terms() arguments.
 		 * @return array $terms
 		 */
 		public static function hide_featured_term( $terms, $taxonomies, $args ) {
@@ -397,7 +413,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			}
 
 			// We only want to hide the featured tag.
-			if ( ! in_array( 'post_tag', $taxonomies ) ) {
+			if ( ! in_array( 'post_tag', $taxonomies, true ) ) {
 				return $terms;
 			}
 
@@ -407,7 +423,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			}
 
 			// Bail if term objects are unavailable.
-			if ( 'all' != $args['fields'] ) {
+			if ( 'all' !== $args['fields'] ) {
 				return $terms;
 			}
 
@@ -451,7 +467,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			}
 
 			// Make sure we are in the correct taxonomy.
-			if ( 'post_tag' != $taxonomy ) {
+			if ( 'post_tag' !== $taxonomy ) {
 				return $terms;
 			}
 
@@ -483,10 +499,10 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * @return void
 		 */
 		public static function register_setting() {
-			add_settings_field( 'featured-content', __( 'Featured Content', 'jetpack' ), array( __class__, 'render_form' ), 'reading' );
+			add_settings_field( 'featured-content', __( 'Featured Content', 'jetpack' ), array( __CLASS__, 'render_form' ), 'reading' );
 
 			// Register sanitization callback for the Customizer.
-			register_setting( 'featured-content', 'featured-content', array( __class__, 'validate_settings' ) );
+			register_setting( 'featured-content', 'featured-content', array( __CLASS__, 'validate_settings' ) );
 		}
 
 		/**
@@ -499,7 +515,12 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 				'featured_content',
 				array(
 					'title'          => esc_html__( 'Featured Content', 'jetpack' ),
-					'description'    => sprintf( __( 'Easily feature all posts with the <a href="%1$s">"featured" tag</a> or a tag of your choice. Your theme supports up to %2$s posts in its featured content area.', 'jetpack' ), admin_url( '/edit.php?tag=featured' ), absint( self::$max_posts ) ),
+					'description'    => sprintf(
+						/* translators: %1$s: Link to 'featured' admin tag view. %2$s: Max number of posts shown by theme in featured content area. */
+						__( 'Easily feature all posts with the <a href="%1$s">"featured" tag</a> or a tag of your choice. Your theme supports up to %2$s posts in its featured content area.', 'jetpack' ),
+						admin_url( '/edit.php?tag=featured' ),
+						absint( self::$max_posts )
+					),
 					'priority'       => 130,
 					'theme_supports' => 'featured-content',
 				)
@@ -571,14 +592,23 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * Enqueue the tag suggestion script.
 		 */
 		public static function enqueue_scripts() {
-			wp_enqueue_script( 'featured-content-suggest', plugins_url( 'js/suggest.js', __FILE__ ), array( 'suggest' ), '20131022', true );
+			wp_enqueue_script( 'featured-content-suggest', plugins_url( 'js/suggest.js', __FILE__ ), array( 'jquery', 'suggest' ), '20131022', true );
 		}
 
 		/**
 		 * Renders all form fields on the Settings -> Reading screen.
 		 */
 		public static function render_form() {
-			printf( __( 'The settings for Featured Content have <a href="%s">moved to Appearance &rarr; Customize</a>.', 'jetpack' ), admin_url( 'customize.php?#accordion-section-featured_content' ) );
+			printf(
+				wp_kses(
+					/* translators: %s: Link to the Featured Content settings in the Customizer. */
+					__( 'The settings for Featured Content have <a href="%s">moved to Appearance &rarr; Customize</a>.', 'jetpack' ),
+					array(
+						'a' => array( 'href' => array() ),
+					)
+				),
+				esc_url( admin_url( 'customize.php?#accordion-section-featured_content' ) )
+			);
 		}
 
 		/**
@@ -626,7 +656,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			$options = wp_parse_args( $saved, $defaults );
 			$options = array_intersect_key( $options, $defaults );
 
-			if ( 'all' != $key ) {
+			if ( 'all' !== $key ) {
 				return isset( $options[ $key ] ) ? $options[ $key ] : false;
 			}
 
@@ -642,7 +672,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 *
 		 * @uses Featured_Content::delete_transient()
 		 *
-		 * @param array $input
+		 * @param array $input Array of settings input.
 		 * @return array $output
 		 */
 		public static function validate_settings( $input ) {
@@ -689,11 +719,19 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			}
 		}
 
+		/**
+		 * Update Featured Content term data as necessary when a shared term is split.
+		 *
+		 * @param int    $old_term_id ID of the formerly shared term.
+		 * @param int    $new_term_id ID of the new term created for the $term_taxonomy_id.
+		 * @param int    $term_taxonomy_id ID for the term_taxonomy row affected by the split.
+		 * @param string $taxonomy Taxonomy for the split term.
+		 */
 		public static function jetpack_update_featured_content_for_split_terms( $old_term_id, $new_term_id, $term_taxonomy_id, $taxonomy ) {
 			$featured_content_settings = get_option( 'featured-content', array() );
 
 			// Check to see whether the stored tag ID is the one that's just been split.
-			if ( isset( $featured_content_settings['tag-id'] ) && $old_term_id == $featured_content_settings['tag-id'] && 'post_tag' == $taxonomy ) {
+			if ( isset( $featured_content_settings['tag-id'] ) && $old_term_id == $featured_content_settings['tag-id'] && 'post_tag' === $taxonomy ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				// We have a match, so we swap out the old tag ID for the new one and resave the option.
 				$featured_content_settings['tag-id'] = $new_term_id;
 				update_option( 'featured-content', $featured_content_settings );
@@ -705,7 +743,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 	 * Adds the featured content plugin to the set of files for which action
 	 * handlers should be copied when the theme context is loaded by the REST API.
 	 *
-	 * @param array $copy_dirs Copy paths with actions to be copied
+	 * @param array $copy_dirs Copy paths with actions to be copied.
 	 * @return array Copy paths with featured content plugin
 	 */
 	function wpcom_rest_api_featured_content_copy_plugin_actions( $copy_dirs ) {
@@ -716,6 +754,8 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 
 	/**
 	 * Delayed initialization for API Requests.
+	 *
+	 * @param object $request REST request object.
 	 */
 	function wpcom_rest_request_before_callbacks( $request ) {
 		Featured_Content::init();
@@ -723,8 +763,8 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 	}
 
 	if ( Constants::is_true( 'IS_WPCOM' ) && Constants::is_true( 'REST_API_REQUEST' ) ) {
-		add_filter( 'rest_request_before_callbacks', 'wpcom_rest_request_before_callbacks');
+		add_filter( 'rest_request_before_callbacks', 'wpcom_rest_request_before_callbacks' );
 	}
 
 	Featured_Content::setup();
-} // end if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
+}

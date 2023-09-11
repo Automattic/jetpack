@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { Spinner } from '@wordpress/components';
 
 const Loading = ( { text } ) => (

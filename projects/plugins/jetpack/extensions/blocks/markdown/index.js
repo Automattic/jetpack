@@ -1,19 +1,13 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink, Path, Rect, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import './editor.scss';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
-import edit from './edit';
-import save from './save';
+import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
+import edit from './edit';
+import save from './save';
+
+import './editor.scss';
 
 export const name = 'markdown';
 
@@ -77,7 +71,16 @@ export const settings = {
 	},
 
 	supports: {
+		align: [ 'wide', 'full' ],
 		html: false,
+		spacing: {
+			padding: true,
+			margin: true,
+			__experimentalDefaultControls: {
+				padding: true,
+				margin: true,
+			},
+		},
 	},
 
 	edit,

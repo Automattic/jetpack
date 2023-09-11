@@ -40,7 +40,7 @@ $declarations->scan( $base_path, $exclude );
 $declarations->print();
 
 // save the declarations as CSV
-$declarations->save( 'path/to/jetpack-master.csv' );
+$declarations->save( 'path/to/jetpack-trunk.csv' );
 
 // load some other declarations
 $jp74_declarations->load( 'path/to/jetpack-branch-7.4.csv' );
@@ -63,14 +63,14 @@ This is performed by parsing any external file looking for invocations. If those
 
 ```php
 // load declarations from a file, or scan using ->scan()
-$master_declarations->load( 'path/to/codebase-1.0.csv' );
+$trunk_declarations->load( 'path/to/codebase-1.0.csv' );
 $other_declarations->load( 'path/to/codebase-2.0.csv' );
 // OR
-$master_declarations->scan( 'path/to/master_branch', array( '.git', 'node_modules' ) );
+$trunk_declarations->scan( 'path/to/trunk_branch', array( '.git', 'node_modules' ) );
 $other_declarations->scan( 'path/to/other_branch', array( '.git', 'node_modules' ) );
 
 $differences = new Automattic\Jetpack\Analyzer\Differences();
-$differences->find( $master_declarations, $jp74_declarations );
+$differences->find( $trunk_declarations, $jp74_declarations );
 $differences->print();
 ```
 

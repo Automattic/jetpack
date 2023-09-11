@@ -1,59 +1,81 @@
-/**
- * External Dependencies
- */
+import { jest } from '@jest/globals';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
-import { shallow } from 'enzyme';
-
-/**
- * Internal Dependencies
- */
 import StepDisconnect from '../steps/step-disconnect';
 
 describe( 'StepDisconnect', () => {
 	const testProps = {
 		title: 'Test Title',
-		onDisconnect: spy(),
-		closeModal: spy(),
+		onDisconnect: jest.fn(),
+		closeModal: jest.fn(),
+		trackModalClick: jest.fn(),
 	};
 
-	describe( 'Initially', () => {
-		const wrapper = shallow( <StepDisconnect { ...testProps } /> );
+	afterEach( () => {
+		testProps.trackModalClick.mockClear();
+	} );
 
+	describe( 'Initially', () => {
 		it( 'renders the button to dismiss the modal', () => {
-			expect( wrapper.find( '.jp-connection__disconnect-dialog__btn-dismiss' ) ).to.have.lengthOf(
-				1
-			);
+			render( <StepDisconnect { ...testProps } /> );
+			expect( screen.getByRole( 'button', { name: 'Stay connected' } ) ).toBeInTheDocument();
 		} );
 		it( 'renders the button to initiate the disconnection', () => {
-			expect(
-				wrapper.find( '.jp-connection__disconnect-dialog__btn-disconnect' )
-			).to.have.lengthOf( 1 );
+			render( <StepDisconnect { ...testProps } /> );
+			expect( screen.getByRole( 'button', { name: 'Disconnect' } ) ).toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'When the disconnect button is clicked', () => {
-		const wrapper = shallow( <StepDisconnect { ...testProps } /> );
+		it( 'calls the disconnect callback', async () => {
+			const user = userEvent.setup();
+			render( <StepDisconnect { ...testProps } /> );
+			await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
+			expect( testProps.onDisconnect ).toHaveBeenCalled();
+		} );
 
-		wrapper
-			.find( '.jp-connection__disconnect-dialog__btn-disconnect' )
-			.simulate( 'click', { preventDefault: () => undefined } );
-
-		it( 'calls the disconnect callback', () => {
-			expect( testProps.onDisconnect.called ).to.be.true;
+		it( 'calls the trackModalClick callback with jetpack_disconnect_dialog_click_disconnect', async () => {
+			const user = userEvent.setup();
+			render( <StepDisconnect { ...testProps } /> );
+			await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
+			expect( testProps.trackModalClick ).toHaveBeenCalledTimes( 1 );
+			expect( testProps.trackModalClick ).toHaveBeenCalledWith(
+				'jetpack_disconnect_dialog_click_disconnect'
+			);
 		} );
 	} );
 
 	describe( 'When the dismiss button is clicked', () => {
-		const wrapper = shallow( <StepDisconnect { ...testProps } /> );
+		it( 'calls the closeModal callback', async () => {
+			const user = userEvent.setup();
+			render( <StepDisconnect { ...testProps } /> );
+			await user.click( screen.getByRole( 'button', { name: 'Stay connected' } ) );
+			expect( testProps.closeModal ).toHaveBeenCalled();
+		} );
 
-		wrapper
-			.find( '.jp-connection__disconnect-dialog__btn-dismiss' )
-			.simulate( 'click', { preventDefault: () => undefined } );
+		it( 'calls the trackModalClick callback with jetpack_disconnect_dialog_click_stay_connected', async () => {
+			const user = userEvent.setup();
+			render( <StepDisconnect { ...testProps } /> );
+			await user.click( screen.getByRole( 'button', { name: 'Stay connected' } ) );
+			expect( testProps.trackModalClick ).toHaveBeenCalledTimes( 1 );
+			expect( testProps.trackModalClick ).toHaveBeenCalledWith(
+				'jetpack_disconnect_dialog_click_stay_connected'
+			);
+		} );
+	} );
 
-		it( 'calls the closeModal callback', () => {
-			expect( testProps.closeModal.called ).to.be.true;
+	describe( 'When help links are clicked', () => {
+		const links = [
+			[ 'Jetpack connection (opens in a new tab)', 'jetpack_disconnect_dialog_click_learn_about' ],
+			[ 'contact Jetpack support (opens in a new tab)', 'jetpack_disconnect_dialog_click_support' ],
+		];
+		it.each( links )( `should track the "%s" click with %s`, async ( text, event ) => {
+			const user = userEvent.setup();
+			render( <StepDisconnect { ...testProps } /> );
+			await user.click( screen.getByRole( 'link', { name: text } ) );
+			expect( testProps.trackModalClick ).toHaveBeenCalledTimes( 1 );
+			expect( testProps.trackModalClick ).toHaveBeenCalledWith( event );
 		} );
 	} );
 } );

@@ -1,0 +1,37 @@
+.container {
+	// Card main wrapper
+	--product-card-shadow: rgb(0 0 0 / 3%);
+	background-color: var(--jp-white);
+	border: 1px solid var(--jp-gray);
+	border-radius: var(--jp-border-radius);
+	box-shadow: 0 2px 6px var(--product-card-shadow), 0 1px 2px var(--product-card-shadow);
+}
+
+.imageContainer {
+	display: flex;
+	align-items: center;
+
+	img {
+		object-fit: cover;
+		width: 100%;
+	}
+}
+
+.aiImageContainer {
+	background-color: #f9f9f6;
+}
+
+.product-interstitial__header {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: calc(var(--horizontal-spacing) * 2);
+}
+
+.product-interstitial__license-activation-link {
+	white-space: nowrap;
+
+	& > span {
+		font-size: var(--font-body-small);
+	}
+}

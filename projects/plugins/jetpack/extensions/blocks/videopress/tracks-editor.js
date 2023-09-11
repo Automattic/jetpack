@@ -1,8 +1,5 @@
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
-import { __, sprintf } from '@wordpress/i18n';
+import { MediaUploadCheck, store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	NavigableMenu,
 	MenuItem,
@@ -18,10 +15,10 @@ import {
 	SelectControl,
 	Spinner,
 } from '@wordpress/components';
-import { MediaUploadCheck, store as blockEditorStore } from '@wordpress/block-editor';
-import { upload } from '@wordpress/icons';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { upload } from '@wordpress/icons';
 
 const DEFAULT_KIND = 'subtitles';
 
@@ -69,7 +66,7 @@ const shouldUseJetpackVideoFetch = () => {
  * @param {string} guid - the video guid
  * @returns {Promise} the api request promise
  */
-const uploadTrackForGuid = ( track, guid ) => {
+export const uploadTrackForGuid = ( track, guid ) => {
 	if ( shouldUseJetpackVideoFetch() ) {
 		return window.videoPressUploadTrack(
 			guid,
@@ -154,7 +151,7 @@ function TrackList( { tracks, onChange, guid } ) {
 					<span>{ track.label }</span>
 					<div className="videopress-block-tracks-editor__track-list-track-delete">
 						<Button
-							isLink
+							variant="link"
 							isDestructive
 							onClick={ () => {
 								onDeleteTrack( index );
@@ -266,7 +263,7 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 								render={ ( { openFileDialog } ) => {
 									return (
 										<Button
-											isLink
+											variant="link"
 											onClick={ () => {
 												openFileDialog();
 											} }
@@ -338,11 +335,11 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 					{ isSavingTrack ? (
 						<Spinner />
 					) : (
-						<Button isSecondary disabled={ ! track.tmpFile } onClick={ onSave }>
+						<Button variant="secondary" disabled={ ! track.tmpFile } onClick={ onSave }>
 							{ __( 'Save', 'jetpack' ) }
 						</Button>
 					) }
-					<Button isLink onClick={ onCancel }>
+					<Button variant="link" onClick={ onCancel }>
 						{ __( 'Close', 'jetpack' ) }
 					</Button>
 				</div>

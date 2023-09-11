@@ -4,13 +4,13 @@ This means registering the site with WordPress.com. It will create a "site (or '
 
 The blog token is required in order to [authenticate at a user level](authorize-user.md) later (link to user auth docs here), so let's learn the simplest way we can do that in your plugin.
 
-### Install the right packages
+## Install the right packages
 
 First, let's make sure that the `automattic/jetpack-connection` package is set up in your composer.json file:
 
 At minimum you need three things. One is the `automattic/jetpack-autoloader` package, which will ensure that you're not colliding with any other plugins on the site that may be including the same packages. Two, of course, is the `automattic/jetpack-connection` package. Third is our `automattic/jetpack-config` package that will be your tool for initializing the packages.
 
-We recommend that you always use the latest published versions of our packages, but you can also run our latest master branch builds:
+We recommend that you always use the latest published versions of our packages, but you can also run our latest trunk branch builds:
 ```
 {
     "name": "you/your-awesome-plugin",
@@ -25,14 +25,14 @@ We recommend that you always use the latest published versions of our packages, 
     ],
     "minimum-stability": "dev",
     "require": {
-        "automattic/jetpack-autoloader": "dev-master",
-        "automattic/jetpack-config": "dev-master",
-        "automattic/jetpack-connection": "dev-master"
+        "automattic/jetpack-autoloader": "dev-trunk",
+        "automattic/jetpack-config": "dev-trunk",
+        "automattic/jetpack-connection": "dev-trunk"
     }
 }
 ```
 
-### Initialize the package
+## Initialize the package
 
 Second, we must initialize ("configure") the `jetpack-connection` package within your plugin, and provide the information about it.
 
@@ -60,45 +60,37 @@ function jpcs_load_plugin() {
 add_action( 'plugins_loaded', 'jpcs_load_plugin', 1 );
 ```
 
-### Create admin_post endpoint
+## Connecting the site and the users
 
-```php
-use Automattic\Jetpack\Connection\Manager;
+In the JS connection package (see js-packages/connection folder in the monorepo) you'll find the React components that handle all the connection process for you out of the box. If you can, prefer to use them.
 
-add_action( 'admin_post_register_site', 'your_plugin_register_site' );
+If you need to build your own connection flow from scratch, here is how to do it:
 
-function your_plugin_register_site() {
-	check_admin_referer( 'register-site' );
-	$manager = new Manager( 'plugin-slug' );
+### Make an API call to register the site
 
-	// Mark the plugin connection as enabled, in case it was disabled earlier.
-	$manager->enable_plugin();
+You can then make an API POST call to `jetpack/v4/connection/register` to register the site.
 
-	// If the token doesn't exist (see "Soft and Hard Disconnect" section below), we need to register the site.
-	if ( ! ( new Tokens() )->get_access_token() ) {
-		$manager->register();
-	}
+If successful, this endpoint will return a `authorizeUrl` which is the URL you need to take the user to if you want them to authorize their WPCOM users.
 
-	// This is where you could put your error handling, redirects, or whatever decorations you need.
-}
+#### Manually registering the site and authorizing user
+
+If you need to build a custom flow and run these processes manually, here's what to do:
+
+To register the site:
+```
+$manager = new Manager( 'plugin-slug' );
+$manager->try_registration();
 ```
 
-### Make the button!
-
-How are people supposed to register without something to click? I guess they would have to write their own plugin. Or you can make them a button that feeds into the admin_post endpoint you just created...
-
-```html
-<form action="/wp-admin/admin-post.php" method="post">
-	<input type="hidden" name="action" value="register_site" />
-	<?php wp_nonce_field( 'register-site' ); ?>
-	<input type="submit" value="Register this site" class="button button-primary" />
-</form>
+You can then connect the user, meaning that the user will be redirected to Calypso to authorize their WPCOM users:
+```
+$manager->connect_user();
 ```
 
-### Voila!
-
-And that's it! You've just created a button that will register a WordPress site with WordPress.com. Now the only thing left to do is [authorize the user](authorize-user.md).
-
+Or you can fetch the Calypso URL and use it in a link or button:
+```
+$auth_url   = $manager->get_authorization_url();
+```
 ### Disconnect the site
 
 When disconnecting the site, we recommend also clearing the remaining user tokens, since those won't work anyway and may cause problems on reconnection.
@@ -120,20 +112,15 @@ function your_plugin_disconnect_site() {
 }
 ```
 
-
 #### Custom Disconnect
 
-Method `$manager->remove_connection()` essentially calls `disable_plugin()`, `disconnect_site_wpcom()`, and `delete_all_connection_tokens()`.
+Method `$manager->remove_connection()` essentially calls `disconnect_site_wpcom()` and `delete_all_connection_tokens()`.
 Its purpose is to simplify the disconnection process.
-If you need to customize the disconnect process, or perform a partial disconnect, you can call these methods one by one.
+If you need to customize the disconnect process you can call these methods one by one.
 
 ```php
-// Mark the plugin connection as disabled.
 
 $manager = new Manager( 'plugin-slug' );
-
-// Mark the plugin connection as disabled.
-$manager->disable_plugin();
 
 // If no other plugins use the connection, this will destroy the blog tokens on both this site, and the tokens stored on wordpress.com
 $manager->disconnect_site_wpcom();
@@ -142,58 +129,24 @@ $manager->disconnect_site_wpcom();
 $manager->delete_all_connection_tokens();
 ```
 
-### Soft and Hard Disconnect
+### Using the connection
 
-There are two types of disconnection happening when you request a disconnect: *Soft Disconnect* and *Hard Disconnect*.
-The package API takes care of that under the hood, so in most cases there won't be any need to differentiate them in your code.
-Below is some basic information on how they differ.
+The `Connection::Manager` class gives you several methods to check on the connection status and act accordingly. Here are some of the most useful methods:
 
-#### Soft Disconnect
+* `is_connected()`: Checks if the site has a site-level connection. aka has a blog token.
+* `has_connected_owner()`: Checks if the site has an admin connected and marked as the connection owner.
+* `is_user_connected()`: Checks if the current user (or any given user) is connected (authorized in wpcom).
+* `is_site_connection()`: Checks if the site is connected only at a site level. Similar to `is_connected` but will diferentiate if this is truly a site-only connection and not a site that has a broken user connection.
 
-Soft disconnect means that all the tokens are preserved, and the connection for other plugins stays active.
-Technically speaking, soft disconnect happens when you call `$manager->disable_plugin();`.
-Next time you try to use the connection, you call `$manager->is_plugin_enabled()`, which will return `false`.
+### Reconnecting
 
-Calling `$manager->disconnect_site_wpcom()` and `$manager->delete_all_connection_tokens()` afterwards is still needed.
-These calls will determine if the aforementioned plugin is the only one using the connection, and perform *soft* or *hard* disconnect accordingly.
+There's a method that handles reconnection in case you need to refresh your connection. This will destroy the connection and start a new connection flow. Note that you still need to authorize the user after reconnecting.
 
-#### Hard Disconnect
-
-If there are no other plugins using the connection, or all of them have already been *softly disconnected*, the package will perform the *hard disconnect*.
-In that case methods `disconnect_site_wpcom()` and `delete_all_connection_tokens()` will actually remove the tokens and run the `deregister` API request.
-
-You can explicitly request hard disconnect by providing the argument `$ignore_connected_plugins`:
 ```php
 $manager = new Manager( 'plugin-slug' );
-
-$manager->disable_plugin();
-
-// The `$ignore_connected_plugins` argument is set to `true`, so the Connection Manager will perform the hard disconnect.
-$manager->disconnect_site_wpcom( true );
-$manager->delete_all_connection_tokens( true );
+$manager->reconnect();
 ```
 
-#### Using the connection
-If the plugin was *softly* disconnected, the access tokens will still be accessible.
-However, the user explicitly requested the plugin to be disabled, so you need to check for that before you utilize the connection in any way:
-```php
-$manager = new Manager( 'plugin-slug' );
+If you want something smarter, you can use `restore()`. This method will check for your tokens health and refresh only what's needed.
 
-if ( $manager->is_plugin_enabled() && ( new Tokens() )->get_access_token() ) {
-	// Perform the API requests.
-} else {
-	// Assume the plugin is disconnected, no matter if the tokens actually exist.
-}
-```
-
-#### Reconnecting
-Whether a *soft* or *hard* disconnect was performed, the plugin will be marked as "disconnected", so if the connect is being reestablished, you need to call `$manager->enable_plugin()` to remove that flag.
-If the plugin was *softly* disconnected, removing the flag is enough for it to work. Otherwise, you'll need to register the website again:
-```php
-$manager = new Manager( 'plugin-slug' );
-$manager->enable_plugin();
-
-if ( ! ( new Tokens() )->get_access_token() ) {
-    $manager->register();
-}
-```
+From your plugin, most likely you will want to make a request to `jetpack/v4/connection/reconnect`.

@@ -2,6 +2,8 @@
 	color: #ffffff;
 }
 
-.wp-block-jetpack-button button {
-	border: inherit;
+.wp-block-jetpack-button {
+	&:not(.is-style-outline) button {
+		border: none;
+	}
 }

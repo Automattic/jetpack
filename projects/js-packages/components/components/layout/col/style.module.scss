@@ -1,35 +1,28 @@
-@import '~@automattic/jetpack-base-styles/style';
+@use "sass:map";
+@import "../breakpoints.module.scss";
 
-@for $i from 1 through 4 {
-	.sm-col-span-#{$i} {
-		grid-column-end: span #{$i};
-	}
-}
-
-@include for-phone-up {
-	@for $i from 1 through 8 {
-		.md-col-span-#{$i} {
-			grid-column-end: span #{$i};
+@mixin cols($size) {
+	@include media($size) using ($columns) {
+		@for $i from 1 through $columns {
+			.col-#{$size}-#{$i} {
+				grid-column-end: span #{$i};
+			}
+			.col-#{$size}-#{$i}-start {
+				grid-column-start: #{$i};
+			}
+			.col-#{$size}-#{$i}-end {
+				grid-column-end: #{$i + 1};
+			}
 		}
 	}
 }
 
-@include for-tablet-up {
-	@for $i from 1 through 12 {
-		.lg-col-span-#{$i} {
-			grid-column-end: span #{$i};
-		}
-	}
-}
+@include cols("sm");
+@include cols("md");
+@include cols("lg");
 
-@include for-tablet-down {
-	.md-col-span-0 {
-		display: none;
-	}
-}
-
-@include for-phone-down {
-	.sm-col-span-0 {
-		display: none;
-	}
+:export {
+	smCols: map.get($cols-sizes, "sm");
+	mdCols: map.get($cols-sizes, "md");
+	lgCols: map.get($cols-sizes, "lg");
 }

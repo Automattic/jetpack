@@ -1,8 +1,5 @@
-/**
- * External dependencies
- */
-import { addFilter } from '@wordpress/hooks';
 import { createBlock } from '@wordpress/blocks';
+import { addFilter } from '@wordpress/hooks';
 import services from './services';
 
 /**

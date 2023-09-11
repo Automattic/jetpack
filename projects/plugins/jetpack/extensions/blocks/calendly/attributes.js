@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import colorValidator from '../../shared/colorValidator';
 
 const urlValidator = url => ! url || url.startsWith( 'https://calendly.com/' );

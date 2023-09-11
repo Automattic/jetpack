@@ -1,40 +1,32 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-import sinon from 'sinon';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { jest } from '@jest/globals';
+import userEvent from '@testing-library/user-event';
+import React from 'react';
+import { render, screen } from 'test/test-utils';
 import { SettingsCard } from '../index';
 
 describe( 'SettingsCard', () => {
-
-	let testProps = {
+	const testProps = {
 		module: 'comments',
 		hideButton: false,
-		getModule: () => (
-			{
-				name: 'Comments',
-				learn_more_button: getRedirectUrl( 'jetpack-support-protect' )
-			}
-		),
+		getModule: () => ( {
+			name: 'Comments',
+			learn_more_button: getRedirectUrl( 'jetpack-support-protect' ),
+		} ),
 		isSavingAnyOption: () => false,
 		isDirty: () => true,
 		header: '',
 		support: '',
 		sitePlan: {
-			product_slug: 'jetpack_free'
+			product_slug: 'jetpack_free',
 		},
 		userCanManageModules: true,
 		getModuleOverride: () => {
 			return false;
-		}
+		},
 	};
+
+	const Child = () => <p data-testid="Child">Child</p>;
 
 	const allCardsNonAdminCantAccess = [
 			'widget-visibility',
@@ -70,119 +62,163 @@ describe( 'SettingsCard', () => {
 			'enhanced-distribution',
 			'comments',
 			'json-api',
-			'photon'
+			'photon',
 		],
-		allCardsForNonAdmin = [
-			'post-by-email'
-		];
-
-	const wrapper = shallow( <SettingsCard { ...testProps } ><p>Child</p></SettingsCard> );
+		allCardsForNonAdmin = [ 'post-by-email' ];
 
 	it( 'renders a heading', () => {
-		expect( wrapper.find( 'SectionHeader' ) ).to.have.length( 1 );
-	} );
-
-	it( 'the heading has the right text', () => {
-		expect( wrapper.find( 'SectionHeader' ).props().label ).to.be.equal( 'Comments' );
+		render(
+			<SettingsCard { ...testProps }>
+				<Child />
+			</SettingsCard>
+		);
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( screen.getByText( 'Comments' ).closest( '.dops-section-header' ) ).toBeInTheDocument();
 	} );
 
 	it( "when not saving and has settings to save, it's enabled", () => {
-		expect( wrapper.find( 'Button' ).get(0).props.disabled ).to.be.false;
+		render(
+			<SettingsCard { ...testProps }>
+				<Child />
+			</SettingsCard>
+		);
+		expect( screen.getByRole( 'button' ) ).toBeEnabled();
 	} );
 
 	describe( 'When a custom header or support URL are passed', () => {
-
-		Object.assign( testProps, {
+		const currentTestProps = {
+			...testProps,
 			header: 'A custom header',
-			support: getRedirectUrl( 'jetpack' )
-		} );
-
-		const wrapper = shallow( <SettingsCard { ...testProps } ><p>Child</p></SettingsCard> );
+			support: getRedirectUrl( 'jetpack' ),
+		};
 
 		it( 'the header has priority over module.name', () => {
-			expect( wrapper.find( 'SectionHeader' ).props().label ).to.be.equal( 'A custom header' );
+			render(
+				<SettingsCard { ...currentTestProps }>
+					<Child />
+				</SettingsCard>
+			);
+			expect(
+				// eslint-disable-next-line testing-library/no-node-access
+				screen.getByText( 'A custom header' ).closest( '.dops-section-header' )
+			).toBeInTheDocument();
+			expect(
+				// eslint-disable-next-line testing-library/no-node-access
+				screen.queryByText( 'Comments' )?.closest( '.dops-section-header' ) || null
+			).not.toBeInTheDocument();
 		} );
-
 	} );
 
 	describe( 'When save is disabled', () => {
-
-		Object.assign( testProps, {
-			saveDisabled: true
-		} );
-
-		const wrapper = shallow( <SettingsCard { ...testProps } ><p>Child</p></SettingsCard> );
+		const currentTestProps = {
+			...testProps,
+			saveDisabled: true,
+		};
 
 		it( "when saving, it's disabled", () => {
-			expect( wrapper.find( 'Button' ).get(0).props.disabled ).to.be.true;
+			render(
+				<SettingsCard { ...currentTestProps }>
+					<Child />
+				</SettingsCard>
+			);
+			expect( screen.getByRole( 'button' ) ).toBeDisabled();
 		} );
 
-		it( "when saving, button label is updated to Saving…", () => {
-			expect( wrapper.find( 'Button' ).get(0).props.children ).to.be.equal( 'Saving…' );
+		it( 'when saving, button label is updated to Saving…', () => {
+			render(
+				<SettingsCard { ...currentTestProps }>
+					<Child />
+				</SettingsCard>
+			);
+			expect( screen.getByRole( 'button' ) ).toHaveTextContent( 'Saving…' );
 		} );
-
 	} );
 
 	describe( "If the support attribute and module doesn't have a support link", () => {
-
-		Object.assign( testProps, {
+		const currentTestProps = {
+			...testProps,
 			saveDisabled: false,
 			support: '',
-			getModule: () => (
-				{
-					name: 'Comments',
-					learn_more_button: ''
-				}
-			)
-		} );
+			getModule: () => ( {
+				name: 'Comments',
+				learn_more_button: '',
+			} ),
+		};
 
-		const wrapper = shallow( <SettingsCard { ...testProps } ><p>Child</p></SettingsCard> );
-
+		// @todo I see nothing that would add a "support icon" in the first place. Was that a removed feature?
 		it( 'the support icon is not rendered', () => {
-			expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
+			render(
+				<SettingsCard { ...currentTestProps }>
+					<Child />
+				</SettingsCard>
+			);
+			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
+			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 1 );
 		} );
-
 	} );
 
-	describe( 'When save button is clicked three times', () => {
+	describe( 'When save button is clicked', () => {
+		const onSave = jest.fn( e => e.preventDefault() );
 
-		const onSave = sinon.spy();
-
-		Object.assign( testProps, {
+		const currentTestProps = {
+			...testProps,
 			onSubmit: onSave,
-			saveDisabled: true
+		};
+
+		it( 'onSubmit is called', async () => {
+			const user = userEvent.setup();
+			render(
+				<SettingsCard { ...currentTestProps }>
+					<Child />
+				</SettingsCard>
+			);
+
+			onSave.mockClear();
+			const button = screen.getByRole( 'button', { name: 'Save settings' } );
+			await user.click( button );
+			expect( onSave ).toHaveBeenCalledTimes( 1 );
 		} );
 
-		const saveButton = shallow( <SettingsCard { ...testProps } ><p>Child</p></SettingsCard> ).find( 'SectionHeader' ).find( 'Button' );
+		it( 'if save is disabled, do not call onSubmit', async () => {
+			const user = userEvent.setup();
+			render(
+				<SettingsCard { ...currentTestProps } saveDisabled={ true }>
+					<Child />
+				</SettingsCard>
+			);
 
-		saveButton.simulate( 'click' );
-		saveButton.simulate( 'click' );
-		saveButton.simulate( 'click' );
+			onSave.mockClear();
 
-		it( 'if save is disabled, do not call onSubmit', () => {
-			expect( onSave ).to.have.property( 'callCount', 0 );
+			const button = screen.getByRole( 'button', { name: 'Saving…' } );
+			await user.click( button );
+			await user.click( button );
+			await user.click( button );
+			expect( onSave ).not.toHaveBeenCalled();
 		} );
-
 	} );
 
 	describe( 'When user is not an admin', () => {
+		const currentTestProps = {
+			...testProps,
+			userCanManageModules: false,
+		};
 
-		Object.assign( testProps, {
-			userCanManageModules: false
+		it.each( allCardsNonAdminCantAccess )( 'does not render %s', item => {
+			render(
+				<SettingsCard { ...currentTestProps } module={ item }>
+					<Child />
+				</SettingsCard>
+			);
+			expect( screen.queryByTestId( 'Child' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'does not render cards that are not Post by Email', () => {
-			allCardsNonAdminCantAccess.forEach( item => {
-				expect( shallow( <SettingsCard { ...testProps } module={ item } ><p>Child</p></SettingsCard> ).find( 'form' ) ).to.have.length( 0 );
-			} );
+		it.each( allCardsForNonAdmin )( 'renders %s', item => {
+			render(
+				<SettingsCard { ...currentTestProps } module={ item }>
+					<Child />
+				</SettingsCard>
+			);
+			expect( screen.getByTestId( 'Child' ) ).toBeInTheDocument();
 		} );
-
-		it( 'renders Post by Email cards', () => {
-			allCardsForNonAdmin.forEach( item => {
-				expect( shallow( <SettingsCard { ...testProps } module={ item } ><p>Child</p></SettingsCard> ).find( 'form' ) ).to.have.length( 1 );
-			} );
-		} );
-
 	} );
-
 } );

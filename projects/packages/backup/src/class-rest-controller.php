@@ -35,7 +35,7 @@ class REST_Controller {
 				'permission_callback' => __CLASS__ . '::backup_permissions_callback',
 				'args'                => array(
 					'helper' => array(
-						'description' => __( 'base64 encoded Backup Helper Script body.', 'jetpack' ),
+						'description' => __( 'base64 encoded Backup Helper Script body.', 'jetpack-backup-pkg' ),
 						'type'        => 'string',
 						'required'    => true,
 					),
@@ -53,7 +53,7 @@ class REST_Controller {
 				'permission_callback' => __CLASS__ . '::backup_permissions_callback',
 				'args'                => array(
 					'path' => array(
-						'description' => __( 'Path to Backup Helper Script', 'jetpack' ),
+						'description' => __( 'Path to Backup Helper Script', 'jetpack-backup-pkg' ),
 						'type'        => 'string',
 						'required'    => true,
 					),
@@ -71,13 +71,13 @@ class REST_Controller {
 				'permission_callback' => __CLASS__ . '::backup_permissions_callback',
 				'args'                => array(
 					'object_type' => array(
-						'description'       => __( 'Type of object to fetch from the database', 'jetpack' ),
+						'description'       => __( 'Type of object to fetch from the database', 'jetpack-backup-pkg' ),
 						'required'          => true,
 						'validate_callback' => function ( $value ) {
 							if ( ! is_string( $value ) ) {
 								return new WP_Error(
 									'rest_invalid_param',
-									__( 'The object_type argument must be a non-empty string.', 'jetpack' ),
+									__( 'The object_type argument must be a non-empty string.', 'jetpack-backup-pkg' ),
 									array( 'status' => 400 )
 								);
 							}
@@ -89,7 +89,7 @@ class REST_Controller {
 									'rest_invalid_param',
 									sprintf(
 										/* translators: %s: comma-separated list of allowed object types */
-										__( 'The object_type argument should be one of %s', 'jetpack' ),
+										__( 'The object_type argument should be one of %s', 'jetpack-backup-pkg' ),
 										implode( ', ', $allowed_object_types )
 									),
 									array( 'status' => 400 )
@@ -100,7 +100,7 @@ class REST_Controller {
 						},
 					),
 					'object_id'   => array(
-						'description' => __( 'ID of the database object to fetch', 'jetpack' ),
+						'description' => __( 'ID of the database object to fetch', 'jetpack-backup-pkg' ),
 						'type'        => 'integer',
 						'required'    => true,
 					),
@@ -118,11 +118,11 @@ class REST_Controller {
 				'permission_callback' => __CLASS__ . '::backup_permissions_callback',
 				'args'                => array(
 					'name' => array(
-						'description'       => __( 'One or more option names to include in the backup', 'jetpack' ),
+						'description'       => __( 'One or more option names to include in the backup', 'jetpack-backup-pkg' ),
 						'validate_callback' => function ( $value ) {
 							$is_valid = is_array( $value ) || is_string( $value );
 							if ( ! $is_valid ) {
-								return new WP_Error( 'rest_invalid_param', __( 'The name argument should be an option name or an array of option names', 'jetpack' ), array( 'status' => 400 ) );
+								return new WP_Error( 'rest_invalid_param', __( 'The name argument should be an option name or an array of option names', 'jetpack-backup-pkg' ), array( 'status' => 400 ) );
 							}
 
 							return true;
@@ -176,6 +176,17 @@ class REST_Controller {
 				'permission_callback' => __CLASS__ . '::backup_permissions_callback',
 			)
 		);
+
+		// Get backup undo event
+		register_rest_route(
+			'jetpack/v4',
+			'/site/backup/undo-event',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_backup_undo_event',
+				'permission_callback' => '\Jetpack_Backup::backups_permissions_callback',
+			)
+		);
 	}
 
 	/**
@@ -194,7 +205,7 @@ class REST_Controller {
 
 		$error_msg = esc_html__(
 			'You are not allowed to perform this action.',
-			'jetpack'
+			'jetpack-backup-pkg'
 		);
 
 		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
@@ -220,7 +231,7 @@ class REST_Controller {
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 		$helper_script = base64_decode( $helper_script );
 		if ( ! $helper_script ) {
-			return new WP_Error( 'invalid_args', __( 'Helper script body must be base64 encoded', 'jetpack' ), 400 );
+			return new WP_Error( 'invalid_args', __( 'Helper script body must be base64 encoded', 'jetpack-backup-pkg' ), 400 );
 		}
 
 		$installation_info = Helper_Script_Manager::install_helper_script( $helper_script );
@@ -287,7 +298,7 @@ class REST_Controller {
 		);
 
 		if ( empty( $object ) ) {
-			return new WP_Error( 'object_not_found', __( 'Object not found', 'jetpack' ), array( 'status' => 404 ) );
+			return new WP_Error( 'object_not_found', __( 'Object not found', 'jetpack-backup-pkg' ), array( 'status' => 404 ) );
 		}
 
 		$result = array( 'object' => $object );
@@ -328,7 +339,7 @@ class REST_Controller {
 
 		$option_names = (array) $request->get_param( 'name' );
 
-		$options = array_map( 'self::get_option_row', $option_names );
+		$options = array_map( self::class . '::get_option_row', $option_names );
 		return array( 'options' => $options );
 	}
 
@@ -349,7 +360,7 @@ class REST_Controller {
 		$comment    = get_comment( $comment_id );
 
 		if ( empty( $comment ) ) {
-			return new WP_Error( 'comment_not_found', __( 'Comment not found', 'jetpack' ), array( 'status' => 404 ) );
+			return new WP_Error( 'comment_not_found', __( 'Comment not found', 'jetpack-backup-pkg' ), array( 'status' => 404 ) );
 		}
 
 		$allowed_keys = array(
@@ -399,7 +410,7 @@ class REST_Controller {
 		$post    = get_post( $post_id );
 
 		if ( empty( $post ) ) {
-			return new WP_Error( 'post_not_found', __( 'Post not found', 'jetpack' ), array( 'status' => 404 ) );
+			return new WP_Error( 'post_not_found', __( 'Post not found', 'jetpack-backup-pkg' ), array( 'status' => 404 ) );
 		}
 
 		// Fetch terms associated with this post object.
@@ -434,7 +445,7 @@ class REST_Controller {
 		$term    = get_term( $term_id );
 
 		if ( empty( $term ) ) {
-			return new WP_Error( 'term_not_found', __( 'Term not found', 'jetpack' ), array( 'status' => 404 ) );
+			return new WP_Error( 'term_not_found', __( 'Term not found', 'jetpack-backup-pkg' ), array( 'status' => 404 ) );
 		}
 
 		return array(
@@ -460,7 +471,7 @@ class REST_Controller {
 		$user    = get_user_by( 'id', $user_id );
 
 		if ( empty( $user ) ) {
-			return new WP_Error( 'user_not_found', __( 'User not found', 'jetpack' ), array( 'status' => 404 ) );
+			return new WP_Error( 'user_not_found', __( 'User not found', 'jetpack-backup-pkg' ), array( 'status' => 404 ) );
 		}
 
 		return array(
@@ -508,6 +519,76 @@ class REST_Controller {
 				'id_field' => 'webhook_id',
 			),
 		);
+	}
+
+	/**
+	 * This will fetch the last rewindable event from the Activity Log and
+	 * the last rewind_id prior to that.
+	 */
+	public static function get_site_backup_undo_event() {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+
+		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/activity?force=wpcom',
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
+
+		$body = json_decode( $response['body'], true );
+
+		if ( ! isset( $body['current'] ) ) {
+			return null;
+		}
+
+		if ( ! isset( $body['current']['orderedItems'] ) ) {
+			return null;
+		}
+
+		// Preparing the response structure
+		$undo_event = array(
+			'last_rewindable_event' => null,
+			'undo_backup_id'        => null,
+		);
+
+		// List of events that will not be considered to be undo.
+		// Basically we should not `undo` a full backup event, but we could
+		// use them to undo any other action like plugin updates.
+		$last_event_exceptions = array(
+			'rewind__backup_only_complete_full',
+			'rewind__backup_only_complete_initial',
+			'rewind__backup_only_complete',
+			'rewind__backup_complete_full',
+			'rewind__backup_complete_initial',
+			'rewind__backup_complete',
+		);
+
+		// Looping through the events to find the last rewindable event and the last backup_id.
+		// The idea is to find the last rewindable event and then the last rewind_id before that.
+		$found_last_event = false;
+		foreach ( $body['current']['orderedItems'] as $event ) {
+			if ( $event['is_rewindable'] ) {
+				if ( ! $found_last_event && ! in_array( $event['name'], $last_event_exceptions, true ) ) {
+					$undo_event['last_rewindable_event'] = $event;
+					$found_last_event                    = true;
+				} elseif ( $found_last_event ) {
+					$undo_event['undo_backup_id'] = $event['rewind_id'];
+					break;
+				}
+			}
+		}
+
+		// Ensure that we have a rewindable event and a backup_id to undo.
+		if ( $undo_event['last_rewindable_event'] === null || $undo_event['undo_backup_id'] === null ) {
+			return null;
+		}
+
+		return rest_ensure_response( $undo_event );
 	}
 
 	/**

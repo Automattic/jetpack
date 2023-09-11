@@ -8,44 +8,70 @@
  * displays the Publicize UI there.
  */
 
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
+import {
+	TwitterThreadListener,
+	PublicizePanel,
+	useSocialMediaConnections,
+	usePublicizeConfig,
+	SocialImageGeneratorPanel,
+	PostPublishReviewPrompt,
+} from '@automattic/jetpack-publicize-components';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
-
-/**
- * Internal dependencies
- */
-import './editor.scss';
-import './store';
-import TwitterThreadListener from './components/twitter';
+import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
-import PublicizePanel from './components/panel';
+import UpsellNotice from './components/upsell';
+
+import './editor.scss';
 
 export const name = 'publicize';
 
-export const settings = {
-	render: () => (
+const PublicizeSettings = () => {
+	const { hasEnabledConnections } = useSocialMediaConnections();
+	const { isSocialImageGeneratorAvailable } = usePublicizeConfig();
+
+	return (
 		<PostTypeSupportCheck supportKeys="publicize">
 			<TwitterThreadListener />
 
 			<JetpackPluginSidebar>
-				<PublicizePanel />
+				<PublicizePanel enableTweetStorm={ true }>
+					<UpsellNotice />
+				</PublicizePanel>
+				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
 			</JetpackPluginSidebar>
 
 			<PluginPrePublishPanel
-				initialOpen
+				initialOpen={ hasEnabledConnections }
 				id="publicize-title"
 				title={
 					<span id="publicize-defaults" key="publicize-title-span">
 						{ __( 'Share this post', 'jetpack' ) }
 					</span>
 				}
+				icon={ <JetpackEditorPanelLogo /> }
 			>
-				<PublicizePanel prePublish={ true } />
+				<PublicizePanel prePublish={ true } enableTweetStorm={ true }>
+					<UpsellNotice />
+				</PublicizePanel>
 			</PluginPrePublishPanel>
+
+			{ isSocialImageGeneratorAvailable && (
+				<PluginPrePublishPanel
+					initialOpen
+					title={ __( 'Social Image Generator', 'jetpack' ) }
+					icon={ <JetpackEditorPanelLogo /> }
+				>
+					<SocialImageGeneratorPanel prePublish={ true } />
+				</PluginPrePublishPanel>
+			) }
+
+			<PostPublishReviewPrompt />
 		</PostTypeSupportCheck>
-	),
+	);
+};
+
+export const settings = {
+	render: PublicizeSettings,
 };

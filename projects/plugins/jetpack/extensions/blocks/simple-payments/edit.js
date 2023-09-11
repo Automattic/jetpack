@@ -1,18 +1,5 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
-import emailValidator from 'email-validator';
-import { get, isEmpty, isEqual, pick, trimEnd } from 'lodash';
 import { getCurrencyDefaults } from '@automattic/format-currency';
-
-/**
- * WordPress dependencies
- */
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
-import { compose, withInstanceId } from '@wordpress/compose';
-import { dispatch, withSelect } from '@wordpress/data';
+import { InspectorControls } from '@wordpress/block-editor';
 import {
 	Disabled,
 	ExternalLink,
@@ -21,17 +8,20 @@ import {
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
-import { InspectorControls } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
+import { compose, withInstanceId } from '@wordpress/compose';
+import { dispatch, withSelect } from '@wordpress/data';
+import { Component } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { getWidgetIdFromBlock } from '@wordpress/widgets';
+import classNames from 'classnames';
+import emailValidator from 'email-validator';
+import { get, isEmpty, isEqual, pick, trimEnd } from 'lodash';
 import HelpMessage from '../../shared/help-message';
-import ProductPlaceholder from './product-placeholder';
-import FeaturedMedia from './featured-media';
-import { decimalPlaces, formatPrice } from './utils';
 import { SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, SUPPORTED_CURRENCY_LIST } from './constants';
 import { PanelControls } from './controls';
+import FeaturedMedia from './featured-media';
+import ProductPlaceholder from './product-placeholder';
+import { decimalPlaces, formatPrice } from './utils';
 
 export class SimplePaymentsEdit extends Component {
 	state = {
@@ -76,10 +66,28 @@ export class SimplePaymentsEdit extends Component {
 				} ),
 			} );
 		}
+
+		window.wp?.customize?.bind( 'change', setting => {
+			// See if the widget that has changed is our block.
+			// Code inspired by https://github.com/WordPress/gutenberg/blob/dbeebb9985e8112689d1143fbe18c12d7cb5eb53/packages/customize-widgets/src/utils.js#L19.
+			let widgetId;
+			const matches = setting.id.match( /^widget_(.+)(?:\[(\d+)\])$/ );
+			if ( matches ) {
+				const idBase = matches[ 1 ];
+				const number = parseInt( matches[ 2 ], 10 );
+				widgetId = `${ idBase }-${ number }`;
+			} else {
+				widgetId = setting.id;
+			}
+
+			if ( widgetId === getWidgetIdFromBlock( this.props.block ) && this.validateAttributes() ) {
+				this.saveProduct();
+			}
+		} );
 	}
 
 	componentDidUpdate( prevProps ) {
-		const { hasPublishAction, isSelected, postLinkUrl, setAttributes } = this.props;
+		const { hasPublishAction, isSelected, postLinkUrl, setAttributes, isPostEditor } = this.props;
 
 		if ( ! isEqual( prevProps.simplePayment, this.props.simplePayment ) ) {
 			this.injectPaymentAttributes();
@@ -88,7 +96,7 @@ export class SimplePaymentsEdit extends Component {
 		if (
 			! prevProps.isSaving &&
 			this.props.isSaving &&
-			hasPublishAction &&
+			( hasPublishAction || ! isPostEditor ) &&
 			this.validateAttributes()
 		) {
 			// Validate and save product on post save
@@ -155,16 +163,8 @@ export class SimplePaymentsEdit extends Component {
 
 	toApi() {
 		const { attributes } = this.props;
-		const {
-			content,
-			currency,
-			email,
-			featuredMediaId,
-			multiple,
-			price,
-			productId,
-			title,
-		} = attributes;
+		const { content, currency, email, featuredMediaId, multiple, price, productId, title } =
+			attributes;
 
 		return {
 			id: productId,
@@ -594,8 +594,9 @@ export class SimplePaymentsEdit extends Component {
 
 const mapSelectToProps = withSelect( ( select, props ) => {
 	const { getEntityRecord, getMedia } = select( 'core' );
-	const { isSavingPost, getCurrentPost } = select( 'core/editor' );
-
+	const { getCurrentPost } = select( 'core/editor' );
+	const { __experimentalGetDirtyEntityRecords, isSavingEntityRecord } = select( 'core' );
+	const getDirtyEntityRecords = __experimentalGetDirtyEntityRecords;
 	const { productId, featuredMediaId } = props.attributes;
 
 	const fields = [
@@ -615,11 +616,14 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 	const post = getCurrentPost();
 
 	return {
+		block: select( 'core/block-editor' ).getBlock( props.clientId ),
 		hasPublishAction: !! get( post, [ '_links', 'wp:action-publish' ] ),
-		isSaving: !! isSavingPost(),
+		isSaving: getDirtyEntityRecords().some( record =>
+			isSavingEntityRecord( record.kind, record.name, record.key )
+		),
 		simplePayment,
 		featuredMedia: featuredMediaId ? getMedia( featuredMediaId ) : null,
-		postLinkUrl: post?.link,
+		postLinkUrl: post?.guid?.raw,
 		isPostEditor: Object.keys( getCurrentPost() ).length > 0,
 	};
 } );

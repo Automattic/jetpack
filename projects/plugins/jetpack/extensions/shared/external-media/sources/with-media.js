@@ -1,26 +1,17 @@
-/**
- * External dependencies
- */
-import { uniqBy } from 'lodash';
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
-import { createHigherOrderComponent } from '@wordpress/compose';
-import { Component } from '@wordpress/element';
 import { withNotices, Modal } from '@wordpress/components';
+import { createHigherOrderComponent } from '@wordpress/compose';
+import { withSelect } from '@wordpress/data';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
-import { withSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import classnames from 'classnames';
+import { uniqBy } from 'lodash';
 import { PATH_RECENT } from '../constants';
+import { authenticateMediaSource } from '../media-service';
+import { MediaSource } from '../media-service/types';
 
-export default function withMedia() {
+export default function withMedia( mediaSource = MediaSource.Unknown ) {
 	return createHigherOrderComponent( OriginalComponent => {
 		// Legacy class as it was ported from an older codebase.
 		class WithMediaComponent extends Component {
@@ -85,7 +76,10 @@ export default function withMedia() {
 				}
 			};
 
-			setAuthenticated = isAuthenticated => this.setState( { isAuthenticated } );
+			setAuthenticated = isAuthenticated => {
+				this.setState( { isAuthenticated } );
+				authenticateMediaSource( mediaSource, isAuthenticated );
+			};
 
 			mergeMedia( initial, media ) {
 				return uniqBy( initial.concat( media ), 'ID' );
@@ -123,7 +117,8 @@ export default function withMedia() {
 
 			handleApiError = error => {
 				if ( error.code === 'authorization_required' ) {
-					this.setState( { isAuthenticated: false, isLoading: false, isCopying: false } );
+					this.setAuthenticated( false );
+					this.setState( { isLoading: false, isCopying: false } );
 					return;
 				}
 
@@ -164,8 +159,6 @@ export default function withMedia() {
 				const path = this.getRequestUrl( url );
 				const method = 'GET';
 
-				this.setAuthenticated( true );
-
 				apiFetch( {
 					path,
 					method,
@@ -178,6 +171,7 @@ export default function withMedia() {
 							nextHandle: result.meta.next_page,
 							isLoading: false,
 						} );
+						this.setAuthenticated( true );
 					} )
 					.catch( this.handleApiError );
 			};
@@ -245,15 +239,8 @@ export default function withMedia() {
 			};
 
 			render() {
-				const {
-					account,
-					isAuthenticated,
-					isCopying,
-					isLoading,
-					media,
-					nextHandle,
-					path,
-				} = this.state;
+				const { account, isAuthenticated, isCopying, isLoading, media, nextHandle, path } =
+					this.state;
 				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
 				const title = isCopying

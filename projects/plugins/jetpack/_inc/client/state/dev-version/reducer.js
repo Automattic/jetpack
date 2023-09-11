@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { combineReducers } from 'redux';
-
-/**
- * Internal dependencies
- */
 import { DEV_CARD_DISPLAY, DEV_CARD_HIDE } from 'state/action-types';
 
 export const display = ( state = false, action ) => {

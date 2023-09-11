@@ -1,12 +1,9 @@
-/**
- * Internal dependencies
- */
+import restApi from '@automattic/jetpack-api';
 import {
 	JETPACK_SITE_PRODUCTS_FETCH,
 	JETPACK_SITE_PRODUCTS_FETCH_FAIL,
 	JETPACK_SITE_PRODUCTS_FETCH_RECEIVE,
 } from 'state/action-types';
-import restApi from '@automattic/jetpack-api';
 
 export const fetchSiteProducts = () => {
 	return dispatch => {

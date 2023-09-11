@@ -1,11 +1,5 @@
-/**
- * External dependencies
- */
 import { CURRENCIES } from '@automattic/format-currency';
-
-/**
- * WordPress dependencies
- */
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
@@ -21,16 +15,15 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
-
-/**
- * Internal dependencies
- */
-import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
-import getSiteFragment from '../../shared/get-site-fragment';
+import {
+	getDefaultDonationAmountsForCurrency,
+	SUPPORTED_CURRENCIES,
+} from '../../shared/currencies';
 
 const Controls = props => {
 	const { attributes, setAttributes } = props;
-	const { currency, monthlyDonation, annualDonation, showCustomAmount } = attributes;
+	const { currency, oneTimeDonation, monthlyDonation, annualDonation, showCustomAmount } =
+		attributes;
 
 	const toggleDonation = ( interval, show ) => {
 		const donationAttributes = {
@@ -45,6 +38,17 @@ const Controls = props => {
 				...donation,
 				show,
 			},
+		} );
+	};
+
+	const changeDefaultDonationAmounts = ccy => {
+		const defaultAmounts = getDefaultDonationAmountsForCurrency( ccy );
+
+		setAttributes( {
+			currency: ccy,
+			oneTimeDonation: { ...oneTimeDonation, amounts: defaultAmounts },
+			monthlyDonation: { ...monthlyDonation, amounts: defaultAmounts },
+			annualDonation: { ...annualDonation, amounts: defaultAmounts },
 		} );
 	};
 
@@ -70,7 +74,7 @@ const Controls = props => {
 											className="jetpack-donations__currency-toggle"
 											icon={
 												<>
-													{ CURRENCIES[ currency ].symbol + ' - ' + currency }
+													{ currency + ' - ' + CURRENCIES[ currency ].symbol }
 													<Dashicon icon="arrow-down" />
 												</>
 											}
@@ -85,13 +89,14 @@ const Controls = props => {
 										{ Object.keys( SUPPORTED_CURRENCIES ).map( ccy => (
 											<MenuItem
 												isSelected={ ccy === currency }
+												icon={ ccy === currency ? 'yes' : '' }
 												onClick={ () => {
-													setAttributes( { currency: ccy } );
+													changeDefaultDonationAmounts( ccy );
 													onClose();
 												} }
 												key={ `jetpack-donations-currency-${ ccy }` }
 											>
-												{ CURRENCIES[ ccy ].symbol + ' - ' + ccy }
+												{ ccy + ' - ' + CURRENCIES[ ccy ].symbol }
 											</MenuItem>
 										) ) }
 									</MenuGroup>

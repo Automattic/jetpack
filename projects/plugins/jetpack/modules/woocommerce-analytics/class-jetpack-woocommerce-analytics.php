@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once plugin_basename( 'classes/class-jetpack-woocommerce-analytics-universal.php' );
+require_once __DIR__ . '/classes/class-jetpack-woocommerce-analytics-universal.php';
 
 /**
  * Class Jetpack_WooCommerce_Analytics

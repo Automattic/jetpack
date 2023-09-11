@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+<?php
 /**
  * "Add" command for the changelogger tool CLI.
  *
  * @package automattic/jetpack-changelogger
  */
-
-// phpcs:disable WordPress.NamingConventions.ValidVariableName
 
 namespace Automattic\Jetpack\Changelogger;
 
@@ -138,11 +136,13 @@ EOF
 	 * @return string
 	 */
 	protected function getDefaultFilename( OutputInterface $output ) {
+		static $non_feature_branches = array( 'current', 'default', 'develop', 'latest', 'main', 'master', 'next', 'production', 'support', 'tip', 'trunk' );
+
 		try {
 			$process = Utils::runCommand( array( 'git', 'rev-parse', '--abbrev-ref', 'HEAD' ), $output, $this->getHelper( 'debug_formatter' ) );
 			if ( $process->isSuccessful() ) {
 				$ret = trim( $process->getOutput() );
-				if ( ! in_array( $ret, array( '', 'master', 'main', 'trunk' ), true ) ) {
+				if ( ! in_array( $ret, $non_feature_branches, true ) ) {
 					return strtr( $ret, array_fill_keys( array_keys( self::$badChars ), '-' ) );
 				}
 			}
@@ -181,7 +181,7 @@ EOF
 				$filename = $this->getDefaultFilename( $output );
 			}
 			if ( $isInteractive ) {
-				$question = new Question( "Name your change file <info>[default: $filename]</> > ", $filename );
+				$question = new Question( "Name your changelog file <info>[default: $filename]</> > ", $filename );
 				$question->setValidator( array( $this, 'validateFilename' ) );
 				$filename = $this->getHelper( 'question' )->ask( $input, $output, $question );
 				if ( null === $filename ) { // non-interactive.
@@ -195,7 +195,7 @@ EOF
 				if ( file_exists( "$dir/$filename" ) && $input->getOption( 'filename-auto-suffix' ) ) {
 					$i = 2;
 					while ( file_exists( "$dir/$filename#$i" ) ) {
-						$i++;
+						++$i;
 					}
 					$output->writeln( "File \"$filename\" already exists. Creating \"$filename#$i\" instead.", OutputInterface::VERBOSITY_VERBOSE );
 					$filename = "$filename#$i";
@@ -287,6 +287,9 @@ EOF
 			} else {
 				if ( null === $entry ) {
 					$output->writeln( '<error>Entry must be specified in non-interactive mode.</>' );
+					if ( 'patch' === $significance ) {
+						$output->writeln( '<info>If you want to have an empty entry for this change, pass the empty string as the entry (like <comment>--entry=</>) and also please provide a comment (using <comment>--comment</>).</>' );
+					}
 					return 1;
 				}
 				if ( 'patch' !== $significance && '' === $entry ) {

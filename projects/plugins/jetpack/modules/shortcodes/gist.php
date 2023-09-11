@@ -68,7 +68,7 @@ function jetpack_gist_get_shortcode_id( $gist = '' ) {
 	if (
 		! empty( $parsed_url )
 		&& is_array( $parsed_url )
-		&& isset( $parsed_url['scheme'], $parsed_url['host'], $parsed_url['path'] )
+		&& isset( $parsed_url['scheme'] ) && isset( $parsed_url['host'] ) && isset( $parsed_url['path'] )
 	) {
 		// Not a Gist URL? Bail.
 		if ( 'gist.github.com' !== $parsed_url['host'] ) {

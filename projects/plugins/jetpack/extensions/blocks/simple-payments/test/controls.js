@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
-
-/**
- * Internal dependencies
- */
 import { PanelControls } from '../controls';
 
 const setAttributes = jest.fn();
@@ -22,16 +14,18 @@ beforeEach( () => {
 } );
 
 describe( 'Panel controls', () => {
-	test( 'shows purchase text input when settings tab expanded', () => {
+	test( 'shows purchase text input when settings tab expanded', async () => {
+		const user = userEvent.setup();
 		render( <PanelControls { ...panelProps } /> );
-		userEvent.click( screen.getByText( 'Settings' ) );
+		await user.click( screen.getByText( 'Settings' ) );
 		expect( screen.getByPlaceholderText( 'Click here to purchase' ) ).toBeInTheDocument();
 	} );
 
-	test( 'sets postLinkText attribute when post link text field updated', () => {
+	test( 'sets postLinkText attribute when post link text field updated', async () => {
+		const user = userEvent.setup();
 		render( <PanelControls { ...panelProps } /> );
-		userEvent.click( screen.getByText( 'Settings' ) );
-		userEvent.type( screen.getByPlaceholderText( 'Click here to purchase' ), 'A' );
+		await user.click( screen.getByText( 'Settings' ) );
+		await user.type( screen.getByPlaceholderText( 'Click here to purchase' ), 'A' );
 		expect( setAttributes ).toHaveBeenCalledWith( { postLinkText: 'A' } );
 	} );
 } );

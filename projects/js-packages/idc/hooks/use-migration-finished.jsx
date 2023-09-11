@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { useCallback, useState } from 'react';
 
 /**

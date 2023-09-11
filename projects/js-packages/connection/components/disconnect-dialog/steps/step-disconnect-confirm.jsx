@@ -1,16 +1,9 @@
-/**
- * External Dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-
-/**
- * Internal Dependencies
- */
+import { DecorativeCard } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
-import { DecorativeCard } from '@automattic/jetpack-components';
+import PropTypes from 'prop-types';
+import React from 'react';
 import disconnectImage from '../images/disconnect-confirm.jpg';
 
 /**
@@ -47,7 +40,7 @@ const StepDisconnectConfirm = props => {
 						</p>
 						<p>
 							<Button
-								isPrimary
+								variant="primary"
 								onClick={ onProvideFeedback }
 								className="jp-connection__disconnect-dialog__btn-back-to-wp"
 							>
@@ -68,7 +61,7 @@ const StepDisconnectConfirm = props => {
 					<>
 						<p>
 							<Button
-								isPrimary
+								variant="primary"
 								onClick={ onExit }
 								className="jp-connection__disconnect-dialog__btn-back-to-wp"
 							>
@@ -82,7 +75,7 @@ const StepDisconnectConfirm = props => {
 	);
 };
 
-StepDisconnectConfirm.PropTypes = {
+StepDisconnectConfirm.propTypes = {
 	/** Callback used to close the modal. */
 	onExit: PropTypes.func,
 	/** Callback used to change the state if user would like to provide feedback. */

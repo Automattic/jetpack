@@ -7,7 +7,7 @@
 
 use Automattic\Jetpack\Dashboard_Customizations\Posts_List_Page_Notification;
 
-require_jetpack_file( 'modules/masterbar/wp-posts-list/class-posts-list-page-notification.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/wp-posts-list/class-posts-list-page-notification.php';
 
 /**
  * Class Test_Posts_List_Page_Notification.

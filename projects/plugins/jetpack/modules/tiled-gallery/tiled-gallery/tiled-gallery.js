@@ -171,12 +171,6 @@
 			tiledGalleries.findAndSetupNewGalleries();
 		} );
 
-		if ( typeof jQuery === 'function' ) {
-			jQuery( document ).on( 'page-rendered.wpcom-newdash', function () {
-				tiledGalleries.findAndSetupNewGalleries();
-			} );
-		}
-
 		// Chrome is a unique snow flake and will start lagging on occasion
 		// It helps if we only resize on animation frames
 		//

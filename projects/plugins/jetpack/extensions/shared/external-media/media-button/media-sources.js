@@ -1,12 +1,5 @@
-/**
- * WordPress dependencies
- */
 import { MenuItem } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import { mediaSources } from '../sources';
 
 function MediaSources( { originalButton = null, onClick = () => {}, open, setSource } ) {

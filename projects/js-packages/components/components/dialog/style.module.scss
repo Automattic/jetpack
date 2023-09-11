@@ -1,0 +1,30 @@
+.one-section-style {
+	--product-card-shadow: rgb(0 0 0 / 3%);
+	background-color: var( --jp-white );
+	border: 1px solid var( --jp-gray );
+	border-radius: var( --jp-border-radius );
+	box-shadow: 0 2px 6px var( --product-card-shadow ), 0 1px 2px var( --product-card-shadow );
+}
+
+.primary,
+.secondary {
+	display: flex;
+}
+
+// Fit images in secondary section.
+.secondary {
+	align-items: center;
+	img {
+		// let's fit images
+		object-fit: cover;
+		width: 100%;
+	}
+}
+
+// Viewport breakpoints.
+.is-viewport-small {
+	// Add spacing between primary and secondary in "sm" viewport size
+	.primary {
+		margin-bottom: calc( var( --spacing-base ) * 3 );
+	}
+}

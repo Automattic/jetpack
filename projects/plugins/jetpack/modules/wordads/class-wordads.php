@@ -207,13 +207,14 @@ class WordAds {
 			WordAds_California_Privacy::init();
 		}
 
-		if ( '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
+		if ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
 
-			$ads_txt_transient = get_transient( 'jetpack_ads_txt' );
+			$ads_txt_transient = get_transient( 'wordads_ads_txt' );
 
 			if ( false === ( $ads_txt_transient ) ) {
-				$ads_txt_transient = ! is_wp_error( WordAds_API::get_wordads_ads_txt() ) ? WordAds_API::get_wordads_ads_txt() : '';
-				set_transient( 'jetpack_ads_txt', $ads_txt_transient, DAY_IN_SECONDS );
+				$wordads_ads_txt   = WordAds_API::get_wordads_ads_txt();
+				$ads_txt_transient = is_wp_error( $wordads_ads_txt ) ? '' : $wordads_ads_txt;
+				set_transient( 'wordads_ads_txt', $ads_txt_transient, DAY_IN_SECONDS );
 			}
 
 			/**
@@ -291,16 +292,8 @@ class WordAds {
 			if ( self::is_amp() ) {
 				add_filter( 'the_content', array( $this, 'insert_header_ad_amp' ) );
 			} else {
-				switch ( get_stylesheet() ) {
-					case 'twentyseventeen':
-					case 'twentyfifteen':
-					case 'twentyfourteen':
-						add_action( 'wp_footer', array( $this, 'insert_header_ad_special' ) );
-						break;
-					default:
-						add_action( 'wp_head', array( $this, 'insert_header_ad' ), 100 );
-						break;
-				}
+				add_action( 'wordads_header_ad', array( $this, 'insert_header_ad' ), 100 );
+				add_action( 'wp_footer', array( $this, 'insert_header_ad' ), 100 );
 			}
 		}
 	}
@@ -367,9 +360,10 @@ class WordAds {
 		$data_tags    = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 		$site_id      = $this->params->blog_id;
 		$consent      = (int) isset( $_COOKIE['personalized-ads-consent'] );
+		$is_logged_in = is_user_logged_in() ? '1' : '0';
 		?>
 		<script<?php echo esc_attr( $data_tags ); ?> type="text/javascript">
-			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: <?php echo esc_js( $hosting_type ); ?>, tn: '<?php echo esc_js( get_stylesheet() ); ?>', amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?>, ad: { label: { text: '<?php echo esc_js( __( 'Advertisements', 'jetpack' ) ); ?>' }, reportAd: { text: '<?php echo esc_js( __( 'Report this ad', 'jetpack' ) ); ?>' } } };
+			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: <?php echo esc_js( $hosting_type ); ?>, tn: '<?php echo esc_js( get_stylesheet() ); ?>', uloggedin: <?php echo esc_js( $is_logged_in ); ?>, amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?>, ad: { label: { text: '<?php echo esc_js( __( 'Advertisements', 'jetpack' ) ); ?>' }, reportAd: { text: '<?php echo esc_js( __( 'Report this ad', 'jetpack' ) ); ?>' } } };
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};
@@ -480,30 +474,25 @@ class WordAds {
 			return;
 		}
 
-		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
-		echo $this->get_ad( 'top', $ad_type ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-
-	/**
-	 * Special cases for inserting header unit via JS
-	 *
-	 * @since 4.5.0
-	 */
-	public function insert_header_ad_special() {
-		/**
-		 * Allow third-party tools to disable the display of header ads.
-		 *
-		 * @module wordads
-		 *
-		 * @since 4.5.0
-		 *
-		 * @param bool true Should the header unit be disabled. Default to false.
-		 */
-		if ( apply_filters( 'wordads_header_disable', false ) ) {
+		// Prevent multiple manual ads.
+		if ( 2 <= did_action( 'wordads_header_ad' ) ) {
 			return;
 		}
 
-		$selector = '#content';
+		// Prevent placing an automatic ad if a manual ad has already been placed.
+		if ( doing_action( 'wp_footer' ) && did_action( 'wordads_header_ad' ) ) {
+			return;
+		}
+
+		// Prevent placing a manual ad if an automatic ad has already been placed.
+		if ( doing_action( 'wordads_header_ad' ) && did_action( 'wp_footer' ) ) {
+			return;
+		}
+
+		// Default ad placement to just after the <body> tag.
+		$selector = 'body > :first-child';
+
+		// Special theme cases.
 		switch ( get_stylesheet() ) {
 			case 'twentyseventeen':
 				$selector = '#content';
@@ -514,6 +503,11 @@ class WordAds {
 			case 'twentyfourteen':
 				$selector = 'article';
 				break;
+		}
+
+		// Don't relocate if the ad is being placed manually.
+		if ( doing_action( 'wordads_header_ad' ) ) {
+			$selector = '';
 		}
 
 		$section_id  = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '2';
@@ -535,7 +529,6 @@ class WordAds {
 			return $content;
 		}
 		return $this->get_ad( 'top_amp', $ad_type ) . $content;
-
 	}
 
 	/**
@@ -700,7 +693,7 @@ HTML;
 	 */
 	public function get_dynamic_ad_snippet( $section_id, $form_factor = 'square', $location = '', $relocate = '' ) {
 		$div_id = 'atatags-' . $section_id . '-' . uniqid();
-		$div_id = esc_js( $div_id );
+		$div_id = esc_attr( $div_id );
 
 		// Default form factor.
 		$form_factor_id = self::$form_factor_ids['square'];
@@ -720,11 +713,12 @@ HTML;
 
 		$relocate_script = '';
 		if ( ! empty( $relocate ) ) {
-			$relocate        = esc_js( $relocate );
+			$selector        = wp_json_encode( $relocate );
 			$relocate_script = <<<JS
 			<script type="text/javascript">
-			var adNode       = document.getElementById( '$div_id' );
-			var relocateNode = document.querySelector( '$relocate' );
+			var adNode       = document.getElementById( '{$div_id}' );
+			var selector     = {$selector};
+			var relocateNode = document.querySelector( selector );
 			relocateNode.parentNode.insertBefore( adNode, relocateNode );
 			</script>
 JS;

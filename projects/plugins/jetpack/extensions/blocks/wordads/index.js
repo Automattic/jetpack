@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import edit from './edit';
-import { DEFAULT_FORMAT } from './constants';
+import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
+import { DEFAULT_FORMAT } from './constants';
+import edit from './edit';
 
 export const name = 'wordads';
 export const title = __( 'Ad', 'jetpack' );

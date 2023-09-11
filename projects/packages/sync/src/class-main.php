@@ -46,6 +46,16 @@ class Main {
 	}
 
 	/**
+	 * Sets the Sync data settings.
+	 *
+	 * @param array $data_settings An array containing the Sync data options. An empty array indicates that the default
+	 *                             values will be used for all Sync data.
+	 */
+	public static function set_sync_data_options( $data_settings = array() ) {
+		( new Data_Settings() )->add_settings_list( $data_settings );
+	}
+
+	/**
 	 * Initialize the main sync actions.
 	 *
 	 * @action plugins_loaded
@@ -58,6 +68,7 @@ class Main {
 		 * For now additional modules are enabled based on whether the third party plugin
 		 * class exists or not.
 		 */
+		Sync_Actions::initialize_search();
 		Sync_Actions::initialize_woocommerce();
 		Sync_Actions::initialize_wp_super_cache();
 

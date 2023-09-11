@@ -5,7 +5,7 @@ The package encapsulates the Connection functionality.
 
 ## Initial State
 
-The Jetpack Connection composer package can provide the initial state for the connection components to save your application from having to do one additional API request to fetch information.
+In order to use this package, you must ensure that the Jetpack Connection composer package provides the initial state for the connection components.
 
 In order to do that, make sure to attach the Initial State inline script to your app when you enqueue it.
 
@@ -17,7 +17,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 function my_app_enqueue_script() {
 	// ...
 	wp_enqueue_script( 'my-app-script' );
-	wp_add_inline_script( 'my-app-script', Connection_Initial_State::render(), 'before' );
+	Connection_Initial_State::render_script( 'my-app-script' );
 }
 ```
 
@@ -56,7 +56,7 @@ const statusCallback = useCallback(
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
 	registrationNonce="54321"
-	from="connection-ui"
+	from="my-jetpack"
 	redirectUri="tools.php?page=wpcom-connection-manager"
 	statusCallback={ statusCallback }
 >
@@ -90,7 +90,7 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
 	registrationNonce="54321"
-	from="connection-ui"
+	from="my-jetpack"
 	redirectUri="tools.php?page=wpcom-connection-manager"
 	connectionStatus={ connectionStatus }
 	connectionStatusIsFetching={ isFetching }
@@ -117,7 +117,7 @@ import { ConnectUser } from '@automattic/jetpack-connection';
 <ConnectUser
 	connectUrl="https://jetpack.wordpress.com/jetpack.authorize/1/"
 	redirectUri="tools.php?page=wpcom-connection-manager"
-	from="connection-ui"
+	from="my-jetpack"
 />
 ```
 
@@ -219,8 +219,6 @@ In all cases, users are presented with a link to `Disconnect` (see `DisconnectDi
 ### Properties
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
-- *isRegistered* - boolean (required), Whether a site level connection has already been established. If not, the component will not render.
-- *isUserConnected* - boolean (required), Whether the current user has connected their WordPress.com account.
 - *redirectUri* - string (required), The redirect admin URI after the user has connected their WordPress.com account.
 - *title* - string, The Card title. Defaults to "Connection".
 - *connectionInfoText* - string, The text that will be displayed under the title, containing info how to leverage the connection. Defaults to "Leverages the Jetpack Cloud for more features on your side."
@@ -240,8 +238,6 @@ const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnec
 <ConnectionStatusCard
 	apiRoot={ APIRoot }
 	apiNonce={ APINonce }
-	isRegistered={ true }
-	isUserConnected={ true }
 	redirectUri="tools.php?page=wpcom-connection-manager"
 />
 ```

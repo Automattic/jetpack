@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import loaderButton from './loader.js';
 
 class Jetpack_Debug_REST_API_Tester {
@@ -58,7 +55,7 @@ class Jetpack_Debug_REST_API_Tester {
 		let body = null;
 
 		const request = new XMLHttpRequest();
-		request.open( method, `${ window.wpApiSettings.root }jetpack/v4/${ this.urlElement.value }` );
+		request.open( method, `${ window.wpApiSettings.root }${ this.urlElement.value }` );
 
 		request.setRequestHeader( 'X-WP-Nonce', window.wpApiSettings.nonce );
 

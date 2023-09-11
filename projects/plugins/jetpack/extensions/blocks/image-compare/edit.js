@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import { InspectorControls, RichText } from '@wordpress/block-editor';
 import { Placeholder } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { useLayoutEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { photonizedImgProps } from '../tiled-gallery/utils';
 import ImageCompareControls from './controls';
 import ImgUpload from './img-upload';
@@ -20,8 +13,7 @@ import './view.js';
 /* global juxtapose */
 
 const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) => {
-	const { imageBefore, imageAfter, caption, orientation } = attributes;
-
+	const { align, imageBefore, imageAfter, caption, orientation } = attributes;
 	// Check for useResizeObserver, not available in older Gutenberg.
 	let resizeListener = null;
 	let sizes = null;
@@ -59,7 +51,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 		if ( imageBefore.url && imageAfter.url && typeof juxtapose !== 'undefined' ) {
 			juxtapose.makeSlider( juxtaposeRef?.current );
 		}
-	}, [ imageBefore, imageAfter, orientation ] );
+	}, [ align, imageBefore, imageAfter, orientation ] );
 
 	return (
 		<figure className={ className } id={ clientId }>

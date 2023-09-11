@@ -1,47 +1,88 @@
-/**
- * External dependencies
- */
+import { jest } from '@jest/globals';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-import ShallowRenderer from 'react-test-renderer/shallow';
+import ConnectScreenRequiredPlan from '../visual';
 
-/**
- * Internal dependencies
- */
-import ConnectScreenRequiredPlan from '../index';
+const CONNECTION_BUTTON_LABEL = 'Setup Jetpack';
+
+const requiredProps = {
+	buttonLabel: CONNECTION_BUTTON_LABEL,
+	pricingTitle: 'Jetpack Backup',
+	priceBefore: 9,
+	priceAfter: 4.5,
+};
 
 describe( 'ConnectScreenRequiredPlan', () => {
-	const testProps = {
-		apiNonce: 'test',
-		apiRoot: 'https://example.org/wp-json/',
-		registrationNonce: 'test2',
-		redirectUri: 'https://example.org',
-		priceBefore: 9,
-		priceAfter: 4.5,
-		pricingTitle: 'Dummy',
-	};
+	it( 'renders children', () => {
+		render(
+			<ConnectScreenRequiredPlan { ...requiredProps }>
+				<p>Connect children</p>
+			</ConnectScreenRequiredPlan>
+		);
+		expect( screen.getByText( 'Connect children' ) ).toBeInTheDocument();
+	} );
 
-	describe( 'Render the ConnectScreenRequiredPlan component', () => {
-		const renderer = new ShallowRenderer();
-		renderer.render( <ConnectScreenRequiredPlan { ...testProps } /> );
+	it( 'displays required terms of service text, a prompt for existing subscriptions,and a clickable connection button with the proper label text', () => {
+		render( <ConnectScreenRequiredPlan { ...requiredProps } /> );
 
-		const wrapper = shallow( renderer.getRenderOutput() );
+		expect(
+			screen.getByText(
+				( content, { textContent } ) =>
+					content !== '' && // filter out parent/wrapper elements
+					textContent.startsWith(
+						`By clicking the ${ CONNECTION_BUTTON_LABEL } button, you agree to our Terms of Service`
+					)
+			)
+		).toBeInTheDocument();
+		expect( screen.getByText( 'Already have a subscription?' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: CONNECTION_BUTTON_LABEL } ) ).toBeEnabled();
+	} );
 
-		it( 'component exists', () => {
-			expect( wrapper.find( 'ConnectScreenRequiredPlan' ) ).to.exist;
-		} );
+	it( 'applies correct href to terms of service', () => {
+		render( <ConnectScreenRequiredPlan { ...requiredProps } /> );
+		const terms = screen.getByRole( 'link', { name: 'Terms of Service' } );
+		expect( terms ).toHaveAttribute( 'href', 'https://jetpack.com/redirect/?source=wpcom-tos' );
+		expect( terms ).toHaveAttribute( 'target', '_blank' );
+	} );
 
-		it( 'logo component exists', () => {
-			expect( wrapper.find( 'JetpackLogo' ) ).to.exist;
-		} );
+	it( 'applies correct href to share', () => {
+		render( <ConnectScreenRequiredPlan { ...requiredProps } /> );
+		const share = screen.getByRole( 'link', { name: 'share details' } );
+		expect( share ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-support-what-data-does-jetpack-sync'
+		);
+		expect( share ).toHaveAttribute( 'target', '_blank' );
+	} );
 
-		it( 'pricing card component exists', () => {
-			expect( wrapper.find( 'PricingCard' ) ).to.exist;
-		} );
+	it( 'shows error into button', () => {
+		render( <ConnectScreenRequiredPlan { ...requiredProps } displayButtonError /> );
+		expect( screen.getByText( 'An error occurred. Please try again.' ) ).toBeInTheDocument();
+	} );
 
-		it( 'connect button exists', () => {
-			expect( wrapper.find( 'ConnectButton' ) ).to.exist;
-		} );
+	// we have an acessibility breach into our loading state
+	it.todo( 'shows loading into button' );
+
+	it( 'calls handleButtonClick into main button', async () => {
+		const user = userEvent.setup();
+		const handleButtonClick = jest.fn();
+		render(
+			<ConnectScreenRequiredPlan { ...requiredProps } handleButtonClick={ handleButtonClick } />
+		);
+		const button = screen.getByRole( 'button', { name: 'Setup Jetpack' } );
+		await user.click( button );
+		expect( handleButtonClick ).toHaveBeenCalled();
+	} );
+
+	it( 'calls handleButtonClick into login button', async () => {
+		const user = userEvent.setup();
+		const handleButtonClick = jest.fn();
+		render(
+			<ConnectScreenRequiredPlan { ...requiredProps } handleButtonClick={ handleButtonClick } />
+		);
+		const button = screen.getByRole( 'button', { name: 'Log in to get started' } );
+		await user.click( button );
+		expect( handleButtonClick ).toHaveBeenCalled();
 	} );
 } );

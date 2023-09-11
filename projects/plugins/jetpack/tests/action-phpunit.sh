@@ -2,5 +2,4 @@
 
 set -eo pipefail
 
-. tests/maybe-downgrade-phpunit.sh
 exec phpunit "$@"

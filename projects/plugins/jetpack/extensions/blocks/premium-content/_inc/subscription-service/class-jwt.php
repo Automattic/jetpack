@@ -81,7 +81,7 @@ class JWT {
 	 * @uses urlsafe_b64_decode
 	 */
 	public static function decode( $jwt, $key, array $allowed_algs = array() ) {
-		$timestamp = is_null( static::$timestamp ) ? time() : static::$timestamp;
+		$timestamp = static::$timestamp === null ? time() : static::$timestamp;
 
 		if ( empty( $key ) ) {
 			throw new InvalidArgumentException( 'Key may not be empty' );
@@ -193,12 +193,12 @@ class JWT {
 		}
 
 		$segments      = array();
-		$segments[]    = static::urlsafe_b64_decode( static::json_encode( $header ) );
-		$segments[]    = static::urlsafe_b64_decode( static::json_encode( $payload ) );
+		$segments[]    = static::urlsafe_b64_encode( static::json_encode( $header ) );
+		$segments[]    = static::urlsafe_b64_encode( static::json_encode( $payload ) );
 		$signing_input = implode( '.', $segments );
 
 		$signature  = static::sign( $signing_input, $key, $alg );
-		$segments[] = static::urlsafe_b64_decode( $signature );
+		$segments[] = static::urlsafe_b64_encode( $signature );
 
 		return implode( '.', $segments );
 	}

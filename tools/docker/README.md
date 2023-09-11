@@ -17,9 +17,9 @@ Unified environment for developing Jetpack using Docker containers providing fol
 
 To use Jetpack's Docker environment, you will need:
 
-- A [local copy of the Jetpack repository](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#clone-the-repository).
+- A [local copy of the Jetpack repository](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#clone-the-repository).
 - [Docker](https://hub.docker.com/search/?type=edition&offering=community) installed and running.
-- [Jetpack's required tools](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#install-development-tools).
+- [Jetpack's required tools](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#install-development-tools).
 
 Our Docker instance comes with a default settings file. You can modify those defaults by copying the file:
 
@@ -43,8 +43,10 @@ Non-installed WordPress is running at [http://localhost](http://localhost) now. 
 jetpack docker install
 ```
 
-At this point, we encourage you to set up a service that can create local HTTP tunnels, such as [the Jurassic Tube Tunneling Service](#jurassic-tube-tunneling-service) if you are an Automattician, [ngrok](#using-ngrok-with-jetpack), or [another similar service](https://alternativeto.net/software/ngrok/).
+At this point, to connect Jetpack, you'd need to set up a service that can create local HTTP tunnels, such as [the Jurassic Tube Tunneling Service](#jurassic-tube-tunneling-service) (available to Automatticians only), [ngrok](#using-ngrok-with-jetpack), or [another similar service](https://alternativeto.net/software/ngrok/).
 With such a service, your site will be publicly accessible and you will be able to connect Jetpack to WordPress.com.
+
+**Warning: These solutions create a public tunnel to your system. You should only activate the tunnel while actively needing it and deactivate when you are finished.**
 
 _You are now ready to login to your new WordPress install and connect Jetpack, congratulations!_
 
@@ -71,7 +73,7 @@ You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000
 
 ### Container Environments
 
-Configurable settings are documented in the [`./tools/docker/default.env` file](https://github.com/Automattic/jetpack/blob/master/docker/default.env).
+Configurable settings are documented in the [`./tools/docker/default.env` file](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/default.env).
 Customizations should go into a `./tools/docker/.env` file you create, though, not in the `./tools/docker/default.env` file.
 
 ### Docker configurations
@@ -120,9 +122,9 @@ jetpack docker uninstall
 jetpack docker up
 ```
 
-Start the containers (WordPress, MySQL and MailDev) defined in `docker-composer.yml`.
+Start the containers (WordPress, MySQL and MailDev) defined in `docker-compose.yml`.
 
-This command will rebuild the WordPress container if you made any changes to `docker-composer.yml`.
+This command will rebuild the WordPress container if you made any changes to `docker-compose.yml`.
 
 For running the containers in the background, use:
 
@@ -281,7 +283,7 @@ jetpack docker jt-up
 
 ## Using Ngrok with Jetpack
 
-Note: While Ngrok is technically supported for everyone, Jurassic Tube should be considered as preferred tunneling solution for Automatticians.
+Note: While Ngrok is technically supported for everyone, Jurassic Tube is used by the Jetpack team and is available to all Automatticians.
 
 To be able to connect Jetpack you will need a domain - you can use [Ngrok.com](https://ngrok.com/) to assign one.
 
@@ -372,7 +374,21 @@ Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, y
 Note that any folder within the `projects/plugins` directory will be automatically linked.
 If you're starting a new monorepo plugin, you may need to `jetpack docker stop` and `jetpack docker up` to re-run the initial linking step so it can be added.
 
+You can add your plugin to the list of plugins not allowed to be deleted or updated by adding this to a new file at `tools/docker/mu-plugins`:
+
+```php
+function jetpack_docker_disable_gutenberg_deletion( $plugins ) {
+	array_push( $plugins, 'gutenberg' );
+	return $plugins;
+}
+add_filter( 'jetpack_docker_avoided_plugins', 'jetpack_docker_disable_gutenberg_deletion' );
+```
+
 ## Debugging
+
+### Debug helper functions
+
+Helpful function `l()` for logging, some timer functions, etc are available in your Docker setup. [See the file more more](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/mu-plugins/debug.php).
 
 ### Accessing logs
 
@@ -474,8 +490,8 @@ You will need to supply a pathMappings value to the `launch.json` configuration.
             "request": "launch",
             "port": 9003,
             "pathMappings": {
-                "/usr/local/src/jetpack-monorepo": "${workspaceRoot}",
-                "/var/www/html": "${workspaceRoot}/tools/docker/wordpress",
+                "/usr/local/src/jetpack-monorepo": "${workspaceFolder}",
+                "/var/www/html": "${workspaceFolder}/tools/docker/wordpress",
             }
         },
         {
@@ -489,6 +505,10 @@ You will need to supply a pathMappings value to the `launch.json` configuration.
     ]
 }
 ```
+
+In older versions of VSCode `workspaceFolder` was named `workspaceRoot`,
+so make sure to update your configuration to reflect that change if you use an
+older version.
 
 In your browser's Xdebug Helper preferences, look for the IDE Key setting:
 
@@ -504,3 +524,25 @@ In your browser's Xdebug Helper preferences, look for the IDE Key setting:
 - Refresh the page at localhost
 
 For more context on remote debugging PHP with VSCode, see [this article](https://medium.com/@jasonterando/debugging-with-visual-studio-code-xdebug-and-docker-on-windows-b63a10b0dec).
+
+### Profiling requests in your Sandbox using XDEBUG
+
+If you want to profile requests to your Sandbox using XDEBUG (See PCYsg-21A-p2), you'll need to hook into the `jetpack_sandbox_add_profile_parameter` filter to add the `XDEBUG_PROFILE` parameter to the requests:
+
+```PHP
+add_filter( 'jetpack_sandbox_add_profile_parameter', '__return_true' );
+```
+
+The above will add the parameter to every request. If you want, you can narrow it down and add it only to certain requests:
+
+```PHP
+add_filter( 'jetpack_sandbox_add_profile_parameter', 'my_plugin_add_profile_parameter', 10, 3 );
+
+function my_plugin_add_profile_parameter( $should_add, $url, $host ) {
+	// parse the $url and $host the way you want
+	if ( $meets_my_criteria ) {
+		return true;
+	}
+	return $should_add;
+}
+```

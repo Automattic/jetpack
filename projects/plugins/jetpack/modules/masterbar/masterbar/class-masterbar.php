@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Scan\Admin_Bar_Notice;
@@ -18,7 +19,6 @@ use GP_Locale;
 use GP_Locales;
 use Jetpack;
 use Jetpack_AMP_Support;
-use Jetpack_Plan;
 use WP_Admin_Bar;
 
 /**
@@ -84,6 +84,12 @@ class Masterbar {
 	 */
 	private $primary_site_slug;
 	/**
+	 * Site URL displayed in the UI.
+	 *
+	 * @var string
+	 */
+	private $primary_site_url;
+	/**
 	 * Whether the text direction is RTL (based on connected WordPress.com user's interface settings).
 	 *
 	 * @var boolean
@@ -114,12 +120,12 @@ class Masterbar {
 		}
 
 		$this->user_data       = $connection_manager->get_connected_user_data( $this->user_id );
-		$this->user_login      = $this->user_data['login'];
-		$this->user_email      = $this->user_data['email'];
-		$this->display_name    = $this->user_data['display_name'];
-		$this->user_site_count = $this->user_data['site_count'];
-		$this->is_rtl          = 'rtl' === $this->user_data['text_direction'];
-		$this->user_locale     = $this->user_data['user_locale'];
+		$this->user_login      = isset( $this->user_data['login'] ) ? $this->user_data['login'] : '';
+		$this->user_email      = isset( $this->user_data['email'] ) ? $this->user_data['email'] : '';
+		$this->display_name    = isset( $this->user_data['display_name'] ) ? $this->user_data['display_name'] : '';
+		$this->user_site_count = isset( $this->user_data['site_count'] ) ? $this->user_data['site_count'] : '';
+		$this->is_rtl          = isset( $this->user_data['text_direction'] ) && 'rtl' === $this->user_data['text_direction'];
+		$this->user_locale     = isset( $this->user_data['user_locale'] ) ? $this->user_data['user_locale'] : '';
 		$this->site_woa        = ( new Host() )->is_woa_site();
 
 		// Store part of the connected user data as user options so it can be used
@@ -387,9 +393,7 @@ class Masterbar {
 		$this->add_write_button( $wp_admin_bar );
 
 		// Recovery mode exit.
-		if ( function_exists( 'wp_admin_bar_recovery_mode_menu' ) ) {
-			wp_admin_bar_recovery_mode_menu( $wp_admin_bar );
-		}
+		wp_admin_bar_recovery_mode_menu( $wp_admin_bar );
 
 		if ( class_exists( 'Automattic\Jetpack\Scan\Admin_Bar_Notice' ) ) {
 			$scan_admin_bar_notice = Admin_Bar_Notice::instance();
@@ -439,7 +443,11 @@ class Masterbar {
 			}
 		}
 
-		return $jetpack_locale;
+		if ( isset( $jetpack_locale ) ) {
+			return $jetpack_locale;
+		}
+
+		return 'en_US';
 	}
 
 	/**
@@ -470,7 +478,7 @@ class Masterbar {
 	 * Hide language dropdown on user edit form.
 	 */
 	public function hide_language_dropdown() {
-		add_filter( 'get_available_languages', '__return_null' );
+		add_filter( 'get_available_languages', '__return_empty_array' );
 	}
 
 	/**
@@ -538,85 +546,6 @@ class Masterbar {
 				),
 			)
 		);
-
-		/** This filter is documented in modules/masterbar.php */
-		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
-			return;
-		}
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'streams-header',
-				'title'  => esc_html_x(
-					'Streams',
-					'Title for Reader sub-menu that contains followed sites, likes, and search',
-					'jetpack'
-				),
-				'meta'   => array(
-					'class' => 'ab-submenu-header',
-				),
-			)
-		);
-
-		$following_title = $this->create_menu_item_pair(
-			array(
-				'url'   => Redirect::get_url( 'calypso-read' ),
-				'id'    => 'wp-admin-bar-followed-sites',
-				'label' => esc_html__( 'Followed Sites', 'jetpack' ),
-			),
-			array(
-				'url'   => Redirect::get_url( 'calypso-following-edit' ),
-				'id'    => 'wp-admin-bar-reader-followed-sites-manage',
-				'label' => esc_html__( 'Manage', 'jetpack' ),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'following',
-				'title'  => $following_title,
-				'meta'   => array( 'class' => 'inline-action' ),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'discover-discover',
-				'title'  => esc_html__( 'Discover', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-discover' ),
-				'meta'   => array(
-					'class' => 'mb-icon-spacer',
-				),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'discover-search',
-				'title'  => esc_html__( 'Search', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-read-search' ),
-				'meta'   => array(
-					'class' => 'mb-icon-spacer',
-				),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'my-activity-my-likes',
-				'title'  => esc_html__( 'My Likes', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-activities-likes' ),
-				'meta'   => array(
-					'class' => 'mb-icon-spacer',
-				),
-			)
-		);
-
 	}
 
 	/**
@@ -1253,11 +1182,12 @@ class Masterbar {
 				)
 			);
 
+			$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 			if ( is_admin() ) {
 				// In wp-admin the `return` query arg will return to that page after closing the Customizer.
 				$customizer_url = add_query_arg(
 					array(
-						'return' => rawurlencode( site_url( $_SERVER['REQUEST_URI'] ) ),
+						'return' => rawurlencode( site_url( $request_uri ) ),
 					),
 					wp_customize_url()
 				);
@@ -1268,7 +1198,7 @@ class Masterbar {
 				 * non-home URLs won't work unless we undo domain mapping
 				 * since the Customizer preview is unmapped to always have HTTPS.
 				 */
-				$current_page   = '//' . $this->primary_site_slug . $_SERVER['REQUEST_URI'];
+				$current_page   = '//' . $this->primary_site_slug . $request_uri;
 				$customizer_url = add_query_arg( array( 'url' => rawurlencode( $current_page ) ), wp_customize_url() );
 			}
 
@@ -1285,8 +1215,7 @@ class Masterbar {
 				)
 			);
 			$meta        = array(
-				'class' => 'mb-icon',
-				'class' => 'inline-action',
+				'class' => 'mb-icon inline-action',
 			);
 			$href        = false;
 

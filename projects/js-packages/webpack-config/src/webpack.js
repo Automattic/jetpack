@@ -1,14 +1,19 @@
-const webpack = require( 'webpack' );
-
-const CssMinimizerPlugin = require( 'css-minimizer-webpack-plugin' );
-const TerserPlugin = require( './webpack/terser' );
-const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
-const DuplicatePackageCheckerWebpackPlugin = require( 'duplicate-package-checker-webpack-plugin' );
-const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
-const MiniCSSWithRTLPlugin = require( './webpack/mini-css-with-rtl' );
-const WebpackRTLPlugin = require( '@automattic/webpack-rtl-plugin' );
-const I18nLoaderWebpackPlugin = require( '@automattic/i18n-loader-webpack-plugin' );
+const fs = require( 'fs' );
+const path = require( 'path' );
 const I18nCheckWebpackPlugin = require( '@automattic/i18n-check-webpack-plugin' );
+const I18nLoaderWebpackPlugin = require( '@automattic/i18n-loader-webpack-plugin' );
+const WebpackRTLPlugin = require( '@automattic/webpack-rtl-plugin' );
+const DuplicatePackageCheckerWebpackPlugin = require( '@cerner/duplicate-package-checker-webpack-plugin' );
+const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
+const CssMinimizerPlugin = require( 'css-minimizer-webpack-plugin' );
+const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
+const webpack = require( 'webpack' );
+const CssRule = require( './webpack/css-rule' );
+const FileRule = require( './webpack/file-rule' );
+const MiniCSSWithRTLPlugin = require( './webpack/mini-css-with-rtl' );
+const PnpmDeterministicModuleIdsPlugin = require( './webpack/pnpm-deterministic-ids.js' );
+const TerserPlugin = require( './webpack/terser' );
+const TranspileRule = require( './webpack/transpile-rule' );
 
 const MyCssMinimizerPlugin = options => new CssMinimizerPlugin( options );
 
@@ -26,10 +31,17 @@ const optimization = {
 	minimize: isProduction,
 	minimizer: [ TerserPlugin(), MyCssMinimizerPlugin() ],
 	concatenateModules: false,
+	moduleIds: isProduction ? false : 'named',
 	emitOnErrors: true,
 };
 const resolve = {
 	extensions: [ '.js', '.jsx', '.ts', '.tsx', '...' ],
+	conditionNames: [
+		...( process.env.npm_config_jetpack_webpack_config_resolve_conditions
+			? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
+			: [] ),
+		'...',
+	],
 };
 
 /****** Plugins ******/
@@ -76,14 +88,45 @@ const i18nFilterFunction = file => {
 	const i = file.lastIndexOf( '/node_modules/' ) + 14;
 	return i < 14 || file.startsWith( '@automattic/', i );
 };
-const I18nCheckPlugin = options => [
-	new I18nCheckWebpackPlugin( { filter: i18nFilterFunction, ...options } ),
-];
+const I18nCheckPlugin = options => {
+	const opts = { filter: i18nFilterFunction, ...options };
+	if ( typeof opts.expectDomain === 'undefined' ) {
+		let dir = process.cwd(),
+			olddir;
+		do {
+			const file = path.join( dir, 'composer.json' );
+			if ( fs.existsSync( file ) ) {
+				const cfg = JSON.parse( fs.readFileSync( file, { encoding: 'utf8' } ) );
+				if ( cfg.extra ) {
+					if ( cfg.extra.textdomain ) {
+						opts.expectDomain = cfg.extra.textdomain;
+					} else if ( cfg.extra[ 'wp-plugin-slug' ] ) {
+						opts.expectDomain = cfg.extra[ 'wp-plugin-slug' ];
+					} else if ( cfg.extra[ 'wp-theme-slug' ] ) {
+						opts.expectDomain = cfg.extra[ 'wp-theme-slug' ];
+					}
+				}
+				break;
+			}
+
+			olddir = dir;
+			dir = path.dirname( dir );
+		} while ( dir !== olddir );
+	}
+	return [ new I18nCheckWebpackPlugin( opts ) ];
+};
 I18nCheckPlugin.defaultFilter = i18nFilterFunction;
+
+const MyPnpmDeterministicModuleIdsPlugin = options => [
+	new PnpmDeterministicModuleIdsPlugin( options ),
+];
 
 const StandardPlugins = ( options = {} ) => {
 	if ( typeof options.I18nCheckPlugin === 'undefined' && isDevelopment ) {
 		options.I18nCheckPlugin = false;
+	}
+	if ( typeof options.PnpmDeterministicModuleIdsPlugin === 'undefined' && isDevelopment ) {
+		options.PnpmDeterministicModuleIdsPlugin = false;
 	}
 
 	return [
@@ -106,14 +149,13 @@ const StandardPlugins = ( options = {} ) => {
 			: DependencyExtractionPlugin( options.DependencyExtractionPlugin ) ),
 		...( options.I18nLoaderPlugin === false ? [] : I18nLoaderPlugin( options.I18nLoaderPlugin ) ),
 		...( options.I18nCheckPlugin === false ? [] : I18nCheckPlugin( options.I18nCheckPlugin ) ),
+		...( options.PnpmDeterministicModuleIdsPlugin === false
+			? []
+			: MyPnpmDeterministicModuleIdsPlugin( options.PnpmDeterministicModuleIdsPlugin ) ),
 	];
 };
 
 /****** Module rules ******/
-
-const TranspileRule = require( './webpack/transpile-rule' );
-const CssRule = require( './webpack/css-rule' );
-const FileRule = require( './webpack/file-rule' );
 
 // Note: For this cjs module to be used with named exports in an mjs context, modules.exports
 // needs to contain only simple variables like `a` or `a: b`. Define anything more complex
@@ -140,6 +182,7 @@ module.exports = {
 	DependencyExtractionPlugin,
 	DuplicatePackageCheckerPlugin,
 	I18nLoaderPlugin,
+	PnpmDeterministicModuleIdsPlugin: MyPnpmDeterministicModuleIdsPlugin,
 	// Module rules and loaders.
 	TranspileRule,
 	CssRule,

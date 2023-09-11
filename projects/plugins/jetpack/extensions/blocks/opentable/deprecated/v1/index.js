@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { defaultAttributes } from '../../attributes';
 
 export default {

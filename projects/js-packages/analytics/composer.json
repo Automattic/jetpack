@@ -5,19 +5,12 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.2",
-		"automattic/jetpack-changelogger": "3.0.x-dev"
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"scripts": {
 		"test-js": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm install",
 			"pnpm run test"
-		],
-		"test-coverage": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm install",
-			"pnpx nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
 		]
 	},
 	"repositories": [
@@ -30,5 +23,13 @@
 		}
 	],
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-analytics",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-analytics/compare/v${old}...v${new}"
+		},
+		"autotagger": true,
+		"npmjs-autopublish": true
+	}
 }

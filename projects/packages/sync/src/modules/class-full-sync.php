@@ -133,7 +133,7 @@ class Full_Sync extends Module {
 			$total_items = $module->estimate_full_sync_actions( $module_config );
 
 			// If there's information to process, configure this module.
-			if ( ! is_null( $total_items ) && $total_items > 0 ) {
+			if ( $total_items !== null && $total_items > 0 ) {
 				$full_sync_config[ $module_name ] = $module_config;
 				$enqueue_status[ $module_name ]   = array(
 					$total_items,   // Total.
@@ -266,7 +266,7 @@ class Full_Sync extends Module {
 			$enqueue_status[ $module->name() ][2] = $next_enqueue_state;
 
 			// If items were processed, subtract them from the limit.
-			if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
+			if ( $items_enqueued !== null && $items_enqueued > 0 ) {
 				$enqueue_status[ $module->name() ][1] += $items_enqueued;
 				$remaining_items_to_enqueue           -= $items_enqueued;
 			}

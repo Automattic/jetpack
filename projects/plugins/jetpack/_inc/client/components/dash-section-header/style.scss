@@ -1,7 +1,7 @@
 .jp-dash-section-header {
 	display: flex;
 	flex-wrap: wrap;
-	margin: rem( 40px ) 0 rem( 8px );
+	margin: rem( 12px ) 0 rem( 12px );
 
 	@include breakpoint( "<660px" ) {
 		margin-bottom: rem( 24px );
@@ -9,6 +9,25 @@
 
 	@include breakpoint( "<480px" ) {
 		display: block;
+	}
+
+	a {
+		font-size: $font-body;
+		font-weight: 400;
+		font-style: normal;
+		line-height: 24px;
+		color: $black;
+		text-decoration: underline;
+
+		&:hover {
+			text-decoration-thickness: 3px;
+		}
+		&:focus {
+			text-decoration-line: none;
+			border-radius: 2px;
+			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+			outline: 3px solid transparent;
+		}
 	}
 }
 
@@ -21,9 +40,11 @@
 	display: inline-block;
 	margin-top: 0;
 	margin-bottom: 0;
-	font-size: $font-title-small;
-	font-weight: 400;
+	font-size: $font-title-medium;
+	line-height: 32px;
+	font-weight: 500;
 	white-space: nowrap;
+	color: $black;
 
 	@include breakpoint( ">480px" ) {
 		display: inline-block;

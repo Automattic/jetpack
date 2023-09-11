@@ -6,10 +6,11 @@ module.exports = api => {
 				'@automattic/jetpack-webpack-config/babel/preset',
 				{
 					presetEnv: {
-						corejs: '3.8.3',
+						corejs: require( 'core-js/package.json' ).version,
 						modules: false,
 						useBuiltIns: 'usage',
 					},
+					pluginReplaceTextdomain: { textdomain: 'jetpack-search-pkg' },
 				},
 			],
 		],

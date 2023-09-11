@@ -1,0 +1,14 @@
+jpcrm-listview-footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	height: 30px;
+	margin: 20px 0;
+
+	footer-item {
+		display: flex;
+		gap: 6px;
+		align-items: center;
+	}
+}

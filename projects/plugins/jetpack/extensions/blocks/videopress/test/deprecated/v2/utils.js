@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { filterVideoPressClasses } from '../../../deprecated/v2/utils';
 
 const customClasses = 'example wp-embed-aspect-x-y';

@@ -1,5 +1,4 @@
 import {
-	connectThroughWPAdmin,
 	doClassicConnection,
 	doSiteLevelConnection,
 	syncJetpackPlanData,
@@ -8,7 +7,6 @@ import {
 import { loginToWpSite, loginToWpCom } from './log-in.js';
 
 export {
-	connectThroughWPAdmin,
 	doClassicConnection,
 	doSiteLevelConnection,
 	syncJetpackPlanData,

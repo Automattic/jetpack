@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
+import classNames from 'classnames';
 import React from 'react';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
 
 export class LoadingPlaceholder extends React.Component {
 	static displayName = 'LoadingPlaceholder';

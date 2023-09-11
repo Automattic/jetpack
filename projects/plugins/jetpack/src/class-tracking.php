@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Plugin;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Tracking as Tracks;
 
 /**
@@ -95,7 +96,7 @@ class Tracking {
 			$this->tracking->record_user_event( '_aliasUser', array( 'anonId' => $anon_id ) );
 			delete_user_meta( $user_id, 'jetpack_tracks_anon_id' );
 			if ( ! headers_sent() ) {
-				setcookie( 'tk_ai', 'expired', time() - 1000 );
+				setcookie( 'tk_ai', 'expired', time() - 1000, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), false );  // phpcs:ignore Jetpack.Functions.SetCookie -- Want this accessible.
 			}
 		}
 
@@ -160,11 +161,10 @@ class Tracking {
 	 * @param string $login Username or email address.
 	 */
 	public function wp_login_failed( $login ) {
-		require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 		$this->tracking->record_user_event(
 			'failed_login',
 			array(
-				'origin_ip' => jetpack_protect_get_ip(),
+				'origin_ip' => IP_Utils::get_ip(),
 				'login'     => $login,
 			)
 		);

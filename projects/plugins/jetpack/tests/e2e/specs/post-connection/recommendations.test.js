@@ -1,14 +1,16 @@
-import { test, expect } from '../../fixtures/base-test.js';
+import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { RecommendationsPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
+import { Plans, prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 import playwrightConfig from '../../playwright.config.cjs';
 
 test.beforeAll( async ( { browser } ) => {
 	const page = await browser.newPage( playwrightConfig.use );
 	await prerequisitesBuilder( page )
+		.withCleanEnv()
 		.withLoggedIn( true )
 		.withWpComLoggedIn( true )
 		.withConnection( true )
+		.withPlan( Plans.Free )
 		.build();
 	await page.close();
 } );
@@ -19,74 +21,109 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 	await test.step( 'Navigate to the Recommendations module', async () => {
 		recommendationsPage = await RecommendationsPage.visit( page );
 		const isPageVisible = await recommendationsPage.areSiteTypeQuestionsVisible();
-		expect( isPageVisible ).toBeTruthy();
-		expect( recommendationsPage.isUrlInSyncWithStepName( 'site-type' ) ).toBeTruthy();
+		expect( isPageVisible, 'Site type questions should be visible' ).toBeTruthy();
+		expect(
+			recommendationsPage.isUrlInSyncWithStepName( 'site-type' ),
+			'URL should be in sync with the step name'
+		).toBeTruthy();
 	} );
 
 	await test.step( 'Check Personal and Other checkboxes', async () => {
 		await recommendationsPage.checkPersonalSiteType();
-		await recommendationsPage.checkOtherSiteType();
-		expect( await recommendationsPage.isPersonalSiteTypeChecked() ).toBeTruthy();
-		expect( await recommendationsPage.isOtherSiteTypeChecked() ).toBeTruthy();
-		expect( await recommendationsPage.isBusinessTypeUnchecked() ).toBeFalsy();
-		expect( await recommendationsPage.isStoreTypeUnchecked() ).toBeFalsy();
-	} );
-
-	await test.step( 'Save answers and continue to the Monitor step', async () => {
-		await recommendationsPage.saveSiteTypeAndContinue();
-		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
-		const isMonitorStep = await recommendationsPage.isEnableMonitoringButtonVisible();
-		expect( isMonitorStep ).toBeTruthy();
-		expect( recommendationsPage.isUrlInSyncWithStepName( 'monitor' ) ).toBeTruthy();
+		expect(
+			await recommendationsPage.isPersonalSiteTypeChecked(),
+			'Personal site type should be checked'
+		).toBeTruthy();
+		expect(
+			await recommendationsPage.isAgencyTypeUnchecked(),
+			'Business type should be checked'
+		).toBeFalsy();
+		expect(
+			await recommendationsPage.isStoreTypeUnchecked(),
+			'Store type should be checked'
+		).toBeFalsy();
 	} );
 
 	await test.step( 'Enable Monitoring and continue to Related Post step', async () => {
+		await recommendationsPage.saveSiteTypeAndContinue();
+		await recommendationsPage.reload();
+		const isMonitorStep = await recommendationsPage.isEnableMonitoringButtonVisible();
+		expect( isMonitorStep, 'Monitor step should be visible' ).toBeTruthy();
+		expect(
+			recommendationsPage.isUrlInSyncWithStepName( 'monitor' ),
+			'URL should be in sync with the step name'
+		).toBeTruthy();
 		await recommendationsPage.enableMonitoringAndContinue();
 		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
 		const isRelatedPostsStep = await recommendationsPage.isEnableRelatedPostsButtonVisible();
-		expect( isRelatedPostsStep ).toBeTruthy();
-		expect( recommendationsPage.isUrlInSyncWithStepName( 'related-posts' ) ).toBeTruthy();
+		expect( isRelatedPostsStep, 'Related posts step should be visible' ).toBeTruthy();
+		expect(
+			recommendationsPage.isUrlInSyncWithStepName( 'related-posts' ),
+			'URL should be in sync with the step name'
+		).toBeTruthy();
 	} );
 
-	await test.step( 'Enable Related Posts and continue to Creative Mail step', async () => {
+	await test.step( 'Enable Related Posts and continue to Newsletter step', async () => {
 		await recommendationsPage.enableRelatedPostsAndContinue();
 		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
-		const isCreativeMailStep = await recommendationsPage.isInstallCreativeMailButtonVisible();
-		expect( isCreativeMailStep ).toBeTruthy();
-		expect( recommendationsPage.isUrlInSyncWithStepName( 'creative-mail' ) ).toBeTruthy();
+		const isNewsletterStep = await recommendationsPage.isEnableNewsletterButtonVisible();
+		expect( isNewsletterStep, 'Newsletter step should be visible' ).toBeTruthy();
+		expect(
+			recommendationsPage.isUrlInSyncWithStepName( 'newsletter' ),
+			'URL should be in sync with the step name'
+		).toBeTruthy();
 	} );
 
-	await test.step( 'Skip Creative Mail and continue to Site Accelerator', async () => {
-		await recommendationsPage.skipCreativeMailAndContinue();
+	await test.step( 'Enable Newsletter and continue to Site Accelerator', async () => {
+		await recommendationsPage.enableNewsletterAndContinue();
 		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
 		const isSiteAcceleratorStep = await recommendationsPage.isEnableSiteAcceleratorButtonVisible();
-		expect( isSiteAcceleratorStep ).toBeTruthy();
-		expect( recommendationsPage.isUrlInSyncWithStepName( 'site-accelerator' ) ).toBeTruthy();
+		expect( isSiteAcceleratorStep, 'Site Accelerator step should be visible' ).toBeTruthy();
+		expect(
+			recommendationsPage.isUrlInSyncWithStepName( 'site-accelerator' ),
+			'URL should be in sync with the step name'
+		).toBeTruthy();
 	} );
 
-	await test.step( 'Skip Site Accelerator and continue to Summary', async () => {
+	await test.step( 'Skip Site Accelerator and continue to VaultPress Backup card', async () => {
 		await recommendationsPage.skipSiteAcceleratorAndContinue();
 		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
+		const isVaultPressBackupStep = await recommendationsPage.isTryVaultPressBackupButtonVisible();
+		expect( isVaultPressBackupStep, 'VaultPress Backup step should be visible' ).toBeTruthy();
+		expect(
+			recommendationsPage.isUrlInSyncWithStepName( 'vaultpress-backup' ),
+			'URL should be in sync with the step name'
+		).toBeTruthy();
+	} );
+
+	await test.step( 'Skip VaultPress Backup card and continue to Summary', async () => {
+		await recommendationsPage.skipVaultPressBackupAndContinue();
+		await recommendationsPage.reload();
 		const isSummaryContent = await recommendationsPage.isSummaryContentVisible();
 		const isSummarySidebar = await recommendationsPage.isSummarySidebarVisible();
-		expect( isSummaryContent && isSummarySidebar ).toBeTruthy();
-		expect( recommendationsPage.isUrlInSyncWithStepName( 'summary' ) ).toBeTruthy();
+		expect(
+			isSummaryContent && isSummarySidebar,
+			'Summary content and Summary sidebar should be visible'
+		).toBeTruthy();
+		expect(
+			recommendationsPage.isUrlInSyncWithStepName( 'summary' ),
+			'URL should be in sync with the step name'
+		).toBeTruthy();
 	} );
 
-	await test.step( 'Verify Monitoring and Related Posts are enabled', async () => {
+	await test.step( 'Verify Monitoring, Newsletter, and Related Posts are enabled', async () => {
 		const isMonitoringFeatureEnabled = await recommendationsPage.isMonitoringFeatureEnabled();
 		const isRelatedPostsFeatureEnabled = await recommendationsPage.isRelatedPostsFeatureEnabled();
-		expect( isMonitoringFeatureEnabled && isRelatedPostsFeatureEnabled ).toBeTruthy();
+		const isNewsletterFeatureEnabled = await recommendationsPage.isNewsletterFeatureEnabled();
+		expect(
+			isMonitoringFeatureEnabled && isNewsletterFeatureEnabled && isRelatedPostsFeatureEnabled,
+			'Monitoring feature, Newsletter, and Related Posts should be enabled'
+		).toBeTruthy();
 	} );
 
-	await test.step( 'Verify Creative Mail and Site Accelerator are disabled', async () => {
-		const isCreativeMailFeatureEnabled = await recommendationsPage.isCreativeMailFeatureEnabled();
-		const isSiteAcceleratorFeatureEnabled = await recommendationsPage.isSiteAcceleratorFeatureEnabled();
-		expect( isCreativeMailFeatureEnabled && isSiteAcceleratorFeatureEnabled ).toBeTruthy();
+	await test.step( 'Verify Site Accelerator is disabled', async () => {
+		const isSiteAcceleratorFeatureEnabled =
+			await recommendationsPage.isSiteAcceleratorFeatureEnabled();
+		expect( isSiteAcceleratorFeatureEnabled, 'Site Accelerator should be disabled' ).toBeTruthy();
 	} );
 } );

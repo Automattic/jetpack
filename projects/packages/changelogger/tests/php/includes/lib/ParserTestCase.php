@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Test base class for changelog parsers.
  *
  * @package automattic/jetpack-changelogger
  */
-
-// phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.NamingConventions.ValidVariableName
 
 namespace Automattic\Jetpack\Changelog\Tests;
 
@@ -134,7 +132,7 @@ class ParserTestCase extends TestCase {
 				$contents .= '  ' . get_class( $data['parse-exception'] ) . "\n";
 				$contents .= $this->indent( $data['parse-exception']->getMessage() ) . "\n";
 				$contents .= "  ~~~~~~~~\n";
-			} elseif ( isset( $data['parse-output'] ) && ! ( isset( $data['object'] ) && $data['object'] == $data['parse-output'] ) ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+			} elseif ( isset( $data['parse-output'] ) && ! ( isset( $data['object'] ) && $data['object'] == $data['parse-output'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				$this->assertInstanceOf( Changelog::class, $data['parse-output'] );
 				$contents .= "\n## Expected output from `parse()`\n";
 				$contents .= "  ~~~~~~~~json parse-output\n";
@@ -152,7 +150,7 @@ class ParserTestCase extends TestCase {
 				$contents .= '  ' . get_class( $data['format-exception'] ) . "\n";
 				$contents .= $this->indent( $data['format-exception']->getMessage() ) . "\n";
 				$contents .= "  ~~~~~~~~\n";
-			} elseif ( isset( $data['format-output'] ) && ! ( isset( $data['changelog'] ) && $data['changelog'] == $data['format-output'] ) ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+			} elseif ( isset( $data['format-output'] ) && ! ( isset( $data['changelog'] ) && $data['changelog'] == $data['format-output'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				$this->assertIsString( $data['format-output'] );
 				$contents .= "\n## Expected output from `format()`\n";
 				$contents .= "  ~~~~~~~~markdown format-output\n";

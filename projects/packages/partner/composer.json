@@ -3,13 +3,18 @@
 	"description": "Support functions for Jetpack hosting partners.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-status": "@dev"
+	},
 	"require-dev": {
 		"brain/monkey": "2.6.1",
-		"yoast/phpunit-polyfills": "1.0.2",
-		"automattic/jetpack-changelogger": "^3.0",
-		"automattic/jetpack-options": "^1.14",
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "@dev"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
@@ -20,13 +25,9 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
-		"test-coverage": [
-			"@composer update",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-		],
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"test-php": [
-			"@composer update",
 			"@composer phpunit"
 		]
 	},
@@ -48,7 +49,12 @@
 			"link-template": "https://github.com/Automattic/jetpack-partner/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.6.x-dev"
+			"dev-trunk": "1.7.x-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
 		}
 	}
 }

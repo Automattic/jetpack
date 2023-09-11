@@ -1,15 +1,12 @@
-/**
- * WordPress dependencies
- */
-import { Fragment, useCallback, useMemo } from '@wordpress/element';
-import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/components';
-import { __, _x } from '@wordpress/i18n';
+import { isSimpleSite, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
+import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
-import analytics from '../../../_inc/client/lib/analytics';
+import { Fragment, useCallback, useMemo } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 
-/* global widget_conditions_data, wpcom */
+/* global widget_conditions_data */
 /* eslint-disable react/react-in-jsx-scope */
 
 //// Unescape utility
@@ -51,9 +48,9 @@ const blockHasVisibilitySettings = name => {
  * Adds a ".conditions" field to a block's attributes.
  * Used to store visibility rules.
  *
- * @param {Object} settings - Block settings.
+ * @param {object} settings - Block settings.
  * @param {string} name - Block name.
- * @return {Object} Modified settings.
+ * @return {object} Modified settings.
  */
 function addVisibilityAttribute( settings, name ) {
 	if ( blockHasVisibilitySettings( name ) && typeof settings.attributes !== 'undefined' ) {
@@ -132,7 +129,6 @@ const VisibilityRule = props => {
 		{ label: __( 'User', 'jetpack' ), value: 'loggedin' },
 		{ label: __( 'Role', 'jetpack' ), value: 'role' },
 	];
-	const isWpcom = typeof wpcom !== 'undefined';
 
 	// "Taxonomy" is shown if there is at least one taxonomy (or if the current
 	// rule is taxonomy, so they can delete an invalid rule after removing
@@ -148,7 +144,7 @@ const VisibilityRule = props => {
 		{ label: __( 'Category', 'jetpack' ), value: 'category' },
 		{ label: __( 'Author', 'jetpack' ), value: 'author' },
 	]
-		.concat( isWpcom ? [] : optionsDisabledOnWpcom )
+		.concat( isSimpleSite() ? [] : optionsDisabledOnWpcom )
 		.concat( [
 			{ label: __( 'Tag', 'jetpack' ), value: 'tag' },
 			{ label: __( 'Date', 'jetpack' ), value: 'date' },
@@ -203,7 +199,7 @@ const VisibilityRule = props => {
 				</div>
 			) }
 			<div className="widget-vis__delete-rule">
-				<Button onClick={ onDelete } isSmall isSecondary>
+				<Button onClick={ onDelete } isSmall variant="secondary">
 					{ _x( 'Remove', 'Delete this visibility rule', 'jetpack' ) }
 				</Button>
 			</div>
@@ -229,6 +225,8 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 		const conditions = useMemo( () => attributes.conditions || {}, [ attributes ] );
 		const rules = useMemo( () => conditions.rules || [], [ conditions ] );
 
+		const { tracks } = useAnalytics();
+
 		// Is this block the top-most level block in a widget?.
 		const isTopLevelWidgetBlock = useSelect(
 			select => {
@@ -244,14 +242,14 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 		);
 
 		const toggleMatchAll = useCallback( () => {
-			analytics.tracks.recordEvent( 'jetpack_widget_visibility_toggle_match_all_click' );
+			tracks.recordEvent( 'jetpack_widget_visibility_toggle_match_all_click' );
 			setAttributes( {
 				conditions: {
 					...maybeAddDefaultConditions( conditions ),
 					match_all: conditions.match_all === '0' ? '1' : '0',
 				},
 			} );
-		}, [ setAttributes, conditions ] );
+		}, [ tracks, setAttributes, conditions ] );
 
 		const setAction = useCallback(
 			value =>
@@ -265,19 +263,19 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 		);
 		const addNewRule = useCallback( () => {
 			const newRules = [ ...rules, { major: '', minor: '' } ];
-			analytics.tracks.recordEvent( 'jetpack_widget_visibility_add_new_rule_click' );
+			tracks.recordEvent( 'jetpack_widget_visibility_add_new_rule_click' );
 			setAttributes( {
 				conditions: {
 					...maybeAddDefaultConditions( conditions ),
 					rules: newRules,
 				},
 			} );
-		}, [ setAttributes, conditions, rules ] );
+		}, [ rules, tracks, setAttributes, conditions ] );
 
 		const deleteRule = useCallback(
 			i => {
 				const newRules = [ ...rules.slice( 0, i ), ...rules.slice( i + 1 ) ];
-				analytics.tracks.recordEvent( 'jetpack_widget_visibility_delete_rule_click' );
+				tracks.recordEvent( 'jetpack_widget_visibility_delete_rule_click' );
 				setAttributes( {
 					conditions: {
 						...maybeAddDefaultConditions( conditions ),
@@ -285,12 +283,12 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 					},
 				} );
 			},
-			[ setAttributes, conditions, rules ]
+			[ rules, tracks, setAttributes, conditions ]
 		);
 
 		const setMajor = useCallback(
 			( i, majorValue ) => {
-				analytics.tracks.recordEvent( 'jetpack_widget_visibility_set_major_rule_click' );
+				tracks.recordEvent( 'jetpack_widget_visibility_set_major_rule_click' );
 				// When changing majors, also change the minor to the first available option
 				let minorValue = '';
 				if (
@@ -313,12 +311,12 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 					},
 				} );
 			},
-			[ setAttributes, conditions, rules ]
+			[ tracks, rules, setAttributes, conditions ]
 		);
 
 		const setMinor = useCallback(
 			( i, value ) => {
-				analytics.tracks.recordEvent( 'jetpack_widget_visibility_set_minor_rule_click' );
+				tracks.recordEvent( 'jetpack_widget_visibility_set_minor_rule_click' );
 				// Don't allow section headings to be set
 				if ( value && value.includes( '__HEADER__' ) ) {
 					return;
@@ -335,7 +333,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 					},
 				} );
 			},
-			[ setAttributes, conditions, rules ]
+			[ tracks, rules, setAttributes, conditions ]
 		);
 
 		let mainRender = null;
@@ -350,7 +348,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 						'jetpack'
 					) }
 				>
-					<Button isSecondary onClick={ addNewRule } className="widget-vis__add-new-rule">
+					<Button variant="secondary" onClick={ addNewRule } className="widget-vis__add-new-rule">
 						{ __( 'Add new rule', 'jetpack' ) }
 					</Button>
 				</BaseControl>
@@ -366,7 +364,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 						className="widget-vis__show-hide"
 						label={ __( 'Action', 'jetpack' ) }
 						hideLabelFromVision
-						value={ attributes.action }
+						value={ attributes.conditions.action }
 						options={ [
 							{ label: __( 'Show this block', 'jetpack' ), value: 'show' },
 							{ label: __( 'Hide this block', 'jetpack' ), value: 'hide' },
@@ -391,7 +389,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 							onChange={ toggleMatchAll }
 						/>
 					) }
-					<Button isSecondary onClick={ addNewRule }>
+					<Button variant="secondary" onClick={ addNewRule }>
 						{ __( 'Add new rule', 'jetpack' ) }
 					</Button>
 				</BaseControl>

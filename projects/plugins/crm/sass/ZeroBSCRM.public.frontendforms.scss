@@ -1,0 +1,64 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.1.18
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 11/10/16
+ */
+
+// Front end forms, for front-end (public)
+
+// import actual form styles (shared from front end + backend)
+@import 'ZeroBSCRM.frontendforms';
+
+.widget, .mh-sidebar{
+	.content{
+		h3{
+			margin-top:10px !important;
+			margin-bottom:10px;
+		}
+	}
+	.simple{
+	    .input{
+			width:90% !important;
+			float:left;
+			margin-right:2%;
+			border: 1px solid #ddd;
+			padding: 5px;
+			text-align:left;
+			font-weight: 100;
+			background:white;
+		}
+		.send, input[type="submit"]{
+			width: 80% !important;
+			background: #0d6db8;
+			color:white;
+			height: 33px;
+			float:left;
+			text-align: center;
+			line-height:12px;
+		    border: 0px;
+		    margin-top: 10px !important;
+			margin-left: 8%;
+		}	
+	}				
+}
+
+// reCaptcha
+.zbscrmReCaptcha {
+
+    display: block;
+    width: 100%;
+    clear: both;
+    margin-bottom: 8px;
+    
+}
+.naked, .simple {
+
+	.zbscrmReCaptcha {
+		padding-top:8px;
+	}
+
+}

@@ -7,10 +7,10 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
-use Jetpack_Plan;
 
 /**
  * Class Dashboard_Switcher_Tracking
@@ -97,8 +97,8 @@ class Dashboard_Switcher_Tracking {
 			if ( class_exists( '\WPCOM_Store_API' ) ) {
 				// @todo: Maybe introduce a wrapper for this since we are duplicating it from WPCOM_Admin_Menu:253
 				$products = \WPCOM_Store_API::get_current_plan( \get_current_blog_id() );
-				if ( array_key_exists( 'product_name_short', $products ) ) {
-					return $products['product_name_short'];
+				if ( ! empty( $products['product_slug'] ) ) {
+					return $products['product_slug'];
 				}
 			}
 
@@ -107,8 +107,8 @@ class Dashboard_Switcher_Tracking {
 
 		// @todo: Maybe introduce a helper for this since we are duplicating it from Atomic_Admin_Menu:240
 		$products = Jetpack_Plan::get();
-		if ( array_key_exists( 'product_name_short', $products ) ) {
-			return $products['product_name_short'];
+		if ( ! empty( $products['product_slug'] ) ) {
+			return $products['product_slug'];
 		}
 
 		return 'N/A'; // maybe we should return free or null? At the moment we use it for passing it to the event.
@@ -142,7 +142,7 @@ class Dashboard_Switcher_Tracking {
 	 * @param array $event_props Event props.
 	 */
 	public static function wpcom_tracks_record_event( $event_props ) {
-		jetpack_require_lib( 'tracks/client' );
+		require_lib( 'tracks/client' );
 		\tracks_record_event( \wp_get_current_user(), self::WPCOM_EVENT_NAME, $event_props );
 	}
 

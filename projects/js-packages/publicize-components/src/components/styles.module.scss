@@ -1,0 +1,19 @@
+.publicize-notice {
+	&.components-notice {
+		margin-left: 0;
+		margin-right: 0;
+		margin-bottom: 13px;
+	}
+
+	.components-button {
+		height: auto;
+		line-height: initial;
+		padding-top: 6px;
+		padding-bottom: 6px;
+	}
+
+	.components-button + .components-button {
+		margin-top: 5px;
+	}
+}
+

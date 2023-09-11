@@ -1,0 +1,7 @@
+{
+	"compilerOptions": {
+		"jsx": "react"
+	},
+	// List all sources and source-containing subdirs.
+	"include": [ "./*.scss", "./src" ]
+}

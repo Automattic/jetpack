@@ -1,14 +1,8 @@
-/**
- * WordPress dependencies
- */
-import { addFilter } from '@wordpress/hooks';
+import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockEditContext } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
-import isCurrentUserConnected from '../is-current-user-connected';
+import { addFilter } from '@wordpress/hooks';
 import MediaButton from './media-button';
+import { addPexelsToMediaInserter, addGooglePhotosToMediaInserter } from './media-service';
 import { mediaSources } from './sources';
 import './editor.scss';
 
@@ -24,6 +18,9 @@ function insertExternalMediaBlocks( settings, name ) {
 }
 
 if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
+	addPexelsToMediaInserter();
+	addGooglePhotosToMediaInserter();
+
 	const isFeaturedImage = props =>
 		props.unstableFeaturedImageFlow ||
 		( props.modalClass && props.modalClass.indexOf( 'featured-image' ) > -1 );
@@ -38,6 +35,7 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 			'jetpack/slideshow',
 			'jetpack/story',
 			'jetpack/tiled-gallery',
+			'videopress/video',
 		];
 
 		return allowedBlocks.indexOf( name ) > -1 && render.toString().indexOf( 'coblocks' ) === -1;

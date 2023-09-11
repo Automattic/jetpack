@@ -1,0 +1,27 @@
+.jpdebug-waf-settings p {
+	font-weight: normal;
+}
+
+.jpdebug-waf-settings p code {
+	white-space: nowrap;
+}
+
+.jpdebug-waf-settings > div + div {
+	margin-top: 16px;
+}
+
+.jpdebug-waf-filecontents,
+.jpdebug-waf-filecontents:disabled {
+    width: 90%;
+    height: 220px;
+    color: black;
+    background-color: white;
+    font-family: monospace;
+    line-height: 1.75;
+    padding: 1em;
+    white-space: pre;
+}
+
+hr {
+    margin: 1.5em 0;
+}

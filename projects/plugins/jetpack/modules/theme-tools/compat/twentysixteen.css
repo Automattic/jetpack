@@ -65,7 +65,7 @@
 }
 
 /* Gallery Widget */
-.widget-gallery .slideshow-window {
+.widget-gallery .jetpack-slideshow-window {
 	border-radius: 0;
 }
 
@@ -446,7 +446,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 }
 
 /* Slideshow */
-.entry-content .slideshow-window {
+.entry-content .jetpack-slideshow-window {
 	border-radius: 0;
 	margin-bottom: 1.75em;
 }
@@ -709,19 +709,6 @@ iframe[src^="http://api.mixcloud.com/"] {
 
 .sd-social-official .sd-content ul {
 	margin-bottom: -0.625em !important;
-}
-
-.hentry #sharing_email .sharing_send,
-.hentry .sd-content ul li .option a.share-ustom,
-.hentry .sd-content ul li a.sd-button,
-.hentry .sd-content ul li.advanced a.share-more,
-.hentry .sd-content ul li.preview-item div.option.option-smart-off a,
-.hentry .sd-social-icon .sd-content ul li a.sd-button,
-.hentry .sd-social-icon-text .sd-content ul li a.sd-button,
-.hentry .sd-social-official .sd-content > ul > li .digg_button > a,
-.hentry .sd-social-official .sd-content > ul > li > a.sd-button,
-.hentry .sd-social-text .sd-content ul li a.sd-button {
-	box-shadow: none;
 }
 
 

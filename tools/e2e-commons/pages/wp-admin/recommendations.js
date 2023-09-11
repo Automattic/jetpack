@@ -17,20 +17,20 @@ export default class RecommendationsPage extends WpPage {
 		return '.jp-checkbox-answer__container input#site-type-personal';
 	}
 
-	get siteTypeBusinessCheckboxSel() {
-		return '.jp-checkbox-answer__container input#site-type-business';
+	get siteTypeAgencyCheckboxSel() {
+		return '.jp-checkbox-answer__container input#site-type-agency';
 	}
 
 	get siteTypeStoreCheckboxSel() {
 		return '.jp-checkbox-answer__container input#site-type-store';
 	}
 
-	get siteTypeOtherCheckboxSel() {
-		return '.jp-checkbox-answer__container input#site-type-other';
-	}
-
 	get saveSiteTypeButtonSel() {
 		return 'a[href*="recommendations/monitor"] >> text="Continue"';
+	}
+
+	get skipProductSuggestionsButtonSel() {
+		return 'a[href*="recommendations/monitor"] >> text="Decide later"';
 	}
 
 	get enableMonitoringButtonSel() {
@@ -38,22 +38,26 @@ export default class RecommendationsPage extends WpPage {
 	}
 
 	get enableRelatedPostsButtonSel() {
-		return 'a[href*="recommendations/creative-mail"] >> text="Enable Related Posts"';
+		return 'a[href*="recommendations/newsletter"] >> text="Enable Related Posts"';
 	}
 
-	get installCreativeMailButtonSel() {
-		return 'a[href*="recommendations/site-accelerator"] >> text="Install Creative Mail"';
-	}
-
-	get skipCreativeMailButtonSel() {
-		return 'a[href*="recommendations/site-accelerator"] >> text="Not now"';
+	get enableNewsletterButtonSel() {
+		return 'a[href*="recommendations/site-accelerator"] >> text="Enable Newsletter"';
 	}
 
 	get enableSiteAcceleratorButtonSel() {
-		return 'a[href*="recommendations/summary"] >> text="Enable Site Accelerator"';
+		return 'a[href*="recommendations/vaultpress-backup"] >> text="Enable Site Accelerator"';
 	}
 
 	get skipSiteAcceleratorButtonSel() {
+		return 'a[href*="recommendations/vaultpress-backup"] >> text="Not now"';
+	}
+
+	get tryVaultPressBackup() {
+		return 'a[href*="jetpack-recommendations-product-checkout"] >> text=Get';
+	}
+
+	get skipVaultPressBackup() {
 		return 'a[href*="recommendations/summary"] >> text="Not now"';
 	}
 
@@ -73,8 +77,8 @@ export default class RecommendationsPage extends WpPage {
 		return '.jp-recommendations-feature-summary.is-feature-enabled >> a >> text="Related Posts"';
 	}
 
-	get creativeMailFeatureNotEnabledSel() {
-		return '.jp-recommendations-feature-summary:not(.is-feature-enabled) >> a >> text="Creative Mail"';
+	get newsletterFeatureEnabledSel() {
+		return '.jp-recommendations-feature-summary.is-feature-enabled >> a >> text="Newsletter"';
 	}
 
 	get siteAcceleratorFeatureNotEnabledSel() {
@@ -96,20 +100,12 @@ export default class RecommendationsPage extends WpPage {
 		return await this.click( this.siteTypePersonalCheckboxSel );
 	}
 
-	async checkOtherSiteType() {
-		return await this.click( this.siteTypeOtherCheckboxSel );
-	}
-
 	async isPersonalSiteTypeChecked() {
 		return await this.isElementChecked( this.siteTypePersonalCheckboxSel );
 	}
 
-	async isOtherSiteTypeChecked() {
-		return await this.isElementChecked( this.siteTypeOtherCheckboxSel );
-	}
-
-	async isBusinessTypeUnchecked() {
-		return await this.isElementChecked( this.siteTypeBusinessCheckboxSel );
+	async isAgencyTypeUnchecked() {
+		return await this.isElementChecked( this.siteTypeAgencyCheckboxSel );
 	}
 
 	async isStoreTypeUnchecked() {
@@ -118,6 +114,14 @@ export default class RecommendationsPage extends WpPage {
 
 	async saveSiteTypeAndContinue() {
 		return await this.click( this.saveSiteTypeButtonSel );
+	}
+
+	async isSkipProductSuggestionsButtonVisible() {
+		return await this.isElementVisible( this.skipProductSuggestionsButtonSel );
+	}
+
+	async skipProductSuggestionsAndContinue() {
+		return await this.click( this.skipProductSuggestionsButtonSel );
 	}
 
 	async isEnableMonitoringButtonVisible() {
@@ -136,12 +140,12 @@ export default class RecommendationsPage extends WpPage {
 		return await this.click( this.enableRelatedPostsButtonSel );
 	}
 
-	async isInstallCreativeMailButtonVisible() {
-		return await this.isElementVisible( this.installCreativeMailButtonSel );
+	async isEnableNewsletterButtonVisible() {
+		return await this.isElementVisible( this.enableNewsletterButtonSel );
 	}
 
-	async skipCreativeMailAndContinue() {
-		return await this.click( this.skipCreativeMailButtonSel );
+	async enableNewsletterAndContinue() {
+		return await this.click( this.enableNewsletterButtonSel );
 	}
 
 	async isEnableSiteAcceleratorButtonVisible() {
@@ -150,6 +154,14 @@ export default class RecommendationsPage extends WpPage {
 
 	async skipSiteAcceleratorAndContinue() {
 		return await this.click( this.skipSiteAcceleratorButtonSel );
+	}
+
+	async isTryVaultPressBackupButtonVisible() {
+		return await this.isElementVisible( this.tryVaultPressBackup );
+	}
+
+	async skipVaultPressBackupAndContinue() {
+		return await this.click( this.skipVaultPressBackup );
 	}
 
 	async isSummaryContentVisible() {
@@ -168,8 +180,8 @@ export default class RecommendationsPage extends WpPage {
 		return await this.isElementVisible( this.relatedPostsFeatureEnabledSel );
 	}
 
-	async isCreativeMailFeatureEnabled() {
-		return await this.isElementVisible( this.creativeMailFeatureNotEnabledSel );
+	async isNewsletterFeatureEnabled() {
+		return await this.isElementVisible( this.newsletterFeatureEnabledSel );
 	}
 
 	async isSiteAcceleratorFeatureEnabled() {

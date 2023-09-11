@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { InnerBlocks } from '@wordpress/block-editor';
 import { View } from 'react-native';
-
-/**
- * Internal dependencies
- */
 import styles from './editor.scss';
 
 const ALLOWED_BLOCKS = [

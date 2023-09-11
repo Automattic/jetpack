@@ -18,8 +18,6 @@ class Test_Server_Sandbox extends BaseTestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		Monkey\setUp();
@@ -27,8 +25,6 @@ class Test_Server_Sandbox extends BaseTestCase {
 
 	/**
 	 * Tear down.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		Monkey\tearDown();
@@ -79,8 +75,9 @@ class Test_Server_Sandbox extends BaseTestCase {
 					'Host' => 'example.com',
 				),
 				'output'  => array(
-					'url'  => 'https://public-api.wordpress.com/test',
-					'host' => '',
+					'url'           => 'https://public-api.wordpress.com/test',
+					'host'          => '',
+					'new_signature' => '',
 				),
 			),
 			'url not a string'                       => array(
@@ -90,8 +87,9 @@ class Test_Server_Sandbox extends BaseTestCase {
 					'Host' => 'example.com',
 				),
 				'output'  => array(
-					'url'  => 123,
-					'host' => '',
+					'url'           => 123,
+					'host'          => '',
+					'new_signature' => '',
 				),
 			),
 			'sandbox, url valid, no host in headers' => array(
@@ -99,8 +97,9 @@ class Test_Server_Sandbox extends BaseTestCase {
 				'url'     => 'https://public-api.wordpress.com/test',
 				'headers' => array(),
 				'output'  => array(
-					'url'  => 'https://example.com/test',
-					'host' => 'public-api.wordpress.com',
+					'url'           => 'https://example.com/test',
+					'host'          => 'public-api.wordpress.com',
+					'new_signature' => '',
 				),
 			),
 			'sandbox, url valid, host in headers'    => array(
@@ -110,8 +109,9 @@ class Test_Server_Sandbox extends BaseTestCase {
 					'Host' => 'example.com',
 				),
 				'output'  => array(
-					'url'  => 'https://example.com/test',
-					'host' => 'example.com',
+					'url'           => 'https://example.com/test',
+					'host'          => 'example.com',
+					'new_signature' => '',
 				),
 			),
 			'sandbox, url valid, host not wpcom'     => array(
@@ -119,8 +119,9 @@ class Test_Server_Sandbox extends BaseTestCase {
 				'url'     => 'https://wordpress.org/test',
 				'headers' => array(),
 				'output'  => array(
-					'url'  => 'https://wordpress.org/test',
-					'host' => '',
+					'url'           => 'https://wordpress.org/test',
+					'host'          => '',
+					'new_signature' => '',
 				),
 			),
 		);
@@ -180,6 +181,66 @@ class Test_Server_Sandbox extends BaseTestCase {
 	}
 
 	/**
+	 * Test the server_sandbox_request_parameters() with XDEBUG param.
+	 *
+	 * @param string $url              The request url.
+	 * @param array  $expected_url     The value of $url after calling server_sandbox().
+	 * @param bool   $add_filter Whether to add the XDEBUG filter or not.
+	 *
+	 * @dataProvider data_provider_test_server_sandbox_with_xdebug
+	 */
+	public function test_server_sandbox_with_xdebug( $url, $expected_url, $add_filter = true ) {
+		Constants::set_constant( 'JETPACK__SANDBOX_DOMAIN', 'example.com' );
+		( new Tokens() )->update_blog_token( 'asdasd.qweqwe' );
+
+		$body      = 'bbooddyy';
+		$body_hash = base64_encode( sha1( $body, true ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$method    = 'GET';
+		$timestamp = time();
+		$headers   = array(
+			'Authorization' => 'X_JETPACK signature="$ignature#" token="asdasd:1:0" timestamp="' . $timestamp . '" nonce="qweasd" body-hash="' . $body_hash . '"',
+		);
+
+		if ( $add_filter ) {
+			add_filter( 'jetpack_sandbox_add_profile_parameter', '__return_true' );
+		}
+
+		( new Server_Sandbox() )->server_sandbox( $url, $headers, $body, $method );
+
+		$this->assertSame( $expected_url, $url );
+
+		if ( $add_filter ) {
+			$headers_vars = ( new Server_Sandbox() )->extract_authorization_headers( $headers );
+			$this->assertNotEmpty( $headers_vars['signature'] );
+			$this->assertNotSame( '$ignature#', $headers_vars['signature'] );
+			remove_filter( 'jetpack_sandbox_add_profile_parameter', '__return_true' );
+		}
+	}
+
+	/**
+	 * Data provider for test_server_sandbox_with_xdebug
+	 *
+	 * @return array
+	 */
+	public function data_provider_test_server_sandbox_with_xdebug() {
+		return array(
+			'not filtered'         => array(
+				'url'          => 'https://public-api.wordpress.com/test',
+				'expected_url' => 'https://example.com/test',
+				'add_filter'   => false,
+			),
+			'filtered'             => array(
+				'url'          => 'https://public-api.wordpress.com/test',
+				'expected_url' => 'https://example.com/test?XDEBUG_PROFILE=1',
+			),
+			'filtered with params' => array(
+				'url'          => 'https://public-api.wordpress.com/test?param=1',
+				'expected_url' => 'https://example.com/test?param=1&XDEBUG_PROFILE=1',
+			),
+		);
+	}
+
+	/**
 	 * Test that the admin_bar_add_sandbox_item() method does not add the 'jetpack-connection-api-sandbox' item to the
 	 * admin bar menu when the JETPACK__DOMAIN_SANDBOX constant is not set.
 	 */
@@ -206,6 +267,80 @@ class Test_Server_Sandbox extends BaseTestCase {
 
 		$this->assertCount( 1, $wp_admin_bar->get_nodes() );
 		$this->assertNotNull( $wp_admin_bar->get_node( 'jetpack-connection-api-sandbox' ) );
+	}
+
+	/**
+	 * Tests the extract_authorization_headers method
+	 *
+	 * @param mixed $headers The method input.
+	 * @param mixed $expected The expected output.
+	 * @return void
+	 *
+	 * @dataProvider data_provider_test_extract_authorization_headers
+	 */
+	public function test_extract_authorization_headers( $headers, $expected ) {
+		$this->assertSame( $expected, ( new Server_Sandbox() )->extract_authorization_headers( $headers ) );
+	}
+
+	/**
+	 * Data provider for test_extract_authorization_headers
+	 *
+	 * @return array
+	 */
+	public function data_provider_test_extract_authorization_headers() {
+		return array(
+			'happy_case'          => array(
+				array(
+					'Authorization' => 'X_JETPACK var1="value1" var2="value2"',
+				),
+				array(
+					'var1' => 'value1',
+					'var2' => 'value2',
+				),
+			),
+			'invalid_array'       => array(
+				array(
+					'foo' => 'bar',
+				),
+				null,
+			),
+			'var without value'   => array(
+				array(
+					'Authorization' => 'X_JETPACK var1="value1" var2="value2" var3',
+				),
+				array(
+					'var1' => 'value1',
+					'var2' => 'value2',
+				),
+			),
+			'var with equal sign' => array(
+				array(
+					'Authorization' => 'X_JETPACK var1="val=ue1" var2="value2="',
+				),
+				array(
+					'var1' => 'val=ue1',
+					'var2' => 'value2=',
+				),
+			),
+			'empty header'        => array(
+				array(
+					'Authorization' => '',
+				),
+				null,
+			),
+			'not string header'   => array(
+				array(
+					'Authorization' => false,
+				),
+				null,
+			),
+			'array header'        => array(
+				array(
+					'Authorization' => array( 123, 456 ),
+				),
+				null,
+			),
+		);
 	}
 
 }

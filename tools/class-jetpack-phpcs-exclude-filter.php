@@ -5,13 +5,13 @@
  * @package automattic/jetpack
  */
 
-use PHP_CodeSniffer\Filters\Filter;
+use PHP_CodeSniffer\Files\LocalFile;
 use PHP_CodeSniffer\Util;
 
 /**
  * Filter for PHPCS to exclude files in bin/phpcs-excludelist.json.
  */
-class Jetpack_Phpcs_Exclude_Filter extends Filter {
+class Jetpack_Phpcs_Exclude_Filter extends Automattic\Jetpack\PhpcsFilter {
 	/**
 	 * Files to exclude.
 	 *
@@ -28,16 +28,10 @@ class Jetpack_Phpcs_Exclude_Filter extends Filter {
 		}
 
 		$lines = json_decode( file_get_contents( __DIR__ . '/phpcs-excludelist.json' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		$lines = array_filter(
-			$lines,
-			function ( $line ) {
-				$line = trim( $line );
-				return '' !== $line && '#' !== $line[0];
-			}
-		);
 		$lines = array_map(
 			function ( $line ) {
-				return $this->basedir . '/' . $line;
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				return $this->filterBaseDir . '/' . $line;
 			},
 			$lines
 		);
@@ -56,7 +50,8 @@ class Jetpack_Phpcs_Exclude_Filter extends Filter {
 		}
 
 		$this->load_exclude();
-		$file = Util\Common::realpath( $this->current() );
+		$current = $this->current();
+		$file    = Util\Common::realpath( $current instanceof LocalFile ? $current->getFilename() : $current );
 		return ! isset( $this->exclude[ $file ] );
 	}
 

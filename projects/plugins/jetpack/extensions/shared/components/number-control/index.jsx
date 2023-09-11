@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
 import {
 	NumberControl as BlockEditorNumberControl,
-	__experimentalNumberControl as ExperimentalNumberControl,
+	__experimentalNumberControl as ExperimentalNumberControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	TextControl,
 } from '@wordpress/components';
 

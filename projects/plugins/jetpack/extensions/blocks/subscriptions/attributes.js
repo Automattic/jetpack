@@ -1,16 +1,17 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 
 export default {
 	subscribePlaceholder: {
 		type: 'string',
-		default: __( 'Email Address', 'jetpack' ),
+		default: __( 'Type your email…', 'jetpack' ),
 	},
 	showSubscribersTotal: {
 		type: 'boolean',
 		default: false,
+	},
+	includeSocialFollowers: {
+		type: 'boolean',
+		default: true,
 	},
 	buttonOnNewLine: {
 		type: 'boolean',

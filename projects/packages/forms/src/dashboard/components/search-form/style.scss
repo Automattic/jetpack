@@ -1,0 +1,88 @@
+.jp-forms__actions-search {
+	display: flex;
+	flex-direction: row;
+	border-radius: 4px;
+
+	// visual aid for focus
+	&:focus-within {
+		box-shadow: var( --jp-forms-focus-shadow );
+	}
+
+	@media (max-width: 600px) {
+		flex: 1;
+	}
+
+	.input-wrapper {
+		min-height: var( --jp-forms-input-wrapper-height );
+		padding: var( --jp-forms-spacing-base );
+		border: 1px solid var( --jp-forms-border-color );
+		border-radius: var( --jp-forms-border-radius );
+		background-color: var( --jp-forms-white );
+		display: flex;
+		align-items: center;
+		font-size: var( --font-body-small );
+		box-sizing: border-box;
+		height: var( --jp-forms-input-wrapper-height );
+		width: 350px;
+
+		@media (min-width: 783px) and (max-width: 960px) {
+			width: 300px;
+		}
+
+		@media (max-width: 600px) {
+			width: 100%;
+		}
+
+		&:focus-within {
+			// visual aid for focus in the wrapper element, remove border when focused
+			border-color: transparent;
+		}
+
+		&.disabled {
+			border-color: var( --jp-gray-10 );
+			background-color: var( --jp-gray );
+			color: var( --jp-gray-20 );
+		}
+
+		.input {
+			font-size: var(--jp-forms-font-size-regular);
+			font-family: unset;
+			width: 100%;
+			border: 0;
+			outline: none;
+			background-color: transparent;
+			box-shadow: none;
+			padding: 0;
+
+			&:focus {
+				box-shadow: none;
+				outline: none;
+			}
+
+			&.with-icon {
+				margin-left: var( --jp-forms-spacing-base );
+			}
+		}
+
+		.icon-wrapper {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 24px;
+			width: 24px;
+			flex-shrink: 0;
+
+			&.hidden {
+				visibility: hidden;
+			}
+		}
+
+		.clear-icon {
+			cursor: pointer;
+		}
+
+		.loader svg {
+			margin: 0;
+		}
+	}
+}

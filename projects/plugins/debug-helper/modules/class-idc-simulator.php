@@ -61,6 +61,12 @@ class IDC_Simulator {
 		if ( isset( $_GET['idc_notice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			add_action( 'admin_notices', array( $this, 'display_notice' ) );
 		}
+
+		$settings = self::get_stored_settings();
+		if ( ! $settings['idc_sync_status'] ) {
+			// Display a notice when this module disables Sync.
+			add_action( 'admin_notices', array( $this, 'display_sync_disabled_notice' ) );
+		}
 	}
 
 	/**
@@ -109,8 +115,8 @@ class IDC_Simulator {
 	 * @param string $hook Called hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( strpos( $hook, 'jetpack_page_broken-token' ) === 0 ) {
-			wp_enqueue_style( 'broken_token_style', plugin_dir_url( __FILE__ ) . '/css/style.css', array(), JETPACK_DEBUG_HELPER_VERSION );
+		if ( strpos( $hook, 'jetpack-debug_page_idc-simulator' ) === 0 ) {
+			wp_enqueue_style( 'broken_token_style', plugin_dir_url( __FILE__ ) . 'inc/css/idc-simulator.css', array(), JETPACK_DEBUG_HELPER_VERSION );
 		}
 	}
 
@@ -342,11 +348,11 @@ class IDC_Simulator {
 		update_option(
 			self::STORED_OPTIONS_KEY,
 			array(
-				'idc_siteurl'       => $_POST['idc_siteurl'],
-				'idc_simulation'    => $_POST['idc_simulation'],
+				'idc_siteurl'       => isset( $_POST['idc_siteurl'] ) ? filter_var( wp_unslash( $_POST['idc_siteurl'] ) ) : null,
+				'idc_simulation'    => isset( $_POST['idc_simulation'] ) ? filter_var( wp_unslash( $_POST['idc_simulation'] ) ) : null,
 				'idc_spoof_siteurl' => isset( $_POST['idc_spoof_siteurl'] ) ? true : false,
 				'idc_spoof_home'    => isset( $_POST['idc_spoof_home'] ) ? true : false,
-				'idc_sync_status'   => $_POST['idc_sync_status'],
+				'idc_sync_status'   => isset( $_POST['idc_sync_status'] ) ? filter_var( wp_unslash( $_POST['idc_sync_status'] ) ) : null,
 			)
 		);
 
@@ -426,7 +432,7 @@ class IDC_Simulator {
 	 * Display a notice if necessary.
 	 */
 	public function display_notice() {
-		switch ( $_GET['idc_notice'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		switch ( isset( $_GET['idc_notice'] ) ? $_GET['idc_notice'] : null ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			case self::STORED_SUCCESS_NOTICE_TYPE:
 				return $this->admin_notice__stored_success();
 
@@ -439,6 +445,13 @@ class IDC_Simulator {
 			default:
 				return;
 		}
+	}
+
+	/**
+	 * Display a notice when Sync is disabled by this module.
+	 */
+	public function display_sync_disabled_notice() {
+		echo '<div class="notice notice-warning"><p>Sync has been disabled by the Jetpack Debug Helper plugin\'s IDC Simulator module.</p></div>';
 	}
 
 	/**
@@ -500,6 +513,8 @@ class IDC_Simulator {
 		}
 	}
 }
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
 
 add_action( 'plugins_loaded', 'register_idc_simulator', 1000 );
 

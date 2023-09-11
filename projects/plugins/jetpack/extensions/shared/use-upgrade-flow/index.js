@@ -1,21 +1,9 @@
-/**
- * External dependencies
- */
-import { noop } from 'lodash';
-
-/**
- * WordPress dependencies
- */
+import { getUpgradeUrl } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { doAction, hasAction } from '@wordpress/hooks';
-
-/**
- * Internal dependencies
- */
-
+import { noop } from 'lodash';
 // Provably we should move this store to somewhere more generic.
 import '../components/upgrade-nudge/store';
-import { getUpgradeUrl } from '../plan-utils';
 import useAutosaveAndRedirect from '../use-autosave-and-redirect/index';
 
 const HOOK_OPEN_CHECKOUT_MODAL = 'a8c.wpcom-block-editor.openCheckoutModal';

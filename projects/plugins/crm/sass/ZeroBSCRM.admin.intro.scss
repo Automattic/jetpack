@@ -1,0 +1,299 @@
+/*!
+ * Jetpack CRM: Extension Manager Styles
+ * https://jetpackcrm.com
+ *
+ * Copyright 2015-2019+, ZeroBSCRM.com
+ *
+ * Date: 1 Mar 2019
+ * 
+ */
+
+ //wrap all in our page bodyclass so to not clash anywhere else. Is also only enqueue on that one page
+
+.admin_page_zerobscrm-plugin{
+    #zbs-welcome .container {
+    margin: 0 auto;
+    max-width: 720px;
+    padding: 0;
+    }
+    #zbs-welcome .container .intro {
+    background-color: #fff;
+    border-top: 2px solid #e1e1e1;
+    border-left: 2px solid #e1e1e1;
+    border-right: 2px solid #e1e1e1;
+    border-radius: 2px;
+    position: relative;
+    padding-top: 40px;
+    }
+    #zbs-welcome .intro .bullie {
+    background-color: #fff;
+    border: 2px solid #e1e1e1;
+    border-radius: 50%;
+    height: 110px;
+    width: 110px;
+    padding: 18px 14px 0 14px;
+    position: absolute;
+    top: -58px;
+    left: 50%;
+    margin-left: -55px;
+    }
+    .bullie img{
+    height: 80px;
+    margin-left: 7px;
+    margin-top: -4px;
+    width:auto;
+    }
+    .intro .block {
+    padding: 30px;
+    }
+    #zbs-welcome h1 {
+    color: #222;
+    font-size: 24px;
+    text-align: center;
+    margin: 0 0 16px 0;
+    }
+    #zbs-welcome h6 {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+    text-align: center;
+    margin: 0;
+    }
+    #zbs-welcome #first-customer{
+    border-left: 2px solid #e1e1e1;
+    border-right: 2px solid #e1e1e1;
+    text-align: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    }
+    #first-customer img{
+    max-width:80%;
+    }
+    a:focus{
+    outline:none;
+    box-shadow: none;
+    }
+    #first-customer a:focus{
+    outline:none;
+    box-shadow: none;
+    }
+    #action-buttons{
+    padding:20px;
+    background:white;
+    min-height:175px;
+    border-left: 2px solid #e1e1e1;
+    border-right: 2px solid #e1e1e1;
+    border-bottom: 2px solid #e1e1e1;
+    }
+    #action-buttons h6{
+    margin-bottom:20px;
+    }
+    .zbs-button-wrap{
+    text-align:center;
+    }
+    .zbs-button-wrap .btn-cta{
+    background-color: #00b1ff;
+    border-color: #00b1ff;
+    color: #fff;
+    }
+    .zbs-button-wrap .btn-hta{
+    background-color: #eee;
+    border-color: #eee;
+    color: #666;
+    }
+
+    .zbs-button-wrap .btn-bta{
+    background-color:   #21BA45;
+    border-color:  #21BA45;
+    color: #fff;
+    }
+
+    .zbs-button-wrap .btn{
+    font-size: 16px;
+    font-weight: 600;
+    padding: 16px 28px;
+    }
+    .left{
+    float: left;
+    width: 60%;
+    padding-right: 10px;
+    }
+    .right{
+    float: right;
+    width: 40%;
+    padding-left: 10px;
+    }
+    .clear{
+    clear:both;
+    }
+    .margin-top30{
+    margin-top:30px !important;
+    }
+    .zbs-features{
+    padding-top: 0px !important;
+    padding-bottom:30px !important;
+    border-bottom: 2px solid #e1e1e1;
+    }
+    .zbs-features h5{
+    color: #222;
+    font-size: 16px;
+    margin: 0 0 8px 0;
+    font-weight:900;
+    }
+    .zbs-features p{
+    font-size: 14px;
+    margin-left: 68px !important;
+    }
+    .zbs-features .feature-block {
+    float: left;
+    width: 50%;
+    padding-bottom: 35px;
+    overflow: auto;
+    }
+    .zbs-features .feature-block img {
+    float: left;
+    max-width: 46px;
+    }
+    .zbs-features  .feature-block h5 {
+    margin-left: 68px;
+    }
+    zbs-features .feature-block p {
+    margin: 0;
+    margin-left: 68px;
+    }
+    .zbs-features .feature-block.first {
+    padding-right: 20px;
+    clear: both;
+    }
+    .zbs-features .feature-block.last {
+    padding-left: 20px;
+    }
+    #zbs-welcome .upgrade-cta {
+        border-top: 0;
+        border-bottom: 0;
+        margin-top:25px;
+        margin-bottom:25px;
+        text-align: center;
+
+        .upgrade-cta__features {
+            display: inline-block;
+            text-align: left;
+            max-width: 75%;
+        }
+    }
+    .upgrade-cta ul {
+        display: -ms-flex;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-flex-wrap: wrap;
+        flex-wrap: wrap;
+        font-size: 15px;
+        margin: 0;
+        padding: 0;
+    }
+
+    #zbs-welcome .upgrade-cta ul li {
+    display: block;
+    width: 50%;
+    margin: 0 0 8px 0;
+    padding: 0 0 0 40px;
+    }
+    #zbs-welcome .upgrade-cta ul li .dashicons {
+    color: #2a9b39;
+    margin-right: 5px;
+    }
+
+    .upgrade-cta h2 {
+    color: #000;
+    font-size: 20px;
+    margin: 0 0 8px 0;
+    text-align:center;
+    }
+
+    .upgrade-cta .right h2 span {
+    display: inline-block;
+    border-bottom: 1px solid #555;
+    padding: 0 15px 12px;
+    }
+    .upgrade-cta .right .price {
+    padding: 26px 0;
+    text-align:center;
+    }
+    .price .dollar{
+    font-size:12px;
+    }
+    .upgrade-cta .right .price .amount {
+    font-size: 48px;
+    font-weight: 600;
+    position: relative;
+    display: inline-block;
+    }
+    .upgrade-cta .right .price .term {
+    font-size: 12px;
+    display: inline-block;
+    }
+    .pro{
+    font-size: 10px;
+    background: #00b2ff;
+    margin-left: 5px;
+    padding: 2px;
+    color: white;
+    border-radius: 2px;
+    }
+    .pro-elite{
+    font-size: 10px;
+    background: #21BA45;
+    margin-left: 5px;
+    padding: 2px;
+    color: white;
+    border-radius: 2px;
+    }
+    .go-elite{
+    color: #9c9c9c;
+    font-size: 11px;
+    margin-top: 13px;
+    margin-bottom:10px;
+    }
+    .elite-package{
+    background-color: #21BA45;
+    border-color: #21BA45;
+    color: #fff;
+    padding:5px;
+    font-size:13px;
+    border-radius:3px;
+    margin-top:15px;
+    font-weight:500;
+    }
+    .elite-package:hover{
+    color:white;
+    }
+    .testimonial-block img{
+    border-radius: 50%;
+    float: left;
+    max-width: 80px;
+    box-shadow: 0 0 18px rgba(0,0,0,0.2);
+    }
+    .testimonial-block{
+    margin-bottom:50px;
+    }
+    .testimonial-block p {
+    margin: 0 0 12px 140px;
+    margin-left: 110px !important;
+    font-size: 15px;
+    line-height: 23px;
+    color: #868686;
+    }
+    .who{
+    color:black !important;
+    }
+    .final-block{
+    background: #eeeeee;
+    min-height: 140px;
+    border: 2px solid #e1e1e1;
+    padding: 40px;
+    }
+    .final-block .zbs-button-wrap{
+    margin-top:40px;
+    }
+
+}

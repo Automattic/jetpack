@@ -1,4 +1,4 @@
-this.jetpackModules = this.jetpackModules || {};
+window.jetpackModules = window.jetpackModules || {};
 
 window.jetpackModules.views = ( function ( window, $, _, Backbone, wp ) {
 	'use strict';
@@ -28,7 +28,7 @@ window.jetpackModules.views = ( function ( window, $, _, Backbone, wp ) {
 			}
 
 			if ( ! m_tag.hasClass( 'all' ) ) {
-				url += '&module_tag=' + encodeURIComponent( m_tag.data( 'title' ) );
+				url += '&module_tag=' + encodeURIComponent( m_tag.find( 'a' ).data( 'title' ) );
 			}
 
 			if ( m_filter.data( 'filter-by' ) ) {
@@ -59,4 +59,4 @@ window.jetpackModules.views = ( function ( window, $, _, Backbone, wp ) {
 	} );
 
 	return views;
-} )( this, jQuery, _, Backbone, wp );
+} )( window, jQuery, _, Backbone, wp );

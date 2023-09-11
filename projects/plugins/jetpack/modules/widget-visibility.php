@@ -1,5 +1,11 @@
 <?php
 /**
+ * Module: Widget Visibility
+ *
+ * @package automattic/jetpack
+ */
+
+/**
  * Module Name: Widget Visibility
  * Module Description: Control where widgets appear on your site.
  * First Introduced: 2.4
@@ -11,4 +17,4 @@
  * Additional Search Queries: widget visibility, logic, conditional, widgets, widget
  */
 
-include dirname( __FILE__ ) . "/widget-visibility/widget-conditions.php";
+require __DIR__ . '/widget-visibility/widget-conditions.php';

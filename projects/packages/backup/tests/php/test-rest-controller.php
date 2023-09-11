@@ -25,6 +25,13 @@ class Test_REST_Controller extends TestCase {
 	private $server;
 
 	/**
+	 * Admin user ID.
+	 *
+	 * @var int
+	 */
+	private $admin_id;
+
+	/**
 	 * Setting up the test.
 	 *
 	 * @before
@@ -122,7 +129,7 @@ class Test_REST_Controller extends TestCase {
 		$this->assertArrayHasKey( 'path', $response_data );
 
 		// Cleanup.
-		unlink( $response_data['path'] );
+		wp_delete_file( $response_data['path'] );
 	}
 
 	/**

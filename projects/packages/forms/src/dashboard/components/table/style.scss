@@ -1,0 +1,138 @@
+.jp-forms__table {
+	box-sizing: border-box;
+	display: table;
+	margin: 0;
+	padding: 0;
+}
+
+.jp-forms__table-header,
+.jp-forms__table-item {
+	display: table-row;
+
+	&:nth-child(even) {
+		background-color: #f9f9f6;
+	}
+}
+
+.jp-forms__table-item.is-clickable {
+	cursor: pointer;
+}
+
+.jp-forms__table-item.is-active:not(.exit) {
+	background-color: #000;
+	color: #fff;
+}
+
+@keyframes jp-forms__table-pulse {
+	from { opacity: .2; }
+	50% { opacity: .1; }
+	to { opacity: .2 }
+}
+
+.jp-forms__table-cell {
+	border-bottom: 1px solid #dcdcde;
+	box-sizing: border-box;
+	display: table-cell;
+	font-size: var(--jp-forms-font-size-regular);
+	height: 52px;
+	line-height: normal;
+	margin: 0;
+	padding: 0 16px;
+	position: relative;
+	text-align: left;
+	transition: background-color .1s ease-out, opacity .1s ease-out;
+	vertical-align: middle;
+	max-width: 0;
+
+	@media (max-width: 600px) {
+		padding: 8px;
+	}
+
+	.jp-forms__table :last-child & {
+		border-bottom: unset;
+	}
+
+	&.is-select {
+		min-width: 62px;
+		padding: 0 20px;
+
+		@media (max-width: 480px) {
+			min-width: 46px;
+			padding: 0 12px;
+		}
+	}
+
+	&.is-empty {
+		max-width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.jp-forms__table-item.is-loading &::before {
+		animation: jp-forms__table-pulse 2s ease-in-out infinite;
+		content: '';
+		background-color: #000;
+		border-radius: .5em;
+		display: flex;
+		height: 1em;
+	}
+
+	.components-button.is-link {
+		font-size: inherit;
+		color: inherit;
+	}
+}
+
+input[type="checkbox"].jp-forms__table-checkbox {
+	appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	border: 0;
+	box-shadow: none;
+	box-sizing: border-box;
+	cursor: pointer;
+	font-size: var(--jp-forms-font-size-regular);
+	line-height: 16px;
+	margin: 0;
+	outline: 0;
+	width: 16px;
+	height: 16px;
+
+	&::before {
+		background: #fff;
+		border-radius: 2px;
+		border: 1px solid #949494;
+		color: #000;
+		content: '\00a0';
+		display: inline-block;
+		font-size: var(--jp-forms-font-size-regular);
+		font-weight: bold;
+		height: 16px;
+		margin: 0;
+		text-align: center;
+		transition: background .1s ease-out, color .1s ease-out, border-color .1s ease-out;
+		width: 16px;
+	}
+
+	// visual aid for focus
+	&:focus::before {
+		box-shadow: var( --jp-forms-focus-shadow );
+	}
+
+	&:checked::before {
+		background: #000;
+		border-color: #000;
+		color: #fff;
+		content: '\2713';
+	}
+
+	&.is-intermediate::before,
+	&.is-intermediate:checked::before {
+		background: #000;
+		border-color: #000;
+		color: #fff;
+		content: '\002d';
+	}
+}
+

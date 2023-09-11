@@ -1,15 +1,12 @@
-/**
- * Internal dependencies
- */
-import { settings as mapSettings } from './settings.js';
-import edit from './edit';
-import save from './save';
+import { getIconColor } from '../../shared/block-icons';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
+import edit from './edit';
+import save from './save';
+import { settings as mapSettings } from './settings.js';
 import './style.scss';
 import './editor.scss';
 export const { name } = mapSettings;
-import { getIconColor } from '../../shared/block-icons';
 
 export const settings = {
 	title: mapSettings.title,

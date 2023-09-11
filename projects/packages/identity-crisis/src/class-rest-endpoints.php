@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\IdentityCrisis;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Server;
@@ -56,13 +57,23 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
 				'args'                => array(
 					'redirect_uri' => array(
-						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack' ),
+						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-idc' ),
 						'type'        => 'string',
 					),
 				),
 			)
 		);
 
+		// Fetch URL verification secret.
+		register_rest_route(
+			'jetpack/v4',
+			'/identity-crisis/url-secret',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'fetch_url_secret' ),
+				'permission_callback' => array( static::class, 'url_secret_permission_check' ),
+			)
+		);
 	}
 
 	/**
@@ -85,7 +96,7 @@ class REST_Endpoints {
 
 		return new WP_Error(
 			'error_setting_jetpack_safe_mode',
-			esc_html__( 'Could not confirm safe mode.', 'jetpack' ),
+			esc_html__( 'Could not confirm safe mode.', 'jetpack-idc' ),
 			array( 'status' => 500 )
 		);
 	}
@@ -102,7 +113,7 @@ class REST_Endpoints {
 		if ( Jetpack_Options::get_option( 'sync_error_idc' ) && ! Jetpack_Options::delete_option( 'sync_error_idc' ) ) {
 			return new WP_Error(
 				'error_deleting_sync_error_idc',
-				esc_html__( 'Could not delete sync error option.', 'jetpack' ),
+				esc_html__( 'Could not delete sync error option.', 'jetpack-idc' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -116,7 +127,7 @@ class REST_Endpoints {
 		}
 		return new WP_Error(
 			'error_setting_jetpack_migrate',
-			esc_html__( 'Could not confirm migration.', 'jetpack' ),
+			esc_html__( 'Could not confirm migration.', 'jetpack-idc' ),
 			array( 'status' => 500 )
 		);
 	}
@@ -179,10 +190,48 @@ class REST_Endpoints {
 		$error_msg = esc_html__(
 			'You do not have the correct user permissions to perform this action.
 			Please contact your site admin if you think this is a mistake.',
-			'jetpack'
+			'jetpack-idc'
 		);
 
 		return new WP_Error( 'invalid_user_permission_identity_crisis', $error_msg, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Endpoint for fetching the existing secret.
+	 *
+	 * @return WP_Error|\WP_REST_Response
+	 */
+	public static function fetch_url_secret() {
+		$secret = new URL_Secret();
+
+		if ( ! $secret->exists() ) {
+			return new WP_Error( 'missing_url_secret', esc_html__( 'URL secret does not exist.', 'jetpack-idc' ) );
+		}
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+				'data' => array(
+					'secret'     => $secret->get_secret(),
+					'expires_at' => $secret->get_expires_at(),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Verify url_secret create/fetch permissions (valid blog token authentication).
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function url_secret_permission_check() {
+		return Rest_Authentication::is_signed_with_blog_token()
+			? true
+			: new WP_Error(
+				'invalid_user_permission_identity_crisis',
+				esc_html__( 'You do not have the correct user permissions to perform this action.', 'jetpack-idc' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
 	}
 
 }

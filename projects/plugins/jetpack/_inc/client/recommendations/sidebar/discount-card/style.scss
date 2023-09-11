@@ -1,0 +1,122 @@
+@import 'node_modules/@automattic/jetpack-base-styles/style';
+@import '../../mixin';
+@import '../../../scss/mixins/ui';
+@import '../../../scss/mixin_breakpoint';
+@import '../../../scss/typography';
+
+.jp-recommendations-discount-card {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+
+	height: 100%;
+	padding: 3rem 0;
+
+	@include breakpoint( '<782px' ) {
+		justify-content: center;
+		padding-inline-start: 1rem;
+		padding-inline-end: 1rem;
+	}
+
+	@include breakpoint( '>1040px' ) {
+		justify-content: flex-end;
+		padding-left: 3rem;
+		padding-right: 3rem;
+	}
+
+	&__container {
+		width: 100%;
+		max-width: 360px;
+	}
+
+	&__card {
+		@include card( $borderless: true );
+
+		box-shadow: 0 0 40px rgba( 0, 0, 0, 0.08 );
+	}
+
+	&__card-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+
+		height: 112px;
+		padding: 1rem;
+
+		background-image: url( './header-background.jpg' );
+		background-image: -webkit-image-set(
+			url( './header-background.jpg' ) 1x,
+			url( './header-background-2x.jpg' ) 2x
+		);
+		background-image: image-set(
+			url( './header-background.jpg' ) 1x,
+			url( './header-background-2x.jpg' ) 2x
+		);
+		background-repeat: no-repeat;
+		background-position: center center;
+		background-size: cover;
+		background-color: rgba( 18, 11, 21 );
+		border-top-left-radius: inherit;
+		border-top-right-radius: inherit;
+	}
+
+	&__header-icon {
+		width: 55px;
+	}
+
+	&__card-body {
+		display: flex;
+		flex-direction: column;
+
+		padding: 1.5rem 2rem 2rem;
+	}
+
+	&__heading {
+		margin: 0;
+	}
+
+	&__feature-list {
+		@include features-list;
+	}
+
+	&__disclaimer {
+		margin-top: 0;
+		margin-bottom: 1rem;
+
+		a {
+			white-space: nowrap;
+		}
+	}
+
+	&__button {
+		align-self: center;
+		margin-top: 0.25rem;
+		font-size: $font-body;
+		display: flex;
+		align-items: center;
+
+		.components-external-link__icon {
+			margin-left: 4px;
+		}
+	}
+
+	&__timer {
+		padding: 1.25rem 0.5rem 0.5rem;
+
+		color: var( --jp-gray-60 );
+
+		font-size: $font-body-small;
+		text-align: center;
+	}
+
+	&__time {
+		display: inline-block;
+
+		width: 8rem;
+		margin-inline-start: 0.5rem;
+
+		font-size: 18px;
+		text-align: left;
+		white-space: nowrap;
+	}
+}

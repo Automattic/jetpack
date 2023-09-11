@@ -1,0 +1,14 @@
+.jb-performance-history {
+    margin-top: 3em;
+
+    .components-panel {
+        border-radius: 8px;
+        &__body {
+            border-color: transparent;
+        }
+    }
+
+    &__dummy {
+        position: relative;
+    }
+}

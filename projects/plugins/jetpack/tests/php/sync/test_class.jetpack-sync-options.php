@@ -16,7 +16,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	public function set_up() {
 		parent::set_up();
 
-		$this->options_module = Modules::get_module( "options" );
+		$this->options_module = Modules::get_module( 'options' );
 
 		$this->options_module->set_options_whitelist( array( 'test_option' ) );
 
@@ -41,14 +41,14 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		delete_option( 'test_option' );
 		$this->sender->do_sync();
 		$synced_option_value = $this->server_replica_storage->get_option( 'test_option' );
-		$this->assertEquals( false, $synced_option_value );
+		$this->assertFalse( $synced_option_value );
 	}
 
 	public function test_don_t_sync_option_if_not_on_whitelist() {
 		add_option( 'don_t_sync_test_option', 'foo' );
 		$this->sender->do_sync();
 		$synced_option_value = $this->server_replica_storage->get_option( 'don_t_sync_test_option' );
-		$this->assertEquals( false, $synced_option_value );
+		$this->assertFalse( $synced_option_value );
 	}
 
 	public function test_sync_options_that_use_filter() {
@@ -57,7 +57,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		update_option( 'foo_option_bar', '123' );
 		$this->sender->do_sync();
 
-		$this->assertEquals( '123', $this->server_replica_storage->get_option( 'foo_option_bar' ) );
+		$this->assertSame( '123', $this->server_replica_storage->get_option( 'foo_option_bar' ) );
 	}
 
 	public function test_sync_default_options() {
@@ -81,6 +81,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'subscription_options'                         => 'pineapple',
 			'stb_enabled'                                  => true,
 			'stc_enabled'                                  => false,
+			'sm_enabled'                                   => false,
 			'comment_registration'                         => 'pineapple',
 			'show_avatars'                                 => 'pineapple',
 			'avatar_default'                               => 'pineapple',
@@ -91,7 +92,10 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'gmt_offset'                                   => 1,
 			'timezone_string'                              => 'America/Anchorage',
 			'jetpack_sync_non_public_post_stati'           => 'pineapple',
-			'jetpack_options'                              => array( 'food' => 'pineapple' ),
+			'jetpack_options'                              => array(
+				'food' => 'pineapple',
+				'id'   => 1234,
+			),
 			'site_icon'                                    => '1',
 			'default_post_format'                          => 'pineapple',
 			'default_category'                             => 0,
@@ -211,15 +215,29 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'site_vertical'                                => 'pineapple',
 			'jetpack_excluded_extensions'                  => 'pineapple',
 			'jetpack-memberships-connected-account-id'     => '340',
+			'jetpack-memberships-has-connected-account'    => true,
 			'jetpack_publicize_options'                    => array(),
 			'jetpack_connection_active_plugins'            => array( 'jetpack' ),
+			'jetpack_social_settings'                      => array( 'image' => true ),
 			'jetpack_sync_non_blocking'                    => false,
+			'jetpack_sync_settings_dedicated_sync_enabled' => false,
+			'jetpack_sync_settings_custom_queue_table_enabled' => false,
 			'jetpack_sync_settings_comment_meta_whitelist' => array( 'jetpack', 'pineapple' ),
 			'jetpack_sync_settings_post_meta_whitelist'    => array( 'jetpack', 'pineapple' ),
 			'jetpack_sync_settings_post_types_blacklist'   => array( 'jetpack', 'pineapple' ),
 			'jetpack_sync_settings_taxonomies_blacklist'   => array( 'jetpack', 'pineapple' ),
 			'ce4wp_referred_by'                            => array(),
 			'wpcom_is_fse_activated'                       => '1',
+			'videopress_private_enabled_for_site'          => false,
+			'wpcom_featured_image_in_email'                => false,
+			'wpcom_newsletter_categories_enabled'          => false,
+			'wpcom_gifting_subscription'                   => true,
+			'launch-status'                                => 'unlaunched',
+			'wpcom_subscription_emails_use_excerpt'        => false,
+			'launchpad_checklist_tasks_statuses'           => array(),
+			'launchpad_screen'                             => 'full',
+			'wpcom_reader_views_enabled'                   => true,
+			'wpcom_site_setup'                             => '',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
@@ -243,7 +261,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$unique_whitelist = array_unique( $whitelist );
 
 		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) );
-		$this->assertTrue( empty( $whitelist_and_option_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
+		$this->assertEmpty( $whitelist_and_option_keys_difference, 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
 	}
 
 	public function test_sync_default_contentless_options() {
@@ -276,14 +294,14 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			count( $contentless_options ),
 			'The duplicate keys are: ' . print_r( array_diff_key( $contentless_options, array_unique( $contentless_options ) ), 1 )
 		);
-		$this->assertTrue(
-			empty( $contentless_options_difference ),
+		$this->assertEmpty(
+			$contentless_options_difference,
 			'Some contentless options don\'t have a test: ' . print_r( $contentless_options_difference, 1 )
 		);
 	}
 
-	function assertOptionIsSynced( $option_name, $value ) {
-		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option ' . $option_name . ' did\'t have the extected value of ' . json_encode( $value ) );
+	public function assertOptionIsSynced( $option_name, $value ) {
+		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option ' . $option_name . ' didn\'t have the expected value of ' . wp_json_encode( $value ) );
 	}
 
 	public function add_jetpack_options_whitelist_filter( $options ) {

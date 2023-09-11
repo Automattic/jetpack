@@ -15,17 +15,23 @@ runs:
         INPUT_NODE: ${{ inputs.node }}
         INPUT_PHP: ${{ inputs.php }}
       run: |
+        # Read tool versions
         . .github/versions.sh
+
+        if [[ "${INPUT_PHP:-$PHP_VERSION}" == 5.6 || "${INPUT_PHP:-$PHP_VERSION}" == 7.[01] ]]; then
+          printf "Downgrading composer for PHP %s\n\n" "${INPUT_PHP:-$PHP_VERSION}"
+          COMPOSER_VERSION=2.2.12
+        fi
 
         printf "\n\e[1mSelected tool versions\e[0m\n"
         echo " PHP: ${INPUT_PHP:-$PHP_VERSION}"
-        echo "::set-output name=php-version::${INPUT_PHP:-$PHP_VERSION}"
+        echo "php-version=${INPUT_PHP:-$PHP_VERSION}" >> "$GITHUB_OUTPUT"
         echo " Composer: $COMPOSER_VERSION"
-        echo "::set-output name=composer-version::$COMPOSER_VERSION"
+        echo "composer-version=$COMPOSER_VERSION" >> "$GITHUB_OUTPUT"
         echo " Node: ${INPUT_NODE:-$NODE_VERSION}"
-        echo "::set-output name=node-version::${INPUT_NODE:-$NODE_VERSION}"
+        echo "node-version=${INPUT_NODE:-$NODE_VERSION}" >> "$GITHUB_OUTPUT"
         echo " Pnpm: $PNPM_VERSION"
-        echo "::set-output name=pnpm-version::$PNPM_VERSION"
+        echo "pnpm-version=$PNPM_VERSION" >> "$GITHUB_OUTPUT"
 
     - name: Remove disabled tools
       shell: bash
@@ -34,10 +40,10 @@ runs:
         PHP: ${{ steps.versions.outputs.php-version }}
         NODE: ${{ steps.versions.outputs.node-version }}
       run: |
-        printf "\n\e[1mRemoving installed versions of disabled tools\e[0m\n"
+        # Remove disabled tools
         torm=()
         if [[ "$PHP" == "false" ]]; then
-          torm+=( php phpdbg composer )
+          torm+=( php composer )
         fi
         if [[ "$NODE" == "false" ]]; then
           torm+=( node npm pnpm )
@@ -48,9 +54,6 @@ runs:
           done
         done
 
-    - run: printf "\n\e[1mSetup PHP\e[0m\n"
-      shell: bash
-      if: steps.versions.outputs.php-version != 'false'
     - name: Setup PHP
       if: steps.versions.outputs.php-version != 'false'
       uses: shivammathur/setup-php@v2
@@ -61,53 +64,71 @@ runs:
         extensions: mysql, imagick
         coverage: none
 
-    - run: printf "\n\e[1mSetup Node\e[0m\n"
-      shell: bash
-      if: steps.versions.outputs.node-version != 'false'
-    - name: Setup Node
-      if: steps.versions.outputs.node-version != 'false'
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ steps.versions.outputs.node-version }}
-
-    - run: printf "\n\e[1mSetup Composer cache\e[0m\n"
-      shell: bash
+    - name: Configure composer
       if: steps.versions.outputs.php-version != 'false'
+      shell: bash
+      run: |
+        composer config --global github-protocols https
+        composer config --global use-github-api false
+
     - name: Get Composer cache directory
       if: steps.versions.outputs.php-version != 'false'
       id: composer-cache
       shell: bash
       run: |
-        echo "::set-output name=dir::$(composer config cache-files-dir)"
+        # Get Composer cache directory
+        echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
     - name: Use composer cache
       if: steps.versions.outputs.php-version != 'false'
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-composer-
 
-    - run: printf "\n\e[1mSetup pnpm\e[0m\n"
-      shell: bash
-      if: steps.versions.outputs.node-version != 'false'
-    - name: Use pnpm cache
-      if: steps.versions.outputs.node-version != 'false'
-      uses: actions/cache@v2
-      with:
-        path: ~/.pnpm-store
-        key: ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-${{ hashFiles('**/package.json') }}
-        restore-keys: |
-          ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
     - name: Setup pnpm
       if: steps.versions.outputs.node-version != 'false'
-      uses: pnpm/action-setup@v2.0.1
+      uses: pnpm/action-setup@v2.2.4
       with:
         version: ${{ steps.versions.outputs.pnpm-version }}
+    - name: Setup Node
+      if: steps.versions.outputs.node-version != 'false'
+      uses: actions/setup-node@v3
+      with:
+        # Prefix the version with a caret as otherwise actions/setup-node will waste API calls finding where to download the exact version.
+        node-version: ^${{ steps.versions.outputs.node-version }}
+        cache: pnpm
+
+    - name: Configure composer 304-short-circuiting proxy
+      if: steps.versions.outputs.php-version != 'false' && steps.versions.outputs.node-version != 'false'
+      shell: bash
+      run: |
+        # Generate a self-signeed cert for the proxy
+        openssl req -new -newkey rsa:2048 -sha256 -days 1 -nodes -x509 -subj "/CN=localhost" -keyout "$HOME/cert.key" -out "$HOME/cert.crt"
+
+        # Start the proxy
+        nohup "$GITHUB_ACTION_PATH"/packagist-proxy.mjs "$HOME/cert.key" "$HOME/cert.crt" &> "$HOME/proxy.log" &
+        disown $!
+
+        # Configure the plugin via env
+        export JP_304_PLUGIN_CERT=$HOME/cert.crt
+        echo "JP_304_PLUGIN_CERT=$JP_304_PLUGIN_CERT" >> "$GITHUB_ENV"
+
+        # Install the plugin globally
+        composer global config repositories.304-proxy-package path "$GITHUB_ACTION_PATH/composer-plugin"
+        composer global config --no-interaction allow-plugins.automattic/composer-304-plugin true
+        composer global require automattic/composer-304-plugin=@dev
+
+    - name: Dump proxy log post-run
+      if: steps.versions.outputs.php-version != 'false' && steps.versions.outputs.node-version != 'false'
+      # Alas we have to use a JS sub-action to have a "post" step. Composite actions can't do it.
+      uses: ./.github/actions/tool-setup/post-run-action
 
     - name: Tool versions
       shell: bash
       run: |
+        # Tool versions
         function docmd {
           if [[ -z "$(command -v $1)" ]]; then
             echo "$1 is not available"
@@ -119,7 +140,6 @@ runs:
 
         printf "\n\e[1mInstalled tool versions\e[0m\n"
         docmd php --version
-        docmd phpdbg --version
         docmd composer --version
         docmd node --version
         docmd pnpm --version

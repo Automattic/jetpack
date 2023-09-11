@@ -3,16 +3,26 @@
 	"description": "Jetpack Coding Standards. Based on the WordPress Coding Standards, with some additions.",
 	"type": "phpcodesniffer-standard",
 	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"phpcs",
+		"codesniffer",
+		"standards",
+		"jetpack",
+		"dev",
+		"testing"
+	],
 	"require": {
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-		"mediawiki/mediawiki-codesniffer": "^38.0",
+		"mediawiki/mediawiki-codesniffer": "^41.0",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"sirbrillig/phpcs-variable-analysis": "^2.10",
-		"wp-coding-standards/wpcs": "^2.3"
+		"wp-coding-standards/wpcs": "^2.3",
+		"automattic/vipwpcs": "^2.3"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.2",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "@dev",
+		"wp-coding-standards/wpcs": "2023-01-04 as 2.3.1",
+		"yoast/phpunit-polyfills": "1.1.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -26,12 +36,11 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"test-coverage": [
-			"@composer update",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		"skip-test-php": [
+			"./tests/action-skip-test-php.sh"
 		],
 		"test-php": [
-			"./tests/action-test-php.sh"
+			"@composer phpunit"
 		]
 	},
 	"repositories": [
@@ -41,6 +50,10 @@
 			"options": {
 				"monorepo": true
 			}
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/Automattic/WordPress-Coding-Standards"
 		}
 	],
 	"minimum-stability": "dev",
@@ -52,7 +65,12 @@
 			"link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "2.3.x-dev"
+			"dev-trunk": "2.9.x-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
 		}
 	}
 }

@@ -1,0 +1,34 @@
+.container {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	background-color: var( --jp-gray-0 );
+	margin-bottom: 8px;
+	width: 100%;
+	min-height: 130px;
+	max-height: 250px;
+	aspect-ratio: 1200 / 630; // SIG image aspect-ratio
+
+	> * {
+		justify-self: center;
+	}
+
+	> svg {
+		position: absolute;
+		align-self: center;
+		margin: 0;
+	}
+
+	img {
+		max-height: 100%;
+		max-width: 100%;
+		width: auto;
+		height: auto;
+		object-fit: contain;
+	}
+}
+
+.hidden {
+	display: none;
+}
+

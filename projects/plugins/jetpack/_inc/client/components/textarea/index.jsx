@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import classnames from 'classnames';
 import { omit } from 'lodash';
+import React from 'react';
 
-/**
- * Internal dependencies
- */
 import './style.scss';
 
 export default class Textarea extends React.Component {

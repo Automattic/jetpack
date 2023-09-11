@@ -66,7 +66,7 @@ abstract class Base_Admin_Menu {
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
-		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || isset( $_SERVER['REQUEST_URI'] ) && 0 === strpos( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
 		$this->domain         = ( new Status() )->get_site_suffix();
 
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
@@ -76,9 +76,11 @@ abstract class Base_Admin_Menu {
 			add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
 			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
-			add_filter( 'screen_settings', array( $this, 'register_dashboard_switcher' ), 99999 );
+			add_action( 'in_admin_header', array( $this, 'add_dashboard_switcher' ) );
+			add_action( 'admin_footer', array( $this, 'dashboard_switcher_scripts' ) );
 			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
 			add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
+			add_action( 'adminmenu', array( $this, 'inject_core_mobile_toggle' ) );
 		}
 	}
 
@@ -246,14 +248,8 @@ abstract class Base_Admin_Menu {
 	 * Enqueues scripts and styles.
 	 */
 	public function enqueue_scripts() {
-		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
-
 		if ( $this->is_rtl() ) {
-			if ( $is_wpcom ) {
-				$css_path = 'rtl/admin-menu-rtl.css';
-			} else {
-				$css_path = 'admin-menu-rtl.css';
-			}
+			$css_path = 'admin-menu-rtl.css';
 		} else {
 			$css_path = 'admin-menu.css';
 		}
@@ -279,7 +275,10 @@ abstract class Base_Admin_Menu {
 		wp_localize_script(
 			'jetpack-admin-menu',
 			'jetpackAdminMenu',
-			array( 'jitmDismissNonce' => wp_create_nonce( 'jitm_dismiss' ) )
+			array(
+				'upsellNudgeJitm'  => wp_create_nonce( 'upsell_nudge_jitm' ),
+				'jitmDismissNonce' => wp_create_nonce( 'jitm_dismiss' ),
+			)
 		);
 	}
 
@@ -425,7 +424,7 @@ abstract class Base_Admin_Menu {
 			// Menu items that don't have icons, for example separators, have less than 7
 			// elements, partly because the 7th is the icon. So, if we have less than 7,
 			// let's skip it.
-			if ( count( $menu_item ) < 7 ) {
+			if ( ! is_countable( $menu_item ) || ( count( $menu_item ) < 7 ) ) {
 				continue;
 			}
 
@@ -445,7 +444,7 @@ abstract class Base_Admin_Menu {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$menu[ $idx ] = $menu_item;
 		}
-		if ( count( $svg_items ) > 0 ) {
+		if ( $svg_items !== array() ) {
 			$styles = '.menu-svg-icon .wp-menu-image { background-repeat: no-repeat; background-position: center center } ';
 			foreach ( $svg_items as $svg_item ) {
 				$styles .= sprintf( '#%s .wp-menu-image { background-image: url( "%s" ) }', $svg_item['id'], $svg_item['icon'] );
@@ -544,6 +543,65 @@ abstract class Base_Admin_Menu {
 	}
 
 	/**
+	 * Adds a dashboard switcher to the list of screen meta links of the current page.
+	 */
+	public function add_dashboard_switcher() {
+		$menu_mappings = require __DIR__ . '/menu-mappings.php';
+		$screen        = $this->get_current_screen();
+
+		// Let's show the switcher only in screens that we have a Calypso mapping to switch to.
+		if ( empty( $menu_mappings[ $screen ] ) ) {
+			return;
+		}
+		?>
+		<div id="view-link-wrap" class="hide-if-no-js screen-meta-toggle">
+			<button type="button" id="view-link" class="button show-settings" aria-expanded="false"><?php echo esc_html_x( 'View', 'View options to switch between', 'jetpack' ); ?></button>
+		</div>
+		<div id="view-wrap" class="screen-options-tab__wrapper hide-if-no-js hidden" tabindex="-1">
+			<div class="screen-options-tab__dropdown" data-testid="screen-options-dropdown">
+				<div class="screen-switcher">
+					<a class="screen-switcher__button" href="<?php echo esc_url( add_query_arg( 'preferred-view', 'default' ) ); ?>" data-view="default">
+						<strong><?php esc_html_e( 'Default view', 'jetpack' ); ?></strong>
+						<?php esc_html_e( 'Our WordPress.com redesign for a better experience.', 'jetpack' ); ?>
+					</a>
+					<button class="screen-switcher__button"  data-view="classic">
+						<strong><?php esc_html_e( 'Classic view', 'jetpack' ); ?></strong>
+						<?php esc_html_e( 'The classic WP-Admin WordPress interface.', 'jetpack' ); ?>
+					</button>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Adds a script to append the dashboard switcher to screen meta
+	 */
+	public function dashboard_switcher_scripts() {
+		wp_add_inline_script(
+			'common',
+			"(function( $ ) {
+				$( '#view-link-wrap' ).appendTo( '#screen-meta-links' );
+
+				var viewLink = $( '#view-link' );
+				var viewWrap = $( '#view-wrap' );
+
+				viewLink.on( 'click', function() {
+					viewWrap.toggle();
+					viewLink.toggleClass( 'screen-meta-active' );
+				} );
+
+				$( document ).on( 'mouseup', function( event ) {
+					if ( ! viewLink.is( event.target ) && ! viewWrap.is( event.target ) && viewWrap.has( event.target ).length === 0 ) {
+						viewWrap.hide();
+						viewLink.removeClass( 'screen-meta-active' );
+					}
+				});
+			})( jQuery );"
+		);
+	}
+
+	/**
 	 * Sets the given view as preferred for the givens screen.
 	 *
 	 * @param string $screen Screen identifier.
@@ -551,6 +609,7 @@ abstract class Base_Admin_Menu {
 	 */
 	public function set_preferred_view( $screen, $view ) {
 		$preferred_views            = $this->get_preferred_views();
+		$screen                     = str_replace( '?post_type=post', '', $screen );
 		$preferred_views[ $screen ] = $view;
 		update_user_option( get_current_user_id(), 'jetpack_admin_menu_preferred_views', $preferred_views );
 	}
@@ -600,17 +659,17 @@ abstract class Base_Admin_Menu {
 	public function get_current_screen() {
 		// phpcs:disable WordPress.Security.NonceVerification
 		global $pagenow;
-		$screen = isset( $_REQUEST['screen'] ) ? $_REQUEST['screen'] : $pagenow;
+		$screen = isset( $_REQUEST['screen'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['screen'] ) ) : $pagenow;
 		if ( isset( $_GET['post_type'] ) ) {
-			$screen = add_query_arg( 'post_type', $_GET['post_type'], $screen );
+			$screen = add_query_arg( 'post_type', sanitize_text_field( wp_unslash( $_GET['post_type'] ) ), $screen );
 		}
 		if ( isset( $_GET['taxonomy'] ) ) {
-			$screen = add_query_arg( 'taxonomy', $_GET['taxonomy'], $screen );
+			$screen = add_query_arg( 'taxonomy', sanitize_text_field( wp_unslash( $_GET['taxonomy'] ) ), $screen );
 		}
 		if ( isset( $_GET['page'] ) ) {
-			$screen = add_query_arg( 'page', $_GET['page'], $screen );
+			$screen = add_query_arg( 'page', sanitize_text_field( wp_unslash( $_GET['page'] ) ), $screen );
 		}
-		return sanitize_text_field( wp_unslash( $screen ) );
+		return $screen;
 		// phpcs:enable WordPress.Security.NonceVerification
 	}
 
@@ -624,7 +683,7 @@ abstract class Base_Admin_Menu {
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification
-		$preferred_view = $_GET['preferred-view'];
+		$preferred_view = sanitize_key( $_GET['preferred-view'] );
 
 		if ( ! in_array( $preferred_view, array( self::DEFAULT_VIEW, self::CLASSIC_VIEW ), true ) ) {
 			return;
@@ -685,6 +744,17 @@ abstract class Base_Admin_Menu {
 	 */
 	public function should_link_to_wp_admin() {
 		return get_user_option( 'jetpack_admin_menu_link_destination' );
+	}
+
+	/**
+	 * Injects the core's mobile toggle for proper positioning of the submenus.
+	 *
+	 * @see https://core.trac.wordpress.org/ticket/32747
+	 *
+	 * @return void
+	 */
+	public function inject_core_mobile_toggle() {
+		echo '<span id="wp-admin-bar-menu-toggle" style="display: none!important">';
 	}
 
 	/**

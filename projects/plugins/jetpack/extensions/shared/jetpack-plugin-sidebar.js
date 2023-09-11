@@ -1,19 +1,13 @@
-/**
- * External dependencies
- */
 import { createSlotFill } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
-import { PluginSidebar, PluginSidebarMoreMenuItem } from '@wordpress/edit-post';
-import { registerPlugin } from '@wordpress/plugins';
 import { dispatch } from '@wordpress/data';
-import { getQueryArg } from '@wordpress/url';
 import domReady from '@wordpress/dom-ready';
-
-/**
- * Internal dependencies
- */
-import './jetpack-plugin-sidebar.scss';
+import { PluginSidebar, PluginSidebarMoreMenuItem } from '@wordpress/edit-post';
+import { Fragment } from '@wordpress/element';
+import { registerPlugin } from '@wordpress/plugins';
+import { getQueryArg } from '@wordpress/url';
 import { JetpackLogo } from './icons';
+
+import './jetpack-plugin-sidebar.scss';
 
 const { Fill, Slot } = createSlotFill( 'JetpackPluginSidebar' );
 

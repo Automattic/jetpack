@@ -7,31 +7,37 @@
 	<!-- Default ruleset. -->
 	<rule ref="Jetpack" />
 
-	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
-		<!-- Template files use extracted variables. -->
-		<exclude-pattern>/projects/plugins/jetpack/extensions/blocks/podcast-player/templates/*</exclude-pattern>
-	</rule>
-
-<!-- Can't be more specific pending the request https://github.com/WordPress/WordPress-Coding-Standards/issues/1650. -->
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<!-- Core Jetpack -->
-				<element value="jetpack"/>
-				<!-- Jetpack Beta plugin -->
-				<element value="jetpack-beta"/>
-				<!-- Jetpack Standalone Plugins -->
-				<element value="jetpack-backup"/>
-				<element value="jetpack-boost"/>
-				<element value="jetpack-search"/>
+				<!-- Dummy entry, projects should override this in .phpcs.dir.xml. -->
+				<element value="no text domain is set in this in this project's .phpcs.dir.xml"/>
 			</property>
 		</properties>
 	</rule>
-
-	<rule ref="WordPress.Utils.I18nTextDomainFixer">
+	<rule ref="Jetpack.Functions.I18n">
 		<properties>
-			<property name="old_text_domain" type="array" />
-			<property name="new_text_domain" value="jetpack" />
+			<property name="text_domain" value="no text domain is set in this in this project's .phpcs.dir.xml" />
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="jetpack_activate_modules" />
+				<element value="jetpack_admin_page" />
+				<element value="jetpack_configure_modules" />
+				<element value="jetpack_connect" />
+				<element value="jetpack_connect_user" />
+				<element value="jetpack_deactivate_modules" />
+				<element value="jetpack_disconnect" />
+				<element value="jetpack_manage_modules" />
+				<element value="jetpack_network_admin_page" />
+				<element value="jetpack_network_settings_page" />
+				<element value="jetpack_network_sites_page" />
+				<element value="jetpack_reconnect" />
+				<element value="view_stats" />
+			</property>
 		</properties>
 	</rule>
 

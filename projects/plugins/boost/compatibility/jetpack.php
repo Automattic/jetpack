@@ -7,6 +7,11 @@
 
 namespace Automattic\Jetpack_Boost\Compatibility\Jetpack;
 
+require_once __DIR__ . '/lib/class-sync-jetpack-module-status.php';
+
+( new Sync_Jetpack_Module_Status( 'lazy_images', 'lazy-images' ) )->init();
+( new Sync_Jetpack_Module_Status( 'image_cdn', 'photon' ) )->init();
+
 /**
  * Exclude Jetpack likes scripts from deferred JS. They are already in the footer,
  * and are sensitive to having their order changed relative to their companion iframe.

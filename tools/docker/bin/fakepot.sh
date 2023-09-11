@@ -45,24 +45,35 @@ trap "do_cleanup" EXIT INT TERM
 
 # This should match similar logic in .github/files/build-all-projects.sh
 info "Copying build files for plugin"
-OLDDIR="$(pwd)";
-cd "$PLUGIN_DIR"
-mkdir "$TMPDIR/plugin"
-{
-	# Include unignored files by default.
-	git -c core.quotepath=off ls-files
-	# Include ignored files that are tagged as production-include.
-	git -c core.quotepath=off ls-files --others --ignored --exclude-standard | git -c core.quotepath=off check-attr --stdin production-include | sed -n 's/: production-include: \(unspecified\|unset\)$//;t;s/: production-include: .*//p'
-} |
-	# Remove all files tagged with production-exclude. This can override production-include.
-	git -c core.quotepath=off check-attr --stdin production-exclude | sed -n 's/: production-exclude: \(unspecified\|unset\)$//p' |
-	# Copy the resulting list of files into the clone.
-	xargs cp -d --parents --target-directory="$TMPDIR/plugin"
-cd "$OLDDIR"
+function docopy {
+	local SRC="$1"
+	local DEST="${2%/}"
+
+	local OLDDIR="$(pwd)";
+	cd "$SRC"
+	mkdir "$DEST"
+	{
+		# Include unignored files by default.
+		git -c core.quotepath=off ls-files
+		# Include ignored files that are tagged as production-include.
+		git -c core.quotepath=off ls-files --others --ignored --exclude-standard | git -c core.quotepath=off check-attr --stdin production-include | sed -n 's/: production-include: \(unspecified\|unset\)$//;t;s/: production-include: .*//p'
+	} |
+		# Remove all files tagged with production-exclude. This can override production-include.
+		git -c core.quotepath=off check-attr --stdin production-exclude | sed -n 's/: production-exclude: \(unspecified\|unset\)$//p' |
+		# Copy the resulting list of files into the clone.
+		xargs cp -d --parents --target-directory="$DEST"
+
+	# Fix any copied symlinks by removing them then docopy-ing from the target.
+	local L T
+	find "$DEST" -type l | while IFS= read -r L; do T="$(realpath "${L#$DEST/}")"; rm "$L"; docopy "$T" "$L"; done
+
+	cd "$OLDDIR"
+}
+docopy "$PLUGIN_DIR" "$TMPDIR/plugin"
 
 info "Creating POT file"
 mkdir "$TMPDIR/pot"
-php -d memory_limit=2G $(command -v wp) --allow-root --debug i18n make-pot "$TMPDIR/plugin/" "$TMPDIR/pot/$DOMAIN.pot"
+php -d memory_limit=2G $(command -v wp) --allow-root --debug i18n make-pot --slug="$DOMAIN" --ignore-domain "$TMPDIR/plugin/" "$TMPDIR/pot/$DOMAIN.pot"
 
 info "Making translations"
 cat <<EOF > "$TMPDIR/pot/en_piglatin.po"

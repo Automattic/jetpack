@@ -10,6 +10,8 @@
 
 namespace Automattic\Jetpack\Jetpack_Boost;
 
+use Automattic\Jetpack\Plugins_Installer;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -17,8 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 const PLUGIN_SLUG = 'jetpack-boost';
 const PLUGIN_FILE = 'jetpack-boost/jetpack-boost.php';
 
-add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
-add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
+if ( isset( $_GET['jetpack-boost-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
+}
+
+if ( isset( $_GET['jetpack-boost-action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
+}
 
 /**
  * Verify the intent to install Jetpack Boost, and kick off installation.
@@ -67,8 +74,7 @@ function try_install() {
  * @return bool result of installation
  */
 function install_and_activate() {
-	jetpack_require_lib( 'plugins' );
-	$result = \Jetpack_Plugins::install_and_activate_plugin( PLUGIN_SLUG );
+	$result = Plugins_Installer::install_and_activate_plugin( PLUGIN_SLUG );
 
 	if ( is_wp_error( $result ) ) {
 		return false;
@@ -86,7 +92,7 @@ function activate() {
 	$result = activate_plugin( PLUGIN_FILE );
 
 	// Activate_plugin() returns null on success.
-	return is_null( $result );
+	return $result === null;
 }
 
 /**

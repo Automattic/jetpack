@@ -2,8 +2,8 @@
 
 use Automattic\Jetpack\Constants;
 
-require_jetpack_file( 'class.json-api.php' );
-require_jetpack_file( 'class.json-api-endpoints.php' );
+require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
+require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 	private static $super_admin_user_id;
@@ -80,7 +80,6 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 			mkdir( $the_real_folder );
 			$clean = true;
 		}
-// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 		file_put_contents(
 			$the_real_file,
 			'<?php
@@ -154,7 +153,6 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 			$clean = true;
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 		file_put_contents(
 			$the_real_file,
 			'<?php
@@ -181,7 +179,6 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 		}
 
 		$this->assertTrue( is_wp_error( $result ) );
-
 	}
 
 	/**
@@ -238,7 +235,6 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 			$clean = true;
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 		file_put_contents(
 			$the_real_file,
 			'<?php
@@ -265,7 +261,6 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 		}
 
 		$this->assertTrue( $result );
-
 	}
 
 	/**
@@ -333,11 +328,11 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 		$this->rmdir( $the_real_folder );
 	}
 
-	function filesystem_method_direct( $method ) {
+	public function filesystem_method_direct() {
 		return 'direct';
 	}
 
-	function rmdir( $dir ) {
+	public function rmdir( $dir ) {
 		foreach ( scandir( $dir ) as $file ) {
 			if ( is_dir( $file ) ) {
 				continue;

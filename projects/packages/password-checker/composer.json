@@ -5,9 +5,12 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.0",
+		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "@dev",
-		"yoast/phpunit-polyfills": "1.0.2"
+		"yoast/phpunit-polyfills": "1.1.0"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
@@ -18,15 +21,11 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"test-coverage": [
-			"@composer update",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-		],
 		"test-php": [
-			"@composer update",
 			"@composer phpunit"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
 	"repositories": [
 		{
@@ -42,11 +41,17 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-password-checker",
+		"textdomain": "jetpack-password-checker",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-password-checker/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.1.x-dev"
+			"dev-trunk": "0.2.x-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
 		}
 	}
 }

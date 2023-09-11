@@ -1,0 +1,117 @@
+@import "@automattic/typography/styles/fonts";
+
+:global {
+	#wpcom-migration-root {
+		.jp-connection__connect-screen-layout ol.migration-listing {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
+
+		.jp-connection__connect-screen-layout {
+		  	min-height: calc(100vh - 150px);
+		}
+
+	  	.jp-connection__connect-screen-layout__left {
+			padding: 64px;
+			
+			@media ( max-width: 450px ) {
+				padding: 24px
+			}
+		}
+
+	  	.jp-connection__connect-screen-layout__right {
+		  	position: relative;
+		  	background: transparent;
+		  	padding: 0;
+
+		  	.jp-connection__connect-screen__image-slider {
+			  	display: flex;
+			  	height: 100%;
+			  	align-items: center;
+			  	padding: 50px;
+
+				&::before {
+					content: '';
+					display: block;
+					position: absolute;
+					top: 0;
+					right: 0;
+					bottom: 0;
+					width: 60%;
+					background: #E9EFF5;
+				}
+			}
+
+		  	.jp-connection__connect-screen__image-slider img {
+			  position: relative;
+			}
+		}
+	}
+
+	.wordpress-branding {
+	  	h2 {
+			font-family: Recoleta, "Noto Serif", Georgia, "Times New Roman", Times, serif;
+		  	font-weight: normal !important;
+		}
+
+		p {
+			font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+			margin: 24px 0 !important;
+		}
+
+		.get-started-help {
+		  	font-size: 14px;
+			color: var( --jp-gray-50 );
+			margin-top: 12px !important;
+			margin-bottom: 0 !important;
+
+		  	.components-button {
+			  	color: var( --jp-gray-50 );
+			}
+		}
+
+	  	.action-buttons {
+			margin-top: 64px;
+
+		  	.tos {
+			  	margin-bottom: 12px;
+			}
+
+		  	.components-button {
+				font-size: 16px;
+				height: 36px;
+				padding: 20px;
+				min-width: 146px;
+				margin-right: 16px;
+				margin-bottom: 12px;
+				justify-content: center;
+				border-radius: 4px;
+
+				svg {
+					fill: #fff;
+				}
+
+				&:last-child {
+				  margin-right: 0;
+				}
+
+				&.is-secondary {
+					box-shadow: inset 0 0 0 1px var( --jp-gray-10 );
+					font-size: 14px;
+					text-decoration: none;
+					color: var( --jp-gray-100 );
+
+					&:focus {
+						box-shadow: inset 0 0 0 1px var( --jp-gray-10 ) !important;
+					}
+				}
+			}
+
+		  	.components-notice {
+				margin-top: 20px;
+			  	margin-left: 0;
+			}
+		}
+	}
+}

@@ -56,16 +56,16 @@ function l( $stuff = null ) {
 	if ( ! isset( $pageload ) ) {
 		$pageload = substr( md5( wp_rand() ), 0, 4 );
 		if ( ! empty( $_SERVER['argv'] ) ) {
-			$hint = implode( ' ', $_SERVER['argv'] );
+			$hint = implode( ' ', array_map( 'filter_var', wp_unslash( $_SERVER['argv'] ) ) );
 		} elseif ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
-			$hint = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			$hint = filter_var( wp_unslash( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) );
 		} else {
 			$hint = php_sapi_name();
 		}
 		error_log( sprintf( '[%s-%s => %s]', $pageload, getmypid(), $hint ) );
 	}
 	$pid = $pageload . '-' . getmypid();
-	if ( is_null( $stuff ) ) {
+	if ( $stuff === null ) {
 		// Log the file and line number.
 		$backtrace = debug_backtrace( false ); // phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
 		while ( isset( $backtrace[1]['function'] ) && __FUNCTION__ === $backtrace[1]['function'] ) {

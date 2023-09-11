@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 
 /**
  * Instagram connections helper API.
@@ -26,12 +27,12 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 			$this->is_wpcom = true;
 
 			if ( ! class_exists( 'WPCOM_Instagram_Gallery_Helper' ) ) {
-				\jetpack_require_lib( 'instagram-gallery-helper' );
+				\require_lib( 'instagram-gallery-helper' );
 			}
 		}
 
 		if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) ) {
-			\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
+			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-instagram-gallery-helper.php';
 		}
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
@@ -67,16 +68,21 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 			array(
 				'args'                => array(
 					'access_token' => array(
-						'description' => __( 'An Instagram Keyring access token.', 'jetpack' ),
-						'type'        => 'string',
-						'required'    => true,
+						'description'       => __( 'An Instagram Keyring access token.', 'jetpack' ),
+						'type'              => 'integer',
+						'required'          => true,
+						'minimum'           => 1,
+						'validate_callback' => function ( $param ) {
+							return is_numeric( $param ) && (int) $param > 0;
+						},
 					),
 					'count'        => array(
 						'description'       => __( 'How many Instagram posts?', 'jetpack' ),
-						'type'              => 'int',
+						'type'              => 'integer',
 						'required'          => true,
+						'minimum'           => 1,
 						'validate_callback' => function ( $param ) {
-							return is_numeric( $param );
+							return is_numeric( $param ) && (int) $param > 0;
 						},
 					),
 				),
@@ -97,7 +103,7 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 			return WPCOM_Instagram_Gallery_Helper::get_connect_url();
 		}
 
-		$site_id = Jetpack_Instagram_Gallery_Helper::get_site_id();
+		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
 		}

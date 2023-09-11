@@ -57,7 +57,12 @@ class Test_Status extends TestCase {
 		Monkey\setUp();
 
 		// Set defaults for Core functionality.
-		Functions\when( 'site_url' )->justReturn( $this->site_url );
+		Functions\when( 'get_current_blog_id' )->justReturn( 1 );
+		Functions\expect( 'site_url' )->atMost()->once()->andReturnUsing(
+			function () {
+				return $this->site_url;
+			}
+		);
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'production' );
 		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
 		Functions\expect( 'defined' )->andReturnUsing(
@@ -71,6 +76,7 @@ class Test_Status extends TestCase {
 			}
 		);
 
+		Status\Cache::clear();
 		$this->status_obj = new Status();
 	}
 
@@ -81,6 +87,7 @@ class Test_Status extends TestCase {
 	 */
 	public function tear_down() {
 		Monkey\tearDown();
+		Status\Cache::clear();
 	}
 
 	/**
@@ -122,7 +129,7 @@ class Test_Status extends TestCase {
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_localhost() {
-		Functions\when( 'site_url' )->justReturn( 'localhost' );
+		$this->site_url = 'localhost';
 
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( true )->andReturn( true );
 
@@ -301,7 +308,7 @@ class Test_Status extends TestCase {
 	protected function mock_wpdb_get_var( $return_value = null ) {
 		global $wpdb;
 
-		$wpdb = $this->getMockBuilder( 'Mock_wpdb' ) // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wpdb = $this->getMockBuilder( \stdClass::class ) // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 					->setMockClassName( 'wpdb' )
 					->setMethods( array( 'get_var' ) )
 					->getMock();
@@ -331,8 +338,8 @@ class Test_Status extends TestCase {
 	 * @param bool   $expected Expected return.
 	 */
 	public function test_is_staging_site_for_known_hosting_providers( $site_url, $expected ) {
-		Functions\when( 'site_url' )->justReturn( $site_url );
-		$result = $this->status_obj->is_staging_site();
+		$this->site_url = $site_url;
+		$result         = $this->status_obj->is_staging_site();
 		$this->assertSame(
 			$expected,
 			$result,
@@ -381,6 +388,22 @@ class Test_Status extends TestCase {
 				'http://staging.wpengine.com.example.com/',
 				false,
 			),
+			'pantheon_dev'          => array(
+				'http://dev-site-name.pantheonsite.io',
+				true,
+			),
+			'pantheon_test'         => array(
+				'http://test-site-name.pantheonsite.io',
+				true,
+			),
+			'pantheon_multi'        => array(
+				'http://multidev-env-site-name.pantheonsite.io',
+				true,
+			),
+			'pantheon_live'         => array(
+				'http://live-site-name.pantheonsite.io',
+				false,
+			),
 		);
 	}
 
@@ -393,8 +416,8 @@ class Test_Status extends TestCase {
 	 * @param bool   $expected_response Expected response.
 	 */
 	public function test_is_local_site_for_known_tld( $site_url, $expected_response ) {
-		Functions\when( 'site_url' )->justReturn( $site_url );
-		$result = $this->status_obj->is_local_site();
+		$this->site_url = $site_url;
+		$result         = $this->status_obj->is_local_site();
 		$this->assertEquals(
 			$expected_response,
 			$result,
@@ -451,6 +474,7 @@ class Test_Status extends TestCase {
 	 */
 	public function test_jetpack_get_site_suffix( $site, $expected ) {
 		Functions\when( 'home_url' )->justReturn( $this->site_url );
+		Functions\when( 'get_option' )->justReturn();
 		$suffix = $this->status_obj->get_site_suffix( $site );
 
 		$this->assertSame( $expected, $suffix );
@@ -491,6 +515,83 @@ class Test_Status extends TestCase {
 				'https://example.org/http://example.com',
 				'example.org::http:::::example.com',
 			),
+			'trailing_slash'   => array(
+				'https://example.org/',
+				'example.org',
+			),
+		);
+	}
+
+	/**
+	 * Test result is cached.
+	 *
+	 * @dataProvider provide_cached
+	 * @param string      $func Function being tested.
+	 * @param string|null $one_call Method that should be called only once.
+	 * @param string|null $one_filter Filter that should be called only once.
+	 */
+	public function test_cached( $func, $one_call, $one_filter ) {
+		if ( $one_call ) {
+			Functions\expect( $one_call )->once();
+		}
+
+		$ret = $this->status_obj->$func();
+		$this->assertSame( $ret, $this->status_obj->$func() );
+
+		if ( $one_filter ) {
+			$this->assertSame( 1, Filters\applied( $one_filter ), "Filter $one_filter was only applied once" );
+		}
+	}
+
+	/** Data provider for test_cached */
+	public function provide_cached() {
+		return array(
+			array( 'is_offline_mode', null, 'jetpack_offline_mode' ),
+			array( 'is_multi_network', 'is_multisite', null ),
+			array( 'is_single_user_site', 'get_transient', null ),
+			array( 'is_local_site', null, 'jetpack_is_local_site' ),
+			array( 'is_staging_site', null, 'jetpack_is_staging_site' ),
+		);
+	}
+
+	/**
+	 * Test that is_private_site returns true when get_option is set to -1.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_private_site
+	 */
+	public function test_is_private_site() {
+		Functions\when( 'get_option' )->justReturn( '-1' );
+
+		$this->assertTrue( $this->status_obj->is_private_site() );
+	}
+
+	/**
+	 * Test that is_coming_soon returns true when a site is set to coming soon.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_coming_soon
+	 * @dataProvider get_coming_soon_status
+	 *
+	 * @param bool $site_is_coming_soon      Site is coming soon value.
+	 * @param int  $wpcom_public_coming_soon wpcom_public_coming_soon option value.
+	 * @param bool $expected                 Expected result.
+	 */
+	public function test_is_coming_soon( $site_is_coming_soon, $wpcom_public_coming_soon, $expected ) {
+		Functions\when( 'site_is_coming_soon' )->justReturn( $site_is_coming_soon );
+		Functions\when( 'get_option' )->justReturn( $wpcom_public_coming_soon );
+		$this->assertSame( $expected, $this->status_obj->is_coming_soon() );
+	}
+
+	/**
+	 * Mock data for test_is_coming_soon
+	 *
+	 * @return array
+	 */
+	public function get_coming_soon_status() {
+		return array(
+			'Jetpack public site'       => array( null, false, false ),
+			'WoA public site'           => array( false, false, false ),
+			'WoA private site'          => array( true, false, true ),
+			'wpcom simple private site' => array( null, true, true ),
 		);
 	}
 }

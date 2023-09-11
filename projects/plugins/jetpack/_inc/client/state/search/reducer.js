@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { find, get } from 'lodash';
 import { combineReducers } from 'redux';
-
-/**
- * Internal dependencies
- */
 import { JETPACK_SEARCH_TERM } from 'state/action-types';
 
 const searchTerm = ( state = '', action ) => {

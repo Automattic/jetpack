@@ -1,0 +1,51 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.1.18
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 11/10/16
+ */
+
+// generic blocker
+ .zbsSpinnerBlocker {
+ 	
+ 	position:absolute;
+ 	top: 0; left: 0;
+	width: 100%;height:100%;
+	background:transparent;
+	z-index:100;
+
+	.zbsSpinnerBG {
+
+	 	position:absolute;
+	 	top: 0; left: 0;
+		width: 100%;height:100%;
+		background:#FFF;
+		z-index:100;
+		opacity: 0.6;
+
+	}
+
+	.zbsSpinnerIco {
+
+		color:green;
+		z-index:101;
+
+		// central align
+		position: relative;
+		top: 50%;
+		transform: translateY(-50%);
+
+		// no offset
+		margin-left:0;
+
+	}
+}
+
+.empty-container-with-spinner {
+	display: flex;
+	align-items: center;
+	height: 400px;
+}

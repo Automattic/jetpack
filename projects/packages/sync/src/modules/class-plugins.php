@@ -205,7 +205,7 @@ class Plugins extends Module {
 		$plugins = get_plugins(); // Get the most up to date info.
 		if ( isset( $plugins[ $slug ] ) ) {
 			return array_merge( array( 'slug' => $slug ), $plugins[ $slug ] );
-		};
+		}
 		// Try grabbing the info from before the update.
 		return isset( $this->plugins[ $slug ] ) ? array_merge( array( 'slug' => $slug ), $this->plugins[ $slug ] ) : array( 'slug' => $slug );
 	}
@@ -242,7 +242,7 @@ class Plugins extends Module {
 			if ( empty( $skin->result ) ) {
 				return array(
 					'code'    => 'unknown',
-					'message' => __( 'Unknown Plugin Update Failure', 'jetpack' ),
+					'message' => __( 'Unknown Plugin Update Failure', 'jetpack-sync' ),
 				);
 			}
 		}
@@ -263,8 +263,8 @@ class Plugins extends Module {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$plugin  = $_POST['plugin'];
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Validated manually just after.
+		$plugin  = wp_unslash( $_POST['plugin'] );
 		$plugins = get_plugins();
 		if ( ! isset( $plugins[ $plugin ] ) ) {
 			return;
@@ -332,16 +332,17 @@ class Plugins extends Module {
 
 		$real_file = WP_PLUGIN_DIR . '/' . $file;
 
-		if ( ! is_writeable( $real_file ) ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+		if ( ! is_writable( $real_file ) ) {
 			return;
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 		$file_pointer = fopen( $real_file, 'w+' );
 		if ( false === $file_pointer ) {
 			return;
 		}
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		fclose( $file_pointer );
 		/**
 		 * This action is documented already in this file

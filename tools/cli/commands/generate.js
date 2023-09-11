@@ -1,28 +1,32 @@
-/**
- * External dependencies
- */
-import path from 'path';
-import pluralize from 'pluralize';
-import inquirer from 'inquirer';
-import chalk from 'chalk';
+import { execSync } from 'child_process';
 import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import chalk from 'chalk';
+import inquirer from 'inquirer';
 import yaml from 'js-yaml';
-
-/**
- * Internal dependencies
- */
-import { promptForType, promptForName } from '../helpers/promptForProject';
-import { projectTypes, checkNameValid } from '../helpers/projectHelpers';
+import pluralize from 'pluralize';
+import semver from 'semver';
+import { doesRepoExist } from '../helpers/github.js';
 import {
 	readPackageJson,
 	readComposerJson,
 	writePackageJson,
 	writeComposerJson,
-} from '../helpers/json';
-import { normalizeGenerateArgv } from '../helpers/normalizeArgv';
-import mergeDirs from '../helpers/mergeDirs';
-import { chalkJetpackGreen } from '../helpers/styling';
-import { doesRepoExist } from '../helpers/github';
+} from '../helpers/json.js';
+import mergeDirs, { copyFile } from '../helpers/mergeDirs.js';
+import { normalizeGenerateArgv } from '../helpers/normalizeArgv.js';
+import { projectTypes, checkNameValid } from '../helpers/projectHelpers.js';
+import {
+	transformToReadableName,
+	transformToPhpClassName,
+	transformToPhpConstantName,
+	normalizeSlug,
+	transformToCamelCase,
+} from '../helpers/projectNameTransformations.js';
+import { promptForType, promptForName } from '../helpers/promptForProject.js';
+import searchReplaceInFolder from '../helpers/searchReplaceInFolder.js';
+import { chalkJetpackGreen } from '../helpers/styling.js';
 
 /**
  * Entry point for the CLI.
@@ -156,7 +160,7 @@ export function getQuestions( type ) {
 		{
 			type: 'checkbox',
 			name: 'buildScripts',
-			message: 'Does your project require build steps?',
+			message: 'Select production and/or development build steps to generate:',
 			choices: [
 				{
 					name: 'Production Build Step',
@@ -173,23 +177,64 @@ export function getQuestions( type ) {
 		{
 			type: 'confirm',
 			name: 'wordbless',
-			message: 'Will you need WorDBless for integration testing?',
+			message: 'Do you plan to use WordPress core functions in your PHPUnit tests?',
 			default: false,
 		},
 		{
 			type: 'confirm',
 			name: 'mirrorrepo',
-			message: 'Will this project require a mirror repo?',
+			message: 'Does this project need to be deployed publicly? (Create a mirror repo?)',
 		},
 	];
 	const packageQuestions = [];
 	const jsPackageQuestions = [];
 	const pluginQuestions = [
 		{
+			type: 'list',
+			name: 'versioningMethod',
+			message: 'How do you want versioning to work for your plugin?',
+			choices: [
+				// Note: There's no actual reason for recommending either option. Neither method is
+				// objectively better. We're not going to actually have consistency, tooling is
+				// already pretty simple in this respect (and without mandatory consistency it can't
+				// be simplified anyway), cognitive load would need research to determine the extent
+				// to which it's an issue, and WordPress core explicitly doesn't take a side on it.
+				// It comes down to which way the developers actually working on the plugin think
+				// about versioning for it.
+				//
+				// But everyone else wants to make an arbitrary recommendation anyway, so 🤷.
+				{
+					name: 'WordPress-style ("recommended"): Like 1.2, with each non-bugfix release always incrementing by 0.1.',
+					checked: true,
+					value: 'wordpress',
+				},
+				{
+					name: 'Semver: Like 1.2.3, with the next version depending on what kinds of changes are included.',
+					checked: true,
+					value: 'semver',
+				},
+			],
+		},
+		{
 			type: 'input',
 			name: 'version',
 			message: "What is the plugin's starting version?:",
-			default: '0.1.0-alpha',
+			default: answers => ( answers.versioningMethod === 'semver' ? '0.1.0-alpha' : '0.0-alpha' ),
+		},
+		{
+			type: 'list',
+			name: 'pluginTemplate',
+			message: 'Create a blank plugin or use the Starter plugin?',
+			choices: [
+				{
+					name: 'Blank plugin',
+					value: 'blank',
+				},
+				{
+					name: 'Use Jetpack Starter plugin',
+					value: 'starter',
+				},
+			],
 		},
 	];
 	const extensionQuestions = [];
@@ -213,15 +258,26 @@ export function getQuestions( type ) {
  * Generate a project based on questions passed to it.
  *
  * @param {object} answers - Answers from questions.
+ * @returns {void}
  */
 export async function generateProject(
 	answers = { name: 'test', description: 'n/a', buildScripts: [] }
 ) {
 	const type = pluralize( answers.type );
 	const project = type + '/' + answers.name;
-	const projDir = path.join( __dirname, '../../..', 'projects/', type, answers.name );
+	const projDir = path.join(
+		fileURLToPath( new URL( './', import.meta.url ) ),
+		`../../../projects/${ type }/${ answers.name }`
+	);
+	answers.project = project;
+	answers.projDir = projDir;
+
+	if ( 'plugin' === answers.type && 'starter' === answers.pluginTemplate ) {
+		return generatePluginFromStarter( projDir, answers );
+	}
 
 	createSkeleton( type, projDir, answers.name );
+	await searchReplaceInFolder( projDir, 'package-name', normalizeSlug( answers.name ) );
 
 	// Generate the composer.json file
 	const composerJson = readComposerJson( project );
@@ -239,6 +295,12 @@ export async function generateProject(
 
 	switch ( answers.type ) {
 		case 'package':
+			await renameClassFile( projDir, answers.name );
+			await searchReplaceInFolder(
+				projDir,
+				'Package_Name',
+				transformToPhpClassName( answers.name, false )
+			);
 			break;
 		case 'js-package':
 			break;
@@ -254,6 +316,84 @@ export async function generateProject(
 }
 
 /**
+ * Generates a new plugin using the Starter plugin as a template
+ *
+ * @param {string} projDir - The project dir path.
+ * @param {object} answers - Answers from the CLI prompt.
+ * @returns {void}
+ */
+async function generatePluginFromStarter( projDir, answers ) {
+	const starterDir = fileURLToPath(
+		new URL( '../../../projects/plugins/starter-plugin/', import.meta.url )
+	);
+
+	// Copy files.
+	let files = execSync( 'git -c core.quotepath=off ls-files', {
+		cwd: starterDir,
+		encoding: 'utf8',
+	} );
+	files = files.split( '\n' ).map( str => str.replace( 'projects/plugins/starter-plugin', '' ) );
+	files.forEach( file => {
+		if ( file ) {
+			copyFile( path.join( projDir, file ), path.join( starterDir, file ) );
+		}
+	} );
+
+	// Replace strings.
+	await searchReplaceInFolder( projDir, 'jetpack-starter-plugin', normalizeSlug( answers.name ) );
+	await searchReplaceInFolder( projDir, 'starter-plugin', normalizeSlug( answers.name, false ) );
+	await searchReplaceInFolder(
+		projDir,
+		'starter_plugin',
+		normalizeSlug( answers.name, false, '_' )
+	);
+	await searchReplaceInFolder(
+		projDir,
+		'Jetpack Starter Plugin',
+		transformToReadableName( answers.name )
+	);
+	await searchReplaceInFolder(
+		projDir,
+		'Jetpack_Starter_Plugin',
+		transformToPhpClassName( answers.name )
+	);
+	await searchReplaceInFolder(
+		projDir,
+		'Starter Plugin',
+		transformToReadableName( answers.name, false )
+	);
+	await searchReplaceInFolder(
+		projDir,
+		'JETPACK_STARTER_PLUGIN',
+		transformToPhpConstantName( answers.name )
+	);
+	await searchReplaceInFolder(
+		projDir,
+		'jetpackStarterPlugin',
+		transformToCamelCase( answers.name )
+	);
+	await searchReplaceInFolder( projDir, '0.1.0-alpha', answers.version );
+	await searchReplaceInFolder( projDir, 'plugin--description', answers.description );
+
+	// Rename plugin files.
+	fs.renameSync(
+		path.join( projDir, '/jetpack-starter-plugin.php' ),
+		path.join( projDir, '/jetpack-' + answers.name + '.php' )
+	);
+	fs.renameSync(
+		path.join( projDir, 'src/class-jetpack-starter-plugin.php' ),
+		path.join( projDir, 'src/class-jetpack-' + answers.name + '.php' )
+	);
+
+	// Update composer.json.
+	const composerJson = readComposerJson( answers.project );
+	composerJson.extra ||= {};
+	composerJson.extra.changelogger ||= {};
+	composerJson.extra.changelogger.versioning = answers.versioningMethod;
+	writeComposerJson( answers.project, composerJson, answers.projDir );
+}
+
+/**
  * Generate a plugin based on questions passed to it.
  *
  * @param {object} answers - Answers from questions.
@@ -266,7 +406,9 @@ function generatePlugin( answers, pluginDir ) {
 
 	// Fill in the README.txt file
 	const readmeTxtContent = createReadMeTxt( answers );
-	const readmeTxtPath = path.join( __dirname, '../', 'skeletons/plugins/readme.txt' );
+	const readmeTxtPath = fileURLToPath(
+		new URL( '../skeletons/plugins/readme.txt', import.meta.url )
+	);
 	const readmeTxtData = fs.readFileSync( readmeTxtPath, 'utf8' );
 	writeToFile( pluginDir + '/README.txt', readmeTxtContent + readmeTxtData );
 }
@@ -291,7 +433,7 @@ function generateAction( answers, actDir ) {
  * @param {string} name - Name of new project.
  */
 function createSkeleton( type, dir, name ) {
-	const skeletonDir = path.join( __dirname, '../skeletons' );
+	const skeletonDir = fileURLToPath( new URL( '../skeletons', import.meta.url ) );
 
 	// Copy the skeletons over.
 	try {
@@ -312,6 +454,26 @@ function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
 	packageJson.name = `@automattic/jetpack-${ answers.name }`;
 	packageJson.version = '0.1.0-alpha';
+	packageJson.repository.directory = `projects/${ pluralize( answers.type ) }/${ answers.name }`;
+
+	if ( answers.type !== 'plugin' ) {
+		packageJson.homepage = `https://github.com/Automattic/jetpack/tree/HEAD/${ packageJson.repository.directory }/#readme`;
+	}
+
+	const prefix = {
+		'editor-extension': 'Block',
+		'github-action': 'Action',
+		package: 'Package',
+		plugin: 'Plugin',
+		'js-package': 'JS Package',
+	}[ answers.type ];
+	// Note we intentionally don't URI-encode here, because `npm bugs` will double-encode. Sigh.
+	packageJson.bugs.url =
+		`https://github.com/Automattic/jetpack/labels/[${ prefix }] ` +
+		answers.name
+			.split( '-' )
+			.map( word => `${ word[ 0 ].toUpperCase() }${ word.slice( 1 ) }` )
+			.join( ' ' );
 
 	if ( answers.type === 'js-package' ) {
 		packageJson.exports = {
@@ -320,10 +482,18 @@ function createPackageJson( packageJson, answers ) {
 			'./action-types': './src/state/action-types',
 		};
 		packageJson.scripts = {
-			test:
-				"NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'",
+			test: 'jest tests',
 		};
-		packageJson.devDependencies = { 'jetpack-js-test-runner': 'workspace:*' };
+
+		// Extract the version of jest currently in use for the dependency.
+		const yamlFile = yaml.load(
+			fs.readFileSync( new URL( '../../../pnpm-lock.yaml', import.meta.url ), 'utf8' )
+		);
+		const jestVersion = Object.keys( yamlFile.packages ).reduce( ( value, cur ) => {
+			const ver = cur.match( /^\/jest\/([^_]+)/ )?.[ 1 ];
+			return ! value || ( ver && semver.gt( ver, value ) ) ? ver : value;
+		}, null );
+		packageJson.devDependencies.jest = jestVersion || '*';
 	}
 }
 
@@ -356,9 +526,12 @@ async function createComposerJson( composerJson, answers ) {
 			"echo 'Add your build step to composer.json, please!'";
 	}
 	if ( answers.wordbless ) {
-		composerJson.scripts[ 'post-update-cmd' ] =
-			"php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"";
+		composerJson.scripts[ 'post-install-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
+		composerJson.scripts[ 'post-update-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
 		composerJson[ 'require-dev' ][ 'automattic/wordbless' ] = 'dev-master';
+		composerJson.config = composerJson.config || {};
+		composerJson.config[ 'allow-plugins' ] = composerJson.config[ 'allow-plugins' ] || {};
+		composerJson.config[ 'allow-plugins' ][ 'roots/wordpress-core-installer' ] = true;
 	}
 
 	try {
@@ -377,23 +550,42 @@ async function createComposerJson( composerJson, answers ) {
 		case 'package':
 			composerJson.extra = composerJson.extra || {};
 			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
-			composerJson.extra[ 'branch-alias' ][ 'dev-master' ] = '0.1.x-dev';
+			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
+			composerJson.extra.textdomain = name;
+			composerJson.extra[ 'version-constants' ] = {
+				'::PACKAGE_VERSION': `src/class-${ answers.name }.php`,
+			};
+			composerJson.type = 'jetpack-library';
+			composerJson.suggest ||= {};
+			composerJson.suggest[ 'automattic/jetpack-autoloader' ] =
+				'Allow for better interoperability with other plugins that use this package.';
 			break;
 		case 'plugin':
 			composerJson.extra = composerJson.extra || {};
 			composerJson.extra[ 'release-branch-prefix' ] = answers.name;
 			composerJson.type = 'wordpress-plugin';
+			composerJson.extra.changelogger ||= {};
+			composerJson.extra.changelogger.versioning = answers.versioningMethod;
 			break;
 		case 'js-package':
 			composerJson.scripts = {
-				'test-js': [ 'Composer\\Config::disableProcessTimeout', 'pnpm install', 'pnpm run test' ],
-				'test-coverage': [
-					'Composer\\Config::disableProcessTimeout',
-					'pnpm install',
-					'pnpx nyc --report-dir="$COVERAGE_DIR" pnpm run test',
-				],
+				'test-js': [ 'pnpm run test' ],
 			};
 	}
+}
+
+/**
+ * Renames the class-example.php file to use the new project name.
+ *
+ * @param {string} projDir - the new project directory.
+ * @param {string} name - the name of the new project.
+ */
+async function renameClassFile( projDir, name ) {
+	fs.rename( `${ projDir }/src/class-example.php`, `${ projDir }/src/class-${ name }.php`, err => {
+		if ( err ) {
+			console.log( err );
+		}
+	} );
 }
 
 /**
@@ -505,6 +697,10 @@ function createReadMeMd( answers ) {
 		'\n' +
 		'## Get Help\n' +
 		'\n' +
+		'## Using this package in your WordPress plugin\n' +
+		'\n' +
+		'If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.\n' +
+		'\n' +
 		'## Security\n' +
 		'\n' +
 		'Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).\n' +
@@ -554,9 +750,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 5.8\n' +
+		'Requires at least: 6.2\n' +
 		'Requires PHP: 5.6\n' +
-		'Tested up to: 5.9\n' +
+		'Tested up to: 6.3\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +
@@ -571,7 +767,7 @@ function createReadMeTxt( answers ) {
  *
  * @param {string} dir - file path we're writing to.
  * @param {string} answers - the answers to fill in the skeleton.
- * @returns {string} yamlFile - the YAML file we've created.
+ * @returns {string|null} yamlFile - the YAML file we've created.
  */
 function createYaml( dir, answers ) {
 	try {
@@ -581,6 +777,7 @@ function createYaml( dir, answers ) {
 		return yamlFile;
 	} catch ( err ) {
 		console.error( chalk.red( `Couldn't create the YAML file.` ), err );
+		return null;
 	}
 }
 

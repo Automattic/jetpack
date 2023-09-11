@@ -1,0 +1,338 @@
+// lovingly adapted from
+// https://codepen.io/brady_wright/pen/NNOvrW
+
+$primary-color: #000000;
+$primary-color-hover: scale-color($primary-color, $lightness: 32%);
+
+/*==================================
+    TIMELINE
+==================================*/
+
+    /*-- GENERAL STYLES
+    ------------------------------*/
+    .zbs-timeline {
+        line-height: 1.4em;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        h1, h2, h3, h4, h5, h6 {
+            line-height: inherit;
+        }
+    }
+
+    /*----- TIMELINE ITEM -----*/
+
+    .zbs-timeline-item {
+        padding-left: 40px;
+        position: relative;
+        &:last-child {
+            padding-bottom: 0;
+        }
+        margin-bottom:0 !important;
+
+        h3 {
+        	font-size:20px;
+        }
+    }
+
+    /*----- TIMELINE INFO -----*/
+
+    .zbs-timeline-info {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        margin: 0 0 .5em 0;
+        text-transform: uppercase;
+        white-space: nowrap;
+
+        color: #737373cf;
+    }
+    /*----- TIMELINE MARKER -----*/
+
+    .zbs-timeline-marker {
+        position: absolute;
+        top: 0; bottom: 0; left: 0;
+        width: 15px;
+        &:before {
+            background: $primary-color;
+            border: 3px solid transparent;
+            border-radius: 100%;
+            content: "";
+            display: block;
+            height: 15px;
+            position: absolute;
+            top: 4px; left: 0;
+            width: 15px;
+            transition: background 0.3s ease-in-out,
+                    border 0.3s ease-in-out;
+        }
+        &:after {
+            content: "";
+            width: 3px;
+            background: #d7d7d8;
+            display: block;
+            position: absolute;
+            top: 24px; bottom: 0; left: 6px;
+        }
+        .zbs-timeline-item:last-child &:after {
+            content: none;
+        }
+    }
+    .zbs-timeline-item:not(.period):hover .zbs-timeline-marker:before {
+        // no hover effect
+        //background: transparent;
+        //border: 3px solid $primary-color;
+    }
+
+    // ellipsis overflow for content :)
+    .zbs-timeline-content p {
+
+	  white-space: nowrap;
+	  overflow: hidden;
+	  text-overflow: ellipsis;
+    }
+
+    // timeline title styling
+    .zbs-timeline-title {
+    	
+    	letter-spacing: -1px;
+
+    	i.fa {
+
+		    margin-right: 0.3em;
+		    font-size: 1em;
+		    color: #b4b4c3;
+
+    	}
+
+    }
+
+
+    /*----- TIMELINE ITEM (SAME DATE - CONTINUED - MODIFIED BY  WH)-----*/
+
+    .zbs-timeline-item-contd {
+        padding-left: 40px;
+        position: relative;
+        &:last-child {
+            padding-bottom: 0;
+        }
+        margin-bottom:0 !important;
+
+        h3 {
+        	font-size:20px;
+        }
+
+	    /*----- TIMELINE CONTINUED MARKER -----*/
+
+	    .zbs-timeline-marker {
+	        position: absolute;
+	        top: 0; bottom: 0; left: 0;
+	        width: 15px;
+	        &:before {
+	        	// Modified SMALLER version of marker for subsequent timeline events in 1 day
+	            background: $primary-color;
+	            border: 1px solid transparent;
+	            border-radius: 100%;
+	            content: "";
+	            display: block;
+	            height: 10px;
+	            position: absolute;
+	            top: 4px; left: 2px;
+	            width: 10px;
+	            transition: background 0.3s ease-in-out,
+	                    border 0.3s ease-in-out;
+	            z-index: 10000;
+	        }
+	        &:after {
+	            content: "";
+	            width: 3px;
+	            background: #d7d7d8;
+	            display: block;
+	            position: absolute;
+	            top: 0; bottom: 0; left: 6px;
+	        }
+	        .zbs-timeline-item:last-child &:after {
+	            content: none;
+	        }
+	    }
+	    .zbs-timeline-item:not(.period):hover .zbs-timeline-marker:before {
+	        // no hover effect
+	        //background: transparent;
+	        //border: 3px solid $primary-color;
+	    }
+    }
+
+    // no title variant of .zbs-timeline-item-contd
+    // ... happens with log types which have no title.
+    .zbs-timeline-item-notitle {
+
+        // fix for style break 
+        margin-top: -10px;
+
+    }
+
+    /*----- TIMELINE CONTENT -----*/
+
+    .zbs-timeline-content {
+        padding-bottom: 40px;
+        p:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    /*----- TIMELINE PERIOD -----*/
+    
+    .period {
+        padding: 0;
+        .zbs-timeline-info {
+            display: none;
+        }
+        .zbs-timeline-marker {
+            &:before {
+                background: transparent;
+                content: "";
+                width: 15px;
+                height: auto;
+                border: none;
+                border-radius: 0;
+                top: 0;
+                bottom: 30px;
+                position: absolute;
+                border-top: 3px solid #CCD5DB;
+                border-bottom: 3px solid #CCD5DB;
+            }
+            &:after {
+                content: "";
+                height: 32px;
+                top: auto;
+            }
+        }
+        .zbs-timeline-content {
+            padding: 40px 0 70px;
+        }
+        .zbs-timeline-title {
+            margin: 0;
+        }
+    }
+
+    /*----------------------------------------------
+        MOD: TIMELINE SPLIT
+    ----------------------------------------------*/
+
+        .zbs-timeline-split {
+            @media (min-width: 768px) {
+                .zbs-timeline {
+                    display: table;
+                }
+                .zbs-timeline-item {
+                    display: table-row;
+                    padding: 0;
+                }
+                .zbs-timeline-info,
+                .zbs-timeline-marker,
+                .zbs-timeline-content,
+                .period .zbs-timeline-info {
+                    display: table-cell;
+                    vertical-align: top;
+                }
+                .zbs-timeline-marker {
+                    position: relative;
+                }
+                .zbs-timeline-content {
+                    padding-left: 30px;
+                }
+                .zbs-timeline-info {
+                    padding-right: 30px;
+                }
+                .period .zbs-timeline-title {
+                    position: relative;
+                    left: -45px;
+                }
+            }
+        }
+
+    /*----------------------------------------------
+        MOD: TIMELINE CENTERED
+    ----------------------------------------------*/
+
+        .zbs-timeline-centered {
+            @extend .zbs-timeline-split;
+            @media (min-width: 992px) {
+                &,
+                .zbs-timeline-item,
+                .zbs-timeline-info,
+                .zbs-timeline-marker,
+                .zbs-timeline-content {
+                    display: block;
+                    margin: 0;
+                    padding: 0;
+                }
+                .zbs-timeline-item {
+                    padding-bottom: 40px;
+                    overflow: hidden;
+                }
+                .zbs-timeline-marker {
+                    position: absolute;
+                    left: 50%;
+                    margin-left: -7.5px;
+                }
+                .zbs-timeline-info,
+                .zbs-timeline-content {
+                    width: 50%;
+                }
+                > .zbs-timeline-item:nth-child(odd) .zbs-timeline-info {
+                    float: left;
+                    text-align: right;
+                    padding-right: 30px;
+                }
+                > .zbs-timeline-item:nth-child(odd) .zbs-timeline-content {
+                    float: right;
+                    text-align: left;
+                    padding-left: 30px;
+                }    
+                > .zbs-timeline-item:nth-child(even) .zbs-timeline-info {
+                    float: right;
+                    text-align: left;
+                    padding-left: 30px;
+                }
+                > .zbs-timeline-item:nth-child(even) .zbs-timeline-content {
+                    float: left;
+                    text-align: right;
+                    padding-right: 30px;
+                }
+                > .zbs-timeline-item.period .zbs-timeline-content {
+                    float: none;
+                    padding: 0;
+                    width: 100%;
+                    text-align: center;
+                }
+                .zbs-timeline-item.period {
+                    padding: 50px 0 90px;
+                }
+                .period .zbs-timeline-marker:after {
+                    height: 30px;
+                    bottom: 0;
+                    top: auto;
+                }
+                .period .zbs-timeline-title {
+                    left: auto;
+                }
+            }
+        }
+
+    /*----------------------------------------------
+        MOD: MARKER OUTLINE
+    ----------------------------------------------*/
+        
+        .marker-outline {
+            .zbs-timeline-marker {
+                &:before {
+                    background: transparent;
+                    border-color: $primary-color;
+                }
+            }
+            .zbs-timeline-item:hover .zbs-timeline-marker:before {
+                background: $primary-color;
+            }
+        }

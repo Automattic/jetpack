@@ -1,0 +1,9 @@
+# Not loaded by default eslint, but we use tools/js-tools/load-eslint-ignore.js in .eslintrc to pull it in.
+
+# @todo: Files below ignored as part of the initial RM monorepo move.
+# They can be removed here as lint errors are addressed.
+/js/
+/modules/
+gulpfile.esm.js
+jest.config.js
+webpack.config.js

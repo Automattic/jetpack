@@ -14,18 +14,15 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.",
-		"build-js": "echo 'Not implemented.",
-		"build-production": "echo 'Not implemented.",
-		"build-production-js": "echo 'Not implemented.",
-		"clean": "true",
-		"distclean": "rm -rf node_modules && pnpm run clean",
-		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile"
+		"build": "echo 'Not implemented.'",
+		"build-js": "echo 'Not implemented.'",
+		"build-production": "echo 'Not implemented.'",
+		"build-production-js": "echo 'Not implemented.'",
+		"clean": "true"
 	},
 	"devDependencies": {},
 	"engines": {
-		"node": "^14.17.6 || ^16.7.0",
-		"pnpm": "^6.23.6",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

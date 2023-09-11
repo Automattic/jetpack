@@ -12,11 +12,6 @@ const cache = {};
  * @returns {string[]} Team members.
  */
 async function fetchTeamMembers( team ) {
-	// Handle @singleuser virtual teams.
-	if ( team.startsWith( '@' ) ) {
-		return [ team.slice( 1 ) ];
-	}
-
 	if ( cache[ team ] ) {
 		return cache[ team ];
 	}
@@ -25,16 +20,37 @@ async function fetchTeamMembers( team ) {
 	const org = github.context.payload.repository.owner.login;
 
 	let members = [];
-	try {
-		for await ( const res of octokit.paginate.iterator( octokit.rest.teams.listMembersInOrg, {
-			org: org,
-			team_slug: team,
-			per_page: 100,
-		} ) ) {
-			members = members.concat( res.data.map( v => v.login ) );
+	if ( team.startsWith( '@' ) ) {
+		// Handle @singleuser virtual teams. Fetch the correct username case from GitHub
+		// to avoid having to worry about edge cases and Unicode versions and such.
+		try {
+			const res = await octokit.rest.users.getByUsername( { username: team.slice( 1 ) } );
+			members.push( res.data.login );
+		} catch ( error ) {
+			throw new WError(
+				// prettier-ignore
+				`Failed to query user ${ team } from GitHub: ${ error.response?.data?.message || error.message }`,
+				error,
+				{}
+			);
 		}
-	} catch ( error ) {
-		throw new WError( `Failed to query ${ org } team ${ team } from GitHub`, error, {} );
+	} else {
+		try {
+			for await ( const res of octokit.paginate.iterator( octokit.rest.teams.listMembersInOrg, {
+				org: org,
+				team_slug: team,
+				per_page: 100,
+			} ) ) {
+				members = members.concat( res.data.map( v => v.login ) );
+			}
+		} catch ( error ) {
+			throw new WError(
+				// prettier-ignore
+				`Failed to query ${ org } team ${ team } from GitHub: ${ error.response?.data?.message || error.message }`,
+				error,
+				{}
+			);
+		}
 	}
 
 	cache[ team ] = members;

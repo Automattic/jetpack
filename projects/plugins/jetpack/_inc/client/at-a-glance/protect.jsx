@@ -1,26 +1,15 @@
-/**
- * External dependencies
- */
+import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import Button from 'components/button';
+import DashItem from 'components/dash-item';
+import QueryProtectCount from 'components/data/query-dash-protect';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import DashItem from 'components/dash-item';
 import { getProtectCount } from 'state/at-a-glance';
 import { isOfflineMode, hasConnectedOwner, connectUser } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
-import { numberFormat } from 'components/number-format';
-import QueryProtectCount from 'components/data/query-dash-protect';
 
 class DashProtect extends Component {
 	static propTypes = {
@@ -36,7 +25,7 @@ class DashProtect extends Component {
 	connect = () => this.props.connectUser();
 
 	getContent() {
-		const labelName = __( 'Protect', 'jetpack' );
+		const labelName = __( 'Brute force protection', 'jetpack' );
 		const support = {
 			text: __(
 				'Protects your site from traditional and distributed brute force login attacks.',
@@ -52,7 +41,15 @@ class DashProtect extends Component {
 		) {
 			const protectCount = this.props.protectCount;
 
-			if ( false === protectCount || '0' === protectCount || 'N/A' === protectCount ) {
+			if ( 'N/A' === protectCount ) {
+				return (
+					<DashItem label={ labelName } module="protect" support={ support }>
+						<p className="jp-dash-item__description">{ __( 'Loading…', 'jetpack' ) }</p>
+					</DashItem>
+				);
+			}
+
+			if ( 0 === protectCount ) {
 				return (
 					<DashItem
 						label={ labelName }
@@ -73,6 +70,7 @@ class DashProtect extends Component {
 					</DashItem>
 				);
 			}
+
 			return (
 				<DashItem label={ labelName } module="protect" support={ support } status="is-working">
 					<h2 className="jp-dash-item__count">{ numberFormat( protectCount ) }</h2>
@@ -98,11 +96,11 @@ class DashProtect extends Component {
 						! this.props.hasConnectedOwner &&
 						createInterpolateElement(
 							__(
-								'<a>Connect your WordPress.com</a> account to keep your site protected from malicious sign in attempts.',
+								'<Button>Connect your WordPress.com</Button> account to keep your site protected from malicious sign in attempts.',
 								'jetpack'
 							),
 							{
-								a: <a href="javascript:void(0)" onClick={ this.connect } />,
+								Button: <Button className="jp-link-button" onClick={ this.connect } />,
 							}
 						) }
 
@@ -110,11 +108,11 @@ class DashProtect extends Component {
 						this.props.hasConnectedOwner &&
 						createInterpolateElement(
 							__(
-								'<a>Activate Protect</a> to keep your site protected from malicious sign in attempts.',
+								'<Button>Activate Protect</Button> to keep your site protected from malicious sign in attempts.',
 								'jetpack'
 							),
 							{
-								a: <a href="javascript:void(0)" onClick={ this.activateProtect } />,
+								Button: <Button className="jp-link-button" onClick={ this.activateProtect } />,
 							}
 						) }
 				</p>

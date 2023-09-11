@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React from 'react';
 import classnames from 'classnames';
 import { assign, omit } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import PropTypes from 'prop-types';
+import React from 'react';
 import Gridicon from '../gridicon';
 
 import './style.scss';
@@ -92,11 +85,8 @@ class Card extends React.Component {
 
 		let linkIndicator;
 		if ( this.props.href ) {
-			linkIndicator = (
-				<Gridicon
-					className="dops-card__link-indicator"
-					icon={ this.props.target ? 'external' : 'chevron-right' }
-				/>
+			linkIndicator = this.props.target && (
+				<Gridicon className="dops-card__link-indicator" icon="external" />
 			);
 		} else {
 			omitProps.push( 'href', 'target' );
@@ -116,9 +106,9 @@ class Card extends React.Component {
 		return React.createElement(
 			this.props.href ? 'a' : this.props.tagName,
 			assign( omit( this.props, omitProps ), { className } ),
-			linkIndicator,
 			fancyTitle,
-			this.props.children
+			this.props.children,
+			linkIndicator
 		);
 	}
 

@@ -10,6 +10,8 @@
 
 namespace Automattic\Jetpack\Jetpack_Backup;
 
+use Automattic\Jetpack\Plugins_Installer;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -17,8 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 const PLUGIN_SLUG = 'jetpack-backup';
 const PLUGIN_FILE = 'jetpack-backup/jetpack-backup.php';
 
-add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
-add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
+if ( isset( $_GET['jetpack-backup-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
+}
+
+if ( isset( $_GET['jetpack-backup-action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
+}
 
 /**
  * Verify the intent to install Jetpack Backup, and kick off installation.
@@ -26,10 +33,6 @@ add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
  * This works in tandem with a JITM set up in the JITM package.
  */
 function try_install() {
-	if ( ! isset( $_GET['jetpack-backup-action'] ) ) {
-		return;
-	}
-
 	check_admin_referer( 'jetpack-backup-install' );
 
 	$result = false;
@@ -38,7 +41,7 @@ function try_install() {
 
 	// Attempt to install and activate the plugin.
 	if ( current_user_can( 'activate_plugins' ) ) {
-		switch ( $_GET['jetpack-backup-action'] ) {
+		switch ( $_GET['jetpack-backup-action'] ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Function only hooked if set.
 			case 'install':
 				$result = install_and_activate();
 				break;
@@ -67,8 +70,7 @@ function try_install() {
  * @return bool result of installation
  */
 function install_and_activate() {
-	jetpack_require_lib( 'plugins' );
-	$result = \Jetpack_Plugins::install_and_activate_plugin( PLUGIN_SLUG );
+	$result = Plugins_Installer::install_and_activate_plugin( PLUGIN_SLUG );
 
 	if ( is_wp_error( $result ) ) {
 		return false;
@@ -86,17 +88,13 @@ function activate() {
 	$result = activate_plugin( PLUGIN_FILE );
 
 	// Activate_plugin() returns null on success.
-	return is_null( $result );
+	return $result === null;
 }
 
 /**
  * Notify the user that the installation of Jetpack Backup failed.
  */
 function error_notice() {
-	if ( empty( $_GET['jetpack-backup-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return;
-	}
-
 	?>
 	<div class="notice notice-error is-dismissible">
 		<p><?php esc_html_e( 'There was an error installing Jetpack Backup. Please try again.', 'jetpack' ); ?></p>

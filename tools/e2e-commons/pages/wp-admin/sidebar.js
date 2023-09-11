@@ -7,8 +7,14 @@ export default class Sidebar extends WpPage {
 
 	async selectJetpack() {
 		const jetpackMenuSelector = '#toplevel_page_jetpack';
-		const menuItemSelector =
-			'#toplevel_page_jetpack a[href$="jetpack#/dashboard"], #toplevel_page_jetpack a[href$="jetpack"]';
+		const menuItemSelector = '#toplevel_page_jetpack a[href$="admin.php?page=my-jetpack"]';
+
+		return await this._selectMenuItem( jetpackMenuSelector, menuItemSelector );
+	}
+
+	async selectJetpackSubMenuItem() {
+		const jetpackMenuSelector = '#toplevel_page_jetpack';
+		const menuItemSelector = '#toplevel_page_jetpack .wp-submenu a[href$="admin.php?page=jetpack"]';
 
 		return await this._selectMenuItem( jetpackMenuSelector, menuItemSelector );
 	}
@@ -50,7 +56,9 @@ export default class Sidebar extends WpPage {
 
 	async _selectMenuItem( menuSelector, menuItemSelector ) {
 		const menuElement = await this.waitForElementToBeVisible( menuSelector );
-		const classes = await this.page.$eval( menuSelector, e => e.getAttribute( 'class' ) );
+		const classes = await this.page
+			.locator( menuSelector )
+			.evaluate( e => e.getAttribute( 'class' ) );
 
 		if ( ! classes.includes( 'wp-menu-open' ) && ! classes.includes( 'wp-has-current-submenu' ) ) {
 			await menuElement.click();

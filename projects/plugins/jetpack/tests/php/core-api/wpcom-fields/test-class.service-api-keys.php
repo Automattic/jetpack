@@ -8,8 +8,8 @@ require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-te
  */
 class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_REST_Testcase {
 
-	static $editor_user_id;
-	static $subscriber_user_id;
+	public static $editor_user_id;
+	public static $subscriber_user_id;
 	public static function wpSetUpBeforeClass( $factory ) {
 		self::$editor_user_id     = $factory->user->create( array( 'role' => 'editor' ) );
 		self::$subscriber_user_id = $factory->user->create( array( 'role' => 'subscriber' ) );
@@ -21,30 +21,30 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 	// GET
 	public function test_get_services_api_key_mapbox() {
 		wp_set_current_user( self::$subscriber_user_id );
-		$request  = wp_rest_request( 'GET', '/wpcom/v2/service-api-keys/mapbox' );
+		$request  = new WP_REST_Request( 'GET', '/wpcom/v2/service-api-keys/mapbox' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'success' );
-		$this->assertEquals( $data['service'], 'mapbox' );
-		$this->assertEquals( $data['service_api_key'], 'ABC' );
+		$this->assertEquals( 'success', $data['code'] );
+		$this->assertEquals( 'mapbox', $data['service'] );
+		$this->assertEquals( 'ABC', $data['service_api_key'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
 	public function test_get_404_services_api_key_unknow_service() {
 		wp_set_current_user( self::$editor_user_id );
-		$request  = wp_rest_request( 'GET', '/wpcom/v2/service-api-keys/foo' );
+		$request  = new WP_REST_Request( 'GET', '/wpcom/v2/service-api-keys/foo' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'invalid_service' );
+		$this->assertEquals( 'invalid_service', $data['code'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
 	// UPDATE
 	public function test_update_services_api_key_mapbox_with_permission() {
 		wp_set_current_user( self::$editor_user_id );
-		$request = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/mapbox' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/service-api-keys/mapbox' );
 		$request->set_body_params(
 			array(
 				'service_api_key' => 'ABC',
@@ -53,13 +53,13 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'invalid_key' );
+		$this->assertEquals( 'invalid_key', $data['code'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
 	public function test_update_services_api_key_mapbox_without_permission() {
 		wp_set_current_user( self::$subscriber_user_id );
-		$request = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/mapbox' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/service-api-keys/mapbox' );
 		$request->set_body_params(
 			array(
 				'service_api_key' => 'ABC',
@@ -68,13 +68,13 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'invalid_user_permission_edit_others_posts' );
+		$this->assertEquals( 'invalid_user_permission_edit_others_posts', $data['code'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
 	public function test_update_404_update_services_api_key_unknow_service_with_permission() {
 		wp_set_current_user( self::$editor_user_id );
-		$request = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/foo' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/service-api-keys/foo' );
 		$request->set_body_params(
 			array(
 				'service_api_key' => 'ABC',
@@ -83,13 +83,13 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'invalid_service' );
+		$this->assertEquals( 'invalid_service', $data['code'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
 	public function test_update_404_services_api_key_unknow_service_without_permission() {
 		wp_set_current_user( self::$subscriber_user_id );
-		$request = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/foo' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/service-api-keys/foo' );
 		$request->set_body_params(
 			array(
 				'service_api_key' => 'ABC',
@@ -98,40 +98,40 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'invalid_user_permission_edit_others_posts' );
+		$this->assertEquals( 'invalid_user_permission_edit_others_posts', $data['code'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
 	// DELETE
 	public function test_delete_service_api_key_mapbox_with_permission() {
 		wp_set_current_user( self::$editor_user_id );
-		$request  = wp_rest_request( 'DELETE', '/wpcom/v2/service-api-keys/mapbox' );
+		$request  = new WP_REST_Request( 'DELETE', '/wpcom/v2/service-api-keys/mapbox' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'success' );
-		$this->assertEquals( $data['service'], 'mapbox' );
-		$this->assertEquals( $data['service_api_key'], '' );
+		$this->assertEquals( 'success', $data['code'] );
+		$this->assertEquals( 'mapbox', $data['service'] );
+		$this->assertSame( '', $data['service_api_key'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
 	public function test_delete_service_api_key_mapbox_without_permission() {
 		wp_set_current_user( self::$subscriber_user_id );
-		$request  = wp_rest_request( 'DELETE', '/wpcom/v2/service-api-keys/mapbox' );
+		$request  = new WP_REST_Request( 'DELETE', '/wpcom/v2/service-api-keys/mapbox' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'invalid_user_permission_edit_others_posts' );
+		$this->assertEquals( 'invalid_user_permission_edit_others_posts', $data['code'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
 	public function test_delete_404_services_api_key_unknow_service_with_permission() {
 		wp_set_current_user( self::$editor_user_id );
-		$request  = wp_rest_request( 'DELETE', '/wpcom/v2/service-api-keys/foo' );
+		$request  = new WP_REST_Request( 'DELETE', '/wpcom/v2/service-api-keys/foo' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'invalid_service' );
+		$this->assertEquals( 'invalid_service', $data['code'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 

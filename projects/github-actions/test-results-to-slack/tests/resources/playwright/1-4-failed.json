@@ -1,0 +1,417 @@
+{
+	"config": {
+		"forbidOnly": false,
+		"fullyParallel": false,
+		"globalSetup": null,
+		"globalTeardown": null,
+		"globalTimeout": 0,
+		"grep": {},
+		"grepInvert": {},
+		"maxFailures": 0,
+		"metadata": {},
+		"preserveOutput": "always",
+		"projects": [
+			{
+				"outputDir": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results",
+				"repeatEach": 1,
+				"retries": 2,
+				"name": "",
+				"testDir": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e",
+				"testIgnore": [],
+				"testMatch": [ "**/?(*.)@(spec|test).*" ],
+				"timeout": 300000
+			}
+		],
+		"reporter": [
+			[ "list", null ],
+			[
+				"json",
+				{
+					"outputFile": "./output/summary.json"
+				}
+			],
+			[
+				"/home/runner/work/jetpack/jetpack/node_modules/.pnpm/allure-playwright@2.0.0-beta.19/node_modules/allure-playwright/dist/index.js",
+				null
+			],
+			[ "/home/runner/work/jetpack/jetpack/tools/e2e-commons/reporters/reporter.cjs", null ],
+			[ "github", null ]
+		],
+		"reportSlowTests": null,
+		"rootDir": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e",
+		"quiet": false,
+		"shard": null,
+		"updateSnapshots": "missing",
+		"version": "1.25.0",
+		"workers": 1,
+		"webServer": null,
+		"_watchMode": false,
+		"_webServers": [],
+		"_globalOutputDir": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results",
+		"_configDir": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e",
+		"_testGroupsCount": 2,
+		"_workerIsolation": "isolate-pools"
+	},
+	"suites": [
+		{
+			"title": "specs/blocks/free-blocks.test.js",
+			"file": "specs/blocks/free-blocks.test.js",
+			"line": 0,
+			"column": 0,
+			"specs": [],
+			"suites": [
+				{
+					"title": "Free blocks",
+					"file": "specs/blocks/free-blocks.test.js",
+					"line": 12,
+					"column": 15,
+					"specs": [
+						{
+							"title": "Pinterest block",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 25065,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"steps": [
+												{
+													"title": "Add a Pinterest block",
+													"duration": 4144
+												},
+												{
+													"title": "Publish a post with a Pinterest block",
+													"duration": 4406
+												},
+												{
+													"title": "Can assert that Pinterest block is rendered",
+													"duration": 722
+												}
+											],
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/blocks/free-blocks.test.js",
+							"line": 33,
+							"column": 2
+						},
+						{
+							"title": "Eventbrite block",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 24975,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"steps": [
+												{
+													"title": "Can visit the block editor and add a Eventbrite block",
+													"duration": 6631
+												},
+												{
+													"title": "Can publish a post with a Eventbrite block",
+													"duration": 4159
+												},
+												{
+													"title": "Can assert that Eventbrite block is rendered",
+													"duration": 498
+												}
+											],
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/blocks/free-blocks.test.js",
+							"line": 61,
+							"column": 2
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "specs/blocks/pro-blocks.test.js",
+			"file": "specs/blocks/pro-blocks.test.js",
+			"line": 0,
+			"column": 0,
+			"specs": [],
+			"suites": [
+				{
+					"title": "Paid blocks",
+					"file": "specs/blocks/pro-blocks.test.js",
+					"line": 12,
+					"column": 6,
+					"specs": [
+						{
+							"title": "MailChimp Block",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 29072,
+											"stdout": [
+												{
+													"text": "2022-08-27 10:50:06 \u001b[31merror\u001b[39m: Request failed with status code 403\n"
+												}
+											],
+											"stderr": [],
+											"retry": 0,
+											"steps": [
+												{
+													"title": "Add a MailChimp block",
+													"duration": 1472
+												},
+												{
+													"title": "Connect to MailChimp",
+													"duration": 10856
+												},
+												{
+													"title": "Publish a post and assert that MailChimp block is rendered",
+													"duration": 4449
+												}
+											],
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/blocks/pro-blocks.test.js",
+							"line": 33,
+							"column": 2
+						},
+						{
+							"title": "Pay with PayPal",
+							"ok": false,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "failed",
+											"duration": 49118,
+											"error": {
+												"message": "page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================",
+												"stack": "page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================\n    at BlockEditorPage.waitForElementState (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/page-actions.js:290:26)\n    at BlockEditorPage.waitForElementToBeVisible (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/page-actions.js:240:21)\n    at BlockEditorPage.publishPost (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/wp-admin/block-editor.js:101:14)\n    at file:///home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/specs/blocks/pro-blocks.test.js:76:5\n    at TestTypeImpl._step (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testType.js:243:22)\n    at file:///home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/specs/blocks/pro-blocks.test.js:72:3\n    at /home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:426:9\n    at TestInfoImpl._runFn (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testInfo.js:166:7)\n    at /home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:376:26\n    at TimeoutManager.runWithTimeout (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/timeoutManager.js:73:7)\n    at TestInfoImpl._runWithTimeout (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testInfo.js:154:26)\n    at WorkerRunner._runTest (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:356:5)\n    at WorkerRunner.runTestGroup (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:218:11)\n    at process.<anonymous> (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/worker.js:88:5)"
+											},
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"steps": [
+												{
+													"title": "Add a Pay with PayPal block",
+													"duration": 1527
+												},
+												{
+													"title": "Fill details of Pay with PayPal block",
+													"duration": 651
+												},
+												{
+													"title": "Publish a post and assert that Pay with PayPal block is rendered",
+													"duration": 32984,
+													"error": {
+														"message": "page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================",
+														"stack": "page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================\n    at BlockEditorPage.waitForElementState (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/page-actions.js:290:26)\n    at BlockEditorPage.waitForElementToBeVisible (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/page-actions.js:240:21)\n    at BlockEditorPage.publishPost (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/wp-admin/block-editor.js:101:14)\n    at file:///home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/specs/blocks/pro-blocks.test.js:76:5\n    at TestTypeImpl._step (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testType.js:243:22)\n    at file:///home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/specs/blocks/pro-blocks.test.js:72:3\n    at /home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:426:9\n    at TestInfoImpl._runFn (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testInfo.js:166:7)\n    at /home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:376:26\n    at TimeoutManager.runWithTimeout (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/timeoutManager.js:73:7)\n    at TestInfoImpl._runWithTimeout (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testInfo.js:154:26)\n    at WorkerRunner._runTest (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:356:5)\n    at WorkerRunner.runTestGroup (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:218:11)\n    at process.<anonymous> (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/worker.js:88:5)"
+													}
+												}
+											],
+											"attachments": [
+												{
+													"name": "video",
+													"contentType": "video/webm",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal/video.webm"
+												},
+												{
+													"name": "trace",
+													"contentType": "application/zip",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal/trace.zip"
+												},
+												{
+													"name": "screenshot",
+													"contentType": "image/png",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal/test-failed-1.png"
+												}
+											],
+											"errorLocation": {
+												"file": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/specs/blocks/pro-blocks.test.js",
+												"column": 5,
+												"line": 76
+											}
+										},
+										{
+											"workerIndex": 1,
+											"status": "failed",
+											"duration": 49470,
+											"error": {
+												"message": "page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================",
+												"stack": "page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================\n    at BlockEditorPage.waitForElementState (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/page-actions.js:290:26)\n    at BlockEditorPage.waitForElementToBeVisible (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/page-actions.js:240:21)\n    at BlockEditorPage.publishPost (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/wp-admin/block-editor.js:101:14)\n    at file:///home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/specs/blocks/pro-blocks.test.js:76:5\n    at TestTypeImpl._step (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testType.js:243:22)\n    at file:///home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/specs/blocks/pro-blocks.test.js:72:3\n    at /home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:426:9\n    at TestInfoImpl._runFn (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testInfo.js:166:7)\n    at /home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:376:26\n    at TimeoutManager.runWithTimeout (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/timeoutManager.js:73:7)\n    at TestInfoImpl._runWithTimeout (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testInfo.js:154:26)\n    at WorkerRunner._runTest (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:356:5)\n    at WorkerRunner.runTestGroup (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:218:11)\n    at process.<anonymous> (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/worker.js:88:5)"
+											},
+											"stdout": [],
+											"stderr": [],
+											"retry": 1,
+											"steps": [
+												{
+													"title": "Add a Pay with PayPal block",
+													"duration": 1527
+												},
+												{
+													"title": "Fill details of Pay with PayPal block",
+													"duration": 682
+												},
+												{
+													"title": "Publish a post and assert that Pay with PayPal block is rendered",
+													"duration": 33519,
+													"error": {
+														"message": "page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================",
+														"stack": "page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================\n    at BlockEditorPage.waitForElementState (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/page-actions.js:290:26)\n    at BlockEditorPage.waitForElementToBeVisible (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/page-actions.js:240:21)\n    at BlockEditorPage.publishPost (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/wp-admin/block-editor.js:101:14)\n    at file:///home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/specs/blocks/pro-blocks.test.js:76:5\n    at TestTypeImpl._step (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testType.js:243:22)\n    at file:///home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/specs/blocks/pro-blocks.test.js:72:3\n    at /home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:426:9\n    at TestInfoImpl._runFn (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testInfo.js:166:7)\n    at /home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:376:26\n    at TimeoutManager.runWithTimeout (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/timeoutManager.js:73:7)\n    at TestInfoImpl._runWithTimeout (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testInfo.js:154:26)\n    at WorkerRunner._runTest (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:356:5)\n    at WorkerRunner.runTestGroup (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:218:11)\n    at process.<anonymous> (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/worker.js:88:5)"
+													}
+												}
+											],
+											"attachments": [
+												{
+													"name": "video",
+													"contentType": "video/webm",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal-retry1/video.webm"
+												},
+												{
+													"name": "trace",
+													"contentType": "application/zip",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal-retry1/trace.zip"
+												},
+												{
+													"name": "trace",
+													"contentType": "application/zip",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal-retry1/trace-1.zip"
+												},
+												{
+													"name": "screenshot",
+													"contentType": "image/png",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal-retry1/test-failed-1.png"
+												},
+												{
+													"name": "screenshot",
+													"contentType": "image/png",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal-retry1/test-failed-2.png"
+												}
+											],
+											"errorLocation": {
+												"file": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/specs/blocks/pro-blocks.test.js",
+												"column": 5,
+												"line": 76
+											}
+										},
+										{
+											"workerIndex": 2,
+											"status": "failed",
+											"duration": 49199,
+											"error": {
+												"message": "page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================",
+												"stack": "page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================\n    at BlockEditorPage.waitForElementState (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/page-actions.js:290:26)\n    at BlockEditorPage.waitForElementToBeVisible (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/page-actions.js:240:21)\n    at BlockEditorPage.publishPost (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/wp-admin/block-editor.js:101:14)\n    at file:///home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/specs/blocks/pro-blocks.test.js:76:5\n    at TestTypeImpl._step (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testType.js:243:22)\n    at file:///home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/specs/blocks/pro-blocks.test.js:72:3\n    at /home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:426:9\n    at TestInfoImpl._runFn (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testInfo.js:166:7)\n    at /home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:376:26\n    at TimeoutManager.runWithTimeout (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/timeoutManager.js:73:7)\n    at TestInfoImpl._runWithTimeout (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testInfo.js:154:26)\n    at WorkerRunner._runTest (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:356:5)\n    at WorkerRunner.runTestGroup (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:218:11)\n    at process.<anonymous> (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/worker.js:88:5)"
+											},
+											"stdout": [],
+											"stderr": [],
+											"retry": 2,
+											"steps": [
+												{
+													"title": "Add a Pay with PayPal block",
+													"duration": 1426
+												},
+												{
+													"title": "Fill details of Pay with PayPal block",
+													"duration": 702
+												},
+												{
+													"title": "Publish a post and assert that Pay with PayPal block is rendered",
+													"duration": 32917,
+													"error": {
+														"message": "page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================",
+														"stack": "page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================\n    at BlockEditorPage.waitForElementState (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/page-actions.js:290:26)\n    at BlockEditorPage.waitForElementToBeVisible (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/page-actions.js:240:21)\n    at BlockEditorPage.publishPost (file:///home/runner/work/jetpack/jetpack/tools/e2e-commons/pages/wp-admin/block-editor.js:101:14)\n    at file:///home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/specs/blocks/pro-blocks.test.js:76:5\n    at TestTypeImpl._step (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testType.js:243:22)\n    at file:///home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/specs/blocks/pro-blocks.test.js:72:3\n    at /home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:426:9\n    at TestInfoImpl._runFn (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testInfo.js:166:7)\n    at /home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:376:26\n    at TimeoutManager.runWithTimeout (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/timeoutManager.js:73:7)\n    at TestInfoImpl._runWithTimeout (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testInfo.js:154:26)\n    at WorkerRunner._runTest (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:356:5)\n    at WorkerRunner.runTestGroup (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:218:11)\n    at process.<anonymous> (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/worker.js:88:5)"
+													}
+												}
+											],
+											"attachments": [
+												{
+													"name": "video",
+													"contentType": "video/webm",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal-retry2/video.webm"
+												},
+												{
+													"name": "trace",
+													"contentType": "application/zip",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal-retry2/trace.zip"
+												},
+												{
+													"name": "trace",
+													"contentType": "application/zip",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal-retry2/trace-1.zip"
+												},
+												{
+													"name": "screenshot",
+													"contentType": "image/png",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal-retry2/test-failed-1.png"
+												},
+												{
+													"name": "screenshot",
+													"contentType": "image/png",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal-retry2/test-failed-2.png"
+												}
+											],
+											"errorLocation": {
+												"file": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/specs/blocks/pro-blocks.test.js",
+												"column": 5,
+												"line": 76
+											}
+										}
+									],
+									"status": "unexpected"
+								}
+							],
+							"file": "specs/blocks/pro-blocks.test.js",
+							"line": 57,
+							"column": 2
+						}
+					]
+				}
+			]
+		}
+	],
+	"errors": []
+}

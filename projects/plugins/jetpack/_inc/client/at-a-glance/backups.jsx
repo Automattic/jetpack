@@ -1,56 +1,56 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { get, isEmpty, noop } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { ExternalLink } from '@wordpress/components';
+import { dateI18n } from '@wordpress/date';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _x, sprintf } from '@wordpress/i18n';
+import { Icon, backup } from '@wordpress/icons';
+import Button from 'components/button';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
-import JetpackBanner from 'components/jetpack-banner';
+import QueryBackupUndoEvent from 'components/data/query-backup-undo-event';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
+import JetpackBanner from 'components/jetpack-banner';
+import analytics from 'lib/analytics';
 import {
-	containsBackupRealtime,
-	getPlanClass,
 	getJetpackProductUpsellByFeature,
 	FEATURE_SITE_BACKUPS_JETPACK,
 } from 'lib/plans/constants';
+import { get, noop } from 'lodash';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import { getActiveBackupPurchase, getSitePlan, hasActiveBackupPurchase } from 'state/site';
-import { isPluginInstalled } from 'state/site/plugins';
-import { getVaultPressData } from 'state/at-a-glance';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import {
+	getBackupUndoEvent,
+	hasLoadedBackupUndoEvent,
+	isFetchingBackupUndoEvent,
+	getVaultPressData,
+} from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import { showBackups } from 'state/initial-state';
+import { isWoASite, getPartnerCoupon, showBackups } from 'state/initial-state';
+import { siteHasFeature, isFetchingSiteData } from 'state/site';
+import { isPluginInstalled } from 'state/site/plugins';
+import BackupGettingStarted from './backup-getting-started';
+import BackupUpgrade from './backup-upgrade';
 
 /**
  * Displays a card for Backups based on the props given.
  *
- * @param   {object} props Settings to render the card.
+ * @param   {object} props - Settings to render the card.
  * @returns {object}       Backups card
  */
 const renderCard = props => (
 	<DashItem
-		label={ __( 'Backup', 'jetpack' ) }
+		label={ __( 'VaultPress Backup', 'jetpack' ) }
 		module={ props.feature || 'backups' }
 		support={ {
 			text: __(
-				'Jetpack Backups allow you to easily restore or download a backup from a specific moment.',
+				'VaultPress Backup allows you to easily restore or download a backup from a specific moment.',
 				'jetpack'
 			),
 			link: getRedirectUrl( 'jetpack-support-backup' ),
 		} }
-		className={ props.className }
+		className={ props.className + ' dash-backups' }
 		status={ props.status }
 		pro={ true }
 		overrideContent={ props.overrideContent }
@@ -69,27 +69,123 @@ class DashBackups extends Component {
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
-		sitePlan: PropTypes.object.isRequired,
+		hasBackups: PropTypes.bool.isRequired,
+		hasRealTimeBackups: PropTypes.bool.isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		isVaultPressInstalled: PropTypes.bool.isRequired,
+		isWoA: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
+		backupUndoEvent: PropTypes.any.isRequired,
 	};
 
 	static defaultProps = {
 		siteRawUrl: '',
 		getOptionValue: noop,
 		vaultPressData: '',
-		sitePlan: '',
 		isOfflineMode: false,
 		isVaultPressInstalled: false,
+		isWoA: false,
 		rewindStatus: '',
 		trackUpgradeButtonView: noop,
+		backupUndoEvent: {},
 	};
+
+	trackBackupsClick = ( trackingName = 'backups-link' ) => {
+		return function () {
+			analytics.tracks.recordJetpackClick( {
+				type: trackingName,
+				target: 'at-a-glance',
+				feature: 'backups',
+			} );
+		};
+	};
+
+	trackRedeemCouponButtonView = () => {
+		const { partnerCoupon } = this.props;
+
+		analytics.tracks.recordEvent( 'jetpack_wpa_aag_redeem_partner_coupon_button_view', {
+			feature: 'backups',
+			coupon_preset: partnerCoupon.preset,
+		} );
+	};
+
+	getJetpackBackupBanner() {
+		const { partnerCoupon, upgradeUrl, siteRawUrl, trackUpgradeButtonView } = this.props;
+
+		if ( this.props.hasConnectedOwner ) {
+			if ( partnerCoupon && 'jetpack_backup_daily' === partnerCoupon.product.slug ) {
+				const checkoutUrl = getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
+					path: partnerCoupon.product.slug,
+					site: siteRawUrl,
+					query: `coupon=${ partnerCoupon.coupon_code }`,
+				} );
+
+				return (
+					<JetpackBanner
+						callToAction={ __( 'Redeem', 'jetpack' ) }
+						title={ sprintf(
+							/* translators: %s: Name of a Jetpack product. */
+							__(
+								'Redeem your coupon and get started with %s for free the first year!',
+								'jetpack'
+							),
+							partnerCoupon.product.title
+						) }
+						disableHref="false"
+						href={ checkoutUrl }
+						eventFeature="backups"
+						path="dashboard"
+						eventProps={ {
+							type: 'redeem_partner_coupon',
+							coupon_preset: partnerCoupon.preset,
+						} }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
+						trackBannerDisplay={ this.trackRedeemCouponButtonView }
+					/>
+				);
+			}
+
+			return (
+				<>
+					<BackupUpgrade />
+					<JetpackBanner
+						callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
+						title={ __(
+							'Never worry about losing your site – automatic backups keep your content safe.',
+							'jetpack'
+						) }
+						disableHref="false"
+						href={ upgradeUrl }
+						eventFeature="backups"
+						path="dashboard"
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
+						trackBannerDisplay={ trackUpgradeButtonView }
+					/>
+				</>
+			);
+		}
+
+		return (
+			<JetpackBanner
+				callToAction={ __( 'Connect', 'jetpack' ) }
+				title={ __(
+					'Connect your WordPress.com account to upgrade and get automatic backups that keep your content safe.',
+					'jetpack'
+				) }
+				disableHref="false"
+				onClick={ this.props.connectUser }
+				eventFeature="backups"
+				path="dashboard"
+				plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
+			/>
+		);
+	}
 
 	getVPContent() {
 		const {
-			sitePlan,
+			hasBackups,
+			isFetchingSite,
 			isVaultPressInstalled,
 			getOptionValue,
 			siteRawUrl,
@@ -118,9 +214,9 @@ class DashBackups extends Component {
 			} );
 		}
 
-		if ( ! isEmpty( sitePlan ) ) {
+		if ( ! isFetchingSite ) {
 			// If site has a paid plan
-			if ( 'jetpack_free' !== get( sitePlan, 'product_slug', 'jetpack_free' ) ) {
+			if ( hasBackups ) {
 				return renderCard( {
 					className: 'jp-dash-item__is-inactive',
 					status: isVaultPressInstalled ? 'pro-inactive' : 'pro-uninstalled',
@@ -148,48 +244,62 @@ class DashBackups extends Component {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
-				overrideContent: this.props.hasConnectedOwner ? (
-					<JetpackBanner
-						callToAction={ __( 'Upgrade', 'jetpack' ) }
-						title={ __(
-							'Never worry about losing your site – automatic backups keep your content safe.',
-							'jetpack'
-						) }
-						disableHref="false"
-						href={ this.props.upgradeUrl }
-						eventFeature="backups"
-						path="dashboard"
-						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
-						trackBannerDisplay={ this.props.trackUpgradeButtonView }
-					/>
-				) : (
-					<JetpackBanner
-						callToAction={ __( 'Connect', 'jetpack' ) }
-						title={ __(
-							'Connect your WordPress.com account to upgrade and get automatic backups that keep your content safe.',
-							'jetpack'
-						) }
-						disableHref="false"
-						onClick={ this.props.connectUser }
-						eventFeature="backups"
-						path="dashboard"
-						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
-					/>
-				),
+				overrideContent: this.getJetpackBackupBanner(),
 			} );
 		}
 
-		return renderCard( {
-			className: '',
-			status: '',
-			content: __( 'Loading…', 'jetpack' ),
-		} );
+		return this.renderLoading();
+	}
+
+	renderManageBackupsLinks() {
+		const { isWoA, siteRawUrl } = this.props;
+		return (
+			<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom">
+				<div className="jp-dash-item__action-links">
+					<ExternalLink
+						href={
+							isWoA
+								? getRedirectUrl( 'calypso-backups', {
+										site: siteRawUrl,
+								  } )
+								: getRedirectUrl( 'my-jetpack-manage-backup', {
+										site: siteRawUrl,
+								  } )
+						}
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={ this.trackBackupsClick( 'backups-link' ) }
+					>
+						{ __( "View your site's backups", 'jetpack' ) }
+					</ExternalLink>
+					<ExternalLink
+						href={ getRedirectUrl( 'calypso-activity-log', {
+							site: siteRawUrl,
+							query: 'group=rewind',
+						} ) }
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={ this.trackBackupsClick( 'restore-points-link' ) }
+					>
+						{ __( 'View your most recent restore points', 'jetpack' ) }
+					</ExternalLink>
+				</div>
+			</Card>
+		);
 	}
 
 	getRewindContent() {
-		const { planClass, rewindStatus, siteRawUrl } = this.props;
-		const buildAction = ( url, message ) => (
-			<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom" href={ url }>
+		const { hasRealTimeBackups, rewindStatus, siteRawUrl, backupUndoEventLoaded } = this.props;
+		const buildAction = ( url, message, trackingName ) => (
+			<Card
+				compact
+				key="manage-backups"
+				className="jp-dash-item__manage-in-wpcom"
+				href={ url }
+				target="_blank"
+				rel="noopener noreferrer"
+				onClick={ this.trackBackupsClick( trackingName ) }
+			>
 				{ message }
 			</Card>
 		);
@@ -212,35 +322,67 @@ class DashBackups extends Component {
 				return (
 					<React.Fragment>
 						{ buildCard(
-							__( "You need to enter your server's credentials to finish the setup.", 'jetpack' )
+							__(
+								'Enter your SSH, SFTP or FTP credentials to enable one-click site restores and faster backups',
+								'jetpack'
+							)
 						) }
 						{ buildAction(
 							getRedirectUrl( 'jetpack-backup-dash-credentials', { site: siteRawUrl } ),
-							__( 'Enter credentials', 'jetpack' )
+							__( 'Enter credentials', 'jetpack' ),
+							'enter-credentials-link'
 						) }
 					</React.Fragment>
 				);
-			case 'active':
-				const message = containsBackupRealtime( planClass )
-					? __( 'We are backing up your site in real-time.', 'jetpack' )
-					: __( 'We are backing up your site daily.', 'jetpack' );
+			case 'active': {
+				if ( backupUndoEventLoaded ) {
+					return this.renderUndo();
+				}
+
+				/* Avoid ternary as code minification will break translation function. :( */
+				let message = __( 'We are backing up your site daily.', 'jetpack' );
+				if ( hasRealTimeBackups ) {
+					message = createInterpolateElement(
+						__(
+							'Every change you make will be backed up, in real-time, as you edit your site. <ExternalLink>Learn More</ExternalLink>',
+							'jetpack'
+						),
+						{
+							ExternalLink: (
+								<ExternalLink
+									href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
+									target="_blank"
+									rel="noopener noreferrer"
+									onClick={ this.trackBackupsClick( 'realtime-learn-more-link' ) }
+								></ExternalLink>
+							),
+						}
+					);
+				}
 
 				return (
 					<React.Fragment>
 						{ buildCard( message ) }
-						{ buildAction(
-							getRedirectUrl( 'calypso-activity-log', { site: siteRawUrl, query: 'group=rewind' } ),
-							__( "View your site's backups", 'jetpack' )
-						) }
+						{ this.renderManageBackupsLinks() }
 					</React.Fragment>
 				);
+			}
 		}
 
 		return false;
 	}
 
+	renderLoading() {
+		return renderCard( {
+			className: '',
+			status: '',
+			content: __( 'Loading…', 'jetpack' ),
+		} );
+	}
+
 	renderFromRewindStatus() {
 		if (
+			this.props.hasBackups &&
 			'unavailable' === this.props.rewindStatus &&
 			'site_new' === this.props.rewindStatusReason
 		) {
@@ -257,6 +399,88 @@ class DashBackups extends Component {
 			return this.getVPContent();
 		}
 		return <div className="jp-dash-item">{ this.getRewindContent() }</div>;
+	}
+
+	trackUndoFeatureView() {
+		analytics.tracks.recordEvent( 'jetpack_wpa_aag_backup_undo_view' );
+	}
+
+	trackUndoButtonClick() {
+		analytics.tracks.recordEvent( 'jetpack_wpa_aag_backup_undo_button_click' );
+	}
+
+	renderUndo() {
+		const { backupUndoEvent } = this.props;
+		const {
+			activityDate,
+			activityTitle,
+			activityDescription,
+			actorName,
+			actorRole,
+			actorAvatarUrl,
+			undoBackupId,
+		} = backupUndoEvent;
+
+		const activityDateFormatted = dateI18n( 'M jS, g:i a', activityDate );
+
+		const message = (
+			<div className="dops-card jp-dash-item__card dash-backup-undo">
+				<div className="jp-dash-item__description dash-backup-undo__activity-log">
+					<div className="dash-backup-undo__activity-log-date">{ activityDateFormatted }</div>
+					<div className="dash-backup-undo__activity-log-action">{ activityTitle }</div>
+					<div className="dash-backup-undo__activity-log-description">{ activityDescription }</div>
+					<div className="dash-backup-undo__activity-log-user-meta">
+						<div className="dash-backup-undo__activity-log-user-meta-avatar">
+							<img
+								alt={ actorName }
+								src={ actorAvatarUrl ?? 'https://www.gravatar.com/avatar/0?s=96&d=mm' }
+								width="30"
+								height="30"
+							/>
+						</div>
+						<div className="dash-backup-undo__activity-log-user-meta-name">
+							{ actorName }
+							{ actorRole && ' - ' + actorRole }
+						</div>
+					</div>
+				</div>
+				<div className="dash-backup-undo__cta">
+					{ createInterpolateElement( __( '<button><icon /> Undo</button>', 'jetpack' ), {
+						button: (
+							<Button
+								href={ getRedirectUrl( 'jetpack-backup-undo-cta', { path: undoBackupId } ) }
+								primary
+								target="_blank"
+								onClick={ this.trackUndoButtonClick }
+							/>
+						),
+						icon: <Icon icon={ backup } />,
+					} ) }
+				</div>
+			</div>
+		);
+
+		this.trackUndoFeatureView();
+
+		return (
+			<>
+				{ renderCard( {
+					className: 'jp-dash-item__is-active',
+					status: 'is-working',
+					feature: 'rewind',
+					overrideContent: message,
+				} ) }
+				{ this.renderManageBackupsLinks() }
+			</>
+		);
+	}
+
+	renderGettingStartedVideo() {
+		if ( this.props.rewindStatus !== 'awaiting_credentials' ) {
+			return null;
+		}
+
+		return <BackupGettingStarted />;
 	}
 
 	render() {
@@ -276,10 +500,16 @@ class DashBackups extends Component {
 			);
 		}
 
+		if ( this.props.isFetchingSite ) {
+			this.renderLoading();
+		}
+
 		return (
 			<div>
 				<QueryVaultPressData />
+				{ this.props.rewindStatus === 'active' && <QueryBackupUndoEvent /> }
 				{ this.renderFromRewindStatus() }
+				{ this.renderGettingStartedVideo() }
 			</div>
 		);
 	}
@@ -287,19 +517,21 @@ class DashBackups extends Component {
 
 export default connect(
 	state => {
-		const sitePlan = getSitePlan( state );
-
 		return {
 			vaultPressData: getVaultPressData( state ),
-			sitePlan,
-			planClass: hasActiveBackupPurchase( state )
-				? getPlanClass( getActiveBackupPurchase( state ).product_slug )
-				: getPlanClass( sitePlan.product_slug ),
 			isOfflineMode: isOfflineMode( state ),
 			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 			showBackups: showBackups( state ),
 			upgradeUrl: getProductDescriptionUrl( state, 'backup' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
+			isFetchingSite: isFetchingSiteData( state ),
+			hasBackups: siteHasFeature( state, 'backups' ),
+			hasRealTimeBackups: siteHasFeature( state, 'real-time-backups' ),
+			partnerCoupon: getPartnerCoupon( state ),
+			isWoA: isWoASite( state ),
+			backupUndoEvent: getBackupUndoEvent( state ),
+			backupUndoEventLoaded: hasLoadedBackupUndoEvent( state ),
+			backupUndoEventIsFetching: isFetchingBackupUndoEvent( state ),
 		};
 	},
 	dispatch => ( {

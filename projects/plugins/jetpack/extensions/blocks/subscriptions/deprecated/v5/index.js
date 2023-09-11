@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import definedAttributes from '../v3/attributes';
 import save from './save';
 

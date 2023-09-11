@@ -1,8 +1,5 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { BlockControls, InnerBlocks } from '@wordpress/block-editor';
 import {
 	Placeholder,
 	SandBox,
@@ -11,21 +8,17 @@ import {
 	ExternalLink,
 	withNotices,
 } from '@wordpress/components';
-import { BlockControls, BlockIcon, InnerBlocks } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
-import { innerButtonBlock } from './';
-import attributeDetails from './attributes';
-import { convertToLink, eventIdFromUrl, normalizeUrlInput } from './utils';
-import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import { icon, URL_REGEX, EVENTBRITE_EXAMPLE_URL } from '.';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
-import EventbriteInPageExample from './eventbrite-in-page-example.png';
+import { Component } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import testEmbedUrl from '../../shared/test-embed-url';
+import attributeDetails from './attributes';
 import { ToolbarControls } from './controls';
+import EventbriteInPageExample from './eventbrite-in-page-example.png';
+import { convertToLink, eventIdFromUrl, normalizeUrlInput } from './utils';
+import { icon, URL_REGEX, EVENTBRITE_EXAMPLE_URL } from '.';
+import { innerButtonBlock } from './';
 import './editor.scss';
 
 export class EventbriteEdit extends Component {
@@ -87,7 +80,7 @@ export class EventbriteEdit extends Component {
 		noticeOperations.createErrorNotice(
 			<>
 				{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }{ ' ' }
-				<Button isLink onClick={ () => convertToLink( editedUrl, onReplace ) }>
+				<Button variant="link" onClick={ () => convertToLink( editedUrl, onReplace ) }>
 					{ _x( 'Convert block to link', 'button label', 'jetpack' ) }
 				</Button>
 			</>
@@ -176,7 +169,7 @@ export class EventbriteEdit extends Component {
 						'Paste a link to an Eventbrite event to embed ticket checkout.',
 						'jetpack'
 					) }
-					icon={ <BlockIcon icon={ icon } /> }
+					icon={ icon }
 					notices={ noticeUI }
 				>
 					<form onSubmit={ this.submitForm }>
@@ -188,7 +181,7 @@ export class EventbriteEdit extends Component {
 							placeholder={ __( 'Enter an event URL to embed here…', 'jetpack' ) }
 							onChange={ event => this.setState( { editedUrl: event.target.value } ) }
 						/>
-						<Button isSecondary type="submit">
+						<Button variant="secondary" type="submit">
 							{ _x( 'Embed', 'submit button label', 'jetpack' ) }
 						</Button>
 					</form>

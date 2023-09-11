@@ -1,27 +1,16 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { get, includes } from 'lodash';
-
-/**
- * WordPress dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import ExternalLink from 'components/external-link';
-import TextInput from 'components/text-input';
 import { FormFieldset, FormLabel } from 'components/forms';
-import { ModuleToggle } from 'components/module-toggle';
+import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import JetpackBanner from 'components/jetpack-banner';
+import TextInput from 'components/text-input';
+import { get, includes } from 'lodash';
+import React from 'react';
 import GoogleVerificationService from './verification-services/google';
 
 class VerificationServicesComponent extends React.Component {
@@ -129,40 +118,27 @@ class VerificationServicesComponent extends React.Component {
 								support: <a href={ getRedirectUrl( 'jetpack-support-site-verification-tools' ) } />,
 								google: (
 									<ExternalLink
-										icon={ true }
-										target="_blank"
 										rel="noopener noreferrer"
 										href="https://www.google.com/webmasters/tools/"
 									/>
 								),
 								bing: (
-									<ExternalLink
-										icon={ true }
-										target="_blank"
-										rel="noopener noreferrer"
-										href="https://www.bing.com/webmaster/"
-									/>
+									<ExternalLink rel="noopener noreferrer" href="https://www.bing.com/webmaster/" />
 								),
 								pinterest: (
 									<ExternalLink
-										icon={ true }
-										target="_blank"
 										rel="noopener noreferrer"
 										href="https://pinterest.com/website/verify/"
 									/>
 								),
 								yandex: (
 									<ExternalLink
-										icon={ true }
-										target="_blank"
 										rel="noopener noreferrer"
 										href="https://webmaster.yandex.com/sites/"
 									/>
 								),
 								facebook: (
 									<ExternalLink
-										icon={ true }
-										target="_blank"
 										rel="noopener noreferrer"
 										href="https://business.facebook.com/settings/"
 									/>
@@ -178,7 +154,7 @@ class VerificationServicesComponent extends React.Component {
 							disabled={ this.props.isUpdating( 'google' ) || ! isVerificationActive }
 						/>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_bing">
-							<span>{ __( 'Bing', 'jetpack' ) }</span>
+							<span>{ __( 'Bing:', 'jetpack' ) }</span>
 							<TextInput
 								name="bing"
 								value={ this.getSiteVerificationValue( 'bing' ) }
@@ -189,7 +165,7 @@ class VerificationServicesComponent extends React.Component {
 							/>
 						</FormLabel>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_pinterest">
-							<span>{ __( 'Pinterest', 'jetpack' ) }</span>
+							<span>{ __( 'Pinterest:', 'jetpack' ) }</span>
 							<TextInput
 								name="pinterest"
 								value={ this.getSiteVerificationValue( 'pinterest' ) }
@@ -200,7 +176,7 @@ class VerificationServicesComponent extends React.Component {
 							/>
 						</FormLabel>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_yandex">
-							<span>{ __( 'Yandex', 'jetpack' ) }</span>
+							<span>{ __( 'Yandex:', 'jetpack' ) }</span>
 							<TextInput
 								name="yandex"
 								value={ this.getSiteVerificationValue( 'yandex' ) }
@@ -211,7 +187,7 @@ class VerificationServicesComponent extends React.Component {
 							/>
 						</FormLabel>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_facebook">
-							<span>{ __( 'Facebook', 'jetpack' ) }</span>
+							<span>{ __( 'Facebook:', 'jetpack' ) }</span>
 							<TextInput
 								name="facebook"
 								value={ this.getSiteVerificationValue( 'facebook' ) }

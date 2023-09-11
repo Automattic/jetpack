@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
-
-/**
- * Internal dependencies
- */
 import WhatsAppButtonConfiguration from '../configuration';
 
 const defaultAttributes = {
@@ -41,9 +33,10 @@ describe( 'Inspector settings', () => {
 		expect( screen.getByLabelText( 'Country code' ) ).toBeInTheDocument();
 	} );
 
-	test( 'sets country code attribute', () => {
+	test( 'sets country code attribute', async () => {
+		const user = userEvent.setup();
 		render( <WhatsAppButtonConfiguration { ...defaultProps } /> );
-		userEvent.selectOptions( screen.getByLabelText( 'Country code' ), [ '1US' ] );
+		await user.selectOptions( screen.getByLabelText( 'Country code' ), [ '1US' ] );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { countryCode: '1US' } );
 	} );
@@ -54,9 +47,10 @@ describe( 'Inspector settings', () => {
 		expect( screen.getByPlaceholderText( 'Your phone number…' ) ).toBeInTheDocument();
 	} );
 
-	test( 'sets phone number attribute', () => {
+	test( 'sets phone number attribute', async () => {
+		const user = userEvent.setup();
 		render( <WhatsAppButtonConfiguration { ...defaultProps } /> );
-		userEvent.type( screen.getByPlaceholderText( 'Your phone number…' ), '6' );
+		await user.type( screen.getByPlaceholderText( 'Your phone number…' ), '6' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { phoneNumber: '123456' } );
 	} );
@@ -67,9 +61,10 @@ describe( 'Inspector settings', () => {
 		expect( screen.getByLabelText( 'Default First Message' ) ).toBeInTheDocument();
 	} );
 
-	test( 'sets default first message attributes', () => {
+	test( 'sets default first message attributes', async () => {
+		const user = userEvent.setup();
 		render( <WhatsAppButtonConfiguration { ...defaultProps } /> );
-		userEvent.type( screen.getByLabelText( 'Default First Message' ), 'A' );
+		await user.type( screen.getByLabelText( 'Default First Message' ), 'A' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { firstMessage: 'A' } );
 	} );
@@ -80,9 +75,10 @@ describe( 'Inspector settings', () => {
 		expect( screen.getByLabelText( 'Open in new tab' ) ).toBeInTheDocument();
 	} );
 
-	test( 'sets openInNewTab attribute', () => {
+	test( 'sets openInNewTab attribute', async () => {
+		const user = userEvent.setup();
 		render( <WhatsAppButtonConfiguration { ...defaultProps } /> );
-		userEvent.click( screen.getByLabelText( 'Open in new tab' ) );
+		await user.click( screen.getByLabelText( 'Open in new tab' ) );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { openInNewTab: true } );
 	} );
@@ -99,10 +95,9 @@ describe( 'Toolbar settings', () => {
 	} );
 
 	test( 'loads settings when toolbar button clicked', async () => {
+		const user = userEvent.setup();
 		render( <WhatsAppButtonConfiguration { ...props } /> );
-		userEvent.click( screen.getByLabelText( 'WhatsApp Button Settings' ) );
-		await waitFor( () => screen.getByLabelText( 'Country code' ) );
-
-		expect( screen.getByLabelText( 'Country code' ) ).toBeInTheDocument();
+		await user.click( screen.getByLabelText( 'WhatsApp Button Settings' ) );
+		await expect( screen.findByLabelText( 'Country code' ) ).resolves.toBeInTheDocument();
 	} );
 } );

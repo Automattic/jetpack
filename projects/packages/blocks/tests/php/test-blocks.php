@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack;
 
 use Brain\Monkey;
-use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -225,7 +224,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.8.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 * @covers Automattic\Jetpack\Blocks::is_fse_theme
 	 */
 	public function test_is_not_fse_theme() {
 		$this->assertFalse( Blocks::is_fse_theme() );
@@ -236,7 +235,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.8.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 * @covers Automattic\Jetpack\Blocks::is_fse_theme
 	 */
 	public function test_is_fse_theme_via_filter() {
 		add_filter( 'jetpack_is_fse_theme', '__return_true' );
@@ -245,19 +244,6 @@ class Test_Blocks extends TestCase {
 		} finally {
 			remove_filter( 'jetpack_is_fse_theme', '__return_true' );
 		}
-	}
-
-	/**
-	 * Test that we can detect an FSE theme using the provided core function, gutenberg_is_fse_theme.
-	 *
-	 * @since 9.8.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
-	 */
-	public function test_is_fse_theme_via_core_function() {
-		Functions\when( 'gutenberg_is_fse_theme' )->justReturn( true );
-
-		$this->assertTrue( Blocks::is_fse_theme() );
 	}
 
 	/**
@@ -319,7 +305,6 @@ class Test_Blocks extends TestCase {
 		} finally {
 			remove_filter( 'jetpack_is_standalone_block', '__return_false' );
 		}
-
 	}
 
 	/**
@@ -344,5 +329,100 @@ class Test_Blocks extends TestCase {
 		} finally {
 			remove_filter( 'jetpack_is_standalone_block', '__return_false' );
 		}
+	}
+
+	/**
+	 * Test registering a block by specifying the path to its metadata file.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
+	 */
+	public function test_jetpack_register_block_from_metadata_file() {
+		$result = Blocks::jetpack_register_block( __DIR__ . '/fixtures/block.json' );
+
+		$this->assertInstanceOf( 'WP_Block_Type', $result );
+	}
+
+	/**
+	 * Test reading metadata from a block.json file by specifying its path.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
+	 */
+	public function test_get_block_metadata_from_file() {
+		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/block.json' );
+
+		// phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertIsArray -- assertIsArray not supported by all PHP versions we support.
+		$this->assertTrue( is_array( $result ) );
+		$this->assertNotEmpty( $result );
+	}
+
+	/**
+	 * Test reading metadata from a block.json file by specifying its folder.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
+	 */
+	public function test_get_block_metadata_from_folder() {
+		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/' );
+
+		// phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertIsArray -- assertIsArray not supported by all PHP versions we support.
+		$this->assertTrue( is_array( $result ) );
+		$this->assertNotEmpty( $result );
+	}
+
+	/**
+	 * Test reading metadata from a file that doesn't exist.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
+	 */
+	public function test_get_block_metadata_from_wrong_file() {
+		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/ghost-folder/block.json' );
+
+		// phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertIsArray -- assertIsArray not supported by all PHP versions we support.
+		$this->assertTrue( is_array( $result ) );
+		$this->assertEmpty( $result );
+	}
+
+	/**
+	 * Test reading the name of a block from its metadata.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_metadata
+	 */
+	public function test_get_block_name_from_metadata() {
+		$name   = 'jetpack/test-block';
+		$result = Blocks::get_block_name_from_metadata( array() );
+
+		$this->assertSame( '', $result );
+
+		$result = Blocks::get_block_name_from_metadata( array( 'name' => $name ) );
+
+		$this->assertEquals( $result, $name );
+	}
+
+	/**
+	 * Test reading the feature name of a block from its metadata.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_metadata
+	 */
+	public function test_get_block_feature_from_metadata() {
+		$feature = 'test-block';
+		$name    = 'jetpack/' . $feature;
+		$result  = Blocks::get_block_feature_from_metadata( array() );
+
+		$this->assertSame( '', $result );
+
+		$result = Blocks::get_block_feature_from_metadata( array( 'name' => $name ) );
+
+		$this->assertEquals( $result, $feature );
 	}
 }

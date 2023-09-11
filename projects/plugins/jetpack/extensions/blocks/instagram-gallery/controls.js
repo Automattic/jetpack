@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import {
 	Button,
 	ExternalLink,
@@ -11,10 +8,6 @@ import {
 	ToggleControl,
 } from '@wordpress/components';
 import { __, sprintf, _n } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { MAX_IMAGE_COUNT } from './constants';
 
 export default function InstagramGalleryInspectorControls( {
@@ -60,7 +53,11 @@ export default function InstagramGalleryInspectorControls( {
 				</PanelRow>
 				{ currentUserConnected && (
 					<PanelRow>
-						<Button isDestructive isLink onClick={ () => disconnectFromService( accessToken ) }>
+						<Button
+							isDestructive
+							variant="link"
+							onClick={ () => disconnectFromService( accessToken ) }
+						>
 							{ __( 'Disconnect your account', 'jetpack' ) }
 						</Button>
 					</PanelRow>

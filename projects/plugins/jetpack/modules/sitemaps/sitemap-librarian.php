@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Sitemaps are stored in the database using a custom table. This class
  * provides a small API for storing and retrieving sitemap data so we can
@@ -59,7 +59,7 @@ class Jetpack_Sitemap_Librarian {
 				'timestamp' => $the_post->post_date,
 				'name'      => $the_post->post_title,
 				'type'      => $the_post->post_type,
-				'text'      => base64_decode( $the_post->post_content ),
+				'text'      => base64_decode( $the_post->post_content ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 			);
 		}
 	}
@@ -89,9 +89,9 @@ class Jetpack_Sitemap_Librarian {
 			wp_insert_post(
 				array(
 					'post_title'   => $name,
-					'post_content' => base64_encode( $contents ),
+					'post_content' => base64_encode( $contents ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 					'post_type'    => $type,
-					'post_date'    => date( 'Y-m-d H:i:s', strtotime( $timestamp ) ),
+					'post_date'    => gmdate( 'Y-m-d H:i:s', strtotime( $timestamp ) ),
 				)
 			);
 		} else {
@@ -100,9 +100,9 @@ class Jetpack_Sitemap_Librarian {
 				array(
 					'ID'           => $the_post['id'],
 					'post_title'   => $name,
-					'post_content' => base64_encode( $contents ),
+					'post_content' => base64_encode( $contents ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 					'post_type'    => $type,
-					'post_date'    => date( 'Y-m-d H:i:s', strtotime( $timestamp ) ),
+					'post_date'    => gmdate( 'Y-m-d H:i:s', strtotime( $timestamp ) ),
 				)
 			);
 		}
@@ -167,7 +167,7 @@ class Jetpack_Sitemap_Librarian {
 		$any_left = true;
 
 		while ( true === $any_left ) {
-			$position++;
+			++$position;
 			$name     = jp_sitemap_filename( $type, $position );
 			$any_left = $this->delete_sitemap_data( $name, $type );
 		}
@@ -272,8 +272,9 @@ class Jetpack_Sitemap_Librarian {
 		foreach ( (array) $post_types as $i => $post_type ) {
 			$post_types[ $i ] = $wpdb->prepare( '%s', $post_type );
 		}
-		$post_types_list = join( ',', $post_types );
+		$post_types_list = implode( ',', $post_types );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- WPCS: db call ok; no-cache ok.
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT *
@@ -286,7 +287,8 @@ class Jetpack_Sitemap_Librarian {
 				$from_id,
 				$num_posts
 			)
-		); // WPCS: db call ok; no-cache ok.
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 	/**
@@ -391,7 +393,7 @@ class Jetpack_Sitemap_Librarian {
 	public function query_most_recent_posts( $num_posts ) {
 		global $wpdb;
 
-		$two_days_ago = date( 'Y-m-d', strtotime( '-2 days' ) );
+		$two_days_ago = gmdate( 'Y-m-d', strtotime( '-2 days' ) );
 
 		/**
 		 * Filter post types to be included in news sitemap.
@@ -411,8 +413,9 @@ class Jetpack_Sitemap_Librarian {
 			$post_types[ $i ] = $wpdb->prepare( '%s', $post_type );
 		}
 
-		$post_types_list = join( ',', $post_types );
+		$post_types_list = implode( ',', $post_types );
 
+		// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- WPCS: db call ok; no-cache ok.
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT *
@@ -425,7 +428,8 @@ class Jetpack_Sitemap_Librarian {
 				$two_days_ago,
 				$num_posts
 			)
-		); // WPCS: db call ok; no-cache ok.
+		);
+		// phpcs:enable WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 }

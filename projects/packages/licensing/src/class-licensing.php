@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Licensing\Endpoints;
 use Jetpack_IXR_ClientMulticall;
 use Jetpack_Options;
 use WP_Error;
@@ -62,6 +63,19 @@ class Licensing {
 		add_action( 'add_option_' . self::LICENSES_OPTION_NAME, array( $this, 'attach_stored_licenses' ) );
 		add_action( 'update_option_' . self::LICENSES_OPTION_NAME, array( $this, 'attach_stored_licenses' ) );
 		add_action( 'jetpack_authorize_ending_authorized', array( $this, 'attach_stored_licenses_on_connection' ) );
+		add_action( 'rest_api_init', array( $this, 'initialize_endpoints' ) );
+	}
+
+	/**
+	 * Initialize endpoints required for Licensing package.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @return void
+	 */
+	public function initialize_endpoints() {
+		$endpoints = new Endpoints();
+		$endpoints->register_endpoints();
 	}
 
 	/**
@@ -153,7 +167,7 @@ class Licensing {
 	 */
 	public function attach_licenses( array $licenses ) {
 		if ( ! $this->connection()->has_connected_owner() ) {
-			return new WP_Error( 'not_connected', __( 'Jetpack doesn\'t have a connected owner.', 'jetpack' ) );
+			return new WP_Error( 'not_connected', __( 'Jetpack doesn\'t have a connected owner.', 'jetpack-licensing' ) );
 		}
 
 		if ( empty( $licenses ) ) {
@@ -163,7 +177,7 @@ class Licensing {
 		$xml = $this->attach_licenses_request( $licenses );
 
 		if ( $xml->isError() ) {
-			$error = new WP_Error( 'request_failed', __( 'License attach request failed.', 'jetpack' ) );
+			$error = new WP_Error( 'request_failed', __( 'License attach request failed.', 'jetpack-licensing' ) );
 			$error->add( $xml->getErrorCode(), $xml->getErrorMessage() );
 			return $error;
 		}
@@ -194,7 +208,7 @@ class Licensing {
 		if ( is_wp_error( $results ) ) {
 			if ( 'request_failed' === $results->get_error_code() ) {
 				$this->log_error(
-					__( 'Failed to attach your Jetpack license(s). Please try reconnecting Jetpack.', 'jetpack' )
+					__( 'Failed to attach your Jetpack license(s). Please try reconnecting Jetpack.', 'jetpack-licensing' )
 				);
 			}
 
@@ -213,7 +227,7 @@ class Licensing {
 			$this->log_error(
 				sprintf(
 					/* translators: %s is a comma-separated list of license keys. */
-					__( 'The following Jetpack licenses are invalid, already in use, or revoked: %s', 'jetpack' ),
+					__( 'The following Jetpack licenses are invalid, already in use, or revoked: %s', 'jetpack-licensing' ),
 					implode( ', ', $failed )
 				)
 			);
@@ -268,5 +282,78 @@ class Licensing {
 		}
 
 		return $default;
+	}
+
+	/**
+	 * Load current user's licenses.
+	 *
+	 * @param bool $unattached_only Only return unattached licenses.
+	 *
+	 * @return array
+	 */
+	public function get_user_licenses( $unattached_only = false ) {
+		$licenses = Endpoints::get_user_licenses();
+
+		if ( empty( $licenses->items ) ) {
+			return array();
+		}
+
+		$items = $licenses->items;
+
+		if ( $unattached_only ) {
+			$items = array_filter(
+				$items,
+				static function ( $item ) {
+					return $item->attached_at === null;
+				}
+			);
+		}
+
+		return $items;
+	}
+
+	/**
+	 * If the destination URL is checkout page,
+	 * see if there are unattached licenses they could use instead of getting a new one.
+	 * If found, redirect the user to license activation.
+	 *
+	 * @param string $dest_url User's destination URL.
+	 *
+	 * @return void
+	 */
+	public function handle_user_connected_redirect( $dest_url ) {
+		if ( ! preg_match( '#^https://[^/]+/checkout/#i', $dest_url ) ) {
+			return;
+		}
+
+		$licenses    = $this->get_user_licenses( true );
+		$plugin_slug = null;
+
+		$query_string = wp_parse_url( $dest_url, PHP_URL_QUERY );
+		if ( $query_string ) {
+			parse_str( $query_string, $query_args );
+
+			if ( $query_args['redirect_to']
+				&& preg_match( '/^admin\.php\?page=(jetpack-\w+)/i', $query_args['redirect_to'], $matches )
+			) {
+				$plugin_slug = $matches[1];
+			}
+		}
+
+		/**
+		 * Check for the user's unattached licenses.
+		 *
+		 * @since 3.8.2
+		 *
+		 * @param bool   $has_license Whether a license was already found.
+		 * @param array  $licenses Unattached licenses belonging to the user.
+		 * @param string $plugin_slug Slug of the plugin that initiated the flow.
+		 */
+		if ( $plugin_slug && count( $licenses )
+			&& apply_filters( 'jetpack_connection_user_has_license', false, $licenses, $plugin_slug )
+		) {
+			wp_safe_redirect( '/wp-admin/admin.php?page=my-jetpack#/add-license' );
+			exit;
+		}
 	}
 }

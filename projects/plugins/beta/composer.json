@@ -8,29 +8,15 @@
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
 	"require": {
-		"automattic/jetpack-autoloader": "2.10.x-dev",
-		"composer/semver": "3.2.6",
+		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"composer/semver": "3.3.2",
 		"erusev/parsedown": "1.7.4"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "3.0.x-dev"
+		"automattic/jetpack-changelogger": "@dev"
 	},
-	"scripts": {
-		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
-			"@clean",
-			"@composer install"
-		],
-		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
-			"@clean",
-			"@putenv COMPOSER_MIRROR_PATH_REPOS=1",
-			"@composer install -o --no-dev --classmap-authoritative --prefer-dist"
-		],
-		"clean": [
-			"rm -rf vendor/ jetpack_vendor/"
-		]
-	},
+	"scripts": {},
 	"autoload": {
 		"classmap": [
 			"src/"
@@ -49,7 +35,10 @@
 	"prefer-stable": true,
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_1_0"
+		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_1_6_alpha",
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true
+		}
 	},
 	"extra": {
 		"autotagger": true,

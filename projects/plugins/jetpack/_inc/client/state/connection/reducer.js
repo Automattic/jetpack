@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import { combineReducers } from 'redux';
 import { assign, get, includes, merge } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import { combineReducers } from 'redux';
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
 	JETPACK_SET_INITIAL_STATE,
@@ -75,7 +68,7 @@ export const connectUrl = ( state = '', action ) => {
 	}
 };
 
-export const user = ( state = window.Initial_State.userData, action ) => {
+export const user = ( state = window.Initial_State.userData || {}, action ) => {
 	switch ( action.type ) {
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			return assign( {}, state, action.userConnectionData );
@@ -111,6 +104,7 @@ export const requests = ( state = connectionRequests, action ) => {
 			return assign( {}, state, {
 				connectingUser: true,
 				connectingUserFeatureLabel: action.featureLabel,
+				connectingUserFrom: action.from,
 			} );
 		case RESET_CONNECT_USER:
 			return assign( {}, state, { connectingUser: false } );
@@ -256,7 +250,7 @@ export function getConnectUrl( state ) {
  * @return {object}       Returns an object with information about the connected user
  */
 export function getConnectedWpComUser( state ) {
-	return state.jetpack.connection.user.currentUser.wpcomUser;
+	return state.jetpack.connection.user.currentUser?.wpcomUser;
 }
 
 /**
@@ -308,6 +302,18 @@ export function isConnectingUser( state ) {
 export function getConnectingUserFeatureLabel( state ) {
 	return state.jetpack.connection.requests.hasOwnProperty( 'connectingUserFeatureLabel' )
 		? state.jetpack.connection.requests.connectingUserFeatureLabel
+		: null;
+}
+
+/**
+ * Returns the "from" value the user connection where initiated from, if any.
+ *
+ * @param  {object} state - Global state tree
+ * @returns {string|null} string if "from" value exists, false otherwise.
+ */
+export function getConnectingUserFrom( state ) {
+	return state.jetpack.connection.requests.hasOwnProperty( 'connectingUserFrom' )
+		? state.jetpack.connection.requests.connectingUserFrom
 		: null;
 }
 

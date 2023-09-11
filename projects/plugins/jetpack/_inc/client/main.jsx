@@ -1,43 +1,54 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
-import { withRouter, Prompt } from 'react-router-dom';
-import { __, sprintf } from '@wordpress/i18n';
+import { imagePath } from 'constants/urls';
+import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { ActivationScreen } from '@automattic/jetpack-licensing';
+import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { Dashicon } from '@wordpress/components';
 import { withDispatch } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import AtAGlance from 'at-a-glance/index.jsx';
+import AdminNotices from 'components/admin-notices';
+import AppsCard from 'components/apps-card';
+import ContextualizedConnection from 'components/contextualized-connection';
+import QueryRewindStatus from 'components/data/query-rewind-status';
+import Footer from 'components/footer';
+import JetpackNotices from 'components/jetpack-notices';
 import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
+import NonAdminView from 'components/non-admin-view';
+import ReconnectModal from 'components/reconnect-modal';
+import SupportCard from 'components/support-card';
+import Tracker from 'components/tracker';
+import jQuery from 'jquery';
+import analytics from 'lib/analytics';
+import MyPlan from 'my-plan/index.jsx';
+import ProductDescriptions from 'product-descriptions';
+import { productDescriptionRoutes } from 'product-descriptions/constants';
+import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter, Prompt } from 'react-router-dom';
+import { Recommendations } from 'recommendations';
 import SearchableSettings from 'settings/index.jsx';
 import {
-	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
-	updateUserLicensesCounts as updateUserLicensesCountsAction,
-} from 'state/licensing';
-import { fetchModules as fetchModulesAction } from 'state/modules';
-import {
 	getSiteConnectionStatus,
+	getConnectedWpComUser,
 	isCurrentUserLinked,
 	isSiteConnected,
 	isConnectionOwner,
 	isConnectingUser,
 	resetConnectUser,
 	isReconnectingSite,
-	reconnectSite,
 	getConnectUrl,
 	getConnectingUserFeatureLabel,
+	getConnectingUserFrom,
 	getConnectionStatus,
 	hasConnectedOwner,
 	getHasSeenWCConnectionModal,
 	setHasSeenWCConnectionModal,
+	isOfflineMode,
 } from 'state/connection';
 import {
 	setInitialState,
@@ -51,56 +62,56 @@ import {
 	getCurrentVersion,
 	getTracksUserData,
 	showRecommendations,
+	getInitialRecommendationsStep,
 	getPluginBaseUrl,
 	getPartnerCoupon,
+	isAtomicSite,
 	isWoASite,
 	isWooCommerceActive,
+	userIsSubscriber,
 } from 'state/initial-state';
 import {
-	fetchSiteData as fetchSiteDataAction,
-	fetchSitePurchases as fetchSitePurchasesAction,
-} from 'state/site';
+	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
+	updateUserLicensesCounts as updateUserLicensesCountsAction,
+} from 'state/licensing';
+import { fetchModules as fetchModulesAction } from 'state/modules';
+import { getRewindStatus } from 'state/rewind';
+import { getSearchTerm } from 'state/search';
 import {
 	areThereUnsavedSettings,
 	clearUnsavedSettingsFlag,
 	fetchSettings as fetchSettingsAction,
 } from 'state/settings';
-import { getSearchTerm } from 'state/search';
-import { Recommendations } from 'recommendations';
-import ProductDescriptions from 'product-descriptions';
-import { productDescriptionRoutes } from 'product-descriptions/constants';
-import AtAGlance from 'at-a-glance/index.jsx';
-import MyPlan from 'my-plan/index.jsx';
-import Footer from 'components/footer';
-import SupportCard from 'components/support-card';
-import AppsCard from 'components/apps-card';
-import NonAdminView from 'components/non-admin-view';
-import JetpackNotices from 'components/jetpack-notices';
-import AdminNotices from 'components/admin-notices';
-import Tracker from 'components/tracker';
-import analytics from 'lib/analytics';
-import restApi from '@automattic/jetpack-api';
-import QueryRewindStatus from 'components/data/query-rewind-status';
-import { getRewindStatus } from 'state/rewind';
-import ReconnectModal from 'components/reconnect-modal';
-import { createInterpolateElement } from '@wordpress/element';
-import { imagePath } from 'constants/urls';
-import { ActivationScreen } from '@automattic/jetpack-licensing';
-import ContextualizedConnection from 'components/contextualized-connection';
+import {
+	fetchSiteData as fetchSiteDataAction,
+	fetchSitePurchases as fetchSitePurchasesAction,
+} from 'state/site';
+import AgenciesCard from './components/agencies-card';
 
 const recommendationsRoutes = [
 	'/recommendations',
 	'/recommendations/site-type',
 	'/recommendations/product-suggestions',
 	'/recommendations/product-purchased',
+	'/recommendations/agency',
 	'/recommendations/woocommerce',
 	'/recommendations/monitor',
+	'/recommendations/newsletter',
 	'/recommendations/related-posts',
 	'/recommendations/creative-mail',
 	'/recommendations/site-accelerator',
+	'/recommendations/publicize',
+	'/recommendations/protect',
+	'/recommendations/anti-spam',
+	'/recommendations/videopress',
+	'/recommendations/backup-plan',
+	'/recommendations/boost',
 	'/recommendations/summary',
+	'/recommendations/vaultpress-backup',
+	'/recommendations/vaultpress-for-woocommerce',
 ];
 
+const myJetpackRoutes = [ 'my-jetpack ' ];
 const dashboardRoutes = [ '/', '/dashboard', '/reconnect', '/my-plan', '/plans' ];
 const settingsRoutes = [
 	'/settings',
@@ -109,6 +120,8 @@ const settingsRoutes = [
 	'/writing',
 	'/sharing',
 	'/discussion',
+	'/earn',
+	'/newsletter',
 	'/traffic',
 	'/privacy',
 ];
@@ -234,6 +247,81 @@ class Main extends React.Component {
 		this.props.setConnectionStatus( this.props.connectionStatus );
 	}
 
+	/**
+	 * Render the main navigation bar.
+	 *
+	 * @param {string} route - The current page route.
+	 * @returns {React.ReactElement|null} - The navigation component or `null` if not available.
+	 */
+	renderMainNav = route => {
+		if ( this.shouldShowWooConnectionScreen() ) {
+			return null;
+		}
+
+		if ( this.props.partnerCoupon ) {
+			const forceShow = new URLSearchParams( window.location.search ).get( 'showCouponRedemption' );
+
+			if ( ! this.props.isOfflineMode && ( ! this.props.isSiteConnected || forceShow ) ) {
+				return null;
+			}
+		}
+
+		if (
+			this.isUserConnectScreen() &&
+			( this.props.userCanManageModules || this.props.hasConnectedOwner )
+		) {
+			return null;
+		}
+
+		if ( ! this.props.userCanManageModules ) {
+			if ( ! this.props.siteConnectionStatus ) {
+				return null;
+			}
+
+			switch ( route ) {
+				case '/settings':
+				case '/writing':
+				case '/sharing':
+				case '/performance':
+					if ( ! this.props.isSubscriber ) {
+						return <NavigationSettings { ...this.props } />;
+					}
+			}
+
+			return <Navigation { ...this.props } />;
+		}
+
+		if ( this.isMainConnectScreen() ) {
+			return null;
+		}
+
+		switch ( route ) {
+			case '/settings':
+			case '/security':
+			case '/performance':
+			case '/writing':
+			case '/sharing':
+			case '/discussion':
+			case '/earn':
+			case '/newsletter':
+			case '/traffic':
+			case '/privacy':
+				return (
+					<NavigationSettings
+						routeName={ this.props.routeName }
+						siteRawUrl={ this.props.siteRawUrl }
+						siteAdminUrl={ this.props.siteAdminUrl }
+					/>
+				);
+			case '/license/activation':
+				if ( this.props.isLinked && this.props.isConnectionOwner ) {
+					return null;
+				}
+		}
+
+		return <Navigation routeName={ this.props.routeName } />;
+	};
+
 	renderMainContent = route => {
 		if ( this.shouldShowWooConnectionScreen() ) {
 			const previousPath = this.props.location.state?.previousPath;
@@ -294,13 +382,12 @@ class Main extends React.Component {
 			 * parameter that JITMs will set (showCouponRedemption=true), and show the screen only
 			 * when the user came from a a JITM.
 			 */
-			if ( ! this.props.isSiteConnected || forceShow ) {
+			if ( ! this.props.isOfflineMode && ( ! this.props.isSiteConnected || forceShow ) ) {
 				return (
 					<PartnerCouponRedeem
 						apiNonce={ this.props.apiNonce }
 						registrationNonce={ this.props.registrationNonce }
 						apiRoot={ this.props.apiRoot }
-						images={ [ '/images/connect-right-partner-backup.png' ] }
 						assetBaseUrl={ this.props.pluginBaseUrl }
 						connectionStatus={ this.props.connectionStatus }
 						partnerCoupon={ this.props.partnerCoupon }
@@ -316,6 +403,8 @@ class Main extends React.Component {
 			this.isUserConnectScreen() &&
 			( this.props.userCanManageModules || this.props.hasConnectedOwner )
 		) {
+			const searchParams = new URLSearchParams( location.search.split( '?' )[ 1 ] );
+
 			return (
 				<ConnectScreen
 					apiNonce={ this.props.apiNonce }
@@ -323,6 +412,7 @@ class Main extends React.Component {
 					apiRoot={ this.props.apiRoot }
 					images={ [ '/images/connect-right-secondary.png' ] }
 					assetBaseUrl={ this.props.pluginBaseUrl }
+					autoTrigger={ this.shouldAutoTriggerConnection() }
 					title={
 						this.props.connectingUserFeatureLabel
 							? sprintf(
@@ -334,6 +424,7 @@ class Main extends React.Component {
 					}
 					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
 					redirectUri="admin.php?page=jetpack"
+					from={ ( searchParams && searchParams.get( 'from' ) ) || this.props.connectingUserFrom }
 				>
 					<ul>
 						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
@@ -380,6 +471,8 @@ class Main extends React.Component {
 		}
 
 		if ( this.isMainConnectScreen() ) {
+			const searchParams = new URLSearchParams( location.search.split( '?' )[ 1 ] );
+
 			return (
 				<ConnectScreen
 					apiNonce={ this.props.apiNonce }
@@ -389,6 +482,7 @@ class Main extends React.Component {
 					assetBaseUrl={ this.props.pluginBaseUrl }
 					autoTrigger={ this.shouldAutoTriggerConnection() }
 					redirectUri="admin.php?page=jetpack"
+					from={ searchParams && searchParams.get( 'from' ) }
 				>
 					<p>
 						{ __(
@@ -398,7 +492,7 @@ class Main extends React.Component {
 					</p>
 
 					<ul>
-						<li>{ __( 'Measure your impact with beautiful stats', 'jetpack' ) }</li>
+						<li>{ __( 'Measure your impact with Jetpack Stats', 'jetpack' ) }</li>
 						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>
 						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
 						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
@@ -408,23 +502,15 @@ class Main extends React.Component {
 			);
 		}
 
-		const settingsNav = (
-			<NavigationSettings
-				routeName={ this.props.routeName }
-				siteRawUrl={ this.props.siteRawUrl }
-				siteAdminUrl={ this.props.siteAdminUrl }
-			/>
-		);
-		let pageComponent,
-			navComponent = <Navigation routeName={ this.props.routeName } />;
+		let pageComponent;
 
 		switch ( route ) {
 			case '/dashboard':
 			case '/reconnect':
 			case '/disconnect':
 			case '/connect-user':
+			case '/connect-user-setup':
 			case '/woo-setup':
-			case '/setup':
 				pageComponent = (
 					<AtAGlance
 						siteRawUrl={ this.props.siteRawUrl }
@@ -432,6 +518,12 @@ class Main extends React.Component {
 						rewindStatus={ this.props.rewindStatus }
 					/>
 				);
+				break;
+			case '/setup':
+				if ( this.props.isSiteConnected ) {
+					this.props.history.replace( '/dashboard' );
+					pageComponent = this.getAtAGlance();
+				}
 				break;
 			case '/my-plan':
 				pageComponent = (
@@ -454,9 +546,10 @@ class Main extends React.Component {
 			case '/writing':
 			case '/sharing':
 			case '/discussion':
+			case '/earn':
+			case '/newsletter':
 			case '/traffic':
 			case '/privacy':
-				navComponent = settingsNav;
 				pageComponent = (
 					<SearchableSettings
 						siteAdminUrl={ this.props.siteAdminUrl }
@@ -469,14 +562,12 @@ class Main extends React.Component {
 				break;
 			case '/license/activation':
 				if ( this.props.isLinked && this.props.isConnectionOwner ) {
-					navComponent = null;
 					pageComponent = (
 						<ActivationScreen
-							assetBaseUrl={ this.props.pluginBaseUrl }
-							lockImage="/images/jetpack-license-activation-with-lock.png"
 							siteRawUrl={ this.props.siteRawUrl }
-							successImage="/images/jetpack-license-activation-with-success.png"
 							onActivationSuccess={ this.onLicenseActivationSuccess }
+							siteAdminUrl={ this.props.siteAdminUrl }
+							currentRecommendationsStep={ this.props.currentRecommendationsStep }
 						/>
 					);
 				} else {
@@ -488,12 +579,37 @@ class Main extends React.Component {
 			case '/recommendations/site-type':
 			case '/recommendations/product-suggestions':
 			case '/recommendations/product-purchased':
+			case '/recommendations/agency':
 			case '/recommendations/woocommerce':
 			case '/recommendations/monitor':
+			case '/recommendations/newsletter':
 			case '/recommendations/related-posts':
 			case '/recommendations/creative-mail':
 			case '/recommendations/site-accelerator':
+			case '/recommendations/publicize':
+			case '/recommendations/protect':
+			case '/recommendations/anti-spam':
+			case '/recommendations/videopress':
+			case '/recommendations/backup-plan':
+			case '/recommendations/boost':
 			case '/recommendations/summary':
+			case '/recommendations/vaultpress-backup':
+			case '/recommendations/vaultpress-for-woocommerce':
+			case '/recommendations/welcome-backup':
+			case '/recommendations/welcome-complete':
+			case '/recommendations/welcome-security':
+			case '/recommendations/welcome-starter':
+			case '/recommendations/welcome-antispam':
+			case '/recommendations/welcome-videopress':
+			case '/recommendations/welcome-search':
+			case '/recommendations/welcome-scan':
+			case '/recommendations/welcome-golden-token':
+			case '/recommendations/backup-activated':
+			case '/recommendations/scan-activated':
+			case '/recommendations/antispam-activated':
+			case '/recommendations/videopress-activated':
+			case '/recommendations/search-activated':
+			case '/recommendations/server-credentials':
 				if ( this.props.showRecommendations ) {
 					pageComponent = <Recommendations />;
 				} else {
@@ -520,7 +636,6 @@ class Main extends React.Component {
 
 		return (
 			<div aria-live="assertive" className={ `${ this.shouldBlurMainContent() ? 'blur' : '' }` }>
-				{ navComponent }
 				{ pageComponent }
 			</div>
 		);
@@ -545,6 +660,20 @@ class Main extends React.Component {
 		);
 	}
 
+	shouldShowAgenciesCard() {
+		const { site_count } = this.props.connectedWpComUser;
+
+		// Only show on dashboard when users are managing 2 or more sites
+		return (
+			this.props.userCanConnectSite &&
+			site_count >= 2 &&
+			this.props.isSiteConnected &&
+			! this.props.isAtomicSite &&
+			! this.shouldShowWooConnectionScreen() &&
+			dashboardRoutes.includes( this.props.location.pathname )
+		);
+	}
+
 	shouldShowSupportCard() {
 		// Only show on the dashboard
 		return (
@@ -560,6 +689,10 @@ class Main extends React.Component {
 	}
 
 	shouldShowMasthead() {
+		if ( this.isMainConnectScreen() ) {
+			return false;
+		}
+
 		// Only show on the setup pages, dashboard, and settings page
 		return [ ...dashboardRoutes, ...recommendationsRoutes, ...settingsRoutes ].includes(
 			this.props.location.pathname
@@ -603,7 +736,10 @@ class Main extends React.Component {
 	 * @returns {boolean} Whether this is the user connection screen page.
 	 */
 	isUserConnectScreen() {
-		return '/connect-user' === this.props.location.pathname;
+		return (
+			'/connect-user' === this.props.location.pathname ||
+			'/connect-user-setup' === this.props.location.pathname
+		);
 	}
 
 	/**
@@ -647,7 +783,10 @@ class Main extends React.Component {
 	 * @returns {boolean} Whether to trigger the connection flow automatically.
 	 */
 	shouldAutoTriggerConnection() {
-		return this.props.location.pathname.startsWith( '/setup' );
+		return (
+			this.props.location.pathname.startsWith( '/setup' ) ||
+			this.props.location.pathname.startsWith( '/connect-user-setup' )
+		);
 	}
 
 	/**
@@ -684,14 +823,26 @@ class Main extends React.Component {
 			jpClasses.push( 'jp-licensing-screen' );
 		}
 
+		const mainNav = this.renderMainNav( this.props.location.pathname );
+		const showHeader = mainNav || this.shouldShowMasthead() || this.shouldShowRewindStatus();
+
 		return (
 			<div>
 				{ this.shouldShowReconnectModal() && (
 					<ReconnectModal show={ true } onHide={ this.closeReconnectModal } />
 				) }
-				{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
+
+				{ showHeader && (
+					<div className="jp-top">
+						<div className="jp-top-inside">
+							{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
+							{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
+							{ mainNav }
+						</div>
+					</div>
+				) }
+
 				<div className={ jpClasses.join( ' ' ) }>
-					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.shouldConnectUser() && this.connectUser() }
@@ -699,7 +850,11 @@ class Main extends React.Component {
 						when={ this.props.areThereUnsavedSettings }
 						message={ this.handleRouterWillLeave }
 					/>
+
 					{ this.renderMainContent( this.props.location.pathname ) }
+					{ this.shouldShowAgenciesCard() && (
+						<AgenciesCard path={ this.props.location.pathname } discountPercentage={ 60 } />
+					) }
 					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.location.pathname } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
 				</div>
@@ -713,8 +868,10 @@ class Main extends React.Component {
 export default connect(
 	state => {
 		return {
+			isOfflineMode: isOfflineMode( state ),
 			connectionStatus: getConnectionStatus( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
+			connectedWpComUser: getConnectedWpComUser( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isConnectingUser: isConnectingUser( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
@@ -737,10 +894,14 @@ export default connect(
 			pluginBaseUrl: getPluginBaseUrl( state ),
 			connectUrl: getConnectUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
+			connectingUserFrom: getConnectingUserFrom( state ),
+			isAtomicSite: isAtomicSite( state ),
 			isWoaSite: isWoASite( state ),
 			isWooCommerceActive: isWooCommerceActive( state ),
 			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),
 			partnerCoupon: getPartnerCoupon( state ),
+			currentRecommendationsStep: getInitialRecommendationsStep( state ),
+			isSubscriber: userIsSubscriber( state ),
 		};
 	},
 	dispatch => ( {
@@ -749,9 +910,6 @@ export default connect(
 		},
 		clearUnsavedSettingsFlag: () => {
 			return dispatch( clearUnsavedSettingsFlag() );
-		},
-		reconnectSite: () => {
-			return dispatch( reconnectSite() );
 		},
 		setHasSeenWCConnectionModal: () => {
 			return dispatch( setHasSeenWCConnectionModal() );
@@ -793,8 +951,9 @@ export default connect(
  *
  * @param pageOrder
  */
-window.wpNavMenuClassChange = function ( pageOrder = { dashboard: 1, settings: 2 } ) {
+window.wpNavMenuClassChange = function ( pageOrder = { myJetpack: 1, dashboard: 2, settings: 3 } ) {
 	let hash = window.location.hash;
+	let page = new URLSearchParams( window.location.search );
 
 	// Clear currently highlighted sub-nav item
 	jQuery( '.current' ).each( function ( i, obj ) {
@@ -811,7 +970,11 @@ window.wpNavMenuClassChange = function ( pageOrder = { dashboard: 1, settings: 2
 
 	// Set the current sub-nav item according to the current hash route
 	hash = hash.split( '?' )[ 0 ].replace( /#/, '' );
-	if (
+	page = page.get( 'page' );
+
+	if ( myJetpackRoutes.includes( page ) ) {
+		getJetpackSubNavItem( pageOrder.myJetpack ).classList.add( 'current' );
+	} else if (
 		dashboardRoutes.includes( hash ) ||
 		recommendationsRoutes.includes( hash ) ||
 		productDescriptionRoutes.includes( hash )

@@ -30,7 +30,7 @@ class WP_Test_Jetpack_Sync_Defaults extends WP_Test_Jetpack_Sync_Base {
 		remove_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_to_sync_options_whitelist' ) );
 	}
 
-	function test_is_whitelisted_option() {
+	public function test_is_whitelisted_option() {
 		// A default option.
 		$this->assertTrue( Defaults::is_whitelisted_option( 'blogname' ) );
 

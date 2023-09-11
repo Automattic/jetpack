@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+<?php
 /**
  * Configuration loader for the changelogger tool.
  *
  * @package automattic/jetpack-changelogger
  */
-
-// phpcs:disable WordPress.NamingConventions.ValidFunctionName, WordPress.NamingConventions.ValidVariableName, WordPress.WP.AlternativeFunctions
 
 namespace Automattic\Jetpack\Changelogger;
 

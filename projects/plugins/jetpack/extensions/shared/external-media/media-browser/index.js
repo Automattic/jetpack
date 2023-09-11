@@ -1,22 +1,11 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-import { debounce } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { memo, useCallback, useState, useRef, useEffect } from '@wordpress/element';
 import { Button } from '@wordpress/components';
+import { memo, useCallback, useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT, SPACE, ENTER } from '@wordpress/keycodes';
-
-/**
- * Internal dependencies
- */
-import MediaPlaceholder from './placeholder';
+import classnames from 'classnames';
+import { debounce } from 'lodash';
 import MediaItem from './media-item';
+import MediaPlaceholder from './placeholder';
 
 const MAX_SELECTED = 10;
 
@@ -180,7 +169,12 @@ function MediaBrowser( props ) {
 
 		return (
 			<div className="jetpack-external-media-browser__media__toolbar">
-				<Button isPrimary isBusy={ isCopying } disabled={ disabled } onClick={ onCopyAndInsert }>
+				<Button
+					variant="primary"
+					isBusy={ isCopying }
+					disabled={ disabled }
+					onClick={ onCopyAndInsert }
+				>
 					{ label }
 				</Button>
 			</div>
@@ -208,7 +202,7 @@ function MediaBrowser( props ) {
 
 				{ pageHandle && ! isLoading && (
 					<Button
-						isSecondary
+						variant="secondary"
 						className="jetpack-external-media-browser__loadmore"
 						disabled={ isLoading || isCopying }
 						onClick={ onLoadMoreClick }

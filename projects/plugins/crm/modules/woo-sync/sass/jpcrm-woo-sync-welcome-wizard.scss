@@ -1,0 +1,21 @@
+/*!
+ * Jetpack CRM Extension: WooSync
+ * https://jetpackcrm.com
+ */
+
+ /*
+	This file combines the various css abstracted from /css/welcome-to-woo-sync/*.css
+	... for now these have been put into /sass/_temp-* partial sass files
+	... ultimately we should rewrite the welcome wizard and either dump all these styles or
+	... come to terms with their messy nature.
+
+	wh
+*/
+
+@import 'welcome-wizard/loadstyles';
+@import 'welcome-wizard/adminstyles';
+@import 'welcome-wizard/exitform';
+@import 'welcome-wizard/wizard';
+@import 'welcome-wizard/styles';
+@import 'welcome-wizard/activation';
+@import 'welcome-wizard/taken-from-inline';

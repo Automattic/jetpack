@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import { CheckboxControl } from '@wordpress/components';
 import { Fragment, Component } from '@wordpress/element';
