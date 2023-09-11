@@ -6,55 +6,55 @@
 
 ### Enhancements
 
-- Added the change setting feature in Social for the auto conversion feature. [#32712]
-- Adds support for newsletter categories. [#32666]
-- ai-chat block: Ability to chat with the site. [#32741]
-- AI Excerpt: add Diacard button to the panel. [#32890]
-- AI Excerpt: add `Accept` button. [#32889]
-- AI Excerpt: connect UI with data layer. [#32875]
-- AI Excerpt: disable Generate button. [#32924]
-- AI Excerpt: do not disable Genertate button when there is a request error. [#32927]
-- AI Excerpt: ensure to save the post before to ask a suggestion. [#32891]
-- AI Excerpt: pick and pass raw post content to the server side. [#32939]
-- AI Excerpt: re enable generate button when options change. [#32943]
-- AI Excerpt: show excerpt number of words. [#32881]
-- AI Excerpt: show notice when request fails. [#32917]
+- AI-chat block: add ability to chat with the site. [#32741]
+- AI Excerpt: add the Discard button to the panel. [#32890]
+- AI Excerpt: add the Accept button. [#32889]
+- AI Excerpt: ensure to save the post before asking a suggestion. [#32891]
 - AI Excerpt: show upgrade banner when site achieves requests limit. [#32895]
-- Blogroll Beta block under construction. [#32848]
-- ContentLens: add `ai-content-lens` beta extension. [#32847]
 - Content Lens: connect excerpt panel with AI Assistant. [#32846]
-- Content Lens: pass post content when requesting post excerpt. [#32920]
-- Content Lens: replace core post excerpt with AI Post Excerpt. [#32845]
 - Create with voice: show audio duration when recording audio. [#32827]
-- Enable block registration by specifying block.json path. [#32697]
-- Featured images fallback: add srcset. [#32824]
-- Paywall: Add login link. [#32849]
-- Paywall Block: better excerpts handling. [#32809]
-- Utilize the Jetpack Admin UI package for handling the Akismet menu. [#32911]
+- Newsletter: add support for newsletter categories. [#32666]
+- Paywall Block: improve excerpts handling. [#32809]
+- Social: add the change setting for the auto conversion feature. [#32712]
 
 ### Improved compatibility
 
 - General: remove WP 6.1 backwards compatibility checks. [#32772]
-- SAL: prevent a potential undefined function error. [#32962]
 
 ### Bug fixes
 
 - Allow two year plans to show on the My Plan page. [#32904]
-- Calypsoify module: remove styles that conflict with WordPress.com. [#32919]
 - Fix cookie consent block positioning in the editor. [#32622]
-- Fixed an issue that caused the notice displayed when updating widgets to overlap the admin menu. [#32921]
+- Fix an issue that caused the notice displayed when updating widgets to overlap the admin menu. [#32921]
 - Revert change where newsletter plans could not be used on Premium content. [#32850]
-- Subscriptions: Hide modal if post is subscribers-only. [#32867]
+- Subscriptions: hide modal if post is subscribers-only. [#32867]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 
+- AI Excerpt: connect UI with data layer. [#32875]
+- AI Excerpt: do not disable Generate button when there is a request error. [#32927]
+- AI Excerpt: disable Generate button on completed requests. [#32924]
+- AI Excerpt: pick and pass raw post content to the server side. [#32939]
+- AI Excerpt: re-enable generate button when options change. [#32943]
+- AI Excerpt: show a notice when request fails. [#32917]
+- AI Excerpt: show the number of words in an excerpt. [#32881]
+- Blogroll: added a beta block under construction. [#32848]
+- Calypsoify module: remove styles that conflict with WordPress.com. [#32919]
+- Content Lens: add the "ai-content-lens" beta extension. [#32847]
+- Content Lens: pass post content when requesting post excerpt. [#32920]
+- Content Lens: replace core post excerpt with AI Post Excerpt. [#32845]
+- Enable block registration by specifying block.json path. [#32697]
+- Featured images fallback: add srcset. [#32824]
 - Fix copy. [#32813]
 - Fix link. [#32887]
+- Paywall: add login link. [#32849]
 - Paywall: magic link to all users. [#32941]
 - Resolves an undefined key error on sites with uploaded media without file extensions. [#32961]
 - Restore some Requests library v1 back-compat code, apparently WordPress.com Simple skipped that part of their update to WP 6.2. [#32894]
+- SAL: prevent a potential undefined function error. [#32962]
 - Updated package dependencies. [#32966]
 - Updated spelling of the Akismet product. [#32908]
+- Utilize the Jetpack Admin UI package for handling the Akismet menu. [#32911]
 
 ## 12.6-a.3 - 2023-09-04
 
