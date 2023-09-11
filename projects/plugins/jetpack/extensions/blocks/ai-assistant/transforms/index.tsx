@@ -6,7 +6,7 @@ import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
-import { blockName } from '..';
+import metadata from '../block.json';
 import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assistant';
 /**
  * Types
@@ -50,7 +50,7 @@ export function transformToAIAssistantBlock( blockType: ExtendedBlockProp, attrs
 		},
 	];
 
-	return createBlock( blockName, {
+	return createBlock( metadata.name, {
 		...restAttrs,
 		content: aiAssistantBlockcontent,
 		originalContent: aiAssistantBlockcontent,

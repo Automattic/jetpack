@@ -6,7 +6,7 @@ import { registerPlugin } from '@wordpress/plugins';
 /**
  * Internal dependencies
  */
-import { blockName as aiAssistantBlockName } from '../..';
+import metadata from '../../block.json';
 import { isPossibleToExtendBlock } from '../ai-assistant';
 import { PluginDocumentSettingPanelAiExcerpt } from './plugins/ai-post-excerpt';
 
@@ -24,7 +24,7 @@ const isAiAssistantSupportExtensionEnabled =
  * @returns {object}          Block settings.
  */
 function extendAiContentLensFeatures( settings, name ) {
-	if ( name !== aiAssistantBlockName ) {
+	if ( name !== metadata.name ) {
 		return settings;
 	}
 

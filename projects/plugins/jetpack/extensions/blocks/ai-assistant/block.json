@@ -52,5 +52,9 @@
 			"default": ""
 		}
 	},
-	"editorScript": "file:../editor.js"
+	"example": {
+		"attributes": {
+			"content": "With **Jetpack AI Assistant**, you can provide a prompt, and it will generate high-quality blog posts, informative pages, well-organized lists, and thorough tables that meet your specific requirements.\n\nTo start using the **Jetpack AI Assistant**, type `/AI` in the block editor."
+		}
+	}
 }
