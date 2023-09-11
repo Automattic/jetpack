@@ -231,8 +231,12 @@ class WPCOM_Stats {
 	public function get_followers( $args = array() ) {
 
 		$this->resource = 'followers';
+		$followers      = $this->fetch_stats( $args );
 
-		return $this->fetch_stats( $args );
+		// run an action which allows us to fire a recommendation.
+		do_action( 'jetpack_followers_fetched', $followers );
+
+		return $followers;
 	}
 
 	/**

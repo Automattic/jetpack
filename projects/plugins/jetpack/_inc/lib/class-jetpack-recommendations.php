@@ -42,6 +42,7 @@ class Jetpack_Recommendations {
 	);
 
 	const VIDEOPRESS_TIMED_ACTION = 'jetpack_recommend_videopress';
+	const NEWSLETTER_TIMED_ACTION = 'jetpack_recommend_newsletter';
 
 	/**
 	 * Returns a boolean indicating if the Jetpack Recommendations are enabled.
@@ -148,14 +149,16 @@ class Jetpack_Recommendations {
 		// Monitor for changes in plugins that have auto-updates enabled
 		add_action( 'update_site_option_auto_update_plugins', array( static::class, 'plugin_auto_update_settings_changed' ), 10, 3 );
 
-		// Monitor for changes to a sites subscriber count - notify when a site passes 100 subscribers - but has less than 100k.
-		add_action( 'need_to_hook_into_an_action_to_check', array( static::class, 'subscriber_count_updated' ), 10, 2 );
+		// Subscriber count check. This runs when stats are fetched.
+		add_action( 'jetpack_followers_fetched', array( static::class, 'subscriber_count_updated' ), 10, 2 );
 	}
 
 	/**
 	 * Checks a sites subscriber count and triggers the recommendation if it is over 100 or under 100k.
+	 *
+	 * @param array $followers Array of followers data from WPcom stats check.
 	 */
-	public static function subscriber_count_updated() {
+	public static function subscriber_count_updated( $followers ) {
 		// return if the recommendation is already enabled.
 		if ( self::is_conditional_recommendation_enabled( self::PAID_NEWSLETTER_RECOMMENDATION ) ) {
 			return;
@@ -166,13 +169,14 @@ class Jetpack_Recommendations {
 			return;
 		}
 
-		// get the follower count from the class WPCOM_Stats get_followers method.
-		// if the follower count is greater than 100 and less than 100k, enable the recommendation.
-		$site_subscribers  = WPCOM_Stats::get_followers( get_current_blog_id() );
-		$total_subscribers = intval( $site_subscribers['total'] );
-
-		if ( $total_subscribers > 100 && $total_subscribers < 100000 ) {
-			self::enable_conditional_recommendation( self::PAID_NEWSLETTER_RECOMMENDATION );
+		// if followers array does not have total key, return.
+		if ( array_key_exists( 'total', $followers ) ) {
+			$total_subscribers = intval( $followers['total'] );
+			if ( $total_subscribers > 100 && $total_subscribers < 100000 ) {
+				self::enable_conditional_recommendation( self::PAID_NEWSLETTER_RECOMMENDATION );
+			}
+		} else {
+			return;
 		}
 	}
 
