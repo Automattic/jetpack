@@ -158,10 +158,6 @@ class Jetpack_Recommendations {
 	 * @param array $followers Array of followers data from WPcom stats check.
 	 */
 	public static function subscriber_count_updated( $followers ) {
-		// return if the recommendation is already enabled.
-		if ( self::is_conditional_recommendation_enabled( self::PAID_NEWSLETTER_RECOMMENDATION ) ) {
-			return;
-		}
 
 		// return if the subscriptions module is not active
 		if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
