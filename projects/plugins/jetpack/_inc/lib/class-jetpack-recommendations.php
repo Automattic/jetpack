@@ -149,15 +149,20 @@ class Jetpack_Recommendations {
 		add_action( 'update_site_option_auto_update_plugins', array( static::class, 'plugin_auto_update_settings_changed' ), 10, 3 );
 
 		// Subscriber count check. This runs when stats are fetched.
-		add_action( 'jetpack_followers_fetched', array( static::class, 'subscriber_count_updated' ), 10, 2 );
+		add_action( 'jetpack_followers_fetched', array( static::class, 'recommend_paid_newsletter' ), 10, 2 );
 	}
 
 	/**
 	 * Checks a sites subscriber count and triggers the recommendation if it is over 100 or under 100k.
 	 *
 	 * @param array $followers Array of followers data from WPcom stats check.
+	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/followers/
 	 */
-	public static function subscriber_count_updated( $followers ) {
+	public static function recommend_paid_newsletter( $followers ) {
+		// return if followers is not an array.
+		if ( ! is_array( $followers ) ) {
+			return;
+		}
 
 		// return if the subscriptions module is not active
 		if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
@@ -166,7 +171,8 @@ class Jetpack_Recommendations {
 
 		// if followers array does not have total key, return.
 		if ( array_key_exists( 'total', $followers ) ) {
-			$total_subscribers = intval( $followers['total'] );
+			// total subscribers was not summing up wpcom and email. Combining the two here.
+			$total_subscribers = $followers['total_email'] + $followers['total_wpcom'];
 			if ( $total_subscribers >= 100 && $total_subscribers < 100000 ) {
 				self::enable_conditional_recommendation( self::PAID_NEWSLETTER_RECOMMENDATION );
 			}
