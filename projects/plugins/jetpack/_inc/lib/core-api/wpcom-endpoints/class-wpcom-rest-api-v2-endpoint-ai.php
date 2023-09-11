@@ -210,7 +210,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				 *
 				 * @param string $prompt_override The prompt override string.
 				 *
-				 * @since $$next-version$$
+				 * @since 12.6
 				 */
 				'answer_prompt' => apply_filters( 'jetpack_ai_chat_answer_prompt', false ),
 			),
