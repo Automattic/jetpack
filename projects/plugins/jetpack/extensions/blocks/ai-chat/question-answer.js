@@ -71,13 +71,15 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
  *
  * @param {object} props - Component props.
  * @param {string} props.askButtonLabel - Ask button label.
+ * @param {number} props.blogId - Blog ID.
+ * @param {string} props.blogType - Blog type (wpcom|jetpack) for wpcom simple and jetpack/atomic.
  * @returns {QuestionAnswer} component.
  */
-export default function QuestionAnswer( { askButtonLabel } ) {
+export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 	const { question, setQuestion, answer, isLoading, submitQuestion, references, cacheKey } =
-		useSubmitQuestion();
+		useSubmitQuestion( blogType, blogId );
 
-	const { isSubmittingFeedback, submitFeedback } = useSubmitFeedback();
+	const { isSubmittingFeedback, submitFeedback } = useSubmitFeedback( blogType, blogId );
 	const [ feedback, setFeedback ] = useState( { rank: '', comment: '' } );
 	const [ showFeedbackForm, setShowFeedbackForm ] = useState( false );
 

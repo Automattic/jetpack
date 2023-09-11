@@ -115,7 +115,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	public function register_ai_chat_routes() {
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/jetpack-search/ai/search',
+			'/jetpack-search/ai/search',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
@@ -139,7 +139,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/jetpack-search/ai/rank',
+			'/jetpack-search/ai/rank',
 			array(
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,

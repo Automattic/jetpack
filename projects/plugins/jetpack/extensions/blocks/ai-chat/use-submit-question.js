@@ -4,7 +4,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useState } from '@wordpress/element';
 
-export default function useSubmitQuestion() {
+export default function useSubmitQuestion( blogType, blogId ) {
 	const [ question, setQuestion ] = useState( '' );
 
 	const [ answer, setAnswer ] = useState();
@@ -13,9 +13,15 @@ export default function useSubmitQuestion() {
 	const [ isLoading, setIsLoading ] = useState( false );
 
 	const submitQuestion = async () => {
+		let path = `/wpcom/v2/jetpack-search/ai/search?query=${ question }`;
+		if ( blogType === 'wpcom' ) {
+			path = `/wpcom/v2/sites/${ blogId }/jetpack-search/ai/search?query=${ question }`;
+		}
+
 		setIsLoading( true );
+
 		apiFetch( {
-			path: `/wpcom/v2/jetpack-ai/jetpack-search/ai/search?query=${ question }`,
+			path,
 			method: 'GET',
 		} ).then( res => {
 			setCacheKey( res.cache_key );
