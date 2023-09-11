@@ -60,6 +60,7 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 	);
 }
 
+// A simple component to display an error.
 function DisplayError( { error } ) {
 	return (
 		<div className="jetpack-ai-chat-error-container">
@@ -91,8 +92,14 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 		setAskError,
 	} = useSubmitQuestion( blogType, blogId );
 
-	const { isSubmittingFeedback, submitFeedback, feedbackError, setFeedbackError } =
-		useSubmitFeedback( blogType, blogId );
+	const {
+		isSubmittingFeedback,
+		submitFeedback,
+		feedbackSubmitted,
+		setFeedbackSubmitted,
+		feedbackError,
+		setFeedbackError,
+	} = useSubmitFeedback( blogType, blogId );
 
 	const [ feedback, setFeedback ] = useState( { rank: '', comment: '' } );
 	const [ showFeedbackForm, setShowFeedbackForm ] = useState( false );
@@ -113,8 +120,15 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 		setFeedbackError( false );
 	};
 
+	const clearFeedback = () => {
+		setFeedback( { rank: '', comment: '' } );
+		setShowFeedbackForm( false );
+		setFeedbackSubmitted( false );
+	};
+
 	const handleSubmitQuestion = () => {
 		clearErrors();
+		clearFeedback();
 		setAnimationDone( false );
 		setShowReferences( false );
 		submitQuestion();
@@ -142,7 +156,7 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 	};
 
 	const showCopyButton = animationDone && ! isLoading;
-	const showFeedback = animationDone && ! isLoading;
+	const showFeedback = animationDone && ! isLoading && ! feedbackSubmitted;
 	const errorMessage = askError || feedbackError;
 	return (
 		<>
@@ -228,12 +242,18 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 							}
 							size={ 50 }
 							value={ feedback.comment }
+							disabled={ isSubmittingFeedback || feedbackSubmitted }
 							onChange={ newFeedbackComment => setFeedbackComment( newFeedbackComment ) }
 						/>
 
 						<Button variant="primary" onClick={ handleFeedbackSubmit }>
 							{ __( 'Submit', 'jetpack' ) }
 						</Button>
+					</div>
+				) }
+				{ feedbackSubmitted && (
+					<div className="jetpack-ai-chat-feedback-submitted">
+						{ __( 'Thanks for your feedback!', 'jetpack' ) }
 					</div>
 				) }
 				{ references && references.length > 0 && showReferences && (

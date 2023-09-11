@@ -38,6 +38,7 @@ export default function useSubmitQuestion( blogType, blogId ) {
 		isSubmittingFeedback,
 		submitFeedback,
 		feedbackSubmitted,
+		setFeedbackSubmitted,
 		feedbackError,
 		setFeedbackError,
 	};
