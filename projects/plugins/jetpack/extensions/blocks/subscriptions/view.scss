@@ -1,3 +1,5 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
 .is-style-compact {
 	.wp-block-jetpack-subscriptions__button,
 	.wp-block-button__link {
@@ -94,5 +96,34 @@
 		.wp-block-jetpack-subscriptions__subscount {
 			text-align: left;
 		}
+	}
+}
+
+.wp-block-jetpack-subscriptions__newsletter-categories {
+	margin-top: 8px;
+	margin-bottom: 24px;
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 8px;
+
+	.wp-block-jetpack-subscriptions__newsletter-category {
+		padding: 6px 10px;
+		font-family: $default-font;
+		font-size: $default-font-size;
+		font-weight: 500;
+		line-height: 20px;
+		color: $gray-600;
+		border: 1px solid $gray-200;
+		border-radius: var(--subscribe-block-border-radius);
+	}
+}
+
+// make the form less wide when there are categories
+.wp-block-jetpack-subscriptions__newsletter-categories-enabled {
+	.wp-block-jetpack-subscriptions__form {
+		width: 80%;
+		margin-left: auto;
+		margin-right: auto;
 	}
 }
