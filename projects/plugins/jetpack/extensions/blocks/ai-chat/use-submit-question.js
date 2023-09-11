@@ -9,6 +9,7 @@ export default function useSubmitQuestion( blogType, blogId ) {
 
 	const [ answer, setAnswer ] = useState();
 	const [ cacheKey, setCacheKey ] = useState();
+	const [ askError, setAskError ] = useState( false );
 	const [ references, setReferences ] = useState( [] );
 	const [ isLoading, setIsLoading ] = useState( false );
 
@@ -23,13 +24,29 @@ export default function useSubmitQuestion( blogType, blogId ) {
 		apiFetch( {
 			path,
 			method: 'GET',
-		} ).then( res => {
-			setCacheKey( res.cache_key );
-			setAnswer( res.response );
-			setReferences( res.urls );
-			setIsLoading( false );
-		} );
+		} )
+			.then( res => {
+				setCacheKey( res.cache_key );
+				setAnswer( res.response );
+				setReferences( res.urls );
+			} )
+			.catch( err => {
+				setAskError( err );
+			} )
+			.finally( () => {
+				setIsLoading( false );
+			} );
 	};
 
-	return { question, setQuestion, answer, isLoading, submitQuestion, references, cacheKey };
+	return {
+		question,
+		setQuestion,
+		answer,
+		isLoading,
+		submitQuestion,
+		references,
+		cacheKey,
+		askError,
+		setAskError,
+	};
 }

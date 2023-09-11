@@ -60,14 +60,17 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 	);
 }
 
+function DisplayError( { error } ) {
+	return (
+		<div className="jetpack-ai-chat-error-container">
+			{ __( 'Sorry, there was an error with your request: ', 'jetpack' ) }
+			{ error.message }
+		</div>
+	);
+}
+
 /**
  * Primary question-answer.
- *
- * TODOs:
- * - Configurable strings.
- * - Copy response button.
- * - Submit feedback.
- * - Handle errors.
  *
  * @param {object} props - Component props.
  * @param {string} props.askButtonLabel - Ask button label.
@@ -76,10 +79,21 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
  * @returns {QuestionAnswer} component.
  */
 export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
-	const { question, setQuestion, answer, isLoading, submitQuestion, references, cacheKey } =
-		useSubmitQuestion( blogType, blogId );
+	const {
+		question,
+		setQuestion,
+		answer,
+		isLoading,
+		submitQuestion,
+		references,
+		cacheKey,
+		askError,
+		setAskError,
+	} = useSubmitQuestion( blogType, blogId );
 
-	const { isSubmittingFeedback, submitFeedback } = useSubmitFeedback( blogType, blogId );
+	const { isSubmittingFeedback, submitFeedback, feedbackError, setFeedbackError } =
+		useSubmitFeedback( blogType, blogId );
+
 	const [ feedback, setFeedback ] = useState( { rank: '', comment: '' } );
 	const [ showFeedbackForm, setShowFeedbackForm ] = useState( false );
 
@@ -94,7 +108,13 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 		}, 3000 );
 	} );
 
+	const clearErrors = () => {
+		setAskError( false );
+		setFeedbackError( false );
+	};
+
 	const handleSubmitQuestion = () => {
+		clearErrors();
 		setAnimationDone( false );
 		setShowReferences( false );
 		submitQuestion();
@@ -117,11 +137,13 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 	};
 
 	const handleFeedbackSubmit = () => {
+		clearErrors();
 		submitFeedback( feedback, cacheKey );
 	};
 
 	const showCopyButton = animationDone && ! isLoading;
 	const showFeedback = animationDone && ! isLoading;
+	const errorMessage = askError || feedbackError;
 	return (
 		<>
 			<KeyboardShortcuts
@@ -132,7 +154,6 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 				<div className="jetpack-ai-chat-question-wrapper">
 					<TextControl
 						className="jetpack-ai-chat-question-input"
-						// TODO: Configurable placeholder.
 						placeholder={ __( "Enter a question about this blog's content", 'jetpack' ) }
 						size={ 50 }
 						value={ question }
@@ -160,6 +181,7 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 						/>
 					) }
 				</div>
+				{ errorMessage && <DisplayError error={ errorMessage } /> }
 				{ showCopyButton && (
 					<Button
 						className="copy-button"
@@ -216,12 +238,7 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 				) }
 				{ references && references.length > 0 && showReferences && (
 					<div className="jetpack-ai-chat-answer-references">
-						<div>
-							{
-								// TODO: Configurable text.
-								__( 'Additional resources:', 'jetpack' )
-							}
-						</div>
+						<div>{ __( 'Additional resources:', 'jetpack' ) }</div>
 
 						<ul>
 							{ references.map( ( reference, index ) => (

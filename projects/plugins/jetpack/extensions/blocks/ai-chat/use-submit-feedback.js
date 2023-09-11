@@ -6,6 +6,8 @@ import { useState } from '@wordpress/element';
 
 export default function useSubmitQuestion( blogType, blogId ) {
 	const [ isSubmittingFeedback, setIsSubmittingFeedback ] = useState( false );
+	const [ feedbackSubmitted, setFeedbackSubmitted ] = useState( false );
+	const [ feedbackError, setFeedbackError ] = useState( false );
 	const submitFeedback = async ( feedbackData, cacheKey ) => {
 		let path = `/wpcom/v2/jetpack-search/ai/rank?cache_key=${ cacheKey }`;
 		if ( blogType === 'wpcom' ) {
@@ -20,14 +22,23 @@ export default function useSubmitQuestion( blogType, blogId ) {
 				rank: feedbackData.rank,
 				comment: feedbackData.comment,
 			},
-		} ).then( res => {
-			if ( res ) {
-				/* eslint-disable no-console */
-				console.log( res );
-			}
-			setIsSubmittingFeedback( false );
-		} );
+		} )
+			.then( () => {
+				setFeedbackSubmitted( true );
+			} )
+			.catch( err => {
+				setFeedbackError( err );
+			} )
+			.finally( () => {
+				setIsSubmittingFeedback( false );
+			} );
 	};
 
-	return { isSubmittingFeedback, submitFeedback };
+	return {
+		isSubmittingFeedback,
+		submitFeedback,
+		feedbackSubmitted,
+		feedbackError,
+		setFeedbackError,
+	};
 }
