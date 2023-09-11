@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fixed an issue that caused the notice displayed when updating widgets to overlap the admin menu
