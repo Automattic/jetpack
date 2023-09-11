@@ -15,6 +15,7 @@ export const SOCIAL_STORE_CONFIG = {
 	initialState:
 		window?.jetpackSocialInitialState || // Jetpack Social
 		window?.Initial_State?.socialInitialState || // Jetpack Dashboard
+		window?.Jetpack_Editor_Initial_State?.social || // Gutenberg
 		{},
 };
 
