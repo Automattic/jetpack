@@ -5,6 +5,16 @@ import { __ } from '@wordpress/i18n';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import styles from './styles.module.scss';
 
+const DISABLED_HELP_TEXT = __(
+	'You need a featured image or media attached to your post to be able to share as a social post.',
+	'jetpack'
+);
+
+const SHARE_AS_SOCIAL_POST_TEXT = __(
+	'By default, the image and text appear on social media as a link preview. To optimize engagement, share as a social post.',
+	'jetpack'
+);
+
 /**
  * The component that handles the social post checkbox.
  *
@@ -32,17 +42,7 @@ export default function SocialPostControl( { disabled = false } ) {
 					checked={ shouldUploadAttachedMedia }
 					onChange={ onCheckboxChange }
 					label={ __( 'Share as a social post', 'jetpack' ) }
-					help={
-						disabled
-							? __(
-									'You need a featured image or media attached to your post to be able to share as a social post.',
-									'jetpack'
-							  )
-							: __(
-									'By default, the image and text appear on social media as a link preview. To optimize engagement, share as a social post.',
-									'jetpack'
-							  )
-					}
+					help={ disabled ? DISABLED_HELP_TEXT : SHARE_AS_SOCIAL_POST_TEXT }
 				/>
 			</ControlWrapper>
 		</ThemeProvider>
