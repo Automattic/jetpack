@@ -27,6 +27,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	const POST_ACCESS_LEVEL_EVERYBODY                  = 'everybody';
 	const POST_ACCESS_LEVEL_SUBSCRIBERS                = 'subscribers';
 	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS           = 'paid_subscribers';
+	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS = 'paid_subscribers_all_tiers';
 
 	/**
 	 * Initialize the token subscription service.
@@ -126,6 +127,10 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 
 		if ( $access_level === self::POST_ACCESS_LEVEL_SUBSCRIBERS ) {
 			return $is_blog_subscriber || $is_paid_subscriber;
+		}
+
+		if ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS ) {
+			return $is_paid_subscriber;
 		}
 
 		if ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ) {
