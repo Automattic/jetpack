@@ -82,6 +82,18 @@ jQuery( document ).ready( function ( $ ) {
 					'</a>';
 				html += '</div>';
 			}
+			if ( envelope.settings_link){
+				html += '<div class="jitm-banner__action" id="jitm-banner__settings" style="display:none;">';
+				html +=
+					'<a href="' +
+					envelope.settings_link +
+					'" type="button" class="jitm-button is-compact is-secondary jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
+					envelope.id +
+					'-settings_link">' +
+					window.jitm_config.settings_module_text +
+					'</a>';
+				html += '</div>';
+			}
 			if ( envelope.CTA.message ) {
 				var ctaClasses = 'jitm-button is-compact';
 				if ( envelope.CTA.primary && null === envelope.activate_module ) {
@@ -190,7 +202,7 @@ jQuery( document ).ready( function ( $ ) {
 			var $activate_button = $( this );
 
 			// Do not allow any requests if the button is disabled.
-			if ( $activate_button.attr( 'disabled' ) || $activate_button.attr( 'link' ) ) {
+			if ( $activate_button.attr( 'disabled' ) ) {
 				return false;
 			}
 
@@ -210,17 +222,13 @@ jQuery( document ).ready( function ( $ ) {
 					$( '#jitm-banner__activate a' ).attr( 'disabled', true );
 				},
 			} ).done( function () {
-				$( '#jitm-banner__activate a' ).text( window.jitm_config.activated_module_text );
-				
-				// Present a link to module settings page if a settings link is set in the JITM envelope.
+				// Display the link to settings and hide the activate link
 				if ( $activate_button.data( 'settings_link' ) ) {
-					$( '#jitm-banner__activate a' ).text( window.jitm_config.settings_module_text );
-					$( '#jitm-banner__activate a' ).attr( 'href', window.jitm_config.jetpack_admin_url + $activate_button.data( 'redirect' ) );
-					$( '#jitm-banner__activate a' ).attr( 'link', true );
+					$( '#jitm-banner__settings' ).show();
+					$( '#jitm-banner__activate' ).hide();
 					return;
 				}
 
-				$( '#jitm-banner__activate a' ).attr( 'disabled', true );
 				// Hide the JITM after 2 seconds.
 				setTimeout( function () {
 					$template.fadeOut( 'slow' );
