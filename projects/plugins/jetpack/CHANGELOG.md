@@ -13,7 +13,7 @@
 - AI Excerpt: show upgrade banner when site achieves requests limit. [#32895]
 - Content Lens: connect excerpt panel with AI Assistant. [#32846]
 - Create with voice: show audio duration when recording audio. [#32827]
-- Newsletter: Adds support for newsletter categories. [#32666]
+- Newsletter: add support for newsletter categories. [#32666]
 - Paywall Block: better excerpts handling. [#32809]
 - Social: added the change setting for the auto conversion feature. [#32712]
 
