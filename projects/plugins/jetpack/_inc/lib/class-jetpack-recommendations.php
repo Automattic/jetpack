@@ -172,7 +172,7 @@ class Jetpack_Recommendations {
 		// if followers array does not have total key, return.
 		if ( array_key_exists( 'total', $followers ) ) {
 			$total_subscribers = intval( $followers['total'] );
-			if ( $total_subscribers > 100 && $total_subscribers < 100000 ) {
+			if ( $total_subscribers >= 100 && $total_subscribers < 100000 ) {
 				self::enable_conditional_recommendation( self::PAID_NEWSLETTER_RECOMMENDATION );
 			}
 		} else {

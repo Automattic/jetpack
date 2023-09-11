@@ -624,6 +624,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				descriptionList: [
+					__( 'Paid newsletter subscription.', 'jetpack' ),
 					__( 'Publish premium content.', 'jetpack' ),
 					__( 'Earn money through your Newsletter.', 'jetpack' ),
 				],
