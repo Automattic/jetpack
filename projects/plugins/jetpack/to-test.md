@@ -5,33 +5,64 @@
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### Newsletter
+### Enabling beta blocks
 
-The Newsletter settings are moved from the Discussion settings to their own dedicated page.
-- Go to "Jetpack settings → Newsletter"
-- Ensure all toggles work
-- Go to "Discussion" settings and confirm newsletter settings aren't there anymore
+Testing most features on this list requires enabling Jetpack beta blocks. You can be the one of the first to test upcoming features by adding this constant as a snippet, or directly into your configuration file:
 
-### SEO and Sharing Changes
+```
+define( 'JETPACK_BLOCKS_VARIATION', 'beta' );
+```
 
-There are a lot of small tweaks to the SEO and sharing modules that should be tested:
-* Enable SEO tools in Jetpack -> Settings -> Traffic
-* Draft a new post
-* Open the Jetpack sidebar in the editor
-* Confirm the SEO tools textareas width looks okay.
-* Confirm that the "hide page from search engines" is now a toggle (instead of a checkbox)
-* Confirm that the Like and Sharing options in post are now also toggles.
+### Social Auto Conversion
 
-### My Jetpack
+- Turn off Social and have Jetpack enabled.
+  - Go to the Jetpack settings page and turn on the auto conversion setting.
+  - Open up the editor and create a new post.
+  - Select a media file that is convertible, but not valid for some connections - for example a 10Mb jpg image.
+  - You should see the notice that it will be converted. If you dismissed already, remove the `jetpack_social_dismissed_notices` option to bring it back.
+  - On the notice click change settings button. It should open up Jetpack settings on the sharing screen.
+  - Turn off the auto conversion.
+  - Go back to the editor, the page should reflect the changes without needing to refresh.
+- Do the same with Jetpack Social enabled only. The only difference is that the button should direct you to the social admin page.
 
-The My Jetpack menu item in wp-admin has been moved to the top of the sub-menu list. Poke around and make sure things look good and links go where they're supposed to!
+### AI Excerpt helper
 
-### AI Assistant
+To properly test this ensure that beta blocks are enabled.
 
-There were many tweaks and back-end changes to the AI assistant. To test it out: 
-- Add a paragraph block to a post or page
-- From the block toolbar, select the sparkling AI Assistant button.
-- Try a few of the options and make sure they work and make sense.
+- Go to the block editor.
+- Open the post sidebar.
+- Confirm the Excerpt panel is there when:
+  -	beta extensions are enabled;
+  - AI Assistant block is enabled.
+ 
+- Go to the block editor, open the block sidebar.
+- Look at the AI Excerpt panel.
+- Confirm that the Accept button is initially disabled.
+- Request an excerpt.
+- Confirm that you can discard the changes by clicking on the Discard button.
+- Request an excerpt.
+- Confirm that Accept button gets enabled once the requests finishes.
+- Confirm you can use the suggestion by clicking on the button.
+- Confirm the Generate button gets disabled when the request is done.
+- Confirm the Generate button gets enabled right after clicking on the Accept or Discard button.
+- Request an excerpt
+- Confirm that after changing the number or words the Generate button gets enabled again.
+
+### Create with Voice AI helper
+
+To properly test this ensure that beta blocks are enabled.
+
+- Go to the block editor.
+- Create a "Create with voice" block instance and confirm that the block shows its toolbar.
+- Confirm now it's possible to remove the block.
+- Start to record/pause/resume.
+- Confirm how the block button changes according to the recording status.
+- Start to record.
+- Confirm the block shows the current time duration.
+- Stop recording.
+- Confirm the Done button is there, and start, pause, and resume actions work fine.
+- Confirm the block shows the audio player.
+- Confirm you can listen to the recorded audio.
 
 ### And More!
 
