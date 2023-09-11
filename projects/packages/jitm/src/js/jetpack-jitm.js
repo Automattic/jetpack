@@ -72,7 +72,7 @@ jQuery( document ).ready( function ( $ ) {
 				html +=
 					'<a href="#" data-module="' +
 					envelope.activate_module +
-					'" data-redirect="' + envelope.settings_redirect +
+					'" data-settings_link="' + envelope.settings_link +
 					'" type="button" class="jitm-button is-compact is-primary jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
 					envelope.id +
 					'-activate_module" data-jitm-path="' +
@@ -212,8 +212,8 @@ jQuery( document ).ready( function ( $ ) {
 			} ).done( function () {
 				$( '#jitm-banner__activate a' ).text( window.jitm_config.activated_module_text );
 				
-				// Redirect to module settings page if a redirect is set in the JITM envelope.
-				if ( $activate_button.data( 'redirect' ) ) {
+				// Present a link to module settings page if a settings link is set in the JITM envelope.
+				if ( $activate_button.data( 'settings_link' ) ) {
 					$( '#jitm-banner__activate a' ).text( window.jitm_config.settings_module_text );
 					$( '#jitm-banner__activate a' ).attr( 'href', window.jitm_config.jetpack_admin_url + $activate_button.data( 'redirect' ) );
 					$( '#jitm-banner__activate a' ).attr( 'link', true );
