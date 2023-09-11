@@ -18,6 +18,8 @@ export default function useSubmitQuestion( blogType, blogId ) {
 			path = `/wpcom/v2/sites/${ blogId }/jetpack-search/ai/search?query=${ question }`;
 		}
 
+		setIsLoading( true );
+
 		apiFetch( {
 			path,
 			method: 'GET',
