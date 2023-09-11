@@ -43,9 +43,19 @@ function load_assets( $attr ) {
 
 	$ask_button_label = isset( $attr['askButtonLabel'] ) ? $attr['askButtonLabel'] : __( 'Ask', 'jetpack' );
 
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$blog_id = get_current_blog_id();
+		$type    = 's'; // like wpcom simple
+	} else {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+		$type    = 'j'; // like jetpack or atomic
+	}
+
 	return sprintf(
-		'<div class="%1$s" data-ask-button-label="%2$s" id="jetpack-ai-chat"></div>',
+		'<div class="%1$s" data-ask-button-label="%2$s" id="jetpack-ai-chat" data-blog-id="%3$d" data-blog-type="%4$s"></div>',
 		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
-		esc_attr( $ask_button_label )
+		esc_attr( $ask_button_label ),
+		esc_attr( $blog_id ),
+		esc_attr( $type )
 	);
 }

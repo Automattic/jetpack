@@ -71,11 +71,13 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
  *
  * @param {object} props - Component props.
  * @param {string} props.askButtonLabel - Ask button label.
+ * @param {number} props.blogId - Blog ID.
+ * @param {string} props.blogType - Blog type (s|j) for simple and jetpack types.
  * @returns {QuestionAnswer} component.
  */
-export default function QuestionAnswer( { askButtonLabel } ) {
+export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 	const { question, setQuestion, answer, isLoading, submitQuestion, references, cacheKey } =
-		useSubmitQuestion();
+		useSubmitQuestion( blogType, blogId );
 
 	const { isSubmittingFeedback, submitFeedback } = useSubmitFeedback();
 	const [ feedback, setFeedback ] = useState( { rank: '', comment: '' } );
