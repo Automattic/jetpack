@@ -171,7 +171,7 @@ class Jetpack_Recommendations {
 
 		// if followers array does not have total key, return.
 		if ( array_key_exists( 'total', $followers ) ) {
-			// total subscribers was not summing up wpcom and email. Combining the two here.
+			// the endpoint used in class-wpocom-stats does not pass type=all as a parameter. Summing the parts gives the total for this purpose
 			$total_subscribers = $followers['total_email'] + $followers['total_wpcom'];
 			if ( $total_subscribers >= 100 && $total_subscribers < 100000 ) {
 				self::enable_conditional_recommendation( self::PAID_NEWSLETTER_RECOMMENDATION );
