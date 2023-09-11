@@ -79,7 +79,7 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 	const { question, setQuestion, answer, isLoading, submitQuestion, references, cacheKey } =
 		useSubmitQuestion( blogType, blogId );
 
-	const { isSubmittingFeedback, submitFeedback } = useSubmitFeedback();
+	const { isSubmittingFeedback, submitFeedback } = useSubmitFeedback( blogType, blogId );
 	const [ feedback, setFeedback ] = useState( { rank: '', comment: '' } );
 	const [ showFeedbackForm, setShowFeedbackForm ] = useState( false );
 
