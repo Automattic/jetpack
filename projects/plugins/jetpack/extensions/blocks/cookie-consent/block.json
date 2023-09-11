@@ -64,6 +64,5 @@
 			"type": "boolean",
 			"default": false
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }
