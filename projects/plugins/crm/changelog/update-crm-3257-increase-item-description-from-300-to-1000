@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Increase the line item size from 300 to 1000 characters
+Invoice: increase the line item description size, from 300 to 1000 characters.
