@@ -139,7 +139,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/jetpack-search/ai/rank',
+			'/jetpack-search/ai/rank',
 			array(
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
