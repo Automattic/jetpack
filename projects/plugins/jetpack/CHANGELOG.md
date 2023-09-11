@@ -2,6 +2,112 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.6-a.5 - 2023-09-11
+
+### Enhancements
+
+- Added the change setting feature in Social for the auto conversion feature. [#32712]
+- Adds support for newsletter categories. [#32666]
+- ai-chat block: Ability to chat with the site. [#32741]
+- AI Excerpt: add Diacard button to the panel. [#32890]
+- AI Excerpt: add `Accept` button. [#32889]
+- AI Excerpt: connect UI with data layer. [#32875]
+- AI Excerpt: disable Generate button. [#32924]
+- AI Excerpt: do not disable Genertate button when there is a request error. [#32927]
+- AI Excerpt: ensure to save the post before to ask a suggestion. [#32891]
+- AI Excerpt: pick and pass raw post content to the server side. [#32939]
+- AI Excerpt: re enable generate button when options change. [#32943]
+- AI Excerpt: show excerpt number of words. [#32881]
+- AI Excerpt: show notice when request fails. [#32917]
+- AI Excerpt: show upgrade banner when site achieves requests limit. [#32895]
+- Blogroll Beta block under construction. [#32848]
+- ContentLens: add `ai-content-lens` beta extension. [#32847]
+- Content Lens: connect excerpt panel with AI Assistant. [#32846]
+- Content Lens: pass post content when requesting post excerpt. [#32920]
+- Content Lens: replace core post excerpt with AI Post Excerpt. [#32845]
+- Create with voice: show audio duration when recording audio. [#32827]
+- Enable block registration by specifying block.json path. [#32697]
+- Featured images fallback: add srcset. [#32824]
+- Paywall: Add login link. [#32849]
+- Paywall Block: better excerpts handling. [#32809]
+- Utilize the Jetpack Admin UI package for handling the Akismet menu. [#32911]
+
+### Improved compatibility
+
+- General: remove WP 6.1 backwards compatibility checks. [#32772]
+- SAL: prevent a potential undefined function error. [#32962]
+
+### Bug fixes
+
+- Allow two year plans to show on the My Plan page. [#32904]
+- Calypsoify module: remove styles that conflict with WordPress.com. [#32919]
+- Fix cookie consent block positioning in the editor. [#32622]
+- Fixed an issue that caused the notice displayed when updating widgets to overlap the admin menu. [#32921]
+- Revert change where newsletter plans could not be used on Premium content. [#32850]
+- Subscriptions: Hide modal if post is subscribers-only. [#32867]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+
+- Fix copy. [#32813]
+- Fix link. [#32887]
+- Paywall: magic link to all users. [#32941]
+- Resolves an undefined key error on sites with uploaded media without file extensions. [#32961]
+- Restore some Requests library v1 back-compat code, apparently WordPress.com Simple skipped that part of their update to WP 6.2. [#32894]
+- Updated package dependencies. [#32966]
+- Updated spelling of the Akismet product. [#32908]
+
+## 12.6-a.3 - 2023-09-04
+
+### Enhancements
+
+- Add blogroll item block. [#32746]
+- Add wpcom_newsletter_categories_enabled site option. [#32569]
+- AI Assistant: proof-of-concept for expandable messages on the backend using form generation prompt. [#32679]
+- AI Extension: add create-with-voice beta extension. [#32742]
+- AI Extension: enhance blocks parsing flickering with child blocks. [#32635]
+- AI Extension: introduce Create with voice jetpack block - initial implementation. [#32750]
+- Create with voice: connect block with useMediaRecording() hook. [#32769]
+- Create with voice: introduce Done button. [#32792]
+- Create with voice: set block properties by using useBlockProps() custom hook. [#32782]
+- Fix a potential bug. [#32768]
+- Launchpad save modal: persist the user option when they opt to hide the modal. [#32567]
+- Link styles and scripts to block.json automatically. [#32720]
+- Paywall: better content for when waiting for email validation. [#32800]
+- Paywall block: improved settings panel. [#32801]
+- Paywall Block: improved toolbar. [#32765]
+- Render Subscriptions block on emails. [#32409]
+- Subscribers: add edit link for subscribe modal. [#32722]
+- WordPress.com Toolbar: add site monitoring menu and remove site logs. [#32458]
+
+### Improved compatibility
+
+- General: Jetpack now requires WordPress version 6.2. [#32762]
+
+### Bug fixes
+
+- AI Extension: remove HTML fragments from AI-generated forms on site editor. [#32798]
+- Blocks: use custom Facebook and Instagram icons in Jetpack's Facebook and Instagram blocks to avoid issues in accessibility inspector. [#32705]
+- Comments: remove mention of Twitter as a log in option since it is no longer available. [#32717]
+- Fix block icons for display on wp.org. [#32754]
+- Launchpad modal: reduce API calls for modal dismiss flag. [#32751]
+- Nav Unification: flips order of tags and categories submenu of posts. [#32619]
+- Subscriptions: add subscribe modal mobile padding. [#32725]
+- Subscriptions: hide modal if paywall block exists. [#32757]
+- Subscriptions: tweak subscribe modal text/spacing. [#32724]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+
+- Connected Account: update membership product type comment. [#32678]
+- Dashboard: update the way we fetch the current theme's stylesheet to build site editor link. [#32744]
+- Masterbar: removes submenu items of Reader link in the masterbar. This makes the Reader link
+  directly to the WordPress.com reader instead of opening a popout menu. [#32763]
+- Minor copy change. [#32797]
+- Only allow administrators the ability to modify products. [#32699]
+- Payment Button Block: remove "Mark this payment plan as a donation" toggle. [#32529]
+- Paywall: Add tracks to emails. [#32713]
+- Stats: add sticker tests to override `is_commercial`. [#32758]
+- Updated package dependencies. [#32803, #32804]
+
 ## 12.6-a.1 - 2023-08-28
 
 ### Enhancements

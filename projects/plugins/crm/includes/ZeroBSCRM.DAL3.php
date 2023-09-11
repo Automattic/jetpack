@@ -134,6 +134,7 @@ class zbsDAL {
     public $transactions = false;
     public $forms = false;
     public $events = false;
+		public $eventreminders = false; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
     public $logs = false;
     public $lineitems = false;
     public $quotetemplates = false;

@@ -1,10 +1,15 @@
 <script lang="ts">
+	import { useNavigate } from 'svelte-navigator';
 	import { __, sprintf } from '@wordpress/i18n';
+	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import Tooltip from '../../../elements/Tooltip.svelte';
 	import { imageCdnQuality } from '../../../stores/image-cdn';
 	import { premiumFeatures } from '../../../stores/premium-features';
+	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
 	import CollapsibleMeta from './CollapsibleMeta.svelte';
 	import ImageCdnQualityControl from './ImageCdnQualityControl.svelte';
+
+	const navigate = useNavigate();
 </script>
 
 {#if $premiumFeatures.includes( 'image-cdn-quality' )}
@@ -59,6 +64,16 @@
 			maxValue={80}
 		/>
 	</CollapsibleMeta>
+{:else}
+	<TemplatedString
+		template={__(
+			`For more control over image quality, <link>upgrade now!</link>`,
+			'jetpack-boost'
+		)}
+		vars={actionLinkTemplateVar( () => {
+			navigate( 'upgrade' );
+		}, 'link' )}
+	/>
 {/if}
 
 <style lang="scss">
