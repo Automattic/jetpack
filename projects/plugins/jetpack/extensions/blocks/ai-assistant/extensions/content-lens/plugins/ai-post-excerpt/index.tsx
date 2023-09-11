@@ -13,7 +13,6 @@ import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
 import React from 'react';
-import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
@@ -31,9 +30,6 @@ type ContentLensMessageContextProps = {
 	content?: string;
 	words?: number;
 };
-
-// Turndown instance
-const turndownService = new TurndownService();
 
 function AiPostExcerpt() {
 	const excerpt = useSelect(
@@ -59,6 +55,7 @@ function AiPostExcerpt() {
 		removeEditorPanel( 'post-excerpt' );
 	}, [ removeEditorPanel ] );
 
+	// Pick raw post content
 	const postContent = useSelect(
 		select => {
 			const content = select( 'core/editor' ).getEditedPostContent();
@@ -66,7 +63,13 @@ function AiPostExcerpt() {
 				return '';
 			}
 
-			return turndownService.turndown( content );
+			// return turndownService.turndown( content );
+			const document = new window.DOMParser().parseFromString( content, 'text/html' );
+
+			const documentRawText = document.body.textContent || document.body.innerText || '';
+
+			// Keep only one break line (\n) between blocks.
+			return documentRawText.replace( /\n{2,}/g, '\n' ).trim();
 		},
 		[ postId ]
 	);
