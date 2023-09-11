@@ -42,7 +42,6 @@ class Jetpack_Recommendations {
 	);
 
 	const VIDEOPRESS_TIMED_ACTION = 'jetpack_recommend_videopress';
-	const NEWSLETTER_TIMED_ACTION = 'jetpack_recommend_newsletter';
 
 	/**
 	 * Returns a boolean indicating if the Jetpack Recommendations are enabled.
