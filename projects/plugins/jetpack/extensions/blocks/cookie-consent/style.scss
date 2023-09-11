@@ -37,18 +37,18 @@
 	}
 
 	&.alignright {
-		right: 10px;
-		margin-left: auto !important;
+		inset-inline-end: 10px;
+		margin-inline-start: auto !important;
 	}
 
 	&.alignleft {
-		left: 10px;
+		inset-inline-start: 10px;
 	}
 
 	&.alignwide {
 		width: 100vw !important;
 		max-width: 90% !important;
-		left: 5% !important;
+		inset-inline-start: 5% !important;
 	}
 
 	&.alignfull {
@@ -62,8 +62,8 @@
 			max-width: unset;
 			width: 100vw;
 			max-width: 90%;
-			left: 5%;
-			margin-left: 0 !important;
+			inset-inline-start: 5%;
+			margin-inline-start: 0 !important;
 			flex-wrap: wrap;
 		}
 	}

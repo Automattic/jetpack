@@ -63,7 +63,10 @@
 		"showOverlay": {
 			"type": "boolean",
 			"default": false
+		},
+		"render_from_template": {
+			"default": false,
+			"type": "boolean"
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }
