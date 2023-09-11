@@ -31,6 +31,11 @@ type BlockEditorDispatch = {
 	selectBlock: ( clientId: string ) => Promise< void >;
 };
 
+type CoreEditorSelect = {
+	getCurrentPostId: () => number;
+	getBlock: ( clientId: string ) => Block;
+};
+
 /**
  * Select the Jetpack Form block,
  * based on the block client ID.
@@ -49,11 +54,20 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 	return props => {
 		const { clientId, isSelected } = props;
 
+		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
+		const coreEditorSelect = useSelect( select => select( 'core/editor' ), [] ) as CoreEditorSelect;
+		const postId = coreEditorSelect.getCurrentPostId();
+		const blockFromPostId = coreEditorSelect.getBlock( clientId );
+
 		// AI Assistant input value
 		const [ inputValue, setInputValue ] = useState( '' );
 
 		// AI Assistant component visibility
-		const [ isVisible, setAssistantVisibility ] = useState( true );
+		// Only show input automatically for empty forms
+		const shouldStartVisible =
+			blockFromPostId?.name === 'jetpack/contact-form' &&
+			blockFromPostId?.innerBlocks?.length === 0;
+		const [ isVisible, setAssistantVisibility ] = useState( shouldStartVisible );
 
 		// AI Assistant component is-fixed state
 		const [ isFixed, setAssistantFixed ] = useState( false );
@@ -62,12 +76,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 		// Keep track of the current list of valid blocks between renders.
 		const currentListOfValidBlocks = useRef< Array< Block > >( [] );
-
-		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
-		const coreEditorSelect = useSelect( select => select( 'core/editor' ), [] ) as {
-			getCurrentPostId: () => number;
-		};
-		const postId = coreEditorSelect.getCurrentPostId();
 
 		/**
 		 * Show the AI Assistant
