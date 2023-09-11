@@ -6,9 +6,9 @@
 
 ### Enhancements
 
-- AI-chat block: added adility to chat with the site. [#32741]
-- AI Excerpt: added the Discard button to the panel. [#32890]
-- AI Excerpt: added the "Accept" button. [#32889]
+- AI-chat block: add ability to chat with the site. [#32741]
+- AI Excerpt: add the Discard button to the panel. [#32890]
+- AI Excerpt: add the Accept button. [#32889]
 - AI Excerpt: ensure to save the post before asking a suggestion. [#32891]
 - AI Excerpt: show upgrade banner when site achieves requests limit. [#32895]
 - Content Lens: connect excerpt panel with AI Assistant. [#32846]
