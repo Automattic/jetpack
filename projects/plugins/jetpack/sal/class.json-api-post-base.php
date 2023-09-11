@@ -823,10 +823,12 @@ abstract class SAL_Post {
 	 * @param string $email The user's email.
 	 * @param int    $avatar_size The size of the avatar in pixels.
 	 *
+	 * @todo Provide a non-WP.com option.
+	 *
 	 * @return string
 	 */
 	protected function get_avatar_url( $email, $avatar_size = 96 ) {
-		$avatar_url = wpcom_get_avatar_url( $email, $avatar_size, '', true );
+		$avatar_url = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $email, $avatar_size ) : '';
 		if ( ! $avatar_url || is_wp_error( $avatar_url ) ) {
 			return '';
 		}
