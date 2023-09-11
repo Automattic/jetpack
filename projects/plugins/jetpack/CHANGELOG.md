@@ -27,7 +27,7 @@
 - Fix cookie consent block positioning in the editor. [#32622]
 - Fix an issue that caused the notice displayed when updating widgets to overlap the admin menu. [#32921]
 - Revert change where newsletter plans could not be used on Premium content. [#32850]
-- Subscriptions: Hide modal if post is subscribers-only. [#32867]
+- Subscriptions: hide modal if post is subscribers-only. [#32867]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 
