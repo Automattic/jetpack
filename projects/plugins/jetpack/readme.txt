@@ -297,16 +297,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 #### Enhancements
 
-- AI-chat block: added adility to chat with the site.
-- AI Excerpt: added the Discard button to the panel.
-- AI Excerpt: added the "Accept" button.
+- AI-chat block: add ability to chat with the site.
+- AI Excerpt: add the Discard button to the panel.
+- AI Excerpt: add the Accept button.
 - AI Excerpt: ensure to save the post before asking a suggestion.
 - AI Excerpt: show upgrade banner when site achieves requests limit.
 - Content Lens: connect excerpt panel with AI Assistant.
 - Create with voice: show audio duration when recording audio.
-- Newsletter: Adds support for newsletter categories.
-- Paywall Block: better excerpts handling.
-- Social: added the change setting for the auto conversion feature.
+- Newsletter: add support for newsletter categories.
+- Paywall Block: improve excerpts handling.
+- Social: add the change setting for the auto conversion feature.
 
 #### Improved compatibility
 
@@ -316,9 +316,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 - Allow two year plans to show on the My Plan page.
 - Fix cookie consent block positioning in the editor.
-- Fixed an issue that caused the notice displayed when updating widgets to overlap the admin menu.
+- Fix an issue that caused the notice displayed when updating widgets to overlap the admin menu.
 - Revert change where newsletter plans could not be used on Premium content.
-- Subscriptions: Hide modal if post is subscribers-only.
+- Subscriptions: hide modal if post is subscribers-only.
 
 --------
 
