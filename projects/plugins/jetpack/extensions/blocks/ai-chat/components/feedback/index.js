@@ -10,49 +10,41 @@ import { useEffect, useState } from 'react';
 import useSubmitFeedback from '../../use-submit-feedback';
 import DisplayError from '../display-error';
 
-export default function Feedback( { blogType, blogId, cacheKey } ) {
-	const {
-		isSubmittingFeedback,
-		submitFeedback,
-		feedbackSubmitted,
-		setFeedbackSubmitted,
-		feedbackError,
-		setFeedbackError,
-	} = useSubmitFeedback( blogType, blogId );
+export default function Feedback( { blogType, blogId, cacheKey, feedbackSubmitted, addFeedback } ) {
+	const { isSubmittingFeedback, submitFeedback, feedbackError, setFeedbackError } =
+		useSubmitFeedback( blogType, blogId );
 
 	useEffect( () => {
+		// When the cache key changes, reset the feedback state as it signals a new question.
 		if ( cacheKey.startsWith( 'jp-search-ai-' ) ) {
-			reset();
+			setFeedback( { rank: '', comment: '' } );
+			setShowCommentForm( false );
+			setFeedbackError( false );
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ cacheKey ] );
 
 	const [ feedback, setFeedback ] = useState( { rank: '', comment: '' } );
 	const [ showCommentForm, setShowCommentForm ] = useState( false );
+	const feedbackSubmittedForThisQuestion = feedbackSubmitted.includes( cacheKey );
 
 	const handleRankSubmit = rankValue => {
 		setFeedback( { ...feedback, rank: rankValue } );
 		setShowCommentForm( true );
 	};
 
-	// Reset feedback state.
-	const reset = () => {
-		setFeedback( { rank: '', comment: '' } );
-		setFeedbackSubmitted( false );
-		setShowCommentForm( false );
-		setFeedbackError( false );
-	};
-
 	const handleFeedbackSubmit = () => {
+		submitFeedback( feedback, cacheKey );
+		addFeedback( cacheKey );
 		submitFeedback( feedback, cacheKey );
 	};
 
-	const showFeedbackForm = ! feedbackError && ! feedbackSubmitted;
+	const showFeedbackForm = ! feedbackError && ! feedbackSubmittedForThisQuestion;
 
 	return (
 		<div className="jetpack-ai-chat-feedback-container">
 			{ feedbackError && <DisplayError error={ feedbackError } /> }
-			{ feedbackSubmitted && (
+			{ feedbackSubmittedForThisQuestion && (
 				<div className="jetpack-ai-chat-feedback-submitted">
 					{ __( 'Thanks for your feedback!', 'jetpack' ) }
 				</div>
@@ -89,13 +81,13 @@ export default function Feedback( { blogType, blogId, cacheKey } ) {
 								}
 								size={ 50 }
 								value={ feedback.comment }
-								disabled={ isSubmittingFeedback || feedbackSubmitted }
+								disabled={ isSubmittingFeedback || feedbackSubmittedForThisQuestion }
 								onChange={ newComment => setFeedback( { ...feedback, comment: newComment } ) }
 							/>
 							<Button
 								variant="primary"
 								onClick={ handleFeedbackSubmit }
-								disabled={ isSubmittingFeedback || feedbackSubmitted }
+								disabled={ isSubmittingFeedback || feedbackSubmittedForThisQuestion }
 							>
 								{ __( 'Submit', 'jetpack' ) }
 							</Button>

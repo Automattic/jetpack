@@ -4,9 +4,8 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useState } from '@wordpress/element';
 
-export default function useSubmitQuestion( blogType, blogId ) {
+export default function useSubmitFeedback( blogType, blogId ) {
 	const [ isSubmittingFeedback, setIsSubmittingFeedback ] = useState( false );
-	const [ feedbackSubmitted, setFeedbackSubmitted ] = useState( false );
 	const [ feedbackError, setFeedbackError ] = useState( false );
 	const submitFeedback = async ( feedbackData, cacheKey ) => {
 		let path = `/wpcom/v2/jetpack-search/ai/rank?cache_key=${ cacheKey }`;
@@ -24,7 +23,7 @@ export default function useSubmitQuestion( blogType, blogId ) {
 			},
 		} )
 			.then( () => {
-				setFeedbackSubmitted( true );
+				setFeedbackError( false );
 			} )
 			.catch( err => {
 				setFeedbackError( err );
@@ -37,8 +36,6 @@ export default function useSubmitQuestion( blogType, blogId ) {
 	return {
 		isSubmittingFeedback,
 		submitFeedback,
-		feedbackSubmitted,
-		setFeedbackSubmitted,
 		feedbackError,
 		setFeedbackError,
 	};

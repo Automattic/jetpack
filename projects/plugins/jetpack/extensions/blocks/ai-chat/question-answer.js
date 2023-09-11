@@ -84,6 +84,10 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 
 	const [ animationDone, setAnimationDone ] = useState( false );
 	const [ showReferences, setShowReferences ] = useState( false );
+	const [ feedbackSubmitted, setFeedbackSubmitted ] = useState( [] );
+	const addFeedbackToState = submittedCacheKey => {
+		setFeedbackSubmitted( [ ...feedbackSubmitted, submittedCacheKey ] );
+	};
 
 	const handleSubmitQuestion = () => {
 		setAskError( false );
@@ -153,7 +157,13 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 					</div>
 				) }
 				{ showFeedback && (
-					<Feedback blogId={ blogId } blogType={ blogType } cacheKey={ cacheKey } />
+					<Feedback
+						blogId={ blogId }
+						blogType={ blogType }
+						cacheKey={ cacheKey }
+						feedbackSubmitted={ feedbackSubmitted }
+						addFeedback={ addFeedbackToState }
+					/>
 				) }
 			</div>
 		</>
