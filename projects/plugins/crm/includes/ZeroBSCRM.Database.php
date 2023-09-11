@@ -735,7 +735,7 @@ function zeroBSCRM_createTables(){
   `zbs_owner` INT NOT NULL,
   `zbsli_order` INT NULL DEFAULT NULL,
   `zbsli_title` VARCHAR(300) NULL DEFAULT NULL,
-  `zbsli_desc` VARCHAR(300) NULL DEFAULT NULL,
+  `zbsli_desc` VARCHAR(1000) NULL DEFAULT NULL,
   `zbsli_quantity` decimal(18,2) NULL DEFAULT NULL,
   `zbsli_price` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
   `zbsli_currency` VARCHAR(4) NOT NULL DEFAULT -1,
