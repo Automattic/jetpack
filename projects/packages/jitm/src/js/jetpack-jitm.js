@@ -190,7 +190,7 @@ jQuery( document ).ready( function ( $ ) {
 			var $activate_button = $( this );
 
 			// Do not allow any requests if the button is disabled.
-			if ( $activate_button.attr( 'disabled' ) ) {
+			if ( $activate_button.attr( 'disabled' ) || $activate_button.attr( 'link' ) ) {
 				return false;
 			}
 
@@ -211,15 +211,16 @@ jQuery( document ).ready( function ( $ ) {
 				},
 			} ).done( function () {
 				$( '#jitm-banner__activate a' ).text( window.jitm_config.activated_module_text );
-				$( '#jitm-banner__activate a' ).attr( 'disabled', true );
-
+				
 				// Redirect to module settings page if a redirect is set in the JITM envelope.
 				if ( $activate_button.data( 'redirect' ) ) {
 					$( '#jitm-banner__activate a' ).text( window.jitm_config.settings_module_text );
 					$( '#jitm-banner__activate a' ).attr( 'href', window.jitm_config.jetpack_admin_url + $activate_button.data( 'redirect' ) );
+					$( '#jitm-banner__activate a' ).attr( 'link', true );
 					return;
 				}
 
+				$( '#jitm-banner__activate a' ).attr( 'disabled', true );
 				// Hide the JITM after 2 seconds.
 				setTimeout( function () {
 					$template.fadeOut( 'slow' );
