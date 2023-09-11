@@ -45,10 +45,10 @@ function load_assets( $attr ) {
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$blog_id = get_current_blog_id();
-		$type    = 's'; // like wpcom simple
+		$type    = 'wpcom'; // WPCOM simple sites.
 	} else {
 		$blog_id = \Jetpack_Options::get_option( 'id' );
-		$type    = 'j'; // like jetpack or atomic
+		$type    = 'jetpack'; // Self-hosted (includes Atomic)
 	}
 
 	return sprintf(

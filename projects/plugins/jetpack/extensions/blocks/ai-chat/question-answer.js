@@ -72,7 +72,7 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
  * @param {object} props - Component props.
  * @param {string} props.askButtonLabel - Ask button label.
  * @param {number} props.blogId - Blog ID.
- * @param {string} props.blogType - Blog type (s|j) for simple and jetpack types.
+ * @param {string} props.blogType - Blog type (wpcom|jetpack) for wpcom simple and jetpack/atomic.
  * @returns {QuestionAnswer} component.
  */
 export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {

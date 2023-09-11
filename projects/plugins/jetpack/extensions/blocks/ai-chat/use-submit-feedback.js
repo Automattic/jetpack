@@ -8,7 +8,7 @@ export default function useSubmitQuestion( blogType, blogId ) {
 	const [ isSubmittingFeedback, setIsSubmittingFeedback ] = useState( false );
 	const submitFeedback = async ( feedbackData, cacheKey ) => {
 		let path = `/wpcom/v2/jetpack-search/ai/rank?cache_key=${ cacheKey }`;
-		if ( blogType === 's' ) {
+		if ( blogType === 'wpcom' ) {
 			path = `/wpcom/v2/sites/${ blogId }/jetpack-search/ai/rank?cache_key=${ cacheKey }`;
 		}
 
