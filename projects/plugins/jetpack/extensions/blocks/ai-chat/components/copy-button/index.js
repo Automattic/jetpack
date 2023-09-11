@@ -1,3 +1,6 @@
+/**
+ * WordPress dependencies
+ */
 import { Button, Icon } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useState } from '@wordpress/element';
@@ -11,16 +14,17 @@ export default function CopyButton( { answer } ) {
 	} );
 
 	return (
-		<>
+		<div className="jetpack-ai-chat-copy-button-container">
 			<Button
-				className="copy-button"
+				className="jetpack-ai-chat-copy-button"
 				disabled={ hasCopied }
 				label={ __( 'Copy Response', 'jetpack' ) }
+				variant="has-text"
 				ref={ copyRef }
 			>
-				<Icon icon="clipboard" />
+				<Icon className="copy-icon" icon="clipboard" />
+				{ hasCopied ? __( 'Copied!', 'jetpack' ) : __( 'Copy Response', 'jetpack' ) }
 			</Button>
-			{ hasCopied && __( 'Copied!', 'jetpack' ) }
-		</>
+		</div>
 	);
 }

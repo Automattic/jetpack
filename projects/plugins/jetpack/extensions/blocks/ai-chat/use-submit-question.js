@@ -8,7 +8,7 @@ export default function useSubmitQuestion( blogType, blogId ) {
 	const [ question, setQuestion ] = useState( '' );
 
 	const [ answer, setAnswer ] = useState();
-	const [ cacheKey, setCacheKey ] = useState();
+	const [ cacheKey, setCacheKey ] = useState( '' );
 	const [ askError, setAskError ] = useState( false );
 	const [ references, setReferences ] = useState( [] );
 	const [ isLoading, setIsLoading ] = useState( false );

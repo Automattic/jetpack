@@ -13,8 +13,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import CopyButton from './components/copyButton';
-import DisplayError from './components/displayError';
+import CopyButton from './components/copy-button';
+import DisplayError from './components/display-error';
 import Feedback from './components/feedback';
 import useSubmitQuestion from './use-submit-question';
 
@@ -138,9 +138,6 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 				</div>
 				{ askError && <DisplayError error={ askError } /> }
 				{ showCopyButton && <CopyButton answer={ answer } /> }
-				{ showFeedback && (
-					<Feedback blogId={ blogId } blogType={ blogType } cacheKey={ cacheKey } />
-				) }
 				{ references && references.length > 0 && showReferences && (
 					<div className="jetpack-ai-chat-answer-references">
 						<div>{ __( 'Additional resources:', 'jetpack' ) }</div>
@@ -152,7 +149,11 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 								</li>
 							) ) }
 						</ul>
+						<hr />
 					</div>
+				) }
+				{ showFeedback && (
+					<Feedback blogId={ blogId } blogType={ blogType } cacheKey={ cacheKey } />
 				) }
 			</div>
 		</>
