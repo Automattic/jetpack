@@ -14,7 +14,7 @@
 - Content Lens: connect excerpt panel with AI Assistant. [#32846]
 - Create with voice: show audio duration when recording audio. [#32827]
 - Newsletter: add support for newsletter categories. [#32666]
-- Paywall Block: better excerpts handling. [#32809]
+- Paywall Block: improve excerpts handling. [#32809]
 - Social: added the change setting for the auto conversion feature. [#32712]
 
 ### Improved compatibility
