@@ -1,12 +1,12 @@
 import { settings } from '../';
-import { settings as contactInfoSettings } from '../../';
 import runBlockFixtureTests from '../../../../shared/test/block-fixtures';
+import parentBlockMetadata from '../../block.json';
 
 // Need to include all the blocks involved in rendering this block.
 // The main block should be the first in the array.
 const blocks = [
 	{ name: 'jetpack/address', settings },
-	{ name: 'jetpack/contact-info', settings: contactInfoSettings },
+	{ name: parentBlockMetadata.name, settings: parentBlockMetadata },
 ];
 
 runBlockFixtureTests( 'jetpack/address', blocks, __dirname );
