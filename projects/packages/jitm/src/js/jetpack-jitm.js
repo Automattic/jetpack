@@ -215,7 +215,9 @@ jQuery( document ).ready( function ( $ ) {
 
 				// Redirect to module settings page if a redirect is set in the JITM envelope.
 				if ( $activate_button.data( 'redirect' ) ) {
-					window.location.href = window.jitm_config.jetpack_admin_url + $activate_button.data( 'redirect' );
+					$( '#jitm-banner__activate a' ).text( window.jitm_config.settings_module_text );
+					$( '#jitm-banner__activate a' ).attr( 'href', window.jitm_config.jetpack_admin_url + $activate_button.data( 'redirect' ) );
+					return;
 				}
 
 				// Hide the JITM after 2 seconds.
