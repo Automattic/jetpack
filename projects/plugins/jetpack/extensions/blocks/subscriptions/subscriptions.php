@@ -590,6 +590,7 @@ function render_block( $attributes ) {
 	$styles  = get_element_styles_from_attributes( $attributes );
 
 	$include_social_followers = isset( $attributes['includeSocialFollowers'] ) ? (bool) get_attribute( $attributes, 'includeSocialFollowers' ) : true;
+	$is_paid_subscriber       = get_attribute( $attributes, 'isPaidSubscriber', false );
 
 	$data = array(
 		'widget_id'              => Jetpack_Subscriptions_Widget::$instance_count,
@@ -601,7 +602,7 @@ function render_block( $attributes ) {
 			)
 		),
 		'subscribe_placeholder'  => get_attribute( $attributes, 'subscribePlaceholder', esc_html__( 'Type your email…', 'jetpack' ) ),
-		'submit_button_text'     => get_attribute( $attributes, 'submitButtonText', esc_html__( 'Subscribe', 'jetpack' ) ),
+		'submit_button_text'     => get_attribute( $attributes, 'submitButtonText', $is_paid_subscriber ? esc_html__( 'Upgrade', 'jetpack' ) : esc_html__( 'Subscribe', 'jetpack' ) ),
 		'success_message'        => get_attribute(
 			$attributes,
 			'successMessage',
@@ -1084,13 +1085,18 @@ function get_paywall_content( $post_access_level, $email_confirmation_pending = 
 function get_paywall_blocks( $newsletter_access_level ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	// Only display paid texts when Stripe is connected and the post is marked for paid subscribers
-	$is_paid_post = $newsletter_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
+	$is_paid_post       = $newsletter_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
+	$is_paid_subscriber = Jetpack_Memberships::user_is_paid_subscriber();
 
-	$access_heading = esc_html__( 'Subscribe to continue reading', 'jetpack' );
+	$access_heading = $is_paid_subscriber
+		? esc_html__( 'Upgrade to continue reading', 'jetpack' )
+		: esc_html__( 'Subscribe to continue reading', 'jetpack' );
 
 	$subscribe_text = $is_paid_post
 		// translators: %s is the name of the site.
-		? esc_html__( 'Become a paid subscriber to get access to the rest of this post and other exclusive content.', 'jetpack' )
+		? $is_paid_subscriber
+		? esc_html__( 'Upgrade to get access to the rest of this post and other exclusive content.', 'jetpack' )
+		: esc_html__( 'Become a paid subscriber to get access to the rest of this post and other exclusive content.', 'jetpack' )
 		// translators: %s is the name of the site.
 		: esc_html__( 'Subscribe to get access to the rest of this post and other subscriber-only content.', 'jetpack' );
 
@@ -1123,7 +1129,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 <p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:14px">' . $subscribe_text . '</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
+<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact","isPaidSubscriber":' . $is_paid_subscriber . '} /-->
 ' . $sign_in . '
 </div>
 <!-- /wp:group -->
