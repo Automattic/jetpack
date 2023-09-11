@@ -54,9 +54,9 @@ class zbsDAL_lineitems extends zbsDAL_ObjectLayer {
             'max_len' => 300
         ),
         'desc' => array(
-            'fieldname' => 'zbsli_desc',
-            'format' => 'str',
-            'max_len' => 300
+			'fieldname' => 'zbsli_desc',
+			'format'    => 'str',
+			'max_len'   => 1000,
         ),
         'quantity' => array('fieldname' => 'zbsli_quantity', 'format' => 'decimal'),
         'price' => array('fieldname' => 'zbsli_price', 'format' => 'decimal'),
