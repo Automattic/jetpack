@@ -31,9 +31,12 @@ type BlockEditorDispatch = {
 	selectBlock: ( clientId: string ) => Promise< void >;
 };
 
+type BlockEditorSelect = {
+	getBlock: ( clientId: string ) => Block;
+};
+
 type CoreEditorSelect = {
 	getCurrentPostId: () => number;
-	getBlock: ( clientId: string ) => Block;
 };
 
 /**
@@ -56,8 +59,12 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 		const coreEditorSelect = useSelect( select => select( 'core/editor' ), [] ) as CoreEditorSelect;
+		const blockEditorSelect = useSelect(
+			select => select( 'core/block-editor' ),
+			[]
+		) as BlockEditorSelect;
 		const postId = coreEditorSelect.getCurrentPostId();
-		const blockFromPostId = coreEditorSelect.getBlock( clientId );
+		const blockFromPostId = blockEditorSelect.getBlock( clientId );
 
 		// AI Assistant input value
 		const [ inputValue, setInputValue ] = useState( '' );
