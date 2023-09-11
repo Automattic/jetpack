@@ -27,6 +27,10 @@ import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
 // An identifier to use on the extension error notices,
 export const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
 
+type BlockEditorDispatch = {
+	selectBlock: ( clientId: string ) => Promise< void >;
+};
+
 /**
  * Select the Jetpack Form block,
  * based on the block client ID.
@@ -37,7 +41,8 @@ export const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
  * @returns {void}
  */
 export function selectFormBlock( clientId: string, fn: () => void ): void {
-	dispatch( 'core/block-editor' ).selectBlock( clientId ).then( fn );
+	const blockEditorDispatch = dispatch( 'core/block-editor' ) as BlockEditorDispatch;
+	blockEditorDispatch.selectBlock( clientId ).then( fn );
 }
 
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
