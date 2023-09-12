@@ -701,7 +701,7 @@ function wpcom_launchpad_get_active_checklist() {
 	return $wpcom_launchpad_config['active_checklist_slug'];
 }
 
-/*
+/**
  * Helper function to set the current active checklist in the navigator context.
  *
  * @param string $checklist_slug The slug of the launchpad task list to mark as active.
