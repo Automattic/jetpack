@@ -532,8 +532,9 @@ class Jetpack_Memberships {
 		}
 
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-		$paywall       = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$can_view_post = $paywall->visitor_can_view_content( self::get_all_newsletter_plan_ids(), $post_access_level );
+		$paywall        = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		$valid_plan_ids = self::get_all_newsletter_plan_ids( true );
+		$can_view_post  = $paywall->visitor_can_view_content( $valid_plan_ids, $post_access_level );
 
 		self::$user_can_view_post_cache[ $cache_key ] = $can_view_post;
 		return $can_view_post;
@@ -580,14 +581,15 @@ class Jetpack_Memberships {
 	/**
 	 * Return membership plans
 	 *
+	 * @param bool $add_deleted_plans If deleted plans need to be added. Default is false.
 	 * @return array
 	 */
-	public static function get_all_newsletter_plan_ids() {
+	public static function get_all_newsletter_plan_ids( $add_deleted_plans = false ) {
 		if ( ! self::is_enabled_jetpack_recurring_payments() ) {
 			return array();
 		}
 
-		return get_posts(
+		$active_plan_ids = get_posts(
 			array(
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
@@ -596,6 +598,20 @@ class Jetpack_Memberships {
 				'meta_key'       => 'jetpack_memberships_site_subscriber',
 			)
 		);
+
+		if ( ! $add_deleted_plans ) {
+			$deleted_plan_ids = get_posts(
+				array(
+					'posts_per_page' => - 1,
+					'fields'         => 'ids',
+					'meta_value'     => true,
+					'post_type'      => self::$deleted_post_type_plan,
+					'meta_key'       => 'jetpack_memberships_site_subscriber',
+				)
+			);
+		}
+
+		return array_merge( $active_plan_ids, $deleted_plan_ids );
 	}
 
 	/**
