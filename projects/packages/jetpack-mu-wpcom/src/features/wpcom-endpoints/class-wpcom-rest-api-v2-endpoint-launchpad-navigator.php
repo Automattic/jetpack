@@ -43,14 +43,28 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller 
 					'permission_callback' => array( $this, 'can_access' ),
 					'args'                => array(
 						'active_checklist_slug' => array(
-							'description' => 'The slug of the checklist to set as active.',
-							'type'        => 'string',
-							'enum'        => $this->get_checklist_slug_enums(),
+							'description'       => 'The slug of the checklist to set as active.',
+							'type'              => 'string',
+							'validate_callback' => array( $this, 'validate_checklist_slug_param' ),
 						),
 					),
 				),
 			)
 		);
+	}
+
+	/**
+	 * Validates that the argument sent to the active_checklist_slug parameter is a valid checklist slug or empty.
+	 *
+	 * @param string $value The value of the active_checklist_slug parameter.
+	 * @return bool
+	 */
+	public function validate_checklist_slug_param( $value ) {
+		if ( $value === null ) {
+			return true;
+		}
+
+		return is_string( $value ) && in_array( $value, $this->get_checklist_slug_enums(), true );
 	}
 
 	/**
@@ -70,14 +84,16 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller 
 	 * @param WP_REST_Request $request Request object.
 	 */
 	public function update_navigator_options( $request ) {
-		$input = $request->get_json_params();
+		$updated = array();
+		$input   = $request->get_json_params();
 
-		if ( ! isset( $input['active_checklist_slug'] ) ) {
-			return;
+		foreach ( $input as $key => $value ) {
+			switch ( $key ) {
+				case 'active_checklist_slug':
+					$updated = wpcom_launchpad_set_current_active_checklist( $input['active_checklist_slug'] );
+					break;
+			}
 		}
-
-		$updated = wpcom_launchpad_set_current_active_checklist( $input['active_checklist_slug'] );
-
 		return array(
 			'updated' => $updated,
 		);
