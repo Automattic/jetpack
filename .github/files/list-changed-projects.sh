@@ -15,6 +15,21 @@ function die {
 	exit 1
 }
 
+# Define specific projects.
+SPECIFIC_PROJECTS=(
+	"plugins/jetpack"
+)
+
+JSON_PROJECTS=()
+for PROJECT in "${SPECIFIC_PROJECTS[@]}"; do
+	JSON_PROJECTS+=("\"$PROJECT\":true")
+done
+
+echo "{$(IFS=,; echo "${JSON_PROJECTS[*]}")}"
+
+# Skip the rest of the script.
+exit 0
+
 DEPENDENTS=true
 DEPENDENCIES=false
 ARGS=()

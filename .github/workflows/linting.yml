@@ -53,6 +53,11 @@ jobs:
       excludelist: ${{ steps.filterExcludeList.outputs.excluded_files != '[]' || steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_php == 'true' || steps.filter.outputs.misc_js == 'true' || steps.filter.outputs.misc_excludelist == 'true' }}
 
     steps:
+      - name: Check condition
+        run: |
+          echo "Exiting early"
+          exit 0
+
       - uses: actions/checkout@v3
 
       - uses: dorny/paths-filter@v2
