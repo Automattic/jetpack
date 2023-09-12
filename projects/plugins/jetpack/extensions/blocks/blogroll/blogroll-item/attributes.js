@@ -14,4 +14,7 @@ export default {
 	description: {
 		type: 'string',
 	},
+	subscribe: {
+		type: 'boolean',
+	},
 };

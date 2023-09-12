@@ -1,9 +1,17 @@
 import { InnerBlocks } from '@wordpress/block-editor';
+import { useEffect } from '@wordpress/element';
+import SubscribeButton from './subscribe-button';
+
 import './editor.scss';
 
-function BlogrollItemEdit( { className, attributes } ) {
+function Edit( { className, attributes, setAttributes, context } ) {
 	const iconSize = 48;
-	const { name, icon, url, description } = attributes;
+	const { name, icon, url, description, subscribe } = attributes;
+	const { showSubscribeButton } = context;
+
+	useEffect( () => {
+		setAttributes( { subscribe: showSubscribeButton } );
+	}, [ setAttributes, showSubscribeButton ] );
 
 	const DEFAULT_TEMPLATE = [
 		[
@@ -63,8 +71,9 @@ function BlogrollItemEdit( { className, attributes } ) {
 	return (
 		<div className={ className }>
 			<InnerBlocks template={ DEFAULT_TEMPLATE } templateLock="all" />
+			{ subscribe && <SubscribeButton siteId={ attributes.id } /> }
 		</div>
 	);
 }
 
-export default BlogrollItemEdit;
+export default Edit;

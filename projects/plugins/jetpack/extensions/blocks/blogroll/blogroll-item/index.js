@@ -1,14 +1,9 @@
-import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
-
-/**
- * Style dependencies
- */
-import './editor.scss';
+import save from './save';
 
 export const name = 'blogroll-item';
 export const title = __( 'Blogroll Item', 'jetpack' );
@@ -47,7 +42,7 @@ export const settings = {
 		inserter: false,
 	},
 	edit,
-	save: () => <InnerBlocks.Content />,
+	save,
 	attributes,
 	usesContext: [ 'showAvatar', 'showDescription', 'showSubscribeButton', 'openLinksNewWindow' ],
 	example: {

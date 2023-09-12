@@ -1,5 +1,27 @@
 @import './common';
 
 .wp-block-jetpack-blogroll {
+	.wp-block-jetpack-blogroll-item {
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+	
+		+ .wp-block-jetpack-blogroll-item {
+			border-top: 1px solid var(--gray-gray-5, #DCDCDE);
+		}
+	
+		.wp-block-columns {
+			padding: 20px 8px;
+			margin: 0;
+		}
 
+		.wp-block-jetpack-blogroll-item__subscribe-button {
+			width: 120px;
+			height: 45px;
+			margin: auto 0;
+		}
+	}	
 }

@@ -1,5 +1,6 @@
 .wp-block-jetpack-blogroll-item {
-
+	display: flex;
+	justify-content: space-between;
 	font-size: 14px;
 	font-style: normal;
 	font-weight: 400;
@@ -13,4 +14,9 @@
 		border-top: 1px solid var(--gray-gray-5, #DCDCDE);
 	}
 
+	.wp-block-jetpack-blogroll-item__subscribe-button {
+		width: 120px;
+		height: 45px;
+		margin: auto 0;
+	}
 }
