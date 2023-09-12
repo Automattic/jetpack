@@ -169,6 +169,7 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 		$contact_tag_condition = $this->get_contact_tag_condition( 'tag_added', 'Tag Added' );
 		$contact_data_type     = $this->automation_faker->contact_data( true );
 		$contact_data          = $contact_data_type->get_entity();
+		$tag_id                = end( $contact_data['tags'] )['id'] + 1;
 
 		// Create a previous state of a contact.
 		$previous_contact = $contact_data;
@@ -179,8 +180,8 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$contact_data['tags'][] = array(
-			'id'          => 3,
-			'objtype'     => 1,
+			'id'          => $tag_id,
+			'objtype'     => ZBS_TYPE_CONTACT,
 			'name'        => 'Tag Added',
 			'slug'        => 'tag-added',
 			'created'     => 1692663412,
@@ -191,8 +192,8 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been not been met because the previous contact already had said tag.
 		$previous_contact['tags'][] = array(
-			'id'          => 3,
-			'objtype'     => 1,
+			'id'          => $tag_id,
+			'objtype'     => ZBS_TYPE_CONTACT,
 			'name'        => 'Tag Added',
 			'slug'        => 'tag-added',
 			'created'     => 1692663412,
@@ -210,6 +211,7 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 		$contact_tag_condition = $this->get_contact_tag_condition( 'tag_removed', 'Tag to be removed' );
 		$contact_data_type     = $this->automation_faker->contact_data( true );
 		$contact_data          = $contact_data_type->get_entity();
+		$tag_id                = end( $contact_data['tags'] )['id'] + 1;
 
 		// Create a previous state of a contact.
 		$previous_contact = $contact_data;
@@ -220,8 +222,8 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$previous_contact['tags'][] = array(
-			'id'          => 4,
-			'objtype'     => 1,
+			'id'          => $tag_id,
+			'objtype'     => ZBS_TYPE_CONTACT,
 			'name'        => 'Tag to be removed',
 			'slug'        => 'tag-to-be-removed',
 			'created'     => 1692663412,
@@ -232,8 +234,8 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been not been met because the current contact still has said tag.
 		$contact_data['tags'][] = array(
-			'id'          => 4,
-			'objtype'     => 1,
+			'id'          => $tag_id,
+			'objtype'     => ZBS_TYPE_CONTACT,
 			'name'        => 'Tag to be removed',
 			'slug'        => 'tag-to-be-removed',
 			'created'     => 1692663412,
@@ -250,6 +252,7 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 		$contact_tag_condition = $this->get_contact_tag_condition( 'has_tag', 'Some Tag' );
 		$contact_data_type     = $this->automation_faker->contact_data( true );
 		$contact_data          = $contact_data_type->get_entity();
+		$tag_id                = end( $contact_data['tags'] )['id'] + 1;
 
 		// Create a previous state of a contact.
 		$previous_contact = $contact_data;
@@ -260,8 +263,8 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$contact_data['tags'][] = array(
-			'id'          => 5,
-			'objtype'     => 1,
+			'id'          => $tag_id,
+			'objtype'     => ZBS_TYPE_CONTACT,
 			'name'        => 'Some Tag',
 			'slug'        => 'some-tag',
 			'created'     => 1692663412,
