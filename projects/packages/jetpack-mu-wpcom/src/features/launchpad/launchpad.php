@@ -692,7 +692,14 @@ function wpcom_launchpad_navigator_get_checklists() {
 		return array();
 	}
 
-	return $wpcom_launchpad_config['navigator_checklists'];
+	$checklist_slugs = $wpcom_launchpad_config['navigator_checklists'];
+
+	$results = array();
+	foreach ( $checklist_slugs as $slug ) {
+		$results[ $slug ] = wpcom_get_launchpad_checklist_by_checklist_slug( $slug );
+	}
+
+	return $results;
 }
 
 /**
