@@ -30,13 +30,11 @@ const SUBJECT_DEFAULT = null;
  * system prompt and relevent content message, if applicable.
  *
  * @param {PromptTypeProp} promptType - The internal type of the prompt.
- * @param {string} relevantContent - The relevant content, if available.
  * @param {string} customSystemPrompt - The custom system prompt, if available.
  * @returns {PromptItemProps} The initial message.
  */
 export function buildInitialMessageForBackendPrompt(
 	promptType: PromptTypeProp,
-	relevantContent: string,
 	customSystemPrompt: string
 ): PromptItemProps {
 	// The basic template for the message.
@@ -45,7 +43,6 @@ export function buildInitialMessageForBackendPrompt(
 		context: {
 			type: 'ai-assistant-initial-prompt',
 			for: mapInternalPromptTypeToBackendPromptType( promptType ),
-			...( relevantContent?.length ? { content: relevantContent } : {} ),
 			...( customSystemPrompt?.length ? { custom_system_prompt: customSystemPrompt } : {} ),
 		},
 	};
@@ -114,6 +111,8 @@ function buildMessageContextForUserPrompt( {
 	type,
 	userPrompt,
 	isGeneratingTitle,
+	allPostContent,
+	generatedContent,
 }: BuildPromptProps ): object {
 	const isContentGenerated = options?.contentType === 'generated';
 
@@ -126,6 +125,14 @@ function buildMessageContextForUserPrompt( {
 	 * as well as provide relevant pieces for the prompt building.
 	 */
 
+	let relevantContent: string | null = null;
+
+	switch ( type ) {
+		case PROMPT_TYPE_USER_PROMPT:
+			relevantContent = generatedContent || allPostContent;
+			break;
+	}
+
 	return {
 		type: mapInternalPromptTypeToBackendPromptType( type ),
 		...( subject ? { subject } : {} ),
@@ -134,6 +141,7 @@ function buildMessageContextForUserPrompt( {
 			? { language: options.language }
 			: {} ),
 		...( userPrompt ? { request: userPrompt } : {} ),
+		...( relevantContent?.length ? { relevantContent } : {} ),
 	};
 }
 
