@@ -681,6 +681,24 @@ function wpcom_launchpad_set_fse_next_steps_modal_hidden( $should_hide ) {
 }
 
 /**
+ * Given a checklist slug returns an array with the API expected structure for the checklist
+ * by the Launchpad component.
+ *
+ * @param string $slug The slug of the launchpad task list to get.
+ * @param array  $extra_params Array that will be merged with the results, used for adding extra params to the response.
+ * @return array
+ */
+function wpcom_launchpad_get_checklist_for_api_response( $slug, $extra_params = array() ) {
+	$result = array(
+		'checklist'    => wpcom_get_launchpad_checklist_by_checklist_slug( $slug ),
+		'is_enabled'   => wpcom_get_launchpad_task_list_is_enabled( $slug ),
+		'is_dismissed' => wpcom_launchpad_is_task_list_dismissed( $slug ),
+	);
+
+	return array_merge( $result, $extra_params );
+}
+
+/**
  * Helper function to indicate what's the current active checklist
  * in the context of the navigator.
  * It will try to read the key 'active_checklist_slug' from the 'wpcom_launchpad_config' option.
