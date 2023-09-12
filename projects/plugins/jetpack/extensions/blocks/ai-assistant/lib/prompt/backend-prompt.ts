@@ -141,7 +141,7 @@ function buildMessageContextForUserPrompt( {
 			? { language: options.language }
 			: {} ),
 		...( userPrompt ? { request: userPrompt } : {} ),
-		...( relevantContent?.length ? { relevantContent } : {} ),
+		...( relevantContent?.length ? { content: relevantContent } : {} ),
 	};
 }
 
