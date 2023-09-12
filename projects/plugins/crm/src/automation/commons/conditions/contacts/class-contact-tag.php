@@ -66,6 +66,42 @@ class Contact_Tag extends Base_Condition {
 	}
 
 	/**
+	 * Check for valid parameters.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $operator The operator.
+	 * @param mixed  $data The data to validate.
+	 * @param mixed  $previous_data The previous data to validate.
+	 * @return bool True if parameters are valid, false otherwise.
+	 */
+	private function check_for_valid_parameters( $operator, $data, $previous_data ) {
+		switch ( $operator ) {
+			case 'tag_added':
+			case 'tag_removed':
+				if ( $previous_data === null || ! $this->is_valid_contact_tag_data( $data ) || ! $this->is_valid_contact_tag_data( $previous_data ) ) {
+					$this->logger->log( 'Invalid contact tag data' );
+
+					return false;
+				}
+				break;
+			case 'has_tag':
+				if ( ! $this->is_valid_contact_tag_data( $data ) ) {
+					$this->logger->log( 'Invalid contact tag data' );
+					$this->condition_met = false;
+
+					return false;
+				}
+				break;
+			default:
+				$this->logger->log( 'Unknown operator: ' . $operator );
+				return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Executes the condition. If the condition is met, the value stored in the
 	 * attribute $condition_met is set to true; otherwise, it is set to false.
 	 *
@@ -78,24 +114,16 @@ class Contact_Tag extends Base_Condition {
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
 	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( $previous_data === null ) {
-			$this->logger->log( 'Invalid previous contact tag data' );
-			$this->condition_met = false;
-
-			return;
-		}
-
-		if ( ! $this->is_valid_contact_tag_data( $data ) || ! $this->is_valid_contact_tag_data( $previous_data ) ) {
-			$this->logger->log( 'Invalid contact tag data' );
-			$this->condition_met = false;
-
-			return;
-		}
-
 		$operator = $this->get_attributes()['operator'];
 		$tag      = $this->get_attributes()['tag'];
 
 		$this->check_for_valid_operator( $operator );
+
+		if ( ! $this->check_for_valid_parameters( $operator, $data, $previous_data ) ) {
+			$this->condition_met = false;
+			return;
+		}
+
 		$this->logger->log( 'Condition: Contact_Tag ' . $operator . ' => ' . $tag );
 
 		switch ( $operator ) {
