@@ -149,7 +149,7 @@ class Jetpack_Recommendations {
 		add_action( 'update_site_option_auto_update_plugins', array( static::class, 'plugin_auto_update_settings_changed' ), 10, 3 );
 
 		// Subscriber count check. This runs when stats are fetched.
-		add_action( 'jetpack_followers_fetched', array( static::class, 'recommend_paid_newsletter' ), 10, 2 );
+		add_action( 'jetpack_followers_fetched', array( static::class, 'recommend_paid_newsletter' ), 10, 1 );
 	}
 
 	/**
