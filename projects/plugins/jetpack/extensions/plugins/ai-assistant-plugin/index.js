@@ -8,3 +8,5 @@ export const name = 'ai-assistant-plugin';
 export const settings = {
 	render: AiAssistantPluginSidebar,
 };
+
+console.log( 'ai-assistant-plugin/index.js loaded' );
