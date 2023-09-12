@@ -1,7 +1,8 @@
 /*
  * External dependencies
  */
-import { RangeControl } from '@wordpress/components';
+import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
+import { RangeControl, Button, BaseControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 /**
@@ -34,6 +35,8 @@ export type AiExcerptControlProps = {
 	onWordsNumberChange?: ( words: number ) => void;
 };
 
+import './style.scss';
+
 export function AiExcerptControl( {
 	minWords = 10,
 	maxWords = 100,
@@ -41,19 +44,38 @@ export function AiExcerptControl( {
 	words,
 	onWordsNumberChange,
 }: AiExcerptControlProps ) {
+	const [ isSettingActive, setIsSettingActive ] = React.useState( false );
+
+	function toggleSetting() {
+		setIsSettingActive( prev => ! prev );
+	}
+
 	return (
-		<RangeControl
-			label={ __( 'Generate', 'jetpack' ) }
-			value={ words }
-			onChange={ onWordsNumberChange }
-			min={ minWords }
-			max={ maxWords }
-			help={ __(
-				'Sets the limit for words in auto-generated excerpts. The final count may vary slightly due to sentence structure.',
-				'jetpack'
-			) }
-			showTooltip={ false }
-			disabled={ disabled }
-		/>
+		<div className="jetpack-ai-generate-excerpt-control">
+			<BaseControl
+				className="jetpack-ai-generate-excerpt-control__header"
+				label={ __( 'Generate', 'jetpack' ) }
+			>
+				<Button
+					label={ __( 'Advanced AI options', 'jetpack' ) }
+					icon={ aiAssistantIcon }
+					onClick={ toggleSetting }
+					isPressed={ isSettingActive }
+					isSmall
+				/>
+			</BaseControl>
+			<RangeControl
+				value={ words }
+				onChange={ onWordsNumberChange }
+				min={ minWords }
+				max={ maxWords }
+				help={ __(
+					'Sets the limit for words in auto-generated excerpts. The final count may vary slightly due to sentence structure.',
+					'jetpack'
+				) }
+				showTooltip={ false }
+				disabled={ disabled }
+			/>
+		</div>
 	);
 }
