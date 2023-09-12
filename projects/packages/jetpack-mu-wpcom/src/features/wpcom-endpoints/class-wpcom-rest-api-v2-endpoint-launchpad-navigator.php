@@ -48,7 +48,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller 
 							'validate_callback' => array( $this, 'validate_checklist_slug_param' ),
 						),
 						'remove_checklist_slug' => array(
-							'description' => 'The slug of the checklist to set as active.',
+							'description' => 'The slug of the checklist to remove from the active list.',
 							'type'        => 'string',
 							'enum'        => $this->get_checklist_slug_enums(),
 						),
