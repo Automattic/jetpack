@@ -702,6 +702,10 @@ function wpcom_launchpad_navigator_get_checklists() {
  * @return bool Whether the option update succeeded.
  */
 function wpcom_launchpad_navigator_update_checklists( $new_checklists ) {
+	if ( ! is_array( $new_checklists ) ) {
+		return false;
+	}
+
 	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config', array() );
 
 	$wpcom_launchpad_config['navigator_checklists'] = $new_checklists;
@@ -715,12 +719,8 @@ function wpcom_launchpad_navigator_update_checklists( $new_checklists ) {
  * @param string $new_checklist_slug The slug of the launchpad task list to add.
  */
 function wpcom_launchpad_navigator_add_checklist( $new_checklist_slug ) {
-	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config' );
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config', array() );
 	$checklists             = array();
-
-	if ( ! $wpcom_launchpad_config || ! is_array( $wpcom_launchpad_config ) ) {
-		$checklists = array();
-	}
 
 	if ( ! isset( $wpcom_launchpad_config['navigator_checklists'] ) ) {
 		$checklists = array();
