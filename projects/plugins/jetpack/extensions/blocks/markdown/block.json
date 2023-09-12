@@ -22,5 +22,9 @@
 		}
 	},
 	"attributes": { "source": { "type": "string" } },
-	"editorScript": "file:../editor.js"
+	"example": {
+		"attributes": {
+			"source": "## ## Try Markdown\n\nMarkdown is a text formatting syntax that is converted into HTML. You can _emphasize_ text or **make it strong** with just a few characters."
+		}
+	}
 }
