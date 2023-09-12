@@ -203,10 +203,10 @@ class Contact_Tag extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The category 'contact'.
+	 * @return string The translated string for 'Contact'.
 	 */
 	public static function get_category(): string {
-		return 'contact';
+		return __( 'Contact', 'zero-bs-crm' );
 	}
 
 	/**
