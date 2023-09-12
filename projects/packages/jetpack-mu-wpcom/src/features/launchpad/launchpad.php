@@ -728,6 +728,30 @@ function wpcom_launchpad_navigator_update_checklists( $new_checklists ) {
 }
 
 /**
+ * Removes a checklist from the list of checklists that are currently available for the navigator.
+ *
+ * @param string $checklist_slug The slug of the checklist to remove.
+ * @return bool Whether the option update succeeded.
+ */
+function wpcom_launchpad_navigator_remove_checklist( $checklist_slug ) {
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+
+	if ( ! isset( $wpcom_launchpad_config['navigator_checklists'] ) ) {
+		return false;
+	}
+
+	$checklists = $wpcom_launchpad_config['navigator_checklists'];
+	// Find if $checklist_slug is in the checklists array. If it is, remove it.
+	$key = array_search( $checklist_slug, $checklists, true );
+	if ( $key === false ) {
+		return true;
+	}
+
+	unset( $checklists[ $key ] );
+	return wpcom_launchpad_navigator_update_checklists( $checklists );
+}
+
+/**
  * Adds a new checklist to the list of checklists that are currently available for the navigator.
  *
  * @param string $new_checklist_slug The slug of the launchpad task list to add.

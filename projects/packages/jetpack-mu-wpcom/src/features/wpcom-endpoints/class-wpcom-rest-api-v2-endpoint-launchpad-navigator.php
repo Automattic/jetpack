@@ -47,6 +47,11 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller 
 							'type'              => array( 'null', 'string' ),
 							'validate_callback' => array( $this, 'validate_checklist_slug_param' ),
 						),
+						'remove_checklist_slug' => array(
+							'description' => 'The slug of the checklist to set as active.',
+							'type'        => 'string',
+							'enum'        => $this->get_checklist_slug_enums(),
+						),
 					),
 				),
 			)
@@ -92,8 +97,12 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller 
 				case 'active_checklist_slug':
 					$updated[ $key ] = wpcom_launchpad_set_current_active_checklist( $input['active_checklist_slug'] );
 					break;
+				case 'remove_checklist_slug':
+					$updated[ $key ] = wpcom_launchpad_navigator_remove_checklist( $input['remove_checklist_slug'] );
+					break;
 			}
 		}
+
 		return array(
 			'updated' => $updated,
 		);
