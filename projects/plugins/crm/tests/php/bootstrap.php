@@ -49,6 +49,7 @@ Failed to automatically locate WordPress or wordpress-develop to run tests.
 
 Set the WP_DEVELOP_DIR environment variable to point to a copy of WordPress
 or wordpress-develop.
+
 EOF
 	);
 	exit( 1 );

@@ -26,4 +26,8 @@ export default {
 		type: 'boolean',
 		default: true,
 	},
+	load_placeholders: {
+		type: 'boolean',
+		default: true,
+	},
 };

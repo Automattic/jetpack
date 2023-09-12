@@ -7,14 +7,18 @@ import {
 	Spinner,
 	KeyboardShortcuts,
 	ExternalLink,
+	Icon,
 } from '@wordpress/components';
+import { useCopyToClipboard } from '@wordpress/compose';
 import { RawHTML, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import useSubmitFeedback from './use-submit-feedback';
 import useSubmitQuestion from './use-submit-question';
 
+// TODO: Configurable strings.
 const waitStrings = [
 	__( 'Good question, give me a moment to think about that 🤔', 'jetpack' ),
 	__( 'Let me work out the answer to that, back soon!', 'jetpack' ),
@@ -55,12 +59,40 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 		</div>
 	);
 }
-export default function QuestionAnswer() {
-	const { question, setQuestion, answer, isLoading, submitQuestion, references } =
-		useSubmitQuestion();
+
+/**
+ * Primary question-answer.
+ *
+ * TODOs:
+ * - Configurable strings.
+ * - Copy response button.
+ * - Submit feedback.
+ * - Handle errors.
+ *
+ * @param {object} props - Component props.
+ * @param {string} props.askButtonLabel - Ask button label.
+ * @param {number} props.blogId - Blog ID.
+ * @param {string} props.blogType - Blog type (wpcom|jetpack) for wpcom simple and jetpack/atomic.
+ * @returns {QuestionAnswer} component.
+ */
+export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
+	const { question, setQuestion, answer, isLoading, submitQuestion, references, cacheKey } =
+		useSubmitQuestion( blogType, blogId );
+
+	const { isSubmittingFeedback, submitFeedback } = useSubmitFeedback( blogType, blogId );
+	const [ feedback, setFeedback ] = useState( { rank: '', comment: '' } );
+	const [ showFeedbackForm, setShowFeedbackForm ] = useState( false );
 
 	const [ animationDone, setAnimationDone ] = useState( false );
 	const [ showReferences, setShowReferences ] = useState( false );
+	const [ hasCopied, setHasCopied ] = useState( false );
+	const copyRef = useCopyToClipboard( answer, () => {
+		setHasCopied( true );
+
+		setTimeout( () => {
+			setHasCopied( false );
+		}, 3000 );
+	} );
 
 	const handleSubmitQuestion = () => {
 		setAnimationDone( false );
@@ -72,6 +104,24 @@ export default function QuestionAnswer() {
 		setAnimationDone( true );
 		setShowReferences( true );
 	};
+
+	const handleRankSubmit = rankValue => {
+		const updatedFeedback = { ...feedback, rank: rankValue };
+		setFeedback( updatedFeedback );
+		setShowFeedbackForm( true );
+	};
+
+	const setFeedbackComment = feedbackComment => {
+		const updatedFeedback = { ...feedback, comment: feedbackComment };
+		setFeedback( updatedFeedback );
+	};
+
+	const handleFeedbackSubmit = () => {
+		submitFeedback( feedback, cacheKey );
+	};
+
+	const showCopyButton = animationDone && ! isLoading;
+	const showFeedback = animationDone && ! isLoading;
 	return (
 		<>
 			<KeyboardShortcuts
@@ -82,6 +132,7 @@ export default function QuestionAnswer() {
 				<div className="jetpack-ai-chat-question-wrapper">
 					<TextControl
 						className="jetpack-ai-chat-question-input"
+						// TODO: Configurable placeholder.
 						placeholder={ __( "Enter a question about this blog's content", 'jetpack' ) }
 						size={ 50 }
 						value={ question }
@@ -89,7 +140,7 @@ export default function QuestionAnswer() {
 					/>
 
 					<Button variant="primary" disabled={ isLoading } onClick={ handleSubmitQuestion }>
-						{ __( 'Ask', 'jetpack' ) }
+						{ askButtonLabel }
 					</Button>
 				</div>
 			</KeyboardShortcuts>
@@ -109,9 +160,68 @@ export default function QuestionAnswer() {
 						/>
 					) }
 				</div>
+				{ showCopyButton && (
+					<Button
+						className="copy-button"
+						disabled={ hasCopied }
+						label={ __( 'Copy Response', 'jetpack' ) }
+						ref={ copyRef }
+					>
+						<Icon icon="clipboard" />
+					</Button>
+				) }
+				{ hasCopied && __( 'Copied!', 'jetpack' ) }
+				{ showFeedback && (
+					<div className="jetpack-ai-chat-answer-feedback">
+						<div className="jetpack-ai-chat-answer-feedback-buttons">
+							{ __( 'Was this helpful?', 'jetpack' ) }
+							<Button
+								className="thumbs-up"
+								disabled={ isSubmittingFeedback || feedback.rank === 'thumbs-up' }
+								label={ __( 'Thumbs up', 'jetpack' ) }
+								onClick={ () => handleRankSubmit( 'thumbs-up' ) }
+							>
+								<Icon icon="thumbs-up" />
+							</Button>
+							<Button
+								className="thumbs-down"
+								disabled={ isSubmittingFeedback || feedback.rank === 'thumbs-down' }
+								label={ __( 'Thumbs down', 'jetpack' ) }
+								onClick={ () => handleRankSubmit( 'thumbs-down' ) }
+							>
+								<Icon icon="thumbs-down" />
+							</Button>
+						</div>
+					</div>
+				) }
+				{ showFeedback && showFeedbackForm && (
+					<div className="jetpack-ai-chat-feedback-form">
+						<TextControl
+							className="jetpack-ai-chat-feedback-input"
+							placeholder={
+								( feedback.rank === 'thumbs-up' &&
+									__( 'What did you like about it?', 'jetpack' ) ) ||
+								( feedback.rank === 'thumbs-down' &&
+									__( "What didn't you like about it? How could it be improved?", 'jetpack' ) )
+							}
+							size={ 50 }
+							value={ feedback.comment }
+							onChange={ newFeedbackComment => setFeedbackComment( newFeedbackComment ) }
+						/>
+
+						<Button variant="primary" onClick={ handleFeedbackSubmit }>
+							{ __( 'Submit', 'jetpack' ) }
+						</Button>
+					</div>
+				) }
 				{ references && references.length > 0 && showReferences && (
 					<div className="jetpack-ai-chat-answer-references">
-						<div>{ __( 'Additional resources:', 'jetpack' ) }</div>
+						<div>
+							{
+								// TODO: Configurable text.
+								__( 'Additional resources:', 'jetpack' )
+							}
+						</div>
 
 						<ul>
 							{ references.map( ( reference, index ) => (

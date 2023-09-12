@@ -55,6 +55,13 @@ final class ZeroBSCRM {
 	public $db_version = '3.0';
 
 	/**
+	 * Database details.
+	 *
+	 * @var array
+	 */
+	public $database_server_info = array();
+
+	/**
 	 * ZeroBSCRM DAL version.
 	 *
 	 * @var string
@@ -778,7 +785,7 @@ final class ZeroBSCRM {
 	 */
 	public function get_database_server_info() {
 
-		if ( ! isset( $this->database_server_info ) ) {
+		if ( empty( $this->database_server_info ) ) {
 			global $wpdb;
 			$raw_version                = $wpdb->get_var( 'SELECT VERSION()' );
 			$version                    = preg_replace( '/[^0-9.].*/', '', $raw_version );
@@ -1221,7 +1228,7 @@ final class ZeroBSCRM {
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Permissions.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.ScreenOptions.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Inventory.php';
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.ReWriteRules.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-rewrite-rules.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-mail-templating.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-templating.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-templating-placeholders.php';
