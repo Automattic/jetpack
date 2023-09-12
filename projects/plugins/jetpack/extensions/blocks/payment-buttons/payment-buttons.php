@@ -27,18 +27,9 @@ function register_block() {
 	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
 	if ( \Jetpack_Memberships::is_enabled_jetpack_recurring_payments() ) {
 		Blocks::jetpack_register_block(
-			BLOCK_NAME,
+			__DIR__,
 			array(
 				'render_callback' => __NAMESPACE__ . '\render_block',
-				'supports'        => array(
-					'__experimentalLayout' => array(
-						'allowSwitching'  => false,
-						'allowInheriting' => false,
-						'default'         => array(
-							'type' => 'flex',
-						),
-					),
-				),
 			)
 		);
 	} else {
@@ -64,7 +55,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attributes, $content ) {
-	\Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
+	\Jetpack_Gutenberg::load_styles_as_required( __DIR__ );
 
 	return $content;
 }
