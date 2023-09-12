@@ -736,9 +736,7 @@ function wpcom_launchpad_navigator_add_checklist( $new_checklist_slug ) {
 	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config', array() );
 	$checklists             = array();
 
-	if ( ! isset( $wpcom_launchpad_config['navigator_checklists'] ) ) {
-		$checklists = array();
-	} else {
+	if ( isset( $wpcom_launchpad_config['navigator_checklists'] ) ) {
 		$checklists = $wpcom_launchpad_config['navigator_checklists'];
 	}
 
