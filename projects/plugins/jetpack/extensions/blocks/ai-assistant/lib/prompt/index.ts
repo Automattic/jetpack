@@ -43,6 +43,11 @@ export const PROMPT_TYPE_LIST = [
 
 export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
 
+// Support backend prompts as a beta extension.
+export const isBackendPromptsEnabled =
+	window?.Jetpack_Editor_Initial_State.available_blocks[ 'ai-assistant-backend-prompts' ]
+		?.available;
+
 export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant' | 'jetpack-ai';
 	content?: string;
@@ -431,23 +436,25 @@ export function buildPromptForBlock( {
 	useGutenbergSyntax,
 	customSystemPrompt,
 }: BuildPromptProps ): Array< PromptItemProps > {
-	// ToDo: change this to rely on beta feature flag.
-	// Get the initial message to build the system prompt.
-	const initialMessage = buildInitialMessageForBackendPrompt( type, customSystemPrompt );
+	// Only generate backend messages if the feature is enabled.
+	if ( isBackendPromptsEnabled ) {
+		// Get the initial message to build the system prompt.
+		const initialMessage = buildInitialMessageForBackendPrompt( type, customSystemPrompt );
 
-	// Get the user messages to complete the prompt.
-	const userMessages = buildMessagesForBackendPrompt( {
-		generatedContent,
-		allPostContent,
-		postContentAbove,
-		currentPostTitle,
-		options,
-		type,
-		userPrompt,
-		isGeneratingTitle,
-	} );
+		// Get the user messages to complete the prompt.
+		const userMessages = buildMessagesForBackendPrompt( {
+			generatedContent,
+			allPostContent,
+			postContentAbove,
+			currentPostTitle,
+			options,
+			type,
+			userPrompt,
+			isGeneratingTitle,
+		} );
 
-	return [ initialMessage, ...userMessages ];
+		return [ initialMessage, ...userMessages ];
+	}
 
 	const isContentGenerated = options?.contentType === 'generated';
 	const promptText = promptTextFor( type, isGeneratingTitle, options );
