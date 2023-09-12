@@ -47,6 +47,7 @@ function AiPostExcerpt() {
 
 	const [ reenable, setReenable ] = useState( false );
 	const [ additionalRequest, setAdditionalRequest ] = useState( '' );
+	const [ model, setModel ] = useState( 'gpt-4' );
 
 	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions(
 		{}
@@ -181,6 +182,11 @@ ${ postContent }
 					words={ excerptWordsNumber }
 					onWordsNumberChange={ wordsNumber => {
 						setExcerptWordsNumber( wordsNumber );
+						setReenable( true );
+					} }
+					model={ model }
+					onModelChange={ newModel => {
+						setModel( newModel );
 						setReenable( true );
 					} }
 					disabled={ isBusy || isQuotaExceeded }
