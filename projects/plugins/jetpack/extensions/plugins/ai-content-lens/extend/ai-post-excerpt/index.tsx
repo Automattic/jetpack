@@ -19,6 +19,13 @@ import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
  * Types and constants
  */
+import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
+import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
+export const AI_MODEL_GPT_3_5_Turbo = 'gpt-3.5-turbo-16k' as const;
+export const AI_MODEL_GPT_4 = 'gpt-4' as const;
+
+export type AiModelTypeProp = typeof AI_MODEL_GPT_3_5_Turbo | typeof AI_MODEL_GPT_4;
+
 type ContentLensMessageContextProps = {
 	type: 'ai-content-lens';
 	contentType: 'post-excerpt';
@@ -26,8 +33,9 @@ type ContentLensMessageContextProps = {
 	words?: number;
 	request?: string;
 	content?: string;
-	language?: string;
-	tone?: string;
+	language?: LanguageProp;
+	tone?: ToneProp;
+	model?: AiModelTypeProp;
 };
 
 function AiPostExcerpt() {
@@ -47,7 +55,7 @@ function AiPostExcerpt() {
 
 	const [ reenable, setReenable ] = useState( false );
 	const [ additionalRequest, setAdditionalRequest ] = useState( '' );
-	const [ model, setModel ] = useState( 'gpt-4' );
+	const [ model, setModel ] = useState< AiModelTypeProp >( AI_MODEL_GPT_4 );
 
 	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions(
 		{}
@@ -130,7 +138,7 @@ ${ postContent }
 			},
 		];
 
-		request( prompt, { feature: 'jetpack-ai-content-lens' } );
+		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 	}
 
 	function setExpert() {

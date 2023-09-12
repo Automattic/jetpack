@@ -13,8 +13,15 @@ import {
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 /**
+ * Internal dependencies
+ */
+import { AI_MODEL_GPT_3_5_Turbo, AI_MODEL_GPT_4 } from '../../extend/ai-post-excerpt';
+/**
  * Types and constants
  */
+import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
+import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
+import type { AiModelTypeProp } from '../../extend/ai-post-excerpt';
 export type AiExcerptControlProps = {
 	/*
 	 * Whether the component is disabled.
@@ -41,7 +48,17 @@ export type AiExcerptControlProps = {
 	 */
 	onWordsNumberChange?: ( words: number ) => void;
 
-	language?: string;
+	language?: LanguageProp;
+	onLanguageChange?: ( language: LanguageProp ) => void;
+
+	tone?: ToneProp;
+	onToneChange?: ( tone: ToneProp ) => void;
+
+	model?: AiModelTypeProp;
+	onModelChange?: ( model: AiModelTypeProp ) => void;
+
+	additionalRequest?: string;
+	onAdditionalRequestChange?: ( additionalRequest: string ) => void;
 };
 
 import './style.scss';
@@ -54,18 +71,9 @@ export function AiExcerptControl( {
 	words,
 	onWordsNumberChange,
 
-<<<<<<< HEAD
-=======
-	language,
-	onLanguageChange,
-
-	tone,
-	onToneChange,
-
 	model,
 	onModelChange,
 
->>>>>>> 7b55cf2249 ([not verified] introduce Model control)
 	additionalRequest,
 	onAdditionalRequestChange,
 }: AiExcerptControlProps ) {
@@ -104,17 +112,6 @@ export function AiExcerptControl( {
 
 			{ isSettingActive && (
 				<>
-<<<<<<< HEAD
-=======
-					<I18nMenuDropdown
-						disabled={ disabled }
-						onChange={ onLanguageChange }
-						value={ language }
-						label={ langLabel }
-					/>
-
-					<ToneDropdownMenu label={ toneLabel } value={ tone } onChange={ onToneChange } />
-
 					<ToggleGroupControl
 						__nextHasNoMarginBottom
 						isBlock
@@ -124,12 +121,10 @@ export function AiExcerptControl( {
 					>
 						<ToggleGroupControlOption
 							label={ __( 'GTP-3.5 Turbo', 'jetpack' ) }
-							value="gpt-3.5-turbo-16k"
+							value={ AI_MODEL_GPT_3_5_Turbo }
 						/>
-						<ToggleGroupControlOption label={ __( 'GPT-4', 'jetpack' ) } value="gpt-4" />
+						<ToggleGroupControlOption label={ __( 'GPT-4', 'jetpack' ) } value={ AI_MODEL_GPT_4 } />
 					</ToggleGroupControl>
-
->>>>>>> 7b55cf2249 ([not verified] introduce Model control)
 					<TextareaControl
 						__nextHasNoMarginBottom
 						label={ __( 'Additional request', 'jetpack' ) }
