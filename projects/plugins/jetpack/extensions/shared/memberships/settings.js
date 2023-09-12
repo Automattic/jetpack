@@ -1,3 +1,4 @@
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { Flex, FlexBlock, PanelRow, VisuallyHidden, Spinner, Button } from '@wordpress/components';
 import { useInstanceId, useViewportMatch } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -5,11 +6,13 @@ import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { icon as paywallIcon, blockName as paywallBlockName } from '../../blocks/paywall';
+import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import './settings.scss';
 import { accessOptions, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
+
+const paywallIcon = getBlockIconComponent( paywallBlockMetadata );
 
 export function Link( { href, children } ) {
 	return (
@@ -164,7 +167,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } )
 				isLoading: isApiStateLoading(),
 				stripeConnectUrl: getConnectUrl(),
 				hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
-				foundPaywallBlock: getBlocks().find( block => block.name === paywallBlockName ),
+				foundPaywallBlock: getBlocks().find( block => block.name === paywallBlockMetadata.name ),
 			};
 		}
 	);
@@ -261,7 +264,7 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 			isLoading: isApiStateLoading(),
 			stripeConnectUrl: getConnectUrl(),
 			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
-			postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockName ),
+			postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockMetadata.name ),
 		};
 	} );
 

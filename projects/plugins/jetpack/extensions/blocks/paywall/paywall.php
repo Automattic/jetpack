@@ -30,7 +30,7 @@ function register_block() {
 	}
 
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		__DIR__,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
 		)
