@@ -61,6 +61,7 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
 		"@babel/core": "7.22.17",
+		"@babel/runtime": "7.22.15",
 		"@wordpress/api-fetch": "6.38.0",
 		"@wordpress/babel-plugin-import-jsx-pragma": "4.24.0",
 		"@wordpress/browserslist-config": "5.24.0",
