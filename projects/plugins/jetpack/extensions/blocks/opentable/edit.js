@@ -1,4 +1,8 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isAtomicSite,
+	isSimpleSite,
+	getBlockIconComponent,
+} from '@automattic/jetpack-shared-extension-utils';
 import { InspectorControls, InspectorAdvancedControls } from '@wordpress/block-editor';
 import {
 	getBlockDefaultClassName,
@@ -20,18 +24,14 @@ import { isEmpty, isEqual, join } from 'lodash';
 import './editor.scss';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import {
-	buttonStyle,
-	defaultAttributes,
-	getStyleOptions,
-	getStyleValues,
-	languageOptions,
-	languageValues,
-} from './attributes';
-import icon from './icon';
+import metadata from './block.json';
+import { languageOptions, languageValues } from './i18n';
 import RestaurantPicker from './restaurant-picker';
+import { buttonStyle, getStyleOptions, getStyleValues } from './styles';
 import usePrevious from './use-previous';
 import { getAttributesFromEmbedCode } from './utils';
+
+const icon = getBlockIconComponent( metadata );
 
 function OpenTableEdit( {
 	attributes,
@@ -44,7 +44,7 @@ function OpenTableEdit( {
 	setAttributes,
 } ) {
 	const defaultClassName = getBlockDefaultClassName( name );
-	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
+	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
 		setAttributes( validatedAttributes );
@@ -131,7 +131,7 @@ function OpenTableEdit( {
 			);
 		}
 
-		const validatedNewAttributes = getValidatedAttributes( defaultAttributes, newAttributes );
+		const validatedNewAttributes = getValidatedAttributes( metadata.attributes, newAttributes );
 		setAttributes( validatedNewAttributes );
 		noticeOperations.removeAllNotices();
 	};

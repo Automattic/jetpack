@@ -68,6 +68,13 @@
 		}
 	}
 
+	.components-placeholder__label {
+		svg {
+			display: block;
+			margin-inline-end: 0.75rem;
+		}
+	}
+
 	iframe {
 		height: 100%;
 		width: 100%;
