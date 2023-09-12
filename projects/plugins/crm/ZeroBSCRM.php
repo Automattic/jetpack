@@ -83,6 +83,8 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	return;
 }
 
+add_filter( 'jetpack_crm_feature_flag_inbox', '__return_true' );
+
 /**
  * Performs some checks before the plugin activation
  *
