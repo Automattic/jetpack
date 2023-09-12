@@ -221,7 +221,7 @@ There are different types of builds:
   - unison -doc basics | less
   - unison -doc running | less
   
-  Here is a [sample preferences file](unison-sample.prf). Please note that this example preferences file is set to _always_ prefer local changes over remote changes. You'll need to adjust the file if you require a two-way sync instead. See the Unison documentation (or run `unison -doc running | less`) for full configuration details.
+  Here is a [sample preferences file](examples/unison-sample.prf). Please note that this example preferences file is set to _always_ prefer local changes over remote changes. You'll need to adjust the file if you require a two-way sync instead. See the Unison documentation (or run `unison -doc running | less`) for full configuration details.
 
   #### Running Unison
 
