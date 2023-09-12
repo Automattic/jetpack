@@ -21,6 +21,14 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
+	/*
+	 * Disable the feature on P2 blogs
+	 */
+	if ( function_exists( '\WPForTeams\is_wpforteams_site' ) &&
+		\WPForTeams\is_wpforteams_site( get_current_blog_id() ) ) {
+		return;
+	}
+
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(

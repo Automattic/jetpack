@@ -24,6 +24,14 @@ function register_block() {
 		return;
 	}
 
+	/*
+	 * Disable the feature on P2 blogs
+	 */
+	if ( function_exists( '\WPForTeams\is_wpforteams_site' ) &&
+		\WPForTeams\is_wpforteams_site( get_current_blog_id() ) ) {
+		return;
+	}
+
 	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
 	if ( \Jetpack_Memberships::is_enabled_jetpack_recurring_payments() ) {
 		Blocks::jetpack_register_block(
