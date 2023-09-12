@@ -30,6 +30,14 @@ class Jetpack_Memberships {
 	public static $post_type_plan = 'jp_mem_plan';
 
 	/**
+	 * Our CPT type for the deleted product (plan).
+	 * Those are used to prevent users to lose access when plans are deleted.
+	 *
+	 * @var string
+	 */
+	public static $deleted_post_type_plan = 'jp_mem_plan_deleted';
+
+	/**
 	 * Option that will store currently set up account (Stripe etc) id for memberships.
 	 *
 	 *  TODO: remove
