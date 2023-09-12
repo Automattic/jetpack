@@ -83,7 +83,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::get_openai_jwt',
 				'permission_callback' => function () {
-					return ( new Connection_Manager( 'jetpack' ) )->is_user_connected() && current_user_can( 'edit_posts' );
+					return ( new Connection_Manager( 'jetpack' ) )->is_connected();
 				},
 			)
 		);
@@ -776,7 +776,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function get_openai_jwt() {
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 
-		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
 			"/sites/$blog_id/jetpack-openai-query/jwt",
 			'2',
 			array(
