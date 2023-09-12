@@ -26,6 +26,5 @@
 			"type": "string",
 			"default": "horizontal"
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }
