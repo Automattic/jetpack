@@ -44,7 +44,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller 
 					'args'                => array(
 						'active_checklist_slug' => array(
 							'description'       => 'The slug of the checklist to set as active.',
-							'type'              => 'string',
+							'type'              => array( 'null', 'string' ),
 							'validate_callback' => array( $this, 'validate_checklist_slug_param' ),
 						),
 					),
