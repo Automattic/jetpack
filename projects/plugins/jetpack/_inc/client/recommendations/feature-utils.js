@@ -623,22 +623,6 @@ export const getStepContent = ( state, stepSlug ) => {
 					'#add-newsletter-payment-plan',
 				illustration: 'assistant-newsletter',
 			};
-		case 'paid-newsletter-success':
-			return {
-				question: __( 'Paid Newsletter Plan Created 🎉', 'jetpack' ),
-				description: __(
-					'Congratulations. You have set up a paid plan for your Newsletter.',
-					'jetpack'
-				),
-				descriptionList: [
-					__( 'Paid newsletter subscription.', 'jetpack' ),
-					__( 'Publish premium content.', 'jetpack' ),
-					__( 'Earn money through your Newsletter.', 'jetpack' ),
-				],
-				ctaText: __( 'Learn More', 'jetpack' ),
-				ctaLink: getRedirectUrl( 'jetpack-support-paid-newsletter' ),
-				illustration: 'assistant-newsletter',
-			};
 		case 'server-credentials':
 			return {
 				question: __( 'Setup one-click restores', 'jetpack' ),
