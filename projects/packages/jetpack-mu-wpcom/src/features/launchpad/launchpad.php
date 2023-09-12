@@ -686,10 +686,7 @@ function wpcom_launchpad_set_fse_next_steps_modal_hidden( $should_hide ) {
  * @return array Array of strings representing the checklist slugs.
  */
 function wpcom_launchpad_navigator_get_checklists() {
-	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config' );
-	if ( ! $wpcom_launchpad_config || ! is_array( $wpcom_launchpad_config ) ) {
-		return array();
-	}
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config', array() );
 
 	if ( ! isset( $wpcom_launchpad_config['navigator_checklists'] ) ) {
 		return array();
@@ -705,11 +702,7 @@ function wpcom_launchpad_navigator_get_checklists() {
  * @return bool Whether the option update succeeded.
  */
 function wpcom_launchpad_navigator_update_checklists( $new_checklists ) {
-	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config' );
-
-	if ( ! $wpcom_launchpad_config || ! is_array( $wpcom_launchpad_config ) ) {
-		$wpcom_launchpad_config = array();
-	}
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config', array() );
 
 	$wpcom_launchpad_config['navigator_checklists'] = $new_checklists;
 
