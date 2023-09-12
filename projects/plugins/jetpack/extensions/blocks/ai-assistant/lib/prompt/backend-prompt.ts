@@ -23,7 +23,7 @@ import {
  */
 const SUBJECT_TITLE = 'title';
 const SUBJECT_CONTENT = 'content';
-const SUBJECT_LAST_ANSWER = 'last-answer';
+const SUBJECT_DEFAULT = null;
 
 /**
  * Builds the initial message, that will be transformed on the
@@ -99,7 +99,7 @@ function getSubject( isGeneratingTitle: boolean, isContentGenerated: boolean ): 
 	if ( isContentGenerated ) {
 		return SUBJECT_CONTENT;
 	}
-	return SUBJECT_LAST_ANSWER;
+	return SUBJECT_DEFAULT;
 }
 
 /**
@@ -128,9 +128,11 @@ function buildMessageContextForUserPrompt( {
 
 	return {
 		type: mapInternalPromptTypeToBackendPromptType( type ),
-		subject,
-		...( options?.tone ? { tone: options.tone } : {} ),
-		...( options?.language ? { language: options.language } : {} ),
+		...( subject ? { subject } : {} ),
+		...( type === PROMPT_TYPE_CHANGE_TONE && options?.tone ? { tone: options.tone } : {} ),
+		...( type === PROMPT_TYPE_CHANGE_LANGUAGE && options?.language
+			? { language: options.language }
+			: {} ),
 		...( userPrompt ? { request: userPrompt } : {} ),
 	};
 }
