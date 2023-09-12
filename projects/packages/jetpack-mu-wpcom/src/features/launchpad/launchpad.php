@@ -748,6 +748,14 @@ function wpcom_launchpad_navigator_remove_checklist( $checklist_slug ) {
 	}
 
 	unset( $checklists[ $key ] );
+
+	$current_active_checklist = wpcom_launchpad_get_active_checklist();
+	if ( $current_active_checklist === $checklist_slug ) {
+		// get last item on $checklists array, if there is one; otherwise set to null
+		$new_active_checklist = end( $checklists ) ? end( $checklists ) : null;
+		wpcom_launchpad_set_current_active_checklist( $new_active_checklist );
+	}
+
 	return wpcom_launchpad_navigator_update_checklists( $checklists );
 }
 
