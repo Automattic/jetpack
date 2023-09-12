@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	ERROR_QUOTA_EXCEEDED,
-	aiAssistantIcon,
-	useAiSuggestions,
-} from '@automattic/jetpack-ai-client';
+import { ERROR_QUOTA_EXCEEDED, useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { TextareaControl, ExternalLink, Button, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
@@ -228,11 +224,7 @@ ${ postContent }
 }
 
 export const PluginDocumentSettingPanelAiExcerpt = () => (
-	<PluginDocumentSettingPanel
-		name="ai-driven-excerpt"
-		title={ __( 'Excerpt', 'jetpack' ) }
-		icon={ aiAssistantIcon }
-	>
+	<PluginDocumentSettingPanel name="ai-content-lens-plugin" title={ __( 'Excerpt', 'jetpack' ) }>
 		<AiPostExcerpt />
 	</PluginDocumentSettingPanel>
 );
