@@ -39,7 +39,15 @@ export function transformToAIAssistantBlock( blockType: ExtendedBlockProp, attrs
 	const aiAssistantBlockcontent = turndownService.turndown( htmlContent );
 
 	// An empty list of messages to start with.
-	const messages: Array< PromptItemProps > = [];
+	const messages: Array< PromptItemProps > = [
+		{
+			role: 'jetpack-ai',
+			context: {
+				type: 'ai-assistant-relevant-content',
+				content: aiAssistantBlockcontent,
+			},
+		},
+	];
 
 	return createBlock( blockName, {
 		...restAttrs,
