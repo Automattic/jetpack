@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Changed the isConvertible logic so that Auto conversion only works for Photon supported mime typesa

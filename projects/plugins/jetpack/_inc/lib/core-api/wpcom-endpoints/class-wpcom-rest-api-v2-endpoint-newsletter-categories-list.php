@@ -3,7 +3,7 @@
  * REST API endpoint for the Newsletter Categories
  *
  * @package automattic/jetpack
- * @since $$next-version$$
+ * @since 12.6
  */
 
 use Automattic\Jetpack\Status\Host;
