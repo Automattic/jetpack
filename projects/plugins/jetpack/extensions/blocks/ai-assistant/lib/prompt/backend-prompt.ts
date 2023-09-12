@@ -27,7 +27,7 @@ const SUBJECT_DEFAULT = null;
 
 /**
  * Builds the initial message, that will be transformed on the
- * system prompt and relevent content message, if applicable.
+ * system prompt.
  *
  * @param {PromptTypeProp} promptType - The internal type of the prompt.
  * @param {string} customSystemPrompt - The custom system prompt, if available.
@@ -49,6 +49,30 @@ export function buildInitialMessageForBackendPrompt(
 }
 
 /**
+ * Builds the relevant content message, if applicable.
+ *
+ * @param {boolean} isContentGenerated - Whether the current content was generated.
+ * @param {string} relevantContent - The relevant content.
+ * @returns {PromptItemProps} The initial message.
+ */
+export function buildRelevantContentMessageForBackendPrompt(
+	isContentGenerated?: boolean,
+	relevantContent?: string
+): PromptItemProps {
+	if ( isContentGenerated && relevantContent?.length > 0 ) {
+		return {
+			role: 'jetpack-ai',
+			context: {
+				type: 'ai-assistant-relevant-content',
+				content: relevantContent,
+			},
+		};
+	}
+
+	return null;
+}
+
+/**
  * Builds backend prompt message list
  * based on the type of prompt.
  *
@@ -65,21 +89,62 @@ export function buildMessagesForBackendPrompt( {
 	userPrompt,
 	isGeneratingTitle,
 }: BuildPromptProps ): Array< PromptItemProps > {
-	return [
-		{
-			role: 'jetpack-ai',
-			context: buildMessageContextForUserPrompt( {
-				generatedContent,
-				allPostContent,
-				postContentAbove,
-				currentPostTitle,
-				options,
-				type,
-				userPrompt,
-				isGeneratingTitle,
-			} ),
-		},
-	];
+	const messages = [];
+
+	const isContentGenerated = options?.contentType === 'generated';
+	let relevantContent: string | null = null;
+
+	switch ( type ) {
+		case PROMPT_TYPE_SUMMARY_BY_TITLE:
+			relevantContent = currentPostTitle;
+			break;
+		case PROMPT_TYPE_CONTINUE:
+		case PROMPT_TYPE_SIMPLIFY:
+		case PROMPT_TYPE_CORRECT_SPELLING:
+			relevantContent = postContentAbove;
+			break;
+		case PROMPT_TYPE_GENERATE_TITLE:
+			relevantContent = allPostContent;
+			break;
+		case PROMPT_TYPE_MAKE_LONGER:
+		case PROMPT_TYPE_MAKE_SHORTER:
+			relevantContent = generatedContent;
+			break;
+		case PROMPT_TYPE_CHANGE_TONE:
+		case PROMPT_TYPE_SUMMARIZE:
+		case PROMPT_TYPE_CHANGE_LANGUAGE:
+			relevantContent = isContentGenerated ? generatedContent : allPostContent;
+			break;
+		case PROMPT_TYPE_USER_PROMPT:
+			relevantContent = generatedContent || allPostContent;
+			break;
+	}
+
+	const relevantContentMessage = buildRelevantContentMessageForBackendPrompt(
+		type === PROMPT_TYPE_USER_PROMPT ? !! generatedContent?.length : isContentGenerated,
+		relevantContent
+	);
+
+	// If we have relevant content, send it as a message.
+	if ( relevantContentMessage ) {
+		messages.push( relevantContentMessage );
+	}
+
+	messages.push( {
+		role: 'jetpack-ai',
+		context: buildMessageContextForUserPrompt( {
+			generatedContent,
+			allPostContent,
+			postContentAbove,
+			currentPostTitle,
+			options,
+			type,
+			userPrompt,
+			isGeneratingTitle,
+		} ),
+	} );
+
+	return messages;
 }
 
 /**
@@ -111,8 +176,6 @@ function buildMessageContextForUserPrompt( {
 	type,
 	userPrompt,
 	isGeneratingTitle,
-	allPostContent,
-	generatedContent,
 }: BuildPromptProps ): object {
 	const isContentGenerated = options?.contentType === 'generated';
 
@@ -125,14 +188,6 @@ function buildMessageContextForUserPrompt( {
 	 * as well as provide relevant pieces for the prompt building.
 	 */
 
-	let relevantContent: string | null = null;
-
-	switch ( type ) {
-		case PROMPT_TYPE_USER_PROMPT:
-			relevantContent = generatedContent || allPostContent;
-			break;
-	}
-
 	return {
 		type: mapInternalPromptTypeToBackendPromptType( type ),
 		...( subject ? { subject } : {} ),
@@ -140,8 +195,7 @@ function buildMessageContextForUserPrompt( {
 		...( type === PROMPT_TYPE_CHANGE_LANGUAGE && options?.language
 			? { language: options.language }
 			: {} ),
-		...( userPrompt ? { request: userPrompt } : {} ),
-		...( relevantContent?.length ? { content: relevantContent } : {} ),
+		...( type === PROMPT_TYPE_USER_PROMPT && userPrompt ? { request: userPrompt } : {} ),
 	};
 }
 
