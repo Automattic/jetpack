@@ -165,6 +165,7 @@ const meta: Meta< typeof PerformanceHistory > = {
 		periods: { control: 'object' },
 		onToggle: { action: 'toggled' },
 		isOpen: { control: 'boolean' },
+		isLoading: { control: 'boolean' },
 		needsUpgrade: { control: 'boolean' },
 	},
 	decorators: [
@@ -181,6 +182,7 @@ const defaultValues = {
 	endDate: exampleRawResponse.data._meta.end,
 	periods: exampleRawResponse.data.periods,
 	isOpen: true,
+	isLoading: false,
 	needsUpgrade: false,
 };
 

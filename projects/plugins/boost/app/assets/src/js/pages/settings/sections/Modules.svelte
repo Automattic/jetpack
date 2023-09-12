@@ -103,7 +103,7 @@
 		<svelte:fragment slot="cta">
 			<UpgradeCTA
 				description={__(
-					'Save time by upgrading to Automatic Critical CSS generation',
+					'Save time by upgrading to Automatic Critical CSS generation.',
 					'jetpack-boost'
 				)}
 			/>
