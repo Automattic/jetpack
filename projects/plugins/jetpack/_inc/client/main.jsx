@@ -98,7 +98,6 @@ const recommendationsRoutes = [
 	'/recommendations/monitor',
 	'/recommendations/newsletter',
 	'/recommendations/paid-newsletter',
-	'/recommendations/paid-newsletter-success',
 	'/recommendations/related-posts',
 	'/recommendations/creative-mail',
 	'/recommendations/site-accelerator',
@@ -586,7 +585,6 @@ class Main extends React.Component {
 			case '/recommendations/monitor':
 			case '/recommendations/newsletter':
 			case '/recommendations/paid-newsletter':
-			case '/recommendations/paid-newsletter-success':
 			case '/recommendations/related-posts':
 			case '/recommendations/creative-mail':
 			case '/recommendations/site-accelerator':
