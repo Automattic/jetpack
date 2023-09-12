@@ -702,6 +702,41 @@ function wpcom_launchpad_get_active_checklist() {
 }
 
 /**
+ * Helper function to set the current active checklist in the navigator context.
+ *
+ * @param string $checklist_slug The slug of the launchpad task list to mark as active.
+ * @return bool Whether the option update succeeded.
+ */
+function wpcom_launchpad_set_current_active_checklist( $checklist_slug ) {
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config' );
+
+	if ( null !== $checklist_slug ) {
+		$checklists = wpcom_launchpad_checklists()->get_all_task_lists();
+		if ( ! array_key_exists( $checklist_slug, $checklists ) ) {
+			return false;
+		}
+	}
+
+	if ( ! $wpcom_launchpad_config || ! is_array( $wpcom_launchpad_config ) ) {
+		$wpcom_launchpad_config = array();
+	}
+
+	if ( null === $checklist_slug ) {
+		if ( ! isset( $wpcom_launchpad_config['active_checklist_slug'] ) ) {
+			return true;
+		}
+		unset( $wpcom_launchpad_config['active_checklist_slug'] );
+	} else {
+		if ( isset( $wpcom_launchpad_config['active_checklist_slug'] ) && $checklist_slug === $wpcom_launchpad_config['active_checklist_slug'] ) {
+			return true;
+		}
+		$wpcom_launchpad_config['active_checklist_slug'] = $checklist_slug;
+	}
+
+	return update_option( 'wpcom_launchpad_config', $wpcom_launchpad_config );
+}
+
+/**
  * Checks if the Keep building task list is enabled.
  *
  * @return bool True if the task list is enabled, false otherwise.
