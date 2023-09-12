@@ -4,6 +4,13 @@
 	.components-placeholder__learn-more {
 		margin-top: 1em;
 	}
+
+	.components-placeholder__label {
+		svg {
+			display: block;
+			margin-inline-end: 0.75rem;
+		}
+	}
 }
 
 [data-type='jetpack/eventbrite'][data-align='center'] {
