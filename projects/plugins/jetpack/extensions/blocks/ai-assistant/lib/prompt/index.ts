@@ -6,7 +6,6 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { ToneProp } from '../../components/tone-dropdown-control';
-import { buildInitialMessageForBackendPrompt } from './backend-prompt';
 /**
  * Types & consts
  */
@@ -274,34 +273,48 @@ function getJetpackFormCustomPrompt( {
  * @return {Array<PromptItemProps>}
  */
 export const buildPromptTemplate = ( {
+	rules = [],
 	request = null,
 	relevantContent = null,
+	isContentGenerated = false,
+	isGeneratingTitle = false,
+	useGutenbergSyntax = false,
 	customSystemPrompt = null,
-	type,
 }: {
+	rules?: Array< string >;
 	request?: string;
 	relevantContent?: string;
+	isContentGenerated?: boolean;
+	isGeneratingTitle?: boolean;
+	useGutenbergSyntax?: boolean;
 	customSystemPrompt?: string;
-	type: PromptTypeProp;
 } ): Array< PromptItemProps > => {
 	if ( ! request && ! relevantContent ) {
 		throw new Error( 'You must provide either a request or content' );
 	}
 
-	const messages: Array< PromptItemProps > = [];
+	// Add initial system prompt.
+	const messages = [ getInitialSystemPrompt( { rules, useGutenbergSyntax, customSystemPrompt } ) ];
 
-	const initialMessage = buildInitialMessageForBackendPrompt(
-		type,
-		relevantContent,
-		customSystemPrompt
-	);
+	if ( relevantContent != null && relevantContent?.length ) {
+		const sanitizedContent = relevantContent.replaceAll( delimiter, '' );
 
-	messages.push( initialMessage );
+		if ( ! isContentGenerated ) {
+			messages.push( {
+				role: 'user',
+				content: `The specific relevant content for this request, if necessary, delimited with ${ delimiter } characters: ${ delimiter }${ sanitizedContent }${ delimiter }`,
+			} );
+		}
+	}
 
 	const lastUserRequest: PromptItemProps = {
 		role: 'user',
 		content: request,
 	};
+
+	if ( isGeneratingTitle ) {
+		lastUserRequest.content += ' Only output a title, do not generate body content.';
+	}
 
 	messages.push( lastUserRequest );
 
@@ -316,7 +329,6 @@ export type BuildPromptOptionsProps = {
 	contentType?: 'generated' | string;
 	tone?: ToneProp;
 	language?: string;
-	isInitialPrompt?: boolean;
 };
 
 export type BuildPromptProps = {
@@ -412,9 +424,10 @@ export function buildPromptForBlock( {
 	type,
 	userPrompt,
 	isGeneratingTitle,
+	useGutenbergSyntax,
 	customSystemPrompt,
 }: BuildPromptProps ): Array< PromptItemProps > {
-	const isContentGenerated = !! generatedContent?.length;
+	const isContentGenerated = options?.contentType === 'generated';
 	const promptText = promptTextFor( type, isGeneratingTitle, options );
 
 	if ( type !== PROMPT_TYPE_USER_PROMPT ) {
@@ -425,11 +438,9 @@ export function buildPromptForBlock( {
 				relevantContent = currentPostTitle;
 				break;
 			case PROMPT_TYPE_CONTINUE:
-				relevantContent = postContentAbove;
-				break;
 			case PROMPT_TYPE_SIMPLIFY:
 			case PROMPT_TYPE_CORRECT_SPELLING:
-				relevantContent = isContentGenerated ? generatedContent : postContentAbove;
+				relevantContent = postContentAbove;
 				break;
 			case PROMPT_TYPE_GENERATE_TITLE:
 				relevantContent = allPostContent;
@@ -448,16 +459,20 @@ export function buildPromptForBlock( {
 		return buildPromptTemplate( {
 			...promptText,
 			relevantContent,
+			isContentGenerated,
+			isGeneratingTitle,
+			useGutenbergSyntax,
 			customSystemPrompt,
-			type,
 		} );
 	}
 
 	return buildPromptTemplate( {
 		request: userPrompt,
 		relevantContent: generatedContent || allPostContent,
+		isContentGenerated: !! generatedContent?.length,
+		isGeneratingTitle,
+		useGutenbergSyntax,
 		customSystemPrompt,
-		type,
 	} );
 }
 

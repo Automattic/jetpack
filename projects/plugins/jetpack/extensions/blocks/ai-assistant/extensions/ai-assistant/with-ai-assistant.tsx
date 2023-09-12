@@ -72,7 +72,7 @@ export const withAIAssistant = createHigherOrderComponent(
 				const storeObject = {
 					clientId: firstClientId,
 					type: promptType,
-					options,
+					options: { ...options, contentType: 'generated' }, // When converted, the original content must be treated as generated.
 				};
 
 				localStorage.setItem(
