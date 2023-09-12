@@ -59,7 +59,7 @@ export function buildRelevantContentMessageForBackendPrompt(
 	isContentGenerated?: boolean,
 	relevantContent?: string
 ): PromptItemProps {
-	if ( isContentGenerated && relevantContent?.length > 0 ) {
+	if ( ! isContentGenerated && relevantContent?.length > 0 ) {
 		return {
 			role: 'jetpack-ai',
 			context: {
