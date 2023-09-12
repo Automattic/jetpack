@@ -20,6 +20,10 @@ function needsCheck( rule, browsers, options = {} ) {
 	if ( paths === true || paths === false ) {
 		return paths;
 	}
+	if ( paths === undefined ) {
+		warn( `No feature map for rule ${ rule }` );
+		return false;
+	}
 	if ( ! Array.isArray( paths ) ) {
 		paths = [ paths ];
 	}
