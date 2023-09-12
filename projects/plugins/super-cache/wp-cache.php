@@ -134,7 +134,12 @@ function wp_cache_set_home() {
 add_action( 'template_redirect', 'wp_cache_set_home' );
 
 function wpsc_enqueue_styles() {
-	wp_enqueue_style( 'wpsc_styles', plugins_url( 'styling/dashboard.css', __FILE__ ), array(), filemtime( 'styling/dashboard.css' ) );
+	wp_enqueue_style(
+		'wpsc_styles',
+		plugins_url( 'styling/dashboard.css', __FILE__ ),
+		array(),
+		filemtime( plugin_dir_path( __FILE__ ) . 'styling/dashboard.css' )
+	);
 }
 add_action( 'admin_enqueue_scripts', 'wpsc_enqueue_styles' );
 
