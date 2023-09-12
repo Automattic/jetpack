@@ -2,7 +2,7 @@ import { InnerBlocks } from '@wordpress/block-editor';
 import { __, _x } from '@wordpress/i18n';
 import { currencyDollar } from '@wordpress/icons';
 import { getIconColor } from '../../shared/block-icons';
-import { settings as donationSettings } from '../donations';
+import donationMetadata from '../donations/block.json';
 import { settings as premiumContentSettings } from '../premium-content';
 import { settings as recurringPaymentSettings } from '../recurring-payments';
 import edit from './edit';
@@ -19,8 +19,8 @@ export const settings = {
 	category: 'earn',
 	keywords: [
 		...new Set( [
-			donationSettings.title,
-			...donationSettings.keywords,
+			donationMetadata.title,
+			...donationMetadata.keywords,
 			recurringPaymentSettings.title,
 			...recurringPaymentSettings.keywords,
 			premiumContentSettings.title,

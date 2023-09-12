@@ -2,12 +2,12 @@
  * The different payment blocks that can be chosen.
  */
 
-import { name as donationsName, settings as donationSettings } from '../donations';
+import donationMetadata from '../donations/block.json';
 import { name as paymentButtonsName, settings as paymentButtonsSettings } from '../payment-buttons';
 import { name as premiumContentName, settings as premiumContentSettings } from '../premium-content';
 
 const variations = [
-	[ donationsName, donationSettings ],
+	[ donationMetadata.name, donationMetadata ],
 	[ paymentButtonsName, paymentButtonsSettings ],
 	[ premiumContentName, premiumContentSettings ],
 ];
