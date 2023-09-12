@@ -5,7 +5,7 @@ const config = {
 			{ pluginReplaceTextdomain: { textdomain: 'jetpack' } },
 		],
 	],
-	plugins: [ '@babel/plugin-proposal-nullish-coalescing-operator' ],
+	plugins: [ '@babel/plugin-transform-nullish-coalescing-operator' ],
 	overrides: [
 		{
 			test: './extensions/',

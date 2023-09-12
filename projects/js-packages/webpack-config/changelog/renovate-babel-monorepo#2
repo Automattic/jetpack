@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Replace deprecated `@babel/plugin-proposal-class-properties` with `@babel/plugin-transform-class-properties`, and rename corresponing option.

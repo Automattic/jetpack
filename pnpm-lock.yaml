@@ -1249,9 +1249,9 @@ importers:
       '@babel/helper-compilation-targets':
         specifier: 7.22.15
         version: 7.22.15
-      '@babel/plugin-proposal-class-properties':
-        specifier: 7.18.6
-        version: 7.18.6(@babel/core@7.22.17)
+      '@babel/plugin-transform-class-properties':
+        specifier: 7.22.5
+        version: 7.22.5(@babel/core@7.22.17)
       '@babel/plugin-transform-runtime':
         specifier: 7.22.15
         version: 7.22.15(@babel/core@7.22.17)
@@ -1641,21 +1641,6 @@ importers:
       '@babel/core':
         specifier: 7.22.17
         version: 7.22.17
-      '@babel/plugin-proposal-nullish-coalescing-operator':
-        specifier: 7.18.6
-        version: 7.18.6(@babel/core@7.22.17)
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.22.15
-        version: 7.22.15(@babel/core@7.22.17)
-      '@babel/plugin-transform-runtime':
-        specifier: 7.22.15
-        version: 7.22.15(@babel/core@7.22.17)
-      '@babel/preset-env':
-        specifier: 7.22.15
-        version: 7.22.15(@babel/core@7.22.17)
-      '@babel/runtime':
-        specifier: 7.22.15
-        version: 7.22.15
       '@wordpress/api-fetch':
         specifier: 6.38.0
         version: 6.38.0
@@ -2061,9 +2046,9 @@ importers:
       '@babel/core':
         specifier: 7.22.17
         version: 7.22.17
-      '@babel/plugin-proposal-nullish-coalescing-operator':
-        specifier: 7.18.6
-        version: 7.18.6(@babel/core@7.22.17)
+      '@babel/plugin-transform-nullish-coalescing-operator':
+        specifier: 7.22.11
+        version: 7.22.11(@babel/core@7.22.17)
       '@babel/plugin-transform-react-jsx':
         specifier: 7.22.15
         version: 7.22.15(@babel/core@7.22.17)
@@ -2421,9 +2406,9 @@ importers:
       '@babel/core':
         specifier: 7.22.17
         version: 7.22.17
-      '@babel/plugin-proposal-nullish-coalescing-operator':
-        specifier: 7.18.6
-        version: 7.18.6(@babel/core@7.22.17)
+      '@babel/plugin-transform-nullish-coalescing-operator':
+        specifier: 7.22.11
+        version: 7.22.11(@babel/core@7.22.17)
       '@babel/plugin-transform-react-jsx':
         specifier: 7.22.15
         version: 7.22.15(@babel/core@7.22.17)
@@ -3098,9 +3083,9 @@ importers:
       '@babel/core':
         specifier: 7.22.17
         version: 7.22.17
-      '@babel/plugin-proposal-nullish-coalescing-operator':
-        specifier: 7.18.6
-        version: 7.18.6(@babel/core@7.22.17)
+      '@babel/plugin-transform-nullish-coalescing-operator':
+        specifier: 7.22.11
+        version: 7.22.11(@babel/core@7.22.17)
       '@babel/plugin-transform-react-jsx':
         specifier: 7.22.15
         version: 7.22.15(@babel/core@7.22.17)
@@ -4496,6 +4481,7 @@ packages:
       '@babel/core': 7.22.17
       '@babel/helper-create-class-features-plugin': 7.22.15(@babel/core@7.22.17)
       '@babel/helper-plugin-utils': 7.22.5
+    dev: true
 
   /@babel/plugin-proposal-nullish-coalescing-operator@7.18.6(@babel/core@7.22.17):
     resolution: {integrity: sha512-wQxQzxYeJqHcfppzBDnm1yAY0jSRkUXR2z8RePZYrKwMKgMlE8+Z6LUno+bd6LvbGh8Gltvy74+9pIYkr+XkKA==}

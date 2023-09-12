@@ -264,7 +264,7 @@ The options and corresponding components are:
 - `presetTypescript`: Corresponds to [@babel/preset-typescript](https://www.npmjs.com/package/@babel/preset-typescript).
 - `pluginReplaceTextdomain`: Corresponds to [@automattic/babel-plugin-replace-textdomain](https://www.npmjs.com/package/@automattic/babel-plugin-replace-textdomain).
   Note this plugin is only included if this option is set, as the plugin requires a `textdomain` option be set.
-- `pluginProposalClassProperties`: Corresponds to [@babel/plugin-proposal-class-properties](https://www.npmjs.com/package/@babel/plugin-proposal-class-properties).
+- `pluginTransformClassProperties`: Corresponds to [@babel/plugin-transform-class-properties](https://www.npmjs.com/package/@babel/plugin-transform-class-properties).
 - `pluginTransformRuntime`: Corresponds to [@babel/plugin-transform-runtime](https://www.npmjs.com/package/@babel/plugin-transform-runtime).
 
   Note the following options that are different from `@babel/plugin-transform-runtime`'s defaults:
