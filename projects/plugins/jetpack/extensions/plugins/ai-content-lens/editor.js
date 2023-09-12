@@ -7,7 +7,7 @@ import { addFilter } from '@wordpress/hooks';
  * Internal dependencies
  */
 import { isPossibleToExtendBlock } from '../../blocks/ai-assistant/extensions/ai-assistant';
-import { name as pluginName, settings as pluginSettings } from '.';
+import { aiExcerptPluginName, aiExcerptPluginSettings } from '.';
 
 export const AI_CONTENT_LENS = 'ai-content-lens';
 
@@ -16,22 +16,25 @@ const isAiAssistantSupportExtensionEnabled =
 
 /**
  * Extend the editor with AI Content Lens features,
- * as long as the AI Assistant blocks is registered.
+ * as long as the AI Assistant block is registered.
  *
  * @param {object} settings - Block settings.
  * @param {string} name     - Block name.
  * @returns {object}          Block settings.
  */
 function extendAiContentLensFeatures( settings, name ) {
+	// Bail early when the block is not the AI Assistant.
 	if ( name !== 'jetpack/ai-assistant' ) {
 		return settings;
 	}
 
+	// Bail early when the block is not registered.
 	if ( ! isPossibleToExtendBlock() ) {
 		return settings;
 	}
 
-	registerJetpackPlugin( pluginName, pluginSettings );
+	// Register AI Excerpt plugin.
+	registerJetpackPlugin( aiExcerptPluginName, aiExcerptPluginSettings );
 
 	return settings;
 }

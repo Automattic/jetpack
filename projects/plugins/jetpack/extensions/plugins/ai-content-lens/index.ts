@@ -3,8 +3,8 @@
  */
 import { PluginDocumentSettingPanelAiExcerpt } from './extend/ai-post-excerpt';
 
-// plugin settings
-export const name = 'ai-content-lens';
-export const settings = {
+// Plugins list
+export const aiExcerptPluginName = 'ai-content-lens';
+export const aiExcerptPluginSettings = {
 	render: PluginDocumentSettingPanelAiExcerpt,
 };
