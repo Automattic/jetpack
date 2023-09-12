@@ -13,8 +13,12 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import CopyButton from './components/copy-button';
+import DisplayError from './components/display-error';
+import Feedback from './components/feedback';
 import useSubmitQuestion from './use-submit-question';
 
+// TODO: Configurable strings.
 const waitStrings = [
 	__( 'Good question, give me a moment to think about that 🤔', 'jetpack' ),
 	__( 'Let me work out the answer to that, back soon!', 'jetpack' ),
@@ -55,14 +59,38 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 		</div>
 	);
 }
-export default function QuestionAnswer() {
-	const { question, setQuestion, answer, isLoading, submitQuestion, references } =
-		useSubmitQuestion();
+
+/**
+ * Primary question-answer.
+ *
+ * @param {object} props - Component props.
+ * @param {string} props.askButtonLabel - Ask button label.
+ * @param {number} props.blogId - Blog ID.
+ * @param {string} props.blogType - Blog type (wpcom|jetpack) for wpcom simple and jetpack/atomic.
+ * @returns {QuestionAnswer} component.
+ */
+export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
+	const {
+		question,
+		setQuestion,
+		answer,
+		isLoading,
+		submitQuestion,
+		references,
+		askError,
+		setAskError,
+		cacheKey,
+	} = useSubmitQuestion( blogType, blogId );
 
 	const [ animationDone, setAnimationDone ] = useState( false );
 	const [ showReferences, setShowReferences ] = useState( false );
+	const [ feedbackSubmitted, setFeedbackSubmitted ] = useState( [] );
+	const addFeedbackToState = submittedCacheKey => {
+		setFeedbackSubmitted( [ ...feedbackSubmitted, submittedCacheKey ] );
+	};
 
 	const handleSubmitQuestion = () => {
+		setAskError( false );
 		setAnimationDone( false );
 		setShowReferences( false );
 		submitQuestion();
@@ -72,6 +100,9 @@ export default function QuestionAnswer() {
 		setAnimationDone( true );
 		setShowReferences( true );
 	};
+
+	const showCopyButton = animationDone && ! isLoading && answer;
+	const showFeedback = animationDone && ! isLoading && cacheKey;
 	return (
 		<>
 			<KeyboardShortcuts
@@ -89,7 +120,7 @@ export default function QuestionAnswer() {
 					/>
 
 					<Button variant="primary" disabled={ isLoading } onClick={ handleSubmitQuestion }>
-						{ __( 'Ask', 'jetpack' ) }
+						{ askButtonLabel }
 					</Button>
 				</div>
 			</KeyboardShortcuts>
@@ -109,6 +140,8 @@ export default function QuestionAnswer() {
 						/>
 					) }
 				</div>
+				{ askError && <DisplayError error={ askError } /> }
+				{ showCopyButton && <CopyButton answer={ answer } /> }
 				{ references && references.length > 0 && showReferences && (
 					<div className="jetpack-ai-chat-answer-references">
 						<div>{ __( 'Additional resources:', 'jetpack' ) }</div>
@@ -120,7 +153,17 @@ export default function QuestionAnswer() {
 								</li>
 							) ) }
 						</ul>
+						<hr />
 					</div>
+				) }
+				{ showFeedback && (
+					<Feedback
+						blogId={ blogId }
+						blogType={ blogType }
+						cacheKey={ cacheKey }
+						feedbackSubmitted={ feedbackSubmitted }
+						addFeedback={ addFeedbackToState }
+					/>
 				) }
 			</div>
 		</>

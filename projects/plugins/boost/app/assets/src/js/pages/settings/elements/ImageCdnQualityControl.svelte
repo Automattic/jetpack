@@ -17,10 +17,10 @@
 	<div class="jb-image-cdn-quality-control__label">
 		{label}
 	</div>
-	<div class="jb-image-cdn-quality-control__lossless">
+	<label class="jb-image-cdn-quality-control__lossless">
 		<input type="checkbox" bind:checked={config.lossless} />
 		{__( 'Lossless', 'jetpack-boost' )}
-	</div>
+	</label>
 	{#if ! config.lossless}
 		<div class="jb-image-cdn-quality-control__slider">
 			<NumberSlider bind:currentValue={config.quality} {minValue} {maxValue} />

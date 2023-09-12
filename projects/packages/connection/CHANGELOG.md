@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.57.3] - 2023-09-11
+### Changed
+- General: remove WP 6.1 backwards compatibility checks [#32772]
+
 ## [1.57.2] - 2023-09-04
 ### Changed
 - Updated package dependencies. [#32803]
@@ -872,6 +876,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.57.3]: https://github.com/Automattic/jetpack-connection/compare/v1.57.2...v1.57.3
 [1.57.2]: https://github.com/Automattic/jetpack-connection/compare/v1.57.1...v1.57.2
 [1.57.1]: https://github.com/Automattic/jetpack-connection/compare/v1.57.0...v1.57.1
 [1.57.0]: https://github.com/Automattic/jetpack-connection/compare/v1.56.1...v1.57.0

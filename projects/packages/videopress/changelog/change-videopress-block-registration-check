@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Defer assets enqueuing for non block themes as those seem to be loading the assets on every page
