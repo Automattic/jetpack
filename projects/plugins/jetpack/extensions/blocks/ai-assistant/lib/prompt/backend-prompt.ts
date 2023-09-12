@@ -39,7 +39,7 @@ export function buildInitialMessageForBackendPrompt(
 	relevantContent: string,
 	customSystemPrompt: string
 ): PromptItemProps {
-	// The basic temaplate for the message.
+	// The basic template for the message.
 	return {
 		role: 'jetpack-ai' as const,
 		context: {
