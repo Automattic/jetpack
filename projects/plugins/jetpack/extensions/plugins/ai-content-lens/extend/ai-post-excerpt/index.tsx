@@ -17,8 +17,8 @@ import React from 'react';
  * Internal dependencies
  */
 import './style.scss';
-import useAutosaveAndRedirect from '../../../../../../shared/use-autosave-and-redirect';
-import UpgradePrompt from '../../../../components/upgrade-prompt';
+import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
+import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
  * Types and constants
