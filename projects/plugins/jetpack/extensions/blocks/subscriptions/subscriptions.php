@@ -51,11 +51,12 @@ function register_block() {
 			array(
 				'render_callback' => __NAMESPACE__ . '\render_block',
 				'supports'        => array(
-					'spacing' => array(
+					'spacing'          => array(
 						'margin'  => true,
 						'padding' => true,
 					),
-					'align'   => array( 'wide', 'full' ),
+					'align'            => array( 'wide', 'full' ),
+					'isPaidSubscriber' => true,
 				),
 			)
 		);
