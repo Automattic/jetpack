@@ -1,4 +1,4 @@
 Significance: minor
-Type: changed
+Type: removed
 
-Replace deprecated `@babel/plugin-proposal-class-properties` with `@babel/plugin-transform-class-properties`, and rename corresponing option.
+Remove deprecated `@babel/plugin-proposal-class-properties`; `@babel/plugin-transform-class-properties` is already in `@babel/preset-env`.

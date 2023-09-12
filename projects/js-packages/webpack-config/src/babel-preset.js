@@ -42,12 +42,6 @@ module.exports = ( api, opts = {} ) => {
 			opts.pluginReplaceTextdomain,
 		] );
 	}
-	if ( opts.pluginTransformClassProperties !== false ) {
-		ret.plugins.push( [
-			require.resolve( '@babel/plugin-transform-class-properties' ),
-			opts.pluginTransformClassProperties,
-		] );
-	}
 	if ( opts.pluginTransformRuntime !== false ) {
 		ret.plugins.push( [
 			require.resolve( '@babel/plugin-transform-runtime' ),

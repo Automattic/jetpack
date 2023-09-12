@@ -1249,9 +1249,6 @@ importers:
       '@babel/helper-compilation-targets':
         specifier: 7.22.15
         version: 7.22.15
-      '@babel/plugin-transform-class-properties':
-        specifier: 7.22.5
-        version: 7.22.5(@babel/core@7.22.17)
       '@babel/plugin-transform-runtime':
         specifier: 7.22.15
         version: 7.22.15(@babel/core@7.22.17)
