@@ -25,7 +25,14 @@ type IsPossibleToExtendJetpackFormBlockProps = {
 };
 
 /**
- * Check if it is possible to extend the block.
+ * Check if it is possible to extend the block:
+ * - AI Assistant block is registered (jetpack/ai-assistant).
+ * - `ai-assistant-form-support` extension is enabled.
+ * - The block is not inside of a core/query block.
+ * - The block is allowed to be extended.
+ * - The site is connected.
+ * - There is no error getting the feature.
+ * - The AI Assistant block is not hidden.
  *
  * @param {string} blockName            - The block name.
  * @param {boolean} checkChildrenBlocks - Check if the block is a child of a Jetpack Form block.
@@ -191,4 +198,29 @@ addFilter(
 	100
 );
 
-addFilter( 'editor.BlockListBlock', 'jetpack/ai-assistant-block-list', withAiDataProvider, 110 );
+/*
+ * Extend BlockListBlock component to provide the AI Assistant data context
+ * only if it's possible to extend the block.
+ */
+const jetpackFormBlockListBlock = BlockListBlock => {
+	const BlockListBlockInstance = props => {
+		const blockName = props?.block?.name;
+		const { clientId } = props;
+
+		if ( ! isPossibleToExtendJetpackFormBlock( blockName, { clientId } ) ) {
+			return <BlockListBlock { ...props } />;
+		}
+
+		const JetpackFormWithAiData = withAiDataProvider( BlockListBlock );
+		return <JetpackFormWithAiData { ...props } />;
+	};
+
+	return BlockListBlockInstance;
+};
+
+addFilter(
+	'editor.BlockListBlock',
+	'jetpack/jetpack-form-block-list',
+	jetpackFormBlockListBlock,
+	110
+);
