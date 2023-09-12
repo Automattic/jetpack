@@ -90,9 +90,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller 
 		foreach ( $input as $key => $value ) {
 			switch ( $key ) {
 				case 'active_checklist_slug':
-					if ( wpcom_launchpad_set_current_active_checklist( $input['active_checklist_slug'] ) ) {
-						$updated[ $key ] = true;
-					}
+					$updated[ $key ] = wpcom_launchpad_set_current_active_checklist( $input['active_checklist_slug'] );
 					break;
 			}
 		}
