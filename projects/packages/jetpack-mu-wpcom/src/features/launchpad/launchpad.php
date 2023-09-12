@@ -710,9 +710,11 @@ function wpcom_launchpad_get_active_checklist() {
 function wpcom_launchpad_set_current_active_checklist( $checklist_slug ) {
 	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config' );
 
-	$checklists = wpcom_launchpad_checklists()->get_all_task_lists();
-	if ( ! array_key_exists( $checklist_slug, $checklists ) ) {
-		return false;
+	if ( null !== $checklist_slug ) {
+		$checklists = wpcom_launchpad_checklists()->get_all_task_lists();
+		if ( ! array_key_exists( $checklist_slug, $checklists ) ) {
+			return false;
+		}
 	}
 
 	if ( ! $wpcom_launchpad_config || ! is_array( $wpcom_launchpad_config ) ) {
