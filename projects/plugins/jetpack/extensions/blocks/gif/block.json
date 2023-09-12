@@ -32,5 +32,12 @@
 			"default": "56.2%"
 		}
 	},
-	"editorScript": "file:../editor.js"
+	"example": {
+		"attributes": {
+			"align": "center",
+			"giphyUrl": "https://giphy.com/embed/fxKWgoOG9hzPPkE1oc",
+			"paddingTop": "100%",
+			"searchText": "WordPress"
+		}
+	}
 }
