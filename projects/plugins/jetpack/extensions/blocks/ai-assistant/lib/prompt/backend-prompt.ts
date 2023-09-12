@@ -45,8 +45,8 @@ export function buildInitialMessageForBackendPrompt(
 		context: {
 			type: 'ai-assistant-initial-prompt',
 			for: mapInternalPromptTypeToBackendPromptType( promptType ),
-			content: relevantContent?.length ? relevantContent : null,
-			custom_system_prompt: customSystemPrompt?.length ? customSystemPrompt : null,
+			...( relevantContent?.length ? { content: relevantContent } : {} ),
+			...( customSystemPrompt?.length ? { custom_system_prompt: customSystemPrompt } : {} ),
 		},
 	};
 }
