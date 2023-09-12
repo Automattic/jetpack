@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Refactor function for assembling API response for later usage
