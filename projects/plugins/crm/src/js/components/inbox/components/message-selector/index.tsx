@@ -1,7 +1,7 @@
 import { useSelect } from '@wordpress/data';
 import { store } from 'crm/state/store';
 import { MessageCard } from '../message-card';
-import type { Message } from 'crm/state/email/types';
+import type { Message } from 'crm/state/inbox/types';
 
 type MessageSelectorProps = {
 	messages: Message[];

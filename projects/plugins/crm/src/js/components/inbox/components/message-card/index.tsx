@@ -1,6 +1,6 @@
 import { useSelect, dispatch } from '@wordpress/data';
 import classNames from 'classnames';
-import { Message } from 'crm/state/email/types';
+import { Message } from 'crm/state/inbox/types';
 import { store } from 'crm/state/store';
 import styles from './styles.module.scss';
 

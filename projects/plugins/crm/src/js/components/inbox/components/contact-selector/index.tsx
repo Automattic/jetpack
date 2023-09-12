@@ -1,4 +1,4 @@
-import { Contact } from 'crm/state/email/types';
+import { Contact } from 'crm/state/inbox/types';
 import { ContactCard } from '../contact-card';
 import styles from './styles.module.scss';
 
