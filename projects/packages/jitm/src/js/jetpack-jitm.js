@@ -87,7 +87,7 @@ jQuery( document ).ready( function ( $ ) {
 				html +=
 					'<a href="' +
 					envelope.settings_link +
-					'" type="button" class="jitm-button is-compact is-secondary jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
+					'" type="button" class="jitm-button is-compact is-primary jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
 					envelope.id +
 					'-settings_link">' +
 					window.jitm_config.settings_module_text +
