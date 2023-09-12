@@ -141,11 +141,9 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 
 		return wpcom_launchpad_get_checklist_for_api_response(
 			$checklist_slug,
-			array(
-				'site_intent'        => get_option( 'site_intent' ),
-				'launchpad_screen'   => get_option( 'launchpad_screen' ),
-				'checklist_statuses' => get_option( 'launchpad_checklist_tasks_statuses', array() ),
-			)
+			get_option( 'site_intent' ),
+			get_option( 'launchpad_screen' ),
+			get_option( 'launchpad_checklist_tasks_statuses', array() )
 		);
 	}
 

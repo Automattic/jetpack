@@ -685,17 +685,25 @@ function wpcom_launchpad_set_fse_next_steps_modal_hidden( $should_hide ) {
  * by the Launchpad component.
  *
  * @param string $slug The slug of the launchpad task list to get.
- * @param array  $extra_params Array that will be merged with the results, used for adding extra params to the response.
+ * @param string $site_intent The site intent.
+ * @param string $launchpad_screen The launchpad_screen option value.
+ * @param array  $checklist_statuses The launchpad_checklist_tasks_statuses option value.
  * @return array
  */
-function wpcom_launchpad_get_checklist_for_api_response( $slug, $extra_params = array() ) {
-	$result = array(
-		'checklist'    => wpcom_get_launchpad_checklist_by_checklist_slug( $slug ),
-		'is_enabled'   => wpcom_get_launchpad_task_list_is_enabled( $slug ),
-		'is_dismissed' => wpcom_launchpad_is_task_list_dismissed( $slug ),
+function wpcom_launchpad_get_checklist_for_api_response(
+	$slug,
+	$site_intent,
+	$launchpad_screen,
+	$checklist_statuses
+) {
+	return array(
+		'checklist'          => wpcom_get_launchpad_checklist_by_checklist_slug( $slug ),
+		'is_enabled'         => wpcom_get_launchpad_task_list_is_enabled( $slug ),
+		'is_dismissed'       => wpcom_launchpad_is_task_list_dismissed( $slug ),
+		'site_intent'        => $site_intent,
+		'launchpad_screen'   => $launchpad_screen,
+		'checklist_statuses' => $checklist_statuses,
 	);
-
-	return array_merge( $result, $extra_params );
 }
 
 /**
