@@ -57,5 +57,9 @@
 			"default": true
 		}
 	},
-	"editorScript": "file:../editor.js"
+	"example": {
+		"attributes": {
+			"preview": true
+		}
+	}
 }
