@@ -24,6 +24,11 @@ function cleanName( name ) {
 		name = 'Shortcodes / Embeds';
 	}
 
+	// We customize the Stats module's name to differentiate from the Stats UI (Stats dashboard).
+	if ( name === 'stats' ) {
+		name = 'Stats Data';
+	}
+
 	// We name our CPTs "Custom Content Types" to avoid confusion with WordPress's CPT.
 	if ( name === 'custom-post-types' ) {
 		name = 'Custom Content Types';
