@@ -6,6 +6,10 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { ToneProp } from '../../components/tone-dropdown-control';
+import {
+	buildInitialMessageForBackendPrompt,
+	buildMessagesForBackendPrompt,
+} from './backend-prompt';
 /**
  * Types & consts
  */
@@ -427,6 +431,24 @@ export function buildPromptForBlock( {
 	useGutenbergSyntax,
 	customSystemPrompt,
 }: BuildPromptProps ): Array< PromptItemProps > {
+	// ToDo: change this to rely on beta feature flag.
+	// Get the initial message to build the system prompt.
+	const initialMessage = buildInitialMessageForBackendPrompt( type, customSystemPrompt );
+
+	// Get the user messages to complete the prompt.
+	const userMessages = buildMessagesForBackendPrompt( {
+		generatedContent,
+		allPostContent,
+		postContentAbove,
+		currentPostTitle,
+		options,
+		type,
+		userPrompt,
+		isGeneratingTitle,
+	} );
+
+	return [ initialMessage, ...userMessages ];
+
 	const isContentGenerated = options?.contentType === 'generated';
 	const promptText = promptTextFor( type, isGeneratingTitle, options );
 
