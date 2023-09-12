@@ -600,16 +600,18 @@ class Jetpack_Memberships {
 		);
 
 		if ( ! $add_deleted_plans ) {
-			$deleted_plan_ids = get_posts(
-				array(
-					'posts_per_page' => - 1,
-					'fields'         => 'ids',
-					'meta_value'     => true,
-					'post_type'      => self::$deleted_post_type_plan,
-					'meta_key'       => 'jetpack_memberships_site_subscriber',
-				)
-			);
+			return $active_plan_ids;
 		}
+
+		$deleted_plan_ids = get_posts(
+			array(
+				'posts_per_page' => - 1,
+				'fields'         => 'ids',
+				'meta_value'     => true,
+				'post_type'      => self::$deleted_post_type_plan,
+				'meta_key'       => 'jetpack_memberships_site_subscriber',
+			)
+		);
 
 		return array_merge( $active_plan_ids, $deleted_plan_ids );
 	}
