@@ -297,7 +297,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 						>
 							<p>
 								{ __(
-									'Lazy-loading images will improve your site’s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.',
+									'Most modern browsers already support lazy loading. With over 90% of current browsers offering native support, enabling this feature may be unnecessary',
 									'jetpack'
 								) }
 							</p>

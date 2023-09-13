@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Lazy Images
- * Module Description: Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.
+ * Module Description: Most modern browsers already support lazy loading. With over 90% of current browsers offering native support, enabling this feature may be unnecessary.
  * Sort Order: 24
  * Recommendation Order: 14
  * First Introduced: 5.6.0
