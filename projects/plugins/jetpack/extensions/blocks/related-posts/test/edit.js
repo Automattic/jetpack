@@ -1,59 +1,62 @@
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { render, screen } from '@testing-library/react';
+import { useSelect } from '@wordpress/data';
 import RelatedPostsEdit from '../edit';
 
-const posts = [
-	{
-		block_context: {
-			link: 'https://test.com',
-			text: 'Some text',
+const currentPost = {
+	'jetpack-related-posts': [
+		{
+			block_context: {
+				link: 'https://test.com',
+				text: 'Some text',
+			},
+			classes: [],
+			context: "In 'test one'",
+			date: 'February 15, 2020',
+			excerpt: 'This is the first post!',
+			format: false,
+			id: 10,
+			img: {
+				alt_text: '',
+				height: 200,
+				width: 350,
+				src: 'https://i0.wp.com/test/wp-content/uploads/2021/03/IMG_001.jpg?resize=350%2C200',
+			},
+			rel: '',
+			title: 'Test Post One',
+			url: 'http://test.com/?p=10',
+			url_meta: {
+				origin: 153,
+				positon: 0,
+			},
 		},
-		classes: [],
-		context: "In 'test one'",
-		date: 'February 15, 2020',
-		excerpt: 'This is the first post!',
-		format: false,
-		id: 10,
-		img: {
-			alt_text: '',
-			height: 200,
-			width: 350,
-			src: 'https://i0.wp.com/test/wp-content/uploads/2021/03/IMG_001.jpg?resize=350%2C200',
+		{
+			block_context: {
+				link: 'https://test.com',
+				text: 'Some text',
+			},
+			classes: [],
+			context: "In 'test two'",
+			date: 'February 14, 2020',
+			excerpt: 'This is the second post!',
+			format: false,
+			id: 9,
+			img: {
+				alt_text: '',
+				height: 200,
+				width: 350,
+				src: 'https://i0.wp.com/test/wp-content/uploads/2021/03/IMG_002.jpg?resize=350%2C200',
+			},
+			rel: '',
+			title: 'Test Post Two',
+			url: 'http://test.com/?p=9',
+			url_meta: {
+				origin: 153,
+				positon: 0,
+			},
 		},
-		rel: '',
-		title: 'Test Post One',
-		url: 'http://test.com/?p=10',
-		url_meta: {
-			origin: 153,
-			positon: 0,
-		},
-	},
-	{
-		block_context: {
-			link: 'https://test.com',
-			text: 'Some text',
-		},
-		classes: [],
-		context: "In 'test two'",
-		date: 'February 14, 2020',
-		excerpt: 'This is the second post!',
-		format: false,
-		id: 9,
-		img: {
-			alt_text: '',
-			height: 200,
-			width: 350,
-			src: 'https://i0.wp.com/test/wp-content/uploads/2021/03/IMG_002.jpg?resize=350%2C200',
-		},
-		rel: '',
-		title: 'Test Post Two',
-		url: 'http://test.com/?p=9',
-		url_meta: {
-			origin: 153,
-			positon: 0,
-		},
-	},
-];
+	],
+};
 
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	__esModule: true,
@@ -65,13 +68,16 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 		changeStatus: jest.fn(),
 	} ),
 } ) );
-jest.mock( '@wordpress/element', () => ( {
-	...jest.requireActual( '@wordpress/element' ),
-	useSelect: () => ( {
-		posts,
-		isInSiteEditor: false,
-	} ),
-} ) );
+
+jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
+useSelect.mockImplementation( cb => {
+	return cb( () => ( {
+		getCurrentPost: jest.fn().mockReturnValueOnce( currentPost ),
+		isFirstMultiSelectedBlock: jest.fn().mockReturnValueOnce( true ),
+		getMultiSelectedBlockClientIds: () => [],
+	} ) );
+} );
+
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
 	useInstanceId: () => ( {
@@ -92,8 +98,6 @@ const defaultProps = {
 	attributes: defaultAttributes,
 	setAttributes,
 	clientId: 1,
-	posts,
-	isInSiteEditor: false,
 	className: 'className',
 	instanceId: 2,
 };
