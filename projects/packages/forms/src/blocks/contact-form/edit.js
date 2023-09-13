@@ -1,3 +1,4 @@
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { getJetpackData, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
 	InnerBlocks,
@@ -29,6 +30,7 @@ import JetpackEmailConnectionSettings from './components/jetpack-email-connectio
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
+import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import { withStyleVariables } from './util/with-style-variables';
 import defaultVariations from './variations';
 
@@ -95,6 +97,8 @@ export const JetpackContactFormEdit = forwardRef(
 		} = attributes;
 
 		const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
+
+		const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } = useModuleStatus( 'contact-form' );
 
 		const formClassnames = classnames( className, 'jetpack-contact-form', {
 			'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
@@ -266,6 +270,16 @@ export const JetpackContactFormEdit = forwardRef(
 				</div>
 			);
 		};
+
+		if ( ! isModuleActive && ! isLoadingModules ) {
+			return (
+				<ContactFormPlaceholder
+					changeStatus={ changeStatus }
+					isModuleActive={ isModuleActive }
+					isLoading={ isChangingStatus }
+				/>
+			);
+		}
 
 		if ( ! hasInnerBlocks && registerBlockVariation ) {
 			return renderVariationPicker();

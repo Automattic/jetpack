@@ -314,13 +314,6 @@ class Contact_Form_Plugin {
 	 * Register the contact form block.
 	 */
 	private static function register_contact_form_blocks() {
-		Blocks::jetpack_register_block(
-			'jetpack/contact-form',
-			array(
-				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
-			)
-		);
-
 		// Field render methods.
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',
