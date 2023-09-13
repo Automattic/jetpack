@@ -92,15 +92,5 @@
 			"selector": ".jetpack-simple-payments-title p",
 			"default": ""
 		}
-	},
-	"example": {
-		"attributes": {
-			"price": 25.0,
-			"title": "Jetpack t-shirt",
-			"content": "Take flight in ultimate comfort with this stylish t-shirt featuring the Jetpack logo.",
-			"email": "jetpack@jetpack.com",
-			"featuredMediaUrl": "./simple-payments_example-1.jpg"
-		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }
