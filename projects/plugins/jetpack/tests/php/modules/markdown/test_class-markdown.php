@@ -32,4 +32,13 @@ class WP_Test_GFM_Markdown extends WP_UnitTestCase {
 		$this->assertEquals( $expected, trim( ( new WPCom_GHF_Markdown_Parser() )->transform( $markdown ) ) );
 	}
 
+	/**
+	 * Test verifying that ~~strikethrough~~ does not convert within backticks.
+	 */
+	public function test_strikethrough_in_backticks() {
+		$markdown = '`~~strikethrough~~`';
+		$expected = '<code>~~strikethrough~~</code>';
+		$this->assertEquals( $expected, trim( ( new WPCom_GHF_Markdown_Parser() )->transform( $markdown ) ) );
+	}
+
 }
