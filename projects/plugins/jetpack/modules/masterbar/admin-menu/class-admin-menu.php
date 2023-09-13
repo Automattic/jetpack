@@ -84,7 +84,12 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @return array           Updated Editor settings.
 	 */
 	public function site_editor_dashboard_link( $settings ) {
-		$settings['__experimentalDashboardLink'] = 'https://wordpress.com/home/' . $this->domain;
+		// Point the Site Editor's `<` link to the theme showcase when previewing a theme.
+		if ( ! empty( $_GET['wp_theme_preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$settings['__experimentalDashboardLink'] = 'https://wordpress.com/themes/' . $this->domain;
+		} else {
+			$settings['__experimentalDashboardLink'] = 'https://wordpress.com/home/' . $this->domain;
+		}
 		return $settings;
 	}
 

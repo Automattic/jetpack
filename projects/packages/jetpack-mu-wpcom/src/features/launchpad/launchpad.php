@@ -681,6 +681,74 @@ function wpcom_launchpad_set_fse_next_steps_modal_hidden( $should_hide ) {
 }
 
 /**
+ * Returns a list of all the checklists that are currently available for the navigator.
+ *
+ * @return array Array of strings representing the checklist slugs.
+ */
+function wpcom_launchpad_navigator_get_checklists() {
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+
+	if ( ! isset( $wpcom_launchpad_config['navigator_checklists'] ) ) {
+		return array();
+	}
+	$all_checklists  = wpcom_launchpad_checklists()->get_all_task_lists();
+	$checklist_slugs = $wpcom_launchpad_config['navigator_checklists'];
+
+	$results = array();
+	foreach ( $checklist_slugs as $slug ) {
+		if ( ! isset( $all_checklists[ $slug ] ) ) {
+			continue;
+		}
+
+		$results[ $slug ] = array(
+			'slug'  => $slug,
+			'title' => $all_checklists[ $slug ]['title'],
+		);
+	}
+
+	return $results;
+}
+
+/**
+ * Updates the list of checklists that are currently available for the navigator.
+ *
+ * @param array $new_checklists Array of strings representing the checklist slugs.
+ * @return bool Whether the option update succeeded.
+ */
+function wpcom_launchpad_navigator_update_checklists( $new_checklists ) {
+	if ( ! is_array( $new_checklists ) ) {
+		return false;
+	}
+
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+
+	$wpcom_launchpad_config['navigator_checklists'] = $new_checklists;
+
+	return update_option( 'wpcom_launchpad_config', $wpcom_launchpad_config );
+}
+
+/**
+ * Adds a new checklist to the list of checklists that are currently available for the navigator.
+ *
+ * @param string $new_checklist_slug The slug of the launchpad task list to add.
+ */
+function wpcom_launchpad_navigator_add_checklist( $new_checklist_slug ) {
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+	$checklists             = array();
+
+	if ( isset( $wpcom_launchpad_config['navigator_checklists'] ) ) {
+		$checklists = $wpcom_launchpad_config['navigator_checklists'];
+	}
+
+	// add the new_checklist_slug to the checklists array if it's not already there.
+	if ( ! in_array( $new_checklist_slug, $checklists, true ) ) {
+		$checklists[] = $new_checklist_slug;
+	}
+
+	wpcom_launchpad_navigator_update_checklists( $checklists );
+}
+
+/**
  * Helper function to indicate what's the current active checklist
  * in the context of the navigator.
  * It will try to read the key 'active_checklist_slug' from the 'wpcom_launchpad_config' option.
@@ -699,6 +767,47 @@ function wpcom_launchpad_get_active_checklist() {
 	}
 
 	return $wpcom_launchpad_config['active_checklist_slug'];
+}
+
+/**
+ * Helper function to set the current active checklist in the navigator context.
+ *
+ * @param string $checklist_slug The slug of the launchpad task list to mark as active.
+ * @return bool Whether the option update succeeded.
+ */
+function wpcom_launchpad_set_current_active_checklist( $checklist_slug ) {
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config' );
+
+	if ( null !== $checklist_slug ) {
+		$checklists = wpcom_launchpad_checklists()->get_all_task_lists();
+		if ( ! array_key_exists( $checklist_slug, $checklists ) ) {
+			return false;
+		}
+	}
+
+	if ( ! $wpcom_launchpad_config || ! is_array( $wpcom_launchpad_config ) ) {
+		$wpcom_launchpad_config = array();
+	}
+
+	if ( null === $checklist_slug ) {
+		if ( ! isset( $wpcom_launchpad_config['active_checklist_slug'] ) ) {
+			return true;
+		}
+		unset( $wpcom_launchpad_config['active_checklist_slug'] );
+	} else {
+		if ( isset( $wpcom_launchpad_config['active_checklist_slug'] ) && $checklist_slug === $wpcom_launchpad_config['active_checklist_slug'] ) {
+			return true;
+		}
+		$wpcom_launchpad_config['active_checklist_slug'] = $checklist_slug;
+	}
+
+	$return_value = update_option( 'wpcom_launchpad_config', $wpcom_launchpad_config );
+	// add to available checklists if not null
+	if ( $checklist_slug !== null ) {
+		wpcom_launchpad_navigator_add_checklist( $checklist_slug );
+	}
+
+	return $return_value;
 }
 
 /**
