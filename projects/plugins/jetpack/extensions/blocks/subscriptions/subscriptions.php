@@ -1057,7 +1057,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		: esc_html__( 'Subscribe to get access to the rest of this post and other subscriber-only content.', 'jetpack' );
 
 	$sign_in = '';
-	if ( ( new Host() )->is_wpcom_simple() || true ) {
+	if ( ( new Host() )->is_wpcom_simple() ) {
 		$access_question = $is_paid_post
 			? __( 'Already a paid subscriber?', 'jetpack' )
 			: __( 'Already a subscriber?', 'jetpack' );
