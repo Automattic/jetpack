@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Removed dynamic properties for unit test compatibility for PHP 8.2
+
+

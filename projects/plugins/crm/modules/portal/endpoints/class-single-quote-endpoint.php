@@ -72,7 +72,7 @@ class Single_Quote_Endpoint extends Client_Portal_Endpoint {
 					// js-exposed success/failure messages
 					?>
 						<div id="zbs-quote-accepted-<?php echo esc_attr( $quote_id ) ?>" class="alert alert-success" style="display:none;margin-bottom:5em;">
-							<?php esc_html_e( 'Quote accepted, Thank you.', 'zero-bs-crm' ); ?>
+							<?php esc_html_e( 'Quote accepted. Thank you!', 'zero-bs-crm' ); ?>
 						</div>
 						<div id="zbs-quote-failed-<?php echo esc_attr( $quote_id ) ?>" class="alert alert-warning" style="display:none;margin-bottom:5em;">
 							<?php esc_html_e( 'Quote could not be accepted at this time.', 'zero-bs-crm' ); ?>

@@ -147,3 +147,17 @@ export const RESTRICTIONS = {
 		},
 	},
 };
+
+/**
+ * These types are supported by Photon, and can be converted. Any other type will be treated as invalid.
+ */
+export const PHOTON_CONVERTIBLE_TYPES = [
+	'image/png',
+	'image/jpeg',
+	'image/jpg',
+	'image/tiff',
+	'image/tif',
+	'image/heic',
+	'image/heif',
+	'image/webp',
+];
