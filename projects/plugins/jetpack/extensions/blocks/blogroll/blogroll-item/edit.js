@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { InnerBlocks, RichText } from '@wordpress/block-editor';
 import './editor.scss';
 import { useSelect } from '@wordpress/data';
@@ -39,22 +40,25 @@ function BlogrollItemEdit( { className, attributes, clientId, setAttributes } ) 
 				] }
 			/>
 
-			<RichText
-				value={ name }
-				tagName={ 'h3' }
-				allowedFormats={ [ 'core/bold', 'core/italic' ] }
-				onChange={ value => {
-					setAttributes( { name: value } );
-				} }
-				placeholder={ 'enter' }
-			/>
-			<RichText
-				value={ description }
-				onChange={ value => {
-					setAttributes( { description: value } );
-				} }
-				placeholder={ 'enter desc' }
-			/>
+			<div>
+				<RichText
+					className="jetpack-blogroll-item-title"
+					value={ name }
+					tagName={ 'h3' }
+					allowedFormats={ [ 'core/bold', 'core/italic' ] }
+					onChange={ value => {
+						setAttributes( { name: value } );
+					} }
+					placeholder={ __( 'Enter site title', 'jetpack' ) }
+				/>
+				<RichText
+					value={ description }
+					onChange={ value => {
+						setAttributes( { description: value } );
+					} }
+					placeholder={ __( 'Enter site description', 'jetpack' ) }
+				/>
+			</div>
 		</div>
 	);
 }
