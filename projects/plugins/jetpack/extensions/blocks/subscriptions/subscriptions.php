@@ -1061,7 +1061,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		: __( 'Already a subscriber?', 'jetpack' );
 
 	$sign_in = '';
-	if ( ( new Host() )->is_wpcom_simple() || true ) {
+	if ( ( new Host() )->is_wpcom_simple() ) {
 		$sign_in_link = add_query_arg( 'redirect_to', rawurlencode( get_post_permalink() ), 'https://wordpress.com/log-in/link' );
 
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
