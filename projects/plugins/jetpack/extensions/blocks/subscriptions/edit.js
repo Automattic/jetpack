@@ -20,7 +20,7 @@ import { isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
 import GetAddPaidPlanButton from '../../shared/memberships/utils';
 import './view.scss';
 import { store as membershipProductsStore } from '../../store/membership-products';
-import defaultAttributes from './attributes';
+import metadata from './block.json';
 import {
 	DEFAULT_BORDER_RADIUS_VALUE,
 	DEFAULT_BORDER_WEIGHT_VALUE,
@@ -32,7 +32,6 @@ import SubscriptionControls from './controls';
 import { useNewsletterCategories } from './hooks/use-newsletter-categories';
 import { SubscriptionsPlaceholder } from './subscription-placeholder';
 import SubscriptionSkeletonLoader from './subscription-skeleton-loader';
-import { name } from './';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
@@ -72,9 +71,9 @@ export function SubscriptionEdit( props ) {
 		hasNewsletterPlans,
 	} = props;
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
-		useModuleStatus( name );
+		useModuleStatus( metadata );
 
-	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
+	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
 		setAttributes( validatedAttributes );
 	}

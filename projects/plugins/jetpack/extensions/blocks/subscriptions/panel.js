@@ -29,8 +29,8 @@ import {
 } from '../../shared/memberships/settings';
 import { getShowMisconfigurationWarning } from '../../shared/memberships/utils';
 import { store as membershipProductsStore } from '../../store/membership-products';
+import metadata from './block.json';
 import EmailPreview from './email-preview';
-import { name } from './';
 import './panel.scss';
 
 const SubscriptionsPanelPlaceholder = ( { children } ) => {
@@ -103,7 +103,7 @@ function NewsletterPrePublishSettingsPanel( {
 	showPreviewModal,
 } ) {
 	const { tracks } = useAnalytics();
-	const { changeStatus, isLoadingModules, isChangingStatus } = useModuleStatus( name );
+	const { changeStatus, isLoadingModules, isChangingStatus } = useModuleStatus( metadata.name );
 
 	const enableSubscriptionsModule = () => {
 		tracks.recordEvent( 'jetpack_editor_subscriptions_enable' );
@@ -276,7 +276,7 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 }
 
 export default function SubscribePanels() {
-	const { isModuleActive } = useModuleStatus( name );
+	const { isModuleActive } = useModuleStatus( metadata.name );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
