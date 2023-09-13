@@ -2,4 +2,12 @@
 
 .wp-block-jetpack-blogroll {
 
+	.wp-block-jetpack-blogroll-item > .wp-block-group {
+		padding: 20px 8px;
+		margin: 0;
+	}
+
+	.wp-block-jetpack-blogroll-item .wp-block-image img {
+		max-width: initial;
+	}
 }

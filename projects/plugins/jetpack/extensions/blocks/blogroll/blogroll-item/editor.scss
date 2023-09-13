@@ -4,13 +4,18 @@
 	font-style: normal;
 	font-weight: 400;
 
-	.wp-block-columns {
+	.wp-block-group.block-editor-block-list__layout {
 		padding: 20px 8px;
 		margin: 0;
-	}
+		gap: 20px;
 
-	+ .wp-block-jetpack-blogroll-item {
-		border-top: 1px solid var(--gray-gray-5, #DCDCDE);
-	}
+		.wp-block-group.block-editor-block-list__layout {
+			padding: 0;
+			margin: 0;
 
+			> div {
+				margin: 0;
+			}
+		}
+	}
 }

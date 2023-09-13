@@ -34,6 +34,7 @@ registerBlockType( 'jetpack/blogroll-description', {
 							'core/paragraph',
 							{
 								style: {
+									typography: { fontSize: '14px', fontStyle: 'normal', fontWeight: '400' },
 									spacing: {
 										margin: { top: '2px', bottom: 0, left: 0, right: 0 },
 										padding: { top: 0, bottom: 0, left: 0, right: 0 },
