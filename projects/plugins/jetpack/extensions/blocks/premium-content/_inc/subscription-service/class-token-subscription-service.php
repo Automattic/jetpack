@@ -48,15 +48,9 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * How to obtain one of these (or what exactly it is) is
 	 * still a WIP (see api/auth branch)
 	 *
-	 * @inheritDoc
-	 *
-	 * @param array $valid_plan_ids List of valid plan IDs.
-	 * @param array $access_level Access level for content.
-	 *
-	 * @return bool Whether the user can view the content
+	 * @return array|false The token payload or false otherwise
 	 */
-	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
-
+	public function get_token_payload() {
 		// URL token always has a precedence, so it can overwrite the cookie when new data available.
 		$token = $this->token_from_request();
 		if ( $token ) {
@@ -65,19 +59,31 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			$token = $this->token_from_cookie();
 		}
 
-		$is_valid_token = true;
-
 		if ( empty( $token ) ) {
 			// no token, no access.
-			$is_valid_token = false;
-		} else {
-			$payload = $this->decode_token( $token );
-			if ( empty( $payload ) ) {
-				$is_valid_token = false;
-			}
+			return false;
 		}
 
-		if ( $is_valid_token ) {
+		$payload = $this->decode_token( $token );
+		if ( empty( $payload ) ) {
+			return false;
+		}
+		return $payload;
+	}
+
+	/**
+	 * Return true if the user can view the content
+	 *
+	 * @inheritDoc
+	 *
+	 * @param array $valid_plan_ids List of valid plan IDs.
+	 * @param array $access_level Access level for content.
+	 *
+	 * @return bool Whether the user can view the content
+	 */
+	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
+		$payload = $this->get_token_payload();
+		if ( ! empty( $payload ) ) {
 			/**
 			 * Allow access to the content if:
 			 *
