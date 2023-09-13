@@ -26,4 +26,30 @@
 	.wp-block-jetpack-blogroll-item + .wp-block-jetpack-blogroll-item {
 		border-top: 1px solid var(--gray-gray-5, #DCDCDE);
 	}
+
+	&.hide-avatar {
+		figure {
+			display: none;
+		}
+	}
+
+	&.hide-description {
+		.wp-block-jetpack-blogroll-description {
+			display: none;
+		}
+	}
+
+	.wp-block-jetpack-blogroll-description {
+		margin-block-start: 0;
+
+		p {
+			margin-bottom: 0;
+			padding: 0;
+		}
+	}
+
+	.wp-block-jetpack-blogroll-item + .wp-block-jetpack-blogroll-item {
+		border-top: 1px solid var(--gray-gray-5, #DCDCDE);
+	}
+
 }
