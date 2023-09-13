@@ -39,6 +39,5 @@
 			"type": "string",
 			"default": "left"
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }
