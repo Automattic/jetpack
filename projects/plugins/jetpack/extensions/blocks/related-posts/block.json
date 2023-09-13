@@ -73,6 +73,5 @@
 			"headline": "",
 			"postsToShow": 2
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }
