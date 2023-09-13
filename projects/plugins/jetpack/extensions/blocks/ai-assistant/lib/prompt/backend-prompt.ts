@@ -158,7 +158,7 @@ function getSubject( isGeneratingTitle: boolean, isContentGenerated: boolean ): 
 	if ( isGeneratingTitle ) {
 		return SUBJECT_TITLE;
 	}
-	if ( isContentGenerated ) {
+	if ( ! isContentGenerated ) {
 		return SUBJECT_CONTENT;
 	}
 	return SUBJECT_DEFAULT;
