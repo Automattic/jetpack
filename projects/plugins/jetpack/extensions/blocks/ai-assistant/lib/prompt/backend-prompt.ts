@@ -152,15 +152,21 @@ export function buildMessagesForBackendPrompt( {
  *
  * @param {boolean} isGeneratingTitle - Whether the action is to generate a title.
  * @param {boolean} isContentGenerated - Whether the current content was generated.
+ * @param {boolean} isFromExtension - Whether the content is from the extension.
  * @returns {string} The subject.
  */
-function getSubject( isGeneratingTitle: boolean, isContentGenerated: boolean ): string {
+function getSubject(
+	isGeneratingTitle: boolean,
+	isContentGenerated: boolean,
+	isFromExtension: boolean
+): string {
 	if ( isGeneratingTitle ) {
 		return SUBJECT_TITLE;
 	}
-	if ( ! isContentGenerated ) {
+	if ( ! isContentGenerated || isFromExtension ) {
 		return SUBJECT_CONTENT;
 	}
+
 	return SUBJECT_DEFAULT;
 }
 
@@ -178,9 +184,10 @@ function buildMessageContextForUserPrompt( {
 	isGeneratingTitle,
 }: BuildPromptProps ): object {
 	const isContentGenerated = options?.contentType === 'generated';
+	const isFromExtension = options?.fromExtension || false;
 
 	// Determine the subject of the action
-	const subject = getSubject( isGeneratingTitle, isContentGenerated );
+	const subject = getSubject( isGeneratingTitle, isContentGenerated, isFromExtension );
 
 	/*
 	 * Each type of prompt has a different context.
