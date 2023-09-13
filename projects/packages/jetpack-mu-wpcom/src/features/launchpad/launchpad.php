@@ -14,6 +14,7 @@
  * @since 1.4.0
  */
 
+require_once __DIR__ . '/../../utils.php';
 require_once __DIR__ . '/class-launchpad-task-lists.php';
 require_once __DIR__ . '/launchpad-task-definitions.php';
 
