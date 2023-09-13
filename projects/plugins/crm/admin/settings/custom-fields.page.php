@@ -301,8 +301,9 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 	 */
 	$sort_types_map = array(
 		'address'  => array(
-			'custom_key' => 'addresses',
-			'obj_key'    => 'zbsAddressFields',
+			'custom_key'   => 'addresses',
+			'obj_key'      => 'zbsAddressFields',
+			'force_prefix' => 'addr_',
 		),
 		'customer' => array(
 			'custom_key' => 'customers',
@@ -321,12 +322,15 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 	 */
 	$sort_field_names = array();
 	foreach ( $custom_fields as $custom_type => $field_arrays ) {
+		$field_prefix = array_column( $sort_types_map, 'force_prefix', 'custom_key' )[ $custom_type ] ?? '';
 		foreach ( $field_arrays as $field_array ) {
 			if ( isset( $field_array[3] ) ) {
-					$sort_field_names[ $custom_type ][ $field_array[3] ] = true;
+				$field_slug                                      = $field_prefix . $field_array[3];
+				$sort_field_names[ $custom_type ][ $field_slug ] = true;
 			}
 		}
 	}
+
 	foreach ( $sort_types_map as $sort_type => $sort_map ) {
 		$custom_type = $sort_map['custom_key'];
 		$field_types = isset( $GLOBALS[ $sort_map['obj_key'] ] ) ? $GLOBALS[ $sort_map['obj_key'] ] : array();
