@@ -16,14 +16,39 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "echo 'Not implemented.'",
-		"build-js": "echo 'Not implemented.'",
+		"build-js": "pnpm /^build-js:.*/",
+		"build-js:launchpad-navigator": "wp-scripts build wpcom-launchpad-navigator --output-path=build/launchpad-navigator",
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "echo 'Not implemented.'",
 		"clean": "true"
 	},
-	"devDependencies": {},
 	"engines": {
 		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "5.62.0",
+		"@typescript-eslint/parser": "5.62.0",
+		"@wordpress/components": "25.7.0",
+		"@wordpress/scripts": "^26.12.0",
+		"eslint-plugin-import": "2.28.1",
+		"eslint-plugin-jest": "27.2.3",
+		"eslint-plugin-jsdoc": "39.9.1",
+		"eslint-plugin-jsx-a11y": "6.7.1",
+		"eslint-plugin-prettier": "4.2.1",
+		"eslint-plugin-react": "7.33.2",
+		"eslint-plugin-react-hooks": "4.6.0",
+		"prettier": "3.0.3",
+		"typescript": "^5.2.2"
+	},
+	"optionalDependencies": {
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0"
+	},
+	"dependencies": {
+		"@wordpress/compose": "6.18.0",
+		"@wordpress/i18n": "4.41.0",
+		"@wordpress/plugins": "6.9.0",
+		"classnames": "2.3.2"
 	}
 }

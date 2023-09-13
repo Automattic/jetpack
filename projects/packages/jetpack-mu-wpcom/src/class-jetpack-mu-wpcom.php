@@ -48,6 +48,9 @@ class Jetpack_Mu_Wpcom {
 		// Load the Map block settings.
 		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_map_block_settings' ), 999 );
 
+		// Initialise the Launchpad Navigator.
+		require_once __DIR__ . '/features/launchpad-navigator/class-wpcom-launchpad-navigator.php';
+
 		// Load the Newsletter category settings.
 		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_newsletter_categories_settings' ), 999 );
 		/**
