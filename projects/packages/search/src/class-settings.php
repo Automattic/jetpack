@@ -37,7 +37,6 @@ class Settings {
 		// NOTE: This contains significant code overlap with class-jetpack-search-customize.
 		$setting_prefix = Options::OPTION_PREFIX;
 		$settings       = array(
-			array( $setting_prefix . 'ai_prompt_override', 'string', '' ),
 			array( $setting_prefix . 'color_theme', 'string', 'light' ),
 			array( $setting_prefix . 'result_format', 'string', 'minimal' ),
 			array( $setting_prefix . 'default_sort', 'string', 'relevance' ),
