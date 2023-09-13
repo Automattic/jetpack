@@ -18,15 +18,16 @@ use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID
  */
 abstract class Token_Subscription_Service implements Subscription_Service {
 
-	const JWT_AUTH_TOKEN_COOKIE_NAME         = 'jp-premium-content-session';
-	const DECODE_EXCEPTION_FEATURE           = 'memberships';
-	const DECODE_EXCEPTION_MESSAGE           = 'Problem decoding provided token';
-	const REST_URL_ORIGIN                    = 'https://subscribe.wordpress.com/';
-	const BLOG_SUB_ACTIVE                    = 'active';
-	const BLOG_SUB_PENDING                   = 'pending';
-	const POST_ACCESS_LEVEL_EVERYBODY        = 'everybody';
-	const POST_ACCESS_LEVEL_SUBSCRIBERS      = 'subscribers';
-	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS = 'paid_subscribers';
+	const JWT_AUTH_TOKEN_COOKIE_NAME                   = 'jp-premium-content-session';
+	const DECODE_EXCEPTION_FEATURE                     = 'memberships';
+	const DECODE_EXCEPTION_MESSAGE                     = 'Problem decoding provided token';
+	const REST_URL_ORIGIN                              = 'https://subscribe.wordpress.com/';
+	const BLOG_SUB_ACTIVE                              = 'active';
+	const BLOG_SUB_PENDING                             = 'pending';
+	const POST_ACCESS_LEVEL_EVERYBODY                  = 'everybody';
+	const POST_ACCESS_LEVEL_SUBSCRIBERS                = 'subscribers';
+	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS           = 'paid_subscribers';
+	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS = 'paid_subscribers_all_tiers';
 
 	/**
 	 * Initialize the token subscription service.
@@ -128,8 +129,12 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			return $is_blog_subscriber || $is_paid_subscriber;
 		}
 
+		if ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS ) {
+			return $is_paid_subscriber;
+		}
+
 		if ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ) {
-			return $is_paid_subscriber && ! $this->maybe_gate_access_for_user_if_tier( $post_id, $user_abbreviated_subscriptions );
+			return $is_paid_subscriber && ! $this->maybe_gate_access_for_user_if_post_tier( $post_id, $user_abbreviated_subscriptions );
 		}
 
 		// This should not be a use case
@@ -144,7 +149,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 *
 	 * @return bool
 	 */
-	private function maybe_gate_access_for_user_if_tier( $post_id, $user_abbreviated_subscriptions ) {
+	private function maybe_gate_access_for_user_if_post_tier( $post_id, $user_abbreviated_subscriptions ) {
 		$tier_id = intval(
 			get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true )
 		);
@@ -153,6 +158,18 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			return false;
 		}
 
+		return $this->maybe_gate_access_for_user_if_tier( $tier_id, $user_abbreviated_subscriptions );
+	}
+
+	/**
+	 * Check access for tier.
+	 *
+	 * @param int   $tier_id Tier id.
+	 * @param array $user_abbreviated_subscriptions User subscription abbreviated.
+	 *
+	 * @return bool
+	 */
+	public function maybe_gate_access_for_user_if_tier( $tier_id, $user_abbreviated_subscriptions ) {
 		$plan_ids = \Jetpack_Memberships::get_all_newsletter_plan_ids();
 
 		if ( ! in_array( $tier_id, $plan_ids, true ) ) {
