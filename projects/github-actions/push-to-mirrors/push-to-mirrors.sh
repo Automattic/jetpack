@@ -40,7 +40,7 @@ fi
 
 if [[ -z "$COMMIT_MESSAGE" ]]; then
 	MONOREPO_COMMIT_MESSAGE=$(cd "${SOURCE_DIR:-.}" && git show -s --format=%B $GITHUB_SHA)
-	COMMIT_MESSAGE=$( printf "%s\n\nCommitted via a GitHub action: %s/%s/actions/runs/%s\n" "$GITHUB_SERVER_URL" "$MONOREPO_COMMIT_MESSAGE" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" )
+	COMMIT_MESSAGE=$( printf "%s\n\nCommitted via a GitHub action: %s/%s/actions/runs/%s\n" "$MONOREPO_COMMIT_MESSAGE" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" )
 fi
 COMMIT_ORIGINAL_AUTHOR="${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>"
 
