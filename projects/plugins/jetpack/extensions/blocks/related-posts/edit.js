@@ -6,9 +6,11 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { RelatedPostsBlockControls, RelatedPostsInspectorControls } from './controls';
-import { InactiveRelatedPostsModulePlaceholder } from './inactive-module-placeholder';
+import { useRelatedPostsStatus } from './hooks/use-status-toggle';
+import { InactiveRelatedPostsPlaceholder } from './inactive-placeholder';
 import { RelatedPostsSkeletonLoader } from './skeleton-loader';
 import { name } from './';
+import './editor.scss';
 
 export const MAX_POSTS_TO_SHOW = 6;
 
@@ -158,8 +160,13 @@ function RelatedPostsPreviewRows( props ) {
 }
 
 export default function RelatedPostsEdit( props ) {
+	// Related Posts can be controlled by a module on self-hosted sites.
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( name );
+	// They can also be toggled via an option on WordPress.com Simple.
+	const { isEnabled, enable, loading } = useRelatedPostsStatus();
+
+	const isChangingRelatedPostsStatus = isChangingStatus || loading;
 
 	const { posts, isInSiteEditor } = useSelect( select => {
 		const currentPost = select( editorStore ).getCurrentPost();
@@ -175,12 +182,12 @@ export default function RelatedPostsEdit( props ) {
 		return <RelatedPostsSkeletonLoader />;
 	}
 
-	if ( ! isModuleActive ) {
+	if ( ! isModuleActive || ! isEnabled ) {
 		return (
-			<InactiveRelatedPostsModulePlaceholder
+			<InactiveRelatedPostsPlaceholder
 				changeStatus={ changeStatus }
-				isModuleActive={ isModuleActive }
-				isLoading={ isChangingStatus }
+				isLoading={ isChangingRelatedPostsStatus }
+				enable={ enable }
 			/>
 		);
 	}

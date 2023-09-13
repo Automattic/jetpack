@@ -1,0 +1,13 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.related-posts__support {
+	color: var( --color-gray-200 );
+	flex-basis: 100%;
+	margin: 0;
+	font-style: italic;
+}
+
+.related-posts__support a {
+	color: var( --color-gray-400 );
+	line-height: 36px;
+}

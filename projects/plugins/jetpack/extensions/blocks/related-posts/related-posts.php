@@ -68,6 +68,12 @@ function render_block( $attributes, $content ) {
 		return '';
 	}
 
+	// If the Related Posts option is turned off, don't render the block.
+	$options = \Jetpack_Options::get_option( 'relatedposts', array() );
+	if ( empty( $options['enabled'] ) || ! $options['enabled'] ) {
+		return '';
+	}
+
 	if ( ! class_exists( 'Jetpack_RelatedPosts' ) ) {
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
 	}
