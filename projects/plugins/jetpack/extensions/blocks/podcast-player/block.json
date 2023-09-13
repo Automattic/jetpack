@@ -105,6 +105,5 @@
 				]
 			}
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }
