@@ -338,6 +338,7 @@ export type BuildPromptOptionsProps = {
 	contentType?: 'generated' | string;
 	tone?: ToneProp;
 	language?: string;
+	fromExtension?: boolean;
 };
 
 export type BuildPromptProps = {
