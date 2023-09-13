@@ -1,59 +1,29 @@
 import { InnerBlocks } from '@wordpress/block-editor';
 import './editor.scss';
+import '../blogroll-name';
+import '../blogroll-description';
+
 function BlogrollItemEdit( { className, attributes } ) {
 	const iconSize = 48;
-	const { name, icon, url, description } = attributes;
+	const { icon } = attributes;
+
 	const innerBlocks = [
 		[
-			'core/columns',
-			{},
+			'core/group',
+			{
+				layout: { type: 'flex', flexWrap: 'nowrap' },
+			},
 			[
 				[
-					'core/column',
+					'core/image',
 					{
-						verticalAlignment: 'center',
-						width: `${ iconSize }px`,
+						url: icon,
+						width: iconSize,
+						height: iconSize,
+						style: { border: { radius: '50%' } },
 					},
-					[
-						[
-							'core/image',
-							{
-								url: icon,
-								width: `${ iconSize }px`,
-								height: `${ iconSize }px`,
-								style: { border: { radius: '50%' } },
-							},
-						],
-					],
 				],
-				[
-					'core/column',
-					{},
-					[
-						[
-							'core/paragraph',
-							{
-								style: {
-									typography: { fontSize: '16px', fontStyle: 'normal', fontWeight: '500' },
-									elements: { link: { color: { text: '#101517' } } },
-								},
-								content: `<a href="${ url }" target="_blank" rel="noopener noreferrer">${
-									name || ''
-								}</a>`,
-							},
-						],
-						[
-							'core/paragraph',
-							{
-								style: {
-									spacing: { margin: { top: '2px' } },
-									color: { text: '#646970' },
-								},
-								content: description,
-							},
-						],
-					],
-				],
+				[ 'core/group', {}, [ [ 'jetpack/blogroll-name' ], [ 'jetpack/blogroll-description' ] ] ],
 			],
 		],
 	];
