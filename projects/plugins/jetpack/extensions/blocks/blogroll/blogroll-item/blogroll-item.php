@@ -42,6 +42,8 @@ function load_assets( $attr, $content ) {
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
+	$content .= '<a href="' . $attr['url'] . '">' . $attr['name'] . '</a><div>' . $attr['description'] . '</div>';
+
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
 		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),

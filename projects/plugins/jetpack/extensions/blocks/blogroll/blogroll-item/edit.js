@@ -1,36 +1,60 @@
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, RichText } from '@wordpress/block-editor';
 import './editor.scss';
-import '../blogroll-name';
-import '../blogroll-description';
+import { useSelect } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 
-function BlogrollItemEdit( { className, attributes } ) {
+function BlogrollItemEdit( { className, attributes, clientId, setAttributes } ) {
+	const { icon, name, description } = attributes;
 	const iconSize = 48;
-	const { icon } = attributes;
 
-	const innerBlocks = [
-		[
-			'core/group',
-			{
-				layout: { type: 'flex', flexWrap: 'nowrap' },
-			},
-			[
-				[
-					'core/image',
-					{
-						url: icon,
-						width: iconSize,
-						height: iconSize,
-						style: { border: { radius: '50%' } },
-					},
-				],
-				[ 'core/group', {}, [ [ 'jetpack/blogroll-name' ], [ 'jetpack/blogroll-description' ] ] ],
-			],
-		],
-	];
+	const imageUrl = useSelect(
+		select => {
+			const innerBlocks = select( 'core/block-editor' ).getBlock( clientId )?.innerBlocks;
+			return innerBlocks[ 0 ]?.attributes?.url;
+		},
+		[ clientId ]
+	);
+
+	useEffect( () => {
+		if ( imageUrl !== undefined ) {
+			setAttributes( { icon: imageUrl } );
+		}
+	}, [ imageUrl, setAttributes ] );
 
 	return (
 		<div className={ className }>
-			<InnerBlocks template={ innerBlocks } />
+			<InnerBlocks
+				allowedBlocks={ [ 'core/image' ] }
+				templateLock="all"
+				template={ [
+					[
+						'core/image',
+						{
+							url: icon,
+							width: iconSize,
+							height: iconSize,
+							style: { border: { radius: '50%' } },
+						},
+					],
+				] }
+			/>
+
+			<RichText
+				value={ name }
+				tagName={ 'h3' }
+				allowedFormats={ [ 'core/bold', 'core/italic' ] }
+				onChange={ value => {
+					setAttributes( { name: value } );
+				} }
+				placeholder={ 'enter' }
+			/>
+			<RichText
+				value={ description }
+				onChange={ value => {
+					setAttributes( { description: value } );
+				} }
+				placeholder={ 'enter desc' }
+			/>
 		</div>
 	);
 }
