@@ -4,6 +4,7 @@
  *
  * @author Evan Solomon
  * @author Matt Wiebe <wiebe@automattic.com>
+ * @author Brandon Kraft <kraft@automattic.com> -- Strikedown support converted from GPL code at https://github.com/annaesvensson/yellow-markdown/blob/main/markdown.php
  * @link https://github.com/evansolomon/wp-github-flavored-markdown-comments
  *
  * Add a few extras from GitHub's Markdown implementation. Must be used in a WordPress environment.
@@ -14,7 +15,7 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	/**
 	 * Hooray somewhat arbitrary numbers that are fearful of 1.0.x.
 	 */
-	const WPCOM_GHF_MARDOWN_VERSION = '0.9.0';
+	const WPCOM_GHF_MARDOWN_VERSION = '0.9.1';
 
 	/**
 	 * Use a [code] shortcode when encountering a fenced code block
@@ -72,6 +73,8 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 		$this->preserve_shortcodes = apply_filters( 'jetpack_markdown_preserve_shortcodes', $this->preserve_shortcodes ) && function_exists( 'get_shortcode_regex' );
 		$this->preserve_latex      = function_exists( 'latex_markup' );
 		$this->strip_paras         = function_exists( 'wpautop' );
+
+		$this->span_gamut['do_strikethrough'] = 55;
 
 		parent::__construct();
 	}
@@ -414,6 +417,29 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 		$codeblock = esc_html( $codeblock );
 		$codeblock = sprintf( $this->shortcode_start, $classname ) . "\n{$codeblock}" . $this->shortcode_end;
 		return "\n\n" . $this->hashBlock( $codeblock ). "\n\n";
+	}
+
+	/**
+	 * Add strikethrough support.
+	 *
+	 * GPL code modified from https://github.com/annaesvensson/yellow-markdown/blob/main/markdown.php
+	 */
+	public function do_strikethrough($text) {
+		$parts = preg_split("/(?<![~])(~~)(?![~])/", $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+		if (count($parts)>3) {
+			$text = "";
+			$open = false;
+			foreach ($parts as $part) {
+				if ($part=="~~") {
+					$text .= $open ? "</del>" : "<del>";
+					$open = !$open;
+				} else {
+					$text .= $part;
+				}
+			}
+			if ($open) $text .= "</del>";
+		}
+		return $text;
 	}
 
 }
