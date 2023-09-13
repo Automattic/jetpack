@@ -89,8 +89,9 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller 
 	 * @param WP_REST_Request $request Request object.
 	 */
 	public function update_navigator_options( $request ) {
-		$updated = array();
-		$input   = $request->get_json_params();
+		$updated               = array();
+		$input                 = $request->get_json_params();
+		$extra_response_params = array();
 
 		foreach ( $input as $key => $value ) {
 			switch ( $key ) {
@@ -98,13 +99,19 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller 
 					$updated[ $key ] = wpcom_launchpad_set_current_active_checklist( $input['active_checklist_slug'] );
 					break;
 				case 'remove_checklist_slug':
-					$updated[ $key ] = wpcom_launchpad_navigator_remove_checklist( $input['remove_checklist_slug'] );
+					$removal_result  = wpcom_launchpad_navigator_remove_checklist( $input['remove_checklist_slug'] );
+					$updated[ $key ] = $removal_result['updated'];
+
+					$extra_response_params['new_active_checklist'] = $removal_result['new_active_checklist'];
 					break;
 			}
 		}
 
-		return array(
-			'updated' => $updated,
+		return array_merge(
+			array(
+				'updated' => $updated,
+			),
+			$extra_response_params
 		);
 	}
 
