@@ -81,6 +81,7 @@ export default function Proofread( {
 	} );
 
 	const handleRequest = () => {
+		// Message to request a backend prompt for this feature
 		const messages = [
 			{
 				role: 'jetpack-ai',
