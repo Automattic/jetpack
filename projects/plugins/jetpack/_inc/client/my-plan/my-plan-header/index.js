@@ -52,6 +52,7 @@ class MyPlanHeader extends React.Component {
 		}
 
 		const purchase = find( purchases, purchaseObj => purchaseObj.product_slug === productSlug );
+
 		let expiration;
 		let activation;
 		if ( purchase ) {
@@ -306,7 +307,7 @@ class MyPlanHeader extends React.Component {
 						'Automatic scanning and one-click fixes keep your site one step ahead of security threats.',
 						'jetpack'
 					),
-					title: createInterpolateElement( __( 'Jetpack Scan <em>Daily</em>', 'jetpack' ), {
+					title: createInterpolateElement( __( 'Jetpack Scan', 'jetpack' ), {
 						em: <em />,
 					} ),
 				};
@@ -319,7 +320,7 @@ class MyPlanHeader extends React.Component {
 						'Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience – all without lifting a finger.',
 						'jetpack'
 					),
-					title: __( 'Akismet Anti-Spam', 'jetpack' ),
+					title: __( 'Akismet Anti-spam', 'jetpack' ),
 				};
 
 			// DEPRECATED: Daily and Real-time variations will soon be retired.

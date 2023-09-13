@@ -2,11 +2,13 @@ import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
+import save from './save';
 
 /**
  * Style dependencies
  */
 import './editor.scss';
+import './components/feedback/style.scss';
 
 export const name = 'ai-chat';
 export const title = __( 'AI Chat (Experimental)', 'jetpack' );
@@ -49,7 +51,7 @@ export const settings = {
 		reusable: false,
 	},
 	edit,
-	save: () => {},
+	save,
 	attributes,
 	example: {},
 };
