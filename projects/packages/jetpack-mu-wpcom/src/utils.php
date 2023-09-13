@@ -34,3 +34,20 @@ function wpcom_get_site_slug() {
 	// Remove the leading 'https://' and replace any remaining `/` characters with ::
 	return str_replace( '/', '::', substr( $site_url, 8 ) );
 }
+
+/**
+ * Returns the Calypso domain that originated the current request.
+ *
+ * @return string
+ */
+function wpcom_get_calypso_origin() {
+	$origin  = ! empty( $_GET['calypso_origin'] ) ? wp_unslash( $_GET['calypso_origin'] ) : 'https://wordpress.com'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$allowed = array(
+		'http://calypso.localhost:3000',
+		'http://127.0.0.1:41050', // Desktop App.
+		'https://wpcalypso.wordpress.com',
+		'https://horizon.wordpress.com',
+		'https://wordpress.com',
+	);
+	return in_array( $origin, $allowed, true ) ? $origin : 'https://wordpress.com';
+}
