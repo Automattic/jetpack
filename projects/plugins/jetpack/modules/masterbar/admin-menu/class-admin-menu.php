@@ -84,28 +84,11 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @return array           Updated Editor settings.
 	 */
 	public function site_editor_dashboard_link( $settings ) {
+		// Point the Site Editor's `<` link to the theme showcase when previewing a theme.
 		if ( ! empty( $_GET['wp_theme_preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$settings['__experimentalDashboardLink'] = 'https://wordpress.com/themes/' . $this->domain;
 		} else {
 			$settings['__experimentalDashboardLink'] = 'https://wordpress.com/home/' . $this->domain;
-		}
-		return $settings;
-	}
-
-	/**
-	 * Point the Site Editor's `<` link to the theme showcase when previewing a theme.
-	 * This differs from `site_editor_dashboard_link`
-	 * since users do not go back to the "dashboard" in the theme previews flow.
-	 *
-	 * Although this isn't strictly an admin menu item, it belongs here because it's part of
-	 * changing wp-admin links to their wp.com equivalents.
-	 *
-	 * @param  array $settings Editor settings.
-	 * @return array           Updated Editor settings.
-	 */
-	public function site_editor_theme_preview_back_link( $settings ) {
-		if ( ! empty( $_GET['wp_theme_preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$settings['__experimentalThemePreviewBackLink'] = 'https://wordpress.com/themes/' . $this->domain;
 		}
 		return $settings;
 	}
