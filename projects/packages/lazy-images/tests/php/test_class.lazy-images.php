@@ -607,12 +607,12 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 	 */
 	public function test_lazy_images_not_loaded_with_gutenberg_16_6() {
 		// Verify without the constant set that the instance is returned.
-		$this->assertInstanceOf( 'Automattic\\Jetpack\\Jetpack_Lazy_Images', Jetpack_Lazy_Images::instance() );
+		$this->assertInstanceOf( Jetpack_Lazy_Images::class, Jetpack_Lazy_Images::instance() );
 
 		// Verify loading on old versions of Gutenberg.
 		Constants::set_constant( 'IS_GUTENBERG_PLUGIN', true );
 		Constants::set_constant( 'GUTENBERG_VERSION', '16.5.0' );
-		$this->assertInstanceOf( 'Automattic\\Jetpack\\Jetpack_Lazy_Images', Jetpack_Lazy_Images::instance() );
+		$this->assertInstanceOf( Jetpack_Lazy_Images::class, Jetpack_Lazy_Images::instance() );
 
 		// Set the Gutenberg constants and test instance.
 		Constants::set_constant( 'GUTENBERG_VERSION', '16.6.0' );
