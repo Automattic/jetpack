@@ -19,5 +19,10 @@
 			"type": "string"
 		}
 	},
-	"editorScript": "file:../editor.js"
+	"example": {
+		"attributes": {
+			"url": "roister"
+		},
+		"viewportWidth": 250
+	}
 }
