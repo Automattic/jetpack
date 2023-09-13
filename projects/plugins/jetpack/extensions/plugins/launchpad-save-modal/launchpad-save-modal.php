@@ -9,9 +9,6 @@
 
 namespace Automattic\Jetpack\Extensions\LaunchpadSaveModal;
 
-// Feature name.
-const FEATURE_NAME = 'launchpad-save-modal';
-
 /**
  * Inject Launchpad options when in the block editor.
  */
@@ -46,24 +43,3 @@ function add_launchpad_options() {
 	);
 }
 add_action( 'enqueue_block_assets', __NAMESPACE__ . '\add_launchpad_options' );
-
-// Populate the available extensions with launchpad-save-modal.
-add_filter(
-	'jetpack_set_available_extensions',
-	function ( $extensions ) {
-		return array_merge(
-			$extensions,
-			array(
-				FEATURE_NAME,
-			)
-		);
-	}
-);
-
-// Set the launchpad-save-modal availability.
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		\Jetpack_Gutenberg::set_extension_available( FEATURE_NAME );
-	}
-);

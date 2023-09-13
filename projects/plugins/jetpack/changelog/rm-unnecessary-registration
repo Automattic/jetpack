@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Blocks: remove extra registration of free blocks that are already available.
