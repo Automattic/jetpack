@@ -51,12 +51,11 @@ function register_block() {
 			array(
 				'render_callback' => __NAMESPACE__ . '\render_block',
 				'supports'        => array(
-					'spacing'          => array(
+					'spacing' => array(
 						'margin'  => true,
 						'padding' => true,
 					),
-					'align'            => array( 'wide', 'full' ),
-					'isPaidSubscriber' => true,
+					'align'   => array( 'wide', 'full' ),
 				),
 			)
 		);
@@ -1130,7 +1129,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 <p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:14px">' . $subscribe_text . '</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact","isPaidSubscriber":' . $is_paid_subscriber . '} /-->
+<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact","isPaidSubscriber":' . ( $is_paid_subscriber ? 'true' : 'false' ) . '} /-->
 ' . $sign_in . '
 </div>
 <!-- /wp:group -->
