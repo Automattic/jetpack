@@ -3,7 +3,7 @@ import { Path, Rect, SVG, G, ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
-import { settings as paymentButtonSettings } from '../recurring-payments';
+import recurringPaymentsMetadata from '../recurring-payments/block.json';
 import edit from './edit';
 import save from './save';
 import './editor.scss';
@@ -43,7 +43,9 @@ export const settings = {
 		</Fragment>
 	),
 	category: 'earn',
-	keywords: [ ...new Set( [ paymentButtonSettings.title, ...paymentButtonSettings.keywords ] ) ],
+	keywords: [
+		...new Set( [ recurringPaymentsMetadata.title, ...recurringPaymentsMetadata.keywords ] ),
+	],
 	edit,
 	save,
 	supports: {

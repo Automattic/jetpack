@@ -1,10 +1,10 @@
-import { name, settings } from '../';
 import runBlockFixtureTests from '../../../shared/test/block-fixtures';
 import { settings as buttonSettings } from '../../button';
+import metadata from '../block.json';
 
+const { name } = metadata;
 const blocks = [
-	{ name: `jetpack/${ name }`, settings },
+	{ name, settings: metadata },
 	{ name: `jetpack/button`, settings: buttonSettings },
 ];
-
-runBlockFixtureTests( `jetpack/${ name }`, blocks, __dirname );
+runBlockFixtureTests( name, blocks, __dirname );
