@@ -351,8 +351,12 @@ class Initializer {
 		// check current theme
 		$is_block_theme = wp_get_theme()->is_block_theme();
 
+		// Check if the site is a P2 site
+		$is_p2_site = function_exists( '\WPForTeams\is_wpforteams_site' ) && \WPForTeams\is_wpforteams_site( get_current_blog_id() );
+
 		// for non block themes frontend, we defer the enqueuing to the frontend, so we're able to tell if we need the assets
-		if ( ! $is_block_theme && ! is_admin() ) {
+		// If site is p2, load the assets in the frontend
+		if ( ! $is_block_theme && ! is_admin() && ! $is_p2_site ) {
 			add_action(
 				'wp_enqueue_scripts',
 				function () use ( $videopress_video_metadata_file ) {
