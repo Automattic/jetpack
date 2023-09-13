@@ -20,3 +20,22 @@ export function createBlockFromSubscription( subscription ) {
 		description,
 	} );
 }
+
+export function checkIfValidDomain( siteURL ) {
+	const regEx =
+		/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,64}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/g;
+
+	if ( ! siteURL ) {
+		return false;
+	}
+
+	let validUrl;
+
+	try {
+		validUrl = new URL( siteURL );
+	} catch ( e ) {
+		validUrl = siteURL.match( regEx );
+	}
+
+	return validUrl ? true : false;
+}

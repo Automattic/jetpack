@@ -1,9 +1,9 @@
 import { Button, Popover } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
-import { useState, useEffect } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plus } from '@wordpress/icons';
-import { debounce } from '../../../../shared/debounce';
+import useGetSiteDetails from '../../use-get-site-details';
 import { createBlockFromSubscription } from '../../utils';
 import BlogrollAppenderResults from '../blogroll-appender-results';
 import BlogrollAppenderSearch from '../blogroll-appender-search';
@@ -12,10 +12,11 @@ import './style.scss';
 
 export default function BlogrollAppender( { subscriptions, clientId } ) {
 	const [ isVisible, setIsVisible ] = useState( false );
-	const [ results, setResults ] = useState( [] );
 	const [ popoverAnchor, setPopoverAnchor ] = useState();
 	const [ searchInput, setSearchInput ] = useState( '' );
 	const { insertBlock } = dispatch( 'core/block-editor' );
+	const { siteDetails } = useGetSiteDetails( searchInput );
+	let results = subscriptions ?? [];
 
 	const toggleVisible = () => {
 		setIsVisible( state => ! state );
@@ -26,22 +27,28 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 		setIsVisible( false );
 	};
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	useEffect(
-		debounce( () => {
-			const query = searchInput.toLowerCase();
+	const searchQuery = searchInput.toLowerCase().trim();
 
-			setResults(
-				subscriptions.filter( item => {
-					const nameContainsSearch = item.name.toLowerCase().includes( query.toLowerCase() );
-					const urlContainsSearch = item.URL.toLowerCase().includes( query.toLowerCase() );
+	if ( searchQuery.length > 0 ) {
+		const existInSubscriptions = subscriptions.filter( item => {
+			const nameContainsSearch = item.name.toLowerCase().includes( searchQuery.toLowerCase() );
+			const urlContainsSearch = item.URL.toLowerCase().includes( searchQuery.toLowerCase() );
 
-					return nameContainsSearch || urlContainsSearch;
-				} )
-			);
-		}, 250 ),
-		[ searchInput ]
-	);
+			return nameContainsSearch || urlContainsSearch;
+		} );
+
+		results = existInSubscriptions;
+
+		if ( siteDetails ) {
+			results.unshift( {
+				id: siteDetails?.ID,
+				description: siteDetails?.description,
+				URL: siteDetails?.URL,
+				site_icon: siteDetails?.site_icon,
+				name: siteDetails?.name,
+			} );
+		}
+	}
 
 	return (
 		<>
