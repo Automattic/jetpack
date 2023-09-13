@@ -72,7 +72,7 @@ jQuery( document ).ready( function ( $ ) {
 				html +=
 					'<a href="#" data-module="' +
 					envelope.activate_module +
-					'" data-settings_link="' + envelope.settings_link +
+					'" data-settings_link="' + envelope.module_settings_link +
 					'" type="button" class="jitm-button is-compact is-primary jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
 					envelope.id +
 					'-activate_module" data-jitm-path="' +
