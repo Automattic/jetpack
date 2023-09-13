@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Ensures the appropriate scripts are enqueued to support private VideoPress videos rendered by the VideoPress Divi module

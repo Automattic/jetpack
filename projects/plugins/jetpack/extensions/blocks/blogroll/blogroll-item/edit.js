@@ -62,7 +62,7 @@ function BlogrollItemEdit( { className, attributes } ) {
 
 	return (
 		<div className={ className }>
-			<InnerBlocks template={ DEFAULT_TEMPLATE } />
+			<InnerBlocks template={ DEFAULT_TEMPLATE } templateLock="all" />
 		</div>
 	);
 }

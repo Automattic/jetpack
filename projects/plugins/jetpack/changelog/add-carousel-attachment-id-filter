@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Carousel: add new hook allowing third-parties to customize the metadata displayed within the Carousel modal.
