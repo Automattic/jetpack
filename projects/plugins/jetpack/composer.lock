@@ -526,7 +526,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blocks",
-                "reference": "041d4fb9a3a42e0f1826cd3fd0f2e81413b0c5a8"
+                "reference": "f636f264809fc67c693ac92a05c0506a3a387adf"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -548,7 +548,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-blocks/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.5.x-dev"
+                    "dev-trunk": "1.6.x-dev"
                 }
             },
             "autoload": {
