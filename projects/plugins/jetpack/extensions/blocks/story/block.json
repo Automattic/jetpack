@@ -34,6 +34,5 @@
 				}
 			]
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }

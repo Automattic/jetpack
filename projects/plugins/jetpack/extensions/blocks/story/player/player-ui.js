@@ -1,3 +1,4 @@
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
 import { useResizeObserver } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -5,11 +6,13 @@ import { useRef, useState, useEffect, useLayoutEffect, useCallback } from '@word
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { some } from 'lodash';
-import icon from '../icon';
+import blockMetadata from '../block.json';
 import { Background, Controls, Header, Overlay } from './components';
 import useLongPress from './lib/use-long-press';
 import ProgressBar from './progress-bar';
 import Slide from './slide';
+
+const icon = getBlockIconComponent( blockMetadata );
 
 export default function PlayerUI( { id, slides, metadata, disabled } ) {
 	const { setFullscreen, setEnded, setPlaying, setMuted, showSlide } =

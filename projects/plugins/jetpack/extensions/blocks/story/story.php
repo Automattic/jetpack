@@ -14,9 +14,6 @@ use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_PostImages;
 
-const FEATURE_NAME = 'story';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
 const EMBED_SIZE        = array( 360, 640 ); // twice as many pixels for retina displays.
 const CROP_UP_TO        = 0.2;
 const MAX_BULLETS       = 7;
@@ -29,7 +26,7 @@ const IMAGE_BREAKPOINTS = '(max-width: 460px) 576w, (max-width: 614px) 768w, 120
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
 	);
 }
@@ -440,7 +437,7 @@ function render_block( $attributes ) {
 	// Let's use a counter to have a different id for each story rendered in the same context.
 	static $story_block_counter = 0;
 
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$media_files              = isset( $attributes['mediaFiles'] ) ? enrich_media_files( $attributes['mediaFiles'] ) : array();
 	$settings_from_attributes = isset( $attributes['settings'] ) ? $attributes['settings'] : array();
@@ -478,7 +475,7 @@ function render_block( $attributes ) {
 				</div>
 			</div>
 		</div>',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attributes, array( 'wp-story', 'aligncenter' ) ) ),
+		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attributes, array( 'wp-story', 'aligncenter' ) ) ),
 		esc_attr( 'wp-story-' . get_the_ID() . '-' . strval( ++$story_block_counter ) ),
 		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
 		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
