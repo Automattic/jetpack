@@ -122,6 +122,8 @@ class Attachment extends \WP_REST_Attachments_Controller {
 		}
 
 		$this->set_upload_dir( $request );
+		// Disable scaled image generation.
+		add_filter( 'big_image_size_threshold', '__return_false' );
 		return parent::create_item( $request );
 	}
 
@@ -253,13 +255,17 @@ class Attachment extends \WP_REST_Attachments_Controller {
 	 */
 	protected function get_attachment_by_file_info( $fileinfo ) {
 		// Make sure all required variables are set and not empty
-		if ( empty( $fileinfo['filename'] ) || empty( $fileinfo['mime_type'] ) || empty( $fileinfo['post_date_gmt'] ) ) {
+		if ( empty( $fileinfo['filename'] ) || empty( $fileinfo['mime_type'] ) ) {
 			return false;
 		}
-
-		$filename      = $fileinfo['filename'];
-		$mime_type     = $fileinfo['mime_type'];
-		$post_date_gmt = $fileinfo['post_date_gmt'];
+		$original_filename = $fileinfo['filename'];
+		$mime_type         = $fileinfo['mime_type'];
+		$post_date_gmt     = $fileinfo['post_date_gmt'];
+		// From WordPress 5.3, we introduced the scaled image feature, so we'll also need to check for the scaled filename.
+		// https://make.wordpress.org/core/2019/10/09/introducing-handling-of-big-images-in-wordpress-5-3/
+		$extension_pos        = strrpos( $original_filename, '.' );
+		$scaled_filename      = substr( $original_filename, 0, $extension_pos ) . '-scaled' . substr( $original_filename, $extension_pos );
+		$filename_check_array = array( $original_filename, $scaled_filename );
 
 		$args = array(
 			'post_type'      => 'attachment',
@@ -272,15 +278,17 @@ class Attachment extends \WP_REST_Attachments_Controller {
 					'column'    => 'post_date_gmt',
 				),
 			),
-			'meta_query'     => array(
-				array(
-					'key'     => '_wp_attached_file',
-					'value'   => preg_quote( $filename, '/' ),
-					'compare' => 'REGEXP',
-				),
-			),
 			'posts_per_page' => 1,
 		);
+
+		$args['meta_query'] = array( 'relation' => 'OR' );
+		foreach ( $filename_check_array as $filename ) {
+			$args['meta_query'][] = array(
+				'key'     => '_wp_attached_file',
+				'value'   => preg_quote( $filename, '/' ),
+				'compare' => 'REGEXP',
+			);
+		}
 
 		$attachments = \get_posts( $args );
 
@@ -288,7 +296,6 @@ class Attachment extends \WP_REST_Attachments_Controller {
 			// Return the first attachment data found
 			return $attachments[0];
 		}
-
 		return false;
 	}
 

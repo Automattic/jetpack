@@ -1,17 +1,25 @@
 /**
  * WordPress dependencies
  */
-import { useBlockProps } from '@wordpress/block-editor';
+import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 /**
  * Internal dependencies
  */
 import './editor.scss';
+import { AiChatControls } from './controls';
 import QuestionAnswer from './question-answer';
 
-export default function Edit() {
+export default function Edit( { attributes, setAttributes } ) {
+	const blockProps = useBlockProps();
 	return (
-		<div { ...useBlockProps() }>
-			<QuestionAnswer />
+		<div { ...blockProps }>
+			<QuestionAnswer askButtonLabel={ attributes.askButtonLabel } />
+			<InspectorControls>
+				<AiChatControls
+					askButtonLabel={ attributes.askButtonLabel }
+					setAttributes={ setAttributes }
+				/>
+			</InspectorControls>
 		</div>
 	);
 }

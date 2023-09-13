@@ -63,6 +63,12 @@
 						<li>
 							{__( 'Historical performance scores with Core Web Vitals data', 'jetpack-boost' )}
 						</li>
+						<li>
+							{__(
+								'Fine-tune your CDN images with customizable quality settings.',
+								'jetpack-boost'
+							)}
+						</li>
 						<li>{__( 'Dedicated email support', 'jetpack-boost' )}</li>
 					</ul>
 				</div>

@@ -14,7 +14,7 @@ namespace Automattic\Jetpack;
  */
 class Jetpack_Mu_Wpcom {
 
-	const PACKAGE_VERSION = '4.6.0-alpha';
+	const PACKAGE_VERSION = '4.10.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 
 	/**
@@ -36,6 +36,9 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_launchpad' ), 0 );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_media' ) );
+
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_marketplace_products_updater' ) );
 
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
@@ -80,6 +83,13 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_launchpad() {
 		require_once __DIR__ . '/features/launchpad/launchpad.php';
+	}
+
+	/**
+	 * Load media features.
+	 */
+	public static function load_media() {
+		require_once __DIR__ . '/features/media/heif-support.php';
 	}
 
 	/**
@@ -143,5 +153,16 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function unbind_focusout_on_wp_admin_bar_menu_toggle() {
 		wp_add_inline_script( 'common', '(function($){ $(document).on("wp-responsive-activate", function(){ $(".is-nav-unification #wp-admin-bar-menu-toggle, .is-nav-unification #adminmenumain").off("focusout"); } ); }(jQuery) );' );
+	}
+
+	/**
+	 * Load WPCOM Marketplace products updates provider.
+	 *
+	 * @return void
+	 */
+	public static function load_marketplace_products_updater() {
+		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
+
+		\Marketplace_Products_Updater::init();
 	}
 }

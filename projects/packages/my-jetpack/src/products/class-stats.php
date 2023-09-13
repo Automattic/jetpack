@@ -143,6 +143,9 @@ class Stats extends Module_Product {
 				if ( 0 === strpos( $purchase->product_slug, 'jetpack_stats' ) ) {
 					return true;
 				}
+				if ( 0 === strpos( $purchase->product_slug, 'jetpack_complete' ) ) {
+					return true;
+				}
 			}
 		}
 		return false;

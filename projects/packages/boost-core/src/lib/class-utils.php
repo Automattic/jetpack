@@ -133,8 +133,9 @@ class Utils {
 				$code
 			);
 
-			$err_code = empty( $json->code ) ? 'http_error' : $json->code;
-			$message  = empty( $json->message ) ? $default_message : $json->message;
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$err_code = empty( $json->statusCode ) ? 'http_error' : $json->statusCode;
+			$message  = empty( $json->error ) ? $default_message : $json->error;
 
 			return new \WP_Error( $err_code, $message );
 		}

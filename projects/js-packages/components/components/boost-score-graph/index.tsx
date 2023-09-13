@@ -1,8 +1,8 @@
 import React, { type FunctionComponent } from 'react';
-import uPlot from 'uplot';
 import Text from '../text';
+import Background from './background';
 import UplotLineChart from './uplot-line-chart';
-import { useBoostScoreTransform } from './use-boost-score-transform';
+import './style.scss';
 
 export interface Period {
 	timestamp: number;
@@ -18,28 +18,34 @@ export interface Period {
 	};
 }
 export interface BoostScoreGraphProps {
-	periods: Period[];
-	startDate: number;
-	endDate: number;
+	periods?: Period[];
+	startDate?: number;
+	endDate?: number;
 	title?: string;
-	isLoading?: boolean;
+	isPlaceholder?: boolean;
 }
+
+export type ScoreGraphAlignedData = [
+	number[], // timestamps
+	number[], // desktop_overall_score
+	number[] // mobile_overall_score
+];
 
 /**
  * BoostScoreGraph component composed by the chart and the legend.
  *
  * @param {BoostScoreGraphProps} props - The props object for the BoostScoreGraph component.
- * @param {uPlot.AlignedData} props.data - The data used to render the uPlotLineChart.
  * @param {string} props.title - Title for the chart.
+ * @param {Period[]} props.periods - The periods to display in the chart.
  * @param {boolean} [props.isLoading=false] - Whether the component is in a loading state.
  * @returns {React.ReactElement} The JSX element representing the BoostScoreGraph component, or null if loading.
  */
 export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
-	periods,
-	startDate,
-	endDate,
+	periods = [],
+	startDate = 0,
+	endDate = 0,
 	title,
-	isLoading = false,
+	isPlaceholder = false,
 } ) => {
 	// Sort periods by timestamp
 	periods.sort( ( a, b ) => a.timestamp - b.timestamp );
@@ -47,20 +53,24 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 	// @todo Remove this once we have a proper date range picker
 	const dayBeforeEndDate = endDate - 24 * 60 * 60 * 1000;
 	// Adjust the start date based on available data
-	if ( periods.length > 0 ) {
+	if ( periods.length === 0 ) {
+		startDate = dayBeforeEndDate;
+	} else if ( periods.length === 1 ) {
 		startDate = Math.min( periods[ 0 ].timestamp - 12 * 60 * 60 * 1000, dayBeforeEndDate );
 	} else {
-		startDate = dayBeforeEndDate;
+		startDate = Math.min( periods[ 0 ].timestamp, dayBeforeEndDate );
 	}
 
-	const data = useBoostScoreTransform( periods );
-	if ( isLoading || ! data?.length ) {
-		return null;
-	}
 	return (
 		<div className="jb-score-graph">
 			{ title && <Text variant="title-medium">{ title }</Text> }
-			<UplotLineChart data={ data } periods={ periods } range={ { startDate, endDate } } />
+			{ isPlaceholder ? (
+				<div className="jb-score-graph__placeholder">
+					<Background />
+				</div>
+			) : (
+				<UplotLineChart periods={ periods } range={ { startDate, endDate } } />
+			) }
 		</div>
 	);
 };

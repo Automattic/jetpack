@@ -70,7 +70,7 @@ class Delete_Contact extends Base_Action {
 	 * @return string The category of the step.
 	 */
 	public static function get_category(): ?string {
-		return __( 'Contacts', 'zero-bs-crm' );
+		return __( 'Contact', 'zero-bs-crm' );
 	}
 
 	/**

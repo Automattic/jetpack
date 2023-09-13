@@ -1104,8 +1104,7 @@ function ZeroBSCRM_accept_quote() {
 
 		// validate that this has been posted by the contact associated with the quote
 		if ( ! $uinfo->ID
-			|| zeroBS_getCustomerIDWithEmail( $uinfo->user_email ) !== zeroBSCRM_quote_getContactAssigned( $quoteID )
-			|| zeroBSCRM_permsQuotes()
+			|| zeroBS_getCustomerIDWithEmail( $uinfo->user_email ) !== zeroBSCRM_quote_getContactAssigned( $quoteID ) // phpcs:ignore
 		) {
 			zeroBSCRM_sendJSONError( array( 'access' => 1 ), 403 );
 		}
