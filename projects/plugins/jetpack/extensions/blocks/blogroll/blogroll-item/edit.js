@@ -1,8 +1,8 @@
-import { __ } from '@wordpress/i18n';
 import { InnerBlocks, RichText } from '@wordpress/block-editor';
 import './editor.scss';
 import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 function BlogrollItemEdit( { className, attributes, clientId, setAttributes } ) {
 	const { icon, name, description } = attributes;
