@@ -1,13 +1,10 @@
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
-
-/**
- * Style dependencies
- */
 import './editor.scss';
 
 export const name = 'blogroll';
@@ -61,8 +58,31 @@ export const settings = {
 		},
 	},
 	edit,
-	save: () => <InnerBlocks.Content />,
+	save: ( { attributes: { show_avatar, show_description, show_subscribe_button }, className } ) => {
+		const additionalClasses = [
+			...( ! show_avatar ? [ 'hide-avatar' ] : [] ),
+			...( ! show_description ? [ 'hide-description' ] : [] ),
+			...( ! show_subscribe_button ? [ 'hide-subscribe-button' ] : [] ),
+		];
+
+		const blockProps = useBlockProps.save( {
+			className: classNames( className, ...additionalClasses ),
+		} );
+
+		return (
+			<div { ...blockProps }>
+				{ ' ' }
+				<InnerBlocks.Content />{ ' ' }
+			</div>
+		);
+	},
 	attributes,
+	providesContext: {
+		showAvatar: 'show_avatar',
+		showDescription: 'show_description',
+		showSubscribeButton: 'show_subscribe_button',
+		openLinksNewWindow: 'open_links_new_window',
+	},
 	example: {
 		attributes: {
 			// @TODO: Add default values for block attributes, for generating the block preview.
