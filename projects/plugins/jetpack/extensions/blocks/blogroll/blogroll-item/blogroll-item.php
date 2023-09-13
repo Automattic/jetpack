@@ -58,14 +58,14 @@ function load_assets( $attr, $content, $block ) {
 	}
 
 	$content = <<<HTML
-<figure>
-	<img src="$icon" alt="$name">
-</figure>
-<div>
-	<a class="jetpack-blogroll-item-title" href="$url" target="$target" rel="noopener noreferrer">$name</a>
-	<div class="jetpack-blogroll-item-description">$description</div>
-</div>
-HTML;
+		<figure>
+			<img src="$icon" alt="$name">
+		</figure>
+		<div>
+			<a class="jetpack-blogroll-item-title" href="$url" target="$target" rel="noopener noreferrer">$name</a>
+			<div class="jetpack-blogroll-item-description">$description</div>
+		</div>
+	HTML;
 
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
