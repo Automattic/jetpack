@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Handle calls like `(0,i18n.__)( 'foo', 'domain' )` that are sometimes generated to ensure use of the global "this".
