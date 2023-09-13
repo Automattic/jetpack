@@ -66,4 +66,11 @@
 	&.is-transient img {
 		opacity: 0.3;
 	}
+
+	.components-placeholder__label {
+		svg {
+			display: block;
+			margin-inline-end: 0.75rem;
+		}
+	}
 }

@@ -164,7 +164,7 @@
 		display: none;
 		margin-top: 0;
 		position: absolute;
-		right: 10px;
+		inset-inline-end: 10px;
 		top: 10px;
 		z-index: 1;
 	}
@@ -245,7 +245,7 @@
 			line-height: 16px;
 			font-size: 14px;
 			width: 100%;
-			text-align: left;
+			text-align: start;
 		}
 	}
 }
@@ -298,7 +298,7 @@
 	}
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_caption.gallery-caption {
 		position: relative;
-		right: auto;
+		inset-inline-end: auto;
 		bottom: auto;
 		background-color: transparent;
 		color: inherit;
