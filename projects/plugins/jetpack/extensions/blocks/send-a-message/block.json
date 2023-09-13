@@ -50,6 +50,5 @@
 			"countryCode": "1",
 			"phoneNumber": "555-123-4567"
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }
