@@ -143,11 +143,10 @@ The function accepts an optional options object:
 - Type: `string[]`
 - Default: `['']`
 
-An array of block names (e.g., `[ 'core/paragraph', 'core/image' ]`) to which the data provider should be applied. Only the blocks specified in this array will have access to the AI Assistant Data context.
+An array of block names (e.g., `[ 'core/paragraph', 'core/image' ]`) to which the data provider should be applied. Only the blocks specified in this array can access the AI Assistant Data context.
 
 ### Returned Wrapped Component
 
-When a block type matches one of the specified names in `options.blocks`, the returned component will be wrapped with the AI Assistant Data context, providing it with all the available data and functionalities. For other block types, the original component will be returned without any modifications.
+When a block type matches one of the specified names in `options.blocks`, the returned component will be wrapped with the AI Assistant Data context, providing all the available data and functionalities. The original component will be returned without any modifications for other block types.
 
-_Before using this function, ensure that the AI Assistant Data is available in the higher component hierarchy. The [Ai Data Context](#ai-assistant-content) should typically wrap the top-level component or application._
-
+_Before using this function, ensure the AI Assistant Data is available in the higher component hierarchy. The [Ai Data Context](#ai-assistant-content) should typically wrap the top-level component or application._
