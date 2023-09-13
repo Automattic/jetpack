@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Custom Fields: Corrected bug that prevented new address custom fields from being shown
