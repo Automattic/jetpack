@@ -58,7 +58,7 @@ class WordAds {
 	public static function register() {
 		if ( self::is_available() ) {
 			Blocks::jetpack_register_block(
-				self::BLOCK_NAME,
+				__DIR__,
 				array(
 					'render_callback' => array( __CLASS__, 'gutenblock_render' ),
 				)
