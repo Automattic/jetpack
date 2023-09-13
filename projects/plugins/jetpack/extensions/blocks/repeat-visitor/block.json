@@ -31,9 +31,10 @@
 		"innerBlocks": [
 			{
 				"name": "core/paragraph",
-				"attributes": "This block will only appear to a visitor who visited the page three or more times."
+				"attributes": {
+					"content": "This block will only appear to a visitor who visited the page three or more times."
+				}
 			}
 		]
-	},
-	"editorScript": "file:../editor.js"
+	}
 }

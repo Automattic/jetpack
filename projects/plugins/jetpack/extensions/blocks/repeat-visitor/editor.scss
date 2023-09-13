@@ -22,6 +22,13 @@
 			}
 		}
 	}
+
+	.components-placeholder__label {
+		svg {
+			display: block;
+			margin-inline-end: 0.75rem;
+		}
+	}
 }
 
 .wp-block-jetpack-repeat-visitor-placeholder {
