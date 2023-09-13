@@ -90,6 +90,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			'ui'          => $this->get_user_id(),
 			'url'         => home_url(),
 			'woo_version' => WC()->version,
+			'store_admin' => in_array( 'administrator', wp_get_current_user()->roles, true ) ? 1 : 0,
 		);
 		$cart_checkout_info = self::get_cart_checkout_info();
 		return array_merge( $site_info, $cart_checkout_info );
