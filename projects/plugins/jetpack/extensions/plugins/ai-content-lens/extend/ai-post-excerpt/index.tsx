@@ -9,7 +9,7 @@ import {
 import { TextareaControl, ExternalLink, Button, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
 import React from 'react';
@@ -49,7 +49,17 @@ function AiPostExcerpt() {
 	// Re enable the AI Excerpt component
 	const [ reenable, setReenable ] = useState( false );
 
-	const { request, suggestion, requestingState, error, reset } = useAiSuggestions( {} );
+	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions(
+		{}
+	);
+
+	// Cancel and reset AI suggestion when the component is unmounted
+	useEffect( () => {
+		return () => {
+			stopSuggestion();
+			reset();
+		};
+	}, [ stopSuggestion, reset ] );
 
 	// Pick raw post content
 	const postContent = useSelect(
