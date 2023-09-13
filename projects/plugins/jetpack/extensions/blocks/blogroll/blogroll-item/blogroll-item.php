@@ -42,7 +42,7 @@ function load_assets( $attr, $content ) {
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
-	$content .= '<a href="' . $attr['url'] . '">' . $attr['name'] . '</a><div>' . $attr['description'] . '</div>';
+	$content .= '<a class="jetpack-blogroll-item-title" href="' . $attr['url'] . '">' . $attr['name'] . '</a><div class="jetpack-blogroll-item-description">' . $attr['description'] . '</div>';
 
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',

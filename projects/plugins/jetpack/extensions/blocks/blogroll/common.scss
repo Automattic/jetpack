@@ -1,14 +1,14 @@
 .wp-block-jetpack-blogroll {
 	.block-editor-inner-blocks {
-
 		h3 {
 			color: var(--gray-gray-100, #101517);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 700;
 			line-height: 28px;
+			margin-top: 0;
+			margin-bottom: 24px;
 		}
-
 	}
 
 	&.hide-avatar {
@@ -18,22 +18,12 @@
 	}
 
 	&.hide-description {
-		.wp-block-jetpack-blogroll-description {
+		.jetpack-blogroll-item-description {
 			display: none;
-		}
-	}
-
-	.wp-block-jetpack-blogroll-description {
-		margin-block-start: 0;
-
-		p {
-			margin-bottom: 0;
-			padding: 0;
 		}
 	}
 
 	.wp-block-jetpack-blogroll-item + .wp-block-jetpack-blogroll-item {
 		border-top: 1px solid var(--gray-gray-5, #DCDCDE);
 	}
-
 }

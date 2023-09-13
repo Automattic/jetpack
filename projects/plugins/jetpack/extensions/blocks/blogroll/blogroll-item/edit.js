@@ -52,6 +52,7 @@ function BlogrollItemEdit( { className, attributes, clientId, setAttributes } ) 
 					placeholder={ __( 'Enter site title', 'jetpack' ) }
 				/>
 				<RichText
+					className="jetpack-blogroll-item-description"
 					value={ description }
 					onChange={ value => {
 						setAttributes( { description: value } );
