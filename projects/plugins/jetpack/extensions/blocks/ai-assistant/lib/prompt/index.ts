@@ -44,7 +44,7 @@ export const PROMPT_TYPE_LIST = [
 export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
 
 // Support backend prompts as a beta extension.
-export const isBackendPromptsEnabled: boolean =
+export const areBackendPromptsEnabled: boolean =
 	window?.Jetpack_Editor_Initial_State?.available_blocks[ 'ai-assistant-backend-prompts' ]
 		?.available || false;
 
@@ -438,7 +438,7 @@ export function buildPromptForBlock( {
 	customSystemPrompt,
 }: BuildPromptProps ): Array< PromptItemProps > {
 	// Only generate backend messages if the feature is enabled.
-	if ( isBackendPromptsEnabled ) {
+	if ( areBackendPromptsEnabled ) {
 		// Get the initial message to build the system prompt.
 		const initialMessage = buildInitialMessageForBackendPrompt( type, customSystemPrompt );
 

@@ -8,7 +8,7 @@ import TurndownService from 'turndown';
  */
 import { blockName } from '..';
 import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assistant';
-import { isBackendPromptsEnabled } from '../lib/prompt';
+import { areBackendPromptsEnabled } from '../lib/prompt';
 /**
  * Types
  */
@@ -43,7 +43,7 @@ export function transformToAIAssistantBlock( blockType: ExtendedBlockProp, attrs
 	const messages: Array< PromptItemProps > = [];
 
 	// If the backend prompts are enabled, add the relevant content prompt.
-	if ( isBackendPromptsEnabled ) {
+	if ( areBackendPromptsEnabled ) {
 		messages.push( {
 			role: 'jetpack-ai',
 			context: {
