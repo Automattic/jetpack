@@ -141,7 +141,12 @@ function wpsc_enqueue_styles() {
 		filemtime( plugin_dir_path( __FILE__ ) . 'styling/dashboard.css' )
 	);
 }
-add_action( 'admin_enqueue_scripts', 'wpsc_enqueue_styles' );
+
+// Check for the page parameter to see if we're on a WPSC page.
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+if ( isset( $_GET['page'] ) && $_GET['page'] === 'wpsupercache' ) {
+	add_action( 'admin_enqueue_scripts', 'wpsc_enqueue_styles' );
+}
 
 // OSSDL CDN plugin (https://wordpress.org/plugins/ossdl-cdn-off-linker/)
 include_once( WPCACHEHOME . 'ossdl-cdn.php' );
