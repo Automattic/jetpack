@@ -30,20 +30,13 @@ export function AiChatControls( { setAttributes, askButtonLabel } ) {
 			</InspectorControls>
 			<InspectorAdvancedControls>
 				<BaseControl
-					label={ __( 'Prompt override', 'jetpack' ) }
+					label={ __( 'Additional instructions', 'jetpack' ) }
 					help={ __(
-						'This will override the default prompt used in Jetpack AI Search. Relevant documents from your blog and the user question is passed to Jetpack AI to produce an answer. You can change the tone and behaviour of Jetpack AI Search by tweaking this prompt, but it requires caution and may result in unwanted behaviour.',
+						'This will instruct Jetpack AI to adjust the answer in a certain way. You can ask it to only provide one sentence response, or make it talk like a pirate, but please remember your instructions may have unintended consequences.',
 						'jetpack'
 					) }
 				>
-					<TextareaControl
-						placeholder={ __(
-							'Based on the content and relevant URLs provided below, all from a blog written by the same author, answer the following question…',
-							'jetpack'
-						) }
-						value={ promptOverride }
-						onChange={ setPromptOverride }
-					/>
+					<TextareaControl value={ promptOverride } onChange={ setPromptOverride } />
 				</BaseControl>
 			</InspectorAdvancedControls>
 		</>
