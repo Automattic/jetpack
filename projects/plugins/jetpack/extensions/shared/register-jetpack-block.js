@@ -2,7 +2,7 @@ import {
 	getJetpackExtensionAvailability,
 	withHasWarningIsInteractiveClassNames,
 	requiresPaidPlan,
-	getBlockIconComponent,
+	getBlockIconProp,
 } from '@automattic/jetpack-shared-extension-utils';
 import { registerBlockType } from '@wordpress/blocks';
 import { addFilter } from '@wordpress/hooks';
@@ -73,7 +73,7 @@ export function registerJetpackBlockFromMetadata( metadata, settings, childBlock
 		metadata.name,
 		{
 			...settings,
-			icon: getBlockIconComponent( metadata ),
+			icon: getBlockIconProp( metadata ),
 		},
 		childBlocks,
 		prefix
