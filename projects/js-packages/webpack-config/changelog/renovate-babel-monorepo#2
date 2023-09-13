@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Remove deprecated `@babel/plugin-proposal-class-properties`; `@babel/plugin-transform-class-properties` is already in `@babel/preset-env`.
