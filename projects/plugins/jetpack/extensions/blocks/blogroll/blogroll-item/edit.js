@@ -32,8 +32,8 @@ function BlogrollItemEdit( { className, attributes, clientId, setAttributes } ) 
 						'core/image',
 						{
 							url: icon,
-							width: iconSize,
-							height: iconSize,
+							width: `${ iconSize }px`,
+							height: `${ iconSize }px`,
 							style: { border: { radius: '50%' } },
 						},
 					],
