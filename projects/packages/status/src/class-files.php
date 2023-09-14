@@ -32,7 +32,7 @@ class Files {
 			return $files;
 		}
 
-		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 		while ( false !== $file = readdir( $dir ) ) {
 			if ( '.' === substr( $file, 0, 1 ) || '.php' !== substr( $file, -4 ) ) {
 				continue;

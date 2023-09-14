@@ -82,5 +82,4 @@ class Invoice_Status_Updated extends Base_Trigger {
 			array( $this, 'execute_workflow' )
 		);
 	}
-
 }

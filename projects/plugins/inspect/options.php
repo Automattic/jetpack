@@ -44,4 +44,3 @@ add_action(
 jetpack_inspect_register_option( 'monitor_status', new Monitor_Status() );
 jetpack_inspect_register_option( 'observer_incoming', new Observer_Settings() );
 jetpack_inspect_register_option( 'observer_outgoing', new Observer_Settings() );
-

@@ -6,12 +6,12 @@ require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-membership
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
-use \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 use function Automattic\Jetpack\Extensions\Subscriptions\register_block as register_subscription_block;
-use const \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 define( 'EARN_JWT_SIGNING_KEY', 'whatever=' );
 

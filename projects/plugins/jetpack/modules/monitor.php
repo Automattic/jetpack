@@ -129,7 +129,6 @@ class Jetpack_Monitor {
 
 		return $xml->getResponse();
 	}
-
 }
 
 new Jetpack_Monitor();

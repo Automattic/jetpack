@@ -119,4 +119,3 @@ class Launchpad_Task_List_Validation_Test extends \WorDBless\BaseTestCase {
 		}
 	}
 }
-

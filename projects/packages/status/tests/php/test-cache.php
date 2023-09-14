@@ -66,5 +66,4 @@ class Test_Cache extends TestCase {
 		Cache::set( 'foo', null );
 		$this->assertNull( Cache::get( 'foo', true ) );
 	}
-
 }
