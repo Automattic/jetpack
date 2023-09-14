@@ -29,7 +29,7 @@
 	async function refresh() {
 		// Don't let the UI show a refresh button until we get fresh ISA data.
 		countAtLastDataUpdate = Infinity;
-		await refreshIsaData();
+		refreshIsaData();
 	}
 </script>
 
