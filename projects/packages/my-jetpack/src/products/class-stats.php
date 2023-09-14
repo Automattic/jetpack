@@ -172,7 +172,7 @@ class Stats extends Module_Product {
 						false === strpos( $purchase->product_slug, 'free' )
 					) || 0 === strpos( $purchase->product_slug, 'jetpack_complete' )
 				) {
-					// Only Jetpack Stats Commercial should be eligible for this conditional.
+					// Only Jetpack Stats paid plans should be eligible for this conditional.
 					// Sample product slugs: jetpack_stats_monthly
 					return false;
 				}
