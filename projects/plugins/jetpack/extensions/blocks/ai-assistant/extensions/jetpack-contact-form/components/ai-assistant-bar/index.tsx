@@ -93,7 +93,7 @@ export default function AiAssistantBar( {
 
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
-	const showGuideLine = requestingState !== 'init' && requestingState !== 'error';
+	const showGuideLine = requestingState === 'suggesting' || requestingState === 'done';
 
 	const placeholder = __( 'Ask Jetpack AI to create your form', 'jetpack' );
 
