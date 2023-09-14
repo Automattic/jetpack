@@ -1,4 +1,5 @@
 [
+	"projects/js-packages/ai-client/src/suggestions-event-source/index.ts",
 	"projects/plugins/jetpack/_inc/client/components/count/index.jsx",
 	"projects/plugins/jetpack/_inc/client/components/global-notices/state/notices/actions.js",
 	"projects/plugins/jetpack/_inc/client/components/global-notices/state/notices/reducer.js",
