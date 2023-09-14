@@ -32,13 +32,6 @@
 		}
 	},
 	"attributes": {
-		"recommendations": {
-			"type": "array",
-			"items": {
-				"type": "object"
-			},
-			"default": []
-		},
 		"show_avatar": {
 			"type": "boolean",
 			"default": true

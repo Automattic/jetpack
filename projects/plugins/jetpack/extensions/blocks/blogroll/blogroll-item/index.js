@@ -1,7 +1,6 @@
 import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
-import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
 import './editor.scss';
@@ -43,7 +42,24 @@ export const settings = {
 		inserter: false,
 	},
 	edit,
-	attributes,
+	attributes: {
+		id: {
+			type: 'string',
+		},
+		name: {
+			type: 'string',
+		},
+		icon: {
+			type: 'string',
+			default: 'https://s0.wp.com/i/webclip.png',
+		},
+		url: {
+			type: 'string',
+		},
+		description: {
+			type: 'string',
+		},
+	},
 	save: () => <InnerBlocks.Content />,
 	example: {
 		attributes: {
