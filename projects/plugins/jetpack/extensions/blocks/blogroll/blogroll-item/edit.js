@@ -1,27 +1,11 @@
 import { RichText, MediaUpload, useBlockProps } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 import './editor.scss';
-import { useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-function BlogrollItemEdit( { className, attributes, clientId, setAttributes } ) {
+function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 	const { icon, name, description } = attributes;
 	const blockProps = useBlockProps( { className } );
-
-	const imageUrl = useSelect(
-		select => {
-			const innerBlocks = select( 'core/block-editor' ).getBlock( clientId )?.innerBlocks;
-			return innerBlocks[ 0 ]?.attributes?.url;
-		},
-		[ clientId ]
-	);
-
-	useEffect( () => {
-		if ( imageUrl !== undefined ) {
-			setAttributes( { icon: imageUrl } );
-		}
-	}, [ imageUrl, setAttributes ] );
 
 	return (
 		<div { ...blockProps }>
