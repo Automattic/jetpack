@@ -115,5 +115,4 @@ class Jetpack_JSON_API_Core_Modify_Endpoint extends Jetpack_JSON_API_Core_Endpoi
 		remove_filter( 'send_core_update_notification_email', '__return_false' );
 		return $update;
 	}
-
 }

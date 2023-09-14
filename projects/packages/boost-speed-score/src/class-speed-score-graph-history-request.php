@@ -137,5 +137,4 @@ class Speed_Score_Graph_History_Request extends Cacheable {
 	private function get_client() {
 		return Boost_API::get_client();
 	}
-
 }

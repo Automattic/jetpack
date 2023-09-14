@@ -11,6 +11,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
@@ -233,6 +234,48 @@ function get_subscriber_count( $include_social_followers ) {
 }
 
 /**
+ * Returns the newsletter categories from the .com API or the Jetpack XML-RPC API.
+ *
+ * @return array containing [ 'enabled' => true|false, 'newsletter_categories' => array ]
+ */
+function fetch_newsletter_categories() {
+	$categories = array();
+
+	if ( is_wpcom() ) {
+		$categories = \wpcom_fetch_newsletter_categories();
+	} else {
+		$xml = new \Jetpack_IXR_Client();
+		$xml->query( 'jetpack.fetchNewsletterCategories' );
+
+		if ( ! $xml->isError() ) {
+			$categories = $xml->getResponse();
+		}
+	}
+
+	return $categories;
+}
+
+/**
+ * Returns the newsletter categories if the feature is enabled, otherwise returns an empty array.
+ *
+ * @return array
+ */
+function get_newsletter_categories() {
+	$response = fetch_newsletter_categories();
+
+	if (
+		isset( $response['enabled'] )
+		&& (bool) $response['enabled']
+		&& isset( $response['newsletter_categories'] )
+		&& is_array( $response['newsletter_categories'] )
+	) {
+		return $response['newsletter_categories'];
+	}
+
+	return array();
+}
+
+/**
  * Returns true if the block attributes contain a value for the given key.
  *
  * @param array  $attributes Array containing the block attributes.
@@ -400,6 +443,8 @@ function get_element_styles_from_attributes( $attributes ) {
 	$submit_button_styles .= $style;
 	$email_field_styles   .= $style;
 
+	$categories_styles = sprintf( '--subscribe-block-border-radius: %dpx;', get_attribute( $attributes, 'borderRadius', DEFAULT_BORDER_RADIUS_VALUE ) );
+
 	if ( has_attribute( $attributes, 'customBorderColor' ) ) {
 		$style = sprintf( 'border-color: %s; border-style: solid;', get_attribute( $attributes, 'customBorderColor' ) );
 
@@ -417,6 +462,7 @@ function get_element_styles_from_attributes( $attributes ) {
 		'email_field'           => $email_field_styles,
 		'submit_button'         => $submit_button_styles,
 		'submit_button_wrapper' => $submit_button_wrapper_styles,
+		'categories'            => $categories_styles,
 	);
 }
 
@@ -555,6 +601,7 @@ function render_block( $attributes ) {
 			( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' )
 		),
 		'source'                 => 'subscribe-block',
+		'newsletter_categories'  => get_newsletter_categories(),
 	);
 
 	if ( ! jetpack_is_frontend() ) {
@@ -582,6 +629,41 @@ function get_post_access_level_for_current_post() {
 }
 
 /**
+ * Renders the newsletter categories in checkbox form.
+ *
+ * This function outputs a div containing labels and checkboxes for each newsletter category.
+ * Each checkbox represents a category, allowing users to select multiple newsletter categories.
+ *
+ * @param array $newsletter_categories An array of newsletter categories where each category is an associative array
+ *                                     with keys 'id' and 'name' representing the category's ID and display name, respectively.
+ * @param array $styles                An associative array of style settings. Default is an empty array.
+ *
+ * @return void Outputs HTML directly.
+ */
+function render_newsletter_categories( $newsletter_categories, $styles = array() ) {
+	if ( count( $newsletter_categories ) ) :
+		?>
+		<div
+			class="wp-block-jetpack-subscriptions__newsletter-categories"
+			style="<?php echo esc_attr( $styles['categories'] ); ?>"
+		>
+			<?php foreach ( $newsletter_categories as $category ) : ?>
+				<label class="wp-block-jetpack-subscriptions__newsletter-category">
+					<input type="checkbox" value="<?php echo esc_html( $category['id'] ); ?>" />
+					<div>
+						<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path fill-rule="evenodd" clip-rule="evenodd" d="M14.9406 6.6485L8.94211 14.7159L5.1785 11.9174L5.92436 10.9143L8.68487 12.9669L13.9375 5.90264L14.9406 6.6485Z" fill="#1D39EB"/>
+						</svg>
+						<?php echo esc_html( $category['name'] ); ?>
+					</div>
+				</label>
+			<?php endforeach; ?>
+		</div>
+		<?php
+	endif;
+}
+
+/**
  * Renders the WP.com version of the subscriptions block.
  *
  * @param array $data    Array containing block view data.
@@ -606,6 +688,8 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 
 	$post_access_level = get_post_access_level_for_current_post();
 
+	$newsletter_categories = $data['newsletter_categories'];
+
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="wp-block-jetpack-subscriptions__container">
@@ -617,6 +701,8 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
+				<?php render_newsletter_categories( $newsletter_categories, $styles ); ?>
+
 				<?php
 				$email_field_id  = 'subscribe-field';
 				$email_field_id .= Jetpack_Subscriptions_Widget::$instance_count > 1
@@ -726,10 +812,13 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 	$blog_id           = \Jetpack_Options::get_option( 'id' );
 	$post_access_level = get_post_access_level_for_current_post();
 
+	$newsletter_categories = $data['newsletter_categories'];
+
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="jetpack_subscription_widget">
 			<div class="wp-block-jetpack-subscriptions__container">
+
 				<form
 					action="#"
 					method="post"
@@ -738,6 +827,8 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 					data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 					id="<?php echo esc_attr( $form_id ); ?>"
 				>
+					<?php render_newsletter_categories( $newsletter_categories, $styles ); ?>
+
 					<p id="subscribe-email">
 						<label id="jetpack-subscribe-label"
 							class="screen-reader-text"
@@ -756,6 +847,7 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 							placeholder="<?php echo esc_attr( $data['subscribe_placeholder'] ); ?>"
 						/>
 					</p>
+
 
 					<p id="subscribe-submit"
 						<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
@@ -964,6 +1056,18 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		// translators: %s is the name of the site.
 		: esc_html__( 'Subscribe to get access to the rest of this post and other subscriber-only content.', 'jetpack' );
 
+	$access_question = $is_paid_post
+		? __( 'Already a paid subscriber?', 'jetpack' )
+		: __( 'Already a subscriber?', 'jetpack' );
+
+	$sign_in = '';
+	if ( ! is_user_logged_in() && ( new Host() )->is_wpcom_simple() ) {
+		$sign_in_link = add_query_arg( 'redirect_to', rawurlencode( get_post_permalink() ), 'https://wordpress.com/log-in/link' );
+		$sign_in      = '<!-- wp:paragraph {"align":"center", "typography":{"fontSize":"14px","fontWeight":"400";"color":"#646970"}} -->
+<p class="has-text-align-center" style="font-size:14px;font-weight:400;color:#646970">' . esc_html( $access_question ) . ' <a href="' . $sign_in_link . '" class="jetpack-subscriber-paywall-login" style="font-size:14px;font-weight:400;color:#646970">' . esc_html__( 'Log in', 'jetpack' ) . '</a></p>
+<!-- /wp:paragraph -->';
+	}
+
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
 
 	return '
@@ -981,7 +1085,9 @@ function get_paywall_blocks( $newsletter_access_level ) {
 <p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:14px">' . $subscribe_text . '</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /--></div>
+<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
+' . $sign_in . '
+</div>
 <!-- /wp:group -->
 ';
 }
@@ -1012,7 +1118,7 @@ function get_paywall_blocks_subscribe_pending() {
 <!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"},"spacing":{"margin":{"top":"10px","bottom":"10px"}}}} -->
 <p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:14px">' . $subscribe_text . '</p>
 <!-- /wp:paragraph -->
-
+</div>
 <!-- /wp:group -->
 ';
 }

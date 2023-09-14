@@ -1,3 +1,4 @@
+import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
 import attributes from './attributes';
@@ -42,11 +43,13 @@ export const settings = {
 		multiple: true,
 		// When false, the block won't be available to be converted into a reusable block.
 		reusable: true,
+		// hide a block from all parts of the user interface so that it can only be inserted programmatically
+		inserter: false,
 	},
 	edit,
-	/* @TODO Write the block editor output */
-	save: () => null,
+	save: () => <InnerBlocks.Content />,
 	attributes,
+	usesContext: [ 'showAvatar', 'showDescription', 'showSubscribeButton', 'openLinksNewWindow' ],
 	example: {
 		attributes: {
 			// @TODO: Add default values for block attributes, for generating the block preview.

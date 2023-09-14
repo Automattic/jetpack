@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Removed global store from notice component in favor of data sync.
+
+

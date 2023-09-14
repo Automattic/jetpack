@@ -234,5 +234,4 @@ class ApplicationTest extends TestCase {
 		$this->assertSame( 42, $tester->getStatusCode() );
 		$this->assertSame( "No composer.json in current directory, do you want to use the one at $cwd/composer.json? [Y/n] ", $tester->getDisplay() );
 	}
-
 }

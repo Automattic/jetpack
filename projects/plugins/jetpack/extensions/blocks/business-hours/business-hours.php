@@ -12,9 +12,6 @@ namespace Automattic\Jetpack\Extensions\Business_Hours;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'business-hours';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -22,23 +19,9 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		__DIR__,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render',
-			'supports'        => array(
-				'color'      => array(
-					'gradients' => true,
-				),
-				'spacing'    => array(
-					'margin'  => true,
-					'padding' => true,
-				),
-				'typography' => array(
-					'fontSize'   => true,
-					'lineHeight' => true,
-				),
-				'align'      => array( 'wide', 'full' ),
-			),
 		)
 	);
 }
@@ -172,7 +155,7 @@ function render( $attributes ) {
 
 	$content .= '</dl>';
 
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	/**
 	 * Allows folks to filter the HTML content for the Business Hours block

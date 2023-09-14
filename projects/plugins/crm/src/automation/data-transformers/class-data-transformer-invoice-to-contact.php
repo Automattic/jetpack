@@ -66,5 +66,4 @@ class Data_Transformer_Invoice_To_Contact extends Data_Transformer_Base {
 
 		return new Data_Type_Contact( $contact );
 	}
-
 }

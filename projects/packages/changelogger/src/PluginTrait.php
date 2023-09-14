@@ -58,5 +58,4 @@ trait PluginTrait {
 		$this->input  = $input;
 		$this->output = $output;
 	}
-
 }

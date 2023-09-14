@@ -477,5 +477,4 @@ class Options extends Module {
 
 		return 'OPTION-DOES-NOT-EXIST';
 	}
-
 }

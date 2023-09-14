@@ -125,5 +125,4 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_Test_Jetp
 
 		$this->assertErrorResponse( 'rest_forbidden_context', $response, 403 );
 	}
-
 }

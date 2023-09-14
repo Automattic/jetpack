@@ -1,0 +1,3 @@
+Significance: patch
+Type: added
+Comment: Add initial rest controller for automations with the workflows get endpoint

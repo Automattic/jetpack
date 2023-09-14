@@ -10,8 +10,26 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
 
 class JPCRM_DependencyChecker {
 
-  protected $core_ver;
-  protected $dal_ver;
+	/**
+	 * An array of plugins installed.
+	 *
+	 * @var array
+	 */
+	public $all_plugins = array();
+
+	/**
+	 * The current version of core.
+	 *
+	 * @var string
+	 */
+	protected $core_ver;
+
+	/**
+	 * The current version of DAL.
+	 *
+	 * @var string
+	 */
+	protected $dal_ver;
 
   public function __construct( ) {
     if ( ! function_exists( 'get_plugins' ) ) {

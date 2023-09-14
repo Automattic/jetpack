@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * This file is meant to be the home for any function handling cookies that can
  * be accessed anywhere within Jetpack.

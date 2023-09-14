@@ -311,5 +311,4 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$metas  = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
 		$this->assertEquals( $meta_test_value, $metas[0]['meta_value'] );
 	}
-
 }

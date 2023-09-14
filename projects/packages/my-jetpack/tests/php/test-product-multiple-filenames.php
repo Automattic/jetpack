@@ -166,5 +166,4 @@ class Test_Product_Multiple_Filenames extends TestCase {
 		$this->assertTrue( Backup::is_plugin_active() );
 		$this->assertTrue( is_plugin_active( $filename ) );
 	}
-
 }
