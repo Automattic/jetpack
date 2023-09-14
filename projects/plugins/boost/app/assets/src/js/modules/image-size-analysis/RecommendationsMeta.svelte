@@ -35,6 +35,11 @@
 	let requestingReport = false;
 	let errorCode: undefined | number;
 
+	/**
+	 * React Migration Note:
+	 * Looks like there won't be a benefit to extracting the store further up the chain.
+	 * The data for this component is lazily loaded ( initializeIsaSummary() ) if this component is active.
+	 */
 	$: status = $isaSummary.status;
 	$: groups = $isaSummary.groups || {};
 	$: scannedPages = scannedPagesCount( groups );
