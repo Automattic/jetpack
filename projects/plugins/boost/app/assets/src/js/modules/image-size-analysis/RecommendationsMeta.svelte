@@ -17,6 +17,7 @@
 		isaSummary,
 		ISAStatus,
 		scannedPagesCount,
+		getSummaryProgress,
 	} from './store/isa-summary';
 
 	onMount( () => {
@@ -159,7 +160,7 @@
 
 	<!-- Show progress if a job is rolling. -->
 	{#if ! requestingReport && [ ISAStatus.Completed, ISAStatus.Queued ].includes( $isaSummary.status )}
-		<MultiProgress />
+		<MultiProgress summaryProgress={getSummaryProgress( $isaSummary.groups )} />
 	{/if}
 
 	<!-- Show recommendation to enable Image CDN if it was inactive and issues have been found -->

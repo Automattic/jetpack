@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Sync\Actions as Sync_Actions;
+use Automattic\Jetpack\Sync\Queue\Queue_Storage_Table;
 
 /**
  * Jetpack Sync main class.
@@ -34,6 +35,9 @@ class Main {
 		// Any hooks below are special cases that need to be declared even if Sync is not allowed.
 		add_action( 'jetpack_site_registered', array( 'Automattic\\Jetpack\\Sync\\Actions', 'do_initial_sync' ), 10, 0 );
 
+		// Sync clean up, when Jetpack is disconnected.
+		add_action( 'jetpack_site_disconnected', array( __CLASS__, 'on_jetpack_site_disconnected' ), 1000 );
+
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 	}
@@ -43,6 +47,24 @@ class Main {
 	 */
 	public static function on_jetpack_idc_disconnect() {
 		Sender::get_instance()->uninstall();
+	}
+
+	/**
+	 * Sync cleanup on shutdown.
+	 */
+	public static function on_jetpack_site_disconnected() {
+		add_action( 'shutdown', array( __CLASS__, 'sync_cleanup' ), 10000 );
+	}
+
+	/**
+	 * Delete all sync related data on Site disconnect / clean up custom table.
+	 * Needs to happen on shutdown to prevent fatals.
+	 */
+	public static function sync_cleanup() {
+		Sender::get_instance()->uninstall();
+
+		$table_storage = new Queue_Storage_Table( 'test_queue' );
+		$table_storage->drop_table();
 	}
 
 	/**

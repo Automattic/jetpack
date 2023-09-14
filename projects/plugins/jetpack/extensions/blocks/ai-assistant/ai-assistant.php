@@ -79,3 +79,12 @@ add_action(
 	}
 );
 
+/**
+ * Register the `ai-assistant-backend-prompts` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-backend-prompts' );
+	}
+);

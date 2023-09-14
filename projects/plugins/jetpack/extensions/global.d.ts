@@ -41,9 +41,18 @@ declare global {
 					};
 					gravatar: string;
 					permissions: {
+						admin_page?: boolean;
 						connect: boolean;
 						connect_user: boolean;
 						disconnect: boolean;
+						edit_posts?: boolean;
+						manage_modules?: boolean;
+						manage_options?: boolean;
+						manage_plugins?: boolean;
+						network_admin?: boolean;
+						network_sites_page?: boolean;
+						publish_posts?: boolean;
+						view_stats?: boolean;
 					};
 				};
 				connectionOwner: null;

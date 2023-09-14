@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Classic Editor Markdown: add support for double-tilde strikethrough, e.g. ~~strikethrough~~
