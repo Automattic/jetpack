@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plus } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
-import { createBlockFromSubscription } from '../../utils';
+import { checkIfValidDomain, createBlockFromSubscription } from '../../utils';
 import BlogrollAppenderResults from '../blogroll-appender-results';
 import BlogrollAppenderSearch from '../blogroll-appender-search';
 
@@ -41,7 +41,7 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 							id: data?.ID,
 							description: data?.description,
 							URL: data?.URL,
-							site_icon: data?.site_icon,
+							site_icon: data?.logo?.url,
 							name: data?.name,
 						},
 					] );
@@ -61,26 +61,32 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 	};
 
 	useEffect( () => {
-		const searchQuery = searchInput.toLowerCase().trim();
-		if ( searchQuery.length > 0 ) {
-			let newResults = [];
-			const existInSubscriptions = subscriptions.filter( item => {
-				const nameContainsSearch = item.name.toLowerCase().includes( searchQuery.toLowerCase() );
-				const urlContainsSearch = item.URL.toLowerCase().includes( searchQuery.toLowerCase() );
+		const cleanTimeout = setTimeout( () => {
+			const searchQuery = searchInput.toLowerCase().trim();
+			if ( searchQuery.length > 0 ) {
+				let newResults = [];
+				const existInSubscriptions = subscriptions.filter( item => {
+					const nameContainsSearch = item.name.toLowerCase().includes( searchQuery.toLowerCase() );
+					const urlContainsSearch = item.URL.toLowerCase().includes( searchQuery.toLowerCase() );
 
-				return nameContainsSearch || urlContainsSearch;
-			} );
+					return nameContainsSearch || urlContainsSearch;
+				} );
 
-			newResults = existInSubscriptions;
+				newResults = existInSubscriptions;
 
-			if ( searchQuery === 'agrullon95.wordpress.com' ) {
-				fetchSiteDetails( searchQuery );
+				if ( checkIfValidDomain( searchQuery ) ) {
+					fetchSiteDetails( searchQuery );
+				} else {
+					setResultsz( newResults );
+				}
 			} else {
-				setResultsz( newResults );
+				setResultsz( subscriptions );
 			}
-		} else {
-			setResultsz( subscriptions );
-		}
+		}, 1000 );
+
+		return () => {
+			clearTimeout( cleanTimeout );
+		};
 	}, [ searchInput, subscriptions ] );
 
 	return (
