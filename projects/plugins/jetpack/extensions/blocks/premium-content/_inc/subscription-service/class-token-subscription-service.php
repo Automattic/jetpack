@@ -35,10 +35,24 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @inheritDoc
 	 */
 	public function initialize() {
+		$this->get_and_set_token_from_request();
+	}
+
+	/**
+	 * Set the token from the Request to the cookie and retrieve the token.
+	 *
+	 * @return string|null
+	 */
+	public function get_and_set_token_from_request() {
+		// URL token always has a precedence, so it can overwrite the cookie when new data available.
 		$token = $this->token_from_request();
-		if ( null !== $token ) {
+		if ( $token ) {
 			$this->set_token_cookie( $token );
+		} else {
+			$token = $this->token_from_cookie();
 		}
+
+		return $token;
 	}
 
 	/**
@@ -59,25 +73,10 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 */
 	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
 
-		// URL token always has a precedence, so it can overwrite the cookie when new data available.
-		$token = $this->token_from_request();
-		if ( $token ) {
-			$this->set_token_cookie( $token );
-		} else {
-			$token = $this->token_from_cookie();
-		}
+		$token = $this->get_and_set_token_from_request();
 
-		$is_valid_token = true;
-
-		if ( empty( $token ) ) {
-			// no token, no access.
-			$is_valid_token = false;
-		} else {
-			$payload = $this->decode_token( $token );
-			if ( empty( $payload ) ) {
-				$is_valid_token = false;
-			}
-		}
+		$payload        = $this->decode_token( $token );
+		$is_valid_token = ! empty( $payload );
 
 		if ( $is_valid_token ) {
 			/**
@@ -272,6 +271,10 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return array|false
 	 */
 	public function decode_token( $token ) {
+		if ( empty( $token ) ) {
+			return false;
+		}
+
 		try {
 			$key = $this->get_key();
 			return $key ? (array) JWT::decode( $token, $key, array( 'HS256' ) ) : false;
