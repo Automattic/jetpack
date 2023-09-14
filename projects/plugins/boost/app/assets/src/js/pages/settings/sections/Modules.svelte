@@ -280,10 +280,12 @@
 			</p>
 
 			<svelte:fragment slot="meta">
-				<RecommendationsMeta
-					isaSummary={$isaSummary}
-					isCdnActive={$modulesState.image_cdn.active}
-				/>
+				{#if $modulesState.image_size_analysis.active}
+					<RecommendationsMeta
+						isaSummary={$isaSummary}
+						isCdnActive={$modulesState.image_cdn.active}
+					/>
+				{/if}
 			</svelte:fragment>
 		</Module>
 	</div>
