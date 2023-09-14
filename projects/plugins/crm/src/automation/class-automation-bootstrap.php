@@ -266,5 +266,4 @@ final class Automation_Bootstrap {
 			}
 		}
 	}
-
 }

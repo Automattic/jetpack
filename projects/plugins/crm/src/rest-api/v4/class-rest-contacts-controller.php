@@ -184,5 +184,4 @@ final class REST_Contacts_Controller extends REST_Base_Objects_Controller {
 	public function get_contacts_service() {
 		return $this->get_dal_service()->contacts;
 	}
-
 }

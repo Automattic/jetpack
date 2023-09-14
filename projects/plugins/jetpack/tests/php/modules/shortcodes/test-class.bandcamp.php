@@ -26,5 +26,4 @@ class WP_Test_Jetpack_Shortcodes_Bandcamp extends WP_UnitTestCase {
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
-
 }

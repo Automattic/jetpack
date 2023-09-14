@@ -232,5 +232,4 @@ class Test_Wpcom_Products extends TestCase {
 
 		$this->assertSame( array(), $product_price );
 	}
-
 }

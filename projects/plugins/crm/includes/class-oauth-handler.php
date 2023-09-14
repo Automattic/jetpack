@@ -1115,5 +1115,4 @@ class Oauth_Handler {
 
 		return false;
 	}
-
 }

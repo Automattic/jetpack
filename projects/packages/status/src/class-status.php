@@ -410,5 +410,4 @@ class Status {
 
 		return rtrim( $url, ':' );
 	}
-
 }

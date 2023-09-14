@@ -58,5 +58,4 @@ class Data_Transformer_Exception extends \Exception {
 	 * @var int
 	 */
 	const TRANSFORM_IS_NOT_SUPPORTED = 30;
-
 }

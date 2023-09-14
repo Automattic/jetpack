@@ -44,5 +44,4 @@ class Data_Type_Company extends Data_Type_Base {
 
 		return true;
 	}
-
 }

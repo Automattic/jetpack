@@ -604,7 +604,6 @@ class zeroBS__Metabox_CompanyTags extends zeroBS__Metabox_Tags{
     }
 
     // html + save dealt with by parent class :) 
-
 }
 
 /* ======================================================
@@ -1000,7 +999,6 @@ class zeroBS__Metabox_CompanyTags extends zeroBS__Metabox_Tags{
         } // html
 
         // saved via main metabox
-
     }
 
 

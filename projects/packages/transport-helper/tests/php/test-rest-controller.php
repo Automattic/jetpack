@@ -258,5 +258,4 @@ class Test_REST_Controller extends TestCase {
 
 		return $value;
 	}
-
 }

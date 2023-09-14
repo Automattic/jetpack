@@ -728,5 +728,4 @@ class Jetpack_Backup {
 		$manager = new Connection_Manager( 'jetpack-backup' );
 		$manager->remove_connection();
 	}
-
 }
