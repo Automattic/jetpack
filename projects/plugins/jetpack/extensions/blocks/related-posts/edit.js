@@ -177,6 +177,7 @@ export default function RelatedPostsEdit( props ) {
 	} );
 
 	const { instanceId } = useInstanceId( RelatedPostsEdit );
+	const { attributes, className, setAttributes } = props;
 
 	if ( isLoadingModules ) {
 		return <RelatedPostsSkeletonLoader />;
@@ -185,6 +186,7 @@ export default function RelatedPostsEdit( props ) {
 	if ( ! isModuleActive || ! isEnabled ) {
 		return (
 			<InactiveRelatedPostsPlaceholder
+				className={ className }
 				changeStatus={ changeStatus }
 				isLoading={ isChangingRelatedPostsStatus }
 				enable={ enable }
@@ -192,7 +194,6 @@ export default function RelatedPostsEdit( props ) {
 		);
 	}
 
-	const { attributes, className, setAttributes } = props;
 	const {
 		displayAuthor,
 		displayContext,

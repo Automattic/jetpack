@@ -9,7 +9,12 @@ import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { icon, settings } from './';
 
-export const InactiveRelatedPostsPlaceholder = ( { changeStatus, isLoading, enable } ) => {
+export const InactiveRelatedPostsPlaceholder = ( {
+	className,
+	changeStatus,
+	isLoading,
+	enable,
+} ) => {
 	const { tracks } = useAnalytics();
 
 	const enableFeature = () => {
@@ -38,29 +43,35 @@ export const InactiveRelatedPostsPlaceholder = ( { changeStatus, isLoading, enab
 			: getRedirectUrl( 'jetpack-support-related-posts' );
 
 	return (
-		<Placeholder
-			icon={ icon }
-			instructions={ __(
-				"You'll need to activate the Related Posts feature to use this block.",
-				'jetpack'
-			) }
-			label={ settings.title }
-		>
-			<Button
-				disabled={ isLoading }
-				isBusy={ isLoading }
-				onClick={ enableFeature }
-				variant="secondary"
+		<div className={ className }>
+			<Placeholder
+				icon={ icon }
+				instructions={ __(
+					"You'll need to activate the Related Posts feature to use this block.",
+					'jetpack'
+				) }
+				label={ settings.title }
 			>
-				{ isLoading
-					? __( 'Activating Related Posts', 'jetpack' )
-					: __( 'Activate Related Posts', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
-			</Button>
-			<div className="related-posts__support">
-				<ExternalLink href={ supportLink }>
-					{ __( 'Learn more about the Related Posts feature.', 'jetpack' ) }
-				</ExternalLink>
-			</div>
-		</Placeholder>
+				<Button
+					disabled={ isLoading }
+					isBusy={ isLoading }
+					onClick={ enableFeature }
+					variant="secondary"
+				>
+					{ isLoading
+						? __( 'Activating Related Posts', 'jetpack' )
+						: __(
+								'Activate Related Posts',
+								'jetpack',
+								/* dummy arg to avoid bad minification */ 0
+						  ) }
+				</Button>
+				<div className="components-placeholder__learn-more">
+					<ExternalLink href={ supportLink }>
+						{ __( 'Learn more about the Related Posts feature.', 'jetpack' ) }
+					</ExternalLink>
+				</div>
+			</Placeholder>
+		</div>
 	);
 };
