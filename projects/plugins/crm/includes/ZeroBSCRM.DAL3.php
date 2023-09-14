@@ -3708,6 +3708,60 @@ class zbsDAL {
 
     }
 
+	/**
+	 * Checks if a tag slug exists
+	 *
+	 * @param int    $obj_type_id Object type id.
+	 * @param string $slug Tag slug to check.
+	 *
+	 * @return string tag slug
+	 */
+	public function tag_slug_exists( int $obj_type_id, string $slug ) {
+		$slug_exists = $this->getTag(
+			-1,
+			array(
+				'objtype' => $obj_type_id,
+				'slug'    => $slug,
+				'onlyID'  => true,
+			)
+		);
+		return $slug_exists !== false;
+	}
+
+	/**
+	 * Checks if a tag slug exists
+	 *
+	 * @param int    $obj_type_id Object type id.
+	 * @param string $slug Tag slug to check.
+	 *
+	 * @return string tag slug
+	 */
+	public function get_new_tag_slug( int $obj_type_id, string $slug ) {
+		global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$slug_exists = $this->tag_slug_exists( $obj_type_id, $slug );
+
+		// slug as provided doesn't exist, so use that
+		if ( ! $slug_exists ) {
+			return $slug;
+		}
+
+		$slug_base = $slug . '-';
+
+		// get last iteration of tag slug
+		$sql_query = 'SELECT CAST(TRIM(LEADING %s FROM zbstag_slug) AS SIGNED) AS next_slug_id FROM ' . $ZBSCRM_t['tags'] . ' WHERE zbstag_slug LIKE CONCAT(%s,"%") AND zbstag_objtype = %d ORDER BY next_slug_id DESC LIMIT 1000'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		$cur_slug_iteration = $wpdb->get_var( $wpdb->prepare( $sql_query, $slug_base, $slug_base, $obj_type_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
+		// slug hasn't yet iterated, so use first iteration
+		if ( $cur_slug_iteration === null ) {
+			return $slug_base . '1';
+		}
+
+		// otherwise use next iteration
+		$next_slug_iteration = (int) $cur_slug_iteration + 1;
+		return $slug_base . $next_slug_iteration;
+	}
+
     /**
      * retrieves a tag slug e.g. tag-n
      *
@@ -3745,7 +3799,6 @@ class zbsDAL {
             // ... should only ever be called in the instance a tag slug can't be generated (chinese characters currently only case)
             $i = $startingI;
             while ($i <= 1024){
-
                 // is this tag in use?
                 $existingTagID = (int)$this->getTag(-1,array(
                                 'objtype'   => $objTypeID,
