@@ -2,7 +2,7 @@ import { InspectorControls, useBlockProps, InnerBlocks } from '@wordpress/block-
 import { createBlock } from '@wordpress/blocks';
 import { PanelBody, ToggleControl, FlexBlock, Spinner } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import BlogrollAppender from './components/blogroll-appender';
@@ -21,9 +21,14 @@ export function BlogRollEdit({ className, attributes, setAttributes, clientId })
 		load_placeholders,
 	} = attributes;
 
+<<<<<<< HEAD
 	const { isLoading, recommendations } = useRecommendations(load_placeholders);
 	const { subscriptions } = useSubscriptions({ ignore_user_blogs });
 	const [additionalClasses, setAdditionalClasses] = useState([]);
+=======
+	const { isLoading, recommendations } = useRecommendations();
+	const { subscriptions } = useSubscriptions( { ignore_user_blogs } );
+>>>>>>> cd32c17488 (Blogroll: apply feedback)
 
 	const { replaceInnerBlocks } = dispatch('core/block-editor');
 
