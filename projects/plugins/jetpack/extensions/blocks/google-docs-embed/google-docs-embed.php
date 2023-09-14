@@ -38,7 +38,7 @@ function render_callback( $attributes ) {
 
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 	wp_localize_script(
-		'jetpack-block-' . sanitize_title_with_dashes( basename( __DIR__ ) ),
+		'jetpack-block-' . sanitize_title_with_dashes( Blocks::get_block_feature( __DIR__ ) ),
 		'Jetpack_Google_Docs',
 		array(
 			'error_msg' => __( 'This document is private. To view the document, login to a Google account that the document has been shared with and then refresh this page.', 'jetpack' ),
