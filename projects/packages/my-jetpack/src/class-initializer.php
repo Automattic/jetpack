@@ -31,7 +31,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '3.4.4-alpha';
+	const PACKAGE_VERSION = '3.5.0-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -67,7 +67,7 @@ class Initializer {
 			'edit_posts',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),
-			0
+			-1
 		);
 
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );

@@ -65,7 +65,8 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"create-with-voice",
-		"ai-content-lens"
+		"ai-content-lens",
+		"ai-assistant-backend-prompts"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

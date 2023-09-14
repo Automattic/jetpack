@@ -334,7 +334,7 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Test registering a block by specifying the path to its metadata file.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.5.0
 	 *
 	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
@@ -347,7 +347,7 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Test reading metadata from a block.json file by specifying its path.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.5.0
 	 *
 	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
@@ -362,7 +362,7 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Test reading metadata from a block.json file by specifying its folder.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.5.0
 	 *
 	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
@@ -377,7 +377,7 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Test reading metadata from a file that doesn't exist.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.5.0
 	 *
 	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
@@ -392,7 +392,7 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Test reading the name of a block from its metadata.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.5.0
 	 *
 	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_metadata
 	 */
@@ -410,7 +410,7 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Test reading the feature name of a block from its metadata.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.5.0
 	 *
 	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_metadata
 	 */

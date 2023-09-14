@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-videopress",
-	"version": "0.18.0-alpha",
+	"version": "0.17.0-alpha",
 	"description": "VideoPress package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/videopress/#readme",
 	"bugs": {
@@ -26,8 +26,8 @@
 		"@automattic/calypso-color-schemes": "3.1.1",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.22.11",
-		"@babel/preset-react": "7.22.5",
+		"@babel/core": "7.22.17",
+		"@babel/preset-react": "7.22.15",
 		"@jest/globals": "29.4.3",
 		"@storybook/blocks": "7.1.0",
 		"@storybook/client-api": "7.1.0",

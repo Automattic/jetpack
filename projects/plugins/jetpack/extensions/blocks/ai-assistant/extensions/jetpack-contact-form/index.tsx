@@ -1,7 +1,7 @@
 /*
  * External dependencies
  */
-import { useAiContext, withAiDataProvider } from '@automattic/jetpack-ai-client';
+import { useAiContext, blockListBlockWithAiDataProvider } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -191,4 +191,9 @@ addFilter(
 	100
 );
 
-addFilter( 'editor.BlockListBlock', 'jetpack/ai-assistant-block-list', withAiDataProvider, 110 );
+addFilter(
+	'editor.BlockListBlock',
+	'jetpack/ai-assistant-block-list',
+	blockListBlockWithAiDataProvider( { blocks: 'jetpack/contact-form' } ),
+	110
+);
