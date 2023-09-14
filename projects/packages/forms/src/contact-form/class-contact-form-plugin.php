@@ -280,6 +280,205 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Turn block attribute to shortcode attributes.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $type - the type.
+	 *
+	 * @return array
+	 */
+	public static function block_attributes_to_shortcode_attributes( $atts, $type ) {
+		$atts['type'] = $type;
+		if ( isset( $atts['className'] ) ) {
+			$atts['class'] = $atts['className'];
+			unset( $atts['className'] );
+		}
+
+		if ( isset( $atts['defaultValue'] ) ) {
+			$atts['default'] = $atts['defaultValue'];
+			unset( $atts['defaultValue'] );
+		}
+
+		return $atts;
+	}
+
+	/**
+	 * Render the text field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_text( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'text' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the name field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_name( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'name' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the email field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_email( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'email' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the url field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_url( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'url' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the date field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_date( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'date' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the telephone field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_telephone( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'telephone' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the text area field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_textarea( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'textarea' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the checkbox field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_checkbox( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the multiple checkbox field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_checkbox_multiple( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-multiple' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the multiple choice field option.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_option( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'field-option' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the radio button field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_radio( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'radio' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the select field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_select( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'select' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the consent field.
+	 *
+	 * @param string $atts consent attributes.
+	 * @param string $content html content.
+	 */
+	public static function gutenblock_render_field_consent( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'consent' );
+
+		if ( ! isset( $atts['implicitConsentMessage'] ) ) {
+			$atts['implicitConsentMessage'] = __( "By submitting your information, you're giving us permission to email you. You may unsubscribe at any time.", 'jetpack-forms' );
+		}
+
+		if ( ! isset( $atts['explicitConsentMessage'] ) ) {
+			$atts['explicitConsentMessage'] = __( 'Can we send you an email from time to time?', 'jetpack-forms' );
+		}
+
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
 	 * Add the 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
