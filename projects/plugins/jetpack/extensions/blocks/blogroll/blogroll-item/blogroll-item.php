@@ -31,18 +31,34 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Blogroll Item block registration/dependency declaration.
  *
- * @param array  $attr    Array containing the Blogroll Item block attributes.
- * @param string $content String containing the Blogroll Item block content.
+ * @param array $attr    Array containing the Blogroll Item block attributes.
  *
  * @return string
  */
-function load_assets( $attr, $content ) {
+function load_assets( $attr ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
-	$content .= '<div><a class="jetpack-blogroll-item-title" href="' . $attr['url'] . '">' . $attr['name'] . '</a><div class="jetpack-blogroll-item-description">' . $attr['description'] . '</div></div>';
+	$name        = esc_attr( $attr['name'] );
+	$url         = esc_url( $attr['url'] );
+	$description = esc_attr( $attr['description'] );
+	$icon        = esc_attr( $attr['icon'] );
+
+	if ( empty( $icon ) ) {
+		$icon = 'https://s0.wp.com/i/webclip.png';
+	}
+
+	$content = <<<HTML
+<figure>
+	<img src="$icon" alt="$name">
+</figure>
+<div>
+	<a class="jetpack-blogroll-item-title" href="$url">$name</a>
+	<div class="jetpack-blogroll-item-description">$description</div>
+</div>
+HTML;
 
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
