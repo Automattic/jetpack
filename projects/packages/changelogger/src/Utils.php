@@ -273,6 +273,4 @@ class Utils {
 
 		return $ret;
 	}
-
 }
-

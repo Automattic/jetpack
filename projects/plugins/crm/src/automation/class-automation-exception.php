@@ -98,5 +98,4 @@ class Automation_Exception extends \Exception {
 	public function __construct( $message = 'Automation Exception', $code = self::GENERAL_ERROR ) { // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
 		parent::__construct( $message, $code );
 	}
-
 }

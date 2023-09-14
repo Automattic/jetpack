@@ -38,5 +38,4 @@ class Jetpack_Backup_Upgrades {
 	 * @deprecated since 1.7.0 No longer required after removing soft disconnect functionality.
 	 */
 	public static function clear_disabled_plugin() {}
-
 }
