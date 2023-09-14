@@ -48,5 +48,4 @@ class WP_Test_Jetpack_Sync_Network_Options extends WP_Test_Jetpack_Sync_Base {
 		$synced_option_value = $this->server_replica_storage->get_site_option( 'don_t_sync_test_network_option' );
 		$this->assertFalse( $synced_option_value );
 	}
-
 }

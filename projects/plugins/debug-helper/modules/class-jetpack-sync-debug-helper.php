@@ -135,6 +135,4 @@ class Jetpack_Sync_Debug_Helper {
 			)
 		);
 	}
-
 }
-

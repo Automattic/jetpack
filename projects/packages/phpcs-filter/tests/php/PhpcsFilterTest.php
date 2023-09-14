@@ -251,5 +251,4 @@ class PhpcsFilterTest extends TestCase {
 			'Custom per-directory file name' => array( __DIR__ . '/../../tests/fixtures/perdir-custom' ),
 		);
 	}
-
 }

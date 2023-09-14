@@ -492,5 +492,4 @@ class AddCommandTest extends CommandTestCase {
 			),
 		);
 	}
-
 }
