@@ -54,17 +54,17 @@ describe( 'Testimonials', () => {
 		render( <Testimonials testimonials={ testimonials } /> );
 
 		const rightArrow = screen.getByTestId( 'right-arrow' );
-		userEvent.click( rightArrow );
+		await userEvent.click( rightArrow );
 
 		expect( screen.getByText( secondAuthor ) ).toBeInTheDocument();
 
-		userEvent.click( rightArrow );
+		await userEvent.click( rightArrow );
 
 		const { author: thirdAuthor } = testimonials[ 2 ];
 
 		expect( screen.getByText( thirdAuthor ) ).toBeInTheDocument();
 
-		userEvent.click( rightArrow );
+		await userEvent.click( rightArrow );
 
 		const { author } = testimonials[ 0 ];
 
@@ -77,17 +77,17 @@ describe( 'Testimonials', () => {
 		render( <Testimonials testimonials={ testimonials } /> );
 
 		const leftArrow = screen.getByTestId( 'left-arrow' );
-		userEvent.click( leftArrow );
+		await userEvent.click( leftArrow );
 
 		expect( screen.getByText( thirdAuthor ) ).toBeInTheDocument();
 
-		userEvent.click( leftArrow );
+		await userEvent.click( leftArrow );
 
 		const { author: secondAuthor } = testimonials[ 1 ];
 
 		expect( screen.getByText( secondAuthor ) ).toBeInTheDocument();
 
-		userEvent.click( leftArrow );
+		await userEvent.click( leftArrow );
 
 		const { author } = testimonials[ 0 ];
 
