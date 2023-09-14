@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Jetpack Sync: Drop Sync custom queue table when Jetpack is disconnected

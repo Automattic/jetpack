@@ -18,11 +18,13 @@ export enum ISAStatus {
 	Stuck = 'error_stuck',
 }
 
-const zGroup = z.object( {
+const zSummaryGroup = z.object( {
 	issue_count: z.number(),
 	scanned_pages: z.number(),
 	total_pages: z.number(),
 } );
+
+type Summary_Group = z.infer< typeof zSummaryGroup >;
 
 const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 	'image_size_analysis_summary',
@@ -32,10 +34,10 @@ const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 			report_id: z.number().optional(),
 			groups: z
 				.object( {
-					core_front_page: zGroup,
-					singular_page: zGroup.optional(),
-					singular_post: zGroup.optional(),
-					other: zGroup.optional(),
+					core_front_page: zSummaryGroup,
+					singular_page: zSummaryGroup.optional(),
+					singular_post: zSummaryGroup.optional(),
+					other: zSummaryGroup.optional(),
 				} )
 				.nullable()
 				.optional(),
@@ -58,6 +60,29 @@ export const isaGroupLabels = {
 	singular_post: __( 'Posts', 'jetpack-boost' ),
 	other: __( 'Other', 'jetpack-boost' ),
 };
+
+export function isaGroupLabel( group: keyof typeof isaGroupLabels | string ) {
+	if ( ! isaGroupLabels[ group ] ) {
+		return group;
+	}
+	return isaGroupLabels[ group ];
+}
+
+export function getSummaryProgress( summaryGroups: Record< string, Summary_Group > ) {
+	return Object.entries( summaryGroups ).map( ( [ group, data ] ) => {
+		const progress = data.total_pages
+			? Math.round( ( data.scanned_pages / data.total_pages ) * 100 )
+			: 100;
+
+		return {
+			group,
+			progress,
+			done: progress === 100,
+			has_issues: data.issue_count > 0,
+			...data,
+		};
+	} );
+}
 
 /**
  * Derived store tracking the total number of issues.
@@ -102,12 +127,12 @@ export const imageDataGroupTabs = derived(
  */
 export const imageDataActiveGroup = derived(
 	[ imageDataGroupTabs, isaData ],
-	( [ $groups, $imageData ] ): z.infer< typeof zGroup > => {
+	( [ $groups, $imageData ] ): z.infer< typeof zSummaryGroup > => {
 		return $groups[ $imageData.query.group ];
 	}
 );
 
-export type ISA_Group = z.infer< typeof zGroup >;
+export type ISA_Group = z.infer< typeof zSummaryGroup >;
 
 /**
  * Request a new image size analysis.

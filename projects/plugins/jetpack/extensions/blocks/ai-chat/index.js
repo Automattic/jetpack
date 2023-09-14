@@ -8,6 +8,7 @@ import save from './save';
  * Style dependencies
  */
 import './editor.scss';
+import './components/feedback/style.scss';
 
 export const name = 'ai-chat';
 export const title = __( 'AI Chat (Experimental)', 'jetpack' );
