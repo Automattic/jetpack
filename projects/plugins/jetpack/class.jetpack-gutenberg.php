@@ -756,7 +756,7 @@ class Jetpack_Gutenberg {
 		// We need this information in the ai-chat feature, because it cant be activated if instant search is not enabled.
 		if ( Jetpack::is_module_active( 'search' ) ) {
 			$initial_state['search'] = array(
-				'is_enabled' => (bool) get_option( 'instant_search_enabled' ),
+				'instant_search_enabled' => (bool) get_option( 'instant_search_enabled' ),
 			);
 		}
 
