@@ -250,5 +250,3 @@ if ( $external_api_name !== false ) {
 				}
 
 				exit();
-
-

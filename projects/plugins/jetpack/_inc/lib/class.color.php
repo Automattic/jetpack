@@ -897,5 +897,4 @@ class Jetpack_Color {
 		}
 		return $this->fromHsl( $h, $s, $l );
 	}
-
 }

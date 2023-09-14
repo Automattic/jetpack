@@ -57,5 +57,4 @@ class Critical_CSS_Invalidator {
 
 		return $count;
 	}
-
 }

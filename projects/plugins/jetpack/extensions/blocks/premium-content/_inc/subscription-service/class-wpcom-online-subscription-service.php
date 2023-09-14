@@ -108,5 +108,4 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 	public function get_site_id() {
 		return get_current_blog_id();
 	}
-
 }

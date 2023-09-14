@@ -164,5 +164,3 @@ if ( is_array( $eventReminders ) ) {
 				wp_send_json( array( 'error' => 100 ) );
 
 			}
-
-

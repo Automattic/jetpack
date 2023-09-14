@@ -233,5 +233,4 @@ class Contact_Tag extends Base_Condition {
 			'jpcrm/contact_updated',
 		);
 	}
-
 }

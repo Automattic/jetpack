@@ -325,5 +325,4 @@ class ChangelogEntry implements JsonSerializable {
 		}
 		return new $class( $version, $data );
 	}
-
 }
