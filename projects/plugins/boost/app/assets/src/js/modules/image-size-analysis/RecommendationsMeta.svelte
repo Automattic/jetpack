@@ -36,12 +36,14 @@
 		0
 	);
 
+	$: status = $isaSummary.status;
+
 	/**
 	 * Work out if there is an error to show in the UI.
 	 */
 	$: errorMessage =
 		submitError ||
-		( $isaSummary?.status === ISAStatus.Stuck &&
+		( status === ISAStatus.Stuck &&
 			__(
 				'Your Image Size Analysis task seems to have gotten stuck, or our system is under unusual load. Please try again. If the issue persists, please contact support.',
 				'jetpack-boost'
@@ -57,8 +59,8 @@
 	 */
 	$: waitNotice =
 		( requestingReport && __( 'Getting ready…', 'jetpack-boost' ) ) ||
-		( $isaSummary?.status === ISAStatus.New && __( 'Warming up the engine…', 'jetpack-boost' ) ) ||
-		( $isaSummary?.status === ISAStatus.Queued &&
+		( status === ISAStatus.New && __( 'Warming up the engine…', 'jetpack-boost' ) ) ||
+		( status === ISAStatus.Queued &&
 			__( 'Give us a few minutes while we go through your images…', 'jetpack-boost' ) );
 
 	/**
@@ -80,11 +82,11 @@
 	}
 
 	function handleAnalyzeClick() {
-		const $event_name =
-			$isaSummary.status === ISAStatus.Completed
+		const eventName =
+			status === ISAStatus.Completed
 				? 'clicked_restart_isa_on_summary_page'
 				: 'clicked_start_isa_on_summary_page';
-		recordBoostEvent( $event_name, {} );
+		recordBoostEvent( eventName, {} );
 		return startAnalysis();
 	}
 
@@ -92,8 +94,7 @@
 	 * Work out whether to recommend the Image CDN. It should show if the CDN is off and no report has been run, or a report has found issues.
 	 */
 	$: showCDNRecommendation =
-		! $modulesState.image_cdn.active &&
-		( totalIssues > 0 || $isaSummary?.status === ISAStatus.NotFound );
+		! $modulesState.image_cdn.active && ( totalIssues > 0 || status === ISAStatus.NotFound );
 </script>
 
 {#if ! $isaSummary}
@@ -118,7 +119,7 @@
 	{/if}
 
 	<!-- Show a summary line if the report is completed. -->
-	{#if ! requestingReport && $isaSummary.status === ISAStatus.Completed}
+	{#if ! requestingReport && status === ISAStatus.Completed}
 		<div class="summary-line">
 			{#if totalIssues > 0}
 				<div class="has-issues summary">
@@ -159,7 +160,7 @@
 	{/if}
 
 	<!-- Show progress if a job is rolling. -->
-	{#if ! requestingReport && [ ISAStatus.Completed, ISAStatus.Queued ].includes( $isaSummary.status )}
+	{#if ! requestingReport && [ ISAStatus.Completed, ISAStatus.Queued ].includes( status )}
 		<MultiProgress summaryProgress={getSummaryProgress( $isaSummary.groups )} />
 	{/if}
 
@@ -173,7 +174,7 @@
 	{/if}
 
 	<!-- Show a button to view the report if it's in progress or completed. -->
-	{#if [ ISAStatus.Queued, ISAStatus.Completed ].includes( $isaSummary.status ) && ! requestingReport}
+	{#if [ ISAStatus.Queued, ISAStatus.Completed ].includes( status ) && ! requestingReport}
 		<div class="button-area">
 			<Button
 				disabled={requestingReport}
@@ -184,7 +185,7 @@
 						{}
 					)}
 			>
-				{$isaSummary.status === ISAStatus.Completed
+				{status === ISAStatus.Completed
 					? __( 'See full report', 'jetpack-boost' )
 					: __( 'View report in progress', 'jetpack-boost' )}
 			</Button>
@@ -192,10 +193,10 @@
 	{/if}
 
 	<!-- Show a button to kick off a report -->
-	{#if ! [ ISAStatus.New, ISAStatus.Queued, ISAStatus.Completed ].includes( $isaSummary.status )}
+	{#if ! [ ISAStatus.New, ISAStatus.Queued, ISAStatus.Completed ].includes( status )}
 		<div class="button-area">
 			<Button disabled={requestingReport} on:click={handleAnalyzeClick}>
-				{$isaSummary.status === ISAStatus.Completed
+				{status === ISAStatus.Completed
 					? __( 'Analyze again', 'jetpack-boost' )
 					: __( 'Start image analysis', 'jetpack-boost' )}
 			</Button>
