@@ -80,5 +80,4 @@ class Broken_Product extends Module_Product {
 	public static function get_manage_url() {
 		return '';
 	}
-
 }

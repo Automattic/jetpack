@@ -115,5 +115,4 @@ abstract class Base_Condition extends Base_Step implements Condition {
 			);
 		}
 	}
-
 }

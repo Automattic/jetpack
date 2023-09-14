@@ -136,7 +136,6 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 		// Return a response
 		return new WP_REST_Response( 'Email preview sent successfully.', 200 );
 	}
-
 }
 
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Send_Email_Preview' );

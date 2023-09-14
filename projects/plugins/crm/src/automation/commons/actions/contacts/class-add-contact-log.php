@@ -107,5 +107,4 @@ class Add_Contact_Log extends Base_Action {
 			)
 		);
 	}
-
 }

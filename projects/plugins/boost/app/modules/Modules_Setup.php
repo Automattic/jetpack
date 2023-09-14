@@ -89,5 +89,4 @@ class Modules_Setup implements Has_Setup {
 			( new Regenerate() )->start();
 		}
 	}
-
 }

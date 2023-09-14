@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
-use \VIDEOPRESS_PRIVACY;
+use VIDEOPRESS_PRIVACY;
 
 /**
  * VideoPress AJAX action handlers and utilities.

@@ -30,7 +30,7 @@ export const defaultPromptTemplate = {
 	},
 };
 
-const promptTemplates = [
+export const promptTemplates = [
 	defaultPromptTemplate,
 	// {
 	// 	label: __( 'Detailed guide on…', 'jetpack' ),

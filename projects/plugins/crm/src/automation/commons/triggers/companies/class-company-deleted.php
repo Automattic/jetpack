@@ -82,5 +82,4 @@ class Company_Deleted extends Base_Trigger {
 			array( $this, 'execute_workflow' )
 		);
 	}
-
 }

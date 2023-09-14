@@ -288,5 +288,4 @@ class JPCRM_Acceptance extends WPBrowser {
 		$this->dontSee( 'Warning:  ' );
 		$this->dontSee( 'Fatal error:  ' );
 	}
-
 }
