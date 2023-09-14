@@ -1,6 +1,6 @@
 <?php
 /**
- * Subscriptions Block.
+ * Contact Form Block.
  *
  * @package automattic/jetpack
  */

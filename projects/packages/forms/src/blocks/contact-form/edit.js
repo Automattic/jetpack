@@ -1,3 +1,4 @@
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { getJetpackData, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
@@ -31,6 +32,7 @@ import JetpackManageResponsesSettings from './components/jetpack-manage-response
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
+import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import { withStyleVariables } from './util/with-style-variables';
 import defaultVariations from './variations';
 
@@ -271,6 +273,13 @@ export const JetpackContactFormEdit = forwardRef(
 			);
 		};
 
+		if ( isLoadingModules ) {
+			return (
+				<ContactFormSkeletonLoader/>
+			);
+		}
+
+		console.log({isModuleActive, s:'!'})
 		if ( ! isModuleActive ) {
 			return (
 				<ContactFormPlaceholder
@@ -339,6 +348,13 @@ export const JetpackContactFormEdit = forwardRef(
 	}
 );
 
+const withThemeProvider = WrappedComponent => props =>
+	(
+		<ThemeProvider>
+			<WrappedComponent { ...props } />
+		</ThemeProvider>
+	);
+
 export default compose( [
 	withSelect( ( select, props ) => {
 		const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( 'core/blocks' );
@@ -376,4 +392,5 @@ export default compose( [
 		return { replaceInnerBlocks, selectBlock };
 	} ),
 	withInstanceId,
+	withThemeProvider,
 ] )( withStyleVariables( JetpackContactFormEdit ) );

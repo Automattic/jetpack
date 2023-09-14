@@ -1,11 +1,8 @@
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { settings } from '..';
 
 export const ContactFormPlaceholder = ( { changeStatus, isLoading, isModuleActive } ) => {
-	const { tracks } = useAnalytics();
-
 	const enableModule = () => {
 		return changeStatus( true );
 	};
@@ -15,7 +12,7 @@ export const ContactFormPlaceholder = ( { changeStatus, isLoading, isModuleActiv
 			icon={ settings.icon }
 			instructions={ __(
 				"You'll need to activate the Contact Form plugin to use this block.",
-				'jetpack'
+				'jetpack-forms'
 			) }
 			label={ settings.title }
 		>
@@ -26,8 +23,8 @@ export const ContactFormPlaceholder = ( { changeStatus, isLoading, isModuleActiv
 				variant="secondary"
 			>
 				{ isLoading
-					? __( 'Activating Contact Form', 'jetpack' )
-					: __( 'Activate Contact Form', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
+					? __( 'Activating Contact Form', 'jetpack-forms' )
+					: __( 'Activate Contact Form', 'jetpack-forms', 0 ) }
 			</Button>
 		</Placeholder>
 	);
