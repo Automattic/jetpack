@@ -184,7 +184,6 @@ module.exports = {
 			},
 		],
 		'jsdoc/implements-on-classes': 1, // Recommended
-		'jsdoc/newline-after-description': 1, // Recommended
 		'jsdoc/no-undefined-types': [
 			1,
 			{
@@ -204,6 +203,15 @@ module.exports = {
 		'jsdoc/require-returns-check': 1, // Recommended
 		'jsdoc/require-returns-description': 1, // Recommended
 		'jsdoc/require-returns-type': 1, // Recommended
+		'jsdoc/tag-lines': [
+			'warn',
+			'any',
+			{
+				startLines: null,
+				endLines: 0,
+				applyToEndTag: false,
+			},
+		],
 		'jsdoc/valid-types': 1, // Recommended
 		'jsdoc/check-values': 1,
 
