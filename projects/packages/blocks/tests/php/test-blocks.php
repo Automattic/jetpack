@@ -465,6 +465,31 @@ class Test_Blocks extends TestCase {
 	}
 
 	/**
+	 * Test getting the block name.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_name
+	 */
+	public function test_get_block_name() {
+		// Pass metadata
+
+		$result = Blocks::get_block_name( array() );
+		$this->assertSame( '', $result );
+
+		$result = Blocks::get_block_name( array( 'name' => 'jetpack/test-block' ) );
+		$this->assertEquals( 'jetpack/test-block', $result );
+
+		// Pass path
+
+		$result = Blocks::get_block_name( '' );
+		$this->assertSame( '', $result );
+
+		$result = Blocks::get_block_name( __DIR__ . '/fixtures/test-block/block.json' );
+		$this->assertEquals( 'jetpack/test-block', $result );
+	}
+
+	/**
 	 * Test getting the block feature name.
 	 *
 	 * @since $$next-version$$
