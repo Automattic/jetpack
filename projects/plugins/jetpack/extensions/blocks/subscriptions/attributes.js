@@ -78,6 +78,10 @@ export default {
 	spacing: {
 		type: 'number',
 	},
+	showLogin: {
+		type: 'boolean',
+		default: false,
+	},
 	successMessage: {
 		type: 'string',
 		default: __(

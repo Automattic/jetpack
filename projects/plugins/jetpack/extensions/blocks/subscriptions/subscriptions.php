@@ -11,7 +11,6 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
@@ -602,6 +601,7 @@ function render_block( $attributes ) {
 		),
 		'source'                 => 'subscribe-block',
 		'newsletter_categories'  => get_newsletter_categories(),
+		'show_login'             => get_attribute( $attributes, 'showLogin', false ),
 	);
 
 	if ( ! jetpack_is_frontend() ) {
@@ -686,7 +686,27 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 		)
 	);
 
-	$post_access_level = get_post_access_level_for_current_post();
+	$post_access_level          = get_post_access_level_for_current_post();
+	$show_login_access_question = '';
+	$show_login_sign_in_link    = '';
+	$show_login_action_text     = '';
+	if ( $data['show_login'] ) {
+		$is_paid_post               = $post_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
+		$show_login_access_question = $is_paid_post
+			? __( 'Already a paid subscriber?', 'jetpack' )
+			: __( 'Already a subscriber?', 'jetpack' );
+
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+
+		$show_login_sign_in_link = add_query_arg( 'redirect_to', rawurlencode( get_post_permalink() ), 'https://wordpress.com/log-in/link' );
+		if ( ! is_user_logged_in() && empty( $subscription_service->get_token_payload() ) ) {
+			$show_login_action_text = __( 'Log in', 'jetpack' );
+		} else {
+			$show_login_sign_in_link = add_query_arg( 'redirect_to', rawurlencode( $show_login_sign_in_link ), 'https://wordpress.com/log-in?action=logout' );
+			$show_login_action_text  = __( 'Switch accounts', 'jetpack' );
+		}
+	}
 
 	$newsletter_categories = $data['newsletter_categories'];
 
@@ -782,6 +802,10 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 					?>
 				</div>
 			<?php endif; ?>
+			<?php if ( $data['show_login'] ) : ?>
+				<p class="has-text-align-center" style="font-size:14px;font-weight:400;color:#646970"><?php echo esc_html( $show_login_access_question ); ?> <a href="<?php echo esc_html( $show_login_sign_in_link ); ?>" class="jetpack-subscriber-paywall-login" style="font-size:14px;font-weight:400;color:#646970"><?php echo esc_html( $show_login_action_text ); ?></a></p>
+			<?php endif; ?>
+
 		</div>
 	</div>
 	<?php
@@ -1056,21 +1080,6 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		// translators: %s is the name of the site.
 		: esc_html__( 'Subscribe to get access to the rest of this post and other subscriber-only content.', 'jetpack' );
 
-	$sign_in = '';
-	if ( ( new Host() )->is_wpcom_simple() ) {
-		$access_question = $is_paid_post
-			? __( 'Already a paid subscriber?', 'jetpack' )
-			: __( 'Already a subscriber?', 'jetpack' );
-		$sign_in_link    = add_query_arg( 'redirect_to', rawurlencode( get_post_permalink() ), 'https://wordpress.com/log-in/link' );
-		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$action_text          = ( ! is_user_logged_in() && empty( $subscription_service->get_token_payload() ) ) ? __( 'Log in', 'jetpack' ) : __( 'Switch accounts', 'jetpack' );
-
-		$sign_in = '<!-- wp:paragraph {"align":"center", "typography":{"fontSize":"14px","fontWeight":"400";"color":"#646970"}} -->
-<p class="has-text-align-center" style="font-size:14px;font-weight:400;color:#646970">' . esc_html( $access_question ) . ' <a href="' . $sign_in_link . '" class="jetpack-subscriber-paywall-login" style="font-size:14px;font-weight:400;color:#646970">' . esc_html( $action_text ) . '</a></p>
-<!-- /wp:paragraph -->';
-	}
-
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
 
 	return '<!-- wp:group {"style":{"border":{"width":"1px","radius":"4px"},"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|70","left":"32px","right":"32px"}}},"borderColor":"primary","className":"jetpack-subscribe-paywall","layout":{"type":"constrained","contentSize":"400px"}} -->
@@ -1087,8 +1096,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 <p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:14px">' . $subscribe_text . '</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
-' . $sign_in . '
+<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact","showLogin": true} /-->
 </div>
 <!-- /wp:group -->
 ';
