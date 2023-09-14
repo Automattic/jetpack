@@ -24,26 +24,28 @@ const zSummaryGroup = z.object( {
 	total_pages: z.number(),
 } );
 
-export type Summary_Group = z.infer< typeof zSummaryGroup >;
+export type ISASummaryGroup = z.infer< typeof zSummaryGroup >;
+
+const zSummary = z.object( {
+	status: z.nativeEnum( ISAStatus ).default( ISAStatus.NotFound ),
+	report_id: z.number().optional(),
+	groups: z
+		.object( {
+			core_front_page: zSummaryGroup,
+			singular_page: zSummaryGroup.optional(),
+			singular_post: zSummaryGroup.optional(),
+			other: zSummaryGroup.optional(),
+		} )
+		.nullable()
+		.optional(),
+} );
+
+export type ISASummary = z.infer< typeof zSummary >;
 
 const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 	'image_size_analysis_summary',
-	z
-		.object( {
-			status: z.nativeEnum( ISAStatus ).default( ISAStatus.NotFound ),
-			report_id: z.number().optional(),
-			groups: z
-				.object( {
-					core_front_page: zSummaryGroup,
-					singular_page: zSummaryGroup.optional(),
-					singular_post: zSummaryGroup.optional(),
-					other: zSummaryGroup.optional(),
-				} )
-				.nullable()
-				.optional(),
-		} )
-		// Default data if deactivated or not loaded yet.
-		.nullable()
+	// Default data if deactivated or not loaded yet.
+	zSummary.nullable()
 );
 // Prevent updates to image_size_analysis_summary from being pushed back to the server.
 image_size_analysis_summary.setSyncAction( async ( _, value ) => value );
@@ -68,7 +70,7 @@ export function isaGroupLabel( group: keyof typeof isaGroupLabels | string ) {
 	return isaGroupLabels[ group ];
 }
 
-export function getSummaryProgress( summaryGroups: Record< string, Summary_Group > ) {
+export function getSummaryProgress( summaryGroups: Record< string, ISASummaryGroup > ) {
 	return Object.entries( summaryGroups ).map( ( [ group, data ] ) => {
 		const progress = data.total_pages
 			? Math.round( ( data.scanned_pages / data.total_pages ) * 100 )

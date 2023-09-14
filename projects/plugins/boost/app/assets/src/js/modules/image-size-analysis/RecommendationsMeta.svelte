@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { __, sprintf } from '@wordpress/i18n';
 	import Button from '../../elements/Button.svelte';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
@@ -12,21 +11,17 @@
 	import { resetIsaQuery } from './store/isa-data';
 	import {
 		requestImageAnalysis,
-		initializeIsaSummary,
-		isaSummary,
 		ISAStatus,
 		getSummaryProgress,
-		type Summary_Group,
+		type ISASummaryGroup,
+		type ISASummary,
 	} from './store/isa-summary';
 
 	export let isCdnActive: boolean;
+	export let isaSummary: ISASummary;
 
-	onMount( () => {
-		initializeIsaSummary();
-	} );
-
-	function scannedPagesCount( sumGroups: Record< string, Summary_Group > ) {
-		return Object.values( sumGroups )
+	function scannedPagesCount( isaGroups: Record< string, ISASummaryGroup > ) {
+		return Object.values( isaGroups )
 			.map( group => group.scanned_pages )
 			.reduce( ( a, b ) => a + b, 0 );
 	}
@@ -35,13 +30,8 @@
 	let requestingReport = false;
 	let errorCode: undefined | number;
 
-	/**
-	 * React Migration Note:
-	 * Looks like there won't be a benefit to extracting the store further up the chain.
-	 * The data for this component is lazily loaded ( initializeIsaSummary() ) if this component is active.
-	 */
-	$: status = $isaSummary.status;
-	$: groups = $isaSummary.groups || {};
+	$: status = isaSummary.status;
+	$: groups = isaSummary.groups || {};
 	$: scannedPages = scannedPagesCount( groups );
 
 	/**
