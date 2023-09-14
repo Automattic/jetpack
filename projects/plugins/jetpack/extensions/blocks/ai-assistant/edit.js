@@ -520,7 +520,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			) }
 			<AIControl
 				ref={ aiControlRef }
-				disabled={ requireUpgrade }
+				disabled={ requireUpgrade || ! connected }
 				value={ userPrompt }
 				placeholder={ __( 'Ask Jetpack AI', 'jetpack' ) }
 				onChange={ handleChange }
@@ -528,7 +528,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				onStop={ handleStopSuggestion }
 				onAccept={ handleAccept }
 				state={ requestingState }
-				isTransparent={ requireUpgrade }
+				isTransparent={ requireUpgrade || ! connected }
 				showButtonLabels={ ! isMobileViewport }
 				showAccept={ contentIsLoaded && ! isWaitingState }
 				acceptLabel={ acceptLabel }

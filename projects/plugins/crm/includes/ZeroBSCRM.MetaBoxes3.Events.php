@@ -274,7 +274,6 @@
             $zbs->pageMessages[] = $msg;
 
         }
-
     }
 
 
@@ -366,7 +365,6 @@
         } // html
 
         // saved via main metabox
-
     }
 
 
@@ -410,7 +408,6 @@ class zeroBS__Metabox_EventTags extends zeroBS__Metabox_Tags{
     }
 
     // html + save dealt with by parent class :) 
-
 }
 
 /* ======================================================

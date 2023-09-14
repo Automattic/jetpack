@@ -47,5 +47,4 @@ class JPCRM_Deactivation_Activation_Cest {
 		$I->amOnPage( 'wp-admin' );
 		$I->see( 'Jetpack CRM', '.wp-menu-name' );
 	}
-
 }

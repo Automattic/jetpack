@@ -780,7 +780,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "e6b79362f4856459234f1fe50fb8e560ef586b3e"
+                "reference": "6ae6bbba80d1153fe109d7b718adc68daebfc3ac"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -803,7 +803,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.1.x-dev"
+                    "dev-trunk": "2.2.x-dev"
                 }
             },
             "autoload": {
@@ -950,7 +950,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "8c7e56e6c97632cf8fff1285acff16362892e0ac"
+                "reference": "be10267234d5655d40cce53aa72f8efac4eaa477"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -980,7 +980,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.4.x-dev"
+                    "dev-trunk": "3.5.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"

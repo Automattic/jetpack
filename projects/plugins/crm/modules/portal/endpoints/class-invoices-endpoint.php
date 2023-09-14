@@ -151,5 +151,4 @@ class Invoices_Endpoint extends Client_Portal_Endpoint {
 			esc_html_e( 'You do not have any invoices yet.', 'zero-bs-crm' );
 		}
 	} 
-
 }

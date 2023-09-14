@@ -43,5 +43,4 @@ class JetpackTracking {
 		$tracking = new Tracking();
 		return $tracking->record_user_event( $event_type, $data, $user );
 	}
-
 }

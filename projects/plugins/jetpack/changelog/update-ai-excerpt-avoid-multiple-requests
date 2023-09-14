@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Excerpt: stop and reset suggestions request once the panel gets hidden
