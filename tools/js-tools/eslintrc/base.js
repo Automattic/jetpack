@@ -161,6 +161,9 @@ module.exports = {
 		'wpcalypso/i18n-no-collapsible-whitespace': 0,
 		'wpcalypso/i18n-no-variables': 0,
 
+		// Rules that only make sense for Calypso.
+		'wpcalypso/i18n-unlocalized-url': 0,
+
 		// Dummy domain, projects should override this in their own .eslintrc.js.
 		'@wordpress/i18n-text-domain': [
 			'error',
