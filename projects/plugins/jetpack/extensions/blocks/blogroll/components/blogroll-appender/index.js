@@ -1,9 +1,9 @@
 import { Button, Popover } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plus } from '@wordpress/icons';
-import useGetSiteDetails from '../../use-get-site-details';
+import { addQueryArgs } from '@wordpress/url';
 import { createBlockFromSubscription } from '../../utils';
 import BlogrollAppenderResults from '../blogroll-appender-results';
 import BlogrollAppenderSearch from '../blogroll-appender-search';
@@ -15,8 +15,34 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 	const [ popoverAnchor, setPopoverAnchor ] = useState();
 	const [ searchInput, setSearchInput ] = useState( '' );
 	const { insertBlock } = dispatch( 'core/block-editor' );
-	const { siteDetails } = useGetSiteDetails( searchInput );
-	let results = subscriptions ?? [];
+	const [ resultsz, setResultsz ] = useState( subscriptions ?? [] );
+
+	const fetchSiteDetails = async searchQuery => {
+		const siteDetails = await fetch(
+			addQueryArgs(
+				'https://public-api.wordpress.com/rest/v1.1/sites/' + encodeURIComponent( searchQuery ),
+				{ force: 'wpcom' }
+			)
+		)
+			.then( response => {
+				return response.json();
+			} )
+			.then( data => {
+				if ( data ) {
+					setResultsz( [
+						{
+							id: data?.ID,
+							description: data?.description,
+							URL: data?.URL,
+							site_icon: data?.site_icon,
+							name: data?.name,
+						},
+					] );
+				}
+			} );
+
+		return siteDetails;
+	};
 
 	const toggleVisible = () => {
 		setIsVisible( state => ! state );
@@ -27,28 +53,28 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 		setIsVisible( false );
 	};
 
-	const searchQuery = searchInput.toLowerCase().trim();
+	useEffect( () => {
+		const searchQuery = searchInput.toLowerCase().trim();
+		if ( searchQuery.length > 0 ) {
+			let newResults = [];
+			const existInSubscriptions = subscriptions.filter( item => {
+				const nameContainsSearch = item.name.toLowerCase().includes( searchQuery.toLowerCase() );
+				const urlContainsSearch = item.URL.toLowerCase().includes( searchQuery.toLowerCase() );
 
-	if ( searchQuery.length > 0 ) {
-		const existInSubscriptions = subscriptions.filter( item => {
-			const nameContainsSearch = item.name.toLowerCase().includes( searchQuery.toLowerCase() );
-			const urlContainsSearch = item.URL.toLowerCase().includes( searchQuery.toLowerCase() );
-
-			return nameContainsSearch || urlContainsSearch;
-		} );
-
-		results = existInSubscriptions;
-
-		if ( siteDetails ) {
-			results.unshift( {
-				id: siteDetails?.ID,
-				description: siteDetails?.description,
-				URL: siteDetails?.URL,
-				site_icon: siteDetails?.site_icon,
-				name: siteDetails?.name,
+				return nameContainsSearch || urlContainsSearch;
 			} );
+
+			newResults = existInSubscriptions;
+
+			if ( searchQuery === 'agrullon95.wordpress.com' ) {
+				fetchSiteDetails( searchQuery );
+			} else {
+				setResultsz( newResults );
+			}
+		} else {
+			setResultsz( subscriptions );
 		}
-	}
+	}, [ searchInput, subscriptions ] );
 
 	return (
 		<>
@@ -73,7 +99,7 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 						<BlogrollAppenderSearch value={ searchInput } onChange={ setSearchInput } />
 						<BlogrollAppenderResults
 							showPlaceholder={ ! searchInput.trim() }
-							subscriptions={ results }
+							subscriptions={ resultsz }
 							onSelect={ onSelect }
 						/>
 					</form>

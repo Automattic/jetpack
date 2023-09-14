@@ -33,6 +33,50 @@ export default function useGetSiteDetails( siteURL ) {
 			return;
 		}
 
+		//https://public-api.wordpress.com/rest/v1.1/sites/howhostingworks.wordpress.com?http_envelope=1&force=wp
+
+		try {
+			fetch(
+				addQueryArgs(
+					'https://public-api.wordpress.com/rest/v1.1/sites/' + encodeURIComponent( siteURL ),
+					{ force: 'wpcom' }
+				)
+			)
+				.then( response => response.json() )
+				.catch( error => {
+					setSiteDetails( null );
+					if ( error.name === 'AbortError' ) {
+						return;
+					}
+
+					cache[ siteURL ] = false;
+
+					if ( error.message ) {
+						setErrorMessage( error.message );
+					} else {
+						setErrorMessage(
+							__( 'Whoops, we have encountered an error. Please try again later.', 'jetpack' )
+						);
+					}
+				} )
+				.finally( () => {} );
+		} catch ( error ) {
+			setSiteDetails( null );
+			if ( error.name === 'AbortError' ) {
+				return;
+			}
+
+			cache[ siteURL ] = false;
+
+			if ( error.message ) {
+				setErrorMessage( error.message );
+			} else {
+				setErrorMessage(
+					__( 'Whoops, we have encountered an error. Please try again later.', 'jetpack' )
+				);
+			}
+		}
+
 		apiFetch( {
 			path: addQueryArgs( '/sites/' + encodeURIComponent( siteURL ), { force: 'wpcom' } ),
 			apiNamespace: 'rest/v1.1',
