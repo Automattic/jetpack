@@ -24,7 +24,7 @@ const zSummaryGroup = z.object( {
 	total_pages: z.number(),
 } );
 
-type Summary_Group = z.infer< typeof zSummaryGroup >;
+export type Summary_Group = z.infer< typeof zSummaryGroup >;
 
 const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 	'image_size_analysis_summary',
@@ -90,15 +90,6 @@ export function getSummaryProgress( summaryGroups: Record< string, Summary_Group
 export const totalIssueCount = derived( isaSummary, $isaSummary => {
 	return Object.values( $isaSummary?.groups || {} )
 		.map( group => group.issue_count )
-		.reduce( ( a, b ) => a + b, 0 );
-} );
-
-/**
- * Derived store tracking the number of scanned pages.
- */
-export const scannedPagesCount = derived( isaSummary, $isaSummary => {
-	return Object.values( $isaSummary?.groups || {} )
-		.map( group => group.scanned_pages )
 		.reduce( ( a, b ) => a + b, 0 );
 } );
 

@@ -16,13 +16,19 @@
 		initializeIsaSummary,
 		isaSummary,
 		ISAStatus,
-		scannedPagesCount,
 		getSummaryProgress,
+		type Summary_Group,
 	} from './store/isa-summary';
 
 	onMount( () => {
 		initializeIsaSummary();
 	} );
+
+	function scannedPagesCount( sumGroups: Record< string, Summary_Group > ) {
+		return Object.values( sumGroups )
+			.map( group => group.scanned_pages )
+			.reduce( ( a, b ) => a + b, 0 );
+	}
 
 	let submitError: undefined | string;
 	let requestingReport = false;
@@ -30,8 +36,8 @@
 
 	$: status = $isaSummary.status;
 	$: groups = $isaSummary.groups || {};
-	$: scannedPages = $scannedPagesCount;
 	$: isCdnActive = $modulesState.image_cdn.active;
+	$: scannedPages = scannedPagesCount( groups );
 
 	/**
 	 * Calculate total number of issues.
