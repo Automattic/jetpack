@@ -9,13 +9,13 @@ import { isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import testEmbedUrl from '../../shared/test-embed-url';
 import metadata from './block.json';
+import { CALENDLY_EXAMPLE_URL } from './constants';
 import CalendlyControls from './controls';
 import { getAttributesFromEmbedCode } from './utils';
 
 import './editor.scss';
 import './view.scss';
 
-const CALENDLY_EXAMPLE_URL = 'https://calendly.com/wpcom/jetpack-block-example';
 const innerButtonBlock = {
 	name: 'jetpack/button',
 	attributes: {
