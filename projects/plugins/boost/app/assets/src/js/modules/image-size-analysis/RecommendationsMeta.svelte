@@ -31,6 +31,7 @@
 	$: status = $isaSummary.status;
 	$: groups = $isaSummary.groups || {};
 	$: scannedPages = $scannedPagesCount;
+	$: isCdnActive = $modulesState.image_cdn.active;
 
 	/**
 	 * Calculate total number of issues.
@@ -94,8 +95,7 @@
 	/**
 	 * Work out whether to recommend the Image CDN. It should show if the CDN is off and no report has been run, or a report has found issues.
 	 */
-	$: showCDNRecommendation =
-		! $modulesState.image_cdn.active && ( totalIssues > 0 || status === ISAStatus.NotFound );
+	$: showCDNRecommendation = ! isCdnActive && ( totalIssues > 0 || status === ISAStatus.NotFound );
 </script>
 
 {#if ! groups}
