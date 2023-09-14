@@ -271,7 +271,7 @@ export const JetpackContactFormEdit = forwardRef(
 			);
 		};
 
-		if ( ! isModuleActive && ! isLoadingModules ) {
+		if ( ! isModuleActive ) {
 			return (
 				<ContactFormPlaceholder
 					changeStatus={ changeStatus }

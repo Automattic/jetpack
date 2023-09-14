@@ -36,7 +36,15 @@ class Contact_Form_Block {
 	 * @return string
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_editor_scripts' ) );
+		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
+		if ( ! jetpack_is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			return sprintf(
+				'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
+				esc_attr( Blocks::classes( 'contact-form', $atts ) ),
+				esc_url( get_the_permalink() ),
+				esc_html__( 'Submit a form.', 'jetpack-forms' )
+			);
+		}
 
 		self::load_view_scripts();
 
@@ -63,6 +71,11 @@ class Contact_Form_Block {
 	 * Loads scripts
 	 */
 	public static function load_view_scripts() {
+		if ( is_admin() ) {
+			// A block's view assets will not be required in wp-admin.
+			return;
+		}
+
 		Assets::register_script(
 			'jp-forms-blocks',
 			'../../../dist/blocks/view.js',
