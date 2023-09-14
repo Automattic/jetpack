@@ -26,26 +26,28 @@ const zSummaryGroup = z.object( {
 
 export type ISASummaryGroup = z.infer< typeof zSummaryGroup >;
 
-const zSummary = z.object( {
-	status: z.nativeEnum( ISAStatus ).default( ISAStatus.NotFound ),
-	report_id: z.number().optional(),
-	groups: z
-		.object( {
-			core_front_page: zSummaryGroup,
-			singular_page: zSummaryGroup.optional(),
-			singular_post: zSummaryGroup.optional(),
-			other: zSummaryGroup.optional(),
-		} )
-		.nullable()
-		.optional(),
-} );
+const zSummary = z
+	.object( {
+		status: z.nativeEnum( ISAStatus ).default( ISAStatus.NotFound ),
+		report_id: z.number().optional(),
+		groups: z
+			.object( {
+				core_front_page: zSummaryGroup,
+				singular_page: zSummaryGroup.optional(),
+				singular_post: zSummaryGroup.optional(),
+				other: zSummaryGroup.optional(),
+			} )
+			.nullable()
+			.optional(),
+	} )
+	// Default data if deactivated or not loaded yet.
+	.nullable();
 
 export type ISASummary = z.infer< typeof zSummary >;
 
 const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 	'image_size_analysis_summary',
-	// Default data if deactivated or not loaded yet.
-	zSummary.nullable()
+	zSummary
 );
 // Prevent updates to image_size_analysis_summary from being pushed back to the server.
 image_size_analysis_summary.setSyncAction( async ( _, value ) => value );
