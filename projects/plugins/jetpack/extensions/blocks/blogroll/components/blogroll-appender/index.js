@@ -1,6 +1,6 @@
 import { Button, Popover } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plus } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
@@ -16,8 +16,15 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 	const [ searchInput, setSearchInput ] = useState( '' );
 	const { insertBlock } = dispatch( 'core/block-editor' );
 	const [ resultsz, setResultsz ] = useState( subscriptions ?? [] );
+	const abortControllerRef = useRef();
 
 	const fetchSiteDetails = async searchQuery => {
+		if ( abortControllerRef.current ) {
+			abortControllerRef.current.abort();
+		}
+		abortControllerRef.current =
+			typeof AbortController === 'undefined' ? undefined : new AbortController();
+
 		const siteDetails = await fetch(
 			addQueryArgs(
 				'https://public-api.wordpress.com/rest/v1.1/sites/' + encodeURIComponent( searchQuery ),
