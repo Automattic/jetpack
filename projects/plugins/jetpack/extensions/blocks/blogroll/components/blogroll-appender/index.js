@@ -10,12 +10,14 @@ import BlogrollAppenderSearch from '../blogroll-appender-search';
 
 import './style.scss';
 
+const cache = {};
+
 export default function BlogrollAppender( { subscriptions, clientId } ) {
 	const [ isVisible, setIsVisible ] = useState( false );
 	const [ popoverAnchor, setPopoverAnchor ] = useState();
 	const [ searchInput, setSearchInput ] = useState( '' );
 	const { insertBlock } = dispatch( 'core/block-editor' );
-	const [ resultsz, setResultsz ] = useState( subscriptions ?? [] );
+	const [ results, setResults ] = useState( subscriptions ?? [] );
 	const abortControllerRef = useRef();
 
 	const fetchSiteDetails = async searchQuery => {
@@ -32,11 +34,17 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 			)
 		)
 			.then( response => {
-				return response.json();
+				if ( ! response.ok ) {
+					setResults( [] );
+					cache[ searchQuery ] = null;
+				} else {
+					return response.json();
+				}
 			} )
 			.then( data => {
 				if ( data ) {
-					setResultsz( [
+					cache[ searchQuery ] = data;
+					setResults( [
 						{
 							id: data?.ID,
 							description: data?.description,
@@ -45,7 +53,12 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 							name: data?.name,
 						},
 					] );
+				} else {
+					setResults( [] );
 				}
+			} )
+			.catch( () => {
+				setResults( [] );
 			} );
 
 		return siteDetails;
@@ -61,10 +74,9 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 	};
 
 	useEffect( () => {
-		const cleanTimeout = setTimeout( () => {
+		const cancellableSearch = setTimeout( () => {
 			const searchQuery = searchInput.toLowerCase().trim();
 			if ( searchQuery.length > 0 ) {
-				let newResults = [];
 				const existInSubscriptions = subscriptions.filter( item => {
 					const nameContainsSearch = item.name.toLowerCase().includes( searchQuery.toLowerCase() );
 					const urlContainsSearch = item.URL.toLowerCase().includes( searchQuery.toLowerCase() );
@@ -72,20 +84,34 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 					return nameContainsSearch || urlContainsSearch;
 				} );
 
-				newResults = existInSubscriptions;
-
 				if ( checkIfValidDomain( searchQuery ) ) {
+					if ( searchQuery in cache ) {
+						const cachedSiteDetails = cache[ searchQuery ]
+							? [
+									{
+										id: cache[ searchQuery ]?.ID,
+										description: cache[ searchQuery ]?.description,
+										URL: cache[ searchQuery ]?.URL,
+										site_icon: cache[ searchQuery ]?.logo?.url,
+										name: cache[ searchQuery ]?.name,
+									},
+							  ]
+							: [];
+
+						setResults( cachedSiteDetails );
+						return;
+					}
 					fetchSiteDetails( searchQuery );
 				} else {
-					setResultsz( newResults );
+					setResults( existInSubscriptions );
 				}
 			} else {
-				setResultsz( subscriptions );
+				setResults( subscriptions );
 			}
 		}, 1000 );
 
 		return () => {
-			clearTimeout( cleanTimeout );
+			clearTimeout( cancellableSearch );
 		};
 	}, [ searchInput, subscriptions ] );
 
@@ -112,7 +138,7 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 						<BlogrollAppenderSearch value={ searchInput } onChange={ setSearchInput } />
 						<BlogrollAppenderResults
 							showPlaceholder={ ! searchInput.trim() }
-							subscriptions={ resultsz }
+							subscriptions={ results }
 							onSelect={ onSelect }
 						/>
 					</form>
