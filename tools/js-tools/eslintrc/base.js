@@ -187,6 +187,7 @@ module.exports = {
 			},
 		],
 		'jsdoc/implements-on-classes': 1, // Recommended
+		'jsdoc/no-defaults': 0,
 		'jsdoc/no-undefined-types': [
 			1,
 			{
