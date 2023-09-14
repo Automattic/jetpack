@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\CRM\Automation;
  *
  * @since $$next-version$$
  */
-final class Automation_Boostrap {
+final class Automation_Bootstrap {
 
 	/**
 	 * The automation engine we want to bootstrap.
