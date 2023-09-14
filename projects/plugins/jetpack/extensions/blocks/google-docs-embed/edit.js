@@ -6,28 +6,29 @@ import { __, _x } from '@wordpress/i18n';
 import metadata from './block.json';
 import Embed from './embed';
 
-const docsVariation = metadata.variations?.find( v => v.name === 'jetpack/google-docs' );
-const sheetsVariation = metadata.variations?.find( v => v.name === 'jetpack/google-sheets' );
-const slidesVariation = metadata.variations?.find( v => v.name === 'jetpack/google-slides' );
+const { variations } = metadata;
+const docsVariation = variations?.find( v => v.name === 'jetpack/google-docs' );
+const sheetsVariation = variations?.find( v => v.name === 'jetpack/google-sheets' );
+const slidesVariation = variations?.find( v => v.name === 'jetpack/google-slides' );
 
 const GOOGLE_DOCUMENT = {
 	type: 'document',
 	title: docsVariation?.title,
-	icon: getBlockIconProp( docsVariation?.icon ),
+	icon: getBlockIconProp( docsVariation ),
 	patterns: [ /^(http|https):\/\/(docs\.google.com)\/document\/d\/([A-Za-z0-9_-]+).*?$/i ],
 };
 
 const GOOGLE_SPREADSHEET = {
 	type: 'spreadsheets',
 	title: sheetsVariation?.title,
-	icon: getBlockIconProp( sheetsVariation?.icon ),
+	icon: getBlockIconProp( sheetsVariation ),
 	patterns: [ /^(http|https):\/\/(docs\.google.com)\/spreadsheets\/d\/([A-Za-z0-9_-]+).*?$/i ],
 };
 
 const GOOGLE_SLIDE = {
 	type: 'presentation',
 	title: slidesVariation?.title,
-	icon: getBlockIconProp( slidesVariation?.icon ),
+	icon: getBlockIconProp( slidesVariation ),
 	patterns: [ /^(http|https):\/\/(docs\.google.com)\/presentation\/d\/([A-Za-z0-9_-]+).*?$/i ],
 };
 
@@ -84,7 +85,7 @@ const GsuiteBlockEdit = props => {
 		}
 	}, [ variation, url, setAttributes ] );
 
-	switch ( variation ) {
+	switch ( variation.replace( 'jetpack/', '' ) ) {
 		case 'google-docs':
 			icon = GOOGLE_DOCUMENT.icon;
 			title = GOOGLE_DOCUMENT.title;
