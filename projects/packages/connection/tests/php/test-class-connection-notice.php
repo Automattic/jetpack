@@ -41,7 +41,7 @@ class Test_Connection_Notice extends TestCase {
 
 		$this->expectOutputRegex( '#Connect to WordPress.com#i' );
 
-		$this->expectOutputRegex( '#https:\/\/jetpack\.wordpress\.com\/jetpack\.authorize\/1\/\?response_type=code#i' ); // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+		$this->expectOutputRegex( '#https:\/\/jetpack\.wordpress\.com\/jetpack\.authorize\/1\/\?response_type=code#i' ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 
 		$notice->delete_user_update_connection_owner_notice();
 

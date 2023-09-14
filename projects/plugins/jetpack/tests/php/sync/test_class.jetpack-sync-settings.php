@@ -177,5 +177,4 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 			'body'        => '',
 		);
 	}
-
 }

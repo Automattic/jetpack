@@ -19,5 +19,5 @@
  73 | ERROR   | [ ] Use ".=" for string concat (MediaWiki.Usage.PlusStringConcat.Found)
  76 | ERROR   | [ ] The ampersand in "&$this" must be removed. If you plan to get back another instance of this class, assign $this to a temporary variable. (MediaWiki.Usage.ReferenceThis.Found)
  79 | ERROR   | [x] Multiple empty lines should not exist in a row; found 2 consecutive empty lines (MediaWiki.WhiteSpace.MultipleEmptyLines.MultipleEmptyLines)
- 82 | ERROR   | [x] A single space should be after the function keyword in closures (MediaWiki.WhiteSpace.SpaceAfterClosure.NoWhitespaceAfterClosure)
+ 82 | ERROR   | [x] Expected 1 space after FUNCTION keyword; 0 found (Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction)
  89 | ERROR   | [x] Multiple empty lines should not exist in a row; found 2 consecutive empty lines (MediaWiki.WhiteSpace.MultipleEmptyLines.MultipleEmptyLines)

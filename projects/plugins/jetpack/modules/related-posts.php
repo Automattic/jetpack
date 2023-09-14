@@ -9,7 +9,7 @@
  * Auto Activate: No
  * Module Tags: Recommended
  * Feature: Engagement
- * // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+ * // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInComment
  * Additional Search Queries: related, jetpack related posts, related posts for wordpress, related posts, popular posts, popular, related content, related post, contextual, context, contextual related posts, related articles, similar posts, easy related posts, related page, simple related posts, free related posts, related thumbnails, similar, engagement, yet another related posts plugin
  */
 class Jetpack_RelatedPosts_Module {

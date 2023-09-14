@@ -10,7 +10,7 @@
 
 namespace Automattic\Jetpack_CRM\Modules\Automations;
 
-use Automattic\Jetpack\CRM\Automation\Automation_Boostrap;
+use Automattic\Jetpack\CRM\Automation\Automation_Bootstrap;
 
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	exit;
@@ -51,7 +51,7 @@ function load_module() {
 
 	/* @todo Refactor this to be part of a separate initialisation process. */
 	if ( is_admin() ) {
-		$bootstrap = new Automation_Boostrap();
+		$bootstrap = new Automation_Bootstrap();
 		$bootstrap->init();
 	}
 }

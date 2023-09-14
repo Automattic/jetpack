@@ -431,5 +431,4 @@ class Jetpack_Sitemap_Librarian {
 		);
 		// phpcs:enable WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
-
 }
