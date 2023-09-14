@@ -11,6 +11,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Jetpack_Gutenberg;
 
 /**
@@ -27,7 +28,7 @@ class Blocks {
 	 *
 	 * @since 1.1.0
 	 *
-	 * @param string $slug Slug of the block or absolute path to the directory containing the block.json file.
+	 * @param string $slug Slug of the block or absolute path to the block source code directory.
 	 * @param array  $args {
 	 *     Arguments that are passed into register_block_type.
 	 *     See register_block_type for full list of arguments.
@@ -49,12 +50,12 @@ class Blocks {
 
 		$block_type = $slug;
 
-		// If the path to block.json is passed, find the slug in the file then create a block type
-		// object to register the block.
+		// If a path is passed, find the slug in the file then create a block type object to register
+		// the block.
 		// Note: passing the path directly to register_block_type seems to loose the interactivity of
 		// the block once in the editor once it's out of focus.
 		if ( '/' === substr( $slug, 0, 1 ) ) {
-			$metadata = self::get_block_metadata_from_file( $slug );
+			$metadata = self::get_block_metadata_from_file( self::get_path_to_block_metadata( $slug ) );
 			$name     = self::get_block_name_from_metadata( $metadata );
 
 			if ( ! empty( $name ) ) {
@@ -130,7 +131,7 @@ class Blocks {
 	public static function get_block_metadata_from_file( $filename ) {
 		$metadata = array();
 		$needle   = '/block.json';
-		$filename = $needle === substr( $filename, -strlen( $needle ) ) ? $filename : realpath( $filename . $needle );
+		$filename = $needle === substr( $filename, -strlen( $needle ) ) ? $filename : $filename . $needle;
 
 		if ( file_exists( $filename ) ) {
 			try {
@@ -351,5 +352,27 @@ class Blocks {
 		 * @param boolean $is_standalone_block Is the block running standalone versus as part of the Jetpack plugin.
 		 */
 		return apply_filters( 'jetpack_is_standalone_block', $is_standalone_block );
+	}
+
+	/**
+	 * Returns the path to the directory containing the block.json metadata file of a block, given its
+	 * source code directory and, optionally, the directory that holds the blocks built files of
+	 * the package. If the directory doesn't exist, falls back to the source directory.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $block_src_dir    The path to the folder containing the block source code.
+	 *                                 Typically this is done by passing __DIR__ as the argument.
+	 * @param string $package_dist_dir Optional. A full path to the directory containing the blocks
+	 *                                 built files of the package. Default empty.
+	 *
+	 * @return string The path to the directory.
+	 */
+	public static function get_path_to_block_metadata( $block_src_dir, $package_dist_dir = '' ) {
+		$dir       = basename( $block_src_dir );
+		$dist_path = empty( $package_dist_dir ) ? dirname( Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ) . '/_inc/blocks' : $package_dist_dir;
+		$result    = realpath( "$dist_path/$dir" );
+
+		return false === $result ? $block_src_dir : $result;
 	}
 }
