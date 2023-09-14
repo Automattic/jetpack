@@ -34,12 +34,12 @@
 		display: flex;
 		padding: 20px 8px;
 		gap: 20px;
-	
+
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 400;
 		color: var(--gray-gray-50, #646970);
-	
+
 		.jetpack-blogroll-item-title {
 			color: var(--gray-gray-100, #101517);
 			font-size: 16px;
@@ -48,8 +48,14 @@
 			line-height: 24px;
 		}
 
-		.wp-block-image {
+		figure {
 			margin: 0;
+
+			img {
+				border-radius: 50%;
+				width: 48px;
+				height: 48px;
+			}
 		}
 	}
 
