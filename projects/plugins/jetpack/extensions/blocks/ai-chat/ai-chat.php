@@ -26,6 +26,24 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
+ * Register the setting for the AI prompt override.
+ */
+function register_settings() {
+	register_setting(
+		'general',
+		'jetpack_search_ai_prompt_override',
+		array(
+			'type'         => 'string',
+			'show_in_rest' => true,
+			'description'  => __( 'Override for the Jetpack AI prompt in the Jetpack AI Search feature.', 'jetpack' ),
+			'defualt'      => '',
+		)
+	);
+}
+
+add_action( 'rest_api_init', __NAMESPACE__ . '\register_settings' );
+
+/**
  * Jetpack AI Paragraph block registration/dependency declaration.
  *
  * @param array $attr Array containing the Jetpack AI Chat block attributes.

@@ -1740,6 +1740,7 @@ class Search extends Module {
 	 * @var array
 	 */
 	private static $options_to_sync = array(
+		'jetpack_search_ai_prompt_override',
 		'jetpack_search_color_theme',
 		'jetpack_search_result_format',
 		'jetpack_search_default_sort',
