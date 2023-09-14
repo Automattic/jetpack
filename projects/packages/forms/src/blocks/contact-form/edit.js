@@ -279,7 +279,6 @@ export const JetpackContactFormEdit = forwardRef(
 			);
 		}
 
-		console.log({isModuleActive, s:'!'})
 		if ( ! isModuleActive ) {
 			return (
 				<ContactFormPlaceholder
