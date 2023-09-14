@@ -208,8 +208,7 @@ There are different types of builds:
 
   On OSX, you can use [Homebrew](https://brew.sh/) to quickly install both tools:
 
-  - `brew install unison`
-  - `brew install autozimu/formulas/unison-fsmonitor`
+  - `brew install unison autozimu/formulas/unison-fsmonitor`
 
   #### Configuring Unison
 
