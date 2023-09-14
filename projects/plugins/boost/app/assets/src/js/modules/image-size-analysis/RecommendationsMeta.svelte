@@ -4,7 +4,6 @@
 	import Button from '../../elements/Button.svelte';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
 	import ImageCDNRecommendation from '../../elements/ImageCDNRecommendation.svelte';
-	import { modulesState } from '../../stores/modules';
 	import RefreshIcon from '../../svg/refresh.svg';
 	import WarningIcon from '../../svg/warning-outline.svg';
 	import { recordBoostEvent, recordBoostEventAndRedirect } from '../../utils/analytics';
@@ -19,6 +18,8 @@
 		getSummaryProgress,
 		type Summary_Group,
 	} from './store/isa-summary';
+
+	export let isCdnActive: boolean;
 
 	onMount( () => {
 		initializeIsaSummary();
@@ -36,7 +37,6 @@
 
 	$: status = $isaSummary.status;
 	$: groups = $isaSummary.groups || {};
-	$: isCdnActive = $modulesState.image_cdn.active;
 	$: scannedPages = scannedPagesCount( groups );
 
 	/**

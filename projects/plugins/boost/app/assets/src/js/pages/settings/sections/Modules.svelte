@@ -269,7 +269,7 @@
 			</p>
 
 			<svelte:fragment slot="meta">
-				<RecommendationsMeta />
+				<RecommendationsMeta isCdnActive={$modulesState.image_cdn.active} />
 			</svelte:fragment>
 		</Module>
 	</div>
