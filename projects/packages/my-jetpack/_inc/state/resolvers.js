@@ -13,6 +13,7 @@ import {
 	REST_API_SITE_PRODUCTS_ENDPOINT,
 	REST_API_CHAT_AVAILABILITY_ENDPOINT,
 	REST_API_CHAT_AUTHENTICATION_ENDPOINT,
+	REST_API_SITE_PRODUCT_DATA_ENDPOINT,
 	PRODUCTS_THAT_NEEDS_INITIAL_FETCH,
 } from './constants';
 import resolveProductStatsRequest from './stats-resolvers';
@@ -129,6 +130,19 @@ const myJetpackResolvers = {
 				dispatch.setAvailableLicensesIsFetching( false );
 			}
 		},
+
+	getProductData: () => {
+		async ( { dispatch } ) => {
+			dispatch.setProductDataIsFetching( true );
+
+			try {
+				dispatch.setProductData( await apiFetch( { path: REST_API_SITE_PRODUCT_DATA_ENDPOINT } ) );
+				dispatch.setProductDataIsFetching( false );
+			} catch ( error ) {
+				dispatch.setProductDataIsFetching( false );
+			}
+		};
+	},
 };
 
 const getProductStats = {

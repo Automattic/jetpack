@@ -24,6 +24,7 @@ import useChatAuthentication from '../../hooks/use-chat-authentication';
 import useChatAvailability from '../../hooks/use-chat-availability';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
+import useProductData from '../../hooks/use-product-data';
 import ConnectionsSection from '../connections-section';
 import IDCModal from '../idc-modal';
 import PlansSection from '../plans-section';
@@ -89,6 +90,8 @@ export default function MyJetpackScreen() {
 	const { jwt, isFetchingChatAuthentication } = useChatAuthentication();
 	const shouldShowZendeskChatWidget =
 		! isFetchingChatAuthentication && ! isFetchingChatAvailability && isAvailable && jwt;
+	// eslint-disable-next-line no-unused-vars
+	const { productData, isQueryingProductData } = useProductData();
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
