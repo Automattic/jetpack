@@ -72,7 +72,6 @@
 	"projects/plugins/jetpack/extensions/shared/external-media/sources/google-photos/filter-request.js",
 	"projects/plugins/jetpack/extensions/shared/get-validated-attributes.js",
 	"projects/plugins/jetpack/extensions/shared/plan-upgrade-notification.js",
-	"projects/plugins/jetpack/extensions/shared/public-path.js",
 	"projects/plugins/jetpack/modules/calypsoify/mods-gutenberg.js",
 	"projects/plugins/jetpack/modules/contact-form/js/editor-view.js",
 	"projects/plugins/jetpack/modules/contact-form/js/grunion-admin.js",
