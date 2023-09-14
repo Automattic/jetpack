@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Try to remove memberships cookie on logout.
