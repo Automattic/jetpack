@@ -57,8 +57,8 @@ class Jetpack_Mu_Wpcom {
 	 * Load features that don't need any special loading considerations.
 	 */
 	public static function load_features() {
-		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
+		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
 
 		require_once __DIR__ . '/features/media/heif-support.php';
 	}

@@ -110,10 +110,6 @@ function wpcom_locked_mode_render() {
  * @return array
  */
 function wpcom_lm_remove_post_capabilities( $caps, $cap ) {
-	if ( ! wpcom_site_has_feature( WPCOM_Features::LOCKED_MODE ) ) {
-		return $caps;
-	}
-
 	// Return if option is not set.
 	if ( ! get_option( 'wpcom_locked_mode' ) ) {
 		return $caps;
