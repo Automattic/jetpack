@@ -13,7 +13,7 @@
 	const siteIsOnline = Jetpack_Boost.site.online;
 
 	let loadError;
-	let isLoading = false;
+	let isLoading = true;
 	let periods = [];
 	let startDate;
 	let endDate;
@@ -80,5 +80,6 @@
 		{periods}
 		{startDate}
 		{endDate}
+		{isLoading}
 	/>
 </div>

@@ -11,7 +11,7 @@ import {
 	ToolbarDropdownMenu,
 } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -23,6 +23,7 @@ import {
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { getReachForAccessLevelKey } from '../../shared/memberships/settings';
 import { getPaidPlanLink } from '../../shared/memberships/utils';
+import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect';
 import { store as membershipProductsStore } from '../../store/membership-products';
 
 function PaywallEdit( { className } ) {
@@ -38,9 +39,10 @@ function PaywallEdit( { className } ) {
 		};
 	} );
 	const paidLink = getPaidPlanLink( hasNewsletterPlans );
+	const { autosaveAndRedirect } = useAutosaveAndRedirect( paidLink );
+
 	const [ showDialog, setShowDialog ] = useState( false );
 	const closeDialog = () => setShowDialog( false );
-	const { savePost } = useDispatch( 'core/editor' );
 
 	useEffect( () => {
 		if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
@@ -148,10 +150,7 @@ function PaywallEdit( { className } ) {
 				confirmButtonText={ __( 'Get started', 'jetpack' ) }
 				isOpen={ showDialog }
 				onCancel={ closeDialog }
-				onConfirm={ () => {
-					savePost();
-					window.location.href = paidLink;
-				} }
+				onConfirm={ autosaveAndRedirect }
 			>
 				<h2>{ __( 'Enable payments', 'jetpack' ) }</h2>
 				<p style={ { maxWidth: 340 } }>

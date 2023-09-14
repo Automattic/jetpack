@@ -1,13 +1,30 @@
-import registerJetpackBlock from '../../shared/register-jetpack-block';
+import { InnerBlocks } from '@wordpress/block-editor';
+import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
+import metadata from './block.json';
 import {
 	name as blogRollItemBlockName,
 	settings as blogRollItemBlockSettings,
 } from './blogroll-item';
-import { name, settings } from '.';
+import edit from './edit';
 
-registerJetpackBlock( name, settings, [
+import './editor.scss';
+
+registerJetpackBlockFromMetadata(
+	metadata,
 	{
-		name: blogRollItemBlockName,
-		settings: blogRollItemBlockSettings,
+		edit,
+		save: () => <InnerBlocks.Content />,
+		providesContext: {
+			showAvatar: 'show_avatar',
+			showDescription: 'show_description',
+			showSubscribeButton: 'show_subscribe_button',
+			openLinksNewWindow: 'open_links_new_window',
+		},
 	},
-] );
+	[
+		{
+			name: blogRollItemBlockName,
+			settings: blogRollItemBlockSettings,
+		},
+	]
+);

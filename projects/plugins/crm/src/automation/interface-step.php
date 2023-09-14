@@ -132,5 +132,4 @@ interface Step {
 	 * @return array|null The allowed triggers for the step.
 	 */
 	public static function get_allowed_triggers(): ?array;
-
 }

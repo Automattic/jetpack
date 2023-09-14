@@ -289,5 +289,4 @@ class ParserTestCase extends TestCase {
 	public function testUpdateFixtures() {
 		$this->assertFalse( $this->updateFixtures, static::class . '::$updateFixtures must be false for tests to pass.' );
 	}
-
 }

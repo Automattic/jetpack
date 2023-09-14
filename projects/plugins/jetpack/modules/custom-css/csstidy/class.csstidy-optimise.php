@@ -1002,5 +1002,4 @@ class csstidy_optimise { // phpcs:ignore
 
 		return $input_css;
 	}
-
 }

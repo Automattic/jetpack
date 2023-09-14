@@ -362,28 +362,34 @@ export function promptTextFor(
 		subject = isGenerated ? 'your last answer' : 'the content';
 	}
 
+	// https://github.com/Automattic/jetpack/pull/32814#issuecomment-1704873324
+	const languageReminder = `. Ensure that your response is in the same language as ${
+		isGeneratingTitle ? 'the title' : 'the post content'
+	}. Do not switch to any language other than the language of ${ subject } in your response`;
+
 	switch ( type ) {
 		case PROMPT_TYPE_SUMMARY_BY_TITLE:
-			return { request: `Write a short piece for a blog post based on ${ subject }.` };
+			return {
+				request: `Write a short piece for a blog post based on ${ subject }, keeping the same language`,
+			};
 		case PROMPT_TYPE_CONTINUE:
 			return {
-				request: `Continue writing from ${ subject }.`,
+				request: `Continue writing from ${ subject }${ languageReminder }.`,
 				rules: isGenerated
 					? []
 					: [ 'Only output the continuation of the content, without repeating it' ],
 			};
 		case PROMPT_TYPE_SIMPLIFY:
 			return {
-				request: `Simplify ${ subject }.`,
+				request: `Simplify ${ subject }${ languageReminder }.`,
 				rules: [
 					'Use words and phrases that are easier to understand for non-technical people',
-					'Output in the same language of the content',
 					'Use as much of the original language as possible',
 				],
 			};
 		case PROMPT_TYPE_CORRECT_SPELLING:
 			return {
-				request: `Repeat ${ subject }, correcting any spelling and grammar mistakes, and do not add new content.`,
+				request: `Repeat ${ subject }, correcting any spelling and grammar mistakes, and do not add new content${ languageReminder }.`,
 			};
 		case PROMPT_TYPE_GENERATE_TITLE:
 			return {
@@ -391,13 +397,23 @@ export function promptTextFor(
 				rules: [ 'Only output the raw title, without any prefix or quotes' ],
 			};
 		case PROMPT_TYPE_MAKE_LONGER:
-			return { request: `Make ${ subject } longer.` };
+			return {
+				request: `Make ${ subject } longer${ languageReminder }.`,
+			};
 		case PROMPT_TYPE_MAKE_SHORTER:
-			return { request: `Make ${ subject } shorter.` };
+			return {
+				request: `Make ${ subject } shorter${ languageReminder }.`,
+			};
 		case PROMPT_TYPE_CHANGE_TONE:
-			return { request: `Rewrite ${ subject } with a ${ options.tone } tone.` };
+			return {
+				request: `Rewrite ${ subject } with ${
+					/^[aeiou]/i.test( options.tone as string ) ? 'an' : 'a'
+				} ${ options.tone } tone${ languageReminder }.`,
+			};
 		case PROMPT_TYPE_SUMMARIZE:
-			return { request: `Summarize ${ subject }.` };
+			return {
+				request: `Summarize ${ subject }${ languageReminder }.`,
+			};
 		case PROMPT_TYPE_CHANGE_LANGUAGE:
 			return {
 				request: `Translate ${ subject } to the following language: ${ options.language }.`,

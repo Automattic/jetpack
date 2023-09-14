@@ -568,20 +568,25 @@ export function dockerDefine( yargs ) {
 							fs.readFileSync( `${ dockerFolder }/../../.github/versions.sh`, 'utf8' )
 						);
 						const res = executor( argv, () =>
-							shellExecutor( argv, 'docker', [
-								'build',
-								'-t',
-								'automattic/jetpack-wordpress-dev',
-								'--build-arg',
-								`PHP_VERSION=${ versions.PHP_VERSION }`,
-								'--build-arg',
-								`COMPOSER_VERSION=${ versions.COMPOSER_VERSION }`,
-								'--build-arg',
-								`NODE_VERSION=${ versions.NODE_VERSION }`,
-								'--build-arg',
-								`PNPM_VERSION=${ versions.PNPM_VERSION }`,
-								dockerFolder,
-							] )
+							shellExecutor(
+								argv,
+								'docker',
+								[
+									'build',
+									'-t',
+									'automattic/jetpack-wordpress-dev',
+									'--build-arg',
+									`PHP_VERSION=${ versions.PHP_VERSION }`,
+									'--build-arg',
+									`COMPOSER_VERSION=${ versions.COMPOSER_VERSION }`,
+									'--build-arg',
+									`NODE_VERSION=${ versions.NODE_VERSION }`,
+									'--build-arg',
+									`PNPM_VERSION=${ versions.PNPM_VERSION }`,
+									dockerFolder,
+								],
+								{ env: { DOCKER_BUILDKIT: 1 } }
+							)
 						);
 						checkProcessResult( res );
 					},

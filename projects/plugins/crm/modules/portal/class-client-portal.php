@@ -566,5 +566,4 @@ class Client_Portal {
 	function get_obj_id_from_current_portal_page_url( $obj_type_id ) {
 		return $this->router->get_obj_id_from_current_portal_page_url( $obj_type_id );
 	}	
-
 }

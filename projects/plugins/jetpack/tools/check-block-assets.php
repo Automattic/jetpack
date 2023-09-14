@@ -63,6 +63,7 @@ $allowed = array(
 		'react',
 		'react-dom',
 		'wp-components',
+		'wp-compose',
 		'wp-element',
 	),
 	'podcast-player' => array(

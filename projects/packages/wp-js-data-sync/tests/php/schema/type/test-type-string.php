@@ -23,5 +23,4 @@ class Test_Type_String extends TestCase {
 		$this->expectException( \Error::class );
 		$validator->parse( array() );
 	}
-
 }

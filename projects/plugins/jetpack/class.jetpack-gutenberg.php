@@ -466,7 +466,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Only enqueue block assets when needed.
 	 *
-	 * @param string $type Slug of the block.
+	 * @param string $type Slug of the block or absolute path to the block source code directory.
 	 * @param array  $script_dependencies Script dependencies. Will be merged with automatically
 	 *                                    detected script dependencies from the webpack build.
 	 *
@@ -476,6 +476,16 @@ class Jetpack_Gutenberg {
 		if ( is_admin() ) {
 			// A block's view assets will not be required in wp-admin.
 			return;
+		}
+
+		// Retrieve the feature from block.json if a path is passed.
+		if ( '/' === substr( $type, 0, 1 ) ) {
+			$metadata = Blocks::get_block_metadata_from_file( Blocks::get_path_to_block_metadata( $type ) );
+			$feature  = Blocks::get_block_feature_from_metadata( $metadata );
+
+			if ( ! empty( $feature ) ) {
+				$type = $feature;
+			}
 		}
 
 		$type = sanitize_title_with_dashes( $type );
@@ -735,8 +745,11 @@ class Jetpack_Gutenberg {
 				'dismissedNotices'                => $publicize->get_dismissed_notices(),
 				'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
 				'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
-				'isAutoConversionAvailable'       => $auto_conversion_settings->is_available( 'image' ),
-				'isAutoConversionEnabled'         => $auto_conversion_settings->is_enabled( 'image' ),
+				'autoConversionSettings'          => array(
+					'available' => $auto_conversion_settings->is_available( 'image' ),
+					'image'     => $auto_conversion_settings->is_enabled( 'image' ),
+				),
+				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
 			);
 		}
 

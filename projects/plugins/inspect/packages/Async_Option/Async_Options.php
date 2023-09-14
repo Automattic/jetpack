@@ -75,5 +75,4 @@ class Async_Options {
 		$instance = new self( $script_handle, $registry );
 		$instance->add_to_plugin_page( $plugin_page, $parent_page );
 	}
-
 }

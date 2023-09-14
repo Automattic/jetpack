@@ -69,7 +69,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 
 final class Data_Sync {
 
-	const PACKAGE_VERSION = '0.2.2';
+	const PACKAGE_VERSION = '0.2.3-alpha';
 
 	/**
 	 * @var Registry
@@ -199,5 +199,4 @@ final class Data_Sync {
 		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $schema );
 		$this->registry->register( $key, $entry_adapter );
 	}
-
 }

@@ -134,6 +134,7 @@ class zbsDAL {
     public $transactions = false;
     public $forms = false;
     public $events = false;
+		public $eventreminders = false; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
     public $logs = false;
     public $lineitems = false;
     public $quotetemplates = false;
@@ -8792,5 +8793,4 @@ public function tidy_log(...$args){
 /* ======================================================
     / Middle Man funcs (until DAL3.0)
    ====================================================== */
-
 } // / DAL class
