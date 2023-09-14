@@ -13,32 +13,49 @@ require_once JETPACK__PLUGIN_DIR . 'modules/markdown/easy-markdown.php';
  * @covers WPCom_GHF_Markdown_Parser
  */
 class WP_Test_GFM_Markdown extends WP_UnitTestCase {
-
 	/**
 	 * Test verifying that ~~strikethrough~~ works.
+	 *
+	 * @dataProvider data_strikethrough
+	 *
+	 * @param string $markdown Markdown to test.
+	 * @param string $expected Expected HTML.
 	 */
-	public function test_strikethrough() {
-		$markdown = '~~strikethrough~~';
-		$expected = '<del>strikethrough</del>';
+	public function test_strikethrough( $markdown, $expected ) {
 		$this->assertEquals( $expected, trim( ( new WPCom_GHF_Markdown_Parser() )->transform( $markdown ) ) );
 	}
 
 	/**
-	 * Test verifying that ~strikethrough~ does not convert.
+	 * Data provider for test_strikethrough.
+	 *
+	 * @return array
 	 */
-	public function test_strikethrough_single() {
-		$markdown = '~strikethrough~';
-		$expected = '~strikethrough~';
-		$this->assertEquals( $expected, trim( ( new WPCom_GHF_Markdown_Parser() )->transform( $markdown ) ) );
+	public function data_strikethrough() {
+		return array(
+			'double strikethrough'           => array(
+				'~~strikethrough~~',
+				'<del>strikethrough</del>',
+			),
+			'single strikethrough'           => array(
+				'~strikethrough~',
+				'~strikethrough~',
+			),
+			'strikethrough within backticks' => array(
+				'`~~strikethrough~~`',
+				'<code>~~strikethrough~~</code>',
+			),
+			'non closing strikthrough'       => array(
+				'~~strikethrough',
+				'~~strikethrough',
+			),
+			'strikethrough multiple words'   => array(
+				'~~strike through~~',
+				'<del>strike through</del>',
+			),
+			'strikthrough on multiple lines' => array(
+				"~~strike\nthrough~~",
+				"<del>strike\nthrough</del>",
+			),
+		);
 	}
-
-	/**
-	 * Test verifying that ~~strikethrough~~ does not convert within backticks.
-	 */
-	public function test_strikethrough_in_backticks() {
-		$markdown = '`~~strikethrough~~`';
-		$expected = '<code>~~strikethrough~~</code>';
-		$this->assertEquals( $expected, trim( ( new WPCom_GHF_Markdown_Parser() )->transform( $markdown ) ) );
-	}
-
 }
