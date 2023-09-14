@@ -17,6 +17,7 @@ const { refType, refName, runAttempt, triggeringActor, repository } = extras;
  * that can be used later on to find this message and update it or send replies.
  *
  * @param {boolean} isFailure - whether the workflow is failed or not
+ * @returns {object} Notificaton data as described
  */
 async function createMessage( isFailure ) {
 	let target = `for ${ sha }`;
