@@ -20,6 +20,11 @@ class Config {
 	const SET_SHOW_SCORE_PROMPT_NONCE = 'set_show_score_prompt';
 
 	/**
+	 * Nonce action for setting the statuses of rating and score prompts.
+	 */
+	const FIX_IMAGE_DIMENSIONS_NONCE = 'fix_image_dimensions';
+
+	/**
 	 * Name of option to store status of show/hide rating and score prompts
 	 */
 	const DISMISSED_MODALS_OPTION = 'jb_show_score_prompt';
@@ -55,6 +60,7 @@ class Config {
 				'prioritySupport' => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
 			),
 			'showScorePromptNonce'  => wp_create_nonce( self::SET_SHOW_SCORE_PROMPT_NONCE ),
+			'fixImageNonce'         => wp_create_nonce( self::FIX_IMAGE_DIMENSIONS_NONCE ),
 			'dismissedScorePrompts' => $this->get_dismissed_modals(),
 
 			/**

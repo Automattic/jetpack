@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
+	import api from '../../../../api/api';
 	import Button from '../../../../elements/Button.svelte';
-	import { recordBoostEventAndRedirect } from '../../../../utils/analytics';
+	import { recordBoostEvent } from '../../../../utils/analytics';
 	import { removeGetParams } from '../../../../utils/remove-get-params';
 	import Device from '../components/Device.svelte';
 	import Pill from '../components/Pill.svelte';
@@ -15,6 +16,8 @@
 	export let details: ImageDataType;
 
 	const title = details.image.url.split( '/' ).pop();
+	const url = new URL( details.page.edit_url );
+	const post_id = new URLSearchParams( url.search ).get( 'post' );
 	const currentSize = details.image.weight.current;
 	const potentialSavings = Math.max(
 		0,
@@ -24,6 +27,22 @@
 
 	const sizeDifference = ( potentialSavings / currentSize ) * 100;
 	const pillColor = sizeDifference <= 30 ? '#f5e5b3' : '#facfd2';
+
+	async function fixImageSize() {
+		const data = {
+			image_url: details.image.url,
+			image_width: details.image.dimensions.expected.width.toString(),
+			image_height: details.image.dimensions.expected.height.toString(),
+			post_id: post_id.toString(),
+			nonce: Jetpack_Boost.fixImageNonce,
+		};
+		return await api.post( '/image-size-analysis/fix', data );
+	}
+
+	function handleFixClick() {
+		recordBoostEvent( 'isa_fix_image', {} );
+		return fixImageSize();
+	}
 </script>
 
 <TableRow {enableTransition} expandable={true}>
@@ -143,17 +162,8 @@
 			<p>{details.instructions}</p>
 			{#if details.page.edit_url}
 				<div class="jb-actions">
-					<Button
-						width="auto"
-						fill
-						on:click={() =>
-							recordBoostEventAndRedirect(
-								details.page.edit_url,
-								'clicked_fix_on_page_on_isa_report',
-								{ device_type: details.device_type }
-							)}
-					>
-						{__( 'Fix on page', 'jetpack-boost' )}
+					<Button width="auto" fill on:click={() => handleFixClick()}>
+						{__( 'Fix', 'jetpack-boost' )}
 					</Button>
 				</div>
 			{/if}

@@ -36,6 +36,7 @@ declare global {
 		connection: ConnectionStatus;
 		showRatingPromptNonce?: string;
 		showScorePromptNonce?: string;
+		fixImageNonce?: string;
 		dismissedScorePrompts: string[];
 		superCache: {
 			pluginActive: boolean;
