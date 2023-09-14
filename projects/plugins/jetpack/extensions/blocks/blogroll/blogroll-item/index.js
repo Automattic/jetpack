@@ -45,12 +45,6 @@ export const settings = {
 	edit,
 	attributes,
 	save: () => <InnerBlocks.Content />,
-	providesContext: {
-		name: 'name',
-		url: 'url',
-		icon: 'icon',
-		description: 'description',
-	},
 	example: {
 		attributes: {
 			// @TODO: Add default values for block attributes, for generating the block preview.

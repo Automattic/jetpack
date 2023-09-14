@@ -2,12 +2,37 @@
 
 .wp-block-jetpack-blogroll {
 
+	.wp-block-jetpack-blogroll-item {
+		display: flex;
+		padding: 20px 8px;
+		gap: 20px;
+
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		color: var(--gray-gray-50, #646970);
+
+		.jetpack-blogroll-item-title {
+			color: var(--gray-gray-100, #101517);
+			font-size: 16px;
+			font-weight: 500;
+			margin: 0;
+			line-height: 24px;
+		}
+
+		figure {
+			margin: 0;
+
+			img {
+				border-radius: 50%;
+				width: 48px;
+				height: 48px;
+			}
+		}
+	}
+
 	.wp-block-jetpack-blogroll-item > .wp-block-group {
 		padding: 20px 8px;
 		margin: 0;
-	}
-
-	.wp-block-jetpack-blogroll-item .wp-block-image img {
-		max-width: initial;
 	}
 }

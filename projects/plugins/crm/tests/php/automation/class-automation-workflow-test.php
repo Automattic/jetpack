@@ -335,5 +335,4 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 		$this->assertEquals( 'Workflow execution finished: No more steps found.', $log[ $total_log - 1 ][1] );
 		$this->assertEquals( 'Condition met?: false', $log[ $total_log - 3 ][1] );
 	}
-
 }

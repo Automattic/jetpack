@@ -103,5 +103,4 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			}
 		}
 	}
-
 }

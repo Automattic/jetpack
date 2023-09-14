@@ -209,3 +209,8 @@ jetpack_boost_register_option(
 jetpack_boost_register_option( 'premium_features', $premium_features_schema, new Premium_Features_Entry() );
 
 jetpack_boost_register_option( 'performance_history_toggle', Schema::as_boolean()->fallback( false ) );
+
+/**
+ * Register Super Cache Notice Disabled store.
+ */
+jetpack_boost_register_option( 'super_cache_notice_disabled', Schema::as_boolean()->fallback( false ) );

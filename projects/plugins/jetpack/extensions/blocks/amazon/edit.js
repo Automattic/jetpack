@@ -1,3 +1,4 @@
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { ContrastChecker, InspectorControls, PanelColorSettings } from '@wordpress/block-editor';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 import {
@@ -12,9 +13,11 @@ import {
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import tinycolor from 'tinycolor2';
+import metadata from './block.json';
 import data from './dummy-data';
-import icon from './icon';
 import './editor.scss';
+
+const icon = getBlockIconComponent( metadata );
 
 function AmazonEdit( {
 	attributes: {

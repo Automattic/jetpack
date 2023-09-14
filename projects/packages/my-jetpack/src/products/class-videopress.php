@@ -156,5 +156,4 @@ class Videopress extends Hybrid_Product {
 			return admin_url( 'admin.php?page=jetpack#/settings?term=videopress' );
 		}
 	}
-
 }

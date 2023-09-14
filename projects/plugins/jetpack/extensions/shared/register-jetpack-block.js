@@ -2,6 +2,7 @@ import {
 	getJetpackExtensionAvailability,
 	withHasWarningIsInteractiveClassNames,
 	requiresPaidPlan,
+	getBlockIconProp,
 } from '@automattic/jetpack-shared-extension-utils';
 import { registerBlockType } from '@wordpress/blocks';
 import { addFilter } from '@wordpress/hooks';
@@ -56,4 +57,32 @@ export default function registerJetpackBlock( name, settings, childBlocks = [], 
 	);
 
 	return result;
+}
+
+/**
+ * Wrapper around registerJetpackBlock to register a block by specifying its metadata.
+ *
+ * @param {object }metadata - Metadata of the block (content of block.json)
+ * @param {object} settings - See registerJetpackBlock.
+ * @param {object} childBlocks - See registerJetpackBlock.
+ * @param {boolean} prefix - See registerJetpackBlock.
+ * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
+ */
+export function registerJetpackBlockFromMetadata( metadata, settings, childBlocks, prefix ) {
+	const clientSettings = {
+		...settings,
+		icon: getBlockIconProp( metadata ),
+	};
+	const { variations } = metadata;
+
+	if ( Array.isArray( variations ) && variations.length > 0 ) {
+		clientSettings.variations = variations.map( variation => {
+			return {
+				...variation,
+				icon: getBlockIconProp( variation ),
+			};
+		} );
+	}
+
+	return registerJetpackBlock( metadata.name, clientSettings, childBlocks, prefix );
 }

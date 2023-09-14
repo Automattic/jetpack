@@ -1,6 +1,6 @@
 export default {
 	id: {
-		type: 'number',
+		type: 'string',
 	},
 	name: {
 		type: 'string',

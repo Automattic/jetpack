@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-export default function useRecommendations( enabled = true ) {
+export default function useRecommendations( enabled = false ) {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( null );
 	const [ recommendations, setRecommendations ] = useState( [] );
@@ -12,6 +12,7 @@ export default function useRecommendations( enabled = true ) {
 		if ( ! enabled ) {
 			return;
 		}
+
 		setIsLoading( true );
 		setErrorMessage( null );
 
