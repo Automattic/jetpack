@@ -94,5 +94,4 @@ class Test_URL_Secret extends TestCase {
 		static::assertNull( $expires_at );
 		static::assertFalse( $secret_db );
 	}
-
 }

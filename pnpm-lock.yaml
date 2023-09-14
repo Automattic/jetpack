@@ -793,8 +793,8 @@ importers:
         specifier: workspace:*
         version: link:../shared-extension-utils
       '@automattic/social-previews':
-        specifier: 2.0.1-beta.5
-        version: 2.0.1-beta.5(@babel/runtime@7.22.15)(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 2.0.1-beta.7
+        version: 2.0.1-beta.7(@babel/runtime@7.22.15)(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/annotations':
         specifier: 2.41.0
         version: 2.41.0(react@18.2.0)
@@ -2896,8 +2896,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       '@automattic/social-previews':
-        specifier: 2.0.1-beta.5
-        version: 2.0.1-beta.5(@babel/runtime@7.22.15)(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 2.0.1-beta.7
+        version: 2.0.1-beta.7(@babel/runtime@7.22.15)(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0)
       '@automattic/viewport':
         specifier: 1.0.0
         version: 1.0.0
@@ -4132,12 +4132,12 @@ packages:
       '@automattic/popup-monitor': 1.0.2
     dev: false
 
-  /@automattic/social-previews@2.0.1-beta.5(@babel/runtime@7.22.15)(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-O/F5DONDXQsPnpC7tHfzzlHMR65+HOJ2h3OKdcvXrW8DlnWPdasX0Q7SN8QLt0bNkMM7bWqf0XIjUnAVn3ShjQ==}
+  /@automattic/social-previews@2.0.1-beta.7(@babel/runtime@7.22.15)(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-BujDRLRYYeyqdS0CJoJrd1bE+m4t02S/ESczngYv7nT5POtMdTRg/MvM2SXqbNSqshdkZc7i/3oynLf+44adCQ==}
     peerDependencies:
       '@babel/runtime': ^7
-      react: ^17.0.2 || ^18
-      react-dom: ^17.0.2 || ^18
+      react: ^18.2.0
+      react-dom: ^18.2.0
     peerDependenciesMeta:
       '@babel/runtime':
         optional: true

@@ -6,7 +6,7 @@
  * @since 11.8
  */
 
-use Automattic\Jetpack\Connection\Client as Client;
+use Automattic\Jetpack\Connection\Client;
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_AI

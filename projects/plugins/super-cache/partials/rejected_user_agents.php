@@ -11,4 +11,3 @@ echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMIT
 wp_nonce_field('wp-cache');
 echo '</form>';
 echo "</fieldset>\n";
-

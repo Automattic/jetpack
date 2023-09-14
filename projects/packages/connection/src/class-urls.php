@@ -183,5 +183,4 @@ class Urls {
 	public static function main_network_site_url() {
 		return self::get_protocol_normalized_url( 'main_network_site_url', network_site_url() );
 	}
-
 }

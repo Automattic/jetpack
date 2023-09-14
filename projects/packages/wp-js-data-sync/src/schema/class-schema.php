@@ -158,5 +158,4 @@ class Schema implements Parser {
 	public static function any_json_data() {
 		return new self( new Type_Any_JSON() );
 	}
-
 }
