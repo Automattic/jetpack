@@ -133,5 +133,4 @@ class Jetpack_JSON_API_Get_Database_Object_Backup_Endpoint extends Jetpack_JSON_
 
 		return $result;
 	}
-
 }

@@ -24,5 +24,4 @@ class Type_Boolean implements Parser {
 		}
 		return filter_var( $input_value, FILTER_VALIDATE_BOOLEAN );
 	}
-
 }

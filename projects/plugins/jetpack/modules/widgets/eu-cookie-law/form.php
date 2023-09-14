@@ -91,7 +91,7 @@ use Automattic\Jetpack\Redirect;
 					<span style="display: block; margin: .5em 0;">
 						<strong><?php esc_html_e( 'Caution:', 'jetpack' ); ?></strong>
 						<?php
-						echo sprintf(
+						printf(
 							wp_kses(
 								/* Translators: %s is the URL to a Jetpack support article. */
 								__( 'For GDPR compliance, please make sure your policy contains <a href="%s" target="_blank">privacy information relating to WordAds</a>.', 'jetpack' ),

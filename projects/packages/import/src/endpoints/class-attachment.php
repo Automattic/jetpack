@@ -318,5 +318,4 @@ class Attachment extends \WP_REST_Attachments_Controller {
 
 		return (array) $response->get_data();
 	}
-
 }

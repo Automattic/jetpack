@@ -363,7 +363,6 @@ class Jetpack_Autoupdate {
 		}
 		return $slug;
 	}
-
 }
 
 Jetpack_Autoupdate::init();

@@ -27,5 +27,4 @@ class Package_Version {
 		$package_versions[ self::PACKAGE_SLUG ] = self::PACKAGE_VERSION;
 		return $package_versions;
 	}
-
 }

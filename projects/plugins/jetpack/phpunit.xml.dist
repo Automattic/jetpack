@@ -24,6 +24,9 @@
 		<testsuite name="likes">
 			<directory prefix="test_" suffix=".php">tests/php/modules/likes</directory>
 		</testsuite>
+		<testsuite name="markdown">
+			<directory prefix="test_" suffix=".php">tests/php/modules/markdown</directory>
+		</testsuite>
 		<testsuite name="publicize">
 			<directory prefix="test_" suffix=".php">tests/php/modules/publicize</directory>
 		</testsuite>

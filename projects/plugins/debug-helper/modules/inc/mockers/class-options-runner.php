@@ -72,5 +72,4 @@ class Options_Runner implements Runner_Interface {
 	private function get_random_value() {
 		return 'mock_value_' . Tools::get_random_string();
 	}
-
 }

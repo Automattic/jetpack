@@ -438,5 +438,4 @@ class ConfigTest extends TestCase {
 		$this->expectExceptionMessage( "Unknown versioning plugin {\n    \"class\": \"foobar\"\n}" );
 		Config::versioningPlugin();
 	}
-
 }

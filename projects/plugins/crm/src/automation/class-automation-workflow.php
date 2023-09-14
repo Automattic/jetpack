@@ -329,5 +329,4 @@ class Automation_Workflow {
 	public function get_logger(): Automation_Logger {
 		return $this->logger ?? Automation_Logger::instance();
 	}
-
 }

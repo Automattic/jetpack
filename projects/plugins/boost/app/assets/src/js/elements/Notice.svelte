@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { Button, Notice } from '@automattic/jetpack-components';
 	import React from 'react';
+	import { createEventDispatcher } from 'svelte';
 	import { slide } from 'svelte/transition';
-	import { dismissedPopOuts } from '../stores/config';
 	import ReactComponent from './ReactComponent.svelte';
 
 	type ActionButton = {
@@ -16,41 +16,35 @@
 	export let title: string;
 	export let message: string;
 	export let actions: ActionButton[] | undefined;
-	export let dismissalKey: string | undefined;
+	export let hideCloseButton = true;
 
-	$: isDismissed = dismissalKey && $dismissedPopOuts.includes( dismissalKey );
+	const dispatch = createEventDispatcher();
 
-	$: actionComponents =
-		! isDismissed &&
-		actions?.map( ( action, index ) =>
-			React.createElement(
-				Button,
-				{
-					isPrimary: true,
-					onClick: action.onClick,
-					key: index,
-					isLoading: !! action.isLoading,
-					disabled: !! action.disabled,
-				},
-				action.label
-			)
-		);
-
-	function dismiss() {
-		dismissedPopOuts.dismiss( dismissalKey );
-	}
+	const actionComponents = actions?.map( ( action, index ) =>
+		React.createElement(
+			Button,
+			{
+				isPrimary: true,
+				onClick: action.onClick,
+				key: index,
+				isLoading: !! action.isLoading,
+				disabled: !! action.disabled,
+			},
+			action.label
+		)
+	);
 </script>
 
-{#if ! isDismissed}
-	<div transition:slide|local>
-		<ReactComponent
-			this={Notice}
-			{level}
-			{title}
-			children={message}
-			actions={actionComponents}
-			onClose={dismissalKey ? dismiss : undefined}
-			hideCloseButton={! dismissalKey}
-		/>
-	</div>
-{/if}
+<div transition:slide|local>
+	<ReactComponent
+		this={Notice}
+		{level}
+		{title}
+		children={message}
+		actions={actionComponents}
+		onClose={() => {
+			dispatch( 'onClose' );
+		}}
+		{hideCloseButton}
+	/>
+</div>
