@@ -2391,6 +2391,4 @@ class Woo_Sync {
 	    return $positions;
 
 	}
-
-
 }

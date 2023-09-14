@@ -59,5 +59,4 @@ abstract class Data_Transformer_Base {
 	 * @return Data_Type_Base Return a transformed data type.
 	 */
 	abstract public function transform( Data_Type_Base $data ): Data_Type_Base;
-
 }

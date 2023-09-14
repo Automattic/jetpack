@@ -111,5 +111,4 @@ class Delete_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 		$contact = $zbs->DAL->contacts->getContact( $contact_id );
 		$this->assertFalse( $contact );
 	}
-
 }

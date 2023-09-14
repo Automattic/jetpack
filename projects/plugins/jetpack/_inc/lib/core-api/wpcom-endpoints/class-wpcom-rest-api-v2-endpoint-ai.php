@@ -6,7 +6,7 @@
  * @since 11.8
  */
 
-use Automattic\Jetpack\Connection\Client as Client;
+use Automattic\Jetpack\Connection\Client;
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_AI
@@ -115,7 +115,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	public function register_ai_chat_routes() {
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/jetpack-search/ai/search',
+			'/jetpack-search/ai/search',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
@@ -139,7 +139,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/jetpack-search/ai/rank',
+			'/jetpack-search/ai/rank',
 			array(
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
@@ -210,7 +210,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				 *
 				 * @param string $prompt_override The prompt override string.
 				 *
-				 * @since $$next-version$$
+				 * @since 12.6
 				 */
 				'answer_prompt' => apply_filters( 'jetpack_ai_chat_answer_prompt', false ),
 			),
@@ -222,6 +222,10 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 		}
 
 		$data = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( empty( $data->cache_key ) ) {
+			return new WP_Error( 'invalid_ask_response', __( 'Invalid response from the server.', 'jetpack' ), 400 );
+		}
 
 		return $data;
 	}
@@ -236,8 +240,13 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 		$rank      = $request->get_param( 'rank' );
 		$comment   = $request->get_param( 'comment' );
 		$cache_key = $request->get_param( 'cache_key' );
-		$blog_id   = \Jetpack_Options::get_option( 'id' );
-		$response  = Client::wpcom_json_api_request_as_blog(
+
+		if ( strpos( $cache_key, 'jp-search-ai-' ) !== 0 ) {
+			return new WP_Error( 'invalid_cache_key', __( 'Invalid cached context for the answer feedback.', 'jetpack' ), 400 );
+		}
+
+		$blog_id  = \Jetpack_Options::get_option( 'id' );
+		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/jetpack-search/ai/rank', $blog_id ) . '?force=wpcom',
 			2,
 			array(
@@ -258,6 +267,10 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 		}
 
 		$data = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( 'ok' !== $data ) {
+			return new WP_Error( 'invalid_feedback_response', __( 'Invalid response from the server.', 'jetpack' ), 400 );
+		}
 
 		return $data;
 	}

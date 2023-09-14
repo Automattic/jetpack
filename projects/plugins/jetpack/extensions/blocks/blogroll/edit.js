@@ -2,7 +2,7 @@ import { InspectorControls, useBlockProps, InnerBlocks } from '@wordpress/block-
 import { createBlock } from '@wordpress/blocks';
 import { PanelBody, ToggleControl, FlexBlock, Spinner } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import BlogrollAppender from './components/blogroll-appender';
@@ -21,9 +21,8 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		load_placeholders,
 	} = attributes;
 
-	const { isLoading, recommendations } = useRecommendations();
+	const { isLoading, recommendations } = useRecommendations( load_placeholders );
 	const { subscriptions } = useSubscriptions( { ignore_user_blogs } );
-	const [ additionalClasses, setAdditionalClasses ] = useState( [] );
 
 	const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
 
@@ -39,16 +38,12 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		}
 	}, [ recommendations, load_placeholders, setAttributes, clientId, replaceInnerBlocks ] );
 
-	useEffect( () => {
-		setAdditionalClasses( [
-			...( ! show_avatar ? [ 'hide-avatar' ] : [] ),
-			...( ! show_description ? [ 'hide-description' ] : [] ),
-			...( ! show_subscribe_button ? [ 'hide-subscribe-button' ] : [] ),
-		] );
-	}, [ show_avatar, show_description, show_subscribe_button ] );
-
 	const blockProps = useBlockProps( {
-		className: classNames( className, ...additionalClasses ),
+		className: classNames( className, {
+			'hide-avatar': ! show_avatar,
+			'hide-description': ! show_description,
+			'hide-subscribe-button': ! show_subscribe_button,
+		} ),
 	} );
 
 	return (

@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\IdentityCrisis;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Tracking as Tracking;
+use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use Jetpack_Tracks_Client;
 
@@ -198,5 +198,4 @@ class UI {
 
 		return 'self-hosted';
 	}
-
 }

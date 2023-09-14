@@ -152,5 +152,4 @@ class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
 
 		$invoice_field_contains_condition->execute( $invoice_data->get_entity() );
 	}
-
 }
