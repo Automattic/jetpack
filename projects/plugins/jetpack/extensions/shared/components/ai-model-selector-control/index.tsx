@@ -19,14 +19,14 @@ export const AI_MODEL_GPT_4 = 'gpt-4' as const;
 export type AiModelTypeProp = typeof AI_MODEL_GPT_3_5_Turbo | typeof AI_MODEL_GPT_4;
 
 type AiExcerptControlProps = {
-	disabled?: boolean;
-	model?: AiModelTypeProp;
+	disabled: boolean;
+	model: AiModelTypeProp;
 	onModelChange?: ( model: AiModelTypeProp ) => void;
 };
 
 import './style.scss';
 
-export default function AiSelectModelControl( {
+export default function AiModelSelectorControl( {
 	model,
 	onModelChange,
 	disabled,
