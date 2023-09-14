@@ -26,8 +26,22 @@ function register_block() {
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(
-			'render_callback' => __NAMESPACE__ . '\load_assets',
-			'supports'        => array(
+			'render_callback'  => __NAMESPACE__ . '\load_assets',
+			'provides_context' => array(
+				'showSubscribeButton' => 'show_subscribe_button',
+				'openLinksNewWindow'  => 'open_links_new_window',
+			),
+			'attributes'       => array(
+				'show_subscribe_button' => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
+				'open_links_new_window' => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
+			),
+			'supports'         => array(
 				'color'      => array(
 					'gradients' => true,
 					'link'      => true,
