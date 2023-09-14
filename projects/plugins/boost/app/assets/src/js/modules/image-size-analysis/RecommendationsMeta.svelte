@@ -28,15 +28,16 @@
 	let requestingReport = false;
 	let errorCode: undefined | number;
 
+	$: status = $isaSummary.status;
+	$: groups = $isaSummary.groups || {};
+	$: scannedPages = $scannedPagesCount;
+
 	/**
 	 * Calculate total number of issues.
 	 */
-	$: totalIssues = Object.values( $isaSummary?.groups || {} ).reduce(
-		( total, group ) => total + group.issue_count,
-		0
-	);
-
-	$: status = $isaSummary.status;
+	$: totalIssues = groups
+		? Object.values( groups ).reduce( ( total, group ) => total + group.issue_count, 0 )
+		: 0;
 
 	/**
 	 * Work out if there is an error to show in the UI.
@@ -97,7 +98,7 @@
 		! $modulesState.image_cdn.active && ( totalIssues > 0 || status === ISAStatus.NotFound );
 </script>
 
-{#if ! $isaSummary}
+{#if ! groups}
 	<div class="summary">
 		{__( 'Loading…', 'jetpack-boost' )}
 	</div>
@@ -131,7 +132,7 @@
 							'jetpack-boost'
 						),
 						totalIssues,
-						$scannedPagesCount
+						scannedPages
 					)}
 				</div>
 			{:else}
@@ -142,7 +143,7 @@
 							'Congratulations; no issues found after scanning your %d most recent pages.',
 							'jetpack-boost'
 						),
-						$scannedPagesCount
+						scannedPages
 					)}
 				</div>
 			{/if}
@@ -161,7 +162,7 @@
 
 	<!-- Show progress if a job is rolling. -->
 	{#if ! requestingReport && [ ISAStatus.Completed, ISAStatus.Queued ].includes( status )}
-		<MultiProgress summaryProgress={getSummaryProgress( $isaSummary.groups )} />
+		<MultiProgress summaryProgress={getSummaryProgress( groups )} />
 	{/if}
 
 	<!-- Show recommendation to enable Image CDN if it was inactive and issues have been found -->
