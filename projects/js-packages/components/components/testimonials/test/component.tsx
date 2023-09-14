@@ -48,7 +48,7 @@ describe( 'Testimonials', () => {
 		expect( screen.getByAltText( author ) ).toBeInTheDocument();
 	} );
 
-	it( 'should render the next testimonial when the right arrow is clicked', () => {
+	it( 'should render the next testimonial when the right arrow is clicked', async () => {
 		const { author: secondAuthor } = testimonials[ 1 ];
 
 		render( <Testimonials testimonials={ testimonials } /> );
@@ -71,7 +71,7 @@ describe( 'Testimonials', () => {
 		expect( screen.getByText( author ) ).toBeInTheDocument();
 	} );
 
-	it( 'should render the previous testimonial when the left arrow is clicked', () => {
+	it( 'should render the previous testimonial when the left arrow is clicked', async () => {
 		const { author: thirdAuthor } = testimonials[ 2 ];
 
 		render( <Testimonials testimonials={ testimonials } /> );
