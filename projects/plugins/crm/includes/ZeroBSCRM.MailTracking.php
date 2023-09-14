@@ -455,7 +455,7 @@ function zeroBSCRM_get_email_status($ID){
 	$sql = $wpdb->prepare("SELECT zbsmail_active FROM " . $ZBSCRM_t['system_mail_templates'] . " WHERE zbsmail_id = %d", $ID);
 	$r = $wpdb->get_results($sql);
 
-	if ( isset( $r[0] ) && $r[0]->zbsmail_active === 1 ) {
+	if ( isset( $r[0] ) && $r[0]->zbsmail_active == 1 ) { // phpcs:ignore
 		return true;
 	}else{
 		return false;
