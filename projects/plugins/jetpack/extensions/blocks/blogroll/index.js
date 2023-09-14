@@ -59,20 +59,17 @@ export const settings = {
 	},
 	edit,
 	save: ( { attributes: { show_avatar, show_description, show_subscribe_button }, className } ) => {
-		const additionalClasses = [
-			...( ! show_avatar ? [ 'hide-avatar' ] : [] ),
-			...( ! show_description ? [ 'hide-description' ] : [] ),
-			...( ! show_subscribe_button ? [ 'hide-subscribe-button' ] : [] ),
-		];
-
 		const blockProps = useBlockProps.save( {
-			className: classNames( className, ...additionalClasses ),
+			className: classNames( className, {
+				'hide-avatar': ! show_avatar,
+				'hide-description': ! show_description,
+				'hide-subscribe-button': ! show_subscribe_button,
+			} ),
 		} );
 
 		return (
 			<div { ...blockProps }>
-				{ ' ' }
-				<InnerBlocks.Content />{ ' ' }
+				<InnerBlocks.Content />
 			</div>
 		);
 	},
