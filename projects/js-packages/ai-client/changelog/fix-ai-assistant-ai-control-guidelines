@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Client: Move showGuideLine to AIControl component props
