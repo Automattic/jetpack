@@ -162,15 +162,13 @@ class Stats extends Module_Product {
 		if ( is_wp_error( $purchases_data ) ) {
 			return false;
 		}
+		$has_required_plan = static::has_required_plan();
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
 				if (
-					// Purchase is Jetpack Stats...
-					0 === strpos( $purchase->product_slug, 'jetpack_stats' ) &&
+					$has_required_plan &&
 					// but not Jetpack Stats Free...
-					false === strpos( $purchase->product_slug, 'free' ) &&
-					// and not Pay What You Want.
-					false === strpos( $purchase->product_slug, 'pwyw' )
+					false === strpos( $purchase->product_slug, 'free' )
 				) {
 					// Only Jetpack Stats Commercial should be eligible for this conditional.
 					// Sample product slugs: jetpack_stats_monthly
