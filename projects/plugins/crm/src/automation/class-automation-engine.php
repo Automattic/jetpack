@@ -329,6 +329,8 @@ class Automation_Engine {
 	 * @throws Workflow_Exception Throws an exception if the workflow is not valid.
 	 */
 	public function add_workflow( Automation_Workflow $workflow, bool $init_workflow = false ) {
+		$workflow->set_engine( $this );
+
 		$this->workflows[] = $workflow;
 
 		if ( $init_workflow ) {
@@ -385,8 +387,6 @@ class Automation_Engine {
 		$this->get_logger()->log( sprintf( 'Trigger activated: %s', $trigger->get_slug() ) );
 		$this->get_logger()->log( sprintf( 'Executing workflow: %s', $workflow->name ) );
 
-		$step_data = $workflow->get_initial_step();
-
 		// Convert the trigger data into a data type instance.
 		try {
 			$trigger_data_type = $this->get_data_type_instance( $trigger::get_data_type(), $trigger_data );
@@ -396,6 +396,8 @@ class Automation_Engine {
 				Automation_Exception::GENERAL_ERROR
 			);
 		}
+
+		$step_data = $workflow->get_initial_step();
 
 		while ( $step_data ) {
 			try {
