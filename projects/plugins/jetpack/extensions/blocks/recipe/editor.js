@@ -12,20 +12,18 @@ import save from './save';
 import { name as stepName, settings as stepSettings } from './step/';
 import { name as stepsName, settings as stepsSettings } from './steps/';
 
-export const childBlocks = [
-	{ name: detailsName, settings: detailsSettings },
-	{ name: heroName, settings: heroSettings },
-	{ name: ingredientsListName, settings: ingredientsListSettings },
-	{ name: ingredientItemName, settings: ingredientItemSettings },
-	{ name: stepsName, settings: stepsSettings },
-	{ name: stepName, settings: stepSettings },
-];
-
 registerJetpackBlockFromMetadata(
 	metadata,
 	{
 		edit,
 		save,
 	},
-	childBlocks
+	[
+		{ name: detailsName, settings: detailsSettings },
+		{ name: heroName, settings: heroSettings },
+		{ name: ingredientsListName, settings: ingredientsListSettings },
+		{ name: ingredientItemName, settings: ingredientItemSettings },
+		{ name: stepsName, settings: stepsSettings },
+		{ name: stepName, settings: stepSettings },
+	]
 );
