@@ -348,33 +348,6 @@ class Initializer {
 			return;
 		}
 
-		// check current theme
-		$is_block_theme = wp_get_theme()->is_block_theme();
-
-		// for non block themes frontend, we defer the enqueuing to the frontend, so we're able to tell if we need the assets
-		if ( ! $is_block_theme && ! is_admin() ) {
-			add_action(
-				'wp_enqueue_scripts',
-				function () use ( $videopress_video_metadata_file ) {
-					$post_content = get_the_content();
-
-					if ( ! has_block( 'videopress/video', $post_content ) && ! has_shortcode( $post_content, 'videopress' ) ) {
-						return;
-					}
-					self::enqueue_block_assets( $videopress_video_metadata_file );
-				}
-			);
-			return;
-		}
-		self::enqueue_block_assets( $videopress_video_metadata_file );
-	}
-
-	/**
-	 * Enqueue scripts used by the VideoPress video block and register block type.
-	 *
-	 * @param string $videopress_video_metadata_file Path to the block metadata file.
-	 */
-	public static function enqueue_block_assets( $videopress_video_metadata_file ) {
 		// Register script used by the VideoPress video block in the editor.
 		Assets::register_script(
 			self::JETPACK_VIDEOPRESS_VIDEO_HANDLER,

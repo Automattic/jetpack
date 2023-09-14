@@ -463,7 +463,7 @@ class Launchpad_Task_Lists {
 	 */
 	private function load_calypso_path( $task ) {
 		if ( null === $this->site_slug ) {
-			$this->site_slug = wpcom_launchpad_get_site_slug();
+			$this->site_slug = wpcom_get_site_slug();
 		}
 
 		$data = array(

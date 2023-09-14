@@ -17,7 +17,7 @@ export type SuggestionErrorCode =
  * Prompt types
  */
 export type PromptItemProps = {
-	role: 'system' | 'user' | 'assistant';
+	role: 'system' | 'user' | 'assistant' | 'jetpack-ai';
 	content?: string;
 	context?: object;
 };

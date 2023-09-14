@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.2.22';
+	const PACKAGE_VERSION = '0.2.23-alpha';
 
 	/**
 	 * Whether this class has been initialized
@@ -104,7 +104,13 @@ class Admin_Menu {
 			function ( $a, $b ) {
 				$position_a = empty( $a['position'] ) ? 0 : $a['position'];
 				$position_b = empty( $b['position'] ) ? 0 : $b['position'];
-				return $position_a - $position_b;
+				$result     = $position_a - $position_b;
+
+				if ( 0 === $result ) {
+					$result = strcmp( $a['menu_title'], $b['menu_title'] );
+				}
+
+				return $result;
 			}
 		);
 
@@ -150,7 +156,7 @@ class Admin_Menu {
 	 *                              and only include lowercase alphanumeric, dashes, and underscores characters
 	 *                              to be compatible with sanitize_key().
 	 * @param callable $function    The function to be called to output the content for this page.
-	 * @param int      $position    The position in the menu order this item should appear.
+	 * @param int      $position    The position in the menu order this item should appear. Leave empty typically.
 	 *
 	 * @return string The resulting page's hook_suffix
 	 */
