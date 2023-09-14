@@ -206,7 +206,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				clearInterval( interval );
 				setPromptPlaceholder( __( 'Ask Jetpack AI', 'jetpack' ) );
 			}
-		}, 1200 );
+		}, 1600 );
 
 		return () => clearInterval( interval );
 	}, [ promptPlaceholder, currentIndex ] );
