@@ -4,7 +4,7 @@ Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, custome
 Tested up to: 6.3
 Stable tag: 6.0.0
 Requires at least: 5.0
-Requires PHP: 7.2
+Requires PHP: 7.3
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 

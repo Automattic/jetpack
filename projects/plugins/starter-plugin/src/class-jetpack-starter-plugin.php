@@ -34,8 +34,7 @@ class Jetpack_Starter_Plugin {
 			_x( 'Starter Plugin', 'The Jetpack Starter Plugin product name, without the Jetpack prefix', 'jetpack-starter-plugin' ),
 			'manage_options',
 			'jetpack-starter-plugin',
-			array( $this, 'plugin_settings_page' ),
-			99
+			array( $this, 'plugin_settings_page' )
 		);
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 

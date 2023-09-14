@@ -44,5 +44,4 @@ class Data_Type_Event extends Data_Type_Base {
 
 		return true;
 	}
-
 }

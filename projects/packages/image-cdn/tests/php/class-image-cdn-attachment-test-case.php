@@ -1,6 +1,6 @@
 <?php
 
-use \WorDBless\BaseTestCase;
+use WorDBless\BaseTestCase;
 
 /**
  * Class with methods common to tests involving attachments.

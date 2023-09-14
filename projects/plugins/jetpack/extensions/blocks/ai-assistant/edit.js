@@ -28,6 +28,7 @@ import { useEffect, useRef } from 'react';
  */
 import ConnectPrompt from './components/connect-prompt';
 import ImageWithSelect from './components/image-with-select';
+import { promptTemplates } from './components/prompt-templates-control';
 import ToolbarControls from './components/toolbar-controls';
 import UpgradePrompt from './components/upgrade-prompt';
 import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
@@ -191,6 +192,24 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		// Populate block inner blocks
 		replaceBlocks( clientId, storedInnerBlocks );
 	}, [ initialContent, clientId, replaceBlocks, getBlock, attributes?.useGutenbergSyntax ] );
+
+	const [ promptPlaceholder, setPromptPlaceholder ] = useState( '' );
+	const [ currentIndex, setCurrentIndex ] = useState( 0 );
+
+	// Loop through placeholder prompts for a nice UX effect.
+	useEffect( () => {
+		const interval = setInterval( () => {
+			if ( currentIndex < promptTemplates.length ) {
+				setPromptPlaceholder( promptTemplates[ currentIndex ].label );
+				setCurrentIndex( prevIndex => prevIndex + 1 );
+			} else {
+				clearInterval( interval );
+				setPromptPlaceholder( __( 'Ask Jetpack AI', 'jetpack' ) );
+			}
+		}, 1600 );
+
+		return () => clearInterval( interval );
+	}, [ promptPlaceholder, currentIndex ] );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
@@ -520,19 +539,20 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			) }
 			<AIControl
 				ref={ aiControlRef }
-				disabled={ requireUpgrade }
+				disabled={ requireUpgrade || ! connected }
 				value={ userPrompt }
-				placeholder={ __( 'Ask Jetpack AI', 'jetpack' ) }
+				placeholder={ promptPlaceholder || __( 'Ask Jetpack AI', 'jetpack' ) }
 				onChange={ handleChange }
 				onSend={ handleSend }
 				onStop={ handleStopSuggestion }
 				onAccept={ handleAccept }
 				state={ requestingState }
-				isTransparent={ requireUpgrade }
+				isTransparent={ requireUpgrade || ! connected }
 				showButtonLabels={ ! isMobileViewport }
 				showAccept={ contentIsLoaded && ! isWaitingState }
 				acceptLabel={ acceptLabel }
 				showClearButton={ ! isWaitingState }
+				showGuideLine={ contentIsLoaded }
 			/>
 
 			{ ! loadingImages && resultImages.length > 0 && (

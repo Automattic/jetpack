@@ -1,5 +1,10 @@
 import { useRef, useMemo } from '@wordpress/element';
-import { DEFAULT_RESTRICTIONS, GLOBAL_MAX_SIZE, RESTRICTIONS } from './restrictions';
+import {
+	DEFAULT_RESTRICTIONS,
+	GLOBAL_MAX_SIZE,
+	PHOTON_CONVERTIBLE_TYPES,
+	RESTRICTIONS,
+} from './restrictions';
 
 export const NO_MEDIA_ERROR = 'NO_MEDIA_ERROR';
 export const FILE_TYPE_ERROR = 'FILE_TYPE_ERROR';
@@ -31,6 +36,10 @@ const isMediaConvertible = metaData => {
 
 	const { mime, fileSize } = metaData;
 	if ( isVideo( mime ) ) {
+		return false;
+	}
+
+	if ( ! PHOTON_CONVERTIBLE_TYPES.includes( mime ) ) {
 		return false;
 	}
 

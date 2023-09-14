@@ -38,5 +38,4 @@ class Step_Exception extends Automation_Exception {
 	 * @var int
 	 */
 	const DO_NOT_EXTEND_BASE = 12;
-
 }

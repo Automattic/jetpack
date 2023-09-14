@@ -205,5 +205,4 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$this->assertSame( 'dummy', $not_expected_uri );
 		$this->assertNotSame( $not_expected_uri, $response['redirect_uri'] );
 	}
-
 }

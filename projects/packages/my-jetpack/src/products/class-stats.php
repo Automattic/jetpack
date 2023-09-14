@@ -152,6 +152,46 @@ class Stats extends Module_Product {
 	}
 
 	/**
+	 * Checks whether the product can be upgraded to a different product.
+	 * Only Jetpack Stats Commercial plan is not upgradable.
+	 *
+	 * @return boolean
+	 */
+	public static function is_upgradable() {
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				if (
+					(
+						// Purchase is Jetpack Stats...
+						0 === strpos( $purchase->product_slug, 'jetpack_stats' ) &&
+						// but not Jetpack Stats Free...
+						false === strpos( $purchase->product_slug, 'free' )
+					) || 0 === strpos( $purchase->product_slug, 'jetpack_complete' )
+				) {
+					// Only Jetpack Stats paid plans should be eligible for this conditional.
+					// Sample product slugs: jetpack_stats_monthly
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Checks whether the product supports trial or not.
+	 * Since Jetpack Stats has been widely available as a free product in the past, it "supports" a trial.
+	 *
+	 * @return boolean
+	 */
+	public static function has_trial_support() {
+		return true;
+	}
+
+	/**
 	 * Get the WordPress.com URL for purchasing Jetpack Stats for the current site.
 	 *
 	 * @return ?string

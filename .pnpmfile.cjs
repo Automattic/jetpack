@@ -76,15 +76,6 @@ function fixDeps( pkg ) {
 
 	// Outdated dependency.
 	// No upstream bug link yet.
-	if (
-		pkg.name === '@automattic/social-previews' &&
-		pkg.dependencies[ '@wordpress/components' ] === '^22.1.0'
-	) {
-		pkg.dependencies[ '@wordpress/components' ] = '*';
-	}
-
-	// Outdated dependency.
-	// No upstream bug link yet.
 	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
 		pkg.dependencies.cssnano = '^5.0.1 || ^6';
 	}
@@ -147,7 +138,6 @@ function fixPeerDeps( pkg ) {
 		'reakit-utils', // @wordpress/components → reakit
 		'reakit-warning', // @wordpress/components → reakit
 		'@automattic/components',
-		'@automattic/social-previews',
 	] );
 	if ( reactOldPkgs.has( pkg.name ) ) {
 		for ( const p of [ 'react', 'react-dom' ] ) {

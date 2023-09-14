@@ -50,7 +50,7 @@ describe( 'GoogleCalendarInspectorControls', () => {
 
 		await user.click( screen.getByText( 'Calendar settings' ) );
 		const button = await screen.findByText( 'Embed' );
-		await fireEvent.submit( button );
+		fireEvent.submit( button );
 
 		expect( onSubmit ).toHaveBeenCalled();
 	} );

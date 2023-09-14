@@ -123,5 +123,4 @@ class Add_Contact_Log_Test extends JPCRM_Base_Integration_Test_Case {
 		$this->assertSame( 'Short description', $test_log['shortdesc'] );
 		$this->assertSame( 'Long description', $test_log['longdesc'] );
 	}
-
 }

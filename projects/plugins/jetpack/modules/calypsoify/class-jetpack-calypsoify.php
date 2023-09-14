@@ -206,7 +206,6 @@ class Jetpack_Calypsoify {
 		return false;
 		// phpcs:enable
 	}
-
 }
 
 Jetpack_Calypsoify::get_instance();
