@@ -237,6 +237,7 @@ class Wpcom_Products {
 	 * @return Object|WP_Error
 	 */
 	public static function get_site_current_purchases() {
+		// TODO: Add a short-lived cache (less than a minute) to accommodate repeated invocation of this function.
 		static $purchases = null;
 
 		if ( $purchases !== null ) {
