@@ -414,10 +414,6 @@ class Automation_Engine {
 
 				$step_slug = $step->get_slug();
 
-				if ( isset( $step_data['attributes'] ) && is_array( $step_data['attributes'] ) ) {
-					$step->set_attributes( $step_data['attributes'] );
-				}
-
 				$this->get_logger()->log( '[' . $step->get_slug() . '] Executing step. Type: ' . $step->get_data_type() );
 
 				$data_type = $this->maybe_transform_data_type( $trigger_data_type, $step::get_data_type() );
