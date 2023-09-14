@@ -14,6 +14,7 @@ import React from 'react';
  */
 import './style.scss';
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
+import { AI_MODEL_GPT_4 } from '../../../../shared/components/ai-select-model-control';
 import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
@@ -21,10 +22,7 @@ import { AiExcerptControl } from '../../components/ai-excerpt-control';
  */
 import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
 import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
-export const AI_MODEL_GPT_3_5_Turbo = 'gpt-3.5-turbo-16k' as const;
-export const AI_MODEL_GPT_4 = 'gpt-4' as const;
-
-export type AiModelTypeProp = typeof AI_MODEL_GPT_3_5_Turbo | typeof AI_MODEL_GPT_4;
+import type { AiModelTypeProp } from '../../../../shared/components/ai-select-model-control';
 
 type ContentLensMessageContextProps = {
 	type: 'ai-content-lens';

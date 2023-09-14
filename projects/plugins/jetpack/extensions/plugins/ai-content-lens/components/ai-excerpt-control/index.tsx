@@ -2,26 +2,19 @@
  * External dependencies
  */
 import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
-import {
-	RangeControl,
-	Button,
-	BaseControl,
-	TextareaControl,
-	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
-	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { RangeControl, Button, BaseControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 /**
  * Internal dependencies
  */
-import { AI_MODEL_GPT_3_5_Turbo, AI_MODEL_GPT_4 } from '../../extend/ai-post-excerpt';
+import AiSelectModelControl from '../../../../shared/components/ai-select-model-control';
 /**
  * Types and constants
  */
 import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
 import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
-import type { AiModelTypeProp } from '../../extend/ai-post-excerpt';
+import type { AiModelTypeProp } from '../../../../shared/components/ai-select-model-control';
 export type AiExcerptControlProps = {
 	/*
 	 * Whether the component is disabled.
@@ -97,6 +90,25 @@ export function AiExcerptControl( {
 					isSmall
 				/>
 			</BaseControl>
+
+			{ isSettingActive && (
+				<>
+					<AiSelectModelControl
+						model={ model }
+						onModelChange={ onModelChange }
+						disabled={ disabled }
+					/>
+
+					<TextareaControl
+						__nextHasNoMarginBottom
+						label={ __( 'Additional request', 'jetpack' ) }
+						onChange={ onAdditionalRequestChange }
+						value={ additionalRequest }
+						disabled={ disabled }
+					/>
+				</>
+			) }
+
 			<RangeControl
 				value={ words }
 				onChange={ onWordsNumberChange }
@@ -109,31 +121,6 @@ export function AiExcerptControl( {
 				showTooltip={ false }
 				disabled={ disabled }
 			/>
-
-			{ isSettingActive && (
-				<>
-					<ToggleGroupControl
-						__nextHasNoMarginBottom
-						isBlock
-						label={ __( 'Model', 'jetpack' ) }
-						onChange={ onModelChange }
-						value={ model }
-					>
-						<ToggleGroupControlOption
-							label={ __( 'GTP-3.5 Turbo', 'jetpack' ) }
-							value={ AI_MODEL_GPT_3_5_Turbo }
-						/>
-						<ToggleGroupControlOption label={ __( 'GPT-4', 'jetpack' ) } value={ AI_MODEL_GPT_4 } />
-					</ToggleGroupControl>
-					<TextareaControl
-						__nextHasNoMarginBottom
-						label={ __( 'Additional request', 'jetpack' ) }
-						onChange={ onAdditionalRequestChange }
-						value={ additionalRequest }
-						disabled={ disabled }
-					/>
-				</>
-			) }
 		</div>
 	);
 }
