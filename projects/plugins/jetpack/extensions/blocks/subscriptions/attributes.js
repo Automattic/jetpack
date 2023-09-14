@@ -85,4 +85,8 @@ export default {
 			'jetpack'
 		),
 	},
+	source: {
+		type: 'string',
+		default: 'subscribe-block',
+	},
 };

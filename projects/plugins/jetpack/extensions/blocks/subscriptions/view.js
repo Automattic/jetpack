@@ -38,12 +38,16 @@ domReady( function () {
 				unchecked_newsletter_categories.length > 0 &&
 				unchecked_newsletter_categories.length !== newsletter_category_checkboxes.length; // If all are unchecked, we treat it as if no exclusions were made.
 
+			const source_extra = form.querySelector( 'input[name="sub-type"]' ).value;
+
 			let url =
 				'https://subscribe.wordpress.com/memberships/?' +
 				'blog=' +
 				form.dataset.blog +
 				'&plan=newsletter' +
 				'&source=jetpack_subscribe' +
+				'&source_extra=' +
+				encodeURIComponent( source_extra ) +
 				'&post_access_level=' +
 				form.dataset.post_access_level +
 				'&display=alternate' +
