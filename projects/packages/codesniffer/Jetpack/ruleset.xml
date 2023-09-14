@@ -85,6 +85,12 @@
 		</properties>
 	</rule>
 
+	<!-- This is not the right way to fix the underlying issue. https://core.trac.wordpress.org/ticket/59282 is. -->
+	<!-- See also https://github.com/WordPress/WordPress-Coding-Standards/issues/2374 -->
+	<rule ref="WordPress.Security.EscapeOutput.ExceptionNotEscaped">
+		<exclude name="WordPress.Security.EscapeOutput.ExceptionNotEscaped" />
+	</rule>
+
 	<!-- Due to conversation within WPCS, we're disabling this rule for now. See https://github.com/WordPress/WordPress-Coding-Standards/issues/1624 -->
 	<rule ref="WordPress.PHP.YodaConditions.NotYoda">
 		<exclude name="WordPress.PHP.YodaConditions.NotYoda" />
