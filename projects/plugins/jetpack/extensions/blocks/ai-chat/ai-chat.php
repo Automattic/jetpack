@@ -12,9 +12,6 @@ namespace Automattic\Jetpack\Extensions\AIChat;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'ai-chat';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
 /**
  * Registers our block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -22,7 +19,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
 	);
 }
@@ -39,7 +36,7 @@ function load_assets( $attr ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$ask_button_label = isset( $attr['askButtonLabel'] ) ? $attr['askButtonLabel'] : __( 'Ask', 'jetpack' );
 
