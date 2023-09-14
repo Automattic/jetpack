@@ -18,7 +18,7 @@
 	} from './store/isa-summary';
 
 	export let isCdnActive: boolean;
-	export let isaSummary: ISASummary;
+	export let isaSummary: ISASummary | null;
 
 	function scannedPagesCount( isaGroups: Record< string, ISASummaryGroup > ) {
 		return Object.values( isaGroups )
@@ -30,8 +30,8 @@
 	let requestingReport = false;
 	let errorCode: undefined | number;
 
-	$: status = isaSummary.status;
-	$: groups = isaSummary.groups || {};
+	$: status = isaSummary?.status;
+	$: groups = isaSummary?.groups || {};
 	$: scannedPages = scannedPagesCount( groups );
 
 	/**
