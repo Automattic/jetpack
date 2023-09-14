@@ -20,9 +20,9 @@
 	// Keep track of the total count from the summary the last time we got a data update.
 	// Useful for identify when a summary change might mean we need a refresh.
 	let countAtLastDataUpdate = 0;
-	isaData.subscribe( () => {
+	$: if ( $isaData ) {
 		countAtLastDataUpdate = get( totalIssueCount );
-	} );
+	}
 
 	$: needsRefresh = $totalIssueCount > countAtLastDataUpdate;
 
