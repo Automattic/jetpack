@@ -21,7 +21,7 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		load_placeholders,
 	} = attributes;
 
-	const { isLoading, recommendations } = useRecommendations();
+	const { isLoading, recommendations } = useRecommendations( load_placeholders );
 	const { subscriptions } = useSubscriptions( { ignore_user_blogs } );
 
 	const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
