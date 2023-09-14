@@ -71,6 +71,12 @@ declare global {
 			siteLocale: string;
 			'ai-assistant': SiteAIAssistantFeatureEndpointResponseProps;
 			screenBase?: string;
+			search?: {
+				instant_search_enabled: boolean;
+			};
+			jetpack: {
+				is_current_user_connected: boolean;
+			};
 		};
 		wpcomFetch: function;
 	}
