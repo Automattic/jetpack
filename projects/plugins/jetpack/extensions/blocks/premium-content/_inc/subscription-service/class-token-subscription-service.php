@@ -37,6 +37,8 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		if ( null !== $token ) {
 			$this->set_token_cookie( $token );
 		}
+
+		add_filter( 'wp_logout', array( $this, 'logout' ) );
 	}
 
 	/**
@@ -291,5 +293,13 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			}
 		}
 		return $subscriptions;
+	}
+
+	public function logout() {
+		error_log( 'n3f logout' );
+		if ( isset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] ) ) {
+			unset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', time() - 3600, '/', COOKIE_DOMAIN, is_ssl(), true );
+		}
 	}
 }
