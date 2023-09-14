@@ -2,6 +2,7 @@ import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { render, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import RelatedPostsEdit from '../edit';
+import { useRelatedPostsStatus } from '../hooks/use-status-toggle';
 
 const currentPost = {
 	'jetpack-related-posts': [
@@ -69,6 +70,8 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	} ),
 } ) );
 
+jest.mock( '../hooks/use-status-toggle' );
+
 jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
 useSelect.mockImplementation( cb => {
 	return cb( () => ( {
@@ -108,6 +111,12 @@ beforeEach( () => {
 	useModuleStatus.mockReturnValue( {
 		isModuleActive: true,
 		changeStatus: jest.fn(),
+	} );
+
+	useRelatedPostsStatus.mockReturnValue( {
+		isEnabled: true,
+		enable: jest.fn(),
+		loading: false,
 	} );
 } );
 
