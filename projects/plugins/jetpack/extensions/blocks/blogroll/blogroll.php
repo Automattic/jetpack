@@ -42,6 +42,8 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr, $content ) {
+	global $wp;
+
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */

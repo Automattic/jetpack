@@ -46,12 +46,14 @@ function load_assets( $attr, $content, $block ) {
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
-	$name        = esc_attr( $attr['name'] );
-	$url         = esc_url( $attr['url'] );
-	$description = esc_attr( $attr['description'] );
-	$icon        = esc_attr( $attr['icon'] );
-
-	$target = $block->context['openLinksNewWindow'] ? '_blank' : '_self';
+	$name           = esc_attr( $attr['name'] );
+	$id             = esc_attr( $attr['id'] );
+	$url            = esc_url( $attr['url'] );
+	$description    = esc_attr( $attr['description'] );
+	$icon           = esc_attr( $attr['icon'] );
+	$target         = $block->context['openLinksNewWindow'] ? '_blank' : '_self';
+	$subscribe_text = __( 'Subscribe', 'jetpack' );
+	$wp_nonce_field = wp_nonce_field( 'blogsub_subscribe_' . $id, '_wpnonce', false, false );
 
 	if ( empty( $icon ) ) {
 		$icon = 'https://s0.wp.com/i/webclip.png';
@@ -66,6 +68,20 @@ function load_assets( $attr, $content, $block ) {
 			<div class="jetpack-blogroll-item-description">$description</div>
 		</div>
 	HTML;
+
+	if ( $block->context['showSubscribeButton'] ) {
+		$content .= <<<HTML
+		<div class="jetpack-blogroll-item-subscribe">
+			<button class="jetpack-blogroll-item-subscribe-button wp-block-button__link" id="jetpack-blogroll-item-subscribe-button">
+				$subscribe_text
+			</button>
+			<div class="jetpack-blogroll-item-subscribe-form">
+				<button name="blog_id" type="submit" value="$id">$subscribe_text</button>
+				$wp_nonce_field
+			</div>
+		</div>
+HTML;
+	}
 
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
