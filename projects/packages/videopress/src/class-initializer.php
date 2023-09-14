@@ -317,6 +317,7 @@ class Initializer {
 		$is_premium_content_child = isset( $block->context['isPremiumContentChild'] ) ? (bool) $block->context['isPremiumContentChild'] : false;
 		$maybe_premium_script     = '';
 		if ( $is_premium_content_child ) {
+			Access_Control::instance()->set_guid_subscription( $guid, $premium_block_plan_id );
 			$escaped_guid         = esc_js( $guid );
 			$script_content       = "if ( ! window.__guidsToPlanIds ) { window.__guidsToPlanIds = {}; }; window.__guidsToPlanIds['$escaped_guid'] = $premium_block_plan_id;";
 			$maybe_premium_script = '<script>' . $script_content . '</script>';
