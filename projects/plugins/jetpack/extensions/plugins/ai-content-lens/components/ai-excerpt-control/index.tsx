@@ -2,19 +2,17 @@
  * External dependencies
  */
 import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
-import { RangeControl, Button, BaseControl, TextareaControl } from '@wordpress/components';
+import { RangeControl, Button, BaseControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 /**
  * Internal dependencies
  */
-import AiSelectModelControl from '../../../../shared/components/ai-select-model-control';
+import AiModelSelectorControl from '../../../../shared/components/ai-model-selector-control';
 /**
  * Types and constants
  */
-import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
-import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
-import type { AiModelTypeProp } from '../../../../shared/components/ai-select-model-control';
+import type { AiModelTypeProp } from '../../../../shared/components/ai-model-selector-control';
 export type AiExcerptControlProps = {
 	/*
 	 * Whether the component is disabled.
@@ -41,17 +39,8 @@ export type AiExcerptControlProps = {
 	 */
 	onWordsNumberChange?: ( words: number ) => void;
 
-	language?: LanguageProp;
-	onLanguageChange?: ( language: LanguageProp ) => void;
-
-	tone?: ToneProp;
-	onToneChange?: ( tone: ToneProp ) => void;
-
 	model?: AiModelTypeProp;
 	onModelChange?: ( model: AiModelTypeProp ) => void;
-
-	additionalRequest?: string;
-	onAdditionalRequestChange?: ( additionalRequest: string ) => void;
 };
 
 import './style.scss';
@@ -66,9 +55,6 @@ export function AiExcerptControl( {
 
 	model,
 	onModelChange,
-
-	additionalRequest,
-	onAdditionalRequestChange,
 }: AiExcerptControlProps ) {
 	const [ isSettingActive, setIsSettingActive ] = React.useState( false );
 
@@ -80,7 +66,7 @@ export function AiExcerptControl( {
 		<div className="jetpack-ai-generate-excerpt-control">
 			<BaseControl
 				className="jetpack-ai-generate-excerpt-control__header"
-				label={ __( 'Generate', 'jetpack' ) }
+				label={ __( 'Settings', 'jetpack' ) }
 			>
 				<Button
 					label={ __( 'Advanced AI options', 'jetpack' ) }
@@ -93,23 +79,16 @@ export function AiExcerptControl( {
 
 			{ isSettingActive && (
 				<>
-					<AiSelectModelControl
+					<AiModelSelectorControl
 						model={ model }
 						onModelChange={ onModelChange }
-						disabled={ disabled }
-					/>
-
-					<TextareaControl
-						__nextHasNoMarginBottom
-						label={ __( 'Additional request', 'jetpack' ) }
-						onChange={ onAdditionalRequestChange }
-						value={ additionalRequest }
 						disabled={ disabled }
 					/>
 				</>
 			) }
 
 			<RangeControl
+				label={ __( 'Choose length', 'jetpack' ) }
 				value={ words }
 				onChange={ onWordsNumberChange }
 				min={ minWords }

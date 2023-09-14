@@ -1,10 +1,11 @@
 .jetpack-ai-generate-excerpt-control {
-	.jetpack-ai-generate-excerpt-control__header .components-base-control__field {
-		display: flex;
-		justify-content: space-between;
-	}
+	.jetpack-ai-generate-excerpt-control__header {
+		margin-top: 8px;
 
-	.components-base-control {
-		margin-bottom: 12px;
+		.components-base-control__field {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
 	}
 }
