@@ -533,6 +533,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				showAccept={ contentIsLoaded && ! isWaitingState }
 				acceptLabel={ acceptLabel }
 				showClearButton={ ! isWaitingState }
+				showGuideLine={ contentIsLoaded }
 			/>
 
 			{ ! loadingImages && resultImages.length > 0 && (
