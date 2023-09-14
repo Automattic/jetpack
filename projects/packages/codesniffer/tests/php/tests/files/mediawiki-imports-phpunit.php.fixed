@@ -44,5 +44,4 @@ class Dummy_Test extends TestCase {
 		$this->assertStringContainsString( 'foo', $u->var );
 		$this->assertStringContainsString( 'foo', $u->var );
 	}
-
 }

@@ -98,5 +98,4 @@ class Sync_Jetpack_Module_Status {
 		remove_action( "add_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'sync_to_jetpack' ), 10, 2 );
 		remove_action( "update_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'sync_to_jetpack' ), 10, 2 );
 	}
-
 }

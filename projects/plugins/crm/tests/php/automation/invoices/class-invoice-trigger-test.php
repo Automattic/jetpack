@@ -156,5 +156,4 @@ class Invoice_Trigger_Test extends JPCRM_Base_Test_Case {
 		// Run the invoice_deleted action.
 		do_action( 'jpcrm_invoice_deleted', $invoice_data );
 	}
-
 }

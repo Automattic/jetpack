@@ -180,5 +180,4 @@ class Products {
 			$class_name::extend_plugin_action_links();
 		}
 	}
-
 }

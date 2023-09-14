@@ -89,5 +89,4 @@ class Jetpack_JSON_API_Modules_Modify_Endpoint extends Jetpack_JSON_API_Modules_
 
 		return true;
 	}
-
 }

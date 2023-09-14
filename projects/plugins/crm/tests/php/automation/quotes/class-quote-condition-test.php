@@ -87,5 +87,4 @@ class Quote_Condition_Test extends JPCRM_Base_Test_Case {
 
 		$quote_status_changed_condition->execute( $quote_data );
 	}
-
 }

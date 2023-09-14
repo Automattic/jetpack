@@ -230,7 +230,6 @@ class Jetpack_Notifications {
 </script>
 		<?php
 	}
-
 }
 
 Jetpack_Notifications::init();

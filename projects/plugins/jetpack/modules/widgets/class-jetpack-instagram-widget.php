@@ -549,7 +549,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			return;
 		}
 		echo '<p>';
-		echo sprintf(
+		printf(
 			wp_kses(
 				/* translators: %1$s is the URL of the connected Instagram account, %2$s is the username of the connected Instagram account, %3$s is the URL to disconnect the account. */
 				__( '<strong>Connected Instagram Account</strong><br /> <a target="_blank" rel="noopener noreferrer" href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'jetpack' ),

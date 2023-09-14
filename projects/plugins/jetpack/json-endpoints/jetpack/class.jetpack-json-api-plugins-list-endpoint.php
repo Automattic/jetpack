@@ -52,5 +52,3 @@ class Jetpack_JSON_API_Plugins_List_Endpoint extends Jetpack_JSON_API_Plugins_En
 		return true;
 	}
 }
-
-

@@ -343,5 +343,4 @@ class Admin {
 		</a>
 		<?php
 	}
-
 }
