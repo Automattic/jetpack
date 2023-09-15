@@ -53,3 +53,21 @@ function load_assets( $attr, $content ) {
 		$content
 	);
 }
+
+/**
+ * Register site_recommendations settings
+ *
+ * @since $$next-version$$
+ */
+function site_recommendations_settings() {
+	register_setting(
+		'general',
+		'site_recommendations',
+		array(
+			'type'         => 'array',
+			'show_in_rest' => true,
+		)
+	);
+}
+
+add_action( 'rest_api_init', __NAMESPACE__ . '\site_recommendations_settings' );
