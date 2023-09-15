@@ -326,6 +326,9 @@ class Automation_Workflow {
 	 */
 	public function set_engine( Automation_Engine $engine ): void {
 		$this->automation_engine = $engine;
+
+		// Process and check the steps when the engine is set.
+		$this->process_steps();
 	}
 
 	/**
@@ -370,5 +373,19 @@ class Automation_Workflow {
 	 */
 	public function get_logger(): Automation_Logger {
 		return $this->logger ?? Automation_Logger::instance();
+	}
+
+	/**
+	 * Process the steps of the workflow.
+	 *
+	 * @throws Workflow_Exception|Automation_Exception Exception if there is an issue processing the steps.
+	 * @since $$next-version$$
+	 */
+	private function process_steps() {
+		foreach ( $this->steps as $step_data ) {
+			if ( ! isset( $step_data['class_name'] ) ) {
+				$step_data['class_name'] = $this->get_engine()->get_step_class( $step_data['slug'] );
+			}
+		}
 	}
 }
