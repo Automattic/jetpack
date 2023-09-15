@@ -66,3 +66,4 @@ You may also run into cases where certain subdirectories contain code that is no
 
 * `<rule ref="Jetpack-Compat-NoWP" />` will re-enable rules that PHPCompatibilityWP disables because WordPress provides polyfills for various functions.
 * `<rule ref="Jetpack-NoWP" />` includes Jetpack-Compat-NoWP and disables additional rules checking for use of WordPress-provided functions over PHP-native ones.
+* `<rule ref="Jetpack-Tests" />` will disable certain rules that do not make much sense in PHPUnit tests.
