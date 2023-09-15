@@ -27,7 +27,9 @@
 
 <Router history={routerHistory}>
 	<Route path="upgrade" component={BenefitsInterstitial} />
-	<Route path="purchase-successful" component={PurchaseSuccess} />
+	<Route path="purchase-successful" let:location let:navigate>
+		<PurchaseSuccess {location} {navigate} isImageGuideActive={$modulesState.image_guide.active} />
+	</Route>
 	<Route path="getting-started" component={GettingStarted} />
 	{#if $modulesState.image_size_analysis.available && $modulesState.image_size_analysis.active}
 		<Route path="image-size-analysis/:group/:page" component={RecommendationsPage} />
