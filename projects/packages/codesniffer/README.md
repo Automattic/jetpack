@@ -65,3 +65,4 @@ For example, `Jetpack-Compat-74` disables the `PHPCompatibility.Classes.NewTyped
 You may also run into cases where certain subdirectories contain code that is not intended to run under WordPress. We provide additional rulesets to help with this situation as well:
 
 * `<rule ref="Jetpack-Compat-NoWP" />` will re-enable rules that PHPCompatibilityWP disables because WordPress provides polyfills for various functions.
+* `<rule ref="Jetpack-NoWP" />` includes Jetpack-Compat-NoWP and disables additional rules checking for use of WordPress-provided functions over PHP-native ones.
