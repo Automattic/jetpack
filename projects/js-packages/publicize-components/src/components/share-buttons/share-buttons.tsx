@@ -2,13 +2,12 @@ import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import React from 'react';
 import { useCallback } from 'react';
-import { useAvailableNetworks } from './useAvailableNetworks';
+import { availableNetworks } from './available-networks';
 import { usePrepareUrl } from './usePrepareUrl';
 
 import './styles.scss';
 
 export const ShareButtons: React.FC = () => {
-	const networks = useAvailableNetworks();
 	const prepareUrl = usePrepareUrl();
 
 	const onClick = useCallback( ( event: React.MouseEvent< HTMLAnchorElement > ) => {
@@ -23,7 +22,7 @@ export const ShareButtons: React.FC = () => {
 	return (
 		<div className="share-buttons">
 			<div className="share-buttons__list">
-				{ networks.map( ( { label, networkName, url } ) => {
+				{ availableNetworks.map( ( { label, networkName, url } ) => {
 					const href = prepareUrl( url );
 
 					return (
