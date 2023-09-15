@@ -412,5 +412,4 @@ class Post_Connection_JITM extends JITM {
 
 		return $envelopes;
 	}
-
 }

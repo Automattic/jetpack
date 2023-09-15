@@ -151,5 +151,4 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 		$filesystem->ensureDirectoryExists( 'jetpack_vendor' );
 		$filesystem->filePutContentsIfModified( 'jetpack_vendor/i18n-map.php', $code );
 	}
-
 }

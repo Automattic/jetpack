@@ -10,12 +10,9 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
-use Automattic\Jetpack\Constants as Constants;
 use Automattic\Jetpack\IdentityCrisis\Exception;
 use Automattic\Jetpack\IdentityCrisis\UI;
 use Automattic\Jetpack\IdentityCrisis\URL_Secret;
-use Automattic\Jetpack\Status as Status;
-use Automattic\Jetpack\Tracking as Tracking;
 use Jetpack_Options;
 use WP_Error;
 

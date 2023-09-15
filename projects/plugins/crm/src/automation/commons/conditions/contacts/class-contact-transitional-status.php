@@ -172,5 +172,4 @@ class Contact_Transitional_Status extends Base_Condition {
 			'jpcrm/contact_status_updated',
 		);
 	}
-
 }

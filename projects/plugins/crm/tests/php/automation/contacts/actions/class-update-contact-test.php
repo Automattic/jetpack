@@ -119,5 +119,4 @@ class Update_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 		$this->assertSame( 'Manhatten', $contact['lname'] );
 		$this->assertSame( 'Ms', $contact['prefix'] );
 	}
-
 }

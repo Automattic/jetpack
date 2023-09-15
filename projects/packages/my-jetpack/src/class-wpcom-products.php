@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Connection\Client as Client;
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
 use WP_Error;
@@ -237,6 +237,7 @@ class Wpcom_Products {
 	 * @return Object|WP_Error
 	 */
 	public static function get_site_current_purchases() {
+		// TODO: Add a short-lived cache (less than a minute) to accommodate repeated invocation of this function.
 		static $purchases = null;
 
 		if ( $purchases !== null ) {

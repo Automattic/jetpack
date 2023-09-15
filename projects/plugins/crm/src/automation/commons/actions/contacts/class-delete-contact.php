@@ -102,5 +102,4 @@ class Delete_Contact extends Base_Action {
 			)
 		);
 	}
-
 }
