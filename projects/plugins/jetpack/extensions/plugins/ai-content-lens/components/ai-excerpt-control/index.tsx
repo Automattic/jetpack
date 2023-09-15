@@ -8,10 +8,20 @@ import React from 'react';
 /**
  * Internal dependencies
  */
+import {
+	I18nMenuDropdown,
+	LANGUAGE_MAP,
+} from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
+import {
+	PROMPT_TONES_MAP,
+	ToneDropdownMenu,
+} from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
 import AiModelSelectorControl from '../../../../shared/components/ai-model-selector-control';
 /**
  * Types and constants
  */
+import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
+import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
 import type { AiModelTypeProp } from '@automattic/jetpack-ai-client';
 
 export type AiExcerptControlProps = {
@@ -40,6 +50,12 @@ export type AiExcerptControlProps = {
 	 */
 	onWordsNumberChange?: ( words: number ) => void;
 
+	language?: LanguageProp;
+	onLanguageChange?: ( language: LanguageProp ) => void;
+
+	tone?: ToneProp;
+	onToneChange?: ( tone: ToneProp ) => void;
+
 	model?: AiModelTypeProp;
 	onModelChange?: ( model: AiModelTypeProp ) => void;
 };
@@ -54,6 +70,12 @@ export function AiExcerptControl( {
 	words,
 	onWordsNumberChange,
 
+	language,
+	onLanguageChange,
+
+	tone,
+	onToneChange,
+
 	model,
 	onModelChange,
 }: AiExcerptControlProps ) {
@@ -62,6 +84,13 @@ export function AiExcerptControl( {
 	function toggleSetting() {
 		setIsSettingActive( prev => ! prev );
 	}
+
+	// const langLabel = language || __( 'Language', 'jetpack' );
+	// const toneLabel = tone || __( 'Tone', 'jetpack' );
+
+	const lang = language?.split( ' ' )[ 0 ];
+	const langLabel = LANGUAGE_MAP[ lang ]?.label || __( 'Language', 'jetpack' );
+	const toneLabel = PROMPT_TONES_MAP[ tone ]?.label || __( 'Tone', 'jetpack' );
 
 	return (
 		<div className="jetpack-ai-generate-excerpt-control">
@@ -79,11 +108,22 @@ export function AiExcerptControl( {
 			</BaseControl>
 
 			{ isSettingActive && (
-				<AiModelSelectorControl
-					model={ model }
-					onModelChange={ onModelChange }
-					disabled={ disabled }
-				/>
+				<>
+					<I18nMenuDropdown
+						disabled={ disabled }
+						onChange={ onLanguageChange }
+						value={ language }
+						label={ langLabel }
+					/>
+
+					<ToneDropdownMenu label={ toneLabel } value={ tone } onChange={ onToneChange } />
+
+					<AiModelSelectorControl
+						model={ model }
+						onModelChange={ onModelChange }
+						disabled={ disabled }
+					/>
+				</>
 			) }
 
 			<RangeControl
