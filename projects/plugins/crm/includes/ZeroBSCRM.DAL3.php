@@ -3202,8 +3202,10 @@ class zbsDAL {
                 // generate one
                 $data['slug'] = $this->makeSlug($data['name']);
 
-                // catch empty slugs as per gh-462, chinese characters, for example
-                if (empty($data['slug'])) $data['slug'] = $this->getGenericTagSlug($data['objtype']);
+			// catch empty slugs as per gh-462, chinese characters, for example
+			if ( empty( $data['slug'] ) ) {
+				$data['slug'] = $this->get_new_tag_slug( $data['objtype'], 'tag' ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			}
 
                 // if slug STILL empty, return false for now..
                 if (empty($data['slug'])) return false;
@@ -3761,62 +3763,6 @@ class zbsDAL {
 		$next_slug_iteration = (int) $cur_slug_iteration + 1;
 		return $slug_base . $next_slug_iteration;
 	}
-
-    /**
-     * retrieves a tag slug e.g. tag-n
-     *
-     * @param int Object Type e.g. ZBS_TYPE_CONTACT
-     *
-     * @return string tag slug
-     */
-    private function getGenericTagSlug($objTypeID=-1){
-
-        // if passed with obj type
-        if ($objTypeID > 0){
-
-            global $wpdb,$ZBSCRM_t;
-
-            // tag-*
-            $startingI = 1;
-
-            // try and retrieve last added (if any)
-            $potentialTag = $wpdb->get_var($wpdb->prepare("SELECT zbstag_slug FROM ".$ZBSCRM_t['tags']." WHERE zbstag_slug LIKE 'tag-%' AND zbstag_objtype = %d ORDER BY zbstag_slug DESC LIMIT 1",$objTypeID));
-
-            if (!empty($potentialTag)){
-
-                // try and retrieve $i
-                if (substr($potentialTag,0,4) == 'tag-'){
-
-                    $potentialI = (int)substr($potentialTag,4);
-                    if ($potentialI > 0) $startingI = $potentialI+1;
-
-                }
-
-            }
-
-            // now we theoretically will have 4 if there's a record 'tag-3'
-            // this is dangerously open to running giant loops, lets limit it to 1024 and field any feedback
-            // ... should only ever be called in the instance a tag slug can't be generated (chinese characters currently only case)
-            $i = $startingI;
-            while ($i <= 1024){
-                // is this tag in use?
-                $existingTagID = (int)$this->getTag(-1,array(
-                                'objtype'   => $objTypeID,
-                                'slug'      => 'tag-'.$i,
-                                'onlyID'    => true
-                                ));
-
-                if ($existingTagID <= 0) return 'tag-'.$i;
-
-                $i++;
-
-            }
-
-        }
-
-        return false;
-
-    }
 
     /**
      * tidy's the object from wp db into clean array
