@@ -3,6 +3,7 @@
  */
 import { AI_MODEL_GPT_3_5_Turbo_16K, AI_MODEL_GPT_4 } from '@automattic/jetpack-ai-client';
 import {
+	RadioControl,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/components';
@@ -32,6 +33,26 @@ export default function AiModelSelectorControl( {
 			  )
 			: __( 'The fastest model, great for most everyday tasks.', 'jetpack' );
 
+	/*
+	 * Add a fallback for the ToggleGroupControlOption component,
+	 * since it is experimental and might not be available in all versions of Gutenberg.
+	 */
+	if ( ! ToggleGroupControlOption || ! ToggleGroupControl ) {
+		return (
+			<RadioControl
+				label={ __( 'Model', 'jetpack' ) }
+				className="ai-model-selector-control__radio-control"
+				selected={ model }
+				options={ [
+					{ label: __( 'GPT-3.5 Turbo', 'jetpack' ), value: AI_MODEL_GPT_3_5_Turbo_16K },
+					{ label: __( 'GPT-4', 'jetpack' ), value: AI_MODEL_GPT_4 },
+				] }
+				onChange={ onModelChange }
+				help={ help }
+			/>
+		);
+	}
+
 	return (
 		<ToggleGroupControl
 			isBlock
@@ -42,7 +63,6 @@ export default function AiModelSelectorControl( {
 			help={ help }
 		>
 			<ToggleGroupControlOption
-				title={ __( 'GPT-3.5 Turbo', 'jetpack' ) }
 				label={ __( 'GTP-3.5 Turbo', 'jetpack' ) }
 				value={ AI_MODEL_GPT_3_5_Turbo_16K }
 			/>
