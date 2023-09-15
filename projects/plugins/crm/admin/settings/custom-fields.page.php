@@ -321,16 +321,6 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 	 * fields, then adding all others (that should be the default ones).
 	 */
 	$sort_field_names = array();
-	foreach ( $custom_fields as $custom_type => $field_arrays ) {
-		$field_prefix = array_column( $sort_types_map, 'force_prefix', 'custom_key' )[ $custom_type ] ?? '';
-		foreach ( $field_arrays as $field_array ) {
-			if ( isset( $field_array[3] ) ) {
-				$field_slug                                      = $field_prefix . $field_array[3];
-				$sort_field_names[ $custom_type ][ $field_slug ] = true;
-			}
-		}
-	}
-
 	foreach ( $sort_types_map as $sort_type => $sort_map ) {
 		$custom_type = $sort_map['custom_key'];
 		$field_types = isset( $GLOBALS[ $sort_map['obj_key'] ] ) ? $GLOBALS[ $sort_map['obj_key'] ] : array();
@@ -347,16 +337,31 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 		}
 	}
 
+	foreach ( $custom_fields as $custom_type => $field_arrays ) {
+		$field_prefix = array_column( $sort_types_map, 'force_prefix', 'custom_key' )[ $custom_type ] ?? '';
+		foreach ( $field_arrays as $field_array ) {
+			if ( isset( $field_array[3] ) ) {
+				$field_slug                                      = $field_prefix . $field_array[3];
+				$sort_field_names[ $custom_type ][ $field_slug ] = true;
+			}
+		}
+	}
+
 	/*
 	 * In this step, we remove any field that no longer exists. Additionally, if
 	 * a field type becomes empty, we also remove the corresponding entry from
 	 * the sort array. We have two distinct settings for sorting fields: one for
-	 * the sorting itself and another for hidden fields.
+	 * the sorting itself and another for hidden fields. For fieldsorts we add all
+	 * newly added fields, we don't do this for fieldhides.
 	 */
 	$settings_to_update = array( 'fieldsorts', 'fieldhides' );
 	foreach ( $settings_to_update as $setting ) {
 		$fields = $zbs->settings->get( $setting );
 		foreach ( $fields as $sort_type => $sort_names ) {
+			if ( empty( $sort_names ) ) {
+				continue;
+			}
+
 			$custom_type = $sort_types_map[ $sort_type ]['custom_key'];
 
 			if ( ! isset( $custom_fields[ $custom_type ] ) || ! isset( $sort_field_names[ $custom_type ] ) ) {
