@@ -349,8 +349,8 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 		global $wpdb;
 
 		try {
-			$query  = $this->prepare( 'SELECT ID FROM ' . $ZBSCRM_t['companies'] . ' WHERE zbsco_name LIKE %s', $name ); // phpcs:ignore
-			$result = $wpdb->get_row( $query, OBJECT ); // phpcs:ignore
+			$query  = $this->prepare( 'SELECT ID FROM ' . $ZBSCRM_t['companies'] . ' WHERE zbsco_name LIKE %s', $name ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$result = $wpdb->get_row( $query, OBJECT ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.NotPrepared
 
 			if ( isset( $result ) && ( $result->ID ) ) {
 				return $result->ID;
