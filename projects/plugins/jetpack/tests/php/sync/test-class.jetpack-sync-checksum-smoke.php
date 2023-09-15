@@ -96,5 +96,4 @@ class WP_Test_Jetpack_Sync_Checksum_Smoke extends WP_UnitTestCase {
 		$this->assertFalse( is_wp_error( $sum ) );
 		$this->assertGreaterThan( 0, (int) $sum );
 	}
-
 }

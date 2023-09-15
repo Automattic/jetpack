@@ -144,6 +144,4 @@ class WPCOM_JSON_API_Add_Widgets_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		return Jetpack_Widgets::activate_widget( $args['id_base'], $args['sidebar'], $args['position'], $args['settings'] );
 	}
-
 }
-

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Client: check media record ref of the useMediaRecording() hook before to remove the listeners

@@ -40,8 +40,9 @@ export const PROMPT_TYPE_LIST = [
 export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
 
 export type PromptItemProps = {
-	role: 'system' | 'user' | 'assistant';
-	content: string;
+	role: 'system' | 'user' | 'assistant' | 'jetpack-ai';
+	content?: string;
+	context?: object;
 };
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
@@ -233,51 +234,21 @@ function getTonePrompt( {
 
 function getJetpackFormCustomPrompt( {
 	content,
-	role = 'user',
 	request,
 }: PromptOptionsProps ): Array< PromptItemProps > {
 	if ( ! request ) {
 		throw new Error( 'You must provide a custom prompt for the Jetpack Form Custom Prompt' );
 	}
 
+	// Use a jetpack-ai expandable message.
 	return [
 		{
-			role: 'system',
-			content: `You are an expert developer in Gutenberg, the WordPress block editor, and thoroughly familiar with the Jetpack Form feature.
-Strictly follow those rules:
-- Do not wrap the response in any block, element or any kind of delimiter.
-- DO NOT add any additional feedback to the "user", just generate the requested block structure.
-- Do not refer to yourself, the user or the response in any way.
-- When the user provides instructions, translate them into appropriate Gutenberg blocks and Jetpack form structure.
-- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- If you cannot generate a meaningful response to a user's request, reply only with "__JETPACK_AI_ERROR__". This term should only be used in this context, it is used to generate user facing errors.`,
-		},
-		{
-			role,
-			content: `Handle the following request: ${ request }
-
-Strong requirements:
-- Do not wrap the generated structure with any block, like the \`<!-- wp:jetpack/contact-form -->\` syntax.
-- Always add, at the end, exactly one jetpack/button for the form submission. Forms require one button to be valid.
-- Replace placeholders (like FIELD_LABEL, IS_REQUIRED, etc.) with the user's specifications.
-- Use syntax templates for blocks as follows:
-	- \`Name Field\`: <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Email Field\`: <!-- wp:jetpack/field-email {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Text Input Field\`: <!-- wp:jetpack/field-text {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Multi-line Text Field \`: <!-- wp:jetpack/field-textarea {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Checkbox\`: <!-- wp:jetpack/field-checkbox {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT} /-->
-	- \`Date Picker\`: <!-- wp:jetpack/field-date {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Phone Number Field\`: <!-- wp:jetpack/field-telephone {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`URL Field\`: <!-- wp:jetpack/field-url {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Multiple Choice (Checkbox)\`: <!-- wp:jetpack/field-checkbox-multiple {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE]} /-->
-	- \`Single Choice (Radio)\`: <!-- wp:jetpack/field-radio {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE]} /-->
-	- \`Dropdown Field\`: <!-- wp:jetpack/field-select {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE],"toggleLabel":TOGGLE_LABEL} /-->
-	- \`Terms Consent\`:  <!-- wp:jetpack/field-consent {"consentType":"CONSENT_TYPE","implicitConsentMessage":"IMPLICIT_CONSENT_MESSAGE","explicitConsentMessage":"EXPLICIT_CONSENT_MESSAGE", /-->
-	- \`Button\`: <!-- wp:jetpack/button {"label":FIELD_LABEL,"element":"button","text":BUTTON_TEXT,"borderRadius":BORDER_RADIUS,"lock":{"remove":true}} /-->
-
-- When a column layout is requested, add "width" attribute with value 25 (4 columns), 50 (2 columns) or 100 (force single column), like so: \`Name Field\`:
-	- <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT, "width":25} /-->
-Jetpack Form to modify:\n${ content }`,
+			role: 'jetpack-ai',
+			context: {
+				type: 'form-ai-extension',
+				content,
+				request,
+			},
 		},
 	];
 }
@@ -391,28 +362,34 @@ export function promptTextFor(
 		subject = isGenerated ? 'your last answer' : 'the content';
 	}
 
+	// https://github.com/Automattic/jetpack/pull/32814#issuecomment-1704873324
+	const languageReminder = `. Ensure that your response is in the same language as ${
+		isGeneratingTitle ? 'the title' : 'the post content'
+	}. Do not switch to any language other than the language of ${ subject } in your response`;
+
 	switch ( type ) {
 		case PROMPT_TYPE_SUMMARY_BY_TITLE:
-			return { request: `Write a short piece for a blog post based on ${ subject }.` };
+			return {
+				request: `Write a short piece for a blog post based on ${ subject }, keeping the same language`,
+			};
 		case PROMPT_TYPE_CONTINUE:
 			return {
-				request: `Continue writing from ${ subject }.`,
+				request: `Continue writing from ${ subject }${ languageReminder }.`,
 				rules: isGenerated
 					? []
 					: [ 'Only output the continuation of the content, without repeating it' ],
 			};
 		case PROMPT_TYPE_SIMPLIFY:
 			return {
-				request: `Simplify ${ subject }.`,
+				request: `Simplify ${ subject }${ languageReminder }.`,
 				rules: [
 					'Use words and phrases that are easier to understand for non-technical people',
-					'Output in the same language of the content',
 					'Use as much of the original language as possible',
 				],
 			};
 		case PROMPT_TYPE_CORRECT_SPELLING:
 			return {
-				request: `Repeat ${ subject }, correcting any spelling and grammar mistakes, and do not add new content.`,
+				request: `Repeat ${ subject }, correcting any spelling and grammar mistakes, and do not add new content${ languageReminder }.`,
 			};
 		case PROMPT_TYPE_GENERATE_TITLE:
 			return {
@@ -420,13 +397,23 @@ export function promptTextFor(
 				rules: [ 'Only output the raw title, without any prefix or quotes' ],
 			};
 		case PROMPT_TYPE_MAKE_LONGER:
-			return { request: `Make ${ subject } longer.` };
+			return {
+				request: `Make ${ subject } longer${ languageReminder }.`,
+			};
 		case PROMPT_TYPE_MAKE_SHORTER:
-			return { request: `Make ${ subject } shorter.` };
+			return {
+				request: `Make ${ subject } shorter${ languageReminder }.`,
+			};
 		case PROMPT_TYPE_CHANGE_TONE:
-			return { request: `Rewrite ${ subject } with a ${ options.tone } tone.` };
+			return {
+				request: `Rewrite ${ subject } with ${
+					/^[aeiou]/i.test( options.tone as string ) ? 'an' : 'a'
+				} ${ options.tone } tone${ languageReminder }.`,
+			};
 		case PROMPT_TYPE_SUMMARIZE:
-			return { request: `Summarize ${ subject }.` };
+			return {
+				request: `Summarize ${ subject }${ languageReminder }.`,
+			};
 		case PROMPT_TYPE_CHANGE_LANGUAGE:
 			return {
 				request: `Translate ${ subject } to the following language: ${ options.language }.`,

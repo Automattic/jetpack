@@ -1,30 +1,68 @@
 import './editor.scss';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
-import { InspectorControls } from '@wordpress/block-editor';
-import { Flex, FlexBlock, PanelBody, PanelRow, Spinner } from '@wordpress/components';
+import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import {
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalConfirmDialog as ConfirmDialog,
+	MenuGroup,
+	MenuItem,
+	PanelBody,
+	RadioControl,
+	ToolbarDropdownMenu,
+} from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
+import { store as editorStore } from '@wordpress/editor';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { arrowDown, Icon } from '@wordpress/icons';
+import { arrowDown, Icon, people, check } from '@wordpress/icons';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
-import { NewsletterAccessRadioButtons } from '../../shared/memberships/settings';
-import {
-	getShowMisconfigurationWarning,
-	MisconfigurationWarning,
-} from '../../shared/memberships/utils';
+import { getReachForAccessLevelKey } from '../../shared/memberships/settings';
+import { getPaidPlanLink } from '../../shared/memberships/utils';
+import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect';
+import { store as membershipProductsStore } from '../../store/membership-products';
 
 function PaywallEdit( { className } ) {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
 	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
-	if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
-		setPostMeta( { [ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: accessOptions.subscribers.key } );
+	const { stripeConnectUrl, hasNewsletterPlans } = useSelect( select => {
+		const { getNewsletterProducts, getConnectUrl } = select( 'jetpack/membership-products' );
+		return {
+			stripeConnectUrl: getConnectUrl(),
+			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
+		};
+	} );
+	const paidLink = getPaidPlanLink( hasNewsletterPlans );
+	const { autosaveAndRedirect } = useAutosaveAndRedirect( paidLink );
+
+	const [ showDialog, setShowDialog ] = useState( false );
+	const closeDialog = () => setShowDialog( false );
+
+	useEffect( () => {
+		if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
+			setPostMeta( {
+				[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: accessOptions.subscribers.key,
+			} );
+		}
+	}, [ accessLevel, setPostMeta ] );
+
+	function selectAccess( value ) {
+		if (
+			accessOptions.paid_subscribers.key === value &&
+			( stripeConnectUrl || ! hasNewsletterPlans )
+		) {
+			setShowDialog( true );
+			return;
+		}
+		setPostMeta( {
+			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: value,
+		} );
 	}
 
 	const getText = key => {
@@ -38,11 +76,29 @@ function PaywallEdit( { className } ) {
 		}
 	};
 
+	const getLabel = key => {
+		switch ( key ) {
+			case accessOptions.paid_subscribers.key:
+				return accessOptions.paid_subscribers.label;
+			default:
+				return accessOptions.subscribers.label;
+		}
+	};
+
 	const text = getText( accessLevel );
 
 	const style = {
 		width: `${ text.length + 1.2 }em`,
+		userSelect: 'none',
 	};
+
+	const { emailSubscribers, paidSubscribers } = useSelect( select =>
+		select( membershipProductsStore ).getSubscriberCounts()
+	);
+	let _accessLevel = accessLevel ?? accessOptions.subscribers.key;
+	if ( _accessLevel === accessOptions.everybody.key ) {
+		_accessLevel = accessOptions.subscribers.key;
+	}
 
 	return (
 		<>
@@ -52,84 +108,94 @@ function PaywallEdit( { className } ) {
 					<Icon icon={ arrowDown } size={ 16 } />
 				</span>
 			</div>
+			<BlockControls __experimentalShareWithChildBlocks group="block">
+				<ToolbarDropdownMenu
+					className="product-management-control-toolbar__dropdown-button"
+					icon={ people }
+					text={ getLabel( accessLevel ) }
+				>
+					{ ( { onClose: closeDropdown } ) => (
+						<>
+							<MenuGroup>
+								<MenuItem
+									onClick={ () => {
+										selectAccess( accessOptions.subscribers.key );
+										closeDropdown();
+									} }
+									isSelected={ accessLevel === accessOptions.subscribers.key }
+									icon={ accessLevel === accessOptions.subscribers.key && check }
+									iconPosition="right"
+								>
+									{ getLabel( accessOptions.subscribers.key ) }
+								</MenuItem>
+								<MenuItem
+									onClick={ () => {
+										selectAccess( accessOptions.paid_subscribers.key );
+										closeDropdown();
+									} }
+									isSelected={ accessLevel === accessOptions.paid_subscribers.key }
+									icon={ accessLevel === accessOptions.paid_subscribers.key && check }
+									iconPosition="right"
+								>
+									{ getLabel( accessOptions.paid_subscribers.key ) }
+								</MenuItem>
+							</MenuGroup>
+						</>
+					) }
+				</ToolbarDropdownMenu>
+			</BlockControls>
+			<ConfirmDialog
+				onRequestClose={ closeDialog }
+				cancelButtonText={ __( 'Not now', 'jetpack' ) }
+				confirmButtonText={ __( 'Get started', 'jetpack' ) }
+				isOpen={ showDialog }
+				onCancel={ closeDialog }
+				onConfirm={ autosaveAndRedirect }
+			>
+				<h2>{ __( 'Enable payments', 'jetpack' ) }</h2>
+				<p style={ { maxWidth: 340 } }>
+					{ __(
+						'To choose this option, you need to create a payment plan, setting up how much your subscribers should pay to access your paid content, and then connect your Stripe account, which is our payments processor.',
+						'jetpack'
+					) }
+				</p>
+			</ConfirmDialog>
 			<InspectorControls>
 				<PanelBody
 					className="jetpack-subscribe-newsletters-panel"
-					title={ __( 'Content visibility', 'jetpack' ) }
+					title={ __( 'Content access', 'jetpack' ) }
 					icon={ <JetpackEditorPanelLogo /> }
 					initialOpen={ true }
 				>
-					<p>
-						{ __(
+					<RadioControl
+						onChange={ selectAccess }
+						options={ [
+							{
+								label: `${ accessOptions.subscribers.label } (${ getReachForAccessLevelKey(
+									accessOptions.subscribers.key,
+									emailSubscribers,
+									paidSubscribers
+								) })`,
+								value: accessOptions.subscribers.key,
+							},
+							{
+								label: `${ accessOptions.paid_subscribers.label } (${ getReachForAccessLevelKey(
+									accessOptions.paid_subscribers.key,
+									emailSubscribers,
+									paidSubscribers
+								) })`,
+								value: accessOptions.paid_subscribers.key,
+							},
+						] }
+						selected={ _accessLevel }
+						help={ __(
 							'Choose who will be able to read the content below the paywall block.',
 							'jetpack'
 						) }
-					</p>
-					<PaywallBlockSettings accessLevel={ accessLevel } setPostMeta={ setPostMeta } />
+					/>
 				</PanelBody>
 			</InspectorControls>
 		</>
-	);
-}
-
-function PaywallBlockSettings( { accessLevel, setPostMeta } ) {
-	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
-		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
-			'jetpack/membership-products'
-		);
-		return {
-			isLoading: isApiStateLoading(),
-			stripeConnectUrl: getConnectUrl(),
-			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
-		};
-	} );
-
-	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
-
-	if ( isLoading ) {
-		return (
-			<Flex direction="column" align="center">
-				<Spinner />
-			</Flex>
-		);
-	}
-
-	let _accessLevel = accessLevel ?? accessOptions.subscribers.key;
-	if ( _accessLevel === accessOptions.everybody.key ) {
-		_accessLevel = accessOptions.subscribers.key;
-	}
-
-	const accessLabel = accessOptions[ _accessLevel ]?.label;
-
-	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
-
-	return (
-		<PostVisibilityCheck
-			render={ ( { canEdit } ) => (
-				<PanelRow className="edit-post-post-visibility">
-					<Flex direction="column">
-						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
-						<FlexBlock direction="row" justify="flex-start">
-							{ canEdit && (
-								<div className="editor-post-visibility">
-									<NewsletterAccessRadioButtons
-										isEditorPanel={ true }
-										onChange={ setPostMeta }
-										accessLevel={ _accessLevel }
-										stripeConnectUrl={ stripeConnectUrl }
-										hasNewsletterPlans={ hasNewsletterPlans }
-										paywallBlockSettings={ true }
-									/>
-								</div>
-							) }
-
-							{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
-							{ ! canEdit && <span>{ accessLabel }</span> }
-						</FlexBlock>
-					</Flex>
-				</PanelRow>
-			) }
-		/>
 	);
 }
 

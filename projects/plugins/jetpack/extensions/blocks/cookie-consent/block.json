@@ -8,7 +8,7 @@
 	"version": "12.5.0",
 	"textdomain": "jetpack",
 	"category": "grow",
-	"icon": "<svg viewBox='0 0 25 25' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path stroke='currentColor' fill='white' strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M4.419 12c0-6.4 5.358-8 8.037-8h1.005v4h3.014v3h4.019v1c0 6.4-5.024 8-8.038 8-3.014 0-8.037-1.6-8.037-8zm5.023-4h.001m-2.01 4h0m5.023 1h.001m-2.01 3h0m6.028-1h0'/></svg>",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='m20.27,11.03c-.02-.31-.05-.62-.11-.92h-3.88v-2.91h-2.87v-3.79c-.32-.06-.64-.1-.97-.12-.15,0-.29,0-.44,0C7.42,3.28,3.71,7,3.71,11.57s3.71,8.3,8.29,8.3,8.29-3.72,8.29-8.3c0-.18,0-.36-.02-.54Zm-8.23,7.79c-4,0-7.24-3.25-7.24-7.25s3.24-7.24,7.24-7.24c.14,0,.27,0,.4.02v3.81h2.9v2.87h3.91c.02.18.03.36.03.54,0,4-3.24,7.25-7.24,7.25Z'/></svg>",
 	"supports": {
 		"align": [ "left", "right", "wide", "full" ],
 		"alignWide": true,

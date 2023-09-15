@@ -43,8 +43,8 @@ jest.spyOn( window.HTMLMediaElement.prototype, 'pause' ).mockImplementation( () 
  * @param {ReactElement} jsx - The element to render.
  * @returns {object} An object with the user method and everything from the render method.
  */
-const setup = jsx => ( {
-	user: userEvent.setup(),
+const setup = async jsx => ( {
+	user: await userEvent.setup(),
 	...render( jsx ),
 } );
 
@@ -113,7 +113,7 @@ describe( 'MediaPicker', () => {
 
 	it( 'should remove media if remove button is clicked', async () => {
 		const onChangeMock = jest.fn();
-		const { user } = setup(
+		const { user } = await setup(
 			<MediaPickerMock
 				detailsMock={ DUMMY_IMAGE_DETAILS }
 				mediaIdMock={ 1 }
@@ -138,7 +138,7 @@ describe( 'MediaPicker', () => {
 	} );
 
 	it( 'should play and pause the video when it is hovered and unhovered', async () => {
-		const { user } = setup(
+		const { user } = await setup(
 			<MediaPickerMock detailsMock={ DUMMY_VIDEO_DETAILS } mediaIdMock={ 1 } />
 		);
 		const video = await screen.findByText(

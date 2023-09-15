@@ -58,12 +58,66 @@ function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thum
 				$image['crop']   = $_wp_additional_image_sizes[ $size ]['crop'];
 			}
 
-			$image_src = Jetpack_PostImages::fit_image_url( $image['src'], $image['width'], $image['height'] );
+			// Force `crop` to be a simple boolean, to avoid dealing with WP crop positions.
+			$image['crop'] = boolval( $image['crop'] );
 
-			// Use the theme's crop setting rather than forcing to true.
-			$image_src = add_query_arg( 'crop', $image['crop'], $image_src );
+			$image_sizes = '';
 
-			$html = '<img src="' . esc_url( $image_src ) . '" title="' . esc_attr( wp_strip_all_tags( get_the_title() ) ) . '" class="attachment-' . esc_attr( $size ) . ' wp-post-image" />';
+			if ( $image['src_width'] && $image['src_height'] && $image['width'] && $image['height'] ) {
+				$width      = intval( $image['width'] );
+				$height     = intval( $image['height'] );
+				$src_width  = intval( $image['src_width'] );
+				$src_height = intval( $image['src_height'] );
+
+				// If we're aware of the source dimensions, calculate the final image height and width.
+				// This allows us to provide them as attributes in the `<img>` tag, to avoid layout shifts.
+				// It also allows us to calculate a `srcset`.
+				if ( $image['crop'] ) {
+					// If we're cropping, the final dimensions are calculated independently of each other.
+					$width  = min( $width, $src_width );
+					$height = min( $height, $src_height );
+				} else {
+					// If we're not cropping, we need to preserve aspect ratio.
+					$dims   = wp_constrain_dimensions( $src_width, $src_height, $width, $height );
+					$width  = $dims[0];
+					$height = $dims[1];
+				}
+
+				$image_src    = Jetpack_PostImages::fit_image_url( $image['src'], $width, $height );
+				$image_srcset = Jetpack_PostImages::generate_cropped_srcset( $image, $width, $height, true );
+				$image_sizes  = 'min(' . $width . 'px, 100vw)';
+			} else {
+				// If we're not aware of the source dimensions, leave the size calculations to the CDN, and
+				// fall back to a simpler `<img>` tag without `width`/`height` or `srcset`.
+				$image_src = Jetpack_PostImages::fit_image_url( $image['src'], $image['width'], $image['height'] );
+
+				// Use the theme's crop setting rather than forcing to true.
+				$image_src = add_query_arg( 'crop', $image['crop'], $image_src );
+			}
+
+			$default_attr = array(
+				'srcset'   => $image_srcset,
+				'sizes'    => $image_sizes,
+				'loading'  => is_singular() ? 'eager' : 'lazy',
+				'decoding' => 'async',
+				'title'    => wp_strip_all_tags( get_the_title() ),
+				'alt'      => '',
+				'class'    => "attachment-$size wp-post-image",
+			);
+
+			$image_attr = wp_parse_args( $attr, $default_attr );
+			$hwstring   = image_hwstring( $width, $height );
+
+			$html  = rtrim( "<img $hwstring" );
+			$html .= ' src="' . esc_url( $image_src ) . '"';
+
+			foreach ( $image_attr as $name => $value ) {
+				if ( $value ) {
+					$html .= " $name=" . '"' . esc_attr( $value ) . '"';
+				}
+			}
+
+			$html .= ' />';
 
 			return trim( $html );
 		}

@@ -212,11 +212,12 @@ export const unlinkUser = () => {
 	};
 };
 
-export const connectUser = ( featureLabel = null ) => {
+export const connectUser = ( featureLabel = null, from = null ) => {
 	return dispatch => {
 		dispatch( {
 			type: CONNECT_USER,
 			featureLabel,
+			from,
 		} );
 	};
 };

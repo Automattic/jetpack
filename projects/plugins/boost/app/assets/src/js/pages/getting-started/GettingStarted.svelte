@@ -4,6 +4,7 @@
 	import ActivateLicense from '../../elements/ActivateLicense.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
+	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import config, { markGetStartedComplete } from '../../stores/config';
 	import { connection } from '../../stores/connection';
@@ -124,6 +125,8 @@
 			</div>
 		</div>
 	</div>
+
+	<Footer />
 </div>
 
 <style lang="scss">

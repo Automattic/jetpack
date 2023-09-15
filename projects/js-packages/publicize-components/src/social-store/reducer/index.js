@@ -1,4 +1,5 @@
 import { combineReducers } from '@wordpress/data';
+import autoConversionSettings from './auto-conversion-settings';
 import connectionData from './connection-data';
 import jetpackSettings from './jetpack-settings';
 import sharesData from './shares-data';
@@ -11,6 +12,7 @@ const reducer = combineReducers( {
 	connectionData,
 	jetpackSettings,
 	socialImageGeneratorSettings,
+	autoConversionSettings,
 } );
 
 export default reducer;

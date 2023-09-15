@@ -160,7 +160,6 @@ export const settings = {
  * typedef {{
  *   buyer_can_change_amount: ?boolean
  *   connected_account_product_id: string
- *   connected_destination_account_id: string
  *   currency: string
  *   description: string
  *   id: number

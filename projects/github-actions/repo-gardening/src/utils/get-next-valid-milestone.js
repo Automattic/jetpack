@@ -58,7 +58,7 @@ async function getNextValidMilestone( octokit, owner, repo, plugin = 'jetpack' )
 			 * and that date has elapsed, then filter out the milestone. This prevents merged PRs from being
 			 * automatically added to milestones that have entered a code freeze.
 			 */
-			const match = m.description.match( /(?:Code Freeze|Branch Cut): (\d{4}-\d{2}-\d{2})/ );
+			const match = m.description?.match( /(?:Code Freeze|Branch Cut): (\d{4}-\d{2}-\d{2})/ );
 			return ! ( match && moment( match[ 1 ] ) < moment() );
 		} )
 		.sort( ( m1, m2 ) =>

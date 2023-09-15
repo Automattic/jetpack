@@ -28,7 +28,7 @@ export { default as Gridicon } from './components/gridicon';
 export { default as IconTooltip } from './components/icon-tooltip';
 export { default as ActionButton } from './components/action-button';
 export { default as PricingCard } from './components/pricing-card';
-export { default as PricingSlider } from './components/pricing-slider';
+export { default as NumberSlider } from './components/number-slider';
 export { default as AdminSection } from './components/admin-section/basic';
 export { default as AdminSectionHero } from './components/admin-section/hero';
 export { default as AdminPage } from './components/admin-page';
@@ -54,6 +54,7 @@ export {
 	PricingTableItem,
 } from './components/pricing-table';
 export { default as BoostScoreBar } from './components/boost-score-bar';
+export { default as BoostScoreGraph } from './components/boost-score-graph';
 export { default as ProductPrice } from './components/product-price';
 export { default as ProductOffer, IconsCard } from './components/product-offer';
 export { default as Dialog } from './components/dialog';
@@ -62,6 +63,7 @@ export { default as RecordMeterBar } from './components/record-meter-bar';
 export { default as ContextualUpgradeTrigger } from './components/contextual-upgrade-trigger';
 export { default as Alert } from './components/alert';
 export { default as Notice } from './components/notice';
+export { default as Popover } from './components/popover';
 export { default as Status } from './components/status';
 export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar';
 export { default as ActionPopover } from './components/action-popover';

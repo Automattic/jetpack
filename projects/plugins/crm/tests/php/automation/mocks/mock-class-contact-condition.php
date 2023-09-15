@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests\Mocks;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 
 class Contact_Condition extends Base_Condition {
 
@@ -89,14 +90,15 @@ class Contact_Condition extends Base_Condition {
 	/**
 	 * Execute the step
 	 *
-	 * @param array $data
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 * @return void
+	 *
 	 * @throws Automation_Exception
 	 */
-	public function execute( array $data ) {
-
+	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( ! $this->is_valid_contact_data( $data ) ) {
-			$this->logger->log( 'Invalid contact data', $data );
+			$this->logger->log( 'Invalid contact data' );
 			$this->condition_met = false;
 			return;
 		}
@@ -105,15 +107,15 @@ class Contact_Condition extends Base_Condition {
 		$operator = $this->get_attributes()['operator'];
 		$value    = $this->get_attributes()['value'];
 
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data['data'][ $field ] );
+		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data[ $field ] );
 
 		switch ( $operator ) {
 			case 'is':
-				$this->condition_met = ( $data['data'][ $field ] === $value );
+				$this->condition_met = ( $data[ $field ] === $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				return;
 			case 'is_not':
-				$this->condition_met = ( $data['data'][ $field ] !== $value );
+				$this->condition_met = ( $data[ $field ] !== $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				return;
 		}
@@ -136,8 +138,8 @@ class Contact_Condition extends Base_Condition {
 		return 'Check if a contact has a specific status';
 	}
 
-	public static function get_type(): string {
-		return 'condition';
+	public static function get_data_type(): string {
+		return Data_Type_Contact::get_slug();
 	}
 
 	public static function get_category(): ?string {

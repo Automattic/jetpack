@@ -1469,5 +1469,4 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( 'second test', $result2 );
 		$this->assertEquals( 'first test', $result1_again );
 	}
-
 }

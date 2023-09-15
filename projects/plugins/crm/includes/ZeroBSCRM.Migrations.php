@@ -507,7 +507,7 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 
 		// set permalinks to flush, this'll cause them to be refreshed on 3000 migration
 		// ... as that has preload setting
-		zeroBSCRM_rewrite_setToFlush();
+		jpcrm_flag_for_flush_rewrite();
 
 		// fini
 		zeroBSCRM_migrations_markComplete('29999',array('updated'=>1));

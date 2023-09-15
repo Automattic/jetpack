@@ -443,11 +443,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					</button>
 				</p>
 			</form>
-			<?php if ( $show_subscribers_total && $subscribers_total ) { ?>
+			<?php if ( $show_subscribers_total && $subscribers_total > 0 ) { ?>
 				<div class="wp-block-jetpack-subscriptions__subscount">
 					<?php
-					/* translators: %s: number of folks following the blog */
-					echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+					echo esc_html( Jetpack_Memberships::get_join_others_text( $subscribers_total ) );
 					?>
 				</div>
 			<?php } ?>
@@ -538,8 +537,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			<?php if ( $show_subscribers_total && 0 < $subscribers_total ) { ?>
 				<div class="wp-block-jetpack-subscriptions__subscount">
 					<?php
-					/* translators: %s: number of folks following the blog */
-					echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+					echo esc_html( Jetpack_Memberships::get_join_others_text( $subscribers_total ) );
 					?>
 				</div>
 			<?php } ?>

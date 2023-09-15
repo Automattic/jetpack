@@ -27,5 +27,4 @@ abstract class REST_Base_Controller extends WP_REST_Controller {
 	public function __construct() {
 		$this->namespace = 'jetpack-crm/v4';
 	}
-
 }

@@ -80,5 +80,4 @@ class Options {
 
 		self::$options = array();
 	}
-
 }
