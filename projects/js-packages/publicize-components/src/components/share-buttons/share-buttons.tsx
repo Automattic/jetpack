@@ -3,9 +3,8 @@ import { Button } from '@wordpress/components';
 import React from 'react';
 import { useCallback } from 'react';
 import { availableNetworks } from './available-networks';
+import styles from './styles.module.scss';
 import { usePrepareUrl } from './usePrepareUrl';
-
-import './styles.scss';
 
 export const ShareButtons: React.FC = () => {
 	const prepareUrl = usePrepareUrl();
@@ -20,27 +19,25 @@ export const ShareButtons: React.FC = () => {
 	}, [] );
 
 	return (
-		<div className="share-buttons">
-			<div className="share-buttons__list">
-				{ availableNetworks.map( ( { label, networkName, url } ) => {
-					const href = prepareUrl( url );
+		<div className={ styles[ 'share-buttons' ] }>
+			{ availableNetworks.map( ( { label, networkName, url } ) => {
+				const href = prepareUrl( url );
 
-					return (
-						<Button
-							key={ networkName }
-							icon={ <SocialServiceIcon serviceName={ networkName } /> }
-							variant="secondary"
-							href={ href }
-							target="_blank"
-							rel="noopener noreferrer"
-							onClick={ onClick }
-							data-network={ networkName }
-						>
-							{ label }
-						</Button>
-					);
-				} ) }
-			</div>
+				return (
+					<Button
+						key={ networkName }
+						icon={ <SocialServiceIcon serviceName={ networkName } /> }
+						variant="secondary"
+						href={ href }
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={ onClick }
+						data-network={ networkName }
+					>
+						{ label }
+					</Button>
+				);
+			} ) }
 		</div>
 	);
 };
