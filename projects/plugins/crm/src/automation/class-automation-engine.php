@@ -293,8 +293,8 @@ class Automation_Engine {
 			);
 		}
 
-		$step_name                     = $class_name::get_slug();
-		$this->steps_map[ $step_name ] = $class_name;
+		$step_slug                     = $class_name::get_slug();
+		$this->steps_map[ $step_slug ] = $class_name;
 	}
 
 	/**
@@ -420,7 +420,10 @@ class Automation_Engine {
 
 				$data_type = $this->maybe_transform_data_type( $trigger_data_type, $step::get_data_type() );
 				$step->execute( $data_type->get_entity() );
-				$step_data = $step->get_next_step();
+
+				//todo: return Step instance instead of array
+				$step_id   = $step->get_next_step_id();
+				$step_data = $workflow->get_step( $step_id );
 
 				$this->get_logger()->log( '[' . $step->get_slug() . '] Step executed!' );
 
