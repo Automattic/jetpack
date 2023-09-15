@@ -228,6 +228,9 @@ async function addVendorFilesToFilter( source, filters ) {
  */
 async function rsyncToDest( source, dest, pluginDestPath ) {
 	const filters = new Set();
+
+	// Exclude git internals
+	filters.add( '- .git' );
 	// To catch files required in dev builds.
 	await addVendorFilesToFilter( `${ source }/vendor/`, filters );
 	await buildFilterRules( source, '', filters );
