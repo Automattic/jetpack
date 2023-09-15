@@ -111,5 +111,4 @@ class Data_Type_Invoice extends Data_Type_Base {
 
 		return $new_entity;
 	}
-
 }

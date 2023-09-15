@@ -23,5 +23,4 @@ class WP_Test_Unistall_Jetpack extends WP_UnitTestCase {
 		require plugin_dir_path( __FILE__ ) . '../../../uninstall.php';
 		$this->assertTrue( defined( 'JETPACK__PLUGIN_DIR' ) );
 	}
-
 } // end class

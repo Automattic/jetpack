@@ -327,5 +327,4 @@ class Search extends Hybrid_Product {
 	public static function get_manage_url() {
 		return admin_url( 'admin.php?page=jetpack-search' );
 	}
-
 }

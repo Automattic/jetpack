@@ -234,5 +234,4 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	public function active_plugins_has_woocommerce() {
 		return array( 'woocommerce/woocommerce.php' );
 	}
-
 }

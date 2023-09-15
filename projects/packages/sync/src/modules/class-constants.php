@@ -335,5 +335,4 @@ class Constants extends Module {
 
 		return false;
 	}
-
 }

@@ -326,7 +326,7 @@ class Queue {
 			 *
 			 * PHPCS ignore is because this is the expected behavior - we're assigning a variable in the condition part of the loop.
 			 */
-			// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			while ( ( $current_item = array_shift( $current_items ) ) !== null ) {
 				// @codingStandardsIgnoreStart
 				$current_item->value = unserialize( $current_item->value );

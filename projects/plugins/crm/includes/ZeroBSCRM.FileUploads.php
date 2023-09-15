@@ -925,5 +925,4 @@ function jpcrm_file_check_mime_extension( $FILE, $check_file_extension = 'settin
 		}
 
 		return true;
-
 }
