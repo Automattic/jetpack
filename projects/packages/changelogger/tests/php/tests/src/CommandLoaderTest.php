@@ -55,5 +55,4 @@ class CommandLoaderTest extends TestCase {
 			$loader->getNames()
 		);
 	}
-
 }

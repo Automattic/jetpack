@@ -86,5 +86,4 @@ interface Trigger {
 	 * @param Automation_Workflow $workflow The workflow to which the trigger belongs.
 	 */
 	public function init( Automation_Workflow $workflow );
-
 }

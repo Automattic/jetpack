@@ -106,14 +106,14 @@ class Concatenate_JS extends WP_Scripts {
 				// the value will always be true for static files.
 				$do_concat = true;
 			} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					echo sprintf( "\n<!-- No Concat JS %s => Maybe Not Static File %s -->\n", esc_html( $handle ), esc_html( $obj->src ) );
+					printf( "\n<!-- No Concat JS %s => Maybe Not Static File %s -->\n", esc_html( $handle ), esc_html( $obj->src ) );
 			}
 
 			// Don't try to concat externally hosted scripts
 			$is_internal_uri = $this->dependency_path_mapping->is_internal_uri( $js_url );
 			if ( $do_concat && ! $is_internal_uri ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					echo sprintf( "\n<!-- No Concat JS %s => External URL: %s -->\n", esc_html( $handle ), esc_url( $js_url ) );
+					printf( "\n<!-- No Concat JS %s => External URL: %s -->\n", esc_html( $handle ), esc_url( $js_url ) );
 				}
 				$do_concat = false;
 			}
@@ -123,7 +123,7 @@ class Concatenate_JS extends WP_Scripts {
 				$js_realpath = $this->dependency_path_mapping->dependency_src_to_fs_path( $js_url );
 				if ( false === $js_realpath ) {
 					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-						echo sprintf( "\n<!-- No Concat JS %s => Invalid Path %s -->\n", esc_html( $handle ), esc_html( $js_realpath ) );
+						printf( "\n<!-- No Concat JS %s => Invalid Path %s -->\n", esc_html( $handle ), esc_html( $js_realpath ) );
 					}
 					$do_concat = false;
 				}
@@ -131,7 +131,7 @@ class Concatenate_JS extends WP_Scripts {
 
 			if ( $do_concat && $this->has_inline_content( $handle ) ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					echo sprintf( "\n<!-- No Concat JS %s => Has Inline Content -->\n", esc_html( $handle ) );
+					printf( "\n<!-- No Concat JS %s => Has Inline Content -->\n", esc_html( $handle ) );
 				}
 				$do_concat = false;
 			}
@@ -139,7 +139,7 @@ class Concatenate_JS extends WP_Scripts {
 			// Skip core scripts that use Strict Mode
 			if ( $do_concat && ( 'react' === $handle || 'react-dom' === $handle ) ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					echo sprintf( "\n<!-- No Concat JS %s => Has Strict Mode (Core) -->\n", esc_html( $handle ) );
+					printf( "\n<!-- No Concat JS %s => Has Strict Mode (Core) -->\n", esc_html( $handle ) );
 				}
 				$do_concat        = false;
 				$script_is_strict = true;
@@ -147,7 +147,7 @@ class Concatenate_JS extends WP_Scripts {
 			} elseif ( $do_concat && preg_match_all( '/^[\',"]use strict[\',"];/Uims', file_get_contents( $js_realpath ), $matches ) ) {
 				// Skip third-party scripts that use Strict Mode
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					echo sprintf( "\n<!-- No Concat JS %s => Has Strict Mode (Third-Party) -->\n", esc_html( $handle ) );
+					printf( "\n<!-- No Concat JS %s => Has Strict Mode (Third-Party) -->\n", esc_html( $handle ) );
 				}
 				$do_concat        = false;
 				$script_is_strict = true;
@@ -161,7 +161,7 @@ class Concatenate_JS extends WP_Scripts {
 				if ( $do_concat && $handle === $exclude ) {
 					$do_concat = false;
 					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-						echo sprintf( "\n<!-- No Concat JS %s => Excluded option -->\n", esc_html( $handle ) );
+						printf( "\n<!-- No Concat JS %s => Excluded option -->\n", esc_html( $handle ) );
 					}
 				}
 			}
@@ -169,7 +169,7 @@ class Concatenate_JS extends WP_Scripts {
 			// Allow plugins to disable concatenation of certain scripts.
 			if ( $do_concat && ! apply_filters( 'js_do_concat', $do_concat, $handle ) ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					echo sprintf( "\n<!-- No Concat JS %s => Filtered `false` -->\n", esc_html( $handle ) );
+					printf( "\n<!-- No Concat JS %s => Filtered `false` -->\n", esc_html( $handle ) );
 				}
 			}
 			$do_concat = apply_filters( 'js_do_concat', $do_concat, $handle );

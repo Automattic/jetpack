@@ -50,5 +50,4 @@ abstract class REST_Base_Test_Case extends JPCRM_Base_Integration_Test_Case {
 
 		return $user_id;
 	}
-
 }

@@ -73,5 +73,3 @@ do_action( 'jpcrm_webhook_' . $webhook_action, $webhook_data );
 
 // by default, send success, but the action can override this
 wp_send_json_success();
-
-

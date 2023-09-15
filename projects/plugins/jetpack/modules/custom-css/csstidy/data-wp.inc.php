@@ -99,4 +99,3 @@ $GLOBALS['csstidy']['all_properties']['font-variant-numeric']       = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['font-variant-position']      = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['font-variation-settings']    = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['line-height-step']           = 'CSS3.0';
-

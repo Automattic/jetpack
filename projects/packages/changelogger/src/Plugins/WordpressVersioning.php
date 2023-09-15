@@ -227,5 +227,4 @@ class WordpressVersioning implements VersioningPlugin {
 			) + $this->validateExtra( $extra )
 		);
 	}
-
 }

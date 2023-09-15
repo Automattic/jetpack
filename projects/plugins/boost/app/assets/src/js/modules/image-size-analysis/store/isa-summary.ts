@@ -18,30 +18,36 @@ export enum ISAStatus {
 	Stuck = 'error_stuck',
 }
 
-const zGroup = z.object( {
+const zSummaryGroup = z.object( {
 	issue_count: z.number(),
 	scanned_pages: z.number(),
 	total_pages: z.number(),
 } );
 
+export type ISASummaryGroup = z.infer< typeof zSummaryGroup >;
+
+const zSummary = z
+	.object( {
+		status: z.nativeEnum( ISAStatus ).default( ISAStatus.NotFound ),
+		report_id: z.number().optional(),
+		groups: z
+			.object( {
+				core_front_page: zSummaryGroup,
+				singular_page: zSummaryGroup.optional(),
+				singular_post: zSummaryGroup.optional(),
+				other: zSummaryGroup.optional(),
+			} )
+			.nullable()
+			.optional(),
+	} )
+	// Default data if deactivated or not loaded yet.
+	.nullable();
+
+export type ISASummary = z.infer< typeof zSummary >;
+
 const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 	'image_size_analysis_summary',
-	z
-		.object( {
-			status: z.nativeEnum( ISAStatus ).default( ISAStatus.NotFound ),
-			report_id: z.number().optional(),
-			groups: z
-				.object( {
-					core_front_page: zGroup,
-					singular_page: zGroup.optional(),
-					singular_post: zGroup.optional(),
-					other: zGroup.optional(),
-				} )
-				.nullable()
-				.optional(),
-		} )
-		// Default data if deactivated or not loaded yet.
-		.nullable()
+	zSummary
 );
 // Prevent updates to image_size_analysis_summary from being pushed back to the server.
 image_size_analysis_summary.setSyncAction( async ( _, value ) => value );
@@ -59,21 +65,35 @@ export const isaGroupLabels = {
 	other: __( 'Other', 'jetpack-boost' ),
 };
 
+export function isaGroupLabel( group: keyof typeof isaGroupLabels | string ) {
+	if ( ! isaGroupLabels[ group ] ) {
+		return group;
+	}
+	return isaGroupLabels[ group ];
+}
+
+export function getSummaryProgress( summaryGroups: Record< string, ISASummaryGroup > ) {
+	return Object.entries( summaryGroups ).map( ( [ group, data ] ) => {
+		const progress = data.total_pages
+			? Math.round( ( data.scanned_pages / data.total_pages ) * 100 )
+			: 100;
+
+		return {
+			group,
+			progress,
+			done: progress === 100,
+			has_issues: data.issue_count > 0,
+			...data,
+		};
+	} );
+}
+
 /**
  * Derived store tracking the total number of issues.
  */
 export const totalIssueCount = derived( isaSummary, $isaSummary => {
 	return Object.values( $isaSummary?.groups || {} )
 		.map( group => group.issue_count )
-		.reduce( ( a, b ) => a + b, 0 );
-} );
-
-/**
- * Derived store tracking the number of scanned pages.
- */
-export const scannedPagesCount = derived( isaSummary, $isaSummary => {
-	return Object.values( $isaSummary?.groups || {} )
-		.map( group => group.scanned_pages )
 		.reduce( ( a, b ) => a + b, 0 );
 } );
 
@@ -102,12 +122,12 @@ export const imageDataGroupTabs = derived(
  */
 export const imageDataActiveGroup = derived(
 	[ imageDataGroupTabs, isaData ],
-	( [ $groups, $imageData ] ): z.infer< typeof zGroup > => {
+	( [ $groups, $imageData ] ): z.infer< typeof zSummaryGroup > => {
 		return $groups[ $imageData.query.group ];
 	}
 );
 
-export type ISA_Group = z.infer< typeof zGroup >;
+export type ISA_Group = z.infer< typeof zSummaryGroup >;
 
 /**
  * Request a new image size analysis.

@@ -103,5 +103,4 @@ class Update_Contact_Status extends Base_Action {
 			)
 		);
 	}
-
 }

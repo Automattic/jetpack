@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Use JS to check if initial state is already rendered.
