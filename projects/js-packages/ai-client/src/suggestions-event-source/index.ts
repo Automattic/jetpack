@@ -19,7 +19,12 @@ import {
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
 } from '../types';
-import type { PromptMessagesProp, PromptProp, SuggestionErrorCode } from '../types';
+import type {
+	AiModelTypeProp,
+	PromptMessagesProp,
+	PromptProp,
+	SuggestionErrorCode,
+} from '../types';
 
 type SuggestionsEventSourceConstructorArgs = {
 	url?: string;
@@ -30,6 +35,7 @@ type SuggestionsEventSourceConstructorArgs = {
 		feature?: 'ai-assistant-experimental' | string | undefined;
 		fromCache?: boolean;
 		functions?: Array< object >;
+		model?: AiModelTypeProp;
 	};
 };
 
@@ -103,6 +109,7 @@ export default class SuggestionsEventSource extends EventTarget {
 			question?: PromptProp;
 			feature?: string;
 			functions?: Array< object >;
+			model?: AiModelTypeProp;
 		} = {};
 
 		// Populate body data with post id
@@ -140,6 +147,12 @@ export default class SuggestionsEventSource extends EventTarget {
 		if ( options?.functions?.length ) {
 			debug( 'Functions: %o', options.functions );
 			bodyData.functions = options.functions;
+		}
+
+		// Model
+		if ( options?.model?.length ) {
+			debug( 'Model: %o', options.model );
+			bodyData.model = options.model;
 		}
 
 		await fetchEventSource( url, {
