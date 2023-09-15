@@ -1,13 +1,8 @@
 import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
-import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
-
-/**
- * Style dependencies
- */
 import './editor.scss';
 
 export const name = 'blogroll-item';
@@ -47,9 +42,25 @@ export const settings = {
 		inserter: false,
 	},
 	edit,
+	attributes: {
+		id: {
+			type: 'string',
+		},
+		name: {
+			type: 'string',
+		},
+		icon: {
+			type: 'string',
+			default: 'https://s0.wp.com/i/webclip.png',
+		},
+		url: {
+			type: 'string',
+		},
+		description: {
+			type: 'string',
+		},
+	},
 	save: () => <InnerBlocks.Content />,
-	attributes,
-	usesContext: [ 'showAvatar', 'showDescription', 'showSubscribeButton', 'openLinksNewWindow' ],
 	example: {
 		attributes: {
 			// @TODO: Add default values for block attributes, for generating the block preview.
