@@ -3753,7 +3753,7 @@ class zbsDAL {
 		$slug_base = $slug . '-';
 
 		// get last iteration of tag slug
-		$sql_query = 'SELECT CAST(TRIM(LEADING %s FROM zbstag_slug) AS SIGNED) AS next_slug_id FROM ' . $ZBSCRM_t['tags'] . ' WHERE zbstag_slug LIKE CONCAT(%s,"%") AND zbstag_objtype = %d ORDER BY next_slug_id DESC LIMIT 1000'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$sql_query = 'SELECT CAST(TRIM(LEADING %s FROM zbstag_slug) AS SIGNED) AS slug_iteration FROM ' . $ZBSCRM_t['tags'] . ' WHERE zbstag_slug LIKE CONCAT(%s,"%") AND zbstag_objtype = %d ORDER BY slug_iteration DESC LIMIT 1'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		$cur_slug_iteration = $wpdb->get_var( $wpdb->prepare( $sql_query, $slug_base, $slug_base, $obj_type_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
