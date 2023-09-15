@@ -26,8 +26,20 @@ info "== Setting up composer =="
 echo '{}' > composer.json
 composer config --no-interaction allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
 composer require --dev dealerdirect/phpcodesniffer-composer-installer
+# Hotfix for a bug in phpcompatibiliy v9.x
+sed -i.bak 's!$message = vsprintf($message, $data);!$message = vsprintf($message, (array) $data);!' vendor/squizlabs/php_codesniffer/src/Files/File.php
 
-# Install the dev-develop version to get all the current rules.
+# Run against current relese version.
+info "== Getting rules with phpcompatibility/php-compatibility =="
+composer require --dev phpcompatibility/php-compatibility
+for V in "${PHP_VERSIONS[@]}"; do
+	info "=== PHP $V ==="
+	{ vendor/bin/phpcs -p -s --report-width=10000 --standard=PHPCompatibility --runtime-set testVersion "$V-" "${FILES[@]}" || true; } | sed -n 's/.* (\(PHPCompatibility\.[^)]\+\))$/\1/p' | sort -u > rel-$V.txt
+	echo "Got $(grep -c . "rel-$V.txt") rules"
+done
+
+
+# Run with dev-develop version too to get all the new rules.
 info "== Getting rules with phpcompatibility/php-compatibility=dev-develop =="
 composer require --dev phpcompatibility/php-compatibility=dev-develop
 for V in "${PHP_VERSIONS[@]}"; do
@@ -36,12 +48,10 @@ for V in "${PHP_VERSIONS[@]}"; do
 	echo "Got $(grep -c . "dev-$V.txt") rules"
 done
 
-# Replace with phpcompatibility/phpcompatibility-wp to get any renamed rules from that version.
+# And, just in case, run with phpcompatibility/phpcompatibility-wp too.
 info "== Getting rules with phpcompatibility/phpcompatibility-wp =="
 composer remove --dev phpcompatibility/php-compatibility
 composer require --dev phpcompatibility/phpcompatibility-wp
-# Hotfix for a bug in one of the rulesets.
-sed -i.bak 's!$message = vsprintf($message, $data);!$message = vsprintf($message, (array) $data);!' vendor/squizlabs/php_codesniffer/src/Files/File.php
 for V in "${PHP_VERSIONS[@]}"; do
 	info "=== PHP $V ==="
 	{ vendor/bin/phpcs -p -s --report-width=10000 --standard=PHPCompatibilityWP --runtime-set testVersion "$V-" "${FILES[@]}" || true; } | sed -n 's/.* (\(PHPCompatibility\.[^)]\+\))$/\1/p' | sort -u > wp-$V.txt
@@ -53,7 +63,7 @@ info "== Processing rules lists =="
 F=( -f /dev/null )
 V0="${PHP_VERSIONS[0]}"
 for V in "${PHP_VERSIONS[@]:1}"; do
-	{ diff -u <( sort -u "dev-$V0.txt" "wp-$V0.txt" ) <( sort -u "dev-$V.txt" "wp-$V.txt" ) || true; } | sed -n 's/^-\(PHPCompatibility\.\)/\1/p' | grep -vFx "${F[@]}" > "$V.txt"
+	{ diff -u <( sort -u "dev-$V0.txt" "rel-$V0.txt" "wp-$V0.txt" ) <( sort -u "dev-$V.txt" "rel-$V.txt" "wp-$V.txt" ) || true; } | sed -n 's/^-\(PHPCompatibility\.\)/\1/p' | grep -vFx "${F[@]}" > "$V.txt"
 	F+=( -f "$V.txt" )
 	echo "Found $(grep -c . "$V.txt") rules that no longer apply in PHP $V"
 done

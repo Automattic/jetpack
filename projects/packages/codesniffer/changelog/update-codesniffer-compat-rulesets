@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update `Jetpack-Compat-*` rulesets against PHPCompatibility develop branch.
