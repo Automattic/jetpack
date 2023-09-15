@@ -1,16 +1,9 @@
-<?php //phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+<?php
 /**
  * Custom Autoloader Composer Plugin, hooks into composer events to generate the custom autoloader.
  *
  * @package automattic/jetpack-autoloader
  */
-
-// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_useFound
-// phpcs:disable PHPCompatibility.LanguageConstructs.NewLanguageConstructs.t_ns_separatorFound
-// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_namespaceFound
-// phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
-// phpcs:disable WordPress.Files.FileName.InvalidClassFileName
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 namespace Automattic\Jetpack\Autoloader;
 
