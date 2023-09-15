@@ -52,6 +52,11 @@ function AiPostExcerpt() {
 	const [ excerptWordsNumber, setExcerptWordsNumber ] = useState( 50 );
 
 	const [ reenable, setReenable ] = useState( false );
+<<<<<<< HEAD
+=======
+	const [ language, setLanguage ] = useState< LanguageProp >();
+	const [ tone, setTone ] = useState< ToneProp >();
+>>>>>>> 199506b357 (remove tite from i18n and tone dds)
 	const [ model, setModel ] = useState< AiModelTypeProp >( AI_MODEL_GPT_4 );
 
 	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions(
