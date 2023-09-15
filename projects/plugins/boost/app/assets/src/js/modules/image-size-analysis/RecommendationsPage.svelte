@@ -11,7 +11,9 @@
 	import Tabs from './recommendations/Tabs.svelte';
 	import { initializeIsaData, isaData, isaDataLoading, refreshIsaData } from './store/isa-data';
 	import {
+		isaGroupLabels,
 		imageDataActiveGroup,
+		imageDataGroupTabs,
 		initializeIsaSummary,
 		totalIssueCount,
 		isaSummary,
@@ -56,7 +58,7 @@
 				{hasActiveGroup}
 				totalIssueCount={$totalIssueCount}
 			/>
-			<Tabs />
+			<Tabs {activeGroup} imageDataGroupTabs={$imageDataGroupTabs} {isaGroupLabels} />
 		</div>
 
 		<div class="table-wrap">
