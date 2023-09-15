@@ -377,13 +377,17 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 					}
 				)
 			);
-			/**
-			 * The operation below ensures that any newly added custom fields are included in the final array.
-			 * Although this could be optimized for performance, readability is prioritized here.
-			 * Note: This operation is only invoked when custom fields are added or removed, minimizing the performance impact.
-			*/
-			$all_field_keys       = array_keys( $sort_field_names[ $custom_type ] );
-			$fields[ $sort_type ] = array_unique( array_merge( $valid_fields, $all_field_keys ) );
+			if ( $setting === 'fieldsorts' ) {
+				/**
+				* The operation below ensures that any newly added custom fields are included in the final array (only for fieldsorts).
+				* Although this could be optimized for performance, readability is prioritized here.
+				* Note: This operation is only invoked when custom fields are added or removed, minimizing the performance impact.
+				*/
+				$all_fields           = array_keys( $sort_field_names[ $custom_type ] );
+				$fields[ $sort_type ] = array_unique( array_merge( $valid_fields, $all_fields ) );
+			} else {
+				$fields[ $sort_type ] = $valid_fields;
+			}
 
 			if ( empty( $fields[ $sort_type ] ) ) {
 				unset( $fields[ $sort_type ] );
