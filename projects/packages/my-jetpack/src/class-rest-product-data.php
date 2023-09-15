@@ -24,7 +24,7 @@ class REST_Product_Data {
 			array(
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_product_data',
+					'callback'            => __CLASS__ . '::get_all_product_data',
 					'permission_callback' => __CLASS__ . '::permissions_callback',
 				),
 				'schema' => array( $this, 'get_product_data_schema' ),
