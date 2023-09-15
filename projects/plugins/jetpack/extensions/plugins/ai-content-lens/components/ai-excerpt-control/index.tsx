@@ -78,13 +78,11 @@ export function AiExcerptControl( {
 			</BaseControl>
 
 			{ isSettingActive && (
-				<>
-					<AiModelSelectorControl
-						model={ model }
-						onModelChange={ onModelChange }
-						disabled={ disabled }
-					/>
-				</>
+				<AiModelSelectorControl
+					model={ model }
+					onModelChange={ onModelChange }
+					disabled={ disabled }
+				/>
 			) }
 
 			<RangeControl

@@ -20,8 +20,6 @@ import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
  * Types and constants
  */
-import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
-import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
 import type { AiModelTypeProp } from '../../../../shared/components/ai-model-selector-control';
 
 type ContentLensMessageContextProps = {
@@ -31,8 +29,6 @@ type ContentLensMessageContextProps = {
 	words?: number;
 	request?: string;
 	content?: string;
-	language?: LanguageProp;
-	tone?: ToneProp;
 	model?: AiModelTypeProp;
 };
 
@@ -52,11 +48,6 @@ function AiPostExcerpt() {
 	const [ excerptWordsNumber, setExcerptWordsNumber ] = useState( 50 );
 
 	const [ reenable, setReenable ] = useState( false );
-<<<<<<< HEAD
-=======
-	const [ language, setLanguage ] = useState< LanguageProp >();
-	const [ tone, setTone ] = useState< ToneProp >();
->>>>>>> 199506b357 (remove tite from i18n and tone dds)
 	const [ model, setModel ] = useState< AiModelTypeProp >( AI_MODEL_GPT_4 );
 
 	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions(
@@ -127,7 +118,6 @@ function AiPostExcerpt() {
 			contentType: 'post-excerpt',
 			postId,
 			words: excerptWordsNumber,
-			model,
 			content: `Post content:
 ${ postContent }
 `,
