@@ -39,3 +39,10 @@ export function checkIfValidDomain( siteURL ) {
 
 	return validUrl ? true : false;
 }
+
+export function getSiteIcon( siteIconURL ) {
+	if ( ! siteIconURL ) {
+		return 'https://s0.wp.com/i/webclip.png';
+	}
+	return siteIconURL;
+}
