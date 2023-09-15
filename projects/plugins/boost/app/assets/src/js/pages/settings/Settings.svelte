@@ -5,6 +5,8 @@
 	import Header from '../../sections/Header.svelte';
 	import config from '../../stores/config';
 	import { connection } from '../../stores/connection';
+	import { criticalCssState, isGenerating } from '../../stores/critical-css-state';
+	import { modulesState } from '../../stores/modules';
 	import { Router, Route } from '../../utils/router';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
 	import Modules from './sections/Modules.svelte';
@@ -15,6 +17,13 @@
 	const shouldGetStarted = derived( [ config, connection ], ( [ $config, $connection ] ) => {
 		return $config.site.getStarted || ( ! $connection.connected && $config.site.online );
 	} );
+
+	$: activeModules = Object.entries( $modulesState ).reduce( ( acc, [ key, value ] ) => {
+		if ( key !== 'image_guide' && key !== 'image_size_analysis' ) {
+			acc.push( value.active );
+		}
+		return acc;
+	}, [] );
 </script>
 
 <ReRouter to="/getting-started" when={$shouldGetStarted}>
@@ -22,7 +31,11 @@
 		<Header />
 
 		<div class="jb-section jb-section--alt jb-section--scores">
-			<Score />
+			<Score
+				{activeModules}
+				criticalCssCreated={$criticalCssState.created}
+				criticalCssIsGenerating={$isGenerating}
+			/>
 		</div>
 
 		<Router>
