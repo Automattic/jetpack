@@ -132,7 +132,7 @@ const myJetpackResolvers = {
 		},
 
 	getProductData: () => {
-		async ( { dispatch } ) => {
+		return async ( { dispatch } ) => {
 			dispatch.setProductDataIsFetching( true );
 
 			try {

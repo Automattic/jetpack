@@ -91,7 +91,7 @@ export default function MyJetpackScreen() {
 	const shouldShowZendeskChatWidget =
 		! isFetchingChatAuthentication && ! isFetchingChatAvailability && isAvailable && jwt;
 	// eslint-disable-next-line no-unused-vars
-	const { productData, isQueryingProductData } = useProductData();
+	const { productData, fetchingProductData } = useProductData();
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
