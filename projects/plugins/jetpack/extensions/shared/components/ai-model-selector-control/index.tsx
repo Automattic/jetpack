@@ -31,6 +31,14 @@ export default function AiModelSelectorControl( {
 	onModelChange,
 	disabled,
 }: AiExcerptControlProps ) {
+	const help =
+		model === AI_MODEL_GPT_4
+			? __(
+					'The most capable model, great for tasks that require creativity and advanced reasoning',
+					'jetpack'
+			  )
+			: __( 'The fastest model, great for most everyday tasks.', 'jetpack' );
+
 	return (
 		<ToggleGroupControl
 			isBlock
@@ -38,8 +46,10 @@ export default function AiModelSelectorControl( {
 			onChange={ onModelChange }
 			value={ model }
 			disabled={ disabled }
+			help={ help }
 		>
 			<ToggleGroupControlOption
+				title={ __( 'GPT-3.5 Turbo', 'jetpack' ) }
 				label={ __( 'GTP-3.5 Turbo', 'jetpack' ) }
 				value={ AI_MODEL_GPT_3_5_Turbo }
 			/>
