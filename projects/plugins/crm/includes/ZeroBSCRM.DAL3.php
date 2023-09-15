@@ -3197,19 +3197,22 @@ class zbsDAL {
 
             // check name present + legit
             if (!isset($data['name']) || empty($data['name'])) return false;
-            if (!isset($data['slug']) || empty($data['slug'])) {
+		if ( empty( $data['slug'] ) ) {
 
-                // generate one
-                $data['slug'] = $this->makeSlug($data['name']);
+			$potential_slug = $this->makeSlug( $data['name'] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 			// catch empty slugs as per gh-462, chinese characters, for example
-			if ( empty( $data['slug'] ) ) {
-				$data['slug'] = $this->get_new_tag_slug( $data['objtype'], 'tag' ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			if ( empty( $potential_slug ) ) {
+				$potential_slug = 'tag';
 			}
 
-                // if slug STILL empty, return false for now..
-                if (empty($data['slug'])) return false;
-            }
+			$data['slug'] = $this->get_new_tag_slug( $data['objtype'], $potential_slug ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
+			// if slug STILL empty, return false for now..
+			if ( empty( $data['slug'] ) ) {
+				return false;
+			}
+		}
 
             // tag ID finder - if obj name provided, check tag not already present (if so overwrite)    
             // keeps unique...  
