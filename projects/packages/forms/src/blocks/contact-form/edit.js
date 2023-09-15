@@ -1,6 +1,9 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
-import { getJetpackData, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	getJetpackData,
+	isSimpleSite,
+	useModuleStatus,
+} from '@automattic/jetpack-shared-extension-utils';
 import {
 	InnerBlocks,
 	InspectorControls,
@@ -26,13 +29,13 @@ import classnames from 'classnames';
 import { filter, get, isArray, map } from 'lodash';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
+import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
+import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
-import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
-import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import { withStyleVariables } from './util/with-style-variables';
 import defaultVariations from './variations';
 
@@ -100,7 +103,8 @@ export const JetpackContactFormEdit = forwardRef(
 
 		const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
 
-		const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } = useModuleStatus( 'contact-form' );
+		const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+			useModuleStatus( 'contact-form' );
 
 		const formClassnames = classnames( className, 'jetpack-contact-form', {
 			'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
@@ -274,9 +278,7 @@ export const JetpackContactFormEdit = forwardRef(
 		};
 
 		if ( isLoadingModules ) {
-			return (
-				<ContactFormSkeletonLoader/>
-			);
+			return <ContactFormSkeletonLoader />;
 		}
 
 		if ( ! isModuleActive ) {
