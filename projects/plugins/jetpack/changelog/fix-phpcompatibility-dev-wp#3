@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Remove some left-over PHP 5.2 compatibility code.
