@@ -237,6 +237,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wpcom_subscription_emails_use_excerpt'        => false,
 			'launchpad_checklist_tasks_statuses'           => array(),
 			'launchpad_screen'                             => 'full',
+			'wpcom_legacy_contact'                         => '',
+			'wpcom_locked_mode'                            => false,
 			'wpcom_reader_views_enabled'                   => true,
 			'wpcom_site_setup'                             => '',
 		);
