@@ -37,7 +37,7 @@ export default function AiModelSelectorControl( {
 	 * Add a fallback for the ToggleGroupControlOption component,
 	 * since it is experimental and might not be available in all versions of Gutenberg.
 	 */
-	if ( ! ToggleGroupControlOption ) {
+	if ( ! ToggleGroupControlOption || ! ToggleGroupControl ) {
 		return (
 			<RadioControl
 				label={ __( 'Model', 'jetpack' ) }
