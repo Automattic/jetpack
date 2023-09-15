@@ -3746,7 +3746,7 @@ class zbsDAL {
 		$slug_exists = $this->tag_slug_exists( $obj_type_id, $slug );
 
 		// slug as provided doesn't exist, so use that
-		if ( ! $slug_exists ) {
+		if ( ! $slug_exists && $slug !== 'tag' ) {
 			return $slug;
 		}
 
