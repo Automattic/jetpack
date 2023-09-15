@@ -78,5 +78,4 @@ class JPCRM_Base_Test_Case extends WP_UnitTestCase {
 			)
 		);
 	}
-
 }

@@ -39,5 +39,4 @@ class AcceptanceTester extends \Codeception\Actor {
 	public function gotoAdminPage( $page_name, $query = '' ) {
 		$this->amOnAdminPage( 'admin.php?page=' . $this->pages[ $page_name ] . $query );
 	}
-
 }

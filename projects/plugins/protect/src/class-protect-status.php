@@ -255,5 +255,4 @@ class Protect_Status extends Status {
 
 		return $core;
 	}
-
 }

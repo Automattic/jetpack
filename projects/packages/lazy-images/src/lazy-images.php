@@ -48,9 +48,15 @@ class Jetpack_Lazy_Images {
 	 * @since 1.0.0
 	 * @since-jetpack 5.6.0
 	 *
-	 * @return object The class instance.
+	 * @return object|void The class instance or void if Gutenberg is active.
 	 */
 	public static function instance() {
+		// Gutenberg's Interactivity API, starting in 16.6,  conflicts with our lazy images implementation.
+		if ( Constants::is_true( 'IS_GUTENBERG_PLUGIN' )
+				&& Constants::get_constant( 'GUTENBERG_VERSION' )
+				&& version_compare( Constants::get_constant( 'GUTENBERG_VERSION' ), '16.6.0', '>=' ) ) {
+			return;
+		}
 		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Lazy_Images();
 		}

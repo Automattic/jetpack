@@ -56,5 +56,4 @@ class Workflow_Exception extends \Exception {
 	 * @var int
 	 */
 	const MISSING_ENGINE_INSTANCE = 14;
-
 }

@@ -3472,23 +3472,19 @@ function zeroBS___________DAL30Helpers(){return;}
 
 	}
 
-	// get co with name? legacy shiz
-	function zeroBS_getCompanyIDWithName($coName=''){
-
-		#} No empties, no validation, either.
-		if (!empty($coName)){
-
-			global $zbs; 
-			return $zbs->DAL->companies->getCompany(-1,array(
-					'name'=>$coName,
-					'onlyID'=>true,
-					'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_COMPANY)));
-		
-		}
-
-		return false;
-
+/**
+ * Retrieves the company ID based on its name.
+ *
+ * @param  string $company_name  The name of the company for which the ID is required.
+ * @return int|bool              Returns the ID of the company if found, false otherwise.
+ */
+function zeroBS_getCompanyIDWithName( $company_name = '' ) {
+	if ( ! empty( $company_name ) ) {
+		global $zbs;
+		return $zbs->DAL->companies->get_company_id_by_name( $company_name ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
+	return false;
+}
 
 	#} ExternalID is name in this case :)
 	function zeroBS_getCompanyIDWithExternalSource($externalSource='',$externalID=''){
@@ -5270,11 +5266,11 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 			// got balance?
 			if ($outstandingBalance <= 0 && $outstandingBalance !== false){
 
-				// simple status update
-				$statusStr = __('Paid','zero-bs-crm');
-				$invUpdate = $zbs->DAL->invoices->setInvoiceStatus($invoice_id,$statusStr);
+				// mark invoice as paid
+				$status_str     = 'Paid';
+				$invoice_update = $zbs->DAL->invoices->setInvoiceStatus( $invoice_id, $status_str ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-			    return $statusStr;
+				return $invoice_update;
 
 			}
 
@@ -5296,7 +5292,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 	}
 	$count_deleted = 0;
 	foreach ( $all_invoices as $invoice ) {
-		if ( $invoice['status'] === __( 'Deleted', 'zero-bs-crm' ) ) {
+		if ( $invoice['status'] === 'Deleted' ) {
 			++$count_deleted;
 		}
 	}
@@ -7994,15 +7990,14 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 
 		// retrieves statuses from object :)
 		function zeroBSCRM_getInvoicesStatuses(){
-		    
-		    // for DAL3+ these are hard typed, probably need to sit in the obj:
-		    return array(
-		    	__( 'Draft', 'zero-bs-crm' ),
-		    	__( 'Unpaid', 'zero-bs-crm' ),
-		    	__( 'Paid', 'zero-bs-crm' ),
-		    	__( 'Overdue', 'zero-bs-crm' ),
-		    	__( 'Deleted', 'zero-bs-crm' )
-		    );
+			// for DAL3+ these are hard typed, probably need to sit in the obj:
+			return array(
+				'Draft',
+				'Unpaid',
+				'Paid',
+				'Overdue',
+				'Deleted',
+			);
 		}
 
 

@@ -839,7 +839,7 @@ EOT;
 		} else {
 			$extra_css = '';
 		}
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		// phpcs:disable WordPress.Security.EscapeOutput.HeredocOutputNotEscaped -- Escaped above where needed.
 		echo <<<EOT
 <style type="text/css">
 	#settings-reading-relatedposts .disabled { opacity:.5; filter:Alpha(opacity=50); }
@@ -909,6 +909,7 @@ EOT;
 	});
 </script>
 EOT;
+		// phpcs:enable WordPress.Security.EscapeOutput.HeredocOutputNotEscaped
 	}
 
 	/**

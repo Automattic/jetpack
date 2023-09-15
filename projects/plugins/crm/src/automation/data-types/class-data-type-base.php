@@ -101,5 +101,4 @@ abstract class Data_Type_Base {
 	public function get_entity() {
 		return $this->entity;
 	}
-
 }
