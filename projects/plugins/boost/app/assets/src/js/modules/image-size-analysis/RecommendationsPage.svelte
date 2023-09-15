@@ -4,12 +4,13 @@
 	import { __ } from '@wordpress/i18n';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
+	import { modulesState } from '../../stores/modules';
 	import Hero from './recommendations/Hero.svelte';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
 	import Tabs from './recommendations/Tabs.svelte';
 	import { initializeIsaData, isaData, refreshIsaData } from './store/isa-data';
-	import { initializeIsaSummary, totalIssueCount } from './store/isa-summary';
+	import { imageDataActiveGroup, initializeIsaSummary, totalIssueCount } from './store/isa-summary';
 
 	initializeIsaData();
 
@@ -25,6 +26,9 @@
 	} );
 
 	$: needsRefresh = $totalIssueCount > countAtLastDataUpdate;
+	$: isImageCdnModuleActive = $modulesState.image_cdn.active;
+	$: isaLastUpdated = $isaData.data.last_updated;
+	$: hasActiveGroup = !! $imageDataActiveGroup;
 
 	async function refresh() {
 		// Don't let the UI show a refresh button until we get fresh ISA data.
@@ -37,7 +41,14 @@
 	<Header subPage={__( 'Image analysis report', 'jetpack-boost' )} />
 	<div class="recommendations-page jb-section--alt">
 		<div class="jb-container">
-			<Hero {needsRefresh} {refresh} />
+			<Hero
+				{needsRefresh}
+				{refresh}
+				{isImageCdnModuleActive}
+				{isaLastUpdated}
+				{hasActiveGroup}
+				totalIssueCount={$totalIssueCount}
+			/>
 			<Tabs />
 		</div>
 
