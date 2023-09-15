@@ -182,7 +182,7 @@ export default function PublicizeForm( {
 						] }
 					>
 						{ __(
-							'When your post is published, this image will be converted for maximum compatibility across your connected social networks.',
+							'When your post is published, the selected image will be converted for maximum compatibility across your connected social networks.',
 							'jetpack'
 						) }
 					</Notice>
