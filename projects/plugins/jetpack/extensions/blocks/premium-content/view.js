@@ -10,7 +10,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	/**
 	 * @typedef globalThis
 	 * @param {globalThis.Event} eventFromIframe - message event that gets emitted in the checkout iframe.
-	 * @listens message
+	 * @listens window#message
 	 */
 	function handleIframeResult( eventFromIframe ) {
 		if ( eventFromIframe.origin === 'https://subscribe.wordpress.com' && eventFromIframe.data ) {

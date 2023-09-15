@@ -94,10 +94,17 @@ export function parseAmount( amount, currency ) {
 		return amount;
 	}
 
+	let ungrouped_amount = amount;
+	if ( CURRENCIES[ currency ].grouping ) {
+		// Remove any thousand grouping separator.
+		ungrouped_amount = amount.replace(
+			new RegExp( '\\' + CURRENCIES[ currency ].grouping, 'g' ),
+			''
+		);
+	}
+
 	amount = parseFloat(
-		amount
-			// Remove any thousand grouping separator.
-			.replace( new RegExp( '\\' + CURRENCIES[ currency ].grouping, 'g' ), '' )
+		ungrouped_amount
 			// Replace the localized decimal separator with a dot (the standard decimal separator in float numbers).
 			.replace( new RegExp( '\\' + CURRENCIES[ currency ].decimal, 'g' ), '.' )
 	);
