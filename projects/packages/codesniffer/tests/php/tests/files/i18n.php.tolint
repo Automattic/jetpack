@@ -5,7 +5,7 @@
  * @package automattic/jetpack-codesniffer
  */
 
-// phpcs:disable VariableAnalysis, PEAR, Generic, WordPress, Squiz
+// phpcs:disable VariableAnalysis, PEAR, Generic, WordPress, Squiz, NormalizedArrays
 
 // Acceptable calls.
 wp_set_script_translations( 'handle', 'domain' );

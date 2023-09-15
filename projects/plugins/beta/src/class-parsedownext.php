@@ -68,5 +68,4 @@ class ParsedownExt extends Parsedown {
 			),
 		);
 	}
-
 }

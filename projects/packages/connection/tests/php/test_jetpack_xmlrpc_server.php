@@ -447,5 +447,4 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 
 		return $xml;
 	}
-
 }

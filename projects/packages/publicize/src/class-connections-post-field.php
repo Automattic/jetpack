@@ -469,5 +469,4 @@ class Connections_Post_Field {
 	private function is_valid_for_context( $schema, $context ) {
 		return empty( $schema['context'] ) || in_array( $context, $schema['context'], true );
 	}
-
 }

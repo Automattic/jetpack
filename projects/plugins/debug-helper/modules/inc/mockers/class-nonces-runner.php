@@ -71,5 +71,4 @@ class Nonces_Runner implements Runner_Interface {
 			$time,
 		);
 	}
-
 }

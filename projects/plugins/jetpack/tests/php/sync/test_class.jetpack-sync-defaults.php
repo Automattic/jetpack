@@ -54,4 +54,3 @@ class WP_Test_Jetpack_Sync_Defaults extends WP_Test_Jetpack_Sync_Base {
 		return $whitelist;
 	}
 }
-

@@ -39,5 +39,3 @@ if ( isset( $event_params['owned'] ) && (int) $event_params['owned'] > 0 ) {
 $events = zeroBS_getEvents( true, $per_page, $page, $isOwned );
 
 wp_send_json( $events );
-
-
