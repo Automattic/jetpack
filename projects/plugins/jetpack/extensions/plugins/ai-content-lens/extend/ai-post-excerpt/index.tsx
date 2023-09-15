@@ -27,8 +27,11 @@ type ContentLensMessageContextProps = {
 	type: 'ai-content-lens';
 	contentType: 'post-excerpt';
 	postId: number;
-	content?: string;
 	words?: number;
+	request?: string;
+	content?: string;
+	language?: string;
+	tone?: string;
 };
 
 function AiPostExcerpt() {
@@ -46,8 +49,8 @@ function AiPostExcerpt() {
 	// Post excerpt words number
 	const [ excerptWordsNumber, setExcerptWordsNumber ] = useState( 50 );
 
-	// Re enable the AI Excerpt component
 	const [ reenable, setReenable ] = useState( false );
+	const [ additionalRequest, setAdditionalRequest ] = useState( '' );
 
 	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions(
 		{}
@@ -117,6 +120,7 @@ function AiPostExcerpt() {
 			contentType: 'post-excerpt',
 			postId,
 			words: excerptWordsNumber,
+			request: additionalRequest,
 			content: `Post content:
 ${ postContent }
 `,
@@ -184,6 +188,11 @@ ${ postContent }
 						setReenable( true );
 					} }
 					disabled={ isBusy || isQuotaExceeded }
+					additionalRequest={ additionalRequest }
+					onAdditionalRequestChange={ addRequest => {
+						setAdditionalRequest( addRequest );
+						setReenable( true );
+					} }
 				/>
 
 				<div className="jetpack-generated-excerpt__generate-buttons-container">

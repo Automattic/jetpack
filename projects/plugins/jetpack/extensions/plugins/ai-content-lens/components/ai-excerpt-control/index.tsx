@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
-import { RangeControl, Button, BaseControl } from '@wordpress/components';
+import { RangeControl, Button, BaseControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 /**
@@ -33,6 +33,8 @@ export type AiExcerptControlProps = {
 	 * Callback to change the number of words in the generated excerpt.
 	 */
 	onWordsNumberChange?: ( words: number ) => void;
+
+	language?: string;
 };
 
 import './style.scss';
@@ -41,8 +43,12 @@ export function AiExcerptControl( {
 	minWords = 10,
 	maxWords = 100,
 	disabled,
+
 	words,
 	onWordsNumberChange,
+
+	additionalRequest,
+	onAdditionalRequestChange,
 }: AiExcerptControlProps ) {
 	const [ isSettingActive, setIsSettingActive ] = React.useState( false );
 
@@ -76,6 +82,18 @@ export function AiExcerptControl( {
 				showTooltip={ false }
 				disabled={ disabled }
 			/>
+
+			{ isSettingActive && (
+				<>
+					<TextareaControl
+						__nextHasNoMarginBottom
+						label={ __( 'Additional request', 'jetpack' ) }
+						onChange={ onAdditionalRequestChange }
+						value={ additionalRequest }
+						disabled={ disabled }
+					/>
+				</>
+			) }
 		</div>
 	);
 }
