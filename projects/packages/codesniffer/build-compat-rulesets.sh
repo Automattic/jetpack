@@ -5,7 +5,7 @@ set -eo pipefail
 BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 TMPDIR="${TMPDIR:-/tmp}"
-DIR="$(mktemp -d "${TMPDIR%/}/pr-is-up-to-date.XXXXXXXX")"
+DIR="$(mktemp -d "${TMPDIR%/}/codesniffer-build-compat-rulesets.XXXXXXXX")"
 trap 'rm -rf "$DIR"' EXIT
 cd "$DIR"
 
