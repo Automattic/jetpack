@@ -16,6 +16,7 @@ import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import React from 'react';
 import { connect } from 'react-redux';
 import { hasConnectedOwner as hasConnectedOwnerSelector, isOfflineMode } from 'state/connection';
+import { isAtomicSite } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import {
@@ -67,6 +68,19 @@ class Media extends React.Component {
 						/* dummy arg to avoid bad minification */ 0
 				  );
 
+		let overrideCondition;
+		const videoPressIsActive = this.props.getOptionValue( 'videopress' );
+		const override = this.props.getModuleOverride( 'videopress' );
+		// AT sites should have VP enabled by default, but when it gets somehow disabled, the override prevents it from being enabled again.
+		// This is a workaround to allow enabling it again and then disable the toggle.
+		if ( this.props.isAtomicSite && override ) {
+			if ( videoPressIsActive && 'active' === override ) {
+				overrideCondition = 'inactive';
+			} else if ( ! videoPressIsActive && 'inactive' === override ) {
+				overrideCondition = 'active';
+			}
+		}
+
 		const videoPressSettings = (
 			<SettingsGroup
 				hasChild
@@ -95,9 +109,10 @@ class Media extends React.Component {
 						<ModuleToggle
 							slug="videopress"
 							disabled={ this.props.isUnavailableInOfflineMode( 'videopress' ) }
-							activated={ this.props.getOptionValue( 'videopress' ) }
+							activated={ videoPressIsActive }
 							toggling={ this.props.isSavingAnyOption( 'videopress' ) }
 							toggleModule={ this.props.toggleModuleNow }
+							overrideCondition={ overrideCondition }
 						>
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Enable VideoPress', 'jetpack' ) }
@@ -106,7 +121,7 @@ class Media extends React.Component {
 						<FormFieldset>
 							<ToggleControl
 								id="videopress-site-privacy"
-								disabled={ ! this.props.getOptionValue( 'videopress' ) }
+								disabled={ ! videoPressIsActive }
 								toggling={ this.props.isSavingAnyOption( 'videopress_private_enabled_for_site' ) }
 								checked={ this.props.getOptionValue( 'videopress_private_enabled_for_site' ) }
 								onChange={ this.togglePrivacySetting }
@@ -118,7 +133,7 @@ class Media extends React.Component {
 			</SettingsGroup>
 		);
 
-		const videoPressForcedInactive = 'inactive' === this.props.getModuleOverride( 'videopress' );
+		const videoPressForcedInactive = 'inactive' === override;
 		const shouldDisplayBanner =
 			foundVideoPress && ! hasVideoPressFeature && hasConnectedOwner && ! isOffline && ! isFetching;
 
@@ -164,5 +179,6 @@ export default connect( state => {
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		upgradeUrl: getProductDescriptionUrl( state, 'videopress' ),
 		videoPressStorageUsed: getVideoPressStorageUsed( state ),
+		isAtomicSite: isAtomicSite( state ),
 	};
 } )( withModuleSettingsFormHelpers( Media ) );
