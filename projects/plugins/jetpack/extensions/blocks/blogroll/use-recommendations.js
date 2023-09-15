@@ -10,6 +10,7 @@ export default function useRecommendations( enabled = false ) {
 
 	useEffect( () => {
 		if ( ! enabled ) {
+			setIsLoading( false );
 			return;
 		}
 
@@ -57,8 +58,7 @@ export default function useRecommendations( enabled = false ) {
 				abortControllerRef.current = null;
 				setIsLoading( false );
 			} );
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
+	}, [ enabled ] );
 
 	return { isLoading, errorMessage, recommendations };
 }

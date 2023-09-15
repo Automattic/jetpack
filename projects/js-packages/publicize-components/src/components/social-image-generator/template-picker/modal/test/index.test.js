@@ -9,13 +9,13 @@ import TemplatePickerModal from '..';
  * @param {ReactElement} jsx - The element to render.
  * @returns {object} An object with the user method and everything from the render method.
  */
-const setup = jsx => ( {
-	user: userEvent.setup(),
+const setup = async jsx => ( {
+	user: await userEvent.setup(),
 	...render( jsx ),
 } );
 
 const openTemplatePickerModal = async ( { onSelect = () => {} } = {} ) => {
-	const { user } = setup(
+	const { user } = await setup(
 		<TemplatePickerModal
 			onSelect={ onSelect }
 			render={ ( { open } ) => <button onClick={ open }>Open Template Picker</button> } // eslint-disable-line

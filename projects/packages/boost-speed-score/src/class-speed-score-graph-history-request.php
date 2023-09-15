@@ -48,6 +48,13 @@ class Speed_Score_Graph_History_Request extends Cacheable {
 	private $error;
 
 	/**
+	 * Used when there's an error.
+	 *
+	 * @var string $status Status.
+	 */
+	private $status;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param number $start timestamp start windown in ms.
