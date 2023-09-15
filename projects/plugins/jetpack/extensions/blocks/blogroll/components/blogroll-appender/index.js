@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plus } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
-import { checkIfValidDomain, createBlockFromSubscription } from '../../utils';
+import { checkIfValidDomain, createBlockFromSubscription, getSiteIcon } from '../../utils';
 import BlogrollAppenderResults from '../blogroll-appender-results';
 import BlogrollAppenderSearch from '../blogroll-appender-search';
 
@@ -58,7 +58,7 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 							id: data?.ID,
 							description: data?.description,
 							URL: data?.URL,
-							site_icon: data?.logo?.url,
+							site_icon: getSiteIcon( data?.logo?.url ),
 							name: data?.name,
 						},
 					] );
@@ -92,7 +92,7 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 										id: fetchSiteDetailsCache[ searchQuery ]?.ID,
 										description: fetchSiteDetailsCache[ searchQuery ]?.description,
 										URL: fetchSiteDetailsCache[ searchQuery ]?.URL,
-										site_icon: fetchSiteDetailsCache[ searchQuery ]?.logo?.url,
+										site_icon: getSiteIcon( fetchSiteDetailsCache[ searchQuery ]?.logo?.url ),
 										name: fetchSiteDetailsCache[ searchQuery ]?.name,
 									},
 							  ]
@@ -138,7 +138,7 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 						<BlogrollAppenderSearch value={ searchInput } onChange={ setSearchInput } />
 						<BlogrollAppenderResults
 							showPlaceholder={ ! searchInput.trim() }
-							subscriptions={ results }
+							results={ results }
 							onSelect={ onSelect }
 						/>
 					</form>
