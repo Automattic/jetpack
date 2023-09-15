@@ -35,10 +35,24 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @inheritDoc
 	 */
 	public function initialize() {
+		$this->get_and_set_token_from_request();
+	}
+
+	/**
+	 * Set the token from the Request to the cookie and retrieve the token.
+	 *
+	 * @return string|null
+	 */
+	public function get_and_set_token_from_request() {
+		// URL token always has a precedence, so it can overwrite the cookie when new data available.
 		$token = $this->token_from_request();
-		if ( null !== $token ) {
+		if ( $token ) {
 			$this->set_token_cookie( $token );
+		} else {
+			$token = $this->token_from_cookie();
 		}
+
+		return $token;
 	}
 
 	/**
@@ -61,13 +75,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		global $current_user;
 		$old_user = $current_user; // backup the current user so we can set the current user to the token user for paywall purposes
 
-		// URL token always has a precedence, so it can overwrite the cookie when new data available.
-		$token = $this->token_from_request();
-		if ( $token ) {
-			$this->set_token_cookie( $token );
-		} else {
-			$token = $this->token_from_cookie();
-		}
+		$token = $this->get_and_set_token_from_request();
 
 		$is_valid_token = true;
 
@@ -286,6 +294,10 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return array|false
 	 */
 	public function decode_token( $token ) {
+		if ( empty( $token ) ) {
+			return false;
+		}
+
 		try {
 			$key = $this->get_key();
 			return $key ? (array) JWT::decode( $token, $key, array( 'HS256' ) ) : false;
