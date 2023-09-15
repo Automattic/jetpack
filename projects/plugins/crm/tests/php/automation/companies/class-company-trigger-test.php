@@ -156,5 +156,4 @@ class Company_Trigger_Test extends JPCRM_Base_Test_Case {
 		// Run the company_deleted action.
 		do_action( 'jpcrm_company_deleted', $company_data );
 	}
-
 }

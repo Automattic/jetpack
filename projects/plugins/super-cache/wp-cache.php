@@ -133,6 +133,20 @@ function wp_cache_set_home() {
 }
 add_action( 'template_redirect', 'wp_cache_set_home' );
 
+function wpsc_enqueue_styles() {
+	wp_enqueue_style(
+		'wpsc_styles',
+		plugins_url( 'styling/dashboard.css', __FILE__ ),
+		array(),
+		filemtime( plugin_dir_path( __FILE__ ) . 'styling/dashboard.css' )
+	);
+}
+
+// Check for the page parameter to see if we're on a WPSC page.
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+if ( isset( $_GET['page'] ) && $_GET['page'] === 'wpsupercache' ) {
+	add_action( 'admin_enqueue_scripts', 'wpsc_enqueue_styles' );
+}
 
 // OSSDL CDN plugin (https://wordpress.org/plugins/ossdl-cdn-off-linker/)
 include_once( WPCACHEHOME . 'ossdl-cdn.php' );
@@ -974,10 +988,12 @@ table.wpsc-settings-table {
 	clear: both;
 }
 </style>
+<div id="wpsc-dashboard">
 <?php
+	wpsc_render_header();
+
+	echo '<div class="wpsc-body">';
 	echo '<a name="top"></a>';
-	echo '<div class="wrap">';
-	echo '<h3>' . __( 'WP Super Cache Settings', 'wp-super-cache' ) . '</h3>';
 
 	// Set a default.
 	if ( false === $cache_enabled && ! isset( $wp_cache_mod_rewrite ) ) {
@@ -1013,6 +1029,7 @@ table.wpsc-settings-table {
 	}
 
 	wpsc_admin_tabs( $curr_tab );
+	echo '<div class="wpsc-body-content wrap">';
 
 	if ( isset( $wp_super_cache_front_page_check ) && $wp_super_cache_front_page_check == 1 && ! wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
 		wp_schedule_single_event( time() + 360, 'wp_cache_check_site_hook' );
@@ -1248,7 +1265,8 @@ table.wpsc-settings-table {
 
 	</fieldset>
 	</td><td valign='top' style='width: 300px'>
-	<div id="wpsc-callout" style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 3px 15px'>
+	<!-- TODO: Hide #wpsc-callout from all pages except the Easy tab -->
+	<div class="wpsc-card" id="wpsc-callout">
 	<h4><?php _e( 'Other Site Tools', 'wp-super-cache' ); ?></h4>
 	<ul style="list-style: square; margin-left: 2em;">
 
@@ -1312,16 +1330,20 @@ table.wpsc-settings-table {
 	?>
 	</div>
 	</td></table>
-
+	</div>
+	</div>
+	<?php wpsc_render_footer(); ?>
+	</div>
 	<?php
-
-	echo "</div>\n";
 }
 
 function wpsc_plugins_tab() {
+	echo '<div class="wpsc-card">';
 	echo '<p>' . esc_html__( 'Cache plugins are PHP scripts you\'ll find in a dedicated folder inside the WP Super Cache folder (wp-super-cache/plugins/). They load at the same time as WP Super Cache, and before regular WordPress plugins.', 'wp-super-cache' ) . '</p>';
 	echo '<p>' . esc_html__( 'Keep in mind that cache plugins are for advanced users only. To create and manage them, you\'ll need extensive knowledge of both PHP and WordPress actions.', 'wp-super-cache' ) . '</p>';
 	echo '<p>' . sprintf( __( '<strong>Warning</strong>! Due to the way WordPress upgrades plugins, the ones you upload to the WP Super Cache folder (wp-super-cache/plugins/) will be deleted when you upgrade WP Super Cache. To avoid this loss, load your cache plugins from a different location. When you set <strong>$wp_cache_plugins_dir</strong> to the new location in wp-config.php, WP Super Cache will look there instead. <br />You can find additional details in the <a href="%s">developer documentation</a>.', 'wp-super-cache' ), 'https://odd.blog/wp-super-cache-developers/' ) . '</p>';
+	echo '</div>';
+	echo '<div class="wpsc-card">';
 	ob_start();
 	if ( defined( 'WP_CACHE' ) ) {
 		if ( function_exists( 'do_cacheaction' ) ) {
@@ -1337,6 +1359,7 @@ function wpsc_plugins_tab() {
 		echo $out;
 		echo '</ol>';
 	}
+	echo '</div>';
 }
 
 function wpsc_admin_tabs( $current = '' ) {
@@ -1357,17 +1380,18 @@ function wpsc_admin_tabs( $current = '' ) {
 		'debug'    => __( 'Debug', 'wp-super-cache' ),
 	);
 
-	echo '<div id="nav"><h3 class="themes-php">';
+	echo '<div class="wpsc-nav-container"><ul class="wpsc-nav">';
 
 	foreach ( $admin_tabs as $tab => $name ) {
-		printf( '<a class="%s" href="%s">%s</a>',
-			esc_attr( $tab === $current ? 'nav-tab nav-tab-active' : 'nav-tab' ),
+		printf(
+			'<li class="%s"><a href="%s">%s</a></li>',
+			esc_attr( $tab === $current ? 'wpsc-nav-tab wpsc-nav-tab-selected' : 'wpsc-nav-tab' ),
 			esc_url_raw( add_query_arg( 'tab', $tab, $admin_url ) ),
 			esc_html( $name )
 		);
 	}
 
-	echo '</div></h3>';
+	echo '</ul></div>';
 }
 
 function wpsc_restore_settings() {
@@ -2399,6 +2423,7 @@ function wp_cache_files() {
 		}
 	}
 	echo "<a name='listfiles'></a>";
+	echo '<div class="wpsc-card">';
 	echo '<fieldset class="options" id="show-this-fieldset"><h4>' . __( 'Cache Contents', 'wp-super-cache' ) . '</h4>';
 
 	$cache_stats = get_option( 'supercache_stats' );
@@ -2549,6 +2574,7 @@ function wp_cache_files() {
 	wp_cache_delete_buttons();
 
 	echo '</fieldset>';
+	echo '</div>';
 }
 
 function wp_cache_delete_buttons() {
@@ -4296,4 +4322,33 @@ function wpsc_render_partial( $partial, array $page_vars = array() ) {
 	}
 	global $current_user;
 	include $path;
+}
+
+/**
+ * Render common header
+ */
+function wpsc_render_header() {
+	?>
+		<div class="header">
+			<img class="wpsc-icon" src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/super-cache-icon.png' ); ?>" />
+			<span class="wpsc-name"><?php echo esc_html( 'WP Super Cache' ); ?></span>
+		</div>
+	<?php
+}
+
+/**
+ * Render common footer
+ */
+function wpsc_render_footer() {
+	?>
+	<div class="footer">
+		<div class="wp-super-cache-version">
+			<img class="wpsc-icon" src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/super-cache-icon.png' ); ?>" />
+			<span class="wpsc-name"><?php echo esc_html( 'WP Super Cache' ); ?></span>
+		</div>
+		<div class="automattic-airline">
+			<img class="wpsc-icon" src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/automattic-airline.png' ); ?>" />
+		</div>
+	</div>
+	<?php
 }

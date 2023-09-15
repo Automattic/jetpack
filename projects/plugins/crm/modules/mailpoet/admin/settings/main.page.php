@@ -64,7 +64,7 @@ function jpcrm_settings_page_html_mailpoet_main(){
 	?>
     <p style="padding-top: 18px; text-align:center;margin:1em">
 		<?php
-		echo sprintf(
+		printf(
 			'<a href="%s" class="ui basic positive button" style="margin-top:1em"><i class="users icon"></i> %s</a>',
 			jpcrm_esc_link( $zbs->slugs['mailpoet'] ),
 			esc_html__( 'MailPoet Sync Hub', 'zero-bs-crm' )

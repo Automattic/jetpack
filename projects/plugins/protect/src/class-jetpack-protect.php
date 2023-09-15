@@ -14,7 +14,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
-use Automattic\Jetpack\JITMS\JITM as JITM;
+use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
@@ -453,5 +453,4 @@ class Jetpack_Protect {
 			'automaticRulesLastUpdated' => Waf_Stats::get_automatic_rules_last_updated(),
 		);
 	}
-
 }

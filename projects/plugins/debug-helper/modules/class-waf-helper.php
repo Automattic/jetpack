@@ -5,8 +5,8 @@
  * @package automattic/jetpack-debug-helper
  */
 
-use \Automattic\Jetpack\Waf\Waf_Rules_Manager;
-use \Automattic\Jetpack\Waf\Waf_Runner;
+use Automattic\Jetpack\Waf\Waf_Rules_Manager;
+use Automattic\Jetpack\Waf\Waf_Runner;
 
 /**
  * Helps debug WAF
@@ -242,7 +242,6 @@ class Waf_Helper {
 
 		<?php
 	}
-
 }
 
 add_action(

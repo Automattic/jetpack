@@ -801,5 +801,4 @@ class Launchpad_Task_Lists {
 	private function disable_fullscreen_launchpad() {
 		return update_option( 'launchpad_screen', 'off' );
 	}
-
 }

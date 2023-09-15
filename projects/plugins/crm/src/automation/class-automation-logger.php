@@ -127,5 +127,4 @@ class Automation_Logger {
 	public function reset_log() {
 		$this->log = array();
 	}
-
 }

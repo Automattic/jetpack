@@ -20,5 +20,4 @@ class Rules_API_Exception extends Waf_Exception {
 	 * @var string
 	 */
 	const SLUG = 'rules_api_error';
-
 }

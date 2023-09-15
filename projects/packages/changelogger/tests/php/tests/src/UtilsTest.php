@@ -488,5 +488,4 @@ class UtilsTest extends TestCase {
 			$out->fetch()
 		);
 	}
-
 }
