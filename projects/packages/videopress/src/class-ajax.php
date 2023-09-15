@@ -134,6 +134,14 @@ class AJAX {
 	 * @param string $guid The video id being checked.
 	 */
 	private function request_jwt_from_wpcom( $guid ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'video_wpcom_get_playback_jwt_for_guid' ) ) {
+			$jwt_data = video_wpcom_get_playback_jwt_for_guid( $guid );
+			if ( is_wp_error( $jwt_data ) ) {
+				return false;
+			}
+			return $jwt_data->metadata_token;
+		}
+
 		$video_blog_id = $this->get_videopress_blog_id();
 		$args          = array(
 			'method' => 'POST',

@@ -137,7 +137,7 @@ class Access_Control {
 
 		if ( empty( $post_to_check ) ) {
 			$restriction_details = $this->default_video_restriction_details( false );
-			return $this->filter_video_restriction_details( $restriction_details );
+			return $this->filter_video_restriction_details( $restriction_details, $guid, $embedded_post_id, $selected_plan_id );
 		}
 
 		$default_auth        = $this->get_default_user_capability_for_post( $post_to_check );
@@ -257,7 +257,16 @@ class Access_Control {
 	 * @param int    $selected_plan_id The plan id the earn block this video is embedded in has.
 	 */
 	public function is_current_user_authed_for_video( $guid, $embedded_post_id, $selected_plan_id = 0 ) {
-		$attachment = videopress_get_post_by_guid( $guid );
+		$attachment = false;
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$video_info = video_get_info_by_guid( $guid );
+			if ( ! empty( $video_info ) ) {
+				$attachment = get_blog_post( $video_info->blog_id, $video_info->post_id );
+			}
+		} else {
+			$attachment = videopress_get_post_by_guid( $guid );
+		}
+
 		if ( ! $attachment ) {
 			return false;
 		}
