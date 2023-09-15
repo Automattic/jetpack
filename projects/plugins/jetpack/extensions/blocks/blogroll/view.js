@@ -4,11 +4,9 @@ function toggleSubscribeForm( event ) {
 	event.preventDefault();
 	const parent = event.currentTarget.closest( '.wp-block-jetpack-blogroll-item' );
 	if ( parent?.classList.toggle( 'open' ) ) {
-		parent.querySelector( '.jetpack-blogroll-item-email-input' ).name = 'email';
 		parent.querySelector( '.jetpack-blogroll-item-submit' ).removeAttribute( 'disabled' );
 	} else {
 		// Remove name for other fields, because they can override the active email field.
-		parent.querySelector( '.jetpack-blogroll-item-email-input' ).name = '';
 		parent.querySelector( '.jetpack-blogroll-item-submit' ).setAttribute( 'disabled', 'disabled' );
 	}
 }
