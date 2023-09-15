@@ -605,7 +605,7 @@ class Jetpack_Memberships {
 
 		$deleted_plan_ids = get_posts(
 			array(
-				'posts_per_page' => - 1,
+				'posts_per_page' => -1,
 				'fields'         => 'ids',
 				'meta_value'     => true,
 				'post_type'      => self::$deleted_post_type_plan,
