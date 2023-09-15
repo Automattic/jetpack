@@ -876,7 +876,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 									$invoice_val = $invoice['total'];
 
-									$invoice_status = $invoice['status'];
+									$invoice_status = $invoice['status_label'];
 
 									echo '<tr>';
 									echo '<td><a href="' . esc_url( $invoice_url ) . '">' . esc_html( $id_ref_str ) . '</a></td>';
