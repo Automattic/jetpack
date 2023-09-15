@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+
+Tags: prevent duplicate slugs
+Tags: more robust slug fallback support

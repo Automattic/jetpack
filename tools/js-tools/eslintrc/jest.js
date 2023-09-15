@@ -26,6 +26,5 @@ module.exports = {
 		],
 		'testing-library/prefer-explicit-assert': 'error',
 		'testing-library/prefer-user-event': 'warn',
-		'testing-library/prefer-wait-for': 'warn',
 	},
 };

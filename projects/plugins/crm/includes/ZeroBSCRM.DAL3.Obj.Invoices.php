@@ -2120,6 +2120,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
             $res['id_override'] = $this->stripSlashes($obj->zbsi_id_override);
             $res['parent'] = (int)$obj->zbsi_parent;
             $res['status'] = $this->stripSlashes($obj->zbsi_status);
+					$res['status_label'] = __( $res['status'], 'zero-bs-crm' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
             $res['hash'] = $this->stripSlashes($obj->zbsi_hash);
             $res['pdf_template'] = $this->stripSlashes($obj->zbsi_pdf_template);
             $res['portal_template'] = $this->stripSlashes($obj->zbsi_portal_template);

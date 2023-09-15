@@ -68,7 +68,7 @@ function load_assets( $attr ) {
 
 	return sprintf(
 		'<div class="%1$s" data-ask-button-label="%2$s" id="jetpack-ai-chat" data-blog-id="%3$d" data-blog-type="%4$s"></div>',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		esc_attr( $ask_button_label ),
 		esc_attr( $blog_id ),
 		esc_attr( $type )
