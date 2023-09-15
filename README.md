@@ -22,6 +22,7 @@ Official guideline resources:
 - Nextdoor: https://about.nextdoor.com/gb/media/
 - http://findguidelin.es
 - Threads: https://en.wikipedia.org/wiki/File:Threads_(app)_logo.svg
+- X: https://about.twitter.com/en/who-we-are/brand-toolkit
 
 ## Using the SocialLogo Component in your project:
 

@@ -1,5 +1,8 @@
 _The versioning refers to the React component build._
 
+#### v2.5.5 (2023-09-15)
+* Added X icon.
+
 #### v2.5.4 (2023-07-10)
 * Added Threads icon.
 
