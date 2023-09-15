@@ -8,8 +8,14 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { I18nMenuDropdown } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
-import { ToneDropdownMenu } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
+import {
+	I18nMenuDropdown,
+	LANGUAGE_MAP,
+} from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
+import {
+	PROMPT_TONES_MAP,
+	ToneDropdownMenu,
+} from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
 import AiModelSelectorControl from '../../../../shared/components/ai-model-selector-control';
 /**
  * Types and constants
@@ -79,6 +85,13 @@ export function AiExcerptControl( {
 		setIsSettingActive( prev => ! prev );
 	}
 
+	// const langLabel = language || __( 'Language', 'jetpack' );
+	// const toneLabel = tone || __( 'Tone', 'jetpack' );
+
+	const lang = language?.split( ' ' )[ 0 ];
+	const langLabel = LANGUAGE_MAP[ lang ]?.label || __( 'Language', 'jetpack' );
+	const toneLabel = PROMPT_TONES_MAP[ tone ]?.label || __( 'Tone', 'jetpack' );
+
 	return (
 		<div className="jetpack-ai-generate-excerpt-control">
 			<BaseControl
@@ -100,14 +113,11 @@ export function AiExcerptControl( {
 						disabled={ disabled }
 						onChange={ onLanguageChange }
 						value={ language }
-						label={ __( 'Language', 'jetpack' ) }
+						label={ langLabel }
 					/>
 
-					<ToneDropdownMenu
-						label={ __( 'Tone', 'jetpack' ) }
-						value={ tone }
-						onChange={ onToneChange }
-					/>
+					<ToneDropdownMenu label={ toneLabel } value={ tone } onChange={ onToneChange } />
+
 					<AiModelSelectorControl
 						model={ model }
 						onModelChange={ onModelChange }

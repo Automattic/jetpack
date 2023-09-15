@@ -56,8 +56,8 @@ function AiPostExcerpt() {
 	const [ excerptWordsNumber, setExcerptWordsNumber ] = useState( 50 );
 
 	const [ reenable, setReenable ] = useState( false );
-	const [ language, setLanguage ] = useState< LanguageProp >( 'en' );
-	const [ tone, setTone ] = useState< ToneProp >( 'formal' );
+	const [ language, setLanguage ] = useState< LanguageProp >();
+	const [ tone, setTone ] = useState< ToneProp >();
 	const [ model, setModel ] = useState< AiModelTypeProp >( AI_MODEL_GPT_4 );
 
 	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions(
