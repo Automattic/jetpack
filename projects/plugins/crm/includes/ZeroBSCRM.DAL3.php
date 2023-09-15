@@ -3199,7 +3199,7 @@ class zbsDAL {
             if (!isset($data['name']) || empty($data['name'])) return false;
 		if ( empty( $data['slug'] ) ) {
 
-			$potential_slug = $this->makeSlug( $data['name'] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$potential_slug = sanitize_key( $data['name'] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 			// catch empty slugs as per gh-462, chinese characters, for example
 			if ( empty( $potential_slug ) ) {
