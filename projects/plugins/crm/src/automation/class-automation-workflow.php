@@ -166,7 +166,10 @@ class Automation_Workflow {
 	 */
 	public function init_triggers() {
 
+		$this->get_logger()->log( 'Initializing Workflow triggers...' );
+
 		if ( ! $this->is_active() ) {
+			$this->get_logger()->log( 'The workflow is not active. No triggers loaded.' );
 			return;
 		}
 
@@ -177,6 +180,8 @@ class Automation_Workflow {
 				/** @var Base_Trigger $trigger */
 				$trigger = new $trigger_class();
 				$trigger->init( $this );
+
+				$this->get_logger()->log( 'Trigger initialized: ' . $trigger_slug );
 
 			} catch ( Automation_Exception $e ) {
 				throw new Workflow_Exception(
