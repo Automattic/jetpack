@@ -3,8 +3,8 @@
  */
 import {
 	AI_MODEL_GPT_4,
-	AiModelTypeProp,
 	ERROR_QUOTA_EXCEEDED,
+	useAiSuggestions,
 } from '@automattic/jetpack-ai-client';
 import { TextareaControl, ExternalLink, Button, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -22,7 +22,7 @@ import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
  * Types and constants
  */
-import type { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import type { AiModelTypeProp } from '@automattic/jetpack-ai-client';
 import './style.scss';
 
 type ContentLensMessageContextProps = {
