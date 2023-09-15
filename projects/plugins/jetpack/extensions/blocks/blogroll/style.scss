@@ -49,84 +49,78 @@
 
 .wp-block-jetpack-blogroll {
 	.wp-block-jetpack-blogroll-item {
-		display: flex;
-		padding: 20px 8px;
-		gap: 20px;
+		overflow-x: clip;
 
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 400;
-		color: var(--gray-gray-50, #646970);
+		.jetpack-blogroll-item-slider {
+			width: 200%;
+			display: flex;
+			transition: transform 0.3s ease-in-out;
+		}
 
-		figure {
-			margin: 0;
-
-			img {
-				border-radius: 50%;
-				width: 48px;
-				height: 48px;
+		&.open {
+			.jetpack-blogroll-item-slider {
+				transform: translateX(-50%);
 			}
 		}
 
-		.jetpack-blogroll-item-title {
-			color: var(--gray-gray-100, #101517);
-			font-size: 16px;
-			font-weight: 500;
-			margin: 0;
-			line-height: 24px;
+		.jetpack-blogroll-item-information {
+			width: 100%;
+			display: flex;
+			padding: 20px 8px;
+			gap: 20px;
+
+			figure {
+				margin: 0;
+
+				img {
+					border-radius: 50%;
+					width: 48px;
+					height: 48px;
+				}
+			}
 		}
 
-		.jetpack-blogroll-item-subscribe {
-			position: relative;
+		.jetpack-blogroll-item-subscribe-button {
 			margin-left: auto;
-
-			.jetpack-blogroll-item-subscribe-form {
-				display: none;
-				width: 200px;
-				height: 100px;
-				background-color: #fff;
-				position: absolute;
-				top: 0;
-				left: 120px;
-				border-radius: 4px;
-				border: 1px solid #c8d7e1;
-    			box-shadow: 5px 5px 30px 5px rgba(16,21,23,.25);
-    			flex-direction: column;
-
-				&.open {
-					display: flex;
-					animation: fadeIn 500ms forwards;
-				}
-
-				&.closing {
-					animation: blogrollOut 500ms forwards;
-					pointer-events: none;
-				}
-
-				button[name='blog_id'] {
-					background-color: #00aadc;
-					width: 100px;
-					padding: 8px 16px;
-					border-radius: 4px;
-					border: 1px solid #008ab3;
-					color: #fff;
-					margin: auto;
-				}
-				
-				input[name='email'] {
-					width: 175px;
-					padding: 8px 16px;
-					margin: auto;
-				}
-			}
+			white-space: nowrap;
+			align-self: center;			
 		}
-	}
 
-	#jetpack-blogroll-item-form-email{
-		display: none;
-		
-		&.showing {
-			display: block;
+		.jetpack-blogroll-item-email-input {
+			padding: 16px;
+			font: inherit;
+			border: 1px solid #8c8f94;
+			border-radius: 0;
+			flex: 1;
 		}
+
+		.jetpack-blogroll-item-submit {
+			width: 100%;
+			display: flex;
+			gap: 10px;
+			align-items: center;
+			
+			
+		}
+
+		.jetpack-blogroll-item-submit {
+			width: 100%;
+			border: none;
+    		padding: 0;
+		}
+
+		// 	font-size: 14px;
+		// 	font-style: normal;
+		// 	font-weight: 400;
+		// 	color: var(--gray-gray-50, #646970);
+
+		// 	.jetpack-blogroll-item-title {
+		// 		color: var(--gray-gray-100, #101517);
+		// 		font-size: 16px;
+		// 		font-weight: 500;
+		// 		margin: 0;
+		// 		line-height: 24px;
+		// 	}
+		// }
 	}
 }

@@ -1,50 +1,24 @@
 import './style.scss';
 
-function closeSubscribeForm( subscribePopup ) {
-	subscribePopup.classList.add( 'closing' );
-
-	subscribePopup.addEventListener( 'animationend', function cleanUp( animationEvent ) {
-		if ( animationEvent.animationName === 'blogrollOut' ) {
-			subscribePopup.classList.remove( 'closing', 'open' );
-			subscribePopup.removeEventListener( 'animationend', cleanUp );
-		}
-	} );
-}
-
-function openSubscribeForm( event ) {
+function toggleSubscribeForm( event ) {
 	event.preventDefault();
-
-	// Close any open forms
-	const openForm = document.querySelector( '.jetpack-blogroll-item-subscribe-form.open' );
-	if ( openForm && openForm !== event.target.nextElementSibling ) {
-		closeSubscribeForm( openForm );
-		return;
-	}
-
-	const emailInput = document.querySelector( 'input#jetpack-blogroll-item-form-email' );
-	const subscribePopup = event.target.nextElementSibling;
-	if ( emailInput && subscribePopup ) {
-		subscribePopup.prepend( emailInput );
-		emailInput.classList.add( 'showing' );
-		subscribePopup.classList.toggle( 'open' );
-		event.stopPropagation();
-
-		// Close the form if the user clicks outside of it
-		document.addEventListener( 'click', function outsideClickClose( offEvent ) {
-			if ( ! subscribePopup.contains( offEvent.target ) ) {
-				closeSubscribeForm( subscribePopup );
-				document.removeEventListener( 'click', outsideClickClose );
-			}
-		} );
+	const parent = event.currentTarget.closest( '.wp-block-jetpack-blogroll-item' );
+	if ( parent?.classList.toggle( 'open' ) ) {
+		parent.querySelector( '.jetpack-blogroll-item-email-input' ).name = 'email';
+		parent.querySelector( '.jetpack-blogroll-item-submit' ).removeAttribute( 'disabled' );
+	} else {
+		// Remove name for other fields, because they can override the active email field.
+		parent.querySelector( '.jetpack-blogroll-item-email-input' ).name = '';
+		parent.querySelector( '.jetpack-blogroll-item-submit' ).setAttribute( 'disabled', 'disabled' );
 	}
 }
 
 document.addEventListener( 'DOMContentLoaded', function () {
 	const blogrollItems = document.querySelectorAll(
-		'button#jetpack-blogroll-item-subscribe-button'
+		'.jetpack-blogroll-item-subscribe-button, .jetpack-blogroll-item-cancel-button'
 	);
 
 	blogrollItems.forEach( item => {
-		item.addEventListener( 'click', openSubscribeForm );
+		item.addEventListener( 'click', toggleSubscribeForm );
 	} );
 } );
