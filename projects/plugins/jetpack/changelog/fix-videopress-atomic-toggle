@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix the override condition on VideoPress toggle for AT sites
