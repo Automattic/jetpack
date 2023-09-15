@@ -3472,23 +3472,19 @@ function zeroBS___________DAL30Helpers(){return;}
 
 	}
 
-	// get co with name? legacy shiz
-	function zeroBS_getCompanyIDWithName($coName=''){
-
-		#} No empties, no validation, either.
-		if (!empty($coName)){
-
-			global $zbs; 
-			return $zbs->DAL->companies->getCompany(-1,array(
-					'name'=>$coName,
-					'onlyID'=>true,
-					'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_COMPANY)));
-		
-		}
-
-		return false;
-
+/**
+ * Retrieves the company ID based on its name.
+ *
+ * @param  string $company_name  The name of the company for which the ID is required.
+ * @return int|bool              Returns the ID of the company if found, false otherwise.
+ */
+function zeroBS_getCompanyIDWithName( $company_name = '' ) {
+	if ( ! empty( $company_name ) ) {
+		global $zbs;
+		return $zbs->DAL->companies->get_company_id_by_name( $company_name ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
+	return false;
+}
 
 	#} ExternalID is name in this case :)
 	function zeroBS_getCompanyIDWithExternalSource($externalSource='',$externalID=''){
