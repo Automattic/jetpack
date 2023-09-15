@@ -6,7 +6,9 @@ function toggleSubscribeForm( event ) {
 	if ( parent?.classList.toggle( 'open' ) ) {
 		parent.querySelector( '.jetpack-blogroll-item-submit' ).removeAttribute( 'disabled' );
 	} else {
-		// Remove name for other fields, because they can override the active email field.
+		// Disable the submission field-group. This has two benefits:
+		// 1. Prevents the hidden fields of an active item from being submitted.
+		// 2. Prevents the hidden items from stealing focus when tab-navigating.
 		parent.querySelector( '.jetpack-blogroll-item-submit' ).setAttribute( 'disabled', 'disabled' );
 	}
 }
