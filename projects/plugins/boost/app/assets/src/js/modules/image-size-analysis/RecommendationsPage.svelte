@@ -46,7 +46,11 @@
 		</div>
 
 		<div class="jb-container">
-			<Pagination />
+			<Pagination
+				group={$isaData.query.group}
+				current={$isaData.query.page}
+				total={$isaData.data.total_pages}
+			/>
 			<Footer />
 		</div>
 	</div>

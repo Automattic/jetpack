@@ -2,7 +2,11 @@
 	import ChevronLeft from '../../../svg/chevron-left.svg';
 	import ChevronRight from '../../../svg/chevron-right.svg';
 	import { Link } from '../../../utils/router';
-	import { isaData } from '../store/isa-data';
+
+	export let group: string;
+	export let current: number;
+	export let total: number;
+
 	// "-1" is replaced by "..." when rendering the pagination
 	const MORE_ICON = -1;
 
@@ -43,18 +47,16 @@
 
 	function nextPage() {
 		if ( current < total ) {
-			$isaData.query.page += 1;
+			current += 1;
 		}
 	}
 
 	function previousPage() {
 		if ( current > 1 ) {
-			$isaData.query.page -= 1;
+			current -= 1;
 		}
 	}
 
-	$: current = $isaData.query.page;
-	$: total = $isaData.data.total_pages;
 	$: pages = generatePagination( current, total );
 </script>
 
@@ -71,7 +73,7 @@
 						<span class="jb-pagination__page jb-pagination__more"> ... </span>
 					{:else}
 						<Link
-							to="/image-size-analysis/{$isaData.query.group}/{page}"
+							to="/image-size-analysis/{group}/{page}"
 							class="jb-pagination__page{page === current ? ' jb-pagination__current' : ''}"
 						>
 							{page}
