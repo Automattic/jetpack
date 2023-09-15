@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
+import Card from '../card';
 import ActionButton, { PRODUCT_STATUSES } from './action-button';
 import styles from './style.module.scss';
 
@@ -160,7 +161,7 @@ const ProductCard = props => {
 
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
 
-	const containerClassName = classNames( styles.container, {
+	const containerClassName = classNames( {
 		[ styles.plugin_absent ]: isAbsent,
 		[ styles[ 'is-purchase-required' ] ]: isPurchaseRequired,
 		[ styles[ 'is-link' ] ]: isAbsent,
@@ -244,12 +245,11 @@ const ProductCard = props => {
 	}, [ slug, onDeactivateStandalone, recordEvent ] );
 
 	return (
-		<div className={ containerClassName }>
-			<div className={ styles.title }>
-				<div className={ styles.name }>
-					<Text variant="title-medium">{ name }</Text>
-				</div>
-				{ showMenu && (
+		<Card
+			className={ containerClassName }
+			title={ name }
+			headerRightContent={
+				showMenu && (
 					<Menu
 						items={ menuItems }
 						showActivate={ showActivateOption }
@@ -259,8 +259,9 @@ const ProductCard = props => {
 						showInstall={ showInstallOption }
 						onInstall={ installStandaloneHandler }
 					/>
-				) }
-			</div>
+				)
+			}
+		>
 			{
 				// If is not active, no reason to use children
 				// Since we want user to take action if isn't active
@@ -287,7 +288,7 @@ const ProductCard = props => {
 					</Text>
 				) }
 			</div>
-		</div>
+		</Card>
 	);
 };
 
