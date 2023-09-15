@@ -151,5 +151,4 @@ class Segment_Condition_Woo_Order_Count extends zeroBSCRM_segmentCondition {
 
         return $startingArg;
     }
-
 }

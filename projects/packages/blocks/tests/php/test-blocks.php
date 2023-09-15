@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Brain\Monkey;
 use PHPUnit\Framework\TestCase;
 
@@ -339,7 +340,7 @@ class Test_Blocks extends TestCase {
 	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
 	public function test_jetpack_register_block_from_metadata_file() {
-		$result = Blocks::jetpack_register_block( __DIR__ . '/fixtures/block.json' );
+		$result = Blocks::jetpack_register_block( __DIR__ . '/fixtures/test-block/block.json' );
 
 		$this->assertInstanceOf( 'WP_Block_Type', $result );
 	}
@@ -352,7 +353,7 @@ class Test_Blocks extends TestCase {
 	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
 	public function test_get_block_metadata_from_file() {
-		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/block.json' );
+		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/test-block/block.json' );
 
 		// phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertIsArray -- assertIsArray not supported by all PHP versions we support.
 		$this->assertTrue( is_array( $result ) );
@@ -367,7 +368,7 @@ class Test_Blocks extends TestCase {
 	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
 	public function test_get_block_metadata_from_folder() {
-		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/' );
+		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/test-block' );
 
 		// phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertIsArray -- assertIsArray not supported by all PHP versions we support.
 		$this->assertTrue( is_array( $result ) );
@@ -424,5 +425,92 @@ class Test_Blocks extends TestCase {
 		$result = Blocks::get_block_feature_from_metadata( array( 'name' => $name ) );
 
 		$this->assertEquals( $result, $feature );
+	}
+
+	/**
+	 * Test getting the path to a block's metadata file.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_path_to_block_metadata
+	 */
+	public function test_get_path_to_block_metadata() {
+		$base_dir  = __DIR__ . '/fixtures';
+		$block_dir = $base_dir . '/test-block';
+
+		// Existing build folder
+
+		Jetpack_Constants::set_constant( 'JETPACK__PLUGIN_FILE', $base_dir . '/jetpack.php' );
+
+		$result = Blocks::get_path_to_block_metadata( $block_dir );
+		$this->assertEquals( $base_dir . '/_inc/blocks/test-block', $result );
+
+		$result = Blocks::get_path_to_block_metadata( $block_dir, $base_dir . '/_inc/blocks/' );
+		$this->assertEquals( $base_dir . '/_inc/blocks/test-block', $result );
+
+		$result = Blocks::get_path_to_block_metadata( $block_dir, $base_dir . '/_inc/blocks' );
+		$this->assertEquals( $base_dir . '/_inc/blocks/test-block', $result );
+
+		// Invalid build folder
+
+		Jetpack_Constants::set_constant( 'JETPACK__PLUGIN_FILE', '/a/b/c/jetpack.php' );
+
+		$result = Blocks::get_path_to_block_metadata( $block_dir );
+		$this->assertEquals( $block_dir, $result );
+
+		$result = Blocks::get_path_to_block_metadata( $block_dir, '/dist' );
+		$this->assertEquals( $block_dir, $result );
+
+		Jetpack_Constants::clear_constants();
+	}
+
+	/**
+	 * Test getting the block name.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_name
+	 */
+	public function test_get_block_name() {
+		// Pass metadata
+
+		$result = Blocks::get_block_name( array() );
+		$this->assertSame( '', $result );
+
+		$result = Blocks::get_block_name( array( 'name' => 'jetpack/test-block' ) );
+		$this->assertEquals( 'jetpack/test-block', $result );
+
+		// Pass path
+
+		$result = Blocks::get_block_name( '' );
+		$this->assertSame( '', $result );
+
+		$result = Blocks::get_block_name( __DIR__ . '/fixtures/test-block/block.json' );
+		$this->assertEquals( 'jetpack/test-block', $result );
+	}
+
+	/**
+	 * Test getting the block feature name.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_feature
+	 */
+	public function test_get_block_feature() {
+		// Pass metadata
+
+		$result = Blocks::get_block_feature( array() );
+		$this->assertSame( '', $result );
+
+		$result = Blocks::get_block_feature( array( 'name' => 'jetpack/test-block' ) );
+		$this->assertEquals( 'test-block', $result );
+
+		// Pass path
+
+		$result = Blocks::get_block_feature( '' );
+		$this->assertSame( '', $result );
+
+		$result = Blocks::get_block_feature( __DIR__ . '/fixtures/test-block/block.json' );
+		$this->assertEquals( 'test-block', $result );
 	}
 }

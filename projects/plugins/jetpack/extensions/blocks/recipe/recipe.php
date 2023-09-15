@@ -10,7 +10,7 @@
 use Automattic\Jetpack\Blocks;
 
 Blocks::jetpack_register_block(
-	'jetpack/recipe',
+	__DIR__,
 	array(
 		'render_callback' => array( 'Automattic\\Jetpack\\Extensions\\Recipe\\Jetpack_Recipe_Block', 'render' ),
 	)

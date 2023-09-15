@@ -3,22 +3,26 @@
 	the past. Mouseover to show the exact time.
 -->
 <script lang="ts">
-	import { readable } from 'svelte/store';
+	import { onMount } from 'svelte';
 	import describeTimeAgo from '../utils/describe-time-ago';
 
 	export let time: Date;
 
-	const label = readable( describeTimeAgo( time ), set => {
+	let label = describeTimeAgo( time );
+
+	let interval;
+
+	onMount( () => {
 		// Update label every 10 seconds.
-		const interval = setInterval( () => {
-			set( describeTimeAgo( time ) );
+		interval = setInterval( () => {
+			label = describeTimeAgo( time );
 		}, 10000 );
 
-		// Clear interval on store cleanup.
+		// Clear interval on destroy.
 		return () => clearInterval( interval );
 	} );
 </script>
 
 <span title={time.toLocaleString()} class="time-ago">
-	{$label}
+	{label}
 </span>

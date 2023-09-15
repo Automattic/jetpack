@@ -93,5 +93,4 @@ class Update_Contact_Status_Test extends JPCRM_Base_Integration_Test_Case {
 		$contact = $zbs->DAL->contacts->getContact( $contact_id );
 		$this->assertSame( 'Customer', $contact['status'] );
 	}
-
 }

@@ -415,5 +415,4 @@ class zeroBSCRM_Edit{
                     echo "var zbscrmjs_secToken = '" . esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ) . "';"; ?></script><?php
 
     } // /draw func
-
 } // class

@@ -49,5 +49,4 @@ class JPCRM_Base_Integration_Test_Case extends JPCRM_Base_Test_Case {
 
 		return ( new Data_Type_Contact( $contact ) )->get_entity();
 	}
-
 }

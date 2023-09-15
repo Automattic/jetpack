@@ -58,5 +58,4 @@ class Initial_State {
 	public static function render_script( $handle ) {
 		wp_add_inline_script( $handle, static::render(), 'before' );
 	}
-
 }
