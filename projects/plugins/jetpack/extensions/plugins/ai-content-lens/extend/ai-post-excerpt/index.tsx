@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { ERROR_QUOTA_EXCEEDED, useAiSuggestions } from '@automattic/jetpack-ai-client';
+import {
+	AI_MODEL_GPT_4,
+	AiModelTypeProp,
+	ERROR_QUOTA_EXCEEDED,
+} from '@automattic/jetpack-ai-client';
 import { TextareaControl, ExternalLink, Button, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
@@ -12,15 +16,14 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import './style.scss';
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
-import { AI_MODEL_GPT_4 } from '../../../../shared/components/ai-model-selector-control';
 import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
  * Types and constants
  */
-import type { AiModelTypeProp } from '../../../../shared/components/ai-model-selector-control';
+import type { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import './style.scss';
 
 type ContentLensMessageContextProps = {
 	type: 'ai-content-lens';

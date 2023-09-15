@@ -12,7 +12,8 @@ import AiModelSelectorControl from '../../../../shared/components/ai-model-selec
 /**
  * Types and constants
  */
-import type { AiModelTypeProp } from '../../../../shared/components/ai-model-selector-control';
+import type { AiModelTypeProp } from '@automattic/jetpack-ai-client';
+
 export type AiExcerptControlProps = {
 	/*
 	 * Whether the component is disabled.
