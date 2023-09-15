@@ -169,8 +169,9 @@ final class REST_Automation_Controller extends REST_Base_Objects_Controller {
 	public function update_workflow( $request ) {
 		try {
 			// TODO: Update the Workflow in the DB.
-			$workflow = array(
-				'id'           => 'testing',
+			$workflow_id = $request->get_param( 'id' );
+			$workflow    = array(
+				'id'           => $workflow_id,
 				'name'         => 'New Contact',
 				'active'       => true,
 				'version'      => 1,
