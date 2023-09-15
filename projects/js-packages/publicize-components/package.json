@@ -69,7 +69,7 @@
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {
-		".": "./index.js"
+		".": "./index.ts"
 	},
 	"peerDependencies": {
 		"react-dom": "^18.0.0"
