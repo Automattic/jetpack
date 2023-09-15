@@ -9,8 +9,13 @@
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
 	import Tabs from './recommendations/Tabs.svelte';
-	import { initializeIsaData, isaData, refreshIsaData } from './store/isa-data';
-	import { imageDataActiveGroup, initializeIsaSummary, totalIssueCount } from './store/isa-summary';
+	import { initializeIsaData, isaData, isaDataLoading, refreshIsaData } from './store/isa-data';
+	import {
+		imageDataActiveGroup,
+		initializeIsaSummary,
+		totalIssueCount,
+		isaSummary,
+	} from './store/isa-summary';
 
 	initializeIsaData();
 
@@ -29,6 +34,8 @@
 	$: isImageCdnModuleActive = $modulesState.image_cdn.active;
 	$: isaLastUpdated = $isaData.data.last_updated;
 	$: hasActiveGroup = !! $imageDataActiveGroup;
+	$: images = $isaData.data.images;
+	$: activeGroup = $isaData.query.group;
 
 	async function refresh() {
 		// Don't let the UI show a refresh button until we get fresh ISA data.
@@ -53,7 +60,14 @@
 		</div>
 
 		<div class="table-wrap">
-			<Table {needsRefresh} {refresh} />
+			<Table
+				{needsRefresh}
+				{refresh}
+				isaDataLoading={$isaDataLoading}
+				{activeGroup}
+				{images}
+				isaSummary={$isaSummary}
+			/>
 		</div>
 
 		<div class="jb-container">
