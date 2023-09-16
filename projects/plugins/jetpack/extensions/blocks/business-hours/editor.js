@@ -6,6 +6,7 @@ import './editor.scss';
 import './style.scss';
 
 registerJetpackBlockFromMetadata( metadata, {
+	...metadata,
 	edit: props => <BusinessHours { ...props } />,
 	save: () => null,
 } );
