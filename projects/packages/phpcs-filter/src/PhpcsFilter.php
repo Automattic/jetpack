@@ -338,5 +338,4 @@ class PhpcsFilter extends Filter {
 			$this
 		);
 	}
-
 }

@@ -1,26 +1,49 @@
-import { BlockIcon } from '@wordpress/block-editor';
-import { Placeholder } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { RichText, MediaUpload, useBlockProps } from '@wordpress/block-editor';
+import { Button } from '@wordpress/components';
 import './editor.scss';
-import icon from './icon';
+import { __ } from '@wordpress/i18n';
 
-function BlogrollItemEdit( { className, noticeUI } ) {
-	/**
-	 * Write the block editor UI.
-	 *
-	 * @returns {object} The UI displayed when user edits this block.
-	 */
+function BlogrollItemEdit( { className, attributes, setAttributes } ) {
+	const { icon, name, description } = attributes;
+	const blockProps = useBlockProps( { className } );
 
 	return (
-		<div className={ className }>
-			<Placeholder
-				label={ __( 'Blogroll Item', 'jetpack' ) }
-				instructions={ __( 'Instructions go here.', 'jetpack' ) }
-				icon={ <BlockIcon icon={ icon } /> }
-				notices={ noticeUI }
-			>
-				{ __( 'User input goes here?', 'jetpack' ) }
-			</Placeholder>
+		<div { ...blockProps }>
+			<MediaUpload
+				multiple={ false }
+				onSelect={ media => {
+					setAttributes( { icon: media.url } );
+				} }
+				render={ ( { open } ) => (
+					<Button variant="link" onClick={ open } style={ { padding: 0 } }>
+						<figure>
+							<img src={ icon } alt={ name } />
+						</figure>
+					</Button>
+				) }
+			/>
+			<div>
+				<a>
+					<RichText
+						className="jetpack-blogroll-item-title"
+						value={ name }
+						tagName={ 'h3' }
+						allowedFormats={ [ 'core/bold', 'core/italic' ] }
+						onChange={ value => {
+							setAttributes( { name: value } );
+						} }
+						placeholder={ __( 'Enter site title', 'jetpack' ) }
+					/>
+				</a>
+				<RichText
+					className="jetpack-blogroll-item-description"
+					value={ description }
+					onChange={ value => {
+						setAttributes( { description: value } );
+					} }
+					placeholder={ __( 'Enter site description', 'jetpack' ) }
+				/>
+			</div>
 		</div>
 	);
 }

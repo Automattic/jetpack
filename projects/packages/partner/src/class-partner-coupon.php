@@ -460,5 +460,4 @@ class Partner_Coupon {
 		 */
 		return apply_filters( 'jetpack_partner_coupon_supported_presets', self::$supported_presets );
 	}
-
 }

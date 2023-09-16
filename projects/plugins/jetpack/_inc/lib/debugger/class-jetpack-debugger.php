@@ -88,7 +88,7 @@ class Jetpack_Debugger {
 						<ol>
 							<li><?php esc_html_e( 'A known issue.', 'jetpack' ); ?>
 								<?php
-								echo sprintf(
+								printf(
 									wp_kses(
 										/* translators: URLs to Jetpack support pages. */
 										__( 'Some themes and plugins have <a href="%1$s" target="_blank" rel="noopener noreferrer">known conflicts</a> with Jetpack – check the list. (You can also browse the <a href="%2$s" target="_blank" rel="noopener noreferrer">Jetpack support pages</a> or <a href="%3$s" target="_blank" rel="noopener noreferrer">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ),
@@ -127,7 +127,7 @@ class Jetpack_Debugger {
 							<li>
 								<?php esc_html_e( 'A problem with your XML-RPC file.', 'jetpack' ); ?>
 								<?php
-								echo sprintf(
+								printf(
 									wp_kses(
 										/* translators: The URL to the site's xmlrpc.php file. */
 										__( 'Load your <a href="%s">XML-RPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself.', 'jetpack' ),
@@ -146,7 +146,7 @@ class Jetpack_Debugger {
 								<li>
 									<?php esc_html_e( 'A connection problem with WordPress.com.', 'jetpack' ); ?>
 									<?php
-									echo sprintf(
+									printf(
 										wp_kses(
 											/* translators: URL to disconnect and reconnect Jetpack. */
 											__( 'Jetpack works by connecting to WordPress.com for a lot of features. Sometimes, when the connection gets messed up, you need to disconnect and reconnect to get things working properly. <a href="%s">Disconnect from WordPress.com</a>', 'jetpack' ),
@@ -183,7 +183,7 @@ class Jetpack_Debugger {
 							/**
 							 * Offload to new WordPress debug data.
 							 */
-							echo sprintf(
+							printf(
 								wp_kses(
 									/* translators: URL for Jetpack support. URL for WordPress's Site Health */
 									__( '<a href="%1$s">Contact our Happiness team</a>. When you do, please include the <a href="%2$s">full debug information from your site</a>.', 'jetpack' ),

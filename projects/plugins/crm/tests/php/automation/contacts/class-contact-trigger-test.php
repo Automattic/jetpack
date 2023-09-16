@@ -230,5 +230,4 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		// Run the contact_before_deleted action.
 		do_action( 'jpcrm_contact_before_deleted', $contact_data );
 	}
-
 }

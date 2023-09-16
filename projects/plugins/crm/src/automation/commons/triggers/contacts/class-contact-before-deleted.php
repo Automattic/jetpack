@@ -91,5 +91,4 @@ class Contact_Before_Deleted extends Base_Trigger {
 			array( $this, 'execute_workflow' )
 		);
 	}
-
 }

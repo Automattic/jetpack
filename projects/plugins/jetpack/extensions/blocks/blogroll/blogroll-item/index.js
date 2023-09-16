@@ -1,12 +1,8 @@
+import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
-import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
-
-/**
- * Style dependencies
- */
 import './editor.scss';
 
 export const name = 'blogroll-item';
@@ -42,12 +38,29 @@ export const settings = {
 		multiple: true,
 		// When false, the block won't be available to be converted into a reusable block.
 		reusable: true,
+		// hide a block from all parts of the user interface so that it can only be inserted programmatically
+		inserter: false,
 	},
 	edit,
-	/* @TODO Write the block editor output */
-	save: () => null,
-	attributes,
-	usesContext: [ 'showAvatar', 'showDescription', 'showSubscribeButton', 'openLinksNewWindow' ],
+	attributes: {
+		id: {
+			type: 'string',
+		},
+		name: {
+			type: 'string',
+		},
+		icon: {
+			type: 'string',
+			default: 'https://s0.wp.com/i/webclip.png',
+		},
+		url: {
+			type: 'string',
+		},
+		description: {
+			type: 'string',
+		},
+	},
+	save: () => <InnerBlocks.Content />,
 	example: {
 		attributes: {
 			// @TODO: Add default values for block attributes, for generating the block preview.

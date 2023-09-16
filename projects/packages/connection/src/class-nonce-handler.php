@@ -209,5 +209,4 @@ class Nonce_Handler {
 
 		return true;
 	}
-
 }

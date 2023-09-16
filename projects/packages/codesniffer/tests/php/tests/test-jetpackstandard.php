@@ -138,5 +138,4 @@ class JetpackStandardTest extends TestCase {
 
 		return $ret;
 	}
-
 }

@@ -18,8 +18,10 @@ import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
 import useMediaRestrictions, { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions';
+import useRefreshAutoConversionSettings from '../../hooks/use-refresh-auto-conversion-settings';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import { SOCIAL_STORE_ID } from '../../social-store';
 import PublicizeConnection from '../connection';
 import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
@@ -45,7 +47,7 @@ const checkConnectionCode = ( connection, code ) =>
  * @param {string} props.connectionsAdminUrl              - URL to the Admin connections page
  * @param {string} props.adminUrl                         - URL af the plugin's admin page to redirect to after a plan upgrade
  * @param {boolean} props.shouldShowAdvancedPlanNudge     - Whether the advanced plan nudge should be shown
- * @param {boolean} props.isAutoConversionEnabled         - Whether the auto conversion feature is enabled
+ * @param {boolean} props.jetpackSharingSettingsUrl       - URL to the Jetpack Sharing settings page
  * @returns {object}                                      - Publicize form component.
  */
 export default function PublicizeForm( {
@@ -55,7 +57,7 @@ export default function PublicizeForm( {
 	isEnhancedPublishingEnabled = false,
 	shouldShowAdvancedPlanNudge = false,
 	isSocialImageGeneratorAvailable = false,
-	isAutoConversionEnabled = false,
+	jetpackSharingSettingsUrl,
 	connectionsAdminUrl,
 	adminUrl,
 } ) {
@@ -123,6 +125,11 @@ export default function PublicizeForm( {
 		[ dismissNotice, NOTICES ]
 	);
 
+	const isAutoConversionEnabled = useSelect(
+		select => select( SOCIAL_STORE_ID ).isAutoConversionEnabled(),
+		[]
+	);
+
 	const renderNotices = () => (
 		<>
 			{ brokenConnections.length > 0 && (
@@ -153,6 +160,33 @@ export default function PublicizeForm( {
 					) }
 				</Notice>
 			) }
+			{ shouldAutoConvert &&
+				showValidationNotice &&
+				mediaId &&
+				shouldShowNotice( NOTICES.autoConversion ) && (
+					<Notice
+						type={ 'warning' }
+						actions={ [
+							<Button onClick={ onAutoConversionNoticeDismiss } key="dismiss" variant="primary">
+								{ __( 'Got it', 'jetpack' ) }
+							</Button>,
+							<Button
+								className={ styles[ 'change-settings-button' ] }
+								key="change-settings"
+								href={ adminUrl || jetpackSharingSettingsUrl }
+								target="_blank"
+								rel="noreferrer noopener"
+							>
+								{ __( 'Change settings', 'jetpack' ) }
+							</Button>,
+						] }
+					>
+						{ __(
+							'When your post is published, the selected image will be converted for maximum compatibility across your connected social networks.',
+							'jetpack'
+						) }
+					</Notice>
+				) }
 		</>
 	);
 
@@ -208,6 +242,17 @@ export default function PublicizeForm( {
 			validationErrors[ connection_id ] !== NO_MEDIA_ERROR,
 		[ isPublicizeDisabledBySitePlan, validationErrors, shouldAutoConvert ]
 	);
+
+	const { refreshAutoConversionSettings } = useRefreshAutoConversionSettings();
+
+	if (
+		shouldAutoConvert &&
+		showValidationNotice &&
+		mediaId &&
+		shouldShowNotice( NOTICES.autoConversion )
+	) {
+		refreshAutoConversionSettings();
+	}
 
 	const renderInstagramNotice = () => {
 		return isEnhancedPublishingEnabled ? (
@@ -390,6 +435,7 @@ export default function PublicizeForm( {
 					{ isEnhancedPublishingEnabled && (
 						<MediaSection
 							disabled={ shouldDisableMediaPicker }
+							socialPostDisabled={ ! mediaId && ! isSocialImageGeneratorEnabledForPost }
 							connections={ connections }
 							disabledNoticeMessage={
 								shouldDisableMediaPicker
@@ -398,38 +444,6 @@ export default function PublicizeForm( {
 											'jetpack'
 									  )
 									: null
-							}
-							CustomNotice={
-								shouldAutoConvert &&
-								showValidationNotice &&
-								mediaId &&
-								shouldShowNotice( NOTICES.autoConversion ) && (
-									<Notice
-										type={ 'warning' }
-										actions={ [
-											<Button
-												onClick={ onAutoConversionNoticeDismiss }
-												key="dismiss"
-												variant="primary"
-											>
-												{ __( 'Got it', 'jetpack' ) }
-											</Button>,
-											<Button
-												key="change-settings"
-												href="#"
-												target="_blank"
-												rel="noreferrer noopener"
-											>
-												{ __( 'Change settings', 'jetpack' ) }
-											</Button>,
-										] }
-									>
-										{ __(
-											'When your post is published, this image will be converted for maximum compatibility across your connected social networks.',
-											'jetpack'
-										) }
-									</Notice>
-								)
 							}
 						/>
 					) }

@@ -2352,8 +2352,6 @@ function jpcrm_html_modules() {
 			if ( $module_messages['action'] === 'install' ) {
 				$msgHTML .= __( 'Successfully activated module:', 'zero-bs-crm' );
 			} else {
-				// TODO: It totally works here, but put this flush in a nicer place.
-				flush_rewrite_rules();
 				$msgHTML .= __( 'Successfully deactivated module:', 'zero-bs-crm' );
 			}
 			$msgHTML .= ' ' . $module_messages['pretty_name'];
