@@ -895,7 +895,7 @@ function zeroBSCRM_createTables(){
 	`version` INT(14) NOT NULL DEFAULT 1,
 	`created_at` INT(14) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	`updated_at` INT(14) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY (`ID`),
+	PRIMARY KEY (`id`),
 	INDEX `name` (`name` ASC),
 	INDEX `category` (`category` ASC),
 	INDEX `created_at` (`created_at` ASC)
