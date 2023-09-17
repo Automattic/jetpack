@@ -37,6 +37,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'560', // 5.6.0 Moves old folder structure (zbscrm-store) to new (jpcrm-storage)
 	'task_offset_fix', // removes task timezone offsets from database
 	'refresh_user_roles', // Refresh user roles
+	'611', // 6.1.1 - Create "workflows" table.
 	);
 
 global $zeroBSCRM_migrations_requirements; $zeroBSCRM_migrations_requirements = array(
@@ -1102,6 +1103,23 @@ function zeroBSCRM_migration_560() { // phpcs:ignore WordPress.NamingConventions
 
 	// Mark as complete.
 	zeroBSCRM_migrations_markComplete( '560', array( 'updated' => 1 ) );
+}
+
+/**
+ * Migration 6.1.1
+ *
+ * This migration will:
+ * - Make sure all tables are up-to-date. Practically speaking, then we're creating a new "workflows" table.
+ *
+ * @return void
+ */
+function zeroBSCRM_migration_611() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+	// Check that all tables exists.
+	// Phrased differnetly, then we're creating an automations workflows table.
+	zeroBSCRM_checkTablesExist();
+
+	// Mark migration as complete.
+	zeroBSCRM_migrations_markComplete( '611', array( 'updated' => 1 ) );
 }
 
 /**
