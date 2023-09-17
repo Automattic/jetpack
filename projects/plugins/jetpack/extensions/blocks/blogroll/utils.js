@@ -5,19 +5,8 @@ export function createBlockFromRecommendation( attrs ) {
 
 	return createBlock( 'jetpack/blogroll-item', {
 		...attrs,
-		icon: getSiteIconOrPlaceholder( icon ),
+		icon: icon || 'https://s0.wp.com/i/webclip.png',
 	} );
-}
-
-function getSiteIconOrPlaceholder( site_icon ) {
-	if ( ! site_icon ) {
-		return (
-			'data:image/svg+xml;base64,' +
-			btoa( '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"></svg>' )
-		);
-	}
-
-	return site_icon;
 }
 
 export function createBlockFromSubscription( subscription ) {
