@@ -481,7 +481,7 @@ class Automation_Workflow {
 	 * @return bool Whether the workflow is active.
 	 */
 	public function is_active(): bool {
-		return $this->active === 1;
+		return (int) $this->active === 1;
 	}
 
 	/**
