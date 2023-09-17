@@ -56,7 +56,7 @@ global $wpdb, $ZBSCRM_t;
   $ZBSCRM_t['eventreminders']         = $wpdb->prefix . "zbs_event_reminders";
   $ZBSCRM_t['tax']                    = $wpdb->prefix . "zbs_tax_table";
   $ZBSCRM_t['security_log']           = $wpdb->prefix . "zbs_security_log";
-  $ZBSCRM_t['automation-workflows']  = $wpdb->prefix . 'zbs_workflows'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Universal.WhiteSpace.PrecisionAlignment.Found
+  $ZBSCRM_t['automation-workflows']   = $wpdb->prefix . 'zbs_workflows'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Universal.WhiteSpace.PrecisionAlignment.Found
 
 
 /**
@@ -885,6 +885,7 @@ function zeroBSCRM_createTables(){
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['automation-workflows'] . '(
 	`id` INT NOT NULL AUTO_INCREMENT,
 	`zbs_site` INT NOT NULL,
+	`zbs_team` INT NOT NULL,
 	`zbs_owner` INT NOT NULL,
 	`name` VARCHAR(255) NOT NULL,
 	`description` VARCHAR(600) NULL DEFAULT NULL,
