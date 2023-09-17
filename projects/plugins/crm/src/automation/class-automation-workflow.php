@@ -83,7 +83,7 @@ class Automation_Workflow {
 	 * The workflow active status.
 	 *
 	 * @since $$next-version$$
-	 * @var bool
+	 * @var int
 	 */
 	public $active;
 
@@ -93,7 +93,7 @@ class Automation_Workflow {
 	 * @since $$next-version$$
 	 * @var int
 	 */
-	public $version = 1;
+	protected $version;
 
 	/**
 	 * A timestamp that reflects when the workflow was created.
@@ -136,14 +136,15 @@ class Automation_Workflow {
 	 */
 	public function __construct( array $workflow_data ) {
 		$this->id           = $workflow_data['id'] ?? null;
-		$this->zbs_site     = $workflow_data['zbs_site'] ?? null;
+		$this->zbs_site     = $workflow_data['zbs_site'] ?? -1;
 		$this->zbs_owner    = $workflow_data['zbs_owner'] ?? -1;
 		$this->triggers     = $workflow_data['triggers'] ?? array();
 		$this->initial_step = $workflow_data['initial_step'] ?? array();
 		$this->name         = $workflow_data['name'];
 		$this->description  = $workflow_data['description'] ?? '';
 		$this->category     = $workflow_data['category'] ?? '';
-		$this->active       = $workflow_data['is_active'] ?? true;
+		$this->active       = $workflow_data['active'] ?? 0;
+		$this->version      = $workflow_data['version'] ?? 1;
 		$this->created_at   = $workflow_data['created_at'] ?? 0;
 		$this->updated_at   = $workflow_data['updated_at'] ?? 0;
 	}
@@ -163,13 +164,102 @@ class Automation_Workflow {
 	}
 
 	/**
+	 * Get the CRM site the workflow should run on.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int
+	 */
+	public function get_zbs_site() {
+		return $this->zbs_site;
+	}
+
+	/**
+	 * Get the CRM owner/creator of the workflow.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int
+	 */
+	public function get_zbs_owner() {
+		return $this->zbs_owner;
+	}
+
+	/**
+	 * Get name.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	public function get_name(): string {
+		return $this->name;
+	}
+
+	/**
+	 * Get description.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	public function get_description(): string {
+		return $this->description;
+	}
+
+	/**
+	 * Get category.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	public function get_category(): string {
+		return $this->category;
+	}
+
+	/**
+	 * Get the database schema version.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int
+	 */
+	public function get_version(): int {
+		return $this->version;
+	}
+
+	/**
+	 * Get the timestamp for when the workflow was created.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int
+	 */
+	public function get_created_at(): int {
+		return $this->created_at;
+	}
+
+	/**
+	 * Get the timestamp for when the workflow was last updated.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int
+	 */
+	public function get_updated_at(): int {
+		return $this->updated_at;
+	}
+
+	/**
 	 * Set the triggers within the workflow given an array of triggers.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param string[] $triggers An array of triggers to be set.
+	 * @return void
 	 */
-	public function set_triggers( array $triggers ) {
+	public function set_triggers( array $triggers ): void {
 		$this->triggers = $triggers;
 	}
 
@@ -190,8 +280,9 @@ class Automation_Workflow {
 	 * @since $$next-version$$
 	 *
 	 * @throws Workflow_Exception Throws an exception if there is an issue initializing the trigger.
+	 * @return void
 	 */
-	public function init_triggers() {
+	public function init_triggers(): void {
 
 		if ( ! $this->is_active() ) {
 			return;
@@ -221,26 +312,36 @@ class Automation_Workflow {
 	 * @since $$next-version$$
 	 *
 	 * @param array $step_data The data for the step to be set as the initial step.
+	 * @return void
 	 */
-	public function set_initial_step( array $step_data ) {
+	public function set_initial_step( array $step_data ): void {
 		$this->initial_step = $step_data;
 	}
 
 	/**
-	 * Get the workflow as an array to be stored or send as JSON.
+	 * Get the workflow as an array.
+	 *
+	 * The main use-case to get the workflow as an array is to be stored
+	 * in the database or if it is being shared via API.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return array The workflow as an array.
 	 */
-	public function get_workflow_array(): array {
+	public function to_array(): array {
 		return array(
-			'name'         => $this->name,
-			'description'  => $this->description,
-			'category'     => $this->category,
-			'is_active'    => $this->active,
-			'triggers'     => $this->triggers,
-			'initial_step' => $this->initial_step,
+			'id'           => $this->get_id(),
+			'zbs_site'     => $this->get_zbs_site(),
+			'zbs_owner'    => $this->get_zbs_owner(),
+			'name'         => $this->get_name(),
+			'description'  => $this->get_description(),
+			'category'     => $this->get_category(),
+			'triggers'     => $this->get_triggers(),
+			'initial_step' => $this->get_initial_step(),
+			'active'       => (int) $this->is_active(),
+			'version'      => $this->get_version(),
+			'created_at'   => $this->get_created_at(),
+			'updated_at'   => $this->get_updated_at(),
 		);
 	}
 
@@ -274,18 +375,22 @@ class Automation_Workflow {
 	 * Turn on the workflow.
 	 *
 	 * @since $$next-version$$
+	 *
+	 * @return void
 	 */
-	public function turn_on() {
-		$this->active = true;
+	public function turn_on(): void {
+		$this->active = 1;
 	}
 
 	/**
 	 * Turn off the workflow.
 	 *
 	 * @since $$next-version$$
+	 *
+	 * @return void
 	 */
-	public function turn_off() {
-		$this->active = false;
+	public function turn_off(): void {
+		$this->active = 0;
 	}
 
 	/**
@@ -296,7 +401,7 @@ class Automation_Workflow {
 	 * @return bool Whether the workflow is active.
 	 */
 	public function is_active(): bool {
-		return $this->active;
+		return $this->active === 1;
 	}
 
 	/**
@@ -305,8 +410,9 @@ class Automation_Workflow {
 	 * @since $$next-version$$
 	 *
 	 * @param string $string The name of the trigger to add.
+	 * @return void
 	 */
-	public function add_trigger( string $string ) {
+	public function add_trigger( string $string ): void {
 		$this->triggers[] = $string;
 	}
 
