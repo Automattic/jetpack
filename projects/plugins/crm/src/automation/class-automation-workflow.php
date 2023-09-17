@@ -21,7 +21,23 @@ class Automation_Workflow {
 	 * @since $$next-version$$
 	 * @var int|string
 	 */
-	private $id;
+	protected $id;
+
+	/**
+	 * The CRM site ID the workflow belongs to.
+	 *
+	 * @since $$next-version$$
+	 * @var int
+	 */
+	protected $zbs_site;
+
+	/**
+	 * The WP User who created the workflow.
+	 *
+	 * @since $$next-version$$
+	 * @var int
+	 */
+	protected $zbs_owner;
 
 	/**
 	 * The workflow name.
@@ -80,12 +96,28 @@ class Automation_Workflow {
 	public $version = 1;
 
 	/**
+	 * A timestamp that reflects when the workflow was created.
+	 *
+	 * @since $$next-version$$
+	 * @var int
+	 */
+	protected $created_at;
+
+	/**
+	 * A timestamp that reflects when the workflow was last updated.
+	 *
+	 * @since $$next-version$$
+	 * @var int
+	 */
+	protected $updated_at;
+
+	/**
 	 * The automation engine.
 	 *
 	 * @since $$next-version$$
 	 * @var Automation_Engine
 	 */
-	private $automation_engine;
+	protected $automation_engine;
 
 	/**
 	 * The automation logger.
@@ -93,7 +125,7 @@ class Automation_Workflow {
 	 * @since $$next-version$$
 	 * @var Automation_Logger
 	 */
-	private $logger;
+	protected $logger;
 
 	/**
 	 * Automation_Workflow constructor.
