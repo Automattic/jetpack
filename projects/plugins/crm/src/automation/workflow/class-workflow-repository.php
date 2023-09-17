@@ -72,12 +72,20 @@ class Workflow_Repository {
 	/**
 	 * Get all workflows.
 	 *
+	 * @param array $args (Optional) Arguments to filter the workflows result.
 	 * @since $$next-version$$
 	 *
 	 * @return Automation_Workflow[]
 	 */
-	public function find_all(): array {
-		$rows = $this->wpdb->get_results( "SELECT * FROM {$this->table_name}", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	public function find_all( $args ): array {
+		/** @todo Expand allowed arguments. */
+		if ( isset( $args['active'] ) ) {
+			$query = $this->wpdb->prepare( "SELECT * FROM {$this->table_name} WHERE active=%d", (int) $args['active'] ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		} else {
+			$query = "SELECT * FROM {$this->table_name}"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
+
+		$rows = $this->wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		if ( empty( $rows ) ) {
 			return array();
