@@ -136,12 +136,16 @@ class Automation_Workflow {
 	 */
 	public function __construct( array $workflow_data ) {
 		$this->id           = $workflow_data['id'] ?? null;
+		$this->zbs_site     = $workflow_data['zbs_site'] ?? null;
+		$this->zbs_owner    = $workflow_data['zbs_owner'] ?? -1;
 		$this->triggers     = $workflow_data['triggers'] ?? array();
 		$this->initial_step = $workflow_data['initial_step'] ?? array();
 		$this->name         = $workflow_data['name'];
 		$this->description  = $workflow_data['description'] ?? '';
 		$this->category     = $workflow_data['category'] ?? '';
 		$this->active       = $workflow_data['is_active'] ?? true;
+		$this->created_at   = $workflow_data['created_at'] ?? 0;
+		$this->updated_at   = $workflow_data['updated_at'] ?? 0;
 	}
 
 	/**
