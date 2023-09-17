@@ -91,7 +91,7 @@ class Automation_Workflow {
 	 * The workflow active status.
 	 *
 	 * @since $$next-version$$
-	 * @var bool
+	 * @var int
 	 */
 	public $active;
 
@@ -342,8 +342,9 @@ class Automation_Workflow {
 	 * @since $$next-version$$
 	 *
 	 * @param int|string|null $step_id The initial step id.
+	 * @return void
 	 */
-	public function set_initial_step( $step_id ) {
+	public function set_initial_step( $step_id ): void {
 		$this->initial_step = $step_id;
 	}
 
@@ -458,7 +459,7 @@ class Automation_Workflow {
 	 * @return void
 	 */
 	public function turn_on(): void {
-		$this->active = true;
+		$this->active = 1;
 	}
 
 	/**
@@ -469,7 +470,7 @@ class Automation_Workflow {
 	 * @return void
 	 */
 	public function turn_off(): void {
-		$this->active = false;
+		$this->active = 0;
 	}
 
 	/**
@@ -480,7 +481,7 @@ class Automation_Workflow {
 	 * @return bool Whether the workflow is active.
 	 */
 	public function is_active(): bool {
-		return $this->active;
+		return $this->active === 1;
 	}
 
 	/**
