@@ -898,7 +898,7 @@ function zeroBSCRM_createTables(){
 	PRIMARY KEY (`ID`),
 	INDEX `name` (`name` ASC),
 	INDEX `category` (`category` ASC),
-	INDEX `created` (`created` ASC)
+	INDEX `created_at` (`created_at` ASC)
 	) ' . $storageEngineLine . '
 	DEFAULT CHARACTER SET = ' . $characterSet . '
 	COLLATE = ' . $collation . ';';
