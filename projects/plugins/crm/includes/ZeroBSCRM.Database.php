@@ -885,7 +885,6 @@ function zeroBSCRM_createTables(){
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['automation-workflows'] . '(
 	`id` INT NOT NULL AUTO_INCREMENT,
 	`zbs_site` INT NOT NULL,
-	`zbs_team` INT NOT NULL,
 	`zbs_owner` INT NOT NULL,
 	`name` VARCHAR(255) NOT NULL,
 	`description` VARCHAR(255) NULL DEFAULT NULL,
@@ -894,8 +893,8 @@ function zeroBSCRM_createTables(){
 	`initial_step` JSON NOT NULL,
 	`active` TINYINT(1) NOT NULL DEFAULT 0,
 	`version` INT(14) NOT NULL DEFAULT 1,
-	`created` INT(14) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	`updated` INT(14) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`created_at` INT(14) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` INT(14) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (`ID`),
 	INDEX `name` (`name` ASC),
 	INDEX `category` (`category` ASC),
