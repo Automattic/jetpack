@@ -310,5 +310,4 @@ class Status {
 
 		return $threats;
 	}
-
 }

@@ -35,5 +35,4 @@ class CommandTestCase extends TestCase {
 	protected function getTester( $name ) {
 		return new CommandTester( $this->getCommand( $name ) );
 	}
-
 }

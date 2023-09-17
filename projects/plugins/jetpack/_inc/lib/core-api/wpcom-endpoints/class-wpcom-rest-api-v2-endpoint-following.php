@@ -154,7 +154,6 @@ class WPCOM_REST_API_V2_Endpoint_Following extends WP_REST_Controller {
 
 		return json_decode( wp_remote_retrieve_body( $body ) );
 	}
-
 }
 
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Following' );

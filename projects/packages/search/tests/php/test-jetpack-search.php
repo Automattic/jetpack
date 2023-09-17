@@ -23,5 +23,4 @@ class Test_Jetpack_Search extends TestCase {
 		$search = Classic_Search::instance();
 		self::assertTrue( is_a( $search, 'Automattic\Jetpack\Search\Classic_Search' ) );
 	}
-
 }

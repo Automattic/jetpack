@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Constants as Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 

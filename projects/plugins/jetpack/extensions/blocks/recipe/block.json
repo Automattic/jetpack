@@ -28,6 +28,5 @@
 			"type": "array",
 			"default": []
 		}
-	},
-	"editorScript": "file:../editor-beta.js"
+	}
 }

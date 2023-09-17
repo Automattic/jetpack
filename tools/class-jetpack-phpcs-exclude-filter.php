@@ -65,5 +65,4 @@ class Jetpack_Phpcs_Exclude_Filter extends Automattic\Jetpack\PhpcsFilter {
 		$ret->exclude = $this->exclude;
 		return $ret;
 	}
-
 }
