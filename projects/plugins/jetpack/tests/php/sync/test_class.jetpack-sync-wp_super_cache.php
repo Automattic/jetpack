@@ -66,4 +66,3 @@ class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 }
-

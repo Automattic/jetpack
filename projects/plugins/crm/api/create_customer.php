@@ -296,5 +296,3 @@ if ( $external_api_name !== false ) {
 
 				wp_send_json( array( 'errors' => 1 ) );
 				exit();
-
-

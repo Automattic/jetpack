@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Resolves an undefined key error on sites with uploaded media without file extensions.

@@ -83,5 +83,4 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 		}
 		return $this->get();
 	}
-
 }

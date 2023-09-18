@@ -166,5 +166,4 @@ class Test_Videopress_Product extends TestCase {
 		activate_plugins( Videopress::get_installed_plugin_filename() );
 		$this->assertSame( '', Videopress::get_post_activation_url() );
 	}
-
 }

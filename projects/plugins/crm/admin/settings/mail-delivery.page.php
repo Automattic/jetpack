@@ -427,7 +427,7 @@ if ( count( $zbsSMTPAccs ) <= 0 ) {
 									$commonSMTPSettings = jpcrm_maildelivery_common_SMTP_settings();
 									foreach ( $commonSMTPSettings as $settingPerm => $settingArr ) {
 
-										echo sprintf(
+										printf(
 											'<option value="%s">%s</option>',
 											esc_attr( $settingPerm ),
 											esc_html( $settingArr['name'] )

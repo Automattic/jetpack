@@ -293,18 +293,20 @@ export function SubscriptionEdit( props ) {
 			) }
 
 			<div className={ getBlockClassName() } style={ cssVars }>
-				<div className="wp-block-jetpack-subscriptions__newsletter-categories">
-					{ newsletterCategories.map( category => {
-						return (
-							<div
-								key={ `newsletter-category-${ category.id }` }
-								className="wp-block-jetpack-subscriptions__newsletter-category"
-							>
-								{ category.name }
-							</div>
-						);
-					} ) }
-				</div>
+				{ newsletterCategoriesEnabled ? (
+					<div className="wp-block-jetpack-subscriptions__newsletter-categories">
+						{ newsletterCategories.map( category => {
+							return (
+								<div
+									key={ `newsletter-category-${ category.id }` }
+									className="wp-block-jetpack-subscriptions__newsletter-category"
+								>
+									<div>{ category.name }</div>
+								</div>
+							);
+						} ) }
+					</div>
+				) : null }
 
 				<div className="wp-block-jetpack-subscriptions__form" role="form">
 					<TextControl

@@ -107,5 +107,4 @@ class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 		return $the_user;
 	}
-
 }

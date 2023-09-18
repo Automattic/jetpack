@@ -853,5 +853,4 @@ class Table_Checksum {
 
 		return true;
 	}
-
 }

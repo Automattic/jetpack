@@ -23,6 +23,16 @@ domReady( function () {
 				return;
 			}
 			event.preventDefault();
+
+			// get all unchecked categories
+			const excluded_newsletter_categories = Array.from(
+				form.querySelectorAll(
+					'.wp-block-jetpack-subscriptions__newsletter-category input[type=checkbox]'
+				)
+			)
+				.filter( checkbox => ! checkbox.checked )
+				.map( checkbox => checkbox.value );
+
 			const url =
 				'https://subscribe.wordpress.com/memberships/?' +
 				'blog=' +
@@ -31,9 +41,12 @@ domReady( function () {
 				'&source=jetpack_subscribe' +
 				'&post_access_level=' +
 				form.dataset.post_access_level +
-				'&display=alternate&' +
-				'email=' +
-				encodeURIComponent( email );
+				'&display=alternate' +
+				'&email=' +
+				encodeURIComponent( email ) +
+				'&excluded_newsletter_categories=' +
+				excluded_newsletter_categories.join( ',' );
+
 			window.scrollTo( 0, 0 );
 			tb_show( null, url + '&TB_iframe=true', null );
 

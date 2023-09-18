@@ -103,5 +103,4 @@ class Add_Remove_Contact_Tag extends Base_Action {
 			)
 		);
 	}
-
 }

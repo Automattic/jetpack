@@ -32,5 +32,4 @@ class Waf_Exception extends Exception {
 	public function get_wp_error() {
 		return new WP_Error( static::SLUG, $this->getMessage() );
 	}
-
 }

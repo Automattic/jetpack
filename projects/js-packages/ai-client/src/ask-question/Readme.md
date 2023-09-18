@@ -22,6 +22,7 @@ function askQuestion(
     - **postId** (**number**, optional): ID of the post where the question is asked.
     - **fromCache** (**boolean**, optional): If set to true, the answer will be fetched from the cache. Default value is false.
     - **feature** (**string**, optional): Allows to use a specific AI assistant feature.
+    - **model**( **AiModelTypeProp** optional): Allows to use a specific AI model.
 
 ## Returns
 
