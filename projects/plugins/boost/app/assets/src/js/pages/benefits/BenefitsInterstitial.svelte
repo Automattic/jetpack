@@ -10,7 +10,7 @@
 	import Logo from '../../svg/jetpack-green.svg';
 	import JetpackBoostLogo from '../../svg/logo.svg';
 	import { recordBoostEvent } from '../../utils/analytics';
-	import { getUpgradeURL } from '../../utils/upgrade';
+	import { getUpgradeURL } from '../../utils/connection';
 
 	async function goToCheckout() {
 		const eventProps = {};
