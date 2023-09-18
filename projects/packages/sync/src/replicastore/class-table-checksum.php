@@ -307,7 +307,7 @@ class Table_Checksum {
 			'wc_orders'                  => array(
 				'table'                     => "{$wpdb->prefix}wc_orders",
 				'range_field'               => 'id',
-				'key_fields'                => array( 'id', 'parent_order_id' ),
+				'key_fields'                => array( 'id' ),
 				'checksum_text_fields'      => array( 'type', 'status', 'payment_method_title' ),
 				'filter_values'             => array(),
 				'is_table_enabled_callback' => array( $this, 'enable_woocommerce_tables' ),
@@ -315,7 +315,7 @@ class Table_Checksum {
 			'wc_order_addresses'         => array(
 				'table'                     => "{$wpdb->prefix}wc_order_addresses",
 				'range_field'               => 'order_id',
-				'key_fields'                => array( 'order_id' ),
+				'key_fields'                => array( 'order_id', 'address_type' ),
 				'checksum_text_fields'      => array( 'address_type' ),
 				'filter_values'             => array(),
 				'is_table_enabled_callback' => array( $this, 'enable_woocommerce_tables' ),
