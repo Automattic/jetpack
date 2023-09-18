@@ -1,7 +1,6 @@
 <script lang="ts">
-	import ChevronLeft from '../../../svg/chevron-left.svg';
-	import ChevronRight from '../../../svg/chevron-right.svg';
 	import { Link } from '../../../utils/router';
+	import PaginationArrow from './components/PaginationArrow.svelte';
 
 	export let group: string;
 	export let current: number;
@@ -46,20 +45,13 @@
 	}
 
 	$: pages = generatePagination( current, total );
-	$: nextPage = current + 1;
-	$: previousPage = current - 1;
 </script>
 
 <div class="jb-pagination">
 	{#if total > 1}
+		<PaginationArrow direction="left" {group} {current} {total} />
+
 		<ul>
-			{#if current > 1}
-				<li>
-					<Link to="/image-size-analysis/{group}/{previousPage}">
-						<ChevronLeft />
-					</Link>
-				</li>
-			{/if}
 			{#each pages as page}
 				<li>
 					{#if page === MORE_ICON}
@@ -74,14 +66,9 @@
 					{/if}
 				</li>
 			{/each}
-			{#if current < total}
-				<li>
-					<Link to="/image-size-analysis/{group}/{nextPage}">
-						<ChevronRight />
-					</Link>
-				</li>
-			{/if}
 		</ul>
+
+		<PaginationArrow direction="right" {group} {current} {total} />
 	{/if}
 </div>
 
