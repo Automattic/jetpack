@@ -2,8 +2,8 @@
  * External dependencies
  */
 import {
+	AI_MODEL_GPT_4,
 	ERROR_QUOTA_EXCEEDED,
-	aiAssistantIcon,
 	useAiSuggestions,
 } from '@automattic/jetpack-ai-client';
 import { TextareaControl, ExternalLink, Button, Notice } from '@wordpress/components';
@@ -16,19 +16,28 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import './style.scss';
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
 import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
  * Types and constants
  */
+import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
+import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
+import type { AiModelTypeProp } from '@automattic/jetpack-ai-client';
+
+import './style.scss';
+
 type ContentLensMessageContextProps = {
 	type: 'ai-content-lens';
 	contentType: 'post-excerpt';
 	postId: number;
-	content?: string;
 	words?: number;
+	request?: string;
+	content?: string;
+	language?: LanguageProp;
+	tone?: ToneProp;
+	model?: AiModelTypeProp;
 };
 
 function AiPostExcerpt() {
@@ -46,8 +55,10 @@ function AiPostExcerpt() {
 	// Post excerpt words number
 	const [ excerptWordsNumber, setExcerptWordsNumber ] = useState( 50 );
 
-	// Re enable the AI Excerpt component
 	const [ reenable, setReenable ] = useState( false );
+	const [ language, setLanguage ] = useState< LanguageProp >();
+	const [ tone, setTone ] = useState< ToneProp >();
+	const [ model, setModel ] = useState< AiModelTypeProp >( AI_MODEL_GPT_4 );
 
 	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions(
 		{}
@@ -117,6 +128,8 @@ function AiPostExcerpt() {
 			contentType: 'post-excerpt',
 			postId,
 			words: excerptWordsNumber,
+			language,
+			tone,
 			content: `Post content:
 ${ postContent }
 `,
@@ -129,7 +142,7 @@ ${ postContent }
 			},
 		];
 
-		request( prompt, { feature: 'jetpack-ai-content-lens' } );
+		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 	}
 
 	function setExpert() {
@@ -183,6 +196,21 @@ ${ postContent }
 						setExcerptWordsNumber( wordsNumber );
 						setReenable( true );
 					} }
+					language={ language }
+					onLanguageChange={ newLang => {
+						setLanguage( newLang );
+						setReenable( true );
+					} }
+					tone={ tone }
+					onToneChange={ newTone => {
+						setTone( newTone );
+						setReenable( true );
+					} }
+					model={ model }
+					onModelChange={ newModel => {
+						setModel( newModel );
+						setReenable( true );
+					} }
 					disabled={ isBusy || isQuotaExceeded }
 				/>
 
@@ -219,11 +247,7 @@ ${ postContent }
 }
 
 export const PluginDocumentSettingPanelAiExcerpt = () => (
-	<PluginDocumentSettingPanel
-		name="ai-driven-excerpt"
-		title={ __( 'Excerpt', 'jetpack' ) }
-		icon={ aiAssistantIcon }
-	>
+	<PluginDocumentSettingPanel name="ai-content-lens-plugin" title={ __( 'Excerpt', 'jetpack' ) }>
 		<AiPostExcerpt />
 	</PluginDocumentSettingPanel>
 );

@@ -7,6 +7,7 @@
 	import { connection } from '../../stores/connection';
 	import { criticalCssState, isGenerating } from '../../stores/critical-css-state';
 	import { modulesState } from '../../stores/modules';
+	import { hasPrioritySupport } from '../../utils/paid-plan';
 	import { Router, Route } from '../../utils/router';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
 	import Modules from './sections/Modules.svelte';
@@ -47,7 +48,9 @@
 
 		<Tips />
 
-		<Support />
+		{#if $hasPrioritySupport}
+			<Support />
+		{/if}
 
 		<Footer />
 	</div>
