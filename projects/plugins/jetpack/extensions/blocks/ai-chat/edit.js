@@ -13,10 +13,14 @@ export default function Edit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
 	return (
 		<div { ...blockProps }>
-			<QuestionAnswer askButtonLabel={ attributes.askButtonLabel } />
+			<QuestionAnswer
+				askButtonLabel={ attributes.askButtonLabel }
+				placeholder={ attributes.placeholder }
+			/>
 			<InspectorControls>
 				<AiChatControls
 					askButtonLabel={ attributes.askButtonLabel }
+					placeholder={ attributes.placeholder }
 					setAttributes={ setAttributes }
 				/>
 			</InspectorControls>

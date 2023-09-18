@@ -64,6 +64,11 @@ function cleanName( name ) {
 		name = 'Payments';
 	}
 
+	// Premium Content was renamed into Paid content.
+	if ( name === 'premium-content' ) {
+		name = 'Paid content';
+	}
+
 	// Rating Star was renamed into Star Rating.
 	if ( name === 'rating-star' ) {
 		name = 'Star Rating';

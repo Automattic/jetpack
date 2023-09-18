@@ -56,7 +56,7 @@
 	}
 
 	onMount( () => {
-		if ( ! $modulesState.image_size_analysis.active ) {
+		if ( $modulesState.image_size_analysis.active ) {
 			initializeIsaSummary();
 		}
 	} );
