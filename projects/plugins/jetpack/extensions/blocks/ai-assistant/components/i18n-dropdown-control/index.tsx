@@ -93,7 +93,7 @@ export const LANGUAGE_MAP = {
 	},
 };
 
-const I18nMenuGroup = ( {
+export const I18nMenuGroup = ( {
 	value,
 	onChange,
 }: Pick< LanguageDropdownControlProps, 'value' | 'onChange' > ) => {
@@ -141,13 +141,18 @@ export default function I18nDropdownControl( {
 export function I18nMenuDropdown( {
 	value = defaultLanguage,
 	label = defaultLabel,
+	disabled = false,
 	onChange,
-}: Pick< LanguageDropdownControlProps, 'label' | 'onChange' | 'value' > ) {
+}: Pick< LanguageDropdownControlProps, 'label' | 'onChange' | 'value' > & {
+	disabled?: boolean;
+	toggleProps?: Record< string, unknown >;
+} ) {
 	return (
 		<DropdownMenu
 			className="ai-assistant__i18n-dropdown"
 			icon={ globe }
 			label={ label }
+			disabled={ disabled }
 			toggleProps={ {
 				children: (
 					<>
@@ -157,7 +162,15 @@ export function I18nMenuDropdown( {
 				),
 			} }
 		>
-			{ () => <I18nMenuGroup onChange={ onChange } value={ value } /> }
+			{ ( { onClose } ) => (
+				<I18nMenuGroup
+					onChange={ newLanguage => {
+						onChange( newLanguage );
+						onClose();
+					} }
+					value={ value }
+				/>
+			) }
 		</DropdownMenu>
 	);
 }

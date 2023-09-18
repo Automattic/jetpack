@@ -62,7 +62,7 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 				{ name: __( 'Number of shares in 30 days', 'jetpack-social' ) },
 				{ name: __( 'Priority support', 'jetpack-social' ) },
 				{ name: __( 'Schedule posting', 'jetpack-social' ) },
-				{ name: __( 'Twitter, Facebook, LinkedIn & Tumblr', 'jetpack-social' ) },
+				{ name: __( 'Instagram, Facebook, Mastodon, LinkedIn, & Tumblr', 'jetpack-social' ) },
 				{ name: __( 'Customize publications', 'jetpack-social' ) },
 				{
 					name: __( 'Recycle content', 'jetpack-social' ),

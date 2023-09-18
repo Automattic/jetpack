@@ -36,4 +36,53 @@ class REST_Automation_Controller_Test extends REST_Base_Test_Case {
 		$this->assertIsArray( $workflows );
 		// TODO: add more tests to ensure the workflows were returned correctly.
 	}
+
+	/**
+	 * GET (Single) Workflow: Test that we can successfully access the endpoint.
+	 *
+	 * @return void
+	 */
+	public function test_get_workflow_success() {
+		// Create and set authenticated user.
+		$jpcrm_admin_id = $this->create_wp_jpcrm_admin();
+		wp_set_current_user( $jpcrm_admin_id );
+
+		// Make request.
+		$request  = new WP_REST_Request(
+			WP_REST_Server::READABLE,
+			'/jetpack-crm/v4/automation/workflow'
+		);
+		$response = rest_do_request( $request );
+		$this->assertSame( 200, $response->get_status() );
+
+		$workflow = $response->get_data();
+		$this->assertIsArray( $workflow );
+		$this->assertEquals( 'testing', $workflow['id'] );
+		// TODO: add more tests to ensure the workflows were returned correctly.
+	}
+
+	/**
+	 * GET (Single) Workflow: Test that we can successfully access the endpoint.
+	 *
+	 * @return void
+	 */
+	public function test_update_workflow_success() {
+		// Create and set authenticated user.
+		$jpcrm_admin_id = $this->create_wp_jpcrm_admin();
+		wp_set_current_user( $jpcrm_admin_id );
+
+		// Make request.
+		$request = new WP_REST_Request(
+			'PUT',
+			'/jetpack-crm/v4/automation/workflow'
+		);
+		$request->set_param( 'id', 'some_workflow_id_here' );
+		$response = rest_do_request( $request );
+		$this->assertSame( 200, $response->get_status() );
+
+		$workflow = $response->get_data();
+		$this->assertIsArray( $workflow );
+		$this->assertEquals( 'some_workflow_id_here', $workflow['id'] );
+		// TODO: add more tests to ensure the workflows were returned correctly.
+	}
 }
