@@ -10,7 +10,7 @@
 namespace Automattic\Jetpack\Extensions\AIChat;
 
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Search\Initial_State as Search_Initial_State;
+use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
 use Jetpack_Gutenberg;
 
 /**
@@ -84,8 +84,13 @@ function load_assets( $attr ) {
  * Add the initial state for the AI Chat block.
  */
 function add_ai_chat_options() {
-	$initial_state = new Search_Initial_State();
-	$initial_state = $initial_state->get_initial_state();
+	$search        = new Search_Module_Control();
+	$initial_state = array(
+		'jetpackSettings' => array(
+			'search_module_active'   => $search->is_active(),
+			'instant_search_enabled' => $search->is_instant_search_enabled(),
+		),
+	);
 	wp_add_inline_script(
 		'jetpack-blocks-editor',
 		'var Jetpack_AIChatBlock = ' . wp_json_encode( $initial_state, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',

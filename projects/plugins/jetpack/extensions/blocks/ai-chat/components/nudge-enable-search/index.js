@@ -9,7 +9,7 @@ import { Nudge } from '../../../../shared/components/upgrade-nudge';
 import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 
 const EnableJetpackSearchPrompt = () => {
-	const checkoutUrl = `${ window?.Jetpack_AIChatBlock?.siteData?.adminUrl }admin.php?page=jetpack-search`;
+	const checkoutUrl = `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=jetpack-search`;
 	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( checkoutUrl );
 
 	if ( window?.Jetpack_AIChatBlock?.jetpackSettings?.instant_search_enabled ) {
