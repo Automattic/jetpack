@@ -28,7 +28,7 @@ export function getValidDomain( siteURL ) {
 
 	const pattern = new RegExp(
 		'^([a-zA-Z]+:\\/\\/)?' + // protocol
-			'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,})', // domain name
+			'((([a-z\\d]([a-z\\d-]*[a-z\\d])?)\\.)+[a-z]{2,})', // domain name
 		'i'
 	);
 
