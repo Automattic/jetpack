@@ -6,6 +6,17 @@
  */
 
 /**
+ * Adds the action to limit capabilities for locked mode sites when the Locked Mode feature is available
+ * and the option enabled.
+ */
+function wpcom_lm_maybe_add_map_meta_cap_filter() {
+	if ( wpcom_site_has_feature( WPCOM_Features::LOCKED_MODE ) && get_option( 'wpcom_locked_mode' ) ) {
+		add_filter( 'map_meta_cap', 'wpcom_lm_remove_post_capabilities', 10, 2 );
+	}
+}
+add_action( 'plugins_loaded', 'wpcom_lm_maybe_add_map_meta_cap_filter' );
+
+/**
  * Registers Locked Mode settings.
  */
 function wpcom_lm_register_settings() {
@@ -110,11 +121,6 @@ function wpcom_locked_mode_render() {
  * @return array
  */
 function wpcom_lm_remove_post_capabilities( $caps, $cap ) {
-	// Return if option is not set.
-	if ( ! get_option( 'wpcom_locked_mode' ) ) {
-		return $caps;
-	}
-
 	switch ( $cap ) {
 		case 'edit_posts':
 			if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
@@ -154,7 +160,6 @@ function wpcom_lm_remove_post_capabilities( $caps, $cap ) {
 		case 'manage_categories':
 		case 'manage_links':
 		case 'import':
-		case 'edit_posts':
 		case 'edit_others_posts':
 		case 'edit_published_posts':
 		case 'publish_posts':
@@ -179,7 +184,6 @@ function wpcom_lm_remove_post_capabilities( $caps, $cap ) {
 
 	return $caps;
 }
-add_filter( 'map_meta_cap', 'wpcom_lm_remove_post_capabilities', 10, 2 );
 
 /**
  * Disables comments site-wide for locked mode sites.
