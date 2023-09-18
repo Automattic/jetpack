@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Search\Plan as Search_Plan;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -755,8 +756,9 @@ class Jetpack_Gutenberg {
 
 		// We need this information in the ai-chat feature, because it cant be activated if instant search is not enabled.
 		if ( Jetpack::is_module_active( 'search' ) ) {
+			$search_plan             = new Search_Plan();
 			$initial_state['search'] = array(
-				'instant_search_enabled' => (bool) get_option( 'instant_search_enabled' ),
+				'instant_search_enabled' => (bool) $search_plan->supports_instant_search(),
 			);
 		}
 
