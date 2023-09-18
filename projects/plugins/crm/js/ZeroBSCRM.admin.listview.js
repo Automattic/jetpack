@@ -3977,8 +3977,8 @@ function zeroBSCRMJS_listView_invoice_value( dataLine ) {
  */
 function zeroBSCRMJS_listView_invoice_status( dataLine ) {
 	var stat = '';
-	if ( typeof dataLine.status !== 'undefined' ) {
-		stat = dataLine.status;
+	if ( typeof dataLine.status_label !== 'undefined' ) {
+		stat = dataLine.status_label;
 	}
 	var color = '';
 	switch ( stat ) {
