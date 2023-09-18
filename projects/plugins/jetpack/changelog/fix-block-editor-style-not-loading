@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix AI Chat styles not loading in the editor
