@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\AIChat;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Search\Initial_State as Search_Initial_State;
 use Jetpack_Gutenberg;
 
 /**
@@ -54,6 +55,8 @@ function load_assets( $attr ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
+	add_action( 'enqueue_block_assets', __NAMESPACE__ . '\add_ai_chat_options' );
+
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$ask_button_label = isset( $attr['askButtonLabel'] ) ? $attr['askButtonLabel'] : __( 'Ask', 'jetpack' );
@@ -74,5 +77,18 @@ function load_assets( $attr ) {
 		esc_attr( $blog_id ),
 		esc_attr( $type ),
 		esc_attr( $placeholder )
+	);
+}
+
+/**
+ * Add the initial state for the AI Chat block.
+ */
+function add_ai_chat_options() {
+	$initial_state = new Search_Initial_State();
+	$initial_state = $initial_state->get_initial_state();
+	wp_add_inline_script(
+		'jetpack-blocks-editor',
+		'var Jetpack_AIChatBlock = ' . wp_json_encode( $initial_state, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+		'before'
 	);
 }

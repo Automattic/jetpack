@@ -8,11 +8,11 @@ import { __ } from '@wordpress/i18n';
 import { Nudge } from '../../../../shared/components/upgrade-nudge';
 import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 
-const ConnectPrompt = () => {
-	const checkoutUrl = `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/connection`;
+const EnableJetpackSearchPrompt = () => {
+	const checkoutUrl = `${ window?.Jetpack_AIChatBlock?.siteData?.adminUrl }admin.php?page=jetpack-search`;
 	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( checkoutUrl );
 
-	if ( window?.Jetpack_Editor_Initial_State?.jetpack?.is_current_user_connected ) {
+	if ( window?.Jetpack_AIChatBlock?.jetpackSettings?.instant_search_enabled ) {
 		return null;
 	}
 
@@ -22,10 +22,13 @@ const ConnectPrompt = () => {
 
 	return (
 		<Nudge
-			buttonText={ __( 'Reconnect Jetpack', 'jetpack' ) }
+			buttonText={ __( 'Enable Jetpack Search', 'jetpack' ) }
 			checkoutUrl={ checkoutUrl }
 			className={ 'jetpack-ai-connect-banner' }
-			description={ __( 'Your account is not connected to Jetpack at the moment.', 'jetpack' ) }
+			description={ __(
+				'You need to enable Jetpack Search so that Jetpack AI can index your site.',
+				'jetpack'
+			) }
 			goToCheckoutPage={ goToCheckoutPage }
 			isRedirecting={ isRedirecting }
 			visible={ true }
@@ -36,4 +39,4 @@ const ConnectPrompt = () => {
 	);
 };
 
-export default ConnectPrompt;
+export default EnableJetpackSearchPrompt;
