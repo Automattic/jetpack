@@ -86,5 +86,4 @@ class WPCOM_JSON_API_Render_Embed_Endpoint extends WPCOM_JSON_API_Render_Endpoin
 
 		return $return;
 	}
-
 }

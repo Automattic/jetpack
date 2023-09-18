@@ -2746,7 +2746,6 @@ class Share_Pocket extends Sharing_Source {
 			);
 		endif;
 	}
-
 }
 
 /**

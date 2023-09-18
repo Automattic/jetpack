@@ -176,6 +176,5 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 			</div>
 			<?php
 		}
-
 	}
 }

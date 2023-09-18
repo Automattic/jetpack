@@ -44,5 +44,4 @@ class Dummy_Test extends TestCase {
 		$this->assertNotFalse( strpos( $u->var, 'foo' ) );
 		$this->assertIsInt( strpos( $u->var, 'foo' ) );
 	}
-
 }

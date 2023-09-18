@@ -38,4 +38,3 @@ class Silent_Upgrader_Skin extends WP_Upgrader_Skin {
 	public function decrement_update_count( $arg ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	}
 }
-
