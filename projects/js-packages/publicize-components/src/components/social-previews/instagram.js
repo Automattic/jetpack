@@ -10,7 +10,7 @@ import { getInstagramDetails } from '../../store/selectors';
  * @returns {React.ReactNode} The Instagram tab component.
  */
 export function Instagram( props ) {
-	const { title, image } = props;
+	const { title, image, media } = props;
 
 	const { name, profileImage } = getInstagramDetails();
 
@@ -21,6 +21,7 @@ export function Instagram( props ) {
 	return (
 		<InstagramPreviews
 			image={ image }
+			media={ media }
 			name={ name }
 			profileImage={ profileImage }
 			caption={ caption }
