@@ -302,62 +302,9 @@ class Invoice {
 	public $created = -1;
 
 	/**
-	 * DB field name mapping. db_field => model_field.
-	 *
-	 * @var array
-	 */
-	private $field_map = array(
-		'ID'                       => 'id',
-		'zbsi_id_override'         => 'id_override',
-		'zbsi_parent'              => 'parent',
-		'zbsi_status'              => 'status',
-		'zbsi_hash'                => 'hash',
-		'zbsi_pdf_template'        => 'pdf_template',
-		'zbsi_portal_template'     => 'portal_template',
-		'zbsi_email_template'      => 'email_template',
-		'zbsi_invoice_frequency'   => 'invoice_frequency',
-		'zbsi_currency'            => 'currency',
-		'zbsi_pay_via'             => 'pay_via',
-		'zbsi_logo_url'            => 'logo_url',
-		'zbsi_address_to_objtype'  => 'address_to_objtype',
-		'zbsi_addressed_from'      => 'addressed_from',
-		'zbsi_addressed_to'        => 'addressed_to',
-		'zbsi_allow_partial'       => 'allow_partial',
-		'zbsi_allow_tip'           => 'allow_tip',
-		'zbsi_send_attachments'    => 'send_attachments',
-		'zbsi_hours_or_quantity'   => 'hours_or_quantity',
-		'zbsi_date'                => 'date',
-		'zbsi_due_date'            => 'due_date',
-		'zbsi_paid_date'           => 'paid_date',
-		'zbsi_hash_viewed'         => 'hash_viewed',
-		'zbsi_hash_viewed_count'   => 'hash_viewed_count',
-		'zbsi_portal_viewed'       => 'portal_viewed',
-		'zbsi_portal_viewed_count' => 'portal_viewed_count',
-		'zbsi_net'                 => 'net',
-		'zbsi_discount'            => 'discount',
-		'zbsi_discount_type'       => 'discount_type',
-		'zbsi_shipping'            => 'shipping',
-		'zbsi_shipping_taxes'      => 'shipping_taxes',
-		'zbsi_shipping_tax'        => 'shipping_tax',
-		'zbsi_taxes'               => 'taxes',
-		'zbsi_tax'                 => 'tax',
-		'zbsi_total'               => 'total',
-		'zbsi_lastupdated'         => 'lastupdated',
-		'zbsi_created'             => 'created',
-		'zbs_owner'                => 'owner',
-	);
-
-	/**
 	 * Custom fields.
 	 *
 	 * @var array Custom fields.
 	 */
 	private $custom_fields = array();
-
-	/**
-	 * {@inheritDoc}
-	 */
-	protected function get_field_map(): array {
-		return $this->field_map;
-	}
 }
