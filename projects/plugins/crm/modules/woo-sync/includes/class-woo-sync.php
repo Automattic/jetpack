@@ -265,11 +265,11 @@ class Woo_Sync {
 			);
 
 			if ( in_array( $order_status, $paid_statuses, true ) ) {
-				$status = __( 'Paid', 'zero-bs-crm' );
+				$status = 'Paid';
 			} elseif ( $order_status === 'checkout-draft' ) {
-				$status = __( 'Draft', 'zero-bs-crm' );
+				$status = 'Draft';
 			} else {
-				$status = __( 'Unpaid', 'zero-bs-crm' );
+				$status = 'Unpaid';
 			}
 		} elseif ( $obj_type_id === ZBS_TYPE_TRANSACTION ) {
 			// note that transaction statuses aren't translated, as they're user-configurable
