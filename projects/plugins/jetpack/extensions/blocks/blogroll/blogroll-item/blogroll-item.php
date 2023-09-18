@@ -68,12 +68,12 @@ function load_assets( $attr, $content, $block ) {
 		$subscribe_text            = esc_html__( 'Subscribe', 'jetpack' );
 		$submit_text               = esc_html__( 'Submit', 'jetpack' );
 		$cancel_text               = esc_html__( 'Cancel', 'jetpack' );
-		$is_following              = wpcom_subs_is_subscribed(
+		$is_following              = function_exists( 'wpcom_subs_is_subscribed' ) && wpcom_subs_is_subscribed(
 			array(
 				'user_id' => get_current_user_id(),
 				'blog_id' => $id,
 			)
-		) ? true : false;
+		);
 		$disabled_subscribe_button = '';
 
 		if ( $is_following ) {
