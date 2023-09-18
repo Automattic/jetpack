@@ -25,10 +25,11 @@ export type ShareButtonsProps = {
 };
 
 export const ShareButtons: React.FC< ShareButtonsProps > = ( {
-	buttonStyle = 'icon-text',
-	buttonVariant = 'secondary',
+	buttonStyle = 'icon',
+	buttonVariant,
 } ) => {
 	const prepareUrl = usePrepareUrl();
+
 	return (
 		<div className={ styles[ 'share-buttons' ] }>
 			{ availableNetworks.map( ( { label, networkName, url } ) => {
@@ -48,6 +49,7 @@ export const ShareButtons: React.FC< ShareButtonsProps > = ( {
 						rel="noopener noreferrer"
 						onClick={ onClick }
 						data-network={ networkName }
+						className={ styles[ networkName ] }
 					>
 						{ 'icon' !== buttonStyle ? label : null }
 					</Button>
