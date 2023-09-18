@@ -31,7 +31,7 @@ export default function useGetSiteDetails( siteURL, subscriptions, enabled = fal
 					cache[ validDomain ] = data;
 					setSiteDetails( [
 						{
-							id: data?.ID,
+							blog_id: data?.ID,
 							description: data?.description,
 							URL: data?.URL,
 							site_icon: getSiteIcon( data?.logo?.url ),
