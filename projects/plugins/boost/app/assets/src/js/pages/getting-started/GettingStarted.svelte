@@ -6,9 +6,8 @@
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import config, { markGetStartedComplete } from '../../stores/config';
-	import { connection } from '../../stores/connection';
+	import { connection, getUpgradeURL } from '../../stores/connection';
 	import { recordBoostEvent } from '../../utils/analytics';
-	import { getUpgradeURL } from '../../utils/connection';
 
 	$: pricing = $config.pricing;
 

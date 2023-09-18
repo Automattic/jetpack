@@ -7,10 +7,10 @@
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import Footer from '../../sections/Footer.svelte';
 	import config from '../../stores/config';
+	import { getUpgradeURL } from '../../stores/connection';
 	import Logo from '../../svg/jetpack-green.svg';
 	import JetpackBoostLogo from '../../svg/logo.svg';
 	import { recordBoostEvent } from '../../utils/analytics';
-	import { getUpgradeURL } from '../../utils/connection';
 
 	async function goToCheckout() {
 		const eventProps = {};
