@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CSV Importer: Fixed assignment to companies by name

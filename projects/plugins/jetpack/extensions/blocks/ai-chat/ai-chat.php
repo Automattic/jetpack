@@ -57,6 +57,7 @@ function load_assets( $attr ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$ask_button_label = isset( $attr['askButtonLabel'] ) ? $attr['askButtonLabel'] : __( 'Ask', 'jetpack' );
+	$placeholder      = isset( $attr['placeholder'] ) ? $attr['placeholder'] : __( 'Ask a question about this site.', 'jetpack' );
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$blog_id = get_current_blog_id();
@@ -67,10 +68,11 @@ function load_assets( $attr ) {
 	}
 
 	return sprintf(
-		'<div class="%1$s" data-ask-button-label="%2$s" id="jetpack-ai-chat" data-blog-id="%3$d" data-blog-type="%4$s"></div>',
+		'<div class="%1$s" data-ask-button-label="%2$s" id="jetpack-ai-chat" data-blog-id="%3$d" data-blog-type="%4$s" data-placeholder="%5$s"></div>',
 		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		esc_attr( $ask_button_label ),
 		esc_attr( $blog_id ),
-		esc_attr( $type )
+		esc_attr( $type ),
+		esc_attr( $placeholder )
 	);
 }
