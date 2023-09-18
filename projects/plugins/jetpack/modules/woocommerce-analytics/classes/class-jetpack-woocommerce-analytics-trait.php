@@ -225,33 +225,27 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		return $info;
 	}
 
-		/**
-		 * Search a specific post for text content.
-		 *
-		 * Note: similar code is in a WooCommerce core PR:
-		 * https://github.com/woocommerce/woocommerce/pull/25932
-		 *
-		 * @param integer $post_id The id of the post to search.
-		 * @param string  $text    The text to search for.
-		 * @return integer 1 if post contains $text (otherwise 0).
-		 */
+	/**
+	 * Search a specific post for text content.
+	 *
+	 * @param integer $post_id The id of the post to search.
+	 * @param string  $text    The text to search for.
+	 * @return integer 1 if post contains $text (otherwise 0).
+	 */
 	public function post_contains_text( $post_id, $text ) {
-		global $wpdb;
+		// Get the post object by post ID.
+		$post = get_post( $post_id );
 
-		// Search for the text anywhere in the post.
-		$wildcarded = "%{$text}%";
+		// If the post doesn't exist or doesn't have content, return 0.
+		if ( ! $post || ! isset( $post->post_content ) ) {
+			return 0;
+		}
 
-		$result = $wpdb->get_var(
-			$wpdb->prepare(
-				"
-				SELECT COUNT( * ) FROM {$wpdb->prefix}posts
-				WHERE ID=%d
-				AND {$wpdb->prefix}posts.post_content LIKE %s
-				",
-				array( $post_id, $wildcarded )
-			)
-		);
+		// Use PHP's native string search functions to look for the text.
+		if ( strpos( $post->post_content, $text ) !== false ) {
+			return 1;
+		}
 
-		return ( '0' !== $result ) ? 1 : 0;
+		return 0;
 	}
 }
