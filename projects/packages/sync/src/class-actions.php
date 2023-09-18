@@ -11,6 +11,8 @@ use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Sync\Modules\WooCommerce_HPOS_Orders;
+use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
 use WP_Error;
 
 /**
@@ -744,6 +746,14 @@ class Actions {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_sync_module' ) );
+
+		if ( ! class_exists( CustomOrdersTableController::class ) ) {
+			return;
+		}
+		$cot_controller = wc_get_container()->get( CustomOrdersTableController::class );
+		if ( $cot_controller->custom_orders_table_usage_is_enabled() ) {
+			add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_hpos_order_sync_module' ) );
+		}
 	}
 
 	/**
@@ -787,6 +797,21 @@ class Actions {
 	 */
 	public static function add_woocommerce_sync_module( $sync_modules ) {
 		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\WooCommerce';
+		return $sync_modules;
+	}
+
+	/**
+	 * Adds Woo's HPOS sync modules to existing modules for sending.
+	 *
+	 * @param array $sync_modules The list of sync modules declared prior to this filter.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array A list of sync modules that now includes Woo's HPOS modules.
+	 */
+	public static function add_woocommerce_hpos_order_sync_module( $sync_modules ) {
+		$sync_modules[] = WooCommerce_HPOS_Orders::class;
 		return $sync_modules;
 	}
 
