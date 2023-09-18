@@ -164,9 +164,9 @@ export default function RelatedPostsEdit( props ) {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( name );
 	// They can also be toggled via an option on WordPress.com Simple.
-	const { isEnabled, enable, loading } = useRelatedPostsStatus();
+	const { isEnabled, enable, isFetchingStatus, isUpdatingStatus } = useRelatedPostsStatus();
 
-	const isChangingRelatedPostsStatus = isChangingStatus || loading;
+	const isChangingRelatedPostsStatus = isChangingStatus || isUpdatingStatus;
 
 	const { posts, isInSiteEditor } = useSelect( select => {
 		const currentPost = select( editorStore ).getCurrentPost();
@@ -179,7 +179,7 @@ export default function RelatedPostsEdit( props ) {
 	const { instanceId } = useInstanceId( RelatedPostsEdit );
 	const { attributes, className, setAttributes } = props;
 
-	if ( isLoadingModules ) {
+	if ( isLoadingModules || isFetchingStatus ) {
 		return <RelatedPostsSkeletonLoader />;
 	}
 

@@ -116,7 +116,8 @@ beforeEach( () => {
 	useRelatedPostsStatus.mockReturnValue( {
 		isEnabled: true,
 		enable: jest.fn(),
-		loading: false,
+		isFetchingStatus: false,
+		isUpdatingStatus: false,
 	} );
 } );
 

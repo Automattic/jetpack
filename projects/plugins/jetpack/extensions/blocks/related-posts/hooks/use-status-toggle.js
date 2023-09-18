@@ -35,32 +35,33 @@ async function enableRelatedPosts() {
 }
 
 const useRelatedPostsStatus = () => {
+	const [ isFetchingStatus, setisFetchingStatus ] = useState( false );
+	const [ isUpdatingStatus, setIsUpdatingStatus ] = useState( false );
 	const [ isEnabled, setIsEnabled ] = useState( false );
-	const [ loading, setLoading ] = useState( true );
 
 	useEffect( () => {
-		setLoading( false );
+		setisFetchingStatus( true );
 
 		fetchRelatedPostsStatus()
 			.then( status => {
 				setIsEnabled( status );
-				setLoading( false );
+				setisFetchingStatus( false );
 			} )
 			.catch( () => {
-				setLoading( false );
+				setisFetchingStatus( false );
 			} );
 	}, [] );
 
 	const enable = useCallback( () => {
-		setLoading( true );
+		setIsUpdatingStatus( true );
 
 		enableRelatedPosts()
 			.then( status => {
 				setIsEnabled( status );
-				setLoading( false );
+				setIsUpdatingStatus( false );
 			} )
 			.catch( () => {
-				setLoading( false );
+				setIsUpdatingStatus( false );
 			} );
 	}, [] );
 
@@ -68,9 +69,10 @@ const useRelatedPostsStatus = () => {
 		() => ( {
 			isEnabled,
 			enable,
-			loading,
+			isFetchingStatus,
+			isUpdatingStatus,
 		} ),
-		[ isEnabled, enable, loading ]
+		[ isEnabled, enable, isFetchingStatus, isUpdatingStatus ]
 	);
 };
 
