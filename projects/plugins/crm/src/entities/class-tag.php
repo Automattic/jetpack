@@ -16,14 +16,14 @@ class Tag {
 	 *
 	 * @var int
 	 */
-	protected $id = -1;
+	public $id = -1;
 
 	/**
 	 * The object type of the tag.
 	 *
 	 * @var int
 	 */
-	protected $obj_type_id = -1;
+	public $obj_type_id = -1;
 
 	/**
 	 * The user-friendly label of the tag.
