@@ -61,6 +61,17 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 		startDate = Math.min( periods[ 0 ].timestamp, dayBeforeEndDate );
 	}
 
+	// Add a fake period before the start date to make the chart look better
+	if ( periods.length > 0 ) {
+		periods = [
+			{
+				timestamp: periods[ 0 ].timestamp - 24 * 60 * 60 * 1000,
+				dimensions: periods[ 0 ].dimensions,
+			},
+			...periods,
+		];
+	}
+
 	return (
 		<div className="jb-score-graph">
 			{ title && <Text variant="title-medium">{ title }</Text> }
