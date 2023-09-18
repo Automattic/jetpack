@@ -2,7 +2,6 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { getIconColor } from '../../shared/block-icons';
-import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
 import './editor.scss';
@@ -73,7 +72,6 @@ export const settings = {
 			</div>
 		);
 	},
-	attributes,
 	example: {
 		attributes: {
 			// @TODO: Add default values for block attributes, for generating the block preview.
