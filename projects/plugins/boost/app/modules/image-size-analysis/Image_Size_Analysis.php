@@ -65,11 +65,10 @@ class Image_Size_Analysis implements Pluggable, Has_Endpoints, Is_Always_On {
 			'post_parent'    => $post_id,
 			'posts_per_page' => -1,
 		);
-		$fix_posts = new \WP_Query( $args );
-		if ( $fix_posts->have_posts() ) {
-			while ( $fix_posts->have_posts() ) {
-				$fix_posts->the_post();
-				$fixes[ $post_id ][ $fix_posts->the_title() ] = json_decode( $fix_posts->the_content() );
+		$fix_posts = get_posts( $args );
+		if ( is_array( $fix_posts ) && ! empty( $fix_posts ) ) {
+			foreach ( $fix_posts as $fix_post ) {
+				$fixes[ $post_id ][ $fix_post->post_title ] = json_decode( $fix_post->post_content, true );
 			}
 			return $fixes[ $post_id ];
 		}
