@@ -19,25 +19,37 @@ function onClick( event: React.MouseEvent< HTMLAnchorElement > ) {
 	}
 }
 
-export const ShareButtons: React.FC = () => {
+export type ShareButtonsProps = {
+	buttonStyle?: 'icon' | 'text' | 'icon-text';
+	buttonVariant?: React.ComponentProps< typeof Button >[ 'variant' ];
+};
+
+export const ShareButtons: React.FC< ShareButtonsProps > = ( {
+	buttonStyle = 'icon-text',
+	buttonVariant = 'secondary',
+} ) => {
 	const prepareUrl = usePrepareUrl();
 	return (
 		<div className={ styles[ 'share-buttons' ] }>
 			{ availableNetworks.map( ( { label, networkName, url } ) => {
 				const href = prepareUrl( url );
 
+				const icon =
+					'text' !== buttonStyle ? <SocialServiceIcon serviceName={ networkName } /> : null;
+
 				return (
 					<Button
 						key={ networkName }
-						icon={ <SocialServiceIcon serviceName={ networkName } /> }
-						variant="secondary"
+						icon={ icon }
+						variant={ buttonVariant }
+						aria-label={ label }
 						href={ href }
 						target="_blank"
 						rel="noopener noreferrer"
 						onClick={ onClick }
 						data-network={ networkName }
 					>
-						{ label }
+						{ 'icon' !== buttonStyle ? label : null }
 					</Button>
 				);
 			} ) }
