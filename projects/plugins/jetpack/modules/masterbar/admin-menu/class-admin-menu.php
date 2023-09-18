@@ -110,8 +110,8 @@ class Admin_Menu extends Base_Admin_Menu {
 	/**
 	 * Adds Inbox menu.
 	 */
-	public function add_inbox_menu() {
-		add_menu_page( __( 'Inbox', 'jetpack' ), __( 'Inbox', 'jetpack' ), 'manage_options', 'https://wordpress.com/inbox/' . $this->domain, null, 'dashicons-email', '4.64424' );
+	public function add_my_mailboxes_menu() {
+		add_menu_page( __( 'My Mailboxes', 'jetpack' ), __( 'My Mailboxes', 'jetpack' ), 'manage_options', 'https://wordpress.com/mailboxes/' . $this->domain, null, 'dashicons-email', '4.64424' );
 	}
 
 	/**
