@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { derived, writable } from 'svelte/store';
 	import { Snackbar } from '@wordpress/components';
 	import ActivateLicense from '../../elements/ActivateLicense.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
@@ -18,19 +17,12 @@
 
 	let initiatingFreePlan = false;
 	let initiatingPaidPlan = false;
-	const dismissedSnackbar = writable( false );
 
-	const snackbarMessage = derived(
-		[ connection, dismissedSnackbar ],
-		( [ $connection, $dismissedSnackbar ] ) => {
-			if ( ! $dismissedSnackbar && ! $connection.connected && $connection.error?.message ) {
-				return $connection.error.message;
-			}
-
-			return null;
-		}
-	);
-
+	let snackbarDismissed = false;
+	let snackbarMessage: string;
+	$: if ( snackbarDismissed && ! $connection.connected && $connection.error?.message ) {
+		snackbarMessage = $connection.error.message;
+	}
 	/**
 	 * Mark that getting started is completed, and head to the next page.
 	 *
@@ -63,7 +55,7 @@
 			finishGettingStarted();
 		} catch ( e ) {
 			// Un-dismiss snackbar on error. Actual error comes from connection object.
-			dismissedSnackbar.set( false );
+			snackbarDismissed = false;
 		} finally {
 			initiatingFreePlan = false;
 		}
@@ -92,7 +84,7 @@
 			finishGettingStarted( getUpgradeURL() );
 		} catch ( e ) {
 			// Un-dismiss snackbar on error. Actual error comes from connection object.
-			dismissedSnackbar.set( false );
+			snackbarDismissed = false;
 		} finally {
 			initiatingPaidPlan = false;
 		}
@@ -115,11 +107,11 @@
 					chosenFreePlan={initiatingFreePlan}
 					chosenPaidPlan={initiatingPaidPlan}
 				/>
-				{#if $snackbarMessage}
+				{#if snackbarMessage && ! snackbarDismissed}
 					<ReactComponent
 						this={Snackbar}
-						children={$snackbarMessage}
-						onDismiss={() => dismissedSnackbar.set( true )}
+						children={snackbarMessage}
+						onDismiss={() => ( snackbarDismissed = true )}
 					/>
 				{/if}
 			</div>
