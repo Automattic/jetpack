@@ -45,28 +45,21 @@
 		return pagination;
 	}
 
-	function nextPage() {
-		if ( current < total ) {
-			current += 1;
-		}
-	}
-
-	function previousPage() {
-		if ( current > 1 ) {
-			current -= 1;
-		}
-	}
-
 	$: pages = generatePagination( current, total );
+	$: nextPage = current + 1;
+	$: previousPage = current - 1;
 </script>
 
 <div class="jb-pagination">
 	{#if total > 1}
-		<button class="jb-chevron" class:inactive={current === 1} on:click={previousPage}>
-			<ChevronLeft />
-		</button>
-
 		<ul>
+			{#if current > 1}
+				<li>
+					<Link to="/image-size-analysis/{group}/{previousPage}">
+						<ChevronLeft />
+					</Link>
+				</li>
+			{/if}
 			{#each pages as page}
 				<li>
 					{#if page === MORE_ICON}
@@ -81,15 +74,14 @@
 					{/if}
 				</li>
 			{/each}
+			{#if current < total}
+				<li>
+					<Link to="/image-size-analysis/{group}/{nextPage}">
+						<ChevronRight />
+					</Link>
+				</li>
+			{/if}
 		</ul>
-
-		<button
-			class="jb-chevron"
-			class:jb-pagination__inactive={current === total}
-			on:click={nextPage}
-		>
-			<ChevronRight />
-		</button>
 	{/if}
 </div>
 
@@ -108,7 +100,6 @@
 		margin: 0;
 	}
 
-	button,
 	.jb-pagination__page,
 	.jb-pagination :global( a ) {
 		background-color: transparent;
