@@ -82,5 +82,4 @@ class Nonce implements Permission {
 	public static function get_generated_nonces() {
 		return static::$saved_nonces;
 	}
-
 }

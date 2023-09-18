@@ -130,6 +130,7 @@ export type ToneProp = ( typeof PROMPT_TONES_LIST )[ number ];
 type ToneToolbarDropdownMenuProps = {
 	value?: ToneProp;
 	onChange: ( value: ToneProp ) => void;
+	label?: string;
 };
 
 const ToneMenuGroup = ( { value, onChange }: ToneToolbarDropdownMenuProps ) => (
@@ -149,13 +150,14 @@ const ToneMenuGroup = ( { value, onChange }: ToneToolbarDropdownMenuProps ) => (
 );
 
 export function ToneDropdownMenu( {
+	label = __( 'Change tone', 'jetpack' ),
 	value = DEFAULT_PROMPT_TONE,
 	onChange,
 }: ToneToolbarDropdownMenuProps ) {
 	return (
 		<DropdownMenu
 			icon={ speakToneIcon }
-			label={ __( 'Change tone', 'jetpack' ) }
+			label={ label }
 			className="ai-assistant__tone-dropdown"
 			popoverProps={ {
 				variant: 'toolbar',
@@ -163,15 +165,21 @@ export function ToneDropdownMenu( {
 			toggleProps={ {
 				children: (
 					<>
-						<div className="ai-assistant__tone-dropdown__toggle-label">
-							{ __( 'Change tone', 'jetpack' ) }
-						</div>
+						<div className="ai-assistant__tone-dropdown__toggle-label">{ label }</div>
 						<Icon icon={ chevronRight } />
 					</>
 				),
 			} }
 		>
-			{ () => <ToneMenuGroup value={ value } onChange={ onChange } /> }
+			{ ( { onClose } ) => (
+				<ToneMenuGroup
+					value={ value }
+					onChange={ newTone => {
+						onChange( newTone );
+						onClose();
+					} }
+				/>
+			) }
 		</DropdownMenu>
 	);
 }

@@ -889,5 +889,4 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 			'description'  => '',
 		);
 	}
-
 }

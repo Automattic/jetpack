@@ -102,6 +102,7 @@ export class MeasurableImage {
 	 * by reading the Content-Length header.
 	 *
 	 * @param {string} url -  string The URL of the image.
+	 * @returns {number} Weight.
 	 */
 	private async fetchFileWeight( url: string ) {
 		const response = await this.fetch( url );
@@ -119,6 +120,7 @@ export class MeasurableImage {
 	 * This creates a new image element and loads the image.
 	 *
 	 * @param {string} url -  image url
+	 * @returns {object} dimensions File dimensions.
 	 */
 	private async fetchFileDimensions( url: string ) {
 		const img = new Image();

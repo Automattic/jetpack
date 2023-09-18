@@ -554,5 +554,4 @@ abstract class Product {
 			}
 		}
 	}
-
 }

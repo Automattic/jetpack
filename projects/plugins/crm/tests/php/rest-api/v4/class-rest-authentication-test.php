@@ -73,5 +73,4 @@ class REST_Authentication_Test extends REST_Base_Test_Case {
 		$this->assertSame( 403, $response->get_status() );
 		$this->assertSame( 'rest_cannot_view', $response->get_data()['code'] );
 	}
-
 }

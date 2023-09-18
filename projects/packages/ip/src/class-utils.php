@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\IP;
  */
 class Utils {
 
-	const PACKAGE_VERSION = '0.1.5';
+	const PACKAGE_VERSION = '0.1.6-alpha';
 
 	/**
 	 * Get the current user's IP address.
@@ -242,5 +242,4 @@ class Utils {
 
 		return true;
 	}
-
 }

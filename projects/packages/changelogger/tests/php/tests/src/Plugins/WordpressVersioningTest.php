@@ -566,5 +566,4 @@ class WordpressVersioningTest extends TestCase {
 			),
 		);
 	}
-
 }

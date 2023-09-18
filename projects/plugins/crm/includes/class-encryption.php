@@ -263,5 +263,4 @@ class Encryption {
 	public function hash( $str ) {
 		return hash_hmac( 'sha256', $str, 'jpcrm' );
 	}
-
 }

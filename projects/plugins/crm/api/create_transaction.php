@@ -262,5 +262,3 @@ if ( isset( $new_trans['rate'] ) ) {
 		}
 
 		exit();
-
-

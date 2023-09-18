@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\A8c_Mc_Stats as A8c_Mc_Stats;
+use Automattic\Jetpack\A8c_Mc_Stats;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Roles;

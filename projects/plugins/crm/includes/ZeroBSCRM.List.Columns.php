@@ -519,26 +519,22 @@
       ======================== Invoice filters
       ===================================================================================================== */
 
-    global $zeroBSCRM_filterbuttons_invoice;
+		global $zeroBSCRM_filterbuttons_invoice; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-    $zeroBSCRM_filterbuttons_invoice['default'] = array(
+		$zeroBSCRM_filterbuttons_invoice['default'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			'status_draft'   => array( __( 'Draft', 'zero-bs-crm' ) ),
+			'status_unpaid'  => array( __( 'Unpaid', 'zero-bs-crm' ) ),
+			'status_paid'    => array( __( 'Paid', 'zero-bs-crm' ) ),
+			'status_overdue' => array( __( 'Overdue', 'zero-bs-crm' ) ),
+		);
 
-              'status_draft'    => array( __( 'Draft', 'zero-bs-crm' ) ),
-              'status_unpaid'   => array( __( 'Unpaid', 'zero-bs-crm' ) ),
-              'status_paid'     => array( __( 'Paid', 'zero-bs-crm' ) ),
-              'status_overdue'  => array( __( 'Overdue', 'zero-bs-crm' ) )
-
-      );
-
-    $zeroBSCRM_filterbuttons_invoice['all'] = array(
-
-              'status_draft'    => array( __( 'Draft', 'zero-bs-crm' ) ),
-              'status_unpaid'   => array( __( 'Unpaid', 'zero-bs-crm' ) ),
-              'status_paid'     => array( __( 'Paid', 'zero-bs-crm' ) ),
-              'status_overdue'  => array( __( 'Overdue', 'zero-bs-crm' ) ),
-              'status_deleted'  => array( __( 'Overdue', 'zero-bs-crm' ) )
-
-      );
+		$zeroBSCRM_filterbuttons_invoice['all'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			'status_draft'   => array( __( 'Draft', 'zero-bs-crm' ) ),
+			'status_unpaid'  => array( __( 'Unpaid', 'zero-bs-crm' ) ),
+			'status_paid'    => array( __( 'Paid', 'zero-bs-crm' ) ),
+			'status_overdue' => array( __( 'Overdue', 'zero-bs-crm' ) ),
+			'status_deleted' => array( __( 'Deleted', 'zero-bs-crm' ) ),
+		);
 
 
    /* ======================================================================================================

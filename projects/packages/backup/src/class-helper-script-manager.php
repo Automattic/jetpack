@@ -380,5 +380,4 @@ class Helper_Script_Manager {
 
 		return $wp_filesystem;
 	}
-
 }
