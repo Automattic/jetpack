@@ -4,7 +4,7 @@ import './style.scss';
 export default function BlogrollAppenderResults( { results, showPlaceholder, onSelect } ) {
 	return (
 		<div className="jetpack-blogroll__appender-results">
-			{ showPlaceholder && <span>{ __( 'Suggestions', 'jetpack' ) }</span> }
+			{ showPlaceholder && <div>{ __( 'Suggestions', 'jetpack' ) }</div> }
 
 			<ul aria-live="polite">
 				{ results.map( result => (
