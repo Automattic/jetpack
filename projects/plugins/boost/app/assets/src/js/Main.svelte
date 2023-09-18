@@ -4,6 +4,7 @@
 	import GettingStarted from './pages/getting-started/GettingStarted.svelte';
 	import PurchaseSuccess from './pages/purchase-success/PurchaseSuccess.svelte';
 	import Settings from './pages/settings/Settings.svelte';
+	import config from './stores/config';
 	import { modulesState } from './stores/modules';
 	import { recordBoostEvent } from './utils/analytics';
 	import debounce from './utils/debounce';
@@ -26,7 +27,9 @@
 </script>
 
 <Router history={routerHistory}>
-	<Route path="upgrade" component={BenefitsInterstitial} />
+	<Route path="upgrade" let:location let:navigate>
+		<BenefitsInterstitial {location} {navigate} pricing={$config.pricing} />
+	</Route>
 	<Route path="purchase-successful" let:location let:navigate>
 		<PurchaseSuccess {location} {navigate} isImageGuideActive={$modulesState.image_guide.active} />
 	</Route>
