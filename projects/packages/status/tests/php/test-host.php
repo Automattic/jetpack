@@ -145,5 +145,4 @@ class Test_Host extends TestCase {
 			'default'     => array( '' ),
 		);
 	}
-
 }

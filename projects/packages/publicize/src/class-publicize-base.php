@@ -1427,6 +1427,11 @@ abstract class Publicize_Base {
 
 		$labels = array();
 		foreach ( $services as $service_name => $display_names ) {
+			// Twitter connections do not trigger Publicize anymore. Skip.
+			if ( 'Twitter' === $service_name ) {
+				continue;
+			}
+
 			$labels[] = sprintf(
 				/* translators: Service name is %1$s, and account name is %2$s. */
 				esc_html__( '%1$s (%2$s)', 'jetpack-publicize-pkg' ),
@@ -1436,7 +1441,7 @@ abstract class Publicize_Base {
 		}
 
 		$messages['post'][6] = sprintf(
-			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack) */
 			esc_html__( 'Post published and sharing on %1$s.', 'jetpack-publicize-pkg' ),
 			implode( ', ', $labels )
 		) . $view_post_link_html;
@@ -1445,7 +1450,7 @@ abstract class Publicize_Base {
 			$subscription = \Jetpack_Subscriptions::init();
 			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
 				$messages['post'][6] = sprintf(
-					/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+					/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack) */
 					esc_html__( 'Post published, sending emails to subscribers and sharing post on %1$s.', 'jetpack-publicize-pkg' ),
 					implode( ', ', $labels )
 				) . $view_post_link_html;
@@ -1453,7 +1458,7 @@ abstract class Publicize_Base {
 		}
 
 		$messages['jetpack-portfolio'][6] = sprintf(
-			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack) */
 			esc_html__( 'Project published and sharing project on %1$s.', 'jetpack-publicize-pkg' ),
 			implode( ', ', $labels )
 		) . $view_post_link_html;

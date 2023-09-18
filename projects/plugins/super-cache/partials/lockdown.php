@@ -1,3 +1,4 @@
+<div class="wpsc-card">
 <a name='lockdown'></a>
 	<fieldset class="options">
 	<h4><?php _e( 'Lock Down:', 'wp-super-cache' ); ?> <?php echo $wp_lock_down == '0' ? '<span style="color:red">' . __( 'Disabled', 'wp-super-cache' ) . '</span>' : '<span style="color:green">' . __( 'Enabled', 'wp-super-cache' ) . '</span>'; ?></h4>
@@ -77,3 +78,4 @@ echo '</form>';
 	</fieldset>
 <?php
 } // if $super_cache_enabled
+echo '</div>';

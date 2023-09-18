@@ -36,6 +36,7 @@ const noop = () => {};
  * @param {boolean} props.isTransparent    - Whether the component has low opacity
  * @param {string} props.state             - The request state
  * @param {boolean} props.showClearButton  - Whether to show the clear button when the input has a value
+ * @param {boolean} props.showGuideLine    - WHether to show the guideline message
  * @param {Function} props.onChange        - Input change handler
  * @param {Function} props.onSend          - Request send handler
  * @param {Function} props.onStop          - Request stop handler
@@ -54,6 +55,7 @@ export function AIControl(
 		isTransparent = false,
 		state = 'init',
 		showClearButton = true,
+		showGuideLine = false,
 		onChange = noop,
 		onSend = noop,
 		onStop = noop,
@@ -68,6 +70,7 @@ export function AIControl(
 		isTransparent?: boolean;
 		state?: RequestingStateProp;
 		showClearButton?: boolean;
+		showGuideLine?: boolean;
 		onChange?: ( newValue: string ) => void;
 		onSend?: ( currentValue: string ) => void;
 		onStop?: () => void;
@@ -77,7 +80,6 @@ export function AIControl(
 ) {
 	const promptUserInputRef = useRef( null );
 	const loading = state === 'requesting' || state === 'suggesting';
-	const showGuideLine = ! ( loading || disabled || value?.length || isTransparent );
 
 	// Pass the ref to forwardRef.
 	useImperativeHandle( ref, () => promptUserInputRef.current );

@@ -552,5 +552,4 @@ class Automation_Engine {
 	public function get_registered_triggers(): array {
 		return $this->triggers_map;
 	}
-
 }

@@ -293,84 +293,32 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.5 - 2023-08-23
+### 12.6-a.5 - 2023-09-11
+
 #### Enhancements
-- Added SIG modal ui
-- Add Inspector Panel with Newsletter visibility options to Paywall Block
-- AI Assistant: Add requirement for one button in forms
-- AI Assistant: Auto open AI control in form assistant
-- AI Assistant: change tracked event to English instead of translated value and track language and tone change
-- AI Assistant: disable feedback button if post is empty
-- AI Assistant: Fix form popover after changing viewport
-- AI Assistant: fix grammar and typos on Proofread feature
-- AI Assistant: Fix incomplete HTML tags and allow columns on forms
-- AI Assistant: Render response from the AI
-- AI Assistant: tweaks assistant bar in narrow spaces
-- AI Assistant: various backend improvements.
-- AI Assistant: various stylistic and back-end enhancements to the Jetpack AI Assistant.
-- AI Extension: allow AI response generation to be stopped.
-- AI Extension: Connect AI Control component on popover placement.
-- AI Extension: Connect AI Data context with components
-- AI Extension: fix AI Assistant bar position in the Top toolbar mode.
-- AI Extension: fix visual issue in Assistant bar when switching viewport size. [#32344]
-- AI Extension: handle AI assistant component in mobile
-- AI Extension: Improve undo action behavior by controlling the way received valid blocks are rendered.
-- AI Extension: increase the page height when AI Assistant bar is visible
-- AI Extension: Introduce AI Assistant bar.
-- AI Extension: launch Jetpack AI support for Form blocks.
-- AI Extension: relocate the Assistant component for the Jetpack From block
-- AI Extension: select Form when selecting child block
-- AI Extension: Send custom feature name for requesting form completions so they can be handled differently on the backend.
-- AI Extension: show AiStatusIndicator into the assistant bar
-- AI Extension: show a Notice when AI needs to provide feedback
-- AI Extension: stop suggestion when form block is deleted
-- AI Extension: Update placeholder copyright
-- AI Extension: update view of AI assistant bar on mobile.
-- AI Extension: use assistant to edit Jetpack Format content
-- AI Extension: various improvements AI Assistant, update styles, and bug fixes.
-- AI Plugin: Add track for get feedback feature
-- Better Paywall Block styles
-- Block editor: add Google Photo integration to Gutenberg's Media Sidebar for Jetpack connected sites.
-- Dashboard: add Social Image Generator options to Jetpack Social settings.
-- Dashboard: make My Jetpack the default WP-Admin page for Jetpack.
-- Dashboard: update the likes and sharing button controls in the Jetpack sidebar from checkboxes to toggles.
-- Dashboard: update the SEO hide page control from a checkbox to a toggle.
-- Donation block: display the default Stripe currency in the Donation block and add a "check" icon next to the selected currency in the currency dropdown
-- Fix small regression on Newsletter panels
-- Jetpack editor extensions: use shared component for the logo.
-- Mailchimp block: allow transforming to subscribe block.
-- Make 'My Jetpack' the first sub-menu item, above 'Dashboard'.
-- Memberships: Ensure endpoint handles source param
-- Newsletter: move Newsletter settings to their own section.
-- Newsletters: update the appearance of "subscribers only" and "paid subscribers only" content wall
-- Paywall Block: add a notice explaining what the Paywall block does in relationship to newsletters.
-- Paywall block: add transforms for "more" and "nextpage" core blocks.
-- Paywall Block: improve paywall rendering on emails.
-- Paywall block: update the block styles.
-- Paywall block: various improvements to UX and styles.
-- paywall dynamic copy
-- Social: update social connection toggles to be button switches.
-- SSO: enable "Match by Email" by default.
-- Subscribe Modal: make subscribe modal editable.
-- Subscription modal: adjust modal template markup and styles for easier modification and mobile friendliness.
-- Subscriptions: add a Subscribers menu to the Jetpack dashboard navigation.
-- Subscriptions: a membership product can be created without a prior connected account
+
+- AI-chat block: add ability to chat with the site.
+- AI Excerpt: add the Discard button to the panel.
+- AI Excerpt: add the Accept button.
+- AI Excerpt: ensure to save the post before asking a suggestion.
+- AI Excerpt: show upgrade banner when site achieves requests limit.
+- Content Lens: connect excerpt panel with AI Assistant.
+- Create with voice: show audio duration when recording audio.
+- Newsletter: add support for newsletter categories.
+- Paywall Block: improve excerpts handling.
+- Social: add the change setting for the auto conversion feature.
 
 #### Improved compatibility
-- Blocks: add block.json metadata.
-- Infinite Scroll: avoid PHP notices when using the latest version of WordPress, 6.3.
+
+- General: remove WP 6.1 backwards compatibility checks.
 
 #### Bug fixes
-- Add subscribe button on premium content block on self-hosted
-- AI Extension: fix visual issue of AI toolbar when editor sidebar is opened
-- AI Extension: Stop handling popover close event to prevent the AI Control from hiding when it loses focus.
-- Blocks: ensure the Markdown and Repeat Visitor blocks use clear contrasting colors when using a dark theme.
-- Dashboard: do not allow toggling the Subscriptions feature on or off when not connected to Jetpack.
-- Donation block: fix issue where an invalid amount entered would persist when switching tabs in the block editor.
-- Publicize: prevent metadata updates for published posts
-- Shortcode embeds: avoid errors when a request to Flickr fails.
-- Social: Fix race condition in mobile app's post request
-- Subscriptions: adds more accurate check for when to show the subscribe modal
+
+- Allow two year plans to show on the My Plan page.
+- Fix cookie consent block positioning in the editor.
+- Fix an issue that caused the notice displayed when updating widgets to overlap the admin menu.
+- Revert change where newsletter plans could not be used on Premium content.
+- Subscriptions: hide modal if post is subscribers-only.
 
 --------
 

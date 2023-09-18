@@ -1105,5 +1105,4 @@ class AssetsTest extends TestCase {
 			),
 		);
 	}
-
 }

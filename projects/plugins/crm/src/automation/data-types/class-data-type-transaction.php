@@ -117,5 +117,4 @@ class Data_Type_Transaction extends Data_Type_Base {
 
 		return $new_entity;
 	}
-
 }

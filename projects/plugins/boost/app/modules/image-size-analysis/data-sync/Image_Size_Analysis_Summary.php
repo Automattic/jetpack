@@ -30,4 +30,3 @@ class Image_Size_Analysis_Summary implements Lazy_Entry, Entry_Can_Get {
 		return $report;
 	}
 }
-

@@ -166,5 +166,4 @@ class Test_Social_Product extends TestCase {
 		activate_plugins( Social::get_installed_plugin_filename() );
 		$this->assertSame( admin_url( 'admin.php?page=jetpack-social' ), Social::get_post_activation_url() );
 	}
-
 }

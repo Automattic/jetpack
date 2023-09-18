@@ -466,5 +466,4 @@ class Full_Sync_Immediately extends Module {
 	 * @param array $actions an array of actions, ignored for queueless sync.
 	 */
 	public function update_sent_progress_action( $actions ) { } // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
 }

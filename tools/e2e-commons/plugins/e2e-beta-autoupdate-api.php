@@ -78,7 +78,6 @@ class E2eJetpackBetaAutoupdateApi {
 		}
 		return true;
 	}
-
 }
 
 new E2eJetpackBetaAutoupdateApi();

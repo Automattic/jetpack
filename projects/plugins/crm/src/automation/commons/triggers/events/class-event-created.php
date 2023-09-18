@@ -82,5 +82,4 @@ class Event_Created extends Base_Trigger {
 			array( $this, 'execute_workflow' )
 		);
 	}
-
 }

@@ -310,5 +310,4 @@ class Terms extends Module {
 	public function expand_terms_for_relationship( $relationship ) {
 		return get_term_by( 'term_taxonomy_id', $relationship->term_taxonomy_id );
 	}
-
 }
