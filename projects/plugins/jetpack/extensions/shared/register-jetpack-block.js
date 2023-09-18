@@ -70,7 +70,6 @@ export default function registerJetpackBlock( name, settings, childBlocks = [], 
  */
 export function registerJetpackBlockFromMetadata( metadata, settings, childBlocks, prefix ) {
 	const clientSettings = {
-		...metadata,
 		...settings,
 		icon: getBlockIconProp( metadata ),
 	};
