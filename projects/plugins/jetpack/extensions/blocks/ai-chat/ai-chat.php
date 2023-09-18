@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Extensions\AIChat;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
+use Automattic\Jetpack\Search\Plan as Search_Plan;
 use Jetpack_Gutenberg;
 
 /**
@@ -55,8 +56,6 @@ function load_assets( $attr ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
-	add_action( 'enqueue_block_assets', __NAMESPACE__ . '\add_ai_chat_options' );
-
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$ask_button_label = isset( $attr['askButtonLabel'] ) ? $attr['askButtonLabel'] : __( 'Ask', 'jetpack' );
@@ -83,12 +82,14 @@ function load_assets( $attr ) {
 /**
  * Add the initial state for the AI Chat block.
  */
-function add_ai_chat_options() {
+function add_ai_chat_block_data() {
 	$search        = new Search_Module_Control();
+	$plan          = new Search_Plan();
 	$initial_state = array(
 		'jetpackSettings' => array(
 			'search_module_active'   => $search->is_active(),
 			'instant_search_enabled' => $search->is_instant_search_enabled(),
+			'plan_supports_search'   => $plan->supports_instant_search(),
 		),
 	);
 	wp_add_inline_script(
@@ -97,3 +98,4 @@ function add_ai_chat_options() {
 		'before'
 	);
 }
+add_action( 'enqueue_block_assets', __NAMESPACE__ . '\add_ai_chat_block_data' );
