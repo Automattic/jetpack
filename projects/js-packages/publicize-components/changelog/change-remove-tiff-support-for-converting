@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Removed TIFF support for now as we cannot display it correctly
