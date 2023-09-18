@@ -14,14 +14,15 @@ export function usePrepareUrl() {
 		) => unknown;
 	}, [] );
 
+	// TODO update this to use custom message
+	const title =
+		getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title || getEditedPostAttribute( 'title' );
+	const link = getEditedPostAttribute( 'link' );
+
 	return useCallback(
 		( urlWithPlaceholders: string ) => {
-			// TODO update this to use custom message
-			let text =
-				getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title ||
-				getEditedPostAttribute( 'title' );
-			let url = getEditedPostAttribute( 'link' );
-
+			let text = title;
+			let url = link;
 			// If the URL placeholder is missing, add the URL to the text.
 			if ( ! urlWithPlaceholders.includes( '{{url}}' ) ) {
 				text = text + '\n\n' + url;
@@ -32,6 +33,6 @@ export function usePrepareUrl() {
 				.replace( '{{text}}', encodeURIComponent( text ) )
 				.replace( '{{url}}', encodeURIComponent( url ) );
 		},
-		[ getEditedPostAttribute ]
+		[ link, title ]
 	);
 }
