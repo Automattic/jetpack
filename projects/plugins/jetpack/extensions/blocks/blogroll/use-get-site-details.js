@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
-import { getSiteIcon, checkIfValidDomain } from './utils';
+import { getSiteIcon, getValidDomain } from './utils';
 
 const cache = {};
 
@@ -9,48 +9,47 @@ export default function useGetSiteDetails( siteURL, subscriptions, enabled = fal
 	const [ errorMessage, setErrorMessage ] = useState( null );
 	const [ siteDetails, setSiteDetails ] = useState( subscriptions ?? [] );
 	const abortControllerRef = useRef();
+	const fetchSiteDetails = useCallback( async () => {
+		const validDomain = getValidDomain( siteURL );
 
-	const fetchSiteDetails = useCallback(
-		async () =>
-			await fetch(
-				addQueryArgs(
-					'https://public-api.wordpress.com/rest/v1.1/sites/' + encodeURIComponent( siteURL ),
-					{ force: 'wpcom' }
-				)
+		await fetch(
+			addQueryArgs(
+				'https://public-api.wordpress.com/rest/v1.1/sites/' + encodeURIComponent( validDomain ),
+				{ force: 'wpcom' }
 			)
-				.then( response => {
-					if ( ! response.ok ) {
-						setSiteDetails( [] );
-						cache[ siteURL ] = null;
-					} else {
-						return response.json();
-					}
-				} )
-				.then( data => {
-					if ( data ) {
-						cache[ siteURL ] = data;
-						setSiteDetails( [
-							{
-								id: data?.ID,
-								description: data?.description,
-								URL: data?.URL,
-								site_icon: getSiteIcon( data?.logo?.url ),
-								name: data?.name,
-							},
-						] );
-					} else {
-						setSiteDetails( [] );
-					}
-				} )
-				.catch( error => {
-					setErrorMessage( error?.message );
+		)
+			.then( response => {
+				if ( ! response.ok ) {
 					setSiteDetails( [] );
-				} )
-				.finally( () => {
-					abortControllerRef.current = null;
-				} ),
-		[ siteURL ]
-	);
+					cache[ validDomain ] = null;
+				} else {
+					return response.json();
+				}
+			} )
+			.then( data => {
+				if ( data ) {
+					cache[ validDomain ] = data;
+					setSiteDetails( [
+						{
+							id: data?.ID,
+							description: data?.description,
+							URL: data?.URL,
+							site_icon: getSiteIcon( data?.logo?.url ),
+							name: data?.name,
+						},
+					] );
+				} else {
+					setSiteDetails( [] );
+				}
+			} )
+			.catch( error => {
+				setErrorMessage( error?.message );
+				setSiteDetails( [] );
+			} )
+			.finally( () => {
+				abortControllerRef.current = null;
+			} );
+	}, [ siteURL ] );
 
 	useEffect( () => {
 		if ( ! enabled ) {
@@ -79,16 +78,17 @@ export default function useGetSiteDetails( siteURL, subscriptions, enabled = fal
 					return nameContainsSearch || urlContainsSearch;
 				} );
 
-				if ( checkIfValidDomain( siteURL ) ) {
-					if ( searchQuery in cache ) {
-						const cachedSiteDetails = cache[ searchQuery ]
+				const validDomain = getValidDomain( siteURL );
+				if ( validDomain ) {
+					if ( validDomain in cache ) {
+						const cachedSiteDetails = cache[ validDomain ]
 							? [
 									{
-										id: cache[ searchQuery ]?.ID,
-										description: cache[ searchQuery ]?.description,
-										URL: cache[ searchQuery ]?.URL,
-										site_icon: getSiteIcon( cache[ searchQuery ]?.logo?.url ),
-										name: cache[ searchQuery ]?.name,
+										id: cache[ validDomain ]?.ID,
+										description: cache[ validDomain ]?.description,
+										URL: cache[ validDomain ]?.URL,
+										site_icon: getSiteIcon( cache[ validDomain ]?.logo?.url ),
+										name: cache[ validDomain ]?.name,
 									},
 							  ]
 							: [];
@@ -96,7 +96,7 @@ export default function useGetSiteDetails( siteURL, subscriptions, enabled = fal
 						setSiteDetails( cachedSiteDetails );
 						return;
 					}
-					fetchSiteDetails( searchQuery );
+					fetchSiteDetails();
 				} else {
 					setSiteDetails( existInSubscriptions );
 				}
