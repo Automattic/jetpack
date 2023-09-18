@@ -42,14 +42,14 @@ class Tag {
 	/**
 	 * Unix timestamp of tag creation.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
-	public $created = -1;
+	public $created = null;
 
 	/**
 	 * Unix timestamp of tag's last update.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
-	public $lastupdated = -1;
+	public $lastupdated = null;
 }
