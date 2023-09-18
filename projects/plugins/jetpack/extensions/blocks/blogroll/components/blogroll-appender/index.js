@@ -14,7 +14,11 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 	const [ popoverAnchor, setPopoverAnchor ] = useState();
 	const [ searchInput, setSearchInput ] = useState( '' );
 	const { insertBlock } = dispatch( 'core/block-editor' );
-	const { siteDetails } = useGetSiteDetails( searchInput, subscriptions, searchInput );
+	const { siteDetails } = useGetSiteDetails( {
+		siteURL: searchInput,
+		subscriptions,
+		enabled: searchInput,
+	} );
 	const toggleVisible = () => {
 		setIsVisible( state => ! state );
 	};

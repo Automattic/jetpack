@@ -4,7 +4,12 @@ import { getSiteIcon, getValidDomain } from './utils';
 
 const cache = {};
 
-export default function useGetSiteDetails( siteURL, subscriptions, enabled = false ) {
+export default function useGetSiteDetails( {
+	siteURL,
+	subscriptions,
+	enabled = false,
+	enableSiteSearch = false,
+} ) {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( null );
 	const [ siteDetails, setSiteDetails ] = useState( subscriptions ?? [] );
@@ -79,7 +84,7 @@ export default function useGetSiteDetails( siteURL, subscriptions, enabled = fal
 				} );
 
 				const validDomain = getValidDomain( siteURL );
-				if ( validDomain ) {
+				if ( validDomain && enableSiteSearch ) {
 					if ( validDomain in cache ) {
 						const cachedSiteDetails = cache[ validDomain ]
 							? [
@@ -109,7 +114,7 @@ export default function useGetSiteDetails( siteURL, subscriptions, enabled = fal
 		return () => {
 			clearTimeout( cancellableSearch );
 		};
-	}, [ siteURL, enabled, subscriptions, fetchSiteDetails ] );
+	}, [ siteURL, enabled, subscriptions, fetchSiteDetails, enableSiteSearch ] );
 
 	return { isLoading, errorMessage, siteDetails };
 }
