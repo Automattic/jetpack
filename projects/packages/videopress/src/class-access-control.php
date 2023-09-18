@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
-use \VIDEOPRESS_PRIVACY;
+use VIDEOPRESS_PRIVACY;
 
 /**
  * VideoPress video access control utilities.
