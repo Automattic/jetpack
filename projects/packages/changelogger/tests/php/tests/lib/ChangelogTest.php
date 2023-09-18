@@ -131,5 +131,4 @@ class ChangelogTest extends TestCase {
 			),
 		);
 	}
-
 }

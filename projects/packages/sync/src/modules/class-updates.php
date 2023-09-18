@@ -579,5 +579,4 @@ class Updates extends Module {
 
 		return false;
 	}
-
 }

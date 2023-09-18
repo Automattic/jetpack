@@ -2055,7 +2055,4 @@ class jpcrm_templating_placeholders {
 		return $return;
 
 	}
-
-
-
 }

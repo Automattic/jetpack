@@ -5,6 +5,7 @@
 	import Header from '../../sections/Header.svelte';
 	import config from '../../stores/config';
 	import { connection } from '../../stores/connection';
+	import { hasPrioritySupport } from '../../utils/paid-plan';
 	import { Router, Route } from '../../utils/router';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
 	import Modules from './sections/Modules.svelte';
@@ -34,7 +35,9 @@
 
 		<Tips />
 
-		<Support />
+		{#if $hasPrioritySupport}
+			<Support />
+		{/if}
 
 		<Footer />
 	</div>

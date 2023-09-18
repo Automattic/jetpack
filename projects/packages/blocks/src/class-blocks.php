@@ -122,6 +122,30 @@ class Blocks {
 	}
 
 	/**
+	 * Get the block metadata. Accepts a block.json file's path (or its folder's) or its content, in
+	 * which case it becomes an identity function.
+	 *
+	 * It's used by other helpers in this class so that they can accept various types as argument.
+	 *
+	 * @param string|array $arg Path to block.json or its parent folder, or its content as an array.
+	 *
+	 * @return array The block metadata.
+	 */
+	private static function get_block_metadata( $arg ) {
+		$metadata = is_array( $arg ) ? $arg : null;
+
+		if ( ! isset( $metadata ) ) {
+			$path = is_string( $arg ) ? $arg : null;
+
+			if ( isset( $path ) && ! empty( $path ) ) {
+				$metadata = self::get_block_metadata_from_file( self::get_path_to_block_metadata( $path ) );
+			}
+		}
+
+		return isset( $metadata ) ? $metadata : array();
+	}
+
+	/**
 	 * Read block metadata from a block.json file.
 	 *
 	 * @param string $filename The path to the block.json file or its directory.
@@ -145,6 +169,19 @@ class Blocks {
 	}
 
 	/**
+	 * Get the block name (includes the `jetpack` prefix).
+	 *
+	 * @param string|array $arg Path to block.json or its parent folder, or its content as an array.
+	 *
+	 * @return string The block name.
+	 */
+	public static function get_block_name( $arg ) {
+		$metadata = self::get_block_metadata( $arg );
+
+		return self::get_block_name_from_metadata( $metadata );
+	}
+
+	/**
 	 * Get the block name from the its metadata.
 	 *
 	 * @param array $metadata The block metadata.
@@ -153,6 +190,19 @@ class Blocks {
 	 */
 	public static function get_block_name_from_metadata( $metadata ) {
 		return ! isset( $metadata['name'] ) || empty( $metadata['name'] ) ? '' : $metadata['name'];
+	}
+
+	/**
+	 * Get the block feature name (i.e. the name without the `jetpack` prefix).
+	 *
+	 * @param string|array $arg Path to block.json or its parent folder, or its content as an array.
+	 *
+	 * @return string The block feature name.
+	 */
+	public static function get_block_feature( $arg ) {
+		$metadata = self::get_block_metadata( $arg );
+
+		return self::get_block_feature_from_metadata( $metadata );
 	}
 
 	/**

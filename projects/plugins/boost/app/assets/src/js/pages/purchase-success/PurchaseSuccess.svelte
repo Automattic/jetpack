@@ -6,21 +6,21 @@
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
 	import { requestImageAnalysis } from '../../modules/image-size-analysis/store/isa-summary';
-	import { modulesState } from '../../stores/modules';
 	import Logo from '../../svg/jetpack-green.svg';
+	import enableCloudCss from '../../utils/enable-cloud-css';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
 
 	const wpcomPricingUrl = getRedirectUrl( 'wpcom-pricing' );
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
+	export let isImageGuideActive: boolean;
 
 	onMount( async () => {
-		// Enable cloud css module on upgrade.
-		$modulesState.cloud_css.active = true;
+		enableCloudCss();
 
 		// If image guide is enabled, request a new ISA report.
-		if ( $modulesState.image_guide.active ) {
+		if ( isImageGuideActive ) {
 			// Check if images can be resized.
 			if ( false !== Jetpack_Boost.site.canResizeImages ) {
 				await requestImageAnalysis();
