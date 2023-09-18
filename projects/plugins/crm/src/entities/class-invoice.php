@@ -8,11 +8,11 @@
 namespace Automattic\Jetpack\CRM\Entities;
 
 /**
- * Invoice Entity class.
+ * Invoice class.
  *
  * @since $$next-version$$
  */
-class Invoice_Entity {
+class Invoice {
 
 	/**
 	 * The DB ID of the object.
