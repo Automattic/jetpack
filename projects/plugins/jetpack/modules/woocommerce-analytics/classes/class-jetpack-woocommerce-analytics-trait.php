@@ -68,16 +68,16 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		wc_enqueue_js( "_wca.push({$js});" );
 	}
 
-			/**
-			 * Compose event properties.
-			 *
-			 * @param string  $event_name The name of the event to record.
-			 * @param array   $properties Optional array of (key => value) event properties.
-			 * @param integer $product_id Optional id of the product relating to the event.
-			 *
-			 * @return string|void
-			 */
-	public function process_event_properties( $event_name, $properties = array(), $product_id = null, ) {
+	/**
+	 * Compose event properties.
+	 *
+	 * @param string  $event_name The name of the event to record.
+	 * @param array   $properties Optional array of (key => value) event properties.
+	 * @param integer $product_id Optional id of the product relating to the event.
+	 *
+	 * @return string|void
+	 */
+	public function process_event_properties( $event_name, $properties = array(), $product_id = null ) {
 
 		// Only set product details if we have a product id.
 		if ( $product_id ) {

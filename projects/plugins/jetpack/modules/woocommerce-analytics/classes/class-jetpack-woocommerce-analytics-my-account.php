@@ -20,6 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Jetpack_WooCommerce_Analytics_My_Account {
 
 	use Jetpack_WooCommerce_Analytics_Trait;
+
 	/**
 	 * Jetpack_WooCommerce_Analytics_My_Account constructor.
 	 */
