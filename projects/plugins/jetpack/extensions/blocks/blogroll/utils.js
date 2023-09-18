@@ -21,23 +21,22 @@ export function createBlockFromSubscription( subscription ) {
 	} );
 }
 
-export function checkIfValidDomain( siteURL ) {
-	const regEx =
-		/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,64}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/g;
-
+export function getValidDomain( siteURL ) {
 	if ( ! siteURL ) {
-		return false;
+		return null;
 	}
 
-	let validUrl;
+	const pattern = new RegExp(
+		'^([a-zA-Z]+:\\/\\/)?' + // protocol
+			'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,})', // domain name
+		'i'
+	);
 
 	try {
-		validUrl = new URL( siteURL );
+		return new URL( siteURL )?.host;
 	} catch ( e ) {
-		validUrl = siteURL.match( regEx );
+		return siteURL.match( pattern ) ? siteURL.match( pattern )[ 2 ] : null;
 	}
-
-	return validUrl ? true : false;
 }
 
 export function getSiteIcon( siteIconURL ) {
