@@ -26,15 +26,16 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	public function __construct() {
 
 		add_action( 'woocommerce_account_content', array( $this, 'track_tabs' ) );
+		add_action( 'woocommerce_account_content', array( $this, 'track_logouts' ) );
 		add_action( 'woocommerce_customer_save_address', array( $this, 'track_save_address' ), 10, 2 );
+		add_action( 'wp_head', array( $this, 'trigger_queued_events' ) );
 		add_action( 'wp', array( $this, 'track_add_payment_method' ) );
 		add_action( 'wp', array( $this, 'track_delete_payment_method' ) );
 		add_action( 'woocommerce_save_account_details', array( $this, 'track_save_account_details' ) );
-		add_action( 'wp_logout', array( $this, 'track_logouts' ) );
 		add_filter( 'woocommerce_my_account_my_orders_actions', array( $this, 'add_initiator_prop_to_my_account_action_links' ) );
 		add_action( 'woocommerce_cancelled_order', array( $this, 'track_order_cancel_event' ), 10, 0 );
 		add_action( 'before_woocommerce_pay', array( $this, 'track_order_pay_event' ) );
-		add_action( 'woocommerce_account_content', array( $this, 'add_initiator_prop_to_order_urls' ) );
+		add_action( 'woocommerce_before_account_orders', array( $this, 'add_initiator_prop_to_order_urls' ), 9 );
 		add_filter( 'query_vars', array( $this, 'add_initiator_param_to_query_vars' ) );
 	}
 
@@ -120,7 +121,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	 * @param string $load_address The address type (billing, shipping).
 	 */
 	public function track_save_address( $customer_id, $load_address ) {
-		$this->record_event( 'woocommerceanalytics_my_account_address_save', array( 'address' => $load_address ) );
+		$this->queue_event( 'woocommerceanalytics_my_account_address_save', array( 'address' => $load_address ) );
 	}
 
 	/**
@@ -135,7 +136,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 				return;
 			}
 
-			$this->record_event( 'woocommerceanalytics_my_account_details_save' );
+			$this->queue_event( 'woocommerceanalytics_my_account_payment_save' );
 			return;
 		}
 	}
@@ -146,7 +147,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	public function track_delete_payment_method() {
 		global $wp;
 		if ( isset( $wp->query_vars['delete-payment-method'] ) ) {
-			$this->record_event( 'woocommerceanalytics_my_account_payment_delete' );
+			$this->queue_event( 'woocommerceanalytics_my_account_payment_delete' );
 			return;
 		}
 	}
@@ -156,7 +157,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	 */
 	public function track_order_cancel_event() {
 		if ( isset( $_GET['_wca_initiator'] ) && ( isset( $_GET['_wpnonce'] ) && wp_verify_nonce( wp_unslash( $_GET['_wpnonce'] ), 'woocommerce-cancel_order' ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$this->record_event( 'woocommerceanalytics_my_account_order_action_click', array( 'action' => 'cancel' ) );
+			$this->queue_event( 'woocommerceanalytics_my_account_order_action_click', array( 'action' => 'cancel' ) );
 		}
 	}
 
@@ -164,7 +165,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	 * Track order pay events.
 	 */
 	public function track_order_pay_event() {
-		if ( isset( $_GET['_wca_initiator'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( isset( $_GET['_wca_initiator'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
 			$this->record_event( 'woocommerceanalytics_my_account_order_action_click', array( 'action' => 'pay' ) );
 		}
 	}
@@ -173,24 +174,31 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	 * Track account details save events, this can only come from the my account page.
 	 */
 	public function track_save_account_details() {
-		$this->record_event( 'woocommerceanalytics_my_account_details_save' );
+		$this->queue_event( 'woocommerceanalytics_my_account_details_save' );
 	}
 
 	/**
 	 * Track logout events.
 	 */
 	public function track_logouts() {
-		$referrer = wp_get_referer();
+		$common_props = $this->render_properties_as_js(
+			$this->get_common_properties()
+		);
 
-		if ( ! $referrer ) {
-			return;
-		}
-		// check if the dashboard url is contained whithin the referrer url
-		if ( false === strpos( $referrer, wc_get_account_endpoint_url( 'dashboard' ) ) ) {
-			return;
-		}
-
-		$this->record_event( 'woocommerceanalytics_my_account_tab_click', array( 'tab' => 'logout' ) );
+		wc_enqueue_js(
+			"
+			jQuery(document).ready(function($) {
+					// Attach event listener to the logout link
+				jQuery('.woocommerce-MyAccount-navigation-link--customer-logout').on('click', function() {
+					_wca.push({
+							'_en': 'woocommerceanalytics_my_account_tab_click',
+							'pi': 'logout'," .
+							$common_props . '
+					});
+				});
+			});
+			'
+		);
 	}
 
 	/**
@@ -249,5 +257,44 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	public function add_initiator_param_to_query_vars( $query_vars ) {
 		$query_vars[] = '_wca_initiator';
 		return $query_vars;
+	}
+
+	/**
+	 * Record all queued up events in session.
+	 *
+	 * This is called on every page load, and will record all events that were queued up in session.
+	 */
+	public function trigger_queued_events() {
+		if ( is_object( WC()->session ) ) {
+			$events = WC()->session->get( 'wca_queued_events', array() );
+
+			foreach ( $events as $event ) {
+				$this->record_event(
+					$event['event_name'],
+					$event['event_props']
+				);
+			}
+
+			// Clear data, now that these events have been recorded.
+			WC()->session->set( 'wca_queued_events', array() );
+
+		}
+	}
+
+	/**
+	 * Queue an event in session to be recorded later on next page load.
+	 *
+	 * @param string $event_name The event name.
+	 * @param array  $event_props The event properties.
+	 */
+	protected function queue_event( $event_name, $event_props = array() ) {
+		if ( is_object( WC()->session ) ) {
+			$events   = WC()->session->get( 'wca_queued_events', array() );
+			$events[] = array(
+				'event_name'  => $event_name,
+				'event_props' => $event_props,
+			);
+			WC()->session->set( 'wca_queued_events', $events );
+		}
 	}
 }
