@@ -1318,6 +1318,38 @@ class Share_Twitter extends Sharing_Source {
 }
 
 /**
+ * X sharing button.
+ *
+ * While the other classes extend Sharing_Source,
+ * this one extends Share_Twitter. At some point in the future,
+ * we may be able to merge the 2.
+ */
+class Share_X extends Share_Twitter {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'x';
+
+	/**
+	 * Service icon font code.
+	 *
+	 * @var string
+	 */
+	public $icon = '\f10e';
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'X', 'jetpack' );
+	}
+}
+
+/**
  * Reddit sharing button.
  */
 class Share_Reddit extends Sharing_Source {
