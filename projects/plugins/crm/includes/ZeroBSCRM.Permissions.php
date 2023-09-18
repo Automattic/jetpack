@@ -972,9 +972,9 @@ function jpcrm_can_wp_user_view_object( $wp_user, $obj_id, $obj_type_id ) {
       $is_invoice_admin = $wp_user->has_cap( 'admin_zerobs_invoices' );
       $obj_data = zeroBS_getInvoice( $obj_id );
       // draft invoice
-      if ( is_array($obj_data) && $obj_data['status'] == __( 'Draft', 'zero-bs-crm' ) && !$is_invoice_admin ) {
-        return false;
-      }
+			if ( is_array( $obj_data ) && $obj_data['status'] === 'Draft' && ! $is_invoice_admin ) {
+				return false;
+			}
       $assigned_contact_id = zeroBSCRM_invoice_getContactAssigned( $obj_id );
       break;
   }
