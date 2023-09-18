@@ -38,4 +38,18 @@ class Tag {
 	 * @var string
 	 */
 	public $slug = '';
+
+	/**
+	 * Unix timestamp of tag creation.
+	 *
+	 * @var int
+	 */
+	public $created = -1;
+
+	/**
+	 * Unix timestamp of tag's last update.
+	 *
+	 * @var int
+	 */
+	public $lastupdated = -1;
 }
