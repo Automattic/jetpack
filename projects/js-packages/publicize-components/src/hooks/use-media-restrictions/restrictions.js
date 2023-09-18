@@ -155,9 +155,10 @@ export const PHOTON_CONVERTIBLE_TYPES = [
 	'image/png',
 	'image/jpeg',
 	'image/jpg',
-	'image/tiff',
-	'image/tif',
 	'image/heic',
 	'image/heif',
 	'image/webp',
+	// These would be supported by Photon, but WordPress cannot display them as a featured image.
+	// 'image/tiff',
+	// 'image/tif',
 ];
