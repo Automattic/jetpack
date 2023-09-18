@@ -160,6 +160,33 @@ export default function PublicizeForm( {
 					) }
 				</Notice>
 			) }
+			{ shouldAutoConvert &&
+				showValidationNotice &&
+				mediaId &&
+				shouldShowNotice( NOTICES.autoConversion ) && (
+					<Notice
+						type={ 'warning' }
+						actions={ [
+							<Button onClick={ onAutoConversionNoticeDismiss } key="dismiss" variant="primary">
+								{ __( 'Got it', 'jetpack' ) }
+							</Button>,
+							<Button
+								className={ styles[ 'change-settings-button' ] }
+								key="change-settings"
+								href={ adminUrl || jetpackSharingSettingsUrl }
+								target="_blank"
+								rel="noreferrer noopener"
+							>
+								{ __( 'Change settings', 'jetpack' ) }
+							</Button>,
+						] }
+					>
+						{ __(
+							'When your post is published, the selected image will be converted for maximum compatibility across your connected social networks.',
+							'jetpack'
+						) }
+					</Notice>
+				) }
 		</>
 	);
 
@@ -417,39 +444,6 @@ export default function PublicizeForm( {
 											'jetpack'
 									  )
 									: null
-							}
-							CustomNotice={
-								shouldAutoConvert &&
-								showValidationNotice &&
-								mediaId &&
-								shouldShowNotice( NOTICES.autoConversion ) && (
-									<Notice
-										type={ 'warning' }
-										actions={ [
-											<Button
-												onClick={ onAutoConversionNoticeDismiss }
-												key="dismiss"
-												variant="primary"
-											>
-												{ __( 'Got it', 'jetpack' ) }
-											</Button>,
-											<Button
-												className={ styles[ 'change-settings-button' ] }
-												key="change-settings"
-												href={ adminUrl || jetpackSharingSettingsUrl }
-												target="_blank"
-												rel="noreferrer noopener"
-											>
-												{ __( 'Change settings', 'jetpack' ) }
-											</Button>,
-										] }
-									>
-										{ __(
-											'When your post is published, this image will be converted for maximum compatibility across your connected social networks.',
-											'jetpack'
-										) }
-									</Notice>
-								)
 							}
 						/>
 					) }
