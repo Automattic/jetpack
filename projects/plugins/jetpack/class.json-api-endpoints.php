@@ -2591,7 +2591,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 *  $data: HTTP 200, json_encode( $data ) response body
 	 */
 	abstract public function callback( $path = '' );
-
 }
 
 require_once __DIR__ . '/json-endpoints.php';

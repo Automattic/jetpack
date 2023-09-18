@@ -93,6 +93,8 @@ export default function AiAssistantBar( {
 
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
+	const showGuideLine = requestingState === 'suggesting' || requestingState === 'done';
+
 	const placeholder = __( 'Ask Jetpack AI to create your form', 'jetpack' );
 
 	const loadingPlaceholder = __( 'Creating your form. Please wait a few moments.', 'jetpack' );
@@ -216,8 +218,9 @@ export default function AiAssistantBar( {
 				onSend={ onSend }
 				onStop={ stopSuggestion }
 				state={ requestingState }
-				isOpaque={ siteRequireUpgrade }
-				showButtonsLabel={ ! isMobileMode }
+				isTransparent={ siteRequireUpgrade }
+				showButtonLabels={ ! isMobileMode }
+				showGuideLine={ showGuideLine }
 			/>
 		</div>
 	);

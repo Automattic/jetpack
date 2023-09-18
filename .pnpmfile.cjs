@@ -32,21 +32,10 @@ function fixDeps( pkg ) {
 		pkg.dependencies[ 'prop-types' ] = '*';
 	}
 
-	// Missing dep or peer dep on @wordpress/element.
-	// https://github.com/WordPress/gutenberg/issues/41341
-	// https://github.com/WordPress/gutenberg/issues/41346
-	if (
-		( pkg.name === '@wordpress/preferences' || pkg.name === '@wordpress/viewport' ) &&
-		! pkg.dependencies?.[ '@wordpress/element' ] &&
-		! pkg.peerDependencies?.[ '@wordpress/element' ]
-	) {
-		pkg.peerDependencies[ '@wordpress/element' ] = '*';
-	}
-
 	// Missing dep or peer dep on @babel/runtime
-	// https://github.com/WordPress/gutenberg/issues/41343
+	// https://github.com/WordPress/gutenberg/issues/54115
 	if (
-		pkg.name === '@wordpress/reusable-blocks' &&
+		pkg.name === '@wordpress/patterns' &&
 		! pkg.dependencies?.[ '@babel/runtime' ] &&
 		! pkg.peerDependencies?.[ '@babel/runtime' ]
 	) {
@@ -62,16 +51,6 @@ function fixDeps( pkg ) {
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
-	}
-
-	// Missing dep on @emotion/react.
-	// https://github.com/WordPress/gutenberg/issues/52474
-	if (
-		pkg.name === '@wordpress/block-editor' &&
-		pkg.dependencies?.[ '@emotion/styled' ] &&
-		! pkg.dependencies?.[ '@emotion/react' ]
-	) {
-		pkg.dependencies[ '@emotion/react' ] = '^11.7.1';
 	}
 
 	// Avoid annoying flip-flopping of sub-dep peer deps.
@@ -93,15 +72,6 @@ function fixDeps( pkg ) {
 		pkg.peerDependencies ||= {};
 		pkg.peerDependencies[ '@testing-library/dom' ] = pkg.dependencies[ '@testing-library/dom' ];
 		delete pkg.dependencies[ '@testing-library/dom' ];
-	}
-
-	// Outdated dependency.
-	// No upstream bug link yet.
-	if (
-		pkg.name === '@automattic/social-previews' &&
-		pkg.dependencies[ '@wordpress/components' ] === '^22.1.0'
-	) {
-		pkg.dependencies[ '@wordpress/components' ] = '*';
 	}
 
 	// Outdated dependency.
@@ -135,6 +105,16 @@ function fixDeps( pkg ) {
 		pkg.dependencies[ 'simple-update-notifier' ] = '^2.0.0';
 	}
 
+	// Typo in package.json caused a missing peer dep.
+	// Already fixed by https://github.com/yjs/y-webrtc/pull/48, not yet released.
+	// Already fixed by https://github.com/yjs/y-protocols/pull/12, not yet released.
+	if (
+		( pkg.name === 'y-webrtc' && pkg.version === '10.2.5' ) ||
+		( pkg.name === 'y-protocols' && pkg.version === '1.0.5' )
+	) {
+		pkg.peerDependencies.yjs = '^13.5.6';
+	}
+
 	return pkg;
 }
 
@@ -158,7 +138,6 @@ function fixPeerDeps( pkg ) {
 		'reakit-utils', // @wordpress/components → reakit
 		'reakit-warning', // @wordpress/components → reakit
 		'@automattic/components',
-		'@automattic/social-previews',
 	] );
 	if ( reactOldPkgs.has( pkg.name ) ) {
 		for ( const p of [ 'react', 'react-dom' ] ) {

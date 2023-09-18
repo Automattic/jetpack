@@ -37,6 +37,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'560', // 5.6.0 Moves old folder structure (zbscrm-store) to new (jpcrm-storage)
 	'task_offset_fix', // removes task timezone offsets from database
 	'refresh_user_roles', // Refresh user roles
+	'regenerate_tag_slugs', // Regenerate tag slugs
 	);
 
 global $zeroBSCRM_migrations_requirements; $zeroBSCRM_migrations_requirements = array(
@@ -507,7 +508,7 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 
 		// set permalinks to flush, this'll cause them to be refreshed on 3000 migration
 		// ... as that has preload setting
-		zeroBSCRM_rewrite_setToFlush();
+		jpcrm_flag_for_flush_rewrite();
 
 		// fini
 		zeroBSCRM_migrations_markComplete('29999',array('updated'=>1));
@@ -1138,6 +1139,17 @@ function zeroBSCRM_migration_refresh_user_roles() {
 	zeroBSCRM_migrations_markComplete( 'refresh_user_roles', array( 'updated' => 1 ) );
 }
 
+/**
+ * Regenerate tag slugs
+ */
+function zeroBSCRM_migration_regenerate_tag_slugs() {
+	$obj_ids = array( ZBS_TYPE_CONTACT, ZBS_TYPE_COMPANY, ZBS_TYPE_QUOTE, ZBS_TYPE_INVOICE, ZBS_TYPE_TRANSACTION, ZBS_TYPE_EVENT, ZBS_TYPE_FORM );
+	foreach ( $obj_ids as $obj_id ) {
+		jpcrm_migration_regenerate_tag_slugs_for_obj_type( $obj_id );
+	}
+	zeroBSCRM_migrations_markComplete( 'regenerate_tag_slugs', array( 'updated' => 1 ) );
+}
+
 /* ======================================================
 	/ MIGRATIONS
    ====================================================== */
@@ -1239,6 +1251,69 @@ function zeroBSCRM_migration_refresh_user_roles() {
 function jpcrm_migration_load_wp_filesystem_direct() {
 	require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
 	require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+}
+
+/**
+ * Regenerates tag slugs for a given object type.
+ *
+ * @param int $obj_type_id Object type ID.
+ */
+function jpcrm_migration_regenerate_tag_slugs_for_obj_type( int $obj_type_id ) {
+	global $zbs;
+
+	// get tags for object type
+	$tags = $zbs->DAL->getTagsForObjType( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		array(
+			'objtypeid'    => $obj_type_id,
+			'excludeEmpty' => false,
+		)
+	);
+
+	// store slugs we've used so we prevent duplicates
+	$used_slugs = array();
+
+	foreach ( $tags as $tag ) {
+
+		// generate a potential slug
+		$potential_slug = sanitize_key( $tag['name'] );
+
+		// this will be empty if Chinese or Cyrillic or symbols, so use `tag` fallback
+		if ( empty( $potential_slug ) ) {
+			if ( preg_match( '/^tag-\d+$/', $tag['slug'] ) && ! in_array( $tag['slug'], $used_slugs, true ) ) {
+				// if we had a fallback slug before and it hasn't been claimed by another tag, use it
+				$potential_slug = $tag['slug'];
+			} else {
+				// get a new fallback slug
+				$potential_slug = $zbs->DAL->get_new_tag_slug( $obj_type_id, 'tag', true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			}
+		} elseif ( in_array( $potential_slug, $used_slugs, true ) ) {
+			// this needs an iteration
+			if ( preg_match( '/^' . $potential_slug . '-\d+$/', $tag['slug'] ) && ! in_array( $tag['slug'], $used_slugs, true ) ) {
+				// use old slug iteration
+				$potential_slug = $tag['slug'];
+			} else {
+				// generate a new slug iteration
+				$potential_slug = $zbs->DAL->get_new_tag_slug( $obj_type_id, $potential_slug ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			}
+		}
+
+		// if the new slug is different than the old one, update the database
+		if ( $potential_slug !== $tag['slug'] ) {
+			$zbs->DAL->addUpdateTag( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				array(
+					'id'   => $tag['id'],
+					'data' => array(
+						'objtype' => $obj_type_id,
+						'name'    => $tag['name'],
+						'slug'    => $potential_slug,
+					),
+				)
+			);
+		}
+
+		// store in index of used slugs
+		$used_slugs[] = $potential_slug;
+	}
 }
 
 /* ======================================================

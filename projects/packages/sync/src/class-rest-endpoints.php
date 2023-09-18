@@ -868,5 +868,4 @@ class REST_Endpoints {
 		// Limit to A-Z,a-z,0-9,_,-,. .
 		return preg_replace( '/[^A-Za-z0-9-_.]/', '', $item );
 	}
-
 }

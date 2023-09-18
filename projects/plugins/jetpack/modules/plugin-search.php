@@ -12,9 +12,7 @@ use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Tracking;
 
-/**
- * Disable direct access and execution.
- */
+// Disable direct access and execution.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -602,7 +600,6 @@ class Jetpack_Plugin_Search {
 
 		return $links;
 	}
-
 }
 
 /**

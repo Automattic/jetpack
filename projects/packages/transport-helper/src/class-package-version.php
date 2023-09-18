@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Transport_Helper;
  */
 class Package_Version {
 
-	const PACKAGE_VERSION = '0.1.5';
+	const PACKAGE_VERSION = '0.1.6-alpha';
 
 	const PACKAGE_SLUG = 'transport-helper';
 
@@ -27,5 +27,4 @@ class Package_Version {
 		$package_versions[ self::PACKAGE_SLUG ] = self::PACKAGE_VERSION;
 		return $package_versions;
 	}
-
 }

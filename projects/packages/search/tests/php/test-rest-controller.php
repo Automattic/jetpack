@@ -448,5 +448,4 @@ class Test_REST_Controller extends Search_Test_Case {
 
 		return $response;
 	}
-
 }

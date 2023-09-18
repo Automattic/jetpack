@@ -69,5 +69,4 @@ class Async_Option {
 	public function get_errors() {
 		return $this->option->get_errors();
 	}
-
 }

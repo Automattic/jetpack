@@ -14,6 +14,7 @@ export { default as SocialPreviewsPanel } from './src/components/social-previews
 export { default as SocialImageGeneratorPanel } from './src/components/social-image-generator/panel';
 export { default as SocialImageGeneratorTemplatePickerModal } from './src/components/social-image-generator/template-picker/modal';
 export { default as SocialImageGeneratorToggle } from './src/components/social-image-generator/toggle';
+export { default as AutoConversionToggle } from './src/components/auto-conversion/toggle';
 export { default as TemplatePickerButton } from './src/components/social-image-generator/template-picker/button';
 export { default as PublicizePanel } from './src/components/panel';
 export { default as ReviewPrompt } from './src/components/review-prompt';
@@ -24,6 +25,7 @@ export { default as useSocialMediaMessage } from './src/hooks/use-social-media-m
 export { default as usePublicizeConfig } from './src/hooks/use-publicize-config';
 export { default as useSharePost } from './src/hooks/use-share-post';
 export { default as useDismissNotice } from './src/hooks/use-dismiss-notice';
+
 export * from './src/social-store';
 export * from './src/components/share-post';
 export * from './src/hooks/use-saving-post';

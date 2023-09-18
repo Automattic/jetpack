@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Event;
 
 /**
  * Adds the Event_Deleted class.
@@ -58,7 +59,16 @@ class Event_Deleted extends Base_Trigger {
 	 * @return string The category of the trigger.
 	 */
 	public static function get_category(): string {
-		return 'event';
+		return __( 'Event', 'zero-bs-crm' );
+	}
+
+	/**
+	 * Get the date type.
+	 *
+	 * @return string The type of the step
+	 */
+	public static function get_data_type(): string {
+		return Data_Type_Event::get_slug();
 	}
 
 	/**
@@ -72,5 +82,4 @@ class Event_Deleted extends Base_Trigger {
 			array( $this, 'execute_workflow' )
 		);
 	}
-
 }

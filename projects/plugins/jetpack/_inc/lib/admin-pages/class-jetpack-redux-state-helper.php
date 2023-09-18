@@ -199,15 +199,14 @@ class Jetpack_Redux_State_Helper {
 			),
 			'themeData'                   => array(
 				'name'         => $current_theme->get( 'Name' ),
+				'stylesheet'   => $current_theme->get_stylesheet(),
 				'hasUpdate'    => (bool) get_theme_update_available( $current_theme ),
 				'isBlockTheme' => (bool) $current_theme->is_block_theme(),
 				'support'      => array(
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
 					'widgets'         => current_theme_supports( 'widgets' ),
-					'webfonts'        => (
-						// @todo Remove conditional once we drop support for WordPress 6.1
-						function_exists( 'wp_theme_has_theme_json' ) ? wp_theme_has_theme_json() : WP_Theme_JSON_Resolver::theme_has_support()
-					) && function_exists( 'wp_register_webfont_provider' ) && function_exists( 'wp_register_webfonts' ),
+					'webfonts'        => wp_theme_has_theme_json()
+						&& ( function_exists( 'wp_register_webfont_provider' ) || function_exists( 'wp_register_webfonts' ) ),
 				),
 			),
 			'jetpackStateNotices'         => array(
@@ -251,9 +250,10 @@ class Jetpack_Redux_State_Helper {
 	 * @return array|null
 	 */
 	public static function get_publicize_initial_state() {
-		$sig_settings = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
+		$sig_settings             = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
+		$auto_conversion_settings = new Automattic\Jetpack\Publicize\Auto_Conversion\Settings();
 
-		if ( empty( $sig_settings ) ) {
+		if ( empty( $sig_settings ) && empty( $auto_conversion_settings ) ) {
 			return null;
 		}
 
@@ -262,6 +262,10 @@ class Jetpack_Redux_State_Helper {
 				'available'       => $sig_settings->is_available(),
 				'enabled'         => $sig_settings->is_enabled(),
 				'defaultTemplate' => $sig_settings->get_default_template(),
+			),
+			'autoConversionSettings'       => array(
+				'available' => $auto_conversion_settings->is_available( 'image' ),
+				'image'     => $auto_conversion_settings->is_enabled( 'image' ),
 			),
 		);
 	}

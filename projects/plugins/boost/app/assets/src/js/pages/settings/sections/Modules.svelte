@@ -4,10 +4,15 @@
 
 <script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
+	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import RecommendationsMeta from '../../../modules/image-size-analysis/RecommendationsMeta.svelte';
+	import {
+		initializeIsaSummary,
+		isaSummary,
+	} from '../../../modules/image-size-analysis/store/isa-summary';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
 	import {
 		criticalCssState,
@@ -21,6 +26,7 @@
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
+	import ImageCdnQualitySettings from '../elements/ImageCdnQualitySettings.svelte';
 	import MinifyMeta from '../elements/MinifyMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumTooltip from '../elements/PremiumTooltip.svelte';
@@ -48,6 +54,12 @@
 		}
 		await continueGeneratingLocalCriticalCss( $criticalCssState );
 	}
+
+	onMount( () => {
+		if ( $modulesState.image_size_analysis.active ) {
+			initializeIsaSummary();
+		}
+	} );
 </script>
 
 <div class="jb-container--narrow">
@@ -102,7 +114,7 @@
 		<svelte:fragment slot="cta">
 			<UpgradeCTA
 				description={__(
-					'Save time by upgrading to Automatic Critical CSS generation',
+					'Save time by upgrading to Automatic Critical CSS generation.',
 					'jetpack-boost'
 				)}
 			/>
@@ -224,6 +236,10 @@
 				'jetpack-boost'
 			)}
 		</p>
+
+		<div slot="meta">
+			<ImageCdnQualitySettings />
+		</div>
 	</Module>
 
 	<div class="settings">
@@ -264,7 +280,12 @@
 			</p>
 
 			<svelte:fragment slot="meta">
-				<RecommendationsMeta />
+				{#if $modulesState.image_size_analysis.active}
+					<RecommendationsMeta
+						isaSummary={$isaSummary}
+						isCdnActive={$modulesState.image_cdn.active}
+					/>
+				{/if}
 			</svelte:fragment>
 		</Module>
 	</div>

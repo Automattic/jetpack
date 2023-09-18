@@ -29,7 +29,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
 		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
-		add_filter( 'block_editor_settings_all', array( $this, 'site_editor_dashboard_link' ) );
 
 		if ( ! $this->is_api_request ) {
 			add_filter( 'submenu_file', array( $this, 'override_the_theme_installer' ), 10, 2 );
@@ -71,7 +70,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$this->remove_gutenberg_menu();
 
 		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
-			$this->add_inbox_menu();
+			$this->add_my_mailboxes_menu();
 		}
 
 		// Not needed outside of wp-admin.
@@ -388,18 +387,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		parent::add_tools_menu();
 
 		/**
-		 * Whether to show the WordPress.com Site Logs submenu under the main Tools menu.
-		 *
-		 * @use add_filter( 'jetpack_show_wpcom_site_logs_menu', '__return_true' );
-		 * @module masterbar
-		 *
-		 * @since 12.0
-		 *
-		 * @param bool $show_wpcom_site_logs_menu Load the WordPress.com Site Logs submenu item. Default to false.
+		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu.
 		 */
-		if ( apply_filters( 'jetpack_show_wpcom_site_logs_menu', false ) ) {
-			add_submenu_page( 'tools.php', esc_attr__( 'Site Logs', 'jetpack' ), __( 'Site Logs', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-logs/' . $this->domain, null, 7 );
-		}
+		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
 	}
 
 	/**

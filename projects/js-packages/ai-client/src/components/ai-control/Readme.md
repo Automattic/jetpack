@@ -7,9 +7,10 @@
 - `placeholder` (**string**) (Optional): Placeholder text for the input field. Default value is `''`.
 - `showAccept` (**boolean**) (Optional): Determines if the accept button is shown. Default value is `false`.
 - `acceptLabel` (**string**) (Optional): Label text for the accept button. Default value is `'Accept'`.
-- `showButtonsLabel` (**boolean**) (Optional): Determines if button labels are shown. Default value is `true`.
-- `isOpaque` (**boolean**) (Optional): Controls the opacity of the component. Default value is `false`.
+- `showButtonLabels` (**boolean**) (Optional): Determines if button labels are shown. Default value is `true`.
+- `isTransparent` (**boolean**) (Optional): Controls the opacity of the component. Default value is `false`.
 - `state` (**RequestingStateProp**) (Optional): Determines the state of the component. Default value is `'init'`.
+- `showClearButton` (**boolean**) (Optional): Determines if the clear button is shown when the input has a value. Default value is `true`.
 - `onChange` (**Function**) (Optional): Handler for input change. Default action is no operation.
 - `onSend` (**Function**) (Optional): Handler to send a request. Default action is no operation.
 - `onStop` (**Function**) (Optional): Handler to stop a request. Default action is no operation.

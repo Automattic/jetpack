@@ -1,4 +1,4 @@
-import { Step, Trigger, Workflow } from '../types';
+import { Workflow } from 'crm/state/automations-admin/types';
 
 const convertToNameSlug = ( name: string ) => {
 	return name.toLowerCase().replace( /\s+/g, '_' );

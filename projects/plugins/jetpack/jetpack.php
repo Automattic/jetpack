@@ -4,11 +4,11 @@
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
- * Version: 12.5-a.12
+ * Version: 12.6-a.6
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
- * Requires at least: 6.1
+ * Requires at least: 6.2
  * Requires PHP: 5.6
  *
  * @package automattic/jetpack
@@ -32,9 +32,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-define( 'JETPACK__MINIMUM_WP_VERSION', '6.1' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '6.2' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
-define( 'JETPACK__VERSION', '12.5-a.12' );
+define( 'JETPACK__VERSION', '12.6-a.6' );
 
 /**
  * Constant used to fetch the connection owner token
@@ -115,7 +115,8 @@ if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' )
 	 *
 	 * @since 7.2.0
 	 */
-	function jetpack_admin_unsupported_wp_notice() { ?>
+	function jetpack_admin_unsupported_wp_notice() {
+		?>
 		<div class="notice notice-error is-dismissible">
 			<p><?php esc_html_e( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.', 'jetpack' ); ?></p>
 		</div>

@@ -77,7 +77,7 @@ class Auto_Conversion_Test extends BaseTestCase {
 	 * Test that it correctly returns enabled or disabled.
 	 */
 	public function test_correctly_returns_enabled_status() {
-		$this->assertFalse( $this->settings->is_enabled( 'image' ) );
+		$this->assertTrue( $this->settings->is_enabled( 'image' ) );
 		$this->assertFalse( $this->settings->is_enabled( 'video' ) );
 	}
 

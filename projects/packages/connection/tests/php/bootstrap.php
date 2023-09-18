@@ -10,10 +10,6 @@
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-// Disable warning about deprecated request library.
-// @todo Remove this once we drop support for WordPress 6.1
-define( 'REQUESTS_SILENCE_PSR0_DEPRECATIONS', true );
-
 // Work around WordPress bug when `@runInSeparateProcess` is used.
 if ( empty( $_SERVER['SCRIPT_FILENAME'] ) ) {
 	$_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/vendor/phpunit/phpunit/phpunit';
