@@ -109,7 +109,7 @@ export default function useGetSiteDetails( {
 				setSiteDetails( subscriptions );
 			}
 			setIsLoading( false );
-		}, 1000 );
+		}, 250 );
 
 		return () => {
 			clearTimeout( cancellableSearch );
