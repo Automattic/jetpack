@@ -6134,6 +6134,8 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 			if (isset($eventFields['customer']) && $eventFields['customer'] > 0) $args['data']['contacts'] = array($eventFields['customer']);
 			if (isset($eventFields['company']) && $eventFields['company'] > 0) $args['data']['companies'] = array($eventFields['company']);
 
+			$args['data']['reminders'] = array();
+
 		// reminders into new DAL2 eventreminder format:
 		if (is_array($reminders) && count($reminders) > 0) foreach ($reminders as $reminder){
 
