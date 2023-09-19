@@ -18,12 +18,12 @@ use Jetpack_Gutenberg;
  * @return void
  */
 function register_plugins() {
-	global $publicize;
+	/** This filter is documented in projects/packages/publicize/src/class-publicize-base.php */
+	$capability = apply_filters( 'jetpack_publicize_capability', 'publish_posts' );
 
 	// Capability check.
 	if (
-		! $publicize
-		|| ! $publicize->current_user_can_access_publicize_data()
+		! current_user_can( $capability )
 	) {
 		Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
 		return;
