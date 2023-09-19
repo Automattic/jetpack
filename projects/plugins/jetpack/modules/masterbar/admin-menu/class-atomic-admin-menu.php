@@ -70,7 +70,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$this->remove_gutenberg_menu();
 
 		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
-			$this->add_inbox_menu();
+			$this->add_my_mailboxes_menu();
 		}
 
 		// Not needed outside of wp-admin.

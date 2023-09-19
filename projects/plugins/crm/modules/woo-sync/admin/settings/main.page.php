@@ -360,7 +360,7 @@ function jpcrm_settings_page_html_woosync_main() {
 													?>
 													<?php
 													foreach ( $map_type_value['statuses'] as $status ) {
-														printf( '<option value="%s" %s>%s</option>', esc_attr( $status ), ( $selected === $status ? 'selected' : '' ), esc_html( $status ) );
+														printf( '<option value="%s" %s>%s</option>', esc_attr( $status ), ( $selected === $status ? 'selected' : '' ), esc_html( $obj_type_id === ZBS_TYPE_INVOICE ? __( $status, 'zero-bs-crm' ) : $status ) ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
 													}
 													?>
 												</select>
