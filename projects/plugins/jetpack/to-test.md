@@ -43,6 +43,23 @@ Remove logic that prevents site admins being tracked and add store_admin propert
 - Repeat as a logged _out_ (e.g. guest) user, the event should be logged, and should have the `store_admin` property but it should be `0`
 - Repeat as a logged in, but _not_ admin user, (e.g. a customer), the event should be logged, and should have the `store_admin` property but it should be `0`
 
+Add Logic to track My account page
+- On a connected, live, WordPress account, check if existing tracks are being sent (either from the track page or using the Tracks - Vigilante extension).
+On the My Account page, test that:
+- `woocommerceanalytics_my_account_tab_click` with prop tab: logout is triggered when you click log out.
+- `woocommerceanalytics_my_account_page_view` with the prop tab: $tabName is being triggered on each top level tab you visit.
+- `woocommerceanalytics_my_account_order_number_click` Is being triggered if you clicked an order number in the orders view.
+woocommerceanalytics_my_account_order_action_click is being triggered with prop action: view if you click the view button, and action: pay if you click the pay button, and action: cancel if you click the cancel button.
+To see the pay and cancel buttons, change the order status to pending payment.
+- `woocommerceanalytics_my_account_address_click` with prop address: billing | shipping when you click on the button to edit an address.
+- `woocommerceanalytics_my_account_address_save` with prop address: billing | shipping when you save an address you edited.
+- `woocommerceanalytics_my_account_details_save` When you click save on the Accounts Details page.
+- For those you will need a payment method installed like Stripe or WCPay:
+Check that:
+- `woocommerceanalytics_my_account_payment_add` Is being triggered when you add a new payment method.
+- `woocommerceanalytics_my_account_payment_save` Is being triggered when you save a payment method you're adding.
+- `woocommerceanalytics_my_account_payment_delete` Is being triggered when you delete a payment method.
+
 ### Enabling beta blocks
 
 Testing most features on this list requires enabling Jetpack beta blocks. You can be the one of the first to test upcoming features by adding this constant as a snippet, or directly into your configuration file:
