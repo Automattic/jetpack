@@ -66,7 +66,6 @@ const StatsSection = ( { counts, previousCounts } ) => {
 							weight="regular"
 							variant="secondary"
 							href={ 'admin.php?page=stats' }
-							// onClick={ onClickSeeMore }
 						>
 							{ __( 'See detailed stats', 'jetpack-my-jetpack' ) }
 						</Button>
