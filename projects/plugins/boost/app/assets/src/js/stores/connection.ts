@@ -6,7 +6,6 @@ import { regenerateCriticalCss } from './critical-css-state';
 import { modulesState, reloadModulesState } from './modules';
 
 export type ConnectionStatus = {
-	isConnecting: boolean;
 	connected: boolean;
 	userConnected: boolean;
 	error: null | Error;
@@ -53,10 +52,6 @@ export function getUpgradeURL() {
 	return checkoutProductUrl.toString();
 }
 
-async function refresh(): Promise< void > {
-	partialUpdate( await api.get( '/connection' ) );
-}
-
 /**
  * Run all the tasks to be performed upon connection completion.
  */
@@ -78,8 +73,7 @@ export function isUserConnected(): boolean {
 	return get( connection ).userConnected;
 }
 
-async function initialize(): Promise< void > {
-	partialUpdate( { isConnecting: true } );
+export async function initializeConnection(): Promise< void > {
 	try {
 		const connection = await api.post( '/connection' );
 
@@ -96,7 +90,6 @@ async function initialize(): Promise< void > {
 		partialUpdate( connection );
 	} catch ( e ) {
 		partialUpdate( {
-			isConnecting: false,
 			error: e,
 		} );
 	} finally {
@@ -107,6 +100,4 @@ async function initialize(): Promise< void > {
 
 export const connection = {
 	subscribe,
-	initialize,
-	refresh,
 };

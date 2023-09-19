@@ -6,22 +6,29 @@
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import config, { markGetStartedComplete } from '../../stores/config';
-	import { connection, getUpgradeURL } from '../../stores/connection';
+	import {
+		initializeConnection,
+		type ConnectionStatus,
+		getUpgradeURL,
+	} from '../../stores/connection';
 	import { recordBoostEvent } from '../../utils/analytics';
 
 	$: pricing = $config.pricing;
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let navigate, location;
+	export let connection: ConnectionStatus;
 
 	let initiatingFreePlan = false;
 	let initiatingPaidPlan = false;
 
 	let snackbarDismissed = false;
 	let snackbarMessage: string;
-	$: if ( snackbarDismissed && ! $connection.connected && $connection.error?.message ) {
-		snackbarMessage = $connection.error.message;
+
+	$: if ( snackbarDismissed && ! connection.connected && connection.error?.message ) {
+		snackbarMessage = connection.error.message;
 	}
+
 	/**
 	 * Mark that getting started is completed, and head to the next page.
 	 *
@@ -45,7 +52,7 @@
 
 		try {
 			// Make sure there is a Jetpack connection
-			await connection.initialize();
+			await initializeConnection();
 
 			// Record this selection. This must be done after the connection is initialized.
 			recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} );
@@ -68,7 +75,7 @@
 
 		try {
 			// Make sure there is a Jetpack connection
-			await connection.initialize();
+			await initializeConnection();
 
 			// Record this selection. This must be done after the connection is initialized.
 			recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );
