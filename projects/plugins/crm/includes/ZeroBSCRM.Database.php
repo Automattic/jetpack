@@ -887,7 +887,7 @@ function zeroBSCRM_createTables(){
 	`zbs_site` INT NOT NULL,
 	`zbs_owner` INT NOT NULL,
 	`name` VARCHAR(255) NOT NULL,
-	`description` VARCHAR(255) NULL DEFAULT NULL,
+	`description` VARCHAR(600) NULL DEFAULT NULL,
 	`category` VARCHAR(255) NOT NULL,
 	`triggers` LONGTEXT NOT NULL,
 	`initial_step` LONGTEXT NOT NULL,
