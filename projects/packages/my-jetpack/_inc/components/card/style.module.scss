@@ -37,7 +37,11 @@
 	gap: var(--spacing-base);
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: calc( var(--spacing-base) * 3 ); // 24px
+	margin-bottom: var(--spacing-base);
+
+	h3 {
+		font-weight: 700;
+	}
 }
 
 .name {
