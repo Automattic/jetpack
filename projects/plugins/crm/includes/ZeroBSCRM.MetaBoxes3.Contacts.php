@@ -1509,7 +1509,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
                 if ( zeroBSCRM_isWPAdmin() ){
                     
                     $url = admin_url('user-edit.php?user_id='.$wp_user_id);
-							echo '<br /><a style="font-size: 12px;color:black;font-weight:600;" href="' . esc_url( $url ) . '" target="_blank"><i class="wordpress simple icon"></i> ' . esc_html__( 'View WordPress Profile', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+							echo '<br /><a style="font-size: 12px;color:black;font-weight:600;" href="' . esc_url( $url ) . '" target="_blank"><i class="wordpress simple icon"></i> ' . esc_html__( 'View WordPress Profile', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 
                 }
 
@@ -1548,7 +1548,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
                     }
 
                     echo '<hr /><div class="zbs-customerportal-activeuser-actions">';
-							echo sprintf( '<a target="_blank" href="%s" class="ui mini button white">%s</a>', esc_url( zeroBS_portal_link() ), esc_html( __( 'Preview Portal', 'zero-bs-crm' ) ) );
+							printf( '<a target="_blank" href="%s" class="ui mini button white">%s</a>', esc_url( zeroBS_portal_link() ), esc_html( __( 'Preview Portal', 'zero-bs-crm' ) ) );
                     echo '</div>';
                 } else {
 
@@ -2163,7 +2163,6 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox{
         } // / if cust defined
 
     }
-
 }
 
 /* ======================================================
@@ -2205,7 +2204,6 @@ class zeroBS__Metabox_ContactTags extends zeroBS__Metabox_Tags{
     }
 
     // html + save dealt with by parent class :) 
-
 }
 
 /* ======================================================
@@ -2246,7 +2244,6 @@ class zeroBS__Metabox_ContactLogs extends zeroBS__Metabox_LogsV2{
     }
 
     // html + save dealt with by parent class :) 
-
 }
 
 /* ======================================================

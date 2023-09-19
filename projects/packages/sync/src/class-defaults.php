@@ -172,6 +172,7 @@ class Defaults {
 		'wordads_display_page',
 		'wordads_display_post',
 		'wordads_second_belowpost',
+		'woocommerce_custom_orders_table_enabled',
 		'wp_mobile_app_promos',
 		'wp_mobile_excerpt',
 		'wp_mobile_featured_images',
@@ -1311,5 +1312,4 @@ class Defaults {
 	 * @var int Bool-ish. Default 0.
 	 */
 	public static $default_custom_queue_table_enabled = 0;
-
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Stats: utilize the modern Admin_UI package so the Jetpack submenu can be alpha-sorted.

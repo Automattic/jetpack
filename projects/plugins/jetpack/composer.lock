@@ -526,7 +526,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blocks",
-                "reference": "aa5b7af0bd7d9ae4b54ed9c4664ddc6927ce0c7d"
+                "reference": "f636f264809fc67c693ac92a05c0506a3a387adf"
+            },
+            "require": {
+                "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -545,7 +548,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-blocks/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.5.x-dev"
+                    "dev-trunk": "1.6.x-dev"
                 }
             },
             "autoload": {
@@ -1068,7 +1071,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "49262f20846dd58b8c7d71423f52491379afa76e"
+                "reference": "185acd3590433c0a9b66c195bcfa5b15e23cf7bf"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1093,7 +1096,7 @@
                     "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.21.x-dev"
+                    "dev-trunk": "0.22.x-dev"
                 },
                 "textdomain": "jetpack-forms",
                 "version-constants": {

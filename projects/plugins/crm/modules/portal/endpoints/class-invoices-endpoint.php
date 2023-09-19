@@ -91,7 +91,7 @@ class Invoices_Endpoint extends Client_Portal_Endpoint {
 					if (isset($cinv['id_override']) && !empty($cinv['id_override'])) $idStr = $cinv['id_override'];
 
 					// skip drafts if not an admin with invoice access
-					if ( $inv_status == __( 'Draft', 'zero-bs-crm' ) && !$is_invoice_admin ){
+					if ( $inv_status === 'Draft' && ! $is_invoice_admin ) { // phpcs:ignore Generic.WhiteSpace.ScopeIndent.IncorrectExact
 						continue;
 					}
 
@@ -151,5 +151,4 @@ class Invoices_Endpoint extends Client_Portal_Endpoint {
 			esc_html_e( 'You do not have any invoices yet.', 'zero-bs-crm' );
 		}
 	} 
-
 }

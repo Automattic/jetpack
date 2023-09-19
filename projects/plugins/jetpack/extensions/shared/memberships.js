@@ -4,7 +4,7 @@
  * Since "close" button is inside our checkout iframe, in order to close it, it has to pass a message to higher scope to close the modal.
  *
  * @param {event} eventFromIframe - message event that gets emmited in the checkout iframe.
- * @listens message
+ * @listens window#message
  */
 function handleIframeResult( eventFromIframe ) {
 	if ( eventFromIframe.origin === 'https://subscribe.wordpress.com' && eventFromIframe.data ) {

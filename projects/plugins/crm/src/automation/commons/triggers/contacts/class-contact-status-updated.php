@@ -112,5 +112,4 @@ class Contact_Status_Updated extends Base_Trigger {
 			2
 		);
 	}
-
 }

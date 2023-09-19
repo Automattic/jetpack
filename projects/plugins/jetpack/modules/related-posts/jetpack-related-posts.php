@@ -123,29 +123,6 @@ class Jetpack_RelatedPosts {
 
 		// Add Related Posts to the REST API Post response.
 		add_action( 'rest_api_init', array( $this, 'rest_register_related_posts' ) );
-
-		Blocks::jetpack_register_block(
-			'jetpack/related-posts',
-			array(
-				'render_callback' => array( $this, 'render_block' ),
-				'supports'        => array(
-					'color'      => array(
-						'gradients' => true,
-						'link'      => true,
-					),
-					'spacing'    => array(
-						'margin'  => true,
-						'padding' => true,
-					),
-					'typography' => array(
-						'__experimentalFontFamily' => true,
-						'fontSize'                 => true,
-						'lineHeight'               => true,
-					),
-					'align'      => array( 'wide', 'full' ),
-				),
-			)
-		);
 	}
 
 	/**
@@ -862,7 +839,8 @@ EOT;
 		} else {
 			$extra_css = '';
 		}
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		// phpcs:disable WordPress.Security.EscapeOutput.HeredocOutputNotEscaped -- Escaped above where needed.
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- wpcom repo still uses WPCS v2, which uses a different code.
 		echo <<<EOT
 <style type="text/css">
 	#settings-reading-relatedposts .disabled { opacity:.5; filter:Alpha(opacity=50); }
@@ -932,6 +910,8 @@ EOT;
 	});
 </script>
 EOT;
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+		// phpcs:enable WordPress.Security.EscapeOutput.HeredocOutputNotEscaped
 	}
 
 	/**
@@ -1994,7 +1974,9 @@ EOT;
 	 * Render AMP's reader mode CSS.
 	 */
 	public function render_amp_reader_mode_css() {
-		echo file_get_contents( __DIR__ . '/related-posts.css' );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- this is loading a CSS file.
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- this is loading a CSS file.
+		echo file_get_contents( __DIR__ . '/related-posts.css' );
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 	}
 
 	/**
