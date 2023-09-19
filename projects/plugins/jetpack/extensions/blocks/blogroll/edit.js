@@ -46,19 +46,14 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		} ),
 	} );
 
-	const renderBlogrollAppender = () => {
-		if ( subscriptions && subscriptions.length ) {
-			return () => <BlogrollAppender subscriptions={ subscriptions } clientId={ clientId } />;
-		}
-		return null;
-	};
-
 	return (
 		<div { ...blockProps }>
 			<InnerBlocks
 				template={ [ [ 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ] ] }
 				allowedBlocks={ [ 'jetpack/blogroll-item' ] }
-				renderAppender={ renderBlogrollAppender() }
+				renderAppender={ () => (
+					<BlogrollAppender subscriptions={ subscriptions } clientId={ clientId } />
+				) }
 			/>
 
 			{ load_placeholders && isLoading && (
