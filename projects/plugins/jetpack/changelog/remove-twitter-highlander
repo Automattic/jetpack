@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Comments: remove the Twitter service as a login provider.
