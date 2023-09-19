@@ -55,3 +55,17 @@ add_filter(
 		);
 	}
 );
+
+/**
+ * Publicize declares its support for the 'post' post type by default.
+ * Let's do it here as well, when the module hasn't been activated yet.
+ * It helps us display the Publicize UI in the editor.
+ */
+add_action(
+	'init',
+	function () {
+		if ( ! \Jetpack::is_module_active( 'publicize' ) ) {
+			add_post_type_support( 'post', 'publicize' );
+		}
+	}
+);
