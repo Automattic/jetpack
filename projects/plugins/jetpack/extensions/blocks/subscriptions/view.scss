@@ -26,9 +26,11 @@
 
 	.wp-block-jetpack-subscriptions__form,
 	form  {
-		display: flex;
-		align-items: flex-start;
-		flex-wrap: wrap;
+
+		.wp-block-jetpack-subscriptions__form-elements {
+			display: flex;
+			align-items: flex-start;
+		}
 
 		.wp-block-jetpack-subscriptions__textfield .components-text-control__input,
 		.wp-block-jetpack-subscriptions__button,

@@ -441,7 +441,7 @@ class WooCommerce extends Module {
 	 *
 	 * @var array
 	 */
-	private static $wc_post_meta_whitelist = array(
+	public static $wc_post_meta_whitelist = array(
 		// WooCommerce products.
 		// See https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-product-data-store-cpt.php#L21 .
 		'_visibility',

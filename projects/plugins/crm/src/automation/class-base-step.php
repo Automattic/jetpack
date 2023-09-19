@@ -36,9 +36,9 @@ abstract class Base_Step implements Step {
 	 * Next linked step.
 	 *
 	 * @since $$next-version$$
-	 * @var array|null
+	 * @var int|string|null
 	 */
-	protected $next_step;
+	protected $next_step_id = null;
 
 	/**
 	 * Base_Step constructor.
@@ -100,10 +100,10 @@ abstract class Base_Step implements Step {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $step_data The next linked step.
+	 * @param int|string|null $step_id The next linked step id.
 	 */
-	public function set_next_step( array $step_data ) {
-		$this->next_step = $step_data;
+	public function set_next_step( $step_id ) {
+		$this->next_step = $step_id;
 	}
 
 	/**
@@ -111,10 +111,10 @@ abstract class Base_Step implements Step {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array|null The next linked step.
+	 * @return int|string|null The next linked step id.
 	 */
-	public function get_next_step(): ?array {
-		return $this->next_step;
+	public function get_next_step_id() {
+		return $this->next_step_id;
 	}
 
 	/**
