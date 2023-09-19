@@ -13,6 +13,10 @@
 	import Support from './sections/Support.svelte';
 	import Tips from './sections/Tips.svelte';
 
+	export let activeModules: boolean[];
+	export let criticalCssCreated: number;
+	export let criticalCssIsGenerating: boolean;
+
 	const shouldGetStarted = derived( [ config, connection ], ( [ $config, $connection ] ) => {
 		return $config.site.getStarted || ( ! $connection.connected && $config.site.online );
 	} );
@@ -23,7 +27,7 @@
 		<Header />
 
 		<div class="jb-section jb-section--alt jb-section--scores">
-			<Score />
+			<Score {activeModules} {criticalCssCreated} {criticalCssIsGenerating} />
 		</div>
 
 		<Router>
