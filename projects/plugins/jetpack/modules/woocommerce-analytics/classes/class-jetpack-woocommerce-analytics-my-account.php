@@ -78,6 +78,12 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 				}
 
 				if ( $core_endpoints['edit-address'] === $key && in_array( $value, array( 'billing', 'shipping' ), true ) ) {
+					$refer = wp_get_referer();
+					if ( $refer === wc_get_endpoint_url( 'edit-address', $value ) ) {
+						// It means we're likely coming from the same page after a failed save and don't want to retrigger the address click event.
+						continue;
+					}
+
 					$this->record_event( 'woocommerceanalytics_my_account_address_click', array( 'address' => $value ) );
 					continue;
 				}
@@ -87,6 +93,13 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 					continue;
 				}
 
+				if ( $core_endpoints['edit-address'] ) {
+					$refer = wp_get_referer();
+					if ( $refer === wc_get_endpoint_url( 'edit-address', 'billing' ) || $refer === wc_get_endpoint_url( 'edit-address', 'shipping' ) ) {
+						// It means we're likely coming from the edit page save and don't want to retrigger the page view event.
+						continue;
+					}
+				}
 				/**
 				 * The main dashboard view has page as key, so we rename it.
 				 */
