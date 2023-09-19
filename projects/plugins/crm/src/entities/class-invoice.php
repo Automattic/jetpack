@@ -54,7 +54,7 @@ class Invoice {
 	 *
 	 * @var string
 	 */
-	public $status = 'Draft';
+	public $status = '';
 
 	/**
 	 * The ID override of the invoice.
