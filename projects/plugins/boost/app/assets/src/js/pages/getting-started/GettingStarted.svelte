@@ -42,9 +42,9 @@
 
 			// Record this selection. This must be done after the connection is initialized.
 			recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} );
+			markGetStartedComplete();
 
 			// Head to the settings page.
-			markGetStartedComplete();
 			navigate( '/', { replace: true } );
 		} catch ( e ) {
 			// Un-dismiss snackbar on error. Actual error comes from connection object.
