@@ -26,6 +26,6 @@ const Template = args => (
 	</HashRouter>
 );
 
-export const _default = Template.bind( {} );
-_default.parameters = {};
-_default.args = DefaultArgs;
+export const Default = Template.bind( {} );
+Default.parameters = {};
+Default.args = DefaultArgs;

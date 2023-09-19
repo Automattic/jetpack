@@ -1,4 +1,4 @@
-import { SVG, Path } from '@wordpress/primitives';
+import { SVG, Path } from '@wordpress/components';
 
 // TODO: replace with an icon when available.
 const eye = (

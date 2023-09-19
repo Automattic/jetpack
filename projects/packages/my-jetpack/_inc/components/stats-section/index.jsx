@@ -12,9 +12,13 @@ import styles from './style.module.scss';
 /**
  * Stats section component.
  *
+ * @param {object} props                - Component props.
+ * @param {object} props.counts         - Counts object for the current period.
+ * @param {object} props.previousCounts - Counts object for the previous period.
+ *
  * @returns {object} StatsSection React component.
  */
-const StatsSection = () => {
+const StatsSection = ( { counts, previousCounts } ) => {
 	const { detail } = useProduct( 'stats' );
 
 	return (
@@ -33,26 +37,26 @@ const StatsSection = () => {
 						<CountComparisonCard
 							heading={ __( 'Views', 'jetpack-my-jetpack' ) }
 							icon={ <Icon icon={ eye } /> }
-							count={ 4652 }
-							previousCount={ 3749 }
+							count={ counts?.views }
+							previousCount={ previousCounts?.views }
 						/>
 						<CountComparisonCard
 							heading={ __( 'Visitors', 'jetpack-my-jetpack' ) }
 							icon={ <Icon icon={ people } /> }
-							count={ 1500 }
-							previousCount={ 1200 }
+							count={ counts?.visitors }
+							previousCount={ previousCounts?.visitors }
 						/>
 						<CountComparisonCard
 							heading={ __( 'Likes', 'jetpack-my-jetpack' ) }
 							icon={ <Icon icon={ starEmpty } /> }
-							count={ 107 }
-							previousCount={ 111 }
+							count={ counts?.likes }
+							previousCount={ previousCounts?.likes }
 						/>
 						<CountComparisonCard
 							heading={ __( 'Comments', 'jetpack-my-jetpack' ) }
 							icon={ <Icon icon={ commentContent } /> }
-							count={ 32 }
-							previousCount={ 34 }
+							count={ counts?.comments }
+							previousCount={ previousCounts?.comments }
 						/>
 					</div>
 
