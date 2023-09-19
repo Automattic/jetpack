@@ -889,7 +889,7 @@ function zeroBSCRM_createTables(){
 	`name` VARCHAR(255) NOT NULL,
 	`description` VARCHAR(600) NULL DEFAULT NULL,
 	`category` VARCHAR(255) NOT NULL,
-	`triggers` LONGTEXT NOT NULL,
+	`triggers` JSON NOT NULL,
 	`initial_step` VARCHAR(255) NOT NULL,
 	`steps` JSON NOT NULL,
 	`active` TINYINT(1) NOT NULL DEFAULT 0,
