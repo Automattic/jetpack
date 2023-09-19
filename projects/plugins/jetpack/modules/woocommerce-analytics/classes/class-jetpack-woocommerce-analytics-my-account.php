@@ -55,7 +55,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 		if ( ! empty( $wp->query_vars ) ) {
 
 			foreach ( $wp->query_vars as $key => $value ) {
-				// we skip pagename
+				// we skip pagename.
 				if ( 'pagename' === $key ) {
 					continue;
 				}
@@ -104,7 +104,8 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 				}
 
 				/**
-				 * We don't want to register the custom endpoint name but the core name for.
+				 * $core_endpoints is an array of core_permalink => custom_permalink,
+				 * query_vars gives us the custom_permalink, but we want to track it as core_permalink.
 				 */
 				if ( array_search( $key, $core_endpoints, true ) ) {
 					$key = array_search( $key, $core_endpoints, true );
@@ -193,7 +194,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 				jQuery('.woocommerce-MyAccount-navigation-link--customer-logout').on('click', function() {
 					_wca.push({
 							'_en': 'woocommerceanalytics_my_account_tab_click',
-							'pi': 'logout'," .
+							'tab': 'logout'," .
 							$common_props . '
 					});
 				});

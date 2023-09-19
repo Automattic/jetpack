@@ -29,14 +29,14 @@ class Jetpack_WooCommerce_Analytics {
 	/**
 	 * Instance of the Universal functions
 	 *
-	 * @var Static property to hold concrete analytics impl that does the work (universal or legacy)
+	 * @var Static property to hold concrete analytics implementation that does the work (universal or legacy)
 	 */
 	private static $analytics = false;
 
 	/**
 	 * Instance of the My account functions
 	 *
-	 * @var Static property to hold concrete analytics impl that does the work.
+	 * @var Static property to hold concrete analytics implementation that does the work.
 	 */
 	private static $myaccount = false;
 
