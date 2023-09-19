@@ -5,7 +5,7 @@
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
-	import config, { markGetStartedComplete } from '../../stores/config';
+	import { markGetStartedComplete } from '../../stores/config';
 	import {
 		initializeConnection,
 		type ConnectionStatus,
@@ -13,11 +13,11 @@
 	} from '../../stores/connection';
 	import { recordBoostEvent } from '../../utils/analytics';
 
-	$: pricing = $config.pricing;
-
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let navigate, location;
 	export let connection: ConnectionStatus;
+	export let pricing: ( typeof Jetpack_Boost )[ 'pricing' ];
+	export let isPremium: boolean;
 
 	let initiatingFreePlan = false;
 	let initiatingPaidPlan = false;
@@ -81,7 +81,7 @@
 			recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );
 
 			// Check if the site is already on a premium plan and go directly to settings if so.
-			if ( $config.isPremium ) {
+			if ( isPremium ) {
 				finishGettingStarted();
 				return;
 			}
