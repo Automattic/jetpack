@@ -36,7 +36,7 @@
 			// Otherwise go to dashboard home.
 			navigate( '/', { replace: true } );
 		} catch ( e ) {
-			// Un-dismiss snackbar on error. Actual error comes from connection object.
+			// Display the error in a snackbar message
 			snackbarMessage = e.message || 'Unknown error occurred during the plan selection.';
 		} finally {
 			selectedPlan = false;
