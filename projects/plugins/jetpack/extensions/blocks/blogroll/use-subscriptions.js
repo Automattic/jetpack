@@ -38,7 +38,8 @@ export default function useSubscriptions( { ignore_user_blogs } ) {
 				}
 				// Add placeholder image if site icon is missing
 				response = response.map( subscription => {
-					subscription.site_icon = getSiteIcon( subscription.site_icon );
+				        // if the icon is an empty string, return `undefined` so the default attribute kicks in.
+					subscription.site_icon = subscription.site_icon || undefined;
 					return subscription;
 				} );
 				setSubscriptions( response );
