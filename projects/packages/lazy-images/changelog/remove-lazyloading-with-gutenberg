@@ -1,4 +1,0 @@
-Significance: minor
-Type: deprecated
-
-Deprecated: The lazy-images functionality is not compatible with Gutenberg 16.6+ so it will be disabled when that version is present.

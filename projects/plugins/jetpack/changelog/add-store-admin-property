@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Track store admin actions in WooCommerce analytics. Add a store_admin property to all WooCommerce analytics events.
