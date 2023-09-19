@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Featured images fallback: fix undefined variable warnings.
