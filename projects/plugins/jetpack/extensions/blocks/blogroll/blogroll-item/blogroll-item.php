@@ -103,12 +103,12 @@ HTML;
 			<button type="button" class="jetpack-blogroll-item-subscribe-button wp-block-button__link" {$disabled_subscribe_button}>
 				$subscribe_text
 			</button>
-			<fieldset disabled class="jetpack-blogroll-item-submit">
-				<input type="hidden" name="_wpnonce" value="$wp_nonce">
-				<input type="email" placeholder="Email address" value="$email" class="jetpack-blogroll-item-email-input">
-				$buttons_html
-			</fieldset>
 		</div>
+		<fieldset disabled class="jetpack-blogroll-item-submit">
+			<input type="hidden" name="_wpnonce" value="$wp_nonce">
+			<input type="email" placeholder="Email address" value="$email" class="jetpack-blogroll-item-email-input">
+			$buttons_html
+		</fieldset>
 HTML;
 
 	return sprintf(

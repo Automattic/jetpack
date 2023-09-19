@@ -2,53 +2,6 @@
 
 .wp-block-jetpack-blogroll {
 	.wp-block-jetpack-blogroll-item {
-		display: flex;
-		padding: 20px 8px;
-		gap: 20px;
-
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 400;
-		color: var(--gray-gray-50, #646970);
-
-		.jetpack-blogroll-item-title {
-			color: var(--gray-gray-100, #101517);
-			font-size: 16px;
-			font-weight: 500;
-			margin: 0;
-			line-height: 24px;
-		}
-
-		figure {
-			margin: 0;
-
-			img {
-				border-radius: 50%;
-				width: 48px;
-				height: 48px;
-			}
-		}
-	}
-
-	100% {
-		opacity: 0;
-	}
-}
-
-@keyframes fadeIn {
-	0% {
-		opacity: 0;
-		transform: translateX(-10px);
-	}
-
-	100% {
-		opacity: 1;
-		transform: translateX(0);
-	}
-}
-
-.wp-block-jetpack-blogroll {
-	.wp-block-jetpack-blogroll-item {
 		overflow-x: clip;
 
 		.jetpack-blogroll-item-slider {
@@ -83,7 +36,7 @@
 		.jetpack-blogroll-item-subscribe-button {
 			margin-left: auto;
 			white-space: nowrap;
-			align-self: center;			
+			align-self: center;
 		}
 
 		.jetpack-blogroll-item-email-input {
@@ -99,14 +52,12 @@
 			display: flex;
 			gap: 10px;
 			align-items: center;
-			
-			
 		}
 
 		.jetpack-blogroll-item-submit {
 			width: 100%;
 			border: none;
-    		padding: 0;
+			padding: 0;
 		}
 	}
 }
