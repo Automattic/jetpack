@@ -1,4 +1,6 @@
 <script lang="ts">
+	import ChevronLeft from '../../../svg/chevron-left.svg';
+	import ChevronRight from '../../../svg/chevron-right.svg';
 	import { Link } from '../../../utils/router';
 	import PaginationArrow from './components/PaginationArrow.svelte';
 
@@ -49,7 +51,9 @@
 
 <div class="jb-pagination">
 	{#if total > 1}
-		<PaginationArrow direction="left" {group} {current} {total} />
+		<PaginationArrow direction="left" {group} {current} {total}>
+			<ChevronLeft />
+		</PaginationArrow>
 
 		<ul>
 			{#each pages as page}
@@ -68,7 +72,9 @@
 			{/each}
 		</ul>
 
-		<PaginationArrow direction="right" {group} {current} {total} />
+		<PaginationArrow direction="right" {group} {current} {total}>
+			<ChevronRight />
+		</PaginationArrow>
 	{/if}
 </div>
 

@@ -1,6 +1,4 @@
 <script lang="ts">
-	import ChevronLeft from '../../../../svg/chevron-left.svg';
-	import ChevronRight from '../../../../svg/chevron-right.svg';
 	import { Link } from '../../../../utils/router';
 
 	export let group: string;
@@ -14,19 +12,11 @@
 
 {#if inactive}
 	<span class="jb-pagination__page jb-pagination__inactive">
-		{#if direction === 'right'}
-			<ChevronRight />
-		{:else}
-			<ChevronLeft />
-		{/if}
+		<slot />
 	</span>
 {:else}
 	<Link to="/image-size-analysis/{group}/{page}" class="jb-pagination__page">
-		{#if direction === 'right'}
-			<ChevronRight />
-		{:else}
-			<ChevronLeft />
-		{/if}
+		<slot />
 	</Link>
 {/if}
 
