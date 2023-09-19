@@ -6138,7 +6138,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 		if (is_array($reminders) && count($reminders) > 0) foreach ($reminders as $reminder){
 
 			// this just adds with correct fields
-			$args['reminders'][] = array(
+			$args['data']['reminders'][] = array(
 
 				'event' => (int)$eventID,
 				'remind_at' => (int)$reminder['remind_at'], // just assume is int - garbage in, garbage out ($reminder['remind_at']) ? $reminder['remind_at'] : false; // if int, this
