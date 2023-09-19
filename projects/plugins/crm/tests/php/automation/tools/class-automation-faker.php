@@ -5,6 +5,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_ClientWPUser;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Company;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Event;
@@ -174,6 +175,17 @@ class Automation_Faker {
 		return array(
 			'jpcrm/transaction_created',
 			'jpcrm/transaction_updated',
+		);
+	}
+
+	/**
+	 * Return dummy clientwpuser triggers name list
+	 *
+	 * @return array
+	 */
+	public function clientwpuser_triggers(): array {
+		return array(
+			'jpcrm/clientwpuser_created',
 		);
 	}
 
@@ -467,6 +479,27 @@ class Automation_Faker {
 
 		if ( $get_as_data_type ) {
 			return new Data_Type_Transaction( $data );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Return data for a dummy WP User.
+	 *
+	 * @param bool $get_as_data_type If true, return the data as a Data_Type_ClientWPUser object.
+	 * @return array
+	 */
+	public function clientwpuser_data( $get_as_data_type = false ) {
+		$data = array(
+			'id'   => 1,
+			'data' => array(
+				// @todo - to fill in
+			),
+		);
+
+		if ( $get_as_data_type ) {
+			return new Data_Type_ClientWPUser( $data );
 		}
 
 		return $data;

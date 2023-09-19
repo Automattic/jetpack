@@ -57,6 +57,7 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice::class,
 			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote::class,
 			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction::class,
+			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_ClientWPUser::class,
 		);
 
 		/**
@@ -144,6 +145,7 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Triggers\Quote_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Updated::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\ClientWPUser_Updated::class,
 		);
 
 		/**
