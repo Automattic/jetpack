@@ -21,7 +21,6 @@ export default function Edit( { attributes, setAttributes } ) {
 				<TextControl
 					className="jetpack-ai-chat-question-input"
 					placeholder={ attributes.placeholder }
-					size={ 50 }
 					disabled={ true }
 				/>
 				<RichText
