@@ -14,7 +14,7 @@ function wpcom_lm_maybe_add_map_meta_cap_filter() {
 		add_filter( 'map_meta_cap', 'wpcom_lm_remove_post_capabilities', 10, 2 );
 	}
 }
-add_action( 'plugins_loaded', 'wpcom_lm_maybe_add_map_meta_cap_filter' );
+add_action( 'plugins_loaded', 'wpcom_lm_maybe_add_map_meta_cap_filter', 11 );
 
 /**
  * Registers Locked Mode settings.
