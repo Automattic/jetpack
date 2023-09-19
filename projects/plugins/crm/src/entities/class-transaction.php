@@ -47,14 +47,14 @@ class Transaction {
 	 *
 	 * @var string
 	 */
-	public $status = 'Succeeded';
+	public $status = '';
 
 	/**
 	 * The type (eg. Sale, Refund) of the transaction.
 	 *
 	 * @var string
 	 */
-	public $type = 'Sale';
+	public $type = '';
 
 	/**
 	 * The ref (transaction ID) of the transaction.
