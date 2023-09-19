@@ -38,6 +38,10 @@
 	$: hasActiveGroup = !! $imageDataActiveGroup;
 	$: images = $isaData.data.images;
 	$: activeGroup = $isaData.query.group;
+	$: issueCount = $totalIssueCount;
+	$: dataLoading = $isaDataLoading;
+	$: summary = $isaSummary;
+	$: dataGroupTabs = $imageDataGroupTabs;
 
 	async function refresh() {
 		// Don't let the UI show a refresh button until we get fresh ISA data.
@@ -56,19 +60,19 @@
 				{isImageCdnModuleActive}
 				{isaLastUpdated}
 				{hasActiveGroup}
-				totalIssueCount={$totalIssueCount}
+				totalIssueCount={issueCount}
 			/>
-			<Tabs {activeGroup} imageDataGroupTabs={$imageDataGroupTabs} {isaGroupLabels} />
+			<Tabs {activeGroup} imageDataGroupTabs={dataGroupTabs} {isaGroupLabels} />
 		</div>
 
 		<div class="table-wrap">
 			<Table
 				{needsRefresh}
 				{refresh}
-				isaDataLoading={$isaDataLoading}
+				isaDataLoading={dataLoading}
 				{activeGroup}
 				{images}
-				isaSummary={$isaSummary}
+				isaSummary={summary}
 			/>
 		</div>
 
