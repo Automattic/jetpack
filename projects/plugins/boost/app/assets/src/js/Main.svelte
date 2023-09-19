@@ -4,6 +4,8 @@
 	import GettingStarted from './pages/getting-started/GettingStarted.svelte';
 	import PurchaseSuccess from './pages/purchase-success/PurchaseSuccess.svelte';
 	import Settings from './pages/settings/Settings.svelte';
+	import config from './stores/config';
+	import { connection } from './stores/connection';
 	import { criticalCssState, isGenerating } from './stores/critical-css-state';
 	import { modulesState } from './stores/modules';
 	import { recordBoostEvent } from './utils/analytics';

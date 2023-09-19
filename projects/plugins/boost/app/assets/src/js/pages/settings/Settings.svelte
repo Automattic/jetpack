@@ -12,10 +12,11 @@
 	import Support from './sections/Support.svelte';
 	import Tips from './sections/Tips.svelte';
 
-  const shouldGetStarted = ! $connection.connected && $config.site.online;
 	export let activeModules: boolean[];
 	export let criticalCssCreated: number;
 	export let criticalCssIsGenerating: boolean;
+
+	$: shouldGetStarted = ! $connection.connected && $config.site.online;
 </script>
 
 <ReRouter to="/getting-started" when={shouldGetStarted}>
