@@ -22,12 +22,9 @@ class REST_Product_Data {
 			'my-jetpack/v1',
 			'site/product-data',
 			array(
-				array(
-					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_all_product_data',
-					'permission_callback' => __CLASS__ . '::permissions_callback',
-				),
-				'schema' => array( $this, 'get_product_data_schema' ),
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_all_product_data',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
 	}
@@ -46,7 +43,7 @@ class REST_Product_Data {
 	 */
 	public static function get_all_product_data() {
 		$site_id        = \Jetpack_Options::get_option( 'id' );
-		$wpcom_endpoint = sprintf( 'sites/%d/jetpack-product-data?locale=%2$s', $site_id, get_user_locale() );
+		$wpcom_endpoint = sprintf( 'sites/%d/jetpack-product-data?locale=%2$s&force=wpcom', $site_id, get_user_locale() );
 		$api_version    = '2';
 		$response       = Client::wpcom_json_api_request_as_blog( $wpcom_endpoint, $api_version, array(), null, 'wpcom' );
 		$response_code  = wp_remote_retrieve_response_code( $response );
