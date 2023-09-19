@@ -9,7 +9,10 @@ import { Nudge } from '../../../../shared/components/upgrade-nudge';
 import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 
 const EnableJetpackSearchPrompt = () => {
-	const checkoutUrl = `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=jetpack-search`;
+	let wpAdminUrl = window?.Jetpack_Editor_Initial_State?.adminUrl || '';
+	// We have to remove frame-nonce in case we are doing calypsoify.
+	wpAdminUrl = wpAdminUrl.replace( /wp-admin\/\?frame-nonce=[a-z0-9]+/, 'wp-admin/' );
+	const checkoutUrl = `${ wpAdminUrl }admin.php?page=jetpack-search`;
 	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( checkoutUrl );
 
 	if ( window?.Jetpack_AIChatBlock?.jetpackSettings?.instant_search_enabled ) {
