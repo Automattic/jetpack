@@ -898,6 +898,7 @@ function zeroBSCRM_createTables(){
 	`updated_at` TIMESTAMP NOT NULL DEFAULT 0,
 	PRIMARY KEY (`id`),
 	INDEX `name` (`name` ASC),
+	INDEX `active` (`active` ASC),
 	INDEX `category` (`category` ASC),
 	INDEX `created_at` (`created_at` ASC)
 	) ' . $storageEngineLine . '
