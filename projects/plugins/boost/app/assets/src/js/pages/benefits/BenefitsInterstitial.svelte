@@ -18,14 +18,7 @@
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
-	export let pricing: {
-		yearly?: {
-			priceBefore: number;
-			priceAfter: number;
-			currencyCode: string;
-			isIntroductoryOffer: boolean;
-		};
-	};
+	export let pricing: ( typeof Jetpack_Boost )[ 'pricing' ];
 
 	const ctaText = __( 'Upgrade Jetpack Boost', 'jetpack-boost' );
 
