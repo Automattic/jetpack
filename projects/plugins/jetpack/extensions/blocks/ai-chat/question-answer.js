@@ -67,9 +67,10 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
  * @param {string} props.askButtonLabel - Ask button label.
  * @param {number} props.blogId - Blog ID.
  * @param {string} props.blogType - Blog type (wpcom|jetpack) for wpcom simple and jetpack/atomic.
+ * @param {string} props.placeholder - Input placeholder.
  * @returns {QuestionAnswer} component.
  */
-export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
+export default function QuestionAnswer( { askButtonLabel, blogId, blogType, placeholder } ) {
 	const {
 		question,
 		setQuestion,
@@ -113,13 +114,18 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType } ) {
 				<div className="jetpack-ai-chat-question-wrapper">
 					<TextControl
 						className="jetpack-ai-chat-question-input"
-						placeholder={ __( "Enter a question about this blog's content", 'jetpack' ) }
+						placeholder={ placeholder }
 						size={ 50 }
 						value={ question }
 						onChange={ newQuestion => setQuestion( newQuestion ) }
 					/>
 
-					<Button variant="primary" disabled={ isLoading } onClick={ handleSubmitQuestion }>
+					<Button
+						variant="primary"
+						className="wp-block-button__link jetpack-ai-chat-question-button"
+						disabled={ isLoading }
+						onClick={ handleSubmitQuestion }
+					>
 						{ askButtonLabel }
 					</Button>
 				</div>
