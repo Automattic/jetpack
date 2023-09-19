@@ -1,4 +1,0 @@
-Significance: minor
-Type: compat
-
-Ensure correct values are tracked for cart/checkout block/template tracking when using WC Blocks cart and checkout templates

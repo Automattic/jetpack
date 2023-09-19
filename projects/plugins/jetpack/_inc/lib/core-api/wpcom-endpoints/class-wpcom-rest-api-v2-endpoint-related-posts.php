@@ -3,7 +3,7 @@
  * REST API endpoint for Related Posts
  *
  * @package automattic/jetpack
- * @since $$next-version$$
+ * @since 12.6
  */
 
 /**

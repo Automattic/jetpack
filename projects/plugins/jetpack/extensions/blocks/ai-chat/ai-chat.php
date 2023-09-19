@@ -83,11 +83,14 @@ function load_assets( $attr ) {
  * Add the initial state for the AI Chat block.
  */
 function add_ai_chat_block_data() {
+	// Only relevant to the editor right now.
+	if ( ! is_admin() ) {
+		return;
+	}
 	$search        = new Search_Module_Control();
 	$plan          = new Search_Plan();
 	$initial_state = array(
 		'jetpackSettings' => array(
-			'search_module_active'   => $search->is_active(),
 			'instant_search_enabled' => $search->is_instant_search_enabled(),
 			'plan_supports_search'   => $plan->supports_instant_search(),
 		),
