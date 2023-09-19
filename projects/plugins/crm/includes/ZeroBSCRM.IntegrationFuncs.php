@@ -873,7 +873,8 @@ function zeroBS_integrations_addOrUpdateTransaction(
 
 }
 
-function zeroBS_integrations_addOrUpdateEvent(
+// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+function zeroBS_integrations_addOrUpdateTask(
 	$eventID = -1,  /* Req - the event ID */
 	$dataArray =array(),  /* Req: title,to, from */
 	$eventReminders = array()  /* Req: remind_at,sent (v3+) */

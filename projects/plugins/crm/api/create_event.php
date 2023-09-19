@@ -10,112 +10,102 @@
  * Date: 04/06/2019
  */
 
-	// V3.0 version of API
-
-/*
-======================================================
-	Breaking Checks ( stops direct access )
-	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	exit;
 }
-/*
-======================================================
-	/ Breaking Checks
-	====================================================== */
 
-		$json_params    = file_get_contents( 'php://input' );
-		$potentialEvent = json_decode( $json_params, true );
+$json_params    = file_get_contents( 'php://input' );
+$potential_task = json_decode( $json_params, true );
 
-		// define
-		$eventFields = array();
-		$eventID     = -1;
-		$event_reminders = array();
+// define
+$task_fields    = array();
+$task_id        = -1;
+$task_reminders = array();
 
-if ( is_array( $potentialEvent ) ) {
+if ( is_array( $potential_task ) ) {
 
-	$eventFields['title'] = '';
-	if ( isset( $potentialEvent['title'] ) ) {
-		$eventFields['title'] = sanitize_text_field( $potentialEvent['title'] );
-	}
-	$eventFields['customer'] = -1;
-	if ( isset( $potentialEvent['customer'] ) ) {
-		$eventFields['customer'] = (int) sanitize_text_field( $potentialEvent['customer'] );
+	$task_fields['title'] = '';
+	if ( isset( $potential_task['title'] ) ) {
+		$task_fields['title'] = sanitize_text_field( $potential_task['title'] );
 	}
 
-	$eventFields['notes'] = '';
-	if ( isset( $potentialEvent['notes'] ) ) {
-		$eventFields['notes'] = sanitize_text_field( $potentialEvent['notes'] );
-	}
-	$eventFields['to'] = '';
-	if ( isset( $potentialEvent['to'] ) ) {
-		$eventFields['to'] = sanitize_text_field( $potentialEvent['to'] );
-	}
-	$eventFields['from'] = '';
-	if ( isset( $potentialEvent['from'] ) ) {
-		$eventFields['from'] = sanitize_text_field( $potentialEvent['from'] );
+	$task_fields['customer'] = -1;
+	if ( isset( $potential_task['customer'] ) ) {
+		$task_fields['customer'] = (int) sanitize_text_field( $potential_task['customer'] );
 	}
 
-	$eventFields['notify'] = -1;
-	if ( isset( $potentialEvent['notify'] ) && (int) $potentialEvent['notify'] === 24 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$eventFields['notify'] = 24; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		// the current setup uses a separate array for event reminders
-		$event_reminders[] = array(
+	$task_fields['notes'] = '';
+	if ( isset( $potential_task['notes'] ) ) {
+		$task_fields['notes'] = sanitize_text_field( $potential_task['notes'] );
+	}
+	$task_fields['to'] = '';
+	if ( isset( $potential_task['to'] ) ) {
+		$task_fields['to'] = sanitize_text_field( $potential_task['to'] );
+	}
+	$task_fields['from'] = '';
+	if ( isset( $potential_task['from'] ) ) {
+		$task_fields['from'] = sanitize_text_field( $potential_task['from'] );
+	}
+
+	$task_fields['notify'] = -1;
+	if ( isset( $potential_task['notify'] ) && (int) $potential_task['notify'] === 24 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$task_fields['notify'] = 24; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// the current setup uses a separate array for task reminders
+		$task_reminders[] = array(
 			'remind_at' => -86400,
 			'sent'      => -1,
 		);
 	}
-	$eventFields['complete'] = -1;
-	if ( isset( $potentialEvent['complete'] ) ) {
-		$eventFields['complete'] = (int) sanitize_text_field( $potentialEvent['complete'] );
-	}
-	$eventFields['owner'] = -1;
-	if ( isset( $potentialEvent['owner'] ) ) {
-		$eventFields['owner'] = (int) sanitize_text_field( $potentialEvent['owner'] );
+
+	$task_fields['complete'] = -1;
+	if ( isset( $potential_task['complete'] ) ) {
+		$task_fields['complete'] = (int) $potential_task['complete'];
 	}
 
-	// this was funky? $eventFields['event_id'] = -1; if (isset($new_event['event_id'])) $eventFields['event_id']   = (int)$new_event['event_id'];
-	// .. this is a bit cleaner.
-	if ( isset( $potentialEvent['event_id'] ) ) {
-		$eventID = (int) sanitize_text_field( $potentialEvent['event_id'] );
+	$task_fields['owner'] = -1;
+	if ( isset( $potential_task['owner'] ) ) {
+		$task_fields['owner'] = (int) $potential_task['owner'];
 	}
-	if ( isset( $potentialEvent['id'] ) ) {
-		$eventID = (int) sanitize_text_field( $potentialEvent['id'] );
+
+	if ( isset( $potential_task['event_id'] ) ) {
+		$task_id = (int) $potential_task['event_id'];
+	}
+	if ( isset( $potential_task['id'] ) ) {
+		$task_id = (int) $potential_task['id'];
 	}
 }
 
-		/*
-			-EVENT FIELDS ARE
-			$event_fields = array(
+/*
+	Task fields:
+	$task_fields = array(
+		'title' => task title
+		'customer' => ID of the customer the task is for (if any)
+		'notes' => task description
+		'to' => to date, format date('m/d/Y H') . ":00:00";
+		'from' => from date, format date('m/d/Y H') . ":00:00";
+		'notify' => 0 or 24 (never or 24 hours before)
+		'complete' => 0 or 1 (boolean),
+		'owner' => who owns the task (-1 for no one)
+		'event_id' =>
+	);
+*/
 
-				'title' => event title
-				'customer' => ID of the customer the event is for (if any)
-				'notes' => customer notes string
-				'to' => to date, format date('m/d/Y H') . ":00:00";
-				'from' => from date, format date('m/d/Y H') . ":00:00";
-				//'notify' => 0 or 24 (never or 24 hours before)
-				'complete' => 0 or 1 (boolean),
-				'owner' => who owns the event (-1 for no one)
-				'event_id' =>
-			);
-		*/
+$task_result = zeroBS_integrations_addOrUpdateTask( $task_id, $task_fields, $task_reminders );
+// ^^ this'll be either: ID if added, no of rows if updated, or FALSE if failed to insert/update
 
-			$eventResult = zeroBS_integrations_addOrUpdateEvent( $eventID, $eventFields, $event_reminders ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			// ^^ this'll be either: ID if added, no of rows if updated, or FALSE if failed to insert/update
+// thorough much? lol.
+if ( ! empty( $task_result ) && $task_result !== false && $task_result !== -1 ) {
 
-			// thorough much? lol.
-			if ( ! empty( $eventResult ) && $eventResult !== false && $eventResult !== -1 ) {
+	// return what was passed...
+	// this is legacy funk.. not ideal at all, should probs reload.
+	$return_params = $task_fields;
 
-				// return what was passed...
-				// this is legacy funk.. not ideal at all, should probs reload.
-				$return_params = $eventFields;
-
-				// add id (if new)
-				if ( $eventID > 0 ) {
-					$return_params['id'] = $eventID;
+	// add ID to returned output
+	if ( $task_id > 0 ) {
+		$return_params['id'] = $task_id;
 	}
-				if ( $eventResult > 0 && $eventResult != $eventID ) {
-					$return_params['id'] = $eventResult;
+	if ( $task_result > 0 && $task_result != $task_id ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+		$return_params['id'] = $task_result;
 	}
 
 	// return
