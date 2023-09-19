@@ -6,8 +6,11 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { registerBlockType } from '@wordpress/blocks';
 import { addFilter } from '@wordpress/hooks';
+import { _x } from '@wordpress/i18n';
 
 const JETPACK_PREFIX = 'jetpack/';
+const LOCALIZED_BLOCK_PROPERTIES = [ 'title', 'description', 'keywords' ];
+const DEFAULT_TEXTDOMAIN = 'jetpack';
 
 /**
  * Registers a gutenberg block if the availability requirements are met.
@@ -59,6 +62,24 @@ export default function registerJetpackBlock( name, settings, childBlocks = [], 
 	return result;
 }
 
+// Localize properties passed as parameter when applicable.
+// Note: the documentation states that `registerBlockType` wraps localized properties in `_x`
+// when it is passed the metadata object as the first param. I haven't found this to be true
+// with the latest version of `@wordpress/blocks` (12.18.0) at the time of writing this.
+// https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/#javascript
+const localizeBlockProperties = ( metadata, props ) => {
+	const result = { ...props };
+
+	for ( const prop in props ) {
+		if ( LOCALIZED_BLOCK_PROPERTIES.includes( prop ) ) {
+			// eslint-disable-next-line
+			result[ prop ] = _x( props[ prop ], null, metadata.textdomain || DEFAULT_TEXTDOMAIN );
+		}
+	}
+
+	return result;
+};
+
 /**
  * Wrapper around registerJetpackBlock to register a block by specifying its metadata.
  *
@@ -69,20 +90,25 @@ export default function registerJetpackBlock( name, settings, childBlocks = [], 
  * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
 export function registerJetpackBlockFromMetadata( metadata, settings, childBlocks, prefix ) {
-	const clientSettings = {
+	const mergedSettings = {
+		...metadata,
 		...settings,
+	};
+	const processedSettings = {
+		...localizeBlockProperties( metadata, mergedSettings ),
 		icon: getBlockIconProp( metadata ),
 	};
+
 	const { variations } = metadata;
 
 	if ( Array.isArray( variations ) && variations.length > 0 ) {
-		clientSettings.variations = variations.map( variation => {
+		processedSettings.variations = variations.map( variation => {
 			return {
-				...variation,
+				...localizeBlockProperties( metadata, variation ),
 				icon: getBlockIconProp( variation ),
 			};
 		} );
 	}
 
-	return registerJetpackBlock( metadata.name, clientSettings, childBlocks, prefix );
+	return registerJetpackBlock( metadata.name, processedSettings, childBlocks, prefix );
 }
