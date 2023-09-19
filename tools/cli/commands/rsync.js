@@ -229,7 +229,7 @@ async function addVendorFilesToFilter( source, filters ) {
 async function rsyncToDest( source, dest, pluginDestPath ) {
 	const filters = new Set();
 
-	// Exclude git internals
+	// Exclude any `.git` dirs, mostly in case someone ran composer with --prefer-source (or composer fell back to that).
 	filters.add( '- .git' );
 	// To catch files required in dev builds.
 	await addVendorFilesToFilter( `${ source }/vendor/`, filters );
