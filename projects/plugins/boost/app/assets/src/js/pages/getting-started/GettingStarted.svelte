@@ -19,9 +19,6 @@
 	export let isPremium: boolean;
 	export let domain: string;
 
-	let initiatingFreePlan = false;
-	let initiatingPaidPlan = false;
-
 	let snackbarDismissed = false;
 	let snackbarMessage: string;
 
@@ -29,54 +26,30 @@
 		snackbarMessage = connection.error.message;
 	}
 
-	/**
-	 * User clicked "Free plan"
-	 */
-	async function chooseFreePlan() {
-		initiatingFreePlan = true;
+	let selectedPlan: 'free' | 'premium' | false = false;
+	$: if ( selectedPlan !== false ) {
+		initialize( selectedPlan );
+	}
 
+	async function initialize( plan: 'free' | 'premium' ) {
 		try {
 			// Make sure there is a Jetpack connection
 			await initializeConnection();
 
 			// Record this selection. This must be done after the connection is initialized.
-			recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} );
+			recordBoostEvent( `${ plan }_cta_from_getting_started_page_in_plugin`, {} );
 
-			// Head to the settings page.
+			// Go to the purchase flow if the user doesn't have a premium plan.
+			if ( ! isPremium && plan === 'premium' ) {
+				window.location.href = getUpgradeURL( domain, connection.userConnected );
+			}
+			// Otherwise go to dashboard home.
 			navigate( '/', { replace: true } );
 		} catch ( e ) {
 			// Un-dismiss snackbar on error. Actual error comes from connection object.
 			snackbarDismissed = false;
 		} finally {
-			initiatingFreePlan = false;
-		}
-	}
-
-	/**
-	 * User clicked Premium.
-	 */
-	async function choosePaidPlan() {
-		initiatingPaidPlan = true;
-
-		try {
-			// Make sure there is a Jetpack connection
-			await initializeConnection();
-
-			// Record this selection. This must be done after the connection is initialized.
-			recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );
-
-			// Check if the site is already on a premium plan and go directly to settings if so.
-			if ( isPremium ) {
-				navigate( '/', { replace: true } );
-				return;
-			}
-			// Go to the purchase flow.
-			window.location.href = getUpgradeURL( domain, connection.userConnected );
-		} catch ( e ) {
-			// Un-dismiss snackbar on error. Actual error comes from connection object.
-			snackbarDismissed = false;
-		} finally {
-			initiatingPaidPlan = false;
+			selectedPlan = false;
 		}
 	}
 </script>
@@ -92,10 +65,10 @@
 				<ReactComponent
 					this={BoostPricingTable}
 					{pricing}
-					onPremiumCTA={choosePaidPlan}
-					onFreeCTA={chooseFreePlan}
-					chosenFreePlan={initiatingFreePlan}
-					chosenPaidPlan={initiatingPaidPlan}
+					onPremiumCTA={() => ( selectedPlan = 'premium' )}
+					onFreeCTA={() => ( selectedPlan = 'free' )}
+					chosenFreePlan={selectedPlan === 'free'}
+					chosenPaidPlan={selectedPlan === 'premium'}
 				/>
 				{#if snackbarMessage && ! snackbarDismissed}
 					<ReactComponent
