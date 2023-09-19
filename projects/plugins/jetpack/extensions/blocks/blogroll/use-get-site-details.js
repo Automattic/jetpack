@@ -14,10 +14,10 @@ export default function useGetSiteDetails( {
 	const [ errorMessage, setErrorMessage ] = useState( null );
 	const [ siteDetails, setSiteDetails ] = useState( subscriptions ?? [] );
 	const abortControllerRef = useRef();
-	const fetchSiteDetails = useCallback( async () => {
+	const fetchSiteDetails = useCallback( () => {
 		const validDomain = getValidDomain( siteURL );
 
-		await fetch(
+		fetch(
 			addQueryArgs(
 				'https://public-api.wordpress.com/rest/v1.1/sites/' + encodeURIComponent( validDomain ),
 				{ force: 'wpcom' }
