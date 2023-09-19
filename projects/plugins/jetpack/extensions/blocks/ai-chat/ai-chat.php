@@ -83,7 +83,7 @@ function load_assets( $attr ) {
  * Add the initial state for the AI Chat block.
  */
 function add_ai_chat_block_data() {
-	// TODO
+	// Only relevant to the editor right now.
 	if ( ! is_admin() ) {
 		return;
 	}
