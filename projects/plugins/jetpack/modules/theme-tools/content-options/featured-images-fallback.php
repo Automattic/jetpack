@@ -66,7 +66,7 @@ function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thum
 			$width  = isset( $image['width'] ) ? intval( $image['width'] ) : null;
 			$height = isset( $image['height'] ) ? intval( $image['height'] ) : null;
 
-			if ( $image['src_width'] && $image['src_height'] && $image['width'] && $image['height'] ) {
+			if ( ! empty( $image['src_width'] ) && ! empty( $image['src_height'] ) && ! empty( $image['width'] ) && ! empty( $image['height'] ) ) {
 				$src_width  = intval( $image['src_width'] );
 				$src_height = intval( $image['src_height'] );
 
