@@ -20,10 +20,6 @@
 	export let domain: string;
 
 	let snackbarMessage: string;
-	$: if ( ! snackbarMessage && ! connection.connected && connection.error?.message ) {
-		snackbarMessage = connection.error.message;
-	}
-
 	let selectedPlan: 'free' | 'premium' | false = false;
 	$: if ( selectedPlan !== false ) {
 		initialize( selectedPlan );
@@ -45,7 +41,7 @@
 			navigate( '/', { replace: true } );
 		} catch ( e ) {
 			// Un-dismiss snackbar on error. Actual error comes from connection object.
-			snackbarMessage = '';
+			snackbarMessage = e.message || 'Unknown error occurred during the plan selection.';
 		} finally {
 			selectedPlan = false;
 		}

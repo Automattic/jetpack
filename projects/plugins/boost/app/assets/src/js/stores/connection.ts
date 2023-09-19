@@ -67,28 +67,19 @@ async function onConnectionComplete(): Promise< void > {
 }
 
 export async function initializeConnection(): Promise< void > {
-	try {
-		const connection = await api.post( '/connection' );
+	const connection = await api.post( '/connection' );
 
-		// As a part of connecting (before marking the connection as ready)
-		// refresh the modules state to fetch the latest.
-		// Ideally, we should replace this with a more general server-state update thing.
-		// 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻
-		if ( connection.connected ) {
-			await reloadModulesState();
-		}
-		// 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺
-
-		await onConnectionComplete();
-		partialUpdate( connection );
-	} catch ( e ) {
-		partialUpdate( {
-			error: e,
-		} );
-	} finally {
-		// Wait for the next tick to ensure that the connection status is updated.
-		await tick();
+	// As a part of connecting (before marking the connection as ready)
+	// refresh the modules state to fetch the latest.
+	// Ideally, we should replace this with a more general server-state update thing.
+	// 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻
+	if ( connection.connected ) {
+		await reloadModulesState();
 	}
+	// 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺
+
+	await onConnectionComplete();
+	partialUpdate( connection );
 }
 
 export const connection = {
