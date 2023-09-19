@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Adjust styling and UX of changing the block label. Stop triggering the search from gutenberg
