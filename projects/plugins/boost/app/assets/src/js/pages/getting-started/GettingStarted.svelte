@@ -25,7 +25,7 @@
 	let snackbarDismissed = false;
 	let snackbarMessage: string;
 
-	$: if ( snackbarDismissed && ! connection.connected && connection.error?.message ) {
+	$: if ( ! snackbarDismissed && ! connection.connected && connection.error?.message ) {
 		snackbarMessage = connection.error.message;
 	}
 
