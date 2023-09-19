@@ -19,10 +19,8 @@
 	export let isPremium: boolean;
 	export let domain: string;
 
-	let snackbarDismissed = false;
 	let snackbarMessage: string;
-
-	$: if ( ! snackbarDismissed && ! connection.connected && connection.error?.message ) {
+	$: if ( ! snackbarMessage && ! connection.connected && connection.error?.message ) {
 		snackbarMessage = connection.error.message;
 	}
 
@@ -47,7 +45,7 @@
 			navigate( '/', { replace: true } );
 		} catch ( e ) {
 			// Un-dismiss snackbar on error. Actual error comes from connection object.
-			snackbarDismissed = false;
+			snackbarMessage = '';
 		} finally {
 			selectedPlan = false;
 		}
@@ -70,11 +68,11 @@
 					chosenFreePlan={selectedPlan === 'free'}
 					chosenPaidPlan={selectedPlan === 'premium'}
 				/>
-				{#if snackbarMessage && ! snackbarDismissed}
+				{#if snackbarMessage}
 					<ReactComponent
 						this={Snackbar}
 						children={snackbarMessage}
-						onDismiss={() => ( snackbarDismissed = true )}
+						onDismiss={() => ( snackbarMessage = '' )}
 					/>
 				{/if}
 			</div>
