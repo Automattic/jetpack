@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Blocks: improve escaping of block attributes.
+Security: Blocks: avoid saving invalid block attributes that may appear to other editors on the site.
