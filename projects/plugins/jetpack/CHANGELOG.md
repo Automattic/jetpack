@@ -21,7 +21,7 @@
 - AI Extension: introduce Create with voice jetpack block - initial implementation. [#32750]
 - AI Extension: use new AIControl component from AI package and remove local implementation. [#32682]
 - Business Hours Block: refactor block registration to avoid duplication. [#32698]
-- Classic Editor Markdown: add support for double-tilde strikethrough, e.g. ~~strikethrough~~. [#33057]
+- Classic Editor Markdown: add support for double-tilde strikethrough, e.g. `~~strikethrough~~`. [#33057]
 - Connection UI: use Redux state to pass the "from" property. [#32600]
 - Content Lens: connect excerpt panel with AI Assistant. [#32846]
 - Create with voice: connect block with useMediaRecording() hook. [#32769]
@@ -62,11 +62,11 @@
 - Carousel: add new hook allowing third-parties to customize the metadata displayed within the Carousel modal. [#32749]
 - General: Jetpack now requires WordPress version 6.2. [#32762]
 - General: remove WP 6.1 backwards compatibility checks. [#32772]
-- Lazy Images: discourage enabling of Lazy loading images as now 90% of browser support the feature natively and this version in Jetpack can conflict with the upcoming WordPress interactivity API' [#33030]
+- Lazy Images: discourage enabling of Lazy loading images as now 90% of browser support the feature natively and this version in Jetpack can conflict with the upcoming WordPress interactivity API. [#33030]
 - Shortcodes: exclude images with broken URL from galleries. [#32556]
 - Subscriptions: change the text color of selected newsletter categories to be more easily readable. [#33104]
 - Theme fields: only add is_block_theme to theme response when WordPress version is < 6.3 [#31660]
-- WC Analytics: ensure correct values are tracked for cart/checkout block/template tracking when using WC Blocks cart and checkout templates [#32715]
+- WC Analytics: ensure correct values are tracked for cart/checkout block/template tracking when using WC Blocks cart and checkout templates. [#32715]
 
 ### Bug fixes
 - Adding test for default whitelist option. [#32632]
