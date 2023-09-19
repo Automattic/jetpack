@@ -60,6 +60,11 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 					continue;
 				}
 
+				// When no permalink is set, the first page is page_id, so we skip it.
+				if ( 'page_id' === $key ) {
+					continue;
+				}
+
 				// We don't want to track our own analytics params.
 				if ( '_wca_initiator' === $key ) {
 					continue;
