@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Connection\Client as Client;
+use Automattic\Jetpack\Connection\Client;
 use WP_Error;
 
 /**
