@@ -33,7 +33,7 @@
 	<Route
 		path="getting-started"
 		component={GettingStarted}
-		connection={$connection}
+		userConnected={$connection.userConnected}
 		pricing={$config.pricing}
 		isPremium={$config.isPremium}
 		domain={$config.site.domain}

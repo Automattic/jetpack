@@ -5,16 +5,12 @@
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
-	import {
-		initializeConnection,
-		type ConnectionStatus,
-		getUpgradeURL,
-	} from '../../stores/connection';
+	import { initializeConnection, getUpgradeURL } from '../../stores/connection';
 	import { recordBoostEvent } from '../../utils/analytics';
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let navigate, location;
-	export let connection: ConnectionStatus;
+	export let userConnected: boolean;
 	export let pricing: ( typeof Jetpack_Boost )[ 'pricing' ];
 	export let isPremium: boolean;
 	export let domain: string;
@@ -35,7 +31,7 @@
 
 			// Go to the purchase flow if the user doesn't have a premium plan.
 			if ( ! isPremium && plan === 'premium' ) {
-				window.location.href = getUpgradeURL( domain, connection.userConnected );
+				window.location.href = getUpgradeURL( domain, userConnected );
 			}
 			// Otherwise go to dashboard home.
 			navigate( '/', { replace: true } );
