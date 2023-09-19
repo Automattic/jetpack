@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Security: Blocks: avoid saving invalid block attributes that may appear to other editors on the site.
