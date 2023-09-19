@@ -25,8 +25,7 @@ function register_block() {
 		array(
 			'render_callback'  => __NAMESPACE__ . '\load_assets',
 			'provides_context' => array(
-				'showSubscribeButton' => 'show_subscribe_button',
-				'openLinksNewWindow'  => 'open_links_new_window',
+				'openLinksNewWindow' => 'open_links_new_window',
 			),
 		)
 	);
