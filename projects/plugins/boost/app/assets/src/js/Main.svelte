@@ -24,11 +24,13 @@
 			} );
 		}, 10 )
 	);
+
+	$: pricing = $config.pricing;
 </script>
 
 <Router history={routerHistory}>
 	<Route path="upgrade" let:location let:navigate>
-		<BenefitsInterstitial {location} {navigate} pricing={$config.pricing} />
+		<BenefitsInterstitial {location} {navigate} {pricing} />
 	</Route>
 	<Route path="purchase-successful" let:location let:navigate>
 		<PurchaseSuccess {location} {navigate} isImageGuideActive={$modulesState.image_guide.active} />
