@@ -2,7 +2,7 @@ import { usePrevious } from '@wordpress/compose';
 import { store as coreStore, useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
-import { createBlockFromRecommendation } from '../utils';
+import { createBlockFromRecommendation } from './utils';
 
 function usePostHasBeenJustSaved() {
 	const isSaving = useSelect( select => {

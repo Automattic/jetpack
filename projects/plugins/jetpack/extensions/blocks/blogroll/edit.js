@@ -6,12 +6,9 @@ import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import BlogrollAppender from './components/blogroll-appender';
-import useRecommendations from './hooks/use-recommendations';
-import {
-	useSiteRecommendations,
-	useSiteRecommendationSync,
-} from './hooks/use-site-recommendations';
-import useSubscriptions from './hooks/use-subscriptions';
+import useRecommendations from './use-recommendations';
+import { useSiteRecommendations, useSiteRecommendationSync } from './use-site-recommendations';
+import useSubscriptions from './use-subscriptions';
 import { createBlockFromRecommendation } from './utils';
 import './editor.scss';
 
