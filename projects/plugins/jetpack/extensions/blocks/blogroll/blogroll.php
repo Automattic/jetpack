@@ -25,8 +25,7 @@ function register_block() {
 		array(
 			'render_callback'  => __NAMESPACE__ . '\load_assets',
 			'provides_context' => array(
-				'showSubscribeButton' => 'show_subscribe_button',
-				'openLinksNewWindow'  => 'open_links_new_window',
+				'openLinksNewWindow' => 'open_links_new_window',
 			),
 		)
 	);
@@ -42,8 +41,6 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr, $content ) {
-	global $wp;
-
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
