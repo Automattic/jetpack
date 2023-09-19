@@ -122,7 +122,7 @@ const crmWebpackConfig = {
 		...jetpackWebpackConfig.resolve,
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
-			"crm": path.resolve(__dirname, "src/js/")	
+			crm: path.resolve( __dirname, 'src/js/' ),
 		}
 	},
 	node: false,
