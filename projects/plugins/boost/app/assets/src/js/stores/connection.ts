@@ -5,7 +5,7 @@ import { reloadModulesState } from './modules';
 export type ConnectionStatus = {
 	connected: boolean;
 	userConnected: boolean;
-	error: null | Error;
+	wpcomBlogId: number;
 };
 
 const initialState = Jetpack_Boost.connection;
@@ -46,7 +46,7 @@ export function getUpgradeURL( siteSuffix: string, isUserConnected = false ) {
 }
 
 export async function initializeConnection(): Promise< void > {
-	const connection = await api.post( '/connection' );
+	const connection = ( await api.post( '/connection' ) ) as ConnectionStatus;
 
 	// As a part of connecting (before marking the connection as ready)
 	// refresh the modules state to fetch the latest.
