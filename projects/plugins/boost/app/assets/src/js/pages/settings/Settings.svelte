@@ -4,6 +4,7 @@
 	import Header from '../../sections/Header.svelte';
 	import config from '../../stores/config';
 	import { connection } from '../../stores/connection';
+	import { hasPrioritySupport } from '../../utils/paid-plan';
 	import { Router, Route } from '../../utils/router';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
 	import Modules from './sections/Modules.svelte';
@@ -11,7 +12,10 @@
 	import Support from './sections/Support.svelte';
 	import Tips from './sections/Tips.svelte';
 
-	const shouldGetStarted = ! $connection.connected && $config.site.online;
+  const shouldGetStarted = ! $connection.connected && $config.site.online;
+	export let activeModules: boolean[];
+	export let criticalCssCreated: number;
+	export let criticalCssIsGenerating: boolean;
 </script>
 
 <ReRouter to="/getting-started" when={shouldGetStarted}>
@@ -19,7 +23,7 @@
 		<Header />
 
 		<div class="jb-section jb-section--alt jb-section--scores">
-			<Score />
+			<Score {activeModules} {criticalCssCreated} {criticalCssIsGenerating} />
 		</div>
 
 		<Router>
@@ -31,7 +35,9 @@
 
 		<Tips />
 
-		<Support />
+		{#if $hasPrioritySupport}
+			<Support />
+		{/if}
 
 		<Footer />
 	</div>

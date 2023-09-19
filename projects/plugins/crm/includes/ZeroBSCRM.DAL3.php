@@ -3199,16 +3199,16 @@ class zbsDAL {
             if (!isset($data['name']) || empty($data['name'])) return false;
 		if ( empty( $data['slug'] ) ) {
 
-			$potential_slug = $this->makeSlug( $data['name'] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$potential_slug = sanitize_key( $data['name'] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 			// catch empty slugs as per gh-462, chinese characters, for example
 			if ( empty( $potential_slug ) ) {
-				$potential_slug = 'tag';
+				$this->get_new_tag_slug( $data['objtype'], 'tag', true ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			} else {
+				$data['slug'] = $this->get_new_tag_slug( $data['objtype'], $potential_slug ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 			}
 
-			$data['slug'] = $this->get_new_tag_slug( $data['objtype'], $potential_slug ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-
-			// if slug STILL empty, return false for now..
+			// if slug STILL empty (e.g. database error?), return false for now...
 			if ( empty( $data['slug'] ) ) {
 				return false;
 			}
@@ -3734,19 +3734,20 @@ class zbsDAL {
 	}
 
 	/**
-	 * Checks if a tag slug exists
+	 * Get a unique tag slug
 	 *
 	 * @param int    $obj_type_id Object type id.
 	 * @param string $slug Tag slug to check.
+	 * @param bool   $force_iteration Force iteration to occur (e.g. use `slug-N` instead of `slug`).
 	 *
-	 * @return string tag slug
+	 * @return string unique tag slug
 	 */
-	public function get_new_tag_slug( int $obj_type_id, string $slug ) {
+	public function get_new_tag_slug( int $obj_type_id, string $slug, bool $force_iteration = false ) {
 		global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		$slug_exists = $this->tag_slug_exists( $obj_type_id, $slug );
 
 		// slug as provided doesn't exist, so use that
-		if ( ! $slug_exists && $slug !== 'tag' ) {
+		if ( ! $slug_exists && ! $force_iteration ) {
 			return $slug;
 		}
 
