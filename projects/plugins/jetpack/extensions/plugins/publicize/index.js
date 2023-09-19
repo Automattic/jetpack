@@ -19,8 +19,9 @@ import {
 	JetpackEditorPanelLogo,
 	useModuleStatus,
 } from '@automattic/jetpack-shared-extension-utils';
+import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
-import { PostTypeSupportCheck } from '@wordpress/editor';
+import { PostTypeSupportCheck, store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import { PublicizePlaceholder } from './components/placeholder';
@@ -36,28 +37,25 @@ const PublicizeSettings = () => {
 	const { isSocialImageGeneratorAvailable } = usePublicizeConfig();
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( name );
+	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 
-	if ( isLoadingModules ) {
+	if ( isLoadingModules && postType && postType === 'post' ) {
 		return (
-			<PostTypeSupportCheck supportKeys="publicize">
-				<JetpackPluginSidebar>
-					<PublicizeSkeletonLoader />
-				</JetpackPluginSidebar>
-			</PostTypeSupportCheck>
+			<JetpackPluginSidebar>
+				<PublicizeSkeletonLoader />
+			</JetpackPluginSidebar>
 		);
 	}
 
-	if ( ! isModuleActive ) {
+	if ( ! isModuleActive && postType && postType === 'post' ) {
 		return (
-			<PostTypeSupportCheck supportKeys="publicize">
-				<JetpackPluginSidebar>
-					<PublicizePlaceholder
-						changeStatus={ changeStatus }
-						isModuleActive={ isModuleActive }
-						isLoading={ isChangingStatus }
-					/>
-				</JetpackPluginSidebar>
-			</PostTypeSupportCheck>
+			<JetpackPluginSidebar>
+				<PublicizePlaceholder
+					changeStatus={ changeStatus }
+					isModuleActive={ isModuleActive }
+					isLoading={ isChangingStatus }
+				/>
+			</JetpackPluginSidebar>
 		);
 	}
 
