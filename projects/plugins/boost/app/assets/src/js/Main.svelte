@@ -36,6 +36,7 @@
 		connection={$connection}
 		pricing={$config.pricing}
 		isPremium={$config.isPremium}
+		domain={$config.site.domain}
 	/>
 	{#if $modulesState.image_size_analysis.available && $modulesState.image_size_analysis.active}
 		<Route path="image-size-analysis/:group/:page" component={RecommendationsPage} />

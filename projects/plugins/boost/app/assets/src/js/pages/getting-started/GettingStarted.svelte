@@ -18,6 +18,7 @@
 	export let connection: ConnectionStatus;
 	export let pricing: ( typeof Jetpack_Boost )[ 'pricing' ];
 	export let isPremium: boolean;
+	export let domain: string;
 
 	let initiatingFreePlan = false;
 	let initiatingPaidPlan = false;
@@ -27,21 +28,6 @@
 
 	$: if ( ! snackbarDismissed && ! connection.connected && connection.error?.message ) {
 		snackbarMessage = connection.error.message;
-	}
-
-	/**
-	 * Mark that getting started is completed, and head to the next page.
-	 *
-	 * @param {string} externalPage If specified, head to the external page instead of staying on the dashboard.
-	 */
-	function finishGettingStarted( externalPage?: string ) {
-		markGetStartedComplete();
-
-		if ( externalPage ) {
-			window.location.href = externalPage;
-		} else {
-			navigate( '/', { replace: true } );
-		}
 	}
 
 	/**
@@ -58,7 +44,8 @@
 			recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} );
 
 			// Head to the settings page.
-			finishGettingStarted();
+			markGetStartedComplete();
+			navigate( '/', { replace: true } );
 		} catch ( e ) {
 			// Un-dismiss snackbar on error. Actual error comes from connection object.
 			snackbarDismissed = false;
@@ -79,15 +66,15 @@
 
 			// Record this selection. This must be done after the connection is initialized.
 			recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );
+			markGetStartedComplete();
 
 			// Check if the site is already on a premium plan and go directly to settings if so.
 			if ( isPremium ) {
-				finishGettingStarted();
+				navigate( '/', { replace: true } );
 				return;
 			}
-
 			// Go to the purchase flow.
-			finishGettingStarted( getUpgradeURL() );
+			window.location.href = getUpgradeURL( domain, connection.userConnected );
 		} catch ( e ) {
 			// Un-dismiss snackbar on error. Actual error comes from connection object.
 			snackbarDismissed = false;

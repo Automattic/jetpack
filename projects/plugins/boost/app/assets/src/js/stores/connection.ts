@@ -26,9 +26,11 @@ function partialUpdate( data: Partial< ConnectionStatus > ) {
  * Ideally this function should not exist and
  * `getRedirectUrl( 'boost-plugin-upgrade-default', { site: config.site.domain, query, anchor: 'purchased' } )`
  * should be used instead. However, the redirect changes the redirect URL in a broken manner.
+ *
+ * @param siteSuffix
+ * @param isUserConnected
  */
-export function getUpgradeURL() {
-	const siteSuffix = get( config ).site.domain;
+export function getUpgradeURL( siteSuffix: string, isUserConnected = false ) {
 	const product = 'jetpack_boost_yearly';
 
 	const redirectUrl = new URL( window.location.href );
@@ -45,7 +47,7 @@ export function getUpgradeURL() {
 	checkoutProductUrl.searchParams.set( 'site', siteSuffix );
 
 	// If not connected, add unlinked=1 to query string to tell wpcom to connect the site.
-	if ( ! isUserConnected() ) {
+	if ( ! isUserConnected ) {
 		checkoutProductUrl.searchParams.set( 'unlinked', '1' );
 	}
 
@@ -62,15 +64,6 @@ async function onConnectionComplete(): Promise< void > {
 	if ( get( modulesState ).cloud_css?.active ) {
 		await regenerateCriticalCss();
 	}
-}
-
-/**
- * Returns true if the current user is connected to WordPress.com via Jetpack.
- *
- * @return {boolean} True if connected.
- */
-export function isUserConnected(): boolean {
-	return get( connection ).userConnected;
 }
 
 export async function initializeConnection(): Promise< void > {
