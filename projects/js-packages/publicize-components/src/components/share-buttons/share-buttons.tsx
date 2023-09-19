@@ -8,15 +8,25 @@ import { usePrepareUrl } from './usePrepareUrl';
 /**
  * Click handler for the share buttons.
  *
- * @param {React.MouseEvent< HTMLAnchorElement >} event - The click event.
+ * @param {string} url - The URL.
+ * @param {object} data - The tracking data.
+ *
+ * @returns {Function} The click handler.
  */
-function onClick( event: React.MouseEvent< HTMLAnchorElement > ) {
-	// TODO Add tracking here
-	if ( event.target instanceof HTMLAnchorElement ) {
-		const { network } = event.target.dataset;
+function getOnClick( url: string, data?: unknown ) {
+	return function onClick( event: React.MouseEvent< HTMLAnchorElement > ) {
+		event.preventDefault();
 
-		network;
-	}
+		// TODO Add tracking here
+		// eslint-disable-next-line no-console
+		console.log( 'onClick', { data } );
+
+		window.open(
+			url,
+			'',
+			'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600'
+		);
+	};
 }
 
 export type ShareButtonsProps = {
@@ -47,7 +57,7 @@ export const ShareButtons: React.FC< ShareButtonsProps > = ( {
 						href={ href }
 						target="_blank"
 						rel="noopener noreferrer"
-						onClick={ onClick }
+						onClick={ getOnClick( href ) }
 						data-network={ networkName }
 						className={ styles[ networkName ] }
 					>
