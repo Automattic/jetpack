@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { ThumbsDown, ThumbsUp } from '../../../../shared/icons';
+import { ThumbsDown, ThumbsUp } from '../../lib/icons';
 import useSubmitFeedback from '../../use-submit-feedback';
 import DisplayError from '../display-error';
 

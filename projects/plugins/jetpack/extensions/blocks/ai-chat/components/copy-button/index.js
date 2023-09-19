@@ -8,7 +8,7 @@ import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Clipboard } from '../../../../shared/icons';
+import { ClipboardIcon } from '../../lib/icons';
 
 export default function CopyButton( { answer } ) {
 	const [ hasCopied, setHasCopied ] = useState( false );
@@ -26,7 +26,7 @@ export default function CopyButton( { answer } ) {
 				variant="has-text"
 				ref={ copyRef }
 			>
-				<Icon className="copy-icon" icon={ Clipboard } />
+				<Icon className="copy-icon" icon={ ClipboardIcon } />
 				{ hasCopied
 					? _x( 'Copied!', 'Copied to clipboard', 'jetpack' )
 					: _x( 'Copy Response', 'Copy to clipboard.', 'jetpack' ) }
