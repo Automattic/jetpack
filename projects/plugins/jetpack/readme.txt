@@ -293,32 +293,103 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.6-a.5 - 2023-09-11
-
+### 12.6 - 2023-09-19
 #### Enhancements
-
+- Add blogroll item block.
+- Added the new auto-conversion toggle for social.
+- Add number formatting for subscriber count in newsletter module.
+- Add wpcom_newsletter_categories_enabled site option.
 - AI-chat block: add ability to chat with the site.
-- AI Excerpt: add the Discard button to the panel.
+- AI Assistant: add prompts for correct feature configuration.
+- AI Assistant: proof-of-concept for expandable messages on the backend using form generation prompt.
+- AI Assistant: proof-of-concept for server-side prompts, starting with form generation prompts.
 - AI Excerpt: add the Accept button.
+- AI Excerpt: add the Discard button to the panel.
 - AI Excerpt: ensure to save the post before asking a suggestion.
 - AI Excerpt: show upgrade banner when site achieves requests limit.
+- AI Extension: add create-with-voice beta extension.
+- AI Extension: enhance blocks parsing flickering with child blocks.
+- AI Extension: introduce Create with voice jetpack block - initial implementation.
+- AI Extension: use new AIControl component from AI package and remove local implementation.
+- Business Hours Block: refactor block registration to avoid duplication.
+- Classic Editor Markdown: add support for double-tilde strikethrough, e.g. ~~strikethrough~~.
+- Connection UI: use Redux state to pass the "from" property.
 - Content Lens: connect excerpt panel with AI Assistant.
+- Create with voice: connect block with useMediaRecording() hook.
+- Create with voice: introduce Done button.
+- Create with voice: set block properties by using useBlockProps() custom hook.
 - Create with voice: show audio duration when recording audio.
+- Fix a potential bug.
+- Gravatar profile widget: add srcset.
+- Jetpack Assistant: add placeholder UX for the prompt input.
+- Jetpack Social: display the Social editor panel with an invitation to activate the feature when it is disabled.
+- Launchpad save modal: persist the user option when they opt to hide the modal.
+- Link styles and scripts to block.json automatically.
 - Newsletter: add support for newsletter categories.
+- Newsletters: improve flows around access and paywall.
+- Nicer subscribers number.
+- Paywall: better content for when waiting for email validation.
+- Paywall Block: add toolbar options.
+- Paywall block: disable Paid subscribers button if plans are not set up.
+- Paywall block: improved settings panel.
+- Paywall Block: improved toolbar.
 - Paywall Block: improve excerpts handling.
+- Paywall block: redesign visuals for the mobile editor.
+- Paywall block: release to WP.com and Jetpack.
+- Related Posts: make the block available even when the feature has not been activated yet.
+- Render Subscriptions block on emails.
+- Security: Blocks: avoid saving invalid block attributes that may appear to other editors on the site.
+- Sidebar: Rename the "Inbox" menu to "My Mailboxes".
+- Site Editor: point the Site Editor's `<` link to the theme showcase when previewing a theme.
 - Social: add the change setting for the auto conversion feature.
+- Subscribe modal: bump modal Z-index up.
+- Subscribers: add edit link for subscribe modal.
+- Subscription block: add newsletter categories to the content view.
+- Subscriptions: remove newsletter flow+theme and FSE theme check for the subscribe modal. Leave WP.com check.
+- Tiled gallery module: add srcset to images.
+- WordPress.com Toolbar: add site monitoring menu and remove site logs.
 
 #### Improved compatibility
-
+- Carousel: add new hook allowing third-parties to customize the metadata displayed within the Carousel modal.
+- General: Jetpack now requires WordPress version 6.2.
 - General: remove WP 6.1 backwards compatibility checks.
+- Lazy Images: discourage enabling of Lazy loading images as now 90% of browser support the feature natively and this version in Jetpack can conflict with the upcoming WordPress interactivity API'
+- Shortcodes: exclude images with broken URL from galleries.
+- Subscriptions: change the text color of selected newsletter categories to be more easily readable.
+- Theme fields: only add is_block_theme to theme response when WordPress version is < 6.3
+- WC Analytics: ensure correct values are tracked for cart/checkout block/template tracking when using WC Blocks cart and checkout templates
 
 #### Bug fixes
-
+- Adding test for default whitelist option.
+- Admin Menu: display Newsletter settings submenu item for Jetpack connected sites.
+- AI Chat: fix block styles not loading.
+- AI Chat: fix styles not loading in the editor.
+- AI Extension: remove HTML fragments from AI-generated forms on site editor.
 - Allow two year plans to show on the My Plan page.
-- Fix cookie consent block positioning in the editor.
+- Blocks: use custom Facebook and Instagram icons in Jetpack's Facebook and Instagram blocks to avoid issues in accessibility inspector.
+- Comments: remove mention of Twitter as a log in option since it is no longer available.
+- Comments: remove the Twitter service as a login provider.
+- Donation Block: fix issue with Danish Krone.
+- Email subscribers now receive full posts.
+- Featured images fallback: fix undefined variable warnings.
 - Fix an issue that caused the notice displayed when updating widgets to overlap the admin menu.
+- Fix block icons for display on wp.org.
+- Fix cookie consent block positioning in the editor.
+- Fix default plan being selected in payment block.
+- Fixed a Global Styles UI performance issue in the Site Editor.
+- Launchpad modal: reduce API calls for modal dismiss flag.
+- Load the Jetpack block assets in the iframe directly in WP-Admin and keep the existing behavior on the front-end, for compatibility reasons.
+- Nav Unification: flips order of tags and categories submenu of posts.
+- Paywall block: avoid undefined variable warning.
+- Paywall Block: fix autosave before redirecting the user.
+- Remove use of Jetpack_Membership::get_connected_account_id().
 - Revert change where newsletter plans could not be used on Premium content.
+- Subscription Block: fix blog appearance.
+- Subscriptions: add subscribe modal mobile padding.
+- Subscriptions: hide modal if paywall block exists.
 - Subscriptions: hide modal if post is subscribers-only.
+- Subscriptions: tweak subscribe modal text/spacing.
+- VideoPress Block: Check if VideoPress module is active in order to register the VideoPress video block.
 
 --------
 
