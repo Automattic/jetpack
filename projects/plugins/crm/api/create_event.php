@@ -30,6 +30,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 		// define
 		$eventFields = array();
 		$eventID     = -1;
+		$event_reminders = array();
 
 if ( is_array( $potentialEvent ) ) {
 
@@ -54,9 +55,15 @@ if ( is_array( $potentialEvent ) ) {
 	if ( isset( $potentialEvent['from'] ) ) {
 		$eventFields['from'] = sanitize_text_field( $potentialEvent['from'] );
 	}
+
 	$eventFields['notify'] = -1;
-	if ( isset( $potentialEvent['notify'] ) ) {
-		$eventFields['notify'] = (int) sanitize_text_field( $potentialEvent['notify'] );
+	if ( isset( $potentialEvent['notify'] ) && (int) $potentialEvent['notify'] === 24 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$eventFields['notify'] = 24; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// the current setup uses a separate array for event reminders
+		$event_reminders[] = array(
+			'remind_at' => -86400,
+			'sent'      => -1,
+		);
 	}
 	$eventFields['complete'] = -1;
 	if ( isset( $potentialEvent['complete'] ) ) {
@@ -93,51 +100,7 @@ if ( is_array( $potentialEvent ) ) {
 			);
 		*/
 
-		// DAL3 Notify changes the way it's passed, now gets passed as a reminder
-
-			// get passed (DAL3+)
-			$eventReminders = array();
-if ( isset( $new_event['reminders'] ) ) {
-	$eventReminders = $new_event['reminders'];
-}
-
-			// sanitize event reminders input
-if ( is_array( $eventReminders ) ) {
-
-	$erArr = array();
-
-	foreach ( $eventReminders as $er ) {
-
-		// this just adds with correct fields
-		$erArr[] = array(
-
-			// 'event' => (int)$eventID,
-			'remind_at' => (int) sanitize_text_field( $er['remind_at'] ),
-			'sent'      => -1,
-
-		);
-	}
-
-	$eventReminders = $erArr;
-}
-
-			// get old-style notify
-			$eventFields['notify'] = -1; if ( isset( $new_event['notify'] ) ) {
-
-					$oldNotify = (int) sanitize_text_field( $new_event['notify'] );
-
-					// this was only ever 0 or 24
-	if ( $oldNotify == 24 ) {
-		$eventReminders[] = array(
-
-			'remind_at' => -86400,
-			'sent'      => -1,
-
-		);
-	}
-			}
-
-			$eventResult = zeroBS_integrations_addOrUpdateEvent( $eventID, $eventFields, $eventReminders );
+			$eventResult = zeroBS_integrations_addOrUpdateEvent( $eventID, $eventFields, $event_reminders ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			// ^^ this'll be either: ID if added, no of rows if updated, or FALSE if failed to insert/update
 
 			// thorough much? lol.
@@ -150,17 +113,17 @@ if ( is_array( $eventReminders ) ) {
 				// add id (if new)
 				if ( $eventID > 0 ) {
 					$return_params['id'] = $eventID;
-				}
+	}
 				if ( $eventResult > 0 && $eventResult != $eventID ) {
 					$return_params['id'] = $eventResult;
-				}
+	}
 
-				// return
-				wp_send_json( $return_params );
+	// return
+	wp_send_json( $return_params );
 
-			} else {
+} else {
 
-				// fail.
-				wp_send_json( array( 'error' => 100 ) );
+	// fail.
+	wp_send_json( array( 'error' => 100 ) );
 
-			}
+}
