@@ -5,7 +5,6 @@
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
-	import { markGetStartedComplete } from '../../stores/config';
 	import {
 		initializeConnection,
 		type ConnectionStatus,
@@ -42,7 +41,6 @@
 
 			// Record this selection. This must be done after the connection is initialized.
 			recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} );
-			markGetStartedComplete();
 
 			// Head to the settings page.
 			navigate( '/', { replace: true } );
@@ -66,7 +64,6 @@
 
 			// Record this selection. This must be done after the connection is initialized.
 			recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );
-			markGetStartedComplete();
 
 			// Check if the site is already on a premium plan and go directly to settings if so.
 			if ( isPremium ) {

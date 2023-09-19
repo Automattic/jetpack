@@ -46,7 +46,6 @@ class Config {
 				'url'        => get_home_url(),
 				'online'     => ! ( new Status() )->is_offline_mode(),
 				'assetPath'  => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
-				'getStarted' => self::is_getting_started(),
 				'isAtomic'   => ( new Host() )->is_woa_site(),
 				'postTypes'  => self::get_custom_post_types(),
 			),
@@ -183,11 +182,13 @@ class Config {
 	 */
 	public static function is_getting_started() {
 		// Aside from the boolean flag in the database, we also assume site already got started if they have premium features.
-		return \get_option( 'jb_get_started', false ) && ! Premium_Features::has_feature( Premium_Features::CLOUD_CSS ) && ! ( new Status() )->is_offline_mode();
+		return ! Premium_Features::has_feature( Premium_Features::CLOUD_CSS ) && ! ( new Status() )->is_offline_mode();
 	}
 
 	/**
 	 * Clear the getting started option.
+	 * @deprecated - This option is no longer used.
+	 * We'll keep the value cleaning here for a while, but it should be removed in the future.
 	 */
 	public static function clear_getting_started() {
 		\delete_option( 'jb_get_started' );

@@ -11,8 +11,7 @@
 	import Support from './sections/Support.svelte';
 	import Tips from './sections/Tips.svelte';
 
-	const shouldGetStarted =
-		$config.site.getStarted || ( ! $connection.connected && $config.site.online );
+	const shouldGetStarted = ! $connection.connected && $config.site.online;
 </script>
 
 <ReRouter to="/getting-started" when={shouldGetStarted}>
