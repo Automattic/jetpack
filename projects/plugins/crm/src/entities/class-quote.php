@@ -52,9 +52,9 @@ class Quote {
 	/**
 	 * The quote notes.
 	 *
-	 * @var array
+	 * @var string
 	 */
-	public $notes = array();
+	public $notes = '';
 
 	/**
 	 * The ID override of the quote.
@@ -115,9 +115,9 @@ class Quote {
 	/**
 	 * The send attachments property of the quote.
 	 *
-	 * @var int
+	 * @var bool
 	 */
-	public $send_attachments = -1;
+	public $send_attachments = false;
 
 	/**
 	 * The last viewed property of the quote.
