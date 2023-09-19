@@ -76,9 +76,9 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array|null The next step data.
+	 * @return int|null The next step data.
 	 */
-	public function get_next_step(): ?array {
+	public function get_next_step_id(): ?int {
 		return ( $this->condition_met ? $this->next_step_true : $this->next_step_false );
 	}
 
