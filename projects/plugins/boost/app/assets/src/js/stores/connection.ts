@@ -1,9 +1,6 @@
-import { tick } from 'svelte';
-import { get, writable } from 'svelte/store';
+import { writable } from 'svelte/store';
 import api from '../api/api';
-import config from './config';
-import { regenerateCriticalCss } from './critical-css-state';
-import { modulesState, reloadModulesState } from './modules';
+import { reloadModulesState } from './modules';
 
 export type ConnectionStatus = {
 	connected: boolean;
@@ -54,18 +51,6 @@ export function getUpgradeURL( siteSuffix: string, isUserConnected = false ) {
 	return checkoutProductUrl.toString();
 }
 
-/**
- * Run all the tasks to be performed upon connection completion.
- */
-async function onConnectionComplete(): Promise< void > {
-	await config.refresh();
-
-	// Request fresh Cloud CSS if cloud_css is enabled
-	if ( get( modulesState ).cloud_css?.active ) {
-		await regenerateCriticalCss();
-	}
-}
-
 export async function initializeConnection(): Promise< void > {
 	const connection = await api.post( '/connection' );
 
@@ -78,7 +63,6 @@ export async function initializeConnection(): Promise< void > {
 	}
 	// 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺
 
-	await onConnectionComplete();
 	partialUpdate( connection );
 }
 
