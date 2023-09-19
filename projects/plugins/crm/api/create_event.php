@@ -48,8 +48,8 @@ if ( is_array( $potential_task ) ) {
 	}
 
 	$task_fields['notify'] = -1;
-	if ( isset( $potential_task['notify'] ) && (int) $potential_task['notify'] === 24 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$task_fields['notify'] = 24; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	if ( isset( $potential_task['notify'] ) && (int) $potential_task['notify'] === 24 ) {
+		$task_fields['notify'] = 24;
 		// the current setup uses a separate array for task reminders
 		$task_reminders[] = array(
 			'remind_at' => -86400,
