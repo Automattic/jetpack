@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+
+Tags: better slug generation
+Tags: added tag slug migration
