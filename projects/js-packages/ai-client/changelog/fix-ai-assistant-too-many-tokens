@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-AI Client: Emit specific error for large context error on SuggestionsEventSource
