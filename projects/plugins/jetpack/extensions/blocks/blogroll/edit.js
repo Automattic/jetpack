@@ -52,7 +52,7 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 				template={ [ [ 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ] ] }
 				allowedBlocks={ [ 'jetpack/blogroll-item' ] }
 				renderAppender={ () => (
-					<BlogrollAppender clientId={ clientId } subscriptions={ subscriptions } />
+					<BlogrollAppender subscriptions={ subscriptions } clientId={ clientId } />
 				) }
 			/>
 
