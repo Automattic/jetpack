@@ -9,13 +9,7 @@ export type ConnectionStatus = {
 };
 
 const initialState = Jetpack_Boost.connection;
-const { subscribe, update } = writable< ConnectionStatus >( initialState );
-
-function partialUpdate( data: Partial< ConnectionStatus > ) {
-	update( store => {
-		return { ...store, ...data };
-	} );
-}
+const connectionStatus = writable< ConnectionStatus >( initialState );
 
 /**
  * Get the URL to upgrade boost.
@@ -63,9 +57,12 @@ export async function initializeConnection(): Promise< void > {
 	}
 	// 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺
 
-	partialUpdate( connection );
+	connectionStatus.update( store => {
+		return { ...store, ...connection };
+	} );
 }
 
+// Export only the readable store.
 export const connection = {
-	subscribe,
+	subscribe: connectionStatus.subscribe,
 };
