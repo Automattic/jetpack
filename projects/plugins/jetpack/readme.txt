@@ -298,43 +298,28 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Add blogroll item block.
 - Added the new auto-conversion toggle for social.
 - Add number formatting for subscriber count in newsletter module.
-- Add wpcom_newsletter_categories_enabled site option.
 - AI-chat block: add ability to chat with the site.
 - AI Assistant: add prompts for correct feature configuration.
-- AI Assistant: proof-of-concept for expandable messages on the backend using form generation prompt.
-- AI Assistant: proof-of-concept for server-side prompts, starting with form generation prompts.
-- AI Excerpt: add the Accept button.
-- AI Excerpt: add the Discard button to the panel.
+- AI Assistant: proof-of-concept form generation prompts, using them for expandable messages.
+- AI Excerpt: add the Accept button and Discard button to the panel.
 - AI Excerpt: ensure to save the post before asking a suggestion.
 - AI Excerpt: show upgrade banner when site achieves requests limit.
 - AI Extension: add create-with-voice beta extension.
 - AI Extension: enhance blocks parsing flickering with child blocks.
-- AI Extension: introduce Create with voice jetpack block - initial implementation.
-- AI Extension: use new AIControl component from AI package and remove local implementation.
+- AI Extension: introduce Create with voice jetpack block.
 - Business Hours Block: refactor block registration to avoid duplication.
 - Classic Editor Markdown: add support for double-tilde strikethrough, e.g. ~~strikethrough~~.
 - Connection UI: use Redux state to pass the "from" property.
 - Content Lens: connect excerpt panel with AI Assistant.
-- Create with voice: connect block with useMediaRecording() hook.
-- Create with voice: introduce Done button.
-- Create with voice: set block properties by using useBlockProps() custom hook.
-- Create with voice: show audio duration when recording audio.
-- Fix a potential bug.
-- Gravatar profile widget: add srcset.
+- Create with voice: show audio duration when recording audio, introduce Done button.
 - Jetpack Assistant: add placeholder UX for the prompt input.
 - Jetpack Social: display the Social editor panel with an invitation to activate the feature when it is disabled.
 - Launchpad save modal: persist the user option when they opt to hide the modal.
-- Link styles and scripts to block.json automatically.
-- Newsletter: add support for newsletter categories.
-- Newsletters: improve flows around access and paywall.
-- Nicer subscribers number.
+- Newsletter: add support for newsletter categories, improve flows around access and paywall.
 - Paywall: better content for when waiting for email validation.
-- Paywall Block: add toolbar options.
 - Paywall block: disable Paid subscribers button if plans are not set up.
-- Paywall block: improved settings panel.
-- Paywall Block: improved toolbar.
-- Paywall Block: improve excerpts handling.
-- Paywall block: redesign visuals for the mobile editor.
+- Paywall block: improved settings panel and toolbar.
+- Paywall Block: improve excerpts handling, redesign visuals for the mobile editor.
 - Paywall block: release to WP.com and Jetpack.
 - Related Posts: make the block available even when the feature has not been activated yet.
 - Render Subscriptions block on emails.
@@ -356,11 +341,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Lazy Images: discourage enabling of Lazy loading images as now 90% of browser support the feature natively and this version in Jetpack can conflict with the upcoming WordPress interactivity API'
 - Shortcodes: exclude images with broken URL from galleries.
 - Subscriptions: change the text color of selected newsletter categories to be more easily readable.
-- Theme fields: only add is_block_theme to theme response when WordPress version is < 6.3
 - WC Analytics: ensure correct values are tracked for cart/checkout block/template tracking when using WC Blocks cart and checkout templates
 
 #### Bug fixes
-- Adding test for default whitelist option.
 - Admin Menu: display Newsletter settings submenu item for Jetpack connected sites.
 - AI Chat: fix block styles not loading.
 - AI Chat: fix styles not loading in the editor.
@@ -372,11 +355,11 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Donation Block: fix issue with Danish Krone.
 - Email subscribers now receive full posts.
 - Featured images fallback: fix undefined variable warnings.
+- Fix a Global Styles UI performance issue in the Site Editor.
 - Fix an issue that caused the notice displayed when updating widgets to overlap the admin menu.
 - Fix block icons for display on wp.org.
 - Fix cookie consent block positioning in the editor.
 - Fix default plan being selected in payment block.
-- Fixed a Global Styles UI performance issue in the Site Editor.
 - Launchpad modal: reduce API calls for modal dismiss flag.
 - Load the Jetpack block assets in the iframe directly in WP-Admin and keep the existing behavior on the front-end, for compatibility reasons.
 - Nav Unification: flips order of tags and categories submenu of posts.
