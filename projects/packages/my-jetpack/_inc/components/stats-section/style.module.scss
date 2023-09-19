@@ -1,0 +1,118 @@
+$sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+
+.section-title {
+	display: flex;
+	align-items: center;
+	font-weight: 500;
+	margin-bottom: 0.5rem;
+	margin-top: 0px;
+	font-size: var(--font-title-small);
+	line-height: 1.5;
+}
+
+.section-description {
+	margin-left: 0.75rem;
+	font-family:  "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+	font-weight: 400;
+	font-size: var(--font-body-small);
+	color: var(--jp-gray-60);
+	line-height: 20px;
+	letter-spacing: -0.15px;
+}
+
+.cards-list {
+	display: flex;
+	flex-flow: row nowrap;
+	max-width: 100%;
+
+	// Add horizontal scrolling, but without the scrollbar.
+	overflow-x: scroll;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+
+	padding: 1px; // Ensures scrollable content box doesn't cover the card.
+
+	.stats-card {
+		border-color: var(--jp-gray-5);
+		border-radius: 5px; // stylelint-disable-line scales/radii
+		width: 100%;
+		min-width: 180px; // Minimum mobile width
+		padding: 1rem 1.5rem;
+		margin-bottom: 0;
+
+		margin-right: 1.5rem;
+		&:last-child {
+			margin-right: 0;
+		}
+	}
+}
+
+.stats-card-icon {
+	margin-bottom: 1.5rem;
+}
+
+.stats-card-heading {
+	font-weight: 500;
+	line-height: 20px;
+	margin-bottom: 0.25rem;
+}
+
+.stats-card-count {
+	align-items: flex-end;
+	display: flex;
+	flex-wrap: wrap;
+	font-size: 36px; // stylelint-disable-line declaration-property-unit-allowed-list
+	font-weight: 400;
+	line-height: 40px;
+
+	&.is-pointer {
+		cursor: pointer;
+	}
+}
+
+.stats-card-count-value {
+	font-family: $sans-font;
+	line-height: 1;
+	margin-right: 0.5rem;
+}
+
+.stats-card-difference {
+	align-items: center;
+	color: var(--jp-gray-20);
+	display: flex;
+	fill: var(--jp-gray-20);
+	font-size: var(--font-body-small);
+	font-weight: 600;
+	line-height: 24px;
+
+	&.stats-card-difference--positive {
+		color: var(--jp-red-50);
+		fill: var(--jp-red-50);
+	}
+
+	&.stats-card-difference--negative {
+		color: var(--jp-green-50);
+		fill: var(--jp-green-50);
+	}
+}
+
+.stats-card-difference-icon {
+	display: flex;
+	align-content: flex-end;
+}
+
+.stats-card-difference-absolute-value {
+	margin-right: 2px;
+}
+
+.actions {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	margin-top: calc( var(--spacing-base) * 2.5 );
+	min-height: var(--actions-size);
+	flex-wrap: wrap;
+}
