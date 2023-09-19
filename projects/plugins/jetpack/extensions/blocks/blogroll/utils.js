@@ -35,7 +35,7 @@ export function getValidDomain( siteURL ) {
 	try {
 		return new URL( siteURL )?.host;
 	} catch ( e ) {
-		return siteURL.match( pattern ) ? siteURL.match( pattern )[ 2 ] : null;
+		return siteURL.match( pattern )?.[ 2 ] ?? null;
 	}
 }
 
