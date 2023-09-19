@@ -1115,8 +1115,7 @@ function zeroBSCRM_migration_560() { // phpcs:ignore WordPress.NamingConventions
  * @return void
  */
 function zeroBSCRM_migration_611() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
-	// Check that all tables exists.
-	// Phrased differnetly, then we're creating an automations workflows table.
+	// Check tables if exist and create if not.
 	zeroBSCRM_checkTablesExist();
 
 	// Mark migration as complete.
