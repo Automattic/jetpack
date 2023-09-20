@@ -45,7 +45,7 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Name of the shared module.
 	 *
-	 * $since $$next-version$$
+	 * @since $$next-version$$
 	 *
 	 * @var string
 	 */
@@ -77,7 +77,7 @@ class Jetpack_Lazy_Images {
 	 * In some scenarios, Lazy Images can conflict with other WordPress features.
 	 * When that's the case, we want to force-deactivate Lazy Images.
 	 *
-	 * $since $$next-version$$
+	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
