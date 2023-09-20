@@ -6,12 +6,6 @@ import { STORE_ID } from '../../state/store';
  *
  * @returns {object} product data
  */
-
-/**
- * React custom hook to get the product data
- *
- * @returns {object} product data
- */
 export default function useProductData() {
 	return {
 		productData: useSelect( select => select( STORE_ID ).getProductData() ),
