@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2023-09-19
+### Deprecated
+- Deprecated: The lazy-images functionality is not compatible with Gutenberg 16.6+ so it will be disabled when that version is present. [#33039]
+
 ## [2.1.45] - 2023-09-04
 ### Changed
 - Updated package dependencies. [#32803]
@@ -348,6 +352,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Lazy Images: Move into a package
 
+[2.2.0]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.45...v2.2.0
 [2.1.45]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.44...v2.1.45
 [2.1.44]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.43...v2.1.44
 [2.1.43]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.42...v2.1.43

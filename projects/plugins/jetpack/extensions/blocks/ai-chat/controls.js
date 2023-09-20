@@ -3,7 +3,7 @@ import { BaseControl, PanelBody, TextControl, TextareaControl } from '@wordpress
 import { useEntityProp } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
 
-export function AiChatControls( { setAttributes, askButtonLabel, placeholder } ) {
+export function AiChatControls( { setAttributes, placeholder } ) {
 	const [ promptOverride, setPromptOverride ] = useEntityProp(
 		'root',
 		'site',
@@ -13,19 +13,6 @@ export function AiChatControls( { setAttributes, askButtonLabel, placeholder } )
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) } initialOpen={ false }>
-					<BaseControl
-						label={ __( 'Ask button', 'jetpack' ) }
-						help={ __( 'What do you want the button to say?', 'jetpack' ) }
-						className="jetpack-ai-chat__ask-button-text"
-					>
-						<TextControl
-							placeholder={ __( 'Ask', 'jetpack' ) }
-							onChange={ newAskButtonLabel =>
-								setAttributes( { askButtonLabel: newAskButtonLabel } )
-							}
-							value={ askButtonLabel }
-						/>
-					</BaseControl>
 					<BaseControl
 						label={ __( 'Input placeholder', 'jetpack' ) }
 						help={ __( 'Customize the placeholder text.', 'jetpack' ) }

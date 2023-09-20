@@ -409,7 +409,7 @@ class Blocks {
 	 * source code directory and, optionally, the directory that holds the blocks built files of
 	 * the package. If the directory doesn't exist, falls back to the source directory.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.6.0
 	 *
 	 * @param string $block_src_dir    The path to the folder containing the block source code.
 	 *                                 Typically this is done by passing __DIR__ as the argument.

@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Remove deprecated `@babel/plugin-proposal-nullish-coalescing-operator`; replacement `@babel/plugin-transform-nullish-coalescing-operator` is already loaded by `@babel/preset-env` when needed.
-
-

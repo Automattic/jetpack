@@ -1,7 +1,7 @@
 .jetpack-blogroll__appender-results {
 	padding: 0 18px 18px 18px;
 
-	> span {
+	> div {
 		padding: 6px 0;
 		font-size: 11px;
 		line-height: 16px;
@@ -12,6 +12,9 @@
 	> ul {
 		margin: 0;
 		max-height: 200px;
+		list-style: none;
+		padding-left: 0px !important;
+		overflow-y: auto;
 
 		li {
 			margin: 0;
