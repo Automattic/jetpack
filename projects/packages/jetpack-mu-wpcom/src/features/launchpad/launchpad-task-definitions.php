@@ -240,6 +240,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => function () {
 				add_action( 'add_attachment', 'wpcom_launchpad_track_video_uploaded_task' );
 			},
+			'get_calypso_path'      => function ( $task, $default, $data ) {
+				$page_on_front = get_option( 'page_on_front', false );
+				if ( $page_on_front ) {
+					return '/page/' . $data['site_slug_encoded'] . '/' . $page_on_front;
+				}
+				return '/site-editor/' . $data['site_slug_encoded'] . '?canvas=edit';
+			},
 		),
 
 		// Blog tasks.
