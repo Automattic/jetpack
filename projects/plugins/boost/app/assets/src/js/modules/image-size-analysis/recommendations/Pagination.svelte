@@ -2,7 +2,12 @@
 	import ChevronLeft from '../../../svg/chevron-left.svg';
 	import ChevronRight from '../../../svg/chevron-right.svg';
 	import { Link } from '../../../utils/router';
-	import { isaData } from '../store/isa-data';
+	import PaginationArrow from './components/PaginationArrow.svelte';
+
+	export let group: string;
+	export let current: number;
+	export let total: number;
+
 	// "-1" is replaced by "..." when rendering the pagination
 	const MORE_ICON = -1;
 
@@ -41,28 +46,14 @@
 		return pagination;
 	}
 
-	function nextPage() {
-		if ( current < total ) {
-			$isaData.query.page += 1;
-		}
-	}
-
-	function previousPage() {
-		if ( current > 1 ) {
-			$isaData.query.page -= 1;
-		}
-	}
-
-	$: current = $isaData.query.page;
-	$: total = $isaData.data.total_pages;
 	$: pages = generatePagination( current, total );
 </script>
 
 <div class="jb-pagination">
 	{#if total > 1}
-		<button class="jb-chevron" class:inactive={current === 1} on:click={previousPage}>
+		<PaginationArrow direction="left" {group} {current} {total}>
 			<ChevronLeft />
-		</button>
+		</PaginationArrow>
 
 		<ul>
 			{#each pages as page}
@@ -71,7 +62,7 @@
 						<span class="jb-pagination__page jb-pagination__more"> ... </span>
 					{:else}
 						<Link
-							to="/image-size-analysis/{$isaData.query.group}/{page}"
+							to="/image-size-analysis/{group}/{page}"
 							class="jb-pagination__page{page === current ? ' jb-pagination__current' : ''}"
 						>
 							{page}
@@ -81,13 +72,9 @@
 			{/each}
 		</ul>
 
-		<button
-			class="jb-chevron"
-			class:jb-pagination__inactive={current === total}
-			on:click={nextPage}
-		>
+		<PaginationArrow direction="right" {group} {current} {total}>
 			<ChevronRight />
-		</button>
+		</PaginationArrow>
 	{/if}
 </div>
 
@@ -106,7 +93,6 @@
 		margin: 0;
 	}
 
-	button,
 	.jb-pagination__page,
 	.jb-pagination :global( a ) {
 		background-color: transparent;
