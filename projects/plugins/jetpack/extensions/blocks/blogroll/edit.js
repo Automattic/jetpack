@@ -21,7 +21,9 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 	} = attributes;
 
 	const { isLoading, recommendations } = useRecommendations( load_placeholders );
-	const { subscriptions } = useSubscriptions( { ignore_user_blogs } );
+	const { isLoading: isLoadingSubscriptions, subscriptions } = useSubscriptions( {
+		ignore_user_blogs,
+	} );
 
 	const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
 
@@ -44,14 +46,17 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		} ),
 	} );
 
+	const renderBlogrollAppender = () => {
+		return ! isLoadingSubscriptions
+			? () => <BlogrollAppender subscriptions={ subscriptions } clientId={ clientId } />
+			: null;
+	};
 	return (
 		<div { ...blockProps }>
 			<InnerBlocks
 				template={ [ [ 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ] ] }
 				allowedBlocks={ [ 'jetpack/blogroll-item' ] }
-				renderAppender={ () => (
-					<BlogrollAppender subscriptions={ subscriptions } clientId={ clientId } />
-				) }
+				renderAppender={ renderBlogrollAppender() }
 			/>
 
 			{ load_placeholders && isLoading && (
