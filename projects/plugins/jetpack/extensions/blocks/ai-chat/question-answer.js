@@ -121,7 +121,6 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType, plac
 					/>
 
 					<Button
-						variant="primary"
 						className="wp-block-button__link jetpack-ai-chat-question-button"
 						disabled={ isLoading }
 						onClick={ handleSubmitQuestion }

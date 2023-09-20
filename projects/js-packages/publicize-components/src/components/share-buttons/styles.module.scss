@@ -1,0 +1,28 @@
+$whatsapp: #2ab318;
+
+.share-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+
+	a {
+		color: #fff;
+		border-radius: 4px;
+
+		&:hover {
+			color: #fff;
+		}
+
+		svg {
+			fill: #fff !important;
+		}
+	}
+
+	.twitter {
+		background-color: var(--color-twitter);
+	}
+
+	.whatsapp {
+		background-color: $whatsapp;
+	}
+}
