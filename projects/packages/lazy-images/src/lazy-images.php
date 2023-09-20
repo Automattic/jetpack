@@ -128,7 +128,6 @@ class Jetpack_Lazy_Images {
 		if ( ! self::is_enabled() ) {
 			return true;
 		}
-		l( 'lazy-images', 'disable' );
 		return ( new Modules() )->deactivate( self::MODULE_NAME );
 	}
 
