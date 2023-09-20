@@ -77,19 +77,20 @@
     // ===============================================================================
     // ===========  TYPES ============================================================
 
-        define('ZBS_TYPE_CONTACT',      1);
-        define('ZBS_TYPE_COMPANY',      2);
-        define('ZBS_TYPE_QUOTE',        3);
-        define('ZBS_TYPE_INVOICE',      4);
-        define('ZBS_TYPE_TRANSACTION',  5);
-        define('ZBS_TYPE_EVENT',        6);
-        define('ZBS_TYPE_FORM',         7);
-        define('ZBS_TYPE_LOG',          8);
-        define('ZBS_TYPE_SEGMENT',      9);
-        define('ZBS_TYPE_LINEITEM',     10);
-        define('ZBS_TYPE_EVENTREMINDER', 11);
-        define('ZBS_TYPE_QUOTETEMPLATE', 12);
-        define('ZBS_TYPE_ADDRESS',      13); // this is a precursor to v4 where we likely need to split out addresses from current in-object model (included here as custom fields now managed as if obj)
+define( 'ZBS_TYPE_CONTACT', 1 );
+define( 'ZBS_TYPE_COMPANY', 2 );
+define( 'ZBS_TYPE_QUOTE', 3 );
+define( 'ZBS_TYPE_INVOICE', 4 );
+define( 'ZBS_TYPE_TRANSACTION', 5 );
+define( 'ZBS_TYPE_EVENT', 6 ); // legacy, use ZBS_TYPE_TASK instead
+define( 'ZBS_TYPE_TASK', 6 );
+define( 'ZBS_TYPE_FORM', 7 );
+define( 'ZBS_TYPE_LOG', 8 );
+define( 'ZBS_TYPE_SEGMENT', 9 );
+define( 'ZBS_TYPE_LINEITEM', 10 );
+define( 'ZBS_TYPE_EVENTREMINDER', 11 );
+define( 'ZBS_TYPE_QUOTETEMPLATE', 12 );
+define( 'ZBS_TYPE_ADDRESS', 13 ); // this is a precursor to v4 where we likely need to split out addresses from current in-object model (included here as custom fields now managed as if obj)
 
     // =========== /  TYPES  =========================================================
     // ===============================================================================
