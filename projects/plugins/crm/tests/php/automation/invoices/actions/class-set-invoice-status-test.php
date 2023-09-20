@@ -53,13 +53,15 @@ class Set_Invoice_Status_Test extends JPCRM_Base_Integration_Test_Case {
 			'triggers'     => array(
 				Invoice_Created::get_slug(),
 			),
-			'initial_step' => array(
-				'slug'            => Set_Invoice_Status::get_slug(),
-				'attributes'      => array(
-					'new_status' => 'Paid',
+			'initial_step' => 0,
+			'steps'        => array(
+				0 => array(
+					'slug'       => Set_Invoice_Status::get_slug(),
+					'attributes' => array(
+						'new_status' => 'Paid',
+					),
+					'next_step'  => null,
 				),
-				'next_step_true'  => null,
-				'next_step_false' => null,
 			),
 		);
 
