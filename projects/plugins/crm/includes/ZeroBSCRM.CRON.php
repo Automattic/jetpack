@@ -210,7 +210,7 @@
 					// =================================== MAIL SENDING =========================================
 
 					// generate html
-					$emailHTML = zeroBSCRM_Event_generateNotificationHTML( true, $owner_email, $event['id'], $event );
+					$emailHTML = jpcrm_task_generate_notification_html( true, $owner_email, $event['id'], $event );
 
 						// build send array
 						$mailArray = array(

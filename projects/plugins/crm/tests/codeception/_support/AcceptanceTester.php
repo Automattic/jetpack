@@ -30,7 +30,7 @@ class AcceptanceTester extends \Codeception\Actor {
 		'quotes'       => 'manage-quotes',
 		'invoices'     => 'manage-invoices',
 		'transactions' => 'manage-transactions',
-		'events'       => 'manage-events',
+		'tasks'        => 'manage-tasks',
 		'settings'     => 'zerobscrm-plugin-settings',
 		'extensions'   => 'zerobscrm-extensions',
 		'add-edit'     => 'zbs-add-edit',

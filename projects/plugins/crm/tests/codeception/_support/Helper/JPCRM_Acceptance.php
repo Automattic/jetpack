@@ -168,8 +168,8 @@ class JPCRM_Acceptance extends WPBrowser {
 		$this->slugs['manageformscrm']     = 'manage-forms';
 		$this->slugs['segments']           = 'manage-segments';
 		$this->slugs['quote-templates']    = 'manage-quote-templates';
-		$this->slugs['manage-events']      = 'manage-events';
-		// $this->slugs['manage-events-completed'] = "manage-events-completed";  // <<< 403 Forbidden
+		$this->slugs['manage-tasks']       = 'manage-tasks';
+		// $this->slugs['manage-tasks-completed'] = "manage-tasks-completed";  // <<< 403 Forbidden
 		// $this->slugs['managecontactsprev']      = "manage-customers-crm";     // <<< 403 Forbidden
 		// $this->slugs['managequotesprev']        = "manage-quotes-crm";        // <<< 403 Forbidden
 		// $this->slugs['managetransactionsprev']  = "manage-transactions-crm";  // <<< 403 Forbidden

@@ -467,7 +467,7 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 		$q = $wpdb->prepare($sql,array($newTemplate));
 		$wpdb->query($q);
 		
-		// ===== / Previously: 4.0.7 - corrects outdated event notification template
+		// ===== / Previously: 4.0.7 - corrects outdated task notification template
 		
 
 		// ===== Previously: 4.0.8 - Set the default reference type for invoices & Update the existing template for email notifications (had old label)
@@ -1134,7 +1134,7 @@ function zeroBSCRM_migration_task_offset_fix() { // phpcs:ignore WordPress.Namin
 		return;
 	}
 
-	// remove offset from stored event dates
+	// remove offset from stored task dates
 	$sql = sprintf( 'UPDATE %s SET zbse_start = zbse_start - %d;', $ZBSCRM_t['events'], $timezone_offset_in_secs ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 	$sql = sprintf( 'UPDATE %s SET zbse_end = zbse_end - %d;', $ZBSCRM_t['events'], $timezone_offset_in_secs ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase

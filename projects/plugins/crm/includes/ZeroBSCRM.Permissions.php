@@ -584,7 +584,7 @@ function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.
 
 			case ZBS_TYPE_EVENT:
 
-				return zeroBSCRM_permsEvents();
+				return zeroBSCRM_perms_tasks();
 				break;			
 
 		}
@@ -706,7 +706,7 @@ function zeroBSCRM_permsCustomers() {
 	    return false;
 	}
 
-	function zeroBSCRM_permsEvents(){
+	function zeroBSCRM_perms_tasks(){
 
 	    $cu = wp_get_current_user();
 	    if ($cu->has_cap('admin_zerobs_events')) return true;

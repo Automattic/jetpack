@@ -20,8 +20,8 @@ jQuery( document ).ready( function () {
 				jpcrm_bind_linkify();
 			} else if ( window.zbsEditSettings.objdbname == 'event' ) {
 				setTimeout( function () {
-					zeroBSCRMJS_events_showContactLinkIf( jQuery( '#zbse_customer' ).val() );
-					zeroBSCRMJS_events_showCompanyLinkIf( jQuery( '#zbse_company' ).val() );
+					jpcrm_tasks_showContactLinkIf( jQuery( '#zbse_customer' ).val() );
+					jpcrm_tasks_showCompanyLinkIf( jQuery( '#zbse_company' ).val() );
 				}, 0 );
 			}
 		}
@@ -321,7 +321,7 @@ function zbscrmjs_events_setContact( obj ) {
 
 		setTimeout( function () {
 			// when select drop down changed, show/hide quick nav
-			zeroBSCRMJS_events_showContactLinkIf( obj.id );
+			jpcrm_tasks_showContactLinkIf( obj.id );
 		}, 0 );
 	}
 }
@@ -335,7 +335,7 @@ function zbscrmjs_events_setCompany( obj ) {
 
 		setTimeout( function () {
 			// when select drop down changed, show/hide quick nav
-			zeroBSCRMJS_events_showCompanyLinkIf( obj.id );
+			jpcrm_tasks_showCompanyLinkIf( obj.id );
 		}, 0 );
 	}
 }
@@ -349,7 +349,7 @@ function zbscrmjs_events_changeContact( o ) {
 
 		setTimeout( function () {
 			// when select drop down changed, show/hide quick nav
-			zeroBSCRMJS_events_showContactLinkIf( '' );
+			jpcrm_tasks_showContactLinkIf( '' );
 		}, 0 );
 	}
 }
@@ -362,7 +362,7 @@ function zbscrmjs_events_changeCompany( o ) {
 
 		setTimeout( function () {
 			// when select drop down changed, show/hide quick nav
-			zeroBSCRMJS_events_showCompanyLinkIf( '' );
+			jpcrm_tasks_showCompanyLinkIf( '' );
 		}, 0 );
 	}
 }
@@ -371,10 +371,10 @@ function zbscrmjs_events_changeCompany( o ) {
 /**
  * @param contactID
  */
-function zeroBSCRMJS_events_showContactLinkIf( contactID ) {
+function jpcrm_tasks_showContactLinkIf( contactID ) {
 	// remove old
 	jQuery( '.zbs-task-for .zbs-view-contact' ).remove();
-	jQuery( '#zbs-event-learn-nav .zbs-quicknav-contact' ).remove();
+	jQuery( '#jpcrm-task-learn-nav .zbs-quicknav-contact' ).remove();
 
 	if ( typeof contactID !== 'undefined' && contactID !== null && contactID !== '' ) {
 		contactID = parseInt( contactID );
@@ -397,10 +397,10 @@ function zeroBSCRMJS_events_showContactLinkIf( contactID ) {
 				'"><i class="user icon"></i> ' +
 				zeroBSCRMJS_editViewLang( 'contact', 'Contact' ) +
 				'</a>';
-			jQuery( '#zbs-event-learn-nav' ).append( navButton );
+			jQuery( '#jpcrm-task-learn-nav' ).append( navButton );
 
 			// bind
-			zeroBSCRMJS_events_bindContactLinkIf();
+			jpcrm_tasks_bindContactLinkIf();
 		}
 	}
 }
@@ -409,7 +409,7 @@ function zeroBSCRMJS_events_showContactLinkIf( contactID ) {
 /**
  *
  */
-function zeroBSCRMJS_events_bindContactLinkIf() {
+function jpcrm_tasks_bindContactLinkIf() {
 	jQuery( '.zbs-task-for .zbs-view-contact' )
 		.off( 'click' )
 		.on( 'click', function () {
@@ -431,10 +431,10 @@ function zeroBSCRMJS_events_bindContactLinkIf() {
 /**
  * @param companyID
  */
-function zeroBSCRMJS_events_showCompanyLinkIf( companyID ) {
+function jpcrm_tasks_showCompanyLinkIf( companyID ) {
 	// remove old
 	jQuery( '.zbs-task-for-company .zbs-view-company' ).remove();
-	jQuery( '#zbs-event-learn-nav .zbs-quicknav-company' ).remove();
+	jQuery( '#jpcrm-task-learn-nav .zbs-quicknav-company' ).remove();
 
 	if ( typeof companyID !== 'undefined' && companyID !== null && companyID !== '' ) {
 		companyID = parseInt( companyID );
@@ -457,10 +457,10 @@ function zeroBSCRMJS_events_showCompanyLinkIf( companyID ) {
 				'"><i class="user icon"></i> ' +
 				zeroBSCRMJS_editViewLang( 'company', 'Company' ) +
 				'</a>';
-			jQuery( '#zbs-event-learn-nav' ).append( navButton );
+			jQuery( '#jpcrm-task-learn-nav' ).append( navButton );
 
 			// bind
-			zeroBSCRMJS_events_bindCompanyLinkIf();
+			jpcrm_tasks_bindCompanyLinkIf();
 		}
 	}
 }
@@ -469,7 +469,7 @@ function zeroBSCRMJS_events_showCompanyLinkIf( companyID ) {
 /**
  *
  */
-function zeroBSCRMJS_events_bindCompanyLinkIf() {
+function jpcrm_tasks_bindCompanyLinkIf() {
 	jQuery( '.zbs-task-for-company .zbs-view-company' )
 		.off( 'click' )
 		.on( 'click', function () {
@@ -499,7 +499,7 @@ if ( typeof module !== 'undefined' ) {
 		zbscrmjs_events_changeCompany, zeroBSCRMJS_initEditView, zeroBSCRMJS_preLeaveEditView, zeroBSCRMJS_editViewLang,
 		zeroBSCRMJS_drawEditView, zeroBSCRMJS_editViewBinds, zeroBSCRMJS_hideNotificationsAfter,
 		zeroBSCRMJS_editContactInit, jpcrm_customer_profile_picture_on_change, jpcrm_customer_remove_profile_picture,
-		jpcrm_bind_linkify, zeroBSCRMJS_initLinkify, zeroBSCRMJS_bindLinkify, zeroBSCRMJS_events_showContactLinkIf,
-		zeroBSCRMJS_events_bindContactLinkIf, zeroBSCRMJS_events_showCompanyLinkIf, zeroBSCRMJS_events_bindCompanyLinkIf,
+		jpcrm_bind_linkify, zeroBSCRMJS_initLinkify, zeroBSCRMJS_bindLinkify, jpcrm_tasks_showContactLinkIf,
+		jpcrm_tasks_bindContactLinkIf, jpcrm_tasks_showCompanyLinkIf, jpcrm_tasks_bindCompanyLinkIf,
 		zbscrmjsPageChangesSave };
 }

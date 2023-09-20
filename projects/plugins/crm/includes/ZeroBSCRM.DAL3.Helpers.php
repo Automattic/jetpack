@@ -8334,7 +8334,7 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 					case ZBS_TYPE_INVOICE: $url = admin_url( 'admin.php?page='.$zbs->slugs['manageinvoices'] ); break;
 					case ZBS_TYPE_TRANSACTION: $url = admin_url( 'admin.php?page='.$zbs->slugs['managetransactions'] ); break;
 					case ZBS_TYPE_FORM: $url = admin_url( 'admin.php?page='.$zbs->slugs['manageformscrm'] ); break;
-					case ZBS_TYPE_EVENT: $url = admin_url( 'admin.php?page='.$zbs->slugs['manage-events'] ); break;
+					case ZBS_TYPE_EVENT: $url = admin_url( 'admin.php?page='.$zbs->slugs['manage-tasks'] ); break;
 					case ZBS_TYPE_SEGMENT: $url = admin_url( 'admin.php?page='.$zbs->slugs['segments'] ); break;
 					case ZBS_TYPE_QUOTETEMPLATE: $url = admin_url( 'admin.php?page='.$zbs->slugs['quote-templates'] ); break;
 
@@ -8440,7 +8440,7 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 					// exception: event tags
 					if ( $objTypeID == ZBS_TYPE_EVENT ) {
 
-						return esc_url_raw( admin_url( 'admin.php?page=' . $zbs->slugs['manage-events-list'] . '&zbs_tag=' . $taxonomy ) );
+						return esc_url_raw( admin_url( 'admin.php?page=' . $zbs->slugs['manage-tasks-list'] . '&zbs_tag=' . $taxonomy ) );
 
 					}
 

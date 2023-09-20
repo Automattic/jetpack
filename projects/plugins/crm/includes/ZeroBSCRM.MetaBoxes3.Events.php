@@ -53,7 +53,7 @@
             // set these
             // DAL3 switched for objType $this->postType = 'zerobs_customer';
             $this->objType = 'event';
-            $this->metaboxID = 'zerobs-event-edit';
+            $this->metaboxID = 'jpcrm-task-edit';
             $this->metaboxTitle = __('Task Information','zero-bs-crm');
             $this->metaboxScreen = 'zbs-add-edit-event-edit';
             $this->metaboxArea = 'normal';
@@ -338,7 +338,7 @@
                             // delete?
 
                          // for now just check if can modify, later better, granular perms.
-                         if ( zeroBSCRM_permsEvents() ) { 
+                         if ( zeroBSCRM_perms_tasks() ) { 
                         ?><div id="zbs-event-actions-delete" class="zbs-objedit-actions-delete">
                              <a class="submitdelete deletion" href="<?php echo jpcrm_esc_link( 'delete', $eventID, 'event' ); ?>"><?php esc_html_e('Delete Permanently', "zero-bs-crm"); ?></a>
                         </div>
@@ -450,9 +450,9 @@ function zeroBSCRM_task_addEdit($taskID = -1){
     }else{ */
 
     if($taskID > 0){
-        $html = "<div id='task-".$taskID."' class='zbs-event-editor-wrap'>";
+        $html = "<div id='task-".$taskID."' class='jpcrm-task-editor-wrap'>";
     }else{
-        $html = "<div id='task-0' class='zbs-event-editor-wrap'>";
+        $html = "<div id='task-0' class='jpcrm-task-editor-wrap'>";
     }
 
     $html .= zeroBSCRM_task_ui_clear();

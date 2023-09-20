@@ -14,7 +14,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	exit;
 }
 
-function zeroBSCRM_render_eventscalendar_page(){
+function zeroBSCRM_render_tasks_calendar_page(){
 
     global $zbs;
 
@@ -31,21 +31,21 @@ function zeroBSCRM_render_eventscalendar_page(){
 
     $fullCalendarView = 'month';
 
-    $currentEventUserID = false; if (isset($_GET['zbsowner']) && !empty($_GET['zbsowner'])) $currentEventUserID = (int)sanitize_text_field($_GET['zbsowner']);
-    $zbsEventsUsers = zeroBS_getPossibleCustomerOwners();
-    $showEventsUsers = false;
+    $current_task_user_id = false; if (isset($_GET['zbsowner']) && !empty($_GET['zbsowner'])) $current_task_user_id = (int)sanitize_text_field($_GET['zbsowner']);
+    $jpcrm_tasks_users = zeroBS_getPossibleCustomerOwners();
+    $show_tasks_users = false;
 
-    if (count($zbsEventsUsers) > 0 && zeroBSCRM_isZBSAdminOrAdmin()) {
-        $showEventsUsers = true;
+    if (count($jpcrm_tasks_users) > 0 && zeroBSCRM_isZBSAdminOrAdmin()) {
+        $show_tasks_users = true;
     } else {
         $taskOwnershipOn = zeroBSCRM_getSetting('taskownership');
         if ($taskOwnershipOn == "1") {
-            $currentEventUserID = get_current_user_id();
+            $current_task_user_id = get_current_user_id();
         }
     }
 
     if(isset($_GET['zbs_crm_team'])){
-        $currentEventUserID = get_current_user_id();
+        $current_task_user_id = get_current_user_id();
         $fullCalendarView = 'listMonth';
     }
     
@@ -55,7 +55,7 @@ function zeroBSCRM_render_eventscalendar_page(){
 
     <div class="ui segment main-task-view">
 
-            <?php if ($showEventsUsers){ ?><div style="clear:both;height: 0px;"></div><?php } ?>
+            <?php if ($show_tasks_users){ ?><div style="clear:both;height: 0px;"></div><?php } ?>
 
 		<?php
 
@@ -70,70 +70,71 @@ function zeroBSCRM_render_eventscalendar_page(){
                     );
 
                     // belonging to specific user
-                    if (!empty($currentEventUserID) && $currentEventUserID > 0) {
-                        $args['ownedBy'] = $currentEventUserID;
+                    if (!empty($current_task_user_id) && $current_task_user_id > 0) {
+                        $args['ownedBy'] = $current_task_user_id;
                         //$args['ignoreowner'] = false;
                     }
                         
-                    $events = $zbs->DAL->events->getEvents($args);
+                    $tasks = $zbs->DAL->events->getEvents($args);
 
                     // for now we cycle through and form into same object as MS wrote this for,
                     // v3.0 + to rewrite display engine to use proper DAL objs on fly. 
-                    if (is_array($events) && count($events) > 0){
+                    if (is_array($tasks) && count($tasks) > 0){
 
                         $avatar_args = array(
                             'size' => 24
                         );
 
-                        $endEvents = array();
-                        foreach ($events as $event){
+                        $end_tasks = array();
+                        foreach ($tasks as $task){
 
-                            if (isset($event['start']) && $event['start'] > 0 
+                            if (isset($task['start']) && $task['start'] > 0 
                                 && 
-                                isset($event['end']) && $event['end'] > 0){
+                                isset($task['end']) && $task['end'] > 0){
 
-								$newEvent = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-									'title'     => zeroBSCRM_textExpose( $event['title'] ),
-									'start'     => jpcrm_uts_to_datetime_str( $event['start'], 'Y-m-d H:i:s' ),
-									'end'       => jpcrm_uts_to_datetime_str( $event['end'], 'Y-m-d H:i:s' ),
-									'url'       => jpcrm_esc_link( 'edit', $event['id'], ZBS_TYPE_EVENT ),
-									'owner'     => $event['owner'],
+								$new_task = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									'title'     => zeroBSCRM_textExpose( $task['title'] ),
+									'start'     => jpcrm_uts_to_datetime_str( $task['start'], 'Y-m-d H:i:s' ),
+									'end'       => jpcrm_uts_to_datetime_str( $task['end'], 'Y-m-d H:i:s' ),
+									'url'       => jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_EVENT ),
+									'owner'     => $task['owner'],
 									'avatar'    => '', // default
 									'showonCal' => 'hide', // default
 									'complete'  => '-1',
 								);
 
                                 // avatar?
-                                if (isset($event['owner']) && $event['owner'] > 0) $newEvent['avatar'] = get_avatar_url($event['owner'], $avatar_args);
+                                if (isset($task['owner']) && $task['owner'] > 0) $new_task['avatar'] = get_avatar_url($task['owner'], $avatar_args);
 
                                 // show on cal
-                                if (isset($event['show_on_cal']) && $event['show_on_cal'] == 1) $newEvent['showonCal'] = 'show';
+                                if (isset($task['show_on_cal']) && $task['show_on_cal'] == 1) $new_task['showonCal'] = 'show';
 
                                 // complete?
-                                if (isset($event['complete']) && $event['complete'] == 1) $newEvent['complete'] = 1;
+                                if (isset($task['complete']) && $task['complete'] == 1) $new_task['complete'] = 1;
 
                                 // add it
-                                $endEvents[] = $newEvent;
+                                $end_tasks[] = $new_task;
 
                             }
 
                         }
 
                         // pass it on and clean up
-                        $events = $endEvents; unset($endEvents,$newEvent);
+                        $tasks = $end_tasks;
+												unset( $end_tasks, $new_task );
 
-                    } else $events = array();
+                    } else $tasks = array();
 
                     // build json
-                    $event_json = json_encode($events);
+                    $task_json = json_encode( $tasks );
 
                 ?>
 
 
                 <script>
                 <?php /* debug
-                var eventDebug = <?php echo $event_json; ?>;
-                console.log('events:',eventDebug); */ ?>
+                var task_debug = <?php echo $task_json; ?>;
+                console.log('tasks:',task_debug); */ ?>
 
                     jQuery(function() {
                         
@@ -147,10 +148,10 @@ function zeroBSCRM_render_eventscalendar_page(){
                             defaultView: '<?php echo esc_html( $fullCalendarView ); ?>',
                             navLinks: true, // can click day/week names to navigate views
                        //     editable: true,
-                            eventLimit: true, // allow "more" link when too many events
+                            eventLimit: true, // allow "more" link when too many tasks
                             weekends: true,
                             disableDragging: true,
-                            events: <?php echo $event_json; ?>,
+                            events: <?php echo $task_json; ?>,
                             firstDay: <?php echo (int)get_option('start_of_week',0) ?>
                         });
                         

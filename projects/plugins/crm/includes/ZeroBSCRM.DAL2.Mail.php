@@ -445,7 +445,7 @@ function zeroBSCRM_populateEmailTemplateList() {
 	}
 
 	// IDs
-	// 5 - Event Notification (leave for now)...
+	// 5 - Task Notification (leave for now)...
 
 	$ID       = 5;
 	$reply_to = '';

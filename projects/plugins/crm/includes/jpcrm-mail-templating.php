@@ -210,7 +210,7 @@ function zeroBSCRM_mailTemplate_emailPreview($templateID=-1){
 		}
 
 
-		// event
+		// task
 		if ( $templateID == 5 ){
 
 			$replacements['task-title']       = __( 'Example Task #101', 'zero-bs-crm' );
@@ -826,12 +826,12 @@ function zeroBSCRM_Portal_generatePWresetNotificationHTML( $pwd, $return, $conta
 	return;
 }
 
-function zeroBSCRM_Event_generateNotificationHTML( $return = true, $email = false, $eventID = -1, $event = false ) {
+function jpcrm_task_generate_notification_html( $return = true, $email = false, $task_id = -1, $task = false ) {
 
 	global $zbs;
 
 	// checks
-	if ( !zeroBSCRM_validateEmail( $email ) || $eventID < 1 ) {
+	if ( !zeroBSCRM_validateEmail( $email ) || $task_id < 1 ) {
 		return false;
 	}
 
@@ -848,7 +848,7 @@ function zeroBSCRM_Event_generateNotificationHTML( $return = true, $email = fals
 	// Act
 	if ( !empty( $templatedHTML ) ) {
 
-		// retrieve event notification
+		// retrieve task notification
 		$message_content = zeroBSCRM_mailTemplate_get( ZBSEMAIL_EVENTNOTIFICATION );
 		$bodyHTML = $message_content->zbsmail_body;
 		$html = $placeholder_templating->replace_single_placeholder( 'msg-content', $bodyHTML, $templatedHTML );
@@ -856,26 +856,26 @@ function zeroBSCRM_Event_generateNotificationHTML( $return = true, $email = fals
 		// get replacements
 		$replacements = $placeholder_templating->get_generic_replacements();
 
-		// retrieve event (if not passed)
-		if ( !is_array( $event ) ) {
+		// retrieve task (if not passed)
+		if ( !is_array( $task ) ) {
 
-			$event = $zbs->DAL->events->getEvent( $eventID );
+			$task = $zbs->DAL->events->getEvent( $task_id );
 
 		}
 
 		// vars / html gen
-		$eventURL = jpcrm_esc_link( 'edit', $event['id'], ZBS_TYPE_EVENT );
-		$eventHTML = '<p>' . nl2br( $event['desc'] ) . '</p>';
-		$eventHTML .= '<hr /><p style="text-align:center">';
-		$eventHTML .= __( 'Your task starts at ', 'zero-bs-crm' ) . '<strong>' . $event['start_date'] . '</strong><br/>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		// $eventHTML .= __( 'to: ', 'zero-bs-crm' ) . $event['end_date'];
-		$eventHTML .= '</p><hr />';
+		$task_url = jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_EVENT );
+		$task_html = '<p>' . nl2br( $task['desc'] ) . '</p>';
+		$task_html .= '<hr /><p style="text-align:center">';
+		$task_html .= __( 'Your task starts at ', 'zero-bs-crm' ) . '<strong>' . $task['start_date'] . '</strong><br/>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// $task_html .= __( 'to: ', 'zero-bs-crm' ) . $task['end_date'];
+		$task_html .= '</p><hr />';
 
 		// replacements
 		$replacements['title']            = __( 'Your Task is starting soon', 'zero-bs-crm' );
-		$replacements['task-title']       = '<h2>' . $event['title'] . '</h2>';
-		$replacements['task-body']        = $eventHTML; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$replacements['task-link-button'] = '<div style="text-align:center;margin:1em;margin-top:2em">' . __( 'You can view your task at the following URL: ', 'zero-bs-crm' ) . '<br />' . zeroBSCRM_mailTemplate_emailSafeButton( $eventURL, __( 'View Task', 'zero-bs-crm' ) ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$replacements['task-title']       = '<h2>' . $task['title'] . '</h2>';
+		$replacements['task-body']        = $task_html; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$replacements['task-link-button'] = '<div style="text-align:center;margin:1em;margin-top:2em">' . __( 'You can view your task at the following URL: ', 'zero-bs-crm' ) . '<br />' . zeroBSCRM_mailTemplate_emailSafeButton( $task_url, __( 'View Task', 'zero-bs-crm' ) ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// replacements
 		$html = $placeholder_templating->replace_placeholders(
@@ -888,9 +888,9 @@ function zeroBSCRM_Event_generateNotificationHTML( $return = true, $email = fals
 			$html,
 			$replacements,
 			array(
-				ZBS_TYPE_EVENT   => $event,
-				ZBS_TYPE_CONTACT => isset( $event['contact'] ) ? $event['contact'][0] : null,
-				ZBS_TYPE_COMPANY => isset( $event['company'] ) ? $event['company'][0] : null,
+				ZBS_TYPE_EVENT   => $task,
+				ZBS_TYPE_CONTACT => isset( $task['contact'] ) ? $task['contact'][0] : null,
+				ZBS_TYPE_COMPANY => isset( $task['company'] ) ? $task['company'][0] : null,
 			)
 		);
 

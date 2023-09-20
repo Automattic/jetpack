@@ -211,7 +211,7 @@ final class ZeroBSCRM {
 	public $hide_admin_pages = array(
 
 		// hidden due to #gh-1442
-		'manage-events',
+		'manage-tasks',
 		'zerobscrm-csvimporterlite-app',
 
 	);
@@ -1019,9 +1019,9 @@ final class ZeroBSCRM {
 		$this->slugs['manageformscrm']          = 'manage-forms';
 		$this->slugs['segments']                = 'manage-segments';
 		$this->slugs['quote-templates']         = 'manage-quote-templates';
-		$this->slugs['manage-events']           = 'manage-events';
-		$this->slugs['manage-events-completed'] = 'manage-events-completed';
-		$this->slugs['manage-events-list']      = 'manage-events-list';
+		$this->slugs['manage-tasks']           = 'manage-tasks';
+		$this->slugs['manage-tasks-completed'] = 'manage-tasks-completed';
+		$this->slugs['manage-tasks-list']      = 'manage-tasks-list';
 		$this->slugs['managecontactsprev']      = 'manage-customers-crm';
 		$this->slugs['managequotesprev']        = 'manage-quotes-crm';
 		$this->slugs['managetransactionsprev']  = 'manage-transactions-crm';

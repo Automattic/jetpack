@@ -587,7 +587,7 @@ function zeroBSCRM_admin_scripts_editcust(){
 	
 	zeroBSCRM_dequeueJSModal();
 
-	//scripts here for the edit customer page (for the "Quick Add Company, Events, etc")
+	//scripts here for the edit customer page (for the "Quick Add Company, Tasks, etc")
 	wp_enqueue_script('zerobscrmcustjs');
 }
 

@@ -2543,7 +2543,7 @@ function zeroBSCRM_html_deletion() {
 		// } Transaction
 		$delID      = (int) sanitize_text_field( $_GET['eid'] );
 		$delIDVar   = 'eid';
-		$backToPage = 'edit.php?post_type=zerobs_event&page=manage-events';
+		$backToPage = 'edit.php?post_type=zerobs_event&page=manage-tasks';
 
 		// } Fill out
 		$delType = __( 'Task', 'zero-bs-crm' );
@@ -2555,7 +2555,7 @@ function zeroBSCRM_html_deletion() {
 	if ( isset( $_GET['perm'] ) && ! empty( $_GET['perm'] ) ) {
 
 		// wh added - mediocre last min check :/
-		if ( zeroBSCRM_permsEvents() ) {
+		if ( zeroBSCRM_perms_tasks() ) {
 
 			// only for events for now
 			if ( isset( $_GET['eid'] ) && ! empty( $_GET['eid'] ) ) {

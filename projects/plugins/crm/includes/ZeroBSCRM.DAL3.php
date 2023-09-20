@@ -214,7 +214,7 @@ class zbsDAL {
             ZBS_TYPE_QUOTE =>           'managequotes',
             ZBS_TYPE_INVOICE =>         'manageinvoices',
             ZBS_TYPE_TRANSACTION =>     'managetransactions',
-            ZBS_TYPE_EVENT =>           'manage-events',
+            ZBS_TYPE_EVENT =>           'manage-tasks',
             ZBS_TYPE_FORM =>            'manageformscrm',
             ZBS_TYPE_SEGMENT =>         'segments',
             //no list page ZBS_TYPE_LOG =>             'managecontacts',
