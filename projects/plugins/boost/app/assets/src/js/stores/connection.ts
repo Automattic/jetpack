@@ -18,24 +18,24 @@ const connectionStatus = writable< ConnectionStatus >( initialState );
  * `getRedirectUrl( 'boost-plugin-upgrade-default', { site: config.site.domain, query, anchor: 'purchased' } )`
  * should be used instead. However, the redirect changes the redirect URL in a broken manner.
  *
- * @param siteSuffix
+ * @param domain
  * @param isUserConnected
  */
-export function getUpgradeURL( siteSuffix: string, isUserConnected = false ) {
+export function getUpgradeURL( domain: string, isUserConnected = false ) {
 	const product = 'jetpack_boost_yearly';
 
 	const redirectUrl = new URL( window.location.href );
 	redirectUrl.hash = '#/purchase-successful';
 
 	const checkoutProductUrl = new URL(
-		`https://wordpress.com/checkout/${ siteSuffix }/${ product }`
+		`https://wordpress.com/checkout/${ domain }/${ product }`
 	);
 
 	// Add redirect_to parameter
 	checkoutProductUrl.searchParams.set( 'redirect_to', redirectUrl.toString() );
 
 	// Add site to query string.
-	checkoutProductUrl.searchParams.set( 'site', siteSuffix );
+	checkoutProductUrl.searchParams.set( 'site', domain );
 
 	// If not connected, add unlinked=1 to query string to tell wpcom to connect the site.
 	if ( ! isUserConnected ) {
