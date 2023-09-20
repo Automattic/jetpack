@@ -37,7 +37,7 @@ class Set_Invoice_Status extends Base_Action {
 	 * @return string|null The title of the step.
 	 */
 	public static function get_title(): ?string {
-		return 'Set Invoice Status Action';
+		return __( 'Set Invoice Status Action', 'zero-bs-crm' );
 	}
 
 	/**
@@ -48,7 +48,7 @@ class Set_Invoice_Status extends Base_Action {
 	 * @return string|null The description of the step.
 	 */
 	public static function get_description(): ?string {
-		return 'Action to set the invoice status';
+		return __( 'Action to set the invoice status', 'zero-bs-crm' );
 	}
 
 	/**
