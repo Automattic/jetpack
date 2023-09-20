@@ -29,7 +29,7 @@
 */
 class zbsDAL_eventreminders extends zbsDAL_ObjectLayer {
 
-    protected $objectType = ZBS_TYPE_EVENTREMINDER;
+	protected $objectType = ZBS_TYPE_TASK_REMINDER; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase, Squiz.Commenting.VariableComment.Missing
     protected $objectDBPrefix = 'zbser_';
     protected $objectModel = array(
 
@@ -104,7 +104,7 @@ class zbsDAL_eventreminders extends zbsDAL_ObjectLayer {
         $defaultArgs = array(
 
             // permissions
-            'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENTREMINDER), // this'll let you not-check the owner of obj
+		'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_TASK_REMINDER ), // this'll let you not-check the owner of obj
 
             // returns scalar ID of line
             'onlyID'        => false,
@@ -249,7 +249,7 @@ class zbsDAL_eventreminders extends zbsDAL_ObjectLayer {
             'whereCase'          => 'AND', // DEFAULT = AND
 
             // permissions
-            'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENTREMINDER), // this'll let you not-check the owner of obj
+		'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_TASK_REMINDER ), // this'll let you not-check the owner of obj
 
 
         ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
@@ -412,11 +412,11 @@ class zbsDAL_eventreminders extends zbsDAL_ObjectLayer {
         $whereArr = array();
 
         return $this->DAL()->getFieldByWHERE(array(
-            'objtype' => ZBS_TYPE_EVENTREMINDER,
-            'colname' => 'COUNT(ID)',
-            'where' => $whereArr,
-            'ignoreowner' => $ignoreowner));
-        
+					'objtype'     => ZBS_TYPE_TASK_REMINDER,
+					'colname'     => 'COUNT(ID)',
+					'where'       => $whereArr,
+					'ignoreowner' => $ignoreowner
+				));
     }
 
 
@@ -696,7 +696,7 @@ class zbsDAL_eventreminders extends zbsDAL_ObjectLayer {
 
                                     #} Brutal update
                                     //update_post_meta($postID, 'zbs_customer_extra_'.$cleanKey, $v);
-                                    $this->DAL()->updateMeta(ZBS_TYPE_EVENTREMINDER,$id,'extra_'.$cleanKey,$v);
+                                    $this->DAL()->updateMeta( ZBS_TYPE_TASK_REMINDER, $id,'extra_' . $cleanKey, $v );
 
                                     #} Add it to this, which passes to IA
                                     $confirmedExtraMeta[$cleanKey] = $v;

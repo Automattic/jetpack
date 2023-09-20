@@ -162,7 +162,7 @@ class zbsDAL {
             ZBS_TYPE_SEGMENT => 'segment',
             ZBS_TYPE_LOG => 'log',
             ZBS_TYPE_LINEITEM => 'lineitem',
-            ZBS_TYPE_EVENTREMINDER => 'eventreminder',
+            ZBS_TYPE_TASK_REMINDER => 'eventreminder',
             ZBS_TYPE_QUOTETEMPLATE => 'quotetemplate',
             ZBS_TYPE_ADDRESS => 'address'
 
@@ -182,7 +182,7 @@ class zbsDAL {
             //ZBS_TYPE_SEGMENT => 'zerobs_segment',
             //ZBS_TYPE_LOG => 'zerobs_log',
             //ZBS_TYPE_LINEITEM => 'lineitem'
-            //ZBS_TYPE_EVENTREMINDER => 'eventreminder'
+            //ZBS_TYPE_TASK_REMINDER => 'eventreminder'
             ZBS_TYPE_QUOTETEMPLATE => 'zerobs_quo_template',
     );
 
@@ -202,7 +202,7 @@ class zbsDAL {
 		ZBS_TYPE_SEGMENT       => array( 'Segment', 'Segments' ),
 		ZBS_TYPE_LOG           => array( 'Log', 'Logs' ),
 		ZBS_TYPE_LINEITEM      => array( 'Line Item', 'Line Items' ),
-		ZBS_TYPE_EVENTREMINDER => array( 'Task Reminder', 'Task Reminders' ),
+		ZBS_TYPE_TASK_REMINDER => array( 'Task Reminder', 'Task Reminders' ),
 		ZBS_TYPE_QUOTETEMPLATE => array( 'Quote Template', 'Quote Templates' ),
 		ZBS_TYPE_ADDRESS       => array( 'Address', 'Addresses' ),
 	);
@@ -221,7 +221,7 @@ class zbsDAL {
             ZBS_TYPE_SEGMENT =>         'segments',
             //no list page ZBS_TYPE_LOG =>             'managecontacts',
             //no list page ZBS_TYPE_LINEITEM =>        'managecontacts',
-            //no list page ZBS_TYPE_EVENTREMINDER =>   'managecontacts',
+            //no list page ZBS_TYPE_TASK_REMINDER =>   'managecontacts',
             ZBS_TYPE_QUOTETEMPLATE =>   'quote-templates'
     );
 
@@ -378,7 +378,7 @@ class zbsDAL {
                 return $this->forms; break;
             case ZBS_TYPE_EVENT:
                 return $this->events; break;
-            case ZBS_TYPE_EVENTREMINDER:
+            case ZBS_TYPE_TASK_REMINDER:
                 return $this->eventreminders; break;
             case ZBS_TYPE_LOG:
                 return $this->logs; break;
@@ -992,7 +992,7 @@ class zbsDAL {
                         return $this->events->getEvents(array('inArr'=>$idArray));
                         break;
 
-                    case ZBS_TYPE_EVENTREMINDER:
+                    case ZBS_TYPE_TASK_REMINDER:
                         return $this->events->getEvents(array('inArr'=>$idArray));
                         break;
                     */
@@ -7032,7 +7032,7 @@ class zbsDAL {
                 case ZBS_TYPE_LINEITEM:
                     return $ZBSCRM_t['lineitems'];
                     break;
-                case ZBS_TYPE_EVENTREMINDER:
+                case ZBS_TYPE_TASK_REMINDER:
                     return $ZBSCRM_t['eventreminders'];
                     break;
                 case ZBS_TYPE_QUOTETEMPLATE:
@@ -7081,7 +7081,7 @@ class zbsDAL {
                 case ZBS_TYPE_LINEITEM:
                     return $this->lineitems->tidy_lineitem($obj);
                     break;
-                case ZBS_TYPE_EVENTREMINDER:
+                case ZBS_TYPE_TASK_REMINDER:
                     return $this->eventreminders->tidy_eventreminder($obj);
                     break;
                 case ZBS_TYPE_QUOTETEMPLATE:
