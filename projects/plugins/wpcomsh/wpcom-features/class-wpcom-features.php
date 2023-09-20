@@ -472,6 +472,7 @@ class WPCOM_Features {
 			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::WPCOM_STAGING_PRODUCT,
 		),
 		// BACKUPS_DAILY - Site has product that includes daily backups.
 		self::BACKUPS_DAILY                    => array(
