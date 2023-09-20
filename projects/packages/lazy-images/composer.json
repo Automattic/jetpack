@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-lazy-images",
-	"description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.",
+	"description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once. Modern browsers now support lazy loading, and WordPress itself bundles lazy loading features for images and videos. This feature will consequently be deprecated in November 2023.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
