@@ -23,7 +23,7 @@
 
 	const ctaText = __( 'Upgrade Jetpack Boost', 'jetpack-boost' );
 
-	const pricing = derived( config, $config => $config.pricing );
+	const pricing = derived( config, $c => $c.pricing );
 
 	if ( ! ( 'yearly' in $pricing ) ) {
 		goToCheckout();
