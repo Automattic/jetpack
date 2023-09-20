@@ -1,5 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { useCallback } from 'react';
+import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
 /**
  * Prepares the URL to share.
@@ -14,14 +15,16 @@ export function usePrepareUrl() {
 		) => unknown;
 	}, [] );
 
-	// TODO update this to use custom message
-	const title =
-		getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title || getEditedPostAttribute( 'title' );
+	const message =
+		useSocialMediaMessage().message ||
+		getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title ||
+		getEditedPostAttribute( 'title' );
+
 	const link = getEditedPostAttribute( 'link' );
 
 	return useCallback(
 		( urlWithPlaceholders: string ) => {
-			let text = title;
+			let text = message;
 			let url = link;
 			// If the URL placeholder is missing, add the URL to the text.
 			if ( ! urlWithPlaceholders.includes( '{{url}}' ) ) {
@@ -33,6 +36,6 @@ export function usePrepareUrl() {
 				.replace( '{{text}}', encodeURIComponent( text ) )
 				.replace( '{{url}}', encodeURIComponent( url ) );
 		},
-		[ link, title ]
+		[ link, message ]
 	);
 }
