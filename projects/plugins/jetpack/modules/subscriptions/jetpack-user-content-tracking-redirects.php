@@ -14,7 +14,7 @@ add_action( 'init', 'jetpack_user_content_tracking_redirect' );
  * Generate the iframe to track and redirect the user generated link clicks.
  */
 function jetpack_user_content_tracking_redirect() {
-	if ( ! isset( $_SERVER['QUERY_STRING'] ) ) {
+	if ( ! isset( $_SERVER['QUERY_STRING'] ) || ( isset( $_GET['action'] ) && 'user_content_redirect' !== $_GET['action'] ) ) {
 		return;
 	}
 
