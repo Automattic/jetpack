@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Blogroll: Load blogroll appender when subscriptions finished loading
