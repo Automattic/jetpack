@@ -32,7 +32,7 @@
       if (zeroBSCRM_is_invoicetags_page()) $typeInt = ZBS_TYPE_INVOICE;
       if (zeroBSCRM_is_transactiontags_page()) $typeInt = ZBS_TYPE_TRANSACTION;
       if (zeroBSCRM_is_formtags_page()) $typeInt = ZBS_TYPE_FORM;
-      if (zeroBSCRM_is_tasktags_page()) $typeInt = ZBS_TYPE_EVENT;
+      if (zeroBSCRM_is_tasktags_page()) $typeInt = ZBS_TYPE_TASK;
 
         if ($typeInt > 0){
 

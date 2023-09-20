@@ -582,7 +582,7 @@ function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.
 				return zeroBSCRM_permsForms();
 				break;
 
-			case ZBS_TYPE_EVENT:
+			case ZBS_TYPE_TASK:
 
 				return zeroBSCRM_perms_tasks();
 				break;			

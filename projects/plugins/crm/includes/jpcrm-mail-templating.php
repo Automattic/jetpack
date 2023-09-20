@@ -864,7 +864,7 @@ function jpcrm_task_generate_notification_html( $return = true, $email = false, 
 		}
 
 		// vars / html gen
-		$task_url = jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_EVENT );
+		$task_url = jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_TASK );
 		$task_html = '<p>' . nl2br( $task['desc'] ) . '</p>';
 		$task_html .= '<hr /><p style="text-align:center">';
 		$task_html .= __( 'Your task starts at ', 'zero-bs-crm' ) . '<strong>' . $task['start_date'] . '</strong><br/>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -888,7 +888,7 @@ function jpcrm_task_generate_notification_html( $return = true, $email = false, 
 			$html,
 			$replacements,
 			array(
-				ZBS_TYPE_EVENT   => $task,
+				ZBS_TYPE_TASK   => $task,
 				ZBS_TYPE_CONTACT => isset( $task['contact'] ) ? $task['contact'][0] : null,
 				ZBS_TYPE_COMPANY => isset( $task['company'] ) ? $task['company'][0] : null,
 			)

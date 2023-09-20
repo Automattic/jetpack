@@ -157,7 +157,7 @@ class zbsDAL {
             ZBS_TYPE_QUOTE => 'quote',
             ZBS_TYPE_INVOICE => 'invoice',
             ZBS_TYPE_TRANSACTION => 'transaction',
-            ZBS_TYPE_EVENT => 'event',
+            ZBS_TYPE_TASK => 'event',
             ZBS_TYPE_FORM => 'form',
             ZBS_TYPE_SEGMENT => 'segment',
             ZBS_TYPE_LOG => 'log',
@@ -176,7 +176,7 @@ class zbsDAL {
             ZBS_TYPE_QUOTE => 'zerobs_quote',
             ZBS_TYPE_INVOICE => 'zerobs_invoice',
             ZBS_TYPE_TRANSACTION => 'zerobs_transaction',
-            ZBS_TYPE_EVENT => 'zerobs_event',
+            ZBS_TYPE_TASK => 'zerobs_event',
             ZBS_TYPE_FORM => 'zerobs_form',
             // these never existed:
             //ZBS_TYPE_SEGMENT => 'zerobs_segment',
@@ -197,7 +197,7 @@ class zbsDAL {
 		ZBS_TYPE_QUOTE         => array( 'Quote', 'Quotes' ),
 		ZBS_TYPE_INVOICE       => array( 'Invoice', 'Invoices' ),
 		ZBS_TYPE_TRANSACTION   => array( 'Transaction', 'Transactions' ),
-		ZBS_TYPE_EVENT         => array( 'Task', 'Tasks' ),
+		ZBS_TYPE_TASK         => array( 'Task', 'Tasks' ),
 		ZBS_TYPE_FORM          => array( 'Form', 'Forms' ),
 		ZBS_TYPE_SEGMENT       => array( 'Segment', 'Segments' ),
 		ZBS_TYPE_LOG           => array( 'Log', 'Logs' ),
@@ -216,7 +216,7 @@ class zbsDAL {
             ZBS_TYPE_QUOTE =>           'managequotes',
             ZBS_TYPE_INVOICE =>         'manageinvoices',
             ZBS_TYPE_TRANSACTION =>     'managetransactions',
-            ZBS_TYPE_EVENT =>           'manage-tasks',
+            ZBS_TYPE_TASK =>           'manage-tasks',
             ZBS_TYPE_FORM =>            'manageformscrm',
             ZBS_TYPE_SEGMENT =>         'segments',
             //no list page ZBS_TYPE_LOG =>             'managecontacts',
@@ -236,7 +236,7 @@ class zbsDAL {
             ZBS_TYPE_QUOTE =>           'zbsCustomerQuoteFields',
             ZBS_TYPE_INVOICE =>         'zbsCustomerInvoiceFields',
             ZBS_TYPE_TRANSACTION =>     'zbsTransactionFields',
-            //ZBS_TYPE_EVENT =>           'zbsFormFields',
+            //ZBS_TYPE_TASK =>           'zbsFormFields',
             ZBS_TYPE_FORM =>            'zbsFormFields',
             ZBS_TYPE_ADDRESS =>         'zbsAddressFields'
 
@@ -376,7 +376,7 @@ class zbsDAL {
                 return $this->transactions; break;
             case ZBS_TYPE_FORM:
                 return $this->forms; break;
-            case ZBS_TYPE_EVENT:
+            case ZBS_TYPE_TASK:
                 return $this->events; break;
             case ZBS_TYPE_TASK_REMINDER:
                 return $this->eventreminders; break;
@@ -630,7 +630,7 @@ class zbsDAL {
 				$table_name = $ZBSCRM_t['transactions'];
 				break;
 
-			case ZBS_TYPE_EVENT:
+			case ZBS_TYPE_TASK:
 				$table_name = $ZBSCRM_t['events'];
 				break;
 
@@ -975,7 +975,7 @@ class zbsDAL {
                         return $this->transactions->getTransactions(array('inArr'=>$idArray));
                         break;
 
-                    case ZBS_TYPE_EVENT:
+                    case ZBS_TYPE_TASK:
                         return $this->events->getEvents(array('inArr'=>$idArray));
                         break;
 
@@ -7017,7 +7017,7 @@ class zbsDAL {
                 case ZBS_TYPE_TRANSACTION:
                     return $ZBSCRM_t['transactions'];
                     break;
-                case ZBS_TYPE_EVENT:
+                case ZBS_TYPE_TASK:
                     return $ZBSCRM_t['events'];
                     break;
                 case ZBS_TYPE_FORM:
@@ -7066,7 +7066,7 @@ class zbsDAL {
                 case ZBS_TYPE_TRANSACTION:
                     return $this->transactions->tidy_transaction($obj);
                     break;
-                case ZBS_TYPE_EVENT:
+                case ZBS_TYPE_TASK:
                     return $this->events->tidy_event($obj);
                     break;
                 case ZBS_TYPE_FORM:

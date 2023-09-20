@@ -121,14 +121,14 @@
 
                 // DAL3 way: 
                 $autoGenAutonumbers = true; // generate if not set :)
-                $event = zeroBS_buildObjArr($_POST,array(),'zbse_','',false,ZBS_TYPE_EVENT,$autoGenAutonumbers);
+                $event = zeroBS_buildObjArr($_POST,array(),'zbse_','',false,ZBS_TYPE_TASK,$autoGenAutonumbers);
 
                 // catch calendar and portal options (show_on_portal not needed)
                 $event['show_on_cal'] = -1; if (isset($_POST['zbse_show_on_cal'])) $event['show_on_cal'] = 1;        
                
                 // Use the tag-class function to retrieve any tags so we can add inline.
                 // Save tags against objid
-                $event['tags'] = zeroBSCRM_tags_retrieveFromPostBag(true,ZBS_TYPE_EVENT);  
+                $event['tags'] = zeroBSCRM_tags_retrieveFromPostBag(true,ZBS_TYPE_TASK);  
 
                 // because we deal with non-model datetime stamps here, we have to process separate to buildObjArr:
 
@@ -220,13 +220,13 @@
                     $this->updateMessage();
 
                     // catch any non-critical messages
-                    $nonCriticalMessages = $zbs->DAL->getErrors(ZBS_TYPE_EVENT);
+                    $nonCriticalMessages = $zbs->DAL->getErrors(ZBS_TYPE_TASK);
                     if (is_array($nonCriticalMessages) && count($nonCriticalMessages) > 0) $this->dalNoticeMessage($nonCriticalMessages);
 
                 } else {
 
                     // fail somehow
-                    $failMessages = $zbs->DAL->getErrors(ZBS_TYPE_EVENT);
+                    $failMessages = $zbs->DAL->getErrors(ZBS_TYPE_TASK);
 
                     // show msg (retrieved from DAL err stack)
                     if (is_array($failMessages) && count($failMessages) > 0)
@@ -383,7 +383,7 @@ class zeroBS__Metabox_EventTags extends zeroBS__Metabox_Tags{
 
     public function __construct( $plugin_file ) {
     
-        $this->objTypeID = ZBS_TYPE_EVENT;
+        $this->objTypeID = ZBS_TYPE_TASK;
         // DAL3 switched for objType $this->postType = 'zerobs_customer';
         $this->objType = 'event';
         $this->metaboxID = 'zerobs-event-tags';
@@ -534,7 +534,7 @@ function zeroBSCRM_task_ui_assignment($taskObject = array(), $taskID = -1){
     }
 
     $uid = get_current_user_id();
-    $linked_cal = $zbs->DAL->meta(ZBS_TYPE_EVENT,$taskID,$key='zbs_outlook_id',false); // false = default here
+    $linked_cal = $zbs->DAL->meta(ZBS_TYPE_TASK,$taskID,$key='zbs_outlook_id',false); // false = default here
 
     if ($uid != $currentEventUserID){
         //then it is LOCKED and cannot be changed to another owner?
@@ -784,7 +784,7 @@ function zeroBSCRM_task_ui_showOnCalendar($taskObject = array(), $taskID = -1){
         $show = true;
     }
     
-    $linked_cal = $zbs->DAL->meta(ZBS_TYPE_EVENT,$taskID,$key='zbs_outlook_id',false); // false = default here
+    $linked_cal = $zbs->DAL->meta(ZBS_TYPE_TASK,$taskID,$key='zbs_outlook_id',false); // false = default here
 
     $html = "<div class='show-on-calendar'>";
         if($linked_cal != ''){

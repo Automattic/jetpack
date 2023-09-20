@@ -2909,7 +2909,7 @@ function zeroBS___________DAL30Helpers(){return;}
 
 			// nope. (for events in DAL3)
 			// ... potentially can turn this off for all non DAL3? may be redundant inside next {}
-			if ($objType !== ZBS_TYPE_EVENT && $objType !== ZBS_TYPE_QUOTETEMPLATE && isset($GLOBALS[$globFieldVarName])){
+			if ($objType !== ZBS_TYPE_TASK && $objType !== ZBS_TYPE_QUOTETEMPLATE && isset($GLOBALS[$globFieldVarName])){
 
 		        $i=0;
 
@@ -5873,7 +5873,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 
 			return $zbs->DAL->events->getEvents(array(
 				'assignedContact'=>$cID,
-				'ignoreowner' => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT)
+				'ignoreowner' => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK)
 				));
 
 				/* these translated for DAL3
@@ -5935,7 +5935,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 					'page'			=> $actualPage,
 					'perPage'		=> $perPage,
 
-					'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT)
+					'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK)
 
 				);
 				if ($ownedByID > 0) $args['ownedBy'] = $ownedByID;
@@ -5969,7 +5969,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 					'page'			=> -1,
 					'perPage'		=> -1,
 
-					'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT)
+					'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK)
 
 
 				);
@@ -6002,7 +6002,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 					'page'			=> $actualPage,
 					'perPage'		=> $perPage,
 
-					'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT)
+					'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK)
 
 
 				);
@@ -6108,7 +6108,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 
 		#} Build using centralised func below, passing any existing meta (updates not overwrites)
 		$removeEmpties = false;
-		$zbsEventMeta = zeroBS_buildObjArr($eventFields,array(),'','',$removeEmpties,ZBS_TYPE_EVENT);		
+		$zbsEventMeta = zeroBS_buildObjArr($eventFields,array(),'','',$removeEmpties,ZBS_TYPE_TASK);		
 
 		// Some sanitation MS has added. Really, DAL isn't place to sanitize,
 		// ... by time it gets here it should be sanitized (e.g. a level up)
@@ -8334,7 +8334,7 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 					case ZBS_TYPE_INVOICE: $url = admin_url( 'admin.php?page='.$zbs->slugs['manageinvoices'] ); break;
 					case ZBS_TYPE_TRANSACTION: $url = admin_url( 'admin.php?page='.$zbs->slugs['managetransactions'] ); break;
 					case ZBS_TYPE_FORM: $url = admin_url( 'admin.php?page='.$zbs->slugs['manageformscrm'] ); break;
-					case ZBS_TYPE_EVENT: $url = admin_url( 'admin.php?page='.$zbs->slugs['manage-tasks'] ); break;
+					case ZBS_TYPE_TASK: $url = admin_url( 'admin.php?page='.$zbs->slugs['manage-tasks'] ); break;
 					case ZBS_TYPE_SEGMENT: $url = admin_url( 'admin.php?page='.$zbs->slugs['segments'] ); break;
 					case ZBS_TYPE_QUOTETEMPLATE: $url = admin_url( 'admin.php?page='.$zbs->slugs['quote-templates'] ); break;
 
@@ -8438,7 +8438,7 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 				if ( $objTypeID > 0 ){
 
 					// exception: event tags
-					if ( $objTypeID == ZBS_TYPE_EVENT ) {
+					if ( $objTypeID == ZBS_TYPE_TASK ) {
 
 						return esc_url_raw( admin_url( 'admin.php?page=' . $zbs->slugs['manage-tasks-list'] . '&zbs_tag=' . $taxonomy ) );
 

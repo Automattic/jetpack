@@ -96,7 +96,7 @@ function zeroBSCRM_render_tasks_calendar_page(){
 									'title'     => zeroBSCRM_textExpose( $task['title'] ),
 									'start'     => jpcrm_uts_to_datetime_str( $task['start'], 'Y-m-d H:i:s' ),
 									'end'       => jpcrm_uts_to_datetime_str( $task['end'], 'Y-m-d H:i:s' ),
-									'url'       => jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_EVENT ),
+									'url'       => jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_TASK ),
 									'owner'     => $task['owner'],
 									'avatar'    => '', // default
 									'showonCal' => 'hide', // default

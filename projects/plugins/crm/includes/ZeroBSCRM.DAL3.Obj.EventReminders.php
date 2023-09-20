@@ -292,7 +292,7 @@ class zbsDAL_eventreminders extends zbsDAL_ObjectLayer {
             if (!empty($eventID) && $eventID > 0){
 
                 // has id + type to match to (e.g. quote 123)
-                // simpler than this, we're not using objid links: $wheres['associatedObjType'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_LINEITEM." AND zbsol_objtype_to = ".ZBS_TYPE_EVENT." AND zbsol_objid_to = %d)",$eventID);
+                // simpler than this, we're not using objid links: $wheres['associatedObjType'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_LINEITEM." AND zbsol_objtype_to = ".ZBS_TYPE_TASK." AND zbsol_objid_to = %d)",$eventID);
                     $wheres['zbser_event'] = array('zbser_event','=','%d',$eventID);
 
 

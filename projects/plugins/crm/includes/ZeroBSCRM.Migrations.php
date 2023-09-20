@@ -1160,7 +1160,7 @@ function zeroBSCRM_migration_refresh_user_roles() {
  * Regenerate tag slugs
  */
 function zeroBSCRM_migration_regenerate_tag_slugs() {
-	$obj_ids = array( ZBS_TYPE_CONTACT, ZBS_TYPE_COMPANY, ZBS_TYPE_QUOTE, ZBS_TYPE_INVOICE, ZBS_TYPE_TRANSACTION, ZBS_TYPE_EVENT, ZBS_TYPE_FORM );
+	$obj_ids = array( ZBS_TYPE_CONTACT, ZBS_TYPE_COMPANY, ZBS_TYPE_QUOTE, ZBS_TYPE_INVOICE, ZBS_TYPE_TRANSACTION, ZBS_TYPE_TASK, ZBS_TYPE_FORM );
 	foreach ( $obj_ids as $obj_id ) {
 		jpcrm_migration_regenerate_tag_slugs_for_obj_type( $obj_id );
 	}

@@ -3601,7 +3601,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					'page'         => $page_number,
 					'perPage'      => $per_page,
 
-					'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_EVENT ),
+					'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_TASK ),
 
 				);
 
@@ -4432,13 +4432,13 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 								// add tag(s) to transaction(s)
 							case 'addtag':
-								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_EVENT, 'zerobscrm_transactiontag' );
+								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_TASK, 'zerobscrm_transactiontag' );
 
 								break;
 
 								// remove tag(S) from transaction(s)
 							case 'removetag':
-								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_EVENT, 'zerobscrm_transactiontag' );
+								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_TASK, 'zerobscrm_transactiontag' );
 
 								break;
 
