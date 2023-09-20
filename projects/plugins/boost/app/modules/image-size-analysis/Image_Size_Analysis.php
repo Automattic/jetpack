@@ -76,46 +76,6 @@ class Image_Size_Analysis implements Pluggable, Has_Endpoints, Is_Always_On {
 		return false;
 	}
 
-	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	public function fix_image( $sources, $size_array, $image_src, $image_meta, $attachment_id ) {
-		global $post;
-
-		$fixes = $this->get_fixes( $post->ID );
-
-		// remove XxY dimension from $image_src as that's what's recorded by Image_Size_Analysis.
-		$cleaned_up_image_src = preg_replace( '/-\d+x\d+\.jpg/', '.jpg', $image_src );
-		if ( isset( $fixes[ $cleaned_up_image_src ] ) ) {
-
-			$fix = $fixes[ $cleaned_up_image_src ];
-			if ( isset( $fix['image_width'] ) ) {
-
-				$sources [ $fix['image_width'] ] = array(
-					'url'        => \Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url( $image_src, array( 'w' => $fix['image_width'] ) ),
-					'descriptor' => 'w',
-					'value'      => $fix['image_width'],
-				);
-			}
-		}
-
-		return $sources;
-	}
-
-	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	public function fix_sizes( $sizes, $size, $image_src, $image_meta, $attachment_id ) {
-		global $post;
-		$fixes                = $this->get_fixes( $post->ID );
-		$cleaned_up_image_src = preg_replace( '/-\d+x\d+\.jpg/', '.jpg', $image_src );
-
-		if ( isset( $fixes[ $cleaned_up_image_src ] ) ) {
-			$fix = $fixes[ $cleaned_up_image_src ];
-			if ( isset( $fix['image_width'] ) ) {
-				$sizes = sprintf( '(max-width: %1$dpx) 100vw, %1$dpx', $fix['image_width'] );
-			}
-		}
-
-		return $sizes;
-	}
-
 	public function fix_content( $content ) {
 		global $post;
 		$fixes = $this->get_fixes( $post->ID );
@@ -133,8 +93,17 @@ class Image_Size_Analysis implements Pluggable, Has_Endpoints, Is_Always_On {
 				continue;
 			}
 
-			if ( empty( $srcset ) && isset( $fixes[ $cleaned_up_image_src ]['image_width'] ) ) {
-				$tag_processor->set_attribute( 'srcset', \Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url( $src, array( 'w' => $fixes[ $cleaned_up_image_src ]['image_width'] ) ) );
+			if (
+				isset( $fixes[ $cleaned_up_image_src ]['image_width'] )
+				&& ! strpos( (string) $srcset, ' ' . $fixes[ $cleaned_up_image_src ]['image_width'] . 'w' )
+			) {
+				$tag_processor->set_attribute(
+					'srcset',
+					\Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url(
+						$src,
+						array( 'w' => $fixes[ $cleaned_up_image_src ]['image_width'] )
+					) . ' ' . $fixes[ $cleaned_up_image_src ]['image_width'] . 'w, ' . $srcset
+				);
 			}
 
 			if ( isset( $fixes[ $cleaned_up_image_src ]['image_width'] ) ) {
@@ -148,8 +117,6 @@ class Image_Size_Analysis implements Pluggable, Has_Endpoints, Is_Always_On {
 	public function setup() {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_filter( 'the_content', array( $this, 'fix_content' ) );
-		add_filter( 'wp_calculate_image_srcset', array( $this, 'fix_image' ), 10, 5 );
-		add_filter( 'wp_calculate_image_sizes', array( $this, 'fix_sizes' ), 10, 5 );
 	}
 
 	public static function is_available() {
