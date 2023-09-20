@@ -19,8 +19,9 @@ function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 						<figure>
 							<img
 								onError={ event => {
-									event.target.src = 'https://s0.wp.com/i/webclip.png';
-									event.onerror = null;
+									if ( event.target.src !== 'https://s0.wp.com/i/webclip.png' ) {
+										event.target.src = 'https://s0.wp.com/i/webclip.png';
+									}
 								} }
 								src={ icon }
 								alt={ name }
