@@ -29,3 +29,4 @@ export { default as useDismissNotice } from './src/hooks/use-dismiss-notice';
 export * from './src/social-store';
 export * from './src/components/share-post';
 export * from './src/hooks/use-saving-post';
+export * from './src/components/share-buttons';
