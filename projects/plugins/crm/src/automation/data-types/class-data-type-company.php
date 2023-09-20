@@ -30,6 +30,14 @@ class Data_Type_Company extends Data_Type_Base {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public function get_tags() {
+		global $zbs;
+		return $zbs->DAL->companies->getCompanyTags( $this->get_id() ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	}
+
+	/**
 	 * Validate entity data.
 	 *
 	 * @since $$next-version$$

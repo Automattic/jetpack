@@ -51,6 +51,19 @@ class Data_Type_Transaction extends Data_Type_Base {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public function get_tags() {
+		global $zbs;
+		return $zbs->DAL->getTagsForObjID( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+				'objtypeid' => ZBS_TYPE_TRANSACTION,
+				$this->get_id(),
+			)
+		);
+	}
+
+	/**
 	 * Validate entity data.
 	 *
 	 * @since $$next-version$$

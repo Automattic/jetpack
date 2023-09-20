@@ -49,6 +49,14 @@ class Data_Type_Contact extends Data_Type_Base {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public function get_tags() {
+		global $zbs;
+		return $zbs->DAL->contacts->getContactTags( $this->get_id() ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	}
+
+	/**
 	 * Validate the contact entity data.
 	 *
 	 * @since $$next-version$$

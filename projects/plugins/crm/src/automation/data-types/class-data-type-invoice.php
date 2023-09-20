@@ -49,6 +49,19 @@ class Data_Type_Invoice extends Data_Type_Base {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public function get_tags() {
+		global $zbs;
+		return $zbs->DAL->getTagsForObjID( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+				'objtypeid' => ZBS_TYPE_INVOICE,
+				$this->get_id(),
+			)
+		);
+	}
+
+	/**
 	 * Validate the invoice entity data.
 	 *
 	 * @since $$next-version$$

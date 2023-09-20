@@ -30,6 +30,19 @@ class Data_Type_Event extends Data_Type_Base {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public function get_tags() {
+		global $zbs;
+		return $zbs->DAL->getTagsForObjID( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+				'objtypeid' => ZBS_TYPE_EVENT,
+				$this->get_id(),
+			)
+		);
+	}
+
+	/**
 	 * Validate entity data.
 	 *
 	 * @since $$next-version$$

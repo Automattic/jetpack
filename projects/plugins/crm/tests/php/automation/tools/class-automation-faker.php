@@ -10,6 +10,8 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Event;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Tag;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Tag_List;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
 
@@ -354,6 +356,24 @@ class Automation_Faker {
 				),
 				'contacts'    => array( 1 ),
 				'created'     => -1,
+				'tags'        => array(
+					array(
+						'id'          => 1,
+						'objtype'     => 1,
+						'name'        => 'Name 1',
+						'slug'        => 'name-1',
+						'created'     => 1692663411,
+						'lastupdated' => 1692663411,
+					),
+					array(
+						'id'          => 2,
+						'objtype'     => 1,
+						'name'        => 'Name 2',
+						'slug'        => 'name-2',
+						'created'     => 1692663412,
+						'lastupdated' => 1692663412,
+					),
+				),
 			),
 		);
 
@@ -379,6 +399,24 @@ class Automation_Faker {
 			'template'    => 1676923766,
 			'accepted'    => 1676923766,
 			'created'     => 1676000000,
+			'tags'        => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
+			),
 		);
 
 		if ( $get_as_data_type ) {
@@ -400,6 +438,24 @@ class Automation_Faker {
 			'name'   => 'Dummy Company',
 			'email'  => 'johndoe@dummycompany.com',
 			'status' => 'lead',
+			'tags'   => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
+			),
 		);
 
 		if ( $get_as_data_type ) {
@@ -429,6 +485,24 @@ class Automation_Faker {
 				'show_on_cal'    => true,
 				'created'        => 1675000000,
 				'lastupdated'    => 1675000000,
+				'tags'           => array(
+					array(
+						'id'          => 1,
+						'objtype'     => 1,
+						'name'        => 'Name 1',
+						'slug'        => 'name-1',
+						'created'     => 1692663411,
+						'lastupdated' => 1692663411,
+					),
+					array(
+						'id'          => 2,
+						'objtype'     => 1,
+						'name'        => 'Name 2',
+						'slug'        => 'name-2',
+						'created'     => 1692663412,
+						'lastupdated' => 1692663412,
+					),
+				),
 			),
 		);
 
@@ -462,11 +536,87 @@ class Automation_Faker {
 				'date_completed' => 1676923766,
 				'created'        => 1675000000,
 				'lastupdated'    => 1675000000,
+				'tags'           => array(
+					array(
+						'id'          => 1,
+						'objtype'     => 1,
+						'name'        => 'Name 1',
+						'slug'        => 'name-1',
+						'created'     => 1692663411,
+						'lastupdated' => 1692663411,
+					),
+					array(
+						'id'          => 2,
+						'objtype'     => 1,
+						'name'        => 'Name 2',
+						'slug'        => 'name-2',
+						'created'     => 1692663412,
+						'lastupdated' => 1692663412,
+					),
+				),
 			),
 		);
 
 		if ( $get_as_data_type ) {
 			return new Data_Type_Transaction( $data );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Return data for a dummy tag.
+	 *
+	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Tag object.
+	 * @return array
+	 */
+	public function tag_data( $get_as_data_type = false ) {
+		$data = array(
+			'id'          => 1,
+			'name'        => 'Some tag name',
+			'slug'        => 'tag_slug',
+			'objtype'     => 'Contact',
+			'created'     => 1675000000,
+			'lastupdated' => 1675000000,
+		);
+
+		if ( $get_as_data_type ) {
+			return new Data_Type_Tag( $data );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Return data for a dummy tag.
+	 *
+	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Tag object.
+	 * @return array
+	 */
+	public function tag_list_data( $get_as_data_type = false ) {
+		$data = array(
+			'id'   => 1,
+			'tags' => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
+			),
+		);
+		if ( $get_as_data_type ) {
+			return new Data_Type_Tag_List( $data );
 		}
 
 		return $data;
