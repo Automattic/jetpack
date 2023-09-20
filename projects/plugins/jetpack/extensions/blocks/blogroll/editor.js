@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import metadata from './block.json';
 import {
@@ -12,6 +13,9 @@ import './editor.scss';
 registerJetpackBlockFromMetadata(
 	metadata,
 	{
+		title: __( 'Blogroll (Beta)', 'jetpack' ),
+		description: __( 'Select the sites you follow and share them with your users.', 'jetpack' ),
+		keywords: [],
 		edit,
 		save,
 	},

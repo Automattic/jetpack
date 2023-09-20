@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import metadata from './block.json';
 import { name as detailsName, settings as detailsSettings } from './details/';
@@ -15,6 +16,12 @@ import { name as stepsName, settings as stepsSettings } from './steps/';
 registerJetpackBlockFromMetadata(
 	metadata,
 	{
+		title: __( 'Recipe (Beta)', 'jetpack' ),
+		description: __(
+			'Add images, ingredients and cooking steps to display an easy to read recipe.',
+			'jetpack'
+		),
+		keywords: [],
 		edit,
 		save,
 	},
