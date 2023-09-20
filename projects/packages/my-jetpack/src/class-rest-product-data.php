@@ -43,7 +43,7 @@ class REST_Product_Data {
 	 */
 	public static function get_all_product_data() {
 		$site_id        = \Jetpack_Options::get_option( 'id' );
-		$wpcom_endpoint = sprintf( 'sites/%d/jetpack-product-data/backup?locale=%2$s&force=wpcom', $site_id, get_user_locale() );
+		$wpcom_endpoint = sprintf( 'sites/%d/jetpack-product-data?locale=%2$s&force=wpcom', $site_id, get_user_locale() );
 		$api_version    = '2';
 		$response       = Client::wpcom_json_api_request_as_blog( $wpcom_endpoint, $api_version, array(), null, 'wpcom' );
 		$response_code  = wp_remote_retrieve_response_code( $response );
