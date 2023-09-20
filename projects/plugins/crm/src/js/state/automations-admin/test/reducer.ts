@@ -1,13 +1,7 @@
-import { IdentifiedStep, IdentifiedWorkflow, Workflow } from 'crm/state/automations-admin/types';
+import { Step, Workflow } from 'crm/state/automations-admin/types';
 import { hydrateWorkflows, activateWorkflow, deactivateWorkflow, setAttribute } from '../actions';
 import { workflows, WorkflowState } from '../reducer';
-import {
-	getWorkflow,
-	workflowOne,
-	workflowTwo,
-	identifiedWorkflowThree,
-	getIdentifiedStep,
-} from './util/data';
+import { getWorkflow, workflowOne, workflowThree, workflowTwo, getStep } from './util/data';
 
 describe( 'Automations Admin Reducer', () => {
 	describe( 'workflows', () => {
@@ -26,23 +20,9 @@ describe( 'Automations Admin Reducer', () => {
 				expect( state[ workflowTwo.id ] ).toMatchObject( workflowTwo );
 			} );
 
-			test( 'uniquely identifies the workflow steps', () => {
-				const inputWorkflows = [ workflowOne, workflowTwo ];
-
-				const action = hydrateWorkflows( inputWorkflows );
-				const state = workflows( {}, action );
-
-				const outputWorkflows = Object.values( state );
-				expect( outputWorkflows[ 0 ].initial_step.id ).toBeDefined();
-				expect( outputWorkflows[ 1 ].initial_step.id ).toBeDefined();
-				expect( outputWorkflows[ 0 ].initial_step.id ).not.toEqual(
-					outputWorkflows[ 1 ].initial_step.id
-				);
-			} );
-
 			test( 'replaces the state when hydrating with existing state', () => {
 				const inputWorkflows = [ workflowOne, workflowTwo ];
-				const initialState = { [ identifiedWorkflowThree.id ]: identifiedWorkflowThree };
+				const initialState = { [ workflowThree.id ]: workflowThree };
 
 				const action = hydrateWorkflows( inputWorkflows );
 				const state = workflows( initialState, action );
@@ -129,10 +109,10 @@ describe( 'Automations Admin Reducer', () => {
 
 		describe( 'setAttribute', () => {
 			let initialState: WorkflowState;
-			let stepOne: IdentifiedStep;
-			let stepTwo: IdentifiedStep;
-			let stepThree: IdentifiedStep;
-			let workflow: IdentifiedWorkflow;
+			let stepOne: Step;
+			let stepTwo: Step;
+			let stepThree: Step;
+			let workflow: Workflow;
 
 			const stepOneInitialAttributes = {
 				stepOneUnchangedKey: 'stepOneUnchangedValue',
@@ -148,27 +128,32 @@ describe( 'Automations Admin Reducer', () => {
 			};
 
 			beforeEach( () => {
-				stepOne = getIdentifiedStep( 'Step One', 1, {
+				stepOne = getStep( 'step_one', 'Step One', {
 					attributes: stepOneInitialAttributes,
 				} );
-				stepTwo = getIdentifiedStep( 'Step Two', 2, {
+				stepTwo = getStep( 'step_two', 'Step Two', {
 					attributes: stepTwoInitialAttributes,
 				} );
-				stepThree = getIdentifiedStep( 'Step Three', 3, {
+				stepThree = getStep( 'step_three', 'Step Three', {
 					attributes: stepThreeInitialAttributes,
 				} );
-				stepOne.nextStep = stepTwo;
-				stepTwo.nextStep = stepThree;
+				stepOne.next_step = stepTwo.id;
+				stepTwo.next_step = stepThree.id;
 				workflow = getWorkflow( 1, 'Workflow', {
-					initial_step: stepOne,
-				} ) as IdentifiedWorkflow;
+					initial_step: stepOne.id,
+					steps: {
+						[ stepOne.id ]: stepOne,
+						[ stepTwo.id ]: stepTwo,
+						[ stepThree.id ]: stepThree,
+					},
+				} );
 				initialState = {
-					[ 1 ]: workflow,
+					[ workflow.id ]: workflow,
 				};
 			} );
 
 			test( 'does not alter state if the workflow is not found', () => {
-				const action = setAttribute( -1, 1, 'key', 'value' );
+				const action = setAttribute( -1, stepOne.id, 'key', 'value' );
 
 				const newState = workflows( initialState, action );
 
@@ -176,7 +161,7 @@ describe( 'Automations Admin Reducer', () => {
 			} );
 
 			test( 'does not alter state if the step is not found', () => {
-				const action = setAttribute( 1, -1, 'key', 'value' );
+				const action = setAttribute( 1, 'null', 'key', 'value' );
 
 				const newState = workflows( initialState, action );
 
@@ -194,14 +179,14 @@ describe( 'Automations Admin Reducer', () => {
 				);
 				const newState = workflows( initialState, action );
 
-				expect( newState[ workflow.id ].initial_step.attributes ).toEqual( {
+				expect( newState[ workflow.id ].steps[ stepOne.id ].attributes ).toEqual( {
 					...stepOneInitialAttributes,
 					stepOneChangedKey: newAttributeValue,
 				} );
-				expect( newState[ workflow.id ].initial_step?.nextStep?.attributes ).toEqual(
+				expect( newState[ workflow.id ].steps[ stepTwo.id ].attributes ).toEqual(
 					stepTwoInitialAttributes
 				);
-				expect( newState[ workflow.id ].initial_step?.nextStep?.nextStep?.attributes ).toEqual(
+				expect( newState[ workflow.id ].steps[ stepThree.id ].attributes ).toEqual(
 					stepThreeInitialAttributes
 				);
 			} );
@@ -217,14 +202,14 @@ describe( 'Automations Admin Reducer', () => {
 				);
 				const newState = workflows( initialState, action );
 
-				expect( newState[ workflow.id ].initial_step.attributes ).toEqual(
+				expect( newState[ workflow.id ].steps[ stepOne.id ].attributes ).toEqual(
 					stepOneInitialAttributes
 				);
-				expect( newState[ workflow.id ].initial_step?.nextStep?.attributes ).toEqual( {
+				expect( newState[ workflow.id ].steps[ stepTwo.id ].attributes ).toEqual( {
 					...stepTwoInitialAttributes,
 					stepTwoChangedKey: newAttributeValue,
 				} );
-				expect( newState[ workflow.id ].initial_step?.nextStep?.nextStep?.attributes ).toEqual(
+				expect( newState[ workflow.id ].steps[ stepThree.id ].attributes ).toEqual(
 					stepThreeInitialAttributes
 				);
 			} );
@@ -240,13 +225,13 @@ describe( 'Automations Admin Reducer', () => {
 				);
 				const newState = workflows( initialState, action );
 
-				expect( newState[ workflow.id ].initial_step.attributes ).toEqual(
+				expect( newState[ workflow.id ].steps[ stepOne.id ].attributes ).toEqual(
 					stepOneInitialAttributes
 				);
-				expect( newState[ workflow.id ].initial_step?.nextStep?.attributes ).toEqual(
+				expect( newState[ workflow.id ].steps[ stepTwo.id ].attributes ).toEqual(
 					stepTwoInitialAttributes
 				);
-				expect( newState[ workflow.id ].initial_step?.nextStep?.nextStep?.attributes ).toEqual( {
+				expect( newState[ workflow.id ].steps[ stepThree.id ].attributes ).toEqual( {
 					...stepThreeInitialAttributes,
 					stepThreeChangedKey: newAttributeValue,
 				} );
