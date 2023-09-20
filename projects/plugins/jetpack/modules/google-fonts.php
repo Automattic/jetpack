@@ -69,6 +69,23 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Work Sans',
 );
 
+const JETPACK_GOOGLE_FONTS_STYLES = array(
+	'normal',
+	'italic',
+);
+
+const JETPACK_GOOGLE_FONTS_WEIGHTS = array(
+	'100',
+	'200',
+	'300',
+	'400',
+	'500',
+	'600',
+	'700',
+	'800',
+	'900',
+);
+
 /**
  * Register a curated selection of Google Fonts.
  *
@@ -140,3 +157,87 @@ add_filter( 'pre_render_block', '\Automattic\Jetpack\Fonts\Introspectors\Blocks:
 // re-registration (at priority 22) of the core blocks it de-registers (at the default priority 10),
 // otherwise Gutenberg caches an incorrect state.
 add_action( 'init', '\Automattic\Jetpack\Fonts\Introspectors\Global_Styles::enqueue_global_styles_fonts', 22 );
+
+if ( ! class_exists( 'WP_Font_Library' ) || ! class_exists( 'WP_Font_Face' ) ) {
+	return;
+}
+
+/**
+ * Register google fonts to the theme json data
+ *
+ * @param WP_Theme_JSON_Data_Gutenberg $theme_json The theme json data of core.
+ * @return WP_Theme_JSON_Data_Gutenberg The theme json data with registered google fonts.
+ */
+function jetpack_register_google_fonts_to_theme_json_theme( $theme_json ) {
+	$google_font_families = apply_filters( 'jetpack_google_fonts_list', JETPACK_GOOGLE_FONTS_LIST );
+	$google_font_styles   = apply_filters( 'jetpack_google_fonts_styles', JETPACK_GOOGLE_FONTS_STYLES );
+	$google_font_weights  = apply_filters( 'jetpack_google_fonts_weights', JETPACK_GOOGLE_FONTS_WEIGHTS );
+
+	$raw_data = $theme_json->get_data();
+	if ( empty( $raw_data['settings']['typography']['fontFamilies']['theme'] ) ) {
+		$raw_data['settings']['typography']['fontFamilies']['theme'] = array();
+	}
+
+	foreach ( $google_font_families as $font_family ) {
+		$font_faces = array();
+
+		foreach ( $google_font_styles as $font_style ) {
+			foreach ( $google_font_weights as $font_weight ) {
+				$font_face = array(
+					'font-family' => $font_family,
+					'font-style'  => $font_style,
+					'font-weight' => $font_weight,
+				);
+
+				$font_faces[] = \Automattic\Jetpack\Fonts\Utils::get_webfont_font_face( $font_face );
+			}
+		}
+
+		$raw_data['settings']['typography']['fontFamilies']['theme'][] = \Automattic\Jetpack\Fonts\Utils::convert_font_into_theme_json(
+			$font_family,
+			$font_faces
+		);
+	}
+
+	$theme_json_class = get_class( $theme_json );
+	return new $theme_json_class( $raw_data, 'theme' );
+}
+
+add_filter( 'wp_theme_json_data_theme', 'jetpack_register_google_fonts_to_theme_json_theme' );
+
+if ( ! function_exists( 'jetpack_print_google_font_faces' ) ) {
+	add_action( 'wp_head', 'jetpack_print_google_font_faces', 50 );
+	add_action( 'admin_print_styles', 'jetpack_print_google_font_faces', 50 );
+
+	/**
+	 * Generates and prints font-face styles for given fonts or theme.json fonts.
+	 *
+	 * @param array[][] $fonts The given fonts.
+	 */
+	function jetpack_print_google_font_faces( $fonts = array() ) {
+		if ( empty( $fonts ) ) {
+			$fonts = WP_Font_Face_Resolver::get_fonts_from_theme_json();
+		}
+
+		if ( empty( $fonts ) ) {
+			return;
+		}
+
+		$google_font_face = new \Automattic\Jetpack\Fonts\Google_Font_Face();
+		$google_font_face->generate_and_print( $fonts );
+	}
+}
+
+add_filter(
+	'block_editor_settings_all',
+	static function ( $settings ) {
+		ob_start();
+		jetpack_print_google_font_faces();
+		$styles = ob_get_clean();
+
+		// Add the font-face styles to iframed editor assets.
+		$settings['__unstableResolvedAssets']['styles'] .= $styles;
+		return $settings;
+	},
+	11
+);
