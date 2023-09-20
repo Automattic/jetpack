@@ -1,6 +1,5 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { FormFieldset } from 'components/forms';
@@ -164,25 +163,19 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 
 			return (
 				<SimpleNotice showDismiss={ false } status="is-info" className="jp-form-settings-notice">
-					{ createInterpolateElement(
-						sprintf(
-							/* translators: %s is a sentence providing more information about the status of the feature on the site. */
-							__(
-								'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading features for images and videos. %s <a>Learn more</a>',
-								'jetpack'
-							),
-							disableStatusMessage
-						),
-						{
-							b: <strong />,
-							a: (
-								<ExternalLink
-									href={ getRedirectUrl( 'jetpack-support-lazy-images' ) }
-									onClick={ this.trackDeprecatedLazyImagesLearnMore }
-								/>
-							),
-						}
-					) }
+					{ __(
+						'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading features for images and videos.',
+						'jetpack'
+					) }{ ' ' }
+					{ disableStatusMessage }{ ' ' }
+					{
+						<ExternalLink
+							href={ getRedirectUrl( 'jetpack-support-lazy-images' ) }
+							onClick={ this.trackDeprecatedLazyImagesLearnMore }
+						>
+							{ __( 'Learn more', 'jetpack' ) }
+						</ExternalLink>
+					}
 				</SimpleNotice>
 			);
 		};
