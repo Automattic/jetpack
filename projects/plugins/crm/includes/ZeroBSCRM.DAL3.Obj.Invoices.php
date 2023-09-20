@@ -1749,6 +1749,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 									'prev_invoice'   => $previous_invoice_obj,
                                     ));
 
+											$data['id'] = $id;
 											$this->events_manager->invoice()->updated( $data );
 
                             }
