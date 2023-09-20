@@ -1908,7 +1908,8 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                             'extraMeta'=>$confirmedExtraMeta #} This is the "extraMeta" passed (as saved)
                         ));
 
-												$this->events_manager->invoice()->created( array_merge( $data, array( 'id' => $newID ) ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+												$data['id'] = $newID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+												$this->events_manager->invoice()->created( $data );
                     }
                     
                     return $newID;
