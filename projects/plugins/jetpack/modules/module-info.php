@@ -475,8 +475,8 @@ add_action( 'jetpack_learn_more_button_lazy-images', 'jetpack_lazy_images_more_l
 function jetpack_lazy_images_more_info() {
 	esc_html_e(
 		'Improve your site\'s speed by only loading images visible on the screen.
-		New images will load just before they scroll into view. This prevents viewers
-		from having to download all the images on a page all at once, even ones they can\'t see.',
+		Modern browsers now support lazy loading, and WordPress itself bundles lazy loading features for images and videos.
+		This feature will consequently be removed from Jetpack in November 2023.',
 		'jetpack'
 	);
 }
