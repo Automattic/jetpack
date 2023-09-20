@@ -27,6 +27,9 @@
 			await initializeConnection();
 
 			// Record this selection. This must be done after the connection is initialized.
+			// Possible Events:
+			// * free_cta_from_getting_started_page_in_plugin
+			// * premium_cta_from_getting_started_page_in_plugin
 			recordBoostEvent( `${ plan }_cta_from_getting_started_page_in_plugin`, {} );
 
 			// Go to the purchase flow if the user doesn't have a premium plan.
