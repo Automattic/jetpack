@@ -517,7 +517,7 @@ function zeroBSCRM_task_ui_assignment($taskObject = array(), $taskID = -1){
     if (array_key_exists('owner', $taskObject)) $currentEventUserID = $taskObject['owner'];
     
     $html = "";
-    if ($currentEventUserID == "" || $currentEventUserID == -1){
+	if ( $currentEventUserID === '' || $currentEventUserID <= 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
         $html .= "<div class='no-owner'><i class='ui icon user circle zbs-unassigned'></i>";
 
