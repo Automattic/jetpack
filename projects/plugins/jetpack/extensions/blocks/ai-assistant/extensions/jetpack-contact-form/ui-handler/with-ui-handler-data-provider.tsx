@@ -213,8 +213,12 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 					lastBlockUpdated = ! compareBlocks( lastBlock, lastBlockFromCurrentList );
 				}
 
-				// Only update the blocks when the valid list changed, meaning a new block arrived or the last block was updated.
-				if ( validBlocks.length !== currentListOfValidBlocks.current.length || lastBlockUpdated ) {
+				if (
+					// Only update the blocks when there are valid blocks, to avoid having no children and triggering the empty state.
+					validBlocks.length > 0 &&
+					// Only update the blocks when the valid list changed, meaning a new block arrived or the last block was updated.
+					( validBlocks.length !== currentListOfValidBlocks.current.length || lastBlockUpdated )
+				) {
 					// Only update the valid blocks
 					replaceInnerBlocks( clientId, validBlocks );
 
@@ -263,6 +267,9 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 							} ),
 						] );
 					}
+
+					// Reset the list of valid blocks after the request is done.
+					currentListOfValidBlocks.current = [];
 				}
 			},
 			[ clientId, replaceInnerBlocks ]

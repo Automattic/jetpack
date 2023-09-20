@@ -1,4 +1,9 @@
-import { getJetpackData, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { ThemeProvider } from '@automattic/jetpack-components';
+import {
+	getJetpackData,
+	isSimpleSite,
+	useModuleStatus,
+} from '@automattic/jetpack-shared-extension-utils';
 import {
 	InnerBlocks,
 	InspectorControls,
@@ -24,6 +29,8 @@ import classnames from 'classnames';
 import { filter, get, isArray, map } from 'lodash';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
+import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
+import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
@@ -95,6 +102,9 @@ export const JetpackContactFormEdit = forwardRef(
 		} = attributes;
 
 		const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
+
+		const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+			useModuleStatus( 'contact-form' );
 
 		const formClassnames = classnames( className, 'jetpack-contact-form', {
 			'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
@@ -267,6 +277,20 @@ export const JetpackContactFormEdit = forwardRef(
 			);
 		};
 
+		if ( isLoadingModules ) {
+			return <ContactFormSkeletonLoader />;
+		}
+
+		if ( ! isModuleActive ) {
+			return (
+				<ContactFormPlaceholder
+					changeStatus={ changeStatus }
+					isModuleActive={ isModuleActive }
+					isLoading={ isChangingStatus }
+				/>
+			);
+		}
+
 		if ( ! hasInnerBlocks && registerBlockVariation ) {
 			return renderVariationPicker();
 		}
@@ -325,6 +349,13 @@ export const JetpackContactFormEdit = forwardRef(
 	}
 );
 
+const withThemeProvider = WrappedComponent => props =>
+	(
+		<ThemeProvider>
+			<WrappedComponent { ...props } />
+		</ThemeProvider>
+	);
+
 export default compose( [
 	withSelect( ( select, props ) => {
 		const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( 'core/blocks' );
@@ -362,4 +393,5 @@ export default compose( [
 		return { replaceInnerBlocks, selectBlock };
 	} ),
 	withInstanceId,
+	withThemeProvider,
 ] )( withStyleVariables( JetpackContactFormEdit ) );

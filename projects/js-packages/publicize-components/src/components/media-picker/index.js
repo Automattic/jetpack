@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
 import classNames from 'classnames';
 import { isVideo } from '../../hooks/use-media-restrictions';
+import { SELECTABLE_IMAGE_TYPES } from '../../hooks/use-media-restrictions/restrictions';
 import VideoPreview from '../video-preview';
 import styles from './styles.module.scss';
 
@@ -124,6 +125,7 @@ export default function MediaPicker( {
 		<ThemeProvider>
 			<MediaUploadCheck>
 				<MediaUpload
+					allowedTypes={ SELECTABLE_IMAGE_TYPES }
 					title={ buttonLabel }
 					onSelect={ onUpdateMedia }
 					render={ setMediaRender }

@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Removed global state from Purchase Success component.
+
+
