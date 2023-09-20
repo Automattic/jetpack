@@ -15,7 +15,7 @@
 	async function goToCheckout() {
 		const eventProps = {};
 		await recordBoostEvent( 'checkout_from_pricing_page_in_plugin', eventProps );
-		window.location.href = getUpgradeURL();
+		window.location.href = getUpgradeURL($config.site.domain, $config.connection.userConnected);
 	}
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
