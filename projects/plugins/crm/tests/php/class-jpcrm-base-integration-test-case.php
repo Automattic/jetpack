@@ -36,6 +36,19 @@ class JPCRM_Base_Integration_Test_Case extends JPCRM_Base_Test_Case {
 	}
 
 	/**
+	 * Add an invoice.
+	 *
+	 * @param array $args (Optional) A list of arguments we should use for the invoice.
+	 *
+	 * @return int The invoice ID.
+	 */
+	public function add_invoice( array $args = array() ) {
+		global $zbs;
+
+		return $zbs->DAL->invoices->addUpdateInvoice( array( 'data' => $this->generate_invoice_data( $args ) ) );
+	}
+
+	/**
 	 * Get a contact.
 	 *
 	 * @param int|string $id The ID of the contact we want to get.
