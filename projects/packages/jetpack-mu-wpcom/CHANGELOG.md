@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.10.0] - 2023-09-19
+### Added
+- Add removal capability for navigator available checklists [#33019]
+- add updating capabilities for current checklist [#32964]
+- Change the Site Editor's dashboard link [#33024]
+- Change the way the navigator checklists are handled [#33011]
+
+### Fixed
+- Make map block settings load after registering the script [#33066]
+
 ## [4.9.0] - 2023-09-11
 ### Added
 - adding navigator api endpoint [#32963]
@@ -349,6 +359,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[4.10.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.9.0...v4.10.0
 [4.9.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.8.0...v4.9.0
 [4.8.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.7.0...v4.8.0
 [4.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.6.0...v4.7.0

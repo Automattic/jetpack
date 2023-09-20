@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Check if VideoPress module is active in order to register the VideoPress video block

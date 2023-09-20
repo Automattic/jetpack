@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Add an additional phpcs ignore because wpcom is still on WPCS v2. Sigh.
-
-
