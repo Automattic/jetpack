@@ -38,7 +38,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'task_offset_fix', // removes task timezone offsets from database
 	'refresh_user_roles', // Refresh user roles
 	'regenerate_tag_slugs', // Regenerate tag slugs
-	'611', // 6.1.1 - Create "workflows" table.
+	'create_workflows_table', // Create "workflows" table.
 	);
 
 global $zeroBSCRM_migrations_requirements; $zeroBSCRM_migrations_requirements = array(
@@ -1114,12 +1114,12 @@ function zeroBSCRM_migration_560() { // phpcs:ignore WordPress.NamingConventions
  *
  * @return void
  */
-function zeroBSCRM_migration_611() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+function zeroBSCRM_migration_create_workflows_table() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
 	// Check tables if exist and create if not.
 	zeroBSCRM_checkTablesExist();
 
 	// Mark migration as complete.
-	zeroBSCRM_migrations_markComplete( '611', array( 'updated' => 1 ) );
+	zeroBSCRM_migrations_markComplete( 'create_workflows_table', array( 'updated' => 1 ) );
 }
 
 /**
