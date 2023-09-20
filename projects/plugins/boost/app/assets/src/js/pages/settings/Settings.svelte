@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { derived } from 'svelte/store';
 	import ReRouter from '../../elements/ReRouter.svelte';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
@@ -17,12 +16,10 @@
 	export let criticalCssCreated: number;
 	export let criticalCssIsGenerating: boolean;
 
-	const shouldGetStarted = derived( [ config, connection ], ( [ $config, $connection ] ) => {
-		return $config.site.getStarted || ( ! $connection.connected && $config.site.online );
-	} );
+	$: shouldGetStarted = ! $connection.connected && $config.site.online;
 </script>
 
-<ReRouter to="/getting-started" when={$shouldGetStarted}>
+<ReRouter to="/getting-started" when={shouldGetStarted}>
 	<div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
 		<Header />
 
