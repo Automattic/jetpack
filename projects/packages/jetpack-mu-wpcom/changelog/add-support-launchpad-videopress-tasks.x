@@ -1,5 +1,6 @@
 Significance: minor
 Type: added
-Comment: Support Videopress tasks on the Customer Home Launchpad
+
+Support Videopress tasks on the Customer Home Launchpad
 
 
