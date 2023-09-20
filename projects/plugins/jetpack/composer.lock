@@ -1529,7 +1529,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "6ae6bbba80d1153fe109d7b718adc68daebfc3ac"
+                "reference": "87736c1d7a33f69fea2c4c5307f8d654ce17a170"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1583,7 +1583,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.",
+            "description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once. Modern browsers now support lazy loading, and WordPress itself bundles lazy loading features for images and videos. This feature will consequently be deprecated in November 2023.",
             "transport-options": {
                 "relative": true
             }
