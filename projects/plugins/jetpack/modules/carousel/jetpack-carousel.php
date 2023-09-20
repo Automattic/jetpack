@@ -798,7 +798,7 @@ class Jetpack_Carousel {
 				 *
 				 * @module carousel
 				 *
-				 * @since $$next-version$$
+				 * @since 12.6
 				 *
 				 * @param int    $attachment_id Attachment ID pulled from image HTML.
 				 * @param string $image_html    Full HTML image tag.
