@@ -3,7 +3,7 @@
 /**
  * Task related tests
  */
-class JPCRM_Events_Cest {
+class JPCRM_Tasks_Cest {
 
 	protected $task_data = array(
 		'zbse_title'           => 'Task 1',
@@ -35,7 +35,7 @@ class JPCRM_Events_Cest {
 	}
 
 	public function see_tasks_page( AcceptanceTester $I ) {
-		$I->gotoAdminPage( 'events' );
+		$I->gotoAdminPage( 'tasks' );
 		$I->see( 'Task Calendar', '.jpcrm-learn-page-title' );
 	}
 
@@ -79,7 +79,7 @@ class JPCRM_Events_Cest {
 	}
 
 	public function see_task_in_calendar( AcceptanceTester $I ) {
-		$I->gotoAdminPage( 'events' );
+		$I->gotoAdminPage( 'tasks' );
 
 		$I->seeInTitle( 'Task Scheduler' );
 		$I->see( 'Task Calendar', '.jpcrm-learn-page-title' );
