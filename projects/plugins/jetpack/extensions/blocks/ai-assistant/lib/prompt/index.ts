@@ -372,10 +372,7 @@ export function promptTextFor(
 		subject = isGenerated ? 'your last answer' : 'the content';
 	}
 
-	// https://github.com/Automattic/jetpack/pull/32814#issuecomment-1704873324
-	const languageReminder = `. Ensure that your response is in the same language as ${
-		isGeneratingTitle ? 'the title' : 'the post content'
-	}. Do not switch to any language other than the language of ${ subject } in your response`;
+	const languageReminder = `. Do not switch to any language other than the language of ${ subject } in your response`;
 
 	switch ( type ) {
 		case PROMPT_TYPE_SUMMARY_BY_TITLE:
