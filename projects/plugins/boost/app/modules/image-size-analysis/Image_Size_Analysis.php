@@ -123,15 +123,32 @@ class Image_Size_Analysis implements Pluggable, Has_Endpoints, Is_Always_On {
 			return $content;
 		}
 
-		// need this to fix hotlinked images from external sites.
+		$tag_processor = new \WP_HTML_Tag_Processor( $content );
 
-		return $content;
+		while ( $tag_processor->next_tag( array( 'tag_name' => 'img' ) ) ) {
+			$src                  = $tag_processor->get_attribute( 'src' );
+			$srcset               = $tag_processor->get_attribute( 'srcset' );
+			$cleaned_up_image_src = preg_replace( '/-\d+x\d+\.jpg/', '.jpg', $src );
+			if ( ! isset( $fixes[ $cleaned_up_image_src ] ) ) {
+				continue;
+			}
+
+			if ( empty( $srcset ) && isset( $fixes[ $cleaned_up_image_src ]['image_width'] ) ) {
+				$tag_processor->set_attribute( 'srcset', \Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url( $src, array( 'w' => $fixes[ $cleaned_up_image_src ]['image_width'] ) ) );
+			}
+
+			if ( isset( $fixes[ $cleaned_up_image_src ]['image_width'] ) ) {
+				$tag_processor->set_attribute( 'sizes', sprintf( '(max-width: %1$dpx) 100vw, %1$dpx', $fixes[ $cleaned_up_image_src ]['image_width'] ) );
+			}
+		}
+
+		return $tag_processor->get_updated_html();
 	}
 
 	public function setup() {
 		add_action( 'init', array( $this, 'register_post_type' ) );
-		add_action( 'wp_content', array( $this, 'fix_content' ) );
-		add_action( 'wp_calculate_image_srcset', array( $this, 'fix_image' ), 10, 5 );
+		add_filter( 'the_content', array( $this, 'fix_content' ) );
+		add_filter( 'wp_calculate_image_srcset', array( $this, 'fix_image' ), 10, 5 );
 		add_filter( 'wp_calculate_image_sizes', array( $this, 'fix_sizes' ), 10, 5 );
 	}
 
