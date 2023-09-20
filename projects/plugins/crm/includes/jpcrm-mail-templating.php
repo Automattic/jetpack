@@ -849,7 +849,7 @@ function jpcrm_task_generate_notification_html( $return = true, $email = false, 
 	if ( !empty( $templatedHTML ) ) {
 
 		// retrieve task notification
-		$message_content = zeroBSCRM_mailTemplate_get( ZBSEMAIL_EVENTNOTIFICATION );
+		$message_content = zeroBSCRM_mailTemplate_get( ZBSEMAIL_TASK_NOTIFICATION );
 		$bodyHTML = $message_content->zbsmail_body;
 		$html = $placeholder_templating->replace_single_placeholder( 'msg-content', $bodyHTML, $templatedHTML );
 

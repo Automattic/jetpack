@@ -165,7 +165,7 @@
 	function zeroBSCRM_notifyEvents() {
 
 		// is the email notification active? (if not, nothing to do)
-		if ( ! zeroBSCRM_get_email_status( ZBSEMAIL_EVENTNOTIFICATION ) ) {
+		if ( ! zeroBSCRM_get_email_status( ZBSEMAIL_TASK_NOTIFICATION ) ) {
 			return;
 		}
 
@@ -216,8 +216,8 @@
 						$mailArray = array(
 							'toEmail'  => $owner_email,
 							'toName'   => '',
-							'subject'  => zeroBSCRM_mailTemplate_getSubject( ZBSEMAIL_EVENTNOTIFICATION ),
-							'headers'  => zeroBSCRM_mailTemplate_getHeaders( ZBSEMAIL_EVENTNOTIFICATION ),
+							'subject'  => zeroBSCRM_mailTemplate_getSubject( ZBSEMAIL_TASK_NOTIFICATION ),
+							'headers'  => zeroBSCRM_mailTemplate_getHeaders( ZBSEMAIL_TASK_NOTIFICATION ),
 							'body'     => $emailHTML,
 							'textbody' => '',
 							'options'  => array(
@@ -225,7 +225,7 @@
 							),
 							'tracking' => array(
 								// tracking :D (auto-inserted pixel + saved in history db)
-								'emailTypeID'     => ZBSEMAIL_EVENTNOTIFICATION,
+								'emailTypeID'     => ZBSEMAIL_TASK_NOTIFICATION,
 								'targetObjID'     => $event['owner'],
 								'senderWPID'      => -13,
 								'associatedObjID' => $event['id'],
@@ -236,7 +236,7 @@
 						// and logs tracking :)
 
 						// discern delivery method
-						$mailDeliveryMethod = zeroBSCRM_mailTemplate_getMailDelMethod( ZBSEMAIL_EVENTNOTIFICATION );
+						$mailDeliveryMethod = zeroBSCRM_mailTemplate_getMailDelMethod( ZBSEMAIL_TASK_NOTIFICATION ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 						if ( ! isset( $mailDeliveryMethod ) || empty( $mailDeliveryMethod ) ) {
 							$mailDeliveryMethod = -1;
 						}

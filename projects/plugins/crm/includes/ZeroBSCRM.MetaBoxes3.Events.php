@@ -753,7 +753,7 @@ function zeroBSCRM_task_ui_reminders($taskObject = array(), $taskID = -1){
             if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 					$html .= sprintf(
 						'<a href="%s" class="button button-primary button-large" style="background-color:black;border-color:black;" title="%s" target="_blank"><i class="cogs icon"></i></a>',
-						esc_url_raw( jpcrm_esc_link( 'zbs-email-templates' ) . '&zbs_template_id=' . ZBSEMAIL_EVENTNOTIFICATION ),
+						esc_url_raw( jpcrm_esc_link( 'zbs-email-templates' ) . '&zbs_template_id=' . ZBSEMAIL_TASK_NOTIFICATION ),
 						__( 'Admin: Notification Settings', 'zero-bs-crm' )
 					);
             }

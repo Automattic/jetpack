@@ -1044,7 +1044,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 						}
 
 							// if we're showing any email which requires CRON to send it, we show this message to further guide the end user:
-						if ( in_array( $emailtab, array( ZBSEMAIL_EVENTNOTIFICATION ) ) ) {
+						if ( in_array( $emailtab, array( ZBSEMAIL_TASK_NOTIFICATION ), true ) ) {
 
 							?>
 								<div class="ui blue label right floated"><i class="circle info icon link"></i> <?php esc_html_e( 'Note: This email requires cron.', 'zero-bs-crm' ); ?> <a href="<?php echo esc_url( $zbs->urls['kbcronlimitations'] ); ?>"><?php esc_html_e( 'Read about WordPress cron', 'zero-bs-crm' ); ?></a></div>

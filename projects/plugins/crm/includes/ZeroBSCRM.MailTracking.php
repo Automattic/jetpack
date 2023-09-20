@@ -24,14 +24,14 @@
 	#5 - Task Notification (leave for now)...
 	#6 - Client Portal Password Reset
 
-   // Define globals for EMAIL TEMPLATES
-   define('ZBSEMAIL_CLIENTPORTALWELCOME',1);
-   define('ZBSEMAIL_QUOTEACCEPTED',2);
-   define('ZBSEMAIL_EMAILINVOICE',3);
-   define('ZBSEMAIL_NEWQUOTE',4);
-   define('ZBSEMAIL_EVENTNOTIFICATION',5);
-   define('ZBSEMAIL_CLIENTPORTALPWREST',6);
-   define('ZBSEMAIL_STATEMENT',7);
+	// Define globals for EMAIL TEMPLATES
+	define( 'ZBSEMAIL_CLIENTPORTALWELCOME', 1 );
+	define( 'ZBSEMAIL_QUOTEACCEPTED', 2 );
+	define( 'ZBSEMAIL_EMAILINVOICE', 3 );
+	define( 'ZBSEMAIL_NEWQUOTE', 4 );
+	define( 'ZBSEMAIL_TASK_NOTIFICATION', 5 );
+	define( 'ZBSEMAIL_CLIENTPORTALPWREST', 6 );
+	define( 'ZBSEMAIL_STATEMENT', 7 );
 
 /* ======================================================
   Email tracking functions
