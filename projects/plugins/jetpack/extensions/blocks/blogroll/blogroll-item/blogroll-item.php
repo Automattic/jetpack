@@ -25,7 +25,7 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\load_assets',
-			'uses_context'    => array( 'showSubscribeButton', 'openLinksNewWindow' ),
+			'uses_context'    => array( 'openLinksNewWindow' ),
 		)
 	);
 }
@@ -45,30 +45,76 @@ function load_assets( $attr, $content, $block ) {
 	 * Enqueue necessary scripts and styles.
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	$kses_defaults             = wp_kses_allowed_html( 'post' );
+	$name                      = wp_kses( $attr['name'], $kses_defaults );
+	$name_attr                 = esc_attr( $attr['name'] );
+	$id                        = esc_attr( $attr['id'] );
+	$url                       = esc_url( $attr['url'] );
+	$description               = wp_kses( $attr['description'], $kses_defaults );
+	$icon                      = esc_attr( $attr['icon'] );
+	$target                    = esc_attr( $block->context['openLinksNewWindow'] ? '_blank' : '_self' );
+	$email                     = esc_attr( get_current_user_id() ? get_userdata( get_current_user_id() )->user_email : '' );
+	$wp_nonce                  = esc_attr( wp_create_nonce( 'blogsub_subscribe_' . $id ) );
+	$subscribe_text            = esc_html__( 'Subscribe', 'jetpack' );
+	$submit_text               = esc_html__( 'Submit', 'jetpack' );
+	$cancel_text               = esc_html__( 'Cancel', 'jetpack' );
+	$disabled_subscribe_button = '';
+	$is_following              = function_exists( 'wpcom_subs_is_subscribed' ) && wpcom_subs_is_subscribed(
+		array(
+			'user_id' => get_current_user_id(),
+			'blog_id' => $id,
+		)
+	);
 
-	$name        = esc_attr( $attr['name'] );
-	$url         = esc_url( $attr['url'] );
-	$description = esc_attr( $attr['description'] );
-	$icon        = esc_attr( $attr['icon'] );
-
-	$target = $block->context['openLinksNewWindow'] ? '_blank' : '_self';
+	if ( $is_following ) {
+		$subscribe_text            = esc_html__( 'Subscribed', 'jetpack' );
+		$disabled_subscribe_button = 'disabled';
+	}
 
 	if ( empty( $icon ) ) {
 		$icon = 'https://s0.wp.com/i/webclip.png';
 	}
 
+	$buttons      = <<<HTML
+		<!-- wp:buttons -->
+		<div class="wp-block-buttons"><!-- wp:button {"className":"is-style-fill"} -->
+		<div class="wp-block-button is-style-fill"><button type="submit" name="blog_id" value="$id" class="wp-block-button__link wp-element-button">$submit_text</button></div>
+		<!-- /wp:button -->
+
+		<!-- wp:button {"className":"is-style-outline"} -->
+		<div class="wp-block-button is-style-outline"><button type="reset" class="wp-block-button__link wp-element-button jetpack-blogroll-item-cancel-button">$cancel_text</button></div>
+		<!-- /wp:button --></div>
+		<!-- /wp:buttons -->
+HTML;
+	$buttons_html = do_blocks( $buttons );
+
+	/**
+	 * Build the block content.
+	 */
 	$content = <<<HTML
-<figure>
-	<img src="$icon" alt="$name">
-</figure>
-<div>
-	<a class="jetpack-blogroll-item-title" href="$url" target="$target" rel="noopener noreferrer">$name</a>
-	<div class="jetpack-blogroll-item-description">$description</div>
-</div>
+		<div class="jetpack-blogroll-item-information">
+			<figure>
+				<img src="$icon" alt="$name_attr">
+			</figure>
+			<div>
+				<a class="jetpack-blogroll-item-title" href="$url" target="$target" rel="noopener noreferrer">$name</a>
+				<div class="jetpack-blogroll-item-description">$description</div>
+			</div>
+			<button type="button" class="jetpack-blogroll-item-subscribe-button wp-block-button__link" {$disabled_subscribe_button}>
+				$subscribe_text
+			</button>
+		</div>
+		<fieldset disabled class="jetpack-blogroll-item-submit">
+			<input type="hidden" name="_wpnonce" value="$wp_nonce">
+			<input type="email" placeholder="Email address" value="$email" class="jetpack-blogroll-item-email-input">
+			$buttons_html
+		</fieldset>
 HTML;
 
 	return sprintf(
-		'<div class="%1$s">%2$s</div>',
+		'<div class="%1$s">
+			<div class="jetpack-blogroll-item-slider">%2$s</div>
+		</div>',
 		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
 		$content
 	);

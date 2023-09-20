@@ -7,15 +7,15 @@
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import Footer from '../../sections/Footer.svelte';
 	import config from '../../stores/config';
+	import { getUpgradeURL } from '../../stores/connection';
 	import Logo from '../../svg/jetpack-green.svg';
 	import JetpackBoostLogo from '../../svg/logo.svg';
 	import { recordBoostEvent } from '../../utils/analytics';
-	import { getUpgradeURL } from '../../utils/upgrade';
 
 	async function goToCheckout() {
 		const eventProps = {};
 		await recordBoostEvent( 'checkout_from_pricing_page_in_plugin', eventProps );
-		window.location.href = getUpgradeURL();
+		window.location.href = getUpgradeURL($config.site.domain, $config.connection.userConnected);
 	}
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
@@ -23,7 +23,7 @@
 
 	const ctaText = __( 'Upgrade Jetpack Boost', 'jetpack-boost' );
 
-	const pricing = derived( config, $config => $config.pricing );
+	const pricing = derived( config, $c => $c.pricing );
 
 	if ( ! ( 'yearly' in $pricing ) ) {
 		goToCheckout();
