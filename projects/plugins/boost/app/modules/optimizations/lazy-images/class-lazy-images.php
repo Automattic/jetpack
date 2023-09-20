@@ -16,6 +16,15 @@ class Lazy_Images implements Pluggable {
 	}
 
 	public static function is_available() {
+		l( 'boost: checking if lazy images is available' );
+		// In some scenarios, Lazy Images can conflict with other WordPress features.
+		// If we detect that, the feature should not be available.
+		if ( Jetpack_Lazy_Images::should_force_deactivate() ) {
+			l( 'boost:lazy images is not available' );
+			Jetpack_Lazy_Images::disable();
+			return false;
+		}
+
 		return true;
 	}
 }
