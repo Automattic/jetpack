@@ -78,4 +78,35 @@ class JPCRM_Base_Test_Case extends WP_UnitTestCase {
 			)
 		);
 	}
+
+	/**
+	 * Generate default invoice data.
+	 *
+	 * @param array $args (Optional) A list of arguments we should use for the invoice.
+	 *
+	 * @return array An array of basic contact data.
+	 */
+	public function generate_invoice_data( $args = array() ): array {
+		return wp_parse_args(
+			$args,
+			array(
+				'id_override' => '1',
+				'parent'      => '',
+				'status'      => 'Draft',
+				'due_date'    => 1690840800,
+				'hash'        => 'ISSQndSUjlhJ8feWj2v',
+				'lineitems'   => array(
+					array(
+						'net'      => 3.75,
+						'desc'     => 'Dummy product',
+						'quantity' => '3',
+						'price'    => '1.25',
+						'total'    => 3.75,
+					),
+				),
+				'contacts'    => array( 1 ),
+				'created'     => -1,
+			)
+		);
+	}
 }

@@ -1,5 +1,6 @@
 import { MastodonPreviews } from '@automattic/social-previews';
 import { useSelect } from '@wordpress/data';
+import { decodeEntities } from '@wordpress/html-entities';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { shouldUploadAttachedMedia } from '../../store/selectors';
@@ -13,7 +14,7 @@ const MastodonPreview = props => {
 
 		return {
 			content: getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ],
-			siteName: getSite().title,
+			siteName: decodeEntities( getSite().title ),
 		};
 	} );
 	const isSocialPost = shouldUploadAttachedMedia();
@@ -29,6 +30,10 @@ const MastodonPreview = props => {
 		};
 	}
 
+	const firstMediaItem = props.media?.[ 0 ];
+
+	const customImage = firstMediaItem?.type.startsWith( 'image/' ) ? firstMediaItem.url : null;
+
 	return (
 		<MastodonPreviews
 			{ ...props }
@@ -36,7 +41,7 @@ const MastodonPreview = props => {
 			user={ user }
 			description={ content }
 			customText={ message }
-			customImage={ props.media?.[ 0 ]?.url }
+			customImage={ customImage }
 			isSocialPost={ isSocialPost }
 		/>
 	);

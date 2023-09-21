@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import BlogrollAppender from './components/blogroll-appender';
 import useRecommendations from './use-recommendations';
+import { useSiteRecommendationSync } from './use-site-recommendations';
 import useSubscriptions from './use-subscriptions';
 import { createBlockFromRecommendation } from './utils';
 import './editor.scss';
@@ -15,7 +16,6 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 	const {
 		show_avatar,
 		show_description,
-		show_subscribe_button,
 		open_links_new_window,
 		ignore_user_blogs,
 		load_placeholders,
@@ -23,7 +23,7 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 
 	const { isLoading, recommendations } = useRecommendations( load_placeholders );
 	const { subscriptions } = useSubscriptions( { ignore_user_blogs } );
-
+	useSiteRecommendationSync( { clientId } );
 	const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
 
 	useEffect( () => {
@@ -42,7 +42,6 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		className: classNames( className, {
 			'hide-avatar': ! show_avatar,
 			'hide-description': ! show_description,
-			'hide-subscribe-button': ! show_subscribe_button,
 		} ),
 	} );
 
@@ -52,7 +51,7 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 				template={ [ [ 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ] ] }
 				allowedBlocks={ [ 'jetpack/blogroll-item' ] }
 				renderAppender={ () => (
-					<BlogrollAppender clientId={ clientId } subscriptions={ subscriptions } />
+					<BlogrollAppender subscriptions={ subscriptions } clientId={ clientId } />
 				) }
 			/>
 
@@ -73,11 +72,6 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 						label={ __( 'Show description', 'jetpack' ) }
 						checked={ !! show_description }
 						onChange={ () => setAttributes( { show_description: ! show_description } ) }
-					/>
-					<ToggleControl
-						label={ __( 'Show subscribe button', 'jetpack' ) }
-						checked={ !! show_subscribe_button }
-						onChange={ () => setAttributes( { show_subscribe_button: ! show_subscribe_button } ) }
 					/>
 					<ToggleControl
 						label={ __( 'Open links in a new window', 'jetpack' ) }

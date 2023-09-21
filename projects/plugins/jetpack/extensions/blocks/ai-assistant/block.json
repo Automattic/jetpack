@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/ai-assistant",
 	"title": "AI Assistant (Experimental)",
-	"description": "Automatically generate and modify content, powered by AI magic. The AI Assistant can be imprecise with information about people, places, or facts. We are experimenting with this feature and can tweak or remove it at any point.",
+	"description": "Elevate your content creation with our AI-powered Gutenberg Block, offering seamless customization and generation. Bear in mind that, as an evolving tool, occasional imprecision may occur. Your feedback is valuable in our commitment to refine and improve this feature.",
 	"keywords": [ "AI", "GPT", "AL", "Magic", "help", "assistant" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",

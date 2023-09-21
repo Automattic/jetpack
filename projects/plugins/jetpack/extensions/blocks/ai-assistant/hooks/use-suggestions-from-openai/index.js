@@ -270,6 +270,7 @@ const useSuggestionsFromOpenAI = ( {
 			source?.current?.removeEventListener( 'done', onDone );
 			source?.current?.removeEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
 			source?.current?.removeEventListener( 'error_network', onErrorNetwork );
+			source?.current?.removeEventListener( 'error_context_too_large', onErrorContextTooLarge );
 			source?.current?.removeEventListener(
 				'error_service_unavailable',
 				onErrorServiceUnavailable
@@ -290,6 +291,7 @@ const useSuggestionsFromOpenAI = ( {
 			source?.current?.addEventListener( 'done', onDone );
 			source?.current?.addEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
 			source?.current?.addEventListener( 'error_network', onErrorNetwork );
+			source?.current?.addEventListener( 'error_context_too_large', onErrorContextTooLarge );
 			source?.current?.addEventListener( 'error_service_unavailable', onErrorServiceUnavailable );
 			source?.current?.addEventListener( 'error_quota_exceeded', onErrorQuotaExceeded );
 			source?.current?.addEventListener( 'error_moderation', onErrorModeration );
@@ -359,6 +361,22 @@ const useSuggestionsFromOpenAI = ( {
 			onUnclearPrompt?.();
 		};
 
+		const onErrorContextTooLarge = () => {
+			setRequestingState( 'error' );
+			source?.current?.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( false );
+			setError( {
+				code: 'error_context_too_large',
+				message: __(
+					'The content is too large to be processed all at once. Please try to shorten it or divide it into smaller parts.',
+					'jetpack'
+				),
+				status: 'info',
+			} );
+		};
+
 		const onErrorNetwork = ( { detail: error } ) => {
 			setRequestingState( 'error' );
 			const { name: errorName, message: errorMessage } = error;
@@ -376,7 +394,7 @@ const useSuggestionsFromOpenAI = ( {
 
 				/*
 				 * Update the last prompt with the new messages.
-				 * @todo: Iterate over Prompt libraru to address properly the messages.
+				 * @todo: Iterate over Prompt library to address properly the messages.
 				 */
 				prompt = buildPromptForBlock( {
 					generatedContent: content,
@@ -479,6 +497,7 @@ const useSuggestionsFromOpenAI = ( {
 		source?.current?.addEventListener( 'done', onDone );
 		source?.current?.addEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
 		source?.current?.addEventListener( 'error_network', onErrorNetwork );
+		source?.current?.addEventListener( 'error_context_too_large', onErrorContextTooLarge );
 		source?.current?.addEventListener( 'error_service_unavailable', onErrorServiceUnavailable );
 		source?.current?.addEventListener( 'error_quota_exceeded', onErrorQuotaExceeded );
 		source?.current?.addEventListener( 'error_moderation', onErrorModeration );
