@@ -76,9 +76,12 @@ function site_recommendations_settings() {
 		'general',
 		'recommendations',
 		array(
-			'type'         => 'array',
-			'show_in_rest' => true,
-			'description'  => __( 'Site Recommendations', 'jetpack' ),
+			'type'          => 'array',
+			'show_in_rest'  => true,
+			'description'   => __( 'Site Recommendations', 'jetpack' ),
+			'auth_callback' => function () {
+				return current_user_can( 'edit_posts' );
+			},
 		)
 	);
 }
