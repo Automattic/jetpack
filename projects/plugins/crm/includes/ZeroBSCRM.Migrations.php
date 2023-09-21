@@ -39,6 +39,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'refresh_user_roles', // Refresh user roles
 	'regenerate_tag_slugs', // Regenerate tag slugs
 	'create_workflows_table', // Create "workflows" table.
+	'invoice_language_fixes', // Store invoice statuses and mappings consistently
 	);
 
 global $zeroBSCRM_migrations_requirements; $zeroBSCRM_migrations_requirements = array(
@@ -1165,6 +1166,82 @@ function zeroBSCRM_migration_regenerate_tag_slugs() {
 		jpcrm_migration_regenerate_tag_slugs_for_obj_type( $obj_id );
 	}
 	zeroBSCRM_migrations_markComplete( 'regenerate_tag_slugs', array( 'updated' => 1 ) );
+}
+
+/**
+ * Convert invoice statuses and mappings to English
+ */
+function zeroBSCRM_migration_invoice_language_fixes() {
+
+	// if already English, can't auto-migrate and probably no need
+	$cur_locale = get_locale();
+	if ( $cur_locale === 'en_US' ) {
+		zeroBSCRM_migrations_markComplete( 'invoice_language_fixes', array( 'updated' => 1 ) );
+		return;
+	}
+
+	global $zbs, $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	$invoice_statuses = array(
+		'Draft'   => __( 'Draft', 'zero-bs-crm' ),
+		'Unpaid'  => __( 'Unpaid', 'zero-bs-crm' ),
+		'Paid'    => __( 'Paid', 'zero-bs-crm' ),
+		'Overdue' => __( 'Overdue', 'zero-bs-crm' ),
+		'Deleted' => __( 'Deleted', 'zero-bs-crm' ),
+	);
+
+	// get WooSync settings
+	$woosync_settings = $zbs->settings->get( 'zbscrm_dmz_ext_woosync' );
+
+	$settings_to_update = array();
+
+	foreach ( $invoice_statuses as $invoice_status => $translated_status ) {
+
+		// if there are settings, we may need to update mappings too
+		if ( $woosync_settings ) {
+
+			foreach ( $woosync_settings as $setting => $value ) {
+				// if not a setting we care about, continue
+				if ( strpos( $setting, 'order_invoice_map_' ) !== 0 ) {
+					continue;
+				}
+
+				// if no translated status matches, continue
+				if ( $value !== $translated_status ) {
+					continue;
+				}
+
+				// flag setting for update
+				$settings_to_update[ $setting ] = $invoice_status;
+			}
+		}
+
+		// see if there are any matches on translated status
+		$query = $wpdb->prepare( 'SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE zbsi_status=%s', $translated_status ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$count = $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
+		// if no matches, nothing to update
+		if ( $count === 0 ) {
+			continue;
+		}
+
+		// update status to English
+		$query = $wpdb->prepare( 'UPDATE ' . $ZBSCRM_t['invoices'] . ' SET zbsi_status=%s WHERE zbsi_status=%s', $invoice_status, $translated_status ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$wpdb->query( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+	}
+
+	// if there are mapping settings to update, do it
+	if ( $woosync_settings && ! empty( $settings_to_update ) ) {
+
+		// make a backup of settings
+		$zbs->settings->update( 'zbscrm_dmz_ext_woosync.bak', $woosync_settings );
+
+		// update WooSync settings
+		$updated_woosync_settings = array_merge( $woosync_settings, $settings_to_update );
+		$zbs->settings->update( 'zbscrm_dmz_ext_woosync', $updated_woosync_settings );
+	}
+
+	zeroBSCRM_migrations_markComplete( 'invoice_language_fixes', array( 'updated' => 1 ) );
 }
 
 /* ======================================================
