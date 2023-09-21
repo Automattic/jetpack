@@ -254,7 +254,9 @@ jQuery( document ).ready( function ( $ ) {
 				jitm_message_path: messagePath,
 			};
 
-			window.jpTracksAJAX.record_ajax_event( eventName, 'click', eventProp );
+			if ( window.jpTracksAJAX ) {
+				window.jpTracksAJAX.record_ajax_event(eventName, 'click', eventProp);
+			}
 		} );
 	};
 
