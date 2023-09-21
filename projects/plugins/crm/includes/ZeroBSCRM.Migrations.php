@@ -451,7 +451,7 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 		// ===== / Previously: 2.97.4 - fixes duplicated email templates (found on 2 installs so far)
 		
 
-		// ===== Previously: 4.0.7 - corrects outdated event notification template
+		// ===== Previously: 4.0.7 - corrects outdated task notification template
 
 		// retrieve existing template - hardtyped
 		$existingTemplate = $wpdb->get_var('SELECT zbsmail_body FROM '.$ZBSCRM_t['system_mail_templates'].' WHERE ID = 6');

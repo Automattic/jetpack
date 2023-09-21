@@ -1167,7 +1167,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 								case 4: // You have received a new Proposal
 									$tooling_areas = array( 'global', 'quote', 'contact', 'company' );
 									break;
-								case 5: // Your Event starts soon
+								case 5: // Your Task starts soon
 									$tooling_areas = array( 'global', 'event', 'contact', 'company' );
 									break;
 								case 6: // Your Client Portal Password
