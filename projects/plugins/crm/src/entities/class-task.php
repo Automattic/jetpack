@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\CRM\Entities;
 
 /**
  * Task class.
+ *
+ * Note that DAL and the database currently use the legacy term `event` instead
+ * of `task`, but to match the UI and to prevent confusion with the Automations
+ * Event Manager, we'll be using `task` here.
  */
 class Task {
 	/**
