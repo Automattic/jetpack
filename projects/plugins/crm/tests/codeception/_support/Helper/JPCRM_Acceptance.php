@@ -206,8 +206,7 @@ class JPCRM_Acceptance extends WPBrowser {
 		// tag manager
 		$this->slugs['tagmanager'] = 'tag-manager';
 
-		// } Deletion and no access
-		$this->slugs['zbs-deletion'] = 'zbs-deletion';
+		// no access
 		$this->slugs['zbs-noaccess'] = 'zbs-noaccess';
 
 		// } Modules/extensions

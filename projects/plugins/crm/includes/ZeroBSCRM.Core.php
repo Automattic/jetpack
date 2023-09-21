@@ -1060,8 +1060,7 @@ final class ZeroBSCRM {
 		// tag manager
 		$this->slugs['tagmanager'] = 'tag-manager';
 
-		// } Deletion and no access
-		$this->slugs['zbs-deletion'] = 'zbs-deletion';
+		// no access
 		$this->slugs['zbs-noaccess'] = 'zbs-noaccess';
 
 		// } File Editor
