@@ -74,10 +74,11 @@ HTML;
 function site_recommendations_settings() {
 	register_setting(
 		'general',
-		'site_recommendations',
+		'recommendations',
 		array(
 			'type'         => 'array',
 			'show_in_rest' => true,
+			'description'  => __( 'Site Recommendations', 'jetpack' ),
 		)
 	);
 }

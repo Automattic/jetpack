@@ -1,35 +1,10 @@
-import { usePrevious } from '@wordpress/compose';
 import { store as coreStore, useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, useMemo } from '@wordpress/element';
+import { debounce } from '../../shared/debounce';
 import { createBlockFromRecommendation } from './utils';
 
-function usePostHasBeenJustSaved() {
-	const isSaving = useSelect( select => {
-		const { isSavingPost, isSavingNonPostEntityChanges } = select( 'core/editor' );
-		return isSavingPost() || isSavingNonPostEntityChanges();
-	}, [] );
-	const wasSaving = usePrevious( isSaving );
-
-	return !! ( wasSaving && ! isSaving );
-}
-
-function useSaveSetting( { setIsSavingSetting, setSiteRecommendations, saveEditedEntityRecord } ) {
-	return useCallback(
-		recommendations => {
-			setIsSavingSetting( true );
-			setSiteRecommendations( recommendations );
-			saveEditedEntityRecord( 'root', 'site', undefined, {
-				site_recommendations: recommendations,
-			} ).finally( () => {
-				setIsSavingSetting( false );
-			} );
-		},
-		[ setIsSavingSetting, setSiteRecommendations, saveEditedEntityRecord ]
-	);
-}
-
-function useBlogrollItemAttributes( clientId ) {
+export function useBlogrollItemAttributes( clientId ) {
 	const block = useSelect(
 		select => {
 			return select( 'core/block-editor' ).getBlock( clientId );
@@ -37,28 +12,24 @@ function useBlogrollItemAttributes( clientId ) {
 		[ clientId ]
 	);
 
-	return useCallback( () => {
-		if ( ! block ) {
-			return null;
-		}
-
-		return block.innerBlocks
+	return useMemo( () => {
+		return block?.innerBlocks
 			.filter( ( { name } ) => name === 'jetpack/blogroll-item' )
 			.map( ( { attributes } ) => {
 				return attributes;
 			} );
-	}, [ block ] );
+	}, [ block?.innerBlocks ] );
 }
 
 export const useSiteRecommendationSync = ( { clientId, siteRecommendations } ) => {
 	const [ hasSynced, setHasSynced ] = useState( false );
 
 	const { insertBlocks } = useDispatch( 'core/block-editor' );
-	const extractBlogrollItemAttributes = useBlogrollItemAttributes( clientId );
+	const blogrollItemAttributes = useBlogrollItemAttributes( clientId );
 
 	useEffect( () => {
 		if ( ! hasSynced && !! siteRecommendations ) {
-			const attributes = extractBlogrollItemAttributes();
+			const attributes = blogrollItemAttributes;
 
 			const missingBlocks = siteRecommendations.filter( recommendation => {
 				return ! attributes.some( attribute => attribute.id === recommendation.id );
@@ -70,39 +41,39 @@ export const useSiteRecommendationSync = ( { clientId, siteRecommendations } ) =
 			}
 			setHasSynced( true );
 		}
-	}, [ clientId, siteRecommendations, extractBlogrollItemAttributes, hasSynced, insertBlocks ] );
+	}, [ clientId, siteRecommendations, blogrollItemAttributes, hasSynced, insertBlocks ] );
 };
 
-export const useSiteRecommendations = ( { clientId } ) => {
+const debounceSave = debounce(
+	( { innerBlockAttributes, editEntityRecord, siteRecommendations, setSiteRecommendations } ) => {
+		if ( siteRecommendations !== undefined ) {
+			setSiteRecommendations( innerBlockAttributes );
+			editEntityRecord( 'root', 'site', undefined, {
+				recommendations: innerBlockAttributes,
+			} );
+		}
+	},
+	1500
+);
+
+export const useSaveSiteRecommendations = ( { clientId } ) => {
 	const [ siteRecommendations, setSiteRecommendations ] = useEntityProp(
 		'root',
 		'site',
-		'site_recommendations'
+		'recommendations'
 	);
-	const [ isSavingSetting, setIsSavingSetting ] = useState( false );
-	const { saveEditedEntityRecord } = useDispatch( coreStore );
 
-	const postHasBeenJustSaved = usePostHasBeenJustSaved();
-	const extractBlogrollItemAttributes = useBlogrollItemAttributes( clientId );
-
-	const saveSiteRecommendations = useSaveSetting( {
-		setIsSavingSetting,
-		setSiteRecommendations,
-		saveEditedEntityRecord,
-	} );
+	const { editEntityRecord } = useDispatch( coreStore );
+	const innerBlockAttributes = useBlogrollItemAttributes( clientId );
 
 	useEffect( () => {
-		if ( postHasBeenJustSaved && ! isSavingSetting ) {
-			saveSiteRecommendations( extractBlogrollItemAttributes() );
-		}
-	}, [
-		postHasBeenJustSaved,
-		isSavingSetting,
-		saveSiteRecommendations,
-		extractBlogrollItemAttributes,
-	] );
+		debounceSave( {
+			innerBlockAttributes,
+			editEntityRecord,
+			siteRecommendations,
+			setSiteRecommendations,
+		} );
+	}, [ siteRecommendations, setSiteRecommendations, innerBlockAttributes, editEntityRecord ] );
 
-	return {
-		siteRecommendations,
-	};
+	return { siteRecommendations };
 };
