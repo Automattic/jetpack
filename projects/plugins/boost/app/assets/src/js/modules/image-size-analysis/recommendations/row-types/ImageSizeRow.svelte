@@ -163,7 +163,7 @@
 			<p>{details.instructions}</p>
 			{#if details.page.edit_url}
 				<div class="jb-actions">
-					{#if $config.autoFix}
+					{#if $config.autoFix && details.device_type === 'desktop'}
 						<Button width="auto" fill on:click={() => handleFixClick()}>
 							{__( 'Fix', 'jetpack-boost' )}
 						</Button>
