@@ -358,10 +358,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					$newsletter_categories   = maybe_unserialize( get_option( 'wpcom_newsletter_categories', array() ) );
 					$newsletter_category_ids = array_map(
-						$newsletter_categories,
 						function ( $newsletter_category ) {
 							return $newsletter_category['term_id'];
-						}
+						},
+						$newsletter_categories
 					);
 
 					$api_cache = $site->is_jetpack() ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
