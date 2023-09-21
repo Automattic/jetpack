@@ -957,17 +957,6 @@ function zeroBSCRM_menu_buildMenu() {
 		'stylefuncs' => array( 'zeroBSCRM_global_admin_styles' ),
 	);
 
-	// Trashed (hidden)
-	$menu['hidden']['subitems']['trashed'] = array(
-		'title'      => __( 'Trashed', 'zero-bs-crm' ),
-		'url'        => $zbs->slugs['zbs-deletion'],
-		'perms'      => 'admin_zerobs_customers',
-		'order'      => 1,
-		'wpposition' => 1,
-		'callback'   => 'zeroBSCRM_pages_postdelete',
-		'stylefuncs' => array( 'zeroBSCRM_global_admin_styles' ),
-	);
-
 	// No Permissions (hidden)
 	$menu['hidden']['subitems']['norights'] = array(
 		'title'      => __( 'No Permission', 'zero-bs-crm' ),
