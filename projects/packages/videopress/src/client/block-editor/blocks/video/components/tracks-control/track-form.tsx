@@ -43,6 +43,7 @@ export default function TrackForm( {
 	onCancel,
 	onSave,
 	tracks,
+	errorMessage,
 }: TrackFormProps ): React.ReactElement {
 	const [ isSavingTrack, setIsSavingTrack ] = useState( false );
 	const [ trackExists, setTrackExists ] = useState( false );
