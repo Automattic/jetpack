@@ -1,6 +1,5 @@
 import { useSelect } from '@wordpress/data';
 import { useCallback } from 'react';
-import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
 /**
  * Prepares the URL to share.
@@ -8,8 +7,6 @@ import useSocialMediaMessage from '../../hooks/use-social-media-message';
  * @returns {(urlWithPlaceholders: string) => string} A function that accepts a URL with placeholders and returns a URL with the placeholders replaced.
  */
 export function usePrepareUrl() {
-	const { message: customMessage } = useSocialMediaMessage();
-
 	const { message, link } = useSelect( select => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const getEditedPostAttribute = ( select( 'core/editor' ) as any )
@@ -18,7 +15,6 @@ export function usePrepareUrl() {
 		return {
 			link: getEditedPostAttribute( 'link' ),
 			message:
-				customMessage ||
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				( select( 'jetpack/publicize' ) as any ).getShareMessage() ||
 				getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title ||
