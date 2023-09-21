@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
 use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
+use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis_Fixer;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
@@ -32,36 +33,18 @@ class Image_Analysis_Fix implements Endpoint {
 		$params = $request->get_params();
 		unset( $params['nonce'] );
 
-		// use WP_Query to find posts with post_parent = $post->ID and post_type = jb_image_fixes
+		$fixes = Image_Size_Analysis_Fixer::get_fixes( $request->get_param( 'post_id' ) );
 
-		$posts = get_posts(
-			array(
-				'post_type'      => 'jb_image_fixes',
-				'post_parent'    => $request->get_param( 'post_id' ),
-				'posts_per_page' => -1,
-				'title'          => $request->get_param( 'image_url' ),
-			)
-		);
+		$image_url = Image_Size_Analysis_Fixer::fix_url( $request->get_param( 'image_url' ) );
 
-		if ( $posts ) {
-			$id = $posts[0]->ID;
-			wp_update_post(
-				array(
-					'ID'           => $id,
-					'post_content' => wp_json_encode( $params ),
-				)
-			);
+		$attachment_id = attachment_url_to_postid( esc_url( $image_url ) );
+		if ( $attachment_id ) {
+			$fixes[ $attachment_id ] = $params;
 		} else {
-			$id = wp_insert_post(
-				array(
-					'post_type'    => 'jb_image_fixes',
-					'post_title'   => $request->get_param( 'image_url' ),
-					'post_content' => wp_json_encode( $params ),
-					'post_status'  => 'publish',
-					'post_parent'  => $request->get_param( 'post_id' ),
-				)
-			);
+			$fixes[ md5( $image_url ) ] = $params; // hot linked image, possibly from another site.
 		}
+
+		update_post_meta( $request->get_param( 'post_id' ), 'jb_image_fixes', $fixes );
 
 		// Send a success response.
 		return rest_ensure_response(
