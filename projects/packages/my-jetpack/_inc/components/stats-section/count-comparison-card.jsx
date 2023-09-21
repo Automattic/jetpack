@@ -7,11 +7,15 @@ import React from 'react';
 import styles from './style.module.scss';
 
 const subtract = ( a, b ) => {
-	return a === null || b === null || b === undefined ? null : a - b;
+	if ( typeof a !== 'number' || typeof b !== 'number' ) {
+		return null;
+	}
+
+	return a - b;
 };
 
 export const percentCalculator = ( part, whole ) => {
-	if ( part === null || whole === null || whole === undefined ) {
+	if ( typeof part !== 'number' || typeof whole !== 'number' ) {
 		return null;
 	}
 	// Handle NaN case.
