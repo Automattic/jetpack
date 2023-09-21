@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import BlogrollAppender from './components/blogroll-appender';
 import useRecommendations from './use-recommendations';
+import { useSiteRecommendationSync } from './use-site-recommendations';
 import useSubscriptions from './use-subscriptions';
 import { createBlockFromRecommendation } from './utils';
 import './editor.scss';
@@ -22,7 +23,7 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 
 	const { isLoading, recommendations } = useRecommendations( load_placeholders );
 	const { subscriptions } = useSubscriptions( { ignore_user_blogs } );
-
+	useSiteRecommendationSync( { clientId } );
 	const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
 
 	useEffect( () => {
