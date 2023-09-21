@@ -315,7 +315,7 @@ function zeroBSCRMJS_bindLinkify() {
 /**
  * @param obj
  */
-function zbscrmjs_events_setContact( obj ) {
+function jpcrm_tasks_setContact( obj ) {
 	if ( typeof obj.id !== 'undefined' ) {
 		jQuery( '#zbse_customer' ).val( obj.id );
 
@@ -328,7 +328,7 @@ function zbscrmjs_events_setContact( obj ) {
 /**
  * @param obj
  */
-function zbscrmjs_events_setCompany( obj ) {
+function jpcrm_tasks_setCompany( obj ) {
 	if ( typeof obj.id !== 'undefined' ) {
 		// set vals
 		jQuery( '#zbse_company' ).val( obj.id );
@@ -343,7 +343,7 @@ function zbscrmjs_events_setCompany( obj ) {
 /**
  * @param o
  */
-function zbscrmjs_events_changeContact( o ) {
+function jpcrm_tasks_changeContact( o ) {
 	if ( typeof o === 'undefined' || o == '' ) {
 		jQuery( '#zbse_customer' ).val( '' );
 
@@ -356,7 +356,7 @@ function zbscrmjs_events_changeContact( o ) {
 /**
  * @param o
  */
-function zbscrmjs_events_changeCompany( o ) {
+function jpcrm_tasks_changeCompany( o ) {
 	if ( typeof o === 'undefined' || o == '' ) {
 		jQuery( '#zbse_company' ).val( '' );
 
@@ -495,8 +495,8 @@ function jpcrm_tasks_bindCompanyLinkIf() {
 
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbscrmjs_events_setContact, zbscrmjs_events_setCompany, zbscrmjs_events_changeContact,
-		zbscrmjs_events_changeCompany, zeroBSCRMJS_initEditView, zeroBSCRMJS_preLeaveEditView, zeroBSCRMJS_editViewLang,
+    module.exports = { jpcrm_tasks_setContact, jpcrm_tasks_setCompany, jpcrm_tasks_changeContact,
+		jpcrm_tasks_changeCompany, zeroBSCRMJS_initEditView, zeroBSCRMJS_preLeaveEditView, zeroBSCRMJS_editViewLang,
 		zeroBSCRMJS_drawEditView, zeroBSCRMJS_editViewBinds, zeroBSCRMJS_hideNotificationsAfter,
 		zeroBSCRMJS_editContactInit, jpcrm_customer_profile_picture_on_change, jpcrm_customer_remove_profile_picture,
 		jpcrm_bind_linkify, zeroBSCRMJS_initLinkify, zeroBSCRMJS_bindLinkify, jpcrm_tasks_showContactLinkIf,

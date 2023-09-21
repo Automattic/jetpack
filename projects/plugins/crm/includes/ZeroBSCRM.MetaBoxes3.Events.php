@@ -614,9 +614,9 @@ function zeroBSCRM_task_ui_for($taskObject = array()){
     }
     
     #} Output
-    $html .= '<div class="zbs-task-for">' . zeroBSCRM_CustomerTypeList('zbscrmjs_events_setContact',$custName,true,'zbscrmjs_events_changeContact') . "</div>";
+	$html .= '<div class="zbs-task-for">' . zeroBSCRM_CustomerTypeList( 'jpcrm_tasks_setContact', $custName, true, 'jpcrm_tasks_changeContact' ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$html .= '<input type="hidden" name="zbse_customer" id="zbse_customer" value="' . ( $custName ? $custID : '' ) . '" />'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-    $html .= "<div class='clear'></div></div>";
+	$html .= '<div class="clear"></div></div>';
 
     return $html;
 
@@ -655,7 +655,7 @@ function zeroBSCRM_task_ui_for_co($taskObject = array()){
 		}
 
         #} Output
-		$html .= '<div class="zbs-task-for-company">' . zeroBSCRM_CompanyTypeList( 'zbscrmjs_events_setCompany', $co_name, true, 'zbscrmjs_events_changeCompany' ) . '</div>';
+		$html .= '<div class="zbs-task-for-company">' . zeroBSCRM_CompanyTypeList( 'jpcrm_tasks_setCompany', $co_name, true, 'jpcrm_tasks_changeCompany' ) . '</div>';
 		$html .= '<input type="hidden" name="zbse_company" id="zbse_company" value="' . ( $co_name ? $co_id : '' ) . '" />';
 		$html .= '<div class="clear"></div></div>';
 
