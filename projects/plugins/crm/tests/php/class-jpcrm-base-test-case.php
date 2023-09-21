@@ -109,4 +109,33 @@ class JPCRM_Base_Test_Case extends WP_UnitTestCase {
 			)
 		);
 	}
+
+	/**
+	 * Generate default transaction data.
+	 *
+	 * @param array $args (Optional) A list of arguments we should use for the transaction.
+	 *
+	 * @return array An array of basic transaction data.
+	 */
+	public function generate_transaction_data( $args = array() ): array {
+		return wp_parse_args(
+			$args,
+			array(
+				'title'          => 'Some transaction title',
+				'desc'           => 'Some desc',
+				'ref'            => 'TransactionReference_1',
+				'hash'           => 'mASOpAnf334Pncl1px4',
+				'status'         => 'Completed',
+				'type'           => 'Sale',
+				'currency'       => 'USD',
+				'total'          => '150.00',
+				'tax'            => '10.00',
+				'lineitems'      => false,
+				'date'           => 1676000000,
+				'date_completed' => 1676923766,
+				'created'        => 1675000000,
+				'lastupdated'    => 1675000000,
+			)
+		);
+	}
 }
