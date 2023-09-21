@@ -4,7 +4,7 @@ Tags: jetpack, backup, restore
 Requires at least: 6.2
 Requires PHP: 5.6
 Tested up to: 6.3
-Stable tag: 2.1
+Stable tag: 2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -172,9 +172,9 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 2.0 - 2023-08-01
+### 2.2 - 2023-09-20
 #### Changed
-- General: indicate full compatibility with the latest version of WordPress, 6.3.
+- General: update WordPress version requirements to WordPress 6.2.
 - Updated package dependencies.
 
 --------

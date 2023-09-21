@@ -31,7 +31,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '3.5.0';
+	const PACKAGE_VERSION = '3.6.0-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -231,6 +231,7 @@ class Initializer {
 		new REST_Products();
 		new REST_Purchases();
 		new REST_Zendesk_Chat();
+		new REST_Product_Data();
 		new REST_AI();
 
 		register_rest_route(

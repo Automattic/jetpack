@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.6 - 2023-09-19
+## [12.6] - 2023-09-19
 ### Enhancements
 - AI Assistant: add prompts for correct feature configuration. [#33064]
 - AI Assistant: proof-of-concept for expandable messages on the backend using form generation prompt. [#32679]
@@ -175,7 +175,7 @@
 - Track store admin actions in WooCommerce analytics. Add a store_admin property to all WooCommerce analytics events. [#32692]
 - WooCommerce: only allow administrators the ability to modify products. [#32699]
 
-## 12.5 - 2023-08-23
+## [12.5] - 2023-08-23
 ### Enhancements
 - AI Assistant: various backend improvements.
 - AI Extension: various improvements AI Assistant, update styles, and bug fixes.
@@ -1499,7 +1499,7 @@
 - WAF: update WAF package version in composer.lock [#27528]
 - WordAds: fix syntax in wordards-ccpa.js causing it to be included in all merge commits. [#27667]
 
-## 11.6 - 2022-12-06
+## [11.6] - 2022-12-06
 ### Enhancements
 - Editor: adds an experimental editor extension that displays a placeholder blogging prompt when starting a new post. [#26680]
 - Form Block: fix form placeholder background color. [#27629]
@@ -8827,8 +8827,8 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[12.6]: https://wp.me/p1moTy-VLL
 [12.5]: https://wp.me/p1moTy-Vab
-[11.6]: https://wp.me/p1moTy-PLI
 [12.4]: https://wp.me/p1moTy-UQY
 [12.3]: https://wp.me/p1moTy-Uk3
 [12.2]: https://wp.me/p1moTy-Tzw
@@ -8837,6 +8837,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 [11.9]: https://wp.me/p1moTy-RdX
 [11.8]: https://wp.me/p1moTy-QEM
 [11.7]: https://wp.me/p1moTy-Q9t
+[11.6]: https://wp.me/p1moTy-PLI
 [11.5]: https://wp.me/p1moTy-Ppq
 [11.4]: https://wp.me/p1moTy-O5I
 [11.3]: https://wp.me/p1moTy-M5i

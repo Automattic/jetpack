@@ -47,4 +47,15 @@ class Events_Manager {
 	public function contact(): Contact_Event {
 		return new Contact_Event();
 	}
+
+	/**
+	 * Return the Invoice_Event instance.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return Invoice_Event A Invoice_Event instance.
+	 */
+	public function invoice(): Invoice_Event {
+		return new Invoice_Event();
+	}
 }

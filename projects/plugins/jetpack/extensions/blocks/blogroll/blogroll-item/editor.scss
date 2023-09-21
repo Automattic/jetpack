@@ -5,7 +5,6 @@
 
 	font-style: normal;
 	font-weight: 400;
-	color: var(--gray-gray-50, #646970);
 
 	figure {
 		margin: 0
@@ -18,7 +17,7 @@
 	}
 
 	h3.jetpack-blogroll-item-title.rich-text {
-		color: var(--gray-gray-100, #101517);
+		color: inherit;
 		font-size: 1.2em;
 		font-weight: 500;
 		margin: 0;
