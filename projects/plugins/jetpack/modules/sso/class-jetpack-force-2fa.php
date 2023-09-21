@@ -176,5 +176,3 @@ class Jetpack_Force_2FA {
 		);
 	}
 }
-
-new Jetpack_Force_2FA();
