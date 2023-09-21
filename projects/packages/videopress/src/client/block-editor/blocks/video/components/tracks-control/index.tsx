@@ -120,6 +120,7 @@ export default function TracksControl( {
 	const { tracks, guid } = attributes;
 
 	const [ isUploadingNewTrack, setIsUploadingNewTrack ] = useState( false );
+	const [ formErrorMessage, setFormErrorMessage ] = useState( '' );
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 
 	const videoPressUrl = getVideoPressUrl( guid, attributes );
@@ -127,6 +128,10 @@ export default function TracksControl( {
 	const uploadNewTrackFile = useCallback(
 		newUploadedTrack => {
 			uploadTrackForGuid( newUploadedTrack, guid ).then( src => {
+				if ( src?.error ) {
+					setFormErrorMessage( `Track error: ${ src?.message || src.error }` );
+					return;
+				}
 				/*
 				 * Rearrange the new track item,
 				 * removing the file field
@@ -172,6 +177,11 @@ export default function TracksControl( {
 		[ tracks ]
 	);
 
+	const openUploadTrackModal = useCallback( () => {
+		setFormErrorMessage( '' );
+		setIsUploadingNewTrack( true );
+	}, [] );
+
 	return (
 		<ToolbarDropdownMenu
 			icon={ tracksIcon }
@@ -189,6 +199,7 @@ export default function TracksControl( {
 							} }
 							onSave={ uploadNewTrackFile }
 							tracks={ tracks }
+							errorMessage={ formErrorMessage }
 						/>
 					);
 				}
@@ -204,7 +215,7 @@ export default function TracksControl( {
 							label={ __( 'Add tracks', 'jetpack-videopress-pkg' ) }
 							className="video-tracks-control"
 						>
-							<MenuItem icon={ upload } onClick={ () => setIsUploadingNewTrack( true ) }>
+							<MenuItem icon={ upload } onClick={ openUploadTrackModal }>
 								{ __( 'Upload track', 'jetpack-videopress-pkg' ) }
 							</MenuItem>
 						</MenuGroup>
