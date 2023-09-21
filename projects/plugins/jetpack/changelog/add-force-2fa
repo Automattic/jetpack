@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+SSO: offer ability to force a site to use Jetpack SSO with Two-Factor Authentication for certain roles.
