@@ -25,8 +25,7 @@ function register_block() {
 		array(
 			'render_callback'  => __NAMESPACE__ . '\load_assets',
 			'provides_context' => array(
-				'showSubscribeButton' => 'show_subscribe_button',
-				'openLinksNewWindow'  => 'open_links_new_window',
+				'openLinksNewWindow' => 'open_links_new_window',
 			),
 		)
 	);
@@ -42,10 +41,23 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr, $content ) {
+	global $wp;
+
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
+
+	$current_location = home_url( $wp->request );
+
+	$content = <<<HTML
+		<form method="post" action="https://subscribe.wordpress.com" accept-charset="utf-8">
+			<input name="action" type="hidden" value="subscribe">
+			<input name="source" type="hidden" value="$current_location">
+			<input name="sub-type" type="hidden" value="blogroll-follow">
+			$content
+		</form>
+HTML;
 
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',

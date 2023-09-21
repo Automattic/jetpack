@@ -5,22 +5,24 @@
 	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import Footer from '../../sections/Footer.svelte';
+	import { getUpgradeURL } from '../../stores/connection';
 	import Logo from '../../svg/jetpack-green.svg';
 	import JetpackBoostLogo from '../../svg/logo.svg';
 	import { recordBoostEvent } from '../../utils/analytics';
-	import { getUpgradeURL } from '../../utils/upgrade';
-
-	async function goToCheckout() {
-		const eventProps = {};
-		await recordBoostEvent( 'checkout_from_pricing_page_in_plugin', eventProps );
-		window.location.href = getUpgradeURL();
-	}
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
 	export let pricing: ( typeof Jetpack_Boost )[ 'pricing' ];
+	export let siteDomain: string;
+	export let userConnected: boolean;
 
 	const ctaText = __( 'Upgrade Jetpack Boost', 'jetpack-boost' );
+
+	async function goToCheckout() {
+		const eventProps = {};
+		await recordBoostEvent( 'checkout_from_pricing_page_in_plugin', eventProps );
+		window.location.href = getUpgradeURL( siteDomain, userConnected );
+	}
 
 	if ( ! ( 'yearly' in pricing ) ) {
 		goToCheckout();

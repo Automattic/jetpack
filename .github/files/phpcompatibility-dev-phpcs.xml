@@ -14,5 +14,6 @@
 		<exclude name="PHPCompatibility.FunctionUse.NewFunctions.sodium_crypto_box_sealFound" />
 		<exclude name="PHPCompatibility.Classes.NewClasses.sodiumexceptionFound" />
 		<exclude name="PHPCompatibility.FunctionUse.NewFunctions.is_countableFound" />
+		<exclude name="PHPCompatibility.FunctionUse.NewFunctions.str_containsFound" />
 	</rule>
 </ruleset>
