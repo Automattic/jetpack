@@ -38,6 +38,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'task_offset_fix', // removes task timezone offsets from database
 	'refresh_user_roles', // Refresh user roles
 	'regenerate_tag_slugs', // Regenerate tag slugs
+	'create_workflows_table', // Create "workflows" table.
 	);
 
 global $zeroBSCRM_migrations_requirements; $zeroBSCRM_migrations_requirements = array(
@@ -1103,6 +1104,22 @@ function zeroBSCRM_migration_560() { // phpcs:ignore WordPress.NamingConventions
 
 	// Mark as complete.
 	zeroBSCRM_migrations_markComplete( '560', array( 'updated' => 1 ) );
+}
+
+/**
+ * Migration 6.1.1
+ *
+ * This migration will:
+ * - Make sure all tables are up-to-date. Practically speaking, then we're creating a new "workflows" table.
+ *
+ * @return void
+ */
+function zeroBSCRM_migration_create_workflows_table() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+	// Check tables if exist and create if not.
+	zeroBSCRM_checkTablesExist();
+
+	// Mark migration as complete.
+	zeroBSCRM_migrations_markComplete( 'create_workflows_table', array( 'updated' => 1 ) );
 }
 
 /**

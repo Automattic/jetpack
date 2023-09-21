@@ -214,6 +214,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Personalize Link in Bio', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/setup/link-in-bio-post-setup/linkInBioPostSetup?siteSlug=' . $data['site_slug_encoded'];
+			},
 		),
 
 		// Videopress tasks.
@@ -239,6 +242,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_disabled_callback'  => 'wpcom_launchpad_is_videopress_upload_disabled',
 			'add_listener_callback' => function () {
 				add_action( 'add_attachment', 'wpcom_launchpad_track_video_uploaded_task' );
+			},
+			'get_calypso_path'      => function ( $task, $default, $data ) {
+				$page_on_front = get_option( 'page_on_front', false );
+				if ( $page_on_front ) {
+					return '/page/' . $data['site_slug_encoded'] . '/' . $page_on_front;
+				}
+				return '/site-editor/' . $data['site_slug_encoded'] . '?canvas=edit';
 			},
 		),
 
