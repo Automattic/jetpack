@@ -596,8 +596,10 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 			'label'  => 'unregister post type',
 		);
 		register_post_type( 'unregister_post_type', $args );
+
+		add_action( 'wp_insert_post', array( $this, 'unregister_post_type' ), 9 );
 		$post_id = self::factory()->post->create( array( 'post_type' => 'unregister_post_type' ) );
-		unregister_post_type( 'unregister_post_type' );
+		remove_action( 'wp_insert_post', array( $this, 'unregister_post_type' ), 9 );
 
 		$this->sender->do_sync();
 		$synced_post = $this->server_replica_storage->get_post( $post_id );
@@ -1429,5 +1431,9 @@ That was a cool video.';
 			self::factory()->post->create( array( 'post_type' => 'hello' ) );
 			return;
 		}
+	}
+
+	public function unregister_post_type() {
+		unregister_post_type( 'unregister_post_type' );
 	}
 }
