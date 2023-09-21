@@ -1197,6 +1197,11 @@ function zeroBSCRM_migration_invoice_language_fixes() {
 
 	foreach ( $invoice_statuses as $invoice_status => $translated_status ) {
 
+		// if the "translation" is the same as English, continue
+		if ( $translated_status === $invoice_status ) {
+			continue;
+		}
+
 		// if there are settings, we may need to update mappings too
 		if ( $woosync_settings ) {
 
