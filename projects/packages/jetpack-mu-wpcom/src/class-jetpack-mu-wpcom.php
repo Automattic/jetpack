@@ -39,6 +39,8 @@ class Jetpack_Mu_Wpcom {
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_marketplace_products_updater' ) );
 
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_first_posts_stream_helpers' ) );
+
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
 
@@ -171,5 +173,14 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 
 		\Marketplace_Products_Updater::init();
+	}
+
+	/**
+	 * Load First Posts stream helpers.
+	 *
+	 * @return void
+	 */
+	public static function load_first_posts_stream_helpers() {
+		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 	}
 }
