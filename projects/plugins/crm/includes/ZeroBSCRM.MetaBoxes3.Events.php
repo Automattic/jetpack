@@ -21,19 +21,19 @@
    Init Func
    ====================================================== */
 
-   function zeroBSCRM_EventsMetaboxSetup(){
+   function zeroBSCRM_TasksMetaboxSetup(){
 
-        $zeroBS__Metabox_Event = new zeroBS__Metabox_Event( __FILE__ );
+        $zeroBS__Metabox_Task = new zeroBS__Metabox_Task( __FILE__ );
 
         // actions box
-        $zeroBS__Metabox_EventActions = new zeroBS__Metabox_EventActions( __FILE__ );
+        $zeroBS__Metabox_TaskActions = new zeroBS__Metabox_TaskActions( __FILE__ );
 
         // tags
-        $zeroBS__Metabox_EventTags = new zeroBS__Metabox_EventTags( __FILE__ );
+        $zeroBS__Metabox_TaskTags = new zeroBS__Metabox_TaskTags( __FILE__ );
 
    }
 
-   add_action( 'admin_init','zeroBSCRM_EventsMetaboxSetup');
+   add_action( 'admin_init','zeroBSCRM_TasksMetaboxSetup');
 
 /* ======================================================
    / Init Func
@@ -43,7 +43,7 @@
   Event Metabox
    ====================================================== */
 
-    class zeroBS__Metabox_Event extends zeroBS__Metabox{ 
+    class zeroBS__Metabox_Task extends zeroBS__Metabox{ 
         
         // this is for catching 'new' event
         private $newRecordNeedsRedir = false;
@@ -286,7 +286,7 @@
     Events Actions Metabox
    ====================================================== */
 
-    class zeroBS__Metabox_EventActions extends zeroBS__Metabox{ 
+    class zeroBS__Metabox_TaskActions extends zeroBS__Metabox{ 
 
         public function __construct( $plugin_file ) {
 
@@ -378,7 +378,7 @@
   Create Tags Box
    ====================================================== */
 
-class zeroBS__Metabox_EventTags extends zeroBS__Metabox_Tags{
+class zeroBS__Metabox_TaskTags extends zeroBS__Metabox_Tags{
 
 
     public function __construct( $plugin_file ) {
