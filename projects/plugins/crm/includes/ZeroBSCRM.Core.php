@@ -1265,7 +1265,7 @@ final class ZeroBSCRM {
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.Page.Controller.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Edit.Segment.php';
 
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.Events.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.Tasks.php';
 
 		// } Semantic UI Helper + columns list
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.SemanticUIHelpers.php';
