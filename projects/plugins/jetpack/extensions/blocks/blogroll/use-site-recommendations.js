@@ -49,7 +49,7 @@ const debounceSave = debounce(
 		if ( siteRecommendations !== undefined ) {
 			setSiteRecommendations( innerBlockAttributes );
 			editEntityRecord( 'root', 'site', undefined, {
-				recommendations: innerBlockAttributes,
+				'Blogroll Recommendations': innerBlockAttributes,
 			} );
 		}
 	},
@@ -60,7 +60,7 @@ export const useSaveSiteRecommendations = ( { clientId } ) => {
 	const [ siteRecommendations, setSiteRecommendations ] = useEntityProp(
 		'root',
 		'site',
-		'recommendations'
+		'Blogroll Recommendations'
 	);
 
 	const { editEntityRecord } = useDispatch( coreStore );

@@ -74,7 +74,7 @@ HTML;
 function site_recommendations_settings() {
 	register_setting(
 		'general',
-		'recommendations',
+		'Blogroll Recommendations', // Visible to the user see: https://github.com/WordPress/gutenberg/issues/41637
 		array(
 			'type'          => 'array',
 			'show_in_rest'  => true,
