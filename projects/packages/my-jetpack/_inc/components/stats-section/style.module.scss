@@ -1,4 +1,5 @@
 $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+$actions-size: 28px;
 
 .section-title {
 	display: flex;
@@ -113,6 +114,6 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 	justify-content: space-between;
 	width: 100%;
 	margin-top: calc( var(--spacing-base) * 2.5 );
-	min-height: var(--actions-size);
+	min-height: $actions-size;
 	flex-wrap: wrap;
 }
