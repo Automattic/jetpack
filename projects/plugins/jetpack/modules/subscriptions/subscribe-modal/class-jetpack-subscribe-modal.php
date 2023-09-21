@@ -159,18 +159,6 @@ HTML;
 	}
 
 	/**
-	 * Returns true if we should load Newsletter content.
-	 *
-	 * @return bool
-	 */
-	public static function should_load_subscriber_modal() {
-		// Adding extra check/flag to load only on WP.com
-		// When ready for Jetpack release, remove this.
-		$is_wpcom = ( new Host() )->is_wpcom_platform();
-		return $is_wpcom;
-	}
-
-	/**
 	 * Returns true if a site visitor should see
 	 * the Subscribe Modal.
 	 *
@@ -228,14 +216,6 @@ HTML;
 	}
 }
 
-add_filter(
-	'jetpack_subscriptions_modal_enabled',
-	array(
-		'Jetpack_Subscribe_Modal',
-		'should_load_subscriber_modal',
-	)
-);
-
 /**
  * Filter for enabling or disabling the Jetpack Subscribe Modal
  * feature. We use this filter here and in several other places
@@ -244,9 +224,9 @@ add_filter(
  *
  * @since 12.4
  *
- * @param bool Defaults to false.
+ * @param bool Defaults to true.
  */
-if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
+if ( apply_filters( 'jetpack_subscriptions_modal_enabled', true ) ) {
 	Jetpack_Subscribe_Modal::init();
 }
 
