@@ -26,6 +26,7 @@ declare global {
 			showScorePrompt: boolean;
 			prioritySupport: boolean;
 		};
+		autoFix: boolean;
 		isPremium: boolean;
 		version: string;
 		api: {

@@ -2,7 +2,8 @@
 	import { __ } from '@wordpress/i18n';
 	import api from '../../../../api/api';
 	import Button from '../../../../elements/Button.svelte';
-	import { recordBoostEvent } from '../../../../utils/analytics';
+	import config from '../../../../stores/config';
+	import { recordBoostEventAndRedirect, recordBoostEvent } from '../../../../utils/analytics';
 	import { removeGetParams } from '../../../../utils/remove-get-params';
 	import Device from '../components/Device.svelte';
 	import Pill from '../components/Pill.svelte';
@@ -162,9 +163,24 @@
 			<p>{details.instructions}</p>
 			{#if details.page.edit_url}
 				<div class="jb-actions">
-					<Button width="auto" fill on:click={() => handleFixClick()}>
-						{__( 'Fix', 'jetpack-boost' )}
-					</Button>
+					{#if $config.autoFix}
+						<Button width="auto" fill on:click={() => handleFixClick()}>
+							{__( 'Fix', 'jetpack-boost' )}
+						</Button>
+					{:else}
+						<Button
+							width="auto"
+							fill
+							on:click={() =>
+								recordBoostEventAndRedirect(
+									details.page.edit_url,
+									'clicked_fix_on_page_on_isa_report',
+									{ device_type: details.device_type }
+								)}
+						>
+							{__( 'Fix on page', 'jetpack-boost' )}
+						</Button>
+					{/if}
 				</div>
 			{/if}
 		</div>
