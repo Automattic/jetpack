@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.6.1 - 2023-09-21
+### Bug Fixes
+- WooCommerce Analytics: fix a fatal error that can occur with WooCommerce enabled.
+
 ## 12.6 - 2023-09-19
 ### Enhancements
 - AI Assistant: add prompts for correct feature configuration. [#33064]
