@@ -1,4 +1,4 @@
-import { SocialServiceIcon } from '@automattic/jetpack-components';
+import { SocialServiceIcon, Text } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import React from 'react';
 import { availableNetworks } from './available-networks';
@@ -49,20 +49,24 @@ export const ShareButtons: React.FC< ShareButtonsProps > = ( {
 					'text' !== buttonStyle ? <SocialServiceIcon serviceName={ networkName } /> : null;
 
 				return (
-					<Button
-						key={ networkName }
-						icon={ icon }
-						variant={ buttonVariant }
-						aria-label={ label }
-						href={ href }
-						target="_blank"
-						rel="noopener noreferrer"
-						onClick={ getOnClick( href ) }
-						data-network={ networkName }
-						className={ styles[ networkName ] }
-					>
-						{ 'icon' !== buttonStyle ? label : null }
-					</Button>
+					<div className={ styles.container } key={ networkName }>
+						<Button
+							icon={ icon }
+							variant={ buttonVariant }
+							aria-label={ label }
+							href={ href }
+							target="_blank"
+							rel="noopener noreferrer"
+							onClick={ getOnClick( href ) }
+							data-network={ networkName }
+							className={ styles[ networkName ] }
+						>
+							{ 'text' === buttonStyle ? label : null }
+						</Button>
+						{ 'icon-text' === buttonStyle && (
+							<Text className={ styles.label }>Share on { label }</Text>
+						) }
+					</div>
 				);
 			} ) }
 		</div>
