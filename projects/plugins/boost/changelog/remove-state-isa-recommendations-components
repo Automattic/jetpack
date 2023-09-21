@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Removed global state in favor of props for Hero, Table and Tabs component.
+
+

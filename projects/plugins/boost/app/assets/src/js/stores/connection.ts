@@ -27,9 +27,7 @@ export function getUpgradeURL( domain: string, isUserConnected = false ) {
 	const redirectUrl = new URL( window.location.href );
 	redirectUrl.hash = '#/purchase-successful';
 
-	const checkoutProductUrl = new URL(
-		`https://wordpress.com/checkout/${ domain }/${ product }`
-	);
+	const checkoutProductUrl = new URL( `https://wordpress.com/checkout/${ domain }/${ product }` );
 
 	// Add redirect_to parameter
 	checkoutProductUrl.searchParams.set( 'redirect_to', redirectUrl.toString() );
