@@ -36,7 +36,7 @@ class Tag_Condition_Test extends JPCRM_Base_Test_Case {
 	}
 
 	/**
-	 * @testdox Test the update contact field condition for the is operator.
+	 * @testdox Test that a given tag matches a given condition.
 	 */
 	public function test_tag_matches_condition() {
 
