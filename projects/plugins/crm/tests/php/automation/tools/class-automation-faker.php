@@ -7,9 +7,9 @@ use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Company;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Event;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Task;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
 
@@ -160,8 +160,8 @@ class Automation_Faker {
 	 */
 	public function event_triggers(): array {
 		return array(
-			'jpcrm/event_created',
-			'jpcrm/event_deleted',
+			'jpcrm/task_created',
+			'jpcrm/task_deleted',
 		);
 	}
 
@@ -410,16 +410,16 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return data for a dummy event.
+	 * Return data for a dummy task.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Event object.
+	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Task object.
 	 * @return array
 	 */
-	public function event_data( $get_as_data_type = false ) {
+	public function task_data( $get_as_data_type = false ) {
 		$data = array(
 			'id'   => 1,
 			'data' => array(
-				'title'          => 'Some event title',
+				'title'          => 'Some task title',
 				'desc'           => 'Some desc',
 				'hash'           => 'V8jAlsi0#$ksm0Plsxp',
 				'start'          => 1676000000,
@@ -433,7 +433,7 @@ class Automation_Faker {
 		);
 
 		if ( $get_as_data_type ) {
-			return new Data_Type_Event( $data );
+			return new Data_Type_Task( $data );
 		}
 
 		return $data;

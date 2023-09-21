@@ -1,31 +1,31 @@
 <?php
 /**
- * Jetpack CRM Automation Event_Created trigger.
+ * Jetpack CRM Automation Task_Updated trigger.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Task;
 
 /**
- * Adds the Event_Created class.
+ * Adds the Task_Updated class.
  *
  * @since $$next-version$$
  */
-class Event_Created extends Base_Trigger {
+class Task_Updated extends Base_Trigger {
 
 	/**
 	 * Get the slug name of the trigger.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The slug name of the trigger.
+	 * @return string The trigger slug.
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/event_created';
+		return 'jpcrm/task_updated';
 	}
 
 	/**
@@ -33,10 +33,10 @@ class Event_Created extends Base_Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The title of the trigger.
+	 * @return string The title.
 	 */
 	public static function get_title(): string {
-		return __( 'New Event', 'zero-bs-crm' );
+		return __( 'Task Updated', 'zero-bs-crm' );
 	}
 
 	/**
@@ -44,10 +44,10 @@ class Event_Created extends Base_Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The description of the trigger.
+	 * @return string The description.
 	 */
 	public static function get_description(): string {
-		return __( 'Triggered when a new event status is added', 'zero-bs-crm' );
+		return __( 'Triggered when a task is updated', 'zero-bs-crm' );
 	}
 
 	/**
@@ -55,10 +55,10 @@ class Event_Created extends Base_Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The category of the trigger.
+	 * @return string The category.
 	 */
 	public static function get_category(): string {
-		return __( 'Event', 'zero-bs-crm' );
+		return __( 'Task', 'zero-bs-crm' );
 	}
 
 	/**
@@ -67,18 +67,19 @@ class Event_Created extends Base_Trigger {
 	 * @return string The type of the step
 	 */
 	public static function get_data_type(): string {
-		return 'event';
+		return Data_Type_Task::get_slug();
 	}
 
 	/**
 	 * Listen to this trigger's target event.
 	 *
 	 * @since $$next-version$$
+	 *
 	 * @return void
 	 */
-	protected function listen_to_event(): void {
+	protected function listen_to_event() {
 		add_action(
-			'jpcrm_event_created',
+			'jpcrm_task_updated',
 			array( $this, 'execute_workflow' )
 		);
 	}

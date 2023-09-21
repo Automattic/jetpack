@@ -1,6 +1,6 @@
 <?php
 /**
- * Event Data Type.
+ * Task Data Type.
  *
  * @package automattic/jetpack-crm
  * @since $$next-version$$
@@ -9,17 +9,17 @@
 namespace Automattic\Jetpack\CRM\Automation\Data_Types;
 
 /**
- * Event Data Type.
+ * Task Data Type.
  *
  * @since $$next-version$$
  */
-class Data_Type_Event extends Data_Type_Base {
+class Data_Type_Task extends Data_Type_Base {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public static function get_slug(): string {
-		return 'event';
+		return 'task';
 	}
 
 	/**
@@ -34,7 +34,7 @@ class Data_Type_Event extends Data_Type_Base {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param mixed $entity Event entity data to validate.
+	 * @param mixed $entity Task entity data to validate.
 	 * @return bool Whether the entity is valid or not.
 	 */
 	public function validate_entity( $entity ): bool {
