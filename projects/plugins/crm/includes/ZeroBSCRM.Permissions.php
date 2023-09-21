@@ -766,7 +766,7 @@ function zeroBSCRM_permsCustomers() {
 	function zeroBS_getPossibleQuoteOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','zerobs_customermgr')); }
 	function zeroBS_getPossibleInvoiceOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','zerobs_customermgr')); }
 	function zeroBS_getPossibleTransactionOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','zerobs_customermgr')); }
-	function zeroBS_getPossibleEventOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','admin_zerobs_events')); }
+	function zeroBS_getPossibleTaskOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','admin_zerobs_events')); }
 
 
 	// added this because Multi-site doesn't reliably 

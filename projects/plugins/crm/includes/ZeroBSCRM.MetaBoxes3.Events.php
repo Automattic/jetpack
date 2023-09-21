@@ -40,12 +40,12 @@
    ====================================================== */
 
 /* ======================================================
-  Event Metabox
+  Task Metabox
    ====================================================== */
 
     class zeroBS__Metabox_Task extends zeroBS__Metabox{ 
         
-        // this is for catching 'new' event
+        // this is for catching 'new' task
         private $newRecordNeedsRedir = false;
 
         public function __construct( $plugin_file ) {
@@ -75,17 +75,17 @@
 
         }
 
-        public function html( $event, $metabox ) {
+        public function html( $task, $metabox ) {
 
                 // localise ID
-                $eventID = -1; if (is_array($event) && isset($event['id'])) $eventID = (int)$event['id'];
+                $task_id = -1; if (is_array($task) && isset($task['id'])) $task_id = (int)$task['id'];
 
-                // debug echo 'event:<pre>'; print_r(array($event,$metabox)); echo '</pre>';
+                // debug echo 'task:<pre>'; print_r(array($task,$metabox)); echo '</pre>';
 
                // PerfTest: zeroBSCRM_performanceTest_startTimer('custmetabox-dataget');
 
                 #} Rather than reload all the time :)
-                global $zbsEventEditing; 
+                global $zbsTaskEditing;
 
                // PerfTest: zeroBSCRM_performanceTest_finishTimer('custmetabox-dataget');
                // PerfTest: zeroBSCRM_performanceTest_startTimer('custmetabox-draw'); ?>
@@ -94,18 +94,18 @@
 
                 <?php #} Pass this if it's a new customer (for internal automator) - note added this above with DEFINE for simpler.
 
-                    if (gettype($event) != "array") echo '<input type="hidden" name="zbscrm_newevent" value="1" />';
+                    if (gettype($task) != "array") echo '<input type="hidden" name="zbscrm_newevent" value="1" />';
 
               
                 // MS HTML out.. 
                 // from the function lower down in this file.
-                echo zeroBSCRM_task_addEdit($eventID);  
+                echo zeroBSCRM_task_addEdit($task_id);
               
 
             // PerfTest: zeroBSCRM_performanceTest_finishTimer('custmetabox-draw');
         }
 
-        public function save_data( $event_id, $event ) {
+        public function save_data( $task_id, $task ) {
 
             if (!defined('ZBS_OBJ_SAVED')){
 
@@ -117,18 +117,18 @@
                 global $zbs;
 
                 // check this
-                if (empty($event_id) || $event_id < 1)  $event_id = -1;
+                if (empty($task_id) || $task_id < 1)  $task_id = -1;
 
                 // DAL3 way: 
                 $autoGenAutonumbers = true; // generate if not set :)
-                $event = zeroBS_buildObjArr($_POST,array(),'zbse_','',false,ZBS_TYPE_TASK,$autoGenAutonumbers);
+                $task = zeroBS_buildObjArr($_POST,array(),'zbse_','',false,ZBS_TYPE_TASK,$autoGenAutonumbers);
 
                 // catch calendar and portal options (show_on_portal not needed)
-                $event['show_on_cal'] = -1; if (isset($_POST['zbse_show_on_cal'])) $event['show_on_cal'] = 1;        
+                $task['show_on_cal'] = -1; if (isset($_POST['zbse_show_on_cal'])) $task['show_on_cal'] = 1;        
                
                 // Use the tag-class function to retrieve any tags so we can add inline.
                 // Save tags against objid
-                $event['tags'] = zeroBSCRM_tags_retrieveFromPostBag(true,ZBS_TYPE_TASK);  
+                $task['tags'] = zeroBSCRM_tags_retrieveFromPostBag(true,ZBS_TYPE_TASK);  
 
                 // because we deal with non-model datetime stamps here, we have to process separate to buildObjArr:
 
@@ -150,17 +150,17 @@
 				$task_end = $task_start + 3600;
 			}
 
-			$event['start'] = $task_start;
-			$event['end']   = $task_end;
+			$task['start'] = $task_start;
+			$task['end']   = $task_end;
 
                 // obj links:
-                $event['contacts'] = array(); if (isset($_POST['zbse_customer'])) $event['contacts'][]   = (int)sanitize_text_field($_POST['zbse_customer']);
-                $event['companies'] = array(); if (isset($_POST['zbse_company'])) $event['companies'][]   = (int)sanitize_text_field($_POST['zbse_company']);
+                $task['contacts'] = array(); if (isset($_POST['zbse_customer'])) $task['contacts'][]   = (int)sanitize_text_field($_POST['zbse_customer']);
+                $task['companies'] = array(); if (isset($_POST['zbse_company'])) $task['companies'][]   = (int)sanitize_text_field($_POST['zbse_company']);
     
                 // completeness: 
-                $event['complete'] = -1; if (isset($_POST['zbs-task-complete'])) $event['complete']   = (int)sanitize_text_field($_POST['zbs-task-complete']);
+                $task['complete'] = -1; if (isset($_POST['zbs-task-complete'])) $task['complete']   = (int)sanitize_text_field($_POST['zbs-task-complete']);
 
-                $zbs->DAL->events->setEventCompleteness($event_id, $event['complete']);
+                $zbs->DAL->events->setEventCompleteness($task_id, $task['complete']);
 
                 // ownership also passed via post here.
                 $owner = -1;
@@ -172,28 +172,28 @@
                 }
 
                 // get old-style notify -> reminders
-                $eventReminders = array();
-                $zbsEventNotify = false; if (isset($_POST['zbs_remind_task_24'])) $zbsEventNotify  = (int)sanitize_text_field($_POST['zbs_remind_task_24']);
-                if ($zbsEventNotify > 0){
+                $task_reminders = array();
+                $jpcrm_task_notify = false; if (isset($_POST['zbs_remind_task_24'])) $jpcrm_task_notify  = (int)sanitize_text_field($_POST['zbs_remind_task_24']);
+                if ($jpcrm_task_notify > 0){
 
                         // this was only ever 0 or 24
-                        if ($zbsEventNotify == 24) $eventReminders[] = array(
+                        if ($jpcrm_task_notify == 24) $task_reminders[] = array(
 
                                 'remind_at' => -86400,
                                 'sent' => -1
 
                         );
                 }
-                $event['reminders'] = $eventReminders;
+                $task['reminders'] = $task_reminders;
 
-                //  echo 'Event owned by '.$owner.':<pre>'.print_r($event,1).'</pre>'; exit();
+                //  echo 'Task owned by '.$owner.':<pre>'.print_r($task,1).'</pre>'; exit();
 
                 // add/update
                 $addUpdateReturn = $zbs->DAL->events->addUpdateEvent(array(
 
-                            'id'    => $event_id,
+                            'id'    => $task_id,
                             'owner' => $owner,
-                            'data'  => $event,
+                            'data'  => $task,
                             'limitedFields' => -1,
 
                     ));
@@ -201,10 +201,10 @@
                 // Note: For NEW objs, we make sure a global is set here, that other update funcs can catch 
                 // ... so it's essential this one runs first!
                 // this is managed in the metabox Class :)
-                if ($event_id == -1 && !empty($addUpdateReturn) && $addUpdateReturn != -1) {
+                if ($task_id == -1 && !empty($addUpdateReturn) && $addUpdateReturn != -1) {
                     
-                    $event_id = $addUpdateReturn;
-                    global $zbsJustInsertedMetaboxID; $zbsJustInsertedMetaboxID = $event_id;
+                    $task_id = $addUpdateReturn;
+                    global $zbsJustInsertedMetaboxID; $zbsJustInsertedMetaboxID = $task_id;
 
                     // set this so it redirs
                     $this->newRecordNeedsRedir = true;
@@ -235,14 +235,14 @@
                         $this->dalErrorMessage(array(__('Insert/Update Failed with general error','zero-bs-crm')));
 
                     // pass the pre-fill:
-                    global $zbsObjDataPrefill; $zbsObjDataPrefill = $event;
+                    global $zbsObjDataPrefill; $zbsObjDataPrefill = $task;
 
         
                 }
 
             }
 
-            return $event;
+            return $task;
         }
 
         // This catches 'new' contacts + redirs to right url
@@ -278,12 +278,12 @@
 
 
 /* ======================================================
-  / Event Metabox
+  / Task Metabox
    ====================================================== */
 
 
 /* ======================================================
-    Events Actions Metabox
+    Task Actions Metabox
    ====================================================== */
 
     class zeroBS__Metabox_TaskActions extends zeroBS__Metabox{ 
@@ -315,7 +315,7 @@
 
         }
 
-        public function html( $event, $metabox ) {
+        public function html( $task, $metabox ) {
 
             ?><div class="zbs-generic-save-wrap">
 
@@ -324,12 +324,12 @@
             <?php
 
             // localise ID & content
-            $eventID = -1; if (is_array($event) && isset($event['id'])) $eventID = (int)$event['id'];
+            $task_id = -1; if (is_array($task) && isset($task['id'])) $task_id = (int)$task['id'];
 
-            if ($eventID > 0){
+            if ($task_id > 0){
 				?>
 
-                    <div class="zbs-event-actions-bottom zbs-objedit-actions-bottom">
+                    <div class="zbs-task-actions-bottom zbs-objedit-actions-bottom">
 
 							<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Task', 'zero-bs-crm' ); ?></button>
 
@@ -339,8 +339,8 @@
 
                          // for now just check if can modify, later better, granular perms.
                          if ( zeroBSCRM_perms_tasks() ) { 
-                        ?><div id="zbs-event-actions-delete" class="zbs-objedit-actions-delete">
-                             <a class="submitdelete deletion" href="<?php echo jpcrm_esc_link( 'delete', $eventID, 'event' ); ?>"><?php esc_html_e('Delete Permanently', "zero-bs-crm"); ?></a>
+                        ?><div id="zbs-task-actions-delete" class="zbs-objedit-actions-delete">
+                             <a class="submitdelete deletion" href="<?php echo jpcrm_esc_link( 'delete', $task_id, 'event' ); ?>"><?php esc_html_e('Delete Permanently', "zero-bs-crm"); ?></a>
                         </div>
                         <?php } // can delete  ?>
                         
@@ -352,7 +352,7 @@
 
             } else {
 
-                    // NEW Event ?>
+                    // NEW Task ?>
 
 						<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Save', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Task', 'zero-bs-crm' ); ?></button>
 
@@ -369,7 +369,7 @@
 
 
 /* ======================================================
-  / Events Actions Metabox
+  / Tasks Actions Metabox
    ====================================================== */
 
 
@@ -420,7 +420,7 @@ class zeroBS__Metabox_TaskTags extends zeroBS__Metabox_Tags{
 
 
 /* ======================================================
-  Event UI code - outputting the HTML for the task
+  Task UI code - outputting the HTML for the task
    ====================================================== */
 
 function zeroBSCRM_task_addEdit($taskID = -1){
@@ -513,22 +513,22 @@ function zeroBSCRM_task_ui_assignment($taskObject = array(), $taskID = -1){
 
     global $zbs;
 
-    $currentEventUserID = -1;
-    if (array_key_exists('owner', $taskObject)) $currentEventUserID = $taskObject['owner'];
+    $current_task_user_id = -1;
+    if (array_key_exists('owner', $taskObject)) $current_task_user_id = $taskObject['owner'];
     
     $html = "";
-	if ( $currentEventUserID === '' || $currentEventUserID <= 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	if ( $current_task_user_id === '' || $current_task_user_id <= 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
         $html .= "<div class='no-owner'><i class='ui icon user circle zbs-unassigned'></i>";
 
     } else {
 
-        $owner_info = get_userdata( $currentEventUserID );
+        $owner_info = get_userdata( $current_task_user_id );
         $display_name = $owner_info->data->display_name;
         $ava_args = array(
             'class' => 'rounded-circle'
         );
-        $avatar = jpcrm_get_avatar( $currentEventUserID, 30, '', $display_name, $ava_args );
+        $avatar = jpcrm_get_avatar( $current_task_user_id, 30, '', $display_name, $ava_args );
         $html .= "<div class='no-owner'>" . $avatar . "<div class='dn'></div>";
 
     }
@@ -536,19 +536,19 @@ function zeroBSCRM_task_ui_assignment($taskObject = array(), $taskID = -1){
     $uid = get_current_user_id();
     $linked_cal = $zbs->DAL->meta(ZBS_TYPE_TASK,$taskID,$key='zbs_outlook_id',false); // false = default here
 
-    if ($uid != $currentEventUserID){
+    if ($uid != $current_task_user_id){
         //then it is LOCKED and cannot be changed to another owner?
     }
 
     // get potential owners
-    $zbsEventsUsers = zeroBS_getPossibleEventOwners();
+    $jpcrm_tasks_users = zeroBS_getPossibleTaskOwners();
 
     $html .= '<div class="owner-select" style="margin-left:30px;"><select class="form-controlx" id="zerobscrm-owner" name="zbse_owner" style="width:80%">';
     $html .= '<option value="-1">'. __('None',"zero-bs-crm") .'</option>';
     
-    if (count($zbsEventsUsers) > 0) foreach ($zbsEventsUsers as $possOwner){
+    if (count($jpcrm_tasks_users) > 0) foreach ($jpcrm_tasks_users as $possOwner){
         $html .= '<option value="' . $possOwner->ID .'"'; 
-        if ($possOwner->ID == $currentEventUserID) $html .= ' selected="selected"';
+        if ($possOwner->ID == $current_task_user_id) $html .= ' selected="selected"';
         $html .= '>' . esc_html( $possOwner->display_name ) . '</option>';
     } 
     $html .= '</select></div></div>';
@@ -749,7 +749,7 @@ function zeroBSCRM_task_ui_reminders($taskObject = array(), $taskID = -1){
     $html = "<div class='remind_task'>";
         $html .= '<div>';
 
-            // add admin cog (settings) for event notification template
+            // add admin cog (settings) for task notification template
             if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 					$html .= sprintf(
 						'<a href="%s" class="button button-primary button-large" style="background-color:black;border-color:black;" title="%s" target="_blank"><i class="cogs icon"></i></a>',
@@ -845,5 +845,5 @@ function zeroBSCRM_task_ui_description($taskObject = array()){
 
 }
 /* ======================================================
-  / Event UI code
+  / Task UI code
    ====================================================== */
