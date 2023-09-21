@@ -167,6 +167,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			'pn': '" . esc_js( $product_details['name'] ) . "',
 			'pc': '" . esc_js( $product_details['category'] ) . "',
 			'pp': '" . esc_js( $product_details['price'] ) . "',
+			'products_count': '" . $this->product_count . "',
+			'coupon_used': '" . count( WC()->cart->get_coupons() ) > 0 ? 1 : 0 . "',
+			'order_value': '" . WC()->cart->get_totals()['total'] . "',
+			'template_used': '" . str_contains( get_page_template(), 'template-canvas.php' ) . "',
 			'pt': '" . esc_js( $product_details['type'] ) . "'," .
 			$this->render_properties_as_js( $all_props ) . '
 		}';
@@ -283,11 +287,50 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
+	 * Number of products in the cart.
+	 *
+	 * @var number
+	 */
+	private $product_count;
+
+	/**
+	 * Tracks any additional blocks loaded on the Cart/Checkout page.
+	 */
+	private $additional_blocks_on_page;
+
+	public function get_additional_blocks_on_page() {
+		global $post;
+		$parsed_blocks = parse_blocks( $post->post_content );
+		$other_blocks = array_filter(
+			$parsed_blocks,
+			function( $block ) {
+				if( is_checkout() && $block['blockName'] !== 'woocommerce/checkout' ) {
+					return true;
+				}
+				if( is_cart() && $block['blockName'] !== 'woocommerce/cart' ) {
+					return true;
+				}
+				return false;
+			}
+		);
+		//var_dump($other_blocks);
+
+		if ( function_exists( 'get_block_template' ) ) {
+			//var_dump( get_block_template( 'wooocommerce//checkout', $template_type ) );
+		}
+
+		if ( function_exists( 'gutenberg_get_block_template' ) ) {
+			//var_dump( gutenberg_get_block_template( 'wooocommerce//checkout', $template_type ) );
+		}
+	}
+
+	/**
 	 * On the Checkout page, trigger an event for each product in the cart
 	 */
 	public function checkout_process() {
 		$cart = WC()->cart->get_cart();
-
+		$this->product_count = count( $cart );
+		$this->get_additional_blocks_on_page();
 		$guest_checkout = ucfirst( get_option( 'woocommerce_enable_guest_checkout', 'No' ) );
 		$create_account = ucfirst( get_option( 'woocommerce_enable_signup_and_login_from_checkout', 'No' ) );
 
@@ -304,6 +347,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 		$enabled_payment_options = array_keys( $enabled_payment_options );
 		$include_express_payment = false;
+
+		// Get shipping packages because we want to track the selected shipping rate for each item.
+		$packages = WC()->shipping()->calculate_shipping( WC()->cart->get_shipping_packages() );
 
 		$wcpay_version              = get_option( 'woocommerce_woocommerce_payments_version' );
 		$has_required_wcpay_version = version_compare( $wcpay_version, '2.9.0', '>=' );
@@ -325,6 +371,19 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				continue;
 			}
 
+
+			$package_containing_product = null;
+			foreach ( $packages as $package_id => $package  ) {
+				if( in_array( $cart_item_key, array_keys( $package['contents'] ), true ) ) {
+					$package_containing_product = $package;
+					$package_containing_product['package_id'] = $package_id;
+					break;
+				}
+			}
+
+			$chosen_shipping_method_for_package = wc_get_chosen_shipping_method_for_package( $package_containing_product['package_id'], $package_containing_product );
+			$chosen_shipping_method_label       = $package_containing_product['rates'][ $chosen_shipping_method_for_package ]->get_label();
+
 			if ( true === $include_express_payment ) {
 				$properties = $this->process_event_properties(
 					'woocommerceanalytics_product_checkout',
@@ -336,6 +395,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'guest_checkout'   => 'Yes' === $guest_checkout ? 'Yes' : 'No',
 						'create_account'   => 'Yes' === $create_account ? 'Yes' : 'No',
 						'express_checkout' => 'null',
+						'shipping_option'  => $chosen_shipping_method_label,
 					)
 				);
 				wc_enqueue_js(
@@ -365,6 +425,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'guest_checkout'   => 'Yes' === $guest_checkout ? 'Yes' : 'No',
 						'create_account'   => 'Yes' === $create_account ? 'Yes' : 'No',
 						'express_checkout' => 'null',
+						'shipping_option'  => $chosen_shipping_method_label,
 					)
 				);
 			}
