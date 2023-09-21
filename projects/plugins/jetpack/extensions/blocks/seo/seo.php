@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\Sharing;
+namespace Automattic\Jetpack\Extensions\Seo;
 
 use Jetpack_Gutenberg;
 
