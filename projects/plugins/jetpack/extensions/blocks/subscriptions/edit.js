@@ -187,9 +187,9 @@ export function SubscriptionEdit( props ) {
 		'--subscribe-block-border-radius': borderRadius
 			? borderRadius + 'px'
 			: DEFAULT_BORDER_RADIUS_VALUE + 'px',
-		'--subscribe-block-text-color': 'var(--wp--preset--color--foreground)',
-		'--subscribe-block-background-color': 'var(--wp--preset--color--background)',
-		'--subscribe-block-accent-color': 'var(--wp--preset--color--foreground)',
+		'--subscribe-block-text-color': 'var(--wp--preset--color--foreground, #3c434a)',
+		'--subscribe-block-background-color': 'var(--wp--preset--color--background, white)',
+		'--subscribe-block-accent-color': 'var(--wp--preset--color--foreground, #3c434a)',
 	};
 
 	const emailFieldStyles = {
