@@ -68,6 +68,11 @@ export default function TrackForm( {
 		setTrackExists( exists );
 	}, [ track, tracks ] );
 
+	useEffect( () => {
+		setError( errorMessage );
+		errorMessage && setIsSavingTrack( false );
+	}, [ errorMessage ] );
+
 	const fileName = track.tmpFile?.name;
 
 	const mediaUpload = useSelect( select => {
@@ -76,6 +81,7 @@ export default function TrackForm( {
 
 	const onSaveHandler = useCallback( () => {
 		setIsSavingTrack( true );
+		setError( '' );
 		onSave( track );
 	}, [ track ] );
 
@@ -178,7 +184,7 @@ export default function TrackForm( {
 						trackExists ? ' track-exists' : ''
 					}` }
 				>
-					{ ! error?.length && trackExists && (
+					{ trackExists && (
 						<ToggleControl
 							className="video-tracks-control__track-form-toggle"
 							label={ __( 'Track exists. Replace?', 'jetpack-videopress-pkg' ) }
