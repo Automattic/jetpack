@@ -325,7 +325,7 @@ function zeroBSCRM_mail_retrieveDefaultBodyTemplate($template='maintemplate'){
 	if (function_exists('file_get_contents')){
 
 		#} templates
-		$acceptableTemplates = array('maintemplate','clientportal','invoicesent','quoteaccepted','quotesent','eventnotification','clientportalpwreset','invoicestatementsent');
+		$acceptableTemplates = array( 'maintemplate', 'clientportal', 'invoicesent', 'quoteaccepted', 'quotesent', 'tasknotification', 'clientportalpwreset', 'invoicestatementsent' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		if (in_array($template, $acceptableTemplates)){
 

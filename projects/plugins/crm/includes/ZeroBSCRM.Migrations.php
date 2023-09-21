@@ -457,10 +457,12 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 		$existingTemplate = $wpdb->get_var('SELECT zbsmail_body FROM '.$ZBSCRM_t['system_mail_templates'].' WHERE ID = 6');
 
 		// load new
-		$newTemplate = zeroBSCRM_mail_retrieveDefaultBodyTemplate('eventnotification');
+		$newTemplate = zeroBSCRM_mail_retrieveDefaultBodyTemplate( 'tasknotification' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-		// back it up into a WP option if was different
-	    if ($existingTemplate !== $newTemplate) update_option('jpcrm_eventnotificationtemplate',$existingTemplate, false);
+	// back it up into a WP option if was different
+	if ( $existingTemplate !== $newTemplate ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		update_option( 'jpcrm_tasknotificationtemplate', $existingTemplate, false ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
 
 		// overwrite
 		$sql = "UPDATE " . $ZBSCRM_t['system_mail_templates'] . " SET zbsmail_body = %s WHERE ID = 6";
