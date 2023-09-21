@@ -1,8 +1,6 @@
 $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
-<<<<<<< HEAD
+
 $actions-size: 28px;
-=======
->>>>>>> da313f36b6 (Add Stats section component)
 
 .section-title {
 	display: flex;
@@ -40,23 +38,16 @@ $actions-size: 28px;
 
 	.stats-card {
 		border-color: var(--jp-gray-5);
-<<<<<<< HEAD
 		border-radius: 5px;
-=======
-		border-radius: 5px; // stylelint-disable-line scales/radii
->>>>>>> da313f36b6 (Add Stats section component)
 		width: 100%;
 		min-width: 180px; // Minimum mobile width
 		padding: 1rem 1.5rem;
 		margin-bottom: 0;
 
-<<<<<<< HEAD
 		@media only screen and (min-width: 960px) {
-			min-width: 220px; // Minimum mobile width
+			min-width: 220px; // Minimum desktop width
 		}
 
-=======
->>>>>>> da313f36b6 (Add Stats section component)
 		margin-right: 1.5rem;
 		&:last-child {
 			margin-right: 0;
