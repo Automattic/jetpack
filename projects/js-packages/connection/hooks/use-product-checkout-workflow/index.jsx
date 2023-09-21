@@ -1,8 +1,8 @@
 import restApi from '@automattic/jetpack-api';
-import { getProductCheckoutUrl } from '@automattic/jetpack-components';
+import { getCalypsoOrigin } from '@automattic/jetpack-connection';
 import { useDispatch } from '@wordpress/data';
 import debugFactory from 'debug';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import useConnection from '../../components/use-connection';
 import { STORE_ID } from '../../state/store.jsx';
 
@@ -14,6 +14,8 @@ const {
 	apiNonce,
 	siteSuffix: defaultSiteSuffix,
 } = window?.JP_CONNECTION_INITIAL_STATE ? window.JP_CONNECTION_INITIAL_STATE : {};
+const defaultAdminUrl =
+	typeof window !== 'undefined' ? window?.myJetpackInitialState?.adminUrl : null;
 
 /**
  * Custom hook that performs the needed steps
@@ -23,6 +25,8 @@ const {
  * @param {string} props.productSlug  - The WordPress product slug.
  * @param {string} props.redirectUrl  - The URI to redirect to after checkout.
  * @param {string} [props.siteSuffix] - The site suffix.
+ * @param {string} [props.adminUrl]   - The site wp-admin url.
+ * @param {boolean} props.connectAfterCheckout - Whether or not to conect after checkout if not connected (default false - connect before).
  * @param {Function} props.siteProductAvailabilityHandler - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if the promise returned resloves true.
  * @param {Function} props.from       - The plugin slug initiated the flow.
  * @returns {Function}				  - The useEffect hook.
@@ -31,6 +35,8 @@ export default function useProductCheckoutWorkflow( {
 	productSlug,
 	redirectUrl,
 	siteSuffix = defaultSiteSuffix,
+	adminUrl = defaultAdminUrl,
+	connectAfterCheckout = false,
 	siteProductAvailabilityHandler = null,
 	from,
 } = {} ) {
@@ -46,14 +52,44 @@ export default function useProductCheckoutWorkflow( {
 		from,
 	} );
 
-	// Build the checkout URL.
-	const checkoutProductUrl = getProductCheckoutUrl(
-		productSlug,
+	const checkoutUrl = useMemo( () => {
+		const origin = getCalypsoOrigin();
+		const useConnetAfterCheckoutFlow = ! isRegistered && connectAfterCheckout;
+
+		const checkoutPath = useConnetAfterCheckoutFlow
+			? 'checkout/jetpack/'
+			: `checkout/${ siteSuffix }/`;
+
+		const productCheckoutUrl = new URL( `${ origin }${ checkoutPath }${ productSlug }` );
+
+		if ( useConnetAfterCheckoutFlow ) {
+			productCheckoutUrl.searchParams.set( 'connect_after_checkout', true );
+			productCheckoutUrl.searchParams.set( 'admin_url', adminUrl );
+			productCheckoutUrl.searchParams.set( 'from_site_slug', siteSuffix );
+		} else {
+			productCheckoutUrl.searchParams.set( 'site', siteSuffix );
+		}
+
+		productCheckoutUrl.searchParams.set( 'source', from );
+		productCheckoutUrl.searchParams.set( 'redirect_to', redirectUrl );
+		if ( ! isUserConnected ) {
+			productCheckoutUrl.searchParams.set( 'unlinked', '1' );
+		}
+
+		return productCheckoutUrl;
+	}, [
+		connectAfterCheckout,
+		isRegistered,
 		siteSuffix,
+		productSlug,
+		adminUrl,
+		from,
 		redirectUrl,
-		isUserConnected
-	);
-	debug( 'checkoutProductUrl is %s', checkoutProductUrl );
+		isUserConnected,
+	] );
+
+	debug( 'connectAfterCheckout is %s', connectAfterCheckout );
+	debug( 'checkoutUrl is %s', checkoutUrl );
 	debug( 'isUserConnected is %s', isUserConnected );
 
 	const handleAfterRegistration = () => {
@@ -66,10 +102,16 @@ export default function useProductCheckoutWorkflow( {
 			}
 			debug(
 				'handleAfterRegistration: Site does not have a product associated. Redirecting to checkout %s',
-				checkoutProductUrl
+				checkoutUrl
 			);
-			window.location.href = checkoutProductUrl;
+			window.location.href = checkoutUrl;
 		} );
+	};
+
+	const connectAfterCheckoutFlow = () => {
+		debug( 'Redirecting to connectAfterCheckout flow: %s', checkoutUrl );
+
+		window.location.href = checkoutUrl;
 	};
 
 	/**
@@ -81,6 +123,9 @@ export default function useProductCheckoutWorkflow( {
 	const run = event => {
 		event && event.preventDefault();
 		setCheckoutStarted( true );
+		if ( connectAfterCheckout ) {
+			return connectAfterCheckoutFlow();
+		}
 
 		if ( isRegistered ) {
 			return handleAfterRegistration();

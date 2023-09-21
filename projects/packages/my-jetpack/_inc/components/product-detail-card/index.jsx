@@ -61,6 +61,7 @@ function Price( { value, currency, isOld } ) {
  * @param {object} props                         - Component props.
  * @param {string} props.slug                    - Product slug
  * @param {Function} props.onClick               - Callback for Call To Action button click
+ //* @param {string} props.href                    - href for Call To Action button click
  * @param {Function} props.trackButtonClick      - Function to call for tracking clicks on Call To Action button
  * @param {string} props.className               - A className to be concat with default ones
  * @param {boolean} props.preferProductName      - Use product name instead of title
@@ -70,12 +71,14 @@ function Price( { value, currency, isOld } ) {
 const ProductDetailCard = ( {
 	slug,
 	onClick,
+	//href,
 	trackButtonClick,
 	className,
 	preferProductName,
 	supportingInfo,
 } ) => {
-	const { fileSystemWriteAccess, siteSuffix, myJetpackUrl } = window?.myJetpackInitialState ?? {};
+	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackUrl } =
+		window?.myJetpackInitialState ?? {};
 
 	const { detail, isFetching } = useProduct( slug );
 	const {
@@ -123,6 +126,8 @@ const ProductDetailCard = ( {
 			productSlug: wpcomProductSlug,
 			redirectUrl: checkoutRedirectUrl,
 			siteSuffix,
+			adminUrl,
+			connectAfterCheckout: true,
 			from: 'my-jetpack',
 		} );
 
