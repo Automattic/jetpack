@@ -76,7 +76,8 @@ class Jetpack_SSO {
 		 * @module SSO
 		 * @return bool
 		 */
-		if ( apply_filters( 'jetpack_force_2fa', false ) ) {
+		if ( ! class_exists( 'Jetpack_Force_2FA' ) && apply_filters( 'jetpack_force_2fa', false ) ) {
+			// Checking for the class to avoid collisions with existing standalone Jetpack Force 2FA plugin and break out if so.
 			require_once JETPACK__PLUGIN_DIR . 'modules/sso/class-jetpack-force-2fa.php';
 			new Jetpack_Force_2FA();
 		}

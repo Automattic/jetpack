@@ -1,12 +1,8 @@
 <?php
 /**
- * Plugin Name: Force Jetpack 2FA
- * Plugin URI: http://automattic.com
- * Description: Force admins to use two factor authentication.
- * Author: Brandon Kraft, Josh Betz, Automattic
- * Version: 0.1
- * Author URI: http://automattic.com
- * Text Domain: jetpack
+ * Force Jetpack 2FA Functionality
+ *
+ * Ported from original repo at https://github.com/automattic/jetpack-force-2fa
  *
  * @package automattic/jetpack
  */
