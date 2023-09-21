@@ -206,23 +206,23 @@ class Contact {
 	/**
 	 * The contact created timestamp.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
-	public $created = -1;
+	public $created = null;
 
 	/**
 	 * The contact last updated timestamp.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
-	public $lastupdated = -1;
+	public $lastupdated = null;
 
 	/**
 	 * The contact last contacted timestamp.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
-	public $lastcontacted = -1;
+	public $lastcontacted = null;
 
 	/**
 	 * The contact meta.
