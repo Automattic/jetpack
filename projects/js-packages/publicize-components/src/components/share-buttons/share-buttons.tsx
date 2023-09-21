@@ -1,33 +1,10 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { availableNetworks } from './available-networks';
 import styles from './styles.module.scss';
 import { usePrepareUrl } from './usePrepareUrl';
-
-/**
- * Click handler for the share buttons.
- *
- * @param {string} url - The URL.
- * @param {object} data - The tracking data.
- *
- * @returns {Function} The click handler.
- */
-function getOnClick( url: string, data?: unknown ) {
-	return function onClick( event: React.MouseEvent< HTMLAnchorElement > ) {
-		event.preventDefault();
-
-		// TODO Add tracking here
-		// eslint-disable-next-line no-console
-		console.log( 'onClick', { data } );
-
-		window.open(
-			url,
-			'',
-			'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600'
-		);
-	};
-}
 
 export type ShareButtonsProps = {
 	buttonStyle?: 'icon' | 'text' | 'icon-text';
@@ -39,6 +16,25 @@ export const ShareButtons: React.FC< ShareButtonsProps > = ( {
 	buttonVariant,
 } ) => {
 	const prepareUrl = usePrepareUrl();
+
+	const { recordEvent } = useAnalytics();
+
+	const getOnClick = useCallback(
+		function ( url: string, data?: unknown ) {
+			return function onClick( event: React.MouseEvent< HTMLAnchorElement > ) {
+				event.preventDefault();
+
+				recordEvent( 'jetpack_social_share_button_clicked', data );
+
+				window.open(
+					url,
+					'',
+					'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600'
+				);
+			};
+		},
+		[ recordEvent ]
+	);
 
 	return (
 		<div className={ styles[ 'share-buttons' ] }>
@@ -57,7 +53,7 @@ export const ShareButtons: React.FC< ShareButtonsProps > = ( {
 						href={ href }
 						target="_blank"
 						rel="noopener noreferrer"
-						onClick={ getOnClick( href ) }
+						onClick={ getOnClick( href, { network: networkName } ) }
 						data-network={ networkName }
 						className={ styles[ networkName ] }
 					>
