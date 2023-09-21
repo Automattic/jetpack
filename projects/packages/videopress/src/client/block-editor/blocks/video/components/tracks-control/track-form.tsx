@@ -59,6 +59,7 @@ export default function TrackForm( {
 	const updateTrack = useCallback(
 		( key: 'kind' | 'srcLang' | 'label' | 'tmpFile', value: string | File ) => {
 			setTrack( prev => ( { ...prev, [ key ]: value } ) );
+			setError( '' );
 		},
 		[ track ]
 	);
