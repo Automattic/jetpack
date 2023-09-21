@@ -5,7 +5,9 @@ export default function BlogrollAppenderResults( { results, showPlaceholder, onS
 	return (
 		<div className="jetpack-blogroll__appender-results">
 			{ showPlaceholder && <div>{ __( 'Suggestions', 'jetpack' ) }</div> }
-
+			{ results.length === 0 && ! showPlaceholder && (
+				<div>{ __( 'No websites found.', 'jetpack' ) }</div>
+			) }
 			<ul aria-live="polite">
 				{ results.map( result => (
 					<li key={ result.blog_id }>
