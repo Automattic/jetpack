@@ -14,7 +14,7 @@ export default function useRefreshConnections() {
 	const { refresh: refreshConnections } = useSelectSocialMediaConnections();
 	const debouncedRefresh = useDebounce( refreshConnections, 2000 );
 
-	const refresh = () => {
+	return () => {
 		if ( ! pageHasFocus ) {
 			shouldAutoRefresh.current = true;
 			debouncedRefresh.cancel();
@@ -25,6 +25,4 @@ export default function useRefreshConnections() {
 			shouldAutoRefresh.current = false;
 		}
 	};
-
-	return { refresh };
 }

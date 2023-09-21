@@ -64,7 +64,7 @@ export default function PublicizeForm( {
 } ) {
 	const { connections, toggleById, hasConnections, enabledConnections } =
 		useSocialMediaConnections();
-	const { refresh: refreshConnections } = useRefreshConnections();
+	const refreshConnections = useRefreshConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 	const { dismissNotice, shouldShowNotice, NOTICES } = useDismissNotice();
