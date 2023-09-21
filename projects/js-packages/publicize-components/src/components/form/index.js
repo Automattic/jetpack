@@ -379,7 +379,7 @@ export default function PublicizeForm( {
 			) : (
 				! shouldShowInstagramNotice && (
 					<PanelRow>
-						<ExternalLink href={ connectionsAdminUrl } target="_blank">
+						<ExternalLink href={ connectionsAdminUrl }>
 							{ __( 'Connect an account', 'jetpack' ) }
 						</ExternalLink>
 					</PanelRow>
