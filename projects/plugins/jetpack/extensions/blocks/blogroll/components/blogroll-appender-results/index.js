@@ -4,9 +4,9 @@ import './style.scss';
 export default function BlogrollAppenderResults( { results, showPlaceholder, onSelect } ) {
 	return (
 		<div className="jetpack-blogroll__appender-results">
-			{ showPlaceholder && <div>{ __( 'Suggestions', 'jetpack' ) }</div> }
+			{ showPlaceholder && <div aria-autocomplete="list">{ __( 'Suggestions', 'jetpack' ) }</div> }
 			{ results.length === 0 && ! showPlaceholder && (
-				<div>{ __( 'No websites found.', 'jetpack' ) }</div>
+				<div aria-autocomplete="none">{ __( 'No websites found.', 'jetpack' ) }</div>
 			) }
 			<ul aria-live="polite">
 				{ results.map( result => (
