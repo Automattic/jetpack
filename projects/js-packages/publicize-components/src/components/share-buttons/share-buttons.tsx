@@ -1,16 +1,14 @@
-import { SocialServiceIcon } from '@automattic/jetpack-components';
+import { SocialServiceIcon, Button } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { availableNetworks } from './available-networks';
+import { CopyToClipboard } from './copy-to-clipboard';
 import styles from './styles.module.scss';
+import { ShareButtonProps } from './types';
 import { usePrepareUrl } from './usePrepareUrl';
 import type React from 'react';
 
-export type ShareButtonsProps = {
-	buttonStyle?: 'icon' | 'text' | 'icon-text';
-	buttonVariant?: React.ComponentProps< typeof Button >[ 'variant' ];
-};
+export type ShareButtonsProps = ShareButtonProps;
 
 export const ShareButtons: React.FC< ShareButtonsProps > = ( {
 	buttonStyle = 'icon',
@@ -62,6 +60,7 @@ export const ShareButtons: React.FC< ShareButtonsProps > = ( {
 					</Button>
 				);
 			} ) }
+			<CopyToClipboard buttonStyle={ buttonStyle } buttonVariant={ buttonVariant } />
 		</div>
 	);
 };
