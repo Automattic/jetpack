@@ -29,15 +29,11 @@ class Object_Tag extends Base_Condition {
 	public function __construct( array $step_data ) {
 		parent::__construct( $step_data );
 
-		// @todo - the list of valid conditions should be retrieved from a central, maintained location.
 		$this->valid_operators = array(
-			'Contact_Field_Changed'       => 'Contact_Field_Changed',
-			'Contact_Tag'                 => 'Contact_Tag',
-			'Contact_Transitional_Status' => 'Contact_Transitional_Status',
-			'Invoice_Field_Contains'      => 'Invoice_Field_Contains',
-			'Invoice_Status_Changed'      => 'Invoice_Status_Changed',
-			'Quote_Status_Changed'        => 'Quote_Status_Changed',
-			'Object_Tag'                  => 'Object_Tag',
+			'tag_added'   => __( 'Tag was added', 'zero-bs-crm' ),
+			'tag_removed' => __( 'Tag was removed', 'zero-bs-crm' ),
+			'has_tag'     => __( 'Has tag', 'zero-bs-crm' ),
+			'not_has_tag' => __( 'Does not have tag', 'zero-bs-crm' ),
 		);
 
 		$this->set_attribute_definitions(
@@ -53,16 +49,34 @@ class Object_Tag extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param mixed $data The data to validate.
-	 * @param mixed $previous_data The previous data to validate.
+	 * @param string $operator The operator.
+	 * @param mixed  $data The data to validate.
+	 * @param mixed  $previous_data The previous data to validate.
 	 * @return bool True if parameters are valid, false otherwise.
 	 */
-	private function check_for_valid_parameters( $data, $previous_data ) {
+	private function check_for_valid_parameters( $operator, $data, $previous_data ) {
 
-		if ( $previous_data === null || ! $this->is_valid_tag_data( $data ) || ! $this->is_valid_tag_data( $previous_data ) ) {
-			$this->logger->log( 'Invalid tag data: parameters not valid' );
+		switch ( $operator ) {
+			case 'tag_added':
+			case 'tag_removed':
+				if ( $previous_data === null || ! $this->is_valid_tag_data( $data ) || ! $this->is_valid_tag_data( $previous_data ) ) {
+					$this->logger->log( 'Invalid tag data: parameters not valid' );
 
-			return false;
+					return false;
+				}
+				break;
+			case 'has_tag':
+			case 'not_has_tag':
+				if ( ! $this->is_valid_tag_data( $data ) ) {
+					$this->logger->log( 'Invalid tag data: parameters not valid' );
+					$this->condition_met = false;
+
+					return false;
+				}
+				break;
+			default:
+				$this->logger->log( 'Unknown operator: ' . $operator );
+				return false;
 		}
 
 		return true;
@@ -81,14 +95,9 @@ class Object_Tag extends Base_Condition {
 			$this->logger->log( 'The given tag data is not in the correct (array) format, so is not valid.' );
 			return false;
 		}
-
 		foreach ( $data as $item ) {
-			if ( is_array( $item ) ) {
-				foreach ( $item as $key => $value ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-					if ( $value['name'] === $tag_name ) {
-						return true;
-					}
-				}
+			if ( is_array( $item ) && $item['name'] === $tag_name ) {
+				return true;
 			}
 		}
 		$this->logger->log( 'Tag does not exist in the given array of tags: ' );
@@ -114,15 +123,42 @@ class Object_Tag extends Base_Condition {
 
 		$this->check_for_valid_operator( $operator );
 
-		if ( ! $this->check_for_valid_parameters( $data, $previous_data ) ) {
+		if ( ! $this->check_for_valid_parameters( $operator, $data, $previous_data ) ) {
 			$this->condition_met = false;
 			return;
 		}
 
 		$this->logger->log( 'Condition: Object_Tag ' . $tag . ' => ' . $operator );
 
-		$this->condition_met = $this->has_tag_by_name( $data, $tag );
-		$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
+		switch ( $operator ) {
+			case 'tag_added':
+				$this->condition_met = ( ! $this->has_tag_by_name( $previous_data, $tag ) && $this->has_tag_by_name( $data, $tag ) );
+				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
+
+				return;
+			case 'tag_removed':
+				$this->condition_met = ( $this->has_tag_by_name( $previous_data, $tag ) && ! $this->has_tag_by_name( $data, $tag ) );
+				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
+
+				return;
+			case 'has_tag':
+				$this->condition_met = $this->has_tag_by_name( $data, $tag );
+				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
+
+				return;
+			case 'not_has_tag':
+				$this->condition_met = ! ( $this->has_tag_by_name( $data, $tag ) );
+				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
+
+				return;
+			default:
+				$this->condition_met = false;
+				throw new Automation_Exception(
+					/* Translators: %s is the unimplemented operator. */
+					sprintf( __( 'Valid but unimplemented operator: %s', 'zero-bs-crm' ), $operator ),
+					Automation_Exception::CONDITION_OPERATOR_NOT_IMPLEMENTED
+				);
+		}
 	}
 
 	/**
@@ -135,7 +171,15 @@ class Object_Tag extends Base_Condition {
 	 * @return bool True if the data is valid to evaluate an object tag condition, false otherwise.
 	 */
 	private function is_valid_tag_data( array $data ): bool {
-		return is_array( $data ) && isset( $data['tags'] );
+
+		if ( is_array( $data ) ) {
+			foreach ( $data as $item ) {
+				if ( ! is_array( $item ) || ! isset( $item['name'] ) ) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -204,6 +248,11 @@ class Object_Tag extends Base_Condition {
 	public static function get_allowed_triggers(): array {
 		return array(
 			'jpcrm/contact_updated',
+			'jpcrm/company_updated',
+			'jpcrm/event_updated',
+			'jpcrm/invoice_updated',
+			'jpcrm/quote_updated',
+			'jpcrm/transaction_updated',
 		);
 	}
 }

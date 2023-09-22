@@ -30,7 +30,7 @@ class Data_Type_Tag_List extends Data_Type_Base {
 	 *
 	 * We process the entity data before passing it to validation.
 	 *
-	 * @param mixed $entity_list The tag list entity data.
+	 * @param mixed $entity_list The tag list data.
 	 * @return void
 	 *
 	 * @throws \Automattic\Jetpack\CRM\Automation\Data_Type_Exception If the entity is not valid.
@@ -73,22 +73,19 @@ class Data_Type_Tag_List extends Data_Type_Base {
 	 */
 	public function validate_entity( $entity_list ): bool {
 
-		if ( ! is_array( $entity_list ) ) {
+		if ( ! is_array( $entity_list ) || empty( $entity_list ) ) {
 			throw new Data_Type_Exception(
 				sprintf( 'Invalid tag entity', static::get_slug() ),
 				Data_Type_Exception::INVALID_ENTITY
 			);
 		}
 
-		$validated = true;
-
 		foreach ( $entity_list as $entity ) {
-
 			if ( ! $entity instanceof Tag ) {
-				$validated = false;
+				return false;
 			}
 		}
 
-		return $validated;
+		return true;
 	}
 }

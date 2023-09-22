@@ -36,41 +36,197 @@ class Tag_Condition_Test extends JPCRM_Base_Test_Case {
 	}
 
 	/**
-	 * @testdox Test that a given tag matches a given condition.
+	 * @testdox Test contact tag added condition.
 	 */
-	public function test_tag_matches_condition() {
+	public function test_contact_tag_added() {
+		$tag_condition = $this->get_tag_condition( 'tag_added', 'Tag Added' );
+		$tag_data      = $this->automation_faker->tag_list_data( false );
 
-		$tag_condition    = $this->get_tag_condition( 'Contact_Field_Changed', 'contact_change' );
-		$generic_tag_data = $this->automation_faker->tag_list_data( false );
+		// Create a previous state of a tag list.
+		$previous_tag_data = $tag_data;
 
-		$tag_data_new = array(
-			'id'   => 1,
-			'tags' => array(
-				array(
-					'id'          => 1,
-					'objtype'     => ZBS_TYPE_CONTACT,
-					'name'        => 'contact_change',
-					'slug'        => 'tag-to-be-matched',
-					'created'     => 1692663412,
-					'lastupdated' => 1692663412,
-				),
-				array(
-					'id'          => 2,
-					'objtype'     => ZBS_TYPE_CONTACT,
-					'name'        => 'Tag 2 will not be matched',
-					'slug'        => 'tag-2-will-not-be-matched',
-					'created'     => 1692663412,
-					'lastupdated' => 1692663412,
-				),
+		// Testing when the condition has been not been met because the tag list does not have said tag.
+		$tag_condition->execute( $tag_data, $previous_tag_data );
+		$this->assertFalse( $tag_condition->condition_met() );
+
+		// Testing when the condition has been met.
+		$tag_data = array(
+			array(
+				'id'          => 1,
+				'objtype'     => ZBS_TYPE_CONTACT,
+				'name'        => 'Tag Added',
+				'slug'        => 'tag-added',
+				'created'     => 1692663412,
+				'lastupdated' => 1692663412,
+			),
+			array(
+				'id'          => 2,
+				'objtype'     => ZBS_TYPE_CONTACT,
+				'name'        => 'Tag 2 ',
+				'slug'        => 'tag-2',
+				'created'     => 1692663412,
+				'lastupdated' => 1692663412,
+			),
+		);
+		$tag_condition->execute( $tag_data, $previous_tag_data );
+		$this->assertTrue( $tag_condition->condition_met() );
+
+		// Testing when the condition has been not been met because the previous tag list already had said tag.
+		$previous_tag_data = array(
+			array(
+				'id'          => 1,
+				'objtype'     => ZBS_TYPE_CONTACT,
+				'name'        => 'Tag Added',
+				'slug'        => 'tag-added',
+				'created'     => 1692663412,
+				'lastupdated' => 1692663412,
+			),
+			array(
+				'id'          => 2,
+				'objtype'     => ZBS_TYPE_CONTACT,
+				'name'        => 'Tag 2 ',
+				'slug'        => 'tag-2',
+				'created'     => 1692663412,
+				'lastupdated' => 1692663412,
+			),
+		);
+		$tag_condition->execute( $tag_data, $previous_tag_data );
+		$this->assertFalse( $tag_condition->condition_met() );
+	}
+
+	/**
+	 * @testdox Test tag removed condition.
+	 */
+	public function test_tag_removed() {
+		$tag_condition = $this->get_tag_condition( 'tag_removed', 'Tag to be removed' );
+		$tag_data      = $this->automation_faker->tag_list_data( false );
+
+		// Create a previous state of a tag list.
+		$previous_tag_data = $tag_data;
+
+		// Testing when the condition has been not been met because the previous tag list does not have said tag.
+		$tag_condition->execute( $tag_data, $previous_tag_data );
+		$this->assertFalse( $tag_condition->condition_met() );
+
+		// Testing when the condition has been met.
+		$previous_tag_data = array(
+			array(
+				'id'          => 1,
+				'objtype'     => ZBS_TYPE_CONTACT,
+				'name'        => 'Tag to be removed',
+				'slug'        => 'tag-to-be-removed',
+				'created'     => 1692663412,
+				'lastupdated' => 1692663412,
+			),
+			array(
+				'id'          => 2,
+				'objtype'     => ZBS_TYPE_CONTACT,
+				'name'        => 'Tag 2 ',
+				'slug'        => 'tag-2',
+				'created'     => 1692663412,
+				'lastupdated' => 1692663412,
 			),
 		);
 
-		$tag_condition->execute( $tag_data_new, $generic_tag_data );
+		$tag_condition->execute( $tag_data, $previous_tag_data );
+		$this->assertTrue( $tag_condition->condition_met() );
+
+		// Testing when the condition has been not been met because the current tag list still has said tag.
+		$tag_data = array(
+			array(
+				'id'          => 1,
+				'objtype'     => ZBS_TYPE_CONTACT,
+				'name'        => 'Tag to be removed',
+				'slug'        => 'tag-to-be-removed',
+				'created'     => 1692663412,
+				'lastupdated' => 1692663412,
+			),
+			array(
+				'id'          => 2,
+				'objtype'     => ZBS_TYPE_CONTACT,
+				'name'        => 'Tag 2 ',
+				'slug'        => 'tag-2',
+				'created'     => 1692663412,
+				'lastupdated' => 1692663412,
+			),
+		);
+		$tag_condition->execute( $tag_data, $previous_tag_data );
+		$this->assertFalse( $tag_condition->condition_met() );
+	}
+
+	/**
+	 * @testdox Test tag list has tag condition.
+	 */
+	public function test_tag_list_has_tag() {
+		$tag_condition = $this->get_tag_condition( 'has_tag', 'Some Tag' );
+		$tag_data      = $this->automation_faker->tag_list_data( false );
+
+		// Create a previous state of a tag list.
+		$previous_tag_data = $tag_data;
+
+		// Testing when the condition has been not been met because the tag list does not have said tag.
+		$tag_condition->execute( $tag_data, $previous_tag_data );
+		$this->assertFalse( $tag_condition->condition_met() );
+
+		// Testing when the condition has been met.
+		$tag_data = array(
+			array(
+				'id'          => 1,
+				'objtype'     => ZBS_TYPE_CONTACT,
+				'name'        => 'Some Tag',
+				'slug'        => 'some-tag',
+				'created'     => 1692663412,
+				'lastupdated' => 1692663412,
+			),
+			array(
+				'id'          => 2,
+				'objtype'     => ZBS_TYPE_CONTACT,
+				'name'        => 'Tag 2 will not be matched',
+				'slug'        => 'tag-2-will-not-be-matched',
+				'created'     => 1692663412,
+				'lastupdated' => 1692663412,
+			),
+		);
+
+		$tag_condition->execute( $tag_data, $previous_tag_data );
+		$this->assertTrue( $tag_condition->condition_met() );
+	}
+
+	/**
+	 * @testdox Test tag list does not have ('not has') tag condition.
+	 */
+	public function test_tag_list_not_has_tag() {
+		$tag_condition = $this->get_tag_condition( 'not_has_tag', 'Some Tag' );
+		$tag_data      = $this->automation_faker->tag_list_data( false );
+
+		// Create a previous state of a tag list.
+		$previous_tag_data = $tag_data;
+
+		// Testing when the condition has been met because the tag list does not have said tag.
+		$tag_condition->execute( $tag_data, $previous_tag_data );
 		$this->assertTrue( $tag_condition->condition_met() );
 
 		// Testing when the condition has not been met.
-		$tag_data_new = array();
-		$tag_condition->execute( $tag_data_new );
+		$tag_data = array(
+			array(
+				'id'          => 1,
+				'objtype'     => ZBS_TYPE_CONTACT,
+				'name'        => 'Some Tag',
+				'slug'        => 'some-tag',
+				'created'     => 1692663412,
+				'lastupdated' => 1692663412,
+			),
+			array(
+				'id'          => 2,
+				'objtype'     => ZBS_TYPE_CONTACT,
+				'name'        => 'Tag 2 will not be matched',
+				'slug'        => 'tag-2-will-not-be-matched',
+				'created'     => 1692663412,
+				'lastupdated' => 1692663412,
+			),
+		);
+
+		$tag_condition->execute( $tag_data, $previous_tag_data );
 		$this->assertFalse( $tag_condition->condition_met() );
 	}
 }
