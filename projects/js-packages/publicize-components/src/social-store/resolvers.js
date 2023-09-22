@@ -1,6 +1,11 @@
+import { setAutoConversionSettings } from './actions/auto-conversion-settings';
 import { setJetpackSettings } from './actions/jetpack-settings';
 import { setSocialImageGeneratorSettings } from './actions/social-image-generator-settings';
-import { fetchJetpackSettings, fetchSocialImageGeneratorSettings } from './controls';
+import {
+	fetchJetpackSettings,
+	fetchSocialImageGeneratorSettings,
+	fetchAutoConversionSettings,
+} from './controls';
 
 /**
  * Yield actions to get the Jetpack settings.
@@ -38,4 +43,22 @@ export function* getSocialImageGeneratorSettings() {
 	}
 }
 
-export default { getJetpackSettings, getSocialImageGeneratorSettings };
+/**
+ * Yield actions to get the Auto Conversion settings.
+ *
+ * @yields {object} - an action object.
+ * @returns {object} - an action object.
+ */
+export function* getAutoConversionSettings() {
+	try {
+		const settings = yield fetchAutoConversionSettings();
+		if ( settings ) {
+			return setAutoConversionSettings( settings );
+		}
+	} catch ( e ) {
+		// TODO: Add proper error handling here
+		console.log( e ); // eslint-disable-line no-console
+	}
+}
+
+export default { getJetpackSettings, getSocialImageGeneratorSettings, getAutoConversionSettings };

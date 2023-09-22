@@ -191,12 +191,12 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 					! backupsStopped &&
 					createInterpolateElement(
 						__(
-							'<Button>See backups in the cloud</Button><br/><ExternalLink>Or view your most recent restore point</ExternalLink>',
+							'<Button>See your backups in the cloud</Button><br/><ExternalLink>View activity log</ExternalLink>',
 							'jetpack-backup-pkg'
 						),
 						{
 							Button: (
-								<a
+								<ExternalLink
 									className="button"
 									href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
 									onClick={ trackSeeBackupsCtaClick }

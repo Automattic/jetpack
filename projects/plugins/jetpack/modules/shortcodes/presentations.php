@@ -1,7 +1,4 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-
-use Automattic\Jetpack\Assets;
-
 /**
  * Presentations
  * Presentations plugin based on the work done by <a href="http://darylkoop.com/">Daryl Koopersmith</a>. Powered by jmpress.js
@@ -55,6 +52,8 @@ use Automattic\Jetpack\Assets;
  *
  * @package automattic/jetpack
  */
+
+use Automattic\Jetpack\Assets;
 
 if ( ! class_exists( 'Presentations' ) ) :
 	/**

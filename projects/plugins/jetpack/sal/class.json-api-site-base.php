@@ -1512,4 +1512,30 @@ abstract class SAL_Site {
 	public function get_wpcom_site_setup() {
 		return get_option( 'wpcom_site_setup' );
 	}
+
+	/**
+	 * Returns whether the site is commercial.
+	 *
+	 * @return mixed
+	 *
+	 * - `true`: the site is commercial
+	 * - `false`: the site is not commercial
+	 * - `null`: the commercial status is not yet determined
+	 */
+	public function is_commercial() {
+		// Override if blog has the commercial stickers.
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			$has_not_commercial_sticker = has_blog_sticker( 'jetpack-site-is-not-commercial-override', $this->blog_id );
+			if ( $has_not_commercial_sticker ) {
+				return false;
+			}
+			$has_commercial_sticker = has_blog_sticker( 'jetpack-site-is-commercial-override', $this->blog_id );
+			if ( $has_commercial_sticker ) {
+				return true;
+			}
+		}
+
+		$is_commercial = get_option( '_jetpack_site_is_commercial', null );
+		return $is_commercial === null ? null : (bool) $is_commercial;
+	}
 }

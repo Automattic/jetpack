@@ -80,12 +80,7 @@ function render() {
 		return;
 	}
 
-	// @todo: Remove fallback when we drop support for WP 6.1
-	if ( WPElement.createRoot ) {
-		WPElement.createRoot( container ).render( <MyJetpack /> );
-	} else {
-		WPElement.render( <MyJetpack />, container );
-	}
+	WPElement.createRoot( container ).render( <MyJetpack /> );
 }
 
 render();

@@ -862,7 +862,8 @@ EOT;
 		} else {
 			$extra_css = '';
 		}
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		// phpcs:disable WordPress.Security.EscapeOutput.HeredocOutputNotEscaped -- Escaped above where needed.
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- wpcom repo still uses WPCS v2, which uses a different code.
 		echo <<<EOT
 <style type="text/css">
 	#settings-reading-relatedposts .disabled { opacity:.5; filter:Alpha(opacity=50); }
@@ -932,6 +933,8 @@ EOT;
 	});
 </script>
 EOT;
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+		// phpcs:enable WordPress.Security.EscapeOutput.HeredocOutputNotEscaped
 	}
 
 	/**
@@ -1994,7 +1997,9 @@ EOT;
 	 * Render AMP's reader mode CSS.
 	 */
 	public function render_amp_reader_mode_css() {
-		echo file_get_contents( __DIR__ . '/related-posts.css' );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- this is loading a CSS file.
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- this is loading a CSS file.
+		echo file_get_contents( __DIR__ . '/related-posts.css' );
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 	}
 
 	/**

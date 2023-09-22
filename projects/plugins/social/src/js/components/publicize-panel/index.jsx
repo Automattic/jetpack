@@ -32,6 +32,7 @@ const PublicizePanel = ( { prePublish } ) => {
 		numberOfSharesRemaining,
 		connectionsAdminUrl,
 		shouldShowAdvancedPlanNudge,
+		jetpackSharingSettingsUrl,
 	} = usePublicizeConfig();
 
 	// Refresh connections when the post is just published.
@@ -84,6 +85,7 @@ const PublicizePanel = ( { prePublish } ) => {
 					}
 					connectionsAdminUrl={ connectionsAdminUrl }
 					shouldShowAdvancedPlanNudge={ shouldShowAdvancedPlanNudge }
+					jetpackSharingSettingsUrl={ jetpackSharingSettingsUrl }
 				/>
 			</Fragment>
 		</PanelWrapper>

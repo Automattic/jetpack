@@ -11,8 +11,8 @@ use Automattic\Jetpack\Constants;
 use DateTime;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
-use Requests_Utility_CaseInsensitiveDictionary;
 use WP_Error;
+use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
 
 /**
  * Tokens functionality testing.
@@ -213,7 +213,7 @@ class TokensTest extends TestCase {
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode( array( 'dummy_error' => true ) ),
 			'response' => array(
 				'code'    => 500,
@@ -247,7 +247,7 @@ class TokensTest extends TestCase {
 		);
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode( $body ),
 			'response' => array(
 				'code'    => 200,

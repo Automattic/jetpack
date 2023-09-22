@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.56.0] - 2023-09-04
+### Added
+- Add wpcom_newsletter_categories_enabled site option [#32569]
+- Whitelist the blog option for auto conversion settings. [#32693]
+
+## [1.55.2] - 2023-08-28
+### Fixed
+- Re-adds the jetpack-memberships-connected-account-id option to whitelist. [#32632]
+
+## [1.55.1] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
+## [1.55.0] - 2023-08-21
+### Removed
+- Remove Jetpack option jetpack-memberships-connected-account-id [#32125]
+
 ## [1.54.0] - 2023-08-15
 ### Added
 - Extract Sync Queue storage handling to an external class to prepare for Custom Table migration [#32275]
@@ -899,6 +916,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.56.0]: https://github.com/Automattic/jetpack-sync/compare/v1.55.2...v1.56.0
+[1.55.2]: https://github.com/Automattic/jetpack-sync/compare/v1.55.1...v1.55.2
+[1.55.1]: https://github.com/Automattic/jetpack-sync/compare/v1.55.0...v1.55.1
+[1.55.0]: https://github.com/Automattic/jetpack-sync/compare/v1.54.0...v1.55.0
 [1.54.0]: https://github.com/Automattic/jetpack-sync/compare/v1.53.0...v1.54.0
 [1.53.0]: https://github.com/Automattic/jetpack-sync/compare/v1.52.0...v1.53.0
 [1.52.0]: https://github.com/Automattic/jetpack-sync/compare/v1.51.0...v1.52.0

@@ -52,10 +52,10 @@ const Template = args => {
 
 const DefaultArgs = {
 	loading: false,
-	isOpaque: false,
+	isTransparent: false,
 	placeholder: '',
 	requestingState: 'init',
-	showButtonsLabel: true,
+	showButtonLabels: true,
 	showAccept: false,
 	acceptLabel: 'Accept',
 	onChange: action( 'onChange' ),

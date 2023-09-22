@@ -1,0 +1,14 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/test-block",
+	"title": "Test Block",
+	"description": "",
+	"keywords": [],
+	"version": "",
+	"textdomain": "jetpack",
+	"category": "",
+	"icon": "",
+	"supports": {},
+	"editorScript": ""
+}

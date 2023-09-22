@@ -1,14 +1,14 @@
 <?php
 /**
  * Module Name: Comments
- * Module Description: Let visitors use a WordPress.com, Twitter, or Facebook account to comment
+ * Module Description: Let visitors use a WordPress.com or Facebook account to comment
  * First Introduced: 1.4
  * Sort Order: 20
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social
  * Feature: Engagement
- * Additional Search Queries: comments, comment, facebook, twitter, social
+ * Additional Search Queries: comments, comment, facebook, social
  *
  * @package automattic/jetpack
  */

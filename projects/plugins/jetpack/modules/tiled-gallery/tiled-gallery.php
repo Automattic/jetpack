@@ -184,7 +184,7 @@ class Jetpack_Tiled_Gallery {
 			JETPACK__VERSION,
 			false
 		);
-		wp_enqueue_style( 'tiled-gallery', plugins_url( 'tiled-gallery/tiled-gallery.css', __FILE__ ), array(), '2012-09-21' );
+		wp_enqueue_style( 'tiled-gallery', plugins_url( 'tiled-gallery/tiled-gallery.css', __FILE__ ), array(), '2023-08-21' );
 		wp_style_add_data( 'tiled-gallery', 'rtl', 'replace' );
 	}
 

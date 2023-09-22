@@ -26,10 +26,11 @@
 
 	.edit-post-post-visibility {
 		display: block;
+		* {
+			text-wrap: pretty;
+		}
 
 		&__notice {
-			margin: 0;
-
 			&.is-info {
 				background: #e9f0f5;
 				border-left-color: #e9f0f5;
@@ -40,6 +41,9 @@
 			margin-right: 0;
 		}
 
+		.components-button {
+			margin-top: 10px;
+		}
 	}
 
 	fieldset.editor-post-visibility__fieldset .editor-post-visibility {
@@ -69,4 +73,5 @@
 			margin-top: -10px;
 		}
 	}
+
 }

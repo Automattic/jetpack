@@ -403,6 +403,4 @@ class jpcrm_usage_tracking{
         }
 
     }
-    
-
 }

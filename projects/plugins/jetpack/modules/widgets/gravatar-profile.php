@@ -115,13 +115,30 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 					'accounts'     => array(),
 				)
 			);
-			$gravatar_url = add_query_arg( 's', 320, $profile['thumbnailUrl'] ); // The default grav returned by grofiles is super small.
+			$base_width   = 320;
+			$gravatar_url = add_query_arg( 's', $base_width, $profile['thumbnailUrl'] ); // The default grav returned by grofiles is super small.
+
+			// Generate a srcset with larger sizes for high DPI screens.
+			$srcset        = '';
+			$multipliers   = array( 1, 1.5, 2, 3, 4 );
+			$srcset_values = array();
+			foreach ( $multipliers as $multiplier ) {
+				$srcset_width    = (int) ( $base_width * $multiplier );
+				$srcset_url      = add_query_arg( 's', $srcset_width, $profile['thumbnailUrl'] );
+				$srcset_values[] = "{$srcset_url} {$multiplier}x";
+			}
+			$srcset = implode( ', ', $srcset_values );
 
 			// Enqueue front end assets.
 			$this->enqueue_scripts();
 
 			?>
-			<img src="<?php echo esc_url( $gravatar_url ); ?>" class="grofile-thumbnail no-grav" alt="<?php echo esc_attr( $profile['displayName'] ); ?>" />
+			<img
+				src="<?php echo esc_url( $gravatar_url ); ?>"
+				srcset="<?php echo esc_attr( $srcset ); ?>"
+				class="grofile-thumbnail no-grav"
+				alt="<?php echo esc_attr( $profile['displayName'] ); ?>"
+				loading="lazy" />
 			<div class="grofile-meta">
 				<h4><a href="<?php echo esc_url( $profile['profileUrl'] ); ?>"><?php echo esc_html( $profile['displayName'] ); ?></a></h4>
 				<p><?php echo wp_kses_post( $profile['aboutMe'] ); ?></p>

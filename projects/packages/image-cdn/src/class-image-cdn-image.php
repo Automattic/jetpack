@@ -262,5 +262,4 @@ class Image_CDN_Image {
 		$this->width  = (int) $dimensions['dst_w'];
 		$this->height = (int) $dimensions['dst_h'];
 	}
-
 }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Blocks: ensure the Markdown and Repeat Visitor blocks use clear contrasting colors when using a dark theme.

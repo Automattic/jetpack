@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Search\Plan as Search_Plan;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Visitor;
 
@@ -84,6 +85,32 @@ class Jetpack_AI_Helper {
 		 * @param bool $default Are AI features enabled? Defaults to false.
 		 */
 		return apply_filters( 'jetpack_ai_enabled', $default );
+	}
+
+	/**
+	 * Return true if the AI chat feature should be active on the current site.
+	 *
+	 * @todo IS_WPCOM (the endpoints need to be updated too).
+	 *
+	 * @return bool
+	 */
+	public static function is_ai_chat_enabled() {
+		$default = false;
+
+		$connection = new Manager();
+		$plan       = new Search_Plan();
+		if ( $connection->is_connected() && $plan->supports_search() ) {
+			$default = true;
+		}
+
+		/**
+		 * Filter whether the AI chat feature is enabled in the Jetpack plugin.
+		 *
+		 * @since 12.6
+		 *
+		 * @param bool $default Is AI chat enabled? Defaults to false.
+		 */
+		return apply_filters( 'jetpack_ai_chat_enabled', $default );
 	}
 
 	/**

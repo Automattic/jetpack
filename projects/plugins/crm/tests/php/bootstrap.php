@@ -49,6 +49,7 @@ Failed to automatically locate WordPress or wordpress-develop to run tests.
 
 Set the WP_DEVELOP_DIR environment variable to point to a copy of WordPress
 or wordpress-develop.
+
 EOF
 	);
 	exit( 1 );
@@ -68,14 +69,6 @@ if ( ! is_readable( $_plugin_root . '/vendor/autoload.php' ) ) {
  * Give access to tests_add_filter() function.
  */
 require $test_root . '/includes/functions.php';
-
-/**
- * Load Jetpack CRM.
- *
- * Not all code is automatically loaded any we depend on a lot of global
- * variables, so the easiest path forward (for now at least) is to just
- * load the core plugin file so everything is initiated.
- */
 
 /**
  * Load Jetpack CRM.
@@ -106,3 +99,4 @@ require_once __DIR__ . '/class-jpcrm-base-integration-test-case.php';
  * Load all feature flags, so they will be testable.
  */
 add_filter( 'jetpack_crm_feature_flag_api_v4', '__return_true' );
+add_filter( 'jetpack_crm_feature_flag_automations', '__return_true' );

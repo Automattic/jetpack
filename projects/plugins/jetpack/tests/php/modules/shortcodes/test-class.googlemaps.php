@@ -66,5 +66,4 @@ class WP_Test_Jetpack_Shortcodes_Googlemaps extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected, $actual );
 	}
-
 }

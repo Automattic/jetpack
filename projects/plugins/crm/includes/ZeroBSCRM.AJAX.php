@@ -1104,8 +1104,7 @@ function ZeroBSCRM_accept_quote() {
 
 		// validate that this has been posted by the contact associated with the quote
 		if ( ! $uinfo->ID
-			|| zeroBS_getCustomerIDWithEmail( $uinfo->user_email ) !== zeroBSCRM_quote_getContactAssigned( $quoteID )
-			|| zeroBSCRM_permsQuotes()
+			|| zeroBS_getCustomerIDWithEmail( $uinfo->user_email ) !== zeroBSCRM_quote_getContactAssigned( $quoteID ) // phpcs:ignore
 		) {
 			zeroBSCRM_sendJSONError( array( 'access' => 1 ), 403 );
 		}
@@ -5428,9 +5427,9 @@ function zeroBSCRM_AJAX_sendInvoiceEmail_v3( $email = '', $invoiceID = -1, $atta
 
 			// once the invoice is sent it will mark it as unpaid (automatically)
 			// (if is draft)
-			if ( isset( $invoice['status'] ) && $invoice['status'] == __( 'Draft', 'zero-bs-crm' ) ) {
+			if ( isset( $invoice['status'] ) && $invoice['status'] === 'Draft' ) {
 
-				$zbs->DAL->invoices->setInvoiceStatus( $invoiceID, __( 'Unpaid', 'zero-bs-crm' ) );
+				$zbs->DAL->invoices->setInvoiceStatus( $invoiceID, 'Unpaid' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			}
 

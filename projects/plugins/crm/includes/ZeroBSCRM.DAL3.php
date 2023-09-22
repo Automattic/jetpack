@@ -134,6 +134,7 @@ class zbsDAL {
     public $transactions = false;
     public $forms = false;
     public $events = false;
+		public $eventreminders = false; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
     public $logs = false;
     public $lineitems = false;
     public $quotetemplates = false;
@@ -3196,17 +3197,22 @@ class zbsDAL {
 
             // check name present + legit
             if (!isset($data['name']) || empty($data['name'])) return false;
-            if (!isset($data['slug']) || empty($data['slug'])) {
+		if ( empty( $data['slug'] ) ) {
 
-                // generate one
-                $data['slug'] = $this->makeSlug($data['name']);
+			$potential_slug = $this->makeSlug( $data['name'] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-                // catch empty slugs as per gh-462, chinese characters, for example
-                if (empty($data['slug'])) $data['slug'] = $this->getGenericTagSlug($data['objtype']);
+			// catch empty slugs as per gh-462, chinese characters, for example
+			if ( empty( $potential_slug ) ) {
+				$potential_slug = 'tag';
+			}
 
-                // if slug STILL empty, return false for now..
-                if (empty($data['slug'])) return false;
-            }
+			$data['slug'] = $this->get_new_tag_slug( $data['objtype'], $potential_slug ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
+			// if slug STILL empty, return false for now..
+			if ( empty( $data['slug'] ) ) {
+				return false;
+			}
+		}
 
             // tag ID finder - if obj name provided, check tag not already present (if so overwrite)    
             // keeps unique...  
@@ -3707,62 +3713,59 @@ class zbsDAL {
 
     }
 
-    /**
-     * retrieves a tag slug e.g. tag-n
-     *
-     * @param int Object Type e.g. ZBS_TYPE_CONTACT
-     *
-     * @return string tag slug
-     */
-    private function getGenericTagSlug($objTypeID=-1){
+	/**
+	 * Checks if a tag slug exists
+	 *
+	 * @param int    $obj_type_id Object type id.
+	 * @param string $slug Tag slug to check.
+	 *
+	 * @return string tag slug
+	 */
+	public function tag_slug_exists( int $obj_type_id, string $slug ) {
+		$slug_exists = $this->getTag(
+			-1,
+			array(
+				'objtype' => $obj_type_id,
+				'slug'    => $slug,
+				'onlyID'  => true,
+			)
+		);
+		return $slug_exists !== false;
+	}
 
-        // if passed with obj type
-        if ($objTypeID > 0){
+	/**
+	 * Checks if a tag slug exists
+	 *
+	 * @param int    $obj_type_id Object type id.
+	 * @param string $slug Tag slug to check.
+	 *
+	 * @return string tag slug
+	 */
+	public function get_new_tag_slug( int $obj_type_id, string $slug ) {
+		global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$slug_exists = $this->tag_slug_exists( $obj_type_id, $slug );
 
-            global $wpdb,$ZBSCRM_t;
+		// slug as provided doesn't exist, so use that
+		if ( ! $slug_exists && $slug !== 'tag' ) {
+			return $slug;
+		}
 
-            // tag-*
-            $startingI = 1;
+		$slug_base = $slug . '-';
 
-            // try and retrieve last added (if any)
-            $potentialTag = $wpdb->get_var($wpdb->prepare("SELECT zbstag_slug FROM ".$ZBSCRM_t['tags']." WHERE zbstag_slug LIKE 'tag-%' AND zbstag_objtype = %d ORDER BY zbstag_slug DESC LIMIT 1",$objTypeID));
+		// get last iteration of tag slug
+		$sql_query = 'SELECT CAST(TRIM(LEADING %s FROM zbstag_slug) AS SIGNED) AS slug_iteration FROM ' . $ZBSCRM_t['tags'] . ' WHERE zbstag_slug LIKE CONCAT(%s,"%") AND zbstag_objtype = %d ORDER BY slug_iteration DESC LIMIT 1'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-            if (!empty($potentialTag)){
+		$cur_slug_iteration = $wpdb->get_var( $wpdb->prepare( $sql_query, $slug_base, $slug_base, $obj_type_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
-                // try and retrieve $i
-                if (substr($potentialTag,0,4) == 'tag-'){
+		// slug hasn't yet iterated, so use first iteration
+		if ( $cur_slug_iteration === null ) {
+			return $slug_base . '1';
+		}
 
-                    $potentialI = (int)substr($potentialTag,4);
-                    if ($potentialI > 0) $startingI = $potentialI+1;
-
-                }
-
-            }
-
-            // now we theoretically will have 4 if there's a record 'tag-3'
-            // this is dangerously open to running giant loops, lets limit it to 1024 and field any feedback
-            // ... should only ever be called in the instance a tag slug can't be generated (chinese characters currently only case)
-            $i = $startingI;
-            while ($i <= 1024){
-
-                // is this tag in use?
-                $existingTagID = (int)$this->getTag(-1,array(
-                                'objtype'   => $objTypeID,
-                                'slug'      => 'tag-'.$i,
-                                'onlyID'    => true
-                                ));
-
-                if ($existingTagID <= 0) return 'tag-'.$i;
-
-                $i++;
-
-            }
-
-        }
-
-        return false;
-
-    }
+		// otherwise use next iteration
+		$next_slug_iteration = (int) $cur_slug_iteration + 1;
+		return $slug_base . $next_slug_iteration;
+	}
 
     /**
      * tidy's the object from wp db into clean array
@@ -8792,5 +8795,4 @@ public function tidy_log(...$args){
 /* ======================================================
     / Middle Man funcs (until DAL3.0)
    ====================================================== */
-
 } // / DAL class

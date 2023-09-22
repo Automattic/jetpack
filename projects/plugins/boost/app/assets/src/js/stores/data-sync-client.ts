@@ -34,3 +34,8 @@ export const suggestRegenerateDS = jetpack_boost_ds.createAsyncStore(
 	'critical_css_suggest_regenerate',
 	z.enum( allowedSuggestions ).nullable()
 );
+
+export const performanceHistoryPanelDS = jetpack_boost_ds.createAsyncStore(
+	'performance_history_toggle',
+	z.boolean()
+);

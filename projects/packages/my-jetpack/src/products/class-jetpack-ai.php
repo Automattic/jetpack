@@ -128,6 +128,15 @@ class Jetpack_Ai extends Product {
 	 * @return ?string
 	 */
 	public static function get_wpcom_product_slug() {
+		return 'jetpack_ai_yearly';
+	}
+
+	/**
+	 * Get the WPCOM monthly product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_monthly_product_slug() {
 		return 'jetpack_ai_monthly';
 	}
 
@@ -143,9 +152,10 @@ class Jetpack_Ai extends Product {
 		}
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				if (
-					0 === strpos( $purchase->product_slug, static::get_wpcom_product_slug() )
-				) {
+				if ( 0 === strpos( $purchase->product_slug, static::get_wpcom_product_slug() ) ) {
+					return true;
+				}
+				if ( 0 === strpos( $purchase->product_slug, static::get_wpcom_monthly_product_slug() ) ) {
 					return true;
 				}
 			}

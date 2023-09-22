@@ -75,20 +75,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Point the Site Editor's `< Dashboard` link to wpcom home.
-	 *
-	 * Although this isn't strictly an admin menu item, it belongs here because it's part of
-	 * changing wp-admin links to their wp.com equivalents.
-	 *
-	 * @param  array $settings Editor settings.
-	 * @return array           Updated Editor settings.
-	 */
-	public function site_editor_dashboard_link( $settings ) {
-		$settings['__experimentalDashboardLink'] = 'https://wordpress.com/home/' . $this->domain;
-		return $settings;
-	}
-
-	/**
 	 * Check if Links Manager is being used.
 	 */
 	public function should_disable_links_manager() {
@@ -186,17 +172,16 @@ class Admin_Menu extends Base_Admin_Menu {
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit.php' ) ) {
 			$submenus_to_update['edit.php']     = 'https://wordpress.com/posts/' . $this->domain;
 			$submenus_to_update['post-new.php'] = 'https://wordpress.com/post/' . $this->domain;
+			$this->update_submenus( 'edit.php', $submenus_to_update );
 		}
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit-tags.php?taxonomy=category' ) ) {
-			$submenus_to_update['edit-tags.php?taxonomy=category'] = 'https://wordpress.com/settings/taxonomies/category/' . $this->domain;
+			$this->update_submenus( 'edit.php', array( 'edit-tags.php?taxonomy=category' => 'https://wordpress.com/settings/taxonomies/category/' . $this->domain ) );
 		}
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit-tags.php?taxonomy=post_tag' ) ) {
-			$submenus_to_update['edit-tags.php?taxonomy=post_tag'] = 'https://wordpress.com/settings/taxonomies/post_tag/' . $this->domain;
+			$this->update_submenus( 'edit.php', array( 'edit-tags.php?taxonomy=post_tag' => 'https://wordpress.com/settings/taxonomies/post_tag/' . $this->domain ) );
 		}
-
-		$this->update_submenus( 'edit.php', $submenus_to_update );
 	}
 
 	/**
@@ -390,7 +375,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			/**
 			 * Filter to enable the Newsletter Settings section in Calypso UI.
 			 *
-			 * @since $$next-version$$
+			 * @since 12.5
 			 * @module masterbar
 			 *
 			 * @param bool false Enable newsletter setting section? Default to false.
@@ -404,7 +389,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			/**
 			 * Filter to enable the Podcasting Settings section in Calypso UI.
 			 *
-			 * @since $$next-version$$
+			 * @since 12.5
 			 * @module masterbar
 			 *
 			 * @param bool false Enable podcasting setting section? Default to false.

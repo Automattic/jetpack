@@ -6,12 +6,12 @@ require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-membership
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
-use \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 use function Automattic\Jetpack\Extensions\Subscriptions\register_block as register_subscription_block;
-use const \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 define( 'EARN_JWT_SIGNING_KEY', 'whatever=' );
 
@@ -467,7 +467,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		update_post_meta( $this->plan_id, 'jetpack_memberships_site_subscriber', true );
 
 		// Connect the site to Stripe
-		update_option( Jetpack_Memberships::$connected_account_id_option_name, 123 );
+		update_option( Jetpack_Memberships::$has_connected_account_option_name, true );
 
 		// Create a post
 		return $this->factory->post->create();

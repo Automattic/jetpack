@@ -1978,7 +1978,7 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 	 *
 	 * @return array quote (clean obj)
 	 */
-	private function tidy_quote($obj=false,$withCustomFields=false){
+	public function tidy_quote( $obj = false, $withCustomFields = false ) { // phpcs:ignore
 
 			$res = false;
 
@@ -2404,7 +2404,4 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 	// ===========  /   QUOTE  =======================================================
 	// ===============================================================================
-
-
 } // / class
-

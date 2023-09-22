@@ -368,4 +368,3 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		return $order;
 	}
 }
-

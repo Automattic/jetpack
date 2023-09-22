@@ -50,8 +50,10 @@ export const usePlan = (): usePlanProps => {
 	}
 
 	const hasVideoPressPurchase = [
+		'jetpack_videopress_bi_yearly',
 		'jetpack_videopress',
 		'jetpack_videopress_monthly',
+		'jetpack_complete_bi_yearly',
 		'jetpack_complete',
 		'jetpack_complete_monthly',
 		'jetpack_business',

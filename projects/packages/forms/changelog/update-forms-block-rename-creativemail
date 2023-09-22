@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Forms block: rename "Newsletter Connection" to "Creative Mail" to avoid confusing with "Jetpack Newsletters" and subscription block. Call the block a "Lead Capture" block (not sign up).

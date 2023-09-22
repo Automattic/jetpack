@@ -18,5 +18,4 @@ class JPCRM_Files_Cest {
 		// see that our html comment is present (means our file was created)
 		$I->seeInSource( '<!--nope-->' );
 	}
-
 }

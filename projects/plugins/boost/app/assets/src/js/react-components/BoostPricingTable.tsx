@@ -124,10 +124,10 @@ export const BoostPricingTable = ( {
 		pricing = { yearly: {} };
 	}
 
-	// If the first year discount ends, we want to remove the label without updating the plugin.
-	const promoLabel = pricing.yearly.isIntroductoryOffer
-		? __( 'First Year Discount', 'jetpack-boost' )
-		: '';
+	// If the first year discount ends, we want to show the default label.
+	const legend = pricing.yearly.isIntroductoryOffer
+		? __( '/month for the first year, billed yearly', 'jetpack-boost' )
+		: undefined;
 
 	const isDiscounted = pricing.yearly.priceBefore > pricing.yearly.priceAfter;
 
@@ -189,7 +189,7 @@ export const BoostPricingTable = ( {
 						offPrice={ isDiscounted ? pricing.yearly.priceAfter / 12 : null }
 						currency={ pricing.yearly.currencyCode }
 						hideDiscountLabel={ false }
-						promoLabel={ promoLabel }
+						legend={ legend }
 					/>
 					<Button
 						onClick={ onPremiumCTA }
@@ -211,7 +211,11 @@ export const BoostPricingTable = ( {
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem
+					isIncluded={ true }
+					label={ <strong>{ __( 'Included + quality settings', 'jetpack-boost' ) }</strong> }
+					tooltipInfo={ __( 'Fine-tune image quality settings to your liking.', 'jetpack-boost' ) }
+				/>
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />

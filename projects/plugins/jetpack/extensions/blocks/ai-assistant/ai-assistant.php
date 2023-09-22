@@ -68,3 +68,23 @@ add_action(
 		\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-form-support' );
 	}
 );
+
+/**
+ * Register the `ai-content-lens` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		\Jetpack_Gutenberg::set_extension_available( 'ai-content-lens' );
+	}
+);
+
+/**
+ * Register the `ai-assistant-backend-prompts` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-backend-prompts' );
+	}
+);

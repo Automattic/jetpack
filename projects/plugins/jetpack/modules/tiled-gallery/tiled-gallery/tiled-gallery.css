@@ -72,12 +72,16 @@
 -------------------------------------------------------------- */
 
 .tiled-gallery .tiled-gallery-item img.grayscale {
-	position: absolute;
-		left: 0;
-		top: 0;
+	-webkit-filter: grayscale(1);
+	-ms-filter: grayscale(1);
+	-o-filter: grayscale(1);
+	filter: grayscale(1);
 }
-.tiled-gallery .tiled-gallery-item img.grayscale:hover {
-	opacity: 0;
+.tiled-gallery .tiled-gallery-item:hover img.grayscale {
+	-webkit-filter: none;
+	-ms-filter: none;
+	-o-filter: none;
+	filter: none;
 }
 
 

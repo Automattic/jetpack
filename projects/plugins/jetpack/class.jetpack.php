@@ -691,7 +691,16 @@ class Jetpack {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
 		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_independent_blocks' ) );
 		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_block_editor_extensions' ), 9 );
-		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
+		/**
+		 * We've switched from enqueue_block_editor_assets to enqueue_block_assets in WP-Admin because the assets with the former are loaded on the main site-editor.php.
+		 *
+		 * With the latter, the assets are now loaded in the SE iframe; the implementation is now faster because Gutenberg doesn't need to inject the assets in the iframe on client-side.
+		 */
+		if ( is_admin() ) {
+			add_action( 'enqueue_block_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
+		} else {
+			add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
+		}
 		add_filter( 'render_block', array( 'Jetpack_Gutenberg', 'display_deprecated_block_message' ), 10, 2 );
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
@@ -1535,7 +1544,7 @@ class Jetpack {
 		return 0;
 	}
 
-// phpcs:disable WordPress.WP.CapitalPDangit.Misspelled
+	// phpcs:disable WordPress.WP.CapitalPDangit.MisspelledInComment
 	/**
 	 * Gets updates and stores in jetpack_updates.
 	 *
@@ -1569,7 +1578,7 @@ class Jetpack {
 		}
 		return isset( $updates ) ? $updates : array();
 	}
-	// phpcs:enable
+	// phpcs:enable WordPress.WP.CapitalPDangit.MisspelledInComment
 
 	/**
 	 * Get update details for core, plugins, and themes.
@@ -6760,7 +6769,7 @@ endif;
 		);
 
 		$products['akismet'] = array(
-			'title'             => __( 'Akismet Anti-Spam', 'jetpack' ),
+			'title'             => __( 'Akismet Anti-spam', 'jetpack' ),
 			'slug'              => 'jetpack_anti_spam',
 			'description'       => __( 'Save time and get better responses by automatically blocking spam from your comments and forms.', 'jetpack' ),
 			'show_promotion'    => true,
@@ -6855,5 +6864,4 @@ endif;
 
 		return true;
 	}
-
 }

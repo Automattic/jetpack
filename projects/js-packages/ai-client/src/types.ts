@@ -17,8 +17,9 @@ export type SuggestionErrorCode =
  * Prompt types
  */
 export type PromptItemProps = {
-	role: 'system' | 'user' | 'assistant';
-	content: string;
+	role: 'system' | 'user' | 'assistant' | 'jetpack-ai';
+	content?: string;
+	context?: object;
 };
 
 export type PromptMessagesProp = Array< PromptItemProps >;
@@ -34,7 +35,6 @@ export type { RequestingErrorProps } from './hooks/use-ai-suggestions';
 /*
  * Requests types
  */
-
 const REQUESTING_STATE_INIT = 'init' as const;
 const REQUESTING_STATE_REQUESTING = 'requesting' as const;
 const REQUESTING_STATE_SUGGESTING = 'suggesting' as const;
@@ -50,3 +50,11 @@ export const REQUESTING_STATES = [
 ] as const;
 
 export type RequestingStateProp = ( typeof REQUESTING_STATES )[ number ];
+
+/*
+ * Model types and constants
+ */
+export const AI_MODEL_GPT_3_5_Turbo_16K = 'gpt-3.5-turbo-16k' as const;
+export const AI_MODEL_GPT_4 = 'gpt-4' as const;
+
+export type AiModelTypeProp = typeof AI_MODEL_GPT_3_5_Turbo_16K | typeof AI_MODEL_GPT_4;

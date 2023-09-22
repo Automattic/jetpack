@@ -1,5 +1,5 @@
 import { Modal } from '@wordpress/components';
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import styles from './styles.module.scss';
 
 /**
@@ -8,6 +8,14 @@ import styles from './styles.module.scss';
  * @returns {React.Component|null} The IDC Screen modal component.
  */
 function IDCModal() {
+	const [ isOpen, setOpen ] = useState( true );
+
+	const closeModal = useCallback( () => setOpen( false ), [] );
+
+	if ( ! isOpen ) {
+		return null;
+	}
+
 	if ( ! window.hasOwnProperty( 'JP_IDENTITY_CRISIS__INITIAL_STATE' ) ) {
 		return null;
 	}
@@ -19,7 +27,7 @@ function IDCModal() {
 	}
 
 	return (
-		<Modal isDismissible={ false } overlayClassName={ styles.modal }>
+		<Modal onRequestClose={ closeModal } overlayClassName={ styles.modal }>
 			<div id={ containerID } className={ styles.container }></div>
 		</Modal>
 	);

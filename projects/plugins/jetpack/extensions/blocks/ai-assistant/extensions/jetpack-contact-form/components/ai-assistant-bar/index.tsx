@@ -93,6 +93,8 @@ export default function AiAssistantBar( {
 
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
+	const showGuideLine = requestingState === 'suggesting' || requestingState === 'done';
+
 	const placeholder = __( 'Ask Jetpack AI to create your form', 'jetpack' );
 
 	const loadingPlaceholder = __( 'Creating your form. Please wait a few moments.', 'jetpack' );
@@ -100,6 +102,11 @@ export default function AiAssistantBar( {
 	const { removeNotice } = useDispatch( noticesStore );
 
 	const onSend = useCallback( () => {
+		// Do not send the request if the input value is empty.
+		if ( ! inputValue?.length ) {
+			return;
+		}
+
 		// Remove previous error notice.
 		removeNotice( AI_ASSISTANT_JETPACK_FORM_NOTICE_ID );
 
@@ -211,8 +218,9 @@ export default function AiAssistantBar( {
 				onSend={ onSend }
 				onStop={ stopSuggestion }
 				state={ requestingState }
-				isOpaque={ siteRequireUpgrade }
-				showButtonsLabel={ ! isMobileMode }
+				isTransparent={ siteRequireUpgrade }
+				showButtonLabels={ ! isMobileMode }
+				showGuideLine={ showGuideLine }
 			/>
 		</div>
 	);

@@ -1,7 +1,7 @@
 import { Button, ToggleControl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Workflow } from 'crm/state/automations-admin/types';
 import { useState } from 'react';
-import { Workflow } from '../../types';
 import { Checkbox } from '../checkbox';
 import styles from './styles.module.scss';
 

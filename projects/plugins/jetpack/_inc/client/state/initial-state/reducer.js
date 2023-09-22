@@ -361,6 +361,16 @@ export function isAtomicPlatform( state ) {
 }
 
 /**
+ * Get the current theme's stylesheet (slug).
+ *
+ * @param {object} state - Global state tree.
+ * @returns {string} theme stylesheet, e.g. twentytwentythree.
+ */
+export function currentThemeStylesheet( state ) {
+	return get( state.jetpack.initialState.themeData, 'stylesheet' );
+}
+
+/**
  * Check that theme supports a certain feature
  *
  * @param {Object} state   Global state tree.

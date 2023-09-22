@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.3.0-beta - 2023-09-11
+
+### Added
+
+- Add the change settings logic in Social for the auto conversion feature. [#32712]
+
+### Changed
+
+- Changed logic that disables the connections based on the auto-conversion feature. [#32671]
+- General: remove WP 6.1 backwards compatibility checks. [#32772]
+- General: update WordPress version requirements to WordPress 6.2. [#32762]
+- Updated package dependencies. [#32803], [#32804], [#32966]
+
+## 2.2.0 - 2023-08-23
+
+### Added
+
+- Add admin-page upsell notice [#32128]
+- Add new nudge in the editor to upgrade to the Advanced plan that will appear every 3 months [#32087]
+- Add SIG toggle for Jetpack Settings [#32475]
+- Add the new auto-conversion toggle for Social [#32597]
+- Add check for checking if user is on Basic plan [#32112]
+
+### Changed
+
+- Changed JITM so it can be properly dismissed. [#32033]
+- Jetpack editor extensions: use shared component for the logo. [#32257]
+- Moved store to publicize-components package. [#32317]
+- Social: Implement the new design for the connection toggles. [#32305]
+- Updated package dependencies. [#32166]
+- Use a new method to render Connection initial state. [#32499]
+
+### Fixed
+
+- Fixed checkout link so it's not siteless. [#32254]
+
 ## 2.1.0 - 2023-08-01
 
 ### Changed
