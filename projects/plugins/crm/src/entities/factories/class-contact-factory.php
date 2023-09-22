@@ -14,7 +14,7 @@ use Automattic\Jetpack\CRM\Entities\Contact;
  *
  * @since $$next-version$$
  */
-class Contact_Factory {
+class Contact_Factory extends Entity_Factory {
 
 	/**
 	 * Contact DB field name mapping. db_field => model_field.
@@ -69,10 +69,11 @@ class Contact_Factory {
 	 * Get the contact instance based on the $data array.
 	 *
 	 * @param array $data The contact data from the DAL.
-	 * @return Contact The contact instance.
+	 *
+	 * @return mixed The contact instance.
 	 * @throws Factory_Exception If the data passed is invalid.
 	 */
-	public static function create( array $data ): Contact {
+	public static function create( array $data ) {
 		// Detect if this is a db contact or a generic contact
 		if ( array_key_exists( 'zbsc_status', $data ) ) {
 			return self::create_from_db( $data );
@@ -81,31 +82,6 @@ class Contact_Factory {
 		}
 
 		throw new Factory_Exception( 'Invalid contact data', Factory_Exception::INVALID_DATA );
-	}
-
-	/**
-	 * Set the contact data from a generic/tidy contact array.
-	 *
-	 * @param array $tidy_contact Associative array of contact data.
-	 */
-	public static function create_from_tidy_data( array $tidy_contact ): Contact {
-		$contact = new Contact();
-
-		// Process primary fields
-		foreach ( $tidy_contact as $field => $value ) {
-			if ( in_array( $field, self::$field_map, true ) ) {
-				$contact->{ $field } = $value;
-			}
-		}
-
-		// Process associative fields
-		foreach ( self::$associative_field_map as $field ) {
-			if ( array_key_exists( $field, $tidy_contact ) ) {
-				$contact->{ $field } = $tidy_contact[ $field ];
-			}
-		}
-
-		return $contact;
 	}
 
 	/**
@@ -132,68 +108,23 @@ class Contact_Factory {
 	}
 
 	/**
-	 * Set the contact data with including the database column prefix.
-	 *
-	 * @param array $db_contact Associative array of contact data from the database.
-	 * @return Contact The contact instance.
-	 */
-	public static function create_from_db( array $db_contact ): Contact {
-		$contact = new Contact();
-
-		foreach ( $db_contact as $key => $value ) {
-			if ( array_key_exists( $key, self::$field_map ) ) {
-				$contact->{ self::$field_map[ $key ] } = $value;
-			}
-		}
-
-		return $contact;
-	}
-
-	/**
-	 * Get the contact data (tidy) as an array.
-	 *
-	 * @param Contact $contact The contact instance.
-	 *
-	 * @return array The tidy data array.
-	 */
-	public static function tidy_data( Contact $contact ): array {
-		$contact_data = array();
-		foreach ( self::$field_map as $value ) {
-			$contact_data[ $value ] = $contact->{ $value };
-		}
-		return $contact_data;
-	}
-
-	/**
-	 * Get the contact data as an array ready for the database.
-	 *
-	 * @param Contact $contact The contact object.
-	 * @return array The contact data array.
-	 */
-	public static function data_for_db( Contact $contact ): array {
-		$contact_data = array(
-			'id'    => $contact->id,
-			'owner' => $contact->owner,
-			'data'  => array(),
-		);
-
-		$skip_fields = array( 'id', 'owner' );
-
-		foreach ( self::$field_map as $model_field ) {
-			if ( in_array( $model_field, $skip_fields, true ) ) {
-				continue;
-			}
-			$contact_data['data'][ $model_field ] = $contact->{ $model_field };
-		}
-		return $contact_data;
-	}
-
-	/**
-	 * Get the fields map.
-	 *
-	 * @return string[]
+	 * {@inheritDoc}
 	 */
 	public static function get_fields_map(): array {
 		return self::$field_map;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function get_entity_class(): ?string {
+		return Contact::class;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function get_associative_field_map(): array {
+		return self::$associative_field_map;
 	}
 }
