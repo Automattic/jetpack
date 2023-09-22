@@ -973,15 +973,15 @@ window.wpNavMenuClassChange = function ( pageOrder = { myJetpack: 1, dashboard: 
 	page = page.get( 'page' );
 
 	if ( myJetpackRoutes.includes( page ) ) {
-		getJetpackSubNavItem( pageOrder.myJetpack ).classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.myJetpack )?.classList.add( 'current' );
 	} else if (
 		dashboardRoutes.includes( hash ) ||
 		recommendationsRoutes.includes( hash ) ||
 		productDescriptionRoutes.includes( hash )
 	) {
-		getJetpackSubNavItem( pageOrder.dashboard ).classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.dashboard )?.classList.add( 'current' );
 	} else if ( settingsRoutes.includes( hash ) ) {
-		getJetpackSubNavItem( pageOrder.settings ).classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.settings )?.classList.add( 'current' );
 	}
 
 	const $body = jQuery( 'body' );
