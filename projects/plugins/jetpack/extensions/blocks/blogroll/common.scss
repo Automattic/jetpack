@@ -1,7 +1,8 @@
 .wp-block-jetpack-blogroll {
+	padding: 24px;
+
 	.block-editor-inner-blocks {
 		h3 {
-			color: var(--gray-gray-100, #101517);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 700;
@@ -21,6 +22,13 @@
 		.jetpack-blogroll-item-description {
 			display: none;
 		}
+	}
+
+	.wp-block-jetpack-blogroll-item .jetpack-blogroll-item-information {
+		display: flex;
+		align-items: center;
+		padding: 20px 8px;
+		gap: 20px;
 	}
 
 	.wp-block-jetpack-blogroll-item + .wp-block-jetpack-blogroll-item {

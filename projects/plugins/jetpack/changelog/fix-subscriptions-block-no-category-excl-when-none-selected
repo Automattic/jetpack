@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Subscriptions Block: Do not append newsletter category exclusions to subscribe url, when none categories were checked

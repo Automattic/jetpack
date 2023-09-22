@@ -10,6 +10,8 @@
 namespace Automattic\Jetpack\Extensions\AIChat;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
+use Automattic\Jetpack\Search\Plan as Search_Plan;
 use Jetpack_Gutenberg;
 
 /**
@@ -57,6 +59,7 @@ function load_assets( $attr ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$ask_button_label = isset( $attr['askButtonLabel'] ) ? $attr['askButtonLabel'] : __( 'Ask', 'jetpack' );
+	$placeholder      = isset( $attr['placeholder'] ) ? $attr['placeholder'] : __( 'Ask a question about this site.', 'jetpack' );
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$blog_id = get_current_blog_id();
@@ -67,10 +70,35 @@ function load_assets( $attr ) {
 	}
 
 	return sprintf(
-		'<div class="%1$s" data-ask-button-label="%2$s" id="jetpack-ai-chat" data-blog-id="%3$d" data-blog-type="%4$s"></div>',
+		'<div class="%1$s" data-ask-button-label="%2$s" id="jetpack-ai-chat" data-blog-id="%3$d" data-blog-type="%4$s" data-placeholder="%5$s"></div>',
 		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		esc_attr( $ask_button_label ),
 		esc_attr( $blog_id ),
-		esc_attr( $type )
+		esc_attr( $type ),
+		esc_attr( $placeholder )
 	);
 }
+
+/**
+ * Add the initial state for the AI Chat block.
+ */
+function add_ai_chat_block_data() {
+	// Only relevant to the editor right now.
+	if ( ! is_admin() ) {
+		return;
+	}
+	$search        = new Search_Module_Control();
+	$plan          = new Search_Plan();
+	$initial_state = array(
+		'jetpackSettings' => array(
+			'instant_search_enabled' => $search->is_instant_search_enabled(),
+			'plan_supports_search'   => $plan->supports_instant_search(),
+		),
+	);
+	wp_add_inline_script(
+		'jetpack-blocks-editor',
+		'var Jetpack_AIChatBlock = ' . wp_json_encode( $initial_state, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+		'before'
+	);
+}
+add_action( 'enqueue_block_assets', __NAMESPACE__ . '\add_ai_chat_block_data' );

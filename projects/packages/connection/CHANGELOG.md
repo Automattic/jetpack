@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.57.5] - 2023-09-19
+- Minor internal updates.
+
 ## [1.57.4] - 2023-09-13
 ### Fixed
 - Use JS to check if initial state is already rendered. [#32932]
@@ -880,6 +883,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.57.5]: https://github.com/Automattic/jetpack-connection/compare/v1.57.4...v1.57.5
 [1.57.4]: https://github.com/Automattic/jetpack-connection/compare/v1.57.3...v1.57.4
 [1.57.3]: https://github.com/Automattic/jetpack-connection/compare/v1.57.2...v1.57.3
 [1.57.2]: https://github.com/Automattic/jetpack-connection/compare/v1.57.1...v1.57.2

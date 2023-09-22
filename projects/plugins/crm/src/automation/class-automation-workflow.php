@@ -72,18 +72,26 @@ class Automation_Workflow {
 	public $triggers;
 
 	/**
-	 * The workflow initial step.
+	 * The workflow initial step id.
+	 *
+	 * @since $$next-version$$
+	 * @var int|string|null
+	 */
+	public $initial_step_id;
+
+	/**
+	 * The workflow steps list
 	 *
 	 * @since $$next-version$$
 	 * @var array
 	 */
-	public $initial_step;
+	public $steps;
 
 	/**
 	 * The workflow active status.
 	 *
 	 * @since $$next-version$$
-	 * @var int
+	 * @var bool
 	 */
 	public $active;
 
@@ -139,14 +147,15 @@ class Automation_Workflow {
 		$this->zbs_site     = $workflow_data['zbs_site'] ?? -1;
 		$this->zbs_owner    = $workflow_data['zbs_owner'] ?? -1;
 		$this->triggers     = $workflow_data['triggers'] ?? array();
-		$this->initial_step = $workflow_data['initial_step'] ?? array();
+		$this->steps        = $workflow_data['steps'] ?? array();
+		$this->initial_step = $workflow_data['initial_step'] ?? '';
 		$this->name         = $workflow_data['name'];
 		$this->description  = $workflow_data['description'] ?? '';
 		$this->category     = $workflow_data['category'] ?? '';
-		$this->active       = $workflow_data['active'] ?? 0;
+		$this->active       = $workflow_data['active'] ?? false;
 		$this->version      = $workflow_data['version'] ?? 1;
 		$this->created_at   = $workflow_data['created_at'] ?? 0;
-		$this->updated_at   = $workflow_data['updated_at'] ?? 0;
+		$this->updated_at   = $workflow_data['updated_at'] ?? null;
 	}
 
 	/**
@@ -284,7 +293,10 @@ class Automation_Workflow {
 	 */
 	public function init_triggers(): void {
 
+		$this->get_logger()->log( 'Initializing Workflow triggers...' );
+
 		if ( ! $this->is_active() ) {
+			$this->get_logger()->log( 'The workflow is not active. No triggers loaded.' );
 			return;
 		}
 
@@ -295,6 +307,8 @@ class Automation_Workflow {
 				/** @var Base_Trigger $trigger */
 				$trigger = new $trigger_class();
 				$trigger->init( $this );
+
+				$this->get_logger()->log( 'Trigger initialized: ' . $trigger_slug );
 
 			} catch ( Automation_Exception $e ) {
 				throw new Workflow_Exception(
@@ -311,11 +325,21 @@ class Automation_Workflow {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $step_data The data for the step to be set as the initial step.
-	 * @return void
+	 * @param int|string|null $step_id The initial step id.
 	 */
-	public function set_initial_step( array $step_data ): void {
-		$this->initial_step = $step_data;
+	public function set_initial_step_id( $step_id ) {
+		$this->initial_step_id = $step_id;
+	}
+
+	/**
+	 * Set the step list of this workflow.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $steps The steps of the workflow.
+	 */
+	public function set_steps( array $steps ) {
+		$this->steps = $steps;
 	}
 
 	/**
@@ -338,7 +362,7 @@ class Automation_Workflow {
 			'category'     => $this->get_category(),
 			'triggers'     => $this->get_triggers(),
 			'initial_step' => $this->get_initial_step(),
-			'active'       => (int) $this->is_active(),
+			'active'       => $this->is_active(),
 			'version'      => $this->get_version(),
 			'created_at'   => $this->get_created_at(),
 			'updated_at'   => $this->get_updated_at(),
@@ -346,14 +370,30 @@ class Automation_Workflow {
 	}
 
 	/**
+	 * Get the initial step data of this workflow.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array|null The initial step data of the workflow.
+	 */
+	public function get_initial_step(): ?array {
+		return $this->steps[ $this->initial_step_id ] ?? null;
+	}
+
+	/**
 	 * Get the initial step of this workflow.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array
+	 * @param int|string $id The step id.
+	 * @return array|null The step data instance.
 	 */
-	public function get_initial_step(): array {
-		return $this->initial_step;
+	public function get_step( $id ): ?array {
+		if ( $id === null ) {
+			return null;
+		}
+
+		return $this->steps[ $id ] ?? null;
 	}
 
 	/**
@@ -379,7 +419,7 @@ class Automation_Workflow {
 	 * @return void
 	 */
 	public function turn_on(): void {
-		$this->active = 1;
+		$this->active = true;
 	}
 
 	/**
@@ -390,7 +430,7 @@ class Automation_Workflow {
 	 * @return void
 	 */
 	public function turn_off(): void {
-		$this->active = 0;
+		$this->active = false;
 	}
 
 	/**
@@ -401,7 +441,7 @@ class Automation_Workflow {
 	 * @return bool Whether the workflow is active.
 	 */
 	public function is_active(): bool {
-		return (int) $this->active === 1;
+		return $this->active;
 	}
 
 	/**
@@ -423,9 +463,13 @@ class Automation_Workflow {
 	 *
 	 * @param Automation_Engine $engine An instance of the Automation_Engine class.
 	 * @return void
+	 * @throws Workflow_Exception|Automation_Exception Exception if there is an issue with the Engine.
 	 */
 	public function set_engine( Automation_Engine $engine ): void {
 		$this->automation_engine = $engine;
+
+		// Process and check the steps when the engine is set.
+		$this->process_steps();
 	}
 
 	/**
@@ -470,5 +514,19 @@ class Automation_Workflow {
 	 */
 	public function get_logger(): Automation_Logger {
 		return $this->logger ?? Automation_Logger::instance();
+	}
+
+	/**
+	 * Process the steps of the workflow.
+	 *
+	 * @throws Workflow_Exception|Automation_Exception Exception if there is an issue processing the steps.
+	 * @since $$next-version$$
+	 */
+	private function process_steps() {
+		foreach ( $this->steps as $step_data ) {
+			if ( ! isset( $step_data['class_name'] ) ) {
+				$step_data['class_name'] = $this->get_engine()->get_step_class( $step_data['slug'] );
+			}
+		}
 	}
 }

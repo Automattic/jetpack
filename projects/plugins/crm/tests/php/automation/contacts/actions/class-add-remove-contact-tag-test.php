@@ -109,6 +109,7 @@ class Add_Remove_Contact_Tag_Test extends JPCRM_Base_Integration_Test_Case {
 						$tag_id,
 					),
 				),
+				'next_step'  => null,
 			)
 		);
 

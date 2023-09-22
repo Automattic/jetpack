@@ -293,8 +293,8 @@ class Automation_Engine {
 			);
 		}
 
-		$step_name                     = $class_name::get_slug();
-		$this->steps_map[ $step_name ] = $class_name;
+		$step_slug                     = $class_name::get_slug();
+		$this->steps_map[ $step_slug ] = $class_name;
 	}
 
 	/**
@@ -329,6 +329,8 @@ class Automation_Engine {
 	 * @throws Workflow_Exception Throws an exception if the workflow is not valid.
 	 */
 	public function add_workflow( Automation_Workflow $workflow, bool $init_workflow = false ) {
+		$workflow->set_engine( $this );
+
 		$this->workflows[] = $workflow;
 
 		if ( $init_workflow ) {
@@ -385,8 +387,6 @@ class Automation_Engine {
 		$this->get_logger()->log( sprintf( 'Trigger activated: %s', $trigger->get_slug() ) );
 		$this->get_logger()->log( sprintf( 'Executing workflow: %s', $workflow->name ) );
 
-		$step_data = $workflow->get_initial_step();
-
 		// Convert the trigger data into a data type instance.
 		try {
 			$trigger_data_type = $this->get_data_type_instance( $trigger::get_data_type(), $trigger_data );
@@ -396,6 +396,8 @@ class Automation_Engine {
 				Automation_Exception::GENERAL_ERROR
 			);
 		}
+
+		$step_data = $workflow->get_initial_step();
 
 		while ( $step_data ) {
 			try {
@@ -414,15 +416,14 @@ class Automation_Engine {
 
 				$step_slug = $step->get_slug();
 
-				if ( isset( $step_data['attributes'] ) && is_array( $step_data['attributes'] ) ) {
-					$step->set_attributes( $step_data['attributes'] );
-				}
-
 				$this->get_logger()->log( '[' . $step->get_slug() . '] Executing step. Type: ' . $step->get_data_type() );
 
 				$data_type = $this->maybe_transform_data_type( $trigger_data_type, $step::get_data_type() );
 				$step->execute( $data_type->get_entity() );
-				$step_data = $step->get_next_step();
+
+				//todo: return Step instance instead of array
+				$step_id   = $step->get_next_step_id();
+				$step_data = $workflow->get_step( $step_id );
 
 				$this->get_logger()->log( '[' . $step->get_slug() . '] Step executed!' );
 

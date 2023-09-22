@@ -1,7 +1,7 @@
 .jetpack-blogroll__appender-results {
 	padding: 0 18px 18px 18px;
 
-	> span {
+	> div {
 		padding: 6px 0;
 		font-size: 11px;
 		line-height: 16px;
@@ -12,6 +12,9 @@
 	> ul {
 		margin: 0;
 		max-height: 200px;
+		list-style: none;
+		padding-left: 0px !important;
+		overflow-y: auto;
 
 		li {
 			margin: 0;
@@ -49,6 +52,10 @@
 					font-weight: 500;
 					line-height: 20px;
 					letter-spacing: -0.15px;
+					display: -webkit-box;
+   					-webkit-box-orient: vertical;
+					-webkit-line-clamp: 1;
+					overflow: hidden;
 				}
 
 				.jetpack-blogroll__appender-result-description {
@@ -56,6 +63,10 @@
 					font-size: 14px;
 					line-height: 20px;
 					letter-spacing: -0.15px;
+					display: -webkit-box;
+   					-webkit-box-orient: vertical;
+					-webkit-line-clamp: 2;
+					overflow: hidden;
 				}
 			}
 		}
