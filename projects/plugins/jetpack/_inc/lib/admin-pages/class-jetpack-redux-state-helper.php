@@ -253,11 +253,6 @@ class Jetpack_Redux_State_Helper {
 	 * @return array
 	 */
 	private static function get_gutenberg_initial_state() {
-		$initial_state = array(
-			'isAvailable'         => false,
-			'hasInteractivityApi' => false,
-		);
-
 		// If Gutenberg is not installed,
 		// check if we run a version of WP that would include support.
 		if ( ! Constants::is_true( 'IS_GUTENBERG_PLUGIN' ) ) {
@@ -278,7 +273,10 @@ class Jetpack_Redux_State_Helper {
 
 		$gutenberg_version = Constants::get_constant( 'GUTENBERG_VERSION' );
 		if ( ! $gutenberg_version ) {
-			return $initial_state;
+			return array(
+				'isAvailable'         => false,
+				'hasInteractivityApi' => false,
+			);
 		}
 
 		return array(
