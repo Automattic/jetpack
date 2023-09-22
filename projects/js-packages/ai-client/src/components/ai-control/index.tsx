@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { PlainText } from '@wordpress/block-editor';
-import { Button, Tooltip } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { forwardRef, useCallback, useImperativeHandle, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -182,23 +182,15 @@ export function AIControl(
 							{ showButtonLabels && __( 'Send', 'jetpack-ai-client' ) }
 						</Button>
 					) : (
-						<Tooltip
-							delay={ 0 }
-							shortcut={ {
-								ariaLabel: 'Esc',
-								display: 'Esc',
-							} }
+						<Button
+							className={ actionButtonClasses }
+							onClick={ onStop }
+							isSmall={ true }
+							label={ __( 'Stop request', 'jetpack-ai-client' ) }
 						>
-							<Button
-								className={ actionButtonClasses }
-								onClick={ onStop }
-								isSmall={ true }
-								label={ __( 'Stop request', 'jetpack-ai-client' ) }
-							>
-								<Icon icon={ closeSmall } />
-								{ showButtonLabels && __( 'Stop', 'jetpack-ai-client' ) }
-							</Button>
-						</Tooltip>
+							<Icon icon={ closeSmall } />
+							{ showButtonLabels && __( 'Stop (ESC)', 'jetpack-ai-client' ) }
+						</Button>
 					) }
 				</div>
 
