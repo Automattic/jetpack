@@ -1,5 +1,9 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
+@function x($var-name, $fallback) {
+	@return unquote("var(#{$var-name}, #{$fallback})");
+}
+
 .is-style-compact {
 	.wp-block-jetpack-subscriptions__button,
 	.wp-block-button__link {
@@ -85,8 +89,7 @@
 	}
 
 	&.wp-block-jetpack-subscriptions__use-newline {
-		.wp-block-jetpack-subscriptions__form,
-		form {
+		.wp-block-jetpack-subscriptions__form-elements {
 			display: block;
 		}
 
@@ -127,10 +130,10 @@
 			font-size: $default-font-size;
 			font-weight: 500;
 			line-height: 20px;
-			color: #3c434a; // $studio-gray-70
-			border: 1px solid $gray-200;
+			color: var(--subscribe-block-text-color);
+			border: 1px solid var(--subscribe-block-accent-color);
 			border-radius: var(--subscribe-block-border-radius);
-			background: $white;
+			background: var(--subscribe-block-background-color);
 			transition: background 0.1s;
 			user-select: none;
 
@@ -140,14 +143,15 @@
 		}
 
 		input[type="checkbox"]:checked + div {
-			background: color-mix(in srgb, var(--wp--preset--color--primary) 5%, white);
-			border-color: var(--wp--preset--color--primary);
+			background: color-mix(in srgb, var(--subscribe-block-accent-color) 5%, white);
+			border-color: var(--subscribe-block-accent-color);
 
 			svg {
 				display: block;
 
 				path {
-					fill: var( --wp--preset--color--primary );
+					fill: var(--subscribe-block-accent-color);
+
 				}
 			}
 		}

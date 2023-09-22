@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Site Settings Endpoint: Allow for updating and retrieving of the wpcom_newsletter_categories site option via the endpoint
