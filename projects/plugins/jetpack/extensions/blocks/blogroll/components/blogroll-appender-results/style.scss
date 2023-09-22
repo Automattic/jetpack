@@ -25,6 +25,11 @@
 				align-self: stretch;
 				padding: 8px 4px;
 				gap: 12px;
+
+				&:focus {
+					box-shadow: none;
+					border: solid 1px #0096dd;
+				}
 			}
 
 			.jetpack-blogroll__appender-result-image {
