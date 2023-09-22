@@ -12,12 +12,10 @@ describe( 'Automations Admin Reducer', () => {
 				const action = hydrateWorkflows( inputWorkflows );
 				const state = workflows( {}, action );
 
-				expect( Object.keys( state ).map( key => Number( key ) ) ).toEqual( [
-					workflowOne.id,
-					workflowTwo.id,
-				] );
-				expect( state[ workflowOne.id ] ).toMatchObject( workflowOne );
-				expect( state[ workflowTwo.id ] ).toMatchObject( workflowTwo );
+				expect( state ).toEqual( {
+					[ workflowOne.id ]: workflowOne,
+					[ workflowTwo.id ]: workflowTwo,
+				} );
 			} );
 
 			test( 'replaces the state when hydrating with existing state', () => {
