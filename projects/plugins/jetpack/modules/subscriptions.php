@@ -23,8 +23,8 @@ use Automattic\Jetpack\Status\Host;
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 
-// Loads the User Content Tracking Redirection functionality.
-require_once __DIR__ . '/subscriptions/jetpack-user-content-tracking-redirects.php';
+// Loads the User Content Link Redirection feature.
+require_once __DIR__ . '/subscriptions/jetpack-user-content-link-redirection.php';
 
 /**
  * Loads the Subscriptions module.
