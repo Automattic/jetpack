@@ -4,18 +4,25 @@ import { PRODUCT_STATUSES } from './action-button';
 import styles from './style.module.scss';
 import { PRODUCT_STATUSES_LABELS } from '.';
 
+const getStatusClassName = status => {
+	switch ( status ) {
+		case PRODUCT_STATUSES.ACTIVE:
+		case PRODUCT_STATUSES.CAN_UPGRADE:
+			return styles.active;
+		case PRODUCT_STATUSES.INACTIVE:
+		case PRODUCT_STATUSES.NEEDS_PURCHASE:
+		case PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE:
+			return styles.inactive;
+		case PRODUCT_STATUSES.ERROR:
+			return styles.error;
+		default:
+			return '';
+	}
+};
+
 const Status = ( { status, isFetching, isInstallingStandalone, isDeactivatingStandalone } ) => {
-	const isActive = status === PRODUCT_STATUSES.ACTIVE;
-	const isError = status === PRODUCT_STATUSES.ERROR;
-	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
-	const isPurchaseRequired =
-		status === PRODUCT_STATUSES.NEEDS_PURCHASE ||
-		status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE;
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
-	const statusClassName = classNames( styles.status, {
-		[ styles.active ]: isActive,
-		[ styles.inactive ]: isInactive || isPurchaseRequired,
-		[ styles.error ]: isError,
+	const statusClassName = classNames( styles.status, getStatusClassName( status ), {
 		[ styles[ 'is-fetching' ] ]: isFetching || isInstallingStandalone || isDeactivatingStandalone,
 	} );
 
