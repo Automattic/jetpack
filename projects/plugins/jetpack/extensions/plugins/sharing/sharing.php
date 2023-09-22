@@ -22,7 +22,9 @@ function register_plugins() {
 add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_plugins' );
 
 /**
- * Allow display the Sharing UI in the editor.
+ * The Sharing panel is only displayed for post types that support sharing.
+ * The sharing module declares support for sharing for all the public post types.
+ * Let's do the same thing when the module isn't active yet.
  */
 add_action(
 	'init',
