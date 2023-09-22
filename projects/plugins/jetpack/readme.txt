@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 12.6
+Stable tag: 12.6.1
 Requires at least: 6.2
 Requires PHP: 5.6
 Tested up to: 6.3
@@ -293,86 +293,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.6 - 2023-09-19
-#### Enhancements
-- Add blogroll item block.
-- Added the new auto-conversion toggle for social.
-- Add number formatting for subscriber count in newsletter module.
-- AI-chat block: add ability to chat with the site.
-- AI Assistant: add prompts for correct feature configuration.
-- AI Assistant: proof-of-concept form generation prompts, using them for expandable messages.
-- AI Excerpt: add the Accept button and Discard button to the panel.
-- AI Excerpt: ensure to save the post before asking a suggestion.
-- AI Excerpt: show upgrade banner when site achieves requests limit.
-- AI Extension: add create-with-voice beta extension.
-- AI Extension: enhance blocks parsing flickering with child blocks.
-- AI Extension: introduce Create with voice jetpack block.
-- Business Hours Block: refactor block registration to avoid duplication.
-- Classic Editor Markdown: add support for double-tilde strikethrough, e.g. ~~strikethrough~~.
-- Connection UI: use Redux state to pass the "from" property.
-- Content Lens: connect excerpt panel with AI Assistant.
-- Create with voice: show audio duration when recording audio, introduce Done button.
-- Jetpack Assistant: add placeholder UX for the prompt input.
-- Jetpack Social: display the Social editor panel with an invitation to activate the feature when it is disabled.
-- Launchpad save modal: persist the user option when they opt to hide the modal.
-- Newsletter: add support for newsletter categories, improve flows around access and paywall.
-- Paywall: better content for when waiting for email validation.
-- Paywall block: disable Paid subscribers button if plans are not set up.
-- Paywall block: improved settings panel and toolbar.
-- Paywall Block: improve excerpts handling, redesign visuals for the mobile editor.
-- Paywall block: release to WP.com and Jetpack.
-- Related Posts: make the block available even when the feature has not been activated yet.
-- Render Subscriptions block on emails.
-- Security: Blocks: avoid saving invalid block attributes that may appear to other editors on the site.
-- Sidebar: Rename the "Inbox" menu to "My Mailboxes".
-- Site Editor: point the Site Editor's `<` link to the theme showcase when previewing a theme.
-- Social: add the change setting for the auto conversion feature.
-- Subscribe modal: bump modal Z-index up.
-- Subscribers: add edit link for subscribe modal.
-- Subscription block: add newsletter categories to the content view.
-- Subscriptions: remove newsletter flow+theme and FSE theme check for the subscribe modal. Leave WP.com check.
-- Tiled gallery module: add srcset to images.
-- WordPress.com Toolbar: add site monitoring menu and remove site logs.
-
-#### Improved compatibility
-- Carousel: add new hook allowing third-parties to customize the metadata displayed within the Carousel modal.
-- General: Jetpack now requires WordPress version 6.2.
-- General: remove WP 6.1 backwards compatibility checks.
-- Lazy Images: discourage enabling of Lazy loading images as now 90% of browser support the feature natively and this version in Jetpack can conflict with the upcoming WordPress interactivity API'
-- Shortcodes: exclude images with broken URL from galleries.
-- Subscriptions: change the text color of selected newsletter categories to be more easily readable.
-- WC Analytics: ensure correct values are tracked for cart/checkout block/template tracking when using WC Blocks cart and checkout templates
-
-#### Bug fixes
-- Admin Menu: display Newsletter settings submenu item for Jetpack connected sites.
-- AI Chat: fix block styles not loading.
-- AI Chat: fix styles not loading in the editor.
-- AI Extension: remove HTML fragments from AI-generated forms on site editor.
-- Allow two year plans to show on the My Plan page.
-- Blocks: use custom Facebook and Instagram icons in Jetpack's Facebook and Instagram blocks to avoid issues in accessibility inspector.
-- Comments: remove mention of Twitter as a log in option since it is no longer available.
-- Comments: remove the Twitter service as a login provider.
-- Donation Block: fix issue with Danish Krone.
-- Email subscribers now receive full posts.
-- Featured images fallback: fix undefined variable warnings.
-- Fix a Global Styles UI performance issue in the Site Editor.
-- Fix an issue that caused the notice displayed when updating widgets to overlap the admin menu.
-- Fix block icons for display on wp.org.
-- Fix cookie consent block positioning in the editor.
-- Fix default plan being selected in payment block.
-- Launchpad modal: reduce API calls for modal dismiss flag.
-- Load the Jetpack block assets in the iframe directly in WP-Admin and keep the existing behavior on the front-end, for compatibility reasons.
-- Nav Unification: flips order of tags and categories submenu of posts.
-- Paywall block: avoid undefined variable warning.
-- Paywall Block: fix autosave before redirecting the user.
-- Remove use of Jetpack_Membership::get_connected_account_id().
-- Revert change where newsletter plans could not be used on Premium content.
-- Subscription Block: fix blog appearance.
-- Subscriptions: add subscribe modal mobile padding.
-- Subscriptions: hide modal if paywall block exists.
-- Subscriptions: hide modal if post is subscribers-only.
-- Subscriptions: tweak subscribe modal text/spacing.
-- VideoPress Block: Check if VideoPress module is active in order to register the VideoPress video block.
+### 12.6.1 - 2023-09-21
+#### Bug Fixes
+- WooCommerce Analytics: fix a fatal error that can occur with WooCommerce enabled.
 
 --------
 

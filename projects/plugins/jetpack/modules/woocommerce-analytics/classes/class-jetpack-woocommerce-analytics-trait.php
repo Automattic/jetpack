@@ -144,7 +144,7 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	 *
 	 * @return array
 	 */
-	public static function get_cart_checkout_info() {
+	public function get_cart_checkout_info() {
 		$transient_name = 'jetpack_woocommerce_analytics_cart_checkout_info_cache';
 
 		$info = get_transient( $transient_name );
@@ -162,19 +162,19 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			$checkout_page_id = wc_get_page_id( 'checkout' );
 
 			$info = array(
-				'cart_page_contains_cart_block'         => self::post_contains_text(
+				'cart_page_contains_cart_block'         => $this->post_contains_text(
 					$cart_page_id,
 					'<!-- wp:woocommerce/cart'
 				),
-				'cart_page_contains_cart_shortcode'     => self::post_contains_text(
+				'cart_page_contains_cart_shortcode'     => $this->post_contains_text(
 					$cart_page_id,
 					'[woocommerce_cart]'
 				),
-				'checkout_page_contains_checkout_block' => self::post_contains_text(
+				'checkout_page_contains_checkout_block' => $this->post_contains_text(
 					$checkout_page_id,
 					'<!-- wp:woocommerce/checkout'
 				),
-				'checkout_page_contains_checkout_shortcode' => self::post_contains_text(
+				'checkout_page_contains_checkout_shortcode' => $this->post_contains_text(
 					$checkout_page_id,
 					'[woocommerce_checkout]'
 				),

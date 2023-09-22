@@ -27,35 +27,42 @@
 		}, 10 )
 	);
 
+	$: pricing = $config.pricing;
 	$: activeModules = Object.entries( $modulesState ).reduce( ( acc, [ key, value ] ) => {
 		if ( key !== 'image_guide' && key !== 'image_size_analysis' ) {
 			acc.push( value.active );
 		}
 		return acc;
 	}, [] );
+	$: siteDomain = $config.site.domain;
+	$: userConnected = $connection.userConnected;
+	$: isPremium = $config.isPremium;
+	$: isImageGuideActive = $modulesState.image_guide.active;
+	$: isImageSizeAnalysisAvailable = $modulesState.image_size_analysis.available;
+	$: isImageSizeAnalysisActive = $modulesState.image_size_analysis.active;
+	$: criticalCssCreated = $criticalCssState.created;
+	$: criticalCssIsGenerating = $isGenerating;
 </script>
 
 <Router history={routerHistory}>
-	<Route path="upgrade" component={BenefitsInterstitial} />
+	<Route path="upgrade" let:location let:navigate>
+		<BenefitsInterstitial {location} {navigate} {pricing} {siteDomain} {userConnected} />
+	</Route>
 	<Route
 		path="getting-started"
 		component={GettingStarted}
-		userConnected={$connection.userConnected}
-		pricing={$config.pricing}
-		isPremium={$config.isPremium}
-		domain={$config.site.domain}
+		{userConnected}
+		{pricing}
+		{isPremium}
+		domain={siteDomain}
 	/>
 	<Route path="purchase-successful" let:location let:navigate>
-		<PurchaseSuccess {location} {navigate} isImageGuideActive={$modulesState.image_guide.active} />
+		<PurchaseSuccess {location} {navigate} {isImageGuideActive} />
 	</Route>
-	{#if $modulesState.image_size_analysis.available && $modulesState.image_size_analysis.active}
+	{#if isImageSizeAnalysisAvailable && isImageSizeAnalysisActive}
 		<Route path="image-size-analysis/:group/:page" component={RecommendationsPage} />
 	{/if}
 	<Route>
-		<Settings
-			{activeModules}
-			criticalCssCreated={$criticalCssState.created}
-			criticalCssIsGenerating={$isGenerating}
-		/>
+		<Settings {activeModules} {criticalCssCreated} {criticalCssIsGenerating} />
 	</Route>
 </Router>
