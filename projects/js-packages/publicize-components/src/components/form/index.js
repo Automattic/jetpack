@@ -19,6 +19,7 @@ import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
 import useMediaRestrictions, { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions';
 import useRefreshAutoConversionSettings from '../../hooks/use-refresh-auto-conversion-settings';
+import useRefreshConnections from '../../hooks/use-refresh-connections';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { SOCIAL_STORE_ID } from '../../social-store';
@@ -63,6 +64,7 @@ export default function PublicizeForm( {
 } ) {
 	const { connections, toggleById, hasConnections, enabledConnections } =
 		useSocialMediaConnections();
+	const refreshConnections = useRefreshConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 	const { dismissNotice, shouldShowNotice, NOTICES } = useDismissNotice();
@@ -277,9 +279,11 @@ export default function PublicizeForm( {
 		);
 	};
 
+	refreshConnections();
+
 	return (
 		<Wrapper>
-			{ hasConnections && (
+			{ hasConnections ? (
 				<>
 					<PanelRow>
 						<ul className={ styles[ 'connections-list' ] }>
@@ -372,6 +376,14 @@ export default function PublicizeForm( {
 							? renderInstagramNotice()
 							: renderValidationNotice() ) }
 				</>
+			) : (
+				! shouldShowInstagramNotice && (
+					<PanelRow>
+						<ExternalLink href={ connectionsAdminUrl }>
+							{ __( 'Connect an account', 'jetpack' ) }
+						</ExternalLink>
+					</PanelRow>
+				)
 			) }
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
@@ -410,6 +422,21 @@ export default function PublicizeForm( {
 								onChange={ updateMessage }
 								message={ message }
 							/>
+							{ isEnhancedPublishingEnabled && (
+								<MediaSection
+									disabled={ shouldDisableMediaPicker }
+									socialPostDisabled={ ! mediaId && ! isSocialImageGeneratorEnabledForPost }
+									connections={ connections }
+									disabledNoticeMessage={
+										shouldDisableMediaPicker
+											? __(
+													'It is not possible to add an image or video when Social Image Generator is enabled.',
+													'jetpack'
+											  )
+											: null
+									}
+								/>
+							) }
 						</>
 					) }
 					{ shouldShowAdvancedPlanNudge && shouldShowNotice( NOTICES.advancedUpgradeEditor ) && (
@@ -431,21 +458,6 @@ export default function PublicizeForm( {
 								}
 							) }
 						</Notice>
-					) }
-					{ isEnhancedPublishingEnabled && (
-						<MediaSection
-							disabled={ shouldDisableMediaPicker }
-							socialPostDisabled={ ! mediaId && ! isSocialImageGeneratorEnabledForPost }
-							connections={ connections }
-							disabledNoticeMessage={
-								shouldDisableMediaPicker
-									? __(
-											'It is not possible to add an image or video when Social Image Generator is enabled.',
-											'jetpack'
-									  )
-									: null
-							}
-						/>
 					) }
 				</Fragment>
 			) }
