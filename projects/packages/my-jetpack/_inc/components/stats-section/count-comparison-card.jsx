@@ -78,7 +78,6 @@ const CountComparisonCard = ( { count, previousCount, icon, heading } ) => {
 						</span>
 						{ percentage !== null && (
 							<span className={ styles[ 'stats-card-difference-absolute-percentage' ] }>
-								{ ' ' }
 								({ percentage }%)
 							</span>
 						) }
