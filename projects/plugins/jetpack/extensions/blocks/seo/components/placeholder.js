@@ -15,7 +15,12 @@ export const SeoPlaceholder = ( { changeStatus, isLoading, isModuleActive } ) =>
 
 	return (
 		<>
-			<p>{ __( 'Activate Seo feature to optimize your site for search engines.', 'jetpack' ) }</p>
+			<p>
+				{ __(
+					'Activate the SEO feature and start optimizing your posts for search engines.',
+					'jetpack'
+				) }
+			</p>
 			<Button
 				disabled={ isModuleActive || isLoading }
 				isBusy={ isLoading }
@@ -23,13 +28,13 @@ export const SeoPlaceholder = ( { changeStatus, isLoading, isModuleActive } ) =>
 				variant="secondary"
 			>
 				{ isLoading
-					? __( 'Activating Jetpack Seo', 'jetpack' )
-					: __( 'Activate Jetpack Seo', 'jetpack', 0 ) }
+					? __( 'Activating Jetpack SEO', 'jetpack' )
+					: __( 'Activate Jetpack SEO', 'jetpack', 0 ) }
 			</Button>
 
-			<div className="components-placeholder__learn-more">
+			<div className="components-seo-placeholder__learn-more">
 				<ExternalLink href={ getRedirectUrl( 'jetpack-support-seo-tools' ) }>
-					{ __( 'Learn more about Jetpack Seo.', 'jetpack' ) }
+					{ __( 'Learn more about Jetpack SEO.', 'jetpack' ) }
 				</ExternalLink>
 			</div>
 		</>
