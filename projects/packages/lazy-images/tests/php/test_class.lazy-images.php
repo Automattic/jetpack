@@ -623,10 +623,12 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 
 		$wp_version = $version_details['wp']; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-		$this->assertSame( $expected, Jetpack_Lazy_Images::should_force_deactivate() );
-
-		Constants::clear_constants();
-		$wp_version = $previous_version; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		try {
+			$this->assertSame( $expected, Jetpack_Lazy_Images::should_force_deactivate() );
+		} finally {
+			Constants::clear_constants();
+			$wp_version = $previous_version; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
 	}
 
 	/**
