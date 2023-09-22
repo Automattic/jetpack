@@ -31,6 +31,10 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$flow = get_option( 'site_intent' );
+				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'] . '&flow=' . $flow;
+			},
 		),
 		'design_selected'                 => array(
 			'get_title'            => function () {
@@ -84,6 +88,10 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Choose a plan', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function () {
+				$flow = get_option( 'site_intent' );
+				return '/setup/' . $flow . '/plans/';
+			},
 		),
 		'plan_selected'                   => array(
 			'get_title'            => function () {
@@ -265,6 +273,10 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Name your blog', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$flow = get_option( 'site_intent' );
+				return '/setup' . $flow . '/setup-blog?siteSlug' . $data['site_slug_encoded'];
+			},
 		),
 
 		// Free plan tasks.
