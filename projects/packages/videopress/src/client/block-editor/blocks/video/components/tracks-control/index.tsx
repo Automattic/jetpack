@@ -127,44 +127,51 @@ export default function TracksControl( {
 
 	const uploadNewTrackFile = useCallback(
 		newUploadedTrack => {
-			uploadTrackForGuid( newUploadedTrack, guid ).then( src => {
-				if ( src?.error ) {
-					setFormErrorMessage( `Track error: ${ src?.message || src.error }` );
-					return;
-				}
-				/*
-				 * Rearrange the new track item,
-				 * removing the file field
-				 * and adding the src provided by the request-response body
-				 */
-				const newTrack = {
-					...newUploadedTrack,
-					src,
-				};
-				delete newTrack.tmpFile;
+			uploadTrackForGuid( newUploadedTrack, guid )
+				.then( src => {
+					if ( src?.error ) {
+						setFormErrorMessage( `Track error: ${ src?.message || src.error }` );
+						return;
+					}
+					/*
+					 * Rearrange the new track item,
+					 * removing the file field
+					 * and adding the src provided by the request-response body
+					 */
+					const newTrack = {
+						...newUploadedTrack,
+						src,
+					};
+					delete newTrack.tmpFile;
 
-				/*
-				 * Check if the new track is already in the list.
-				 * Add it if it's not. Replace it if it is.
-				 */
-				const trackItemIndex = tracks.findIndex(
-					t => t.kind === newTrack.kind && t.srcLang === newTrack.srcLang
-				);
-				const updatedTracksList = [ ...tracks ];
+					/*
+					 * Check if the new track is already in the list.
+					 * Add it if it's not. Replace it if it is.
+					 */
+					const trackItemIndex = tracks.findIndex(
+						t => t.kind === newTrack.kind && t.srcLang === newTrack.srcLang
+					);
+					const updatedTracksList = [ ...tracks ];
 
-				if ( trackItemIndex > -1 ) {
-					debug( 'new track already exists, replacing it' );
-					updatedTracksList[ trackItemIndex ] = newTrack;
-				} else {
-					debug( 'new track does not exist, adding it' );
-					updatedTracksList.push( newTrack );
-				}
+					if ( trackItemIndex > -1 ) {
+						debug( 'new track already exists, replacing it' );
+						updatedTracksList[ trackItemIndex ] = newTrack;
+					} else {
+						debug( 'new track does not exist, adding it' );
+						updatedTracksList.push( newTrack );
+					}
 
-				setAttributes( { tracks: updatedTracksList } );
-				setIsUploadingNewTrack( false );
-				invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
-			} );
-			setIsUploadingNewTrack( true );
+					setAttributes( { tracks: updatedTracksList } );
+					setIsUploadingNewTrack( false );
+					invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+				} )
+				// these here because fetch behaves differently on simple sites
+				.catch( error => {
+					setFormErrorMessage( `Track error: ${ error?.message || error.error }` );
+				} )
+				.finally( () => {
+					setIsUploadingNewTrack( true );
+				} );
 		},
 		[ tracks ]
 	);
