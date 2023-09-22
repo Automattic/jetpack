@@ -1,9 +1,10 @@
 import { CopyToClipboard as CopyToClipboardBtn } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import React, { useCallback } from 'react';
+import { useCallback } from '@wordpress/element';
 import styles from './styles.module.scss';
 import { ShareButtonProps } from './types';
 import { usePrepareUrl } from './usePrepareUrl';
+import type React from 'react';
 
 export const CopyToClipboard: React.FC< ShareButtonProps > = ( {
 	buttonStyle = 'icon',
