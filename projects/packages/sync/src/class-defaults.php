@@ -183,6 +183,7 @@ class Defaults {
 		'wpcom_is_fse_activated',
 		'wpcom_legacy_contact',
 		'wpcom_locked_mode',
+		'wpcom_newsletter_categories',
 		'wpcom_newsletter_categories_enabled',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
