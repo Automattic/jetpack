@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix subscribe block button not showing on newline.
