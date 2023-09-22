@@ -4,7 +4,7 @@
 import { PlainText } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
-import { forwardRef, useImperativeHandle, useRef } from '@wordpress/element';
+import { forwardRef, useCallback, useImperativeHandle, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall, check, arrowUp } from '@wordpress/icons';
 import classNames from 'classnames';
@@ -79,10 +79,25 @@ export function AIControl(
 	ref
 ) {
 	const promptUserInputRef = useRef( null );
+	const InputWrapperRef = useRef( null );
 	const loading = state === 'requesting' || state === 'suggesting';
 
 	// Pass the ref to forwardRef.
 	useImperativeHandle( ref, () => promptUserInputRef.current );
+
+	const focusOnWrapper = () => {
+		// Small delay to avoid focus crash
+		setTimeout( () => {
+			InputWrapperRef.current?.focus?.();
+		}, 100 );
+	};
+
+	const handleSend = useCallback( () => {
+		onSend?.( value );
+		// The input is disabled while the request is executing, so we need
+		// to focus on the wrapper for the stop keyboard shortcut to work
+		focusOnWrapper();
+	}, [ onSend, value ] );
 
 	useKeyboardShortcut(
 		'mod+enter',
@@ -100,10 +115,21 @@ export function AIControl(
 		'enter',
 		e => {
 			e.preventDefault();
-			onSend?.( value );
+			handleSend();
 		},
 		{
 			target: promptUserInputRef,
+		}
+	);
+
+	useKeyboardShortcut(
+		'esc',
+		e => {
+			e.stopImmediatePropagation();
+			onStop?.();
+		},
+		{
+			target: InputWrapperRef,
 		}
 	);
 
@@ -112,7 +138,11 @@ export function AIControl(
 	} );
 
 	return (
-		<div className="jetpack-components-ai-control__container">
+		<div
+			className="jetpack-components-ai-control__container"
+			ref={ InputWrapperRef }
+			tabIndex={ -1 }
+		>
 			<div
 				className={ classNames( 'jetpack-components-ai-control__wrapper', {
 					'is-transparent': isTransparent,
@@ -143,7 +173,7 @@ export function AIControl(
 					{ ! loading ? (
 						<Button
 							className={ actionButtonClasses }
-							onClick={ () => onSend( value ) }
+							onClick={ handleSend }
 							isSmall={ true }
 							disabled={ ! value?.length || disabled }
 							label={ __( 'Send request', 'jetpack-ai-client' ) }

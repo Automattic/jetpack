@@ -371,6 +371,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	const handleStopSuggestion = () => {
 		stopSuggestion();
+		focusOnPrompt();
 	};
 
 	const handleImageRequest = () => {
