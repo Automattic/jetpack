@@ -77,7 +77,7 @@ class Automation_Workflow {
 	 * @since $$next-version$$
 	 * @var int|string|null
 	 */
-	public $initial_step_id;
+	public $initial_step;
 
 	/**
 	 * The workflow steps list
@@ -327,8 +327,8 @@ class Automation_Workflow {
 	 *
 	 * @param int|string|null $step_id The initial step id.
 	 */
-	public function set_initial_step_id( $step_id ) {
-		$this->initial_step_id = $step_id;
+	public function set_initial_step( $step_id ) {
+		$this->initial_step = $step_id;
 	}
 
 	/**
@@ -377,7 +377,7 @@ class Automation_Workflow {
 	 * @return array|null The initial step data of the workflow.
 	 */
 	public function get_initial_step(): ?array {
-		return $this->steps[ $this->initial_step_id ] ?? null;
+		return $this->steps[ $this->initial_step ] ?? null;
 	}
 
 	/**
