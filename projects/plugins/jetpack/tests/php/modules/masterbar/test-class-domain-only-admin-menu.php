@@ -90,7 +90,7 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertEquals( 'https://wordpress.com/domains/manage/' . static::$domain . '/edit/' . static::$domain, $menu[0][2] );
 		$this->assertEquals( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $menu[1][2] );
-		$this->assertEquals( 'https://wordpress.com/inbox/' . static::$domain, $menu[2][2] );
+		$this->assertEquals( 'https://wordpress.com/mailboxes/' . static::$domain, $menu[2][2] );
 	}
 
 	/**
@@ -112,6 +112,6 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 		$this->assertEquals( 'https://wordpress.com/domains/manage/' . static::$domain . '/edit/' . static::$domain, $menu[0][2] );
 		$this->assertEquals( 'https://wordpress.com/email/' . static::$domain . '/manage/' . static::$domain, $menu[1][2] );
 		$this->assertEquals( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $menu[2][2] );
-		$this->assertEquals( 'https://wordpress.com/inbox/' . static::$domain, $menu[3][2] );
+		$this->assertEquals( 'https://wordpress.com/mailboxes/' . static::$domain, $menu[3][2] );
 	}
 }
