@@ -63,7 +63,7 @@ class Contact_Entity_Test extends JPCRM_Base_Integration_Test_Case {
 		$contact_data_from_db = $zbs->DAL->contacts->getContact( $id );
 
 		// Create the instance from the contact data retrieve from the DAL/DB.
-		$contact_instance = Contact_Factory::create_from_tidy_data( $contact_data_from_db );
+		$contact_instance = Contact_Factory::create( $contact_data_from_db );
 
 		$this->assertInstanceOf( Contact::class, $contact_instance );
 		$this->assertNotNull( $contact_instance->id );
