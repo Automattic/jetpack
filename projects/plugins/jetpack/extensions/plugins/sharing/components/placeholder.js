@@ -24,14 +24,10 @@ export const SharingPlaceholder = ( { changeStatus, isLoading, isModuleActive } 
 			>
 				{ isLoading
 					? __( 'Activating Sharing', 'jetpack' )
-					: __(
-							'Activate Sharing',
-							'jetpack',
-							/* dummy arg to avoid bad minification */ 0
-					  ) }
+					: __( 'Activate Sharing', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
 			</Button>
 
-			<div className="components-placeholder__learn-more">
+			<div className="components-sharing-placeholder__learn-more">
 				<ExternalLink href={ getRedirectUrl( 'jetpack-support-sharing' ) }>
 					{ __( 'Learn more about Jetpack Sharing.', 'jetpack' ) }
 				</ExternalLink>
