@@ -1,10 +1,11 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
-import React, { useCallback } from 'react';
+import { useCallback } from '@wordpress/element';
 import { availableNetworks } from './available-networks';
 import styles from './styles.module.scss';
 import { usePrepareUrl } from './usePrepareUrl';
+import type React from 'react';
 
 export type ShareButtonsProps = {
 	buttonStyle?: 'icon' | 'text' | 'icon-text';
