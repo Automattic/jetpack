@@ -21,4 +21,12 @@ class Factory_Exception extends \Exception {
 	 * @var int
 	 */
 	const INVALID_DATA = 1;
+
+	/**
+	 * The error code for invalid entity class.
+	 *
+	 * @since $$next-version$$
+	 * @var int
+	 */
+	const INVALID_ENTITY_CLASS = 2;
 }
