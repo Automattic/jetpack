@@ -23,7 +23,7 @@ export function usePrepareUrl() {
 	}, [] );
 
 	return useCallback(
-		( urlWithPlaceholders: string ) => {
+		( urlWithPlaceholders: string, urlEncode = true ) => {
 			let text = message;
 			let url = link;
 			// If the URL placeholder is missing, add the URL to the text.
@@ -32,9 +32,12 @@ export function usePrepareUrl() {
 				url = '';
 			}
 
-			return urlWithPlaceholders
-				.replace( '{{text}}', encodeURIComponent( text ) )
-				.replace( '{{url}}', encodeURIComponent( url ) );
+			if ( urlEncode ) {
+				text = encodeURIComponent( text );
+				url = encodeURIComponent( url );
+			}
+
+			return urlWithPlaceholders.replace( '{{text}}', text ).replace( '{{url}}', url );
 		},
 		[ link, message ]
 	);
