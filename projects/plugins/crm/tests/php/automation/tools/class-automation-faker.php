@@ -61,7 +61,7 @@ class Automation_Faker {
 			'name'         => 'Workflow Test: basic_workflow',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
-			'active'       => 1,
+			'active'       => true,
 			'triggers'     => array(
 				'jpcrm/contact_created',
 			),
@@ -89,7 +89,7 @@ class Automation_Faker {
 			'name'        => 'Workflow Test: without_initial_step',
 			'description' => 'Test: the description of the workflow',
 			'category'    => 'Test',
-			'active'      => 1,
+			'active'      => true,
 			'triggers'    => array(
 				'jpcrm/contact_created',
 			),
@@ -108,7 +108,7 @@ class Automation_Faker {
 			'name'        => 'Workflow Test: without_initial_step_customize_trigger',
 			'description' => 'Test: the description of the workflow',
 			'category'    => 'Test',
-			'active'      => 1,
+			'active'      => true,
 			'triggers'    => array(
 				$trigger_name,
 			),
@@ -186,7 +186,7 @@ class Automation_Faker {
 			'name'         => 'Workflow Test: with_condition_action',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
-			'active'       => 1,
+			'active'       => true,
 			'triggers'     => array(
 				'jpcrm/contact_created',
 			),
@@ -221,7 +221,7 @@ class Automation_Faker {
 			'name'         => 'Workflow Test: with_condition_customizable_trigger_action',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
-			'active'       => 1,
+			'active'       => true,
 			'triggers'     => array(
 				$trigger_slug,
 			),
