@@ -27,6 +27,9 @@ const DEFAULT_BORDER_WEIGHT_VALUE = 1;
 const DEFAULT_FONTSIZE_VALUE      = '16px';
 const DEFAULT_PADDING_VALUE       = 15;
 const DEFAULT_SPACING_VALUE       = 10;
+const DEFAULT_ACCENT_COLOR        = '#3c434a';
+const DEFAULT_BACKGROUND_COLOR    = 'white';
+const DEFAULT_TEXT_COLOR          = '#3c434a';
 
 /**
  * Registers the block for use in Gutenberg
@@ -445,6 +448,35 @@ function get_element_styles_from_attributes( $attributes ) {
 
 	$categories_styles = sprintf( '--subscribe-block-border-radius: %dpx;', get_attribute( $attributes, 'borderRadius', DEFAULT_BORDER_RADIUS_VALUE ) );
 
+	$subscribe_block_accent_color     = DEFAULT_ACCENT_COLOR;
+	$subscribe_block_background_color = DEFAULT_BACKGROUND_COLOR;
+	$subscribe_block_text_color       = DEFAULT_TEXT_COLOR;
+
+	$global_styles = wp_get_global_styles(
+		array( 'color' )
+	);
+
+	if ( isset( $global_styles['background'] ) ) {
+		$subscribe_block_background_color = $global_styles['background'];
+	}
+
+	if ( isset( $global_styles['text'] ) ) {
+		$subscribe_block_text_color = $global_styles['text'];
+	}
+
+	if ( function_exists( 'wpcom_get_site_accent_color' ) ) {
+		$site_accent_color = wpcom_get_site_accent_color();
+		if ( $site_accent_color ) {
+			$subscribe_block_accent_color = $site_accent_color;
+		}
+	} else {
+		$subscribe_block_accent_color = $subscribe_block_text_color;
+
+	}
+	$categories_styles .= sprintf( ' --subscribe-block-accent-color: %s; ', $subscribe_block_accent_color );
+	$categories_styles .= sprintf( ' --subscribe-block-background-color: %s; ', $subscribe_block_background_color );
+	$categories_styles .= sprintf( ' --subscribe-block-text-color: %s; ', $subscribe_block_text_color );
+
 	if ( has_attribute( $attributes, 'customBorderColor' ) ) {
 		$style = sprintf( 'border-color: %s; border-style: solid;', get_attribute( $attributes, 'customBorderColor' ) );
 
@@ -686,8 +718,7 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 		)
 	);
 
-	$post_access_level = get_post_access_level_for_current_post();
-
+	$post_access_level     = get_post_access_level_for_current_post();
 	$newsletter_categories = $data['newsletter_categories'];
 
 	?>
