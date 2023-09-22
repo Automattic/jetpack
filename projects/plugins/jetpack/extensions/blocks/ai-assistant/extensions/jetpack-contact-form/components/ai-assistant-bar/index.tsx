@@ -16,10 +16,11 @@ import {
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import classNames from 'classnames';
+import React from 'react';
 /**
  * Internal dependencies
  */
-import classNames from 'classnames';
 import UpgradePrompt from '../../../../components/upgrade-prompt';
 import useAIFeature from '../../../../hooks/use-ai-feature';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
@@ -79,12 +80,15 @@ export default function AiAssistantBar( {
 	const { inputValue, setInputValue, isVisible, assistantAnchor } =
 		useContext( AiAssistantUiContext );
 
+	const focusOnPrompt = () => {
+		// Small delay to avoid focus crash
+		setTimeout( () => {
+			inputRef.current?.focus?.();
+		}, 100 );
+	};
+
 	const { requestSuggestion, requestingState, stopSuggestion, requestingError } = useAiContext( {
-		onDone: () => {
-			setTimeout( () => {
-				inputRef.current?.focus?.();
-			}, 10 );
-		},
+		onDone: focusOnPrompt,
 	} );
 
 	const { requireUpgrade } = useAIFeature();
@@ -101,7 +105,7 @@ export default function AiAssistantBar( {
 
 	const { removeNotice } = useDispatch( noticesStore );
 
-	const onSend = useCallback( () => {
+	const handleSend = useCallback( () => {
 		// Do not send the request if the input value is empty.
 		if ( ! inputValue?.length ) {
 			return;
@@ -117,6 +121,11 @@ export default function AiAssistantBar( {
 
 		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
 	}, [ clientId, inputValue, removeNotice, requestSuggestion ] );
+
+	const handleStopSuggestion = useCallback( () => {
+		stopSuggestion();
+		focusOnPrompt();
+	}, [ stopSuggestion ] );
 
 	/*
 	 * Fix the assistant bar when the viewport is mobile,
@@ -215,8 +224,8 @@ export default function AiAssistantBar( {
 				value={ isLoading ? undefined : inputValue }
 				placeholder={ isLoading ? loadingPlaceholder : placeholder }
 				onChange={ setInputValue }
-				onSend={ onSend }
-				onStop={ stopSuggestion }
+				onSend={ handleSend }
+				onStop={ handleStopSuggestion }
 				state={ requestingState }
 				isTransparent={ siteRequireUpgrade }
 				showButtonLabels={ ! isMobileMode }
