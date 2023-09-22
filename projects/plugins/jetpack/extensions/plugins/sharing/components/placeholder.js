@@ -23,9 +23,9 @@ export const SharingPlaceholder = ( { changeStatus, isLoading, isModuleActive } 
 				variant="secondary"
 			>
 				{ isLoading
-					? __( 'Activating Jetpack Sharing', 'jetpack' )
+					? __( 'Activating Sharing', 'jetpack' )
 					: __(
-							'Activate Jetpack Sharing',
+							'Activate Sharing',
 							'jetpack',
 							/* dummy arg to avoid bad minification */ 0
 					  ) }
