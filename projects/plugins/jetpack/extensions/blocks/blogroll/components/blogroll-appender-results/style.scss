@@ -53,6 +53,10 @@
 					font-weight: 500;
 					line-height: 20px;
 					letter-spacing: -0.15px;
+					display: -webkit-box;
+   					-webkit-box-orient: vertical;
+					-webkit-line-clamp: 1;
+					overflow: hidden;
 				}
 
 				.jetpack-blogroll__appender-result-description {
@@ -60,6 +64,10 @@
 					font-size: 14px;
 					line-height: 20px;
 					letter-spacing: -0.15px;
+					display: -webkit-box;
+   					-webkit-box-orient: vertical;
+					-webkit-line-clamp: 2;
+					overflow: hidden;
 				}
 			}
 		}
