@@ -97,27 +97,35 @@ class Workflow_Repository {
 	 * @since $$next-version$$
 	 *
 	 * @param Automation_Workflow $workflow The workflow to persist.
-	 * @return Automation_Workflow The persisted workflow.
+	 * @return void
 	 *
 	 * @throws Workflow_Exception Throw error if the workflow could not be persisted.
 	 */
-	public function persist( Automation_Workflow $workflow ): Automation_Workflow {
-		$data                 = $workflow->to_array();
-		$data['triggers']     = maybe_serialize( $data['triggers'] );
-		$data['initial_step'] = maybe_serialize( $data['initial_step'] );
-
+	public function persist( Automation_Workflow $workflow ): void {
 		if ( $workflow->get_id() && is_numeric( $workflow->get_id() ) ) {
-			$workflow_id = $this->update( $data );
+			$this->update( $workflow );
 		} else {
-			// Technically speaking, then "id" could contain a string which
-			// would cause conflicts with the database, so we should unset
-			// it to be safe.
-			unset( $data['id'] );
-
-			$workflow_id = $this->insert( $data );
+			$this->insert( $workflow );
 		}
+	}
 
-		return $this->find( $workflow_id );
+	/**
+	 * Prepare the data to persist.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param Automation_Workflow $workflow The workflow to persist.
+	 * @return array The workflow raw data.
+	 */
+	protected function prepare_data_to_persist( Automation_Workflow $workflow ): array {
+		$data = $workflow->to_array();
+
+		$data['triggers']   = wp_json_encode( $data['triggers'] );
+		$data['steps']      = wp_json_encode( $data['steps'] );
+		$data['updated_at'] = gmdate( 'Y-m-d H:i:s', $data['updated_at'] );
+		$data['created_at'] = gmdate( 'Y-m-d H:i:s', $data['created_at'] );
+
+		return $data;
 	}
 
 	/**
@@ -125,15 +133,22 @@ class Workflow_Repository {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $data The raw workflow data to persist.
-	 * @return int The workflow ID.
+	 * @param Automation_Workflow $workflow The workflow to persist.
 	 *
 	 * @throws Workflow_Exception Throw error if the workflow could not be inserted.
 	 */
-	protected function insert( array $data ): int {
-		$time               = time();
-		$data['created_at'] = $time;
-		$data['updated_at'] = $time;
+	protected function insert( Automation_Workflow $workflow ) {
+
+		$time = time();
+		$workflow->set_created_at( $time );
+		$workflow->set_updated_at( $time );
+
+		$data = $this->prepare_data_to_persist( $workflow );
+
+		// Technically speaking, then "id" could contain a string which
+		// would cause conflicts with the database, so we should unset
+		// it to be safe.
+		unset( $data['id'] );
 
 		$inserted = $this->wpdb->insert(
 			$this->table_name,
@@ -147,7 +162,7 @@ class Workflow_Repository {
 			);
 		}
 
-		return $this->wpdb->insert_id;
+		$workflow->set_id( $this->wpdb->insert_id );
 	}
 
 	/**
@@ -155,13 +170,15 @@ class Workflow_Repository {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $data Raw workflow data to persist.
-	 * @return int The workflow ID.
+	 * @param Automation_Workflow $workflow The workflow to persist.
+	 * @return void
 	 *
 	 * @throws Workflow_Exception Throw error if the workflow could not be updated.
 	 */
-	protected function update( array $data ): int {
-		$data['updated_at'] = time();
+	protected function update( Automation_Workflow $workflow ): void {
+		$workflow->set_updated_at( time() );
+
+		$data = $this->prepare_data_to_persist( $workflow );
 
 		$updated = $this->wpdb->update(
 			$this->table_name,
@@ -175,8 +192,6 @@ class Workflow_Repository {
 				Workflow_Exception::FAILED_TO_UPDATE
 			);
 		}
-
-		return $data['id'];
 	}
 
 	/**
@@ -219,8 +234,10 @@ class Workflow_Repository {
 	 * @return Automation_Workflow
 	 */
 	protected function map_row_to_workflow( array $row ): Automation_Workflow {
-		$row['triggers']     = maybe_unserialize( $row['triggers'] );
-		$row['initial_step'] = maybe_unserialize( $row['initial_step'] );
+		$row['triggers']   = json_decode( $row['triggers'] );
+		$row['steps']      = json_decode( $row['steps'], true );
+		$row['updated_at'] = strtotime( $row['updated_at'] );
+		$row['created_at'] = strtotime( $row['created_at'] );
 
 		return new Automation_Workflow( $row );
 	}
