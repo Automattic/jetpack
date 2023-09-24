@@ -551,4 +551,40 @@ class Automation_Workflow {
 			}
 		}
 	}
+
+	/**
+	 * Set the timestamp for when the workflow was created.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $time The timestamp for when the workflow was created.
+	 * @return void
+	 */
+	public function set_created_at( int $time ): void {
+		$this->created_at = $time;
+	}
+
+	/**
+	 * Set the timestamp for when the workflow was last updated.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $time The timestamp for when the workflow was last updated.
+	 * @return void
+	 */
+	public function set_updated_at( int $time ): void {
+		$this->updated_at = $time;
+	}
+
+	/**
+	 * Set the id of the workflow.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int|string $id The workflow id.
+	 * @return void
+	 */
+	public function set_id( $id ): void {
+		$this->id = $id;
+	}
 }
