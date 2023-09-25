@@ -1,5 +1,5 @@
 import { useSelect } from '@wordpress/data';
-import { useCallback } from 'react';
+import { useCallback } from '@wordpress/element';
 
 /**
  * Prepares the URL to share.
