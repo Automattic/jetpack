@@ -120,10 +120,8 @@ class Workflow_Repository {
 	protected function prepare_data_to_persist( Automation_Workflow $workflow ): array {
 		$data = $workflow->to_array();
 
-		$data['triggers']   = wp_json_encode( $data['triggers'] );
-		$data['steps']      = wp_json_encode( $data['steps'] );
-		$data['updated_at'] = gmdate( 'Y-m-d H:i:s', $data['updated_at'] );
-		$data['created_at'] = gmdate( 'Y-m-d H:i:s', $data['created_at'] );
+		$data['triggers'] = wp_json_encode( $data['triggers'] );
+		$data['steps']    = wp_json_encode( $data['steps'] );
 
 		return $data;
 	}
@@ -234,10 +232,8 @@ class Workflow_Repository {
 	 * @return Automation_Workflow
 	 */
 	protected function map_row_to_workflow( array $row ): Automation_Workflow {
-		$row['triggers']   = json_decode( $row['triggers'] );
-		$row['steps']      = json_decode( $row['steps'], true );
-		$row['updated_at'] = strtotime( $row['updated_at'] );
-		$row['created_at'] = strtotime( $row['created_at'] );
+		$row['triggers'] = json_decode( $row['triggers'] );
+		$row['steps']    = json_decode( $row['steps'], true );
 
 		return new Automation_Workflow( $row );
 	}
