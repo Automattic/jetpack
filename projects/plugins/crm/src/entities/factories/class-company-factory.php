@@ -107,13 +107,6 @@ class Company_Factory extends Entity_Factory {
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function get_fields_map(): array {
-		return self::$field_map;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public static function get_entity_class(): ?string {
 		return Company::class;
 	}

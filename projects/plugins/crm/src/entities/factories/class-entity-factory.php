@@ -15,6 +15,19 @@ namespace Automattic\Jetpack\CRM\Entities\Factories;
 abstract class Entity_Factory {
 
 	/**
+	 * Database field name mapping.
+	 *
+	 * Each array entry represents a map of the database name and the corresponding model field.
+	 *
+	 * Example: array( 'db_column' => 'entity_property' ).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string[]
+	 */
+	protected static $field_map = array();
+
+	/**
 	 * Create the instance of the class based on the data from DAL.
 	 *
 	 * @param array $data The data to create the instance with.
@@ -154,7 +167,7 @@ abstract class Entity_Factory {
 	 * @return array The fields map.
 	 */
 	public static function get_fields_map(): array {
-		return array();
+		return static::$field_map;
 	}
 
 	/**
