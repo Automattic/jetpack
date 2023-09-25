@@ -362,7 +362,7 @@ class Automation_Workflow {
 			'category'     => $this->get_category(),
 			'triggers'     => $this->get_triggers(),
 			'steps'        => $this->get_steps(),
-			'initial_step' => $this->initial_step_idx(),
+			'initial_step' => $this->get_initial_step_index(),
 			'active'       => $this->is_active(),
 			'version'      => $this->get_version(),
 			'created_at'   => $this->get_created_at(),
@@ -378,16 +378,17 @@ class Automation_Workflow {
 	 * @return array|null The initial step data of the workflow.
 	 */
 	public function get_initial_step(): ?array {
-		return $this->steps[ $this->initial_step ] ?? null;
+		return $this->steps[ $this->get_initial_step_index() ] ?? null;
 	}
 
 	/**
 	 * Get the initial step index of this workflow.
 	 *
-	 * @return int|string|null The initial step index of the workflow.
 	 * @since $$next-version$$
+	 *
+	 * @return int The index key for the next step of the workflow.
 	 */
-	public function initial_step_idx(): int {
+	public function get_initial_step_index(): int {
 		return $this->initial_step;
 	}
 

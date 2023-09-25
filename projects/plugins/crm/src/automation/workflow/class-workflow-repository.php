@@ -40,7 +40,6 @@ class Workflow_Repository {
 	 * @global wpdb     $wpdb WordPress database abstraction object.
 	 * @global string[] $ZBSCRM_t An array of Jetpack CRM table names.
 	 * @since $$next-version$$
-	 *
 	 */
 	public function __construct() {
 		global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -72,6 +71,8 @@ class Workflow_Repository {
 
 	/**
 	 * Get all workflows.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return Automation_Workflow[]
 	 */
