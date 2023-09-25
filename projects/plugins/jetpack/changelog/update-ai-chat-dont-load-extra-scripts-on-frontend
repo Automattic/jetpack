@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-AI Chat: Remove extra request in $search->is_active() and only load initial state in editor
