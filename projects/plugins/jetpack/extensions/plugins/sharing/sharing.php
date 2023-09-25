@@ -27,7 +27,7 @@ add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_
  * Let's do the same thing when the module isn't active yet.
  */
 add_action(
-	'init',
+	'rest_api_init',
 	function () {
 		if ( ! \Jetpack::is_module_active( 'sharedaddy' ) ) {
 			$post_types = get_post_types( array( 'public' => true ) );
