@@ -55,7 +55,7 @@ const CountComparisonCard = ( { count, previousCount, icon, heading } ) => {
 					title={ Number.isFinite( count ) ? String( count ) : undefined }
 				>
 					{ numberFormat( count, shortenedNumberConfig ) }
-				</span>{ ' ' }
+				</span>
 				{ difference !== null ? (
 					<span
 						className={ classNames( styles[ 'stats-card-difference' ], {

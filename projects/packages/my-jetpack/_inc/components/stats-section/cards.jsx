@@ -10,7 +10,7 @@ import eye from './eye';
 import styles from './style.module.scss';
 
 /**
- * Stats section component.
+ * Stats cards component.
  *
  * @param {object} props                - Component props.
  * @param {object} props.counts         - Counts object for the current period.
