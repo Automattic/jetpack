@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add 127.0.0.1 into the list of known local domains.
