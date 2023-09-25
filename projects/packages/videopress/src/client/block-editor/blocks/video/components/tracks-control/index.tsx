@@ -168,9 +168,6 @@ export default function TracksControl( {
 				// these here because fetch behaves differently on simple sites
 				.catch( error => {
 					setFormErrorMessage( `Track error: ${ error?.message || error.error }` );
-				} )
-				.finally( () => {
-					setIsUploadingNewTrack( false );
 				} );
 		},
 		[ tracks ]
