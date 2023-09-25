@@ -171,6 +171,16 @@ export const CheckmarkIcon: React.FC< BaseIconProps > = ( {
 	</IconWrapper>
 );
 
+export const ClipboardIcon: React.FC< BaseIconProps > = ( {
+	size,
+	className = styles[ 'clipboard-icon' ],
+	color,
+} ) => (
+	<IconWrapper className={ className } size={ size } color={ color }>
+		<Path d="M5.625 5.5H15.375C15.444 5.5 15.5 5.55596 15.5 5.625V15.375C15.5 15.444 15.444 15.5 15.375 15.5H5.625C5.55596 15.5 5.5 15.444 5.5 15.375V5.625C5.5 5.55596 5.55596 5.5 5.625 5.5ZM4 5.625C4 4.72754 4.72754 4 5.625 4H15.375C16.2725 4 17 4.72754 17 5.625V10V15.375C17 16.2725 16.2725 17 15.375 17C15.375 17 6.52246 17 5.625 17C4.72754 17 4 16.2725 4 15.375V5.625ZM18.5 17.2812V8.28125H20V17.2812C20 18.7995 18.7704 20 17.2511 20H6.25V18.5H17.2511C17.9409 18.5 18.5 17.9721 18.5 17.2812Z" />
+	</IconWrapper>
+);
+
 export const JetpackIcon: React.FC< BaseIconProps > = ( {
 	size,
 	className = styles.jetpack,

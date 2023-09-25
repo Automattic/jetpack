@@ -10,11 +10,17 @@
  * and the option enabled.
  */
 function wpcom_lm_maybe_add_map_meta_cap_filter() {
+	// On REST API requests, wait until we switch to the correct blog to add the filter.
+	if ( defined( 'REST_REQUEST' ) && REST_REQUEST && 'plugins_loaded' === current_filter() ) {
+		return;
+	}
+
 	if ( wpcom_site_has_feature( WPCOM_Features::LOCKED_MODE ) && get_option( 'wpcom_locked_mode' ) ) {
 		add_filter( 'map_meta_cap', 'wpcom_lm_remove_post_capabilities', 10, 2 );
 	}
 }
 add_action( 'plugins_loaded', 'wpcom_lm_maybe_add_map_meta_cap_filter', 11 );
+add_action( 'rest_api_switched_to_blog', 'wpcom_lm_maybe_add_map_meta_cap_filter' );
 
 /**
  * Registers Locked Mode settings.
