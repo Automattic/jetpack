@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Changed the method to ensure the DB transactions inside tests and to have a clean DB on each test instead of using the JPCRM reset database function.
+
+
