@@ -245,7 +245,7 @@ final class Automation_Bootstrap {
 	 */
 	protected function register_workflows(): void {
 		$workflow_repository = new Workflow\Workflow_Repository();
-		$workflows           = $workflow_repository->find_all(
+		$workflows           = $workflow_repository->find_by(
 			array(
 				'active' => true,
 			)
