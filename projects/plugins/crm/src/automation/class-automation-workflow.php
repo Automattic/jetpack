@@ -589,4 +589,14 @@ class Automation_Workflow {
 	public function set_id( $id ): void {
 		$this->id = $id;
 	}
+
+	/**
+	 * Set the workflow category.
+	 *
+	 * @param string $category The workflow category.
+	 * @return void
+	 */
+	public function set_category( string $category ): void {
+		$this->category = $category;
+	}
 }
