@@ -27,7 +27,7 @@ export const title = __( 'Paywall', 'jetpack' );
 export const settings = {
 	title,
 	description: __(
-		'Content before this block will be shown in the excerpt on your archives page.',
+		'Only your chosen subscribers will have access to the content below this block.',
 		'jetpack'
 	),
 	icon: {

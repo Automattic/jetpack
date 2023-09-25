@@ -107,7 +107,25 @@ export async function handler( argv ) {
 		argv.project = allProjects();
 	}
 
+	// Check for unknown projects.
+	let missing = new Set();
+	argv.project = [ ...new Set( argv.project ) ];
+	if ( argv.project.length > 0 ) {
+		missing = new Set( argv.project.filter( p => ! dependencies.has( p ) ) );
+		if ( missing.size > 0 ) {
+			argv.project = argv.project.filter( p => dependencies.has( p ) );
+			// If there are no projects left, print now (then the next block will prompt).
+			// If run with `-v`, also print now in case the user wants to Ctrl+C. Without `-v`, rely on them paying attention to the listr list.
+			if ( argv.project.length === 0 || argv.v ) {
+				for ( const project of missing ) {
+					console.error( chalk.red( `Project ${ project } does not exist!` ) );
+				}
+			}
+		}
+	}
+
 	if ( argv.project.length === 0 ) {
+		missing.clear();
 		if ( argv.forMirrors ) {
 			console.error( 'Please specify projects on the command line with --for-mirrors' );
 			process.exit( 1 );
@@ -116,16 +134,6 @@ export async function handler( argv ) {
 		argv = await promptForProject( argv );
 		argv = await promptForDeps( argv );
 		argv.project = [ argv.project ];
-	}
-
-	// Check for unknown projects.
-	argv.project = [ ...new Set( argv.project ) ];
-	const missing = new Set( argv.project.filter( p => ! dependencies.has( p ) ) );
-	if ( missing.size ) {
-		for ( const project of missing ) {
-			console.error( chalk.red( `Project ${ project } does not exist!` ) );
-		}
-		argv.project = argv.project.filter( p => dependencies.has( p ) );
 	}
 
 	// Filter to just what we want to build.
@@ -181,17 +189,28 @@ export async function handler( argv ) {
 		mirrorMutex: pLimit( 1 ),
 		versions: {},
 	};
-	await listr.run( ctx ).catch( err => {
-		if ( argv.v && ctx.concurrent ) {
-			console.error( '\nThe following builds failed:' );
-			for ( const pkg of Object.keys( ctx.promises ).sort() ) {
-				if ( ctx.promises[ pkg ].status === 'rejected' && ctx.promises[ pkg ].buildStarted ) {
-					console.error( ` - ${ pkg }` );
+	await listr
+		.run( ctx )
+		.finally( () => {
+			if ( missing.size ) {
+				console.error( '' );
+				const wrap = argv.v ? v => v : chalk.red;
+				for ( const project of missing ) {
+					console.error( wrap( `Project ${ project } was ignored as it does not exist.` ) );
 				}
 			}
-		}
-		process.exit( err.exitCode || 1 );
-	} );
+		} )
+		.catch( err => {
+			if ( argv.v && ctx.concurrent ) {
+				console.error( '\nThe following builds failed:' );
+				for ( const pkg of Object.keys( ctx.promises ).sort() ) {
+					if ( ctx.promises[ pkg ].status === 'rejected' && ctx.promises[ pkg ].buildStarted ) {
+						console.error( ` - ${ pkg }` );
+					}
+				}
+			}
+			process.exit( err.exitCode || 1 );
+		} );
 }
 
 /**
