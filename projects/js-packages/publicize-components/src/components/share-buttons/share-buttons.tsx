@@ -4,11 +4,13 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useCallback } from '@wordpress/element';
 import { availableNetworks } from './available-networks';
 import styles from './styles.module.scss';
-import { ShareButtonProps } from './types';
 import { useShareButtonText } from './useShareButtonText';
 import type React from 'react';
 
-export type ShareButtonsProps = ShareButtonProps;
+export type ShareButtonsProps = {
+	buttonStyle?: 'icon' | 'text' | 'icon-text';
+	buttonVariant?: React.ComponentProps< typeof Button >[ 'variant' ];
+};
 
 /**
  * Renders share buttons
