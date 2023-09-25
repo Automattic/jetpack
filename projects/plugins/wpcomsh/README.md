@@ -270,7 +270,7 @@ wpcomsh includes [WP CLI](http://wp-cli.org/) commands. They are located in the 
 
 To learn more about writing WP CLI commands consult the [Commands Cookbook](https://make.wordpress.org/cli/handbook/commands-cookbook/).
 
-### Store support
+### Store Support
 
 wpcomsh adds the [wc-api-dev](https://github.com/woocommerce/wc-api-dev) plugin to support Store on WordPress.com
 
