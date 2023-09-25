@@ -387,9 +387,9 @@ class Automation_Workflow {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return int The index key for the next step of the workflow.
+	 * @return int|string|null The index key for the next step of the workflow.
 	 */
-	public function get_initial_step_index(): int {
+	public function get_initial_step_index() {
 		return $this->initial_step;
 	}
 
