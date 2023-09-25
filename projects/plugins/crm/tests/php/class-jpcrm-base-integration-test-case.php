@@ -19,7 +19,26 @@ class JPCRM_Base_Integration_Test_Case extends JPCRM_Base_Test_Case {
 	public function tear_down(): void {
 		parent::tear_down();
 
-		zeroBSCRM_database_reset( false );
+		global $wpdb;
+
+		// Rollback the transaction
+		$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	}
+
+	/**
+	 * Set up the database before each test.
+	 *
+	 * @since $$next-version$$
+	 *
+	 *  @return void
+	 */
+	public function set_up(): void {
+		parent::set_up();
+
+		global $wpdb;
+
+		// Start the SQL transaction
+		$wpdb->query( 'START TRANSACTION' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	}
 
 	/**
