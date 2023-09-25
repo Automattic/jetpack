@@ -99,7 +99,7 @@ function init() {
 	// Only load the logged in private and public coming soon modes.
 	if ( site_is_private() || site_is_public_coming_soon() ) {
 		require __DIR__ . '/logged-in-banner.php';
-		add_action( 'wp_head', '\Private_Site\show_logged_in_banner', -1000 );
+		add_action( 'wp_body_open', '\Private_Site\show_logged_in_banner', -1000 );
 	}
 
 	if ( ! site_is_private() ) {
