@@ -58,4 +58,15 @@ class Events_Manager {
 	public function invoice(): Invoice_Event {
 		return new Invoice_Event();
 	}
+
+	/**
+	 * Return the Transaction_Event instance.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return Transaction_Event A Transaction_Event instance.
+	 */
+	public function transaction(): Transaction_Event {
+		return new Transaction_Event();
+	}
 }

@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\CRM\Event_Manager\Tests;
 
 use Automattic\Jetpack\CRM\Event_Manager\Contact_Event;
 use Automattic\Jetpack\CRM\Event_Manager\Invoice_Event;
+use Automattic\Jetpack\CRM\Event_Manager\Transaction_Event;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '/class-event-manager-faker.php';
@@ -201,5 +202,65 @@ class Event_Manager_Test extends JPCRM_Base_Test_Case {
 
 		$invoice_event = new Invoice_Event();
 		$invoice_event->updated( $invoice_data );
+	}
+
+	/**
+	 * @testdox Test that transaction created event is fired
+	 */
+	public function test_notify_on_transaction_created() {
+
+		$transaction_data = Event_Manager_Faker::instance()->transaction_data();
+
+		add_action(
+			'jpcrm_transaction_created',
+			function ( $transaction ) use ( $transaction_data ) {
+				$this->assertEquals( $transaction, $transaction_data );
+			},
+			10,
+			1
+		);
+
+		$transaction_event = new Transaction_Event();
+		$transaction_event->created( $transaction_data );
+	}
+
+	/**
+	 * @testdox Test that transaction created event is fired
+	 */
+	public function test_notify_on_transaction_updated() {
+
+		$transaction_data = Event_Manager_Faker::instance()->transaction_data();
+
+		add_action(
+			'jpcrm_transaction_updated',
+			function ( $transaction ) use ( $transaction_data ) {
+				$this->assertEquals( $transaction, $transaction_data );
+			},
+			10,
+			1
+		);
+
+		$transaction_event = new Transaction_Event();
+		$transaction_event->updated( $transaction_data );
+	}
+
+	/**
+	 * @testdox Test that transaction deleted event is fired
+	 */
+	public function test_notify_on_transaction_deleted() {
+
+		$transaction_deleted_id = 12345;
+
+		add_action(
+			'jpcrm_transaction_deleted',
+			function ( $invoice_id ) use ( $transaction_deleted_id ) {
+				$this->assertEquals( $invoice_id, $transaction_deleted_id );
+			},
+			10,
+			1
+		);
+
+		$transaction_event = new Transaction_Event();
+		$transaction_event->deleted( $transaction_deleted_id );
 	}
 }
