@@ -111,27 +111,27 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return bool Whether the user has access to the content.
 	 */
 	protected function user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id ) {
-
+		$has_access = false;
 		if ( is_user_logged_in() && current_user_can( 'edit_post', $post_id ) ) {
 			// Admin has access
-			return true;
+			$has_access = true;
 		}
 
 		if ( empty( $access_level ) || $access_level === self::POST_ACCESS_LEVEL_EVERYBODY ) {
 			// empty level means the post is not gated for paid users
-			return true;
+			$has_access = true;
 		}
 
 		if ( $access_level === self::POST_ACCESS_LEVEL_SUBSCRIBERS ) {
-			return $is_blog_subscriber || $is_paid_subscriber;
+			$has_access = $is_blog_subscriber || $is_paid_subscriber;
 		}
 
 		if ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ) {
-			return $is_paid_subscriber;
+			$has_access = $is_paid_subscriber;
 		}
 
-		// This should not be a use case
-		return false;
+		do_action( 'earn_user_has_access', $access_level, $has_access, $is_blog_subscriber, $is_paid_subscriber, $post_id );
+		return $has_access;
 	}
 
 	/**
