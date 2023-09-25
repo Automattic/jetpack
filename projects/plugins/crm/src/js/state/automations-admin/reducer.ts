@@ -1,8 +1,7 @@
-import { findStep, getIdentifiedWorkflow } from './util';
 import type { AutomationsAction } from 'crm/state/automations-admin/actions';
-import type { IdentifiedWorkflow } from 'crm/state/automations-admin/types';
+import type { Workflow } from 'crm/state/automations-admin/types';
 
-export type WorkflowState = { [ workflowId: number ]: IdentifiedWorkflow };
+export type WorkflowState = { [ workflowId: number ]: Workflow };
 
 export const workflows = (
 	state: WorkflowState = {},
@@ -16,7 +15,7 @@ export const workflows = (
 			return action.workflows.reduce(
 				( newState, workflow ) => ( {
 					...newState,
-					[ workflow.id ]: getIdentifiedWorkflow( workflow ),
+					[ workflow.id ]: workflow,
 				} ),
 				{}
 			);
@@ -36,20 +35,22 @@ export const workflows = (
 				return state;
 			}
 
-			if ( ! state[ workflowId ] ) {
+			const workflow = state[ workflowId ];
+			if ( ! workflow ) {
 				return state;
 			}
 
-			const { step, previousStep, nextStep } = findStep( state[ workflowId ], stepId );
+			const step = workflow.steps[ stepId ];
 			if ( step ) {
 				const newAttributes = {
 					...step.attributes,
 					[ attribute.key ]: attribute.value,
 				};
-				const newStep = { ...step, attributes: newAttributes, nextStep };
-				previousStep
-					? ( previousStep.nextStep = newStep )
-					: ( state[ workflowId ].initial_step = newStep );
+
+				const newStep = { ...step, attributes: newAttributes };
+				const newWorkflow = { ...workflow, steps: { ...workflow.steps, [ newStep.id ]: newStep } };
+
+				return { ...state, [ workflow.id ]: newWorkflow };
 			}
 
 			return state;
