@@ -9,6 +9,7 @@
 	import { scoreChangeModal, ScoreChangeMessage } from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
+	import { dismissedPopOuts } from '../../../stores/config';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import { recordBoostEvent } from '../../../utils/analytics';
 	import { castToString } from '../../../utils/cast-to-string';
@@ -98,9 +99,15 @@
 
 	let modalData: ScoreChangeMessage | null = null;
 	$: modalData = ! isLoading && ! scores.isStale && scoreChangeModal( scores );
+	$: showModal = modalData && ! $dismissedPopOuts.includes( modalData.id );
 
 	function dismissModal() {
 		modalData = null;
+	}
+
+	async function disableModal( id ) {
+		await dismissedPopOuts.dismiss( id );
+		dismissModal();
 	}
 </script>
 
@@ -181,11 +188,11 @@
 	{/if}
 </div>
 
-{#if modalData}
+{#if showModal}
 	<PopOut
-		id={modalData.id}
 		title={modalData.title}
 		on:dismiss={() => dismissModal()}
+		on:disable-modal={() => disableModal( modalData.id )}
 		message={modalData.message}
 		ctaLink={modalData.ctaLink}
 		cta={modalData.cta}
