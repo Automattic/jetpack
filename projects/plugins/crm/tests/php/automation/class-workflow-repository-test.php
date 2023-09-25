@@ -74,4 +74,28 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_Test_Case {
 			$this->assertEquals( $workflows_persisted[ $workflow->get_id() ]->to_array(), $workflow->to_array() );
 		}
 	}
+
+	/**
+	 * @testdox Delete a Workflow by ID
+	 */
+	public function test_delete_workflow() {
+		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
+		$workflow      = new Automation_Workflow( $workflow_data );
+
+		$repo = new Workflow_Repository();
+		$repo->persist( $workflow );
+
+		$workflow_persisted = $repo->find( $workflow->get_id() );
+
+		// Check that it was persisted well
+		$this->assertEquals( $workflow->to_array(), $workflow_persisted->to_array() );
+
+		// Delete the workflow. We pass the same because it should be updated with the ID.
+		$repo->delete( $workflow );
+
+		// It should not be found anymore
+		$workflow_persisted = $repo->find( $workflow->get_id() );
+
+		$this->assertFalse( $workflow_persisted );
+	}
 }
