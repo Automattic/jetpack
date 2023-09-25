@@ -4,7 +4,7 @@ import { useCallback } from '@wordpress/element';
 /**
  * Prepares the text to share.
  *
- * @returns {(urlWithPlaceholders: string) => string} A function that accepts a URL with placeholders and returns a URL with the placeholders replaced.
+ * @returns {(textWithPlaceholders: string, isUrl: boolean) => string} A function that accepts the text with placeholders and returns the text with the placeholders replaced.
  */
 export function useShareButtonText() {
 	const { message, link } = useSelect( select => {
