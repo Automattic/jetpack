@@ -30,25 +30,19 @@ export default function SharingCheckbox() {
 
 	const { editPost } = useDispatch( editorStore );
 
-	if ( isLoadingModules ) {
-		return (
-			<PostTypeSupportCheck supportKeys="jetpack-sharing-buttons">
-				<JetpackLikesAndSharingPanel>
-					<SharingSkeletonLoader />
-				</JetpackLikesAndSharingPanel>
-			</PostTypeSupportCheck>
-		);
-	}
-
 	if ( ! isModuleActive ) {
 		return (
 			<PostTypeSupportCheck supportKeys="jetpack-sharing-buttons">
 				<JetpackLikesAndSharingPanel>
-					<SharingPlaceholder
-						changeStatus={ changeStatus }
-						isModuleActive={ isModuleActive }
-						isLoading={ isChangingStatus }
-					/>
+					{ isLoadingModules ? (
+						<SharingSkeletonLoader />
+					) : (
+						<SharingPlaceholder
+							changeStatus={ changeStatus }
+							isModuleActive={ isModuleActive }
+							isLoading={ isChangingStatus }
+						/>
+					) }
 				</JetpackLikesAndSharingPanel>
 			</PostTypeSupportCheck>
 		);
