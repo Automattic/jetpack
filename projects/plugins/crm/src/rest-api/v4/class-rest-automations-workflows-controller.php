@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\CRM\REST_API\V4;
 
+use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
+use Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository;
 use Exception;
 use WP_Error;
 use WP_REST_Request;
@@ -21,7 +23,15 @@ defined( 'ABSPATH' ) || exit;
  * @package Automattic\Jetpack\CRM
  * @since $$next-version$$
  */
-final class REST_Automation_Controller extends REST_Base_Objects_Controller {
+final class REST_Automations_Workflows_Controller extends REST_Base_Controller {
+
+	/**
+	 * The workflow repository.
+	 *
+	 * @since $$next-version$$
+	 * @var Workflow_Repository
+	 */
+	protected $workflow_repository;
 
 	/**
 	 * Constructor.
@@ -31,7 +41,8 @@ final class REST_Automation_Controller extends REST_Base_Objects_Controller {
 	public function __construct() {
 		parent::__construct();
 
-		$this->rest_base = 'automation';
+		$this->workflow_repository = new Workflow_Repository();
+		$this->rest_base           = 'automations';
 	}
 
 	/**
@@ -50,30 +61,31 @@ final class REST_Automation_Controller extends REST_Base_Objects_Controller {
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_workflows' ),
-					'permission_callback' => array( $this, 'automation_admin_permissions_check' ),
+					'callback'            => array( $this, 'get_items' ),
+					'permission_callback' => array( $this, 'get_item_permissions_check' ),
 				),
 			)
 		);
+
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/workflow',
+			'/' . $this->rest_base . '/workflow/(?P<id>[\d]+)',
 			array(
+				'args' => array(
+					'id' => array(
+						'description' => __( 'Unique identifier for the resource.', 'zero-bs-crm' ),
+						'type'        => 'integer',
+					),
+				),
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_workflow' ),
-					'permission_callback' => array( $this, 'automation_admin_permissions_check' ),
+					'callback'            => array( $this, 'get_item' ),
+					'permission_callback' => array( $this, 'get_item_permissions_check' ),
 				),
-			)
-		);
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/workflow',
-			array(
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'update_workflow' ),
-					'permission_callback' => array( $this, 'automation_admin_permissions_check' ),
+					'callback'            => array( $this, 'update_item' ),
+					'permission_callback' => array( $this, 'get_item_permissions_check' ),
 				),
 			)
 		);
@@ -87,9 +99,8 @@ final class REST_Automation_Controller extends REST_Base_Objects_Controller {
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_Error|WP_REST_Response
 	 */
-	public function get_workflows( $request ) {
+	public function get_items( $request ) {
 		try {
-			// TODO: Get the Workflows from the DB.
 			$workflows = array( 'Get Workflows from DB' );
 		} catch ( Exception $e ) {
 			return new WP_Error(
@@ -112,39 +123,17 @@ final class REST_Automation_Controller extends REST_Base_Objects_Controller {
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_Error|WP_REST_Response
 	 */
-	public function get_workflow( $request ) {
+	public function get_item( $request ) {
 		try {
-			// TODO: Get the Workflow from the DB.
-			$workflow = array(
-				'id'           => 'testing',
-				'name'         => 'New Contact',
-				'active'       => true,
-				'version'      => 1,
-				'description'  => 'This automation will change the status of a contact to "Customer" when they are created.',
-				'category'     => 'Contact',
-				'triggers'     => array(
-					'jpcrm/invoice_created',
-				),
-				'initial_step' => 'step_1',
-				'steps'        => array(
-					'step_1' => array(
-						'slug'       => 'jpcrm/update_contact_status',
-						'attributes' => array(
-							'new_status' => 'Customer',
-						),
-						'next_step'  => 'step_2',
-					),
-					'step_2' => array(
-						'slug'       => 'jpcrm/send_email',
-						'attributes' => array(
-							'to'      => 'admin@example.com',
-							'subject' => 'New Customer',
-							'body'    => 'A new customer has been created.',
-						),
-						'next_step'  => null,
-					),
-				),
-			);
+			$workflow = $this->workflow_repository->find( $request->get_param( 'id' ) );
+
+			if ( ! $workflow instanceof Automation_Workflow ) {
+				return new WP_Error(
+					'rest_invalid_workflow_id',
+					__( 'Invalid workflow ID.', 'zero-bs-crm' ),
+					array( 'status' => 404 )
+				);
+			}
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'rest_unknown_error',
@@ -153,9 +142,7 @@ final class REST_Automation_Controller extends REST_Base_Objects_Controller {
 			);
 		}
 
-		$data = $this->prepare_workflow_for_response( $workflow, $request );
-
-		return rest_ensure_response( $data );
+		return $this->prepare_workflow_for_response( $workflow, $request );
 	}
 
 	/**
@@ -166,40 +153,12 @@ final class REST_Automation_Controller extends REST_Base_Objects_Controller {
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_Error|WP_REST_Response
 	 */
-	public function update_workflow( $request ) {
+	public function update_item( $request ) {
 		try {
-			// TODO: Update the Workflow in the DB.
+			// TODO: Actually update the Workflow in the DB and not just fetch it.
 			$workflow_id = $request->get_param( 'id' );
-			$workflow    = array(
-				'id'           => $workflow_id,
-				'name'         => 'New Contact',
-				'active'       => true,
-				'version'      => 1,
-				'description'  => 'This automation will change the status of a contact to "Customer" when they are created.',
-				'category'     => 'Contact',
-				'triggers'     => array(
-					'jpcrm/invoice_created',
-				),
-				'initial_step' => 'step_1',
-				'steps'        => array(
-					'step_1' => array(
-						'slug'       => 'jpcrm/update_contact_status',
-						'attributes' => array(
-							'new_status' => 'Customer',
-						),
-						'next_step'  => 'step_2',
-					),
-					'step_2' => array(
-						'slug'       => 'jpcrm/send_email',
-						'attributes' => array(
-							'to'      => 'admin@example.com',
-							'subject' => 'New Customer',
-							'body'    => 'A new customer has been created.',
-						),
-						'next_step'  => null,
-					),
-				),
-			);
+
+			$workflow = $this->workflow_repository->find( $workflow_id );
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'rest_unknown_error',
@@ -208,9 +167,7 @@ final class REST_Automation_Controller extends REST_Base_Objects_Controller {
 			);
 		}
 
-		$data = $this->prepare_workflow_for_response( $workflow, $request );
-
-		return rest_ensure_response( $data );
+		return $this->prepare_workflow_for_response( $workflow, $request );
 	}
 
 	/**
@@ -221,7 +178,7 @@ final class REST_Automation_Controller extends REST_Base_Objects_Controller {
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error True if the request has read access for the workflows, WP_Error object otherwise.
 	 */
-	public function automation_admin_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function get_item_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$can_user_manage_workflows = zeroBSCRM_isZBSAdmin();
 
 		if ( is_wp_error( $can_user_manage_workflows ) ) {
@@ -258,8 +215,8 @@ final class REST_Automation_Controller extends REST_Base_Objects_Controller {
 		 * @since $$next-version$$
 		 *
 		 * @param WP_REST_Response $response The response object.
-		 * @param array $workflows The raw workflow array.
-		 * @param WP_REST_Request $request The request object.
+		 * @param array            $workflows The raw workflow array.
+		 * @param WP_REST_Request  $request The request object.
 		 */
 		return apply_filters( 'jpcrm_rest_prepare_workflows_array', $response, $workflows, $request );
 	}
@@ -274,6 +231,10 @@ final class REST_Automation_Controller extends REST_Base_Objects_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function prepare_workflow_for_response( $workflow, $request ) {
+		if ( $workflow instanceof Automation_Workflow ) {
+			$workflow = $workflow->to_array();
+		}
+
 		// Wrap the data in a response object.
 		$response = rest_ensure_response( $workflow );
 
@@ -283,8 +244,8 @@ final class REST_Automation_Controller extends REST_Base_Objects_Controller {
 		 * @since $$next-version$$
 		 *
 		 * @param WP_REST_Response $response The response object.
-		 * @param array $workflow The raw workflow object.
-		 * @param WP_REST_Request $request The request object.
+		 * @param array            $workflow The raw workflow object.
+		 * @param WP_REST_Request  $request The request object.
 		 */
 		return apply_filters( 'jpcrm_rest_prepare_workflow_object', $response, $workflow, $request );
 	}
