@@ -91,7 +91,7 @@ class Automation_Workflow {
 	 * The workflow active status.
 	 *
 	 * @since $$next-version$$
-	 * @var int
+	 * @var bool
 	 */
 	public $active;
 
@@ -443,7 +443,7 @@ class Automation_Workflow {
 	 * @return void
 	 */
 	public function turn_on(): void {
-		$this->active = 1;
+		$this->active = true;
 	}
 
 	/**
@@ -454,7 +454,7 @@ class Automation_Workflow {
 	 * @return void
 	 */
 	public function turn_off(): void {
-		$this->active = 0;
+		$this->active = false;
 	}
 
 	/**
@@ -465,7 +465,7 @@ class Automation_Workflow {
 	 * @return bool Whether the workflow is active.
 	 */
 	public function is_active(): bool {
-		return (int) $this->active === 1;
+		return $this->active;
 	}
 
 	/**
