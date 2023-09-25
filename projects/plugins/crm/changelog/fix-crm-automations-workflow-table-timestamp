@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Automations: Fixed a development issueaffecting workflow database creation.

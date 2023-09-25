@@ -7,7 +7,7 @@ export default function BlogrollAppenderResults( { results, showPlaceholder, onS
 			{ showPlaceholder && <div aria-autocomplete="list">{ __( 'Suggestions', 'jetpack' ) }</div> }
 
 			{ results.length === 0 && ! showPlaceholder && (
-				<div aria-autocomplete="none">{ __( 'No websites found.', 'jetpack' ) }</div>
+				<div role="status">{ __( 'No websites found.', 'jetpack' ) }</div>
 			) }
 			{ results.length > 0 && (
 				<ul aria-live="polite">
