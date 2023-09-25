@@ -142,7 +142,8 @@ then
 
 	RESPONSE=$(curl -s "$WOO_GH_API_URL")
 	WOO_LATEST_TAG=$(jq -r ".tag_name" <<< "$RESPONSE")
-	WOO_DL_URL=$(jq -r ".assets[0].browser_download_url" <<< "$RESPONSE")
+#	WOO_DL_URL=$(jq -r ".assets[0].browser_download_url" <<< "$RESPONSE")
+	WOO_DL_URL="https://github.com/woocommerce/woocommerce/releases/download/nightly/woocommerce-trunk-nightly.zip"
 
 	if [[ -n "$WOO_LATEST_TAG" && -n "$WOO_DL_URL" ]]; then
 		cd "/tmp"
