@@ -1,13 +1,13 @@
 import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { initStore } from '../../../state/store';
-import StatsSection from '../index.jsx';
+import StatsCards from '../cards.jsx';
 
 initStore();
 
 export default {
-	title: 'Packages/My Jetpack/Stats Section',
-	component: StatsSection,
+	title: 'Packages/My Jetpack/Stats Cards',
+	component: StatsCards,
 };
 
 const DefaultArgs = {
@@ -28,7 +28,7 @@ const DefaultArgs = {
 const Template = args => (
 	<HashRouter>
 		<Routes>
-			<Route path="/" element={ <StatsSection { ...args } /> } />
+			<Route path="/" element={ <StatsCards { ...args } /> } />
 		</Routes>
 	</HashRouter>
 );

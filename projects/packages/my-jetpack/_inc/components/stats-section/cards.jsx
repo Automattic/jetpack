@@ -16,9 +16,9 @@ import styles from './style.module.scss';
  * @param {object} props.counts         - Counts object for the current period.
  * @param {object} props.previousCounts - Counts object for the previous period.
  *
- * @returns {object} StatsSection React component.
+ * @returns {object} StatsCards React component.
  */
-const StatsSection = ( { counts, previousCounts } ) => {
+const StatsCards = ( { counts, previousCounts } ) => {
 	const { detail } = useProduct( 'stats' );
 
 	return (
@@ -77,4 +77,4 @@ const StatsSection = ( { counts, previousCounts } ) => {
 	);
 };
 
-export default StatsSection;
+export default StatsCards;
