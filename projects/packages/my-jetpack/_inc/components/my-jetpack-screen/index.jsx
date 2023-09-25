@@ -28,6 +28,7 @@ import ConnectionsSection from '../connections-section';
 import IDCModal from '../idc-modal';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
+import StatsSection from '../stats-section';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, options, clean } ) => {
@@ -83,6 +84,7 @@ const GlobalNotice = ( { message, options, clean } ) => {
  */
 export default function MyJetpackScreen() {
 	useConnectionWatcher();
+	const isStatsModuleActive = window?.myJetpackInitialState?.isStatsModuleActive === '1';
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { isAvailable, isFetchingChatAvailability } = useChatAvailability();
@@ -132,6 +134,11 @@ export default function MyJetpackScreen() {
 					{ message && (
 						<Col>
 							<GlobalNotice message={ message } options={ options } clean={ clean } />
+						</Col>
+					) }
+					{ isStatsModuleActive && (
+						<Col className={ styles.stats }>
+							<StatsSection />
 						</Col>
 					) }
 					<Col>
