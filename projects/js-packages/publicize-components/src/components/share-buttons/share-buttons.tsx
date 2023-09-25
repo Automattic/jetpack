@@ -5,16 +5,20 @@ import { availableNetworks } from './available-networks';
 import { CopyToClipboard } from './copy-to-clipboard';
 import styles from './styles.module.scss';
 import { ShareButtonProps } from './types';
-import { usePrepareUrl } from './usePrepareUrl';
+import { useShareButtonText } from './useShareButtonText';
 import type React from 'react';
 
 export type ShareButtonsProps = ShareButtonProps;
 
-export const ShareButtons: React.FC< ShareButtonsProps > = ( {
-	buttonStyle = 'icon',
-	buttonVariant,
-} ) => {
-	const prepareUrl = usePrepareUrl();
+/**
+ * Renders share buttons
+ *
+ * @param {ShareButtonsProps} props - Component props
+ *
+ * @returns {React.JSX.Element} - Rendered component
+ */
+export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButtonsProps ) {
+	const prepareUrl = useShareButtonText();
 
 	const { recordEvent } = useAnalytics();
 
@@ -63,4 +67,4 @@ export const ShareButtons: React.FC< ShareButtonsProps > = ( {
 			<CopyToClipboard buttonStyle={ buttonStyle } buttonVariant={ buttonVariant } />
 		</div>
 	);
-};
+}

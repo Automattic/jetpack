@@ -3,21 +3,27 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useCallback } from '@wordpress/element';
 import styles from './styles.module.scss';
 import { ShareButtonProps } from './types';
-import { usePrepareUrl } from './usePrepareUrl';
+import { useShareButtonText } from './useShareButtonText';
 import type React from 'react';
 
-export const CopyToClipboard: React.FC< ShareButtonProps > = ( {
-	buttonStyle = 'icon',
-	buttonVariant,
-} ) => {
-	const prepareUrl = usePrepareUrl();
+/**
+ * Copy to clipboard button
+ * @param {ShareButtonProps} props - Component props
+ *
+ * @returns {React.JSX.Element} - Rendered component
+ */
+export function CopyToClipboard( { buttonStyle = 'icon', buttonVariant }: ShareButtonProps ) {
+	const prepareText = useShareButtonText();
 	const { recordEvent } = useAnalytics();
 
 	const onCopy = useCallback( () => {
 		recordEvent( 'jetpack_social_share_button_clicked', { network: 'clipboard' } );
 	}, [ recordEvent ] );
 
-	const textToCopy = useCallback( () => prepareUrl( '{{text}}\n{{url}}', false ), [ prepareUrl ] );
+	const textToCopy = useCallback(
+		() => prepareText( '{{text}}\n{{url}}', false ),
+		[ prepareText ]
+	);
 
 	return (
 		<CopyToClipboardBtn
@@ -28,4 +34,4 @@ export const CopyToClipboard: React.FC< ShareButtonProps > = ( {
 			variant={ buttonVariant }
 		/>
 	);
-};
+}

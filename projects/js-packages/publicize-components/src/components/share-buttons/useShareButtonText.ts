@@ -2,11 +2,11 @@ import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 
 /**
- * Prepares the URL to share.
+ * Prepares the text to share.
  *
  * @returns {(urlWithPlaceholders: string) => string} A function that accepts a URL with placeholders and returns a URL with the placeholders replaced.
  */
-export function usePrepareUrl() {
+export function useShareButtonText() {
 	const { message, link } = useSelect( select => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const getEditedPostAttribute = ( select( 'core/editor' ) as any )
@@ -23,21 +23,21 @@ export function usePrepareUrl() {
 	}, [] );
 
 	return useCallback(
-		( urlWithPlaceholders: string, urlEncode = true ) => {
+		( textWithPlaceholders: string, isUrl = true ) => {
 			let text = message;
 			let url = link;
 			// If the URL placeholder is missing, add the URL to the text.
-			if ( ! urlWithPlaceholders.includes( '{{url}}' ) ) {
+			if ( ! textWithPlaceholders.includes( '{{url}}' ) ) {
 				text = text + '\n\n' + url;
 				url = '';
 			}
 
-			if ( urlEncode ) {
+			if ( isUrl ) {
 				text = encodeURIComponent( text );
 				url = encodeURIComponent( url );
 			}
 
-			return urlWithPlaceholders.replace( '{{text}}', text ).replace( '{{url}}', url );
+			return textWithPlaceholders.replace( '{{text}}', text ).replace( '{{url}}', url );
 		},
 		[ link, message ]
 	);
