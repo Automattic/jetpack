@@ -88,9 +88,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Choose a plan', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function () {
+			'get_calypso_path'     => function ( $task, $default, $data ) {
 				$flow = get_option( 'site_intent' );
-				return '/setup/' . $flow . '/plans/';
+				return '/setup/' . $flow . '/plans/?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
 		'plan_selected'                   => array(
@@ -266,7 +266,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Launch your blog', 'jetpack-mu-wpcom' );
 			},
 			'isLaunchTask'          => true,
-			'is_disabled_callback'  => 'wpcom_launchpad_is_blog_launch_disabled',
+			'is_disabled_callback'  => 'wpcom_launchpad_is_blog_launched_disabled',
 			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'setup_blog'                      => array(
@@ -1115,7 +1115,7 @@ function wpcom_launchpad_is_videopress_launch_disabled() {
  *
  * @return boolean True if blog launch task is enabled
  */
-function wpcom_launchpad_is_blog_launch_disabled() {
+function wpcom_launchpad_is_blog_launched_disabled() {
 	if ( 'design-first' === get_option( 'site_intent' ) ) {
 		return ! wpcom_is_checklist_task_complete( 'plan_completed' )
 			|| ! wpcom_is_checklist_task_complete( 'domain_upsell' )
