@@ -5,7 +5,7 @@
 ## [0.42.5] - 2023-09-25
 ### Added
 - Added WhatsApp social icon. [#33074]
-- Aded CopyToClipboard component. [#33265]
+- Added CopyToClipboard component. [#33265]
 
 ## [0.42.4] - 2023-09-19
 
