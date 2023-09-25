@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adds a feature to include helpers for the First Posts stream. In particular, an option is being added to the sync list.
