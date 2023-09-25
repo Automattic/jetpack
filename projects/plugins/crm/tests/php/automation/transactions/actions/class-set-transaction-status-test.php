@@ -49,7 +49,7 @@ class Set_Transaction_Status_Test extends JPCRM_Base_Integration_Test_Case {
 			'name'         => 'Set Transaction Action Workflow Test',
 			'description'  => 'This is a test',
 			'category'     => 'Test',
-			'is_active'    => true,
+			'active'       => true,
 			'triggers'     => array(
 				Transaction_Created::get_slug(),
 			),
@@ -71,7 +71,12 @@ class Set_Transaction_Status_Test extends JPCRM_Base_Integration_Test_Case {
 		$automation->add_workflow( $workflow );
 		$automation->init_workflows();
 
+		$workflow->get_logger()->turn_on();
+
 		$transaction_id = $this->add_transaction( array( 'status' => 'Draft' ) );
+
+		$workflow->get_logger()->turn_off();
+		$workflow->get_logger()->formatted_log( true );
 
 		$transaction = $zbs->DAL->transactions->getTransaction( $transaction_id );
 		$this->assertSame( 'Paid', $transaction['status'] );
