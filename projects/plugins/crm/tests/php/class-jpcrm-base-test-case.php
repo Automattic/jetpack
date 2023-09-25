@@ -67,6 +67,7 @@ class JPCRM_Base_Test_Case extends WP_UnitTestCase {
 				'fname'    => 'John',
 				'lname'    => 'Doe',
 				'email'    => 'dev@domain.null',
+				'status'   => 'Lead',
 				'addr1'    => 'My Street 1',
 				'addr2'    => 'First floor',
 				'city'     => 'New York',
