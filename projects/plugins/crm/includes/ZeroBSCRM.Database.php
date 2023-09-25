@@ -885,6 +885,7 @@ function zeroBSCRM_createTables(){
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['automation-workflows'] . '(
 	`id` INT NOT NULL AUTO_INCREMENT,
 	`zbs_site` INT NOT NULL,
+	`zbs_team` INT NOT NULL,
 	`zbs_owner` INT NOT NULL,
 	`name` VARCHAR(255) NOT NULL,
 	`description` VARCHAR(600) NULL DEFAULT NULL,
