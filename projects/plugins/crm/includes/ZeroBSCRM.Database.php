@@ -56,7 +56,7 @@ global $wpdb, $ZBSCRM_t;
   $ZBSCRM_t['eventreminders']         = $wpdb->prefix . "zbs_event_reminders";
   $ZBSCRM_t['tax']                    = $wpdb->prefix . "zbs_tax_table";
   $ZBSCRM_t['security_log']           = $wpdb->prefix . "zbs_security_log";
-  $ZBSCRM_t['automation-workflows']   = $wpdb->prefix . 'zbs_workflows'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Universal.WhiteSpace.PrecisionAlignment.Found
+  $ZBSCRM_t['automation-workflows']  = $wpdb->prefix . 'zbs_workflows'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Universal.WhiteSpace.PrecisionAlignment.Found
 
 
 /**
