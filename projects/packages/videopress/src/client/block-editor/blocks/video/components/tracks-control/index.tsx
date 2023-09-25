@@ -170,7 +170,7 @@ export default function TracksControl( {
 					setFormErrorMessage( `Track error: ${ error?.message || error.error }` );
 				} )
 				.finally( () => {
-					setIsUploadingNewTrack( true );
+					setIsUploadingNewTrack( false );
 				} );
 		},
 		[ tracks ]
