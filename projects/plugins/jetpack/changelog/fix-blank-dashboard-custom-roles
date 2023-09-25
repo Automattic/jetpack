@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Dashboard: avoid errors when dashboard is accessed by WordPress users with a custom non-admin role.

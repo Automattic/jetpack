@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Handle connection error codes and display proper error messages. Enabled for the "private network" error only at the moment.
