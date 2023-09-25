@@ -77,9 +77,9 @@ class Workflow_Repository {
 	 *
 	 * @return Automation_Workflow[]
 	 */
-	public function find_all( $args ): array {
+	public function find_all( array $args = array() ): array {
 		/** @todo Expand allowed arguments. */
-		if ( isset( $args['active'] ) ) {
+		if ( empty( $args ) && isset( $args['active'] ) ) {
 			$query = $this->wpdb->prepare( "SELECT * FROM {$this->table_name} WHERE active=%d", (int) $args['active'] ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		} else {
 			$query = "SELECT * FROM {$this->table_name}"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
