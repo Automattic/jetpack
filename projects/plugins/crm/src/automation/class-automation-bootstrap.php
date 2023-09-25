@@ -247,7 +247,7 @@ final class Automation_Bootstrap {
 		$workflow_repository = new Workflow\Workflow_Repository();
 		$workflows           = $workflow_repository->find_all(
 			array(
-				'active' => 1,
+				'active' => true,
 			)
 		);
 
