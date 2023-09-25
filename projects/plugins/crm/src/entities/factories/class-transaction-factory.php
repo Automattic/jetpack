@@ -31,7 +31,7 @@ class Transaction_Factory extends Entity_Factory {
 		'zbst_parent'         => 'parent',
 		'zbst_hash'           => 'hash',
 		'zbst_title'          => 'title',
-		'zbst_desc'           => 'description',
+		'zbst_desc'           => 'desc',
 		'zbst_date'           => 'date',
 		'zbst_customer_ip'    => 'customer_ip',
 		'zbst_currency'       => 'currency',
@@ -92,7 +92,7 @@ class Transaction_Factory extends Entity_Factory {
 			return false;
 		}
 
-		$valid_fields = array( 'type', 'ref', 'origin' );
+		$valid_fields = array( 'type', 'ref', 'currency' );
 
 		foreach ( $valid_fields as $field ) {
 			if ( ! array_key_exists( $field, $tidy_transaction ) ) {

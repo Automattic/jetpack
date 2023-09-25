@@ -25,12 +25,12 @@ class Task_Factory extends Entity_Factory {
 		'ID'                  => 'id',
 		'zbs_owner'           => 'owner',
 		'zbse_title'          => 'title',
-		'zbse_desc'           => 'description',
+		'zbse_desc'           => 'desc',
 		'zbse_start'          => 'start',
 		'zbse_end'            => 'end',
-		'zbse_complete'       => 'is_completed',
-		'zbse_show_on_portal' => 'show_in_portal',
-		'zbse_show_on_cal'    => 'show_in_calendar',
+		'zbse_complete'       => 'complete',
+		'zbse_show_on_portal' => 'show_on_portal',
+		'zbse_show_on_cal'    => 'show_on_calendar',
 		'zbse_created'        => 'created',
 		'zbse_lastupdated'    => 'lastupdated',
 	);
@@ -77,7 +77,7 @@ class Task_Factory extends Entity_Factory {
 			return false;
 		}
 
-		$valid_fields = array( 'title', 'description', 'start' );
+		$valid_fields = array( 'title', 'desc', 'start' );
 
 		foreach ( $valid_fields as $field ) {
 			if ( ! array_key_exists( $field, $tidy_task ) ) {
