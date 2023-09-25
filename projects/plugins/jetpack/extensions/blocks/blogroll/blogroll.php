@@ -69,7 +69,7 @@ HTML;
 /**
  * Register site_recommendations settings
  *
- * @since $$next-version$$
+ * @since 12.7
  */
 function site_recommendations_settings() {
 	register_setting(
