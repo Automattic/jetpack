@@ -154,7 +154,7 @@ class Automation_Workflow {
 		$this->category     = $workflow_data['category'] ?? '';
 		$this->active       = $workflow_data['active'] ?? false;
 		$this->version      = $workflow_data['version'] ?? 1;
-		$this->created_at   = $workflow_data['created_at'] ?? 0;
+		$this->created_at   = $workflow_data['created_at'] ?? null;
 		$this->updated_at   = $workflow_data['updated_at'] ?? null;
 	}
 
