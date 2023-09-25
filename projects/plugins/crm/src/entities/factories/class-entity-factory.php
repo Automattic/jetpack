@@ -23,7 +23,6 @@ abstract class Entity_Factory {
 	 * Example: array( 'db_column' => 'entity_property' ).
 	 *
 	 * @since $$next-version$$
-	 *
 	 * @var string[]
 	 */
 	protected static $field_map = array();
@@ -33,6 +32,7 @@ abstract class Entity_Factory {
 	 *
 	 * For tags, invoices, transactions, quotes, tasks, etc.
 	 *
+	 * @since $$next-version$$
 	 * @var string[]
 	 */
 	protected static $associative_field_map = array();
@@ -40,8 +40,9 @@ abstract class Entity_Factory {
 	/**
 	 * Create the instance of the class based on the data from DAL.
 	 *
-	 * @param array $data The data to create the instance with.
+	 * @since $$next-version$$
 	 *
+	 * @param array $data The data to create the instance with.
 	 * @return mixed The entity instance.
 	 */
 	abstract public static function create( array $data );
@@ -49,9 +50,11 @@ abstract class Entity_Factory {
 	/**
 	 * Create the entity instance from a generic/tidy data array.
 	 *
-	 * @param array $tidy_data An array with the tidy data from DAL.
+	 * @since $$next-version$$
 	 *
+	 * @param array $tidy_data An array with the tidy data from DAL.
 	 * @return mixed The entity instance.
+	 *
 	 * @throws Factory_Exception If the entity class is invalid.
 	 */
 	protected static function create_from_tidy_data( array $tidy_data ) {
@@ -82,9 +85,11 @@ abstract class Entity_Factory {
 	/**
 	 * Create the entity instance from the database data array.
 	 *
-	 * @param array $db_data The data array from the database.
+	 * @since $$next-version$$
 	 *
+	 * @param array $db_data The data array from the database.
 	 * @return mixed The entity instance.
+	 *
 	 * @throws Factory_Exception If the entity class is invalid.
 	 */
 	protected static function create_from_db( array $db_data ) {
@@ -104,9 +109,11 @@ abstract class Entity_Factory {
 	/**
 	 * Get the data (tidy) as an array from the entity instance.
 	 *
-	 * @param mixed $entity The entity instance.
+	 * @since $$next-version$$
 	 *
+	 * @param mixed $entity The entity instance.
 	 * @return array The tidy data array.
+	 *
 	 * @throws Factory_Exception If the entity class is invalid.
 	 */
 	public static function tidy_data( $entity ): array {
@@ -129,6 +136,8 @@ abstract class Entity_Factory {
 
 	/**
 	 * Get the data from the entity instance as an array ready for the database.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param mixed $entity The entity instance.
 	 * @return array The data array for the DAL.
@@ -156,6 +165,8 @@ abstract class Entity_Factory {
 	/**
 	 * Create an empty entity instance.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return mixed The entity instance.
 	 * @throws Factory_Exception If the entity class is invalid.
 	 */
@@ -174,6 +185,8 @@ abstract class Entity_Factory {
 	 *
 	 * 'db_column' => 'entity_property'
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return array The fields map.
 	 */
 	public static function get_fields_map(): array {
@@ -185,6 +198,8 @@ abstract class Entity_Factory {
 	 *
 	 * tags, files, etc.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return array The associative fields map.
 	 */
 	public static function get_associative_field_map(): array {
@@ -193,6 +208,8 @@ abstract class Entity_Factory {
 
 	/**
 	 * Return the entity class handle by the Factory.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return string|null The entity class.
 	 */

@@ -20,6 +20,7 @@ class Company_Factory extends Entity_Factory {
 	/**
 	 * Company DB field name mapping. db_field => model_field.
 	 *
+	 * @since $$next-version$$
 	 * @var array
 	 */
 	protected static $field_map = array(
@@ -57,6 +58,7 @@ class Company_Factory extends Entity_Factory {
 	 *
 	 * For tags, invoices, transactions, quotes, tasks...
 	 *
+	 * @since $$next-version$$
 	 * @var array
 	 */
 	protected static $associative_field_map = array(
@@ -66,9 +68,11 @@ class Company_Factory extends Entity_Factory {
 	/**
 	 * Get the company instance based on the $data array.
 	 *
-	 * @param array $data The company data from the DAL.
+	 * @since $$next-version$$
 	 *
+	 * @param array $data The company data from the DAL.
 	 * @return mixed The company instance.
+	 *
 	 * @throws Factory_Exception If the data passed is invalid.
 	 */
 	public static function create( array $data ) {
@@ -84,6 +88,8 @@ class Company_Factory extends Entity_Factory {
 
 	/**
 	 * Validate the data array (Tidy from DAL)
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array $tidy_company The tidy data array.
 	 * @return bool If it's valid or not.
