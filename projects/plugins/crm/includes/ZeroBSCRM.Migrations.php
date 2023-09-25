@@ -1107,7 +1107,7 @@ function zeroBSCRM_migration_560() { // phpcs:ignore WordPress.NamingConventions
 }
 
 /**
- * Migration 6.1.1
+ * Migration create_workflows_table
  *
  * This migration will:
  * - Make sure all tables are up-to-date. Practically speaking, then we're creating a new "workflows" table.

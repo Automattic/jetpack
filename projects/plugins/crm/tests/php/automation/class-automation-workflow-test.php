@@ -75,7 +75,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 				),
 			)
 		);
-		$workflow->set_initial_step_id( 0 );
+		$workflow->set_initial_step( 0 );
 
 		$contact_data      = $this->automation_faker->contact_data();
 		$automation_result = $workflow->execute( new Contact_Updated(), $contact_data );
@@ -227,7 +227,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 				),
 			)
 		);
-		$workflow->set_initial_step_id( 0 );
+		$workflow->set_initial_step( 0 );
 
 		// Add and init the workflows
 		$automation->add_workflow( $workflow );
