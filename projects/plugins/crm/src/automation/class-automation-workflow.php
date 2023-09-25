@@ -120,22 +120,6 @@ class Automation_Workflow {
 	protected $updated_at;
 
 	/**
-	 * A timestamp that reflects when the workflow was created.
-	 *
-	 * @since $$next-version$$
-	 * @var int
-	 */
-	protected $created_at;
-
-	/**
-	 * A timestamp that reflects when the workflow was last updated.
-	 *
-	 * @since $$next-version$$
-	 * @var int
-	 */
-	protected $updated_at;
-
-	/**
 	 * The automation engine.
 	 *
 	 * @since $$next-version$$
