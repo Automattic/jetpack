@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Replace PHPUnit deprecated `assertObject(Not)HasAttribute` with `assertObject(Not)HasAttribute` (via yoast polyfills for older versions). No change to the package itself.
+
+
