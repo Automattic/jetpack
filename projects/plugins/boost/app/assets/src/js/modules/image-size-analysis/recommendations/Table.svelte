@@ -3,17 +3,19 @@
 	import Spinner from '../../../elements/Spinner.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
-	import { ISA_Data, isaData, isaDataLoading } from '../store/isa-data';
-	import { ISAStatus, isaSummary } from '../store/isa-summary';
+	import { type ISA_Data } from '../store/isa-data';
+	import { ISAStatus, type ISASummary } from '../store/isa-summary';
 	import BrokenDataRow from './row-types/BrokenDataRow.svelte';
 	import ImageMissingRow from './row-types/ImageMissingRow.svelte';
 	import ImageSizeRow from './row-types/ImageSizeRow.svelte';
 	import LoadingRow from './row-types/LoadingRow.svelte';
 
-	$: activeFilter = $isaData.query.group === 'ignored' ? 'ignored' : 'active';
-
 	export let needsRefresh: boolean;
 	export let refresh: () => Promise< void >;
+	export let isaDataLoading: boolean;
+	export let activeGroup: string;
+	export let images: ISA_Data[];
+	export let isaSummary: ISASummary | null;
 
 	let isLoading = false;
 	let ignoreStatusUpdated = false;
@@ -24,26 +26,27 @@
 		}
 		isLoading = loading;
 	}
-	$: delayedLoadingUpdate( $isaDataLoading );
+	$: delayedLoadingUpdate( isaDataLoading );
 
-	function getActiveImages( images: ISA_Data[], loading: boolean ) {
+	function getActiveImages( _images: ISA_Data[], loading: boolean ) {
 		// Return no rows while loading. The UI will auto-pad it with loading rows.
 		if ( loading ) {
 			return [];
 		}
 
 		// If the user is switching between tabs, we want to show the images that are already loaded
-		const filteredImages = images.filter( image => image.status === activeFilter );
+		const filteredImages = _images.filter( image => image.status === activeFilter );
 		if ( filteredImages.length === 0 && loading ) {
-			return images;
+			return _images;
 		}
 
 		// Show filtered images
 		return filteredImages;
 	}
 
-	$: activeImages = getActiveImages( $isaData.data.images, isLoading );
-	$: jobFinished = $isaSummary?.status === ISAStatus.Completed;
+	$: activeImages = getActiveImages( images, isLoading );
+	$: jobFinished = isaSummary?.status === ISAStatus.Completed;
+	$: activeFilter = activeGroup === 'ignored' ? 'ignored' : 'active';
 </script>
 
 <div class="jb-loading-spinner" class:active={isLoading}>
@@ -83,9 +86,9 @@
 			<!-- Actual data -->
 			{#each activeImages as image (image.id)}
 				{#if image.type === 'image_size'}
-					<ImageSizeRow enableTransition={$isaData.data.images.length > 0} details={image} />
+					<ImageSizeRow enableTransition={images.length > 0} details={image} />
 				{:else if image.type === 'image_missing'}
-					<ImageMissingRow enableTransition={$isaData.data.images.length > 0} details={image} />
+					<ImageMissingRow enableTransition={images.length > 0} details={image} />
 				{:else}
 					<BrokenDataRow />
 				{/if}

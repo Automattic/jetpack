@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+WP.com Compatibility: abort out early checking if Protect is active. WP.com's protection is not site option based.
