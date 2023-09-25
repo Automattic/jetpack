@@ -9,7 +9,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require __DIR__ . '/classes/class-jetpack-woocommerce-analytics-trait.php';
 require_once __DIR__ . '/classes/class-jetpack-woocommerce-analytics-universal.php';
+require_once __DIR__ . '/classes/class-jetpack-woocommerce-analytics-my-account.php';
 
 /**
  * Class Jetpack_WooCommerce_Analytics
@@ -27,9 +29,16 @@ class Jetpack_WooCommerce_Analytics {
 	/**
 	 * Instance of the Universal functions
 	 *
-	 * @var Static property to hold concrete analytics impl that does the work (universal or legacy)
+	 * @var Static property to hold concrete analytics implementation that does the work (universal or legacy)
 	 */
 	private static $analytics = false;
+
+	/**
+	 * Instance of the My account functions
+	 *
+	 * @var Static property to hold concrete analytics implementation that does the work.
+	 */
+	private static $myaccount = false;
 
 	/**
 	 * WooCommerce Analytics is only available to Jetpack connected WooCommerce stores with both plugins set to active
@@ -69,6 +78,7 @@ class Jetpack_WooCommerce_Analytics {
 	 */
 	private function __construct() {
 		self::$analytics = new Jetpack_WooCommerce_Analytics_Universal();
+		self::$myaccount = new Jetpack_WooCommerce_Analytics_My_Account();
 	}
 
 	/**

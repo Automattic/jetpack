@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Disallow private IP addresses for site connection.

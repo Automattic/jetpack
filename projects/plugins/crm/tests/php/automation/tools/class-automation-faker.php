@@ -61,17 +61,21 @@ class Automation_Faker {
 			'name'         => 'Workflow Test: basic_workflow',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
-			'is_active'    => true,
+			'active'       => true,
 			'triggers'     => array(
 				'jpcrm/contact_created',
 			),
-			'initial_step' => array(
-				'slug'       => 'send_email_action',
-				'attributes' => array(
-					'to'       => 'admin@example.com',
-					'template' => 'send_welcome_email',
+			'initial_step' => 0,
+			'steps'        => array(
+				// Step 0
+				0 => array(
+					'slug'       => 'send_email_action',
+					'attributes' => array(
+						'to'       => 'admin@example.com',
+						'template' => 'send_welcome_email',
+					),
+					'next_step'  => null,
 				),
-				'next_step'  => null,
 			),
 		);
 	}
@@ -85,7 +89,7 @@ class Automation_Faker {
 			'name'        => 'Workflow Test: without_initial_step',
 			'description' => 'Test: the description of the workflow',
 			'category'    => 'Test',
-			'is_active'   => true,
+			'active'      => true,
 			'triggers'    => array(
 				'jpcrm/contact_created',
 			),
@@ -104,7 +108,7 @@ class Automation_Faker {
 			'name'        => 'Workflow Test: without_initial_step_customize_trigger',
 			'description' => 'Test: the description of the workflow',
 			'category'    => 'Test',
-			'is_active'   => true,
+			'active'      => true,
 			'triggers'    => array(
 				$trigger_name,
 			),
@@ -182,22 +186,28 @@ class Automation_Faker {
 			'name'         => 'Workflow Test: with_condition_action',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
-			'is_active'    => true,
+			'active'       => true,
 			'triggers'     => array(
 				'jpcrm/contact_created',
 			),
-			'initial_step' => array(
-				'slug'            => 'contact_status_condition',
-				'class_name'      => Contact_Condition::class,
-				'attributes'      => array(
-					'field'    => 'status',
-					'operator' => 'is',
-					'value'    => 'lead',
+			'initial_step' => 0,
+			'steps'        => array(
+				// Step 0
+				0 => array(
+					'slug'            => 'contact_status_condition',
+					'class_name'      => Contact_Condition::class,
+					'attributes'      => array(
+						'field'    => 'status',
+						'operator' => 'is',
+						'value'    => 'lead',
+					),
+					'next_step_true'  => 1,
+					'next_step_false' => null,
 				),
-				'next_step_true'  => array(
+				// Step 1
+				1 => array(
 					'slug' => 'dummy_step',
 				),
-				'next_step_false' => null,
 			),
 		);
 	}
@@ -211,19 +221,25 @@ class Automation_Faker {
 			'name'         => 'Workflow Test: with_condition_customizable_trigger_action',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
-			'is_active'    => true,
+			'active'       => true,
 			'triggers'     => array(
 				$trigger_slug,
 			),
-			'initial_step' => array(
-				'slug'            => Contact_Field_Changed::get_slug(),
-				'attributes'      => array(
-					'field'    => 'status',
-					'operator' => 'is',
-					'value'    => 'Lead',
+			'initial_step' => 0,
+			'steps'        => array(
+				// Step 0
+				0 => array(
+					'slug'            => Contact_Field_Changed::get_slug(),
+					'attributes'      => array(
+						'field'    => 'status',
+						'operator' => 'is',
+						'value'    => 'Lead',
+					),
+					'next_step_true'  => 1,
+					'next_step_false' => null,
 				),
-				'next_step_true'  => $action_data,
-				'next_step_false' => null,
+				// Step 1
+				1 => $action_data,
 			),
 		);
 	}

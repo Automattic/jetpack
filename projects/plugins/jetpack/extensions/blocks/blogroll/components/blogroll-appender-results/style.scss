@@ -1,7 +1,7 @@
 .jetpack-blogroll__appender-results {
 	padding: 0 18px 18px 18px;
 
-	> span {
+	> div {
 		padding: 6px 0;
 		font-size: 11px;
 		line-height: 16px;
@@ -12,16 +12,20 @@
 	> ul {
 		margin: 0;
 		max-height: 200px;
+		list-style: none;
+		padding-left: 0px !important;
+		overflow-y: auto;
 
 		li {
 			margin: 0;
+			padding: 8px 4px;
 
 			a {
 				display: flex;
 				align-items: center;
 				align-self: stretch;
-				padding: 8px 4px;
 				gap: 12px;
+				text-decoration: none;
 			}
 
 			.jetpack-blogroll__appender-result-image {
@@ -42,6 +46,14 @@
 				justify-content: center;
 				align-items: flex-start;
 				gap: 2px;
+				overflow: hidden;
+
+				> * {
+					overflow: hidden;
+					white-space: nowrap;
+					text-overflow: ellipsis;
+					width: 100%;
+				}
 
 				.jetpack-blogroll__appender-result-title {
 					color: var(--gray-gray-100, #101517);

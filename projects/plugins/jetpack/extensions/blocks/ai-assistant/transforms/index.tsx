@@ -8,6 +8,7 @@ import TurndownService from 'turndown';
  */
 import { blockName } from '..';
 import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assistant';
+import { areBackendPromptsEnabled } from '../lib/prompt';
 /**
  * Types
  */
@@ -38,17 +39,29 @@ export function transformToAIAssistantBlock( blockType: ExtendedBlockProp, attrs
 	// Convert the content to markdown.
 	const aiAssistantBlockcontent = turndownService.turndown( htmlContent );
 
-	// Create a pair of user/assistant messages.
-	const messages: Array< PromptItemProps > = [
-		{
+	// A list of messages to start with
+	const messages: Array< PromptItemProps > = [];
+
+	// If the backend prompts are enabled, add the relevant content prompt.
+	if ( areBackendPromptsEnabled ) {
+		messages.push( {
+			role: 'jetpack-ai',
+			context: {
+				type: 'ai-assistant-relevant-content',
+				content: aiAssistantBlockcontent,
+			},
+		} );
+	} else {
+		messages.push( {
 			role: 'user',
 			content: 'Tell me some content for this block, please.',
-		},
-		{
+		} );
+
+		messages.push( {
 			role: 'assistant',
 			content: aiAssistantBlockcontent,
-		},
-	];
+		} );
+	}
 
 	return createBlock( blockName, {
 		...restAttrs,

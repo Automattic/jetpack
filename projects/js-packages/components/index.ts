@@ -37,6 +37,7 @@ export { default as Col } from './components/layout/col';
 export { default as Testimonials } from './components/testimonials';
 export { default as Container } from './components/layout/container';
 export { default as useBreakpointMatch } from './components/layout/use-breakpoint-match';
+export { default as CopyToClipboard } from './components/copy-to-clipboard';
 export * from './components/icons';
 export { default as SplitButton } from './components/split-button';
 export { default as ThemeProvider } from './components/theme-provider';

@@ -47,7 +47,6 @@ declare global {
 			url: string;
 			online: boolean;
 			assetPath: string;
-			getStarted: boolean;
 			canResizeImages: boolean;
 			postTypes: {
 				[ key: string ]: string;

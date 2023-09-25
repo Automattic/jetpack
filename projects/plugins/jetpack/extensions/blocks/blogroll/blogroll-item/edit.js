@@ -17,7 +17,15 @@ function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 				render={ ( { open } ) => (
 					<Button variant="link" onClick={ open } style={ { padding: 0 } }>
 						<figure>
-							<img src={ icon } alt={ name } />
+							<img
+								onError={ event => {
+									if ( event.target.src !== 'https://s0.wp.com/i/webclip.png' ) {
+										event.target.src = 'https://s0.wp.com/i/webclip.png';
+									}
+								} }
+								src={ icon }
+								alt={ name }
+							/>
 						</figure>
 					</Button>
 				) }

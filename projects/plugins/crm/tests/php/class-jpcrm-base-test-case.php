@@ -78,4 +78,64 @@ class JPCRM_Base_Test_Case extends WP_UnitTestCase {
 			)
 		);
 	}
+
+	/**
+	 * Generate default invoice data.
+	 *
+	 * @param array $args (Optional) A list of arguments we should use for the invoice.
+	 *
+	 * @return array An array of basic contact data.
+	 */
+	public function generate_invoice_data( $args = array() ): array {
+		return wp_parse_args(
+			$args,
+			array(
+				'id_override' => '1',
+				'parent'      => '',
+				'status'      => 'Draft',
+				'due_date'    => 1690840800,
+				'hash'        => 'ISSQndSUjlhJ8feWj2v',
+				'lineitems'   => array(
+					array(
+						'net'      => 3.75,
+						'desc'     => 'Dummy product',
+						'quantity' => '3',
+						'price'    => '1.25',
+						'total'    => 3.75,
+					),
+				),
+				'contacts'    => array( 1 ),
+				'created'     => -1,
+			)
+		);
+	}
+
+	/**
+	 * Generate default transaction data.
+	 *
+	 * @param array $args (Optional) A list of arguments we should use for the transaction.
+	 *
+	 * @return array An array of basic transaction data.
+	 */
+	public function generate_transaction_data( $args = array() ): array {
+		return wp_parse_args(
+			$args,
+			array(
+				'title'          => 'Some transaction title',
+				'desc'           => 'Some desc',
+				'ref'            => 'TransactionReference_1',
+				'hash'           => 'mASOpAnf334Pncl1px4',
+				'status'         => 'Completed',
+				'type'           => 'Sale',
+				'currency'       => 'USD',
+				'total'          => '150.00',
+				'tax'            => '10.00',
+				'lineitems'      => false,
+				'date'           => 1676000000,
+				'date_completed' => 1676923766,
+				'created'        => 1675000000,
+				'lastupdated'    => 1675000000,
+			)
+		);
+	}
 }
