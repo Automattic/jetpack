@@ -1,67 +1,66 @@
-import { tick } from 'svelte';
-import { get, writable } from 'svelte/store';
+import { writable } from 'svelte/store';
 import api from '../api/api';
-import { onConnectionComplete } from '../utils/connection';
 import { reloadModulesState } from './modules';
 
 export type ConnectionStatus = {
-	isConnecting: boolean;
 	connected: boolean;
 	userConnected: boolean;
-	error: null | Error;
+	wpcomBlogId: number;
 };
 
 const initialState = Jetpack_Boost.connection;
-const { subscribe, update } = writable< ConnectionStatus >( initialState );
+const connectionStatus = writable< ConnectionStatus >( initialState );
 
-function partialUpdate( data: Partial< ConnectionStatus > ) {
-	update( store => {
-		return { ...store, ...data };
+/**
+ * Get the URL to upgrade boost.
+ *
+ * Ideally this function should not exist and
+ * `getRedirectUrl( 'boost-plugin-upgrade-default', { site: config.site.domain, query, anchor: 'purchased' } )`
+ * should be used instead. However, the redirect changes the redirect URL in a broken manner.
+ *
+ * @param domain
+ * @param isUserConnected
+ */
+export function getUpgradeURL( domain: string, isUserConnected = false ) {
+	const product = 'jetpack_boost_yearly';
+
+	const redirectUrl = new URL( window.location.href );
+	redirectUrl.hash = '#/purchase-successful';
+
+	const checkoutProductUrl = new URL( `https://wordpress.com/checkout/${ domain }/${ product }` );
+
+	// Add redirect_to parameter
+	checkoutProductUrl.searchParams.set( 'redirect_to', redirectUrl.toString() );
+
+	// Add site to query string.
+	checkoutProductUrl.searchParams.set( 'site', domain );
+
+	// If not connected, add unlinked=1 to query string to tell wpcom to connect the site.
+	if ( ! isUserConnected ) {
+		checkoutProductUrl.searchParams.set( 'unlinked', '1' );
+	}
+
+	return checkoutProductUrl.toString();
+}
+
+export async function initializeConnection(): Promise< void > {
+	const connection = ( await api.post( '/connection' ) ) as ConnectionStatus;
+
+	// As a part of connecting (before marking the connection as ready)
+	// refresh the modules state to fetch the latest.
+	// Ideally, we should replace this with a more general server-state update thing.
+	// 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻
+	if ( connection.connected ) {
+		await reloadModulesState();
+	}
+	// 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺
+
+	connectionStatus.update( store => {
+		return { ...store, ...connection };
 	} );
 }
 
-async function refresh(): Promise< void > {
-	partialUpdate( await api.get( '/connection' ) );
-}
-
-/**
- * Returns true if the current user is connected to WordPress.com via Jetpack.
- *
- * @return {boolean} True if connected.
- */
-export function isUserConnected(): boolean {
-	return get( connection ).userConnected;
-}
-
-async function initialize(): Promise< void > {
-	partialUpdate( { isConnecting: true } );
-	try {
-		const connection = await api.post( '/connection' );
-
-		// As a part of connecting (before marking the connection as ready)
-		// refresh the modules state to fetch the latest.
-		// Ideally, we should replace this with a more general server-state update thing.
-		// 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻
-		if ( connection.connected ) {
-			await reloadModulesState();
-		}
-		// 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺
-
-		await onConnectionComplete();
-		partialUpdate( connection );
-	} catch ( e ) {
-		partialUpdate( {
-			isConnecting: false,
-			error: e,
-		} );
-	} finally {
-		// Wait for the next tick to ensure that the connection status is updated.
-		await tick();
-	}
-}
-
+// Export only the readable store.
 export const connection = {
-	subscribe,
-	initialize,
-	refresh,
+	subscribe: connectionStatus.subscribe,
 };

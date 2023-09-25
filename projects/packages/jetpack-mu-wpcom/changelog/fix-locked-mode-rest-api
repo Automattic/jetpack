@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Locked Mode: Now applies cap filter in REST API requests as well

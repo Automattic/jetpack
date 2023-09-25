@@ -67,12 +67,15 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 		$workflow = new Automation_Workflow( $workflow_data );
 		$workflow->set_engine( $engine );
 
-		$workflow->set_initial_step(
+		$workflow->set_steps(
 			array(
-				'slug'       => 'dummy_step_123',
-				'class_name' => Dummy_Step::class,
+				0 => array(
+					'slug'       => 'dummy_step_123',
+					'class_name' => Dummy_Step::class,
+				),
 			)
 		);
+		$workflow->set_initial_step( 0 );
 
 		$contact_data      = $this->automation_faker->contact_data();
 		$automation_result = $workflow->execute( new Contact_Updated(), $contact_data );
@@ -217,11 +220,14 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 		$workflow = new Automation_Workflow( $workflow_data );
 		$workflow->set_logger( $logger );
 		$workflow->set_engine( $automation );
-		$workflow->set_initial_step(
+		$workflow->set_steps(
 			array(
-				'slug' => 'dummy_step',
+				0 => array(
+					'slug' => 'dummy_step',
+				),
 			)
 		);
+		$workflow->set_initial_step( 0 );
 
 		// Add and init the workflows
 		$automation->add_workflow( $workflow );
@@ -273,7 +279,6 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 		$workflow_data = $this->automation_faker->workflow_with_condition_action();
 
 		$workflow = new Automation_Workflow( $workflow_data );
-		$workflow->set_engine( $automation );
 
 		$automation->add_workflow( $workflow );
 		$automation->init_workflows();
