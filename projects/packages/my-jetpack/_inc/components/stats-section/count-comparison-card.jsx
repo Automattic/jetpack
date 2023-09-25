@@ -6,6 +6,14 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import styles from './style.module.scss';
 
+const formatNumber = ( number, config = {} ) => {
+	if ( number === null || ! Number.isFinite( number ) ) {
+		return '-';
+	}
+
+	return numberFormat( number, config );
+};
+
 const subtract = ( a, b ) => {
 	if ( typeof a !== 'number' || typeof b !== 'number' ) {
 		return null;
@@ -54,7 +62,7 @@ const CountComparisonCard = ( { count, previousCount, icon, heading } ) => {
 					className={ styles[ 'stats-card-count-value' ] }
 					title={ Number.isFinite( count ) ? String( count ) : undefined }
 				>
-					{ numberFormat( count, shortenedNumberConfig ) }
+					{ formatNumber( count, shortenedNumberConfig ) }
 				</span>
 				{ difference !== null ? (
 					<span
@@ -71,7 +79,7 @@ const CountComparisonCard = ( { count, previousCount, icon, heading } ) => {
 							{ difference > 0 && <Icon size={ 18 } icon={ arrowUp } /> }
 						</span>
 						<span className={ styles[ 'stats-card-difference-absolute-value' ] }>
-							{ numberFormat(
+							{ formatNumber(
 								differenceMagnitude,
 								differenceMagnitude > 9999 ? shortenedNumberConfig : {}
 							) }
@@ -89,7 +97,7 @@ const CountComparisonCard = ( { count, previousCount, icon, heading } ) => {
 };
 
 CountComparisonCard.propTypes = {
-	count: PropTypes.number.isRequired,
+	count: PropTypes.number,
 	heading: PropTypes.node,
 	icon: PropTypes.node,
 	previousCount: PropTypes.number,
