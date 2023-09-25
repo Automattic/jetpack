@@ -23,7 +23,7 @@ import type { TrackItemProps, TrackListProps } from './types';
 import type { TrackProps, VideoControlProps } from '../../types';
 import type React from 'react';
 
-const debug = debugFactory( 'videopress:video:tracks-control' );
+const debug = debugFactory( 'videopress:tracks-control' );
 
 /**
  * Track Item component.
@@ -130,6 +130,7 @@ export default function TracksControl( {
 			uploadTrackForGuid( newUploadedTrack, guid )
 				.then( src => {
 					if ( src?.error ) {
+						debug( 'catch at regular response', src );
 						setFormErrorMessage( `Track error: ${ src?.message || src.error }` );
 						return;
 					}
@@ -167,6 +168,7 @@ export default function TracksControl( {
 				} )
 				// these here because fetch behaves differently on simple sites
 				.catch( error => {
+					debug( 'catch at catch' );
 					setFormErrorMessage( `Track error: ${ error?.message || error.error }` );
 				} );
 		},

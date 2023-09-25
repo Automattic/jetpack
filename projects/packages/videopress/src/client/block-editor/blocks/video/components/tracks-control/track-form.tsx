@@ -14,6 +14,7 @@ import {
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import debugFactory from 'debug';
 /**
  * Types
  */
@@ -32,6 +33,8 @@ const KIND_OPTIONS = [
 	{ label: __( 'Chapters', 'jetpack-videopress-pkg' ), value: 'chapters' },
 	{ label: __( 'Metadata', 'jetpack-videopress-pkg' ), value: 'metadata' },
 ];
+
+const debug = debugFactory( 'videopress:tracks-control:track-form' );
 
 /**
  * Track From component
@@ -58,8 +61,12 @@ export default function TrackForm( {
 
 	const updateTrack = useCallback(
 		( key: 'kind' | 'srcLang' | 'label' | 'tmpFile', value: string | File ) => {
+			debug( 'updateTrack', key, value );
+			// changing the file is the only change that can override the errorMessage coming from the control
+			if ( key === 'tmpFile' ) {
+				setError( '' );
+			}
 			setTrack( prev => ( { ...prev, [ key ]: value } ) );
-			setError( '' );
 		},
 		[ track ]
 	);
@@ -86,17 +93,19 @@ export default function TrackForm( {
 		onSave( track );
 	}, [ track ] );
 
-	const setSourceLanguage = useCallback( ( newSrcLang: string ) => {
-		updateTrack( 'srcLang', newSrcLang );
+	const setSourceLanguage = useCallback(
+		( newSrcLang: string ) => {
+			updateTrack( 'srcLang', newSrcLang );
+			if ( newSrcLang?.length > 5 ) {
+				return setError(
+					__( 'Language must be five characters or less.', 'jetpack-videopress-pkg' )
+				);
+			}
 
-		if ( newSrcLang?.length > 5 ) {
-			return setError(
-				__( 'Language must be five characters or less.', 'jetpack-videopress-pkg' )
-			);
-		}
-
-		setError( '' );
-	}, [] );
+			setError( errorMessage || '' );
+		},
+		[ errorMessage ]
+	);
 
 	if ( ! mediaUpload ) {
 		return null;
@@ -107,7 +116,8 @@ export default function TrackForm( {
 		__( 'Add a new text track to the video. Allowed formats: %s', 'jetpack-videopress-pkg' ),
 		ACCEPTED_FILE_TYPES
 	);
-
+	debug( 'error', error );
+	debug( 'errorMessage', errorMessage );
 	return (
 		<MenuGroup
 			className="video-tracks-control__track-form"
