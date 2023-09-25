@@ -117,16 +117,16 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			$has_access = true;
 		}
 
-		if ( empty( $access_level ) || $access_level === self::POST_ACCESS_LEVEL_EVERYBODY ) {
+		if ( empty( $has_access ) && ( empty( $access_level ) || $access_level === self::POST_ACCESS_LEVEL_EVERYBODY ) ) {
 			// empty level means the post is not gated for paid users
 			$has_access = true;
 		}
 
-		if ( $access_level === self::POST_ACCESS_LEVEL_SUBSCRIBERS ) {
+		if ( empty( $has_access ) && ( $access_level === self::POST_ACCESS_LEVEL_SUBSCRIBERS ) ) {
 			$has_access = $is_blog_subscriber || $is_paid_subscriber;
 		}
 
-		if ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ) {
+		if ( empty( $has_access ) && ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ) ) {
 			$has_access = $is_paid_subscriber;
 		}
 
