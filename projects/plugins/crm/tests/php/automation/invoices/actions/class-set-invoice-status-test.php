@@ -49,7 +49,7 @@ class Set_Invoice_Status_Test extends JPCRM_Base_Integration_Test_Case {
 			'name'         => 'Set Invoice Action Workflow Test',
 			'description'  => 'This is a test',
 			'category'     => 'Test',
-			'is_active'    => true,
+			'active'       => true,
 			'triggers'     => array(
 				Invoice_Created::get_slug(),
 			),
