@@ -102,11 +102,4 @@ class Quote_Factory extends Entity_Factory {
 	public static function get_entity_class(): ?string {
 		return Quote::class;
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public static function get_associative_field_map(): array {
-		return self::$associative_field_map;
-	}
 }

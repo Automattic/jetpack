@@ -28,6 +28,15 @@ abstract class Entity_Factory {
 	protected static $field_map = array();
 
 	/**
+	 * Associative field map.
+	 *
+	 * For tags, invoices, transactions, quotes, tasks, etc.
+	 *
+	 * @var string[]
+	 */
+	protected static $associative_field_map = array();
+
+	/**
 	 * Create the instance of the class based on the data from DAL.
 	 *
 	 * @param array $data The data to create the instance with.
@@ -177,7 +186,9 @@ abstract class Entity_Factory {
 	 *
 	 * @return array The associative fields map.
 	 */
-	abstract public static function get_associative_field_map(): array;
+	public static function get_associative_field_map(): array {
+		return static::$associative_field_map;
+	}
 
 	/**
 	 * Return the entity class handle by the Factory.

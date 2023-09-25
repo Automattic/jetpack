@@ -110,11 +110,4 @@ class Company_Factory extends Entity_Factory {
 	public static function get_entity_class(): ?string {
 		return Company::class;
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public static function get_associative_field_map(): array {
-		return self::$associative_field_map;
-	}
 }
