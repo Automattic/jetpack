@@ -894,7 +894,7 @@ function zeroBSCRM_createTables(){
 	`steps` LONGTEXT NOT NULL,
 	`active` TINYINT(1) NOT NULL DEFAULT 0,
 	`version` INT(14) NOT NULL DEFAULT 1,
-	`created_at` TIMESTAMP NOT NULL DEFAULT NOW(),
+	`created_at` INT(14) DEFAULT NULL,
 	`updated_at` INT(14) DEFAULT NULL,
 	PRIMARY KEY (`id`),
 	INDEX `name` (`name` ASC),
