@@ -12,6 +12,15 @@
  * @param array $allowed_options The allowed options.
  */
 function register_first_posts_stream_options_sync( $allowed_options ) {
+	// We are not either in Simple or Atomic.
+	if ( ! class_exists( 'Automattic\Jetpack\Status\Host' ) ) {
+		return $allowed_options;
+	}
+
+	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
+		return $allowed_options;
+	}
+
 	if ( ! is_array( $allowed_options ) ) {
 		return $allowed_options;
 	}
