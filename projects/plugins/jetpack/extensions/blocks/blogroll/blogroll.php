@@ -84,19 +84,24 @@ function site_recommendations_settings() {
 						'type'       => 'object',
 						'properties' => array(
 							'id'          => array(
-								'type' => 'string',
+								'type'   => 'string',
+								'format' => 'text-field',
 							),
 							'name'        => array(
-								'type' => 'string',
+								'type'   => 'string',
+								'format' => 'text-field',
 							),
 							'icon'        => array(
-								'type' => 'string',
+								'type'   => 'string',
+								'format' => 'uri',
 							),
 							'url'         => array(
-								'type' => 'string',
+								'type'   => 'string',
+								'format' => 'uri',
 							),
 							'description' => array(
-								'type' => 'string',
+								'type'   => 'string',
+								'format' => 'text-field',
 							),
 						),
 					),
