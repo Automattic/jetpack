@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove global state from History component.
+
+
