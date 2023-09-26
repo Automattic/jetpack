@@ -64,6 +64,7 @@ class JPCRM_Base_Test_Case extends WP_UnitTestCase {
 		return wp_parse_args(
 			$args,
 			array(
+				'id'       => -1,
 				'fname'    => 'John',
 				'lname'    => 'Doe',
 				'email'    => 'dev@domain.null',
