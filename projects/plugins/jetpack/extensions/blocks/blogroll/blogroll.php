@@ -65,3 +65,25 @@ HTML;
 		$content
 	);
 }
+
+/**
+ * Register site_recommendations settings
+ *
+ * @since 12.7
+ */
+function site_recommendations_settings() {
+	register_setting(
+		'general',
+		'Blogroll Recommendations', // Visible to the user see: https://github.com/WordPress/gutenberg/issues/41637
+		array(
+			'type'          => 'array',
+			'show_in_rest'  => true,
+			'description'   => __( 'Site Recommendations', 'jetpack' ),
+			'auth_callback' => function () {
+				return current_user_can( 'edit_posts' );
+			},
+		)
+	);
+}
+
+add_action( 'rest_api_init', __NAMESPACE__ . '\site_recommendations_settings' );

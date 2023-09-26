@@ -197,9 +197,13 @@ class Stats extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_purchase_url() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
 		// The returning URL could be customized by changing the `redirect_uri` param with relative path.
-		return sprintf( 'https://wordpress.com/stats/purchase/%d?from=jetpack-my-jetpack&redirect_uri=%s', $blog_id, rawurldecode( 'admin.php?page=stats' ) );
+		return sprintf(
+			'%s#!/stats/purchase/%d?from=jetpack-my-jetpack&redirect_uri=%s',
+			admin_url( 'admin.php?page=stats' ),
+			Jetpack_Options::get_option( 'id' ),
+			rawurlencode( 'admin.php?page=stats' )
+		);
 	}
 
 	/**

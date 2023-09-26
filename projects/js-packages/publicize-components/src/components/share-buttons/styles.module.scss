@@ -12,10 +12,10 @@ $whatsapp: #2ab318;
 		&:hover {
 			color: #fff;
 		}
+	}
 
-		svg {
-			fill: #fff !important;
-		}
+	:global a.components-button svg {
+		fill: currentColor;
 	}
 
 	.twitter {
@@ -24,6 +24,12 @@ $whatsapp: #2ab318;
 
 	.whatsapp {
 		background-color: $whatsapp;
+	}
+
+	.clipboard {
+		background-color: #fff;
+		outline: 1px solid var(--jp-gray);
+		color: var(--jp-black);
 	}
 }
 
