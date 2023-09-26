@@ -59,6 +59,8 @@ export default function TrackForm( {
 		tmpFile: null,
 	} );
 
+	debug( 'props.errorMessage', errorMessage );
+
 	const updateTrack = useCallback(
 		( key: 'kind' | 'srcLang' | 'label' | 'tmpFile', value: string | File ) => {
 			debug( 'updateTrack', key, value );
@@ -117,7 +119,8 @@ export default function TrackForm( {
 		__( 'Add a new text track to the video. Allowed formats: %s', 'jetpack-videopress-pkg' ),
 		ACCEPTED_FILE_TYPES
 	);
-	debug( 'error/errorMessage', error, errorMessage );
+	debug( 'error', error );
+
 	return (
 		<MenuGroup
 			className="video-tracks-control__track-form"
