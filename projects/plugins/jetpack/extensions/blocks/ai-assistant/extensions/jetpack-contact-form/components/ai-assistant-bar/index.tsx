@@ -125,6 +125,7 @@ export default function AiAssistantBar( {
 		} );
 
 		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
+		wrapperRef?.current?.focus();
 	}, [ clientId, inputValue, removeNotice, requestSuggestion ] );
 
 	const handleStopSuggestion = useCallback( () => {
@@ -231,6 +232,7 @@ export default function AiAssistantBar( {
 					'is-fixed': isAssistantBarFixed,
 					'is-mobile-mode': isMobileMode,
 				} ) }
+				tabIndex={ -1 }
 			>
 				{ siteRequireUpgrade && <UpgradePrompt /> }
 				{ ! connected && <ConnectPrompt /> }
