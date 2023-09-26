@@ -2,14 +2,15 @@
 /**
  * User Content Link Redirection
  *
- * The purpose of this file is to track user generated link clicks on the emails and redirect them to the original URL.
- * This is done by generating an iframe pointing to the track and redirect logic in .com.
+ * The purpose of this file is to track and redirect user content links in emails.
+ * This renders an iframe pointing to subscribe.wordpress.com which will track and
+ * return the destination url for the iframe parent to redirect to.
  *
  * @package automattic/jetpack
  */
 
 /**
- * Generate the iframe to track and redirect the user generated link clicks.
+ * Render a page containing an iframe to track and redirect the user content link in emails.
  */
 function jetpack_user_content_link_redirection() {
 	if ( empty( $_SERVER['QUERY_STRING'] ) ) {
@@ -43,7 +44,10 @@ EOF;
 	exit;
 }
 
+// The WPCOM_USER_CONTENT_LINK_REDIRECTION flag prevents this redirection logic from running
+// on Atomic in case we'd like to override the redirection logic on the Atomic end.
+
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-if ( isset( $_GET['action'] ) && $_GET['action'] === 'user_content_redirect' ) {
+if ( ! defined( 'WPCOM_USER_CONTENT_LINK_REDIRECTION' ) && isset( $_GET['action'] ) && $_GET['action'] === 'user_content_redirect' ) {
 	add_action( 'init', 'jetpack_user_content_link_redirection' );
 }
