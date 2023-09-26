@@ -237,7 +237,7 @@ ${ postContent }
 						onClick={ requestExcerpt }
 						variant="secondary"
 						isBusy={ isBusy }
-						disabled={ isGenerateButtonDisabled || isQuotaExceeded }
+						disabled={ isGenerateButtonDisabled || isQuotaExceeded || ! postContent }
 					>
 						{ __( 'Generate', 'jetpack' ) }
 					</Button>
