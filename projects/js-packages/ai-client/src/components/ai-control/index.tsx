@@ -122,17 +122,6 @@ export function AIControl(
 		}
 	);
 
-	useKeyboardShortcut(
-		'esc',
-		e => {
-			e.stopImmediatePropagation();
-			onStop?.();
-		},
-		{
-			target: InputWrapperRef,
-		}
-	);
-
 	const actionButtonClasses = classNames( 'jetpack-components-ai-control__controls-prompt_button', {
 		'has-label': showButtonLabels,
 	} );
