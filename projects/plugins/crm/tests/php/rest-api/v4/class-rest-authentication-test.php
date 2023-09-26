@@ -21,9 +21,21 @@ class REST_Authentication_Test extends REST_Base_Test_Case {
 	 */
 	public function auth_user_url_provider() {
 		return array(
-			'contacts_controller::get_item' => array(
+			'contacts_controller::get_item'     => array(
 				WP_REST_Server::READABLE,
 				'/jetpack-crm/v4/contacts/123',
+			),
+			'automation_workflows::get_items'   => array(
+				WP_REST_Server::READABLE,
+				'/jetpack-crm/v4/automation/workflows',
+			),
+			'automation_workflows::get_item'    => array(
+				WP_REST_Server::READABLE,
+				'/jetpack-crm/v4/automation/workflows/123',
+			),
+			'automation_workflows::update_item' => array(
+				WP_REST_Server::CREATABLE,
+				'/jetpack-crm/v4/automation/workflows/123',
 			),
 		);
 	}

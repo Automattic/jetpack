@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * @package Automattic\Jetpack\CRM
  * @since $$next-version$$
  */
-final class REST_Automations_Workflows_Controller extends REST_Base_Controller {
+final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 
 	/**
 	 * The workflow repository.
@@ -42,7 +42,7 @@ final class REST_Automations_Workflows_Controller extends REST_Base_Controller {
 		parent::__construct();
 
 		$this->workflow_repository = new Workflow_Repository();
-		$this->rest_base           = 'automations';
+		$this->rest_base           = 'automation';
 	}
 
 	/**
@@ -63,13 +63,42 @@ final class REST_Automations_Workflows_Controller extends REST_Base_Controller {
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_items' ),
 					'permission_callback' => array( $this, 'get_item_permissions_check' ),
+					'args'                => array(
+						'active'   => array(
+							'description' => __( 'Whether to return only active workflows.', 'zero-bs-crm' ),
+							'type'        => 'boolean',
+							'default'     => true,
+						),
+						'category' => array(
+							'description' => __( 'The category of the workflow.', 'zero-bs-crm' ),
+							'type'        => 'string',
+						),
+						'page'     => array(
+							'description' => __( 'The page of results to return.', 'zero-bs-crm' ),
+							'type'        => 'integer',
+							'default'     => 1,
+						),
+						'per_page' => array(
+							'description' => __( 'The amount of workflows to return per page.', 'zero-bs-crm' ),
+							'type'        => 'integer',
+							'default'     => 10,
+							// The min/max values are taken from the official documentation for the REST API.
+							// @link https://developer.wordpress.org/rest-api/using-the-rest-api/pagination/#pagination-parameters
+							'minimum'     => 1,
+							'maximum'     => 100,
+						),
+						'offset'   => array(
+							'description' => __( 'The amount of workflows to offset the results by.', 'zero-bs-crm' ),
+							'type'        => 'integer',
+						),
+					),
 				),
 			)
 		);
 
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/workflow/(?P<id>[\d]+)',
+			'/' . $this->rest_base . '/workflows/(?P<id>[\d]+)',
 			array(
 				'args' => array(
 					'id' => array(
@@ -100,8 +129,19 @@ final class REST_Automations_Workflows_Controller extends REST_Base_Controller {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public function get_items( $request ) {
+		$args = $request->get_params();
+
+		// Enforce that we do not allow both "page" and "offset".
+		// @see Workflow_Repository::prepare_pagination_arguments()
+		if ( $request->has_param( 'offset' ) ) {
+			$args['offset'] = (int) $request->get_param( 'offset' );
+			unset( $args['page'] );
+		} elseif ( $request->has_param( 'offset' ) ) {
+			$args['page'] = (int) $request->get_param( 'page' );
+		}
+
 		try {
-			$workflows = array( 'Get Workflows from DB' );
+			$workflows = $this->workflow_repository->find_by( $args );
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'rest_unknown_error',
@@ -110,9 +150,7 @@ final class REST_Automations_Workflows_Controller extends REST_Base_Controller {
 			);
 		}
 
-		$data = $this->prepare_workflows_for_response( $workflows, $request );
-
-		return rest_ensure_response( $data );
+		return rest_ensure_response( $this->prepare_items_for_response( $workflows, $request ) );
 	}
 
 	/**
@@ -142,7 +180,7 @@ final class REST_Automations_Workflows_Controller extends REST_Base_Controller {
 			);
 		}
 
-		return $this->prepare_workflow_for_response( $workflow, $request );
+		return rest_ensure_response( $this->prepare_item_for_response( $workflow, $request ) );
 	}
 
 	/**
@@ -167,7 +205,7 @@ final class REST_Automations_Workflows_Controller extends REST_Base_Controller {
 			);
 		}
 
-		return $this->prepare_workflow_for_response( $workflow, $request );
+		return rest_ensure_response( $this->prepare_item_for_response( $workflow, $request ) );
 	}
 
 	/**
@@ -203,22 +241,14 @@ final class REST_Automations_Workflows_Controller extends REST_Base_Controller {
 	 *
 	 * @param array           $workflows WordPress' representation of the item.
 	 * @param WP_REST_Request $request The request object.
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 * @return array A collection of workflow entities formatted as arrays.
 	 */
-	public function prepare_workflows_for_response( $workflows, $request ) {
-		// Wrap the data in a response object.
-		$response = rest_ensure_response( $workflows );
+	public function prepare_items_for_response( $workflows, $request ) {
+		foreach ( $workflows as $index => $workflow ) {
+			$workflows[ $index ] = $this->prepare_item_for_response( $workflow, $request );
+		}
 
-		/**
-		 * Filters the REST API response for workflows.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param WP_REST_Response $response The response object.
-		 * @param array            $workflows The raw workflow array.
-		 * @param WP_REST_Request  $request The request object.
-		 */
-		return apply_filters( 'jpcrm_rest_prepare_workflows_array', $response, $workflows, $request );
+		return $workflows;
 	}
 
 	/**
@@ -226,27 +256,23 @@ final class REST_Automations_Workflows_Controller extends REST_Base_Controller {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array           $workflow WordPress' representation of the item.
-	 * @param WP_REST_Request $request The request object.
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 * @param Automation_Workflow $workflow WordPress' representation of the item.
+	 * @param WP_REST_Request     $request The request object.
+	 * @return array The workflow entity formatted as an array.
 	 */
-	public function prepare_workflow_for_response( $workflow, $request ) {
+	public function prepare_item_for_response( $workflow, $request ) {
 		if ( $workflow instanceof Automation_Workflow ) {
 			$workflow = $workflow->to_array();
 		}
 
-		// Wrap the data in a response object.
-		$response = rest_ensure_response( $workflow );
-
 		/**
-		 * Filters the REST API response for a single workflow.
+		 * Filter individual workflow before returning the REST API response.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param WP_REST_Response $response The response object.
-		 * @param array            $workflow The raw workflow object.
-		 * @param WP_REST_Request  $request The request object.
+		 * @param array           $workflow The workflow entity formatted as an array.
+		 * @param WP_REST_Request $request The request object.
 		 */
-		return apply_filters( 'jpcrm_rest_prepare_workflow_object', $response, $workflow, $request );
+		return apply_filters( 'jpcrm_rest_prepare_workflows_item', $workflow, $request );
 	}
 }

@@ -89,9 +89,6 @@ class Workflow_Repository {
 	 * @return Automation_Workflow[]
 	 */
 	public function find_by( array $criteria ): array {
-
-		// todo: Add $order_by and pagination support with $limit and $offset
-
 		$query = "SELECT * FROM {$this->table_name}";
 
 		$allowed_criteria = array(
@@ -115,6 +112,15 @@ class Workflow_Repository {
 		// Build the WHERE clause.
 		if ( ! empty( $where ) ) {
 			$query .= ' WHERE ' . implode( ' AND ', $where );
+		}
+
+		// Build pagination condition.
+		if ( isset( $criteria['page'] ) || isset( $criteria['per_page'] ) || isset( $criteria['offset'] ) ) {
+			$pagination_query = $this->prepare_pagination_arguments( $criteria );
+
+			if ( $pagination_query ) {
+				$query .= $pagination_query;
+			}
 		}
 
 		$rows = $this->wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -277,5 +283,57 @@ class Workflow_Repository {
 		$row['steps']    = json_decode( $row['steps'], true );
 
 		return new Automation_Workflow( $row );
+	}
+
+	/**
+	 * Create partial pagination SQL query.
+	 *
+	 * This logic does not try to enforce maximum limitations; E.g. the official WordPress
+	 * REST documentation uses 100 results as their maximum.
+	 * We still want to allow migration scripts, CLI commands, etc., to fetch as many results
+	 * as they might want through the same repository.
+	 * Phrased differently: any limitations we want to enforce should happen at the point
+	 * of the request (e.g. when receiving arguments from the REST API).
+	 *
+	 * @link https://developer.wordpress.org/rest-api/using-the-rest-api/pagination/#pagination-parameters
+	 *
+	 * @param array $args An array of arguments to filter the results.
+	 * @return string|false The partial SQL query to append or false if no pagination is needed.
+	 */
+	protected function prepare_pagination_arguments( array $args = array() ) {
+		$per_page = (int) isset( $args['per_page'] ) ? $args['per_page'] : 10;
+
+		// We cannot combine "page" and "offset" since they mean the same thing; they're just
+		// calculated and requested differently.
+		// You can check the official WordPress REST documentation for more information about
+		// how they're typically handled.
+		if ( isset( $args['page'] ) ) {
+			$page = (int) $args['page'];
+
+			return $this->wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				' LIMIT %d OFFSET %d',
+				$per_page,
+				// We have to reduce the page number by 1 when calculating the offset because otherwise we
+				// would always display "the next page".
+				//
+				// E.g.: We want to display the second page with 10 results per page.
+				// [Request] Page: 2, Per page: 10.
+				// ["Translated"] We want to show post 11-20.
+				// [Offset] (2 - 1) * 10 = 10
+				// The outcome of the calculated offset means that we will return results after the first 10 entries.
+				( $page - 1 ) * $per_page
+			);
+		} elseif ( isset( $args['offset'] ) ) {
+			$offset = (int) isset( $args['offset'] ) ? $args['offset'] : 0;
+
+			// TL;DR of OFFSET in MySQL: It requires a limit, so we have to provide some sort of default.
+			return $this->wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				' LIMIT %d OFFSET %d',
+				$per_page,
+				$offset
+			);
+		}
+
+		return false;
 	}
 }
