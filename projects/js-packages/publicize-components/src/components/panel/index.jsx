@@ -57,16 +57,29 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 	const wrapperProps = prePublish ? {} : { title: __( 'Share this post', 'jetpack' ) };
 
 	const [ isModalOpened, setIsModalOpened ] = useState( false );
+	const [ isDropdownOpened, setIsDropdownOpened ] = useState( false );
 
-	const openModal = useCallback( () => setIsModalOpened( true ), [] );
 	const closeModal = useCallback( () => setIsModalOpened( false ), [] );
+
+	const openQuickShareLearnMore = useCallback( () => {
+		console.log( 'openQuickShareLearnMore fired' );
+		setIsDropdownOpened( false );
+		setIsModalOpened( true );
+	}, [] );
+
+	console.log( { isDropdownOpened, isModalOpened } );
 
 	return (
 		<PanelWrapper { ...wrapperProps }>
 			{ isPostPublished && (
 				<OneClickSharingDropdown
+					// toggleDropdown={ willOpen => {
+					// 	console.log( { willOpen } );
+					// 	setIsDropdownOpened( willOpen );
+					// } }
+					isOpen={ isDropdownOpened }
+					onClickLearnMore={ openQuickShareLearnMore }
 					className={ styles[ 'one-click-share-dropdown' ] }
-					openModal={ openModal }
 				/>
 			) }
 			{ isModalOpened && <OneClickSharingModal onClose={ closeModal } /> }

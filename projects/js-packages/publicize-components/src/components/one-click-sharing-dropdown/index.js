@@ -6,9 +6,14 @@ import { useCallback } from 'react';
 import { ShareButtons } from '../share-buttons/share-buttons';
 import styles from './styles.module.scss';
 
-const OneClickSharingDropdown = ( { className: containerClass, openModal } ) => {
-	const renderToggle = useCallback( ( { isOpen, onToggle } ) => {
-		return <Icon icon={ share } onClick={ onToggle } aria-expanded={ isOpen } />;
+const OneClickSharingDropdown = ( {
+	className: containerClass,
+	isOpen,
+	onClickLearnMore,
+	toggleDropdown,
+} ) => {
+	const renderToggle = useCallback( ( { isOpen: isExpanded, onToggle } ) => {
+		return <Icon icon={ share } onClick={ onToggle } aria-expanded={ isExpanded } />;
 	}, [] );
 
 	const renderContent = useCallback( () => {
@@ -25,18 +30,21 @@ const OneClickSharingDropdown = ( { className: containerClass, openModal } ) => 
 								'jetpack'
 							) }
 						&nbsp;
-						<Button variant="link" onClick={ openModal }>
+						<Button variant="link" onClick={ onClickLearnMore }>
 							{ __( 'Learn more..', 'jetpack' ) }
 						</Button>
 					</Text>
 				</ThemeProvider>
 			</div>
 		);
-	}, [ openModal ] );
+	}, [ onClickLearnMore ] );
 
+	console.log( { isOpen, toggleDropdown } );
 	return (
 		<>
 			<Dropdown
+				// onToggle={ toggleDropdown }
+				open={ isOpen }
 				focusOnMount={ true }
 				contentClassName={ styles.content }
 				className={ containerClass }
