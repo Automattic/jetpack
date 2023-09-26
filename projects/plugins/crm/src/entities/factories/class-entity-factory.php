@@ -135,14 +135,14 @@ abstract class Entity_Factory {
 	}
 
 	/**
-	 * Get the data from the entity instance as an array ready for the database.
+	 * Get the data from the entity instance as an array ready for the DAL.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param mixed $entity The entity instance.
 	 * @return array The data array for the DAL.
 	 */
-	public static function data_for_db( $entity ): array {
+	public static function data_for_dal( $entity ): array {
 		$db_input_data = array(
 			'id'    => $entity->id,
 			'owner' => $entity->owner,
