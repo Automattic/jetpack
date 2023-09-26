@@ -7,7 +7,6 @@
  */
 
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
-use Automattic\Jetpack\Status\Host;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 /**
@@ -216,35 +215,11 @@ HTML;
 	}
 }
 
-/**
- * Filter for enabling or disabling the Jetpack Subscribe Modal
- * feature. We use this filter here and in several other places
- * to conditionally load options and functionality related to
- * this feature.
- *
- * @since 12.4
- *
- * @param bool Defaults to true.
- */
-if ( apply_filters( 'jetpack_subscriptions_modal_enabled', true ) ) {
-	Jetpack_Subscribe_Modal::init();
-}
+Jetpack_Subscribe_Modal::init();
 
 add_action(
 	'rest_api_switched_to_blog',
 	function () {
-		/**
-		 * Filter for enabling or disabling the Jetpack Subscribe Modal
-		 * feature. We use this filter here and in several other places
-		 * to conditionally load options and functionality related to
-		 * this feature.
-		 *
-		 * @since 12.4
-		 *
-		 * @param bool Defaults to false.
-		 */
-		if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
-			Jetpack_Subscribe_Modal::init();
-		}
+		Jetpack_Subscribe_Modal::init();
 	}
 );
