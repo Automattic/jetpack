@@ -4,6 +4,7 @@
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import { PerformanceHistory } from '../../../react-components/PerformanceHistory';
+	import { dismissedAlerts } from '../../../stores/dismissed-alerts';
 	import { recordBoostEvent } from '../../../utils/analytics';
 	import { castToString } from '../../../utils/cast-to-string';
 	import routerHistory from '../../../utils/router-history';
@@ -70,6 +71,8 @@
 		this={PerformanceHistory}
 		{onToggle}
 		{isOpen}
+		isFreshStart={$dismissedAlerts.performance_history_fresh_start !== true}
+		onDismissFreshStart={() => ( $dismissedAlerts.performance_history_fresh_start = true )}
 		{needsUpgrade}
 		handleUpgrade={() => routerHistory.navigate( '/upgrade' )}
 		{periods}
