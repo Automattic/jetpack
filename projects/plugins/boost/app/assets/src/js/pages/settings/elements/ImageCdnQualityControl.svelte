@@ -47,12 +47,12 @@
 		}
 		.disabled {
 			opacity: 0.3;
-			filter: grayscale(1);
+			filter: grayscale( 1 );
 			pointer-events: none;
 		}
 	}
 
-	@media screen and (max-width: 782px) {
+	@media screen and ( max-width: 782px ) {
 		.jb-image-cdn-quality-control {
 			flex-direction: column;
 			align-items: flex-start;

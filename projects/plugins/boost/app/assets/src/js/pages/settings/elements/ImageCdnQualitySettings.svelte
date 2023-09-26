@@ -37,15 +37,9 @@
 			{sprintf(
 				/* translators: %1$s is the JPEG quality value, %2$s is PNG quality value, and %3$s is WEBP quality value. Each value may also say 'lossless' */
 				__( 'JPEG Quality: %1$s, PNG Quality: %2$s, WEBP Quality: %3$s', 'jetpack-boost' ),
-				quality.jpg.lossless
-					? __( 'lossless', 'jetpack-boost' )
-					: quality.jpg.quality.toString(),
-				quality.png.lossless
-					? __( 'lossless', 'jetpack-boost' )
-					: quality.png.quality.toString(),
-				quality.webp.lossless
-					? __( 'lossless', 'jetpack-boost' )
-					: quality.webp.quality.toString()
+				quality.jpg.lossless ? __( 'lossless', 'jetpack-boost' ) : quality.jpg.quality.toString(),
+				quality.png.lossless ? __( 'lossless', 'jetpack-boost' ) : quality.png.quality.toString(),
+				quality.webp.lossless ? __( 'lossless', 'jetpack-boost' ) : quality.webp.quality.toString()
 			)}
 		</div>
 

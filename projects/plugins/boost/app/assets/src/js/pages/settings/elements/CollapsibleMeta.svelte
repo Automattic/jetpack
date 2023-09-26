@@ -20,7 +20,6 @@
 			<PencilIcon class="edit-icon" />
 			{isEditing ? closeEditText : editText}
 		</button>
-
 	</header>
 
 	{#if isEditing}
@@ -38,13 +37,12 @@
 	.jb-collapsible-meta {
 		margin-top: 2em;
 
-
 		&__header {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
 			margin-bottom: 1em;
-			@media screen and (max-width: 530px) {
+			@media screen and ( max-width: 530px ) {
 				flex-direction: column;
 				align-items: flex-start;
 			}
