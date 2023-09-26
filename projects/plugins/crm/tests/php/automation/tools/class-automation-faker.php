@@ -7,7 +7,6 @@ use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Company;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Event;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
@@ -410,30 +409,30 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return data for a dummy event.
+	 * Return data for a dummy task.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Event object.
+	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Task object.
 	 * @return array
 	 */
 	public function event_data( $get_as_data_type = false ) {
 		$data = array(
 			'id'   => 1,
 			'data' => array(
-				'title'          => 'Some event title',
-				'desc'           => 'Some desc',
+				'title'          => 'Some task title',
+				'description'    => 'Some desc',
 				'hash'           => 'V8jAlsi0#$ksm0Plsxp',
 				'start'          => 1676000000,
 				'end'            => 1676923766,
 				'complete'       => false,
-				'show_on_portal' => true,
-				'show_on_cal'    => true,
+				'show_in_portal' => true,
+				'show_in_cal'    => true,
 				'created'        => 1675000000,
 				'lastupdated'    => 1675000000,
 			),
 		);
 
 		if ( $get_as_data_type ) {
-			return new Data_Type_Event( $data );
+			return new Data_Type_Task( $data );
 		}
 
 		return $data;

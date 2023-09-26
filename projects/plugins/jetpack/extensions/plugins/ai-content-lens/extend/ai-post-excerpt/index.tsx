@@ -17,6 +17,7 @@ import React from 'react';
  * Internal dependencies
  */
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
+import { isBetaExtension } from '../../../../editor';
 import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
@@ -247,7 +248,11 @@ ${ postContent }
 }
 
 export const PluginDocumentSettingPanelAiExcerpt = () => (
-	<PluginDocumentSettingPanel name="ai-content-lens-plugin" title={ __( 'Excerpt', 'jetpack' ) }>
+	<PluginDocumentSettingPanel
+		className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
+		name="ai-content-lens-plugin"
+		title={ __( 'Excerpt', 'jetpack' ) }
+	>
 		<AiPostExcerpt />
 	</PluginDocumentSettingPanel>
 );
