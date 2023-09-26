@@ -17,15 +17,13 @@
 	<div class="jb-image-cdn-quality-control__label">
 		{label}
 	</div>
+	<div class="jb-image-cdn-quality-control__slider" class:disabled={config.lossless}>
+		<NumberSlider bind:currentValue={config.quality} {minValue} {maxValue} />
+	</div>
 	<label class="jb-image-cdn-quality-control__lossless">
 		<input type="checkbox" bind:checked={config.lossless} />
 		{__( 'Lossless', 'jetpack-boost' )}
 	</label>
-	{#if ! config.lossless}
-		<div class="jb-image-cdn-quality-control__slider">
-			<NumberSlider bind:currentValue={config.quality} {minValue} {maxValue} />
-		</div>
-	{/if}
 </div>
 
 <style lang="scss">
@@ -34,20 +32,23 @@
 		align-items: center;
 		min-height: 40px;
 		margin-top: 8px;
+		gap: 20px;
 
 		&__label {
-			margin-right: 10px;
-			flex-shrink: 0;
-			width: 7em;
+			flex-basis: 4rem;
 		}
 
 		&__lossless {
-			margin-right: 10px;
 			flex-shrink: 0;
 		}
 
 		&__slider {
 			width: 100%;
+		}
+		.disabled {
+			opacity: 0.5;
+			filter: grayscale(1);
+			pointer-events: none;
 		}
 	}
 </style>
