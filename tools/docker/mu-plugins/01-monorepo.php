@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Plugin Name: Monorepo Helper
  * Description: A common place for monorepo things.

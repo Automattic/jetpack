@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.system_calls_proc_open, PHPCompatibility.ParameterValues.NewProcOpenCmdArray.Found, WordPress.WP.AlternativeFunctions
+// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.system_calls_proc_open, WordPress.WP.AlternativeFunctions
 
 // The repo root path.
 $jetpack_path = dirname( __DIR__ ) . '/';
