@@ -317,12 +317,17 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 				'required'    => $create_workflow,
 			),
 			'steps'        => array(
-				'description' => __( 'The steps of the workflow.', 'zero-bs-crm' ),
-				'type'        => 'object',
-				'required'    => $create_workflow,
-				'properties'  => array(
-					'slug' => array(
-						'type' => 'string',
+				'description'          => __( 'The steps of the workflow.', 'zero-bs-crm' ),
+				'type'                 => 'object',
+				'required'             => $create_workflow,
+				'properties'           => array(),
+				'additionalProperties' => array(
+					'type'       => 'object',
+					'properties' => array(
+						'slug' => array(
+							'type'     => 'string',
+							'required' => true,
+						),
 					),
 				),
 			),
