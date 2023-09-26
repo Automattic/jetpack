@@ -76,9 +76,32 @@ function site_recommendations_settings() {
 		'general',
 		'Blogroll Recommendations', // Visible to the user see: https://github.com/WordPress/gutenberg/issues/41637
 		array(
-			'type'          => 'array',
-			'show_in_rest'  => true,
 			'description'   => __( 'Site Recommendations', 'jetpack' ),
+			'type'          => 'array',
+			'show_in_rest'  => array(
+				'schema' => array(
+					'items' => array(
+						'type'       => 'object',
+						'properties' => array(
+							'id'          => array(
+								'type' => 'string',
+							),
+							'name'        => array(
+								'type' => 'string',
+							),
+							'icon'        => array(
+								'type' => 'string',
+							),
+							'url'         => array(
+								'type' => 'string',
+							),
+							'description' => array(
+								'type' => 'string',
+							),
+						),
+					),
+				),
+			),
 			'auth_callback' => function () {
 				return current_user_can( 'edit_posts' );
 			},
