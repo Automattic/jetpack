@@ -19,7 +19,7 @@
 		"automattic/jetpack-autoloader": "^2.11.23",
 		"automattic/jetpack-backup": "^1.17.6",
 		"automattic/jetpack-blaze": "^0.10.2",
-		"automattic/jetpack-blocks": "^1.6.0",
+		"automattic/jetpack-blocks": "^1.6.1",
 		"automattic/jetpack-boost-speed-score": "^0.2.2",
 		"automattic/jetpack-compat": "^1.7.7",
 		"automattic/jetpack-composer-plugin": "^1.1.14",

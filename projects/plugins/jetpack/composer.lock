@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9a9476d69039240937450c0c626ec2af",
+    "content-hash": "e64b4f58898d5d081944a4db0c2cbc59",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -454,16 +454,16 @@
         },
         {
             "name": "automattic/jetpack-blocks",
-            "version": "v1.6.0",
+            "version": "v1.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-blocks.git",
-                "reference": "a592a52c7d1b10216f8b2c075bfd34d759ca53a5"
+                "reference": "adf664fc4ee8344e6dfe591cd53f00e300bdb27b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-blocks/zipball/a592a52c7d1b10216f8b2c075bfd34d759ca53a5",
-                "reference": "a592a52c7d1b10216f8b2c075bfd34d759ca53a5",
+                "url": "https://api.github.com/repos/Automattic/jetpack-blocks/zipball/adf664fc4ee8344e6dfe591cd53f00e300bdb27b",
+                "reference": "adf664fc4ee8344e6dfe591cd53f00e300bdb27b",
                 "shasum": ""
             },
             "require": {
@@ -500,9 +500,9 @@
             ],
             "description": "Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-blocks/tree/v1.6.0"
+                "source": "https://github.com/Automattic/jetpack-blocks/tree/v1.6.1"
             },
-            "time": "2023-09-19T18:19:12+00:00"
+            "time": "2023-09-26T20:54:45+00:00"
         },
         {
             "name": "automattic/jetpack-boost-core",
