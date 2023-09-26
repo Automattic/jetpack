@@ -129,19 +129,13 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public function get_items( $request ) {
-		$args = $request->get_params();
-
-		// Enforce that we do not allow both "page" and "offset".
-		// @see Workflow_Repository::prepare_pagination_arguments()
-		if ( $request->has_param( 'offset' ) ) {
-			$args['offset'] = (int) $request->get_param( 'offset' );
-			unset( $args['page'] );
-		} elseif ( $request->has_param( 'offset' ) ) {
-			$args['page'] = (int) $request->get_param( 'page' );
-		}
-
 		try {
-			$workflows = $this->workflow_repository->find_by( $args );
+			$workflows = $this->workflow_repository->find_by(
+				$request->get_params(),
+				'id',
+				$this->get_per_page_argument( $request ),
+				$this->get_offset_argument( $request )
+			);
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'rest_unknown_error',

@@ -190,43 +190,39 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_Test_Case {
 	}
 
 	/**
-	 * DataProvider for pagination criteria.
+	 * DataProvider for pagination tests.
 	 *
 	 * These scenarios assume that we always have 5 workflows when defining expectations.
 	 *
 	 * @return array Pagination criteria.
 	 */
-	public function pagination_criteria_provider() {
+	public function dataprovider_pagination_criteria() {
 		return array(
-			'page 1 | per_page 4'      => array(
+			'return all if we provide default arguments' => array(
 				array(
-					'page'     => 1,
-					'per_page' => 4,
+					'limit'  => 0,
+					'offset' => 0,
+				),
+				5,
+			),
+			'return a specific amount if we provide a limit' => array(
+				array(
+					'limit'  => 3,
+					'offset' => 0,
+				),
+				3,
+			),
+			'return the remaining workflows if we provide an offset' => array(
+				array(
+					'limit'  => 0,
+					'offset' => 1,
 				),
 				4,
 			),
-			'page 2 | per_page 4'      => array(
+			'return the last two workflows if we use a combination of limit and workflow' => array(
 				array(
-					'page'     => 2,
-					'per_page' => 4,
-				),
-				1,
-			),
-			'per_page 4 | offset 3'    => array(
-				array(
-					'per_page' => 4,
-					'offset'   => 3,
-				),
-				2,
-			),
-			'offset 2 without limit'   => array(
-				array( 'offset' => 2 ),
-				3,
-			),
-			'offset 2 with limit of 2' => array(
-				array(
-					'offset'   => 2,
-					'per_page' => 2,
+					'limit'  => 3,
+					'offset' => 3,
 				),
 				2,
 			),
@@ -236,12 +232,14 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_Test_Case {
 	/**
 	 * @testdox Find by pagination criteria.
 	 *
-	 * @dataProvider pagination_criteria_provider
+	 * @dataProvider dataprovider_pagination_criteria
 	 *
-	 * @param array $criteria Dynamic criteria for pagination.
+	 * @since $$next-version$$
+	 *
+	 * @param array $args Dynamic criteria for pagination.
 	 * @param int $expected_count The expected number of returned workflows.
 	 */
-	public function test_find_by_pagination( array $criteria, int $expected_count ) {
+	public function test_find_by_pagination( array $args, int $expected_count ) {
 		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
 		$repo          = new Workflow_Repository();
 
@@ -254,7 +252,12 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_Test_Case {
 
 		$this->assertCount(
 			$expected_count,
-			$repo->find_by( $criteria )
+			$repo->find_by(
+				array(),
+				'id',
+				$args['limit'],
+				$args['offset']
+			)
 		);
 	}
 }
