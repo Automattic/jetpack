@@ -59,6 +59,88 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	}
 
 	/**
+	 * DataProvider for pagination criteria.
+	 *
+	 * These scenarios assume that we always have 5 workflows when defining expectations.
+	 *
+	 * @return array Pagination criteria.
+	 */
+	public function dataprovider_pagination() {
+		return array(
+			'page: 1 | per_page: 4 | | expect: 4/5'   => array(
+				array(
+					'page'     => 1,
+					'per_page' => 4,
+				),
+				4,
+			),
+			'page: 2 | per_page: 4 | expect: 1/5'     => array(
+				array(
+					'page'     => 2,
+					'per_page' => 4,
+				),
+				1,
+			),
+			'per_page: 4 | offset: 3 | expect: 2/5'   => array(
+				array(
+					'per_page' => 4,
+					'offset'   => 3,
+				),
+				2,
+			),
+			'per_page: N/A | offset: 2 | expect: 3/5' => array(
+				array( 'offset' => 2 ),
+				3,
+			),
+			'per_page: 2 | offset: 2 | expect: 2/5'   => array(
+				array(
+					'offset'   => 2,
+					'per_page' => 2,
+				),
+				2,
+			),
+		);
+	}
+
+	/**
+	 * @testdox GET Worfklows: Test pagination.
+	 *
+	 * @dataProvider dataprovider_pagination
+	 *
+	 * @return void
+	 */
+	public function test_get_workflows_pagination( $args, $expected_count ): void {
+		// Create and set authenticated user.
+		$jpcrm_admin_id = $this->create_wp_jpcrm_admin();
+		wp_set_current_user( $jpcrm_admin_id );
+
+		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
+		$repo          = new Workflow_Repository();
+
+		// Create 5 workflows.
+		for ( $i = 0; $i < 5; $i++ ) {
+			$workflow_data['name'] = sprintf( 'Workflow %d', $i );
+			$workflow              = new Automation_Workflow( $workflow_data );
+			$repo->persist( $workflow );
+		}
+
+		// Make request.
+		$request = new WP_REST_Request(
+			WP_REST_Server::READABLE,
+			'/jetpack-crm/v4/automation/workflows'
+		);
+		foreach ( $args as $key => $value ) {
+			$request->set_param( $key, $value );
+		}
+		$response = rest_do_request( $request );
+		$this->assertSame( 200, $response->get_status() );
+
+		$response_data = $response->get_data();
+		$this->assertIsArray( $response_data );
+		$this->assertCount( $expected_count, $response_data );
+	}
+
+	/**
 	 * GET (Single) Workflow: Test that we can successfully access the endpoint.
 	 *
 	 * @return void

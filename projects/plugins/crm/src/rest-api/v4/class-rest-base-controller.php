@@ -68,6 +68,10 @@ abstract class REST_Base_Controller extends WP_REST_Controller {
 	 * @return int Return the offset argument.
 	 */
 	protected function get_offset_argument( WP_REST_Request $request ): int {
+		if ( $request->has_param( 'offset' ) ) {
+			return $request->get_param( 'offset' );
+		}
+
 		if ( $request->has_param( 'page' ) ) {
 			// We have to reduce the page number by 1 when calculating the offset because otherwise we
 			// would always display "the next page".
@@ -78,10 +82,6 @@ abstract class REST_Base_Controller extends WP_REST_Controller {
 			// [Offset] (2 - 1) * 10 = 10
 			// The outcome of the calculated offset means that we will return results after the first 10 entries.
 			return ( $request->get_param( 'page' ) - 1 ) * $this->get_per_page_argument( $request );
-		}
-
-		if ( $request->has_param( 'offset' ) ) {
-			return $request->get_param( 'offset' );
 		}
 
 		return 0;
