@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * @package Automattic\Jetpack\CRM
  * @since $$next-version$$
  */
-final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
+final class REST_Automation_Workflows_Controller_Hello extends REST_Base_Controller {
 
 	/**
 	 * The workflow repository.
