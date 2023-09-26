@@ -75,20 +75,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Point the Site Editor's `< Dashboard` link to wpcom home.
-	 *
-	 * Although this isn't strictly an admin menu item, it belongs here because it's part of
-	 * changing wp-admin links to their wp.com equivalents.
-	 *
-	 * @param  array $settings Editor settings.
-	 * @return array           Updated Editor settings.
-	 */
-	public function site_editor_dashboard_link( $settings ) {
-		$settings['__experimentalDashboardLink'] = 'https://wordpress.com/home/' . $this->domain;
-		return $settings;
-	}
-
-	/**
 	 * Check if Links Manager is being used.
 	 */
 	public function should_disable_links_manager() {
@@ -122,10 +108,10 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Adds Inbox menu.
+	 * Adds My Mailboxes menu.
 	 */
-	public function add_inbox_menu() {
-		add_menu_page( __( 'Inbox', 'jetpack' ), __( 'Inbox', 'jetpack' ), 'manage_options', 'https://wordpress.com/inbox/' . $this->domain, null, 'dashicons-email', '4.64424' );
+	public function add_my_mailboxes_menu() {
+		add_menu_page( __( 'My Mailboxes', 'jetpack' ), __( 'My Mailboxes', 'jetpack' ), 'manage_options', 'https://wordpress.com/mailboxes/' . $this->domain, null, 'dashicons-email', '4.64424' );
 	}
 
 	/**
@@ -385,34 +371,8 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
 
-		if (
-			/**
-			 * Filter to enable the Newsletter Settings section in Calypso UI.
-			 *
-			 * @since 12.5
-			 * @module masterbar
-			 *
-			 * @param bool false Enable newsletter setting section? Default to false.
-			 */
-			apply_filters( 'calypso_use_newsletter_settings', false )
-		) {
-			add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack' ), __( 'Newsletter', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 7 );
-		}
-
-		if (
-			/**
-			 * Filter to enable the Podcasting Settings section in Calypso UI.
-			 *
-			 * @since 12.5
-			 * @module masterbar
-			 *
-			 * @param bool false Enable podcasting setting section? Default to false.
-			 */
-			apply_filters( 'calypso_use_podcasting_settings', false )
-		) {
-			add_submenu_page( 'options-general.php', esc_attr__( 'Podcasting', 'jetpack' ), __( 'Podcasting', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, 8 );
-		}
-
+		add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack' ), __( 'Newsletter', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 7 );
+		add_submenu_page( 'options-general.php', esc_attr__( 'Podcasting', 'jetpack' ), __( 'Podcasting', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, 8 );
 		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 9 );
 	}
 

@@ -56,6 +56,7 @@ global $wpdb, $ZBSCRM_t;
   $ZBSCRM_t['eventreminders']         = $wpdb->prefix . "zbs_event_reminders";
   $ZBSCRM_t['tax']                    = $wpdb->prefix . "zbs_tax_table";
   $ZBSCRM_t['security_log']           = $wpdb->prefix . "zbs_security_log";
+  $ZBSCRM_t['automation-workflows']  = $wpdb->prefix . 'zbs_workflows'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Universal.WhiteSpace.PrecisionAlignment.Found
 
 
 /**
@@ -878,6 +879,34 @@ function zeroBSCRM_createTables(){
   DEFAULT CHARACTER SET = ".$characterSet."
   COLLATE = ".$collation.";"; 
   zeroBSCRM_db_runDelta($sql);
+
+	// Add table to store automation workflows.
+	// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['automation-workflows'] . '(
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NOT NULL,
+	`zbs_team` INT NOT NULL,
+	`zbs_owner` INT NOT NULL,
+	`name` VARCHAR(255) NOT NULL,
+	`description` VARCHAR(600) NULL DEFAULT NULL,
+	`category` VARCHAR(255) NOT NULL,
+	`triggers` LONGTEXT NOT NULL,
+	`initial_step` VARCHAR(255) NOT NULL,
+	`steps` LONGTEXT NOT NULL,
+	`active` TINYINT(1) NOT NULL DEFAULT 0,
+	`version` INT(14) NOT NULL DEFAULT 1,
+	`created_at` INT(14) DEFAULT NULL,
+	`updated_at` INT(14) DEFAULT NULL,
+	PRIMARY KEY (`id`),
+	INDEX `name` (`name` ASC),
+	INDEX `active` (`active` ASC),
+	INDEX `category` (`category` ASC),
+	INDEX `created_at` (`created_at` ASC)
+	) ' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
+	// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	zeroBSCRM_db_runDelta( $sql );
 
   // As of v5.0, if we've created via the above SQL, we're at DAL3 :)
   // so on fresh installs, immitate the fact that we've 'completed' DAL1->DAL2->DAL3 Migration chain

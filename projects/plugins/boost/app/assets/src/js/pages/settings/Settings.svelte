@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { derived } from 'svelte/store';
 	import ReRouter from '../../elements/ReRouter.svelte';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import config from '../../stores/config';
 	import { connection } from '../../stores/connection';
+	import { hasPrioritySupport } from '../../utils/paid-plan';
 	import { Router, Route } from '../../utils/router';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
 	import Modules from './sections/Modules.svelte';
@@ -12,17 +12,19 @@
 	import Support from './sections/Support.svelte';
 	import Tips from './sections/Tips.svelte';
 
-	const shouldGetStarted = derived( [ config, connection ], ( [ $config, $connection ] ) => {
-		return $config.site.getStarted || ( ! $connection.connected && $config.site.online );
-	} );
+	export let activeModules: boolean[];
+	export let criticalCssCreated: number;
+	export let criticalCssIsGenerating: boolean;
+
+	$: shouldGetStarted = ! $connection.connected && $config.site.online;
 </script>
 
-<ReRouter to="/getting-started" when={$shouldGetStarted}>
+<ReRouter to="/getting-started" when={shouldGetStarted}>
 	<div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
 		<Header />
 
 		<div class="jb-section jb-section--alt jb-section--scores">
-			<Score />
+			<Score {activeModules} {criticalCssCreated} {criticalCssIsGenerating} />
 		</div>
 
 		<Router>
@@ -34,7 +36,9 @@
 
 		<Tips />
 
-		<Support />
+		{#if $hasPrioritySupport}
+			<Support />
+		{/if}
 
 		<Footer />
 	</div>

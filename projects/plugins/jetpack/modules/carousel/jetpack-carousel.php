@@ -789,9 +789,28 @@ class Jetpack_Carousel {
 		}
 		$selected_images = array();
 		foreach ( $matches[0] as $image_html ) {
-			if ( preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id ) &&
-				! preg_match( '/wp-block-jetpack-slideshow_image/', $image_html ) ) {
-				$attachment_id = absint( $class_id[2] );
+			if (
+				preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id )
+				&& ! preg_match( '/wp-block-jetpack-slideshow_image/', $image_html )
+			) {
+				/**
+				 * Allow filtering the attachment ID used to fetch and populate metadata about an image in a gallery.
+				 *
+				 * @module carousel
+				 *
+				 * @since 12.6
+				 *
+				 * @param int    $attachment_id Attachment ID pulled from image HTML.
+				 * @param string $image_html    Full HTML image tag.
+				 */
+				$attachment_id = absint(
+					apply_filters(
+						'jetpack_carousel_image_attachment_id',
+						$class_id[2],
+						$image_html
+					)
+				);
+
 				/**
 				 * The same image tag may be used more than once but with different attribs,
 				 * so save each of them against the attachment id.

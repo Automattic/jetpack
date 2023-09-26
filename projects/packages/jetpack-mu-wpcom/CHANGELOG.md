@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.11.0] - 2023-09-25
+### Added
+- Adds 100 Year Plan features, including the ability to set a legacy contact and enable locked mode. [#33081]
+- Adds a feature to include helpers for the First Posts stream. In particular, an option is being added to the sync list. [#33253]
+- Add the Calypso path for the setup_link_in_bio task. [#32905]
+- Support Videopress tasks on the Customer Home Launchpad. [#33153]
+
+### Fixed
+- Locked Mode: Now applies cap filter in REST API requests as well. [#33246]
+
+## [4.10.0] - 2023-09-19
+### Added
+- Add removal capability for navigator available checklists [#33019]
+- add updating capabilities for current checklist [#32964]
+- Change the Site Editor's dashboard link [#33024]
+- Change the way the navigator checklists are handled [#33011]
+
+### Fixed
+- Make map block settings load after registering the script [#33066]
+
+## [4.9.0] - 2023-09-11
+### Added
+- adding navigator api endpoint [#32963]
+- capability for getting the current active checklist [#32965]
+
 ## [4.8.0] - 2023-09-07
 ### Added
 - Add HEIC/HEIF image upload support [#32900]
@@ -344,6 +369,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[4.11.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.10.0...v4.11.0
+[4.10.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.9.0...v4.10.0
+[4.9.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.8.0...v4.9.0
 [4.8.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.7.0...v4.8.0
 [4.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.6.0...v4.7.0
 [4.6.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.5.1...v4.6.0

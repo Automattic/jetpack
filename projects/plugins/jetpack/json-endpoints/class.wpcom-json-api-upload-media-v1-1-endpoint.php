@@ -102,10 +102,10 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 
 					if ( true !== $result ) {
 						$this->api->output_early( 400, array( 'errors' => $this->rewrite_generic_upload_error( array( $result ) ) ) );
+						continue;
 					}
 				}
 				$jetpack_media_files[] = $media_item;
-
 			} else {
 				$other_media_files[] = $media_item;
 			}

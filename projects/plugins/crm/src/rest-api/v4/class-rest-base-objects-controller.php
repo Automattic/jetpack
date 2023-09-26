@@ -53,5 +53,4 @@ abstract class REST_Base_Objects_Controller extends REST_Base_Controller {
 			),
 		);
 	}
-
 }

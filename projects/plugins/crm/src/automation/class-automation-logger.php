@@ -103,6 +103,31 @@ class Automation_Logger {
 	}
 
 	/**
+	 * Get formatted log.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $output Whether or not the log is set to output.
+	 * @return string[]|null The formatted log as array.
+	 */
+	public function formatted_log( $output = false ): ?array {
+		if ( $output ) {
+			echo "***** LOGS *****\n";
+			foreach ( $this->log as $log ) {
+				echo $log[0] . ' - ' . $log[1] . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			}
+			echo "***** END LOGS *****\n";
+		} else {
+			$output = array();
+			foreach ( $this->log as $log ) {
+				$output[] = $log[0] . ' - ' . $log[1]; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			}
+			return $output;
+		}
+		return null;
+	}
+
+	/**
 	 * Add a log entry.
 	 *
 	 * @since $$next-version$$
@@ -127,5 +152,4 @@ class Automation_Logger {
 	public function reset_log() {
 		$this->log = array();
 	}
-
 }

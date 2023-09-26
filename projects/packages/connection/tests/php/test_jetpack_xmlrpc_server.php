@@ -196,8 +196,8 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 			);
 
 			$this->assertInstanceOf( 'IXR_Error', $response );
-			$this->assertObjectHasAttribute( 'code', $response );
-			$this->assertObjectHasAttribute( 'message', $response );
+			$this->assertObjectHasProperty( 'code', $response );
+			$this->assertObjectHasProperty( 'message', $response );
 			$this->assertEquals( 400, $response->code );
 			$this->assertEquals(
 				'Jetpack: [token_fetch_failed] Failed to fetch user token from WordPress.com.',
@@ -223,8 +223,8 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 		);
 
 		$this->assertInstanceOf( 'IXR_Error', $response );
-		$this->assertObjectHasAttribute( 'code', $response );
-		$this->assertObjectHasAttribute( 'message', $response );
+		$this->assertObjectHasProperty( 'code', $response );
+		$this->assertObjectHasProperty( 'message', $response );
 		$this->assertEquals( 400, $response->code );
 		$this->assertEquals(
 			'Jetpack: [input_error] Valid user is required.',
@@ -244,8 +244,8 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 		);
 
 		$this->assertInstanceOf( 'IXR_Error', $response );
-		$this->assertObjectHasAttribute( 'code', $response );
-		$this->assertObjectHasAttribute( 'message', $response );
+		$this->assertObjectHasProperty( 'code', $response );
+		$this->assertObjectHasProperty( 'message', $response );
 		$this->assertEquals( 400, $response->code );
 		$this->assertEquals(
 			'Jetpack: [input_error] A non-empty nonce must be supplied.',
@@ -270,8 +270,8 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 		);
 
 		$this->assertInstanceOf( 'IXR_Error', $response );
-		$this->assertObjectHasAttribute( 'code', $response );
-		$this->assertObjectHasAttribute( 'message', $response );
+		$this->assertObjectHasProperty( 'code', $response );
+		$this->assertObjectHasProperty( 'message', $response );
 		$this->assertEquals( 400, $response->code );
 		$this->assertEquals(
 			'Jetpack: [token_fetch_failed] Failed to fetch user token from WordPress.com.',
@@ -300,8 +300,8 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 		);
 
 		$this->assertInstanceOf( 'IXR_Error', $response );
-		$this->assertObjectHasAttribute( 'code', $response );
-		$this->assertObjectHasAttribute( 'message', $response );
+		$this->assertObjectHasProperty( 'code', $response );
+		$this->assertObjectHasProperty( 'message', $response );
 		$this->assertEquals( 400, $response->code );
 		$this->assertEquals(
 			'Jetpack: [token_fetch_failed] Failed to fetch user token from WordPress.com.',
@@ -447,5 +447,4 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 
 		return $xml;
 	}
-
 }

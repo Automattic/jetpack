@@ -263,5 +263,4 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 		return $this->get_user( $user_id );
 	}
-
 }

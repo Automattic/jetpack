@@ -36,6 +36,32 @@ class JPCRM_Base_Integration_Test_Case extends JPCRM_Base_Test_Case {
 	}
 
 	/**
+	 * Add an invoice.
+	 *
+	 * @param array $args (Optional) A list of arguments we should use for the invoice.
+	 *
+	 * @return int The invoice ID.
+	 */
+	public function add_invoice( array $args = array() ) {
+		global $zbs;
+
+		return $zbs->DAL->invoices->addUpdateInvoice( array( 'data' => $this->generate_invoice_data( $args ) ) );
+	}
+
+	/**
+	 * Add a transaction.
+	 *
+	 * @param array $args (Optional) A list of arguments we should use for the transaction.
+	 *
+	 * @return int The transaction ID.
+	 */
+	public function add_transaction( array $args = array() ) {
+		global $zbs;
+
+		return $zbs->DAL->transactions->addUpdateTransaction( array( 'data' => $this->generate_transaction_data( $args ) ) );
+	}
+
+	/**
 	 * Get a contact.
 	 *
 	 * @param int|string $id The ID of the contact we want to get.
@@ -49,5 +75,4 @@ class JPCRM_Base_Integration_Test_Case extends JPCRM_Base_Test_Case {
 
 		return ( new Data_Type_Contact( $contact ) )->get_entity();
 	}
-
 }

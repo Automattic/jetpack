@@ -58,5 +58,4 @@ class VideoPress_Options {
 		_deprecated_function( __METHOD__, 'jetpack-11.2' );
 		return Package_Options::delete_options();
 	}
-
 }

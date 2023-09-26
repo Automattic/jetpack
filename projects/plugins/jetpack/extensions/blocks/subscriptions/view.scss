@@ -1,5 +1,9 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
+@function x($var-name, $fallback) {
+	@return unquote("var(#{$var-name}, #{$fallback})");
+}
+
 .is-style-compact {
 	.wp-block-jetpack-subscriptions__button,
 	.wp-block-button__link {
@@ -25,9 +29,12 @@
 	}
 
 	.wp-block-jetpack-subscriptions__form,
-	form {
-		display: flex;
-		align-items: flex-start;
+	form  {
+
+		.wp-block-jetpack-subscriptions__form-elements {
+			display: flex;
+			align-items: flex-start;
+		}
 
 		.wp-block-jetpack-subscriptions__textfield .components-text-control__input,
 		.wp-block-jetpack-subscriptions__button,
@@ -82,8 +89,7 @@
 	}
 
 	&.wp-block-jetpack-subscriptions__use-newline {
-		.wp-block-jetpack-subscriptions__form,
-		form {
+		.wp-block-jetpack-subscriptions__form-elements {
 			display: block;
 		}
 
@@ -100,6 +106,7 @@
 }
 
 .wp-block-jetpack-subscriptions__newsletter-categories {
+	flex: 1 0 100%;
 	margin-top: 8px;
 	margin-bottom: 24px;
 	display: flex;
@@ -108,18 +115,49 @@
 	gap: 8px;
 
 	.wp-block-jetpack-subscriptions__newsletter-category {
-		padding: 6px 10px;
-		font-family: $default-font;
-		font-size: $default-font-size;
-		font-weight: 500;
-		line-height: 20px;
-		color: $gray-600;
-		border: 1px solid $gray-200;
-		border-radius: var(--subscribe-block-border-radius);
+		display: inline-flex;
+		align-items: center;
+		cursor: pointer;
+
+		input[type="checkbox"] {
+			display: none;
+		}
+
+		div {
+			display: flex;
+			padding: 6px 10px;
+			font-family: $default-font;
+			font-size: $default-font-size;
+			font-weight: 500;
+			line-height: 20px;
+			color: var(--subscribe-block-text-color);
+			border: 1px solid var(--subscribe-block-accent-color);
+			border-radius: var(--subscribe-block-border-radius);
+			background: var(--subscribe-block-background-color);
+			transition: background 0.1s;
+			user-select: none;
+
+			svg {
+				display: none;
+			}
+		}
+
+		input[type="checkbox"]:checked + div {
+			background: color-mix(in srgb, var(--subscribe-block-accent-color) 5%, white);
+			border-color: var(--subscribe-block-accent-color);
+
+			svg {
+				display: block;
+
+				path {
+					fill: var(--subscribe-block-accent-color);
+
+				}
+			}
+		}
 	}
 }
 
-// make the form less wide when there are categories
 .wp-block-jetpack-subscriptions__newsletter-categories-enabled {
 	.wp-block-jetpack-subscriptions__form {
 		width: 80%;

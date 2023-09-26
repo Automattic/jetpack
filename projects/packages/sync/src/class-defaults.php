@@ -163,6 +163,7 @@ class Defaults {
 		'uploads_use_yearmonth_folders',
 		'users_can_register',
 		'verification_services_codes',
+		'videopress_private_enabled_for_site',
 		'wordads_ccpa_enabled',
 		'wordads_ccpa_privacy_policy_url',
 		'wordads_custom_adstxt',
@@ -172,20 +173,23 @@ class Defaults {
 		'wordads_display_page',
 		'wordads_display_post',
 		'wordads_second_belowpost',
+		'woocommerce_custom_orders_table_enabled',
 		'wp_mobile_app_promos',
 		'wp_mobile_excerpt',
 		'wp_mobile_featured_images',
 		'wp_page_for_privacy_policy',
 		'wpcom_featured_image_in_email',
-		'wpcom_newsletter_categories_enabled',
+		'wpcom_gifting_subscription',
 		'wpcom_is_fse_activated',
+		'wpcom_legacy_contact',
+		'wpcom_locked_mode',
+		'wpcom_newsletter_categories',
+		'wpcom_newsletter_categories_enabled',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
 		'wpcom_reader_views_enabled',
-		'wpcom_subscription_emails_use_excerpt',
-		'videopress_private_enabled_for_site',
-		'wpcom_gifting_subscription',
 		'wpcom_site_setup',
+		'wpcom_subscription_emails_use_excerpt',
 	);
 
 	/**
@@ -1311,5 +1315,4 @@ class Defaults {
 	 * @var int Bool-ish. Default 0.
 	 */
 	public static $default_custom_queue_table_enabled = 0;
-
 }

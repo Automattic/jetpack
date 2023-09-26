@@ -32,5 +32,4 @@ class Admin_Page {
 		<div id="jetpack-inspect"></div>
 		<?php
 	}
-
 }

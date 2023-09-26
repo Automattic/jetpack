@@ -187,6 +187,9 @@ export function SubscriptionEdit( props ) {
 		'--subscribe-block-border-radius': borderRadius
 			? borderRadius + 'px'
 			: DEFAULT_BORDER_RADIUS_VALUE + 'px',
+		'--subscribe-block-text-color': 'var(--wp--preset--color--foreground, #3c434a)',
+		'--subscribe-block-background-color': 'var(--wp--preset--color--background, white)',
+		'--subscribe-block-accent-color': 'var(--wp--preset--color--foreground, #3c434a)',
 	};
 
 	const emailFieldStyles = {
@@ -293,41 +296,44 @@ export function SubscriptionEdit( props ) {
 			) }
 
 			<div className={ getBlockClassName() } style={ cssVars }>
-				<div className="wp-block-jetpack-subscriptions__newsletter-categories">
-					{ newsletterCategories.map( category => {
-						return (
-							<div
-								key={ `newsletter-category-${ category.id }` }
-								className="wp-block-jetpack-subscriptions__newsletter-category"
-							>
-								{ category.name }
-							</div>
-						);
-					} ) }
-				</div>
-
 				<div className="wp-block-jetpack-subscriptions__form" role="form">
-					<TextControl
-						placeholder={ subscribePlaceholder }
-						disabled={ true }
-						className={ classnames(
-							emailFieldClasses,
-							'wp-block-jetpack-subscriptions__textfield'
-						) }
-						style={ emailFieldStyles }
-					/>
-					<RichText
-						className={ classnames(
-							buttonClasses,
-							'wp-block-jetpack-subscriptions__button',
-							'wp-block-button__link'
-						) }
-						onChange={ value => setAttributes( { submitButtonText: value } ) }
-						style={ buttonStyles }
-						value={ submitButtonText }
-						withoutInteractiveFormatting
-						allowedFormats={ [ 'core/bold', 'core/italic', 'core/strikethrough' ] }
-					/>
+					{ newsletterCategoriesEnabled ? (
+						<div className="wp-block-jetpack-subscriptions__newsletter-categories">
+							{ newsletterCategories.map( category => {
+								return (
+									<div
+										key={ `newsletter-category-${ category.id }` }
+										className="wp-block-jetpack-subscriptions__newsletter-category"
+									>
+										<div>{ category.name }</div>
+									</div>
+								);
+							} ) }
+						</div>
+					) : null }
+					<div className="wp-block-jetpack-subscriptions__form-elements">
+						<TextControl
+							placeholder={ subscribePlaceholder }
+							disabled={ true }
+							className={ classnames(
+								emailFieldClasses,
+								'wp-block-jetpack-subscriptions__textfield'
+							) }
+							style={ emailFieldStyles }
+						/>
+						<RichText
+							className={ classnames(
+								buttonClasses,
+								'wp-block-jetpack-subscriptions__button',
+								'wp-block-button__link'
+							) }
+							onChange={ value => setAttributes( { submitButtonText: value } ) }
+							style={ buttonStyles }
+							value={ submitButtonText }
+							withoutInteractiveFormatting
+							allowedFormats={ [ 'core/bold', 'core/italic', 'core/strikethrough' ] }
+						/>
+					</div>
 				</div>
 				{ showSubscribersTotal && (
 					<div className="wp-block-jetpack-subscriptions__subscount">{ subscriberCountString }</div>

@@ -29,16 +29,6 @@ export const dismissedPopOuts = {
 	},
 };
 
-export const markGetStartedComplete = () => {
-	update( store => ( {
-		...store,
-		site: {
-			...store.site,
-			getStarted: false,
-		},
-	} ) );
-};
-
 export default {
 	subscribe,
 	refresh,

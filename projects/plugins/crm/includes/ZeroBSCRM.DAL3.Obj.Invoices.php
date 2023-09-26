@@ -17,7 +17,7 @@
   / Breaking Checks
    ====================================================== */
 
-
+use Automattic\Jetpack\CRM\Event_Manager\Events_Manager;
 
 /**
 * ZBS DAL >> Invoices
@@ -161,6 +161,14 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 
         );
 
+		/**
+		 * Events_Manager instance. Manages CRM events.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @var Events_Manager
+		 */
+		private $events_manager;
 
     function __construct($args=array()) {
 
@@ -173,7 +181,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
         ); foreach ($defaultArgs as $argK => $argV){ $this->$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $this->$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$this->$argK = $newData;} else { $this->$argK = $args[$argK]; } } }
         #} =========== / LOAD ARGS =============
 
-
+			$this->events_manager = new Events_Manager();
     }
 
 
@@ -1741,7 +1749,8 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 									'prev_invoice'   => $previous_invoice_obj,
                                     ));
 
-                                
+											$data['id'] = $id;
+											$this->events_manager->invoice()->updated( $data );
 
                             }
 
@@ -1900,6 +1909,8 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                             'extraMeta'=>$confirmedExtraMeta #} This is the "extraMeta" passed (as saved)
                         ));
 
+												$data['id'] = $newID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+												$this->events_manager->invoice()->created( $data );
                     }
                     
                     return $newID;
@@ -2120,6 +2131,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
             $res['id_override'] = $this->stripSlashes($obj->zbsi_id_override);
             $res['parent'] = (int)$obj->zbsi_parent;
             $res['status'] = $this->stripSlashes($obj->zbsi_status);
+					$res['status_label'] = __( $res['status'], 'zero-bs-crm' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
             $res['hash'] = $this->stripSlashes($obj->zbsi_hash);
             $res['pdf_template'] = $this->stripSlashes($obj->zbsi_pdf_template);
             $res['portal_template'] = $this->stripSlashes($obj->zbsi_portal_template);
@@ -2865,6 +2877,4 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 
     // ===========  /   INVOICE  =======================================================
     // ===============================================================================
-    
-
 } // / class

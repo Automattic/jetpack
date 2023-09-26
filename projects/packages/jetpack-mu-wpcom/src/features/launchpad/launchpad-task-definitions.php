@@ -214,6 +214,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Personalize Link in Bio', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/setup/link-in-bio-post-setup/linkInBioPostSetup?siteSlug=' . $data['site_slug_encoded'];
+			},
 		),
 
 		// Videopress tasks.
@@ -239,6 +242,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_disabled_callback'  => 'wpcom_launchpad_is_videopress_upload_disabled',
 			'add_listener_callback' => function () {
 				add_action( 'add_attachment', 'wpcom_launchpad_track_video_uploaded_task' );
+			},
+			'get_calypso_path'      => function ( $task, $default, $data ) {
+				$page_on_front = get_option( 'page_on_front', false );
+				if ( $page_on_front ) {
+					return '/page/' . $data['site_slug_encoded'] . '/' . $page_on_front;
+				}
+				return '/site-editor/' . $data['site_slug_encoded'] . '?canvas=edit';
 			},
 		),
 
@@ -283,6 +293,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_site_title_task_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/settings/general/' . $data['site_slug_encoded'];
 			},
@@ -976,36 +987,6 @@ function wpcom_launchpad_get_plan_selected_badge_text() {
 }
 
 /**
- * Helper function to return the site slug for Calypso URLs.
- * The fallback logic here is derived from the following code:
- *
- * @see https://github.com/Automattic/wc-calypso-bridge/blob/85664e2c7836b2ddc29e99871ec2c5dc4015bcc8/class-wc-calypso-bridge.php#L227-L251
- *
- * @return string
- */
-function wpcom_launchpad_get_site_slug() {
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
-		return WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
-	}
-
-	// The Jetpack class should be auto-loaded if Jetpack has been loaded,
-	// but we've seen fatal errors from cases where the class wasn't defined.
-	// So let's make double-sure it exists before calling it.
-	if ( class_exists( '\Automattic\Jetpack\Status' ) ) {
-		$jetpack_status = new \Automattic\Jetpack\Status();
-
-		return $jetpack_status->get_site_suffix();
-	}
-
-	// If the Jetpack Status class doesn't exist, fall back on site_url()
-	// with any trailing '/' characters removed.
-	$site_url = untrailingslashit( site_url( '/', 'https' ) );
-
-	// Remove the leading 'https://' and replace any remaining `/` characters with ::
-	return str_replace( '/', '::', substr( $site_url, 8 ) );
-}
-
-/**
  * Callback for completing site launched task.
  *
  * Also included in bin/tests/isolated/suites/Guides/observer-modules/OnboardingUseCaseBlogTest.php
@@ -1395,6 +1376,18 @@ function wpcom_launchpad_is_add_about_page_visible() {
 	return ! wpcom_launchpad_is_update_about_page_task_visible() && registered_meta_key_exists( 'post', '_wpcom_template_layout_category', 'page' );
 }
 
+/**
+ * Determine `site_title` task visibility. The task is not visible if the name was already set.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_launchpad_is_site_title_task_visible() {
+	// Hide the task if it's already completed on write intent
+	if ( get_option( 'site_intent' ) === 'write' && wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_title' ) ) ) {
+		return false;
+	}
+	return true;
+}
 /**
  * Completion hook for the `add_about_page` task.
  *

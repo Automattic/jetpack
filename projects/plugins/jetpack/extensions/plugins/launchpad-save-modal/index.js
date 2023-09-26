@@ -39,25 +39,18 @@ const updateLaunchpadSaveModalBrowserConfig = config => {
 
 export const settings = {
 	render: function LaunchpadSaveModal() {
-		const {
-			isSavingSite,
-			isSavingPost,
-			isPublishingPost,
-			isCurrentPostPublished,
-			postLink,
-			postType,
-		} = useSelect( selector => ( {
-			isSavingSite: selector( editorStore ).isSavingNonPostEntityChanges(),
-			isSavingPost: selector( editorStore ).isSavingPost(),
-			isPublishingPost: selector( editorStore ).isPublishingPost(),
-			isCurrentPostPublished: selector( editorStore ).isCurrentPostPublished(),
-			postLink: selector( editorStore ).getPermalink(),
-			postType: selector( editorStore ).getCurrentPostType(),
-		} ) );
+		const { isSavingSite, isSavingPost, isCurrentPostPublished, postLink, postType } = useSelect(
+			selector => ( {
+				isSavingSite: selector( editorStore ).isSavingNonPostEntityChanges(),
+				isSavingPost: selector( editorStore ).isSavingPost(),
+				isCurrentPostPublished: selector( editorStore ).isCurrentPostPublished(),
+				postLink: selector( editorStore ).getPermalink(),
+				postType: selector( editorStore ).getCurrentPostType(),
+			} )
+		);
 
 		const prevIsSavingSite = usePrevious( isSavingSite );
 		const prevIsSavingPost = usePrevious( isSavingPost );
-		const prevIsPublishingPost = usePrevious( isPublishingPost );
 
 		// We use this state as a flag to manually handle the modal close on first post publish
 		const [ isInitialPostPublish, setIsInitialPostPublish ] = useState( false );
@@ -77,7 +70,6 @@ export const settings = {
 
 		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
 		const isInsidePostEditor = document.querySelector( '.block-editor' ) !== null;
-		const prevHasNeverPublishedPostOption = useRef( hasNeverPublishedPostOption );
 		const initialHideFSENextStepsModal = useRef( hideFSENextStepsModalBool );
 
 		const siteFragment = getSiteFragment();
@@ -135,14 +127,14 @@ export const settings = {
 			// to migrate the first post published modal logic into jetpack, abstract code from
 			// both modals and their rendering behavior, and remove this solution afterwards.
 			if (
-				prevIsPublishingPost === true &&
-				isPublishingPost === false &&
-				prevHasNeverPublishedPostOption.current &&
+				// Previously, we would check whether the post is publishing (as opposed to saving)
+				// but publish and isPublishingPost and isSavingPost were updated in different render cycles
+				// so we were unable to meaningfully compare them in an IF statement here.
+				hasNeverPublishedPostOption &&
 				siteIntentOption === 'write' &&
 				isInsidePostEditor
 			) {
 				setIsModalOpen( false );
-				prevHasNeverPublishedPostOption.current = '';
 				return;
 			} else if (
 				( prevIsSavingSite === true && isSavingSite === false ) ||
@@ -152,13 +144,12 @@ export const settings = {
 			}
 		}, [
 			isSavingSite,
+			hasNeverPublishedPostOption,
 			prevIsSavingSite,
 			isSavingPost,
 			prevIsSavingPost,
 			siteIntentOption,
 			isInsidePostEditor,
-			isPublishingPost,
-			prevIsPublishingPost,
 		] );
 
 		useEffect( () => {

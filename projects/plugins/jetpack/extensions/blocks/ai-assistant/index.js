@@ -19,7 +19,7 @@ import transforms from './transforms';
 import './supports';
 import './extensions/ai-assistant';
 import './extensions/jetpack-contact-form';
-import './extensions/content-lens';
+// import './extensions/content-lens';
 
 /**
  * Style dependencies
@@ -34,16 +34,15 @@ export const settings = {
 	title,
 	description: (
 		<Fragment>
-			<p>{ __( 'Automatically generate and modify content, powered by AI magic.', 'jetpack' ) }</p>
 			<p>
 				{ __(
-					'The AI Assistant can be imprecise with information about people, places, or facts.',
+					'Elevate your content creation with our AI-powered Gutenberg Block, offering seamless customization and generation.',
 					'jetpack'
 				) }
 			</p>
 			<p>
 				{ __(
-					'We are experimenting with this feature and can tweak or remove it at any point.',
+					'Bear in mind that, as an evolving tool, occasional imprecision may occur. Your feedback is valuable in our commitment to refine and improve this feature.',
 					'jetpack'
 				) }
 			</p>

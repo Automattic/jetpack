@@ -306,10 +306,10 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	private function assertHasOrderItemProperties( $object, $compare = false ) {
-		$this->assertObjectHasAttribute( 'order_item_id', $object );
-		$this->assertObjectHasAttribute( 'order_item_name', $object );
-		$this->assertObjectHasAttribute( 'order_item_type', $object );
-		$this->assertObjectHasAttribute( 'order_id', $object );
+		$this->assertObjectHasProperty( 'order_item_id', $object );
+		$this->assertObjectHasProperty( 'order_item_name', $object );
+		$this->assertObjectHasProperty( 'order_item_type', $object );
+		$this->assertObjectHasProperty( 'order_id', $object );
 
 		if ( $compare ) {
 			$this->assertEquals( $compare->get_id(), $object->order_item_id );
@@ -354,4 +354,3 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		return $order;
 	}
 }
-

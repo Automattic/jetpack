@@ -67,6 +67,7 @@ import {
 	getPartnerCoupon,
 	isAtomicSite,
 	isWoASite,
+	showMyJetpack,
 	isWooCommerceActive,
 	userIsSubscriber,
 } from 'state/initial-state';
@@ -630,6 +631,8 @@ class Main extends React.Component {
 
 		if ( this.props.isWoaSite ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 1 } );
+		} else if ( ! this.props.showMyJetpack ) {
+			window.wpNavMenuClassChange( { dashboard: 1, settings: 2 } );
 		} else {
 			window.wpNavMenuClassChange();
 		}
@@ -897,6 +900,7 @@ export default connect(
 			connectingUserFrom: getConnectingUserFrom( state ),
 			isAtomicSite: isAtomicSite( state ),
 			isWoaSite: isWoASite( state ),
+			showMyJetpack: showMyJetpack( state ),
 			isWooCommerceActive: isWooCommerceActive( state ),
 			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),
 			partnerCoupon: getPartnerCoupon( state ),
@@ -973,15 +977,15 @@ window.wpNavMenuClassChange = function ( pageOrder = { myJetpack: 1, dashboard: 
 	page = page.get( 'page' );
 
 	if ( myJetpackRoutes.includes( page ) ) {
-		getJetpackSubNavItem( pageOrder.myJetpack ).classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.myJetpack )?.classList.add( 'current' );
 	} else if (
 		dashboardRoutes.includes( hash ) ||
 		recommendationsRoutes.includes( hash ) ||
 		productDescriptionRoutes.includes( hash )
 	) {
-		getJetpackSubNavItem( pageOrder.dashboard ).classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.dashboard )?.classList.add( 'current' );
 	} else if ( settingsRoutes.includes( hash ) ) {
-		getJetpackSubNavItem( pageOrder.settings ).classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.settings )?.classList.add( 'current' );
 	}
 
 	const $body = jQuery( 'body' );

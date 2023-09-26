@@ -77,6 +77,11 @@ const productSelectors = {
 	getProductsThatRequiresUserConnection,
 };
 
+const productDataSelectors = {
+	getProductData: state => state.productData?.items || {},
+	isFetchingProductData: state => state.productData?.isFetching || false,
+};
+
 const purchasesSelectors = {
 	getPurchases: state => state.purchases?.items || [],
 	isRequestingPurchases: state => state.purchases?.isFetching || false,
@@ -134,6 +139,7 @@ const selectors = {
 	...purchasesSelectors,
 	...chatAvailabilitySelectors,
 	...chatAuthenticationSelectors,
+	...productDataSelectors,
 	...availableLicensesSelectors,
 	...noticeSelectors,
 	...pluginSelectors,

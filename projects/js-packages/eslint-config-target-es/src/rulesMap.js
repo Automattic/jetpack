@@ -3,6 +3,7 @@
 module.exports = {
 	// ?
 	'no-atomics-waitasync': 'javascript.builtins.Atomics.waitAsync',
+	'no-regexp-v-flag': 'javascript.builtins.RegExp.unicodeSets',
 	'no-string-prototype-iswellformed-towellformed': [
 		'javascript.builtins.String.isWellFormed',
 		'javascript.builtins.String.toWellFormed',

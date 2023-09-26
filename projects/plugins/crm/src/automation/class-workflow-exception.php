@@ -57,4 +57,33 @@ class Workflow_Exception extends \Exception {
 	 */
 	const MISSING_ENGINE_INSTANCE = 14;
 
+	/**
+	 * Failed to insert the workflow.
+	 *
+	 * This exception should be thrown in the context of CRUD action(s).
+	 *
+	 * @since $$next-version$$
+	 * @var int
+	 */
+	const FAILED_TO_INSERT = 50;
+
+	/**
+	 * Failed to update the workflow.
+	 *
+	 * This exception should be thrown in the context of CRUD action(s).
+	 *
+	 * @since $$next-version$$
+	 * @var int
+	 */
+	const FAILED_TO_UPDATE = 51;
+
+	/**
+	 * Failed to delete the workflow.
+	 *
+	 * This exception should be thrown in the context of CRUD action(s).
+	 *
+	 * @since $$next-version$$
+	 * @var int
+	 */
+	const FAILED_TO_DELETE = 52;
 }

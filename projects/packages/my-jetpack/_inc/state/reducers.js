@@ -16,6 +16,8 @@ import {
 	CLEAN_GLOBAL_NOTICE,
 	SET_PRODUCT_STATS,
 	SET_IS_FETCHING_PRODUCT_STATS,
+	SET_PRODUCT_DATA_IS_FETCHING,
+	SET_PRODUCT_DATA,
 } from './actions';
 
 const products = ( state = {}, action ) => {
@@ -71,6 +73,25 @@ const products = ( state = {}, action ) => {
 				},
 			};
 		}
+
+		default:
+			return state;
+	}
+};
+
+const productData = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_PRODUCT_DATA_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_PRODUCT_DATA:
+			return {
+				...state,
+				items: action?.productData || {},
+			};
 
 		default:
 			return state;
@@ -213,6 +234,7 @@ const stats = ( state = {}, action ) => {
 
 const reducers = combineReducers( {
 	products,
+	productData,
 	purchases,
 	chatAvailability,
 	chatAuthentication,

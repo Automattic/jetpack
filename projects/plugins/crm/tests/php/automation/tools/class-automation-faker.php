@@ -7,7 +7,6 @@ use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Company;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Event;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
@@ -61,17 +60,21 @@ class Automation_Faker {
 			'name'         => 'Workflow Test: basic_workflow',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
-			'is_active'    => true,
+			'active'       => true,
 			'triggers'     => array(
 				'jpcrm/contact_created',
 			),
-			'initial_step' => array(
-				'slug'       => 'send_email_action',
-				'attributes' => array(
-					'to'       => 'admin@example.com',
-					'template' => 'send_welcome_email',
+			'initial_step' => 0,
+			'steps'        => array(
+				// Step 0
+				0 => array(
+					'slug'       => 'send_email_action',
+					'attributes' => array(
+						'to'       => 'admin@example.com',
+						'template' => 'send_welcome_email',
+					),
+					'next_step'  => null,
 				),
-				'next_step'  => null,
 			),
 		);
 	}
@@ -85,7 +88,7 @@ class Automation_Faker {
 			'name'        => 'Workflow Test: without_initial_step',
 			'description' => 'Test: the description of the workflow',
 			'category'    => 'Test',
-			'is_active'   => true,
+			'active'      => true,
 			'triggers'    => array(
 				'jpcrm/contact_created',
 			),
@@ -104,7 +107,7 @@ class Automation_Faker {
 			'name'        => 'Workflow Test: without_initial_step_customize_trigger',
 			'description' => 'Test: the description of the workflow',
 			'category'    => 'Test',
-			'is_active'   => true,
+			'active'      => true,
 			'triggers'    => array(
 				$trigger_name,
 			),
@@ -182,22 +185,28 @@ class Automation_Faker {
 			'name'         => 'Workflow Test: with_condition_action',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
-			'is_active'    => true,
+			'active'       => true,
 			'triggers'     => array(
 				'jpcrm/contact_created',
 			),
-			'initial_step' => array(
-				'slug'            => 'contact_status_condition',
-				'class_name'      => Contact_Condition::class,
-				'attributes'      => array(
-					'field'    => 'status',
-					'operator' => 'is',
-					'value'    => 'lead',
+			'initial_step' => 0,
+			'steps'        => array(
+				// Step 0
+				0 => array(
+					'slug'            => 'contact_status_condition',
+					'class_name'      => Contact_Condition::class,
+					'attributes'      => array(
+						'field'    => 'status',
+						'operator' => 'is',
+						'value'    => 'lead',
+					),
+					'next_step_true'  => 1,
+					'next_step_false' => null,
 				),
-				'next_step_true'  => array(
+				// Step 1
+				1 => array(
 					'slug' => 'dummy_step',
 				),
-				'next_step_false' => null,
 			),
 		);
 	}
@@ -211,19 +220,25 @@ class Automation_Faker {
 			'name'         => 'Workflow Test: with_condition_customizable_trigger_action',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
-			'is_active'    => true,
+			'active'       => true,
 			'triggers'     => array(
 				$trigger_slug,
 			),
-			'initial_step' => array(
-				'slug'            => Contact_Field_Changed::get_slug(),
-				'attributes'      => array(
-					'field'    => 'status',
-					'operator' => 'is',
-					'value'    => 'Lead',
+			'initial_step' => 0,
+			'steps'        => array(
+				// Step 0
+				0 => array(
+					'slug'            => Contact_Field_Changed::get_slug(),
+					'attributes'      => array(
+						'field'    => 'status',
+						'operator' => 'is',
+						'value'    => 'Lead',
+					),
+					'next_step_true'  => 1,
+					'next_step_false' => null,
 				),
-				'next_step_true'  => $action_data,
-				'next_step_false' => null,
+				// Step 1
+				1 => $action_data,
 			),
 		);
 	}
@@ -253,38 +268,56 @@ class Automation_Faker {
 	 */
 	public function contact_data( $get_as_data_type = false ) {
 		$data = array(
-			'id'             => 1,
-			'owner'          => '-1',
-			'status'         => 'lead',
-			'fname'          => 'John',
-			'lname'          => 'Doe',
-			'email'          => 'johndoe@example.com',
-			'prefix'         => 'Mr',
-			'addr1'          => 'My Street 1',
-			'addr2'          => '',
-			'city'           => 'San Francisco',
-			'county'         => 'CA',
-			'postcode'       => '94110',
-			'country'        => 'US',
-			'secaddr1'       => '',
-			'secaddr2'       => '',
-			'seccity'        => '',
-			'seccounty'      => '',
-			'seccountry'     => '',
-			'secpostcode'    => '',
-			'hometel'        => '',
-			'worktel'        => '',
-			'mobtel'         => '(877) 273-3049',
-			'wpid'           => '',
-			'avatar'         => '',
-			'tw'             => '',
-			'li'             => '',
-			'fb'             => '',
-			'created'        => '1691193339',
-			'lastupdated'    => '1691193339',
-			'lastcontacted'  => '',
-			'lastlog'        => '',
-			'lastcontactlog' => '',
+			'id'               => 1,
+			'owner'            => '-1',
+			'status'           => 'lead',
+			'fname'            => 'John',
+			'lname'            => 'Doe',
+			'email'            => 'johndoe@example.com',
+			'prefix'           => 'Mr',
+			'addr1'            => 'My Street 1',
+			'addr2'            => '',
+			'city'             => 'San Francisco',
+			'county'           => 'CA',
+			'postcode'         => '94110',
+			'country'          => 'US',
+			'secaddr_addr1'    => '',
+			'secaddr_addr2'    => '',
+			'secaddr_city'     => '',
+			'secaddr_county'   => '',
+			'secaddr_country'  => '',
+			'secaddr_postcode' => '',
+			'hometel'          => '',
+			'worktel'          => '',
+			'mobtel'           => '(877) 273-3049',
+			'wpid'             => '',
+			'avatar'           => '',
+			'tw'               => '',
+			'li'               => '',
+			'fb'               => '',
+			'created'          => '1691193339',
+			'lastupdated'      => '1691193339',
+			'lastcontacted'    => '',
+			'lastlog'          => '',
+			'lastcontactlog'   => '',
+			'tags'             => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
+			),
 		);
 
 		if ( $get_as_data_type ) {
@@ -376,30 +409,30 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return data for a dummy event.
+	 * Return data for a dummy task.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Event object.
+	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Task object.
 	 * @return array
 	 */
 	public function event_data( $get_as_data_type = false ) {
 		$data = array(
 			'id'   => 1,
 			'data' => array(
-				'title'          => 'Some event title',
-				'desc'           => 'Some desc',
+				'title'          => 'Some task title',
+				'description'    => 'Some desc',
 				'hash'           => 'V8jAlsi0#$ksm0Plsxp',
 				'start'          => 1676000000,
 				'end'            => 1676923766,
 				'complete'       => false,
-				'show_on_portal' => true,
-				'show_on_cal'    => true,
+				'show_in_portal' => true,
+				'show_in_cal'    => true,
 				'created'        => 1675000000,
 				'lastupdated'    => 1675000000,
 			),
 		);
 
 		if ( $get_as_data_type ) {
-			return new Data_Type_Event( $data );
+			return new Data_Type_Task( $data );
 		}
 
 		return $data;

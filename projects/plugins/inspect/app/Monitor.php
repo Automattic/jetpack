@@ -166,5 +166,4 @@ class Monitor {
 	public function get_filter() {
 		return $this->option->get()['filter'];
 	}
-
 }

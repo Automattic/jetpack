@@ -101,8 +101,7 @@ class Jetpack_Memberships {
 	 *
 	 * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
 	 *
-	 * List has to be in with `SUPPORTED_CURRENCIES` in extensions/shared/currencies.js and
-	 * `Memberships_Product::SUPPORTED_CURRENCIES` in the WP.com memberships library.
+	 * List has to be in with `SUPPORTED_CURRENCIES` in extensions/shared/currencies.js.
 	 */
 	const SUPPORTED_CURRENCIES = array(
 		'USD' => 0.5,
@@ -408,7 +407,7 @@ class Jetpack_Memberships {
 		$button_styles = implode( ';', $button_styles );
 
 		return sprintf(
-			'<div class="%1$s"><a role="button" %6$s href="%2$s" class="%3$s" style="%4$s">%5$s</a></div>',
+			'<div class="%1$s"><a role="button" href="%2$s" class="%3$s" style="%4$s">%5$s</a></div>',
 			esc_attr(
 				Blocks::classes(
 					self::$button_block_name,
@@ -419,8 +418,7 @@ class Jetpack_Memberships {
 			esc_url( $this->get_subscription_url( $plan_id ) ),
 			isset( $attrs['submitButtonClasses'] ) ? esc_attr( $attrs['submitButtonClasses'] ) : 'wp-block-button__link',
 			esc_attr( $button_styles ),
-			wp_kses( $button_label, self::$tags_allowed_in_the_button ),
-			isset( $attrs['submitButtonAttributes'] ) ? sanitize_text_field( $attrs['submitButtonAttributes'] ) : '' // Needed for arbitrary target=_blank on WPCOM VIP.
+			wp_kses( $button_label, self::$tags_allowed_in_the_button )
 		);
 	}
 

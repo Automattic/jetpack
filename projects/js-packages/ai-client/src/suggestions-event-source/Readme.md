@@ -39,6 +39,7 @@ The constructor takes an object with the following properties:
     - `postId` (optional): The post ID.
     - `feature` (optional): A string that specifies the AI model to use (default or 'ai-assistant-experimental').
     - `fromCache` (optional): A boolean to indicate whether to fetch the response from cache.
+    - `model` (optional): Allows to use a specific AI model.
 
 ### Usage
 

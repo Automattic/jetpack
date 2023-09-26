@@ -4,16 +4,18 @@
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import { PerformanceHistory } from '../../../react-components/PerformanceHistory';
-	import { performanceHistoryPanelDS } from '../../../stores/data-sync-client';
-	import { modulesState } from '../../../stores/modules';
 	import { recordBoostEvent } from '../../../utils/analytics';
 	import { castToString } from '../../../utils/cast-to-string';
 	import routerHistory from '../../../utils/router-history';
 
+	export let isOpen: boolean;
+	export let needsUpgrade: boolean;
+	export let onToggle;
+
 	const siteIsOnline = Jetpack_Boost.site.online;
 
 	let loadError;
-	let isLoading = false;
+	let isLoading = true;
 	let periods = [];
 	let startDate;
 	let endDate;
@@ -53,13 +55,6 @@
 			isLoading = false;
 		}
 	}
-
-	const panelStore = performanceHistoryPanelDS.store;
-	const onToggleHistory = status => {
-		panelStore.set( status );
-	};
-
-	$: needsUpgrade = $modulesState.performance_history.available === false;
 </script>
 
 <div class="jb-performance-history" class:loading={isLoading}>
@@ -73,12 +68,13 @@
 	{/if}
 	<ReactComponent
 		this={PerformanceHistory}
-		onToggle={onToggleHistory}
-		isOpen={$panelStore}
+		{onToggle}
+		{isOpen}
 		{needsUpgrade}
 		handleUpgrade={() => routerHistory.navigate( '/upgrade' )}
 		{periods}
 		{startDate}
 		{endDate}
+		{isLoading}
 	/>
 </div>

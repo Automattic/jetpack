@@ -25,7 +25,7 @@ class Test_Plugin_Factory {
 	/**
 	 * A constant for the autoloader version of a current plugin.
 	 */
-	const VERSION_CURRENT = '1000.0.0.0';
+	const VERSION_CURRENT = \Automattic\Jetpack\Autoloader\AutoloadGenerator::VERSION;
 
 	/**
 	 * Indicates whether or not the plugin is an mu-plugin.
@@ -499,7 +499,7 @@ class Test_Plugin_Factory {
 
 		$empty_directories    = array();
 		$directories_to_empty = array( $dir );
-		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 		while ( null !== ( $dir = array_shift( $directories_to_empty ) ) ) {
 			$paths = scandir( $dir );
 			foreach ( $paths as $path ) {

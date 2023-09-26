@@ -40,13 +40,12 @@ class Settings {
 	 * @return array
 	 */
 	private function get_settings() {
-		$settings = get_option( self::OPTION_NAME );
-
-		if ( empty( $settings ) || ! is_array( $settings ) ) {
-			return array();
-		}
-
-		return $settings;
+		return get_option(
+			self::OPTION_NAME,
+			array(
+				'image' => $this->is_available( 'image' ),
+			)
+		);
 	}
 
 	/**

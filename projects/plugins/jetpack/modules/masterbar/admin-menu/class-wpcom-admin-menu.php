@@ -35,7 +35,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
-		add_filter( 'block_editor_settings_all', array( $this, 'site_editor_dashboard_link' ) );
 	}
 
 	/**
@@ -45,7 +44,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_my_home_menu();
-		$this->add_inbox_menu();
+		$this->add_my_mailboxes_menu();
 		$this->remove_gutenberg_menu();
 
 		// Not needed outside of wp-admin.

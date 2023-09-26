@@ -1,0 +1,53 @@
+.jetpack-ai-chat-feedback-container {
+    .jetpack-ai-chat-feedback-form {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        margin-top: 1rem;
+        
+        .jetpack-ai-chat-feedback-input {
+            flex: auto;
+            flex-grow: 4;
+
+            input {
+                width: 100%;
+                font-size: 16px;
+                padding: 15px 23px;
+                line-height: 1.3;
+            }
+        }
+
+        .jetpack-ai-chat-feedback-submit {
+            flex: auto;
+            flex-grow: 1;
+            text-wrap: nowrap;
+            margin-left: 10px;
+            height: 53px;
+        }
+    }
+
+    .jetpack-ai-chat-answer-feedback-buttons {
+        button {
+            border: none;
+            transition: 0.3s;
+            margin-left: 1rem;
+            cursor: pointer;
+            position: relative;
+            background-color: var( --wp--preset--color--primary );
+            font-size: 16px;
+            padding: 0.5rem 1rem;
+            border-radius: 2px;
+    
+            svg {
+                width: 20px;
+                fill: var( --wp--preset--color--contrast );
+                vertical-align: middle;
+            }
+    
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+        }
+    }
+}

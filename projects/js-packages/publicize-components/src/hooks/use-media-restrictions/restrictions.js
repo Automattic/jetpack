@@ -10,8 +10,9 @@ const VIDEOPRESS = 'video/videopress';
 const allowedImageTypes = [ 'image/jpeg', 'image/jpg', 'image/png' ];
 const facebookImageTypes = allowedImageTypes.concat( [
 	'image/gif',
-	'image/tiff',
-	'image/tif',
+	// We do not support tiff image, because Wordpress Core cannot display it.
+	// 'image/tiff',
+	// 'image/tif',
 	'image/bmp',
 ] );
 const facebookVideoTypes = [
@@ -147,3 +148,31 @@ export const RESTRICTIONS = {
 		},
 	},
 };
+
+/**
+ * These types are supported by Photon, and can be converted. Any other type will be treated as invalid.
+ */
+export const PHOTON_CONVERTIBLE_TYPES = [
+	'image/png',
+	'image/jpeg',
+	'image/jpg',
+	// We do not support tiff image, because Wordpress Core cannot display it.
+	// 'image/tiff',
+	// 'image/tif',
+	'image/heic',
+	'image/heif',
+	'image/webp',
+];
+
+/**
+ * These are the types that can be selected in the media picker.
+ * Contains all the allowed types, plus the Photon convertible types.
+ */
+export const SELECTABLE_IMAGE_TYPES = [
+	...new Set( [
+		...allowedImageTypes,
+		...facebookImageTypes,
+		...mastodonImageTypes,
+		...PHOTON_CONVERTIBLE_TYPES,
+	] ),
+];

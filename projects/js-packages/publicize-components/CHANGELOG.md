@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.39.0] - 2023-09-25
+### Added
+- Added a new post-publish panel for quick sharing. [#33231]
+- Added sharing buttons to be used in post-publish panel. [#33074]
+- Added tracking events for post publish share buttons. [#33231]
+
+### Fixed
+- Fixed versions. [#33231]
+- Publicize: Reinstate the connect an account link. [#33182]
+
+## [0.38.0] - 2023-09-19
+### Changed
+- Move auto-conversion notice near the Instagram one [#33106]
+- Updated package dependencies. [#33001]
+- Updated package dependencies. [#33043]
+
+### Fixed
+- Fixed video previews for Social Previews [#33132]
+- Only allow selectable image types for Social attached media [#33142]
+
+## [0.37.0] - 2023-09-11
+### Added
+- Add the change settings logic in Social for the auto conversion feature [#32712]
+
+### Changed
+- Changed the isConvertible logic so that Auto conversion only works for Photon supported mime typesa [#32938]
+- Social: Disable Share as a social post checkbox if there is no media on the post [#32922]
+
 ## [0.36.0] - 2023-09-04
 ### Changed
 - Changed logic that disables the connections based on the auto-conversion feature [#32671]
@@ -411,6 +439,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.39.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.38.0...v0.39.0
+[0.38.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.37.0...v0.38.0
+[0.37.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.35.0...v0.36.0
 [0.35.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.34.0...v0.35.0
 [0.34.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.33.0...v0.34.0

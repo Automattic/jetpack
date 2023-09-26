@@ -731,7 +731,6 @@ class Assets {
 	}
 
 	// endregion .
-
 }
 
 // Enable section folding in vim:

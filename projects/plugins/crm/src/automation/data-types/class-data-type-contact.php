@@ -109,5 +109,4 @@ class Data_Type_Contact extends Data_Type_Base {
 		$contacts_dal = new \zbsDAL_contacts();
 		return $contacts_dal->tidy_contact( (object) $entity );
 	}
-
 }

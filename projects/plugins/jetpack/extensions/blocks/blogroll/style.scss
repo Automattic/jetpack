@@ -1,5 +1,67 @@
 @import './common';
 
 .wp-block-jetpack-blogroll {
+	.wp-block-jetpack-blogroll-item {
+		overflow-x: clip;
 
+		.jetpack-blogroll-item-slider {
+			width: 200%;
+			display: flex;
+			transition: transform 0.3s ease-in-out;
+		}
+
+		&.open {
+			.jetpack-blogroll-item-slider {
+				transform: translateX(-50%);
+			}
+		}
+
+		.jetpack-blogroll-item-title {
+			font-size: 1.2em;
+		}
+
+		.jetpack-blogroll-item-information {
+			width: 100%;
+			display: flex;
+			padding: 20px 8px;
+			gap: 20px;
+
+			figure {
+				margin: 0;
+
+				img {
+					border-radius: 50%;
+					width: 48px;
+					height: 48px;
+				}
+			}
+		}
+
+		.jetpack-blogroll-item-subscribe-button {
+			margin-left: auto;
+			white-space: nowrap;
+			align-self: center;
+		}
+
+		.jetpack-blogroll-item-email-input {
+			padding: 16px;
+			font: inherit;
+			border: 1px solid #8c8f94;
+			border-radius: 0;
+			flex: 1;
+		}
+
+		.jetpack-blogroll-item-submit {
+			width: 100%;
+			display: flex;
+			gap: 10px;
+			align-items: center;
+		}
+
+		.jetpack-blogroll-item-submit {
+			width: 100%;
+			border: none;
+			padding: 0;
+		}
+	}
 }
