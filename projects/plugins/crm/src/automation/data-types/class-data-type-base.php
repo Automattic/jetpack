@@ -19,10 +19,10 @@ abstract class Data_Type_Base implements Data_Type {
 
 	/**
 	 * The data that represents an instance of the data type.
+	 *
 	 * This could be of any shape: a class, object, array, or a simple value.
 	 *
 	 * @since $$next-version$$
-	 *
 	 * @var mixed
 	 */
 	protected $data = null;
@@ -32,7 +32,6 @@ abstract class Data_Type_Base implements Data_Type {
 	 * This could be of any shape: a class, object, array, or a simple value.
 	 *
 	 * @since $$next-version$$
-	 *
 	 * @var mixed
 	 */
 	protected $previous_data = null;
