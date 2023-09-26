@@ -230,7 +230,7 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_Test_Case {
 	}
 
 	/**
-	 * @testdox Find by pagination criteria.
+	 * Find by pagination criteria.
 	 *
 	 * @dataProvider dataprovider_pagination_criteria
 	 *

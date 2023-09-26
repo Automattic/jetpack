@@ -27,17 +27,16 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 		$jpcrm_admin_id = $this->create_wp_jpcrm_admin();
 		wp_set_current_user( $jpcrm_admin_id );
 
-		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
-
-		$workflow_data['name'] = 'test_get_workflows_success_1';
-		$workflow_1            = new Automation_Workflow( $workflow_data );
-
-		$workflow_data['name'] = 'test_get_workflows_success_2';
-		$workflow_2            = new Automation_Workflow( $workflow_data );
-
-		$repo = new Workflow_Repository();
-		$repo->persist( $workflow_1 );
-		$repo->persist( $workflow_2 );
+		$workflow_1 = $this->create_workflow(
+			array(
+				'name' => 'test_get_workflows_success_1',
+			)
+		);
+		$workflow_2 = $this->create_workflow(
+			array(
+				'name' => 'test_get_workflows_success_2',
+			)
+		);
 
 		// Make request.
 		$request  = new WP_REST_Request(
@@ -103,7 +102,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	}
 
 	/**
-	 * @testdox GET Worfklows: Test pagination.
+	 * GET Workflows: Test pagination.
 	 *
 	 * @dataProvider dataprovider_pagination
 	 *
@@ -140,7 +139,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	}
 
 	/**
-	 * @testdox GET Worfklows: Test that we return an empty array if we do not have any results.
+	 * GET Workflows: Test that we return an empty array if we do not have any results.
 	 *
 	 * @return void
 	 */
@@ -198,7 +197,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	}
 
 	/**
-	 * @testdox GET Workflow: Test that we get a 404 if ID does not exist.
+	 * GET Workflow: Test that we get a 404 if ID does not exist.
 	 *
 	 * @return void
 	 */
