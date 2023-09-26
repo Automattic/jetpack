@@ -145,7 +145,7 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 		// Reuse our own suffix, if any.
 		if ( is_readable( $vendorPath . '/autoload_packages.php' ) ) {
 			$content = file_get_contents( $vendorPath . '/autoload_packages.php' );
-			if ( preg_match( '/^namespace Automattic\\\\Jetpack\\\\Autoloader\\\\jp([^;\s]+);/m', $content, $match ) ) {
+			if ( preg_match( '/^namespace Automattic\\\\Jetpack\\\\Autoloader\\\\jp([^;\s]+?)(?:\\\\al[^;\s]+)?;/m', $content, $match ) ) {
 				return $match[1];
 			}
 		}
