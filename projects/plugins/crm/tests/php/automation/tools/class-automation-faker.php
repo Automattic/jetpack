@@ -492,10 +492,9 @@ class Automation_Faker {
 	 */
 	public function clientwpuser_data( $get_as_data_type = false ) {
 		$data = array(
-			'id'   => 1,
-			'data' => array(
-				// @todo - to fill in
-			),
+			'id'        => 1,
+			'againstid' => 1,
+			'useremail' => 'johndoe@example.com',
 		);
 
 		if ( $get_as_data_type ) {
