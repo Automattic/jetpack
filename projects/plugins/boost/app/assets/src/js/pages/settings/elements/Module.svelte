@@ -1,32 +1,29 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
 	import Toggle from '../../../elements/Toggle.svelte';
-	import { modulesState, modulesStatePending } from '../../../stores/modules';
+	import { type ModuleState } from '../../../stores/modules';
 
 	export let toggle = true;
 	export let slug: string;
+	export let state: ModuleState;
 
 	const dispatch = createEventDispatcher();
 
-	$: isModuleActive = $modulesState[ slug ].active;
-	$: isModuleAvailable = $modulesState[ slug ].available;
+	$: isModuleActive = state.active;
+	$: isModuleAvailable = state.available;
 
 	async function handleToggle() {
-		$modulesState[ slug ].active = ! isModuleActive;
-	}
-
-	/**
-	 * Watch for changes in state and dispatch an event when the state is no longer pending.
-	 */
-	let lastToggledState = $modulesState[ slug ].active;
-	$: {
-		if ( ! $modulesStatePending ) {
-			const newState = $modulesState[ slug ].active;
-			if ( lastToggledState !== newState ) {
-				lastToggledState = newState;
-				dispatch( newState ? 'enabled' : 'disabled' );
-			}
+		state.active = ! isModuleActive;
+		if ( state.active ) {
+			dispatch( 'enabled' );
+		} else {
+			dispatch( 'disabled' );
 		}
+
+		dispatch( 'toggle', {
+			active: state.active,
+			slug,
+		} );
 	}
 
 	onMount( async () => {

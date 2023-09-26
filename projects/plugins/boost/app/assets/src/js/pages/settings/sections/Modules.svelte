@@ -55,6 +55,10 @@
 		await continueGeneratingLocalCriticalCss( $criticalCssState );
 	}
 
+	function moduleToggle( e ) {
+		$modulesState[ e.detail.slug ].active = e.detail.active;
+	}
+
 	onMount( () => {
 		if ( $modulesState.image_size_analysis.active ) {
 			initializeIsaSummary();
@@ -65,9 +69,11 @@
 <div class="jb-container--narrow">
 	<Module
 		slug="critical_css"
+		state={$modulesState.critical_css}
 		on:enabled={resume}
 		on:mountEnabled={resume}
 		on:disabled={() => ( alreadyResumed = false )}
+		on:toggle={moduleToggle}
 	>
 		<h3 slot="title">
 			{__( 'Optimize Critical CSS Loading (manual)', 'jetpack-boost' )}
@@ -123,9 +129,11 @@
 
 	<Module
 		slug="cloud_css"
+		state={$modulesState.cloud_css}
 		on:enabled={startPollingCloudStatus}
 		on:disabled={stopPollingCloudCssStatus}
 		on:mountEnabled={startPollingCloudStatus}
+		on:toggle={moduleToggle}
 	>
 		<h3 slot="title">
 			{__( 'Automatically Optimize CSS Loading', 'jetpack-boost' )}
@@ -160,7 +168,11 @@
 		</div>
 	</Module>
 
-	<Module slug="render_blocking_js">
+	<Module
+		slug="render_blocking_js"
+		state={$modulesState.render_blocking_js}
+		on:toggle={moduleToggle}
+	>
 		<h3 slot="title">
 			{__( 'Defer Non-Essential JavaScript', 'jetpack-boost' )}
 		</h3>
@@ -175,7 +187,7 @@
 		</p>
 	</Module>
 
-	<Module slug="lazy_images">
+	<Module slug="lazy_images" state={$modulesState.lazy_images} on:toggle={moduleToggle}>
 		<h3 slot="title">{__( 'Lazy Image Loading', 'jetpack-boost' )}</h3>
 		<p slot="description">
 			<TemplatedString
@@ -188,7 +200,7 @@
 		</p>
 	</Module>
 
-	<Module slug="minify_js">
+	<Module slug="minify_js" state={$modulesState.minify_js} on:toggle={moduleToggle}>
 		<h3 slot="title">{__( 'Concatenate JS', 'jetpack-boost' )}</h3>
 		<p slot="description">
 			{__(
@@ -208,7 +220,7 @@
 		</div>
 	</Module>
 
-	<Module slug="minify_css">
+	<Module slug="minify_css" state={$modulesState.minify_css} on:toggle={moduleToggle}>
 		<h3 slot="title">{__( 'Concatenate CSS', 'jetpack-boost' )}</h3>
 		<p slot="description">
 			{__(
@@ -228,7 +240,7 @@
 		</div>
 	</Module>
 
-	<Module slug="image_cdn">
+	<Module slug="image_cdn" state={$modulesState.image_cdn} on:toggle={moduleToggle}>
 		<h3 slot="title">{__( 'Image CDN', 'jetpack-boost' )}</h3>
 		<p slot="description">
 			{__(
@@ -243,7 +255,7 @@
 	</Module>
 
 	<div class="settings">
-		<Module slug="image_guide">
+		<Module slug="image_guide" state={$modulesState.image_guide} on:toggle={moduleToggle}>
 			<h3 slot="title">{__( 'Image Guide', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
 			<p slot="description">
 				{__(
@@ -268,7 +280,12 @@
 			</svelte:fragment>
 		</Module>
 
-		<Module slug="image_size_analysis" toggle={false}>
+		<Module
+			slug="image_size_analysis"
+			toggle={false}
+			state={$modulesState.image_size_analysis}
+			on:toggle={moduleToggle}
+		>
 			<h3 slot="title">
 				{__( 'Image Size Analysis', 'jetpack-boost' )}<span class="beta">Beta</span>
 			</h3>
