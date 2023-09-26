@@ -166,12 +166,17 @@ jobs:
               \`\`\`
               `;
             }, '' );
+
+            let jetpackMuWPcomLine = '';
+            if ( data.projects.includes( 'jetpack-mu-wpcom' ) ) {
+              jetpackMuWPcomLine = "- For \`jetpack-mu-wpcom\` changes, also add \`define( 'JETPACK_MU_WPCOM_LOAD_VIA_BETA_PLUGIN', true );\` to your \`wp-config.php\` file.";
+            }
+
             const commentBody = `${ TEST_COMMENT_INDICATOR }
             Are you an Automattician? Please test your changes on all WordPress.com environments to help mitigate accidental explosions.
 
-            - To test on WoA, go to the Plugins menu on a WordPress.com Simple site. Click on the "Upload" button and follow the upgrade flow to be able to upload, install, and activate [the Jetpack Beta plugin](https://jetpack.com/download-jetpack-beta/). Once the plugin is active, go to Jetpack > Jetpack Beta > Jetpack and enable the \`${ BRANCH_NAME }\` branch. 
-            - If you are testing a \`jetpack-mu-wpcom\` change you will need to go to Jetpack > Jetpack Beta > WordPress.com Features and enable the \`${ BRANCH_NAME }\` branch. You will also need to add \`define( 'JETPACK_MU_WPCOM_LOAD_VIA_BETA_PLUGIN', true );\` to your \`wp-config.php\` file on your WoA dev blog.
-            - To test on Simple, run the following command on your sandbox:
+            - To test on WoA, go to the Plugins menu on a WordPress.com Simple site. Click on the "Upload" button and follow the upgrade flow to be able to upload, install, and activate [the Jetpack Beta plugin](https://jetpack.com/download-jetpack-beta/). Once the plugin is active, go to Jetpack > Jetpack Beta, select your plugin, and enable the \`${ BRANCH_NAME }\` branch. 
+            ${ jetpackMuWPcomLine }
             ${ commands }
 
             *Interested in more tips and information?*
