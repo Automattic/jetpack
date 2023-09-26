@@ -6,7 +6,7 @@ import {
 	ERROR_QUOTA_EXCEEDED,
 	useAiSuggestions,
 } from '@automattic/jetpack-ai-client';
-import { TextareaControl, ExternalLink, Button, Notice } from '@wordpress/components';
+import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useState, useEffect } from '@wordpress/element';
@@ -215,33 +215,37 @@ ${ postContent }
 					disabled={ isBusy || isQuotaExceeded }
 				/>
 
-				<div className="jetpack-generated-excerpt__generate-buttons-container">
-					<Button
-						onClick={ discardExpert }
-						variant="secondary"
-						isDestructive
-						disabled={ requestingState !== 'done' || isQuotaExceeded }
-					>
-						{ __( 'Discard', 'jetpack' ) }
-					</Button>
-
-					<Button
-						onClick={ setExpert }
-						variant="secondary"
-						disabled={ requestingState !== 'done' || isQuotaExceeded }
-					>
-						{ __( 'Accept', 'jetpack' ) }
-					</Button>
-
-					<Button
-						onClick={ requestExcerpt }
-						variant="secondary"
-						isBusy={ isBusy }
-						disabled={ isGenerateButtonDisabled || isQuotaExceeded }
-					>
-						{ __( 'Generate', 'jetpack' ) }
-					</Button>
-				</div>
+				<BaseControl
+					help={
+						! postContent?.length ? __( 'Add content to generate an excerpt.', 'jetpack' ) : null
+					}
+				>
+					<div className="jetpack-generated-excerpt__generate-buttons-container">
+						<Button
+							onClick={ discardExpert }
+							variant="secondary"
+							isDestructive
+							disabled={ requestingState !== 'done' || isQuotaExceeded }
+						>
+							{ __( 'Discard', 'jetpack' ) }
+						</Button>
+						<Button
+							onClick={ setExpert }
+							variant="secondary"
+							disabled={ requestingState !== 'done' || isQuotaExceeded }
+						>
+							{ __( 'Accept', 'jetpack' ) }
+						</Button>
+						<Button
+							onClick={ requestExcerpt }
+							variant="secondary"
+							isBusy={ isBusy }
+							disabled={ isGenerateButtonDisabled || isQuotaExceeded || ! postContent }
+						>
+							{ __( 'Generate', 'jetpack' ) }
+						</Button>
+					</div>
+				</BaseControl>
 			</div>
 		</div>
 	);
