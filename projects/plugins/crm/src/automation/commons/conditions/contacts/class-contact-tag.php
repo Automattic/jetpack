@@ -91,20 +91,34 @@ class Contact_Tag extends Base_Condition {
 
 		switch ( $operator ) {
 			case 'tag_added':
+				if ( ! $previous_data instanceof Contact ) {
+					$this->condition_met = false;
+					$this->logger->log( 'Condition met?: false' );
+
+					return;
+				}
+
 				$this->condition_met = ( ! $this->has_tag_by_name( $previous_data, $tag ) && $this->has_tag_by_name( $contact, $tag ) );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
-
 				return;
+
 			case 'tag_removed':
+				if ( ! $previous_data instanceof Contact ) {
+					$this->condition_met = false;
+					$this->logger->log( 'Condition met?: false' );
+
+					return;
+				}
+
 				$this->condition_met = ( $this->has_tag_by_name( $previous_data, $tag ) && ! $this->has_tag_by_name( $contact, $tag ) );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
-
 				return;
+
 			case 'has_tag':
 				$this->condition_met = $this->has_tag_by_name( $contact, $tag );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
-
 				return;
+
 			default:
 				$this->condition_met = false;
 				throw new Automation_Exception(
