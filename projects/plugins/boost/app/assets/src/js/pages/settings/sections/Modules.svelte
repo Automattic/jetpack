@@ -33,6 +33,8 @@
 	import ResizingUnavailable from '../elements/ResizingUnavailable.svelte';
 	import SuperCacheInfo from '../elements/SuperCacheInfo.svelte';
 	import UpgradeCTA from '../elements/UpgradeCTA.svelte';
+	import { imageCdnQuality } from '../../../stores/image-cdn';
+	import { premiumFeatures } from '../../../stores/premium-features';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
@@ -238,7 +240,7 @@
 		</p>
 
 		<div slot="meta">
-			<ImageCdnQualitySettings />
+			<ImageCdnQualitySettings quality={$imageCdnQuality} isPremium={ $premiumFeatures.includes( 'image-cdn-quality' ) } />
 		</div>
 	</Module>
 

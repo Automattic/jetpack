@@ -3,17 +3,17 @@
 	import { __, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import Tooltip from '../../../elements/Tooltip.svelte';
-	import { imageCdnQuality } from '../../../stores/image-cdn';
-	import { premiumFeatures } from '../../../stores/premium-features';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
 	import CollapsibleMeta from './CollapsibleMeta.svelte';
 	import ImageCdnQualityControl from './ImageCdnQualityControl.svelte';
+	import type { ImageCdnQuality } from '../../../stores/image-cdn';
 
 	const navigate = useNavigate();
-	$: quality = $imageCdnQuality;
+	export let quality: ImageCdnQuality;
+	export let isPremium: boolean;
 </script>
 
-{#if $premiumFeatures.includes( 'image-cdn-quality' )}
+{#if isPremium}
 	<CollapsibleMeta
 		editText={__( 'Change Image Quality', 'jetpack-boost' )}
 		closeEditText={__( 'Close', 'jetpack-boost' )}
