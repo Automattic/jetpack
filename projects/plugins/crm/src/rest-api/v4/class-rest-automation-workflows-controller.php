@@ -83,7 +83,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 							'type'        => 'integer',
 							'default'     => 10,
 							// The min/max values are taken from the official documentation for the REST API.
-							// @link https://developer.wordpress.org/rest-api/using-the-rest-api/pagination/#pagination-parameters
+							// @link https://developer.wordpress.org/rest-api/extending-the-rest-api/schema/#minimum-and-maximum
 							'minimum'     => 1,
 							'maximum'     => 100,
 						),
