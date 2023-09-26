@@ -19,6 +19,7 @@ export { default as TemplatePickerButton } from './src/components/social-image-g
 export { default as PublicizePanel } from './src/components/panel';
 export { default as ReviewPrompt } from './src/components/review-prompt';
 export { default as PostPublishReviewPrompt } from './src/components/post-publish-review-prompt';
+export { default as PostPublishOneClickSharing } from './src/components/post-publish-one-click-sharing';
 
 export { default as useSocialMediaConnections } from './src/hooks/use-social-media-connections';
 export { default as useSocialMediaMessage } from './src/hooks/use-social-media-message';
