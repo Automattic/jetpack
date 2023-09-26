@@ -449,7 +449,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	/**
 	 * Extends the default value for which roles can access the Stats menu item.
 	 *
-	 * @see Automattic\Jetpack\Stats\Options::get_default_value()
+	 * @see Automattic\Jetpack\Stats\Options::get_defaults()
 	 *
 	 * @param array $default_value The default value for stats options.
 	 * @return array
