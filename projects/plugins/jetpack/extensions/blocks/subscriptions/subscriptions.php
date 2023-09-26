@@ -1064,9 +1064,6 @@ function get_paywall_content( $post_access_level, $email_confirmation_pending = 
 	if ( $email_confirmation_pending ) {
 		return get_paywall_blocks_subscribe_pending();
 	}
-	if ( ! jetpack_is_frontend() ) { // emails
-		return get_paywall_simple();
-	}
 	if ( doing_filter( 'get_the_excerpt' ) ) {
 		return '';
 	}
@@ -1080,6 +1077,13 @@ function get_paywall_content( $post_access_level, $email_confirmation_pending = 
  * @return string
  */
 function get_paywall_blocks( $newsletter_access_level ) {
+	$custom_paywall = apply_filters( 'jetpack_custom_paywall_blocks', false );
+	if ( ! empty( $custom_paywall ) ) {
+		return $custom_paywall;
+	}
+	if ( ! jetpack_is_frontend() ) { // emails
+		return get_paywall_simple();
+	}
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	// Only display paid texts when Stripe is connected and the post is marked for paid subscribers
 	$is_paid_post = $newsletter_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();

@@ -44,7 +44,7 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_Test_Case {
 	/**
 	 * @testdox Retrieve all the Workflows
 	 */
-	public function test_retrieve_all_workflow() {
+	public function test_retrieve_all_workflows() {
 		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
 		$workflow_1    = new Automation_Workflow( $workflow_data );
 
@@ -97,5 +97,95 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_Test_Case {
 		$workflow_persisted = $repo->find( $workflow->get_id() );
 
 		$this->assertFalse( $workflow_persisted );
+	}
+
+	/**
+	 * @testdox Find by active workflows using a criteria.
+	 */
+	public function test_find_by_with_one_criteria() {
+		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
+		$workflow_1    = new Automation_Workflow( $workflow_data );
+
+		$workflow_data['name'] = 'Workflow 2';
+		$workflow_2            = new Automation_Workflow( $workflow_data );
+
+		$workflow_data['name'] = 'Workflow 3';
+		$workflow_3            = new Automation_Workflow( $workflow_data );
+
+		$workflow_1->turn_on();
+		$workflow_2->turn_off();
+		$workflow_3->turn_on();
+
+		$repo = new Workflow_Repository();
+		$repo->persist( $workflow_1 );
+		$repo->persist( $workflow_2 );
+		$repo->persist( $workflow_3 );
+
+		$workflows_persisted = array(
+			$workflow_1->get_id() => $workflow_1,
+			$workflow_2->get_id() => $workflow_2,
+			$workflow_3->get_id() => $workflow_3,
+		);
+
+		$workflows = $repo->find_by(
+			array(
+				'active' => true,
+			)
+		);
+
+		// It should return 2 workflows
+		$this->assertCount( 2, $workflows );
+
+		// And they should match with the ones we persisted
+		foreach ( $workflows as $workflow ) {
+			$this->assertInstanceOf( Automation_Workflow::class, $workflow );
+			$this->assertEquals( $workflows_persisted[ $workflow->get_id() ]->to_array(), $workflow->to_array() );
+		}
+	}
+
+	/**
+	 * @testdox Find by workflows using two criterias.
+	 */
+	public function test_find_by_with_two_criterias() {
+		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
+		$workflow_1    = new Automation_Workflow( $workflow_data );
+
+		$workflow_data['name'] = 'Workflow 2';
+		$workflow_2            = new Automation_Workflow( $workflow_data );
+
+		$workflow_data['name'] = 'Workflow 3';
+		$workflow_3            = new Automation_Workflow( $workflow_data );
+
+		$workflow_1->turn_on();
+		$workflow_2->turn_off();
+		$workflow_3->turn_on();
+		$workflow_3->set_category( 'category_1' );
+
+		$repo = new Workflow_Repository();
+		$repo->persist( $workflow_1 );
+		$repo->persist( $workflow_2 );
+		$repo->persist( $workflow_3 );
+
+		$workflows_persisted = array(
+			$workflow_1->get_id() => $workflow_1,
+			$workflow_2->get_id() => $workflow_2,
+			$workflow_3->get_id() => $workflow_3,
+		);
+
+		$workflows = $repo->find_by(
+			array(
+				'active'   => true,
+				'category' => 'category_1',
+			)
+		);
+
+		// It should return 1 workflow #3
+		$this->assertCount( 1, $workflows );
+
+		// And they should match with the ones we persisted
+		foreach ( $workflows as $workflow ) {
+			$this->assertInstanceOf( Automation_Workflow::class, $workflow );
+			$this->assertEquals( $workflows_persisted[ $workflow->get_id() ]->to_array(), $workflow->to_array() );
+		}
 	}
 }
