@@ -240,7 +240,10 @@
 		</p>
 
 		<div slot="meta">
-			<ImageCdnQualitySettings quality={$imageCdnQuality} isPremium={ $premiumFeatures.includes( 'image-cdn-quality' ) } />
+			<ImageCdnQualitySettings
+				quality={$imageCdnQuality}
+				isPremium={$premiumFeatures.includes( 'image-cdn-quality' )}
+			/>
 		</div>
 	</Module>
 

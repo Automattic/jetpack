@@ -21,5 +21,5 @@ export const imageCdnQualityClient = jetpack_boost_ds.createAsyncStore(
 	imageCdnQualitySchema
 );
 
-export type ImageCdnQuality = z.infer<typeof imageCdnQualitySchema>;
+export type ImageCdnQuality = z.infer< typeof imageCdnQualitySchema >;
 export const imageCdnQuality = imageCdnQualityClient.store;
