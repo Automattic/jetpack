@@ -293,6 +293,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_site_title_task_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/settings/general/' . $data['site_slug_encoded'];
 			},
@@ -1375,6 +1376,18 @@ function wpcom_launchpad_is_add_about_page_visible() {
 	return ! wpcom_launchpad_is_update_about_page_task_visible() && registered_meta_key_exists( 'post', '_wpcom_template_layout_category', 'page' );
 }
 
+/**
+ * Determine `site_title` task visibility. The task is not visible if the name was already set.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_launchpad_is_site_title_task_visible() {
+	// Hide the task if it's already completed on write intent
+	if ( get_option( 'site_intent' ) === 'write' && wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_title' ) ) ) {
+		return false;
+	}
+	return true;
+}
 /**
  * Completion hook for the `add_about_page` task.
  *

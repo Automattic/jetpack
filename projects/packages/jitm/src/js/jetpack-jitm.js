@@ -72,15 +72,17 @@ jQuery( document ).ready( function ( $ ) {
 				html +=
 					'<a href="#" data-module="' +
 					envelope.activate_module +
-					'" type="button" class="jitm-button is-compact is-primary jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
+					'" type="button" class="jitm-button is-compact is-primary" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
 					envelope.id +
-					'-activate_module">' +
+					'-activate_module" data-jitm-path="' +
+					envelope.message_path +
+					'">' +
 					window.jitm_config.activate_module_text +
 					'</a>';
 				html += '</div>';
 			}
 			if ( envelope.CTA.message ) {
-				var ctaClasses = 'jitm-button is-compact jptracks';
+				var ctaClasses = 'jitm-button is-compact';
 				if ( envelope.CTA.primary && null === envelope.activate_module ) {
 					ctaClasses += ' is-primary';
 				} else {
@@ -106,6 +108,8 @@ jQuery( document ).ready( function ( $ ) {
 					ctaClasses +
 					'" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
 					envelope.id +
+					'" data-jitm-path="' +
+					envelope.message_path +
 					'" ' +
 					( ajaxAction ? 'data-ajax-action="' + ajaxAction + '"' : '' ) +
 					'>' +
@@ -231,6 +235,28 @@ jQuery( document ).ready( function ( $ ) {
 					button.attr( 'disabled', false );
 				} );
 			return false;
+		} );
+
+		// Handle tracking for JITM CTA buttons
+		$template.find( '.jitm-button' ).on( 'click', function ( e ) {
+			e.preventDefault();
+
+			var button = $( this );
+			var eventName = button.attr( 'data-jptracks-name' );
+			if ( undefined === eventName ) {
+				return;
+			}
+
+			var jitmName = button.attr( 'data-jptracks-prop' ) || false;
+			var messagePath = button.attr( 'data-jitm-path' ) || false;
+			var eventProp = {
+				clicked: jitmName,
+				jitm_message_path: messagePath,
+			};
+
+			if ( window.jpTracksAJAX ) {
+				window.jpTracksAJAX.record_ajax_event(eventName, 'click', eventProp);
+			}
 		} );
 	};
 
