@@ -49,7 +49,7 @@ const CountComparisonCard = ( { count, previousCount, icon, heading } ) => {
 	const difference = subtract( count, previousCount );
 	const differenceMagnitude = Math.abs( difference );
 	const percentage = Number.isFinite( difference )
-		? percentCalculator( Math.abs( difference ), previousCount )
+		? percentCalculator( differenceMagnitude, previousCount )
 		: null;
 	const shortenedNumberConfig = { maximumFractionDigits: 1, notation: 'compact' };
 
