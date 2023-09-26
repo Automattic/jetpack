@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PencilIcon from '../../../svg/pencil.svg';
+	import CloseIcon from '../../../svg/close.svg';
 
 	export let editText: string;
 	export let closeEditText: string;
@@ -17,8 +18,13 @@
 				isEditing = ! isEditing;
 			}}
 		>
-			<PencilIcon class="edit-icon" />
-			{isEditing ? closeEditText : editText}
+			{#if isEditing}
+				<CloseIcon class="edit-icon" />
+				{closeEditText}
+			{:else}
+				<PencilIcon class="edit-icon" />
+				{editText}
+			{/if}
 		</button>
 	</header>
 
@@ -61,6 +67,7 @@
 
 	:global( .jb-collapsible-meta__edit-button .edit-icon ) {
 		fill: $jetpack-green-50;
+		color: $jetpack-green-50;
 		margin: 4px 4px 2px 0;
 	}
 </style>
