@@ -23,7 +23,7 @@ import type { TrackItemProps, TrackListProps } from './types';
 import type { TrackProps, VideoControlProps } from '../../types';
 import type React from 'react';
 
-const debug = debugFactory( 'videopress:tracks-control' );
+const debug = debugFactory( 'videopress:tracks:tracks-control' );
 
 /**
  * Track Item component.

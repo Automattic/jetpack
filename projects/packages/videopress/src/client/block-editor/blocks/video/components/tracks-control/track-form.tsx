@@ -34,7 +34,7 @@ const KIND_OPTIONS = [
 	{ label: __( 'Metadata', 'jetpack-videopress-pkg' ), value: 'metadata' },
 ];
 
-const debug = debugFactory( 'videopress:tracks-control:track-form' );
+const debug = debugFactory( 'videopress:tracks:track-form' );
 
 /**
  * Track From component
