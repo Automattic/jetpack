@@ -3,6 +3,7 @@
  * Contact Factory.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Entities\Factories;
@@ -19,6 +20,7 @@ class Contact_Factory extends Entity_Factory {
 	/**
 	 * Contact DB field name mapping. db_field => model_field.
 	 *
+	 * @since $$next-version$$
 	 * @var array
 	 */
 	protected static $field_map = array(
@@ -59,6 +61,7 @@ class Contact_Factory extends Entity_Factory {
 	 *
 	 * For tags, invoices, transactions, quotes, tasks...
 	 *
+	 * @since $$next-version$$
 	 * @var array
 	 */
 	protected static $associative_field_map = array(
@@ -68,9 +71,11 @@ class Contact_Factory extends Entity_Factory {
 	/**
 	 * Get the contact instance based on the $data array.
 	 *
-	 * @param array $data The contact data from the DAL.
+	 * @since $$next-version$$
 	 *
+	 * @param array $data The contact data from the DAL.
 	 * @return mixed The contact instance.
+	 *
 	 * @throws Factory_Exception If the data passed is invalid.
 	 */
 	public static function create( array $data ) {
@@ -86,6 +91,8 @@ class Contact_Factory extends Entity_Factory {
 
 	/**
 	 * Validate the data array (Tidy from DAL)
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array $tidy_contact The tidy data array.
 	 * @return bool If it's valid or not.
@@ -110,21 +117,7 @@ class Contact_Factory extends Entity_Factory {
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function get_fields_map(): array {
-		return self::$field_map;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public static function get_entity_class(): ?string {
 		return Contact::class;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public static function get_associative_field_map(): array {
-		return self::$associative_field_map;
 	}
 }
