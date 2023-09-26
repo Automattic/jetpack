@@ -4,6 +4,12 @@ inputs:
   poll-interval:
     description: "Polling interval, in seconds."
     default: 60
+  events:
+    description: "Limit to these triggering events, separated by whitespace."
+    default: ""
+  ignore-events:
+    description: "Ignore these triggering events, separated by whitespace."
+    default: ""
   token:
     description: "Access token. Defaults to `github.token`."
     default: ${{ github.token }}
@@ -12,6 +18,8 @@ runs:
   steps:
     - shell: bash
       env:
+        EVENTS_STR: ${{ inputs.events }}
+        IGNORE_EVENTS_STR: ${{ inputs.ignore-events }}
         INTERVAL: ${{ inputs.poll-interval }}
         TOKEN: ${{ inputs.token }}
       run: |
@@ -29,6 +37,16 @@ runs:
         echo "Workflow ID: $WORKFLOW_ID"
         echo "Branch: $BRANCH"
 
+        FILTER=""
+        EVENTS=$( sed -E 's/\s+/\n/g' <<<"$EVENTS_STR" | jq -ncR '[ inputs | select( . != "" ) ]' )
+        if [[ "$EVENTS" != "[]" ]]; then
+          FILTER="$FILTER | select( .event as \$e | $EVENTS | index( \$e ) != null )"
+        fi
+        EVENTS=$( sed -E 's/\s+/\n/g' <<<"$IGNORE_EVENTS_STR" | jq -ncR '[ inputs | select( . != "" ) ]' )
+        if [[ "$EVENTS" != "[]" ]]; then
+          FILTER="$FILTER | select( .event as \$e | $EVENTS | index( \$e ) == null )"
+        fi
+
         while true; do
           echo '::group::Checking for previous runs in progress'
           JSON="$(curl -v -L --get \
@@ -41,7 +59,7 @@ runs:
           echo "$JSON"
           jq -e '.workflow_runs | type == "array"' <<<"$JSON" &> /dev/null || { echo "🤯 API response does not have .workflow_runs array"; exit 1; }
           echo '::endgroup::'
-          RUNS="$(jq -r -e --argjson id "$GITHUB_RUN_ID" '[ .workflow_runs[] | select( .id < $id ) | .html_url ] | join( " " )' <<<"$JSON")"
+          RUNS="$(jq -r -e --argjson id "$GITHUB_RUN_ID" '[ .workflow_runs[] | select( .id < $id ) '"$FILTER"' | .html_url ] | join( " " )' <<<"$JSON")"
           if [[ -z "$RUNS" ]]; then
             echo '👉 No earlier runs in progress!'
             break
