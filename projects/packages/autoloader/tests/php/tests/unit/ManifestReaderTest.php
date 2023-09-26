@@ -21,7 +21,7 @@ class ManifestReaderTest extends TestCase {
 	 * The older version of the autoloader that we want to use. Note that
 	 * the version should support PSR-4 since this one does.
 	 */
-	const OLDER_VERSION = '2.4.0.0';
+	const OLDER_VERSION = '2.6.0.0';
 
 	/**
 	 * The directory of a plugin using the autoloader.

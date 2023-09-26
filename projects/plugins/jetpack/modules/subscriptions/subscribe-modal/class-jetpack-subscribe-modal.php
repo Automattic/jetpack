@@ -193,7 +193,7 @@ HTML;
 		// Don't show if post is for subscribers only or has paywall block
 		global $post;
 		$access_level              = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
-		$is_accessible_by_everyone = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level;
+		$is_accessible_by_everyone = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level || empty( $access_level );
 		if ( ! $is_accessible_by_everyone ) {
 			return false;
 		}
