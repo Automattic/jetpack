@@ -9,6 +9,8 @@
 	import { scoreChangeModal, ScoreChangeMessage } from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
+	import { performanceHistoryPanelDS } from '../../../stores/data-sync-client';
+	import { modulesState } from '../../../stores/modules';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import { recordBoostEvent } from '../../../utils/analytics';
 	import { castToString } from '../../../utils/cast-to-string';
@@ -102,6 +104,14 @@
 	function dismissModal() {
 		modalData = null;
 	}
+
+	const panelStore = performanceHistoryPanelDS.store;
+	const onTogglePerformanceHistory = status => {
+		panelStore.set( status );
+	};
+
+	$: performanceHistoryNeedsUpgrade = $modulesState.performance_history.available === false;
+	$: performanceHistoryIsOpen = $panelStore;
 </script>
 
 <div class="jb-container">
@@ -177,7 +187,11 @@
 		/>
 	</div>
 	{#if siteIsOnline}
-		<History />
+		<History
+			isOpen={performanceHistoryIsOpen}
+			needsUpgrade={performanceHistoryNeedsUpgrade}
+			onToggle={onTogglePerformanceHistory}
+		/>
 	{/if}
 </div>
 
