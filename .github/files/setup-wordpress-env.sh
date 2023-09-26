@@ -129,8 +129,8 @@ for PLUGIN in projects/plugins/*/composer.json; do
 done
 
 # Install WooCommerce plugin used for some Jetpack integration tests.
-DEFAULT_PHP_VERSION=$(bash -c 'source .github/versions.sh; echo $PHP_VERSION')
-if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "$DEFAULT_PHP_VERSION" ]] &&
+#DEFAULT_PHP_VERSION=$(bash -c 'source .github/versions.sh; echo $PHP_VERSION')
+if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "7.4" ]] &&
 	jq --argjson changed "$CHANGED" -ne '$changed["plugins/jetpack"] // false' > /dev/null
 then
 	echo "::group::Installing plugin WooCommerce into WordPress"
@@ -142,8 +142,7 @@ then
 
 	RESPONSE=$(curl -s "$WOO_GH_API_URL")
 	WOO_LATEST_TAG=$(jq -r ".tag_name" <<< "$RESPONSE")
-#	WOO_DL_URL=$(jq -r ".assets[0].browser_download_url" <<< "$RESPONSE")
-	WOO_DL_URL="https://github.com/woocommerce/woocommerce/releases/download/nightly/woocommerce-trunk-nightly.zip"
+	WOO_DL_URL=$(jq -r ".assets[0].browser_download_url" <<< "$RESPONSE")
 
 	if [[ -n "$WOO_LATEST_TAG" && -n "$WOO_DL_URL" ]]; then
 		cd "/tmp"
