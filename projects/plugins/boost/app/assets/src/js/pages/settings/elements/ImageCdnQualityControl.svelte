@@ -35,7 +35,7 @@
 		gap: 20px;
 
 		&__label {
-			flex-basis: 4rem;
+			min-width: 4rem;
 		}
 
 		&__lossless {
@@ -49,6 +49,20 @@
 			opacity: 0.5;
 			filter: grayscale(1);
 			pointer-events: none;
+		}
+	}
+
+	@media screen and (max-width: 782px) {
+		.jb-image-cdn-quality-control {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0;
+			margin-bottom: 30px;
+
+			&__label {
+				margin: 0;
+				font-weight: 500;
+			}
 		}
 	}
 </style>
