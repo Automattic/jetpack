@@ -99,14 +99,17 @@
 
 	let modalData: ScoreChangeMessage | null = null;
 	$: modalData = ! isLoading && ! scores.isStale && scoreChangeModal( scores );
-	$: showModal = modalData && $dismissedScorePromptStore !== modalData.id;
+	$: showModal =
+		modalData &&
+		$dismissedScorePromptStore &&
+		! $dismissedScorePromptStore.includes( modalData.id );
 
 	function dismissModal() {
 		modalData = null;
 	}
 
 	async function disableModal( id ) {
-		$dismissedScorePromptStore = id;
+		$dismissedScorePromptStore = [ ...$dismissedScorePromptStore, id ];
 		dismissModal();
 	}
 </script>

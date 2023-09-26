@@ -220,10 +220,5 @@ jetpack_boost_register_option( 'super_cache_notice_disabled', Schema::as_boolean
  */
 jetpack_boost_register_option(
 	'dismissed_score_prompt',
-	Schema::enum(
-		array(
-			'score-increase',
-			'score-decrease',
-		)
-	)->nullable()
+	Schema::as_array( Schema::as_string() )->fallback( array() )
 );
