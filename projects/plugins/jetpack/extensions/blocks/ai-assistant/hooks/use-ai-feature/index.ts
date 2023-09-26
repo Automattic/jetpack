@@ -56,12 +56,20 @@ export async function getAIFeatures(): Promise< AIFeatureProps > {
 	}
 }
 
-export default function useAIFeature() {
+type UseAIFeatureOptions = {
+	refreshData?: boolean;
+};
+
+export default function useAIFeature( { refreshData = false }: UseAIFeatureOptions = {} ) {
 	const [ data, setData ] = useState< AIFeatureProps >( AI_Assistant_Initial_State );
 
 	useEffect( () => {
+		if ( ! refreshData ) {
+			return;
+		}
+
 		getAIFeatures().then( setData );
-	}, [] );
+	}, [ refreshData ] );
 
 	return {
 		...data,
