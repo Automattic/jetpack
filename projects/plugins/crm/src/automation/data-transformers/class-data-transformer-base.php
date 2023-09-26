@@ -20,25 +20,26 @@ abstract class Data_Transformer_Base {
 
 	/**
 	 * Validate the data type we transform from.
-	 * 
-	 * @param Data_Type $data
-	 * @return bool
-	 * @throws Data_Transformer_Exception
+	 *
+	 * @param Data_Type $data The data type we want to transform.
+	 * @return bool Return true if the data type is valid.
+	 *
+	 * @throws Data_Transformer_Exception Throw if the data type is not valid.
 	 */
 	protected function validate_from_type( Data_Type $data ): bool {
 
 		$from_data_type = $this->get_from();
-		
+
 		if ( ! $data instanceof $from_data_type ) {
 			throw new Data_Transformer_Exception(
 				'Invoice data type is not valid.',
 				Data_Type_Exception::INVALID_DATA
 			);
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Get the slug of the data transformer.
 	 *
