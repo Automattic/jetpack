@@ -102,6 +102,7 @@ export default function TrackForm( {
 				);
 			}
 
+			// let the error message from the control take over
 			setError( errorMessage || '' );
 		},
 		[ errorMessage ]
@@ -116,8 +117,7 @@ export default function TrackForm( {
 		__( 'Add a new text track to the video. Allowed formats: %s', 'jetpack-videopress-pkg' ),
 		ACCEPTED_FILE_TYPES
 	);
-	debug( 'error', error );
-	debug( 'errorMessage', errorMessage );
+	debug( 'error/errorMessage', error, errorMessage );
 	return (
 		<MenuGroup
 			className="video-tracks-control__track-form"
