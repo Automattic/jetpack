@@ -9,6 +9,7 @@
 
 <div class="jb-collapsible-meta">
 	<header class="jb-collapsible-meta__header">
+		<slot name="header" />
 		<button
 			type="button"
 			class="jb-collapsible-meta__edit-button components-button is-link"
@@ -20,7 +21,6 @@
 			{isEditing ? closeEditText : editText}
 		</button>
 
-		<slot name="header" />
 	</header>
 
 	{#if isEditing}
@@ -38,12 +38,19 @@
 	.jb-collapsible-meta {
 		margin-top: 2em;
 
+
 		&__header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
 			margin-bottom: 1em;
+			@media screen and (max-width: 530px) {
+				flex-direction: column;
+				align-items: flex-start;
+			}
 		}
 
 		&__edit-button {
-			float: right;
 			padding: 4px;
 		}
 
