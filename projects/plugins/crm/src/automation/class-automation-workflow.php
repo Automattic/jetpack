@@ -8,6 +8,8 @@
 
 namespace Automattic\Jetpack\CRM\Automation;
 
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+
 /**
  * Adds the Automation_Workflow class.
  *
@@ -485,13 +487,14 @@ class Automation_Workflow {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Trigger $trigger An instance of the Trigger class.
-	 * @param array   $data All relevant object data to be passed through the workflow.
+	 * @param Trigger        $trigger An instance of the Trigger class.
+	 * @param Data_Type|null $data All relevant object data to be passed through the workflow.
 	 * @return bool Whether the workflow was executed successfully.
 	 *
-	 * @throws Workflow_Exception Throws an exception if there is an issue executing the workflow.
+	 * @throws Automation_Exception|Workflow_Exception Throws an exception if there is an issue executing the workflow.
+	 * @throws Data_Transformer_Exception Throws an exception if there is an issue transforming the data.
 	 */
-	public function execute( Trigger $trigger, array $data ): bool {
+	public function execute( Trigger $trigger, Data_Type $data = null ): bool {
 		return $this->get_engine()->execute_workflow( $this, $trigger, $data );
 	}
 

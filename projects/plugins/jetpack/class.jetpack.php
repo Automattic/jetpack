@@ -6064,6 +6064,10 @@ endif;
 				'replacement' => null,
 				'version'     => 'jetpack-11.8.0',
 			),
+			'jetpack_subscriptions_modal_enabled'          => array(
+				'replacement' => null,
+				'version'     => 'jetpack-12.7.0',
+			),
 		);
 
 		foreach ( $filter_deprecated_list as $tag => $args ) {

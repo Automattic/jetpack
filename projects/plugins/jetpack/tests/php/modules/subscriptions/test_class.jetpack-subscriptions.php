@@ -486,7 +486,6 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			'earn_get_user_subscriptions_for_site_id',
 			static function ( $subscriptions, $subscriber_id ) use ( $paid_subscriber_id, $payload ) {
 				if ( $subscriber_id === $paid_subscriber_id ) {
-					//phpcs:ignore PHPCompatibility.Operators.NewOperators.t_coalesceFound
 					$subscriptions = array_merge( $subscriptions, isset( $payload['subscriptions'] ) ? $payload['subscriptions'] : array() );
 				}
 

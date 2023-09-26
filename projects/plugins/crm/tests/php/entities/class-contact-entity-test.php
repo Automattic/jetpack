@@ -52,7 +52,7 @@ class Contact_Entity_Test extends JPCRM_Base_Integration_Test_Case {
 		global $zbs;
 
 		// Prepare the Contact data from the instance to save it via DAL
-		$contact_data_to_save = Contact_Factory::data_for_db( $contact );
+		$contact_data_to_save = Contact_Factory::data_for_dal( $contact );
 
 		$id = $zbs->DAL->contacts->addUpdateContact( $contact_data_to_save );
 

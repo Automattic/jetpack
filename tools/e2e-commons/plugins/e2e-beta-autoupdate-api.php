@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Plugin Name: E2E Jetpack Beta Autoupdate API
  * Plugin URI: https://github.com/automattic/jetpack
