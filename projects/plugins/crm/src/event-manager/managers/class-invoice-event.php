@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\CRM\Event_Manager;
 
+use Automattic\Jetpack\CRM\Entities\Factories\Invoice_Factory;
+use Automattic\Jetpack\CRM\Entities\Invoice;
+
 /**
  * Invoice Event class.
  *
@@ -46,7 +49,11 @@ class Invoice_Event implements Event {
 	 * @return void
 	 */
 	public function created( array $invoice_data ): void {
-		do_action( 'jpcrm_invoice_created', $invoice_data );
+
+		/** @var Invoice $invoice */
+		$invoice = Invoice_Factory::create( $invoice_data );
+
+		do_action( 'jpcrm_invoice_created', $invoice );
 	}
 
 	/**
