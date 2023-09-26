@@ -20,8 +20,10 @@ import { store as noticesStore } from '@wordpress/notices';
  * Internal dependencies
  */
 import classNames from 'classnames';
+import ConnectPrompt from '../../../../components/connect-prompt';
 import UpgradePrompt from '../../../../components/upgrade-prompt';
 import useAIFeature from '../../../../hooks/use-ai-feature';
+import { isUserConnected } from '../../../../lib/connection';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 import { AI_ASSISTANT_JETPACK_FORM_NOTICE_ID } from '../../ui-handler/with-ui-handler-data-provider';
@@ -75,6 +77,8 @@ export default function AiAssistantBar( {
 } ) {
 	const wrapperRef = useRef< HTMLDivElement >( null );
 	const inputRef = useRef< HTMLInputElement >( null );
+
+	const connected = isUserConnected();
 
 	const { inputValue, setInputValue, isVisible, assistantAnchor } =
 		useContext( AiAssistantUiContext );
@@ -209,16 +213,17 @@ export default function AiAssistantBar( {
 			} ) }
 		>
 			{ siteRequireUpgrade && <UpgradePrompt /> }
+			{ ! connected && <ConnectPrompt /> }
 			<AIControl
 				ref={ inputRef }
-				disabled={ siteRequireUpgrade }
+				disabled={ siteRequireUpgrade || ! connected }
 				value={ isLoading ? undefined : inputValue }
 				placeholder={ isLoading ? loadingPlaceholder : placeholder }
 				onChange={ setInputValue }
 				onSend={ onSend }
 				onStop={ stopSuggestion }
 				state={ requestingState }
-				isTransparent={ siteRequireUpgrade }
+				isTransparent={ siteRequireUpgrade || ! connected }
 				showButtonLabels={ ! isMobileMode }
 				showGuideLine={ showGuideLine }
 			/>
