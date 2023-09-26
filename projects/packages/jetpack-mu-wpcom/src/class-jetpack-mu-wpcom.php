@@ -28,9 +28,6 @@ class Jetpack_Mu_Wpcom {
 		// Shared code for src/features.
 		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 
-		// User content link redirection
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_user_content_link_redirection' ) );
-
 		// Coming Soon feature.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 
