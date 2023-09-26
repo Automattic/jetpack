@@ -308,7 +308,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 		$this->assertNotEmpty( $data->code );
 		$this->assertSame( 'rest_not_found', $data->code );
 		$this->assertSame( 'Connection with this ID not found.', $data->message );
-		$this->assertObjectHasAttribute( 'status', $data->data );
+		$this->assertObjectHasProperty( 'status', $data->data );
 		$this->assertSame( 404, $data->data->status );
 
 		remove_filter( 'rest_pre_dispatch', array( $this, 'mock_wpcom_api_external_media_connection_response_with_error' ) );

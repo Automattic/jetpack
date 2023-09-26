@@ -77,7 +77,47 @@ class Workflow_Repository {
 	 * @return Automation_Workflow[]
 	 */
 	public function find_all(): array {
-		$rows = $this->wpdb->get_results( "SELECT * FROM {$this->table_name}", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return $this->find_by( array() );
+	}
+
+	/**
+	 * Find workflows with the given criteria.
+	 *
+	 * @param array $criteria Arguments to filter the workflows result.
+	 * @since $$next-version$$
+	 *
+	 * @return Automation_Workflow[]
+	 */
+	public function find_by( array $criteria ): array {
+
+		// todo: Add $order_by and pagination support with $limit and $offset
+
+		$query = "SELECT * FROM {$this->table_name}";
+
+		$allowed_criteria = array(
+			'active'     => '%d',
+			'name'       => '%s',
+			'category'   => '%s',
+			'created_at' => '%d',
+			'updated_at' => '%d',
+		);
+
+		$where = array();
+
+		// Prepare the WHERE criteria.
+		foreach ( $criteria as $key => $value ) {
+			if ( ! isset( $allowed_criteria[ $key ] ) ) {
+				continue;
+			}
+			$where[] = $this->wpdb->prepare( "{$key}={$allowed_criteria[ $key ]}", $value ); // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
+
+		// Build the WHERE clause.
+		if ( ! empty( $where ) ) {
+			$query .= ' WHERE ' . implode( ' AND ', $where );
+		}
+
+		$rows = $this->wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		if ( empty( $rows ) ) {
 			return array();

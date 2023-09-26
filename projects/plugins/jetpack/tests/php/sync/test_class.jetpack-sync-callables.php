@@ -991,7 +991,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'rewrite',
 		);
 		foreach ( $check_object_vars as $test ) {
-			$this->assertObjectHasAttribute( $test, $taxonomy, "Taxonomy does not have expected {$test} attribute." );
+			$this->assertObjectHasProperty( $test, $taxonomy, "Taxonomy does not have expected {$test} attribute." );
 		}
 	}
 
