@@ -20,8 +20,10 @@
 		regenerateCriticalCss,
 	} from '../../../stores/critical-css-state';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
+	import { imageCdnQuality } from '../../../stores/image-cdn';
 	import { minifyJsExcludesStore, minifyCssExcludesStore } from '../../../stores/minify';
 	import { modulesState } from '../../../stores/modules';
+	import { premiumFeatures } from '../../../stores/premium-features';
 	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
@@ -33,8 +35,6 @@
 	import ResizingUnavailable from '../elements/ResizingUnavailable.svelte';
 	import SuperCacheInfo from '../elements/SuperCacheInfo.svelte';
 	import UpgradeCTA from '../elements/UpgradeCTA.svelte';
-	import { imageCdnQuality } from '../../../stores/image-cdn';
-	import { premiumFeatures } from '../../../stores/premium-features';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import PencilIcon from '../../../svg/pencil.svg';
 	import CloseIcon from '../../../svg/close.svg';
+	import PencilIcon from '../../../svg/pencil.svg';
 
 	export let editText: string;
 	export let closeEditText: string;
