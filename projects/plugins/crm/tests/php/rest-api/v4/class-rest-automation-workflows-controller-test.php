@@ -67,7 +67,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	 */
 	public function dataprovider_pagination() {
 		return array(
-			'page: 1 | per_page: 4 | | expect: 4/5'   => array(
+			'page: 1 | per_page: 4 | expect: 4/5'     => array(
 				array(
 					'page'     => 1,
 					'per_page' => 4,
@@ -114,14 +114,13 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 		$jpcrm_admin_id = $this->create_wp_jpcrm_admin();
 		wp_set_current_user( $jpcrm_admin_id );
 
-		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
-		$repo          = new Workflow_Repository();
-
 		// Create 5 workflows.
 		for ( $i = 0; $i < 5; $i++ ) {
-			$workflow_data['name'] = sprintf( 'Workflow %d', $i );
-			$workflow              = new Automation_Workflow( $workflow_data );
-			$repo->persist( $workflow );
+			$this->create_workflow(
+				array(
+					'name' => sprintf( 'Workflow %d', $i ),
+				)
+			);
 		}
 
 		// Make request.
@@ -196,6 +195,26 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 		// We hardcode the name in the workflow creation, so we can verify that we're
 		// actually retrieving the correct workflow and not just a false-positive response.
 		$this->assertSame( 'test_get_workflow_success', $response_data['name'] );
+	}
+
+	/**
+	 * @testdox GET Workflow: Test that we get a 404 if ID does not exist.
+	 *
+	 * @return void
+	 */
+	public function test_get_workflow_return_404_if_id_do_not_exist() {
+		// Create and set authenticated user.
+		$jpcrm_admin_id = $this->create_wp_jpcrm_admin();
+		wp_set_current_user( $jpcrm_admin_id );
+
+		// Make request.
+		$request = new WP_REST_Request(
+			WP_REST_Server::READABLE,
+			'/jetpack-crm/v4/automation/workflows/123'
+		);
+
+		$response = rest_do_request( $request );
+		$this->assertSame( 404, $response->get_status() );
 	}
 
 	/**
