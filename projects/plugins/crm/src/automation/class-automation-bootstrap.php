@@ -244,6 +244,13 @@ final class Automation_Bootstrap {
 	 * @return void
 	 */
 	protected function register_workflows(): void {
+		$workflow_repository = new Workflow\Workflow_Repository();
+		$workflows           = $workflow_repository->find_by(
+			array(
+				'active' => true,
+			)
+		);
+
 		/**
 		 * Filter list of available workflows.
 		 *
@@ -253,12 +260,11 @@ final class Automation_Bootstrap {
 		 *
 		 * @param Automation_Workflow[] $workflows A collection of registered workflows.
 		 */
-		$workflows = apply_filters( 'jpcrm_automation_workflows', array() );
+		$workflows = apply_filters( 'jpcrm_automation_workflows', $workflows );
 
 		foreach ( $workflows as $workflow ) {
 			if ( $workflow instanceof Automation_Workflow ) {
 				try {
-					$workflow->set_engine( $this->engine );
 					$this->engine->add_workflow( $workflow, true );
 				} catch ( \Exception $e ) {
 					$this->engine->get_logger()->log( $e->getMessage() );

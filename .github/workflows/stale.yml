@@ -27,7 +27,7 @@ jobs:
           # Delete the branch when closing PRs. GitHub's "restore branch" function works indefinitely, so no reason not to.
           delete-branch: true
           # Issues and PRs with these labels will never be considered stale.
-          exempt-issue-labels: '[Pri] High,[Pri] BLOCKER,[Type] Feature Request,[Type] Enhancement,Good For Community,[Type] Good First Bug,FixTheFlows'
+          exempt-issue-labels: '[Pri] High,[Pri] BLOCKER,[Type] Feature Request,[Type] Enhancement,[Type] Janitorial,Good For Community,[Type] Good First Bug,FixTheFlows'
           exempt-pr-labels: '[Pri] High,[Pri] BLOCKER,FixTheFlows'
           # Label to use when marking an issue / PR as stale
           stale-pr-label: '[Status] Stale'
@@ -38,7 +38,7 @@ jobs:
 
             <ul>
               <li>It has been inactive for the past 6 months.</li>
-              <li>It hasn’t been labeled `[Pri] BLOCKER`, `[Pri] High`, `[Type] Feature Request`, `[Type] Enhancement`, `Good For Community`, `[Type] Good First Bug`, etc.</li>
+              <li>It hasn’t been labeled `[Pri] BLOCKER`, `[Pri] High`, `[Type] Feature Request`, `[Type] Enhancement`, `[Type] Janitorial`, `Good For Community`, `[Type] Good First Bug`, etc.</li>
             </ul>
 
             <p>No further action is needed. But it's worth checking if this ticket has clear

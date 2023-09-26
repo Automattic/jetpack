@@ -52,8 +52,11 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-autoloader/compare/v${old}...v${new}"
 		},
+		"version-constants": {
+			"::VERSION": "src/AutoloadGenerator.php"
+		},
 		"branch-alias": {
-			"dev-trunk": "2.11.x-dev"
+			"dev-trunk": "2.12.x-dev"
 		}
 	}
 }

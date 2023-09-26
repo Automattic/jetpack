@@ -55,4 +55,33 @@ class Event_Manager_Faker {
 
 		return $data;
 	}
+
+	/**
+	 * Return data for a dummy transaction.
+	 *
+	 * @return array
+	 */
+	public function transaction_data() {
+		$data = array(
+			'id'   => 1,
+			'data' => array(
+				'title'          => 'Some transaction title',
+				'ref'            => 'transaction_reference_1',
+				'desc'           => 'Some desc',
+				'hash'           => 'mASOpAnf334Pncl1px4',
+				'status'         => 'Completed',
+				'type'           => 'Sale',
+				'currency'       => 'USD',
+				'total'          => '150.00',
+				'tax'            => '10.00',
+				'lineitems'      => array(),
+				'date'           => 1676000000,
+				'date_completed' => 1676923766,
+				'created'        => 1675000000,
+				'lastupdated'    => 1675000000,
+			),
+		);
+
+		return $data;
+	}
 }

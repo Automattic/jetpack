@@ -2,6 +2,46 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.7-a.1 - 2023-09-25
+### Enhancements
+- Added a new post publish panel for quick sharing. [#33231]
+- AI Assistant: Modify language reminder for toolbar options. [#33211]
+- AI Assistant: Start using backend to generate the prompts. [#33018]
+- AI Assistant: Update block description. [#33218]
+- AI Chat: Fix feedback section styles and include svg for icons. [#33187]
+- AI Chat: Show guideline message. [#33180]
+- AI Extension: Show AI Form extension with connection nudge for disconnected users. [#33186]
+- Blogroll: Add blog appender site searching. [#33060]
+- Blogroll: Fix blogroll block typography editor styling. [#33209]
+- Blogroll: Update blogroll appender height, max lines of text, and container scrolling. [#33245]
+- Blogroll: Update CSS styling to allow blogroll block color styling customizations. [#33214]
+- Blogroll Block: Add the ability to subscribe to recommended blogs. [#33199]
+- Paywall Block: Update description. [#33274]
+- Sidebar: Rename the "Inbox" menu to "My Mailboxes" for domain-only sites. [#33239]
+- Update Blogroll appender accessibility. [#33269]
+
+### Improved compatibility
+- Improve color handling for the newsletter categories. [#33206]
+
+### Bug fixes
+- AI Chat: Remove extra request in $search->is_active() and only load initial state in editor. [#33195]
+- AI Extension: Revert PR causing stream rendering issue on Firefox. [#33223]
+- Dashboard: Avoid errors when dashboard is accessed by WordPress users with a custom non-admin role. [#33263]
+- Fix menu focus state without My Jetpack. [#33251]
+- Fix subscribe block button not showing on newline. [#33260]
+- Hide launchpad modal on first post for bloggers. [#33098]
+- Skip video file addition to upload queue if it fails the space/allowance check. [#33212]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adds legacy contact and locked mode options for 100-year plan. [#33081]
+- Adjust styling in AI chat button. [#33213]
+- Site Settings Endpoint: Allow for updating and retrieving of the wpcom_newsletter_categories site option via the endpoint. [#33234]
+- Subscriptions Block: Do not append newsletter category exclusions to subscribe url when none categories were checked. [#33181]
+
+## 12.6.1 - 2023-09-21
+### Bug Fixes
+- WooCommerce Analytics: fix a fatal error that can occur with WooCommerce enabled.
+
 ## [12.6] - 2023-09-19
 ### Enhancements
 - AI Assistant: add prompts for correct feature configuration. [#33064]
