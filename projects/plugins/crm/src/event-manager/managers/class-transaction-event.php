@@ -64,7 +64,9 @@ class Transaction_Event implements Event {
 	 * @return void
 	 */
 	public function updated( array $transaction_data ): void {
-		do_action( 'jpcrm_transaction_updated', $transaction_data );
+		$transaction = Transaction_Factory::create( $transaction_data );
+
+		do_action( 'jpcrm_transaction_updated', $transaction );
 	}
 
 	/**
