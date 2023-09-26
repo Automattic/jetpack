@@ -1,22 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Autoloader Generator.
  *
  * @package automattic/jetpack-autoloader
  */
-
-// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_useFound
-// phpcs:disable PHPCompatibility.LanguageConstructs.NewLanguageConstructs.t_ns_separatorFound
-// phpcs:disable PHPCompatibility.FunctionDeclarations.NewClosure.Found
-// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_namespaceFound
-// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_dirFound
-// phpcs:disable WordPress.Files.FileName.InvalidClassFileName
-// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_var_export
-// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
 namespace Automattic\Jetpack\Autoloader;
 
@@ -214,6 +201,7 @@ class AutoloadGenerator {
 			$baseDir = "'phar://' . " . $baseDir;
 		}
 
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
 		return $baseDir . ( ( false !== $path ) ? var_export( $path, true ) : '' );
 	}
 
