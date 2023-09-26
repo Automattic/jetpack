@@ -88,7 +88,12 @@ AUTOLOADER_COMMENT;
 	private static function prepareAutoloaderFile( $filename, $suffix ) {
 		$header  = self::COMMENT;
 		$header .= PHP_EOL;
-		$header .= 'namespace Automattic\Jetpack\Autoloader\jp' . $suffix . ';';
+		if ( $suffix === 'Current' ) {
+			// Unit testing.
+			$header .= 'namespace Automattic\Jetpack\Autoloader\jpCurrent;';
+		} else {
+			$header .= 'namespace Automattic\Jetpack\Autoloader\jp' . $suffix . '\al' . preg_replace( '/[^0-9a-zA-Z]/', '_', AutoloadGenerator::VERSION ) . ';';
+		}
 		$header .= PHP_EOL . PHP_EOL;
 
 		$sourceLoader  = fopen( __DIR__ . '/' . $filename, 'r' );
