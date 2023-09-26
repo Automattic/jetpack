@@ -50,17 +50,17 @@
 		</div>
 
 		<ImageCdnQualityControl
-			label={__( 'JPEG Quality', 'jetpack-boost' )}
+			label={__( 'JPEG', 'jetpack-boost' )}
 			bind:config={quality.jpg}
 			maxValue={89}
 		/>
 		<ImageCdnQualityControl
-			label={__( 'PNG Quality', 'jetpack-boost' )}
+			label={__( 'PNG', 'jetpack-boost' )}
 			bind:config={quality.png}
 			maxValue={80}
 		/>
 		<ImageCdnQualityControl
-			label={__( 'WEBP Quality', 'jetpack-boost' )}
+			label={__( 'WEBP', 'jetpack-boost' )}
 			bind:config={quality.webp}
 			maxValue={80}
 		/>
