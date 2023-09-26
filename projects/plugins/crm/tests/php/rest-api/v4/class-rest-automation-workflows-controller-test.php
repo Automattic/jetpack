@@ -141,6 +141,30 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	}
 
 	/**
+	 * @testdox GET Worfklows: Test that we return an empty array if we do not have any results.
+	 *
+	 * @return void
+	 */
+	public function test_get_workflows_return_empty(): void {
+		// Create and set authenticated user.
+		$jpcrm_admin_id = $this->create_wp_jpcrm_admin();
+		wp_set_current_user( $jpcrm_admin_id );
+
+		// Make request.
+		$request  = new WP_REST_Request(
+			WP_REST_Server::READABLE,
+			'/jetpack-crm/v4/automation/workflows'
+		);
+		$response = rest_do_request( $request );
+		$this->assertSame( 200, $response->get_status() );
+
+		// Verify we get an empty array if we do not have any results.
+		$response_data = $response->get_data();
+		$this->assertIsArray( $response_data );
+		$this->assertCount( 0, $response_data );
+	}
+
+	/**
 	 * GET (Single) Workflow: Test that we can successfully access the endpoint.
 	 *
 	 * @return void
