@@ -29,7 +29,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
 		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
-		add_filter( 'default_option_stats_options', array( $this, 'extend_stats_menu_item_access' ) );
 
 		if ( ! $this->is_api_request ) {
 			add_filter( 'submenu_file', array( $this, 'override_the_theme_installer' ), 10, 2 );
@@ -444,19 +443,5 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$jitm->dismiss( sanitize_text_field( wp_unslash( $_REQUEST['id'] ) ), sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) ) );
 		}
 		wp_die();
-	}
-
-	/**
-	 * Extends the default value for which roles can access the Stats menu item.
-	 *
-	 * @see Automattic\Jetpack\Stats\Options::get_defaults()
-	 *
-	 * @param array $default_value The default value for stats options.
-	 * @return array
-	 */
-	public function extend_stats_menu_item_access( $default_value ) {
-		$default_value['roles'] = array( 'administrator', 'editor', 'author', 'contributor' );
-
-		return $default_value;
 	}
 }
