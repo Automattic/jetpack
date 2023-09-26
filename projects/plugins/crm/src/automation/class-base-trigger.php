@@ -40,13 +40,19 @@ abstract class Base_Trigger implements Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array|null $data The data to pass to the workflow.
+	 * @param mixed|null $data The data to pass to the workflow.
+	 * @param mixed|null $previous_data The previous data to pass to the workflow.
 	 *
-	 * @throws Automation_Exception Exception when the workflow is executed.
+	 * @throws Workflow_Exception Exception when the workflow is executed.
 	 */
-	public function execute_workflow( $data = null ) {
+	public function execute_workflow( $data = null, $previous_data = null ) {
+		// Encapsulate the $data into a Data_Type object.
+		$data_type_class = static::get_data_type();
+
+		$data_type = new $data_type_class( $data, $previous_data );
+
 		if ( $this->workflow ) {
-			$this->workflow->execute( $this, $data );
+			$this->workflow->execute( $this, $data_type );
 		}
 	}
 

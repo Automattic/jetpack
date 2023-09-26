@@ -10,7 +10,9 @@ namespace Automattic\Jetpack\CRM\Automation\Conditions;
 use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Invoice_Data;
+use Automattic\Jetpack\CRM\Entities\Invoice;
 
 /**
  * Invoice_Field_Contains condition class.
@@ -56,34 +58,32 @@ class Invoice_Field_Contains extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param mixed  $data Data passed from the trigger.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 * @param Data_Type $data Data passed from the trigger.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( ! $this->is_valid_invoice_field_contains_data( $data ) ) {
-			$this->logger->log( 'Invalid invoice field contains data' );
-			$this->condition_met = false;
-			return;
-		}
+	public function execute( Data_Type $data ) {
+		$this->validate( $data );
+
+		/** @var Invoice $invoice */
+		$invoice = $data->get_data();
 
 		$field    = $this->get_attributes()['field'];
 		$operator = $this->get_attributes()['operator'];
 		$value    = $this->get_attributes()['value'];
 
 		$this->check_for_valid_operator( $operator );
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data[ $field ] );
+		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $invoice->{$field} );
 
 		switch ( $operator ) {
 			case 'contains':
-				$this->condition_met = ( strpos( $data[ $field ], $value ) !== false );
+				$this->condition_met = ( strpos( $invoice->{$field}, $value ) !== false );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
 			case 'does_not_contain':
-				$this->condition_met = ( strpos( $data[ $field ], $value ) === false );
+				$this->condition_met = ( strpos( $invoice->{$field}, $value ) === false );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
@@ -95,19 +95,6 @@ class Invoice_Field_Contains extends Base_Condition {
 					Automation_Exception::CONDITION_OPERATOR_NOT_IMPLEMENTED
 				);
 		}
-	}
-
-	/**
-	 * Checks if the invoice has at least the necessary keys to detect if a field
-	 * contains some value.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param array $data The invoice data.
-	 * @return bool True if the data is valid to detect if a field contains some value, false otherwise
-	 */
-	private function is_valid_invoice_field_contains_data( array $data ): bool {
-		return isset( $data[ $this->get_attributes()['field'] ] );
 	}
 
 	/**
@@ -151,7 +138,7 @@ class Invoice_Field_Contains extends Base_Condition {
 	 * @return string The type of the step.
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Invoice::get_slug();
+		return Invoice_Data::class;
 	}
 
 	/**
@@ -163,19 +150,5 @@ class Invoice_Field_Contains extends Base_Condition {
 	 */
 	public static function get_category(): string {
 		return __( 'Invoice', 'zero-bs-crm' );
-	}
-
-	/**
-	 * Get the allowed triggers for the invoice field contains condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string[] An array of allowed triggers:
-	 *               - 'jpcrm/invoice_updated'
-	 */
-	public static function get_allowed_triggers(): array {
-		return array(
-			'jpcrm/invoice_updated',
-		);
 	}
 }
