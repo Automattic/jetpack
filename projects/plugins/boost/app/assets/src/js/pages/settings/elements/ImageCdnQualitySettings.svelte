@@ -10,6 +10,7 @@
 	import ImageCdnQualityControl from './ImageCdnQualityControl.svelte';
 
 	const navigate = useNavigate();
+	$: quality = $imageCdnQuality;
 </script>
 
 {#if $premiumFeatures.includes( 'image-cdn-quality' )}
@@ -36,31 +37,31 @@
 			{sprintf(
 				/* translators: %1$s is the JPEG quality value, %2$s is PNG quality value, and %3$s is WEBP quality value. Each value may also say 'lossless' */
 				__( 'JPEG Quality: %1$s, PNG Quality: %2$s, WEBP Quality: %3$s', 'jetpack-boost' ),
-				$imageCdnQuality.jpg.lossless
+				quality.jpg.lossless
 					? __( 'lossless', 'jetpack-boost' )
-					: $imageCdnQuality.jpg.quality.toString(),
-				$imageCdnQuality.png.lossless
+					: quality.jpg.quality.toString(),
+				quality.png.lossless
 					? __( 'lossless', 'jetpack-boost' )
-					: $imageCdnQuality.png.quality.toString(),
-				$imageCdnQuality.webp.lossless
+					: quality.png.quality.toString(),
+				quality.webp.lossless
 					? __( 'lossless', 'jetpack-boost' )
-					: $imageCdnQuality.webp.quality.toString()
+					: quality.webp.quality.toString()
 			)}
 		</div>
 
 		<ImageCdnQualityControl
 			label={__( 'JPEG Quality', 'jetpack-boost' )}
-			bind:config={$imageCdnQuality.jpg}
+			bind:config={quality.jpg}
 			maxValue={89}
 		/>
 		<ImageCdnQualityControl
 			label={__( 'PNG Quality', 'jetpack-boost' )}
-			bind:config={$imageCdnQuality.png}
+			bind:config={quality.png}
 			maxValue={80}
 		/>
 		<ImageCdnQualityControl
 			label={__( 'WEBP Quality', 'jetpack-boost' )}
-			bind:config={$imageCdnQuality.webp}
+			bind:config={quality.webp}
 			maxValue={80}
 		/>
 	</CollapsibleMeta>
