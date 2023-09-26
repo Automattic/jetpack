@@ -241,7 +241,7 @@
 
 		<div slot="meta">
 			<ImageCdnQualitySettings
-				quality={$imageCdnQuality}
+				bind:quality={$imageCdnQuality}
 				isPremium={$premiumFeatures.includes( 'image-cdn-quality' )}
 			/>
 		</div>
