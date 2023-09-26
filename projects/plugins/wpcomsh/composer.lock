@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ad2c6efa28b77912a809c3acf708d33e",
+    "content-hash": "401e74955ef6c1204534a7054f20195f",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -208,20 +208,20 @@
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v4.10.0",
+            "version": "v4.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "9a89063f4404fe62add8329d4c9dded6a99bf418"
+                "reference": "57401050b38cb6a41f830baa2387f0fd0c0107df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/9a89063f4404fe62add8329d4c9dded6a99bf418",
-                "reference": "9a89063f4404fe62add8329d4c9dded6a99bf418",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/57401050b38cb6a41f830baa2387f0fd0c0107df",
+                "reference": "57401050b38cb6a41f830baa2387f0fd0c0107df",
                 "shasum": ""
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.3.9",
+                "automattic/jetpack-changelogger": "^3.3.10",
                 "automattic/wordbless": "0.4.2",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
@@ -236,7 +236,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "4.10.x-dev"
+                    "dev-trunk": "4.11.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -254,9 +254,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v4.10.0"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v4.11.0"
             },
-            "time": "2023-09-19T18:19:04+00:00"
+            "time": "2023-09-25T19:07:18+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
