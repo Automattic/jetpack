@@ -217,9 +217,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	}
 
 	/**
-	 * GET (Single) Workflow: Test that we can successfully access the endpoint.
-	 *
-	 * @todo Actually test an update.
+	 * PUT (Single) Workflow: Test that we can successfully update an existing workflow.
 	 *
 	 * @return void
 	 */
@@ -228,26 +226,61 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 		$jpcrm_admin_id = $this->create_wp_jpcrm_admin();
 		wp_set_current_user( $jpcrm_admin_id );
 
-		$workflow = $this->create_workflow(
-			array(
-				'name' => 'test_update_workflow_success',
-			)
+		// Create a workflow that we will update later.
+		$workflow = $this->create_workflow();
+
+		// Define values to use for our update request and to verify that the workflow was updated.
+		$update_data = array(
+			'name'         => 'my updated name',
+			'description'  => 'my updated description',
+			'category'     => 'jpcrm/updated-category',
+			'active'       => false,
+			'triggers'     => array( 'my_updated_trigger' ),
+			'initial_step' => 'updated_step_2',
+			'steps'        => array(
+				'updated_step_1' => array(
+					'slug'           => 'my_updated_step_1',
+					'next_step_true' => 'updated_step_2',
+				),
+				'updated_step_2' => array(
+					'slug' => 'my_updated_step_2',
+				),
+			),
 		);
 
 		// Make request.
-		$request  = new WP_REST_Request(
+		$request = new WP_REST_Request(
 			'PUT',
 			sprintf( '/jetpack-crm/v4/automation/workflows/%d', $workflow->get_id() )
 		);
+		foreach ( $update_data as $param => $value ) {
+			$request->set_param( $param, $value );
+		}
 		$response = rest_do_request( $request );
 		$this->assertSame( 200, $response->get_status() );
 
+		// Verify that all the values we passed are returned as the updated workflow.
 		$response_data = $response->get_data();
 		$this->assertIsArray( $response_data );
-		$this->assertEquals( $response_data, $workflow->to_array() );
-		// We hardcode the name in the workflow creation, so we can verify that we're
-		// actually retrieving the correct workflow and not just a false-positive response.
-		$this->assertSame( 'test_update_workflow_success', $workflow->get_name() );
+		foreach ( $update_data as $param => $value ) {
+			$this->assertSame(
+				$value,
+				$response_data[ $param ],
+				sprintf( 'The following param failed: %s', $param )
+			);
+		}
+
+		// Verify that all the values we passed were persisted in the database.
+		$repo             = new Workflow_Repository();
+		$fetched_workflow = ( $repo->find( $response_data['id'] ) )->to_array();
+		$this->assertIsArray( $response_data );
+		foreach ( $update_data as $param => $value ) {
+			$this->assertSame(
+				$value,
+				$fetched_workflow[ $param ],
+				sprintf( 'The following param failed: %s', $param )
+			);
+		}
 	}
 
 	/**

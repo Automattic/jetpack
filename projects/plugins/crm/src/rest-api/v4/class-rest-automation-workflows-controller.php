@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\CRM\REST_API\V4;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository;
+use Automattic\Jetpack\CRM\Automation\Workflow_Exception;
 use Exception;
 use WP_Error;
 use WP_REST_Request;
@@ -115,6 +116,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_item' ),
 					'permission_callback' => array( $this, 'get_item_permissions_check' ),
+					'args'                => $this->create_update_args( false ),
 				),
 			)
 		);
@@ -187,10 +189,19 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	 */
 	public function update_item( $request ) {
 		try {
-			// TODO: Actually update the Workflow in the DB and not just fetch it.
-			$workflow_id = $request->get_param( 'id' );
+			$workflow = $this->prepare_item_for_database( $request );
 
-			$workflow = $this->workflow_repository->find( $workflow_id );
+			if ( is_wp_error( $workflow ) ) {
+				return $workflow;
+			}
+
+			$this->workflow_repository->persist( $workflow );
+		} catch ( Workflow_Exception $e ) {
+			return new WP_Error(
+				'rest_workflow_exception',
+				$e->getMessage(),
+				array( 'status' => 500 )
+			);
 		} catch ( Exception $e ) {
 			return new WP_Error(
 				'rest_unknown_error',
@@ -268,5 +279,125 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 		 * @param WP_REST_Request $request The request object.
 		 */
 		return apply_filters( 'jpcrm_rest_prepare_workflows_item', $workflow, $request );
+	}
+
+	/**
+	 * Get an array of supported arguments for POST/PUT endpoints.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $create_workflow Whether we're creating a new workflow or not.
+	 * @return array The supported arguments.
+	 */
+	protected function create_update_args( bool $create_workflow = false ): array {
+		return array(
+			'name'         => array(
+				'description' => __( 'The name of the workflow.', 'zero-bs-crm' ),
+				'type'        => 'string',
+				'required'    => $create_workflow,
+			),
+			'description'  => array(
+				'description' => __( 'A description of what the workflow does.', 'zero-bs-crm' ),
+				'type'        => 'string',
+				'required'    => $create_workflow,
+			),
+			'category'     => array(
+				'description' => __( 'The category the workflow relates to.', 'zero-bs-crm' ),
+				'type'        => 'string',
+				'required'    => $create_workflow,
+			),
+			'active'       => array(
+				'description' => __( 'Whether the workflow is active or not.', 'zero-bs-crm' ),
+				'type'        => 'boolean',
+				'required'    => $create_workflow,
+			),
+			'initial_step' => array(
+				'description' => __( 'The initial step of the workflow.', 'zero-bs-crm' ),
+				'type'        => array( 'string', 'integer' ),
+				'required'    => $create_workflow,
+			),
+			'steps'        => array(
+				'description' => __( 'The steps of the workflow.', 'zero-bs-crm' ),
+				'type'        => 'object',
+				'required'    => $create_workflow,
+				'properties'  => array(
+					'slug' => array(
+						'type' => 'string',
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Prepares one item for create or update operation.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 * @return Automation_Workflow|WP_Error The workflow entity or a WP_Error if something went wrong.
+	 */
+	protected function prepare_item_for_database( $request ) {
+		// If we have an ID (e.g.: update request) we should fetch the existing workflow
+		// and update it, otherwise we should create a new one.
+		if ( $request->get_param( 'id' ) ) {
+			$workflow = $this->workflow_repository->find( $request->get_param( 'id' ) );
+
+			if ( ! $workflow instanceof Automation_Workflow ) {
+				return new WP_Error(
+					'rest_invalid_workflow_id',
+					__( 'Invalid workflow ID.', 'zero-bs-crm' ),
+					array( 'status' => 404 )
+				);
+			}
+		} else {
+			$workflow = new Automation_Workflow( array() );
+		}
+
+		foreach ( $request->get_params() as $param => $value ) {
+			switch ( $param ) {
+				case 'site':
+					$workflow->set_zbs_site( $value );
+					break;
+
+				case 'owner':
+					$workflow->set_zbs_owner( $value );
+					break;
+
+				case 'name':
+					$workflow->set_name( $value );
+					break;
+
+				case 'description':
+					$workflow->set_description( $value );
+					break;
+
+				case 'category':
+					$workflow->set_category( $value );
+					break;
+
+				case 'triggers':
+					$workflow->set_triggers( $value );
+					break;
+
+				case 'initial_step':
+					$workflow->set_initial_step( $value );
+					break;
+
+				case 'steps':
+					$workflow->set_steps( $value );
+					break;
+
+				case 'active':
+					if ( $value ) {
+						$workflow->turn_on();
+					} else {
+						$workflow->turn_off();
+					}
+					break;
+			}
+		}
+
+		return $workflow;
 	}
 }
