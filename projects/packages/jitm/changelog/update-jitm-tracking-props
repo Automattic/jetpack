@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Moved tracking for JITM buttons into JITM script, added message_path property
