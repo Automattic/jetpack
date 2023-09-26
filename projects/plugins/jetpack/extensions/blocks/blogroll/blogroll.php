@@ -1,6 +1,6 @@
 <?php
 /**
- * Blogroll Block.
+ * Blogroll Block. Test change, not supposed to be merged.
  *
  * @since 12.1
  *
