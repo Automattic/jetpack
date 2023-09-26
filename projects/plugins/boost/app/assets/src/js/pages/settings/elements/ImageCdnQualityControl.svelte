@@ -46,7 +46,7 @@
 			width: 100%;
 		}
 		.disabled {
-			opacity: 0.5;
+			opacity: 0.3;
 			filter: grayscale(1);
 			pointer-events: none;
 		}
