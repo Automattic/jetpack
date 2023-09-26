@@ -66,16 +66,6 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Load the User Content Link Redirection feature.
-	 */
-	public static function load_user_content_link_redirection() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['action'] ) && $_GET['action'] === 'user_content_redirect' ) {
-			require_once __DIR__ . '/features/user-content-link-redirection/user-content-link-redirection.php';
-		}
-	}
-
-	/**
 	 * Load the Coming Soon feature.
 	 */
 	public static function load_coming_soon() {
