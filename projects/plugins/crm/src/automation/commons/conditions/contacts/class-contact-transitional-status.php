@@ -12,6 +12,7 @@ use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+use Automattic\Jetpack\CRM\Entities\Contact;
 
 /**
  * Contact_Transitional_Status condition class.
@@ -59,7 +60,7 @@ class Contact_Transitional_Status extends Base_Condition {
 		$contact          = $data->get_data();
 		$previous_contact = $data->get_previous_data();
 
-		if ( $previous_contact === null ) {
+		if ( ! $previous_contact instanceof Contact ) {
 			$this->logger->log( 'Invalid previous contact status transitional data' );
 			$this->condition_met = false;
 
