@@ -8,14 +8,10 @@
 
 namespace Automattic\Jetpack\Fonts;
 
-if ( ! class_exists( '\WP_Font_Face' ) ) {
-	return;
-}
-
 /**
  * Google Font Face
  */
-class Google_Font_Face extends \WP_Font_Face {
+class Google_Font_Face {
 	/**
 	 * The root URL for the google font face.
 	 *
@@ -175,7 +171,14 @@ class Google_Font_Face extends \WP_Font_Face {
 	 * @return string The url of the given font face.
 	 */
 	public static function get_font_url( $font_face ) {
-		$root_url     = self::get_root_url();
+		$defaults = array(
+			'font-family'  => '',
+			'font-style'   => 'normal',
+			'font-weight'  => '400',
+			'font-display' => 'fallback',
+		);
+
+		$font_face    = wp_parse_args( $font_face, $defaults );
 		$font_family  = rawurlencode( $font_face['font-family'] );
 		$font_display = $font_face['font-display'];
 		$font_weight  = $font_face['font-weight'];
@@ -187,6 +190,6 @@ class Google_Font_Face extends \WP_Font_Face {
 			}
 		}
 
-		return $root_url . '?family=' . $font_family . '&display=' . $font_display;
+		return self::get_root_url() . '?family=' . $font_family . '&display=' . $font_display;
 	}
 }
