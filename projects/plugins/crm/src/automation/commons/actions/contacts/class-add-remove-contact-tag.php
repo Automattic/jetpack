@@ -84,7 +84,7 @@ class Add_Remove_Contact_Tag extends Base_Action {
 	 *
 	 * @throws Data_Type_Exception When the data type is not supported.
 	 */
-	public function execute( Data_Type $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	protected function execute( Data_Type $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Check if the Data_Type passed is the expected.
 		$this->validate( $data );
 

@@ -84,7 +84,7 @@ class Set_Invoice_Status extends Base_Action {
 	 *
 	 * @throws Data_Type_Exception Exception when the data type is not supported.
 	 */
-	public function execute( Data_Type $data ) {
+	protected function execute( Data_Type $data ) {
 
 		$this->validate( $data );
 

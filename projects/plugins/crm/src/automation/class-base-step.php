@@ -195,7 +195,7 @@ abstract class Base_Step implements Step {
 	 *
 	 * @param Data_Type $data Data type passed from the trigger.
 	 */
-	abstract public function execute( Data_Type $data );
+	abstract protected function execute( Data_Type $data );
 
 	/**
 	 * Get the slug name of the step.
