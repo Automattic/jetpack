@@ -314,6 +314,26 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	}
 
 	/**
+	 * DELETE Workflow: Test that we return a 404 if the workflow does not exist.
+	 *
+	 * @return void
+	 */
+	public function test_delete_workflow_return_404_if_id_do_not_exist() {
+		// Create and set authenticated user.
+		$jpcrm_admin_id = $this->create_wp_jpcrm_admin();
+		wp_set_current_user( $jpcrm_admin_id );
+
+		// Make request.
+		$request = new WP_REST_Request(
+			WP_REST_Server::DELETABLE,
+			'/jetpack-crm/v4/automation/workflows/%d'
+		);
+
+		$response = rest_do_request( $request );
+		$this->assertSame( 404, $response->get_status() );
+	}
+
+	/**
 	 * Generate a workflow for testing.
 	 *
 	 * @param array $data (Optional) Workflow data.
