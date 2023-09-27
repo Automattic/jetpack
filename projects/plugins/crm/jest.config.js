@@ -4,5 +4,8 @@ module.exports = {
 	...baseConfig,
 	roots: [ '<rootDir>/src' ],
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest-globals.gui.js' ],
-	moduleNameMapper: { '^crm/(.*)': '<rootDir>/src/js/$1' }
+	moduleNameMapper: {
+		...baseConfig.moduleNameMapper,
+		'^crm/(.*)': '<rootDir>/src/js/$1',
+	}
 };
