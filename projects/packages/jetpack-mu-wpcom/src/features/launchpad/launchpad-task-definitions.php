@@ -1125,6 +1125,15 @@ function wpcom_launchpad_is_blog_launched_task_disabled() {
 		}
 		return true;
 	}
+	if ( 'start-writing' === get_option( 'site_intent' ) ) {
+		if ( wpcom_is_checklist_task_complete( 'plan_completed' )
+			&& wpcom_is_checklist_task_complete( 'domain_upsell' )
+			&& wpcom_is_checklist_task_complete( 'setup_blog' )
+			&& wpcom_is_checklist_task_complete( 'first_post_published' ) ) {
+			return false;
+		}
+		return true;
+	}
 	return false;
 }
 
