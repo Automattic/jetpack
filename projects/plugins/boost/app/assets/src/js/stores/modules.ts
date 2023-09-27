@@ -6,14 +6,14 @@ export type Optimizations = {
 	[ slug: string ]: boolean;
 };
 
-const moduleStateSchema = z.object( {
-	active: z.boolean(),
-	available: z.boolean(),
-} );
+const modulesStateSchema = z.record(
+	z.string().min( 1 ),
+	z.object( {
+		active: z.boolean(),
+		available: z.boolean(),
+	} )
+);
 
-const modulesStateSchema = z.record( z.string().min( 1 ), moduleStateSchema );
-
-export type ModuleState = z.infer< typeof moduleStateSchema >;
 type ModulesState = z.infer< typeof modulesStateSchema >;
 const modulesStateClient = jetpack_boost_ds.createAsyncStore( 'modules_state', modulesStateSchema );
 
