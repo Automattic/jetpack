@@ -1,5 +1,9 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
 .wp-block-jetpack-blogroll {
-	padding: 24px;
+	@include break-small() {
+		padding: 24px;
+	}
 
 	.block-editor-inner-blocks {
 		h3 {
