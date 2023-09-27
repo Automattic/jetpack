@@ -44,9 +44,11 @@
 		}
 
 		.jetpack-blogroll-item-subscribe-button {
-			margin-left: auto;
+			@include break-mobile() {
+				margin-left: auto;
+				align-self: center;
+			}
 			white-space: nowrap;
-			align-self: center;
 		}
 
 		.jetpack-blogroll-item-email-input {
