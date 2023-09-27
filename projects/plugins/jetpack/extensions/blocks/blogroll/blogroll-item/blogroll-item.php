@@ -91,13 +91,14 @@ function load_assets( $attr, $content, $block ) {
 HTML;
 	$form_buttons_html = do_blocks( $form_buttons );
 
-	$subscribe_button = <<<HTML
+	$subscribe_button      = <<<HTML
 		<!-- wp:button {"className":"$subscribe_button_class"} -->
 		<div class="wp-block-button jetpack-blogroll-item-subscribe-button $subscribe_button_class">
 			<button type="button" class="wp-block-button__link wp-element-button" {$disabled_subscribe_button}>$subscribe_text</button>
 		</div>
 		<!-- /wp:button -->
 HTML;
+	$subscribe_button_html = do_blocks( $subscribe_button );
 
 	/**
 	 * Build the block content.
@@ -111,7 +112,7 @@ HTML;
 				<a class="jetpack-blogroll-item-title" href="$url" target="$target" rel="noopener noreferrer">$name</a>
 				<div class="jetpack-blogroll-item-description">$description</div>
 			</div>
-			$subscribe_button
+			$subscribe_button_html
 		</div>
 		<fieldset disabled class="jetpack-blogroll-item-submit">
 			<input type="hidden" name="_wpnonce" value="$wp_nonce">
