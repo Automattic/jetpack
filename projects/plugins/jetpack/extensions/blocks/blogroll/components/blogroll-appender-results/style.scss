@@ -18,18 +18,6 @@
 
 		.jetpack-blogroll__appender-result-container {
 			margin: 0;
-			padding: 8px 4px;
-			cursor: pointer;
-
-			&.is-disabled-result {
-				background: var(--wp-gray-gray-0, #F6F7F7);
-				cursor: not-allowed;
-
-				.jetpack-blogroll__appender-result-title {
-					opacity: 0.5;
-					cursor: not-allowed;
-				}
-			}
 
 			button {
 				display: flex;
@@ -38,9 +26,19 @@
 				gap: 12px;
 				text-decoration: none;
 				border: none;
-				padding: 0;
+				padding: 8px 4px;
 				width: 100%;
 				background: none;
+				cursor: pointer;
+
+				&[disabled] {
+					background: var(--wp-gray-gray-0, #F6F7F7);
+					cursor: not-allowed;
+
+					.jetpack-blogroll__appender-result-title {
+						opacity: 0.5;
+					}
+				}
 			}
 
 			.jetpack-blogroll__appender-result-image {
@@ -63,7 +61,6 @@
 				gap: 2px;
 				overflow: hidden;
 				text-align: left;
-				cursor: pointer;
 
 				> * {
 					overflow: hidden;

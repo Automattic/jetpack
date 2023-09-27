@@ -1,6 +1,5 @@
 import { useEntityProp } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
 import './style.scss';
 
 export default function BlogrollAppenderResults( {
@@ -27,16 +26,10 @@ export default function BlogrollAppenderResults( {
 						} );
 
 						return (
-							<li
-								key={ result.blog_id }
-								className={ classNames( 'jetpack-blogroll__appender-result-container', {
-									'is-disabled-result': isDuplicate,
-								} ) }
-							>
+							<li key={ result.blog_id } className="jetpack-blogroll__appender-result-container">
 								<button
 									className="jetpack-blogroll__appender-result-title"
 									disabled={ isDuplicate }
-									href="#"
 									onClick={ () => onSelect( result ) }
 								>
 									<div className="jetpack-blogroll__appender-result-image">
