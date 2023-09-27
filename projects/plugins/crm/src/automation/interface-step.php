@@ -49,7 +49,7 @@ interface Step {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return Step_Attribute[] The attribute definitions of the step.
+	 * @return Attribute_Definition[] The attribute definitions of the step.
 	 */
 	public function get_attribute_definitions(): ?array;
 
@@ -58,7 +58,7 @@ interface Step {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Step_Attribute[] $attribute_definitions Set the attribute definitions.
+	 * @param Attribute_Definition[] $attribute_definitions Set the attribute definitions.
 	 */
 	public function set_attribute_definitions( array $attribute_definitions );
 
