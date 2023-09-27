@@ -4,6 +4,7 @@
 	import Header from '../../sections/Header.svelte';
 	import config from '../../stores/config';
 	import { connection } from '../../stores/connection';
+	import { criticalCssIssues } from '../../stores/critical-css-state-errors';
 	import { hasPrioritySupport } from '../../utils/paid-plan';
 	import { Router, Route } from '../../utils/router';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
@@ -29,7 +30,11 @@
 
 		<Router>
 			<div class="jb-section jb-section--main">
-				<Route path="critical-css-advanced" component={AdvancedCriticalCss} />
+				<Route
+					path="critical-css-advanced"
+					component={AdvancedCriticalCss}
+					issues={$criticalCssIssues}
+				/>
 				<Route path="/" component={Modules} />
 			</div>
 		</Router>

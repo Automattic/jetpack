@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Task_Data;
 
 /**
  * Adds the Event_Created class.
@@ -64,10 +65,10 @@ class Event_Created extends Base_Trigger {
 	/**
 	 * Get the date type.
 	 *
-	 * @return string The type of the step
+	 * @return string The type of the step.
 	 */
 	public static function get_data_type(): string {
-		return 'event';
+		return Task_Data::class;
 	}
 
 	/**

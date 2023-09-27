@@ -43,7 +43,7 @@ class Blocks {
 	public static function jetpack_register_block( $slug, $args = array() ) {
 		// Slug doesn't start with `jetpack/`, isn't an absolute path, or doesn't contain a slash
 		// (synonym of a namespace) at all.
-		if ( 0 !== strpos( $slug, 'jetpack/' ) && 0 !== strpos( $slug, '/' ) && ! strpos( $slug, '/' ) ) {
+		if ( 0 !== strpos( $slug, 'jetpack/' ) && ! path_is_absolute( $slug ) && ! strpos( $slug, '/' ) ) {
 			_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', 'Jetpack 9.0.0' );
 			$slug = 'jetpack/' . $slug;
 		}
@@ -54,7 +54,7 @@ class Blocks {
 		// the block.
 		// Note: passing the path directly to register_block_type seems to loose the interactivity of
 		// the block once in the editor once it's out of focus.
-		if ( '/' === substr( $slug, 0, 1 ) ) {
+		if ( path_is_absolute( $slug ) ) {
 			$metadata = self::get_block_metadata_from_file( self::get_path_to_block_metadata( $slug ) );
 			$name     = self::get_block_name_from_metadata( $metadata );
 

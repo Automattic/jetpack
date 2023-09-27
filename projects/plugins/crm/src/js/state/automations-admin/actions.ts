@@ -51,13 +51,13 @@ export const deactivateWorkflow = ( id: number ) => {
 export type SetAttributeAction = {
 	type: SET_ATTRIBUTE;
 	workflowId: number;
-	stepId: number;
+	stepId: string;
 	attribute: { key: string; value: string | number | boolean };
 };
 
 export const setAttribute = (
 	workflowId: number,
-	stepId: number,
+	stepId: string,
 	key: string,
 	value: string | number | boolean
 ) =>

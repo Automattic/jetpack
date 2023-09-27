@@ -5,7 +5,6 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automattic\Jetpack\CRM\Automation\Actions\Set_Transaction_Status;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
 use Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Created;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
 
@@ -43,13 +42,12 @@ class Set_Transaction_Status_Test extends JPCRM_Base_Integration_Test_Case {
 		$automation = new Automation_Engine();
 		$automation->register_trigger( Transaction_Created::class );
 		$automation->register_step( Set_Transaction_Status::class );
-		$automation->register_data_type( Data_Type_Transaction::class );
 
 		$workflow_data = array(
 			'name'         => 'Set Transaction Action Workflow Test',
 			'description'  => 'This is a test',
 			'category'     => 'Test',
-			'is_active'    => true,
+			'active'       => true,
 			'triggers'     => array(
 				Transaction_Created::get_slug(),
 			),
