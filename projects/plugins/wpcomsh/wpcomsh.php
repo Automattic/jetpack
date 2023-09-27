@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 3.13.24
+ * Version: 3.13.25
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '3.13.24' );
+define( 'WPCOMSH_VERSION', '3.13.25' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -86,6 +86,7 @@ require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/blaze.php';
 require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
 require_once __DIR__ . '/feature-plugins/full-site-editing.php';
+require_once __DIR__ . '/feature-plugins/github-deploy.php';
 require_once __DIR__ . '/feature-plugins/google-fonts.php';
 require_once __DIR__ . '/feature-plugins/gutenberg-mods.php';
 require_once __DIR__ . '/feature-plugins/headstart-util.php';
@@ -95,13 +96,13 @@ require_once __DIR__ . '/feature-plugins/managed-plugins.php';
 require_once __DIR__ . '/feature-plugins/managed-themes.php';
 require_once __DIR__ . '/feature-plugins/marketplace.php';
 require_once __DIR__ . '/feature-plugins/masterbar.php';
-require_once __DIR__ . '/feature-plugins/sensei-pro-mods.php';
-require_once __DIR__ . '/feature-plugins/theme-homepage-switch.php';
 require_once __DIR__ . '/feature-plugins/post-list.php';
-require_once __DIR__ . '/feature-plugins/staging-sites.php';
+require_once __DIR__ . '/feature-plugins/sensei-pro-mods.php';
 require_once __DIR__ . '/feature-plugins/smtp-email-priority.php';
+require_once __DIR__ . '/feature-plugins/staging-sites.php';
+require_once __DIR__ . '/feature-plugins/stats.php';
+require_once __DIR__ . '/feature-plugins/theme-homepage-switch.php';
 require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
-require_once __DIR__ . '/feature-plugins/github-deploy.php';
 
 /**
  * Conditionally load the jetpack-mu-wpcom package.
