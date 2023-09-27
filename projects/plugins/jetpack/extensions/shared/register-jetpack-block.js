@@ -69,10 +69,40 @@ export default function registerJetpackBlock( name, settings, childBlocks = [], 
  * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
 export function registerJetpackBlockFromMetadata( metadata, settings, childBlocks, prefix ) {
+	/*
+	 * Filter the block settings from the metadata object,
+	 * populating the blockSettings only when the field is present.
+	 */
+	const blockSettings = {};
+	const blockSettingsFields = [
+		'title',
+		'description',
+		'category',
+		'icon',
+		'keywords',
+		'styles',
+		'attributes',
+		'example',
+		'variation',
+		'supports',
+		'transforms',
+		'parent',
+		'ancestor',
+		'blockHooks',
+	];
+
+	blockSettingsFields.forEach( field => {
+		if ( metadata[ field ] ) {
+			blockSettings[ field ] = metadata[ field ];
+		}
+	} );
+
 	const clientSettings = {
-		...settings,
+		...blockSettings,
 		icon: getBlockIconProp( metadata ),
+		...settings,
 	};
+
 	const { variations } = metadata;
 
 	if ( Array.isArray( variations ) && variations.length > 0 ) {
