@@ -1,12 +1,19 @@
 import { __ } from '@wordpress/i18n';
 import './style.scss';
 
-export default function BlogrollAppenderResults( { results, showPlaceholder, onSelect } ) {
+export default function BlogrollAppenderResults( {
+	results,
+	showPlaceholder,
+	onSelect,
+	isLoading,
+} ) {
 	return (
 		<div className="jetpack-blogroll__appender-results">
 			{ showPlaceholder && <div aria-autocomplete="list">{ __( 'Suggestions', 'jetpack' ) }</div> }
 
-			{ results.length === 0 && ! showPlaceholder && (
+			{ isLoading && <div role="status">{ __( 'Loading…', 'jetpack' ) }</div> }
+
+			{ ! isLoading && results.length === 0 && ! showPlaceholder && (
 				<div role="status">{ __( 'No websites found.', 'jetpack' ) }</div>
 			) }
 			{ results.length > 0 && (

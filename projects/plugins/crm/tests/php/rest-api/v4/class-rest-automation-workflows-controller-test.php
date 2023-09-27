@@ -334,6 +334,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	}
 
 	/**
+
 	 * Generate a workflow for testing.
 	 *
 	 * @param array $data (Optional) Workflow data.
