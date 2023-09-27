@@ -17,8 +17,6 @@
 	export let details: ImageDataType;
 
 	const title = details.image.url.split( '/' ).pop();
-	const url = new URL( details.page.edit_url );
-	const post_id = new URLSearchParams( url.search ).get( 'post' );
 	const currentSize = details.image.weight.current;
 	const potentialSavings = Math.max(
 		0,
@@ -30,11 +28,19 @@
 	const pillColor = sizeDifference <= 30 ? '#f5e5b3' : '#facfd2';
 
 	async function fixImageSize() {
+		let post_id = '0';
+		if ( details.page.edit_url ) {
+			const url = new URL( details.page.edit_url );
+			post_id = new URLSearchParams( url.search ).get( 'post' );
+		} else {
+			post_id = '0';
+		}
+
 		const data = {
 			image_url: details.image.url,
 			image_width: details.image.dimensions.expected.width.toString(),
 			image_height: details.image.dimensions.expected.height.toString(),
-			post_id: post_id.toString(),
+			post_id,
 			nonce: Jetpack_Boost.fixImageNonce,
 		};
 		return await api.post( '/image-size-analysis/fix', data );
