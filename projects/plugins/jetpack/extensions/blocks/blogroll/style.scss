@@ -25,6 +25,7 @@
 			display: flex;
 			padding: 20px 8px;
 			gap: 20px;
+			box-sizing: border-box;
 
 			figure {
 				margin: 0;
@@ -44,7 +45,7 @@
 		}
 
 		.jetpack-blogroll-item-email-input {
-			padding: 16px;
+			padding: 14px;
 			font: inherit;
 			border: 1px solid #8c8f94;
 			border-radius: 0;
