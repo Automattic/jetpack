@@ -315,7 +315,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	 * @return true|WP_Error True if the request has read access for the workflows, WP_Error object otherwise.
 	 */
 	public function get_item_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$can_user_manage_workflows = zeroBSCRM_isZBSAdmin();
+		$can_user_manage_workflows = zeroBSCRM_isZBSAdminOrAdmin();
 
 		if ( is_wp_error( $can_user_manage_workflows ) ) {
 			return $can_user_manage_workflows;

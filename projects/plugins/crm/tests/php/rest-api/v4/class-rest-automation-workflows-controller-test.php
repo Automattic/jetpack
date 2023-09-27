@@ -42,6 +42,54 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	}
 
 	/**
+	 * DataProvider: Roles.
+	 */
+	public function dataprovider_user_roles(): array {
+		return array(
+			'subscriber'    => array( 'subscriber', false ),
+			'administrator' => array( 'administrator', true ),
+			'zerobs_admin'  => array( 'zerobs_admin', true ),
+		);
+	}
+
+	/**
+	 * Auth: Test that specific roles has access to the API.
+	 *
+	 * We use the simple "get all workflows" endpoint to test this since
+	 * all endpoints currently share the same auth logic.
+	 *
+	 * @see REST_Automation_Workflows_Controller::get_items_permissions_check()
+	 *
+	 * @dataProvider dataprovider_user_roles
+	 */
+	public function test_role_access( $role, $expectation ) {
+		// Create and set authenticated user.
+		$jpcrm_admin_id = $this->create_wp_jpcrm_admin( array( 'role' => $role ) );
+		wp_set_current_user( $jpcrm_admin_id );
+
+		// Make request.
+		$request  = new WP_REST_Request(
+			WP_REST_Server::READABLE,
+			'/jetpack-crm/v4/automation/workflows'
+		);
+		$response = rest_do_request( $request );
+
+		if ( $expectation ) {
+			$this->assertSame(
+				200,
+				$response->get_status(),
+				sprintf( 'Role should be allowed: %s', $role )
+			);
+		} else {
+			$this->assertSame(
+				403,
+				$response->get_status(),
+				sprintf( 'Role should not be allowed: %s', $role )
+			);
+		}
+	}
+
+	/**
 	 * GET Workflows: Test that we can successfully access the endpoint.
 	 *
 	 * @return void
