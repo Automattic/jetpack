@@ -8,6 +8,10 @@
 			width: 200%;
 			display: flex;
 			transition: transform 0.3s ease-in-out;
+
+			@media (prefers-reduced-motion: reduce) {
+				transition: none;
+			}
 		}
 
 		&.open {
