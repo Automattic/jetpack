@@ -10,6 +10,15 @@ class Image_Size_Analysis_Fixer {
 		add_filter( 'wp_calculate_image_sizes', array( __CLASS__, 'fix_image_sizes' ), 10, 5 );
 	}
 
+	/**
+	 * Clean up image URLs, removing image dimensions and Photon parts from them.
+	 * Before: https://i0.wp.com/example.com/test-1024x768.jpg
+	 * After: https://example.com/test.jpg
+	 *
+	 * @param string $url
+	 * @return string
+	 *
+	 */
 	public static function fix_url( $url ) {
 		$parsed_url = wp_parse_url( $url );
 		if ( ! isset( $parsed_url['host'] ) ) {
