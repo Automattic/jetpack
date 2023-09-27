@@ -1,4 +1,4 @@
-import { SocialServiceIcon, Button } from '@automattic/jetpack-components';
+import { SocialServiceIcon, Button, Text } from '@automattic/jetpack-components';
 import { CopyToClipboard } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useCallback } from '@wordpress/element';
@@ -59,20 +59,24 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 					'text' !== buttonStyle ? <SocialServiceIcon serviceName={ networkName } /> : null;
 
 				return (
-					<Button
-						key={ networkName }
-						icon={ icon }
-						variant={ buttonVariant }
-						aria-label={ label }
-						href={ href }
-						target="_blank"
-						rel="noopener noreferrer"
-						onClick={ getOnClick( href, { network: networkName } ) }
-						data-network={ networkName }
-						className={ styles[ networkName ] }
-					>
-						{ 'icon' !== buttonStyle ? label : null }
-					</Button>
+					<div className={ styles.container } key={ networkName }>
+						<Button
+							icon={ icon }
+							variant={ buttonVariant }
+							aria-label={ label }
+							href={ href }
+							target="_blank"
+							rel="noopener noreferrer"
+							onClick={ getOnClick( href ) }
+							data-network={ networkName }
+							className={ styles[ networkName ] }
+						>
+							{ 'text' === buttonStyle ? label : null }
+						</Button>
+						{ 'icon-text' === buttonStyle && (
+							<Text className={ styles.label }>Share on { label }</Text>
+						) }
+					</div>
 				);
 			} ) }
 			<CopyToClipboard
