@@ -169,7 +169,7 @@ jobs:
 
             let jetpackMuWPcomLine = '';
             if ( data.projects.includes( 'jetpack-mu-wpcom-plugin' ) ) {
-              jetpackMuWPcomLine = "- For \`jetpack-mu-wpcom\` changes, also add \`define( 'JETPACK_MU_WPCOM_LOAD_VIA_BETA_PLUGIN', true );\` to your \`wp-config.php\` file.";
+              jetpackMuWPcomLine = "  - For \`jetpack-mu-wpcom\` changes, also add \`define( 'JETPACK_MU_WPCOM_LOAD_VIA_BETA_PLUGIN', true );\` to your \`wp-config.php\` file.";
             }
 
             const commentBody = `${ TEST_COMMENT_INDICATOR }
