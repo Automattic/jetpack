@@ -6,7 +6,6 @@
  */
 
 require_once JETPACK__PLUGIN_DIR . '/_inc/blogging-prompts.php';
-require_once JETPACK__PLUGIN_DIR . '/vendor/antecedent/patchwork/Patchwork.php';
 
 /**
  * Class for testing Jetpack Blogging Prompt functions.

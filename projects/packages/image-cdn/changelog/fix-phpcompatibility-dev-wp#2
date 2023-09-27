@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Use WordPress `str_ends_with` polyfill.
