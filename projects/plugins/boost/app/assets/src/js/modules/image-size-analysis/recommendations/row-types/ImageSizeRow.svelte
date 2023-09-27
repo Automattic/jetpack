@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
-	import api from '../../../../api/api';
 	import Button from '../../../../elements/Button.svelte';
-	import config from '../../../../stores/config';
-	import { recordBoostEventAndRedirect, recordBoostEvent } from '../../../../utils/analytics';
+	import { recordBoostEventAndRedirect } from '../../../../utils/analytics';
 	import { removeGetParams } from '../../../../utils/remove-get-params';
 	import Device from '../components/Device.svelte';
 	import Pill from '../components/Pill.svelte';
@@ -26,30 +24,6 @@
 
 	const sizeDifference = ( potentialSavings / currentSize ) * 100;
 	const pillColor = sizeDifference <= 30 ? '#f5e5b3' : '#facfd2';
-
-	async function fixImageSize() {
-		let post_id = '0';
-		if ( details.page.edit_url ) {
-			const url = new URL( details.page.edit_url );
-			post_id = new URLSearchParams( url.search ).get( 'post' );
-		} else {
-			post_id = '0';
-		}
-
-		const data = {
-			image_url: details.image.url,
-			image_width: details.image.dimensions.expected.width.toString(),
-			image_height: details.image.dimensions.expected.height.toString(),
-			post_id,
-			nonce: Jetpack_Boost.fixImageNonce,
-		};
-		return await api.post( '/image-size-analysis/fix', data );
-	}
-
-	function handleFixClick() {
-		recordBoostEvent( 'isa_fix_image', {} );
-		return fixImageSize();
-	}
 </script>
 
 <TableRow {enableTransition} expandable={true}>
@@ -76,6 +50,7 @@
 
 		<div class="jb-table-row__hover-content">
 			<TableRowHover
+				{details}
 				device_type={details.device_type}
 				edit_url={details.page.edit_url}
 				instructions={details.instructions}
@@ -169,24 +144,18 @@
 			<p>{details.instructions}</p>
 			{#if details.page.edit_url}
 				<div class="jb-actions">
-					{#if $config.autoFix && details.device_type === 'desktop'}
-						<Button width="auto" fill on:click={() => handleFixClick()}>
-							{__( 'Fix', 'jetpack-boost' )}
-						</Button>
-					{:else}
-						<Button
-							width="auto"
-							fill
-							on:click={() =>
-								recordBoostEventAndRedirect(
-									details.page.edit_url,
-									'clicked_fix_on_page_on_isa_report',
-									{ device_type: details.device_type }
-								)}
-						>
-							{__( 'Fix on page', 'jetpack-boost' )}
-						</Button>
-					{/if}
+					<Button
+						width="auto"
+						fill
+						on:click={() =>
+							recordBoostEventAndRedirect(
+								details.page.edit_url,
+								'clicked_fix_on_page_on_isa_report',
+								{ device_type: details.device_type }
+							)}
+					>
+						{__( 'Fix on page', 'jetpack-boost' )}
+					</Button>
 				</div>
 			{/if}
 		</div>
