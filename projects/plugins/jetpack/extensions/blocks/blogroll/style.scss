@@ -24,6 +24,10 @@
 			font-size: 1.2em;
 		}
 
+		.jetpack-blogroll-item-title, .jetpack-blogroll-item-description {
+			word-break: break-word;
+		}
+
 		.jetpack-blogroll-item-information {
 			width: 100%;
 			display: flex;
