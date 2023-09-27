@@ -1,8 +1,11 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
+import SimpleNotice from 'components/notice';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
@@ -11,6 +14,7 @@ import { connect } from 'react-redux';
 import { isOfflineMode } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
+import { getGutenbergState } from '../state/initial-state';
 
 const SpeedUpSite = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -144,6 +148,38 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 			}
 		};
 
+		trackDeprecatedLazyImagesLearnMore = () => {
+			analytics.tracks.recordJetpackClick( {
+				target: 'learn-more',
+				feature: 'lazy-images',
+				extra: 'deprecated-link',
+			} );
+		};
+
+		displayLazyImagesNotice = () => {
+			const disableStatusMessage = this.props.gutenbergInfo.hasInteractivityApi
+				? __( 'We’ve consequently disabled the Lazy Images feature on your site.', 'jetpack' )
+				: __( 'This feature will consequently be removed from Jetpack in November.', 'jetpack' );
+
+			return (
+				<SimpleNotice showDismiss={ false } status="is-info" className="jp-form-settings-notice">
+					{ __(
+						'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading features for images and videos.',
+						'jetpack'
+					) }{ ' ' }
+					{ disableStatusMessage }{ ' ' }
+					{
+						<ExternalLink
+							href={ getRedirectUrl( 'jetpack-support-lazy-images' ) }
+							onClick={ this.trackDeprecatedLazyImagesLearnMore }
+						>
+							{ __( 'Learn more', 'jetpack' ) }
+						</ExternalLink>
+					}
+				</SimpleNotice>
+			);
+		};
+
 		render() {
 			const foundPhoton = this.props.isModuleFound( 'photon' );
 			const foundAssetCdn = this.props.isModuleFound( 'photon-cdn' );
@@ -154,6 +190,8 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 			}
 
 			const lazyImages = this.props.module( 'lazy-images' );
+			const isLazyimagesActive = this.props.getOptionValue( 'lazy-images' );
+			const isLazyimagesForceDisabled = this.props.gutenbergInfo.hasInteractivityApi;
 
 			// Check if any of the CDN options are on.
 			const siteAcceleratorStatus =
@@ -291,20 +329,19 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 						<SettingsGroup
 							hasChild
 							module={ lazyImages }
-							support={ {
-								link: getRedirectUrl( 'jetpack-support-lazy-images' ),
-							} }
+							className={ classNames( 'jp-form-settings-group--lazy_images', {
+								'jp-form-settings-group--lazy_images_disabled': ! isLazyimagesActive,
+							} ) }
 						>
-							<p>
-								{ __(
-									'Most modern browsers already support lazy loading. With over 90% of current browsers offering native support, enabling this feature may be unnecessary',
-									'jetpack'
-								) }
-							</p>
+							{ this.displayLazyImagesNotice() }
 							<ModuleToggle
 								slug="lazy-images"
-								disabled={ this.props.isUnavailableInOfflineMode( 'lazy-images' ) }
-								activated={ this.props.getOptionValue( 'lazy-images' ) }
+								disabled={
+									this.props.isUnavailableInOfflineMode( 'lazy-images' ) ||
+									! isLazyimagesActive ||
+									isLazyimagesForceDisabled
+								}
+								activated={ isLazyimagesActive && ! isLazyimagesForceDisabled }
 								toggling={ this.props.isSavingAnyOption( 'lazy-images' ) }
 								toggleModule={ this.toggleModule }
 							>
@@ -326,5 +363,6 @@ export default connect( state => {
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		gutenbergInfo: getGutenbergState( state ),
 	};
 } )( SpeedUpSite );
