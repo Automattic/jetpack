@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Conditions\Object_Tag;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_List_Data;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
@@ -36,63 +37,42 @@ class Tag_Condition_Test extends JPCRM_Base_Test_Case {
 	}
 
 	/**
-	 * @testdox Test contact tag added condition.
+	 * @testdox Test tag added condition.
 	 */
-	public function test_contact_tag_added() {
+	public function test_tag_added() {
 		$tag_condition = $this->get_tag_condition( 'tag_added', 'Tag Added' );
-		$tag_data      = $this->automation_faker->tag_list_data( false );
+		$tag_data      = $this->automation_faker->tag_list();
 
 		// Create a previous state of a tag list.
 		$previous_tag_data = $tag_data;
 
 		// Testing when the condition has been not been met because the tag list does not have said tag.
-		$tag_condition->execute( $tag_data, $previous_tag_data );
+		$tag_condition->execute( new Tag_List_Data( $tag_data, $previous_tag_data ) );
 		$this->assertFalse( $tag_condition->condition_met() );
 
 		// Testing when the condition has been met.
-		$tag_data = array(
-			array(
-				'id'          => 1,
-				'objtype'     => ZBS_TYPE_CONTACT,
-				'name'        => 'Tag Added',
-				'slug'        => 'tag-added',
-				'created'     => 1692663412,
-				'lastupdated' => 1692663412,
-			),
-			array(
-				'id'          => 2,
-				'objtype'     => ZBS_TYPE_CONTACT,
-				'name'        => 'Tag 2 ',
-				'slug'        => 'tag-2',
-				'created'     => 1692663412,
-				'lastupdated' => 1692663412,
-			),
+		$new_tag_data = array(
+			'id'          => 3,
+			'objtype'     => ZBS_TYPE_CONTACT,
+			'name'        => 'Tag Added',
+			'slug'        => 'tag-added',
+			'created'     => 1692663412,
+			'lastupdated' => 1692663412,
 		);
-		$tag_condition->execute( $tag_data, $previous_tag_data );
+		$tag_data     = $this->automation_faker->tag_list( false, $new_tag_data );
+
+		$tag_condition->execute( new Tag_List_Data( $tag_data, $previous_tag_data ) );
 		$this->assertTrue( $tag_condition->condition_met() );
 
 		// Testing when the condition has been not been met because the previous tag list already had said tag.
-		$previous_tag_data = array(
-			array(
-				'id'          => 1,
-				'objtype'     => ZBS_TYPE_CONTACT,
-				'name'        => 'Tag Added',
-				'slug'        => 'tag-added',
-				'created'     => 1692663412,
-				'lastupdated' => 1692663412,
-			),
-			array(
-				'id'          => 2,
-				'objtype'     => ZBS_TYPE_CONTACT,
-				'name'        => 'Tag 2 ',
-				'slug'        => 'tag-2',
-				'created'     => 1692663412,
-				'lastupdated' => 1692663412,
-			),
-		);
-		$tag_condition->execute( $tag_data, $previous_tag_data );
+
+		$previous_tag_data = $tag_data;
+
+		$tag_condition->execute( new Tag_List_Data( $tag_data, $tag_data ) );
 		$this->assertFalse( $tag_condition->condition_met() );
 	}
+
+	// note - the below tests need refactoring.
 
 	/**
 	 * @testdox Test tag removed condition.

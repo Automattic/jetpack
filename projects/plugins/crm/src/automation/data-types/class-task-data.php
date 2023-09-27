@@ -40,7 +40,7 @@ class Task_Data extends Data_Type_Base {
 		return $zbs->DAL->getTagsForObjID( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			array(
 				'objtypeid' => ZBS_TYPE_EVENT,
-				$this->get_id(),
+				$this->get_data()->id,
 			)
 		);
 	}

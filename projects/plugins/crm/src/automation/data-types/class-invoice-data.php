@@ -40,7 +40,7 @@ class Invoice_Data extends Data_Type_Base {
 		return $zbs->DAL->getTagsForObjID( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			array(
 				'objtypeid' => ZBS_TYPE_INVOICE,
-				$this->get_id(),
+				$this->get_data()->id,
 			)
 		);
 	}

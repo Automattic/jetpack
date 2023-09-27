@@ -10,7 +10,8 @@ namespace Automattic\Jetpack\CRM\Automation\Conditions;
 use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Tag;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_Data;
 
 /**
  * Object Tag condition class.
@@ -90,7 +91,7 @@ class Object_Tag extends Base_Condition {
 	 *
 	 * @return bool True if the tag name exists, false otherwise.
 	 */
-	private function has_tag_by_name( $data, $tag_name ) {
+	private function has_tag_by_name( $data, string $tag_name ) {
 		if ( ! is_array( $data ) ) {
 			$this->logger->log( 'The given tag data is not in the correct (array) format, so is not valid.' );
 			return false;
@@ -110,23 +111,20 @@ class Object_Tag extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param mixed  $data Data passed from the trigger.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 * @param Data_Type $data Data passed from the trigger.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function execute( Data_Type $data ) {
 
 		$operator = $this->get_attributes()['operator'];
 		$tag      = $this->get_attributes()['tag'];
 
 		$this->check_for_valid_operator( $operator );
 
-		if ( ! $this->check_for_valid_parameters( $operator, $data, $previous_data ) ) {
-			$this->condition_met = false;
-			return;
-		}
+		$previous_data = $data->get_previous_data();
+		$data          = $data->get_data();
 
 		$this->logger->log( 'Condition: Object_Tag ' . $tag . ' => ' . $operator );
 
@@ -234,7 +232,7 @@ class Object_Tag extends Base_Condition {
 	 * @return string The type of the step.
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Tag::get_slug();
+		return Tag_Data::get_slug();
 	}
 
 	/**

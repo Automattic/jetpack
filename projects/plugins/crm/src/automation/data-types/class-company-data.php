@@ -37,6 +37,6 @@ class Company_Data extends Data_Type_Base {
 	 */
 	public function get_tags() {
 		global $zbs;
-		return $zbs->DAL->companies->getCompanyTags( $this->get_id() ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		return $zbs->DAL->companies->getCompanyTags( $this->get_data()->id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 }

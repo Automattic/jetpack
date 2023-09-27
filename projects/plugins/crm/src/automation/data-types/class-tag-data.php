@@ -1,6 +1,6 @@
 <?php
 /**
- * Contact Data Type.
+ * Tag Data Type.
  *
  * @package automattic/jetpack-crm
  * @since $$next-version$$
@@ -8,14 +8,14 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Data_Types;
 
-use Automattic\Jetpack\CRM\Entities\Contact;
+use Automattic\Jetpack\CRM\Entities\Tag;
 
 /**
- * Contact Data Type.
+ * Tag Data Type.
  *
  * @since $$next-version$$
  */
-class Contact_Data extends Data_Type_Base {
+class Tag_Data extends Data_Type_Base {
 
 	/**
 	 * Validate the data.
@@ -29,14 +29,6 @@ class Contact_Data extends Data_Type_Base {
 	 * @return bool Whether the data is valid.
 	 */
 	public function validate_data( $data ): bool {
-		return $data instanceof Contact;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function get_tags() {
-		global $zbs;
-		return $zbs->DAL->contacts->getContactTags( $this->get_data()->id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		return $data instanceof Tag;
 	}
 }

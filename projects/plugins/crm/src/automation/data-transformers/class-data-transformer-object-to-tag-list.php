@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\CRM\Automation\Data_Transformers;
 
 use Automattic\Jetpack\CRM\Automation\Data_Transformer_Exception;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Tag_list;
 
 /**
  * CRM Contact to CRM Tag List Transformer class.
@@ -53,7 +52,7 @@ class Data_Transformer_Object_To_Tag_List extends Data_Transformer_Base {
 	 * {@inheritDoc}
 	 */
 	public static function get_to(): string {
-		return Data_Type_Tag_list::get_slug();
+		return Tag_List_Data::get_slug();
 	}
 
 	/**
@@ -62,7 +61,7 @@ class Data_Transformer_Object_To_Tag_List extends Data_Transformer_Base {
 	 * @since $$next-version$$
 	 *
 	 * @param Data_Type_Base $data The object data type we want to transform.
-	 * @return Data_Type_Base Return the Data_Type_Tag of the object.
+	 * @return Data_Type_Base Return the Tag_Data of the object.
 	 *
 	 * @throws Data_Transformer_Exception If the object is not linked to a tag.
 	 */
@@ -77,6 +76,6 @@ class Data_Transformer_Object_To_Tag_List extends Data_Transformer_Base {
 			);
 		}
 
-		return new Data_Type_Tag_List( $tags );
+		return new Tag_List_Data( $tags );
 	}
 }

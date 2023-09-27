@@ -51,7 +51,7 @@ final class Automation_Bootstrap {
 	protected function register_data_transformers(): void {
 		$data_transformers = array(
 			\Automattic\Jetpack\CRM\Automation\Data_Transformers\Data_Transformer_Invoice_To_Contact::class,
-			\Automattic\Jetpack\CRM\Automation\Data_Transformers\Data_Transformer_Object_To_Tag::class,
+			\Automattic\Jetpack\CRM\Automation\Data_Transformers\Data_Transformer_Object_To_Tag_List::class,
 		);
 
 		/**

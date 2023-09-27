@@ -5,6 +5,8 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_Data;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_List_Data;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
 use Automattic\Jetpack\CRM\Entities\Company;
 use Automattic\Jetpack\CRM\Entities\Contact;
@@ -350,9 +352,9 @@ class Automation_Faker {
 					'price'    => '1.25',
 					'total'    => 3.75,
 				),
-				'contacts'    => array( 1 ),
-				'created'     => -1,
-				'tags'        => array(
+				'contacts' => array( 1 ),
+				'created'  => -1,
+				'tags'     => array(
 					array(
 						'id'          => 1,
 						'objtype'     => 1,
@@ -539,10 +541,10 @@ class Automation_Faker {
 	/**
 	 * Return data for a dummy tag.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Tag object.
+	 * @param bool $get_as_data_type If true, return the data as a Tag_Data type object.
 	 * @return array
 	 */
-	public function tag_data( $get_as_data_type = false ) {
+	public function tag( $get_as_data_type = false ) {
 		$data = array(
 			'id'          => 1,
 			'name'        => 'Some tag name',
@@ -553,7 +555,7 @@ class Automation_Faker {
 		);
 
 		if ( $get_as_data_type ) {
-			return new Data_Type_Tag( $data );
+			return new Tag_Data( $data );
 		}
 
 		return $data;
@@ -562,10 +564,10 @@ class Automation_Faker {
 	/**
 	 * Return data for a dummy tag.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Tag object.
+	 * @param bool $get_as_data_type If true, return the data as a Tag_Data type object.
 	 * @return array
 	 */
-	public function tag_list_data( $get_as_data_type = false ) {
+	public function tag_list( $get_as_data_type = false, $additional_array = null ) {
 		$data = array(
 			array(
 				'id'          => 1,
@@ -584,10 +586,13 @@ class Automation_Faker {
 				'lastupdated' => 1692663412,
 			),
 		);
-		if ( $get_as_data_type ) {
-			return new Data_Type_Tag_List( $data );
+		if ( $additional_array !== null ) {
+			$data[] = $additional_array;
 		}
 
+		if ( $get_as_data_type ) {
+			return new Tag_List_Data( $data );
+		}
 		return $data;
 	}
 
