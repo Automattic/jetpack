@@ -52,7 +52,7 @@ class Transaction_Entity_Test extends JPCRM_Base_Integration_Test_Case {
 		global $zbs;
 
 		// Prepare the Transaction data from the instance to save it via DAL
-		$transaction_data_to_save = Transaction_Factory::data_for_db( $transaction );
+		$transaction_data_to_save = Transaction_Factory::data_for_dal( $transaction );
 
 		$id = $zbs->DAL->transactions->addUpdateTransaction( $transaction_data_to_save );
 

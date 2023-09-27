@@ -52,7 +52,7 @@ class Task_Entity_Test extends JPCRM_Base_Integration_Test_Case {
 		global $zbs;
 
 		// Prepare the Task data from the instance to save it via DAL
-		$task_data_to_save = Task_Factory::data_for_db( $task );
+		$task_data_to_save = Task_Factory::data_for_dal( $task );
 
 		$id = $zbs->DAL->events->addUpdateEvent( $task_data_to_save );
 
