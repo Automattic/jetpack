@@ -200,7 +200,7 @@ class Automation_Faker {
 			'steps'        => array(
 				// Step 0
 				0 => array(
-					'slug'            => 'contact_status_condition',
+					'slug'            => 'contact_status',
 					'class_name'      => Contact_Condition::class,
 					'attributes'      => array(
 						'field'    => 'status',
