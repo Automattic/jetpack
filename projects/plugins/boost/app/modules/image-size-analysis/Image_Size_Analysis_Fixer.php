@@ -11,10 +11,14 @@ class Image_Size_Analysis_Fixer {
 	}
 
 	public static function fix_url( $url ) {
-		$url = preg_replace( '/-\d+x\d+\.jpg/', '.jpg', $url ); // remove "-1024x768" from the end of the URL.
-		$url = preg_replace( '/\?.*/', '', $url ); // remove query string.
-		$url = str_replace( 'i0.wp.com/', '', $url ); // remove i0.wp.com/ from the beginning of the URL.
-		return $url;
+		$parsed_url = wp_parse_url( $url );
+		if ( ! isset( $parsed_url['host'] ) ) {
+			return $url;
+		}
+
+		$path = preg_replace( '/-\d+x\d+\.jpg/', '.jpg', $parsed_url['path'] ); // remove "-1024x768" from the end of the URL.
+		$host = str_replace( 'i0.wp.com/', '', $parsed_url['host'] );
+		return $parsed_url['scheme'] . '://' . $host . $path;
 	}
 
 	public static function get_fixes( $post_id ) {
