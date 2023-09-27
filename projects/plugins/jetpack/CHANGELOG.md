@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.6.2 - 2023-09-27
+### Bug fixes
+- Fix erroneous path check in Jetpack_Gutenberg class [#33318]
+- Fix warning about Dashboard being unset in WooCommerce analytics class [#33343]
+
 ## 12.6.1 - 2023-09-21
 ### Bug Fixes
 - WooCommerce Analytics: fix a fatal error that can occur with WooCommerce enabled.
