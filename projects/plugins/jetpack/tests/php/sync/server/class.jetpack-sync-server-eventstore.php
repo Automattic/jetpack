@@ -51,7 +51,7 @@ class Jetpack_Sync_Server_Eventstore {
 		}
 
 		if ( is_callable( $filter ) ) {
-			$events = array_filter( $events, $filter );
+			$events = array_values( array_filter( $events, $filter ) );
 		}
 
 		return $events;
