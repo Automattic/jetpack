@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix warning about Dashboard being unset in WooCommerce analytics class
