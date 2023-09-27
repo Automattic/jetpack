@@ -35,7 +35,7 @@
 					background: var(--wp-gray-gray-0, #F6F7F7);
 					cursor: not-allowed;
 
-					.jetpack-blogroll__appender-result-title {
+					> * {
 						opacity: 0.5;
 					}
 				}
