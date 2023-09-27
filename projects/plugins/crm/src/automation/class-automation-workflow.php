@@ -151,7 +151,7 @@ class Automation_Workflow {
 		$this->triggers     = $workflow_data['triggers'] ?? array();
 		$this->steps        = $workflow_data['steps'] ?? array();
 		$this->initial_step = $workflow_data['initial_step'] ?? '';
-		$this->name         = $workflow_data['name'];
+		$this->name         = $workflow_data['name'] ?? '';
 		$this->description  = $workflow_data['description'] ?? '';
 		$this->category     = $workflow_data['category'] ?? '';
 		$this->active       = $workflow_data['active'] ?? false;

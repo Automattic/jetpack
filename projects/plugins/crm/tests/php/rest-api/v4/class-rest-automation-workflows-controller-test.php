@@ -334,7 +334,50 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	}
 
 	/**
+	 * POST (Single) Workflow: Test that we can successfully create a workflow.
+	 *
+	 * @return void
+	 */
+	public function test_create_workflow_success() {
+		// Create and set authenticated user.
+		$jpcrm_admin_id = $this->create_wp_jpcrm_admin();
+		wp_set_current_user( $jpcrm_admin_id );
 
+		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
+
+		// Make request.
+		$request = new WP_REST_Request( 'POST', '/jetpack-crm/v4/automation/workflows' );
+		foreach ( $workflow_data as $param => $value ) {
+			$request->set_param( $param, $value );
+		}
+		$response = rest_do_request( $request );
+		$this->assertSame( 200, $response->get_status() );
+
+		// Verify that all our parameters are returned in the created workflow.
+		$response_data = $response->get_data();
+		$this->assertIsArray( $response_data );
+		foreach ( $workflow_data as $param => $value ) {
+			$this->assertSame(
+				$value,
+				$response_data[ $param ],
+				sprintf( 'The following param failed: %s', $param )
+			);
+		}
+
+		// Verify that all of our parameters were persisted in the database.
+		$repo             = new Workflow_Repository();
+		$fetched_workflow = ( $repo->find( $response_data['id'] ) )->to_array();
+		$this->assertIsArray( $response_data );
+		foreach ( $workflow_data as $param => $value ) {
+			$this->assertEquals(
+				$value,
+				$fetched_workflow[ $param ],
+				sprintf( 'The following param failed: %s', $param )
+			);
+		}
+	}
+
+	/**
 	 * Generate a workflow for testing.
 	 *
 	 * @param array $data (Optional) Workflow data.
