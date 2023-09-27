@@ -1,27 +1,22 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
 	import Toggle from '../../../elements/Toggle.svelte';
-	import { type ModuleState } from '../../../stores/modules';
 
 	export let toggle = true;
 	export let slug: string;
-	export let state: ModuleState;
+	export let isActive: boolean;
+	export let isAvailable: boolean;
 
 	const dispatch = createEventDispatcher();
 
-	$: isModuleActive = state.active;
-	$: isModuleAvailable = state.available;
+	$: isModuleActive = isActive;
+	$: isModuleAvailable = isAvailable;
 
 	async function handleToggle() {
-		state.active = ! isModuleActive;
-		if ( state.active ) {
-			dispatch( 'enabled' );
-		} else {
-			dispatch( 'disabled' );
-		}
+		isActive = ! isModuleActive;
 
 		dispatch( 'toggle', {
-			active: state.active,
+			active: isActive,
 			slug,
 		} );
 	}

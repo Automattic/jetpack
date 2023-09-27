@@ -43,6 +43,18 @@
 
 	const suggestRegenerate = suggestRegenerateDS.store;
 
+	$: if ( $modulesState.critical_css.active && $modulesState.critical_css.available ) {
+		resume();
+	} else {
+		alreadyResumed = false;
+	}
+
+	$: if ( $modulesState.cloud_css.active && $modulesState.cloud_css.available ) {
+		startPollingCloudStatus();
+	} else {
+		stopPollingCloudCssStatus();
+	}
+
 	async function resume() {
 		if ( alreadyResumed ) {
 			return;
@@ -69,10 +81,9 @@
 <div class="jb-container--narrow">
 	<Module
 		slug="critical_css"
-		state={$modulesState.critical_css}
-		on:enabled={resume}
+		isActive={$modulesState.critical_css.active}
+		isAvailable={$modulesState.critical_css.available}
 		on:mountEnabled={resume}
-		on:disabled={() => ( alreadyResumed = false )}
 		on:toggle={moduleToggle}
 	>
 		<h3 slot="title">
@@ -129,9 +140,8 @@
 
 	<Module
 		slug="cloud_css"
-		state={$modulesState.cloud_css}
-		on:enabled={startPollingCloudStatus}
-		on:disabled={stopPollingCloudCssStatus}
+		isActive={$modulesState.cloud_css.active}
+		isAvailable={$modulesState.cloud_css.available}
 		on:mountEnabled={startPollingCloudStatus}
 		on:toggle={moduleToggle}
 	>
@@ -170,7 +180,8 @@
 
 	<Module
 		slug="render_blocking_js"
-		state={$modulesState.render_blocking_js}
+		isActive={$modulesState.render_blocking_js.active}
+		isAvailable={$modulesState.render_blocking_js.available}
 		on:toggle={moduleToggle}
 	>
 		<h3 slot="title">
@@ -187,7 +198,12 @@
 		</p>
 	</Module>
 
-	<Module slug="lazy_images" state={$modulesState.lazy_images} on:toggle={moduleToggle}>
+	<Module
+		slug="lazy_images"
+		isActive={$modulesState.lazy_images.active}
+		isAvailable={$modulesState.lazy_images.available}
+		on:toggle={moduleToggle}
+	>
 		<h3 slot="title">{__( 'Lazy Image Loading', 'jetpack-boost' )}</h3>
 		<p slot="description">
 			<TemplatedString
@@ -200,7 +216,12 @@
 		</p>
 	</Module>
 
-	<Module slug="minify_js" state={$modulesState.minify_js} on:toggle={moduleToggle}>
+	<Module
+		slug="minify_js"
+		isActive={$modulesState.minify_js.active}
+		isAvailable={$modulesState.minify_js.available}
+		on:toggle={moduleToggle}
+	>
 		<h3 slot="title">{__( 'Concatenate JS', 'jetpack-boost' )}</h3>
 		<p slot="description">
 			{__(
@@ -220,7 +241,12 @@
 		</div>
 	</Module>
 
-	<Module slug="minify_css" state={$modulesState.minify_css} on:toggle={moduleToggle}>
+	<Module
+		slug="minify_css"
+		isActive={$modulesState.minify_css.active}
+		isAvailable={$modulesState.minify_css.available}
+		on:toggle={moduleToggle}
+	>
 		<h3 slot="title">{__( 'Concatenate CSS', 'jetpack-boost' )}</h3>
 		<p slot="description">
 			{__(
@@ -240,7 +266,12 @@
 		</div>
 	</Module>
 
-	<Module slug="image_cdn" state={$modulesState.image_cdn} on:toggle={moduleToggle}>
+	<Module
+		slug="image_cdn"
+		isActive={$modulesState.image_cdn.active}
+		isAvailable={$modulesState.image_cdn.available}
+		on:toggle={moduleToggle}
+	>
 		<h3 slot="title">{__( 'Image CDN', 'jetpack-boost' )}</h3>
 		<p slot="description">
 			{__(
@@ -255,7 +286,12 @@
 	</Module>
 
 	<div class="settings">
-		<Module slug="image_guide" state={$modulesState.image_guide} on:toggle={moduleToggle}>
+		<Module
+			slug="image_guide"
+			isActive={$modulesState.image_guide.active}
+			isAvailable={$modulesState.image_guide.available}
+			on:toggle={moduleToggle}
+		>
 			<h3 slot="title">{__( 'Image Guide', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
 			<p slot="description">
 				{__(
@@ -283,7 +319,8 @@
 		<Module
 			slug="image_size_analysis"
 			toggle={false}
-			state={$modulesState.image_size_analysis}
+			isActive={$modulesState.image_size_analysis.active}
+			isAvailable={$modulesState.image_size_analysis.available}
 			on:toggle={moduleToggle}
 		>
 			<h3 slot="title">
