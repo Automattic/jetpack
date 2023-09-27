@@ -126,7 +126,7 @@ class Workflow_Repository {
 			// we do not want to return any results at all, so to help with the developer experience
 			// we convert "0" to a very high number instead.
 			if ( 0 === $limit ) {
-				$limit = 9999999999999;
+				$limit = PHP_INT_MAX;
 			}
 
 			$query .= $this->wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
