@@ -52,7 +52,7 @@ class Invoice_Entity_Test extends JPCRM_Base_Integration_Test_Case {
 		global $zbs;
 
 		// Prepare the Invoice data from the instance to save it via DAL
-		$invoice_data_to_save = Invoice_Factory::data_for_db( $invoice );
+		$invoice_data_to_save = Invoice_Factory::data_for_dal( $invoice );
 
 		$id = $zbs->DAL->invoices->addUpdateInvoice( $invoice_data_to_save );
 

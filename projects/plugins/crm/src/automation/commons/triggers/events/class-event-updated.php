@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Event;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Task_Data;
 
 /**
  * Adds the Event_Updated class.
@@ -67,7 +67,7 @@ class Event_Updated extends Base_Trigger {
 	 * @return string The type of the step
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Event::get_slug();
+		return Task_Data::class;
 	}
 
 	/**

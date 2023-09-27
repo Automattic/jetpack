@@ -10,7 +10,9 @@ namespace Automattic\Jetpack\CRM\Automation\Conditions;
 use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Quote_Data;
+use Automattic\Jetpack\CRM\Entities\Quote;
 
 /**
  * Quote_Status_Changed condition class.
@@ -48,19 +50,18 @@ class Quote_Status_Changed extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param mixed  $data The data this condition has to evaluate.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 * @param Data_Type $data The data this condition has to evaluate.
 	 * @return void
+	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( ! $this->is_valid_quote_status_changed_data( $data ) ) {
-			$this->logger->log( 'Invalid quote status changed data' );
-			$this->condition_met = false;
-			return;
-		}
+	public function execute( Data_Type $data ) {
+		$this->validate( $data );
 
-		$status_value = ( $data['accepted'] > 0 ) ? 'accepted' : ( $data['template'] > 0 ? 'published' : 'draft' );
+		/** @var Quote $quote */
+		$quote = $data->get_data();
+
+		$status_value = ( $quote->accepted > 0 ) ? 'accepted' : ( $quote->template > 0 ? 'published' : 'draft' );
 		$operator     = $this->get_attributes()['operator'];
 		$value        = $this->get_attributes()['value'];
 
@@ -86,19 +87,6 @@ class Quote_Status_Changed extends Base_Condition {
 					Automation_Exception::CONDITION_OPERATOR_NOT_IMPLEMENTED
 				);
 		}
-	}
-
-	/**
-	 * Checks if the quote has at least the necessary keys to detect a status
-	 * change.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param array $quote_data The quote data.
-	 * @return bool True if the data is valid to detect a status change, false otherwise
-	 */
-	private function is_valid_quote_status_changed_data( array $quote_data ): bool {
-		return isset( $quote_data['id'] ) && isset( $quote_data['accepted'] ) && isset( $quote_data['template'] );
 	}
 
 	/**
@@ -142,7 +130,7 @@ class Quote_Status_Changed extends Base_Condition {
 	 * @return string The type of the step.
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Quote::get_slug();
+		return Quote_Data::class;
 	}
 
 	/**
@@ -154,21 +142,5 @@ class Quote_Status_Changed extends Base_Condition {
 	 */
 	public static function get_category(): string {
 		return __( 'Quote', 'zero-bs-crm' );
-	}
-
-	/**
-	 * Get the allowed triggers for the quote status changed condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string[] An array of allowed triggers:
-	 *               - 'jpcrm/quote_status_updated'
-	 *               - 'jpcrm/quote_updated'
-	 */
-	public static function get_allowed_triggers(): array {
-		return array(
-			'jpcrm/quote_status_updated',
-			'jpcrm/quote_updated',
-		);
 	}
 }

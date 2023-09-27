@@ -8,6 +8,8 @@
 
 namespace Automattic\Jetpack\CRM\Automation;
 
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+
 /**
  * Interface Step.
  *
@@ -20,10 +22,9 @@ interface Step {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param mixed  $data Data passed from the trigger.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 * @param Data_Type $data Data passed from the trigger.
 	 */
-	public function execute( $data, $previous_data = null );
+	public function execute( Data_Type $data );
 
 	/**
 	 * Get the next step.
@@ -107,11 +108,11 @@ interface Step {
 	public static function get_description(): ?string;
 
 	/**
-	 * Get the data type.
+	 * Get the data type expected by the step.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string|null The type of the step.
+	 * @return string|null The data type expected by the step.
 	 */
 	public static function get_data_type(): string;
 
@@ -123,13 +124,4 @@ interface Step {
 	 * @return string|null The category of the step.
 	 */
 	public static function get_category(): ?string;
-
-	/**
-	 * Get the category of the step.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return array|null The allowed triggers for the step.
-	 */
-	public static function get_allowed_triggers(): ?array;
 }
