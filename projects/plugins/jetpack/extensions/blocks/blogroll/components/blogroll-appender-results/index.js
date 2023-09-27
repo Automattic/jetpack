@@ -1,18 +1,33 @@
+import { useEntityProp } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import './style.scss';
 
 export default function BlogrollAppenderResults( { results, showPlaceholder, onSelect } ) {
+	const [ siteRecommendations ] = useEntityProp( 'root', 'site', 'Blogroll Recommendations' );
+
+	// Check if site is already appended to the blogroll
+	// If it is, add a duplicateRecommendation flag to the site object
+	const updatedResults = results?.map( result => {
+		const itemBlogrollItem = siteRecommendations.find( siteRecommendation => {
+			return siteRecommendation?.id === result?.blog_id;
+		} );
+		if ( itemBlogrollItem ) {
+			return { ...result, duplicateRecommendation: true };
+		}
+		return result;
+	} );
+
 	return (
 		<div className="jetpack-blogroll__appender-results">
 			{ showPlaceholder && <div aria-autocomplete="list">{ __( 'Suggestions', 'jetpack' ) }</div> }
 
-			{ results.length === 0 && ! showPlaceholder && (
+			{ updatedResults.length === 0 && ! showPlaceholder && (
 				<div role="status">{ __( 'No websites found.', 'jetpack' ) }</div>
 			) }
-			{ results.length > 0 && (
+			{ updatedResults.length > 0 && (
 				<ul aria-live="polite">
-					{ results.map( result => (
+					{ updatedResults.map( result => (
 						<li
 							key={ result.blog_id }
 							className={ classNames( 'jetpack-blogroll__appender-result-container', {
