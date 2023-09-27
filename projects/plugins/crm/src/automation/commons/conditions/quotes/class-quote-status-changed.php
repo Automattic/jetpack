@@ -56,8 +56,6 @@ class Quote_Status_Changed extends Base_Condition {
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
 	protected function execute( Data_Type $data ) {
-		$this->validate( $data );
-
 		/** @var Quote $quote */
 		$quote = $data->get_data();
 

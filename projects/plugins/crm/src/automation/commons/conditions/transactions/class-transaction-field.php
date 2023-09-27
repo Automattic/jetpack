@@ -68,8 +68,6 @@ class Transaction_Field extends Base_Condition {
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
 	protected function execute( Data_Type $data ) {
-		$this->validate( $data );
-
 		/** @var Transaction $transaction */
 		$transaction = $data->get_data();
 

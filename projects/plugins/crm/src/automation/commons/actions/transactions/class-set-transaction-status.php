@@ -86,8 +86,6 @@ class Set_Transaction_Status extends Base_Action {
 	 * @throws Data_Type_Exception If the data do not look valid.
 	 */
 	protected function execute( Data_Type $data ) {
-		$this->validate( $data );
-
 		/** @var Transaction $transaction */
 		$transaction = $data->get_data();
 

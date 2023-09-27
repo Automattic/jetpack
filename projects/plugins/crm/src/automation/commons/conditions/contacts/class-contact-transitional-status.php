@@ -55,17 +55,9 @@ class Contact_Transitional_Status extends Base_Condition {
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
 	protected function execute( Data_Type $data ) {
-		$this->validate( $data );
-
+		/** @var Contact $contact */
 		$contact          = $data->get_data();
 		$previous_contact = $data->get_previous_data();
-
-		if ( ! $previous_contact instanceof Contact ) {
-			$this->logger->log( 'Invalid previous contact status transitional data' );
-			$this->condition_met = false;
-
-			return;
-		}
 
 		$operator   = $this->get_attributes()['operator'];
 		$status_was = $this->get_attributes()['previous_status_was'];
