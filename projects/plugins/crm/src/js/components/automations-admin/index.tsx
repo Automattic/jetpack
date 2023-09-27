@@ -29,7 +29,12 @@ export const AutomationsAdmin = () => {
 		queryKey: [ 'automations', 'workflows' ],
 		queryFn: async () => {
 			const result = await axios.get< Workflow[] >(
-				`${ jpcrmAutomationsInitialState.apiRoot }jetpack-crm/v4/automation/workflows`
+				`${ jpcrmAutomationsInitialState.apiRoot }jetpack-crm/v4/automation/workflows`,
+				{
+					headers: {
+						'X-WP-Nonce': jpcrmAutomationsInitialState.apiNonce,
+					},
+				}
 			);
 			dispatch( store ).hydrateWorkflows( result?.data );
 			return result;
