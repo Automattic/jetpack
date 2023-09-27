@@ -37,6 +37,7 @@
 - Adjust styling in AI chat button. [#33213]
 - Site Settings Endpoint: Allow for updating and retrieving of the wpcom_newsletter_categories site option via the endpoint. [#33234]
 - Subscriptions Block: Do not append newsletter category exclusions to subscribe url when none categories were checked. [#33181]
+
 ## 12.6.2 - 2023-09-27
 ### Bug fixes
 - Fix erroneous path check in Jetpack_Gutenberg class [#33318]
