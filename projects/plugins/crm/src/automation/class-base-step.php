@@ -32,7 +32,7 @@ abstract class Base_Step implements Step {
 	 * @since $$next-version$$
 	 * @var array
 	 */
-	protected $attribute_definitions;
+	protected $attribute_definitions = array();
 
 	/**
 	 * Next linked step.
@@ -50,7 +50,7 @@ abstract class Base_Step implements Step {
 	 * @param array $step_data An array of data for the current step.
 	 */
 	public function __construct( array $step_data ) {
-		$this->attributes = $step_data['attributes'] ?? array();
+		$this->attributes = ( isset( $step_data['attributes'] ) && is_array( $step_data['attributes'] ) ) ? $step_data['attributes'] : array();
 	}
 
 	/**
@@ -82,7 +82,7 @@ abstract class Base_Step implements Step {
 	 *
 	 * @return Attribute_Definition[] The attribute definitions of the step.
 	 */
-	public function get_attribute_definitions(): ?array {
+	public function get_attribute_definitions(): array {
 		return $this->attribute_definitions;
 	}
 
