@@ -1,6 +1,6 @@
 <?php
 /**
- * Blogroll Block.
+ * Blogroll Block. Test
  *
  * @since 12.1
  *
