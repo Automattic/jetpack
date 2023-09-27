@@ -306,7 +306,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 		);
 
 		$response = rest_do_request( $request );
-		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 204, $response->get_status() );
 
 		// Verify that the workflow was deleted.
 		$repo = new Workflow_Repository();

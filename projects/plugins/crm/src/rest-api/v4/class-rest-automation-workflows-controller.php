@@ -259,7 +259,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 			);
 		}
 
-		return rest_ensure_response( $this->prepare_item_for_response( $workflow, $request ) );
+		return new WP_REST_Response( null, 204 );
 	}
 
 	/**
