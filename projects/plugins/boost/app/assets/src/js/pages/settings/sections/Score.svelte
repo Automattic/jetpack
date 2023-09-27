@@ -116,9 +116,9 @@
 	}
 
 	const panelStore = performanceHistoryPanelDS.store;
-	const onTogglePerformanceHistory = status => {
-		panelStore.set( status );
-	};
+	function onTogglePerformanceHistory( status ) {
+		$panelStore = status;
+	}
 
 	$: performanceHistoryNeedsUpgrade = $modulesState.performance_history.available === false;
 	$: performanceHistoryIsOpen = $panelStore;
