@@ -48,7 +48,7 @@ class Empty_Slug_Trigger extends Base_Trigger {
 	/**
 	 * Listen to the desired event
 	 */
-	protected function listen_to_event() {
+	protected function listen_to_event(): void {
 		$event_emitter = Event_Emitter::instance();
 
 		$event_emitter->on(
