@@ -1,15 +1,49 @@
-import { AdminSection, Col, Container } from '@automattic/jetpack-components';
+import { Button, AdminSection, Col, Container } from '@automattic/jetpack-components';
+import { useQuery } from '@tanstack/react-query';
+import { dispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import axios from 'axios';
+// import { Contact, Message } from 'crm/state/inbox/types';
+import { Workflow } from 'crm/state/automations-admin/types';
+import { store } from 'crm/state/store';
+import { useCallback, useState } from 'react';
 import { Link, Routes, Route } from 'react-router-dom';
 import AdminPage from '../admin-page';
 import { BulkWorkflowActions } from './components/bulk-workflow-actions';
+import { EditModal } from './components/edit-modal';
 import { RedirectHome } from './components/redirect-home';
 import { WorkflowRow } from './components/workflow-row';
 import { WorkflowTable } from './components/workflow-table';
 import { workflowOne, workflowTwo } from './test/util/data';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare let jpcrmAutomationsInitialState: any;
+
 export const AutomationsAdmin = () => {
+	const [ isModalOpen, setIsModalOpen ] = useState( false );
+
+	const closeModal = useCallback( () => {
+		setIsModalOpen( false );
+	}, [ setIsModalOpen ] );
+
+	useQuery( {
+		queryKey: [ 'automations', 'workflows' ],
+		queryFn: async () => {
+			const result = await axios.get< Workflow >(
+				`${ jpcrmAutomationsInitialState.apiRoot }jetpack-crm/v4/automation/workflow`
+			);
+			dispatch( store ).hydrateWorkflows( [ result?.data ] );
+			return result;
+		},
+		staleTime: Infinity,
+		cacheTime: Infinity,
+		refetchOnWindowFocus: false,
+	} );
+
+	const workflows = useSelect( select => select( store ).getWorkflows(), [] );
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const workflow = ( workflows as any ).testing as Workflow;
+
 	return (
 		<Routes>
 			<Route
@@ -106,6 +140,19 @@ export const AutomationsAdmin = () => {
 						<BulkWorkflowActions />
 						<WorkflowTable workflows={ [ workflowOne, workflowTwo ] } />
 					</div>
+				}
+			/>
+			<Route
+				path="/automations/test-edit-modal"
+				element={
+					workflow && (
+						<div style={ { margin: '24px' } }>
+							<Button onClick={ () => setIsModalOpen( true ) }>
+								Click here to open the modal.
+							</Button>
+							<EditModal isOpen={ isModalOpen } onClose={ closeModal } workflow={ workflow } />
+						</div>
+					)
 				}
 			/>
 			<Route path="*" element={ <RedirectHome /> } />
