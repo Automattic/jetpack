@@ -37,6 +37,10 @@ class REST_Authentication_Test extends REST_Base_Test_Case {
 				WP_REST_Server::CREATABLE,
 				'/jetpack-crm/v4/automation/workflows/123',
 			),
+			'automation_workflows::delete_item' => array(
+				WP_REST_Server::DELETABLE,
+				'/jetpack-crm/v4/automation/workflows/123',
+			),
 		);
 	}
 

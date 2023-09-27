@@ -284,6 +284,36 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	}
 
 	/**
+	 * DELETE Workflow: Test that we can successfully delete a workflow.
+	 *
+	 * @return void
+	 */
+	public function test_delete_workflow_success() {
+		// Create and set authenticated user.
+		$jpcrm_admin_id = $this->create_wp_jpcrm_admin();
+		wp_set_current_user( $jpcrm_admin_id );
+
+		$workflow = $this->create_workflow(
+			array(
+				'name' => 'test_get_workflow_success',
+			)
+		);
+
+		// Make request.
+		$request = new WP_REST_Request(
+			WP_REST_Server::DELETABLE,
+			sprintf( '/jetpack-crm/v4/automation/workflows/%d', $workflow->get_id() )
+		);
+
+		$response = rest_do_request( $request );
+		$this->assertSame( 200, $response->get_status() );
+
+		// Verify that the workflow was deleted.
+		$repo = new Workflow_Repository();
+		$this->assertFalse( $repo->find( $workflow->get_id() ) );
+	}
+
+	/**
 	 * Generate a workflow for testing.
 	 *
 	 * @param array $data (Optional) Workflow data.
