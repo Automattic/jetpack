@@ -50,7 +50,7 @@ abstract class Base_Step implements Step {
 	 * @param array $step_data An array of data for the current step.
 	 */
 	public function __construct( array $step_data ) {
-		$this->attributes = ( isset( $step_data['attributes'] ) && is_array( $step_data['attributes'] ) ) ? $step_data['attributes'] : array();
+		$this->attributes = $step_data['attributes'] ?? array();
 	}
 
 	/**
