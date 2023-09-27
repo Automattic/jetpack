@@ -7,6 +7,8 @@ export default function BlogrollAppenderSearch( { value, onChange } ) {
 		<div className="jetpack-blogroll__appender-search">
 			<TextControl
 				__nextHasNoMarginBottom
+				label={ __( 'Search for sites to add', 'jetpack' ) }
+				hideLabelFromVision
 				placeholder={ __( 'Search…', 'jetpack' ) }
 				value={ value }
 				onChange={ inputValue => onChange( inputValue ) }

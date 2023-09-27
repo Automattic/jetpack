@@ -18,13 +18,14 @@
 
 		li {
 			margin: 0;
+			padding: 8px 4px;
 
 			a {
 				display: flex;
 				align-items: center;
 				align-self: stretch;
-				padding: 8px 4px;
 				gap: 12px;
+				text-decoration: none;
 			}
 
 			.jetpack-blogroll__appender-result-image {
@@ -45,6 +46,14 @@
 				justify-content: center;
 				align-items: flex-start;
 				gap: 2px;
+				overflow: hidden;
+
+				> * {
+					overflow: hidden;
+					white-space: nowrap;
+					text-overflow: ellipsis;
+					width: 100%;
+				}
 
 				.jetpack-blogroll__appender-result-title {
 					color: var(--gray-gray-100, #101517);

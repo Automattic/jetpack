@@ -183,6 +183,7 @@ class Status {
 			'#\.docksal\.site$#i', // Docksal.
 			'#\.dev\.cc$#i',       // ServerPress.
 			'#\.lndo\.site$#i',    // Lando.
+			'#^https?://127\.0\.0\.1$#',
 		);
 
 		if ( ! $is_local ) {

@@ -3,7 +3,7 @@
 namespace Automatic\Jetpack\CRM\Automation\Tests\Mocks;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Tests\Event_Emitter;
 
 class Empty_Slug_Trigger extends Base_Trigger {
@@ -42,7 +42,7 @@ class Empty_Slug_Trigger extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Contact::get_slug();
+		return Contact_Data::class;
 	}
 
 	/**
