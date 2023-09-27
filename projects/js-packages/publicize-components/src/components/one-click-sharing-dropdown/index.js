@@ -16,28 +16,38 @@ const OneClickSharingDropdown = ( {
 		return <Icon icon={ share } onClick={ onToggle } aria-expanded={ isExpanded } />;
 	}, [] );
 
-	const renderContent = useCallback( () => {
-		return (
-			<div className="one-click-sharing-dropdown">
-				<ThemeProvider>
-					<ShareButtons buttonStyle="icon-text" />
-					<hr className={ styles.divider } />
-					<Text className={ styles.description } variant="body-small">
-						{ __( 'Share with a Single Click!', 'jetpack' ) +
-							'✨ ' +
-							__(
-								"Just tap the Social icons or the 'Copy to Clipboard' icon, and we'll format your content for sharing.",
-								'jetpack'
-							) }
-						&nbsp;
-						<Button variant="link" onClick={ onClickLearnMore }>
-							{ __( 'Learn more..', 'jetpack' ) }
-						</Button>
-					</Text>
-				</ThemeProvider>
-			</div>
-		);
-	}, [ onClickLearnMore ] );
+	const renderContent = useCallback(
+		( { onToggle } ) => {
+			return (
+				<div className="one-click-sharing-dropdown">
+					<ThemeProvider>
+						<ShareButtons buttonStyle="icon-text" />
+						<hr className={ styles.divider } />
+						<Text className={ styles.description } variant="body-small">
+							{ __( 'Share with a Single Click!', 'jetpack' ) +
+								'✨ ' +
+								__(
+									"Just tap the Social icons or the 'Copy to Clipboard' icon, and we'll format your content for sharing.",
+									'jetpack'
+								) }
+							&nbsp;
+							<Button
+								variant="link"
+								onClick={ () => {
+									onClickLearnMore();
+									// Close the dropdown
+									onToggle( false );
+								} }
+							>
+								{ __( 'Learn more..', 'jetpack' ) }
+							</Button>
+						</Text>
+					</ThemeProvider>
+				</div>
+			);
+		},
+		[ onClickLearnMore ]
+	);
 
 	console.log( { isOpen, toggleDropdown } );
 	return (
