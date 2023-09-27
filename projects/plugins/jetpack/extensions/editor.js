@@ -86,14 +86,21 @@ function setBetaBlockTitle( settings, name ) {
 	const { title, keywords } = settings;
 	const titleSuffix = '(beta)';
 	const betaKeyword = 'beta';
-
-	return {
+	const result = {
 		...settings,
-		title: title.toLowerCase().endsWith( titleSuffix )
-			? title
-			: `${ settings.title } ${ titleSuffix }`,
-		kewords: keywords.includes( betaKeyword ) ? keywords : [ ...keywords, betaKeyword ],
 	};
+
+	if ( title ) {
+		result.title = title.toLowerCase().endsWith( titleSuffix )
+			? title
+			: `${ settings.title } ${ titleSuffix }`;
+	}
+
+	if ( Array.isArray( keywords ) ) {
+		result.keywords = keywords.includes( betaKeyword ) ? keywords : [ ...keywords, betaKeyword ];
+	}
+
+	return result;
 }
 
 addFilter( 'blocks.registerBlockType', 'jetpack/label-beta-blocks-title', setBetaBlockTitle );
