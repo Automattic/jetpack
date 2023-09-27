@@ -177,6 +177,7 @@ jobs:
 
             - To test on WoA, go to the Plugins menu on a WordPress.com Simple site. Click on the "Upload" button and follow the upgrade flow to be able to upload, install, and activate [the Jetpack Beta plugin](https://jetpack.com/download-jetpack-beta/). Once the plugin is active, go to Jetpack > Jetpack Beta, select your plugin, and enable the \`${ BRANCH_NAME }\` branch. 
             ${ jetpackMuWPcomLine }
+            - To test on Simple, run the following command on your sandbox:
             ${ commands }
 
             *Interested in more tips and information?*
