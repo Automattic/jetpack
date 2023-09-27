@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
+use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Base_Action;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
@@ -40,7 +41,7 @@ class Update_Contact_Status extends Base_Action {
 	 * @return string|null The title of the step.
 	 */
 	public static function get_title(): ?string {
-		return 'Update Contact Status Action';
+		return __( 'Update Contact Status Action', 'zero-bs-crm' );
 	}
 
 	/**
@@ -51,7 +52,7 @@ class Update_Contact_Status extends Base_Action {
 	 * @return string|null The description of the step.
 	 */
 	public static function get_description(): ?string {
-		return 'Action to update the contact status';
+		return __( 'Action to update the contact status', 'zero-bs-crm' );
 	}
 
 	/**
@@ -74,6 +75,38 @@ class Update_Contact_Status extends Base_Action {
 	 */
 	public static function get_category(): ?string {
 		return __( 'Contact', 'zero-bs-crm' );
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $step_data The step data.
+	 */
+	public function __construct( array $step_data ) {
+		parent::__construct( $step_data );
+
+		global $zbsCustomerFields; // // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		$statuses = array();
+		if ( is_array( $zbsCustomerFields ) && ! empty( $zbsCustomerFields['status'][3] ) ) { // // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			foreach ( $zbsCustomerFields['status'][3] as $status ) { // // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$statuses[ $status ] = $status;
+			}
+		}
+
+		$this->set_attribute_definitions(
+			array(
+				new Attribute_Definition(
+					'new_status',
+					__( 'New status', 'zero-bs-crm' ),
+					__( 'The status that will be used for the contact.', 'zero-bs-crm' ),
+					Attribute_Definition::SELECT,
+					$statuses
+				),
+			)
+		);
 	}
 
 	/**

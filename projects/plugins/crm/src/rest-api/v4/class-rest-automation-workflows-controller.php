@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\CRM\REST_API\V4;
 
+use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository;
 use Automattic\Jetpack\CRM\Automation\Workflow_Exception;
@@ -27,6 +28,14 @@ defined( 'ABSPATH' ) || exit;
 final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 
 	/**
+	 * The automation engine.
+	 *
+	 * @since $$next-version$$
+	 * @var Automation_Engine
+	 */
+	protected $automation_engine;
+
+	/**
 	 * The workflow repository.
 	 *
 	 * @since $$next-version$$
@@ -42,6 +51,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	public function __construct() {
 		parent::__construct();
 
+		$this->automation_engine   = Automation_Engine::instance();
 		$this->workflow_repository = new Workflow_Repository();
 		$this->rest_base           = 'automation';
 	}
@@ -268,6 +278,18 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	public function prepare_item_for_response( $workflow, $request ) {
 		if ( $workflow instanceof Automation_Workflow ) {
 			$workflow = $workflow->to_array();
+		}
+
+		// Append attribute definitions to each step.
+		if ( is_array( $workflow['steps'] ) ) {
+			foreach ( $workflow['steps'] as $index => $step ) {
+				$workflow['steps'][ $index ]['attribute_definitions'] = array();
+
+				$hydrated_step = $this->automation_engine->get_registered_step( $step );
+				foreach ( $hydrated_step->get_attribute_definitions() as $attribute_definition ) {
+					$workflow['steps'][ $index ]['attribute_definitions'][ $attribute_definition->get_slug() ] = $attribute_definition->to_array();
+				}
+			}
 		}
 
 		/**
