@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import './style.scss';
 
 export default function BlogrollAppenderResults( { results, showPlaceholder, onSelect } ) {
@@ -12,7 +13,12 @@ export default function BlogrollAppenderResults( { results, showPlaceholder, onS
 			{ results.length > 0 && (
 				<ul aria-live="polite">
 					{ results.map( result => (
-						<li key={ result.blog_id }>
+						<li
+							key={ result.blog_id }
+							className={ classNames( 'jetpack-blogroll__appender-result-container', {
+								'is-disabled-result': result?.duplicateRecommendation,
+							} ) }
+						>
 							<a
 								className="jetpack-blogroll__appender-result-title"
 								href="#"

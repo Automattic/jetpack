@@ -16,9 +16,22 @@
 		padding-left: 0px !important;
 		overflow-y: auto;
 
-		li {
+		.jetpack-blogroll__appender-result-container {
 			margin: 0;
 			padding: 8px 4px;
+
+			&.is-disabled-result {
+				background: var(--wp-gray-gray-0, #F6F7F7);
+				cursor: not-allowed;
+
+				a {
+					pointer-events: none;
+				}
+
+				.jetpack-blogroll__appender-result-title {
+					opacity: 0.5;
+				}
+			}
 
 			a {
 				display: flex;
