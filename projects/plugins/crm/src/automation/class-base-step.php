@@ -189,6 +189,21 @@ abstract class Base_Step implements Step {
 	}
 
 	/**
+	 * Validate and execute the step.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param Data_Type $data Data type passed.
+	 * @return void
+	 *
+	 * @throws Data_Type_Exception If the data type passed is not expected.
+	 */
+	public function validate_and_execute( Data_Type $data ): void {
+		$this->validate( $data );
+		$this->execute( $data );
+	}
+
+	/**
 	 * Execute the step.
 	 *
 	 * @since $$next-version$$
