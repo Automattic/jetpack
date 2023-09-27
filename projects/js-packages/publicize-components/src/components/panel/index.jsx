@@ -8,7 +8,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
+import { useReducer } from 'react';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
@@ -56,33 +56,17 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 	const PanelWrapper = prePublish ? Fragment : PanelBody;
 	const wrapperProps = prePublish ? {} : { title: __( 'Share this post', 'jetpack' ) };
 
-	const [ isModalOpened, setIsModalOpened ] = useState( false );
-	const [ isDropdownOpened, setIsDropdownOpened ] = useState( false );
-
-	const closeModal = useCallback( () => setIsModalOpened( false ), [] );
-
-	const openQuickShareLearnMore = useCallback( () => {
-		console.log( 'openQuickShareLearnMore fired' );
-		setIsDropdownOpened( false );
-		setIsModalOpened( true );
-	}, [] );
-
-	console.log( { isDropdownOpened, isModalOpened } );
+	const [ isModalOpen, toggleModal ] = useReducer( isOpen => ! isOpen, false );
 
 	return (
 		<PanelWrapper { ...wrapperProps }>
 			{ isPostPublished && (
 				<OneClickSharingDropdown
-					// toggleDropdown={ willOpen => {
-					// 	console.log( { willOpen } );
-					// 	setIsDropdownOpened( willOpen );
-					// } }
-					isOpen={ isDropdownOpened }
-					onClickLearnMore={ openQuickShareLearnMore }
+					onClickLearnMore={ toggleModal }
 					className={ styles[ 'one-click-share-dropdown' ] }
 				/>
 			) }
-			{ isModalOpened && <OneClickSharingModal onClose={ closeModal } /> }
+			{ isModalOpen && <OneClickSharingModal onClose={ toggleModal } /> }
 			{ children }
 			{ ! hidePublicizeFeature && (
 				<Fragment>

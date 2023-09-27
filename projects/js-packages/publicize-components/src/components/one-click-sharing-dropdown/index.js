@@ -6,16 +6,11 @@ import { useCallback } from 'react';
 import { ShareButtons } from '../share-buttons/share-buttons';
 import styles from './styles.module.scss';
 
-const OneClickSharingDropdown = ( {
-	className: containerClass,
-	isOpen,
-	onClickLearnMore,
-	toggleDropdown,
-} ) => {
-	const renderToggle = useCallback( ( { isOpen: isExpanded, onToggle } ) => {
-		return <Icon icon={ share } onClick={ onToggle } aria-expanded={ isExpanded } />;
-	}, [] );
+const renderToggle = ( { isOpen, onToggle } ) => {
+	return <Icon icon={ share } onClick={ onToggle } aria-expanded={ isOpen } />;
+};
 
+const OneClickSharingDropdown = ( { className: containerClass, onClickLearnMore } ) => {
 	const renderContent = useCallback(
 		( { onToggle } ) => {
 			return (
@@ -33,6 +28,7 @@ const OneClickSharingDropdown = ( {
 							&nbsp;
 							<Button
 								variant="link"
+								// eslint-disable-next-line react/jsx-no-bind
 								onClick={ () => {
 									onClickLearnMore();
 									// Close the dropdown
@@ -49,20 +45,15 @@ const OneClickSharingDropdown = ( {
 		[ onClickLearnMore ]
 	);
 
-	console.log( { isOpen, toggleDropdown } );
 	return (
-		<>
-			<Dropdown
-				// onToggle={ toggleDropdown }
-				open={ isOpen }
-				focusOnMount={ true }
-				contentClassName={ styles.content }
-				className={ containerClass }
-				popoverProps={ { placement: 'bottom-start' } }
-				renderToggle={ renderToggle }
-				renderContent={ renderContent }
-			/>
-		</>
+		<Dropdown
+			focusOnMount={ true }
+			contentClassName={ styles.content }
+			className={ containerClass }
+			popoverProps={ { placement: 'bottom-start' } }
+			renderToggle={ renderToggle }
+			renderContent={ renderContent }
+		/>
 	);
 };
 
