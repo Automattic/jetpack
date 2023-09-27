@@ -2,6 +2,7 @@ import { SocialServiceIcon, Button, Text } from '@automattic/jetpack-components'
 import { CopyToClipboard } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useCallback } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { availableNetworks } from './available-networks';
 import styles from './styles.module.scss';
 import { useShareButtonText } from './useShareButtonText';
@@ -74,18 +75,29 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 							{ 'text' === buttonStyle ? label : null }
 						</Button>
 						{ 'icon-text' === buttonStyle && (
-							<Text className={ styles.label }>Share on { label }</Text>
+							<Text className={ styles.label }>
+								{ sprintf(
+									/* translators: %s is the name of a social network, e.g. Twitter. */
+									__( 'Share on %s', 'jetpack' ),
+									label
+								) }
+							</Text>
 						) }
 					</div>
 				);
 			} ) }
-			<CopyToClipboard
-				buttonStyle={ buttonStyle }
-				onCopy={ onCopy }
-				textToCopy={ textToCopy }
-				className={ styles.clipboard }
-				variant={ buttonVariant }
-			/>
+			<div className={ styles.container }>
+				<CopyToClipboard
+					buttonStyle={ 'icon-text' === buttonStyle ? 'icon' : buttonStyle }
+					onCopy={ onCopy }
+					textToCopy={ textToCopy }
+					className={ styles.clipboard }
+					variant={ buttonVariant }
+				/>
+				{ 'icon-text' === buttonStyle && (
+					<Text className={ styles.label }>{ __( 'Copy to clipboard', 'jetpack' ) }</Text>
+				) }
+			</div>
 		</div>
 	);
 }
