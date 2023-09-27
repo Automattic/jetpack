@@ -301,7 +301,6 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 			$request->set_param( $param, $value );
 		}
 		$response = rest_do_request( $request );
-		error_log( print_r( $response->get_data(), true ) );
 		$this->assertSame( 200, $response->get_status() );
 
 		// Verify that all our parameters are returned in the created workflow.
