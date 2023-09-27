@@ -3,6 +3,7 @@
  */
 import { useAiContext, AIControl, ERROR_QUOTA_EXCEEDED } from '@automattic/jetpack-ai-client';
 import { serialize } from '@wordpress/blocks';
+import { KeyboardShortcuts } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { select } from '@wordpress/data';
 import { useDispatch } from '@wordpress/data';
@@ -16,10 +17,11 @@ import {
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import classNames from 'classnames';
+import React from 'react';
 /**
  * Internal dependencies
  */
-import classNames from 'classnames';
 import ConnectPrompt from '../../../../components/connect-prompt';
 import UpgradePrompt from '../../../../components/upgrade-prompt';
 import useAIFeature from '../../../../hooks/use-ai-feature';
@@ -83,12 +85,15 @@ export default function AiAssistantBar( {
 	const { inputValue, setInputValue, isVisible, assistantAnchor } =
 		useContext( AiAssistantUiContext );
 
+	const focusOnPrompt = () => {
+		// Small delay to avoid focus crash
+		setTimeout( () => {
+			inputRef.current?.focus?.();
+		}, 100 );
+	};
+
 	const { requestSuggestion, requestingState, stopSuggestion, requestingError } = useAiContext( {
-		onDone: () => {
-			setTimeout( () => {
-				inputRef.current?.focus?.();
-			}, 10 );
-		},
+		onDone: focusOnPrompt,
 	} );
 
 	const { requireUpgrade } = useAIFeature();
@@ -105,7 +110,7 @@ export default function AiAssistantBar( {
 
 	const { removeNotice } = useDispatch( noticesStore );
 
-	const onSend = useCallback( () => {
+	const handleSend = useCallback( () => {
 		// Do not send the request if the input value is empty.
 		if ( ! inputValue?.length ) {
 			return;
@@ -120,7 +125,13 @@ export default function AiAssistantBar( {
 		} );
 
 		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
+		wrapperRef?.current?.focus();
 	}, [ clientId, inputValue, removeNotice, requestSuggestion ] );
+
+	const handleStopSuggestion = useCallback( () => {
+		stopSuggestion();
+		focusOnPrompt();
+	}, [ stopSuggestion ] );
 
 	/*
 	 * Fix the assistant bar when the viewport is mobile,
@@ -204,30 +215,42 @@ export default function AiAssistantBar( {
 
 	// Assistant bar component.
 	const AiAssistantBarComponent = (
-		<div
-			ref={ wrapperRef }
-			className={ classNames( 'jetpack-ai-assistant__bar', {
-				[ className ]: className,
-				'is-fixed': isAssistantBarFixed,
-				'is-mobile-mode': isMobileMode,
-			} ) }
+		<KeyboardShortcuts
+			bindGlobal
+			shortcuts={ {
+				esc: () => {
+					if ( [ 'requesting', 'suggesting' ].includes( requestingState ) ) {
+						handleStopSuggestion();
+					}
+				},
+			} }
 		>
-			{ siteRequireUpgrade && <UpgradePrompt /> }
-			{ ! connected && <ConnectPrompt /> }
-			<AIControl
-				ref={ inputRef }
-				disabled={ siteRequireUpgrade || ! connected }
-				value={ isLoading ? undefined : inputValue }
-				placeholder={ isLoading ? loadingPlaceholder : placeholder }
-				onChange={ setInputValue }
-				onSend={ onSend }
-				onStop={ stopSuggestion }
-				state={ requestingState }
-				isTransparent={ siteRequireUpgrade || ! connected }
-				showButtonLabels={ ! isMobileMode }
-				showGuideLine={ showGuideLine }
-			/>
-		</div>
+			<div
+				ref={ wrapperRef }
+				className={ classNames( 'jetpack-ai-assistant__bar', {
+					[ className ]: className,
+					'is-fixed': isAssistantBarFixed,
+					'is-mobile-mode': isMobileMode,
+				} ) }
+				tabIndex={ -1 }
+			>
+				{ siteRequireUpgrade && <UpgradePrompt /> }
+				{ ! connected && <ConnectPrompt /> }
+				<AIControl
+					ref={ inputRef }
+					disabled={ siteRequireUpgrade || ! connected }
+					value={ isLoading ? undefined : inputValue }
+					placeholder={ isLoading ? loadingPlaceholder : placeholder }
+					onChange={ setInputValue }
+					onSend={ handleSend }
+					onStop={ handleStopSuggestion }
+					state={ requestingState }
+					isTransparent={ siteRequireUpgrade || ! connected }
+					showButtonLabels={ ! isMobileMode }
+					showGuideLine={ showGuideLine }
+				/>
+			</div>
+		</KeyboardShortcuts>
 	);
 
 	// Check if the Assistant bar should be rendered in the Assistant anchor (fixed mode)

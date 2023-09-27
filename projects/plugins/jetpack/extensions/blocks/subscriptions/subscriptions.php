@@ -996,6 +996,12 @@ function add_paywall( $the_content ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
 	if ( Jetpack_Memberships::user_can_view_post() ) {
+		do_action(
+			'earn_track_paywalled_post_view',
+			array(
+				'post_id' => get_the_ID(),
+			)
+		);
 		return $the_content;
 	}
 

@@ -65,9 +65,10 @@ interface Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param mixed $data The data to pass to the workflow.
+	 * @param mixed|null $data The data to pass to the workflow.
+	 * @param mixed|null $previous_data The previous data to pass to the workflow.
 	 */
-	public function execute_workflow( $data = null );
+	public function execute_workflow( $data = null, $previous_data = null );
 
 	/**
 	 * Set the workflow to execute by this trigger.
