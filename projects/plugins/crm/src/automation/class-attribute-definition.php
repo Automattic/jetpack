@@ -254,4 +254,24 @@ class Attribute_Definition {
 	public function set_data( ?array $data ): void {
 		$this->data = $data;
 	}
+
+	/**
+	 * Get the attribute definition as an array.
+	 *
+	 * The main use-case to get the attribute as an array is,
+	 * so we can easily share it via API.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array
+	 */
+	public function to_array(): array {
+		return array(
+			'slug'        => $this->get_slug(),
+			'title'       => $this->get_title(),
+			'description' => $this->get_description(),
+			'type'        => $this->get_type(),
+			'data'        => $this->get_data(),
+		);
+	}
 }
