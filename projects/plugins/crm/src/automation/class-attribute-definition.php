@@ -9,76 +9,78 @@
 namespace Automattic\Jetpack\CRM\Automation;
 
 /**
- * Step Attribute.
+ * Attribute Definition.
  *
- * The Step Attribute represents
+ * An attribute represents how a step is configured. For example, a step that
+ * sends an email to a contact may have an attribute that represents the email
+ * subject, another attribute that represents the email body, and so on.
  *
  * @since $$next-version$$
  */
 class Attribute_Definition {
 
 	/**
-	* Represents a dropdown selection input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
+	 * Represents a dropdown selection input.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
 	const SELECT = 'select';
 
 	/**
-	* Represents a checkbox input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
+	 * Represents a checkbox input.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
 	const CHECKBOX = 'checkbox';
 
 	/**
-	* Represents a textarea input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
+	 * Represents a textarea input.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
 	const TEXTAREA = 'textarea';
 
 	/**
-	* Represents a text input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
+	 * Represents a text input.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
 	const TEXT = 'text';
 
 	/**
-	* Represents a date input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
+	 * Represents a date input.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
 	const DATE = 'date';
 
 	/**
-	* Represents a date and time input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
+	 * Represents a date and time input.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
 	const DATETIME = 'datetime';
 
 	/**
-	* Represents a numerical input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
+	 * Represents a numerical input.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
 	const NUMBER = 'number';
 
 	/**
-	* Represents a password input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
+	 * Represents a password input.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
 	const PASSWORD = 'password';
 
 	/**
@@ -106,8 +108,10 @@ class Attribute_Definition {
 	protected $description;
 
 	/**
-	 * Attribute type (is it a select? an input?). The const values of this class
-	 * should be used here (e.g. Step_Attribute::NUMBER).
+	 * Attribute type.
+	 *
+	 * This is a string that represents the type of the attribute.
+	 * E.g.: 'text', 'number', 'select', etc.
 	 *
 	 * @since $$next-version$$
 	 * @var string
@@ -127,13 +131,13 @@ class Attribute_Definition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string     $slug        The slug (key) that identifies this attribute.
-	 * @param string     $title       The title (label) for this attribute.
+	 * @param string     $slug The slug (key) that identifies this attribute.
+	 * @param string     $title The title (label) for this attribute.
 	 * @param string     $description The description for this attribute.
-	 * @param string     $type        Attribute type.
-	 * @param array|null $data        Data needed by this attribute.
+	 * @param string     $type Attribute type.
+	 * @param array|null $data Data needed by this attribute.
 	 */
-	public function __construct( $slug, $title, $description, $type, $data = null ) {
+	public function __construct( string $slug, string $title, string $description, string $type, ?array $data = null ) {
 		$this->slug        = $slug;
 		$this->title       = $title;
 		$this->description = $description;
@@ -148,7 +152,7 @@ class Attribute_Definition {
 	 *
 	 * @return string
 	 */
-	public function getSlug(): string {
+	public function get_slug(): string {
 		return $this->slug;
 	}
 
@@ -159,7 +163,7 @@ class Attribute_Definition {
 	 *
 	 * @param string $slug The slug (key) that identifies this attribute.
 	 */
-	public function setSlug( string $slug ): void {
+	public function set_slug( string $slug ): void {
 		$this->slug = $slug;
 	}
 
@@ -170,7 +174,7 @@ class Attribute_Definition {
 	 *
 	 * @return string
 	 */
-	public function getTitle(): string {
+	public function get_title(): string {
 		return $this->title;
 	}
 
@@ -181,7 +185,7 @@ class Attribute_Definition {
 	 *
 	 * @param string $title The title (label) for this attribute.
 	 */
-	public function setTitle( string $title ): void {
+	public function set_title( string $title ): void {
 		$this->title = $title;
 	}
 
@@ -192,7 +196,7 @@ class Attribute_Definition {
 	 *
 	 * @return string
 	 */
-	public function getDescription(): string {
+	public function get_description(): string {
 		return $this->description;
 	}
 
@@ -203,7 +207,7 @@ class Attribute_Definition {
 	 *
 	 * @param string $description The description for this attribute.
 	 */
-	public function setDescription( string $description ): void {
+	public function set_description( string $description ): void {
 		$this->description = $description;
 	}
 
@@ -214,7 +218,7 @@ class Attribute_Definition {
 	 *
 	 * @return string
 	 */
-	public function getType(): string {
+	public function get_type(): string {
 		return $this->type;
 	}
 
@@ -225,7 +229,7 @@ class Attribute_Definition {
 	 *
 	 * @param string $type The attribute type.
 	 */
-	public function setType( string $type ): void {
+	public function set_type( string $type ): void {
 		$this->type = $type;
 	}
 
@@ -236,7 +240,7 @@ class Attribute_Definition {
 	 *
 	 * @return array|null
 	 */
-	public function getData(): ?array {
+	public function get_data(): ?array {
 		return $this->data;
 	}
 
@@ -247,7 +251,7 @@ class Attribute_Definition {
 	 *
 	 * @param array|null $data The data needed by this attribute.
 	 */
-	public function setData( ?array $data ): void {
+	public function set_data( ?array $data ): void {
 		$this->data = $data;
 	}
 }
