@@ -83,6 +83,8 @@ class Workflow_Repository {
 	/**
 	 * Find workflows with the given criteria.
 	 *
+	 * @todo Implement "order by" logic.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @param array  $criteria Workflow arguments to filter the workflows result.
