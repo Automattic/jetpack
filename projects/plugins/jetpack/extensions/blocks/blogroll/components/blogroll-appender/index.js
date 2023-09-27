@@ -14,8 +14,7 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 	const [ popoverAnchor, setPopoverAnchor ] = useState();
 	const [ searchInput, setSearchInput ] = useState( '' );
 	const { insertBlock } = dispatch( 'core/block-editor' );
-
-	const { siteDetails } = useGetSiteDetails( {
+	const { siteDetails, isLoading } = useGetSiteDetails( {
 		siteURL: searchInput,
 		subscriptions,
 		enabled: searchInput,
@@ -47,6 +46,7 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 						showPlaceholder={ ! searchInput.trim() }
 						results={ siteDetails }
 						onSelect={ onSelect }
+						isLoading={ isLoading }
 					/>
 				</Popover>
 			) }

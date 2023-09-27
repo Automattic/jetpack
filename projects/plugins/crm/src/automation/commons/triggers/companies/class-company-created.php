@@ -9,7 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Company;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Company_Data;
 
 /**
  * Adds the Company_Created class.
@@ -68,7 +68,7 @@ class Company_Created extends Base_Trigger {
 	 * @return string The type of the step
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Company::get_slug();
+		return Company_Data::class;
 	}
 
 	/**

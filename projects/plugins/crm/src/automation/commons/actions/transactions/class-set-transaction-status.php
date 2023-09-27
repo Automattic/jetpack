@@ -9,7 +9,10 @@
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
 use Automattic\Jetpack\CRM\Automation\Base_Action;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
+use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Transaction_Data;
+use Automattic\Jetpack\CRM\Entities\Transaction;
 
 /**
  * Adds the Set_Transaction_Status class.
@@ -59,7 +62,7 @@ class Set_Transaction_Status extends Base_Action {
 	 * @return string The type of the step.
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Transaction::get_slug();
+		return Transaction_Data::class;
 	}
 
 	/**
@@ -74,26 +77,21 @@ class Set_Transaction_Status extends Base_Action {
 	}
 
 	/**
-	 * Get the allowed triggers.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string[]|null The allowed triggers.
-	 */
-	public static function get_allowed_triggers(): ?array {
-		return array();
-	}
-
-	/**
 	 * Update the DAL with the transaction status.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param mixed  $data Data passed from the trigger.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 * @param Data_Type $data Data passed from the trigger.
+	 *
+	 * @throws Data_Type_Exception If the data do not look valid.
 	 */
-	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function execute( Data_Type $data ) {
+		$this->validate( $data );
+
+		/** @var Transaction $transaction */
+		$transaction = $data->get_data();
+
 		global $zbs;
-		$zbs->DAL->transactions->setTransactionStatus( $data['id'], $this->attributes['new_status'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$zbs->DAL->transactions->setTransactionStatus( $transaction->id, $this->attributes['new_status'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 }

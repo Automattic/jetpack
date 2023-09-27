@@ -103,7 +103,7 @@ class Contact_Factory extends Entity_Factory {
 			return false;
 		}
 
-		$valid_fields = array( 'fname', 'lname', 'email' );
+		$valid_fields = array( 'id' );
 
 		foreach ( $valid_fields as $field ) {
 			if ( ! array_key_exists( $field, $tidy_contact ) ) {

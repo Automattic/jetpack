@@ -3,8 +3,13 @@ import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import './style.scss';
 
-export default function BlogrollAppenderResults( { results, showPlaceholder, onSelect } ) {
-	const [ siteRecommendations ] = useEntityProp( 'root', 'site', 'Blogroll Recommendations' );
+export default function BlogrollAppenderResults( {
+	results,
+	showPlaceholder,
+	onSelect,
+	isLoading,
+} ) {
+  const [ siteRecommendations ] = useEntityProp( 'root', 'site', 'Blogroll Recommendations' );
 
 	// Check if site is already appended to the blogroll
 	// If it is, add a duplicateRecommendation flag to the site object
@@ -17,12 +22,14 @@ export default function BlogrollAppenderResults( { results, showPlaceholder, onS
 		}
 		return result;
 	} );
-
+  
 	return (
 		<div className="jetpack-blogroll__appender-results">
 			{ showPlaceholder && <div aria-autocomplete="list">{ __( 'Suggestions', 'jetpack' ) }</div> }
 
-			{ updatedResults.length === 0 && ! showPlaceholder && (
+			{ isLoading && <div role="status">{ __( 'Loading…', 'jetpack' ) }</div> }
+
+			{ ! isLoading && updatedResults.length === 0 && ! showPlaceholder && (
 				<div role="status">{ __( 'No websites found.', 'jetpack' ) }</div>
 			) }
 			{ updatedResults.length > 0 && (
