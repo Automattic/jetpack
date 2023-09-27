@@ -1,13 +1,22 @@
 import { Text, ThemeProvider } from '@automattic/jetpack-components';
 import { Button, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, share } from '@wordpress/icons';
+import { Icon } from '@wordpress/icons';
 import { useCallback } from 'react';
 import { ShareButtons } from '../share-buttons/share-buttons';
+import shareArrowIcon from './share-arrow-icon';
 import styles from './styles.module.scss';
 
 const renderToggle = ( { isOpen, onToggle } ) => {
-	return <Icon icon={ share } onClick={ onToggle } aria-expanded={ isOpen } />;
+	return (
+		<Icon
+			className={ styles.icon }
+			size={ 18 }
+			icon={ shareArrowIcon }
+			onClick={ onToggle }
+			aria-expanded={ isOpen }
+		/>
+	);
 };
 
 const OneClickSharingDropdown = ( { className: containerClass, onClickLearnMore } ) => {

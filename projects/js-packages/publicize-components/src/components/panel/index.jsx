@@ -59,7 +59,7 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 	const [ isModalOpen, toggleModal ] = useReducer( isOpen => ! isOpen, false );
 
 	return (
-		<PanelWrapper { ...wrapperProps }>
+		<PanelWrapper className={ styles.panel } { ...wrapperProps }>
 			{ isPostPublished && (
 				<OneClickSharingDropdown
 					onClickLearnMore={ toggleModal }
