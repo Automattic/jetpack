@@ -108,8 +108,10 @@ class Attribute_Definition {
 	protected $description;
 
 	/**
-	 * Attribute type (is it a select? an input?). The const values of this class
-	 * should be used here (e.g. Attribute_Definition::NUMBER).
+	 * Attribute type.
+	 *
+	 * This is a string that represents the type of the attribute.
+	 * E.g.: 'text', 'number', 'select', etc.
 	 *
 	 * @since $$next-version$$
 	 * @var string
@@ -135,7 +137,7 @@ class Attribute_Definition {
 	 * @param string     $type Attribute type.
 	 * @param array|null $data Data needed by this attribute.
 	 */
-	public function __construct( $slug, $title, $description, $type, $data = null ) {
+	public function __construct( string $slug, string $title, string $description, string $type, ?array $data = null ) {
 		$this->slug        = $slug;
 		$this->title       = $title;
 		$this->description = $description;
@@ -150,7 +152,7 @@ class Attribute_Definition {
 	 *
 	 * @return string
 	 */
-	public function getSlug(): string {
+	public function get_slug(): string {
 		return $this->slug;
 	}
 
@@ -161,7 +163,7 @@ class Attribute_Definition {
 	 *
 	 * @param string $slug The slug (key) that identifies this attribute.
 	 */
-	public function setSlug( string $slug ): void {
+	public function set_slug( string $slug ): void {
 		$this->slug = $slug;
 	}
 
@@ -172,7 +174,7 @@ class Attribute_Definition {
 	 *
 	 * @return string
 	 */
-	public function getTitle(): string {
+	public function get_title(): string {
 		return $this->title;
 	}
 
@@ -183,7 +185,7 @@ class Attribute_Definition {
 	 *
 	 * @param string $title The title (label) for this attribute.
 	 */
-	public function setTitle( string $title ): void {
+	public function set_title( string $title ): void {
 		$this->title = $title;
 	}
 
@@ -194,7 +196,7 @@ class Attribute_Definition {
 	 *
 	 * @return string
 	 */
-	public function getDescription(): string {
+	public function get_description(): string {
 		return $this->description;
 	}
 
@@ -205,7 +207,7 @@ class Attribute_Definition {
 	 *
 	 * @param string $description The description for this attribute.
 	 */
-	public function setDescription( string $description ): void {
+	public function set_description( string $description ): void {
 		$this->description = $description;
 	}
 
@@ -216,7 +218,7 @@ class Attribute_Definition {
 	 *
 	 * @return string
 	 */
-	public function getType(): string {
+	public function get_type(): string {
 		return $this->type;
 	}
 
@@ -227,7 +229,7 @@ class Attribute_Definition {
 	 *
 	 * @param string $type The attribute type.
 	 */
-	public function setType( string $type ): void {
+	public function set_type( string $type ): void {
 		$this->type = $type;
 	}
 
@@ -238,7 +240,7 @@ class Attribute_Definition {
 	 *
 	 * @return array|null
 	 */
-	public function getData(): ?array {
+	public function get_data(): ?array {
 		return $this->data;
 	}
 
@@ -249,7 +251,7 @@ class Attribute_Definition {
 	 *
 	 * @param array|null $data The data needed by this attribute.
 	 */
-	public function setData( ?array $data ): void {
+	public function set_data( ?array $data ): void {
 		$this->data = $data;
 	}
 }
