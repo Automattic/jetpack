@@ -93,7 +93,7 @@ HTML;
 
 	$subscribe_button = <<<HTML
 		<!-- wp:button {"className":"$subscribe_button_class"} -->
-		<div class="wp-block-button is-style-fill jetpack-blogroll-item-subscribe-button $subscribe_button_class">
+		<div class="wp-block-button jetpack-blogroll-item-subscribe-button $subscribe_button_class">
 			<button type="button" class="wp-block-button__link wp-element-button" {$disabled_subscribe_button}>$subscribe_text</button>
 		</div>
 		<!-- /wp:button -->
