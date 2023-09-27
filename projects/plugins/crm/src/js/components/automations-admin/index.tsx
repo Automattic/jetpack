@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { dispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import axios from 'axios';
-// import { Contact, Message } from 'crm/state/inbox/types';
 import { Workflow } from 'crm/state/automations-admin/types';
 import { store } from 'crm/state/store';
 import { useCallback, useState } from 'react';
