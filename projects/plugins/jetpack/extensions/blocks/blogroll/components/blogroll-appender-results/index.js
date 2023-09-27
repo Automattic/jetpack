@@ -9,7 +9,7 @@ export default function BlogrollAppenderResults( {
 	onSelect,
 	isLoading,
 } ) {
-  const [ siteRecommendations ] = useEntityProp( 'root', 'site', 'Blogroll Recommendations' );
+	const [ siteRecommendations ] = useEntityProp( 'root', 'site', 'Blogroll Recommendations' );
 
 	// Check if site is already appended to the blogroll
 	// If it is, add a duplicateRecommendation flag to the site object
@@ -22,7 +22,7 @@ export default function BlogrollAppenderResults( {
 		}
 		return result;
 	} );
-  
+
 	return (
 		<div className="jetpack-blogroll__appender-results">
 			{ showPlaceholder && <div aria-autocomplete="list">{ __( 'Suggestions', 'jetpack' ) }</div> }
@@ -41,22 +41,22 @@ export default function BlogrollAppenderResults( {
 								'is-disabled-result': result?.duplicateRecommendation,
 							} ) }
 						>
-							<a
+							<button
 								className="jetpack-blogroll__appender-result-title"
+								disabled={ result?.duplicateRecommendation }
 								href="#"
 								onClick={ () => onSelect( result ) }
 							>
 								<div className="jetpack-blogroll__appender-result-image">
 									{ result.site_icon && <img src={ result.site_icon } alt={ result.name } /> }
 								</div>
-
 								<div className="jetpack-blogroll__appender-result-text">
 									<span className="jetpack-blogroll__appender-result-title">{ result.name }</span>
 									<span className="jetpack-blogroll__appender-result-description">
 										{ result.description }
 									</span>
 								</div>
-							</a>
+							</button>
 						</li>
 					) ) }
 				</ul>
