@@ -64,7 +64,7 @@ function load_assets( $attr, $content, $block ) {
 			'user_id' => get_current_user_id(),
 			'blog_id' => $id,
 		)
-	) || $id === isset( $_GET['blogid'] );  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic.
+	) || $id === isset( $_GET['blogid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic.
 
 	if ( $is_following ) {
 		$subscribe_text            = esc_html__( 'Subscribed', 'jetpack' );
