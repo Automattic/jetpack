@@ -28,10 +28,10 @@ export const AutomationsAdmin = () => {
 	useQuery( {
 		queryKey: [ 'automations', 'workflows' ],
 		queryFn: async () => {
-			const result = await axios.get< Workflow >(
-				`${ jpcrmAutomationsInitialState.apiRoot }jetpack-crm/v4/automation/workflow`
+			const result = await axios.get< Workflow[] >(
+				`${ jpcrmAutomationsInitialState.apiRoot }jetpack-crm/v4/automation/workflows`
 			);
-			dispatch( store ).hydrateWorkflows( [ result?.data ] );
+			dispatch( store ).hydrateWorkflows( result?.data );
 			return result;
 		},
 		staleTime: Infinity,
