@@ -83,15 +83,18 @@ class Workflow_Repository {
 	/**
 	 * Find workflows with the given criteria.
 	 *
-	 * @param array $criteria Arguments to filter the workflows result.
+	 * @todo Implement "order by" logic.
+	 *
 	 * @since $$next-version$$
+	 *
+	 * @param array  $criteria Workflow arguments to filter the workflows result.
+	 * @param string $order_by The column to order by.
+	 * @param int    $limit The maximum number of results to return.
+	 * @param int    $offset The offset to start from.
 	 *
 	 * @return Automation_Workflow[]
 	 */
-	public function find_by( array $criteria ): array {
-
-		// todo: Add $order_by and pagination support with $limit and $offset
-
+	public function find_by( array $criteria, string $order_by = 'id', int $limit = 0, int $offset = 0 ): array {
 		$query = "SELECT * FROM {$this->table_name}";
 
 		$allowed_criteria = array(
@@ -115,6 +118,22 @@ class Workflow_Repository {
 		// Build the WHERE clause.
 		if ( ! empty( $where ) ) {
 			$query .= ' WHERE ' . implode( ' AND ', $where );
+		}
+
+		// Add limit/offset clause.
+		if ( $limit > 0 || $offset > 0 ) {
+			// It seems intuitive to provide "0" to mean "no limit", but technically it means that
+			// we do not want to return any results at all, so to help with the developer experience
+			// we convert "0" to a very high number instead.
+			if ( 0 === $limit ) {
+				$limit = PHP_INT_MAX;
+			}
+
+			$query .= $this->wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				' LIMIT %d OFFSET %d',
+				$limit,
+				$offset
+			);
 		}
 
 		$rows = $this->wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared

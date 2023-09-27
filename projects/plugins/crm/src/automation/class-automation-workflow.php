@@ -181,8 +181,20 @@ class Automation_Workflow {
 	 *
 	 * @return int
 	 */
-	public function get_zbs_site() {
+	public function get_zbs_site(): int {
 		return $this->zbs_site;
+	}
+
+	/**
+	 * Set the CRM site teh workflow should run on.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $site The CRM site the workflow should run on.
+	 * @return void
+	 */
+	public function set_zbs_site( int $site ): void {
+		$this->zbs_site = $site;
 	}
 
 	/**
@@ -192,8 +204,20 @@ class Automation_Workflow {
 	 *
 	 * @return int
 	 */
-	public function get_zbs_owner() {
+	public function get_zbs_owner(): int {
 		return $this->zbs_owner;
+	}
+
+	/**
+	 * Set the CRM owner/creator of the workflow.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $owner The CRM owner/creator of the workflow.
+	 * @return void
+	 */
+	public function set_zbs_owner( int $owner ): void {
+		$this->zbs_owner = $owner;
 	}
 
 	/**
@@ -208,6 +232,18 @@ class Automation_Workflow {
 	}
 
 	/**
+	 * Set name.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $name The workflow name.
+	 * @return void
+	 */
+	public function set_name( string $name ): void {
+		$this->name = $name;
+	}
+
+	/**
 	 * Get description.
 	 *
 	 * @since $$next-version$$
@@ -219,6 +255,18 @@ class Automation_Workflow {
 	}
 
 	/**
+	 * Set description.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $description The workflow description.
+	 * @return void
+	 */
+	public function set_description( string $description ): void {
+		$this->description = $description;
+	}
+
+	/**
 	 * Get category.
 	 *
 	 * @since $$next-version$$
@@ -227,6 +275,18 @@ class Automation_Workflow {
 	 */
 	public function get_category(): string {
 		return $this->category;
+	}
+
+	/**
+	 * Set category.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $category The workflow category.
+	 * @return void
+	 */
+	public function set_category( string $category ): void {
+		$this->category = $category;
 	}
 
 	/**
@@ -591,15 +651,5 @@ class Automation_Workflow {
 	 */
 	public function set_id( $id ): void {
 		$this->id = $id;
-	}
-
-	/**
-	 * Set the workflow category.
-	 *
-	 * @param string $category The workflow category.
-	 * @return void
-	 */
-	public function set_category( string $category ): void {
-		$this->category = $category;
 	}
 }
