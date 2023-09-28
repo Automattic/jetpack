@@ -12,7 +12,8 @@ import { ClipboardIcon } from '../../lib/icons';
 
 export default function CopyButton( { answer } ) {
 	const [ hasCopied, setHasCopied ] = useState( false );
-	const copyRef = useCopyToClipboard( answer, () => {
+	const cleanAnswer = answer.replace( /<[^>]*>/gm, '' ); // Remove HTML tags.
+	const copyRef = useCopyToClipboard( cleanAnswer, () => {
 		setHasCopied( true );
 		setTimeout( () => setHasCopied( false ), 3000 );
 	} );
