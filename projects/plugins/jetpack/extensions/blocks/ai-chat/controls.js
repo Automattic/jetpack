@@ -14,8 +14,7 @@ export function AiChatControls( { setAttributes, placeholder } ) {
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) } initialOpen={ false }>
 					<BaseControl
-						label={ __( 'Input placeholder', 'jetpack' ) }
-						help={ __( 'Customize the placeholder text.', 'jetpack' ) }
+						label={ __( 'Placeholder Text', 'jetpack' ) }
 						className="jetpack-ai-chat__ask-button-text"
 					>
 						<TextControl
@@ -30,7 +29,7 @@ export function AiChatControls( { setAttributes, placeholder } ) {
 				<BaseControl
 					label={ __( 'Additional instructions', 'jetpack' ) }
 					help={ __(
-						'This will instruct Jetpack AI to adjust the answer in a certain way. You can ask it to only provide one sentence response, or make it talk like a pirate, but please remember your instructions may have unintended consequences.',
+						'Give Jetpack AI additional instructions for answer length, format, and tone.',
 						'jetpack'
 					) }
 				>
