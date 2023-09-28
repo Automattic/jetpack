@@ -59,9 +59,11 @@ abstract class Data_Transformer_Base {
 	 *
 	 * @since $$next-version$$
 	 *
+	 * @param Data_Type|null $data The object data type we want to get the slug from, if not explicit.
+	 *
 	 * @return string The data type class we transform from.
 	 */
-	abstract public static function get_from(): string;
+	abstract public static function get_from( $data = null ): string;
 
 	/**
 	 * Get the data type class we transform to.

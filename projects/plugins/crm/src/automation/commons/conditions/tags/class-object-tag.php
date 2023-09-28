@@ -126,6 +126,11 @@ class Object_Tag extends Base_Condition {
 		$previous_data = $data->get_previous_data();
 		$data          = $data->get_data();
 
+		if ( ! $this->check_for_valid_parameters( $operator, $data, $previous_data ) ) {
+			$this->condition_met = false;
+			return;
+		}
+
 		$this->logger->log( 'Condition: Object_Tag ' . $tag . ' => ' . $operator );
 
 		switch ( $operator ) {
