@@ -15,7 +15,7 @@ use Automattic\Jetpack\CRM\Entities\Invoice;
  *
  * @since $$next-version$$
  */
-class Invoice_Data extends Data_Type_Base {
+class Invoice_Data extends Data_Type_Base implements Entity_Data {
 
 	/**
 	 * Validate the data.
@@ -35,7 +35,7 @@ class Invoice_Data extends Data_Type_Base {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_tags() {
+	public function get_tags(): array {
 		global $zbs;
 		return $zbs->DAL->getTagsForObjID( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			array(

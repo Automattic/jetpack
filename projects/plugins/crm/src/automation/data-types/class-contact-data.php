@@ -15,7 +15,7 @@ use Automattic\Jetpack\CRM\Entities\Contact;
  *
  * @since $$next-version$$
  */
-class Contact_Data extends Data_Type_Base {
+class Contact_Data extends Data_Type_Base implements Entity_Data {
 
 	/**
 	 * Validate the data.
@@ -35,7 +35,7 @@ class Contact_Data extends Data_Type_Base {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_tags() {
+	public function get_tags(): array {
 		global $zbs;
 		return $zbs->DAL->contacts->getContactTags( $this->get_data()->id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}

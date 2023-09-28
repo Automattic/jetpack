@@ -15,7 +15,7 @@ use Automattic\Jetpack\CRM\Entities\Company;
  *
  * @since $$next-version$$
  */
-class Company_Data extends Data_Type_Base {
+class Company_Data extends Data_Type_Base implements Entity_Data {
 
 	/**
 	 * Validate the data.
@@ -35,7 +35,7 @@ class Company_Data extends Data_Type_Base {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get_tags() {
+	public function get_tags(): array {
 		global $zbs;
 		return $zbs->DAL->companies->getCompanyTags( $this->get_data()->id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
