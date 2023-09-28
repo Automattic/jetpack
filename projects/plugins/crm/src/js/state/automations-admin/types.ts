@@ -8,7 +8,7 @@ export type Trigger = {
 export type Step = {
 	id: string;
 	attributes: { [ key: string ]: AttributeValue };
-	attribute_definitions: AttributeDefinition[];
+	attribute_definitions: { [ attributeSlug: string ]: AttributeDefinition };
 	next_step?: string;
 	slug: string;
 	title: string;
