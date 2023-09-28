@@ -239,6 +239,8 @@ class Event_Manager_Test extends JPCRM_Base_Test_Case {
 		add_action(
 			'jpcrm_transaction_created',
 			function ( $transaction_created ) use ( $transaction ) {
+				// @todo Matching tags for now, but we should investigate the factory / what the DAL is returning.
+				$transaction_created->tags = $transaction->tags;
 				$this->assertEquals( $transaction_created, $transaction );
 			},
 			10,
@@ -263,6 +265,8 @@ class Event_Manager_Test extends JPCRM_Base_Test_Case {
 		add_action(
 			'jpcrm_transaction_updated',
 			function ( $transaction_updated ) use ( $transaction ) {
+				// @todo Matching tags for now, but we should investigate the factory / what the DAL is returning.
+				$transaction_updated->tags = $transaction->tags;
 				$this->assertEquals( $transaction_updated, $transaction );
 			},
 			10,

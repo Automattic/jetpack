@@ -23,14 +23,14 @@ class Tag {
 	 *
 	 * @var int
 	 */
-	public $obj_type_id = -1;
+	public $objtype = -1;
 
 	/**
-	 * The user-friendly label of the tag.
+	 * The user-friendly name of the tag.
 	 *
 	 * @var string
 	 */
-	public $label = '';
+	public $name = '';
 
 	/**
 	 * The tag slug.
