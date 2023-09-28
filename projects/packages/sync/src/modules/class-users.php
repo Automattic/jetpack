@@ -149,6 +149,8 @@ class Users extends Module {
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_add_user', array( $this, 'expand_action' ) );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_register_user', array( $this, 'expand_action' ) );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_user', array( $this, 'expand_action' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_wp_login', array( $this, 'expand_login_username' ), 10, 1 );
+		add_filter( 'jetpack_sync_before_enqueue_wp_logout', array( $this, 'expand_logout_username' ), 10, 2 );
 	}
 
 	/**
@@ -168,9 +170,6 @@ class Users extends Module {
 	 * @access public
 	 */
 	public function init_before_send() {
-		add_filter( 'jetpack_sync_before_send_jetpack_wp_login', array( $this, 'expand_login_username' ), 10, 1 );
-		add_filter( 'jetpack_sync_before_send_wp_logout', array( $this, 'expand_logout_username' ), 10, 2 );
-
 		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_users', array( $this, 'expand_users' ) );
 	}
