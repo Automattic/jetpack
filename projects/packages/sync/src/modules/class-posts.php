@@ -144,11 +144,12 @@ class Posts extends Module {
 		add_filter( 'jetpack_sync_before_enqueue_deleted_post', array( $this, 'filter_blacklisted_post_types_deleted' ) );
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
-		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_blacklisted_post_types' ) );
 
 		// Listen for meta changes.
 		$this->init_listeners_for_meta_type( 'post', $callable );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
+
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_sync_save_post' ) );
 
 		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
 		add_action( 'jetpack_daily_akismet_meta_cleanup_after', array( $this, 'daily_akismet_meta_cleanup_after' ) );
@@ -214,13 +215,6 @@ class Posts extends Module {
 	 * @access public
 	 */
 	public function init_before_send() {
-		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_post', array( $this, 'expand_jetpack_sync_save_post' ) );
-
-		// meta.
-		add_filter( 'jetpack_sync_before_send_added_post_meta', array( $this, 'trim_post_meta' ) );
-		add_filter( 'jetpack_sync_before_send_updated_post_meta', array( $this, 'trim_post_meta' ) );
-		add_filter( 'jetpack_sync_before_send_deleted_post_meta', array( $this, 'trim_post_meta' ) );
-
 		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
 	}
@@ -322,6 +316,22 @@ class Posts extends Module {
 	}
 
 	/**
+	 * Filter all blacklisted post types and add filtered post content.
+	 *
+	 * @param array $args Hook arguments.
+	 * @return array|false Hook arguments, or false if the post type is a blacklisted one.
+	 */
+	public function filter_jetpack_sync_before_enqueue_jetpack_sync_save_post( $args ) {
+		list( $post_id, $post, $update, $previous_state ) = $args;
+
+		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
+			return false;
+		}
+
+		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
+	}
+
+	/**
 	 * Filter all blacklisted post types.
 	 *
 	 * @param array $args Hook arguments.
@@ -339,22 +349,6 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Filter all blacklisted post types.
-	 *
-	 * @param array $args Hook arguments.
-	 * @return array|false Hook arguments, or false if the post type is a blacklisted one.
-	 */
-	public function filter_blacklisted_post_types( $args ) {
-		$post = $args[1];
-
-		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
-			return false;
-		}
-
-		return $args;
-	}
-
-	/**
 	 * Filter all meta that is not blacklisted, or is stored for a disallowed post type.
 	 *
 	 * @param array $args Hook arguments.
@@ -362,7 +356,7 @@ class Posts extends Module {
 	 */
 	public function filter_meta( $args ) {
 		if ( $this->is_post_type_allowed( $args[1] ) && $this->is_whitelisted_post_meta( $args[2] ) ) {
-			return $args;
+			return $this->trim_post_meta( $args );
 		}
 
 		return false;
