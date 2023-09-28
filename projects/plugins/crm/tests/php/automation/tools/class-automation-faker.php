@@ -184,17 +184,6 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return dummy clientwpuser triggers name list
-	 *
-	 * @return array
-	 */
-	public function clientwpuser_triggers(): array {
-		return array(
-			'jpcrm/clientwpuser_created',
-		);
-	}
-
-	/**
 	 * Return a workflow with a condition and an action
 	 * @return array
 	 */
