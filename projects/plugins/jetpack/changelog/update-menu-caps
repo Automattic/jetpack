@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Admin menu: Updated view capabilities for Home & Stats to be independant from edit_posts.

@@ -479,7 +479,7 @@ class Jetpack_Gutenberg {
 		}
 
 		// Retrieve the feature from block.json if a path is passed.
-		if ( '/' === substr( $type, 0, 1 ) ) {
+		if ( path_is_absolute( $type ) ) {
 			$metadata = Blocks::get_block_metadata_from_file( Blocks::get_path_to_block_metadata( $type ) );
 			$feature  = Blocks::get_block_feature_from_metadata( $metadata );
 

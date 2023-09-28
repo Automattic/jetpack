@@ -57,5 +57,5 @@ class Data_Type_Exception extends \Exception {
 	 *
 	 * @var int
 	 */
-	const INVALID_ENTITY = 20;
+	const INVALID_DATA = 20;
 }
