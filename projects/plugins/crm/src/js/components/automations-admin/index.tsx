@@ -44,7 +44,8 @@ export const AutomationsAdmin = () => {
 
 	const workflows = useSelect( select => select( store ).getWorkflows(), [] );
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const workflow = ( workflows as any ).testing as Workflow;
+
+	const workflow = Object.values( workflows )[ 0 ];
 
 	return (
 		<Routes>

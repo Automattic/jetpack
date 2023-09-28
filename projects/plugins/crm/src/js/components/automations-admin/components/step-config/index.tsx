@@ -8,7 +8,7 @@ type StepConfigProps = {
 };
 
 export const StepConfig: React.FC< StepConfigProps > = ( { workflowId, step } ) => {
-	const attributes = step.attribute_definitions.map( definition => ( {
+	const attributes = Object.values( step.attribute_definitions ).map( definition => ( {
 		definition,
 		value: step.attributes[ definition.slug ],
 	} ) );
