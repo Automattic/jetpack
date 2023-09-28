@@ -930,7 +930,7 @@ function wpcom_launchpad_is_paid_newsletter_enabled() {
  */
 function wpcom_launchpad_is_newsletter_or_write_intent() {
 	$intent = get_option( 'site_intent', false );
-	if ( 'newsletter' !== $intent || 'write' !== $intent ) {
+	if ( 'newsletter' === $intent || 'write' === $intent ) {
 		return true;
 	}
 
