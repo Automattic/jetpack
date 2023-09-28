@@ -3,7 +3,7 @@ import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { Icon, commentContent, people, starEmpty } from '@wordpress/icons';
 import React, { useCallback } from 'react';
-import { useAnalytics } from '../../hooks/use-analytics';
+import useAnalytics from '../../hooks/use-analytics';
 import { useProduct } from '../../hooks/use-product';
 import Card from '../card';
 import Status from '../product-card/status';
@@ -85,9 +85,8 @@ const StatsCards = ( { counts, previousCounts } ) => {
 							href={ buttonHref }
 							onClick={ onActionButtonClick }
 						>
-							{ hasConnectionError
-								? __( 'Fix connection', 'jetpack-my-jetpack' )
-								: __( 'See detailed stats', 'jetpack-my-jetpack' ) }
+							{ hasConnectionError && __( 'Fix connection', 'jetpack-my-jetpack' ) }
+							{ ! hasConnectionError && __( 'See detailed stats', 'jetpack-my-jetpack' ) }
 						</Button>
 						<Status status={ detail.status } />
 					</div>
