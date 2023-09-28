@@ -1,6 +1,6 @@
 <?php
 /**
- * ClientWPUser Data Type.
+ * WP_User Data Type.
  *
  * @package automattic/jetpack-crm
  * @since $$next-version$$
@@ -9,11 +9,11 @@
 namespace Automattic\Jetpack\CRM\Automation\Data_Types;
 
 /**
- * ClientWPUser Data Type.
+ * WP_User Data Type.
  *
  * @since $$next-version$$
  */
-class ClientWPUser_Data extends Data_Type_Base {
+class WP_User_Data extends Data_Type_Base {
 
 	/**
 	 * Validate the data.

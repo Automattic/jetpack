@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
-use Automattic\Jetpack\CRM\Automation\Triggers\ClientWPUser_Created;
+use Automattic\Jetpack\CRM\Automation\Triggers\WP_User_Created;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
@@ -13,7 +13,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation
  */
-class ClientWPUser_Trigger_Test extends JPCRM_Base_Integration_Test_Case {
+class WP_User_Trigger_Test extends JPCRM_Base_Integration_Test_Case {
 
 	private $automation_faker;
 
@@ -29,7 +29,7 @@ class ClientWPUser_Trigger_Test extends JPCRM_Base_Integration_Test_Case {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/clientwpuser_created' );
 
-		$trigger = new ClientWPUser_Created();
+		$trigger = new WP_User_Created();
 
 		// Build a PHPUnit mock Automation_Workflow.
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
@@ -37,7 +37,7 @@ class ClientWPUser_Trigger_Test extends JPCRM_Base_Integration_Test_Case {
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
-		// Init the ClientWPUser_Created trigger.
+		// Init the WP_User_Created trigger.
 		$trigger->init( $workflow );
 
 		// We expect the workflow to be executed on clientwpuser_created event with the WP User data.

@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack CRM Automation ClientWPUser_Created trigger.
+ * Jetpack CRM Automation WP_User_Created trigger.
  *
  * @package automattic/jetpack-crm
  * @since $$next-version$$
@@ -10,14 +10,14 @@ namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
-use Automattic\Jetpack\CRM\Automation\Data_Types\ClientWPUser_Data;
+use Automattic\Jetpack\CRM\Automation\Data_Types\WP_User_Data;
 
 /**
- * Adds the ClientWPUser_Created class.
+ * Adds the WP_User_Created class.
  *
  * @since $$next-version$$
  */
-class ClientWPUser_Created extends Base_Trigger {
+class WP_User_Created extends Base_Trigger {
 
 	/**
 	 * The Automation workflow object.
@@ -77,7 +77,7 @@ class ClientWPUser_Created extends Base_Trigger {
 	 * @return string The type of the step
 	 */
 	public static function get_data_type(): string {
-		return ClientWPUser_Data::class;
+		return WP_User_Data::class;
 	}
 
 	/**
