@@ -146,7 +146,7 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Adds a global variable containing the where the newsletter categories should be shown.
+	 * Adds a global variable containing where the newsletter categories should be shown.
 	 */
 	public static function load_newsletter_categories_settings() {
 		if (
