@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
-use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
@@ -198,7 +197,7 @@ class Automation_Faker {
 			'category'     => 'Test',
 			'active'       => true,
 			'triggers'     => array(
-				Contact_Created_Trigger::get_slug(),
+				'jpcrm/contact_created',
 			),
 			'initial_step' => 0,
 			'steps'        => array(

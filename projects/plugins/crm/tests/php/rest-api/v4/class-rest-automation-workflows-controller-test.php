@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack\CRM\Tests;
 
-use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Tests\Automation_Faker;
@@ -312,8 +311,8 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 			// We could also use two unique triggers, but this makes it, so we don't have to
 			// register more triggers to run the test.
 			'triggers'     => array(
-				Contact_Created_Trigger::get_slug(),
-				Contact_Created_Trigger::get_slug(),
+				'jpcrm/contact_created',
+				'jpcrm/contact_created',
 			),
 			'initial_step' => 'updated_step_2',
 			'steps'        => array(
