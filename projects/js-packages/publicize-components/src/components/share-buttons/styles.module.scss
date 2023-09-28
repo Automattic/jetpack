@@ -12,10 +12,37 @@ $whatsapp: #2ab318;
 		&:hover {
 			color: #fff;
 		}
+
+		&>span {
+			display: flex;
+			align-items: center;
+
+			&>svg {
+				border-radius: var(--jp-border-radius);
+				color: #fff;
+			}
+		}
 	}
 
 	:global a.components-button svg {
 		fill: currentColor;
+	}
+
+	:global :is(a, button).has-text.components-button.is-primary {
+		padding: 0;
+		background: transparent;
+		justify-content: start;
+		color: var(--jp-black);
+
+		&:hover {
+			background: transparent;
+			color: var(--jp-gray-50);
+		}
+		svg {
+			padding: var(--spacing-base);
+			width: calc(var(--spacing-base) * 5);
+			height: calc(var(--spacing-base) * 5);
+		}
 	}
 
 	.twitter {

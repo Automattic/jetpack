@@ -57,7 +57,7 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 				const href = prepareText( url );
 
 				const icon =
-					'text' !== buttonStyle ? <SocialServiceIcon serviceName={ networkName } /> : null;
+					'icon' === buttonStyle ? <SocialServiceIcon serviceName={ networkName } /> : null;
 
 				return (
 					<div className={ styles.container } key={ networkName }>
@@ -70,33 +70,43 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 							rel="noopener noreferrer"
 							onClick={ getOnClick( href ) }
 							data-network={ networkName }
-							className={ styles[ networkName ] }
+							className={ 'icon' === buttonStyle ? styles[ networkName ] : 'has-text' }
 						>
-							{ 'text' === buttonStyle ? label : null }
+							{ 'icon' === buttonStyle ? null : (
+								<>
+									{ 'icon-text' === buttonStyle && (
+										<SocialServiceIcon
+											className={ styles[ networkName ] }
+											serviceName={ networkName }
+										/>
+									) }
+									<Text className={ styles.label } component="span">
+										{ sprintf(
+											/* translators: %s is the name of a social network, e.g. Twitter. */
+											__( 'Share on %s', 'jetpack' ),
+											label
+										) }
+									</Text>
+								</>
+							) }
 						</Button>
-						{ 'icon-text' === buttonStyle && (
-							<Text className={ styles.label }>
-								{ sprintf(
-									/* translators: %s is the name of a social network, e.g. Twitter. */
-									__( 'Share on %s', 'jetpack' ),
-									label
-								) }
-							</Text>
-						) }
 					</div>
 				);
 			} ) }
 			<div className={ styles.container }>
 				<CopyToClipboard
-					buttonStyle={ 'icon-text' === buttonStyle ? 'icon' : buttonStyle }
+					buttonStyle={ buttonStyle }
 					onCopy={ onCopy }
 					textToCopy={ textToCopy }
-					className={ styles.clipboard }
+					className={ 'icon' === buttonStyle ? styles.clipboard : ' has-text' }
 					variant={ buttonVariant }
-				/>
-				{ 'icon-text' === buttonStyle && (
-					<Text className={ styles.label }>{ __( 'Copy to clipboard', 'jetpack' ) }</Text>
-				) }
+				>
+					{ 'icon' === buttonStyle ? null : (
+						<Text className={ styles.label } component="span">
+							{ __( 'Copy to clipboard', 'jetpack' ) }
+						</Text>
+					) }
+				</CopyToClipboard>
 			</div>
 		</div>
 	);
