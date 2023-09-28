@@ -15,7 +15,7 @@ use Automattic\Jetpack\CRM\Entities\Quote;
  *
  * @since $$next-version$$
  */
-class Quote_Data extends Data_Type_Base {
+class Quote_Data extends Data_Type_Base implements Entity_Data {
 
 	/**
 	 * Validate the data.
@@ -30,5 +30,18 @@ class Quote_Data extends Data_Type_Base {
 	 */
 	public function validate_data( $data ): bool {
 		return $data instanceof Quote;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function get_tags(): array {
+		global $zbs;
+		return $zbs->DAL->getTagsForObjID( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+				'objtypeid' => ZBS_TYPE_QUOTE,
+				$this->get_data()->id,
+			)
+		);
 	}
 }

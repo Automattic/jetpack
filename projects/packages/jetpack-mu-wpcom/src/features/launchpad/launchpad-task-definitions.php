@@ -31,6 +31,10 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$flow = get_option( 'site_intent' );
+				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'] . '&flow=' . $flow;
+			},
 		),
 		'design_selected'                 => array(
 			'get_title'            => function () {
@@ -84,6 +88,10 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Choose a plan', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$flow = get_option( 'site_intent' );
+				return '/setup/' . $flow . '/plans/?siteSlug=' . $data['site_slug_encoded'];
+			},
 		),
 		'plan_selected'                   => array(
 			'get_title'            => function () {
@@ -102,6 +110,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => '__return_true',
 			'is_disabled_callback' => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/settings/general/' . $data['site_slug_encoded'];
+			},
 		),
 		'site_launched'                   => array(
 			'get_title'             => function () {
@@ -258,6 +269,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Launch your blog', 'jetpack-mu-wpcom' );
 			},
 			'isLaunchTask'          => true,
+			'is_disabled_callback'  => 'wpcom_launchpad_is_blog_launched_task_disabled',
 			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'setup_blog'                      => array(
@@ -265,6 +277,10 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Name your blog', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$flow = get_option( 'site_intent' );
+				return '/setup/' . $flow . '/setup-blog?siteSlug=' . $data['site_slug_encoded'];
+			},
 		),
 
 		// Free plan tasks.
@@ -1095,6 +1111,33 @@ function wpcom_launchpad_is_link_in_bio_launch_disabled() {
  */
 function wpcom_launchpad_is_videopress_launch_disabled() {
 	return ! wpcom_is_checklist_task_complete( 'videopress_upload' );
+}
+
+/**
+ * Determines whether or not the blog launch task is enabled
+ *
+ * @return boolean True if blog launch task is enabled
+ */
+function wpcom_launchpad_is_blog_launched_task_disabled() {
+	if ( 'design-first' === get_option( 'site_intent' ) ) {
+		// We only want the blog_launched task enabled after other key tasks are all complete.
+		if ( wpcom_is_checklist_task_complete( 'plan_completed' )
+			&& wpcom_is_checklist_task_complete( 'domain_upsell' )
+			&& wpcom_is_checklist_task_complete( 'setup_blog' ) ) {
+			return false;
+		}
+		return true;
+	}
+	if ( 'start-writing' === get_option( 'site_intent' ) ) {
+		if ( wpcom_is_checklist_task_complete( 'plan_completed' )
+			&& wpcom_is_checklist_task_complete( 'domain_upsell' )
+			&& wpcom_is_checklist_task_complete( 'setup_blog' )
+			&& wpcom_is_checklist_task_complete( 'first_post_published' ) ) {
+			return false;
+		}
+		return true;
+	}
+	return false;
 }
 
 /**
