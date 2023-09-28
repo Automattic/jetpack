@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\CRM\Tests;
 
+use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Tests\Automation_Faker;
@@ -307,7 +308,13 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 			'description'  => 'my updated description',
 			'category'     => 'jpcrm/updated-category',
 			'active'       => false,
-			'triggers'     => array( 'my_updated_trigger' ),
+			// We re-use the same trigger twice to verify that we can update the triggers data.
+			// We could also use two unique triggers, but this makes it, so we don't have to
+			// register more triggers to run the test.
+			'triggers'     => array(
+				Contact_Created_Trigger::get_slug(),
+				Contact_Created_Trigger::get_slug(),
+			),
 			'initial_step' => 'updated_step_2',
 			'steps'        => array(
 				'updated_step_1' => array(
@@ -407,6 +414,16 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 				}
 
 				$workflow_data['steps'][ $index ] = $step;
+			}
+		}
+
+		// Revert the triggers to their original format.
+		// We populate workflows with full trigger objects, but the Automation_Workflow class itself
+		// only stores the trigger slug, so we have to reduce the trigger object from API responses to
+		// slugs before we're able to do direct comparisons.
+		if ( ! empty( $workflow_data['triggers'] ) && is_array( $workflow_data['triggers'] ) ) {
+			foreach ( $workflow_data['triggers'] as $index => $trigger ) {
+				$workflow_data['triggers'][ $index ] = $workflow_data['triggers'][ $index ]['slug'];
 			}
 		}
 

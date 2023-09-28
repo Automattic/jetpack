@@ -363,6 +363,19 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 			$workflow = $workflow->to_array();
 		}
 
+		if ( is_array( $workflow['triggers'] ) ) {
+			foreach ( $workflow['triggers'] as $index => $trigger ) {
+				$trigger = $this->automation_engine->get_trigger_class( $trigger );
+
+				$workflow['triggers'][ $index ] = array(
+					'title'       => $trigger::get_title(),
+					'slug'        => $trigger::get_slug(),
+					'description' => $trigger::get_description(),
+					'category'    => $trigger::get_category(),
+				);
+			}
+		}
+
 		// Provide full context about steps (title, description, attribute definitions, etc.).
 		if ( is_array( $workflow['steps'] ) ) {
 			foreach ( $workflow['steps'] as $index => $step ) {
