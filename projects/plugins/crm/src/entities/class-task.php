@@ -30,6 +30,13 @@ class Task {
 	public $owner = -1;
 
 	/**
+	 * The task tags.
+	 *
+	 * @var array
+	 */
+	public $tags = array();
+
+	/**
 	 * The task title.
 	 *
 	 * @var string
@@ -41,7 +48,7 @@ class Task {
 	 *
 	 * @var string
 	 */
-	public $description = '';
+	public $desc = '';
 
 	/**
 	 * Unix timestamp of task start.
@@ -62,21 +69,21 @@ class Task {
 	 *
 	 * @var bool
 	 */
-	public $is_completed = false;
+	public $complete = false;
 
 	/**
 	 * Whether task should show in portal.
 	 *
 	 * @var bool
 	 */
-	public $show_in_portal = false;
+	public $show_on_portal = false;
 
 	/**
 	 * Whether task should show in calendar.
 	 *
 	 * @var bool
 	 */
-	public $show_in_calendar = false;
+	public $show_on_calendar = false;
 
 	/**
 	 * Unix timestamp of task creation.

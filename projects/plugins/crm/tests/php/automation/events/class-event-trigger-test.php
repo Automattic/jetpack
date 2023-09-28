@@ -4,9 +4,11 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Task_Data;
 use Automattic\Jetpack\CRM\Automation\Triggers\Event_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Event_Deleted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Event_Updated;
+use Automattic\Jetpack\CRM\Entities\Task;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
@@ -42,19 +44,21 @@ class Event_Trigger_Test extends JPCRM_Base_Test_Case {
 		$trigger = new Event_Created();
 		$trigger->init( $workflow );
 
-		// Fake event data.
-		$event_data = $this->automation_faker->event_data();
+		/** @var Task $task */
+		$task = $this->automation_faker->task();
+
+		$task_data = new Task_Data( $task );
 
 		// We expect the workflow to be executed on event_created event with the event data.
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
 			$this->equalTo( $trigger ),
-			$this->equalTo( $event_data )
+			$this->equalTo( $task_data )
 		);
 
 		// Run the event_created action.
-		do_action( 'jpcrm_event_created', $event_data );
+		do_action( 'jpcrm_event_created', $task );
 	}
 
 	/**
@@ -74,19 +78,21 @@ class Event_Trigger_Test extends JPCRM_Base_Test_Case {
 		// Init the Event_Deleted trigger.
 		$trigger->init( $workflow );
 
-		// Fake event data.
-		$event_data = $this->automation_faker->event_data();
+		/** @var Task $task */
+		$task = $this->automation_faker->task();
+
+		$task_data = new Task_Data( $task );
 
 		// We expect the workflow to be executed on event_deleted event with the event data.
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
 			$this->equalTo( $trigger ),
-			$this->equalTo( $event_data )
+			$this->equalTo( $task_data )
 		);
 
 		// Run the event_deleted action.
-		do_action( 'jpcrm_event_delete', $event_data );
+		do_action( 'jpcrm_event_delete', $task );
 	}
 
 	/**
@@ -107,18 +113,20 @@ class Event_Trigger_Test extends JPCRM_Base_Test_Case {
 		// Init the Event_Updated trigger.
 		$trigger->init( $workflow );
 
-		// Fake event data.
-		$event_data = $this->automation_faker->event_data();
+		/** @var Task $task */
+		$task = $this->automation_faker->task();
+
+		$task_data = new Task_Data( $task );
 
 		// We expect the workflow to be executed on event_updated event with the event data.
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
 			$this->equalTo( $trigger ),
-			$this->equalTo( $event_data )
+			$this->equalTo( $task_data )
 		);
 
 		// Run the event_updated action.
-		do_action( 'jpcrm_event_updated', $event_data );
+		do_action( 'jpcrm_event_updated', $task );
 	}
 }

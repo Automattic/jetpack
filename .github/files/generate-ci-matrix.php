@@ -6,7 +6,7 @@
  * @package automattic/jetpack
  */
 
-// phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.WP.GlobalVariablesOverride
+// phpcs:disable WordPress.WP.GlobalVariablesOverride
 
 chdir( __DIR__ . '/../../' );
 
@@ -114,7 +114,6 @@ function error( ...$args ) {
 			"\n" => '%0A',
 		)
 	);
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	fprintf( STDERR, "---\n::error::%s\n---\n", $msg );
 }
 

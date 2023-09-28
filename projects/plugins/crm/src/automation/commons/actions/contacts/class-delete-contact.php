@@ -8,8 +8,11 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
+use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Base_Action;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
 
 /**
  * Adds the Delete_Contact class.
@@ -59,7 +62,7 @@ class Delete_Contact extends Base_Action {
 	 * @return string The type of the step.
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Contact::get_slug();
+		return Contact_Data::class;
 	}
 
 	/**
@@ -74,14 +77,29 @@ class Delete_Contact extends Base_Action {
 	}
 
 	/**
-	 * Get the allowed triggers.
+	 * Constructor.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string[]|null The allowed triggers.
+	 * @param array $step_data The step data.
 	 */
-	public static function get_allowed_triggers(): ?array {
-		return array();
+	public function __construct( array $step_data ) {
+		parent::__construct( $step_data );
+
+		$this->set_attribute_definitions(
+			array(
+				new Attribute_Definition(
+					'keep_orphans',
+					__( 'Keep orphans', 'zero-bs-crm' ),
+					__( 'Determines if related objects should be deleted or not.', 'zero-bs-crm' ),
+					Attribute_Definition::SELECT,
+					array(
+						1 => __( 'Yes', 'zero-bs-crm' ),
+						0 => __( 'No', 'zero-bs-crm' ),
+					)
+				),
+			)
+		);
 	}
 
 	/**
@@ -89,15 +107,22 @@ class Delete_Contact extends Base_Action {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param mixed  $data Data passed from the trigger.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 * @param Data_Type $data Data passed from the trigger.
+	 *
+	 * @throws Data_Type_Exception When the data type is not supported.
 	 */
-	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function execute( Data_Type $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
+		$this->validate( $data );
+
 		global $zbs;
+
+		/** @var Contact $contact */
+		$contact = $data->get_data();
 
 		$zbs->DAL->contacts->deleteContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			array(
-				'id'          => (int) $data['id'],
+				'id'          => (int) $contact->id,
 				'saveOrphans' => (bool) $this->attributes['keep_orphans'],
 			)
 		);
