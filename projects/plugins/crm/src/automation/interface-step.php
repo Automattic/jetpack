@@ -49,9 +49,10 @@ interface Step {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return int|string|null The next linked step id.
+	 * @param string|int|null $step_id The next linked step id.
+	 * @return void
 	 */
-	public function set_next_step_true();
+	public function set_next_step_true( $step_id ): void;
 
 	/**
 	 * Get the next step if the current one is falsy.
@@ -67,9 +68,10 @@ interface Step {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return int|string|null The next linked step id.
+	 * @param string|int|null $step_id The next linked step id.
+	 * @return void
 	 */
-	public function set_next_step_false();
+	public function set_next_step_false( $step_id ): void;
 
 	/**
 	 * Get the step attribute definitions.
