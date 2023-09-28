@@ -68,13 +68,6 @@ class Data_Transformer_Entity_To_Tag_List extends Data_Transformer_Base {
 
 		$tags = $this->get_tags( $data );
 
-		if ( ! $tags ) {
-			throw new Data_Transformer_Exception(
-				'No tags are linked to the object.',
-				Data_Transformer_Exception::MISSING_LINK
-			);
-		}
-
 		return new Tag_List_Data( $tags );
 	}
 }
