@@ -52,7 +52,8 @@
 		"videopress/video",
 		"ai-assistant-support",
 		"ai-assistant-form-support",
-		"paywall"
+		"paywall",
+		"ai-content-lens"
 	],
 	"beta": [
 		"ai-chat",
@@ -65,7 +66,6 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"create-with-voice",
-		"ai-content-lens",
 		"ai-assistant-backend-prompts"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
