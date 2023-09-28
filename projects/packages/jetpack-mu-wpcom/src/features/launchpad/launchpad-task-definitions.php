@@ -130,16 +130,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/me/account';
 			},
 		),
-		'verify_email'                    => array(
-			'get_title'           => function () {
-				return __( 'Verify email address', 'jetpack-mu-wpcom' );
-			},
-			'is_visible_callback' => 'wpcom_launchpad_is_email_unverified',
-			'get_calypso_path'    => function () {
-				return '/me/account';
-			},
-		),
-		'verify_domain_email'                    => array(
+		'verify_domain_email'             => array(
 			'get_title'           => function () {
 				return __( 'Verify email address', 'jetpack-mu-wpcom' );
 			},
