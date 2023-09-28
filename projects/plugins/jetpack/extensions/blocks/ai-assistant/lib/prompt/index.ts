@@ -43,10 +43,11 @@ export const PROMPT_TYPE_LIST = [
 
 export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
 
-// Support backend prompts as a beta extension.
+// Enable backend prompts for beta sites + 10% of production sites.
+const blogId = parseInt( window?.Jetpack_Editor_Initial_State?.wpcomBlogId );
 export const areBackendPromptsEnabled: boolean =
-	window?.Jetpack_Editor_Initial_State?.available_blocks[ 'ai-assistant-backend-prompts' ]
-		?.available || false;
+	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-assistant-backend-prompts' ]
+		?.available || blogId % 10 === 7;
 
 export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant' | 'jetpack-ai';
