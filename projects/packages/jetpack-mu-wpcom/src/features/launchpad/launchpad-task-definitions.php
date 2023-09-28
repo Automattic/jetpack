@@ -110,6 +110,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => '__return_true',
 			'is_disabled_callback' => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/settings/general/' . $data['site_slug_encoded'];
+			},
 		),
 		'site_launched'                   => array(
 			'get_title'             => function () {

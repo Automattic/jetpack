@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Dashboard: do not display Apps and Support cards to users who do not need that information.
