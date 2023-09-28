@@ -4,7 +4,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Triggers\ClientWPUser_Created;
-use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -13,7 +13,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation
  */
-class ClientWPUser_Trigger_Test extends JPCRM_Base_Test_Case {
+class ClientWPUser_Trigger_Test extends JPCRM_Base_Integration_Test_Case {
 
 	private $automation_faker;
 
@@ -40,22 +40,19 @@ class ClientWPUser_Trigger_Test extends JPCRM_Base_Test_Case {
 		// Init the ClientWPUser_Created trigger.
 		$trigger->init( $workflow );
 
-		// Initial user data captured from the WP User data creation.
-		$clientuser_data = $this->automation_faker->clientwpuser_data();
-
-		// Asserting that the data type is able to get created properly.
-		$clientwpuser_data = $this->automation_faker->clientwpuser_data( true );
-		$this->assertTrue( $clientwpuser_data->isDisplayNameSet() );
-
 		// We expect the workflow to be executed on clientwpuser_created event with the WP User data.
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
 			$this->equalTo( $trigger ),
-			$this->equalTo( $clientuser_data )
+			$this->callback(
+				function ( $object ) {
+					return $object->get_data() instanceof \WP_User;
+				}
+			)
 		);
 
-		// Run the clientwpuser_created action.
-		do_action( 'jpcrm_clientwpuser_created', $clientuser_data );
+		// User data captured from the WP User data creation.
+		$this->add_wp_user();
 	}
 }

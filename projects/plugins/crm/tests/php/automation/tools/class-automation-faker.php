@@ -458,26 +458,6 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return data for a dummy WP User.
-	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_ClientWPUser object.
-	 * @return array
-	 */
-	public function clientwpuser_data( $get_as_data_type = false ) {
-		$data = array(
-			'id'        => 1,
-			'againstid' => 1,
-			'useremail' => 'johndoe@example.com',
-		);
-
-		if ( $get_as_data_type ) {
-			return new Data_Type_ClientWPUser( $data );
-		}
-
-		return $data;
-	}
-
-	/**
 	 * Return a empty workflow, without triggers and initial step
 	 *
 	 * @return array

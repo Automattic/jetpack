@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_ClientWPUser;
+use Automattic\Jetpack\CRM\Automation\Data_Types\ClientWPUser_Data;
 
 /**
  * Adds the ClientWPUser_Created class.
@@ -77,7 +77,7 @@ class ClientWPUser_Created extends Base_Trigger {
 	 * @return string The type of the step
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_ClientWPUser::get_slug();
+		return ClientWPUser_Data::class;
 	}
 
 	/**
@@ -87,8 +87,11 @@ class ClientWPUser_Created extends Base_Trigger {
 	 */
 	protected function listen_to_event(): void {
 		add_action(
-			'jpcrm_clientwpuser_created',
-			array( $this, 'execute_workflow' )
+			'user_register',
+			function ( $user_id ) {
+				$wp_user = new \WP_User( $user_id );
+				$this->execute_workflow( $wp_user );
+			}
 		);
 	}
 }
