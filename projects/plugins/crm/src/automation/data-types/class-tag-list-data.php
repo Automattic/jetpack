@@ -27,13 +27,13 @@ class Tag_List_Data extends Data_Type_Base {
 	 *
 	 * @param mixed $data The data to validate.
 	 * @return bool Whether the data is valid.
-	 * @throws Data_Type_Exception If the tag entity is not valid.
+	 * @throws Data_Type_Exception If the tag list is not valid.
 	 */
 	public function validate_data( $data ): bool {
-		if ( ! is_array( $data ) || empty( $data ) ) {
+		if ( ! is_array( $data ) ) {
 			throw new Data_Type_Exception(
-				sprintf( 'Invalid tag entity' ),
-				Data_Type_Exception::INVALID_ENTITY
+				sprintf( 'Invalid tag list' ),
+				Data_Type_Exception::INVALID_DATA
 			);
 		}
 
