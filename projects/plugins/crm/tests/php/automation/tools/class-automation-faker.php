@@ -5,8 +5,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_Data;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_List_Data;
+use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
 use Automattic\Jetpack\CRM\Entities\Company;
 use Automattic\Jetpack\CRM\Entities\Contact;
@@ -18,6 +17,7 @@ use Automattic\Jetpack\CRM\Entities\Factories\Task_Factory;
 use Automattic\Jetpack\CRM\Entities\Factories\Transaction_Factory;
 use Automattic\Jetpack\CRM\Entities\Invoice;
 use Automattic\Jetpack\CRM\Entities\Quote;
+use Automattic\Jetpack\CRM\Entities\Tag;
 use Automattic\Jetpack\CRM\Entities\Task;
 use Automattic\Jetpack\CRM\Entities\Transaction;
 
@@ -541,11 +541,10 @@ class Automation_Faker {
 	/**
 	 * Return data for a dummy tag.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Tag_Data type object.
-	 * @return array
+	 * @return Tag A sample Tag instance.
 	 */
-	public function tag( $get_as_data_type = false ) {
-		$data = array(
+	public function tag(): Tag {
+		$tag_data = array(
 			'id'          => 1,
 			'name'        => 'Some tag name',
 			'slug'        => 'tag_slug',
@@ -554,20 +553,24 @@ class Automation_Faker {
 			'lastupdated' => 1675000000,
 		);
 
-		if ( $get_as_data_type ) {
-			return new Tag_Data( $data );
+		// @todo: Use the factory when it is ready: return Tag_Factory::create( $tag );
+		$tag = new Tag();
+		foreach ( $tag_data as $key => $value ) {
+			$tag->$key = $value;
 		}
 
-		return $data;
+		return $tag;
 	}
 
 	/**
 	 * Return data for a dummy tag.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Tag_Data type object.
+	 * @param array|null $additional_array An array with additional data to be added to the tag list.
+	 *
 	 * @return array
+	 * @throws Data_Type_Exception
 	 */
-	public function tag_list( $get_as_data_type = false, $additional_array = null ) {
+	public function tag_list( array $additional_array = null ) {
 		$data = array(
 			array(
 				'id'          => 1,
@@ -590,9 +593,6 @@ class Automation_Faker {
 			$data[] = $additional_array;
 		}
 
-		if ( $get_as_data_type ) {
-			return new Tag_List_Data( $data );
-		}
 		return $data;
 	}
 
