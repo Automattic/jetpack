@@ -19,6 +19,7 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 		subscriptions,
 		enabled: searchInput,
 	} );
+
 	const toggleVisible = () => {
 		setIsVisible( state => ! state );
 	};
