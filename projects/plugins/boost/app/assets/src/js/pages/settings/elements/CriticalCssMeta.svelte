@@ -7,11 +7,24 @@
 		criticalCssState,
 		isFatalError,
 	} from '../../../stores/critical-css-state';
+	import { criticalCssIssues } from '../../../stores/critical-css-state-errors';
+	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
+	import { modulesState } from '../../../stores/modules';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
+
+	$: status = $criticalCssState.status;
+	$: successCount = $criticalCssState.providers.filter(
+		provider => provider.status === 'success'
+	).length;
+	$: updated = $criticalCssState.updated;
+	$: isCloudCssAvailable = $modulesState.cloud_css?.available;
+	$: issues = $criticalCssIssues;
+	$: progress = $criticalCssProgress;
+	$: suggestRegenerate = suggestRegenerateDS.store;
 </script>
 
-{#if $criticalCssState.status === 'pending'}
+{#if status === 'pending'}
 	<div class="jb-critical-css-progress">
 		<ProgressActivityLabel>
 			{__(
@@ -24,5 +37,13 @@
 {:else if $isFatalError}
 	<CriticalCssShowStopperError />
 {:else}
-	<CriticalCssStatus />
+	<CriticalCssStatus
+		{isCloudCssAvailable}
+		{status}
+		{successCount}
+		{updated}
+		{issues}
+		{progress}
+		{suggestRegenerate}
+	/>
 {/if}
