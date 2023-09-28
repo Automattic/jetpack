@@ -11,7 +11,7 @@ use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_List_Data;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_Data;
 
 /**
  * Entity Tag condition class.
@@ -235,6 +235,6 @@ class Entity_Tag extends Base_Condition {
 	 * @return string The type of the step.
 	 */
 	public static function get_data_type(): string {
-		return Tag_List_Data::class;
+		return Tag_Data::class;
 	}
 }
