@@ -68,9 +68,20 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
  * @param {number} props.blogId - Blog ID.
  * @param {string} props.blogType - Blog type (wpcom|jetpack) for wpcom simple and jetpack/atomic.
  * @param {string} props.placeholder - Input placeholder.
+ * @param {boolean} props.settingShowCopy - Show copy button.
+ * @param {boolean} props.settingShowFeedback - Show feedback (thumbs up/down) buttons.
+ * @param {boolean} props.settingShowReferences - Show references (the list of URLs).
  * @returns {QuestionAnswer} component.
  */
-export default function QuestionAnswer( { askButtonLabel, blogId, blogType, placeholder } ) {
+export default function QuestionAnswer( {
+	askButtonLabel,
+	blogId,
+	blogType,
+	placeholder,
+	settingShowCopy,
+	settingShowFeedback,
+	settingShowReferences,
+} ) {
 	const {
 		question,
 		setQuestion,
@@ -102,8 +113,8 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType, plac
 		setShowReferences( true );
 	};
 
-	const showCopyButton = animationDone && ! isLoading && answer;
-	const showFeedback = animationDone && ! isLoading && cacheKey;
+	const showCopyButton = settingShowCopy && animationDone && ! isLoading && answer;
+	const showFeedback = settingShowFeedback && animationDone && ! isLoading && cacheKey;
 	return (
 		<>
 			<KeyboardShortcuts
@@ -147,7 +158,7 @@ export default function QuestionAnswer( { askButtonLabel, blogId, blogType, plac
 				</div>
 				{ askError && <DisplayError error={ askError } /> }
 				{ showCopyButton && <CopyButton answer={ answer } /> }
-				{ references && references.length > 0 && showReferences && (
+				{ settingShowReferences && references && references.length > 0 && showReferences && (
 					<div className="jetpack-ai-chat-answer-references">
 						<div>{ __( 'Additional resources:', 'jetpack' ) }</div>
 

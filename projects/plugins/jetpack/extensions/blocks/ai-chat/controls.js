@@ -1,9 +1,21 @@
 import { InspectorAdvancedControls, InspectorControls } from '@wordpress/block-editor';
-import { BaseControl, PanelBody, TextControl, TextareaControl } from '@wordpress/components';
+import {
+	BaseControl,
+	PanelBody,
+	TextControl,
+	TextareaControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
 
-export function AiChatControls( { setAttributes, placeholder } ) {
+export function AiChatControls( {
+	setAttributes,
+	placeholder,
+	showCopy,
+	showFeedback,
+	showSources,
+} ) {
 	const [ promptOverride, setPromptOverride ] = useEntityProp(
 		'root',
 		'site',
@@ -35,6 +47,24 @@ export function AiChatControls( { setAttributes, placeholder } ) {
 				>
 					<TextareaControl value={ promptOverride } onChange={ setPromptOverride } />
 				</BaseControl>
+				<ToggleControl
+					label={ __( 'Show copy answer button.', 'jetpack' ) }
+					help={ __( 'Allow users to easily copy the answer.', 'jetpack' ) }
+					checked={ showCopy }
+					onChange={ newCopy => setAttributes( { showCopy: newCopy } ) }
+				/>
+				<ToggleControl
+					label={ __( 'Show rating button.', 'jetpack' ) }
+					help={ __( 'Allow users to rate the answer and give feedback.', 'jetpack' ) }
+					checked={ showFeedback }
+					onChange={ newFeedback => setAttributes( { showFeedback: newFeedback } ) }
+				/>
+				<ToggleControl
+					label={ __( 'Show list of sources.', 'jetpack' ) }
+					help={ __( 'Show used sources at the bottom of the answer.', 'jetpack' ) }
+					checked={ showSources }
+					onChange={ newSources => setAttributes( { showSources: newSources } ) }
+				/>
 			</InspectorAdvancedControls>
 		</>
 	);

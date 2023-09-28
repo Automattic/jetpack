@@ -26,6 +26,18 @@
 		"placeholder": {
 			"type": "string",
 			"default": "Ask a question about this site"
+		},
+		"showCopy": {
+			"type": "boolean",
+			"default": true
+		},
+		"showFeedback": {
+			"type": "boolean",
+			"default": true
+		},
+		"showSources": {
+			"type": "boolean",
+			"default": true
 		}
 	}
 }
