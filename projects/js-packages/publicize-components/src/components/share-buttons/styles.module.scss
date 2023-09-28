@@ -3,7 +3,7 @@ $whatsapp: #2ab318;
 .share-buttons {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 1rem;
+	gap: 0.7rem;
 
 	a {
 		color: #fff;
@@ -39,9 +39,9 @@ $whatsapp: #2ab318;
 			color: var(--jp-gray-50);
 		}
 		svg {
-			padding: var(--spacing-base);
-			width: calc(var(--spacing-base) * 5);
-			height: calc(var(--spacing-base) * 5);
+			padding: calc(var(--spacing-base) / 2 );
+			width: calc(var(--spacing-base) * 3);
+			height: calc(var(--spacing-base) * 3);
 		}
 	}
 
@@ -65,8 +65,8 @@ $whatsapp: #2ab318;
 }
 
 .label.label {
-	font-size: 15px;
+	font-size: 13px;
 	font-weight: 400;
-	line-height: 36px;
-	margin-inline-start: 8px;
+	line-height: 24px;
+	margin-inline-start: var(--spacing-base);
 }
