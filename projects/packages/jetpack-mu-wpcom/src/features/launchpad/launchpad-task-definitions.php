@@ -486,6 +486,32 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/page/' . $data['site_slug_encoded'];
 			},
 		),
+
+		// Earn tasks
+		'stripe_connected'                => array(
+			'get_title'           => function () {
+				return __( 'Connect a Stripe account', 'jetpack-mu-wpcom' );
+			},
+			'is_visible_callback' => '__return_true',
+			'get_calypso_path'    => function ( $task, $default, $data ) {
+				if ( function_exists( 'get_memberships_connected_account_redirect' ) ) {
+					return get_memberships_connected_account_redirect(
+						get_current_user_id(),
+						get_current_blog_id()
+					);
+				}
+				return '/earn/payments/' . $data['site_slug_encoded'];
+			},
+		),
+		'paid_offer_created'              => array(
+			'get_title'           => function () {
+				return __( 'Set up an offer', 'jetpack-mu-wpcom' );
+			},
+			'is_visible_callback' => '__return_true',
+			'get_calypso_path'    => function ( $task, $default, $data ) {
+				return '/earn/payments-plans/' . $data['site_slug_encoded'];
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );

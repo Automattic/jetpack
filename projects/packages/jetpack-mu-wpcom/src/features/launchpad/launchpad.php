@@ -194,8 +194,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'earn-newsletter'        => array(
 			'title'               => 'Newsletter',
 			'task_ids'            => array(
-				'set_up_payments',
-				'newsletter_plan_created',
+				'stripe_connected',
+				'paid_offer_created',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_newsletter_or_write_intent',
 		),
