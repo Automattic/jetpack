@@ -4743,7 +4743,8 @@ function zeroBSCRM_get_invoice_defaults( $obj_id = -1 ) {
 	}
 
 	$defaults = array(
-		'status'                    => 'draft',
+		'status'                    => 'Draft',
+		'status_label'              => __( 'Draft', 'zero-bs-crm' ),
 		'new_invoice'               => true,
 		'id'                        => $obj_id,
 		'invoice_items'             => array(),
