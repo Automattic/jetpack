@@ -2,30 +2,22 @@
 	import { __ } from '@wordpress/i18n';
 	import ProgressActivityLabel from '../../../elements/ProgressActivityLabel.svelte';
 	import ProgressBar from '../../../elements/ProgressBar.svelte';
-	import {
-		criticalCssProgress,
-		criticalCssState,
-		isFatalError,
-	} from '../../../stores/critical-css-state';
-	import { criticalCssIssues, primaryErrorSet } from '../../../stores/critical-css-state-errors';
-	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
-	import { modulesState } from '../../../stores/modules';
+	import { CriticalCssState } from '../../../stores/critical-css-state-types';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
 
-	$: status = $criticalCssState.status;
-	$: criticalCssStatusError = $criticalCssState.status_error;
-	$: successCount = $criticalCssState.providers.filter(
-		provider => provider.status === 'success'
-	).length;
-	$: updated = $criticalCssState.updated;
-	$: isCloudCssAvailable = $modulesState.cloud_css?.available;
-	$: issues = $criticalCssIssues;
-	$: progress = $criticalCssProgress;
-	$: suggestRegenerate = suggestRegenerateDS.store;
+	export let cssState: CriticalCssState;
+	export let isCloudCssAvailable: boolean;
+	export let criticalCssProgress: number;
+	export let issues: CriticalCssState[ 'providers' ] = [];
+	export let isFatalError: boolean;
+	export let primaryErrorSet;
+	export let suggestRegenerate;
+
+	$: successCount = cssState.providers.filter( provider => provider.status === 'success' ).length;
 </script>
 
-{#if status === 'pending'}
+{#if cssState.status === 'pending'}
 	<div class="jb-critical-css-progress">
 		<ProgressActivityLabel>
 			{__(
@@ -33,22 +25,22 @@
 				'jetpack-boost'
 			)}
 		</ProgressActivityLabel>
-		<ProgressBar progress={$criticalCssProgress} />
+		<ProgressBar progress={criticalCssProgress} />
 	</div>
-{:else if $isFatalError}
+{:else if isFatalError}
 	<CriticalCssShowStopperError
-		{status}
-		primaryErrorSet={$primaryErrorSet}
-		statusError={criticalCssStatusError}
+		status={cssState.status}
+		{primaryErrorSet}
+		statusError={cssState.status_error}
 	/>
 {:else}
 	<CriticalCssStatus
 		{isCloudCssAvailable}
-		{status}
+		status={cssState.status}
 		{successCount}
-		{updated}
+		updated={cssState.updated}
 		{issues}
-		{progress}
+		progress={criticalCssProgress}
 		{suggestRegenerate}
 	/>
 {/if}

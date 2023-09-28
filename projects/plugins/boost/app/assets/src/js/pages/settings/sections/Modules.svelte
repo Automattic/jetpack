@@ -18,7 +18,10 @@
 		criticalCssState,
 		continueGeneratingLocalCriticalCss,
 		regenerateCriticalCss,
+		criticalCssProgress,
+		isFatalError,
 	} from '../../../stores/critical-css-state';
+	import { criticalCssIssues, primaryErrorSet } from '../../../stores/critical-css-state-errors';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
 	import { imageCdnQuality } from '../../../stores/image-cdn';
 	import { minifyJsExcludesStore, minifyCssExcludesStore } from '../../../stores/minify';
@@ -102,7 +105,15 @@
 		</div>
 
 		<div slot="meta">
-			<CriticalCssMeta />
+			<CriticalCssMeta
+				cssState={$criticalCssState}
+				isCloudCssAvailable={$modulesState.cloud_css?.available}
+				criticalCssProgress={$criticalCssProgress}
+				issues={$criticalCssIssues}
+				isFatalError={$isFatalError}
+				primaryErrorSet={$primaryErrorSet}
+				suggestRegenerate={$suggestRegenerate}
+			/>
 		</div>
 
 		<div slot="notice">
