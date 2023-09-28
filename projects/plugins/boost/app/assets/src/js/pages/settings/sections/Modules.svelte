@@ -169,7 +169,15 @@
 		</div>
 
 		<div slot="meta" class="jb-feature-toggle__meta">
-			<CloudCssMeta />
+			<CloudCssMeta
+				cssState={$criticalCssState}
+				isCloudCssAvailable={$modulesState.cloud_css?.available}
+				criticalCssProgress={$criticalCssProgress}
+				issues={$criticalCssIssues}
+				isFatalError={$isFatalError}
+				primaryErrorSet={$primaryErrorSet}
+				suggestRegenerate={$suggestRegenerate}
+			/>
 		</div>
 	</Module>
 
