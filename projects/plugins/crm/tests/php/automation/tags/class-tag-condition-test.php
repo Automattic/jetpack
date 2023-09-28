@@ -100,24 +100,7 @@ class Tag_Condition_Test extends JPCRM_Base_Test_Case {
 		$tag_condition->execute( new Tag_List_Data( $tag_data, $previous_tag_data ) );
 		$this->assertTrue( $tag_condition->condition_met() );
 
-		// Testing when the condition has been not been met because the current tag list still has said tag.
-		// $tag_data = array(
-		//      'id'          => 1,
-		//      'objtype'     => ZBS_TYPE_CONTACT,
-		//      'name'        => 'Tag to be removed',
-		//      'slug'        => 'tag-to-be-removed',
-		//      'created'     => 1692663412,
-		//      'lastupdated' => 1692663412,
-		//  ),
-		//  array(
-		//      'id'          => 2,
-		//      'objtype'     => ZBS_TYPE_CONTACT,
-		//      'name'        => 'Tag 2 ',
-		//      'slug'        => 'tag-2',
-		//      'created'     => 1692663412,
-		//      'lastupdated' => 1692663412,
-		//  ),
-		// );
+		// Testing when the condition has been not been met because the previous tag list already had said tag.
 		$tag_condition->execute( new Tag_List_Data( $previous_tag_data, $previous_tag_data ) );
 		$this->assertFalse( $tag_condition->condition_met() );
 	}
