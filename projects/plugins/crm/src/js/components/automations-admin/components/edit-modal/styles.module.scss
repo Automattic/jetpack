@@ -1,10 +1,19 @@
 @import '@automattic/jetpack-base-styles/style';
 
+:global(.components-modal__header) {
+	padding-bottom: 0 !important;
+}
+
+:global(.components-modal__header-heading) {
+	font-size: 20px !important;
+}
+
+:global(.components-modal__content) {
+	padding: 0 32px 32px 32px;
+}
+
 .container {
 	min-width: 500px;
-	h1 {
-		font-size: 20px;
-	}
 }
 
 .subheader {
@@ -17,6 +26,7 @@
 	margin-bottom: 18px;
 	background: var(--jp-gray-0);
 	padding: 24px;
+	margin: 0 -32px 18px -32px;
 }
 
 .button-container {

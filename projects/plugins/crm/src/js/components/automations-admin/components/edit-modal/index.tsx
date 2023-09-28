@@ -32,37 +32,38 @@ export const EditModal: React.FC< EditModalProps > = ( { isOpen, onClose, workfl
 		onClose();
 	}, [ onClose ] );
 
+	const modalTitle = sprintf(
+		/* translators: workflowName is a string which is used to identify the workflow */
+		__( 'Edit %(workflowName)s', 'zero-bs-crm' ),
+		{
+			workflowName: workflow.name,
+		}
+	);
+
 	return (
 		isOpen && (
-			<Modal onRequestClose={ () => onClose() }>
-				<div className={ styles.container }>
-					<h1>
-						{ sprintf(
-							/* translators: workflowName is a string which is used to identify the workflow */
-							__( 'Edit %(workflowName)s', 'zero-bs-crm' ),
-							{
-								workflowName: workflow.name,
-							}
-						) }
-					</h1>
-					<div className={ styles.subheader }>
-						{ __( 'Define and customize the workflow', 'zero-bs-crm' ) }
-					</div>
-					{ steps.map( step => (
-						<div className={ styles[ 'step-container' ] }>
-							<StepConfig workflowId={ workflow.id } step={ step } />
+			<div className={ styles.wrapper }>
+				<Modal title={ modalTitle } onRequestClose={ () => onClose() }>
+					<div className={ styles.container }>
+						<div className={ styles.subheader }>
+							{ __( 'Define and customize the workflow', 'zero-bs-crm' ) }
 						</div>
-					) ) }
-					<div className={ styles[ 'button-container' ] }>
-						<Button variant={ 'secondary' } onClick={ onCancel }>
-							{ __( 'Cancel', 'zero-bs-crm' ) }
-						</Button>
-						<Button isPrimary onClick={ onSave }>
-							{ __( 'Save', 'zero-bs-crm' ) }
-						</Button>
+						{ steps.map( step => (
+							<div className={ styles[ 'step-container' ] }>
+								<StepConfig workflowId={ workflow.id } step={ step } />
+							</div>
+						) ) }
+						<div className={ styles[ 'button-container' ] }>
+							<Button variant={ 'secondary' } onClick={ onCancel }>
+								{ __( 'Cancel', 'zero-bs-crm' ) }
+							</Button>
+							<Button isPrimary onClick={ onSave }>
+								{ __( 'Save', 'zero-bs-crm' ) }
+							</Button>
+						</div>
 					</div>
-				</div>
-			</Modal>
+				</Modal>
+			</div>
 		)
 	);
 };
