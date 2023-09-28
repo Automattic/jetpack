@@ -32,7 +32,7 @@ abstract class Base_Step implements Step {
 	 * @since $$next-version$$
 	 * @var array
 	 */
-	protected $attribute_definitions;
+	protected $attribute_definitions = array();
 
 	/**
 	 * Next linked step.
@@ -80,9 +80,9 @@ abstract class Base_Step implements Step {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return Step_Attribute[] The attribute definitions of the step.
+	 * @return Attribute_Definition[] The attribute definitions of the step.
 	 */
-	public function get_attribute_definitions(): ?array {
+	public function get_attribute_definitions(): array {
 		return $this->attribute_definitions;
 	}
 
@@ -91,7 +91,7 @@ abstract class Base_Step implements Step {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Step_Attribute[] $attribute_definitions Set the step attributes.
+	 * @param Attribute_Definition[] $attribute_definitions Set the step attributes.
 	 */
 	public function set_attribute_definitions( array $attribute_definitions ) {
 		$this->attribute_definitions = $attribute_definitions;

@@ -11,6 +11,7 @@
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import { performanceHistoryPanelDS } from '../../../stores/data-sync-client';
 	import { modulesState } from '../../../stores/modules';
+	import { dismissedScorePromptStore } from '../../../stores/prompt';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import { recordBoostEvent } from '../../../utils/analytics';
 	import { castToString } from '../../../utils/cast-to-string';
@@ -100,15 +101,24 @@
 
 	let modalData: ScoreChangeMessage | null = null;
 	$: modalData = ! isLoading && ! scores.isStale && scoreChangeModal( scores );
+	$: showModal =
+		modalData &&
+		$dismissedScorePromptStore &&
+		! $dismissedScorePromptStore.includes( modalData.id );
 
 	function dismissModal() {
 		modalData = null;
 	}
 
+	async function disableModal( id ) {
+		$dismissedScorePromptStore = [ ...$dismissedScorePromptStore, id ];
+		dismissModal();
+	}
+
 	const panelStore = performanceHistoryPanelDS.store;
-	const onTogglePerformanceHistory = status => {
-		panelStore.set( status );
-	};
+	function onTogglePerformanceHistory( status ) {
+		$panelStore = status;
+	}
 
 	$: performanceHistoryNeedsUpgrade = $modulesState.performance_history.available === false;
 	$: performanceHistoryIsOpen = $panelStore;
@@ -195,11 +205,11 @@
 	{/if}
 </div>
 
-{#if modalData}
+{#if showModal}
 	<PopOut
-		id={modalData.id}
 		title={modalData.title}
 		on:dismiss={() => dismissModal()}
+		on:disable-modal={() => disableModal( modalData.id )}
 		message={modalData.message}
 		ctaLink={modalData.ctaLink}
 		cta={modalData.cta}
