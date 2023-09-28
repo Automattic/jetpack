@@ -112,14 +112,11 @@ class Tag_Condition_Test extends JPCRM_Base_Test_Case {
 		$tag_condition = $this->get_tag_condition( 'has_tag', 'Some Tag' );
 		$tag_data      = $this->automation_faker->tag_list();
 
-		// Create a previous state of a tag list.
-		$previous_tag_data = $tag_data;
-
 		// Testing when the condition has been not been met because the tag list does not have said tag.
-		$tag_condition->execute( new Tag_List_Data( $tag_data, $previous_tag_data ) );
+		$tag_condition->execute( new Tag_List_Data( $tag_data ) );
 		$this->assertFalse( $tag_condition->condition_met() );
 
-		// Testing when the condition has been met.
+		// Testing when the condition has been met: The tag exists.
 		$new_tag_data = array(
 
 			'id'          => 1,
@@ -131,7 +128,7 @@ class Tag_Condition_Test extends JPCRM_Base_Test_Case {
 		);
 		$tag_data     = $this->automation_faker->tag_list( $new_tag_data );
 
-		$tag_condition->execute( new Tag_List_Data( $tag_data, $previous_tag_data ) );
+		$tag_condition->execute( new Tag_List_Data( $tag_data ) );
 		$this->assertTrue( $tag_condition->condition_met() );
 	}
 
@@ -142,14 +139,11 @@ class Tag_Condition_Test extends JPCRM_Base_Test_Case {
 		$tag_condition = $this->get_tag_condition( 'not_has_tag', 'Some Tag' );
 		$tag_data      = $this->automation_faker->tag_list();
 
-		// Create a previous state of a tag list.
-		$previous_tag_data = $tag_data;
-
 		// Testing when the condition has been met because the tag list does not have said tag.
-		$tag_condition->execute( new Tag_List_Data( $tag_data, $previous_tag_data ) );
+		$tag_condition->execute( new Tag_List_Data( $tag_data ) );
 		$this->assertTrue( $tag_condition->condition_met() );
 
-		// Testing when the condition has not been met.
+		// Testing when the condition has not been met: The tag does exist.
 		$new_tag_data = array(
 
 			'id'          => 1,
@@ -161,7 +155,7 @@ class Tag_Condition_Test extends JPCRM_Base_Test_Case {
 		);
 		$tag_data     = $this->automation_faker->tag_list( $new_tag_data );
 
-		$tag_condition->execute( new Tag_List_Data( $tag_data, $previous_tag_data ) );
+		$tag_condition->execute( new Tag_List_Data( $tag_data ) );
 		$this->assertFalse( $tag_condition->condition_met() );
 	}
 }
