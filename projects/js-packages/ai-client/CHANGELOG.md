@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.9] - 2023-09-25
+### Added
+- Export GuidelineMessage for use in other blocks. [#33180]
+
+## [0.1.8] - 2023-09-19
+### Added
+- AI Client: Add support for the jetpack-ai role on the prompt messages. [#33052]
+- AI Client: add `model` param to request helpers [#33083]
+- AI Client: Emit specific error for large context error on SuggestionsEventSource [#33157]
+- AI Client: Introduce blockListBlockWithAiDataProvider() function [#33025]
+
+### Changed
+- AI Client: Move showGuideLine to AIControl component props [#33084]
+
+### Fixed
+- AI Client: check media record ref of the useMediaRecording() hook before to remove the listeners [#33013]
+
 ## [0.1.7] - 2023-09-11
 ### Added
 - AI Client: add and expose reset() from useAiSuggestions() hook [#32886]
@@ -115,6 +132,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#31659]
 - Updated package dependencies. [#31785]
 
+[0.1.9]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.8...v0.1.9
+[0.1.8]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.4...v0.1.5

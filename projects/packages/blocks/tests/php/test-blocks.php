@@ -430,7 +430,7 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Test getting the path to a block's metadata file.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.6.0
 	 *
 	 * @covers Automattic\Jetpack\Blocks::get_path_to_block_metadata
 	 */
@@ -467,7 +467,7 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Test getting the block name.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.6.0
 	 *
 	 * @covers Automattic\Jetpack\Blocks::get_block_name
 	 */
@@ -492,7 +492,7 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Test getting the block feature name.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.6.0
 	 *
 	 * @covers Automattic\Jetpack\Blocks::get_block_feature
 	 */

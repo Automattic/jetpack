@@ -23,7 +23,7 @@ import type { TrackItemProps, TrackListProps } from './types';
 import type { TrackProps, VideoControlProps } from '../../types';
 import type React from 'react';
 
-const debug = debugFactory( 'videopress:video:tracks-control' );
+const debug = debugFactory( 'videopress:tracks:tracks-control' );
 
 /**
  * Track Item component.
@@ -120,46 +120,57 @@ export default function TracksControl( {
 	const { tracks, guid } = attributes;
 
 	const [ isUploadingNewTrack, setIsUploadingNewTrack ] = useState( false );
+	const [ formErrorMessage, setFormErrorMessage ] = useState( '' );
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 
 	const videoPressUrl = getVideoPressUrl( guid, attributes );
 
 	const uploadNewTrackFile = useCallback(
 		newUploadedTrack => {
-			uploadTrackForGuid( newUploadedTrack, guid ).then( src => {
-				/*
-				 * Rearrange the new track item,
-				 * removing the file field
-				 * and adding the src provided by the request-response body
-				 */
-				const newTrack = {
-					...newUploadedTrack,
-					src,
-				};
-				delete newTrack.tmpFile;
+			uploadTrackForGuid( newUploadedTrack, guid )
+				.then( src => {
+					if ( src?.error ) {
+						debug( 'catch at regular response', src );
+						setFormErrorMessage( `Track error: ${ src?.message || src.error }` );
+						return;
+					}
+					/*
+					 * Rearrange the new track item,
+					 * removing the file field
+					 * and adding the src provided by the request-response body
+					 */
+					const newTrack = {
+						...newUploadedTrack,
+						src,
+					};
+					delete newTrack.tmpFile;
 
-				/*
-				 * Check if the new track is already in the list.
-				 * Add it if it's not. Replace it if it is.
-				 */
-				const trackItemIndex = tracks.findIndex(
-					t => t.kind === newTrack.kind && t.srcLang === newTrack.srcLang
-				);
-				const updatedTracksList = [ ...tracks ];
+					/*
+					 * Check if the new track is already in the list.
+					 * Add it if it's not. Replace it if it is.
+					 */
+					const trackItemIndex = tracks.findIndex(
+						t => t.kind === newTrack.kind && t.srcLang === newTrack.srcLang
+					);
+					const updatedTracksList = [ ...tracks ];
 
-				if ( trackItemIndex > -1 ) {
-					debug( 'new track already exists, replacing it' );
-					updatedTracksList[ trackItemIndex ] = newTrack;
-				} else {
-					debug( 'new track does not exist, adding it' );
-					updatedTracksList.push( newTrack );
-				}
+					if ( trackItemIndex > -1 ) {
+						debug( 'new track already exists, replacing it' );
+						updatedTracksList[ trackItemIndex ] = newTrack;
+					} else {
+						debug( 'new track does not exist, adding it' );
+						updatedTracksList.push( newTrack );
+					}
 
-				setAttributes( { tracks: updatedTracksList } );
-				setIsUploadingNewTrack( false );
-				invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
-			} );
-			setIsUploadingNewTrack( true );
+					setAttributes( { tracks: updatedTracksList } );
+					setIsUploadingNewTrack( false );
+					invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+				} )
+				// these here because fetch behaves differently on simple sites
+				.catch( error => {
+					debug( 'catch at catch' );
+					setFormErrorMessage( `Track error: ${ error?.message || error.error }` );
+				} );
 		},
 		[ tracks ]
 	);
@@ -171,6 +182,11 @@ export default function TracksControl( {
 		},
 		[ tracks ]
 	);
+
+	const openUploadTrackModal = useCallback( () => {
+		setFormErrorMessage( '' );
+		setIsUploadingNewTrack( true );
+	}, [] );
 
 	return (
 		<ToolbarDropdownMenu
@@ -189,6 +205,7 @@ export default function TracksControl( {
 							} }
 							onSave={ uploadNewTrackFile }
 							tracks={ tracks }
+							errorMessage={ formErrorMessage }
 						/>
 					);
 				}
@@ -204,7 +221,7 @@ export default function TracksControl( {
 							label={ __( 'Add tracks', 'jetpack-videopress-pkg' ) }
 							className="video-tracks-control"
 						>
-							<MenuItem icon={ upload } onClick={ () => setIsUploadingNewTrack( true ) }>
+							<MenuItem icon={ upload } onClick={ openUploadTrackModal }>
 								{ __( 'Upload track', 'jetpack-videopress-pkg' ) }
 							</MenuItem>
 						</MenuGroup>

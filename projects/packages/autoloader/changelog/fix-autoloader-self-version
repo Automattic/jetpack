@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add an `AutoloadGenerator::VERSION` constant, and use that for the autoloader's version in preference to whatever Composer has.

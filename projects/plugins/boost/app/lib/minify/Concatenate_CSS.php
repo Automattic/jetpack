@@ -185,7 +185,7 @@ class Concatenate_CSS extends WP_Styles {
 				}
 
 				$handles = array_keys( $css );
-				$css_id  = "$media-css-" . md5( $href );
+				$css_id  = sanitize_title_with_dashes( $media ) . '-css-' . md5( $href );
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					$style_tag = "<link data-handles='" . esc_attr( implode( ',', $handles ) ) . "' rel='stylesheet' id='$css_id' href='$href' type='text/css' media='$media' />";
 				} else {

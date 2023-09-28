@@ -1,7 +1,7 @@
 /*
  * External dependencies
  */
-import { useAiContext, blockListBlockWithAiDataProvider } from '@automattic/jetpack-ai-client';
+import { useAiContext, withAiDataProvider } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -11,8 +11,6 @@ import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
  */
-import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
-import { isUserConnected } from '../../lib/connection';
 import AiAssistantBar from './components/ai-assistant-bar';
 import AiAssistantToolbarButton from './components/ai-assistant-toolbar-button';
 import { isJetpackFromBlockAiCompositionAvailable } from './constants';
@@ -68,17 +66,6 @@ export function isPossibleToExtendJetpackFormBlock(
 		}
 	} else if ( blockName !== 'jetpack/contact-form' ) {
 		// If it is not a child block, check if it is the Jetpack Form block.
-		return false;
-	}
-
-	// Do not extend the block if the site is not connected.
-	const connected = isUserConnected();
-	if ( ! connected ) {
-		return false;
-	}
-
-	// Do not extend if there is an error getting the feature.
-	if ( AI_Assistant_Initial_State.errorCode ) {
 		return false;
 	}
 
@@ -191,9 +178,4 @@ addFilter(
 	100
 );
 
-addFilter(
-	'editor.BlockListBlock',
-	'jetpack/ai-assistant-block-list',
-	blockListBlockWithAiDataProvider( { blocks: 'jetpack/contact-form' } ),
-	110
-);
+addFilter( 'editor.BlockListBlock', 'jetpack/ai-assistant-block-list', withAiDataProvider, 110 );

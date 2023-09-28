@@ -1,0 +1,34 @@
+$whatsapp: #2ab318;
+
+.share-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+
+	a {
+		color: #fff;
+		border-radius: 4px;
+
+		&:hover {
+			color: #fff;
+		}
+	}
+
+	:global a.components-button svg {
+		fill: currentColor;
+	}
+
+	.twitter {
+		background-color: var(--color-twitter);
+	}
+
+	.whatsapp {
+		background-color: $whatsapp;
+	}
+
+	.clipboard {
+		background-color: #fff;
+		outline: 1px solid var(--jp-gray);
+		color: var(--jp-black);
+	}
+}

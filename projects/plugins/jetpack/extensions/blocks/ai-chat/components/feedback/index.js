@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { ThumbsDown, ThumbsUp } from '../../lib/icons';
 import useSubmitFeedback from '../../use-submit-feedback';
 import DisplayError from '../display-error';
 
@@ -59,7 +60,7 @@ export default function Feedback( { blogType, blogId, cacheKey, feedbackSubmitte
 							label={ __( 'Thumbs up', 'jetpack' ) }
 							onClick={ () => handleRankSubmit( 'thumbs-up' ) }
 						>
-							<Icon icon="thumbs-up" />
+							<Icon icon={ ThumbsUp } />
 						</Button>
 						<Button
 							className="thumbs-down"
@@ -67,7 +68,7 @@ export default function Feedback( { blogType, blogId, cacheKey, feedbackSubmitte
 							label={ __( 'Thumbs down', 'jetpack' ) }
 							onClick={ () => handleRankSubmit( 'thumbs-down' ) }
 						>
-							<Icon icon="thumbs-down" />
+							<Icon icon={ ThumbsDown } />
 						</Button>
 					</div>
 					{ showCommentForm && (
@@ -85,7 +86,7 @@ export default function Feedback( { blogType, blogId, cacheKey, feedbackSubmitte
 								onChange={ newComment => setFeedback( { ...feedback, comment: newComment } ) }
 							/>
 							<Button
-								variant="primary"
+								className="wp-block-button__link jetpack-ai-chat-feedback-submit"
 								onClick={ handleFeedbackSubmit }
 								disabled={ isSubmittingFeedback || feedbackSubmittedForThisQuestion }
 							>
