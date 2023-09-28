@@ -45,7 +45,7 @@ export const percentCalculator = ( part, whole ) => {
  * @param {React.ReactNode} props.heading  - Card heading.
  * @returns {object} CountComparisonCard React component.
  */
-const CountComparisonCard = ( { count, previousCount, icon, heading } ) => {
+const CountComparisonCard = ( { count = 0, previousCount = 0, icon, heading } ) => {
 	const difference = subtract( count, previousCount );
 	const differenceMagnitude = Math.abs( difference );
 	const percentage = Number.isFinite( difference )
