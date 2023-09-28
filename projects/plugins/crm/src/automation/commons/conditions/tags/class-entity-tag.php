@@ -123,10 +123,10 @@ class Entity_Tag extends Base_Condition {
 
 		$this->check_for_valid_operator( $operator );
 
-		$previous_data = $data->get_previous_data();
-		$data          = $data->get_data();
+		$tag_list          = $data->get_data();
+		$previous_tag_list = $data->get_previous_data();
 
-		if ( ! $this->check_for_valid_parameters( $operator, $data, $previous_data ) ) {
+		if ( ! $this->check_for_valid_parameters( $operator, $tag_list, $previous_tag_list ) ) {
 			$this->condition_met = false;
 			return;
 		}
@@ -135,22 +135,22 @@ class Entity_Tag extends Base_Condition {
 
 		switch ( $operator ) {
 			case 'tag_added':
-				$this->condition_met = ( ! $this->has_tag_by_name( $previous_data, $tag ) && $this->has_tag_by_name( $data, $tag ) );
+				$this->condition_met = ( ! $this->has_tag_by_name( $previous_tag_list, $tag ) && $this->has_tag_by_name( $tag_list, $tag ) );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
 			case 'tag_removed':
-				$this->condition_met = ( $this->has_tag_by_name( $previous_data, $tag ) && ! $this->has_tag_by_name( $data, $tag ) );
+				$this->condition_met = ( $this->has_tag_by_name( $previous_tag_list, $tag ) && ! $this->has_tag_by_name( $tag_list, $tag ) );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
 			case 'has_tag':
-				$this->condition_met = $this->has_tag_by_name( $data, $tag );
+				$this->condition_met = $this->has_tag_by_name( $tag_list, $tag );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
 			case 'not_has_tag':
-				$this->condition_met = ! ( $this->has_tag_by_name( $data, $tag ) );
+				$this->condition_met = ! ( $this->has_tag_by_name( $tag_list, $tag ) );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
