@@ -97,7 +97,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/launchpad/launchpad.php';
 	}
 	/**
-	 * Load the Launchpad feature.
+	 * Load the domain email nag feature.
 	 */
 	public static function load_domain_email_nag() {
 		require_once __DIR__ . '/features/domain-email-nag/domain-email-nag.php';
