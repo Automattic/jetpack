@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Update logic to detect incompatible WordPress versions to also include future versions of WordPress and development versions of the Gutenberg plugin.
