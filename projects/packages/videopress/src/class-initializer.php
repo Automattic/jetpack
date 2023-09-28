@@ -369,7 +369,7 @@ class Initializer {
 						return;
 					}
 
-					if ( empty( $post_content ) || ( ! has_block( 'videopress/video', $post_content ) && ! has_shortcode( $post_content, 'videopress' ) ) ) {
+					if ( ! empty( $post_content ) && ! has_block( 'videopress/video', $post_content ) && ! has_shortcode( $post_content, 'videopress' ) ) {
 						return;
 					}
 					self::enqueue_block_assets( $videopress_video_metadata_file );
