@@ -1,6 +1,6 @@
 <?php
 /**
- * CRM Object to CRM Tag List Transformer class.
+ * CRM Entity to CRM Tag List Transformer class.
  *
  * @package automattic/jetpack-crm
  */
@@ -12,17 +12,17 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_List_Data;
 
 /**
- * CRM Object to CRM Tag List Transformer class.
+ * CRM Entity to CRM Tag List Transformer class.
  *
  * @since $$next-version$$
  */
-class Data_Transformer_Object_To_Tag_List extends Data_Transformer_Base {
+class Data_Transformer_Entity_To_Tag_List extends Data_Transformer_Base {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public static function get_slug(): string {
-		return 'object_to_tag_list';
+		return 'entity_to_tag_list';
 	}
 
 	/**
@@ -66,26 +66,26 @@ class Data_Transformer_Object_To_Tag_List extends Data_Transformer_Base {
 	}
 
 	/**
-	 * Get the tags from an object.
+	 * Get the tags from an CRM entity.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Data_Type $data The object data type we want to get the tags from.
-	 * @return array The object tags as an array.
+	 * @param Data_Type $data The CRM entity data type we want to get the tags from.
+	 * @return array The CRM entity tags as an array.
 	 */
 	public static function get_tags( Data_Type $data ): array {
 		return $data->get_tags();
 	}
 
 	/**
-	 * Transform object entity to a list of tags.
+	 * Transform CRM entity entity to a list of tags.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Data_Type $data The object data type we want to transform.
-	 * @return Data_Type Return the Tag_Data of the object.
+	 * @param Data_Type $data The CRM entity data type we want to transform.
+	 * @return Data_Type Return the Tag_Data of the CRM entity.
 	 *
-	 * @throws Data_Transformer_Exception If the object is not linked to a tag.
+	 * @throws Data_Transformer_Exception If the CRM entity is not linked to a tag.
 	 */
 	public function transform( Data_Type $data ): Data_Type {
 

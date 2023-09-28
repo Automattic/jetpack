@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack CRM Automation Object Tag condition.
+ * Jetpack CRM Automation Entity Tag condition.
  *
  * @package automattic/jetpack-crm
  */
@@ -14,14 +14,14 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_Data;
 
 /**
- * Object Tag condition class.
+ * Entity Tag condition class.
  *
  * @since $$next-version$$
  */
-class Object_Tag extends Base_Condition {
+class Entity_Tag extends Base_Condition {
 
 	/**
-	 * Object Tag constructor.
+	 * Entity Tag constructor.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -40,7 +40,7 @@ class Object_Tag extends Base_Condition {
 		$this->set_attribute_definitions(
 			array(
 				new Attribute_Definition( 'operator', __( 'Operator', 'zero-bs-crm' ), __( 'Determines how the field is compared to the specified value.', 'zero-bs-crm' ), Attribute_Definition::SELECT, $this->valid_operators ),
-				new Attribute_Definition( 'tag', __( 'Tag', 'zero-bs-crm' ), __( 'Object Tag to compare with.', 'zero-bs-crm' ), Attribute_Definition::TEXT ),
+				new Attribute_Definition( 'tag', __( 'Tag', 'zero-bs-crm' ), __( 'The Tag to compare with.', 'zero-bs-crm' ), Attribute_Definition::TEXT ),
 			)
 		);
 	}
@@ -131,7 +131,7 @@ class Object_Tag extends Base_Condition {
 			return;
 		}
 
-		$this->logger->log( 'Condition: Object_Tag ' . $tag . ' => ' . $operator );
+		$this->logger->log( 'Condition: Entity_Tag ' . $tag . ' => ' . $operator );
 
 		switch ( $operator ) {
 			case 'tag_added':
@@ -165,13 +165,12 @@ class Object_Tag extends Base_Condition {
 	}
 
 	/**
-	 * Checks if the object has at least the necessary keys to detect an object
-	 * tag condition.
+	 * Checks if the tag list has at least the required keys.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $data The event data.
-	 * @return bool True if the data is valid to evaluate an object tag condition, false otherwise.
+	 * @param  array $tag_list The tag list to validate.
+	 * @return bool True if the data is valid to evaluate an entity tag condition, false otherwise.
 	 */
 	private function is_valid_tag_data( array $data ): bool {
 
@@ -186,44 +185,44 @@ class Object_Tag extends Base_Condition {
 	}
 
 	/**
-	 * Get the title for the object tag condition.
+	 * Get the title for the entity tag condition.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return string The title.
 	 */
 	public static function get_title(): string {
-		return __( 'Object Tag', 'zero-bs-crm' );
+		return __( 'Tag Condition', 'zero-bs-crm' );
 	}
 
 	/**
-	 * Get the slug for the object tag condition.
+	 * Get the slug for the entity tag condition.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The slug 'jpcrm/condition/object_tag'.
+	 * @return string The slug 'jpcrm/condition/entity_tag'.
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/condition/object_tag';
+		return 'jpcrm/condition/entity_tag';
 	}
 
 	/**
-	 * Get the description for the object tag condition.
+	 * Get the description for the entity tag condition.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return string The description for the condition.
 	 */
 	public static function get_description(): string {
-		return __( 'Checks if an object tag matches a specified condition', 'zero-bs-crm' );
+		return __( 'Checks if tags of an element match a specified condition', 'zero-bs-crm' );
 	}
 
 	/**
-	 * Get the category of the object tag condition.
+	 * Get the category of the entity tag condition.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The translated string for the object.
+	 * @return string The translated string for the entity.
 	 */
 	public static function get_category(): string {
 		return __( 'Tag', 'zero-bs-crm' );
