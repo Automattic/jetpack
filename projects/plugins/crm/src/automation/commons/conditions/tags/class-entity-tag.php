@@ -11,7 +11,7 @@ use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_Data;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_List_Data;
 
 /**
  * Entity Tag condition class.
@@ -101,7 +101,7 @@ class Entity_Tag extends Base_Condition {
 				return true;
 			}
 		}
-		$this->logger->log( 'Tag does not exist in the given array of tags: ' );
+		$this->logger->log( sprintf( 'The tag list does not have the `%s` tag.', $tag_name ) );
 		return false;
 	}
 
@@ -235,25 +235,6 @@ class Entity_Tag extends Base_Condition {
 	 * @return string The type of the step.
 	 */
 	public static function get_data_type(): string {
-		return Tag_Data::get_slug();
-	}
-
-	/**
-	 * Get the allowed triggers for the contact tag condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string[] An array of allowed triggers:
-	 *               - 'jpcrm/contact_updated'
-	 */
-	public static function get_allowed_triggers(): array {
-		return array(
-			'jpcrm/contact_updated',
-			'jpcrm/company_updated',
-			'jpcrm/event_updated',
-			'jpcrm/invoice_updated',
-			'jpcrm/quote_updated',
-			'jpcrm/transaction_updated',
-		);
+		return Tag_List_Data::class;
 	}
 }
