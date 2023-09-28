@@ -78,12 +78,12 @@ class Automation_Faker {
 			'steps'        => array(
 				// Step 0
 				0 => array(
-					'slug'       => 'send_email_action',
-					'attributes' => array(
+					'slug'           => 'send_email_action',
+					'attributes'     => array(
 						'to'       => 'admin@example.com',
 						'template' => 'send_welcome_email',
 					),
-					'next_step'  => null,
+					'next_step_true' => null,
 				),
 			),
 		);
