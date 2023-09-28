@@ -2,11 +2,15 @@
 
 .container {
 	min-width: 500px;
+	h1 {
+		font-size: 20px;
+	}
 }
 
 .subheader {
 	color: var(--jp-gray-40);
 	margin-bottom: 36px;
+	font-size: 12px;
 }
 
 .step-container {
@@ -18,6 +22,7 @@
 .button-container {
 	display: flex;
 	justify-content: flex-end;
+	margin-top: 32px;
 
 	:global(.components-button) {
 		padding: 8px 24px !important;
