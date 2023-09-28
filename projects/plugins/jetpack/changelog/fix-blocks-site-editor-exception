@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix block exception throw in Site Editor
