@@ -1,11 +1,11 @@
 import { Container, Col, Button } from '@automattic/jetpack-components';
-import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { Icon, commentContent, people, starEmpty } from '@wordpress/icons';
 import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import { useProduct } from '../../hooks/use-product';
 import Card from '../card';
+import { PRODUCT_STATUSES } from '../product-card';
 import Status from '../product-card/status';
 import CountComparisonCard from './count-comparison-card';
 import eye from './eye';
@@ -23,20 +23,20 @@ import styles from './style.module.scss';
 const StatsCards = ( { counts, previousCounts } ) => {
 	const { detail } = useProduct( 'stats' );
 	const { recordEvent } = useAnalytics();
-	const { hasConnectionError } = useConnectionErrorNotice();
+	const statsHasError = detail.status === PRODUCT_STATUSES.ERROR;
 
 	/**
 	 * Function called when the button is clicked.
 	 */
 	const onActionButtonClick = useCallback( () => {
-		const subActionName = hasConnectionError ? 'fixconnection' : 'seedetailedstats';
+		const subActionName = statsHasError ? 'fixconnection' : 'seedetailedstats';
 
 		recordEvent( `jetpack_myjetpack_stats_card_${ subActionName }_click`, {
 			product: 'stats',
 		} );
-	}, [ hasConnectionError, recordEvent ] );
+	}, [ statsHasError, recordEvent ] );
 
-	const buttonHref = hasConnectionError ? '#/connection' : 'admin.php?page=stats';
+	const buttonHref = statsHasError ? '#/connection' : 'admin.php?page=stats';
 
 	return (
 		<Container fluid horizontalSpacing={ 0 }>
@@ -81,12 +81,12 @@ const StatsCards = ( { counts, previousCounts } ) => {
 						<Button
 							size="small"
 							weight="regular"
-							variant="secondary"
+							variant={ statsHasError ? 'primary' : 'secondary' }
 							href={ buttonHref }
 							onClick={ onActionButtonClick }
 						>
-							{ hasConnectionError && __( 'Fix connection', 'jetpack-my-jetpack' ) }
-							{ ! hasConnectionError && __( 'See detailed stats', 'jetpack-my-jetpack' ) }
+							{ statsHasError && __( 'Fix connection', 'jetpack-my-jetpack' ) }
+							{ ! statsHasError && __( 'See detailed stats', 'jetpack-my-jetpack' ) }
 						</Button>
 						<Status status={ detail.status } />
 					</div>

@@ -25,9 +25,11 @@ import useChatAuthentication from '../../hooks/use-chat-authentication';
 import useChatAvailability from '../../hooks/use-chat-availability';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
+import { useProduct } from '../../hooks/use-product';
 import ConnectionsSection from '../connections-section';
 import IDCModal from '../idc-modal';
 import PlansSection from '../plans-section';
+import { PRODUCT_STATUSES } from '../product-card';
 import ProductCardsSection from '../product-cards-section';
 import StatsSection from '../stats-section';
 import styles from './styles.module.scss';
@@ -89,6 +91,7 @@ export default function MyJetpackScreen() {
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { isAvailable, isFetchingChatAvailability } = useChatAvailability();
+	const { detail: statsDetails } = useProduct( 'stats' );
 	const { jwt, isFetchingChatAuthentication } = useChatAuthentication();
 	const shouldShowZendeskChatWidget =
 		! isFetchingChatAuthentication && ! isFetchingChatAvailability && isAvailable && jwt;
@@ -138,7 +141,11 @@ export default function MyJetpackScreen() {
 						</Col>
 					) }
 					{ isStatsModuleActive && (
-						<Col className={ classnames( { [ styles.stats ]: ! hasConnectionError } ) }>
+						<Col
+							className={ classnames( {
+								[ styles.stats ]: statsDetails?.status !== PRODUCT_STATUSES.ERROR,
+							} ) }
+						>
 							<StatsSection />
 						</Col>
 					) }
