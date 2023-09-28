@@ -59,7 +59,7 @@ class Tag_Condition_Test extends JPCRM_Base_Test_Case {
 			'created'     => 1692663412,
 			'lastupdated' => 1692663412,
 		);
-		$tag_data     = $this->automation_faker->tag_list( false, $new_tag_data );
+		$tag_data     = $this->automation_faker->tag_list( $new_tag_data );
 
 		$tag_condition->execute( new Tag_List_Data( $tag_data, $previous_tag_data ) );
 		$this->assertTrue( $tag_condition->condition_met() );
@@ -95,7 +95,7 @@ class Tag_Condition_Test extends JPCRM_Base_Test_Case {
 			'created'     => 1692663412,
 			'lastupdated' => 1692663412,
 		);
-		$previous_tag_data = $this->automation_faker->tag_list( false, $new_tag_data );
+		$previous_tag_data = $this->automation_faker->tag_list( $new_tag_data );
 
 		$tag_condition->execute( new Tag_List_Data( $tag_data, $previous_tag_data ) );
 		$this->assertTrue( $tag_condition->condition_met() );
@@ -129,7 +129,7 @@ class Tag_Condition_Test extends JPCRM_Base_Test_Case {
 			'created'     => 1692663412,
 			'lastupdated' => 1692663412,
 		);
-		$tag_data     = $this->automation_faker->tag_list( false, $new_tag_data );
+		$tag_data     = $this->automation_faker->tag_list( $new_tag_data );
 
 		$tag_condition->execute( new Tag_List_Data( $tag_data, $previous_tag_data ) );
 		$this->assertTrue( $tag_condition->condition_met() );
@@ -159,7 +159,7 @@ class Tag_Condition_Test extends JPCRM_Base_Test_Case {
 			'created'     => 1692663412,
 			'lastupdated' => 1692663412,
 		);
-		$tag_data     = $this->automation_faker->tag_list( false, $new_tag_data );
+		$tag_data     = $this->automation_faker->tag_list( $new_tag_data );
 
 		$tag_condition->execute( new Tag_List_Data( $tag_data, $previous_tag_data ) );
 		$this->assertFalse( $tag_condition->condition_met() );
