@@ -15,7 +15,7 @@ use Automattic\Jetpack\CRM\Entities\Transaction;
  *
  * @since $$next-version$$
  */
-class Transaction_Data extends Data_Type_Base {
+class Transaction_Data extends Data_Type_Base implements Entity_Data {
 
 	/**
 	 * Validate the data.
@@ -30,5 +30,18 @@ class Transaction_Data extends Data_Type_Base {
 	 */
 	public function validate_data( $data ): bool {
 		return $data instanceof Transaction;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function get_tags(): array {
+		global $zbs;
+		return $zbs->DAL->getTagsForObjID( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+				'objtypeid' => ZBS_TYPE_TRANSACTION,
+				$this->get_data()->id,
+			)
+		);
 	}
 }

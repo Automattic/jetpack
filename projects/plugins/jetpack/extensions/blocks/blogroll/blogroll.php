@@ -47,14 +47,13 @@ function load_assets( $attr, $content ) {
 	 * Enqueue necessary scripts and styles.
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
-
 	$current_location = home_url( $wp->request );
 
 	$content = <<<HTML
 		<form method="post" action="https://subscribe.wordpress.com" accept-charset="utf-8">
 			<input name="action" type="hidden" value="subscribe">
 			<input name="source" type="hidden" value="$current_location">
-			<input name="sub-type" type="hidden" value="blogroll-follow">
+			<input name="sub-type" type="hidden" value="jetpack_blogroll">
 			$content
 		</form>
 HTML;
