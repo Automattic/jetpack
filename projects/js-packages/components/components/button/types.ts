@@ -13,7 +13,7 @@ type JetpackButtonBaseProps = {
 	variant?: 'primary' | 'secondary' | 'link' | 'tertiary';
 	weight?: 'bold' | 'regular';
 	fullWidth?: boolean;
-	ref: React.ForwardedRef< unknown >;
+	ref?: React.ForwardedRef< unknown >;
 };
 
 type WPButtonProps = Omit< React.ComponentProps< typeof Button >, 'size' | 'variant' >;

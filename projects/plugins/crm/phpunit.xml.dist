@@ -19,5 +19,8 @@
     <testsuite name="event-manager">
       <directory suffix="test.php">tests/php/event-manager</directory>
     </testsuite>
+    <testsuite name="entities">
+      <directory suffix="test.php">tests/php/entities</directory>
+    </testsuite>
   </testsuites>
 </phpunit>

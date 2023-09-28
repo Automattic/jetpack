@@ -8,6 +8,8 @@
 
 namespace Automattic\Jetpack\CRM\Automation;
 
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+
 /**
  * Base Step.
  *
@@ -30,7 +32,7 @@ abstract class Base_Step implements Step {
 	 * @since $$next-version$$
 	 * @var array
 	 */
-	protected $attribute_definitions;
+	protected $attribute_definitions = array();
 
 	/**
 	 * Next linked step.
@@ -78,9 +80,9 @@ abstract class Base_Step implements Step {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return Step_Attribute[] The attribute definitions of the step.
+	 * @return Attribute_Definition[] The attribute definitions of the step.
 	 */
-	public function get_attribute_definitions(): ?array {
+	public function get_attribute_definitions(): array {
 		return $this->attribute_definitions;
 	}
 
@@ -89,7 +91,7 @@ abstract class Base_Step implements Step {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Step_Attribute[] $attribute_definitions Set the step attributes.
+	 * @param Attribute_Definition[] $attribute_definitions Set the step attributes.
 	 */
 	public function set_attribute_definitions( array $attribute_definitions ) {
 		$this->attribute_definitions = $attribute_definitions;
@@ -118,14 +120,33 @@ abstract class Base_Step implements Step {
 	}
 
 	/**
+	 * Validate data passed to the step
+	 *
+	 *  @since $$next-version$$
+	 *
+	 * @param Data_Type $data Data type passed.
+	 * @return void
+	 *
+	 * @throws Data_Type_Exception If the data type passed is not expected.
+	 */
+	public function validate( Data_Type $data ): void {
+		$data_type_class = static::get_data_type();
+		if ( ! $data instanceof $data_type_class ) {
+			throw new Data_Type_Exception(
+				sprintf( 'Invalid data type passed to step: %s', static::class ),
+				Data_Type_Exception::INVALID_DATA
+			);
+		}
+	}
+
+	/**
 	 * Execute the step.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param mixed  $data Data passed from the trigger.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 * @param Data_Type $data Data type passed from the trigger.
 	 */
-	abstract public function execute( $data, $previous_data = null );
+	abstract public function execute( Data_Type $data );
 
 	/**
 	 * Get the slug name of the step.
@@ -155,11 +176,11 @@ abstract class Base_Step implements Step {
 	abstract public static function get_description(): ?string;
 
 	/**
-	 * Get the type of the step.
+	 * Get the data type exepected by the step.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The type of the step.
+	 * @return string The data type expected by the step.
 	 */
 	abstract public static function get_data_type(): string;
 
@@ -171,13 +192,4 @@ abstract class Base_Step implements Step {
 	 * @return string|null The category of the step.
 	 */
 	abstract public static function get_category(): ?string;
-
-	/**
-	 * Get the allowed triggers.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return array|null The allowed triggers.
-	 */
-	abstract public static function get_allowed_triggers(): ?array;
 }

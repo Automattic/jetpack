@@ -51,7 +51,7 @@ function load_assets( $attr, $content, $block ) {
 	$id                        = esc_attr( $attr['id'] );
 	$url                       = esc_url( $attr['url'] );
 	$description               = wp_kses( $attr['description'], $kses_defaults );
-	$icon                      = esc_attr( $attr['icon'] );
+	$icon                      = esc_attr( isset( $attr['icon'] ) ? $attr['icon'] : null );
 	$target                    = esc_attr( $block->context['openLinksNewWindow'] ? '_blank' : '_self' );
 	$email                     = esc_attr( get_current_user_id() ? get_userdata( get_current_user_id() )->user_email : '' );
 	$wp_nonce                  = esc_attr( wp_create_nonce( 'blogsub_subscribe_' . $id ) );
@@ -59,12 +59,12 @@ function load_assets( $attr, $content, $block ) {
 	$submit_text               = esc_html__( 'Submit', 'jetpack' );
 	$cancel_text               = esc_html__( 'Cancel', 'jetpack' );
 	$disabled_subscribe_button = '';
-	$is_following              = function_exists( 'wpcom_subs_is_subscribed' ) && wpcom_subs_is_subscribed(
+	$is_following              = ( function_exists( 'wpcom_subs_is_subscribed' ) && wpcom_subs_is_subscribed(
 		array(
 			'user_id' => get_current_user_id(),
 			'blog_id' => $id,
 		)
-	);
+	) ) || isset( $_GET['blogid'] ) && $id === $_GET['blogid']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic.
 
 	if ( $is_following ) {
 		$subscribe_text            = esc_html__( 'Subscribed', 'jetpack' );
@@ -106,7 +106,7 @@ HTML;
 		</div>
 		<fieldset disabled class="jetpack-blogroll-item-submit">
 			<input type="hidden" name="_wpnonce" value="$wp_nonce">
-			<input type="email" placeholder="Email address" value="$email" class="jetpack-blogroll-item-email-input">
+			<input type="email" name="email" placeholder="Email address" value="$email" class="jetpack-blogroll-item-email-input">
 			$buttons_html
 		</fieldset>
 HTML;

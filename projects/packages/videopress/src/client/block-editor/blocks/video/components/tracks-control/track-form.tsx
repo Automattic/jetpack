@@ -14,6 +14,7 @@ import {
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import debugFactory from 'debug';
 /**
  * Types
  */
@@ -33,6 +34,8 @@ const KIND_OPTIONS = [
 	{ label: __( 'Metadata', 'jetpack-videopress-pkg' ), value: 'metadata' },
 ];
 
+const debug = debugFactory( 'videopress:tracks:track-form' );
+
 /**
  * Track From component
  *
@@ -43,6 +46,7 @@ export default function TrackForm( {
 	onCancel,
 	onSave,
 	tracks,
+	errorMessage,
 }: TrackFormProps ): React.ReactElement {
 	const [ isSavingTrack, setIsSavingTrack ] = useState( false );
 	const [ trackExists, setTrackExists ] = useState( false );
@@ -55,8 +59,15 @@ export default function TrackForm( {
 		tmpFile: null,
 	} );
 
+	debug( 'props.errorMessage', errorMessage );
+
 	const updateTrack = useCallback(
 		( key: 'kind' | 'srcLang' | 'label' | 'tmpFile', value: string | File ) => {
+			debug( 'updateTrack', key, value );
+			// changing the file is the only change that can override the errorMessage coming from the control
+			if ( key === 'tmpFile' ) {
+				setError( '' );
+			}
 			setTrack( prev => ( { ...prev, [ key ]: value } ) );
 		},
 		[ track ]
@@ -67,6 +78,11 @@ export default function TrackForm( {
 		setTrackExists( exists );
 	}, [ track, tracks ] );
 
+	useEffect( () => {
+		setError( errorMessage );
+		errorMessage && setIsSavingTrack( false );
+	}, [ errorMessage ] );
+
 	const fileName = track.tmpFile?.name;
 
 	const mediaUpload = useSelect( select => {
@@ -75,20 +91,24 @@ export default function TrackForm( {
 
 	const onSaveHandler = useCallback( () => {
 		setIsSavingTrack( true );
+		setError( '' );
 		onSave( track );
 	}, [ track ] );
 
-	const setSourceLanguage = useCallback( ( newSrcLang: string ) => {
-		updateTrack( 'srcLang', newSrcLang );
+	const setSourceLanguage = useCallback(
+		( newSrcLang: string ) => {
+			updateTrack( 'srcLang', newSrcLang );
+			if ( newSrcLang?.length > 5 ) {
+				return setError(
+					__( 'Language must be five characters or less.', 'jetpack-videopress-pkg' )
+				);
+			}
 
-		if ( newSrcLang?.length > 5 ) {
-			return setError(
-				__( 'Language must be five characters or less.', 'jetpack-videopress-pkg' )
-			);
-		}
-
-		setError( '' );
-	}, [] );
+			// let the error message from the control take over
+			setError( errorMessage || '' );
+		},
+		[ errorMessage ]
+	);
 
 	if ( ! mediaUpload ) {
 		return null;
@@ -99,6 +119,7 @@ export default function TrackForm( {
 		__( 'Add a new text track to the video. Allowed formats: %s', 'jetpack-videopress-pkg' ),
 		ACCEPTED_FILE_TYPES
 	);
+	debug( 'error', error );
 
 	return (
 		<MenuGroup
@@ -177,7 +198,7 @@ export default function TrackForm( {
 						trackExists ? ' track-exists' : ''
 					}` }
 				>
-					{ ! error?.length && trackExists && (
+					{ trackExists && (
 						<ToggleControl
 							className="video-tracks-control__track-form-toggle"
 							label={ __( 'Track exists. Replace?', 'jetpack-videopress-pkg' ) }
