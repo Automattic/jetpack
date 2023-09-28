@@ -15,7 +15,7 @@ use Automattic\Jetpack\CRM\Entities\Task;
  *
  * @since $$next-version$$
  */
-class Task_Data extends Data_Type_Base {
+class Task_Data extends Data_Type_Base implements Entity_Data {
 
 	/**
 	 * Validate the data.
@@ -30,5 +30,18 @@ class Task_Data extends Data_Type_Base {
 	 */
 	public function validate_data( $data ): bool {
 		return $data instanceof Task;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function get_tags(): array {
+		global $zbs;
+		return $zbs->DAL->getTagsForObjID( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+				'objtypeid' => ZBS_TYPE_EVENT,
+				$this->get_data()->id,
+			)
+		);
 	}
 }

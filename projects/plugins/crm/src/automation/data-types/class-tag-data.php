@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Data Type.
+ * Tag Data Type.
  *
  * @package automattic/jetpack-crm
  * @since $$next-version$$
@@ -8,14 +8,14 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Data_Types;
 
-use Automattic\Jetpack\CRM\Entities\Invoice;
+use Automattic\Jetpack\CRM\Entities\Tag;
 
 /**
- * Invoice Data Type.
+ * Tag Data Type.
  *
  * @since $$next-version$$
  */
-class Invoice_Data extends Data_Type_Base implements Entity_Data {
+class Tag_Data extends Data_Type_Base {
 
 	/**
 	 * Validate the data.
@@ -29,19 +29,6 @@ class Invoice_Data extends Data_Type_Base implements Entity_Data {
 	 * @return bool Whether the data is valid.
 	 */
 	public function validate_data( $data ): bool {
-		return $data instanceof Invoice;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function get_tags(): array {
-		global $zbs;
-		return $zbs->DAL->getTagsForObjID( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			array(
-				'objtypeid' => ZBS_TYPE_INVOICE,
-				$this->get_data()->id,
-			)
-		);
+		return $data instanceof Tag;
 	}
 }
