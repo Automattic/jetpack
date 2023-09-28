@@ -43,7 +43,7 @@ export const EditModal: React.FC< EditModalProps > = ( { isOpen, onClose, workfl
 	return (
 		isOpen && (
 			<div className={ styles.wrapper }>
-				<Modal title={ modalTitle } onRequestClose={ () => onClose() }>
+				<Modal className={ styles.modal } title={ modalTitle } onRequestClose={ () => onClose() }>
 					<div className={ styles.container }>
 						<div className={ styles.subheader }>
 							{ __( 'Define and customize the workflow', 'zero-bs-crm' ) }

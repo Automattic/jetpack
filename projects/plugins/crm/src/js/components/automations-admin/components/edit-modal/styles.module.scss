@@ -1,15 +1,17 @@
 @import '@automattic/jetpack-base-styles/style';
 
-:global(.components-modal__header) {
-	padding-bottom: 0 !important;
-}
+.modal {
+	:global(.components-modal__header) {
+		padding-bottom: 0 !important;
+	}
 
-:global(.components-modal__header-heading) {
-	font-size: 20px !important;
-}
+	:global(.components-modal__header-heading) {
+		font-size: 20px !important;
+	}
 
-:global(.components-modal__content) {
-	padding: 0 32px 32px 32px;
+	:global(.components-modal__content) {
+		padding: 0 32px 32px 32px;
+	}
 }
 
 .container {
