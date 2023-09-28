@@ -191,7 +191,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_paid_newsletter_enabled',
 		),
-		'earn-newsletter'        => array(
+		'earn'                   => array(
 			'title'               => 'Newsletter',
 			'task_ids'            => array(
 				'stripe_connected',
