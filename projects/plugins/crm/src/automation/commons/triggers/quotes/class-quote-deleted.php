@@ -9,7 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Quote_Data;
 
 /**
  * Adds the Quote_Deleted class.
@@ -68,7 +68,7 @@ class Quote_Deleted extends Base_Trigger {
 	 * @return string The type of the step
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Quote::get_slug();
+		return Quote_Data::class;
 	}
 
 	/**

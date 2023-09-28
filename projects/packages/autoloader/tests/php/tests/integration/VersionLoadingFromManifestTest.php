@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Integration test suite for the loader population.
  *

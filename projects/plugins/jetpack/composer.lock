@@ -1460,7 +1460,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "3b5f4e2030b1dd42dfc17a85a457da86a124b208"
+                "reference": "21f21f87f005302ac53ec2e2672e089b93b25a94"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1492,7 +1492,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.3.x-dev"
+                    "dev-trunk": "2.4.x-dev"
                 }
             },
             "autoload": {
@@ -1532,11 +1532,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "6ae6bbba80d1153fe109d7b718adc68daebfc3ac"
+                "reference": "c820678bb5aeb6ced11f6b73c68a8006f29649c8"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
-                "automattic/jetpack-constants": "@dev"
+                "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-status": "@dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -1555,7 +1556,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.2.x-dev"
+                    "dev-trunk": "2.3.x-dev"
                 }
             },
             "autoload": {
@@ -1586,7 +1587,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.",
+            "description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once. Modern browsers now support lazy loading, and WordPress itself bundles lazy loading features for images and videos. This feature will consequently be deprecated in November 2023.",
             "transport-options": {
                 "relative": true
             }
@@ -1702,7 +1703,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "0215fe042f7bc5ee5df1f131b612dbbc3c48a690"
+                "reference": "56c20b0aabd3c9892dca7fa2c05c6483113d3872"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1732,7 +1733,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.6.x-dev"
+                    "dev-trunk": "3.7.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
