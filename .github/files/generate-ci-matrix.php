@@ -49,6 +49,9 @@ $default_matrix_vars = array(
 
 	// {string} A valid artifact name for any generated artifacts. If not given, will be derived from the name.
 	'artifact'            => null,
+
+	// {string} Actions runner to use.
+	'runs-on'             => 'ubuntu-latest',
 );
 
 // Matrix definitions. Each will be combined with `$default_matrix_vars` later in processing.
@@ -84,6 +87,16 @@ foreach ( array( 'previous', 'trunk' ) as $wp ) {
 		'timeout' => 15, // 2021-01-18: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
 	);
 }
+
+// Do one run on Windows.
+$matrix[] = array(
+	'name'    => "PHP tests: PHP {$versions['PHP_VERSION']} WP latest on Windows",
+	'script'  => 'test-php',
+	'php'     => $versions['PHP_VERSION'],
+	'wp'      => 'latest',
+	'runs-on' => 'windows-latest',
+	'timeout' => 15, // 2023-09-28: Guess.
+);
 
 // Add JS tests.
 $matrix[] = array(

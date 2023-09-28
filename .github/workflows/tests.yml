@@ -27,7 +27,7 @@ jobs:
 
   run-tests:
     name: ${{ matrix.name }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runs-on }}
     needs: create-matrix
     services:
       database:
@@ -49,6 +49,9 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson( needs.create-matrix.outputs.matrix ) }}
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - uses: actions/checkout@v3

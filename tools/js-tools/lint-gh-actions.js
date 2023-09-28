@@ -72,7 +72,7 @@ function yamlLine( node, fileContents ) {
 function checkRunStepsForExpressions( file, fileContents, path, node ) {
 	if ( node instanceof YAML.YAMLMap ) {
 		const run = node.get( 'run', true );
-		if ( run && run.value.indexOf( '${{' ) >= 0 ) {
+		if ( run instanceof YAML.Scalar && run.value.indexOf( '${{' ) >= 0 ) {
 			const extra = node.get( 'name' ) ? ` (step "${ node.get( 'name' ) }")` : '';
 			error(
 				file,
