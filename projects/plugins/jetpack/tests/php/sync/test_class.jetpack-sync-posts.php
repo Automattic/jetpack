@@ -575,12 +575,22 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[1];
+		$insert_post_event = $this->server_event_storage->get_most_recent_event(
+			'jetpack_sync_save_post',
+			null,
+			array( $this, 'filter_out_post_revisions' )
+		);
+		$post_on_server    = $insert_post_event->args[1];
 
 		wp_update_post( $post_on_server );
 		$this->sender->do_sync();
 
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[1];
+		$update_post_event = $this->server_event_storage->get_most_recent_event(
+			'jetpack_sync_save_post',
+			null,
+			array( $this, 'filter_out_post_revisions' )
+		);
+		$post_on_server    = $update_post_event->args[1];
 
 		$this->assertObjectHasProperty( 'featured_image', $post_on_server );
 		$this->assertIsString( $post_on_server->featured_image );
@@ -592,7 +602,12 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[1];
+		$insert_post_event = $this->server_event_storage->get_most_recent_event(
+			'jetpack_sync_save_post',
+			null,
+			array( $this, 'filter_out_post_revisions' )
+		);
+		$post_on_server    = $insert_post_event->args[1];
 		$this->assertObjectNotHasProperty( 'featured_image', $post_on_server );
 	}
 
