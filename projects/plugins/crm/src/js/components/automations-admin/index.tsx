@@ -43,8 +43,6 @@ export const AutomationsAdmin = () => {
 	} );
 
 	const workflows = useSelect( select => select( store ).getWorkflows(), [] );
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-
 	const workflow = Object.values( workflows )[ 0 ];
 
 	return (
