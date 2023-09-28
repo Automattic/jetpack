@@ -38,9 +38,11 @@ export const EditModal: React.FC< EditModalProps > = ( { isOpen, onClose, workfl
 				<div className={ styles.container }>
 					<h1>
 						{ sprintf(
-							/* translators: placeholder is a string which is used to identify the workflow */
-							__( 'Edit %1$s', 'zero-bs-crm' ),
-							workflow.name
+							/* translators: workflowName is a string which is used to identify the workflow */
+							__( 'Edit %(workflowName)s', 'zero-bs-crm' ),
+							{
+								workflowName: workflow.name,
+							}
 						) }
 					</h1>
 					<div className={ styles.subheader }>
