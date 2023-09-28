@@ -294,7 +294,7 @@ class Users extends Module {
 	}
 
 	/**
-	 * Expand the user username at login before being sent to the server.
+	 * Expand the user username at login before enqueing.
 	 *
 	 * @access public
 	 *
@@ -309,15 +309,14 @@ class Users extends Module {
 	}
 
 	/**
-	 * Expand the user username at logout before being sent to the server.
+	 * Expand the user username at logout before enqueing.
 	 *
 	 * @access public
 	 *
-	 * @param  array $args The hook arguments.
-	 * @param  int   $user_id ID of the user.
+	 * @param  int $user_id ID of the user.
 	 * @return array $args Expanded hook arguments.
 	 */
-	public function expand_logout_username( $args, $user_id ) {
+	public function expand_logout_username( $user_id ) {
 		$user = get_userdata( $user_id );
 		$user = $this->sanitize_user( $user );
 
