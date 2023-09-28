@@ -26,7 +26,7 @@ export const name = 'calendly';
 export const title = __( 'Calendly', 'jetpack' );
 export const settings = {
 	title,
-	description: __( 'Embed a calendar for customers to schedule appointments', 'jetpack' ),
+	description: __( 'Embed a calendar for customers to schedule appointments.', 'jetpack' ),
 	icon: {
 		src: icon,
 		foreground: getIconColor(),

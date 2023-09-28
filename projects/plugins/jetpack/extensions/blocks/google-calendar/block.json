@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/google-calendar",
 	"title": "Google Calendar",
-	"description": "Embed a Google Calendar",
+	"description": "Embed a Google Calendar.",
 	"keywords": [ "events", "dates", "schedule", "appointments" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
