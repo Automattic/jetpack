@@ -71,6 +71,7 @@ declare global {
 			siteLocale: string;
 			'ai-assistant': SiteAIAssistantFeatureEndpointResponseProps;
 			screenBase?: string;
+			wpcomBlogId?: string;
 		};
 		wpcomFetch: function;
 	}
