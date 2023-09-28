@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Lazy Images
- * Module Description: Most modern browsers already support lazy loading. With over 90% of current browsers offering native support, enabling this feature may be unnecessary.
+ * Module Description: Improve your site's speed by only loading images visible on the screen. Modern browsers now support lazy loading, and WordPress itself bundles lazy loading features for images and videos. This feature will consequently be removed from Jetpack in November 2023.
  * Sort Order: 24
  * Recommendation Order: 14
  * First Introduced: 5.6.0

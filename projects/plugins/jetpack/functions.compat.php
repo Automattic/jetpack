@@ -98,10 +98,7 @@ if ( ! function_exists( 'wp_startswith' ) ) :
 		$haystack = (string) $haystack;
 		$needle   = (string) $needle;
 
-		if ( function_exists( 'str_starts_with' ) ) { // remove when PHP 8.0 is the minimum supported.
-			return str_starts_with( $haystack, $needle ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions
-		}
-		return 0 === strpos( $haystack, $needle );
+		return str_starts_with( $haystack, $needle );
 	}
 endif;
 
@@ -121,11 +118,7 @@ if ( ! function_exists( 'wp_endswith' ) ) :
 		$haystack = (string) $haystack;
 		$needle   = (string) $needle;
 
-		if ( function_exists( 'str_ends_with' ) ) { // remove when PHP 8.0 is the minimum supported.
-			return str_ends_with( $haystack, $needle ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions
-
-		}
-		return $needle === substr( $haystack, -strlen( $needle ) );
+		return str_ends_with( $haystack, $needle );
 	}
 endif;
 
@@ -145,11 +138,7 @@ if ( ! function_exists( 'wp_in' ) ) :
 		$haystack = (string) $haystack;
 		$needle   = (string) $needle;
 
-		if ( function_exists( 'str_contains' ) ) { // remove when PHP 8.0 is the minimum supported.
-			return str_contains( $haystack, $needle ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions
-		}
-
-		return false !== strpos( $haystack, $needle );
+		return str_contains( $haystack, $needle );
 	}
 endif;
 

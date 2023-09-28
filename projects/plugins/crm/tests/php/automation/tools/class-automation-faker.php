@@ -5,12 +5,21 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Company;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
+use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
+use Automattic\Jetpack\CRM\Entities\Company;
+use Automattic\Jetpack\CRM\Entities\Contact;
+use Automattic\Jetpack\CRM\Entities\Factories\Company_Factory;
+use Automattic\Jetpack\CRM\Entities\Factories\Contact_Factory;
+use Automattic\Jetpack\CRM\Entities\Factories\Invoice_Factory;
+use Automattic\Jetpack\CRM\Entities\Factories\Quote_Factory;
+use Automattic\Jetpack\CRM\Entities\Factories\Task_Factory;
+use Automattic\Jetpack\CRM\Entities\Factories\Transaction_Factory;
+use Automattic\Jetpack\CRM\Entities\Invoice;
+use Automattic\Jetpack\CRM\Entities\Quote;
+use Automattic\Jetpack\CRM\Entities\Tag;
+use Automattic\Jetpack\CRM\Entities\Task;
+use Automattic\Jetpack\CRM\Entities\Transaction;
 
 require_once __DIR__ . '/class-event-emitter.php';
 
@@ -193,7 +202,7 @@ class Automation_Faker {
 			'steps'        => array(
 				// Step 0
 				0 => array(
-					'slug'            => 'contact_status_condition',
+					'slug'            => 'contact_status',
 					'class_name'      => Contact_Condition::class,
 					'attributes'      => array(
 						'field'    => 'status',
@@ -261,12 +270,11 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return data for a dummy contact.
+	 * Return a dummy Contact.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Contact object.
-	 * @return array|Data_Type_Contact
+	 * @return Contact A Contact object.
 	 */
-	public function contact_data( $get_as_data_type = false ) {
+	public function contact(): Contact {
 		$data = array(
 			'id'               => 1,
 			'owner'            => '-1',
@@ -320,152 +328,269 @@ class Automation_Faker {
 			),
 		);
 
-		if ( $get_as_data_type ) {
-			return new Data_Type_Contact( $data );
-		}
-
-		return $data;
+		return Contact_Factory::create( $data );
 	}
 
 	/**
-	 * Return data for a dummy invoice.
+	 * Return a dummy Invoice.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Invoice object.
-	 * @return array|Data_Type_Invoice
+	 * @return Invoice A Invoice object.
 	 */
-	public function invoice_data( $get_as_data_type = false ) {
+	public function invoice(): Invoice {
 		$data = array(
-			'id'   => 1,
-			'data' => array(
-				'id_override' => '1',
-				'parent'      => '',
-				'status'      => 'Unpaid',
-				'due_date'    => 1690840800,
-				'hash'        => 'ISSQndSUjlhJ8feWj2v',
-				'lineitems'   => array(
+			'id'          => 1,
+			'id_override' => '1',
+			'parent'      => '',
+			'status'      => 'Unpaid',
+			'due_date'    => 1690840800,
+			'hash'        => 'ISSQndSUjlhJ8feWj2v',
+			'lineitems'   => array(
+				array(
+					'net'      => 3.75,
+					'desc'     => 'Dummy product',
+					'quantity' => '3',
+					'price'    => '1.25',
+					'total'    => 3.75,
+				),
+				'contacts' => array( 1 ),
+				'created'  => -1,
+				'tags'     => array(
 					array(
-						'net'      => 3.75,
-						'desc'     => 'Dummy product',
-						'quantity' => '3',
-						'price'    => '1.25',
-						'total'    => 3.75,
+						'id'          => 1,
+						'objtype'     => 1,
+						'name'        => 'Name 1',
+						'slug'        => 'name-1',
+						'created'     => 1692663411,
+						'lastupdated' => 1692663411,
+					),
+					array(
+						'id'          => 2,
+						'objtype'     => 1,
+						'name'        => 'Name 2',
+						'slug'        => 'name-2',
+						'created'     => 1692663412,
+						'lastupdated' => 1692663412,
 					),
 				),
-				'contacts'    => array( 1 ),
-				'created'     => -1,
 			),
 		);
 
-		if ( $get_as_data_type ) {
-			return new Data_Type_Invoice( $data );
-		}
-
-		return $data;
+		return Invoice_Factory::create( $data );
 	}
 
 	/**
-	 * Return data for a dummy quote.
+	 * Return a dummy Quote.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Quote object.
-	 * @return array|Data_Type_Quote
+	 * @return Quote A Quote object.
 	 */
-	public function quote_data( $get_as_data_type = false ) {
+	public function quote(): Quote {
 		$data = array(
 			'id'          => 1,
 			'id_override' => '1',
 			'title'       => 'Quote title',
 			'hash'        => 'V8jAlsi0#$ksm0Plsxp',
+			'value'       => 150.00,
+			'currency'    => 'USD',
 			'template'    => 1676923766,
 			'accepted'    => 1676923766,
 			'created'     => 1676000000,
+			'tags'        => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
+			),
 		);
 
-		if ( $get_as_data_type ) {
-			return new Data_Type_Quote( $data );
-		}
-
-		return $data;
+		return Quote_Factory::create( $data );
 	}
 
 	/**
-	 * Return data for a dummy company.
+	 * Return a Company.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Company object.
-	 * @return array|Data_Type_Company
+	 * @return Company A Company object.
 	 */
-	public function company_data( $get_as_data_type = false ) {
+	public function company(): Company {
 		$data = array(
 			'id'     => 1,
 			'name'   => 'Dummy Company',
 			'email'  => 'johndoe@dummycompany.com',
+			'addr1'  => 'Address 1',
 			'status' => 'lead',
-		);
-
-		if ( $get_as_data_type ) {
-			return new Data_Type_Company( $data );
-		}
-
-		return $data;
-	}
-
-	/**
-	 * Return data for a dummy task.
-	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Task object.
-	 * @return array
-	 */
-	public function event_data( $get_as_data_type = false ) {
-		$data = array(
-			'id'   => 1,
-			'data' => array(
-				'title'          => 'Some task title',
-				'description'    => 'Some desc',
-				'hash'           => 'V8jAlsi0#$ksm0Plsxp',
-				'start'          => 1676000000,
-				'end'            => 1676923766,
-				'complete'       => false,
-				'show_in_portal' => true,
-				'show_in_cal'    => true,
-				'created'        => 1675000000,
-				'lastupdated'    => 1675000000,
+			'tags'   => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
 			),
 		);
 
-		if ( $get_as_data_type ) {
-			return new Data_Type_Task( $data );
-		}
-
-		return $data;
+		return Company_Factory::create( $data );
 	}
 
 	/**
-	 * Return data for a dummy transaction.
+	 * Return dummy Task.
 	 *
-	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Transaction object.
-	 * @return array
+	 * @return Task A Task object.
 	 */
-	public function transaction_data( $get_as_data_type = false ) {
+	public function task(): Task {
 		$data = array(
-			'id'   => 1,
-			'data' => array(
-				'title'          => 'Some transaction title',
-				'desc'           => 'Some desc',
-				'hash'           => 'mASOpAnf334Pncl1px4',
-				'status'         => 'Completed',
-				'type'           => 'Sale',
-				'currency'       => 'USD',
-				'total'          => '150.00',
-				'tax'            => '10.00',
-				'lineitems'      => array(),
-				'date'           => 1676000000,
-				'date_completed' => 1676923766,
-				'created'        => 1675000000,
-				'lastupdated'    => 1675000000,
+			'id'             => 1,
+			'title'          => 'Some task title',
+			'desc'           => 'Some desc',
+			'hash'           => 'V8jAlsi0#$ksm0Plsxp',
+			'start'          => 1676000000,
+			'end'            => 1676923766,
+			'complete'       => false,
+			'show_in_portal' => true,
+			'show_in_cal'    => true,
+			'created'        => 1675000000,
+			'lastupdated'    => 1675000000,
+			'tags'           => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
 			),
 		);
 
-		if ( $get_as_data_type ) {
-			return new Data_Type_Transaction( $data );
+		return Task_Factory::create( $data );
+	}
+
+	/**
+	 * Return a dummy Transaction.
+	 *
+	 * @return Transaction A Transaction object.
+	 */
+	public function transaction(): Transaction {
+		$data = array(
+			'id'             => 1,
+			'title'          => 'Some transaction title',
+			'desc'           => 'Some desc',
+			'hash'           => 'mASOpAnf334Pncl1px4',
+			'status'         => 'Completed',
+			'type'           => 'Sale',
+			'ref'            => '123456',
+			'currency'       => 'USD',
+			'total'          => '150.00',
+			'tax'            => '10.00',
+			'lineitems'      => array(),
+			'date'           => 1676000000,
+			'date_completed' => 1676923766,
+			'created'        => 1675000000,
+			'lastupdated'    => 1675000000,
+			'tags'           => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
+			),
+		);
+
+		return Transaction_Factory::create( $data );
+	}
+
+	/**
+	 * Return data for a dummy tag.
+	 *
+	 * @return Tag A sample Tag instance.
+	 */
+	public function tag(): Tag {
+		$tag_data = array(
+			'id'          => 1,
+			'name'        => 'Some tag name',
+			'slug'        => 'tag_slug',
+			'objtype'     => 'Contact',
+			'created'     => 1675000000,
+			'lastupdated' => 1675000000,
+		);
+
+		// @todo: Use the factory when it is ready: return Tag_Factory::create( $tag );
+		$tag = new Tag();
+		foreach ( $tag_data as $key => $value ) {
+			$tag->$key = $value;
+		}
+
+		return $tag;
+	}
+
+	/**
+	 * Return data for a dummy tag.
+	 *
+	 * @param array|null $additional_array An array with additional data to be added to the tag list.
+	 *
+	 * @return array
+	 * @throws Data_Type_Exception
+	 */
+	public function tag_list( array $additional_array = null ) {
+		$data = array(
+			array(
+				'id'          => 1,
+				'objtype'     => 1,
+				'name'        => 'Name 1',
+				'slug'        => 'name-1',
+				'created'     => 1692663411,
+				'lastupdated' => 1692663411,
+			),
+			array(
+				'id'          => 2,
+				'objtype'     => 1,
+				'name'        => 'Name 2',
+				'slug'        => 'name-2',
+				'created'     => 1692663412,
+				'lastupdated' => 1692663412,
+			),
+		);
+		if ( $additional_array !== null ) {
+			$data[] = $additional_array;
 		}
 
 		return $data;
