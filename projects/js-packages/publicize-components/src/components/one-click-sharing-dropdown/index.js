@@ -11,7 +11,7 @@ const renderToggle = ( { isOpen, onToggle } ) => {
 	return (
 		<Icon
 			className={ styles.icon }
-			size={ 18 }
+			size={ 16 }
 			icon={ shareArrowIcon }
 			onClick={ onToggle }
 			aria-expanded={ isOpen }
