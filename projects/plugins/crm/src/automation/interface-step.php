@@ -36,13 +36,40 @@ interface Step {
 	public function get_next_step_id();
 
 	/**
-	 * Set the next step.
+	 * Get the next step if the current one is successful.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param int|string|null $step_id The next linked step.
+	 * @return int|string|null The next linked step id.
 	 */
-	public function set_next_step( $step_id );
+	public function get_next_step_true();
+
+	/**
+	 * Set the next step if the current one is successful.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int|string|null The next linked step id.
+	 */
+	public function set_next_step_true();
+
+	/**
+	 * Get the next step if the current one is falsy.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int|string|null The next linked step id.
+	 */
+	public function get_next_step_false();
+
+	/**
+	 * Set the next step if the current one is falsy.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int|string|null The next linked step id.
+	 */
+	public function set_next_step_false();
 
 	/**
 	 * Get the step attribute definitions.
@@ -124,4 +151,16 @@ interface Step {
 	 * @return string|null The category of the step.
 	 */
 	public static function get_category(): ?string;
+
+	/**
+	 * Get the step as an array.
+	 *
+	 * The main use-case to get the step as an array is to prepare
+	 * the items for an API response.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array The step as an array.
+	 */
+	public function to_array(): array;
 }
