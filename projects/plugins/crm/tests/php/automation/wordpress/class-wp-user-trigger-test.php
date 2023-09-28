@@ -15,6 +15,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  */
 class WP_User_Trigger_Test extends JPCRM_Base_Integration_Test_Case {
 
+	/** @var Automation_Faker */
 	private $automation_faker;
 
 	public function setUp(): void {
@@ -27,7 +28,7 @@ class WP_User_Trigger_Test extends JPCRM_Base_Integration_Test_Case {
 	 */
 	public function test_wp_user_created_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/clientwpuser_created' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/wp_user_created' );
 
 		$trigger = new WP_User_Created();
 
@@ -40,7 +41,7 @@ class WP_User_Trigger_Test extends JPCRM_Base_Integration_Test_Case {
 		// Init the WP_User_Created trigger.
 		$trigger->init( $workflow );
 
-		// We expect the workflow to be executed on clientwpuser_created event with the WP User data.
+		// We expect the workflow to be executed on  event with the WP User data.
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(

@@ -35,7 +35,7 @@ class WP_User_Created extends Base_Trigger {
 	 * @return string The slug name of the trigger.
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/clientwpuser_created';
+		return 'jpcrm/wp_user_created';
 	}
 
 	/**
