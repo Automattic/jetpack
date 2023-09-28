@@ -24,6 +24,13 @@ const isAiAssistantSupportExtensionEnabled =
  * @returns {object}          Block settings.
  */
 function extendAiContentLensFeatures( settings, name ) {
+	// Do not extend if the site requires an upgrade.
+	const siteRequireUpgrade =
+		window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'site-require-upgrade' ];
+	if ( siteRequireUpgrade ) {
+		return settings;
+	}
+
 	// Bail early when the block is not the AI Assistant.
 	if ( name !== 'jetpack/ai-assistant' ) {
 		return settings;
