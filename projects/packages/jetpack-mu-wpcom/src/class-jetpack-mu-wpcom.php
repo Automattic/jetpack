@@ -146,7 +146,7 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Adds a global variable containing the map provider in a map_block_settings object to the window object.
+	 * Adds a global variable containing the where the newsletter categories should be shown.
 	 */
 	public static function load_newsletter_categories_settings() {
 		if (
