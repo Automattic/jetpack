@@ -256,6 +256,7 @@ abstract class Base_Step implements Step {
 			'description'           => static::get_description(),
 			'slug'                  => static::get_slug(),
 			'category'              => static::get_category(),
+			'step_type'             => is_subclass_of( $this, Action::class ) ? 'action' : 'condition',
 			'next_step_true'        => $this->get_next_step_true(),
 			'next_step_false'       => $this->get_next_step_false(),
 			'attributes'            => $this->get_attributes(),
