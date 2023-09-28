@@ -20,13 +20,6 @@ add_action(
 		);
 
 		Blocks::jetpack_register_block(
-			__DIR__,
-			array(
-				'render_callback' => array( 'Automattic\\Jetpack\\Extensions\\Recipe\\Jetpack_Recipe_Block', 'render' ),
-			)
-		);
-
-		Blocks::jetpack_register_block(
 			'jetpack/recipe-details',
 			array(
 				'parent' => array( 'jetpack/recipe' ),
