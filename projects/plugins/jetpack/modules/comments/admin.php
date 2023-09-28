@@ -15,7 +15,7 @@ class Jetpack_Comments_Settings {
 	/**
 	 * The Jetpack Comments singleton
 	 *
-	 * @var Highlander_Comments_Base
+	 * @var Verbum_Comments_Base
 	 */
 	public $jetpack_comments;
 
@@ -49,9 +49,9 @@ class Jetpack_Comments_Settings {
 	/**
 	 * Constructor
 	 *
-	 * @param Highlander_Comments_Base $jetpack_comments The Jetpack Comments singleton.
+	 * @param Verbum_Comments_Base $jetpack_comments The Jetpack Comments singleton.
 	 */
-	public function __construct( Highlander_Comments_Base $jetpack_comments ) {
+	public function __construct( Verbum_Comments_Base $jetpack_comments ) {
 		$this->jetpack_comments = $jetpack_comments;
 
 		// Setup settings.
