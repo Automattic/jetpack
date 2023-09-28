@@ -70,7 +70,7 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
  * @param {string} props.placeholder - Input placeholder.
  * @param {boolean} props.settingShowCopy - Show copy button.
  * @param {boolean} props.settingShowFeedback - Show feedback (thumbs up/down) buttons.
- * @param {boolean} props.settingShowReferences - Show references (the list of URLs).
+ * @param {boolean} props.settingShowSources - Show references (the list of URLs).
  * @returns {QuestionAnswer} component.
  */
 export default function QuestionAnswer( {
@@ -80,7 +80,7 @@ export default function QuestionAnswer( {
 	placeholder,
 	settingShowCopy,
 	settingShowFeedback,
-	settingShowReferences,
+	settingShowSources,
 } ) {
 	const {
 		question,
@@ -160,7 +160,7 @@ export default function QuestionAnswer( {
 				</div>
 				{ askError && ! isLoading && <DisplayError error={ askError } /> }
 				{ showCopyButton && <CopyButton answer={ answer } /> }
-				{ settingShowReferences && references && references.length > 0 && showReferences && (
+				{ settingShowSources && references && references.length > 0 && showReferences && (
 					<div className="jetpack-ai-chat-answer-references">
 						<div>{ __( 'Additional resources:', 'jetpack' ) }</div>
 
