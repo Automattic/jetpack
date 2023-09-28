@@ -15,6 +15,7 @@ import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-c
 import { Icon, Notice, Path, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
+import classnames from 'classnames';
 import React, { useEffect, useState } from 'react';
 /*
  * Internal dependencies
@@ -137,7 +138,7 @@ export default function MyJetpackScreen() {
 						</Col>
 					) }
 					{ isStatsModuleActive && (
-						<Col className={ styles.stats }>
+						<Col className={ classnames( { [ styles.stats ]: ! hasConnectionError } ) }>
 							<StatsSection />
 						</Col>
 					) }

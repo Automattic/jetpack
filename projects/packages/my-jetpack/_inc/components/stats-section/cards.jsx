@@ -1,7 +1,9 @@
 import { Container, Col, Button } from '@automattic/jetpack-components';
+import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { Icon, commentContent, people, starEmpty } from '@wordpress/icons';
-import React from 'react';
+import React, { useCallback } from 'react';
+import { useAnalytics } from '../../hooks/use-analytics';
 import { useProduct } from '../../hooks/use-product';
 import Card from '../card';
 import Status from '../product-card/status';
@@ -20,9 +22,24 @@ import styles from './style.module.scss';
  */
 const StatsCards = ( { counts, previousCounts } ) => {
 	const { detail } = useProduct( 'stats' );
+	const { recordEvent } = useAnalytics();
+	const { hasConnectionError } = useConnectionErrorNotice();
+
+	/**
+	 * Function called when the button is clicked.
+	 */
+	const onActionButtonClick = useCallback( () => {
+		const subActionName = hasConnectionError ? 'fixconnection' : 'seedetailedstats';
+
+		recordEvent( `jetpack_myjetpack_stats_card_${ subActionName }_click`, {
+			product: 'stats',
+		} );
+	}, [ hasConnectionError, recordEvent ] );
+
+	const buttonHref = hasConnectionError ? '#/connection' : 'admin.php?page=stats';
 
 	return (
-		<Container fluid>
+		<Container fluid horizontalSpacing={ 0 }>
 			<Col lg={ 12 }>
 				<Card title="Stats">
 					<h3 className={ styles[ 'section-title' ] }>
@@ -65,9 +82,12 @@ const StatsCards = ( { counts, previousCounts } ) => {
 							size="small"
 							weight="regular"
 							variant="secondary"
-							href={ 'admin.php?page=stats' }
+							href={ buttonHref }
+							onClick={ onActionButtonClick }
 						>
-							{ __( 'See detailed stats', 'jetpack-my-jetpack' ) }
+							{ hasConnectionError
+								? __( 'Fix connection', 'jetpack-my-jetpack' )
+								: __( 'See detailed stats', 'jetpack-my-jetpack' ) }
 						</Button>
 						<Status status={ detail.status } />
 					</div>
