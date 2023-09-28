@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\CRM\Automation\Data_Transformers;
 
 use Automattic\Jetpack\CRM\Automation\Data_Transformer_Exception;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Entity_Data;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_List_Data;
 
 /**
@@ -26,36 +27,10 @@ class Data_Transformer_Entity_To_Tag_List extends Data_Transformer_Base {
 	}
 
 	/**
-	 * Get the slug name of the Data Type.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param Data_Type $data The object data type we want to get the slug from.
-	 * @return string The slug of the Data Type.
-	 *
-	 * @throws Data_Transformer_Exception If the object type cannot be transformed to a tag list.
+	 * {@inheritDoc}
 	 */
-	public static function get_from( Data_Type $data ): string {
-
-		switch ( $data ) {
-			case ( $data instanceof Company ):
-				return Company_Data::class;
-			case ( $data instanceof Contact ):
-				return Contact_Data::class;
-			case ( $data instanceof Invoice ):
-				return Invoice_Data::class;
-			case ( $data instanceof Transaction ):
-				return Transaction_Data::class;
-			case ( $data instanceof Quote ):
-				return Quote_Data::class;
-			case ( $data instanceof Task ):
-				return Task_Data::class;
-			default:
-				throw new Data_Transformer_Exception(
-					'Object type cannot be transformed to tag list.',
-					Data_Transformer_Exception::TRANSFORM_IS_NOT_SUPPORTED
-				);
-		}
+	public static function get_from(): string {
+		return Entity_Data::class;
 	}
 
 	/**
