@@ -7,13 +7,14 @@
 		criticalCssState,
 		isFatalError,
 	} from '../../../stores/critical-css-state';
-	import { criticalCssIssues } from '../../../stores/critical-css-state-errors';
+	import { criticalCssIssues, primaryErrorSet } from '../../../stores/critical-css-state-errors';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
 	import { modulesState } from '../../../stores/modules';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
 
 	$: status = $criticalCssState.status;
+	$: criticalCssStatusError = $criticalCssState.status_error;
 	$: successCount = $criticalCssState.providers.filter(
 		provider => provider.status === 'success'
 	).length;
@@ -35,7 +36,11 @@
 		<ProgressBar progress={$criticalCssProgress} />
 	</div>
 {:else if $isFatalError}
-	<CriticalCssShowStopperError />
+	<CriticalCssShowStopperError
+		{status}
+		primaryErrorSet={$primaryErrorSet}
+		statusError={criticalCssStatusError}
+	/>
 {:else}
 	<CriticalCssStatus
 		{isCloudCssAvailable}

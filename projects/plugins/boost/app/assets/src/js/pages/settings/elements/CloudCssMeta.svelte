@@ -5,13 +5,14 @@
 		criticalCssState,
 		isFatalError,
 	} from '../../../stores/critical-css-state';
-	import { criticalCssIssues } from '../../../stores/critical-css-state-errors';
+	import { criticalCssIssues, primaryErrorSet } from '../../../stores/critical-css-state-errors';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
 	import { modulesState } from '../../../stores/modules';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
 
 	$: status = $criticalCssState.status;
+	$: criticalCssStatusError = $criticalCssState.status_error;
 	$: successCount = $criticalCssState.providers.filter(
 		provider => provider.status === 'success'
 	).length;
@@ -23,7 +24,12 @@
 </script>
 
 {#if $isFatalError}
-	<CriticalCssShowStopperError supportLink="https://jetpackme.wordpress.com/contact-support/" />
+	<CriticalCssShowStopperError
+		supportLink="https://jetpackme.wordpress.com/contact-support/"
+		{status}
+		primaryErrorSet={$primaryErrorSet}
+		statusError={criticalCssStatusError}
+	/>
 {:else}
 	<CriticalCssStatus
 		{isCloudCssAvailable}
