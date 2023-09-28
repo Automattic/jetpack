@@ -172,15 +172,14 @@ class Entity_Tag extends Base_Condition {
 	 * @param  array $tag_list The tag list to validate.
 	 * @return bool True if the data is valid to evaluate an entity tag condition, false otherwise.
 	 */
-	private function is_valid_tag_data( array $data ): bool {
+	private function is_valid_tag_data( array $tag_list ): bool {
 
-		if ( is_array( $data ) ) {
-			foreach ( $data as $item ) {
-				if ( ! is_array( $item ) || ! isset( $item['name'] ) ) {
-					return false;
-				}
+		foreach ( $tag_list as $item ) {
+			if ( ! is_array( $item ) || ! isset( $item['name'] ) ) {
+				return false;
 			}
 		}
+
 		return true;
 	}
 
