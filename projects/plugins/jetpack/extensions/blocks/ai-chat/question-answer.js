@@ -94,7 +94,7 @@ export default function QuestionAnswer( {
 		cacheKey,
 	} = useSubmitQuestion( blogType, blogId );
 
-	const [ animationDone, setAnimationDone ] = useState( false );
+	const [ animationDone, setAnimationDone ] = useState( true );
 	const [ showReferences, setShowReferences ] = useState( false );
 	const [ feedbackSubmitted, setFeedbackSubmitted ] = useState( [] );
 	const addFeedbackToState = submittedCacheKey => {
@@ -105,6 +105,7 @@ export default function QuestionAnswer( {
 		setAskError( false );
 		setAnimationDone( false );
 		setShowReferences( false );
+		setFeedbackSubmitted( [] );
 		submitQuestion();
 	};
 
@@ -127,13 +128,14 @@ export default function QuestionAnswer( {
 						className="jetpack-ai-chat-question-input"
 						placeholder={ placeholder }
 						size={ 50 }
+						disabled={ ! animationDone || isLoading }
 						value={ question }
 						onChange={ newQuestion => setQuestion( newQuestion ) }
 					/>
 
 					<Button
 						className="wp-block-button__link jetpack-ai-chat-question-button"
-						disabled={ isLoading }
+						disabled={ ! animationDone || isLoading }
 						onClick={ handleSubmitQuestion }
 					>
 						{ askButtonLabel }
@@ -156,7 +158,7 @@ export default function QuestionAnswer( {
 						/>
 					) }
 				</div>
-				{ askError && <DisplayError error={ askError } /> }
+				{ askError && ! isLoading && <DisplayError error={ askError } /> }
 				{ showCopyButton && <CopyButton answer={ answer } /> }
 				{ settingShowReferences && references && references.length > 0 && showReferences && (
 					<div className="jetpack-ai-chat-answer-references">
