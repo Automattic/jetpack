@@ -28,6 +28,8 @@ const useNewsletterCategories = () => {
 		// only fetch newsletter categories if they should be shown in the block (or the setting isn't defined)
 		if ( newsletter_categories_location === 'block' ) {
 			fetchData();
+		} else {
+			setLoading( false );
 		}
 	}, [] );
 
