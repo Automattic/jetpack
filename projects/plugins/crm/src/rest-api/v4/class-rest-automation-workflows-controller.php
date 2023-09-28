@@ -363,15 +363,11 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 			$workflow = $workflow->to_array();
 		}
 
-		// Append attribute definitions to each step.
+		// Provide full context about steps (title, description, attribute definitions, etc.).
 		if ( is_array( $workflow['steps'] ) ) {
 			foreach ( $workflow['steps'] as $index => $step ) {
-				$workflow['steps'][ $index ]['attribute_definitions'] = array();
-
-				$hydrated_step = $this->automation_engine->get_registered_step( $step );
-				foreach ( $hydrated_step->get_attribute_definitions() as $attribute_definition ) {
-					$workflow['steps'][ $index ]['attribute_definitions'][ $attribute_definition->get_slug() ] = $attribute_definition->to_array();
-				}
+				$hydrated_step               = $this->automation_engine->get_registered_step( $step );
+				$workflow['steps'][ $index ] = $hydrated_step->to_array();
 			}
 		}
 
