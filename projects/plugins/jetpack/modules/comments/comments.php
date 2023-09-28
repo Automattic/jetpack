@@ -7,6 +7,7 @@
 
 require __DIR__ . '/base.php';
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
 /**
  * Main Comments class
@@ -14,17 +15,7 @@ use Automattic\Jetpack\Connection\Tokens;
  * @package automattic/jetpack
  * @since   1.4
  */
-class Jetpack_Comments extends Highlander_Comments_Base {
-
-	/** Variables *************************************************************/
-
-	/**
-	 * Possible comment form sources - empty array as default
-	 *
-	 * @var array
-	 */
-	public $id_sources = array();
-
+class Jetpack_Comments extends Verbum_Comments_Base {
 	/**
 	 * Remote comment URL - empty string as default
 	 *
@@ -38,9 +29,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @var string
 	 * @see ::set_default_color_theme_based_on_theme_settings()
 	 */
-	public $default_color_scheme = 'light';
-
-	/** Methods ***************************************************************/
+	public $default_color_scheme = 'transparent';
 
 	/**
 	 * Initialize class
@@ -63,8 +52,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	public function __construct() {
 		parent::__construct();
 
-		// Comments is loaded.
-
 		/**
 		 * Fires after the Jetpack_Comments object has been instantiated
 		 *
@@ -75,48 +62,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		 * @param array $jetpack_comments_loaded First element in array of type Jetpack_Comments
 		 */
 		do_action_ref_array( 'jetpack_comments_loaded', array( $this ) );
-		add_action( 'after_setup_theme', array( $this, 'set_default_color_theme_based_on_theme_settings' ), 100 );
-	}
-
-	/**
-	 * Set the default comments color theme based on theme settings
-	 */
-	public function set_default_color_theme_based_on_theme_settings() {
-		if ( function_exists( 'twentyeleven_get_theme_options' ) ) {
-			$theme_options      = twentyeleven_get_theme_options();
-			$theme_color_scheme = isset( $theme_options['color_scheme'] ) ? $theme_options['color_scheme'] : 'transparent';
-		} else {
-			$theme_color_scheme = get_theme_mod( 'color_scheme', 'transparent' );
-		}
-		// Default for $theme_color_scheme is 'transparent' just so it doesn't match 'light' or 'dark'.
-		// The default for Jetpack's color scheme is still defined above as 'light'.
-
-		if ( false !== stripos( $theme_color_scheme, 'light' ) ) {
-			$this->default_color_scheme = 'light';
-		} elseif ( false !== stripos( $theme_color_scheme, 'dark' ) ) {
-			$this->default_color_scheme = 'dark';
-		}
-	}
-
-	/** Private Methods *******************************************************/
-
-	/**
-	 * Set any global variables or class variables
-	 *
-	 * This is primarily defining the comment form sources.
-	 *
-	 * @since 1.4
-	 */
-	protected function setup_globals() {
-		parent::setup_globals();
-
-		// Sources.
-		$this->id_sources = array(
-			'guest',
-			'jetpack',
-			'wordpress',
-			'facebook',
-		);
 	}
 
 	/**
@@ -127,8 +72,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	protected function setup_actions() {
 		parent::setup_actions();
 
-		// Selfishly remove everything from the existing comment form.
-		remove_all_actions( 'comment_form_before' );
+		// Set the default color scheme based on theme settings.
+		add_action( 'after_setup_theme', array( $this, 'set_default_color_theme_based_on_theme_settings' ), 100 );
 
 		// Selfishly add only our actions back to the comment form.
 		add_action( 'comment_form_before', array( $this, 'comment_form_before' ) );
@@ -151,6 +96,26 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		add_filter( 'comment_post_redirect', array( $this, 'capture_comment_post_redirect_to_reload_parent_frame' ), 100 );
 		add_filter( 'get_avatar', array( $this, 'get_avatar' ), 10, 4 );
+	}
+
+	/**
+	 * Set the default comments color theme based on theme settings
+	 */
+	public function set_default_color_theme_based_on_theme_settings() {
+		if ( function_exists( 'twentyeleven_get_theme_options' ) ) {
+			$theme_options      = twentyeleven_get_theme_options();
+			$theme_color_scheme = isset( $theme_options['color_scheme'] ) ? $theme_options['color_scheme'] : 'transparent';
+		} else {
+			$theme_color_scheme = get_theme_mod( 'color_scheme', 'transparent' );
+		}
+		// Default for $theme_color_scheme is 'transparent' just so it doesn't match 'light' or 'dark'.
+		// The default for Jetpack's color scheme is still defined above as 'light'.
+
+		if ( false !== stripos( $theme_color_scheme, 'light' ) ) {
+			$this->default_color_scheme = 'light';
+		} elseif ( false !== stripos( $theme_color_scheme, 'dark' ) ) {
+			$this->default_color_scheme = 'dark';
+		}
 	}
 
 	/**
@@ -202,7 +167,51 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		return $blog_token;
 	}
 
-	/** Output Methods ********************************************************/
+	/**
+	 * Add some additional comment meta after comment is saved about what
+	 * service the comment is from, the avatar, user_id, etc...
+	 *
+	 * @param int $comment_id The comment ID.
+	 */
+	public function add_comment_meta( $comment_id ) {
+		$comment_meta = array();
+
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		switch ( $this->is_verbum_comment_post() ) {
+			case 'facebook':
+				$comment_meta['hc_post_as']         = 'facebook';
+				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
+				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
+				break;
+
+			// phpcs:ignore WordPress.WP.CapitalPDangit
+			case 'wordpress':
+				// phpcs:ignore WordPress.WP.CapitalPDangit
+				$comment_meta['hc_post_as']         = 'wordpress';
+				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
+				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
+				$comment_meta['hc_wpcom_id_sig']    = isset( $_POST['hc_wpcom_id_sig'] ) ? filter_var( wp_unslash( $_POST['hc_wpcom_id_sig'] ) ) : null; // since 1.9.
+				break;
+
+			case 'jetpack':
+				$comment_meta['hc_post_as']         = 'jetpack';
+				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
+				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
+				break;
+
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+		// Bail if no extra comment meta.
+		if ( empty( $comment_meta ) ) {
+			return;
+		}
+
+		// Loop through extra meta and add values.
+		foreach ( $comment_meta as $key => $value ) {
+			add_comment_meta( $comment_id, $key, $value, true );
+		}
+	}
 
 	/**
 	 * Start capturing the core comment_form() output
@@ -358,7 +367,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			}
 		}
 
-		$signature = self::sign_remote_comment_parameters( $params, $blog_token->secret );
+		$signature = $this->sign_remote_comment_parameters( $params, $blog_token->secret );
 		if ( is_wp_error( $signature ) ) {
 			$signature = 'error';
 		}
@@ -599,7 +608,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		}
 
 		if ( empty( $post_array['jetpack_comments_nonce'] ) || ! wp_verify_nonce( $post_array['jetpack_comments_nonce'], "jetpack_comments_nonce-{$post_array['comment_post_ID']}" ) ) {
-				wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
+			wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
 		}
 
 		if ( false !== strpos( $post_array['hc_avatar'], '.gravatar.com' ) ) {
@@ -610,7 +619,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		if ( ! $blog_token || is_wp_error( $blog_token ) ) {
 			wp_die( esc_html__( 'Unknown security token.', 'jetpack' ), 400 );
 		}
-		$check = self::sign_remote_comment_parameters( $post_array, $blog_token->secret );
+
+		$check = $this->sign_remote_comment_parameters( $post_array, $blog_token->secret );
 		if ( is_wp_error( $check ) ) {
 			wp_die( esc_html( $check ) );
 		}
@@ -630,54 +640,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/** Capabilities **********************************************************/
-
-	/**
-	 * Add some additional comment meta after comment is saved about what
-	 * service the comment is from, the avatar, user_id, etc...
-	 *
-	 * @since 1.4
-	 *
-	 * @param int $comment_id The comment ID.
-	 */
-	public function add_comment_meta( $comment_id ) {
-		$comment_meta = array();
-
-		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		switch ( $this->is_highlander_comment_post() ) {
-			case 'facebook':
-				$comment_meta['hc_post_as']         = 'facebook';
-				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
-				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
-				break;
-
-			// phpcs:ignore WordPress.WP.CapitalPDangit
-			case 'wordpress':
-				// phpcs:ignore WordPress.WP.CapitalPDangit
-				$comment_meta['hc_post_as']         = 'wordpress';
-				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
-				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
-				$comment_meta['hc_wpcom_id_sig']    = isset( $_POST['hc_wpcom_id_sig'] ) ? filter_var( wp_unslash( $_POST['hc_wpcom_id_sig'] ) ) : null; // since 1.9.
-				break;
-
-			case 'jetpack':
-				$comment_meta['hc_post_as']         = 'jetpack';
-				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
-				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
-				break;
-
-		}
-		// phpcs:enable WordPress.Security.NonceVerification.Missing
-
-		// Bail if no extra comment meta.
-		if ( empty( $comment_meta ) ) {
-			return;
-		}
-
-		// Loop through extra meta and add values.
-		foreach ( $comment_meta as $key => $value ) {
-			add_comment_meta( $comment_id, $key, $value, true );
-		}
-	}
 
 	/**
 	 * POST the submitted comment to the iframe
@@ -786,6 +748,49 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		</html>
 		<?php
 		exit;
+	}
+
+	/**
+	 * Signs an array of scalars with the self-hosted blog's Jetpack Token
+	 *
+	 * If parameter values are not scalars a WP_Error is  returned, otherwise a keyed hash value is returned using the HMAC method.
+	 *
+	 * @param array  $parameters Comment parameters.
+	 * @param string $key Key used for generating the HMAC variant of the message digest.
+	 * @return string HMAC
+	 */
+	public function sign_remote_comment_parameters( $parameters, $key ) {
+		unset(
+			$parameters['sig'],       // Don't sign the signature.
+			$parameters['replytocom'] // This parameter is unsigned - it changes dynamically as the comment form moves from parent comment to parent comment.
+		);
+
+		ksort( $parameters );
+
+		$signing = array();
+		foreach ( $parameters as $k => $v ) {
+			if ( ! is_scalar( $v ) ) {
+				return new WP_Error( 'invalid_input', __( 'Invalid request', 'jetpack' ), array( 'status' => 400 ) );
+			}
+
+			$signing[] = "{$k}={$v}";
+		}
+
+		return hash_hmac( 'sha1', implode( ':', $signing ), $key );
+	}
+
+	/**
+	 * Get an avatar from Photon
+	 *
+	 * @since 1.4
+	 * @param string $url The avatar URL.
+	 * @param int    $size The avatar size.
+	 * @return string
+	 */
+	protected function photon_avatar( $url, $size ) {
+		$size = (int) $size;
+
+		return Image_CDN_Core::cdn_url( $url, array( 'resize' => "$size,$size" ) );
 	}
 }
 
