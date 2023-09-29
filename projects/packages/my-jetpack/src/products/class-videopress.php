@@ -156,4 +156,24 @@ class Videopress extends Hybrid_Product {
 			return admin_url( 'admin.php?page=jetpack#/settings?term=videopress' );
 		}
 	}
+
+	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				if ( 0 === strpos( $purchase->product_slug, static::get_wpcom_product_slug() ) ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }
