@@ -365,7 +365,9 @@ class Initializer {
 					// See: https://github.com/Automattic/jetpack/issues/33284
 					try {
 						$post_content = get_the_content();
-					} catch ( \Throwable $e ) {
+					} catch ( \TypeError $e ) {
+						return;
+					} catch ( \Exception $e ) {
 						return;
 					}
 
