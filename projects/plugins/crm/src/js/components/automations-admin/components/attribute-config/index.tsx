@@ -61,6 +61,7 @@ const getEditValue = (
 		case 'date':
 		case 'datetime':
 		case 'number':
+			return <TextControl type="number" value={ value } onChange={ onChange } />;
 		case 'password':
 		default:
 			return `${ definition.type } is not implemented`;
