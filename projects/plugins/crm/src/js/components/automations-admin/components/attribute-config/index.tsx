@@ -1,4 +1,4 @@
-import { SelectControl, TextControl } from '@wordpress/components';
+import { SelectControl, TextareaControl, TextControl } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import { store } from 'crm/state/store';
 import { useCallback } from 'react';
@@ -58,6 +58,7 @@ const getEditValue = (
 			return <TextControl value={ value.toString() } onChange={ onChange } />;
 		case 'checkbox':
 		case 'textarea':
+			return <TextareaControl value={ value } onChange={ onChange } />;
 		case 'date':
 		case 'datetime':
 		case 'number':
