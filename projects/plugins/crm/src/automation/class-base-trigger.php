@@ -126,4 +126,23 @@ abstract class Base_Trigger implements Trigger {
 	 * @return void
 	 */
 	abstract protected function listen_to_event(): void;
+
+	/**
+	 * Get the trigger as an array.
+	 *
+	 * The main use-case to get the trigger as an array is to prepare
+	 * the items for an API response.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array The trigger as an array.
+	 */
+	public static function to_array(): array {
+		return array(
+			'slug'        => static::get_slug(),
+			'title'       => static::get_title(),
+			'description' => static::get_description(),
+			'category'    => static::get_category(),
+		);
+	}
 }
