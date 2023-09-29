@@ -82,7 +82,7 @@ class Add_Contact_Log extends Base_Action {
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
 	 */
-	public function execute( Data_Type $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	protected function execute( Data_Type $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $zbs;
 
 		/** @var Contact $contact */

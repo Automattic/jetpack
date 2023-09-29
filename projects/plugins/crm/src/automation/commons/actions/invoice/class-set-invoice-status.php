@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
 use Automattic\Jetpack\CRM\Automation\Base_Action;
-use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Invoice_Data;
 use Automattic\Jetpack\CRM\Entities\Invoice;
@@ -80,14 +79,10 @@ class Set_Invoice_Status extends Base_Action {
 	 * Update the DAL with the invoice status.
 	 *
 	 * @since $$next-version$$
-	 * @param Data_Type $data Data passed from the trigger.
 	 *
-	 * @throws Data_Type_Exception Exception when the data type is not supported.
+	 * @param Data_Type $data Data passed from the trigger.
 	 */
-	public function execute( Data_Type $data ) {
-
-		$this->validate( $data );
-
+	protected function execute( Data_Type $data ) {
 		/** @var Invoice $invoice */
 		$invoice = $data->get_data();
 

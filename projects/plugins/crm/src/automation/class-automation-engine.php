@@ -347,7 +347,8 @@ class Automation_Engine {
 				$this->get_logger()->log( '[' . $step->get_slug() . '] Executing step. Type: ' . $step::get_data_type() );
 
 				$data_type = $this->maybe_transform_data_type( $trigger_data_type, $step::get_data_type() );
-				$step->execute( $data_type );
+
+				$step->validate_and_execute( $data_type );
 
 				//todo: return Step instance instead of array
 				$step_id   = $step->get_next_step_id();

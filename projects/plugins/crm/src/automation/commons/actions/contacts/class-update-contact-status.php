@@ -116,7 +116,7 @@ class Update_Contact_Status extends Base_Action {
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
 	 */
-	public function execute( Data_Type $data ) {
+	protected function execute( Data_Type $data ) {
 		global $zbs;
 
 		/** @var Contact $contact */
