@@ -33,6 +33,19 @@ add_action(
 			$post_types = get_post_types( array( 'public' => true ) );
 
 			foreach ( $post_types as $post_type ) {
+				register_rest_field(
+					$post_type,
+					'jetpack_sharing_enabled',
+					array(
+						'get_callback' => function ( array $post ) {
+							return (bool) ! get_post_meta( $post['id'], 'sharing_disabled', true );
+						},
+						'schema'       => array(
+							'description' => __( 'Are sharing buttons enabled?', 'jetpack' ),
+							'type'        => 'boolean',
+						),
+					)
+				);
 				add_post_type_support( $post_type, 'jetpack-sharing-buttons' );
 			}
 		}
