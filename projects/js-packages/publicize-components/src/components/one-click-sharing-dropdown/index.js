@@ -22,12 +22,10 @@ const OneClickSharingDropdown = ( { className: containerClass, onClickLearnMore 
 						<ShareButtons buttonStyle="icon-text" />
 						<hr className={ styles.divider } />
 						<Text className={ styles.description } variant="body-small">
-							{ __( 'Share with a Single Click!', 'jetpack' ) +
-								'✨ ' +
-								__(
-									"Just tap the Social icons or the 'Copy to Clipboard' icon, and we'll format your content for sharing.",
-									'jetpack'
-								) }
+							{ __(
+								"Share with a Single Click!✨ Just tap the Social icons or the 'Copy to Clipboard' icon, and we'll format your content for sharing.",
+								'jetpack'
+							) }
 							&nbsp;
 							<Button
 								variant="link"
