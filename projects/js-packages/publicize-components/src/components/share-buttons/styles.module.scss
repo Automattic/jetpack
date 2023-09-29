@@ -43,6 +43,11 @@ $whatsapp: #2ab318;
 			width: calc(var(--spacing-base) * 3);
 			height: calc(var(--spacing-base) * 3);
 		}
+		&:focus {
+			border: 0;
+			outline: none;
+			box-shadow: none;
+		}
 	}
 
 	.twitter {

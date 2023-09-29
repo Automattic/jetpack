@@ -1,21 +1,15 @@
-import { Text, ThemeProvider } from '@automattic/jetpack-components';
+import { ShareIcon, Text, ThemeProvider } from '@automattic/jetpack-components';
 import { Button, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon } from '@wordpress/icons';
 import { useCallback } from 'react';
 import { ShareButtons } from '../share-buttons/share-buttons';
-import shareArrowIcon from './share-arrow-icon';
 import styles from './styles.module.scss';
 
 const renderToggle = ( { isOpen, onToggle } ) => {
 	return (
-		<Icon
-			className={ styles.icon }
-			size={ 16 }
-			icon={ shareArrowIcon }
-			onClick={ onToggle }
-			aria-expanded={ isOpen }
-		/>
+		<Button className={ styles[ 'icon-button' ] } onClick={ onToggle } aria-expanded={ isOpen }>
+			<ShareIcon className={ styles.icon } />
+		</Button>
 	);
 };
 
@@ -44,7 +38,7 @@ const OneClickSharingDropdown = ( { className: containerClass, onClickLearnMore 
 									onToggle( false );
 								} }
 							>
-								{ __( 'Learn more..', 'jetpack' ) }
+								{ __( 'Learn more…', 'jetpack' ) }
 							</Button>
 						</Text>
 					</ThemeProvider>
