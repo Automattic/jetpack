@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Blocks: change the way Social Previews are registered, from a block to a plugin.

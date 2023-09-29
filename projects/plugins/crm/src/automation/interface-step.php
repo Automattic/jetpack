@@ -8,23 +8,12 @@
 
 namespace Automattic\Jetpack\CRM\Automation;
 
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
-
 /**
  * Interface Step.
  *
  * @since $$next-version$$
  */
 interface Step {
-
-	/**
-	 * Execute the step.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param Data_Type $data Data passed from the trigger.
-	 */
-	public function execute( Data_Type $data );
 
 	/**
 	 * Get the next step.

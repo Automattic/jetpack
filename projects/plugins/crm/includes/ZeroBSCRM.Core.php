@@ -211,7 +211,7 @@ final class ZeroBSCRM {
 	public $hide_admin_pages = array(
 
 		// hidden due to #gh-1442
-		'manage-events',
+		'manage-tasks',
 		'zerobscrm-csvimporterlite-app',
 
 	);
@@ -1019,9 +1019,9 @@ final class ZeroBSCRM {
 		$this->slugs['manageformscrm']          = 'manage-forms';
 		$this->slugs['segments']                = 'manage-segments';
 		$this->slugs['quote-templates']         = 'manage-quote-templates';
-		$this->slugs['manage-events']           = 'manage-events';
-		$this->slugs['manage-events-completed'] = 'manage-events-completed';
-		$this->slugs['manage-events-list']      = 'manage-events-list';
+		$this->slugs['manage-tasks']           = 'manage-tasks';
+		$this->slugs['manage-tasks-completed'] = 'manage-tasks-completed';
+		$this->slugs['manage-tasks-list']      = 'manage-tasks-list';
 		$this->slugs['managecontactsprev']      = 'manage-customers-crm';
 		$this->slugs['managequotesprev']        = 'manage-quotes-crm';
 		$this->slugs['managetransactionsprev']  = 'manage-transactions-crm';
@@ -1060,8 +1060,7 @@ final class ZeroBSCRM {
 		// tag manager
 		$this->slugs['tagmanager'] = 'tag-manager';
 
-		// } Deletion and no access
-		$this->slugs['zbs-deletion'] = 'zbs-deletion';
+		// no access
 		$this->slugs['zbs-noaccess'] = 'zbs-noaccess';
 
 		// } File Editor
@@ -1191,7 +1190,7 @@ final class ZeroBSCRM {
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.QuoteTemplates.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Invoices.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Ownership.php';
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Events.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Tasks.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Transactions.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Forms.php';
 
@@ -1265,7 +1264,7 @@ final class ZeroBSCRM {
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.Page.Controller.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Edit.Segment.php';
 
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.Events.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.Tasks.php';
 
 		// } Semantic UI Helper + columns list
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.SemanticUIHelpers.php';
