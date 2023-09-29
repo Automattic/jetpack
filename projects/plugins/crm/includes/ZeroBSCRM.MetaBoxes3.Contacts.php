@@ -1044,20 +1044,9 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
                                             ///update_post_meta($contact_id, 'zbs_customer_files', $zbsCustomerFiles);  
                                             zeroBSCRM_updateCustomerFiles($contact_id,$zbsCustomerFiles);                                            
 
-                                            // AND associate with this 'slot'
-                                            if ($zbs->isDAL2()){
-                                                
-                                                // DAL2
                                                 // actually got wrappers now :) $zbs->updateMeta(ZBS_TYPE_CONTACT,$contact_id,'cfile_'.$cfSubKey,$upload['file']);
                                                 // this'll override any prev in that slot, too
                                                 zeroBSCRM_fileslots_addToSlot($cfSubKey,$upload['file'],$contact_id,ZBS_TYPE_CONTACT,true);        
-
-                                            } else {
-
-                                                // DAL1
-                                                update_post_meta($contact_id,'cfile_'.$cfSubKey,$upload['file']);
-
-                                            }
 
                                             // Fire any 'post-upload-processing' (e.g. CPP makes thumbnails of pdf, jpg, etc.)
                                             do_action('zbs_post_upload_contact',$upload);
