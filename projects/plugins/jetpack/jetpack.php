@@ -169,7 +169,7 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 				printf(
 					wp_kses(
 						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack must have Composer dependencies installed and built via the build command.', 'jetpack' ),
+						__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack must have Composer dependencies installed and built via the build command: <code>jetpack build plugins/jetpack --with-deps</code>', 'jetpack' ),
 						array(
 							'a' => array(
 								'href'   => array(),
