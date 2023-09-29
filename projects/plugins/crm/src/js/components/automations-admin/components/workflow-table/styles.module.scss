@@ -1,16 +1,16 @@
 @import '@automattic/jetpack-base-styles/style';
 
 .table {
-	padding: 20px;
-	background: white;
+	margin: 24px 2px 0;
+	background: var(--jp-white);
 	width: 100%;
 
 	tr th:first-child {
-		padding: 5px 0 5px 10px;
+		padding: 5px 0;
 	}
 
 	tr td:first-child {
-		padding: 5px 0 5px 10px;
+		padding: 5px 0 5px;
 	}
 }
 
