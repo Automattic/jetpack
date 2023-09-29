@@ -66,7 +66,7 @@ abstract class Base_Trigger implements Trigger {
 	 *
 	 * @return array The trigger as an array.
 	 */
-	public function to_array(): array {
+	public static function to_array(): array {
 		return array(
 			'slug'        => static::get_slug(),
 			'title'       => static::get_title(),

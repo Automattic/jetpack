@@ -98,5 +98,5 @@ interface Trigger {
 	 *
 	 * @return array The trigger as an array.
 	 */
-	public function to_array(): array;
+	public static function to_array(): array;
 }
