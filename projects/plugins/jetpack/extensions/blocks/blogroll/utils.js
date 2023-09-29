@@ -1,12 +1,12 @@
 import { createBlock } from '@wordpress/blocks';
-import PlaceholderSiteIcon from './components/blogroll-appender-results/placeholder-site-icon.svg';
+import PlaceholderSiteIcon from './placeholder-site-icon.svg';
 
 export function createBlockFromRecommendation( attrs ) {
 	const { icon } = attrs;
 
 	return createBlock( 'jetpack/blogroll-item', {
 		...attrs,
-		icon: icon || 'https://s0.wp.com/i/webclip.png',
+		icon: icon || PlaceholderSiteIcon,
 	} );
 }
 
