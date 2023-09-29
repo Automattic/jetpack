@@ -41,6 +41,14 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 		$engine = Automation_Engine::instance();
 		$engine->register_step( Contact_Condition::class );
 		$engine->register_step( Dummy_Step::class );
+
+		// Make sure the default test trigger is registered.
+		// @todo Figure out why we have to check if it already exists.
+		// Initial exploration doesn't seem to leak any information to the next test
+		// (which is indirectly confirmed by the steps above not complaining).
+		if ( ! isset( $engine->get_registered_triggers()[ Contact_Created_Trigger::get_slug() ] ) ) {
+			$engine->register_trigger( Contact_Created_Trigger::class );
+		}
 	}
 
 	/**
