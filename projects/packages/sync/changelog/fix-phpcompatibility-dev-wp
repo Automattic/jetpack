@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove compatibility code for PHP <5.5.

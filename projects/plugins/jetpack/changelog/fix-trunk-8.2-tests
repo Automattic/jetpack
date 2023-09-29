@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Jetpack Sync: fix unit tests to be compatible with the new WordPress Core revision saving mechanism.
