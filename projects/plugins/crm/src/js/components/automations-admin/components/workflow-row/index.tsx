@@ -39,6 +39,9 @@ export const WorkflowRow: React.FC< WorkflowRowProps > = props => {
 		navigate( `/automations/${ workflow.id }`, { replace: true } );
 	}, [] );
 
+	const date = new Date( workflow.created_at * 1000 );
+	const added = date.toLocaleDateString();
+
 	return (
 		<>
 			<tr className={ styles.row }>
@@ -57,7 +60,7 @@ export const WorkflowRow: React.FC< WorkflowRowProps > = props => {
 						label={ __( 'Active', 'zero-bs-crm' ) }
 					/>
 				</td>
-				<td className={ styles[ 'added-date' ] }>{ workflow.added }</td>
+				<td className={ styles[ 'added-date' ] }>{ added }</td>
 				<td className={ styles[ 'trigger-description' ] }>
 					{ workflow.triggers[ 0 ].description }
 				</td>

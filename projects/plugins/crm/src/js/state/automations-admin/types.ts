@@ -27,7 +27,8 @@ export type Workflow = {
 	initial_step: string;
 	active: boolean;
 	version: number;
-	added: string;
+	created_at: number;
+	updated_at: number;
 	steps: {
 		[ stepId: string ]: Step;
 	};
