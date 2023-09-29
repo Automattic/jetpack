@@ -1,0 +1,17 @@
+.container {
+	:global( .components-base-control__field ) {
+		margin-bottom: 0;
+	}
+
+	select {
+		font-size: 16px !important;
+	}
+
+	input {
+		font-size: 16px !important;
+	}
+}
+
+.title {
+	margin-bottom: 8px;
+}

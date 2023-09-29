@@ -15,6 +15,7 @@ import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-c
 import { Icon, Notice, Path, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
+import classnames from 'classnames';
 import React, { useEffect, useState } from 'react';
 /*
  * Internal dependencies
@@ -24,10 +25,13 @@ import useChatAuthentication from '../../hooks/use-chat-authentication';
 import useChatAvailability from '../../hooks/use-chat-availability';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
+import { useProduct } from '../../hooks/use-product';
 import ConnectionsSection from '../connections-section';
 import IDCModal from '../idc-modal';
 import PlansSection from '../plans-section';
+import { PRODUCT_STATUSES } from '../product-card';
 import ProductCardsSection from '../product-cards-section';
+import StatsSection from '../stats-section';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, options, clean } ) => {
@@ -83,9 +87,11 @@ const GlobalNotice = ( { message, options, clean } ) => {
  */
 export default function MyJetpackScreen() {
 	useConnectionWatcher();
+	const isStatsModuleActive = window?.myJetpackInitialState?.isStatsModuleActive === '1';
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { isAvailable, isFetchingChatAvailability } = useChatAvailability();
+	const { detail: statsDetails } = useProduct( 'stats' );
 	const { jwt, isFetchingChatAuthentication } = useChatAuthentication();
 	const shouldShowZendeskChatWidget =
 		! isFetchingChatAuthentication && ! isFetchingChatAvailability && isAvailable && jwt;
@@ -132,6 +138,15 @@ export default function MyJetpackScreen() {
 					{ message && (
 						<Col>
 							<GlobalNotice message={ message } options={ options } clean={ clean } />
+						</Col>
+					) }
+					{ isStatsModuleActive && (
+						<Col
+							className={ classnames( {
+								[ styles.stats ]: statsDetails?.status !== PRODUCT_STATUSES.ERROR,
+							} ) }
+						>
+							<StatsSection />
 						</Col>
 					) }
 					<Col>
