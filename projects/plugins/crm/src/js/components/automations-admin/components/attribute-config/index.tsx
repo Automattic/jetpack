@@ -81,8 +81,12 @@ const getEditValue = (
 				<div className={ styles.datepicker }>
 					<DatePicker
 						currentDate={ value ? new Date( value as string | number ) : new Date() }
-						onChange={ ( selectedDate: Date ) => {
-							onChange( selectedDate.getTime() );
+						onChange={ ( selectedDate: string ) => {
+							// selectedDate is a string in the format `YYYY-MM-DDTHH:MM:SS` but CRM
+							// is using timestamps, so we pass it to a Date object before converting
+							// it back to a timestamp for Redux.
+							const newDate = new Date( selectedDate );
+							onChange( newDate.getTime() );
 						} }
 					/>
 				</div>
