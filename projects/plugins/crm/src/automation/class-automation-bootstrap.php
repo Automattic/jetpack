@@ -179,6 +179,7 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Actions\New_Contact::class,
 			\Automattic\Jetpack\CRM\Automation\Actions\Update_Contact::class,
 			\Automattic\Jetpack\CRM\Automation\Actions\Update_Contact_Status::class,
+			\Automattic\Jetpack\CRM\Automation\Actions\Send_Generic_Email::class,
 		);
 
 		/**
