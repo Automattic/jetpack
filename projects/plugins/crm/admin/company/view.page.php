@@ -849,7 +849,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								<tbody>
 									<?php
 									// prep link to create a new task
-									$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_EVENT ) . '&zbsprefillco=' . $company['id'];
+									$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_TASK ) . '&zbsprefillco=' . $company['id'];
 
 									if ( isset( $company['tasks'] ) && is_array( $company['tasks'] ) && count( $company['tasks'] ) > 0 ) {
 
@@ -881,7 +881,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 											}
 
-											$taskURL   = jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_EVENT );
+											$taskURL   = jpcrm_esc_link( 'edit', $task['id'], ZBS_TYPE_TASK );
 											$statusStr = __( 'Incomplete', 'zero-bs-crm' );
 											if ( isset( $task['complete'] ) && $task['complete'] === 1 ) {
 												$statusStr = __( 'Completed', 'zero-bs-crm' );

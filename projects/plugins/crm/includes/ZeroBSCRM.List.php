@@ -567,7 +567,7 @@ class zeroBSCRM_list{
             var zbsObjectViewLinkPrefixTransaction = '<?php echo jpcrm_esc_link( 'edit',-1,'zerobs_transaction',true ); ?>';
             var zbsObjectViewLinkPrefixForm = '<?php echo jpcrm_esc_link( 'edit',-1,ZBS_TYPE_FORM,true ); ?>';
             var zbsObjectViewLinkPrefixSegment = '<?php echo jpcrm_esc_link( 'edit',-1,ZBS_TYPE_SEGMENT,true ); ?>';
-            var zbsObjectViewLinkPrefixEvent = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_EVENT, true  ); ?>';
+            var zbsObjectViewLinkPrefixTask = '<?php echo jpcrm_esc_link( 'edit', -1, ZBS_TYPE_TASK, true  ); ?>';
 
             var zbsObjectEditLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'edit',-1,'zerobs_customer',true ); ?>';
             var zbsObjectEditLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'edit',-1,'zerobs_company',true ); ?>';

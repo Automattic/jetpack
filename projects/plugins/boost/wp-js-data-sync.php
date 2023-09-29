@@ -214,3 +214,11 @@ jetpack_boost_register_option( 'performance_history_toggle', Schema::as_boolean(
  * Register Super Cache Notice Disabled store.
  */
 jetpack_boost_register_option( 'super_cache_notice_disabled', Schema::as_boolean()->fallback( false ) );
+
+/**
+ * Register Score Prompt store.
+ */
+jetpack_boost_register_option(
+	'dismissed_score_prompt',
+	Schema::as_array( Schema::as_string() )->fallback( array() )
+);

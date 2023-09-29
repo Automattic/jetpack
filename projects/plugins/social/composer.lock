@@ -183,7 +183,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "0770a6f80877d30c1d1767d4395af6e17f8768be"
+                "reference": "034c5ee91cce3ce330103056adb2157aa9bb3f24"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -200,8 +200,11 @@
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-autoloader/compare/v${old}...v${new}"
                 },
+                "version-constants": {
+                    "::VERSION": "src/AutoloadGenerator.php"
+                },
                 "branch-alias": {
-                    "dev-trunk": "2.11.x-dev"
+                    "dev-trunk": "2.12.x-dev"
                 }
             },
             "autoload": {
@@ -634,7 +637,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "3b5f4e2030b1dd42dfc17a85a457da86a124b208"
+                "reference": "21f21f87f005302ac53ec2e2672e089b93b25a94"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -666,7 +669,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.3.x-dev"
+                    "dev-trunk": "2.4.x-dev"
                 }
             },
             "autoload": {
@@ -811,7 +814,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "0215fe042f7bc5ee5df1f131b612dbbc3c48a690"
+                "reference": "f03839036e98449c2c740dca99d1f84ffe2b20af"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -841,7 +844,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.6.x-dev"
+                    "dev-trunk": "3.8.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
