@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
+use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Base_Action;
 use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
@@ -73,6 +74,32 @@ class Delete_Contact extends Base_Action {
 	 */
 	public static function get_category(): ?string {
 		return __( 'Contact', 'zero-bs-crm' );
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $step_data The step data.
+	 */
+	public function __construct( array $step_data ) {
+		parent::__construct( $step_data );
+
+		$this->set_attribute_definitions(
+			array(
+				new Attribute_Definition(
+					'keep_orphans',
+					__( 'Keep orphans', 'zero-bs-crm' ),
+					__( 'Determines if related objects should be deleted or not.', 'zero-bs-crm' ),
+					Attribute_Definition::SELECT,
+					array(
+						1 => __( 'Yes', 'zero-bs-crm' ),
+						0 => __( 'No', 'zero-bs-crm' ),
+					)
+				),
+			)
+		);
 	}
 
 	/**

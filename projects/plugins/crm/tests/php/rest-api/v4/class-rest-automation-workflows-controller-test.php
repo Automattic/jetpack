@@ -2,8 +2,11 @@
 
 namespace Automattic\Jetpack\CRM\Tests;
 
+use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Tests\Automation_Faker;
+use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
+use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
 use Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -16,6 +19,75 @@ require_once JETPACK_CRM_TESTS_ROOT . '/automation/tools/class-automation-faker.
  * @covers \Automattic\Jetpack\CRM\REST_API\V4\REST_Automation_Workflows_Controller
  */
 class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
+
+	/**
+	 * @var Automation_Faker Automation Faker instance.
+	 */
+	private $automation_faker;
+
+	/**
+	 * Set up the test.
+	 *
+	 * @return void
+	 */
+	public function set_up(): void {
+		parent::set_up();
+		$this->automation_faker = Automation_Faker::instance();
+
+		// Register mock steps, so we can test the API without duplicating declaration every
+		// time we use Automation_Faker data.
+		$engine = Automation_Engine::instance();
+		$engine->register_step( Contact_Condition::class );
+		$engine->register_step( Dummy_Step::class );
+	}
+
+	/**
+	 * DataProvider: Roles.
+	 */
+	public function dataprovider_user_roles(): array {
+		return array(
+			'subscriber'    => array( 'subscriber', false ),
+			'administrator' => array( 'administrator', true ),
+			'zerobs_admin'  => array( 'zerobs_admin', true ),
+		);
+	}
+
+	/**
+	 * Auth: Test that specific roles has access to the API.
+	 *
+	 * We use the simple "get all workflows" endpoint to test this since
+	 * all endpoints currently share the same auth logic.
+	 *
+	 * @see REST_Automation_Workflows_Controller::get_items_permissions_check()
+	 *
+	 * @dataProvider dataprovider_user_roles
+	 */
+	public function test_role_access( $role, $expectation ) {
+		// Create and set authenticated user.
+		$jpcrm_admin_id = $this->create_wp_jpcrm_admin( array( 'role' => $role ) );
+		wp_set_current_user( $jpcrm_admin_id );
+
+		// Make request.
+		$request  = new WP_REST_Request(
+			WP_REST_Server::READABLE,
+			'/jetpack-crm/v4/automation/workflows'
+		);
+		$response = rest_do_request( $request );
+
+		if ( $expectation ) {
+			$this->assertSame(
+				200,
+				$response->get_status(),
+				sprintf( 'Role should be allowed: %s', $role )
+			);
+		} else {
+			$this->assertSame(
+				403,
+				$response->get_status(),
+				sprintf( 'Role should not be allowed: %s', $role )
+			);
+		}
+	}
 
 	/**
 	 * GET Workflows: Test that we can successfully access the endpoint.
@@ -46,7 +118,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 		$response = rest_do_request( $request );
 		$this->assertSame( 200, $response->get_status() );
 
-		$response_data = $response->get_data();
+		$response_data = $this->prune_multiple_workflows( $response->get_data() );
 		$this->assertIsArray( $response_data );
 		$this->assertEquals(
 			$response_data,
@@ -187,9 +259,9 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 		$response = rest_do_request( $request );
 		$this->assertSame( 200, $response->get_status() );
 
-		$response_data = $response->get_data();
+		$response_data = $this->prune_workflow_response( $response->get_data() );
 		$this->assertIsArray( $response_data );
-		// We assert equals here since the response logic will cast integers to strings.
+
 		$this->assertEquals( $response_data, $workflow->to_array() );
 		// We hardcode the name in the workflow creation, so we can verify that we're
 		// actually retrieving the correct workflow and not just a false-positive response.
@@ -239,11 +311,16 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 			'initial_step' => 'updated_step_2',
 			'steps'        => array(
 				'updated_step_1' => array(
-					'slug'           => 'my_updated_step_1',
-					'next_step_true' => 'updated_step_2',
+					'slug'            => Contact_Condition::get_slug(),
+					'next_step_true'  => 'updated_step_2',
+					'next_step_false' => null,
+					'attributes'      => array(),
 				),
 				'updated_step_2' => array(
-					'slug' => 'my_updated_step_2',
+					'slug'            => Contact_Condition::get_slug(),
+					'next_step_true'  => null,
+					'next_step_false' => null,
+					'attributes'      => array(),
 				),
 			),
 		);
@@ -260,7 +337,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 		$this->assertSame( 200, $response->get_status() );
 
 		// Verify that all the values we passed are returned as the updated workflow.
-		$response_data = $response->get_data();
+		$response_data = $this->prune_workflow_response( $response->get_data() );
 		$this->assertIsArray( $response_data );
 		foreach ( $update_data as $param => $value ) {
 			$this->assertSame(
@@ -284,6 +361,109 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	}
 
 	/**
+	 * Prune workflow API response data for comparisons purposes.
+	 *
+	 * @see prune_workflow_response
+	 *
+	 * @param array[] $workflows The returned workflows we wish to prune for direct comparison.
+	 * @return array The pruned workflows.
+	 */
+	protected function prune_multiple_workflows( $workflows ) {
+		foreach ( $workflows as $index => $workflow ) {
+			$workflows[ $index ] = $this->prune_workflow_response( $workflow );
+		}
+
+		return $workflows;
+	}
+
+	/**
+	 * Prune workflow API response data for comparisons.
+	 *
+	 * The API endpoint will add additional data to workflow objects that we do not
+	 * necessarily care about (e.g.: "attribute_definitions"), so this method will
+	 * prune those data to make it easier to compare the original workflow and
+	 * the response.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $workflow_data The returned workflow data.
+	 * @return array The pruned workflow data.
+	 */
+	protected function prune_workflow_response( array $workflow_data ): array {
+		$static_step_fields = array(
+			'title',
+			'description',
+			'category',
+			'step_type',
+			'attribute_definitions',
+		);
+
+		if ( ! empty( $workflow_data['steps'] ) && is_array( $workflow_data['steps'] ) ) {
+			foreach ( $workflow_data['steps'] as $index => $step ) {
+				foreach ( $static_step_fields as $field ) {
+					if ( isset( $step[ $field ] ) ) {
+						unset( $step[ $field ] );
+					}
+				}
+
+				$workflow_data['steps'][ $index ] = $step;
+			}
+		}
+
+		return $workflow_data;
+	}
+
+	/**
+	 * DELETE Workflow: Test that we can successfully delete a workflow.
+	 *
+	 * @return void
+	 */
+	public function test_delete_workflow_success() {
+		// Create and set authenticated user.
+		$jpcrm_admin_id = $this->create_wp_jpcrm_admin();
+		wp_set_current_user( $jpcrm_admin_id );
+
+		$workflow = $this->create_workflow(
+			array(
+				'name' => 'test_get_workflow_success',
+			)
+		);
+
+		// Make request.
+		$request = new WP_REST_Request(
+			WP_REST_Server::DELETABLE,
+			sprintf( '/jetpack-crm/v4/automation/workflows/%d', $workflow->get_id() )
+		);
+
+		$response = rest_do_request( $request );
+		$this->assertSame( 204, $response->get_status() );
+
+		// Verify that the workflow was deleted.
+		$repo = new Workflow_Repository();
+		$this->assertFalse( $repo->find( $workflow->get_id() ) );
+	}
+
+	/**
+	 * DELETE Workflow: Test that we return a 404 if the workflow does not exist.
+	 *
+	 * @return void
+	 */
+	public function test_delete_workflow_return_404_if_id_do_not_exist() {
+		// Create and set authenticated user.
+		$jpcrm_admin_id = $this->create_wp_jpcrm_admin();
+		wp_set_current_user( $jpcrm_admin_id );
+
+		// Make request.
+		$request = new WP_REST_Request(
+			WP_REST_Server::DELETABLE,
+			'/jetpack-crm/v4/automation/workflows/%d'
+		);
+
+		$response = rest_do_request( $request );
+		$this->assertSame( 404, $response->get_status() );
+	}
+
+	/**
 	 * POST (Single) Workflow: Test that we can successfully create a workflow.
 	 *
 	 * @return void
@@ -304,7 +484,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 		$this->assertSame( 200, $response->get_status() );
 
 		// Verify that all our parameters are returned in the created workflow.
-		$response_data = $response->get_data();
+		$response_data = $this->prune_workflow_response( $response->get_data() );
 		$this->assertIsArray( $response_data );
 		foreach ( $workflow_data as $param => $value ) {
 			$this->assertSame(
@@ -338,7 +518,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	protected function create_workflow( array $data = array() ) {
 		$workflow_data = wp_parse_args(
 			$data,
-			Automation_Faker::instance()->workflow_with_condition_action()
+			$this->automation_faker->workflow_with_condition_action()
 		);
 
 		$workflow = new Automation_Workflow( $workflow_data );

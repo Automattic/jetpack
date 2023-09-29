@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\CRM\REST_API\V4;
 
+use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository;
 use Automattic\Jetpack\CRM\Automation\Workflow_Exception;
@@ -27,6 +28,14 @@ defined( 'ABSPATH' ) || exit;
 final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 
 	/**
+	 * The automation engine.
+	 *
+	 * @since $$next-version$$
+	 * @var Automation_Engine
+	 */
+	protected $automation_engine;
+
+	/**
 	 * The workflow repository.
 	 *
 	 * @since $$next-version$$
@@ -42,6 +51,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	public function __construct() {
 		parent::__construct();
 
+		$this->automation_engine   = Automation_Engine::instance();
 		$this->workflow_repository = new Workflow_Repository();
 		$this->rest_base           = 'automation';
 	}
@@ -123,6 +133,11 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 					'callback'            => array( $this, 'update_item' ),
 					'permission_callback' => array( $this, 'get_item_permissions_check' ),
 					'args'                => $this->create_update_args( false ),
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'delete_item' ),
+					'permission_callback' => array( $this, 'get_item_permissions_check' ),
 				),
 			)
 		);
@@ -220,6 +235,44 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	}
 
 	/**
+	 * Delete workflow.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function delete_item( $request ) {
+		try {
+			$workflow = $this->workflow_repository->find( $request->get_param( 'id' ) );
+
+			if ( ! $workflow instanceof Automation_Workflow ) {
+				return new WP_Error(
+					'rest_invalid_workflow_id',
+					__( 'Invalid workflow ID.', 'zero-bs-crm' ),
+					array( 'status' => 404 )
+				);
+			}
+
+			$this->workflow_repository->delete( $workflow );
+		} catch ( Workflow_Exception $e ) {
+			return new WP_Error(
+				'rest_workflow_exception',
+				$e->getMessage(),
+				array( 'status' => 500 )
+			);
+		} catch ( Exception $e ) {
+			return new WP_Error(
+				'rest_unknown_error',
+				$e->getMessage(),
+				array( 'status' => 500 )
+			);
+		}
+
+		return new WP_REST_Response( null, 204 );
+	}
+
+	/**
 	 * Create workflow.
 	 *
 	 * @since $$next-version$$
@@ -262,7 +315,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	 * @return true|WP_Error True if the request has read access for the workflows, WP_Error object otherwise.
 	 */
 	public function get_item_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$can_user_manage_workflows = zeroBSCRM_isZBSAdmin();
+		$can_user_manage_workflows = zeroBSCRM_isZBSAdminOrAdmin();
 
 		if ( is_wp_error( $can_user_manage_workflows ) ) {
 			return $can_user_manage_workflows;
@@ -308,6 +361,14 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	public function prepare_item_for_response( $workflow, $request ) {
 		if ( $workflow instanceof Automation_Workflow ) {
 			$workflow = $workflow->to_array();
+		}
+
+		// Provide full context about steps (title, description, attribute definitions, etc.).
+		if ( is_array( $workflow['steps'] ) ) {
+			foreach ( $workflow['steps'] as $index => $step ) {
+				$hydrated_step               = $this->automation_engine->get_registered_step( $step );
+				$workflow['steps'][ $index ] = $hydrated_step->to_array();
+			}
 		}
 
 		/**
