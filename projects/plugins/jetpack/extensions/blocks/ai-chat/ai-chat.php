@@ -70,12 +70,15 @@ function load_assets( $attr ) {
 	}
 
 	return sprintf(
-		'<div class="%1$s" data-ask-button-label="%2$s" id="jetpack-ai-chat" data-blog-id="%3$d" data-blog-type="%4$s" data-placeholder="%5$s"></div>',
+		'<div class="%1$s" data-ask-button-label="%2$s" id="jetpack-ai-chat" data-blog-id="%3$d" data-blog-type="%4$s" data-placeholder="%5$s" data-show-copy="%6$d" data-show-feedback="%7$d" data-show-sources="%8$d"></div>',
 		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		esc_attr( $ask_button_label ),
 		esc_attr( $blog_id ),
 		esc_attr( $type ),
-		esc_attr( $placeholder )
+		esc_attr( $placeholder ),
+		esc_attr( isset( $attr['showCopy'] ) ? ( $attr['showCopy'] ? 1 : 0 ) : 1 ),
+		esc_attr( isset( $attr['showFeedback'] ) ? ( $attr['showFeedback'] ? 1 : 0 ) : 1 ),
+		esc_attr( isset( $attr['showSources'] ) ? ( $attr['showSources'] ? 1 : 0 ) : 1 )
 	);
 }
 

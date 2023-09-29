@@ -1,7 +1,8 @@
-import { SocialServiceIcon, Button } from '@automattic/jetpack-components';
+import { SocialServiceIcon, Button, Text } from '@automattic/jetpack-components';
 import { CopyToClipboard } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useCallback } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { availableNetworks } from './available-networks';
 import styles from './styles.module.scss';
 import { useShareButtonText } from './useShareButtonText';
@@ -56,32 +57,57 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 				const href = prepareText( url );
 
 				const icon =
-					'text' !== buttonStyle ? <SocialServiceIcon serviceName={ networkName } /> : null;
+					'icon' === buttonStyle ? <SocialServiceIcon serviceName={ networkName } /> : null;
 
 				return (
-					<Button
-						key={ networkName }
-						icon={ icon }
-						variant={ buttonVariant }
-						aria-label={ label }
-						href={ href }
-						target="_blank"
-						rel="noopener noreferrer"
-						onClick={ getOnClick( href, { network: networkName } ) }
-						data-network={ networkName }
-						className={ styles[ networkName ] }
-					>
-						{ 'icon' !== buttonStyle ? label : null }
-					</Button>
+					<div className={ styles.container } key={ networkName }>
+						<Button
+							icon={ icon }
+							variant={ buttonVariant }
+							aria-label={ label }
+							href={ href }
+							target="_blank"
+							rel="noopener noreferrer"
+							onClick={ getOnClick( href ) }
+							data-network={ networkName }
+							className={ 'icon' === buttonStyle ? styles[ networkName ] : 'has-text' }
+						>
+							{ 'icon' === buttonStyle ? null : (
+								<>
+									{ 'icon-text' === buttonStyle && (
+										<SocialServiceIcon
+											className={ styles[ networkName ] }
+											serviceName={ networkName }
+										/>
+									) }
+									<Text className={ styles.label } component="span">
+										{ sprintf(
+											/* translators: %s is the name of a social network, e.g. Twitter. */
+											__( 'Share on %s', 'jetpack' ),
+											label
+										) }
+									</Text>
+								</>
+							) }
+						</Button>
+					</div>
 				);
 			} ) }
-			<CopyToClipboard
-				buttonStyle={ buttonStyle }
-				onCopy={ onCopy }
-				textToCopy={ textToCopy }
-				className={ styles.clipboard }
-				variant={ buttonVariant }
-			/>
+			<div className={ styles.container }>
+				<CopyToClipboard
+					buttonStyle={ buttonStyle }
+					onCopy={ onCopy }
+					textToCopy={ textToCopy }
+					className={ 'icon' === buttonStyle ? styles.clipboard : ' has-text' }
+					variant={ buttonVariant }
+				>
+					{ 'icon' === buttonStyle ? null : (
+						<Text className={ styles.label } component="span">
+							{ __( 'Copy to clipboard', 'jetpack' ) }
+						</Text>
+					) }
+				</CopyToClipboard>
+			</div>
 		</div>
 	);
 }

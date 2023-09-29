@@ -151,14 +151,19 @@ function PaywallEdit( { className } ) {
 				isOpen={ showDialog }
 				onCancel={ closeDialog }
 				onConfirm={ autosaveAndRedirect }
+				style={ { maxWidth: 400 } }
 			>
-				<h2>{ __( 'Enable payments', 'jetpack' ) }</h2>
-				<p style={ { maxWidth: 340 } }>
-					{ __(
-						'To choose this option, you need to create a payment plan, setting up how much your subscribers should pay to access your paid content, and then connect your Stripe account, which is our payments processor.',
-						'jetpack'
-					) }
-				</p>
+				<h2>{ __( 'Set up payments', 'jetpack' ) }</h2>
+				<p>{ __( 'To start collecting payments, you’ll just need to:', 'jetpack' ) }</p>
+				<ol>
+					<li>
+						{ __(
+							'Create a payment offer and choose a price for access to paid content',
+							'jetpack'
+						) }
+					</li>
+					<li>{ __( 'Set up or connect your Stripe account', 'jetpack' ) }</li>
+				</ol>
 			</ConfirmDialog>
 			<InspectorControls>
 				<PanelBody

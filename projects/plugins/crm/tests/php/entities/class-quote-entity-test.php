@@ -52,7 +52,7 @@ class Quote_Entity_Test extends JPCRM_Base_Integration_Test_Case {
 		global $zbs;
 
 		// Prepare the Quote data from the instance to save it via DAL
-		$quote_data_to_save = Quote_Factory::data_for_db( $quote );
+		$quote_data_to_save = Quote_Factory::data_for_dal( $quote );
 
 		$id = $zbs->DAL->quotes->addUpdateQuote( $quote_data_to_save );
 

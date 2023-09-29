@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\CRM\Event_Manager;
 
+use Automattic\Jetpack\CRM\Entities\Factories\Transaction_Factory;
+use Automattic\Jetpack\CRM\Entities\Transaction;
+
 /**
  * Transaction Event class.
  *
@@ -46,7 +49,10 @@ class Transaction_Event implements Event {
 	 * @return void
 	 */
 	public function created( array $transaction_data ): void {
-		do_action( 'jpcrm_transaction_created', $transaction_data );
+		/** @var Transaction $transaction */
+		$transaction = Transaction_Factory::create( $transaction_data );
+
+		do_action( 'jpcrm_transaction_created', $transaction );
 	}
 
 	/**
@@ -58,7 +64,9 @@ class Transaction_Event implements Event {
 	 * @return void
 	 */
 	public function updated( array $transaction_data ): void {
-		do_action( 'jpcrm_transaction_updated', $transaction_data );
+		$transaction = Transaction_Factory::create( $transaction_data );
+
+		do_action( 'jpcrm_transaction_updated', $transaction );
 	}
 
 	/**

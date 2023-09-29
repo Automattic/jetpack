@@ -3,16 +3,17 @@
 	import { __, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import Tooltip from '../../../elements/Tooltip.svelte';
-	import { imageCdnQuality } from '../../../stores/image-cdn';
-	import { premiumFeatures } from '../../../stores/premium-features';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
 	import CollapsibleMeta from './CollapsibleMeta.svelte';
 	import ImageCdnQualityControl from './ImageCdnQualityControl.svelte';
+	import type { ImageCdnQuality } from '../../../stores/image-cdn';
 
 	const navigate = useNavigate();
+	export let quality: ImageCdnQuality;
+	export let isPremium: boolean;
 </script>
 
-{#if $premiumFeatures.includes( 'image-cdn-quality' )}
+{#if isPremium}
 	<CollapsibleMeta
 		editText={__( 'Change Image Quality', 'jetpack-boost' )}
 		closeEditText={__( 'Close', 'jetpack-boost' )}
@@ -36,31 +37,25 @@
 			{sprintf(
 				/* translators: %1$s is the JPEG quality value, %2$s is PNG quality value, and %3$s is WEBP quality value. Each value may also say 'lossless' */
 				__( 'JPEG Quality: %1$s, PNG Quality: %2$s, WEBP Quality: %3$s', 'jetpack-boost' ),
-				$imageCdnQuality.jpg.lossless
-					? __( 'lossless', 'jetpack-boost' )
-					: $imageCdnQuality.jpg.quality.toString(),
-				$imageCdnQuality.png.lossless
-					? __( 'lossless', 'jetpack-boost' )
-					: $imageCdnQuality.png.quality.toString(),
-				$imageCdnQuality.webp.lossless
-					? __( 'lossless', 'jetpack-boost' )
-					: $imageCdnQuality.webp.quality.toString()
+				quality.jpg.lossless ? __( 'lossless', 'jetpack-boost' ) : quality.jpg.quality.toString(),
+				quality.png.lossless ? __( 'lossless', 'jetpack-boost' ) : quality.png.quality.toString(),
+				quality.webp.lossless ? __( 'lossless', 'jetpack-boost' ) : quality.webp.quality.toString()
 			)}
 		</div>
 
 		<ImageCdnQualityControl
-			label={__( 'JPEG Quality', 'jetpack-boost' )}
-			bind:config={$imageCdnQuality.jpg}
+			label={__( 'JPEG', 'jetpack-boost' )}
+			bind:config={quality.jpg}
 			maxValue={89}
 		/>
 		<ImageCdnQualityControl
-			label={__( 'PNG Quality', 'jetpack-boost' )}
-			bind:config={$imageCdnQuality.png}
+			label={__( 'PNG', 'jetpack-boost' )}
+			bind:config={quality.png}
 			maxValue={80}
 		/>
 		<ImageCdnQualityControl
-			label={__( 'WEBP Quality', 'jetpack-boost' )}
-			bind:config={$imageCdnQuality.webp}
+			label={__( 'WEBP', 'jetpack-boost' )}
+			bind:config={quality.webp}
 			maxValue={80}
 		/>
 	</CollapsibleMeta>

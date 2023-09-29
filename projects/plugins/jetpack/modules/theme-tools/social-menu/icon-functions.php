@@ -193,6 +193,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'wordpress.org'     => 'wordpress',
 			'wordpress.com'     => 'wordpress',
 			'yelp.com'          => 'yelp',
+			'x.com'             => 'x',
 			'xanga.com'         => 'xanga',
 			'youtube.com'       => 'youtube',
 		);

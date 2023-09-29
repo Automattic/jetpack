@@ -70,7 +70,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 					continue;
 				}
 
-				if ( $core_endpoints['view-order'] === $key && is_numeric( $value ) ) {
+				if ( isset( $core_endpoints['view-order'] ) && $core_endpoints['view-order'] === $key && is_numeric( $value ) ) {
 					$initiator = get_query_var( '_wca_initiator' );
 					if ( 'number' === $initiator ) {
 						$this->record_event( 'woocommerceanalytics_my_account_order_number_click' );
@@ -82,7 +82,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 					}
 				}
 
-				if ( $core_endpoints['edit-address'] === $key && in_array( $value, array( 'billing', 'shipping' ), true ) ) {
+				if ( isset( $core_endpoints['edit-address'] ) && $core_endpoints['edit-address'] === $key && in_array( $value, array( 'billing', 'shipping' ), true ) ) {
 					$refer = wp_get_referer();
 					if ( $refer === wc_get_endpoint_url( 'edit-address', $value ) ) {
 						// It means we're likely coming from the same page after a failed save and don't want to retrigger the address click event.
@@ -93,12 +93,12 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 					continue;
 				}
 
-				if ( $core_endpoints['add-payment-method'] === $key ) {
+				if ( isset( $core_endpoints['add-payment-method'] ) && $core_endpoints['add-payment-method'] === $key ) {
 					$this->record_event( 'woocommerceanalytics_my_account_payment_add' );
 					continue;
 				}
 
-				if ( $core_endpoints['edit-address'] ) {
+				if ( isset( $core_endpoints['edit-address'] ) && $core_endpoints['edit-address'] ) {
 					$refer = wp_get_referer();
 					if ( $refer === wc_get_endpoint_url( 'edit-address', 'billing' ) || $refer === wc_get_endpoint_url( 'edit-address', 'shipping' ) ) {
 						// It means we're likely coming from the edit page save and don't want to retrigger the page view event.
@@ -117,7 +117,7 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 				 * To avoid triggering the event twice, we skip the core one and only track the custom one.
 				 * Tracking the custom endpoint is safer than hoping the duplicated, redundant core endpoint is always present.
 				 */
-				if ( $core_endpoints[ $key ] && $core_endpoints[ $key ] !== $key ) {
+				if ( isset( $core_endpoints[ $key ] ) && $core_endpoints[ $key ] !== $key ) {
 					continue;
 				}
 

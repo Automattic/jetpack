@@ -34,49 +34,11 @@ final class Automation_Bootstrap {
 	public function init(): void {
 		$this->engine = Automation_Engine::instance();
 
-		$this->register_data_types();
 		$this->register_data_transformers();
 		$this->register_triggers();
 		$this->register_conditions();
 		$this->register_actions();
 		$this->register_workflows();
-	}
-
-	/**
-	 * Register data types.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return void
-	 */
-	protected function register_data_types(): void {
-		$data_types = array(
-			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Company::class,
-			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact::class,
-			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Event::class,
-			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice::class,
-			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote::class,
-			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction::class,
-		);
-
-		/**
-		 * Filter list of available data types for automations.
-		 *
-		 * This can be used to add and/or remove data types allowed in automations.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param string[] $var A list of data type classes.
-		 */
-		$data_types = apply_filters( 'jpcrm_automation_data_types', $data_types );
-
-		foreach ( $data_types as $data_type ) {
-			try {
-				$this->engine->register_data_type( $data_type );
-			} catch ( \Exception $e ) {
-				$this->engine->get_logger()->log( $e->getMessage() );
-			}
-		}
 	}
 
 	/**
@@ -89,6 +51,7 @@ final class Automation_Bootstrap {
 	protected function register_data_transformers(): void {
 		$data_transformers = array(
 			\Automattic\Jetpack\CRM\Automation\Data_Transformers\Data_Transformer_Invoice_To_Contact::class,
+			\Automattic\Jetpack\CRM\Automation\Data_Transformers\Data_Transformer_Entity_To_Tag_List::class,
 		);
 
 		/**
@@ -130,9 +93,9 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Created::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Deleted::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Updated::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Task_Created::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Task_Deleted::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Task_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Deleted::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Status_Updated::class,
@@ -144,6 +107,7 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Triggers\Quote_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Updated::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\WP_User_Created::class,
 		);
 
 		/**
@@ -177,6 +141,7 @@ final class Automation_Bootstrap {
 		$conditions = array(
 			\Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed::class,
 			\Automattic\Jetpack\CRM\Automation\Conditions\Invoice_Status_Changed::class,
+			\Automattic\Jetpack\CRM\Automation\Conditions\Entity_Tag::class,
 		);
 
 		/**

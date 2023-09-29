@@ -48,6 +48,7 @@ return (
 * StarIcon
 * VideopressIcon
 * JetpackIcon
+* ShareIcon
 * FacebookIcon
 * TwitterIcon
 * LinkedinIcon
@@ -67,6 +68,7 @@ import {
 	StarIcon,
 	VideoPressIcon,
 	JetpackIcon,
+	ShareIcon,
 	FacebookIcon,
 	TwitterIcon,
 	LinkedinIcon,
@@ -87,6 +89,7 @@ return (
 		<StarIcon />
 		<VideoPressIcon />
 		<JetpackIcon />
+		<ShareIcon />
 		<FacebookIcon />
 		<TwitterIcon />
 		<LinkedinIcon />

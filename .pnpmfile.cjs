@@ -19,14 +19,8 @@ function fixDeps( pkg ) {
 		delete pkg.dependencies[ 'wpcom-proxy-request' ];
 	}
 
-	// Depends on punycode but doesn't declare it.
-	// https://github.com/markdown-it/markdown-it/issues/230
-	if ( pkg.name === 'markdown-it' && ! pkg.dependencies.punycode ) {
-		pkg.dependencies.punycode = '^2.1.1';
-	}
-
 	// Undeclared dependency on prop-types.
-	// https://github.com/nutboltu/storybook-addon-mock/issues/157
+	// https://github.com/nutboltu/storybook-addon-mock/issues/190
 	if ( pkg.name === 'storybook-addon-mock' ) {
 		pkg.dependencies ||= {};
 		pkg.dependencies[ 'prop-types' ] = '*';
@@ -61,17 +55,6 @@ function fixDeps( pkg ) {
 				pkg.dependencies[ dep ] = '^' + ver;
 			}
 		}
-	}
-
-	// Convert @testing-library/react's dep on @testing-library/dom to a peer.
-	// https://github.com/testing-library/react-testing-library/issues/906#issuecomment-1180767493
-	if (
-		( pkg.name === '@testing-library/react' || pkg.name === '@testing-library/preact' ) &&
-		pkg.dependencies[ '@testing-library/dom' ]
-	) {
-		pkg.peerDependencies ||= {};
-		pkg.peerDependencies[ '@testing-library/dom' ] = pkg.dependencies[ '@testing-library/dom' ];
-		delete pkg.dependencies[ '@testing-library/dom' ];
 	}
 
 	// Outdated dependency.
@@ -133,7 +116,7 @@ function fixPeerDeps( pkg ) {
 		'react-autosize-textarea', // @wordpress/block-editor <https://github.com/WordPress/gutenberg/issues/39619>
 
 		// Still on 17.
-		'reakit', // @wordpress/components
+		'reakit', // @wordpress/components <https://github.com/WordPress/gutenberg/issues/53278>
 		'reakit-system', // @wordpress/components → reakit
 		'reakit-utils', // @wordpress/components → reakit
 		'reakit-warning', // @wordpress/components → reakit
