@@ -5,11 +5,14 @@ export type Trigger = {
 	category: Category;
 };
 
+type StepId = string;
+
 export type Step = {
-	id: string;
+	id: StepId;
 	attributes: { [ key: string ]: AttributeValue };
 	attribute_definitions: { [ attributeSlug: string ]: AttributeDefinition };
-	next_step?: string;
+	next_step_true?: StepId;
+	next_step_false?: StepId;
 	slug: string;
 	title: string;
 	description: string;

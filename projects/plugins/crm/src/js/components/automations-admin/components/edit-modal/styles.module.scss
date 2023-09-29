@@ -11,6 +11,7 @@
 
 	:global(.components-modal__content) {
 		padding: 0 32px 32px 32px;
+		overflow-x: hidden;
 	}
 
 	:global(.components-checkbox-control__label) {
