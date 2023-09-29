@@ -1,10 +1,9 @@
 import { __ } from '@wordpress/i18n';
 
-export default function DisplayError( { error } ) {
+export default function DisplayError() {
 	return (
 		<div className="jetpack-ai-chat-error-container">
-			{ __( 'Sorry, there was an error: ', 'jetpack' ) }
-			{ error.message }
+			{ __( 'There was an error while generating the answer. Please try again later.', 'jetpack' ) }
 		</div>
 	);
 }

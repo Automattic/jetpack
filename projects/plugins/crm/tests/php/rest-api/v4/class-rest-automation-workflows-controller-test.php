@@ -311,11 +311,16 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 			'initial_step' => 'updated_step_2',
 			'steps'        => array(
 				'updated_step_1' => array(
-					'slug'           => Contact_Condition::get_slug(),
-					'next_step_true' => 'updated_step_2',
+					'slug'            => Contact_Condition::get_slug(),
+					'next_step_true'  => 'updated_step_2',
+					'next_step_false' => null,
+					'attributes'      => array(),
 				),
 				'updated_step_2' => array(
-					'slug' => Contact_Condition::get_slug(),
+					'slug'            => Contact_Condition::get_slug(),
+					'next_step_true'  => null,
+					'next_step_false' => null,
+					'attributes'      => array(),
 				),
 			),
 		);
@@ -385,10 +390,20 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	 * @return array The pruned workflow data.
 	 */
 	protected function prune_workflow_response( array $workflow_data ): array {
+		$static_step_fields = array(
+			'title',
+			'description',
+			'category',
+			'step_type',
+			'attribute_definitions',
+		);
+
 		if ( ! empty( $workflow_data['steps'] ) && is_array( $workflow_data['steps'] ) ) {
 			foreach ( $workflow_data['steps'] as $index => $step ) {
-				if ( isset( $step['attribute_definitions'] ) ) {
-					unset( $step['attribute_definitions'] );
+				foreach ( $static_step_fields as $field ) {
+					if ( isset( $step[ $field ] ) ) {
+						unset( $step[ $field ] );
+					}
 				}
 
 				$workflow_data['steps'][ $index ] = $step;

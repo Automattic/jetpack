@@ -51,6 +51,7 @@ final class Automation_Bootstrap {
 	protected function register_data_transformers(): void {
 		$data_transformers = array(
 			\Automattic\Jetpack\CRM\Automation\Data_Transformers\Data_Transformer_Invoice_To_Contact::class,
+			\Automattic\Jetpack\CRM\Automation\Data_Transformers\Data_Transformer_Entity_To_Tag_List::class,
 		);
 
 		/**
@@ -106,6 +107,7 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Triggers\Quote_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Updated::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\WP_User_Created::class,
 		);
 
 		/**
@@ -139,6 +141,7 @@ final class Automation_Bootstrap {
 		$conditions = array(
 			\Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed::class,
 			\Automattic\Jetpack\CRM\Automation\Conditions\Invoice_Status_Changed::class,
+			\Automattic\Jetpack\CRM\Automation\Conditions\Entity_Tag::class,
 		);
 
 		/**
