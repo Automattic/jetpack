@@ -117,6 +117,7 @@ const crmWebpackConfig = {
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
+		mangleExports: false,
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,

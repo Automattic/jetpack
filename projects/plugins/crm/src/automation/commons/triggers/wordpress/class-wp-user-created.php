@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack CRM Automation Event_Created trigger.
+ * Jetpack CRM Automation WP_User_Created trigger.
  *
  * @package automattic/jetpack-crm
  * @since $$next-version$$
@@ -8,15 +8,24 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
+use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Task_Data;
+use Automattic\Jetpack\CRM\Automation\Data_Types\WP_User_Data;
 
 /**
- * Adds the Event_Created class.
+ * Adds the WP_User_Created class.
  *
  * @since $$next-version$$
  */
-class Event_Created extends Base_Trigger {
+class WP_User_Created extends Base_Trigger {
+
+	/**
+	 * The Automation workflow object.
+	 *
+	 * @since $$next-version$$
+	 * @var Automation_Workflow
+	 */
+	protected $workflow;
 
 	/**
 	 * Get the slug name of the trigger.
@@ -26,7 +35,7 @@ class Event_Created extends Base_Trigger {
 	 * @return string The slug name of the trigger.
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/event_created';
+		return 'jpcrm/wp_user_created';
 	}
 
 	/**
@@ -34,10 +43,10 @@ class Event_Created extends Base_Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The title of the trigger.
+	 * @return string|null The title of the trigger.
 	 */
 	public static function get_title(): string {
-		return __( 'New Event', 'zero-bs-crm' );
+		return __( 'New WP User', 'zero-bs-crm' );
 	}
 
 	/**
@@ -45,10 +54,10 @@ class Event_Created extends Base_Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The description of the trigger.
+	 * @return string|null The description of the trigger.
 	 */
 	public static function get_description(): string {
-		return __( 'Triggered when a new event status is added', 'zero-bs-crm' );
+		return __( 'Triggered when a new WP user is created', 'zero-bs-crm' );
 	}
 
 	/**
@@ -56,31 +65,33 @@ class Event_Created extends Base_Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The category of the trigger.
+	 * @return string|null The category of the trigger.
 	 */
 	public static function get_category(): string {
-		return __( 'Event', 'zero-bs-crm' );
+		return __( 'WP User', 'zero-bs-crm' );
 	}
 
 	/**
-	 * Get the date type.
+	 * Get the data type.
 	 *
-	 * @return string The type of the step.
+	 * @return string The type of the step
 	 */
 	public static function get_data_type(): string {
-		return Task_Data::class;
+		return WP_User_Data::class;
 	}
 
 	/**
-	 * Listen to this trigger's target event.
+	 * Listen to the desired event.
 	 *
 	 * @since $$next-version$$
-	 * @return void
 	 */
 	protected function listen_to_event(): void {
 		add_action(
-			'jpcrm_event_created',
-			array( $this, 'execute_workflow' )
+			'user_register',
+			function ( $user_id ) {
+				$wp_user = new \WP_User( $user_id );
+				$this->execute_workflow( $wp_user );
+			}
 		);
 	}
 }

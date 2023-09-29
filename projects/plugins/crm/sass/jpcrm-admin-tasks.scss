@@ -17,7 +17,7 @@
 
 }
 
-.zbs-event-editor-wrap {
+.jpcrm-task-editor-wrap {
     margin-top:-1em;
 }
 
@@ -32,7 +32,7 @@
 }
 
 // 3.0
-#zerobs-event-edit #zerobscrm-owner {
+#jpcrm-task-edit #zerobscrm-owner {
     //display:none !important;
     margin-top: 4px;
     z-index: 4;
@@ -51,9 +51,6 @@
     font-weight: 900;
     text-transform: uppercase;
     font-family: sans-serif;        
-}
-.zerobs_event_page_manage-events{
-    background: white;
 }
 .fc-day-grid-event .fc-content {
     height: 24px;
@@ -178,8 +175,6 @@ background: white;
     width: 48%;
 }
 
-#zbs_event_notes, 
-// 3.0
 #zbse_desc {
     font-size:14px;
     padding:5px;
@@ -219,13 +214,6 @@ background: white;
     display:none;
 }
 
-// <3.0
-.post-type-zerobs_event .zbs-save-event{
-// 3.0 - not needed, save event changes :)
-//#zerobs-event-edit .zbs-save-event{
-    display:none;
-}
-
 .ui.segment {
     margin-top:0px;
 }
@@ -253,13 +241,8 @@ background: white;
     margin-top: 9px !important;
 }
 
-
-
-
-// <3.0
-.post-type-zerobs_event .select2-container,
 // 3.0
-#zerobs-event-edit .select2-container {
+#jpcrm-task-edit .select2-container {
     width: 211px;
     position: absolute !important;
     top: 11px;
