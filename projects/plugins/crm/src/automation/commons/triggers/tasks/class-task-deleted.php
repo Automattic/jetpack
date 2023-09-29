@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack CRM Automation Event_Created trigger.
+ * Jetpack CRM Automation Task_Deleted trigger.
  *
  * @package automattic/jetpack-crm
  * @since $$next-version$$
@@ -12,11 +12,11 @@ use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Task_Data;
 
 /**
- * Adds the Event_Created class.
+ * Adds the Task_Deleted class.
  *
  * @since $$next-version$$
  */
-class Event_Created extends Base_Trigger {
+class Task_Deleted extends Base_Trigger {
 
 	/**
 	 * Get the slug name of the trigger.
@@ -26,7 +26,7 @@ class Event_Created extends Base_Trigger {
 	 * @return string The slug name of the trigger.
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/event_created';
+		return 'jpcrm/task_deleted';
 	}
 
 	/**
@@ -37,7 +37,7 @@ class Event_Created extends Base_Trigger {
 	 * @return string The title of the trigger.
 	 */
 	public static function get_title(): string {
-		return __( 'New Event', 'zero-bs-crm' );
+		return __( 'Task Deleted', 'zero-bs-crm' );
 	}
 
 	/**
@@ -48,7 +48,7 @@ class Event_Created extends Base_Trigger {
 	 * @return string The description of the trigger.
 	 */
 	public static function get_description(): string {
-		return __( 'Triggered when a new event status is added', 'zero-bs-crm' );
+		return __( 'Triggered when a task is deleted', 'zero-bs-crm' );
 	}
 
 	/**
@@ -59,13 +59,13 @@ class Event_Created extends Base_Trigger {
 	 * @return string The category of the trigger.
 	 */
 	public static function get_category(): string {
-		return __( 'Event', 'zero-bs-crm' );
+		return __( 'Task', 'zero-bs-crm' );
 	}
 
 	/**
 	 * Get the date type.
 	 *
-	 * @return string The type of the step.
+	 * @return string The type of the step
 	 */
 	public static function get_data_type(): string {
 		return Task_Data::class;
@@ -75,11 +75,10 @@ class Event_Created extends Base_Trigger {
 	 * Listen to this trigger's target event.
 	 *
 	 * @since $$next-version$$
-	 * @return void
 	 */
-	protected function listen_to_event(): void {
+	protected function listen_to_event() {
 		add_action(
-			'jpcrm_event_created',
+			'jpcrm_task_delete',
 			array( $this, 'execute_workflow' )
 		);
 	}

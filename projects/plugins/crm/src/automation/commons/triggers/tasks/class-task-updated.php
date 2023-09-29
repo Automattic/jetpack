@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack CRM Automation Event_Updated trigger.
+ * Jetpack CRM Automation Task_Updated trigger.
  *
  * @package automattic/jetpack-crm
  */
@@ -11,11 +11,11 @@ use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Task_Data;
 
 /**
- * Adds the Event_Updated class.
+ * Adds the Task_Updated class.
  *
  * @since $$next-version$$
  */
-class Event_Updated extends Base_Trigger {
+class Task_Updated extends Base_Trigger {
 
 	/**
 	 * Get the slug name of the trigger.
@@ -25,7 +25,7 @@ class Event_Updated extends Base_Trigger {
 	 * @return string The trigger slug.
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/event_updated';
+		return 'jpcrm/task_updated';
 	}
 
 	/**
@@ -36,7 +36,7 @@ class Event_Updated extends Base_Trigger {
 	 * @return string The title.
 	 */
 	public static function get_title(): string {
-		return __( 'Event Updated', 'zero-bs-crm' );
+		return __( 'Task Updated', 'zero-bs-crm' );
 	}
 
 	/**
@@ -47,7 +47,7 @@ class Event_Updated extends Base_Trigger {
 	 * @return string The description.
 	 */
 	public static function get_description(): string {
-		return __( 'Triggered when an event is updated', 'zero-bs-crm' );
+		return __( 'Triggered when a task is updated', 'zero-bs-crm' );
 	}
 
 	/**
@@ -58,7 +58,7 @@ class Event_Updated extends Base_Trigger {
 	 * @return string The category.
 	 */
 	public static function get_category(): string {
-		return __( 'Event', 'zero-bs-crm' );
+		return __( 'Task', 'zero-bs-crm' );
 	}
 
 	/**
@@ -79,7 +79,7 @@ class Event_Updated extends Base_Trigger {
 	 */
 	protected function listen_to_event() {
 		add_action(
-			'jpcrm_event_updated',
+			'jpcrm_task_updated',
 			array( $this, 'execute_workflow' )
 		);
 	}

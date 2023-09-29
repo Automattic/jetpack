@@ -163,14 +163,15 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return dummy event triggers name list
+	 * Return dummy task triggers name list
 	 *
 	 * @return array
 	 */
-	public function event_triggers(): array {
+	public function task_triggers(): array {
 		return array(
-			'jpcrm/event_created',
-			'jpcrm/event_deleted',
+			'jpcrm/task_created',
+			'jpcrm/task_deleted',
+			'jpcrm/task_updated',
 		);
 	}
 
