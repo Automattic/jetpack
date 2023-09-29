@@ -25,7 +25,7 @@ export default {
 		),
 	],
 	argTypes: {
-		requestingState: {
+		state: {
 			control: {
 				type: 'select',
 			},
@@ -51,10 +51,9 @@ const Template = args => {
 };
 
 const DefaultArgs = {
-	loading: false,
 	isTransparent: false,
 	placeholder: '',
-	requestingState: 'init',
+	state: 'init',
 	showButtonLabels: true,
 	showAccept: false,
 	acceptLabel: 'Accept',

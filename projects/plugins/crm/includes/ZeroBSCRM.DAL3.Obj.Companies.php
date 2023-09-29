@@ -793,7 +793,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                                 'assignedCompany'   => $potentialRes->ID, // assigned to company id (int)
                                 'page'       => -1,
                                 'perPage'       => -1,
-                                'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT),                                    
+                                'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK),                                    
                                 'sortByField'   => 'zbse_start',
                                 'sortOrder'     => 'DESC',
                                 'withAssigned'  => false // no need, it's assigned to this obj already
@@ -1673,7 +1673,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                                     'assignedCompany'   => $resDataLine->ID, // assigned to company id (int)
                                     'page'       => -1,
                                     'perPage'       => -1,
-                                    'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT),                                    
+                                    'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK),                                    
                                     'sortByField'   => 'zbse_start',
                                     'sortOrder'     => 'DESC',
                                     'withAssigned'  => false // no need, it's assigned to this obj already

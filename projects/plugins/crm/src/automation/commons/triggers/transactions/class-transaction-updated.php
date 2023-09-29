@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Transaction_Data;
 
 /**
  * Adds the Transaction_Updated class.
@@ -67,7 +67,7 @@ class Transaction_Updated extends Base_Trigger {
 	 * @return string The type of the step
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Transaction::get_slug();
+		return Transaction_Data::class;
 	}
 
 	/**
