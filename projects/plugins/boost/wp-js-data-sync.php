@@ -232,3 +232,11 @@ jetpack_boost_register_option(
 	),
 	new Mergeable_Array_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE . '_dismissed_alerts' )
 );
+
+/**
+ * Register Score Prompt store.
+ */
+jetpack_boost_register_option(
+	'dismissed_score_prompt',
+	Schema::as_array( Schema::as_string() )->fallback( array() )
+);

@@ -7,8 +7,8 @@ export type Trigger = {
 
 export type Step = {
 	id: string;
-	attributes: { [ key: string ]: string | number | boolean };
-	attribute_definitions: AttributeDefinition[];
+	attributes: { [ key: string ]: AttributeValue };
+	attribute_definitions: { [ attributeSlug: string ]: AttributeDefinition };
 	next_step?: string;
 	slug: string;
 	title: string;
@@ -36,6 +36,8 @@ export type Workflow = {
 export type Type = 'contacts';
 
 export type Category = string;
+
+export type AttributeValue = string | number | boolean;
 
 export type AttributeDefinition = {
 	slug: string;

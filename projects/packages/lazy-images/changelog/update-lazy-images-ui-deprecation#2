@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add logic to disable the Lazy Images module in the Jetpack plugin.

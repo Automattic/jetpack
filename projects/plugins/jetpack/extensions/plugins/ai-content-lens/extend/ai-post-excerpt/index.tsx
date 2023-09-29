@@ -18,7 +18,6 @@ import React from 'react';
  */
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
 import { isBetaExtension } from '../../../../editor';
-import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
  * Types and constants
@@ -46,9 +45,6 @@ function AiPostExcerpt() {
 		select => select( 'core/editor' ).getEditedPostAttribute( 'excerpt' ),
 		[]
 	);
-
-	// Use the hook only to get the autosave function. It won't be used for redirect.
-	const { autosave } = useAutosaveAndRedirect();
 
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 	const { editPost } = useDispatch( 'core/editor' );
@@ -112,12 +108,9 @@ function AiPostExcerpt() {
 	/**
 	 * Request AI for a new excerpt.
 	 *
-	 * @param {React.MouseEvent} ev - The click event.
 	 * @returns {void}
 	 */
-	async function requestExcerpt( ev: React.MouseEvent ): Promise< void > {
-		await autosave( ev );
-
+	function requestExcerpt(): void {
 		// Enable Generate button
 		setReenable( false );
 
