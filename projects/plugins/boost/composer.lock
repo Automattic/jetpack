@@ -1366,7 +1366,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-js-data-sync",
-                "reference": "f22fe8095382047f645b72795f69d92853e614aa"
+                "reference": "f41c9535d650c3b13ee37eeec2971d2ba7b85514"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -1384,7 +1384,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "textdomain": "jetpack-wp-js-data-sync",
                 "version-constants": {
