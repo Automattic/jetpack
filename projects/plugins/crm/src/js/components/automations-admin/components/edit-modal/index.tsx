@@ -1,6 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
+import { useMutateAutomationWorkflows } from 'crm/data/hooks/mutations';
 import { useCallback } from 'react';
 import { StepConfig } from '../step-config';
 import { TriggerInfo } from '../trigger-info';
@@ -23,8 +24,10 @@ export const EditModal: React.FC< EditModalProps > = ( { isOpen, onClose, workfl
 		stepId = step.next_step_true;
 	}
 
+	const { mutate: mutateWorkflows } = useMutateAutomationWorkflows();
+
 	const onSave = useCallback( () => {
-		// TODO: save workflow here
+		mutateWorkflows( workflow );
 		onClose();
 	}, [ onClose ] );
 
