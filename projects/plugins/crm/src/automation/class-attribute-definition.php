@@ -60,28 +60,12 @@ class Attribute_Definition {
 	const DATE = 'date';
 
 	/**
-	 * Represents a date and time input.
-	 *
-	 * @since $$next-version$$
-	 * @var string
-	 */
-	const DATETIME = 'datetime';
-
-	/**
 	 * Represents a numerical input.
 	 *
 	 * @since $$next-version$$
 	 * @var string
 	 */
 	const NUMBER = 'number';
-
-	/**
-	 * Represents a password input.
-	 *
-	 * @since $$next-version$$
-	 * @var string
-	 */
-	const PASSWORD = 'password';
 
 	/**
 	 * The slug (key) that identifies this attribute.

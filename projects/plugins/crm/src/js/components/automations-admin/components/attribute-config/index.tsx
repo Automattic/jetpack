@@ -1,4 +1,4 @@
-import { SelectControl, TextareaControl, TextControl } from '@wordpress/components';
+import { DatePicker, SelectControl, TextareaControl, TextControl } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import { store } from 'crm/state/store';
 import { useCallback } from 'react';
@@ -12,6 +12,8 @@ type AttributeConfigProps = {
 	definition: AttributeDefinition;
 };
 
+type NewValue = string | number | boolean;
+
 export const AttributeConfig: React.FC< AttributeConfigProps > = ( {
 	workflowId,
 	stepId,
@@ -19,7 +21,7 @@ export const AttributeConfig: React.FC< AttributeConfigProps > = ( {
 	definition,
 } ) => {
 	const onChange = useCallback(
-		( newValue: string ) =>
+		( newValue: NewValue ) =>
 			dispatch( store ).setAttribute( workflowId, stepId, definition.slug, newValue ),
 		[ workflowId, stepId, definition.slug ]
 	);
@@ -37,7 +39,7 @@ export const AttributeConfig: React.FC< AttributeConfigProps > = ( {
 const getEditValue = (
 	value: AttributeValue,
 	definition: AttributeDefinition,
-	onChange: ( newValue: string ) => void
+	onChange: ( newValue: NewValue ) => void
 ) => {
 	switch ( definition.type ) {
 		case 'select':
@@ -58,12 +60,20 @@ const getEditValue = (
 			return <TextControl value={ value.toString() } onChange={ onChange } />;
 		case 'checkbox':
 		case 'textarea':
-			return <TextareaControl value={ value } onChange={ onChange } />;
+			return <TextareaControl value={ value as string } onChange={ onChange } />;
 		case 'date':
-		case 'datetime':
+			return (
+				<div className={ styles.datepicker }>
+					<DatePicker
+						currentDate={ value ? new Date( value as string | number ) : new Date() }
+						onChange={ ( selectedDate: Date ) => {
+							onChange( selectedDate.getTime() );
+						} }
+					/>
+				</div>
+			);
 		case 'number':
 			return <TextControl type="number" value={ value } onChange={ onChange } />;
-		case 'password':
 		default:
 			return `${ definition.type } is not implemented`;
 	}
