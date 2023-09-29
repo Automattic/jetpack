@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+
 /**
  * WordPress dependencies
  */
@@ -55,9 +57,6 @@ export default function Feedback( { blogType, blogId, cacheKey, feedbackSubmitte
 					<hr />
 					<div className="jetpack-ai-chat-answer-feedback-buttons">
 						{ __( 'Was this helpful?', 'jetpack' ) }
-						{
-							//eslint-disable-next-line jsx-a11y/click-events-have-key-events
-						 }
 						<a
 							role="button"
 							className="thumbs-up"
@@ -67,9 +66,6 @@ export default function Feedback( { blogType, blogId, cacheKey, feedbackSubmitte
 						>
 							<Icon icon={ ThumbsUp } />
 						</a>
-						{
-							//eslint-disable-next-line jsx-a11y/click-events-have-key-events
-						 }
 						<a
 							role="button"
 							className="thumbs-down"
