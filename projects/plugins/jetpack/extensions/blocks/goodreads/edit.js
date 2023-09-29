@@ -1,3 +1,4 @@
+import apiFetch from '@wordpress/api-fetch';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import {
 	Placeholder,
@@ -48,8 +49,27 @@ export class GoodreadsEdit extends Component {
 		const regex = /\/(user|author)\/show\/(\d+)/;
 		const goodreadsId = userInput.match( regex ) ? userInput.match( regex )[ 2 ] : false;
 
-		if ( ! goodreadsId ) {
-			this.setErrorNotice();
+		if ( ! goodreadsId || ! /goodreads\.com/.test( userInput ) ) {
+			return this.setErrorNotice();
+		}
+
+		if ( /\/author\//.test( userInput ) ) {
+			this.setState( { isResolvingUrl: true } );
+			apiFetch( { path: `/wpcom/v2/getGoodreadsUserId?id=${ goodreadsId }` } )
+				.then( response => {
+					if ( response === 404 ) {
+						setAttributes( { widgetId: undefined, userInput: undefined } );
+						this.setErrorNotice();
+						return;
+					}
+					setAttributes( { goodreadsId: response, widgetId, userInput } );
+					this.setState( { displayPreview: true, isResolvingUrl: false } );
+					noticeOperations.removeAllNotices();
+				} )
+				.catch( () => {
+					setAttributes( { widgetId: undefined, userInput: undefined } );
+					this.setErrorNotice();
+				} );
 		} else {
 			testEmbedUrl( userInput, this.setIsResolvingUrl )
 				.then( response => {
