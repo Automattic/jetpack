@@ -1,7 +1,10 @@
+import { Col, Container } from '@automattic/jetpack-components';
 import { Button } from '@automattic/jetpack-components';
 import { useQuery } from '@tanstack/react-query';
 import { dispatch, useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import axios from 'axios';
+import AdminPage from 'crm/components/admin-page';
 import { Workflow } from 'crm/state/automations-admin/types';
 import { store } from 'crm/state/store';
 import { useCallback, useState } from 'react';
@@ -11,6 +14,7 @@ import { EditModal } from './components/edit-modal';
 import { RedirectHome } from './components/redirect-home';
 import { WorkflowRow } from './components/workflow-row';
 import { WorkflowTable } from './components/workflow-table';
+import { WorkflowsHome } from './components/workflows-home';
 import { workflowOne, workflowTwo } from './test/util/data';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -69,14 +73,14 @@ export const AutomationsAdmin = () => {
 			/>
 			<Route
 				path="/automations/test-workflow-table"
-				element={ <WorkflowTable workflows={ [ workflowOne, workflowTwo ] } /> }
+				element={ <WorkflowTable workflows={ Object.values( workflows ) } /> }
 			/>
 			<Route
 				path="/automations/test-workflow-bulk-actions"
 				element={
 					<div style={ { display: 'flex', flexDirection: 'column', background: 'white' } }>
 						<BulkWorkflowActions />
-						<WorkflowTable workflows={ [ workflowOne, workflowTwo ] } />
+						<WorkflowTable workflows={ Object.values( workflows ) } />
 					</div>
 				}
 			/>
@@ -91,6 +95,21 @@ export const AutomationsAdmin = () => {
 							<EditModal isOpen={ isModalOpen } onClose={ closeModal } workflow={ workflow } />
 						</div>
 					)
+				}
+			/>
+			<Route
+				path="/automations/manage/:id?"
+				element={
+					<AdminPage
+						headline={ __( 'Automations', 'zero-bs-crm' ) }
+						subHeadline={ __( 'Streamline your workflows with CRM Automations', 'zero-bs-crm' ) }
+					>
+						<Container>
+							<Col>
+								<WorkflowsHome workflows={ workflows } />
+							</Col>
+						</Container>
+					</AdminPage>
 				}
 			/>
 			<Route path="*" element={ <RedirectHome /> } />

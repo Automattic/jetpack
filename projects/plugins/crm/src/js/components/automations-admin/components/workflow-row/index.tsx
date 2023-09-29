@@ -1,7 +1,10 @@
 import { Button, ToggleControl } from '@automattic/jetpack-components';
+import { dispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Workflow } from 'crm/state/automations-admin/types';
-import { useState } from 'react';
+import { store } from 'crm/state/store';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Checkbox } from '../checkbox';
 import styles from './styles.module.scss';
 
@@ -12,36 +15,58 @@ type WorkflowRowProps = {
 export const WorkflowRow: React.FC< WorkflowRowProps > = props => {
 	const { workflow } = props;
 
-	// TODO: reimplement when store is implemented
-	const [ active, setActive ] = useState( workflow.active );
-	const toggleActive = () => {
-		setActive( ! active );
-	};
+	const selectedWorkflows = useSelect( select => select( store ).getSelectedWorkflows(), [] );
+	const selected = selectedWorkflows.includes( workflow.id );
 
-	// TODO: reimplement when store is implemented
-	const [ selected, setSelected ] = useState( false );
-	const toggleSelected = () => {
-		setSelected( ! selected );
-	};
+	const toggleSelected = useCallback( () => {
+		if ( selected ) {
+			dispatch( store ).deselectWorkflow( workflow.id );
+		} else {
+			dispatch( store ).selectWorkflow( workflow.id );
+		}
+	}, [ selected, workflow.id ] );
+
+	const onToggleActiveClick = useCallback( () => {
+		if ( workflow.active ) {
+			dispatch( store ).deactivateWorkflow( workflow.id );
+		} else {
+			dispatch( store ).activateWorkflow( workflow.id );
+		}
+	}, [ workflow.id, workflow.active, dispatch, store ] );
+
+	const navigate = useNavigate();
+	const onEditClick = useCallback( () => {
+		navigate( `/automations/manage/${ workflow.id }`, { replace: true } );
+	}, [] );
 
 	return (
-		<tr className={ styles.row }>
-			<td>
-				<Checkbox
-					id={ 'workflow_' + workflow.id }
-					checked={ selected }
-					onChange={ toggleSelected }
-				/>
-			</td>
-			<td className={ styles.name }>{ workflow.name }</td>
-			<td className={ styles[ 'status-toggle' ] }>
-				<ToggleControl checked={ active } onChange={ toggleActive } label={ 'Testing' } />
-			</td>
-			<td className={ styles[ 'added-date' ] }>{ workflow.added }</td>
-			<td className={ styles[ 'trigger-description' ] }>{ workflow.triggers[ 0 ].description }</td>
-			<td className={ styles[ 'edit-button' ] }>
-				<Button variant={ 'secondary' }>{ __( 'Edit', 'zero-bs-crm' ) }</Button>
-			</td>
-		</tr>
+		<>
+			<tr className={ styles.row }>
+				<td>
+					<Checkbox
+						id={ 'workflow_' + workflow.id }
+						checked={ selected }
+						onChange={ toggleSelected }
+					/>
+				</td>
+				<td className={ styles.name }>{ workflow.name }</td>
+				<td className={ styles[ 'status-toggle' ] }>
+					<ToggleControl
+						checked={ workflow.active }
+						onChange={ onToggleActiveClick }
+						label={ __( 'Active', 'zero-bs-crm' ) }
+					/>
+				</td>
+				<td className={ styles[ 'added-date' ] }>{ workflow.added }</td>
+				<td className={ styles[ 'trigger-description' ] }>
+					{ workflow.triggers[ 0 ].description }
+				</td>
+				<td className={ styles[ 'edit-button' ] }>
+					<Button variant={ 'secondary' } onClick={ onEditClick }>
+						{ __( 'Edit', 'zero-bs-crm' ) }
+					</Button>
+				</td>
+			</tr>
+		</>
 	);
 };
