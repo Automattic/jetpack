@@ -98,7 +98,7 @@ export const AutomationsAdmin = () => {
 				}
 			/>
 			<Route
-				path="/automations/manage/:id?"
+				path="/automations/:id?"
 				element={
 					<AdminPage
 						headline={ __( 'Automations', 'zero-bs-crm' ) }

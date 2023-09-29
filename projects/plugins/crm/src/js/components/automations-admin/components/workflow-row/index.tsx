@@ -36,7 +36,7 @@ export const WorkflowRow: React.FC< WorkflowRowProps > = props => {
 
 	const navigate = useNavigate();
 	const onEditClick = useCallback( () => {
-		navigate( `/automations/manage/${ workflow.id }`, { replace: true } );
+		navigate( `/automations/${ workflow.id }`, { replace: true } );
 	}, [] );
 
 	return (

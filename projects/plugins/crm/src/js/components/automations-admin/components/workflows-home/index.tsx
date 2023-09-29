@@ -22,7 +22,7 @@ export const WorkflowsHome: React.FC< WorkflowsHomeProps > = ( { workflows } ) =
 
 	const navigate = useNavigate();
 	const onEditModalClose = useCallback( () => {
-		navigate( '/automations/manage', { replace: true } );
+		navigate( '/automations', { replace: true } );
 	}, [ navigate ] );
 
 	return (
