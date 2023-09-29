@@ -399,6 +399,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	 */
 	protected function prune_workflow_response( array $workflow_data ): array {
 		$static_step_fields = array(
+			'id',
 			'title',
 			'description',
 			'category',
