@@ -34,7 +34,11 @@ const Seo = () => {
 		return (
 			<Fragment>
 				<JetpackPluginSidebar>
-					<PanelBody className="jetpack-seo-panel" { ...jetpackSeoPanelProps }>
+					<PanelBody
+						className="jetpack-seo-panel"
+						{ ...jetpackSeoPanelProps }
+						initialOpen={ false }
+					>
 						{ isLoadingModules ? (
 							<SeoSkeletonLoader />
 						) : (
