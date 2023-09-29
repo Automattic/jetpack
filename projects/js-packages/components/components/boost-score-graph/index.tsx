@@ -65,7 +65,7 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 	if ( periods.length > 0 ) {
 		periods = [
 			{
-				timestamp: periods[ 0 ].timestamp - 2 * 24 * 60 * 60 * 1000,
+				timestamp: startDate - 24 * 60 * 60 * 1000,
 				dimensions: periods[ 0 ].dimensions,
 			},
 			...periods,
