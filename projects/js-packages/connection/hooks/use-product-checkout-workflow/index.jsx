@@ -54,17 +54,26 @@ export default function useProductCheckoutWorkflow( {
 
 	const checkoutUrl = useMemo( () => {
 		const origin = getCalypsoOrigin();
-		const useConnetAfterCheckoutFlow = ! isRegistered && connectAfterCheckout;
+		const shouldConnectAfterCheckout =
+			( ! isRegistered || ! isUserConnected ) && connectAfterCheckout;
 
-		const checkoutPath = useConnetAfterCheckoutFlow
+		const checkoutPath = shouldConnectAfterCheckout
 			? 'checkout/jetpack/'
 			: `checkout/${ siteSuffix }/`;
 
 		const productCheckoutUrl = new URL( `${ origin }${ checkoutPath }${ productSlug }` );
 
-		if ( useConnetAfterCheckoutFlow ) {
+		if ( shouldConnectAfterCheckout ) {
 			productCheckoutUrl.searchParams.set( 'connect_after_checkout', true );
 			productCheckoutUrl.searchParams.set( 'admin_url', adminUrl );
+			/**
+			 * `from_site_slug` is the Jetpack site slug (siteSuffix) passed 'from the site' via url
+			 * query arg (into	Calypso), for use cases when there is not a site in context (such
+			 * as when Jetpack is not connected or the user is not logged in) but we need to know
+			 * the site we're working with). As opposed to Calypso's use of `siteSlug`
+			 * which is the site slug present when the site is in context (ie- the site is available
+			 * in State, such as when the site is connected and the user is logged in).
+			 */
 			productCheckoutUrl.searchParams.set( 'from_site_slug', siteSuffix );
 		} else {
 			productCheckoutUrl.searchParams.set( 'site', siteSuffix );
@@ -88,9 +97,10 @@ export default function useProductCheckoutWorkflow( {
 		isUserConnected,
 	] );
 
+	debug( 'isRegistered is %s', isRegistered );
+	debug( 'isUserConnected is %s', isUserConnected );
 	debug( 'connectAfterCheckout is %s', connectAfterCheckout );
 	debug( 'checkoutUrl is %s', checkoutUrl );
-	debug( 'isUserConnected is %s', isUserConnected );
 
 	const handleAfterRegistration = () => {
 		return Promise.resolve(
@@ -123,6 +133,8 @@ export default function useProductCheckoutWorkflow( {
 	const run = event => {
 		event && event.preventDefault();
 		setCheckoutStarted( true );
+		// By default we will connect first prior to checkout unless `props.connectAfterCheckout`
+		// is set (true), in which we will connect after purchase is completed.
 		if ( connectAfterCheckout ) {
 			return connectAfterCheckoutFlow();
 		}
