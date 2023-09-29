@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
 use Automattic\Jetpack\CRM\Automation\Base_Action;
-use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Transaction_Data;
 use Automattic\Jetpack\CRM\Entities\Transaction;
@@ -82,8 +81,6 @@ class Set_Transaction_Status extends Base_Action {
 	 * @since $$next-version$$
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
-	 *
-	 * @throws Data_Type_Exception If the data do not look valid.
 	 */
 	protected function execute( Data_Type $data ) {
 		/** @var Transaction $transaction */

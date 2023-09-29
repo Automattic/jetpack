@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
 use Automattic\Jetpack\CRM\Automation\Base_Action;
-use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
 
@@ -81,8 +80,6 @@ class Add_Remove_Contact_Tag extends Base_Action {
 	 * @since $$next-version$$
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
-	 *
-	 * @throws Data_Type_Exception When the data type is not supported.
 	 */
 	protected function execute( Data_Type $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		/** @var Contact $contact */
