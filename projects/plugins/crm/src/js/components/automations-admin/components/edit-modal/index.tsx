@@ -3,6 +3,7 @@ import { Modal } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { StepConfig } from '../step-config';
+import { TriggerInfo } from '../trigger-info';
 import styles from './styles.module.scss';
 import type { Step, Workflow } from 'crm/state/automations-admin/types';
 
@@ -48,6 +49,7 @@ export const EditModal: React.FC< EditModalProps > = ( { isOpen, onClose, workfl
 						<div className={ styles.subheader }>
 							{ __( 'Define and customize the workflow', 'zero-bs-crm' ) }
 						</div>
+						<TriggerInfo trigger={ workflow.triggers[ 0 ] } />
 						{ steps.map( step => (
 							<div className={ styles[ 'step-container' ] }>
 								<StepConfig workflowId={ workflow.id } step={ step } />
