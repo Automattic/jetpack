@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useAiContext, withAiDataProvider } from '@automattic/jetpack-ai-client';
+import { JETPACK_MODULES_STORE_ID } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -48,6 +49,14 @@ export function isPossibleToExtendJetpackFormBlock(
 
 	// clientId is required
 	if ( ! clientId?.length ) {
+		return false;
+	}
+
+	const isContactFormModuleActive =
+		select( JETPACK_MODULES_STORE_ID ).isModuleActive( 'contact-form' );
+
+	const isModuleUpdating = select( JETPACK_MODULES_STORE_ID ).areModulesUpdating();
+	if ( ! isContactFormModuleActive || isModuleUpdating ) {
 		return false;
 	}
 
