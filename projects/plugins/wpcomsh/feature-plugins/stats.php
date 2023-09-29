@@ -17,7 +17,9 @@
  * @return array
  */
 function wpcomsh_extend_stats_menu_item_access( $default_value ) {
-	$default_value['roles'] = array( 'administrator', 'editor', 'author', 'contributor' );
+	if ( is_array( $default_value ) ) {
+		$default_value['roles'] = array( 'administrator', 'editor', 'author', 'contributor' );
+	}
 
 	return $default_value;
 }
