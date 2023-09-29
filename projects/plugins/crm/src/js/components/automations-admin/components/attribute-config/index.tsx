@@ -65,7 +65,7 @@ const getEditValue = (
 				/>
 			);
 		case 'text':
-			return <TextControl value={ value.toString() } onChange={ onChange } />;
+			return <TextControl value={ value } onChange={ onChange } />;
 		case 'checkbox':
 			return (
 				<CheckboxControl

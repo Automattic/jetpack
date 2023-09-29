@@ -3,11 +3,9 @@
 		margin-bottom: 0;
 	}
 
-	select {
-		font-size: var(--font-body) !important;
-	}
-
-	input {
+	input,
+	select,
+	textarea {
 		font-size: var(--font-body) !important;
 	}
 }

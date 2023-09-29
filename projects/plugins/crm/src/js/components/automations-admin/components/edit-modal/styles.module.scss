@@ -17,6 +17,10 @@
 		margin-bottom: 0;
 		font-weight: 400;
 	}
+
+	:global(.is-scrollable) {
+		box-shadow: none;
+	}
 }
 
 .container {
