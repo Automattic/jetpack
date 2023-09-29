@@ -584,12 +584,15 @@ class Test_Identity_Crisis extends BaseTestCase {
 				),
 				$input
 			);
+			// Add reversed_url key
+			$expected_option['reversed_url'] = true;
 		} else {
 			$expected_option = false;
 		}
 
 		$result = Identity_Crisis::init()->check_response_for_idc( $input );
 		$option = Jetpack_Options::get_option( 'sync_error_idc' );
+		$option = Identity_Crisis::reverse_wpcom_urls_for_idc( $option );
 
 		$this->assertTrue( $result );
 		$this->assertSame( $expected_option, $option );

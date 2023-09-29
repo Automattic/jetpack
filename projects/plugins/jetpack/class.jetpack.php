@@ -5660,8 +5660,12 @@ endif;
 		if ( ! self::is_connection_ready() || ( new Status() )->is_offline_mode() || ! Identity_Crisis::validate_sync_error_idc_option() ) {
 			return false;
 		}
-
-		return Jetpack_Options::get_option( 'sync_error_idc' );
+		// Re-reversing WP.com URLs if needed before returning them
+		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
+		if ( isset( $sync_error['reversed_url'] ) ) {
+			$sync_error = Identity_Crisis::reverse_wpcom_urls_for_idc( $sync_error );
+		}
+		return $sync_error;
 	}
 
 	/**
