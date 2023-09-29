@@ -19,5 +19,16 @@
 	"**/.cache/**",
 	"**/jetpack_vendor/**/jetpack_vendor/**",
 	"**/jetpack_vendor/**"
-	]
+	],
+	"phpcs.enable": true,
+	"phpcs.executablePath": "vendor/bin/phpcs",
+	"phpcs.ignorePatterns": [
+		"**/.git/**",
+		"**/.svn/**",
+		"**/.hg/**",
+		"**/.cache/**",
+		"**/jetpack_vendor/**",
+		"**/vendor/**",
+	],
+	"prettier.prettierPath": "node_modules/.pnpm/wp-prettier@2.8.5/node_modules/wp-prettier/index.js"
 }
