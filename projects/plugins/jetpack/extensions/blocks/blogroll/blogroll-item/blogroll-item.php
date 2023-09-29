@@ -61,11 +61,11 @@ function load_assets( $attr, $content, $block ) {
 	$disabled_subscribe_button = '';
 	$subscribe_button_class    = 'is-style-fill';
 	$is_following              = ( function_exists( 'wpcom_subs_is_subscribed' ) && wpcom_subs_is_subscribed(
-				array(
-					'user_id' => get_current_user_id(),
-					'blog_id' => $id,
-				)
-			) ) || isset( $_GET['blogid'] ) && $id === $_GET['blogid']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic.
+		array(
+			'user_id' => get_current_user_id(),
+			'blog_id' => $id,
+		)
+	) ) || isset( $_GET['blogid'] ) && $id === $_GET['blogid']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic.
 
 	if ( $is_following ) {
 		$subscribe_text            = esc_html__( 'Subscribed', 'jetpack' );
@@ -90,7 +90,7 @@ function load_assets( $attr, $content, $block ) {
 		</div>
 HTML;
 
-	$subscribe_button      = <<<HTML
+	$subscribe_button = <<<HTML
 		<!-- wp:button {"className":"$subscribe_button_class"} -->
 		<div class="wp-block-button jetpack-blogroll-item-subscribe-button $subscribe_button_class">
 			<button type="button" class="wp-block-button__link wp-element-button" {$disabled_subscribe_button}>$subscribe_text</button>
@@ -99,10 +99,10 @@ HTML;
 HTML;
 
 	$subscribe_button_html = '';
-	$fieldset = '';
+	$fieldset              = '';
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		$form_buttons_html = do_blocks( $form_buttons );
+		$form_buttons_html     = do_blocks( $form_buttons );
 		$subscribe_button_html = do_blocks( $subscribe_button );
 
 		$fieldset = <<<HTML
