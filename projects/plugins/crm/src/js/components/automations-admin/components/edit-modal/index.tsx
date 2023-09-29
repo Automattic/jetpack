@@ -19,7 +19,7 @@ export const EditModal: React.FC< EditModalProps > = ( { isOpen, onClose, workfl
 	while ( stepId ) {
 		const step: Step = workflow.steps?.[ stepId ];
 		steps.push( step );
-		stepId = step.next_step;
+		stepId = step.next_step_true;
 	}
 
 	const onSave = useCallback( () => {
