@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Finally document PnpmDeterministicModuleIdsPlugin that was added way back in 1.2.0.
