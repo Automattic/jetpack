@@ -375,11 +375,11 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 
 		if ( is_array( $workflow['triggers'] ) ) {
 			foreach ( $workflow['triggers'] as $index => $trigger_slug ) {
-				$trigger_class                         = $this->automation_engine->get_trigger_class( $trigger_slug );
-				$hydrated_trigger                      = new $trigger_class();
-				$trigger                               = $hydrated_trigger->to_array();
-				$trigger['id']                         = $index;
-				$workflow['triggers'][ $trigger_slug ] = $trigger;
+				$trigger_class                  = $this->automation_engine->get_trigger_class( $trigger_slug );
+				$hydrated_trigger               = new $trigger_class();
+				$trigger                        = $hydrated_trigger->to_array();
+				$trigger['id']                  = $index;
+				$workflow['triggers'][ $index ] = $trigger;
 			}
 		}
 
