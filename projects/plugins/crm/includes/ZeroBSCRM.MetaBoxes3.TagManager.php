@@ -204,6 +204,12 @@
 
     class zeroBS__Metabox_TagAdd extends zeroBS__Metabox_Tags{
 
+	/**
+	 * The legacy object name (e.g. 'zerobs_customer')
+	 *
+	 * @var string
+	 */
+	private $postType; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
         public function __construct( $plugin_file, $typeInt = ZBS_TYPE_CONTACT) {
 
