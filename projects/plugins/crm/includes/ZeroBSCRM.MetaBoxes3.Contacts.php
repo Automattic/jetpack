@@ -2200,7 +2200,8 @@ class zeroBS__Metabox_ContactLogs extends zeroBS__Metabox_LogsV2{
 
     public function __construct( $plugin_file ) {
     
-        $this->objtypeid = 1; // until db2 ZBS_TYPE_CONTACT;
+		$this->objtypeid = ZBS_TYPE_CONTACT;
+
         $this->objType = 'contact';
         $this->metaboxID = 'zerobs-customer-logs';
         $this->metaboxTitle = __('Activity Log',"zero-bs-crm");
