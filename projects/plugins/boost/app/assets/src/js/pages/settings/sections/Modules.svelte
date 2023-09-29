@@ -113,6 +113,7 @@
 				isFatalError={$isFatalError}
 				primaryErrorSet={$primaryErrorSet}
 				suggestRegenerate={$suggestRegenerate}
+				{regenerateCriticalCss}
 			/>
 		</div>
 
@@ -177,6 +178,7 @@
 				isFatalError={$isFatalError}
 				primaryErrorSet={$primaryErrorSet}
 				suggestRegenerate={$suggestRegenerate}
+				{regenerateCriticalCss}
 			/>
 		</div>
 	</Module>

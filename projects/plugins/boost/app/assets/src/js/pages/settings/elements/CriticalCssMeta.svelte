@@ -13,6 +13,7 @@
 	export let isFatalError: boolean;
 	export let primaryErrorSet;
 	export let suggestRegenerate;
+	export let regenerateCriticalCss;
 
 	$: successCount = cssState.providers.filter( provider => provider.status === 'success' ).length;
 </script>
@@ -32,6 +33,7 @@
 		status={cssState.status}
 		{primaryErrorSet}
 		statusError={cssState.status_error}
+		{regenerateCriticalCss}
 	/>
 {:else}
 	<CriticalCssStatus
