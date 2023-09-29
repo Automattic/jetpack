@@ -52,7 +52,7 @@ class Company_Entity_Test extends JPCRM_Base_Integration_Test_Case {
 		global $zbs;
 
 		// Prepare the Company data from the instance to save it via DAL
-		$company_data_to_save = Company_Factory::data_for_db( $company );
+		$company_data_to_save = Company_Factory::data_for_dal( $company );
 
 		$id = $zbs->DAL->companies->addUpdateCompany( $company_data_to_save );
 

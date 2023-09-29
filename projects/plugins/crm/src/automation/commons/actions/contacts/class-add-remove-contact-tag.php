@@ -9,7 +9,9 @@
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
 use Automattic\Jetpack\CRM\Automation\Base_Action;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
 
 /**
  * Adds the Add_Remove_Contact_Tag class.
@@ -59,7 +61,7 @@ class Add_Remove_Contact_Tag extends Base_Action {
 	 * @return string The type of the step.
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Contact::get_slug();
+		return Contact_Data::class;
 	}
 
 	/**
@@ -74,30 +76,25 @@ class Add_Remove_Contact_Tag extends Base_Action {
 	}
 
 	/**
-	 * Get the allowed triggers.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string[] The allowed triggers.
-	 */
-	public static function get_allowed_triggers(): ?array {
-		return array();
-	}
-
-	/**
 	 * Add / remove the tag to / from the contact via the DAL.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param mixed  $data Data passed from the trigger.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 * @param Data_Type $data Data passed from the trigger.
+	 *
+	 * @throws Data_Type_Exception When the data type is not supported.
 	 */
-	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		global $zbs;
+	public function execute( Data_Type $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Check if the Data_Type passed is the expected.
+		$this->validate( $data );
 
+		/** @var Contact $contact */
+		$contact = $data->get_data();
+
+		global $zbs;
 		$zbs->DAL->contacts->addUpdateContactTags( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			array(
-				'id'        => $data['id'],
+				'id'        => $contact->id,
 				'mode'      => $this->attributes['mode'],
 				'tag_input' => $this->attributes['tag_input'],
 			)

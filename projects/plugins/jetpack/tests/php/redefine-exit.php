@@ -14,7 +14,12 @@
 class ExitException extends Exception {
 }
 
-require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';
+// If we're running under `jetpack docker phpunit --php`, Patchwork is located in DOCKER_PHPUNIT_BASE_DIR.
+if ( getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) ) {
+	require_once getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) . '/vendor/antecedent/patchwork/Patchwork.php';
+} else {
+	require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';
+}
 
 $exitfunc = function ( $arg = null ) {
 	// While Patchwork does have a way to exclude files from replacement,

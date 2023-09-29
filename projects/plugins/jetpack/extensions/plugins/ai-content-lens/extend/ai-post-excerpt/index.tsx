@@ -6,7 +6,7 @@ import {
 	ERROR_QUOTA_EXCEEDED,
 	useAiSuggestions,
 } from '@automattic/jetpack-ai-client';
-import { TextareaControl, ExternalLink, Button, Notice } from '@wordpress/components';
+import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useState, useEffect } from '@wordpress/element';
@@ -18,7 +18,6 @@ import React from 'react';
  */
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
 import { isBetaExtension } from '../../../../editor';
-import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
  * Types and constants
@@ -46,9 +45,6 @@ function AiPostExcerpt() {
 		select => select( 'core/editor' ).getEditedPostAttribute( 'excerpt' ),
 		[]
 	);
-
-	// Use the hook only to get the autosave function. It won't be used for redirect.
-	const { autosave } = useAutosaveAndRedirect();
 
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 	const { editPost } = useDispatch( 'core/editor' );
@@ -112,12 +108,9 @@ function AiPostExcerpt() {
 	/**
 	 * Request AI for a new excerpt.
 	 *
-	 * @param {React.MouseEvent} ev - The click event.
 	 * @returns {void}
 	 */
-	async function requestExcerpt( ev: React.MouseEvent ): Promise< void > {
-		await autosave( ev );
-
+	function requestExcerpt(): void {
 		// Enable Generate button
 		setReenable( false );
 
@@ -215,33 +208,37 @@ ${ postContent }
 					disabled={ isBusy || isQuotaExceeded }
 				/>
 
-				<div className="jetpack-generated-excerpt__generate-buttons-container">
-					<Button
-						onClick={ discardExpert }
-						variant="secondary"
-						isDestructive
-						disabled={ requestingState !== 'done' || isQuotaExceeded }
-					>
-						{ __( 'Discard', 'jetpack' ) }
-					</Button>
-
-					<Button
-						onClick={ setExpert }
-						variant="secondary"
-						disabled={ requestingState !== 'done' || isQuotaExceeded }
-					>
-						{ __( 'Accept', 'jetpack' ) }
-					</Button>
-
-					<Button
-						onClick={ requestExcerpt }
-						variant="secondary"
-						isBusy={ isBusy }
-						disabled={ isGenerateButtonDisabled || isQuotaExceeded }
-					>
-						{ __( 'Generate', 'jetpack' ) }
-					</Button>
-				</div>
+				<BaseControl
+					help={
+						! postContent?.length ? __( 'Add content to generate an excerpt.', 'jetpack' ) : null
+					}
+				>
+					<div className="jetpack-generated-excerpt__generate-buttons-container">
+						<Button
+							onClick={ discardExpert }
+							variant="secondary"
+							isDestructive
+							disabled={ requestingState !== 'done' || isQuotaExceeded }
+						>
+							{ __( 'Discard', 'jetpack' ) }
+						</Button>
+						<Button
+							onClick={ setExpert }
+							variant="secondary"
+							disabled={ requestingState !== 'done' || isQuotaExceeded }
+						>
+							{ __( 'Accept', 'jetpack' ) }
+						</Button>
+						<Button
+							onClick={ requestExcerpt }
+							variant="secondary"
+							isBusy={ isBusy }
+							disabled={ isGenerateButtonDisabled || isQuotaExceeded || ! postContent }
+						>
+							{ __( 'Generate', 'jetpack' ) }
+						</Button>
+					</div>
+				</BaseControl>
 			</div>
 		</div>
 	);

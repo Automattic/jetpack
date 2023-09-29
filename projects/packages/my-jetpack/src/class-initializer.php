@@ -20,6 +20,7 @@ use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Jetpack;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -31,7 +32,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '3.6.0';
+	const PACKAGE_VERSION = '3.7.0-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -178,6 +179,7 @@ class Initializer {
 				'adminUrl'              => esc_url( admin_url() ),
 				'IDCContainerID'        => static::get_idc_container_id(),
 				'userIsAdmin'           => current_user_can( 'manage_options' ),
+				'isStatsModuleActive'   => Jetpack::is_module_active( 'stats' ),
 			)
 		);
 

@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Added user content link tracking and redirection for links coming from emails.
