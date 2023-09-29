@@ -8,7 +8,6 @@ use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Tests\Automation_Faker;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
-use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
 use Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -548,7 +547,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 			$this->automation_faker->workflow_with_condition_action()
 		);
 
-		$workflow_data['triggers'] = array( Contact_Created::get_slug() );
+		$workflow_data['triggers'] = array( Contact_Created_Trigger::get_slug() );
 
 		$workflow = new Automation_Workflow( $workflow_data );
 
