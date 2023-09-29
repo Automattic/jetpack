@@ -32,11 +32,10 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * Goodreads block registration/dependency declaration.
  *
  * @param array  $attr    Array containing the Goodreads block attributes.
- * @param string $content String containing the Goodreads block content.
  *
  * @return string
  */
-function load_assets( $attr, $content ) {
+function load_assets( $attr ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
