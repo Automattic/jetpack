@@ -102,7 +102,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 
 		// Check if the triggers are added
 		$triggers = $workflow->get_triggers();
-		$this->assertEquals( 'jpcrm/contact_created', $triggers[0] );
+		$this->assertEquals( Contact_Created_Trigger::get_slug(), $triggers[0] );
 		$this->assertEquals( 'jpcrm/contact_updated', $triggers[1] );
 		$this->assertEquals( 'jpcrm/contact_deleted', $triggers[2] );
 	}
@@ -194,7 +194,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 					$this->isInstanceOf( Base_Trigger::class ),
 					$this->callback(
 						function ( $trigger ) {
-							return $trigger::get_slug() === 'jpcrm/contact_created';
+							return $trigger::get_slug() === Contact_Created_Trigger::get_slug();
 						}
 					)
 				),

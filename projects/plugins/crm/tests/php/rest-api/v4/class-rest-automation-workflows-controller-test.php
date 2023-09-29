@@ -2,11 +2,13 @@
 
 namespace Automattic\Jetpack\CRM\Tests;
 
+use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Tests\Automation_Faker;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
+use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
 use Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -311,8 +313,8 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 			// We could also use two unique triggers, but this makes it, so we don't have to
 			// register more triggers to run the test.
 			'triggers'     => array(
-				'jpcrm/contact_created',
-				'jpcrm/contact_created',
+				Contact_Created_Trigger::get_slug(),
+				Contact_Created_Trigger::get_slug(),
 			),
 			'initial_step' => 'updated_step_2',
 			'steps'        => array(
@@ -536,6 +538,8 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 			$data,
 			$this->automation_faker->workflow_with_condition_action()
 		);
+
+		$workflow_data['triggers'] = array( Contact_Created::get_slug() );
 
 		$workflow = new Automation_Workflow( $workflow_data );
 
