@@ -12,6 +12,11 @@
 	:global(.components-modal__content) {
 		padding: 0 32px 32px 32px;
 	}
+
+	:global(.components-checkbox-control__label) {
+		margin-bottom: 0;
+		font-weight: 400;
+	}
 }
 
 .container {

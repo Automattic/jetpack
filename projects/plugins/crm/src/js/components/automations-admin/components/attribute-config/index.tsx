@@ -1,4 +1,10 @@
-import { DatePicker, SelectControl, TextareaControl, TextControl } from '@wordpress/components';
+import {
+	CheckboxControl,
+	DatePicker,
+	SelectControl,
+	TextareaControl,
+	TextControl,
+} from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import { store } from 'crm/state/store';
 import { useCallback } from 'react';
@@ -30,7 +36,9 @@ export const AttributeConfig: React.FC< AttributeConfigProps > = ( {
 
 	return (
 		<div className={ styles.container }>
-			<div className={ styles.title }>{ definition.title }</div>
+			{ definition.type !== 'checkbox' && (
+				<div className={ styles.title }>{ definition.title }</div>
+			) }
 			{ editValue }
 		</div>
 	);
@@ -59,6 +67,13 @@ const getEditValue = (
 		case 'text':
 			return <TextControl value={ value.toString() } onChange={ onChange } />;
 		case 'checkbox':
+			return (
+				<CheckboxControl
+					label={ definition.title }
+					checked={ value as boolean }
+					onChange={ onChange }
+				/>
+			);
 		case 'textarea':
 			return <TextareaControl value={ value as string } onChange={ onChange } />;
 		case 'date':
