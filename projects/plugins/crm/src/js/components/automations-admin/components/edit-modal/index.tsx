@@ -6,7 +6,7 @@ import { useCallback } from 'react';
 import { StepConfig } from '../step-config';
 import { TriggerInfo } from '../trigger-info';
 import styles from './styles.module.scss';
-import type { Step, Workflow } from 'crm/state/automations-admin/types';
+import type { Step, Trigger, Workflow } from 'crm/state/automations-admin/types';
 
 type EditModalProps = {
 	workflow: Workflow;
@@ -58,7 +58,11 @@ export const EditModal: React.FC< EditModalProps > = ( {
 						<div className={ styles.subheader }>
 							{ __( 'Define and customize the workflow', 'zero-bs-crm' ) }
 						</div>
-						<TriggerInfo trigger={ workflow.triggers[ 0 ] } />
+
+						{ workflow.triggers.map( ( trigger: Trigger ) => (
+							<TriggerInfo trigger={ trigger } />
+						) ) }
+
 						{ steps.map( step => (
 							<div className={ styles[ 'step-container' ] }>
 								<StepConfig workflowId={ workflow.id } step={ step } />
