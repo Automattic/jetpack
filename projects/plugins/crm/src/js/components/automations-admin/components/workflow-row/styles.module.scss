@@ -32,7 +32,31 @@
 
 .trigger-description {
 	margin-right: var(--jp-modal-padding);
-	min-width: 274px;
+	min-width: 175px;
+	display: flex;
+	align-items: center;
+
+	:global(.icon-tooltip-wrapper) {
+		margin-left: 5px;
+	}
+}
+
+.icon-container {
+	:global(.components-popover__content) {
+		padding: 16px;
+	}
+
+	:global(.icon-tooltip-title) {
+		font-size: var(--font-body);
+		font-weight: 600;
+		margin-bottom: 10px;
+	}
+
+	:global(.icon-tooltip-description) {
+		font-size: var(--font-body);
+		font-weight: 400;
+		margin-bottom: 0;
+	}
 }
 
 .edit-button {

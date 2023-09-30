@@ -1,4 +1,4 @@
-import { Button, ToggleControl } from '@automattic/jetpack-components';
+import { Button, IconTooltip, ToggleControl } from '@automattic/jetpack-components';
 import { dispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useMutateAutomationWorkflows } from 'crm/data/hooks/mutations';
@@ -67,7 +67,17 @@ export const WorkflowRow: React.FC< WorkflowRowProps > = props => {
 				</td>
 				<td className={ styles[ 'added-date' ] }>{ added }</td>
 				<td className={ styles[ 'trigger-description' ] }>
-					{ workflow.triggers[ 0 ].description }
+					{ workflow.triggers[ 0 ].title }
+					<IconTooltip
+						title={ workflow.triggers[ 0 ].title }
+						className={ styles[ 'icon-container' ] }
+						iconClassName={ styles[ 'popover-icon' ] }
+						placement={ 'bottom-end' }
+						iconSize={ 16 }
+						offset={ 4 }
+					>
+						{ workflow.triggers[ 0 ].description }
+					</IconTooltip>
 				</td>
 				<td className={ styles[ 'edit-button' ] }>
 					<Button variant={ 'secondary' } onClick={ onEditClick }>
