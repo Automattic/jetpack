@@ -1,21 +1,29 @@
 import axios from 'axios';
 import { urls } from 'crm/data/urls';
-import { Workflow } from 'crm/state/automations-admin/types';
+import { Workflow, ServerPreparedWorkflow } from 'crm/state/automations-admin/types';
+import { getServerPreparedWorkflow } from 'crm/state/automations-admin/util';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let jpcrmAutomationsInitialState: any;
 
 const getAxiosHeader = () => ( { 'X-WP-Nonce': jpcrmAutomationsInitialState.apiNonce } );
 
+const api = axios.create( {
+	baseURL: `${ jpcrmAutomationsInitialState.apiRoot }jetpack-crm/v4`,
+	headers: getAxiosHeader(),
+} );
+
 export const getAutomationWorkflows =
 	( hydrate: ( workflows: Workflow[] ) => void ) => async () => {
-		const result = await axios.get< Workflow[] >( urls.automation.workflows(), {
-			headers: getAxiosHeader(),
-		} );
+		const result = await api.get< Workflow[] >( urls.automation.workflows() );
 		result.data && hydrate( result.data );
 		return result;
 	};
 
 export const postAutomationWorkflow = async ( workflow: Workflow ) => {
-	return await axios.post< Workflow >( urls.automation.workflows( workflow.id ), workflow );
+	const serverPreparedWorkflow = getServerPreparedWorkflow( workflow );
+	return await api.post< ServerPreparedWorkflow >(
+		urls.automation.workflows( workflow.id ),
+		serverPreparedWorkflow
+	);
 };
