@@ -17,6 +17,7 @@ export type Step = {
 	title: string;
 	description: string;
 	type: Type;
+	step_type: StepType;
 	category: Category;
 	allowedTriggers: Trigger[];
 };
@@ -40,6 +41,8 @@ export type Workflow = {
 export type ServerPreparedWorkflow = Workflow & { triggers: string[] };
 
 export type Type = 'contacts';
+
+export type StepType = 'action' | 'condition';
 
 export type Category = string;
 

@@ -1,6 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
+import { StepLabel } from 'crm/components/automations-admin/components/step-label';
 import { useMutateAutomationWorkflows } from 'crm/data/hooks/mutations';
 import { useCallback } from 'react';
 import { StepConfig } from '../step-config';
@@ -66,6 +67,7 @@ export const EditModal: React.FC< EditModalProps > = ( {
 						{ steps.map( step => (
 							<div className={ styles[ 'step-container' ] }>
 								<StepConfig workflowId={ workflow.id } step={ step } />
+								<StepLabel className={ styles[ 'step-label' ] } type={ step.step_type } />
 							</div>
 						) ) }
 						<div className={ styles[ 'button-container' ] }>
