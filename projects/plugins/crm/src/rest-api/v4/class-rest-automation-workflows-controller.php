@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\CRM\REST_API\V4;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
+use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository;
 use Automattic\Jetpack\CRM\Automation\Workflow_Exception;
@@ -342,7 +343,12 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	 */
 	public function prepare_items_for_response( $workflows, $request ) {
 		foreach ( $workflows as $index => $workflow ) {
-			$workflows[ $index ] = $this->prepare_item_for_response( $workflow, $request );
+			try {
+				$workflows[ $index ] = $this->prepare_item_for_response( $workflow, $request );
+			} catch ( Automation_Exception $e ) {
+				// @todo: Save the logs and show them in the UI. Continue preparing workflows skipping this workflow from the response.
+				continue;
+			}
 		}
 
 		return $workflows;
