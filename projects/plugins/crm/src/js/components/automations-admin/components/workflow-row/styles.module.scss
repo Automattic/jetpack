@@ -1,6 +1,5 @@
 .row {
 	height: auto;
-
 	font-size: var(--font-body);
 
 	td {
@@ -14,7 +13,7 @@
 }
 
 .status-toggle {
-	margin-right: 24px;
+	margin-right: var(--jp-modal-padding);
 
 	label {
 		font-size: var(--font-body);
@@ -28,11 +27,12 @@
 }
 
 .added-date {
-	margin-right: 24px;
+	margin-right: var(--jp-modal-padding);
 }
 
 .trigger-description {
-	margin-right: 24px;
+	margin-right: var(--jp-modal-padding);
+	min-width: 274px;
 }
 
 .edit-button {
