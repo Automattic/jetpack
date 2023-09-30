@@ -34,7 +34,10 @@ export const WorkflowsHome: React.FC = () => {
 	return (
 		<div className={ styles.container }>
 			<BulkWorkflowActions />
-			<WorkflowTable workflows={ Object.values( workflows ) } />
+			<WorkflowTable
+				workflows={ Object.values( workflows ) }
+				refetchWorkflows={ refetchWorkflows }
+			/>
 			{ workflow && (
 				<EditModal
 					isOpen={ !! workflow }

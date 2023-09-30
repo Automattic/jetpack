@@ -1,6 +1,7 @@
 import { Button, ToggleControl } from '@automattic/jetpack-components';
 import { dispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { useMutateAutomationWorkflows } from 'crm/data/hooks/mutations';
 import { Workflow } from 'crm/state/automations-admin/types';
 import { store } from 'crm/state/store';
 import { useCallback } from 'react';
@@ -10,13 +11,16 @@ import styles from './styles.module.scss';
 
 type WorkflowRowProps = {
 	workflow: Workflow;
+	refetchWorkflows: () => void;
 };
 
 export const WorkflowRow: React.FC< WorkflowRowProps > = props => {
-	const { workflow } = props;
+	const { workflow, refetchWorkflows } = props;
 
 	const selectedWorkflows = useSelect( select => select( store ).getSelectedWorkflows(), [] );
 	const selected = selectedWorkflows.includes( workflow.id );
+
+	const { mutate: mutateWorkflows } = useMutateAutomationWorkflows();
 
 	const toggleSelected = useCallback( () => {
 		if ( selected ) {
@@ -27,12 +31,13 @@ export const WorkflowRow: React.FC< WorkflowRowProps > = props => {
 	}, [ selected, workflow.id ] );
 
 	const onToggleActiveClick = useCallback( () => {
-		if ( workflow.active ) {
-			dispatch( store ).deactivateWorkflow( workflow.id );
-		} else {
-			dispatch( store ).activateWorkflow( workflow.id );
-		}
-	}, [ workflow.id, workflow.active, dispatch, store ] );
+		mutateWorkflows(
+			{ ...workflow, active: ! workflow.active },
+			{
+				onSuccess: () => refetchWorkflows(),
+			}
+		);
+	}, [ workflow, workflow.active, mutateWorkflows, refetchWorkflows ] );
 
 	const navigate = useNavigate();
 	const onEditClick = useCallback( () => {
