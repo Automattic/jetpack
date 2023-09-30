@@ -6,11 +6,9 @@ import { getServerPreparedWorkflow } from 'crm/state/automations-admin/util';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let jpcrmAutomationsInitialState: any;
 
-const getAxiosHeader = () => ( { 'X-WP-Nonce': jpcrmAutomationsInitialState.apiNonce } );
-
 const api = axios.create( {
 	baseURL: `${ jpcrmAutomationsInitialState.apiRoot }jetpack-crm/v4`,
-	headers: getAxiosHeader(),
+	headers: { 'X-WP-Nonce': jpcrmAutomationsInitialState.apiNonce },
 } );
 
 export const getAutomationWorkflows =
