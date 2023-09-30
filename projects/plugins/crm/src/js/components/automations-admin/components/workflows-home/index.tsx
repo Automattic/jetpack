@@ -33,7 +33,7 @@ export const WorkflowsHome: React.FC = () => {
 
 	return (
 		<div className={ styles.container }>
-			<BulkWorkflowActions />
+			<BulkWorkflowActions refetchWorkflows={ refetchWorkflows } />
 			<WorkflowTable
 				workflows={ Object.values( workflows ) }
 				refetchWorkflows={ refetchWorkflows }
