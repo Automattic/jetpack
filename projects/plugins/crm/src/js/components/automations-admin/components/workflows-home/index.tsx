@@ -1,18 +1,24 @@
+import { dispatch, useSelect } from '@wordpress/data';
+import { useGetAutomationWorkflows } from 'crm/data/hooks/queries';
+import { store } from 'crm/state/store';
 import { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BulkWorkflowActions } from '../bulk-workflow-actions';
 import { EditModal } from '../edit-modal';
 import { WorkflowTable } from '../workflow-table';
 import styles from './styles.module.scss';
-import type { AutomationsState } from 'crm/state/automations-admin/reducer';
 import type { Workflow } from 'crm/state/automations-admin/types';
 
-type WorkflowsHomeProps = {
-	workflows: AutomationsState[ 'workflows' ];
-};
-
-export const WorkflowsHome: React.FC< WorkflowsHomeProps > = ( { workflows } ) => {
+export const WorkflowsHome: React.FC = () => {
 	const { id } = useParams< { id: string } >();
+
+	const hydrateWorkflows = ( workflows: Workflow[] ) => {
+		dispatch( store ).hydrateWorkflows( workflows );
+	};
+
+	const { refetch: refetchWorkflows } = useGetAutomationWorkflows( hydrateWorkflows );
+
+	const workflows = useSelect( select => select( store ).getWorkflows(), [] );
 
 	let workflow: Workflow | undefined;
 	if ( id ) {
@@ -30,7 +36,12 @@ export const WorkflowsHome: React.FC< WorkflowsHomeProps > = ( { workflows } ) =
 			<BulkWorkflowActions />
 			<WorkflowTable workflows={ Object.values( workflows ) } />
 			{ workflow && (
-				<EditModal isOpen={ !! workflow } onClose={ onEditModalClose } workflow={ workflow } />
+				<EditModal
+					isOpen={ !! workflow }
+					onClose={ onEditModalClose }
+					workflow={ workflow }
+					refetchWorkflows={ refetchWorkflows }
+				/>
 			) }
 		</div>
 	);

@@ -12,9 +12,15 @@ type EditModalProps = {
 	workflow: Workflow;
 	isOpen: boolean;
 	onClose: () => void;
+	refetchWorkflows: () => void;
 };
 
-export const EditModal: React.FC< EditModalProps > = ( { isOpen, onClose, workflow } ) => {
+export const EditModal: React.FC< EditModalProps > = ( {
+	isOpen,
+	workflow,
+	onClose,
+	refetchWorkflows,
+} ) => {
 	const steps: Step[] = [];
 
 	let stepId: string | undefined = workflow.initial_step;
@@ -29,12 +35,12 @@ export const EditModal: React.FC< EditModalProps > = ( { isOpen, onClose, workfl
 	const onSave = useCallback( () => {
 		mutateWorkflows( workflow );
 		onClose();
-	}, [ onClose, workflow ] );
+	}, [ workflow, mutateWorkflows, onClose ] );
 
 	const onCancel = useCallback( () => {
-		// TODO: reload workflow here
+		refetchWorkflows();
 		onClose();
-	}, [ onClose ] );
+	}, [ onClose, refetchWorkflows ] );
 
 	const modalTitle = sprintf(
 		/* translators: workflowName is a string which is used to identify the workflow */
