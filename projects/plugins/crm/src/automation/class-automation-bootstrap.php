@@ -140,6 +140,7 @@ final class Automation_Bootstrap {
 	protected function register_conditions(): void {
 		$conditions = array(
 			\Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed::class,
+			\Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status::class,
 			\Automattic\Jetpack\CRM\Automation\Conditions\Invoice_Status_Changed::class,
 			\Automattic\Jetpack\CRM\Automation\Conditions\Entity_Tag::class,
 		);
