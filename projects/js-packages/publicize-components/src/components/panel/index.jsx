@@ -8,17 +8,13 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useReducer } from 'react';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
 import PublicizeConnectionVerify from '../connection-verify';
 import PublicizeForm from '../form';
-import OneClickSharingDropdown from '../one-click-sharing-dropdown';
-import OneClickSharingModal from '../one-click-sharing-modal';
 import { SharePostRow } from '../share-post';
 import PublicizeTwitterOptions from '../twitter/options';
-import styles from './styles.module.scss';
 
 const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
@@ -56,17 +52,8 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 	const PanelWrapper = prePublish ? Fragment : PanelBody;
 	const wrapperProps = prePublish ? {} : { title: __( 'Share this post', 'jetpack' ) };
 
-	const [ isModalOpen, toggleModal ] = useReducer( isOpen => ! isOpen, false );
-
 	return (
-		<PanelWrapper className={ styles.panel } { ...wrapperProps }>
-			{ isPostPublished && (
-				<OneClickSharingDropdown
-					onClickLearnMore={ toggleModal }
-					className={ styles[ 'one-click-share-dropdown' ] }
-				/>
-			) }
-			{ isModalOpen && <OneClickSharingModal onClose={ toggleModal } /> }
+		<PanelWrapper { ...wrapperProps }>
 			{ children }
 			{ ! hidePublicizeFeature && (
 				<Fragment>
