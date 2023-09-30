@@ -13,6 +13,16 @@
 		padding: 0 32px 32px 32px;
 		overflow-x: hidden;
 	}
+
+	:global(.components-checkbox-control__label) {
+		font-size: var(--font-body);
+		margin-bottom: 0;
+		font-weight: 400;
+	}
+
+	:global(.is-scrollable) {
+		box-shadow: none;
+	}
 }
 
 .container {
