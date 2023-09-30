@@ -78,7 +78,6 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 						'active'   => array(
 							'description' => __( 'Whether to return only active workflows.', 'zero-bs-crm' ),
 							'type'        => 'boolean',
-							'default'     => false,
 						),
 						'category' => array(
 							'description' => __( 'The category of the workflow.', 'zero-bs-crm' ),
@@ -152,22 +151,9 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public function get_items( $request ) {
-
-		// If $params['active'] is true then only active workflows should be returned.
-		// Otherwise, all workflows should be returned. This code filters out false values
-		// for $params['active'] to achieve this behavior.
-		$params   = $request->get_params();
-		$criteria = array_filter(
-			$params,
-			function ( $key ) use ( $params ) {
-				return $key !== 'active' || $params['active'] === true;
-			},
-			ARRAY_FILTER_USE_KEY
-		);
-
 		try {
 			$workflows = $this->workflow_repository->find_by(
-				$criteria,
+				$request->get_params(),
 				'id',
 				$this->get_per_page_argument( $request ),
 				$this->get_offset_argument( $request )
