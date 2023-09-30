@@ -37,6 +37,8 @@ export type Workflow = {
 	};
 };
 
+export type ServerPreparedWorkflow = Workflow & { triggers: string[] };
+
 export type Type = 'contacts';
 
 export type Category = string;
