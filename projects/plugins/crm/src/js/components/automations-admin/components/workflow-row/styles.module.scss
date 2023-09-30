@@ -30,11 +30,24 @@
 	margin-right: var(--jp-modal-padding);
 }
 
+.triggers {
+	display: flex;
+	flex-direction: column;
+
+	&__item {
+		display: flex;
+		align-items: center;
+		margin-bottom: 5px;
+
+		&:last-of-type {
+			margin-bottom: 0;
+		}
+	}
+}
+
 .trigger-description {
 	margin-right: var(--jp-modal-padding);
 	min-width: 175px;
-	display: flex;
-	align-items: center;
 
 	:global(.icon-tooltip-wrapper) {
 		margin-left: 5px;

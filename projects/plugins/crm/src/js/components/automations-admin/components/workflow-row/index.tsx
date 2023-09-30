@@ -2,7 +2,7 @@ import { Button, IconTooltip, ToggleControl } from '@automattic/jetpack-componen
 import { dispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useMutateAutomationWorkflows } from 'crm/data/hooks/mutations';
-import { Workflow } from 'crm/state/automations-admin/types';
+import { Trigger, Workflow } from 'crm/state/automations-admin/types';
 import { store } from 'crm/state/store';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -67,17 +67,25 @@ export const WorkflowRow: React.FC< WorkflowRowProps > = props => {
 				</td>
 				<td className={ styles[ 'added-date' ] }>{ added }</td>
 				<td className={ styles[ 'trigger-description' ] }>
-					{ workflow.triggers[ 0 ].title }
-					<IconTooltip
-						title={ workflow.triggers[ 0 ].title }
-						className={ styles[ 'icon-container' ] }
-						iconClassName={ styles[ 'popover-icon' ] }
-						placement={ 'bottom-end' }
-						iconSize={ 16 }
-						offset={ 4 }
-					>
-						{ workflow.triggers[ 0 ].description }
-					</IconTooltip>
+					<div className={ styles.triggers }>
+						{ workflow.triggers.map( ( trigger: Trigger ) => {
+							return (
+								<div className={ styles.triggers__item }>
+									{ trigger.title }
+									<IconTooltip
+										title={ trigger.title }
+										className={ styles[ 'icon-container' ] }
+										iconClassName={ styles[ 'popover-icon' ] }
+										placement={ 'bottom-end' }
+										iconSize={ 16 }
+										offset={ 4 }
+									>
+										{ trigger.description }
+									</IconTooltip>
+								</div>
+							);
+						} ) }
+					</div>
 				</td>
 				<td className={ styles[ 'edit-button' ] }>
 					<Button variant={ 'secondary' } onClick={ onEditClick }>
