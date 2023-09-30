@@ -36,7 +36,6 @@ class Contact_Field_Changed extends Base_Condition {
 			'id'               => __( 'ID', 'zero-bs-crm' ),
 			'fname'            => __( 'First Name', 'zero-bs-crm' ),
 			'lname'            => __( 'Last Name', 'zero-bs-crm' ),
-			'fullname'         => __( 'Full Name', 'zero-bs-crm' ),
 			'status'           => __( 'Status', 'zero-bs-crm' ),
 			'email'            => __( 'Email', 'zero-bs-crm' ),
 			'addr1'            => __( 'Adddress Line 1', 'zero-bs-crm' ),
