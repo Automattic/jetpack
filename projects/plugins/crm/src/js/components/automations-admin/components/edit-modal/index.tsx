@@ -29,7 +29,7 @@ export const EditModal: React.FC< EditModalProps > = ( { isOpen, onClose, workfl
 	const onSave = useCallback( () => {
 		mutateWorkflows( workflow );
 		onClose();
-	}, [ onClose ] );
+	}, [ onClose, workflow ] );
 
 	const onCancel = useCallback( () => {
 		// TODO: reload workflow here
