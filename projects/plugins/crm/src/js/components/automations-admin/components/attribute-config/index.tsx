@@ -61,6 +61,7 @@ const getEditValue = (
 							  } ) )
 							: []
 					}
+					value={ value }
 					onChange={ onChange }
 				/>
 			);

@@ -12,6 +12,7 @@ use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Base_Action;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+use Automattic\Jetpack\CRM\Entities\Contact;
 
 /**
  * Adds the Delete_Contact class.
@@ -39,7 +40,7 @@ class Delete_Contact extends Base_Action {
 	 * @return string|null The title of the step.
 	 */
 	public static function get_title(): ?string {
-		return __( 'Delete Contact Action', 'zero-bs-crm' );
+		return __( 'Delete Contact', 'zero-bs-crm' );
 	}
 
 	/**
@@ -50,7 +51,7 @@ class Delete_Contact extends Base_Action {
 	 * @return string|null The description of the step.
 	 */
 	public static function get_description(): ?string {
-		return __( 'Action to delete the contact', 'zero-bs-crm' );
+		return __( 'This action will delete a contact.', 'zero-bs-crm' );
 	}
 
 	/**
@@ -90,7 +91,7 @@ class Delete_Contact extends Base_Action {
 				new Attribute_Definition(
 					'keep_orphans',
 					__( 'Keep orphans', 'zero-bs-crm' ),
-					__( 'Determines if related objects should be deleted or not.', 'zero-bs-crm' ),
+					__( 'Orphans are all the things that relate to the contact. E.g.: Invoices, quotes, and transactions.', 'zero-bs-crm' ),
 					Attribute_Definition::SELECT,
 					array(
 						1 => __( 'Yes', 'zero-bs-crm' ),
@@ -116,8 +117,8 @@ class Delete_Contact extends Base_Action {
 
 		$zbs->DAL->contacts->deleteContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			array(
-				'id'          => (int) $contact->id,
-				'saveOrphans' => (bool) $this->attributes['keep_orphans'],
+				'id'          => $contact->id,
+				'saveOrphans' => (bool) $this->get_attribute( 'keep_orphans', 1 ),
 			)
 		);
 	}
