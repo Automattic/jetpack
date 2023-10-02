@@ -47,7 +47,7 @@ function AiPostExcerpt() {
 
 		return {
 			excerpt: getEditedPostAttribute( 'excerpt' ) ?? '',
-			postId: getCurrentPostId() ?? [],
+			postId: getCurrentPostId() ?? 0,
 		};
 	}, [] );
 
