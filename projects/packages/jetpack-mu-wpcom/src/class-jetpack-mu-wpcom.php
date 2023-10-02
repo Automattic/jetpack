@@ -40,6 +40,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_marketplace_products_updater' ) );
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_first_posts_stream_helpers' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_domain_email_nag' ) );
 
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
@@ -94,6 +95,12 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_launchpad() {
 		require_once __DIR__ . '/features/launchpad/launchpad.php';
+	}
+	/**
+	 * Load the domain email nag feature.
+	 */
+	public static function load_domain_email_nag() {
+		require_once __DIR__ . '/features/domain-email-nag/domain-email-nag.php';
 	}
 
 	/**
