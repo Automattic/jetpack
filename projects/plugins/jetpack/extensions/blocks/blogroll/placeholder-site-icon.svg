@@ -1,12 +1,12 @@
 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<rect width="48" height="48" fill="#E5E5E5"/>
+<rect width="48" height="48" fill="none"/>
 <g id="edge cases">
-<path d="M-5746 -1273C-5746 -1274.1 -5745.1 -1275 -5744 -1275H2020C2021.1 -1275 2022 -1274.1 2022 -1273V635C2022 636.105 2021.1 637 2020 637H-5744C-5745.1 637 -5746 636.105 -5746 635V-1273Z" fill="#3C434A"/>
+<path d="M-5746 -1273C-5746 -1274.1 -5745.1 -1275 -5744 -1275H2020C2021.1 -1275 2022 -1274.1 2022 -1273V635C2022 636.105 2021.1 637 2020 637H-5744C-5745.1 637 -5746 636.105 -5746 635V-1273Z" fill="none"/>
 <g id="d_v1_overflow" clip-path="url(#clip0_37_971)">
 <rect width="1595" height="1068" transform="translate(-234 -815)"/>
 <g id="Main">
 <g id="Canvas">
-<rect x="-234.5" y="-755.5" width="1316" height="985" fill="#F6F7F7"/>
+<rect x="-234.5" y="-755.5" width="1316" height="985"/>
 <g id="add-site-suggestions">
 <g clip-path="url(#clip1_37_971)">
 <rect x="-22" y="-111" width="350" height="298"/>
