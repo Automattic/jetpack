@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix Google Doc blocks not rendering in the editor
