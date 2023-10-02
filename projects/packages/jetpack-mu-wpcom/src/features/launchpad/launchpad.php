@@ -28,6 +28,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'build'                  => array(
 			'title'               => 'Build',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'setup_general',
 				'design_selected',
 				'plan_selected',
@@ -40,6 +41,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'free'                   => array(
 			'title'               => 'Free',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'plan_selected',
 				'setup_free',
 				'design_selected',
@@ -53,6 +55,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'link-in-bio'            => array(
 			'title'               => 'Link In Bio',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'design_selected',
 				'setup_link_in_bio',
 				'plan_selected',
@@ -64,6 +67,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'link-in-bio-tld'        => array(
 			'title'               => 'Link In Bio',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'design_selected',
 				'setup_link_in_bio',
 				'plan_selected',
@@ -89,6 +93,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'videopress'             => array(
 			'title'               => 'Videopress',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'videopress_setup',
 				'plan_selected',
 				'videopress_upload',
@@ -99,6 +104,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'write'                  => array(
 			'title'               => 'Write',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'setup_write',
 				'design_selected',
 				'plan_selected',
@@ -110,6 +116,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'start-writing'          => array(
 			'title'               => 'Start Writing',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'first_post_published',
 				'setup_blog',
 				'domain_upsell',
@@ -121,6 +128,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'design-first'           => array(
 			'title'               => 'Pick a Design',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'design_completed',
 				'setup_blog',
 				'domain_upsell',

@@ -33,7 +33,7 @@ export const settings = {
 		<Fragment>
 			<p>
 				{ __(
-					'Lets you add credit and debit card payment buttons with minimal setup.',
+					'Add credit and debit card payment buttons with minimal setup. Good for collecting donations or payments for products and services.',
 					'jetpack'
 				) }
 			</p>
