@@ -6,9 +6,21 @@
 	font-style: normal;
 	font-weight: 400;
 
-	figure {
-		margin: 0
-	}
+		figure {
+			margin: 0;
+			height: 48px;
+			width: 48px;
+
+			&.empty-site-icon {
+				background: url('../placeholder-site-icon.svg');
+				background-size: cover;
+				border-radius: 50%;
+
+				img {
+					display: none;
+				}
+			}
+		}
 
 	img {
 		border-radius: 50%;

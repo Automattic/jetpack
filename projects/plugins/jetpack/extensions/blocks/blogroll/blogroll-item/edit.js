@@ -2,7 +2,6 @@ import { RichText, MediaUpload, useBlockProps } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 import './editor.scss';
 import { __ } from '@wordpress/i18n';
-import PlaceholderSiteIcon from '../placeholder-site-icon.svg';
 
 function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 	const { icon, name, description } = attributes;
@@ -20,9 +19,7 @@ function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 						<figure>
 							<img
 								onError={ event => {
-									if ( event.target.src !== PlaceholderSiteIcon ) {
-										event.target.src = PlaceholderSiteIcon;
-									}
+									event.target.parentNode.classList.add( 'empty-site-icon' );
 								} }
 								src={ icon }
 								alt={ name }
