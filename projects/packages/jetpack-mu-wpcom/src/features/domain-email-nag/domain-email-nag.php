@@ -23,7 +23,7 @@ function should_show_domain_frontend_email_nag() {
 		return false;
 	}
 
-	$should_show = Email_Verification::is_domain_email_unverified();
+	$should_show = \Email_Verification::is_domain_email_unverified();
 
 	return apply_filters( 'a8c_show_domain_frontend_email_nag', $should_show );
 }
