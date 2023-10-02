@@ -379,7 +379,11 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_domain_customize_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_domain_customize_task_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/domains/add/' . $data['site_slug_encoded'];
+				// The from parameter is used to redirect the user back to the Launchpad when they
+				// click on the Back button on the domain customization page.
+				// TODO: This can cause problem if this task is used in the future for other flows
+				// that are not in the Customer Home page. We should find a better way to handle this.
+				return '/domains/add/' . $data['site_slug_encoded'] . '?from=my-home';
 			},
 		),
 
