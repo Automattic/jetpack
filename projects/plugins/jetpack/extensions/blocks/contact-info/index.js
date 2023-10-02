@@ -29,7 +29,7 @@ const icon = renderMaterialIcon(
 export const settings = {
 	title: __( 'Contact Info', 'jetpack' ),
 	description: __(
-		'Lets you add an email address, phone number, and physical address with improved markup for better SEO results.',
+		'Add an email address, phone number, and physical address with improved markup for better SEO results.',
 		'jetpack'
 	),
 	keywords: [

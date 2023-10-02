@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Carousel: avoid invalid markup notices in Google Pagespeed insights.
