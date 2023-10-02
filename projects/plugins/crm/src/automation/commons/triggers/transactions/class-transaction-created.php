@@ -78,9 +78,6 @@ class Transaction_Created extends Base_Trigger {
 	 * @return void
 	 */
 	protected function listen_to_event(): void {
-		add_action(
-			'jpcrm_transaction_created',
-			array( $this, 'execute_workflow' )
-		);
+		$this->listen_to_wp_action( 'jpcrm_transaction_created' );
 	}
 }

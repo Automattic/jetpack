@@ -75,11 +75,10 @@ class Task_Deleted extends Base_Trigger {
 	 * Listen to this trigger's target event.
 	 *
 	 * @since $$next-version$$
+	 *
+	 * @return void
 	 */
-	protected function listen_to_event() {
-		add_action(
-			'jpcrm_task_delete',
-			array( $this, 'execute_workflow' )
-		);
+	protected function listen_to_event(): void {
+		$this->listen_to_wp_action( 'jpcrm_task_delete' );
 	}
 }

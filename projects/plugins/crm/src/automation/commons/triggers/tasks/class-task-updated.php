@@ -77,10 +77,7 @@ class Task_Updated extends Base_Trigger {
 	 *
 	 * @return void
 	 */
-	protected function listen_to_event() {
-		add_action(
-			'jpcrm_task_updated',
-			array( $this, 'execute_workflow' )
-		);
+	protected function listen_to_event(): void {
+		$this->listen_to_wp_action( 'jpcrm_task_updated' );
 	}
 }

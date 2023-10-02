@@ -83,9 +83,7 @@ class Update_Contact extends Base_Action {
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
 	 */
-	public function execute( Data_Type $data ) {
-		$this->validate( $data );
-
+	protected function execute( Data_Type $data ) {
 		/** @var Contact $contact */
 		$contact = $data->get_data();
 

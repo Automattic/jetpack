@@ -8,23 +8,12 @@
 
 namespace Automattic\Jetpack\CRM\Automation;
 
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
-
 /**
  * Interface Step.
  *
  * @since $$next-version$$
  */
 interface Step {
-
-	/**
-	 * Execute the step.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param Data_Type $data Data passed from the trigger.
-	 */
-	public function execute( Data_Type $data );
 
 	/**
 	 * Get the next step.
@@ -81,6 +70,28 @@ interface Step {
 	 * @return Attribute_Definition[] The attribute definitions of the step.
 	 */
 	public function get_attribute_definitions(): ?array;
+
+	/**
+	 * Get attribute value.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $attribute The attribute to get.
+	 * @param mixed  $default The default value to return if the attribute is not set.
+	 * @return mixed The attribute value.
+	 */
+	public function get_attribute( string $attribute, $default = null );
+
+	/**
+	 * Set attribute value.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $attribute The attribute key.
+	 * @param mixed  $value The default value.
+	 * @return void
+	 */
+	public function set_attribute( string $attribute, $value );
 
 	/**
 	 * Set the step attribute definitions.

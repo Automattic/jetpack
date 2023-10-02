@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix block view scripts being loaded twice
