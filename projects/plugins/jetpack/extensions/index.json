@@ -1,6 +1,7 @@
 {
 	"production": [
 		"ai-assistant",
+		"ai-chat",
 		"ai-assistant-plugin",
 		"blogging-prompt",
 		"business-hours",
@@ -56,7 +57,6 @@
 		"ai-content-lens"
 	],
 	"beta": [
-		"ai-chat",
 		"amazon",
 		"blogroll",
 		"blogroll-item",
