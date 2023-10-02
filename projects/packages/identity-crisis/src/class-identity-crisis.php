@@ -27,7 +27,11 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
+<<<<<<< HEAD
 	const PACKAGE_VERSION = '0.10.7-alpha';
+=======
+	const PACKAGE_VERSION = '0.11.0-alpha';
+>>>>>>> a1cb9e7578 (Fix lock files)
 
 	/**
 	 * Instance of the object.
