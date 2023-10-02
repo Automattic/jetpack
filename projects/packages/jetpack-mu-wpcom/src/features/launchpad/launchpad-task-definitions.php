@@ -132,11 +132,11 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'verify_domain_email'             => array(
 			'get_title'           => function () {
-				return __( 'Verify email address', 'jetpack-mu-wpcom' );
+				return __( 'Verify domain email address', 'jetpack-mu-wpcom' );
 			},
 			'is_visible_callback' => 'wpcom_launchpad_is_domain_email_unverified',
-			'get_calypso_path'    => function () {
-				return '/me/account';
+			'get_calypso_path'    => function ( $task, $default, $data ) {
+				return '/domains/manage/' . $data['site_slug_encoded'];
 			},
 		),
 
