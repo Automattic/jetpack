@@ -1,12 +1,36 @@
 .jetpack-blogroll__appender-results {
 	padding: 0 18px 18px 18px;
 
-	> div {
+	.jetpack-blogroll__appender-result-list-header-text {
 		padding: 6px 0;
 		font-size: 11px;
 		line-height: 16px;
 		color: var(--gutenberg-gray-700, #757575);
 		text-transform: uppercase;
+	}
+
+	.jetpack-blogroll__appender-no-results-message {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: flex-start;
+		gap: 2px;
+		overflow: hidden;
+	}
+
+	.jetpack-blogroll__appender-no-results-message-main-text {
+		color: var(--gray-gray-100, #101517);
+		font-size: 14px;
+		font-weight: 500;
+		line-height: 20px;
+		letter-spacing: -0.15px;
+	}
+
+	.jetpack-blogroll__appender-no-results-message-secondary-text {
+		color: var(--gutenberg-gray-700, #757575);
+		font-size: 12px;
+		line-height: 16px;
+		font-weight: 400;
 	}
 
 	> ul {

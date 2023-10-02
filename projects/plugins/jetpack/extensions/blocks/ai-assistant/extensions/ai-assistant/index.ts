@@ -30,7 +30,7 @@ type BlockSettingsProps = {
 };
 
 export const isAiAssistantSupportExtensionEnabled =
-	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ AI_ASSISTANT_SUPPORT_NAME ];
+	window?.Jetpack_Editor_Initial_State.available_blocks?.[ AI_ASSISTANT_SUPPORT_NAME ];
 
 /**
  * Check if it is possible to extend the block.
