@@ -93,9 +93,9 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Created::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Deleted::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Updated::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Task_Created::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Task_Deleted::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Task_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Deleted::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Status_Updated::class,
@@ -107,6 +107,7 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Triggers\Quote_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Updated::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\WP_User_Created::class,
 		);
 
 		/**

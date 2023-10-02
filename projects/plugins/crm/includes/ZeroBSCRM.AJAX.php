@@ -1969,9 +1969,9 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$passBack       = array();
 
 			// } Build
-			$newEventColumns = array(); foreach ( $listColumns as $colKey => $colVal ) {
+			$new_task_columns = array(); foreach ( $listColumns as $colKey => $colVal ) {
 
-				$newEventColumns[ $colVal['fieldstr'] ] = array( __( $colVal['namestr'], 'zero-bs-crm' ) );
+				$new_task_columns[ $colVal['fieldstr'] ] = array( __( $colVal['namestr'], 'zero-bs-crm' ) );
 				$passBack[]                             = array(
 					'fieldstr' => __( $colVal['fieldstr'], 'zero-bs-crm' ),
 					'namestr'  => __( $colVal['namestr'], 'zero-bs-crm' ),
@@ -1980,7 +1980,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			}
 
 			// Update
-			$newCustomViews['event'] = $newEventColumns;
+			$newCustomViews['event'] = $new_task_columns;
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
@@ -3488,7 +3488,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 			/*
 			==============================================================================
-			===================== EVENT ================================================= */
+			===================== TASK ================================================= */
 
 			case 'event':
 				// build query
@@ -3601,7 +3601,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					'page'         => $page_number,
 					'perPage'      => $per_page,
 
-					'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_EVENT ),
+					'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_TASK ),
 
 				);
 
@@ -3655,7 +3655,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					}
 				}
 
-				$events = $zbs->DAL->events->getEvents( $args );
+				$tasks = $zbs->DAL->events->getEvents( $args );
 
 				// } If using pagination, also return total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
@@ -3670,11 +3670,11 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				}
 
 				// } Tidy
-				if ( count( $events ) > 0 ) {
-					foreach ( $events as $event ) {
+				if ( count( $tasks ) > 0 ) {
+					foreach ( $tasks as $task ) {
 
 						// DAL3 now processes these in the OBJ class (starting to centralise properly.)
-						$res['objects'][] = $zbs->DAL->events->listViewObj( $event, $columnsRequired );
+						$res['objects'][] = $zbs->DAL->events->listViewObj( $task, $columnsRequired );
 
 					} // / foreach
 				}
@@ -3682,7 +3682,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				break;
 
 			/*
-			=================== / EVENT ==================================================
+			=================== / TASK ==================================================
 			============================================================================= */
 
 			// } Default = non hard typed listtype !
@@ -4432,13 +4432,13 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 
 								// add tag(s) to transaction(s)
 							case 'addtag':
-								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_EVENT, 'zerobscrm_transactiontag' );
+								zeroBSCRM_bulkAction_enact_addTags( $legitIDs, ZBS_TYPE_TASK, 'zerobscrm_transactiontag' );
 
 								break;
 
 								// remove tag(S) from transaction(s)
 							case 'removetag':
-								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_EVENT, 'zerobscrm_transactiontag' );
+								zeroBSCRM_bulkAction_enact_removeTags( $legitIDs, ZBS_TYPE_TASK, 'zerobscrm_transactiontag' );
 
 								break;
 
@@ -4448,7 +4448,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$completed = 0;
 								foreach ( $legitIDs as $id ) {
 
-									// update event as completed
+									// update task as completed
 									$zbs->DAL->events->setEventCompleteness( $id, 1 );
 
 									++$completed;
@@ -4470,7 +4470,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$incompleted = 0;
 								foreach ( $legitIDs as $id ) {
 
-									// update event as completed
+									// update task as completed
 									$zbs->DAL->events->setEventCompleteness( $id, -1 );
 
 									++$incompleted;
@@ -5884,7 +5884,7 @@ function zeroBSCRM_AJAX_betaFeedback() {
 
 /*
 ======================================================
-	Admin AJAX: Events
+	Admin AJAX: Tasks
 ====================================================== */
 
 add_action( 'wp_ajax_mark_task_complete', 'zeroBSCRM_ajax_mark_task_complete' );
@@ -5892,7 +5892,7 @@ function zeroBSCRM_ajax_mark_task_complete() {
 
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
-	if ( ! zeroBSCRM_permsEvents() ) {
+	if ( ! zeroBSCRM_perms_tasks() ) {
 
 		zeroBSCRM_sendJSONError( array( 'permission_error' => 1 ) );
 		exit();
@@ -5932,7 +5932,7 @@ function zeroBSCRM_ajax_mark_task_complete() {
 
 /*
 ======================================================
-	/ Admin AJAX: Events
+	/ Admin AJAX: Tasks
 ====================================================== */
 
 	// sends a proper error response

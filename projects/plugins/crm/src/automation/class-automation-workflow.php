@@ -305,9 +305,9 @@ class Automation_Workflow {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return int
+	 * @return int|null
 	 */
-	public function get_created_at(): int {
+	public function get_created_at(): ?int {
 		return $this->created_at;
 	}
 
@@ -316,9 +316,9 @@ class Automation_Workflow {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return int
+	 * @return int|null
 	 */
-	public function get_updated_at(): int {
+	public function get_updated_at(): ?int {
 		return $this->updated_at;
 	}
 

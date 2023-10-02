@@ -58,7 +58,7 @@ class Delete_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 		);
 
 		// Execute the action.
-		$action_delete_contact->execute( new Contact_Data( $contact ) );
+		$action_delete_contact->validate_and_execute( new Contact_Data( $contact ) );
 
 		// Verify that the contact no longer exists.
 		$contact = $zbs->DAL->contacts->getContact( $contact_id );

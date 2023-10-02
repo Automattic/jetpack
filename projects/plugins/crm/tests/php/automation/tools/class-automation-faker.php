@@ -2,11 +2,13 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
+use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
 use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
+use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
 use Automattic\Jetpack\CRM\Entities\Company;
 use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Entities\Factories\Company_Factory;
@@ -71,18 +73,18 @@ class Automation_Faker {
 			'category'     => 'Test',
 			'active'       => true,
 			'triggers'     => array(
-				'jpcrm/contact_created',
+				Contact_Created_Trigger::get_slug(),
 			),
 			'initial_step' => 0,
 			'steps'        => array(
 				// Step 0
 				0 => array(
-					'slug'       => 'send_email_action',
-					'attributes' => array(
+					'slug'           => 'send_email_action',
+					'attributes'     => array(
 						'to'       => 'admin@example.com',
 						'template' => 'send_welcome_email',
 					),
-					'next_step'  => null,
+					'next_step_true' => null,
 				),
 			),
 		);
@@ -99,7 +101,7 @@ class Automation_Faker {
 			'category'    => 'Test',
 			'active'      => true,
 			'triggers'    => array(
-				'jpcrm/contact_created',
+				Contact_Created_Trigger::get_slug(),
 			),
 		);
 	}
@@ -162,14 +164,15 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return dummy event triggers name list
+	 * Return dummy task triggers name list
 	 *
 	 * @return array
 	 */
-	public function event_triggers(): array {
+	public function task_triggers(): array {
 		return array(
-			'jpcrm/event_created',
-			'jpcrm/event_deleted',
+			'jpcrm/task_created',
+			'jpcrm/task_deleted',
+			'jpcrm/task_updated',
 		);
 	}
 
@@ -196,25 +199,27 @@ class Automation_Faker {
 			'category'     => 'Test',
 			'active'       => true,
 			'triggers'     => array(
-				'jpcrm/contact_created',
+				Contact_Created_Trigger::get_slug(),
 			),
 			'initial_step' => 0,
 			'steps'        => array(
 				// Step 0
 				0 => array(
-					'slug'            => 'contact_status',
-					'class_name'      => Contact_Condition::class,
+					'slug'            => Contact_Condition::get_slug(),
+					'next_step_true'  => 1,
+					'next_step_false' => null,
 					'attributes'      => array(
 						'field'    => 'status',
 						'operator' => 'is',
 						'value'    => 'lead',
 					),
-					'next_step_true'  => 1,
-					'next_step_false' => null,
 				),
 				// Step 1
 				1 => array(
-					'slug' => 'dummy_step',
+					'slug'            => Dummy_Step::get_slug(),
+					'next_step_true'  => null,
+					'next_step_false' => null,
+					'attributes'      => array(),
 				),
 			),
 		);

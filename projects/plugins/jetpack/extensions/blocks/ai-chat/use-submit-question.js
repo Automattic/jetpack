@@ -7,7 +7,7 @@ import { useState } from '@wordpress/element';
 export default function useSubmitQuestion( blogType, blogId ) {
 	const [ question, setQuestion ] = useState( '' );
 
-	const [ answer, setAnswer ] = useState();
+	const [ answer, setAnswer ] = useState( null );
 	const [ cacheKey, setCacheKey ] = useState( '' );
 	const [ askError, setAskError ] = useState( false );
 	const [ references, setReferences ] = useState( [] );
@@ -31,6 +31,9 @@ export default function useSubmitQuestion( blogType, blogId ) {
 				setReferences( res.urls );
 			} )
 			.catch( err => {
+				setCacheKey( '' );
+				setAnswer( null );
+				setReferences( [] );
 				setAskError( err );
 			} )
 			.finally( () => {

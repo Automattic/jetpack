@@ -25,22 +25,6 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	protected $logger;
 
 	/**
-	 * The next step if the condition is met.
-	 *
-	 * @since $$next-version$$
-	 * @var array|null
-	 */
-	protected $next_step_true = null;
-
-	/**
-	 * The next step if the condition is not met.
-	 *
-	 * @since $$next-version$$
-	 * @var array|null
-	 */
-	protected $next_step_false = null;
-
-	/**
 	 * If the condition is met or not.
 	 *
 	 * @since $$next-version$$
@@ -66,9 +50,7 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	public function __construct( array $step_data ) {
 		parent::__construct( $step_data );
 
-		$this->next_step_true  = $step_data['next_step_true'] ?? null;
-		$this->next_step_false = $step_data['next_step_false'] ?? null;
-		$this->logger          = Automation_Logger::instance();
+		$this->logger = Automation_Logger::instance();
 	}
 
 	/**
@@ -76,9 +58,9 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return int|null The next step data.
+	 * @return string|int|null The next step data.
 	 */
-	public function get_next_step_id(): ?int {
+	public function get_next_step_id() {
 		return ( $this->condition_met ? $this->next_step_true : $this->next_step_false );
 	}
 

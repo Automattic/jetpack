@@ -84,7 +84,7 @@ HTML;
 		$placeholder_site_icon = 'empty-site-icon';
 	}
 
-	$form_buttons      = <<<HTML
+	$form_buttons = <<<HTML
 		<!-- wp:button {"className":"is-style-fill"} -->
 		<div class="wp-block-button jetpack-blogroll-item-submit-button is-style-fill">
 			<button type="submit" name="blog_id" value="$id" class="wp-block-button__link wp-element-button">$submit_text</button>
@@ -96,16 +96,30 @@ HTML;
 			<button type="reset" class="wp-block-button__link wp-element-button">$cancel_text</button>
 		</div>
 HTML;
-	$form_buttons_html = do_blocks( $form_buttons );
 
-	$subscribe_button      = <<<HTML
+	$subscribe_button = <<<HTML
 		<!-- wp:button {"className":"$subscribe_button_class"} -->
 		<div class="wp-block-button jetpack-blogroll-item-subscribe-button $subscribe_button_class">
 			<button type="button" class="wp-block-button__link wp-element-button" {$disabled_subscribe_button}>$subscribe_text</button>
 		</div>
 		<!-- /wp:button -->
 HTML;
-	$subscribe_button_html = do_blocks( $subscribe_button );
+
+	$subscribe_button_html = '';
+	$fieldset              = '';
+
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$form_buttons_html     = do_blocks( $form_buttons );
+		$subscribe_button_html = do_blocks( $subscribe_button );
+
+		$fieldset = <<<HTML
+	<fieldset disabled class="jetpack-blogroll-item-submit">
+		<input type="hidden" name="_wpnonce" value="$wp_nonce">
+		<input type="email" name="email" placeholder="Email address" value="$email" class="jetpack-blogroll-item-email-input">
+		$form_buttons_html
+	</fieldset>
+HTML;
+	}
 
 	/**
 	 * Build the block content.
@@ -121,11 +135,7 @@ HTML;
 			</div>
 			$subscribe_button_html
 		</div>
-		<fieldset disabled class="jetpack-blogroll-item-submit">
-			<input type="hidden" name="_wpnonce" value="$wp_nonce">
-			<input type="email" name="email" placeholder="Email address" value="$email" class="jetpack-blogroll-item-email-input">
-			$form_buttons_html
-		</fieldset>
+		$fieldset
 HTML;
 
 	return sprintf(

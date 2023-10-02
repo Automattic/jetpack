@@ -47,6 +47,7 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 				}, 50 * tokens.length );
 			} else {
 				setDisplayedRawHTML( html );
+				onAnimationDone();
 			}
 		},
 		// eslint-disable-next-line

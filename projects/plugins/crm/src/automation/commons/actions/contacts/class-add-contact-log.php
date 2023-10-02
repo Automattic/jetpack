@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
+use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Base_Action;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
@@ -39,7 +40,7 @@ class Add_Contact_Log extends Base_Action {
 	 * @return string The title of the step.
 	 */
 	public static function get_title(): ?string {
-		return 'Add Contact Log Action';
+		return __( 'Add log to contact', 'zero-bs-crm' );
 	}
 
 	/**
@@ -50,7 +51,7 @@ class Add_Contact_Log extends Base_Action {
 	 * @return string The description of the step.
 	 */
 	public static function get_description(): ?string {
-		return 'Action to add a log to a contact';
+		return __( 'This action will add a log entry to a contact.', 'zero-bs-crm' );
 	}
 
 	/**
@@ -76,13 +77,57 @@ class Add_Contact_Log extends Base_Action {
 	}
 
 	/**
+	 * Constructor.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $step_data The step data.
+	 */
+	public function __construct( array $step_data ) {
+		parent::__construct( $step_data );
+
+		global $zbsCustomerFields; // // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		$statuses = array();
+		if ( is_array( $zbsCustomerFields ) && ! empty( $zbsCustomerFields['status'][3] ) ) { // // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			foreach ( $zbsCustomerFields['status'][3] as $status ) { // // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$statuses[ $status ] = $status;
+			}
+		}
+
+		$this->set_attribute_definitions(
+			array(
+				new Attribute_Definition(
+					'type',
+					__( 'Type', 'zero-bs-crm' ),
+					__( 'The status that will be used for the contact.', 'zero-bs-crm' ),
+					Attribute_Definition::SELECT,
+					$statuses
+				),
+				new Attribute_Definition(
+					'short-description',
+					__( 'Title', 'zero-bs-crm' ),
+					__( 'The title provides a high-level explanation about what the log is about.', 'zero-bs-crm' ),
+					Attribute_Definition::TEXT
+				),
+				new Attribute_Definition(
+					'long-description',
+					__( 'Long Description', 'zero-bs-crm' ),
+					__( 'The long description is meant to provide a more in-depth explanation about what happened.', 'zero-bs-crm' ),
+					Attribute_Definition::TEXT
+				),
+			)
+		);
+	}
+
+	/**
 	 * Add the log to the contact via the DAL.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
 	 */
-	public function execute( Data_Type $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	protected function execute( Data_Type $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $zbs;
 
 		/** @var Contact $contact */
@@ -93,9 +138,9 @@ class Add_Contact_Log extends Base_Action {
 				'data' => array(
 					'objtype'   => ZBS_TYPE_CONTACT,
 					'objid'     => $contact->id,
-					'type'      => $this->get_attributes()['type'],
-					'shortdesc' => $this->get_attributes()['short-description'],
-					'longdesc'  => $this->get_attributes()['long-description'],
+					'type'      => $this->get_attribute( 'type', '' ),
+					'shortdesc' => $this->get_attribute( 'short-description', '' ),
+					'longdesc'  => $this->get_attribute( 'long-description', '' ),
 				),
 			)
 		);

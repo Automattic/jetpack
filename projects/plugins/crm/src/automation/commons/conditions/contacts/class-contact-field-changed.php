@@ -32,12 +32,27 @@ class Contact_Field_Changed extends Base_Condition {
 	public function __construct( array $step_data ) {
 		parent::__construct( $step_data );
 
-		// TODO: Fetch automation fields from our DAL.
 		$contact_fields = array(
-			'id'       => __( 'ID', 'zero-bs-crm' ),
-			'fname'    => __( 'First Name', 'zero-bs-crm' ),
-			'lname'    => __( 'Last Name', 'zero-bs-crm' ),
-			'fullname' => __( 'Full Name', 'zero-bs-crm' ),
+			'id'               => __( 'ID', 'zero-bs-crm' ),
+			'fname'            => __( 'First Name', 'zero-bs-crm' ),
+			'lname'            => __( 'Last Name', 'zero-bs-crm' ),
+			'status'           => __( 'Status', 'zero-bs-crm' ),
+			'email'            => __( 'Email', 'zero-bs-crm' ),
+			'addr1'            => __( 'Adddress Line 1', 'zero-bs-crm' ),
+			'addr2'            => __( 'Adddress Line 2', 'zero-bs-crm' ),
+			'city'             => __( 'City', 'zero-bs-crm' ),
+			'county'           => __( 'County', 'zero-bs-crm' ),
+			'country'          => __( 'Country', 'zero-bs-crm' ),
+			'postcode'         => __( 'Postcode', 'zero-bs-crm' ),
+			'secaddr_addr1'    => __( 'Seccond Adddress Line 1', 'zero-bs-crm' ),
+			'secaddr_addr2'    => __( 'Seccond Adddress Line 2', 'zero-bs-crm' ),
+			'secaddr_city'     => __( 'Seccond City', 'zero-bs-crm' ),
+			'secaddr_county'   => __( 'Seccond County', 'zero-bs-crm' ),
+			'secaddr_country'  => __( 'Seccond Country', 'zero-bs-crm' ),
+			'secaddr_postcode' => __( 'Seccond Postcode', 'zero-bs-crm' ),
+			'hometel'          => __( 'Home Telephone', 'zero-bs-crm' ),
+			'worktel'          => __( 'Work Telephone', 'zero-bs-crm' ),
+			'mobtel'           => __( 'Mobile Telephone', 'zero-bs-crm' ),
 		);
 
 		$this->valid_operators = array(
@@ -65,7 +80,7 @@ class Contact_Field_Changed extends Base_Condition {
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( Data_Type $data ) {
+	protected function execute( Data_Type $data ) {
 
 		/** @var Contact $contact */
 		$contact = $data->get_data();
