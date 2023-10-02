@@ -69,6 +69,19 @@ abstract class Base_Trigger implements Trigger {
 	}
 
 	/**
+	 * Listen to the desired WP hook action.
+	 *
+	 * @param string $hook_name     The hook name to listen to.
+	 * @param int    $priority      The priority of the action.
+	 * @param int    $accepted_args The number of arguments the action accepts.
+	 * @since $$next-version$$
+	 *
+	 */
+	protected function listen_to_wp_action( string $hook_name, int $priority = 10, int $accepted_args = 1 ): void {
+		add_action( $hook_name, array( $this, 'execute_workflow' ), $priority, $accepted_args );
+	}
+
+	/**
 	 * Get the trigger slug.
 	 *
 	 * @since $$next-version$$
@@ -109,6 +122,27 @@ abstract class Base_Trigger implements Trigger {
 	 * call the execute_workflow method when the event happens.
 	 *
 	 * @since $$next-version$$
+	 *
+	 * @return void
 	 */
-	abstract protected function listen_to_event();
+	abstract protected function listen_to_event(): void;
+
+	/**
+	 * Get the trigger as an array.
+	 *
+	 * The main use-case to get the trigger as an array is to prepare
+	 * the items for an API response.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array The trigger as an array.
+	 */
+	public static function to_array(): array {
+		return array(
+			'slug'        => static::get_slug(),
+			'title'       => static::get_title(),
+			'description' => static::get_description(),
+			'category'    => static::get_category(),
+		);
+	}
 }

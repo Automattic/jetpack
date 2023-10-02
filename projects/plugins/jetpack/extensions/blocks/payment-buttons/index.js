@@ -33,12 +33,7 @@ export const settings = {
 	},
 	description: (
 		<Fragment>
-			<p>
-				{ __(
-					'Prompt visitors to purchase your products and subscriptions with a group of buttons.',
-					'jetpack'
-				) }
-			</p>
+			<p>{ __( 'Sell products and subscriptions.', 'jetpack' ) }</p>
 			<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
 		</Fragment>
 	),

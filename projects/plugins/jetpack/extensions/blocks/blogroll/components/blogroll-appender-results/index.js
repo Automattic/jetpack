@@ -1,22 +1,43 @@
 import { useEntityProp } from '@wordpress/core-data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import './style.scss';
 
-export default function BlogrollAppenderResults( {
-	results,
-	showPlaceholder,
-	onSelect,
-	isLoading,
-} ) {
+export default function BlogrollAppenderResults( { results, onSelect, searchInput, isLoading } ) {
 	const [ siteRecommendations ] = useEntityProp( 'root', 'site', 'Blogroll Recommendations' );
+
+	if ( isLoading ) {
+		return (
+			<div className="jetpack-blogroll__appender-results">
+				<div role="status">{ __( 'Loading…', 'jetpack' ) }</div>
+			</div>
+		);
+	}
+
+	const showPlaceholder = ! searchInput?.trim();
+
 	return (
 		<div className="jetpack-blogroll__appender-results">
-			{ showPlaceholder && <div aria-autocomplete="list">{ __( 'Suggestions', 'jetpack' ) }</div> }
-
-			{ isLoading && <div role="status">{ __( 'Loading…', 'jetpack' ) }</div> }
-
-			{ ! isLoading && results.length === 0 && ! showPlaceholder && (
-				<div role="status">{ __( 'No websites found.', 'jetpack' ) }</div>
+			{ showPlaceholder && (
+				<div
+					aria-autocomplete="list"
+					className="jetpack-blogroll__appender-result-list-header-text"
+				>
+					{ __( 'Suggestions', 'jetpack' ) }
+				</div>
+			) }
+			{ results.length === 0 && ! showPlaceholder && (
+				<div role="status" className="jetpack-blogroll__appender-no-results-message">
+					<span className="jetpack-blogroll__appender-no-results-message-main-text">
+						{ __( 'No results', 'jetpack' ) }
+					</span>
+					<span className="jetpack-blogroll__appender-no-results-message-secondary-text">
+						{ sprintf(
+							/* translators: %s is search query. */
+							__( 'No sites found for %s.', 'jetpack' ),
+							searchInput
+						) }
+					</span>
+				</div>
 			) }
 			{ results.length > 0 && (
 				<ul aria-live="polite">

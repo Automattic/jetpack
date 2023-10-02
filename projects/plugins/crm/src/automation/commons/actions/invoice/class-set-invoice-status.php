@@ -8,8 +8,8 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
+use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Base_Action;
-use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Invoice_Data;
 use Automattic\Jetpack\CRM\Entities\Invoice;
@@ -77,21 +77,45 @@ class Set_Invoice_Status extends Base_Action {
 	}
 
 	/**
+	 * Constructor.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $step_data The step data.
+	 */
+	public function __construct( array $step_data ) {
+		parent::__construct( $step_data );
+
+		// @todo Replace with a select field to improve the user experience and prevent
+		// the user from writing a status that isn't supported.
+		$this->set_attribute_definitions(
+			array(
+				new Attribute_Definition(
+					'new_status',
+					__( 'New status', 'zero-bs-crm' ),
+					__( 'This is the status the invoice should be updated to.', 'zero-bs-crm' ),
+					Attribute_Definition::TEXT
+				),
+			)
+		);
+	}
+
+	/**
 	 * Update the DAL with the invoice status.
 	 *
 	 * @since $$next-version$$
-	 * @param Data_Type $data Data passed from the trigger.
 	 *
-	 * @throws Data_Type_Exception Exception when the data type is not supported.
+	 * @param Data_Type $data Data passed from the trigger.
 	 */
-	public function execute( Data_Type $data ) {
-
-		$this->validate( $data );
+	protected function execute( Data_Type $data ) {
+		if ( empty( $this->get_attribute( 'new_status' ) ) ) {
+			return;
+		}
 
 		/** @var Invoice $invoice */
 		$invoice = $data->get_data();
 
 		global $zbs;
-		$zbs->DAL->invoices->setInvoiceStatus( $invoice->id, $this->attributes['new_status'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$zbs->DAL->invoices->setInvoiceStatus( $invoice->id, $this->get_attribute( 'new_status' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 }

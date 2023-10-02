@@ -87,4 +87,16 @@ interface Trigger {
 	 * @param Automation_Workflow $workflow The workflow to which the trigger belongs.
 	 */
 	public function init( Automation_Workflow $workflow );
+
+	/**
+	 * Get the trigger as an array.
+	 *
+	 * The main use-case to get the trigger as an array is to prepare
+	 * the items for an API response.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array The trigger as an array.
+	 */
+	public static function to_array(): array;
 }

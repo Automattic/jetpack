@@ -50,11 +50,18 @@ class Blocks {
 
 		$block_type = $slug;
 
-		// If a path is passed, make sure to get the block.json file from the build directory and get
-		// the block name from that file.
+		// If a path is passed, find the slug in the file then create a block type object to register
+		// the block.
+		// Note: passing the path directly to register_block_type seems to loose the interactivity of
+		// the block once in the editor once it's out of focus.
 		if ( path_is_absolute( $slug ) ) {
-			$block_type = self::get_path_to_block_metadata( $slug );
-			$slug       = self::get_block_name( $block_type );
+			$metadata = self::get_block_metadata_from_file( self::get_path_to_block_metadata( $slug ) );
+			$name     = self::get_block_name_from_metadata( $metadata );
+
+			if ( ! empty( $name ) ) {
+				$slug       = $name;
+				$block_type = new \WP_Block_Type( $slug, array_merge( $metadata, $args ) );
+			}
 		}
 
 		if (
