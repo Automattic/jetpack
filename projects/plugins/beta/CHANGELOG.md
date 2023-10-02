@@ -4,9 +4,7 @@
 ### Changed
 - General: remove backwards-compatibility function checks now that the package supports WP 6.2. [#32772]
 - Updated Jetpack submenu sort order so individual features are alpha-sorted. [#32958]
-- Updated package dependencies. [#31308]
-- Updated package dependencies. [#32307]
-- Updated package dependencies. [#32966]
+- Updated package dependencies. [#31308], [#32966], [#32307]
 
 ### Fixed
 - Avoid deprecation warning in PHP 8.1 when viewing Beta settings screen. [#31295]
