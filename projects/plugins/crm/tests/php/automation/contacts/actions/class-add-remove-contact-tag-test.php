@@ -70,7 +70,7 @@ class Add_Remove_Contact_Tag_Test extends JPCRM_Base_Integration_Test_Case {
 		$contact_data = new Contact_Data( $contact );
 
 		// Execute the action.
-		$action_add_remove_contact_tag->execute( $contact_data );
+		$action_add_remove_contact_tag->validate_and_execute( $contact_data );
 
 		// Verify that our contact has the tag.
 		$contact = $zbs->DAL->contacts->getContact( $contact_id, array( 'withTags' => true ) );

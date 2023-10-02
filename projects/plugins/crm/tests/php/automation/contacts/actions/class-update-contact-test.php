@@ -61,7 +61,7 @@ class Update_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 		);
 
 		// Execute action.
-		$action->execute( new Contact_Data( $contact ) );
+		$action->validate_and_execute( new Contact_Data( $contact ) );
 
 		// Fetch the contact again and verify the update was successful.
 		$contact = $zbs->DAL->contacts->getContact( $contact_id );
