@@ -11,7 +11,7 @@ export const title = __( 'Google Calendar', 'jetpack' );
 
 export const settings = {
 	title,
-	description: __( 'Embed a Google Calendar', 'jetpack' ),
+	description: __( 'Embed a Google Calendar.', 'jetpack' ),
 	keywords: [
 		_x( 'events', 'block search term', 'jetpack' ),
 		_x( 'dates', 'block search term', 'jetpack' ),

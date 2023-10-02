@@ -22,7 +22,7 @@ export const settings = {
 	title: __( 'Subscribe', 'jetpack' ),
 	description: (
 		<>
-			<p>{ __( "Let readers subscribe to this blog's posts as a newsletter.", 'jetpack' ) }</p>
+			<p>{ __( "Subscribe to this blog's posts as a newsletter.", 'jetpack' ) }</p>
 			<p>
 				{ createInterpolateElement(
 					__(
