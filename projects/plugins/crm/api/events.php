@@ -28,14 +28,10 @@ jpcrm_api_check_http_method( array( 'GET' ) );
 // Process the pagination parameters from the query
 list( $page, $per_page ) = jpcrm_api_process_pagination();
 
-if ( isset( $event_params['owned'] ) && (int) $event_params['owned'] > 0 ) {
-	$isOwned = (int) $event_params['owned'];
-} else {
-	$isOwned = -1;
-}
+$is_owned = -1;
 
 // needs moving to the $args version
 // v3.0 needs these objects refined, including textify for html
-$events = zeroBS_getEvents( true, $per_page, $page, $isOwned );
+$tasks = zeroBS_getEvents( true, $per_page, $page, $is_owned );
 
-wp_send_json( $events );
+wp_send_json( $tasks );

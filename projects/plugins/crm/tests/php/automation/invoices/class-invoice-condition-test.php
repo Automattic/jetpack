@@ -65,12 +65,12 @@ class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$invoice->status = 'paid';
-		$invoice_status_changed_condition->execute( $invoice_data );
+		$invoice_status_changed_condition->validate_and_execute( $invoice_data );
 		$this->assertTrue( $invoice_status_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$invoice->status = 'unpaid';
-		$invoice_status_changed_condition->execute( $invoice_data );
+		$invoice_status_changed_condition->validate_and_execute( $invoice_data );
 		$this->assertFalse( $invoice_status_changed_condition->condition_met() );
 	}
 
@@ -86,12 +86,12 @@ class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$invoice->status = 'unpaid';
-		$invoice_status_changed_condition->execute( $invoice_data );
+		$invoice_status_changed_condition->validate_and_execute( $invoice_data );
 		$this->assertTrue( $invoice_status_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$invoice->status = 'paid';
-		$invoice_status_changed_condition->execute( $invoice_data );
+		$invoice_status_changed_condition->validate_and_execute( $invoice_data );
 		$this->assertFalse( $invoice_status_changed_condition->condition_met() );
 	}
 
@@ -108,7 +108,7 @@ class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
 		$this->expectException( Automation_Exception::class );
 		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
-		$invoice_status_changed_condition->execute( $invoice_data );
+		$invoice_status_changed_condition->validate_and_execute( $invoice_data );
 	}
 
 	/**
@@ -123,12 +123,12 @@ class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$invoice->status = 'paid';
-		$invoice_field_contains_condition->execute( $invoice_data );
+		$invoice_field_contains_condition->validate_and_execute( $invoice_data );
 		$this->assertTrue( $invoice_field_contains_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$invoice->status = 'draft';
-		$invoice_field_contains_condition->execute( $invoice_data );
+		$invoice_field_contains_condition->validate_and_execute( $invoice_data );
 		$this->assertFalse( $invoice_field_contains_condition->condition_met() );
 	}
 
@@ -144,12 +144,12 @@ class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$invoice->status = 'draft';
-		$invoice_field_contains_condition->execute( $invoice_data );
+		$invoice_field_contains_condition->validate_and_execute( $invoice_data );
 		$this->assertTrue( $invoice_field_contains_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$invoice->status = 'paid';
-		$invoice_field_contains_condition->execute( $invoice_data );
+		$invoice_field_contains_condition->validate_and_execute( $invoice_data );
 		$this->assertFalse( $invoice_field_contains_condition->condition_met() );
 	}
 
@@ -166,6 +166,6 @@ class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
 		$this->expectException( Automation_Exception::class );
 		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
-		$invoice_field_contains_condition->execute( $invoice_data );
+		$invoice_field_contains_condition->validate_and_execute( $invoice_data );
 	}
 }

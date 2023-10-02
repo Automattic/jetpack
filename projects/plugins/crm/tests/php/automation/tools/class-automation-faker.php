@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
+use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
@@ -72,7 +73,7 @@ class Automation_Faker {
 			'category'     => 'Test',
 			'active'       => true,
 			'triggers'     => array(
-				'jpcrm/contact_created',
+				Contact_Created_Trigger::get_slug(),
 			),
 			'initial_step' => 0,
 			'steps'        => array(
@@ -100,7 +101,7 @@ class Automation_Faker {
 			'category'    => 'Test',
 			'active'      => true,
 			'triggers'    => array(
-				'jpcrm/contact_created',
+				Contact_Created_Trigger::get_slug(),
 			),
 		);
 	}
@@ -163,14 +164,15 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return dummy event triggers name list
+	 * Return dummy task triggers name list
 	 *
 	 * @return array
 	 */
-	public function event_triggers(): array {
+	public function task_triggers(): array {
 		return array(
-			'jpcrm/event_created',
-			'jpcrm/event_deleted',
+			'jpcrm/task_created',
+			'jpcrm/task_deleted',
+			'jpcrm/task_updated',
 		);
 	}
 
@@ -197,7 +199,7 @@ class Automation_Faker {
 			'category'     => 'Test',
 			'active'       => true,
 			'triggers'     => array(
-				'jpcrm/contact_created',
+				Contact_Created_Trigger::get_slug(),
 			),
 			'initial_step' => 0,
 			'steps'        => array(
