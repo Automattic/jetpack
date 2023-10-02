@@ -9,7 +9,7 @@ import {
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
-import { store as editorStore } from '@wordpress/editor';
+import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
 import { useState, useEffect } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
@@ -249,11 +249,13 @@ ${ postContent }
 }
 
 export const PluginDocumentSettingPanelAiExcerpt = () => (
-	<PluginDocumentSettingPanel
-		className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
-		name="ai-content-lens-plugin"
-		title={ __( 'Excerpt', 'jetpack' ) }
-	>
-		<AiPostExcerpt />
-	</PluginDocumentSettingPanel>
+	<PostTypeSupportCheck supportKeys="excerpt">
+		<PluginDocumentSettingPanel
+			className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
+			name="ai-content-lens-plugin"
+			title={ __( 'Excerpt', 'jetpack' ) }
+		>
+			<AiPostExcerpt />
+		</PluginDocumentSettingPanel>
+	</PostTypeSupportCheck>
 );
