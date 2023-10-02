@@ -1532,11 +1532,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "6ae6bbba80d1153fe109d7b718adc68daebfc3ac"
+                "reference": "c820678bb5aeb6ced11f6b73c68a8006f29649c8"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
-                "automattic/jetpack-constants": "@dev"
+                "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-status": "@dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -1555,7 +1556,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.2.x-dev"
+                    "dev-trunk": "2.3.x-dev"
                 }
             },
             "autoload": {
@@ -1586,7 +1587,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.",
+            "description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once. Modern browsers now support lazy loading, and WordPress itself bundles lazy loading features for images and videos. This feature will consequently be deprecated in November 2023.",
             "transport-options": {
                 "relative": true
             }
@@ -1702,7 +1703,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "56c20b0aabd3c9892dca7fa2c05c6483113d3872"
+                "reference": "f03839036e98449c2c740dca99d1f84ffe2b20af"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1732,7 +1733,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.7.x-dev"
+                    "dev-trunk": "3.8.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2586,7 +2587,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "f510ccfda3f1d6529d5acd206a71cd4c8a2edd75"
+                "reference": "72b82335c2bb4313f34a9d7501e55958939b8361"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2611,7 +2612,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.18.x-dev"
+                    "dev-trunk": "0.17.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"

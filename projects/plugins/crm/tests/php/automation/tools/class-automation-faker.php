@@ -2,10 +2,13 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
+use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
+use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
+use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
 use Automattic\Jetpack\CRM\Entities\Company;
 use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Entities\Factories\Company_Factory;
@@ -16,6 +19,7 @@ use Automattic\Jetpack\CRM\Entities\Factories\Task_Factory;
 use Automattic\Jetpack\CRM\Entities\Factories\Transaction_Factory;
 use Automattic\Jetpack\CRM\Entities\Invoice;
 use Automattic\Jetpack\CRM\Entities\Quote;
+use Automattic\Jetpack\CRM\Entities\Tag;
 use Automattic\Jetpack\CRM\Entities\Task;
 use Automattic\Jetpack\CRM\Entities\Transaction;
 
@@ -69,18 +73,18 @@ class Automation_Faker {
 			'category'     => 'Test',
 			'active'       => true,
 			'triggers'     => array(
-				'jpcrm/contact_created',
+				Contact_Created_Trigger::get_slug(),
 			),
 			'initial_step' => 0,
 			'steps'        => array(
 				// Step 0
 				0 => array(
-					'slug'       => 'send_email_action',
-					'attributes' => array(
+					'slug'           => 'send_email_action',
+					'attributes'     => array(
 						'to'       => 'admin@example.com',
 						'template' => 'send_welcome_email',
 					),
-					'next_step'  => null,
+					'next_step_true' => null,
 				),
 			),
 		);
@@ -97,7 +101,7 @@ class Automation_Faker {
 			'category'    => 'Test',
 			'active'      => true,
 			'triggers'    => array(
-				'jpcrm/contact_created',
+				Contact_Created_Trigger::get_slug(),
 			),
 		);
 	}
@@ -160,14 +164,15 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return dummy event triggers name list
+	 * Return dummy task triggers name list
 	 *
 	 * @return array
 	 */
-	public function event_triggers(): array {
+	public function task_triggers(): array {
 		return array(
-			'jpcrm/event_created',
-			'jpcrm/event_deleted',
+			'jpcrm/task_created',
+			'jpcrm/task_deleted',
+			'jpcrm/task_updated',
 		);
 	}
 
@@ -194,25 +199,27 @@ class Automation_Faker {
 			'category'     => 'Test',
 			'active'       => true,
 			'triggers'     => array(
-				'jpcrm/contact_created',
+				Contact_Created_Trigger::get_slug(),
 			),
 			'initial_step' => 0,
 			'steps'        => array(
 				// Step 0
 				0 => array(
-					'slug'            => 'contact_status_condition',
-					'class_name'      => Contact_Condition::class,
+					'slug'            => Contact_Condition::get_slug(),
+					'next_step_true'  => 1,
+					'next_step_false' => null,
 					'attributes'      => array(
 						'field'    => 'status',
 						'operator' => 'is',
 						'value'    => 'lead',
 					),
-					'next_step_true'  => 1,
-					'next_step_false' => null,
 				),
 				// Step 1
 				1 => array(
-					'slug' => 'dummy_step',
+					'slug'            => Dummy_Step::get_slug(),
+					'next_step_true'  => null,
+					'next_step_false' => null,
+					'attributes'      => array(),
 				),
 			),
 		);
@@ -350,9 +357,27 @@ class Automation_Faker {
 					'price'    => '1.25',
 					'total'    => 3.75,
 				),
+				'contacts' => array( 1 ),
+				'created'  => -1,
+				'tags'     => array(
+					array(
+						'id'          => 1,
+						'objtype'     => 1,
+						'name'        => 'Name 1',
+						'slug'        => 'name-1',
+						'created'     => 1692663411,
+						'lastupdated' => 1692663411,
+					),
+					array(
+						'id'          => 2,
+						'objtype'     => 1,
+						'name'        => 'Name 2',
+						'slug'        => 'name-2',
+						'created'     => 1692663412,
+						'lastupdated' => 1692663412,
+					),
+				),
 			),
-			'contacts'    => array( 1 ),
-			'created'     => -1,
 		);
 
 		return Invoice_Factory::create( $data );
@@ -374,6 +399,24 @@ class Automation_Faker {
 			'template'    => 1676923766,
 			'accepted'    => 1676923766,
 			'created'     => 1676000000,
+			'tags'        => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
+			),
 		);
 
 		return Quote_Factory::create( $data );
@@ -391,6 +434,24 @@ class Automation_Faker {
 			'email'  => 'johndoe@dummycompany.com',
 			'addr1'  => 'Address 1',
 			'status' => 'lead',
+			'tags'   => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
+			),
 		);
 
 		return Company_Factory::create( $data );
@@ -414,6 +475,24 @@ class Automation_Faker {
 			'show_in_cal'    => true,
 			'created'        => 1675000000,
 			'lastupdated'    => 1675000000,
+			'tags'           => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
+			),
 		);
 
 		return Task_Factory::create( $data );
@@ -441,9 +520,85 @@ class Automation_Faker {
 			'date_completed' => 1676923766,
 			'created'        => 1675000000,
 			'lastupdated'    => 1675000000,
+			'tags'           => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
+			),
 		);
 
 		return Transaction_Factory::create( $data );
+	}
+
+	/**
+	 * Return data for a dummy tag.
+	 *
+	 * @return Tag A sample Tag instance.
+	 */
+	public function tag(): Tag {
+		$tag_data = array(
+			'id'          => 1,
+			'name'        => 'Some tag name',
+			'slug'        => 'tag_slug',
+			'objtype'     => 'Contact',
+			'created'     => 1675000000,
+			'lastupdated' => 1675000000,
+		);
+
+		// @todo: Use the factory when it is ready: return Tag_Factory::create( $tag );
+		$tag = new Tag();
+		foreach ( $tag_data as $key => $value ) {
+			$tag->$key = $value;
+		}
+
+		return $tag;
+	}
+
+	/**
+	 * Return data for a dummy tag.
+	 *
+	 * @param array|null $additional_array An array with additional data to be added to the tag list.
+	 *
+	 * @return array
+	 * @throws Data_Type_Exception
+	 */
+	public function tag_list( array $additional_array = null ) {
+		$data = array(
+			array(
+				'id'          => 1,
+				'objtype'     => 1,
+				'name'        => 'Name 1',
+				'slug'        => 'name-1',
+				'created'     => 1692663411,
+				'lastupdated' => 1692663411,
+			),
+			array(
+				'id'          => 2,
+				'objtype'     => 1,
+				'name'        => 'Name 2',
+				'slug'        => 'name-2',
+				'created'     => 1692663412,
+				'lastupdated' => 1692663412,
+			),
+		);
+		if ( $additional_array !== null ) {
+			$data[] = $additional_array;
+		}
+
+		return $data;
 	}
 
 	/**

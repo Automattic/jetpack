@@ -1,16 +1,22 @@
 @import '@automattic/jetpack-base-styles/style';
 
+.container {
+	// We have to allow x overflow since table components arent inherently responsive
+	// but we still want to have some support for smaller screens.
+	overflow-x: auto;
+}
+
 .table {
-	padding: 20px;
-	background: white;
+	margin: var(--jp-modal-padding) 0 0;
+	background: var(--jp-white);
 	width: 100%;
 
 	tr th:first-child {
-		padding: 5px 0 5px 10px;
+		padding: 5px 0;
 	}
 
 	tr td:first-child {
-		padding: 5px 0 5px 10px;
+		padding: 5px 0 5px;
 	}
 }
 
@@ -19,4 +25,3 @@
 	color: var(--jp-gray-60);
 	border-bottom: 1px solid #EEEEEE;
 }
-

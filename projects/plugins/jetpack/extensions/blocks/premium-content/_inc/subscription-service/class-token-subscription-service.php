@@ -56,6 +56,8 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return bool Whether the user can view the content
 	 */
 	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
+		global $current_user;
+		$old_user = $current_user; // backup the current user so we can set the current user to the token user for paywall purposes
 
 		// URL token always has a precedence, so it can overwrite the cookie when new data available.
 		$token = $this->token_from_request();
@@ -75,7 +77,16 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			if ( empty( $payload ) ) {
 				$is_valid_token = false;
 			}
+
+			// set the current user to the payload's user id
+			if ( isset( $payload['user_id'] ) ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$current_user = get_user_by( 'id', $payload['user_id'] );
+			}
 		}
+
+		$is_blog_subscriber = false;
+		$is_paid_subscriber = false;
 
 		if ( $is_valid_token ) {
 			/**
@@ -92,12 +103,12 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			);
 			$subscriptions      = (array) $payload['subscriptions'];
 			$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
-		} else {
-			// Token not valid. We bail even unless the post can be accessed publicly.
-			return $this->user_has_access( $access_level, false, false, get_the_ID() );
 		}
 
-		return $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID() );
+		$has_access = $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID() );
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$current_user = $old_user;
+		return $has_access;
 	}
 
 	/**
@@ -111,27 +122,27 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return bool Whether the user has access to the content.
 	 */
 	protected function user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id ) {
-
+		$has_access = false;
 		if ( is_user_logged_in() && current_user_can( 'edit_post', $post_id ) ) {
 			// Admin has access
-			return true;
+			$has_access = true;
 		}
 
-		if ( empty( $access_level ) || $access_level === self::POST_ACCESS_LEVEL_EVERYBODY ) {
+		if ( empty( $has_access ) && ( empty( $access_level ) || $access_level === self::POST_ACCESS_LEVEL_EVERYBODY ) ) {
 			// empty level means the post is not gated for paid users
-			return true;
+			$has_access = true;
 		}
 
-		if ( $access_level === self::POST_ACCESS_LEVEL_SUBSCRIBERS ) {
-			return $is_blog_subscriber || $is_paid_subscriber;
+		if ( empty( $has_access ) && ( $access_level === self::POST_ACCESS_LEVEL_SUBSCRIBERS ) ) {
+			$has_access = $is_blog_subscriber || $is_paid_subscriber;
 		}
 
-		if ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ) {
-			return $is_paid_subscriber;
+		if ( empty( $has_access ) && ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ) ) {
+			$has_access = $is_paid_subscriber;
 		}
 
-		// This should not be a use case
-		return false;
+		do_action( 'earn_user_has_access', $access_level, $has_access, $is_blog_subscriber, $is_paid_subscriber, $post_id );
+		return $has_access;
 	}
 
 	/**

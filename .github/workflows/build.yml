@@ -14,6 +14,8 @@ concurrency:
 
 env:
   COMPOSER_ROOT_VERSION: "dev-trunk"
+  # Work around a bug in node 18.18.0. See https://github.com/webpack-contrib/thread-loader/issues/191 for details.
+  UV_USE_IO_URING: 0
 
 jobs:
   build:
@@ -166,10 +168,17 @@ jobs:
               \`\`\`
               `;
             }, '' );
+
+            let jetpackMuWPcomLine = '';
+            if ( data.projects.includes( 'jetpack-mu-wpcom-plugin' ) ) {
+              jetpackMuWPcomLine = "  - For \`jetpack-mu-wpcom\` changes, also add \`define( 'JETPACK_MU_WPCOM_LOAD_VIA_BETA_PLUGIN', true );\` to your \`wp-config.php\` file.";
+            }
+
             const commentBody = `${ TEST_COMMENT_INDICATOR }
             Are you an Automattician? Please test your changes on all WordPress.com environments to help mitigate accidental explosions.
 
-            - To test on WoA, go to the Plugins menu on a WordPress.com Simple site. Click on the "Upload" button and follow the upgrade flow to be able to upload, install, and activate [the Jetpack Beta plugin](https://jetpack.com/download-jetpack-beta/). Once the plugin is active, go to Jetpack > Jetpack Beta > Jetpack and enable the \`${ BRANCH_NAME }\` branch.
+            - To test on WoA, go to the Plugins menu on a WordPress.com Simple site. Click on the "Upload" button and follow the upgrade flow to be able to upload, install, and activate [the Jetpack Beta plugin](https://jetpack.com/download-jetpack-beta/). Once the plugin is active, go to Jetpack > Jetpack Beta, select your plugin, and enable the \`${ BRANCH_NAME }\` branch. 
+            ${ jetpackMuWPcomLine }
             - To test on Simple, run the following command on your sandbox:
             ${ commands }
 

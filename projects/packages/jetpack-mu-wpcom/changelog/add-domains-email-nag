@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add plugin to show frontend email nag for domains with unverified email address

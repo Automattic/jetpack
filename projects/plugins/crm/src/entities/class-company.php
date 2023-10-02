@@ -50,11 +50,11 @@ class Company {
 	public $files = array();
 
 	/**
-	 * The company events.
+	 * The company tasks.
 	 *
 	 * @var array
 	 */
-	public $events = array();
+	public $tasks = array();
 
 	/**
 	 * The company status.

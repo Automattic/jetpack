@@ -49,13 +49,13 @@ class Quote_Condition_Test extends JPCRM_Base_Test_Case {
 		// Testing when the condition has been met.
 		$quote->accepted = '1';
 		$quote->template = '1';
-		$quote_status_changed_condition->execute( $quote_data );
+		$quote_status_changed_condition->validate_and_execute( $quote_data );
 		$this->assertTrue( $quote_status_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$quote->accepted = '0';
 		$quote->template = '0';
-		$quote_status_changed_condition->execute( $quote_data );
+		$quote_status_changed_condition->validate_and_execute( $quote_data );
 		$this->assertFalse( $quote_status_changed_condition->condition_met() );
 	}
 
@@ -72,13 +72,13 @@ class Quote_Condition_Test extends JPCRM_Base_Test_Case {
 		// Testing when the condition has been met.
 		$quote->accepted = '0';
 		$quote->template = '0';
-		$quote_status_changed_condition->execute( $quote_data );
+		$quote_status_changed_condition->validate_and_execute( $quote_data );
 		$this->assertTrue( $quote_status_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$quote->accepted = '1';
 		$quote->template = '1';
-		$quote_status_changed_condition->execute( $quote_data );
+		$quote_status_changed_condition->validate_and_execute( $quote_data );
 		$this->assertFalse( $quote_status_changed_condition->condition_met() );
 	}
 
@@ -95,6 +95,6 @@ class Quote_Condition_Test extends JPCRM_Base_Test_Case {
 		$this->expectException( Automation_Exception::class );
 		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
-		$quote_status_changed_condition->execute( $quote_data );
+		$quote_status_changed_condition->validate_and_execute( $quote_data );
 	}
 }

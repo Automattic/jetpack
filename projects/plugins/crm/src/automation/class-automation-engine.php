@@ -347,7 +347,8 @@ class Automation_Engine {
 				$this->get_logger()->log( '[' . $step->get_slug() . '] Executing step. Type: ' . $step::get_data_type() );
 
 				$data_type = $this->maybe_transform_data_type( $trigger_data_type, $step::get_data_type() );
-				$step->execute( $data_type );
+
+				$step->validate_and_execute( $data_type );
 
 				//todo: return Step instance instead of array
 				$step_id   = $step->get_next_step_id();
@@ -407,19 +408,18 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Get step instance
+	 * Get a step instance.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string $step_name The name of the step to be registered.
-	 * @param array  $step_data The step data to be registered.
-	 * @return Step The step class instance.
+	 * @param array $step_data The step data hydrate the step with.
+	 * @return Step A step class instance.
 	 *
 	 * @throws Automation_Exception Throws an exception if the step class does not exist.
 	 */
-	public function get_registered_step( $step_name, array $step_data = array() ): Step {
+	public function get_registered_step( array $step_data ): Step {
 
-		$step_class = $this->get_step_class( $step_name );
+		$step_class = $this->get_step_class( $step_data['slug'] );
 
 		if ( ! class_exists( $step_class ) ) {
 			throw new Automation_Exception(
