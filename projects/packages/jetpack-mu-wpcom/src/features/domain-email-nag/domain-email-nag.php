@@ -22,14 +22,13 @@ function should_show_domain_frontend_email_nag() {
 }
 
 /**
- * Returns account url for fixing email issue
- *
- * @param string $domain the domain that is unverified.
+ * Returns the domain url for site that has a domain with an
+ * univerified email address.
  *
  * @return string account url
  */
-function get_account_url( $domain ) {
-	return 'https://wordpress.com/domains/manage/' . $domain;
+function get_account_url() {
+	return 'https://wordpress.com/domains/manage/' . wpcom_get_site_slug();
 }
 
 /**
@@ -76,7 +75,7 @@ function domain_email_nag() {
 	<div class="wp-domain-nag-sticky-message">
 		<div class="wp-domain-nag-inner">
 			<p class="wp-domain-nag-text"><?php echo wp_kses( $notice, array( 'strong' => array() ) ); ?></p>
-			<a class="button" href="<?php echo esc_url( get_account_url( $domain ) ); ?>"><?php esc_html_e( 'Fix', 'jetpack-mu-wpcom' ); ?></a>
+			<a class="button" href="<?php echo esc_url( get_account_url() ); ?>"><?php esc_html_e( 'Fix', 'jetpack-mu-wpcom' ); ?></a>
 		</div>
 	</div>
 	<?php
