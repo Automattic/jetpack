@@ -2,11 +2,8 @@ import { createBlock } from '@wordpress/blocks';
 import PlaceholderSiteIcon from './placeholder-site-icon.svg';
 
 export function createBlockFromRecommendation( attrs ) {
-	const { icon } = attrs;
-
 	return createBlock( 'jetpack/blogroll-item', {
 		...attrs,
-		icon: icon || PlaceholderSiteIcon,
 	} );
 }
 
