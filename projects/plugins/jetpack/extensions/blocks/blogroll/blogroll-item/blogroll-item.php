@@ -73,11 +73,10 @@ function load_assets( $attr, $content, $block ) {
 		$subscribe_button_class    = 'is-style-outline';
 	}
 
-	$site_icon = <<<HTML
+	$placeholder_site_icon = '';
+	$site_icon_html        = <<<HTML
 	<img src="$icon" alt="$name_attr" onerror="this.parentNode.classList.add('empty-site-icon')">
 HTML;
-
-	$site_icon_html = do_blocks( $site_icon );
 
 	if ( empty( $icon ) ) {
 		$site_icon_html        = '';
