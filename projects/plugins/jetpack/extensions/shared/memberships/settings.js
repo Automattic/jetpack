@@ -19,6 +19,33 @@ export function Link( { href, children } ) {
 	);
 }
 
+function ConfirmSaveDialog( { hasNewsletterPlans } ) {
+	const paidLink = getPaidPlanLink( hasNewsletterPlans );
+	const { autosaveAndRedirect } = useAutosaveAndRedirect( paidLink );
+
+	const [ showDialog, setShowDialog ] = useState( false );
+	const closeDialog = () => setShowDialog( false );
+
+	return (
+		<ConfirmDialog
+			onRequestClose={ closeDialog }
+			cancelButtonText={ __( 'Not now', 'jetpack' ) }
+			confirmButtonText={ __( 'Get started', 'jetpack' ) }
+			isOpen={ showDialog }
+			onCancel={ closeDialog }
+			onConfirm={ autosaveAndRedirect }
+		>
+			<h2>{ __( 'Enable payments', 'jetpack' ) }</h2>
+			<p style={ { maxWidth: 340 } }>
+				{ __(
+					'To choose this option, you need to create a payment plan, setting up how much your subscribers should pay to access your paid content, and then connect your Stripe account, which is our payments processor.',
+					'jetpack'
+				) }
+			</p>
+		</ConfirmDialog>
+	);
+}
+
 export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, paidSubscribers ) {
 	switch ( accessOptions[ accessLevelKey ].key ) {
 		case accessOptions.everybody.key:
