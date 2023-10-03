@@ -996,6 +996,12 @@ function add_paywall( $the_content ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
 	if ( Jetpack_Memberships::user_can_view_post() ) {
+		do_action(
+			'earn_track_paywalled_post_view',
+			array(
+				'post_id' => get_the_ID(),
+			)
+		);
 		return $the_content;
 	}
 
@@ -1064,13 +1070,42 @@ function get_paywall_content( $post_access_level, $email_confirmation_pending = 
 	if ( $email_confirmation_pending ) {
 		return get_paywall_blocks_subscribe_pending();
 	}
-	if ( ! jetpack_is_frontend() ) { // emails
-		return get_paywall_simple();
-	}
 	if ( doing_filter( 'get_the_excerpt' ) ) {
 		return '';
 	}
 	return get_paywall_blocks( $post_access_level );
+}
+
+/**
+ * Returns the current URL.
+ *
+ * TODO: Copied from https://github.com/Automattic/jetpack/blob/bb885061dc3ee7a80a78a5f0116ab3fcebfddb09/projects/packages/boost-core/src/lib/class-url.php#L39
+ * TODO: Move to a shared package
+ *
+ * @return string
+ */
+function get_current_url() {
+	// Fallback to the site URL if we're unable to determine the URL from $_SERVER global.
+	$current_url = site_url();
+
+	if ( isset( $_SERVER ) && is_array( $_SERVER ) ) {
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitization happens at the end
+		$scheme = isset( $_SERVER['HTTPS'] ) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http';
+		$host   = ! empty( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : null;
+		$path   = ! empty( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
+
+		// Support for local plugin development and testing using ngrok.
+		if ( ! empty( $_SERVER['HTTP_X_ORIGINAL_HOST'] ) && false !== strpos( $_SERVER['HTTP_X_ORIGINAL_HOST'], 'ngrok.io' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
+			$host = wp_unslash( $_SERVER['HTTP_X_ORIGINAL_HOST'] );
+		}
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+		if ( $host ) {
+			$current_url = esc_url_raw( sprintf( '%s://%s%s', $scheme, $host, $path ) );
+		}
+	}
+
+	return $current_url;
 }
 
 /**
@@ -1080,6 +1115,13 @@ function get_paywall_content( $post_access_level, $email_confirmation_pending = 
  * @return string
  */
 function get_paywall_blocks( $newsletter_access_level ) {
+	$custom_paywall = apply_filters( 'jetpack_custom_paywall_blocks', false );
+	if ( ! empty( $custom_paywall ) ) {
+		return $custom_paywall;
+	}
+	if ( ! jetpack_is_frontend() ) { // emails
+		return get_paywall_simple();
+	}
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	// Only display paid texts when Stripe is connected and the post is marked for paid subscribers
 	$is_paid_post = $newsletter_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
@@ -1098,7 +1140,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 
 	$sign_in = '';
 	if ( ! is_user_logged_in() && ( new Host() )->is_wpcom_simple() ) {
-		$sign_in_link = add_query_arg( 'redirect_to', rawurlencode( get_post_permalink() ), 'https://wordpress.com/log-in/link' );
+		$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
 		$sign_in      = '<!-- wp:paragraph {"align":"center", "typography":{"fontSize":"14px","fontWeight":"400";"color":"#646970"}} -->
 <p class="has-text-align-center" style="font-size:14px;font-weight:400;color:#646970">' . esc_html( $access_question ) . ' <a href="' . $sign_in_link . '" class="jetpack-subscriber-paywall-login" style="font-size:14px;font-weight:400;color:#646970">' . esc_html__( 'Log in', 'jetpack' ) . '</a></p>
 <!-- /wp:paragraph -->';

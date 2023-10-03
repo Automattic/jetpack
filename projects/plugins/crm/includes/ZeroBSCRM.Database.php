@@ -597,7 +597,7 @@ function zeroBSCRM_createTables(){
   COLLATE = ".$collation.";";
   zeroBSCRM_db_runDelta($sql);
 
-  // Events (DB3.0+)
+  // Tasks (DB3.0+)
    $sql = "CREATE TABLE IF NOT EXISTS ". $ZBSCRM_t['events'] ."(
   `ID` INT NOT NULL AUTO_INCREMENT,
   `zbs_site` INT NULL DEFAULT NULL,
@@ -622,7 +622,7 @@ function zeroBSCRM_createTables(){
   COLLATE = ".$collation.";";
   zeroBSCRM_db_runDelta($sql);
 
-  // Event Reminders (DB3.0+)
+  // Task Reminders (DB3.0+)
    $sql = "CREATE TABLE IF NOT EXISTS ". $ZBSCRM_t['eventreminders'] ."(
   `ID` INT NOT NULL AUTO_INCREMENT,
   `zbs_site` INT NULL DEFAULT NULL,
@@ -885,6 +885,7 @@ function zeroBSCRM_createTables(){
 	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['automation-workflows'] . '(
 	`id` INT NOT NULL AUTO_INCREMENT,
 	`zbs_site` INT NOT NULL,
+	`zbs_team` INT NOT NULL,
 	`zbs_owner` INT NOT NULL,
 	`name` VARCHAR(255) NOT NULL,
 	`description` VARCHAR(600) NULL DEFAULT NULL,
@@ -894,8 +895,8 @@ function zeroBSCRM_createTables(){
 	`steps` LONGTEXT NOT NULL,
 	`active` TINYINT(1) NOT NULL DEFAULT 0,
 	`version` INT(14) NOT NULL DEFAULT 1,
-	`created_at` TIMESTAMP NOT NULL DEFAULT NOW(),
-	`updated_at` TIMESTAMP DEFAULT NULL,
+	`created_at` INT(14) DEFAULT NULL,
+	`updated_at` INT(14) DEFAULT NULL,
 	PRIMARY KEY (`id`),
 	INDEX `name` (`name` ASC),
 	INDEX `active` (`active` ASC),

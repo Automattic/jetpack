@@ -28,24 +28,6 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Register the setting for the AI prompt override.
- */
-function register_settings() {
-	register_setting(
-		'general',
-		'jetpack_search_ai_prompt_override',
-		array(
-			'type'         => 'string',
-			'show_in_rest' => true,
-			'description'  => __( 'Override for the Jetpack AI prompt in the Jetpack AI Search feature.', 'jetpack' ),
-			'defualt'      => '',
-		)
-	);
-}
-
-add_action( 'rest_api_init', __NAMESPACE__ . '\register_settings' );
-
-/**
  * Jetpack AI Paragraph block registration/dependency declaration.
  *
  * @param array $attr Array containing the Jetpack AI Chat block attributes.
@@ -70,12 +52,15 @@ function load_assets( $attr ) {
 	}
 
 	return sprintf(
-		'<div class="%1$s" data-ask-button-label="%2$s" id="jetpack-ai-chat" data-blog-id="%3$d" data-blog-type="%4$s" data-placeholder="%5$s"></div>',
+		'<div class="%1$s" data-ask-button-label="%2$s" id="jetpack-ai-chat" data-blog-id="%3$d" data-blog-type="%4$s" data-placeholder="%5$s" data-show-copy="%6$d" data-show-feedback="%7$d" data-show-sources="%8$d"></div>',
 		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		esc_attr( $ask_button_label ),
 		esc_attr( $blog_id ),
 		esc_attr( $type ),
-		esc_attr( $placeholder )
+		esc_attr( $placeholder ),
+		esc_attr( isset( $attr['showCopy'] ) ? ( $attr['showCopy'] ? 1 : 0 ) : 1 ),
+		esc_attr( isset( $attr['showFeedback'] ) ? ( $attr['showFeedback'] ? 1 : 0 ) : 1 ),
+		esc_attr( isset( $attr['showSources'] ) ? ( $attr['showSources'] ? 1 : 0 ) : 1 )
 	);
 }
 

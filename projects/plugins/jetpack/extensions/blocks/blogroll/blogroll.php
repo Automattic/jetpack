@@ -47,38 +47,68 @@ function load_assets( $attr, $content ) {
 	 * Enqueue necessary scripts and styles.
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
-
 	$current_location = home_url( $wp->request );
+	$is_wpcom         = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 
-	$content = <<<HTML
+	$wpcom_content = <<<HTML
 		<form method="post" action="https://subscribe.wordpress.com" accept-charset="utf-8">
 			<input name="action" type="hidden" value="subscribe">
 			<input name="source" type="hidden" value="$current_location">
-			<input name="sub-type" type="hidden" value="blogroll-follow">
+			<input name="sub-type" type="hidden" value="jetpack_blogroll">
 			$content
 		</form>
 HTML;
 
+	$blogroll_content = $is_wpcom ? $wpcom_content : $content;
+
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
 		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
-		$content
+		$blogroll_content
 	);
 }
 
 /**
  * Register site_recommendations settings
  *
- * @since $$next-version$$
+ * @since 12.7
  */
 function site_recommendations_settings() {
 	register_setting(
 		'general',
 		'Blogroll Recommendations', // Visible to the user see: https://github.com/WordPress/gutenberg/issues/41637
 		array(
-			'type'          => 'array',
-			'show_in_rest'  => true,
 			'description'   => __( 'Site Recommendations', 'jetpack' ),
+			'type'          => 'array',
+			'show_in_rest'  => array(
+				'schema' => array(
+					'items' => array(
+						'type'       => 'object',
+						'properties' => array(
+							'id'          => array(
+								'type'   => 'string',
+								'format' => 'text-field',
+							),
+							'name'        => array(
+								'type'   => 'string',
+								'format' => 'text-field',
+							),
+							'icon'        => array(
+								'type'   => 'string',
+								'format' => 'uri',
+							),
+							'url'         => array(
+								'type'   => 'string',
+								'format' => 'uri',
+							),
+							'description' => array(
+								'type'   => 'string',
+								'format' => 'text-field',
+							),
+						),
+					),
+				),
+			),
 			'auth_callback' => function () {
 				return current_user_can( 'edit_posts' );
 			},

@@ -43,6 +43,15 @@ class Jetpack_Lazy_Images {
 	private static $instance = null;
 
 	/**
+	 * Name of the shared module.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @var string
+	 */
+	const MODULE_NAME = 'lazy-images';
+
+	/**
 	 * Singleton implementation.
 	 *
 	 * @since 1.0.0
@@ -51,17 +60,75 @@ class Jetpack_Lazy_Images {
 	 * @return object|void The class instance or void if Gutenberg is active.
 	 */
 	public static function instance() {
-		// Gutenberg's Interactivity API, starting in 16.6,  conflicts with our lazy images implementation.
-		if ( Constants::is_true( 'IS_GUTENBERG_PLUGIN' )
-				&& Constants::get_constant( 'GUTENBERG_VERSION' )
-				&& version_compare( Constants::get_constant( 'GUTENBERG_VERSION' ), '16.6.0', '>=' ) ) {
+		if ( self::should_force_deactivate() ) {
+			self::disable();
 			return;
 		}
+
 		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Lazy_Images();
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Determines if the Lazy Images feature should be force-deactivated.
+	 * In some scenarios, Lazy Images can conflict with other WordPress features.
+	 * When that's the case, we want to force-deactivate Lazy Images.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @return bool
+	 */
+	public static function should_force_deactivate() {
+		// If Gutenberg is not installed,
+		// check if we run a version of WP that would conflict with Lazy Images.
+		if ( ! Constants::is_true( 'IS_GUTENBERG_PLUGIN' ) ) {
+			global $wp_version;
+			return version_compare( $wp_version, '6.4', '>=' );
+		}
+
+		// If we're running a dev version of Gutenberg, assume it's the latest and it conflicts.
+		if ( Constants::is_true( 'GUTENBERG_DEVELOPMENT_MODE' ) ) {
+			return true;
+		}
+
+		$gutenberg_version = Constants::get_constant( 'GUTENBERG_VERSION' );
+
+		// If Gutenberg is not installed, let's not force-deactivate Lazy Images.
+		if ( ! $gutenberg_version ) {
+			return false;
+		}
+
+		// Gutenberg's Interactivity API, starting in 16.6,  conflicts with our lazy images implementation.
+		return version_compare( $gutenberg_version, '16.6.0', '>=' );
+	}
+
+	/**
+	 * Determines if the Lazy Images module is enabled on the site.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled() {
+		return ( new Modules() )->is_active( self::MODULE_NAME );
+	}
+
+	/**
+	 * Disables the Lazy Images module.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @return bool
+	 */
+	public static function disable() {
+		// Return true if already disabled.
+		if ( ! self::is_enabled() ) {
+			return true;
+		}
+		return ( new Modules() )->deactivate( self::MODULE_NAME );
 	}
 
 	/**

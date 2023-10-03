@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Skip video file addition to upload queue if it fails the space/allowance check

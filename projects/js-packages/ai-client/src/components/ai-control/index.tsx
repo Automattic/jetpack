@@ -143,7 +143,7 @@ export function AIControl(
 					{ ! loading ? (
 						<Button
 							className={ actionButtonClasses }
-							onClick={ () => onSend( value ) }
+							onClick={ () => onSend?.( value ) }
 							isSmall={ true }
 							disabled={ ! value?.length || disabled }
 							label={ __( 'Send request', 'jetpack-ai-client' ) }
@@ -159,7 +159,7 @@ export function AIControl(
 							label={ __( 'Stop request', 'jetpack-ai-client' ) }
 						>
 							<Icon icon={ closeSmall } />
-							{ showButtonLabels && __( 'Stop', 'jetpack-ai-client' ) }
+							{ showButtonLabels && __( 'Stop (ESC)', 'jetpack-ai-client' ) }
 						</Button>
 					) }
 				</div>

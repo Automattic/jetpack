@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/paywall",
 	"title": "Paywall (Beta)",
-	"description": "Content before this block will be shown in the excerpt on your archives page.",
+	"description": "Limit access to the content below this block to chosen subscribers.",
 	"keywords": [
 		"more",
 		"email",

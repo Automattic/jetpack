@@ -14,11 +14,12 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 	const [ popoverAnchor, setPopoverAnchor ] = useState();
 	const [ searchInput, setSearchInput ] = useState( '' );
 	const { insertBlock } = dispatch( 'core/block-editor' );
-	const { siteDetails } = useGetSiteDetails( {
+	const { siteDetails, isLoading } = useGetSiteDetails( {
 		siteURL: searchInput,
 		subscriptions,
 		enabled: searchInput,
 	} );
+
 	const toggleVisible = () => {
 		setIsVisible( state => ! state );
 	};
@@ -42,9 +43,10 @@ export default function BlogrollAppender( { subscriptions, clientId } ) {
 				<Popover anchor={ popoverAnchor } className="jetpack-blogroll__appender">
 					<BlogrollAppenderSearch value={ searchInput } onChange={ setSearchInput } />
 					<BlogrollAppenderResults
-						showPlaceholder={ ! searchInput.trim() }
 						results={ siteDetails }
 						onSelect={ onSelect }
+						searchInput={ searchInput }
+						isLoading={ isLoading }
 					/>
 				</Popover>
 			) }

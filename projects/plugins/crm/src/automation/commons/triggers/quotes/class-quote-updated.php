@@ -9,7 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Quote_Data;
 
 /**
  * Adds the Quote_Updated class.
@@ -68,18 +68,17 @@ class Quote_Updated extends Base_Trigger {
 	 * @return string The type of the step
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Quote::get_slug();
+		return Quote_Data::class;
 	}
 
 	/**
 	 * Listen to this trigger's target event.
 	 *
 	 * @since $$next-version$$
+	 *
+	 * @return void
 	 */
-	protected function listen_to_event() {
-		add_action(
-			'jpcrm_quote_update',
-			array( $this, 'execute_workflow' )
-		);
+	protected function listen_to_event(): void {
+		$this->listen_to_wp_action( 'jpcrm_quote_update' );
 	}
 }

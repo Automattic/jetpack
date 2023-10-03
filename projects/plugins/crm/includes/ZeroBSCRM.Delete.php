@@ -219,7 +219,7 @@ class zeroBSCRM_Delete{
 
                                 break;
 
-                            case ZBS_TYPE_EVENT:
+                            case ZBS_TYPE_TASK:
 
                                 // for now always kill links
                                 $saveOrphans = false;

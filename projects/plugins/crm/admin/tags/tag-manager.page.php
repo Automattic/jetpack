@@ -134,7 +134,7 @@ function zeroBSCRM_pages_admin_tags() {
 		case 'event':
 			$tagView = new zeroBSCRM_TagManager(
 				array(
-					'objTypeID'  => ZBS_TYPE_EVENT,
+					'objTypeID'  => ZBS_TYPE_TASK,
 					'objType'    => 'event',
 					'singular'   => __( 'Task', 'zero-bs-crm' ),
 					'plural'     => __( 'Tasks', 'zero-bs-crm' ),

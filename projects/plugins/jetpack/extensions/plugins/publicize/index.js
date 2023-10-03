@@ -14,6 +14,7 @@ import {
 	usePublicizeConfig,
 	SocialImageGeneratorPanel,
 	PostPublishReviewPrompt,
+	PostPublishOneClickSharing,
 } from '@automattic/jetpack-publicize-components';
 import {
 	JetpackEditorPanelLogo,
@@ -97,6 +98,7 @@ const PublicizeSettings = () => {
 				</PluginPrePublishPanel>
 			) }
 
+			<PostPublishOneClickSharing />
 			<PostPublishReviewPrompt />
 		</PostTypeSupportCheck>
 	);

@@ -8,8 +8,12 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
+use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Base_Action;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+use Automattic\Jetpack\CRM\Entities\Contact;
+use Automattic\Jetpack\CRM\Entities\Factories\Contact_Factory;
 
 /**
  * Adds the Update_Contact_Status class.
@@ -37,7 +41,7 @@ class Update_Contact_Status extends Base_Action {
 	 * @return string|null The title of the step.
 	 */
 	public static function get_title(): ?string {
-		return 'Update Contact Status Action';
+		return __( 'Update Contact Status Action', 'zero-bs-crm' );
 	}
 
 	/**
@@ -48,7 +52,7 @@ class Update_Contact_Status extends Base_Action {
 	 * @return string|null The description of the step.
 	 */
 	public static function get_description(): ?string {
-		return 'Action to update the contact status';
+		return __( 'Action to update the contact status', 'zero-bs-crm' );
 	}
 
 	/**
@@ -59,7 +63,7 @@ class Update_Contact_Status extends Base_Action {
 	 * @return string The type of the step.
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Contact::get_slug();
+		return Contact_Data::class;
 	}
 
 	/**
@@ -74,14 +78,35 @@ class Update_Contact_Status extends Base_Action {
 	}
 
 	/**
-	 * Get the allowed triggers.
+	 * Constructor.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string[]|null The allowed triggers.
+	 * @param array $step_data The step data.
 	 */
-	public static function get_allowed_triggers(): ?array {
-		return array();
+	public function __construct( array $step_data ) {
+		parent::__construct( $step_data );
+
+		global $zbsCustomerFields; // // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		$statuses = array();
+		if ( is_array( $zbsCustomerFields ) && ! empty( $zbsCustomerFields['status'][3] ) ) { // // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			foreach ( $zbsCustomerFields['status'][3] as $status ) { // // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$statuses[ $status ] = $status;
+			}
+		}
+
+		$this->set_attribute_definitions(
+			array(
+				new Attribute_Definition(
+					'new_status',
+					__( 'New status', 'zero-bs-crm' ),
+					__( 'The status that will be used for the contact.', 'zero-bs-crm' ),
+					Attribute_Definition::SELECT,
+					$statuses
+				),
+			)
+		);
 	}
 
 	/**
@@ -89,18 +114,22 @@ class Update_Contact_Status extends Base_Action {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param mixed  $data Data passed from the trigger.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 * @param Data_Type $data Data passed from the trigger.
 	 */
-	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	protected function execute( Data_Type $data ) {
 		global $zbs;
 
-		$data['status'] = $this->attributes['new_status'];
-		$zbs->DAL->contacts->addUpdateContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			array(
-				'id'   => $data['id'],
-				'data' => $data,
-			)
+		if ( empty( $this->get_attribute( 'new_status' ) ) ) {
+			return;
+		}
+
+		/** @var Contact $contact */
+		$contact         = $data->get_data();
+		$contact->status = $this->get_attribute( 'new_status' );
+
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$zbs->DAL->contacts->addUpdateContact(
+			Contact_Factory::data_for_dal( $contact )
 		);
 	}
 }

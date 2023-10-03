@@ -1,4 +1,10 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
 .wp-block-jetpack-blogroll {
+	@include break-mobile() {
+		padding: 24px;
+	}
+
 	.block-editor-inner-blocks {
 		h3 {
 			font-size: 20px;
@@ -19,6 +25,19 @@
 	&.hide-description {
 		.jetpack-blogroll-item-description {
 			display: none;
+		}
+	}
+
+	.wp-block-jetpack-blogroll-item .jetpack-blogroll-item-information {
+		display: flex;
+		padding: 20px 8px;
+		gap: 20px;
+		flex-direction: column;
+		align-items: flex-start;
+
+		@include break-mobile() {
+			flex-direction: row;
+			align-items: center;
 		}
 	}
 

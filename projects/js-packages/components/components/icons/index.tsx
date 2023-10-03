@@ -171,6 +171,16 @@ export const CheckmarkIcon: React.FC< BaseIconProps > = ( {
 	</IconWrapper>
 );
 
+export const ClipboardIcon: React.FC< BaseIconProps > = ( {
+	size,
+	className = styles[ 'clipboard-icon' ],
+	color,
+} ) => (
+	<IconWrapper className={ className } size={ size } color={ color }>
+		<Path d="M5.625 5.5H15.375C15.444 5.5 15.5 5.55596 15.5 5.625V15.375C15.5 15.444 15.444 15.5 15.375 15.5H5.625C5.55596 15.5 5.5 15.444 5.5 15.375V5.625C5.5 5.55596 5.55596 5.5 5.625 5.5ZM4 5.625C4 4.72754 4.72754 4 5.625 4H15.375C16.2725 4 17 4.72754 17 5.625V10V15.375C17 16.2725 16.2725 17 15.375 17C15.375 17 6.52246 17 5.625 17C4.72754 17 4 16.2725 4 15.375V5.625ZM18.5 17.2812V8.28125H20V17.2812C20 18.7995 18.7704 20 17.2511 20H6.25V18.5H17.2511C17.9409 18.5 18.5 17.9721 18.5 17.2812Z" />
+	</IconWrapper>
+);
+
 export const JetpackIcon: React.FC< BaseIconProps > = ( {
 	size,
 	className = styles.jetpack,
@@ -184,6 +194,19 @@ export const JetpackIcon: React.FC< BaseIconProps > = ( {
 			/>
 			<Polygon fill="#fff" points="15,19 7,19 15,3" />
 			<Polygon fill="#fff" points="17,29 17,13 25,13" />
+		</IconWrapper>
+	);
+};
+
+export const ShareIcon: React.FC< BaseIconProps > = ( { size = 16, className, color } ) => {
+	return (
+		<IconWrapper className={ className } size={ size } color={ color } viewBox="0 0 16 16">
+			<Path
+				fill="#161722"
+				fillRule="evenodd"
+				d="M8.3 4.66C3.85 5.308.727 9.75.034 13.69l-.02.117c-.137.842.809 1.232 1.446.68 2.013-1.745 3.648-2.475 5.318-2.719a10.482 10.482 0 011.524-.103v2.792c0 .694.82 1.041 1.3.55l6.176-6.307a.79.79 0 00.012-1.088L9.614 1.004C9.14.496 8.301.84 8.301 1.542v3.117zm1.525-1.175v1.85a.773.773 0 01-.654.77l-.655.096c-2.133.311-3.987 1.732-5.295 3.672-.472.7-.854 1.44-1.143 2.18a12.32 12.32 0 011.675-.972c1.58-.75 3.048-.972 4.548-.972h.762a.77.77 0 01.762.779v1.69l4.347-4.44-4.347-4.653z"
+				clipRule="evenodd"
+			></Path>
 		</IconWrapper>
 	);
 };
@@ -332,6 +355,7 @@ const jetpackIcons = {
 	star: StarIcon,
 	videopress: VideopressIcon,
 	jetpack: JetpackIcon,
+	share: ShareIcon,
 };
 
 const socialIcons = {
