@@ -490,7 +490,7 @@ function wpcom_launchpad_get_task_definitions() {
 		// Earn tasks
 		'stripe_connected'                => array(
 			'get_title'           => function () {
-				return __( 'Connect a Stripe account', 'jetpack-mu-wpcom' );
+				return __( 'Connect a Stripe account to collect payments', 'jetpack-mu-wpcom' );
 			},
 			'is_visible_callback' => '__return_true',
 			'get_calypso_path'    => function ( $task, $default, $data ) {
@@ -505,7 +505,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'paid_offer_created'              => array(
 			'get_title'           => function () {
-				return __( 'Set up an offer', 'jetpack-mu-wpcom' );
+				return __( 'Set up an offer for your supporters', 'jetpack-mu-wpcom' );
 			},
 			'is_visible_callback' => '__return_true',
 			'get_calypso_path'    => function ( $task, $default, $data ) {
