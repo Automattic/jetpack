@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Use WordPress core's `Plugin_Upgrader` to install plugins, as it handles edge cases better.
