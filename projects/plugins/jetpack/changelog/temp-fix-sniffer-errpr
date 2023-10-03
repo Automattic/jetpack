@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Ignoring a phpcs rule, no need for a changelog
+
+
