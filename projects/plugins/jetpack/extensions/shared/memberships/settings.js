@@ -19,6 +19,8 @@ import { icon as paywallIcon, blockName as paywallBlockName } from '../../blocks
 import { store as membershipProductsStore } from '../../store/membership-products';
 import useAutosaveAndRedirect from '../use-autosave-and-redirect';
 import './settings.scss';
+import { accessOptions, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
+import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 
 export function Link( { href, children } ) {
 	return (
