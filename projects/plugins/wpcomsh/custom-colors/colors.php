@@ -969,7 +969,7 @@ class Colors_Manager_Common {
 	 * @param array $args [colors=>array[string], color=>string, limit=>int, role=>string]
 	 * @return array An array of color codes.
 	 */
-	public function get_color_recommendations( $args ) {
+	public static function get_color_recommendations( $args ) {
 		global $wpdb;
 
 		$defaults = array(
@@ -1570,7 +1570,7 @@ class Colors_Manager_Common {
 	 * @param string $role (bg|fg1|fg2|txt|link)
 	 * @return array
 	 */
-	function color_suggestions( $colors, $role ) {
+	public static function color_suggestions( $colors, $role ) {
 		if ( ! class_exists( 'Jetpack_color' ) ) {
 			require_lib( 'class.color' );
 		}
@@ -1593,7 +1593,7 @@ class Colors_Manager_Common {
 	 * @param string $role (bg|fg1|fg2|txt|link)
 	 * @return array
 	 */
-	function color_suggestions_from_palette( $colors, $role ) {
+	public static function color_suggestions_from_palette( $colors, $role ) {
 		$suggestions = array();
 
 		$top_palette = self::get_color_palettes(
@@ -1654,7 +1654,7 @@ class Colors_Manager_Common {
 	 * @param string $role (bg|fg1|fg2|txt|link)
 	 * @return array
 	 */
-	function color_suggestions_from_math( $colors, $role ) {
+	public static function color_suggestions_from_math( $colors, $role ) {
 		$suggestions = array();
 
 		// These are the result of a couple of hours of playing around.
