@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Subscriptions: added a PHPCS rule to avoid problems with Simple WordPress.com deployments.

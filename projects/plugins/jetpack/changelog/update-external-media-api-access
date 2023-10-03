@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-External Media: do not surface the endpoint to contributors, who do not need athe feature since they cannot upload media.

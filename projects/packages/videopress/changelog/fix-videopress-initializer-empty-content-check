@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Use a try/catch when calling get_the_content to avoid fatals. See: https://github.com/Automattic/jetpack/issues/33284
