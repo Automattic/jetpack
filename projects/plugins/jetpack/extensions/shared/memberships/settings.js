@@ -1,15 +1,24 @@
-import { Flex, FlexBlock, PanelRow, VisuallyHidden, Spinner, Button } from '@wordpress/components';
+import {
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalConfirmDialog as ConfirmDialog,
+	Flex,
+	FlexBlock,
+	PanelRow,
+	VisuallyHidden,
+	Spinner,
+	Button,
+} from '@wordpress/components';
 import { useInstanceId, useViewportMatch } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
+import { useState } from 'react';
 import { icon as paywallIcon, blockName as paywallBlockName } from '../../blocks/paywall';
 import { store as membershipProductsStore } from '../../store/membership-products';
+import useAutosaveAndRedirect from '../use-autosave-and-redirect';
 import './settings.scss';
-import { accessOptions, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
-import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 
 export function Link( { href, children } ) {
 	return (
