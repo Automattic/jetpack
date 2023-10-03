@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/blogroll",
 	"title": "Blogroll (Beta)",
-	"description": "Select the sites you follow and share them with your users.",
+	"description": "Share the sites you follow with your users.",
 	"keywords": [],
 	"version": "12.5.0",
 	"textdomain": "jetpack",

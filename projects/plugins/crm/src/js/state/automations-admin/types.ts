@@ -5,15 +5,19 @@ export type Trigger = {
 	category: Category;
 };
 
+type StepId = string;
+
 export type Step = {
-	id: string;
+	id: StepId;
 	attributes: { [ key: string ]: AttributeValue };
 	attribute_definitions: { [ attributeSlug: string ]: AttributeDefinition };
-	next_step?: string;
+	next_step_true?: StepId;
+	next_step_false?: StepId;
 	slug: string;
 	title: string;
 	description: string;
 	type: Type;
+	step_type: StepType;
 	category: Category;
 	allowedTriggers: Trigger[];
 };
@@ -34,7 +38,11 @@ export type Workflow = {
 	};
 };
 
+export type ServerPreparedWorkflow = Workflow & { triggers: string[] };
+
 export type Type = 'contacts';
+
+export type StepType = 'action' | 'condition';
 
 export type Category = string;
 
