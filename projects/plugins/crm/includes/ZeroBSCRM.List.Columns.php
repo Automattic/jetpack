@@ -748,9 +748,6 @@
       global $zeroBSCRM_columns_transaction, $zbsTransactionFields;
       global $zeroBSCRM_columns_form, $zbsFormFields;
 
-
-        if ($zbs->isDAL2()){
-
           $useSecondAddress = zeroBSCRM_getSetting('secondaddress');
           $second_address_label = zeroBSCRM_getSetting( 'secondaddresslabel' );
           if ( empty( $second_address_label ) ) {
@@ -800,9 +797,6 @@
                 }
 
             }
-
-        }
-
 
         // Auto-add status filters - COMPANY
 
@@ -881,10 +875,6 @@
 
         }
 
-
-        // only DB2 peeps
-        if ($zbs->isDAL2()){
-
             // Auto-add 'olderthan-x-days' (based on listview settings no 30 e.g.)
             if (isset($quickFilterListViewSettings['olderthanx']) && !empty($quickFilterListViewSettings['olderthanx']) && $quickFilterListViewSettings['olderthanx'] > 0){
 
@@ -905,10 +895,6 @@
                   }
 
             }
-
-        }
-
-        
 
         // Auto-add 'edit link' to quotes invs (somehow it wasn't always adding)
         $customviews2 = zeroBSCRM_getSetting('customviews2'); $cv2Changed = false;
