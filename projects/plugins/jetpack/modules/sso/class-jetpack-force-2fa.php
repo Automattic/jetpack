@@ -168,7 +168,7 @@ class Jetpack_Force_2FA {
 		 */
 		return apply_filters(
 			'jetpack_force_2fa_login_error_message',
-			sprintf( 'For added security, please log in using your WordPress.com account.<br /><br />Note: Your account must have <a href="%1$s" target="_blank">Two Step Authentication</a> enabled, which can be configured from <a href="%2$s" target="_blank">Security Settings</a>.', 'https://support.wordpress.com/security/two-step-authentication/', 'https://wordpress.com/me/security/two-step' ) // phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
+			sprintf( 'For added security, please log in using your WordPress.com account.<br /><br />Note: Your account must have <a href="%1$s" target="_blank">Two Step Authentication</a> enabled, which can be configured from <a href="%2$s" target="_blank">Security Settings</a>.', 'https://support.wordpress.com/security/two-step-authentication/', 'https://wordpress.com/me/security/two-step' )
 		);
 	}
 }
