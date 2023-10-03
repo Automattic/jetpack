@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Subscribe Block: Exclude social followers count from count summary on inspector panel.
