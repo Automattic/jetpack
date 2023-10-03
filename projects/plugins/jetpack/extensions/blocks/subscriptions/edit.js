@@ -93,29 +93,20 @@ export function SubscriptionEdit( props ) {
 		successMessage,
 	} = validatedAttributes;
 
-	const { subscriberCount, subscriberCountString } = useSelect( select => {
-		if ( ! isModuleActive ) {
-			return {
-				subscriberCounts: 0,
-				subscriberCountString: '',
-			};
-		}
-		const { emailSubscribers, socialFollowers } =
-			select( membershipProductsStore ).getSubscriberCounts();
-		let count = emailSubscribers;
-		if ( includeSocialFollowers ) {
-			count += socialFollowers;
-		}
+	const { emailSubscribers: emailSubscriberCount, socialFollowers: socialFollowerCount } =
+		useSelect( select => {
+			if ( ! isModuleActive ) {
+				return {
+					emailSubscribers: 0,
+					socialFollowers: 0,
+				};
+			}
+			return select( membershipProductsStore ).getSubscriberCounts();
+		} );
 
-		return {
-			subscriberCount: count,
-			subscriberCountString: sprintf(
-				/* translators: Placeholder is a number of subscribers. */
-				_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
-				count
-			),
-		};
-	} );
+	const advertisedSubscriberCount = includeSocialFollowers
+		? emailSubscriberCount + socialFollowerCount
+		: emailSubscriberCount;
 
 	const { data: newsletterCategories, enabled: newsletterCategoriesEnabled } =
 		useNewsletterCategories();
@@ -281,7 +272,7 @@ export function SubscriptionEdit( props ) {
 					setTextColor={ setTextColor }
 					showSubscribersTotal={ showSubscribersTotal }
 					spacing={ spacing }
-					subscriberCount={ subscriberCount }
+					subscriberCount={ emailSubscriberCount }
 					textColor={ textColor }
 					buttonWidth={ buttonWidth }
 					successMessage={ successMessage }
@@ -336,7 +327,18 @@ export function SubscriptionEdit( props ) {
 					</div>
 				</div>
 				{ showSubscribersTotal && (
-					<div className="wp-block-jetpack-subscriptions__subscount">{ subscriberCountString }</div>
+					<div className="wp-block-jetpack-subscriptions__subscount">
+						{ sprintf(
+							/* translators: Placeholder is a number of subscribers. */
+							_n(
+								'Join %s other subscriber',
+								'Join %s other subscribers',
+								advertisedSubscriberCount,
+								'jetpack'
+							),
+							advertisedSubscriberCount
+						) }
+					</div>
 				) }
 			</div>
 		</>
