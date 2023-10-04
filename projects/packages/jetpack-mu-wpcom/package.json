@@ -17,6 +17,7 @@
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-client",
 		"build-client": "webpack",
+		"watch": "pnpm build && pnpm build-client --watch",
 		"clean": "rm -rf build/"
 	},
 	"devDependencies": {
