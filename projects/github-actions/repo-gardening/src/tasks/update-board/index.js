@@ -119,7 +119,7 @@ async function getIssueProjectItemId( octokit, projectInfo, repoName, issueId ) 
 
 	// First, use the GraphQL API to request the project item IDs for each of the boards this issue belongs to.
 	const projectItemDetails = await octokit.graphql(
-		`query getProjectItems($ownerName: String!, $repoName: String!, $issueId: ID!) {
+		`query getProjectItems($ownerName: String!, $repoName: String!, $issueId: Int!) {
 			repository( owner: $ownerName, name: $repoName ) {
 				issue( number: $issueId ) {
 					projectItems( first: 20 ) {
