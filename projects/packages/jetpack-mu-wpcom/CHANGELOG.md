@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.13.0] - 2023-10-03
+### Added
+- Add new task for user to confirm email when purchasing a domain. [#33373]
+- Add plugin to show frontend email nag for domains with unverified email address [#33390]
+- Adds a URL param to identify the source of the navigation on the Customize domain task. [#33404]
+
 ## [4.12.0] - 2023-09-28
 ### Added
 - Added calypso_path to Launchpad task [#33355]
@@ -378,6 +384,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[4.13.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.12.0...v4.13.0
 [4.12.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.11.0...v4.12.0
 [4.11.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.10.0...v4.11.0
 [4.10.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.9.0...v4.10.0

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-AI Excerpts: avoid errors on Custom Post Types that do not support excerpts.

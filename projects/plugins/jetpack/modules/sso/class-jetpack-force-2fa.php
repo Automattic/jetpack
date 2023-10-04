@@ -39,7 +39,7 @@ class Jetpack_Force_2FA {
 		 *
 		 * @param string $role The role to force 2FA for.
 		 * @return string
-		 * @since $$next-version$$
+		 * @since 12.7
 		 * @module SSO
 		 */
 		$this->role = apply_filters( 'jetpack_force_2fa_cap', 'manage_options' );
@@ -63,7 +63,7 @@ class Jetpack_Force_2FA {
 		 *
 		 * @param bool $display_notice Whether to display the notice.
 		 * @return bool
-		 * @since $$next-version$$
+		 * @since 12.7
 		 * @module SSO
 		 */
 		if ( apply_filters( 'jetpack_force_2fa_dependency_notice', true ) && current_user_can( $this->role ) ) {
@@ -163,12 +163,12 @@ class Jetpack_Force_2FA {
 		 *
 		 * @param string $message The login error message.
 		 * @return string
-		 * @since $$next-version$$
+		 * @since 12.7
 		 * @module SSO
 		 */
 		return apply_filters(
 			'jetpack_force_2fa_login_error_message',
-			sprintf( 'For added security, please log in using your WordPress.com account.<br /><br />Note: Your account must have <a href="%1$s" target="_blank">Two Step Authentication</a> enabled, which can be configured from <a href="%2$s" target="_blank">Security Settings</a>.', 'https://support.wordpress.com/security/two-step-authentication/', 'https://wordpress.com/me/security/two-step' ) // phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
+			sprintf( 'For added security, please log in using your WordPress.com account.<br /><br />Note: Your account must have <a href="%1$s" target="_blank">Two Step Authentication</a> enabled, which can be configured from <a href="%2$s" target="_blank">Security Settings</a>.', 'https://support.wordpress.com/security/two-step-authentication/', 'https://wordpress.com/me/security/two-step' )
 		);
 	}
 }
