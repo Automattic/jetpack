@@ -54,12 +54,12 @@
 		"ai-assistant-support",
 		"ai-assistant-form-support",
 		"paywall",
-		"ai-content-lens"
+		"ai-content-lens",
+		"blogroll",
+		"blogroll-item"
 	],
 	"beta": [
 		"amazon",
-		"blogroll",
-		"blogroll-item",
 		"google-docs-embed",
 		"launchpad-save-modal",
 		"recipe",
