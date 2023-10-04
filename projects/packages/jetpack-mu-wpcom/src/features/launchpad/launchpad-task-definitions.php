@@ -122,11 +122,12 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'verify_email'                    => array(
-			'get_title'           => function () {
+			'get_title'            => function () {
 				return __( 'Verify email address', 'jetpack-mu-wpcom' );
 			},
-			'is_visible_callback' => 'wpcom_launchpad_is_email_unverified',
-			'get_calypso_path'    => function () {
+			'is_complete_callback' => 'wpcom_launchpad_is_email_verified',
+			'is_disabled_callback' => 'wpcom_launchpad_is_email_verified',
+			'get_calypso_path'     => function () {
 				return '/me/account';
 			},
 		),
@@ -1077,17 +1078,17 @@ function wpcom_launchpad_launch_task_listener_atomic( $old_value, $new_value ) {
 }
 
 /**
- * Callback for email verification visibility.
+ * Callback for email verification completion.
  *
- * @return bool True if email is unverified, false otherwise.
+ * @return bool True if email is verified, false otherwise.
  */
-function wpcom_launchpad_is_email_unverified() {
+function wpcom_launchpad_is_email_verified() {
 	// TODO: handle the edge case where an Atomic user can be unverified.
 	if ( ! class_exists( 'Email_Verification' ) ) {
-		return false;
+		return true;
 	}
 
-	return Email_Verification::is_email_unverified();
+	return ! Email_Verification::is_email_unverified();
 }
 
 /**
