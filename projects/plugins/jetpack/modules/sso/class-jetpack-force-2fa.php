@@ -39,7 +39,7 @@ class Jetpack_Force_2FA {
 		 *
 		 * @param string $role The role to force 2FA for.
 		 * @return string
-		 * @since $$next-version$$
+		 * @since 12.7
 		 * @module SSO
 		 */
 		$this->role = apply_filters( 'jetpack_force_2fa_cap', 'manage_options' );
@@ -63,7 +63,7 @@ class Jetpack_Force_2FA {
 		 *
 		 * @param bool $display_notice Whether to display the notice.
 		 * @return bool
-		 * @since $$next-version$$
+		 * @since 12.7
 		 * @module SSO
 		 */
 		if ( apply_filters( 'jetpack_force_2fa_dependency_notice', true ) && current_user_can( $this->role ) ) {
@@ -163,7 +163,7 @@ class Jetpack_Force_2FA {
 		 *
 		 * @param string $message The login error message.
 		 * @return string
-		 * @since $$next-version$$
+		 * @since 12.7
 		 * @module SSO
 		 */
 		return apply_filters(
