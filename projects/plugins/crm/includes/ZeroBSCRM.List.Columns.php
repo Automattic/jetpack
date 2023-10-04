@@ -424,68 +424,37 @@
       ======================== / Tasks
       ===================================================================================================== */
 
+// phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
+// Used for quickfilters in listviews
+global $zeroBSCRM_filterbuttons_customer; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
+$zeroBSCRM_filterbuttons_customer['default'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	'status_lead'     => array( __( 'Lead', 'zero-bs-crm' ) ),
+	'status_customer' => array( __( 'Customer', 'zero-bs-crm' ) ),
+	'assigned_to_me'  => array( __( 'Assigned to me', 'zero-bs-crm' ) ),
+);
 
+$zeroBSCRM_filterbuttons_customer['all'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	'status_lead'     => array( __( 'Lead', 'zero-bs-crm' ) ),
+	'status_customer' => array( __( 'Customer', 'zero-bs-crm' ) ),
+	'assigned_to_me'  => array( __( 'Assigned to me', 'zero-bs-crm' ) ),
+	'not_assigned'    => array( __( 'Not assigned', 'zero-bs-crm' ) ),
+);
 
+// Used for quickfilters in listviews
+global $zeroBSCRM_filterbuttons_company; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
+$zeroBSCRM_filterbuttons_company['default'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	'status_lead'     => array( __( 'Lead', 'zero-bs-crm' ) ),
+	'status_customer' => array( __( 'Customer', 'zero-bs-crm' ) ),
+);
 
+$zeroBSCRM_filterbuttons_company['all'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	'status_lead'     => array( __( 'Lead', 'zero-bs-crm' ) ),
+	'status_customer' => array( __( 'Customer', 'zero-bs-crm' ) ),
+);
 
-
-
-
-   /* ======================================================================================================
-      ======================== CUSTOMER filters
-      ===================================================================================================== */
-
-  // Also home to filter button choices
-  global $zeroBSCRM_filterbuttons_customer;
-
-  $zeroBSCRM_filterbuttons_customer['default'] = array(
-
-                              'lead' => array(__('Lead',"zero-bs-crm")),
-								'customer'     => array( __( 'Customer', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
-                              'assigned_to_me' => array( __( 'Assigned to me', 'zero-bs-crm' ) ),
-                              
-                        );
-  $zeroBSCRM_filterbuttons_customer['all'] = array(
-
-        'lead' => array( __( 'Lead', 'zero-bs-crm' ) ),
-		'customer'       => array( __( 'Customer', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
-        'assigned_to_me' => array( __( 'Assigned to me', 'zero-bs-crm' ) ),
-        'not_assigned' => array( __( 'Not assigned', 'zero-bs-crm' ) ),
-
-    );
-
-
-
-   /* ======================================================================================================
-      ======================== / CUSTOMER filters
-      ===================================================================================================== */
-
-   /* ======================================================================================================
-      ======================== Company filters
-      ===================================================================================================== */
-
-      global $zeroBSCRM_filterbuttons_company;
-
-      $zeroBSCRM_filterbuttons_company['default'] = array(
-
-                                  'lead' => array(__('Lead',"zero-bs-crm")),
-									'customer' => array( __( 'Customer', 'zero-bs-crm' ) ),  // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
-                            );
-      $zeroBSCRM_filterbuttons_company['all'] = array(
-
-            'lead' => array(__('Lead',"zero-bs-crm")),
-			'customer' => array( __( 'Customer', 'zero-bs-crm' ) ),  // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
-
-        );
-
-   /* ======================================================================================================
-      ======================== / Company filters
-      ===================================================================================================== */
-
-
-
+// phpcs:enable Generic.WhiteSpace.ScopeIndent.Incorrect
 
    /* ======================================================================================================
       ======================== Quote filters
