@@ -21,8 +21,11 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		load_placeholders,
 	} = attributes;
 
-	const { isLoading, recommendations } = useRecommendations( load_placeholders );
-	const { subscriptions } = useSubscriptions( { ignore_user_blogs } );
+	const { isLoading: isLoadingRecommendations, recommendations } =
+		useRecommendations( load_placeholders );
+	const { isLoading: isLoadingSubscriptions, subscriptions } = useSubscriptions( {
+		ignore_user_blogs,
+	} );
 	useSiteRecommendationSync( { clientId } );
 	const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
 
@@ -50,12 +53,16 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 			<InnerBlocks
 				template={ [ [ 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ] ] }
 				allowedBlocks={ [ 'jetpack/blogroll-item' ] }
-				renderAppender={ () => (
-					<BlogrollAppender subscriptions={ subscriptions } clientId={ clientId } />
-				) }
+				renderAppender={ () =>
+					isLoadingSubscriptions ? (
+						<Spinner />
+					) : (
+						<BlogrollAppender subscriptions={ subscriptions } clientId={ clientId } />
+					)
+				}
 			/>
 
-			{ load_placeholders && isLoading && (
+			{ load_placeholders && isLoadingRecommendations && (
 				<FlexBlock style={ { padding: '30px', textAlign: 'center' } }>
 					<Spinner />
 				</FlexBlock>
