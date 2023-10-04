@@ -285,8 +285,8 @@ export class GoodreadsEdit extends Component {
 		];
 
 		const orderOptions = [
-			{ label: 'Ascending', value: 'a' },
-			{ label: 'Descending', value: 'd' },
+			{ label: __( 'Ascending', 'jetpack' ), value: 'a' },
+			{ label: __( 'Descending', 'jetpack' ), value: 'd' },
 		];
 
 		return (
@@ -408,7 +408,7 @@ export class GoodreadsEdit extends Component {
 
 		return (
 			<div className={ className }>
-				<SandBox html={ html } />
+				<SandBox title="Goodreads" html={ html } />
 				<div className="block-library-embed__interactive-overlay" />
 			</div>
 		);
