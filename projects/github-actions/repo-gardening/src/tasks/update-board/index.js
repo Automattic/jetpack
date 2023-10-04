@@ -53,7 +53,7 @@ async function getProjectDetails( octokit, projectBoardLink ) {
 		projectNumber: parseInt( projectNumber, 10 ),
 	};
 
-	debug( `update-board: Fetching info about project board ${ projectBoardLink }` );
+	debug( `update-board: Fetching info about project board.` );
 
 	// First, use the GraphQL API to request the project's node ID,
 	// as well as info about the first 20 fields for that project.
@@ -275,6 +275,10 @@ async function updateBoard( payload, octokit ) {
 		debug( `update-board: No priority column found in project board. Aborting.` );
 		return;
 	}
+
+	debug(
+		`update-board: Found priority column in project board. Let's now check if the issue exists on our board.`
+	);
 
 	// Check if the issue is already on the project board. If so, return its ID on the board.
 	const projectItemId = await getIssueProjectItemId( projectOctokit, projectInfo, name, number );
