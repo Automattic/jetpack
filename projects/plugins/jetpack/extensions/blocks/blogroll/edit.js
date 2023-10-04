@@ -1,6 +1,6 @@
 import { InspectorControls, useBlockProps, InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { PanelBody, ToggleControl, FlexBlock, Spinner } from '@wordpress/components';
+import { PanelBody, ToggleControl, FlexBlock, Spinner, Notice } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -21,9 +21,16 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		load_placeholders,
 	} = attributes;
 
-	const { isLoading: isLoadingRecommendations, recommendations } =
-		useRecommendations( load_placeholders );
-	const { isLoading: isLoadingSubscriptions, subscriptions } = useSubscriptions( {
+	const {
+		isLoading: isLoadingRecommendations,
+		recommendations,
+		errorMessage: recommendationsErrorMessage,
+	} = useRecommendations( load_placeholders );
+	const {
+		isLoading: isLoadingSubscriptions,
+		subscriptions,
+		errorMessage: subscriptionsErrorMessage,
+	} = useSubscriptions( {
 		ignore_user_blogs,
 	} );
 	useSiteRecommendationSync( { clientId } );
@@ -48,6 +55,8 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		} ),
 	} );
 
+	const errorMessage = recommendationsErrorMessage || subscriptionsErrorMessage;
+
 	return (
 		<div { ...blockProps }>
 			<InnerBlocks
@@ -61,6 +70,12 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 					/>
 				) }
 			/>
+
+			{ errorMessage && (
+				<Notice status="error" isDismissible={ false }>
+					<p>{ errorMessage }</p>
+				</Notice>
+			) }
 
 			{ load_placeholders && isLoadingRecommendations && (
 				<FlexBlock style={ { padding: '30px', textAlign: 'center' } }>
