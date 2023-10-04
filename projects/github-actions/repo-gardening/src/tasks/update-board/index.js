@@ -53,6 +53,8 @@ async function getProjectDetails( octokit, projectBoardLink ) {
 		projectNumber: parseInt( projectNumber, 10 ),
 	};
 
+	debug( `update-board: Fetching info about project board ${ projectBoardLink }` );
+
 	// First, use the GraphQL API to request the project's node ID,
 	// as well as info about the first 20 fields for that project.
 	const projectDetails = await octokit.graphql(
