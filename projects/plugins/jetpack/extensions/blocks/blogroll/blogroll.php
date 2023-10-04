@@ -33,20 +33,60 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
+ * Checks for missing recommendations which are in the options but not in the inner blocks, and returns their markup.
+ *
+ * @param array $inner_blocks    The inner blocks of the blogroll.
+ *
+ * @return string
+ */
+function get_blocks_to_add( $inner_blocks ) {
+	$site_recommendations = get_option( 'Blogroll Recommendations', array() );
+
+	$missing_blocks = array_filter(
+		$site_recommendations,
+		function ( $recommendation ) use ( $inner_blocks ) {
+			foreach ( $inner_blocks as $block ) {
+				if ( $block->attributes['id'] === $recommendation['id'] ) {
+					return false;
+				}
+			}
+			return true;
+		}
+	);
+
+	$block_markup = '';
+
+	foreach ( $missing_blocks as $block ) {
+		$block_markup .= '<!-- wp:jetpack/blogroll-item {"id":"' . $block['id'] . '","name":"' . $block['name'] . '","icon":"' . $block['icon'] . '","url":"' . $block['url'] . '","description":"' . $block['description'] . '"} /-->';
+	}
+
+	return do_blocks( $block_markup );
+}
+
+/**
  * Blogroll block registration/dependency declaration.
  *
  * @param array  $attr    Array containing the Blogroll block attributes.
  * @param string $content String containing the Blogroll block content.
+ * @param object $block The block details.
  *
  * @return string
  */
-function load_assets( $attr, $content ) {
+function load_assets( $attr, $content, $block ) {
 	global $wp;
 
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
+
+	$missing_blocks     = get_blocks_to_add( $block->inner_blocks );
+	$close_tag_position = strrpos( $content, '</div>' );
+
+	if ( $close_tag_position ) {
+		$content = substr_replace( $content, $missing_blocks, $close_tag_position, strlen( '</div>' ) );
+	}
+
 	$current_location = home_url( $wp->request );
 	$is_wpcom         = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 
