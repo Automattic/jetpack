@@ -62,13 +62,15 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 			<InnerBlocks
 				template={ [ [ 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ] ] }
 				allowedBlocks={ [ 'jetpack/blogroll-item' ] }
-				renderAppender={ () => (
-					<BlogrollAppender
-						isLoading={ isLoadingSubscriptions }
-						subscriptions={ subscriptions }
-						clientId={ clientId }
-					/>
-				) }
+				renderAppender={ () =>
+					! isLoadingRecommendations && (
+						<BlogrollAppender
+							isLoading={ isLoadingSubscriptions }
+							subscriptions={ subscriptions }
+							clientId={ clientId }
+						/>
+					)
+				}
 			/>
 
 			{ errorMessage && (
