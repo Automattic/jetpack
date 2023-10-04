@@ -1754,6 +1754,30 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@wordpress/data':
+        specifier: 9.11.0
+        version: 9.11.0(react@18.2.0)
+      '@wordpress/dom-ready':
+        specifier: 3.41.0
+        version: 3.41.0
+      '@wordpress/i18n':
+        specifier: 4.41.0
+        version: 4.41.0
+      '@wordpress/plugins':
+        specifier: 6.9.0
+        version: 6.9.0(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/private-apis':
+        specifier: ^0.23.0
+        version: 0.23.0
+      '@wordpress/url':
+        specifier: 3.42.0
+        version: 3.42.0
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -10510,12 +10534,12 @@ packages:
     dependencies:
       '@babel/runtime': 7.22.15
       '@wordpress/compose': 6.18.0(react@18.2.0)
-      '@wordpress/deprecated': 3.41.0
+      '@wordpress/deprecated': 3.42.0
       '@wordpress/element': 5.18.0
-      '@wordpress/is-shallow-equal': 4.41.0
-      '@wordpress/priority-queue': 2.41.0
+      '@wordpress/is-shallow-equal': 4.42.0
+      '@wordpress/priority-queue': 2.42.0
       '@wordpress/private-apis': 0.11.0
-      '@wordpress/redux-routine': 4.41.0(redux@4.2.1)
+      '@wordpress/redux-routine': 4.42.0(redux@4.2.1)
       deepmerge: 4.3.1
       equivalent-key-map: 0.2.2
       is-plain-object: 5.0.0
@@ -10534,12 +10558,12 @@ packages:
     dependencies:
       '@babel/runtime': 7.22.15
       '@wordpress/compose': 6.18.0(react@18.2.0)
-      '@wordpress/deprecated': 3.41.0
+      '@wordpress/deprecated': 3.42.0
       '@wordpress/element': 5.18.0
-      '@wordpress/is-shallow-equal': 4.41.0
-      '@wordpress/priority-queue': 2.41.0
+      '@wordpress/is-shallow-equal': 4.42.0
+      '@wordpress/priority-queue': 2.42.0
       '@wordpress/private-apis': 0.23.0
-      '@wordpress/redux-routine': 4.41.0(redux@4.2.1)
+      '@wordpress/redux-routine': 4.42.0(redux@4.2.1)
       deepmerge: 4.3.1
       equivalent-key-map: 0.2.2
       is-plain-object: 5.0.0
@@ -10574,6 +10598,13 @@ packages:
     dependencies:
       '@babel/runtime': 7.22.15
       '@wordpress/hooks': 3.41.0
+
+  /@wordpress/deprecated@3.42.0:
+    resolution: {integrity: sha512-yQzPUp4YpD3xzBDH0658Hxx5u68+1Zeysg6MT+jOoKfeqn1zm+i8BK1lEbN/0au0Ubsj/mTJe3gJb9ag9ZsZSw==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.22.15
+      '@wordpress/hooks': 3.42.0
 
   /@wordpress/dom-ready@3.41.0:
     resolution: {integrity: sha512-xbTCYC1192nUiBLB384GrzlQMbFnSv31TjI4+Y4JhR46+alcSsF2KPmlR8htxRbAXBx7z8lT78Fv+0ULhSIERA==}
@@ -10916,6 +10947,12 @@ packages:
     dependencies:
       '@babel/runtime': 7.22.15
 
+  /@wordpress/hooks@3.42.0:
+    resolution: {integrity: sha512-GUePaweJgINbOyeWDG1p0ffxKZXZIOJdkdSCG8oWoAohJPOYe8WeYl/nAsECiUjbIuVletQe1RoTGrNdNkFTdg==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.22.15
+
   /@wordpress/html-entities@3.41.0:
     resolution: {integrity: sha512-nb8ioGMi9yBfOzy2tIvIKQA+MaVNbgTflM/uiwhb5D/KTqtIUp+e84BOCOOZDI7xtWKQKhtGAn126Ko7hi73Jg==}
     engines: {node: '>=12'}
@@ -11017,6 +11054,12 @@ packages:
 
   /@wordpress/is-shallow-equal@4.41.0:
     resolution: {integrity: sha512-z0+bdJvjOcbPf7vGiC0Zfoff+2WyFRFwsJex9d9N9CTVvr87kaVHBZuZlPX6iFmS22RzM2tLeppBKlOSRtSI4w==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.22.15
+
+  /@wordpress/is-shallow-equal@4.42.0:
+    resolution: {integrity: sha512-7GwmKIfcY+gxeQZX1hFZSnzEl6I6A1mpsafVxVLZfzqMqCnViFGZFHlirpckafG7CVTddGQsr/shbX6rAG3pmw==}
     engines: {node: '>=12'}
     dependencies:
       '@babel/runtime': 7.22.15
@@ -11156,7 +11199,7 @@ packages:
       '@wordpress/element': 5.18.0
       '@wordpress/hooks': 3.41.0
       '@wordpress/icons': 9.32.0
-      '@wordpress/is-shallow-equal': 4.41.0
+      '@wordpress/is-shallow-equal': 4.42.0
       memize: 2.1.0
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -11182,7 +11225,7 @@ packages:
       '@wordpress/element': 5.18.0
       '@wordpress/hooks': 3.41.0
       '@wordpress/icons': 9.32.0
-      '@wordpress/is-shallow-equal': 4.41.0
+      '@wordpress/is-shallow-equal': 4.42.0
       memize: 2.1.0
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -11193,7 +11236,6 @@ packages:
       - aslemammad-vite-plugin-macro
       - babel-plugin-macros
       - vite
-    dev: false
 
   /@wordpress/postcss-plugins-preset@4.25.0(postcss@8.4.21):
     resolution: {integrity: sha512-IoCjFYC/p2SchwPg2IXKq0gCWbjmvqTMn9BVpcjAg8NlXngIFrVk23AqHRjRXHyokG9s/3o5D2ILsKbU7u5DaQ==}
@@ -11280,6 +11322,13 @@ packages:
       '@babel/runtime': 7.22.15
       requestidlecallback: 0.3.0
 
+  /@wordpress/priority-queue@2.42.0:
+    resolution: {integrity: sha512-AzK9Ds97Wf9lQsukCiX2MKEDe9Txq3vvFhHOS1Gvi2Dji1/DhM9jZ7nBB/dcVQSt5rPyY+1tX9LhjpzeaQgzxg==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.22.15
+      requestidlecallback: 0.3.0
+
   /@wordpress/private-apis@0.11.0:
     resolution: {integrity: sha512-GpAZ34Ou9YkYi9fuJCb9oDIZhsLqj41stuHflxpTNih6vV/Qw7ApBkLZDhDCyWjOybnjtHQH1LWw3K3RCN4miw==}
     engines: {node: '>=12'}
@@ -11293,8 +11342,8 @@ packages:
     dependencies:
       '@babel/runtime': 7.22.15
 
-  /@wordpress/redux-routine@4.41.0(redux@4.2.1):
-    resolution: {integrity: sha512-u5MVqtcChtHOqy3Fk5ml0HPBF13uHoz6ca1XvzstHKOiMWi4xNj6Nn2YgnscfvsxGxxjQz2su1Qcs0SGZI0g+w==}
+  /@wordpress/redux-routine@4.42.0(redux@4.2.1):
+    resolution: {integrity: sha512-Kt6cLKmPXBh4IYYskR9NMxANTD6soEdt0DLq71vuaoc9SC5akR7J+ChiDpgffHO6zvy5Duc9kWfiC/BRJPi9NQ==}
     engines: {node: '>=12'}
     peerDependencies:
       redux: '>=4'

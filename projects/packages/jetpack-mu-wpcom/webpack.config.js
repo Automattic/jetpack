@@ -5,7 +5,7 @@ module.exports = [
 	{
 		entry: {
 			'features/block-theme-previews/block-theme-previews':
-				'./src/features/block-theme-previews/block-theme-previews.ts',
+				'./src/features/block-theme-previews/block-theme-previews.tsx',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
@@ -20,7 +20,11 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 		},
 		node: false,
-		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				I18nCheckPlugin: false,
+			} ),
+		],
 		module: {
 			strictExportPresence: true,
 			rules: [
