@@ -134,6 +134,7 @@ async function getIssueProjectItemId( octokit, projectInfo, repoName, issueId ) 
 							}
 						}
 					}
+				}
 			}
 		}`,
 		{
