@@ -171,7 +171,7 @@ async function setPriorityField( octokit, projectInfo, projectItemId, priorityTe
 	const priorityOptionId = options.find( option => option.name === priorityText ).id;
 	if ( ! priorityOptionId ) {
 		debug(
-			`Triage: Priority ${ priorityText } does not exist as a column option in the project board.`
+			`update-board: Priority ${ priorityText } does not exist as a column option in the project board.`
 		);
 		return '';
 	}
