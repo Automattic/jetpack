@@ -32,13 +32,9 @@
 		display: flex;
 		padding: 20px 8px;
 		gap: 20px;
-		flex-direction: column;
+		flex-direction: row;
 		align-items: flex-start;
-
-		@include break-mobile() {
-			flex-direction: row;
-			align-items: center;
-		}
+		flex-wrap: wrap;
 	}
 
 	.wp-block-jetpack-blogroll-item + .wp-block-jetpack-blogroll-item {

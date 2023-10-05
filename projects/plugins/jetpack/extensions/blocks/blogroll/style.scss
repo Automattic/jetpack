@@ -5,19 +5,27 @@
 		overflow-x: clip;
 
 		.jetpack-blogroll-item-slider {
-			width: 200%;
 			display: flex;
-			transition: transform 0.3s ease-in-out;
+			flex-wrap: nowrap;
 
-			@media (prefers-reduced-motion: reduce) {
-				transition: none;
+			.jetpack-blogroll-item-information, .jetpack-blogroll-item-submit {
+				transition: transform 0.3s ease-in-out;
+
+				@media (prefers-reduced-motion: reduce) {
+					transition: none;
+				}
 			}
 		}
 
 		&.open {
-			.jetpack-blogroll-item-slider {
-				transform: translateX(-50%);
+			.jetpack-blogroll-item-information {
+				transform: translateX(-100%);
 			}
+
+			.jetpack-blogroll-item-submit {
+				transform: translateX(-100%);
+			}
+
 		}
 
 		.jetpack-blogroll-item-title {
@@ -34,6 +42,7 @@
 			padding: 20px 8px;
 			gap: 20px;
 			box-sizing: border-box;
+			transform: translateX(0%);
 
 			figure {
 				margin: 0;
@@ -59,10 +68,6 @@
 		}
 
 		.jetpack-blogroll-item-subscribe-button {
-			@include break-mobile() {
-				margin-left: auto;
-				align-self: center;
-			}
 			white-space: nowrap;
 		}
 
@@ -82,10 +87,11 @@
 		}
 
 		.jetpack-blogroll-item-submit {
-			width: 100%;
 			display: flex;
+			flex-wrap: wrap;
 			gap: 10px;
 			align-items: center;
+			transform: translateX(100%);
 		}
 
 		.jetpack-blogroll-item-submit {

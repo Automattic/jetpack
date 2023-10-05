@@ -115,7 +115,7 @@ HTML;
 	$subscribe_button_html = '';
 	$fieldset              = '';
 
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	if ( true ) {
 		$form_buttons_html     = do_blocks( $form_buttons );
 		$subscribe_button_html = do_blocks( $subscribe_button );
 
