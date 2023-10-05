@@ -17,7 +17,7 @@ use Automattic\Jetpack\CRM\Entities\Factories\Contact_Factory;
  *
  * @since $$next-version$$
  */
-class Send_Generic_Email extends Base_Send_Email {
+class Send_Contact_Email extends Base_Send_Email {
 
 	/**
 	 * Get the slug name of the step.
