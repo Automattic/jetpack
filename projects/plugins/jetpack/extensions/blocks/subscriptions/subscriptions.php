@@ -803,43 +803,44 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 						?>
 					</p>
 
-				<p id="subscribe-submit"
-					<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
-						style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
-					<?php endif; ?>
-				>
-					<input type="hidden" name="action" value="subscribe"/>
-					<input type="hidden" name="blog_id" value="<?php echo (int) $current_blog->blog_id; ?>"/>
-					<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
-					<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
-					<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
-					<?php wp_nonce_field( 'blogsub_subscribe_' . $current_blog->blog_id, '_wpnonce', false ); ?>
-					<?php
-					if ( ! empty( $post_id ) ) {
-						echo '<input type="hidden" name="post_id" value="' . esc_attr( $post_id ) . '"/>';
-					}
-					?>
-					<?php
-					if ( ! empty( $tier_id ) ) {
-						echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
-					}
-					?>
-					<button type="submit"
-						<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
-							class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
-						<?php endif; ?>
-						<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
-							style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
+					<p id="subscribe-submit"
+						<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
+							style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
 						<?php endif; ?>
 					>
+						<input type="hidden" name="action" value="subscribe"/>
+						<input type="hidden" name="blog_id" value="<?php echo (int) $current_blog->blog_id; ?>"/>
+						<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
+						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
+						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
+						<?php wp_nonce_field( 'blogsub_subscribe_' . $current_blog->blog_id, '_wpnonce', false ); ?>
 						<?php
-						echo wp_kses(
-							html_entity_decode( $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
-							Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
-						);
+						if ( ! empty( $post_id ) ) {
+							echo '<input type="hidden" name="post_id" value="' . esc_attr( $post_id ) . '"/>';
+						}
 						?>
-					</button>
-				</p>
+						<?php
+						if ( ! empty( $tier_id ) ) {
+							echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
+						}
+						?>
+						<button type="submit"
+							<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
+								class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
+							<?php endif; ?>
+							<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
+								style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
+							<?php endif; ?>
+						>
+							<?php
+							echo wp_kses(
+								html_entity_decode( $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
+								Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
+							);
+							?>
+						</button>
+					</p>
+				</div>
 			</form>
 			<?php if ( $data['show_subscribers_total'] && $data['subscribers_total'] ) : ?>
 				<div class="wp-block-jetpack-subscriptions__subscount">
@@ -918,49 +919,49 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 							/>
 						</p>
 
-
-					<p id="subscribe-submit"
-						<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
-							style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
-						<?php endif; ?>
-					>
-						<input type="hidden" name="action" value="subscribe"/>
-						<input type="hidden" name="blog_id" value="<?php echo (int) $blog_id; ?>"/>
-						<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
-						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
-						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
-						<?php
-						if ( ! empty( $post_id ) ) {
-							echo '<input type="hidden" name="post_id" value="' . esc_attr( $post_id ) . '"/>';
-						}
-						?>
-						<?php
-						if ( ! empty( $tier_id ) ) {
-							echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
-						}
-						?>
-						<?php
-						if ( is_user_logged_in() ) {
-							wp_nonce_field( 'blogsub_subscribe_' . get_current_blog_id(), '_wpnonce', false );
-						}
-						?>
-						<button type="submit"
-							<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
-								class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
+						<p id="subscribe-submit"
+							<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
+								style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
 							<?php endif; ?>
-							<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
-								style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
-							<?php endif; ?>
-							name="jetpack_subscriptions_widget"
 						>
+							<input type="hidden" name="action" value="subscribe"/>
+							<input type="hidden" name="blog_id" value="<?php echo (int) $blog_id; ?>"/>
+							<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
+							<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
+							<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
 							<?php
-							echo wp_kses(
-								html_entity_decode( $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
-								Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
-							);
+							if ( ! empty( $post_id ) ) {
+								echo '<input type="hidden" name="post_id" value="' . esc_attr( $post_id ) . '"/>';
+							}
 							?>
-						</button>
-					</p>
+							<?php
+							if ( ! empty( $tier_id ) ) {
+								echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
+							}
+							?>
+							<?php
+							if ( is_user_logged_in() ) {
+								wp_nonce_field( 'blogsub_subscribe_' . get_current_blog_id(), '_wpnonce', false );
+							}
+							?>
+							<button type="submit"
+								<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
+									class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
+								<?php endif; ?>
+								<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
+									style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
+								<?php endif; ?>
+								name="jetpack_subscriptions_widget"
+							>
+								<?php
+								echo wp_kses(
+									html_entity_decode( $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
+									Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
+								);
+								?>
+							</button>
+						</p>
+					</div>
 				</form>
 
 				<?php if ( $data['show_subscribers_total'] && $data['subscribers_total'] ) : ?>
