@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack CRM Automation Send_Generic_Email action.
+ * Jetpack CRM Automation Send_Contact_Email action.
  *
  * @package automattic/jetpack-crm
  * @since $$next-version$$
@@ -13,7 +13,7 @@ use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Entities\Factories\Contact_Factory;
 
 /**
- * Adds the Send_Generic_Email class.
+ * Adds the Send_Contact_Email class.
  *
  * @since $$next-version$$
  */
@@ -27,7 +27,7 @@ class Send_Contact_Email extends Base_Send_Email {
 	 * @return string The slug name of the step.
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/send_generic_email';
+		return 'jpcrm/send_contact_email';
 	}
 
 	/**
@@ -49,7 +49,7 @@ class Send_Contact_Email extends Base_Send_Email {
 	 * @return string The description of the step.
 	 */
 	public static function get_description(): string {
-		return __( 'Sends an email', 'zero-bs-crm' );
+		return __( 'Sends an email to a contact', 'zero-bs-crm' );
 	}
 
 	/**
@@ -64,7 +64,7 @@ class Send_Contact_Email extends Base_Send_Email {
 	}
 
 	/**
-	 * Send a generic email.
+	 * Send an email to a contact.
 	 *
 	 * @since $$next-version$$
 	 *
