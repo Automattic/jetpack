@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 12.5
+Stable tag: 12.6.2
 Requires at least: 6.2
 Requires PHP: 5.6
 Tested up to: 6.3
@@ -293,32 +293,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.6-a.5 - 2023-09-11
-
-#### Enhancements
-
-- AI-chat block: add ability to chat with the site.
-- AI Excerpt: add the Discard button to the panel.
-- AI Excerpt: add the Accept button.
-- AI Excerpt: ensure to save the post before asking a suggestion.
-- AI Excerpt: show upgrade banner when site achieves requests limit.
-- Content Lens: connect excerpt panel with AI Assistant.
-- Create with voice: show audio duration when recording audio.
-- Newsletter: add support for newsletter categories.
-- Paywall Block: improve excerpts handling.
-- Social: add the change setting for the auto conversion feature.
-
-#### Improved compatibility
-
-- General: remove WP 6.1 backwards compatibility checks.
-
+### 12.6.2 - 2023-09-27
 #### Bug fixes
-
-- Allow two year plans to show on the My Plan page.
-- Fix cookie consent block positioning in the editor.
-- Fix an issue that caused the notice displayed when updating widgets to overlap the admin menu.
-- Revert change where newsletter plans could not be used on Premium content.
-- Subscriptions: hide modal if post is subscribers-only.
+- Fix erroneous path check in Jetpack_Gutenberg class
+- Fix warning about Dashboard being unset in WooCommerce analytics class
 
 --------
 

@@ -11,7 +11,9 @@ namespace Automattic\Jetpack\CRM\Automation\Conditions;
 use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+use Automattic\Jetpack\CRM\Entities\Contact;
 
 /**
  * Contact_Field_Changed condition class.
@@ -30,12 +32,27 @@ class Contact_Field_Changed extends Base_Condition {
 	public function __construct( array $step_data ) {
 		parent::__construct( $step_data );
 
-		// TODO: Fetch automation fields from our DAL.
 		$contact_fields = array(
-			'id'       => __( 'ID', 'zero-bs-crm' ),
-			'fname'    => __( 'First Name', 'zero-bs-crm' ),
-			'lname'    => __( 'Last Name', 'zero-bs-crm' ),
-			'fullname' => __( 'Full Name', 'zero-bs-crm' ),
+			'id'               => __( 'ID', 'zero-bs-crm' ),
+			'fname'            => __( 'First Name', 'zero-bs-crm' ),
+			'lname'            => __( 'Last Name', 'zero-bs-crm' ),
+			'status'           => __( 'Status', 'zero-bs-crm' ),
+			'email'            => __( 'Email', 'zero-bs-crm' ),
+			'addr1'            => __( 'Adddress Line 1', 'zero-bs-crm' ),
+			'addr2'            => __( 'Adddress Line 2', 'zero-bs-crm' ),
+			'city'             => __( 'City', 'zero-bs-crm' ),
+			'county'           => __( 'County', 'zero-bs-crm' ),
+			'country'          => __( 'Country', 'zero-bs-crm' ),
+			'postcode'         => __( 'Postcode', 'zero-bs-crm' ),
+			'secaddr_addr1'    => __( 'Seccond Adddress Line 1', 'zero-bs-crm' ),
+			'secaddr_addr2'    => __( 'Seccond Adddress Line 2', 'zero-bs-crm' ),
+			'secaddr_city'     => __( 'Seccond City', 'zero-bs-crm' ),
+			'secaddr_county'   => __( 'Seccond County', 'zero-bs-crm' ),
+			'secaddr_country'  => __( 'Seccond Country', 'zero-bs-crm' ),
+			'secaddr_postcode' => __( 'Seccond Postcode', 'zero-bs-crm' ),
+			'hometel'          => __( 'Home Telephone', 'zero-bs-crm' ),
+			'worktel'          => __( 'Work Telephone', 'zero-bs-crm' ),
+			'mobtel'           => __( 'Mobile Telephone', 'zero-bs-crm' ),
 		);
 
 		$this->valid_operators = array(
@@ -58,35 +75,31 @@ class Contact_Field_Changed extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param mixed  $data Data passed from the trigger.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 * @param Data_Type $data Data passed from the trigger.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( ! $this->is_valid_contact_field_changed_data( $data ) ) {
-			$this->logger->log( 'Invalid contact field changed data' );
-			$this->condition_met = false;
+	protected function execute( Data_Type $data ) {
 
-			return;
-		}
+		/** @var Contact $contact */
+		$contact = $data->get_data();
 
 		$field    = $this->get_attributes()['field'];
 		$operator = $this->get_attributes()['operator'];
 		$value    = $this->get_attributes()['value'];
 
 		$this->check_for_valid_operator( $operator );
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data[ $field ] );
+		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $contact->{$field} );
 
 		switch ( $operator ) {
 			case 'is':
-				$this->condition_met = ( $data[ $field ] === $value );
+				$this->condition_met = ( $contact->{$field} === $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				return;
 
 			case 'is_not':
-				$this->condition_met = ( $data[ $field ] !== $value );
+				$this->condition_met = ( $contact->{$field} !== $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				return;
 
@@ -98,19 +111,6 @@ class Contact_Field_Changed extends Base_Condition {
 					Automation_Exception::CONDITION_OPERATOR_NOT_IMPLEMENTED
 				);
 		}
-	}
-
-	/**
-	 * Checks if the contact has at least the necessary keys to detect a field
-	 * change.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param array $contact_data The contact data.
-	 * @return bool True if the data is valid to detect a field change, false otherwise
-	 */
-	private function is_valid_contact_field_changed_data( array $contact_data ): bool {
-		return isset( $contact_data[ $this->get_attributes()['field'] ] );
 	}
 
 	/**
@@ -165,22 +165,6 @@ class Contact_Field_Changed extends Base_Condition {
 	 * @return string The type of the step.
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Contact::get_slug();
-	}
-
-	/**
-	 * Get the allowed triggers for the contact field changed condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string[] An array of allowed triggers:
-	 *               - 'jpcrm/contact_status_updated'
-	 *               - 'jpcrm/contact_updated'
-	 */
-	public static function get_allowed_triggers(): array {
-		return array(
-			'jpcrm/contact_status_updated',
-			'jpcrm/contact_updated',
-		);
+		return Contact_Data::class;
 	}
 }

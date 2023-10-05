@@ -17,7 +17,7 @@
   / Breaking Checks
    ====================================================== */
 
-
+use Automattic\Jetpack\CRM\Event_Manager\Events_Manager;
 
 /**
 * ZBS DAL >> Transactions
@@ -229,6 +229,14 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
 
         );
 
+		/**
+		 * Events_Manager instance. Manages CRM events.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @var Events_Manager
+		 */
+		private $events_manager;
 
     function __construct($args=array()) {
 
@@ -241,7 +249,7 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
         ); foreach ($defaultArgs as $argK => $argV){ $this->$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $this->$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$this->$argK = $newData;} else { $this->$argK = $args[$argK]; } } }
         #} =========== / LOAD ARGS =============
 
-
+			$this->events_manager = new Events_Manager();
     }
 
     // ===============================================================================
@@ -1794,6 +1802,8 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                                         'extraMeta'             => $confirmedExtraMeta #} This is the "extraMeta" passed (as saved)
                                     ));
 
+											$data['id'] = $id; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+											$this->events_manager->transaction()->updated( $data ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
                                 
 
                             }
@@ -1965,7 +1975,8 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                             'automatorpassthrough'=>$automatorPassthrough, #} This passes through any custom log titles or whatever into the Internal automator recipe.
                             'extraMeta'=>$confirmedExtraMeta #} This is the "extraMeta" passed (as saved)
                         ));
-
+												$data['id'] = $newID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+												$this->events_manager->transaction()->created( $data ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
                     }
                     
                     return $newID;
@@ -2120,6 +2131,8 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                 'id'=>$id,
                 'saveOrphans'=>$saveOrphans
             ));
+
+					$this->events_manager->transaction()->deleted( $id );
 
             return $del;
 

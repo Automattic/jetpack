@@ -44,7 +44,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_my_home_menu();
-		$this->add_inbox_menu();
+		$this->add_my_mailboxes_menu();
 		$this->remove_gutenberg_menu();
 
 		// Not needed outside of wp-admin.
@@ -270,7 +270,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'edit_posts', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'read', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
 	}
 
 	/**

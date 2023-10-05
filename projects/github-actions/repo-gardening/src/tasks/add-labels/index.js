@@ -64,6 +64,11 @@ function cleanName( name ) {
 		name = 'Payments';
 	}
 
+	// Premium Content was renamed into Paid content.
+	if ( name === 'premium-content' ) {
+		name = 'Paid content';
+	}
+
 	// Rating Star was renamed into Star Rating.
 	if ( name === 'rating-star' ) {
 		name = 'Star Rating';
@@ -98,9 +103,10 @@ function cleanName( name ) {
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
  * @param {boolean} isDraft  - Whether the pull request is a draft.
+ * @param {boolean} isRevert  - Whether the pull request is a revert.
  * @returns {Promise<Array>} Promise resolving to an array of keywords we'll search for.
  */
-async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
+async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert ) {
 	const keywords = new Set();
 
 	// Get next valid milestone.
@@ -284,6 +290,11 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		keywords.add( '[Status] In Progress' );
 	}
 
+	// Add '[Type] Revert' for revert PRs
+	if ( isRevert ) {
+		keywords.add( '[Type] Revert' );
+	}
+
 	return [ ...keywords ];
 }
 
@@ -296,10 +307,15 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 async function addLabels( payload, octokit ) {
 	const { number, repository, pull_request } = payload;
 	const { owner, name } = repository;
+	const { draft, title } = pull_request;
 
 	// Get labels to add to the PR.
-	const isDraft = !! ( pull_request && pull_request.draft );
-	const labels = await getLabelsToAdd( octokit, owner.login, name, number, isDraft );
+	const isDraft = !! ( pull_request && draft );
+
+	// If the PR title includes the word "revert", mark it as such.
+	const isRevert = title.toLowerCase().includes( 'revert' );
+
+	const labels = await getLabelsToAdd( octokit, owner.login, name, number, isDraft, isRevert );
 
 	if ( ! labels.length ) {
 		debug( 'add-labels: Could not find labels to add to that PR. Aborting' );

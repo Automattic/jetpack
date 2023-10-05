@@ -99,7 +99,7 @@ class jpcrm_usage_tracking{
         $quotes_count               = $zbs->DAL->quotes->getFullCount();
         $invoices_count             = $zbs->DAL->invoices->getFullCount();
         $forms_count                = $zbs->DAL->forms->getFullCount();
-        $events_count               = $zbs->DAL->events->getFullCount();
+        $tasks_count                = $zbs->DAL->events->getFullCount();
         $crm_users                  = $this->get_teammates_count( true );
         $extensions_count           = zeroBSCRM_extensionsInstalledCount();
         $modules_count              = jpcrm_core_modules_installed_count();
@@ -120,7 +120,7 @@ class jpcrm_usage_tracking{
             'quotes_count'             => $quotes_count,
             'invoices_count'           => $invoices_count,
             'forms_count'              => $forms_count,
-            'events_count'             => $events_count,
+            'events_count'             => $tasks_count,
             'users_count'              => $crm_users,
             'extensions_count'         => $extensions_count,
             'modules_count'            => $modules_count,

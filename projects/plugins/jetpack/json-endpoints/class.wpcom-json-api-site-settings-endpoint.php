@@ -111,7 +111,6 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'markdown_supported'                      => '(bool) Whether markdown is supported for this site',
 			'wpcom_publish_posts_with_markdown'       => '(bool) Whether markdown is enabled for posts',
 			'wpcom_publish_comments_with_markdown'    => '(bool) Whether markdown is enabled for comments',
-			'amp_is_enabled'                          => '(bool) Whether AMP is enabled for this site',
 			'site_icon'                               => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 			'api_cache'                               => '(bool) Turn on/off the Jetpack JSON API cache',
 			'posts_per_page'                          => '(int) Number of posts to show on blog pages',
@@ -356,6 +355,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						)
 					);
 
+					$newsletter_categories   = maybe_unserialize( get_option( 'wpcom_newsletter_categories', array() ) );
+					$newsletter_category_ids = array_map(
+						function ( $newsletter_category ) {
+							return $newsletter_category['term_id'];
+						},
+						$newsletter_categories
+					);
+
 					$api_cache = $site->is_jetpack() ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
 
 					$response[ $key ] = array(
@@ -433,15 +440,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'site_icon'                        => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
 						Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
 						Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
-						'amp_is_supported'                 => (bool) function_exists( 'wpcom_is_amp_supported' ) && wpcom_is_amp_supported( $blog_id ),
-						'amp_is_enabled'                   => (bool) function_exists( 'wpcom_is_amp_enabled' ) && wpcom_is_amp_enabled( $blog_id ),
-						'amp_is_deprecated'                => (bool) function_exists( 'wpcom_is_amp_deprecated' ) && wpcom_is_amp_deprecated( $blog_id ),
 						'api_cache'                        => $api_cache,
 						'posts_per_page'                   => (int) get_option( 'posts_per_page' ),
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
 						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
+						'wpcom_newsletter_categories'      => $newsletter_category_ids,
 						'wpcom_newsletter_categories_enabled' => (bool) get_option( 'wpcom_newsletter_categories_enabled' ),
 						'sm_enabled'                       => (bool) get_option( 'sm_enabled' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
@@ -983,15 +988,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
-				case 'amp_is_enabled':
-					if ( function_exists( 'wpcom_update_amp_enabled' ) ) {
-						$saved = wpcom_update_amp_enabled( $blog_id, $value );
-						if ( $saved ) {
-							$updated[ $key ] = (bool) $value;
-						}
-					}
-					break;
-
 				case 'rss_use_excerpt':
 					update_option( 'rss_use_excerpt', (int) (bool) $value );
 					break;
@@ -1021,6 +1017,44 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'wpcom_featured_image_in_email':
 					update_option( 'wpcom_featured_image_in_email', (int) (bool) $value );
 					$updated[ $key ] = (int) (bool) $value;
+					break;
+
+				case 'wpcom_newsletter_categories':
+					$sanitized_category_ids = (array) $value;
+
+					array_walk_recursive(
+						$sanitized_category_ids,
+						function ( &$value ) {
+							if ( is_int( $value ) && $value > 0 ) {
+								return;
+							}
+
+							$value = (int) $value;
+							if ( $value <= 0 ) {
+								$value = null;
+							}
+						}
+					);
+
+					$sanitized_category_ids = array_unique(
+						array_filter(
+							$sanitized_category_ids,
+							function ( $category_id ) {
+								return $category_id !== null;
+							}
+						)
+					);
+
+					$new_value = array_map(
+						function ( $category_id ) {
+							return array( 'term_id' => $category_id );
+						},
+						$sanitized_category_ids
+					);
+
+					if ( update_option( $key, $new_value ) ) {
+						$updated[ $key ] = $new_value;
+					}
 					break;
 
 				case 'wpcom_newsletter_categories_enabled':

@@ -3,7 +3,7 @@
 namespace Automatic\Jetpack\CRM\Automation\Tests\Mocks;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Tests\Event_Emitter;
 
 class Contact_Created_Trigger extends Base_Trigger {
@@ -12,7 +12,7 @@ class Contact_Created_Trigger extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/contact_created';
+		return 'jpcrm/contact_created_mock';
 	}
 
 	/** Get the title of the trigger
@@ -37,13 +37,15 @@ class Contact_Created_Trigger extends Base_Trigger {
 	}
 
 	public static function get_data_type(): string {
-		return Data_Type_Contact::get_slug();
+		return Contact_Data::class;
 	}
 
 	/**
 	 * Listen to the desired event
+	 *
+	 * @return void
 	 */
-	protected function listen_to_event() {
+	protected function listen_to_event(): void {
 		$event_emitter = Event_Emitter::instance();
 
 		$event_emitter->on(

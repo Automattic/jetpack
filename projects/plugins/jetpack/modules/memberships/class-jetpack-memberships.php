@@ -415,7 +415,7 @@ class Jetpack_Memberships {
 		$button_styles = implode( ';', $button_styles );
 
 		return sprintf(
-			'<div class="%1$s"><a role="button" %6$s href="%2$s" class="%3$s" style="%4$s">%5$s</a></div>',
+			'<div class="%1$s"><a role="button" href="%2$s" class="%3$s" style="%4$s">%5$s</a></div>',
 			esc_attr(
 				Blocks::classes(
 					self::$button_block_name,
@@ -426,8 +426,7 @@ class Jetpack_Memberships {
 			esc_url( $this->get_subscription_url( $plan_id ) ),
 			isset( $attrs['submitButtonClasses'] ) ? esc_attr( $attrs['submitButtonClasses'] ) : 'wp-block-button__link',
 			esc_attr( $button_styles ),
-			wp_kses( $button_label, self::$tags_allowed_in_the_button ),
-			isset( $attrs['submitButtonAttributes'] ) ? sanitize_text_field( $attrs['submitButtonAttributes'] ) : '' // Needed for arbitrary target=_blank on WPCOM VIP.
+			wp_kses( $button_label, self::$tags_allowed_in_the_button )
 		);
 	}
 
@@ -661,11 +660,11 @@ class Jetpack_Memberships {
 	public static function get_join_others_text( $subscribers_total ) {
 		if ( $subscribers_total >= 1000000 ) {
 			/* translators: %s: number of folks following the blog, millions(M) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sM other subscribers', 'jetpack' ), number_format_i18n( $subscribers_total / 1000000, 1 ) );
+			return sprintf( __( 'Join %sM other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000000, 1 ) ) );
 		}
 		if ( $subscribers_total >= 10000 ) {
 			/* translators: %s: number of folks following the blog, thousands(K) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sK other subscribers', 'jetpack' ), number_format_i18n( $subscribers_total / 1000, 1 ) );
+			return sprintf( __( 'Join %sK other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000, 1 ) ) );
 		}
 
 		/* translators: %s: number of folks following the blog */

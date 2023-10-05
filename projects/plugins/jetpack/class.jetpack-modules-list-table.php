@@ -116,7 +116,8 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			<# var i = 0;
 			if ( data.items.length ) {
 			_.each( data.items, function( item, key, list ) {
-				if ( item === undefined ) return; #>
+				if ( item === undefined ) return;
+				if ( 'lazy-images' == item.module && ! item.activated ) return; #>
 				<tr class="jetpack-module <# if ( ++i % 2 ) { #> alternate<# } #><# if ( item.activated ) { #> active<# } #><# if ( ! item.available ) { #> unavailable<# } #>" id="{{{ item.module }}}">
 					<th scope="row" class="check-column">
 						<input type="checkbox" name="modules[]" value="{{{ item.module }}}" {{{ item.disabled }}} />

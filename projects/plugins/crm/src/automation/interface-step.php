@@ -16,48 +16,89 @@ namespace Automattic\Jetpack\CRM\Automation;
 interface Step {
 
 	/**
-	 * Execute the step.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param mixed  $data Data passed from the trigger.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
-	 */
-	public function execute( $data, $previous_data = null );
-
-	/**
 	 * Get the next step.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array|null The next linked step.
+	 * @return int|string|null The next linked step.
 	 */
-	public function get_next_step(): ?array;
+	public function get_next_step_id();
 
 	/**
-	 * Set the next step.
+	 * Get the next step if the current one is successful.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $step_data The next linked step.
+	 * @return int|string|null The next linked step id.
 	 */
-	public function set_next_step( array $step_data );
+	public function get_next_step_true();
+
+	/**
+	 * Set the next step if the current one is successful.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string|int|null $step_id The next linked step id.
+	 * @return void
+	 */
+	public function set_next_step_true( $step_id ): void;
+
+	/**
+	 * Get the next step if the current one is falsy.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int|string|null The next linked step id.
+	 */
+	public function get_next_step_false();
+
+	/**
+	 * Set the next step if the current one is falsy.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string|int|null $step_id The next linked step id.
+	 * @return void
+	 */
+	public function set_next_step_false( $step_id ): void;
 
 	/**
 	 * Get the step attribute definitions.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return Step_Attribute[] The attribute definitions of the step.
+	 * @return Attribute_Definition[] The attribute definitions of the step.
 	 */
 	public function get_attribute_definitions(): ?array;
+
+	/**
+	 * Get attribute value.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $attribute The attribute to get.
+	 * @param mixed  $default The default value to return if the attribute is not set.
+	 * @return mixed The attribute value.
+	 */
+	public function get_attribute( string $attribute, $default = null );
+
+	/**
+	 * Set attribute value.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $attribute The attribute key.
+	 * @param mixed  $value The default value.
+	 * @return void
+	 */
+	public function set_attribute( string $attribute, $value );
 
 	/**
 	 * Set the step attribute definitions.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Step_Attribute[] $attribute_definitions Set the attribute definitions.
+	 * @param Attribute_Definition[] $attribute_definitions Set the attribute definitions.
 	 */
 	public function set_attribute_definitions( array $attribute_definitions );
 
@@ -107,11 +148,11 @@ interface Step {
 	public static function get_description(): ?string;
 
 	/**
-	 * Get the data type.
+	 * Get the data type expected by the step.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string|null The type of the step.
+	 * @return string|null The data type expected by the step.
 	 */
 	public static function get_data_type(): string;
 
@@ -125,11 +166,14 @@ interface Step {
 	public static function get_category(): ?string;
 
 	/**
-	 * Get the category of the step.
+	 * Get the step as an array.
+	 *
+	 * The main use-case to get the step as an array is to prepare
+	 * the items for an API response.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array|null The allowed triggers for the step.
+	 * @return array The step as an array.
 	 */
-	public static function get_allowed_triggers(): ?array;
+	public function to_array(): array;
 }

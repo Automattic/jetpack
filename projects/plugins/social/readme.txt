@@ -4,7 +4,7 @@ Tags: social-media, publicize, social-media-manager, social-networking, social m
 Requires at least: 6.2
 Requires PHP: 5.6
 Tested up to: 6.3
-Stable tag: 2.2.0
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -100,13 +100,15 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 2.1.0 - 2023-08-01
-#### Changed
-- General: indicate full compatibility with the latest version of WordPress, 6.3.
-- Refactor TemplatePicker component, so inner part can be use in it's own without a modal.
-- Social: Update the screenshots to reflect the current UI
-- Updated package dependencies.
+### 2.3.0 - 2023-09-20
+#### Added
+- Add the change settings logic in Social for the auto conversion feature.
 
-#### Fixed
-- Fix admin page unit test
+#### Changed
+- Changed logic that disables the connections based on the auto-conversion feature.
+- General: remove WP 6.1 backwards compatibility checks.
+- General: update WordPress version requirements to WordPress 6.2.
+- Updated Jetpack submenu sort order so individual features are alpha-sorted.
+- Updated package dependencies. [#32803], [#32804],
+- Updated package dependencies.
 

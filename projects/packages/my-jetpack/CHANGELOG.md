@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.8.0] - 2023-10-03
+### Added
+- Display a new section on My Jetpack to display the stats of the site. [#33283]
+
+## [3.7.0] - 2023-09-28
+### Added
+- Add a section to display stats from Jetpack Stats in My Jetpack [#33160]
+
+### Changed
+- Redirect to a proper upgrade page for free license owners [#33297]
+
+## [3.6.0] - 2023-09-25
+### Added
+- Add barebones infrastructure for querying jetpack product data. [#33095]
+
+### Changed
+- Stats: link to purchase page within WP Admin. [#33227]
+
+## [3.5.0] - 2023-09-19
+### Changed
+- Added support for upgradable products. Updated the Stats card  to handle upgradeable products. [#33058]
+- Updated Jetpack submenu sort order so individual features are alpha-sorted. [#32958]
+
+### Fixed
+- My Jetpack: Add AI Assistant Monthly to required plan check [#33078]
+
 ## [3.4.5] - 2023-09-13
 ### Changed
 - Updated package dependencies. [#33001]
@@ -1018,6 +1044,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[3.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.7.0...3.8.0
+[3.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.6.0...3.7.0
+[3.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.5.0...3.6.0
+[3.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.4.5...3.5.0
 [3.4.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.4.4...3.4.5
 [3.4.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.4.3...3.4.4
 [3.4.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.4.2...3.4.3

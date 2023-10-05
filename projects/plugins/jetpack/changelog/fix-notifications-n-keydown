@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Notifications: temporarily disable the notifications admin bar menu on any block editor page to allow for Gutenberg 16.7 compat

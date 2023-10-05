@@ -1,11 +1,16 @@
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import { Path, SVG } from '@wordpress/components';
-import { compose, withInstanceId } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
-import { Component, Fragment } from '@wordpress/element';
+import { useInstanceId } from '@wordpress/compose';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import { get, isEmpty } from 'lodash';
 import { RelatedPostsBlockControls, RelatedPostsInspectorControls } from './controls';
+import { useRelatedPostsStatus } from './hooks/use-status-toggle';
+import { InactiveRelatedPostsPlaceholder } from './inactive-placeholder';
+import { RelatedPostsSkeletonLoader } from './skeleton-loader';
+import { name } from './';
+import './editor.scss';
 
 export const MAX_POSTS_TO_SHOW = 6;
 
@@ -154,92 +159,106 @@ function RelatedPostsPreviewRows( props ) {
 	);
 }
 
-export class RelatedPostsEdit extends Component {
-	render() {
-		const { attributes, className, posts, setAttributes, instanceId, isInSiteEditor } = this.props;
-		const {
-			displayAuthor,
-			displayContext,
-			displayDate,
-			displayHeadline,
-			displayThumbnails,
-			headline,
-			postLayout,
-			postsToShow,
-		} = attributes;
+export default function RelatedPostsEdit( props ) {
+	// Related Posts can be controlled by a module on self-hosted sites.
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+		useModuleStatus( name );
+	// They can also be toggled via an option on WordPress.com Simple.
+	const { isEnabled, enable, isFetchingStatus, isUpdatingStatus } = useRelatedPostsStatus();
 
-		// To prevent the block from crashing, we need to limit ourselves to the
-		// posts returned by the backend - so if we want 6 posts, but only 3 are
-		// returned, we need to limit ourselves to those 3 and fill in the rest
-		// with placeholders.
-		//
-		// Also, if the site does not have sufficient posts to display related ones
-		// (minimum 10 posts), we also use this code block to fill in the
-		// placeholders.
-		const previewClassName = 'jp-relatedposts-i2';
-		const displayPosts = [];
-		for ( let i = 0; i < postsToShow; i++ ) {
-			if ( posts[ i ] ) {
-				displayPosts.push(
-					<RelatedPostsEditItem
-						id={ `related-posts-${ instanceId }-post-${ i }` }
-						key={ previewClassName + '-' + i }
-						post={ posts[ i ] }
-						displayThumbnails={ displayThumbnails }
-						displayDate={ displayDate }
-						displayContext={ displayContext }
-						displayAuthor={ displayAuthor }
-					/>
-				);
-			} else {
-				displayPosts.push(
-					<PlaceholderPostEdit
-						id={ `related-posts-${ instanceId }-post-${ i }` }
-						key={ 'related-post-placeholder-' + i }
-						displayThumbnails={ displayThumbnails }
-						displayDate={ displayDate }
-						displayContext={ displayContext }
-						isInSiteEditor={ isInSiteEditor }
-						displayAuthor={ displayAuthor }
-					/>
-				);
-			}
-		}
+	const isChangingRelatedPostsStatus = isChangingStatus || isUpdatingStatus;
 
+	const { posts, isInSiteEditor } = useSelect( select => {
+		const currentPost = select( editorStore ).getCurrentPost();
+		return {
+			posts: currentPost?.[ 'jetpack-related-posts' ] ?? [],
+			isInSiteEditor: ! currentPost || Object.keys( currentPost ).length === 0,
+		};
+	} );
+
+	const { instanceId } = useInstanceId( RelatedPostsEdit );
+	const { attributes, className, setAttributes } = props;
+
+	if ( isLoadingModules || isFetchingStatus ) {
+		return <RelatedPostsSkeletonLoader />;
+	}
+
+	if ( ! isModuleActive || ! isEnabled ) {
 		return (
-			<Fragment>
-				<InspectorControls>
-					<RelatedPostsInspectorControls
-						attributes={ attributes }
-						setAttributes={ setAttributes }
-					/>
-				</InspectorControls>
-
-				<BlockControls>
-					<RelatedPostsBlockControls attributes={ attributes } setAttributes={ setAttributes } />
-				</BlockControls>
-
-				<div className={ className } id={ `related-posts-${ instanceId }` }>
-					{ displayHeadline && <h3>{ headline }</h3> }
-					<div className={ previewClassName } data-layout={ postLayout }>
-						<RelatedPostsPreviewRows posts={ displayPosts } />
-					</div>
-				</div>
-			</Fragment>
+			<InactiveRelatedPostsPlaceholder
+				className={ className }
+				changeStatus={ changeStatus }
+				isLoading={ isChangingRelatedPostsStatus }
+				enable={ enable }
+			/>
 		);
 	}
+
+	const {
+		displayAuthor,
+		displayContext,
+		displayDate,
+		displayHeadline,
+		displayThumbnails,
+		headline,
+		postLayout,
+		postsToShow,
+	} = attributes;
+
+	// To prevent the block from crashing, we need to limit ourselves to the
+	// posts returned by the backend - so if we want 6 posts, but only 3 are
+	// returned, we need to limit ourselves to those 3 and fill in the rest
+	// with placeholders.
+	//
+	// Also, if the site does not have sufficient posts to display related ones
+	// (minimum 10 posts), we also use this code block to fill in the
+	// placeholders.
+	const previewClassName = 'jp-relatedposts-i2';
+	const displayPosts = [];
+	for ( let i = 0; i < postsToShow; i++ ) {
+		if ( posts[ i ] ) {
+			displayPosts.push(
+				<RelatedPostsEditItem
+					id={ `related-posts-${ instanceId }-post-${ i }` }
+					key={ previewClassName + '-' + i }
+					post={ posts[ i ] }
+					displayThumbnails={ displayThumbnails }
+					displayDate={ displayDate }
+					displayContext={ displayContext }
+					displayAuthor={ displayAuthor }
+				/>
+			);
+		} else {
+			displayPosts.push(
+				<PlaceholderPostEdit
+					id={ `related-posts-${ instanceId }-post-${ i }` }
+					key={ 'related-post-placeholder-' + i }
+					displayThumbnails={ displayThumbnails }
+					displayDate={ displayDate }
+					displayContext={ displayContext }
+					isInSiteEditor={ isInSiteEditor }
+					displayAuthor={ displayAuthor }
+				/>
+			);
+		}
+	}
+
+	return (
+		<>
+			<InspectorControls>
+				<RelatedPostsInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
+			</InspectorControls>
+
+			<BlockControls>
+				<RelatedPostsBlockControls attributes={ attributes } setAttributes={ setAttributes } />
+			</BlockControls>
+
+			<div className={ className } id={ `related-posts-${ instanceId }` }>
+				{ displayHeadline && <h3>{ headline }</h3> }
+				<div className={ previewClassName } data-layout={ postLayout }>
+					<RelatedPostsPreviewRows posts={ displayPosts } />
+				</div>
+			</div>
+		</>
+	);
 }
-
-export default compose(
-	withInstanceId,
-	withSelect( select => {
-		const { getCurrentPost } = select( 'core/editor' );
-		const currentPost = getCurrentPost();
-		const posts = get( currentPost, 'jetpack-related-posts', [] );
-
-		return {
-			posts,
-			isInSiteEditor: isEmpty( currentPost ),
-		};
-	} )
-)( RelatedPostsEdit );

@@ -2,6 +2,19 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.43.0] - 2023-10-03
+### Added
+- Added new sharing icon [#33244]
+
+## [0.42.5] - 2023-09-25
+### Added
+- Added WhatsApp social icon. [#33074]
+- Added CopyToClipboard component. [#33265]
+
+## [0.42.4] - 2023-09-19
+
+- Minor internal updates.
+
 ## [0.42.3] - 2023-09-13
 ### Changed
 - Updated package dependencies. [#33001]
@@ -817,6 +830,9 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.43.0]: https://github.com/Automattic/jetpack-components/compare/0.42.5...0.43.0
+[0.42.5]: https://github.com/Automattic/jetpack-components/compare/0.42.4...0.42.5
+[0.42.4]: https://github.com/Automattic/jetpack-components/compare/0.42.3...0.42.4
 [0.42.3]: https://github.com/Automattic/jetpack-components/compare/0.42.2...0.42.3
 [0.42.2]: https://github.com/Automattic/jetpack-components/compare/0.42.1...0.42.2
 [0.42.1]: https://github.com/Automattic/jetpack-components/compare/0.42.0...0.42.1

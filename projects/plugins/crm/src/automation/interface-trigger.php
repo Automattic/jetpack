@@ -65,9 +65,10 @@ interface Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param mixed $data The data to pass to the workflow.
+	 * @param mixed|null $data The data to pass to the workflow.
+	 * @param mixed|null $previous_data The previous data to pass to the workflow.
 	 */
-	public function execute_workflow( $data = null );
+	public function execute_workflow( $data = null, $previous_data = null );
 
 	/**
 	 * Set the workflow to execute by this trigger.
@@ -86,4 +87,16 @@ interface Trigger {
 	 * @param Automation_Workflow $workflow The workflow to which the trigger belongs.
 	 */
 	public function init( Automation_Workflow $workflow );
+
+	/**
+	 * Get the trigger as an array.
+	 *
+	 * The main use-case to get the trigger as an array is to prepare
+	 * the items for an API response.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array The trigger as an array.
+	 */
+	public static function to_array(): array;
 }

@@ -6,7 +6,7 @@ use Automattic\Jetpack\CRM\Automation\Actions\Add_Contact_Log;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
 
@@ -57,8 +57,10 @@ class Add_Contact_Log_Test extends JPCRM_Base_Integration_Test_Case {
 			)
 		);
 
+		$contact_data = new Contact_Data( $contact );
+
 		// Execute the action.
-		$action->execute( $contact );
+		$action->validate_and_execute( $contact_data );
 
 		// Verify that our contact has a log.
 		$logs = $zbs->DAL->logs->getLogsForObj(
@@ -86,7 +88,6 @@ class Add_Contact_Log_Test extends JPCRM_Base_Integration_Test_Case {
 		$automation->register_trigger( Contact_Created::class );
 		$automation->register_step( Contact_Field_Changed::class );
 		$automation->register_step( Add_Contact_Log::class );
-		$automation->register_data_type( Data_Type_Contact::class );
 
 		// Setup action that is supposed to update newly created contacts.
 		$workflow_data = $this->automation_faker->workflow_with_condition_customizable_trigger_action(

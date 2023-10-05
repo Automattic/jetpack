@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+API: task reminder param is no longer ignored

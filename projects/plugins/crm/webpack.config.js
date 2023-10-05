@@ -117,9 +117,14 @@ const crmWebpackConfig = {
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
+		mangleExports: false,
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
+		alias: {
+			...jetpackWebpackConfig.resolve.alias,
+			crm: path.resolve( __dirname, 'src/js/' ),
+		}
 	},
 	node: false,
 	plugins: [

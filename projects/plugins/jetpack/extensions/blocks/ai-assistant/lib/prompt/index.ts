@@ -6,6 +6,10 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { ToneProp } from '../../components/tone-dropdown-control';
+import {
+	buildInitialMessageForBackendPrompt,
+	buildMessagesForBackendPrompt,
+} from './backend-prompt';
 /**
  * Types & consts
  */
@@ -38,6 +42,12 @@ export const PROMPT_TYPE_LIST = [
 ] as const;
 
 export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
+
+// Enable backend prompts for beta sites + 10% of production sites.
+const blogId = parseInt( window?.Jetpack_Editor_Initial_State?.wpcomBlogId );
+export const areBackendPromptsEnabled: boolean =
+	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-assistant-backend-prompts' ]
+		?.available || blogId % 10 === 7;
 
 export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant' | 'jetpack-ai';
@@ -329,9 +339,10 @@ export type BuildPromptOptionsProps = {
 	contentType?: 'generated' | string;
 	tone?: ToneProp;
 	language?: string;
+	fromExtension?: boolean;
 };
 
-type BuildPromptProps = {
+export type BuildPromptProps = {
 	generatedContent: string;
 	allPostContent?: string;
 	postContentAbove?: string;
@@ -362,10 +373,7 @@ export function promptTextFor(
 		subject = isGenerated ? 'your last answer' : 'the content';
 	}
 
-	// https://github.com/Automattic/jetpack/pull/32814#issuecomment-1704873324
-	const languageReminder = `. Ensure that your response is in the same language as ${
-		isGeneratingTitle ? 'the title' : 'the post content'
-	}. Do not switch to any language other than the language of ${ subject } in your response`;
+	const languageReminder = `. Do not switch to any language other than the language of ${ subject } in your response`;
 
 	switch ( type ) {
 		case PROMPT_TYPE_SUMMARY_BY_TITLE:
@@ -443,6 +451,26 @@ export function buildPromptForBlock( {
 	useGutenbergSyntax,
 	customSystemPrompt,
 }: BuildPromptProps ): Array< PromptItemProps > {
+	// Only generate backend messages if the feature is enabled.
+	if ( areBackendPromptsEnabled ) {
+		// Get the initial message to build the system prompt.
+		const initialMessage = buildInitialMessageForBackendPrompt( type, customSystemPrompt );
+
+		// Get the user messages to complete the prompt.
+		const userMessages = buildMessagesForBackendPrompt( {
+			generatedContent,
+			allPostContent,
+			postContentAbove,
+			currentPostTitle,
+			options,
+			type,
+			userPrompt,
+			isGeneratingTitle,
+		} );
+
+		return [ initialMessage, ...userMessages ];
+	}
+
 	const isContentGenerated = options?.contentType === 'generated';
 	const promptText = promptTextFor( type, isGeneratingTitle, options );
 

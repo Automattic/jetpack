@@ -31,6 +31,10 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$flow = get_option( 'site_intent' );
+				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'] . '&flow=' . $flow;
+			},
 		),
 		'design_selected'                 => array(
 			'get_title'            => function () {
@@ -84,6 +88,10 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Choose a plan', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$flow = get_option( 'site_intent' );
+				return '/setup/' . $flow . '/plans/?siteSlug=' . $data['site_slug_encoded'];
+			},
 		),
 		'plan_selected'                   => array(
 			'get_title'            => function () {
@@ -102,6 +110,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => '__return_true',
 			'is_disabled_callback' => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/settings/general/' . $data['site_slug_encoded'];
+			},
 		),
 		'site_launched'                   => array(
 			'get_title'             => function () {
@@ -111,12 +122,22 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'verify_email'                    => array(
-			'get_title'           => function () {
+			'get_title'            => function () {
 				return __( 'Verify email address', 'jetpack-mu-wpcom' );
 			},
-			'is_visible_callback' => 'wpcom_launchpad_is_email_unverified',
-			'get_calypso_path'    => function () {
+			'is_complete_callback' => 'wpcom_launchpad_is_email_verified',
+			'is_disabled_callback' => 'wpcom_launchpad_is_email_verified',
+			'get_calypso_path'     => function () {
 				return '/me/account';
+			},
+		),
+		'verify_domain_email'             => array(
+			'get_title'           => function () {
+				return __( 'Verify domain email address', 'jetpack-mu-wpcom' );
+			},
+			'is_visible_callback' => 'wpcom_launchpad_is_domain_email_unverified',
+			'get_calypso_path'    => function ( $task, $default, $data ) {
+				return '/domains/manage/' . $data['site_slug_encoded'];
 			},
 		),
 
@@ -214,6 +235,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Personalize Link in Bio', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/setup/link-in-bio-post-setup/linkInBioPostSetup?siteSlug=' . $data['site_slug_encoded'];
+			},
 		),
 
 		// Videopress tasks.
@@ -240,6 +264,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => function () {
 				add_action( 'add_attachment', 'wpcom_launchpad_track_video_uploaded_task' );
 			},
+			'get_calypso_path'      => function ( $task, $default, $data ) {
+				$page_on_front = get_option( 'page_on_front', false );
+				if ( $page_on_front ) {
+					return '/page/' . $data['site_slug_encoded'] . '/' . $page_on_front;
+				}
+				return '/site-editor/' . $data['site_slug_encoded'] . '?canvas=edit';
+			},
 		),
 
 		// Blog tasks.
@@ -248,6 +279,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Launch your blog', 'jetpack-mu-wpcom' );
 			},
 			'isLaunchTask'          => true,
+			'is_disabled_callback'  => 'wpcom_launchpad_is_blog_launched_task_disabled',
 			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'setup_blog'                      => array(
@@ -255,6 +287,10 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Name your blog', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$flow = get_option( 'site_intent' );
+				return '/setup/' . $flow . '/setup-blog?siteSlug=' . $data['site_slug_encoded'];
+			},
 		),
 
 		// Free plan tasks.
@@ -283,6 +319,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_site_title_task_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/settings/general/' . $data['site_slug_encoded'];
 			},
@@ -341,9 +378,13 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Customize your domain', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_domain_customize_completed',
-			'is_visible_callback'  => 'wpcom_launchpad_is_domain_customize_task_visible',
+			'is_disabled_callback' => 'wpcom_launchpad_is_domain_customize_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/domains/add/' . $data['site_slug_encoded'];
+				// The from parameter is used to redirect the user back to the Launchpad when they
+				// click on the Back button on the domain customization page.
+				// TODO: This can cause problem if this task is used in the future for other flows
+				// that are not in the Customer Home page. We should find a better way to handle this.
+				return '/domains/add/' . $data['site_slug_encoded'] . '?from=my-home';
 			},
 		),
 
@@ -1037,17 +1078,32 @@ function wpcom_launchpad_launch_task_listener_atomic( $old_value, $new_value ) {
 }
 
 /**
- * Callback for email verification visibility.
+ * Callback for email verification completion.
+ *
+ * @return bool True if email is verified, false otherwise.
+ */
+function wpcom_launchpad_is_email_verified() {
+	// TODO: handle the edge case where an Atomic user can be unverified.
+	if ( ! class_exists( 'Email_Verification' ) ) {
+		return true;
+	}
+
+	return ! Email_Verification::is_email_unverified();
+}
+
+/**
+ * Callback for email verification visibility when the user has a
+ * custom domain.
  *
  * @return bool True if email is unverified, false otherwise.
  */
-function wpcom_launchpad_is_email_unverified() {
+function wpcom_launchpad_is_domain_email_unverified() {
 	// TODO: handle the edge case where an Atomic user can be unverified.
 	if ( ! class_exists( 'Email_Verification' ) ) {
 		return false;
 	}
 
-	return Email_Verification::is_email_unverified();
+	return Email_Verification::is_domain_email_unverified();
 }
 
 /**
@@ -1084,6 +1140,33 @@ function wpcom_launchpad_is_link_in_bio_launch_disabled() {
  */
 function wpcom_launchpad_is_videopress_launch_disabled() {
 	return ! wpcom_is_checklist_task_complete( 'videopress_upload' );
+}
+
+/**
+ * Determines whether or not the blog launch task is enabled
+ *
+ * @return boolean True if blog launch task is enabled
+ */
+function wpcom_launchpad_is_blog_launched_task_disabled() {
+	if ( 'design-first' === get_option( 'site_intent' ) ) {
+		// We only want the blog_launched task enabled after other key tasks are all complete.
+		if ( wpcom_is_checklist_task_complete( 'plan_completed' )
+			&& wpcom_is_checklist_task_complete( 'domain_upsell' )
+			&& wpcom_is_checklist_task_complete( 'setup_blog' ) ) {
+			return false;
+		}
+		return true;
+	}
+	if ( 'start-writing' === get_option( 'site_intent' ) ) {
+		if ( wpcom_is_checklist_task_complete( 'plan_completed' )
+			&& wpcom_is_checklist_task_complete( 'domain_upsell' )
+			&& wpcom_is_checklist_task_complete( 'setup_blog' )
+			&& wpcom_is_checklist_task_complete( 'first_post_published' ) ) {
+			return false;
+		}
+		return true;
+	}
+	return false;
 }
 
 /**
@@ -1366,6 +1449,18 @@ function wpcom_launchpad_is_add_about_page_visible() {
 }
 
 /**
+ * Determine `site_title` task visibility. The task is not visible if the name was already set.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_launchpad_is_site_title_task_visible() {
+	// Hide the task if it's already completed on write intent
+	if ( get_option( 'site_intent' ) === 'write' && wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_title' ) ) ) {
+		return false;
+	}
+	return true;
+}
+/**
  * Completion hook for the `add_about_page` task.
  *
  * @param int    $post_id The post ID.
@@ -1600,42 +1695,15 @@ function wpcom_launchpad_is_domain_customize_completed( $task, $default ) {
 		return false;
 	}
 
-	list( $has_bundle, $has_domain ) = $result;
+	$has_domain = $result[1];
 
-	// For paid users with a custom domain, show the task as complete.
-	if ( $has_bundle && $has_domain ) {
+	// For users with a custom domain, show the task as complete.
+	if ( $has_domain ) {
 		return true;
 	}
 
 	// For everyone else, show the task as incomplete.
 	return $default;
-}
-
-/**
- * Determines whether or not domain customize task is visible.
- *
- * @return bool True if user is on a free plan and didn't purchase domain or if user is on a paid plan and did purchase a domain.
- */
-function wpcom_launchpad_is_domain_customize_task_visible() {
-	$result = wpcom_launchpad_domain_customize_check_purchases();
-
-	if ( false === $result ) {
-		return false;
-	}
-
-	list( $has_bundle, $has_domain ) = $result;
-
-	// Free user who didn't purchase a domain.
-	if ( ! $has_bundle && ! $has_domain ) {
-		return true;
-	}
-
-	// Paid user who purchased a domain.
-	if ( $has_bundle && $has_domain ) {
-		return true;
-	}
-
-	return false;
 }
 
 /**

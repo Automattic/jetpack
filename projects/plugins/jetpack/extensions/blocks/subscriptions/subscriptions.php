@@ -27,6 +27,9 @@ const DEFAULT_BORDER_WEIGHT_VALUE = 1;
 const DEFAULT_FONTSIZE_VALUE      = '16px';
 const DEFAULT_PADDING_VALUE       = 15;
 const DEFAULT_SPACING_VALUE       = 10;
+const DEFAULT_ACCENT_COLOR        = '#3c434a';
+const DEFAULT_BACKGROUND_COLOR    = 'white';
+const DEFAULT_TEXT_COLOR          = '#3c434a';
 
 /**
  * Registers the block for use in Gutenberg
@@ -261,6 +264,12 @@ function fetch_newsletter_categories() {
  * @return array
  */
 function get_newsletter_categories() {
+	// opt out of rendering when we display newsletter catgeories in the subscribe modal
+	$should_render_newsletter_categories = apply_filters( 'wpcom_newsletter_categories_location', 'block' ) === 'block';
+	if ( ! $should_render_newsletter_categories ) {
+		return array();
+	}
+
 	$response = fetch_newsletter_categories();
 
 	if (
@@ -444,6 +453,35 @@ function get_element_styles_from_attributes( $attributes ) {
 	$email_field_styles   .= $style;
 
 	$categories_styles = sprintf( '--subscribe-block-border-radius: %dpx;', get_attribute( $attributes, 'borderRadius', DEFAULT_BORDER_RADIUS_VALUE ) );
+
+	$subscribe_block_accent_color     = DEFAULT_ACCENT_COLOR;
+	$subscribe_block_background_color = DEFAULT_BACKGROUND_COLOR;
+	$subscribe_block_text_color       = DEFAULT_TEXT_COLOR;
+
+	$global_styles = wp_get_global_styles(
+		array( 'color' )
+	);
+
+	if ( isset( $global_styles['background'] ) ) {
+		$subscribe_block_background_color = $global_styles['background'];
+	}
+
+	if ( isset( $global_styles['text'] ) ) {
+		$subscribe_block_text_color = $global_styles['text'];
+	}
+
+	if ( function_exists( 'wpcom_get_site_accent_color' ) ) {
+		$site_accent_color = wpcom_get_site_accent_color();
+		if ( $site_accent_color ) {
+			$subscribe_block_accent_color = $site_accent_color;
+		}
+	} else {
+		$subscribe_block_accent_color = $subscribe_block_text_color;
+
+	}
+	$categories_styles .= sprintf( ' --subscribe-block-accent-color: %s; ', $subscribe_block_accent_color );
+	$categories_styles .= sprintf( ' --subscribe-block-background-color: %s; ', $subscribe_block_background_color );
+	$categories_styles .= sprintf( ' --subscribe-block-text-color: %s; ', $subscribe_block_text_color );
 
 	if ( has_attribute( $attributes, 'customBorderColor' ) ) {
 		$style = sprintf( 'border-color: %s; border-style: solid;', get_attribute( $attributes, 'customBorderColor' ) );
@@ -686,13 +724,13 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 		)
 	);
 
-	$post_access_level = get_post_access_level_for_current_post();
-
+	$post_access_level     = get_post_access_level_for_current_post();
 	$newsletter_categories = $data['newsletter_categories'];
 
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="wp-block-jetpack-subscriptions__container">
+
 			<form
 				action="<?php echo esc_url( $url ); ?>"
 				method="post"
@@ -701,78 +739,81 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
+
 				<?php render_newsletter_categories( $newsletter_categories, $styles ); ?>
 
-				<?php
-				$email_field_id  = 'subscribe-field';
-				$email_field_id .= Jetpack_Subscriptions_Widget::$instance_count > 1
-					? '-' . Jetpack_Subscriptions_Widget::$instance_count
-					: '';
-				$label_field_id  = $email_field_id . '-label';
-				?>
-				<p id="subscribe-email">
-					<label
-						id="<?php echo esc_attr( $label_field_id ); ?>"
-						for="<?php echo esc_attr( $email_field_id ); ?>"
-						class="screen-reader-text"
-					>
-						<?php echo esc_html( $data['subscribe_placeholder'] ); ?>
-					</label>
-
+				<div class="wp-block-jetpack-subscriptions__form-elements">
 					<?php
-					printf(
-						'<input
-							required="required"
-							type="email"
-							name="email"
-							%1$s
-							style="%2$s"
-							placeholder="%3$s"
-							value="%4$s"
-							id="%5$s"
-						/>',
-						( ! empty( $classes['email_field'] )
-							? 'class="' . esc_attr( $classes['email_field'] ) . '"'
-							: ''
-						),
-						( ! empty( $styles['email_field'] )
-							? esc_attr( $styles['email_field'] )
-							: 'width: 95%; padding: 1px 10px'
-						),
-						esc_attr( $data['subscribe_placeholder'] ),
-						esc_attr( $data['subscribe_email'] ),
-						esc_attr( $email_field_id )
-					);
+					$email_field_id  = 'subscribe-field';
+					$email_field_id .= Jetpack_Subscriptions_Widget::$instance_count > 1
+						? '-' . Jetpack_Subscriptions_Widget::$instance_count
+						: '';
+					$label_field_id  = $email_field_id . '-label';
 					?>
-				</p>
+					<p id="subscribe-email">
+						<label
+							id="<?php echo esc_attr( $label_field_id ); ?>"
+							for="<?php echo esc_attr( $email_field_id ); ?>"
+							class="screen-reader-text"
+						>
+							<?php echo esc_html( $data['subscribe_placeholder'] ); ?>
+						</label>
 
-				<p id="subscribe-submit"
-					<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
-						style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
-					<?php endif; ?>
-				>
-					<input type="hidden" name="action" value="subscribe"/>
-					<input type="hidden" name="blog_id" value="<?php echo (int) $current_blog->blog_id; ?>"/>
-					<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
-					<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
-					<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
-					<?php wp_nonce_field( 'blogsub_subscribe_' . $current_blog->blog_id, '_wpnonce', false ); ?>
-					<button type="submit"
-						<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
-							class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
-						<?php endif; ?>
-						<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
-							style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
-						<?php endif; ?>
-					>
 						<?php
-						echo wp_kses(
-							html_entity_decode( $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
-							Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
+						printf(
+							'<input
+								required="required"
+								type="email"
+								name="email"
+								%1$s
+								style="%2$s"
+								placeholder="%3$s"
+								value="%4$s"
+								id="%5$s"
+							/>',
+							( ! empty( $classes['email_field'] )
+								? 'class="' . esc_attr( $classes['email_field'] ) . '"'
+								: ''
+							),
+							( ! empty( $styles['email_field'] )
+								? esc_attr( $styles['email_field'] )
+								: 'width: 95%; padding: 1px 10px'
+							),
+							esc_attr( $data['subscribe_placeholder'] ),
+							esc_attr( $data['subscribe_email'] ),
+							esc_attr( $email_field_id )
 						);
 						?>
-					</button>
-				</p>
+					</p>
+
+					<p id="subscribe-submit"
+						<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
+							style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
+						<?php endif; ?>
+					>
+						<input type="hidden" name="action" value="subscribe"/>
+						<input type="hidden" name="blog_id" value="<?php echo (int) $current_blog->blog_id; ?>"/>
+						<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
+						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
+						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
+						<?php wp_nonce_field( 'blogsub_subscribe_' . $current_blog->blog_id, '_wpnonce', false ); ?>
+						<button type="submit"
+							<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
+								class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
+							<?php endif; ?>
+							<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
+								style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
+							<?php endif; ?>
+						>
+							<?php
+							echo wp_kses(
+								html_entity_decode( $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
+								Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
+							);
+							?>
+						</button>
+					</p>
+				</div>
 			</form>
 			<?php if ( $data['show_subscribers_total'] && $data['subscribers_total'] ) : ?>
 				<div class="wp-block-jetpack-subscriptions__subscount">
@@ -828,59 +869,60 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 					id="<?php echo esc_attr( $form_id ); ?>"
 				>
 					<?php render_newsletter_categories( $newsletter_categories, $styles ); ?>
+					<div class="wp-block-jetpack-subscriptions__form-elements">
+						<p id="subscribe-email">
+							<label id="jetpack-subscribe-label"
+								class="screen-reader-text"
+								for="<?php echo esc_attr( $subscribe_field_id . '-' . $data['widget_id'] ); ?>">
+								<?php echo esc_html( $data['subscribe_placeholder'] ); ?>
+							</label>
+							<input type="email" name="email" required="required"
+								<?php if ( ! empty( $classes['email_field'] ) ) : ?>
+									class="<?php echo esc_attr( $classes['email_field'] ); ?> required"
+								<?php endif; ?>
+								<?php if ( ! empty( $styles['email_field'] ) ) : ?>
+									style="<?php echo esc_attr( $styles['email_field'] ); ?>"
+								<?php endif; ?>
+								value="<?php echo esc_attr( $data['subscribe_email'] ); ?>"
+								id="<?php echo esc_attr( $subscribe_field_id . '-' . $data['widget_id'] ); ?>"
+								placeholder="<?php echo esc_attr( $data['subscribe_placeholder'] ); ?>"
+							/>
+						</p>
 
-					<p id="subscribe-email">
-						<label id="jetpack-subscribe-label"
-							class="screen-reader-text"
-							for="<?php echo esc_attr( $subscribe_field_id . '-' . $data['widget_id'] ); ?>">
-							<?php echo esc_html( $data['subscribe_placeholder'] ); ?>
-						</label>
-						<input type="email" name="email" required="required"
-							<?php if ( ! empty( $classes['email_field'] ) ) : ?>
-								class="<?php echo esc_attr( $classes['email_field'] ); ?> required"
-							<?php endif; ?>
-							<?php if ( ! empty( $styles['email_field'] ) ) : ?>
-								style="<?php echo esc_attr( $styles['email_field'] ); ?>"
-							<?php endif; ?>
-							value="<?php echo esc_attr( $data['subscribe_email'] ); ?>"
-							id="<?php echo esc_attr( $subscribe_field_id . '-' . $data['widget_id'] ); ?>"
-							placeholder="<?php echo esc_attr( $data['subscribe_placeholder'] ); ?>"
-						/>
-					</p>
 
-
-					<p id="subscribe-submit"
-						<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
-							style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
-						<?php endif; ?>
-					>
-						<input type="hidden" name="action" value="subscribe"/>
-						<input type="hidden" name="blog_id" value="<?php echo (int) $blog_id; ?>"/>
-						<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
-						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
-						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
-						<?php
-						if ( is_user_logged_in() ) {
-							wp_nonce_field( 'blogsub_subscribe_' . get_current_blog_id(), '_wpnonce', false );
-						}
-						?>
-						<button type="submit"
-							<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
-								class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
+						<p id="subscribe-submit"
+							<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
+								style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
 							<?php endif; ?>
-							<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
-								style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
-							<?php endif; ?>
-							name="jetpack_subscriptions_widget"
 						>
+							<input type="hidden" name="action" value="subscribe"/>
+							<input type="hidden" name="blog_id" value="<?php echo (int) $blog_id; ?>"/>
+							<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
+							<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
+							<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
 							<?php
-							echo wp_kses(
-								html_entity_decode( $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
-								Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
-							);
+							if ( is_user_logged_in() ) {
+								wp_nonce_field( 'blogsub_subscribe_' . get_current_blog_id(), '_wpnonce', false );
+							}
 							?>
-						</button>
-					</p>
+							<button type="submit"
+								<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
+									class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
+								<?php endif; ?>
+								<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
+									style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
+								<?php endif; ?>
+								name="jetpack_subscriptions_widget"
+							>
+								<?php
+								echo wp_kses(
+									html_entity_decode( $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
+									Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
+								);
+								?>
+							</button>
+						</p>
+					</div>
 				</form>
 
 				<?php if ( $data['show_subscribers_total'] && $data['subscribers_total'] ) : ?>
@@ -960,6 +1002,12 @@ function add_paywall( $the_content ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
 	if ( Jetpack_Memberships::user_can_view_post() ) {
+		do_action(
+			'earn_track_paywalled_post_view',
+			array(
+				'post_id' => get_the_ID(),
+			)
+		);
 		return $the_content;
 	}
 
@@ -1028,13 +1076,42 @@ function get_paywall_content( $post_access_level, $email_confirmation_pending = 
 	if ( $email_confirmation_pending ) {
 		return get_paywall_blocks_subscribe_pending();
 	}
-	if ( ! jetpack_is_frontend() ) { // emails
-		return get_paywall_simple();
-	}
 	if ( doing_filter( 'get_the_excerpt' ) ) {
 		return '';
 	}
 	return get_paywall_blocks( $post_access_level );
+}
+
+/**
+ * Returns the current URL.
+ *
+ * TODO: Copied from https://github.com/Automattic/jetpack/blob/bb885061dc3ee7a80a78a5f0116ab3fcebfddb09/projects/packages/boost-core/src/lib/class-url.php#L39
+ * TODO: Move to a shared package
+ *
+ * @return string
+ */
+function get_current_url() {
+	// Fallback to the site URL if we're unable to determine the URL from $_SERVER global.
+	$current_url = site_url();
+
+	if ( isset( $_SERVER ) && is_array( $_SERVER ) ) {
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitization happens at the end
+		$scheme = isset( $_SERVER['HTTPS'] ) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http';
+		$host   = ! empty( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : null;
+		$path   = ! empty( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
+
+		// Support for local plugin development and testing using ngrok.
+		if ( ! empty( $_SERVER['HTTP_X_ORIGINAL_HOST'] ) && false !== strpos( $_SERVER['HTTP_X_ORIGINAL_HOST'], 'ngrok.io' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
+			$host = wp_unslash( $_SERVER['HTTP_X_ORIGINAL_HOST'] );
+		}
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+		if ( $host ) {
+			$current_url = esc_url_raw( sprintf( '%s://%s%s', $scheme, $host, $path ) );
+		}
+	}
+
+	return $current_url;
 }
 
 /**
@@ -1044,6 +1121,13 @@ function get_paywall_content( $post_access_level, $email_confirmation_pending = 
  * @return string
  */
 function get_paywall_blocks( $newsletter_access_level ) {
+	$custom_paywall = apply_filters( 'jetpack_custom_paywall_blocks', false );
+	if ( ! empty( $custom_paywall ) ) {
+		return $custom_paywall;
+	}
+	if ( ! jetpack_is_frontend() ) { // emails
+		return get_paywall_simple();
+	}
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	// Only display paid texts when Stripe is connected and the post is marked for paid subscribers
 	$is_paid_post = $newsletter_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
@@ -1062,7 +1146,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 
 	$sign_in = '';
 	if ( ! is_user_logged_in() && ( new Host() )->is_wpcom_simple() ) {
-		$sign_in_link = add_query_arg( 'redirect_to', rawurlencode( get_post_permalink() ), 'https://wordpress.com/log-in/link' );
+		$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
 		$sign_in      = '<!-- wp:paragraph {"align":"center", "typography":{"fontSize":"14px","fontWeight":"400";"color":"#646970"}} -->
 <p class="has-text-align-center" style="font-size:14px;font-weight:400;color:#646970">' . esc_html( $access_question ) . ' <a href="' . $sign_in_link . '" class="jetpack-subscriber-paywall-login" style="font-size:14px;font-weight:400;color:#646970">' . esc_html__( 'Log in', 'jetpack' ) . '</a></p>
 <!-- /wp:paragraph -->';
