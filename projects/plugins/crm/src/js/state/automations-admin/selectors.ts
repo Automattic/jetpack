@@ -1,5 +1,9 @@
-import type { WorkflowState } from './reducer';
+import type { AutomationsState } from './reducer';
 
-export const getWorkflows = ( state: { workflows: WorkflowState } ) => {
-	return state.workflows;
+export const getWorkflows = ( state: { automations: AutomationsState } ) => {
+	return state.automations.workflows;
+};
+
+export const getSelectedWorkflows = ( state: { automations: AutomationsState } ) => {
+	return state.automations.selectedWorkflows;
 };

@@ -12,21 +12,15 @@ const JETPACK_PREFIX = 'jetpack/';
 /**
  * Registers a gutenberg block if the availability requirements are met.
  *
- * @param {string} nameOrMetadata - The block's name or metadata object. Jetpack blocks must be
- * registered with a name prefixed with `jetpack/`. This function accepts an unprefixed name too,
- * though (it'd handle both `business-hours` and `jetpack/business-hours` similarly, for instance).
+ * @param {string} name - The block's name. Jetpack blocks must be registered with a name prefixed
+ * with `jetpack/`. This function accepts an unprefixed name too, though (it'd handle both
+ * `business-hours` and `jetpack/business-hours` similarly, for instance).
  * @param {object} settings - The block's settings.
  * @param {object} childBlocks - The block's child blocks.
  * @param {boolean} prefix - Should this block be prefixed with `jetpack/`?
  * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
-export default function registerJetpackBlock(
-	nameOrMetadata,
-	settings,
-	childBlocks = [],
-	prefix = true
-) {
-	const name = typeof nameOrMetadata === 'string' ? nameOrMetadata : nameOrMetadata.name;
+export default function registerJetpackBlock( name, settings, childBlocks = [], prefix = true ) {
 	const isNamePrefixed = name.startsWith( JETPACK_PREFIX );
 	const rawName = isNamePrefixed ? name.slice( JETPACK_PREFIX.length ) : name;
 
@@ -46,10 +40,7 @@ export default function registerJetpackBlock(
 	}
 
 	const prefixedName = jpPrefix + rawName;
-	const result = registerBlockType(
-		nameOrMetadata === 'object' ? nameOrMetadata : prefixedName,
-		settings
-	);
+	const result = registerBlockType( prefixedName, settings );
 
 	if ( requiredPlan ) {
 		addFilter(
@@ -78,14 +69,14 @@ export default function registerJetpackBlock(
  * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
 export function registerJetpackBlockFromMetadata( metadata, settings, childBlocks, prefix ) {
-	const mergedSettings = {
+	const clientSettings = {
 		...settings,
 		icon: getBlockIconProp( metadata ),
 	};
 	const { variations } = metadata;
 
 	if ( Array.isArray( variations ) && variations.length > 0 ) {
-		mergedSettings.variations = variations.map( variation => {
+		clientSettings.variations = variations.map( variation => {
 			return {
 				...variation,
 				icon: getBlockIconProp( variation ),
@@ -93,5 +84,5 @@ export function registerJetpackBlockFromMetadata( metadata, settings, childBlock
 		} );
 	}
 
-	return registerJetpackBlock( metadata, mergedSettings, childBlocks, prefix );
+	return registerJetpackBlock( metadata.name, clientSettings, childBlocks, prefix );
 }

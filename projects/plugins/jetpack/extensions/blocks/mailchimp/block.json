@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/mailchimp",
 	"title": "Mailchimp",
-	"description": "A form enabling readers to join a Mailchimp audience.",
+	"description": "Allow readers to join a Mailchimp audience.",
 	"keywords": [ "email", "subscription", "newsletter" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",

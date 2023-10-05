@@ -23,6 +23,7 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@tanstack/react-query": "4.35.3",
 		"@wordpress/api-fetch": "6.38.0",
+		"@wordpress/base-styles": "4.32.0",
 		"@wordpress/components": "25.7.0",
 		"@wordpress/data": "9.11.0",
 		"@wordpress/element": "5.18.0",
