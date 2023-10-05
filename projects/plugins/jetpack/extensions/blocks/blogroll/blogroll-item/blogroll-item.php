@@ -83,6 +83,14 @@ HTML;
 		$placeholder_site_icon = 'empty-site-icon';
 	}
 
+	if ( ! jetpack_is_frontend() ) {
+		return <<<HTML
+			<div style="margin-bottom: 10px;">
+				<a href="$url">$name</a><div>$description</div>
+			</div>
+HTML;
+	}
+
 	$form_buttons = <<<HTML
 		<!-- wp:button {"className":"is-style-fill"} -->
 		<div class="wp-block-button jetpack-blogroll-item-submit-button is-style-fill">
