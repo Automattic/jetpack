@@ -116,12 +116,16 @@ class Update_Contact_Status extends Base_Action {
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
 	 */
-	public function execute( Data_Type $data ) {
+	protected function execute( Data_Type $data ) {
 		global $zbs;
+
+		if ( empty( $this->get_attribute( 'new_status' ) ) ) {
+			return;
+		}
 
 		/** @var Contact $contact */
 		$contact         = $data->get_data();
-		$contact->status = $this->attributes['new_status'];
+		$contact->status = $this->get_attribute( 'new_status' );
 
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$zbs->DAL->contacts->addUpdateContact(

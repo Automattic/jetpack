@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/ai-chat",
 	"title": "Jetpack AI Search",
-	"description": "Provides a summarized answer to questions, trained on the sites content. Powered by AI.",
+	"description": "Provide a summarized answer to questions, trained on the sites content. Powered by AI.",
 	"keywords": [ "AI", "GPT", "Chat", "Search" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",

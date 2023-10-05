@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\CRM\Tests;
 
+use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Tests\Automation_Faker;
@@ -39,6 +40,14 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 		$engine = Automation_Engine::instance();
 		$engine->register_step( Contact_Condition::class );
 		$engine->register_step( Dummy_Step::class );
+
+		// Make sure the default test trigger is registered.
+		// @todo Figure out why we have to check if it already exists.
+		// Initial exploration doesn't seem to leak any information to the next test
+		// (which is indirectly confirmed by the steps above not complaining).
+		if ( ! isset( $engine->get_registered_triggers()[ Contact_Created_Trigger::get_slug() ] ) ) {
+			$engine->register_trigger( Contact_Created_Trigger::class );
+		}
 	}
 
 	/**
@@ -307,15 +316,26 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 			'description'  => 'my updated description',
 			'category'     => 'jpcrm/updated-category',
 			'active'       => false,
-			'triggers'     => array( 'my_updated_trigger' ),
+			// We re-use the same trigger twice to verify that we can update the triggers data.
+			// We could also use two unique triggers, but this makes it, so we don't have to
+			// register more triggers to run the test.
+			'triggers'     => array(
+				Contact_Created_Trigger::get_slug(),
+				Contact_Created_Trigger::get_slug(),
+			),
 			'initial_step' => 'updated_step_2',
 			'steps'        => array(
 				'updated_step_1' => array(
-					'slug'           => Contact_Condition::get_slug(),
-					'next_step_true' => 'updated_step_2',
+					'slug'            => Contact_Condition::get_slug(),
+					'next_step_true'  => 'updated_step_2',
+					'next_step_false' => null,
+					'attributes'      => array(),
 				),
 				'updated_step_2' => array(
-					'slug' => Contact_Condition::get_slug(),
+					'slug'            => Contact_Condition::get_slug(),
+					'next_step_true'  => null,
+					'next_step_false' => null,
+					'attributes'      => array(),
 				),
 			),
 		);
@@ -385,13 +405,34 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 	 * @return array The pruned workflow data.
 	 */
 	protected function prune_workflow_response( array $workflow_data ): array {
+		$static_step_fields = array(
+			'id',
+			'title',
+			'description',
+			'category',
+			'step_type',
+			'attribute_definitions',
+		);
+
 		if ( ! empty( $workflow_data['steps'] ) && is_array( $workflow_data['steps'] ) ) {
 			foreach ( $workflow_data['steps'] as $index => $step ) {
-				if ( isset( $step['attribute_definitions'] ) ) {
-					unset( $step['attribute_definitions'] );
+				foreach ( $static_step_fields as $field ) {
+					if ( isset( $step[ $field ] ) ) {
+						unset( $step[ $field ] );
+					}
 				}
 
 				$workflow_data['steps'][ $index ] = $step;
+			}
+		}
+
+		// Revert the triggers to their original format.
+		// We populate workflows with full trigger objects, but the Automation_Workflow class itself
+		// only stores the trigger slug, so we have to reduce the trigger object from API responses to
+		// slugs before we're able to do direct comparisons.
+		if ( ! empty( $workflow_data['triggers'] ) && is_array( $workflow_data['triggers'] ) ) {
+			foreach ( $workflow_data['triggers'] as $index => $trigger ) {
+				$workflow_data['triggers'][ $index ] = $workflow_data['triggers'][ $index ]['slug'];
 			}
 		}
 
@@ -505,6 +546,8 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_Test_Case {
 			$data,
 			$this->automation_faker->workflow_with_condition_action()
 		);
+
+		$workflow_data['triggers'] = array( Contact_Created_Trigger::get_slug() );
 
 		$workflow = new Automation_Workflow( $workflow_data );
 
