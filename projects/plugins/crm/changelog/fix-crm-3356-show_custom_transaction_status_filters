@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Transactions: filters now work for custom statuses
