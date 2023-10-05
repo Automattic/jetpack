@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Notifications: show wp-admin bar notes icon for redirect when browser doesn't support 3rd party cookies
