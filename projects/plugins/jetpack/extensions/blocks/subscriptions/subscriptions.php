@@ -264,6 +264,12 @@ function fetch_newsletter_categories() {
  * @return array
  */
 function get_newsletter_categories() {
+	// opt out of rendering when we display newsletter catgeories in the subscribe modal
+	$should_render_newsletter_categories = apply_filters( 'wpcom_newsletter_categories_location', 'block' ) === 'block';
+	if ( ! $should_render_newsletter_categories ) {
+		return array();
+	}
+
 	$response = fetch_newsletter_categories();
 
 	if (
