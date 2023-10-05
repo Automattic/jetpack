@@ -20,7 +20,12 @@ function jetpack_get_google_fonts_data() {
 	);
 
 	$jetpack_google_fonts_collection = new WP_Font_Collection( $jetpack_google_fonts_collection_config );
-	$data                            = $jetpack_google_fonts_collection->get_data()['data'];
+	$data                            = $jetpack_google_fonts_collection->get_data();
+	if ( is_wp_error( $data ) ) {
+		return null;
+	}
+
+	$data = $data['data'];
 
 	// Replace the google fonts api url if the custom one is provided.
 	$custom_google_fonts_api_url = \esc_url( apply_filters( 'jetpack_google_fonts_api_url', '' ) );
@@ -64,11 +69,17 @@ function jetpack_get_available_google_fonts_map() {
 function jetpack_register_google_fonts_to_theme_json( $theme_json ) {
 	$available_google_fonts_map = jetpack_get_available_google_fonts_map();
 	$google_fonts_data          = jetpack_get_google_fonts_data();
-	$google_fonts_families      = array_values(
+	if ( ! $google_fonts_data ) {
+		return $theme_json;
+	}
+
+	$google_fonts_families = array_values(
 		array_filter(
 			$google_fonts_data['fontFamilies'],
 			function ( $google_fonts_family ) use ( $available_google_fonts_map ) {
-				return $available_google_fonts_map[ $google_fonts_family['name'] ];
+				return isset( $available_google_fonts_map[ $google_fonts_family['name'] ] )
+					? $available_google_fonts_map[ $google_fonts_family['name'] ]
+					: false;
 			}
 		)
 	);
