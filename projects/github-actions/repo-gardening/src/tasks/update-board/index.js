@@ -28,6 +28,28 @@ async function hasPriorityLabels( octokit, owner, repo, number, action, eventLab
 }
 
 /**
+ * Check if an issue has a "Triaged" label.
+ * It could be an existing label,
+ * or it could be that it's being added as part of the event that triggers this action.
+ *
+ * @param {GitHub} octokit    - Initialized Octokit REST client.
+ * @param {string} owner      - Repository owner.
+ * @param {string} repo       - Repository name.
+ * @param {string} number     - Issue number.
+ * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
+ * @param {object} eventLabel - Label that was added to the issue.
+ * @returns {Promise<boolean>} Promise resolving to true if the issue has a "Triaged" label.
+ */
+async function hasTriagedLabel( octokit, owner, repo, number, action, eventLabel ) {
+	const labels = await getLabels( octokit, owner, repo, number );
+	if ( 'labeled' === action && eventLabel.name && eventLabel.name === 'Triaged' ) {
+		labels.push( eventLabel.name );
+	}
+
+	return labels.includes( 'Triaged' );
+}
+
+/**
  * Get Information about a project board.
  *
  * @param {GitHub} octokit          - Initialized Octokit REST client.
@@ -99,6 +121,14 @@ async function getProjectDetails( octokit, projectBoardLink ) {
 	);
 	if ( priorityField ) {
 		projectInfo.priority = priorityField; // Info about our Priority column (id as well as possible values).
+	}
+
+	// Extract the ID of the Status field.
+	const statusField = projectDetails[ projectInfo.ownerType ]?.projectV2.fields.nodes.find(
+		field => field.name === 'Status'
+	);
+	if ( statusField ) {
+		projectInfo.status = statusField; // Info about our Status column (id as well as possible values).
 	}
 
 	return projectInfo;
@@ -213,6 +243,63 @@ async function setPriorityField( octokit, projectInfo, projectItemId, priorityTe
 }
 
 /**
+ * Update the "Status" field to "Triaged" in our project board.
+ *
+ * @param {GitHub} octokit       - Initialized Octokit REST client.
+ * @param {object} projectInfo   - Info about our project board.
+ * @param {string} projectItemId - The ID of the project item.
+ * @returns {Promise<string>} - The new project item id.
+ */
+async function setStatusField( octokit, projectInfo, projectItemId ) {
+	const {
+		projectNodeId, // Project board node ID.
+		status: {
+			id: statusFieldId, // ID of the status field.
+			options,
+		},
+	} = projectInfo;
+
+	// Find the ID of the status option that matches our PR status.
+	const statusOptionId = options.find( option => option.name === 'Triaged' ).id;
+	if ( ! statusOptionId ) {
+		debug(
+			`update-board: Status "Triaged" does not exist as a column option in the project board.`
+		);
+		return '';
+	}
+
+	const projectNewItemDetails = await octokit.graphql(
+		`mutation ( $input: UpdateProjectV2ItemFieldValueInput! ) {
+			set_status: updateProjectV2ItemFieldValue( input: $input ) {
+				projectV2Item {
+					id
+				}
+			}
+		}`,
+		{
+			input: {
+				projectId: projectNodeId,
+				itemId: projectItemId,
+				fieldId: statusFieldId,
+				value: {
+					singleSelectOptionId: statusOptionId,
+				},
+			},
+		}
+	);
+
+	const newProjectItemId = projectNewItemDetails.set_status.projectV2Item.id;
+	if ( ! newProjectItemId ) {
+		debug( `update-board: Failed to set the "Triaged" status for this project item.` );
+		return '';
+	}
+
+	debug( `update-board: Project item ${ newProjectItemId } was moved to "Triaged" status.` );
+
+	return newProjectItemId; // New Project item ID (what we just edited). String.
+}
+
+/**
  * Automatically update specific columns in our common GitHub project board,
  * to match labels applied to issues.
  *
@@ -239,7 +326,26 @@ async function updateBoard( payload, octokit ) {
 		return;
 	}
 
-	// Find Priority.
+	// For this task, we need octokit to have extra permissions not provided by the default GitHub token.
+	// Let's create a new octokit instance using our own custom token.
+	// eslint-disable-next-line new-cap
+	const projectOctokit = new getOctokit( projectToken );
+
+	// Get details about our project board, to use in our requests.
+	const projectInfo = await getProjectDetails( projectOctokit, projectBoardLink );
+	if ( Object.keys( projectInfo ).length === 0 || ! projectInfo.projectNodeId ) {
+		setFailed( `update-board: we cannot fetch info about our project board. Aborting task.` );
+		return;
+	}
+
+	// Check if the issue is already on the project board. If so, return its ID on the board.
+	const projectItemId = await getIssueProjectItemId( projectOctokit, projectInfo, name, number );
+	if ( ! projectItemId ) {
+		debug( `update-board: Issue #${ number } is not on our project board. Aborting.` );
+		return;
+	}
+
+	// Check if priority needs to be updated for that issue.
 	const priorityLabels = await hasPriorityLabels(
 		octokit,
 		ownerLogin,
@@ -254,48 +360,31 @@ async function updateBoard( payload, octokit ) {
 				', '
 			) }`
 		);
-	} else {
-		debug( `update-board: Issue #${ number } has no existing priority labels. Aborting.` );
-		return;
+
+		// If we have no info about the Priority column, stop.
+		if ( ! projectInfo.priority ) {
+			debug( `update-board: No priority column found in project board. Aborting.` );
+			return;
+		}
+
+		// Remove the "[Pri]" prefix from our priority labels. We also only need one label.
+		const priorityText = priorityLabels[ 0 ].replace( /^\[Pri\]\s*/, '' );
+
+		// Set the priority field for this project item.
+		debug(
+			`update-board: Setting the "${ priorityText }" status for this project item, issue #${ number }.`
+		);
+		await setPriorityField( projectOctokit, projectInfo, projectItemId, priorityText );
 	}
 
-	// For this task, we need octokit to have extra permissions not provided by the default GitHub token.
-	// Let's create a new octokit instance using our own custom token.
-	// eslint-disable-next-line new-cap
-	const projectOctokit = new getOctokit( projectToken );
-
-	// Get details about our project board, to use in our requests.
-	const projectInfo = await getProjectDetails( projectOctokit, projectBoardLink );
-	if ( Object.keys( projectInfo ).length === 0 || ! projectInfo.projectNodeId ) {
-		setFailed( `update-board: we cannot fetch info about our project board. Aborting task.` );
-		return;
+	// Check if the issue has a "Triaged" label.
+	const hasTriaged = await hasTriagedLabel( octokit, ownerLogin, name, number, action, label );
+	if ( hasTriaged ) {
+		// Set the status field for this project item.
+		debug(
+			`update-board: Setting the "Triaged" status for this project item, issue #${ number }.`
+		);
+		await setStatusField( projectOctokit, projectInfo, projectItemId );
 	}
-
-	// If we have no info about the Priority column, stop.
-	if ( ! projectInfo.priority ) {
-		debug( `update-board: No priority column found in project board. Aborting.` );
-		return;
-	}
-
-	debug(
-		`update-board: Found priority column in project board. Let's now check if the issue exists on our board.`
-	);
-
-	// Check if the issue is already on the project board. If so, return its ID on the board.
-	const projectItemId = await getIssueProjectItemId( projectOctokit, projectInfo, name, number );
-	if ( ! projectItemId ) {
-		debug( `update-board: Issue #${ number } is not on our project board. Aborting.` );
-		return;
-	}
-
-	// Remove the "[Pri]" prefix from our priority labels. We also only need one label.
-	const priorityText = priorityLabels[ 0 ].replace( /^\[Pri\]\s*/, '' );
-
-	// Set the priority field for this project item.
-	debug(
-		`update-board: Setting the "${ priorityText }" status for this project item, issue #${ number }.`
-	);
-	await setPriorityField( projectOctokit, projectInfo, projectItemId, priorityText );
-	return;
 }
 module.exports = updateBoard;
