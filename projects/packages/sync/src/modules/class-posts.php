@@ -215,6 +215,10 @@ class Posts extends Module {
 	 * @access public
 	 */
 	public function init_before_send() {
+		// meta.
+		add_filter( 'jetpack_sync_before_send_added_post_meta', array( $this, 'trim_post_meta' ) );
+		add_filter( 'jetpack_sync_before_send_updated_post_meta', array( $this, 'trim_post_meta' ) );
+		add_filter( 'jetpack_sync_before_send_deleted_post_meta', array( $this, 'trim_post_meta' ) );
 		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
 	}
@@ -356,7 +360,7 @@ class Posts extends Module {
 	 */
 	public function filter_meta( $args ) {
 		if ( $this->is_post_type_allowed( $args[1] ) && $this->is_whitelisted_post_meta( $args[2] ) ) {
-			return $this->trim_post_meta( $args );
+			return $args;
 		}
 
 		return false;
