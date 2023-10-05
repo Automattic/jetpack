@@ -50,7 +50,7 @@ function load_assets( $attr, $content ) {
 	$current_location = home_url( $wp->request );
 	$is_wpcom         = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 
-	$wpcom_content = <<<HTML
+	$form_content = <<<HTML
 		<form method="post" action="https://subscribe.wordpress.com" accept-charset="utf-8">
 			<input name="action" type="hidden" value="subscribe">
 			<input name="source" type="hidden" value="$current_location">
@@ -59,7 +59,7 @@ function load_assets( $attr, $content ) {
 		</form>
 HTML;
 
-	$blogroll_content = $is_wpcom ? $wpcom_content : $content;
+	$blogroll_content = $is_wpcom && jetpack_is_frontend() ? $form_content : $content;
 
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',

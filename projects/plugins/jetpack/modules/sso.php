@@ -72,7 +72,7 @@ class Jetpack_SSO {
 		 *
 		 * @todo Provide a UI to enable/disable the feature.
 		 *
-		 * @since $$next-version$$
+		 * @since 12.7
 		 * @module SSO
 		 * @return bool
 		 */

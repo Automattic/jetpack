@@ -634,11 +634,11 @@ class Jetpack_Memberships {
 	public static function get_join_others_text( $subscribers_total ) {
 		if ( $subscribers_total >= 1000000 ) {
 			/* translators: %s: number of folks following the blog, millions(M) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sM other subscribers', 'jetpack' ), number_format_i18n( $subscribers_total / 1000000, 1 ) );
+			return sprintf( __( 'Join %sM other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000000, 1 ) ) );
 		}
 		if ( $subscribers_total >= 10000 ) {
 			/* translators: %s: number of folks following the blog, thousands(K) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sK other subscribers', 'jetpack' ), number_format_i18n( $subscribers_total / 1000, 1 ) );
+			return sprintf( __( 'Join %sK other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000, 1 ) ) );
 		}
 
 		/* translators: %s: number of folks following the blog */
