@@ -308,14 +308,15 @@ async function setPriorityField( octokit, projectInfo, projectItemId, priorityTe
 }
 
 /**
- * Update the "Status" field to "Triaged" in our project board.
+ * Update the "Status" field in our project board.
  *
  * @param {GitHub} octokit       - Initialized Octokit REST client.
  * @param {object} projectInfo   - Info about our project board.
  * @param {string} projectItemId - The ID of the project item.
+ * @param {string} statusText    - Status of our issue (must match an existing column in the project board).
  * @returns {Promise<string>} - The new project item id.
  */
-async function setStatusField( octokit, projectInfo, projectItemId ) {
+async function setStatusField( octokit, projectInfo, projectItemId, statusText ) {
 	const {
 		projectNodeId, // Project board node ID.
 		status: {
@@ -324,11 +325,11 @@ async function setStatusField( octokit, projectInfo, projectItemId ) {
 		},
 	} = projectInfo;
 
-	// Find the ID of the status option that matches our PR status.
-	const statusOptionId = options.find( option => option.name === 'Triaged' ).id;
+	// Find the ID of the status option that matches our issue status.
+	const statusOptionId = options.find( option => option.name === statusText ).id;
 	if ( ! statusOptionId ) {
 		debug(
-			`update-board: Status "Triaged" does not exist as a column option in the project board.`
+			`update-board: Status ${ statusText } does not exist as a column option in the project board.`
 		);
 		return '';
 	}
@@ -355,11 +356,13 @@ async function setStatusField( octokit, projectInfo, projectItemId ) {
 
 	const newProjectItemId = projectNewItemDetails.set_status.projectV2Item.id;
 	if ( ! newProjectItemId ) {
-		debug( `update-board: Failed to set the "Triaged" status for this project item.` );
+		debug( `update-board: Failed to set the "${ statusText }" status for this project item.` );
 		return '';
 	}
 
-	debug( `update-board: Project item ${ newProjectItemId } was moved to "Triaged" status.` );
+	debug(
+		`update-board: Project item ${ newProjectItemId } was moved to "${ statusText }" status.`
+	);
 
 	return newProjectItemId; // New Project item ID (what we just edited). String.
 }
@@ -424,6 +427,12 @@ async function updateBoard( payload, octokit ) {
 			debug( `update-board: Failed to add issue to project board. Aborting.` );
 			return;
 		}
+
+		// Set the "Needs Triage" status for our issue on the board.
+		debug(
+			`update-board: Setting the "Needs Triage" status for this project item, issue #${ number }.`
+		);
+		await setStatusField( projectOctokit, projectInfo, projectItemId, 'Needs Triage' );
 	}
 
 	// Check if priority needs to be updated for that issue.
@@ -453,7 +462,7 @@ async function updateBoard( payload, octokit ) {
 
 		// Set the priority field for this project item.
 		debug(
-			`update-board: Setting the "${ priorityText }" status for this project item, issue #${ number }.`
+			`update-board: Setting the "${ priorityText }" priority for this project item, issue #${ number }.`
 		);
 		await setPriorityField( projectOctokit, projectInfo, projectItemId, priorityText );
 	}
@@ -465,7 +474,7 @@ async function updateBoard( payload, octokit ) {
 		debug(
 			`update-board: Setting the "Triaged" status for this project item, issue #${ number }.`
 		);
-		await setStatusField( projectOctokit, projectInfo, projectItemId );
+		await setStatusField( projectOctokit, projectInfo, projectItemId, 'Triaged' );
 	}
 }
 module.exports = updateBoard;
