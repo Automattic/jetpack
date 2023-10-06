@@ -73,8 +73,22 @@ function load_assets( $attr, $content, $block ) {
 		$subscribe_button_class    = 'is-style-outline';
 	}
 
+	$placeholder_site_icon = '';
+	$site_icon_html        = <<<HTML
+	<img src="$icon" alt="$name_attr" onerror="this.parentNode.classList.add('empty-site-icon')">
+HTML;
+
 	if ( empty( $icon ) ) {
-		$icon = 'https://s0.wp.com/i/webclip.png';
+		$site_icon_html        = '';
+		$placeholder_site_icon = 'empty-site-icon';
+	}
+
+	if ( ! jetpack_is_frontend() ) {
+		return <<<HTML
+			<div style="margin-bottom: 10px;">
+				<a href="$url">$name</a><div>$description</div>
+			</div>
+HTML;
 	}
 
 	$form_buttons = <<<HTML
@@ -119,8 +133,8 @@ HTML;
 	 */
 	$content = <<<HTML
 		<div class="jetpack-blogroll-item-information">
-			<figure>
-				<img src="$icon" alt="$name_attr">
+			<figure class="$placeholder_site_icon">
+				$site_icon_html
 			</figure>
 			<div>
 				<a class="jetpack-blogroll-item-title" href="$url" target="$target" rel="noopener noreferrer">$name</a>

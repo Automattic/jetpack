@@ -122,11 +122,12 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'verify_email'                    => array(
-			'get_title'           => function () {
+			'get_title'            => function () {
 				return __( 'Verify email address', 'jetpack-mu-wpcom' );
 			},
-			'is_visible_callback' => 'wpcom_launchpad_is_email_unverified',
-			'get_calypso_path'    => function () {
+			'is_complete_callback' => 'wpcom_launchpad_is_email_verified',
+			'is_disabled_callback' => 'wpcom_launchpad_is_email_verified',
+			'get_calypso_path'     => function () {
 				return '/me/account';
 			},
 		),
@@ -377,9 +378,13 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Customize your domain', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_domain_customize_completed',
-			'is_visible_callback'  => 'wpcom_launchpad_is_domain_customize_task_visible',
+			'is_disabled_callback' => 'wpcom_launchpad_is_domain_customize_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/domains/add/' . $data['site_slug_encoded'];
+				// The from parameter is used to redirect the user back to the Launchpad when they
+				// click on the Back button on the domain customization page.
+				// TODO: This can cause problem if this task is used in the future for other flows
+				// that are not in the Customer Home page. We should find a better way to handle this.
+				return '/domains/add/' . $data['site_slug_encoded'] . '?from=my-home';
 			},
 		),
 
@@ -1073,17 +1078,17 @@ function wpcom_launchpad_launch_task_listener_atomic( $old_value, $new_value ) {
 }
 
 /**
- * Callback for email verification visibility.
+ * Callback for email verification completion.
  *
- * @return bool True if email is unverified, false otherwise.
+ * @return bool True if email is verified, false otherwise.
  */
-function wpcom_launchpad_is_email_unverified() {
+function wpcom_launchpad_is_email_verified() {
 	// TODO: handle the edge case where an Atomic user can be unverified.
 	if ( ! class_exists( 'Email_Verification' ) ) {
-		return false;
+		return true;
 	}
 
-	return Email_Verification::is_email_unverified();
+	return ! Email_Verification::is_email_unverified();
 }
 
 /**
@@ -1690,42 +1695,15 @@ function wpcom_launchpad_is_domain_customize_completed( $task, $default ) {
 		return false;
 	}
 
-	list( $has_bundle, $has_domain ) = $result;
+	$has_domain = $result[1];
 
-	// For paid users with a custom domain, show the task as complete.
-	if ( $has_bundle && $has_domain ) {
+	// For users with a custom domain, show the task as complete.
+	if ( $has_domain ) {
 		return true;
 	}
 
 	// For everyone else, show the task as incomplete.
 	return $default;
-}
-
-/**
- * Determines whether or not domain customize task is visible.
- *
- * @return bool True if user is on a free plan and didn't purchase domain or if user is on a paid plan and did purchase a domain.
- */
-function wpcom_launchpad_is_domain_customize_task_visible() {
-	$result = wpcom_launchpad_domain_customize_check_purchases();
-
-	if ( false === $result ) {
-		return false;
-	}
-
-	list( $has_bundle, $has_domain ) = $result;
-
-	// Free user who didn't purchase a domain.
-	if ( ! $has_bundle && ! $has_domain ) {
-		return true;
-	}
-
-	// Paid user who purchased a domain.
-	if ( $has_bundle && $has_domain ) {
-		return true;
-	}
-
-	return false;
 }
 
 /**
