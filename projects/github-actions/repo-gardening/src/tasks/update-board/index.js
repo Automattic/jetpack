@@ -50,6 +50,32 @@ async function hasTriagedLabel( octokit, owner, repo, number, action, eventLabel
 }
 
 /**
+ * Ensure the issue is a bug, by looking for a "[Type] Bug" label.
+ * It could be an existing label,
+ * or it could be that it's being added as part of the event that triggers this action.
+ *
+ * @param {GitHub} octokit    - Initialized Octokit REST client.
+ * @param {string} owner      - Repository owner.
+ * @param {string} repo       - Repository name.
+ * @param {string} number     - Issue number.
+ * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
+ * @param {object} eventLabel - Label that was added to the issue.
+ * @returns {Promise<boolean>} Promise resolving to boolean.
+ */
+async function isBug( octokit, owner, repo, number, action, eventLabel ) {
+	// If the issue has a "[Type] Bug" label, it's a bug.
+	const labels = await getLabels( octokit, owner, repo, number );
+	if ( labels.includes( '[Type] Bug' ) ) {
+		return true;
+	}
+
+	// Next, check if the current event was a [Type] Bug label being added.
+	if ( 'labeled' === action && eventLabel.name && '[Type] Bug' === eventLabel.name ) {
+		return true;
+	}
+}
+
+/**
  * Get Information about a project board.
  *
  * @param {GitHub} octokit          - Initialized Octokit REST client.
@@ -183,6 +209,45 @@ async function getIssueProjectItemId( octokit, projectInfo, repoName, issueId ) 
 }
 
 /**
+ * Add Issue to our project board.
+ *
+ * @param {GitHub} octokit     - Initialized Octokit REST client.
+ * @param {object} projectInfo - Info about our project board.
+ * @param {string} node_id     - The node_id of the Issue.
+ * @returns {Promise<string>} - Info about the project item id that was created.
+ */
+async function addIssueToBoard( octokit, projectInfo, node_id ) {
+	const { projectNodeId } = projectInfo;
+
+	// Add our PR to that project board.
+	const projectItemDetails = await octokit.graphql(
+		`mutation addIssueToProject($input: AddProjectV2ItemByIdInput!) {
+			addProjectV2ItemById(input: $input) {
+				item {
+					id
+				}
+			}
+		}`,
+		{
+			input: {
+				projectId: projectNodeId,
+				contentId: node_id,
+			},
+		}
+	);
+
+	const projectItemId = projectItemDetails.addProjectV2ItemById.item.id;
+	if ( ! projectItemId ) {
+		debug( `update-board: Failed to add issue to project board.` );
+		return '';
+	}
+
+	debug( `update-board: Added issue to project board.` );
+
+	return projectItemId;
+}
+
+/**
  * Set custom priority field for a project item.
  *
  * @param {GitHub} octokit       - Initialized Octokit REST client.
@@ -308,7 +373,7 @@ async function setStatusField( octokit, projectInfo, projectItemId ) {
  */
 async function updateBoard( payload, octokit ) {
 	const { action, issue, label = {}, repository } = payload;
-	const { number } = issue;
+	const { number, node_id } = issue;
 	const { owner, name } = repository;
 	const ownerLogin = owner.login;
 
@@ -339,10 +404,26 @@ async function updateBoard( payload, octokit ) {
 	}
 
 	// Check if the issue is already on the project board. If so, return its ID on the board.
-	const projectItemId = await getIssueProjectItemId( projectOctokit, projectInfo, name, number );
+	let projectItemId = await getIssueProjectItemId( projectOctokit, projectInfo, name, number );
 	if ( ! projectItemId ) {
-		debug( `update-board: Issue #${ number } is not on our project board. Aborting.` );
-		return;
+		debug(
+			`update-board: Issue #${ number } is not on our project board. Let's check if it is a bug. If it is, we will want to add it to our board.`
+		);
+
+		// If the issue is not a bug, stop.
+		const isBugIssue = await isBug( octokit, ownerLogin, name, number, action, label );
+		if ( ! isBugIssue ) {
+			debug( `update-board: Issue #${ number } is not classified as a bug. Aborting.` );
+			return;
+		}
+
+		// If the issue is a bug, add it to our project board.
+		debug( `update-board: Issue #${ number } is a bug. Adding it to our project board.` );
+		projectItemId = await addIssueToBoard( projectOctokit, projectInfo, node_id );
+		if ( ! projectItemId ) {
+			debug( `update-board: Failed to add issue to project board. Aborting.` );
+			return;
+		}
 	}
 
 	// Check if priority needs to be updated for that issue.
