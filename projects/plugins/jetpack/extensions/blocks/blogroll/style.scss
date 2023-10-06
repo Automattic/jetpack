@@ -4,8 +4,11 @@
 	.wp-block-jetpack-blogroll-item {
 		overflow-x: clip;
 
-		.jetpack-blogroll-item-slider {
+		&.has-subscription-form .jetpack-blogroll-item-slider {
 			width: 200%;
+		}
+
+		.jetpack-blogroll-item-slider {
 			display: flex;
 			transition: transform 0.3s ease-in-out;
 

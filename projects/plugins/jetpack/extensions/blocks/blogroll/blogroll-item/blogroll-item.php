@@ -118,8 +118,11 @@ HTML;
 
 	$subscribe_button_html = '';
 	$fieldset              = '';
+	$has_subscription_form = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$classes               = Blocks::classes( FEATURE_NAME, $attr );
 
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	if ( $has_subscription_form ) {
+		$classes              .= ' has-subscription-form';
 		$form_buttons_html     = do_blocks( $form_buttons );
 		$subscribe_button_html = do_blocks( $subscribe_button );
 
@@ -153,7 +156,7 @@ HTML;
 		'<div class="%1$s">
 			<div class="jetpack-blogroll-item-slider">%2$s</div>
 		</div>',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+		esc_attr( $classes ),
 		$content
 	);
 }
