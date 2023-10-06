@@ -20,7 +20,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '2.4.0';
+	const PACKAGE_VERSION = '2.5.0-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -156,6 +156,7 @@ class JITM {
 				'activate_module_text'   => esc_html__( 'Activate', 'jetpack-jitm' ),
 				'activated_module_text'  => esc_html__( 'Activated', 'jetpack-jitm' ),
 				'activating_module_text' => esc_html__( 'Activating', 'jetpack-jitm' ),
+				'settings_module_text'   => esc_html__( 'Settings', 'jetpack-jitm' ),
 				'nonce'                  => wp_create_nonce( 'wp_rest' ),
 			)
 		);

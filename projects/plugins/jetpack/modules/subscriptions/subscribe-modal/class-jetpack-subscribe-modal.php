@@ -179,7 +179,11 @@ HTML;
 
 		// Don't show if post is for subscribers only or has paywall block
 		global $post;
-		$access_level              = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+		if ( defined( 'Automattic\\Jetpack\\Extensions\\Subscriptions\\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS' ) ) {
+			$access_level = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+		} else {
+			$access_level = get_post_meta( $post->ID, '_jetpack_newsletter_access', true );
+		}
 		$is_accessible_by_everyone = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level || empty( $access_level );
 		if ( ! $is_accessible_by_everyone ) {
 			return false;
