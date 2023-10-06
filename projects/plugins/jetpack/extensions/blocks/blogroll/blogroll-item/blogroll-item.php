@@ -92,16 +92,20 @@ HTML;
 	}
 
 	$form_buttons = <<<HTML
-		<!-- wp:button {"className":"is-style-fill"} -->
-		<div class="wp-block-button jetpack-blogroll-item-submit-button is-style-fill">
-			<button type="submit" name="blog_id" value="$id" class="wp-block-button__link wp-element-button">$submit_text</button>
-		</div>
-		<!-- /wp:button -->
+		<!-- wp:buttons {"style":{"spacing":{"blockGap":"10px"}}} -->
+		<div class="wp-block-buttons">
+			<!-- wp:button {"className":"is-style-fill"} -->
+			<div class="wp-block-button jetpack-blogroll-item-submit-button is-style-fill">
+				<button type="submit" name="blog_id" value="$id" class="wp-block-button__link wp-element-button">$submit_text</button>
+			</div>
+			<!-- /wp:button -->
 
-		<!-- wp:button {"className":"is-style-outline"} -->
-		<div class="wp-block-button jetpack-blogroll-item-cancel-button is-style-outline">
-			<button type="reset" class="wp-block-button__link wp-element-button">$cancel_text</button>
+			<!-- wp:button {"className":"is-style-outline"} -->
+			<div class="wp-block-button jetpack-blogroll-item-cancel-button is-style-outline">
+				<button type="reset" class="wp-block-button__link wp-element-button">$cancel_text</button>
+			</div>
 		</div>
+		<!-- /wp:buttons -->
 HTML;
 
 	$subscribe_button = <<<HTML
