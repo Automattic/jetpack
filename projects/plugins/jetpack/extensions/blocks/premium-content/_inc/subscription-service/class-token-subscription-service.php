@@ -217,7 +217,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 				'fields'         => 'ids',
 				'post_type'      => \Jetpack_Memberships::$post_type_plan,
 				'meta_key'       => 'jetpack_memberships_tier',
-				'meta_value'     => $tier_product_id,
+				'meta_value'     => $tier_id,
 			)
 		);
 
@@ -232,7 +232,8 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		}
 
 		foreach ( $user_abbreviated_subscriptions as $subscription_plan_id => $details ) {
-			$end = is_int( $details->end_date ) ? $details->end_date : strtotime( $details->end_date );
+			$details = (array) $details;
+			$end = is_int( $details['end_date'] ) ? $details['end_date'] : strtotime( $details['end_date'] );
 			if ( $end < time() ) {
 				// subscription not active anymore
 				continue;
