@@ -111,7 +111,6 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'markdown_supported'                      => '(bool) Whether markdown is supported for this site',
 			'wpcom_publish_posts_with_markdown'       => '(bool) Whether markdown is enabled for posts',
 			'wpcom_publish_comments_with_markdown'    => '(bool) Whether markdown is enabled for comments',
-			'amp_is_enabled'                          => '(bool) Whether AMP is enabled for this site',
 			'site_icon'                               => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 			'api_cache'                               => '(bool) Turn on/off the Jetpack JSON API cache',
 			'posts_per_page'                          => '(int) Number of posts to show on blog pages',
@@ -441,9 +440,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'site_icon'                        => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
 						Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
 						Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
-						'amp_is_supported'                 => (bool) function_exists( 'wpcom_is_amp_supported' ) && wpcom_is_amp_supported( $blog_id ),
-						'amp_is_enabled'                   => (bool) function_exists( 'wpcom_is_amp_enabled' ) && wpcom_is_amp_enabled( $blog_id ),
-						'amp_is_deprecated'                => (bool) function_exists( 'wpcom_is_amp_deprecated' ) && wpcom_is_amp_deprecated( $blog_id ),
 						'api_cache'                        => $api_cache,
 						'posts_per_page'                   => (int) get_option( 'posts_per_page' ),
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
@@ -989,15 +985,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 					} elseif ( update_option( $key, $coerce_value ) ) { // If the option already exists use update_option.
 						$updated[ $key ] = $coerce_value;
-					}
-					break;
-
-				case 'amp_is_enabled':
-					if ( function_exists( 'wpcom_update_amp_enabled' ) ) {
-						$saved = wpcom_update_amp_enabled( $blog_id, $value );
-						if ( $saved ) {
-							$updated[ $key ] = (bool) $value;
-						}
 					}
 					break;
 

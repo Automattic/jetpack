@@ -76,4 +76,14 @@ class JPCRM_Base_Integration_Test_Case extends JPCRM_Base_Test_Case {
 
 		return Contact_Factory::create( $contact_data );
 	}
+
+	/**
+	 * Add a WP User.
+	 *
+	 * @return int The user ID.
+	 */
+	public function add_wp_user() {
+
+		return wp_create_user( 'testuser', 'password', 'user@demo.com' );
+	}
 }

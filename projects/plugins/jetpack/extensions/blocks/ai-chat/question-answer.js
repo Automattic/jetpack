@@ -47,6 +47,7 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 				}, 50 * tokens.length );
 			} else {
 				setDisplayedRawHTML( html );
+				onAnimationDone();
 			}
 		},
 		// eslint-disable-next-line
@@ -97,6 +98,8 @@ export default function QuestionAnswer( {
 	const [ animationDone, setAnimationDone ] = useState( true );
 	const [ showReferences, setShowReferences ] = useState( false );
 	const [ feedbackSubmitted, setFeedbackSubmitted ] = useState( [] );
+	const [ submittedQuestion, setSubmittedQuestion ] = useState( '' );
+
 	const addFeedbackToState = submittedCacheKey => {
 		setFeedbackSubmitted( [ ...feedbackSubmitted, submittedCacheKey ] );
 	};
@@ -106,6 +109,7 @@ export default function QuestionAnswer( {
 		setAnimationDone( false );
 		setShowReferences( false );
 		setFeedbackSubmitted( [] );
+		setSubmittedQuestion( question );
 		submitQuestion();
 	};
 
@@ -138,31 +142,30 @@ export default function QuestionAnswer( {
 						disabled={ ! animationDone || isLoading }
 						onClick={ handleSubmitQuestion }
 					>
-						{ askButtonLabel }
+						{ isLoading && <Spinner /> }
+						{ ! isLoading && askButtonLabel }
 					</Button>
 				</div>
 			</KeyboardShortcuts>
 			<div>
 				<div className="jetpack-ai-chat-answer-container">
-					{ isLoading ? (
+					{ submittedQuestion && <h2>{ submittedQuestion }</h2> }
+					{ isLoading && waitStrings[ Math.floor( Math.random() * 3 ) ] }
+					{ ! isLoading && (
 						<>
-							<Spinner />
-							{ waitStrings[ Math.floor( Math.random() * 3 ) ] }
+							<ShowLittleByLittle
+								showAnimation={ ! animationDone }
+								onAnimationDone={ handleSetAnimationDone }
+								html={ answer }
+							/>
 						</>
-					) : (
-						// eslint-disable-next-line react/no-danger
-						<ShowLittleByLittle
-							showAnimation={ ! animationDone }
-							onAnimationDone={ handleSetAnimationDone }
-							html={ answer }
-						/>
 					) }
 				</div>
 				{ askError && ! isLoading && <DisplayError error={ askError } /> }
 				{ showCopyButton && <CopyButton answer={ answer } /> }
 				{ settingShowSources && references && references.length > 0 && showReferences && (
 					<div className="jetpack-ai-chat-answer-references">
-						<div>{ __( 'Additional resources:', 'jetpack' ) }</div>
+						<h3>{ __( 'Additional resources:', 'jetpack' ) }</h3>
 
 						<ul>
 							{ references.map( ( reference, index ) => (

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Use WordPress `str_starts_with`, `str_ends_with`, and `str_contains` polyfills.

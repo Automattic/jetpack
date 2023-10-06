@@ -27,7 +27,7 @@ export const title = __( 'Paywall', 'jetpack' );
 export const settings = {
 	title,
 	description: __(
-		'Only your chosen subscribers will have access to the content below this block.',
+		'Limit access to the content below this block to chosen subscribers.',
 		'jetpack'
 	),
 	icon: {

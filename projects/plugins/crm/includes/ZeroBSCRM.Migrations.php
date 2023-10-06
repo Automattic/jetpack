@@ -39,6 +39,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'refresh_user_roles', // Refresh user roles
 	'regenerate_tag_slugs', // Regenerate tag slugs
 	'create_workflows_table', // Create "workflows" table.
+	'invoice_language_fixes', // Store invoice statuses and mappings consistently
 	);
 
 global $zeroBSCRM_migrations_requirements; $zeroBSCRM_migrations_requirements = array(
@@ -451,23 +452,25 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 		// ===== / Previously: 2.97.4 - fixes duplicated email templates (found on 2 installs so far)
 		
 
-		// ===== Previously: 4.0.7 - corrects outdated event notification template
+		// ===== Previously: 4.0.7 - corrects outdated task notification template
 
 		// retrieve existing template - hardtyped
 		$existingTemplate = $wpdb->get_var('SELECT zbsmail_body FROM '.$ZBSCRM_t['system_mail_templates'].' WHERE ID = 6');
 
 		// load new
-		$newTemplate = zeroBSCRM_mail_retrieveDefaultBodyTemplate('eventnotification');
+		$newTemplate = zeroBSCRM_mail_retrieveDefaultBodyTemplate( 'tasknotification' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-		// back it up into a WP option if was different
-	    if ($existingTemplate !== $newTemplate) update_option('jpcrm_eventnotificationtemplate',$existingTemplate, false);
+	// back it up into a WP option if was different
+	if ( $existingTemplate !== $newTemplate ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		update_option( 'jpcrm_tasknotificationtemplate', $existingTemplate, false ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
 
 		// overwrite
 		$sql = "UPDATE " . $ZBSCRM_t['system_mail_templates'] . " SET zbsmail_body = %s WHERE ID = 6";
 		$q = $wpdb->prepare($sql,array($newTemplate));
 		$wpdb->query($q);
 		
-		// ===== / Previously: 4.0.7 - corrects outdated event notification template
+		// ===== / Previously: 4.0.7 - corrects outdated task notification template
 		
 
 		// ===== Previously: 4.0.8 - Set the default reference type for invoices & Update the existing template for email notifications (had old label)
@@ -1134,7 +1137,7 @@ function zeroBSCRM_migration_task_offset_fix() { // phpcs:ignore WordPress.Namin
 		return;
 	}
 
-	// remove offset from stored event dates
+	// remove offset from stored task dates
 	$sql = sprintf( 'UPDATE %s SET zbse_start = zbse_start - %d;', $ZBSCRM_t['events'], $timezone_offset_in_secs ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 	$sql = sprintf( 'UPDATE %s SET zbse_end = zbse_end - %d;', $ZBSCRM_t['events'], $timezone_offset_in_secs ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -1160,11 +1163,92 @@ function zeroBSCRM_migration_refresh_user_roles() {
  * Regenerate tag slugs
  */
 function zeroBSCRM_migration_regenerate_tag_slugs() {
-	$obj_ids = array( ZBS_TYPE_CONTACT, ZBS_TYPE_COMPANY, ZBS_TYPE_QUOTE, ZBS_TYPE_INVOICE, ZBS_TYPE_TRANSACTION, ZBS_TYPE_EVENT, ZBS_TYPE_FORM );
+	$obj_ids = array( ZBS_TYPE_CONTACT, ZBS_TYPE_COMPANY, ZBS_TYPE_QUOTE, ZBS_TYPE_INVOICE, ZBS_TYPE_TRANSACTION, ZBS_TYPE_TASK, ZBS_TYPE_FORM );
 	foreach ( $obj_ids as $obj_id ) {
 		jpcrm_migration_regenerate_tag_slugs_for_obj_type( $obj_id );
 	}
 	zeroBSCRM_migrations_markComplete( 'regenerate_tag_slugs', array( 'updated' => 1 ) );
+}
+
+/**
+ * Convert invoice statuses and mappings to English
+ */
+function zeroBSCRM_migration_invoice_language_fixes() {
+
+	// if already English, can't auto-migrate and probably no need
+	$cur_locale = get_locale();
+	if ( $cur_locale === 'en_US' ) {
+		zeroBSCRM_migrations_markComplete( 'invoice_language_fixes', array( 'updated' => 1 ) );
+		return;
+	}
+
+	global $zbs, $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	$invoice_statuses = array(
+		'Draft'   => __( 'Draft', 'zero-bs-crm' ),
+		'Unpaid'  => __( 'Unpaid', 'zero-bs-crm' ),
+		'Paid'    => __( 'Paid', 'zero-bs-crm' ),
+		'Overdue' => __( 'Overdue', 'zero-bs-crm' ),
+		'Deleted' => __( 'Deleted', 'zero-bs-crm' ),
+	);
+
+	// get WooSync settings
+	$woosync_settings = $zbs->settings->get( 'zbscrm_dmz_ext_woosync' );
+
+	$settings_to_update = array();
+
+	foreach ( $invoice_statuses as $invoice_status => $translated_status ) {
+
+		// if the "translation" is the same as English, continue
+		if ( $translated_status === $invoice_status ) {
+			continue;
+		}
+
+		// if there are settings, we may need to update mappings too
+		if ( $woosync_settings ) {
+
+			foreach ( $woosync_settings as $setting => $value ) {
+				// if not a setting we care about, continue
+				if ( strpos( $setting, 'order_invoice_map_' ) !== 0 ) {
+					continue;
+				}
+
+				// if no translated status matches, continue
+				if ( $value !== $translated_status ) {
+					continue;
+				}
+
+				// flag setting for update
+				$settings_to_update[ $setting ] = $invoice_status;
+			}
+		}
+
+		// see if there are any matches on translated status
+		$query = $wpdb->prepare( 'SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE zbsi_status=%s', $translated_status ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$count = $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
+		// if no matches, nothing to update
+		if ( $count === 0 ) {
+			continue;
+		}
+
+		// update status to English
+		$query = $wpdb->prepare( 'UPDATE ' . $ZBSCRM_t['invoices'] . ' SET zbsi_status=%s WHERE zbsi_status=%s', $invoice_status, $translated_status ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$wpdb->query( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+	}
+
+	// if there are mapping settings to update, do it
+	if ( $woosync_settings && ! empty( $settings_to_update ) ) {
+
+		// make a backup of settings
+		$zbs->settings->update( 'zbscrm_dmz_ext_woosync.bak', $woosync_settings );
+
+		// update WooSync settings
+		$updated_woosync_settings = array_merge( $woosync_settings, $settings_to_update );
+		$zbs->settings->update( 'zbscrm_dmz_ext_woosync', $updated_woosync_settings );
+	}
+
+	zeroBSCRM_migrations_markComplete( 'invoice_language_fixes', array( 'updated' => 1 ) );
 }
 
 /* ======================================================

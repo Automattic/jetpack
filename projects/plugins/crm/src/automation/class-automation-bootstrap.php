@@ -51,6 +51,7 @@ final class Automation_Bootstrap {
 	protected function register_data_transformers(): void {
 		$data_transformers = array(
 			\Automattic\Jetpack\CRM\Automation\Data_Transformers\Data_Transformer_Invoice_To_Contact::class,
+			\Automattic\Jetpack\CRM\Automation\Data_Transformers\Data_Transformer_Entity_To_Tag_List::class,
 		);
 
 		/**
@@ -92,9 +93,9 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Created::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Deleted::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Updated::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Task_Created::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Task_Deleted::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Task_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Deleted::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Status_Updated::class,
@@ -106,6 +107,7 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Triggers\Quote_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Updated::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\WP_User_Created::class,
 		);
 
 		/**
@@ -138,7 +140,9 @@ final class Automation_Bootstrap {
 	protected function register_conditions(): void {
 		$conditions = array(
 			\Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed::class,
+			\Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status::class,
 			\Automattic\Jetpack\CRM\Automation\Conditions\Invoice_Status_Changed::class,
+			\Automattic\Jetpack\CRM\Automation\Conditions\Entity_Tag::class,
 		);
 
 		/**
@@ -176,6 +180,7 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Actions\New_Contact::class,
 			\Automattic\Jetpack\CRM\Automation\Actions\Update_Contact::class,
 			\Automattic\Jetpack\CRM\Automation\Actions\Update_Contact_Status::class,
+			\Automattic\Jetpack\CRM\Automation\Actions\Send_Contact_Email::class,
 		);
 
 		/**

@@ -360,9 +360,18 @@ class Initializer {
 			add_action(
 				'wp_enqueue_scripts',
 				function () use ( $videopress_video_metadata_file ) {
-					$post_content = get_the_content();
+					// There's been issues with get_the_content on plugins/libs that take an alternate process
+					// and do not get the globals needed for get_the_content to work.
+					// See: https://github.com/Automattic/jetpack/issues/33284
+					try {
+						$post_content = get_the_content();
+					} catch ( \TypeError $e ) {
+						return;
+					} catch ( \Exception $e ) {
+						return;
+					}
 
-					if ( ! has_block( 'videopress/video', $post_content ) && ! has_shortcode( $post_content, 'videopress' ) ) {
+					if ( ! empty( $post_content ) && ! has_block( 'videopress/video', $post_content ) && ! has_shortcode( $post_content, 'videopress' ) ) {
 						return;
 					}
 					self::enqueue_block_assets( $videopress_video_metadata_file );
