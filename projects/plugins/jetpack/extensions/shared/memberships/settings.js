@@ -107,7 +107,7 @@ function TierSelector( { onChange } ) {
 	// Find the current tier meta
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	// Destructure the tierId from the meta (set tierId using the META_NAME_FOR_POST_TIER_ID_SETTINGS constant)
-	const [ { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: tierId } ] = useEntityProp(
+	let [ { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: tierId } ] = useEntityProp(
 		'postType',
 		postType,
 		'meta'
@@ -117,6 +117,15 @@ function TierSelector( { onChange } ) {
 	// the hooks have to run before any early returns)
 	if ( products.length < 2 ) {
 		return;
+	}
+
+	// if no tier are selected, we select the lowest one
+	if ( tierId === null ) {
+		tierId = products[ products.length - 1 ];
+		const obj = {};
+		obj[ META_NAME_FOR_POST_TIER_ID_SETTINGS ] = tierId;
+		// Call the callback
+		onChange && setTimeout( () => onChange( obj ) );
 	}
 
 	return (
