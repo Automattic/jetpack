@@ -120,7 +120,7 @@ function TierSelector( { onChange } ) {
 	}
 
 	// if no tier are selected, we select the lowest one
-	if ( tierId === null ) {
+	if ( ! tierId ) {
 		tierId = products[ products.length - 1 ];
 		const obj = {};
 		obj[ META_NAME_FOR_POST_TIER_ID_SETTINGS ] = tierId;
