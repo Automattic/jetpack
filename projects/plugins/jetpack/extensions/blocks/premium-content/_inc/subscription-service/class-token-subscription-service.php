@@ -155,7 +155,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		}
 
 		if ( empty( $has_access ) && ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ) ) {
-			$has_access =  $is_paid_subscriber && ! $this->maybe_gate_access_for_user_if_tier( $post_id, $user_abbreviated_subscriptions );
+			$has_access =  $is_paid_subscriber && ! $this->maybe_gate_access_for_user_if_post_tier( $post_id, $user_abbreviated_subscriptions );
 		}
 
 		do_action( 'earn_user_has_access', $access_level, $has_access, $is_blog_subscriber, $is_paid_subscriber, $post_id );
