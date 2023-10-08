@@ -598,7 +598,7 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Return membership plans
+	 * Return all membership plans (deleted or not)
 	 *
 	 * @return array
 	 */

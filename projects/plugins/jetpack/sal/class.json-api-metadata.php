@@ -59,6 +59,7 @@ class WPCOM_JSON_API_Metadata {
 		$whitelist = array(
 			'_jetpack_newsletter_access',
 			'_jetpack_newsletter_tier_id',
+			'_jetpack_memberships_is_deleted',
 		);
 
 		if ( in_array( $key, $whitelist, true ) ) {
