@@ -1073,12 +1073,29 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		? __( 'Already a paid subscriber?', 'jetpack' )
 		: __( 'Already a subscriber?', 'jetpack' );
 
-	$sign_in = '';
-	if ( ! is_user_logged_in() && ( new Host() )->is_wpcom_simple() ) {
-		$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
+	$sign_in             = '';
+	$show_button_sign_in = false;
+	$host                = new Host();
+	if ( ! is_user_logged_in() && $host->is_wpcom_simple() ) {
+		$show_button_sign_in = true;
+		$sign_in_link        = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
+		$button_text         = esc_html__( 'Log in', 'jetpack' );
+	} elseif ( class_exists( 'Automattic\Jetpack\Connection\Tokens\Jetpack_Token_Subscription_Service' ) &&
+		! $host->is_wpcom_platform() ) {
+		// We are on Jetpack and no cookie is set
+		$show_button_sign_in = true;
+		$sign_in_link        = '';
+		$access_question     = __( 'I am already subscribed.', 'jetpack' );
+		if ( ! Jetpack_Token_Subscription_Service::has_token_from_cookie() ) {
+			$button_text = esc_html__( 'Retrieve subscriptions', 'jetpack' );
+		} else {
+			$button_text = esc_html__( 'Change user ', 'jetpack' );
+		}
+	}
 
+	if ( $show_button_sign_in ) {
 		$sign_in = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
-<p class="has-text-align-center" style="font-size:14px">' . esc_html( $access_question ) . ' <a href="' . $sign_in_link . '">' . esc_html__( 'Log in', 'jetpack' ) . '</a></p>
+<p class="has-text-align-center" style="font-size:14px">' . esc_html( $access_question ) . ' <a href="' . $sign_in_link . '">' . $button_text . '</a></p>
 <!-- /wp:paragraph -->';
 	}
 
