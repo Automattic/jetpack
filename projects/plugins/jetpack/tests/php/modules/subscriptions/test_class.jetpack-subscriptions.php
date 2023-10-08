@@ -11,8 +11,8 @@ use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Off
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 use function Automattic\Jetpack\Extensions\Subscriptions\register_block as register_subscription_block;
-use const \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
-use const \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 define( 'EARN_JWT_SIGNING_KEY', 'whatever=' );
 
@@ -573,7 +573,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_price', $annual_price );
 			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_currency', $currency );
 			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_interval', '1 year' );
-			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_tier', $newsletter_product_id );
+			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_tier', $newsletter_plan_id );
 
 			$this->factory->post->create();
 		}
