@@ -35,19 +35,21 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @inheritDoc
 	 */
 	public function initialize() {
-		$this->get_and_set_token_from_request();
+		$this->get_and_set_token_from_request( true );
 	}
 
 	/**
 	 * Set the token from the Request to the cookie and retrieve the token.
 	 *
+	 * @param bool $redirect_when_cookie_is_set If true, we'll force-reload the page to "hide" the token from the URL.
+	 *
 	 * @return string|null
 	 */
-	public function get_and_set_token_from_request() {
+	public function get_and_set_token_from_request( $redirect_when_cookie_is_set = false ) {
 		// URL token always has a precedence, so it can overwrite the cookie when new data available.
 		$token = $this->token_from_request();
 		if ( $token ) {
-			$this->set_token_cookie( $token );
+			$this->set_token_cookie( $token, $redirect_when_cookie_is_set );
 		} else {
 			$token = $this->token_from_cookie();
 		}
@@ -75,7 +77,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		global $current_user;
 		$old_user = $current_user; // backup the current user so we can set the current user to the token user for paywall purposes
 
-		$token = $this->get_and_set_token_from_request();
+		$token = $this->get_and_set_token_from_request( false );
 
 		$is_valid_token = true;
 
@@ -97,7 +99,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 
 		$is_blog_subscriber = false;
 		$is_paid_subscriber = false;
-		$subscriptions	    = array();
+		$subscriptions      = array();
 
 		if ( $is_valid_token ) {
 			/**
@@ -155,7 +157,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		}
 
 		if ( empty( $has_access ) && ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ) ) {
-			$has_access =  $is_paid_subscriber && ! $this->maybe_gate_access_for_user_if_post_tier( $post_id, $user_abbreviated_subscriptions );
+			$has_access = $is_paid_subscriber && ! $this->maybe_gate_access_for_user_if_post_tier( $post_id, $user_abbreviated_subscriptions );
 		}
 
 		do_action( 'earn_user_has_access', $access_level, $has_access, $is_blog_subscriber, $is_paid_subscriber, $post_id );
@@ -233,7 +235,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 
 		foreach ( $user_abbreviated_subscriptions as $subscription_plan_id => $details ) {
 			$details = (array) $details;
-			$end = is_int( $details['end_date'] ) ? $details['end_date'] : strtotime( $details['end_date'] );
+			$end     = is_int( $details['end_date'] ) ? $details['end_date'] : strtotime( $details['end_date'] );
 			if ( $end < time() ) {
 				// subscription not active anymore
 				continue;
@@ -347,15 +349,22 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * Store the auth cookie.
 	 *
 	 * @param  string $token Auth token.
+	 * @param  bool   $redirect_when_cookie_is_set If true, we'll force-reload the page to "hide" the token from the URL.
 	 * @return void
 	 */
-	private function set_token_cookie( $token ) {
+	private function set_token_cookie( $token, $redirect_when_cookie_is_set = false ) {
 		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 			return;
 		}
 
 		if ( ! empty( $token ) && false === headers_sent() ) {
 			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/', COOKIE_DOMAIN, is_ssl(), true ); // httponly -- used by visitor_can_view_content() within the PHP context.
+			if ( true === $redirect_when_cookie_is_set ) {
+				$location_without_token = remove_query_arg( 'token' );
+				if ( wp_safe_redirect( $location_without_token, 302, 'Subscriptions' ) ) {
+					exit;
+				}
+			}
 		}
 	}
 
