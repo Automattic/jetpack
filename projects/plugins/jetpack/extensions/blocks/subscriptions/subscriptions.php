@@ -93,6 +93,19 @@ function register_block() {
 		)
 	);
 
+	register_post_meta(
+		'post',
+		META_NAME_FOR_POST_TIER_ID_SETTINGS,
+		array(
+			'show_in_rest'  => true,
+			'single'        => true,
+			'type'          => 'string',
+			'auth_callback' => function () {
+				return wp_get_current_user()->has_cap( 'edit_posts' );
+			},
+		)
+	);
+
 	// This ensures Jetpack will sync this post meta to WPCOM.
 	add_filter(
 		'jetpack_sync_post_meta_whitelist',
@@ -615,6 +628,7 @@ function render_block( $attributes ) {
 	$styles  = get_element_styles_from_attributes( $attributes );
 
 	$include_social_followers = isset( $attributes['includeSocialFollowers'] ) ? (bool) get_attribute( $attributes, 'includeSocialFollowers' ) : true;
+	$is_paid_subscriber       = get_attribute( $attributes, 'isPaidSubscriber', false );
 
 	$data = array(
 		'widget_id'              => Jetpack_Subscriptions_Widget::$instance_count,
@@ -626,7 +640,7 @@ function render_block( $attributes ) {
 			)
 		),
 		'subscribe_placeholder'  => get_attribute( $attributes, 'subscribePlaceholder', esc_html__( 'Type your email…', 'jetpack' ) ),
-		'submit_button_text'     => get_attribute( $attributes, 'submitButtonText', esc_html__( 'Subscribe', 'jetpack' ) ),
+		'submit_button_text'     => get_attribute( $attributes, 'submitButtonText', $is_paid_subscriber ? esc_html__( 'Upgrade', 'jetpack' ) : esc_html__( 'Subscribe', 'jetpack' ) ),
 		'success_message'        => get_attribute(
 			$attributes,
 			'successMessage',
@@ -724,7 +738,10 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 		)
 	);
 
-	$post_access_level     = get_post_access_level_for_current_post();
+	$post_access_level = get_post_access_level_for_current_post();
+	$post_id           = get_the_ID();
+	$tier_id           = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
+
 	$newsletter_categories = $data['newsletter_categories'];
 
 	?>
@@ -797,6 +814,16 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
 						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
 						<?php wp_nonce_field( 'blogsub_subscribe_' . $current_blog->blog_id, '_wpnonce', false ); ?>
+						<?php
+						if ( ! empty( $post_id ) ) {
+							echo '<input type="hidden" name="post_id" value="' . esc_attr( $post_id ) . '"/>';
+						}
+						?>
+						<?php
+						if ( ! empty( $tier_id ) ) {
+							echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
+						}
+						?>
 						<button type="submit"
 							<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
 								class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
@@ -842,6 +869,7 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 	$form_id            = sprintf( 'subscribe-blog-%s', $data['widget_id'] );
 	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $data['widget_id'] );
+
 	ob_start();
 
 	Jetpack_Subscriptions_Widget::render_widget_status_messages(
@@ -852,6 +880,8 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 
 	$blog_id           = \Jetpack_Options::get_option( 'id' );
 	$post_access_level = get_post_access_level_for_current_post();
+	$post_id           = get_the_ID();
+	$tier_id           = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
 
 	$newsletter_categories = $data['newsletter_categories'];
 
@@ -889,7 +919,6 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 							/>
 						</p>
 
-
 						<p id="subscribe-submit"
 							<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
 								style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
@@ -900,6 +929,16 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 							<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
 							<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
 							<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
+							<?php
+							if ( ! empty( $post_id ) ) {
+								echo '<input type="hidden" name="post_id" value="' . esc_attr( $post_id ) . '"/>';
+							}
+							?>
+							<?php
+							if ( ! empty( $tier_id ) ) {
+								echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
+							}
+							?>
 							<?php
 							if ( is_user_logged_in() ) {
 								wp_nonce_field( 'blogsub_subscribe_' . get_current_blog_id(), '_wpnonce', false );
@@ -1130,13 +1169,18 @@ function get_paywall_blocks( $newsletter_access_level ) {
 	}
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	// Only display paid texts when Stripe is connected and the post is marked for paid subscribers
-	$is_paid_post = $newsletter_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
+	$is_paid_post       = $newsletter_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
+	$is_paid_subscriber = Jetpack_Memberships::user_is_paid_subscriber();
 
-	$access_heading = esc_html__( 'Subscribe to continue reading', 'jetpack' );
+	$access_heading = $is_paid_subscriber
+		? esc_html__( 'Upgrade to continue reading', 'jetpack' )
+		: esc_html__( 'Subscribe to continue reading', 'jetpack' );
 
 	$subscribe_text = $is_paid_post
 		// translators: %s is the name of the site.
-		? esc_html__( 'Become a paid subscriber to get access to the rest of this post and other exclusive content.', 'jetpack' )
+		? $is_paid_subscriber
+		? esc_html__( 'Upgrade to get access to the rest of this post and other exclusive content.', 'jetpack' )
+		: esc_html__( 'Become a paid subscriber to get access to the rest of this post and other exclusive content.', 'jetpack' )
 		// translators: %s is the name of the site.
 		: esc_html__( 'Subscribe to get access to the rest of this post and other subscriber-only content.', 'jetpack' );
 
@@ -1169,7 +1213,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 <p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:14px">' . $subscribe_text . '</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
+<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact","isPaidSubscriber":' . ( $is_paid_subscriber ? 'true' : 'false' ) . '} /-->
 ' . $sign_in . '
 </div>
 <!-- /wp:group -->

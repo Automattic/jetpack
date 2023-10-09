@@ -97,6 +97,13 @@ class Jetpack_Memberships {
 	private static $user_can_view_post_cache = array();
 
 	/**
+	 * Cached results of user_is_paid_subscriber() method.
+	 *
+	 * @var array
+	 */
+	private static $user_is_paid_subscriber_cache = array();
+
+	/**
 	 * Currencies we support and Stripe's minimum amount for a transaction in that currency.
 	 *
 	 * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
@@ -164,6 +171,9 @@ class Jetpack_Memberships {
 			),
 			'product_id'      => array(
 				'meta' => $meta_prefix . 'product_id',
+			),
+			'tier'            => array(
+				'meta' => $meta_prefix . 'tier',
 			),
 		);
 		return $properties;
@@ -489,6 +499,23 @@ class Jetpack_Memberships {
 		$user = wp_get_current_user();
 		// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
 		return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
+	}
+
+	/**
+	 * Determines whether the current user can view the post based on the newsletter access level
+	 * and caches the result.
+	 *
+	 * @return bool Whether the post can be viewed
+	 */
+	public static function user_is_paid_subscriber() {
+		$user_id = get_current_user_id();
+
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$paywall            = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		$is_paid_subscriber = $paywall->visitor_can_view_content( self::get_all_newsletter_plan_ids(), Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS );
+
+		self::$user_is_paid_subscriber_cache[ $user_id ] = $is_paid_subscriber;
+		return $is_paid_subscriber;
 	}
 
 	/**

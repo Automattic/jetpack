@@ -231,7 +231,7 @@ class JITM {
 				.st0{clip-path:url(#SVGID_2_);enable-background:new    ;}
 				.st1{clip-path:url(#SVGID_4_);}
 				.st2{clip-path:url(#SVGID_6_);}
-				.st3{clip-path:url(#SVGID_8_);fill:#8F567F;}
+				.st3{clip-path:url(#SVGID_8_);fill:#7F54B3;}
 				.st4{clip-path:url(#SVGID_10_);fill:#FFFFFE;}
 				.st5{clip-path:url(#SVGID_12_);fill:#FFFFFE;}
 				.st6{clip-path:url(#SVGID_14_);fill:#FFFFFE;}

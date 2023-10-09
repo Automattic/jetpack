@@ -92,16 +92,20 @@ HTML;
 	}
 
 	$form_buttons = <<<HTML
-		<!-- wp:button {"className":"is-style-fill"} -->
-		<div class="wp-block-button jetpack-blogroll-item-submit-button is-style-fill">
-			<button type="submit" name="blog_id" value="$id" class="wp-block-button__link wp-element-button">$submit_text</button>
-		</div>
-		<!-- /wp:button -->
+		<!-- wp:buttons {"style":{"spacing":{"blockGap":"10px"}}} -->
+		<div class="wp-block-buttons">
+			<!-- wp:button {"className":"is-style-fill"} -->
+			<div class="wp-block-button jetpack-blogroll-item-submit-button is-style-fill">
+				<button type="submit" name="blog_id" value="$id" class="wp-block-button__link wp-element-button">$submit_text</button>
+			</div>
+			<!-- /wp:button -->
 
-		<!-- wp:button {"className":"is-style-outline"} -->
-		<div class="wp-block-button jetpack-blogroll-item-cancel-button is-style-outline">
-			<button type="reset" class="wp-block-button__link wp-element-button">$cancel_text</button>
+			<!-- wp:button {"className":"is-style-outline"} -->
+			<div class="wp-block-button jetpack-blogroll-item-cancel-button is-style-outline">
+				<button type="reset" class="wp-block-button__link wp-element-button">$cancel_text</button>
+			</div>
 		</div>
+		<!-- /wp:buttons -->
 HTML;
 
 	$subscribe_button = <<<HTML
@@ -114,8 +118,11 @@ HTML;
 
 	$subscribe_button_html = '';
 	$fieldset              = '';
+	$has_subscription_form = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$classes               = Blocks::classes( FEATURE_NAME, $attr );
 
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	if ( $has_subscription_form ) {
+		$classes              .= ' has-subscription-form';
 		$form_buttons_html     = do_blocks( $form_buttons );
 		$subscribe_button_html = do_blocks( $subscribe_button );
 
@@ -149,7 +156,7 @@ HTML;
 		'<div class="%1$s">
 			<div class="jetpack-blogroll-item-slider">%2$s</div>
 		</div>',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+		esc_attr( $classes ),
 		$content
 	);
 }
