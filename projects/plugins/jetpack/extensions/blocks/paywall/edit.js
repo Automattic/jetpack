@@ -2,8 +2,6 @@ import './editor.scss';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalConfirmDialog as ConfirmDialog,
 	MenuGroup,
 	MenuItem,
 	PanelBody,
@@ -16,14 +14,13 @@ import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowDown, Icon, people, check } from '@wordpress/icons';
+import PlansSetupDialog from '../../shared/components/plans-setup-dialog';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { getReachForAccessLevelKey } from '../../shared/memberships/settings';
-import { getPaidPlanLink } from '../../shared/memberships/utils';
-import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect';
 import { store as membershipProductsStore } from '../../store/membership-products';
 
 function PaywallEdit( { className } ) {
@@ -38,8 +35,6 @@ function PaywallEdit( { className } ) {
 			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
 		};
 	} );
-	const paidLink = getPaidPlanLink( hasNewsletterPlans );
-	const { autosaveAndRedirect } = useAutosaveAndRedirect( paidLink );
 
 	const [ showDialog, setShowDialog ] = useState( false );
 	const closeDialog = () => setShowDialog( false );
@@ -144,27 +139,7 @@ function PaywallEdit( { className } ) {
 					) }
 				</ToolbarDropdownMenu>
 			</BlockControls>
-			<ConfirmDialog
-				onRequestClose={ closeDialog }
-				cancelButtonText={ __( 'Not now', 'jetpack' ) }
-				confirmButtonText={ __( 'Get started', 'jetpack' ) }
-				isOpen={ showDialog }
-				onCancel={ closeDialog }
-				onConfirm={ autosaveAndRedirect }
-				style={ { maxWidth: 400 } }
-			>
-				<h2>{ __( 'Set up payments', 'jetpack' ) }</h2>
-				<p>{ __( 'To start collecting payments, you’ll just need to:', 'jetpack' ) }</p>
-				<ol>
-					<li>
-						{ __(
-							'Create a payment offer and choose a price for access to paid content',
-							'jetpack'
-						) }
-					</li>
-					<li>{ __( 'Set up or connect your Stripe account', 'jetpack' ) }</li>
-				</ol>
-			</ConfirmDialog>
+			<PlansSetupDialog closeDialog={ closeDialog } showDialog={ showDialog } />
 			<InspectorControls>
 				<PanelBody
 					className="jetpack-subscribe-newsletters-panel"

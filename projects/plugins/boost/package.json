@@ -16,7 +16,7 @@
 		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.9",
 		"prettier": "2.8.6",
 		"svelte-navigator": "3.2.2",
-		"zod": "3.20.2"
+		"zod": "3.22.3"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:*",
@@ -36,7 +36,7 @@
 		"@wordpress/i18n": "4.41.0",
 		"concurrently": "7.6.0",
 		"livereload": "0.9.3",
-		"postcss": "8.4.21",
+		"postcss": "8.4.31",
 		"prettier-plugin-svelte": "2.8.1",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",

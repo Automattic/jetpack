@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a sub-plugin, `I18nSafeMangleExportsPlugin`, to allow for avoiding problems with Webpack's `optimization.mangleExports` option occasionally mangling an export to one of the i18n function names.

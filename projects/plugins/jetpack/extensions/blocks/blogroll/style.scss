@@ -4,8 +4,11 @@
 	.wp-block-jetpack-blogroll-item {
 		overflow-x: clip;
 
-		.jetpack-blogroll-item-slider {
+		&.has-subscription-form .jetpack-blogroll-item-slider {
 			width: 200%;
+		}
+
+		.jetpack-blogroll-item-slider {
 			display: flex;
 			transition: transform 0.3s ease-in-out;
 
@@ -41,6 +44,15 @@
 				height: 48px;
 				width: 48px;
 
+				&.empty-site-icon {
+					background: url('./placeholder-site-icon.svg');
+					background-size: cover;
+
+					img {
+						display: none;
+					}
+				}
+
 				img {
 					border-radius: 50%;
 					width: 48px;
@@ -50,7 +62,7 @@
 		}
 
 		.jetpack-blogroll-item-subscribe-button {
-			@include break-mobile() {
+			@include break-bloroll-container-mobile() {
 				margin-left: auto;
 				align-self: center;
 			}
@@ -65,24 +77,32 @@
 
 		.jetpack-blogroll-item-email-input {
 			padding: 14px;
+			margin: 0;
 			font: inherit;
 			border: 1px solid #8c8f94;
 			border-radius: 0;
-			flex: 1;
 			width: 100%;
-		}
-
-		.jetpack-blogroll-item-submit {
-			width: 100%;
-			display: flex;
-			gap: 10px;
-			align-items: center;
+			box-sizing: border-box;
 		}
 
 		.jetpack-blogroll-item-submit {
 			width: 100%;
 			border: none;
 			padding: 0;
+			margin: 0;
+			display: flex;
+			gap: 10px;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+
+			@include break-bloroll-container-mobile() {
+				flex-direction: row;
+
+				.jetpack-blogroll-item-email-input {
+					flex: 1;
+				}
+			}
 		}
 	}
 }

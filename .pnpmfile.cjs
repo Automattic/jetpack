@@ -11,6 +11,13 @@
  * @returns {object} Modified pkg.
  */
 function fixDeps( pkg ) {
+	// Depends on punycode but doesn't declare it.
+	// https://github.com/markdown-it/markdown-it/issues/230
+	// https://github.com/markdown-it/markdown-it/issues/945
+	if ( pkg.name === 'markdown-it' && ! pkg.dependencies.punycode ) {
+		pkg.dependencies.punycode = '*';
+	}
+
 	// Undeclared dependency on prop-types.
 	// https://github.com/nutboltu/storybook-addon-mock/issues/190
 	if ( pkg.name === 'storybook-addon-mock' ) {
