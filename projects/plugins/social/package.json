@@ -59,7 +59,7 @@
 		"concurrently": "7.6.0",
 		"jest": "29.4.3",
 		"jest-environment-jsdom": "29.4.3",
-		"postcss": "8.4.21",
+		"postcss": "8.4.31",
 		"postcss-custom-properties": "12.1.7",
 		"postcss-loader": "6.2.0",
 		"sass": "1.64.1",
