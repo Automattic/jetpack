@@ -175,6 +175,9 @@ class Jetpack_Memberships {
 			'tier'            => array(
 				'meta' => $meta_prefix . 'tier',
 			),
+			'is_deleted'      => array(
+				'meta' => $meta_prefix . 'is_deleted',
+			),
 		);
 		return $properties;
 	}
