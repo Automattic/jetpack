@@ -99,7 +99,7 @@ function register_block() {
 		array(
 			'show_in_rest'  => true,
 			'single'        => true,
-			'type'          => 'string',
+			'type'          => 'integer',
 			'auth_callback' => function () {
 				return wp_get_current_user()->has_cap( 'edit_posts' );
 			},
