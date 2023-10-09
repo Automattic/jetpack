@@ -126,9 +126,7 @@ export default function MyJetpackScreen() {
 				</Container>
 				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						<Text variant="headline-small">
-							{ __( 'Manage your Jetpack products', 'jetpack-my-jetpack' ) }
-						</Text>
+						<Text variant="headline-small">{ __( 'My Jetpack', 'jetpack-my-jetpack' ) }</Text>
 					</Col>
 					{ hasConnectionError && (
 						<Col>
