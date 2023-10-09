@@ -159,11 +159,8 @@ ${ postContent }
 	// Set the docs link depending on the site type
 	const docsLink =
 		isAtomicSite() || isSimpleSite()
-			? __(
-					'https://wordpress.org/documentation/article/page-post-settings-sidebar/#excerpt',
-					'jetpack'
-			  )
-			: __( 'https://wordpress.com/support/excerpts/', 'jetpack' );
+			? __( 'https://wordpress.com/support/excerpts/', 'jetpack' )
+			: __( 'https://jetpack.com/support/create-better-post-excerpts-with-ai/', 'jetpack' );
 
 	return (
 		<div className="jetpack-ai-post-excerpt">
