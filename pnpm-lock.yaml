@@ -3906,8 +3906,8 @@ importers:
         specifier: 5.62.0
         version: 5.62.0(eslint@8.48.0)(typescript@5.0.4)
       '@wordpress/eslint-plugin':
-        specifier: 17.0.0
-        version: 17.0.0(@babel/core@7.22.17)(@typescript-eslint/eslint-plugin@5.62.0)(eslint-plugin-import@2.28.1)(eslint-plugin-jest@27.2.3)(eslint-plugin-jsdoc@46.8.0)(eslint-plugin-jsx-a11y@6.7.1)(eslint-plugin-playwright@0.16.0)(eslint-plugin-prettier@4.2.1)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.33.2)(eslint@8.48.0)(typescript@5.0.4)(wp-prettier@2.8.5)
+        specifier: 15.1.0
+        version: 15.1.0(@babel/core@7.22.17)(@typescript-eslint/eslint-plugin@5.62.0)(eslint-plugin-import@2.28.1)(eslint-plugin-jest@27.2.3)(eslint-plugin-jsdoc@46.8.0)(eslint-plugin-jsx-a11y@6.7.1)(eslint-plugin-prettier@4.2.1)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.33.2)(eslint@8.48.0)(typescript@5.0.4)(wp-prettier@2.8.5)
       '@wordpress/jest-console':
         specifier: 7.14.0
         version: 7.14.0(jest@29.4.3)
@@ -9548,41 +9548,12 @@ packages:
       - supports-color
     dev: true
 
-  /@typescript-eslint/parser@6.7.5(eslint@8.48.0)(typescript@5.0.4):
-    resolution: {integrity: sha512-bIZVSGx2UME/lmhLcjdVc7ePBwn7CLqKarUBL4me1C5feOd663liTGjMBGVcGr+BhnSLeP4SgwdvNnnkbIdkCw==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-    peerDependencies:
-      eslint: ^7.0.0 || ^8.0.0
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      '@typescript-eslint/scope-manager': 6.7.5
-      '@typescript-eslint/types': 6.7.5
-      '@typescript-eslint/typescript-estree': 6.7.5(typescript@5.0.4)
-      '@typescript-eslint/visitor-keys': 6.7.5
-      debug: 4.3.4
-      eslint: 8.48.0
-      typescript: 5.0.4
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /@typescript-eslint/scope-manager@5.62.0:
     resolution: {integrity: sha512-VXuvVvZeQCQb5Zgf4HAxc04q5j+WrNAtNh9OwCsCgpKqESMTu3tF/jhZ3xG6T4NZwWl65Bg8KuS2uEvhSfLl0w==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
       '@typescript-eslint/types': 5.62.0
       '@typescript-eslint/visitor-keys': 5.62.0
-    dev: true
-
-  /@typescript-eslint/scope-manager@6.7.5:
-    resolution: {integrity: sha512-GAlk3eQIwWOJeb9F7MKQ6Jbah/vx1zETSDw8likab/eFcqkjSD7BI75SDAeC5N2L0MmConMoPvTsmkrg71+B1A==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-    dependencies:
-      '@typescript-eslint/types': 6.7.5
-      '@typescript-eslint/visitor-keys': 6.7.5
     dev: true
 
   /@typescript-eslint/type-utils@5.62.0(eslint@8.48.0)(typescript@5.0.4):
@@ -9610,11 +9581,6 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /@typescript-eslint/types@6.7.5:
-    resolution: {integrity: sha512-WboQBlOXtdj1tDFPyIthpKrUb+kZf2VroLZhxKa/VlwLlLyqv/PwUNgL30BlTVZV1Wu4Asu2mMYPqarSO4L5ZQ==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-    dev: true
-
   /@typescript-eslint/typescript-estree@5.62.0(typescript@5.0.4):
     resolution: {integrity: sha512-CmcQ6uY7b9y694lKdRB8FEel7JbU/40iSAPomu++SjLMntB+2Leay2LO6i8VnJk58MtE9/nQSFIH6jpyRWyYzA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -9631,27 +9597,6 @@ packages:
       is-glob: 4.0.3
       semver: 7.5.2
       tsutils: 3.21.0(typescript@5.0.4)
-      typescript: 5.0.4
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
-  /@typescript-eslint/typescript-estree@6.7.5(typescript@5.0.4):
-    resolution: {integrity: sha512-NhJiJ4KdtwBIxrKl0BqG1Ur+uw7FiOnOThcYx9DpOGJ/Abc9z2xNzLeirCG02Ig3vkvrc2qFLmYSSsaITbKjlg==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-    peerDependencies:
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      '@typescript-eslint/types': 6.7.5
-      '@typescript-eslint/visitor-keys': 6.7.5
-      debug: 4.3.4
-      globby: 11.1.0
-      is-glob: 4.0.3
-      semver: 7.5.4
-      ts-api-utils: 1.0.3(typescript@5.0.4)
       typescript: 5.0.4
     transitivePeerDependencies:
       - supports-color
@@ -9682,14 +9627,6 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
       '@typescript-eslint/types': 5.62.0
-      eslint-visitor-keys: 3.4.3
-    dev: true
-
-  /@typescript-eslint/visitor-keys@6.7.5:
-    resolution: {integrity: sha512-3MaWdDZtLlsexZzDSdQWsFQ9l9nL8B80Z4fImSpyllFC/KLqWQRdEcB+gGGO+N3Q2uL40EsG66wZLsohPxNXvg==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-    dependencies:
-      '@typescript-eslint/types': 6.7.5
       eslint-visitor-keys: 3.4.3
     dev: true
 
@@ -10901,22 +10838,21 @@ packages:
     dependencies:
       '@babel/runtime': 7.22.15
 
-  /@wordpress/eslint-plugin@17.0.0(@babel/core@7.22.17)(@typescript-eslint/eslint-plugin@5.62.0)(eslint-plugin-import@2.28.1)(eslint-plugin-jest@27.2.3)(eslint-plugin-jsdoc@46.8.0)(eslint-plugin-jsx-a11y@6.7.1)(eslint-plugin-playwright@0.16.0)(eslint-plugin-prettier@4.2.1)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.33.2)(eslint@8.48.0)(typescript@5.0.4)(wp-prettier@2.8.5):
-    resolution: {integrity: sha512-pxb0UQN92oK0N20E1XtuAyZAmXcE6Pj/pR96ZXWYVTIJkLFsJBxdiqTmhfcaieVI5JbmWggxJXV8Lwp1vzlRNw==}
+  /@wordpress/eslint-plugin@15.1.0(@babel/core@7.22.17)(@typescript-eslint/eslint-plugin@5.62.0)(eslint-plugin-import@2.28.1)(eslint-plugin-jest@27.2.3)(eslint-plugin-jsdoc@46.8.0)(eslint-plugin-jsx-a11y@6.7.1)(eslint-plugin-prettier@4.2.1)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.33.2)(eslint@8.48.0)(typescript@5.0.4)(wp-prettier@2.8.5):
+    resolution: {integrity: sha512-iKc8YnakbOWUh7b5A79XhZ9nIJfkHmKAkluxd56kwmKhhn1dfreRaCXpjjBk9E170axKmkHPqFar4xEMy9kO7A==}
     engines: {node: '>=14', npm: '>=6.14.4'}
     peerDependencies:
       '@babel/core': '>=7'
-      '@typescript-eslint/eslint-plugin': '>=6.4.1'
+      '@typescript-eslint/eslint-plugin': '>=5.62.0'
       eslint: '>=8'
       eslint-plugin-import: '>=2.25.2'
-      eslint-plugin-jest: '>=27.2.3'
+      eslint-plugin-jest: '>=27.2.1'
       eslint-plugin-jsdoc: '>=46.4.6'
       eslint-plugin-jsx-a11y: '>=6.5.1'
-      eslint-plugin-playwright: '>=0.15.3'
-      eslint-plugin-prettier: '>=5.0.0'
+      eslint-plugin-prettier: '>=3.3.0'
       eslint-plugin-react: '>=7.27.0'
       eslint-plugin-react-hooks: '>=4.3.0'
-      prettier: '>=3'
+      prettier: '>=2'
       typescript: '>=4'
     peerDependenciesMeta:
       prettier:
@@ -10927,9 +10863,9 @@ packages:
       '@babel/core': 7.22.17
       '@babel/eslint-parser': 7.22.15(@babel/core@7.22.17)(eslint@8.48.0)
       '@typescript-eslint/eslint-plugin': 5.62.0(@typescript-eslint/parser@5.62.0)(eslint@8.48.0)(typescript@5.0.4)
-      '@typescript-eslint/parser': 6.7.5(eslint@8.48.0)(typescript@5.0.4)
+      '@typescript-eslint/parser': 5.62.0(eslint@8.48.0)(typescript@5.0.4)
       '@wordpress/babel-preset-default': 7.27.0
-      '@wordpress/prettier-config': 3.0.0(wp-prettier@2.8.5)
+      '@wordpress/prettier-config': 2.25.4(wp-prettier@2.8.5)
       cosmiconfig: 7.1.0
       eslint: 8.48.0
       eslint-config-prettier: 8.10.0(eslint@8.48.0)
@@ -10937,7 +10873,6 @@ packages:
       eslint-plugin-jest: 27.2.3(@typescript-eslint/eslint-plugin@5.62.0)(eslint@8.48.0)(jest@29.4.3)(typescript@5.0.4)
       eslint-plugin-jsdoc: 46.8.0(eslint@8.48.0)
       eslint-plugin-jsx-a11y: 6.7.1(eslint@8.48.0)
-      eslint-plugin-playwright: 0.16.0(eslint-plugin-jest@27.2.3)(eslint@8.48.0)
       eslint-plugin-prettier: 4.2.1(eslint-config-prettier@8.10.0)(eslint@8.48.0)(wp-prettier@2.8.5)
       eslint-plugin-react: 7.33.2(eslint@8.48.0)
       eslint-plugin-react-hooks: 4.6.0(eslint@8.48.0)
@@ -11332,11 +11267,11 @@ packages:
       - babel-plugin-macros
       - vite
 
-  /@wordpress/prettier-config@3.0.0(wp-prettier@2.8.5):
-    resolution: {integrity: sha512-A2pOt3W2DwBvTPqAC8G6riOAIJvMUPuYV2lg2+zFHWcaWUdtEpi+iwoiI0yugspi+x83w9h6sXGqkC2q+Hfxlg==}
+  /@wordpress/prettier-config@2.25.4(wp-prettier@2.8.5):
+    resolution: {integrity: sha512-ns7MFZ0DZyLcU0efjdwgP9pRpnDZbuC6wgD+nfJVYc5EOt1FiQGHnjRkoOZYCqCJosQCka0+sjiylcW2PD6cYA==}
     engines: {node: '>=14'}
     peerDependencies:
-      prettier: '>=3'
+      prettier: '>=2'
     dependencies:
       prettier: /wp-prettier@2.8.5
     dev: true
@@ -21761,15 +21696,6 @@ packages:
 
   /trough@2.1.0:
     resolution: {integrity: sha512-AqTiAOLcj85xS7vQ8QkAV41hPDIJ71XJB4RCUrzo/1GM2CQwhkJGaf9Hgr7BOugMRpgGUrqRg/DrBDl4H40+8g==}
-    dev: true
-
-  /ts-api-utils@1.0.3(typescript@5.0.4):
-    resolution: {integrity: sha512-wNMeqtMz5NtwpT/UZGY5alT+VoKdSsOOP/kqHFcUW1P/VRhH2wJ48+DN2WwUliNbQ976ETwDL0Ifd2VVvgonvg==}
-    engines: {node: '>=16.13.0'}
-    peerDependencies:
-      typescript: '>=4.2.0'
-    dependencies:
-      typescript: 5.0.4
     dev: true
 
   /ts-dedent@2.2.0:
