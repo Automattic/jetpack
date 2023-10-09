@@ -6,6 +6,7 @@ import {
 	ERROR_QUOTA_EXCEEDED,
 	useAiSuggestions,
 } from '@automattic/jetpack-ai-client';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
@@ -155,10 +156,14 @@ ${ postContent }
 
 	const isQuotaExceeded = error?.code === ERROR_QUOTA_EXCEEDED;
 
-	const docsLink = __(
-		'https://wordpress.org/documentation/article/page-post-settings-sidebar/#excerpt',
-		'jetpack'
-	);
+	// Set the docs link depending on the site type
+	const docsLink =
+		isAtomicSite() || isSimpleSite()
+			? __(
+					'https://wordpress.org/documentation/article/page-post-settings-sidebar/#excerpt',
+					'jetpack'
+			  )
+			: __( 'https://wordpress.com/support/excerpts/', 'jetpack' );
 
 	return (
 		<div className="jetpack-ai-post-excerpt">
