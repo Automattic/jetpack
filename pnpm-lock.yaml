@@ -17493,6 +17493,7 @@ packages:
       entities: 2.1.0
       linkify-it: 3.0.3
       mdurl: 1.0.1
+      punycode: 2.3.0
       uc.micro: 1.0.6
     dev: false
 
