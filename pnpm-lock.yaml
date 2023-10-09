@@ -222,8 +222,8 @@ importers:
         specifier: 4.41.0
         version: 4.41.0
       zod:
-        specifier: 3.20.2
-        version: 3.20.2
+        specifier: 3.22.3
+        version: 3.22.3
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -1190,8 +1190,8 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.76.0)
       zod:
-        specifier: 3.20.2
-        version: 3.20.2
+        specifier: 3.22.3
+        version: 3.22.3
 
   projects/js-packages/videopress-core:
     devDependencies:
@@ -2566,8 +2566,8 @@ importers:
         specifier: 3.2.2
         version: 3.2.2(svelte@3.58.0)(typescript@5.0.4)
       zod:
-        specifier: 3.20.2
-        version: 3.20.2
+        specifier: 3.22.3
+        version: 3.22.3
     devDependencies:
       '@automattic/jetpack-boost-score-api':
         specifier: workspace:*
@@ -2854,8 +2854,8 @@ importers:
         specifier: 5.0.4
         version: 5.0.4
       zod:
-        specifier: 3.20.2
-        version: 3.20.2
+        specifier: 3.22.3
+        version: 3.22.3
 
   projects/plugins/jetpack:
     dependencies:
@@ -6086,11 +6086,6 @@ packages:
     dependencies:
       eslint: 8.48.0
       eslint-visitor-keys: 3.4.3
-    dev: true
-
-  /@eslint-community/regexpp@4.8.0:
-    resolution: {integrity: sha512-JylOEEzDiOryeUnFbQz+oViCXS0KsvR1mvHkoMiu5+UiBvy+RYX7tzlIIIEstF/gVa2tj9AQXk3dgnxv6KxhFg==}
-    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     dev: true
 
   /@eslint-community/regexpp@4.8.1:
@@ -9510,7 +9505,7 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@eslint-community/regexpp': 4.8.0
+      '@eslint-community/regexpp': 4.8.1
       '@typescript-eslint/parser': 5.62.0(eslint@8.48.0)(typescript@5.0.4)
       '@typescript-eslint/scope-manager': 5.62.0
       '@typescript-eslint/type-utils': 5.62.0(eslint@8.48.0)(typescript@5.0.4)
@@ -14226,7 +14221,7 @@ packages:
       eslint: '>=8'
     dependencies:
       '@eslint-community/eslint-utils': 4.4.0(eslint@8.48.0)
-      '@eslint-community/regexpp': 4.8.0
+      '@eslint-community/regexpp': 4.8.1
       eslint: 8.48.0
     dev: true
 
@@ -15327,16 +15322,6 @@ packages:
 
   /glob@7.1.6:
     resolution: {integrity: sha512-LwaxwyZ72Lk7vZINtNNrywX0ZuLyStrdDtabefZKAY5ZGJhVtgdznluResxNmPitE0SAO+O26sWTHeKSI2wMBA==}
-    dependencies:
-      fs.realpath: 1.0.0
-      inflight: 1.0.6
-      inherits: 2.0.4
-      minimatch: 3.1.2
-      once: 1.4.0
-      path-is-absolute: 1.0.1
-
-  /glob@7.2.3:
-    resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
     dependencies:
       fs.realpath: 1.0.0
       inflight: 1.0.6
@@ -20762,7 +20747,7 @@ packages:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
     hasBin: true
     dependencies:
-      glob: 7.2.3
+      glob: 7.1.6
 
   /rollup-plugin-copy@3.4.0:
     resolution: {integrity: sha512-rGUmYYsYsceRJRqLVlE9FivJMxJ7X6jDlP79fmFkL8sJs7VVMSVyA2yfyL+PGyO/vJs4A87hwhgVfz61njI+uQ==}
@@ -23302,8 +23287,8 @@ packages:
     engines: {node: '>=12.20'}
     dev: false
 
-  /zod@3.20.2:
-    resolution: {integrity: sha512-1MzNQdAvO+54H+EaK5YpyEy0T+Ejo/7YLHS93G3RnYWh5gaotGHwGeN/ZO687qEDU2y4CdStQYXVHIgrUl5UVQ==}
+  /zod@3.22.3:
+    resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
 
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -23313,7 +23298,6 @@ packages:
     resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/7b1368f6fc4551745ac7681de73c3a4c6049dce6}
     name: jetpack-boost-critical-css-gen
     version: 0.0.9
-    prepare: true
     requiresBuild: true
     dependencies:
       clean-css: 5.3.2
