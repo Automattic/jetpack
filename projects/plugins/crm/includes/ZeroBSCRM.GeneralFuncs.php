@@ -157,9 +157,8 @@ function zeroBSCRM_stripSlashesFromArr( $value ) { // phpcs:ignore WordPress.Nam
 		return array_map( 'zeroBSCRM_stripSlashesFromArr', $value );
 	} elseif ( is_string( $value ) ) {
 		return stripslashes( $value );
-	} 
+	}
 	return $value;
-
 }
 
    # from http://wordpress.stackexchange.com/questions/91900/how-to-force-a-404-on-wordpress
