@@ -489,11 +489,12 @@ function wpcom_launchpad_get_task_definitions() {
 
 		// Earn tasks
 		'stripe_connected'                => array(
-			'get_title'           => function () {
+			'get_title'            => function () {
 				return __( 'Connect a Stripe account to collect payments', 'jetpack-mu-wpcom' );
 			},
-			'is_visible_callback' => '__return_true',
-			'get_calypso_path'    => function ( $task, $default, $data ) {
+			'is_visible_callback'  => '__return_true',
+			'is_complete_callback' => 'wpcom_is_stripe_connected',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
 				if ( function_exists( 'get_memberships_connected_account_redirect' ) ) {
 					return get_memberships_connected_account_redirect(
 						get_current_user_id(),
@@ -504,11 +505,12 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 		),
 		'paid_offer_created'              => array(
-			'get_title'           => function () {
+			'get_title'            => function () {
 				return __( 'Set up an offer for your supporters', 'jetpack-mu-wpcom' );
 			},
-			'is_visible_callback' => '__return_true',
-			'get_calypso_path'    => function ( $task, $default, $data ) {
+			'is_complete_callback' => 'wpcom_has_paid_membership_plans',
+			'is_visible_callback'  => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/earn/payments-plans/' . $data['site_slug_encoded'];
 			},
 		),
@@ -879,6 +881,30 @@ function wpcom_launchpad_get_newsletter_subscriber_count() {
 	}
 
 	return (int) $total_subscribers;
+}
+
+/**
+ * Determines if Stripe has been connected.
+ *
+ * @return bool Whether or not Stripe account is connected.
+ */
+function wpcom_is_stripe_connected() {
+	require_lib( 'memberships' );
+	$blog_id  = get_current_blog_id();
+	$settings = get_memberships_settings_for_site( $blog_id );
+	return boolval( $settings['connected_account_id'] );
+}
+
+/**
+ * Determines if paid membership plans exists
+ *
+ * @return bool Whether or not paid membership plans exist.
+ */
+function wpcom_has_paid_membership_plans() {
+	require_lib( 'memberships' );
+	$blog_id  = get_current_blog_id();
+	$settings = get_memberships_settings_for_site( $blog_id );
+	return count( $settings['products'] ) > 0;
 }
 
 /**
