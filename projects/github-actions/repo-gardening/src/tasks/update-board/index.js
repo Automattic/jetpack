@@ -266,7 +266,7 @@ async function setPriorityField( octokit, projectInfo, projectItemId, priorityTe
 	} = projectInfo;
 
 	// Find the ID of the priority option that matches our PR priority.
-	const priorityOptionId = options.find( option => option.name === priorityText ).id;
+	const priorityOptionId = options.find( option => option.name === priorityText )?.id;
 	if ( ! priorityOptionId ) {
 		debug(
 			`update-board: Priority ${ priorityText } does not exist as a column option in the project board.`
@@ -326,7 +326,7 @@ async function setStatusField( octokit, projectInfo, projectItemId, statusText )
 	} = projectInfo;
 
 	// Find the ID of the status option that matches our issue status.
-	const statusOptionId = options.find( option => option.name === statusText ).id;
+	const statusOptionId = options.find( option => option.name === statusText )?.id;
 	if ( ! statusOptionId ) {
 		debug(
 			`update-board: Status ${ statusText } does not exist as a column option in the project board.`
