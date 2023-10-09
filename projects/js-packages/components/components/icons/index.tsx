@@ -273,6 +273,14 @@ export const TwitterIcon: React.FC< SocialIconWrapperProps > = ( { fill, size, c
 	);
 };
 
+export const XIcon: React.FC< SocialIconWrapperProps > = ( { fill, size, className } ) => {
+	return (
+		<SocialIconWrapper fill={ fill } size={ size } className={ classNames( styles.x, className ) }>
+			<Path d="M12.5984 10.0201 18.5086 3.15H17.108L11.9762 9.1152 7.8775 3.15H3.15L9.3482 12.1705 3.15 19.3749H4.5506L9.97 13.0754 14.2985 19.3749H19.026L12.598 10.0201H12.5984ZM10.68 12.25 10.052 11.3517 5.0552 4.2043H7.2065L11.2389 9.9725 11.867 10.8707 17.1087 18.3685H14.9574L10.68 12.2504V12.25Z" />
+		</SocialIconWrapper>
+	);
+};
+
 export const LinkedinIcon: React.FC< SocialIconWrapperProps > = ( { fill, size, className } ) => {
 	return (
 		<SocialIconWrapper
@@ -361,7 +369,7 @@ const jetpackIcons = {
 const socialIcons = {
 	facebook: FacebookIcon,
 	instagram: InstagramIcon,
-	twitter: TwitterIcon,
+	twitter: XIcon,
 	linkedin: LinkedinIcon,
 	tumblr: TumblrIcon,
 	google: GoogleIcon,
