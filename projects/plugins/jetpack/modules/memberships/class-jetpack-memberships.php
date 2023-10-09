@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
+use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
 
@@ -601,7 +602,31 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * Return the list of plan posts
+	 *
+	 * @return WP_Post[]|WP_Error
+	 */
+	public static function get_all_plans() {
+		// We can retrieve the data directly except on a Jetpack/Atomic cached site or
+		$is_cached_site = ( new Host() )->is_wpcom_simple() && is_jetpack_site();
+		if ( ! $is_cached_site ) {
+			return get_posts(
+				array(
+					'posts_per_page' => -1,
+					'post_type'      => self::$post_type_plan,
+				)
+			);
+		} else {
+			// On cached site on WPCOM
+			require_lib( 'memberships' );
+			return Memberships_Product::get_plans_posts_list( get_current_blog_id() );
+		}
+	}
+
+	/**
 	 * Return all membership plans (deleted or not)
+	 * This function is used both on WPCOM or on Jetpack self-hosted.
+	 * Depending on the environment we need to mitigate where the data is retrieved from.
 	 *
 	 * @return array
 	 */
@@ -610,15 +635,30 @@ class Jetpack_Memberships {
 			return array();
 		}
 
-		return get_posts(
-			array(
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-				'meta_value'     => true,
-				'post_type'      => self::$post_type_plan,
-				'meta_key'       => 'jetpack_memberships_site_subscriber',
-			)
-		);
+		// We can retrieve the data directly except on a Jetpack/Atomic cached site or
+		$is_cached_site = ( new Host() )->is_wpcom_simple() && is_jetpack_site();
+		if ( ! $is_cached_site ) {
+			return get_posts(
+				array(
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'meta_value'     => true,
+					'post_type'      => self::$post_type_plan,
+					'meta_key'       => 'jetpack_memberships_site_subscriber',
+				)
+			);
+		} else {
+			// On cached site on WPCOM
+			require_lib( 'memberships' );
+			$only_newsletter = true;
+			$allow_deleted   = true; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$list            = Memberships_Product::get_product_list( get_current_blog_id(), null, null, $only_newsletter );
+			return array_map(
+				function ( $product ) {
+					return $product->to_array()['id']; }, // Returning only post ids
+				$list
+			);
+		}
 	}
 
 	/**
