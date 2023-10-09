@@ -122,19 +122,14 @@ export function GoogleCalendarEdit( props ) {
 					className={ className }
 					label={ __( 'Google Calendar', 'jetpack' ) }
 					icon={ icon }
-					instructions={
-						<ol className={ `${ defaultClassName }-placeholder-instructions` }>
-							<li>{ permissionsLink }</li>
-							<li>
-								{ __(
-									'Paste the embed code you copied from your Google Calendar below',
-									'jetpack'
-								) }
-							</li>
-						</ol>
-					}
 					notices={ noticeUI }
 				>
+					<ol className={ `${ defaultClassName }-placeholder-instructions` }>
+						<li>{ permissionsLink }</li>
+						<li>
+							{ __( 'Paste the embed code you copied from your Google Calendar below', 'jetpack' ) }
+						</li>
+					</ol>
 					{ getEditForm( `${ defaultClassName }-embed-form-editor` ) }
 					<div className={ `${ defaultClassName }-placeholder-links` }>
 						<ExternalLink href={ supportLink }>{ __( 'Learn more', 'jetpack' ) }</ExternalLink>
