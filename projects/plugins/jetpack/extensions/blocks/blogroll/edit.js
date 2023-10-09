@@ -1,6 +1,6 @@
 import { InspectorControls, useBlockProps, InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { PanelBody, ToggleControl, FlexBlock, Spinner } from '@wordpress/components';
+import { PanelBody, ToggleControl, FlexBlock, Spinner, Notice } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -21,8 +21,18 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		load_placeholders,
 	} = attributes;
 
-	const { isLoading, recommendations } = useRecommendations( load_placeholders );
-	const { subscriptions } = useSubscriptions( { ignore_user_blogs } );
+	const {
+		isLoading: isLoadingRecommendations,
+		recommendations,
+		errorMessage: recommendationsErrorMessage,
+	} = useRecommendations( load_placeholders );
+	const {
+		isLoading: isLoadingSubscriptions,
+		subscriptions,
+		errorMessage: subscriptionsErrorMessage,
+	} = useSubscriptions( {
+		ignore_user_blogs,
+	} );
 	useSiteRecommendationSync( { clientId } );
 	const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
 
@@ -45,17 +55,31 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 		} ),
 	} );
 
+	const errorMessage = recommendationsErrorMessage || subscriptionsErrorMessage;
+
 	return (
 		<div { ...blockProps }>
 			<InnerBlocks
 				template={ [ [ 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ] ] }
 				allowedBlocks={ [ 'jetpack/blogroll-item' ] }
-				renderAppender={ () => (
-					<BlogrollAppender subscriptions={ subscriptions } clientId={ clientId } />
-				) }
+				renderAppender={ () =>
+					! isLoadingRecommendations && (
+						<BlogrollAppender
+							isLoading={ isLoadingSubscriptions }
+							subscriptions={ subscriptions }
+							clientId={ clientId }
+						/>
+					)
+				}
 			/>
 
-			{ load_placeholders && isLoading && (
+			{ errorMessage && (
+				<Notice status="error" isDismissible={ false }>
+					<p>{ errorMessage }</p>
+				</Notice>
+			) }
+
+			{ load_placeholders && isLoadingRecommendations && (
 				<FlexBlock style={ { padding: '30px', textAlign: 'center' } }>
 					<Spinner />
 				</FlexBlock>
