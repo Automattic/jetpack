@@ -155,6 +155,11 @@ ${ postContent }
 
 	const isQuotaExceeded = error?.code === ERROR_QUOTA_EXCEEDED;
 
+	const docsLink = __(
+		'https://wordpress.org/documentation/article/page-post-settings-sidebar/#excerpt',
+		'jetpack'
+	);
+
 	return (
 		<div className="jetpack-ai-post-excerpt">
 			<TextareaControl
@@ -166,12 +171,7 @@ ${ postContent }
 				disabled={ isTextAreaDisabled }
 			/>
 
-			<ExternalLink
-				href={ __(
-					'https://wordpress.org/documentation/article/page-post-settings-sidebar/#excerpt',
-					'jetpack'
-				) }
-			>
+			<ExternalLink href={ docsLink }>
 				{ __( 'Learn more about manual excerpts', 'jetpack' ) }
 			</ExternalLink>
 
