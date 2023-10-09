@@ -197,7 +197,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'stripe_connected',
 				'paid_offer_created',
 			),
-			'is_enabled_callback' => 'wpcom_launchpad_is_newsletter_or_write_intent',
+			'is_enabled_callback' => '__return_true',
 		),
 	);
 
@@ -921,20 +921,6 @@ function wpcom_launchpad_is_paid_newsletter_enabled() {
 	}
 
 	return wpcom_launchpad_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_paid_newsletter_enabled', false );
-}
-
-/**
- * Checks if site has newsletter or write as site intent.
- *
- * @return bool True if the task list is enabled, false otherwise.
- */
-function wpcom_launchpad_is_newsletter_or_write_intent() {
-	$intent = get_option( 'site_intent', false );
-	if ( 'newsletter' === $intent || 'write' === $intent ) {
-		return true;
-	}
-
-	return false;
 }
 
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
