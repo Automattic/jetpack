@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added HEIC (`*.heic`) to list of images types allowed to be passed through Photon during instant search
