@@ -278,6 +278,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'express_checkout'  => 'null',
 						'shipping_option'   => $this->get_shipping_option_for_item( $cart_item_key ),
 						'products_count'    => count( wc()->cart->get_cart() ),
+						'coupon_used'       => count( wc()->cart->applied_coupons ) > 0 ? '1' : '0',
 						'additional_blocks' => $this->additional_blocks_on_page,
 					),
 					$product->get_id()
@@ -310,6 +311,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'express_checkout'  => 'null',
 						'shipping_option'   => $this->get_shipping_option_for_item( $cart_item_key ),
 						'products_count'    => count( wc()->cart->get_cart() ),
+						'coupon_used'       => count( wc()->cart->applied_coupons ) > 0 ? '1' : '0',
 						'additional_blocks' => $this->additional_blocks_on_page,
 					),
 					$product->get_id()
@@ -370,6 +372,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					'guest_checkout'    => $guest_checkout,
 					'express_checkout'  => $express_checkout,
 					'products_count'    => count( $order->get_items() ),
+					'coupon_used'       => count( $order->get_coupons() ) > 0 ? '1' : '0',
 					'additional_blocks' => $this->additional_blocks_on_page,
 				),
 				$product_id
