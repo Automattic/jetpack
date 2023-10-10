@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant: do not register the editor plugin if the site is not connected to WordPress.com.
