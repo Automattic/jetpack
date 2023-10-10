@@ -437,7 +437,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			$block_names[] = $inner_blocks['blockName'];
 		}
 		if ( $inner_blocks['innerBlocks'] ) {
-			$block_names = array_merge( $block_names, get_inner_blocks( $inner_blocks['innerBlocks'] ) );
+			$block_names = array_merge( $block_names, $this->get_inner_blocks( $inner_blocks['innerBlocks'] ) );
 		}
 		return $block_names;
 	}
@@ -492,7 +492,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			}
 
 			foreach ( $block['innerBlocks'] as $inner_content ) {
-				$all_inner_blocks = array_merge( $all_inner_blocks, get_inner_blocks( $inner_content ) );
+				$all_inner_blocks = array_merge( $all_inner_blocks, $this->get_inner_blocks( $inner_content ) );
 			}
 		}
 		$this->additional_blocks_on_page = $all_inner_blocks;
