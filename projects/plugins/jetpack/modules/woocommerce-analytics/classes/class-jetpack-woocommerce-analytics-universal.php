@@ -282,6 +282,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'order_value'       => wc()->cart->get_totals()['total'],
 						'store_currency'    => get_woocommerce_currency(),
 						'additional_blocks' => $this->additional_blocks_on_page,
+						'template_used'     => $this->cart_checkout_templates_in_use ? '1' : '0',
 					),
 					$product->get_id()
 				);
@@ -317,6 +318,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'order_value'       => wc()->cart->get_totals()['total'],
 						'store_currency'    => get_woocommerce_currency(),
 						'additional_blocks' => $this->additional_blocks_on_page,
+						'template_used'     => $this->cart_checkout_templates_in_use ? '1' : '0',
 					),
 					$product->get_id()
 				);
@@ -380,6 +382,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					'order_value'       => $order->get_total(),
 					'store_currency'    => get_woocommerce_currency(),
 					'additional_blocks' => $this->additional_blocks_on_page,
+					'template_used'     => $this->cart_checkout_templates_in_use ? '1' : '0',
 				),
 				$product_id
 			);
