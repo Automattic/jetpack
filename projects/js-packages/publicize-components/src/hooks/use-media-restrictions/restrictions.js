@@ -178,13 +178,15 @@ export const PHOTON_CONVERTIBLE_TYPES = [
 
 /**
  * These are the types that can be selected in the media picker.
- * Contains all the allowed types, plus the Photon convertible types.
+ * Contains all the allowed types, plus the Photon convertible types, plus the videos.
  */
-export const SELECTABLE_IMAGE_TYPES = [
+export const SELECTABLE_MEDIA_TYPES = [
 	...new Set( [
 		...allowedImageTypes,
 		...facebookImageTypes,
 		...mastodonImageTypes,
+		...facebookVideoTypes,
+		...mastodonVideoTypes,
 		...PHOTON_CONVERTIBLE_TYPES,
 	] ),
 ];
