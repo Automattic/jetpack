@@ -1,4 +1,4 @@
 Significance: minor
 Type: other
 
-527 - Sites API: add was_migration_trial flag to data returned for site details.[D[D[D[D[D
+527 - Sites API: add was_hosting_trial flag to data returned for site details.
