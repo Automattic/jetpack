@@ -30,6 +30,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * Jetpack_WooCommerce_Analytics_Universal constructor.
 	 */
 	public function __construct() {
+		$this->cart_checkout_templates_in_use = class_exists( 'Automattic\WooCommerce\Blocks\Package' ) && version_compare( Automattic\WooCommerce\Blocks\Package::get_version(), '10.6.0', '>=' );
 		// loading _wca.
 		add_action( 'wp_head', array( $this, 'wp_head_top' ), 1 );
 
