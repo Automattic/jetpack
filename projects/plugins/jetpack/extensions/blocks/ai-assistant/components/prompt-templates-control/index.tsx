@@ -3,7 +3,15 @@
  */
 import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { title, postContent, postExcerpt, termDescription, post, pencil } from '@wordpress/icons';
+import {
+	title,
+	postContent,
+	postExcerpt,
+	termDescription,
+	post,
+	pencil,
+	addCard,
+} from '@wordpress/icons';
 import React from 'react';
 
 type PromptTemplatesControlProps = {
@@ -12,6 +20,7 @@ type PromptTemplatesControlProps = {
 	hasPostTitle: boolean;
 	onPromptSelect: ( prompt: { original: string; translated: string } ) => void;
 	onSuggestionSelect: ( suggestion: string ) => void;
+	onCreateForm: () => void;
 };
 
 type PromptTemplateProps = {
@@ -103,6 +112,7 @@ export default function PromptTemplatesControl( {
 	hasPostTitle,
 	onPromptSelect,
 	onSuggestionSelect,
+	onCreateForm,
 }: PromptTemplatesControlProps ) {
 	const label = __( 'Write with AI…', 'jetpack' );
 
@@ -121,21 +131,21 @@ export default function PromptTemplatesControl( {
 								<MenuItem
 									icon={ postContent }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'continue' ) }
+									onClick={ () => onSuggestionSelect?.( 'continue' ) }
 								>
 									{ __( 'Continue writing', 'jetpack' ) }
 								</MenuItem>
 								<MenuItem
 									icon={ termDescription }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'correctSpelling' ) }
+									onClick={ () => onSuggestionSelect?.( 'correctSpelling' ) }
 								>
 									{ __( 'Correct spelling and grammar', 'jetpack' ) }
 								</MenuItem>
 								<MenuItem
 									icon={ post }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'simplify' ) }
+									onClick={ () => onSuggestionSelect?.( 'simplify' ) }
 								>
 									{ __( 'Simplify', 'jetpack' ) }
 								</MenuItem>
@@ -147,7 +157,7 @@ export default function PromptTemplatesControl( {
 									<MenuItem
 										icon={ postExcerpt }
 										iconPosition="left"
-										onClick={ () => onSuggestionSelect( 'summarize' ) }
+										onClick={ () => onSuggestionSelect?.( 'summarize' ) }
 									>
 										{ __( 'Summarize', 'jetpack' ) }
 									</MenuItem>
@@ -156,7 +166,7 @@ export default function PromptTemplatesControl( {
 									<MenuItem
 										icon={ title }
 										iconPosition="left"
-										onClick={ () => onSuggestionSelect( 'generateTitle' ) }
+										onClick={ () => onSuggestionSelect?.( 'generateTitle' ) }
 									>
 										{ __( 'Generate a post title', 'jetpack' ) }
 									</MenuItem>
@@ -168,7 +178,7 @@ export default function PromptTemplatesControl( {
 								<MenuItem
 									icon={ pencil }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'titleSummary' ) }
+									onClick={ () => onSuggestionSelect?.( 'titleSummary' ) }
 								>
 									{ __( 'Summary based on title', 'jetpack' ) }
 								</MenuItem>
@@ -180,12 +190,24 @@ export default function PromptTemplatesControl( {
 									key={ `key-${ i }` }
 									onClick={ () => {
 										onClose();
-										onPromptSelect( prompt.description );
+										onPromptSelect?.( prompt.description );
 									} }
 								>
 									{ prompt.label }
 								</MenuItem>
 							) ) }
+						</MenuGroup>
+						<MenuGroup>
+							<MenuItem
+								icon={ addCard }
+								iconPosition="left"
+								onClick={ () => {
+									onClose();
+									onCreateForm?.();
+								} }
+							>
+								{ __( 'Create a form…', 'jetpack' ) }
+							</MenuItem>
 						</MenuGroup>
 					</>
 				);
