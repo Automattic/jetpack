@@ -259,7 +259,6 @@ jQuery( document ).ready( function ( $ ) {
 
 		// Handle tracking for JITM CTA buttons
 		$template.find( '.jitm-button' ).on( 'click', function ( e ) {
-			e.preventDefault();
 
 			var button = $( this );
 			var eventName = button.attr( 'data-jptracks-name' );
@@ -275,9 +274,7 @@ jQuery( document ).ready( function ( $ ) {
 			};
 
 			if ( window.jpTracksAJAX ) {
-				window.jpTracksAJAX.record_ajax_event(eventName, 'click', eventProp).always( function() {
-					window.location.href = button.attr('href');
-				} );
+				window.jpTracksAJAX.record_ajax_event(eventName, 'click', eventProp);
 			}
 		});
 	};
