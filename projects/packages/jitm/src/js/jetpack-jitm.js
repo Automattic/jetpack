@@ -277,6 +277,9 @@ jQuery( document ).ready( function ( $ ) {
 			if ( window.jpTracksAJAX ) {
 				window.jpTracksAJAX.record_ajax_event(eventName, 'click', eventProp);
 			}
+
+			button.trigger('click');  // Trigger the actual click event
+
 		} );
 	};
 
