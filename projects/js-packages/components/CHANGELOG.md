@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.43.1] - 2023-10-10
+### Changed
+- Boost Score Graph: Show a straight line before the first data point. [#33133]
+- Updated package dependencies. [#33428]
+
 ## [0.43.0] - 2023-10-03
 ### Added
 - Added new sharing icon [#33244]
@@ -830,6 +835,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.43.1]: https://github.com/Automattic/jetpack-components/compare/0.43.0...0.43.1
 [0.43.0]: https://github.com/Automattic/jetpack-components/compare/0.42.5...0.43.0
 [0.42.5]: https://github.com/Automattic/jetpack-components/compare/0.42.4...0.42.5
 [0.42.4]: https://github.com/Automattic/jetpack-components/compare/0.42.3...0.42.4
