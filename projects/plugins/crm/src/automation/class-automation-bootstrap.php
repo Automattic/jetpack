@@ -93,9 +93,9 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Created::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Deleted::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Updated::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Task_Created::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Task_Deleted::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Task_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Deleted::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Status_Updated::class,
@@ -140,6 +140,7 @@ final class Automation_Bootstrap {
 	protected function register_conditions(): void {
 		$conditions = array(
 			\Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed::class,
+			\Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status::class,
 			\Automattic\Jetpack\CRM\Automation\Conditions\Invoice_Status_Changed::class,
 			\Automattic\Jetpack\CRM\Automation\Conditions\Entity_Tag::class,
 		);
@@ -179,6 +180,7 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Actions\New_Contact::class,
 			\Automattic\Jetpack\CRM\Automation\Actions\Update_Contact::class,
 			\Automattic\Jetpack\CRM\Automation\Actions\Update_Contact_Status::class,
+			\Automattic\Jetpack\CRM\Automation\Actions\Send_Contact_Email::class,
 		);
 
 		/**

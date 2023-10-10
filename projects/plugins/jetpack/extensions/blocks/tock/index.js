@@ -9,7 +9,7 @@ export const title = __( 'Tock', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
 	title,
-	description: __( 'Allow visitors to reserve a table at your restaurant with Tock.', 'jetpack' ),
+	description: __( 'Reserve a table at your restaurant with Tock.', 'jetpack' ),
 	icon: {
 		src: Icon,
 		foreground: getIconColor(),

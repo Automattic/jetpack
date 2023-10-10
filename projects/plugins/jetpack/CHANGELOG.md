@@ -2,6 +2,76 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.7-a.7 - 2023-10-04
+### Improved compatibility
+- Notifications: temporarily disable the notifications admin bar menu on any block editor page to allow for Gutenberg 16.7 compatability. [#33458]
+
+## 12.7-a.5 - 2023-10-03
+### Enhancements
+- AI Chat: Enhanced error presentation and UX improvements. [#33387] [#33401]
+- AI Search Block: release the Jetpack AI Search Block. [#33432]
+- Block Editor: add a new post publish panel for quick sharing. [#33244]
+- Block Editor: display the SEO and Sharing editor panels in the block editor under the Jetpack side menu. [#33258] [#33226]
+- Blogroll Block: Update blogroll appender styling and functionality. [#33328]
+- Sharing: add X sharing button. [#33134]
+- Social Menu & Social Media Icons: Add support for the X icon. [#33118]
+- SSO: offer ability to force a site to use Jetpack SSO with Two-Factor Authentication for certain roles. [#33259]
+- Subscription block: drop unnecessary .0 from big subscriber counts. [#33430]
+
+### Bug fixes
+- AI Excerpts: avoid errors on Custom Post Types that do not support excerpts. [#33439]
+- Carousel: avoid invalid markup notices in Google Pagespeed insights. [#33413]
+- External Media: do not surface the endpoint to contributors, are unable to upload media anyway. [#33451]
+- Google Doc block: fix Google Doc blocks not rendering in the editor. [#33441]
+- Shortcodes: improve validation of attributes dislayed with the Crowdsignal shortcode. [#33450]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Enable backend prompts for 10% of production sites. [#33356]
+- Add user content link tracking and redirection for links coming from emails. [#32832]
+- Blocks: change the way Social Previews are registered, from a block to a plugin. [#33238]
+- Fix block view scripts being loaded twice. [#33406]
+- Fix description for jetpack_sitemap_video_skip_post. [#33379]
+- Subscriptions: fix broken Paywall login link for custom domains [#33363]
+- Likes: move editor plugin to the plugins' directory. [#33241]
+- Plugin assets: add spanish version of our banners. [#33436]
+- SEO Tools: move editor plugin to the plugins' directory, since this is not a block. [#33240]
+- Standardize block description phrasing. [#33382]
+
+## 12.7-a.3 - 2023-09-28
+### Enhancements
+- AI Excerpt: Add `Beta` label to sidebar panel. [#33302]
+- AI Excerpt: disable `Generate` button when there's no post content. [#33304]
+- AI Extension: Add keyboard shortcut to stop action on forms. [#33271]
+- Blogroll: Disable blogroll appender sites that have been added to blogroll block. [#33327]
+- Fix styling of multiple elements in the ai-chat block. [#33352]
+- Improves the blogroll subscribe form alignment. [#33344]
+- Jetpack Likes: display the Likes editor panel with an invitation to activate the feature when it is disabled. [#33298]
+- Paywall: add a filter to define a custom paywall. [#33077]
+
+### Improved compatibility
+- Admin menu: Update view capabilities for Home & Stats to be independant from edit_posts. [#33255]
+- Lazy Images: prepare feature for its deprecation, coming in November. You will be able to rely on Lazy loading features provided by WordPress itself. [#33208]
+
+### Bug fixes
+- Dashboard: avoid errors when dashboard is accessed by WordPress users with a custom non-admin role. [#33264]
+- Dashboard: do not display Apps and Support cards to users who do not need that information. [#33264]
+- Site Editor: Fix block exception error in Site Editor. [#33350]
+- Subscriptions: Fix conditions for showing modal. [#33314]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Excerpt: move content-lens feature to prod. [#32969]
+- AI Excerpt: update label and help of "words" control. [#33341]
+- AI Excerpt: do not extend when the AI Assistant feature is not supported. [#33380]
+- AI Excerpt: do not save the post before requesting the excerpt content. [#33377]
+- AI Chat: delegate adding the beta suffix to filter. [#33348]
+- Add an action to facilitate tracking paywalled post views by subscribers [#33290]
+- Adds an action when subscription tokens are authed. [#33294]
+- copy change [#33369]
+- Jetpack Sync: fix unit tests to be compatible with the new WordPress Core revision saving mechanism. [#33354]
+- Remove some left-over PHP 5.2 compatibility code. [#33288]
+- Subscribe modal: enable for Jetpack sites. [#33235]
+- Use WordPress `str_starts_with`, `str_ends_with`, and `str_contains` polyfills. [#33288]
+
 ## 12.7-a.1 - 2023-09-25
 ### Enhancements
 - Added a new post publish panel for quick sharing. [#33231]

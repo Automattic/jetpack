@@ -75,11 +75,10 @@ class Invoice_Updated extends Base_Trigger {
 	 * Listen to the desired event.
 	 *
 	 * @since $$next-version$$
+	 *
+	 * @return void
 	 */
-	protected function listen_to_event() {
-		add_action(
-			'jpcrm_invoice_updated',
-			array( $this, 'execute_workflow' )
-		);
+	protected function listen_to_event(): void {
+		$this->listen_to_wp_action( 'jpcrm_invoice_updated' );
 	}
 }

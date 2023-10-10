@@ -20,6 +20,7 @@ export default function useSubmitQuestion( blogType, blogId ) {
 		}
 
 		setIsLoading( true );
+		setAnswer( null );
 
 		apiFetch( {
 			path,
@@ -32,7 +33,6 @@ export default function useSubmitQuestion( blogType, blogId ) {
 			} )
 			.catch( err => {
 				setCacheKey( '' );
-				setAnswer( null );
 				setReferences( [] );
 				setAskError( err );
 			} )

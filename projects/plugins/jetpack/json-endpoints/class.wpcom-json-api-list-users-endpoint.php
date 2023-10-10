@@ -58,7 +58,7 @@ new WPCOM_JSON_API_List_Users_Endpoint(
 				"nice_name": "apiexamples",
 				"URL": "http://apiexamples.wordpress.com",
 				"avatar_URL": "https://1.gravatar.com/avatar/a2afb7b6c0e23e5d363d8612fb1bd5ad?s=96&d=identicon&r=G",
-				"profile_URL": "https://en.gravatar.com/apiexamples",
+				"profile_URL": "https://gravatar.com/apiexamples",
 				"site_ID": 82974409,
 				"roles": [
 					"administrator"

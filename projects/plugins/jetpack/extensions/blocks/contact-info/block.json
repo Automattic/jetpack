@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/contact-info",
 	"title": "Contact Info",
-	"description": "Lets you add an email address, phone number, and physical address with improved markup for better SEO results.",
+	"description": "Add an email address, phone number, and physical address with improved markup for better SEO results.",
 	"keywords": [ "email", "phone", "address" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",

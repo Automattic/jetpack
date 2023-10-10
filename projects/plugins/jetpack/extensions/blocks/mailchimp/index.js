@@ -40,7 +40,7 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	description: __( 'A form enabling readers to join a Mailchimp audience.', 'jetpack' ),
+	description: __( 'Allow readers to join a Mailchimp audience.', 'jetpack' ),
 	category: 'grow',
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),

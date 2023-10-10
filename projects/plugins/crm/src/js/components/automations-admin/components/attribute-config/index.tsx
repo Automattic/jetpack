@@ -1,4 +1,10 @@
-import { SelectControl, TextControl } from '@wordpress/components';
+import {
+	CheckboxControl,
+	DatePicker,
+	SelectControl,
+	TextareaControl,
+	TextControl,
+} from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import { store } from 'crm/state/store';
 import { useCallback } from 'react';
@@ -12,6 +18,8 @@ type AttributeConfigProps = {
 	definition: AttributeDefinition;
 };
 
+type NewValue = string | number | boolean;
+
 export const AttributeConfig: React.FC< AttributeConfigProps > = ( {
 	workflowId,
 	stepId,
@@ -19,7 +27,7 @@ export const AttributeConfig: React.FC< AttributeConfigProps > = ( {
 	definition,
 } ) => {
 	const onChange = useCallback(
-		( newValue: string ) =>
+		( newValue: NewValue ) =>
 			dispatch( store ).setAttribute( workflowId, stepId, definition.slug, newValue ),
 		[ workflowId, stepId, definition.slug ]
 	);
@@ -28,7 +36,9 @@ export const AttributeConfig: React.FC< AttributeConfigProps > = ( {
 
 	return (
 		<div className={ styles.container }>
-			<div className={ styles.title }>{ definition.title }</div>
+			{ definition.type !== 'checkbox' && (
+				<div className={ styles.title }>{ definition.title }</div>
+			) }
 			{ editValue }
 		</div>
 	);
@@ -37,7 +47,7 @@ export const AttributeConfig: React.FC< AttributeConfigProps > = ( {
 const getEditValue = (
 	value: AttributeValue,
 	definition: AttributeDefinition,
-	onChange: ( newValue: string ) => void
+	onChange: ( newValue: NewValue ) => void
 ) => {
 	switch ( definition.type ) {
 		case 'select':
@@ -51,17 +61,39 @@ const getEditValue = (
 							  } ) )
 							: []
 					}
+					value={ value }
 					onChange={ onChange }
 				/>
 			);
 		case 'text':
-			return <TextControl value={ value.toString() } onChange={ onChange } />;
+			return <TextControl value={ value } onChange={ onChange } />;
 		case 'checkbox':
+			return (
+				<CheckboxControl
+					label={ definition.title }
+					checked={ value as boolean }
+					onChange={ onChange }
+				/>
+			);
 		case 'textarea':
+			return <TextareaControl value={ value as string } onChange={ onChange } />;
 		case 'date':
-		case 'datetime':
+			return (
+				<div className={ styles.datepicker }>
+					<DatePicker
+						currentDate={ value ? new Date( value as string | number ) : new Date() }
+						onChange={ ( selectedDate: string ) => {
+							// selectedDate is a string in the format `YYYY-MM-DDTHH:MM:SS` but CRM
+							// is using timestamps, so we pass it to a Date object before converting
+							// it back to a timestamp for Redux.
+							const newDate = new Date( selectedDate );
+							onChange( newDate.getTime() );
+						} }
+					/>
+				</div>
+			);
 		case 'number':
-		case 'password':
+			return <TextControl type="number" value={ value } onChange={ onChange } />;
 		default:
 			return `${ definition.type } is not implemented`;
 	}

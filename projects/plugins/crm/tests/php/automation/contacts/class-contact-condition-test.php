@@ -81,12 +81,12 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$contact->status = 'customer';
-		$contact_field_changed_condition->execute( $contact_data );
+		$contact_field_changed_condition->validate_and_execute( $contact_data );
 		$this->assertTrue( $contact_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$contact->status = 'lead';
-		$contact_field_changed_condition->execute( $contact_data );
+		$contact_field_changed_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_field_changed_condition->condition_met() );
 	}
 
@@ -103,12 +103,12 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$contact->status = 'lead';
-		$contact_field_changed_condition->execute( $contact_data );
+		$contact_field_changed_condition->validate_and_execute( $contact_data );
 		$this->assertTrue( $contact_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$contact->status = 'customer';
-		$contact_field_changed_condition->execute( $contact_data );
+		$contact_field_changed_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_field_changed_condition->condition_met() );
 	}
 
@@ -124,7 +124,7 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 		$this->expectException( Automation_Exception::class );
 		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
-		$contact_field_changed_condition->execute( new Contact_Data( $contact ) );
+		$contact_field_changed_condition->validate_and_execute( new Contact_Data( $contact ) );
 	}
 
 	/**
@@ -144,7 +144,7 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 
 		$contact_data = new Contact_Data( $contact, $previous_contact );
 
-		$contact_transitional_status_condition->execute( $contact_data );
+		$contact_transitional_status_condition->validate_and_execute( $contact_data );
 	}
 
 	/**
@@ -165,18 +165,18 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 		$contact->status          = 'new_status';
 		$previous_contact->status = 'old_status';
 
-		$contact_transitional_status_condition->execute( $contact_data );
+		$contact_transitional_status_condition->validate_and_execute( $contact_data );
 		$this->assertTrue( $contact_transitional_status_condition->condition_met() );
 
 		// Testing when the condition has been not been met for the to field.
 		$contact->status = 'wrong_to';
-		$contact_transitional_status_condition->execute( $contact_data );
+		$contact_transitional_status_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_transitional_status_condition->condition_met() );
 
 		// Testing when the condition has been not been met for the from field
 		$contact->status          = 'new_status';
 		$previous_contact->status = 'wrong_from';
-		$contact_transitional_status_condition->execute( $contact_data );
+		$contact_transitional_status_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_transitional_status_condition->condition_met() );
 	}
 
@@ -198,7 +198,7 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 		$tag_id = end( $contact->tags )['id'] + 1;
 
 		// Testing when the condition has been not been met because the contact does not have said tag.
-		$contact_tag_condition->execute( $contact_data );
+		$contact_tag_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_tag_condition->condition_met() );
 
 		// Testing when the condition has been met.
@@ -210,7 +210,7 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 			'created'     => 1692663412,
 			'lastupdated' => 1692663412,
 		);
-		$contact_tag_condition->execute( $contact_data );
+		$contact_tag_condition->validate_and_execute( $contact_data );
 		$this->assertTrue( $contact_tag_condition->condition_met() );
 
 		// Testing when the condition has been not been met because the previous contact already had said tag.
@@ -223,7 +223,7 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 			'lastupdated' => 1692663412,
 		);
 
-		$contact_tag_condition->execute( $contact_data );
+		$contact_tag_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_tag_condition->condition_met() );
 	}
 
@@ -242,7 +242,7 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 		$tag_id = end( $contact->tags )['id'] + 1;
 
 		// Testing when the condition has been not been met because the previous contact does not have said tag.
-		$contact_tag_condition->execute( $contact_data );
+		$contact_tag_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_tag_condition->condition_met() );
 
 		// Testing when the condition has been met.
@@ -254,7 +254,7 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 			'created'     => 1692663412,
 			'lastupdated' => 1692663412,
 		);
-		$contact_tag_condition->execute( $contact_data );
+		$contact_tag_condition->validate_and_execute( $contact_data );
 		$this->assertTrue( $contact_tag_condition->condition_met() );
 
 		// Testing when the condition has been not been met because the current contact still has said tag.
@@ -266,7 +266,7 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 			'created'     => 1692663412,
 			'lastupdated' => 1692663412,
 		);
-		$contact_tag_condition->execute( $contact_data );
+		$contact_tag_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_tag_condition->condition_met() );
 	}
 
@@ -286,7 +286,7 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 		$tag_id = end( $contact->tags )['id'] + 1;
 
 		// Testing when the condition has been not been met because the contact does not have said tag.
-		$contact_tag_condition->execute( $contact_data );
+		$contact_tag_condition->validate_and_execute( $contact_data );
 		$this->assertFalse( $contact_tag_condition->condition_met() );
 
 		// Testing when the condition has been met.
@@ -298,7 +298,7 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 			'created'     => 1692663412,
 			'lastupdated' => 1692663412,
 		);
-		$contact_tag_condition->execute( $contact_data );
+		$contact_tag_condition->validate_and_execute( $contact_data );
 
 		$this->assertTrue( $contact_tag_condition->condition_met() );
 	}

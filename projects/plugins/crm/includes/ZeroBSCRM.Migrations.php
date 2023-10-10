@@ -452,23 +452,25 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 		// ===== / Previously: 2.97.4 - fixes duplicated email templates (found on 2 installs so far)
 		
 
-		// ===== Previously: 4.0.7 - corrects outdated event notification template
+		// ===== Previously: 4.0.7 - corrects outdated task notification template
 
 		// retrieve existing template - hardtyped
 		$existingTemplate = $wpdb->get_var('SELECT zbsmail_body FROM '.$ZBSCRM_t['system_mail_templates'].' WHERE ID = 6');
 
 		// load new
-		$newTemplate = zeroBSCRM_mail_retrieveDefaultBodyTemplate('eventnotification');
+		$newTemplate = zeroBSCRM_mail_retrieveDefaultBodyTemplate( 'tasknotification' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-		// back it up into a WP option if was different
-	    if ($existingTemplate !== $newTemplate) update_option('jpcrm_eventnotificationtemplate',$existingTemplate, false);
+	// back it up into a WP option if was different
+	if ( $existingTemplate !== $newTemplate ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		update_option( 'jpcrm_tasknotificationtemplate', $existingTemplate, false ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
 
 		// overwrite
 		$sql = "UPDATE " . $ZBSCRM_t['system_mail_templates'] . " SET zbsmail_body = %s WHERE ID = 6";
 		$q = $wpdb->prepare($sql,array($newTemplate));
 		$wpdb->query($q);
 		
-		// ===== / Previously: 4.0.7 - corrects outdated event notification template
+		// ===== / Previously: 4.0.7 - corrects outdated task notification template
 		
 
 		// ===== Previously: 4.0.8 - Set the default reference type for invoices & Update the existing template for email notifications (had old label)
@@ -1135,7 +1137,7 @@ function zeroBSCRM_migration_task_offset_fix() { // phpcs:ignore WordPress.Namin
 		return;
 	}
 
-	// remove offset from stored event dates
+	// remove offset from stored task dates
 	$sql = sprintf( 'UPDATE %s SET zbse_start = zbse_start - %d;', $ZBSCRM_t['events'], $timezone_offset_in_secs ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 	$sql = sprintf( 'UPDATE %s SET zbse_end = zbse_end - %d;', $ZBSCRM_t['events'], $timezone_offset_in_secs ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -1161,7 +1163,7 @@ function zeroBSCRM_migration_refresh_user_roles() {
  * Regenerate tag slugs
  */
 function zeroBSCRM_migration_regenerate_tag_slugs() {
-	$obj_ids = array( ZBS_TYPE_CONTACT, ZBS_TYPE_COMPANY, ZBS_TYPE_QUOTE, ZBS_TYPE_INVOICE, ZBS_TYPE_TRANSACTION, ZBS_TYPE_EVENT, ZBS_TYPE_FORM );
+	$obj_ids = array( ZBS_TYPE_CONTACT, ZBS_TYPE_COMPANY, ZBS_TYPE_QUOTE, ZBS_TYPE_INVOICE, ZBS_TYPE_TRANSACTION, ZBS_TYPE_TASK, ZBS_TYPE_FORM );
 	foreach ( $obj_ids as $obj_id ) {
 		jpcrm_migration_regenerate_tag_slugs_for_obj_type( $obj_id );
 	}

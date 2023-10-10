@@ -385,7 +385,7 @@ class Masterbar {
 		$this->add_reader_submenu( $wp_admin_bar );
 
 		// Right part.
-		if ( Jetpack::is_module_active( 'notes' ) ) {
+		if ( Jetpack::is_module_active( 'notes' ) && ! \Jetpack_Notifications::is_block_editor() ) {
 			$this->add_notifications( $wp_admin_bar );
 		}
 
