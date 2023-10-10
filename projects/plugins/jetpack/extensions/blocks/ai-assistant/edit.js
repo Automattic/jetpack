@@ -393,6 +393,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		} );
 	};
 
+	const handleCreateForm = () => {
+		replaceBlock( clientId, createBlock( 'jetpack/contact-form' ) );
+	};
+
 	/*
 	 * Custom prompt modal
 	 */
@@ -514,6 +518,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 						handleGetSuggestion={ handleGetSuggestion }
 						handleImageRequest={ handleImageRequest }
 						handleTryAgain={ handleTryAgain }
+						handleCreateForm={ handleCreateForm }
 						showRetry={ showRetry }
 						contentBefore={ contentBefore }
 						hasPostTitle={ !! postTitle?.length }

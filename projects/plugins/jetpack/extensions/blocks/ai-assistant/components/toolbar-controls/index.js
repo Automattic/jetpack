@@ -31,6 +31,7 @@ const ToolbarControls = ( {
 	setUserPrompt,
 	recordEvent,
 	isGeneratingTitle,
+	handleCreateForm,
 } ) => {
 	return (
 		<>
@@ -94,6 +95,7 @@ const ToolbarControls = ( {
 							} );
 							getSuggestionFromOpenAI( suggestion );
 						} }
+						onCreateForm={ handleCreateForm }
 					/>
 				) }
 
