@@ -8,7 +8,7 @@ import {
 	useAnalytics,
 } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { dispatch, useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
 import { useState, useEffect, useCallback } from '@wordpress/element';
@@ -299,14 +299,19 @@ ${ postContent }
 	);
 }
 
-export const PluginDocumentSettingPanelAiExcerpt = () => (
-	<PostTypeSupportCheck supportKeys="excerpt">
-		<PluginDocumentSettingPanel
-			className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
-			name="ai-content-lens-plugin"
-			title={ __( 'Excerpt', 'jetpack' ) }
-		>
-			<AiPostExcerpt />
-		</PluginDocumentSettingPanel>
-	</PostTypeSupportCheck>
-);
+export const PluginDocumentSettingPanelAiExcerpt = () => {
+	// Remove the excerpt panel by dispatching an action.
+	dispatch( 'core/edit-post' )?.removeEditorPanel( 'post-excerpt' );
+
+	return (
+		<PostTypeSupportCheck supportKeys="excerpt">
+			<PluginDocumentSettingPanel
+				className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
+				name="ai-content-lens-plugin"
+				title={ __( 'Excerpt', 'jetpack' ) }
+			>
+				<AiPostExcerpt />
+			</PluginDocumentSettingPanel>
+		</PostTypeSupportCheck>
+	);
+};
