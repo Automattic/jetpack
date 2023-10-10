@@ -141,15 +141,25 @@ function zerobscrm_doing_it_wrong( $function, $message, $version ) {
 
 	}
 
-
-	function zeroBSCRM_stripSlashesFromArr($value){
-	    $value = is_array($value) ?
-	                array_map('zeroBSCRM_stripSlashesFromArr', $value) :
-	                stripslashes($value);
-
-	    return $value;
+/**
+ * Recursively strips slashes from an array.
+ *
+ * Quite similar to zeroBSCRM_stripSlashes(), but that given
+ * its legacy status any changes to there and its returns may
+ * have negative implications
+ *
+ * @param array|string|null $value Some value to strip.
+ *
+ * @return array|string|null
+ */
+function zeroBSCRM_stripSlashesFromArr( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+	if ( is_array( $value ) ) {
+		return array_map( 'zeroBSCRM_stripSlashesFromArr', $value );
+	} elseif ( is_string( $value ) ) {
+		return stripslashes( $value );
 	}
-
+	return $value;
+}
 
    # from http://wordpress.stackexchange.com/questions/91900/how-to-force-a-404-on-wordpress
 	function zeroBSCRM_force_404() {
@@ -1338,7 +1348,7 @@ function zeroBSCRM_portal_linkObj( $obj_id = -1, $type_int = ZBS_TYPE_INVOICE ) 
 function jpcrm_get_portal_slug() {
 	$portal_page_id   = zeroBSCRM_getSetting( 'portalpage' );
 	$portal_post      = get_post( $portal_page_id );
-	$portal_permalink = rtrim( _get_page_link( $portal_post ), '/' );
+	$portal_permalink = $portal_post ? rtrim( _get_page_link( $portal_post ), '/' ) : '';
 	$portal_slug      = str_replace( home_url(), "", $portal_permalink);
 	
 	if ( empty( $portal_slug ) ) {
