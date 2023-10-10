@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Jetpack_Options;
@@ -127,18 +126,6 @@ class Stats extends Module_Product {
 	 */
 	public static function get_wpcom_free_product_slug() {
 		return 'jetpack_stats_free_yearly';
-	}
-
-	/**
-	 * Force Stats module to return 'error' when the user is not connected, because as of October 2023, the Stats module is defaulted 'active'.
-	 *
-	 * @override
-	 */
-	public static function get_status() {
-		if ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
-			return 'error';
-		}
-		return parent::get_status();
 	}
 
 	/**
