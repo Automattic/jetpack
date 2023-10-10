@@ -37,8 +37,11 @@ export default function MediaPicker( {
 	onChange,
 	wrapperClassName,
 } ) {
-	const { mediaData: { width, height, sourceUrl } = {}, metaData: { mime, length = null } = {} } =
-		mediaDetails;
+	const {
+		mediaData: { width, height, sourceUrl } = {},
+		metaData: { mime, length = null } = {},
+		previewData: { width: previewWidth, height: previewHeight, sourceUrl: previewUrl } = {},
+	} = mediaDetails;
 
 	const isImageLoading = ! sourceUrl || ! width || ! height || ! mime;
 
@@ -75,15 +78,30 @@ export default function MediaPicker( {
 								duration={ length }
 							></VideoPreview>
 						) : (
-							<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
-								<img src={ sourceUrl } alt="" className={ styles[ 'preview-image' ] } />
+							<ResponsiveWrapper
+								naturalWidth={ previewWidth || width }
+								naturalHeight={ previewHeight || height }
+								isInline
+							>
+								<img src={ previewUrl } alt="" className={ styles[ 'preview-image' ] } />
 							</ResponsiveWrapper>
 						) }
 					</button>
 				</div>
 			);
 		},
-		[ height, length, mime, onRemoveMedia, sourceUrl, width, wrapperClassName ]
+		[
+			height,
+			length,
+			mime,
+			onRemoveMedia,
+			previewHeight,
+			previewUrl,
+			previewWidth,
+			sourceUrl,
+			width,
+			wrapperClassName,
+		]
 	);
 
 	const renderPicker = useCallback(
