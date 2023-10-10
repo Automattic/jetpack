@@ -71,7 +71,13 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 
 	public function merge( $partial_value ) {
 		if ( $this->is( Entry_Can_Merge::class ) ) {
-			$updated_value = $this->entry->merge( $this->entry->get(), $partial_value );
+			if ( $this->schema instanceof Decorate_With_Default ) {
+				$default        = $this->schema->get_default_value();
+				$existing_value = $this->entry->get( $default );
+			} else {
+				$existing_value = $this->entry->get();
+			}
+			$updated_value = $this->entry->merge( $existing_value, $partial_value );
 			$this->set( $updated_value );
 		}
 		return $this->get();
