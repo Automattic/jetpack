@@ -519,10 +519,11 @@ class Posts extends Module {
 			 * we are setting `is_syncing` flag to true in order to preserve the existing functionality.
 			 */
 
+			$is_syncing_current = Settings::is_syncing();
 			Settings::set_is_syncing( true );
 			$post->post_content_filtered = apply_filters( 'the_content', $post->post_content );
 			$post->post_excerpt_filtered = apply_filters( 'the_excerpt', $post->post_excerpt );
-			Settings::set_is_syncing( false );
+			Settings::set_is_syncing( $is_syncing_current );
 
 			foreach ( $removed_shortcode_callbacks as $shortcode => $callback ) {
 				add_shortcode( $shortcode, $callback );
