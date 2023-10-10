@@ -48,6 +48,8 @@ class Jetpack_Mu_Wpcom {
 		// Load the Map block settings.
 		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_map_block_settings' ), 999 );
 
+		// Load the Newsletter category settings.
+		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_newsletter_categories_settings' ), 999 );
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -141,6 +143,26 @@ class Jetpack_Mu_Wpcom {
 
 		$map_provider = apply_filters( 'wpcom_map_block_map_provider', 'mapbox' );
 		wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_Maps', array( 'provider' => $map_provider ) );
+	}
+
+	/**
+	 * Adds a global variable containing where the newsletter categories should be shown.
+	 */
+	public static function load_newsletter_categories_settings() {
+		if (
+			! function_exists( 'get_current_screen' )
+			|| \get_current_screen() === null
+		) {
+			return;
+		}
+
+		// Return early if we are not in the block editor.
+		if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
+			return;
+		}
+
+		$newsletter_categories_location = apply_filters( 'wpcom_newsletter_categories_location', 'block' );
+		wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_Subscriptions', array( 'newsletter_categories_location' => $newsletter_categories_location ) );
 	}
 
 	/**
