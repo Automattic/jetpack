@@ -196,6 +196,33 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
+	 * Get the selected shipping option for a cart item. If the name cannot be found in the options table, the method's
+	 * ID will be used.
+	 *
+	 * @param string $cart_item_key the cart item key.
+	 *
+	 * @return mixed|void
+	 */
+	public function get_shipping_option_for_item( $cart_item_key ) {
+		$packages         = wc()->shipping()->get_packages();
+		$selected_options = wc()->session->get( 'chosen_shipping_methods' );
+		foreach ( $packages as $package_id => $package ) {
+			foreach ( $package['contents'] as $package_item ) {
+				if ( $package_item['key'] === $cart_item_key ) {
+					$selected_rate_id = $selected_options[ $package_id ];
+					$method_key_id    = str_replace( ':', '_', $selected_rate_id );
+					$option_name      = 'woocommerce_' . $method_key_id . '_settings';
+					$title            = get_option( $option_name, true )['title'];
+					if ( ! $title ) {
+						return $selected_rate_id;
+					}
+					return $title;
+				}
+			}
+		}
+	}
+
+	/**
 	 * On the Checkout page, trigger an event for each product in the cart
 	 */
 	public function checkout_process() {
