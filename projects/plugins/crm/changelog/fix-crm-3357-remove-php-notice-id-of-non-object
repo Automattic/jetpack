@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Remove PHP notice "Trying to get property 'ID' of non-object in /wp-includes/link-template.php on line 445" for PHP version >= 8.x
