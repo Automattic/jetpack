@@ -281,9 +281,7 @@ jQuery( document ).ready( function ( $ ) {
 			}else{
 				button.trigger('click');  // trigger the original click event if jpTracksAJAX is not available
 			}
-
 			
-
 		} );
 	};
 
