@@ -15,7 +15,9 @@ export const SharingPlaceholder = ( { changeStatus, isLoading, isModuleActive } 
 
 	return (
 		<>
-			<p>{ __( 'Activate the Sharing feature allowing others sharing your posts.', 'jetpack' ) }</p>
+			<p>
+				{ __( 'Activate the Sharing feature to allow others to share your posts.', 'jetpack' ) }
+			</p>
 			<Button
 				disabled={ isModuleActive || isLoading }
 				isBusy={ isLoading }

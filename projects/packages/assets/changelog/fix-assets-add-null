@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Pass `false`, not `null`, to `WP_Scripts->add()`.
