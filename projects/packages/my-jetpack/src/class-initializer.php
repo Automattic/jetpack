@@ -16,11 +16,11 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
-use Jetpack;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -158,6 +158,7 @@ class Initializer {
 				'textdomain' => 'jetpack-my-jetpack',
 			)
 		);
+		$modules = new Modules();
 		wp_localize_script(
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
@@ -179,7 +180,7 @@ class Initializer {
 				'adminUrl'              => esc_url( admin_url() ),
 				'IDCContainerID'        => static::get_idc_container_id(),
 				'userIsAdmin'           => current_user_can( 'manage_options' ),
-				'isStatsModuleActive'   => Jetpack::is_module_active( 'stats' ),
+				'isStatsModuleActive'   => $modules->is_active( 'stats' ),
 			)
 		);
 
