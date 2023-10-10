@@ -277,6 +277,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'create_account'    => 'Yes' === $create_account ? 'Yes' : 'No',
 						'express_checkout'  => 'null',
 						'shipping_option'   => $this->get_shipping_option_for_item( $cart_item_key ),
+						'products_count'    => count( wc()->cart->get_cart() ),
 						'additional_blocks' => $this->additional_blocks_on_page,
 					),
 					$product->get_id()
@@ -308,6 +309,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'create_account'    => 'Yes' === $create_account ? 'Yes' : 'No',
 						'express_checkout'  => 'null',
 						'shipping_option'   => $this->get_shipping_option_for_item( $cart_item_key ),
+						'products_count'    => count( wc()->cart->get_cart() ),
 						'additional_blocks' => $this->additional_blocks_on_page,
 					),
 					$product->get_id()
@@ -367,6 +369,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					'create_account'    => $create_account,
 					'guest_checkout'    => $guest_checkout,
 					'express_checkout'  => $express_checkout,
+					'products_count'    => count( $order->get_items() ),
 					'additional_blocks' => $this->additional_blocks_on_page,
 				),
 				$product_id
