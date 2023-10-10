@@ -31,7 +31,6 @@ export function initializeClient( namespace: string ) {
 		// If this is set to true, the store won't be added to the global error store.
 		hideFromGlobalErrors?: boolean;
 	};
-	console.log( 'I actually did it???' );
 	function createAsyncStore< T extends z.ZodSchema >(
 		valueName: string,
 		schema: T,

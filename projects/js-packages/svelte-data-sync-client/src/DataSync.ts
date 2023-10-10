@@ -222,7 +222,6 @@ export class DataSync< Schema extends z.ZodSchema, T extends z.infer< Schema > >
 		abortSignal?: AbortSignal
 	): Promise< T > {
 		const data = await this.request( method, this.endpoint, params, abortSignal );
-		console.log( 'I actually did it!' );
 		try {
 			const parsed = this.schema.parse( data );
 			return parsed;
