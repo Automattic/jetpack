@@ -280,6 +280,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'products_count'    => count( wc()->cart->get_cart() ),
 						'coupon_used'       => count( wc()->cart->applied_coupons ) > 0 ? '1' : '0',
 						'order_value'       => wc()->cart->get_totals()['total'],
+						'store_currency'    => get_woocommerce_currency(),
 						'additional_blocks' => $this->additional_blocks_on_page,
 					),
 					$product->get_id()
@@ -314,6 +315,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'products_count'    => count( wc()->cart->get_cart() ),
 						'coupon_used'       => count( wc()->cart->applied_coupons ) > 0 ? '1' : '0',
 						'order_value'       => wc()->cart->get_totals()['total'],
+						'store_currency'    => get_woocommerce_currency(),
 						'additional_blocks' => $this->additional_blocks_on_page,
 					),
 					$product->get_id()
@@ -376,6 +378,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					'products_count'    => count( $order->get_items() ),
 					'coupon_used'       => count( $order->get_coupons() ) > 0 ? '1' : '0',
 					'order_value'       => $order->get_total(),
+					'store_currency'    => get_woocommerce_currency(),
 					'additional_blocks' => $this->additional_blocks_on_page,
 				),
 				$product_id
