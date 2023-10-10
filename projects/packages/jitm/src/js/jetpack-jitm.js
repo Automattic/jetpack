@@ -275,10 +275,14 @@ jQuery( document ).ready( function ( $ ) {
 			};
 
 			if ( window.jpTracksAJAX ) {
-				window.jpTracksAJAX.record_ajax_event(eventName, 'click', eventProp);
+				window.jpTracksAJAX.record_ajax_event(eventName, 'click', eventProp).always( function() {
+					button.trigger('click');  // trigger the original click event after the function has tracked
+				} );
+			}else{
+				button.trigger('click');  // trigger the original click event if jpTracksAJAX is not available
 			}
 
-			button.trigger('click');  // Trigger the actual click event
+			
 
 		} );
 	};
