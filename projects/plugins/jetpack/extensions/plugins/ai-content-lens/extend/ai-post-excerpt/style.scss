@@ -1,6 +1,5 @@
-.jetpack-ai-post-excerpt .components-textarea-control__input {
+.jetpack-ai-post-excerpt {
 	width: 100%;
-	margin-bottom: 10px;
 }
 
 .jetpack-generated-excerpt__ai-container {
@@ -13,10 +12,9 @@
 
 .jetpack-generated-excerpt__generate-buttons-container {
 	display: flex;
-	justify-content: end;
 	margin-bottom: 10px;
 	gap: 12px;
-	justify-content:space-around;
+	justify-content: flex-end;
 }
 
 // Upgrade banner
