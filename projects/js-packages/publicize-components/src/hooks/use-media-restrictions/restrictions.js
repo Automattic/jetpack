@@ -64,6 +64,12 @@ export const DEFAULT_RESTRICTIONS = {
 	allowedMediaTypes: allowedImageTypes.concat( [ MP4, VIDEOPRESS, MOV ] ),
 	image: {
 		maxSize: 4,
+		minWidth: 0,
+		maxWidth: GLOBAL_MAX_SIZE,
+		aspectRatio: {
+			min: 0,
+			max: GLOBAL_MAX_SIZE,
+		},
 	},
 	video: {
 		minLength: 0,
@@ -126,6 +132,12 @@ export const RESTRICTIONS = {
 		allowedMediaTypes: [ 'image/jpg', 'image/jpeg', MP4, MOV, VIDEOPRESS ],
 		image: {
 			maxSize: 8,
+			minWidth: 320,
+			maxWidth: 1440,
+			aspectRatio: {
+				min: 4 / 5,
+				max: 1.91 / 1,
+			},
 		},
 		video: {
 			maxLength: 90,
