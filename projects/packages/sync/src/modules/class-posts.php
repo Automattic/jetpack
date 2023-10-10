@@ -512,9 +512,17 @@ class Posts extends Module {
 			}
 
 			array_map( 'remove_shortcode', array_keys( $removed_shortcode_callbacks ) );
+			/**
+			 * Certain modules such as Likes, Related Posts and Sharedaddy are using `Settings::is_syncing`
+			 * in order to NOT get rendered in filtered post content.
+			 * Since the current method runs now before enqueueing instead of before sending,
+			 * we are setting `is_syncing` flag to true in order to preserve the existing functionality.
+			 */
 
+			Settings::set_is_syncing( true );
 			$post->post_content_filtered = apply_filters( 'the_content', $post->post_content );
 			$post->post_excerpt_filtered = apply_filters( 'the_excerpt', $post->post_excerpt );
+			Settings::set_is_syncing( false );
 
 			foreach ( $removed_shortcode_callbacks as $shortcode => $callback ) {
 				add_shortcode( $shortcode, $callback );

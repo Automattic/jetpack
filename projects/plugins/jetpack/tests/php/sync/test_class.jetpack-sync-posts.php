@@ -857,8 +857,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_remove_contact_form_shortcode_from_filtered_content() {
-		$this->markTestSkipped( 'Temp skipping test' );
-
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
@@ -879,8 +877,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_remove_likes_from_filtered_content() {
-		$this->markTestSkipped( 'Temp skipping test' );
-
 		// this only applies to rendered content, which is off by default
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
@@ -908,8 +904,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_remove_sharedaddy_from_filtered_content() {
-		$this->markTestSkipped( 'Temp skipping test' );
-
 		// this only applies to rendered content, which is off by default
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
@@ -945,8 +939,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_remove_related_posts_from_filtered_content() {
-		$this->markTestSkipped( 'Temp skipping test' );
-
 		// this only applies to rendered content, which is off by default
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
@@ -962,19 +954,17 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
+		remove_filter( 'jetpack_is_fse_theme', '__return_false' );
+
 		$this->assertStringContainsString( '<div id=\'jp-relatedposts\'', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
 
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( "<p>hello</p>\n\n", $synced_post->post_content_filtered );
-
-		remove_filter( 'jetpack_is_fse_theme', '__return_false' );
 	}
 
 	public function test_remove_related_posts_shortcode_from_filtered_content() {
-		$this->markTestSkipped( 'Temp skipping test' );
-
 		// this only applies to rendered content, which is off by default
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
