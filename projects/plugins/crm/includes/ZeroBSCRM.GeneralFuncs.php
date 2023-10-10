@@ -1348,7 +1348,7 @@ function zeroBSCRM_portal_linkObj( $obj_id = -1, $type_int = ZBS_TYPE_INVOICE ) 
 function jpcrm_get_portal_slug() {
 	$portal_page_id   = zeroBSCRM_getSetting( 'portalpage' );
 	$portal_post      = get_post( $portal_page_id );
-	$portal_permalink = rtrim( _get_page_link( $portal_post ), '/' );
+	$portal_permalink = $portal_post ? rtrim( _get_page_link( $portal_post ), '/' ) : '';
 	$portal_slug      = str_replace( home_url(), "", $portal_permalink);
 	
 	if ( empty( $portal_slug ) ) {
