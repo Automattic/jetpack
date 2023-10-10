@@ -259,26 +259,26 @@ jQuery( document ).ready( function ( $ ) {
 
 		// Handle tracking for JITM CTA buttons
 		$template.find( '.jitm-button' ).on( 'click', function ( e ) {
-				e.preventDefault();
+			e.preventDefault();
 
-				var button = $( this );
-				var eventName = button.attr( 'data-jptracks-name' );
-				if ( undefined === eventName ) {
-					return;
-				}
+			var button = $( this );
+			var eventName = button.attr( 'data-jptracks-name' );
+			if ( undefined === eventName ) {
+				return;
+			}
 
-				var jitmName = button.attr( 'data-jptracks-prop' ) || false;
-				var messagePath = button.attr( 'data-jitm-path' ) || false;
-				var eventProp = {
-					clicked: jitmName,
-					jitm_message_path: messagePath,
-				};
+			var jitmName = button.attr( 'data-jptracks-prop' ) || false;
+			var messagePath = button.attr( 'data-jitm-path' ) || false;
+			var eventProp = {
+				clicked: jitmName,
+				jitm_message_path: messagePath,
+			};
 
-				if ( window.jpTracksAJAX ) {
-					window.jpTracksAJAX.record_ajax_event(eventName, 'click', eventProp).always( function() {
-						window.location.href = button.attr('href');
-					} );
-				}
+			if ( window.jpTracksAJAX ) {
+				window.jpTracksAJAX.record_ajax_event(eventName, 'click', eventProp).always( function() {
+					window.location.href = button.attr('href');
+				} );
+			}
 		});
 	};
 
