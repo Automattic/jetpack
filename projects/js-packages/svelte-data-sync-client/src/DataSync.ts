@@ -5,9 +5,8 @@ import { ApiError } from './ApiError';
 /**
  * Every SyncedStore option has its own API Endpoint.
  */
-export class API_Endpoint< T extends RequestParams > {
+export class DataSync< T extends RequestParams > {
 	public nonce = '';
-
 	private endpoint: string;
 
 	constructor( private api: API, private name: string, private schema: z.ZodSchema ) {

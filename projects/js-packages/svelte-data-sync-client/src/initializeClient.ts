@@ -1,7 +1,7 @@
 import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { API } from './API';
-import { API_Endpoint } from './Endpoint';
+import { DataSync } from './Endpoint';
 import { SyncedStore } from './SyncedStore';
 import { ValidatedValue } from './types';
 
@@ -107,7 +107,7 @@ export function initializeClient( namespace: string ) {
 
 		// Setup the Svelte Store and the API Endpoint for this value
 		const syncedStore = new SyncedStore< z.infer< T > >( value );
-		const endpoint = new API_Endpoint< z.infer< T > >( api, valueName, schema );
+		const endpoint = new DataSync< z.infer< T > >( api, valueName, schema );
 
 		/**
 		 * Wire up store to the endpoint.
@@ -164,7 +164,7 @@ export function initializeClient( namespace: string ) {
 		 * @see API
 		 *
 		 * Note that each client has `endpoint` property available.
-		 * @see API_Endpoint
+		 * @see DataSync
 		 */
 		api,
 		/**
