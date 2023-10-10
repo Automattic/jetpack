@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Escape email address when output in HTML.
