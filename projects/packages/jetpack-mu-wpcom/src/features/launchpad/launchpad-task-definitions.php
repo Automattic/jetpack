@@ -891,7 +891,7 @@ function wpcom_launchpad_get_newsletter_subscriber_count() {
 function wpcom_is_stripe_connected() {
 	require_lib( 'memberships' );
 	$blog_id  = get_current_blog_id();
-	$settings = get_memberships_settings_for_site( $blog_id );
+	$settings = (array) get_memberships_settings_for_site( $blog_id );
 	return boolval( $settings['connected_account_id'] );
 }
 
@@ -903,7 +903,7 @@ function wpcom_is_stripe_connected() {
 function wpcom_has_paid_membership_plans() {
 	require_lib( 'memberships' );
 	$blog_id  = get_current_blog_id();
-	$settings = get_memberships_settings_for_site( $blog_id );
+	$settings = (array) get_memberships_settings_for_site( $blog_id );
 	return count( $settings['products'] ) > 0;
 }
 
