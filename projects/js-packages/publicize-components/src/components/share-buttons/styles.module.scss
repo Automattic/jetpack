@@ -33,6 +33,7 @@ $whatsapp: #2ab318;
 		background: transparent;
 		justify-content: start;
 		color: var(--jp-black);
+		gap: 0;
 
 		&:hover {
 			background: transparent;
@@ -50,8 +51,8 @@ $whatsapp: #2ab318;
 		}
 	}
 
-	.twitter {
-		background-color: var(--color-twitter);
+	.x {
+		background-color: var(--jp-black);
 	}
 
 	.whatsapp {
@@ -63,6 +64,10 @@ $whatsapp: #2ab318;
 		outline: 1px solid var(--jp-gray);
 		color: var(--jp-black);
 	}
+}
+
+.vertical {
+	flex-direction: column;
 }
 
 .container {
