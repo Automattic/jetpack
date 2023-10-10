@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Cast `$bucket_size` to an int when embedding in SQL. Should already have been validated by the caller, but doesn't hurt to enforce it.
+
+
