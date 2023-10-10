@@ -29,8 +29,6 @@ class zeroBSCRM_Edit{
     private $plural = false;
     // renamed listViewSlug v3.0+ private $postPage = false;
     private $listViewSlug = false;
-    // Discontinued from v3.0 private $tag = false; // this is now retrieved from DAL centralised vars by objTypeID above, v3.0+
-    // Discontinued from v3.0 private $postType = false; // this is now retrieved from DAL centralised vars by objTypeID above, v3.0+
 
     private $langLabels = false;
     private $bulkActions = false;
@@ -57,8 +55,6 @@ class zeroBSCRM_Edit{
             'objType'   => false,   //transaction
             'singular'   => false,  //Transaction
             'plural' => false,      //Transactions
-            'tag' => false,         // Discontinued v3.0 + zerobs_transactiontag
-            'postType' => false,    // Discontinued v3.0 + //zerobs_transaction
             'listViewSlug' => false,    //manage-transactions
 
             'langLabels' => array(
