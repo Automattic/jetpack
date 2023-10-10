@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import {
+	useAiSuggestions,
+	AI_MODEL_GPT_4,
+	ERROR_QUOTA_EXCEEDED,
+} from '@automattic/jetpack-ai-client';
 import {
 	isAtomicSite,
 	isSimpleSite,
@@ -9,9 +13,13 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { dispatch, useDispatch, useSelect } from '@wordpress/data';
-import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
+import {
+	PluginDocumentSettingPanel,
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalPluginPostExcerpt as PluginPostExcerpt,
+} from '@wordpress/edit-post';
 import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
-import { useState, useEffect, useCallback } from '@wordpress/element';
+import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
 /**
@@ -299,7 +307,196 @@ ${ postContent }
 	);
 }
 
+function PostExcerptAiExtension() {
+	const { excerpt, postId } = useSelect( select => {
+		const { getEditedPostAttribute, getCurrentPostId } = select( editorStore );
+
+		return {
+			excerpt: getEditedPostAttribute( 'excerpt' ) ?? '',
+			postId: getCurrentPostId() ?? 0,
+		};
+	}, [] );
+
+	const { editPost } = useDispatch( 'core/editor' );
+
+	// Post excerpt words number
+	const [ excerptWordsNumber, setExcerptWordsNumber ] = useState( 50 );
+
+	const [ language, setLanguage ] = useState< LanguageProp >();
+	const [ tone, setTone ] = useState< ToneProp >();
+	const [ model, setModel ] = useState< AiModelTypeProp >( AI_MODEL_GPT_4 );
+
+	const { request, stopSuggestion, requestingState, error, reset } = useAiSuggestions( {
+		onSuggestion: freshExcerpt => {
+			editPost( { excerpt: freshExcerpt } );
+		},
+	} );
+
+	// Cancel and reset AI suggestion when the component is unmounted
+	useEffect( () => {
+		return () => {
+			stopSuggestion();
+			reset();
+		};
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
+
+	// Pick raw post content
+	const postContent = useSelect(
+		select => {
+			const content = select( editorStore ).getEditedPostContent();
+			if ( ! content ) {
+				return '';
+			}
+
+			// return turndownService.turndown( content );
+			const document = new window.DOMParser().parseFromString( content, 'text/html' );
+
+			const documentRawText = document.body.textContent || document.body.innerText || '';
+
+			// Keep only one break line (\n) between blocks.
+			return documentRawText.replace( /\n{2,}/g, '\n' ).trim();
+		},
+		[ postId ]
+	);
+
+	// Show custom prompt number of words
+	const currentExcerpt = excerpt;
+	const numberOfWords = count( currentExcerpt, 'words' );
+	const help = createInterpolateElement(
+		sprintf(
+			// Translators: %1$s is the number of words in the excerpt.
+			_n(
+				'The actual length may vary as the AI strives to generate coherent and meaningful content. Current length: <strong>%1$s</strong> word',
+				'The actual length may vary as the AI strives to generate coherent and meaningful content. Current length: <strong>%1$s</strong> words',
+				numberOfWords,
+				'jetpack'
+			),
+			numberOfWords
+		),
+		{
+			strong: <strong />,
+		}
+	);
+
+	const isGenerateButtonDisabled =
+		requestingState === 'requesting' || requestingState === 'suggesting';
+
+	const isBusy = requestingState === 'requesting' || requestingState === 'suggesting';
+
+	/**
+	 * Request AI for a new excerpt.
+	 *
+	 * @returns {void}
+	 */
+	function requestExcerpt(): void {
+		// Reset suggestion state
+		reset();
+
+		const messageContext: ContentLensMessageContextProps = {
+			type: 'ai-content-lens',
+			contentType: 'post-excerpt',
+			postId,
+			words: excerptWordsNumber,
+			language,
+			tone,
+			content: `Post content:
+${ postContent }
+`,
+		};
+
+		const prompt = [
+			{
+				role: 'jetpack-ai',
+				context: messageContext,
+			},
+		];
+
+		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
+	}
+	const isQuotaExceeded = error?.code === ERROR_QUOTA_EXCEEDED;
+
+	// Set the docs link depending on the site type
+	const docsLink =
+		isAtomicSite() || isSimpleSite()
+			? __( 'https://wordpress.com/support/excerpts/', 'jetpack' )
+			: __( 'https://jetpack.com/support/create-better-post-excerpts-with-ai/', 'jetpack' );
+
+	return (
+		<div className="jetpack-ai-post-excerpt">
+			<div className="jetpack-generated-excerpt__ai-container">
+				{ error?.code && error.code !== 'error_quota_exceeded' && (
+					<Notice
+						status={ error.severity }
+						isDismissible={ false }
+						className="jetpack-ai-assistant__error"
+					>
+						{ error.message }
+					</Notice>
+				) }
+
+				{ isQuotaExceeded && <UpgradePrompt /> }
+
+				<AiExcerptControl
+					words={ excerptWordsNumber }
+					onWordsNumberChange={ wordsNumber => {
+						setExcerptWordsNumber( wordsNumber );
+					} }
+					language={ language }
+					onLanguageChange={ newLang => {
+						setLanguage( newLang );
+					} }
+					tone={ tone }
+					onToneChange={ newTone => {
+						setTone( newTone );
+					} }
+					model={ model }
+					onModelChange={ newModel => {
+						setModel( newModel );
+					} }
+					disabled={ isBusy || isQuotaExceeded }
+					help={ help }
+				/>
+
+				<BaseControl
+					help={
+						! postContent?.length ? __( 'Add content to generate an excerpt.', 'jetpack' ) : null
+					}
+				>
+					<div className="jetpack-generated-excerpt__generate-buttons-container">
+						<Button
+							onClick={ requestExcerpt }
+							variant="secondary"
+							isBusy={ isBusy }
+							disabled={ isGenerateButtonDisabled || isQuotaExceeded || ! postContent }
+						>
+							{ __( 'Generate', 'jetpack' ) }
+						</Button>
+					</div>
+				</BaseControl>
+
+				<ExternalLink href={ docsLink }>
+					{ __( 'AI excerpts documentation', 'jetpack' ) }
+				</ExternalLink>
+			</div>
+		</div>
+	);
+}
+
 export const PluginDocumentSettingPanelAiExcerpt = () => {
+	// Check if PluginPostExcerpt Slot is available.
+	if ( typeof PluginPostExcerpt !== 'undefined' ) {
+		return (
+			<PluginPostExcerpt>
+				<PostExcerptAiExtension />
+			</PluginPostExcerpt>
+		);
+	}
+
+	/*
+	 * The following implementation should be removed
+	 * once the PluginPostExcerpt Slot is available in core.
+	 */
+
 	// Remove the excerpt panel by dispatching an action.
 	dispatch( 'core/edit-post' )?.removeEditorPanel( 'post-excerpt' );
 
