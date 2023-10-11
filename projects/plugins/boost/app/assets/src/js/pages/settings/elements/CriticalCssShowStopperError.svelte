@@ -8,15 +8,18 @@
 	import { __ } from '@wordpress/i18n';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import FoldingElement from '../../../elements/FoldingElement.svelte';
-	import { criticalCssState, regenerateCriticalCss } from '../../../stores/critical-css-state';
-	import { primaryErrorSet } from '../../../stores/critical-css-state-errors';
+	import { CriticalCssState } from '../../../stores/critical-css-state-types';
 	import CriticalCssErrorDescription from './CriticalCssErrorDescription.svelte';
 
 	export let supportLink = 'https://wordpress.org/support/plugin/jetpack-boost/';
+	export let status: CriticalCssState[ 'status' ];
+	export let primaryErrorSet;
+	export let statusError;
+	export let regenerateCriticalCss;
 
 	// Show a Provider Key error if the process succeeded but there were errors.
-	let showingProviderError = false;
-	$: showingProviderError = $primaryErrorSet && $criticalCssState.status === 'generated';
+	$: showProviderError = primaryErrorSet && status === 'generated';
+
 	onDestroy( () => {
 		firstTime = false;
 	} );
@@ -36,21 +39,21 @@
 			  )}
 	</p>
 
-	{#if showingProviderError || $criticalCssState.status_error}
+	{#if showProviderError || statusError}
 		<FoldingElement
 			showLabel={__( 'See error message', 'jetpack-boost' )}
 			hideLabel={__( 'Hide error message', 'jetpack-boost' )}
 		>
 			<div class="raw-error" transition:slide|local>
-				{#if showingProviderError}
+				{#if showProviderError}
 					<CriticalCssErrorDescription
-						errorSet={$primaryErrorSet}
+						errorSet={primaryErrorSet}
 						showSuggestion={true}
 						showClosingParagraph={false}
 						foldRawErrors={false}
 					/>
 				{:else}
-					{$criticalCssState.status_error}
+					{statusError}
 				{/if}
 			</div>
 		</FoldingElement>
