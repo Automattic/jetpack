@@ -493,7 +493,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Connect a Stripe account to collect payments', 'jetpack-mu-wpcom' );
 			},
 			'is_visible_callback'  => '__return_true',
-			'is_complete_callback' => 'wpcom_is_stripe_connected',
+			'is_complete_callback' => 'wpcom_launchpad_is_stripe_connected',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				if ( function_exists( 'get_memberships_connected_account_redirect' ) ) {
 					return get_memberships_connected_account_redirect(
@@ -508,7 +508,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Set up an offer for your supporters', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_has_paid_membership_plans',
+			'is_complete_callback' => 'wpcom_launchpad_has_paid_membership_plans',
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/earn/payments-plans/' . $data['site_slug_encoded'];
