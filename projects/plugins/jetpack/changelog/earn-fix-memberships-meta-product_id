@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Add jetpack_memberships_product_id to the list of post meta to sync.

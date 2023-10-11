@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\CRM\Entities;
 /**
  * Contact class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Contact {
 

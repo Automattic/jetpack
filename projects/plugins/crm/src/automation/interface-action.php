@@ -3,7 +3,7 @@
  * Interface Action.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\CRM\Automation;
 /**
  * Interface Action.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 interface Action extends Step {
 

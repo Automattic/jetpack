@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Escape various URLs in class.jetpack.php. These all should have been ok before (no user-controlled data), but technically should still be escaped just in case.
-
-

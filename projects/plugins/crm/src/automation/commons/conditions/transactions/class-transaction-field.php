@@ -17,14 +17,14 @@ use Automattic\Jetpack\CRM\Entities\Transaction;
 /**
  * Transaction_Field condition class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Transaction_Field extends Base_Condition {
 
 	/**
 	 * Transaction_Field constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data The step data.
 	 */
@@ -60,7 +60,7 @@ class Transaction_Field extends Base_Condition {
 	 * Executes the condition. If the condition is met, the value stored in the
 	 * attribute $condition_met is set to true; otherwise, it is set to false.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
 	 * @return void
@@ -113,7 +113,7 @@ class Transaction_Field extends Base_Condition {
 	/**
 	 * Get the title for the transaction field condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The title 'Transaction Field Changed'.
 	 */
@@ -124,7 +124,7 @@ class Transaction_Field extends Base_Condition {
 	/**
 	 * Get the slug for the transaction field condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug 'transaction_field'.
 	 */
@@ -135,7 +135,7 @@ class Transaction_Field extends Base_Condition {
 	/**
 	 * Get the description for the transaction field condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The description for the condition.
 	 */
@@ -146,7 +146,7 @@ class Transaction_Field extends Base_Condition {
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */
@@ -157,7 +157,7 @@ class Transaction_Field extends Base_Condition {
 	/**
 	 * Get the category of the transaction field condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The category 'transaction'.
 	 */
