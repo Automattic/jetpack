@@ -20,7 +20,7 @@ type RequestMethods = 'GET' | 'POST' | 'DELETE';
  *
  * Note: The keys are converted to be snake_case in Objects, but kebab-case in URLs.
  */
-export class DataSync< Schema extends z.ZodSchema, T extends z.infer< Schema > > {
+export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema > > {
 	/**
 	 * Configure the WordPress REST API Endpoint.
 	 * @param wpDatasyncUrl - For example: http://localhost/wp-json/jetpack-favorites
@@ -212,9 +212,9 @@ export class DataSync< Schema extends z.ZodSchema, T extends z.infer< Schema > >
 	private async parsedRequest(
 		method: RequestMethods = 'GET',
 		path = '',
-		params?: T,
+		params?: Value,
 		abortSignal?: AbortSignal
-	): Promise< T > {
+	): Promise< Value > {
 		const data = await this.request( method, this.endpoint, params, abortSignal );
 		try {
 			const parsed = this.schema.parse( data );
@@ -248,15 +248,15 @@ export class DataSync< Schema extends z.ZodSchema, T extends z.infer< Schema > >
 	 * to be bound to the class instance, to make it easier to pass them
 	 * around as callbacks without losing the `this` context.
 	 */
-	public GET = async ( abortSignal?: AbortSignal ): Promise< T > => {
+	public GET = async ( abortSignal?: AbortSignal ): Promise< Value > => {
 		return await this.parsedRequest( 'GET', '', undefined, abortSignal );
 	};
 
-	public SET = async ( params: T, abortSignal?: AbortSignal ): Promise< T > => {
+	public SET = async ( params: Value, abortSignal?: AbortSignal ): Promise< Value > => {
 		return await this.parsedRequest( 'POST', '/set', params, abortSignal );
 	};
 
-	public MERGE = async ( params: T, abortSignal?: AbortSignal ): Promise< T > => {
+	public MERGE = async ( params: Value, abortSignal?: AbortSignal ): Promise< Value > => {
 		return await this.parsedRequest( 'POST', '/merge', params, abortSignal );
 	};
 

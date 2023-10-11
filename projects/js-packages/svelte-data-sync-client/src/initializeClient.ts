@@ -31,15 +31,15 @@ export function initializeClient( namespace: string ) {
 		// If this is set to true, the store won't be added to the global error store.
 		hideFromGlobalErrors?: boolean;
 	};
-	function createAsyncStore< T extends z.ZodSchema >(
+	function createAsyncStore< Schema extends z.ZodSchema, Value extends z.infer< Schema > >(
 		valueName: string,
-		schema: T,
+		schema: Schema,
 		opts: AsyncStoreOptions = {}
 	) {
 		const endpoint = new DataSync( namespace, valueName, schema );
 
 		// Setup the Svelte Store and the API Endpoint for this value
-		const syncedStore = new SyncedStore< z.infer< T > >( endpoint.getInitialValue() );
+		const syncedStore = new SyncedStore< Value >( endpoint.getInitialValue() );
 
 		// The client doesn't need the whole store object.
 		// Only expose selected public methods:
