@@ -47,7 +47,12 @@ function fixDeps( pkg ) {
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( dep.startsWith( 'eslint-plugin-' ) || dep.endsWith( '/eslint-plugin' ) ) {
+			if (
+				dep.startsWith( 'eslint-plugin-' ) ||
+				dep.endsWith( '/eslint-plugin' ) ||
+				dep.startsWith( 'eslint-config-' ) ||
+				dep.endsWith( '/eslint-config' )
+			) {
 				delete pkg.dependencies[ dep ];
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}

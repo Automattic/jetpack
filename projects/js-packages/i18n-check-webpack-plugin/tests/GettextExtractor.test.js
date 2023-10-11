@@ -3,7 +3,7 @@ const mock_PLUGIN_NAME = require( '../src/plugin-name.js' ); // eslint-disable-l
 
 const mockDebug = jest.fn();
 mockDebug.enabled = true;
-jest.mock( 'debug', () => name => name.startsWith( mock_PLUGIN_NAME ) ? mockDebug : () => {} );
+jest.mock( 'debug', () => name => ( name.startsWith( mock_PLUGIN_NAME ) ? mockDebug : () => {} ) );
 
 const GettextEntries = require( '../src/GettextEntries' );
 const GettextEntry = require( '../src/GettextEntry' );
