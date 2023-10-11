@@ -2069,7 +2069,7 @@ importers:
         version: 8.19.1
       '@testing-library/preact':
         specifier: 3.2.3
-        version: 3.2.3(@testing-library/dom@8.19.1)(preact@10.12.1)
+        version: 3.2.3(preact@10.12.1)
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
@@ -2423,7 +2423,7 @@ importers:
         version: 8.19.1
       '@testing-library/preact':
         specifier: 3.2.3
-        version: 3.2.3(@testing-library/dom@8.19.1)(preact@10.12.1)
+        version: 3.2.3(preact@10.12.1)
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
@@ -9021,11 +9021,10 @@ packages:
       redent: 3.0.0
     dev: true
 
-  /@testing-library/preact@3.2.3(@testing-library/dom@8.19.1)(preact@10.12.1):
+  /@testing-library/preact@3.2.3(preact@10.12.1):
     resolution: {integrity: sha512-y6Kklp1XK3f1X2fWCbujmJyzkf+1BgLYXNgAx21j9+D4CoqMTz5qC4SQufb1L6q/jxLGACzrQ90ewVOTBvHOfg==}
     engines: {node: '>= 12'}
     peerDependencies:
-      '@testing-library/dom': ^8.11.1
       preact: '>=10 || ^10.0.0-alpha.0 || ^10.0.0-beta.0'
     dependencies:
       '@testing-library/dom': 8.19.1
