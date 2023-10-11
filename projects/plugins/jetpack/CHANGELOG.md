@@ -2,11 +2,71 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.7-beta - 2023-10-10
+### Enhancements
+- Newsletter: launch the ability to create tiered newsletter plans. [#32710]
+- Blogroll: move blogroll and blogroll-items blocks from beta to production, along with various improvements. [#33475] [#33483]
+
+### Improved compatibility
+- AI Chat block: fix icon color in block selector. [#33478]
+
+### Bug fixes
+- AI Assistant: do not register the editor plugin if the site is not connected to WordPress.com. [#33408]
+- AI Chat block: fix text wrapping in button for Firefox. [#33519]
+- Block Editor: update the Likes and Sharing copy in the Jetpack menu to address grammatical mistake. [#33509] 
+- Subscriptions module: fix fatal error caused by undefined constant. [#33473]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add jetpack_memberships_product_id to the list of post meta to sync. [#33323]
+- AI Excerpt: set support document link depending on site type [#33499]
+- Sites API: add was_hosting_trial flag to data returned for site details. [#33487]
+- Incorrect typing for a meta field [#33515]
+- Add conditional rendering for newsletter categories based on the wpcom_newsletter_categories_location filter [#33376]
+- Paywall block: remove "beta" from the name in block.json [#33527]
+- Removed WPCOM-specific references from site settings endpoint. [#33466]
+- Sharing: improve the display of the official X button. [#33474]
+- Paywall: login paragraph to use theme text colour [#33532]
+- Updated package dependencies. [#33455]
+
+## 12.7-a.7 - 2023-10-04
+### Improved compatibility
+- Notifications: temporarily disable the notifications admin bar menu on any block editor page to allow for Gutenberg 16.7 compatability. [#33458]
+
+## 12.7-a.5 - 2023-10-03
+### Enhancements
+- AI Chat: Enhanced error presentation and UX improvements. [#33387] [#33401]
+- AI Search Block: release the Jetpack AI Search Block. [#33432]
+- Block Editor: add a new post publish panel for quick sharing. [#33244]
+- Block Editor: display the SEO and Sharing editor panels in the block editor under the Jetpack side menu. [#33258] [#33226]
+- Blogroll Block: Update blogroll appender styling and functionality. [#33328]
+- Sharing: add X sharing button. [#33134]
+- Social Menu & Social Media Icons: Add support for the X icon. [#33118]
+- SSO: offer ability to force a site to use Jetpack SSO with Two-Factor Authentication for certain roles. [#33259]
+- Subscription block: drop unnecessary .0 from big subscriber counts. [#33430]
+
+### Bug fixes
+- AI Excerpts: avoid errors on Custom Post Types that do not support excerpts. [#33439]
+- Carousel: avoid invalid markup notices in Google Pagespeed insights. [#33413]
+- External Media: do not surface the endpoint to contributors, are unable to upload media anyway. [#33451]
+- Google Doc block: fix Google Doc blocks not rendering in the editor. [#33441]
+- Shortcodes: improve validation of attributes dislayed with the Crowdsignal shortcode. [#33450]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Enable backend prompts for 10% of production sites. [#33356]
+- Add user content link tracking and redirection for links coming from emails. [#32832]
+- Blocks: change the way Social Previews are registered, from a block to a plugin. [#33238]
+- Fix block view scripts being loaded twice. [#33406]
+- Fix description for jetpack_sitemap_video_skip_post. [#33379]
+- Subscriptions: fix broken Paywall login link for custom domains [#33363]
+- Likes: move editor plugin to the plugins' directory. [#33241]
+- Plugin assets: add spanish version of our banners. [#33436]
+- SEO Tools: move editor plugin to the plugins' directory, since this is not a block. [#33240]
+- Standardize block description phrasing. [#33382]
+
 ## 12.7-a.3 - 2023-09-28
 ### Enhancements
 - AI Excerpt: Add `Beta` label to sidebar panel. [#33302]
 - AI Excerpt: disable `Generate` button when there's no post content. [#33304]
-
 - AI Extension: Add keyboard shortcut to stop action on forms. [#33271]
 - Blogroll: Disable blogroll appender sites that have been added to blogroll block. [#33327]
 - Fix styling of multiple elements in the ai-chat block. [#33352]

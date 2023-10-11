@@ -10,6 +10,8 @@
 namespace Automattic\Jetpack\Extensions\AIAssistant;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'ai-assistant';
@@ -21,10 +23,15 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
-	Blocks::jetpack_register_block(
-		BLOCK_NAME,
-		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
-	);
+	if (
+		( new Host() )->is_wpcom_simple()
+		|| ! ( new Status() )->is_offline_mode()
+	) {
+		Blocks::jetpack_register_block(
+			BLOCK_NAME,
+			array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+		);
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 

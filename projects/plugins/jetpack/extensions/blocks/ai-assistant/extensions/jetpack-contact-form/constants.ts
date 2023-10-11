@@ -1,7 +1,7 @@
 export const JETPACK_FORM_AI_COMPOSITION_EXTENSION = 'ai-assistant-form-support' as const;
 
 export const isJetpackFromBlockAiCompositionAvailable =
-	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ JETPACK_FORM_AI_COMPOSITION_EXTENSION ]
+	window?.Jetpack_Editor_Initial_State.available_blocks?.[ JETPACK_FORM_AI_COMPOSITION_EXTENSION ]
 		?.available;
 
 // All blocks to extend
