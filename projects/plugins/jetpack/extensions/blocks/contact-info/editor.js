@@ -1,4 +1,3 @@
-import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import { name as addressName, settings as addressSettings } from './address/';
@@ -6,6 +5,7 @@ import metadata from './block.json';
 import edit from './edit';
 import { name as emailName, settings as emailSettings } from './email/';
 import { name as phoneName, settings as phoneSettings } from './phone/';
+import save from './save';
 
 import './editor.scss';
 import './style.scss';
@@ -14,11 +14,7 @@ registerJetpackBlockFromMetadata(
 	metadata,
 	{
 		edit,
-		save: ( { className } ) => (
-			<div className={ className }>
-				<InnerBlocks.Content />
-			</div>
-		),
+		save,
 		// Transform from classic widget
 		transforms: {
 			from: [
