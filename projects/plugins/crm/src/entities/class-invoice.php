@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\CRM\Entities;
 /**
  * Invoice class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Invoice {
 
