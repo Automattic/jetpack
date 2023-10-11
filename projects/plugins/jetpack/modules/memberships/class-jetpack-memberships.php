@@ -320,9 +320,9 @@ class Jetpack_Memberships {
 		}
 
 		return $is_premium_content_child &&
-				$user_can_edit &&
-				$requires_stripe_connection &&
-				$jetpack_ready;
+			$user_can_edit &&
+			$requires_stripe_connection &&
+			$jetpack_ready;
 	}
 
 	/**
@@ -607,6 +607,10 @@ class Jetpack_Memberships {
 	 * @return WP_Post[]|WP_Error
 	 */
 	public static function get_all_plans() {
+		if ( ! self::is_enabled_jetpack_recurring_payments() ) {
+			return array();
+		}
+		
 		// We can retrieve the data directly except on a Jetpack/Atomic cached site or
 		$is_cached_site = ( new Host() )->is_wpcom_simple() && is_jetpack_site();
 		if ( ! $is_cached_site ) {
@@ -628,9 +632,10 @@ class Jetpack_Memberships {
 	 * This function is used both on WPCOM or on Jetpack self-hosted.
 	 * Depending on the environment we need to mitigate where the data is retrieved from.
 	 *
-	 * @return array
+	 * @return array<Memberships_Product>
 	 */
-	public static function get_all_newsletter_plan_ids() {
+	public static function get_all_newsletter_plans() {
+		
 		if ( ! self::is_enabled_jetpack_recurring_payments() ) {
 			return array();
 		}
@@ -647,21 +652,42 @@ class Jetpack_Memberships {
 					'meta_key'       => 'jetpack_memberships_site_subscriber',
 				)
 			);
+			return array_map(
+				function ( $post ) {
+					$data = self::get_from_post( get_current_blog_id(), $post->ID, true );
+					return $data && ! is_wp_error( $data ) ? $data->to_array() : null;
+				},
+				$posts
+			);
+			
 		} else {
 			// On cached site on WPCOM
 			require_lib( 'memberships' );
 			$only_newsletter = true;
 			$allow_deleted   = true;
-			$list            = Memberships_Product::get_product_list( get_current_blog_id(), null, null, $only_newsletter, $allow_deleted );
-			return array_map(
-				function ( $product ) {
-					return $product['id'];
-				}, // Returning only post ids
-				$list
-			);
+			return Memberships_Product::get_product_list( get_current_blog_id(), null, null, $only_newsletter, $allow_deleted );
 		}
 	}
-
+	
+	/**
+	 * Return all membership plans ids (deleted or not)
+	 * This function is used both on WPCOM or on Jetpack self-hosted.
+	 * Depending on the environment we need to mitigate where the data is retrieved from.
+	 *
+	 * @return array
+	 */
+	public static function get_all_newsletter_plan_ids() {
+		
+		$list = static::get_all_newsletter_plans();
+		
+		return array_map(
+			function ( $product ) {
+				return $product['id'];
+			}, // Returning only post ids
+			$list
+		);
+	}
+	
 	/**
 	 * Register the Recurring Payments Gutenberg block
 	 */
