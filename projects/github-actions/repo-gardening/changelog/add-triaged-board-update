@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Project Board automations: automatically update the status field based on the "Triaged" label.

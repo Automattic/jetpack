@@ -10,6 +10,7 @@
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import { performanceHistoryPanelDS } from '../../../stores/data-sync-client';
+	import { dismissedAlerts } from '../../../stores/dismissed-alerts';
 	import { modulesState } from '../../../stores/modules';
 	import { dismissedScorePromptStore } from '../../../stores/prompt';
 	import RefreshIcon from '../../../svg/refresh.svg';
@@ -120,8 +121,13 @@
 		$panelStore = status;
 	}
 
+	const onPerformanceHistoryDismissFreshStart = () => {
+		$dismissedAlerts.performance_history_fresh_start = true;
+	};
+
 	$: performanceHistoryNeedsUpgrade = $modulesState.performance_history.available === false;
 	$: performanceHistoryIsOpen = $panelStore;
+	$: performanceHistoryIsFreshStart = $dismissedAlerts.performance_history_fresh_start !== true;
 </script>
 
 <div class="jb-container">
@@ -201,6 +207,8 @@
 			isOpen={performanceHistoryIsOpen}
 			needsUpgrade={performanceHistoryNeedsUpgrade}
 			onToggle={onTogglePerformanceHistory}
+			onDismissFreshStart={onPerformanceHistoryDismissFreshStart}
+			isFreshStart={performanceHistoryIsFreshStart}
 		/>
 	{/if}
 </div>

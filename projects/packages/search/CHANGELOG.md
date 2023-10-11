@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.39.1] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.39.0] - 2023-10-03
+### Added
+- Add a setting for Jetpack AI Search [#33432]
+
 ## [0.38.8] - 2023-09-19
 ### Changed
 - Updated Jetpack submenu sort order so individual features are alpha-sorted. [#32958]
@@ -804,6 +812,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.39.1]: https://github.com/Automattic/jetpack-search/compare/v0.39.0...v0.39.1
+[0.39.0]: https://github.com/Automattic/jetpack-search/compare/v0.38.8...v0.39.0
 [0.38.8]: https://github.com/Automattic/jetpack-search/compare/v0.38.7...v0.38.8
 [0.38.7]: https://github.com/Automattic/jetpack-search/compare/v0.38.6...v0.38.7
 [0.38.6]: https://github.com/Automattic/jetpack-search/compare/v0.38.5...v0.38.6
