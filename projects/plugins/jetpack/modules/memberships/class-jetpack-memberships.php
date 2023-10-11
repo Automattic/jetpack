@@ -651,8 +651,8 @@ class Jetpack_Memberships {
 			// On cached site on WPCOM
 			require_lib( 'memberships' );
 			$only_newsletter = true;
-			$allow_deleted   = true; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			$list            = Memberships_Product::get_product_list( get_current_blog_id(), null, null, $only_newsletter );
+			$allow_deleted   = true;
+			$list            = Memberships_Product::get_product_list( get_current_blog_id(), null, null, $only_newsletter, $allow_deleted );
 			return array_map(
 				function ( $product ) {
 					return $product->to_array()['id']; }, // Returning only post ids
