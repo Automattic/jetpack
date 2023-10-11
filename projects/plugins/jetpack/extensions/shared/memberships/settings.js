@@ -50,13 +50,22 @@ export function useSetAccess() {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
-	const setAccess = value => {
+	return value => {
 		setPostMeta( {
 			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: value,
 		} );
 	};
+}
 
-	return setAccess;
+export function useSetTier() {
+	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
+
+	return value => {
+		setPostMeta( {
+			[ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: value,
+		} );
+	};
 }
 
 function TierSelector( { onChange } ) {
@@ -73,6 +82,7 @@ function TierSelector( { onChange } ) {
 		postType,
 		'meta'
 	);
+	const setTier = useSetTier();
 
 	// Tiers don't apply if less than 2 products (this is called here because
 	// the hooks have to run before any early returns)
@@ -83,10 +93,7 @@ function TierSelector( { onChange } ) {
 	// if no tier are selected, we select the lowest one
 	if ( ! tierId ) {
 		tierId = products[ products.length - 1 ].id;
-		const obj = {};
-		obj[ META_NAME_FOR_POST_TIER_ID_SETTINGS ] = tierId;
-		// Call the callback
-		onChange && setTimeout( () => onChange( obj ) );
+		setTimeout( () => setTier( tierId ) );
 	}
 
 	return (
