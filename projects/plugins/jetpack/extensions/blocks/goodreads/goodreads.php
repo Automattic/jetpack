@@ -2,7 +2,7 @@
 /**
  * Goodreads Block.
  *
- * @since 1.0.0 // Replace with the correct version number.
+ * @since $$next-version$$
  *
  * @package automattic/jetpack
  */
@@ -22,7 +22,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
 	);
 }
