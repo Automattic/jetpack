@@ -293,10 +293,71 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.6.2 - 2023-09-27
+### 12.7-beta - 2023-10-10
+#### Enhancements
+- Added a new post publish panel for quick sharing.
+- AI Assistant: Modify language reminder for toolbar options.
+- AI Assistant: Start using backend to generate the prompts.
+- AI Assistant: Update block description.
+- AI Chat: Enhanced error presentation and UX improvements. [#33387]
+- AI Chat: Fix feedback section styles and include svg for icons.
+- AI Chat: Show guideline message.
+- AI Excerpt: Add `Beta` label to sidebar panel.
+- AI Excerpt: disable `Generate` button when there's no post content.
+- AI Extension: Add keyboard shortcut to stop action on forms.
+- AI Extension: Show AI Form extension with connection nudge for disconnected users.
+- AI Search Block: release the Jetpack AI Search Block.
+- Block Editor: add a new post publish panel for quick sharing.
+- Block Editor: display the SEO and Sharing editor panels in the block editor under the Jetpack side menu. [#33258]
+- Blogroll: Add blog appender site searching.
+- Blogroll: Disable blogroll appender sites that have been added to blogroll block.
+- Blogroll: Fix blogroll block typography editor styling.
+- Blogroll: move blogroll and blogroll-items blocks from beta to production, along with various improvements. [#33475]
+- Blogroll: Update blogroll appender height, max lines of text, and container scrolling.
+- Blogroll: Update CSS styling to allow blogroll block color styling customizations.
+- Blogroll Block: Add the ability to subscribe to recommended blogs.
+- Blogroll Block: Update blogroll appender styling and functionality.
+- Fix styling of multiple elements in the ai-chat block.
+- Improves the blogroll subscribe form alignment.
+- Jetpack Likes: display the Likes editor panel with an invitation to activate the feature when it is disabled.
+- Newsletter: launch the ability to create tiered newsletter plans.
+- Paywall: add a filter to define a custom paywall.
+- Paywall Block: Update description.
+- Sharing: add X sharing button.
+- Sidebar: Rename the "Inbox" menu to "My Mailboxes" for domain-only sites.
+- Social Menu & Social Media Icons: Add support for the X icon.
+- SSO: offer ability to force a site to use Jetpack SSO with Two-Factor Authentication for certain roles.
+- Subscription block: drop unnecessary .0 from big subscriber counts.
+- Update Blogroll appender accessibility.
+
+#### Improved compatibility
+- Admin menu: Update view capabilities for Home & Stats to be independant from edit_posts.
+- AI Chat block: fix icon color in block selector.
+- Improve color handling for the newsletter categories.
+- Lazy Images: prepare feature for its deprecation, coming in November. You will be able to rely on Lazy loading features provided by WordPress itself.
+- Notifications: temporarily disable the notifications admin bar menu on any block editor page to allow for Gutenberg 16.7 compatability.
+
 #### Bug fixes
-- Fix erroneous path check in Jetpack_Gutenberg class
-- Fix warning about Dashboard being unset in WooCommerce analytics class
+- AI Assistant: do not register the editor plugin if the site is not connected to WordPress.com.
+- AI Chat: Remove extra request in $search->is_active() and only load initial state in editor.
+- AI Chat block: fix text wrapping in button for Firefox.
+- AI Excerpts: avoid errors on Custom Post Types that do not support excerpts.
+- AI Extension: Revert PR causing stream rendering issue on Firefox.
+- Block Editor: update the Likes and Sharing copy in the Jetpack menu to address grammatical mistake.
+- Carousel: avoid invalid markup notices in Google Pagespeed insights.
+- Dashboard: Avoid errors when dashboard is accessed by WordPress users with a custom non-admin role.
+- Dashboard: avoid errors when dashboard is accessed by WordPress users with a custom non-admin role.
+- Dashboard: do not display Apps and Support cards to users who do not need that information.
+- External Media: do not surface the endpoint to contributors, are unable to upload media anyway.
+- Fix menu focus state without My Jetpack.
+- Fix subscribe block button not showing on newline.
+- Google Doc block: fix Google Doc blocks not rendering in the editor.
+- Hide launchpad modal on first post for bloggers.
+- Shortcodes: improve validation of attributes dislayed with the Crowdsignal shortcode.
+- Site Editor: Fix block exception error in Site Editor.
+- Skip video file addition to upload queue if it fails the space/allowance check.
+- Subscriptions: Fix conditions for showing modal.
+- Subscriptions module: fix fatal error caused by undefined constant.
 
 --------
 
