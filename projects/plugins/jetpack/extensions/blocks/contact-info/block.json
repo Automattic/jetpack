@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/contact-info",
 	"title": "Contact Info",
 	"description": "Add an email address, phone number, and physical address with improved markup for better SEO results.",
