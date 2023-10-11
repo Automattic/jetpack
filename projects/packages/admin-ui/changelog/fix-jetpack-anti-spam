@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Handle Akismet submenu even if Jetpack is present, as Jetpack now relies on this package to do so.
