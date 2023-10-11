@@ -47,9 +47,11 @@ class Image_Size_Analysis_Fixer {
 
 	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public static function fix_image_attachments( $sources, $size_array, $image_url, $image_meta, $attachment_id ) {
-		global $post;
 
-		$fixes = self::get_fixes( $post->ID );
+		$post    = get_post();
+		$post_id = $post->ID;
+
+		$fixes = self::get_fixes( $post_id );
 
 		$image_width = 0;
 
@@ -76,11 +78,13 @@ class Image_Size_Analysis_Fixer {
 
 	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public static function fix_image_sizes( $sizes, $size, $image_url, $image_meta, $attachment_id ) {
-		global $post;
-		$fixes         = self::get_fixes( $post->ID );
+
+		$post    = get_post();
+		$post_id = $post->ID;
+
+		$fixes         = self::get_fixes( $post_id );
 		$image_width   = 0;
 		$image_url_key = self::fix_url( $image_url );
-		$attachment_id = attachment_url_to_postid( esc_url( $image_url ) );
 
 		if ( $attachment_id && isset( $fixes[ $attachment_id ] ) ) {
 			$image_width = $fixes[ $attachment_id ]['image_width'];
@@ -95,8 +99,7 @@ class Image_Size_Analysis_Fixer {
 	}
 
 	public static function fix_content( $content ) {
-		global $post;
-
+		$post  = get_post();
 		$fixes = self::get_fixes( $post->ID );
 		if ( ! $fixes ) {
 			return $content;
