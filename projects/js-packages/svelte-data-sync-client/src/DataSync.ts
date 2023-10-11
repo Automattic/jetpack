@@ -7,7 +7,7 @@ type RequestParams = string | JSONSchema;
 type RequestMethods = 'GET' | 'POST' | 'DELETE';
 
 /**
- * DataSync between the client and the server.
+ * DataSync class for synchronizing data between the client and the server.
  *
  * Expected Formatting:
  * http://localhost/wp-json/jetpack-favorites/status
@@ -15,27 +15,27 @@ type RequestMethods = 'GET' | 'POST' | 'DELETE';
  * - `jetpack-favorites` is the "namespace"
  * - `status` is the "key"
  *
- * DataSync is going to expect that these values are
+ * DataSync expects these values to be
  * available in the global window object in the following format: window[ namespace ][ key ]:
  *
  * Note: The keys are converted to be snake_case in Objects, but kebab-case in URLs.
  */
 export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema > > {
 	/**
-	 * Configure the WordPress REST API Endpoint.
+	 * WordPress REST API Endpoint configuration.
 	 * @param wpDatasyncUrl - For example: http://localhost/wp-json/jetpack-favorites
 	 */
 	private wpDatasyncUrl: string;
 
 	/**
-	 * To interact with WordPress REST API, we need to provide a REST_API Nonce.
+	 * Nonce for WordPress REST API interaction.
 	 * This is different from the endpoint nonce that's used for every individual endpoint.
 	 * @see https://developer.wordpress.org/rest-api/using-the-rest-api/authentication/#cookie-authentication
 	 */
 	private wpRestNonce: string;
 
 	/**
-	 * Every endpoint has its own nonce.
+	 * Nonce for every endpoint.
 	 * This is different from WP REST API nonce.
 	 */
 	private endpointNonce = '';
@@ -56,6 +56,19 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	 */
 	private key: string;
 
+	/**
+	 * Constructor for the DataSync class.
+	 *
+	 * Example usage:
+	 * ```js
+	 * const dataSync = new DataSync('namespace', 'key', schema);
+	 * ```
+	 * This would make a request to: http://localhost/wp-json/namespace/key
+	 *
+	 * @param namespace - The namespace of the endpoint. This matches the name of the global variable (window.{namespace}.{endpoint_name}).
+	 * @param key - The key of the value that's being synced. This is used to fetch the value from the global window object.
+	 * @param schema - The Zod schema to validate the value against. This ensures that the value is of the expected type.
+	 */
 	constructor( namespace: string, key: string, private schema: Schema ) {
 		this.namespace = namespace;
 		this.key = key;
@@ -108,10 +121,9 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	}
 
 	/**
-	 * This is a helper function to get values
+	 * Helper function to get values
 	 * from the window object and validate them.
 	 *
-	 * @param namespace - The namespace of the value. For example, `jetpack_favorites`.
 	 * @param valueName - The name of the value. For example, `posts`.
 	 * @param valueSchema - The Zod schema to validate the value against.
 	 * @returns The parsed value.
@@ -144,20 +156,6 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		return result as ParsedValue< V >;
 	}
 
-	/**
-	 * The API Class should already be initialized with
-	 * the Base URL (that includes the REST namespace) and the REST nonce.
-	 * @see initialize
-	 *
-	 * So request methods need only the endpoint path,
-	 * For example:
-	 * ```js
-	 * const api = new API();
-	 * api.initialize( 'http://localhost/wp-json/jetpack-favorites', 'abcdefghij' );
-	 * api.request( 'posts' );
-	 * ```
-	 * This would make a request to: http://localhost/wp-json/jetpack-favorites/posts
-	 */
 	private async request(
 		method: RequestMethods,
 		partialPathname: string,
@@ -209,6 +207,14 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		return data.JSON;
 	}
 
+	/**
+	 * Method to parse the request.
+	 * @param method - The request method.
+	 * @param requestPath - The request path.
+	 * @param params - The request parameters.
+	 * @param abortSignal - The abort signal.
+	 * @returns The parsed value.
+	 */
 	private async parsedRequest(
 		method: RequestMethods,
 		requestPath = '',
@@ -228,6 +234,12 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		}
 	}
 
+	/**
+	 * Method to attempt the request.
+	 * @param url - The request URL.
+	 * @param args - The request arguments.
+	 * @returns The result of the request.
+	 */
 	private async attemptRequest( url: string, args: RequestInit ) {
 		try {
 			const result = await fetch( url, args );
@@ -264,6 +276,10 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		return await this.parsedRequest( 'POST', `${ this.endpoint }/delete`, undefined, abortSignal );
 	};
 
+	/**
+	 * Method to get the initial value from the window object.
+	 * @returns The initial value.
+	 */
 	public getInitialValue = () => {
 		return this.getWindowValue( this.key, this.schema ).value;
 	};
