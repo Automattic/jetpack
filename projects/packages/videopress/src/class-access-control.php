@@ -110,15 +110,11 @@ class Access_Control {
 	 * @return bool
 	 **/
 	private function get_default_user_capability_for_post( $post_to_check ) {
-		global $post;
-		$old_post = $post;
+		if ( ! isset( $post_to_check->ID ) ) {
+			return false;
+		}
 
-		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
-		$post         = $post_to_check;
-		$default_auth = current_user_can( 'read' );
-
-		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
-		$post = $old_post;
+		$default_auth = current_user_can( 'read_post', $post_to_check->ID );
 
 		return $default_auth;
 	}
