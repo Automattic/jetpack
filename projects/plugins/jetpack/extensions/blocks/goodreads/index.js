@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
@@ -15,7 +15,11 @@ export const settings = {
 		foreground: getIconColor(),
 	},
 	category: 'embed',
-	keywords: [],
+	keywords: [
+		_x( 'book', 'block search term - noun', 'jetpack' ),
+		_x( 'reading', 'block search term', 'jetpack' ),
+		_x( 'author', 'block search term', 'jetpack' ),
+	],
 	supports: {
 		align: true,
 		html: false,
