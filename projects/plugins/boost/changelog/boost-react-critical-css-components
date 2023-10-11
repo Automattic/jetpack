@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove state from critical css related components by moving it to the parent.
+
+
