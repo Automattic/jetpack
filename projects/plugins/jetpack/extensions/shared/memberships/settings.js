@@ -11,7 +11,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useState } from 'react';
 import { icon as paywallIcon, blockName as paywallBlockName } from '../../blocks/paywall';
@@ -103,11 +103,7 @@ function TierSelector( { onChange } ) {
 				hideLabelFromVision={ true }
 				selected={ Number( tierId ) }
 				options={ products.map( product => {
-					const label = sprintf(
-						/* Translators: %s is the tier label created by site user */
-						__( '%s subscribers', 'jetpack' ),
-						product.title
-					);
+					const label = product.title;
 					const value = Number( product.id );
 					return { label, value };
 				} ) }
