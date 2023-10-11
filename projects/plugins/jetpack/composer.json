@@ -14,7 +14,6 @@
 		"automattic/jetpack-a8c-mc-stats": "^1.4.22",
 		"automattic/jetpack-abtest": "^1.10.14",
 		"automattic/jetpack-action-bar": "^0.1.28",
-		"automattic/jetpack-admin-ui": "^0.2.23",
 		"automattic/jetpack-assets": "^1.18.12",
 		"automattic/jetpack-autoloader": "^2.12.0",
 		"automattic/jetpack-backup": "^1.17.7",
