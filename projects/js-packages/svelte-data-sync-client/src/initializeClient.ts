@@ -39,9 +39,7 @@ export function initializeClient( namespace: string ) {
 		const endpoint = new DataSync( namespace, valueName, schema );
 
 		// Setup the Svelte Store and the API Endpoint for this value
-		const syncedStore = new SyncedStore< z.infer< T > >(
-			endpoint.getWindowValue( valueName, schema ).value
-		);
+		const syncedStore = new SyncedStore< z.infer< T > >( endpoint.getInitialValue() );
 
 		// The client doesn't need the whole store object.
 		// Only expose selected public methods:

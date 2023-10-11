@@ -56,11 +56,6 @@ export class DataSync< Schema extends z.ZodSchema, T extends z.infer< Schema > >
 	 */
 	private key: string;
 
-	/**
-	 * The global value initially present in the window object.
-	 */
-	private value: ParsedValue< Schema >;
-
 	constructor( namespace: string, key: string, private schema: Schema ) {
 		this.namespace = namespace;
 		this.key = key;
@@ -96,9 +91,8 @@ export class DataSync< Schema extends z.ZodSchema, T extends z.infer< Schema > >
 		 * Setup the endpoint nonce
 		 */
 		try {
-			const { value, nonce } = this.getWindowValue( this.key, schema );
+			const { nonce } = this.getWindowValue( this.key, schema );
 			this.endpointNonce = nonce;
-			this.value = { value, nonce };
 		} catch ( e ) {
 			// eslint-disable-next-line no-console
 			console.error(
@@ -122,7 +116,7 @@ export class DataSync< Schema extends z.ZodSchema, T extends z.infer< Schema > >
 	 * @param valueSchema - The Zod schema to validate the value against.
 	 * @returns The parsed value.
 	 */
-	public getWindowValue< V extends z.ZodSchema >(
+	private getWindowValue< V extends z.ZodSchema >(
 		valueName: string,
 		valueSchema: V
 	): ParsedValue< V > {
@@ -250,10 +244,9 @@ export class DataSync< Schema extends z.ZodSchema, T extends z.infer< Schema > >
 	/**
 	 * Public Interface:
 	 *
-	 * Variables below are class member variables, instead of class methods,
-	 * because they need to be bound to the class instance, to make it
-	 * easier to pass them around as callbacks
-	 * without losing the `this` context.
+	 * Class member variables, instead of class methods, because they need
+	 * to be bound to the class instance, to make it easier to pass them
+	 * around as callbacks without losing the `this` context.
 	 */
 	public GET = async ( abortSignal?: AbortSignal ): Promise< T > => {
 		return await this.parsedRequest( 'GET', '', undefined, abortSignal );
@@ -269,5 +262,9 @@ export class DataSync< Schema extends z.ZodSchema, T extends z.infer< Schema > >
 
 	public DELETE = async ( abortSignal?: AbortSignal ) => {
 		return await this.parsedRequest( 'POST', 'delete', undefined, abortSignal );
+	};
+
+	public getInitialValue = () => {
+		return this.getWindowValue( this.key, this.schema ).value;
 	};
 }
