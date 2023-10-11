@@ -48,6 +48,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		$token = $this->token_from_request();
 		if ( null !== $token ) {
 			$this->set_token_cookie( $token );
+			return $token;
 		}
 
 		return $this->token_from_cookie();
