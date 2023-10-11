@@ -50,7 +50,7 @@ export default function useSearchOptions() {
 		'jetpack_search_excluded_post_types'
 	);
 	// Excluded Post Types is stored as a CSV string in site options. Convert into array of strings.
-	// Caveat: csv can be an empty string, which can produces [ '' ] if only csv.split is used.
+	// Caveat: csv can be an empty string, which can produce [ '' ] if only csv.split is used.
 	const excludedPostTypes = useMemo(
 		() => excludedPostTypesCsv?.split( ',' ).filter( type => type in VALID_POST_TYPES ),
 		[ excludedPostTypesCsv ]
