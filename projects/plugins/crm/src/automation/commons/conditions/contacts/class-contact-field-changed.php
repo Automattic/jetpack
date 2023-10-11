@@ -3,7 +3,7 @@
  * Jetpack CRM Automation Contact_Field_Changed condition.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Conditions;
@@ -18,14 +18,14 @@ use Automattic\Jetpack\CRM\Entities\Contact;
 /**
  * Contact_Field_Changed condition class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Contact_Field_Changed extends Base_Condition {
 
 	/**
 	 * Contact_Field_Changed constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data The step data.
 	 */
@@ -73,7 +73,7 @@ class Contact_Field_Changed extends Base_Condition {
 	 * Executes the condition. If the condition is met, the value stored in the
 	 * attribute $condition_met is set to true; otherwise, it is set to false.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
 	 * @return void
@@ -116,7 +116,7 @@ class Contact_Field_Changed extends Base_Condition {
 	/**
 	 * Get the title for the contact field changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The title 'Contact Field Changed'.
 	 */
@@ -127,7 +127,7 @@ class Contact_Field_Changed extends Base_Condition {
 	/**
 	 * Get the slug for the contact field changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug 'contact_field_changed'.
 	 */
@@ -138,7 +138,7 @@ class Contact_Field_Changed extends Base_Condition {
 	/**
 	 * Get the description for the contact field changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The description for the condition.
 	 */
@@ -149,7 +149,7 @@ class Contact_Field_Changed extends Base_Condition {
 	/**
 	 * Get the category of the contact field changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The category 'jpcrm/contact_condition'.
 	 */
@@ -160,7 +160,7 @@ class Contact_Field_Changed extends Base_Condition {
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */

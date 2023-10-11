@@ -3,7 +3,7 @@
  * Entity Data Interface.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Data_Types;
@@ -13,13 +13,13 @@ namespace Automattic\Jetpack\CRM\Automation\Data_Types;
  *
  * This interface is to be able to identify the JPCRM entities Data_Type classes.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 interface Entity_Data {
 	/**
 	 * Get the tags from the entity instance.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return array The tags from the entity instance as an array.
 	 */
