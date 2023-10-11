@@ -47,9 +47,7 @@ export function initializeClient( namespace: string ) {
 
 		/**
 		 * Wire up store to the endpoint.
-		 * When the store changes, this will:
-		 * 	- Use the nonce that was provided by the server
-		 *	- POST the value to the endpoint
+		 * When the store changes, this will POST the value to the endpoint.
 		 *
 		 * This can be changed by using the `setCallback` method
 		 * that `store.getPublicInterface()` exposes.
