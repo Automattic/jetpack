@@ -85,7 +85,11 @@ export default function MediaPicker( {
 								naturalHeight={ previewHeight || height }
 								isInline
 							>
-								<img src={ previewUrl } alt="" className={ styles[ 'preview-image' ] } />
+								<img
+									src={ previewUrl || sourceUrl }
+									alt=""
+									className={ styles[ 'preview-image' ] }
+								/>
 							</ResponsiveWrapper>
 						) }
 					</button>

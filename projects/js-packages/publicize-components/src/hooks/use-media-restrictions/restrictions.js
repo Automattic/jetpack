@@ -136,7 +136,7 @@ export const RESTRICTIONS = {
 			maxWidth: 1440,
 			aspectRatio: {
 				min: 4 / 5,
-				max: 1.91 / 1,
+				max: 1.91,
 			},
 		},
 		video: {
@@ -145,8 +145,8 @@ export const RESTRICTIONS = {
 			maxSize: 1000,
 			maxWidth: 1920,
 			aspectRatio: {
-				min: 0.01 / 1,
-				max: 10 / 1,
+				min: 0.01,
+				max: 10,
 			},
 		},
 	},
