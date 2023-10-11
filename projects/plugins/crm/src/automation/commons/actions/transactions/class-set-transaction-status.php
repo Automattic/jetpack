@@ -3,7 +3,7 @@
  * Jetpack CRM Automation Set_Transaction_Status action.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
@@ -16,14 +16,14 @@ use Automattic\Jetpack\CRM\Entities\Transaction;
 /**
  * Adds the Set_Transaction_Status class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Set_Transaction_Status extends Base_Action {
 
 	/**
 	 * Get the slug name of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug name of the step.
 	 */
@@ -34,7 +34,7 @@ class Set_Transaction_Status extends Base_Action {
 	/**
 	 * Get the title of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The title of the step.
 	 */
@@ -45,7 +45,7 @@ class Set_Transaction_Status extends Base_Action {
 	/**
 	 * Get the description of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The description of the step.
 	 */
@@ -56,7 +56,7 @@ class Set_Transaction_Status extends Base_Action {
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */
@@ -67,7 +67,7 @@ class Set_Transaction_Status extends Base_Action {
 	/**
 	 * Get the category of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The category of the step.
 	 */
@@ -78,7 +78,7 @@ class Set_Transaction_Status extends Base_Action {
 	/**
 	 * Update the DAL with the transaction status.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
 	 */

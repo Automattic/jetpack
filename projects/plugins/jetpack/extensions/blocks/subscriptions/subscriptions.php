@@ -99,7 +99,7 @@ function register_block() {
 		array(
 			'show_in_rest'  => true,
 			'single'        => true,
-			'type'          => 'string',
+			'type'          => 'integer',
 			'auth_callback' => function () {
 				return wp_get_current_user()->has_cap( 'edit_posts' );
 			},
@@ -1191,8 +1191,9 @@ function get_paywall_blocks( $newsletter_access_level ) {
 	$sign_in = '';
 	if ( ! is_user_logged_in() && ( new Host() )->is_wpcom_simple() ) {
 		$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
-		$sign_in      = '<!-- wp:paragraph {"align":"center", "typography":{"fontSize":"14px","fontWeight":"400";"color":"#646970"}} -->
-<p class="has-text-align-center" style="font-size:14px;font-weight:400;color:#646970">' . esc_html( $access_question ) . ' <a href="' . $sign_in_link . '" class="jetpack-subscriber-paywall-login" style="font-size:14px;font-weight:400;color:#646970">' . esc_html__( 'Log in', 'jetpack' ) . '</a></p>
+
+		$sign_in = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
+<p class="has-text-align-center" style="font-size:14px">' . esc_html( $access_question ) . ' <a href="' . $sign_in_link . '">' . esc_html__( 'Log in', 'jetpack' ) . '</a></p>
 <!-- /wp:paragraph -->';
 	}
 

@@ -72,7 +72,7 @@ export const setAttribute = (
 		workflowId,
 		stepId,
 		attribute: { key, value },
-	} as SetAttributeAction );
+	} ) as SetAttributeAction;
 
 export type SelectWorkflowAction = {
 	type: 'SELECT_WORKFLOW';

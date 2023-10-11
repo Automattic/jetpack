@@ -234,7 +234,7 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_Test_Case {
 	 *
 	 * @dataProvider dataprovider_pagination_criteria
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $args Dynamic criteria for pagination.
 	 * @param int $expected_count The expected number of returned workflows.

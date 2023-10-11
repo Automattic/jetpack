@@ -20,7 +20,7 @@ class Add_Remove_Contact_Tag_Test extends JPCRM_Base_Integration_Test_Case {
 	/**
 	 * A helper class to generate data for the automation tests.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var Automation_Faker
 	 */
