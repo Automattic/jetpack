@@ -886,25 +886,47 @@ function wpcom_launchpad_get_newsletter_subscriber_count() {
 /**
  * Determines if Stripe has been connected.
  *
- * @return bool Whether or not Stripe account is connected.
+ * @return bool Whether Stripe account is connected.
  */
-function wpcom_is_stripe_connected() {
-	require_lib( 'memberships' );
-	$blog_id  = get_current_blog_id();
-	$settings = (array) get_memberships_settings_for_site( $blog_id );
-	return boolval( $settings['connected_account_id'] );
+function wpcom_launchpad_is_stripe_connected() {
+	$membership_settings = wpcom_launchpad_get_membership_settings();
+	if ( ! $membership_settings ) {
+		return false;
+	}
+	return isset( $membership_settings['connected_account_id'] ) && $membership_settings['connected_account_id'] !== '';
 }
 
 /**
- * Determines if paid membership plans exists
+ * Determines if any paid membership plan exists.
  *
- * @return bool Whether or not paid membership plans exist.
+ * @return bool Whether paid plan exists.
  */
-function wpcom_has_paid_membership_plans() {
+function wpcom_launchpad_has_paid_membership_plans() {
+	$membership_settings = wpcom_launchpad_get_membership_settings();
+	if ( ! $membership_settings ) {
+		return false;
+	}
+	return isset( $membership_settings['products'] ) && is_array( $membership_settings['products'] ) && ( count( $membership_settings['products'] ) > 0 );
+}
+
+/**
+ * Get membership settings.
+ *
+ * @return array|null Membership settings or null.
+ */
+function wpcom_launchpad_get_membership_settings() {
+	$is_atomic = defined( 'IS_ATOMIC' ) && IS_ATOMIC;
+
+	// Memberships lib is only available on Simple sites.
+	// A follow up will fetch membership settings for Atomic.
+	if ( $is_atomic ) {
+		return null;
+	}
+
 	require_lib( 'memberships' );
 	$blog_id  = get_current_blog_id();
 	$settings = (array) get_memberships_settings_for_site( $blog_id );
-	return count( $settings['products'] ) > 0;
+	return $settings;
 }
 
 /**
