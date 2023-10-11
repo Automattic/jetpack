@@ -148,17 +148,21 @@ const getValidationError = ( metaData, mediaData, serviceName, shouldUploadAttac
 		return FILE_TYPE_ERROR;
 	}
 
+	if ( ! mediaData?.width || ! mediaData?.height ) {
+		return DIMENSION_ERROR;
+	}
+
 	const sizeInMb = fileSize ? fileSize / Math.pow( 1000, 2 ) : null;
 
 	return isVideo( mime )
 		? getVideoValidationError(
 				sizeInMb,
 				metaData.length,
-				mediaData?.width,
-				mediaData?.height,
+				mediaData.width,
+				mediaData.height,
 				restrictions.video
 		  )
-		: getImageValidationError( sizeInMb, mediaData?.width, mediaData?.height, restrictions.image );
+		: getImageValidationError( sizeInMb, mediaData.width, mediaData.height, restrictions.image );
 };
 
 /**
