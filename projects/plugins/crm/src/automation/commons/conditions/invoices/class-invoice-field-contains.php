@@ -17,14 +17,14 @@ use Automattic\Jetpack\CRM\Entities\Invoice;
 /**
  * Invoice_Field_Contains condition class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Invoice_Field_Contains extends Base_Condition {
 
 	/**
 	 * Invoice_Field_Contains constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data The step data.
 	 */
@@ -56,7 +56,7 @@ class Invoice_Field_Contains extends Base_Condition {
 	 * Executes the condition. If the condition is met, the value stored in the
 	 * attribute $condition_met is set to true; otherwise, it is set to false.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
 	 * @return void
@@ -98,7 +98,7 @@ class Invoice_Field_Contains extends Base_Condition {
 	/**
 	 * Get the title for the invoice field contains condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The title 'Invoice Field Contains'.
 	 */
@@ -109,7 +109,7 @@ class Invoice_Field_Contains extends Base_Condition {
 	/**
 	 * Get the slug for the invoice field contains condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug 'invoice_field_contains'.
 	 */
@@ -120,7 +120,7 @@ class Invoice_Field_Contains extends Base_Condition {
 	/**
 	 * Get the description for the invoice field contains condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The description for the condition.
 	 */
@@ -131,7 +131,7 @@ class Invoice_Field_Contains extends Base_Condition {
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */
@@ -142,7 +142,7 @@ class Invoice_Field_Contains extends Base_Condition {
 	/**
 	 * Get the category of the invoice field contains condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The category 'invoice'.
 	 */
