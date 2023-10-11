@@ -210,17 +210,17 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	}
 
 	private async parsedRequest(
-		method: RequestMethods = 'GET',
-		path = '',
+		method: RequestMethods,
+		requestPath = '',
 		params?: Value,
 		abortSignal?: AbortSignal
 	): Promise< Value > {
-		const data = await this.request( method, this.endpoint, params, abortSignal );
+		const data = await this.request( method, requestPath, params, abortSignal );
 		try {
 			const parsed = this.schema.parse( data );
 			return parsed;
 		} catch ( error ) {
-			const url = `${ this.endpoint }/${ path }`;
+			const url = `${ this.wpDatasyncUrl }/${ requestPath }`;
 			// Log Zod validation errors to the console.
 			// eslint-disable-next-line no-console
 			console.error( error );
@@ -249,19 +249,19 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	 * around as callbacks without losing the `this` context.
 	 */
 	public GET = async ( abortSignal?: AbortSignal ): Promise< Value > => {
-		return await this.parsedRequest( 'GET', '', undefined, abortSignal );
+		return await this.parsedRequest( 'GET', this.endpoint, undefined, abortSignal );
 	};
 
 	public SET = async ( params: Value, abortSignal?: AbortSignal ): Promise< Value > => {
-		return await this.parsedRequest( 'POST', '/set', params, abortSignal );
+		return await this.parsedRequest( 'POST', `${ this.endpoint }/set`, params, abortSignal );
 	};
 
 	public MERGE = async ( params: Value, abortSignal?: AbortSignal ): Promise< Value > => {
-		return await this.parsedRequest( 'POST', '/merge', params, abortSignal );
+		return await this.parsedRequest( 'POST', `${ this.endpoint }/merge`, params, abortSignal );
 	};
 
 	public DELETE = async ( abortSignal?: AbortSignal ) => {
-		return await this.parsedRequest( 'POST', 'delete', undefined, abortSignal );
+		return await this.parsedRequest( 'POST', `${ this.endpoint }/delete`, undefined, abortSignal );
 	};
 
 	public getInitialValue = () => {
