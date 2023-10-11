@@ -655,7 +655,8 @@ class Jetpack_Memberships {
 			$list            = Memberships_Product::get_product_list( get_current_blog_id(), null, null, $only_newsletter, $allow_deleted );
 			return array_map(
 				function ( $product ) {
-					return $product->to_array()['id']; }, // Returning only post ids
+					return $product['id'];
+				}, // Returning only post ids
 				$list
 			);
 		}
