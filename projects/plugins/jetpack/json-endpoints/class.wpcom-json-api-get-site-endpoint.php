@@ -80,6 +80,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'user_interactions'           => '(array) An array of user interactions with a site.',
 		'was_ecommerce_trial'         => '(bool) If the site ever used an eCommerce trial.',
 		'was_migration_trial'         => '(bool) If the site ever used a migration trial.',
+		'was_hosting_trial'           => '(bool) If the site ever used a hosting trial.',
 		'wpcom_site_setup'            => '(string) The WP.com site setup identifier.',
 	);
 
@@ -230,6 +231,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_staging_site',
 		'was_ecommerce_trial',
 		'was_migration_trial',
+		'was_hosting_trial',
 	);
 
 	/**
@@ -283,6 +285,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public static $jetpack_enabled_trials = array(
 		'was_ecommerce_trial' => 'ecommerce',
 		'was_migration_trial' => 'migration',
+		'was_hosting_trial'   => 'hosting',
 	);
 
 	/**
@@ -597,6 +600,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'was_migration_trial':
 				$response[ $key ] = $this->site->was_trial( self::$jetpack_enabled_trials['was_migration_trial'] );
+				break;
+			case 'was_hosting_trial':
+				$response[ $key ] = $this->site->was_trial( self::$jetpack_enabled_trials['was_hosting_trial'] );
 				break;
 		}
 

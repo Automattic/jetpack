@@ -51,7 +51,7 @@ class RunProcess {
 	public function stop() {
 		try {
 			$result = shell_exec( sprintf( 'kill %d 2>&1', $this->pid ) );
-			if ( ! preg_match( '/No such process/', $result ) ) {
+			if ( is_string( $result ) && ! preg_match( '/No such process/', $result ) ) {
 				return true;
 			}
 		} catch ( Exception $e ) {

@@ -21,7 +21,7 @@ const OneClickSharingModal = ( { onClose } ) => {
 						</Text>
 						<Text className={ styles.description } variant="body-small">
 							{ __(
-								'Hey there! Quick update for you. You can now effortlessly share your new posts on Twitter, WhatsApp, or any other platform.',
+								'Hey there! Quick update for you. You can now effortlessly share your new posts on X, WhatsApp, or any other platform.',
 								'jetpack'
 							) }
 							<br />

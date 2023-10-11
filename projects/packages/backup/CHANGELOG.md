@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.7] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
 ## [1.17.6] - 2023-09-19
 ### Changed
 - Updated Jetpack submenu sort order so individual features are alpha-sorted. [#32958]
@@ -487,6 +491,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[1.17.7]: https://github.com/Automattic/jetpack-backup/compare/v1.17.6...v1.17.7
 [1.17.6]: https://github.com/Automattic/jetpack-backup/compare/v1.17.5...v1.17.6
 [1.17.5]: https://github.com/Automattic/jetpack-backup/compare/v1.17.4...v1.17.5
 [1.17.4]: https://github.com/Automattic/jetpack-backup/compare/v1.17.3...v1.17.4

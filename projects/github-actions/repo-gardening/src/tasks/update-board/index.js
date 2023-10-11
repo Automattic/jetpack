@@ -376,9 +376,17 @@ async function setStatusField( octokit, projectInfo, projectItemId, statusText )
  */
 async function updateBoard( payload, octokit ) {
 	const { action, issue, label = {}, repository } = payload;
-	const { number, node_id } = issue;
+	const { number, node_id, state } = issue;
 	const { owner, name } = repository;
 	const ownerLogin = owner.login;
+
+	// Do not run this task if the issue is not open.
+	if ( 'open' !== state ) {
+		debug(
+			`update-board: Issue #${ number } is not open. No need to update its status on the board.`
+		);
+		return;
+	}
 
 	const projectToken = getInput( 'triage_projects_token' );
 	if ( ! projectToken ) {
