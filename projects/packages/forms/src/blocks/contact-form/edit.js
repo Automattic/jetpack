@@ -354,12 +354,11 @@ export const JetpackContactFormEdit = forwardRef(
 	}
 );
 
-const withThemeProvider = WrappedComponent => props =>
-	(
-		<ThemeProvider>
-			<WrappedComponent { ...props } />
-		</ThemeProvider>
-	);
+const withThemeProvider = WrappedComponent => props => (
+	<ThemeProvider>
+		<WrappedComponent { ...props } />
+	</ThemeProvider>
+);
 
 export default compose( [
 	withSelect( ( select, props ) => {

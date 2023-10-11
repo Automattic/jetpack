@@ -69,7 +69,11 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	 * @param key - The key of the value that's being synced. This is used to fetch the value from the global window object.
 	 * @param schema - The Zod schema to validate the value against. This ensures that the value is of the expected type.
 	 */
-	constructor( namespace: string, key: string, private schema: Schema ) {
+	constructor(
+		namespace: string,
+		key: string,
+		private schema: Schema
+	) {
 		this.namespace = namespace;
 		this.key = key;
 
