@@ -170,24 +170,30 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 
 		return $this->maybe_gate_access_for_user_if_tier( $tier_id, $user_abbreviated_subscriptions );
 	}
-	
+
 	/**
 	 * Find metadata in post
-	 * @param $post
-	 * @param $meta
+	 *
+	 * @param WP_Post|StdClass $post        Post.
+	 * @param string           $meta_key    Meta to retrieve.
 	 *
 	 * @return mixed|null
 	 */
-	private function find_metadata( $post, $meta_key) {
-		foreach( $post->metadata as $meta ) {
+	private function find_metadata( $post, $meta_key ) {
+
+		if ( is_a( $post, '\WP_Post' ) ) {
+			return $post->{$meta_key};
+		}
+
+		foreach ( $post->metadata as $meta ) {
 			if ( $meta->key === $meta_key ) {
 				return $meta->value;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Check access for tier.
 	 *
@@ -197,6 +203,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return bool
 	 */
 	public function maybe_gate_access_for_user_if_tier( $tier_id, $user_abbreviated_subscriptions ) {
+
 		$plan_ids = \Jetpack_Memberships::get_all_newsletter_plan_ids();
 
 		if ( ! in_array( $tier_id, $plan_ids, true ) ) {
@@ -206,18 +213,18 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 
 		// We now need the tier price and currency, and the same for the annual price (if available)
 		$all_plans = \Jetpack_Memberships::get_all_plans();
-		$tier =  null;
-		foreach( $all_plans as $post  ) {
-			if ( $post->ID === $tier_id) {
+		$tier      = null;
+		foreach ( $all_plans as $post ) {
+			if ( $post->ID === $tier_id ) {
 				$tier = $post;
 				break;
 			}
 		}
-		
+
 		if ( $tier === null ) {
 			return false;
 		}
-		
+
 		$tier_price        = $this->find_metadata( $tier, 'jetpack_memberships_price' );
 		$tier_currency     = $this->find_metadata( $tier, 'jetpack_memberships_currency' );
 		$tier_product_id   = $this->find_metadata( $tier, 'jetpack_memberships_product_id' );
@@ -228,21 +235,23 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			return false;
 		}
 
+		$tier_price = floatval( $tier_price );
+
 		// At this point we know the post is
 		$annual_tier_id = null;
-		$annual_tier =  null;
-		foreach( $all_plans as $plan ) {
-			if (  $this->find_metadata( $plan, 'jetpack_memberships_tier' ) === $tier_id ) {
+		$annual_tier    = null;
+		foreach ( $all_plans as $plan ) {
+			if ( intval( $this->find_metadata( $plan, 'jetpack_memberships_tier' ) ) === $tier_id ) {
 				$annual_tier = $plan;
 				break;
 			}
 		}
-		
+
 		if ( ! empty( $annual_tier ) ) {
-			$annual_tier_id = $annual_tier->ID;
-			$annual_tier_price  = $this->find_metadata( $annual_tier, 'jetpack_memberships_price' );
+			$annual_tier_id    = $annual_tier->ID;
+			$annual_tier_price = floatval( $this->find_metadata( $annual_tier, 'jetpack_memberships_price' ) );
 		}
-		
+
 		foreach ( $user_abbreviated_subscriptions as $subscription_plan_id => $details ) {
 			$details = (array) $details;
 			$end     = is_int( $details['end_date'] ) ? $details['end_date'] : strtotime( $details['end_date'] );
@@ -250,34 +259,36 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 				// subscription not active anymore
 				continue;
 			}
-			
+
 			$subscription_post = null;
-			foreach( $all_plans as $plan ) {
-				if (  $this->find_metadata( $plan, 'jetpack_memberships_product_id' ) === $subscription_plan_id ) {
+			foreach ( $all_plans as $plan ) {
+				if ( intval( $this->find_metadata( $plan, 'jetpack_memberships_product_id' ) ) === $subscription_plan_id ) {
 					$subscription_post = $plan;
 					break;
 				}
 			}
-			
+
 			if ( empty( $subscription_post ) ) {
 				// No post linked to this plan
 				continue;
 			}
 			$subscription_post_id = $subscription_post->ID;
-			
+
 			if ( $subscription_post_id === $tier_id || $subscription_post_id === $annual_tier_id ) {
 				// User is subscribed to the right tier
 				return false;
 			}
-			
+
 			$subscription_price    = $this->find_metadata( $subscription_post, 'jetpack_memberships_price' );
 			$subscription_currency = $this->find_metadata( $subscription_post, 'jetpack_memberships_currency' );
 			$subscription_interval = $this->find_metadata( $subscription_post, 'jetpack_memberships_interval' );
-			
+
 			if ( $subscription_price === null || $subscription_currency === null || $subscription_interval === null ) {
 				// There is an issue with the meta
 				continue;
 			}
+
+			$subscription_price = floatval( $subscription_price );
 
 			if ( $tier_currency !== $subscription_currency ) {
 				// For now, we don't count if there are different currency (not sure how to convert price in a pure JP env)
@@ -291,7 +302,6 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 				return false;
 			}
 		}
-
 		return true; // No user subscription is more expensive than the post's tier price...
 	}
 
