@@ -998,7 +998,7 @@ function wpcom_launchpad_get_plan_selected_subtitle() {
 
 	return wpcom_global_styles_in_use() && wpcom_should_limit_global_styles()
 		? __(
-			'Your site contains custom styles. Upgrade now to publish them and unlock tons of other features.',
+			'Your site contains premium styles. Upgrade now to publish them and unlock tons of other features.',
 			'jetpack-mu-wpcom'
 		) : '';
 }

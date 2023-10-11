@@ -24,14 +24,14 @@ defined( 'ABSPATH' ) || exit;
  * REST automation controller.
  *
  * @package Automattic\Jetpack\CRM
- * @since $$next-version$$
+ * @since 6.2.0
  */
 final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 
 	/**
 	 * The automation engine.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var Automation_Engine
 	 */
 	protected $automation_engine;
@@ -39,7 +39,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * The workflow repository.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var Workflow_Repository
 	 */
 	protected $workflow_repository;
@@ -47,7 +47,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 */
 	public function __construct() {
 		parent::__construct();
@@ -60,7 +60,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Registers the routes for the objects of the controller.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @see register_rest_route()
 	 *
 	 * @return void
@@ -146,7 +146,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Get all workflows.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_Error|WP_REST_Response
@@ -173,7 +173,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Get a single workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_Error|WP_REST_Response
@@ -203,7 +203,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Update a workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_Error|WP_REST_Response
@@ -237,7 +237,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Delete workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_Error|WP_REST_Response
@@ -275,7 +275,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Create workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_Error|WP_REST_Response
@@ -309,7 +309,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Checks if a given request has admin access to automations.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error True if the request has read access for the workflows, WP_Error object otherwise.
@@ -335,7 +335,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Prepares the workflow for the REST response.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array           $workflows WordPress' representation of the item.
 	 * @param WP_REST_Request $request The request object.
@@ -357,7 +357,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Prepares the workflow for the REST response.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Automation_Workflow $workflow WordPress' representation of the item.
 	 * @param WP_REST_Request     $request The request object.
@@ -391,7 +391,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 		/**
 		 * Filter individual workflow before returning the REST API response.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.2.0
 		 *
 		 * @param array           $workflow The workflow entity formatted as an array.
 		 * @param WP_REST_Request $request The request object.
@@ -402,7 +402,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Get an array of supported arguments for POST/PUT endpoints.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param bool $create_workflow Whether we're creating a new workflow or not.
 	 * @return array The supported arguments.
@@ -455,7 +455,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Prepares one item for create or update operation.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return Automation_Workflow|WP_Error The workflow entity or a WP_Error if something went wrong.

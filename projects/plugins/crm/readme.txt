@@ -2,7 +2,7 @@
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
 Tested up to: 6.3
-Stable tag: 6.0.0
+Stable tag: 6.1.0
 Requires at least: 5.0
 Requires PHP: 7.3
 License: GPLv2
@@ -389,18 +389,28 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.1.0 - 2023-07-24
+### 6.2.0 - 2023-10-11
 #### Added
-- Listing pages: Add a new setting that allows listing pages to utilize the full width of the screen
+- Tests: Add mock globals for testing.
+- Automations: Add new backend in preparation for future release.
 
 #### Changed
-- General: indicate full compatibility with the latest version of WordPress, 6.3
+- Quotes: Allow admin users to accept quotes.
+- Tasks: Use consistent language in code.
+- Increase PHP required version to 7.3.
+- Updated package dependencies.
 
 #### Fixed
-- API: Fixed error 200 while saving new api connections
-- Contacts: Fix bug that prevented the creation of contacts WP user for the Client Portal
-- Contacts: Fix Filter options not available on the main contacts listing
-- File Uploads: Fix bug that prevented file uploads from working in environments where the PHP finfo_open function was not available
-- Menu: Improved alignment for items in the menu
-- OAuth/Gmail: Fix to enable sending links and images in the email content, supporting text/plain
-- Segments: Fix bug that prevented dates to be saved in some environments
+- API: Rewrite rules are now flushed after enabling module.
+- API: Task reminder param is no longer ignored.
+- Better PHP 8.2 support.
+- CRM Forms: Removed reference to old branding.
+- CSV Importer: Fixed assignment to companies by name.
+- Custom Fields: Corrected bug that prevented new address custom fields from being shown.
+- Invoices: Handle status translations consistently.
+- Segments: Fixed error 219 occurring when using date ranges.
+- Tags: Better slug generation and added tag slug migration.
+- Tags: Prevent duplicate slugs, and adding more robust slug fallback support.
+- Tasks: Corrected placeholders for contacts and companies in the task reminder email.
+- Transactions: Filters now work for custom statuses.
+
