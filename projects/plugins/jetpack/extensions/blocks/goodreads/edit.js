@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useRef } from 'react';
 import apiFetch from '@wordpress/api-fetch';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import {
@@ -5,14 +6,13 @@ import {
 	SandBox,
 	Button,
 	Spinner,
-	withNotices,
 	TextControl,
 	ToolbarButton,
 	ToggleControl,
 	PanelBody,
 	SelectControl,
+	withNotices,
 } from '@wordpress/components';
-import { Component } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
 import testEmbedUrl from '../../shared/test-embed-url';
@@ -20,28 +20,30 @@ import defaultExample from './default-example.png';
 import gridExample from './grid-example.png';
 import icon from './icon';
 
-export class GoodreadsEdit extends Component {
-	state = {
-		userInput: '',
-		displayPreview: false,
-		isResolvingUrl: false,
-	};
+const GoodreadsEdit = props => {
+	const [ userInput, setUserInput ] = useState( '' );
+	const [ displayPreview, setDisplayPreview ] = useState( false );
+	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
+	const prevPropsRef = useRef( null );
 
-	componentDidMount() {
-		this.setUrl( this.props.attributes.userInput );
-	}
+	useEffect( () => {
+		setUrl( props.attributes.userInput );
+	}, [ props.attributes.userInput ] );
 
-	componentDidUpdate( prevProps ) {
-		if ( this.props.attributes.widgetId === prevProps.attributes.widgetId ) {
-			this.setRequestLink();
-			this.props.setAttributes( { widgetId: Math.floor( Math.random() * 9999999 ) } );
+	useEffect( () => {
+		if (
+			prevPropsRef.current &&
+			props.attributes.widgetId === prevPropsRef.current.attributes.widgetId
+		) {
+			setRequestLink();
+			props.setAttributes( { widgetId: Math.floor( Math.random() * 9999999 ) } );
 		}
-	}
+		prevPropsRef.current = props;
+	}, [ props ] );
 
-	setUrl = userInput => {
-		const { noticeOperations, setAttributes } = this.props;
-
+	const setUrl = userInput => {
 		if ( ! userInput ) {
+			setIsResolvingUrl( false );
 			return;
 		}
 
@@ -50,59 +52,56 @@ export class GoodreadsEdit extends Component {
 		const goodreadsId = userInput.match( regex ) ? userInput.match( regex )[ 2 ] : false;
 
 		if ( ! goodreadsId || ! /goodreads\.com/.test( userInput ) ) {
-			return this.setErrorNotice();
+			return setErrorNotice();
 		}
 
 		if ( /\/author\//.test( userInput ) ) {
-			this.setState( { isResolvingUrl: true } );
-			apiFetch( { path: `/wpcom/v2/getGoodreadsUserId?id=${ goodreadsId }` } )
+			setIsResolvingUrl( true );
+			apiFetch( { path: `/wpcom/v2/goodreads/user-id?id=${ goodreadsId }` } )
 				.then( response => {
 					if ( response === 404 ) {
-						setAttributes( { widgetId: undefined, userInput: undefined } );
-						this.setErrorNotice();
+						props.setAttributes( { widgetId: undefined, userInput: undefined } );
+						setErrorNotice();
 						return;
 					}
-					setAttributes( { goodreadsId: response, widgetId, userInput } );
-					this.setState( { displayPreview: true, isResolvingUrl: false } );
-					noticeOperations.removeAllNotices();
+					props.setAttributes( { goodreadsId: response, widgetId, userInput } );
+					setRequestLink();
+					setDisplayPreview( true );
+					setIsResolvingUrl( false );
 				} )
 				.catch( () => {
-					setAttributes( { widgetId: undefined, userInput: undefined } );
-					this.setErrorNotice();
+					props.setAttributes( { widgetId: undefined, userInput: undefined } );
+					setErrorNotice();
 				} );
 		} else {
-			testEmbedUrl( userInput, this.setIsResolvingUrl )
+			testEmbedUrl( userInput, setIsResolvingUrl )
 				.then( response => {
 					if ( response.endsWith( '/author' ) ) {
-						setAttributes( { widgetId: undefined, userInput: undefined } );
-						this.setErrorNotice();
+						props.setAttributes( { widgetId: undefined, userInput: undefined } );
+						setErrorNotice();
 						return;
 					}
 
-					setAttributes( { goodreadsId, widgetId, userInput } );
-					this.setState( { displayPreview: true } );
-					noticeOperations.removeAllNotices();
+					props.setAttributes( { goodreadsId: goodreadsId, widgetId, userInput } );
+					setRequestLink();
+					setDisplayPreview( true );
+					setIsResolvingUrl( false );
 				} )
 				.catch( () => {
-					setAttributes( { widgetId: undefined, userInput: undefined } );
-					this.setErrorNotice();
+					props.setAttributes( { widgetId: undefined, userInput: undefined } );
+					setErrorNotice();
 				} );
 		}
 	};
 
-	setIsResolvingUrl = isResolvingUrl => this.setState( { isResolvingUrl } );
-
-	setErrorNotice = () => {
-		const { noticeOperations } = this.props;
-
-		noticeOperations.removeAllNotices();
-		noticeOperations.createErrorNotice(
+	const setErrorNotice = () => {
+		props.noticeOperations.removeAllNotices();
+		props.noticeOperations.createErrorNotice(
 			<>{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }</>
 		);
 	};
 
-	setRequestLink = () => {
-		const { attributes, setAttributes } = this.props;
+	const setRequestLink = () => {
 		const {
 			bookNumber,
 			customTitle,
@@ -117,7 +116,7 @@ export class GoodreadsEdit extends Component {
 			showTitle,
 			sortOption,
 			widgetId,
-		} = this.props.attributes;
+		} = props.attributes;
 
 		if ( ! goodreadsId ) {
 			return;
@@ -132,89 +131,83 @@ export class GoodreadsEdit extends Component {
 		}&sort=${ sortOption }&widget_id=${ widgetId }`;
 		let selector = 'gr_custom_widget_';
 
-		if ( attributes.style === 'grid' ) {
+		if ( props.attributes.style === 'grid' ) {
 			link = `https://www.goodreads.com/review/grid_widget/${ goodreadsId }.${ customTitle }?cover_size=medium&num_books=${ bookNumber }&order=${ orderOption }&shelf=${ shelfOption }&sort=${ sortOption }&widget_id=${ widgetId }`;
 			selector = 'gr_grid_widget_';
 		}
 
-		setAttributes( { link, id: selector + widgetId } );
+		props.setAttributes( { link, id: selector + widgetId } );
 	};
 
-	submitForm = event => {
+	const submitForm = event => {
 		if ( event ) {
 			event.preventDefault();
 		}
 
-		this.setUrl( this.state.userInput.trim() );
+		setUrl( userInput.trim() );
 	};
 
-	cannotEmbed = () => {
-		const { url } = this.props.attributes;
-		const { isResolvingUrl } = this.state;
-
-		return ! isResolvingUrl && url;
+	const cannotEmbed = () => {
+		return ! isResolvingUrl && props.attributes.url;
 	};
 
-	renderLoading() {
+	const renderLoading = () => {
 		return (
 			<div className="wp-block-embed is-loading">
 				<Spinner />
 				<p>{ __( 'Embedding…', 'jetpack' ) }</p>
 			</div>
 		);
-	}
+	};
 
-	renderDisplaySettings() {
-		const { showCover, showAuthor, showTitle, showRating, showReview, showTags } =
-			this.props.attributes;
-
-		const { setAttributes } = this.props;
+	const renderDisplaySettings = () => {
+		const { showCover, showAuthor, showTitle, showRating, showReview, showTags } = props.attributes;
 
 		return (
 			<>
 				<ToggleControl
 					label={ __( 'Show cover', 'jetpack' ) }
 					checked={ showCover }
-					onChange={ () => setAttributes( { showCover: ! showCover } ) }
+					onChange={ () => props.setAttributes( { showCover: ! showCover } ) }
 				/>
 
 				<ToggleControl
 					label={ __( 'Show author', 'jetpack' ) }
 					checked={ showAuthor }
-					onChange={ () => setAttributes( { showAuthor: ! showAuthor } ) }
+					onChange={ () => props.setAttributes( { showAuthor: ! showAuthor } ) }
 				/>
 
 				<ToggleControl
 					label={ __( 'Show title', 'jetpack' ) }
 					checked={ showTitle }
-					onChange={ () => setAttributes( { showTitle: ! showTitle } ) }
+					onChange={ () => props.setAttributes( { showTitle: ! showTitle } ) }
 				/>
 
 				<ToggleControl
 					label={ __( 'Show rating', 'jetpack' ) }
 					checked={ showRating }
-					onChange={ () => setAttributes( { showRating: ! showRating } ) }
+					onChange={ () => props.setAttributes( { showRating: ! showRating } ) }
 				/>
 
 				<ToggleControl
 					label={ __( 'Show review', 'jetpack' ) }
 					checked={ showReview }
-					onChange={ () => setAttributes( { showReview: ! showReview } ) }
+					onChange={ () => props.setAttributes( { showReview: ! showReview } ) }
 				/>
 
 				<ToggleControl
 					label={ __( 'Show tags', 'jetpack' ) }
 					checked={ showTags }
-					onChange={ () => setAttributes( { showTags: ! showTags } ) }
+					onChange={ () => props.setAttributes( { showTags: ! showTags } ) }
 				/>
 			</>
 		);
-	}
+	};
 
-	renderInspectorControls() {
+	const renderInspectorControls = () => {
 		const { style, shelfOption, bookNumber, orderOption, customTitle, sortOption } =
-			this.props.attributes;
-		const { attributes, clientId, setAttributes } = this.props;
+			props.attributes;
+		const { attributes, clientId, setAttributes } = props;
 
 		const embedTypes = [
 			{
@@ -343,32 +336,29 @@ export class GoodreadsEdit extends Component {
 						onChange={ value => setAttributes( { bookNumber: value } ) }
 					/>
 
-					{ style === 'default' && this.renderDisplaySettings() }
+					{ style === 'default' && renderDisplaySettings() }
 				</PanelBody>
 			</InspectorControls>
 		);
-	}
+	};
 
-	renderEditEmbed() {
-		const { className, noticeUI } = this.props;
-		const { userInput } = this.state;
-
+	const renderEditEmbed = () => {
 		return (
-			<div className={ className }>
+			<div className={ props.className }>
 				<Placeholder
 					label={ __( 'Goodreads', 'jetpack' ) }
 					instructions={ __( 'Paste a link to a Goodreads profile.', 'jetpack' ) }
 					icon={ <BlockIcon icon={ icon } /> }
-					notices={ noticeUI }
+					notices={ props.noticeUI }
 				>
-					<form onSubmit={ this.submitForm }>
+					<form onSubmit={ submitForm }>
 						<input
 							type="url"
 							value={ userInput }
 							className="components-placeholder__input"
 							aria-label={ __( 'Goodreads profile URL', 'jetpack' ) }
 							placeholder={ __( 'Enter a Goodreads profile URL to embed here…', 'jetpack' ) }
-							onChange={ event => this.setState( { userInput: event.target.value } ) }
+							onChange={ event => setUserInput( event.target.value ) }
 						/>
 						<Button variant="secondary" type="submit">
 							{ _x( 'Embed', 'submit button label', 'jetpack' ) }
@@ -377,63 +367,66 @@ export class GoodreadsEdit extends Component {
 				</Placeholder>
 			</div>
 		);
-	}
+	};
 
-	renderBlockControls() {
+	const renderBlockControls = () => {
 		return (
 			<BlockControls>
 				<ToolbarButton
 					className="components-toolbar__control"
 					label={ __( 'Edit URL', 'jetpack' ) }
 					icon="edit"
-					onClick={ () => this.setState( { displayPreview: false } ) }
+					onClick={ () => setDisplayPreview( false ) }
 				/>
 			</BlockControls>
 		);
-	}
+	};
 
-	renderInlinePreview() {
-		const { className } = this.props;
-		const { goodreadsId, link, id } = this.props.attributes;
+	const renderInlinePreview = () => {
+		const { goodreadsId, link, id } = props.attributes;
 
 		if ( ! goodreadsId ) {
 			return;
 		}
 
 		const html = `
-		<style> [class^=gr_custom_container_] { border: 1px solid gray; border-radius: 10px; margin: auto; padding: 0 5px 10px 5px; background-color: #FFF; color: #000; width: 300px; }  [class^=gr_custom_header_] { border-bottom: 1px solid gray; width: 100%; padding: 10px 0; margin: auto; text-align: center; font-size: 120%; }  [class^=gr_custom_each_container_] { width: 100%; clear: both; margin: auto; overflow: auto; padding-bottom: 4px; border-bottom: 1px solid #aaa; }  [class^=gr_custom_each_container_] { width: 100%; clear: both; margin-bottom: 10px; overflow: auto; padding-bottom: 4px; border-bottom: 1px solid #aaa; }  [class^=gr_custom_book_container_] { overflow: hidden; height: 60px; float: left; margin-right: 6px; width: 39px; }  [class^=gr_custom_author_] { font-size: 10px; }  [class^=gr_custom_tags_] { font-size: 10px; color: gray; }  [class^=gr_custom_rating_] { float: right; }  [class^=gr_grid_book_container] { float: left; width: 98px; height: 160px; padding: 0px 0px; overflow: hidden; }  a { text-decoration: none; }  a:hover { text-decoration: underline; } img { max-width: 100%; }</style>
-			<script src="${ link }"></script>
-			<div id="${ id }"></div>
-		`;
+    <style> [class^=gr_custom_container_] { border: 1px solid gray; border-radius: 10px; margin: auto; padding: 0 5px 10px 5px; background-color: #FFF; color: #000; width: 300px; }  [class^=gr_custom_header_] { border-bottom: 1px solid gray; width: 100%; padding: 10px 0; margin: auto; text-align: center; font-size: 120%; }  [class^=gr_custom_each_container_] { width: 100%; clear: both; margin: auto; overflow: auto; padding-bottom: 4px; border-bottom: 1px solid #aaa; }  [class^=gr_custom_each_container_] { width: 100%; clear: both; margin-bottom: 10px; overflow: auto; padding-bottom: 4px; border-bottom: 1px solid #aaa; }  [class^=gr_custom_book_container_] { overflow: hidden; height: 60px; float: left; margin-right: 6px; width: 39px; }  [class^=gr_custom_author_] { font-size: 10px; }  [class^=gr_custom_tags_] { font-size: 10px; color: gray; }  [class^=gr_custom_rating_] { float: right; }  [class^=gr_grid_book_container] { float: left; width: 98px; height: 160px; padding: 0px 0px; overflow: hidden; }  a { text-decoration: none; }  a:hover { text-decoration: underline; } img { max-width: 100%; }</style>
+      <script src="${ link }"></script>
+      <div id="${ id }"></div>
+    `;
 
 		return (
-			<div className={ className }>
+			<div className={ props.className }>
 				<SandBox title="Goodreads" html={ html } />
 				<div className="block-library-embed__interactive-overlay" />
 			</div>
 		);
+	};
+
+	useEffect( () => {
+		setUrl( props.attributes.userInput );
+	}, [] );
+
+	if ( isResolvingUrl ) {
+		return renderLoading();
 	}
 
-	render() {
-		const { displayPreview, isResolvingUrl } = this.state;
-		const isExampleBlock = this.props.attributes.goodreadsId === 1176283;
-
-		if ( isResolvingUrl ) {
-			return this.renderLoading();
-		}
-
-		if ( ( displayPreview && ! this.cannotEmbed() ) || isExampleBlock ) {
-			return (
-				<>
-					{ this.renderInspectorControls() }
-					{ this.renderBlockControls() }
-					{ this.renderInlinePreview() }
-				</>
-			);
-		}
-
-		return this.renderEditEmbed();
+	// Example block in preview.
+	if ( props.attributes.goodreadsId === 1176283 ) {
+		return renderInlinePreview();
 	}
-}
+
+	if ( displayPreview && ! cannotEmbed() ) {
+		return (
+			<>
+				{ renderInspectorControls() }
+				{ renderBlockControls() }
+				{ renderInlinePreview() }
+			</>
+		);
+	}
+
+	return renderEditEmbed();
+};
 
 export default withNotices( GoodreadsEdit );
