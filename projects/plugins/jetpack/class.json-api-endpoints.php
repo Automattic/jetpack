@@ -2160,6 +2160,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return false;
 		}
 
+		// We don't know if this is an upload or a sideload, but in either case the tmp_name should be a path, not a URL.
+		if ( wp_parse_url( $media_item['tmp_name'], PHP_URL_SCHEME ) !== null ) {
+			return false;
+		}
+
 		// Check if video is longer than 5 minutes.
 		$video_meta = wp_read_video_metadata( $media_item['tmp_name'] );
 		if (

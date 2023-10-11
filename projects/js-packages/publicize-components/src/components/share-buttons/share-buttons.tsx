@@ -3,6 +3,7 @@ import { CopyToClipboard } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import classnames from 'classnames';
 import { availableNetworks } from './available-networks';
 import styles from './styles.module.scss';
 import { useShareButtonText } from './useShareButtonText';
@@ -52,19 +53,31 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 	);
 
 	return (
-		<div className={ styles[ 'share-buttons' ] }>
+		<div
+			className={ classnames(
+				styles[ 'share-buttons' ],
+				// If we are showing the text, we will show the buttons vertically.
+				{ [ styles.vertical ]: buttonStyle.includes( 'text' ) }
+			) }
+		>
 			{ availableNetworks.map( ( { label, networkName, url } ) => {
 				const href = prepareText( url );
 
 				const icon =
 					'icon' === buttonStyle ? <SocialServiceIcon serviceName={ networkName } /> : null;
 
+				const text = sprintf(
+					/* translators: %s is the name of a social network, e.g. Twitter. */
+					__( 'Share on %s', 'jetpack' ),
+					label
+				);
+
 				return (
 					<div className={ styles.container } key={ networkName }>
 						<Button
 							icon={ icon }
 							variant={ buttonVariant }
-							aria-label={ label }
+							aria-label={ text }
 							href={ href }
 							target="_blank"
 							rel="noopener noreferrer"
@@ -81,11 +94,7 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 										/>
 									) }
 									<Text className={ styles.label } component="span">
-										{ sprintf(
-											/* translators: %s is the name of a social network, e.g. Twitter. */
-											__( 'Share on %s', 'jetpack' ),
-											label
-										) }
+										{ text }
 									</Text>
 								</>
 							) }

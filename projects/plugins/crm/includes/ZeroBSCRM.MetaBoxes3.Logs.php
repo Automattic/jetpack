@@ -147,6 +147,13 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
     public $objtypeid = false; // child fills out e.g. ZBS_TYPE_CONTACT
     public $metaboxLocation = 'normal';
 
+	/**
+	 * The legacy object name (e.g. 'zerobs_customer')
+	 *
+	 * @var string
+	 */
+	private $postType; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+
     public function __construct( $plugin_file ) {
 
         // call this 

@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Add conditional rendering for newsletter categories based on the wpcom_newsletter_categories_location filter
