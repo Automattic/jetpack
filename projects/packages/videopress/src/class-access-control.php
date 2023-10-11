@@ -202,13 +202,23 @@ class Access_Control {
 	 * Filters restriction details.
 	 *
 	 * @param array  $video_restriction_details The restriction details.
-	 * @param string $guid the video guid.
-	 * @param int    $embedded_post_id the post id.
-	 * @param int    $selected_plan_id the selected plan id if applicable.
+	 * @param string $guid The video guid.
+	 * @param int    $embedded_post_id The post id.
+	 * @param int    $selected_plan_id The selected plan id if applicable.
 	 *
 	 * @return array
 	 */
 	private function filter_video_restriction_details( $video_restriction_details, $guid, $embedded_post_id, $selected_plan_id ) {
+		/**
+		 * Filters the video restriction details.
+		 *
+		 * @param array  $video_restriction_details The restriction details.
+		 * @param string $guid The video guid.
+		 * @param int    $embedded_post_id The post id.
+		 * @param int    $selected_plan_id The selected plan id if applicable.
+		 *
+		 * @return array
+		 */
 		return (array) apply_filters( 'videopress_video_restriction_details', $video_restriction_details, $guid, $embedded_post_id, $selected_plan_id );
 	}
 
