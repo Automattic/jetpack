@@ -30,7 +30,7 @@ type IsPossibleToExtendJetpackFormBlockProps = {
  * @param {boolean} checkChildrenBlocks - Check if the block is a child of a Jetpack Form block.
  * @returns {boolean}                     True if it is possible to extend the block.
  */
-export function isPossibleToExtendJetpackFormBlock(
+export function useIsPossibleToExtendJetpackFormBlock(
 	blockName: string | undefined,
 	{ checkChildrenBlocks = false, clientId }: IsPossibleToExtendJetpackFormBlockProps = {
 		clientId: '',
@@ -38,6 +38,15 @@ export function isPossibleToExtendJetpackFormBlock(
 ): boolean {
 	// Check if the AI Assistant block is registered.
 	const isBlockRegistered = getBlockType( 'jetpack/ai-assistant' );
+	const modulesSelect = useSelect(
+		selectData => selectData( JETPACK_MODULES_STORE_ID ).isModuleActive( 'contact-form' ),
+		[ JETPACK_MODULES_STORE_ID ]
+	);
+
+	if ( ! modulesSelect ) {
+		return false;
+	}
+
 	if ( ! isBlockRegistered ) {
 		return false;
 	}
@@ -49,14 +58,6 @@ export function isPossibleToExtendJetpackFormBlock(
 
 	// clientId is required
 	if ( ! clientId?.length ) {
-		return false;
-	}
-
-	const isContactFormModuleActive =
-		select( JETPACK_MODULES_STORE_ID ).isModuleActive( 'contact-form' );
-
-	const isModuleUpdating = select( JETPACK_MODULES_STORE_ID ).areModulesUpdating();
-	if ( ! isContactFormModuleActive || isModuleUpdating ) {
 		return false;
 	}
 
@@ -95,9 +96,10 @@ export function isPossibleToExtendJetpackFormBlock(
 
 const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 	return props => {
-		if ( ! isPossibleToExtendJetpackFormBlock( props?.name, { clientId: props.clientId } ) ) {
-			return <BlockEdit { ...props } />;
-		}
+		const possibleToExtendJetpackFormBlock = useIsPossibleToExtendJetpackFormBlock( props?.name, {
+			clientId: props.clientId,
+		} );
+
 		const { eventSource } = useAiContext();
 
 		const stopSuggestion = useCallback( () => {
@@ -116,6 +118,10 @@ const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 				stopSuggestion();
 			};
 		}, [ stopSuggestion ] );
+
+		if ( ! possibleToExtendJetpackFormBlock ) {
+			return <BlockEdit { ...props } />;
+		}
 
 		const blockControlsProps = {
 			group: 'block',
@@ -152,12 +158,12 @@ const withAiToolbarButton = createHigherOrderComponent( BlockEdit => {
 			[ props.clientId ]
 		);
 
-		if (
-			! isPossibleToExtendJetpackFormBlock( props?.name, {
-				checkChildrenBlocks: true,
-				clientId: parentClientId,
-			} )
-		) {
+		const possibleToExtendJetpackFormBlock = useIsPossibleToExtendJetpackFormBlock( props?.name, {
+			checkChildrenBlocks: true,
+			clientId: parentClientId,
+		} );
+
+		if ( ! possibleToExtendJetpackFormBlock ) {
 			return <BlockEdit { ...props } />;
 		}
 
