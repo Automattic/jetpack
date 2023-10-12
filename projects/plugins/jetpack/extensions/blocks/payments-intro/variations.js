@@ -4,12 +4,12 @@
 
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import donationMetadata from '../donations/block.json';
-import { name as paymentButtonsName, settings as paymentButtonsSettings } from '../payment-buttons';
+import paymentButtonsMetadata from '../payment-buttons/block.json';
 import { name as premiumContentName, settings as premiumContentSettings } from '../premium-content';
 
 const variations = [
 	[ donationMetadata.name, donationMetadata ],
-	[ paymentButtonsName, paymentButtonsSettings ],
+	[ paymentButtonsMetadata.name, paymentButtonsMetadata ],
 	[ premiumContentName, premiumContentSettings ],
 ];
 
