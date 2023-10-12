@@ -404,3 +404,13 @@ function wpcomsh_map_block_map_provider() {
 
 add_filter( 'wpcom_map_block_map_provider', 'wpcomsh_map_block_map_provider', 10, 0 );
 
+/**
+ * Returns the location where newsletter categories should appear
+ *
+ * @return string
+ */
+function wpcomsh_newsletter_categories_location() {
+	return 'modal';
+}
+
+add_filter( 'wpcom_newsletter_categories_location', 'wpcomsh_newsletter_categories_location', 10, 0 );

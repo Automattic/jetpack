@@ -49,4 +49,12 @@ class FunctionsTest extends WP_UnitTestCase {
 		);
 		$this->assertSame( 1, wpcomsh_get_atomic_client_id() );
 	}
+
+	/**
+	 * Tests that wpcom_newsletter_categories_location returns modal
+	 */
+	public function test_newsletter_categories_location_filter() {
+		$this->assertSame( 'modal', apply_filters( 'wpcom_newsletter_categories_location', 'block' ) );
+		$this->assertSame( 'modal', wpcomsh_newsletter_categories_location() );
+	}
 }
