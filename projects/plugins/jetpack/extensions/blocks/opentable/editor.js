@@ -4,7 +4,6 @@ import metadata from './block.json';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
 import edit from './edit';
-import { getStyleOptions } from './styles';
 import { getAttributesFromEmbedCode, restRefRegex, ridRegex } from './utils';
 
 import './editor.scss';
@@ -24,8 +23,6 @@ registerJetpackBlockFromMetadata( metadata, {
 			) ) }
 		</div>
 	),
-	attributes: metadata.attributes,
-	styles: getStyleOptions(),
 	transforms: {
 		from: [
 			{
