@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Instant Search: don't send images to Photon if they have a relative URL
