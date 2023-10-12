@@ -27,9 +27,6 @@ const DEFAULT_BORDER_WEIGHT_VALUE = 1;
 const DEFAULT_FONTSIZE_VALUE      = '16px';
 const DEFAULT_PADDING_VALUE       = 15;
 const DEFAULT_SPACING_VALUE       = 10;
-const DEFAULT_ACCENT_COLOR        = '#3c434a';
-const DEFAULT_BACKGROUND_COLOR    = 'white';
-const DEFAULT_TEXT_COLOR          = '#3c434a';
 
 /**
  * Registers the block for use in Gutenberg
@@ -250,54 +247,6 @@ function get_subscriber_count( $include_social_followers ) {
 }
 
 /**
- * Returns the newsletter categories from the .com API or the Jetpack XML-RPC API.
- *
- * @return array containing [ 'enabled' => true|false, 'newsletter_categories' => array ]
- */
-function fetch_newsletter_categories() {
-	$categories = array();
-
-	if ( is_wpcom() ) {
-		$categories = \wpcom_fetch_newsletter_categories();
-	} else {
-		$xml = new \Jetpack_IXR_Client();
-		$xml->query( 'jetpack.fetchNewsletterCategories' );
-
-		if ( ! $xml->isError() ) {
-			$categories = $xml->getResponse();
-		}
-	}
-
-	return $categories;
-}
-
-/**
- * Returns the newsletter categories if the feature is enabled, otherwise returns an empty array.
- *
- * @return array
- */
-function get_newsletter_categories() {
-	// opt out of rendering when we display newsletter catgeories in the subscribe modal
-	$should_render_newsletter_categories = apply_filters( 'wpcom_newsletter_categories_location', 'block' ) === 'block';
-	if ( ! $should_render_newsletter_categories ) {
-		return array();
-	}
-
-	$response = fetch_newsletter_categories();
-
-	if (
-		isset( $response['enabled'] )
-		&& (bool) $response['enabled']
-		&& isset( $response['newsletter_categories'] )
-		&& is_array( $response['newsletter_categories'] )
-	) {
-		return $response['newsletter_categories'];
-	}
-
-	return array();
-}
-
-/**
  * Returns true if the block attributes contain a value for the given key.
  *
  * @param array  $attributes Array containing the block attributes.
@@ -465,37 +414,6 @@ function get_element_styles_from_attributes( $attributes ) {
 	$submit_button_styles .= $style;
 	$email_field_styles   .= $style;
 
-	$categories_styles = sprintf( '--subscribe-block-border-radius: %dpx;', get_attribute( $attributes, 'borderRadius', DEFAULT_BORDER_RADIUS_VALUE ) );
-
-	$subscribe_block_accent_color     = DEFAULT_ACCENT_COLOR;
-	$subscribe_block_background_color = DEFAULT_BACKGROUND_COLOR;
-	$subscribe_block_text_color       = DEFAULT_TEXT_COLOR;
-
-	$global_styles = wp_get_global_styles(
-		array( 'color' )
-	);
-
-	if ( isset( $global_styles['background'] ) ) {
-		$subscribe_block_background_color = $global_styles['background'];
-	}
-
-	if ( isset( $global_styles['text'] ) ) {
-		$subscribe_block_text_color = $global_styles['text'];
-	}
-
-	if ( function_exists( 'wpcom_get_site_accent_color' ) ) {
-		$site_accent_color = wpcom_get_site_accent_color();
-		if ( $site_accent_color ) {
-			$subscribe_block_accent_color = $site_accent_color;
-		}
-	} else {
-		$subscribe_block_accent_color = $subscribe_block_text_color;
-
-	}
-	$categories_styles .= sprintf( ' --subscribe-block-accent-color: %s; ', $subscribe_block_accent_color );
-	$categories_styles .= sprintf( ' --subscribe-block-background-color: %s; ', $subscribe_block_background_color );
-	$categories_styles .= sprintf( ' --subscribe-block-text-color: %s; ', $subscribe_block_text_color );
-
 	if ( has_attribute( $attributes, 'customBorderColor' ) ) {
 		$style = sprintf( 'border-color: %s; border-style: solid;', get_attribute( $attributes, 'customBorderColor' ) );
 
@@ -513,7 +431,6 @@ function get_element_styles_from_attributes( $attributes ) {
 		'email_field'           => $email_field_styles,
 		'submit_button'         => $submit_button_styles,
 		'submit_button_wrapper' => $submit_button_wrapper_styles,
-		'categories'            => $categories_styles,
 	);
 }
 
@@ -653,7 +570,6 @@ function render_block( $attributes ) {
 			( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' )
 		),
 		'source'                 => 'subscribe-block',
-		'newsletter_categories'  => get_newsletter_categories(),
 	);
 
 	if ( ! jetpack_is_frontend() ) {
@@ -678,41 +594,6 @@ function get_post_access_level_for_current_post() {
 	}
 
 	return Jetpack_Memberships::get_post_access_level();
-}
-
-/**
- * Renders the newsletter categories in checkbox form.
- *
- * This function outputs a div containing labels and checkboxes for each newsletter category.
- * Each checkbox represents a category, allowing users to select multiple newsletter categories.
- *
- * @param array $newsletter_categories An array of newsletter categories where each category is an associative array
- *                                     with keys 'id' and 'name' representing the category's ID and display name, respectively.
- * @param array $styles                An associative array of style settings. Default is an empty array.
- *
- * @return void Outputs HTML directly.
- */
-function render_newsletter_categories( $newsletter_categories, $styles = array() ) {
-	if ( count( $newsletter_categories ) ) :
-		?>
-		<div
-			class="wp-block-jetpack-subscriptions__newsletter-categories"
-			style="<?php echo esc_attr( $styles['categories'] ); ?>"
-		>
-			<?php foreach ( $newsletter_categories as $category ) : ?>
-				<label class="wp-block-jetpack-subscriptions__newsletter-category">
-					<input type="checkbox" value="<?php echo esc_html( $category['id'] ); ?>" />
-					<div>
-						<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path fill-rule="evenodd" clip-rule="evenodd" d="M14.9406 6.6485L8.94211 14.7159L5.1785 11.9174L5.92436 10.9143L8.68487 12.9669L13.9375 5.90264L14.9406 6.6485Z" fill="#1D39EB"/>
-						</svg>
-						<?php echo esc_html( $category['name'] ); ?>
-					</div>
-				</label>
-			<?php endforeach; ?>
-		</div>
-		<?php
-	endif;
 }
 
 /**
@@ -742,8 +623,6 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 	$post_id           = get_the_ID();
 	$tier_id           = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
 
-	$newsletter_categories = $data['newsletter_categories'];
-
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="wp-block-jetpack-subscriptions__container">
@@ -756,8 +635,6 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
-
-				<?php render_newsletter_categories( $newsletter_categories, $styles ); ?>
 
 				<div class="wp-block-jetpack-subscriptions__form-elements">
 					<?php
@@ -883,8 +760,6 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 	$post_id           = get_the_ID();
 	$tier_id           = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
 
-	$newsletter_categories = $data['newsletter_categories'];
-
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="jetpack_subscription_widget">
@@ -898,7 +773,6 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 					data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 					id="<?php echo esc_attr( $form_id ); ?>"
 				>
-					<?php render_newsletter_categories( $newsletter_categories, $styles ); ?>
 					<div class="wp-block-jetpack-subscriptions__form-elements">
 						<p id="subscribe-email">
 							<label id="jetpack-subscribe-label"
