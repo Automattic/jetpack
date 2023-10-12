@@ -486,6 +486,34 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/page/' . $data['site_slug_encoded'];
 			},
 		),
+
+		// Earn tasks
+		'stripe_connected'                => array(
+			'get_title'            => function () {
+				return __( 'Connect a Stripe account to collect payments', 'jetpack-mu-wpcom' );
+			},
+			'is_visible_callback'  => '__return_true',
+			'is_complete_callback' => 'wpcom_launchpad_is_stripe_connected',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( function_exists( 'get_memberships_connected_account_redirect' ) ) {
+					return get_memberships_connected_account_redirect(
+						get_current_user_id(),
+						get_current_blog_id()
+					);
+				}
+				return '/earn/payments/' . $data['site_slug_encoded'];
+			},
+		),
+		'paid_offer_created'              => array(
+			'get_title'            => function () {
+				return __( 'Set up an offer for your supporters', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_has_paid_membership_plans',
+			'is_visible_callback'  => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/earn/payments-plans/' . $data['site_slug_encoded'];
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -853,6 +881,52 @@ function wpcom_launchpad_get_newsletter_subscriber_count() {
 	}
 
 	return (int) $total_subscribers;
+}
+
+/**
+ * Determines if Stripe has been connected.
+ *
+ * @return bool Whether Stripe account is connected.
+ */
+function wpcom_launchpad_is_stripe_connected() {
+	$membership_settings = wpcom_launchpad_get_membership_settings();
+	if ( ! $membership_settings ) {
+		return false;
+	}
+	return isset( $membership_settings['connected_account_id'] ) && $membership_settings['connected_account_id'] !== '';
+}
+
+/**
+ * Determines if any paid membership plan exists.
+ *
+ * @return bool Whether paid plan exists.
+ */
+function wpcom_launchpad_has_paid_membership_plans() {
+	$membership_settings = wpcom_launchpad_get_membership_settings();
+	if ( ! $membership_settings ) {
+		return false;
+	}
+	return isset( $membership_settings['products'] ) && is_array( $membership_settings['products'] ) && ( count( $membership_settings['products'] ) > 0 );
+}
+
+/**
+ * Get membership settings.
+ *
+ * @return array|null Membership settings or null.
+ */
+function wpcom_launchpad_get_membership_settings() {
+	$is_atomic = defined( 'IS_ATOMIC' ) && IS_ATOMIC;
+
+	// Memberships lib is only available on Simple sites.
+	// A follow up will fetch membership settings for Atomic.
+	if ( $is_atomic ) {
+		return null;
+	}
+
+	require_lib( 'memberships' );
+	$blog_id  = get_current_blog_id();
+	$settings = (array) get_memberships_settings_for_site( $blog_id );
+	return $settings;
 }
 
 /**
