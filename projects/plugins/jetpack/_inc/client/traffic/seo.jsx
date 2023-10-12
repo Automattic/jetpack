@@ -311,10 +311,8 @@ export const SEO = withModuleSettingsFormHelpers(
 
 									<hr />
 									<div className="jp-seo-social-previews-container">
-										<SocialLogo icon="twitter-alt" size={ 24 } />
-										<span className="jp-seo-social-previews-label">
-											{ __( 'Twitter', 'jetpack' ) }
-										</span>
+										<SocialLogo icon="x" size={ 24 } />
+										<span className="jp-seo-social-previews-label">{ __( 'X', 'jetpack' ) }</span>
 									</div>
 									{ this.SocialPreviewTwitter( siteData ) }
 								</FoldableCard>
