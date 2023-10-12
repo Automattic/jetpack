@@ -3,7 +3,7 @@
  * Jetpack CRM Automation Update_Contact_Status action.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
@@ -18,14 +18,14 @@ use Automattic\Jetpack\CRM\Entities\Factories\Contact_Factory;
 /**
  * Adds the Update_Contact_Status class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Update_Contact_Status extends Base_Action {
 
 	/**
 	 * Get the slug name of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug name of the step.
 	 */
@@ -36,7 +36,7 @@ class Update_Contact_Status extends Base_Action {
 	/**
 	 * Get the title of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The title of the step.
 	 */
@@ -47,7 +47,7 @@ class Update_Contact_Status extends Base_Action {
 	/**
 	 * Get the description of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The description of the step.
 	 */
@@ -58,7 +58,7 @@ class Update_Contact_Status extends Base_Action {
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */
@@ -69,7 +69,7 @@ class Update_Contact_Status extends Base_Action {
 	/**
 	 * Get the category of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The category of the step.
 	 */
@@ -80,7 +80,7 @@ class Update_Contact_Status extends Base_Action {
 	/**
 	 * Constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data The step data.
 	 */
@@ -112,16 +112,20 @@ class Update_Contact_Status extends Base_Action {
 	/**
 	 * Update the DAL with the new contact status.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
 	 */
-	public function execute( Data_Type $data ) {
+	protected function execute( Data_Type $data ) {
 		global $zbs;
+
+		if ( empty( $this->get_attribute( 'new_status' ) ) ) {
+			return;
+		}
 
 		/** @var Contact $contact */
 		$contact         = $data->get_data();
-		$contact->status = $this->attributes['new_status'];
+		$contact->status = $this->get_attribute( 'new_status' );
 
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$zbs->DAL->contacts->addUpdateContact(

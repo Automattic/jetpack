@@ -17,14 +17,14 @@ use Automattic\Jetpack\CRM\Entities\Contact;
 /**
  * Contact_Tag condition class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Contact_Tag extends Base_Condition {
 
 	/**
 	 * Contact_Tag constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data The step data.
 	 */
@@ -68,14 +68,14 @@ class Contact_Tag extends Base_Condition {
 	 * Executes the condition. If the condition is met, the value stored in the
 	 * attribute $condition_met is set to true; otherwise, it is set to false.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( Data_Type $data ) {
+	protected function execute( Data_Type $data ) {
 
 		/** @var Contact $contact */
 		$contact = $data->get_data();
@@ -132,7 +132,7 @@ class Contact_Tag extends Base_Condition {
 	/**
 	 * Get the title for the contact tag condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The title.
 	 */
@@ -143,7 +143,7 @@ class Contact_Tag extends Base_Condition {
 	/**
 	 * Get the slug for the contact tag condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug 'jpcrm/condition/contact_tag'.
 	 */
@@ -154,7 +154,7 @@ class Contact_Tag extends Base_Condition {
 	/**
 	 * Get the description for the contact tag condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The description for the condition.
 	 */
@@ -165,7 +165,7 @@ class Contact_Tag extends Base_Condition {
 	/**
 	 * Get the category of the contact tag condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The translated string for 'Contact'.
 	 */
@@ -176,7 +176,7 @@ class Contact_Tag extends Base_Condition {
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */

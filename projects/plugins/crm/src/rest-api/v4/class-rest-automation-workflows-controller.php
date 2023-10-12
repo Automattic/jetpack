@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\CRM\REST_API\V4;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
+use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository;
 use Automattic\Jetpack\CRM\Automation\Workflow_Exception;
@@ -23,14 +24,14 @@ defined( 'ABSPATH' ) || exit;
  * REST automation controller.
  *
  * @package Automattic\Jetpack\CRM
- * @since $$next-version$$
+ * @since 6.2.0
  */
 final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 
 	/**
 	 * The automation engine.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var Automation_Engine
 	 */
 	protected $automation_engine;
@@ -38,7 +39,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * The workflow repository.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var Workflow_Repository
 	 */
 	protected $workflow_repository;
@@ -46,7 +47,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 */
 	public function __construct() {
 		parent::__construct();
@@ -59,7 +60,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Registers the routes for the objects of the controller.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @see register_rest_route()
 	 *
 	 * @return void
@@ -78,7 +79,6 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 						'active'   => array(
 							'description' => __( 'Whether to return only active workflows.', 'zero-bs-crm' ),
 							'type'        => 'boolean',
-							'default'     => true,
 						),
 						'category' => array(
 							'description' => __( 'The category of the workflow.', 'zero-bs-crm' ),
@@ -146,7 +146,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Get all workflows.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_Error|WP_REST_Response
@@ -173,7 +173,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Get a single workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_Error|WP_REST_Response
@@ -203,7 +203,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Update a workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_Error|WP_REST_Response
@@ -237,7 +237,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Delete workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_Error|WP_REST_Response
@@ -275,7 +275,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Create workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_Error|WP_REST_Response
@@ -309,7 +309,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Checks if a given request has admin access to automations.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error True if the request has read access for the workflows, WP_Error object otherwise.
@@ -335,7 +335,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Prepares the workflow for the REST response.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array           $workflows WordPress' representation of the item.
 	 * @param WP_REST_Request $request The request object.
@@ -343,7 +343,12 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	 */
 	public function prepare_items_for_response( $workflows, $request ) {
 		foreach ( $workflows as $index => $workflow ) {
-			$workflows[ $index ] = $this->prepare_item_for_response( $workflow, $request );
+			try {
+				$workflows[ $index ] = $this->prepare_item_for_response( $workflow, $request );
+			} catch ( Automation_Exception $e ) {
+				// @todo: Save the logs and show them in the UI. Continue preparing workflows skipping this workflow from the response.
+				continue;
+			}
 		}
 
 		return $workflows;
@@ -352,7 +357,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Prepares the workflow for the REST response.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Automation_Workflow $workflow WordPress' representation of the item.
 	 * @param WP_REST_Request     $request The request object.
@@ -363,22 +368,30 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 			$workflow = $workflow->to_array();
 		}
 
-		// Append attribute definitions to each step.
+		if ( is_array( $workflow['triggers'] ) ) {
+			foreach ( $workflow['triggers'] as $index => $trigger_slug ) {
+				$trigger_class                  = $this->automation_engine->get_trigger_class( $trigger_slug );
+				$hydrated_trigger               = new $trigger_class();
+				$trigger_data                   = $hydrated_trigger::to_array();
+				$trigger_data['id']             = $index;
+				$workflow['triggers'][ $index ] = $trigger_data;
+			}
+		}
+
+		// Provide full context about steps (title, description, attribute definitions, etc.).
 		if ( is_array( $workflow['steps'] ) ) {
 			foreach ( $workflow['steps'] as $index => $step ) {
-				$workflow['steps'][ $index ]['attribute_definitions'] = array();
-
-				$hydrated_step = $this->automation_engine->get_registered_step( $step );
-				foreach ( $hydrated_step->get_attribute_definitions() as $attribute_definition ) {
-					$workflow['steps'][ $index ]['attribute_definitions'][ $attribute_definition->get_slug() ] = $attribute_definition->to_array();
-				}
+				$hydrated_step               = $this->automation_engine->get_registered_step( $step );
+				$step_array                  = $hydrated_step->to_array();
+				$step_array['id']            = $index;
+				$workflow['steps'][ $index ] = $step_array;
 			}
 		}
 
 		/**
 		 * Filter individual workflow before returning the REST API response.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.2.0
 		 *
 		 * @param array           $workflow The workflow entity formatted as an array.
 		 * @param WP_REST_Request $request The request object.
@@ -389,7 +402,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Get an array of supported arguments for POST/PUT endpoints.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param bool $create_workflow Whether we're creating a new workflow or not.
 	 * @return array The supported arguments.
@@ -442,7 +455,7 @@ final class REST_Automation_Workflows_Controller extends REST_Base_Controller {
 	/**
 	 * Prepares one item for create or update operation.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return Automation_Workflow|WP_Error The workflow entity or a WP_Error if something went wrong.

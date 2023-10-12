@@ -110,6 +110,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => '__return_true',
 			'is_disabled_callback' => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/settings/general/' . $data['site_slug_encoded'];
+			},
 		),
 		'site_launched'                   => array(
 			'get_title'             => function () {
@@ -119,12 +122,22 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'verify_email'                    => array(
-			'get_title'           => function () {
+			'get_title'            => function () {
 				return __( 'Verify email address', 'jetpack-mu-wpcom' );
 			},
-			'is_visible_callback' => 'wpcom_launchpad_is_email_unverified',
-			'get_calypso_path'    => function () {
+			'is_complete_callback' => 'wpcom_launchpad_is_email_verified',
+			'is_disabled_callback' => 'wpcom_launchpad_is_email_verified',
+			'get_calypso_path'     => function () {
 				return '/me/account';
+			},
+		),
+		'verify_domain_email'             => array(
+			'get_title'           => function () {
+				return __( 'Verify domain email address', 'jetpack-mu-wpcom' );
+			},
+			'is_visible_callback' => 'wpcom_launchpad_is_domain_email_unverified',
+			'get_calypso_path'    => function ( $task, $default, $data ) {
+				return '/domains/manage/' . $data['site_slug_encoded'];
 			},
 		),
 
@@ -365,9 +378,13 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Customize your domain', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_domain_customize_completed',
-			'is_visible_callback'  => 'wpcom_launchpad_is_domain_customize_task_visible',
+			'is_disabled_callback' => 'wpcom_launchpad_is_domain_customize_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/domains/add/' . $data['site_slug_encoded'];
+				// The from parameter is used to redirect the user back to the Launchpad when they
+				// click on the Back button on the domain customization page.
+				// TODO: This can cause problem if this task is used in the future for other flows
+				// that are not in the Customer Home page. We should find a better way to handle this.
+				return '/domains/add/' . $data['site_slug_encoded'] . '?from=my-home';
 			},
 		),
 
@@ -467,6 +484,34 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_about_page_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/page/' . $data['site_slug_encoded'];
+			},
+		),
+
+		// Earn tasks
+		'stripe_connected'                => array(
+			'get_title'            => function () {
+				return __( 'Connect a Stripe account to collect payments', 'jetpack-mu-wpcom' );
+			},
+			'is_visible_callback'  => '__return_true',
+			'is_complete_callback' => 'wpcom_launchpad_is_stripe_connected',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( function_exists( 'get_memberships_connected_account_redirect' ) ) {
+					return get_memberships_connected_account_redirect(
+						get_current_user_id(),
+						get_current_blog_id()
+					);
+				}
+				return '/earn/payments/' . $data['site_slug_encoded'];
+			},
+		),
+		'paid_offer_created'              => array(
+			'get_title'            => function () {
+				return __( 'Set up an offer for your supporters', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_has_paid_membership_plans',
+			'is_visible_callback'  => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/earn/payments-plans/' . $data['site_slug_encoded'];
 			},
 		),
 	);
@@ -839,6 +884,52 @@ function wpcom_launchpad_get_newsletter_subscriber_count() {
 }
 
 /**
+ * Determines if Stripe has been connected.
+ *
+ * @return bool Whether Stripe account is connected.
+ */
+function wpcom_launchpad_is_stripe_connected() {
+	$membership_settings = wpcom_launchpad_get_membership_settings();
+	if ( ! $membership_settings ) {
+		return false;
+	}
+	return isset( $membership_settings['connected_account_id'] ) && $membership_settings['connected_account_id'] !== '';
+}
+
+/**
+ * Determines if any paid membership plan exists.
+ *
+ * @return bool Whether paid plan exists.
+ */
+function wpcom_launchpad_has_paid_membership_plans() {
+	$membership_settings = wpcom_launchpad_get_membership_settings();
+	if ( ! $membership_settings ) {
+		return false;
+	}
+	return isset( $membership_settings['products'] ) && is_array( $membership_settings['products'] ) && ( count( $membership_settings['products'] ) > 0 );
+}
+
+/**
+ * Get membership settings.
+ *
+ * @return array|null Membership settings or null.
+ */
+function wpcom_launchpad_get_membership_settings() {
+	$is_atomic = defined( 'IS_ATOMIC' ) && IS_ATOMIC;
+
+	// Memberships lib is only available on Simple sites.
+	// A follow up will fetch membership settings for Atomic.
+	if ( $is_atomic ) {
+		return null;
+	}
+
+	require_lib( 'memberships' );
+	$blog_id  = get_current_blog_id();
+	$settings = (array) get_memberships_settings_for_site( $blog_id );
+	return $settings;
+}
+
+/**
  * Callback for completing first post published task.
  *
  * @return void
@@ -981,7 +1072,7 @@ function wpcom_launchpad_get_plan_selected_subtitle() {
 
 	return wpcom_global_styles_in_use() && wpcom_should_limit_global_styles()
 		? __(
-			'Your site contains custom styles. Upgrade now to publish them and unlock tons of other features.',
+			'Your site contains premium styles. Upgrade now to publish them and unlock tons of other features.',
 			'jetpack-mu-wpcom'
 		) : '';
 }
@@ -1061,17 +1152,32 @@ function wpcom_launchpad_launch_task_listener_atomic( $old_value, $new_value ) {
 }
 
 /**
- * Callback for email verification visibility.
+ * Callback for email verification completion.
+ *
+ * @return bool True if email is verified, false otherwise.
+ */
+function wpcom_launchpad_is_email_verified() {
+	// TODO: handle the edge case where an Atomic user can be unverified.
+	if ( ! class_exists( 'Email_Verification' ) ) {
+		return true;
+	}
+
+	return ! Email_Verification::is_email_unverified();
+}
+
+/**
+ * Callback for email verification visibility when the user has a
+ * custom domain.
  *
  * @return bool True if email is unverified, false otherwise.
  */
-function wpcom_launchpad_is_email_unverified() {
+function wpcom_launchpad_is_domain_email_unverified() {
 	// TODO: handle the edge case where an Atomic user can be unverified.
 	if ( ! class_exists( 'Email_Verification' ) ) {
 		return false;
 	}
 
-	return Email_Verification::is_email_unverified();
+	return Email_Verification::is_domain_email_unverified();
 }
 
 /**
@@ -1121,6 +1227,15 @@ function wpcom_launchpad_is_blog_launched_task_disabled() {
 		if ( wpcom_is_checklist_task_complete( 'plan_completed' )
 			&& wpcom_is_checklist_task_complete( 'domain_upsell' )
 			&& wpcom_is_checklist_task_complete( 'setup_blog' ) ) {
+			return false;
+		}
+		return true;
+	}
+	if ( 'start-writing' === get_option( 'site_intent' ) ) {
+		if ( wpcom_is_checklist_task_complete( 'plan_completed' )
+			&& wpcom_is_checklist_task_complete( 'domain_upsell' )
+			&& wpcom_is_checklist_task_complete( 'setup_blog' )
+			&& wpcom_is_checklist_task_complete( 'first_post_published' ) ) {
 			return false;
 		}
 		return true;
@@ -1654,42 +1769,15 @@ function wpcom_launchpad_is_domain_customize_completed( $task, $default ) {
 		return false;
 	}
 
-	list( $has_bundle, $has_domain ) = $result;
+	$has_domain = $result[1];
 
-	// For paid users with a custom domain, show the task as complete.
-	if ( $has_bundle && $has_domain ) {
+	// For users with a custom domain, show the task as complete.
+	if ( $has_domain ) {
 		return true;
 	}
 
 	// For everyone else, show the task as incomplete.
 	return $default;
-}
-
-/**
- * Determines whether or not domain customize task is visible.
- *
- * @return bool True if user is on a free plan and didn't purchase domain or if user is on a paid plan and did purchase a domain.
- */
-function wpcom_launchpad_is_domain_customize_task_visible() {
-	$result = wpcom_launchpad_domain_customize_check_purchases();
-
-	if ( false === $result ) {
-		return false;
-	}
-
-	list( $has_bundle, $has_domain ) = $result;
-
-	// Free user who didn't purchase a domain.
-	if ( ! $has_bundle && ! $has_domain ) {
-		return true;
-	}
-
-	// Paid user who purchased a domain.
-	if ( $has_bundle && $has_domain ) {
-		return true;
-	}
-
-	return false;
 }
 
 /**

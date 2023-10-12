@@ -3,7 +3,7 @@
  * Base Trigger implementation
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\CRM\Automation;
 /**
  * Base Trigger implementation.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  * {@inheritDoc}
  */
 abstract class Base_Trigger implements Trigger {
@@ -19,7 +19,7 @@ abstract class Base_Trigger implements Trigger {
 	/**
 	 * The workflow to execute by this trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var Automation_Workflow
 	 */
 	protected $workflow = null;
@@ -27,7 +27,7 @@ abstract class Base_Trigger implements Trigger {
 	/**
 	 * Set the workflow to execute by this trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Automation_Workflow $workflow The workflow to execute by this trigger.
 	 */
@@ -38,7 +38,7 @@ abstract class Base_Trigger implements Trigger {
 	/**
 	 * Execute the workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param mixed|null $data The data to pass to the workflow.
 	 * @param mixed|null $previous_data The previous data to pass to the workflow.
@@ -59,7 +59,7 @@ abstract class Base_Trigger implements Trigger {
 	/**
 	 * Initialize the trigger to listen to the desired event.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Automation_Workflow $workflow The workflow to execute by this trigger.
 	 */
@@ -69,9 +69,22 @@ abstract class Base_Trigger implements Trigger {
 	}
 
 	/**
+	 * Listen to the desired WP hook action.
+	 *
+	 * @param string $hook_name     The hook name to listen to.
+	 * @param int    $priority      The priority of the action.
+	 * @param int    $accepted_args The number of arguments the action accepts.
+	 * @since 6.2.0
+	 *
+	 */
+	protected function listen_to_wp_action( string $hook_name, int $priority = 10, int $accepted_args = 1 ): void {
+		add_action( $hook_name, array( $this, 'execute_workflow' ), $priority, $accepted_args );
+	}
+
+	/**
 	 * Get the trigger slug.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The trigger slug.
 	 */
@@ -80,7 +93,7 @@ abstract class Base_Trigger implements Trigger {
 	/**
 	 * Get the trigger title.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The trigger title.
 	 */
@@ -89,7 +102,7 @@ abstract class Base_Trigger implements Trigger {
 	/**
 	 * Get the trigger description.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The trigger description.
 	 */
@@ -98,7 +111,7 @@ abstract class Base_Trigger implements Trigger {
 	/**
 	 * Get the trigger category.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The trigger category.
 	 */
@@ -108,7 +121,28 @@ abstract class Base_Trigger implements Trigger {
 	 * Listen to the desired event. It will be called by init(), it should
 	 * call the execute_workflow method when the event happens.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
+	 *
+	 * @return void
 	 */
-	abstract protected function listen_to_event();
+	abstract protected function listen_to_event(): void;
+
+	/**
+	 * Get the trigger as an array.
+	 *
+	 * The main use-case to get the trigger as an array is to prepare
+	 * the items for an API response.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @return array The trigger as an array.
+	 */
+	public static function to_array(): array {
+		return array(
+			'slug'        => static::get_slug(),
+			'title'       => static::get_title(),
+			'description' => static::get_description(),
+			'category'    => static::get_category(),
+		);
+	}
 }

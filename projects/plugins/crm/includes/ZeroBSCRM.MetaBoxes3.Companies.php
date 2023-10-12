@@ -79,7 +79,6 @@
             $this->coOrgLabel = jpcrm_label_company();
 
             // set these
-            // DAL3 switched for objType $this->postType = 'zerobs_customer';
             $this->objType = 'company';
             $this->metaboxID = 'zerobs-company-edit';
             $this->metaboxTitle = $this->coOrgLabel.' '.__('Details','zero-bs-crm');
@@ -430,7 +429,6 @@ class zeroBS__Metabox_CompanyContacts extends zeroBS__Metabox{
         // oldschool.
         $this->coOrgLabel = jpcrm_label_company();
     
-        // DAL3 switched for objType $this->postType = 'zerobs_customer';
         $this->objType = 'company';
         $this->metaboxID = 'zerobs-company-contacts';
         $this->metaboxTitle = __('Associated Contacts',"zero-bs-crm");
@@ -1013,7 +1011,6 @@ class zeroBS__Metabox_Company_Activity extends zeroBS__Metabox {
 
     public function __construct( $plugin_file ) {
     
-        $this->postType = 'zerobs_company';
         $this->metaboxID = 'zbs-company-activity-metabox';
         $this->metaboxTitle = __('Activity', 'zero-bs-crm');
         $this->metaboxIcon = 'heartbeat';

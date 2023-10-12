@@ -3,7 +3,7 @@
  * Defines Jetpack CRM Automation engine.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -15,14 +15,14 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
 /**
  * Automation Engine.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Automation_Engine {
 
 	/**
 	 * Instance singleton.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var Automation_Engine
 	 */
 	private static $instance = null;
@@ -30,7 +30,7 @@ class Automation_Engine {
 	/**
 	 * The triggers map name => classname.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string[]
 	 */
 	private $triggers_map = array();
@@ -38,7 +38,7 @@ class Automation_Engine {
 	/**
 	 * The steps map name => classname.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string[]
 	 */
 	private $steps_map = array();
@@ -46,7 +46,7 @@ class Automation_Engine {
 	/**
 	 * The Automation logger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var ?Automation_Logger
 	 */
 	private $automation_logger = null;
@@ -54,7 +54,7 @@ class Automation_Engine {
 	/**
 	 * The list of registered workflows.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var Automation_Workflow[]
 	 */
 	private $workflows = array();
@@ -62,7 +62,7 @@ class Automation_Engine {
 	/**
 	 * An array of supported data types.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var Data_Type_Base[]
 	 */
@@ -71,7 +71,7 @@ class Automation_Engine {
 	/**
 	 * An array of supported data transformers.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var Data_Transformer_Base[]
 	 */
@@ -80,7 +80,7 @@ class Automation_Engine {
 	/**
 	 * An array of data type that represents support between types.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var string[]
 	 */
@@ -89,7 +89,7 @@ class Automation_Engine {
 	/**
 	 * Instance singleton object.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param bool $force Whether to force a new Automation_Engine instance.
 	 * @return Automation_Engine The Automation_Engine instance.
@@ -105,7 +105,7 @@ class Automation_Engine {
 	/**
 	 * Set the automation logger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Automation_Logger $logger The automation logger.
 	 */
@@ -116,7 +116,7 @@ class Automation_Engine {
 	/**
 	 * Register data transformer.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $class_name The fully qualified class name for the data transformer.
 	 * @return void
@@ -159,7 +159,7 @@ class Automation_Engine {
 	/**
 	 * Register a trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $trigger_classname Trigger classname to add to the mapping.
 	 *
@@ -208,7 +208,7 @@ class Automation_Engine {
 	/**
 	 * Register a step in the automation engine.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $class_name The name of the class in which the step should belong.
 	 *
@@ -237,7 +237,7 @@ class Automation_Engine {
 	/**
 	 * Get a step class by name.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $step_name The name of the step whose class we will be retrieving.
 	 * @return string The name of the step class.
@@ -258,7 +258,7 @@ class Automation_Engine {
 	/**
 	 * Add a workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Automation_Workflow $workflow The workflow class instance to be added.
 	 * @param bool                $init_workflow Whether or not to initialize the workflow.
@@ -278,7 +278,7 @@ class Automation_Engine {
 	/**
 	 * Build and add a workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $workflow_data The workflow data to be added.
 	 * @param bool  $init_workflow Whether or not to initialize the workflow.
@@ -296,7 +296,7 @@ class Automation_Engine {
 	/**
 	 * Init automation workflows.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @throws Workflow_Exception Throws an exception if the workflow is not valid.
 	 */
@@ -311,7 +311,7 @@ class Automation_Engine {
 	/**
 	 * Execute workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Automation_Workflow $workflow The workflow to be executed.
 	 * @param Trigger             $trigger The trigger that started the execution process.
@@ -347,7 +347,8 @@ class Automation_Engine {
 				$this->get_logger()->log( '[' . $step->get_slug() . '] Executing step. Type: ' . $step::get_data_type() );
 
 				$data_type = $this->maybe_transform_data_type( $trigger_data_type, $step::get_data_type() );
-				$step->execute( $data_type );
+
+				$step->validate_and_execute( $data_type );
 
 				//todo: return Step instance instead of array
 				$step_id   = $step->get_next_step_id();
@@ -377,7 +378,7 @@ class Automation_Engine {
 	/**
 	 * Maybe transform data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data_type The current data type.
 	 * @param string    $new_data_type_class The new data type to transform the data to.
@@ -409,7 +410,7 @@ class Automation_Engine {
 	/**
 	 * Get a step instance.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data The step data hydrate the step with.
 	 * @return Step A step class instance.
@@ -434,7 +435,7 @@ class Automation_Engine {
 	/**
 	 * Get registered steps.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string[] The registered steps.
 	 */
@@ -445,7 +446,7 @@ class Automation_Engine {
 	/**
 	 * Get trigger instance.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $trigger_slug The name of the trigger slug with which to retrieve the trigger class.
 	 * @return string The name of the trigger class.
@@ -468,7 +469,7 @@ class Automation_Engine {
 	/**
 	 * Get Automation logger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return Automation_Logger Return an instance of the Automation_Logger class.
 	 */
@@ -479,7 +480,7 @@ class Automation_Engine {
 	/**
 	 * Get the registered triggers.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string[] The registered triggers.
 	 */

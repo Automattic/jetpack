@@ -17,14 +17,14 @@ use Automattic\Jetpack\CRM\Entities\Contact;
 /**
  * Contact_Transitional_Status condition class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Contact_Transitional_Status extends Base_Condition {
 
 	/**
 	 * Contact_Transitional_Status constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data The step data.
 	 */
@@ -47,25 +47,17 @@ class Contact_Transitional_Status extends Base_Condition {
 	 * Executes the condition. If the condition is met, the value stored in the
 	 * attribute $condition_met is set to true; otherwise, it is set to false.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( Data_Type $data ) {
-		$this->validate( $data );
-
+	protected function execute( Data_Type $data ) {
+		/** @var Contact $contact */
 		$contact          = $data->get_data();
 		$previous_contact = $data->get_previous_data();
-
-		if ( ! $previous_contact instanceof Contact ) {
-			$this->logger->log( 'Invalid previous contact status transitional data' );
-			$this->condition_met = false;
-
-			return;
-		}
 
 		$operator   = $this->get_attributes()['operator'];
 		$status_was = $this->get_attributes()['previous_status_was'];
@@ -93,7 +85,7 @@ class Contact_Transitional_Status extends Base_Condition {
 	/**
 	 * Get the title for the contact transitional status condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The title 'Contact Transitional Status'.
 	 */
@@ -104,7 +96,7 @@ class Contact_Transitional_Status extends Base_Condition {
 	/**
 	 * Get the slug for the contact transitional status condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug 'contact_status_transitional'.
 	 */
@@ -115,7 +107,7 @@ class Contact_Transitional_Status extends Base_Condition {
 	/**
 	 * Get the description for the contact transitional status condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The description for the condition.
 	 */
@@ -126,7 +118,7 @@ class Contact_Transitional_Status extends Base_Condition {
 	/**
 	 * Get the category of the contact transitional status condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The category 'contact'.
 	 */
@@ -137,7 +129,7 @@ class Contact_Transitional_Status extends Base_Condition {
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */

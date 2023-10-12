@@ -1145,7 +1145,7 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 				$email_details_html .= '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['fname'] . ' ' . $customer['lname'] ) . '</a>';
 			}
 		} elseif ( $em_hist->zbsmail_sender_wpid === '-13' ) {
-			// -13 is the event notification (sent to the OWNER of the event) so a WP user (not ZBS contact)...
+			// -13 is the task notification (sent to the OWNER of the task) so a WP user (not ZBS contact)...
 			$user_obj = get_user_by( 'ID', $em_hist->zbsmail_target_objid );
 			if ( ! $user_obj ) {
 				continue;

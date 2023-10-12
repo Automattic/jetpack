@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\CRM\Entities;
 /**
  * Company class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Company {
 
@@ -50,11 +50,11 @@ class Company {
 	public $files = array();
 
 	/**
-	 * The company events.
+	 * The company tasks.
 	 *
 	 * @var array
 	 */
-	public $events = array();
+	public $tasks = array();
 
 	/**
 	 * The company status.

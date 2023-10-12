@@ -13,7 +13,7 @@ class JPCRM_Base_Integration_Test_Case extends JPCRM_Base_Test_Case {
 	/**
 	 * Clean up the database after each test.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return void
 	 */
@@ -75,5 +75,15 @@ class JPCRM_Base_Integration_Test_Case extends JPCRM_Base_Test_Case {
 		$contact_data = $zbs->DAL->contacts->getContact( $id, $args );
 
 		return Contact_Factory::create( $contact_data );
+	}
+
+	/**
+	 * Add a WP User.
+	 *
+	 * @return int The user ID.
+	 */
+	public function add_wp_user() {
+
+		return wp_create_user( 'testuser', 'password', 'user@demo.com' );
 	}
 }

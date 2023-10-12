@@ -43,12 +43,7 @@ export const settings = {
 
 	description: (
 		<Fragment>
-			<p>
-				{ __(
-					'Use regular characters and punctuation to style text, links, and lists.',
-					'jetpack'
-				) }
-			</p>
+			<p>{ __( 'Add headings, lists, or links to plain text with ease.', 'jetpack' ) }</p>
 			<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
 		</Fragment>
 	),

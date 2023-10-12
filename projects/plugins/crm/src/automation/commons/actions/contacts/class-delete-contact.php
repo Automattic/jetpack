@@ -3,28 +3,28 @@
  * Jetpack CRM Automation Delete_Contact action.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
 use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Base_Action;
-use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+use Automattic\Jetpack\CRM\Entities\Contact;
 
 /**
  * Adds the Delete_Contact class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Delete_Contact extends Base_Action {
 
 	/**
 	 * Get the slug name of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug name of the step.
 	 */
@@ -35,29 +35,29 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Get the title of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The title of the step.
 	 */
 	public static function get_title(): ?string {
-		return __( 'Delete Contact Action', 'zero-bs-crm' );
+		return __( 'Delete Contact', 'zero-bs-crm' );
 	}
 
 	/**
 	 * Get the description of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The description of the step.
 	 */
 	public static function get_description(): ?string {
-		return __( 'Action to delete the contact', 'zero-bs-crm' );
+		return __( 'This action will delete a contact.', 'zero-bs-crm' );
 	}
 
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */
@@ -68,7 +68,7 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Get the category of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The category of the step.
 	 */
@@ -79,7 +79,7 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data The step data.
 	 */
@@ -91,7 +91,7 @@ class Delete_Contact extends Base_Action {
 				new Attribute_Definition(
 					'keep_orphans',
 					__( 'Keep orphans', 'zero-bs-crm' ),
-					__( 'Determines if related objects should be deleted or not.', 'zero-bs-crm' ),
+					__( 'Orphans are all the things that relate to the contact. E.g.: Invoices, quotes, and transactions.', 'zero-bs-crm' ),
 					Attribute_Definition::SELECT,
 					array(
 						1 => __( 'Yes', 'zero-bs-crm' ),
@@ -105,16 +105,11 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Update the DAL - deleting the given contact.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
-	 *
-	 * @throws Data_Type_Exception When the data type is not supported.
 	 */
-	public function execute( Data_Type $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
-		$this->validate( $data );
-
+	protected function execute( Data_Type $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $zbs;
 
 		/** @var Contact $contact */
@@ -122,8 +117,8 @@ class Delete_Contact extends Base_Action {
 
 		$zbs->DAL->contacts->deleteContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			array(
-				'id'          => (int) $contact->id,
-				'saveOrphans' => (bool) $this->attributes['keep_orphans'],
+				'id'          => $contact->id,
+				'saveOrphans' => (bool) $this->get_attribute( 'keep_orphans', 1 ),
 			)
 		);
 	}

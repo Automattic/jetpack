@@ -50,12 +50,12 @@ class Transaction_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$transaction->status = 'paid';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction_field_changed_condition->validate_and_execute( $transaction_data );
 		$this->assertTrue( $transaction_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$transaction->status = 'draft';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction_field_changed_condition->validate_and_execute( $transaction_data );
 		$this->assertFalse( $transaction_field_changed_condition->condition_met() );
 	}
 
@@ -71,12 +71,12 @@ class Transaction_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$transaction->status = 'draft';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction_field_changed_condition->validate_and_execute( $transaction_data );
 		$this->assertTrue( $transaction_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$transaction->status = 'paid';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction_field_changed_condition->validate_and_execute( $transaction_data );
 		$this->assertFalse( $transaction_field_changed_condition->condition_met() );
 	}
 
@@ -92,12 +92,12 @@ class Transaction_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$transaction->status = 'paid';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction_field_changed_condition->validate_and_execute( $transaction_data );
 		$this->assertTrue( $transaction_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$transaction->status = 'draft';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction_field_changed_condition->validate_and_execute( $transaction_data );
 		$this->assertFalse( $transaction_field_changed_condition->condition_met() );
 	}
 
@@ -113,12 +113,12 @@ class Transaction_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$transaction->status = 'draft';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction_field_changed_condition->validate_and_execute( $transaction_data );
 		$this->assertTrue( $transaction_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$transaction->status = 'paid';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction_field_changed_condition->validate_and_execute( $transaction_data );
 		$this->assertFalse( $transaction_field_changed_condition->condition_met() );
 	}
 
@@ -135,6 +135,6 @@ class Transaction_Condition_Test extends JPCRM_Base_Test_Case {
 		$this->expectException( Automation_Exception::class );
 		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction_field_changed_condition->validate_and_execute( $transaction_data );
 	}
 }

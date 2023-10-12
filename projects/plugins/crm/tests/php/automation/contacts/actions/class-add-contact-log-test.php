@@ -20,7 +20,7 @@ class Add_Contact_Log_Test extends JPCRM_Base_Integration_Test_Case {
 	/**
 	 * A helper class to generate data for the automation tests.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var Automation_Faker
 	 */
@@ -60,7 +60,7 @@ class Add_Contact_Log_Test extends JPCRM_Base_Integration_Test_Case {
 		$contact_data = new Contact_Data( $contact );
 
 		// Execute the action.
-		$action->execute( $contact_data );
+		$action->validate_and_execute( $contact_data );
 
 		// Verify that our contact has a log.
 		$logs = $zbs->DAL->logs->getLogsForObj(

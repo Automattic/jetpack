@@ -3,7 +3,7 @@
  * Bootstrap the Jetpack CRM Automation engine.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -11,14 +11,14 @@ namespace Automattic\Jetpack\CRM\Automation;
 /**
  * Bootstrap the Jetpack CRM Automation engine.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 final class Automation_Bootstrap {
 
 	/**
 	 * The automation engine we want to bootstrap.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var Automation_Engine
 	 */
@@ -27,7 +27,7 @@ final class Automation_Bootstrap {
 	/**
 	 * Initialise the automation engine.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return void
 	 */
@@ -44,13 +44,14 @@ final class Automation_Bootstrap {
 	/**
 	 * Register data transformers.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return void
 	 */
 	protected function register_data_transformers(): void {
 		$data_transformers = array(
 			\Automattic\Jetpack\CRM\Automation\Data_Transformers\Data_Transformer_Invoice_To_Contact::class,
+			\Automattic\Jetpack\CRM\Automation\Data_Transformers\Data_Transformer_Entity_To_Tag_List::class,
 		);
 
 		/**
@@ -58,7 +59,7 @@ final class Automation_Bootstrap {
 		 *
 		 * This can be used to add and/or remove data transformers allowed in automations.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.2.0
 		 *
 		 * @param string[] $var A list of data transformer classes.
 		 */
@@ -76,7 +77,7 @@ final class Automation_Bootstrap {
 	/**
 	 * Register triggers.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return void
 	 */
@@ -92,9 +93,9 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Created::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Deleted::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Updated::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Task_Created::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Task_Deleted::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Task_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Deleted::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Status_Updated::class,
@@ -106,6 +107,7 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Triggers\Quote_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Updated::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\WP_User_Created::class,
 		);
 
 		/**
@@ -113,7 +115,7 @@ final class Automation_Bootstrap {
 		 *
 		 * This can be used to add and/or remove triggers allowed in automations.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.2.0
 		 *
 		 * @param string[] $triggers A list of triggers classes.
 		 */
@@ -131,14 +133,16 @@ final class Automation_Bootstrap {
 	/**
 	 * Register conditions.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return void
 	 */
 	protected function register_conditions(): void {
 		$conditions = array(
 			\Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed::class,
+			\Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status::class,
 			\Automattic\Jetpack\CRM\Automation\Conditions\Invoice_Status_Changed::class,
+			\Automattic\Jetpack\CRM\Automation\Conditions\Entity_Tag::class,
 		);
 
 		/**
@@ -146,7 +150,7 @@ final class Automation_Bootstrap {
 		 *
 		 * This can be used to add and/or remove condition allowed in automations.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.2.0
 		 *
 		 * @param string[] $conditions A list of condition classes.
 		 */
@@ -164,7 +168,7 @@ final class Automation_Bootstrap {
 	/**
 	 * Register actions.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return void
 	 */
@@ -176,6 +180,7 @@ final class Automation_Bootstrap {
 			\Automattic\Jetpack\CRM\Automation\Actions\New_Contact::class,
 			\Automattic\Jetpack\CRM\Automation\Actions\Update_Contact::class,
 			\Automattic\Jetpack\CRM\Automation\Actions\Update_Contact_Status::class,
+			\Automattic\Jetpack\CRM\Automation\Actions\Send_Contact_Email::class,
 		);
 
 		/**
@@ -183,7 +188,7 @@ final class Automation_Bootstrap {
 		 *
 		 * This can be used to add and/or remove actions allowed in automations.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.2.0
 		 *
 		 * @param string[] $actions A list of actions class names.
 		 */
@@ -201,7 +206,7 @@ final class Automation_Bootstrap {
 	/**
 	 * Register workflows.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return void
 	 */
@@ -218,7 +223,7 @@ final class Automation_Bootstrap {
 		 *
 		 * This can be used to add and/or remove actions allowed in automations.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.2.0
 		 *
 		 * @param Automation_Workflow[] $workflows A collection of registered workflows.
 		 */

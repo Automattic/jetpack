@@ -1389,7 +1389,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$last_name   = '';
 			$url         = $author->comment_author_url;
 			$avatar_url  = $this->api->get_avatar_url( $author );
-			$profile_url = 'https://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
+			$profile_url = 'https://gravatar.com/' . md5( strtolower( trim( $email ) ) );
 			$nice        = '';
 			$site_id     = -1;
 
@@ -1459,9 +1459,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 						is_private_blog_user( $site_id, get_current_user_id() )
 					);
 				}
-				$profile_url = "https://en.gravatar.com/{$login}";
+				$profile_url = "https://gravatar.com/{$login}";
 			} else {
-				$profile_url = 'https://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
+				$profile_url = 'https://gravatar.com/' . md5( strtolower( trim( $email ) ) );
 				$site_id     = -1;
 			}
 
@@ -2157,6 +2157,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 		require_once WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
 		$current_plan = WPCOM_Store_API::get_current_plan( get_current_blog_id() );
 		if ( ! $current_plan['is_free'] ) {
+			return false;
+		}
+
+		// We don't know if this is an upload or a sideload, but in either case the tmp_name should be a path, not a URL.
+		if ( wp_parse_url( $media_item['tmp_name'], PHP_URL_SCHEME ) !== null ) {
 			return false;
 		}
 

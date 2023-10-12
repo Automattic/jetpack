@@ -16,14 +16,14 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Invoice_Data;
 /**
  * Invoice_Status_Changed condition class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Invoice_Status_Changed extends Base_Condition {
 
 	/**
 	 * Invoice_Status_Changed constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data The step data.
 	 */
@@ -47,17 +47,14 @@ class Invoice_Status_Changed extends Base_Condition {
 	 * Executes the condition. If the condition is met, the value stored in the
 	 * attribute $condition_met is set to true; otherwise, it is set to false.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is used.
 	 */
-	public function execute( Data_Type $data ) {
-
-		$this->validate( $data );
-
+	protected function execute( Data_Type $data ) {
 		/** @var Invoice $invoice */
 		$invoice = $data->get_data();
 
@@ -93,7 +90,7 @@ class Invoice_Status_Changed extends Base_Condition {
 	 * Checks if the invoice has at least the necessary keys to detect a status
 	 * change.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $data The invoice data.
 	 * @return bool True if the data is valid to detect a status change, false otherwise
@@ -105,7 +102,7 @@ class Invoice_Status_Changed extends Base_Condition {
 	/**
 	 * Get the title for the invoice status changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The title 'Invoice Status Changed'.
 	 */
@@ -116,7 +113,7 @@ class Invoice_Status_Changed extends Base_Condition {
 	/**
 	 * Get the slug for the invoice status changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug 'invoice_status_changed'.
 	 */
@@ -127,7 +124,7 @@ class Invoice_Status_Changed extends Base_Condition {
 	/**
 	 * Get the description for the invoice status changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The description for the condition.
 	 */
@@ -138,7 +135,7 @@ class Invoice_Status_Changed extends Base_Condition {
 	/**
 	 * Get the category of the invoice status changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The category 'jpcrm/invoice_condition'.
 	 */
@@ -149,7 +146,7 @@ class Invoice_Status_Changed extends Base_Condition {
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */

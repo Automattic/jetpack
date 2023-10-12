@@ -8,6 +8,7 @@ use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
+use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated;
 use Automattic\Jetpack\CRM\Automation\Workflow_Exception;
@@ -19,7 +20,7 @@ require_once __DIR__ . '/tools/class-automation-faker.php';
 /**
  * Test Automation Workflow functionalities.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  *
  * @covers Automattic\Jetpack\CRM\Automation
  */
@@ -101,7 +102,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 
 		// Check if the triggers are added
 		$triggers = $workflow->get_triggers();
-		$this->assertEquals( 'jpcrm/contact_created', $triggers[0] );
+		$this->assertEquals( Contact_Created_Trigger::get_slug(), $triggers[0] );
 		$this->assertEquals( 'jpcrm/contact_updated', $triggers[1] );
 		$this->assertEquals( 'jpcrm/contact_deleted', $triggers[2] );
 	}
@@ -193,7 +194,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 					$this->isInstanceOf( Base_Trigger::class ),
 					$this->callback(
 						function ( $trigger ) {
-							return $trigger::get_slug() === 'jpcrm/contact_created';
+							return $trigger::get_slug() === Contact_Created_Trigger::get_slug();
 						}
 					)
 				),
@@ -275,6 +276,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
+		$automation->register_step( Contact_Condition::class );
 		$automation->register_step( Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_action();
@@ -312,6 +314,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
+		$automation->register_step( Contact_Condition::class );
 		$automation->register_step( Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_action();

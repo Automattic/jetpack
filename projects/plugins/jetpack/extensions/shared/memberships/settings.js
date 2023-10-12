@@ -1,15 +1,29 @@
-import { Flex, FlexBlock, PanelRow, VisuallyHidden, Spinner, Button } from '@wordpress/components';
-import { useInstanceId, useViewportMatch } from '@wordpress/compose';
+import {
+	Flex,
+	FlexBlock,
+	PanelRow,
+	VisuallyHidden,
+	Spinner,
+	Button,
+	RadioControl,
+} from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
+import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
+import { useState } from 'react';
 import { icon as paywallIcon, blockName as paywallBlockName } from '../../blocks/paywall';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import './settings.scss';
-import { accessOptions, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
-import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
+import PlansSetupDialog from '../components/plans-setup-dialog';
+import {
+	accessOptions,
+	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+	META_NAME_FOR_POST_TIER_ID_SETTINGS,
+} from './constants';
+import { getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 
 export function Link( { href, children } ) {
 	return (
@@ -32,57 +46,75 @@ export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, pai
 	}
 }
 
-function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasNewsletterPlans } ) {
-	const paidLink = getPaidPlanLink( hasNewsletterPlans );
+export function useSetAccess() {
+	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
-	if ( ! hasNewsletterPlans && ! isStripeConnected ) {
-		return (
-			<div className="editor-post-visibility__info">
-				{ createInterpolateElement(
-					__(
-						"You'll need to connect <stripeAccountLink>Stripe</stripeAccountLink> and add a <paidPlanLink>paid plan</paidPlanLink> to collect payments.",
-						'jetpack'
-					),
-					{
-						stripeAccountLink: <Link href={ stripeConnectUrl } />,
-						paidPlanLink: <Link href={ paidLink } />,
-					}
-				) }
-			</div>
-		);
+	return value => {
+		setPostMeta( {
+			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: value,
+		} );
+	};
+}
+
+export function useSetTier() {
+	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
+
+	return value => {
+		setPostMeta( {
+			[ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: value,
+		} );
+	};
+}
+
+function TierSelector( { onChange } ) {
+	// TODO: figure out how to handle different currencies
+	const products = useSelect( select => select( membershipProductsStore ).getProducts() )
+		.filter( product => product.subscribe_as_site_subscriber && product.interval === '1 month' )
+		.sort( ( p1, p2 ) => Number( p2.price ) - Number( p1.price ) );
+
+	// Find the current tier meta
+	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	// Destructure the tierId from the meta (set tierId using the META_NAME_FOR_POST_TIER_ID_SETTINGS constant)
+	let [ { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: tierId } ] = useEntityProp(
+		'postType',
+		postType,
+		'meta'
+	);
+	const setTier = useSetTier();
+
+	// Tiers don't apply if less than 2 products (this is called here because
+	// the hooks have to run before any early returns)
+	if ( products.length < 2 ) {
+		return;
 	}
 
-	if ( ! hasNewsletterPlans ) {
-		return (
-			<div className="editor-post-visibility__info">
-				{ createInterpolateElement(
-					__(
-						'<paidPlanLink>Set up a paid subscription plan</paidPlanLink> to enable this option.',
-						'jetpack'
-					),
-					{
-						paidPlanLink: <Link href={ paidLink } />,
-					}
-				) }
-			</div>
-		);
+	// if no tier are selected, we select the lowest one
+	if ( ! tierId ) {
+		tierId = products[ products.length - 1 ].id;
+		setTimeout( () => setTier( tierId ) );
 	}
 
-	if ( ! isStripeConnected ) {
-		return (
-			<div className="editor-post-visibility__info">
-				{ createInterpolateElement(
-					__(
-						'<stripeAccountLink>Connect to Stripe</stripeAccountLink> to enable paid subscriptions.',
-						'jetpack'
-					),
-					{
-						stripeAccountLink: <Link href={ stripeConnectUrl } />,
-					}
-				) }
-			</div>
-		);
-	}
+	return (
+		<div className="jetpack-editor-post-tiers">
+			<RadioControl
+				label={ __( 'Choose Newsletter Tier', 'jetpack' ) }
+				hideLabelFromVision={ true }
+				selected={ Number( tierId ) }
+				options={ products.map( product => {
+					const label = product.title;
+					const value = Number( product.id );
+					return { label, value };
+				} ) }
+				onChange={ newValue => {
+					const obj = {};
+					obj[ META_NAME_FOR_POST_TIER_ID_SETTINGS ] = newValue;
+					return onChange && onChange( obj );
+				} }
+			/>
+		</div>
+	);
 }
 
 export function NewsletterAccessRadioButtons( {
@@ -94,59 +126,62 @@ export function NewsletterAccessRadioButtons( {
 	postHasPaywallBlock: postHasPaywallBlock = false,
 } ) {
 	const isStripeConnected = stripeConnectUrl === null;
-	const instanceId = useInstanceId( NewsletterAccessRadioButtons );
 	const { emailSubscribers, paidSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
 	);
+	const [ showDialog, setShowDialog ] = useState( false );
+	const closeDialog = () => setShowDialog( false );
+
+	const setAccess = useSetAccess();
 
 	return (
 		<fieldset className="editor-post-visibility__fieldset">
 			<VisuallyHidden as="legend">{ __( 'Audience', 'jetpack' ) } </VisuallyHidden>
-			{ Object.keys( accessOptions ).map( key => {
-				if ( key === accessOptions.everybody.key && postHasPaywallBlock ) {
-					return;
-				}
-				const accessLabel = accessOptions[ key ].label;
-				const reach =
-					key !== accessOptions.everybody.key
-						? ` (${ getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers ) })`
-						: '';
-				return (
-					<div className="editor-post-visibility__choice" key={ key }>
-						<input
-							value={ key }
-							type="radio"
-							checked={ key === accessLevel }
-							className="editor-post-visibility__radio"
-							id={ `editor-post-${ key }-${ instanceId }` }
-							name={ `editor-newsletter-access__setting-${ instanceId }` }
-							aria-describedby={ `editor-post-${ key }-${ instanceId }-description` }
-							disabled={
-								key === accessOptions.paid_subscribers.key &&
-								( ! isStripeConnected || ! hasNewsletterPlans )
-							}
-							onChange={ event => {
-								const obj = {};
-								obj[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] = event?.target?.value;
-								return onChange && onChange( obj );
-							} }
-						/>
-						<label
-							htmlFor={ `editor-post-${ key }-${ instanceId }` }
-							className="editor-post-visibility__label"
-						>
-							{ accessLabel }
-							{ reach }
-						</label>
-					</div>
-				);
-			} ) }
+			<RadioControl
+				onChange={ value => {
+					if (
+						accessOptions.paid_subscribers.key === value &&
+						( stripeConnectUrl || ! hasNewsletterPlans )
+					) {
+						setShowDialog( true );
+						return;
+					}
+					setAccess( value );
+				} }
+				options={ [
+					...( ! postHasPaywallBlock
+						? [
+								{
+									label: accessOptions.everybody.label,
+									value: accessOptions.everybody.key,
+								},
+						  ]
+						: [] ),
+					{
+						label: `${ accessOptions.subscribers.label } (${ getReachForAccessLevelKey(
+							accessOptions.subscribers.key,
+							emailSubscribers,
+							paidSubscribers
+						) })`,
+						value: accessOptions.subscribers.key,
+					},
+					{
+						label: `${ accessOptions.paid_subscribers.label } (${ getReachForAccessLevelKey(
+							accessOptions.paid_subscribers.key,
+							emailSubscribers,
+							paidSubscribers
+						) })`,
+						value: accessOptions.paid_subscribers.key,
+					},
+				] }
+				selected={ accessLevel }
+			/>
+			{ accessLevel === accessOptions.paid_subscribers.key &&
+				isStripeConnected &&
+				hasNewsletterPlans && <TierSelector onChange={ onChange }></TierSelector> }
+
 			{ isEditorPanel && (
-				<NewsletterAccessSetupNudge
-					stripeConnectUrl={ stripeConnectUrl }
-					isStripeConnected={ isStripeConnected }
-					hasNewsletterPlans={ hasNewsletterPlans }
-				/>
+				<PlansSetupDialog closeDialog={ closeDialog } showDialog={ showDialog } />
 			) }
 		</fieldset>
 	);
