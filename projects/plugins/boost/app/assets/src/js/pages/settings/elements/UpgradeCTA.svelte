@@ -9,7 +9,7 @@
 	const { navigate } = routerHistory;
 
 	export let description = '';
-	export let yearlyPricing;
+	export let yearlyPricing: typeof Jetpack_Boost.pricing.yearly;
 
 	onMount( () => {
 		// Throw away promise, as we don't need to wait for it.
