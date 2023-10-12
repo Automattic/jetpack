@@ -130,6 +130,10 @@ function register_block() {
 	// Add a 'Newsletter access' column to the Edit posts page
 	add_action( 'manage_post_posts_columns', __NAMESPACE__ . '\register_newsletter_access_column' );
 	add_action( 'manage_post_posts_custom_column', __NAMESPACE__ . '\render_newsletter_access_rows', 10, 2 );
+
+	// This has a lower priority than the filter on WPCOM, so it won't override it.
+	// TODO: remove this & all newsletter category references once the switch is made to the modal
+	add_filter( 'wpcom_newsletter_categories_location', __NAMESPACE__ . '\jetpack_newsletter_categories_location', 5 );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
@@ -1028,6 +1032,15 @@ function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
 		);
 	}
 	return $excerpt;
+}
+
+/**
+ * Retrieve location for the newletter categories.
+ *
+ * @return string Returns the location of the newsletter categories.
+ */
+function jetpack_newsletter_categories_location() {
+	return 'modal';
 }
 
 /**
