@@ -131,7 +131,6 @@ function PaywallEdit( { className } ) {
 				>
 					<NewsletterAccessRadioButtons
 						isEditorPanel={ true }
-						onChange={ setAccess }
 						accessLevel={ _accessLevel }
 						stripeConnectUrl={ stripeConnectUrl }
 						hasNewsletterPlans={ hasNewsletterPlans }
