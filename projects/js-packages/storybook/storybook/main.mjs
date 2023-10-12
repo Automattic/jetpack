@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url';
 import postcssPlugins from '@wordpress/postcss-plugins-preset';
 import { EsbuildPlugin } from 'esbuild-loader';
 import remarkGfm from 'remark-gfm';
-import { ProgressPlugin } from 'webpack';
 import projects from './projects.js';
 
 const storiesSearch = '*.@(mdx|@(story|stories).@(js|jsx|ts|tsx))';
@@ -46,7 +45,7 @@ const sbconfig = {
 		// Remove ProgressPlugin and source maps in production builds.
 		if ( process.env.NODE_ENV === 'production' ) {
 			config.devtool = false;
-			config.plugins = config.plugins.filter( p => ! ( p instanceof ProgressPlugin ) );
+			config.plugins = config.plugins.filter( p => p.constructor.name !== 'ProgressPlugin' );
 		}
 
 		// Use esbuild to minify.
