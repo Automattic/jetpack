@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\CRM\Entities;
 /**
  * Company class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Company {
 

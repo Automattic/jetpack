@@ -1708,7 +1708,7 @@ class Jetpack {
 			$notice = sprintf(
 				/* translators: %s is a URL */
 				__( 'In <a href="%s" target="_blank">Offline Mode</a>:', 'jetpack' ),
-				Redirect::get_url( 'jetpack-support-development-mode' )
+				esc_url( Redirect::get_url( 'jetpack-support-development-mode' ) )
 			);
 
 			$notice .= ' ' . self::development_mode_trigger_text();
@@ -1719,14 +1719,14 @@ class Jetpack {
 		// Throw up a notice if using a development version and as for feedback.
 		if ( self::is_development_version() ) {
 			/* translators: %s is a URL */
-			$notice = sprintf( __( 'You are currently running a development version of Jetpack. <a href="%s" target="_blank">Submit your feedback</a>', 'jetpack' ), Redirect::get_url( 'jetpack-contact-support-beta-group' ) );
+			$notice = sprintf( __( 'You are currently running a development version of Jetpack. <a href="%s" target="_blank">Submit your feedback</a>', 'jetpack' ), esc_url( Redirect::get_url( 'jetpack-contact-support-beta-group' ) ) );
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- All provided text.
 		}
 		// Throw up a notice if using staging mode.
 		if ( ( new Status() )->is_staging_site() ) {
 			/* translators: %s is a URL */
-			$notice = sprintf( __( 'You are running Jetpack on a <a href="%s" target="_blank">staging server</a>.', 'jetpack' ), Redirect::get_url( 'jetpack-support-staging-sites' ) );
+			$notice = sprintf( __( 'You are running Jetpack on a <a href="%s" target="_blank">staging server</a>.', 'jetpack' ), esc_url( Redirect::get_url( 'jetpack-support-staging-sites' ) ) );
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- All provided text.
 		}
@@ -3732,9 +3732,9 @@ p {
 		$faq_url     = Redirect::get_url( 'jetpack-faq' );
 		$current_screen->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'jetpack' ) . '</strong></p>' .
-			'<p><a href="' . $faq_url . '" rel="noopener noreferrer" target="_blank">' . __( 'Jetpack FAQ', 'jetpack' ) . '</a></p>' .
-			'<p><a href="' . $support_url . '" rel="noopener noreferrer" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>' .
-			'<p><a href="' . self::admin_url( array( 'page' => 'jetpack-debugger' ) ) . '">' . __( 'Jetpack Debugging Center', 'jetpack' ) . '</a></p>'
+			'<p><a href="' . esc_url( $faq_url ) . '" rel="noopener noreferrer" target="_blank">' . __( 'Jetpack FAQ', 'jetpack' ) . '</a></p>' .
+			'<p><a href="' . esc_url( $support_url ) . '" rel="noopener noreferrer" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>' .
+			'<p><a href="' . esc_url( self::admin_url( array( 'page' => 'jetpack-debugger' ) ) ) . '">' . __( 'Jetpack Debugging Center', 'jetpack' ) . '</a></p>'
 		);
 	}
 
@@ -3759,8 +3759,8 @@ p {
 
 		if ( current_user_can( 'jetpack_manage_modules' ) && ( self::is_connection_ready() || ( new Status() )->is_offline_mode() ) ) {
 			return array_merge(
-				array( 'settings' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack#/settings' ), __( 'Settings', 'jetpack' ) ) ),
-				array( 'support' => sprintf( '<a href="%s">%s</a>', $support_link, __( 'Support', 'jetpack' ) ) ),
+				array( 'settings' => sprintf( '<a href="%s">%s</a>', esc_url( self::admin_url( 'page=jetpack#/settings' ) ), __( 'Settings', 'jetpack' ) ) ),
+				array( 'support' => sprintf( '<a href="%s">%s</a>', esc_url( $support_link ), __( 'Support', 'jetpack' ) ) ),
 				$actions
 			);
 		}
@@ -4304,15 +4304,17 @@ p {
 						'%1$s = deactivation URL, %2$s = "Deactivate {list of Jetpack module/feature names}',
 						'jetpack'
 					),
-					wp_nonce_url(
-						self::admin_url(
-							array(
-								'page'   => 'jetpack',
-								'action' => 'deactivate',
-								'module' => rawurlencode( $module_slugs ),
-							)
-						),
-						"jetpack_deactivate-$module_slugs"
+					esc_url(
+						wp_nonce_url(
+							self::admin_url(
+								array(
+									'page'   => 'jetpack',
+									'action' => 'deactivate',
+									'module' => rawurlencode( $module_slugs ),
+								)
+							),
+							"jetpack_deactivate-$module_slugs"
+						)
 					),
 					esc_attr( wp_kses( wp_sprintf( _x( 'Deactivate %l', '%l = list of Jetpack module/feature names', 'jetpack' ), $module_names ), array() ) )
 				),
@@ -5444,7 +5446,7 @@ endif;
 			$die_error = sprintf(
 				/* translators: %s is a URL */
 				__( 'Your site is incorrectly double-encoding redirects from http to https. This is preventing Jetpack from authenticating your connection. Please visit our <a href="%s">support page</a> for details about how to resolve this.', 'jetpack' ),
-				Redirect::get_url( 'jetpack-support-double-encoding' )
+				esc_url( Redirect::get_url( 'jetpack-support-double-encoding' ) )
 			);
 		}
 

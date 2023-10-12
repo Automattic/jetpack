@@ -3,7 +3,7 @@
  * Jetpack CRM Automation Quote_Accepted trigger.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
@@ -14,14 +14,14 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Quote_Data;
 /**
  * Adds the Quote_Accepted class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Quote_Accepted extends Base_Trigger {
 
 	/**
 	 * Get the slug name of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug name of the trigger.
 	 */
@@ -32,7 +32,7 @@ class Quote_Accepted extends Base_Trigger {
 	/**
 	 * Get the title of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The title of the trigger.
 	 */
@@ -43,7 +43,7 @@ class Quote_Accepted extends Base_Trigger {
 	/**
 	 * Get the description of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The description of the trigger.
 	 */
@@ -54,7 +54,7 @@ class Quote_Accepted extends Base_Trigger {
 	/**
 	 * Get the category of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The category of the trigger.
 	 */
@@ -74,7 +74,7 @@ class Quote_Accepted extends Base_Trigger {
 	/**
 	 * Listen to this trigger's target event.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return void
 	 */

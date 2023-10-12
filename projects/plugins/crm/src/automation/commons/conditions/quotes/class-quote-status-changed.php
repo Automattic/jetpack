@@ -17,14 +17,14 @@ use Automattic\Jetpack\CRM\Entities\Quote;
 /**
  * Quote_Status_Changed condition class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Quote_Status_Changed extends Base_Condition {
 
 	/**
 	 * Quote_Status_Changed constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data The step data.
 	 */
@@ -48,7 +48,7 @@ class Quote_Status_Changed extends Base_Condition {
 	 * Executes the condition. If the condition is met, the value stored in the
 	 * attribute $condition_met is set to true; otherwise, it is set to false.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data The data this condition has to evaluate.
 	 * @return void
@@ -90,7 +90,7 @@ class Quote_Status_Changed extends Base_Condition {
 	/**
 	 * Get the title for the quote status changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The title 'Quote Status Changed'.
 	 */
@@ -101,7 +101,7 @@ class Quote_Status_Changed extends Base_Condition {
 	/**
 	 * Get the slug for the quote status changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug 'quote_status_changed'.
 	 */
@@ -112,7 +112,7 @@ class Quote_Status_Changed extends Base_Condition {
 	/**
 	 * Get the description for the quote status changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The description for the condition.
 	 */
@@ -123,7 +123,7 @@ class Quote_Status_Changed extends Base_Condition {
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */
@@ -134,7 +134,7 @@ class Quote_Status_Changed extends Base_Condition {
 	/**
 	 * Get the category of the quote status changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The category 'jpcrm/quote_condition'.
 	 */

@@ -259,7 +259,6 @@ jQuery( document ).ready( function ( $ ) {
 
 		// Handle tracking for JITM CTA buttons
 		$template.find( '.jitm-button' ).on( 'click', function ( e ) {
-			e.preventDefault();
 
 			var button = $( this );
 			var eventName = button.attr( 'data-jptracks-name' );

@@ -10,8 +10,11 @@
 namespace Automattic\Jetpack\Extensions\AIChat;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
 /**
@@ -20,10 +23,15 @@ use Jetpack_Gutenberg;
  * registration if we need to.
  */
 function register_block() {
-	Blocks::jetpack_register_block(
-		__DIR__,
-		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
-	);
+	if (
+		( new Host() )->is_wpcom_simple()
+		|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
+	) {
+		Blocks::jetpack_register_block(
+			__DIR__,
+			array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+		);
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 

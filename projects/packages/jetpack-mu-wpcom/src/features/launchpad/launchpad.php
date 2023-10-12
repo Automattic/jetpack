@@ -191,6 +191,14 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_paid_newsletter_enabled',
 		),
+		'earn'                   => array(
+			'title'               => 'Earn',
+			'task_ids'            => array(
+				'stripe_connected',
+				'paid_offer_created',
+			),
+			'is_enabled_callback' => '__return_true',
+		),
 	);
 
 	$extended_task_list_definitions = apply_filters( 'wpcom_launchpad_extended_task_list_definitions', array() );

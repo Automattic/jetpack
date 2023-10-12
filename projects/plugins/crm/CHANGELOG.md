@@ -5,6 +5,31 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.2.0] - 2023-10-11
+### Added
+- Tests: Add mock globals for testing. [#32755]
+- Automations: Add new backend in preparation for future release.
+
+### Changed
+- Quotes: Allow admin users to accept quotes. [#32738]
+- Tasks: Use consistent language in code. [#33221]
+- Increase PHP required version to 7.3. [#33003]
+- Updated package dependencies.
+
+### Fixed
+- API: Rewrite rules are now flushed after enabling module. [#32901]
+- API: Task reminder param is no longer ignored. [#33194]
+- Better PHP 8.2 support. [#33421]
+- CRM Forms: Removed reference to old branding. [#32903]
+- CSV Importer: Fixed assignment to companies by name. [#33097]
+- Custom Fields: Corrected bug that prevented new address custom fields from being shown. [#33056]
+- Invoices: Handle status translations consistently. [#32909]
+- Segments: Fixed error 219 occurring when using date ranges. [#32379]
+- Tags: Better slug generation and added tag slug migration. [#33121]
+- Tags: Prevent duplicate slugs, and adding more robust slug fallback support. [#33096]
+- Tasks: Corrected placeholders for contacts and companies in the task reminder email. [#32375]
+- Transactions: Filters now work for custom statuses. [#33476]
+
 ## [6.1.0] - 2023-07-24
 ### Added
 - Listing pages: Add a new setting that allows listing pages to utilize the full width of the screen [#31904]
@@ -204,6 +229,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Added a migration to remove outdated AKA lines
 
 [5.5.4-a.1]: https://github.com/Automattic/jetpack-crm/compare/v5.5.3...v5.5.4-a.1
+[6.2.0]: https://github.com/Automattic/jetpack-crm/compare/6.1.0...6.2.0
 [6.1.0]: https://github.com/Automattic/jetpack-crm/compare/6.0.0...6.1.0
 [6.0.0]: https://github.com/Automattic/jetpack-crm/compare/5.8.0...6.0.0
 [5.8.0]: https://github.com/Automattic/jetpack-crm/compare/5.7.0...5.8.0

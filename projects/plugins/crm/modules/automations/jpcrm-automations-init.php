@@ -39,7 +39,7 @@ add_filter( 'jetpack_crm_automations_load_ui', __NAMESPACE__ . '\disable_ui_if_f
  *
  * This is a core module that will always be loaded, so we do not allow it to be enabled/deactivated.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  *
  * @return void
  */
@@ -58,7 +58,7 @@ add_action( 'jpcrm_load_modules', __NAMESPACE__ . '\load_module' );
 /**
  * Defines constants
  *
- * @since $$next-version$$
+ * @since 6.2.0
  *
  * @return void
  */

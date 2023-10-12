@@ -19,6 +19,13 @@ function fixDeps( pkg ) {
 		delete pkg.dependencies[ 'wpcom-proxy-request' ];
 	}
 
+	// Depends on punycode but doesn't declare it.
+	// https://github.com/markdown-it/markdown-it/issues/230
+	// https://github.com/markdown-it/markdown-it/issues/945
+	if ( pkg.name === 'markdown-it' && ! pkg.dependencies.punycode ) {
+		pkg.dependencies.punycode = '*';
+	}
+
 	// Undeclared dependency on prop-types.
 	// https://github.com/nutboltu/storybook-addon-mock/issues/190
 	if ( pkg.name === 'storybook-addon-mock' ) {
@@ -26,21 +33,26 @@ function fixDeps( pkg ) {
 		pkg.dependencies[ 'prop-types' ] = '*';
 	}
 
-	// Missing dep or peer dep on @babel/runtime
-	// https://github.com/WordPress/gutenberg/issues/54115
+	// Missing dep or peer dep on react.
+	// https://github.com/WordPress/gutenberg/issues/55171
 	if (
-		pkg.name === '@wordpress/patterns' &&
-		! pkg.dependencies?.[ '@babel/runtime' ] &&
-		! pkg.peerDependencies?.[ '@babel/runtime' ]
+		pkg.name === '@wordpress/icons' &&
+		! pkg.dependencies?.react &&
+		! pkg.peerDependencies?.react
 	) {
-		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
+		pkg.peerDependencies.react = '^18';
 	}
 
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( dep.startsWith( 'eslint-plugin-' ) || dep.endsWith( '/eslint-plugin' ) ) {
+			if (
+				dep.startsWith( 'eslint-plugin-' ) ||
+				dep.endsWith( '/eslint-plugin' ) ||
+				dep.startsWith( 'eslint-config-' ) ||
+				dep.endsWith( '/eslint-config' )
+			) {
 				delete pkg.dependencies[ dep ];
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
