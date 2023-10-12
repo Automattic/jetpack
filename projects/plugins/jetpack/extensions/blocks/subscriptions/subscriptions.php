@@ -1074,7 +1074,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		: __( 'Already a subscriber?', 'jetpack' );
 
 	$sign_in = '';
-	if ( ! is_user_logged_in() && ( new Host() )->is_wpcom_simple() ) {
+	if ( ( new Host() )->is_wpcom_platform() ) {
 		$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
 
 		$sign_in = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
