@@ -6,6 +6,11 @@
  */
 
 /**
+ * Load the constants.
+ */
+require_once __DIR__ . '/constants.php';
+
+/**
  * Register a curated selection of Google Fonts.
  *
  * @return void

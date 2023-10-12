@@ -8,7 +8,7 @@
 /**
  * Gets the Google Fonts data
  *
- * @return object[] The Google Fonts data.
+ * @return object[] The collection data of the Google Fonts.
  */
 function jetpack_get_google_fonts_data() {
 	$default_google_fonts_api_url           = 'https://fonts.gstatic.com';
@@ -47,10 +47,17 @@ function jetpack_get_google_fonts_data() {
 /**
  * Gets the map of the available Google Fonts
  *
+ * @param object[] $google_fonts_data The collection data of the Google Fonts.
  * @return object[] The map of the the available Google Fonts.
  */
-function jetpack_get_available_google_fonts_map() {
-	$google_font_list           = apply_filters( 'jetpack_google_fonts_list', JETPACK_GOOGLE_FONTS_LIST );
+function jetpack_get_available_google_fonts_map( $google_fonts_data ) {
+	$jetpack_google_fonts_list  = array_map(
+		function ( $font_family ) {
+			return $font_family['name'];
+		},
+		$google_fonts_data['fontFamilies']
+	);
+	$google_font_list           = apply_filters( 'jetpack_google_fonts_list', $jetpack_google_fonts_list );
 	$available_google_fonts_map = array();
 
 	foreach ( $google_font_list as $google_font ) {
@@ -96,7 +103,7 @@ function jetpack_register_google_fonts_to_theme_json( $theme_json ) {
 		return $theme_json;
 	}
 
-	$available_google_fonts_map = jetpack_get_available_google_fonts_map();
+	$available_google_fonts_map = jetpack_get_available_google_fonts_map( $google_fonts_data );
 	$theme_fonts_map            = jetpack_get_theme_fonts_map();
 	$google_fonts_families      = array_values(
 		array_filter(
