@@ -293,7 +293,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.7-beta - 2023-10-10
+### 12.7 - 2023-10-12
 #### Enhancements
 - Added a new post publish panel for quick sharing.
 - AI Assistant: Modify language reminder for toolbar options.

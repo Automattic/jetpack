@@ -2,10 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.7-beta - 2023-10-10
+## 12.7 - 2023-10-12
 ### Enhancements
-- Newsletter: launch the ability to create tiered newsletter plans. [#32710]
 - Blogroll: move blogroll and blogroll-items blocks from beta to production, along with various improvements. [#33475] [#33483]
+- Newsletter: launch the ability to create tiered newsletter plans. [#32710]
 
 ### Improved compatibility
 - AI Chat block: fix icon color in block selector. [#33478]
@@ -13,19 +13,19 @@
 ### Bug fixes
 - AI Assistant: do not register the editor plugin if the site is not connected to WordPress.com. [#33408]
 - AI Chat block: fix text wrapping in button for Firefox. [#33519]
-- Block Editor: update the Likes and Sharing copy in the Jetpack menu to address grammatical mistake. [#33509] 
+- Block Editor: update the Likes and Sharing copy in the Jetpack menu to address grammatical mistake. [#33509]
 - Subscriptions module: fix fatal error caused by undefined constant. [#33473]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add conditional rendering for newsletter categories based on the wpcom_newsletter_categories_location filter [#33376]
 - Add jetpack_memberships_product_id to the list of post meta to sync. [#33323]
 - AI Excerpt: set support document link depending on site type [#33499]
-- Sites API: add was_hosting_trial flag to data returned for site details. [#33487]
 - Incorrect typing for a meta field [#33515]
-- Add conditional rendering for newsletter categories based on the wpcom_newsletter_categories_location filter [#33376]
+- Paywall: login paragraph to use theme text colour [#33532]
 - Paywall block: remove "beta" from the name in block.json [#33527]
 - Removed WPCOM-specific references from site settings endpoint. [#33466]
 - Sharing: improve the display of the official X button. [#33474]
-- Paywall: login paragraph to use theme text colour [#33532]
+- Sites API: add was_hosting_trial flag to data returned for site details. [#33487]
 - Updated package dependencies. [#33455]
 
 ## 12.7-a.7 - 2023-10-04
