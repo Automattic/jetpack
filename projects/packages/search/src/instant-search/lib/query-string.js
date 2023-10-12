@@ -57,7 +57,7 @@ export function getResultFormatQuery() {
 }
 
 /**
- * Navigates the window to a specified location with all search-related query values stirpped out.
+ * Navigates the window to a specified location with all search-related query values stripped out.
  *
  * @param {string} initialHref - Target location to navigate to via push/replaceState.
  * @param {Function} callback - Callback to be invoked if initialHref didn't include any search queries.
