@@ -11,21 +11,18 @@
  * @return object[] The collection data of the Google Fonts.
  */
 function jetpack_get_google_fonts_data() {
-	$default_google_fonts_api_url           = 'https://fonts.gstatic.com';
-	$jetpack_google_fonts_collection_config = array(
-		'id'          => 'jetpack-google-fonts-collection',
-		'name'        => 'Jetpack Google Fonts',
-		'description' => __( 'A curated collection provided by Jetpack Google Fonts module', 'jetpack' ),
-		'src'         => 'https://s0.wp.com/i/font-collections/jetpack-google-fonts.json',
-	);
+	$default_google_fonts_api_url        = 'https://fonts.gstatic.com';
+	$jetpack_google_fonts_collection_url = 'https://s0.wp.com/i/font-collections/jetpack-google-fonts.json';
 
-	$jetpack_google_fonts_collection = new WP_Font_Collection( $jetpack_google_fonts_collection_config );
-	$data                            = $jetpack_google_fonts_collection->get_data();
-	if ( is_wp_error( $data ) ) {
+	$response = wp_remote_get( $jetpack_google_fonts_collection_url );
+	if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
 		return null;
 	}
 
-	$data = $data['data'];
+	$data = json_decode( wp_remote_retrieve_body( $response ), true );
+	if ( $data === null ) {
+		return null;
+	}
 
 	// Replace the google fonts api url if the custom one is provided.
 	$custom_google_fonts_api_url = \esc_url( apply_filters( 'jetpack_google_fonts_api_url', '' ) );
@@ -73,11 +70,11 @@ function jetpack_get_available_google_fonts_map( $google_fonts_data ) {
  * @return object[] The font families of the active theme.
  */
 function jetpack_get_theme_fonts_map() {
-	if ( ! class_exists( 'WP_Theme_JSON_Resolver_Gutenberg' ) ) {
+	if ( ! class_exists( 'WP_Theme_JSON_Resolver' ) ) {
 		return array();
 	}
 
-	$theme_json = WP_Theme_JSON_Resolver_Gutenberg::get_theme_data();
+	$theme_json = WP_Theme_JSON_Resolver::get_theme_data();
 	$raw_data   = $theme_json->get_data();
 	if ( empty( $raw_data['settings']['typography']['fontFamilies'] ) ) {
 		return array();
