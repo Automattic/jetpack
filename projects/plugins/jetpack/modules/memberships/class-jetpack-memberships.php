@@ -97,6 +97,13 @@ class Jetpack_Memberships {
 	private static $user_can_view_post_cache = array();
 
 	/**
+	 * Cached results of user_is_paid_subscriber() method.
+	 *
+	 * @var array
+	 */
+	private static $user_is_paid_subscriber_cache = array();
+
+	/**
 	 * Currencies we support and Stripe's minimum amount for a transaction in that currency.
 	 *
 	 * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
@@ -161,6 +168,15 @@ class Jetpack_Memberships {
 			),
 			'site_subscriber' => array(
 				'meta' => $meta_prefix . 'site_subscriber',
+			),
+			'product_id'      => array(
+				'meta' => $meta_prefix . 'product_id',
+			),
+			'tier'            => array(
+				'meta' => $meta_prefix . 'tier',
+			),
+			'is_deleted'      => array(
+				'meta' => $meta_prefix . 'is_deleted',
 			),
 		);
 		return $properties;
@@ -494,6 +510,23 @@ class Jetpack_Memberships {
 	 *
 	 * @return bool Whether the post can be viewed
 	 */
+	public static function user_is_paid_subscriber() {
+		$user_id = get_current_user_id();
+
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$paywall            = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		$is_paid_subscriber = $paywall->visitor_can_view_content( self::get_all_newsletter_plan_ids(), Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS );
+
+		self::$user_is_paid_subscriber_cache[ $user_id ] = $is_paid_subscriber;
+		return $is_paid_subscriber;
+	}
+
+	/**
+	 * Determines whether the current user can view the post based on the newsletter access level
+	 * and caches the result.
+	 *
+	 * @return bool Whether the post can be viewed
+	 */
 	public static function user_can_view_post() {
 		$user_id = get_current_user_id();
 		$post_id = get_the_ID();
@@ -568,7 +601,7 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Return membership plans
+	 * Return all membership plans (deleted or not)
 	 *
 	 * @return array
 	 */
@@ -634,11 +667,11 @@ class Jetpack_Memberships {
 	public static function get_join_others_text( $subscribers_total ) {
 		if ( $subscribers_total >= 1000000 ) {
 			/* translators: %s: number of folks following the blog, millions(M) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sM other subscribers', 'jetpack' ), number_format_i18n( $subscribers_total / 1000000, 1 ) );
+			return sprintf( __( 'Join %sM other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000000, 1 ) ) );
 		}
 		if ( $subscribers_total >= 10000 ) {
 			/* translators: %s: number of folks following the blog, thousands(K) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sK other subscribers', 'jetpack' ), number_format_i18n( $subscribers_total / 1000, 1 ) );
+			return sprintf( __( 'Join %sK other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000, 1 ) ) );
 		}
 
 		/* translators: %s: number of folks following the blog */

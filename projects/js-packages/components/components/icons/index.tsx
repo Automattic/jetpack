@@ -198,6 +198,19 @@ export const JetpackIcon: React.FC< BaseIconProps > = ( {
 	);
 };
 
+export const ShareIcon: React.FC< BaseIconProps > = ( { size = 16, className, color } ) => {
+	return (
+		<IconWrapper className={ className } size={ size } color={ color } viewBox="0 0 16 16">
+			<Path
+				fill="#161722"
+				fillRule="evenodd"
+				d="M8.3 4.66C3.85 5.308.727 9.75.034 13.69l-.02.117c-.137.842.809 1.232 1.446.68 2.013-1.745 3.648-2.475 5.318-2.719a10.482 10.482 0 011.524-.103v2.792c0 .694.82 1.041 1.3.55l6.176-6.307a.79.79 0 00.012-1.088L9.614 1.004C9.14.496 8.301.84 8.301 1.542v3.117zm1.525-1.175v1.85a.773.773 0 01-.654.77l-.655.096c-2.133.311-3.987 1.732-5.295 3.672-.472.7-.854 1.44-1.143 2.18a12.32 12.32 0 011.675-.972c1.58-.75 3.048-.972 4.548-.972h.762a.77.77 0 01.762.779v1.69l4.347-4.44-4.347-4.653z"
+				clipRule="evenodd"
+			></Path>
+		</IconWrapper>
+	);
+};
+
 /**
  * Wrapper of the Social Icons. Adds a default CSS class.
  *
@@ -256,6 +269,18 @@ export const TwitterIcon: React.FC< SocialIconWrapperProps > = ( { fill, size, c
 			className={ classNames( styles.twitter, className ) }
 		>
 			<Path d="M22.23,5.924c-0.736,0.326-1.527,0.547-2.357,0.646c0.847-0.508,1.498-1.312,1.804-2.27 c-0.793,0.47-1.671,0.812-2.606,0.996C18.324,4.498,17.257,4,16.077,4c-2.266,0-4.103,1.837-4.103,4.103 c0,0.322,0.036,0.635,0.106,0.935C8.67,8.867,5.647,7.234,3.623,4.751C3.27,5.357,3.067,6.062,3.067,6.814 c0,1.424,0.724,2.679,1.825,3.415c-0.673-0.021-1.305-0.206-1.859-0.513c0,0.017,0,0.034,0,0.052c0,1.988,1.414,3.647,3.292,4.023 c-0.344,0.094-0.707,0.144-1.081,0.144c-0.264,0-0.521-0.026-0.772-0.074c0.522,1.63,2.038,2.816,3.833,2.85 c-1.404,1.1-3.174,1.756-5.096,1.756c-0.331,0-0.658-0.019-0.979-0.057c1.816,1.164,3.973,1.843,6.29,1.843 c7.547,0,11.675-6.252,11.675-11.675c0-0.178-0.004-0.355-0.012-0.531C20.985,7.47,21.68,6.747,22.23,5.924z" />
+		</SocialIconWrapper>
+	);
+};
+
+export const XIcon: React.FC< SocialIconWrapperProps > = ( {
+	fill = 'black',
+	size,
+	className,
+} ) => {
+	return (
+		<SocialIconWrapper fill={ fill } size={ size } className={ className }>
+			<Path d="M14.117 9.622L20.446 2h-1.5l-5.495 6.618L9.062 2H4l6.637 10.007L4 20h1.5l5.803-6.989L15.938 20H21L14.117 9.622zm-2.054 2.474l-.672-.997-5.35-7.93h2.303l4.318 6.4.672.996 5.613 8.319h-2.304l-4.58-6.788z" />
 		</SocialIconWrapper>
 	);
 };
@@ -342,6 +367,7 @@ const jetpackIcons = {
 	star: StarIcon,
 	videopress: VideopressIcon,
 	jetpack: JetpackIcon,
+	share: ShareIcon,
 };
 
 const socialIcons = {
@@ -353,6 +379,7 @@ const socialIcons = {
 	google: GoogleIcon,
 	mastodon: MastodonIcon,
 	whatsapp: WhatsAppIcon,
+	x: XIcon,
 };
 
 const iconsMap = {

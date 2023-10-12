@@ -1,4 +1,5 @@
 <script lang="ts">
+	import CloseIcon from '../../../svg/close.svg';
 	import PencilIcon from '../../../svg/pencil.svg';
 
 	export let editText: string;
@@ -9,6 +10,7 @@
 
 <div class="jb-collapsible-meta">
 	<header class="jb-collapsible-meta__header">
+		<slot name="header" />
 		<button
 			type="button"
 			class="jb-collapsible-meta__edit-button components-button is-link"
@@ -16,11 +18,14 @@
 				isEditing = ! isEditing;
 			}}
 		>
-			<PencilIcon class="edit-icon" />
-			{isEditing ? closeEditText : editText}
+			{#if isEditing}
+				<CloseIcon class="edit-icon" />
+				{closeEditText}
+			{:else}
+				<PencilIcon class="edit-icon" />
+				{editText}
+			{/if}
 		</button>
-
-		<slot name="header" />
 	</header>
 
 	{#if isEditing}
@@ -39,11 +44,17 @@
 		margin-top: 2em;
 
 		&__header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
 			margin-bottom: 1em;
+			@media screen and ( max-width: 530px ) {
+				flex-direction: column;
+				align-items: flex-start;
+			}
 		}
 
 		&__edit-button {
-			float: right;
 			padding: 4px;
 		}
 
@@ -56,6 +67,7 @@
 
 	:global( .jb-collapsible-meta__edit-button .edit-icon ) {
 		fill: $jetpack-green-50;
+		color: $jetpack-green-50;
 		margin: 4px 4px 2px 0;
 	}
 </style>

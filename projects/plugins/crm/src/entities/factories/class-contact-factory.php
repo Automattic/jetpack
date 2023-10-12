@@ -3,7 +3,7 @@
  * Contact Factory.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Entities\Factories;
@@ -13,14 +13,14 @@ use Automattic\Jetpack\CRM\Entities\Contact;
 /**
  * Contact Factory class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Contact_Factory extends Entity_Factory {
 
 	/**
 	 * Contact DB field name mapping. db_field => model_field.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var array
 	 */
 	protected static $field_map = array(
@@ -61,7 +61,7 @@ class Contact_Factory extends Entity_Factory {
 	 *
 	 * For tags, invoices, transactions, quotes, tasks...
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var array
 	 */
 	protected static $associative_field_map = array(
@@ -71,7 +71,7 @@ class Contact_Factory extends Entity_Factory {
 	/**
 	 * Get the contact instance based on the $data array.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $data The contact data from the DAL.
 	 * @return mixed The contact instance.
@@ -92,7 +92,7 @@ class Contact_Factory extends Entity_Factory {
 	/**
 	 * Validate the data array (Tidy from DAL)
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $tidy_contact The tidy data array.
 	 * @return bool If it's valid or not.
@@ -103,7 +103,7 @@ class Contact_Factory extends Entity_Factory {
 			return false;
 		}
 
-		$valid_fields = array( 'fname', 'lname', 'email' );
+		$valid_fields = array( 'id' );
 
 		foreach ( $valid_fields as $field ) {
 			if ( ! array_key_exists( $field, $tidy_contact ) ) {

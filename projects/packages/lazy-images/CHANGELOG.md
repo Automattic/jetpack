@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.1] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [2.3.0] - 2023-09-28
+### Added
+- Add logic to disable the Lazy Images module in the Jetpack plugin. [#33208]
+
+### Changed
+- Indicate the upcoming deprecation of this package. [#33208]
+- Update logic to detect incompatible WordPress versions to also include future versions of WordPress and development versions of the Gutenberg plugin. [#33208]
+
 ## [2.2.0] - 2023-09-19
 ### Deprecated
 - Deprecated: The lazy-images functionality is not compatible with Gutenberg 16.6+ so it will be disabled when that version is present. [#33039]
@@ -352,6 +364,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Lazy Images: Move into a package
 
+[2.3.1]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.3.0...v2.3.1
+[2.3.0]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.45...v2.2.0
 [2.1.45]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.44...v2.1.45
 [2.1.44]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.43...v2.1.44

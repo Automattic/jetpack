@@ -15,7 +15,7 @@ export const title = __( 'OpenTable', 'jetpack' );
 
 export const settings = {
 	title,
-	description: __( 'Allow visitors to book a reservation with OpenTable', 'jetpack' ),
+	description: __( 'Book a reservation with OpenTable.', 'jetpack' ),
 	icon: {
 		src: icon,
 		foreground: getIconColor(),

@@ -1,9 +1,4 @@
 <?xml version="1.0"?>
 <ruleset>
-
-	<!-- We don't need to use WordPress's filesystem functions to set up tests. -->
-	<rule ref="WordPress.WP.AlternativeFunctions">
-		<severity>0</severity>
-	</rule>
-
+	<rule ref="Jetpack-Tests" />
 </ruleset>

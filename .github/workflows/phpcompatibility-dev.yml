@@ -69,7 +69,8 @@ jobs:
             exit 1
           fi
           composer remove --dev --no-update automattic/jetpack-codesniffer
-          composer require --dev --no-update phpcompatibility/php-compatibility=dev-develop
+          composer require --dev --no-update phpcompatibility/php-compatibility='dev-develop as 9.9999.9999'
+          composer require --dev --no-update phpcompatibility/phpcompatibility-wp=dev-master
           # Update any other packages needing update now too.
           composer update
           # Even though we uninstalled our codesniffer package, we need the compat rulesets to be found.

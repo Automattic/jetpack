@@ -18,6 +18,8 @@ import {
 	SET_IS_FETCHING_PRODUCT_STATS,
 	SET_PRODUCT_DATA_IS_FETCHING,
 	SET_PRODUCT_DATA,
+	SET_STATS_COUNTS_IS_FETCHING,
+	SET_STATS_COUNTS,
 } from './actions';
 
 const products = ( state = {}, action ) => {
@@ -232,6 +234,25 @@ const stats = ( state = {}, action ) => {
 	}
 };
 
+const statsCounts = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_STATS_COUNTS_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_STATS_COUNTS:
+			return {
+				...state,
+				data: action?.statsCounts || {},
+			};
+
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	products,
 	productData,
@@ -242,6 +263,7 @@ const reducers = combineReducers( {
 	notices,
 	plugins,
 	stats,
+	statsCounts,
 } );
 
 export default reducers;

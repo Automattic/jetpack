@@ -179,8 +179,8 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			$toolsMenu = array();
 
 			// calendar
-			if ( zeroBSCRM_permsEvents() && zeroBSCRM_getSetting( 'feat_calendar' ) > 0 ) {
-				$toolsMenu[] = '<a href="' . zeroBSCRM_getAdminURL( $zbs->slugs['manage-events'] ) . '" class="item"><i class="icon calendar outline"></i> ' . __( 'Task Scheduler', 'zero-bs-crm' ) . '</a>';
+			if ( zeroBSCRM_perms_tasks() && zeroBSCRM_getSetting( 'feat_calendar' ) > 0 ) {
+				$toolsMenu[] = '<a href="' . zeroBSCRM_getAdminURL( $zbs->slugs['manage-tasks'] ) . '" class="item"><i class="icon calendar outline"></i> ' . __( 'Task Scheduler', 'zero-bs-crm' ) . '</a>';
 			}
 			// forms
 			if ( zeroBSCRM_permsForms() && zeroBSCRM_getSetting( 'feat_forms' ) > 0 ) {
@@ -698,7 +698,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 						$cID = get_current_user_id();
 						?>
 					<div class="jpcrm-user-menu-link">
-						<a id="zbs-events2-top-menu" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['manage-events'] ) ); ?>&zbsowner=<?php echo esc_attr( $cID ); // phpcs:ignore ?>" class="item"><i class="icon tasks"></i> <?php esc_html_e( 'Your Tasks', 'zero-bs-crm' ); ?></a>
+						<a id="jpcrm-tasks-top-menu" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['manage-tasks'] ) ); ?>&zbsowner=<?php echo esc_attr( $cID ); // phpcs:ignore ?>" class="item"><i class="icon tasks"></i> <?php esc_html_e( 'Your Tasks', 'zero-bs-crm' ); ?></a>
 					</div>
 					<?php } ?>
 

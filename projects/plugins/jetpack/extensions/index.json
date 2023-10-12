@@ -1,6 +1,7 @@
 {
 	"production": [
 		"ai-assistant",
+		"ai-chat",
 		"ai-assistant-plugin",
 		"blogging-prompt",
 		"business-hours",
@@ -52,20 +53,19 @@
 		"videopress/video",
 		"ai-assistant-support",
 		"ai-assistant-form-support",
-		"paywall"
+		"paywall",
+		"ai-content-lens",
+		"blogroll",
+		"blogroll-item"
 	],
 	"beta": [
-		"ai-chat",
 		"amazon",
-		"blogroll",
-		"blogroll-item",
 		"google-docs-embed",
 		"launchpad-save-modal",
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"create-with-voice",
-		"ai-content-lens",
 		"ai-assistant-backend-prompts"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
