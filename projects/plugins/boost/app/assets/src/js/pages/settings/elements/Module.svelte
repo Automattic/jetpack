@@ -8,10 +8,8 @@
 
 	const dispatch = createEventDispatcher();
 
-	$: isModuleActive = isActive;
-
 	async function handleToggle() {
-		isActive = ! isModuleActive;
+		isActive = ! isActive;
 
 		dispatch( 'toggle', {
 			active: isActive,
@@ -20,7 +18,7 @@
 	}
 
 	onMount( async () => {
-		if ( isModuleActive ) {
+		if ( isActive ) {
 			dispatch( 'mountEnabled' );
 		}
 	} );
@@ -29,7 +27,7 @@
 <div class="jb-feature-toggle">
 	<div class="jb-feature-toggle__toggle">
 		{#if toggle}
-			<Toggle id={`jb-feature-toggle-${ slug }`} checked={isModuleActive} on:click={handleToggle} />
+			<Toggle id={`jb-feature-toggle-${ slug }`} checked={isActive} on:click={handleToggle} />
 		{/if}
 	</div>
 
@@ -43,7 +41,7 @@
 		<div class="jb-feature-toggle__content">
 			<slot />
 
-			{#if isModuleActive}
+			{#if isActive}
 				<slot name="meta" />
 
 				<slot name="notice" />
