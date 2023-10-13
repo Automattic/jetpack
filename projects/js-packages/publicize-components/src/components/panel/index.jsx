@@ -54,12 +54,14 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 
 	// Panel wrapper.
 	const PanelWrapper = prePublish ? Fragment : PanelBody;
-	const wrapperProps = prePublish ? {} : { title: __( 'Share this post', 'jetpack' ) };
+	const wrapperProps = prePublish
+		? {}
+		: { title: __( 'Share this post', 'jetpack' ), className: styles.panel };
 
 	const [ isModalOpen, toggleModal ] = useReducer( isOpen => ! isOpen, false );
 
 	return (
-		<PanelWrapper className={ styles.panel } { ...wrapperProps }>
+		<PanelWrapper { ...wrapperProps }>
 			{ isPostPublished && (
 				<OneClickSharingDropdown
 					onClickLearnMore={ toggleModal }
