@@ -83,15 +83,6 @@ function fixDeps( pkg ) {
 		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
 	}
 
-	// To update semver dep.
-	// https://github.com/storybookjs/storybook/pull/23396
-	if (
-		pkg.name === '@storybook/cli' &&
-		pkg.dependencies[ 'simple-update-notifier' ] === '^1.0.0'
-	) {
-		pkg.dependencies[ 'simple-update-notifier' ] = '^2.0.0';
-	}
-
 	// Typo in package.json caused a missing peer dep.
 	// Already fixed by https://github.com/yjs/y-webrtc/pull/48, not yet released.
 	// Already fixed by https://github.com/yjs/y-protocols/pull/12, not yet released.

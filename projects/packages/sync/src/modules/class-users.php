@@ -142,13 +142,15 @@ class Users extends Module {
 
 		add_action( 'jetpack_wp_login', $callable, 10, 3 );
 
-		add_action( 'wp_logout', $callable, 10, 0 );
+		add_action( 'wp_logout', $callable, 10, 1 );
 		add_action( 'wp_masterbar_logout', $callable, 10, 1 );
 
 		// Add on init.
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_add_user', array( $this, 'expand_action' ) );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_register_user', array( $this, 'expand_action' ) );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_user', array( $this, 'expand_action' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_wp_login', array( $this, 'expand_login_username' ), 10, 1 );
+		add_filter( 'jetpack_sync_before_enqueue_wp_logout', array( $this, 'expand_logout_username' ), 10, 1 );
 	}
 
 	/**
@@ -168,9 +170,6 @@ class Users extends Module {
 	 * @access public
 	 */
 	public function init_before_send() {
-		add_filter( 'jetpack_sync_before_send_jetpack_wp_login', array( $this, 'expand_login_username' ), 10, 1 );
-		add_filter( 'jetpack_sync_before_send_wp_logout', array( $this, 'expand_logout_username' ), 10, 2 );
-
 		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_users', array( $this, 'expand_users' ) );
 	}
@@ -295,7 +294,7 @@ class Users extends Module {
 	}
 
 	/**
-	 * Expand the user username at login before being sent to the server.
+	 * Expand the user username at login before enqueuing.
 	 *
 	 * @access public
 	 *
@@ -310,15 +309,16 @@ class Users extends Module {
 	}
 
 	/**
-	 * Expand the user username at logout before being sent to the server.
+	 * Expand the user username at logout before enqueuing.
 	 *
 	 * @access public
 	 *
 	 * @param  array $args The hook arguments.
-	 * @param  int   $user_id ID of the user.
-	 * @return array $args Expanded hook arguments.
+	 * @return false|array $args Expanded hook arguments or false if we don't have a user.
 	 */
-	public function expand_logout_username( $args, $user_id ) {
+	public function expand_logout_username( $args ) {
+		list( $user_id ) = $args;
+
 		$user = get_userdata( $user_id );
 		$user = $this->sanitize_user( $user );
 
@@ -327,7 +327,7 @@ class Users extends Module {
 			$login = $user->data->user_login;
 		}
 
-		// If we don't have a user here lets not send anything.
+		// If we don't have a user here lets not enqueue anything.
 		if ( empty( $login ) ) {
 			return false;
 		}
