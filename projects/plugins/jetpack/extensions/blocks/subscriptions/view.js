@@ -30,23 +30,7 @@ domReady( function () {
 			}
 			event.preventDefault();
 
-			// get all unchecked categories
-			const newsletter_category_checkboxes = Array.from(
-				form.querySelectorAll(
-					'.wp-block-jetpack-subscriptions__newsletter-category input[type=checkbox]'
-				)
-			);
-
-			const unchecked_newsletter_categories = newsletter_category_checkboxes
-				.filter( checkbox => ! checkbox.checked )
-				.map( checkbox => checkbox.value );
-
-			// If all are unchecked, we treat it as if no exclusions were made.
-			const has_excluded_newsletter_categories =
-				unchecked_newsletter_categories.length > 0 &&
-				unchecked_newsletter_categories.length !== newsletter_category_checkboxes.length; // If all are unchecked, we treat it as if no exclusions were made.
-
-			let url =
+			const url =
 				'https://subscribe.wordpress.com/memberships/?' +
 				'blog=' +
 				form.dataset.blog +
@@ -58,10 +42,6 @@ domReady( function () {
 				post_id_clause +
 				tier_id_clause +
 				email_clause;
-
-			if ( has_excluded_newsletter_categories ) {
-				url += '&excluded_newsletter_categories=' + unchecked_newsletter_categories.join( ',' );
-			}
 
 			window.scrollTo( 0, 0 );
 			tb_show( null, url + '&TB_iframe=true', null );
