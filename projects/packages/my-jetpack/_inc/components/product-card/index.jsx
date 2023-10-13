@@ -32,7 +32,6 @@ const ProductCard = props => {
 		children,
 	} = props;
 
-	const isActive = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isAbsent =
 		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
@@ -89,7 +88,7 @@ const ProductCard = props => {
 	const ProductIcon = getIconBySlug( slug );
 
 	return (
-		<div className={ containerClassName }>
+		<Card className={ classNames( styles.container, containerClassName ) }>
 			<div className={ styles.title }>
 				<div className={ styles.name }>
 					<Text variant="title-medium">{ name }</Text>
