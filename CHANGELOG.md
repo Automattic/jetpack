@@ -1,7 +1,8 @@
 _The versioning refers to the React component build._
 
-### Next
+### v2.5.6 (2023-10-13)
 * Updated X icon.
+* Removed unnecessary aria label attributes from Threads and X SVGs.
 
 #### v2.5.5 (2023-09-15)
 * Added X icon.
