@@ -68,7 +68,7 @@ export default function useProductCheckoutWorkflow( {
 			productCheckoutUrl.searchParams.set( 'admin_url', adminUrl );
 			/**
 			 * `from_site_slug` is the Jetpack site slug (siteSuffix) passed 'from the site' via url
-			 * query arg (into	Calypso), for use cases when there is not a site in context (such
+			 * query arg (into Calypso), for use cases when there is not a site in context (such
 			 * as when Jetpack is not connected or the user is not logged in) but we need to know
 			 * the site we're working with). As opposed to Calypso's use of `siteSlug`
 			 * which is the site slug present when the site is in context (ie- the site is available
