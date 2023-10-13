@@ -461,8 +461,8 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		if (
-			false !== strpos( $title, 'awaiting-mod' )
-			&& preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches )
+			( false !== strpos( $title, 'awaiting-mod' ) || false !== strpos( $title, 'update-plugins' ) )
+			&& preg_match( '/<span class="(awaiting-mod|update-plugins)">(.+)<\/span>/', $title, $matches )
 		) {
 
 			$text = $matches[1];

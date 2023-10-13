@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Admin Menu now correctly picks up badges that use the update-plugins CSS class to be displayed as a badge.

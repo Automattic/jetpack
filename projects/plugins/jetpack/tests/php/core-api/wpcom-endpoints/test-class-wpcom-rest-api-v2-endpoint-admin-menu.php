@@ -653,6 +653,13 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 					'title' => 'Comments more title',
 				),
 			),
+			array(
+				'Settings <span class="update-plugins">staging</span>more title',
+				array(
+					'badge' => 'staging',
+					'title' => 'Settings more title',
+				),
+			),
 		);
 	}
 }
