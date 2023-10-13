@@ -149,12 +149,7 @@
 	{/if}
 
 	{#if $modulesState.cloud_css.available}
-		<Module
-			slug="cloud_css"
-			isActive={$modulesState.cloud_css.active}
-			on:mountEnabled={startPollingCloudStatus}
-			on:toggle={moduleToggle}
-		>
+		<Module slug="cloud_css" isActive={$modulesState.cloud_css.active} on:toggle={moduleToggle}>
 			<h3 slot="title">
 				{__( 'Automatically Optimize CSS Loading', 'jetpack-boost' )}
 				<span class="jb-badge">Upgraded</span>
