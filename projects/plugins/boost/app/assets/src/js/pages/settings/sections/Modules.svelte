@@ -14,6 +14,7 @@
 		isaSummary,
 	} from '../../../modules/image-size-analysis/store/isa-summary';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
+	import config from '../../../stores/config';
 	import {
 		criticalCssState,
 		continueGeneratingLocalCriticalCss,
@@ -48,6 +49,7 @@
 
 	const suggestRegenerate = suggestRegenerateDS.store;
 
+	$: yearlyPricing = $config.pricing.yearly;
 	$: if ( $modulesState.critical_css.active ) {
 		if ( ! resumedCriticalCssGeneration ) {
 			resumedCriticalCssGeneration = true;
@@ -143,6 +145,7 @@
 						'Save time by upgrading to Automatic Critical CSS generation.',
 						'jetpack-boost'
 					)}
+					{yearlyPricing}
 				/>
 			</svelte:fragment>
 		</Module>
@@ -318,6 +321,7 @@
 								'Upgrade to scan your site for issues - automatically!',
 								'jetpack-boost'
 							)}
+							{yearlyPricing}
 						/>
 					{/if}
 				</svelte:fragment>
