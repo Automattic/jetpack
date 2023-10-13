@@ -27,19 +27,37 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 		$json_params = file_get_contents( 'php://input' );
 		$new_trans   = json_decode( $json_params, true );
 
-		// REQUIRED
-		$orderid = -1;
+// REQUIRED FIELDS
+$required_fields = array(
+	'orderid',
+	'email',
+);
+
+// Check for required fields. Fail if any are missing.
+foreach ( $required_fields as $field ) {
+	if ( ! array_key_exists( $field, $new_trans ) ) {
+		wp_send_json(
+			array(
+				'error'   => 400,
+				'message' => 'Missing required field: ' . $field,
+			)
+		);
+		exit();
+	}
+}
+
+$orderid = -1;
+$email   = '';
+$fname   = '';
+
 if ( isset( $new_trans['orderid'] ) ) {
 	$orderid = sanitize_text_field( $new_trans['orderid'] );
 }
 
-		// other
-		$email = '';
 if ( isset( $new_trans['email'] ) ) {
 	$email = sanitize_text_field( $new_trans['email'] );
 }
 		$customer = zeroBS_getCustomerIDWithEmail( $email );
-		$fname    = '';
 if ( isset( $new_trans['fname'] ) ) {
 	$fname = sanitize_text_field( $new_trans['fname'] );
 }
