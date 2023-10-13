@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Dedicated Sync: Update 'init' hook priority on Dedicated Sync requests to 0, in order to start sending Sync actions to WPCOM and exit as early as possible.
