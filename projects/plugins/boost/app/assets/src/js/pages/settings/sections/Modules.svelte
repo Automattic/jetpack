@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-	let alreadyResumed = false;
+	let resumedCriticalCssGeneration = false;
 </script>
 
 <script lang="ts">
@@ -49,8 +49,8 @@
 	const suggestRegenerate = suggestRegenerateDS.store;
 
 	$: if ( $modulesState.critical_css.active ) {
-		if ( ! alreadyResumed ) {
-			alreadyResumed = true;
+		if ( ! resumedCriticalCssGeneration ) {
+			resumedCriticalCssGeneration = true;
 
 			if ( $criticalCssState.status === 'not_generated' ) {
 				regenerateCriticalCss();
@@ -59,7 +59,7 @@
 			continueGeneratingLocalCriticalCss( $criticalCssState );
 		}
 	} else {
-		alreadyResumed = false;
+		resumedCriticalCssGeneration = false;
 	}
 
 	$: if ( $modulesState.cloud_css.active ) {
