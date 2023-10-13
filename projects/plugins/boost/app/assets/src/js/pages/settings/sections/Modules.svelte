@@ -48,13 +48,13 @@
 
 	const suggestRegenerate = suggestRegenerateDS.store;
 
-	$: if ( $modulesState.critical_css.available && $modulesState.critical_css.active ) {
+	$: if ( $modulesState.critical_css.active ) {
 		resumeCriticalCssGeneration();
 	} else {
 		alreadyResumed = false;
 	}
 
-	$: if ( $modulesState.cloud_css.available && $modulesState.cloud_css.active ) {
+	$: if ( $modulesState.cloud_css.active ) {
 		startPollingCloudStatus();
 	} else {
 		stopPollingCloudCssStatus();
