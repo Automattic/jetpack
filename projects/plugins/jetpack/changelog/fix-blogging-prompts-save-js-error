@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Blogging prompts block: add default gravatar attribute to prevent js error

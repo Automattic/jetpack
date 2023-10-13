@@ -3,7 +3,7 @@
  * Interface to define Step in an automation workflow.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -11,14 +11,14 @@ namespace Automattic\Jetpack\CRM\Automation;
 /**
  * Interface Step.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 interface Step {
 
 	/**
 	 * Get the next step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return int|string|null The next linked step.
 	 */
@@ -27,7 +27,7 @@ interface Step {
 	/**
 	 * Get the next step if the current one is successful.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return int|string|null The next linked step id.
 	 */
@@ -36,7 +36,7 @@ interface Step {
 	/**
 	 * Set the next step if the current one is successful.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string|int|null $step_id The next linked step id.
 	 * @return void
@@ -46,7 +46,7 @@ interface Step {
 	/**
 	 * Get the next step if the current one is falsy.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return int|string|null The next linked step id.
 	 */
@@ -55,7 +55,7 @@ interface Step {
 	/**
 	 * Set the next step if the current one is falsy.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string|int|null $step_id The next linked step id.
 	 * @return void
@@ -65,7 +65,7 @@ interface Step {
 	/**
 	 * Get the step attribute definitions.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return Attribute_Definition[] The attribute definitions of the step.
 	 */
@@ -74,7 +74,7 @@ interface Step {
 	/**
 	 * Get attribute value.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $attribute The attribute to get.
 	 * @param mixed  $default The default value to return if the attribute is not set.
@@ -85,7 +85,7 @@ interface Step {
 	/**
 	 * Set attribute value.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $attribute The attribute key.
 	 * @param mixed  $value The default value.
@@ -96,7 +96,7 @@ interface Step {
 	/**
 	 * Set the step attribute definitions.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Attribute_Definition[] $attribute_definitions Set the attribute definitions.
 	 */
@@ -105,7 +105,7 @@ interface Step {
 	/**
 	 * Get the attributes of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return array The attributes of the step.
 	 */
@@ -114,7 +114,7 @@ interface Step {
 	/**
 	 * Get the attributes of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $attributes Set attributes to this step.
 	 */
@@ -123,7 +123,7 @@ interface Step {
 	/**
 	 * Get the slug name of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug name of the step.
 	 */
@@ -132,7 +132,7 @@ interface Step {
 	/**
 	 * Get the title of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The title of the step.
 	 */
@@ -141,7 +141,7 @@ interface Step {
 	/**
 	 * Get the description of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The description of the step.
 	 */
@@ -150,7 +150,7 @@ interface Step {
 	/**
 	 * Get the data type expected by the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The data type expected by the step.
 	 */
@@ -159,7 +159,7 @@ interface Step {
 	/**
 	 * Get the category of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The category of the step.
 	 */
@@ -171,7 +171,7 @@ interface Step {
 	 * The main use-case to get the step as an array is to prepare
 	 * the items for an API response.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return array The step as an array.
 	 */

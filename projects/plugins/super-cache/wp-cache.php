@@ -3838,7 +3838,7 @@ function wpsc_cancel_preload() {
 	}
 	if ( $next_full_preload ) {
 		wp_cache_debug( 'wpsc_cancel_preload: unscheduling wp_cache_full_preload_hook' );
-		wp_unschedule_event( $next_preload, 'wp_cache_full_preload_hook' );
+		wp_unschedule_event( $next_full_preload, 'wp_cache_full_preload_hook' );
 	}
 	wp_cache_debug( 'wpsc_cancel_preload: creating stop_preload.txt' );
 

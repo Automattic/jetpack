@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-idc",
-	"version": "0.10.47",
+	"version": "0.10.48-alpha",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -19,7 +19,7 @@
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
-		"@babel/core": "7.22.17",
+		"@babel/core": "7.23.0",
 		"@babel/preset-react": "7.22.15",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
