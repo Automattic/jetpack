@@ -68,7 +68,7 @@ export function useSetTier() {
 	};
 }
 
-function TierSelector( { onChange } ) {
+function TierSelector() {
 	// TODO: figure out how to handle different currencies
 	const products = useSelect( select => select( membershipProductsStore ).getProducts() )
 		.filter( product => product.subscribe_as_site_subscriber && product.interval === '1 month' )
@@ -107,18 +107,13 @@ function TierSelector( { onChange } ) {
 					const value = Number( product.id );
 					return { label, value };
 				} ) }
-				onChange={ newValue => {
-					const obj = {};
-					obj[ META_NAME_FOR_POST_TIER_ID_SETTINGS ] = newValue;
-					return onChange && onChange( obj );
-				} }
+				onChange={ setTier }
 			/>
 		</div>
 	);
 }
 
 export function NewsletterAccessRadioButtons( {
-	onChange,
 	accessLevel,
 	hasNewsletterPlans,
 	stripeConnectUrl,
@@ -178,7 +173,7 @@ export function NewsletterAccessRadioButtons( {
 			/>
 			{ accessLevel === accessOptions.paid_subscribers.key &&
 				isStripeConnected &&
-				hasNewsletterPlans && <TierSelector onChange={ onChange }></TierSelector> }
+				hasNewsletterPlans && <TierSelector></TierSelector> }
 
 			{ isEditorPanel && (
 				<PlansSetupDialog closeDialog={ closeDialog } showDialog={ showDialog } />
@@ -187,7 +182,7 @@ export function NewsletterAccessRadioButtons( {
 	);
 }
 
-export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } ) {
+export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading, foundPaywallBlock } = useSelect(
 		select => {
 			const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
@@ -265,7 +260,6 @@ export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } )
 									<div className="editor-post-visibility">
 										<NewsletterAccessRadioButtons
 											isEditorPanel={ true }
-											onChange={ setPostMeta }
 											accessLevel={ _accessLevel }
 											stripeConnectUrl={ stripeConnectUrl }
 											hasNewsletterPlans={ hasNewsletterPlans }
