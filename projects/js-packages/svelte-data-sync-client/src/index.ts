@@ -1,10 +1,9 @@
-export { API } from './API';
 export { SyncedStore } from './SyncedStore';
 export { initializeClient } from './initializeClient';
 export type {
 	SyncedStoreCallback,
 	SyncedStoreInterface,
-	ValidatedValue,
+	ParsedValue as ValidatedValue,
 	SyncedWritable,
 	SyncedStoreError,
 } from './types';

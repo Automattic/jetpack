@@ -47,7 +47,12 @@ function fixDeps( pkg ) {
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( dep.startsWith( 'eslint-plugin-' ) || dep.endsWith( '/eslint-plugin' ) ) {
+			if (
+				dep.startsWith( 'eslint-plugin-' ) ||
+				dep.endsWith( '/eslint-plugin' ) ||
+				dep.startsWith( 'eslint-config-' ) ||
+				dep.endsWith( '/eslint-config' )
+			) {
 				delete pkg.dependencies[ dep ];
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
@@ -84,15 +89,6 @@ function fixDeps( pkg ) {
 		! pkg.peerDependencies?.[ '@babel/runtime' ]
 	) {
 		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
-	}
-
-	// To update semver dep.
-	// https://github.com/storybookjs/storybook/pull/23396
-	if (
-		pkg.name === '@storybook/cli' &&
-		pkg.dependencies[ 'simple-update-notifier' ] === '^1.0.0'
-	) {
-		pkg.dependencies[ 'simple-update-notifier' ] = '^2.0.0';
 	}
 
 	// Typo in package.json caused a missing peer dep.

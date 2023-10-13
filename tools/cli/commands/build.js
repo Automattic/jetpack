@@ -707,7 +707,7 @@ async function buildProject( t ) {
 						cwd: t.cwd,
 						stdio: [ null, 'pipe', null ],
 					} )
-				 ).stdout.match( /^.*-a\.(\d+)$/ );
+				).stdout.match( /^.*-a\.(\d+)$/ );
 				prerelease = 'a.' + ( m ? ( parseInt( m[ 1 ] ) & ~1 ) + 2 : 0 );
 			}
 			await t.execa(
@@ -731,7 +731,7 @@ async function buildProject( t ) {
 					cwd: t.cwd,
 					stdio: [ null, 'pipe', null ],
 				} )
-			 ).stdout;
+			).stdout;
 			await t.execa(
 				npath.resolve( 'tools/replace-next-version-tag.sh' ),
 				[ '-v', t.project, ver ],
@@ -1003,7 +1003,7 @@ async function buildProject( t ) {
 				cwd: t.cwd,
 				stdio: [ null, 'pipe', null ],
 			} )
-		 ).stdout;
+		).stdout;
 		if ( ts.match( /^\d+$/ ) ) {
 			projectRunVersionNumber += '.' + ts;
 		}
