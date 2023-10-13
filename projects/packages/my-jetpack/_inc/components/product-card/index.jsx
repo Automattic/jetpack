@@ -1,7 +1,5 @@
-import { Button, Text } from '@automattic/jetpack-components';
-import { Dropdown } from '@wordpress/components';
+import { Text, getIconBySlug } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { moreVertical, download } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
@@ -20,115 +18,6 @@ export const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.CAN_UPGRADE ]: __( 'Active', 'jetpack-my-jetpack' ),
 };
 
-/* eslint-disable react/jsx-no-bind */
-const Menu = ( {
-	items = [],
-	showInstall = false,
-	onInstall,
-	showActivate = false,
-	showDeactivate = false,
-	onActivate,
-	onDeactivate,
-} ) => {
-	return (
-		<Dropdown
-			className={ styles.dropdown }
-			popoverProps={ { noArrow: false, placement: 'bottom-end' } }
-			renderToggle={ ( { isOpen, onToggle } ) => (
-				<Button
-					variant="tertiary"
-					size="small"
-					icon={ moreVertical }
-					onClick={ onToggle }
-					aria-expanded={ isOpen }
-				/>
-			) }
-			renderContent={ ( { onClose } ) => (
-				<>
-					{ items.map( item => (
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ item?.icon }
-							onClick={ () => {
-								onClose();
-								item?.onClick?.();
-							} }
-						>
-							{ item?.label }
-						</Button>
-					) ) }
-					{ showInstall && (
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ download }
-							onClick={ () => {
-								onClose();
-								onInstall?.();
-							} }
-						>
-							{ __( 'Install Plugin', 'jetpack-my-jetpack' ) }
-						</Button>
-					) }
-					{ showActivate && (
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							onClick={ () => {
-								onClose();
-								onActivate?.();
-							} }
-						>
-							{ __( 'Activate Plugin', 'jetpack-my-jetpack' ) }
-						</Button>
-					) }
-					{ showDeactivate && (
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							onClick={ () => {
-								onClose();
-								onDeactivate?.();
-							} }
-						>
-							{ __( 'Deactivate Plugin', 'jetpack-my-jetpack' ) }
-						</Button>
-					) }
-				</>
-			) }
-		/>
-	);
-};
-/* eslint-enable react/jsx-no-bind */
-
-Menu.propTypes = {
-	onActivate: PropTypes.func,
-	onDeactivate: PropTypes.func,
-	showActivate: PropTypes.bool,
-	showDeactivate: PropTypes.bool,
-	showInstall: PropTypes.bool,
-	items: PropTypes.arrayOf(
-		PropTypes.shape( {
-			label: PropTypes.string,
-			icon: PropTypes.node,
-			onClick: PropTypes.func,
-		} )
-	),
-	onInstall: PropTypes.func,
-};
-
-Menu.defaultProps = {
-	onActivate: () => {},
-	onDeactivate: () => {},
-	showActivate: false,
-	showDeactivate: false,
-};
-
 const ProductCard = props => {
 	const {
 		name,
@@ -136,19 +25,11 @@ const ProductCard = props => {
 		status,
 		onActivate,
 		isFetching,
+		isDataLoading,
 		isInstallingStandalone,
 		isDeactivatingStandalone,
 		slug,
 		children,
-		// Menu Related
-		showMenu = false,
-		showActivateOption = false,
-		showDeactivateOption = false,
-		showInstallOption = false,
-		menuItems = [],
-		onInstallStandalone,
-		onActivateStandalone,
-		onDeactivateStandalone,
 	} = props;
 
 	const isActive = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
@@ -205,65 +86,27 @@ const ProductCard = props => {
 		} );
 	}, [ slug, recordEvent ] );
 
-	/**
-	 * Use a Tracks event to count a standalone plugin install request
-	 */
-	const installStandaloneHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_install_standalone_plugin_click', {
-			product: slug,
-		} );
-		onInstallStandalone();
-	}, [ slug, onInstallStandalone, recordEvent ] );
-
-	/**
-	 * Use a Tracks event to count a standalone plugin activation request
-	 */
-	const activateStandaloneHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_activate_standalone_plugin_click', {
-			product: slug,
-		} );
-		onActivateStandalone();
-	}, [ slug, onActivateStandalone, recordEvent ] );
-
-	/**
-	 * Use a Tracks event to count a standalone plugin deactivation menu click
-	 */
-	const deactivateStandaloneHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_deactivate_standalone_plugin_click', {
-			product: slug,
-		} );
-		onDeactivateStandalone();
-	}, [ slug, onDeactivateStandalone, recordEvent ] );
+	const ProductIcon = getIconBySlug( slug );
 
 	return (
-		<Card
-			className={ containerClassName }
-			title={ name }
-			headerRightContent={
-				showMenu && (
-					<Menu
-						items={ menuItems }
-						showActivate={ showActivateOption }
-						showDeactivate={ showDeactivateOption }
-						onActivate={ activateStandaloneHandler }
-						onDeactivate={ deactivateStandaloneHandler }
-						showInstall={ showInstallOption }
-						onInstall={ installStandaloneHandler }
-					/>
-				)
-			}
-		>
-			{
-				// If is not active, no reason to use children
-				// Since we want user to take action if isn't active
-				isActive && children ? (
-					children
-				) : (
-					<Text variant="body-small" className={ styles.description }>
-						{ description }
-					</Text>
-				)
-			}
+		<div className={ containerClassName }>
+			<div className={ styles.title }>
+				<div className={ styles.name }>
+					<Text variant="title-medium">{ name }</Text>
+				</div>
+				{ ProductIcon && <ProductIcon color="#A7AAAD" /> }
+			</div>
+
+			<Text variant="body-small" className={ styles.description }>
+				{ description }
+			</Text>
+
+			{ isDataLoading ? (
+				<span className={ styles.loading }>{ __( 'Loading…', 'jetpack-my-jetpack' ) }</span>
+			) : (
+				children
+			) }
+
 			<div className={ styles.actions }>
 				<ActionButton
 					{ ...props }
@@ -297,20 +140,6 @@ ProductCard.propTypes = {
 	isManageDisabled: PropTypes.bool,
 	onActivate: PropTypes.func,
 	slug: PropTypes.string.isRequired,
-	showMenu: PropTypes.bool,
-	showActivateOption: PropTypes.bool,
-	showDeactivateOption: PropTypes.bool,
-	showInstallOption: PropTypes.bool,
-	menuItems: PropTypes.arrayOf(
-		PropTypes.shape( {
-			label: PropTypes.string,
-			icon: PropTypes.node,
-			onClick: PropTypes.func,
-		} )
-	),
-	onInstallStandalone: PropTypes.func,
-	onActivateStandalone: PropTypes.func,
-	onDeactivateStandalone: PropTypes.func,
 	status: PropTypes.oneOf( [
 		PRODUCT_STATUSES.ACTIVE,
 		PRODUCT_STATUSES.INACTIVE,
@@ -328,11 +157,6 @@ ProductCard.defaultProps = {
 	isInstallingStandalone: false,
 	isDeactivatingStandalone: false,
 	onActivate: () => {},
-	showMenu: false,
-	showActivateOption: false,
-	showDeactivateOption: false,
-	showInstallOption: false,
-	menuItems: [],
 };
 
 export { PRODUCT_STATUSES };

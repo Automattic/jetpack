@@ -24,10 +24,6 @@ const { showJetpackStatsCard = false } = window.myJetpackInitialState?.myJetpack
 const ProductCardsSection = () => {
 	const { productData, fetchingProductData } = useProductData();
 
-	if ( fetchingProductData ) {
-		return null;
-	}
-
 	const items = {
 		backups: BackupCard,
 		scan: ScanAndProtectCard,
@@ -59,6 +55,7 @@ const ProductCardsSection = () => {
 						<Item
 							admin={ !! window?.myJetpackInitialState?.userIsAdmin }
 							productData={ productData[ key ] }
+							fetchingProductData={ fetchingProductData }
 						/>
 					</Col>
 				);
