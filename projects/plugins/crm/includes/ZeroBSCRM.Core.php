@@ -563,13 +563,6 @@ final class ZeroBSCRM {
 			// } Post Init hook
 			do_action( 'zerobscrm_loaded' );
 
-		} else {
-
-			// fails minimum requirements, show warnings
-
-			// we need urls
-			$this->setupUrlsSlugsEtc();
-
 		}
 
 		// display any wp admin notices in the stack
@@ -596,6 +589,9 @@ final class ZeroBSCRM {
 
 		// v5.0+ JPCRM requires DAL3+
 		if ( ! $this->isDAL3() ) {
+
+			// we need urls
+			$this->setupUrlsSlugsEtc();
 
 			// build message
 			$message_html = '<p>' . sprintf( esc_html__( 'This version of CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use CRM you will need to install version 4 of CRM and run the database upgrade.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
