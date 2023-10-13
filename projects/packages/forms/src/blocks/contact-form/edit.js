@@ -103,9 +103,6 @@ export const JetpackContactFormEdit = forwardRef(
 
 		const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
 
-		// const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
-		// 	useModuleStatus( 'contact-form' );
-
 		const formClassnames = classnames( className, 'jetpack-contact-form', {
 			'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
 		} );
