@@ -49,7 +49,15 @@
 	const suggestRegenerate = suggestRegenerateDS.store;
 
 	$: if ( $modulesState.critical_css.active ) {
-		resumeCriticalCssGeneration();
+		if ( ! alreadyResumed ) {
+			alreadyResumed = true;
+
+			if ( $criticalCssState.status === 'not_generated' ) {
+				regenerateCriticalCss();
+			}
+
+			continueGeneratingLocalCriticalCss( $criticalCssState );
+		}
 	} else {
 		alreadyResumed = false;
 	}
@@ -58,18 +66,6 @@
 		startPollingCloudStatus();
 	} else {
 		stopPollingCloudCssStatus();
-	}
-
-	async function resumeCriticalCssGeneration() {
-		if ( alreadyResumed ) {
-			return;
-		}
-		alreadyResumed = true;
-
-		if ( ! $criticalCssState || $criticalCssState.status === 'not_generated' ) {
-			return regenerateCriticalCss();
-		}
-		await continueGeneratingLocalCriticalCss( $criticalCssState );
 	}
 
 	function moduleToggle( e ) {
@@ -88,7 +84,6 @@
 		<Module
 			slug="critical_css"
 			isActive={$modulesState.critical_css.active}
-			on:mountEnabled={resumeCriticalCssGeneration}
 			on:toggle={moduleToggle}
 		>
 			<h3 slot="title">
