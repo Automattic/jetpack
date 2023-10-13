@@ -465,7 +465,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			&& preg_match( '/<span class="(awaiting-mod|update-plugins)">(.+)<\/span>/', $title, $matches )
 		) {
 
-			$text = $matches[1];
+			$text = $matches[2];
 			if ( $text ) {
 				// Keep the text in the item array.
 				$item['badge'] = $text;
