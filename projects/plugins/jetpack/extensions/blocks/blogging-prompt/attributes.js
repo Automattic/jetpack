@@ -21,6 +21,7 @@ export default {
 				attribute: 'src',
 			},
 		},
+		default: [],
 	},
 	promptLabel: {
 		type: 'string',

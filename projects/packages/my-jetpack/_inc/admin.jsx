@@ -62,6 +62,7 @@ const MyJetpack = () => (
 				<Route path="/add-social" element={ <SocialInterstitial /> } />
 				<Route path="/add-search" element={ <SearchInterstitial /> } />
 				<Route path="/add-videopress" element={ <VideoPressInterstitial /> } />
+				<Route path="/add-stats" element={ <Navigate replace to="/connection" /> } />
 				{ window?.myJetpackInitialState?.loadAddLicenseScreen && (
 					<Route path="/add-license" element={ <AddLicenseScreen /> } />
 				) }

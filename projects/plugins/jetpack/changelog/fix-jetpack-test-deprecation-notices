@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix PHP 8.2 deprecation notices in tests. No changes to the plugin itself.
+
+

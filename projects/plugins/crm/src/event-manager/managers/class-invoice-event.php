@@ -13,14 +13,14 @@ use Automattic\Jetpack\CRM\Entities\Invoice;
 /**
  * Invoice Event class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Invoice_Event implements Event {
 
 	/**
 	 * The Invoice_Event instance.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var Invoice_Event
 	 */
 	private static $instance = null;
@@ -28,7 +28,7 @@ class Invoice_Event implements Event {
 	/**
 	 * Get the singleton instance of this class.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return Invoice_Event The Invoice_Event instance.
 	 */
@@ -43,7 +43,7 @@ class Invoice_Event implements Event {
 	/**
 	 * A new invoice was created.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $invoice_data The created invoice data.
 	 * @return void
@@ -59,7 +59,7 @@ class Invoice_Event implements Event {
 	/**
 	 * The invoice was updated.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $invoice_data The updated invoice data.
 	 * @param array $previous_invoice_data The previous invoice data.

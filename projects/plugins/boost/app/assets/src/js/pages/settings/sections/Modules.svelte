@@ -14,11 +14,15 @@
 		isaSummary,
 	} from '../../../modules/image-size-analysis/store/isa-summary';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
+	import config from '../../../stores/config';
 	import {
 		criticalCssState,
 		continueGeneratingLocalCriticalCss,
 		regenerateCriticalCss,
+		criticalCssProgress,
+		isFatalError,
 	} from '../../../stores/critical-css-state';
+	import { criticalCssIssues, primaryErrorSet } from '../../../stores/critical-css-state-errors';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
 	import { imageCdnQuality } from '../../../stores/image-cdn';
 	import { minifyJsExcludesStore, minifyCssExcludesStore } from '../../../stores/minify';
@@ -44,6 +48,8 @@
 	export let location, navigate;
 
 	const suggestRegenerate = suggestRegenerateDS.store;
+
+	$: yearlyPricing = $config.pricing.yearly;
 
 	async function resume() {
 		if ( alreadyResumed ) {
@@ -102,7 +108,16 @@
 		</div>
 
 		<div slot="meta">
-			<CriticalCssMeta />
+			<CriticalCssMeta
+				cssState={$criticalCssState}
+				isCloudCssAvailable={$modulesState.cloud_css?.available}
+				criticalCssProgress={$criticalCssProgress}
+				issues={$criticalCssIssues}
+				isFatalError={$isFatalError}
+				primaryErrorSet={$primaryErrorSet}
+				suggestRegenerate={$suggestRegenerate}
+				{regenerateCriticalCss}
+			/>
 		</div>
 
 		<div slot="notice">
@@ -119,6 +134,7 @@
 					'Save time by upgrading to Automatic Critical CSS generation.',
 					'jetpack-boost'
 				)}
+				{yearlyPricing}
 			/>
 		</svelte:fragment>
 	</Module>
@@ -158,7 +174,16 @@
 		</div>
 
 		<div slot="meta" class="jb-feature-toggle__meta">
-			<CloudCssMeta />
+			<CloudCssMeta
+				cssState={$criticalCssState}
+				isCloudCssAvailable={$modulesState.cloud_css?.available}
+				criticalCssProgress={$criticalCssProgress}
+				issues={$criticalCssIssues}
+				isFatalError={$isFatalError}
+				primaryErrorSet={$primaryErrorSet}
+				suggestRegenerate={$suggestRegenerate}
+				{regenerateCriticalCss}
+			/>
 		</div>
 	</Module>
 
@@ -268,6 +293,7 @@
 							'Upgrade to scan your site for issues - automatically!',
 							'jetpack-boost'
 						)}
+						{yearlyPricing}
 					/>
 				{/if}
 			</svelte:fragment>

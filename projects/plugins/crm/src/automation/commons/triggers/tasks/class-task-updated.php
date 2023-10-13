@@ -13,14 +13,14 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Task_Data;
 /**
  * Adds the Task_Updated class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Task_Updated extends Base_Trigger {
 
 	/**
 	 * Get the slug name of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The trigger slug.
 	 */
@@ -31,7 +31,7 @@ class Task_Updated extends Base_Trigger {
 	/**
 	 * Get the title of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The title.
 	 */
@@ -42,7 +42,7 @@ class Task_Updated extends Base_Trigger {
 	/**
 	 * Get the description of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The description.
 	 */
@@ -53,7 +53,7 @@ class Task_Updated extends Base_Trigger {
 	/**
 	 * Get the category of the trigger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The category.
 	 */
@@ -73,7 +73,7 @@ class Task_Updated extends Base_Trigger {
 	/**
 	 * Listen to this trigger's target event.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return void
 	 */

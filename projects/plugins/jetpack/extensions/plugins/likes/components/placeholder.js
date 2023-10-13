@@ -15,7 +15,7 @@ export const LikesPlaceholder = ( { changeStatus, isLoading, isModuleActive } ) 
 
 	return (
 		<>
-			<p>{ __( 'Activate the Likes feature allowing others likes your posts.', 'jetpack' ) }</p>
+			<p>{ __( 'Activate the Likes feature to allow others to like your posts.', 'jetpack' ) }</p>
 			<Button
 				disabled={ isModuleActive || isLoading }
 				isBusy={ isLoading }

@@ -3,7 +3,7 @@
  * Base Step
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -13,7 +13,7 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
 /**
  * Base Step.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  * {@inheritDoc}
  */
 abstract class Base_Step implements Step {
@@ -21,7 +21,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Step attributes.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var array
 	 */
 	protected $attributes;
@@ -29,7 +29,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Attributes definitions.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var array
 	 */
 	protected $attribute_definitions = array();
@@ -37,7 +37,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * The next step if the current one is successful.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var int|string|null
 	 */
 	protected $next_step_true = null;
@@ -45,7 +45,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * The next step if not successful.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var int|string|null
 	 */
 	protected $next_step_false = null;
@@ -53,7 +53,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Base_Step constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data An array of data for the current step.
 	 */
@@ -66,7 +66,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get the data of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return array The step data.
 	 */
@@ -77,7 +77,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Set attributes of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $attributes The attributes to set.
 	 */
@@ -88,7 +88,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get attribute value.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $attribute The attribute to get.
 	 * @param mixed  $default The default value to return if the attribute is not set.
@@ -101,7 +101,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Set attribute value.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $attribute The attribute key.
 	 * @param mixed  $value The default value.
@@ -114,7 +114,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get the step attribute definitions.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return Attribute_Definition[] The attribute definitions of the step.
 	 */
@@ -125,7 +125,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Set the step attributes.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Attribute_Definition[] $attribute_definitions Set the step attributes.
 	 */
@@ -140,7 +140,7 @@ abstract class Base_Step implements Step {
 	 * next step if the current one is successful.
 	 * One example of this will be conditions where a certain criteria has not been met.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return int|string|null The next linked step id.
 	 */
@@ -151,7 +151,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get the next step if the current one is successful.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return int|string|null The next linked step id.
 	 */
@@ -162,7 +162,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Set the next step if the current one is successful.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string|int|null $step_id The next linked step id.
 	 * @return void
@@ -174,7 +174,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get the next step if the current one is falsy.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return int|string|null The next linked step id.
 	 */
@@ -185,7 +185,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Set the next step if the current one is falsy.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string|int|null $step_id The next linked step id.
 	 * @return void
@@ -197,7 +197,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Validate data passed to the step
 	 *
-	 *  @since $$next-version$$
+	 *  @since 6.2.0
 	 *
 	 * @param Data_Type $data Data type passed.
 	 * @return void
@@ -217,7 +217,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Validate and execute the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data Data type passed.
 	 * @return void
@@ -232,7 +232,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Execute the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data Data type passed from the trigger.
 	 */
@@ -241,7 +241,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get the slug name of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug name of the step.
 	 */
@@ -250,7 +250,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get the title of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The title of the step.
 	 */
@@ -259,7 +259,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get the description of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The description of the step.
 	 */
@@ -268,7 +268,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get the data type exepected by the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The data type expected by the step.
 	 */
@@ -277,7 +277,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get the category of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The category of the step.
 	 */
@@ -289,7 +289,7 @@ abstract class Base_Step implements Step {
 	 * The main use-case to get the step as an array is to prepare
 	 * the items for an API response.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return array The step as an array.
 	 */

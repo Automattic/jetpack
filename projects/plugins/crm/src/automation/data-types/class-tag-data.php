@@ -3,7 +3,7 @@
  * Tag Data Type.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Data_Types;
@@ -13,7 +13,7 @@ use Automattic\Jetpack\CRM\Entities\Tag;
 /**
  * Tag Data Type.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Tag_Data extends Data_Type_Base {
 
@@ -23,7 +23,7 @@ class Tag_Data extends Data_Type_Base {
 	 * This method is meant to validate if the data has the expected inheritance
 	 * or structure and will be used to throw a fatal error if not.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param mixed $data The data to validate.
 	 * @return bool Whether the data is valid.

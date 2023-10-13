@@ -9,9 +9,9 @@ type Network = {
 
 export const availableNetworks: Array< Network > = [
 	{
-		label: __( 'Twitter', 'jetpack' ),
-		networkName: 'twitter',
-		url: 'https://twitter.com/intent/tweet?text={{text}}&url={{url}}',
+		label: __( 'X', 'jetpack' ),
+		networkName: 'x',
+		url: 'https://x.com/intent/tweet?text={{text}}&url={{url}}',
 	},
 	{
 		label: __( 'WhatsApp', 'jetpack' ),

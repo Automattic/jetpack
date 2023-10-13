@@ -14,7 +14,7 @@ use Automattic\Jetpack\Assets;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.2.6';
+	const PACKAGE_VERSION = '0.2.7-alpha';
 
 	/**
 	 * Singleton.
@@ -33,7 +33,9 @@ final class Image_CDN {
 		'jpg',
 		'jpeg',
 		'png',
-		'webp', // Jetpack assumes Photon_OpenCV backend class is being used on the server. See link in docblock.
+		// Jetpack assumes Photon_OpenCV backend class is being used on the server. See link in docblock.
+		'webp', // Photon_OpenCV supports webp with libwebp-*, getimageformat() returns webp
+		'heic', // Photon_OpenCV supports webp with libheif-*, getimageformat() returns jpeg so does not match docblock
 	);
 
 	/**

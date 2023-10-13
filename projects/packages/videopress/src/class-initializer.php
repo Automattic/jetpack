@@ -340,11 +340,27 @@ class Initializer {
 		// Pick the block name straight from the block metadata .json file.
 		$videopress_video_block_name = $videopress_video_metadata->name;
 
+		// Is the block already registered?
+		$is_block_registered = \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name );
+
+		// Is this a REST API request?
+		$is_rest = defined( 'REST_API_REQUEST' ) && REST_API_REQUEST;
+
+		if ( $is_rest && ! $is_block_registered ) {
+			register_block_type(
+				$videopress_video_metadata_file,
+				array(
+					'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
+				)
+			);
+			return;
+		}
+
 		// Register and enqueue scripts used by the VideoPress video block.
 		Block_Editor_Extensions::init( self::JETPACK_VIDEOPRESS_VIDEO_HANDLER );
 
 		// Do not register if the block is already registered.
-		if ( \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name ) ) {
+		if ( $is_block_registered ) {
 			return;
 		}
 

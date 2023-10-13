@@ -1280,7 +1280,7 @@ class Replicastore implements Replicastore_Interface {
 		// With a limit present, we'll look at a dataset consisting of object_ids that meet the constructs of the $where clause.
 		// Without a limit, we can use the actual table as a dataset.
 		$from = $bucket_size ?
-			"( SELECT $distinct_sql $id_field FROM $object_table $where_sql ORDER BY $id_field ASC LIMIT $bucket_size ) as ids" :
+			"( SELECT $distinct_sql $id_field FROM $object_table $where_sql ORDER BY $id_field ASC LIMIT " . ( (int) $bucket_size ) . ' ) as ids' :
 			"$object_table $where_sql ORDER BY $id_field ASC";
 
 		return $wpdb->get_row(

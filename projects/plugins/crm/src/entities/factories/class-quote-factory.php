@@ -3,7 +3,7 @@
  * Quote Factory.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Entities\Factories;
@@ -13,14 +13,14 @@ use Automattic\Jetpack\CRM\Entities\Quote;
 /**
  * Quote Factory class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Quote_Factory extends Entity_Factory {
 
 	/**
 	 * Quote DB field name mapping. db_field => model_field.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var array
 	 */
 	protected static $field_map = array(
@@ -50,7 +50,7 @@ class Quote_Factory extends Entity_Factory {
 	 *
 	 * For tags, invoices, transactions, quotes, tasks...
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var array
 	 */
 	protected static $associative_field_map = array(
@@ -60,7 +60,7 @@ class Quote_Factory extends Entity_Factory {
 	/**
 	 * Get the quote instance based on the $data array.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $data The quote data from the DAL.
 	 * @return mixed The quote instance.
@@ -81,7 +81,7 @@ class Quote_Factory extends Entity_Factory {
 	/**
 	 * Validate the data array (Tidy from DAL)
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $tidy_quote The tidy data array.
 	 * @return bool If it's valid or not.

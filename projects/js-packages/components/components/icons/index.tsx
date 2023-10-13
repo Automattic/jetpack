@@ -273,6 +273,18 @@ export const TwitterIcon: React.FC< SocialIconWrapperProps > = ( { fill, size, c
 	);
 };
 
+export const XIcon: React.FC< SocialIconWrapperProps > = ( {
+	fill = 'black',
+	size,
+	className,
+} ) => {
+	return (
+		<SocialIconWrapper fill={ fill } size={ size } className={ className }>
+			<Path d="M14.117 9.622L20.446 2h-1.5l-5.495 6.618L9.062 2H4l6.637 10.007L4 20h1.5l5.803-6.989L15.938 20H21L14.117 9.622zm-2.054 2.474l-.672-.997-5.35-7.93h2.303l4.318 6.4.672.996 5.613 8.319h-2.304l-4.58-6.788z" />
+		</SocialIconWrapper>
+	);
+};
+
 export const LinkedinIcon: React.FC< SocialIconWrapperProps > = ( { fill, size, className } ) => {
 	return (
 		<SocialIconWrapper
@@ -367,6 +379,7 @@ const socialIcons = {
 	google: GoogleIcon,
 	mastodon: MastodonIcon,
 	whatsapp: WhatsAppIcon,
+	x: XIcon,
 };
 
 const iconsMap = {
