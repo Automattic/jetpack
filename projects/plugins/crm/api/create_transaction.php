@@ -125,56 +125,34 @@ if ( empty( $customer ) ) {
 				);
 
 }
-
-		// RECOMMENDED
-		$status = '';
-if ( isset( $new_trans['status'] ) ) {
-	$status = sanitize_text_field( $new_trans['status'] );
-}
-		$total = '';
-if ( isset( $new_trans['total'] ) ) {
-	$total = sanitize_text_field( $new_trans['total'] );
-}
-		$item_title = '';
-if ( isset( $new_trans['item_title'] ) ) {
-	$item_title = sanitize_text_field( $new_trans['item_title'] );
-}
-		$net = '';
-if ( isset( $new_trans['net'] ) ) {
-	$net = sanitize_text_field( $new_trans['net'] );
-}
-		$tax = '';
-if ( isset( $new_trans['tax'] ) ) {
-	$tax = sanitize_text_field( $new_trans['tax'] );
-}
-		$fee = '';
-if ( isset( $new_trans['fee'] ) ) {
-	$fee = sanitize_text_field( $new_trans['fee'] );
-}
-		$disc = '';
-if ( isset( $new_trans['disc'] ) ) {
-	$disc = sanitize_text_field( $new_trans['discount'] );
-}
-		$rate = '';
-if ( isset( $new_trans['rate'] ) ) {
-	$rate = sanitize_text_field( $new_trans['tax'] );
-}
-		$date = isset( $new_trans['date'] ) ? date( 'Y-m-d H:i:s', (int) $new_trans['date'] ) : '';
-
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		$tFields = array(
 			'orderid'  => $orderid,
 			'customer' => $customer,
-			'status'   => $status,
-			'total'    => $total,
-			'date'     => $date,
-
-			'item'     => $item_title,
-			'net'      => $net,
-			'tax'      => $tax,
-			'fee'      => $fee,
-			'discount' => $disc,
-			'tax_rate' => $rate,
+			'status'   => '',
+			'total'    => '',
+			'date'     => '',
+			'item'     => '',
+			'net'      => '',
+			'tax'      => '',
+			'fee'      => '',
+			'discount' => '',
+			'tax_rate' => '',
 		);
+
+		foreach ( $new_trans as $field => $value ) {
+
+			if ( $field === 'orderid' || $field === 'email' || $field === 'fname' ) {
+				continue;
+			}
+			// @codingStandardsIgnoreStart
+			if ( $field === 'date' ) {
+				$tFields[ $field ] = gmdate( 'Y-m-d H:i:s', (int) $value );
+				continue;
+			}
+
+			$tFields[ $field ] = sanitize_text_field( $value );
+		}
 
 		// } We can only add a trans if it has a unique id ($orderid)
 		// } This isn't even a check that it's unique, if it exists, it'll update...
@@ -185,11 +163,11 @@ if ( isset( $new_trans['rate'] ) ) {
 				// } DEFAULTS
 					// } Existing user updated by API
 					$existingTransactionAPISourceShort = __( 'Transaction Updated by API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-					$existingTransactionAPISourceLong  = __( 'API Action fired to update a transaction', 'zero-bs-crm' ) . ': #' . $orderid . ' for ' . zeroBSCRM_getCurrencyChr() . $total . ' (Status: ' . $status . ')';
+					$existingTransactionAPISourceLong  = __( 'API Action fired to update a transaction', 'zero-bs-crm' ) . ': #' . $orderid . ' for ' . zeroBSCRM_getCurrencyChr() . $tFields[ 'total' ] . ' (Status: ' . $tFields[ 'status' ] . ')';
 
 					// } New Transaction from API
 					$newTransactionAPISourceShort = __( 'Transaction Created from API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-					$newTransactionAPISourceLong  = __( 'API Action fired to create a transaction', 'zero-bs-crm' ) . ': #' . $orderid . ' for ' . zeroBSCRM_getCurrencyChr() . $total . ' (Status: ' . $status . ')';
+					$newTransactionAPISourceLong  = __( 'API Action fired to create a transaction', 'zero-bs-crm' ) . ': #' . $orderid . ' for ' . zeroBSCRM_getCurrencyChr() . $tFields[ 'total' ] . ' (Status: ' . $tFields[ 'status' ] . ')';
 
 			$external_api_name = jpcrm_api_process_external_api_name();
 			if ( $external_api_name !== false ) {
@@ -203,8 +181,8 @@ if ( isset( $new_trans['rate'] ) ) {
 					__( '%1$s fired an API Action to update a transaction: #%2$s for %3$s (Status: %4$s)', 'zero-bs-crm' ),
 					$external_api_name,
 					$orderid,
-					zeroBSCRM_getCurrencyChr() . $total,
-					$status
+					zeroBSCRM_getCurrencyChr() . $tFields[ 'total' ],
+					$tFields[ 'status' ]
 				);
 				$newTransactionAPISourceShort = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					// Translators: %s is a dynamic service name invoking the API.
@@ -216,9 +194,10 @@ if ( isset( $new_trans['rate'] ) ) {
 					__( '%1$s fired an API Action to add a transaction: #%2$s for %3$s (Status: %4$s)', 'zero-bs-crm' ),
 					$external_api_name,
 					$orderid,
-					zeroBSCRM_getCurrencyChr() . $total,
-					$status
+					zeroBSCRM_getCurrencyChr() . $tFields[ 'total' ],
+					$tFields[ 'status' ]
 				);
+				// @codingStandardsIgnoreEnd
 			}
 					// } Actual log var passed
 					$fallBackLog = array(
