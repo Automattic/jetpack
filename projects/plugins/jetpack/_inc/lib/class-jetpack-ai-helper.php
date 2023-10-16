@@ -110,7 +110,7 @@ class Jetpack_AI_Helper {
 		 *
 		 * @param bool $default Is AI chat enabled? Defaults to false.
 		 */
-		return apply_filters( 'jetpack_ai_chat_enabled', $default );
+		return apply_filters( 'jetpack_ai_enabled', true ) && apply_filters( 'jetpack_ai_chat_enabled', $default );
 	}
 
 	/**
