@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "42b5a919f94dc6900e7a56cf8b64fd2c",
+    "content-hash": "6ae52ed5a6ea756f66d67a6cb32b2ab3",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -208,16 +208,16 @@
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v4.14.0",
+            "version": "v4.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "14262a5751c7069339dd9a30605bc7defcf27ece"
+                "reference": "25be47a3f5c95929daa7c8b875a176318e457d90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/14262a5751c7069339dd9a30605bc7defcf27ece",
-                "reference": "14262a5751c7069339dd9a30605bc7defcf27ece",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/25be47a3f5c95929daa7c8b875a176318e457d90",
+                "reference": "25be47a3f5c95929daa7c8b875a176318e457d90",
                 "shasum": ""
             },
             "require-dev": {
@@ -236,7 +236,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "4.14.x-dev"
+                    "dev-trunk": "4.15.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -254,9 +254,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v4.14.0"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v4.15.0"
             },
-            "time": "2023-10-10T18:50:10+00:00"
+            "time": "2023-10-16T17:14:38+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
