@@ -16,4 +16,5 @@ module.exports = {
 			'<rootDir>/src/instant-search/components/gridicon/index.jsx',
 	},
 	moduleDirectories: [ 'node_modules', '<rootDir>/src/dashboard' ],
+	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest-globals.gui.js' ],
 };
