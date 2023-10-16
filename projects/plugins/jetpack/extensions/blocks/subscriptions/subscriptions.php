@@ -13,7 +13,6 @@ use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_T
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
@@ -1073,14 +1072,11 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		? __( 'Already a paid subscriber?', 'jetpack' )
 		: __( 'Already a subscriber?', 'jetpack' );
 
-	$sign_in = '';
-	if ( ( new Host() )->is_wpcom_platform() ) {
-		$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
+	$sign_in_link = 'https://wordpress.com/wp-login.php?action=membership-access&blog_id=' . \Jetpack_Options::get_option( 'id' ) . '&post_id=' . get_the_ID();
 
-		$sign_in = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
+	$sign_in = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
 <p class="has-text-align-center" style="font-size:14px">' . esc_html( $access_question ) . ' <a href="' . $sign_in_link . '">' . esc_html__( 'Log in', 'jetpack' ) . '</a></p>
 <!-- /wp:paragraph -->';
-	}
 
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
 
