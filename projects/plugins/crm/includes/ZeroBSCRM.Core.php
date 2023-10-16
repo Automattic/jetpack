@@ -563,6 +563,13 @@ final class ZeroBSCRM {
 			// } Post Init hook
 			do_action( 'zerobscrm_loaded' );
 
+		} else {
+			// used by some extensions to determine if current page is an admin page
+			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.AdminPages.Checks.php';
+
+			// extensions use the dependency checker functions
+			require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-dependency-checker.php';
+			$this->dependency_checker = new JPCRM_DependencyChecker();
 		}
 
 		// display any wp admin notices in the stack
