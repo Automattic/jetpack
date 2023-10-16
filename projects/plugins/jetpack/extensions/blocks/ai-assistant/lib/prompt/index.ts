@@ -47,7 +47,7 @@ export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
 const blogId = parseInt( window?.Jetpack_Editor_Initial_State?.wpcomBlogId );
 export const areBackendPromptsEnabled: boolean =
 	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-assistant-backend-prompts' ]
-		?.available || blogId % 10 === 7;
+		?.available || blogId % 2 === 0;
 
 export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant' | 'jetpack-ai';
