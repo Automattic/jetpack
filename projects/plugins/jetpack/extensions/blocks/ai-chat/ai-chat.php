@@ -24,8 +24,9 @@ use Jetpack_Gutenberg;
  */
 function register_block() {
 	if (
-		( new Host() )->is_wpcom_simple()
+		( ( new Host() )->is_wpcom_simple()
 		|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
+	) && Jetpack_AI_Helper::is_ai_chat_enabled()
 	) {
 		Blocks::jetpack_register_block(
 			__DIR__,
