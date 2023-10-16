@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Modules;
 use VIDEOPRESS_PRIVACY;
 
 /**
@@ -84,6 +85,11 @@ class Access_Control {
 	 * @return bool
 	 */
 	private function jetpack_subscriptions_available() {
+		$is_module_active = ( new Modules() )->is_active( 'subscriptions' );
+		if ( ! $is_module_active ) {
+			return false;
+		}
+
 		if ( function_exists( '\Automattic\Jetpack\Extensions\Premium_Content\subscription_service' ) ) {
 			return true;
 		}
