@@ -344,8 +344,8 @@ class Jetpack_AI_Helper {
 			}
 
 			if ( ! class_exists( 'WPCOM\Jetpack_AI\Usage\Helper' ) ) {
-				if ( is_readable( WP_PLUGIN_DIR . '/jetpack-ai/usage/helper.php' ) ) {
-					require_once WP_PLUGIN_DIR . '/jetpack-ai/usage/helper.php';
+				if ( is_readable( WP_CONTENT_DIR . '/lib/jetpack-ai/usage/helper.php' ) ) {
+					require_once WP_CONTENT_DIR . '/lib/jetpack-ai/usage/helper.php';
 				} else {
 					return new WP_Error(
 						'jetpack_ai_usage_helper_not_found',
