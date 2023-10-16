@@ -31,15 +31,18 @@ class JPCRM_DependencyChecker {
 	 */
 	protected $dal_ver;
 
-  public function __construct( ) {
-    if ( ! function_exists( 'get_plugins' ) ) {
-      require_once ABSPATH . 'wp-admin/includes/plugin.php';
-    }
-    global $zbs;
-    $this->all_plugins = get_plugins();
-    $this->core_ver = $zbs->version;
-    $this->dal_ver = $zbs->dal_version;
-  }
+	/**
+	 * Build DependencyChecker class
+	 */
+	public function __construct() {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		global $zbs;
+		$this->all_plugins = get_plugins();
+		$this->core_ver    = $zbs->version ?? '';
+		$this->dal_ver     = $zbs->dal_version ?? '';
+	}
 
   /**
    * 
