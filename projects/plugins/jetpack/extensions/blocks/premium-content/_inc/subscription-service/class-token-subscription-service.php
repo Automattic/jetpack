@@ -46,12 +46,12 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	public function get_and_set_token_from_request() {
 		// URL token always has a precedence, so it can overwrite the cookie when new data available.
 		$token = $this->token_from_request();
-
 		if ( null !== $token ) {
 			$this->set_token_cookie( $token );
+			return $token;
 		}
 
-		return $token;
+		return $this->token_from_cookie();
 	}
 
 	/**
@@ -74,30 +74,14 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		global $current_user;
 		$old_user = $current_user; // backup the current user so we can set the current user to the token user for paywall purposes
 
-		// URL token always has a precedence, so it can overwrite the cookie when new data available.
-		$token = $this->token_from_request();
-		if ( $token ) {
-			$this->set_token_cookie( $token );
-		} else {
-			$token = $this->token_from_cookie();
-		}
+		$token          = $this->get_and_set_token_from_request();
+		$payload        = $this->decode_token( $token );
+		$is_valid_token = ! empty( $payload );
 
-		$is_valid_token = true;
-
-		if ( empty( $token ) ) {
-			// no token, no access.
-			$is_valid_token = false;
-		} else {
-			$payload = $this->decode_token( $token );
-			if ( empty( $payload ) ) {
-				$is_valid_token = false;
-			}
-
+		if ( $is_valid_token && isset( $payload['user_id'] ) ) {
 			// set the current user to the payload's user id
-			if ( isset( $payload['user_id'] ) ) {
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$current_user = get_user_by( 'id', $payload['user_id'] );
-			}
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$current_user = get_user_by( 'id', $payload['user_id'] );
 		}
 
 		$is_blog_subscriber = false;
