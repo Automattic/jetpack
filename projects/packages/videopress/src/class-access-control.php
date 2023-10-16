@@ -177,7 +177,7 @@ class Access_Control {
 			// Only paid subscribers should be granted access to the premium content.
 			$access_level                      = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
 			$can_view                          = $paywall->visitor_can_view_content( array( $selected_plan_id ), $access_level );
-			$restriction_details['can_access'] = $can_view;
+			$restriction_details['can_access'] = $can_view || current_user_can( 'edit_post', $embedded_post_id ); // Editors can always view the content.
 		}
 
 		return $this->filter_video_restriction_details(
