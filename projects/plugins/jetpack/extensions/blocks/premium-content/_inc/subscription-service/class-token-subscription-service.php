@@ -337,11 +337,13 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 *
 	 * @param string $mode Access mode (either "subscribe" or "login").
 	 */
-	public function access_url( $mode = 'subscribe' ) {
+	public function access_url( $mode = 'subscribe', $permalink = null ) {
 		global $wp;
-		$permalink = get_permalink();
 		if ( empty( $permalink ) ) {
-			$permalink = add_query_arg( $wp->query_vars, home_url( $wp->request ) );
+			$permalink = get_permalink();
+			if ( empty( $permalink ) ) {
+				$permalink = add_query_arg( $wp->query_vars, home_url( $wp->request ) );
+			}
 		}
 
 		$login_url = $this->get_rest_api_token_url( $this->get_site_id(), $permalink );
