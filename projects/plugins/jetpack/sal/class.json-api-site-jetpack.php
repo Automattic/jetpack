@@ -677,9 +677,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	/**
-	 * Get site option for the admin interface on WordPress.com. Not used in Jetpack.
-	 *
-	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 * Get site option for the admin interface on WordPress.com Atomic sites. Not used in Jetpack.
 	 *
 	 * @return null
 	 */
