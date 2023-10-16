@@ -81,8 +81,7 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 							href={ href }
 							target="_blank"
 							rel="noopener noreferrer"
-							onClick={ getOnClick( href ) }
-							data-network={ networkName }
+							onClick={ getOnClick( href, { network: networkName } ) }
 							className={ 'icon' === buttonStyle ? styles[ networkName ] : 'has-text' }
 						>
 							{ 'icon' === buttonStyle ? null : (

@@ -16,14 +16,14 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_Data;
 /**
  * Entity Tag condition class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Entity_Tag extends Base_Condition {
 
 	/**
 	 * Entity Tag constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data The step data.
 	 */
@@ -48,7 +48,7 @@ class Entity_Tag extends Base_Condition {
 	/**
 	 * Check for valid parameters.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $operator The operator.
 	 * @param mixed  $data The data to validate.
@@ -109,7 +109,7 @@ class Entity_Tag extends Base_Condition {
 	 * Executes and valid conditions. If the condition is met, the value stored in the
 	 * attribute $condition_met is set to true; otherwise, it is set to false.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
 	 * @return void
@@ -167,7 +167,7 @@ class Entity_Tag extends Base_Condition {
 	/**
 	 * Checks if the tag list has at least the required keys.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param  array $tag_list The tag list to validate.
 	 * @return bool True if the data is valid to evaluate an entity tag condition, false otherwise.
@@ -186,7 +186,7 @@ class Entity_Tag extends Base_Condition {
 	/**
 	 * Get the title for the entity tag condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The title.
 	 */
@@ -197,7 +197,7 @@ class Entity_Tag extends Base_Condition {
 	/**
 	 * Get the slug for the entity tag condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug 'jpcrm/condition/entity_tag'.
 	 */
@@ -208,7 +208,7 @@ class Entity_Tag extends Base_Condition {
 	/**
 	 * Get the description for the entity tag condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The description for the condition.
 	 */
@@ -219,7 +219,7 @@ class Entity_Tag extends Base_Condition {
 	/**
 	 * Get the category of the entity tag condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The translated string for the entity.
 	 */
@@ -230,7 +230,7 @@ class Entity_Tag extends Base_Condition {
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */

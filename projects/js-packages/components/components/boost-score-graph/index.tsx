@@ -28,7 +28,7 @@ export interface BoostScoreGraphProps {
 export type ScoreGraphAlignedData = [
 	number[], // timestamps
 	number[], // desktop_overall_score
-	number[] // mobile_overall_score
+	number[], // mobile_overall_score
 ];
 
 /**

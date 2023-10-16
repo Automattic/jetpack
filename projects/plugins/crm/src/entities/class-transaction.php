@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\CRM\Entities;
 /**
  * Transaction class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Transaction {
 
