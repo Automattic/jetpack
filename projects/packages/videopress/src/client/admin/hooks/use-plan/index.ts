@@ -20,10 +20,10 @@ import {
 } from './types';
 
 const {
-	paidFeatures = <paidFeaturesProp>{},
-	siteProductData = <siteProductOriginalProps>{},
-	productData = <productOriginalProps>{},
-	productPrice = <productPriceOriginalProps>{},
+	paidFeatures = < paidFeaturesProp >{},
+	siteProductData = < siteProductOriginalProps >{},
+	productData = < productOriginalProps >{},
+	productPrice = < productPriceOriginalProps >{},
 } = window && window.jetpackVideoPressInitialState ? window.jetpackVideoPressInitialState : {};
 
 export const usePlan = (): usePlanProps => {

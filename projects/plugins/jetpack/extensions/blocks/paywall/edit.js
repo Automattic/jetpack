@@ -1,32 +1,20 @@
 import './editor.scss';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
-import {
-	MenuGroup,
-	MenuItem,
-	PanelBody,
-	RadioControl,
-	ToolbarDropdownMenu,
-} from '@wordpress/components';
-import { useEntityProp } from '@wordpress/core-data';
+import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowDown, Icon, people, check } from '@wordpress/icons';
 import PlansSetupDialog from '../../shared/components/plans-setup-dialog';
-import {
-	accessOptions,
-	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
-} from '../../shared/memberships/constants';
+import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
-import { getReachForAccessLevelKey } from '../../shared/memberships/settings';
-import { store as membershipProductsStore } from '../../store/membership-products';
+import { NewsletterAccessRadioButtons, useSetAccess } from '../../shared/memberships/settings';
 
 function PaywallEdit( { className } ) {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
-	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
 	const { stripeConnectUrl, hasNewsletterPlans } = useSelect( select => {
 		const { getNewsletterProducts, getConnectUrl } = select( 'jetpack/membership-products' );
@@ -38,14 +26,13 @@ function PaywallEdit( { className } ) {
 
 	const [ showDialog, setShowDialog ] = useState( false );
 	const closeDialog = () => setShowDialog( false );
+	const setAccess = useSetAccess();
 
 	useEffect( () => {
 		if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
-			setPostMeta( {
-				[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: accessOptions.subscribers.key,
-			} );
+			setAccess( accessOptions.subscribers.key );
 		}
-	}, [ accessLevel, setPostMeta ] );
+	}, [ accessLevel, setAccess ] );
 
 	function selectAccess( value ) {
 		if (
@@ -55,9 +42,7 @@ function PaywallEdit( { className } ) {
 			setShowDialog( true );
 			return;
 		}
-		setPostMeta( {
-			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: value,
-		} );
+		setAccess( value );
 	}
 
 	const getText = key => {
@@ -87,9 +72,6 @@ function PaywallEdit( { className } ) {
 		userSelect: 'none',
 	};
 
-	const { emailSubscribers, paidSubscribers } = useSelect( select =>
-		select( membershipProductsStore ).getSubscriberCounts()
-	);
 	let _accessLevel = accessLevel ?? accessOptions.subscribers.key;
 	if ( _accessLevel === accessOptions.everybody.key ) {
 		_accessLevel = accessOptions.subscribers.key;
@@ -147,31 +129,12 @@ function PaywallEdit( { className } ) {
 					icon={ <JetpackEditorPanelLogo /> }
 					initialOpen={ true }
 				>
-					<RadioControl
-						onChange={ selectAccess }
-						options={ [
-							{
-								label: `${ accessOptions.subscribers.label } (${ getReachForAccessLevelKey(
-									accessOptions.subscribers.key,
-									emailSubscribers,
-									paidSubscribers
-								) })`,
-								value: accessOptions.subscribers.key,
-							},
-							{
-								label: `${ accessOptions.paid_subscribers.label } (${ getReachForAccessLevelKey(
-									accessOptions.paid_subscribers.key,
-									emailSubscribers,
-									paidSubscribers
-								) })`,
-								value: accessOptions.paid_subscribers.key,
-							},
-						] }
-						selected={ _accessLevel }
-						help={ __(
-							'Choose who will be able to read the content below the paywall block.',
-							'jetpack'
-						) }
+					<NewsletterAccessRadioButtons
+						isEditorPanel={ true }
+						accessLevel={ _accessLevel }
+						stripeConnectUrl={ stripeConnectUrl }
+						hasNewsletterPlans={ hasNewsletterPlans }
+						postHasPaywallBlock={ true }
 					/>
 				</PanelBody>
 			</InspectorControls>

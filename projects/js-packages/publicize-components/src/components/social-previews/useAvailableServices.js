@@ -35,9 +35,9 @@ export function useAvailableSerivces() {
 					preview: GoogleSearch,
 				},
 				{
-					title: __( 'Twitter', 'jetpack' ),
-					icon: props => <SocialServiceIcon serviceName="twitter" { ...props } />,
-					name: 'twitter',
+					title: __( 'X', 'jetpack' ),
+					icon: props => <SocialServiceIcon serviceName="x" { ...props } />,
+					name: 'x',
 					preview: Twitter,
 				},
 				{
@@ -62,7 +62,7 @@ export function useAvailableSerivces() {
 				},
 				{
 					title: __( 'Tumblr', 'jetpack' ),
-					icon: props => <SocialServiceIcon serviceName="tumblr" { ...props } />,
+					icon: props => <SocialServiceIcon serviceName="tumblr-alt" { ...props } />,
 					name: 'tumblr',
 					preview: TumblrPreview,
 				},
