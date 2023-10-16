@@ -92,6 +92,8 @@ class Identity_Crisis {
 
 		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_secret_to_url_validation_response' ) );
 
+		add_filter( 'jetpack_options', array( static::class, 'reverse_wpcom_urls_for_idc' ) );
+
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
 			return;
@@ -289,12 +291,7 @@ class Identity_Crisis {
 		if ( ! $connection->is_connected() || ( new Status() )->is_offline_mode() || ! self::validate_sync_error_idc_option() ) {
 			return false;
 		}
-		// Re-reversing WP.com URLs if needed before returning them
-		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
-		if ( isset( $sync_error['reversed_url'] ) ) {
-			$sync_error = self::reverse_wpcom_urls_for_idc( $sync_error );
-		}
-		return $sync_error;
+		return Jetpack_Options::get_option( 'sync_error_idc' );
 	}
 
 	/**
@@ -408,10 +405,6 @@ class Identity_Crisis {
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
 		if ( $sync_error && self::should_handle_idc() ) {
 			$local_options = self::get_sync_error_idc_option();
-			// Check if WP.com URLs are reversed and re-reverse them
-			if ( isset( $sync_error['reversed_url'] ) ) {
-				$sync_error = self::reverse_wpcom_urls_for_idc( $sync_error );
-			}
 
 			// Ensure all values are set.
 			if ( isset( $sync_error['home'] ) && isset( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
@@ -456,9 +449,13 @@ class Identity_Crisis {
 	 * @return array
 	 */
 	public static function reverse_wpcom_urls_for_idc( $sync_error ) {
-		if ( isset( $sync_error['wpcom_home'] ) && isset( $sync_error['wpcom_siteurl'] ) ) {
-			$sync_error['wpcom_home']    = strrev( $sync_error['wpcom_home'] );
-			$sync_error['wpcom_siteurl'] = strrev( $sync_error['wpcom_siteurl'] );
+		if ( isset( $sync_error['reversed_url'] ) ) {
+			if ( array_key_exists( 'wpcom_siteurl', $sync_error ) ) {
+				$sync_error['wpcom_siteurl'] = strrev( $sync_error['wpcom_siteurl'] );
+			}
+			if ( array_key_exists( 'wpcom_home', $sync_error ) ) {
+				$sync_error['wpcom_home'] = strrev( $sync_error['wpcom_home'] );
+			}
 		}
 		return $sync_error;
 	}
@@ -533,15 +530,10 @@ class Identity_Crisis {
 			$returned_values[ $key ] = $normalized_url;
 		}
 		// We need to protect WPCOM URLs from search & replace by reversing them. See https://wp.me/pf5801-3R
-		if ( array_key_exists( 'wpcom_siteurl', $returned_values ) ) {
-			$returned_values['wpcom_siteurl'] = strrev( $returned_values['wpcom_siteurl'] );
-		}
-		if ( array_key_exists( 'wpcom_home', $returned_values ) ) {
-			$returned_values['wpcom_home'] = strrev( $returned_values['wpcom_home'] );
-		}
 		// Add 'reversed_url' key for backward compatibility
 		if ( array_key_exists( 'wpcom_home', $returned_values ) && array_key_exists( 'wpcom_siteurl', $returned_values ) ) {
 			$returned_values['reversed_url'] = true;
+			$returned_values                 = self::reverse_wpcom_urls_for_idc( $returned_values );
 		}
 
 		return $returned_values;
