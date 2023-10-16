@@ -73,17 +73,6 @@ jest.mock( '@wordpress/element', () => ( {
 
 jest.mock( '@wordpress/notices', () => {}, { virtual: true } );
 
-jest.mock( '../hooks/use-newsletter-categories', () => ( {
-	useNewsletterCategories: () => {
-		return {
-			data: [],
-			enabled: false,
-			error: false,
-			loading: false,
-		};
-	},
-} ) );
-
 describe( 'SubscriptionEdit', () => {
 	test( 'adds correct classes to container', async () => {
 		const { container } = render( <SubscriptionEdit { ...defaultProps } /> );
