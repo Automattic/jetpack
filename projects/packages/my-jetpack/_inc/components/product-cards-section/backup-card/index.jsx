@@ -26,6 +26,25 @@ const getIcon = slug => {
 	}
 };
 
+const getTitle = slug => {
+	switch ( slug ) {
+		case 'comment':
+			return 'Comments';
+		case 'post':
+			return 'Posts';
+		case 'page':
+			return 'Pages';
+		case 'image':
+			return 'Images';
+		case 'video':
+			return 'Videos';
+		case 'audio':
+			return 'Audio Files';
+		default:
+			return '';
+	}
+};
+
 const NoBackupsValueSection = ( { siteData } ) => {
 	const [ itemsToShow, setItemsToShow ] = useState( 3 );
 	const sortedData = [];
@@ -73,6 +92,7 @@ const NoBackupsValueSection = ( { siteData } ) => {
 						<div
 							className={ classNames( styles[ 'main-stat' ], `main-stat-${ i }` ) }
 							key={ i + slug }
+							title={ getTitle( slug ) }
 						>
 							{ getIcon( slug ) }
 							<span>{ numberFormat( value, shortenedNumberConfig ) }</span>
