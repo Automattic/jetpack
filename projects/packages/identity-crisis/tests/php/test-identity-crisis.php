@@ -592,7 +592,6 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 		$result = Identity_Crisis::init()->check_response_for_idc( $input );
 		$option = Jetpack_Options::get_option( 'sync_error_idc' );
-		$option = Identity_Crisis::reverse_wpcom_urls_for_idc( $option );
 
 		$this->assertTrue( $result );
 		$this->assertSame( $expected_option, $option );
@@ -1002,5 +1001,41 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 		static::assertEquals( $data, $data_updated );
 		static::assertArrayNotHasKey( 'url_secret_error', $data_updated );
+	}
+
+	/**
+	 * Test the `reverse_wpcom_urls_for_idc()` method.
+	 *
+	 * @return void
+	 */
+	public function testReverseWpcomUrlsForIdc() {
+		// Create a sample input array for testing
+		$sync_error = array(
+			'reversed_url'  => true,
+			'wpcom_siteurl' => 'example.com',
+			'wpcom_home'    => 'example.org',
+		);
+
+		// Call the method to be tested
+		$result = Identity_Crisis::reverse_wpcom_urls_for_idc( $sync_error );
+
+		// Assert that the 'wpcom_siteurl' and 'wpcom_home' keys have been reversed
+		$this->assertEquals( 'moc.elpmaxe', $result['wpcom_siteurl'] );
+		$this->assertEquals( 'gro.elpmaxe', $result['wpcom_home'] );
+
+		// Test with an array that doesn't contain 'reversed_url'
+		$sync_error2 = array(
+			'wpcom_siteurl' => 'example.com',
+			'wpcom_home'    => 'example.org',
+		);
+
+		$result2 = Identity_Crisis::reverse_wpcom_urls_for_idc( $sync_error2 );
+
+		// Assert that 'wpcom_siteurl' and 'wpcom_home' keys have been reversed
+		$this->assertEquals( 'example.com', $result2['wpcom_siteurl'] );
+		$this->assertEquals( 'example.org', $result2['wpcom_home'] );
+
+		// Assert that 'reversed_url' key is not present, and other keys are not changed
+		$this->assertArrayNotHasKey( 'reversed_url', $result2 );
 	}
 }
