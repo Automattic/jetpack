@@ -23,6 +23,7 @@ $image_data = Schema::as_assoc_array(
 		'image'        => Schema::as_assoc_array(
 			array(
 				'url'        => Schema::as_string(),
+				'fixed'      => Schema::as_boolean()->fallback( false ),
 				'dimensions' => Schema::as_assoc_array(
 					array(
 						'file'           => Schema::as_assoc_array(
