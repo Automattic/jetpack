@@ -1,4 +1,4 @@
-import { createReduxStore, register, select } from '@wordpress/data';
+import { createReduxStore, register } from '@wordpress/data';
 import actions from './actions';
 import controls from './controls';
 import reducer from './reducer';
@@ -15,5 +15,3 @@ const store = createReduxStore( JETPACK_MODULES_STORE_ID, {
 	selectors,
 } );
 register( store );
-
-select( JETPACK_MODULES_STORE_ID ).getJetpackModules();

@@ -982,8 +982,8 @@ importers:
         specifier: 6.20.0
         version: 6.20.0(react@18.2.0)
       '@wordpress/data':
-        specifier: 9.12.0
-        version: 9.12.0(react@18.2.0)
+        specifier: 9.13.0
+        version: 9.13.0(react@18.2.0)
       '@wordpress/element':
         specifier: 5.20.0
         version: 5.20.0
@@ -11813,31 +11813,6 @@ packages:
       use-memo-one: 1.1.3(react@18.2.0)
     dev: true
 
-  /@wordpress/data@9.12.0(react@18.2.0):
-    resolution: {integrity: sha512-VfYykFKF1Lc4C2UHEzcT+5ADKWnTTPRmWPal4wuiKmSxAsgsIhNX12yknBhgzoMoF89i7Mlb1sUa/wHxA+sgYg==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^18.0.0
-    dependencies:
-      '@babel/runtime': 7.23.1
-      '@wordpress/compose': 6.20.0(react@18.2.0)
-      '@wordpress/deprecated': 3.43.0
-      '@wordpress/element': 5.20.0
-      '@wordpress/is-shallow-equal': 4.43.0
-      '@wordpress/priority-queue': 2.43.0
-      '@wordpress/private-apis': 0.24.0
-      '@wordpress/redux-routine': 4.43.0(redux@4.2.1)
-      deepmerge: 4.3.1
-      equivalent-key-map: 0.2.2
-      is-plain-object: 5.0.0
-      is-promise: 4.0.0
-      react: 18.2.0
-      redux: 4.2.1
-      rememo: 4.0.2
-      turbo-combine-reducers: 1.0.2
-      use-memo-one: 1.1.3(react@18.2.0)
-    dev: false
-
   /@wordpress/data@9.13.0(react@18.2.0):
     resolution: {integrity: sha512-SayS6JsOFL2SBKIk4NFlmGLYvH7ocqOf6iuMq2aJ8E04VuExLEDqnDjxXkdOgLrrie6dOLG21EvNRk7Vc7QDOA==}
     engines: {node: '>=12'}
@@ -12604,13 +12579,6 @@ packages:
     dependencies:
       '@babel/runtime': 7.23.1
     dev: true
-
-  /@wordpress/private-apis@0.24.0:
-    resolution: {integrity: sha512-KrgDubqppZ+hIbEllIwEDHkXBaAUYmV1dfMLUu6YQpHHlB1ogf3OTkNWmDks8k+9VfywwYnsoWpRuSy3G4WNMA==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@babel/runtime': 7.23.1
-    dev: false
 
   /@wordpress/private-apis@0.25.0:
     resolution: {integrity: sha512-y1+U+wAwcjQ5QTDEDGvJbcc0VhyFx0tJh61i6eeBYy2mFXRGJDHyQVjp3agO8YXQdyHeAusVVOKTMT7mZdzUMw==}
@@ -23187,6 +23155,7 @@ packages:
 
   /turbo-combine-reducers@1.0.2:
     resolution: {integrity: sha512-gHbdMZlA6Ym6Ur5pSH/UWrNQMIM9IqTH6SoL1DbHpqEdQ8i+cFunSmSlFykPt0eGQwZ4d/XTHOl74H0/kFBVWw==}
+    dev: true
 
   /turndown@7.1.2:
     resolution: {integrity: sha512-ntI9R7fcUKjqBP6QU8rBK2Ehyt8LAzt3UBT9JR9tgo6GtuKvyUzpayWmeMKJw1DPdXzktvtIT8m2mVXz+bL/Qg==}
