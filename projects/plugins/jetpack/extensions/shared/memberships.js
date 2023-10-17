@@ -1,4 +1,4 @@
-/* global tb_show */
+/* global tb_show, tb_remove */
 
 import MicroModal from 'micromodal';
 
@@ -25,7 +25,13 @@ export function handleIframeResult( eventFromIframe ) {
 		} else if ( data && data.action === 'close' ) {
 			// User just aborted.
 			window.removeEventListener( 'message', handleIframeResult );
-			MicroModal.close( membershipsModalId );
+
+			// Some of the code still uses Thickbox, while others use MicroModal
+			if ( document.getElementById( 'TB_window' ) ) {
+				tb_remove && tb_remove();
+			} else {
+				MicroModal.close( membershipsModalId );
+			}
 		}
 	}
 }
