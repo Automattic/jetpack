@@ -914,6 +914,39 @@ importers:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
 
+  projects/js-packages/react-data-sync-client:
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../webpack-config
+      '@typescript-eslint/parser':
+        specifier: 6.7.5
+        version: 6.7.5(eslint@8.51.0)(typescript@5.0.4)
+      eslint:
+        specifier: 8.51.0
+        version: 8.51.0
+      jest:
+        specifier: '*'
+        version: 29.7.0
+      ts-loader:
+        specifier: 9.4.2
+        version: 9.4.2(typescript@5.0.4)(webpack@5.76.0)
+      tslib:
+        specifier: 2.5.0
+        version: 2.5.0
+      typescript:
+        specifier: 5.0.4
+        version: 5.0.4
+      webpack:
+        specifier: 5.76.0
+        version: 5.76.0(webpack-cli@4.9.1)
+      webpack-cli:
+        specifier: 4.9.1
+        version: 4.9.1(webpack@5.76.0)
+      zod:
+        specifier: 3.22.3
+        version: 3.22.3
+
   projects/js-packages/remove-asset-webpack-plugin:
     dependencies:
       debug:
