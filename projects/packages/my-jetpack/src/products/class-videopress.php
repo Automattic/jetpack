@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
@@ -163,17 +164,7 @@ class Videopress extends Hybrid_Product {
 	 * @return boolean
 	 */
 	public static function has_required_plan() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				if ( 0 === strpos( $purchase->product_slug, static::get_wpcom_product_slug() ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
+		// using second argument `true` to force fetching from wpcom
+		return Current_Plan::supports( 'videopress-1tb-storage', true );
 	}
 }
