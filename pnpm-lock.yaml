@@ -3046,6 +3046,9 @@ importers:
       markdown-it-footnote:
         specifier: 3.0.3
         version: 3.0.3
+      micromodal:
+        specifier: 0.4.10
+        version: 0.4.10
       photon:
         specifier: 4.0.0
         version: 4.0.0
@@ -19329,6 +19332,11 @@ packages:
       braces: 3.0.2
       picomatch: 2.3.1
 
+  /micromodal@0.4.10:
+    resolution: {integrity: sha512-BUrEnzMPFBwK8nOE4xUDYHLrlGlLULQVjpja99tpJQPSUEWgw3kTLp1n1qv0HmKU29AiHE7Y7sMLiRziDK4ghQ==}
+    engines: {node: '>=10'}
+    dev: false
+
   /mime-db@1.52.0:
     resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
     engines: {node: '>= 0.6'}
@@ -24114,6 +24122,7 @@ packages:
   /ws@7.5.9:
     resolution: {integrity: sha512-F+P9Jil7UiSKSkppIiD94dN07AwvFixvLIj1Og1Rl9GGMuNipJnV9JzjD6XuqmAeiswGvUmNLjr5cFuXwNS77Q==}
     engines: {node: '>=8.3.0'}
+    requiresBuild: true
     peerDependencies:
       bufferutil: ^4.0.1
       utf-8-validate: ^5.0.2
