@@ -7,16 +7,46 @@
  */
 
 use PHP_CodeSniffer\Autoload;
+use PHP_CodeSniffer\Util;
 
 call_user_func(
 	function () {
 		global $runner;
 
 		$config = $runner->config;
-		if ( ! $config->stdin || ! $config->stdinPath || ! $config->filter ) {
+		if ( ! $config->stdin || ! $config->filter ) {
 			return;
 		}
-		$path = realpath( $config->stdinPath );
+
+		// phpcs has two ways to determine the path for stdin. The newer, documented way is the `--stdin-path=$path` command line option.
+		// The older (and not really documented) way is to prepend a line "phpcs_input_file:$path" to the input on stdin itself.
+		// Fortunately it's possible to get that stdin without screwing up phpcs's own use of it.
+		$path = null;
+		if ( $config->stdinPath ) {
+			$path = realpath( $config->stdinPath );
+		} else {
+			// This should match the logic in phpcs's Runner::run().
+			$fileContents = $config->stdinContent;
+			if ( $fileContents === null ) {
+				$handle = fopen( 'php://stdin', 'r' );
+				stream_set_blocking( $handle, true );
+				$fileContents = stream_get_contents( $handle );
+				fclose( $handle );
+				// Save the stdin contents so phpcs's Runner::run() will find it later.
+				$config->stdinContent = $fileContents;
+			}
+
+			// This should match the logic in phpcs's DummyFile::__construct().
+			if ( substr( $fileContents, 0, 17 ) === 'phpcs_input_file:' ) {
+				try {
+					$eolChar = Util\Common::detectLineEndings( $fileContents );
+				} catch ( RuntimeException $e ) {
+					return;
+				}
+				$eolPos = strpos( $fileContents, $eolChar );
+				$path   = trim( substr( $fileContents, 17, ( $eolPos - 17 ) ) );
+			}
+		}
 		if ( ! $path ) {
 			return;
 		}

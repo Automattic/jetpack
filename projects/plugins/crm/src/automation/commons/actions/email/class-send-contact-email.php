@@ -3,7 +3,7 @@
  * Jetpack CRM Automation Send_Contact_Email action.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
@@ -15,14 +15,14 @@ use Automattic\Jetpack\CRM\Entities\Factories\Contact_Factory;
 /**
  * Adds the Send_Contact_Email class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Send_Contact_Email extends Base_Send_Email {
 
 	/**
 	 * Get the slug name of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug name of the step.
 	 */
@@ -33,7 +33,7 @@ class Send_Contact_Email extends Base_Send_Email {
 	/**
 	 * Get the title of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The title of the step.
 	 */
@@ -44,7 +44,7 @@ class Send_Contact_Email extends Base_Send_Email {
 	/**
 	 * Get the description of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The description of the step.
 	 */
@@ -55,7 +55,7 @@ class Send_Contact_Email extends Base_Send_Email {
 	/**
 	 * Get the category of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The category of the step.
 	 */
@@ -66,7 +66,7 @@ class Send_Contact_Email extends Base_Send_Email {
 	/**
 	 * Send an email to a contact.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param mixed  $data Data passed from the trigger.
 	 * @param ?mixed $previous_data (Optional) The data before being changed.

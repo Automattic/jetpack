@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-crm",
-	"version": "6.2.0-alpha",
+	"version": "6.2.1-alpha",
 	"description": "The CRM for WordPress",
 	"author": "Automattic",
 	"license": "GPL-2.0",
@@ -39,9 +39,9 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
-		"@babel/core": "7.22.17",
-		"@babel/preset-env": "7.22.15",
-		"@babel/runtime": "7.22.15",
+		"@babel/core": "7.23.0",
+		"@babel/preset-env": "7.22.20",
+		"@babel/runtime": "7.23.1",
 		"@testing-library/dom": "8.19.1",
 		"@testing-library/react": "13.4.0",
 		"@types/jest": "29.2.5",

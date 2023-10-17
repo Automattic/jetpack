@@ -13,7 +13,7 @@ class JPCRM_Base_Integration_Test_Case extends JPCRM_Base_Test_Case {
 	/**
 	 * Clean up the database after each test.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return void
 	 */

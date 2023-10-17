@@ -24,7 +24,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '6.1.0';
+	public $version = '6.2.0';
 
 	/**
 	 * WordPress version tested with.
@@ -564,28 +564,12 @@ final class ZeroBSCRM {
 			do_action( 'zerobscrm_loaded' );
 
 		} else {
+			// used by some extensions to determine if current page is an admin page
+			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.AdminPages.Checks.php';
 
-			// fails minimum requirements, show warnings
-
-			// we need urls
-			$this->setupUrlsSlugsEtc();
-
-			// build message
-			$message_html = '<p>' . sprintf( __( 'This version of CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use CRM you will need to install version 4 of CRM and run the database upgrade.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>';
-
-			##WLREMOVE
-			$message_html  = '<p>' . sprintf( __( 'This version of Jetpack CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use Jetpack CRM you will need to install version 4 of Jetpack CRM and run the database upgrade.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>';
-			$message_html .= '<p><a href="' . esc_url( $this->urls['kb-pre-v5-migration-todo'] ) . '" target="_blank" class="button">' . __( 'Read the guide on migrating', 'zero-bs-crm' ) . '<a></p>';
-			##/WLREMOVE
-
-			$this->add_wp_admin_notice(
-				'',
-				array(
-					'class' => 'warning',
-					'html'  => $message_html,
-				)
-			);
-
+			// extensions use the dependency checker functions
+			require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-dependency-checker.php';
+			$this->dependency_checker = new JPCRM_DependencyChecker();
 		}
 
 		// display any wp admin notices in the stack
@@ -613,8 +597,41 @@ final class ZeroBSCRM {
 		// v5.0+ JPCRM requires DAL3+
 		if ( ! $this->isDAL3() ) {
 
+			// we need urls
+			$this->setupUrlsSlugsEtc();
+
+			// build message
+			$message_html = '<p>' . sprintf( esc_html__( 'This version of CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use CRM you will need to install version 4 of CRM and run the database upgrade.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+
+			##WLREMOVE
+			$message_html  = '<p>' . sprintf( esc_html__( 'This version of Jetpack CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use Jetpack CRM you will need to install version 4 of Jetpack CRM and run the database upgrade.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+			$message_html .= '<p><a href="' . esc_url( $this->urls['kb-pre-v5-migration-todo'] ) . '" target="_blank" class="button">' . __( 'Read the guide on migrating', 'zero-bs-crm' ) . '</a></p>';
+			##/WLREMOVE
+
+			$this->add_wp_admin_notice(
+				'',
+				array(
+					'class' => 'warning',
+					'html'  => $message_html,
+				)
+			);
+
 			return false;
 
+		} elseif ( ! function_exists( 'openssl_get_cipher_methods' ) ) {
+
+			// build message
+			$message_html  = '<p>' . sprintf( __( 'Jetpack CRM uses the OpenSSL extension for PHP to properly protect sensitive data. Most PHP environments have this installed by default, but it seems yours does not; we recommend contacting your host for further help.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>';
+			$message_html .= '<p><a href="' . esc_url( 'https://www.php.net/manual/en/book.openssl.php' ) . '" target="_blank" class="button">' . __( 'PHP docs on OpenSSL', 'zero-bs-crm' ) . '</a></p>';
+
+			$this->add_wp_admin_notice(
+				'',
+				array(
+					'class' => 'warning',
+					'html'  => $message_html,
+				)
+			);
+			return false;
 		}
 
 		return true;

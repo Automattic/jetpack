@@ -73,17 +73,10 @@ class Plugins extends Module {
 		add_action( 'admin_action_update', array( $this, 'check_plugin_edit' ) );
 		add_action( 'jetpack_edited_plugin', $callable, 10, 2 );
 		add_action( 'wp_ajax_edit-theme-plugin-file', array( $this, 'plugin_edit_ajax' ), 0 );
-	}
 
-	/**
-	 * Initialize the module in the sender.
-	 *
-	 * @access public
-	 */
-	public function init_before_send() {
-		add_filter( 'jetpack_sync_before_send_activated_plugin', array( $this, 'expand_plugin_data' ) );
-		add_filter( 'jetpack_sync_before_send_deactivated_plugin', array( $this, 'expand_plugin_data' ) );
 		// Note that we don't simply 'expand_plugin_data' on the 'delete_plugin' action here because the plugin file is deleted when that action finishes.
+		add_filter( 'jetpack_sync_before_enqueue_activated_plugin', array( $this, 'expand_plugin_data' ) );
+		add_filter( 'jetpack_sync_before_enqueue_deactivated_plugin', array( $this, 'expand_plugin_data' ) );
 	}
 
 	/**

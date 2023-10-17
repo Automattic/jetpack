@@ -24,12 +24,13 @@ class WPBrowser extends PhpBrowser {
 
 	use WPBrowserMethods;
 
-	/**
-	 * The module required fields, to be set in the suite .yml configuration file.
-	 *
-	 * @var array<string>
-	 */
-	protected $requiredFields = array( 'adminUsername', 'adminPassword', 'adminPath' );
+	public function _beforeSuite( $settings = array() ) {
+		parent::_beforeSuite( $settings );
+
+		// To set this as a field, Codeception v5 needs "protected array $requiredFields = ...". But PHP 7.3 doesn't support that syntax.
+		// @todo When we drop support for PHP 7.3, we can move this back to "protected array $requiredFields"
+		$this->requiredFields = array( 'adminUsername', 'adminPassword', 'adminPath' );
+	}
 
 	/**
 	 * Returns all the cookies whose name matches a regex pattern.
@@ -137,7 +138,7 @@ class WPBrowser extends PhpBrowser {
 	 *
 	 * @throws \Codeception\Exception\ModuleConfigException|\Codeception\Exception\ModuleException If there's any issue.
 	 */
-	protected function validateConfig() {
+	protected function validateConfig(): void {
 		$this->configBackCompat();
 
 		parent::validateConfig();

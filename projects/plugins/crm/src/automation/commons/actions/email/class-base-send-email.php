@@ -3,7 +3,7 @@
  * Jetpack CRM Automation Send_Email_To_Contact action.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
@@ -13,7 +13,7 @@ use Automattic\Jetpack\CRM\Automation\Base_Action;
 /**
  * Adds the Add_Contact_Log class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 abstract class Base_Send_Email extends Base_Action {
 
@@ -21,7 +21,7 @@ abstract class Base_Send_Email extends Base_Action {
 	 * Sends email.
 	 * Note that this is essentially an abstraction layer on top of legacy code.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $email_data Array with email data.
 	 */
