@@ -1056,7 +1056,7 @@ class zbsDAL_quotetemplates extends zbsDAL_ObjectLayer {
      * @return array quotetemplate (clean obj)
      */
     private function tidy_quotetemplate($obj=false,$withCustomFields=false){
-
+			global $zbs;
             $res = false;
 
             if (isset($obj->ID)){
@@ -1076,7 +1076,7 @@ class zbsDAL_quotetemplates extends zbsDAL_ObjectLayer {
             $res['date'] = (int)$obj->zbsqt_date;
             $res['date_date'] = (isset($obj->zbsqt_date) && $obj->zbsqt_date > 0) ? zeroBSCRM_locale_utsToDatetime($obj->zbsqt_date) : false;
             $res['content'] = $this->stripSlashes($obj->zbsqt_content);
-            $res['notes'] = $this->stripSlashes($obj->zbsqt_notes);
+			$res['notes']            = wp_kses( html_entity_decode( $obj->zbsqt_notes, ENT_QUOTES, 'UTF-8' ), $zbs->acceptable_restricted_html );
             $res['currency'] = $this->stripSlashes($obj->zbsqt_currency);
             $res['created'] = (int)$obj->zbsqt_created;
             $res['created_date'] = (isset($obj->zbsqt_created) && $obj->zbsqt_created > 0) ? zeroBSCRM_locale_utsToDatetime($obj->zbsqt_created) : false;

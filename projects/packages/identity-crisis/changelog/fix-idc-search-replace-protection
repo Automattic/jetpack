@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Added search and replace protection for wpcom urls stored in the database.

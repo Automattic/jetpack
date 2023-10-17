@@ -84,11 +84,12 @@ export function isPossibleToExtendJetpackFormBlock(
 	return true;
 }
 
-const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
+/**
+ * HOC to populate the Jetpack Form edit component
+ * with the AI Assistant bar and button.
+ */
+const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	return props => {
-		if ( ! isPossibleToExtendJetpackFormBlock( props?.name, { clientId: props.clientId } ) ) {
-			return <BlockEdit { ...props } />;
-		}
 		const { eventSource } = useAiContext();
 
 		const stopSuggestion = useCallback( () => {
@@ -104,9 +105,19 @@ const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 			 * and close the event source.
 			 */
 			return () => {
+				// Only stop when the parent block is unmouted.
+				if ( props?.name !== 'jetpack/contact-form' ) {
+					return;
+				}
+
 				stopSuggestion();
 			};
-		}, [ stopSuggestion ] );
+		}, [ stopSuggestion, props?.name ] );
+
+		// Only extend Jetpack Form block (children not included).
+		if ( ! isPossibleToExtendJetpackFormBlock( props?.name, { clientId: props.clientId } ) ) {
+			return <BlockEdit { ...props } />;
+		}
 
 		const blockControlsProps = {
 			group: 'block',
@@ -124,9 +135,14 @@ const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 			</>
 		);
 	};
-}, 'withAiAssistantComponents' );
+}, 'jetpackFormEditWithAiComponents' );
 
-addFilter( 'editor.BlockEdit', 'jetpack/jetpack-form-block-edit', withAiAssistantComponents, 100 );
+addFilter(
+	'editor.BlockEdit',
+	'jetpack/jetpack-form-block-edit',
+	jetpackFormEditWithAiComponents,
+	100
+);
 
 /**
  * Add the AI Assistant button to the toolbar.

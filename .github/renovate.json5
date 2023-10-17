@@ -70,6 +70,11 @@
 			matchDatasources: [ 'packagist' ],
 			matchPackagePrefixes: [ 'codeception/' ],
 		},
+		{
+			groupName: 'Docker actions',
+			matchDepTypes: [ 'action' ],
+			matchPackagePrefixes: [ 'docker/' ],
+		},
 
 		// 🤷
 		{
@@ -89,7 +94,7 @@
 		},
 	],
 
-	regexManagers: [
+	customManagers: [
 		// Update the renovate-version in the action itself.
 		// See also https://github.com/renovatebot/github-action/issues/756
 		{

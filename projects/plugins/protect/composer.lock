@@ -510,7 +510,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "bdb1408d3bb21f92d0d920bc6c7fa417238af18f"
+                "reference": "ca590c3fe1ae0c9fe2f645e4a48e19080a7f6aff"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -539,7 +539,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.10.x-dev"
+                    "dev-trunk": "0.11.x-dev"
                 }
             },
             "autoload": {
@@ -1281,7 +1281,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "13867202a8d95960f5afa3e16324d8e42eac735a"
+                "reference": "0635ec7c9ddeafdbd2d7acc547b9dbff68b2cb1b"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1312,7 +1312,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.57.x-dev"
+                    "dev-trunk": "1.58.x-dev"
                 }
             },
             "autoload": {
