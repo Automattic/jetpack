@@ -31,8 +31,3 @@ export type BaseIconProps = {
 	 */
 	color?: string;
 };
-
-export type SocialIconWrapperProps = Pick< BaseIconProps, 'className' | 'size' | 'children' > & {
-	fill?: string;
-	invert?: boolean;
-};
