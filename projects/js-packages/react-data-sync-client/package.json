@@ -39,8 +39,12 @@
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {
-		".": "./index.jsx",
-		"./state": "./src/state",
-		"./action-types": "./src/state/action-types"
-	}
+		".": {
+			"jetpack:src": "./src/index.ts",
+			"types": "./build/index.d.ts",
+			"default": "./build/index.js"
+		}
+	},
+	"main": "./build/index.js",
+	"types": "./build/index.d.ts"
 }
