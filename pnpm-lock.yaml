@@ -24,8 +24,8 @@ importers:
   projects/github-actions/repo-gardening:
     dependencies:
       '@actions/core':
-        specifier: 1.10.0
-        version: 1.10.0
+        specifier: 1.10.1
+        version: 1.10.1
       '@actions/github':
         specifier: 5.1.1
         version: 5.1.1
@@ -49,8 +49,8 @@ importers:
   projects/github-actions/required-review:
     dependencies:
       '@actions/core':
-        specifier: 1.10.0
-        version: 1.10.0
+        specifier: 1.10.1
+        version: 1.10.1
       '@actions/github':
         specifier: 5.1.1
         version: 5.1.1
@@ -71,8 +71,8 @@ importers:
   projects/github-actions/test-results-to-slack:
     dependencies:
       '@actions/core':
-        specifier: 1.10.0
-        version: 1.10.0
+        specifier: 1.10.1
+        version: 1.10.1
       '@actions/github':
         specifier: 5.1.1
         version: 5.1.1
@@ -4058,8 +4058,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /@actions/core@1.10.0:
-    resolution: {integrity: sha512-2aZDDa3zrrZbP5ZYg159sNoLRb61nQ7awl5pSvIq5Qpj81vwDzdMRKzkWJGJuwVvWpvZKx7vspJALyvaaIQyug==}
+  /@actions/core@1.10.1:
+    resolution: {integrity: sha512-3lBR9EDAY+iYIpTnTIXmWcNbX3T2kCkAEQGIQx4NVQ0575nk2k3GRZDTPQG+vVtS2izSLmINlxXf0uLtnrTP+g==}
     dependencies:
       '@actions/http-client': 2.2.0
       uuid: 8.3.2
