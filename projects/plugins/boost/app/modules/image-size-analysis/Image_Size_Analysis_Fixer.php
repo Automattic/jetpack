@@ -57,7 +57,7 @@ class Image_Size_Analysis_Fixer {
 
 		// remove XxY dimension from $image_url as that's what's recorded by Image_Size_Analysis.
 		$image_url_key = self::fix_url( $image_url );
-		$attachment_id = attachment_url_to_postid( esc_url( $image_url ) );
+		$attachment_id = attachment_url_to_postid( esc_url_raw( $image_url ) );
 
 		if ( $attachment_id && isset( $fixes[ $attachment_id ] ) ) {
 			$image_width = $fixes[ $attachment_id ]['image_width'];
