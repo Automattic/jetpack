@@ -24,8 +24,9 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_block() {
 	if (
-		( new Host() )->is_wpcom_simple()
+	( ( new Host() )->is_wpcom_simple()
 		|| ! ( new Status() )->is_offline_mode()
+	) && apply_filters( 'jetpack_ai_enabled', true )
 	) {
 		Blocks::jetpack_register_block(
 			BLOCK_NAME,
@@ -62,7 +63,9 @@ function load_assets( $attr, $content ) {
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-support' );
+		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-support' );
+		}
 	}
 );
 
@@ -72,7 +75,9 @@ add_action(
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-form-support' );
+		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-form-support' );
+		}
 	}
 );
 
@@ -82,7 +87,9 @@ add_action(
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		\Jetpack_Gutenberg::set_extension_available( 'ai-content-lens' );
+		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-content-lens' );
+		}
 	}
 );
 
@@ -92,6 +99,8 @@ add_action(
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-backend-prompts' );
+		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-backend-prompts' );
+		}
 	}
 );

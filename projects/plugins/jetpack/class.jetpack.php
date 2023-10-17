@@ -5660,7 +5660,6 @@ endif;
 		if ( ! self::is_connection_ready() || ( new Status() )->is_offline_mode() || ! Identity_Crisis::validate_sync_error_idc_option() ) {
 			return false;
 		}
-
 		return Jetpack_Options::get_option( 'sync_error_idc' );
 	}
 

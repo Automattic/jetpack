@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Quote templates: Make sure quote titles with apostrophes do not have backslashes added when rendered.
