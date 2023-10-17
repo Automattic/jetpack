@@ -25,7 +25,9 @@
 			image_height: details.image.dimensions.expected.height.toString(),
 			post_id,
 			nonce: Jetpack_Boost.fixImageNonce,
+			fix: ! details.image.fixed,
 		};
+		details.image.fixed = ! details.image.fixed;
 		return await api.post( '/image-size-analysis/fix', data );
 	}
 
@@ -42,7 +44,7 @@
 		<div class="button-container">
 			{#if $config.autoFix && device_type === 'desktop'}
 				<Button width="auto" fill on:click={() => handleFixClick()}>
-					{__( 'Fix', 'jetpack-boost' )}
+					{details.image.fixed ? __( 'Undo Fix', 'jetpack-boost' ) : __( 'Fix', 'jetpack-boost' )}
 				</Button>
 			{:else}
 				<Button
