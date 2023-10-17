@@ -138,7 +138,7 @@ const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit =>
 }, 'jetpackFormEditWithAiComponents' );
 
 /**
- * Function used to extened the registerBlockType settings.
+ * Function used to extend the registerBlockType settings.
  *
  * - Populate the Jetpack Form edit component
  * with the AI Assistant bar and button (jetpackFormEditWithAiComponents).
