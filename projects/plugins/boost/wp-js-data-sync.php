@@ -4,6 +4,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
+use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Premium_Features_Entry;
@@ -214,3 +215,28 @@ jetpack_boost_register_option( 'performance_history_toggle', Schema::as_boolean(
  * Register Super Cache Notice Disabled store.
  */
 jetpack_boost_register_option( 'super_cache_notice_disabled', Schema::as_boolean()->fallback( false ) );
+
+/**
+ * Entry to store alerts that shouldn't be shown again.
+ */
+jetpack_boost_register_option(
+	'dismissed_alerts',
+	Schema::as_assoc_array(
+		array(
+			'performance_history_fresh_start' => Schema::as_boolean(),
+		)
+	)->fallback(
+		array(
+			'performance_history_fresh_start' => false,
+		)
+	),
+	new Mergeable_Array_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE . '_dismissed_alerts' )
+);
+
+/**
+ * Register Score Prompt store.
+ */
+jetpack_boost_register_option(
+	'dismissed_score_prompt',
+	Schema::as_array( Schema::as_string() )->fallback( array() )
+);

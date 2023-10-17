@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.12] - 2023-10-16
+### Changed
+- Updated package dependencies. [#33584]
+
+## [0.1.11] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.1.10] - 2023-09-28
+### Added
+- AI Client: Add keyboard shortcut text next to Stop action [#33271]
+
+## [0.1.9] - 2023-09-25
+### Added
+- Export GuidelineMessage for use in other blocks. [#33180]
+
 ## [0.1.8] - 2023-09-19
 ### Added
 - AI Client: Add support for the jetpack-ai role on the prompt messages. [#33052]
@@ -128,6 +144,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#31659]
 - Updated package dependencies. [#31785]
 
+[0.1.12]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.11...v0.1.12
+[0.1.11]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.10...v0.1.11
+[0.1.10]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.9...v0.1.10
+[0.1.9]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.5...v0.1.6

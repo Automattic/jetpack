@@ -14,7 +14,7 @@ namespace Automattic\Jetpack;
  */
 class Jetpack_Mu_Wpcom {
 
-	const PACKAGE_VERSION = '4.11.0-alpha';
+	const PACKAGE_VERSION = '4.15.0';
 	const PKG_DIR         = __DIR__ . '/../';
 
 	/**
@@ -39,12 +39,17 @@ class Jetpack_Mu_Wpcom {
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_marketplace_products_updater' ) );
 
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_first_posts_stream_helpers' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_domain_email_nag' ) );
+
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
 
 		// Load the Map block settings.
 		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_map_block_settings' ), 999 );
 
+		// Load the Newsletter category settings.
+		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_newsletter_categories_settings' ), 999 );
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -93,6 +98,12 @@ class Jetpack_Mu_Wpcom {
 	public static function load_launchpad() {
 		require_once __DIR__ . '/features/launchpad/launchpad.php';
 	}
+	/**
+	 * Load the domain email nag feature.
+	 */
+	public static function load_domain_email_nag() {
+		require_once __DIR__ . '/features/domain-email-nag/domain-email-nag.php';
+	}
 
 	/**
 	 * Load WP REST API plugins for wpcom.
@@ -135,6 +146,26 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Adds a global variable containing where the newsletter categories should be shown.
+	 */
+	public static function load_newsletter_categories_settings() {
+		if (
+			! function_exists( 'get_current_screen' )
+			|| \get_current_screen() === null
+		) {
+			return;
+		}
+
+		// Return early if we are not in the block editor.
+		if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
+			return;
+		}
+
+		$newsletter_categories_location = apply_filters( 'wpcom_newsletter_categories_location', 'block' );
+		wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_Subscriptions', array( 'newsletter_categories_location' => $newsletter_categories_location ) );
+	}
+
+	/**
 	 * Load Gutenberg's Block Theme Previews feature.
 	 */
 	public static function load_block_theme_previews() {
@@ -171,5 +202,14 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 
 		\Marketplace_Products_Updater::init();
+	}
+
+	/**
+	 * Load First Posts stream helpers.
+	 *
+	 * @return void
+	 */
+	public static function load_first_posts_stream_helpers() {
+		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 	}
 }

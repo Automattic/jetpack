@@ -3,7 +3,7 @@
  * The workflow repository responsible for communicating with the database.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Workflow;
@@ -15,14 +15,14 @@ use wpdb;
 /**
  * Class Workflow_Repository.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Workflow_Repository {
 
 	/**
 	 * The WordPress database access layer.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var wpdb
 	 */
 	protected $wpdb;
@@ -39,7 +39,7 @@ class Workflow_Repository {
 	 *
 	 * @global wpdb     $wpdb WordPress database abstraction object.
 	 * @global string[] $ZBSCRM_t An array of Jetpack CRM table names.
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 */
 	public function __construct() {
 		global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -51,7 +51,7 @@ class Workflow_Repository {
 	/**
 	 * Find Workflow by ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param int $id The workflow ID.
 	 * @return Automation_Workflow|false The workflow object or false if not found.
@@ -72,12 +72,71 @@ class Workflow_Repository {
 	/**
 	 * Get all workflows.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return Automation_Workflow[]
 	 */
 	public function find_all(): array {
-		$rows = $this->wpdb->get_results( "SELECT * FROM {$this->table_name}", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return $this->find_by( array() );
+	}
+
+	/**
+	 * Find workflows with the given criteria.
+	 *
+	 * @todo Implement "order by" logic.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @param array  $criteria Workflow arguments to filter the workflows result.
+	 * @param string $order_by The column to order by.
+	 * @param int    $limit The maximum number of results to return.
+	 * @param int    $offset The offset to start from.
+	 *
+	 * @return Automation_Workflow[]
+	 */
+	public function find_by( array $criteria, string $order_by = 'id', int $limit = 0, int $offset = 0 ): array {
+		$query = "SELECT * FROM {$this->table_name}";
+
+		$allowed_criteria = array(
+			'active'     => '%d',
+			'name'       => '%s',
+			'category'   => '%s',
+			'created_at' => '%d',
+			'updated_at' => '%d',
+		);
+
+		$where = array();
+
+		// Prepare the WHERE criteria.
+		foreach ( $criteria as $key => $value ) {
+			if ( ! isset( $allowed_criteria[ $key ] ) ) {
+				continue;
+			}
+			$where[] = $this->wpdb->prepare( "{$key}={$allowed_criteria[ $key ]}", $value ); // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
+
+		// Build the WHERE clause.
+		if ( ! empty( $where ) ) {
+			$query .= ' WHERE ' . implode( ' AND ', $where );
+		}
+
+		// Add limit/offset clause.
+		if ( $limit > 0 || $offset > 0 ) {
+			// It seems intuitive to provide "0" to mean "no limit", but technically it means that
+			// we do not want to return any results at all, so to help with the developer experience
+			// we convert "0" to a very high number instead.
+			if ( 0 === $limit ) {
+				$limit = PHP_INT_MAX;
+			}
+
+			$query .= $this->wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				' LIMIT %d OFFSET %d',
+				$limit,
+				$offset
+			);
+		}
+
+		$rows = $this->wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		if ( empty( $rows ) ) {
 			return array();
@@ -95,7 +154,7 @@ class Workflow_Repository {
 	 *
 	 * This is used to both update and create a workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Automation_Workflow $workflow The workflow to persist.
 	 * @return void
@@ -113,7 +172,7 @@ class Workflow_Repository {
 	/**
 	 * Prepare the data to persist.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Automation_Workflow $workflow The workflow to persist.
 	 * @return array The workflow raw data.
@@ -130,7 +189,7 @@ class Workflow_Repository {
 	/**
 	 * Insert a workflow into the database.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Automation_Workflow $workflow The workflow to persist.
 	 *
@@ -167,7 +226,7 @@ class Workflow_Repository {
 	/**
 	 * Update a workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Automation_Workflow $workflow The workflow to persist.
 	 * @return void
@@ -196,7 +255,7 @@ class Workflow_Repository {
 	/**
 	 * Delete a workflow.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Automation_Workflow $workflow The workflow to delete.
 	 * @return bool
@@ -227,7 +286,7 @@ class Workflow_Repository {
 	/**
 	 * Map a database row to a workflow object.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $row The database row.
 	 * @return Automation_Workflow

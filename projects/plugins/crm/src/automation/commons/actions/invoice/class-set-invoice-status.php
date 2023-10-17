@@ -3,25 +3,28 @@
  * Jetpack CRM Automation Set_Invoice_Status action.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
+use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Base_Action;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Invoice_Data;
+use Automattic\Jetpack\CRM\Entities\Invoice;
 
 /**
  * Adds the Set_Invoice_Status class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Set_Invoice_Status extends Base_Action {
 
 	/**
 	 * Get the slug name of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug name of the step.
 	 */
@@ -32,7 +35,7 @@ class Set_Invoice_Status extends Base_Action {
 	/**
 	 * Get the title of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The title of the step.
 	 */
@@ -43,7 +46,7 @@ class Set_Invoice_Status extends Base_Action {
 	/**
 	 * Get the description of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The description of the step.
 	 */
@@ -54,18 +57,18 @@ class Set_Invoice_Status extends Base_Action {
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Invoice::get_slug();
+		return Invoice_Data::class;
 	}
 
 	/**
 	 * Get the category of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The category of the step.
 	 */
@@ -74,26 +77,45 @@ class Set_Invoice_Status extends Base_Action {
 	}
 
 	/**
-	 * Get the allowed triggers.
+	 * Constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
-	 * @return string[]|null The allowed triggers.
+	 * @param array $step_data The step data.
 	 */
-	public static function get_allowed_triggers(): ?array {
-		return array();
+	public function __construct( array $step_data ) {
+		parent::__construct( $step_data );
+
+		// @todo Replace with a select field to improve the user experience and prevent
+		// the user from writing a status that isn't supported.
+		$this->set_attribute_definitions(
+			array(
+				new Attribute_Definition(
+					'new_status',
+					__( 'New status', 'zero-bs-crm' ),
+					__( 'This is the status the invoice should be updated to.', 'zero-bs-crm' ),
+					Attribute_Definition::TEXT
+				),
+			)
+		);
 	}
 
 	/**
 	 * Update the DAL with the invoice status.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
-	 * @param mixed  $data Data passed from the trigger.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 * @param Data_Type $data Data passed from the trigger.
 	 */
-	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	protected function execute( Data_Type $data ) {
+		if ( empty( $this->get_attribute( 'new_status' ) ) ) {
+			return;
+		}
+
+		/** @var Invoice $invoice */
+		$invoice = $data->get_data();
+
 		global $zbs;
-		$zbs->DAL->invoices->setInvoiceStatus( $data['id'], $this->attributes['new_status'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$zbs->DAL->invoices->setInvoiceStatus( $invoice->id, $this->get_attribute( 'new_status' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 }

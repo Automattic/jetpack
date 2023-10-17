@@ -7,7 +7,6 @@
  */
 
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
-use Automattic\Jetpack\Status\Host;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 /**
@@ -159,18 +158,6 @@ HTML;
 	}
 
 	/**
-	 * Returns true if we should load Newsletter content.
-	 *
-	 * @return bool
-	 */
-	public static function should_load_subscriber_modal() {
-		// Adding extra check/flag to load only on WP.com
-		// When ready for Jetpack release, remove this.
-		$is_wpcom = ( new Host() )->is_wpcom_platform();
-		return $is_wpcom;
-	}
-
-	/**
 	 * Returns true if a site visitor should see
 	 * the Subscribe Modal.
 	 *
@@ -192,8 +179,12 @@ HTML;
 
 		// Don't show if post is for subscribers only or has paywall block
 		global $post;
-		$access_level              = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
-		$is_accessible_by_everyone = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level;
+		if ( defined( 'Automattic\\Jetpack\\Extensions\\Subscriptions\\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS' ) ) {
+			$access_level = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+		} else {
+			$access_level = get_post_meta( $post->ID, '_jetpack_newsletter_access', true );
+		}
+		$is_accessible_by_everyone = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level || empty( $access_level );
 		if ( ! $is_accessible_by_everyone ) {
 			return false;
 		}
@@ -228,43 +219,11 @@ HTML;
 	}
 }
 
-add_filter(
-	'jetpack_subscriptions_modal_enabled',
-	array(
-		'Jetpack_Subscribe_Modal',
-		'should_load_subscriber_modal',
-	)
-);
-
-/**
- * Filter for enabling or disabling the Jetpack Subscribe Modal
- * feature. We use this filter here and in several other places
- * to conditionally load options and functionality related to
- * this feature.
- *
- * @since 12.4
- *
- * @param bool Defaults to false.
- */
-if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
-	Jetpack_Subscribe_Modal::init();
-}
+Jetpack_Subscribe_Modal::init();
 
 add_action(
 	'rest_api_switched_to_blog',
 	function () {
-		/**
-		 * Filter for enabling or disabling the Jetpack Subscribe Modal
-		 * feature. We use this filter here and in several other places
-		 * to conditionally load options and functionality related to
-		 * this feature.
-		 *
-		 * @since 12.4
-		 *
-		 * @param bool Defaults to false.
-		 */
-		if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
-			Jetpack_Subscribe_Modal::init();
-		}
+		Jetpack_Subscribe_Modal::init();
 	}
 );

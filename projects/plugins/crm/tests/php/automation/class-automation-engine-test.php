@@ -91,6 +91,6 @@ class Automation_Engine_Test extends JPCRM_Base_Test_Case {
 		$this->expectException( Automation_Exception::class );
 		$this->expectExceptionCode( Automation_Exception::TRIGGER_CLASS_NOT_FOUND );
 
-		$automation->register_trigger( 'jpcrm/contact_created', 'Invalid_Trigger_Class' );
+		$automation->register_trigger( 'Invalid_Trigger_Class' );
 	}
 }

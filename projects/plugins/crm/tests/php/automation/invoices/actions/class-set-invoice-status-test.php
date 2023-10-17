@@ -5,7 +5,6 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automattic\Jetpack\CRM\Automation\Actions\Set_Invoice_Status;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
 use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Created;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
 
@@ -19,7 +18,7 @@ class Set_Invoice_Status_Test extends JPCRM_Base_Integration_Test_Case {
 	/**
 	 * A helper class to generate data for the automation tests.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var Automation_Faker
 	 */
@@ -43,7 +42,6 @@ class Set_Invoice_Status_Test extends JPCRM_Base_Integration_Test_Case {
 		$automation = new Automation_Engine();
 		$automation->register_trigger( Invoice_Created::class );
 		$automation->register_step( Set_Invoice_Status::class );
-		$automation->register_data_type( Data_Type_Invoice::class );
 
 		$workflow_data = array(
 			'name'         => 'Set Invoice Action Workflow Test',
@@ -56,11 +54,11 @@ class Set_Invoice_Status_Test extends JPCRM_Base_Integration_Test_Case {
 			'initial_step' => 0,
 			'steps'        => array(
 				0 => array(
-					'slug'       => Set_Invoice_Status::get_slug(),
-					'attributes' => array(
+					'slug'           => Set_Invoice_Status::get_slug(),
+					'attributes'     => array(
 						'new_status' => 'Paid',
 					),
-					'next_step'  => null,
+					'next_step_true' => null,
 				),
 			),
 		);

@@ -69,6 +69,11 @@ if ( ! is_readable( $jp_autoloader ) || ! is_readable( __DIR__ . '/../../modules
 	exit( 1 );
 }
 
+// If we're running under `jetpack docker phpunit --php`, load the autoloader for that.
+if ( getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) ) {
+	require getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) . '/vendor/autoload.php';
+}
+
 require $jp_autoloader;
 
 if ( '1' !== getenv( 'WP_MULTISITE' ) && ( ! defined( 'WP_TESTS_MULTISITE' ) || ! WP_TESTS_MULTISITE ) ) {

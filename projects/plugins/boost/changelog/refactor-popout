@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove store from popout component. Update "disabled popout" logic to use data sync. Cleanup old "disabled popout" logic.
+
+

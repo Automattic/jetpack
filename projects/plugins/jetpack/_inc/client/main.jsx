@@ -59,6 +59,7 @@ import {
 	getRegistrationNonce,
 	userCanManageModules,
 	userCanConnectSite,
+	userCanViewStats,
 	getCurrentVersion,
 	getTracksUserData,
 	showRecommendations,
@@ -659,6 +660,7 @@ class Main extends React.Component {
 		return (
 			this.props.isSiteConnected &&
 			! this.shouldShowWooConnectionScreen() &&
+			this.props.userCanViewStats &&
 			dashboardRoutes.includes( this.props.location.pathname )
 		);
 	}
@@ -682,6 +684,7 @@ class Main extends React.Component {
 		return (
 			this.props.isSiteConnected &&
 			! this.shouldShowWooConnectionScreen() &&
+			this.props.userCanManageModules &&
 			dashboardRoutes.includes( this.props.location.pathname )
 		);
 	}
@@ -889,6 +892,7 @@ export default connect(
 			areThereUnsavedSettings: areThereUnsavedSettings( state ),
 			userCanManageModules: userCanManageModules( state ),
 			userCanConnectSite: userCanConnectSite( state ),
+			userCanViewStats: userCanViewStats( state ),
 			isSiteConnected: isSiteConnected( state ),
 			isReconnectingSite: isReconnectingSite( state ),
 			rewindStatus: getRewindStatus( state ),
@@ -977,15 +981,15 @@ window.wpNavMenuClassChange = function ( pageOrder = { myJetpack: 1, dashboard: 
 	page = page.get( 'page' );
 
 	if ( myJetpackRoutes.includes( page ) ) {
-		getJetpackSubNavItem( pageOrder.myJetpack ).classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.myJetpack )?.classList.add( 'current' );
 	} else if (
 		dashboardRoutes.includes( hash ) ||
 		recommendationsRoutes.includes( hash ) ||
 		productDescriptionRoutes.includes( hash )
 	) {
-		getJetpackSubNavItem( pageOrder.dashboard ).classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.dashboard )?.classList.add( 'current' );
 	} else if ( settingsRoutes.includes( hash ) ) {
-		getJetpackSubNavItem( pageOrder.settings ).classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.settings )?.classList.add( 'current' );
 	}
 
 	const $body = jQuery( 'body' );

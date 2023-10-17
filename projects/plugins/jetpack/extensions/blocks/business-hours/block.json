@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/business-hours",
 	"title": "Business Hours",
 	"description": "Display opening hours for your business.",

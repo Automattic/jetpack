@@ -20,7 +20,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '2.3.19';
+	const PACKAGE_VERSION = '2.5.0';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -156,6 +156,7 @@ class JITM {
 				'activate_module_text'   => esc_html__( 'Activate', 'jetpack-jitm' ),
 				'activated_module_text'  => esc_html__( 'Activated', 'jetpack-jitm' ),
 				'activating_module_text' => esc_html__( 'Activating', 'jetpack-jitm' ),
+				'settings_module_text'   => esc_html__( 'Settings', 'jetpack-jitm' ),
 				'nonce'                  => wp_create_nonce( 'wp_rest' ),
 			)
 		);
@@ -230,7 +231,7 @@ class JITM {
 				.st0{clip-path:url(#SVGID_2_);enable-background:new    ;}
 				.st1{clip-path:url(#SVGID_4_);}
 				.st2{clip-path:url(#SVGID_6_);}
-				.st3{clip-path:url(#SVGID_8_);fill:#8F567F;}
+				.st3{clip-path:url(#SVGID_8_);fill:#7F54B3;}
 				.st4{clip-path:url(#SVGID_10_);fill:#FFFFFE;}
 				.st5{clip-path:url(#SVGID_12_);fill:#FFFFFE;}
 				.st6{clip-path:url(#SVGID_14_);fill:#FFFFFE;}

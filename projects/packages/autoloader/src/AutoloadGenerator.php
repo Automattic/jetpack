@@ -1,22 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Autoloader Generator.
  *
  * @package automattic/jetpack-autoloader
  */
-
-// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_useFound
-// phpcs:disable PHPCompatibility.LanguageConstructs.NewLanguageConstructs.t_ns_separatorFound
-// phpcs:disable PHPCompatibility.FunctionDeclarations.NewClosure.Found
-// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_namespaceFound
-// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_dirFound
-// phpcs:disable WordPress.Files.FileName.InvalidClassFileName
-// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_var_export
-// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
 namespace Automattic\Jetpack\Autoloader;
 
@@ -33,6 +20,8 @@ use Composer\Util\PackageSorter;
  * Class AutoloadGenerator.
  */
 class AutoloadGenerator {
+
+	const VERSION = '2.12.0';
 
 	/**
 	 * IO object.
@@ -212,6 +201,7 @@ class AutoloadGenerator {
 			$baseDir = "'phar://' . " . $baseDir;
 		}
 
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
 		return $baseDir . ( ( false !== $path ) ? var_export( $path, true ) : '' );
 	}
 
@@ -233,6 +223,12 @@ class AutoloadGenerator {
 		foreach ( $packageMap as $item ) {
 			list($package, $installPath) = $item;
 			$autoload                    = $package->getAutoload();
+			$version                     = $package->getVersion(); // Version of the class comes from the package - should we try to parse it?
+
+			// Store our own actual package version, not "dev-trunk" or whatever.
+			if ( $package->getName() === 'automattic/jetpack-autoloader' ) {
+				$version = self::VERSION;
+			}
 
 			if ( $package === $mainPackage ) {
 				$autoload = array_merge_recursive( $autoload, $package->getDevAutoload() );
@@ -249,7 +245,7 @@ class AutoloadGenerator {
 						$relativePath              = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
 						$autoloads[ $namespace ][] = array(
 							'path'    => $relativePath,
-							'version' => $package->getVersion(), // Version of the class comes from the package - should we try to parse it?
+							'version' => $version,
 						);
 					}
 				}
@@ -262,7 +258,7 @@ class AutoloadGenerator {
 						$relativePath = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
 						$autoloads[]  = array(
 							'path'    => $relativePath,
-							'version' => $package->getVersion(), // Version of the class comes from the package - should we try to parse it?
+							'version' => $version,
 						);
 					}
 				}
@@ -274,7 +270,7 @@ class AutoloadGenerator {
 						$relativePath = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
 						$autoloads[ $this->getFileIdentifier( $package, $path ) ] = array(
 							'path'    => $relativePath,
-							'version' => $package->getVersion(), // Version of the file comes from the package - should we try to parse it?
+							'version' => $version,
 						);
 					}
 				}
