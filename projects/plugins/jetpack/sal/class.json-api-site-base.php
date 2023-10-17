@@ -1538,4 +1538,13 @@ abstract class SAL_Site {
 		$is_commercial = get_option( '_jetpack_site_is_commercial', null );
 		return $is_commercial === null ? null : (bool) $is_commercial;
 	}
+
+	/**
+	 * Returns the site's interface selection e.g. calypso vs. wp-admin
+	 *
+	 * @return string
+	 **/
+	public function get_wpcom_admin_interface() {
+		return (string) get_option( 'wpcom_admin_interface' );
+	}
 }

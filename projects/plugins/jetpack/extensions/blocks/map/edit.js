@@ -284,7 +284,7 @@ class MapEdit extends Component {
 		);
 
 		const instructions = (
-			<Fragment>
+			<p className="components-placeholder__instructions">
 				{ __( 'To use the map block, you need an Access Token.', 'jetpack' ) }
 				<br />
 				<ExternalLink href="https://www.mapbox.com">
@@ -295,16 +295,12 @@ class MapEdit extends Component {
 					'Locate and copy the default access token. Then, paste it into the field below.',
 					'jetpack'
 				) }
-			</Fragment>
+			</p>
 		);
 		const placeholderAPIStateFailure = (
-			<Placeholder
-				icon={ settings.icon }
-				label={ __( 'Map', 'jetpack' ) }
-				notices={ notices }
-				instructions={ instructions }
-			>
+			<Placeholder icon={ settings.icon } label={ __( 'Map', 'jetpack' ) } notices={ notices }>
 				<Fragment>
+					{ instructions }
 					<form>
 						<input
 							type="text"
