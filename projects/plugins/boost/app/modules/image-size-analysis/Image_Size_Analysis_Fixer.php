@@ -45,6 +45,32 @@ class Image_Size_Analysis_Fixer {
 		return $fixes[ $post_id ];
 	}
 
+	public static function get_post_id( $edit_url ) {
+		$query_string = wp_parse_url( esc_url_raw( $edit_url ), PHP_URL_QUERY );
+		parse_str( $query_string, $query_args );
+		if ( ! isset( $query_args['post'] ) ) {
+			return 0;
+		}
+
+		return absint( $query_args['post'] );
+	}
+
+	public static function is_fixed( $post_id, $image_url ) {
+		$fixes = self::get_fixes( $post_id );
+		if ( ! $fixes ) {
+			return false;
+		}
+
+		$image_url     = self::fix_url( $image_url );
+		$attachment_id = attachment_url_to_postid( esc_url_raw( $image_url ) );
+		if ( $attachment_id && isset( $fixes[ $attachment_id ] ) ) {
+			return true;
+		}
+
+		$url_key = md5( $image_url );
+		return isset( $fixes[ $url_key ] );
+	}
+
 	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public static function fix_image_attachments( $sources, $size_array, $image_url, $image_meta, $attachment_id ) {
 
