@@ -125,8 +125,7 @@ if ( empty( $customer ) ) {
 				);
 
 }
-		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$tFields = array(
+		$transaction_fields = array(
 			'orderid'  => $orderid,
 			'customer' => $customer,
 			'status'   => '',
@@ -145,13 +144,12 @@ if ( empty( $customer ) ) {
 			if ( $field === 'orderid' || $field === 'email' || $field === 'fname' ) {
 				continue;
 			}
-			// @codingStandardsIgnoreStart
 			if ( $field === 'date' ) {
-				$tFields[ $field ] = gmdate( 'Y-m-d H:i:s', (int) $value );
+				$transaction_fields[ $field ] = gmdate( 'Y-m-d H:i:s', (int) $value );
 				continue;
 			}
 
-			$tFields[ $field ] = sanitize_text_field( $value );
+			$transaction_fields[ $field ] = sanitize_text_field( $value );
 		}
 
 		// } We can only add a trans if it has a unique id ($orderid)
@@ -162,48 +160,47 @@ if ( empty( $customer ) ) {
 
 				// } DEFAULTS
 					// } Existing user updated by API
-					$existingTransactionAPISourceShort = __( 'Transaction Updated by API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-					$existingTransactionAPISourceLong  = __( 'API Action fired to update a transaction', 'zero-bs-crm' ) . ': #' . $orderid . ' for ' . zeroBSCRM_getCurrencyChr() . $tFields[ 'total' ] . ' (Status: ' . $tFields[ 'status' ] . ')';
+					$existing_transaction_short_log = __( 'Transaction Updated by API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
+					$existing_transaction_desc_log  = __( 'API Action fired to update a transaction', 'zero-bs-crm' ) . ': #' . $orderid . ' for ' . zeroBSCRM_getCurrencyChr() . $transaction_fields['total'] . ' (Status: ' . $transaction_fields['status'] . ')';
 
 					// } New Transaction from API
-					$newTransactionAPISourceShort = __( 'Transaction Created from API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-					$newTransactionAPISourceLong  = __( 'API Action fired to create a transaction', 'zero-bs-crm' ) . ': #' . $orderid . ' for ' . zeroBSCRM_getCurrencyChr() . $tFields[ 'total' ] . ' (Status: ' . $tFields[ 'status' ] . ')';
+					$new_transaction_short_log = __( 'Transaction Created from API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
+					$new_transaction_desc_log  = __( 'API Action fired to create a transaction', 'zero-bs-crm' ) . ': #' . $orderid . ' for ' . zeroBSCRM_getCurrencyChr() . $transaction_fields['total'] . ' (Status: ' . $transaction_fields['status'] . ')';
 
 			$external_api_name = jpcrm_api_process_external_api_name();
 			if ( $external_api_name !== false ) {
-				$existingTransactionAPISourceShort = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$existing_transaction_short_log = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					// Translators: %s is a dynamic service name invoking the API.
 					__( 'Transaction Updated by %s (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>',
 					$external_api_name
 				);
-				$existingTransactionAPISourceLong = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$existing_transaction_desc_log = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					// Translators: %1$s is a dynamic service name invoking the API, %2$s is the transaction ID, %3$s is the currency/value, %4$s is the status string.
 					__( '%1$s fired an API Action to update a transaction: #%2$s for %3$s (Status: %4$s)', 'zero-bs-crm' ),
 					$external_api_name,
 					$orderid,
-					zeroBSCRM_getCurrencyChr() . $tFields[ 'total' ],
-					$tFields[ 'status' ]
+					zeroBSCRM_getCurrencyChr() . $transaction_fields['total'],
+					$transaction_fields['status']
 				);
-				$newTransactionAPISourceShort = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$new_transaction_short_log = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					// Translators: %s is a dynamic service name invoking the API.
 					__( 'Transaction Added by %s (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>',
 					$external_api_name
 				);
-				$newTransactionAPISourceLong = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$new_transaction_desc_log = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					// Translators: %1$s is a dynamic service name invoking the API, %2$s is the transaction ID, %3$s is the currency/value, %4$s is the status string.
 					__( '%1$s fired an API Action to add a transaction: #%2$s for %3$s (Status: %4$s)', 'zero-bs-crm' ),
 					$external_api_name,
 					$orderid,
-					zeroBSCRM_getCurrencyChr() . $tFields[ 'total' ],
-					$tFields[ 'status' ]
+					zeroBSCRM_getCurrencyChr() . $transaction_fields['total'],
+					$transaction_fields['status']
 				);
-				// @codingStandardsIgnoreEnd
 			}
 					// } Actual log var passed
 					$fallBackLog = array(
 						'type'      => 'API Action',
-						'shortdesc' => $existingTransactionAPISourceShort,
-						'longdesc'  => $existingTransactionAPISourceLong,
+						'shortdesc' => $existing_transaction_short_log,
+						'longdesc'  => $existing_transaction_desc_log,
 					);
 
 					// } Internal automator overrides - here we pass a "transaction.create" note override (so we can pass it a custom str, else we let it fall back to "created by api")
@@ -212,8 +209,8 @@ if ( empty( $customer ) ) {
 						'note_override' => array(
 
 							'type'      => 'API Action',
-							'shortdesc' => $newTransactionAPISourceShort,
-							'longdesc'  => $newTransactionAPISourceLong,
+							'shortdesc' => $new_transaction_short_log,
+							'longdesc'  => $new_transaction_desc_log,
 
 						),
 
@@ -222,7 +219,7 @@ if ( empty( $customer ) ) {
 					$trans = zeroBS_integrations_addOrUpdateTransaction(
 						'api',
 						$orderid,
-						$tFields,
+						$transaction_fields,
 						array(), // } TAGS
 						'', // ) Trans date (auto)
 						$fallBackLog, // } Fallback log (for Trans who already exist)
