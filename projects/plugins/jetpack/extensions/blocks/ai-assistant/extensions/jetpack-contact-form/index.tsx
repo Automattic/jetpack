@@ -137,10 +137,32 @@ const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit =>
 	};
 }, 'jetpackFormEditWithAiComponents' );
 
+/**
+ * Function used to extend the registerBlockType settings.
+ *
+ * - Populate the Jetpack Form edit component
+ * with the AI Assistant bar and button (jetpackFormEditWithAiComponents).
+ *
+ * @param {object} settings - The block settings.
+ * @param {string} name     - The block name.
+ * @returns {object}          The block settings.
+ */
+function jetpackFormWithAiSupport( settings, name: string ) {
+	// Only extend Jetpack Form block type.
+	if ( name !== 'jetpack/contact-form' ) {
+		return settings;
+	}
+
+	return {
+		...settings,
+		edit: jetpackFormEditWithAiComponents( settings.edit ),
+	};
+}
+
 addFilter(
-	'editor.BlockEdit',
-	'jetpack/jetpack-form-block-edit',
-	jetpackFormEditWithAiComponents,
+	'blocks.registerBlockType',
+	'jetpack/ai-assistant-support',
+	jetpackFormWithAiSupport,
 	100
 );
 
