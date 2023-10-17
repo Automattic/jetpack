@@ -165,14 +165,14 @@ function SubscriptionsSettings( props ) {
 								/>
 								<p className="jp-form-setting-explanation">
 									{ __(
-										'Grow subscribers by enabling a popup subscribe form that will show as readers scroll.',
+										'Automatically add a subscribe form pop-up to every post and turn visitors into subscribers. It will appear as readers scroll through your posts.',
 										'jetpack'
 									) }
 									{ isBlockTheme && subscribeModalEditorUrl && (
 										<>
 											{ ' ' }
 											<ExternalLink href={ subscribeModalEditorUrl }>
-												{ __( 'Preview and edit.', 'jetpack' ) }
+												{ __( 'Preview and edit the pop-up', 'jetpack' ) }
 											</ExternalLink>
 										</>
 									) }
