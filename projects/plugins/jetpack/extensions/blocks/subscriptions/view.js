@@ -3,14 +3,10 @@ import '../../shared/memberships.scss';
 
 import domReady from '@wordpress/dom-ready';
 import MicroModal from 'micromodal';
-// import { handleIframeResult } from '../../../extensions/shared/memberships';
+import { handleIframeResult, membershipsModalId } from '../../../extensions/shared/memberships';
 
-const modalId = 'jetpack-subscriptions__modal';
+/*
 
-const modalHtml = `
-  <div class="jetpack-memberships-modal micromodal-slide" id="${ modalId }" aria-hidden="true">
-    <div class="jetpack-memberships-modal__overlay" tabindex="-1" data-micromodal-close>
-      <div class="jetpack-memberships-modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
         <header class="jetpack-memberships-modal__header">
           <h2 class="jetpack-memberships-modal__title">
             Micromodal
@@ -24,6 +20,13 @@ const modalHtml = `
           <button class="jetpack-memberships-modal__btn jetpack-memberships-modal__btn-primary">Continue</button>
           <button class="jetpack-memberships-modal__btn" data-micromodal-close aria-label="Close this dialog window">Close</button>
         </footer>
+
+*/
+const modalHtml = `
+  <div class="jetpack-memberships-modal" id="${ membershipsModalId }" aria-hidden="true">
+    <div class="jetpack-memberships-modal__overlay" tabindex="-1" data-micromodal-close>
+      <div class="jetpack-memberships-modal__container" role="dialog" aria-modal="true">
+          <iframe class="jetpack-memberships-modal__iframe">
       </div>
     </div>
   </div>
@@ -38,38 +41,42 @@ domReady( function () {
 	if ( ! form.payments_attached ) {
 		form.payments_attached = true;
 		form.addEventListener( 'submit', function ( event ) {
+			// eslint-disable-next-line no-console
+			console.log( 'form submit:', event, form );
 			event.preventDefault();
 
+			// Form values
 			const email = form.querySelector( 'input[type=email]' ).value;
+			const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
+			const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
 
 			if ( form.resubmitted || ! email ) {
 				return;
 			}
 
 			// Inject modal HTML if it isn't there already
-			const modal = document.getElementById( modalId );
+			let modal = document.getElementById( membershipsModalId );
 			if ( ! modal ) {
 				// eslint-disable-next-line no-console
 				console.log( 'inject modal HTML' );
 				document.body.insertAdjacentHTML( 'beforeend', modalHtml );
+				modal = document.getElementById( membershipsModalId );
+
 				MicroModal.init( {
 					// eslint-disable-next-line no-console
 					onShow: modalInstance => console.info( `${ modalInstance.id } is shown` ), // [1]
 					// eslint-disable-next-line no-console
 					onClose: modalInstance => console.info( `${ modalInstance.id } is hidden` ), // [2]
-					openTrigger: 'data-custom-open', // [3]
-					closeTrigger: 'data-custom-close', // [4]
-					openClass: 'is-open', // [5]
-					disableScroll: false, // [6]
-					disableFocus: false, // [7]
-					awaitOpenAnimation: true, // [8]
-					awaitCloseAnimation: true, // [9]
-					debugMode: true, // [10]
+					// openTrigger: 'data-custom-open', // [3]
+					// closeTrigger: 'data-custom-close', // [4]
+					openClass: 'is-open',
+					disableScroll: true,
+					disableFocus: false,
+					awaitOpenAnimation: true,
+					awaitCloseAnimation: true,
+					// debugMode: false,
 				} );
 			}
-
-			const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
-			const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
 
 			const params = new URLSearchParams( {
 				email: encodeURIComponent( email ),
@@ -80,15 +87,14 @@ domReady( function () {
 				source: 'jetpack_subscribe',
 				post_access_level: form.dataset.post_access_level,
 				display: 'alternate',
+				TB_iframe: true,
 			} );
-
-			const url = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
 
 			const iframe = modal.getElementsByClassName( 'jetpack-memberships-modal__iframe' )[ 0 ];
 
-			iframe.src = url;
+			iframe.src = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
 
-			MicroModal.show( modalId );
+			MicroModal.show( membershipsModalId );
 
 			//window.scrollTo( 0, 0 );
 
@@ -99,6 +105,7 @@ domReady( function () {
 			const tbWindow = document.querySelector( '#TB_window' );
 			tbWindow.classList.add( 'jetpack-memberships-modal' );
 			*/
+			window.addEventListener( 'message', handleIframeResult, false );
 
 			// This line has to come after the Thickbox has opened otherwise Firefox doesnt scroll to the top.
 			//window.scrollTo( 0, 0 );

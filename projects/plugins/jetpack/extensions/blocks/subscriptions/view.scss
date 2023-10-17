@@ -105,37 +105,70 @@
 	}
 }
 
-
-/**************************\
-  Basic Modal Styles
-\**************************/
-
+// Modal
+/*
 .jetpack-memberships-modal {
-  font-family: -apple-system,BlinkMacSystemFont,avenir next,avenir,helvetica neue,helvetica,ubuntu,roboto,noto,segoe ui,arial,sans-serif;
+	font-family: $default-font;
 }
+*/
 
 .jetpack-memberships-modal__overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba($black, 0.35);
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .jetpack-memberships-modal__container {
-  background-color: #fff;
-  padding: 30px;
-  max-width: 500px;
-  max-height: 100vh;
-  border-radius: 4px;
-  overflow-y: auto;
-  box-sizing: border-box;
+	background-color: #fff;
+	padding: 0;
+	margin: 0;
+	max-width: 500px;
+	max-height: 100vh;
+	height: 500px;
+	//overflow-y: auto;
+	box-sizing: border-box;
+
+	// Have the content element fill the vertical space yet not overflow.
+	display: flex;
+
+	box-shadow: $shadow-modal;
+	border-radius: $grid-unit-05;
+	overflow: hidden;
+
+	// Animate the modal frame/contents appearing on the page.
+	animation: components-modal__appear-animation 0.1s ease-out;
+	animation-fill-mode: forwards;
+	@include reduce-motion("animation");
+
+	// Show a centered modal on bigger screens.
+	@include break-small() {
+		border-radius: $grid-unit-05;
+		margin: auto;
+		width: auto;
+		min-width: $modal-min-width;
+		max-width: calc(100% - #{$grid-unit-20 * 2});
+		max-height: calc(100% - #{$grid-unit-20 * 2});
+	}
+
+	@include break-large() {
+		max-height: 70%;
+	}
 }
 
+.jetpack-memberships-modal__iframe {
+	background: transparent;
+	border-radius: $grid-unit-05;
+	border: 0;
+	// height: 400px;
+	width: 100%;
+}
+/*
 .jetpack-memberships-modal__header {
   display: flex;
   justify-content: space-between;
@@ -203,38 +236,18 @@
   background-color: #00449e;
   color: #fff;
 }
+*/
 
-.jetpack-memberships-modal__iframe {
-	background: transparent;
-	border: 0;
-	height: 400px;
-	width: 100%;
+
+@keyframes jetpack-modal__appear-animation {
+	from {
+		transform: translateY($grid-unit-40);
+	}
+	to {
+		transform: translateY(0);
+	}
 }
-
-
-/**************************\
-  Demo Animation Style
-\**************************/
-@keyframes jetpack_mmfadeIn {
-    from { opacity: 0; }
-      to { opacity: 1; }
-}
-
-@keyframes jetpack_mmfadeOut {
-    from { opacity: 1; }
-      to { opacity: 0; }
-}
-
-@keyframes jetpack_mmslideIn {
-  from { transform: translateY(15%); }
-    to { transform: translateY(0); }
-}
-
-@keyframes jetpack_mmslideOut {
-    from { transform: translateY(0); }
-    to { transform: translateY(-10%); }
-}
-
+/*
 .micromodal-slide {
   display: none;
 }
@@ -263,3 +276,4 @@
 .micromodal-slide .modal__overlay {
   will-change: transform;
 }
+*/

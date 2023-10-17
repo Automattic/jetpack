@@ -1,6 +1,10 @@
-/* global tb_show, tb_remove */
+/* global tb_show */
+
+import MicroModal from 'micromodal';
 
 let premiumContentJWTTokenForCookie = '';
+
+export const membershipsModalId = 'jetpack-subscriptions__modal';
 
 /**
  * @typedef globalThis
@@ -21,7 +25,7 @@ export function handleIframeResult( eventFromIframe ) {
 		} else if ( data && data.action === 'close' ) {
 			// User just aborted.
 			window.removeEventListener( 'message', handleIframeResult );
-			tb_remove && tb_remove();
+			MicroModal.close( membershipsModalId );
 		}
 	}
 }
