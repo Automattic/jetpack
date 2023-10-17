@@ -105,6 +105,7 @@ const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit =>
 			 * and close the event source.
 			 */
 			return () => {
+				// Only stop when the parent block is unmouted.
 				if ( props?.name !== 'jetpack/contact-form' ) {
 					return;
 				}
