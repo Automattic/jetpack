@@ -34,6 +34,7 @@ class Image_Analysis_Fix implements Endpoint {
 		$fixes         = Image_Size_Analysis_Fixer::get_fixes( $request->get_param( 'post_id' ) );
 		$image_url     = Image_Size_Analysis_Fixer::fix_url( $request->get_param( 'image_url' ) );
 		$attachment_id = attachment_url_to_postid( esc_url( $image_url ) );
+		$changed       = false;
 
 		if ( isset( $params['fix'] ) && ! $params['fix'] ) {
 			if ( isset( $fixes[ $attachment_id ] ) ) {
@@ -41,20 +42,34 @@ class Image_Analysis_Fix implements Endpoint {
 			} else {
 				unset( $fixes[ md5( $image_url ) ] );
 			}
+			$changed = true;
 		} elseif ( $attachment_id ) {
 			$fixes[ $attachment_id ] = $params;
+			$changed                 = true;
 		} else {
 			$fixes[ md5( $image_url ) ] = $params; // hot linked image, possibly from another site.
+			$changed                    = true;
 		}
 
-		update_post_meta( $request->get_param( 'post_id' ), '_jb_image_fixes', $fixes );
+		if ( $changed ) {
+			$status = update_post_meta( $request->get_param( 'post_id' ), '_jb_image_fixes', $fixes );
+		}
 
-		// Send a success response.
-		return rest_ensure_response(
-			array(
-				'ok' => true,
-			)
-		);
+		if ( ! $status ) {
+			return rest_ensure_response(
+				array(
+					'status' => 'error',
+					'code'   => 'failed-to-save-fixes',
+				)
+			);
+		} else {
+			return rest_ensure_response(
+				array(
+					'status' => 'success',
+					'code'   => 'fixes-saved',
+				)
+			);
+		}
 	}
 
 	public function permissions() {

@@ -27,8 +27,13 @@
 			nonce: Jetpack_Boost.fixImageNonce,
 			fix: ! details.image.fixed,
 		};
-		details.image.fixed = ! details.image.fixed;
-		return await api.post( '/image-size-analysis/fix', data );
+		const response = await api.post( '/image-size-analysis/fix', data );
+		if ( response.status === 'success' ) {
+			recordBoostEvent( 'isa_fix_image_success', {} );
+			details.image.fixed = ! details.image.fixed;
+		} else {
+			recordBoostEvent( 'isa_fix_image_failure', {} );
+		}
 	}
 
 	function handleFixClick() {
