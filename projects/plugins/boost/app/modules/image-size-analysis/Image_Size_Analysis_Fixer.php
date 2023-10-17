@@ -59,7 +59,7 @@ class Image_Size_Analysis_Fixer {
 		$image_url_key = self::fix_url( $image_url );
 		$attachment_id = attachment_url_to_postid( esc_url_raw( $image_url ) );
 
-		if ( $attachment_id && isset( $fixes[ $attachment_id ] ) ) {
+		if ( $attachment_id && isset( $fixes[ $attachment_id ] ) && ! empty( $fixes[ $attachment_id ] ) ) {
 			$image_width = $fixes[ $attachment_id ]['image_width'];
 		} elseif ( isset( $fixes[ $image_url_key ] ) ) {
 			$image_width = $fixes[ $image_url_key ]['image_width'];
