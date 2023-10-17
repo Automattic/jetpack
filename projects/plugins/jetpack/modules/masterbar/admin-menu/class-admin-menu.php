@@ -23,7 +23,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function reregister_menu_items() {
 		// Remove separators.
 		remove_menu_page( 'separator1' );
-
 		$this->add_stats_menu();
 		$this->add_upgrades_menu();
 		$this->add_posts_menu();
