@@ -24,7 +24,6 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@typescript-eslint/parser": "6.7.5",
 		"jest": "*",
 		"react": "18.2.0",
 		"ts-loader": "9.4.2",

@@ -923,9 +923,6 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../webpack-config
-      '@typescript-eslint/parser':
-        specifier: 6.7.5
-        version: 6.7.5(eslint@8.51.0)(typescript@5.0.4)
       jest:
         specifier: '*'
         version: 29.7.0
