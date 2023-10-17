@@ -926,9 +926,6 @@ importers:
       '@typescript-eslint/parser':
         specifier: 6.7.5
         version: 6.7.5(eslint@8.51.0)(typescript@5.0.4)
-      eslint:
-        specifier: 8.51.0
-        version: 8.51.0
       jest:
         specifier: '*'
         version: 29.7.0
