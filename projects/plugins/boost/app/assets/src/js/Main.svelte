@@ -9,9 +9,9 @@
 	import { criticalCssState, isGenerating } from './stores/critical-css-state';
 	import { modulesState } from './stores/modules';
 	import { recordBoostEvent } from './utils/analytics';
-	import debounce from './utils/debounce';
 	import { Router, Route } from './utils/router';
 	import routerHistory from './utils/router-history';
+	import { debounce } from './utils/utils';
 
 	routerHistory.listen(
 		debounce( history => {

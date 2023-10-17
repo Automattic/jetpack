@@ -16,7 +16,7 @@
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import { recordBoostEvent } from '../../../utils/analytics';
 	import { castToString } from '../../../utils/cast-to-string';
-	import debounce from '../../../utils/debounce';
+	import { debounce } from '../../../utils/utils';
 	import PopOut from '../elements/PopOut.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
 	import History from './History.svelte';
