@@ -30,15 +30,18 @@ class Image_Analysis_Fix implements Endpoint {
 			return new \WP_Error( 'not-allowed', 'Bad Nonce' );
 		}
 
-		$params = $request->get_params();
-		unset( $params['nonce'] );
-
-		$fixes = Image_Size_Analysis_Fixer::get_fixes( $request->get_param( 'post_id' ) );
-
-		$image_url = Image_Size_Analysis_Fixer::fix_url( $request->get_param( 'image_url' ) );
-
+		$params        = Image_Size_Analysis_Fixer::sanitize_params( $request->get_params() );
+		$fixes         = Image_Size_Analysis_Fixer::get_fixes( $request->get_param( 'post_id' ) );
+		$image_url     = Image_Size_Analysis_Fixer::fix_url( $request->get_param( 'image_url' ) );
 		$attachment_id = attachment_url_to_postid( esc_url( $image_url ) );
-		if ( $attachment_id ) {
+
+		if ( isset( $params['fix'] ) && ! $params['fix'] ) {
+			if ( isset( $fixes[ $attachment_id ] ) ) {
+				unset( $fixes[ $attachment_id ] );
+			} else {
+				unset( $fixes[ md5( $image_url ) ] );
+			}
+		} elseif ( $attachment_id ) {
 			$fixes[ $attachment_id ] = $params;
 		} else {
 			$fixes[ md5( $image_url ) ] = $params; // hot linked image, possibly from another site.
