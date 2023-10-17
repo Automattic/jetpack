@@ -915,6 +915,10 @@ importers:
         version: 18.2.0(react@18.2.0)
 
   projects/js-packages/react-data-sync-client:
+    dependencies:
+      swr:
+        specifier: 2.2.4
+        version: 2.2.4(react@18.2.0)
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -928,6 +932,9 @@ importers:
       jest:
         specifier: '*'
         version: 29.7.0
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
       ts-loader:
         specifier: 9.4.2
         version: 9.4.2(typescript@5.0.4)(webpack@5.76.0)
@@ -14039,6 +14046,10 @@ packages:
     resolution: {integrity: sha512-FxqpkPPwu1HjuN93Omfm4h8uIanXofW0RxVEW3k5RKx+mJJYSthzNhp32Kzxxy3YAEZ/Dc/EWN1vZRY0+kOhbw==}
     engines: {node: '>= 10'}
 
+  /client-only@0.0.1:
+    resolution: {integrity: sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==}
+    dev: false
+
   /clipboard@2.0.11:
     resolution: {integrity: sha512-C+0bbOqkezLIsmWSvlsXS0Q0bmkugu7jcfMIACB+RDEntIzQIkdr148we28AfSloQLRdZlYL/QYyrq05j/3Faw==}
     dependencies:
@@ -22740,6 +22751,16 @@ packages:
     dependencies:
       dom7: 3.0.0
       ssr-window: 3.0.0
+    dev: false
+
+  /swr@2.2.4(react@18.2.0):
+    resolution: {integrity: sha512-njiZ/4RiIhoOlAaLYDqwz5qH/KZXVilRLvomrx83HjzCWTfa+InyfAjv05PSFxnmLzZkNO9ZfvgoqzAaEI4sGQ==}
+    peerDependencies:
+      react: ^16.11.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      client-only: 0.0.1
+      react: 18.2.0
+      use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
 
   /symbol-observable@1.2.0:
