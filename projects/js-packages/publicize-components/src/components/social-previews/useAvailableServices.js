@@ -62,7 +62,7 @@ export function useAvailableSerivces() {
 				},
 				{
 					title: __( 'Tumblr', 'jetpack' ),
-					icon: props => <SocialServiceIcon serviceName="tumblr" { ...props } />,
+					icon: props => <SocialServiceIcon serviceName="tumblr-alt" { ...props } />,
 					name: 'tumblr',
 					preview: TumblrPreview,
 				},

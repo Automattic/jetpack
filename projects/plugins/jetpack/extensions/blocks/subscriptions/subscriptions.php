@@ -9,7 +9,9 @@ namespace Automattic\Jetpack\Extensions\Subscriptions;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack;
@@ -926,7 +928,14 @@ function add_paywall( $the_content ) {
 
 	$post_access_level = Jetpack_Memberships::get_post_access_level();
 
-	$paywalled_content = get_paywall_content( $post_access_level, isset( $_GET['subscribe'] ) && 'success' === $_GET['subscribe'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+	$token_service              = is_wpcom() ? new WPCOM_Token_Subscription_Service() : new Jetpack_Token_Subscription_Service();
+	$token                      = $token_service->get_and_set_token_from_request();
+	$payload                    = $token_service->decode_token( $token );
+	$is_valid_token             = ! empty( $payload );
+	$email_confirmation_pending = $is_valid_token && isset( $payload['blog_sub'] ) && $payload['blog_sub'] === 'pending';
+
+	$paywalled_content = get_paywall_content( $post_access_level, $email_confirmation_pending ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	if ( has_block( \Automattic\Jetpack\Extensions\Paywall\BLOCK_NAME ) ) {
 		if ( strpos( $the_content, \Automattic\Jetpack\Extensions\Paywall\BLOCK_HTML ) ) {
@@ -1101,7 +1110,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
  * @return string
  */
 function get_paywall_blocks_subscribe_pending() {
-	$access_heading = esc_html__( 'Verify your email and continue reading', 'jetpack' );
+	$access_heading = esc_html__( 'Verify your email to continue reading', 'jetpack' );
 
 	$subscribe_text = esc_html__( 'Please check your inbox to confirm your subscription.', 'jetpack' );
 
