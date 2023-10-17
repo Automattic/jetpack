@@ -136,4 +136,15 @@ class Image_Size_Analysis_Fixer {
 
 		return $tag_processor->get_updated_html();
 	}
+
+	public static function sanitize_params( $params ) {
+		$out                 = array();
+		$out['image_url']    = esc_url_raw( $params['image_url'] );
+		$out['image_width']  = absint( $params['image_width'] );
+		$out['image_height'] = absint( $params['image_height'] );
+		$out['post_id']      = absint( $params['post_id'] );
+		$out['fix']          = (bool) $params['fix'];
+
+		return $out;
+	}
 }
