@@ -30,10 +30,14 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 
 		$issues = array();
 		foreach ( $data->issues as $issue ) {
-			$page           = $this->get_page( $issue );
-			$post_id        = Image_Size_Analysis_Fixer::get_post_id( $page['edit_url'] );
-			$image          = $this->get_image_info( $issue );
-			$image['fixed'] = Image_Size_Analysis_Fixer::is_fixed( $post_id, $image['url'] );
+			$page  = $this->get_page( $issue );
+			$image = $this->get_image_info( $issue );
+			if ( empty( $page['edit_url'] ) ) { // archive or front page
+				$image['fixed'] = false;
+			} else {
+				$post_id        = Image_Size_Analysis_Fixer::get_post_id( $page['edit_url'] );
+				$image['fixed'] = Image_Size_Analysis_Fixer::is_fixed( $post_id, $image['url'] );
+			}
 
 			$issues[] = array(
 				'id'           => $issue->id,

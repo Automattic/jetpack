@@ -46,6 +46,11 @@ class Image_Size_Analysis_Fixer {
 	}
 
 	public static function get_post_id( $edit_url ) {
+
+		if ( empty( $edit_url ) ) {
+			return 0;
+		}
+
 		$query_string = wp_parse_url( esc_url_raw( $edit_url ), PHP_URL_QUERY );
 		parse_str( $query_string, $query_args );
 		if ( ! isset( $query_args['post'] ) ) {
