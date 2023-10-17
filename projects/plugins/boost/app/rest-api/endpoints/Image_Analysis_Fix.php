@@ -47,7 +47,7 @@ class Image_Analysis_Fix implements Endpoint {
 			$fixes[ md5( $image_url ) ] = $params; // hot linked image, possibly from another site.
 		}
 
-		update_post_meta( $request->get_param( 'post_id' ), 'jb_image_fixes', $fixes );
+		update_post_meta( $request->get_param( 'post_id' ), '_jb_image_fixes', $fixes );
 
 		// Send a success response.
 		return rest_ensure_response(

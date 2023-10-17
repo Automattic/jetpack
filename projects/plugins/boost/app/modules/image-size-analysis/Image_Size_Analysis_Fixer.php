@@ -37,7 +37,7 @@ class Image_Size_Analysis_Fixer {
 			return $fixes[ $post_id ];
 		}
 
-		$fixes[ $post_id ] = get_post_meta( $post_id, 'jb_image_fixes', true );
+		$fixes[ $post_id ] = get_post_meta( $post_id, '_jb_image_fixes', true );
 		if ( ! $fixes[ $post_id ] ) {
 			$fixes[ $post_id ] = array();
 		}
