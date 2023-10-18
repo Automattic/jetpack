@@ -34,13 +34,12 @@ domReady( function () {
 				source: 'jetpack_subscribe',
 				post_access_level: form.dataset.post_access_level,
 				display: 'alternate',
-				TB_iframe: true, // Required by ThickBox modal library. See https://codex.wordpress.org/Javascript_Reference/ThickBox
 			} );
 
 			const url = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
 
 			window.scrollTo( 0, 0 );
-			tb_show( null, url, null );
+			tb_show( null, url + '&TB_iframe=true', null );
 
 			window.addEventListener( 'message', handleIframeResult, false );
 			const tbWindow = document.querySelector( '#TB_window' );
