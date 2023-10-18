@@ -27,7 +27,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.11.0';
+	const PACKAGE_VERSION = '0.11.1-alpha';
 
 	/**
 	 * Instance of the object.
@@ -1327,12 +1327,12 @@ class Identity_Crisis {
 			$secret = new URL_Secret();
 
 			$secret->create();
+
+			if ( $secret->exists() ) {
+				$response['url_secret'] = $secret->get_secret();
+			}
 		} catch ( Exception $e ) {
 			$response['url_secret_error'] = new WP_Error( 'unable_to_create_url_secret', $e->getMessage() );
-		}
-
-		if ( $secret->exists() ) {
-			$response['url_secret'] = $secret->get_secret();
 		}
 
 		return $response;
