@@ -46,16 +46,14 @@ domReady( function () {
 		form.addEventListener( 'submit', function ( event ) {
 			// eslint-disable-next-line no-console
 			console.log( 'form submit:', event, form );
-			event.preventDefault();
 
-			// Form values
 			const email = form.querySelector( 'input[type=email]' ).value;
-			const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
-			const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
 
 			if ( form.resubmitted || ! email ) {
 				return;
 			}
+
+			event.preventDefault();
 
 			// Inject modal HTML if it isn't there already
 			let modal = document.getElementById( membershipsModalId );
@@ -84,6 +82,9 @@ domReady( function () {
 			modal.classList.add( 'is-loading' );
 			MicroModal.show( membershipsModalId );
 
+			const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
+			const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
+
 			const params = new URLSearchParams( {
 				email: encodeURIComponent( email ),
 				post_id,
@@ -93,7 +94,6 @@ domReady( function () {
 				source: 'jetpack_subscribe',
 				post_access_level: form.dataset.post_access_level,
 				display: 'alternate',
-				TB_iframe: true,
 			} );
 
 			const iframe = modal.getElementsByClassName( 'jetpack-memberships-modal__iframe' )[ 0 ];
