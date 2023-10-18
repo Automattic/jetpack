@@ -101,6 +101,5 @@
 			"email": "jetpack@jetpack.com",
 			"featuredMediaUrl": "./simple-payments_example-1.jpg"
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }
