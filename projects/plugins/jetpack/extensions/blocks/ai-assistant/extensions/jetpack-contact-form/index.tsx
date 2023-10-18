@@ -8,6 +8,7 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { select, useSelect } from '@wordpress/data';
 import { useEffect, useCallback } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
+import React from 'react';
 /*
  * Internal dependencies
  */
@@ -38,6 +39,11 @@ export function isPossibleToExtendJetpackFormBlock(
 	// Check if the AI Assistant block is registered.
 	const isBlockRegistered = getBlockType( 'jetpack/ai-assistant' );
 	if ( ! isBlockRegistered ) {
+		return false;
+	}
+
+	// Check if there is a block name.
+	if ( typeof blockName !== 'string' ) {
 		return false;
 	}
 
@@ -174,7 +180,11 @@ const jetpackFormChildrenEditWithAiComponents = createHigherOrderComponent( Bloc
 		// Get clientId of the parent block.
 		const parentClientId = useSelect(
 			selectData => {
-				const { getBlockParentsByBlockName } = selectData( 'core/block-editor' );
+				const blockEditorSelectData: {
+					getBlockParentsByBlockName: ( clientId: string, blockName: string ) => string[];
+				} = selectData( 'core/block-editor' );
+				const { getBlockParentsByBlockName } = blockEditorSelectData;
+
 				return getBlockParentsByBlockName( props.clientId, 'jetpack/contact-form' )?.[ 0 ];
 			},
 			[ props.clientId ]
