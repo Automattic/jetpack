@@ -51,13 +51,6 @@ export function isPossibleToExtendJetpackFormBlock(
 		return false;
 	}
 
-	// Do not extend when the block is inside of a core/query block.
-	const { getBlockParentsByBlockName } = select( 'core/block-editor' );
-	const isChildOfQueryBlock = getBlockParentsByBlockName( clientId, 'core/query' )?.length > 0;
-	if ( isChildOfQueryBlock ) {
-		return false;
-	}
-
 	// Only extend allowed blocks.
 	if ( checkChildrenBlocks ) {
 		// First, check if it should check for children blocks. (false by default)
