@@ -916,17 +916,19 @@ function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
 function add_paywall( $the_content ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
+	$post_access_level = Jetpack_Memberships::get_post_access_level();
+
 	if ( Jetpack_Memberships::user_can_view_post() ) {
-		do_action(
-			'earn_track_paywalled_post_view',
-			array(
-				'post_id' => get_the_ID(),
-			)
-		);
+		if ( $post_access_level !== Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY ) {
+			do_action(
+				'earn_track_paywalled_post_view',
+				array(
+					'post_id' => get_the_ID(),
+				)
+			);
+		}
 		return $the_content;
 	}
-
-	$post_access_level = Jetpack_Memberships::get_post_access_level();
 
 	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 	$token_service              = is_wpcom() ? new WPCOM_Token_Subscription_Service() : new Jetpack_Token_Subscription_Service();
