@@ -266,6 +266,16 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				continue;
 			}
 
+			$cart           = wc()->cart->get_cart();
+			$products_count = is_array( $cart ) ? count( $cart ) : '0';
+			$coupons        = wc()->cart->applied_coupons;
+			$coupon_used    = is_array( $coupons ) && count( $coupons ) > 0 ? '1' : '0';
+			$order_totals   = wc()->cart->get_totals();
+			$order_value    = '0';
+			if ( isset( $order_totals['total'] ) ) {
+				$order_value = $order_totals['total'];
+			}
+
 			if ( true === $include_express_payment ) {
 				$properties = $this->process_event_properties(
 					'woocommerceanalytics_product_checkout',
@@ -277,9 +287,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'create_account'    => 'Yes' === $create_account ? 'Yes' : 'No',
 						'express_checkout'  => 'null',
 						'shipping_option'   => $this->get_shipping_option_for_item( $cart_item_key ),
-						'products_count'    => count( wc()->cart->get_cart() ),
-						'coupon_used'       => count( wc()->cart->applied_coupons ) > 0 ? '1' : '0',
-						'order_value'       => wc()->cart->get_totals()['total'],
+						'products_count'    => $products_count,
+						'coupon_used'       => $coupon_used,
+						'order_value'       => $order_value,
 						'store_currency'    => get_woocommerce_currency(),
 						'additional_blocks' => $this->additional_blocks_on_page,
 						'template_used'     => $this->cart_checkout_templates_in_use ? '1' : '0',
@@ -313,9 +323,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'create_account'    => 'Yes' === $create_account ? 'Yes' : 'No',
 						'express_checkout'  => 'null',
 						'shipping_option'   => $this->get_shipping_option_for_item( $cart_item_key ),
-						'products_count'    => count( wc()->cart->get_cart() ),
-						'coupon_used'       => count( wc()->cart->applied_coupons ) > 0 ? '1' : '0',
-						'order_value'       => wc()->cart->get_totals()['total'],
+						'products_count'    => $products_count,
+						'coupon_used'       => $coupon_used,
+						'order_value'       => $order_value,
 						'store_currency'    => get_woocommerce_currency(),
 						'additional_blocks' => $this->additional_blocks_on_page,
 						'template_used'     => $this->cart_checkout_templates_in_use ? '1' : '0',
