@@ -12,9 +12,6 @@ namespace Automattic\Jetpack\Extensions\Rating_Star;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'rating-star';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
 // Load generic function definitions.
 require_once __DIR__ . '/rating-meta.php';
 
@@ -25,33 +22,9 @@ require_once __DIR__ . '/rating-meta.php';
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		__DIR__,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
-			'attributes'      => array(
-				'rating'      => array(
-					'type'    => 'number',
-					'default' => 1,
-				),
-				'maxRating'   => array(
-					'type'    => 'number',
-					'default' => 5,
-				),
-				'color'       => array(
-					'type' => 'string',
-				),
-				'ratingStyle' => array(
-					'type'    => 'string',
-					'default' => 'star',
-				),
-				'className'   => array(
-					'type' => 'string',
-				),
-				'align'       => array(
-					'type'    => 'string',
-					'default' => 'left',
-				),
-			),
 		)
 	);
 }
@@ -66,7 +39,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function render_block( $attributes ) {
 	// Tell Jetpack to load the assets registered via jetpack_register_block.
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	return jetpack_rating_meta_render_block( $attributes );
 }

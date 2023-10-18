@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/rating-star",
 	"title": "Star Rating",
 	"description": "Rate movies, books, songs, recipes — anything you can put a number on.",
@@ -39,6 +39,5 @@
 			"type": "string",
 			"default": "left"
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }
