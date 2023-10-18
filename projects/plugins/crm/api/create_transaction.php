@@ -47,9 +47,8 @@ foreach ( $required_fields as $field ) {
 	}
 }
 
-$orderid = -1;
-$email   = '';
-$fname   = '';
+$email = '';
+$fname = '';
 
 if ( isset( $new_trans['orderid'] ) ) {
 	$orderid = sanitize_text_field( $new_trans['orderid'] );
