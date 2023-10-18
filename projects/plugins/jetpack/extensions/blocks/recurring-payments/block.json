@@ -65,5 +65,5 @@
 			"type": "string"
 		}
 	},
-	"editorScript": "file:../editor.js"
+	"parent": [ "jetpack/payment-buttons" ]
 }
