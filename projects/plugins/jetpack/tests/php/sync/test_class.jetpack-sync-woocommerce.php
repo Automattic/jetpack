@@ -4,6 +4,8 @@ use Automattic\Jetpack\Sync\Modules;
 
 /**
  * Testing WooCommerce Sync
+ *
+ * @group woocommerce
  */
 class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 	protected $post;
@@ -215,7 +217,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		// Test both sync actions we're expecting
 		$this->assertSame( 1, $this->server_replica_storage->comment_count( 'approve' ) );
 		$remote_comment = $this->server_replica_storage->get_comment( $review->comment_ID );
-		$this->assertSame( 1, $remote_comment->comment_approved );
+		$this->assertSame( '1', $remote_comment->comment_approved );
 		$comment_approved_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_review' );
 		$this->assertTrue( (bool) $comment_approved_event );
 
@@ -252,7 +254,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		// Test both sync actions we're expecting
 		$this->assertSame( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$remote_comment = $this->server_replica_storage->get_comment( $review->comment_ID );
-		$this->assertSame( 0, $remote_comment->comment_approved );
+		$this->assertSame( '0', $remote_comment->comment_approved );
 		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_review' );
 		$this->assertTrue( (bool) $comment_unapproved_event );
 
