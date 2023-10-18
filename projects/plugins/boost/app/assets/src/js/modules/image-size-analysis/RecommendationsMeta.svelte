@@ -100,13 +100,13 @@
 </script>
 
 {#if ! groups}
-	<div class="summary">
+	<div class="jb-summary">
 		{__( 'Loading…', 'jetpack-boost' )}
 	</div>
 {:else}
 	<!-- Show error messages or "please wait" messages. -->
 	{#if errorMessage}
-		<div class="error-area">
+		<div class="jb-error-area">
 			<ErrorNotice
 				title={__( 'Something has gone wrong.', 'jetpack-boost' )}
 				suggestion={errorSuggestion}
@@ -115,17 +115,17 @@
 			</ErrorNotice>
 		</div>
 	{:else if waitNotice}
-		<div class="summary-line wait-notice">
+		<div class="jb-summary-line jb-wait-notice">
 			{waitNotice}
 		</div>
 	{/if}
 
 	<!-- Show a summary line if the report is completed. -->
 	{#if ! requestingReport && status === ISAStatus.Completed}
-		<div class="summary-line">
+		<div class="jb-summary-line">
 			{#if totalIssues > 0}
-				<div class="has-issues summary">
-					<WarningIcon class="icon" />
+				<div class="jb-has-issues jb-summary">
+					<WarningIcon class="jb-icon" />
 					{sprintf(
 						// translators: 1: Number of scanned issues found 2: Number of scanned pages
 						__(
@@ -137,7 +137,7 @@
 					)}
 				</div>
 			{:else}
-				<div class="summary">
+				<div class="jb-summary">
 					{sprintf(
 						// translators: %d: Number of pages scanned
 						__(
@@ -177,7 +177,7 @@
 
 	<!-- Show a button to view the report if it's in progress or completed. -->
 	{#if [ ISAStatus.Queued, ISAStatus.Completed ].includes( status ) && ! requestingReport}
-		<div class="button-area">
+		<div class="jb-button-area">
 			<Button
 				disabled={requestingReport}
 				on:click={() =>
@@ -196,7 +196,7 @@
 
 	<!-- Show a button to kick off a report -->
 	{#if ! [ ISAStatus.New, ISAStatus.Queued, ISAStatus.Completed ].includes( status )}
-		<div class="button-area">
+		<div class="jb-button-area">
 			<Button disabled={requestingReport} on:click={handleAnalyzeClick}>
 				{status === ISAStatus.Completed
 					? __( 'Analyze again', 'jetpack-boost' )
@@ -205,75 +205,3 @@
 		</div>
 	{/if}
 {/if}
-
-<style lang="scss">
-	@use '../../../css/main/variables.scss' as *;
-
-	.summary-line {
-		font-size: 14px;
-		line-height: 22px;
-		display: flex;
-		flex-direction: row;
-		align-items: flex-start;
-		margin-bottom: 17px;
-
-		@media ( max-width: 600px ) {
-			flex-direction: column;
-		}
-	}
-
-	.summary-line button {
-		:global( svg ) {
-			margin: 4px 4px 2px 0;
-			fill: $jetpack-green;
-		}
-
-		@media ( max-width: 600px ) {
-			margin-top: 15px;
-		}
-	}
-
-	.summary {
-		margin-right: 5px;
-		flex-grow: 1;
-		position: relative;
-		color: $jetpack-green;
-	}
-
-	.has-issues {
-		color: var( --jp-orange-20 );
-	}
-
-	.has-issues :global( svg ) {
-		width: 22px;
-		height: 22px;
-		top: 4px;
-		position: relative;
-	}
-
-	.wait-notice {
-		color: var( --wp-admin-theme-color );
-	}
-
-	.error-area {
-		margin-top: 16px;
-		margin-bottom: 16px;
-	}
-
-	.button-area {
-		margin-top: 32px;
-	}
-
-	.jb-notice {
-		width: 100%;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 16px 24px;
-		margin: 32px 0;
-		border: 2px solid $jetpack-green;
-		border-radius: $border-radius;
-		background-color: #ffffff;
-		text-align: left;
-	}
-</style>
