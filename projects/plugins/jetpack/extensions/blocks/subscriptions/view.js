@@ -26,7 +26,7 @@ domReady( function () {
 			const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
 
 			const params = new URLSearchParams( {
-				email: encodeURIComponent( email ),
+				email,
 				post_id,
 				tier_id,
 				blog: form.dataset.blog,
