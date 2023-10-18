@@ -14,13 +14,13 @@ domReady( function () {
 	if ( ! form.payments_attached ) {
 		form.payments_attached = true;
 		form.addEventListener( 'submit', function ( event ) {
-			event.preventDefault();
-
 			const email = form.querySelector( 'input[type=email]' ).value;
 
 			if ( form.resubmitted || ! email ) {
 				return;
 			}
+
+			event.preventDefault();
 
 			const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
 			const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
