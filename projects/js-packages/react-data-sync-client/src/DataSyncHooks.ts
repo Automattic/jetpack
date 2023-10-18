@@ -17,6 +17,7 @@ export function useDataSync<
 		async ( _, data: MutationArguments ) => {
 			const value = data.arg; // schema.parse( data.arg );
 			const response = await datasync.SET( value );
+			// eslint-disable-next-line no-console
 			console.log( 'Response', response );
 			return response;
 		}
@@ -24,6 +25,11 @@ export function useDataSync<
 	const { data, error } = useSWR( key, datasync.GET, {
 		fallbackData: datasync.getInitialValue(),
 	} );
+
+	if ( error ) {
+		// eslint-disable-next-line no-console
+		console.log( `Error happened`, error );
+	}
 
 	return {
 		data,
