@@ -262,7 +262,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 
 			$subscription_post = null;
 			foreach ( $all_plans as $plan ) {
-				if ( intval( $this->find_metadata( $plan, 'jetpack_memberships_product_id' ) ) === $subscription_plan_id ) {
+				if ( intval( $this->find_metadata( $plan, 'jetpack_memberships_product_id' ) ) === intval( $subscription_plan_id ) ) {
 					$subscription_post = $plan;
 					break;
 				}
