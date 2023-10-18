@@ -201,7 +201,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 *
 	 * @param string $cart_item_key the cart item key.
 	 *
-	 * @return mixed|void
+	 * @return mixed|bool
 	 */
 	public function get_shipping_option_for_item( $cart_item_key ) {
 		$packages         = wc()->shipping()->get_packages();
@@ -220,6 +220,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				}
 			}
 		}
+
+		return false;
 	}
 
 	/**
