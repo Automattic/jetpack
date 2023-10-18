@@ -206,6 +206,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function get_shipping_option_for_item( $cart_item_key ) {
 		$packages         = wc()->shipping()->get_packages();
 		$selected_options = wc()->session->get( 'chosen_shipping_methods' );
+
+		if ( ! is_array( $packages ) || ! is_array( $selected_options ) ) {
+			return false;
+		}
+
 		foreach ( $packages as $package_id => $package ) {
 			foreach ( $package['contents'] as $package_item ) {
 				if ( $package_item['key'] === $cart_item_key ) {
