@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Remove mention of semver from changelog header, this plugin does not use semver.
-
-
