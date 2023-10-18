@@ -30,7 +30,8 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 // REQUIRED FIELDS
 $required_fields = array(
 	'orderid',
-	'email',
+	'status',
+	'total',
 );
 
 // Check for required fields. Fail if any are missing.
