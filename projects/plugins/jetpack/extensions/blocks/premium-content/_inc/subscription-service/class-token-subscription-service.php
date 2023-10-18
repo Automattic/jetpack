@@ -123,28 +123,27 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return bool Whether the user has access to the content.
 	 */
 	protected function user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id, $user_abbreviated_subscriptions ) {
-		$has_access = false;
 
 		if ( is_user_logged_in() && current_user_can( 'edit_post', $post_id ) ) {
 			// Admin has access
 			$has_access = true;
-		}
-
-		if ( empty( $has_access ) && ( empty( $access_level ) || $access_level === self::POST_ACCESS_LEVEL_EVERYBODY ) ) {
-			// empty level means the post is not gated for paid users
-			$has_access = true;
-		}
-
-		if ( empty( $has_access ) && ( $access_level === self::POST_ACCESS_LEVEL_SUBSCRIBERS ) ) {
-			$has_access = $is_blog_subscriber || $is_paid_subscriber;
-		}
-
-		if ( empty( $has_access ) && ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS ) ) {
-			$has_access = $is_paid_subscriber;
-		}
-
-		if ( empty( $has_access ) && ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ) ) {
-			$has_access = $is_paid_subscriber && ! $this->maybe_gate_access_for_user_if_post_tier( $post_id, $user_abbreviated_subscriptions );
+		} else {
+			switch ( $access_level ) {
+				case self::POST_ACCESS_LEVEL_EVERYBODY:
+				default:
+					$has_access = true;
+					break;
+				case self::POST_ACCESS_LEVEL_SUBSCRIBERS:
+					$has_access = $is_blog_subscriber || $is_paid_subscriber;
+					break;
+				case self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
+					$has_access = $is_paid_subscriber;
+					break;
+				case self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
+					$has_access = $is_paid_subscriber &&
+						! $this->maybe_gate_access_for_user_if_post_tier( $post_id, $user_abbreviated_subscriptions );
+					break;
+			}
 		}
 
 		do_action( 'earn_user_has_access', $access_level, $has_access, $is_blog_subscriber, $is_paid_subscriber, $post_id );
