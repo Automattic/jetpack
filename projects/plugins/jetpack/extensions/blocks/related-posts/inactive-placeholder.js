@@ -3,11 +3,14 @@ import {
 	isAtomicSite,
 	isSimpleSite,
 	useAnalytics,
+	getBlockIconComponent,
 } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { icon, settings } from './';
+import metadata from './block.json';
+
+const icon = getBlockIconComponent( metadata );
 
 export const InactiveRelatedPostsPlaceholder = ( {
 	className,
@@ -50,7 +53,7 @@ export const InactiveRelatedPostsPlaceholder = ( {
 					"You'll need to activate the Related Posts feature to use this block.",
 					'jetpack'
 				) }
-				label={ settings.title }
+				label={ metadata.title }
 			>
 				<Button
 					disabled={ isLoading }
