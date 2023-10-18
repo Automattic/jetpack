@@ -15,7 +15,7 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_List_Data;
 /**
  * CRM Entity to CRM Tag List Transformer class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Data_Transformer_Entity_To_Tag_List extends Data_Transformer_Base {
 
@@ -43,7 +43,7 @@ class Data_Transformer_Entity_To_Tag_List extends Data_Transformer_Base {
 	/**
 	 * Get the tags from an CRM entity.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data The CRM entity data type we want to get the tags from.
 	 * @return array The CRM entity tags as an array.
@@ -55,7 +55,7 @@ class Data_Transformer_Entity_To_Tag_List extends Data_Transformer_Base {
 	/**
 	 * Transform CRM entity entity to a list of tags.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data The CRM entity data type we want to transform.
 	 * @return Data_Type Return the Tag_Data of the CRM entity.

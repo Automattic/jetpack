@@ -237,7 +237,7 @@ class Initializer {
 
 		// Try to get the custom anchor from the block attributes.
 		if ( isset( $block_attributes['anchor'] ) && $block_attributes['anchor'] ) {
-			$id_attribute = sprintf( 'id="%s"', $block_attributes['anchor'] );
+			$id_attribute = sprintf( 'id="%s"', esc_attr( $block_attributes['anchor'] ) );
 		} elseif ( preg_match( '/<figure[^>]*id="([^"]+)"/', $content, $matches ) ) {
 			// Othwerwise, try to get the custom anchor from the <figure /> element.
 			$id_attribute = sprintf( 'id="%s"', $matches[1] );
@@ -266,9 +266,8 @@ class Initializer {
 			$inline_style = '';
 			if ( $poster ) {
 				$inline_style = sprintf(
-					'style="background-image: url(%s); background-size: cover;
-				background-position: center center;"',
-					$poster
+					'style="background-image: url(%s); background-size: cover; background-position: center center;"',
+					esc_attr( $poster )
 				);
 			}
 
@@ -309,6 +308,7 @@ class Initializer {
 			);
 		}
 
+		// $id_attribute, $video_wrapper, $figcaption properly escaped earlier on the code
 		return sprintf(
 			$figure_template,
 			esc_attr( $classes ),
@@ -340,11 +340,27 @@ class Initializer {
 		// Pick the block name straight from the block metadata .json file.
 		$videopress_video_block_name = $videopress_video_metadata->name;
 
+		// Is the block already registered?
+		$is_block_registered = \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name );
+
+		// Is this a REST API request?
+		$is_rest = defined( 'REST_API_REQUEST' ) && REST_API_REQUEST;
+
+		if ( $is_rest && ! $is_block_registered ) {
+			register_block_type(
+				$videopress_video_metadata_file,
+				array(
+					'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
+				)
+			);
+			return;
+		}
+
 		// Register and enqueue scripts used by the VideoPress video block.
 		Block_Editor_Extensions::init( self::JETPACK_VIDEOPRESS_VIDEO_HANDLER );
 
 		// Do not register if the block is already registered.
-		if ( \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name ) ) {
+		if ( $is_block_registered ) {
 			return;
 		}
 

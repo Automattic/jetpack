@@ -53,7 +53,7 @@ const getMediaDetails = async media => {
 
 	const sizes = media?.media_details?.sizes ?? {};
 
-	if ( Object.keys( sizes ).length === 0 ) {
+	if ( ! sizes.full ) {
 		return {
 			mediaData: {
 				width: media.media_details.width,
@@ -64,15 +64,22 @@ const getMediaDetails = async media => {
 		};
 	}
 
-	const mediaObject = sizes.large || sizes.thumbnail;
+	// We use medium image size for previews to decrease the load time.
+	const previewSize = sizes.medium || sizes.large;
+	const previewData = {
+		width: previewSize.width,
+		height: previewSize.height,
+		sourceUrl: previewSize.source_url,
+	};
 
 	return {
 		mediaData: {
-			width: mediaObject.width,
-			height: mediaObject.height,
-			sourceUrl: mediaObject.source_url,
+			width: sizes.full.width,
+			height: sizes.full.height,
+			sourceUrl: sizes.full.source_url,
 		},
 		metaData,
+		previewData,
 	};
 };
 

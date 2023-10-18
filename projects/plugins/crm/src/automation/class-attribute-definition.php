@@ -3,7 +3,7 @@
  * Attribute Definition
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -15,14 +15,14 @@ namespace Automattic\Jetpack\CRM\Automation;
  * sends an email to a contact may have an attribute that represents the email
  * subject, another attribute that represents the email body, and so on.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Attribute_Definition {
 
 	/**
 	 * Represents a dropdown selection input.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string
 	 */
 	const SELECT = 'select';
@@ -30,7 +30,7 @@ class Attribute_Definition {
 	/**
 	 * Represents a checkbox input.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string
 	 */
 	const CHECKBOX = 'checkbox';
@@ -38,7 +38,7 @@ class Attribute_Definition {
 	/**
 	 * Represents a textarea input.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string
 	 */
 	const TEXTAREA = 'textarea';
@@ -46,7 +46,7 @@ class Attribute_Definition {
 	/**
 	 * Represents a text input.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string
 	 */
 	const TEXT = 'text';
@@ -54,7 +54,7 @@ class Attribute_Definition {
 	/**
 	 * Represents a date input.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string
 	 */
 	const DATE = 'date';
@@ -62,7 +62,7 @@ class Attribute_Definition {
 	/**
 	 * Represents a numerical input.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string
 	 */
 	const NUMBER = 'number';
@@ -70,7 +70,7 @@ class Attribute_Definition {
 	/**
 	 * The slug (key) that identifies this attribute.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string
 	 */
 	protected $slug;
@@ -78,7 +78,7 @@ class Attribute_Definition {
 	/**
 	 * The title (label) for this attribute.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string
 	 */
 	protected $title;
@@ -86,7 +86,7 @@ class Attribute_Definition {
 	/**
 	 * The description for this attribute.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string
 	 */
 	protected $description;
@@ -97,7 +97,7 @@ class Attribute_Definition {
 	 * This is a string that represents the type of the attribute.
 	 * E.g.: 'text', 'number', 'select', etc.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string
 	 */
 	protected $type;
@@ -105,7 +105,7 @@ class Attribute_Definition {
 	/**
 	 * Data needed by this attribute (e.g. a map of "key -> description" in the case of a select).
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var array|null
 	 */
 	protected $data;
@@ -113,7 +113,7 @@ class Attribute_Definition {
 	/**
 	 * Constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string     $slug The slug (key) that identifies this attribute.
 	 * @param string     $title The title (label) for this attribute.
@@ -132,7 +132,7 @@ class Attribute_Definition {
 	/**
 	 * Get the slug.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string
 	 */
@@ -143,7 +143,7 @@ class Attribute_Definition {
 	/**
 	 * Set the slug.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $slug The slug (key) that identifies this attribute.
 	 */
@@ -154,7 +154,7 @@ class Attribute_Definition {
 	/**
 	 * Get the title.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string
 	 */
@@ -165,7 +165,7 @@ class Attribute_Definition {
 	/**
 	 * Set the title.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $title The title (label) for this attribute.
 	 */
@@ -176,7 +176,7 @@ class Attribute_Definition {
 	/**
 	 * Get the description.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string
 	 */
@@ -187,7 +187,7 @@ class Attribute_Definition {
 	/**
 	 * Set the description.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $description The description for this attribute.
 	 */
@@ -198,7 +198,7 @@ class Attribute_Definition {
 	/**
 	 * Get the type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string
 	 */
@@ -209,7 +209,7 @@ class Attribute_Definition {
 	/**
 	 * Set the type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $type The attribute type.
 	 */
@@ -220,7 +220,7 @@ class Attribute_Definition {
 	/**
 	 * Get the data.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return array|null
 	 */
@@ -231,7 +231,7 @@ class Attribute_Definition {
 	/**
 	 * Set the data.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array|null $data The data needed by this attribute.
 	 */
@@ -245,7 +245,7 @@ class Attribute_Definition {
 	 * The main use-case to get the attribute as an array is,
 	 * so we can easily share it via API.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return array
 	 */

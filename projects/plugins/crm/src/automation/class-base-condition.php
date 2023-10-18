@@ -3,7 +3,7 @@
  * Base Condition implementation
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\CRM\Automation;
 /**
  * Base Condition Step.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  * {@inheritDoc}
  */
 abstract class Base_Condition extends Base_Step implements Condition {
@@ -19,7 +19,7 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	/**
 	 * The Automation logger.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var Automation_Logger $logger The Automation logger.
 	 */
 	protected $logger;
@@ -27,7 +27,7 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	/**
 	 * If the condition is met or not.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var bool If the condition is met or not.
 	 */
 	protected $condition_met = false;
@@ -35,7 +35,7 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	/**
 	 * All valid operators for this condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string[] $valid_operators Valid operators.
 	 */
 	protected $valid_operators = array();
@@ -43,7 +43,7 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	/**
 	 * Base_Condition constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data The step data.
 	 */
@@ -56,7 +56,7 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	/**
 	 * Get the next step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|int|null The next step data.
 	 */
@@ -67,7 +67,7 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	/**
 	 *  Met the condition?
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return bool If the condition is met or not.
 	 */
@@ -79,7 +79,7 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	 * Checks if this is a valid operator for this condition and throws an
 	 * exception if the operator is invalid.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $operator The operator.
 	 * @return void
