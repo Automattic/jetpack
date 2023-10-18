@@ -130,7 +130,7 @@ done
 
 # Install WooCommerce plugin used for some Jetpack integration tests.
 #DEFAULT_PHP_VERSION=$(bash -c 'source .github/versions.sh; echo $PHP_VERSION')
-if [[ "$WITH_WOOCOMMERCE" == true]] &&
+if [[ "$WITH_WOOCOMMERCE" == true ]] &&
 	jq --argjson changed "$CHANGED" -ne '$changed["plugins/jetpack"] // false' > /dev/null
 then
 	echo "::group::Installing plugin WooCommerce into WordPress"
