@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add has_required_plan method for VideoPress product class, check plan purchase exists for site

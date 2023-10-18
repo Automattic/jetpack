@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.43.3-alpha",
+	"version": "0.43.4-alpha",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -29,12 +29,13 @@
 		"prop-types": "^15.7.2",
 		"qrcode.react": "3.1.0",
 		"react-slider": "2.0.5",
+		"social-logos": "2.5.6",
 		"uplot": "1.6.24",
 		"uplot-react": "1.1.4"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@babel/core": "7.23.0",
+		"@babel/core": "7.23.2",
 		"@babel/preset-react": "7.22.15",
 		"@jest/globals": "29.4.3",
 		"@storybook/addon-actions": "7.4.6",
