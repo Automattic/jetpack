@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Indicate full compatibility with WordPress 6.3
 - Updated WordPress version requirement to WordPress 6.2
 - Made the Jetpack menu item default to point to My Jetpack.
-- Hide core Video and embed VideOpress variations, when video block is available.
+- Hide core Video and embed VideoPress variations, when video block is available.
 - Improved the connection prompt when the Jetpack VideoPress module is not active.
 - Changed max duration of the Preview On Hover effect to ten seconds.
 - Support autoplay playback option when Preview On Hover is enabled.
