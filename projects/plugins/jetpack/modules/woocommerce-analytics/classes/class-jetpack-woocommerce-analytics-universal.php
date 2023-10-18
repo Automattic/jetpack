@@ -394,6 +394,16 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		foreach ( $order->get_items() as $order_item ) {
 			$product_id = is_callable( array( $order_item, 'get_product_id' ) ) ? $order_item->get_product_id() : -1;
 
+			$order_items       = $order->get_items();
+			$order_items_count = 0;
+			if ( is_array( $order_items ) ) {
+				$order_items_count = count( $order_items );
+			}
+			$order_coupons       = $order->get_coupons();
+			$order_coupons_count = 0;
+			if ( is_array( $order_coupons ) ) {
+				$order_coupons_count = count( $order_coupons );
+			}
 			$this->record_event(
 				'woocommerceanalytics_product_purchase',
 				array(
@@ -404,8 +414,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					'create_account'    => $create_account,
 					'guest_checkout'    => $guest_checkout,
 					'express_checkout'  => $express_checkout,
-					'products_count'    => count( $order->get_items() ),
-					'coupon_used'       => count( $order->get_coupons() ) > 0 ? '1' : '0',
+					'products_count'    => $order_items_count,
+					'coupon_used'       => $order_coupons_count,
 					'order_value'       => $order->get_total(),
 					'store_currency'    => get_woocommerce_currency(),
 					'additional_blocks' => $this->additional_blocks_on_page,
