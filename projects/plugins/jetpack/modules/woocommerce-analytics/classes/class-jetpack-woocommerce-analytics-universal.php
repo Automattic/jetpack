@@ -218,20 +218,21 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			}
 
 			foreach ( $package['contents'] as $package_item ) {
-				if ( isset( $package_item['key'] ) && $package_item['key'] === $cart_item_key ) {
-					$selected_rate_id = $selected_options[ $package_id ];
-					$method_key_id    = sanitize_text_field( str_replace( ':', '_', $selected_rate_id ) );
-					$option_name      = 'woocommerce_' . $method_key_id . '_settings';
-					$option_value     = get_option( $option_name );
-					$title            = '';
-					if ( is_array( $option_value ) && isset( $option_value['title'] ) ) {
-						$title = $option_value['title'];
-					}
-					if ( ! $title ) {
-						return $selected_rate_id;
-					}
-					return $title;
+				if ( ! isset( $package_item['key'] ) || $package_item['key'] !== $cart_item_key || ! isset( $selected_options[ $package_id ] ) ) {
+					continue;
 				}
+				$selected_rate_id = $selected_options[ $package_id ];
+				$method_key_id    = sanitize_text_field( str_replace( ':', '_', $selected_rate_id ) );
+				$option_name      = 'woocommerce_' . $method_key_id . '_settings';
+				$option_value     = get_option( $option_name );
+				$title            = '';
+				if ( is_array( $option_value ) && isset( $option_value['title'] ) ) {
+					$title = $option_value['title'];
+				}
+				if ( ! $title ) {
+					return $selected_rate_id;
+				}
+				return $title;
 			}
 		}
 
