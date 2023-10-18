@@ -142,6 +142,8 @@ const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit =>
  *
  * - Populate the Jetpack Form edit component
  * with the AI Assistant bar and button (jetpackFormEditWithAiComponents).
+ * - Add the UI Handler data provider (withUiHandlerDataProvider).
+ * - Add the AI Assistant data provider (withAiDataProvider).
  *
  * @param {object} settings - The block settings.
  * @param {string} name     - The block name.
@@ -155,7 +157,9 @@ function jetpackFormWithAiSupport( settings, name: string ) {
 
 	return {
 		...settings,
-		edit: jetpackFormEditWithAiComponents( settings.edit ),
+		edit: withAiDataProvider(
+			withUiHandlerDataProvider( jetpackFormEditWithAiComponents( settings.edit ) )
+		),
 	};
 }
 
@@ -229,13 +233,3 @@ addFilter(
 	'jetpack/ai-assistant-support',
 	jetpackFormChildrenEditWithAiSupport
 );
-
-// Provide the UI Handler data context to the block.
-addFilter(
-	'editor.BlockListBlock',
-	'jetpack/ai-assistant-support',
-	withUiHandlerDataProvider,
-	100
-);
-
-addFilter( 'editor.BlockListBlock', 'jetpack/ai-assistant-block-list', withAiDataProvider, 110 );
