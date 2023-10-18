@@ -4,10 +4,10 @@
 import { getBlockContent } from '@wordpress/blocks';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
-import TurndownService from 'turndown';
-
-// Turndown instance
-const turndownService = new TurndownService();
+/**
+ * Internal dependencies
+ */
+import turndownService from '../turndown';
 
 /**
  * Returns partial content from the beginning of the post

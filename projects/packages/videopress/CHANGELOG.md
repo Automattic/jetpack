@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.6] - 2023-10-17
+### Security
+- Escape VideoPress attributes [#33637]
+
+### Changed
+- Updated package dependencies. [#33646]
+
+## [0.17.5] - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429, #33584]
+
+### Fixed
+- VideoPress: Handle block registration in the REST API request context. [#33565]
+
 ## [0.17.4] - 2023-10-10
 ### Changed
 - Updated package dependencies. [#33428]
@@ -1134,6 +1148,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.17.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.17.5...v0.17.6
+[0.17.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.17.4...v0.17.5
 [0.17.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.17.3...v0.17.4
 [0.17.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.17.2...v0.17.3
 [0.17.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.17.1...v0.17.2

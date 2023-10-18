@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add support to the API for creating transactions with custom fields

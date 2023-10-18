@@ -994,7 +994,13 @@ async function buildProject( t ) {
 	await once( rl, 'close' );
 
 	if ( ! projectVersionNumber ) {
-		throw new Error( `\nError fetching latest version number from ${ changelogFileName }\n` );
+		const dir = npath.relative(
+			process.cwd(),
+			npath.resolve( t.cwd, composerJson.extra?.changelogger?.[ 'changes-dir' ] || 'changelog' )
+		);
+		throw new Error(
+			`\nFailed to fetch latest version number from ${ changelogFileName }\n\nIf this is the initial commit of a new project, be sure there's a change entry in ${ dir }/\n`
+		);
 	}
 
 	if ( t.project.startsWith( 'packages/' ) && projectVersionNumber.endsWith( 'alpha' ) ) {
