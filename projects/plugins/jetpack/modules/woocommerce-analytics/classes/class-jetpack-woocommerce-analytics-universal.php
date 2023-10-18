@@ -212,8 +212,13 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		}
 
 		foreach ( $packages as $package_id => $package ) {
+
+			if ( ! isset( $package['contents'] ) || ! is_array( $package['contents'] ) ) {
+				return false;
+			}
+
 			foreach ( $package['contents'] as $package_item ) {
-				if ( $package_item['key'] === $cart_item_key ) {
+				if ( isset( $package_item['key'] ) && $package_item['key'] === $cart_item_key ) {
 					$selected_rate_id = $selected_options[ $package_id ];
 					$method_key_id    = str_replace( ':', '_', $selected_rate_id );
 					$option_name      = 'woocommerce_' . $method_key_id . '_settings';
