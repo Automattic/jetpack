@@ -8,7 +8,6 @@
  * displays the Publicize UI there.
  */
 import {
-	TwitterThreadListener,
 	PublicizePanel,
 	useSocialMediaConnections,
 	usePublicizeConfig,
@@ -64,8 +63,6 @@ const PublicizeSettings = () => {
 
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
-			<TwitterThreadListener />
-
 			<JetpackPluginSidebar>
 				<PublicizePanel enableTweetStorm={ true }>
 					<UpsellNotice />
