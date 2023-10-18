@@ -1076,13 +1076,13 @@ function get_paywall_blocks( $newsletter_access_level ) {
 	$sign_in             = '';
 	$show_button_sign_in = false;
 	$host                = new Host();
-	if ( false && ( ! is_user_logged_in() && $host->is_wpcom_simple() ) ) {
+	if ( ! is_user_logged_in() && $host->is_wpcom_simple() ) {
 		$id                  = '';
 		$show_button_sign_in = true;
 		$sign_in_link        = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
 		$button_text         = esc_html__( 'Log in', 'jetpack' );
-	} elseif ( true || ( class_exists( 'Automattic\Jetpack\Connection\Tokens\Jetpack_Token_Subscription_Service' ) &&
-		! $host->is_wpcom_platform() ) ) {
+	} elseif ( class_exists( 'Automattic\Jetpack\Connection\Tokens\Jetpack_Token_Subscription_Service' ) &&
+		! $host->is_wpcom_platform() ) {
 		// We are on Jetpack and no cookie is set
 		$show_button_sign_in = true;
 		$id                  = 'retrieve_subscriptions_link';
