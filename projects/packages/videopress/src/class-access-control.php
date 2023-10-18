@@ -257,6 +257,10 @@ class Access_Control {
 	 * @param int    $selected_plan_id The plan id the earn block this video is embedded in has.
 	 */
 	public function is_current_user_authed_for_video( $guid, $embedded_post_id, $selected_plan_id = 0 ) {
+		if ( current_user_can( 'upload_files' ) ) {
+			return $this->filter_is_current_user_authed_for_video( true, $guid, $embedded_post_id );
+		}
+
 		$attachment = false;
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$video_info = video_get_info_by_guid( $guid );
@@ -316,9 +320,37 @@ class Access_Control {
 		 *
 		 * @return bool
 		 */
-		return (bool) apply_filters( 'videopress_is_current_user_authed_for_video', $is_user_authed, $guid, $embedded_post_id );
+		return $this->filter_is_current_user_authed_for_video( $is_user_authed, $guid, $embedded_post_id );
 	}
 
+		/**
+		 * Overrides video view authorization for current user.
+		 *
+		 * @param bool     $is_user_authed   The current user authorization state.
+		 * @param string   $guid             The video's unique identifier.
+		 * @param int|null $embedded_post_id The post the video is embedded..
+		 *
+		 * @return bool
+		 */
+	private function filter_is_current_user_authed_for_video( $is_user_authed, $guid, $embedded_post_id ) {
+		/**
+		 * Overrides video view authorization for current user.
+		 *
+		 * Example of making all videos public:
+		 *
+		 * function jp_example_override_video_auth( $is_user_authed, $guid ) {
+		 *  return true
+		 * };
+		 * add_filter( 'videopress_is_current_user_authed_for_video', 'jp_example_override_video_auth', 10, 2 );
+		 *
+		 * @param bool     $is_user_authed   The current user authorization state.
+		 * @param string   $guid             The video's unique identifier.
+		 * @param int|null $embedded_post_id The post the video is embedded..
+		 *
+		 * @return bool
+		 */
+		return (bool) apply_filters( 'videopress_is_current_user_authed_for_video', $is_user_authed, $guid, $embedded_post_id );
+	}
 	/**
 	 * Updates a video's privacy details on wpcom.
 	 *
