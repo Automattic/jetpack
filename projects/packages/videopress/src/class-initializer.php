@@ -239,7 +239,7 @@ class Initializer {
 
 		// Try to get the custom anchor from the block attributes.
 		if ( isset( $block_attributes['anchor'] ) && $block_attributes['anchor'] ) {
-			$id_attribute = sprintf( 'id="%s"', $block_attributes['anchor'] );
+			$id_attribute = sprintf( 'id="%s"', esc_attr( $block_attributes['anchor'] ) );
 		} elseif ( preg_match( '/<figure[^>]*id="([^"]+)"/', $content, $matches ) ) {
 			// Othwerwise, try to get the custom anchor from the <figure /> element.
 			$id_attribute = sprintf( 'id="%s"', $matches[1] );
@@ -268,9 +268,8 @@ class Initializer {
 			$inline_style = '';
 			if ( $poster ) {
 				$inline_style = sprintf(
-					'style="background-image: url(%s); background-size: cover;
-				background-position: center center;"',
-					$poster
+					'style="background-image: url(%s); background-size: cover; background-position: center center;"',
+					esc_attr( $poster )
 				);
 			}
 
@@ -323,6 +322,7 @@ class Initializer {
 			$maybe_premium_script = '<script>' . $script_content . '</script>';
 		}
 
+		// $id_attribute, $video_wrapper, $figcaption properly escaped earlier on the code
 		return sprintf(
 			$figure_template,
 			esc_attr( $classes ),

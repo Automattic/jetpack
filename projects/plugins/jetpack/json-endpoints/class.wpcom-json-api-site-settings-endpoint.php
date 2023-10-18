@@ -813,7 +813,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						break;
 					}
 
-					$allowed_keys   = array( 'invitation', 'comment_follow' );
+					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome' );
 					$filtered_value = array_filter(
 						$value,
 						function ( $key ) use ( $allowed_keys ) {
