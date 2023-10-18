@@ -103,6 +103,11 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds My Home menu.
 	 */
 	public function add_my_home_menu() {
+
+		if ( self::DEFAULT_VIEW !== $this->get_preferred_view( 'index.php' ) ) {
+			return;
+		}
+
 		$this->update_menu( 'index.php', 'https://wordpress.com/home/' . $this->domain, __( 'My Home', 'jetpack' ), 'read', 'dashicons-admin-home' );
 	}
 
@@ -299,6 +304,9 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds Plugins menu.
 	 */
 	public function add_plugins_menu() {
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
+			return;
+		}
 		$this->hide_submenu_page( 'plugins.php', 'plugin-install.php' );
 		$this->hide_submenu_page( 'plugins.php', 'plugin-editor.php' );
 
@@ -349,7 +357,9 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function add_options_menu() {
 		$submenus_to_update = array();
 
-		$this->hide_submenu_page( 'options-general.php', 'sharing' );
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-general.php' ) ) {
+			$this->hide_submenu_page( 'options-general.php', 'sharing' );
+		}
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-general.php' ) ) {
 			$submenus_to_update['options-general.php'] = 'https://wordpress.com/settings/general/' . $this->domain;
@@ -390,10 +400,12 @@ class Admin_Menu extends Base_Admin_Menu {
 		add_submenu_page( 'jetpack', esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 2 );
 		add_submenu_page( 'jetpack', esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 3 );
 
-		$this->hide_submenu_page( 'jetpack', 'jetpack#/settings' );
-		$this->hide_submenu_page( 'jetpack', 'stats' );
-		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
-		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'jetpack' ) ) {
+			$this->hide_submenu_page( 'jetpack', 'jetpack#/settings' );
+			$this->hide_submenu_page( 'jetpack', 'stats' );
+			$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+			$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
+		}
 
 		if ( ! $is_menu_updated ) {
 			// Remove the submenu auto-created by Core just to be sure that there no issues on non-admin roles.

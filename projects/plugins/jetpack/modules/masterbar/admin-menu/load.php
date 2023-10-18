@@ -26,7 +26,6 @@ function should_customize_nav( $admin_menu_class ) {
 	$is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || isset( $_SERVER['REQUEST_URI'] ) && 0 === strpos( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
 
 	// No nav customizations on WP Admin of Atomic sites when SSO is disabled.
-
 	if ( is_a( $admin_menu_class, Atomic_Admin_Menu::class, true ) && ! $is_api_request && ! \Jetpack::is_module_active( 'sso' ) ) {
 		return false;
 	}
@@ -58,14 +57,7 @@ function get_admin_menu_class() {
 		}
 
 		require_once __DIR__ . '/class-atomic-admin-menu.php';
-		require_once __DIR__ . '/class-atomic-admin-menu-wpadmin.php';
-
-		// Check if the calypso or wp-admin interface is set in the wpcom_admin_interface option.
-		// This option can be either calypso or wp-admin and the modifications made to the admin menu
-		// depend on the value of this option.
-		return get_option( 'wpcom_admin_interface', 'calypso' ) === 'calypso'
-			? Atomic_Admin_Menu_WPAdmin::class // wip
-			: Atomic_Admin_Menu_WPAdmin::class;
+		return Atomic_Admin_Menu::class;
 	}
 
 	// WordPress.com Simple sites.
