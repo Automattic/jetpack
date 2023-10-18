@@ -222,7 +222,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					$selected_rate_id = $selected_options[ $package_id ];
 					$method_key_id    = sanitize_text_field( str_replace( ':', '_', $selected_rate_id ) );
 					$option_name      = 'woocommerce_' . $method_key_id . '_settings';
-					$title            = get_option( $option_name, true )['title'];
+					$option_value     = get_option( $option_name );
+					$title            = '';
+					if ( is_array( $option_value ) && isset( $option_value['title'] ) ) {
+						$title = $option_value['title'];
+					}
 					if ( ! $title ) {
 						return $selected_rate_id;
 					}
