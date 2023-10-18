@@ -212,21 +212,13 @@ module.exports = [
 								return metadata;
 							}
 
-							let scriptName = 'editor';
-
-							if ( presetIndex.beta.includes( name ) ) {
-								scriptName += '-beta';
-							} else if ( presetIndex.experimental.includes( name ) ) {
-								scriptName += '-experimental';
-							}
-
 							// `editorScript` is required for block.json to be valid and WordPress.org to be able
 							// to parse it before building the page at https://wordpress.org/plugins/jetpack/.
 							// Don't add other scripts or styles while block assets are still enqueued manually
 							// in the backend.
 							const result = {
 								...metadata,
-								editorScript: `file:../${ scriptName }.js`,
+								editorScript: `jetpack-blocks-editor`,
 							};
 
 							return JSON.stringify( result, null, 4 );

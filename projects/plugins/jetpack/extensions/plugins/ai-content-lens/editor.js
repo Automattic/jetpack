@@ -13,7 +13,7 @@ import { aiExcerptPluginName, aiExcerptPluginSettings } from '.';
 export const AI_CONTENT_LENS = 'ai-content-lens';
 
 const isAiAssistantSupportExtensionEnabled =
-	window?.Jetpack_Editor_Initial_State.available_blocks[ 'ai-content-lens' ];
+	window?.Jetpack_Editor_Initial_State?.available_blocks[ 'ai-content-lens' ];
 
 /**
  * Extend the editor with AI Content Lens features,

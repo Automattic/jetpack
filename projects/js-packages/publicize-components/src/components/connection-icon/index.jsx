@@ -48,7 +48,6 @@ const ConnectionIcon = props => {
 				alt={ label }
 				serviceName={ getServiceName() }
 				className="jetpack-publicize-gutenberg-social-icon"
-				invert={ 'tumblr' === serviceName }
 			/>
 		</div>
 	);

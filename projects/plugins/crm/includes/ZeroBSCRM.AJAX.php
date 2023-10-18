@@ -749,7 +749,7 @@ function ZeroBSCRM_get_quote_template() {
 
 			// retrieve basics over above
 			if ( isset( $_POST['quote_fields']['zbscq_title'] ) && ! empty( $_POST['quote_fields']['zbscq_title'] ) ) {
-				$quote_title = sanitize_text_field( $_POST['quote_fields']['zbscq_title'] );
+				$quote_title = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_title'] ) );
 			}
 			if ( isset( $_POST['quote_fields']['zbscq_value'] ) && ! empty( $_POST['quote_fields']['zbscq_value'] ) ) {
 				$quote_val = sanitize_text_field( $_POST['quote_fields']['zbscq_value'] );
