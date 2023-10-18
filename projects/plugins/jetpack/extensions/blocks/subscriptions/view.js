@@ -40,7 +40,7 @@ function show_iframe( data ) {
 }
 
 domReady( function () {
-	const link = document.querySelector( '#retrieve_subscriptions_link' );
+	const link = document.querySelector( '#jp_retrieve_subscriptions_link' );
 	if ( link ) {
 		link.addEventListener( 'click', function ( event ) {
 			event.preventDefault();

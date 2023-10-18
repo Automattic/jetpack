@@ -1073,29 +1073,26 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		? __( 'Already a paid subscriber?', 'jetpack' )
 		: __( 'Already a subscriber?', 'jetpack' );
 
-	$sign_in             = '';
-	$show_button_sign_in = false;
-	$host                = new Host();
+	$sign_in = '';
+	$host    = new Host();
 	if ( ! is_user_logged_in() && $host->is_wpcom_simple() ) {
-		$id                  = '';
-		$show_button_sign_in = true;
-		$sign_in_link        = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
-		$button_text         = esc_html__( 'Log in', 'jetpack' );
+		$id           = '';
+		$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
+		$button_text  = esc_html__( 'Log in', 'jetpack' );
 	} elseif ( class_exists( 'Automattic\Jetpack\Connection\Tokens\Jetpack_Token_Subscription_Service' ) &&
-		! $host->is_wpcom_platform() ) {
+		! $host->is_wpcom_simple() ) {
 		// We are on Jetpack and no cookie is set
-		$show_button_sign_in = true;
-		$id                  = 'retrieve_subscriptions_link';
-		$sign_in_link        = 'javascript:show_iframe_retrieve_subscriptions_from_email()';
-		$access_question     = __( 'I am already subscribed.', 'jetpack' );
+		$id              = 'jp_retrieve_subscriptions_link';
+		$sign_in_link    = '#'; // listening to "click" event in view.js
+		$access_question = __( 'I am already subscribed.', 'jetpack' );
 		if ( ! Jetpack_Token_Subscription_Service::has_token_from_cookie() ) {
 			$button_text = esc_html__( 'Retrieve subscriptions', 'jetpack' );
 		} else {
-			$button_text = esc_html__( 'Change user ', 'jetpack' );
+			$button_text = esc_html__( 'Switch accounts', 'jetpack' );
 		}
 	}
 
-	if ( $show_button_sign_in ) {
+	if ( ! empty( $sign_in_link ) ) {
 		$sign_in = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
 <p class="has-text-align-center" style="font-size:14px">' . esc_html( $access_question ) . ' <a id="' . $id . '" href="' . $sign_in_link . '">' . $button_text . '</a></p>
 <!-- /wp:paragraph -->';
