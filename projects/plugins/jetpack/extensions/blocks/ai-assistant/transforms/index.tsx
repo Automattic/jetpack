@@ -2,22 +2,20 @@
  * External dependencies
  */
 import { createBlock, getSaveContent } from '@wordpress/blocks';
-import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
 import { blockName } from '..';
 import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assistant';
 import { areBackendPromptsEnabled } from '../lib/prompt';
+import turndownService from '../lib/turndown';
 /**
  * Types
  */
 import type { ExtendedBlockProp } from '../extensions/ai-assistant';
 import type { PromptItemProps } from '../lib/prompt';
 
-const turndownService = new TurndownService( { emDelimiter: '_', headingStyle: 'atx' } );
-
-const from = [];
+const from: unknown[] = [];
 
 /**
  * Return an AI Assistant block instance from a given block type.
