@@ -1,4 +1,4 @@
-import { setJetpackModules } from './actions';
+import { setJetpackModules, fetchModules } from './actions';
 import { fetchJetpackModules } from './controls';
 
 /**
@@ -24,7 +24,7 @@ export function* getJetpackModules() {
  * @returns {object} - an action object.
  */
 export function isModuleActive() {
-	return getJetpackModules();
+	return fetchModules();
 }
 
 export default { getJetpackModules, isModuleActive };
