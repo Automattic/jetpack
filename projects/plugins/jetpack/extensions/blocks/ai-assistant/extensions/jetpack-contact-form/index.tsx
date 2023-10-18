@@ -233,4 +233,3 @@ addFilter(
 	'jetpack/ai-assistant-support',
 	jetpackFormChildrenEditWithAiSupport
 );
-
