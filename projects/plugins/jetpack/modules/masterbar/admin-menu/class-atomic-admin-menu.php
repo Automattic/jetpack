@@ -94,6 +94,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @return string
 	 */
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
+
+		// The preferred view will always be wp-admin (classic view) when the wpcom_admin_interface option is set to 'wp-admin'.
+		if ( $this->use_wp_admin_interface( $screen ) ) {
+			return self::CLASSIC_VIEW;
+		}
+
 		// Export on Atomic sites are always managed on WP Admin.
 		if ( in_array( $screen, array( 'export.php' ), true ) ) {
 			return self::CLASSIC_VIEW;
@@ -123,6 +129,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds Plugins menu.
 	 */
 	public function add_plugins_menu() {
+
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
+			return;
+		}
+
 		global $submenu;
 
 		// Calypso plugins screens link.
@@ -301,6 +312,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
+
+		if ( $this->use_wp_admin_interface( 'jetpack' ) ) {
+			return;
+		}
+
 		$menu_title = __( 'Stats', 'jetpack' );
 
 		if (
@@ -443,5 +459,33 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$jitm->dismiss( sanitize_text_field( wp_unslash( $_REQUEST['id'] ) ), sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) ) );
 		}
 		wp_die();
+	}
+
+	/**
+	 * Whether the current user has indicated they want to use the wp-admin interface.
+	 *
+	 * @param string $screen The current screen.
+	 * @return bool
+	 */
+	public function use_wp_admin_interface( $screen ) {
+		$screen_excluded = $this->is_excluded_wp_admin_interface_screen( $screen );
+		return ! $screen_excluded && 'wp-admin' === get_option( 'wpcom_admin_interface' );
+	}
+
+	/**
+	 * Returns whether we should default to wp_admin for the given screen.
+	 *
+	 * Screens that should not default to wp_admin when the wpcom_admin_interface is set.
+	 * This applies to screens that have both a wp-admin and a Calypso interface.
+	 *
+	 * @param string $screen The current screen.
+	 *
+	 * @return bool
+	 */
+	protected function is_excluded_wp_admin_interface_screen( $screen ) {
+		$excluded_screens = array(
+			'import.php',
+		);
+		return in_array( $screen, $excluded_screens, true );
 	}
 }

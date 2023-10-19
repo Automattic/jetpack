@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Extension: use registerBlockType to connect components with AI Data and UI Handler
