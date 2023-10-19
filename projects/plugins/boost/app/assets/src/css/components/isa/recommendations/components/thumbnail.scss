@@ -1,0 +1,11 @@
+.jb-thumbnail__image {
+	display: block;
+	border-radius: 3px;
+}
+
+.jb-thumbnail__placeholder {
+	width: var(--thumbnail-size);
+	height: var(--thumbnail-size);
+	background-color: var(--gray-5);
+	border-radius: 3px;
+}
