@@ -102,7 +102,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 				true
 			);
 			$subscriptions      = (array) $payload['subscriptions'];
-			$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
+			$is_paid_subscriber = static::validate_subscriptions( $valid_plan_ids, $subscriptions );
 		}
 
 		$has_access = $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID(), $subscriptions );
