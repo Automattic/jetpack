@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix unsetting `'sub_path'` in `Dashboard_REST_Controller`.
