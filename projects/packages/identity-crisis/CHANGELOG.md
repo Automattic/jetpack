@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2023-10-17
+### Changed
+- Updated package dependencies. [#33646]
+
+### Fixed
+- Added search and replace protection for wpcom urls stored in the database. [#33412]
+
 ## [0.10.7] - 2023-10-16
 ### Changed
 - Updated package dependencies. [#33429]
@@ -421,6 +428,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Connection/Urls for home_url and site_url functions migrated from Sync.
 
+[0.11.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.7...v0.11.0
 [0.10.7]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.6...v0.10.7
 [0.10.6]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.5...v0.10.6
 [0.10.5]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.4...v0.10.5

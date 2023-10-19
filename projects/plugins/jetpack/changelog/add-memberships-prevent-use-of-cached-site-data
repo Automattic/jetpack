@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+[Memberships] Prevent data to be retrieved from cache sites on WPCOM

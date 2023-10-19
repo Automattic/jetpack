@@ -85,6 +85,28 @@ class Dashboard_REST_Controller {
 			)
 		);
 
+		// WordAds DSP API media query routes
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%1$d/wordads/dsp/api/v1/wpcom/sites/%1$d/media(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dsp_media' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
+		// WordAds DSP API media openverse query routes
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%1$d/wordads/dsp/api/v1/wpcom/media(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dsp_openverse' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
 		// WordAds DSP API Experiment route
 		register_rest_route(
 			static::$namespace,
@@ -327,6 +349,30 @@ class Dashboard_REST_Controller {
 		}
 
 		return $this->get_dsp_generic( sprintf( 'v1/wpcom/sites/%d/blaze/posts', $site_id ), $req );
+	}
+
+	/**
+	 * Redirect GET requests to WordAds DSP Blaze media endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_media( $req ) {
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+		return $this->get_dsp_generic( sprintf( 'v1/wpcom/sites/%d/media', $site_id ), $req );
+	}
+
+	/**
+	 * Redirect GET requests to WordAds DSP Blaze openverse endpoint.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_openverse( $req ) {
+		return $this->get_dsp_generic( 'v1/wpcom/media', $req );
 	}
 
 	/**
