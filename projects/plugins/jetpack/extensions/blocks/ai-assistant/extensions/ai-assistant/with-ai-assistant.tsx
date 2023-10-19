@@ -25,6 +25,12 @@ export function getStoreBlockId( clientId ) {
 	return `ai-assistant-block-${ clientId }`;
 }
 
+function getBlocksContent( blocks ) {
+	return blocks
+		.filter( block => block != null ) // Safeguard against null or undefined blocks
+		.map( block => getBlockTextContent( block.clientId ) )
+		.join( '\n\n' );
+}
 /*
  * Extend the withAIAssistant function of the block
  * to implement multiple blocks edition
@@ -48,10 +54,7 @@ export const withAIAssistant = createHigherOrderComponent(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
 				const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
 				const blocks = select( 'core/block-editor' ).getBlocksByClientId( clientIds );
-				const content = blocks
-					.filter( block => block != null ) // Safeguard against null or undefined blocks
-					.map( block => getBlockTextContent( block.clientId ) )
-					.join( '\n\n' );
+				const content = getBlocksContent( blocks );
 
 				const [ firstBlock ] = blocks;
 				const [ firstClientId, ...otherBlocksIds ] = clientIds;
@@ -113,10 +116,7 @@ export const withAIAssistant = createHigherOrderComponent(
 		const replaceWithAiAssistantBlock = useCallback( () => {
 			const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
 			const blocks = select( 'core/block-editor' ).getBlocksByClientId( clientIds );
-			const content = blocks
-				.filter( block => block != null ) // Safeguard against null or undefined blocks
-				.map( block => getBlockTextContent( block.clientId ) )
-				.join( '\n\n' );
+			const content = getBlocksContent( blocks );
 
 			const [ firstClientId, ...otherBlocksIds ] = clientIds;
 			const [ firstBlock ] = blocks;
