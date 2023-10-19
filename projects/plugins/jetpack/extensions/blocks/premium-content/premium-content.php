@@ -16,8 +16,6 @@ require_once __DIR__ . '/subscriber-view/subscriber-view.php';
 require_once __DIR__ . '/buttons/buttons.php';
 require_once __DIR__ . '/login-button/login-button.php';
 
-const FEATURE_NAME = 'premium-content/container';
-
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -29,15 +27,9 @@ function register_block() {
 	$provides   = $deprecated ? 'providesContext' : 'provides_context';
 
 	Blocks::jetpack_register_block(
-		FEATURE_NAME,
+		__DIR__,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
-			'attributes'      => array(
-				'isPremiumContentChild' => array(
-					'type'    => 'boolean',
-					'default' => true,
-				),
-			),
 			$provides         => array(
 				'premium-content/planId' => 'selectedPlanId',
 				'isPremiumContentChild'  => 'isPremiumContentChild',
