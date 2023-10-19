@@ -430,6 +430,14 @@ class Jetpack_Subscriptions {
 			'reading',
 			'email_settings'
 		);
+
+		add_settings_field(
+			'welcome',
+			__( 'Welcome email text', 'jetpack' ),
+			array( $this, 'setting_welcome' ),
+			'reading',
+			'email_settings'
+		);
 	}
 
 	/**
@@ -621,16 +629,43 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
+	 * HTML output helper for Welcome section.
+	 */
+	public function setting_welcome() {
+		$settings = $this->get_settings();
+		echo '<textarea name="subscription_options[welcome]" class="large-text" cols="50" rows="5">' . esc_textarea( $settings['welcome'] ) . '</textarea>';
+		echo '<p><span class="description">' . esc_html__( 'Welcome text sent when someone follows your blog.', 'jetpack' ) . '</span></p>';
+	}
+
+	/**
 	 * Get default settings for the Subscriptions module.
 	 */
 	public function get_default_settings() {
 		$site_url    = get_home_url();
 		$display_url = preg_replace( '(^https?://)', '', untrailingslashit( $site_url ) );
 
+		// TODO: Remove the locale check once the translation is ready.
+		$is_english_locale = str_starts_with( get_locale(), 'en' );
+		if ( $is_english_locale ) {
+			/* translators: %1$s is the site address */
+			$welcome = sprintf( __( 'Cool, you are now subscribed to %1$s and will receive an email notification when a new post is published.', 'jetpack' ), $display_url );
+		} else {
+			$welcome = sprintf(
+				str_replace(
+					'<a href="%1$s" data-tracks-link-desc="site-url">%2$s</a>',
+					'%1$s',
+					/* translators: Both %1$s and %2$s is site address */
+					__( 'Cool, you are now subscribed to <a href="%1$s" data-tracks-link-desc="site-url">%2$s</a> and will receive an email notification when a new post is published.', 'jetpack' )
+				),
+				$display_url
+			);
+		}
+
 		return array(
 			/* translators: Both %1$s and %2$s is site address */
 			'invitation'     => sprintf( __( "Howdy,\nYou recently subscribed to <a href='%1\$s'>%2\$s</a> and we need to verify the email you provided. Once you confirm below, you'll be able to receive and read new posts.\n\nIf you believe this is an error, ignore this message and nothing more will happen.", 'jetpack' ), $site_url, $display_url ),
 			'comment_follow' => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again.", 'jetpack' ),
+			'welcome'        => $welcome,
 		);
 	}
 
