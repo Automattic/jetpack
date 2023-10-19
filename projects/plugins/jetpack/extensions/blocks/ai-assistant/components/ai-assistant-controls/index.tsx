@@ -9,6 +9,8 @@ import {
 	ToolbarButton,
 	Dropdown,
 } from '@wordpress/components';
+import { select, useDispatch } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription } from '@wordpress/icons';
 import classNames from 'classnames';
@@ -16,6 +18,8 @@ import React from 'react';
 /**
  * Internal dependencies
  */
+import { ExtendedBlockProp } from '../../extensions/ai-assistant';
+import { getBlocksContent } from '../../extensions/ai-assistant/with-ai-assistant';
 import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
@@ -24,6 +28,7 @@ import {
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 } from '../../lib/prompt';
+import { transformToAIAssistantBlock } from '../../transforms';
 import { I18nMenuDropdown } from '../i18n-dropdown-control';
 import { ToneDropdownMenu } from '../tone-dropdown-control';
 import './style.scss';
@@ -96,6 +101,11 @@ type AiAssistantControlComponentProps = {
 	key?: AiAssistantKeyProp | string;
 
 	/*
+	 * The block type. Required.
+	 */
+	blockType: ExtendedBlockProp;
+
+	/*
 	 * The label to use for the dropdown. Optional.
 	 */
 	label?: string;
@@ -116,24 +126,45 @@ type AiAssistantControlComponentProps = {
 	disabled?: boolean;
 
 	onChange: ( item: PromptTypeProp, options?: AiAssistantDropdownOnChangeOptionsArgProps ) => void;
-
-	onReplace: () => void;
 };
 
 export default function AiAssistantDropdown( {
 	key,
 	label,
+	blockType,
 	exclude = [],
 	requestingState,
 	disabled,
 	onChange,
-	onReplace,
 }: AiAssistantControlComponentProps ) {
 	const quickActionsListFiltered = quickActionsList.filter(
 		quickAction => ! exclude.includes( quickAction.key )
 	);
 	const toolbarLabel =
 		requestingState === 'suggesting' ? null : label || __( 'AI Assistant', 'jetpack' );
+
+	const { removeBlocks, replaceBlock } = useDispatch( 'core/block-editor' );
+
+	const replaceWithAiAssistantBlock = useCallback( () => {
+		const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
+		const blocks = select( 'core/block-editor' ).getBlocksByClientId( clientIds );
+		const content = getBlocksContent( blocks );
+
+		const [ firstClientId, ...otherBlocksIds ] = clientIds;
+		const [ firstBlock ] = blocks;
+
+		const extendedBlockAttributes = {
+			...( firstBlock?.attributes || {} ), // firstBlock.attributes should never be undefined, but still add a fallback
+			content,
+		};
+
+		replaceBlock(
+			firstClientId,
+			transformToAIAssistantBlock( blockType, extendedBlockAttributes )
+		);
+
+		removeBlocks( otherBlocksIds );
+	}, [ blockType, replaceBlock, removeBlocks ] );
 
 	return (
 		<Dropdown
@@ -163,7 +194,7 @@ export default function AiAssistantDropdown( {
 							icon={ aiAssistantIcon }
 							iconPosition="left"
 							key="key-ai-assistant"
-							onClick={ onReplace }
+							onClick={ replaceWithAiAssistantBlock }
 							isSelected={ key === 'key-ai-assistant' }
 						>
 							<div className="jetpack-ai-assistant__menu-item">
