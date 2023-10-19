@@ -51,17 +51,3 @@
 		</div>
 	</svelte:fragment>
 </TableRow>
-
-<style lang="scss">
-	.jb-table-row__thumbnail {
-		border-radius: 10px;
-		border: 3px solid #999;
-		color: #666;
-		text-align: center;
-		aspect-ratio: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 80%;
-	}
-</style>
