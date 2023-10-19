@@ -58,10 +58,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const { tracks } = useAnalytics();
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
-	const getBlock = useSelect(
-		select => () => select( 'core/block-editor' ).getBlock( clientId ),
-		[ clientId ]
-	);
+	const { getBlock } = useSelect( 'core/block-editor' );
 
 	const aiControlRef = useRef( null );
 	const blockRef = useRef( null );
