@@ -25,7 +25,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		self::$woo_enabled = true;
 
-		$woo_tests_dir = JETPACK_WOOCOMMERCE_INSTALL_DIR;
+		$woo_tests_dir = __DIR__ . '/../../../../woocommerce/tests';
 
 		if ( ! file_exists( $woo_tests_dir ) ) {
 			error_log( 'PLEASE RUN THE GIT VERSION OF WooCommerce that has the tests folder. Found at github.com/WooCommerce/woocommerce' );
