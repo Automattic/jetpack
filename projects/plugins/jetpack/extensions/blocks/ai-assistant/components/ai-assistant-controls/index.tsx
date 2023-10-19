@@ -150,65 +150,66 @@ export default function AiAssistantDropdown( {
 
 	const { tracks } = useAnalytics();
 
-	const requestSuggestion = useCallback(
-		( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-			const clientIds = getSelectedBlockClientIds();
-			const blocks = getBlocksByClientId( clientIds );
-			const content = getBlocksContent( blocks );
+	const requestSuggestion = (
+		promptType: PromptTypeProp,
+		options: AiAssistantDropdownOnChangeOptionsArgProps
+	) => {
+		const clientIds = getSelectedBlockClientIds();
+		const blocks = getBlocksByClientId( clientIds );
+		const content = getBlocksContent( blocks );
 
-			const [ firstBlock ] = blocks;
-			const [ firstClientId, ...otherBlocksIds ] = clientIds;
+		const [ firstBlock ] = blocks;
+		const [ firstClientId, ...otherBlocksIds ] = clientIds;
 
-			const extendedBlockAttributes = {
-				...( firstBlock?.attributes || {} ), // firstBlock.attributes should never be undefined, but still add a fallback
-				content,
-			};
+		const extendedBlockAttributes = {
+			...( firstBlock?.attributes || {} ), // firstBlock.attributes should never be undefined, but still add a fallback
+			content,
+		};
 
-			const newAIAssistantBlock = transformToAIAssistantBlock( blockType, extendedBlockAttributes );
+		const newAIAssistantBlock = transformToAIAssistantBlock( blockType, extendedBlockAttributes );
 
-			/*
-			 * Store in the local storage the client id
-			 * of the block that need to auto-trigger the AI Assistant request.
-			 * @todo: find a better way to update the content,
-			 * probably using a new store triggering an action.
-			 */
+		/*
+		 * Store in the local storage the client id
+		 * of the block that need to auto-trigger the AI Assistant request.
+		 * @todo: find a better way to update the content,
+		 * probably using a new store triggering an action.
+		 */
 
-			// Storage client Id, prompt type, and options.
-			const storeObject = {
-				clientId: firstClientId,
-				type: promptType,
-				options: { ...options, contentType: 'generated', fromExtension: true }, // When converted, the original content must be treated as generated
-			};
+		// Storage client Id, prompt type, and options.
+		const storeObject = {
+			clientId: firstClientId,
+			type: promptType,
+			options: { ...options, contentType: 'generated', fromExtension: true }, // When converted, the original content must be treated as generated
+		};
 
-			localStorage.setItem(
-				getStoreBlockId( newAIAssistantBlock.clientId ),
-				JSON.stringify( storeObject )
-			);
+		localStorage.setItem(
+			getStoreBlockId( newAIAssistantBlock.clientId ),
+			JSON.stringify( storeObject )
+		);
 
-			/*
-			 * Replace the first block with the new AI Assistant block instance.
-			 * This block contains the original content,
-			 * even for multiple blocks selection.
-			 */
-			replaceBlock( firstClientId, newAIAssistantBlock );
+		/*
+		 * Replace the first block with the new AI Assistant block instance.
+		 * This block contains the original content,
+		 * even for multiple blocks selection.
+		 */
+		replaceBlock( firstClientId, newAIAssistantBlock );
 
-			// It removes the rest of the blocks in case there are more than one.
-			removeBlocks( otherBlocksIds );
-		},
-		[ getSelectedBlockClientIds, getBlocksByClientId, blockType, replaceBlock, removeBlocks ]
-	);
+		// It removes the rest of the blocks in case there are more than one.
+		removeBlocks( otherBlocksIds );
+	};
 
-	const onChange = useCallback(
-		( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps = {} ) => {
-			tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
-				suggestion: promptType,
-				block_type: blockType,
-			} );
+	const onChange = (
+		promptType: PromptTypeProp,
+		options: AiAssistantDropdownOnChangeOptionsArgProps = {}
+	) => {
+		tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
+			suggestion: promptType,
+			block_type: blockType,
+		} );
 
-			requestSuggestion( promptType, options );
-		},
-		[ tracks, requestSuggestion, blockType ]
-	);
+		requestSuggestion( promptType, options );
+	};
+
 	const replaceWithAiAssistantBlock = useCallback( () => {
 		const clientIds = getSelectedBlockClientIds();
 		const blocks = getBlocksByClientId( clientIds );
