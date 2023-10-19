@@ -33,7 +33,6 @@ export const withAIAssistant = createHigherOrderComponent(
 	BlockEdit => props => {
 		const { name: blockType } = props;
 		const { removeBlocks, replaceBlock } = useDispatch( 'core/block-editor' );
-		// const { content, clientIds, blocks } = useTextContentFromSelectedBlocks();
 		const { tracks } = useAnalytics();
 
 		/*
