@@ -70,7 +70,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		require_once $woo_tests_dir . '/php/helpers/HPOSToggleTrait.php';
 
 		// require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/deprecated/ActionScheduler_Store_Deprecated.php';
-		// require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/classes/abstracts/ActionScheduler_Store.php';
+		require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/classes/abstracts/ActionScheduler_Store.php';
 		// require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/classes/abstracts/ActionScheduler.php';
 		// require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/functions.php';
 
