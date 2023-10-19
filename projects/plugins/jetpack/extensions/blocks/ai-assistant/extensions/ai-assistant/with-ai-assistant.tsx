@@ -25,6 +25,11 @@ export const withAIAssistant = createHigherOrderComponent(
 			group: 'block',
 		};
 
+		/*
+		 * CAUTION: code added before this line will be executed for all extended blocks,
+		 * defined by the EXTENDED_BLOCKS constant in ../, not just the selected blocks.
+		 * Code added above this line should be carefully evaluated for its impact on performance.
+		 */
 		return (
 			<>
 				<BlockEdit { ...props } />
