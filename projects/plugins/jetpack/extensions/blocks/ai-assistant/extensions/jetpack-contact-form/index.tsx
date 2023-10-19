@@ -38,12 +38,12 @@ export function useIsPossibleToExtendJetpackFormBlock(
 ): boolean {
 	// Check if the AI Assistant block is registered.
 	const isBlockRegistered = getBlockType( 'jetpack/ai-assistant' );
-	const modulesSelect = useSelect(
+	const isModuleActive = useSelect(
 		selectData => selectData( JETPACK_MODULES_STORE_ID ).isModuleActive( 'contact-form' ),
 		[ JETPACK_MODULES_STORE_ID ]
 	);
 
-	if ( ! modulesSelect ) {
+	if ( ! isModuleActive ) {
 		return false;
 	}
 
