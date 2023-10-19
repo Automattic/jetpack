@@ -9,8 +9,10 @@
 	import { scoreChangeModal, ScoreChangeMessage } from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
-	import { criticalCssState, isGenerating } from '../../../stores/critical-css-state';
+	import { performanceHistoryPanelDS } from '../../../stores/data-sync-client';
+	import { dismissedAlerts } from '../../../stores/dismissed-alerts';
 	import { modulesState } from '../../../stores/modules';
+	import { dismissedScorePromptStore } from '../../../stores/prompt';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import { recordBoostEvent } from '../../../utils/analytics';
 	import { castToString } from '../../../utils/cast-to-string';
@@ -18,6 +20,11 @@
 	import PopOut from '../elements/PopOut.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
 	import History from './History.svelte';
+
+	// Flat list of which modules are active; useful for tracking changes in state.
+	export let activeModules: boolean[];
+	export let criticalCssCreated: number;
+	export let criticalCssIsGenerating: boolean;
 
 	const siteIsOnline = Jetpack_Boost.site.online;
 
@@ -39,23 +46,15 @@
 	// Load the speed score. Will be cached in the plugin.
 	loadScore();
 
-	// Flat list of which modules are active; useful for tracking changes in state.
-	$: activeModules = Object.entries( $modulesState ).reduce( ( acc, [ key, value ] ) => {
-		if ( key !== 'image_guide' && key !== 'image_size_analysis' ) {
-			acc.push( value.active );
-		}
-		return acc;
-	}, [] );
-
 	// Keep a string describing the settings that may affect the score. We'll use it to
 	// work out when we need a new speed score.
-	$: currentScoreConfigString = JSON.stringify( [ activeModules, $criticalCssState.created ] );
+	$: currentScoreConfigString = JSON.stringify( [ activeModules, criticalCssCreated ] );
 
 	// State we had the last time we requested a speed score -- or when the page first loaded.
 	$: lastSpeedScoreConfigString = lastSpeedScoreConfigString ?? currentScoreConfigString;
 
 	// Any time the config changes, set a debounced refresh request (provided we're not already generating)
-	$: if ( currentScoreConfigString !== lastSpeedScoreConfigString && ! $isGenerating ) {
+	$: if ( currentScoreConfigString !== lastSpeedScoreConfigString && ! criticalCssIsGenerating ) {
 		debouncedRefreshScore();
 	}
 
@@ -103,10 +102,32 @@
 
 	let modalData: ScoreChangeMessage | null = null;
 	$: modalData = ! isLoading && ! scores.isStale && scoreChangeModal( scores );
+	$: showModal =
+		modalData &&
+		$dismissedScorePromptStore &&
+		! $dismissedScorePromptStore.includes( modalData.id );
 
 	function dismissModal() {
 		modalData = null;
 	}
+
+	async function disableModal( id ) {
+		$dismissedScorePromptStore = [ ...$dismissedScorePromptStore, id ];
+		dismissModal();
+	}
+
+	const panelStore = performanceHistoryPanelDS.store;
+	function onTogglePerformanceHistory( status ) {
+		$panelStore = status;
+	}
+
+	const onPerformanceHistoryDismissFreshStart = () => {
+		$dismissedAlerts.performance_history_fresh_start = true;
+	};
+
+	$: performanceHistoryNeedsUpgrade = $modulesState.performance_history.available === false;
+	$: performanceHistoryIsOpen = $panelStore;
+	$: performanceHistoryIsFreshStart = $dismissedAlerts.performance_history_fresh_start !== true;
 </script>
 
 <div class="jb-container">
@@ -182,15 +203,21 @@
 		/>
 	</div>
 	{#if siteIsOnline}
-		<History />
+		<History
+			isOpen={performanceHistoryIsOpen}
+			needsUpgrade={performanceHistoryNeedsUpgrade}
+			onToggle={onTogglePerformanceHistory}
+			onDismissFreshStart={onPerformanceHistoryDismissFreshStart}
+			isFreshStart={performanceHistoryIsFreshStart}
+		/>
 	{/if}
 </div>
 
-{#if modalData}
+{#if showModal}
 	<PopOut
-		id={modalData.id}
 		title={modalData.title}
 		on:dismiss={() => dismissModal()}
+		on:disable-modal={() => disableModal( modalData.id )}
 		message={modalData.message}
 		ctaLink={modalData.ctaLink}
 		cta={modalData.cta}

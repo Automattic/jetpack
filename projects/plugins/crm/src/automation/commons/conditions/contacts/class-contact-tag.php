@@ -10,19 +10,21 @@ namespace Automattic\Jetpack\CRM\Automation\Conditions;
 use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+use Automattic\Jetpack\CRM\Entities\Contact;
 
 /**
  * Contact_Tag condition class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Contact_Tag extends Base_Condition {
 
 	/**
 	 * Contact_Tag constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data The step data.
 	 */
@@ -46,17 +48,14 @@ class Contact_Tag extends Base_Condition {
 	/**
 	 * Checks if a given tag name exists in the tags array.
 	 *
-	 * @param array  $data     The data array containing the 'tags' key.
-	 * @param string $tag_name The name of the tag to check for.
+	 * @param Contact $contact The contact containing the 'tags' key.
+	 * @param string  $tag_name The name of the tag to check for.
 	 *
 	 * @return bool True if the tag name exists, false otherwise.
 	 */
-	private function has_tag_by_name( $data, $tag_name ) {
-		if ( ! isset( $data['tags'] ) || ! is_array( $data['tags'] ) ) {
-			return false;
-		}
+	private function has_tag_by_name( Contact $contact, string $tag_name ) {
 
-		foreach ( $data['tags'] as $tag ) {
+		foreach ( $contact->tags as $tag ) {
 			if ( isset( $tag['name'] ) && $tag['name'] === $tag_name ) {
 					return true;
 			}
@@ -66,82 +65,60 @@ class Contact_Tag extends Base_Condition {
 	}
 
 	/**
-	 * Check for valid parameters.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $operator The operator.
-	 * @param mixed  $data The data to validate.
-	 * @param mixed  $previous_data The previous data to validate.
-	 * @return bool True if parameters are valid, false otherwise.
-	 */
-	private function check_for_valid_parameters( $operator, $data, $previous_data ) {
-		switch ( $operator ) {
-			case 'tag_added':
-			case 'tag_removed':
-				if ( $previous_data === null || ! $this->is_valid_contact_tag_data( $data ) || ! $this->is_valid_contact_tag_data( $previous_data ) ) {
-					$this->logger->log( 'Invalid contact tag data' );
-
-					return false;
-				}
-				break;
-			case 'has_tag':
-				if ( ! $this->is_valid_contact_tag_data( $data ) ) {
-					$this->logger->log( 'Invalid contact tag data' );
-					$this->condition_met = false;
-
-					return false;
-				}
-				break;
-			default:
-				$this->logger->log( 'Unknown operator: ' . $operator );
-				return false;
-		}
-
-		return true;
-	}
-
-	/**
 	 * Executes the condition. If the condition is met, the value stored in the
 	 * attribute $condition_met is set to true; otherwise, it is set to false.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
-	 * @param mixed  $data Data passed from the trigger.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 * @param Data_Type $data Data passed from the trigger.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	protected function execute( Data_Type $data ) {
+
+		/** @var Contact $contact */
+		$contact = $data->get_data();
+
 		$operator = $this->get_attributes()['operator'];
 		$tag      = $this->get_attributes()['tag'];
 
 		$this->check_for_valid_operator( $operator );
 
-		if ( ! $this->check_for_valid_parameters( $operator, $data, $previous_data ) ) {
-			$this->condition_met = false;
-			return;
-		}
+		$previous_data = $data->get_previous_data();
 
 		$this->logger->log( 'Condition: Contact_Tag ' . $operator . ' => ' . $tag );
 
 		switch ( $operator ) {
 			case 'tag_added':
-				$this->condition_met = ( ! $this->has_tag_by_name( $previous_data, $tag ) && $this->has_tag_by_name( $data, $tag ) );
-				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
+				if ( ! $previous_data instanceof Contact ) {
+					$this->condition_met = false;
+					$this->logger->log( 'Condition met?: false' );
 
+					return;
+				}
+
+				$this->condition_met = ( ! $this->has_tag_by_name( $previous_data, $tag ) && $this->has_tag_by_name( $contact, $tag ) );
+				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				return;
+
 			case 'tag_removed':
-				$this->condition_met = ( $this->has_tag_by_name( $previous_data, $tag ) && ! $this->has_tag_by_name( $data, $tag ) );
-				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
+				if ( ! $previous_data instanceof Contact ) {
+					$this->condition_met = false;
+					$this->logger->log( 'Condition met?: false' );
 
+					return;
+				}
+
+				$this->condition_met = ( $this->has_tag_by_name( $previous_data, $tag ) && ! $this->has_tag_by_name( $contact, $tag ) );
+				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				return;
+
 			case 'has_tag':
-				$this->condition_met = $this->has_tag_by_name( $data, $tag );
+				$this->condition_met = $this->has_tag_by_name( $contact, $tag );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
-
 				return;
+
 			default:
 				$this->condition_met = false;
 				throw new Automation_Exception(
@@ -153,22 +130,9 @@ class Contact_Tag extends Base_Condition {
 	}
 
 	/**
-	 * Checks if the contact has at least the necessary keys to detect a contact
-	 * tag condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param array $data The event data.
-	 * @return bool True if the data is valid to evaluate a contact tag condition, false otherwise.
-	 */
-	private function is_valid_contact_tag_data( array $data ): bool {
-		return is_array( $data ) && isset( $data['tags'] );
-	}
-
-	/**
 	 * Get the title for the contact tag condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The title.
 	 */
@@ -179,7 +143,7 @@ class Contact_Tag extends Base_Condition {
 	/**
 	 * Get the slug for the contact tag condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug 'jpcrm/condition/contact_tag'.
 	 */
@@ -190,7 +154,7 @@ class Contact_Tag extends Base_Condition {
 	/**
 	 * Get the description for the contact tag condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The description for the condition.
 	 */
@@ -201,7 +165,7 @@ class Contact_Tag extends Base_Condition {
 	/**
 	 * Get the category of the contact tag condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The translated string for 'Contact'.
 	 */
@@ -212,25 +176,11 @@ class Contact_Tag extends Base_Condition {
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */
 	public static function get_data_type(): string {
-		return Data_Type_Contact::get_slug();
-	}
-
-	/**
-	 * Get the allowed triggers for the contact tag condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string[] An array of allowed triggers:
-	 *               - 'jpcrm/contact_updated'
-	 */
-	public static function get_allowed_triggers(): array {
-		return array(
-			'jpcrm/contact_updated',
-		);
+		return Contact_Data::class;
 	}
 }

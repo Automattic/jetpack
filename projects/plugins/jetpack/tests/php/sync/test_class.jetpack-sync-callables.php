@@ -755,6 +755,15 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		foreach ( $wp_post_types as $post_type => $post_type_object ) {
 			$post_type_object->rest_controller_class = false;
 			$post_type_object->rest_controller       = null;
+			if ( isset( $post_type_object->revisions_rest_controller_class ) ) {
+				$post_type_object->revisions_rest_controller_class = false;
+			}
+			if ( isset( $post_type_object->autosave_rest_controller_class ) ) {
+				$post_type_object->autosave_rest_controller_class = false;
+			}
+			if ( isset( $post_type_object->late_route_registration ) ) {
+				$post_type_object->late_route_registration = false;
+			}
 			if ( ! isset( $post_type_object->supports ) ) {
 				$post_type_object->supports = array();
 			}
@@ -991,7 +1000,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'rewrite',
 		);
 		foreach ( $check_object_vars as $test ) {
-			$this->assertObjectHasAttribute( $test, $taxonomy, "Taxonomy does not have expected {$test} attribute." );
+			$this->assertObjectHasProperty( $test, $taxonomy, "Taxonomy does not have expected {$test} attribute." );
 		}
 	}
 

@@ -13,9 +13,13 @@
 		}
 	}
 
-	.components-placeholder__instructions .components-external-link {
-		display: inline-block;
-		margin: 1em auto;
+	.components-placeholder__instructions {
+		margin-top: 0;
+
+		.components-external-link {
+			display: inline-block;
+			margin: 1em auto;
+		}
 	}
 }
 

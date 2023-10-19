@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/simple-payments",
 	"title": "Pay with PayPal",
-	"description": "Lets you add credit and debit card payment buttons with minimal setup. Good for collecting donations or payments for products and services.",
+	"description": "Add credit and debit card payment buttons with minimal setup. Good for collecting donations or payments for products and services.",
 	"keywords": [
 		"buy",
 		"commerce",

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Check for post access first then do tracking action.

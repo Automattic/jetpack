@@ -2,6 +2,7 @@
  * External dependencies
  */
 import restApi from '@automattic/jetpack-api';
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 /**
@@ -13,7 +14,9 @@ import {
 	REST_API_SITE_PRODUCTS_ENDPOINT,
 	REST_API_CHAT_AVAILABILITY_ENDPOINT,
 	REST_API_CHAT_AUTHENTICATION_ENDPOINT,
+	REST_API_SITE_PRODUCT_DATA_ENDPOINT,
 	PRODUCTS_THAT_NEEDS_INITIAL_FETCH,
+	getStatsHighlightsEndpoint,
 } from './constants';
 import resolveProductStatsRequest from './stats-resolvers';
 
@@ -129,6 +132,34 @@ const myJetpackResolvers = {
 				dispatch.setAvailableLicensesIsFetching( false );
 			}
 		},
+
+	getProductData: () => {
+		return async ( { dispatch } ) => {
+			dispatch.setProductDataIsFetching( true );
+
+			try {
+				dispatch.setProductData( await apiFetch( { path: REST_API_SITE_PRODUCT_DATA_ENDPOINT } ) );
+				dispatch.setProductDataIsFetching( false );
+			} catch ( error ) {
+				dispatch.setProductDataIsFetching( false );
+			}
+		};
+	},
+
+	getStatsCounts: () => async props => {
+		const { dispatch, registry } = props;
+
+		dispatch.setStatsCountsIsFetching( true );
+
+		const blogId = registry.select( CONNECTION_STORE_ID ).getBlogId();
+
+		try {
+			dispatch.setStatsCounts( await apiFetch( { path: getStatsHighlightsEndpoint( blogId ) } ) );
+			dispatch.setStatsCountsIsFetching( false );
+		} catch ( error ) {
+			dispatch.setStatsCountsIsFetching( false );
+		}
+	},
 };
 
 const getProductStats = {

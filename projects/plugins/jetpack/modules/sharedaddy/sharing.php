@@ -791,13 +791,4 @@ function sharing_admin_init() {
 	$sharing_admin = new Sharing_Admin();
 }
 
-/**
- * Set the Likes and Sharing Gutenberg extension as available
- */
-function jetpack_sharing_set_extension_availability() {
-	Jetpack_Gutenberg::set_extension_available( 'sharing' );
-}
-
-add_action( 'jetpack_register_gutenberg_extensions', 'jetpack_sharing_set_extension_availability' );
-
 add_action( 'init', 'sharing_admin_init' );

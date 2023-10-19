@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import testEmbedUrl from '../../../shared/test-embed-url';
 import { CalendlyEdit } from '../edit';
@@ -147,11 +147,11 @@ describe( 'CalendlyEdit', () => {
 	} );
 
 	test( 'displays placeholder when no url', () => {
-		render( <CalendlyEdit { ...propsWithoutUrl } /> );
+		const { container } = render( <CalendlyEdit { ...propsWithoutUrl } /> );
 
 		expect( screen.getByText( 'Calendly' ) ).toBeInTheDocument();
 		expect(
-			screen.getByText( 'Enter your Calendly web address or embed code below.' )
+			within( container ).getByText( 'Enter your Calendly web address or embed code below.' )
 		).toBeInTheDocument();
 		expect(
 			screen.getByPlaceholderText( 'Calendly web address or embed code…' )

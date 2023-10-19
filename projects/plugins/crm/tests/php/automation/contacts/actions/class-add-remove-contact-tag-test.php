@@ -6,7 +6,7 @@ use Automattic\Jetpack\CRM\Automation\Actions\Add_Remove_Contact_Tag;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
 
@@ -20,7 +20,7 @@ class Add_Remove_Contact_Tag_Test extends JPCRM_Base_Integration_Test_Case {
 	/**
 	 * A helper class to generate data for the automation tests.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var Automation_Faker
 	 */
@@ -67,8 +67,10 @@ class Add_Remove_Contact_Tag_Test extends JPCRM_Base_Integration_Test_Case {
 			)
 		);
 
+		$contact_data = new Contact_Data( $contact );
+
 		// Execute the action.
-		$action_add_remove_contact_tag->execute( $contact );
+		$action_add_remove_contact_tag->validate_and_execute( $contact_data );
 
 		// Verify that our contact has the tag.
 		$contact = $zbs->DAL->contacts->getContact( $contact_id, array( 'withTags' => true ) );
@@ -86,7 +88,6 @@ class Add_Remove_Contact_Tag_Test extends JPCRM_Base_Integration_Test_Case {
 		$automation->register_trigger( Contact_Created::class );
 		$automation->register_step( Contact_Field_Changed::class );
 		$automation->register_step( Add_Remove_Contact_Tag::class );
-		$automation->register_data_type( Data_Type_Contact::class );
 
 		// Create a tag for our workflow.
 		$tag_id = $zbs->DAL->addUpdateTag(
@@ -102,13 +103,14 @@ class Add_Remove_Contact_Tag_Test extends JPCRM_Base_Integration_Test_Case {
 		$workflow_data = $this->automation_faker->workflow_with_condition_customizable_trigger_action(
 			Contact_Created::get_slug(),
 			array(
-				'slug'       => Add_Remove_Contact_Tag::get_slug(),
-				'attributes' => array(
+				'slug'           => Add_Remove_Contact_Tag::get_slug(),
+				'attributes'     => array(
 					'mode'      => 'replace',
 					'tag_input' => array(
 						$tag_id,
 					),
 				),
+				'next_step_true' => null,
 			)
 		);
 

@@ -4,7 +4,7 @@ import { Period } from './index';
 type ScoreGraphAlignedData = [
 	number[], // timestamps
 	number[], // desktop_overall_score
-	number[] // mobile_overall_score
+	number[], // mobile_overall_score
 ];
 
 // Extract the value of a dimension from an array of periods

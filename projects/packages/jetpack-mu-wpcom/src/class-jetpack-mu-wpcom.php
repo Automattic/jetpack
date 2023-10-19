@@ -14,32 +14,33 @@ namespace Automattic\Jetpack;
  */
 class Jetpack_Mu_Wpcom {
 
-	const PACKAGE_VERSION = '4.10.0-alpha';
+	const PACKAGE_VERSION = '4.15.0';
 	const PKG_DIR         = __DIR__ . '/../';
 
 	/**
 	 * Initialize the class.
-	 *
-	 * @return void
 	 */
 	public static function init() {
 		if ( did_action( 'jetpack_mu_wpcom_initialized' ) ) {
 			return;
 		}
 
-		// Shared code for src/features
+		// Shared code for src/features.
 		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 
 		// Coming Soon feature.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_launchpad' ), 0 );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_site_editor_dashboard_link' ) );
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_media' ) );
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_marketplace_products_updater' ) );
+
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_first_posts_stream_helpers' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_domain_email_nag' ) );
 
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
@@ -47,12 +48,24 @@ class Jetpack_Mu_Wpcom {
 		// Load the Map block settings.
 		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_map_block_settings' ), 999 );
 
+		// Load the Newsletter category settings.
+		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_newsletter_categories_settings' ), 999 );
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
 		 * @since 0.1.2
 		 */
 		do_action( 'jetpack_mu_wpcom_initialized' );
+	}
+
+	/**
+	 * Load features that don't need any special loading considerations.
+	 */
+	public static function load_features() {
+		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
+		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
+
+		require_once __DIR__ . '/features/media/heif-support.php';
 	}
 
 	/**
@@ -85,16 +98,15 @@ class Jetpack_Mu_Wpcom {
 	public static function load_launchpad() {
 		require_once __DIR__ . '/features/launchpad/launchpad.php';
 	}
-
 	/**
-	 * Load media features.
+	 * Load the domain email nag feature.
 	 */
-	public static function load_media() {
-		require_once __DIR__ . '/features/media/heif-support.php';
+	public static function load_domain_email_nag() {
+		require_once __DIR__ . '/features/domain-email-nag/domain-email-nag.php';
 	}
 
 	/**
-	 * Load WP REST API plugins for wpcom
+	 * Load WP REST API plugins for wpcom.
 	 */
 	public static function load_wpcom_rest_api_endpoints() {
 		if ( ! function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
@@ -114,9 +126,7 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Adds a global variable containing the map provider in a map_block_settings object to the window object
-	 *
-	 * @return void
+	 * Adds a global variable containing the map provider in a map_block_settings object to the window object.
 	 */
 	public static function load_map_block_settings() {
 		if (
@@ -133,6 +143,26 @@ class Jetpack_Mu_Wpcom {
 
 		$map_provider = apply_filters( 'wpcom_map_block_map_provider', 'mapbox' );
 		wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_Maps', array( 'provider' => $map_provider ) );
+	}
+
+	/**
+	 * Adds a global variable containing where the newsletter categories should be shown.
+	 */
+	public static function load_newsletter_categories_settings() {
+		if (
+			! function_exists( 'get_current_screen' )
+			|| \get_current_screen() === null
+		) {
+			return;
+		}
+
+		// Return early if we are not in the block editor.
+		if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
+			return;
+		}
+
+		$newsletter_categories_location = apply_filters( 'wpcom_newsletter_categories_location', 'block' );
+		wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_Subscriptions', array( 'newsletter_categories_location' => $newsletter_categories_location ) );
 	}
 
 	/**
@@ -172,5 +202,14 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 
 		\Marketplace_Products_Updater::init();
+	}
+
+	/**
+	 * Load First Posts stream helpers.
+	 *
+	 * @return void
+	 */
+	public static function load_first_posts_stream_helpers() {
+		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 	}
 }

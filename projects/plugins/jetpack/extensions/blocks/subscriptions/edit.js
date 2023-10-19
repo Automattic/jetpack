@@ -29,7 +29,6 @@ import {
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
 import SubscriptionControls from './controls';
-import { useNewsletterCategories } from './hooks/use-newsletter-categories';
 import { SubscriptionsPlaceholder } from './subscription-placeholder';
 import SubscriptionSkeletonLoader from './subscription-skeleton-loader';
 import { name } from './';
@@ -116,9 +115,6 @@ export function SubscriptionEdit( props ) {
 			),
 		};
 	} );
-
-	const { data: newsletterCategories, enabled: newsletterCategoriesEnabled } =
-		useNewsletterCategories();
 
 	const emailFieldGradient = isGradientAvailable
 		? useGradient( {
@@ -212,9 +208,6 @@ export function SubscriptionEdit( props ) {
 			className,
 			'wp-block-jetpack-subscriptions__container',
 			'wp-block-jetpack-subscriptions__supports-newline',
-			newsletterCategoriesEnabled
-				? 'wp-block-jetpack-subscriptions__newsletter-categories-enabled'
-				: undefined,
 			buttonOnNewLine ? 'wp-block-jetpack-subscriptions__use-newline' : undefined,
 			showSubscribersTotal ? 'wp-block-jetpack-subscriptions__show-subs' : undefined
 		);
@@ -293,43 +286,30 @@ export function SubscriptionEdit( props ) {
 			) }
 
 			<div className={ getBlockClassName() } style={ cssVars }>
-				{ newsletterCategoriesEnabled ? (
-					<div className="wp-block-jetpack-subscriptions__newsletter-categories">
-						{ newsletterCategories.map( category => {
-							return (
-								<div
-									key={ `newsletter-category-${ category.id }` }
-									className="wp-block-jetpack-subscriptions__newsletter-category"
-								>
-									<div>{ category.name }</div>
-								</div>
-							);
-						} ) }
-					</div>
-				) : null }
-
 				<div className="wp-block-jetpack-subscriptions__form" role="form">
-					<TextControl
-						placeholder={ subscribePlaceholder }
-						disabled={ true }
-						className={ classnames(
-							emailFieldClasses,
-							'wp-block-jetpack-subscriptions__textfield'
-						) }
-						style={ emailFieldStyles }
-					/>
-					<RichText
-						className={ classnames(
-							buttonClasses,
-							'wp-block-jetpack-subscriptions__button',
-							'wp-block-button__link'
-						) }
-						onChange={ value => setAttributes( { submitButtonText: value } ) }
-						style={ buttonStyles }
-						value={ submitButtonText }
-						withoutInteractiveFormatting
-						allowedFormats={ [ 'core/bold', 'core/italic', 'core/strikethrough' ] }
-					/>
+					<div className="wp-block-jetpack-subscriptions__form-elements">
+						<TextControl
+							placeholder={ subscribePlaceholder }
+							disabled={ true }
+							className={ classnames(
+								emailFieldClasses,
+								'wp-block-jetpack-subscriptions__textfield'
+							) }
+							style={ emailFieldStyles }
+						/>
+						<RichText
+							className={ classnames(
+								buttonClasses,
+								'wp-block-jetpack-subscriptions__button',
+								'wp-block-button__link'
+							) }
+							onChange={ value => setAttributes( { submitButtonText: value } ) }
+							style={ buttonStyles }
+							value={ submitButtonText }
+							withoutInteractiveFormatting
+							allowedFormats={ [ 'core/bold', 'core/italic', 'core/strikethrough' ] }
+						/>
+					</div>
 				</div>
 				{ showSubscribersTotal && (
 					<div className="wp-block-jetpack-subscriptions__subscount">{ subscriberCountString }</div>
@@ -339,12 +319,11 @@ export function SubscriptionEdit( props ) {
 	);
 }
 
-const withThemeProvider = WrappedComponent => props =>
-	(
-		<ThemeProvider>
-			<WrappedComponent { ...props } />
-		</ThemeProvider>
-	);
+const withThemeProvider = WrappedComponent => props => (
+	<ThemeProvider>
+		<WrappedComponent { ...props } />
+	</ThemeProvider>
+);
 
 export default compose( [
 	withSelect( select => {

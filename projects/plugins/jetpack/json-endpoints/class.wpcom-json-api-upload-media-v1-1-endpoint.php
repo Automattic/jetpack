@@ -102,10 +102,10 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 
 					if ( true !== $result ) {
 						$this->api->output_early( 400, array( 'errors' => $this->rewrite_generic_upload_error( array( $result ) ) ) );
+						continue;
 					}
 				}
 				$jetpack_media_files[] = $media_item;
-
 			} else {
 				$other_media_files[] = $media_item;
 			}
@@ -215,6 +215,12 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		}
 
 		if ( isset( $file['error'] ) && $file['error'] > 0 ) { // There's already an error. Error Codes Reference: https://www.php.net/manual/en/features.file-upload.errors.php .
+			return $file;
+		}
+
+		// We don't know if this is an upload or a sideload, but in either case the tmp_name should be a path, not a URL.
+		if ( wp_parse_url( $file['tmp_name'], PHP_URL_SCHEME ) !== null ) {
+			$file['error'] = 'rest_upload_invalid|' . __( 'Specified file failed upload test.', 'default' ); // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
 			return $file;
 		}
 

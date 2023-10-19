@@ -16,6 +16,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -31,7 +32,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '3.5.0-alpha';
+	const PACKAGE_VERSION = '3.9.0';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -157,6 +158,7 @@ class Initializer {
 				'textdomain' => 'jetpack-my-jetpack',
 			)
 		);
+		$modules = new Modules();
 		wp_localize_script(
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
@@ -178,6 +180,7 @@ class Initializer {
 				'adminUrl'              => esc_url( admin_url() ),
 				'IDCContainerID'        => static::get_idc_container_id(),
 				'userIsAdmin'           => current_user_can( 'manage_options' ),
+				'isStatsModuleActive'   => $modules->is_active( 'stats' ),
 			)
 		);
 
@@ -231,6 +234,7 @@ class Initializer {
 		new REST_Products();
 		new REST_Purchases();
 		new REST_Zendesk_Chat();
+		new REST_Product_Data();
 		new REST_AI();
 
 		register_rest_route(

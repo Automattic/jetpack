@@ -3,88 +3,74 @@
  * Attribute Definition
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
 
 /**
- * Step Attribute.
+ * Attribute Definition.
  *
- * The Step Attribute represents
+ * An attribute represents how a step is configured. For example, a step that
+ * sends an email to a contact may have an attribute that represents the email
+ * subject, another attribute that represents the email body, and so on.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Attribute_Definition {
 
 	/**
-	* Represents a dropdown selection input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
+	 * Represents a dropdown selection input.
+	 *
+	 * @since 6.2.0
+	 * @var string
+	 */
 	const SELECT = 'select';
 
 	/**
-	* Represents a checkbox input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
+	 * Represents a checkbox input.
+	 *
+	 * @since 6.2.0
+	 * @var string
+	 */
 	const CHECKBOX = 'checkbox';
 
 	/**
-	* Represents a textarea input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
+	 * Represents a textarea input.
+	 *
+	 * @since 6.2.0
+	 * @var string
+	 */
 	const TEXTAREA = 'textarea';
 
 	/**
-	* Represents a text input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
+	 * Represents a text input.
+	 *
+	 * @since 6.2.0
+	 * @var string
+	 */
 	const TEXT = 'text';
 
 	/**
-	* Represents a date input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
+	 * Represents a date input.
+	 *
+	 * @since 6.2.0
+	 * @var string
+	 */
 	const DATE = 'date';
 
 	/**
-	* Represents a date and time input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
-	const DATETIME = 'datetime';
-
-	/**
-	* Represents a numerical input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
+	 * Represents a numerical input.
+	 *
+	 * @since 6.2.0
+	 * @var string
+	 */
 	const NUMBER = 'number';
-
-	/**
-	* Represents a password input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
-	const PASSWORD = 'password';
 
 	/**
 	 * The slug (key) that identifies this attribute.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string
 	 */
 	protected $slug;
@@ -92,7 +78,7 @@ class Attribute_Definition {
 	/**
 	 * The title (label) for this attribute.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string
 	 */
 	protected $title;
@@ -100,16 +86,18 @@ class Attribute_Definition {
 	/**
 	 * The description for this attribute.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string
 	 */
 	protected $description;
 
 	/**
-	 * Attribute type (is it a select? an input?). The const values of this class
-	 * should be used here (e.g. Step_Attribute::NUMBER).
+	 * Attribute type.
 	 *
-	 * @since $$next-version$$
+	 * This is a string that represents the type of the attribute.
+	 * E.g.: 'text', 'number', 'select', etc.
+	 *
+	 * @since 6.2.0
 	 * @var string
 	 */
 	protected $type;
@@ -117,7 +105,7 @@ class Attribute_Definition {
 	/**
 	 * Data needed by this attribute (e.g. a map of "key -> description" in the case of a select).
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var array|null
 	 */
 	protected $data;
@@ -125,15 +113,15 @@ class Attribute_Definition {
 	/**
 	 * Constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
-	 * @param string     $slug        The slug (key) that identifies this attribute.
-	 * @param string     $title       The title (label) for this attribute.
+	 * @param string     $slug The slug (key) that identifies this attribute.
+	 * @param string     $title The title (label) for this attribute.
 	 * @param string     $description The description for this attribute.
-	 * @param string     $type        Attribute type.
-	 * @param array|null $data        Data needed by this attribute.
+	 * @param string     $type Attribute type.
+	 * @param array|null $data Data needed by this attribute.
 	 */
-	public function __construct( $slug, $title, $description, $type, $data = null ) {
+	public function __construct( string $slug, string $title, string $description, string $type, ?array $data = null ) {
 		$this->slug        = $slug;
 		$this->title       = $title;
 		$this->description = $description;
@@ -144,110 +132,130 @@ class Attribute_Definition {
 	/**
 	 * Get the slug.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string
 	 */
-	public function getSlug(): string {
+	public function get_slug(): string {
 		return $this->slug;
 	}
 
 	/**
 	 * Set the slug.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $slug The slug (key) that identifies this attribute.
 	 */
-	public function setSlug( string $slug ): void {
+	public function set_slug( string $slug ): void {
 		$this->slug = $slug;
 	}
 
 	/**
 	 * Get the title.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string
 	 */
-	public function getTitle(): string {
+	public function get_title(): string {
 		return $this->title;
 	}
 
 	/**
 	 * Set the title.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $title The title (label) for this attribute.
 	 */
-	public function setTitle( string $title ): void {
+	public function set_title( string $title ): void {
 		$this->title = $title;
 	}
 
 	/**
 	 * Get the description.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string
 	 */
-	public function getDescription(): string {
+	public function get_description(): string {
 		return $this->description;
 	}
 
 	/**
 	 * Set the description.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $description The description for this attribute.
 	 */
-	public function setDescription( string $description ): void {
+	public function set_description( string $description ): void {
 		$this->description = $description;
 	}
 
 	/**
 	 * Get the type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string
 	 */
-	public function getType(): string {
+	public function get_type(): string {
 		return $this->type;
 	}
 
 	/**
 	 * Set the type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $type The attribute type.
 	 */
-	public function setType( string $type ): void {
+	public function set_type( string $type ): void {
 		$this->type = $type;
 	}
 
 	/**
 	 * Get the data.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return array|null
 	 */
-	public function getData(): ?array {
+	public function get_data(): ?array {
 		return $this->data;
 	}
 
 	/**
 	 * Set the data.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array|null $data The data needed by this attribute.
 	 */
-	public function setData( ?array $data ): void {
+	public function set_data( ?array $data ): void {
 		$this->data = $data;
+	}
+
+	/**
+	 * Get the attribute definition as an array.
+	 *
+	 * The main use-case to get the attribute as an array is,
+	 * so we can easily share it via API.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @return array
+	 */
+	public function to_array(): array {
+		return array(
+			'slug'        => $this->get_slug(),
+			'title'       => $this->get_title(),
+			'description' => $this->get_description(),
+			'type'        => $this->get_type(),
+			'data'        => $this->get_data(),
+		);
 	}
 }

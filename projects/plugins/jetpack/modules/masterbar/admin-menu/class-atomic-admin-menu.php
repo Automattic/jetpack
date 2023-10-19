@@ -70,7 +70,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$this->remove_gutenberg_menu();
 
 		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
-			$this->add_inbox_menu();
+			$this->add_my_mailboxes_menu();
 		}
 
 		// Not needed outside of wp-admin.
@@ -316,7 +316,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$menu_title .= "<img class='sidebar-unified__sparkline' src='$img_src' width='80' height='20' alt='$alt'>";
 		}
 
-		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'edit_posts', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
 	}
 
 	/**

@@ -39,7 +39,7 @@ add_filter( 'jetpack_crm_automations_load_ui', __NAMESPACE__ . '\disable_ui_if_f
  *
  * This is a core module that will always be loaded, so we do not allow it to be enabled/deactivated.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  *
  * @return void
  */
@@ -49,11 +49,8 @@ function load_module() {
 	require_once JPCRM_AUTOMATIONS_MODULE_PATH . '/admin/admin-page-init.php';
 	initialize_admin_page();
 
-	/* @todo Refactor this to be part of a separate initialisation process. */
-	if ( is_admin() ) {
-		$bootstrap = new Automation_Bootstrap();
-		$bootstrap->init();
-	}
+	$bootstrap = new Automation_Bootstrap();
+	$bootstrap->init();
 }
 
 add_action( 'jpcrm_load_modules', __NAMESPACE__ . '\load_module' );
@@ -61,7 +58,7 @@ add_action( 'jpcrm_load_modules', __NAMESPACE__ . '\load_module' );
 /**
  * Defines constants
  *
- * @since $$next-version$$
+ * @since 6.2.0
  *
  * @return void
  */
