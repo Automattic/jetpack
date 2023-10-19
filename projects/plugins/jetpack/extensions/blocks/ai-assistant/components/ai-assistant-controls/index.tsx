@@ -195,7 +195,7 @@ export default function AiAssistantDropdown( {
 	);
 
 	const onChange = useCallback(
-		( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
+		( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps = {} ) => {
 			tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
 				suggestion: promptType,
 				block_type: blockType,
