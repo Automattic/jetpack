@@ -47,15 +47,6 @@ const QUICK_EDIT_KEY_MAKE_LONGER = 'make-longer' as const;
 // Ask AI Assistant option
 export const KEY_ASK_AI_ASSISTANT = 'ask-ai-assistant' as const;
 
-const QUICK_EDIT_KEY_LIST = [
-	QUICK_EDIT_KEY_CORRECT_SPELLING,
-	QUICK_EDIT_KEY_SIMPLIFY,
-	QUICK_EDIT_KEY_SUMMARIZE,
-	QUICK_EDIT_KEY_MAKE_LONGER,
-] as const;
-
-type AiAssistantKeyProp = ( typeof QUICK_EDIT_KEY_LIST )[ number ] | typeof KEY_ASK_AI_ASSISTANT;
-
 const quickActionsList = [
 	{
 		name: __( 'Correct spelling and grammar', 'jetpack' ),
@@ -90,24 +81,9 @@ export type AiAssistantDropdownOnChangeOptionsArgProps = {
 
 type AiAssistantControlComponentProps = {
 	/*
-	 * Can be used to externally control the value of the control. Optional.
-	 */
-	key?: AiAssistantKeyProp | string;
-
-	/*
 	 * The block type. Required.
 	 */
 	blockType: ExtendedBlockProp;
-
-	/*
-	 * The label to use for the dropdown. Optional.
-	 */
-	label?: string;
-
-	/*
-	 * Whether the dropdown is disabled.
-	 */
-	disabled?: boolean;
 };
 
 /**
