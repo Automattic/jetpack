@@ -11,14 +11,6 @@
  * @returns {object} Modified pkg.
  */
 function fixDeps( pkg ) {
-	// Way too many dependencies, some of them vulnerable, that we don't need for the one piece of this (dist/esm/progress-bar) that we actually use.
-	// p1655760691502999-slack-CBG1CP4EN
-	if ( pkg.name === '@automattic/components' ) {
-		delete pkg.dependencies[ '@automattic/data-stores' ];
-		delete pkg.dependencies[ 'i18n-calypso' ];
-		delete pkg.dependencies[ 'wpcom-proxy-request' ];
-	}
-
 	// Depends on punycode but doesn't declare it.
 	// https://github.com/markdown-it/markdown-it/issues/230
 	// https://github.com/markdown-it/markdown-it/issues/945
@@ -123,7 +115,6 @@ function fixPeerDeps( pkg ) {
 		'reakit-system', // @wordpress/components → reakit
 		'reakit-utils', // @wordpress/components → reakit
 		'reakit-warning', // @wordpress/components → reakit
-		'@automattic/components',
 	] );
 	if ( reactOldPkgs.has( pkg.name ) ) {
 		for ( const p of [ 'react', 'react-dom' ] ) {
@@ -144,15 +135,6 @@ function fixPeerDeps( pkg ) {
 				pkg.peerDependencies[ p ] += ' || ^18';
 			}
 		}
-	}
-
-	// Outdated peer dependency.
-	// No upstream bug link yet.
-	if (
-		pkg.name === '@automattic/components' &&
-		pkg.peerDependencies[ '@wordpress/data' ] === '^6.1.5'
-	) {
-		pkg.peerDependencies[ '@wordpress/data' ] = '*';
 	}
 
 	return pkg;

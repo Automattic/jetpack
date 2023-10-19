@@ -2,7 +2,7 @@ import ProgressBar from '..';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
-	title: 'Packages/VideoPress/Progress Bar',
+	title: 'JS Packages/Components/Progress Bar',
 	component: ProgressBar,
 } as ComponentMeta< typeof ProgressBar >;
 
