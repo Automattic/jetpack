@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection Toggle: Prevented the change handler for firing when the component is disabled

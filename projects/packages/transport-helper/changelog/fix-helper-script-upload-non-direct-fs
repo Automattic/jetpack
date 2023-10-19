@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix helper script upload for sites without direct file system access.

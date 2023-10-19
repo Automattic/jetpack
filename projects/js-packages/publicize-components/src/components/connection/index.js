@@ -50,6 +50,9 @@ class PublicizeConnection extends Component {
 
 	onConnectionChange = () => {
 		const { id } = this.props;
+		if ( this.isDisabled() ) {
+			return;
+		}
 		this.props.toggleConnection( id );
 	};
 
@@ -58,8 +61,12 @@ class PublicizeConnection extends Component {
 		return failedConnections.some( connection => connection.service_name === name );
 	}
 
+	isDisabled() {
+		return this.props.disabled || this.connectionIsFailing() || this.connectionNeedsReauth();
+	}
+
 	render() {
-		const { disabled, enabled, id, label, name, profilePicture } = this.props;
+		const { enabled, id, label, name, profilePicture } = this.props;
 		const fieldId = 'connection-' + name + '-' + id;
 		// Genericon names are dash separated
 		const serviceName = name.replace( '_', '-' );
@@ -70,7 +77,7 @@ class PublicizeConnection extends Component {
 				className={ styles[ 'connection-toggle' ] }
 				checked={ enabled }
 				onChange={ this.onConnectionChange }
-				disabled={ disabled || this.connectionIsFailing() || this.connectionNeedsReauth() }
+				disabled={ this.isDisabled() }
 				serviceName={ serviceName }
 				label={ label }
 				profilePicture={ profilePicture }
