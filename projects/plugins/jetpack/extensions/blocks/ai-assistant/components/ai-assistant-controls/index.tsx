@@ -114,8 +114,13 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 
 	const requestSuggestion = (
 		promptType: PromptTypeProp,
-		options: AiAssistantDropdownOnChangeOptionsArgProps
+		options: AiAssistantDropdownOnChangeOptionsArgProps = {}
 	) => {
+		tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
+			suggestion: promptType,
+			block_type: blockType,
+		} );
+
 		const clientIds = getSelectedBlockClientIds();
 		const blocks = getBlocksByClientId( clientIds );
 		const content = getBlocksContent( blocks );
@@ -158,18 +163,6 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 
 		// It removes the rest of the blocks in case there are more than one.
 		removeBlocks( otherBlocksIds );
-	};
-
-	const requestAiSuggestion = (
-		promptType: PromptTypeProp,
-		options: AiAssistantDropdownOnChangeOptionsArgProps = {}
-	) => {
-		tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
-			suggestion: promptType,
-			block_type: blockType,
-		} );
-
-		requestSuggestion( promptType, options );
 	};
 
 	const replaceWithAiAssistantBlock = () => {
@@ -231,7 +224,7 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 							iconPosition="left"
 							key={ `key-${ quickAction.key }` }
 							onClick={ () => {
-								requestAiSuggestion( quickAction.aiSuggestion );
+								requestSuggestion( quickAction.aiSuggestion );
 								closeDropdown();
 							} }
 						>
@@ -241,14 +234,14 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 
 					<ToneDropdownMenu
 						onChange={ tone => {
-							requestAiSuggestion( PROMPT_TYPE_CHANGE_TONE, { tone } );
+							requestSuggestion( PROMPT_TYPE_CHANGE_TONE, { tone } );
 							closeDropdown();
 						} }
 					/>
 
 					<I18nMenuDropdown
 						onChange={ language => {
-							requestAiSuggestion( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
+							requestSuggestion( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
 							closeDropdown();
 						} }
 					/>
