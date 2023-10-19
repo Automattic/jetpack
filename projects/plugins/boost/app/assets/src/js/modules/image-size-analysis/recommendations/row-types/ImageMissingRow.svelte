@@ -16,8 +16,8 @@
 
 <TableRow {enableTransition} expandable={false}>
 	<svelte:fragment slot="main">
-		<div class="jb-table-row__thumbnail">
-			{__( 'Missing Image', 'jetpack-boost' )}
+		<div class="jb-thumbnail__image--missing">
+			{__( 'Image Missing', 'jetpack-boost' )}
 		</div>
 
 		<div class="jb-table-row__title">

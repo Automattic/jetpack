@@ -2,17 +2,20 @@
 	display: block;
 	border-radius: 3px;
 }
+
 .jb-thumbnail__image--missing {
-	border-radius: 10px;
-	border: 3px solid #999;
-	color: #666;
+	border-radius: 3px;
+	background-color: var(--gray-5);
+	color: var(--gray-80);
 	text-align: center;
 	aspect-ratio: 1;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 80%;
+	font-size: .75em;
+	font-weight: 500;
 }
+
 .jb-thumbnail__placeholder {
 	width: var(--thumbnail-size);
 	height: var(--thumbnail-size);

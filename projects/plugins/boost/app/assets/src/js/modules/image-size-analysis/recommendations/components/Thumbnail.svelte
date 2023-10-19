@@ -6,7 +6,7 @@
 </script>
 
 {#if url && title}
-	<img src={url} alt={title} {width} {height} class="jb-thumbnail__image--missing" />
+	<img src={url} alt={title} {width} {height} class="jb-thumbnail__image" />
 {:else}
 	<div class="jb-thumbnail__placeholder" style:--thumbnail-size="{width}px" />
 {/if}
