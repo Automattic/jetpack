@@ -160,7 +160,7 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 		removeBlocks( otherBlocksIds );
 	};
 
-	const onChange = (
+	const requestAiSuggestion = (
 		promptType: PromptTypeProp,
 		options: AiAssistantDropdownOnChangeOptionsArgProps = {}
 	) => {
@@ -231,7 +231,7 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 							iconPosition="left"
 							key={ `key-${ quickAction.key }` }
 							onClick={ () => {
-								onChange( quickAction.aiSuggestion );
+								requestAiSuggestion( quickAction.aiSuggestion );
 								closeDropdown();
 							} }
 						>
@@ -241,14 +241,14 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 
 					<ToneDropdownMenu
 						onChange={ tone => {
-							onChange( PROMPT_TYPE_CHANGE_TONE, { tone } );
+							requestAiSuggestion( PROMPT_TYPE_CHANGE_TONE, { tone } );
 							closeDropdown();
 						} }
 					/>
 
 					<I18nMenuDropdown
 						onChange={ language => {
-							onChange( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
+							requestAiSuggestion( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
 							closeDropdown();
 						} }
 					/>
