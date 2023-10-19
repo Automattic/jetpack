@@ -5,6 +5,11 @@ export type ProgressBarProps = {
 	className?: string;
 
 	/**
+	 * Optional classname to apply to the progress element.
+	 */
+	progressClassName?: string;
+
+	/**
 	 * The current progress percentage, from 0 to 1.
 	 */
 	progress: number;

@@ -1176,8 +1176,8 @@ importers:
         specifier: 7.4.6
         version: 7.4.6
       storybook-addon-mock:
-        specifier: 4.0.0
-        version: 4.0.0(@storybook/addons@7.4.6)(@storybook/blocks@7.4.6)(@storybook/components@7.4.6)(@storybook/manager-api@7.4.6)(@storybook/theming@7.4.6)(react-dom@18.2.0)(react@18.2.0)(storybook@7.4.6)
+        specifier: 4.3.0
+        version: 4.3.0(react-dom@18.2.0)(react@18.2.0)
       style-loader:
         specifier: 2.0.0
         version: 2.0.0(webpack@5.76.0)
@@ -1397,9 +1397,6 @@ importers:
 
   projects/packages/backup:
     dependencies:
-      '@automattic/components':
-        specifier: 2.0.1
-        version: 2.0.1(@wordpress/data@9.13.0)(react-dom@18.2.0)(react@18.2.0)
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
@@ -2899,9 +2896,6 @@ importers:
       '@automattic/calypso-color-schemes':
         specifier: 3.1.1
         version: 3.1.1
-      '@automattic/components':
-        specifier: 2.0.1
-        version: 2.0.1(@wordpress/data@9.13.0)(react-dom@18.2.0)(react@18.2.0)
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
@@ -4126,39 +4120,8 @@ packages:
   /@automattic/calypso-color-schemes@3.1.1:
     resolution: {integrity: sha512-jPSMyaYn79MZRvBokkfmL/yeqYQJZEVXpKyzY/aoo/oCW5EjAQsERsQY+aQKsOrMrd5Es+Gf9tbq9OMrzzCb8g==}
 
-  /@automattic/calypso-url@1.0.0:
-    resolution: {integrity: sha512-d2odYhxkIFlpCcJ7r+FDI7yBAcm86gtDHteYLcijkOu/2cM+u5D47x/ttYR1+dux9RtT12usBTNc0gGHb89hkA==}
-    dependencies:
-      photon: 4.0.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
   /@automattic/color-studio@2.5.0:
     resolution: {integrity: sha512-gZWaJbx3p1oennAIoJtMGluTmoM95Efk4rc44TSBxWSZZ8gH3Am2eh1o3i1NhrZmg2Zt3AiVFeZZ4AJccIpBKQ==}
-
-  /@automattic/components@2.0.1(@wordpress/data@9.13.0)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-xvIfbLcX869Cx4ccDUC5hb9MqTvZDNC5ho2yI0g1aveUfVGn7FqPxNiHwCEfW2fi5f85T63CZ727Q+ECawDoKQ==}
-    peerDependencies:
-      '@wordpress/data': '*'
-      react: ^17.0.2 || ^18
-      react-dom: ^17.0.2 || ^18
-    dependencies:
-      '@automattic/calypso-url': 1.0.0
-      '@automattic/typography': 1.0.0
-      '@wordpress/base-styles': 4.34.0
-      '@wordpress/data': 9.13.0(react@18.2.0)
-      classnames: 2.3.2
-      gridicons: 3.4.1(react@18.2.0)
-      lodash: 4.17.21
-      prop-types: 15.8.1
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      react-modal: 3.16.1(react-dom@18.2.0)(react@18.2.0)
-      utility-types: 3.10.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
 
   /@automattic/format-currency@1.0.1:
     resolution: {integrity: sha512-RY2eiUlDiqNSHiJzz2YmH/mw4IjAUO5hkxbwcVGHJkBZowdq/WcSG2yhXc8N9cV9N1fTO/ryCuJvGnpHUe+mAg==}
@@ -15988,10 +15951,6 @@ packages:
       strip-final-newline: 3.0.0
     dev: true
 
-  /exenv@1.2.2:
-    resolution: {integrity: sha512-Z+ktTxTwv9ILfgKCk32OX3n/doe+OcLTRtqK9pcL+JsP3J1/VW8Uvl4ZjLlKqeW4rzK4oesDOGMEMRIZqtP4Iw==}
-    dev: false
-
   /exit@0.1.2:
     resolution: {integrity: sha512-Zk/eNKV2zbjpKzrsQ+n1G6poVbErQxJ0LBOJXaKZ1EViLzH+hrLu9cdXI4zw9dBQJslwBEpbQ2P1oS7nDxs6jQ==}
     engines: {node: '>= 0.8.0'}
@@ -20944,25 +20903,6 @@ packages:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: true
 
-  /react-lifecycles-compat@3.0.4:
-    resolution: {integrity: sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==}
-    dev: false
-
-  /react-modal@3.16.1(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-VStHgI3BVcGo7OXczvnJN7yT2TWHJPDXZWyI/a0ssFNhGZWsPmB8cF0z33ewDXq4VfYMO1vXgiv/g8Nj9NDyWg==}
-    engines: {node: '>=8'}
-    peerDependencies:
-      react: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
-      react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
-    dependencies:
-      exenv: 1.2.2
-      prop-types: 15.8.1
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      react-lifecycles-compat: 3.0.4
-      warning: 4.0.3
-    dev: false
-
   /react-page-visibility@7.0.0(react@18.2.0):
     resolution: {integrity: sha512-d4Kq/8TtJSr8dQc8EJeAZcSKTrGzC5OPTm6UrMur9BnwP0fgTawI9+Nd+ZGB7vwCfn2yZS0qDF9DR3/QYTGazw==}
     engines: {node: '>=10'}
@@ -22348,17 +22288,11 @@ packages:
   /store2@2.14.2:
     resolution: {integrity: sha512-siT1RiqlfQnGqgT/YzXVUNsom9S0H1OX+dpdGN1xkyYATo4I6sep5NmsRD/40s3IIOvlCq6akxkqG82urIZW1w==}
 
-  /storybook-addon-mock@4.0.0(@storybook/addons@7.4.6)(@storybook/blocks@7.4.6)(@storybook/components@7.4.6)(@storybook/manager-api@7.4.6)(@storybook/theming@7.4.6)(react-dom@18.2.0)(react@18.2.0)(storybook@7.4.6):
-    resolution: {integrity: sha512-3c01q9pYzkLjOajnnFLgya8HIHLVVQCaulasOeTniFaEAQeEngqxzc6sYWJx2AlISVsSktEonBGB7QVgmT9A9g==}
+  /storybook-addon-mock@4.3.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-N4Yepagkom0t5jk6ur3wrtGVeOYTlGx9LX6jg8iRhFbhrpfcbr+6XhmAQSE/3FiNQXwHiwdo1Az8MvlzwymcUA==}
     peerDependencies:
-      '@storybook/addons': ^7.0.0
-      '@storybook/blocks': ^7.0.0
-      '@storybook/components': ^7.0.2
-      '@storybook/manager-api': ^7.0.0
-      '@storybook/theming': ^7.0.0
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-      storybook: ^7.0.0
     peerDependenciesMeta:
       react:
         optional: true
@@ -22367,7 +22301,9 @@ packages:
     dependencies:
       '@storybook/addons': 7.4.6(react-dom@18.2.0)(react@18.2.0)
       '@storybook/blocks': 7.4.6(react-dom@18.2.0)(react@18.2.0)
+      '@storybook/channels': 7.4.6
       '@storybook/components': 7.4.6(react-dom@18.2.0)(react@18.2.0)
+      '@storybook/core-events': 7.4.6
       '@storybook/manager-api': 7.4.6(react-dom@18.2.0)(react@18.2.0)
       '@storybook/theming': 7.4.6(react-dom@18.2.0)(react@18.2.0)
       mock-xmlhttprequest: 8.2.0
@@ -22377,6 +22313,14 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       storybook: 7.4.6
+      whatwg-fetch: 3.6.19
+    transitivePeerDependencies:
+      - '@types/react'
+      - '@types/react-dom'
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
     dev: true
 
   /storybook@7.4.6:
@@ -23612,11 +23556,6 @@ packages:
     resolution: {integrity: sha512-Z0DbgELS9/L/75wZbro8xAnT50pBVFQZ+hUEueGDU5FN51YSCYM+jdxsfCiHjwNP/4LCDD0i/graKpeBnOXKRA==}
     dev: true
 
-  /utility-types@3.10.0:
-    resolution: {integrity: sha512-O11mqxmi7wMKCo6HKFt5AhO4BwY3VV68YU07tgxfz8zJTIxr4BpsezN49Ffwy9j3ZpwwJp4fkRwjRzq3uWE6Rg==}
-    engines: {node: '>= 4'}
-    dev: false
-
   /utils-merge@1.0.1:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
@@ -23729,12 +23668,6 @@ packages:
     dependencies:
       makeerror: 1.0.12
     dev: true
-
-  /warning@4.0.3:
-    resolution: {integrity: sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==}
-    dependencies:
-      loose-envify: 1.4.0
-    dev: false
 
   /watchpack@2.4.0:
     resolution: {integrity: sha512-Lcvm7MGST/4fup+ifyKi2hjyIAwcdI4HRgtvTpIUxBRhB+RFtUh8XtDOxUfctVCnhVi+QQj49i91OyvzkJl6cg==}
@@ -23923,6 +23856,10 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       iconv-lite: 0.6.3
+
+  /whatwg-fetch@3.6.19:
+    resolution: {integrity: sha512-d67JP4dHSbm2TrpFj8AbO8DnL1JXL5J9u0Kq2xW6d0TFDbCA3Muhdt8orXC22utleTVj7Prqt82baN6RBvnEgw==}
+    dev: true
 
   /whatwg-mimetype@3.0.0:
     resolution: {integrity: sha512-nt+N2dzIutVRxARx1nghPKGv1xHikU7HKdfafKkLNLindmPU/ch3U31NOCGGA/dmPcmb1VlofO0vnKAcsm0o/Q==}
