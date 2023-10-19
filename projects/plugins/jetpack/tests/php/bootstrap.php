@@ -101,8 +101,9 @@ function _manually_load_plugin() {
 }
 
 function _manually_install_woocommerce() {
+	$woo_tests_dir = JETPACK_WOOCOMMERCE_INSTALL_DIR . '/tests';
 	// This is taken from WooCommerce's bootstrap.php file
-
+	//
 	// framework
 	require_once $woo_tests_dir . '/legacy/framework/class-wc-unit-test-factory.php';
 	require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-session-handler.php';
