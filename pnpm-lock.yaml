@@ -1176,8 +1176,8 @@ importers:
         specifier: 7.4.6
         version: 7.4.6
       storybook-addon-mock:
-        specifier: 4.0.0
-        version: 4.0.0(@storybook/addons@7.4.6)(@storybook/blocks@7.4.6)(@storybook/components@7.4.6)(@storybook/manager-api@7.4.6)(@storybook/theming@7.4.6)(react-dom@18.2.0)(react@18.2.0)(storybook@7.4.6)
+        specifier: 4.3.0
+        version: 4.3.0(react-dom@18.2.0)(react@18.2.0)
       style-loader:
         specifier: 2.0.0
         version: 2.0.0(webpack@5.76.0)
@@ -22288,17 +22288,11 @@ packages:
   /store2@2.14.2:
     resolution: {integrity: sha512-siT1RiqlfQnGqgT/YzXVUNsom9S0H1OX+dpdGN1xkyYATo4I6sep5NmsRD/40s3IIOvlCq6akxkqG82urIZW1w==}
 
-  /storybook-addon-mock@4.0.0(@storybook/addons@7.4.6)(@storybook/blocks@7.4.6)(@storybook/components@7.4.6)(@storybook/manager-api@7.4.6)(@storybook/theming@7.4.6)(react-dom@18.2.0)(react@18.2.0)(storybook@7.4.6):
-    resolution: {integrity: sha512-3c01q9pYzkLjOajnnFLgya8HIHLVVQCaulasOeTniFaEAQeEngqxzc6sYWJx2AlISVsSktEonBGB7QVgmT9A9g==}
+  /storybook-addon-mock@4.3.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-N4Yepagkom0t5jk6ur3wrtGVeOYTlGx9LX6jg8iRhFbhrpfcbr+6XhmAQSE/3FiNQXwHiwdo1Az8MvlzwymcUA==}
     peerDependencies:
-      '@storybook/addons': ^7.0.0
-      '@storybook/blocks': ^7.0.0
-      '@storybook/components': ^7.0.2
-      '@storybook/manager-api': ^7.0.0
-      '@storybook/theming': ^7.0.0
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-      storybook: ^7.0.0
     peerDependenciesMeta:
       react:
         optional: true
@@ -22307,7 +22301,9 @@ packages:
     dependencies:
       '@storybook/addons': 7.4.6(react-dom@18.2.0)(react@18.2.0)
       '@storybook/blocks': 7.4.6(react-dom@18.2.0)(react@18.2.0)
+      '@storybook/channels': 7.4.6
       '@storybook/components': 7.4.6(react-dom@18.2.0)(react@18.2.0)
+      '@storybook/core-events': 7.4.6
       '@storybook/manager-api': 7.4.6(react-dom@18.2.0)(react@18.2.0)
       '@storybook/theming': 7.4.6(react-dom@18.2.0)(react@18.2.0)
       mock-xmlhttprequest: 8.2.0
@@ -22317,6 +22313,14 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       storybook: 7.4.6
+      whatwg-fetch: 3.6.19
+    transitivePeerDependencies:
+      - '@types/react'
+      - '@types/react-dom'
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
     dev: true
 
   /storybook@7.4.6:
@@ -23852,6 +23856,10 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       iconv-lite: 0.6.3
+
+  /whatwg-fetch@3.6.19:
+    resolution: {integrity: sha512-d67JP4dHSbm2TrpFj8AbO8DnL1JXL5J9u0Kq2xW6d0TFDbCA3Muhdt8orXC22utleTVj7Prqt82baN6RBvnEgw==}
+    dev: true
 
   /whatwg-mimetype@3.0.0:
     resolution: {integrity: sha512-nt+N2dzIutVRxARx1nghPKGv1xHikU7HKdfafKkLNLindmPU/ch3U31NOCGGA/dmPcmb1VlofO0vnKAcsm0o/Q==}
