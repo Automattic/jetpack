@@ -231,7 +231,7 @@ const isAuthenticatedByWithMediaComponent = ( source: MediaSource ) =>
  * We will not remove Google Photos from the inserter if the user disconnects Google Photos during runtime.
  */
 export const addGooglePhotosToMediaInserter = async () => {
-	waitFor( isInserterOpened ).then( () => {
+	waitFor( isInserterOpened ).then( async () => {
 		const isConnected = await isMediaSourceConnected( MediaSource.GooglePhotos );
 
 		if ( isConnected ) {
