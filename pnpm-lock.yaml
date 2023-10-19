@@ -2581,6 +2581,9 @@ importers:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
+      '@automattic/jetpack-react-data-sync-client':
+        specifier: workspace:*
+        version: link:../../js-packages/react-data-sync-client
       '@automattic/jetpack-svelte-data-sync-client':
         specifier: workspace:*
         version: link:../../js-packages/svelte-data-sync-client
