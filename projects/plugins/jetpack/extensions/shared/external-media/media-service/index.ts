@@ -230,10 +230,10 @@ const isAuthenticatedByWithMediaComponent = ( source: MediaSource ) =>
  * Adds Google Photos to the media inserter if/when it's connected.
  * We will not remove Google Photos from the inserter if the user disconnects Google Photos during runtime.
  */
-export const addGooglePhotosToMediaInserter = async () => {
-	const isConnected = await isMediaSourceConnected( MediaSource.GooglePhotos );
-
+export const addGooglePhotosToMediaInserter = async () =>
 	waitFor( isInserterOpened ).then( () => {
+		const isConnected = await isMediaSourceConnected( MediaSource.GooglePhotos );
+
 		if ( isConnected ) {
 			registerInInserter( googlePhotosProvider );
 			return;
@@ -243,7 +243,6 @@ export const addGooglePhotosToMediaInserter = async () => {
 			registerInInserter( googlePhotosProvider )
 		);
 	} );
-};
 
 /**
  * Adds Pexels to the media inserter. There is no need to check if it's connected because it's always connected.
