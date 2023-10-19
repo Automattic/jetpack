@@ -8,7 +8,6 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription } from '@wordpress/icons';
-import classNames from 'classnames';
 import React from 'react';
 /**
  * Internal dependencies
@@ -107,11 +106,6 @@ type AiAssistantControlComponentProps = {
 	label?: string;
 
 	/*
-	 * Whether the dropdown is requesting suggestions from AI.
-	 */
-	requestingState?: string;
-
-	/*
 	 * Whether the dropdown is disabled.
 	 */
 	disabled?: boolean;
@@ -133,11 +127,9 @@ export default function AiAssistantDropdown( {
 	key,
 	label,
 	blockType,
-	requestingState,
 	disabled,
 }: AiAssistantControlComponentProps ) {
-	const toolbarLabel =
-		requestingState === 'suggesting' ? null : label || __( 'AI Assistant', 'jetpack' );
+	const toolbarLabel = __( 'AI Assistant', 'jetpack' );
 
 	/*
 	 * Let's disable the eslint rule for this line.
@@ -239,9 +231,7 @@ export default function AiAssistantDropdown( {
 			renderToggle={ ( { isOpen, onToggle } ) => {
 				return (
 					<ToolbarButton
-						className={ classNames( 'jetpack-ai-assistant__button', {
-							[ `is-${ requestingState }` ]: true,
-						} ) }
+						className="jetpack-ai-assistant__button"
 						showTooltip
 						onClick={ onToggle }
 						aria-haspopup="true"
