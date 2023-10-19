@@ -1149,7 +1149,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/google-fonts-provider",
-                "reference": "72bc00c2292da37a578ec11b140982ba756492da"
+                "reference": "64978c5e7b72b65ab7bb6c54161a7e712cb7d128"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -1167,7 +1167,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-google-fonts-provider/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "textdomain": "jetpack-google-fonts-provider"
             },
@@ -5776,5 +5776,5 @@
     "platform-overrides": {
         "ext-intl": "0.0.0"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
