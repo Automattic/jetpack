@@ -18,13 +18,6 @@ function fixDeps( pkg ) {
 		pkg.dependencies.punycode = '*';
 	}
 
-	// Undeclared dependency on prop-types.
-	// https://github.com/nutboltu/storybook-addon-mock/issues/190
-	if ( pkg.name === 'storybook-addon-mock' ) {
-		pkg.dependencies ||= {};
-		pkg.dependencies[ 'prop-types' ] = '*';
-	}
-
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
 	if (
