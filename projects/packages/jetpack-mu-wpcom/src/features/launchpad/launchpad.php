@@ -199,6 +199,18 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => '__return_true',
 		),
+		'host-site'              => array(
+			'title'               => 'Hosting Flow',
+			'task_ids'            => array(
+				'site_title',
+				'site_theme_selected',
+				'install_custom_plugin',
+				'setup_ssh',
+				'verify_email',
+				'site_launched',
+			),
+			'is_enabled_callback' => '__return_true',
+		),
 	);
 
 	$extended_task_list_definitions = apply_filters( 'wpcom_launchpad_extended_task_list_definitions', array() );

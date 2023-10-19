@@ -514,6 +514,32 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/earn/payments-plans/' . $data['site_slug_encoded'];
 			},
 		),
+
+		// Hosting flow tasks
+		'site_theme_selected'             => array(
+			'get_title'        => function () {
+				return __( 'Choose a theme', 'jetpack-mu-wpcom' );
+			},
+			'get_calypso_path' => function ( $task, $default, $data ) {
+				return '/themes/' . $data['site_slug_encoded'];
+			},
+		),
+		'install_custom_plugin'           => array(
+			'get_title'        => function () {
+				return __( 'Install a custom plugin', 'jetpack-mu-wpcom' );
+			},
+			'get_calypso_path' => function ( $task, $default, $data ) {
+				return '/plugins/' . $data['site_slug_encoded'];
+			},
+		),
+		'setup_ssh'                       => array(
+			'get_title'        => function () {
+				return __( 'Set up ssh', 'jetpack-mu-wpcom' );
+			},
+			'get_calypso_path' => function ( $task, $default, $data ) {
+				return '/hosting-config/' . $data['site_slug_encoded'] . '#sftp-credentials';
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
