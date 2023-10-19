@@ -30,7 +30,7 @@ export const withAIAssistant = createHigherOrderComponent(
 				<BlockEdit { ...props } />
 
 				<BlockControls { ...blockControlProps }>
-					<AiAssistantDropdown blockType={ blockType } disabled={ false } />
+					<AiAssistantDropdown blockType={ blockType } />
 				</BlockControls>
 			</>
 		);
