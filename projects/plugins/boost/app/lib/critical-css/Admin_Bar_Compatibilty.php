@@ -49,6 +49,20 @@ class Admin_Bar_Compatibility {
 	 * @see     wp_before_admin_bar_render
 	 */
 	public static function force_admin_bar_stylesheet() {
+		/**
+		 * Temporarily remove the deprecated `print_emoji_styles` handler.
+		 * It avoids breaking style generation with a deprecation message.
+   		 * `print_emoji_styles` is deprecated in WP 6.4.
+		 */
+		$has_emoji_styles = has_action( 'wp_print_styles', 'print_emoji_styles' );
+		if ( $has_emoji_styles ) {
+			remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		}
+
 		wp_print_styles( 'admin-bar' );
+
+		if ( $has_emoji_styles ) {
+			add_action( 'wp_print_styles', 'print_emoji_styles' );
+		}
 	}
 }
