@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+YouTube embeds: avoid errors when opening YouTube in a new window from a YouTube embed.
