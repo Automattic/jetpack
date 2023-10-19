@@ -122,12 +122,7 @@ export function getBlocksContent( blocks ) {
 		.join( '\n\n' );
 }
 
-export default function AiAssistantDropdown( {
-	key,
-	label,
-	blockType,
-	disabled,
-}: AiAssistantControlComponentProps ) {
+export default function AiAssistantDropdown( { blockType }: AiAssistantControlComponentProps ) {
 	const toolbarLabel = __( 'AI Assistant', 'jetpack' );
 
 	/*
@@ -237,18 +232,17 @@ export default function AiAssistantDropdown( {
 						aria-expanded={ isOpen }
 						label={ toolbarLabel }
 						icon={ aiAssistantIcon }
-						disabled={ disabled }
+						disabled={ false }
 					/>
 				);
 			} }
 			renderContent={ ( { onClose: closeDropdown } ) => (
-				<MenuGroup label={ label }>
+				<MenuGroup>
 					<MenuItem
 						icon={ aiAssistantIcon }
 						iconPosition="left"
 						key="key-ai-assistant"
 						onClick={ replaceWithAiAssistantBlock }
-						isSelected={ key === 'key-ai-assistant' }
 					>
 						<div className="jetpack-ai-assistant__menu-item">
 							{ __( 'Ask AI Assistant', 'jetpack' ) }
@@ -264,7 +258,6 @@ export default function AiAssistantDropdown( {
 								onChange( quickAction.aiSuggestion );
 								closeDropdown();
 							} }
-							isSelected={ key === quickAction.key }
 						>
 							<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
 						</MenuItem>
