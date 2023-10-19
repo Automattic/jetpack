@@ -2,13 +2,8 @@
  * External dependencies
  */
 import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
-import {
-	MenuItem,
-	MenuGroup,
-	CustomSelectControl,
-	ToolbarButton,
-	Dropdown,
-} from '@wordpress/components';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { MenuItem, MenuGroup, ToolbarButton, Dropdown } from '@wordpress/components';
 import { select, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -19,7 +14,7 @@ import React from 'react';
  * Internal dependencies
  */
 import { ExtendedBlockProp } from '../../extensions/ai-assistant';
-import { getBlocksContent } from '../../extensions/ai-assistant/with-ai-assistant';
+import { getBlocksContent, getStoreBlockId } from '../../extensions/ai-assistant/with-ai-assistant';
 import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
@@ -124,8 +119,6 @@ type AiAssistantControlComponentProps = {
 	 * Whether the dropdown is disabled.
 	 */
 	disabled?: boolean;
-
-	onChange: ( item: PromptTypeProp, options?: AiAssistantDropdownOnChangeOptionsArgProps ) => void;
 };
 
 export default function AiAssistantDropdown( {
@@ -135,7 +128,6 @@ export default function AiAssistantDropdown( {
 	exclude = [],
 	requestingState,
 	disabled,
-	onChange,
 }: AiAssistantControlComponentProps ) {
 	const quickActionsListFiltered = quickActionsList.filter(
 		quickAction => ! exclude.includes( quickAction.key )
@@ -145,6 +137,67 @@ export default function AiAssistantDropdown( {
 
 	const { removeBlocks, replaceBlock } = useDispatch( 'core/block-editor' );
 
+	const { tracks } = useAnalytics();
+
+	const requestSuggestion = useCallback(
+		( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
+			const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
+			const blocks = select( 'core/block-editor' ).getBlocksByClientId( clientIds );
+			const content = getBlocksContent( blocks );
+
+			const [ firstBlock ] = blocks;
+			const [ firstClientId, ...otherBlocksIds ] = clientIds;
+
+			const extendedBlockAttributes = {
+				...( firstBlock?.attributes || {} ), // firstBlock.attributes should never be undefined, but still add a fallback
+				content,
+			};
+
+			const newAIAssistantBlock = transformToAIAssistantBlock( blockType, extendedBlockAttributes );
+
+			/*
+			 * Store in the local storage the client id
+			 * of the block that need to auto-trigger the AI Assistant request.
+			 * @todo: find a better way to update the content,
+			 * probably using a new store triggering an action.
+			 */
+
+			// Storage client Id, prompt type, and options.
+			const storeObject = {
+				clientId: firstClientId,
+				type: promptType,
+				options: { ...options, contentType: 'generated', fromExtension: true }, // When converted, the original content must be treated as generated
+			};
+
+			localStorage.setItem(
+				getStoreBlockId( newAIAssistantBlock.clientId ),
+				JSON.stringify( storeObject )
+			);
+
+			/*
+			 * Replace the first block with the new AI Assistant block instance.
+			 * This block contains the original content,
+			 * even for multiple blocks selection.
+			 */
+			replaceBlock( firstClientId, newAIAssistantBlock );
+
+			// It removes the rest of the blocks in case there are more than one.
+			removeBlocks( otherBlocksIds );
+		},
+		[ blockType, replaceBlock, removeBlocks ]
+	);
+
+	const onChange = useCallback(
+		( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
+			tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
+				suggestion: promptType,
+				block_type: blockType,
+			} );
+
+			requestSuggestion( promptType, options );
+		},
+		[ tracks, requestSuggestion, blockType ]
+	);
 	const replaceWithAiAssistantBlock = useCallback( () => {
 		const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
 		const blocks = select( 'core/block-editor' ).getBlocksByClientId( clientIds );
@@ -233,30 +286,6 @@ export default function AiAssistantDropdown( {
 					/>
 				</MenuGroup>
 			) }
-		/>
-	);
-}
-
-export function QuickEditsSelectControl( {
-	key,
-	label,
-	exclude = [],
-	onChange,
-}: AiAssistantControlComponentProps ) {
-	// Initial value. If not found, use empty.
-	const value = quickActionsList.find( quickAction => quickAction.key === key ) || '';
-
-	// Exclude when required.
-	const quickActionsListFiltered = exclude.length
-		? quickActionsList.filter( quickAction => ! exclude.includes( quickAction.key ) )
-		: quickActionsList;
-
-	return (
-		<CustomSelectControl
-			label={ label }
-			value={ value }
-			options={ quickActionsListFiltered }
-			onChange={ ( { selectedItem } ) => onChange( selectedItem ) }
 		/>
 	);
 }
