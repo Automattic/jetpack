@@ -258,30 +258,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		// Throw it all out and drop in our replacement.
 		ob_end_clean();
 
-		// If users are required to be logged in, and they're not, then we don't need to do anything else.
-		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
-			/**
-			 * Changes the log in to comment prompt.
-			 *
-			 * @module comments
-			 *
-			 * @since  1.4.0
-			 *
-			 * @param string $var Default is "You must log in to post a comment."
-			 */
-			echo '<p class="must-log-in">' . wp_kses_post(
-				sprintf(
-					apply_filters(
-						'jetpack_must_log_in_to_comment',
-						/* translators: %s is the wp-login URL for the site */
-						__( 'You must <a href="%s">log in</a> to post a comment.', 'jetpack' )
-					),
-					wp_login_url( get_permalink() . '#respond' )
-				)
-			) . '</p>';
-			return;
-		}
-
 		if ( in_array( 'subscriptions', Jetpack::get_active_modules(), true ) ) {
 			$stb_enabled = get_option( 'stb_enabled', 1 );
 			$stb_enabled = empty( $stb_enabled ) ? 0 : 1;
