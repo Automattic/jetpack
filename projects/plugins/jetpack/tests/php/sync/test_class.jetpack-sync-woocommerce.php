@@ -73,7 +73,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		// require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/classes/abstracts/ActionScheduler_Store.php';
 		// require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/classes/abstracts/ActionScheduler.php';
 		// require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/functions.php';
-		require_once $woo_tests_dir . '/../vendor/woocommerce/action-scheduler/action-scheduler.php';
+		require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/functions.php';
 	}
 
 	/**
