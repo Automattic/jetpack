@@ -49,7 +49,7 @@
 	</div>
 
 	{#if expanded && expandable}
-		<div class="jb-table-row-expand">
+		<div class="jb-table-row__expanded">
 			<slot name="expanded" />
 		</div>
 	{/if}
