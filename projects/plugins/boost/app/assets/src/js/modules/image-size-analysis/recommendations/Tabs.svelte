@@ -31,7 +31,7 @@
 		{#if currentTab?.issue_count > 0}
 			<span class="jb-dropdown__issues">{currentTab.issue_count}</span>
 		{/if}
-		<span class="jb-dropdown__dashicons dashicons dashicons-arrow-down-alt2" />
+		<span class="dashicons dashicons-arrow-down-alt2" />
 	</div>
 
 	{#if dropdownOpen}

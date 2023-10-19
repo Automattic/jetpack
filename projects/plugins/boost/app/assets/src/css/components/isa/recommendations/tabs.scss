@@ -5,6 +5,10 @@
 	}
 
 	margin-bottom: 32px;
+
+	.dashicons {
+		float: right;
+	}
 }
 
 .jb-dropdown__head-bar {
@@ -12,10 +16,6 @@
 	border: 1px solid #000;
 	border-radius: 1px;
 	padding: 8px 12px;
-}
-
-.jb-dropdown__dashicons {
-	float: right;
 }
 
 .jb-dropdown__options {
