@@ -1,6 +1,6 @@
 <?php
 /**
- * Load the google fonts by the new Font Library. See https://wp.me/pNEWy-hhx.
+ * Load the google fonts by the new Font Library. See pNEWy-hhx-p2.
  *
  * @package automattic/jetpack
  */
@@ -25,7 +25,10 @@ function jetpack_get_google_fonts_data() {
 	}
 
 	// Replace the google fonts api url if the custom one is provided.
-	$custom_google_fonts_api_url = \esc_url( apply_filters( 'jetpack_google_fonts_api_url', '' ) );
+	$custom_google_fonts_api_url = \esc_url(
+		/** This filter is documented in projects/packages/google-fonts-provider/src/class-google-fonts-provider.php */
+		apply_filters( 'jetpack_google_fonts_api_url', '' )
+	);
 	if ( $custom_google_fonts_api_url ) {
 		foreach ( $data['fontFamilies'] as $font_family ) {
 			foreach ( $font_family['fontFace'] as &$font_face ) {
@@ -48,12 +51,14 @@ function jetpack_get_google_fonts_data() {
  * @return object[] The map of the the available Google Fonts.
  */
 function jetpack_get_available_google_fonts_map( $google_fonts_data ) {
-	$jetpack_google_fonts_list  = array_map(
+	$jetpack_google_fonts_list = array_map(
 		function ( $font_family ) {
 			return $font_family['name'];
 		},
 		$google_fonts_data['fontFamilies']
 	);
+
+	/** This filter is documented in modules/google-fonts/wordpress-6.3/load-google-fonts.php */
 	$google_font_list           = apply_filters( 'jetpack_google_fonts_list', $jetpack_google_fonts_list );
 	$available_google_fonts_map = array();
 

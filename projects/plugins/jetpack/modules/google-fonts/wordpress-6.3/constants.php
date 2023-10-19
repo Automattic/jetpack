@@ -7,7 +7,7 @@
 
 /**
  * Curated list of Google Fonts
- * See https://wp.me/p9Jlb4-22P
+ * See p9Jlb4-22P-p2
  */
 const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Albert Sans',
