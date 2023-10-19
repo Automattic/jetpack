@@ -15,7 +15,12 @@ import type React from 'react';
  * @param {ProgressBarProps} props - Component props.
  * @returns {React.ReactNode} - ProgressBar react component.
  */
-const ProgressBar: React.FC< ProgressBarProps > = ( { className, progress, size = 'normal' } ) => {
+const ProgressBar: React.FC< ProgressBarProps > = ( {
+	className,
+	progressClassName,
+	progress,
+	size = 'normal',
+} ) => {
 	if ( progress == null ) {
 		return null;
 	}
@@ -30,7 +35,7 @@ const ProgressBar: React.FC< ProgressBarProps > = ( { className, progress, size 
 		<div
 			className={ classnames( className, styles.wrapper, { [ styles.small ]: size === 'small' } ) }
 		>
-			<div className={ classnames( styles.progress ) } style={ style }></div>
+			<div className={ classnames( progressClassName, styles.progress ) } style={ style }></div>
 		</div>
 	);
 };

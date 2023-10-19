@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Move ProgressBar component to the shared `@automattic/jetpack-components` package.
