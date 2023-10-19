@@ -101,15 +101,15 @@ function _manually_load_plugin() {
 }
 
 function _manually_install_woocommerce() {
-	// clean existing install first
-	define( 'WP_UNINSTALL_PLUGIN', true );
-	define( 'WC_REMOVE_ALL_DATA', true );
-	require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/uninstall.php';
+	// // clean existing install first
+	// define( 'WP_UNINSTALL_PLUGIN', true );
+	// define( 'WC_REMOVE_ALL_DATA', true );
+	require_once JETPACK_WOOCOMMERCE_INSTALL_DIR . '/tests/legacy/bootstrap.php';
 
-	WC_Install::install();
+	// WC_Install::install();
 
-	// reload capabilities after install, see https://core.trac.wordpress.org/ticket/28374
-	$GLOBALS['wp_roles'] = new WP_Roles();
+	// // reload capabilities after install, see https://core.trac.wordpress.org/ticket/28374
+	// $GLOBALS['wp_roles'] = new WP_Roles();
 
 	echo 'Installing WooCommerce...' . PHP_EOL;
 }
