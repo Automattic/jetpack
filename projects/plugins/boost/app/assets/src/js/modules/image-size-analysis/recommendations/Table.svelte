@@ -71,7 +71,7 @@
 	</h1>
 {:else}
 	<div class="jb-table" class:jb-loading={isLoading}>
-		<div class="jb-table-header recommendation-page-grid">
+		<div class="jb-table-header jb-recommendation-page-grid">
 			<div class="jb-table-header__image">Image</div>
 			<div class="jb-table-header__potential-size">Potential Size</div>
 			<div class="jb-table-header__device">Device</div>

@@ -25,7 +25,7 @@
 	out:slide={{ duration: enableTransition ? 250 : 0, easing: quadOut }}
 	class:expanded
 >
-	<div class="jb-table-row recommendation-page-grid" on:click={toggleExpand}>
+	<div class="jb-table-row jb-recommendation-page-grid" on:click={toggleExpand}>
 		<slot name="main" />
 
 		{#if expandable}
