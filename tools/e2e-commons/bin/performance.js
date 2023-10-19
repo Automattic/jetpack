@@ -24,11 +24,12 @@ async function envSetup( type ) {
 	);
 }
 
-async function runTests() {
+async function runTests( id ) {
 	const siteUrl = resolveSiteUrl();
 
 	execSyncShellCommand( `export WP_BASE_URL=${ siteUrl } &&
 	export WP_ARTIFACTS_PATH=./results &&
+	export RESULTS_ID=base.${ id } &&
 	cd ../../gutenberg &&
 	npm run test:performance -- post-editor` );
 }
@@ -37,7 +38,7 @@ async function testRun( type, id ) {
 	console.log( `Starting test run #${ id } for ${ type }` );
 	envReset();
 	await envSetup( type );
-	await runTests();
+	await runTests( id );
 	console.log( `Finished test run #${ id } for ${ type }` );
 }
 
