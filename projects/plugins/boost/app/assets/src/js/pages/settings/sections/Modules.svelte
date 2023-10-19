@@ -14,6 +14,7 @@
 		isaSummary,
 	} from '../../../modules/image-size-analysis/store/isa-summary';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
+	import MinifyMeta from '../../../react-components/pages/settings/elements/MinifyMeta';
 	import config from '../../../stores/config';
 	import {
 		criticalCssState,
@@ -25,7 +26,6 @@
 	import { criticalCssIssues, primaryErrorSet } from '../../../stores/critical-css-state-errors';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
 	import { imageCdnQuality } from '../../../stores/image-cdn';
-	import { minifyJsExcludesStore, minifyCssExcludesStore } from '../../../stores/minify';
 	import { modulesState } from '../../../stores/modules';
 	import { premiumFeatures } from '../../../stores/premium-features';
 	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
@@ -33,7 +33,6 @@
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
 	import ImageCdnQualitySettings from '../elements/ImageCdnQualitySettings.svelte';
-	import MinifyMeta from '../elements/MinifyMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumTooltip from '../elements/PremiumTooltip.svelte';
 	import ResizingUnavailable from '../elements/ResizingUnavailable.svelte';
@@ -223,14 +222,13 @@
 				'jetpack-boost'
 			)}
 		</p>
-
 		<div slot="meta">
-			<MinifyMeta
+			<ReactComponent
+				this={MinifyMeta}
+				type="minify_js_excludes"
 				inputLabel={__( 'Exclude JS Strings:', 'jetpack-boost' )}
 				buttonText={__( 'Exclude JS Strings', 'jetpack-boost' )}
 				placeholder={__( 'Comma separated list of JS scripts to exclude', 'jetpack-boost' )}
-				value={$minifyJsExcludesStore}
-				on:save={e => ( $minifyJsExcludesStore = e.detail )}
 			/>
 		</div>
 	</Module>
@@ -245,12 +243,12 @@
 		</p>
 
 		<div slot="meta">
-			<MinifyMeta
+			<ReactComponent
+				this={MinifyMeta}
+				type="minify_css_excludes"
 				inputLabel={__( 'Exclude CSS Strings:', 'jetpack-boost' )}
 				buttonText={__( 'Exclude CSS Strings', 'jetpack-boost' )}
 				placeholder={__( 'Comma separated list of CSS stylesheets to exclude', 'jetpack-boost' )}
-				value={$minifyCssExcludesStore}
-				on:save={e => ( $minifyCssExcludesStore = e.detail )}
 			/>
 		</div>
 	</Module>
