@@ -103,8 +103,21 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 ******
 
 **${ capitalizedName } plugin:**
+
+${
+	'Jetpack' === capitalizedName
+		? `The Jetpack plugin has different release cadences depending on the platform:
+
+- WordPress.com Simple releases happen daily.
+- WoA releases happen weekly.
+- Releases to self-hosted sites happen monthly. The next release is scheduled for _${ releaseDate }_ (scheduled code freeze on _${ codeFreezeDate }_).`
+		: `
 - Next scheduled release: _${ releaseDate }_.
 - Scheduled code freeze: _${ codeFreezeDate }_.
+`
+}
+
+If you have any questions about the release process, please ask in the #jetpack-releases channel on Slack.
 `;
 }
 
