@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/subscriptions",
 	"title": "Subscribe",
 	"description": "Subscribe to this blog's posts as a newsletter.",
@@ -109,6 +109,5 @@
 			"type": "string",
 			"default": "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing."
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }

@@ -16,12 +16,12 @@
 
 	.components-text-control__input,
 	p#subscribe-email input[type=email] {
-		border-top-right-radius: 0 !important;
-		border-bottom-right-radius: 0 !important;
+		border-start-end-radius: 0 !important;
+		border-end-end-radius: 0 !important;
 	}
 
 	&:not(.wp-block-jetpack-subscriptions__use-newline) .components-text-control__input {
-		border-right-width: 0 !important;
+		border-inline-end-width: 0 !important;
 	}
 }
 
@@ -89,7 +89,7 @@
 		.wp-block-jetpack-subscriptions__subscount {
 			margin: 8px 0;
 			font-size: 16px;
-			text-align: right;
+			text-align: end;
 		}
 	}
 
@@ -105,7 +105,7 @@
 		}
 
 		.wp-block-jetpack-subscriptions__subscount {
-			text-align: left;
+			text-align: start;
 		}
 	}
 }
