@@ -67,7 +67,7 @@
 	border-bottom: 1px solid var( --gray-40 );
 }
 
-.jb-navigator-link {
+.jb-tabs .jb-navigator-link {
 	background: none;
 	padding: 8px 16px;
 	border: 0;
@@ -82,7 +82,7 @@
 	box-shadow: none;
 }
 
-.jb-navigator-link--inactive {
+.jb-tabs .jb-navigator-link--inactive {
 	opacity: 0.5;
 	cursor: default;
 }
