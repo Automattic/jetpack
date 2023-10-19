@@ -12,7 +12,6 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { ExtendedBlockProp } from '../../extensions/ai-assistant';
 import { getStoreBlockId } from '../../extensions/ai-assistant/with-ai-assistant';
 import {
 	PROMPT_TYPE_CHANGE_TONE,
@@ -29,6 +28,7 @@ import './style.scss';
 /**
  * Types and constants
  */
+import type { ExtendedBlockProp } from '../../extensions/ai-assistant';
 import type { PromptTypeProp } from '../../lib/prompt';
 import type { ToneProp } from '../tone-dropdown-control';
 
