@@ -242,8 +242,8 @@ export const addGooglePhotosToMediaInserter = async () => {
 		waitFor( () => isAuthenticatedByWithMediaComponent( MediaSource.GooglePhotos ) ).then( () =>
 			registerInInserter( googlePhotosProvider )
 		);
-	});
-}
+	} );
+};
 
 /**
  * Adds Pexels to the media inserter. There is no need to check if it's connected because it's always connected.
