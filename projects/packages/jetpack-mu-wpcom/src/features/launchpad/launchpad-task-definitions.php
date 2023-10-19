@@ -517,26 +517,29 @@ function wpcom_launchpad_get_task_definitions() {
 
 		// Hosting flow tasks
 		'site_theme_selected'             => array(
-			'get_title'        => function () {
+			'get_title'            => function () {
 				return __( 'Choose a theme', 'jetpack-mu-wpcom' );
 			},
-			'get_calypso_path' => function ( $task, $default, $data ) {
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/themes/' . $data['site_slug_encoded'];
 			},
 		),
 		'install_custom_plugin'           => array(
-			'get_title'        => function () {
+			'get_title'            => function () {
 				return __( 'Install a custom plugin', 'jetpack-mu-wpcom' );
 			},
-			'get_calypso_path' => function ( $task, $default, $data ) {
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/plugins/' . $data['site_slug_encoded'];
 			},
 		),
 		'setup_ssh'                       => array(
-			'get_title'        => function () {
+			'get_title'            => function () {
 				return __( 'Set up ssh', 'jetpack-mu-wpcom' );
 			},
-			'get_calypso_path' => function ( $task, $default, $data ) {
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/hosting-config/' . $data['site_slug_encoded'] . '#sftp-credentials';
 			},
 		),
@@ -1863,3 +1866,14 @@ function wpcom_launchpad_mark_plugin_installed_complete() {
 	wpcom_mark_launchpad_task_complete( 'install_custom_plugin' );
 }
 add_action( 'jetpack_plugin_installed', 'wpcom_launchpad_mark_plugin_installed_complete ', 10, 1 );
+
+/**
+ * Mark task complete when theme is selected.
+ */
+function wpcom_launchpad_mark_theme_selected_complete() {
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_theme_selected' ) ) ) {
+		return;
+	}
+	wpcom_mark_launchpad_task_complete( 'site_theme_selected' );
+}
+add_action( 'jetpack_sync_current_theme_support', 'wpcom_launchpad_mark_theme_selected_complete', 10, 2 );
