@@ -85,7 +85,7 @@
 		<div class="jb-expanded-info jb-mobile-only">
 			<h4 class="jb-expanded-info__header">{__( 'Device', 'jetpack-boost' )}</h4>
 
-			<div class="jb-icon">
+			<div class="jb-expanded-icon">
 				<Device device={details.device_type} />
 			</div>
 

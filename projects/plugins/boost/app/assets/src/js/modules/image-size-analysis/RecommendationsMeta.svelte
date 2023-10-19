@@ -125,7 +125,7 @@
 		<div class="jb-summary-line">
 			{#if totalIssues > 0}
 				<div class="jb-has-issues jb-summary">
-					<WarningIcon class="jb-icon" />
+					<WarningIcon />
 					{sprintf(
 						// translators: 1: Number of scanned issues found 2: Number of scanned pages
 						__(
