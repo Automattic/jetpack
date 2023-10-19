@@ -33,13 +33,6 @@
 	}
 }
 
-.expanded {
-	margin-bottom: var(--expanded-gap);
-	border-bottom-right-radius: var(--border-radius);
-	border-bottom-left-radius: var(--border-radius);
-	border-bottom: var(--border);
-}
-
 // Expanded view, but not the one at the very top.
 :not(.jb-table-header) + .jb-table-row-container.expanded {
 	margin-top: var(--expanded-gap);
@@ -73,7 +66,7 @@
 
 		// Can't use overflow because of the box-shadow workaround above.
 		// So instead, repeating the border radius.
-		.expanded & {
+		.jb-table-row-expand & {
 			border-top-right-radius: var(--border-radius);
 			border-top-left-radius: var(--border-radius);
 		}
@@ -108,11 +101,19 @@
 	}
 }
 
-.table-row-expanded {
+.jb-table-row-expand {
 	display: flex;
 	justify-content: space-between;
 	padding: var(--gap);
 	padding-left: calc(var(--thumbnail-size) + var(--gap) * 2);
+
+	.expanded & {
+		margin-bottom: var(--expanded-gap);
+		border-bottom-right-radius: var(--border-radius);
+		border-bottom-left-radius: var(--border-radius);
+		border-bottom: var(--border);
+	}
+
 
 	@media (max-width: 782px) {
 		flex-direction: column;

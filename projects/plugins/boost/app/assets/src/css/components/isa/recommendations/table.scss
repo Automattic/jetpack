@@ -39,21 +39,22 @@
     border-top-right-radius: var( --border-radius );
     border-bottom: 0;
     background-color: #fff;
-
-    &__image {
-        grid-column: thumbnail / title;
-    }
-
-    &__device {
-        grid-column: device;
-        text-align: center;
-    }
-
-    &__potential-size {
-        grid-column: potential-size;
-    }
-
-    &__page {
-        grid-column: page / expand;
-    }
 }
+
+.jb-table-header__image {
+    grid-column: thumbnail / title;
+}
+
+.jb-table-header__device {
+    grid-column: device;
+    text-align: center;
+}
+
+.jb-table-header__potential-size {
+    grid-column: potential-size;
+}
+
+.jb-table-header__page {
+    grid-column: page / expand;
+}
+

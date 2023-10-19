@@ -9,16 +9,16 @@
     @media (max-width: 600px) {
         flex-direction: column;
     }
-}
 
-.jb-summary-line button {
-    svg {
-        margin: 4px 4px 2px 0;
-        fill: $jetpack-green;
-    }
+    button {
+        svg {
+            margin: 4px 4px 2px 0;
+            fill: $jetpack-green;
+        }
 
-    @media (max-width: 600px) {
-        margin-top: 15px;
+        @media (max-width: 600px) {
+            margin-top: 15px;
+        }
     }
 }
 
@@ -31,13 +31,13 @@
 
 .jb-has-issues {
     color: var(--jp-orange-20);
-}
 
-.jb-has-issues svg {
-    width: 22px;
-    height: 22px;
-    top: 4px;
-    position: relative;
+    svg {
+        width: 22px;
+        height: 22px;
+        top: 4px;
+        position: relative;
+    }
 }
 
 .jb-wait-notice {
