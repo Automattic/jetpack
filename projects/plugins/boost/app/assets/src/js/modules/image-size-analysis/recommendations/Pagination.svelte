@@ -63,7 +63,7 @@
 					{:else}
 						<Link
 							to="/image-size-analysis/{group}/{page}"
-							class="jb-pagination__page{page === current ? ' jb-pagination__current' : ''}"
+							class="jb-pagination__page{page === current ? ' jb-pagination__page--current' : ''}"
 						>
 							{page}
 						</Link>

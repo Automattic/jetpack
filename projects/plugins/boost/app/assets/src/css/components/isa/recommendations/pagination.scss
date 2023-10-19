@@ -9,12 +9,12 @@
 		align-items: center;
 		justify-content: center;
 
-		li {
+		.jb-pagination__item {
 			list-style-type: none;
 			margin: 0;
 		}
 
-		a {
+		.jb-pagination__page {
 			background-color: transparent;
 			border: 0;
 			cursor: pointer;
@@ -29,19 +29,19 @@
 				cursor: default;
 				color: #000;
 			}
+
+			&.jb-pagination__page--inactive {
+				opacity: 0.25;
+				cursor: not-allowed;
+			}
+
+			&.jb-pagination__page--current {
+				background-color: #000;
+				border-radius: var(--border-radius);
+				cursor: pointer;
+				border: 0;
+				color: #fff;
+			}
 		}
-	}
-
-	.jb-pagination__page--inactive {
-		opacity: 0.25;
-		cursor: not-allowed;
-	}
-
-	.jb-pagination__page--current {
-		background-color: #000;
-		border-radius: var(--border-radius);
-		cursor: pointer;
-		border: 0;
-		color: #fff;
 	}
 }
