@@ -61,15 +61,15 @@
 		</div>
 
 		<div class="jb-table-row__page">
-			<a href={details.page.url}>{details.page.title}</a>
+			<a href={details.page.url} class="jb-page__link">{details.page.title}</a>
 		</div>
 	</svelte:fragment>
 
 	<svelte:fragment slot="expanded">
-		<div class="expanded-info mobile-only">
-			<h4>{__( 'Potential Size', 'jetpack-boost' )}</h4>
+		<div class="jb-expanded-info jb-mobile-only">
+			<h4 class="jb-expanded-info__header">{__( 'Potential Size', 'jetpack-boost' )}</h4>
 
-			<div class="pills">
+			<div class="jb-pills">
 				<Pill color={pillColor}>
 					{Math.round( details.image.weight.current )} KB
 				</Pill>
@@ -82,28 +82,28 @@
 			</div>
 		</div>
 
-		<div class="expanded-info mobile-only">
-			<h4>{__( 'Device', 'jetpack-boost' )}</h4>
+		<div class="jb-expanded-info jb-mobile-only">
+			<h4 class="jb-expanded-info__header">{__( 'Device', 'jetpack-boost' )}</h4>
 
-			<div class="icon">
+			<div class="jb-icon">
 				<Device device={details.device_type} />
 			</div>
 
-			<span>
+			<span class="jb-expanded-info__text">
 				{details.device_type === 'desktop'
 					? __( 'This issue affects large screens', 'jetpack-boost' )
 					: __( 'This issue affects small screens', 'jetpack-boost' )}
 			</span>
 		</div>
 
-		<div class="expanded-info image-details">
-			<h4>{__( 'Image Details', 'jetpack-boost' )}</h4>
+		<div class="jb-expanded-info jb-image-details">
+			<h4 class="jb-expanded-info__header">{__( 'Image Details', 'jetpack-boost' )}</h4>
 
-			<div class="row">
-				<div class="label">
+			<div class="jb-expanded-info__row">
+				<div class="jb-label">
 					{__( 'File Dimensions', 'jetpack-boost' )}
 				</div>
-				<div class="value">
+				<div class="jb-value">
 					{Math.round( details.image.dimensions.file.width )}
 					x
 					{Math.round( details.image.dimensions.file.height )}
@@ -111,11 +111,11 @@
 				</div>
 			</div>
 
-			<div class="row">
-				<div class="label">
+			<div class="jb-expanded-info__row">
+				<div class="jb-label">
 					{__( 'Expected Dimensions', 'jetpack-boost' )}
 				</div>
-				<div class="value">
+				<div class="jb-value">
 					{Math.round( details.image.dimensions.expected.width )}
 					x
 					{Math.round( details.image.dimensions.expected.height )}
@@ -123,11 +123,11 @@
 				</div>
 			</div>
 
-			<div class="row">
-				<div class="label">
+			<div class="jb-expanded-info__row">
+				<div class="jb-label">
 					{__( 'Size on screen', 'jetpack-boost' )}
 				</div>
-				<div class="value">
+				<div class="jb-value">
 					{Math.round( details.image.dimensions.size_on_screen.width )}
 					x
 					{Math.round( details.image.dimensions.size_on_screen.height )}
@@ -136,11 +136,11 @@
 			</div>
 		</div>
 
-		<div class="expanded-info fix-options">
-			<h4>
+		<div class="jb-expanded-info jb-fix-options">
+			<h4 class="jb-expanded-info__header">
 				{__( 'How to fix', 'jetpack-boost' )}
 			</h4>
-			<p>{details.instructions}</p>
+			<p class="jb-expanded-info__text">{details.instructions}</p>
 			{#if details.page.edit_url}
 				<div class="jb-actions">
 					<Button
@@ -160,72 +160,3 @@
 		</div>
 	</svelte:fragment>
 </TableRow>
-
-<style lang="scss">
-	.mobile-only {
-		display: none;
-
-		@media ( max-width: 782px ) {
-			display: block;
-		}
-	}
-
-	.pills {
-		grid-column: potential-size;
-		display: flex;
-		align-items: center;
-		gap: calc( var( --gap ) / 2 );
-	}
-
-	h4 {
-		font-size: 16px;
-		font-weight: 600;
-	}
-
-	.expanded-info {
-		@media ( max-width: 782px ) {
-			margin-bottom: 16px;
-
-			h4 {
-				margin-bottom: 12px;
-			}
-
-			.icon {
-				margin-right: 12px;
-				display: inline-block;
-				aspect-ratio: 1;
-			}
-		}
-	}
-
-	.image-details {
-		flex: 1;
-		max-width: 300px;
-		display: flex;
-		flex-direction: column;
-		font-size: 0.875rem;
-		gap: calc( var( --gap ) / 2 );
-		.row {
-			display: flex;
-			gap: 10px;
-			justify-content: space-between;
-		}
-		.value {
-			font-weight: 500;
-		}
-	}
-
-	.jb-actions {
-		display: flex;
-		gap: var( --gap );
-	}
-
-	.fix-options {
-		flex: 1;
-		margin-left: calc( var( --table-header-potential-size ) - var( --gap ) * 2 );
-
-		@media ( max-width: 782px ) {
-			margin-left: 0;
-		}
-	}
-</style>
