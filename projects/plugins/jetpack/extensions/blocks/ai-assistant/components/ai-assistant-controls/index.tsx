@@ -3,6 +3,7 @@
  */
 import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { getBlockContent } from '@wordpress/blocks';
 import { MenuItem, MenuGroup, ToolbarButton, Dropdown } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
@@ -22,7 +23,6 @@ import {
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 } from '../../lib/prompt';
-import { getBlockTextContent } from '../../lib/utils/block-content';
 import { transformToAIAssistantBlock } from '../../transforms';
 import { I18nMenuDropdown } from '../i18n-dropdown-control';
 import { ToneDropdownMenu } from '../tone-dropdown-control';
@@ -119,7 +119,7 @@ type AiAssistantControlComponentProps = {
 export function getBlocksContent( blocks ) {
 	return blocks
 		.filter( block => block != null ) // Safeguard against null or undefined blocks
-		.map( block => getBlockTextContent( block.clientId ) )
+		.map( block => getBlockContent( block ) )
 		.join( '\n\n' );
 }
 
