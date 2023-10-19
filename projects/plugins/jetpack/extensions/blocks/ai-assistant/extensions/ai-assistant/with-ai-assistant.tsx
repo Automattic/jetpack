@@ -4,7 +4,7 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, select } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import React from 'react';
 /**
@@ -14,8 +14,7 @@ import AiAssistantDropdown, {
 	AiAssistantDropdownOnChangeOptionsArgProps,
 	KEY_ASK_AI_ASSISTANT,
 } from '../../components/ai-assistant-controls';
-import useTextContentFromSelectedBlocks from '../../hooks/use-text-content-from-selected-blocks';
-import { getRawTextFromHTML } from '../../lib/utils/block-content';
+import { getBlockTextContent } from '../../lib/utils/block-content';
 import { transformToAIAssistantBlock } from '../../transforms';
 /*
  * Types
@@ -34,7 +33,7 @@ export const withAIAssistant = createHigherOrderComponent(
 	BlockEdit => props => {
 		const { name: blockType } = props;
 		const { removeBlocks, replaceBlock } = useDispatch( 'core/block-editor' );
-		const { content, clientIds, blocks } = useTextContentFromSelectedBlocks();
+		// const { content, clientIds, blocks } = useTextContentFromSelectedBlocks();
 		const { tracks } = useAnalytics();
 
 		/*
@@ -48,6 +47,13 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
+				const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
+				const blocks = select( 'core/block-editor' ).getBlocksByClientId( clientIds );
+				const content = blocks
+					.filter( block => block != null ) // Safeguard against null or undefined blocks
+					.map( block => getBlockTextContent( block.clientId ) )
+					.join( '\n\n' );
+
 				const [ firstBlock ] = blocks;
 				const [ firstClientId, ...otherBlocksIds ] = clientIds;
 
@@ -90,7 +96,7 @@ export const withAIAssistant = createHigherOrderComponent(
 				// It removes the rest of the blocks in case there are more than one.
 				removeBlocks( otherBlocksIds );
 			},
-			[ blocks, clientIds, content, blockType, replaceBlock, removeBlocks ]
+			[ blockType, replaceBlock, removeBlocks ]
 		);
 
 		const handleChange = useCallback(
@@ -106,6 +112,13 @@ export const withAIAssistant = createHigherOrderComponent(
 		);
 
 		const replaceWithAiAssistantBlock = useCallback( () => {
+			const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
+			const blocks = select( 'core/block-editor' ).getBlocksByClientId( clientIds );
+			const content = blocks
+				.filter( block => block != null ) // Safeguard against null or undefined blocks
+				.map( block => getBlockTextContent( block.clientId ) )
+				.join( '\n\n' );
+
 			const [ firstClientId, ...otherBlocksIds ] = clientIds;
 			const [ firstBlock ] = blocks;
 
@@ -120,12 +133,12 @@ export const withAIAssistant = createHigherOrderComponent(
 			);
 
 			removeBlocks( otherBlocksIds );
-		}, [ blocks, blockType, content, replaceBlock, clientIds, removeBlocks ] );
+		}, [ blockType, replaceBlock, removeBlocks ] );
 
 		const blockControlProps = {
 			group: 'block',
 		};
-		const rawContent = getRawTextFromHTML( content );
+		// const rawContent = getRawTextFromHTML( content );
 
 		return (
 			<>
@@ -133,7 +146,7 @@ export const withAIAssistant = createHigherOrderComponent(
 
 				<BlockControls { ...blockControlProps }>
 					<AiAssistantDropdown
-						disabled={ ! rawContent?.length }
+						disabled={ false }
 						onChange={ handleChange }
 						onReplace={ replaceWithAiAssistantBlock }
 						exclude={ exclude }
