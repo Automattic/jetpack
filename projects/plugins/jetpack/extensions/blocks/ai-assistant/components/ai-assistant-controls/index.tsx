@@ -106,11 +106,6 @@ type AiAssistantControlComponentProps = {
 	label?: string;
 
 	/*
-	 * A list of quick edits to exclude from the dropdown.
-	 */
-	exclude?: AiAssistantKeyProp[];
-
-	/*
 	 * Whether the dropdown is requesting suggestions from AI.
 	 */
 	requestingState?: string;
@@ -125,13 +120,9 @@ export default function AiAssistantDropdown( {
 	key,
 	label,
 	blockType,
-	exclude = [],
 	requestingState,
 	disabled,
 }: AiAssistantControlComponentProps ) {
-	const quickActionsListFiltered = quickActionsList.filter(
-		quickAction => ! exclude.includes( quickAction.key )
-	);
 	const toolbarLabel =
 		requestingState === 'suggesting' ? null : label || __( 'AI Assistant', 'jetpack' );
 
@@ -263,7 +254,7 @@ export default function AiAssistantDropdown( {
 						</MenuItem>
 					) }
 
-					{ quickActionsListFiltered.map( quickAction => (
+					{ quickActionsList.map( quickAction => (
 						<MenuItem
 							icon={ quickAction?.icon }
 							iconPosition="left"
