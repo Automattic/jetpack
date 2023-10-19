@@ -30,7 +30,7 @@ function jetpack_get_google_fonts_data() {
 		apply_filters( 'jetpack_google_fonts_api_url', $default_google_fonts_api_url )
 	);
 	if ( $custom_google_fonts_api_url !== $default_google_fonts_api_url ) {
-		foreach ( $data['fontFamilies'] as $font_family ) {
+		foreach ( $data['fontFamilies'] as &$font_family ) {
 			foreach ( $font_family['fontFace'] as &$font_face ) {
 				$font_face['src'] = str_replace(
 					$default_google_fonts_api_url,
