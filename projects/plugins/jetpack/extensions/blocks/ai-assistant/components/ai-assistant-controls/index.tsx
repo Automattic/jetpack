@@ -6,7 +6,6 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { getBlockContent } from '@wordpress/blocks';
 import { MenuItem, MenuGroup, ToolbarButton, Dropdown } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription } from '@wordpress/icons';
 import React from 'react';
@@ -202,7 +201,7 @@ export default function AiAssistantDropdown( {
 		requestSuggestion( promptType, options );
 	};
 
-	const replaceWithAiAssistantBlock = useCallback( () => {
+	const replaceWithAiAssistantBlock = () => {
 		const clientIds = getSelectedBlockClientIds();
 		const blocks = getBlocksByClientId( clientIds );
 		const content = getBlocksContent( blocks );
@@ -221,7 +220,7 @@ export default function AiAssistantDropdown( {
 		);
 
 		removeBlocks( otherBlocksIds );
-	}, [ getSelectedBlockClientIds, getBlocksByClientId, replaceBlock, blockType, removeBlocks ] );
+	};
 
 	return (
 		<Dropdown
