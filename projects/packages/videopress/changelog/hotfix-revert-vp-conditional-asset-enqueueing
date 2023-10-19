@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Revert changes on #33394 #33036 and #33042 - Those changes won't properly handle VP block assets on feeds/query loops
