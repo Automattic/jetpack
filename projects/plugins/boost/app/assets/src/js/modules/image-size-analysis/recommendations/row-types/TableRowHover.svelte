@@ -7,11 +7,11 @@
 	export let device_type: string;
 </script>
 
-<div class="hover">
-	<p>{instructions}</p>
+<div class="jb-row-hover">
+	<p class="jb-row-hover__instruction">{instructions}</p>
 
 	{#if edit_url}
-		<div class="button-container">
+		<div class="jb-row-hover__button-container">
 			<Button
 				small
 				fill
@@ -25,14 +25,3 @@
 		</div>
 	{/if}
 </div>
-
-<style lang="scss">
-	.hover {
-		display: flex;
-		align-items: center;
-		gap: var( --gap );
-	}
-	p {
-		flex-grow: 1;
-	}
-</style>
