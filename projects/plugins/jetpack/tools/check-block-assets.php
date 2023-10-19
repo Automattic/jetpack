@@ -43,6 +43,7 @@ $ok_wp_deps = array(
 	'wp-html-entities',
 	'wp-i18n',
 	'wp-is-shallow-equal',
+	'wp-plugins',
 	'wp-polyfill',
 	'wp-preferences-persistence',
 	'wp-priority-queue',
