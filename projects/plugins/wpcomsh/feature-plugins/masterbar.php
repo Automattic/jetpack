@@ -277,3 +277,21 @@ add_action( 'admin_menu', 'wpcomsh_update_plugin_add_filter' );
  * Enable the mailbox in WPCOMSH sites.
  */
 add_filter( 'jetpack_show_wpcom_inbox_menu', '__return_true' );
+
+
+/**
+ * Ensure that when getting the wpcom_admin_interface option, we return
+ * a value from the persistent data store.
+ *
+ * @return false|string|null
+ */
+function wpcomsh_get_wpcom_admin_interface_option() {
+	if ( ! class_exists( '\Atomic_Persistent_Data' ) ) {
+		return false;
+	}
+
+	$persistent_data = new \Atomic_Persistent_Data();
+
+	return $persistent_data->WPCOM_ADMIN_INTERFACE; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+}
+add_filter( 'pre_option_wpcom_admin_interface', 'wpcomsh_get_wpcom_admin_interface_option' );
