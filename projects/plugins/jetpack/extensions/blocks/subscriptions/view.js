@@ -4,7 +4,7 @@ import './view.scss';
 import '../../shared/memberships.scss';
 
 import domReady from '@wordpress/dom-ready';
-import { handleIframeResult } from '../../../extensions/shared/memberships';
+import { handleIframeResult } from '../../shared/memberships';
 
 // @ts-ignore
 function show_iframe_retrieve_subscriptions_from_email() {
@@ -12,7 +12,14 @@ function show_iframe_retrieve_subscriptions_from_email() {
 	if ( ! form ) {
 		return;
 	}
+
+	if ( ! form.checkValidity() ) {
+		form.reportValidity();
+		return;
+	}
+
 	const email = form.querySelector( 'input[type=email]' ).value;
+
 	show_iframe( {
 		email,
 		blog: form.dataset.blog,
