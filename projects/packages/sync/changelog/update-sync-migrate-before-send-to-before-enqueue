@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Migrated 'jetpack_sync_before_send*' actions for Sync queue to 'jetpack_sync_before_enqueue' instead
