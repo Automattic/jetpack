@@ -14,7 +14,7 @@ import React from 'react';
  * Internal dependencies
  */
 import { ExtendedBlockProp } from '../../extensions/ai-assistant';
-import { getBlocksContent, getStoreBlockId } from '../../extensions/ai-assistant/with-ai-assistant';
+import { getStoreBlockId } from '../../extensions/ai-assistant/with-ai-assistant';
 import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
@@ -23,6 +23,7 @@ import {
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 } from '../../lib/prompt';
+import { getBlockTextContent } from '../../lib/utils/block-content';
 import { transformToAIAssistantBlock } from '../../transforms';
 import { I18nMenuDropdown } from '../i18n-dropdown-control';
 import { ToneDropdownMenu } from '../tone-dropdown-control';
@@ -115,6 +116,18 @@ type AiAssistantControlComponentProps = {
 	 */
 	disabled?: boolean;
 };
+
+/**
+ * Given a list of blocks, it returns their content as a string.
+ * @param {Array} blocks - The list of blocks.
+ * @returns {string}       The content of the blocks as a string.
+ */
+export function getBlocksContent( blocks ) {
+	return blocks
+		.filter( block => block != null ) // Safeguard against null or undefined blocks
+		.map( block => getBlockTextContent( block.clientId ) )
+		.join( '\n\n' );
+}
 
 export default function AiAssistantDropdown( {
 	key,
