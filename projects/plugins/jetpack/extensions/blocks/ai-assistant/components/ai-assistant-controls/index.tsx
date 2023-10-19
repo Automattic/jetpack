@@ -244,19 +244,17 @@ export default function AiAssistantDropdown( {
 			} }
 			renderContent={ ( { onClose: closeDropdown } ) => (
 				<MenuGroup label={ label }>
-					{ ! exclude.includes( KEY_ASK_AI_ASSISTANT ) && (
-						<MenuItem
-							icon={ aiAssistantIcon }
-							iconPosition="left"
-							key="key-ai-assistant"
-							onClick={ replaceWithAiAssistantBlock }
-							isSelected={ key === 'key-ai-assistant' }
-						>
-							<div className="jetpack-ai-assistant__menu-item">
-								{ __( 'Ask AI Assistant', 'jetpack' ) }
-							</div>
-						</MenuItem>
-					) }
+					<MenuItem
+						icon={ aiAssistantIcon }
+						iconPosition="left"
+						key="key-ai-assistant"
+						onClick={ replaceWithAiAssistantBlock }
+						isSelected={ key === 'key-ai-assistant' }
+					>
+						<div className="jetpack-ai-assistant__menu-item">
+							{ __( 'Ask AI Assistant', 'jetpack' ) }
+						</div>
+					</MenuItem>
 
 					{ quickActionsList.map( quickAction => (
 						<MenuItem
