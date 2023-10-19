@@ -3,7 +3,7 @@
  */
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button, PanelBody, PanelRow } from '@wordpress/components';
+import { Button, PanelBody, PanelRow, BaseControl } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -16,6 +16,12 @@ import useAIFeature, {
 } from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import Proofread from '../proofread';
+import UsagePanel from '../usage-panel';
+
+// Determine if the usage panel is enabled or not
+const isUsagePanelAvailable =
+	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-assistant-usage-panel' ]
+		?.available || false;
 
 const Upgrade = ( {
 	onClick,
@@ -69,11 +75,26 @@ export default function AiAssistantPluginSidebar() {
 			<JetpackPluginSidebar>
 				<PanelBody title={ title } initialOpen={ false }>
 					<PanelRow>
-						<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
+						<BaseControl
+							className="jetpack-ai-proofread-control__header"
+							label={ __( 'AI feedback on post', 'jetpack' ) }
+						>
+							<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
+						</BaseControl>
 					</PanelRow>
 					{ requireUpgrade && (
 						<PanelRow>
 							<Upgrade onClick={ autosaveAndRedirect } type={ upgradeType } />
+						</PanelRow>
+					) }
+					{ isUsagePanelAvailable && (
+						<PanelRow>
+							<BaseControl
+								className="jetpack-ai-usage-panel-control__header"
+								label={ __( 'Usage', 'jetpack' ) }
+							>
+								<UsagePanel />
+							</BaseControl>
 						</PanelRow>
 					) }
 				</PanelBody>
