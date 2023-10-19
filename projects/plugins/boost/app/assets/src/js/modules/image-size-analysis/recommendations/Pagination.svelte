@@ -55,9 +55,9 @@
 			<ChevronLeft />
 		</PaginationArrow>
 
-		<ul>
+		<ul class="jb-pagination__list">
 			{#each pages as page}
-				<li>
+				<li class="jb-pagination__item">
 					{#if page === MORE_ICON}
 						<span class="jb-pagination__page jb-pagination__more"> ... </span>
 					{:else}
@@ -77,50 +77,3 @@
 		</PaginationArrow>
 	{/if}
 </div>
-
-<style lang="scss">
-	.jb-pagination {
-		padding: 48px;
-	}
-	.jb-pagination,
-	ul {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-	li {
-		list-style-type: none;
-		margin: 0;
-	}
-
-	.jb-pagination__page,
-	.jb-pagination :global( a ) {
-		background-color: transparent;
-		border: 0;
-		cursor: pointer;
-		padding: 7px 12px;
-		aspect-ratio: 1;
-		line-height: 1;
-		font-size: 13px;
-		font-weight: 600;
-		text-decoration: none;
-
-		&[disabled] {
-			cursor: default;
-			color: #000;
-		}
-
-		&.jb-pagination__inactive {
-			opacity: 0.25;
-			cursor: not-allowed;
-		}
-	}
-
-	.jb-pagination :global( .jb-pagination__current ) {
-		background-color: #000;
-		border-radius: var( --border-radius );
-		cursor: pointer;
-		border: 0;
-		color: #fff;
-	}
-</style>
