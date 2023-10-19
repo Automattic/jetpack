@@ -71,7 +71,9 @@ add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_google_fonts_module_
  * @return string|array
  */
 function wpcomsh_google_fonts_proxy( $src ) {
-	return str_replace( 'fonts.googleapis.com', 'fonts-api.wp.com', $src );
+	$src = str_replace( 'fonts.googleapis.com', 'fonts-api.wp.com', $src );
+	$src = str_replace( 'fonts.gstatic.com', 'fonts.wp.com', $src );
+	return $src;
 }
 add_filter( 'style_loader_src', 'wpcomsh_google_fonts_proxy' );
 add_filter( 'wp_resource_hints', 'wpcomsh_google_fonts_proxy' );
