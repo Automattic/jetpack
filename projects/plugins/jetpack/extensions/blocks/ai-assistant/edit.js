@@ -171,7 +171,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}
 
 		// Bail out if the block already has children blocks
-		const block = getBlock();
+		const block = getBlock( clientId );
 		if ( block?.innerBlocks?.length ) {
 			return;
 		}
@@ -336,7 +336,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			 * - Blocks are already created
 			 * - blocks are children of the current block
 			 */
-			newGeneratedBlocks = getBlock();
+			newGeneratedBlocks = getBlock( clientId );
 			newGeneratedBlocks = newGeneratedBlocks?.innerBlocks || [];
 		}
 
