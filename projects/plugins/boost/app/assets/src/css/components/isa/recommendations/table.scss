@@ -12,7 +12,9 @@
 
 .jb-table {
 	will-change: opacity, filter;
-	transition: opacity 0.3s ease-in-out, filter 0.3s ease-in-out;
+	transition:
+		opacity 0.3s ease-in-out,
+		filter 0.3s ease-in-out;
 
 	h1 {
 		padding-top: 16px;
@@ -29,7 +31,7 @@
 
 .jb-table-header {
 	@media ( max-width: 782px ) {
-		display: none;
+		display: none !important;
 	}
 
 	font-size: 0.875rem;
