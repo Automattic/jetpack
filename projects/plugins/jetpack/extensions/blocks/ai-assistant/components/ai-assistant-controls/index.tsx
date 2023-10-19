@@ -4,7 +4,7 @@
 import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MenuItem, MenuGroup, ToolbarButton, Dropdown } from '@wordpress/components';
-import { select, useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription } from '@wordpress/icons';
@@ -135,14 +135,21 @@ export default function AiAssistantDropdown( {
 	const toolbarLabel =
 		requestingState === 'suggesting' ? null : label || __( 'AI Assistant', 'jetpack' );
 
+	/*
+	 * Let's disable the eslint rule for this line.
+	 * @todo: fix by using StoreDescriptor, or something similar
+	 */
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
+	const { getSelectedBlockClientIds, getBlocksByClientId } = useSelect( 'core/block-editor' );
 	const { removeBlocks, replaceBlock } = useDispatch( 'core/block-editor' );
 
 	const { tracks } = useAnalytics();
 
 	const requestSuggestion = useCallback(
 		( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-			const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
-			const blocks = select( 'core/block-editor' ).getBlocksByClientId( clientIds );
+			const clientIds = getSelectedBlockClientIds();
+			const blocks = getBlocksByClientId( clientIds );
 			const content = getBlocksContent( blocks );
 
 			const [ firstBlock ] = blocks;
@@ -184,7 +191,7 @@ export default function AiAssistantDropdown( {
 			// It removes the rest of the blocks in case there are more than one.
 			removeBlocks( otherBlocksIds );
 		},
-		[ blockType, replaceBlock, removeBlocks ]
+		[ getSelectedBlockClientIds, getBlocksByClientId, blockType, replaceBlock, removeBlocks ]
 	);
 
 	const onChange = useCallback(
@@ -199,8 +206,8 @@ export default function AiAssistantDropdown( {
 		[ tracks, requestSuggestion, blockType ]
 	);
 	const replaceWithAiAssistantBlock = useCallback( () => {
-		const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
-		const blocks = select( 'core/block-editor' ).getBlocksByClientId( clientIds );
+		const clientIds = getSelectedBlockClientIds();
+		const blocks = getBlocksByClientId( clientIds );
 		const content = getBlocksContent( blocks );
 
 		const [ firstClientId, ...otherBlocksIds ] = clientIds;
@@ -217,7 +224,7 @@ export default function AiAssistantDropdown( {
 		);
 
 		removeBlocks( otherBlocksIds );
-	}, [ blockType, replaceBlock, removeBlocks ] );
+	}, [ getSelectedBlockClientIds, getBlocksByClientId, replaceBlock, blockType, removeBlocks ] );
 
 	return (
 		<Dropdown
