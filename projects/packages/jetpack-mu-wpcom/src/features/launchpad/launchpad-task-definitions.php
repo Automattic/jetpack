@@ -1855,3 +1855,11 @@ function wpcom_trigger_email_campaign() {
 	);
 }
 add_action( 'update_option_launchpad_checklist_tasks_statuses', 'wpcom_trigger_email_campaign', 10, 3 );
+
+/**
+ * Mark task complete when plugin is installed.
+ */
+function wpcom_launchpad_mark_plugin_installed_complete() {
+	wpcom_mark_launchpad_task_complete( 'install_custom_plugin' );
+}
+add_action( 'jetpack_plugin_installed', 'wpcom_launchpad_mark_plugin_installed_complete ', 10, 1 );
