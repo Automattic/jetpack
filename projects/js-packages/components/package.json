@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.43.3",
+	"version": "0.43.5-alpha",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -35,7 +35,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@babel/core": "7.23.0",
+		"@babel/core": "7.23.2",
 		"@babel/preset-react": "7.22.15",
 		"@jest/globals": "29.4.3",
 		"@storybook/addon-actions": "7.4.6",
