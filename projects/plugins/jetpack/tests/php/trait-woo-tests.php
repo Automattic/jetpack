@@ -5,6 +5,13 @@
  */
 trait WooCommerceTestTrait {
 	/**
+	 * Is Woo Enabled
+	 *
+	 * @var bool
+	 */
+	protected static $woo_enabled = false;
+
+	/**
 	 * @beforeClass
 	 **/
 	public static function set_up_woo_before_class() {

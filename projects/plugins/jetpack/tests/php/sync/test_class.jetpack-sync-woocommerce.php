@@ -10,12 +10,14 @@ require_once __DIR__ . '/../trait-woo-tests.php';
  * @group woocommerce
  */
 class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
+	/**
+	 * Using the WooCommerceTestTrait to include WooCommerce related dependencies for the unit tests.
+	 */
 	use WooCommerceTestTrait;
 
 	protected $post;
 	protected $callable_module;
 	protected $full_sync;
-	public static $woo_enabled;
 
 	/**
 	 * Set up.
