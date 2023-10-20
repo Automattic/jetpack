@@ -209,7 +209,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'verify_email',
 				'site_launched',
 			),
-			'is_enabled_callback' => '__return_true',
+			'is_enabled_callback' => 'wpcom_launchpad_is_hosting_flow_enabled',
 		),
 	);
 
@@ -892,6 +892,22 @@ function wpcom_launchpad_is_keep_building_enabled() {
 	$blog_id = get_current_blog_id();
 
 	if ( 'build' === $intent && $blog_id > 220443356 ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Checks if the hosting flow task list is enabled.
+ *
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_launchpad_is_hosting_flow_enabled() {
+	$intent  = get_option( 'site_intent', false );
+	$blog_id = get_current_blog_id();
+
+	if ( 'host-site' === $intent && $blog_id > 220443356 ) {
 		return true;
 	}
 
