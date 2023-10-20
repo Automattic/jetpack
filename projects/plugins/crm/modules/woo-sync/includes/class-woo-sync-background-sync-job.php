@@ -1555,7 +1555,12 @@ class Woo_Sync_Background_Sync_Job {
 
 		if ( isset( $order_data['billing'] ) && isset( $order_data['billing']['company'] ) ) {
 
-			// Build fields for company
+			/**
+			 * Build fields for company in case it doesn't exist
+			 *
+			 * WooCommerce only gives us one company field (company name), and we can't infer other fields
+			 * from customer info since multiple customers might put the same company
+			 */
 			$data['company'] = array(
 				'status'          => __( 'Customer', 'zero-bs-crm' ),
 				'name'            => $order_data['billing']['company'],
@@ -1569,38 +1574,6 @@ class Woo_Sync_Background_Sync_Job {
 					),
 				),
 			);
-
-			if ( isset( $order_data['billing']['address_1'] ) && !empty( $order_data['billing']['address_1'] ) ) {
-				$data['company']['addr1'] = $order_data['billing']['address_1'];
-			}
-
-			if ( isset( $order_data['billing']['address_2'] ) && !empty( $order_data['billing']['address_2'] ) ) {
-				$data['company']['addr2'] = $order_data['billing']['address_2'];
-			}
-
-			if ( isset( $order_data['billing']['city'] ) && !empty( $order_data['billing']['city'] ) ) {
-				$data['company']['city'] = $order_data['billing']['city'];
-			}
-
-			if ( isset( $order_data['billing']['state'] ) && !empty( $order_data['billing']['state'] ) ) {
-				$data['company']['county'] = $order_data['billing']['state'];
-			}
-
-			if ( isset( $order_data['billing']['country'] ) && !empty( $order_data['billing']['country'] ) ) {
-				$data['company']['country'] = $order_data['billing']['country'];
-			}
-
-			if ( isset( $order_data['billing']['postcode'] ) && !empty( $order_data['billing']['postcode'] ) ) {
-				$data['company']['postcode'] = $order_data['billing']['postcode'];
-			}
-
-			if ( isset( $order_data['billing']['phone'] ) && !empty( $order_data['billing']['phone'] ) ) {
-				$data['company']['maintel'] = $order_data['billing']['phone'];
-			}
-
-			if ( isset( $order_data['billing']['email'] ) && !empty( $order_data['billing']['email'] ) ) {
-				$data['company']['email'] = $order_data['billing']['email'];
-			}
 
 		}
 
