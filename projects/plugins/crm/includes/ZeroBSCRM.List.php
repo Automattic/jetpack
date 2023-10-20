@@ -182,19 +182,6 @@ class zeroBSCRM_list{
         $currentColumns = false; if (isset($customViews) && isset($customViews[$this->objType])) $currentColumns = $customViews[$this->objType];
         if ($currentColumns == false) $currentColumns = $defaultColumns;
 
-
-        #} Filter buttons
-        // load defaults (List.columns.php)
-        $filterVar = 'zeroBSCRM_filterbuttons_'.$this->objType; //$zeroBSCRM_filterbuttons_transaction;
-        if ( !isset( $GLOBALS[ $filterVar ] ) ) {
-            $GLOBALS[ $filterVar ] = array( 'default'=>array(), 'all'=>array() );
-        }
-        $defaultFilterButtons = $GLOBALS[ $filterVar ]['default'];
-        // retrieve from customViews (as retrieved above)
-        $currentFilterButtons = false; if (isset($customViews) && isset($customViews[$this->objType.'_filters'])) $currentFilterButtons = $customViews[$this->objType.'_filters'];
-        if ($currentFilterButtons == false) $currentFilterButtons = $defaultFilterButtons;
-        $allFilterButtons = $GLOBALS[ $filterVar ]['all'];
-
 		// add all columns to sortables :)
 		if ( is_array( $currentColumns ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			foreach ( $currentColumns as $col => $var ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
