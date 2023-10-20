@@ -575,7 +575,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					}
 				}
 				document.addEventListener( 'DOMContentLoaded', watchReply );
-				document.querySelector('comment-reply-js').addEventListener('load', watchReply);
+				// in WP 6.4+, the script is loaded asynchronously, so we need to wait for it to load before we monkey-patch the functions it introduces.
+				document.querySelector('comment-reply-js')?.addEventListener('load', watchReply);
 			})();
 		</script>
 
