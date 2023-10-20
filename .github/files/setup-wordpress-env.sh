@@ -144,7 +144,7 @@ if [[ "$WITH_WOOCOMMERCE" == true ]]; then
 		echo "Fetching latest WooCommerce tag: $WOO_LATEST_TAG"
 
 		# Download the built Woo plugin.
-		curl -s -L "$WOO_DL_URL" -o "woocommerce.zip"
+		curl -sS -L --fail "$WOO_DL_URL" -o "woocommerce.zip"
 		unzip -q "woocommerce.zip"
 		mv woocommerce "wordpress-$WP_BRANCH/src/wp-content/plugins"
 
