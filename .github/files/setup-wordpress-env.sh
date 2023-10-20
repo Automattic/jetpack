@@ -133,7 +133,7 @@ if [[ "$WITH_WOOCOMMERCE" == true ]]; then
 	echo "::group::Installing plugin WooCommerce into WordPress"
 
 	WOO_REPO_URL="https://github.com/woocommerce/woocommerce"
-	WOO_GH_API_URL="https://api.github.com/repos/woocommerce/woocommerce/releases/latest"
+	WOO_GH_API_URL="https://api.github.com/repos/woocommerce/woocommerce/releases/tags/8.0.1"
 
 	RESPONSE=$(curl -sSL --fail "$WOO_GH_API_URL")
 	WOO_LATEST_TAG=$(jq -r '.tag_name' <<< "$RESPONSE")
