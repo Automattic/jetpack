@@ -138,14 +138,19 @@ class WPCOM_Features {
 	private const AKISMET_FREE                                = 'ak_free_yearly'; // 2300
 	private const AKISMET_PERSONAL_MONTHLY                    = 'ak_personal_monthly'; // 2309
 	private const AKISMET_PERSONAL_YEARLY                     = 'ak_personal_yearly'; // 2310
+	private const AKISMET_PLUS_BI_YEARLY                      = 'ak_plus_bi_yearly_1'; // 2327
 	private const AKISMET_PLUS_YEARLY                         = 'ak_plus_yearly_1'; // 2311
 	private const AKISMET_PLUS_MONTHLY                        = 'ak_plus_monthly_1'; // 2312
+	private const AKISMET_PLUS_20K_BI_YEARLY                  = 'ak_plus_bi_yearly_2'; // 2328
 	private const AKISMET_PLUS_20K_YEARLY                     = 'ak_plus_yearly_2'; // 2313
 	private const AKISMET_PLUS_20K_MONTHLY                    = 'ak_plus_monthly_2'; // 2314
+	private const AKISMET_PLUS_30K_BI_YEARLY                  = 'ak_plus_bi_yearly_3'; // 2329
 	private const AKISMET_PLUS_30K_YEARLY                     = 'ak_plus_yearly_3'; // 2315
 	private const AKISMET_PLUS_30K_MONTHLY                    = 'ak_plus_monthly_3'; // 2316
+	private const AKISMET_PLUS_40K_BI_YEARLY                  = 'ak_plus_bi_yearly_4'; // 2330
 	private const AKISMET_PLUS_40K_YEARLY                     = 'ak_plus_yearly_4'; // 2317
 	private const AKISMET_PLUS_40K_MONTHLY                    = 'ak_plus_monthly_4'; // 2318
+	private const AKISMET_ENTERPRISE_BI_YEARLY                = 'ak_ent_bi_yearly_1'; // 2331
 	private const AKISMET_ENTERPRISE_YEARLY                   = 'ak_ent_yearly_1'; // 2319
 	private const AKISMET_ENTERPRISE_MONTHLY                  = 'ak_ent_monthly_1'; // 2320
 	private const AKISMET_ENTERPRISE_350K_YEARLY              = 'ak_ep350k_yearly_1'; // 2321
@@ -257,8 +262,19 @@ class WPCOM_Features {
 		self::AKISMET_PERSONAL_YEARLY,
 		self::AKISMET_PLUS_MONTHLY,
 		self::AKISMET_PLUS_YEARLY,
+		self::AKISMET_PLUS_BI_YEARLY,
+		self::AKISMET_PLUS_20K_MONTHLY,
+		self::AKISMET_PLUS_20K_YEARLY,
+		self::AKISMET_PLUS_20K_BI_YEARLY,
+		self::AKISMET_PLUS_30K_MONTHLY,
+		self::AKISMET_PLUS_30K_YEARLY,
+		self::AKISMET_PLUS_30K_BI_YEARLY,
+		self::AKISMET_PLUS_40K_MONTHLY,
+		self::AKISMET_PLUS_40K_YEARLY,
+		self::AKISMET_PLUS_40K_BI_YEARLY,
 		self::AKISMET_ENTERPRISE_MONTHLY,
 		self::AKISMET_ENTERPRISE_YEARLY,
+		self::AKISMET_ENTERPRISE_BI_YEARLY,
 		self::AKISMET_ENTERPRISE_350K_MONTHLY,
 		self::AKISMET_ENTERPRISE_350K_YEARLY,
 		self::AKISMET_ENTERPRISE_2M_MONTHLY,
