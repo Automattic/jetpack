@@ -81,12 +81,6 @@ jobs:
         id: changed
         run: |
           CHANGED="$(EXTRA=test .github/files/list-changed-projects.sh)"
-
-          # Only test certain plugins in combination with WC
-          if [[ "$WITH_WOOCOMMERCE" ]]; then
-            CHANGED=$( jq 'with_entries( select( .key == "plugins/jetpack" ) )' <<<"$CHANGED" )
-          fi
-
           ANY_PLUGINS="$(jq --argjson changed "$CHANGED" -n '$changed | with_entries( select( .key | startswith( "plugins/" ) ) ) | any')"
           echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
           echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
