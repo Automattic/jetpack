@@ -493,15 +493,6 @@ class zeroBSCRM_list{
             // Vars for zbs list view drawer
             var zbsListViewParams = <?php echo wp_json_encode( $list_view_parameters ) ?>;
 
-            var zbsUnsortables = [<?php $c = 0; if (count($this->unsortables) > 0) foreach ($this->unsortables as $sortableStr) {
-
-                        if ($c > 0) echo ',';
-
-                        echo "'". esc_html( zeroBSCRM_slashOut($sortableStr,true) )."'";
-
-                        $c++;
-                        
-            } ?>]; // this is columns that are "unsortable" e.g. edit link
             var zbsSortables = [<?php 
 
                 $c = 0; if (count($this->sortables) > 0) foreach ($this->sortables as $sortableStr) {
@@ -594,48 +585,6 @@ class zeroBSCRM_list{
 
                     default:
                         zeroBSCRM_slashOut(__('Item',"zero-bs-crm"));
-                        break;
-
-
-
-                } 
-
-            ?>';
-            var zbsListViewObjNamePlural = '<?php
-
-                switch ($this->postType){
-
-
-                    case 'zerobs_customer':
-                        zeroBSCRM_slashOut(__('Contacts',"zero-bs-crm"));
-                        break;
-
-                    case 'zerobs_company':
-                        zeroBSCRM_slashOut(jpcrm_label_company(true));
-                        break;
-
-                    case 'zerobs_quote':
-                        zeroBSCRM_slashOut(__('Quotes',"zero-bs-crm"));
-                        break;
-
-                    case 'zerobs_invoice':
-                        zeroBSCRM_slashOut(__('Invoices',"zero-bs-crm"));
-                        break;
-
-                    case 'zerobs_transaction':
-                        zeroBSCRM_slashOut(__('Transactions',"zero-bs-crm"));
-                        break;
-
-                    case 'zerobs_form':
-                        zeroBSCRM_slashOut(__('Forms',"zero-bs-crm"));
-                        break;
-
-                    case 'zerobs_quotetemplate':
-                        zeroBSCRM_slashOut(__('Quote Templates',"zero-bs-crm"));
-                        break;
-
-                    default:
-                        zeroBSCRM_slashOut(__('Items',"zero-bs-crm"));
                         break;
 
 
