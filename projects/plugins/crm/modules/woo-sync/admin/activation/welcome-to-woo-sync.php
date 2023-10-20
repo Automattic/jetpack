@@ -29,6 +29,7 @@ wp_enqueue_style('woozbswelcomebootstrap',         plugins_url('/css/lib/bootstr
 //  which now get merged into this one css file.
 wp_enqueue_style('jpcrm-woo-sync-welcome-wizard',         plugins_url('/css/jpcrm-woo-sync-welcome-wizard'.wp_scripts_get_suffix().'.css',JPCRM_WOO_SYNC_ROOT_FILE) );
 
+$style_handles = array( 'woozbswelcomebootstrap', 'jpcrm-woo-sync-welcome-wizard' );
 // dequeue admin bar css
 wp_dequeue_style('admin-bar-css'); 
 
@@ -44,7 +45,7 @@ global $zbs;
         <?php 
 
             // output css and js
-            wp_print_styles();
+			wp_print_styles( $style_handles );
             wp_print_scripts();
 
          ?>
