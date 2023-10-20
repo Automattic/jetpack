@@ -137,7 +137,7 @@ then
 	WOO_REPO_URL="https://github.com/woocommerce/woocommerce"
 	WOO_GH_API_URL="https://api.github.com/repos/woocommerce/woocommerce/releases/latest"
 
-	RESPONSE=$(curl -s "$WOO_GH_API_URL")
+	RESPONSE=$(curl -sSL --fail "$WOO_GH_API_URL")
 	WOO_LATEST_TAG=$(jq -r ".tag_name" <<< "$RESPONSE")
 	WOO_DL_URL=$(jq -r ".assets[0].browser_download_url" <<< "$RESPONSE")
 
