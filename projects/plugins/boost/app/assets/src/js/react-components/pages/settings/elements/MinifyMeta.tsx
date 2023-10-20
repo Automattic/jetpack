@@ -3,15 +3,15 @@ import { useState } from 'react';
 import { z } from 'zod';
 import { __, sprintf } from '@wordpress/i18n';
 
-export const minifyMetaTypes = {
+export const minifyMetaOptions = {
 	minify_js_excludes: z.array( z.string() ),
 	minify_css_excludes: z.array( z.string() ),
 };
 
-type MinifyMetaSettings = keyof typeof minifyMetaTypes;
+type MinifyMetaSettings = keyof typeof minifyMetaOptions;
 
 interface Props {
-	type: MinifyMetaSettings;
+	optionKey: MinifyMetaSettings;
 	inputLabel: string;
 	buttonText: string;
 	placeholder: string;
@@ -20,8 +20,12 @@ interface Props {
 
 let nextIdIndex = 0;
 
-const MetaComponent = ( { inputLabel, buttonText, placeholder, type }: Props ) => {
-	const { data, mutate } = useDataSync( 'jetpack_boost_ds', type, minifyMetaTypes[ type ] );
+const MetaComponent = ( { inputLabel, buttonText, placeholder, optionKey }: Props ) => {
+	const { data, mutate } = useDataSync(
+		'jetpack_boost_ds',
+		optionKey,
+		minifyMetaOptions[ optionKey ]
+	);
 	const [ isEditing, setIsEditing ] = useState( false );
 	const htmlId = `minify-meta-exclude-list-${ nextIdIndex++ }`;
 

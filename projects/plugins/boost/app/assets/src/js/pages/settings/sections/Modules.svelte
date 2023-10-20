@@ -225,7 +225,7 @@
 		<div slot="meta">
 			<ReactComponent
 				this={MinifyMeta}
-				type="minify_js_excludes"
+				optionKey="minify_js_excludes"
 				inputLabel={__( 'Exclude JS Strings:', 'jetpack-boost' )}
 				buttonText={__( 'Exclude JS Strings', 'jetpack-boost' )}
 				placeholder={__( 'Comma separated list of JS scripts to exclude', 'jetpack-boost' )}
@@ -245,7 +245,7 @@
 		<div slot="meta">
 			<ReactComponent
 				this={MinifyMeta}
-				type="minify_css_excludes"
+				optionKey="minify_css_excludes"
 				inputLabel={__( 'Exclude CSS Strings:', 'jetpack-boost' )}
 				buttonText={__( 'Exclude CSS Strings', 'jetpack-boost' )}
 				placeholder={__( 'Comma separated list of CSS stylesheets to exclude', 'jetpack-boost' )}
