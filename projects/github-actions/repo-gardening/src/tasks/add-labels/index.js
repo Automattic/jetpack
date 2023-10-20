@@ -84,6 +84,11 @@ function cleanName( name ) {
 		name = 'mu-wpcom';
 	}
 
+	// The WooSync module does not have a space, despite legacy naming
+	if ( name === 'woo-sync' ) {
+		name = 'WooSync';
+	}
+
 	return (
 		name
 			// Break up words
