@@ -1885,9 +1885,9 @@ add_action( 'jetpack_sync_current_theme_support', 'wpcom_launchpad_mark_theme_se
  * Mark task complete when ssh is setup.
  */
 function wpcom_launchpad_mark_ssh_setup_complete() {
-	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'ssh_setup' ) ) ) {
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'setup_ssh' ) ) ) {
 		return;
 	}
-	wpcom_mark_launchpad_task_complete( 'ssh_setup' );
+	wpcom_mark_launchpad_task_complete( 'setup_ssh' );
 }
 add_action( 'a8c_hosting_ssh_user_created', 'wpcom_launchpad_mark_ssh_setup_complete', 10 );
