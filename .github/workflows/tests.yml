@@ -94,6 +94,7 @@ jobs:
 
       - name: Setup WordPress environment for plugin tests
         env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
           CHANGED: ${{ steps.changed.outputs.projects }}
         if: steps.changed.outputs.any-plugins == 'true' && matrix.wp != 'none'
         run: .github/files/setup-wordpress-env.sh
