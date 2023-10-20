@@ -36,8 +36,6 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	wp_enqueue_style( 'zbsbeforeyougocssadminmin', plugins_url( '/css/before-you-go/admin.min.css', ZBS_ROOTFILE ), array(), $zbs->version );
 	wp_enqueue_style( 'zbsbeforeyougocssexitform', plugins_url( '/css/before-you-go/zbs-exitform.min.css', ZBS_ROOTFILE ), array(), $zbs->version );
 	$style_handles = array( 'zbsbeforeyougocssloadstyles', 'zbsbeforeyougocssopensans', 'zbsbeforeyougocssadminmin', 'zbsbeforeyougocssexitform' );
-	// dequeue anything?
-	wp_dequeue_style( 'admin-bar-css' );
 
 ?><!DOCTYPE html>
 <html lang="en-US">
