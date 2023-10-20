@@ -20,8 +20,11 @@ export default function UsagePanel() {
 		requestsCount,
 		requestsLimit
 	);
-	// translators: %1$d: current request counter;
-	const unlimitedPlanUsageMessage = sprintf( __( '%1$d / ∞ requests.', 'jetpack' ), requestsCount );
+	const unlimitedPlanUsageMessage = sprintf(
+		// translators: placeholder is the current request counter;
+		__( '%d / ∞ requests.', 'jetpack' ),
+		requestsCount
+	);
 
 	/*
 	 * Calculate usage. When hasFeature is true, the user has the paid plan,
