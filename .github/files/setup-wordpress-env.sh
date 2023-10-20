@@ -129,9 +129,7 @@ for PLUGIN in projects/plugins/*/composer.json; do
 done
 
 # Install WooCommerce plugin used for some Jetpack integration tests.
-if [[ "$WITH_WOOCOMMERCE" == true ]] &&
-	jq --argjson changed "$CHANGED" -ne '$changed["plugins/jetpack"] // false' > /dev/null
-then
+if [[ "$WITH_WOOCOMMERCE" == true ]]; then
 	echo "::group::Installing plugin WooCommerce into WordPress"
 
 	WOO_REPO_URL="https://github.com/woocommerce/woocommerce"
