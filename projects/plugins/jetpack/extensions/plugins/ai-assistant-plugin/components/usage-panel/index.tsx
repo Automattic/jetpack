@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -12,6 +13,10 @@ import UsageBar from '../usage-bar';
 export default function UsagePanel() {
 	// fetch usage data
 	const { hasFeature, requestsCount, requestsLimit } = useAIFeature();
+
+	const handleUpgradeClick = () => {
+		alert( 'Work in progress' );
+	};
 
 	// build messages
 	const freeUsageMessage = sprintf(
@@ -46,6 +51,16 @@ export default function UsagePanel() {
 						sprintf( __( 'Requests will reset in %1$d days.', 'jetpack' ), 10 )
 					}
 				</p>
+			) }
+
+			{ ! hasFeature && (
+				<Button
+					variant="primary"
+					label="Upgrade your Jetpack AI plan"
+					onClick={ handleUpgradeClick }
+				>
+					Upgrade
+				</Button>
 			) }
 		</div>
 	);
