@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+The Google Photos media inserter only checks for the connection status when needed.

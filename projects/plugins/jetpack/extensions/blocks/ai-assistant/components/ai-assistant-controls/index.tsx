@@ -2,20 +2,17 @@
  * External dependencies
  */
 import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
-import {
-	MenuItem,
-	MenuGroup,
-	CustomSelectControl,
-	ToolbarButton,
-	Dropdown,
-} from '@wordpress/components';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { getBlockContent } from '@wordpress/blocks';
+import { MenuItem, MenuGroup, ToolbarButton, Dropdown } from '@wordpress/components';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription } from '@wordpress/icons';
-import classNames from 'classnames';
 import React from 'react';
 /**
  * Internal dependencies
  */
+import { getStoreBlockId } from '../../extensions/ai-assistant/with-ai-assistant';
 import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
@@ -24,12 +21,14 @@ import {
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 } from '../../lib/prompt';
+import { transformToAIAssistantBlock } from '../../transforms';
 import { I18nMenuDropdown } from '../i18n-dropdown-control';
 import { ToneDropdownMenu } from '../tone-dropdown-control';
 import './style.scss';
 /**
  * Types and constants
  */
+import type { ExtendedBlockProp } from '../../extensions/ai-assistant';
 import type { PromptTypeProp } from '../../lib/prompt';
 import type { ToneProp } from '../tone-dropdown-control';
 
@@ -47,15 +46,6 @@ const QUICK_EDIT_KEY_MAKE_LONGER = 'make-longer' as const;
 
 // Ask AI Assistant option
 export const KEY_ASK_AI_ASSISTANT = 'ask-ai-assistant' as const;
-
-const QUICK_EDIT_KEY_LIST = [
-	QUICK_EDIT_KEY_CORRECT_SPELLING,
-	QUICK_EDIT_KEY_SIMPLIFY,
-	QUICK_EDIT_KEY_SUMMARIZE,
-	QUICK_EDIT_KEY_MAKE_LONGER,
-] as const;
-
-type AiAssistantKeyProp = ( typeof QUICK_EDIT_KEY_LIST )[ number ] | typeof KEY_ASK_AI_ASSISTANT;
 
 const quickActionsList = [
 	{
@@ -91,49 +81,117 @@ export type AiAssistantDropdownOnChangeOptionsArgProps = {
 
 type AiAssistantControlComponentProps = {
 	/*
-	 * Can be used to externally control the value of the control. Optional.
+	 * The block type. Required.
 	 */
-	key?: AiAssistantKeyProp | string;
-
-	/*
-	 * The label to use for the dropdown. Optional.
-	 */
-	label?: string;
-
-	/*
-	 * A list of quick edits to exclude from the dropdown.
-	 */
-	exclude?: AiAssistantKeyProp[];
-
-	/*
-	 * Whether the dropdown is requesting suggestions from AI.
-	 */
-	requestingState?: string;
-
-	/*
-	 * Whether the dropdown is disabled.
-	 */
-	disabled?: boolean;
-
-	onChange: ( item: PromptTypeProp, options?: AiAssistantDropdownOnChangeOptionsArgProps ) => void;
-
-	onReplace: () => void;
+	blockType: ExtendedBlockProp;
 };
 
-export default function AiAssistantDropdown( {
-	key,
-	label,
-	exclude = [],
-	requestingState,
-	disabled,
-	onChange,
-	onReplace,
-}: AiAssistantControlComponentProps ) {
-	const quickActionsListFiltered = quickActionsList.filter(
-		quickAction => ! exclude.includes( quickAction.key )
-	);
-	const toolbarLabel =
-		requestingState === 'suggesting' ? null : label || __( 'AI Assistant', 'jetpack' );
+/**
+ * Given a list of blocks, it returns their content as a string.
+ * @param {Array} blocks - The list of blocks.
+ * @returns {string}       The content of the blocks as a string.
+ */
+export function getBlocksContent( blocks ) {
+	return blocks
+		.filter( block => block != null ) // Safeguard against null or undefined blocks
+		.map( block => getBlockContent( block ) )
+		.join( '\n\n' );
+}
+
+export default function AiAssistantDropdown( { blockType }: AiAssistantControlComponentProps ) {
+	const toolbarLabel = __( 'AI Assistant', 'jetpack' );
+
+	/*
+	 * Let's disable the eslint rule for this line.
+	 * @todo: fix by using StoreDescriptor, or something similar
+	 */
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
+	const { getSelectedBlockClientIds, getBlocksByClientId } = useSelect( 'core/block-editor' );
+	const { removeBlocks, replaceBlock } = useDispatch( 'core/block-editor' );
+
+	const { tracks } = useAnalytics();
+
+	const requestSuggestion = (
+		promptType: PromptTypeProp,
+		options: AiAssistantDropdownOnChangeOptionsArgProps
+	) => {
+		const clientIds = getSelectedBlockClientIds();
+		const blocks = getBlocksByClientId( clientIds );
+		const content = getBlocksContent( blocks );
+
+		const [ firstBlock ] = blocks;
+		const [ firstClientId, ...otherBlocksIds ] = clientIds;
+
+		const extendedBlockAttributes = {
+			...( firstBlock?.attributes || {} ), // firstBlock.attributes should never be undefined, but still add a fallback
+			content,
+		};
+
+		const newAIAssistantBlock = transformToAIAssistantBlock( blockType, extendedBlockAttributes );
+
+		/*
+		 * Store in the local storage the client id
+		 * of the block that need to auto-trigger the AI Assistant request.
+		 * @todo: find a better way to update the content,
+		 * probably using a new store triggering an action.
+		 */
+
+		// Storage client Id, prompt type, and options.
+		const storeObject = {
+			clientId: firstClientId,
+			type: promptType,
+			options: { ...options, contentType: 'generated', fromExtension: true }, // When converted, the original content must be treated as generated
+		};
+
+		localStorage.setItem(
+			getStoreBlockId( newAIAssistantBlock.clientId ),
+			JSON.stringify( storeObject )
+		);
+
+		/*
+		 * Replace the first block with the new AI Assistant block instance.
+		 * This block contains the original content,
+		 * even for multiple blocks selection.
+		 */
+		replaceBlock( firstClientId, newAIAssistantBlock );
+
+		// It removes the rest of the blocks in case there are more than one.
+		removeBlocks( otherBlocksIds );
+	};
+
+	const onChange = (
+		promptType: PromptTypeProp,
+		options: AiAssistantDropdownOnChangeOptionsArgProps = {}
+	) => {
+		tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
+			suggestion: promptType,
+			block_type: blockType,
+		} );
+
+		requestSuggestion( promptType, options );
+	};
+
+	const replaceWithAiAssistantBlock = () => {
+		const clientIds = getSelectedBlockClientIds();
+		const blocks = getBlocksByClientId( clientIds );
+		const content = getBlocksContent( blocks );
+
+		const [ firstClientId, ...otherBlocksIds ] = clientIds;
+		const [ firstBlock ] = blocks;
+
+		const extendedBlockAttributes = {
+			...( firstBlock?.attributes || {} ), // firstBlock.attributes should never be undefined, but still add a fallback
+			content,
+		};
+
+		replaceBlock(
+			firstClientId,
+			transformToAIAssistantBlock( blockType, extendedBlockAttributes )
+		);
+
+		removeBlocks( otherBlocksIds );
+	};
 
 	return (
 		<Dropdown
@@ -143,36 +201,31 @@ export default function AiAssistantDropdown( {
 			renderToggle={ ( { isOpen, onToggle } ) => {
 				return (
 					<ToolbarButton
-						className={ classNames( 'jetpack-ai-assistant__button', {
-							[ `is-${ requestingState }` ]: true,
-						} ) }
+						className="jetpack-ai-assistant__button"
 						showTooltip
 						onClick={ onToggle }
 						aria-haspopup="true"
 						aria-expanded={ isOpen }
 						label={ toolbarLabel }
 						icon={ aiAssistantIcon }
-						disabled={ disabled }
+						disabled={ false }
 					/>
 				);
 			} }
 			renderContent={ ( { onClose: closeDropdown } ) => (
-				<MenuGroup label={ label }>
-					{ ! exclude.includes( KEY_ASK_AI_ASSISTANT ) && (
-						<MenuItem
-							icon={ aiAssistantIcon }
-							iconPosition="left"
-							key="key-ai-assistant"
-							onClick={ onReplace }
-							isSelected={ key === 'key-ai-assistant' }
-						>
-							<div className="jetpack-ai-assistant__menu-item">
-								{ __( 'Ask AI Assistant', 'jetpack' ) }
-							</div>
-						</MenuItem>
-					) }
+				<MenuGroup>
+					<MenuItem
+						icon={ aiAssistantIcon }
+						iconPosition="left"
+						key="key-ai-assistant"
+						onClick={ replaceWithAiAssistantBlock }
+					>
+						<div className="jetpack-ai-assistant__menu-item">
+							{ __( 'Ask AI Assistant', 'jetpack' ) }
+						</div>
+					</MenuItem>
 
-					{ quickActionsListFiltered.map( quickAction => (
+					{ quickActionsList.map( quickAction => (
 						<MenuItem
 							icon={ quickAction?.icon }
 							iconPosition="left"
@@ -181,7 +234,6 @@ export default function AiAssistantDropdown( {
 								onChange( quickAction.aiSuggestion );
 								closeDropdown();
 							} }
-							isSelected={ key === quickAction.key }
 						>
 							<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
 						</MenuItem>
@@ -202,30 +254,6 @@ export default function AiAssistantDropdown( {
 					/>
 				</MenuGroup>
 			) }
-		/>
-	);
-}
-
-export function QuickEditsSelectControl( {
-	key,
-	label,
-	exclude = [],
-	onChange,
-}: AiAssistantControlComponentProps ) {
-	// Initial value. If not found, use empty.
-	const value = quickActionsList.find( quickAction => quickAction.key === key ) || '';
-
-	// Exclude when required.
-	const quickActionsListFiltered = exclude.length
-		? quickActionsList.filter( quickAction => ! exclude.includes( quickAction.key ) )
-		: quickActionsList;
-
-	return (
-		<CustomSelectControl
-			label={ label }
-			value={ value }
-			options={ quickActionsListFiltered }
-			onChange={ ( { selectedItem } ) => onChange( selectedItem ) }
 		/>
 	);
 }

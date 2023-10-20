@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Block Editor: disable some of Twitter's Thread publishing tools since the feature is no longer accessible.

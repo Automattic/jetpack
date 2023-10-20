@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.58.1] - 2023-10-18
+### Fixed
+- Update dependencies.
+
 ## [1.58.0] - 2023-10-16
 ### Changed
 - Migrated 'jetpack_sync_before_send*' actions for Sync queue to 'jetpack_sync_before_enqueue' instead. [#33384]
@@ -942,6 +946,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.58.1]: https://github.com/Automattic/jetpack-sync/compare/v1.58.0...v1.58.1
 [1.58.0]: https://github.com/Automattic/jetpack-sync/compare/v1.57.4...v1.58.0
 [1.57.4]: https://github.com/Automattic/jetpack-sync/compare/v1.57.3...v1.57.4
 [1.57.3]: https://github.com/Automattic/jetpack-sync/compare/v1.57.2...v1.57.3
