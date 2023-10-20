@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack Boost Plugin
+ * Jetpack Boost Plugin!
  *
  * @link              https://automattic.com
  * @since             0.1.0
