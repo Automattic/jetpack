@@ -32,7 +32,11 @@ const WordAdsEdit = ( { attributes, setAttributes } ) => {
 
 	if ( ! isModuleActive ) {
 		if ( isLoadingModules ) {
-			return <WordAdsSkeletonLoader />;
+			return (
+				<ThemeProvider>
+					<WordAdsSkeletonLoader />
+				</ThemeProvider>
+			);
 		}
 
 		return (
@@ -62,10 +66,4 @@ const WordAdsEdit = ( { attributes, setAttributes } ) => {
 	);
 };
 
-const withThemeProvider = WrappedComponent => props => (
-	<ThemeProvider>
-		<WrappedComponent { ...props } />
-	</ThemeProvider>
-);
-
-export default withThemeProvider( WordAdsEdit );
+export default WordAdsEdit;
