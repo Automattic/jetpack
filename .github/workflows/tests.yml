@@ -84,6 +84,7 @@ jobs:
 
           # Only test certain plugins in combination with WC
           if [[ "$WITH_WOOCOMMERCE" == true ]]; then
+            echo "Testing with WooCommerce, filtering for projects that have WooCommerce-specific tests."
             CHANGED=$( jq -c 'with_entries( select( .key == "plugins/jetpack" ) )' <<<"$CHANGED" )
           fi
 
