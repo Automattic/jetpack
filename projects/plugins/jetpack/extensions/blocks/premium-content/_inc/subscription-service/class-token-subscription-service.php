@@ -364,15 +364,6 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	}
 
 	/**
-	 * Check whether the JWT_TOKEN cookie is set
-	 *
-	 * @return bool
-	 */
-	public static function has_token_from_cookie() {
-		return isset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] ) && ! empty( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
-	}
-
-	/**
 	 * Store the auth cookie.
 	 *
 	 * @param  string $token Auth token.
