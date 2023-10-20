@@ -43,8 +43,6 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 		wp_enqueue_style( 'zbswelcomeactivation', plugins_url( '/css/welcome-to-zbs/activation.min.css', ZBS_ROOTFILE ), array(), $zbs->version );
 		wp_enqueue_style( 'zbswelcomewizard', plugins_url( '/css/welcome-to-zbs/wizard' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs->version );
 		$style_handles = array( 'zbswelcomebootstrap', 'zbswelcomeloadstyles', 'zbswelcomeopensans', 'zbswelcomeadmin', 'zbswelcomeexitform', 'zbswelcomeactivation', 'zbswelcomewizard' );
-		// dequeue anything?
-		wp_dequeue_style( 'admin-bar-css' );
 
 	// } Image URLS
 	$assetsURLI = ZEROBSCRM_URL . 'i/';
