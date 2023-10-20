@@ -8,12 +8,11 @@ require_once __DIR__ . '/../../trait-woo-tests.php';
 /**
  * Class WP_Test_Jetpack_Google_AMP_Analytics
  *
- * @group woocommerce
  */
 class WP_Test_Jetpack_Google_AMP_Analytics extends WP_UnitTestCase {
 	/**
 	 * Using the WooCommerceTestTrait to include WooCommerce related dependencies for the unit tests.
-	 * Noting that we'd need to add coocommerce as group in otder for the tests
+	 * Noting that we'd need to add woocommerce as group in order for the tests
 	 * in this class to run as part of the WooCommerce unit tests, however it looks like
 	 * the whole class is outdated.
 	 *
