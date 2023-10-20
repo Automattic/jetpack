@@ -3,7 +3,6 @@
 set -eo pipefail
 
 # Conditionally allow WooCommerce/Jetpack integration tests to run.
-# Unlike WP_MULTISITE or LEGACY_FULL_SYNC, this only enables some tests, it doesn't change the behavior of any.
 if [[ "$WITH_WOOCOMMERCE" == true ]]; then
 	export JETPACK_TEST_WOOCOMMERCE=1
 	echo "::group::Jetpack WooCommerce tests"
