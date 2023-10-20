@@ -493,65 +493,66 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		<![endif]-->
 		<script type="text/javascript">
 			(function () {
-				var comm_par_el = document.getElementById( 'comment_parent' ),
-					comm_par = ( comm_par_el && comm_par_el.value ) ? comm_par_el.value : '',
-					frame = document.getElementById( 'jetpack_remote_comment' ),
-					tellFrameNewParent;
+				function watchReply() {
+					var comm_par_el = document.getElementById( 'comment_parent' ),
+						comm_par = ( comm_par_el && comm_par_el.value ) ? comm_par_el.value : '',
+						frame = document.getElementById( 'jetpack_remote_comment' ),
+						tellFrameNewParent;
 
-				tellFrameNewParent = function () {
-					if ( comm_par ) {
-						frame.src = "<?php echo esc_url_raw( $this->signed_url ); ?>" + '&replytocom=' + parseInt( comm_par, 10 ).toString();
-					} else {
-						frame.src = "<?php echo esc_url_raw( $this->signed_url ); ?>";
-					}
-				};
-
-				<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
-
-				if ( 'undefined' !== typeof addComment ) {
-					addComment._Jetpack_moveForm = addComment.moveForm;
-
-					addComment.moveForm = function ( commId, parentId, respondId, postId ) {
-						var returnValue = addComment._Jetpack_moveForm( commId, parentId, respondId, postId ),
-							cancelClick, cancel;
-
-						if ( false === returnValue ) {
-							cancel = document.getElementById( 'cancel-comment-reply-link' );
-							cancelClick = cancel.onclick;
-							cancel.onclick = function () {
-								var cancelReturn = cancelClick.call( this );
-								if ( false !== cancelReturn ) {
-									return cancelReturn;
-								}
-
-								if ( ! comm_par ) {
-									return cancelReturn;
-								}
-
-								comm_par = 0;
-
-								tellFrameNewParent();
-
-								return cancelReturn;
-							};
+					tellFrameNewParent = function () {
+						if ( comm_par ) {
+							frame.src = "<?php echo esc_url_raw( $this->signed_url ); ?>" + '&replytocom=' + parseInt( comm_par, 10 ).toString();
+						} else {
+							frame.src = "<?php echo esc_url_raw( $this->signed_url ); ?>";
 						}
-
-						if ( comm_par == parentId ) {
-							return returnValue;
-						}
-
-						comm_par = parentId;
-
-						tellFrameNewParent();
-
-						return returnValue;
 					};
-				}
 
-				<?php endif; ?>
+					<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
 
-				// Do the post message bit after the dom has loaded.
-				document.addEventListener( 'DOMContentLoaded', function () {
+					// Check addComment._Jetpack_moveForm to make sure we don't monkey-patch twice.
+					if ( 'undefined' !== typeof addComment && ! addComment._Jetpack_moveForm ) {
+						addComment._Jetpack_moveForm = addComment.moveForm;
+
+						addComment.moveForm = function ( commId, parentId, respondId, postId ) {
+							var returnValue = addComment._Jetpack_moveForm( commId, parentId, respondId, postId ),
+								cancelClick, cancel;
+
+							if ( false === returnValue ) {
+								cancel = document.getElementById( 'cancel-comment-reply-link' );
+								cancelClick = cancel.onclick;
+								cancel.onclick = function () {
+									var cancelReturn = cancelClick.call( this );
+									if ( false !== cancelReturn ) {
+										return cancelReturn;
+									}
+
+									if ( ! comm_par ) {
+										return cancelReturn;
+									}
+
+									comm_par = 0;
+
+									tellFrameNewParent();
+
+									return cancelReturn;
+								};
+							}
+
+							if ( comm_par == parentId ) {
+								return returnValue;
+							}
+
+							comm_par = parentId;
+
+							tellFrameNewParent();
+
+							return returnValue;
+						};
+					}
+
+					<?php endif; ?>
+
+					// Do the post message bit after the dom has loaded.
 					var iframe_url = <?php echo wp_json_encode( esc_url_raw( $url_origin ) ); ?>;
 					if ( window.postMessage ) {
 						if ( document.addEventListener ) {
@@ -572,8 +573,9 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 							});
 						}
 					}
-				})
-
+				}
+				document.addEventListener( 'DOMContentLoaded', watchReply );
+				document.querySelector('comment-reply-js').addEventListener('load', watchReply);
 			})();
 		</script>
 
