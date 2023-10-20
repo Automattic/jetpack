@@ -343,10 +343,15 @@ class Initializer {
 		// Is the block already registered?
 		$is_block_registered = \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name );
 
+		// Do not register if the block is already registered.
+		if ( $is_block_registered ) {
+			return;
+		}
+
 		// Is this a REST API request?
 		$is_rest = defined( 'REST_API_REQUEST' ) && REST_API_REQUEST;
 
-		if ( $is_rest && ! $is_block_registered ) {
+		if ( $is_rest ) {
 			register_block_type(
 				$videopress_video_metadata_file,
 				array(
