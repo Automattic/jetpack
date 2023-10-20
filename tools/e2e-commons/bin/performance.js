@@ -27,11 +27,13 @@ async function envSetup( type ) {
 async function runTests( id ) {
 	const siteUrl = resolveSiteUrl();
 
-	execSyncShellCommand( `export WP_BASE_URL=${ siteUrl } &&
+	execSyncShellCommand(
+		`export WP_BASE_URL=${ siteUrl } &&
 	export WP_ARTIFACTS_PATH=./results &&
-	export RESULTS_ID=base.${ id } &&
 	cd ../../gutenberg &&
-	npm run test:performance -- post-editor` );
+	npm run test:performance -- post-editor`,
+		{ RESULTS_ID: `base.${ id }` }
+	);
 }
 
 async function testRun( type, id ) {

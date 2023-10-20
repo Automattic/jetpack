@@ -36,8 +36,8 @@ async function execShellCommand( cmd ) {
 	} );
 }
 
-function execSyncShellCommand( cmd ) {
-	return execSync( cmd ).toString();
+function execSyncShellCommand( cmd, env = {} ) {
+	return execSync( cmd, { env: { ...process.env, ...env } } ).toString();
 }
 
 async function resetWordpressInstall() {
