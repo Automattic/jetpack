@@ -361,15 +361,27 @@ class Initializer {
 			return;
 		}
 
-		// Register and enqueue scripts used by the VideoPress video block.
-		Block_Editor_Extensions::init( self::JETPACK_VIDEOPRESS_VIDEO_HANDLER );
+		$registration = register_block_type(
+			$videopress_video_metadata_file,
+			array(
+				'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
+			)
+		);
 
-		// Do not register if the block is already registered.
-		if ( $is_block_registered ) {
+		// Do not enqueue scripts if the block could not be registered.
+		if ( empty( $registration ) || empty( $registration->editor_script_handles ) ) {
 			return;
 		}
 
-		self::enqueue_block_assets( $videopress_video_metadata_file );
+		// Extensions use Connection_Initial_State::render_script with script handle as parameter.
+		if ( is_array( $registration->editor_script_handles ) ) {
+			$script_handle = $registration->editor_script_handles[0];
+		} else {
+			$script_handle = $registration->editor_script_handles;
+		}
+
+		// Register and enqueue scripts used by the VideoPress video block.
+		Block_Editor_Extensions::init( $script_handle );
 	}
 
 	/**
