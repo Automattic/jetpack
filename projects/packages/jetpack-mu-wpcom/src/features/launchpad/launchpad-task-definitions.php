@@ -1863,9 +1863,12 @@ add_action( 'update_option_launchpad_checklist_tasks_statuses', 'wpcom_trigger_e
  * Mark task complete when plugin is installed.
  */
 function wpcom_launchpad_mark_plugin_installed_complete() {
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'install_custom_plugin' ) ) ) {
+		return;
+	}
 	wpcom_mark_launchpad_task_complete( 'install_custom_plugin' );
 }
-add_action( 'jetpack_plugin_installed', 'wpcom_launchpad_mark_plugin_installed_complete ', 10, 1 );
+add_action( 'jetpack_plugin_installed', 'wpcom_launchpad_mark_plugin_installed_complete ', 10 );
 
 /**
  * Mark task complete when theme is selected.
@@ -1876,4 +1879,15 @@ function wpcom_launchpad_mark_theme_selected_complete() {
 	}
 	wpcom_mark_launchpad_task_complete( 'site_theme_selected' );
 }
-add_action( 'jetpack_sync_current_theme_support', 'wpcom_launchpad_mark_theme_selected_complete', 10, 2 );
+add_action( 'jetpack_sync_current_theme_support', 'wpcom_launchpad_mark_theme_selected_complete', 10 );
+
+/**
+ * Mark task complete when ssh is setup.
+ */
+function wpcom_launchpad_mark_ssh_setup_complete() {
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'ssh_setup' ) ) ) {
+		return;
+	}
+	wpcom_mark_launchpad_task_complete( 'ssh_setup' );
+}
+add_action( 'a8c_hosting_ssh_user_created', 'wpcom_launchpad_mark_ssh_setup_complete', 10 );
