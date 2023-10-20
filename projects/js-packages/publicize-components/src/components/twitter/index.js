@@ -1,5 +1,5 @@
 import { compose } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
+import { useSelect, withSelect } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
 import TweetDivider from './tweet-divider';
 import './editor.scss';
@@ -53,11 +53,23 @@ export const SUPPORTED_CONTAINER_BLOCKS = [ 'core/column', 'core/columns', 'core
  * @returns {object} The blockSettings, with our extra functionality inserted.
  */
 const addTweetDivider = blockSettings => {
-	const { edit } = blockSettings;
+	const { edit: Edit } = blockSettings;
 
 	return {
 		...blockSettings,
-		edit: props => <TweetDivider ChildEdit={ edit } childProps={ props } />,
+		edit: props => {
+			const isTweetStorm = useSelect( select => select( 'jetpack/publicize' ).isTweetStorm() );
+
+			// CAUTION: code added before this line will be executed for all
+			// extended blocks, not just tweet storms. TweetDivider runs
+			// additional selectors that should be avoided if a post is not a
+			// tweet storm.
+			if ( ! isTweetStorm ) {
+				return <Edit { ...props } />;
+			}
+
+			return <TweetDivider ChildEdit={ Edit } childProps={ props } />;
+		},
 	};
 };
 

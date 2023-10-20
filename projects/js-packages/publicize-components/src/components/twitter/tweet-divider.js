@@ -17,10 +17,7 @@ import './editor.scss';
  */
 class TweetDivider extends Component {
 	componentDidMount() {
-		const { isTweetStorm, updateTweets } = this.props;
-		if ( isTweetStorm ) {
-			updateTweets();
-		}
+		this.props.updateTweets();
 	}
 
 	componentDidUpdate( prevProps ) {
@@ -28,16 +25,11 @@ class TweetDivider extends Component {
 			boundaries,
 			childProps,
 			currentAnnotations,
-			isTweetStorm,
 			updateAnnotations,
 			updateTweets,
 			supportedBlockType,
 			contentAttributesChanged,
 		} = this.props;
-
-		if ( ! isTweetStorm ) {
-			return;
-		}
 
 		if ( ! supportedBlockType ) {
 			return;
@@ -61,15 +53,10 @@ class TweetDivider extends Component {
 		const {
 			ChildEdit,
 			childProps,
-			isTweetStorm,
 			isSelectedTweetBoundary,
 			boundaryStylesSelectors,
 			popoverWarnings,
 		} = this.props;
-
-		if ( ! isTweetStorm ) {
-			return <ChildEdit { ...childProps } />;
-		}
 
 		return (
 			<>
@@ -123,7 +110,6 @@ class TweetDivider extends Component {
 export default compose( [
 	withSelect( ( select, { childProps } ) => {
 		const {
-			isTweetStorm,
 			getPopoverWarnings,
 			getBoundariesForBlock,
 			getBoundaryStyleSelectors,
@@ -137,7 +123,6 @@ export default compose( [
 		);
 
 		return {
-			isTweetStorm: isTweetStorm(),
 			isSelectedTweetBoundary: isSelectedTweetBoundary( childProps ),
 			boundaries: getBoundariesForBlock( childProps.clientId ),
 			boundaryStylesSelectors: getBoundaryStyleSelectors( childProps.clientId ),
