@@ -885,8 +885,8 @@ function zeroBS_integrations_addOrUpdateTask(
 		is_array( $data_array )
 		&& count( $data_array ) > 0
 		&& ! empty( $data_array['title'] )
-		&& ! empty( $data_array['start'] )
-		&& ! empty( $data_array['end'] )
+		&& ! empty( $data_array['from'] )
+		&& ! empty( $data_array['to'] )
 	) {
 			return zeroBS_addUpdateEvent( $task_id, $data_array, $task_reminders );
 	} else { // no source/id/fields
