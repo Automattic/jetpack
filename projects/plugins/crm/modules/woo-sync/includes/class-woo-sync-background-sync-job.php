@@ -898,10 +898,24 @@ class Woo_Sync_Background_Sync_Job {
 			$b2b_mode = zeroBSCRM_getSetting( 'companylevelcustomers' );
 			if ( $b2b_mode && isset( $crm_object_data['company']['name'] ) && !empty( $crm_object_data['company']['name'] ) ) {
 
-				// Add the company
-				$company_id = $zbs->DAL->companies->addUpdateCompany( array(
-					'data' => $crm_object_data['company'],
-				) );
+				/**
+				 * Note: we use existing company ID if we can find it by name; otherwise we create it
+				 *
+				 * WooCommerce orders only has one company field that we can use (company name). As such,
+				 * we can't rely on more accurate searches (e.g. by email)
+				 */
+				$potential_company = $zbs->DAL->companies->getCompany( -1, array( 'name' => $crm_object_data['company']['name'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+				if ( $potential_company ) {
+					$company_id = $potential_company['id'];
+				} else {
+					// Add the company
+					$company_id = $zbs->DAL->companies->addUpdateCompany( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						array(
+							'data' => $crm_object_data['company'],
+						)
+					);
+				}
 
 				if ( $company_id > 0 ) {
 
