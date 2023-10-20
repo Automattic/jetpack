@@ -124,58 +124,122 @@ function wpcom_get_site_purchases( $blog_id = 0 ) {
 		// Allow overriding the blog ID for feature checks.
 		$blog_id = apply_filters( 'wpcom_site_has_feature_blog_id', $blog_id );
 
-		// 'site_purchases' belong to $global_groups in ./wp-content/object-cache.php
-		$wp_cache_group = 'site_purchases';
-		$wp_cache_found = false;
+		$purchases = _wpcom_features_get_simple_site_purchases( $blog_id );
+	}
 
-		// The DB table is included in $wp_cache_key to avoid cache pollution between the production and test store.
-		$wp_cache_key = "$blog_id-{$wpdb->store_subscriptions}";
+	return $purchases;
+}
 
-		// Check wp_cache_get for $purchases. If none exist $wp_cache_found will return false.
-		$purchases = wp_cache_get( $wp_cache_key, $wp_cache_group, false, $wp_cache_found );
+/**
+ * INTERNAL function to fetch purchases for a WPCOM Simple site.
+ * The function will return an empty array if we're running in an Atomic context.
+ *
+ * @param int $blog_id The blog ID to fetch purchases for.
+ * @return array The currently active purchases on the site.
+ */
+function _wpcom_features_get_simple_site_purchases( $blog_id ) {
+	global $wpdb;
 
-		if ( false === $wp_cache_found ) {
-			$unformatted_purchases = \A8C\Billingdaddy\Container::get_purchases_api()->get_purchases_for_site( (int) $blog_id );
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+		// Make _super_ sure the function is available.
+		if ( function_exists( '_doing_it_wrong' ) ) {
+			_doing_it_wrong(
+				__FUNCTION__,
+				'Support for this function is only in available in contexts where the WordPress.com Store databases are available.',
+				false // No version.
+			);
+		}
 
-			$purchases             = array();
-			if ( empty( $unformatted_purchases ) ) {
-				wp_cache_set( $wp_cache_key, $purchases, $wp_cache_group, 60 * 60 * 3 );
-				return $purchases;
-			}
+		return array();
+	}
 
-			$product_cache   = Store_Product_List::get_from_cache();
-			$product_catalog = \A8C\Billingdaddy\Container::get_product_catalog_api();
+	if ( ! $blog_id ) {
+		$blog_id = _wpcom_get_current_blog_id();
+	}
 
-			foreach ( $unformatted_purchases as $unformatted_purchase ) {
-				if ( empty( $product_cache[ $unformatted_purchase->product_id ] ) ) {
-					// Skip the record if the product data is not in the cache.
-					continue;
-				}
+	// 'site_purchases' belong to $global_groups in ./wp-content/object-cache.php
+	$wp_cache_group = 'site_purchases';
+	$wp_cache_found = false;
 
-				$product_data         = $product_cache[ $unformatted_purchase->product_id ];
-				$billing_product_slug = $product_catalog->get_product_by_id( $product_data['billing_product_id'] )->get_slug();
+	// The DB table is included in $wp_cache_key to avoid cache pollution between the production and test store.
+	$wp_cache_key = "$blog_id-{$wpdb->store_subscriptions}";
 
-				$purchases[] = (object) array(
-					'product_slug'           => $product_data['product_slug'],
-					'billing_product_slug'   => $billing_product_slug,
-					'product_id'             => (string) $unformatted_purchase->product_id,
-					'product_type'           => $product_data['product_type'],
-					'subscribed_date'        => wpcom_datetime_to_iso8601( $unformatted_purchase->subscribed_date ),
-					'expiry_date'            => wpcom_datetime_to_iso8601( $unformatted_purchase->expiry ),
-					// We don't use is_configured_to_allow_auto_renew() for auto_renew because it's too slow.
-					'user_allows_auto_renew' => ! empty( $unformatted_purchase->auto_renew ),
-					'subscription_id'        => (string) $unformatted_purchase->ID,
-				);
-			}
+	// Check wp_cache_get() for $purchases. If none exist $wp_cache_found will be false.
+	$purchases = wp_cache_get( $wp_cache_key, $wp_cache_group, false, $wp_cache_found );
 
-			/*
-			* Cache the $purchases for 3 hours. Otherwise, the cache is invalidated when a purchase is made, using:
-			* add_action( 'subscription_changed', 'clear_wp_cache_site_purchases', 10, 1 );
-			* Found in ./wp-content/mu-plugins/wpcom-features.php
-			*/
-			wp_cache_set( $wp_cache_key, $purchases, $wp_cache_group, 60 * 60 * 3 );
+	if ( false !== $wp_cache_found ) {
+		return (array) $purchases;
+	}
+
+	// Get $purchases with a direct SQL query.
+	// We are intentionally NOT using the Purchases API as this code needs to be runnable
+	// in some contexts where the billing code-base is not available.
+	// See pdqkMK-18D-p2 for more discussion and context.
+
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	$purchases = $wpdb->get_results(
+		$wpdb->prepare(
+			"
+					SELECT 
+					    product.product_slug,
+					    product.product_id,
+					    product.billing_product_id,
+					    product.product_type,
+					    subscription.subscribed_date,
+					    subscription.expiry AS 'expiry_date',
+						subscription.id AS subscription_id,
+					    subscription.auto_renew AS user_allows_auto_renew
+					FROM `$wpdb->store_subscriptions` AS subscription
+					LEFT JOIN `$wpdb->store_products` AS product ON subscription.product_id = product.product_id
+					WHERE
+						subscription.blog_id = %d
+						AND subscription.active = 1
+					ORDER BY subscription.id DESC
+					",
+			$blog_id
+		)
+	);
+
+	static $billing_product_data = array();
+
+	$billing_product_ids          = array_unique( wp_list_pluck( $purchases, 'billing_product_id' ) );
+	$billing_product_ids_to_query = array_diff( $billing_product_ids, array_keys( $billing_product_data ) );
+	if ( ! empty( $billing_product_ids_to_query ) ) {
+		// We need to query the billing_products table via a separate query.
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$billing_products = $wpdb->get_results(
+			"
+					SELECT
+						product_id,
+						product_slug
+					FROM
+						`$wpdb->billing_products`
+					WHERE
+						" . $wpdb->build_IN_condition( 'product_id', $billing_product_ids_to_query, '%d' )
+		);
+
+		foreach ( $billing_products as $billing_product ) {
+			$billing_product_data[ $billing_product->product_id ] = $billing_product->product_slug;
 		}
 	}
+
+	// Format the dates to match WPCOMSH data.
+	foreach ( $purchases as $purchase ) {
+		$purchase->billing_product_slug   = $billing_product_data[ $purchase->billing_product_id ] ?? '';
+		$purchase->subscribed_date        = wpcom_datetime_to_iso8601( $purchase->subscribed_date );
+		$purchase->expiry_date            = wpcom_datetime_to_iso8601( $purchase->expiry_date );
+		$purchase->user_allows_auto_renew = ! empty( $purchase->user_allows_auto_renew );
+		// Ensure we remove billing_product_id from the purchase data.
+		unset( $purchase->billing_product_id );
+	}
+
+	/*
+	* Cache the $purchases for 3 hours. Otherwise, the cache is invalidated when a purchase is made, using:
+	* add_action( 'subscription_changed', 'clear_wp_cache_site_purchases', 10, 1 );
+	* Found in ./wp-content/mu-plugins/wpcom-features.php
+	*/
+	wp_cache_set( $wp_cache_key, $purchases, $wp_cache_group, 3 * HOUR_IN_SECONDS );
 
 	return $purchases;
 }
