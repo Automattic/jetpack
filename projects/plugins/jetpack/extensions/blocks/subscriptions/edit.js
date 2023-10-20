@@ -329,7 +329,9 @@ export default compose( [
 	withSelect( select => {
 		const newsletterPlans = select( 'jetpack/membership-products' )
 			?.getProducts()
-			?.filter( product => product.subscribe_as_site_subscriber );
+			?.filter(
+				product => product.subscribe_as_site_subscriber && 'one-time' !== product.interval
+			);
 		return {
 			hasNewsletterPlans: newsletterPlans?.length !== 0,
 		};
