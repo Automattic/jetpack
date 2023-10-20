@@ -35,37 +35,32 @@ const ToolbarControls = ( {
 	return (
 		<>
 			<BlockControls>
-				{ ! showRetry && ! contentIsLoaded && (
-					<PromptTemplatesControl
-						hasContentBefore={ !! contentBefore?.length }
-						hasContent={ !! wholeContent?.length }
-						hasPostTitle={ hasPostTitle }
-						onPromptSelect={ prompt => {
-							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
-								type: 'prompt-template',
-								prompt: prompt.original,
-							} );
+				{ ! showRetry && (
+					<>
+						<ToolbarGroup>
+							<PromptTemplatesControl
+								hasContentBefore={ !! contentBefore?.length }
+								hasContent={ !! wholeContent?.length }
+								hasPostTitle={ hasPostTitle }
+								contentIsLoaded={ contentIsLoaded }
+								onPromptSelect={ prompt => {
+									recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
+										type: 'prompt-template',
+										prompt: prompt.original,
+									} );
 
-							setUserPrompt( prompt.translated );
-						} }
-						onSuggestionSelect={ suggestion => {
-							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
-								type: 'suggestion',
-								suggestion,
-							} );
-							getSuggestionFromOpenAI( suggestion );
-						} }
-					/>
-				) }
+									setUserPrompt( prompt.translated );
+								} }
+								onSuggestionSelect={ suggestion => {
+									recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
+										type: 'suggestion',
+										suggestion,
+									} );
+									getSuggestionFromOpenAI( suggestion );
+								} }
+							/>
+						</ToolbarGroup>
 
-				<ToolbarGroup>
-					{ ! showRetry && contentIsLoaded && (
-						<ToolbarButton onClick={ handleTryAgain }>
-							{ __( 'Try Again', 'jetpack' ) }
-						</ToolbarButton>
-					) }
-
-					{ ! showRetry && (
 						<BlockControls group="block">
 							<ToneToolbarDropdownMenu
 								value="neutral"
@@ -81,6 +76,7 @@ const ToolbarControls = ( {
 								} }
 								disabled={ ! contentIsLoaded && ! wholeContent?.length }
 							/>
+
 							<I18nDropdownControl
 								value="en"
 								onChange={ language => {
@@ -95,25 +91,38 @@ const ToolbarControls = ( {
 								} }
 								disabled={ ! contentIsLoaded && ! wholeContent?.length }
 							/>
+
 							<ImproveToolbarDropdownMenu
 								onChange={ getSuggestionFromOpenAI }
 								exclude={ isGeneratingTitle ? [ 'summarize' ] : [] }
 								disabled={ ! contentIsLoaded }
 							/>
 						</BlockControls>
-					) }
+					</>
+				) }
 
-					{ showRetry && contentIsLoaded && (
-						<ToolbarButton icon={ check } onClick={ handleAcceptContent }>
-							{ __( 'Accept', 'jetpack' ) }
-						</ToolbarButton>
-					) }
-					{ showRetry && (
-						<ToolbarButton icon={ update } onClick={ retryRequest }>
-							{ __( 'Retry', 'jetpack' ) }
-						</ToolbarButton>
-					) }
-				</ToolbarGroup>
+				{ ( showRetry || contentIsLoaded ) && (
+					<ToolbarGroup>
+						{ ! showRetry && contentIsLoaded && (
+							<ToolbarButton onClick={ handleTryAgain }>
+								{ __( 'Try Again', 'jetpack' ) }
+							</ToolbarButton>
+						) }
+
+						{ showRetry && contentIsLoaded && (
+							<ToolbarButton icon={ check } onClick={ handleAcceptContent }>
+								{ __( 'Accept', 'jetpack' ) }
+							</ToolbarButton>
+						) }
+
+						{ showRetry && (
+							<ToolbarButton icon={ update } onClick={ retryRequest }>
+								{ __( 'Retry', 'jetpack' ) }
+							</ToolbarButton>
+						) }
+					</ToolbarGroup>
+				) }
+
 				{ isImageGenerationEnabled && ! showRetry && ! contentIsLoaded && (
 					// Image/text toggle
 					<ToolbarGroup>
