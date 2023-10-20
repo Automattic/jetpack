@@ -36,12 +36,14 @@ export default function UsagePanel() {
 
 			<UsageBar usage={ usage } />
 
-			<p className="muted">
-				{
-					// translators: %1$d: number of days until the next usage count reset
-					sprintf( __( 'Requests will reset in %1$d days.', 'jetpack' ), 10 )
-				}
-			</p>
+			{ false && (
+				<p className="muted">
+					{
+						// translators: %1$d: number of days until the next usage count reset
+						sprintf( __( 'Requests will reset in %1$d days.', 'jetpack' ), 10 )
+					}
+				</p>
+			) }
 		</div>
 	);
 }
