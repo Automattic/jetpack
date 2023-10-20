@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.44.0] - 2023-10-19
+### Added
+- Add a `ProgressBar` component. [#33054]
+- Social: Add the Nextdoor connection toggle [#33663]
+
+### Changed
+- Updated package dependencies. [#33687]
+
+## [0.43.4] - 2023-10-17
+### Changed
+- Updated package dependencies. [#33646]
+
 ## [0.43.3] - 2023-10-16
 ### Changed
 - Replaced inline social icons with social-logos package. [#33613]
@@ -844,6 +856,8 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.44.0]: https://github.com/Automattic/jetpack-components/compare/0.43.4...0.44.0
+[0.43.4]: https://github.com/Automattic/jetpack-components/compare/0.43.3...0.43.4
 [0.43.3]: https://github.com/Automattic/jetpack-components/compare/0.43.2...0.43.3
 [0.43.2]: https://github.com/Automattic/jetpack-components/compare/0.43.1...0.43.2
 [0.43.1]: https://github.com/Automattic/jetpack-components/compare/0.43.0...0.43.1

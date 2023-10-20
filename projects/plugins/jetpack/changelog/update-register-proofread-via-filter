@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack: handle Proofread feature availability via jetpack_ai_enabled filter
