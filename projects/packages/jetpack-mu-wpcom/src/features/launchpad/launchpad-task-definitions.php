@@ -1890,4 +1890,4 @@ function wpcom_launchpad_mark_ssh_setup_complete() {
 	}
 	wpcom_mark_launchpad_task_complete( 'setup_ssh' );
 }
-add_action( 'a8c_hosting_ssh_user_created', 'wpcom_launchpad_mark_ssh_setup_complete', 10 );
+add_action( 'add_hosting_ssh_user_created', 'wpcom_launchpad_mark_ssh_setup_complete', 10 );
