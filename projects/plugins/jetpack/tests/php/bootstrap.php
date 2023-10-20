@@ -117,9 +117,9 @@ function _manually_install_woocommerce() {
 // If we are running the uninstall tests don't load jetpack.
 if ( ! ( in_running_uninstall_group() ) ) {
 	tests_add_filter( 'plugins_loaded', '_manually_load_plugin', 1 );
-	// if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
-	// 	tests_add_filter( 'setup_theme', '_manually_install_woocommerce' );
-	// }
+	if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
+		tests_add_filter( 'setup_theme', '_manually_install_woocommerce' );
+	}
 }
 
 /**
@@ -145,10 +145,6 @@ if ( '1' === getenv( 'LEGACY_FULL_SYNC' ) ) {
 }
 
 require $test_root . '/includes/bootstrap.php';
-if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
-	putenv( 'WP_TESTS_DIR=' . $test_root );
-	require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/tests/legacy/bootstrap.php';
-}
 
 // Load the shortcodes module to test properly.
 if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_uninstall_group() ) {
