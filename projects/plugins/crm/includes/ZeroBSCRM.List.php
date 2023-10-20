@@ -493,30 +493,6 @@ class zeroBSCRM_list{
             // Vars for zbs list view drawer
             var zbsListViewParams = <?php echo wp_json_encode( $list_view_parameters ) ?>;
 
-            var zbsFilterButtons = [
-                    // e.g. {namestr:'Status',fieldstr:'_status'}
-                    <?php  $buttonCount = 0;
-
-                        #} Current cols
-                        if (is_array($currentFilterButtons)) foreach ($currentFilterButtons as $buttonKey => $button){
-
-                            if ($buttonCount > 0) echo ',';
-                            
-							// Hard coded, lazy
-							printf(
-								"{namestr:'%s',fieldstr:'%s'}",
-								wp_kses( $button[0], array( 'i' => array( 'class' => array() ) ) ),
-								// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- to be refactored.
-								esc_html( $buttonKey )
-								// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-							);
-
-                            $buttonCount++;
-
-                        }
-
-                    ?>
-                ];
             var zbsUnsortables = [<?php $c = 0; if (count($this->unsortables) > 0) foreach ($this->unsortables as $sortableStr) {
 
                         if ($c > 0) echo ',';
