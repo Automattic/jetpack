@@ -10,7 +10,7 @@
 namespace Automattic\Jetpack\Extensions;
 
 use Automattic\Jetpack\Blocks;
-use Jetpack;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Jetpack_Gutenberg;
 
 /**
@@ -30,14 +30,6 @@ class WordAds {
 	private static function is_wpcom() {
 		return defined( 'IS_WPCOM' ) && IS_WPCOM;
 	}
-	/**
-	 * Check if the WordAds module is active.
-	 *
-	 * @return bool
-	 */
-	private static function is_jetpack_module_active() {
-		return method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'wordads' );
-	}
 
 	/**
 	 * Check if the site is approved for ads for WP.com Simple sites.
@@ -49,7 +41,7 @@ class WordAds {
 			return has_any_blog_stickers( array( 'wordads', 'wordads-approved', 'wordads-approved-misfits' ), get_current_blog_id() );
 		}
 
-		return self::is_jetpack_module_active();
+		return Jetpack_Plan::supports( 'wordads' );
 	}
 
 	/**
