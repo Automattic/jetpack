@@ -88,14 +88,11 @@ const ProductCard = props => {
 	const ProductIcon = getIconBySlug( slug );
 
 	return (
-		<Card className={ classNames( styles.container, containerClassName ) }>
-			<div className={ styles.title }>
-				<div className={ styles.name }>
-					<Text variant="title-medium">{ name }</Text>
-				</div>
-				{ ProductIcon && <ProductIcon color="#A7AAAD" /> }
-			</div>
-
+		<Card
+			title={ name }
+			className={ classNames( styles.container, containerClassName ) }
+			headerRightContent={ ProductIcon && <ProductIcon color="#A7AAAD" /> }
+		>
 			<Text variant="body-small" className={ styles.description }>
 				{ description }
 			</Text>

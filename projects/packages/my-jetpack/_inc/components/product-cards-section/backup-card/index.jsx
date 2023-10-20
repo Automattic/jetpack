@@ -3,8 +3,10 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, commentContent, post, page, image, video, audio } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { useProduct } from '../../../hooks/use-product';
 import ProductCard from '../../connected-product-card';
+import { PRODUCT_STATUSES } from '../../product-card/action-button';
 import styles from './style.module.scss';
 
 const getIcon = slug => {
@@ -47,7 +49,25 @@ const getTitle = slug => {
 
 const NoBackupsValueSection = ( { siteData } ) => {
 	const [ itemsToShow, setItemsToShow ] = useState( 3 );
-	const sortedData = [];
+
+	const sortedData = useMemo( () => {
+		const data = [];
+
+		Object.keys( siteData ).forEach( key => {
+			// We can safely filter out any values that are 0
+			if ( siteData[ key ] === 0 ) {
+				return;
+			}
+
+			data.push( [ key, siteData[ key ] ] );
+		} );
+
+		data.sort( ( a, b ) => {
+			return a[ 1 ] < b[ 1 ] ? 1 : -1;
+		} );
+
+		return data;
+	}, [ siteData ] );
 
 	// Only show 2 data points on certain screen widths where the cards are squished
 	useEffect( () => {
@@ -63,20 +83,6 @@ const NoBackupsValueSection = ( { siteData } ) => {
 			window.onresize = null;
 		};
 	}, [] );
-
-	// Make sure the data with the highest numbers show first
-	Object.keys( siteData ).forEach( key => {
-		// We can safely filter out any values that are 0
-		if ( siteData[ key ] === 0 ) {
-			return;
-		}
-
-		sortedData.push( [ key, siteData[ key ] ] );
-	} );
-
-	sortedData.sort( ( a, b ) => {
-		return a[ 1 ] < b[ 1 ] ? 1 : -1;
-	} );
 
 	const moreValue = sortedData.length > itemsToShow ? sortedData.length - itemsToShow : 0;
 	const shortenedNumberConfig = { maximumFractionDigits: 1, notation: 'compact' };
@@ -115,10 +121,16 @@ const NoBackupsValueSection = ( { siteData } ) => {
 
 // eslint-disable-next-line no-unused-vars
 const BackupCard = ( { admin, productData, fetchingProductData } ) => {
-	const { has_backup: hasBackups = false, site_data: siteData = {} } = productData || {};
+	const slug = 'backup';
+
+	const { detail } = useProduct( slug );
+	const { status } = detail;
+	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
+
+	const { site_data: siteData = {} } = productData || {};
 
 	return (
-		<ProductCard admin={ admin } slug="backup" showMenu isDataLoading={ fetchingProductData }>
+		<ProductCard admin={ admin } slug={ slug } showMenu isDataLoading={ fetchingProductData }>
 			{ /* todo: Add component for when users do have backups and an activity log */ }
 			{ hasBackups ? <></> : <NoBackupsValueSection siteData={ siteData } /> }
 		</ProductCard>
