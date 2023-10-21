@@ -12,9 +12,6 @@ namespace Automattic\Jetpack\Extensions\Goodreads;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'goodreads';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
 /**
  * Registers the block for use in Gutenberg.
  * This is done via an action so that we can disable
@@ -39,9 +36,7 @@ function load_assets( $attr ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-
-	$classes = Blocks::classes( FEATURE_NAME, $attr );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	if ( isset( $attr['link'] ) ) {
 		wp_enqueue_script( 'goodreads-block', $attr['link'], array(), JETPACK__VERSION, true );
@@ -50,6 +45,6 @@ function load_assets( $attr ) {
 	return sprintf(
 		'<div id="%1$s" class="%2$s"></div>',
 		esc_attr( $attr['id'] ),
-		esc_attr( $classes )
+		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) )
 	);
 }
