@@ -667,6 +667,8 @@ const convertV6toV5 = createHigherOrderComponent( BlockListBlock => {
 		const { block } = props;
 		const { name, attributes } = block;
 
+		// CAUTION: code added before this line will be executed for all blocks
+		// (also on typing), not just missing blocks.
 		if ( name !== 'core/missing' || attributes?.originalName !== 'videopress/video' ) {
 			return <BlockListBlock { ...props } />;
 		}
