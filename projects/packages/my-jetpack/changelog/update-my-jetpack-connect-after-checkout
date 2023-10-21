@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update checkout flow to connect "After" checkout vs before (if not connected).
