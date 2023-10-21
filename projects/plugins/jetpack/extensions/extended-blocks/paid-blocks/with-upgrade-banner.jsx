@@ -15,11 +15,11 @@ import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 export default createHigherOrderComponent(
 	BlockEdit => props => {
 		const { name, clientId, isSelected, attributes, setAttributes } = props || {};
-		const { hasParentBanner } = useContext( PaidBlockContext ) || {};
-		const { tracks } = useAnalytics();
-
 		const requiredPlan = getRequiredPlan( name );
 
+		// CAUTION: code added before this line will be executed for all blocks
+		// (also the paragraph block, every time on typing), not just paid
+		// blocks!
 		if ( ! requiredPlan ) {
 			return <BlockEdit { ...props } />;
 		}
@@ -35,10 +35,10 @@ export default createHigherOrderComponent(
 			select => select( 'core/block-editor' ).hasSelectedInnerBlock( clientId, true ),
 			[]
 		);
-
+		const { hasParentBanner } = useContext( PaidBlockContext ) || {};
 		// Banner should be not be displayed if one of its parents is already displaying a banner.
 		const isBannerVisible = ( isSelected || hasChildrenSelected ) && isVisible && ! hasParentBanner;
-
+		const { tracks } = useAnalytics();
 		const trackEventData = useMemo(
 			() => ( {
 				plan: requiredPlan,
