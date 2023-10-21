@@ -10,6 +10,7 @@ import { useDispatch } from '@wordpress/data';
 import { useEffect, createInterpolateElement, useState } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 /**
  * Internal dependencies
  */
@@ -78,6 +79,13 @@ function getVideoPressVideoBlockAttributes( attributes, defaultAttributes ) {
 	return attrs;
 }
 
+/**
+ * JetpackCoreVideoDeprecation component.
+ *
+ * @param {object} props                - component props
+ * @param {object} props.BlockListBlock - BlockListBlock
+ * @returns {React.ReactNode}             BlockListBlock if the block is valid, or the recovery warning.
+ */
 function JetpackCoreVideoDeprecation( { BlockListBlock, ...props } ) {
 	const { block } = props;
 	const { attributes, clientId, __unstableBlockSource } = block;
@@ -97,12 +105,7 @@ function JetpackCoreVideoDeprecation( { BlockListBlock, ...props } ) {
 				getVideoPressVideoBlockAttributes( __unstableBlockSource?.attrs, attributes )
 			)
 		);
-	}, [
-		clientId,
-		ignoreBlockRecovery,
-		attributes,
-		__unstableBlockSource,
-	] );
+	}, [ clientId, ignoreBlockRecovery, attributes, __unstableBlockSource ] );
 
 	const moreAboutVideoPress = createInterpolateElement(
 		__(
@@ -174,7 +177,7 @@ const handleJetpackCoreVideoDeprecation = createHigherOrderComponent( BlockListB
 		);
 
 		// CAUTION: code added before this line will be executed for all blocks
-        // (also on typing), not just video blocks.
+		// (also on typing), not just video blocks.
 		if ( ! shouldHandleConvertion ) {
 			return <BlockListBlock { ...props } />;
 		}
