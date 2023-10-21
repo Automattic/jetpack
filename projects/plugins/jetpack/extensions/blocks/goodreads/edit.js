@@ -1,4 +1,3 @@
-import React, { useState, useEffect, useRef } from 'react';
 import apiFetch from '@wordpress/api-fetch';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import {
@@ -13,130 +12,109 @@ import {
 	SelectControl,
 	withNotices,
 } from '@wordpress/components';
+import { useState, useEffect, useRef } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
 import testEmbedUrl from '../../shared/test-embed-url';
 import defaultExample from './default-example.png';
 import gridExample from './grid-example.png';
 import icon from './icon';
+import {
+	GOODREADS_SHELF_OPTIONS,
+	GOODREADS_ORDER_OPTIONS,
+	GOODREADS_SORT_OPTIONS,
+	createGoodreadsEmbedLink,
+} from './utils';
 
 const GoodreadsEdit = props => {
+	const { attributes, className, clientId, noticeOperations, noticeUI, setAttributes } = props;
+
 	const [ userInput, setUserInput ] = useState( '' );
 	const [ displayPreview, setDisplayPreview ] = useState( false );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
 	const prevPropsRef = useRef( null );
 
 	useEffect( () => {
-		setUrl( props.attributes.userInput );
-	}, [ props.attributes.userInput ] );
+		setUrl( attributes.userInput );
+	}, [ attributes.userInput ] );
 
 	useEffect( () => {
 		if (
 			prevPropsRef.current &&
-			props.attributes.widgetId === prevPropsRef.current.attributes.widgetId
+			attributes.widgetId === prevPropsRef.current.attributes.widgetId
 		) {
 			setRequestLink();
-			props.setAttributes( { widgetId: Math.floor( Math.random() * 9999999 ) } );
+			setAttributes( { widgetId: Math.floor( Math.random() * 9999999 ) } );
 		}
 		prevPropsRef.current = props;
 	}, [ props ] );
 
-	const setUrl = userInput => {
-		if ( ! userInput ) {
+	const setUrl = input => {
+		if ( ! input ) {
 			setIsResolvingUrl( false );
 			return;
 		}
 
 		const widgetId = Math.floor( Math.random() * 9999999 );
 		const regex = /\/(user|author)\/show\/(\d+)/;
-		const goodreadsId = userInput.match( regex ) ? userInput.match( regex )[ 2 ] : false;
+		const goodreadsId = input.match( regex ) ? input.match( regex )[ 2 ] : false;
 
-		if ( ! goodreadsId || ! /goodreads\.com/.test( userInput ) ) {
+		if ( ! goodreadsId || ! /^(https?:\/\/)?(www\.)?goodreads\.com/.test( input ) ) {
 			return setErrorNotice();
 		}
 
-		if ( /\/author\//.test( userInput ) ) {
+		if ( /\/author\//.test( input ) ) {
 			setIsResolvingUrl( true );
 			apiFetch( { path: `/wpcom/v2/goodreads/user-id?id=${ goodreadsId }` } )
 				.then( response => {
 					if ( response === 404 ) {
-						props.setAttributes( { widgetId: undefined, userInput: undefined } );
+						setAttributes( { widgetId: undefined, userInput: input } );
 						setErrorNotice();
 						return;
 					}
-					props.setAttributes( { goodreadsId: response, widgetId, userInput } );
+					setAttributes( { goodreadsId: response, widgetId, input } );
 					setRequestLink();
 					setDisplayPreview( true );
 					setIsResolvingUrl( false );
 				} )
 				.catch( () => {
-					props.setAttributes( { widgetId: undefined, userInput: undefined } );
+					setAttributes( { widgetId: undefined, userInput: undefined } );
 					setErrorNotice();
 				} );
 		} else {
-			testEmbedUrl( userInput, setIsResolvingUrl )
+			testEmbedUrl( input, setIsResolvingUrl )
 				.then( response => {
 					if ( response.endsWith( '/author' ) ) {
-						props.setAttributes( { widgetId: undefined, userInput: undefined } );
+						setAttributes( { widgetId: undefined, userInput: undefined } );
 						setErrorNotice();
 						return;
 					}
 
-					props.setAttributes( { goodreadsId: goodreadsId, widgetId, userInput } );
+					setAttributes( { goodreadsId: goodreadsId, widgetId, userInput: input } );
 					setRequestLink();
 					setDisplayPreview( true );
 					setIsResolvingUrl( false );
 				} )
 				.catch( () => {
-					props.setAttributes( { widgetId: undefined, userInput: undefined } );
+					setAttributes( { widgetId: undefined, userInput: undefined } );
 					setErrorNotice();
 				} );
 		}
 	};
 
 	const setErrorNotice = () => {
-		props.noticeOperations.removeAllNotices();
-		props.noticeOperations.createErrorNotice(
+		noticeOperations.removeAllNotices();
+		noticeOperations.createErrorNotice(
 			<>{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }</>
 		);
 	};
 
 	const setRequestLink = () => {
-		const {
-			bookNumber,
-			customTitle,
-			goodreadsId,
-			orderOption,
-			shelfOption,
-			showAuthor,
-			showCover,
-			showRating,
-			showReview,
-			showTags,
-			showTitle,
-			sortOption,
-			widgetId,
-		} = props.attributes;
-
-		if ( ! goodreadsId ) {
-			return;
-		}
-
-		let link = `https://www.goodreads.com/review/custom_widget/${ goodreadsId }.${ customTitle }?num_books=${ bookNumber }&order=${ orderOption }&shelf=${ shelfOption }&show_author=${
-			showAuthor ? 1 : 0
-		}&show_cover=${ showCover ? 1 : 0 }&show_rating=${ showRating ? 1 : 0 }&show_review=${
-			showReview ? 1 : 0
-		}&show_tags=${ showTags ? 1 : 0 }&show_title=${
-			showTitle ? 1 : 0
-		}&sort=${ sortOption }&widget_id=${ widgetId }`;
-		let selector = 'gr_custom_widget_';
-
-		if ( props.attributes.style === 'grid' ) {
-			link = `https://www.goodreads.com/review/grid_widget/${ goodreadsId }.${ customTitle }?cover_size=medium&num_books=${ bookNumber }&order=${ orderOption }&shelf=${ shelfOption }&sort=${ sortOption }&widget_id=${ widgetId }`;
-			selector = 'gr_grid_widget_';
-		}
-
-		props.setAttributes( { link, id: selector + widgetId } );
+		const selector = attributes.style === 'grid' ? 'gr_grid_widget_' : 'gr_custom_widget';
+		setAttributes( {
+			link: createGoodreadsEmbedLink( { attributes } ),
+			id: selector + attributes.widgetId,
+		} );
 	};
 
 	const submitForm = event => {
@@ -148,7 +126,7 @@ const GoodreadsEdit = props => {
 	};
 
 	const cannotEmbed = () => {
-		return ! isResolvingUrl && props.attributes.url;
+		return ! isResolvingUrl && attributes.url;
 	};
 
 	const renderLoading = () => {
@@ -161,53 +139,51 @@ const GoodreadsEdit = props => {
 	};
 
 	const renderDisplaySettings = () => {
-		const { showCover, showAuthor, showTitle, showRating, showReview, showTags } = props.attributes;
+		const { showCover, showAuthor, showTitle, showRating, showReview, showTags } = attributes;
 
 		return (
 			<>
 				<ToggleControl
 					label={ __( 'Show cover', 'jetpack' ) }
 					checked={ showCover }
-					onChange={ () => props.setAttributes( { showCover: ! showCover } ) }
+					onChange={ () => setAttributes( { showCover: ! showCover } ) }
 				/>
 
 				<ToggleControl
 					label={ __( 'Show author', 'jetpack' ) }
 					checked={ showAuthor }
-					onChange={ () => props.setAttributes( { showAuthor: ! showAuthor } ) }
+					onChange={ () => setAttributes( { showAuthor: ! showAuthor } ) }
 				/>
 
 				<ToggleControl
 					label={ __( 'Show title', 'jetpack' ) }
 					checked={ showTitle }
-					onChange={ () => props.setAttributes( { showTitle: ! showTitle } ) }
+					onChange={ () => setAttributes( { showTitle: ! showTitle } ) }
 				/>
 
 				<ToggleControl
 					label={ __( 'Show rating', 'jetpack' ) }
 					checked={ showRating }
-					onChange={ () => props.setAttributes( { showRating: ! showRating } ) }
+					onChange={ () => setAttributes( { showRating: ! showRating } ) }
 				/>
 
 				<ToggleControl
 					label={ __( 'Show review', 'jetpack' ) }
 					checked={ showReview }
-					onChange={ () => props.setAttributes( { showReview: ! showReview } ) }
+					onChange={ () => setAttributes( { showReview: ! showReview } ) }
 				/>
 
 				<ToggleControl
 					label={ __( 'Show tags', 'jetpack' ) }
 					checked={ showTags }
-					onChange={ () => props.setAttributes( { showTags: ! showTags } ) }
+					onChange={ () => setAttributes( { showTags: ! showTags } ) }
 				/>
 			</>
 		);
 	};
 
 	const renderInspectorControls = () => {
-		const { style, shelfOption, bookNumber, orderOption, customTitle, sortOption } =
-			props.attributes;
-		const { attributes, clientId, setAttributes } = props;
+		const { style, shelfOption, bookNumber, orderOption, customTitle, sortOption } = attributes;
 
 		const embedTypes = [
 			{
@@ -236,52 +212,6 @@ const GoodreadsEdit = props => {
 			},
 		];
 
-		const shelfOptions = [
-			{
-				label: _x( 'Read', 'perfect participle - eg. I read a book yesterday.', 'jetpack' ),
-				value: 'read',
-			},
-			{ label: __( 'Currently reading', 'jetpack' ), value: 'currently-reading' },
-			{
-				label: _x( 'To read', 'future participle - eg. I have this to read.', 'jetpack' ),
-				value: 'to-read',
-			},
-		];
-
-		const sortOptions = [
-			{ label: 'ASIN', value: 'asin' },
-			{ label: _x( 'Author', 'noun', 'jetpack' ), value: 'author' },
-			{ label: __( 'Average rating', 'jetpack' ), value: 'avg_rating' },
-			{ label: _x( 'Comments', 'noun', 'jetpack' ), value: 'comments' },
-			{ label: _x( 'Cover', 'noun - ie. book cover', 'jetpack' ), value: 'cover' },
-			{ label: __( 'Date added', 'jetpack' ), value: 'date_added' },
-			{ label: __( 'Date published', 'jetpack' ), value: 'date_pub' },
-			{ label: __( 'Date read', 'jetpack' ), value: 'date_read' },
-			{ label: __( 'Date started', 'jetpack' ), value: 'date_started' },
-			{ label: __( 'Dated updated', 'jetpack' ), value: 'date_updated' },
-			{ label: _x( 'Format', 'noun', 'jetpack' ), value: 'format' },
-			{ label: 'ISBN', value: 'isbn' },
-			{ label: 'ISBN-13', value: 'isbn13' },
-			{ label: _x( 'Notes', 'noun', 'jetpack' ), value: 'notes' },
-			{ label: __( 'Number of pages', 'jetpack' ), value: 'num_pages' },
-			{ label: __( 'Number of ratings', 'jetpack' ), value: 'num_ratings' },
-			{ label: _x( 'Owned', 'possessive - eg. I owned it for a year', 'jetpack' ), value: 'owned' },
-			{ label: _x( 'Position', 'noun', 'jetpack' ), value: 'position' },
-			{ label: __( 'Random', 'jetpack', 'jetpack' ), value: 'random' },
-			{ label: _x( 'Rating', 'noun', 'jetpack' ), value: 'rating' },
-			{ label: __( 'Read count', 'jetpack' ), value: 'read_count' },
-			{ label: _x( 'Review', 'noun', 'jetpack' ), value: 'review' },
-			{ label: _x( 'Shelves', 'noun', 'jetpack' ), value: 'shelves' },
-			{ label: _x( 'Title', 'noun', 'jetpack' ), value: 'title' },
-			{ label: _x( 'Votes', 'noun', 'jetpack' ), value: 'votes' },
-			{ label: __( 'Year published', 'jetpack' ), value: 'year_pub' },
-		];
-
-		const orderOptions = [
-			{ label: __( 'Ascending', 'jetpack' ), value: 'a' },
-			{ label: __( 'Descending', 'jetpack' ), value: 'd' },
-		];
-
 		return (
 			<InspectorControls>
 				<BlockStylesSelector
@@ -297,13 +227,12 @@ const GoodreadsEdit = props => {
 					attributes={ attributes }
 					viewportWidth={ 130 }
 				/>
-
 				<PanelBody PanelBody title={ __( 'Goodreads Settings', 'jetpack' ) } initialOpen>
 					<SelectControl
 						label={ __( 'Shelf', 'jetpack' ) }
 						value={ shelfOption }
 						onChange={ value => setAttributes( { shelfOption: value } ) }
-						options={ shelfOptions }
+						options={ GOODREADS_SHELF_OPTIONS }
 					/>
 
 					<TextControl
@@ -316,14 +245,14 @@ const GoodreadsEdit = props => {
 						label={ __( 'Sort by', 'jetpack' ) }
 						value={ sortOption }
 						onChange={ value => setAttributes( { sortOption: value } ) }
-						options={ sortOptions }
+						options={ GOODREADS_SORT_OPTIONS }
 					/>
 
 					<SelectControl
 						label={ __( 'Order', 'jetpack' ) }
 						value={ orderOption }
 						onChange={ value => setAttributes( { orderOption: value } ) }
-						options={ orderOptions }
+						options={ GOODREADS_ORDER_OPTIONS }
 					/>
 
 					<TextControl
@@ -344,12 +273,12 @@ const GoodreadsEdit = props => {
 
 	const renderEditEmbed = () => {
 		return (
-			<div className={ props.className }>
+			<div className={ className }>
 				<Placeholder
 					label={ __( 'Goodreads', 'jetpack' ) }
 					instructions={ __( 'Paste a link to a Goodreads profile.', 'jetpack' ) }
 					icon={ <BlockIcon icon={ icon } /> }
-					notices={ props.noticeUI }
+					notices={ noticeUI }
 				>
 					<form onSubmit={ submitForm }>
 						<input
@@ -383,20 +312,20 @@ const GoodreadsEdit = props => {
 	};
 
 	const renderInlinePreview = () => {
-		const { goodreadsId, link, id } = props.attributes;
+		const { goodreadsId, link, id } = attributes;
 
 		if ( ! goodreadsId ) {
 			return;
 		}
 
 		const html = `
-    <style> [class^=gr_custom_container_] { border: 1px solid gray; border-radius: 10px; margin: auto; padding: 0 5px 10px 5px; background-color: #FFF; color: #000; width: 300px; }  [class^=gr_custom_header_] { border-bottom: 1px solid gray; width: 100%; padding: 10px 0; margin: auto; text-align: center; font-size: 120%; }  [class^=gr_custom_each_container_] { width: 100%; clear: both; margin: auto; overflow: auto; padding-bottom: 4px; border-bottom: 1px solid #aaa; }  [class^=gr_custom_each_container_] { width: 100%; clear: both; margin-bottom: 10px; overflow: auto; padding-bottom: 4px; border-bottom: 1px solid #aaa; }  [class^=gr_custom_book_container_] { overflow: hidden; height: 60px; float: left; margin-right: 6px; width: 39px; }  [class^=gr_custom_author_] { font-size: 10px; }  [class^=gr_custom_tags_] { font-size: 10px; color: gray; }  [class^=gr_custom_rating_] { float: right; }  [class^=gr_grid_book_container] { float: left; width: 98px; height: 160px; padding: 0px 0px; overflow: hidden; }  a { text-decoration: none; }  a:hover { text-decoration: underline; } img { max-width: 100%; }</style>
-      <script src="${ link }"></script>
-      <div id="${ id }"></div>
-    `;
+		<style> [class^=gr_custom_container_] { border: 1px solid gray; border-radius: 10px; margin: auto; padding: 0 5px 10px 5px; background-color: #fff; color: #000; width: 300px; }  [class^=gr_custom_header_] { border-bottom: 1px solid gray; width: 100%; padding: 10px 0; margin: auto; text-align: center; font-size: 120%; }  [class^=gr_custom_each_container_] { width: 100%; clear: both; margin: auto; overflow: auto; padding-bottom: 4px; border-bottom: 1px solid #aaa; }  [class^=gr_custom_each_container_] { width: 100%; clear: both; margin-bottom: 10px; overflow: auto; padding-bottom: 4px; border-bottom: 1px solid #aaa; }  [class^=gr_custom_book_container_] { overflow: hidden; height: 60px; float: left; margin-right: 6px; width: 39px; }  [class^=gr_custom_author_] { font-size: 10px; }  [class^=gr_custom_tags_] { font-size: 10px; color: gray; }  [class^=gr_custom_rating_] { float: right; }  [class^=gr_grid_book_container] { float: left; width: 98px; height: 160px; padding: 0px 0px; overflow: hidden; }  [class^=gr_grid_book_container] img { height: 100%; width: 100%; }  a { text-decoration: none; }  a:hover { text-decoration: underline; }  img { max-width: 100%; }</style>
+		<script src="${ link }"></script>
+      	<div id="${ id }"></div>
+    	`;
 
 		return (
-			<div className={ props.className }>
+			<div className={ className }>
 				<SandBox title="Goodreads" html={ html } />
 				<div className="block-library-embed__interactive-overlay" />
 			</div>
@@ -404,7 +333,7 @@ const GoodreadsEdit = props => {
 	};
 
 	useEffect( () => {
-		setUrl( props.attributes.userInput );
+		setUrl( attributes.userInput );
 	}, [] );
 
 	if ( isResolvingUrl ) {
@@ -412,7 +341,7 @@ const GoodreadsEdit = props => {
 	}
 
 	// Example block in preview.
-	if ( props.attributes.goodreadsId === 1176283 ) {
+	if ( attributes.goodreadsId === 1176283 ) {
 		return renderInlinePreview();
 	}
 
