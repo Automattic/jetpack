@@ -69,6 +69,11 @@
 		height: 160px;
 		padding: 0px 0px;
 		overflow: hidden;
+
+		img {
+			height: 100%;
+			width: 100%;
+		}
 	}
 
 	// This isn't from Goodreads, but it looks better on most themes.
