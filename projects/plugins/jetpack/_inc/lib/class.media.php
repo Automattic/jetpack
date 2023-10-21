@@ -346,7 +346,7 @@ class Jetpack_Media {
 	 * When the stack is overflowing the oldest item is remove from there (FIFO).
 	 *
 	 * @param int      $media_id - media post ID.
-	 * @param null|int $limit - maximun amount of items. 20 as default.
+	 * @param null|int $limit - maximum amount of items. 20 as default.
 	 *
 	 * @return array items removed from `revision_history`
 	 */
