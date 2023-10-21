@@ -659,7 +659,7 @@ function ConvertV6toV5Effect( { BlockListBlock, ...props } ) {
 		}
 	}, [ name, clientId, attributes, replaceBlock ] );
 
-	return <BlockListBlock { ...props } />
+	return <BlockListBlock { ...props } />;
 }
 
 const convertV6toV5 = createHigherOrderComponent( BlockListBlock => {
