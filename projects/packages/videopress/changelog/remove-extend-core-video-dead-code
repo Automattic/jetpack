@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Remove extend/core-video as it's not in use and it was meant as a transition HoC
