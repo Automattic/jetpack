@@ -644,19 +644,19 @@ const convertV6toV5 = createHigherOrderComponent( BlockListBlock => {
 		const { name, attributes, clientId } = block;
 		const { replaceBlock } = useDispatch( blockEditorStore );
 
+		if ( name !== 'core/missing' ) {
+			return;
+		}
+
+		if ( attributes?.originalName !== 'videopress/video' ) {
+			return;
+		}
+
 		/*
 		 * Detect missing videopress/video (v6) block,
 		 * and try to convert it to extended core/video (v5)
 		 */
 		useEffect( () => {
-			if ( name !== 'core/missing' ) {
-				return;
-			}
-
-			if ( attributes?.originalName !== 'videopress/video' ) {
-				return;
-			}
-
 			try {
 				const parsedData = parse( attributes.originalContent );
 				const originalBlock = parsedData?.[ 0 ];
