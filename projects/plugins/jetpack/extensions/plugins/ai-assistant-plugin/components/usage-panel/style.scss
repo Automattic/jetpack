@@ -1,0 +1,13 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jetpack-ai-usage-panel-control {
+    width: 100%;
+
+    &__header {
+        width: 100%;
+    }
+
+    p.muted {
+        color: var(--jp-gray-50 );
+    }
+}

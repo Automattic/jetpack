@@ -239,8 +239,6 @@
 	"projects/plugins/crm/modules/portal/templates/single-quote.php",
 	"projects/plugins/crm/modules/portal/templates/thank-you.php",
 	"projects/plugins/crm/modules/portal/templates/transactions.php",
-	"projects/plugins/crm/modules/woo-sync/admin/activation/welcome-to-woo-sync.ajax.php",
-	"projects/plugins/crm/modules/woo-sync/admin/activation/welcome-to-woo-sync.php",
 	"projects/plugins/crm/modules/woo-sync/admin/settings/connection_edit.page.php",
 	"projects/plugins/crm/modules/woo-sync/admin/settings/connections.page.ajax.php",
 	"projects/plugins/crm/modules/woo-sync/admin/settings/connections.page.php",

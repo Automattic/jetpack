@@ -364,37 +364,6 @@ class Initializer {
 			return;
 		}
 
-		// check current theme
-		$is_block_theme = wp_get_theme()->is_block_theme();
-
-		// Check if the site is a P2 site
-		$is_p2_site = function_exists( '\WPForTeams\is_wpforteams_site' ) && \WPForTeams\is_wpforteams_site( get_current_blog_id() );
-
-		// for non block themes frontend, we defer the enqueuing to the frontend, so we're able to tell if we need the assets
-		// If site is p2, load the assets in the frontend
-		if ( ! $is_block_theme && ! is_admin() && ! $is_p2_site ) {
-			add_action(
-				'wp_enqueue_scripts',
-				function () use ( $videopress_video_metadata_file ) {
-					// There's been issues with get_the_content on plugins/libs that take an alternate process
-					// and do not get the globals needed for get_the_content to work.
-					// See: https://github.com/Automattic/jetpack/issues/33284
-					try {
-						$post_content = get_the_content();
-					} catch ( \TypeError $e ) {
-						return;
-					} catch ( \Exception $e ) {
-						return;
-					}
-
-					if ( ! empty( $post_content ) && ! has_block( 'videopress/video', $post_content ) && ! has_shortcode( $post_content, 'videopress' ) ) {
-						return;
-					}
-					self::enqueue_block_assets( $videopress_video_metadata_file );
-				}
-			);
-			return;
-		}
 		self::enqueue_block_assets( $videopress_video_metadata_file );
 	}
 
