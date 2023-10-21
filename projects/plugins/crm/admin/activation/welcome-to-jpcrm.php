@@ -42,9 +42,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 		wp_enqueue_style( 'zbswelcomeexitform', plugins_url( '/css/welcome-to-zbs/zbs-exitform' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs->version );
 		wp_enqueue_style( 'zbswelcomeactivation', plugins_url( '/css/welcome-to-zbs/activation.min.css', ZBS_ROOTFILE ), array(), $zbs->version );
 		wp_enqueue_style( 'zbswelcomewizard', plugins_url( '/css/welcome-to-zbs/wizard' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs->version );
-
-		// dequeue anything?
-		wp_dequeue_style( 'admin-bar-css' );
+		$style_handles = array( 'zbswelcomebootstrap', 'zbswelcomeloadstyles', 'zbswelcomeopensans', 'zbswelcomeadmin', 'zbswelcomeexitform', 'zbswelcomeactivation', 'zbswelcomewizard' );
 
 	// } Image URLS
 	$assetsURLI = ZEROBSCRM_URL . 'i/';
@@ -65,7 +63,7 @@ $settings      = $zbs->settings->getAll();
 	<style type="text/css">img.wp-smiley,img.emoji{display:inline !important;border:none !important;box-shadow:none !important;height:1em !important;width:1em !important;margin:0 .07em !important;vertical-align:-0.1em !important;background:none !important;padding:0 !important}#zbscrm-logo img{max-width:20% !important}#feedbackPage{display:none}.zbscrm-setup .zbscrm-setup-actions .button-primary{background-color:#408bc9 !important;border-color:#408bc9 !important;-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 1px 0 #408bc9 !important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 1px 0 #408bc9 !important;text-shadow:0 -1px 1px #408bc9,1px 0 1px #408bc9,0 1px 1px #408bc9,-1px 0 1px #408bc9 !important;float:right;margin:0;opacity:1}</style>
 	<?php
 
-		wp_print_styles();
+		wp_print_styles( $style_handles );
 		wp_print_scripts(); // wp_scripts
 
 	?>
