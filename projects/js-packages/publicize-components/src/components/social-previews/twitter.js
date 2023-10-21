@@ -14,14 +14,10 @@ function Twitter( { tweets } ) {
 }
 
 export default withSelect( ( select, { title, description, image, url, media } ) => {
-	const { getTweetTemplate, getTweetStorm, getShareMessage, isTweetStorm } =
-		select( 'jetpack/publicize' );
+	const { getTweetTemplate, getShareMessage } = select( 'jetpack/publicize' );
 
-	let tweets = [];
-	if ( isTweetStorm() ) {
-		tweets = getTweetStorm();
-	} else {
-		tweets.push( {
+	const tweets = [
+		{
 			...getTweetTemplate(),
 			text: getShareMessage() + ( media.length ? ` ${ url }` : '' ),
 			cardType: image ? 'summary_large_image' : 'summary',
@@ -30,8 +26,7 @@ export default withSelect( ( select, { title, description, image, url, media } )
 			image,
 			media,
 			url,
-		} );
-	}
-
+		},
+	];
 	return { tweets };
 } )( Twitter );
