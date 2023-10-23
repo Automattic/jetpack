@@ -1691,15 +1691,6 @@ final class ZeroBSCRM {
 		// If usage tracking is active - include the tracking code.
 		$this->load_usage_tracking();
 
-		// } Ownership
-		$usingOwnership = $this->settings->get( 'perusercustomers' );
-		if ( $usingOwnership && ! $this->isDAL3() ) {
-			if ( ! class_exists( 'zeroBS__Metabox' ) ) {
-				require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBox.php';
-			}
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes.Ownership.php';
-		}
-
 		if ( $this->isDAL3() && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ) ) {
 			// } Jetpack - can condition this include on detection of Jetpack - BUT the code in Jetpack.php only fires on actions so will be OK to just include
 			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Jetpack.php';
