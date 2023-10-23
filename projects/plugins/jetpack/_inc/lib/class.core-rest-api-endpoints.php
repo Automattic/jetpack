@@ -2563,7 +2563,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_custom_service',
 				'jp_group'          => 'sharedaddy',
 			),
-			// Not an option, but an action that can be perfomed on the list of custom services passing the service ID.
+			// Not an option, but an action that can be performed on the list of custom services passing the service ID.
 			'sharing_delete_service'               => array(
 				'description'       => esc_html__( 'Delete custom sharing service.', 'jetpack' ),
 				'type'              => 'string',
