@@ -159,16 +159,10 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		return result as ParsedValue< V >;
 	}
 
-	private async request(
-		method: RequestMethods,
-		partialPathname: string,
-		params?: RequestParams,
-		abortSignal?: AbortSignal
-	) {
+	private async request( method: RequestMethods, partialPathname: string, params?: RequestParams ) {
 		const url = `${ this.wpDatasyncUrl }/${ partialPathname }`;
 		const args: RequestInit = {
 			method,
-			signal: abortSignal,
 			headers: {
 				'Content-Type': 'application/json',
 				'X-WP-Nonce': this.wpRestNonce,
@@ -215,16 +209,14 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	 * @param method - The request method.
 	 * @param requestPath - The request path.
 	 * @param params - The request parameters.
-	 * @param abortSignal - The abort signal.
 	 * @returns The parsed value.
 	 */
 	private async parsedRequest(
 		method: RequestMethods,
 		requestPath = '',
-		params?: Value,
-		abortSignal?: AbortSignal
+		params?: Value
 	): Promise< Value > {
-		const data = await this.request( method, requestPath, params, abortSignal );
+		const data = await this.request( method, requestPath, params );
 		try {
 			const parsed = this.schema.parse( data );
 			return parsed;
@@ -263,20 +255,20 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	 * to be bound to the class instance, to make it easier to pass them
 	 * around as callbacks without losing the `this` context.
 	 */
-	public GET = async ( abortSignal?: AbortSignal ): Promise< Value > => {
-		return await this.parsedRequest( 'GET', this.endpoint, undefined, abortSignal );
+	public GET = async (): Promise< Value > => {
+		return await this.parsedRequest( 'GET', this.endpoint );
 	};
 
-	public SET = async ( params: Value, abortSignal?: AbortSignal ): Promise< Value > => {
-		return await this.parsedRequest( 'POST', `${ this.endpoint }/set`, params, abortSignal );
+	public SET = async ( params: Value ): Promise< Value > => {
+		return await this.parsedRequest( 'POST', `${ this.endpoint }/set`, params );
 	};
 
-	public MERGE = async ( params: Value, abortSignal?: AbortSignal ): Promise< Value > => {
-		return await this.parsedRequest( 'POST', `${ this.endpoint }/merge`, params, abortSignal );
+	public MERGE = async ( params: Value ): Promise< Value > => {
+		return await this.parsedRequest( 'POST', `${ this.endpoint }/merge`, params );
 	};
 
-	public DELETE = async ( abortSignal?: AbortSignal ) => {
-		return await this.parsedRequest( 'POST', `${ this.endpoint }/delete`, undefined, abortSignal );
+	public DELETE = async () => {
+		return await this.parsedRequest( 'POST', `${ this.endpoint }/delete` );
 	};
 
 	/**
