@@ -89,6 +89,7 @@ class WooCommerce extends Module {
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_remove_order_items', array( $this, 'filter_remove_order_item' ), 10 );
 		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_review_comment_types' ) );
 
 		// Blacklist Action Scheduler comment types.
@@ -128,6 +129,7 @@ class WooCommerce extends Module {
 		add_action( 'woocommerce_new_order_item', $callable, 10, 4 );
 		add_action( 'woocommerce_update_order_item', $callable, 10, 4 );
 		add_action( 'woocommerce_delete_order_item', $callable, 10, 1 );
+		add_action( 'woocommerce_remove_order_items', $callable, 10 );
 		$this->init_listeners_for_meta_type( 'order_item', $callable );
 
 		// Payment tokens.
@@ -194,6 +196,22 @@ class WooCommerce extends Module {
 	public function filter_order_item( $args ) {
 		// Make sure we always have all the data - prior to WooCommerce 3.0 we only have the user supplied data in the second argument and not the full details.
 		$args[1] = $this->build_order_item( $args[0] );
+		return $args;
+	}
+
+	/**
+	 * Add the order items to be removed.
+	 *
+	 * @param array $args The hook arguments.
+	 * @return array $args The hook arguments with the extra order_items arrays.
+	 */
+	public function filter_remove_order_item( $args ) {
+		$order           = $args[0];
+		$types           = array( 'line_item', 'tax', 'shipping', 'fee', 'coupon' );
+		$order_items_ids = $order->get_items( $types );
+
+		// Add the order items to be deleted
+		$args['order_items'] = array_map( array( $this, 'build_order_item' ), array_keys( $order_items_ids ) );
 		return $args;
 	}
 
