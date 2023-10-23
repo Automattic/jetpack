@@ -2192,7 +2192,6 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
 	/**
 	 * Returns an ownerid against a quote
-	 * Replaces zeroBS_getCustomerOwner
 	 *
 	 * @param int id quote ID
 	 *

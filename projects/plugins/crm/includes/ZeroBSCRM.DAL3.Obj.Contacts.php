@@ -3960,7 +3960,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
     /**
      * Returns an ownerid against a contact
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id Contact ID
      *

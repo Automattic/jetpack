@@ -241,13 +241,6 @@ function zeroBS_setCustomerWPID($cID=-1,$wpID=-1){
 
 }
 
-function zeroBS_getCustomerOwner($customerID=-1){
-
-	// Actually, this one is more accurate, as returns obj :) global $zbs; return $zbs->DAL->contacts->getContactOwner($customerID);
-	return zeroBS_getOwner($customerID,true,'zerobs_customer');
-
-}
-
 function zeroBSCRM_getCustomerTags($hide_empty=false){
 	
 	global $zbs; 
