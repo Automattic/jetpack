@@ -77,6 +77,8 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 						className="components-button is-link"
 						onClick={ () => setIsEditing( true ) }
 					>
+						{/* @TODO: Create plugins_dir global */}
+						{/* @TODO: i18n */}
 						<img
 							src="/wp-content/plugins/jetpack-boost/app/assets/src/js/svg/pencil.svg"
 							alt="Pencil Icon"
