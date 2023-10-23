@@ -2,12 +2,13 @@ import useSWR from 'swr';
 import useSWRMutation, { SWRMutationConfiguration } from 'swr/mutation';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
+import type { SWRConfiguration } from 'swr';
 
 export function useDataSync<
 	Schema extends z.ZodSchema,
 	Value extends z.infer< Schema >,
 	Key extends string,
->( namespace: string, key: Key, schema: Schema ) {
+>( namespace: string, key: Key, schema: Schema, config: SWRConfiguration = {} ) {
 	type MutationArguments = {
 		arg: Value;
 	};
@@ -22,8 +23,9 @@ export function useDataSync<
 			return response;
 		}
 	);
-	const { data, error } = useSWR( key, datasync.GET, {
+	const { data, error } = useSWR< Value >( key, datasync.GET, {
 		fallbackData: datasync.getInitialValue(),
+		...config,
 	} );
 
 	if ( error ) {
@@ -50,12 +52,14 @@ export function useDataSync<
 export function useReadonlyDataSync< Schema extends z.ZodSchema, Key extends string >(
 	namespace: string,
 	key: Key,
-	schema: Schema
+	schema: Schema,
+	config: SWRConfiguration = {}
 ) {
 	const datasync = new DataSync( namespace, key, schema );
 	const { data, error } = useSWR( key, datasync.GET, {
 		fallbackData: datasync.getInitialValue(),
 		revalidateOnFocus: true,
+		...config,
 	} );
 
 	if ( error ) {
