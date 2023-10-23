@@ -230,6 +230,7 @@ function AiAssistantDropdownContent( {
 					iconPosition="left"
 					key="key-ai-assistant"
 					onClick={ replaceWithAiAssistantBlock }
+					disabled={ noContent }
 				>
 					<div className="jetpack-ai-assistant__menu-item">
 						{ __( 'Ask AI Assistant', 'jetpack' ) }
@@ -244,6 +245,7 @@ function AiAssistantDropdownContent( {
 						onClick={ () => {
 							requestSuggestion( quickAction.aiSuggestion, {} );
 						} }
+						disabled={ noContent }
 					>
 						<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
 					</MenuItem>
