@@ -29,6 +29,11 @@ abstract class Client_Portal_Endpoint {
 	public $template_args                = array();
 	public $template_path                = '';
 	public $default_template_path        = '';
+	/**
+	 * Option param value used by some endpoints
+	 * @var string
+	 */
+	public $param_value;
 
 	abstract public static function register_endpoint( $endpoints, $client_portal );
 
