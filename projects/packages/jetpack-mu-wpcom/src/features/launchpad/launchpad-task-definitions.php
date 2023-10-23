@@ -543,6 +543,15 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/hosting-config/' . $data['site_slug_encoded'] . '#sftp-credentials';
 			},
 		),
+		'site_monitoring_page'            => array(
+			'get_title'            => function () {
+				return __( 'View site metrics', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/site-monitoring/' . $data['site_slug_encoded'];
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -1880,14 +1889,3 @@ function wpcom_launchpad_mark_theme_selected_complete() {
 	wpcom_mark_launchpad_task_complete( 'site_theme_selected' );
 }
 add_action( 'jetpack_sync_current_theme_support', 'wpcom_launchpad_mark_theme_selected_complete', 10 );
-
-/**
- * Mark task complete when ssh is setup.
- */
-function wpcom_launchpad_mark_ssh_setup_complete() {
-	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'setup_ssh' ) ) ) {
-		return;
-	}
-	wpcom_mark_launchpad_task_complete( 'setup_ssh' );
-}
-add_action( 'a8c_hosting_ssh_user_created', 'wpcom_launchpad_mark_ssh_setup_complete', 10 );

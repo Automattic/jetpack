@@ -207,6 +207,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'install_custom_plugin',
 				'setup_ssh',
 				'verify_email',
+				'site_monitoring_page',
 				'site_launched',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_hosting_flow_enabled',
