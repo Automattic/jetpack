@@ -1180,16 +1180,28 @@ function zeroBS_getOwner($objID=-1,$withDeets=true,$objType=-1,$knownOwnerID=-1)
 function zeroBS_getOwnerObj( $wp_user_id = -1 ) {
 	if ( $wp_user_id > 0 ) {
 
-		$user_data = get_userdata( $wp_user_id );
+		$user = get_userdata( $wp_user_id );
 
-		if ( ! isset( $user_data->ID ) || ! isset( $user_data->data ) ) {
+		if ( ! isset( $user->ID ) || ! isset( $user->data ) ) {
 			return false;
 		}
+
+		/**
+		 * Ideally we'd restructure this, but the return result is used extensively,
+		 * particularly from `zeroBS_getOwner` calls. For now we'll explicitly set what
+		 * fields are provided (e.g. don't show `user_pass`).
+		 */
+		$user_data = (object) array(
+			'ID'            => $user_data->data->ID,
+			'user_login'    => $user_data->data->user_login,
+			'user_nicename' => $user_data->data->user_nicename,
+			'display_name'  => $user_data->data->display_name,
+		);
 
 		return array(
 
 			'ID'  => $wp_user_id,
-			'OBJ' => $user_data->data,
+			'OBJ' => $user_data,
 		);
 
 	}
