@@ -6,7 +6,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { getBlockContent } from '@wordpress/blocks';
 import { MenuItem, MenuGroup, ToolbarButton, Dropdown, Notice } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription } from '@wordpress/icons';
 import React from 'react';
@@ -126,6 +126,18 @@ function AiAssistantDropdownContent( {
 	const { getSelectedBlockClientIds, getBlocksByClientId } = useSelect( 'core/block-editor' );
 	const { removeBlocks, replaceBlock } = useDispatch( 'core/block-editor' );
 
+	// Store the current content in a local state
+	useEffect( () => {
+		const clientIds = getSelectedBlockClientIds();
+		const blocks = getBlocksByClientId( clientIds );
+		const content = getBlocksContent( blocks );
+
+		const rawContent = getRawTextFromHTML( content );
+
+		// Set no content condition to show the Notice info message.
+		return setNoContent( ! rawContent.length );
+	}, [ getBlocksByClientId, getSelectedBlockClientIds ] );
+
 	const { tracks } = useAnalytics();
 
 	const requestSuggestion = (
@@ -135,13 +147,6 @@ function AiAssistantDropdownContent( {
 		const clientIds = getSelectedBlockClientIds();
 		const blocks = getBlocksByClientId( clientIds );
 		const content = getBlocksContent( blocks );
-
-		const rawContent = getRawTextFromHTML( content );
-
-		if ( ! rawContent.length ) {
-			// Set no content condition to show the Notice info message.
-			return setNoContent( true );
-		}
 
 		onClose();
 
