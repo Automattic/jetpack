@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Extensions;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Jetpack;
 use Jetpack_Gutenberg;
 
 /**
@@ -29,6 +30,15 @@ class WordAds {
 	 */
 	private static function is_wpcom() {
 		return defined( 'IS_WPCOM' ) && IS_WPCOM;
+	}
+
+	/**
+	 * Check if the WordAds module is active.
+	 *
+	 * @return bool
+	 */
+	private static function is_jetpack_module_active() {
+		return method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'wordads' );
 	}
 
 	/**
@@ -79,6 +89,11 @@ class WordAds {
 	 */
 	public static function gutenblock_render( $attr ) {
 		global $wordads;
+
+		/** If the WordAds module is not active, don't render the block. */
+		if ( ! self::is_jetpack_module_active() ) {
+			return '';
+		}
 
 		/** This filter is already documented in modules/wordads/class-wordads.php `insert_ad()` */
 		if (
