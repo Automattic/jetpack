@@ -69,4 +69,5 @@ export { default as Status } from './components/status';
 export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar';
 export { default as ActionPopover } from './components/action-popover';
 export { default as ZendeskChat } from './components/zendesk-chat';
+export { default as ProgressBar } from './components/progress-bar';
 export { getUserLocale, cleanLocale } from './lib/locale';

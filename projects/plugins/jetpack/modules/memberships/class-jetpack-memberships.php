@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
+use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
 
@@ -97,6 +98,13 @@ class Jetpack_Memberships {
 	private static $user_can_view_post_cache = array();
 
 	/**
+	 * Cached results of user_is_paid_subscriber() method.
+	 *
+	 * @var array
+	 */
+	private static $user_is_paid_subscriber_cache = array();
+
+	/**
 	 * Currencies we support and Stripe's minimum amount for a transaction in that currency.
 	 *
 	 * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
@@ -161,6 +169,15 @@ class Jetpack_Memberships {
 			),
 			'site_subscriber' => array(
 				'meta' => $meta_prefix . 'site_subscriber',
+			),
+			'product_id'      => array(
+				'meta' => $meta_prefix . 'product_id',
+			),
+			'tier'            => array(
+				'meta' => $meta_prefix . 'tier',
+			),
+			'is_deleted'      => array(
+				'meta' => $meta_prefix . 'is_deleted',
 			),
 		);
 		return $properties;
@@ -303,9 +320,9 @@ class Jetpack_Memberships {
 		}
 
 		return $is_premium_content_child &&
-				$user_can_edit &&
-				$requires_stripe_connection &&
-				$jetpack_ready;
+			$user_can_edit &&
+			$requires_stripe_connection &&
+			$jetpack_ready;
 	}
 
 	/**
@@ -494,6 +511,23 @@ class Jetpack_Memberships {
 	 *
 	 * @return bool Whether the post can be viewed
 	 */
+	public static function user_is_paid_subscriber() {
+		$user_id = get_current_user_id();
+
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$paywall            = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		$is_paid_subscriber = $paywall->visitor_can_view_content( self::get_all_newsletter_plan_ids(), Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS );
+
+		self::$user_is_paid_subscriber_cache[ $user_id ] = $is_paid_subscriber;
+		return $is_paid_subscriber;
+	}
+
+	/**
+	 * Determines whether the current user can view the post based on the newsletter access level
+	 * and caches the result.
+	 *
+	 * @return bool Whether the post can be viewed
+	 */
 	public static function user_can_view_post() {
 		$user_id = get_current_user_id();
 		$post_id = get_the_ID();
@@ -568,24 +602,71 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Return membership plans
+	 * Return the list of plan posts
 	 *
-	 * @return array
+	 * @return WP_Post[]|WP_Error
 	 */
-	public static function get_all_newsletter_plan_ids() {
+	public static function get_all_plans() {
 		if ( ! self::is_enabled_jetpack_recurring_payments() ) {
 			return array();
 		}
 
-		return get_posts(
-			array(
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-				'meta_value'     => true,
-				'post_type'      => self::$post_type_plan,
-				'meta_key'       => 'jetpack_memberships_site_subscriber',
-			)
-		);
+		// We can retrieve the data directly except on a Jetpack/Atomic cached site or
+		$is_cached_site = ( new Host() )->is_wpcom_simple() && is_jetpack_site();
+		if ( ! $is_cached_site ) {
+			return get_posts(
+				array(
+					'posts_per_page' => -1,
+					'post_type'      => self::$post_type_plan,
+				)
+			);
+		} else {
+			// On cached site on WPCOM
+			require_lib( 'memberships' );
+			return Memberships_Product::get_plans_posts_list( get_current_blog_id() );
+		}
+	}
+
+	/**
+	 * Return all membership plans ids (deleted or not)
+	 * This function is used both on WPCOM or on Jetpack self-hosted.
+	 * Depending on the environment we need to mitigate where the data is retrieved from.
+	 *
+	 * @return array
+	 */
+	public static function get_all_newsletter_plan_ids() {
+
+		if ( ! self::is_enabled_jetpack_recurring_payments() ) {
+			return array();
+		}
+
+		// We can retrieve the data directly except on a Jetpack/Atomic cached site or
+		$is_cached_site = ( new Host() )->is_wpcom_simple() && is_jetpack_site();
+		if ( ! $is_cached_site ) {
+			return get_posts(
+				array(
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'meta_value'     => true,
+					'post_type'      => self::$post_type_plan,
+					'meta_key'       => 'jetpack_memberships_site_subscriber',
+				)
+			);
+
+		} else {
+			// On cached site on WPCOM
+			require_lib( 'memberships' );
+			$only_newsletter = true;
+			$allow_deleted   = true;
+			$list            = Memberships_Product::get_product_list( get_current_blog_id(), null, null, $only_newsletter, $allow_deleted );
+
+			return array_map(
+				function ( $product ) {
+					return $product['id'];
+				}, // Returning only post ids
+				$list
+			);
+		}
 	}
 
 	/**
@@ -634,11 +715,11 @@ class Jetpack_Memberships {
 	public static function get_join_others_text( $subscribers_total ) {
 		if ( $subscribers_total >= 1000000 ) {
 			/* translators: %s: number of folks following the blog, millions(M) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sM other subscribers', 'jetpack' ), number_format_i18n( $subscribers_total / 1000000, 1 ) );
+			return sprintf( __( 'Join %sM other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000000, 1 ) ) );
 		}
 		if ( $subscribers_total >= 10000 ) {
 			/* translators: %s: number of folks following the blog, thousands(K) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sK other subscribers', 'jetpack' ), number_format_i18n( $subscribers_total / 1000, 1 ) );
+			return sprintf( __( 'Join %sK other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000, 1 ) ) );
 		}
 
 		/* translators: %s: number of folks following the blog */

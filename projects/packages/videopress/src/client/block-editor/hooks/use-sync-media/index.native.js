@@ -241,7 +241,7 @@ export function useSyncMedia( attributes, setAttributes ) {
 					invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 				}
 			} )
-			.catch( ( updateMediaError: Error ) => {
+			.catch( updateMediaError => {
 				debug( '%o Error while syncing data: %o', attributes?.guid, updateMediaError );
 				setError( updateMediaError );
 			} );

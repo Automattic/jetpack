@@ -145,30 +145,21 @@ class Jetpack_Media {
 	}
 
 	/**
-	 * Try to remove the temporal file from the given file array.
-	 *
-	 * @param array $file_array Array with data about the temporal file.
-	 */
-	private static function remove_tmp_file( $file_array ) {
-		if ( file_exists( $file_array['tmp_name'] ) ) {
-			wp_delete_file( $file_array['tmp_name'] );
-		}
-	}
-
-	/**
-	 * Save the given temporal file considering file type,
+	 * Save the given uploaded temporary file considering file type,
 	 * correct location according to the original file path, etc.
 	 * The file type control is done through of `jetpack_supported_media_sideload_types` filter,
 	 * which allows define to the users their own file types list.
 	 *
-	 * @param  array $file_array file to save.
+	 * Note this does not support sideloads, only uploads.
+	 *
+	 * @param  array $file_array Data derived from `$_FILES` for an uploaded file.
 	 * @param  int   $media_id   Attachment ID.
 	 * @return array|WP_Error an array with information about the new file saved or a WP_Error is something went wrong.
 	 */
 	public static function save_temporary_file( $file_array, $media_id ) {
 		$tmp_filename = $file_array['tmp_name'];
 
-		if ( ! file_exists( $tmp_filename ) ) {
+		if ( ! is_uploaded_file( $tmp_filename ) ) {
 			return new WP_Error( 'invalid_input', 'No media provided in input.' );
 		}
 
@@ -183,7 +174,6 @@ class Jetpack_Media {
 			! self::is_file_supported_for_sideloading( $tmp_filename ) &&
 			! file_is_displayable_image( $tmp_filename )
 		) {
-			wp_delete_file( $tmp_filename );
 			return new WP_Error( 'invalid_input', 'Invalid file type.', 403 );
 		}
 		remove_filter( 'jetpack_supported_media_sideload_types', $mime_type_static_filter );
@@ -198,9 +188,7 @@ class Jetpack_Media {
 		$time = self::get_time_string_from_guid( $media_id );
 
 		$file_array['name'] = $tmp_new_filename;
-		$file               = wp_handle_sideload( $file_array, $overrides, $time );
-
-		self::remove_tmp_file( $file_array );
+		$file               = wp_handle_upload( $file_array, $overrides, $time );
 
 		if ( isset( $file['error'] ) ) {
 			return new WP_Error( 'upload_error', $file['error'] );
@@ -443,8 +431,10 @@ class Jetpack_Media {
 	 * - preserve original media file
 	 * - trace revision history
 	 *
+	 * Note this does not support sideloads, only uploads.
+	 *
 	 * @param  number $media_id - media post ID.
-	 * @param  array  $file_array - temporal file.
+	 * @param  array  $file_array - Data derived from `$_FILES` for an uploaded file.
 	 * @return {Post|WP_Error} Updated media item or a WP_Error is something went wrong.
 	 */
 	public static function edit_media_file( $media_id, $file_array ) {
@@ -463,7 +453,6 @@ class Jetpack_Media {
 		$uploaded_file = self::save_temporary_file( $file_array, $media_id );
 
 		if ( is_wp_error( $uploaded_file ) ) {
-			self::remove_tmp_file( $file_array );
 			return $uploaded_file;
 		}
 

@@ -6,9 +6,11 @@ import {
 	ERROR_QUOTA_EXCEEDED,
 	useAiSuggestions,
 } from '@automattic/jetpack-ai-client';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
+import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
 import { useState, useEffect } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
@@ -41,12 +43,15 @@ type ContentLensMessageContextProps = {
 };
 
 function AiPostExcerpt() {
-	const excerpt = useSelect(
-		select => select( 'core/editor' ).getEditedPostAttribute( 'excerpt' ),
-		[]
-	);
+	const { excerpt, postId } = useSelect( select => {
+		const { getEditedPostAttribute, getCurrentPostId } = select( editorStore );
 
-	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
+		return {
+			excerpt: getEditedPostAttribute( 'excerpt' ) ?? '',
+			postId: getCurrentPostId() ?? 0,
+		};
+	}, [] );
+
 	const { editPost } = useDispatch( 'core/editor' );
 
 	// Post excerpt words number
@@ -72,7 +77,7 @@ function AiPostExcerpt() {
 	// Pick raw post content
 	const postContent = useSelect(
 		select => {
-			const content = select( 'core/editor' ).getEditedPostContent();
+			const content = select( editorStore ).getEditedPostContent();
 			if ( ! content ) {
 				return '';
 			}
@@ -151,6 +156,12 @@ ${ postContent }
 
 	const isQuotaExceeded = error?.code === ERROR_QUOTA_EXCEEDED;
 
+	// Set the docs link depending on the site type
+	const docsLink =
+		isAtomicSite() || isSimpleSite()
+			? __( 'https://wordpress.com/support/excerpts/', 'jetpack' )
+			: __( 'https://jetpack.com/support/create-better-post-excerpts-with-ai/', 'jetpack' );
+
 	return (
 		<div className="jetpack-ai-post-excerpt">
 			<TextareaControl
@@ -162,12 +173,7 @@ ${ postContent }
 				disabled={ isTextAreaDisabled }
 			/>
 
-			<ExternalLink
-				href={ __(
-					'https://wordpress.org/documentation/article/page-post-settings-sidebar/#excerpt',
-					'jetpack'
-				) }
-			>
+			<ExternalLink href={ docsLink }>
 				{ __( 'Learn more about manual excerpts', 'jetpack' ) }
 			</ExternalLink>
 
@@ -245,11 +251,13 @@ ${ postContent }
 }
 
 export const PluginDocumentSettingPanelAiExcerpt = () => (
-	<PluginDocumentSettingPanel
-		className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
-		name="ai-content-lens-plugin"
-		title={ __( 'Excerpt', 'jetpack' ) }
-	>
-		<AiPostExcerpt />
-	</PluginDocumentSettingPanel>
+	<PostTypeSupportCheck supportKeys="excerpt">
+		<PluginDocumentSettingPanel
+			className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
+			name="ai-content-lens-plugin"
+			title={ __( 'Excerpt', 'jetpack' ) }
+		>
+			<AiPostExcerpt />
+		</PluginDocumentSettingPanel>
+	</PostTypeSupportCheck>
 );

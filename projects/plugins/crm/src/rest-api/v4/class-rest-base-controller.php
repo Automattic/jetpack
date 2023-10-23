@@ -37,7 +37,7 @@ abstract class REST_Base_Controller extends WP_REST_Controller {
 	 *
 	 * @link https://developer.wordpress.org/rest-api/using-the-rest-api/pagination/#pagination-parameters
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return int Return the per page argument.
@@ -62,7 +62,7 @@ abstract class REST_Base_Controller extends WP_REST_Controller {
 	 *
 	 * @link https://developer.wordpress.org/rest-api/using-the-rest-api/pagination/#pagination-parameters
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return int Return the offset argument.

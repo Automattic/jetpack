@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Automations: Fix an issue (only in development) with the automations workflow table creation

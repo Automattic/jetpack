@@ -675,4 +675,13 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	public function get_wpcom_staging_blog_ids() {
 		return null;
 	}
+
+	/**
+	 * Get site option for the admin interface on WordPress.com Atomic sites. Not used in Jetpack.
+	 *
+	 * @return null
+	 */
+	public function get_wpcom_admin_interface() {
+		return null;
+	}
 }

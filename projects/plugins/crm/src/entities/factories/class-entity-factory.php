@@ -3,7 +3,7 @@
  * Base Entity Factory.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Entities\Factories;
@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\CRM\Entities\Factories;
 /**
  * Base Entity Factory.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 abstract class Entity_Factory {
 
@@ -22,7 +22,7 @@ abstract class Entity_Factory {
 	 *
 	 * Example: array( 'db_column' => 'entity_property' ).
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string[]
 	 */
 	protected static $field_map = array();
@@ -32,7 +32,7 @@ abstract class Entity_Factory {
 	 *
 	 * For tags, invoices, transactions, quotes, tasks, etc.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var string[]
 	 */
 	protected static $associative_field_map = array();
@@ -40,7 +40,7 @@ abstract class Entity_Factory {
 	/**
 	 * Create the instance of the class based on the data from DAL.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $data The data to create the instance with.
 	 * @return mixed The entity instance.
@@ -50,7 +50,7 @@ abstract class Entity_Factory {
 	/**
 	 * Create the entity instance from a generic/tidy data array.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $tidy_data An array with the tidy data from DAL.
 	 * @return mixed The entity instance.
@@ -85,7 +85,7 @@ abstract class Entity_Factory {
 	/**
 	 * Create the entity instance from the database data array.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $db_data The data array from the database.
 	 * @return mixed The entity instance.
@@ -109,7 +109,7 @@ abstract class Entity_Factory {
 	/**
 	 * Get the data (tidy) as an array from the entity instance.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param mixed $entity The entity instance.
 	 * @return array The tidy data array.
@@ -137,7 +137,7 @@ abstract class Entity_Factory {
 	/**
 	 * Get the data from the entity instance as an array ready for the DAL.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param mixed $entity The entity instance.
 	 * @return array The data array for the DAL.
@@ -165,7 +165,7 @@ abstract class Entity_Factory {
 	/**
 	 * Create an empty entity instance.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return mixed The entity instance.
 	 * @throws Factory_Exception If the entity class is invalid.
@@ -185,7 +185,7 @@ abstract class Entity_Factory {
 	 *
 	 * 'db_column' => 'entity_property'
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return array The fields map.
 	 */
@@ -198,7 +198,7 @@ abstract class Entity_Factory {
 	 *
 	 * tags, files, etc.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return array The associative fields map.
 	 */
@@ -209,7 +209,7 @@ abstract class Entity_Factory {
 	/**
 	 * Return the entity class handle by the Factory.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The entity class.
 	 */

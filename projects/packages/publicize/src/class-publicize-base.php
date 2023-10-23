@@ -1147,10 +1147,13 @@ abstract class Publicize_Base {
 							'items' => array(
 								'type'       => 'object',
 								'properties' => array(
-									'id'  => array(
+									'id'   => array(
 										'type' => 'number',
 									),
-									'url' => array(
+									'url'  => array(
+										'type' => 'string',
+									),
+									'type' => array(
 										'type' => 'string',
 									),
 								),

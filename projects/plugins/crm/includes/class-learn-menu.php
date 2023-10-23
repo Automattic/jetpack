@@ -12,6 +12,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit;
 
 /**
  * Learn menu class
+ * This is a bit of a misnomer, as it really refers to the page titlebar (under the top menu).
  */
 class Learn_Menu {
 
@@ -29,6 +30,104 @@ class Learn_Menu {
 	 * @var string
 	 */
 	protected $override_slug;
+
+	/**
+	 * Title of page
+	 *
+	 * @var string
+	 */
+	private $page_title;
+
+	/**
+	 * HTML to the left of the page header, often containing buttons
+	 *
+	 * @var string
+	 */
+	private $left_buttons;
+
+	/**
+	 * HTML to the right of the page header, often containing buttons
+	 *
+	 * @var string
+	 */
+	private $right_buttons;
+
+	/**
+	 * Whether or not to show the learn button
+	 *
+	 * @var bool
+	 */
+	private $show_learn;
+
+	/**
+	 * The learn box title
+	 *
+	 * @var string
+	 */
+	private $learn_title;
+
+	/**
+	 * The learn box content (HTML)
+	 *
+	 * @var string
+	 */
+	private $learn_content;
+
+	/**
+	 * The "learn more" link url
+	 *
+	 * @var string
+	 */
+	private $learn_more_url;
+
+	/**
+	 * The learn image url
+	 *
+	 * @var string
+	 */
+	private $learn_image_url;
+
+	/**
+	 * The learn video url
+	 *
+	 * @var string
+	 */
+	private $learn_video_url;
+
+	/**
+	 * Any extra JS to output
+	 *
+	 * @var string
+	 */
+	private $extra_js;
+
+	/**
+	 * Any extra css styles to add to the popup element
+	 *
+	 * @var string
+	 */
+	private $popup_extra_css;
+
+	/**
+	 * If $learn_video_url is provided, specify a video title here
+	 *
+	 * @var string
+	 */
+	private $learn_video_title;
+
+	/**
+	 * An icon to show before the page title
+	 *
+	 * @var string
+	 */
+	private $icon_class;
+
+	/**
+	 * The slug to use for a "back to list" link, or false if not used
+	 *
+	 * @var string|bool
+	 */
+	private $back_slug;
 
 	/**
 	 * Setup learn menu.

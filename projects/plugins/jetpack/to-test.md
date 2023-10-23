@@ -1,123 +1,100 @@
-## Jetpack 12.5
+## Jetpack 12.7
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### WooCommerce Analytics
+### Add additional properties to WooCommerce analytics checkout and purchase events
 
-Ensure correct values for cart/checkout blocks/shortcode use are tracked correctly when using WooCommerce Blocks templates after WC Blocks 10.6.0
-- Ensure site is connected, WooCommerce is installed, products, payment methods, and shipping methods are available. (Cash on Delivery and Free shipping will be fine).
-- Install WooCommerce 7.8.0 and a blocks theme e.g. Twenty Twenty-Three.
-- Ensure WooCommerce analytics is running.
-- Go to Pages -> Cart. Change its content to contain the shortcode block, and have it display the WooCommerce cart. (`[woocommerce_cart]`).
-- Do the same for Pages -> Checkout and enter `[woocommerce_checkout]` into the shortcode block.
+#### New properties
 
-☝️ **Between each checkout it is necessary to clear out the transient: `jetpack_woocommerce_analytics_cart_checkout_info_cache` - you can install [Options View](https://wordpress.org/plugins/options-view/) to easily do this.**
+  - To the `woocommerceanalytics_product_checkout` event:
+	`shipping_option`: the selected shipping option 
+	`products_count`: number of products included in the cart
+	`coupon_used`: if the coupon was used (boolean)
+	`order_value`: the order value/total
+	`template_used`: if the proceed from cart to checkout action has happened on a regular cart page or powered by the template
+	`additional_blocks`: if there are additional blocks on the cart page
+	`store_currency`: the currency used in the store
 
-- Add an item to your cart and go to the checkout.
-- Check out and then visit Tracks and find your event. (I spoofed my user agent so I could find the event easily)
-- Check the event for the following properties:
-  - `cart_page_contains_cart_block`: `false` (or 0)
-  - `cart_page_contains_cart_shortcode`: `true` (or 1)
-  - `checkout_page_contains_checkout_block`: `false` (or 0)
-  - `checkout_page_contains_checkout_shortcode`: `true` (or 1)
-- Go back to the pages from the earlier steps, remove the shortcodes and replace them with the Cart and Checkout blocks.
-- Add an item to your cart and check out again, the new values should be:
-  - `cart_page_contains_cart_block`: `true` (or 1)
-  - `cart_page_contains_cart_shortcode`: `false` (or 0)
-  - `checkout_page_contains_checkout_block`: `true` (or 1)
-  - `checkout_page_contains_checkout_shortcode`: `false` (or 0)
-- Feel free to change the setup so one page has the shortcode and one page doesn't and mix it up.
-- Update to WooCommerce 8.0
-- Repeat the steps above, however when you go to Pages -> Checkout and Pages -> Cart you should notice that it opens the site editor instead of the usual post editor.
-- Repeat with a classic theme, e.g Storefront
+  - To the `woocommerceanalytics_product_purchase` event
+		`products_count`: number of products included in the cart
+		`coupon_used`: if the coupon was used (boolean)
+		`order_value`: the order value/total
+		`template_used`: if the proceed from cart to checkout action has happened on a regular cart page or powered by the template
+		`additional_blocks`: if there are additional blocks on the cart page
+		`store_currency`: the currency used in the store
 
-Remove logic that prevents site admins being tracked and add store_admin property to WooCommerce analytics events
-- Ensure site is connected, WooCommerce is installed, products, payment methods, and shipping methods are available. (Cash on Delivery and Free shipping will be fine).
-- Ensure WooCommerce analytics is running.
-- As an admin user: add an item to your cart and go to the checkout.
-- Check out and then visit Tracks and find your event. (I spoofed my user agent so I could find the event easily)
-- Check the event for the `store_admin` property, which should be `1`
-- Repeat as a logged _out_ (e.g. guest) user, the event should be logged, and should have the `store_admin` property but it should be `0`
-- Repeat as a logged in, but _not_ admin user, (e.g. a customer), the event should be logged, and should have the `store_admin` property but it should be `0`
+#### Testing instructions
 
-Add Logic to track My account page
-- On a connected, live, WordPress account, check if existing tracks are being sent (either from the track page or using the Tracks - Vigilante extension).
-On the My Account page, test that:
-- `woocommerceanalytics_my_account_tab_click` with prop tab: logout is triggered when you click log out.
-- `woocommerceanalytics_my_account_page_view` with the prop tab: $tabName is being triggered on each top level tab you visit.
-- `woocommerceanalytics_my_account_order_number_click` Is being triggered if you clicked an order number in the orders view.
-woocommerceanalytics_my_account_order_action_click is being triggered with prop action: view if you click the view button, and action: pay if you click the pay button, and action: cancel if you click the cancel button.
-To see the pay and cancel buttons, change the order status to pending payment.
-- `woocommerceanalytics_my_account_address_click` with prop address: billing | shipping when you click on the button to edit an address.
-- `woocommerceanalytics_my_account_address_save` with prop address: billing | shipping when you save an address you edited.
-- `woocommerceanalytics_my_account_details_save` When you click save on the Accounts Details page.
-- For those you will need a payment method installed like Stripe or WCPay:
-Check that:
-- `woocommerceanalytics_my_account_payment_add` Is being triggered when you add a new payment method.
-- `woocommerceanalytics_my_account_payment_save` Is being triggered when you save a payment method you're adding.
-- `woocommerceanalytics_my_account_payment_delete` Is being triggered when you delete a payment method.
+- Ensure your store is set up so it can be tracked.
+- Ensure your site is using the Checkout block.
+- Set up multiple shipping methods on your store.
+- Install [Multiple Packages for WooCommerce](https://wordpress.org/plugins/multiple-packages-for-woocommerce/). Go to the settings (WooCommerce -> Settings -> Multiple Packages) and set the grouping option to "Product (individual)".
+- Install the Tracks Vigilante extension (optional)
+- For each of the following scenarios, view the Checkout page also complete the checkout process, ensuring the `woocommerceanalytics_product_checkout` and `woocommerceanalytics_product_purchase` events fire with the correct properties (Except `shipping_option` on the purchase event)
+- Add multiple items to your cart (including a virtual item), go to the Checkout page and change the shipping option on each of them.
+- Check out and check the events are correct and the correct shipping option is tracked, ensure a shipping option is not tracked for the virtual item.
+- Do this again, this time check out with a coupon.
+- Go to Appearance -> Editor and edit the Checkout template. Add some extra blocks to the template.
+- Go to the Checkout page again and ensure the extra blocks you added are in the `additional_blocks` property.
+- Downgrade your WooCommerce version to 7.8.2 and ensure WooCommerce Blocks is disabled.
+- Add products to your cart and check out. Ensure the `template_used` value is false (Cart/Checkout templates were not in use in this version).
+- Go to the Checkout page (Pages -> Checkout) and add extra blocks to the Checkout page.
+- Go to the Checkout block and ensure the additional blocks you added are in the `additional_blocks` property.
+- Change the checkout page to use the shortcode (`[woocommerce_checkout]`) and repeat these steps. Ensure the correct value is tracked for each event. **Note that the `checkout_page_contains_cart_shortcode` property is stored in a transient so this will be incorrect if changing, but it has been tested in another PR and is known to be working.**
 
-### Enabling beta blocks
 
-Testing most features on this list requires enabling Jetpack beta blocks. You can be the one of the first to test upcoming features by adding this constant as a snippet, or directly into your configuration file:
+### SEO Tools/Sharing Sidebar
 
-```
-define( 'JETPACK_BLOCKS_VARIATION', 'beta' );
-```
+There are some new options in the Jetpack sidebar in the block editor. To test:
 
-### Social Auto Conversion
+- Go to Posts > Add New.
+- Click on the Jetpack plugin sidebar.
+- Click on the "SEO" panel title.
+- Click on the button.
+- Verify that the module is enabled and working as expected.
+- Click on the "Likes and Sharing" panel title.
+- Click on the button.
+- Verify that the module is enabled and working as expected.
 
-- Turn off Social and have Jetpack enabled.
-  - Go to the Jetpack settings page and turn on the auto conversion setting.
-  - Open up the editor and create a new post.
-  - Select a media file that is convertible, but not valid for some connections - for example a 10Mb jpg image.
-  - You should see the notice that it will be converted. If you dismissed already, remove the `jetpack_social_dismissed_notices` option to bring it back.
-  - On the notice click change settings button. It should open up Jetpack settings on the sharing screen.
-  - Turn off the auto conversion.
-  - Go back to the editor, the page should reflect the changes without needing to refresh.
-- Do the same with Jetpack Social enabled only. The only difference is that the button should direct you to the social admin page.
+### Jetpack AI Search Block
 
-### AI Excerpt helper
+We've launched and AI Search block, moving it from beta to production! To test, create a new post and add the AI Chat bot. Play around with the block and the sidebar settings and make sure things work in the editor and on the front end.
 
-To properly test this ensure that beta blocks are enabled.
+## Known Issues:
 
-- Go to the block editor.
-- Open the post sidebar.
-- Confirm the Excerpt panel is there when:
-  -	beta extensions are enabled;
-  - AI Assistant block is enabled.
+- Button styling can be improved.
+- It can sometimes be very slow.
+- The search can be very hit or miss depending on keywords used in the question.
+- It can only chat with posts & pages reliably. Products are harder to find.
 
-- Go to the block editor, open the block sidebar.
-- Look at the AI Excerpt panel.
-- Confirm that the Accept button is initially disabled.
-- Request an excerpt.
-- Confirm that you can discard the changes by clicking on the Discard button.
-- Request an excerpt.
-- Confirm that Accept button gets enabled once the requests finishes.
-- Confirm you can use the suggestion by clicking on the button.
-- Confirm the Generate button gets disabled when the request is done.
-- Confirm the Generate button gets enabled right after clicking on the Accept or Discard button.
-- Request an excerpt
-- Confirm that after changing the number or words the Generate button gets enabled again.
+### New Quick Share Options
 
-### Create with Voice AI helper
+We've added the quick-share options to the block editor panel. To test:
 
-To properly test this ensure that beta blocks are enabled.
+* Open up a new post, there should not be anything new.
+* After publishing you should see the new Quick share Button if our panel is open
+* Clicking the icon should open the Quick share dropdown
+* Clicking on any of the icons there should work
+* Clicking the learn more on the dropdown should open the help modal and close the dropdown.
 
-- Go to the block editor.
-- Create a "Create with voice" block instance and confirm that the block shows its toolbar.
-- Confirm now it's possible to remove the block.
-- Start to record/pause/resume.
-- Confirm how the block button changes according to the recording status.
-- Start to record.
-- Confirm the block shows the current time duration.
-- Stop recording.
-- Confirm the Done button is there, and start, pause, and resume actions work fine.
-- Confirm the block shows the audio player.
-- Confirm you can listen to the recorded audio.
+### Add Forced 2FA Functionality when SSO is enabled
+
+We have a new filter that will allow someone to force 2FA to be enabled when SSO is also enabled. There's no UI for this yet, but it would be good to do some functionality testing. To do so:
+
+* Jetpack connnected + SSO enabled.
+* Connect an account that does not have 2fa enabled to the Jetpack site (either cycle the connection or make a new admin user connected to a non-2fa WP.com account.)
+* Create a new user with subscriber or contributor role.
+* Log out and log back into admin account with regular WP creds (not SSO) This should work.
+* Enable flag via `add_filter( 'jetpack_force_2fa', '__return_true' );`
+* Log out and log back in with regular WP creds. It should fail.
+* Log in with WP.com SSO with an account that has 2fa enabled. It should work.
+* Log out and login with the non-2fa WP.com account via SSO. It should fail.
+* Add a filter to modify the cap, e.g. `add_filter( 'jetpack_force_2fa_cap, function() { return 'read' } );`
+* Verify that the contributor forces SSO.
+
 
 ### And More!
 

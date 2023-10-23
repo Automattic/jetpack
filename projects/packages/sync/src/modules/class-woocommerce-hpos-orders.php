@@ -89,23 +89,12 @@ class WooCommerce_HPOS_Orders extends Module {
 	public function init_listeners( $callable ) {
 		foreach ( $this->get_order_types_to_sync() as $type ) {
 			add_action( "woocommerce_after_{$type}_object_save", $callable );
-		}
-		add_action( 'woocommerce_delete_order', $callable );
-		add_action( 'woocommerce_trash_order', $callable );
-	}
-
-	/**
-	 * Hooks expanding order data with sync events, so that order data is populated against IDs before syncing.
-	 *
-	 * @access public
-	 */
-	public function init_before_send() {
-		foreach ( $this->get_order_types_to_sync() as $type ) {
 			add_filter( "jetpack_sync_before_enqueue_woocommerce_after_{$type}_object_save", array( $this, 'expand_order_object' ) );
 		}
+		add_action( 'woocommerce_delete_order', $callable );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_delete_order', array( $this, 'expand_order_object' ) );
+		add_action( 'woocommerce_trash_order', $callable );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_trash_order', array( $this, 'expand_order_object' ) );
-		add_filter( 'jetpack_sync_before_enqueue_full_sync_orders', array( $this, 'expand_order_objects' ) );
 	}
 
 	/**
@@ -117,6 +106,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	 */
 	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_orders', $callable );
+		add_filter( 'jetpack_sync_before_enqueue_full_sync_orders', array( $this, 'expand_order_objects' ) );
 	}
 
 	/**

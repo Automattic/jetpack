@@ -58,10 +58,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const { tracks } = useAnalytics();
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
-	const getBlock = useSelect(
-		select => () => select( 'core/block-editor' ).getBlock( clientId ),
-		[ clientId ]
-	);
+	const { getBlock } = useSelect( 'core/block-editor' );
 
 	const aiControlRef = useRef( null );
 	const blockRef = useRef( null );
@@ -174,7 +171,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}
 
 		// Bail out if the block already has children blocks
-		const block = getBlock();
+		const block = getBlock( clientId );
 		if ( block?.innerBlocks?.length ) {
 			return;
 		}
@@ -339,7 +336,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			 * - Blocks are already created
 			 * - blocks are children of the current block
 			 */
-			newGeneratedBlocks = getBlock();
+			newGeneratedBlocks = getBlock( clientId );
 			newGeneratedBlocks = newGeneratedBlocks?.innerBlocks || [];
 		}
 
