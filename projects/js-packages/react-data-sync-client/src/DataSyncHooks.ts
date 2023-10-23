@@ -46,3 +46,25 @@ export function useDataSync<
 		isMutating,
 	};
 }
+
+export function useReadonlyDataSync< Schema extends z.ZodSchema, Key extends string >(
+	namespace: string,
+	key: Key,
+	schema: Schema
+) {
+	const datasync = new DataSync( namespace, key, schema );
+	const { data, error } = useSWR( key, datasync.GET, {
+		fallbackData: datasync.getInitialValue(),
+		revalidateOnFocus: true,
+	} );
+
+	if ( error ) {
+		// eslint-disable-next-line no-console
+		console.log( `Error happened`, error );
+	}
+
+	return {
+		data,
+		error,
+	};
+}
