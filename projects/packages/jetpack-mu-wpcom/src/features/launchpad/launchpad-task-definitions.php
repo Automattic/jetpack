@@ -1877,7 +1877,7 @@ function wpcom_launchpad_mark_plugin_installed_complete() {
 	}
 	wpcom_mark_launchpad_task_complete( 'install_custom_plugin' );
 }
-add_action( 'jetpack_plugin_installed', 'wpcom_launchpad_mark_plugin_installed_complete ', 10 );
+add_action( 'jetpack_plugin_installed', 'wpcom_launchpad_mark_plugin_installed_complete', 10 );
 
 /**
  * Mark task complete when theme is selected.
