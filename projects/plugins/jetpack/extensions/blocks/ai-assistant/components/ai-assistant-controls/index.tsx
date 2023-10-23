@@ -220,7 +220,7 @@ function AiAssistantDropdownContent( {
 		<>
 			{ noContent && (
 				<Notice status="warning" isDismissible={ false } className="jetpack-ai-assistant__info">
-					{ __( 'Add content to use these tools', 'jetpack' ) }
+					{ __( 'Add content to activate the tools below', 'jetpack' ) }
 				</Notice>
 			) }
 
