@@ -33,6 +33,7 @@ type LanguageDropdownControlProps = {
 	value?: LanguageProp;
 	onChange: ( value: string ) => void;
 	label?: string;
+	disabled?: boolean;
 };
 
 const defaultLanguageLocale =
@@ -152,7 +153,6 @@ export function I18nMenuDropdown( {
 			className="ai-assistant__i18n-dropdown"
 			icon={ globe }
 			label={ label }
-			disabled={ disabled }
 			toggleProps={ {
 				children: (
 					<>
@@ -160,6 +160,7 @@ export function I18nMenuDropdown( {
 						<Icon icon={ chevronRight } />
 					</>
 				),
+				disabled,
 			} }
 		>
 			{ ( { onClose } ) => (

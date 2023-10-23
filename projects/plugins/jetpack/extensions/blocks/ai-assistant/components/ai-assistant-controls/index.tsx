@@ -6,7 +6,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { getBlockContent } from '@wordpress/blocks';
 import { MenuItem, MenuGroup, ToolbarButton, Dropdown, Notice } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription } from '@wordpress/icons';
 import React from 'react';
@@ -100,8 +100,22 @@ export function getBlocksContent( blocks ) {
 		.join( '\n\n' );
 }
 
-export default function AiAssistantDropdown( { blockType }: AiAssistantControlComponentProps ) {
-	const [ noContentInfo, setNoContentInfo ] = useState( false );
+type AiAssistantDropdownContentProps = {
+	onClose: () => void;
+	blockType: ExtendedBlockProp;
+};
+
+/**
+ * The React content of the dropdown.
+ * @param {AiAssistantDropdownContentProps} props - The props.
+ * @returns {React.ReactNode} The React content of the dropdown.
+ */
+function AiAssistantDropdownContent( {
+	onClose,
+	blockType,
+}: AiAssistantDropdownContentProps ): React.ReactNode {
+	// Set the state for the no content info.
+	const [ noContent, setNoContent ] = useState( false );
 
 	/*
 	 * Let's disable the eslint rule for this line.
@@ -112,25 +126,29 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 	const { getSelectedBlockClientIds, getBlocksByClientId } = useSelect( 'core/block-editor' );
 	const { removeBlocks, replaceBlock } = useDispatch( 'core/block-editor' );
 
-	const { tracks } = useAnalytics();
-
-	const requestSuggestion = (
-		promptType: PromptTypeProp,
-		options: AiAssistantDropdownOnChangeOptionsArgProps = {},
-		closeDropdown: () => void
-	) => {
+	// Store the current content in a local state
+	useEffect( () => {
 		const clientIds = getSelectedBlockClientIds();
 		const blocks = getBlocksByClientId( clientIds );
 		const content = getBlocksContent( blocks );
 
 		const rawContent = getRawTextFromHTML( content );
 
-		if ( ! rawContent.length ) {
-			// Set a message info about block no content.
-			return setNoContentInfo( true );
-		}
+		// Set no content condition to show the Notice info message.
+		return setNoContent( ! rawContent.length );
+	}, [ getBlocksByClientId, getSelectedBlockClientIds ] );
 
-		closeDropdown();
+	const { tracks } = useAnalytics();
+
+	const requestSuggestion = (
+		promptType: PromptTypeProp,
+		options: AiAssistantDropdownOnChangeOptionsArgProps = {}
+	) => {
+		const clientIds = getSelectedBlockClientIds();
+		const blocks = getBlocksByClientId( clientIds );
+		const content = getBlocksContent( blocks );
+
+		onClose();
 
 		tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
 			suggestion: promptType,
@@ -199,6 +217,60 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 	};
 
 	return (
+		<>
+			{ noContent && (
+				<Notice status="warning" isDismissible={ false } className="jetpack-ai-assistant__info">
+					{ __( 'Add content to activate the tools below', 'jetpack' ) }
+				</Notice>
+			) }
+
+			<MenuGroup>
+				<MenuItem
+					icon={ aiAssistantIcon }
+					iconPosition="left"
+					key="key-ai-assistant"
+					onClick={ replaceWithAiAssistantBlock }
+					disabled={ noContent }
+				>
+					<div className="jetpack-ai-assistant__menu-item">
+						{ __( 'Ask AI Assistant', 'jetpack' ) }
+					</div>
+				</MenuItem>
+
+				{ quickActionsList.map( quickAction => (
+					<MenuItem
+						icon={ quickAction?.icon }
+						iconPosition="left"
+						key={ `key-${ quickAction.key }` }
+						onClick={ () => {
+							requestSuggestion( quickAction.aiSuggestion, {} );
+						} }
+						disabled={ noContent }
+					>
+						<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
+					</MenuItem>
+				) ) }
+
+				<ToneDropdownMenu
+					onChange={ tone => {
+						requestSuggestion( PROMPT_TYPE_CHANGE_TONE, { tone } );
+					} }
+					disabled={ noContent }
+				/>
+
+				<I18nMenuDropdown
+					onChange={ language => {
+						requestSuggestion( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
+					} }
+					disabled={ noContent }
+				/>
+			</MenuGroup>
+		</>
+	);
+}
+
+export default function AiAssistantDropdown( { blockType }: AiAssistantControlComponentProps ) {
+	return (
 		<Dropdown
 			popoverProps={ {
 				variant: 'toolbar',
@@ -216,52 +288,8 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 					/>
 				);
 			} }
-			renderContent={ ( { onClose: closeDropdown } ) => (
-				<>
-					{ noContentInfo && (
-						<Notice status="warning" isDismissible={ false } className="jetpack-ai-assistant__info">
-							{ __( 'No content to modify.', 'jetpack' ) }
-						</Notice>
-					) }
-
-					<MenuGroup>
-						<MenuItem
-							icon={ aiAssistantIcon }
-							iconPosition="left"
-							key="key-ai-assistant"
-							onClick={ replaceWithAiAssistantBlock }
-						>
-							<div className="jetpack-ai-assistant__menu-item">
-								{ __( 'Ask AI Assistant', 'jetpack' ) }
-							</div>
-						</MenuItem>
-
-						{ quickActionsList.map( quickAction => (
-							<MenuItem
-								icon={ quickAction?.icon }
-								iconPosition="left"
-								key={ `key-${ quickAction.key }` }
-								onClick={ () => {
-									requestSuggestion( quickAction.aiSuggestion, {}, closeDropdown );
-								} }
-							>
-								<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
-							</MenuItem>
-						) ) }
-
-						<ToneDropdownMenu
-							onChange={ tone => {
-								requestSuggestion( PROMPT_TYPE_CHANGE_TONE, { tone }, closeDropdown );
-							} }
-						/>
-
-						<I18nMenuDropdown
-							onChange={ language => {
-								requestSuggestion( PROMPT_TYPE_CHANGE_LANGUAGE, { language }, closeDropdown );
-							} }
-						/>
-					</MenuGroup>
-				</>
+			renderContent={ ( { onClose: onClose } ) => (
+				<AiAssistantDropdownContent onClose={ onClose } blockType={ blockType } />
 			) }
 		/>
 	);

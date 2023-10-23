@@ -131,6 +131,7 @@ type ToneToolbarDropdownMenuProps = {
 	value?: ToneProp;
 	onChange: ( value: ToneProp ) => void;
 	label?: string;
+	disabled?: boolean;
 };
 
 const ToneMenuGroup = ( { value, onChange }: ToneToolbarDropdownMenuProps ) => (
@@ -153,6 +154,7 @@ export function ToneDropdownMenu( {
 	label = __( 'Change tone', 'jetpack' ),
 	value = DEFAULT_PROMPT_TONE,
 	onChange,
+	disabled = false,
 }: ToneToolbarDropdownMenuProps ) {
 	return (
 		<DropdownMenu
@@ -169,6 +171,7 @@ export function ToneDropdownMenu( {
 						<Icon icon={ chevronRight } />
 					</>
 				),
+				disabled,
 			} }
 		>
 			{ ( { onClose } ) => (
@@ -187,6 +190,7 @@ export function ToneDropdownMenu( {
 export default function ToneToolbarDropdownMenu( {
 	value = DEFAULT_PROMPT_TONE,
 	onChange,
+	disabled = false,
 }: ToneToolbarDropdownMenuProps ) {
 	return (
 		<ToolbarDropdownMenu
@@ -195,6 +199,7 @@ export default function ToneToolbarDropdownMenu( {
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
+			disabled={ disabled }
 		>
 			{ () => <ToneMenuGroup value={ value } onChange={ onChange } /> }
 		</ToolbarDropdownMenu>
