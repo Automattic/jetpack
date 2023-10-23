@@ -141,10 +141,11 @@ async function buildMilestoneInfo( octokit, owner, repo, number ) {
 		const nextMilestone = await getNextValidMilestone( octokit, owner, repo, plugin );
 		debug( `check-description: Milestone found: ${ JSON.stringify( nextMilestone ) }` );
 
-		debug( `check-description: getting milestone info for ${ plugin }` );
-		const info = await getMilestoneDates( plugin, nextMilestone );
-
-		pluginInfo += info;
+		if ( plugin !== 'Crm' ) {
+			debug( `check-description: getting milestone info for ${ plugin }` );
+			const info = await getMilestoneDates( plugin, nextMilestone );
+			pluginInfo += info;
+		}
 	}
 
 	return pluginInfo;
