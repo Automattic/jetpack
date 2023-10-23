@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.7.1 - 2023-10-23
+### Bug fixes
+- AI Extension: Improve performance bug when extending blocks with AI Assistant. [#33681]
+- Fixed a bug that prevent customers from downloading invoices from the my account page in WooCommerce. [#33686]
+- Jetpack: Fix performance issues by not calling useAnalytics hook for all paragraphs. [#33725]
+- VideoPress: Avoid performance issues by calling useEffect for every block when typing. [#33724]
+
 ## 12.7 - 2023-10-12
 ### Enhancements
 - Blogroll: move blogroll and blogroll-items blocks from beta to production, along with various improvements. [#33475] [#33483]
