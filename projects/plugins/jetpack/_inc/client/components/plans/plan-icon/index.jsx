@@ -125,7 +125,6 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_ECOMMERCE_2_YEARS ]: 'plans/wpcom-ecommerce.svg',
 	[ PLAN_ECOMMERCE_3_YEARS ]: 'plans/wpcom-ecommerce.svg',
 	[ PLAN_ECOMMERCE_MONTHLY ]: 'plans/wpcom-ecommerce.svg',
-	[ PLAN_ECOMMERCE_MONTHLY ]: 'plans/wpcom-ecommerce.svg',
 	[ PLAN_WOOEXPRESS_ESSENTIALS ]: 'plans/wpcom-ecommerce.svg',
 	[ PLAN_WOOEXPRESS_ESSENTIALS_MONTHLY ]: 'plans/wpcom-ecommerce.svg',
 	[ PLAN_WOOEXPRESS_PERFORMANCE ]: 'plans/wpcom-ecommerce.svg',
