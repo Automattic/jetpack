@@ -1770,14 +1770,6 @@ final class ZeroBSCRM {
 		// } JUST before cpt, we do any install/uninstall of extensions, so that cpt's can adjust instantly:
 		zeroBSCRM_extensions_init_install();
 
-		// stuff pre DAL3 needs CPTs etc.
-		if ( ! $this->isDAL3() ) {
-
-			// COMMENT} setup post types
-			zeroBSCRM_setupPostTypes();
-
-		}
-
 		// } Here we do any 'default content' installs (quote templates) (In CPT <DAL3, In DAL3.Helpers DAL3+)
 		zeroBSCRM_installDefaultContent();
 
