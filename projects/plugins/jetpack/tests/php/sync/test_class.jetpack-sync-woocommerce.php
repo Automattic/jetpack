@@ -238,7 +238,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->start( array( 'woocommerce' => true ) );
 		$this->sender->do_full_sync();
 
-		$full_sync_order_items = $this->server_event_storage-> get_most_recent_event( 'jetpack_full_sync_woocommerce_order_items' );
+		$full_sync_order_items = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_woocommerce_order_items' );
 
 		$this->assertTrue( (bool) $full_sync_order_items );
 		$synced_order_items = $full_sync_order_items->args[0];
