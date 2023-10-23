@@ -86,7 +86,6 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 					>
 						{ /* @TODO: Move static assets to /app/assets/static */ }
 						{ /* @TODO: Colorize the pencil */ }
-						{ /* @TODO: i18n */ }
 						<img
 							className="edit-icon"
 							src={ `${ config.plugin_dir_url }/app/assets/src/js/svg/pencil.svg` }
