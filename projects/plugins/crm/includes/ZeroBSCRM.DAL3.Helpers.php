@@ -5917,9 +5917,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 
 			global $zbs;
 
-				// legacy from dal1
 				$actualPage = $page;
-				if (!$zbs->isDAL2()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
