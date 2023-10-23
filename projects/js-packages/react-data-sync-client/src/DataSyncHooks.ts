@@ -36,7 +36,7 @@ export function useDataSync<
 		error,
 		mutate: (
 			d: Value,
-			options: SWRMutationConfiguration< Value, any, Key, never, Value > = {}
+			options: SWRMutationConfiguration< Value, unknown, Key, never, Value > = {}
 		) => {
 			trigger( d, {
 				optimisticData: d,
