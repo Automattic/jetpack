@@ -8,10 +8,10 @@ export const minifyMetaOptions = {
 	minify_css_excludes: z.array( z.string() ),
 };
 
-type MinifyMetaSettings = keyof typeof minifyMetaOptions;
+type MinifyMetaKeys = keyof typeof minifyMetaOptions;
 
 interface Props {
-	optionKey: MinifyMetaSettings;
+	datasyncKey: MinifyMetaKeys;
 	inputLabel: string;
 	buttonText: string;
 	placeholder: string;
@@ -20,11 +20,11 @@ interface Props {
 
 let nextIdIndex = 0;
 
-const MetaComponent = ( { inputLabel, buttonText, placeholder, optionKey }: Props ) => {
+const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Props ) => {
 	const { data, mutate } = useDataSync(
 		'jetpack_boost_ds',
-		optionKey,
-		minifyMetaOptions[ optionKey ]
+		datasyncKey,
+		minifyMetaOptions[ datasyncKey ]
 	);
 	const [ isEditing, setIsEditing ] = useState( false );
 	const htmlId = `minify-meta-exclude-list-${ nextIdIndex++ }`;
