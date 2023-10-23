@@ -202,7 +202,7 @@
 		</p>
 	</Module>
 
-	<Module slug="lazy_images">
+	<Module slug="lazy_images" hideIfUnavailable={false}>
 		<h3 slot="title">{__( 'Lazy Image Loading', 'jetpack-boost' )}</h3>
 		<p slot="description">
 			<TemplatedString

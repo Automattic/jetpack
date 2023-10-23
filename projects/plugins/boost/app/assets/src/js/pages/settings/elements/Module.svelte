@@ -5,6 +5,7 @@
 
 	export let toggle = true;
 	export let slug: string;
+	export let hideIfUnavailable = true;
 
 	const dispatch = createEventDispatcher();
 
@@ -36,13 +37,14 @@
 	} );
 </script>
 
-{#if isModuleAvailable}
+{#if isModuleAvailable || ! hideIfUnavailable}
 	<div class="jb-feature-toggle">
 		<div class="jb-feature-toggle__toggle">
 			{#if toggle}
 				<Toggle
 					id={`jb-feature-toggle-${ slug }`}
 					checked={isModuleActive}
+					disabled={! isModuleAvailable}
 					on:click={handleToggle}
 				/>
 			{/if}
