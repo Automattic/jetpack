@@ -85,6 +85,7 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 						onClick={ () => setIsEditing( true ) }
 					>
 						{ /* @TODO: Move static assets to /app/assets/static */ }
+						{ /* @TODO: Colorize the pencil */ }
 						{ /* @TODO: i18n */ }
 						<img
 							className="edit-icon"
