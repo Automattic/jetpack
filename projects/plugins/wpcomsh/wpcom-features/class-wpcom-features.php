@@ -1211,10 +1211,6 @@ class WPCOM_Features {
 				self::JETPACK_SECURITY_T1_PLANS,
 				self::JETPACK_SECURITY_T2_PLANS,
 			),
-			self::EXCLUDE_PLANS => array(
-				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
-				self::WPCOM_MIGRATION_TRIAL_PLANS,
-			),
 		),
 
 		/*
