@@ -657,7 +657,7 @@ class Jetpack_Memberships {
 						array(
 							'key'     => 'jetpack_memberships_interval',
 							'value'   => 'one-time',
-							'compare' => 'NOT',
+							'compare' => '!=',
 						),
 					),
 				)
