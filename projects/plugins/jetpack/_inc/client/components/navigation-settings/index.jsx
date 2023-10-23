@@ -211,7 +211,7 @@ export class NavigationSettings extends React.Component {
 							onClick={ this.handleClickForTracking( 'earn' ) }
 							selected={ this.props.location.pathname === '/earn' }
 						>
-							{ _x( 'Earn', 'Navigation item.', 'jetpack' ) }
+							{ _x( 'Monetize', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
 				</NavTabs>
