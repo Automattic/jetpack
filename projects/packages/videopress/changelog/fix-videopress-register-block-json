@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Use register_block_type and block.json to handle the block's scripts properly and fix assets being loaded when block is not present
