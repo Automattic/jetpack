@@ -1180,8 +1180,18 @@ function zeroBS_getOwnerObj($wpUserID=-1,$simpleUserData=true){
 
 	if ($wpUserID !== -1){
 
-		if ($simpleUserData)
-			$data = zeroBS_getWPUserSimple($wpUserID);
+		// phpcs:disable
+		if ( $simpleUserData ) {
+			if ( $wpUserID > 0 ) {
+
+				$d = get_userdata( $wpUserID );
+
+				if ( isset( $d->ID ) && isset( $d->data ) ) $data = $d->data;
+			}
+
+			$data = false;
+		}
+		// phpcs:enable
 		else
 			$data = get_userdata($wpUserID);
 
@@ -7835,19 +7845,6 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 			}
 			return false;
 		}
-	}
-
-	// Simplifies the data to be returned by get_userdata
-	function zeroBS_getWPUserSimple($wpUserID=-1){
-
-		if ($wpUserID > 0){
-			
-			$d = get_userdata($wpUserID);
-
-			if (isset($d->ID) && isset($d->data)) return $d->data;
-		}
-
-		return false;
 	}
 
 	/*
