@@ -1,2 +1,2 @@
-export { useDataSync } from './DataSyncHooks';
+export * from './DataSyncHooks';
 export { DataSync } from './DataSync';
