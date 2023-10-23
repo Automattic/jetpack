@@ -78,6 +78,32 @@ export function getInstagramDetails() {
 }
 
 /**
+ * Returns a template for tweet data, based on the first Twitter account found.
+ *
+ * @param {object} state - State object.
+ * @returns {object} The Twitter account data.
+ */
+export function getTweetTemplate( state ) {
+	/*
+	 * state.connections is not used anymore,
+	 * since they are stored into the post meta.
+	 * This is kept for backward compatibility,
+	 * especially for the selector tests.
+	 * it should be removed in the future.
+	 * Take a look at the getTweetstormHelper
+	 * helper for more details,
+	 */
+	const connections = state.connections || getConnections();
+	const twitterAccount = connections?.find( connection => 'twitter' === connection.service_name );
+
+	return {
+		name: twitterAccount?.profile_display_name,
+		profileImage: twitterAccount?.profile_picture,
+		screenName: twitterAccount?.display_name,
+	};
+}
+
+/**
  * Gets the message that will be used hen sharing this post.
  *
  * @returns {string} The share message.
