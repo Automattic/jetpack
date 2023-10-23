@@ -258,8 +258,13 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		// Throw it all out and drop in our replacement.
 		ob_end_clean();
 
+		$verbum_comment_experience_loaded = false;
+		if ( defined( 'COMMENT_EXPERIENCE' ) && constant( 'COMMENT_EXPERIENCE' ) === 'verbum' ) {
+			$verbum_comment_experience_loaded = true;
+		}
+
 		// If users are required to be logged in, and they're not, then we don't need to do anything else.
-		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
+		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() && ! $verbum_comment_experience_loaded ) {
 			/**
 			 * Changes the log in to comment prompt.
 			 *
