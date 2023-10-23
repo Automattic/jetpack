@@ -34,6 +34,7 @@ export { default as ManageConnectionDialog } from './components/manage-connectio
  * Helpers.
  */
 export { default as thirdPartyCookiesFallbackHelper } from './helpers/third-party-cookies-fallback';
+export { default as getCalypsoOrigin } from './helpers/get-calypso-origin';
 
 /**
  * Store

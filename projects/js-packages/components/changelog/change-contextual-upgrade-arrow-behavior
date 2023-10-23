@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use pointer-events: none on arrow icon so its click behavior falls back to the container/underlying component

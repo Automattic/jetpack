@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Use Current_Plan to check/return from has_required_plan on VP product class

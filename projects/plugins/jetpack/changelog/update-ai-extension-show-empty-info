@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Extension: show "no content" notice when the extended block content is empty
