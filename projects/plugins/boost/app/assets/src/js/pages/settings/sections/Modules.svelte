@@ -14,7 +14,7 @@
 		isaSummary,
 	} from '../../../modules/image-size-analysis/store/isa-summary';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
-	import MinifyMeta from '../../../react-components/minify-meta';
+	import MinifyMeta from '../../../react-components/pages/settings/elements/MinifyMeta';
 	import config from '../../../stores/config';
 	import {
 		criticalCssState,
