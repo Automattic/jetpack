@@ -248,3 +248,14 @@ jetpack_boost_register_option(
 	'dismissed_score_prompt',
 	Schema::as_array( Schema::as_string() )->fallback( array() )
 );
+
+/**
+ * Deliver static, read-only values to the UI.
+ * @return array
+ */
+function jetpack_boost_ui_config() {
+	return array(
+		'plugin_dir_url' => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
+	);
+}
+jetpack_boost_register_readonly_option( 'config', 'jetpack_boost_ui_config' );

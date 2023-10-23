@@ -1,4 +1,4 @@
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { useDataSync, useReadonlyDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { useState } from 'react';
 import { z } from 'zod';
 import { __, sprintf } from '@wordpress/i18n';
@@ -25,6 +25,13 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 		'jetpack_boost_ds',
 		datasyncKey,
 		minifyMetaOptions[ datasyncKey ]
+	);
+	const { data: config } = useReadonlyDataSync(
+		'jetpack_boost_ds',
+		'config',
+		z.object( {
+			plugin_dir_url: z.string().url(),
+		} )
 	);
 	const [ isEditing, setIsEditing ] = useState( false );
 	const htmlId = `minify-meta-exclude-list-${ nextIdIndex++ }`;
@@ -74,14 +81,15 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 
 					<button
 						type="button"
-						className="components-button is-link"
+						className="jb-collapsible-meta__edit-button components-button is-link"
 						onClick={ () => setIsEditing( true ) }
 					>
-						{/* @TODO: Create plugins_dir global */}
-						{/* @TODO: i18n */}
+						{ /* @TODO: Move static assets to /app/assets/static */ }
+						{ /* @TODO: i18n */ }
 						<img
-							src="/wp-content/plugins/jetpack-boost/app/assets/src/js/svg/pencil.svg"
-							alt="Pencil Icon"
+							className="edit-icon"
+							src={ `${ config.plugin_dir_url }/app/assets/src/js/svg/pencil.svg` }
+							alt={ __( 'Edit', 'jetpack-boost' ) }
 						/>
 						{ buttonText }
 					</button>
