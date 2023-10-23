@@ -100,8 +100,22 @@ export function getBlocksContent( blocks ) {
 		.join( '\n\n' );
 }
 
-export default function AiAssistantDropdown( { blockType }: AiAssistantControlComponentProps ) {
-	const [ noContentInfo, setNoContentInfo ] = useState( false );
+type AiAssistantDropdownContentProps = {
+	onClose: () => void;
+	blockType: ExtendedBlockProp;
+};
+
+/**
+ * The React content of the dropdown.
+ * @param {AiAssistantDropdownContentProps} props - The props.
+ * @returns {React.ReactNode} The React content of the dropdown.
+ */
+function AiAssistantDropdownContent( {
+	onClose,
+	blockType,
+}: AiAssistantDropdownContentProps ): React.ReactNode {
+	// Set the state for the no content info.
+	const [ noContent, setNoContent ] = useState( false );
 
 	/*
 	 * Let's disable the eslint rule for this line.
@@ -116,8 +130,7 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 
 	const requestSuggestion = (
 		promptType: PromptTypeProp,
-		options: AiAssistantDropdownOnChangeOptionsArgProps = {},
-		closeDropdown: () => void
+		options: AiAssistantDropdownOnChangeOptionsArgProps = {}
 	) => {
 		const clientIds = getSelectedBlockClientIds();
 		const blocks = getBlocksByClientId( clientIds );
@@ -126,11 +139,11 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 		const rawContent = getRawTextFromHTML( content );
 
 		if ( ! rawContent.length ) {
-			// Set a message info about block no content.
-			return setNoContentInfo( true );
+			// Set no content condition to show the Notice info message.
+			return setNoContent( true );
 		}
 
-		closeDropdown();
+		onClose();
 
 		tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
 			suggestion: promptType,
@@ -199,6 +212,56 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 	};
 
 	return (
+		<>
+			{ noContent && (
+				<Notice status="warning" isDismissible={ false } className="jetpack-ai-assistant__info">
+					{ __( 'No content to modify.', 'jetpack' ) }
+				</Notice>
+			) }
+
+			<MenuGroup>
+				<MenuItem
+					icon={ aiAssistantIcon }
+					iconPosition="left"
+					key="key-ai-assistant"
+					onClick={ replaceWithAiAssistantBlock }
+				>
+					<div className="jetpack-ai-assistant__menu-item">
+						{ __( 'Ask AI Assistant', 'jetpack' ) }
+					</div>
+				</MenuItem>
+
+				{ quickActionsList.map( quickAction => (
+					<MenuItem
+						icon={ quickAction?.icon }
+						iconPosition="left"
+						key={ `key-${ quickAction.key }` }
+						onClick={ () => {
+							requestSuggestion( quickAction.aiSuggestion, {} );
+						} }
+					>
+						<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
+					</MenuItem>
+				) ) }
+
+				<ToneDropdownMenu
+					onChange={ tone => {
+						requestSuggestion( PROMPT_TYPE_CHANGE_TONE, { tone } );
+					} }
+				/>
+
+				<I18nMenuDropdown
+					onChange={ language => {
+						requestSuggestion( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
+					} }
+				/>
+			</MenuGroup>
+		</>
+	);
+}
+
+export default function AiAssistantDropdown( { blockType }: AiAssistantControlComponentProps ) {
+	return (
 		<Dropdown
 			popoverProps={ {
 				variant: 'toolbar',
@@ -216,52 +279,8 @@ export default function AiAssistantDropdown( { blockType }: AiAssistantControlCo
 					/>
 				);
 			} }
-			renderContent={ ( { onClose: closeDropdown } ) => (
-				<>
-					{ noContentInfo && (
-						<Notice status="warning" isDismissible={ false } className="jetpack-ai-assistant__info">
-							{ __( 'No content to modify.', 'jetpack' ) }
-						</Notice>
-					) }
-
-					<MenuGroup>
-						<MenuItem
-							icon={ aiAssistantIcon }
-							iconPosition="left"
-							key="key-ai-assistant"
-							onClick={ replaceWithAiAssistantBlock }
-						>
-							<div className="jetpack-ai-assistant__menu-item">
-								{ __( 'Ask AI Assistant', 'jetpack' ) }
-							</div>
-						</MenuItem>
-
-						{ quickActionsList.map( quickAction => (
-							<MenuItem
-								icon={ quickAction?.icon }
-								iconPosition="left"
-								key={ `key-${ quickAction.key }` }
-								onClick={ () => {
-									requestSuggestion( quickAction.aiSuggestion, {}, closeDropdown );
-								} }
-							>
-								<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
-							</MenuItem>
-						) ) }
-
-						<ToneDropdownMenu
-							onChange={ tone => {
-								requestSuggestion( PROMPT_TYPE_CHANGE_TONE, { tone }, closeDropdown );
-							} }
-						/>
-
-						<I18nMenuDropdown
-							onChange={ language => {
-								requestSuggestion( PROMPT_TYPE_CHANGE_LANGUAGE, { language }, closeDropdown );
-							} }
-						/>
-					</MenuGroup>
-				</>
+			renderContent={ ( { onClose: onClose } ) => (
+				<AiAssistantDropdownContent onClose={ onClose } blockType={ blockType } />
 			) }
 		/>
 	);
