@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2023-10-17
+### Changed
+- Updated package dependencies. [#33646]
+
+## [1.1.1] - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429]
+
 ## [1.1.0] - 2023-10-03
 ### Added
 - Add a sub-plugin, `I18nSafeMangleExportsPlugin`, to allow for avoiding problems with Webpack's `optimization.mangleExports` option occasionally mangling an export to one of the i18n function names. [#33392]
@@ -176,6 +184,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[1.1.2]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.0.36...v1.1.0
 [1.0.36]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.0.35...v1.0.36
 [1.0.35]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.0.34...v1.0.35

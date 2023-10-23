@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: avoid performance issues by calling useEffect for every block on typing

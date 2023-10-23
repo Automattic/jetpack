@@ -575,7 +575,23 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[1];
+		$insert_post_event = $this->server_event_storage->get_most_recent_event(
+			'jetpack_sync_save_post',
+			null,
+			array( $this, 'filter_out_post_revisions' )
+		);
+		$post_on_server    = $insert_post_event->args[1];
+
+		wp_update_post( $post_on_server );
+		$this->sender->do_sync();
+
+		$update_post_event = $this->server_event_storage->get_most_recent_event(
+			'jetpack_sync_save_post',
+			null,
+			array( $this, 'filter_out_post_revisions' )
+		);
+		$post_on_server    = $update_post_event->args[1];
+
 		$this->assertObjectHasProperty( 'featured_image', $post_on_server );
 		$this->assertIsString( $post_on_server->featured_image );
 		$this->assertStringContainsString( 'test_image.png', $post_on_server->featured_image );
@@ -586,7 +602,12 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[1];
+		$insert_post_event = $this->server_event_storage->get_most_recent_event(
+			'jetpack_sync_save_post',
+			null,
+			array( $this, 'filter_out_post_revisions' )
+		);
+		$post_on_server    = $insert_post_event->args[1];
 		$this->assertObjectNotHasProperty( 'featured_image', $post_on_server );
 	}
 
@@ -596,8 +617,10 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 			'label'  => 'unregister post type',
 		);
 		register_post_type( 'unregister_post_type', $args );
+
+		add_action( 'wp_insert_post', array( $this, 'unregister_post_type' ), 9 );
 		$post_id = self::factory()->post->create( array( 'post_type' => 'unregister_post_type' ) );
-		unregister_post_type( 'unregister_post_type' );
+		remove_action( 'wp_insert_post', array( $this, 'unregister_post_type' ), 9 );
 
 		$this->sender->do_sync();
 		$synced_post = $this->server_replica_storage->get_post( $post_id );
@@ -617,6 +640,32 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertSame( '', $synced_post->post_content_filtered );
 		$this->assertSame( '', $synced_post->post_excerpt_filtered );
 		$this->assertEquals( 'does_not_exist', $synced_post->post_type );
+	}
+
+	/**
+	 * The purpose of this test is to ensure that when a post type is registered during
+	 * enqueueing Sync actions but not present when sending, we will still sync
+	 * the corresponding post with the correct post type.
+	 * This covers cases, where Dedicated Sync is enabled combined with custom post types
+	 * that are registered on `init`, after the corresponding `add_dedicated_sync_sender_init` hook.
+	 */
+	public function test_will_sync_non_existant_post_types_during_sending() {
+		$args = array(
+			'public' => true,
+			'label'  => 'Exists during enqueing, not during sending',
+		);
+		register_post_type( 'testing_sync', $args );
+
+		$post_id = self::factory()->post->create( array( 'post_type' => 'testing_sync' ) );
+
+		unregister_post_type( 'testing_sync' );
+
+		$this->sender->do_sync();
+		$synced_post = $this->server_replica_storage->get_post( $post_id );
+
+		$this->assertEquals( 'publish', $synced_post->post_status );
+
+		$this->assertEquals( 'testing_sync', $synced_post->post_type );
 	}
 
 	public function test_sync_post_jetpack_sync_prevent_sending_post_data_filter() {
@@ -931,14 +980,14 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
+		remove_filter( 'jetpack_is_fse_theme', '__return_false' );
+
 		$this->assertStringContainsString( '<div id=\'jp-relatedposts\'', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
 
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( "<p>hello</p>\n\n", $synced_post->post_content_filtered );
-
-		remove_filter( 'jetpack_is_fse_theme', '__return_false' );
 	}
 
 	public function test_remove_related_posts_shortcode_from_filtered_content() {
@@ -1429,5 +1478,9 @@ That was a cool video.';
 			self::factory()->post->create( array( 'post_type' => 'hello' ) );
 			return;
 		}
+	}
+
+	public function unregister_post_type() {
+		unregister_post_type( 'unregister_post_type' );
 	}
 }

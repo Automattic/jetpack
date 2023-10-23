@@ -4,11 +4,20 @@
  *
  * @package automattic/jetpack
  */
-
+require_once __DIR__ . '/../../trait-woo-tests.php';
 /**
  * Class WP_Test_Jetpack_Google_AMP_Analytics
  */
 class WP_Test_Jetpack_Google_AMP_Analytics extends WP_UnitTestCase {
+	/**
+	 * Using the WooCommerceTestTrait to include WooCommerce related dependencies for the unit tests.
+	 * Noting that we'd need to add woocommerce as group in order for the tests
+	 * in this class to run as part of the WooCommerce unit tests, however it looks like
+	 * the whole class is outdated.
+	 *
+	 * @todo Remove this test class after confirming its tests are not applicable anymore.
+	 */
+	use WooCommerceTestTrait;
 
 	/**
 	 * A WooCommerce product.
@@ -16,33 +25,6 @@ class WP_Test_Jetpack_Google_AMP_Analytics extends WP_UnitTestCase {
 	 * @var WC_Product
 	 */
 	protected $product;
-
-	/**
-	 * Is Woo Enabled
-	 *
-	 * @var bool
-	 */
-	protected static $woo_enabled;
-
-	/**
-	 * Runs the routine before setting up all tests.
-	 */
-	public static function set_up_before_class() {
-		parent::set_up_before_class();
-
-		if ( 1 !== (int) getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
-			return;
-		}
-
-		self::$woo_enabled = true;
-
-		$woo_tests_dir = __DIR__ . '/../../../../woocommerce/tests';
-
-		if ( ! file_exists( $woo_tests_dir ) ) {
-			error_log( 'PLEASE RUN THE GIT VERSION OF WooCommerce that has the tests folder. Found at github.com/WooCommerce/woocommerce' );
-			self::$woo_enabled = false;
-		}
-	}
 
 	/**
 	 * Runs the routine before each test is executed.

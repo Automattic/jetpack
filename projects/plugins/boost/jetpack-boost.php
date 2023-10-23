@@ -129,7 +129,7 @@ if ( is_readable( $boost_packages_path ) ) {
 		<?php
 	}
 
-	add_action( 'admin_notices', 'jetpack_boost_admin_missing_files' );
+	add_action( 'admin_notices', __NAMESPACE__ . '\\jetpack_boost_admin_missing_files' );
 	return;
 }
 

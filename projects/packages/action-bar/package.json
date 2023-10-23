@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-action-bar",
-	"version": "0.1.28",
+	"version": "0.1.30-alpha",
 	"description": "An easy way for visitors to follow, like, and comment on your WordPress site.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/action-bar/#readme",
 	"bugs": {
@@ -27,9 +27,9 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.22.17",
-		"@wordpress/browserslist-config": "5.26.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "4.26.0",
+		"@babel/core": "7.23.2",
+		"@wordpress/browserslist-config": "5.27.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "4.27.0",
 		"core-js": "3.23.5",
 		"sass": "1.64.1",
 		"sass-loader": "12.4.0",

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Extension: improve performance bug when extending blocks with AI Assistant
