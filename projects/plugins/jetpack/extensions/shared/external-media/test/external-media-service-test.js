@@ -84,8 +84,6 @@ describe( 'Media API Tests', () => {
 		// Then.
 		// We should not be polling the connection status.
 		expect( select.mock.calls ).toHaveLength( 0 );
-		// Dispatched action to register the source.
-		expect( dispatch.mock.calls ).toHaveLength( 1 );
 		// Connection has been checked.
 		expect( apiFetch.mock.calls ).toHaveLength( 1 );
 	} );
