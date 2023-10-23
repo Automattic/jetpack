@@ -1,7 +1,14 @@
 /*
  * External dependencies
  */
-import { MenuItem, MenuGroup, ToolbarDropdownMenu, DropdownMenu } from '@wordpress/components';
+import {
+	MenuItem,
+	MenuGroup,
+	ToolbarDropdownMenu,
+	DropdownMenu,
+	Button,
+	Tooltip,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { globe } from '@wordpress/icons';
@@ -125,8 +132,15 @@ export default function I18nDropdownControl( {
 	value = defaultLanguage,
 	label = defaultLabel,
 	onChange,
+	disabled = false,
 }: LanguageDropdownControlProps ) {
-	return (
+	return disabled ? (
+		<Tooltip text={ label }>
+			<Button disabled>
+				<Icon icon={ globe } />
+			</Button>
+		</Tooltip>
+	) : (
 		<ToolbarDropdownMenu
 			icon={ globe }
 			label={ label }
@@ -142,10 +156,8 @@ export default function I18nDropdownControl( {
 export function I18nMenuDropdown( {
 	value = defaultLanguage,
 	label = defaultLabel,
-	disabled = false,
 	onChange,
 }: Pick< LanguageDropdownControlProps, 'label' | 'onChange' | 'value' > & {
-	disabled?: boolean;
 	toggleProps?: Record< string, unknown >;
 } ) {
 	return (
