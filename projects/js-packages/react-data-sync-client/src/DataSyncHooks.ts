@@ -25,6 +25,7 @@ export function useDataSync<
 	);
 	const { data, error } = useSWR< Value >( key, datasync.GET, {
 		fallbackData: datasync.getInitialValue(),
+		revalidateOnMount: false,
 		...config,
 	} );
 
@@ -58,7 +59,8 @@ export function useReadonlyDataSync< Schema extends z.ZodSchema, Key extends str
 	const datasync = new DataSync( namespace, key, schema );
 	const { data, error } = useSWR( key, datasync.GET, {
 		fallbackData: datasync.getInitialValue(),
-		revalidateOnFocus: true,
+		revalidateOnFocus: false,
+		revalidateOnMount: false,
 		...config,
 	} );
 
