@@ -1438,7 +1438,7 @@ class Replicastore implements Replicastore_Interface {
 	 * Some tables require custom instances, due to different checksum logic.
 	 *
 	 * @param string $table                   The table that we want to get the instance for.
-	 * @param null   $salt                    Salt to be used when generating the checksums.
+	 * @param string $salt                    Salt to be used when generating the checksums.
 	 * @param bool   $perform_text_conversion Should we perform text encoding conversion when calculating the checksum.
 	 * @param array  $additional_columns      Additional columns to add to the checksum calculation.
 	 *

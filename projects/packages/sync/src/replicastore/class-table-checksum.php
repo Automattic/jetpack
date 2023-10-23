@@ -133,9 +133,9 @@ class Table_Checksum {
 	 * Table_Checksum constructor.
 	 *
 	 * @param string  $table                   The table to calculate checksums for.
-	 * @param null    $salt                    Optional salt to add to the checksum.
+	 * @param string  $salt                    Optional salt to add to the checksum.
 	 * @param boolean $perform_text_conversion If text fields should be latin1 converted.
-	 * @param array   $additional_columns Additional columns to add to the checksum calculation.
+	 * @param array   $additional_columns      Additional columns to add to the checksum calculation.
 	 *
 	 * @throws Exception Throws exception from inner functions.
 	 */
