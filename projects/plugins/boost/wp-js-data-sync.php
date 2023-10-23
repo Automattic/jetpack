@@ -19,12 +19,12 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
  * Make it easier to register a Jetpack Boost Data-Sync option.
  *
  * @param $key    string - The key for this option.
- * @param $schema Schema - The schema for this option.
+ * @param $parser Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser - The schema for this option.
  * @param $entry  Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry|null - The entry handler for this option.
  */
-function jetpack_boost_register_option( $key, $schema, $entry = null ) {
+function jetpack_boost_register_option( $key, $parser, $entry = null ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-			->register( $key, $schema, $entry );
+			->register( $key, $parser, $entry );
 }
 
 /**
