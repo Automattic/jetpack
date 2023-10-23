@@ -15,6 +15,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit;
  * This class represents a single Client Portal endpoint (e.g. Quotes)
  * 
  */
+#[\AllowDynamicProperties]
 abstract class Client_Portal_Endpoint {
 	public $portal                       = null;
 	public $template_name                = null;
