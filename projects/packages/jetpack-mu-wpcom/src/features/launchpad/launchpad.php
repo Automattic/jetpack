@@ -905,14 +905,7 @@ function wpcom_launchpad_is_keep_building_enabled() {
  * @return bool True if the task list is enabled, false otherwise.
  */
 function wpcom_launchpad_is_hosting_flow_enabled() {
-	$intent  = get_option( 'site_intent', false );
-	$blog_id = get_current_blog_id();
-
-	if ( 'host-site' === $intent && $blog_id > 220443356 ) {
-		return true;
-	}
-
-	return false;
+	return apply_filters( 'is_launchpad_intent_hosting_enabled', false );
 }
 
 /**
