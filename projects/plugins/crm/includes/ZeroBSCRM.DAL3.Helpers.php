@@ -1176,30 +1176,21 @@ function zeroBS_getOwner($objID=-1,$withDeets=true,$objType=-1,$knownOwnerID=-1)
 	return false;
 }
 
-function zeroBS_getOwnerObj($wpUserID=-1,$simpleUserData=true){
+// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+function zeroBS_getOwnerObj( $wp_user_id = -1 ) {
+	if ( $wp_user_id > 0 ) {
 
-	if ($wpUserID !== -1){
+		$user_data = get_userdata( $wp_user_id );
 
-		// phpcs:disable
-		if ( $simpleUserData ) {
-			if ( $wpUserID > 0 ) {
-
-				$d = get_userdata( $wpUserID );
-
-				if ( isset( $d->ID ) && isset( $d->data ) ) $data = $d->data;
-			}
-
-			$data = false;
+		if ( ! isset( $user_data->ID ) || ! isset( $user_data->data ) ) {
+			return false;
 		}
-		// phpcs:enable
-		else
-			$data = get_userdata($wpUserID);
 
 		return array(
 
-						'ID'=> $wpUserID,
-						'OBJ'=> $data
-				);
+			'ID'  => $wp_user_id,
+			'OBJ' => $user_data->data,
+		);
 
 	}
 
