@@ -157,7 +157,8 @@ export function I18nMenuDropdown( {
 	value = defaultLanguage,
 	label = defaultLabel,
 	onChange,
-}: Pick< LanguageDropdownControlProps, 'label' | 'onChange' | 'value' > & {
+	disabled = false,
+}: Pick< LanguageDropdownControlProps, 'label' | 'onChange' | 'value' | 'disabled' > & {
 	toggleProps?: Record< string, unknown >;
 } ) {
 	return (
