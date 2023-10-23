@@ -7,7 +7,6 @@
 require_once __DIR__ . '/../../trait-woo-tests.php';
 /**
  * Class WP_Test_Jetpack_Google_AMP_Analytics
- *
  */
 class WP_Test_Jetpack_Google_AMP_Analytics extends WP_UnitTestCase {
 	/**
