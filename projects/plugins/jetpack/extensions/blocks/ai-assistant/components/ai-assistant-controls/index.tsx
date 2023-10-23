@@ -255,12 +255,14 @@ function AiAssistantDropdownContent( {
 					onChange={ tone => {
 						requestSuggestion( PROMPT_TYPE_CHANGE_TONE, { tone } );
 					} }
+					disabled={ noContent }
 				/>
 
 				<I18nMenuDropdown
 					onChange={ language => {
 						requestSuggestion( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
 					} }
+					disabled={ noContent }
 				/>
 			</MenuGroup>
 		</>
