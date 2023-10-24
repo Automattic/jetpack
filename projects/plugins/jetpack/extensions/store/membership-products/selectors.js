@@ -14,7 +14,9 @@ export const getProduct = ( state, productId ) =>
 	getProducts( state ).find( product => product.id === productId );
 
 export const getNewsletterProducts = state =>
-	state.products.filter( product => product.subscribe_as_site_subscriber );
+	state.products.filter(
+		product => product.subscribe_as_site_subscriber && 'one-time' !== product.interval
+	);
 
 export const getSiteSlug = state => state.siteSlug;
 
