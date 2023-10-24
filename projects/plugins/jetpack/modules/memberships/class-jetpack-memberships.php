@@ -31,18 +31,7 @@ class Jetpack_Memberships {
 	public static $post_type_plan = 'jp_mem_plan';
 
 	/**
-	 * Option that will store currently set up account (Stripe etc) id for memberships.
-	 *
-	 *  TODO: remove
-	 *
-	 * @deprecated
-	 * @var string
-	 */
-	public static $connected_account_id_option_name = 'jetpack-memberships-connected-account-id';
-
-	/**
-	 * Option that will toggle account enabled for memberships (i.e. Stripe is
-	 * configured, etc. ).
+	 * Option stores status for memberships (Stripe, etc.).
 	 *
 	 * @var string
 	 */
@@ -465,9 +454,7 @@ class Jetpack_Memberships {
 			return true;
 		}
 
-		// This is the fallback solution.
-		// TODO: Remove this once the has_connected_account_option is migrated to all sites.
-		return get_option( 'jetpack-memberships-connected-account-id', false ) ? true : false;
+		return false;
 	}
 
 	/**
