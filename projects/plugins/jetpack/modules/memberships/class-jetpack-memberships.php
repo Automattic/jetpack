@@ -552,7 +552,7 @@ class Jetpack_Memberships {
 			Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS === $post_access_level
 		) {
 			// The post is paywalled but there is no newsletter plans on the site.
-			// We de-escalate the post level to subscribers-only
+			// We downgrade the post level to subscribers-only
 			$post_access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
 		}
 
