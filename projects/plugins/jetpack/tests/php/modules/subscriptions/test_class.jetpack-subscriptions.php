@@ -466,6 +466,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		// Connect the plan to a product and mark the plan as a "newsletter" plan
 		update_post_meta( $this->plan_id, 'jetpack_memberships_product_id', $this->product_id );
 		update_post_meta( $this->plan_id, 'jetpack_memberships_site_subscriber', true );
+		update_post_meta( $this->plan_id, 'jetpack_memberships_interval', '1 month' );
 
 		// Connect the site to Stripe
 		update_option( Jetpack_Memberships::$has_connected_account_option_name, true );
