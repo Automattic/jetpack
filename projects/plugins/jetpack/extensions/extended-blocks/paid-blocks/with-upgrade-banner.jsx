@@ -105,3 +105,15 @@ const withUpgradeBanner = createHigherOrderComponent(
 );
 
 export default withUpgradeBanner;
+
+export function blockEditWithUpgradeBanner( settings, name ) {
+	const requiredPlan = getRequiredPlan( name );
+	if ( ! requiredPlan ) {
+		return settings;
+	}
+
+	return {
+		...settings,
+		edit: withUpgradeBanner( settings.edit ),
+	};
+}
