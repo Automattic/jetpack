@@ -35,9 +35,17 @@
 		"color": {
 			"type": "string"
 		},
+		"ratingStyle": {
+			"type": "string",
+			"default": "star"
+		},
+		"className": {
+			"type": "string"
+		},
 		"align": {
 			"type": "string",
 			"default": "left"
 		}
-	}
+	},
+	"example": {}
 }
