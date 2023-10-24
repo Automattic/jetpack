@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Always return false for 'jetpack_sharing_enabled' in case if module is not active

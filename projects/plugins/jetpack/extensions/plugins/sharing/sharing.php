@@ -37,8 +37,8 @@ add_action(
 					$post_type,
 					'jetpack_sharing_enabled',
 					array(
-						'get_callback' => function ( array $post ) {
-							return (bool) ! get_post_meta( $post['id'], 'sharing_disabled', true );
+						'get_callback' => function () {
+							return false;
 						},
 						'schema'       => array(
 							'description' => __( 'Are sharing buttons enabled?', 'jetpack' ),
