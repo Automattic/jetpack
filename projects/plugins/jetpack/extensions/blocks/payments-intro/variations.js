@@ -2,6 +2,7 @@
  * The different payment blocks that can be chosen.
  */
 
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import donationMetadata from '../donations/block.json';
 import { name as paymentButtonsName, settings as paymentButtonsSettings } from '../payment-buttons';
 import { name as premiumContentName, settings as premiumContentSettings } from '../premium-content';
@@ -13,11 +14,16 @@ const variations = [
 ];
 
 const variationDefinitions = variations.map( ( [ blockName, settings ] ) => {
+	const icon = settings.icon.src ?? settings.icon;
+
 	return {
 		name: blockName.includes( '/' ) ? blockName : 'jetpack/' + blockName,
 		title: settings.title,
 		description: settings.description,
-		icon: settings.icon.src ?? settings.icon,
+		icon:
+			typeof icon === 'string' && icon.startsWith( '<svg' )
+				? getBlockIconComponent( settings )
+				: icon,
 	};
 } );
 
