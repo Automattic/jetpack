@@ -20,6 +20,10 @@ const withUpgradeBanner = createHigherOrderComponent(
 		// CAUTION: code added before this line will be executed for all blocks
 		// (also the paragraph block, every time on typing), not just paid
 		// blocks!
+		// NOTE: creating hooks conditionally is not a good practice,
+		// but still it's better than having the code executed for all blocks.
+		// @see https://legacy.reactjs.org/docs/hooks-rules.html#only-call-hooks-at-the-top-level
+		// @todo: work on a better implementation.
 		if ( ! requiredPlan ) {
 			return <BlockEdit { ...props } />;
 		}
