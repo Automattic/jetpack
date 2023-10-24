@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { Button } from '@wordpress/components';
+import { BaseControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -11,6 +12,7 @@ import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout
 import useAIFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../../../blocks/ai-assistant/lib/connection';
 import UsageBar from '../usage-bar';
+import './style.scss';
 
 export default function UsagePanel() {
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
@@ -39,8 +41,10 @@ export default function UsagePanel() {
 	 */
 	const usage = hasFeature ? 0.1 : requestsCount / requestsLimit;
 
+	const help = hasFeature ? __( 'Unlimited requests for your site', 'jetpack' ) : undefined;
+
 	return (
-		<div className="jetpack-ai-usage-panel-control">
+		<BaseControl className="jetpack-ai-usage-panel-control" help={ help }>
 			<p>{ hasFeature ? unlimitedPlanUsageMessage : freeUsageMessage }</p>
 
 			<UsageBar usage={ usage } />
@@ -65,6 +69,6 @@ export default function UsagePanel() {
 					Upgrade
 				</Button>
 			) }
-		</div>
+		</BaseControl>
 	);
 }
