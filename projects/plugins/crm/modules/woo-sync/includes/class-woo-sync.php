@@ -874,20 +874,15 @@ class Woo_Sync {
 			$order_post_id = $this->get_invoice_meta( $invoice_id, 'order_post_id' );
 
 			// intercept pay button and set to pay via woo checkout
-			if ( empty( $api ) ) {
+			if ( empty( $api ) && ! empty( $order_post_id ) ) {
+				remove_filter( 'invoicing_pro_paypal_button', 'zeroBSCRM_paypalbutton', 1 );
+				remove_filter( 'invoicing_pro_stripe_button', 'zeroBSCRM_stripebutton', 1 );
+				$order        = wc_get_order( $order_post_id );
+				$payment_page = $order->get_checkout_payment_url();
+				$res          = '<h3>' . __( 'Pay Invoice', 'zero-bs-crm' ) . '</h3>';
+				$res         .= '<a href="' . esc_url( $payment_page ) . '" class="ui button btn">' . __( 'Pay Now', 'zero-bs-crm' ) . '</a>';
 
-				if ( !empty( $order_post_id ) ) {
-
-					remove_filter( 'invoicing_pro_paypal_button', 'zeroBSCRM_paypalbutton' , 1 );
-					remove_filter( 'invoicing_pro_stripe_button', 'zeroBSCRM_stripebutton', 1 );
-					$order = wc_get_order( $order_post_id );
-					$payment_page = $order->get_checkout_payment_url();
-					$res = '<h3>' . __( "Pay Invoice", 'zero-bs-crm' ) . '</h3>';
-					$res .= '<a href="' . esc_url( $payment_page ) . '" class="ui button btn">' . __( "Pay Now", 'zero-bs-crm' ) .'</a>';
-
-					return $res;
-
-				}
+				return $res;
 			}
 
 			return $invoice_id;
