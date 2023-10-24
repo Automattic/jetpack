@@ -375,10 +375,8 @@ class Woo_Sync {
 	 */
 	private function init_features( ) {
 
-		global $zbs;
-
 		// Contact Tabs
-		if ( $zbs->isDAL2() && zeroBSCRM_is_customer_view_page() ){
+		if ( zeroBSCRM_is_customer_view_page() ) {
 
 			require_once JPCRM_WOO_SYNC_ROOT_PATH . 'includes/jpcrm-woo-sync-contact-tabs.php';
 			$this->contact_tabs = Woo_Sync_Contact_Tabs::instance();
