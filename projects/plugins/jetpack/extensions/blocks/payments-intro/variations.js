@@ -21,7 +21,7 @@ const variationDefinitions = variations.map( ( [ blockName, settings ] ) => {
 		title: settings.title,
 		description: settings.description,
 		icon:
-			typeof icon === 'string' && icon.startsWith( '<svg' )
+			typeof icon === 'string' && icon.toLowerCase().startsWith( '<svg' )
 				? getBlockIconComponent( settings )
 				: icon,
 	};
