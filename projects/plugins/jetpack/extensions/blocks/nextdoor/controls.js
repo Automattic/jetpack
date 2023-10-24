@@ -1,18 +1,8 @@
 import { InspectorControls } from '@wordpress/block-editor';
-import { Button, PanelBody, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { Button, PanelBody } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 
-export const CalendlyBlockControls = ( { onEditClick } ) => {
-	return (
-		<ToolbarGroup>
-			<ToolbarButton onClick={ () => onEditClick( true ) }>
-				{ __( 'Edit', 'jetpack' ) }
-			</ToolbarButton>
-		</ToolbarGroup>
-	);
-};
-
-export const CalendlyInspectorControls = props => {
+export const NextdoorInspectorControls = props => {
 	const { defaultClassName, nextdoorShareUrl, onFormSubmit, setNextdoorShareUrl } = props;
 
 	return (
@@ -41,7 +31,7 @@ export const CalendlyInspectorControls = props => {
 const NextdoorControls = props => {
 	return (
 		<InspectorControls>
-			<CalendlyInspectorControls { ...props } />
+			<NextdoorInspectorControls { ...props } />
 		</InspectorControls>
 	);
 };
