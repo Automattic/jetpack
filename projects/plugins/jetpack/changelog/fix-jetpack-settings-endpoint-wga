@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+REST API settings endpoint: Fix google analytics option handling for Jetpack sites.

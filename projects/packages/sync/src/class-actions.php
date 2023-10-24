@@ -110,7 +110,7 @@ class Actions {
 		// rely on 'jetpack_sync_before_send_queue_sync' are picked up and added to the queue if needed.
 		if ( Settings::is_dedicated_sync_enabled() && Dedicated_Sender::is_dedicated_sync_request() ) {
 			self::initialize_listener();
-			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 90 );
+			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 0 );
 			return;
 		}
 
