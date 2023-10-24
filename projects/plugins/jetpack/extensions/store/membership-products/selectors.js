@@ -1,4 +1,4 @@
-import { API_STATE_CONNECTED, API_STATE_LOADING } from './constants';
+import { API_STATE_CONNECTED, API_STATE_LOADING, TIER_TYPE } from './constants';
 
 export const getApiState = state => state.apiState;
 
@@ -15,7 +15,9 @@ export const getProduct = ( state, productId ) =>
 
 export const getNewsletterProducts = state =>
 	state.products.filter(
-		product => product.subscribe_as_site_subscriber && 'one-time' !== product.interval
+		product =>
+			( product.subscribe_as_site_subscriber && 'one-time' !== product.interval ) ||
+			product.type === TIER_TYPE
 	);
 
 export const getSiteSlug = state => state.siteSlug;
