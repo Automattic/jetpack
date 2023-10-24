@@ -12,7 +12,7 @@ import { PaidBlockContext, PaidBlockProvider } from './components';
 import UpgradePlanBanner from './upgrade-plan-banner';
 import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 
-export default createHigherOrderComponent(
+const withUpgradeBanner = createHigherOrderComponent(
 	BlockEdit => props => {
 		const { name, clientId, isSelected, attributes, setAttributes } = props || {};
 		const requiredPlan = getRequiredPlan( name );
@@ -99,3 +99,5 @@ export default createHigherOrderComponent(
 	},
 	'withUpgradeBanner'
 );
+
+export default withUpgradeBanner;
