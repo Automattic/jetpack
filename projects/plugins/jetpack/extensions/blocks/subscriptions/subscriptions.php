@@ -1069,32 +1069,36 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		// translators: %s is the name of the site.
 		: esc_html__( 'Subscribe to get access to the rest of this post and other subscriber-only content.', 'jetpack' );
 
-	$access_question = $is_paid_post
-		? __( 'Already a paid subscriber?', 'jetpack' )
-		: __( 'Already a subscriber?', 'jetpack' );
+	$sign_in         = '';
+	$switch_accounts = '';
+	if ( is_user_auth() ) {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			$switch_accounts_link = wp_logout_url( get_current_url() );
+			$switch_accounts      = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
+<p class="has-text-align-center" style="font-size:14px"><a href="' . $switch_accounts_link . '">' . __( 'Switch Accounts', 'jetpack' ) . '</a></p>
+<!-- /wp:paragraph -->';
 
-	$sign_in = '';
-	$host    = new Host();
-	if ( ! is_user_logged_in() && $host->is_wpcom_simple() ) {
-		$id           = '';
-		$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
-		$button_text  = esc_html__( 'Log in', 'jetpack' );
-	} elseif ( class_exists( 'Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service' ) &&
-		! $host->is_wpcom_simple() ) {
-		// We are on Jetpack and no cookie is set
-		$id              = 'jp_retrieve_subscriptions_link';
-		$sign_in_link    = '#'; // listening to "click" event in view.js
-		$access_question = __( 'I am already subscribed.', 'jetpack' );
-		if ( ! Jetpack_Token_Subscription_Service::has_token_from_cookie() ) {
-			$button_text = esc_html__( 'Log in', 'jetpack' );
-		} else {
-			$button_text = esc_html__( 'Switch accounts', 'jetpack' );
 		}
-	}
+	} else {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			// custom domain
+			$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
+		} else {
+			$sign_in_link = add_query_arg(
+				array(
+					'site_id'      => intval( \Jetpack_Options::get_option( 'id' ) ),
+					'redirect_url' => rawurlencode( get_current_url() ),
+					'v2'           => '',
+				),
+				'https://subscribe.wordpress.com/memberships/jwt'
+			);
+		}
+		$access_question = $is_paid_post
+			? __( 'Already a paid subscriber?', 'jetpack' )
+			: __( 'Already a subscriber?', 'jetpack' );
 
-	if ( ! empty( $sign_in_link ) ) {
 		$sign_in = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
-<p class="has-text-align-center" style="font-size:14px">' . esc_html( $access_question ) . ' <a id="' . $id . '" href="' . $sign_in_link . '">' . $button_text . '</a></p>
+<p class="has-text-align-center" style="font-size:14px"><a href="' . $sign_in_link . '">' . esc_html( $access_question ) . '</a></p>
 <!-- /wp:paragraph -->';
 	}
 
@@ -1117,9 +1121,27 @@ function get_paywall_blocks( $newsletter_access_level ) {
 
 <!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact","isPaidSubscriber":' . ( $is_paid_subscriber ? 'true' : 'false' ) . '} /-->
 ' . $sign_in . '
+' . $switch_accounts . '
 </div>
 <!-- /wp:group -->
 ';
+}
+
+/**
+ * Returns true if user is auth for subscriptions check, otherwise returns false.
+ *
+ * @return boolean
+ */
+function is_user_auth() {
+	if ( ( new Host() )->is_wpcom_simple() && is_user_logged_in() ) {
+		return true;
+	}
+	if ( class_exists( 'Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service' ) ) {
+		if ( Jetpack_Token_Subscription_Service::has_token_from_cookie() ) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /**
