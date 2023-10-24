@@ -647,9 +647,19 @@ class Jetpack_Memberships {
 				array(
 					'posts_per_page' => -1,
 					'fields'         => 'ids',
-					'meta_value'     => true,
 					'post_type'      => self::$post_type_plan,
-					'meta_key'       => 'jetpack_memberships_site_subscriber',
+					'meta_query'     => array(
+						'relation' => 'AND',
+						array(
+							'key'   => 'jetpack_memberships_site_subscriber',
+							'value' => true,
+						),
+						array(
+							'key'     => 'jetpack_memberships_interval',
+							'value'   => 'one-time',
+							'compare' => '!=',
+						),
+					),
 				)
 			);
 
