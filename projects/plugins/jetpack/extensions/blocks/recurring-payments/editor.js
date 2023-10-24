@@ -9,6 +9,7 @@ import save from './save';
 import './editor.scss';
 
 registerJetpackBlockFromMetadata( metadata, {
+	...metadata,
 	edit,
 	save,
 	deprecated: [ deprecatedV2, deprecatedV1 ],
