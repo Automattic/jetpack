@@ -87,5 +87,6 @@
 		"fallbackLinkUrl": {
 			"type": "string"
 		}
-	}
+	},
+	"example": {}
 }
