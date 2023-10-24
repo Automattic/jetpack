@@ -5,10 +5,18 @@ export const PLAN_BUSINESS = 'business-bundle';
 export const PLAN_BUSINESS_2_YEARS = 'business-bundle-2y';
 export const PLAN_BUSINESS_3_YEARS = 'business-bundle-3y';
 export const PLAN_BUSINESS_MONTHLY = 'business-bundle-monthly';
+export const PLAN_BUSINESS_TRIAL = 'wp_bundle_hosting_trial_monthly';
+export const PLAN_MIGRATION_TRIAL = 'wp_bundle_migration_trial_monthly';
+export const PLAN_100_YEARS = 'wp_com_hundred_year_bundle_centennially';
 export const PLAN_ECOMMERCE = 'ecommerce-bundle';
 export const PLAN_ECOMMERCE_2_YEARS = 'ecommerce-bundle-2y';
 export const PLAN_ECOMMERCE_3_YEARS = 'ecommerce-bundle-3y';
 export const PLAN_ECOMMERCE_MONTHLY = 'ecommerce-bundle-monthly';
+export const PLAN_WOOEXPRESS_ESSENTIALS = 'wooexpress-small-bundle-yearly';
+export const PLAN_WOOEXPRESS_ESSENTIALS_MONTHLY = 'wooexpress-small-bundle-monthly';
+export const PLAN_WOOEXPRESS_PERFORMANCE = 'wooexpress-medium-bundle-yearly';
+export const PLAN_WOOEXPRESS_PERFORMANCE_MONTHLY = 'wooexpress-medium-bundle-monthly';
+export const PLAN_WOOEXPRESS_TRIAL = 'ecommerce-trial-bundle-monthly';
 export const PLAN_PREMIUM = 'value_bundle';
 export const PLAN_PREMIUM_2_YEARS = 'value_bundle-2y';
 export const PLAN_PREMIUM_3_YEARS = 'value_bundle-3y';
@@ -631,6 +639,14 @@ export function getPlanClass( plan ) {
 		case PLAN_ECOMMERCE_3_YEARS:
 		case PLAN_ECOMMERCE_MONTHLY:
 		case PLAN_PRO:
+		case PLAN_BUSINESS_TRIAL:
+		case PLAN_MIGRATION_TRIAL:
+		case PLAN_100_YEARS:
+		case PLAN_WOOEXPRESS_ESSENTIALS:
+		case PLAN_WOOEXPRESS_ESSENTIALS_MONTHLY:
+		case PLAN_WOOEXPRESS_PERFORMANCE:
+		case PLAN_WOOEXPRESS_PERFORMANCE_MONTHLY:
+		case PLAN_WOOEXPRESS_TRIAL:
 			return 'is-business-plan';
 		case PLAN_JETPACK_STARTER:
 		case PLAN_JETPACK_STARTER_MONTHLY:
