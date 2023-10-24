@@ -24,8 +24,7 @@
 	},
 	"attributes": {
 		"url": {
-			"type": "string",
-			"validator": "isUrl"
+			"type": "string"
 		},
 		"selectedEpisodes": {
 			"type": "array",
