@@ -34,7 +34,7 @@
 		"style": {
 			"type": "string",
 			"default": "inline",
-			"validValues": [ "inline", "link" ]
+			"enum": [ "inline", "link" ]
 		},
 		"url": {
 			"type": "string"
