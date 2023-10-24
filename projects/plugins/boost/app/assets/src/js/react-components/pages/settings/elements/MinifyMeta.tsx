@@ -1,14 +1,11 @@
-import { useDataSync, useReadonlyDataSync } from '@automattic/jetpack-react-data-sync-client';
-import { useState } from 'react';
+import { DataSyncProvider, useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { __, sprintf } from '@wordpress/i18n';
 
-export const minifyMetaOptions = {
-	minify_js_excludes: z.array( z.string() ),
-	minify_css_excludes: z.array( z.string() ),
-};
+export const minifyMetaOptions = [ 'minify_js_excludes', 'minify_css_excludes' ] as const;
 
-type MinifyMetaKeys = keyof typeof minifyMetaOptions;
+type MinifyMetaKeys = ( typeof minifyMetaOptions )[ number ];
 
 interface Props {
 	datasyncKey: MinifyMetaKeys;
@@ -18,31 +15,47 @@ interface Props {
 	value: string[];
 }
 
-let nextIdIndex = 0;
+const useMetaQuery = ( key: MinifyMetaKeys ) => {
+	const { useQuery, useMutation } = useDataSync( 'jetpack_boost_ds', key, z.array( z.string() ) );
+	const { data } = useQuery();
+	const { mutate } = useMutation();
 
-const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Props ) => {
-	const { data, mutate } = useDataSync(
-		'jetpack_boost_ds',
-		datasyncKey,
-		minifyMetaOptions[ datasyncKey ]
-	);
-	const { data: config } = useReadonlyDataSync(
+	function updateValues( text: string ) {
+		mutate( text.split( ',' ).map( item => item.trim() ) );
+	}
+
+	return [ data, updateValues ] as const;
+};
+
+const useConfig = () => {
+	const { useQuery } = useDataSync(
 		'jetpack_boost_ds',
 		'config',
 		z.object( {
 			plugin_dir_url: z.string().url(),
 		} )
 	);
-	const [ isEditing, setIsEditing ] = useState( false );
-	const htmlId = `minify-meta-exclude-list-${ nextIdIndex++ }`;
+	const { data } = useQuery();
 
-	const initialValue = data.join( ', ' );
-	const [ inputValue, setInputValue ] = useState( () => initialValue );
+	return data;
+};
+
+const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Props ) => {
+	const config = useConfig();
+	const [ values, updateValues ] = useMetaQuery( datasyncKey );
+	const [ inputValue, setInputValue ] = useState( () => values.join( ', ' ) );
+	const [ isEditing, setIsEditing ] = useState( false );
+
+	useEffect( () => {
+		setInputValue( values.join( ', ' ) );
+	}, [ values ] );
 
 	function save() {
-		mutate( inputValue.trim().split( ', ' ) );
+		updateValues( inputValue );
 		setIsEditing( false );
 	}
+
+	const htmlId = `jb-minify-meta-${ datasyncKey }`;
 
 	return (
 		<div className="jb-critical-css__meta">
@@ -57,7 +70,7 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 						onChange={ e => setInputValue( e.target.value ) }
 					/>
 					<div className="buttons-container">
-						<button disabled={ initialValue === inputValue } onClick={ save }>
+						<button disabled={ values.join( ', ' ) === inputValue } onClick={ save }>
 							{ __( 'Save', 'jetpack-boost' ) }
 						</button>
 						<button onClick={ () => setIsEditing( false ) }>
@@ -68,12 +81,12 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 			) : (
 				<>
 					<div className="summary">
-						{ initialValue.length > 0 && (
+						{ values.length > 0 && (
 							<div className="successes">
 								{ sprintf(
 									/* Translators: %s refers to the list of excluded items. */
 									__( 'Except: %s', 'jetpack-boost' ),
-									initialValue
+									values.join( ', ' )
 								) }
 							</div>
 						) }
@@ -99,4 +112,10 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 	);
 };
 
-export default MetaComponent;
+export default function ( props: Props ) {
+	return (
+		<DataSyncProvider>
+			<MetaComponent { ...props } />
+		</DataSyncProvider>
+	);
+}
