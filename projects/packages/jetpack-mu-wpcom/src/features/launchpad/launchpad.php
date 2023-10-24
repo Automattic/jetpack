@@ -202,7 +202,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'host-site'              => array(
 			'title'               => 'Hosting Flow',
 			'task_ids'            => array(
-				'site_title',
 				'site_theme_selected',
 				'install_custom_plugin',
 				'setup_ssh',
