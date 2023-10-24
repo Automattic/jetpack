@@ -868,6 +868,13 @@ class Woo_Sync {
 	 */
 	public function render_pay_via_woo_checkout_button( $invoice_id = -1 ) {
 
+		global $zbs;
+
+		// We can't generate a Woo payment button if WooCommerce isn't active
+		if ( ! $zbs->woocommerce_is_active() ) {
+			return false;
+		}
+
 		if ( $invoice_id > 0 ) {
 
 			$api = $this->get_invoice_meta( $invoice_id, 'api' );
