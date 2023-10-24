@@ -15,7 +15,7 @@
 	};
 
 	export let level: 'info' | 'warning' | 'success' | 'error' = 'info';
-	export let title: string | null = null;
+	export let title: string;
 	export let message: string;
 	export let actions: ActionButton[] = [];
 	export let hideCloseButton = true;
@@ -31,7 +31,7 @@
 				key: index,
 				isLoading: !! action.isLoading,
 				disabled: !! action.disabled,
-				isExternalLink: !! action.isExternalLink || false,
+				isExternalLink: !! action.isExternalLink,
 				variant: action.variant || 'primary',
 			},
 			action.label
