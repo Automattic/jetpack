@@ -1881,11 +1881,17 @@ add_action( 'jetpack_plugin_installed', 'wpcom_launchpad_mark_plugin_installed_c
 
 /**
  * Mark task complete when theme is selected.
+ *
+ * @param array $new_theme    The new theme object.
+ * @param array $old_theme The old theme object.
  */
-function wpcom_launchpad_mark_theme_selected_complete() {
-	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_theme_selected' ) ) ) {
+function wpcom_launchpad_mark_theme_selected_complete( $new_theme, $old_theme ) {
+	// This hook runs when site just gets setup, lets prevent checklist item from being complete
+	// when the theme is the same.
+	$is_same_theme = $new_theme['name'] === $old_theme['same'];
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_theme_selected' ) ) || $is_same_theme ) {
 		return;
 	}
 	wpcom_mark_launchpad_task_complete( 'site_theme_selected' );
 }
-add_action( 'jetpack_sync_current_theme_support', 'wpcom_launchpad_mark_theme_selected_complete', 10 );
+add_action( 'jetpack_sync_current_theme_support', 'wpcom_launchpad_mark_theme_selected_complete', 10, 2 );
