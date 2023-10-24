@@ -40,6 +40,13 @@ class Jetpack_Memberships {
 	public static $type_tier = 'tier';
 
 	/**
+	 * Tier type for plans
+	 *
+	 * @var string
+	 */
+	public static $tier_type = 'tier';
+
+	/**
 	 * Option stores status for memberships (Stripe, etc.).
 	 *
 	 * @var string
