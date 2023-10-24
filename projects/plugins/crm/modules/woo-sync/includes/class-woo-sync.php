@@ -872,7 +872,14 @@ class Woo_Sync {
 
 		// We can't generate a Woo payment button if WooCommerce isn't active
 		if ( ! $zbs->woocommerce_is_active() ) {
-			return false;
+			// show an error if an invoice admin
+			if ( zeroBSCRM_permsInvoices() ) {
+				$admin_alert  = '<b>' . esc_html__( 'Admin note', 'zero-bs-crm' ) . ':</b> ';
+				$admin_alert .= esc_html__( 'Please enable WooCommerce to show the payment link here.', 'zero-bs-crm' );
+				return $admin_alert;
+			} else {
+				return false;
+			}
 		}
 
 		if ( $invoice_id > 0 ) {
