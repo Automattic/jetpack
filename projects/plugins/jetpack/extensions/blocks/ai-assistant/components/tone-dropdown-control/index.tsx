@@ -8,6 +8,8 @@ import {
 	ToolbarDropdownMenu,
 	DropdownMenu,
 	Icon,
+	Button,
+	Tooltip,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chevronRight } from '@wordpress/icons';
@@ -192,10 +194,18 @@ export default function ToneToolbarDropdownMenu( {
 	onChange,
 	disabled = false,
 }: ToneToolbarDropdownMenuProps ) {
-	return (
+	const label = __( 'Change tone', 'jetpack' );
+
+	return disabled ? (
+		<Tooltip text={ label }>
+			<Button disabled>
+				<Icon icon={ speakToneIcon } />
+			</Button>
+		</Tooltip>
+	) : (
 		<ToolbarDropdownMenu
 			icon={ speakToneIcon }
-			label={ __( 'Change tone', 'jetpack' ) }
+			label={ label }
 			popoverProps={ {
 				variant: 'toolbar',
 			} }

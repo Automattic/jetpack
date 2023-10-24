@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Extension: fix undefined 'disabled' I18nMenuDropdown prop bug
