@@ -106,6 +106,17 @@ const withUpgradeBanner = createHigherOrderComponent(
 
 export default withUpgradeBanner;
 
+/**
+ * Helper function that extends the Edit function
+ * of the block with the upgrade banner,
+ * by using the `withUpgradeBanner` HOC.
+ * It has been designed to be bound with a `blocks.registerBlockType` call.
+ *
+ * @param {object} settings - The block settings.
+ * @param {string} name     - The block name.
+ * @returns {object}          The extended block settings.
+ */
+
 export function blockEditWithUpgradeBanner( settings, name ) {
 	const requiredPlan = getRequiredPlan( name );
 	if ( ! requiredPlan ) {
