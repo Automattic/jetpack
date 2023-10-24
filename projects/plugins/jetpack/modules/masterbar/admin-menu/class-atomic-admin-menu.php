@@ -130,14 +130,16 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_plugins_menu() {
 
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
-			return;
-		}
-
 		global $submenu;
 
 		// Calypso plugins screens link.
 		$plugins_slug = 'https://wordpress.com/plugins/' . $this->domain;
+
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
+			$submenus_to_update = array( 'plugin-install.php' => $plugins_slug );
+			$this->update_submenus( 'plugins.php', $submenus_to_update );
+			return;
+		}
 
 		// Link to the Marketplace on sites that can't manage plugins.
 		if (
