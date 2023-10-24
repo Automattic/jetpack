@@ -24,6 +24,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@tanstack/react-query": "4.35.3",
 		"jest": "*",
 		"react": "18.2.0",
 		"ts-loader": "9.4.2",
@@ -45,8 +46,5 @@
 		}
 	},
 	"main": "./build/index.js",
-	"types": "./build/index.d.ts",
-	"dependencies": {
-		"swr": "2.2.4"
-	}
+	"types": "./build/index.d.ts"
 }
