@@ -2992,6 +2992,9 @@ importers:
       '@wordpress/widgets':
         specifier: 3.21.0
         version: 3.21.0(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/wordcount':
+        specifier: 3.44.0
+        version: 3.44.0
       bounding-client-rect:
         specifier: 1.0.5
         version: 1.0.5
@@ -24087,6 +24090,7 @@ packages:
   /ws@7.5.9:
     resolution: {integrity: sha512-F+P9Jil7UiSKSkppIiD94dN07AwvFixvLIj1Og1Rl9GGMuNipJnV9JzjD6XuqmAeiswGvUmNLjr5cFuXwNS77Q==}
     engines: {node: '>=8.3.0'}
+    requiresBuild: true
     peerDependencies:
       bufferutil: ^4.0.1
       utf-8-validate: ^5.0.2

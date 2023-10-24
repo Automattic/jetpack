@@ -64,7 +64,7 @@ const PublicizeSettings = () => {
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
 			<JetpackPluginSidebar>
-				<PublicizePanel enableTweetStorm={ true }>
+				<PublicizePanel>
 					<UpsellNotice />
 				</PublicizePanel>
 				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
@@ -80,7 +80,7 @@ const PublicizeSettings = () => {
 				}
 				icon={ <JetpackEditorPanelLogo /> }
 			>
-				<PublicizePanel prePublish={ true } enableTweetStorm={ true }>
+				<PublicizePanel prePublish={ true }>
 					<UpsellNotice />
 				</PublicizePanel>
 			</PluginPrePublishPanel>
