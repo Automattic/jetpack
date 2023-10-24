@@ -5,7 +5,6 @@
 
 	export let toggle = true;
 	export let slug: string;
-	export let hideIfUnavailable = true;
 
 	const dispatch = createEventDispatcher();
 
@@ -37,7 +36,7 @@
 	} );
 </script>
 
-{#if isModuleAvailable || ! hideIfUnavailable}
+{#if isModuleAvailable || slug === 'lazy_images'}
 	<div class="jb-feature-toggle">
 		<div class="jb-feature-toggle__toggle">
 			{#if toggle}
