@@ -47,7 +47,7 @@ export default function UsagePanel() {
 		<BaseControl className="jetpack-ai-usage-panel-control" help={ help }>
 			<p>{ hasFeature ? unlimitedPlanUsageMessage : freeUsageMessage }</p>
 
-			<UsageBar usage={ usage } />
+			{ ! hasFeature && <UsageBar usage={ usage } /> }
 
 			{ false && (
 				<p className="muted">
