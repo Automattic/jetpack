@@ -36,7 +36,7 @@ export function useDataSync<
 	const queryKey = [ key ];
 	const queryConfig = {
 		queryKey,
-		queryFn: datasync.GET,
+		queryFn: ( { signal } ) => datasync.GET( signal ),
 		initialData: datasync.getInitialValue(),
 	};
 	const mutationConfig = {
