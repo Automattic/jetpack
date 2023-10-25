@@ -27,7 +27,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 	&& add-apt-repository ppa:ondrej/php \
 	&& curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
 	&& apt-get update \
-	&& apt-get install -y \
+	&& apt-get --purge install -y \
 		apache2 \
 		git \
 		jq \
@@ -38,14 +38,15 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 		ssmtp \
 		subversion \
 		sudo \
+		systemd-standalone-tmpfiles \
 		unzip \
 		vim \
 		zip \
 	&& apt-get remove --purge --auto-remove -y gpg software-properties-common \
 	&& find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
-# Enable mod_rewrite in Apache.
-RUN a2enmod rewrite
+# Enable various Apache modules.
+RUN a2dismod mpm_prefork && a2enmod rewrite mpm_event proxy_fcgi http2
 
 # Install requested version of PHP.
 COPY ./config/php.ini /var/lib/jetpack-config/php.ini
@@ -53,6 +54,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 	--mount=type=bind,source=./bin/ensure-php-version.sh,target=/usr/local/bin/ensure-php-version.sh \
 	: "${PHP_VERSION:?Build argument PHP_VERSION needs to be set and non-empty.}" \
 	&& ensure-php-version.sh "$PHP_VERSION" \
+	&& a2enconf "php$PHP_VERSION-fpm" \
 	&& find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
 # Install requested version of Composer.

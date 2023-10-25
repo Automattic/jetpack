@@ -7,6 +7,8 @@ set -e
 # If you modify anything here, remember to build the image again by running:
 # jetpack docker build-image
 
+source /etc/docker-args.sh
+
 user="${APACHE_RUN_USER:-www-data}"
 group="${APACHE_RUN_GROUP:-www-data}"
 
@@ -133,5 +135,7 @@ echo "Open http://${WP_DOMAIN}${WP_HOST_PORT}/ to see your site!"
 echo
 
 # Run apache in the foreground so the container keeps running
+echo "Running php-fpm"
+"/etc/init.d/php${PHP_VERSION}-fpm" start
 echo "Running Apache in the foreground"
 apachectl -D FOREGROUND
