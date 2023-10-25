@@ -4,7 +4,7 @@ Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
 Stable tag: 12.7
 Requires at least: 6.2
 Requires PHP: 5.6
-Tested up to: 6.3
+Tested up to: 6.4
 
 Improve your WP security with powerful one-click tools like backup, WAF, and malware scan. Get essential free tools including stats, CDN and social sharing.
 
