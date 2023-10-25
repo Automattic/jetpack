@@ -194,7 +194,6 @@ function getPlanData(
 				'markdown',
 				'comments',
 				'likes',
-				'lazy-images',
 				'infinite-scroll',
 				'wordads',
 				'sso',

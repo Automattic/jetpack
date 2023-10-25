@@ -62,18 +62,3 @@ function twentysixteen_remove_share() {
 	}
 }
 add_action( 'loop_start', 'twentysixteen_remove_share' );
-
-/**
- * Add inline script for lazy load compat in Twenty Sixteen.
- */
-function twentysixteen_jetpack_lazy_images_compat() {
-	// Since TwentySixteen outdents when window is resized, let's trigger a window resize
-	// every time we lazy load an image on the TwentySixteen theme.
-	wp_add_inline_script(
-		'jetpack-lazy-images',
-		"jQuery( document.body ).on( 'jetpack-lazy-loaded-image', function () { jQuery( window ).trigger( 'resize' ); } );"
-	);
-}
-
-// Priority needs to be 11 here so that we have already enqueued jetpack-lazy-images.
-add_action( 'wp_enqueue_scripts', 'twentysixteen_jetpack_lazy_images_compat', 11 );
