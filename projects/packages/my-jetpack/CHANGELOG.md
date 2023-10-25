@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.10.0] - 2023-10-23
+### Added
+- Add jetpack-plans dependency. It will be use to restore the reverted change on #33410. [#33706]
+
+### Changed
+- Update checkout flow to connect "After" checkout vs before (if not connected). [#33257]
+
+### Fixed
+- Use Current_Plan to check/return from has_required_plan on VP product class. [#33708]
+
+## [3.9.1] - 2023-10-19
+### Changed
+- Make has_required_plan return true (as it was before #33410) as a way to revert the change. [#33697]
+- Updated package dependencies. [#33687]
+
 ## [3.9.0] - 2023-10-17
 ### Added
 - Add has_required_plan method for VideoPress product class, check plan purchase exists for site [#33410]
@@ -1064,6 +1079,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[3.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.9.1...3.10.0
+[3.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.9.0...3.9.1
 [3.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.8.2...3.9.0
 [3.8.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.8.1...3.8.2
 [3.8.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.8.0...3.8.1

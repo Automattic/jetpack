@@ -9,7 +9,7 @@
  * Plugin Name:       Jetpack Boost
  * Plugin URI:        https://jetpack.com/boost
  * Description:       Boost your WordPress site's performance, from the creators of Jetpack
- * Version: 2.1.2-alpha
+ * Version: 2.2.0-alpha
  * Author:            Automattic - Jetpack Site Speed team
  * Author URI:        https://jetpack.com/boost/
  * License:           GPL-2.0+
@@ -29,7 +29,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define( 'JETPACK_BOOST_VERSION', '2.1.2-alpha' );
+define( 'JETPACK_BOOST_VERSION', '2.2.0-alpha' );
 define( 'JETPACK_BOOST_SLUG', 'jetpack-boost' );
 
 if ( ! defined( 'JETPACK_BOOST_CLIENT_NAME' ) ) {
@@ -129,7 +129,7 @@ if ( is_readable( $boost_packages_path ) ) {
 		<?php
 	}
 
-	add_action( 'admin_notices', 'jetpack_boost_admin_missing_files' );
+	add_action( 'admin_notices', __NAMESPACE__ . '\\jetpack_boost_admin_missing_files' );
 	return;
 }
 

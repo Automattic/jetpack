@@ -30,6 +30,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * Jetpack_WooCommerce_Analytics_Universal constructor.
 	 */
 	public function __construct() {
+		$this->cart_checkout_templates_in_use = class_exists( 'Automattic\WooCommerce\Blocks\Package' ) && version_compare( Automattic\WooCommerce\Blocks\Package::get_version(), '10.6.0', '>=' );
 		// loading _wca.
 		add_action( 'wp_head', array( $this, 'wp_head_top' ), 1 );
 
@@ -195,10 +196,55 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
+	 * Get the selected shipping option for a cart item. If the name cannot be found in the options table, the method's
+	 * ID will be used.
+	 *
+	 * @param string $cart_item_key the cart item key.
+	 *
+	 * @return mixed|bool
+	 */
+	public function get_shipping_option_for_item( $cart_item_key ) {
+		$packages         = wc()->shipping()->get_packages();
+		$selected_options = wc()->session->get( 'chosen_shipping_methods' );
+
+		if ( ! is_array( $packages ) || ! is_array( $selected_options ) ) {
+			return false;
+		}
+
+		foreach ( $packages as $package_id => $package ) {
+
+			if ( ! isset( $package['contents'] ) || ! is_array( $package['contents'] ) ) {
+				return false;
+			}
+
+			foreach ( $package['contents'] as $package_item ) {
+				if ( ! isset( $package_item['key'] ) || $package_item['key'] !== $cart_item_key || ! isset( $selected_options[ $package_id ] ) ) {
+					continue;
+				}
+				$selected_rate_id = $selected_options[ $package_id ];
+				$method_key_id    = sanitize_text_field( str_replace( ':', '_', $selected_rate_id ) );
+				$option_name      = 'woocommerce_' . $method_key_id . '_settings';
+				$option_value     = get_option( $option_name );
+				$title            = '';
+				if ( is_array( $option_value ) && isset( $option_value['title'] ) ) {
+					$title = $option_value['title'];
+				}
+				if ( ! $title ) {
+					return $selected_rate_id;
+				}
+				return $title;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * On the Checkout page, trigger an event for each product in the cart
 	 */
 	public function checkout_process() {
 		$cart = WC()->cart->get_cart();
+		$this->get_additional_blocks_on_page();
 
 		$guest_checkout = ucfirst( get_option( 'woocommerce_enable_guest_checkout', 'No' ) );
 		$create_account = ucfirst( get_option( 'woocommerce_enable_signup_and_login_from_checkout', 'No' ) );
@@ -237,16 +283,33 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				continue;
 			}
 
+			$cart           = wc()->cart->get_cart();
+			$products_count = is_array( $cart ) ? count( $cart ) : '0';
+			$coupons        = wc()->cart->applied_coupons;
+			$coupon_used    = is_array( $coupons ) && count( $coupons ) > 0 ? '1' : '0';
+			$order_totals   = wc()->cart->get_totals();
+			$order_value    = '0';
+			if ( isset( $order_totals['total'] ) ) {
+				$order_value = $order_totals['total'];
+			}
+
 			if ( true === $include_express_payment ) {
 				$properties = $this->process_event_properties(
 					'woocommerceanalytics_product_checkout',
 					array(
-						'pq'               => $cart_item['quantity'],
-						'payment_options'  => $enabled_payment_options,
-						'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
-						'guest_checkout'   => 'Yes' === $guest_checkout ? 'Yes' : 'No',
-						'create_account'   => 'Yes' === $create_account ? 'Yes' : 'No',
-						'express_checkout' => 'null',
+						'pq'                => $cart_item['quantity'],
+						'payment_options'   => $enabled_payment_options,
+						'device'            => wp_is_mobile() ? 'mobile' : 'desktop',
+						'guest_checkout'    => 'Yes' === $guest_checkout ? 'Yes' : 'No',
+						'create_account'    => 'Yes' === $create_account ? 'Yes' : 'No',
+						'express_checkout'  => 'null',
+						'shipping_option'   => $this->get_shipping_option_for_item( $cart_item_key ),
+						'products_count'    => $products_count,
+						'coupon_used'       => $coupon_used,
+						'order_value'       => $order_value,
+						'store_currency'    => get_woocommerce_currency(),
+						'additional_blocks' => $this->additional_blocks_on_page,
+						'template_used'     => $this->cart_checkout_templates_in_use ? '1' : '0',
 					),
 					$product->get_id()
 				);
@@ -270,12 +333,19 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				$this->record_event(
 					'woocommerceanalytics_product_checkout',
 					array(
-						'pq'               => $cart_item['quantity'],
-						'payment_options'  => $enabled_payment_options,
-						'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
-						'guest_checkout'   => 'Yes' === $guest_checkout ? 'Yes' : 'No',
-						'create_account'   => 'Yes' === $create_account ? 'Yes' : 'No',
-						'express_checkout' => 'null',
+						'pq'                => $cart_item['quantity'],
+						'payment_options'   => $enabled_payment_options,
+						'device'            => wp_is_mobile() ? 'mobile' : 'desktop',
+						'guest_checkout'    => 'Yes' === $guest_checkout ? 'Yes' : 'No',
+						'create_account'    => 'Yes' === $create_account ? 'Yes' : 'No',
+						'express_checkout'  => 'null',
+						'shipping_option'   => $this->get_shipping_option_for_item( $cart_item_key ),
+						'products_count'    => $products_count,
+						'coupon_used'       => $coupon_used,
+						'order_value'       => $order_value,
+						'store_currency'    => get_woocommerce_currency(),
+						'additional_blocks' => $this->additional_blocks_on_page,
+						'template_used'     => $this->cart_checkout_templates_in_use ? '1' : '0',
 					),
 					$product->get_id()
 				);
@@ -324,16 +394,32 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		foreach ( $order->get_items() as $order_item ) {
 			$product_id = is_callable( array( $order_item, 'get_product_id' ) ) ? $order_item->get_product_id() : -1;
 
+			$order_items       = $order->get_items();
+			$order_items_count = 0;
+			if ( is_array( $order_items ) ) {
+				$order_items_count = count( $order_items );
+			}
+			$order_coupons       = $order->get_coupons();
+			$order_coupons_count = 0;
+			if ( is_array( $order_coupons ) ) {
+				$order_coupons_count = count( $order_coupons );
+			}
 			$this->record_event(
 				'woocommerceanalytics_product_purchase',
 				array(
-					'oi'               => $order->get_order_number(),
-					'pq'               => $order_item->get_quantity(),
-					'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
-					'payment_option'   => $payment_option,
-					'create_account'   => $create_account,
-					'guest_checkout'   => $guest_checkout,
-					'express_checkout' => $express_checkout,
+					'oi'                => $order->get_order_number(),
+					'pq'                => $order_item->get_quantity(),
+					'device'            => wp_is_mobile() ? 'mobile' : 'desktop',
+					'payment_option'    => $payment_option,
+					'create_account'    => $create_account,
+					'guest_checkout'    => $guest_checkout,
+					'express_checkout'  => $express_checkout,
+					'products_count'    => $order_items_count,
+					'coupon_used'       => $order_coupons_count,
+					'order_value'       => $order->get_total(),
+					'store_currency'    => get_woocommerce_currency(),
+					'additional_blocks' => $this->additional_blocks_on_page,
+					'template_used'     => $this->cart_checkout_templates_in_use ? '1' : '0',
 				),
 				$product_id
 			);
@@ -366,6 +452,87 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				} );
 			} );'
 		);
+	}
+
+	/**
+	 * Tracks any additional blocks loaded on the Cart/Checkout page.
+	 *
+	 * @var array
+	 */
+	private $additional_blocks_on_page = array();
+
+	/**
+	 * Gets the inner blocks of a block.
+	 *
+	 * @param array $inner_blocks The inner blocks.
+	 *
+	 * @return array
+	 */
+	private function get_inner_blocks( $inner_blocks ) {
+		$block_names = array();
+		if ( $inner_blocks['blockName'] ) {
+			$block_names[] = $inner_blocks['blockName'];
+		}
+		if ( $inner_blocks['innerBlocks'] ) {
+			$block_names = array_merge( $block_names, $this->get_inner_blocks( $inner_blocks['innerBlocks'] ) );
+		}
+		return $block_names;
+	}
+
+	/**
+	 * Gets the IDs of additional blocks on the Cart/Checkout pages or templates.
+	 *
+	 * @return void
+	 */
+	public function get_additional_blocks_on_page() {
+		global $post;
+		$content = $post->post_content;
+
+		$cart_checkout_templates_in_use = class_exists( 'Automattic\WooCommerce\Blocks\Package' ) && version_compare( Automattic\WooCommerce\Blocks\Package::get_version(), '10.6.0', '>=' );
+
+		if ( $cart_checkout_templates_in_use ) {
+			if ( function_exists( 'get_block_template' ) ) {
+				$content = get_block_template( 'woocommerce/woocommerce//page-checkout' )->content;
+			}
+
+			if ( function_exists( 'gutenberg_get_block_template' ) ) {
+				$content = gutenberg_get_block_template( 'woocommerce/woocommerce//page-checkout' )->content;
+			}
+		}
+
+		$parsed_blocks = parse_blocks( $content );
+		$other_blocks  = array_filter(
+			$parsed_blocks,
+			function ( $block ) {
+				if ( is_checkout() && $block['blockName'] !== 'woocommerce/checkout' ) {
+					return true;
+				}
+				if ( is_cart() && $block['blockName'] !== 'woocommerce/cart' ) {
+					return true;
+				}
+				return false;
+			}
+		);
+
+		$all_inner_blocks = array();
+
+		// Loop over each "block group". In templates the blocks are grouped up.
+		foreach ( $other_blocks as $block ) {
+
+			// This check is necessary because sometimes this is null when using templates.
+			if ( $block['blockName'] ) {
+				$all_inner_blocks[] = $block['blockName'];
+			}
+
+			if ( ! is_array( $block['innerBlocks'] ) || count( $block['innerBlocks'] ) === 0 ) {
+				continue;
+			}
+
+			foreach ( $block['innerBlocks'] as $inner_content ) {
+				$all_inner_blocks = array_merge( $all_inner_blocks, $this->get_inner_blocks( $inner_content ) );
+			}
+		}
+		$this->additional_blocks_on_page = $all_inner_blocks;
 	}
 
 	/**

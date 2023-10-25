@@ -1149,7 +1149,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/google-fonts-provider",
-                "reference": "72bc00c2292da37a578ec11b140982ba756492da"
+                "reference": "64978c5e7b72b65ab7bb6c54161a7e712cb7d128"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -1167,7 +1167,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-google-fonts-provider/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "textdomain": "jetpack-google-fonts-provider"
             },
@@ -1703,7 +1703,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "76b8ab03a2bcc2f1702f5d4d43838badf9df7480"
+                "reference": "51fc304d5f94c427a0b7d638bedd086927fa9e11"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1712,6 +1712,7 @@
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-jitm": "@dev",
                 "automattic/jetpack-licensing": "@dev",
+                "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-plugins-installer": "@dev",
                 "automattic/jetpack-redirect": "@dev"
             },
@@ -1733,7 +1734,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.9.x-dev"
+                    "dev-trunk": "3.10.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2520,7 +2521,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "0635ec7c9ddeafdbd2d7acc547b9dbff68b2cb1b"
+                "reference": "421bbdeb621e9370537399dbfe037cd12bf07d6f"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2551,7 +2552,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.58.x-dev"
+                    "dev-trunk": "1.60.x-dev"
                 }
             },
             "autoload": {
@@ -2587,7 +2588,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "72b82335c2bb4313f34a9d7501e55958939b8361"
+                "reference": "b08bf2e1a72f0d382c4245fe58ca4a8e866c47fe"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2612,7 +2613,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.17.x-dev"
+                    "dev-trunk": "0.19.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"

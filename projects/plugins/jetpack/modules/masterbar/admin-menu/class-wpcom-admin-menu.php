@@ -365,6 +365,13 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds My Home menu.
+	 */
+	public function add_my_home_menu() {
+		$this->update_menu( 'index.php', 'https://wordpress.com/home/' . $this->domain, __( 'My Home', 'jetpack' ), 'read', 'dashicons-admin-home' );
+	}
+
+	/**
 	 * Also remove the Gutenberg plugin menu.
 	 */
 	public function remove_gutenberg_menu() {
