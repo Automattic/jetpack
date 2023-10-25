@@ -339,6 +339,22 @@ class Initializer {
 	 * @return string                    Block markup.
 	 */
 	private static function render_for_email( $block_attributes ) {
+		$private = isset( $block_attributes['isPrivate'] ) ? $block_attributes['isPrivate'] : false;
+
+		if ( $private ) {
+			$template = <<<TEMPLATE
+<div>
+	<div style="position: relative;width: 100%%;padding-top: 56.25%%;background: #000;">
+		<div style="position: absolute;top: 0;left: 0;bottom: 0;right: 0;text-align: center;">
+			<span style="color: white;font-size: 24px;position: relative;top: calc(50%% - 12px);font-weight: 600;">%s</span>
+		</div>
+	</div>
+</div>
+TEMPLATE;
+
+			return sprintf( $template, __( 'This video is private', 'jetpack-videopress-pkg' ) );
+		}
+
 		$request  = new WP_REST_Request( 'GET', '/wpcom/v2/videopress/' . $block_attributes['guid'] . '/poster' );
 		$response = rest_do_request( $request );
 
@@ -346,10 +362,26 @@ class Initializer {
 			return '';
 		}
 
-		$data   = $response->get_data()['data'];
-		$poster = $data['poster'];
+		$data    = $response->get_data()['data'];
+		$poster  = $data['poster'];
+		$caption = isset( $block_attributes['caption'] ) ? $block_attributes['caption'] : null;
+		$anchor  = isset( $block_attributes['anchor'] ) ? $block_attributes['anchor'] : null;
+		$href    = esc_url( get_permalink() );
 
-		return sprintf( '<figure><img src="%s" alt="%s"/></figure>', $poster, $block_attributes['caption'] );
+		if ( ! empty( $anchor ) ) {
+			$href .= '#' . $anchor;
+		}
+
+		$template = <<<TEMPLATE
+<figure>
+	<a href="%s" style="display: block;position: relative;">
+		<img src="%s" alt="%s" style="max-width: 100%%;">
+		<div style="position: absolute;width: 0;height: 0;border-top: 40px solid transparent;border-bottom: 40px solid transparent;border-left: 60px solid white;top: calc(50%% - 40px);left: calc(50%% - 20px);"></div>
+	</a>
+</figure>
+TEMPLATE;
+
+		return sprintf( $template, $href, $poster, $caption );
 	}
 
 	/**
