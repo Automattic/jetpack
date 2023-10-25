@@ -34,7 +34,6 @@
 		"automattic/jetpack-import": "@dev",
 		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-jitm": "@dev",
-		"automattic/jetpack-lazy-images": "@dev",
 		"automattic/jetpack-licensing": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",

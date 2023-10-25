@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Lazy Images: remove the feature from the plugin. You can now rely on WordPress' own Lazy Image features on your site.

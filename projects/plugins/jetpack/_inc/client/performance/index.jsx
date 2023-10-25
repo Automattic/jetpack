@@ -19,7 +19,7 @@ class Performance extends Component {
 			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
-		const found = [ 'photon', 'videopress', 'lazy-images', 'photon-cdn', 'search' ].some(
+		const found = [ 'photon', 'videopress', 'photon-cdn', 'search' ].some(
 			this.props.isModuleFound
 		);
 
