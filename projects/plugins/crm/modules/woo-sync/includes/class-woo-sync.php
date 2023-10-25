@@ -323,13 +323,6 @@ class Woo_Sync {
 	 */
 	private function init_hooks( ) {
 
-		/*
-		Welcome wizard
-		This needs to fire after the object is set in $zbs->modules->woosync,
-		because its slugs are used in the welcome wizard.
-		*/
-		add_action( 'admin_init', array( $this, 'show_welcome_wizard' ), 100 );
-
 		// Add settings tab
 		add_filter( 'zbs_settings_tabs', array( $this, 'add_settings_tab' ) );
 
@@ -625,41 +618,6 @@ class Woo_Sync {
 		// WooCommerce My Account
 		wp_register_style( 'jpcrm-woo-sync-my-account', plugins_url( '/css/jpcrm-woo-sync-my-account'.wp_scripts_get_suffix().'.css', JPCRM_WOO_SYNC_ROOT_FILE ) );
 		wp_register_style( 'jpcrm-woo-sync-fa', plugins_url( '/css/font-awesome.min.css', ZBS_ROOTFILE ) );
-
-	}
-
-
-	/**
-	 * Intercept page load to send to Welcome Wizard
-	 *  (previously on `admin_init 100`)
-	 */
-	public function show_welcome_wizard() {
-
-		##WLREMOVE
-
-		// Bail if activating from network, or bulk
-		if ( wp_doing_ajax() || is_network_admin() || ! current_user_can( 'admin_zerobs_manage_options' ) ) {
-			return;
-		}
-
-		// if on Woo Page
-		if ( $this->is_hub_page() ){
-
-			// check if user has been shown welcome wizard, if not show, otherwise skip
-			$wizard_run_count = get_option( 'jpcrm_woo_connect_wizard_completions', 0 );
-			if ( $wizard_run_count == 0 ){
-
-				//#whtodo - follow on work
-				//require_once( JPCRM_WOO_SYNC_ROOT_PATH . 'admin/activation/welcome-to-woo-sync.php' );
-				//exit();
-
-			}
-		}
-
-		// Delete the redirect transient
-		delete_transient( 'jpcrm_woosync_just_installed' );
-
-	    ##/WLREMOVE
 
 	}
 

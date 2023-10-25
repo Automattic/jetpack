@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2023-10-23
+### Changed
+- Use register_block_type and block.json to handle the block's scripts properly and fix assets being loaded when block is not present. [#33701]
+
+## [0.18.0] - 2023-10-19
+### Changed
+- Move ProgressBar component to the shared `@automattic/jetpack-components` package. [#33054]
+- Revert changes on #33394 #33036 and #33042 - Those changes won't properly handle VP block assets on feeds/query loops [#33672]
+- Updated package dependencies. [#33687]
+
 ## [0.17.6] - 2023-10-17
 ### Security
 - Escape VideoPress attributes [#33637]
@@ -1148,6 +1158,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.19.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.18.0...v0.19.0
+[0.18.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.17.6...v0.18.0
 [0.17.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.17.5...v0.17.6
 [0.17.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.17.4...v0.17.5
 [0.17.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.17.3...v0.17.4

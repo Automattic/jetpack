@@ -7,6 +7,7 @@ import { addFilter } from '@wordpress/hooks';
 /**
  * Internal dependencies
  */
+import metadata from '../../blocks/ai-assistant/block.json';
 import { isPossibleToExtendBlock } from '../../blocks/ai-assistant/extensions/ai-assistant';
 import { aiExcerptPluginName, aiExcerptPluginSettings } from '.';
 
@@ -32,7 +33,7 @@ function extendAiContentLensFeatures( settings, name ) {
 	}
 
 	// Bail early when the block is not the AI Assistant.
-	if ( name !== 'jetpack/ai-assistant' ) {
+	if ( name !== metadata.name ) {
 		return settings;
 	}
 

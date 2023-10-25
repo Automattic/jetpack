@@ -28,7 +28,7 @@ async function hasPriorityLabels( octokit, owner, repo, number, action, eventLab
 }
 
 /**
- * Check for a "[Status] Escalated" label showing that it was already escalated.
+ * Check for a "[Status] Priority Review Triggered" label showing that it was already escalated.
  * It could be an existing label,
  * or it could be that it's being added as part of the event that triggers this action.
  *
@@ -44,18 +44,18 @@ async function hasEscalatedLabel( octokit, owner, repo, number, action, eventLab
 	// Check for an exisiting label first.
 	const labels = await getLabels( octokit, owner, repo, number );
 	if (
-		labels.includes( '[Status] Escalated' ) ||
+		labels.includes( '[Status] Priority Review Triggered' ) ||
 		labels.includes( '[Status] Escalated to Kitkat' )
 	) {
 		return true;
 	}
 
-	// If the issue is being labeled, check if the label is "[Status] Escalated".
+	// If the issue is being labeled, check if the label is "[Status] Priority Review Triggered".
 	// No need to check for "[Status] Escalated to Kitkat" here, it's a legacy label.
 	if (
 		'labeled' === action &&
 		eventLabel.name &&
-		eventLabel.name.match( /^\[Status\] Escalated.*$/ )
+		eventLabel.name.match( /^\[Status\] Priority Review Triggered.*$/ )
 	) {
 		return true;
 	}
@@ -317,7 +317,7 @@ async function triageIssues( payload, octokit ) {
 	 * We define an important issue when meeting all of the following criteria:
 	 * - A bug (includes a "[Type] Bug" label, or a "[Type] Bug" label is added to the issue right now)
 	 * - The issue is still opened
-	 * - The issue is not escalated yet (no "[Status] Escalated" label)
+	 * - The issue is not escalated yet (no "[Status] Priority Review Triggered" label)
 	 * - The issue is either a high priority or a blocker (inferred from the existing labels or from the issue body)
 	 * - The issue is not already set to another priority label (no "[Pri] High", "[Pri] BLOCKER", or "[Pri] TBD" label)
 	 */
@@ -349,7 +349,7 @@ async function triageIssues( payload, octokit ) {
 			owner: ownerLogin,
 			repo: name,
 			issue_number: number,
-			labels: [ '[Status] Escalated' ],
+			labels: [ '[Status] Priority Review Triggered' ],
 		} );
 	}
 }

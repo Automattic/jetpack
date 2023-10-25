@@ -327,9 +327,7 @@ const withThemeProvider = WrappedComponent => props => (
 
 export default compose( [
 	withSelect( select => {
-		const newsletterPlans = select( 'jetpack/membership-products' )
-			?.getProducts()
-			?.filter( product => product.subscribe_as_site_subscriber );
+		const newsletterPlans = select( 'jetpack/membership-products' )?.getNewsletterProducts();
 		return {
 			hasNewsletterPlans: newsletterPlans?.length !== 0,
 		};

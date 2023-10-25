@@ -123,17 +123,25 @@ class Jetpack_Carousel {
 				add_filter( 'the_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
 			}
 
-			if (
-				! class_exists( 'Jetpack_AMP_Support' )
-				|| ! Jetpack_AMP_Support::is_amp_request()
-			) {
-				add_filter( 'render_block_core/gallery', array( $this, 'filter_gallery_block_render' ), 10, 2 );
-				add_filter( 'render_block_jetpack/tiled-gallery', array( $this, 'filter_gallery_block_render' ), 10, 2 );
-			}
+			// `is_amp_request()` can't be called until the 'wp' filter.
+			add_action( 'wp', array( $this, 'check_amp_support' ) );
 		}
 
 		if ( $this->in_jetpack ) {
 			Jetpack::enable_module_configurable( dirname( __DIR__ ) . '/carousel.php' );
+		}
+	}
+
+	/**
+	 * Check AMP and add filters.
+	 */
+	public function check_amp_support() {
+		if (
+			! class_exists( 'Jetpack_AMP_Support' )
+			|| ! Jetpack_AMP_Support::is_amp_request()
+		) {
+			add_filter( 'render_block_core/gallery', array( $this, 'filter_gallery_block_render' ), 10, 2 );
+			add_filter( 'render_block_jetpack/tiled-gallery', array( $this, 'filter_gallery_block_render' ), 10, 2 );
 		}
 	}
 

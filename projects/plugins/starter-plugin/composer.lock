@@ -814,7 +814,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "76b8ab03a2bcc2f1702f5d4d43838badf9df7480"
+                "reference": "51fc304d5f94c427a0b7d638bedd086927fa9e11"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -823,6 +823,7 @@
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-jitm": "@dev",
                 "automattic/jetpack-licensing": "@dev",
+                "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-plugins-installer": "@dev",
                 "automattic/jetpack-redirect": "@dev"
             },
@@ -844,7 +845,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.9.x-dev"
+                    "dev-trunk": "3.10.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1005,6 +1006,70 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Password Checker.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-plans",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/plans",
+                "reference": "86261db42c82c72b7e452d58f7f87e688166ebf4"
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "automattic/wordbless": "@dev",
+                "yoast/phpunit-polyfills": "1.1.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-plans",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.3.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Fetch information about Jetpack Plans from wpcom",
             "transport-options": {
                 "relative": true
             }
@@ -1217,7 +1282,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "0635ec7c9ddeafdbd2d7acc547b9dbff68b2cb1b"
+                "reference": "421bbdeb621e9370537399dbfe037cd12bf07d6f"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1248,7 +1313,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.58.x-dev"
+                    "dev-trunk": "1.60.x-dev"
                 }
             },
             "autoload": {
@@ -2427,7 +2492,7 @@
         },
         {
             "name": "roots/wordpress",
-            "version": "6.3.1",
+            "version": "6.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/roots/wordpress.git",
@@ -2458,7 +2523,7 @@
             ],
             "support": {
                 "issues": "https://github.com/roots/wordpress/issues",
-                "source": "https://github.com/roots/wordpress/tree/6.3.1"
+                "source": "https://github.com/roots/wordpress/tree/6.3.2"
             },
             "funding": [
                 {
@@ -2541,22 +2606,22 @@
         },
         {
             "name": "roots/wordpress-no-content",
-            "version": "6.3.1",
+            "version": "6.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress/WordPress.git",
-                "reference": "6.3.1"
+                "reference": "6.3.2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/release/wordpress-6.3.1-no-content.zip",
-                "shasum": "102bc5e48d9372f1a71fbb133270e113af2363e3"
+                "url": "https://downloads.wordpress.org/release/wordpress-6.3.2-no-content.zip",
+                "shasum": "81344552cb392afeeafec6fe66ef513ac0c7e560"
             },
             "require": {
                 "php": ">= 7.0.0"
             },
             "provide": {
-                "wordpress/core-implementation": "6.3.1"
+                "wordpress/core-implementation": "6.3.2"
             },
             "suggest": {
                 "ext-curl": "Performs remote request operations.",
@@ -2607,7 +2672,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2023-08-29T14:23:47+00:00"
+            "time": "2023-10-12T20:42:07+00:00"
         },
         {
             "name": "sebastian/cli-parser",
