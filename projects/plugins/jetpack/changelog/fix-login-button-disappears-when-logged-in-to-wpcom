@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Require login on wpcom for paid content access without cookie or token.
