@@ -54,7 +54,7 @@ async function main() {
 function mergeResults( type ) {
 	const objs = [];
 	for ( let i = 0; i < numAttempts; i++ ) {
-		const file = `results/${ type }.${ i }.test.results.json`;
+		const file = `results/${ type }.${ i }.performance-results.json`;
 		objs.push( JSON.parse( readFileSync( file ) ) );
 	}
 
@@ -64,7 +64,7 @@ function mergeResults( type ) {
 		}
 	} );
 
-	writeFileSync( `results/${ type }.test.results.json`, JSON.stringify( out ) );
+	writeFileSync( `results/${ type }.performance-results.json`, JSON.stringify( out ) );
 }
 
 main().then( () => {
