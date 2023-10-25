@@ -1354,9 +1354,9 @@ class Colors_Manager_Common {
 			}
 		}
 
-		// minify & cache for future use
+		// Minify & cache for future use.
 		require_once __DIR__ . '/lib/cssmin.php';
-		$minifier = new CSSmin();
+		$minifier = new tubalmartin\CssMin\Minifier();
 		$css      = $minifier->run( $css );
 
 		$opts['cached'] = $css;
