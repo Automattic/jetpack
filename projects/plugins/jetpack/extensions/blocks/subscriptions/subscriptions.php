@@ -1082,8 +1082,6 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			// custom domain
 			$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
-		} else {
-			$sign_in_link = 'https://subscribe.wordpress.com/memberships/jwt?site_id=' . \Jetpack_Options::get_option( 'id' ) . '&redirect_url=' . get_current_url();
 		}
 	}
 
