@@ -267,7 +267,7 @@ abstract class Base_Admin_Menu {
 
 		wp_style_add_data( 'jetpack-admin-menu', 'rtl', $this->is_rtl() );
 
-		// Do not load nav unification styles when the user wants to use the WP Admin interface.
+		// Load nav unification styles when the user isn't using wp-admin interface style.
 		if ( ! $this->use_wp_admin_interface( 'jetpack' ) ) {
 			wp_enqueue_style(
 				'jetpack-admin-nav-unification',
