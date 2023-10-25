@@ -1,4 +1,4 @@
-import { SocialServiceIcon } from '@automattic/jetpack-components';
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { Button, Placeholder, withNotices } from '@wordpress/components';
 import { useState } from '@wordpress/element';
@@ -6,9 +6,11 @@ import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
 import { isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import attributeDetails from './attributes';
+import metadata from './block.json';
 import NextdoorControls from './controls';
 import { parseUrl } from './utils';
+
+const icon = getBlockIconComponent( metadata );
 
 function NextdoorEdit( {
 	attributes,
@@ -19,7 +21,7 @@ function NextdoorEdit( {
 	setAttributes,
 } ) {
 	const defaultClassName = getBlockDefaultClassName( name );
-	const validatedAttributes = getValidatedAttributes( attributeDetails, attributes );
+	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
 		setAttributes( validatedAttributes );
@@ -70,7 +72,7 @@ function NextdoorEdit( {
 		<Placeholder
 			label={ __( 'Nextdoor', 'jetpack' ) }
 			instructions={ __( 'Enter the URL of your Nextdoor post to share below.', 'jetpack' ) }
-			icon={ <SocialServiceIcon serviceName="nextdoor" /> }
+			icon={ icon }
 			notices={ noticeUI }
 		>
 			<form onSubmit={ onFormSubmit }>
