@@ -427,7 +427,7 @@ class Masterbar {
 		$custom_node = array(
 			'parent' => 'user-actions',
 			'id'     => 'wpcom-profile-link',
-			'title'  => __( 'WordPress.com profile', 'jetpack' ),
+			'title'  => __( 'WordPress.com Profile', 'jetpack' ),
 			'href'   => 'https://wordpress.com/me',
 			'meta'   => array(
 				'title' => __( 'Go to your profile page on WordPress.com', 'jetpack' ), // Optional, tooltip text.
