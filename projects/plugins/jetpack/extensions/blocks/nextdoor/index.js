@@ -1,9 +1,9 @@
+import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { createBlock } from '@wordpress/blocks';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
-import icon from './icon';
 import save from './save';
 import './editor.scss';
 import { REGEX, parseUrl } from './utils';
@@ -14,7 +14,7 @@ export const settings = {
 	title,
 	description: __( 'Embed a Nextdoor post for your neighbors on your blog.', 'jetpack' ),
 	icon: {
-		src: icon,
+		src: <SocialServiceIcon serviceName="nextdoor" />,
 		foreground: getIconColor(),
 	},
 	category: 'grow',
@@ -44,11 +44,6 @@ export const settings = {
 	edit,
 	save,
 	attributes,
-	example: {
-		attributes: {
-			// @TODO: Add default values for block attributes, for generating the block preview.
-		},
-	},
 	transforms: {
 		from: [
 			{

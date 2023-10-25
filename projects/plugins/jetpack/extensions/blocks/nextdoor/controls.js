@@ -6,25 +6,23 @@ export const NextdoorInspectorControls = props => {
 	const { defaultClassName, nextdoorShareUrl, onFormSubmit, setNextdoorShareUrl } = props;
 
 	return (
-		<>
-			<PanelBody PanelBody title={ __( 'Embed settings', 'jetpack' ) } initialOpen={ true }>
-				<form onSubmit={ onFormSubmit } className={ `${ defaultClassName }-embed-form-sidebar` }>
-					<input
-						type="text"
-						id="nextdoorShareUrl"
-						onChange={ event => setNextdoorShareUrl( event.target.value ) }
-						placeholder={ __( 'Nextdoor post URL', 'jetpack' ) }
-						value={ nextdoorShareUrl || '' }
-						className="components-placeholder__input"
-					/>
-					<div>
-						<Button variant="secondary" type="submit">
-							{ _x( 'Embed', 'button label', 'jetpack' ) }
-						</Button>
-					</div>
-				</form>
-			</PanelBody>
-		</>
+		<PanelBody title={ __( 'Embed URL', 'jetpack' ) } initialOpen={ true }>
+			<form onSubmit={ onFormSubmit } className={ `${ defaultClassName }-embed-form-sidebar` }>
+				<input
+					type="text"
+					id="nextdoorShareUrl"
+					onChange={ event => setNextdoorShareUrl( event.target.value ) }
+					placeholder={ __( 'Nextdoor post URL', 'jetpack' ) }
+					value={ nextdoorShareUrl || '' }
+					className="components-placeholder__input"
+				/>
+				<div>
+					<Button variant="secondary" type="submit">
+						{ _x( 'Embed', 'button label', 'jetpack' ) }
+					</Button>
+				</div>
+			</form>
+		</PanelBody>
 	);
 };
 

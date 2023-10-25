@@ -1,4 +1,4 @@
-import { BlockIcon } from '@wordpress/block-editor';
+import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { Button, Placeholder, withNotices } from '@wordpress/components';
 import { useState } from '@wordpress/element';
@@ -8,8 +8,8 @@ import { isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import attributeDetails from './attributes';
 import NextdoorControls from './controls';
-import icon from './icon';
 import { parseUrl } from './utils';
+
 function NextdoorEdit( {
 	attributes,
 	className,
@@ -70,7 +70,7 @@ function NextdoorEdit( {
 		<Placeholder
 			label={ __( 'Nextdoor', 'jetpack' ) }
 			instructions={ __( 'Enter the URL of your Nextdoor post to share below.', 'jetpack' ) }
-			icon={ <BlockIcon icon={ icon } /> }
+			icon={ <SocialServiceIcon serviceName="nextdoor" /> }
 			notices={ noticeUI }
 		>
 			<form onSubmit={ onFormSubmit }>
@@ -95,7 +95,7 @@ function NextdoorEdit( {
 		return (
 			<>
 				<div className={ `${ defaultClassName }-overlay` }></div>
-				<iframe width="100%" height="100%" frameBorder="0" src={ iframeUrl } title="Nextdoor" />
+				<iframe width="100%" height="200" frameBorder="0" src={ iframeUrl } title="Nextdoor" />
 			</>
 		);
 	};
