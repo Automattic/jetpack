@@ -17,10 +17,9 @@ import PublicizeForm from '../form';
 import OneClickSharingDropdown from '../one-click-sharing-dropdown';
 import OneClickSharingModal from '../one-click-sharing-modal';
 import { SharePostRow } from '../share-post';
-import PublicizeTwitterOptions from '../twitter/options';
 import styles from './styles.module.scss';
 
-const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
+const PublicizePanel = ( { prePublish, children } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
@@ -103,9 +102,6 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 						shouldShowAdvancedPlanNudge={ shouldShowAdvancedPlanNudge }
 						jetpackSharingSettingsUrl={ jetpackSharingSettingsUrl }
 					/>
-					{ enableTweetStorm && isPublicizeEnabled && (
-						<PublicizeTwitterOptions prePublish={ prePublish } />
-					) }
 					<SharePostRow />
 				</Fragment>
 			) }

@@ -6,6 +6,7 @@
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
+	import Notice from '../../../elements/Notice.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import RecommendationsMeta from '../../../modules/image-size-analysis/RecommendationsMeta.svelte';
@@ -42,6 +43,19 @@
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
 	const lazyLoadLink = getRedirectUrl( 'jetpack-boost-lazy-load' );
+	const learnLazyLoadDeprecation = () => {
+		window.open( getRedirectUrl( 'jetpack-boost-lazy-load-deprecation' ), '_blank' );
+	};
+
+	$: lazyLoadDeprecationMessage = $modulesState.lazy_images?.available
+		? __(
+				'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature will consequently be removed from Jetpack Boost.',
+				'jetpack-boost'
+		  )
+		: __(
+				'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature has been disabled to avoid potential conflicts with Gutenberg 16.6.0+ or WordPress 6.4+. This feature will consequently be removed from Jetpack Boost.',
+				'jetpack-boost'
+		  );
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
@@ -212,6 +226,18 @@
 				vars={externalLinkTemplateVar( lazyLoadLink )}
 			/>
 		</p>
+		<Notice
+			title={__( 'Lazy image loading is going away', 'jetpack-boost' )}
+			message={lazyLoadDeprecationMessage}
+			actions={[
+				{
+					label: __( 'Learn more', 'jetpack-boost' ),
+					onClick: learnLazyLoadDeprecation,
+					isExternalLink: true,
+					variant: 'link',
+				},
+			]}
+		/>
 	</Module>
 
 	<Module slug="minify_js">

@@ -1,7 +1,7 @@
-import { defaultAttributes } from '../../attributes';
+import metadata from '../../block.json';
 
 export default {
-	attributes: defaultAttributes,
+	attributes: metadata.attributes,
 	supports: {
 		align: true,
 		html: false,
