@@ -1,13 +1,16 @@
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { RichText } from '@wordpress/block-editor';
 import { Placeholder } from '@wordpress/components';
 import { createRef, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
+import metadata from './block.json';
 import SearchForm from './components/search-form';
 import Controls from './controls';
 import useFetchGiphyData from './hooks/use-fetch-giphy-data';
 import { getUrl, getSelectedGiphyAttributes } from './utils';
-import { icon, title } from './';
+
+const icon = getBlockIconComponent( metadata );
 
 function GifEdit( { attributes, setAttributes, className, isSelected } ) {
 	const { align, caption, giphyUrl, searchText, paddingTop } = attributes;
@@ -47,7 +50,7 @@ function GifEdit( { attributes, setAttributes, className, isSelected } ) {
 				<Placeholder
 					className="wp-block-jetpack-gif_placeholder"
 					icon={ icon }
-					label={ title }
+					label={ metadata.title }
 					instructions={ __( 'Search for a term or paste a Giphy URL', 'jetpack' ) }
 				>
 					<SearchForm

@@ -12,9 +12,6 @@ namespace Automattic\Jetpack\Extensions\Donations;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'donations';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -22,63 +19,9 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		__DIR__,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
-			'attributes'      => array(
-				'currency'         => array(
-					'type'    => 'string',
-					'default' => '',
-				),
-				'oneTimeDonation'  => array(
-					'type'    => 'object',
-					'default' => array(
-						'show'       => true,
-						'planId'     => null,
-						'amounts'    => array( 5, 15, 100 ),
-						'heading'    => __( 'Make a one-time donation', 'jetpack' ),
-						'extraText'  => __( 'Your contribution is appreciated.', 'jetpack' ),
-						'buttonText' => __( 'Donate', 'jetpack' ),
-					),
-				),
-				'monthlyDonation'  => array(
-					'type'    => 'object',
-					'default' => array(
-						'show'       => true,
-						'planId'     => null,
-						'amounts'    => array( 5, 15, 100 ),
-						'heading'    => __( 'Make a monthly donation', 'jetpack' ),
-						'extraText'  => __( 'Your contribution is appreciated.', 'jetpack' ),
-						'buttonText' => __( 'Donate monthly', 'jetpack' ),
-					),
-				),
-				'annualDonation'   => array(
-					'type'    => 'object',
-					'default' => array(
-						'show'       => true,
-						'planId'     => null,
-						'amounts'    => array( 5, 15, 100 ),
-						'heading'    => __( 'Make a yearly donation', 'jetpack' ),
-						'extraText'  => __( 'Your contribution is appreciated.', 'jetpack' ),
-						'buttonText' => __( 'Donate yearly', 'jetpack' ),
-					),
-				),
-				'showCustomAmount' => array(
-					'type'    => 'boolean',
-					'default' => true,
-				),
-				'chooseAmountText' => array(
-					'type'    => 'string',
-					'default' => __( 'Choose an amount', 'jetpack' ),
-				),
-				'customAmountText' => array(
-					'type'    => 'string',
-					'default' => __( 'Or enter a custom amount', 'jetpack' ),
-				),
-				'fallbackLinkUrl'  => array(
-					'type' => 'string',
-				),
-			),
 		)
 	);
 }
@@ -105,7 +48,7 @@ function render_block( $attr, $content ) {
 		return '';
 	}
 
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__, array( 'thickbox' ) );
 	add_thickbox();
 
 	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
@@ -231,7 +174,7 @@ function render_block( $attr, $content ) {
 	</div>
 </div>
 ',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		$nav,
 		$headings,
 		$attr['chooseAmountText'],
@@ -254,7 +197,7 @@ function render_block( $attr, $content ) {
 function amp_skip_post( $skip, $post_id, $post ) {
 	// When AMP is on standard mode, there are no non-AMP posts to link to where the donation can be completed, so let's
 	// prevent the post from being available in AMP.
-	if ( function_exists( 'amp_is_canonical' ) && \amp_is_canonical() && has_block( BLOCK_NAME, $post->post_content ) ) {
+	if ( function_exists( 'amp_is_canonical' ) && \amp_is_canonical() && has_block( Blocks::get_block_name( __DIR__ ), $post->post_content ) ) {
 		return true;
 	}
 	return $skip;
