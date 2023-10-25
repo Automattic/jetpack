@@ -114,9 +114,12 @@ class WooCommerce extends Module {
 	 * @param string $type Order item type.
 	 */
 	public function action_woocommerce_remove_order_items( $order, $type ) {
-		$order_items_ids = $order->get_items( $type );
-
-		foreach ( array_keys( $order_items_ids ) as $order_item_id ) {
+		if ( $type ) {
+			$order_items = $order->get_items( $type );
+		} else {
+			$order_items = $order->get_items();
+		}
+		foreach ( array_keys( $order_items ) as $order_item_id ) {
 
 			do_action( 'woocommerce_remove_order_item', $order_item_id );
 
