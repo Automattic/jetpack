@@ -39,6 +39,7 @@
 				"packages/search",
 				"plugins/protect",
 				"plugins/boost",
+				"plugins/jetpack",
 				"packages/videopress"
 			]
 		},
