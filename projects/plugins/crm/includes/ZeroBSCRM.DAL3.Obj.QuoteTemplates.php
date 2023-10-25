@@ -1131,7 +1131,6 @@ class zbsDAL_quotetemplates extends zbsDAL_ObjectLayer {
     
     /**
      * Returns an ownerid against a quotetemplate
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id quotetemplate ID
      *

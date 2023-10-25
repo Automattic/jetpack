@@ -1844,7 +1844,6 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
     
     /**
      * Returns an ownerid against a event
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id event ID
      *
