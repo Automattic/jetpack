@@ -19,7 +19,7 @@ export default function UsagePanel() {
 	const canUpgrade = canUserPurchasePlan();
 
 	// fetch usage data
-	const { hasFeature, requestsCount, requestsLimit } = useAIFeature();
+	const { hasFeature, requestsCount, requestsLimit, isOverLimit } = useAIFeature();
 
 	// build messages
 	const freeUsageMessage = sprintf(
@@ -51,7 +51,7 @@ export default function UsagePanel() {
 		>
 			<p>{ hasFeature ? unlimitedPlanUsageMessage : freeUsageMessage }</p>
 
-			{ ! hasFeature && <UsageBar usage={ usage } /> }
+			<UsageBar usage={ usage } isOverLimit={ isOverLimit } />
 
 			{ false && (
 				<p className="muted">
