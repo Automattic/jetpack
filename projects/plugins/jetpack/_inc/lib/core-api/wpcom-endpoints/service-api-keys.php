@@ -9,7 +9,7 @@
  * Service API Keys: Exposes 3rd party api keys that are used on a site.
  *
  * [
- *   { # Availabilty Object. See schema for more detail.
+ *   { # Availability Object. See schema for more detail.
  *      code:                   (string) Displays success if the operation was successfully executed and an error code if it was not
  *      service:                (string) The name of the service in question
  *      service_api_key:        (string) The API key used by the service empty if one is not set yet

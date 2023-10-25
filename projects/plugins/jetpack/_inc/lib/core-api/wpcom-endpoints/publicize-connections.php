@@ -9,7 +9,7 @@
  * Publicize: List Connections
  *
  * [
- *   { # Connnection Object. See schema for more detail.
+ *   { # Connection Object. See schema for more detail.
  *     id:           (string)  Connection unique_id
  *     service_name: (string)  Service slug
  *     display_name: (string)  User name/display name of user/connection on Service

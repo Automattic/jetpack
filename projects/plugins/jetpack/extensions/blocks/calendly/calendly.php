@@ -12,9 +12,6 @@ namespace Automattic\Jetpack\Extensions\Calendly;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'calendly';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -22,7 +19,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		__DIR__,
 		array(
 			'render_callback' => __NAMESPACE__ . '\load_assets',
 			'plan_check'      => true,
@@ -55,14 +52,14 @@ function load_assets( $attr, $content ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$style                   = get_attribute( $attr, 'style' );
 	$hide_event_type_details = get_attribute( $attr, 'hideEventTypeDetails' );
 	$background_color        = get_attribute( $attr, 'backgroundColor' );
 	$text_color              = get_attribute( $attr, 'textColor' );
 	$primary_color           = get_attribute( $attr, 'primaryColor' );
-	$classes                 = Blocks::classes( FEATURE_NAME, $attr, array( 'calendly-style-' . $style ) );
+	$classes                 = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr, array( 'calendly-style-' . $style ) );
 	$block_id                = wp_unique_id( 'calendly-block-' );
 	$is_amp_request          = Blocks::is_amp_request();
 
@@ -103,7 +100,7 @@ function load_assets( $attr, $content ) {
 	} elseif ( $is_amp_request ) { // Inline style.
 		$content = sprintf(
 			'<div class="%1$s" id="%2$s"><a href="%3$s" role="button" target="_blank">%4$s</a></div>',
-			esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+			esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 			esc_attr( $block_id ),
 			esc_js( $url ),
 			wp_kses_post( get_attribute( $attr, 'submitButtonText' ) )

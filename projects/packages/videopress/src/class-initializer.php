@@ -7,15 +7,11 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Automattic\Jetpack\Assets;
-
 /**
  * Initialized the VideoPress package
  */
 class Initializer {
 
-	const JETPACK_VIDEOPRESS_VIDEO_HANDLER      = 'jetpack-videopress-video-block';
-	const JETPACK_VIDEOPRESS_VIDEO_VIEW_HANDLER = 'jetpack-videopress-video-block-view';
 	const JETPACK_VIDEOPRESS_IFRAME_API_HANDLER = 'jetpack-videopress-iframe-api';
 
 	/**
@@ -358,10 +354,15 @@ class Initializer {
 		// Is the block already registered?
 		$is_block_registered = \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name );
 
+		// Do not register if the block is already registered.
+		if ( $is_block_registered ) {
+			return;
+		}
+
 		// Is this a REST API request?
 		$is_rest = defined( 'REST_API_REQUEST' ) && REST_API_REQUEST;
 
-		if ( $is_rest && ! $is_block_registered ) {
+		if ( $is_rest ) {
 			register_block_type(
 				$videopress_video_metadata_file,
 				array(
@@ -371,84 +372,28 @@ class Initializer {
 			return;
 		}
 
-		// Register and enqueue scripts used by the VideoPress video block.
-		Block_Editor_Extensions::init( self::JETPACK_VIDEOPRESS_VIDEO_HANDLER );
-
-		// Do not register if the block is already registered.
-		if ( $is_block_registered ) {
-			return;
-		}
-
-		// check current theme
-		$is_block_theme = wp_get_theme()->is_block_theme();
-
-		// Check if the site is a P2 site
-		$is_p2_site = function_exists( '\WPForTeams\is_wpforteams_site' ) && \WPForTeams\is_wpforteams_site( get_current_blog_id() );
-
-		// for non block themes frontend, we defer the enqueuing to the frontend, so we're able to tell if we need the assets
-		// If site is p2, load the assets in the frontend
-		if ( ! $is_block_theme && ! is_admin() && ! $is_p2_site ) {
-			add_action(
-				'wp_enqueue_scripts',
-				function () use ( $videopress_video_metadata_file ) {
-					// There's been issues with get_the_content on plugins/libs that take an alternate process
-					// and do not get the globals needed for get_the_content to work.
-					// See: https://github.com/Automattic/jetpack/issues/33284
-					try {
-						$post_content = get_the_content();
-					} catch ( \TypeError $e ) {
-						return;
-					} catch ( \Exception $e ) {
-						return;
-					}
-
-					if ( ! empty( $post_content ) && ! has_block( 'videopress/video', $post_content ) && ! has_shortcode( $post_content, 'videopress' ) ) {
-						return;
-					}
-					self::enqueue_block_assets( $videopress_video_metadata_file );
-				}
-			);
-			return;
-		}
-		self::enqueue_block_assets( $videopress_video_metadata_file );
-	}
-
-	/**
-	 * Enqueue scripts used by the VideoPress video block and register block type.
-	 *
-	 * @param string $videopress_video_metadata_file Path to the block metadata file.
-	 */
-	public static function enqueue_block_assets( $videopress_video_metadata_file ) {
-		// Register script used by the VideoPress video block in the editor.
-		Assets::register_script(
-			self::JETPACK_VIDEOPRESS_VIDEO_HANDLER,
-			'../build/block-editor/blocks/video/index.js',
-			__FILE__,
-			array(
-				'in_footer'  => false,
-				'textdomain' => 'jetpack-videopress-pkg',
-			)
-		);
-
-		// Register script used by the VideoPress video block in the front-end.
-		Assets::register_script(
-			self::JETPACK_VIDEOPRESS_VIDEO_VIEW_HANDLER,
-			'../build/block-editor/blocks/video/view.js',
-			__FILE__,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-videopress-pkg',
-			)
-		);
-
-		// Register VideoPress video block.
-		register_block_type(
+		$registration = register_block_type(
 			$videopress_video_metadata_file,
 			array(
 				'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
 				'uses_context'    => array( 'premium-content/planId', 'isPremiumContentChild', 'selectedPlanId' ),
 			)
 		);
+
+		// Do not enqueue scripts if the block could not be registered.
+		if ( empty( $registration ) || empty( $registration->editor_script_handles ) ) {
+			return;
+		}
+
+		// Extensions use Connection_Initial_State::render_script with script handle as parameter.
+		if ( is_array( $registration->editor_script_handles ) ) {
+			$script_handle = $registration->editor_script_handles[0];
+		} else {
+			$script_handle = $registration->editor_script_handles;
+		}
+
+		// Register and enqueue scripts used by the VideoPress video block.
+		Block_Editor_Extensions::init( $script_handle );
 	}
 
 	/**
