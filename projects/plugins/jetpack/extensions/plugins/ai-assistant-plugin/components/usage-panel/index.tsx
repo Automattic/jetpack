@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { Button } from '@wordpress/components';
-import { BaseControl } from '@wordpress/components';
+import { Button, BaseControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -41,17 +40,11 @@ export default function UsagePanel() {
 	 */
 	const usage = hasFeature ? 0.1 : requestsCount / requestsLimit;
 
-	const help = hasFeature ? __( 'Unlimited requests for your site', 'jetpack' ) : undefined;
-
 	return (
-		<BaseControl
-			className="jetpack-ai-usage-panel-control"
-			label={ __( 'Usage', 'jetpack' ) }
-			help={ help }
-		>
+		<BaseControl className="jetpack-ai-usage-panel-control" label={ __( 'Usage', 'jetpack' ) }>
 			<p>{ hasFeature ? unlimitedPlanUsageMessage : freeUsageMessage }</p>
 
-			<UsageBar usage={ usage } isOverLimit={ isOverLimit } />
+			<UsageBar usage={ usage } isOverLimit={ isOverLimit } hasFeature={ hasFeature } />
 
 			{ false && (
 				<p className="muted">

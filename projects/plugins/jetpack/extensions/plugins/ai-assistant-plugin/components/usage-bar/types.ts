@@ -8,4 +8,9 @@ export type UsageBarProps = {
 	 * True if the usage is over the limit.
 	 */
 	isOverLimit: boolean;
+
+	/**
+	 * True if the AI Assistant feature is supported.
+	 */
+	hasFeature: boolean;
 };
