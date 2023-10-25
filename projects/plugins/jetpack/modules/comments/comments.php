@@ -481,8 +481,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		}
 		?>
 		<script type="text/javascript">
-			<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
 			const iframe = document.querySelector( '#jetpack_remote_comment' );
+			<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
 			const watchReply = function() {
 				// Check addComment._Jetpack_moveForm to make sure we don't monkey-patch twice.
 				if ( 'undefined' !== typeof addComment && ! addComment._Jetpack_moveForm ) {
@@ -492,7 +492,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					const cancel = document.querySelector( '#cancel-comment-reply-link' );
 
 					function tellFrameNewParent ( commentParentValue ) {
-						const url = new URL(iframe.src);
+						const url = new URL( iframe.src );
 						if ( commentParentValue ) {
 							url.searchParams.set( 'replytocom', commentParentValue )
 						} else {
@@ -503,13 +503,13 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 						}
 					};
 
-					cancel.addEventListener('click', function () {
+					cancel.addEventListener( 'click', function () {
 						tellFrameNewParent( false );
-					});
+					} );
 
-					addComment.moveForm = function ( commId, parentId, respondId, postId ) {
+					addComment.moveForm = function ( _, parentId ) {
 						tellFrameNewParent( parentId );
-						return  addComment._Jetpack_moveForm( commId, parentId, respondId, postId )
+						return addComment._Jetpack_moveForm.apply( null, arguments );
 					};
 				}
 			}
