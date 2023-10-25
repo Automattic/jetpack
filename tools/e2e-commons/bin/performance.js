@@ -30,9 +30,9 @@ async function runTests( id ) {
 	execSyncShellCommand(
 		`export WP_BASE_URL=${ siteUrl } &&
 	export WP_ARTIFACTS_PATH=./results &&
+	export RESULTS_ID=base.${ id } &&
 	cd ../../gutenberg &&
-	npm run test:performance -- post-editor`,
-		{ RESULTS_ID: `base.${ id }` }
+	npm run test:performance -- post-editor`
 	);
 }
 
