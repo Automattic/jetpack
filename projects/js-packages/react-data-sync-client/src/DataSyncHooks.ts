@@ -20,6 +20,7 @@ export function DataSyncProvider( props: { children: React.ReactNode } ) {
 		...props,
 	} );
 }
+
 type DataSyncFactory< T > = {
 	useQuery: ( config?: Omit< UseQueryOptions< T >, 'queryKey' > ) => UseQueryResult< T >;
 	useMutation: (
@@ -34,13 +35,13 @@ export function useDataSync<
 >( namespace: string, key: Key, schema: Schema ): DataSyncFactory< Value > {
 	const datasync = new DataSync( namespace, key, schema );
 	const queryKey = [ key ];
-	const queryConfig = {
+	const queryConfigDefaults = {
 		queryKey,
 		queryFn: ( { signal } ) => datasync.GET( signal ),
 		initialData: datasync.getInitialValue(),
 	};
-	const mutationConfig = {
-		mutationKey: [ key ],
+	const mutationConfigDefaults = {
+		mutationKey: queryKey,
 		mutationFn: datasync.SET,
 		onMutate: async data => {
 			const value = schema.parse( data );
@@ -67,7 +68,7 @@ export function useDataSync<
 	};
 
 	return {
-		useQuery: ( config = {} ) => useQuery( { ...queryConfig, ...config } ),
-		useMutation: ( config = {} ) => useMutation( { ...mutationConfig, ...config } ),
+		useQuery: ( config = {} ) => useQuery( { ...queryConfigDefaults, ...config } ),
+		useMutation: ( config = {} ) => useMutation( { ...mutationConfigDefaults, ...config } ),
 	};
 }
