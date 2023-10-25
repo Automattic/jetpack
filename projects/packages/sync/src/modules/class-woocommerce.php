@@ -110,11 +110,11 @@ class WooCommerce extends Module {
 	 * Convert action woocommerce_remove_order_items in a woocommerce_remove_order_item action
 	 * per every order_item_id.
 	 *
-	 * @param Order $order The order arguments.
+	 * @param Order  $order The order argument.
+	 * @param string $type Order item type.
 	 */
-	private function action_woocommerce_remove_order_items( $order ) {
-		$types           = array( 'line_item', 'tax', 'shipping', 'fee', 'coupon' );
-		$order_items_ids = $order->get_items( $types );
+	public function action_woocommerce_remove_order_items( $order, $type ) {
+		$order_items_ids = $order->get_items( $type );
 
 		foreach ( array_keys( $order_items_ids ) as $order_item_id ) {
 
@@ -145,7 +145,7 @@ class WooCommerce extends Module {
 		add_action( 'woocommerce_new_order_item', $callable, 10, 4 );
 		add_action( 'woocommerce_update_order_item', $callable, 10, 4 );
 		add_action( 'woocommerce_delete_order_item', $callable, 10, 1 );
-		add_action( 'woocommerce_remove_order_items', array( $this, 'action_woocommerce_remove_order_items' ), 10 );
+		add_action( 'woocommerce_remove_order_items', array( $this, 'action_woocommerce_remove_order_items' ), 10, 2 );
 		add_action( 'woocommerce_remove_order_item', $callable, 10, 1 );
 		$this->init_listeners_for_meta_type( 'order_item', $callable );
 
