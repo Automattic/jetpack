@@ -797,14 +797,21 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'pinterest':
 				case 'yandex':
 				case 'facebook':
-					$grouped_options_current = (array) get_option( 'verification_services_codes' );
-					$grouped_options         = $grouped_options_current;
+					$grouped_options_current    = (array) get_option( 'verification_services_codes' );
+					$grouped_options            = $grouped_options_current;
+					$grouped_options[ $option ] = $value;
 
 					// Extracts the content attribute from the HTML meta tag if needed.
-					if ( preg_match( '#.*<meta name="(?:[^"]+)" content="([^"]+)" />.*#i', $value, $matches ) ) {
-						$grouped_options[ $option ] = $matches[1];
-					} else {
-						$grouped_options[ $option ] = $value;
+					$processor = new WP_HTML_Tag_Processor( $value );
+					while ( $processor->next_tag() ) {
+						if ( 'META' === $processor->get_tag() && null !== $processor->get_attribute( 'name' ) ) {
+							$grouped_options[ $option ] = $processor->get_attribute( 'content' );
+							break;
+						}
+
+						if ( 'BODY' === $processor->get_tag() ) {
+							break;
+						}
 					}
 
 					// If option value was the same, consider it done.
