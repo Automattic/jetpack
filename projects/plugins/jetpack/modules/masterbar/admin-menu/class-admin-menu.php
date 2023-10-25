@@ -288,7 +288,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			$default_customize_background_slug_2 => add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), $customize_url ),
 		);
 
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'themes.php' ) ) {
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'themes.php' ) || self::CLASSIC_VIEW === $this->get_preferred_view( 'themes.php' ) ) {
 			$submenus_to_update['themes.php'] = 'https://wordpress.com/themes/' . $this->domain;
 		}
 
