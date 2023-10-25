@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import classNames from 'classnames';
 import './style.scss';
 /**
  * Types
@@ -14,7 +15,10 @@ import type React from 'react';
  * @param {UsageBarProps} props - Component props.
  * @returns {React.ReactNode}     UsageBar react component.
  */
-const UsageBar: React.FC< UsageBarProps > = ( { usage } ) => {
+const UsageBar: React.FC< UsageBarProps > = ( {
+	usage,
+	isOverLimit,
+}: UsageBarProps ): React.ReactNode => {
 	if ( usage == null ) {
 		return null;
 	}
@@ -27,7 +31,12 @@ const UsageBar: React.FC< UsageBarProps > = ( { usage } ) => {
 
 	return (
 		<div className="ai-assistant-usage-bar-wrapper">
-			<div className="ai-assistant-usage-bar-usage" style={ style }></div>
+			<div
+				className={ classNames( 'ai-assistant-usage-bar-usage', {
+					'is-over-limit': isOverLimit,
+				} ) }
+				style={ style }
+			></div>
 		</div>
 	);
 };

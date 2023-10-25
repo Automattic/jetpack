@@ -14,5 +14,9 @@
 		height: 100%;
 		border-radius: 2px;
 		background-color: var(--jp-green-40 );
+
+		&.is-over-limit {
+			background-color: var(--jp-red);
+		}
 	}
 }
