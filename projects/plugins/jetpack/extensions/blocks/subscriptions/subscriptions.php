@@ -1069,13 +1069,11 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		// translators: %s is the name of the site.
 		: esc_html__( 'Subscribe to get access to the rest of this post and other subscriber-only content.', 'jetpack' );
 
+	$button_text     = esc_html__( 'Log in', 'jetpack' );
+	$sign_in_link    = 'https://subscribe.wordpress.com/memberships/jwt?site_id=' . \Jetpack_Options::get_option( 'id' ) . '&redirect_url=' . get_current_url();
 	$access_question = $is_paid_post
 		? __( 'Already a paid subscriber?', 'jetpack' )
 		: __( 'Already a subscriber?', 'jetpack' );
-
-	$button_text     = esc_html__( 'Log in', 'jetpack' );
-	$sign_in_link    = 'https://subscribe.wordpress.com/memberships/jwt?site_id=' . \Jetpack_Options::get_option( 'id' ) . '&redirect_url=' . get_current_url();
-	$access_question = __( 'I am already subscribed.', 'jetpack' );
 
 	if ( is_user_auth() ) {
 		$button_text = esc_html__( 'Switch accounts', 'jetpack' );
