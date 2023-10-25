@@ -44,7 +44,11 @@ export default function UsagePanel() {
 	const help = hasFeature ? __( 'Unlimited requests for your site', 'jetpack' ) : undefined;
 
 	return (
-		<BaseControl className="jetpack-ai-usage-panel-control" help={ help }>
+		<BaseControl
+			className="jetpack-ai-usage-panel-control"
+			label={ __( 'Usage', 'jetpack' ) }
+			help={ help }
+		>
 			<p>{ hasFeature ? unlimitedPlanUsageMessage : freeUsageMessage }</p>
 
 			{ ! hasFeature && <UsageBar usage={ usage } /> }
