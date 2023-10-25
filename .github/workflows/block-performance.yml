@@ -52,12 +52,6 @@ jobs:
         env:
           CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         run: |
-          # Gutenberg Performance tests require disable-animations.php test plugin to be available on a site. Below we inject the mapping for that plugin into a Docker config file
-
-          echo "e2e:" >> ../docker/jetpack-docker-config.yml
-          echo "  volumeMappings:" >> ../docker/jetpack-docker-config.yml
-          echo "    gutenberg/packages/e2e-tests/plugins/disable-animations.php: /var/www/html/wp-content/plugins/disable-animations.php" >> ../docker/jetpack-docker-config.yml
-
           mkdir results
           pnpm config:decrypt
           pnpm env:start
