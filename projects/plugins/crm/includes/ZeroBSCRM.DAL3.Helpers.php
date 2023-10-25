@@ -1178,12 +1178,12 @@ function zeroBS_getOwner($objID=-1,$withDeets=true,$objType=-1,$knownOwnerID=-1)
 
 /**
  * Retrieves the owner object based on a given WP user ID.
- * 
+ *
  * This function gets the owner's data without revealing sensitive information
  * (e.g. `user_pass`).
- * 
+ *
  * @param int $wp_user_id The WordPress user ID. Default is -1.
- * 
+ *
  * @return array|bool Returns an associative array containing the 'ID' and 'OBJ' (user data object) if successful, false otherwise.
  */
 function zeroBS_getOwnerObj( $wp_user_id = -1 ) {
