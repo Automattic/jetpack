@@ -66,7 +66,6 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 export default withSelect( select => {
 	const { getMedia } = select( 'core' );
 	const { getEditedPostAttribute } = select( 'core/editor' );
-	const { isTweetStorm } = select( 'jetpack/publicize' );
 
 	const featuredImageId = getEditedPostAttribute( 'featured_media' );
 
@@ -140,6 +139,6 @@ export default withSelect( select => {
 		url: getEditedPostAttribute( 'link' ),
 		image,
 		media,
-		initialTabName: isTweetStorm() ? 'twitter' : null,
+		initialTabName: null,
 	};
 } )( SocialPreviewsModal );

@@ -642,6 +642,32 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'does_not_exist', $synced_post->post_type );
 	}
 
+	/**
+	 * The purpose of this test is to ensure that when a post type is registered during
+	 * enqueueing Sync actions but not present when sending, we will still sync
+	 * the corresponding post with the correct post type.
+	 * This covers cases, where Dedicated Sync is enabled combined with custom post types
+	 * that are registered on `init`, after the corresponding `add_dedicated_sync_sender_init` hook.
+	 */
+	public function test_will_sync_non_existant_post_types_during_sending() {
+		$args = array(
+			'public' => true,
+			'label'  => 'Exists during enqueing, not during sending',
+		);
+		register_post_type( 'testing_sync', $args );
+
+		$post_id = self::factory()->post->create( array( 'post_type' => 'testing_sync' ) );
+
+		unregister_post_type( 'testing_sync' );
+
+		$this->sender->do_sync();
+		$synced_post = $this->server_replica_storage->get_post( $post_id );
+
+		$this->assertEquals( 'publish', $synced_post->post_status );
+
+		$this->assertEquals( 'testing_sync', $synced_post->post_type );
+	}
+
 	public function test_sync_post_jetpack_sync_prevent_sending_post_data_filter() {
 
 		add_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );

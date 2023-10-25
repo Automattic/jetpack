@@ -1,4 +1,8 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isAtomicSite,
+	isSimpleSite,
+	getBlockIconComponent,
+} from '@automattic/jetpack-shared-extension-utils';
 import { InspectorControls } from '@wordpress/block-editor';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { Placeholder, SandBox, Button, ExternalLink, withNotices } from '@wordpress/components';
@@ -6,9 +10,11 @@ import { compose } from '@wordpress/compose';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { withViewportMatch } from '@wordpress/viewport';
+import metadata from './block.json';
 import GoogleCalendarInspectorControls from './controls';
-import icon from './icon';
 import { URL_REGEX, parseEmbed } from './utils';
+
+const icon = getBlockIconComponent( metadata );
 
 export function GoogleCalendarEdit( props ) {
 	const {
