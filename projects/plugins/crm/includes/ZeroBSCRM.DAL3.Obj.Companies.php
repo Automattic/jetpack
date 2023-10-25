@@ -2891,7 +2891,6 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
     
     /**
      * Returns an ownerid against a company
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id company ID
      *
