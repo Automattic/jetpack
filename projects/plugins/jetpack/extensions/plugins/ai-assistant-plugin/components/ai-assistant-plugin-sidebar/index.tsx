@@ -89,12 +89,7 @@ export default function AiAssistantPluginSidebar() {
 					) }
 					{ isUsagePanelAvailable && (
 						<PanelRow>
-							<BaseControl
-								className="jetpack-ai-usage-panel-control__header"
-								label={ __( 'Usage', 'jetpack' ) }
-							>
-								<UsagePanel />
-							</BaseControl>
+							<UsagePanel />
 						</PanelRow>
 					) }
 				</PanelBody>
