@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Do not list one-time interval payment plans as newsletter plans.

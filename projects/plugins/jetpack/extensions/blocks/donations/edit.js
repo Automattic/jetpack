@@ -32,17 +32,19 @@ const Edit = props => {
 		select( MEMBERSHIPS_PRODUCTS_STORE ).getConnectedAccountDefaultCurrency()
 	);
 
-	if ( ! currency && stripeDefaultCurrency ) {
-		const uppercasedStripeCurrency = stripeDefaultCurrency.toUpperCase();
-		const isCurrencySupported = !! SUPPORTED_CURRENCIES[ uppercasedStripeCurrency ];
-		if ( isCurrencySupported ) {
-			// If no currency is available, default to the stripe one
-			setAttributes( { currency: uppercasedStripeCurrency } );
-		} else {
-			// We default to USD
-			setAttributes( { currency: 'USD' } );
+	useEffect( () => {
+		if ( ! currency && stripeDefaultCurrency ) {
+			const uppercasedStripeCurrency = stripeDefaultCurrency.toUpperCase();
+			const isCurrencySupported = !! SUPPORTED_CURRENCIES[ uppercasedStripeCurrency ];
+			if ( isCurrencySupported ) {
+				// If no currency is available, default to the stripe one
+				setAttributes( { currency: uppercasedStripeCurrency } );
+			} else {
+				// We default to USD
+				setAttributes( { currency: 'USD' } );
+			}
 		}
-	}
+	}, [ currency, stripeDefaultCurrency, setAttributes ] );
 
 	const apiError = message => {
 		setLoadingError( message );

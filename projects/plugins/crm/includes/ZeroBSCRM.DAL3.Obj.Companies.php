@@ -415,6 +415,8 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
             (!empty($id) && $id > 0)
             ||
             (!empty($email))
+					||
+					( ! empty( $name ) )
             ||
             (!empty($externalSource) && !empty($externalSourceUID))
             ){
