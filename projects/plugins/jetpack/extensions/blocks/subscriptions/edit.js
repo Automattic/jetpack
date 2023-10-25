@@ -12,7 +12,7 @@ import { TextControl, Toolbar, withFallbackStyles } from '@wordpress/components'
 import { compose, usePrevious } from '@wordpress/compose';
 import { useSelect, withSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
-import { _n, sprintf } from '@wordpress/i18n';
+import { _n, __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
@@ -88,6 +88,7 @@ export function SubscriptionEdit( props ) {
 		submitButtonText,
 		subscribePlaceholder,
 		showSubscribersTotal,
+		showLogin,
 		buttonOnNewLine,
 		successMessage,
 	} = validatedAttributes;
@@ -209,7 +210,8 @@ export function SubscriptionEdit( props ) {
 			'wp-block-jetpack-subscriptions__container',
 			'wp-block-jetpack-subscriptions__supports-newline',
 			buttonOnNewLine ? 'wp-block-jetpack-subscriptions__use-newline' : undefined,
-			showSubscribersTotal ? 'wp-block-jetpack-subscriptions__show-subs' : undefined
+			showSubscribersTotal ? 'wp-block-jetpack-subscriptions__show-subs' : undefined,
+			showLogin ? 'wp-block-jetpack-subscriptions__show-login' : undefined
 		);
 	};
 
@@ -270,6 +272,7 @@ export function SubscriptionEdit( props ) {
 					setButtonBackgroundColor={ setButtonBackgroundColor }
 					setTextColor={ setTextColor }
 					showSubscribersTotal={ showSubscribersTotal }
+					showLogin={ showLogin }
 					spacing={ spacing }
 					subscriberCount={ subscriberCount }
 					textColor={ textColor }
@@ -317,6 +320,12 @@ export function SubscriptionEdit( props ) {
 				</div>
 				{ showSubscribersTotal && (
 					<div className="wp-block-jetpack-subscriptions__subscount">{ subscriberCountString }</div>
+				) }
+				{ showLogin && (
+					<p className="wp-block-jetpack-subscriptions__login has-text-align-center">
+						{ __( 'Already a subscriber?', 'jetpack' ) }{ ' ' }
+						<a href="#">{ __( 'Log in', 'jetpack' ) }</a>
+					</p>
 				) }
 			</div>
 		</>

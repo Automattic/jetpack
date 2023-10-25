@@ -47,6 +47,7 @@ export default function SubscriptionControls( {
 	setButtonBackgroundColor,
 	setTextColor,
 	showSubscribersTotal,
+	showLogin,
 	spacing,
 	subscriberCount,
 	textColor,
@@ -260,7 +261,6 @@ export default function SubscriptionControls( {
 						setAttributes( { buttonOnNewLine: ! buttonOnNewLine } );
 					} }
 				/>
-
 				<TextareaControl
 					value={ subscribePlaceholder }
 					label={ __( 'Input placeholder text', 'jetpack' ) }
@@ -272,6 +272,13 @@ export default function SubscriptionControls( {
 					label={ __( 'Submit button label', 'jetpack' ) }
 					help={ __( 'Edit the label of the button a user clicks to subscribe.', 'jetpack' ) }
 					onChange={ text => setAttributes( { submitButtonText: text } ) }
+				/>
+				<ToggleControl
+					label={ __( 'Show login', 'jetpack' ) }
+					checked={ showLogin }
+					onChange={ () => {
+						setAttributes( { showLogin: ! showLogin } );
+					} }
 				/>
 				{ ! isSimpleSite() && (
 					<TextareaControl
