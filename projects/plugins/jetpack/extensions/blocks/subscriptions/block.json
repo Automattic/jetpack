@@ -36,6 +36,10 @@
 			"type": "boolean",
 			"default": false
 		},
+		"showLogin": {
+			"type": "boolean",
+			"default": false
+		},
 		"includeSocialFollowers": {
 			"type": "boolean",
 			"default": true

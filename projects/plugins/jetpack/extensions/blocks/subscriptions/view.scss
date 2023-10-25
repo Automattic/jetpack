@@ -93,6 +93,12 @@
 		}
 	}
 
+	.wp-block-jetpack-subscriptions__login {
+		margin: 24px 0;
+		font-size: 14px;
+		text-align: center;
+	}
+
 	&.wp-block-jetpack-subscriptions__show-subs {
 		.wp-block-jetpack-subscriptions__subscount {
 			margin: 8px 0;
@@ -112,6 +118,7 @@
 			max-width: 100%;
 		}
 
+		.wp-block-jetpack-subscriptions__login,
 		.wp-block-jetpack-subscriptions__subscount {
 			text-align: start;
 		}
