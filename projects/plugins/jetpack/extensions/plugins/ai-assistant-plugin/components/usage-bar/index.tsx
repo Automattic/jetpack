@@ -27,7 +27,8 @@ const UsageBar: React.FC< UsageBarProps > = ( {
 	}
 
 	let help = hasFeature ? __( 'Unlimited requests for your site', 'jetpack' ) : undefined;
-	if ( isOverLimit ) {
+	const limitReached = isOverLimit && ! hasFeature;
+	if ( limitReached ) {
 		help = __( 'You have reached your plan requests limit.', 'jetpack' );
 	}
 
@@ -42,7 +43,7 @@ const UsageBar: React.FC< UsageBarProps > = ( {
 			<div className="ai-assistant-usage-bar-wrapper">
 				<div
 					className={ classNames( 'ai-assistant-usage-bar-usage', {
-						'is-over-limit': isOverLimit,
+						'is-limit-reached': limitReached,
 					} ) }
 					style={ style }
 				></div>

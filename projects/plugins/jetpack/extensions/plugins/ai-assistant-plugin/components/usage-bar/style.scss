@@ -15,7 +15,7 @@
 		border-radius: 2px;
 		background-color: var(--jp-green-40 );
 
-		&.is-over-limit {
+		&.is-limit-reached {
 			background-color: var(--jp-red);
 		}
 	}
