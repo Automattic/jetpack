@@ -12,9 +12,6 @@ namespace Automattic\Jetpack\Extensions\OpenTable;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'opentable';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -22,7 +19,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		__DIR__,
 		array(
 			'render_callback' => __NAMESPACE__ . '\load_assets',
 			'plan_check'      => true,
@@ -40,7 +37,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function load_assets( $attributes ) {
 
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$classes    = array();
 	$class_name = get_attribute( $attributes, 'className' );
@@ -62,7 +59,7 @@ function load_assets( $attributes ) {
 	if ( array_key_exists( 'negativeMargin', $attributes ) && $attributes['negativeMargin'] ) {
 		$classes[] = 'has-no-margin';
 	}
-	$classes = Blocks::classes( FEATURE_NAME, $attributes, $classes );
+	$classes = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attributes, $classes );
 	$content = '<div class="' . esc_attr( $classes ) . '">';
 
 	$script_url = build_embed_url( $attributes );
