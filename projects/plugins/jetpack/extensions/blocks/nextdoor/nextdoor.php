@@ -32,15 +32,17 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr ) {
-	$pattern = '/^http[s]?:\/\/((?:www\.)?nextdoor(?:.*)?\/(?:embed)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)/i';
-
-	$url = isset( $attr['url'] ) ? $attr['url'] : null;
-
-	if ( empty( $url ) ) {
+	if ( ! isset( $attr['url'] ) ) {
 		return;
 	}
 
-	if ( ! preg_match( $pattern, $url ) ) {
+	$url = Jetpack_Gutenberg::validate_block_embed_url(
+		$attr['url'],
+		array( '/^http[s]?:\/\/((?:www\.)?nextdoor(?:.*)?\/(?:embed)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)/i' ),
+		true
+	);
+
+	if ( empty( $url ) ) {
 		return;
 	}
 
