@@ -2706,8 +2706,8 @@ importers:
         specifier: 1.29.1
         version: 1.29.1
       allure-playwright:
-        specifier: 2.0.0-beta.19
-        version: 2.0.0-beta.19
+        specifier: 2.9.2
+        version: 2.9.2
       config:
         specifier: 3.3.7
         version: 3.3.7
@@ -3244,8 +3244,8 @@ importers:
         specifier: 1.29.1
         version: 1.29.1
       allure-playwright:
-        specifier: 2.0.0-beta.19
-        version: 2.0.0-beta.19
+        specifier: 2.9.2
+        version: 2.9.2
       config:
         specifier: 3.3.7
         version: 3.3.7
@@ -3335,8 +3335,8 @@ importers:
         specifier: 1.29.1
         version: 1.29.1
       allure-playwright:
-        specifier: 2.0.0-beta.19
-        version: 2.0.0-beta.19
+        specifier: 2.9.2
+        version: 2.9.2
       config:
         specifier: 3.3.7
         version: 3.3.7
@@ -3448,8 +3448,8 @@ importers:
         specifier: 1.29.1
         version: 1.29.1
       allure-playwright:
-        specifier: 2.0.0-beta.19
-        version: 2.0.0-beta.19
+        specifier: 2.9.2
+        version: 2.9.2
       config:
         specifier: 3.3.7
         version: 3.3.7
@@ -3581,8 +3581,8 @@ importers:
         specifier: 1.29.1
         version: 1.29.1
       allure-playwright:
-        specifier: 2.0.0-beta.19
-        version: 2.0.0-beta.19
+        specifier: 2.9.2
+        version: 2.9.2
       config:
         specifier: 3.3.7
         version: 3.3.7
@@ -3672,8 +3672,8 @@ importers:
         specifier: 1.29.1
         version: 1.29.1
       allure-playwright:
-        specifier: 2.0.0-beta.19
-        version: 2.0.0-beta.19
+        specifier: 2.9.2
+        version: 2.9.2
       config:
         specifier: 3.3.7
         version: 3.3.7
@@ -3777,8 +3777,8 @@ importers:
         specifier: 1.29.1
         version: 1.29.1
       allure-playwright:
-        specifier: 2.0.0-beta.19
-        version: 2.0.0-beta.19
+        specifier: 2.9.2
+        version: 2.9.2
       config:
         specifier: 3.3.7
         version: 3.3.7
@@ -3871,8 +3871,8 @@ importers:
         specifier: 6.7.2
         version: 6.7.2
       allure-playwright:
-        specifier: 2.0.0-beta.19
-        version: 2.0.0-beta.19
+        specifier: 2.9.2
+        version: 2.9.2
       axios:
         specifier: 0.27.2
         version: 0.27.2
@@ -13045,18 +13045,16 @@ packages:
       require-from-string: 2.0.2
       uri-js: 4.4.1
 
-  /allure-js-commons@2.0.0-beta.19:
-    resolution: {integrity: sha512-sgt7TnU7s8QIzEOmLFO0T5ih4W2YbLrcsL1ElO7WN/dPzIww4G1BBJQDK98VCS+cG5qIljBYRuJ+rtzKWgtM8A==}
+  /allure-js-commons@2.9.2:
+    resolution: {integrity: sha512-Qvi+zMZQruklqcnqG/zHCnE209v1YiWGhO3H2aPW2aXC8Ockqd01a+w2lP4Qqp3SfC+WQDeAK2+pp+v+eNl8xQ==}
     dependencies:
-      mkdirp: 1.0.4
       properties: 1.2.1
-      uuid: 8.3.2
     dev: true
 
-  /allure-playwright@2.0.0-beta.19:
-    resolution: {integrity: sha512-TMSZToE0oPXz0qfH1cMaO5kcMrV8GkSlM1650Hk9dwpR/ldH2zx23/E7l1f77Elpqp/bGNyekjXNhYSx9ihCVg==}
+  /allure-playwright@2.9.2:
+    resolution: {integrity: sha512-N0X1c1GGLg74vdDAuq86KCekuvQ5BaqqpgcBpJj5x3y/RlQPBn84wlg8PT/ViKQM4EdbNFMXOXpa5Opufv6qCg==}
     dependencies:
-      allure-js-commons: 2.0.0-beta.19
+      allure-js-commons: 2.9.2
     dev: true
 
   /ansi-escapes@3.2.0:
@@ -23602,6 +23600,7 @@ packages:
   /uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
+    dev: false
 
   /uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
@@ -24287,7 +24286,6 @@ packages:
     resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/7b1368f6fc4551745ac7681de73c3a4c6049dce6}
     name: jetpack-boost-critical-css-gen
     version: 0.0.9
-    prepare: true
     requiresBuild: true
     dependencies:
       clean-css: 5.3.2
