@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Change links for Appearance > Themes on Atomic sites with wpcom_admin_interface option set to wp-admin to point to WPCOM Marketplace

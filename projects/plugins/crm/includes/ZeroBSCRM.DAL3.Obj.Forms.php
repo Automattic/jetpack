@@ -1461,7 +1461,6 @@ class zbsDAL_forms extends zbsDAL_ObjectLayer {
     
     /**
      * Returns an ownerid against a form
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id form ID
      *

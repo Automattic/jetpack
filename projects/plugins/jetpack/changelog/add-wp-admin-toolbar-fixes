@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Alter the admin toolbar when the wpcom-admin-interface setting is set to wp-admin (fall back to the original WordPress menu)

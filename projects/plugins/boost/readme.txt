@@ -3,7 +3,7 @@ Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dili
 Donate link: https://automattic.com
 Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
-Tested up to: 6.3
+Tested up to: 6.4
 Requires PHP: 7.0
 Stable tag: 2.1.1
 License: GPLv2 or later

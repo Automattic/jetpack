@@ -80,7 +80,11 @@ abstract class Base_Admin_Menu {
 			add_action( 'admin_footer', array( $this, 'dashboard_switcher_scripts' ) );
 			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
 			add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
-			add_action( 'adminmenu', array( $this, 'inject_core_mobile_toggle' ) );
+
+			// Do not inject core mobile toggle when the user wants to use the WP Admin interface.
+			if ( ! $this->use_wp_admin_interface( 'jetpack' ) ) {
+				add_action( 'adminmenu', array( $this, 'inject_core_mobile_toggle' ) );
+			}
 		}
 	}
 
@@ -262,6 +266,19 @@ abstract class Base_Admin_Menu {
 		);
 
 		wp_style_add_data( 'jetpack-admin-menu', 'rtl', $this->is_rtl() );
+
+		// Load nav unification styles when the user isn't using wp-admin interface style.
+		if ( ! $this->use_wp_admin_interface( 'jetpack' ) ) {
+			wp_enqueue_style(
+				'jetpack-admin-nav-unification',
+				plugins_url( 'admin-menu-nav-unification.css', __FILE__ ),
+				array(),
+				JETPACK__VERSION
+			);
+
+			wp_style_add_data( 'jetpack-admin-nav-unification', 'rtl', $this->is_rtl() );
+		}
+
 		$this->configure_colors_for_rtl_stylesheets();
 
 		wp_enqueue_script(
@@ -755,6 +772,34 @@ abstract class Base_Admin_Menu {
 	 */
 	public function inject_core_mobile_toggle() {
 		echo '<span id="wp-admin-bar-menu-toggle" style="display: none!important">';
+	}
+
+	/**
+	 * Whether the current user has indicated they want to use the wp-admin interface for the given screen.
+	 *
+	 * @param string $screen The current screen.
+	 * @return bool
+	 */
+	public function use_wp_admin_interface( $screen ) {
+		$screen_excluded = $this->is_excluded_wp_admin_interface_screen( $screen );
+		return ! $screen_excluded && 'wp-admin' === get_option( 'wpcom_admin_interface' );
+	}
+
+	/**
+	 * Returns whether we should default to wp_admin for the given screen.
+	 *
+	 * Screens that should not default to wp_admin when the wpcom_admin_interface is set.
+	 * This applies to screens that have both a wp-admin and a Calypso interface.
+	 *
+	 * @param string $screen The current screen.
+	 *
+	 * @return bool
+	 */
+	protected function is_excluded_wp_admin_interface_screen( $screen ) {
+		$excluded_screens = array(
+			'import.php',
+		);
+		return in_array( $screen, $excluded_screens, true );
 	}
 
 	/**

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Sync: Add missing support for supplying additional columns to do checksum on.

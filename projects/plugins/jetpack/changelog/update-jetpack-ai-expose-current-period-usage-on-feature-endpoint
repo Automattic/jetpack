@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack AI: expose current period usage data on feature endpoint.

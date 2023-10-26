@@ -2352,7 +2352,6 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
 
     /**
      * Returns an ownerid against a transaction
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id transaction ID
      *
