@@ -15,7 +15,9 @@ domReady( function () {
 	if ( link ) {
 		link.addEventListener( 'click', function ( event ) {
 			event.preventDefault();
-			show_modal_retrieve_subscriptions_from_email();
+			// get the email from the form
+			const email = form.querySelector( 'input[type=email]' ).value;
+			show_modal_retrieve_subscriptions_from_email( form.dataset.blog, email );
 		} );
 	}
 
