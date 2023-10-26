@@ -47,7 +47,13 @@ function show_iframe( data ) {
 }
 
 domReady( function () {
-	const link = document.querySelector( '#jp_retrieve_subscriptions_link' );
+	const form = document.querySelector( '.wp-block-jetpack-subscriptions__container form' );
+	if ( ! form ) {
+		return;
+	}
+
+	const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
+	const link = document.querySelector( '#jp_retrieve_subscriptions_link' + post_id );
 	if ( link ) {
 		link.addEventListener( 'click', function ( event ) {
 			event.preventDefault();
@@ -55,10 +61,6 @@ domReady( function () {
 		} );
 	}
 
-	const form = document.querySelector( '.wp-block-jetpack-subscriptions__container form' );
-	if ( ! form ) {
-		return;
-	}
 	if ( ! form.payments_attached ) {
 		form.payments_attached = true;
 		form.addEventListener( 'submit', function ( event ) {
@@ -75,7 +77,6 @@ domReady( function () {
 
 			event.preventDefault();
 
-			const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
 			const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
 
 			show_iframe( {
