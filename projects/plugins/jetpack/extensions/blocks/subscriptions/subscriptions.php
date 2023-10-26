@@ -1054,7 +1054,11 @@ function get_paywall_blocks( $newsletter_access_level ) {
 	}
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	// Only display paid texts when Stripe is connected and the post is marked for paid subscribers
-	$is_paid_post       = $newsletter_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
+	$is_paid_post = $newsletter_access_level === (
+			Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ||
+			Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS
+		) && Jetpack_Memberships::has_connected_account();
+
 	$is_paid_subscriber = Jetpack_Memberships::user_is_paid_subscriber();
 
 	$access_heading = $is_paid_subscriber
@@ -1069,24 +1073,59 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		// translators: %s is the name of the site.
 		: esc_html__( 'Subscribe to get access to the rest of this post and other subscriber-only content.', 'jetpack' );
 
-	$access_question = $is_paid_post
-		? __( 'Already a paid subscriber?', 'jetpack' )
-		: __( 'Already a subscriber?', 'jetpack' );
-
-	$sign_in = '';
-	$host    = new Host();
+	$sign_in         = '';
+	$host            = new Host();
+	$access_question = '';
 	if ( ! is_user_logged_in() && $host->is_wpcom_simple() ) {
 		$id           = '';
 		$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
-		$button_text  = esc_html__( 'Log in', 'jetpack' );
-	} elseif ( class_exists( 'Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service' ) &&
-		! $host->is_wpcom_simple() ) {
+		switch ( $newsletter_access_level ) {
+			case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
+			case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
+				$tier = Jetpack_Memberships::get_post_tier();
+				if ( $tier !== null ) {
+					$access_question = sprintf(
+											// translators:  Placeholder is the tier name
+						__( 'Already a paid <i>%s</i> subscriber?', 'jetpack' ),
+						esc_html( $tier->post_title )
+					);
+				} else {
+					$access_question = esc_html__( 'I am already a paid-subscriber', 'jetpack' );
+
+				}
+				break;
+			default:
+				$access_question = esc_html__( 'Already a subscriber?', 'jetpack' );
+
+		}
+		$button_text = esc_html__( 'Log in', 'jetpack' );
+	} elseif (
+			class_exists( 'Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service' ) &&
+			! $host->is_wpcom_simple() ) {
 		// We are on Jetpack and no cookie is set
 		$id              = 'jp_retrieve_subscriptions_link';
 		$sign_in_link    = '#'; // listening to "click" event in view.js
-		$access_question = __( 'I am already subscribed.', 'jetpack' );
+		$access_question = '';
 		if ( ! Jetpack_Token_Subscription_Service::has_token_from_cookie() ) {
-			$button_text = esc_html__( 'Log in', 'jetpack' );
+			switch ( $newsletter_access_level ) {
+				case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
+				case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
+					$tier = Jetpack_Memberships::get_post_tier();
+					if ( $tier !== null ) {
+						$button_text = sprintf(
+											// translators:  Placeholder is the tier name
+							__( 'I am already a <i>%s</i> paid-subscriber', 'jetpack' ),
+							esc_html( $tier->post_title )
+						);
+					} else {
+						$button_text = esc_html__( 'I am already a paid-subscriber', 'jetpack' );
+
+					}
+					break;
+				default:
+					$button_text = esc_html__( 'I am already a subscriber', 'jetpack' );
+
+			}
 		} else {
 			$button_text = esc_html__( 'Switch accounts', 'jetpack' );
 		}
@@ -1094,8 +1133,11 @@ function get_paywall_blocks( $newsletter_access_level ) {
 
 	if ( ! empty( $sign_in_link ) ) {
 		$sign_in = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
-<p class="has-text-align-center" style="font-size:14px">' . esc_html( $access_question ) . ' <a id="' . $id . '" href="' . $sign_in_link . '">' . $button_text . '</a></p>
-<!-- /wp:paragraph -->';
+                        <p class="has-text-align-center" style="font-size:14px">' .
+							esc_html( $access_question ) .
+							' <a id="' . $id . '" href="' . $sign_in_link . '">' . $button_text . '</a>' .
+						'</p>
+                    <!-- /wp:paragraph -->';
 	}
 
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
