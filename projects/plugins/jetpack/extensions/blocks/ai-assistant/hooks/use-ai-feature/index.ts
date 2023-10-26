@@ -9,7 +9,7 @@ import { useEffect, useState } from '@wordpress/element';
 export type UpgradeTypeProp = 'vip' | 'default';
 import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../../../types';
 
-type AIFeatureProps = {
+export type AIFeatureProps = {
 	hasFeature: boolean;
 	isOverLimit: boolean;
 	requestsCount: number;
