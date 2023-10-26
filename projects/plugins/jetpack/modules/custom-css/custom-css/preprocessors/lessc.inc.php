@@ -2415,7 +2415,7 @@ class lessc_parser {
 		if (empty($this->buffer)) return false;
 		$s = $this->seek();
 
-		$block = null;
+		$block = null; // Initialize for wpcom's rector.
 
 		if ($this->whitespace()) {
 			return true;
@@ -3022,9 +3022,9 @@ class lessc_parser {
 	// arguments are separated by , unless a ; is in the list, then ; is the
 	// delimiter.
 	protected function argumentDef(&$args, &$isVararg) {
-		$value  = null;
-		$rhs    = null;
-		$newArg = null;
+		$value  = null; // Initialize output variable to make wpcom's rector happy.
+		$rhs    = null; // Initialize output variable to make wpcom's rector happy.
+		$newArg = null; // Initialize variable for rector.
 		$s = $this->seek();
 		if (!$this->literal('(')) return false;
 
