@@ -617,8 +617,13 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
                 
                     // simplistic add
                     // NOTE: This IGNORES ownership of custom field lines.
-                    $searchWheres['search_customfields'] = array('ID','IN',"(SELECT zbscf_objid FROM ".$ZBSCRM_t['customfields']." WHERE zbscf_objval LIKE %s AND zbscf_objtype = ".ZBS_TYPE_QUOTE.")",'%'.$searchPhrase.'%');
-
+	                // @codingStandardsIgnoreStart
+	                if ( jpcrm_migration_table_has_index( $ZBSCRM_t['customfields'], 'search' ) ) {
+		                $searchWheres['search_customfields'] = array('ID','IN',"(SELECT zbscf_objid FROM ".$ZBSCRM_t['customfields']." WHERE MATCH(zbscf_objval) AGAINST(%s) AND zbscf_objtype = ".ZBS_TYPE_QUOTE.")",$searchPhrase);
+	                } else {
+                        $searchWheres['search_customfields'] = array('ID','IN',"(SELECT zbscf_objid FROM ".$ZBSCRM_t['customfields']." WHERE zbscf_objval LIKE %s AND zbscf_objtype = ".ZBS_TYPE_QUOTE.")",'%'.$searchPhrase.'%');
+					}
+	                // @codingStandardsIgnoreEnd
                 }
 
 				// This generates a query like 'zbsq_fname LIKE %s OR zbsq_lname LIKE %s', 
