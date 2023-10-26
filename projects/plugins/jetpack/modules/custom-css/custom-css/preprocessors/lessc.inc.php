@@ -1290,7 +1290,7 @@ class lessc {
 		} else {
 			if ($value[0] !== "list" || $value[1] != ",") $this->throwError("expecting list");
 			$values = $value[2];
-			$numValues = is_countable( $value ) ? count( $values ) : 0;
+			$numValues = is_countable( $values ) ? count( $values ) : 0;
 			if ($expectedArgs != $numValues) {
 				if ($name) {
 					$name = $name . ": ";
