@@ -75,12 +75,7 @@ function UsageControl( {
 		requestsCount
 	);
 
-	/*
-	 * Calculate usage. When hasFeature is true, the user has the paid plan,
-	 * that grants unlimited requests for now. To show something meaningful in
-	 * the usage bar, we use a very low usage value.
-	 */
-	const usage = hasFeature ? 0.1 : requestsCount / requestsLimit;
+	const usage = requestsCount / requestsLimit;
 
 	return (
 		<BaseControl help={ help } label={ __( 'Usage', 'jetpack' ) }>
