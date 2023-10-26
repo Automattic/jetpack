@@ -2,14 +2,17 @@
  * Internal dependencies
  */
 import './style.scss';
-import { UsageBarProps } from './types';
+/**
+ * Types
+ */
+import type { UsageBarProps } from './types';
 import type React from 'react';
 
 /**
- * Usage Bar component
+ * UsageBar component
  *
  * @param {UsageBarProps} props - Component props.
- * @returns {React.ReactNode} - UsageBar react component.
+ * @returns {React.ReactNode}     UsageBar react component.
  */
 const UsageBar: React.FC< UsageBarProps > = ( { usage } ) => {
 	if ( usage == null ) {

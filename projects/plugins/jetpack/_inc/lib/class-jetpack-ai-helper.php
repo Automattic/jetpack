@@ -343,10 +343,26 @@ class Jetpack_AI_Helper {
 				}
 			}
 
+			if ( ! class_exists( 'WPCOM\Jetpack_AI\Usage\Helper' ) ) {
+				if ( is_readable( WP_CONTENT_DIR . '/lib/jetpack-ai/usage/helper.php' ) ) {
+					require_once WP_CONTENT_DIR . '/lib/jetpack-ai/usage/helper.php';
+				} else {
+					return new WP_Error(
+						'jetpack_ai_usage_helper_not_found',
+						__( 'WPCOM\Jetpack_AI\Usage\Helper class not found.', 'jetpack' )
+					);
+				}
+			}
+
 			$blog_id        = get_current_blog_id();
 			$is_over_limit  = \OpenAI_Limit_Usage::is_blog_over_request_limit( $blog_id );
 			$requests_limit = \OpenAI_Limit_Usage::get_free_requests_limit( $blog_id );
 			$requests_count = \OpenAI_Request_Count::get_count( $blog_id );
+
+			/*
+			 * Usage since the last plan purchase day
+			 */
+			$current_period_requests_count = WPCOM\Jetpack_AI\Usage\Helper::get_current_period_requests_count( $blog_id );
 
 			// Check if the site requires an upgrade.
 			$require_upgrade = $is_over_limit && ! $has_ai_assistant_feature;
@@ -355,12 +371,13 @@ class Jetpack_AI_Helper {
 			$upgrade_type = wpcom_is_vip( $blog_id ) ? 'vip' : 'default';
 
 			return array(
-				'has-feature'          => $has_ai_assistant_feature,
-				'is-over-limit'        => $is_over_limit,
-				'requests-count'       => $requests_count,
-				'requests-limit'       => $requests_limit,
-				'site-require-upgrade' => $require_upgrade,
-				'upgrade-type'         => $upgrade_type,
+				'has-feature'                   => $has_ai_assistant_feature,
+				'is-over-limit'                 => $is_over_limit,
+				'requests-count'                => $requests_count,
+				'current-period-requests-count' => $current_period_requests_count,
+				'requests-limit'                => $requests_limit,
+				'site-require-upgrade'          => $require_upgrade,
+				'upgrade-type'                  => $upgrade_type,
 			);
 		}
 

@@ -1691,15 +1691,6 @@ final class ZeroBSCRM {
 		// If usage tracking is active - include the tracking code.
 		$this->load_usage_tracking();
 
-		// } Ownership
-		$usingOwnership = $this->settings->get( 'perusercustomers' );
-		if ( $usingOwnership && ! $this->isDAL3() ) {
-			if ( ! class_exists( 'zeroBS__Metabox' ) ) {
-				require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBox.php';
-			}
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes.Ownership.php';
-		}
-
 		if ( $this->isDAL3() && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ) ) {
 			// } Jetpack - can condition this include on detection of Jetpack - BUT the code in Jetpack.php only fires on actions so will be OK to just include
 			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Jetpack.php';
@@ -1778,14 +1769,6 @@ final class ZeroBSCRM {
 
 		// } JUST before cpt, we do any install/uninstall of extensions, so that cpt's can adjust instantly:
 		zeroBSCRM_extensions_init_install();
-
-		// stuff pre DAL3 needs CPTs etc.
-		if ( ! $this->isDAL3() ) {
-
-			// COMMENT} setup post types
-			zeroBSCRM_setupPostTypes();
-
-		}
 
 		// } Here we do any 'default content' installs (quote templates) (In CPT <DAL3, In DAL3.Helpers DAL3+)
 		zeroBSCRM_installDefaultContent();

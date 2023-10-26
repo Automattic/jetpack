@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "efbfa6f913dfce5c8a13cf87a6e4cf99",
+    "content-hash": "d4543bd5fa21fe0b226972d98ea56739",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1527,72 +1527,6 @@
             }
         },
         {
-            "name": "automattic/jetpack-lazy-images",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/lazy-images",
-                "reference": "c820678bb5aeb6ced11f6b73c68a8006f29649c8"
-            },
-            "require": {
-                "automattic/jetpack-assets": "@dev",
-                "automattic/jetpack-constants": "@dev",
-                "automattic/jetpack-status": "@dev"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "dev-master",
-                "yoast/phpunit-polyfills": "1.1.0"
-            },
-            "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-lazy-images",
-                "textdomain": "jetpack-lazy-images",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-trunk": "2.3.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "build-production": [
-                    "pnpm run build-production"
-                ],
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "post-install-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
-                ],
-                "post-update-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once. Modern browsers now support lazy loading, and WordPress itself bundles lazy loading features for images and videos. This feature will consequently be deprecated in November 2023.",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
             "name": "automattic/jetpack-licensing",
             "version": "dev-trunk",
             "dist": {
@@ -2521,7 +2455,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "dab5b4eca59882dfd90a3a0c74d705f84e7f026f"
+                "reference": "421bbdeb621e9370537399dbfe037cd12bf07d6f"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2552,7 +2486,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.59.x-dev"
+                    "dev-trunk": "1.60.x-dev"
                 }
             },
             "autoload": {
@@ -5746,7 +5680,6 @@
         "automattic/jetpack-import": 20,
         "automattic/jetpack-ip": 20,
         "automattic/jetpack-jitm": 20,
-        "automattic/jetpack-lazy-images": 20,
         "automattic/jetpack-licensing": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-my-jetpack": 20,
