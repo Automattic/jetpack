@@ -21,7 +21,7 @@ export default function UsagePanel() {
 	const { hasFeature, requestsCount, requestsLimit, isOverLimit } = useAIFeature();
 
 	return (
-		<div className="jetpack-ai-usage-panel-control">
+		<div className="jetpack-ai-usage-panel">
 			<UsageControl
 				isOverLimit={ isOverLimit }
 				hasFeature={ hasFeature }
