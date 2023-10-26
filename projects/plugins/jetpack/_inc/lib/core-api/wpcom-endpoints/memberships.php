@@ -8,6 +8,14 @@
 
 use Automattic\Jetpack\Connection\Client;
 
+if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) {
+	// We load the necessary endpoints
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.memberships-rest-api-endpoints.php';
+
+	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Memberships' );
+	add_action( 'rest_api_init', array( 'Jetpack_Memberships_Json_Api_Endpoints', 'register_endpoints' ) );
+}
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Memberships
  * This introduces V2 endpoints.
@@ -584,8 +592,4 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	private function is_wpcom() {
 		return defined( 'IS_WPCOM' ) && IS_WPCOM;
 	}
-}
-
-if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) {
-	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Memberships' );
 }
