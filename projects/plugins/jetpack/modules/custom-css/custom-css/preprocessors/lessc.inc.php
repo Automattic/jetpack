@@ -3457,7 +3457,7 @@ class lessc_parser {
 	}
 
 	protected function genericList(&$out, $parseItem, $delim="", $flatten=true) {
-		$value = null;
+		$value = null; // Initialize output parameter to make wpcom's rector happy.
 		$s = $this->seek();
 		$items = array();
 		while ($this->$parseItem($value)) {
