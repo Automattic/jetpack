@@ -1696,7 +1696,7 @@ class lessc {
 	protected function op_color_number($op, $lft, $rgt) {
 		if ($rgt[0] == '%') $rgt[1] /= 100;
 
-		$lftCount = is_countable( $lft ) ? count( $lft ) : 0;
+		$lftCount = is_countable( $lft ) ? count( $lft ) : 1;
 		return $this->op_color_color($op, $lft,
 			array_fill(1, $lftCount - 1, $rgt[1]));
 	}
