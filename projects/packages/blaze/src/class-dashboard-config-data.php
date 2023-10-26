@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Blaze;
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
 use Jetpack_Options;
 
@@ -39,6 +40,7 @@ class Dashboard_Config_Data {
 			'admin_page_base'          => $this->get_admin_path(),
 			'api_root'                 => esc_url_raw( rest_url() ),
 			'blog_id'                  => $blog_id,
+			'jetpack_version'          => Constants::get_constant( 'JETPACK__VERSION' ),
 			'enable_all_sections'      => false,
 			'env_id'                   => 'production',
 			'google_analytics_key'     => 'UA-10673494-15',
