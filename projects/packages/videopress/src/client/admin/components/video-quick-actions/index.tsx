@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Text, Button } from '@automattic/jetpack-components';
+import { Text, Button, ThemeProvider } from '@automattic/jetpack-components';
 import { Popover, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { image, trash, globe as siteDefaultPrivacyIcon } from '@wordpress/icons';
@@ -62,9 +62,11 @@ const PopoverWithAnchor = ( {
 
 	return (
 		<Popover position="top center" noArrow focusOnMount={ false } { ...popoverProps }>
-			<Text variant="body-small" className={ styles.popover }>
-				{ children }
-			</Text>
+			<ThemeProvider>
+				<Text variant="body-small" className={ styles.popover }>
+					{ children }
+				</Text>
+			</ThemeProvider>
 		</Popover>
 	);
 };
@@ -136,13 +138,15 @@ const ThumbnailActionsDropdown = ( {
 				</div>
 			) }
 			renderContent={ ( { onClose } ) => (
-				<VideoThumbnailDropdownButtons
-					isUpdatingPoster={ isUpdatingPoster }
-					onClose={ onClose }
-					onUseDefaultThumbnail={ () => onUpdate( 'default' ) }
-					onSelectFromVideo={ () => onUpdate( 'select-from-video' ) }
-					onUploadImage={ () => onUpdate( 'upload-image' ) }
-				/>
+				<ThemeProvider>
+					<VideoThumbnailDropdownButtons
+						isUpdatingPoster={ isUpdatingPoster }
+						onClose={ onClose }
+						onUseDefaultThumbnail={ () => onUpdate( 'default' ) }
+						onSelectFromVideo={ () => onUpdate( 'select-from-video' ) }
+						onUploadImage={ () => onUpdate( 'upload-image' ) }
+					/>
+				</ThemeProvider>
 			) }
 		/>
 	);
@@ -195,49 +199,53 @@ const PrivacyActionsDropdown = ( {
 				</div>
 			) }
 			renderContent={ ( { onClose } ) => (
-				<div className={ styles[ 'dropdown-content' ] }>
-					<Button
-						weight="regular"
-						fullWidth
-						variant="tertiary"
-						icon={ siteDefaultPrivacyIcon }
-						onClick={ () => {
-							onClose();
-							onUpdate( 'site-default' );
-						} }
-						disabled={ VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_SITE_DEFAULT }
-					>
-						{ __( 'Site default', 'jetpack-videopress-pkg' ) }
-					</Button>
+				<ThemeProvider>
+					<div className={ styles[ 'dropdown-content' ] }>
+						<Button
+							weight="regular"
+							fullWidth
+							variant="tertiary"
+							icon={ siteDefaultPrivacyIcon }
+							onClick={ () => {
+								onClose();
+								onUpdate( 'site-default' );
+							} }
+							disabled={
+								VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_SITE_DEFAULT
+							}
+						>
+							{ __( 'Site default', 'jetpack-videopress-pkg' ) }
+						</Button>
 
-					<Button
-						weight="regular"
-						fullWidth
-						variant="tertiary"
-						icon={ publicPrivacyIcon }
-						onClick={ () => {
-							onClose();
-							onUpdate( 'public' );
-						} }
-						disabled={ VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PUBLIC }
-					>
-						{ __( 'Public', 'jetpack-videopress-pkg' ) }
-					</Button>
+						<Button
+							weight="regular"
+							fullWidth
+							variant="tertiary"
+							icon={ publicPrivacyIcon }
+							onClick={ () => {
+								onClose();
+								onUpdate( 'public' );
+							} }
+							disabled={ VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PUBLIC }
+						>
+							{ __( 'Public', 'jetpack-videopress-pkg' ) }
+						</Button>
 
-					<Button
-						weight="regular"
-						fullWidth
-						variant="tertiary"
-						icon={ privatePrivacyIcon }
-						onClick={ () => {
-							onClose();
-							onUpdate( 'private' );
-						} }
-						disabled={ VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE }
-					>
-						{ __( 'Private', 'jetpack-videopress-pkg' ) }
-					</Button>
-				</div>
+						<Button
+							weight="regular"
+							fullWidth
+							variant="tertiary"
+							icon={ privatePrivacyIcon }
+							onClick={ () => {
+								onClose();
+								onUpdate( 'private' );
+							} }
+							disabled={ VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE }
+						>
+							{ __( 'Private', 'jetpack-videopress-pkg' ) }
+						</Button>
+					</div>
+				</ThemeProvider>
 			) }
 		/>
 	);

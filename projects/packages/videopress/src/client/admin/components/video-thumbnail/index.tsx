@@ -7,6 +7,7 @@ import {
 	useBreakpointMatch,
 	LoadingPlaceholder,
 	ProgressBar,
+	ThemeProvider,
 } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
@@ -97,12 +98,14 @@ export const VideoThumbnailDropdown = ( {
 					/>
 				) }
 				renderContent={ ( { onClose } ) => (
-					<VideoThumbnailDropdownButtons
-						onClose={ onClose }
-						onUseDefaultThumbnail={ onUseDefaultThumbnail }
-						onSelectFromVideo={ onSelectFromVideo }
-						onUploadImage={ onUploadImage }
-					/>
+					<ThemeProvider>
+						<VideoThumbnailDropdownButtons
+							onClose={ onClose }
+							onUseDefaultThumbnail={ onUseDefaultThumbnail }
+							onSelectFromVideo={ onSelectFromVideo }
+							onUploadImage={ onUploadImage }
+						/>
+					</ThemeProvider>
 				) }
 			/>
 		</div>
