@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-idc",
-	"version": "0.10.50",
+	"version": "0.10.51-alpha",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -37,9 +37,5 @@
 		"*.css",
 		"*.scss"
 	],
-	"scripts": {},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	}
+	"scripts": {}
 }

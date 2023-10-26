@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-licensing",
-	"version": "0.11.10",
+	"version": "0.11.11-alpha",
 	"description": "Jetpack licensing flow",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/licensing/#readme",
 	"bugs": {
@@ -41,10 +41,6 @@
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"react-test-renderer": "18.2.0"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {
 		".": "./index.jsx",

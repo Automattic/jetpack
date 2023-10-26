@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-shared-extension-utils",
-	"version": "0.12.4",
+	"version": "0.12.5-alpha",
 	"description": "Utility functions used by the block editor extensions",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/shared-extension-utils/#readme",
 	"bugs": {
@@ -43,10 +43,6 @@
 		"@testing-library/user-event": "14.4.3",
 		"@babel/plugin-transform-react-jsx": "7.22.15",
 		"@wordpress/babel-plugin-import-jsx-pragma": "4.27.0"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {
 		".": "./index.js"

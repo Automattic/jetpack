@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.30.5",
+	"version": "0.30.6-alpha",
 	"description": "Jetpack Connection Component",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
 	"bugs": {
@@ -58,9 +58,5 @@
 	],
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

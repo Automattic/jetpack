@@ -81,9 +81,5 @@
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Boost"
 	},
-	"homepage": "https://jetpack.com/boost/",
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	}
+	"homepage": "https://jetpack.com/boost/"
 }

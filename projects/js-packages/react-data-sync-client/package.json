@@ -33,10 +33,6 @@
 		"webpack-cli": "4.9.1",
 		"zod": "3.22.3"
 	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	},
 	"exports": {
 		".": {
 			"jetpack:src": "./src/index.ts",

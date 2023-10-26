@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.44.1",
+	"version": "0.44.2-alpha",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -82,9 +82,5 @@
 		"build": "pnpm run compile-ts",
 		"compile-ts": "tsc --pretty",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

@@ -32,10 +32,6 @@
 		"eslint": ">=4.19.1",
 		"eslint-plugin-es-x": "^7.1.0"
 	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	},
 	"exports": {
 		".": "./src/configs/all.js",
 		"./language": "./src/configs/language.js",

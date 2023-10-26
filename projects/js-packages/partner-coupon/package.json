@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-partner-coupon",
-	"version": "0.2.58",
+	"version": "0.2.59-alpha",
 	"description": "This package aims to add components to make it easier to redeem partner coupons",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/partner-coupon/#readme",
 	"bugs": {
@@ -45,10 +45,6 @@
 		"@wordpress/i18n": "4.44.0",
 		"classnames": "2.3.2",
 		"prop-types": "15.7.2"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {
 		".": "./index.jsx"

@@ -47,9 +47,5 @@
 	"devDependencies": {
 		"jest": "29.4.3",
 		"jest-extended": "2.0.0"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

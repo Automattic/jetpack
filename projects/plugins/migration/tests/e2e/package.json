@@ -34,9 +34,6 @@
 		"config": "3.3.7",
 		"jetpack-e2e-commons": "workspace:*"
 	},
-	"engines": {
-		"node": "^18.13.0"
-	},
 	"browserslist": [],
 	"ci": {
 		"targets": [

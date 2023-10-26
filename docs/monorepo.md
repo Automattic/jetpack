@@ -311,7 +311,6 @@ See PCYsg-xsv-p2#mirror-repo-secrets for details.
 
 Note the following will also be done by the build process:
 
-* In `package.json`, the `.engines` will be deleted. If there is a `.publish_engines`, it will be renamed to `.engines`.
 * Entries will be prepended to `.npmignore` to ignore `.github` and `composer.json` during the NPM publish. This file will be created if not present.
 
 Before you create the first release tag, you may want to check out the mirror and run `npm publish --dry-run` to ensure that only the files you want published will be published.

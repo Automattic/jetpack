@@ -878,15 +878,12 @@ async function buildProject( t ) {
 		);
 	}
 
-	// Remove engines, workspace refs, and jetpack:src from package.json.
+	// Remove workspace refs and jetpack:src from package.json.
 	let packageJson;
 	if ( await fsExists( `${ buildDir }/package.json` ) ) {
 		packageJson = JSON.parse(
 			await fs.readFile( `${ buildDir }/package.json`, { encoding: 'utf8' } )
 		);
-
-		packageJson.engines = packageJson.publish_engines; // May be undefined, that's ok.
-		delete packageJson.publish_engines;
 
 		const depTypes = [
 			'dependencies',
