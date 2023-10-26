@@ -79,7 +79,7 @@ function UsageControl( {
 	return (
 		<BaseControl help={ help } label={ __( 'Usage', 'jetpack' ) }>
 			<p>{ hasFeature ? unlimitedPlanUsageMessage : freeUsageMessage }</p>
-			<UsageBar usage={ usage } limitReached={ limitReached } />
+			{ ! hasFeature && <UsageBar usage={ usage } limitReached={ limitReached } /> }
 		</BaseControl>
 	);
 }
