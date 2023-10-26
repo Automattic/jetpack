@@ -1304,7 +1304,6 @@ class lessc {
 	}
 
 	protected function toHSL($color) {
-		$H = null;
 		if ($color[0] == 'hsl') return $color;
 
 		$r = $color[1] / 255;
@@ -1325,7 +1324,7 @@ class lessc {
 
 			if ($r == $max) $H = ($g - $b)/($max - $min);
 			elseif ($g == $max) $H = 2.0 + ($b - $r)/($max - $min);
-			elseif ($b == $max) $H = 4.0 + ($r - $g)/($max - $min);
+			else $H = 4.0 + ($r - $g)/($max - $min);
 
 		}
 
