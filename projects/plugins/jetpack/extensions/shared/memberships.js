@@ -77,7 +77,6 @@ export function show_modal_retrieve_subscriptions_from_email( blog, email ) {
 		blog,
 		plan: 'newsletter',
 		source: 'jetpack_retrieve_subscriptions',
-		display: 'alternate',
 	} );
 }
 
