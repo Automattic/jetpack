@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Correctly register `jetpack_boost_admin_missing_files` hook function. Not really relevant to normal plugin operation as this code path should only be encountered in dev environments.
-
-

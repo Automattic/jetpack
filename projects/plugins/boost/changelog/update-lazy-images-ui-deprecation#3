@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Lazy Images: do not display the feature if the site uses an incompatible version of WordPress (this includes future versions of WordPress as well as sites running the latest version of the Gutenberg plugin).
