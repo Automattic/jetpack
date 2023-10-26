@@ -20,19 +20,6 @@ export default function UsagePanel() {
 	// fetch usage data
 	const { hasFeature, requestsCount, requestsLimit, isOverLimit } = useAIFeature();
 
-	// build messages
-	const freeUsageMessage = sprintf(
-		// translators: %1$d: current request counter; %2$d: request allowance;
-		__( '%1$d / %2$d free requests.', 'jetpack' ),
-		requestsCount,
-		requestsLimit
-	);
-	const unlimitedPlanUsageMessage = sprintf(
-		// translators: placeholder is the current request counter;
-		__( '%d / ∞ requests.', 'jetpack' ),
-		requestsCount
-	);
-
 	/*
 	 * Calculate usage. When hasFeature is true, the user has the paid plan,
 	 * that grants unlimited requests for now. To show something meaningful in
@@ -42,9 +29,13 @@ export default function UsagePanel() {
 
 	return (
 		<div className="jetpack-ai-usage-panel-control">
-			<p>{ hasFeature ? unlimitedPlanUsageMessage : freeUsageMessage }</p>
-
-			<UsageControl usage={ usage } isOverLimit={ isOverLimit } hasFeature={ hasFeature } />
+			<UsageControl
+				usage={ usage }
+				isOverLimit={ isOverLimit }
+				hasFeature={ hasFeature }
+				requestsCount={ requestsCount }
+				requestsLimit={ requestsLimit }
+			/>
 
 			{ false && (
 				<p className="muted">

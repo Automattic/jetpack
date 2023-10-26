@@ -2,13 +2,14 @@
  * Internal dependencies
  */
 import { BaseControl } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import './style.scss';
 /**
  * Types
  */
-import type { UsageBarProps, UsageControlProps } from './types';
+import type { UsageBarProps } from './types';
+import type { AIFeatureProps } from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import type React from 'react';
 
 /**
@@ -43,15 +44,41 @@ const UsageBar: React.FC< UsageBarProps > = ( {
 	);
 };
 
-export function UsageControl( { usage, isOverLimit, hasFeature }: UsageControlProps ) {
+export function UsageControl( {
+	isOverLimit,
+	hasFeature,
+	requestsCount,
+	requestsLimit,
+}: Pick< AIFeatureProps, 'isOverLimit' | 'hasFeature' | 'requestsCount' | 'requestsLimit' > ) {
 	let help = hasFeature ? __( 'Unlimited requests for your site', 'jetpack' ) : undefined;
 	const limitReached = isOverLimit && ! hasFeature;
 	if ( limitReached ) {
 		help = __( 'You have reached your plan requests limit.', 'jetpack' );
 	}
 
+	// build messages
+	const freeUsageMessage = sprintf(
+		// translators: %1$d: current request counter; %2$d: request allowance;
+		__( '%1$d / %2$d free requests.', 'jetpack' ),
+		requestsCount,
+		requestsLimit
+	);
+	const unlimitedPlanUsageMessage = sprintf(
+		// translators: placeholder is the current request counter;
+		__( '%d / ∞ requests.', 'jetpack' ),
+		requestsCount
+	);
+
+	/*
+	 * Calculate usage. When hasFeature is true, the user has the paid plan,
+	 * that grants unlimited requests for now. To show something meaningful in
+	 * the usage bar, we use a very low usage value.
+	 */
+	const usage = hasFeature ? 0.1 : requestsCount / requestsLimit;
+
 	return (
 		<BaseControl help={ help } label={ __( 'Usage', 'jetpack' ) }>
+			<p>{ hasFeature ? unlimitedPlanUsageMessage : freeUsageMessage }</p>
 			<UsageBar usage={ usage } limitReached={ limitReached } />
 		</BaseControl>
 	);
