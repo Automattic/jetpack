@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Instant Search: rely on browsers' native lazy loading functionality when we want to lazy load images.
