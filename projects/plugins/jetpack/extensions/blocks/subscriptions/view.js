@@ -47,7 +47,6 @@ domReady( function () {
 				plan: 'newsletter',
 				source: 'jetpack_subscribe',
 				post_access_level: form.dataset.post_access_level,
-				display: 'alternate',
 			} );
 		} );
 	}
