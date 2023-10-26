@@ -529,7 +529,25 @@ class MyPlanHeader extends React.Component {
 			<Card compact>
 				<div className="jp-landing__licensing-actions">
 					{ 'header' === position && (
-						<span>{ __( 'Got a license key? Activate it here.', 'jetpack' ) }</span>
+						<span>
+							{ createInterpolateElement(
+								/* translators: %s is the link to the License management page. */
+								__( 'Got a license key? <a>Activate it here.</a>', 'jetpack' ),
+								{
+									a: (
+										<a
+											href={
+												! window.Initial_State?.useMyJetpackLicensingUI
+													? siteAdminUrl + 'admin.php?page=jetpack#/license/activation'
+													: siteAdminUrl + 'admin.php?page=my-jetpack#/add-license'
+											}
+											onClick={ this.trackLicenseActivationClick }
+											className="jp-landing__licensing-actions-link"
+										/>
+									),
+								}
+							) }
+						</span>
 					) }
 					<div
 						className={ classnames( 'jp-landing__licensing-actions-item', {
@@ -548,21 +566,7 @@ class MyPlanHeader extends React.Component {
 							</Button>
 						) }
 
-						{ 'header' === position ? (
-							<Button
-								href={
-									! window.Initial_State?.useMyJetpackLicensingUI
-										? siteAdminUrl + 'admin.php?page=jetpack#/license/activation'
-										: siteAdminUrl + 'admin.php?page=my-jetpack#/add-license'
-								}
-								onClick={ this.trackLicenseActivationClick }
-								primary
-								compact
-								rna
-							>
-								{ _x( 'Activate a Product', 'Navigation item.', 'jetpack' ) }
-							</Button>
-						) : (
+						{ 'footer' === position && (
 							<Button
 								href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
 								onClick={ this.trackRecommendationsClick }
