@@ -1,6 +1,6 @@
 /* global tb_show, tb_remove */
 
-let premiumContentJWTTokenForCookie = '';
+let subscriptionsJWTTokenForCookie = '';
 
 function setUpThickbox( button ) {
 	button.addEventListener( 'click', event => {
@@ -35,44 +35,22 @@ export const initializeMembershipButtons = selector => {
 	} );
 };
 
-const updateQueryStringParameter = function ( uri, key, value ) {
-	const re = new RegExp( '([?&])' + key + '=.*?(&|$)', 'i' );
-	const separator = uri.indexOf( '?' ) !== -1 ? '&' : '?';
-	if ( uri.match( re ) ) {
-		return uri.replace( re, '$1' + key + '=' + value + '$2' );
+const tokenCookieName = 'jp-premium-content-session';
+const getTokenFromCookie = function () {
+	const value = `; ${ document.cookie }`;
+	const parts = value.split( `; ${ tokenCookieName } = ` );
+	if ( parts.length === 2 ) {
+		return parts.pop().split( ';' ).shift();
 	}
-	return uri + separator + key + '=' + value;
 };
 
-export const setPurchaseResultCookie = function ( premiumContentJWTToken ) {
+const setTokenCookie = function ( token ) {
 	// We will set this in a cookie  - just in case. This will be reloaded in the refresh, when user clicks OK.
 	// But user can close the browser window before clicking OK. IN that case, we want to leave a cookie behind.
 	const date = new Date();
 	date.setTime( date.getTime() + 365 * 24 * 60 * 60 * 1000 );
 	document.cookie =
-		'jp-premium-content-session' +
-		'=' +
-		premiumContentJWTToken +
-		'; expires=' +
-		date.toGMTString() +
-		'; path=/';
-};
-
-export const reloadPageWithPremiumContentQueryString = function (
-	premiumContentJWTToken,
-	additionalParams
-) {
-	let newQueryString = updateQueryStringParameter(
-		document.location.href,
-		'token',
-		premiumContentJWTToken
-	);
-	if ( additionalParams ) {
-		Object.keys( additionalParams ).forEach( key => {
-			newQueryString = updateQueryStringParameter( newQueryString, key, additionalParams[ key ] );
-		} );
-	}
-	document.location.href = newQueryString;
+		'jp-premium-content-session' + '=' + token + '; expires=' + date.toGMTString() + '; path=/';
 };
 
 export function show_modal( data ) {
@@ -124,10 +102,10 @@ export function handleIframeResult( eventFromIframe ) {
 		const data = JSON.parse( eventFromIframe.data );
 		if ( data && data.result && data.result.jwt_token ) {
 			// We save the token for now, doing nothing.
-			premiumContentJWTTokenForCookie = data.result.jwt_token;
-			setPurchaseResultCookie( premiumContentJWTTokenForCookie );
+			subscriptionsJWTTokenForCookie = data.result.jwt_token;
+			setTokenCookie( subscriptionsJWTTokenForCookie );
 		}
-		if ( data && data.action === 'close' && premiumContentJWTTokenForCookie ) {
+		if ( data && data.action === 'close' && getTokenFromCookie() ) {
 			// The token was set during the purchase flow, we want to reload the whole page so the content is displayed
 			window.location.reload();
 		} else if ( data && data.action === 'close' ) {
