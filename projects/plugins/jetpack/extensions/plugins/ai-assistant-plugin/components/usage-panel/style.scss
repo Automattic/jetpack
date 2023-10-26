@@ -1,13 +1,9 @@
 @import '@automattic/jetpack-base-styles/style';
 
-.jetpack-ai-usage-panel-control {
+.jetpack-ai-usage-panel {
     width: 100%;
 
     p.muted {
         color: var(--jp-gray-50 );
-    }
-
-    .components-base-control__help {
-        margin-top: -8px;
     }
 }

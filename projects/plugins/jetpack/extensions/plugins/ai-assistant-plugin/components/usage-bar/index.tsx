@@ -1,11 +1,15 @@
 /**
  * Internal dependencies
  */
+import { BaseControl } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
 import './style.scss';
 /**
  * Types
  */
 import type { UsageBarProps } from './types';
+import type { AIFeatureProps } from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import type React from 'react';
 
 /**
@@ -14,7 +18,10 @@ import type React from 'react';
  * @param {UsageBarProps} props - Component props.
  * @returns {React.ReactNode}     UsageBar react component.
  */
-const UsageBar: React.FC< UsageBarProps > = ( { usage } ) => {
+export const UsageBar: React.FC< UsageBarProps > = ( {
+	usage,
+	limitReached,
+}: UsageBarProps ): React.ReactNode => {
 	if ( usage == null ) {
 		return null;
 	}
@@ -27,9 +34,60 @@ const UsageBar: React.FC< UsageBarProps > = ( { usage } ) => {
 
 	return (
 		<div className="ai-assistant-usage-bar-wrapper">
-			<div className="ai-assistant-usage-bar-usage" style={ style }></div>
+			<div
+				className={ classNames( 'ai-assistant-usage-bar-usage', {
+					'is-limit-reached': limitReached,
+				} ) }
+				style={ style }
+			></div>
 		</div>
 	);
 };
 
-export default UsageBar;
+function UsageControl( {
+	isOverLimit,
+	hasFeature,
+	requestsCount,
+	requestsLimit,
+}: Pick< AIFeatureProps, 'isOverLimit' | 'hasFeature' | 'requestsCount' | 'requestsLimit' > ) {
+	let help = __( 'Unlimited requests for your site', 'jetpack' );
+
+	if ( ! hasFeature ) {
+		// translators: %1$d: number of requests allowed in the free plan
+		help = sprintf( __( '%1$d free requests for your site', 'jetpack' ), requestsLimit );
+	}
+
+	const limitReached = isOverLimit && ! hasFeature;
+	if ( limitReached ) {
+		help = __( 'You have reached your plan requests limit.', 'jetpack' );
+	}
+
+	// build messages
+	const freeUsageMessage = sprintf(
+		// translators: %1$d: current request counter; %2$d: request allowance;
+		__( '%1$d / %2$d free requests.', 'jetpack' ),
+		requestsCount,
+		requestsLimit
+	);
+	const unlimitedPlanUsageMessage = sprintf(
+		// translators: placeholder is the current request counter;
+		__( '%d / ∞ requests.', 'jetpack' ),
+		requestsCount
+	);
+
+	/*
+	 * Calculate usage. When hasFeature is true, the user has the paid plan,
+	 * that grants unlimited requests for now. To show something meaningful in
+	 * the usage bar, we use a very low usage value.
+	 */
+	const usage = hasFeature ? 0.1 : requestsCount / requestsLimit;
+
+	return (
+		<BaseControl help={ help } label={ __( 'Usage', 'jetpack' ) }>
+			<p>{ hasFeature ? unlimitedPlanUsageMessage : freeUsageMessage }</p>
+			{ ! hasFeature && <UsageBar usage={ usage } limitReached={ limitReached } /> }
+		</BaseControl>
+	);
+}
+
+export default UsageControl;
