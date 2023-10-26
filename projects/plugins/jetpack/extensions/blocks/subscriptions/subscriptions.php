@@ -927,7 +927,11 @@ function get_paywall_blocks( $newsletter_access_level ) {
 	}
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	// Only display paid texts when Stripe is connected and the post is marked for paid subscribers
-	$is_paid_post       = $newsletter_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
+	$is_paid_post = $newsletter_access_level === (
+			Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ||
+			Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS
+		) && Jetpack_Memberships::has_connected_account();
+
 	$is_paid_subscriber = Jetpack_Memberships::user_is_paid_subscriber();
 
 	$access_heading = $is_paid_subscriber
