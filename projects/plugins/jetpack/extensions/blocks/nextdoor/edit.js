@@ -12,7 +12,7 @@ import { parseUrl } from './utils';
 
 const icon = getBlockIconComponent( metadata );
 
-function NextdoorEdit( {
+export function NextdoorEdit( {
 	attributes,
 	className,
 	name,

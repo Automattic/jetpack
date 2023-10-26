@@ -1,9 +1,14 @@
-export const REGEX = /(^|\/\/)(nextdoor\.[^"']*)/i;
+export const REGEX = /(^|\/\/|www.)(nextdoor\.[^"']*)/i;
 
 const PATH_REGEX = /([^/]+$)/;
 
 const getEmbedUrlFromPostUrl = postUrl => {
-	const urlObject = new URL( postUrl );
+	let urlObject = '';
+	if ( postUrl.indexOf( 'https' ) === 0 ) {
+		urlObject = new URL( postUrl );
+	} else {
+		urlObject = new URL( 'https:' + postUrl );
+	}
 
 	const embedId = urlObject.pathname.match( PATH_REGEX );
 
