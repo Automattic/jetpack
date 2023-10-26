@@ -18,7 +18,7 @@ import type React from 'react';
  * @param {UsageBarProps} props - Component props.
  * @returns {React.ReactNode}     UsageBar react component.
  */
-const UsageBar: React.FC< UsageBarProps > = ( {
+export const UsageBar: React.FC< UsageBarProps > = ( {
 	usage,
 	limitReached,
 }: UsageBarProps ): React.ReactNode => {
@@ -44,7 +44,7 @@ const UsageBar: React.FC< UsageBarProps > = ( {
 	);
 };
 
-export function UsageControl( {
+function UsageControl( {
 	isOverLimit,
 	hasFeature,
 	requestsCount,
@@ -84,4 +84,4 @@ export function UsageControl( {
 	);
 }
 
-export default UsageBar;
+export default UsageControl;

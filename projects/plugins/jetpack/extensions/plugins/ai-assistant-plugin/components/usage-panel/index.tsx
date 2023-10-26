@@ -10,7 +10,7 @@ import './style.scss';
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAIFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../../../blocks/ai-assistant/lib/connection';
-import { UsageControl } from '../usage-bar';
+import UsageControl from '../usage-bar';
 import './style.scss';
 
 export default function UsagePanel() {
@@ -20,17 +20,9 @@ export default function UsagePanel() {
 	// fetch usage data
 	const { hasFeature, requestsCount, requestsLimit, isOverLimit } = useAIFeature();
 
-	/*
-	 * Calculate usage. When hasFeature is true, the user has the paid plan,
-	 * that grants unlimited requests for now. To show something meaningful in
-	 * the usage bar, we use a very low usage value.
-	 */
-	const usage = hasFeature ? 0.1 : requestsCount / requestsLimit;
-
 	return (
 		<div className="jetpack-ai-usage-panel-control">
 			<UsageControl
-				usage={ usage }
 				isOverLimit={ isOverLimit }
 				hasFeature={ hasFeature }
 				requestsCount={ requestsCount }
