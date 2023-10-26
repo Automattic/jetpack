@@ -55,6 +55,11 @@ function render_login_button_block( $attributes, $content ) {
 	Jetpack_Gutenberg::load_styles_as_required( LOGIN_BUTTON_NAME );
 
 	$url = subscription_service()->access_url();
-
-	return preg_replace( '/(<a\b[^><]*)>/i', '$1 href="' . esc_url( $url ) . '">', $content );
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		return preg_replace( '/(<a\b[^><]*)>/i', '$1 href="' . esc_url( $url ) . '">', $content );
+	} else {
+		// use iframe
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+		return preg_replace( '/(<a\b[^><]*)>/i', '$1 data-blog_id="' . $blog_id . '" id="jp_retrieve_subscriptions_link" href="' . esc_url( $url ) . '">', $content );
+	}
 }

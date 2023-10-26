@@ -1,8 +1,15 @@
 import './view.scss';
-import { handleIframeResult } from '../../../extensions/shared/memberships';
+import '../../shared/memberships.scss';
+import domReady from '@wordpress/dom-ready';
+import { show_modal_retrieve_subscriptions_from_email } from '../../shared/memberships';
 
-document.addEventListener( 'DOMContentLoaded', function () {
-	if ( typeof window !== 'undefined' ) {
-		window.addEventListener( 'message', handleIframeResult, false );
+domReady( function () {
+	const link = document.querySelector( '#jp_retrieve_subscriptions_link' );
+	if ( link && link.dataset.blog_id ) {
+		link.addEventListener( 'click', function ( event ) {
+			event.preventDefault();
+			// get the email from the form
+			show_modal_retrieve_subscriptions_from_email( link.dataset.blog_id, null );
+		} );
 	}
 } );
