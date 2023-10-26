@@ -771,8 +771,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'jetpack/v4',
 			'/subscribers/auth',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => __CLASS__ . '::set_subscriber_cookie_and_redirect',
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::set_subscriber_cookie_and_redirect',
+				'permission_callback' => '__return_true',
 			)
 		);
 	}
