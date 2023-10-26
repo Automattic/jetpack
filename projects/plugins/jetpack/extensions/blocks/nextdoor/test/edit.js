@@ -55,10 +55,8 @@ describe( 'NextdoorEdit', () => {
 		const attributes = { url: 'https://facebook.com/invalid-url' };
 		render( <NextdoorEdit { ...{ ...defaultProps, attributes } } /> );
 
-		// expect( testEmbedUrl ).toHaveBeenCalledWith( attributes.url, expect.anything() );
 		await user.click( screen.getByRole( 'button', { name: 'Embed' } ) );
 
-		// await waitFor( () => expect( setAttributes ).toHaveBeenCalledWith( { url: undefined } ) );
 		expect( removeAllNotices ).toHaveBeenCalled();
 		expect( createErrorNotice ).toHaveBeenCalled();
 	} );
