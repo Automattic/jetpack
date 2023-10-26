@@ -8,7 +8,7 @@ import './style.scss';
 /**
  * Types
  */
-import type { UsageBarProps } from './types';
+import type { UsageBarProps, UsageControlProps } from './types';
 import type React from 'react';
 
 /**
@@ -19,17 +19,10 @@ import type React from 'react';
  */
 const UsageBar: React.FC< UsageBarProps > = ( {
 	usage,
-	isOverLimit,
-	hasFeature,
+	limitReached,
 }: UsageBarProps ): React.ReactNode => {
 	if ( usage == null ) {
 		return null;
-	}
-
-	let help = hasFeature ? __( 'Unlimited requests for your site', 'jetpack' ) : undefined;
-	const limitReached = isOverLimit && ! hasFeature;
-	if ( limitReached ) {
-		help = __( 'You have reached your plan requests limit.', 'jetpack' );
 	}
 
 	const normalizedUsage = Math.max( Math.min( usage, 1 ), 0 );
@@ -39,17 +32,29 @@ const UsageBar: React.FC< UsageBarProps > = ( {
 	};
 
 	return (
-		<BaseControl help={ help }>
-			<div className="ai-assistant-usage-bar-wrapper">
-				<div
-					className={ classNames( 'ai-assistant-usage-bar-usage', {
-						'is-limit-reached': limitReached,
-					} ) }
-					style={ style }
-				></div>
-			</div>
-		</BaseControl>
+		<div className="ai-assistant-usage-bar-wrapper">
+			<div
+				className={ classNames( 'ai-assistant-usage-bar-usage', {
+					'is-limit-reached': limitReached,
+				} ) }
+				style={ style }
+			></div>
+		</div>
 	);
 };
+
+export function UsageControl( { usage, isOverLimit, hasFeature }: UsageControlProps ) {
+	let help = hasFeature ? __( 'Unlimited requests for your site', 'jetpack' ) : undefined;
+	const limitReached = isOverLimit && ! hasFeature;
+	if ( limitReached ) {
+		help = __( 'You have reached your plan requests limit.', 'jetpack' );
+	}
+
+	return (
+		<BaseControl help={ help } label={ __( 'Usage', 'jetpack' ) }>
+			<UsageBar usage={ usage } limitReached={ limitReached } />
+		</BaseControl>
+	);
+}
 
 export default UsageBar;
