@@ -48,7 +48,8 @@ const setTokenCookie = function ( token ) {
 	// We will set this in a cookie  - just in case. This will be reloaded in the refresh, when user clicks OK.
 	// But user can close the browser window before clicking OK. IN that case, we want to leave a cookie behind.
 	const date = new Date();
-	date.setTime( date.getTime() + 365 * 24 * 60 * 60 * 1000 );
+	// We set the cookie for one week: subscription can be cancelled and we don't want the user to keep access
+	date.setTime( date.getTime() + 7 * 24 * 60 * 60 * 1000 );
 	document.cookie =
 		'jp-premium-content-session' + '=' + token + '; expires=' + date.toGMTString() + '; path=/';
 };
