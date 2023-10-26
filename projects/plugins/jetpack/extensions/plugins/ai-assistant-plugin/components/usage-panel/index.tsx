@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button, BaseControl } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -10,7 +10,7 @@ import './style.scss';
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAIFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../../../blocks/ai-assistant/lib/connection';
-import UsageBar from '../usage-bar';
+import { UsageControl } from '../usage-bar';
 import './style.scss';
 
 export default function UsagePanel() {
@@ -41,10 +41,10 @@ export default function UsagePanel() {
 	const usage = hasFeature ? 0.1 : requestsCount / requestsLimit;
 
 	return (
-		<BaseControl className="jetpack-ai-usage-panel-control" label={ __( 'Usage', 'jetpack' ) }>
+		<div className="jetpack-ai-usage-panel-control">
 			<p>{ hasFeature ? unlimitedPlanUsageMessage : freeUsageMessage }</p>
 
-			<UsageBar usage={ usage } isOverLimit={ isOverLimit } hasFeature={ hasFeature } />
+			<UsageControl usage={ usage } isOverLimit={ isOverLimit } hasFeature={ hasFeature } />
 
 			{ false && (
 				<p className="muted">
@@ -66,6 +66,6 @@ export default function UsagePanel() {
 					Upgrade
 				</Button>
 			) }
-		</BaseControl>
+		</div>
 	);
 }
