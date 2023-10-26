@@ -1103,7 +1103,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 			class_exists( 'Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service' ) &&
 			! $host->is_wpcom_simple() ) {
 		// We are on Jetpack and no cookie is set
-		$id              = 'jp_retrieve_subscriptions_link';
+		$id              = 'jp_retrieve_subscriptions_link' . ( get_the_ID() ? get_the_ID() : '' );
 		$sign_in_link    = '#'; // listening to "click" event in view.js
 		$access_question = '';
 		if ( ! Jetpack_Token_Subscription_Service::has_token_from_cookie() ) {
