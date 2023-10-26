@@ -55,6 +55,8 @@ export function useSetAccess() {
 		setPostMeta( {
 			...metas,
 			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: value,
+			// When a access is set, we need to clear the tier
+			[ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: null,
 		} );
 	};
 }
