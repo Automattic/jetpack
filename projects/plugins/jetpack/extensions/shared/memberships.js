@@ -70,25 +70,13 @@ export function show_modal( data ) {
 	window.scrollTo( 0, 0 );
 }
 
-export function show_modal_retrieve_subscriptions_from_email() {
-	const form = document.querySelector( '.wp-block-jetpack-subscriptions__container form' );
-	if ( ! form ) {
-		return;
-	}
-
-	if ( ! form.checkValidity() ) {
-		form.reportValidity();
-		return;
-	}
-
-	const email = form.querySelector( 'input[type=email]' ).value;
-
+export function show_modal_retrieve_subscriptions_from_email( blog, email ) {
+	// Email does not have to be
 	show_modal( {
 		email,
-		blog: form.dataset.blog,
+		blog,
 		plan: 'newsletter',
 		source: 'jetpack_retrieve_subscriptions',
-		post_access_level: form.dataset.post_access_level,
 		display: 'alternate',
 	} );
 }
