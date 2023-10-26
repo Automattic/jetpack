@@ -6,20 +6,16 @@ Exports:
 
 Available slugs are:
 
-* jetpack-ai
 * anti-spam
 * backup
 * boost
 * crm
 * extras
-* protect
 * scan
 * search
-* social
 * star
 * videopress
 * jetpack
-* share
 
 ```es6
 import {
@@ -50,42 +46,30 @@ return (
 
 ```es6
 import {
-	JetpackAiIcon,
 	AntiSpamIcon,
 	BackupIcon,
 	BoostIcon,
 	CheckmarkIcon,
 	CrmIcon,
-	ExtrasIcon,
-	ProtectIcon,
 	ScanIcon,
 	SearchIcon,
-	SocialIcon,
 	StarIcon,
 	VideoPressIcon,
-	StatsIcon,
-	ClipboardIcon,
 	JetpackIcon,
 	ShareIcon,
 } from '@automattic/jetpack-components';
 
 return (
 	<div>
-		<JetpackAiIcon />
 		<AntiSpamIcon />
 		<BackupIcon />
 		<BoostIcon />
 		<CheckmarkIcon />
 		<CrmIcon />
-		<ExtrasIcon />
-		<ProtectIcon />
 		<ScanIcon />
 		<SearchIcon />
-		<SocialIcon />
 		<StarIcon />
 		<VideoPressIcon />
-		<StatsIcon />
-		<ClipboardIcon />
 		<JetpackIcon />
 		<ShareIcon />
 	</div>
