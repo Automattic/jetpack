@@ -415,7 +415,8 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		}
 
 		if ( ! empty( $token ) && false === headers_sent() ) {
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/', COOKIE_DOMAIN, is_ssl(), true ); // httponly -- used by visitor_can_view_content() within the PHP context.
+			// Set the token to expire in one week to prevent ever-lasting subscriptions (if cancelled) and to force user to reload
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, strtotime( '+1 week' ), '/', COOKIE_DOMAIN, is_ssl(), true ); // httponly -- used by visitor_can_view_content() within the PHP context.
 		}
 	}
 
