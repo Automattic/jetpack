@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix block paid icon rendering error on simple sites
