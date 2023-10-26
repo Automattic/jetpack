@@ -85,7 +85,7 @@ class Launchpad_Task_Lists {
 	 * @return bool True if successful, false if not.
 	 */
 	public function register_task( $task = array() ) {
-		if ( ! $this->validate_task( $task ) ) {
+		if ( ! static::validate_task( $task ) ) {
 			return false;
 		}
 		// TODO: Handle duplicate tasks
