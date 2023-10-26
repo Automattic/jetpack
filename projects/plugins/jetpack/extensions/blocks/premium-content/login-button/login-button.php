@@ -45,11 +45,9 @@ function render_login_button_block( $attributes, $content ) {
 	}
 
 	$has_auth_cookie = isset( $_COOKIE[ Token_Subscription_Service::JWT_AUTH_TOKEN_COOKIE_NAME ] );
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$has_token_parameter = isset( $_GET['token'] );
 
 	$is_user_logged_in_on_wpcom = ( new Host() )->is_wpcom_simple() && is_user_logged_in();
-	if ( $is_user_logged_in_on_wpcom || $has_auth_cookie || $has_token_parameter ) {
+	if ( $is_user_logged_in_on_wpcom || $has_auth_cookie ) {
 		// The viewer is logged it, so they shouldn't see the login button.
 		return '';
 	}
