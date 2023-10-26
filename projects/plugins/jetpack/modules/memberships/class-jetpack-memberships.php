@@ -543,8 +543,20 @@ class Jetpack_Memberships {
 		}
 
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-		$paywall       = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$can_view_post = $paywall->visitor_can_view_content( self::get_all_newsletter_plan_ids(), $post_access_level );
+		$paywall = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+
+		$all_newsletters_plan_ids = self::get_all_newsletter_plan_ids();
+
+		if ( 0 === count( $all_newsletters_plan_ids ) &&
+			Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS === $post_access_level ||
+			Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS === $post_access_level
+		) {
+			// The post is paywalled but there is no newsletter plans on the site.
+			// We downgrade the post level to subscribers-only
+			$post_access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
+		}
+
+		$can_view_post = $paywall->visitor_can_view_content( $all_newsletters_plan_ids, $post_access_level );
 
 		self::$user_can_view_post_cache[ $cache_key ] = $can_view_post;
 		return $can_view_post;
