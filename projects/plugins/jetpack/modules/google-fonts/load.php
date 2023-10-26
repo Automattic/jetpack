@@ -15,5 +15,8 @@ add_action(
 			// Gutenberg Fonts API compatible.
 			require_once __DIR__ . '/wordpress-6.3/load-google-fonts.php';
 		}
-	}
+	},
+	// Ensure the action is loaded after the late_initialization.
+	// See projects/plugins/jetpack/class.jetpack.php.
+	999
 );
