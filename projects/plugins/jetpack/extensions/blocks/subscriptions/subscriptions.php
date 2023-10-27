@@ -724,8 +724,8 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 			<?php if ( $data['show_subscribers_total'] && $data['subscribers_total'] ) : ?>
 				<div class="wp-block-jetpack-subscriptions__subscount">
 					<?php
-					/* translators: %s: number of folks following the blog */
-					echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $data['subscribers_total'], 'jetpack' ), number_format_i18n( $data['subscribers_total'] ) ) );
+					/* translators: %s: number of folks subscribing to the blog */
+					echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $data['subscribers_total'], 'jetpack' ), number_format_i18n( $data['subscribers_total'] ) ) );
 					?>
 				</div>
 			<?php endif; ?>
