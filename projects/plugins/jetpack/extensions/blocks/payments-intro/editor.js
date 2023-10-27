@@ -1,8 +1,8 @@
 import { InnerBlocks } from '@wordpress/block-editor';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
-import { settings as donationSettings } from '../donations';
-import { settings as premiumContentSettings } from '../premium-content';
-import { settings as recurringPaymentSettings } from '../recurring-payments';
+import donationMetadata from '../donations/block.json';
+import premiumContentMetadata from '../premium-content/block.json';
+import recurringPaymentsMetadata from '../recurring-payments/block.json';
 import metadata from './block.json';
 import edit from './edit';
 
@@ -14,12 +14,12 @@ registerJetpackBlockFromMetadata( metadata, {
 	keywords: [
 		...new Set( [
 			...metadata.keywords,
-			donationSettings.title,
-			...donationSettings.keywords,
-			recurringPaymentSettings.title,
-			...recurringPaymentSettings.keywords,
-			premiumContentSettings.title,
-			...premiumContentSettings.keywords,
+			donationMetadata.title,
+			...donationMetadata.keywords,
+			recurringPaymentsMetadata.title,
+			...recurringPaymentsMetadata.keywords,
+			premiumContentMetadata.title,
+			...premiumContentMetadata.keywords,
 		] ),
 	],
 } );
