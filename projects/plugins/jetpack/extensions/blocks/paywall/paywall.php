@@ -11,6 +11,11 @@ namespace Automattic\Jetpack\Extensions\Paywall;
 
 use Automattic\Jetpack\Blocks;
 
+const FEATURE_NAME      = 'paywall';
+const BLOCK_NAME        = 'jetpack/' . FEATURE_NAME;
+const BLOCK_HTML        = '<!-- wp:' . BLOCK_NAME . ' /-->';
+const THE_EXCERPT_BLOCK = '[[[[[' . BLOCK_NAME . ']]]]]';
+
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -43,7 +48,7 @@ function render_block() {
 		if ( \Jetpack_Memberships::user_can_view_post() ) {
 			return '';
 		}
-		return '[[[[[' . Blocks::get_block_name( __DIR__ ) . ']]]]]';
+		return THE_EXCERPT_BLOCK;
 	}
 	return '';
 }
