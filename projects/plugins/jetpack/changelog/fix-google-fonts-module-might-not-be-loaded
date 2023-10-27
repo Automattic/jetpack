@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix the google fonts module is not loaded after the late initialization
