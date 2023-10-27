@@ -9,6 +9,7 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { select, useSelect } from '@wordpress/data';
 import { useEffect, useCallback } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
+import React from 'react';
 /*
  * Internal dependencies
  */
@@ -51,6 +52,11 @@ export function useIsPossibleToExtendJetpackFormBlock(
 		return false;
 	}
 
+	// Check if there is a block name.
+	if ( typeof blockName !== 'string' ) {
+		return false;
+	}
+
 	// Check if Jetpack extension is enabled.
 	if ( ! isJetpackFromBlockAiCompositionAvailable ) {
 		return false;
@@ -58,13 +64,6 @@ export function useIsPossibleToExtendJetpackFormBlock(
 
 	// clientId is required
 	if ( ! clientId?.length ) {
-		return false;
-	}
-
-	// Do not extend when the block is inside of a core/query block.
-	const { getBlockParentsByBlockName } = select( 'core/block-editor' );
-	const isChildOfQueryBlock = getBlockParentsByBlockName( clientId, 'core/query' )?.length > 0;
-	if ( isChildOfQueryBlock ) {
 		return false;
 	}
 
@@ -156,6 +155,8 @@ const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit =>
  *
  * - Populate the Jetpack Form edit component
  * with the AI Assistant bar and button (jetpackFormEditWithAiComponents).
+ * - Add the UI Handler data provider (withUiHandlerDataProvider).
+ * - Add the AI Assistant data provider (withAiDataProvider).
  *
  * @param {object} settings - The block settings.
  * @param {string} name     - The block name.
@@ -169,7 +170,9 @@ function jetpackFormWithAiSupport( settings, name: string ) {
 
 	return {
 		...settings,
-		edit: jetpackFormEditWithAiComponents( settings.edit ),
+		edit: withAiDataProvider(
+			withUiHandlerDataProvider( jetpackFormEditWithAiComponents( settings.edit ) )
+		),
 	};
 }
 
@@ -191,7 +194,11 @@ const jetpackFormChildrenEditWithAiComponents = createHigherOrderComponent( Bloc
 		// Get clientId of the parent block.
 		const parentClientId = useSelect(
 			selectData => {
-				const { getBlockParentsByBlockName } = selectData( 'core/block-editor' );
+				const blockEditorSelectData: {
+					getBlockParentsByBlockName: ( clientId: string, blockName: string ) => string[];
+				} = selectData( 'core/block-editor' );
+				const { getBlockParentsByBlockName } = blockEditorSelectData;
+
 				return getBlockParentsByBlockName( props.clientId, 'jetpack/contact-form' )?.[ 0 ];
 			},
 			[ props.clientId ]
@@ -243,13 +250,3 @@ addFilter(
 	'jetpack/ai-assistant-support',
 	jetpackFormChildrenEditWithAiSupport
 );
-
-// Provide the UI Handler data context to the block.
-addFilter(
-	'editor.BlockListBlock',
-	'jetpack/ai-assistant-support',
-	withUiHandlerDataProvider,
-	100
-);
-
-addFilter( 'editor.BlockListBlock', 'jetpack/ai-assistant-block-list', withAiDataProvider, 110 );

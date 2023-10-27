@@ -462,27 +462,6 @@ function jetpack_photon_more_info() {
 add_action( 'jetpack_module_more_info_photon', 'jetpack_photon_more_info' );
 
 /**
- * Lazy Images support link.
- */
-function jetpack_lazy_images_more_link() {
-	echo esc_url( Redirect::get_url( 'jetpack-support-lazy-images' ) );
-}
-add_action( 'jetpack_learn_more_button_lazy-images', 'jetpack_lazy_images_more_link' );
-
-/**
- * Lazy Images description.
- */
-function jetpack_lazy_images_more_info() {
-	esc_html_e(
-		'Improve your site\'s speed by only loading images visible on the screen.
-		Modern browsers now support lazy loading, and WordPress itself bundles lazy loading features for images and videos.
-		This feature will consequently be removed from Jetpack in November 2023.',
-		'jetpack'
-	);
-}
-add_action( 'jetpack_module_more_info_lazy-images', 'jetpack_lazy_images_more_info' );
-
-/**
  * Tiled Galleries support link.
  */
 function jetpack_tiled_gallery_more_link() {

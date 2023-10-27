@@ -102,7 +102,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 				true
 			);
 			$subscriptions      = (array) $payload['subscriptions'];
-			$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
+			$is_paid_subscriber = static::validate_subscriptions( $valid_plan_ids, $subscriptions );
 		}
 
 		$has_access = $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID(), $subscriptions );
@@ -361,6 +361,15 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			return $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ];
 		}
+	}
+
+	/**
+	 * Check whether the JWT_TOKEN cookie is set
+	 *
+	 * @return bool
+	 */
+	public static function has_token_from_cookie() {
+		return isset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] ) && ! empty( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
 	}
 
 	/**

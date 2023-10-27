@@ -7,8 +7,6 @@ import './src/social-store';
 export { default as Connection } from './src/components/connection';
 export { default as ConnectionVerify } from './src/components/connection-verify';
 export { default as Form } from './src/components/form';
-export { default as TwitterThreadListener } from './src/components/twitter';
-export { default as TwitterOptions } from './src/components/twitter/options';
 export { default as SocialPreviewsModal } from './src/components/social-previews/modal';
 export { default as SocialPreviewsPanel } from './src/components/social-previews/panel';
 export { default as SocialImageGeneratorPanel } from './src/components/social-image-generator/panel';

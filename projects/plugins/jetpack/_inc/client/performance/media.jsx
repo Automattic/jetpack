@@ -1,5 +1,4 @@
-import ProgressBar from '@automattic/components/dist/esm/progress-bar';
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { ProgressBar, ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import { FormLegend, FormFieldset } from 'components/forms';
 import JetpackBanner from 'components/jetpack-banner';
@@ -87,7 +86,7 @@ class Media extends React.Component {
 				{ shouldDisplayStorage && (
 					<div className="media__videopress-storage">
 						<span>{ __( 'Video storage used out of 1TB:', 'jetpack' ) }</span>
-						<ProgressBar value={ videoPressStorageUsed / 10000 } />
+						<ProgressBar progress={ videoPressStorageUsed / 1000000 } />
 					</div>
 				) }
 				{ hasConnectedOwner && (

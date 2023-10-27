@@ -45,6 +45,7 @@ jobs:
       PHP_VERSION: ${{ matrix.php }}
       NODE_VERSION: ${{ matrix.node }}
       MONOREPO_BASE: ${{ github.workspace }}
+      WITH_WOOCOMMERCE: ${{ matrix.with-woocommerce }}
     strategy:
       fail-fast: false
       matrix:
@@ -80,11 +81,21 @@ jobs:
         id: changed
         run: |
           CHANGED="$(EXTRA=test .github/files/list-changed-projects.sh)"
+
+          # Only test certain plugins in combination with WC
+          if [[ "$WITH_WOOCOMMERCE" == true ]]; then
+            echo "Testing with WooCommerce, filtering for projects that have WooCommerce-specific tests."
+            CHANGED=$( jq -c 'with_entries( select( .key == "plugins/jetpack" ) )' <<<"$CHANGED" )
+          fi
+
           ANY_PLUGINS="$(jq --argjson changed "$CHANGED" -n '$changed | with_entries( select( .key | startswith( "plugins/" ) ) ) | any')"
           echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
           echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
 
       - name: Setup WordPress environment for plugin tests
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+          CHANGED: ${{ steps.changed.outputs.projects }}
         if: steps.changed.outputs.any-plugins == 'true' && matrix.wp != 'none'
         run: .github/files/setup-wordpress-env.sh
 

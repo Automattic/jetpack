@@ -300,11 +300,6 @@ class Jetpack {
 			'Rank Math'                            => 'seo-by-rank-math/rank-math.php',
 			'Slim SEO'                             => 'slim-seo/slim-seo.php',
 		),
-		'lazy-images'        => array(
-			'Lazy Load'              => 'lazy-load/lazy-load.php',
-			'BJ Lazy Load'           => 'bj-lazy-load/bj-lazy-load.php',
-			'Lazy Load by WP Rocket' => 'rocket-lazy-load/rocket-lazy-load.php',
-		),
 	);
 
 	/**
@@ -842,7 +837,7 @@ class Jetpack {
 		add_filter( 'jetpack_static_url', array( 'Automattic\\Jetpack\\Assets', 'staticize_subdomain' ) );
 
 		// Validate the domain names in Jetpack development versions.
-		add_action( 'jetpack_pre_register', array( get_called_class(), 'registration_check_domains' ) );
+		add_action( 'jetpack_pre_register', array( static::class, 'registration_check_domains' ) );
 
 		// Register product descriptions for partner coupon usage.
 		add_filter( 'jetpack_partner_coupon_products', array( $this, 'get_partner_coupon_product_descriptions' ) );
@@ -1562,6 +1557,7 @@ class Jetpack {
 	 * @return array
 	 */
 	public static function get_updates() {
+		$updates     = array();
 		$update_data = wp_get_update_data();
 
 		// Stores the individual update counts as well as the total count.
@@ -1576,7 +1572,7 @@ class Jetpack {
 				$updates['wp_update_version'] = $cur->current;
 			}
 		}
-		return isset( $updates ) ? $updates : array();
+		return $updates;
 	}
 	// phpcs:enable WordPress.WP.CapitalPDangit.MisspelledInComment
 
@@ -4128,7 +4124,8 @@ p {
 			self::activate_new_modules( true );
 		}
 
-		$message_code = self::state( 'message' );
+		$activated_manage = false;
+		$message_code     = self::state( 'message' );
 		if ( self::state( 'optin-manage' ) ) {
 			$activated_manage = $message_code;
 			$message_code     = 'jetpack-manage';
@@ -4487,7 +4484,7 @@ endif;
 				}
 			}
 
-			$url = $this->build_authorize_url( $redirect );
+			$url = static::build_authorize_url( $redirect );
 		}
 
 		if ( $from ) {
@@ -5974,11 +5971,6 @@ endif;
 			'jetpack_cache_plans'                          => array(
 				'replacement' => null,
 				'version'     => 'jetpack-6.1.0',
-			),
-
-			'jetpack_lazy_images_skip_image_with_atttributes' => array(
-				'replacement' => 'jetpack_lazy_images_skip_image_with_attributes',
-				'version'     => 'jetpack-6.5.0',
 			),
 			'jetpack_enable_site_verification'             => array(
 				'replacement' => null,
