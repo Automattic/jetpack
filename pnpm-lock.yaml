@@ -2703,8 +2703,8 @@ importers:
   projects/plugins/boost/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.29.1
-        version: 1.29.1
+        specifier: 1.39.0
+        version: 1.39.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3241,8 +3241,8 @@ importers:
   projects/plugins/jetpack/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.29.1
-        version: 1.29.1
+        specifier: 1.39.0
+        version: 1.39.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3332,8 +3332,8 @@ importers:
   projects/plugins/migration/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.29.1
-        version: 1.29.1
+        specifier: 1.39.0
+        version: 1.39.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3445,8 +3445,8 @@ importers:
   projects/plugins/search/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.29.1
-        version: 1.29.1
+        specifier: 1.39.0
+        version: 1.39.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3578,8 +3578,8 @@ importers:
   projects/plugins/social/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.29.1
-        version: 1.29.1
+        specifier: 1.39.0
+        version: 1.39.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3669,8 +3669,8 @@ importers:
   projects/plugins/starter-plugin/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.29.1
-        version: 1.29.1
+        specifier: 1.39.0
+        version: 1.39.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3774,8 +3774,8 @@ importers:
   projects/plugins/videopress/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.29.1
-        version: 1.29.1
+        specifier: 1.39.0
+        version: 1.39.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3865,8 +3865,8 @@ importers:
   tools/e2e-commons:
     devDependencies:
       '@playwright/test':
-        specifier: 1.29.1
-        version: 1.29.1
+        specifier: 1.39.0
+        version: 1.39.0
       '@slack/web-api':
         specifier: 6.7.2
         version: 6.7.2
@@ -6818,13 +6818,12 @@ packages:
       tslib: 2.6.2
     dev: true
 
-  /@playwright/test@1.29.1:
-    resolution: {integrity: sha512-iQxk2DX5U9wOGV3+/Jh9OHPsw5H3mleUL2S4BgQuwtlAfK3PnKvn38m4Rg9zIViGHVW24opSm99HQm/UFLEy6w==}
-    engines: {node: '>=14'}
+  /@playwright/test@1.39.0:
+    resolution: {integrity: sha512-3u1iFqgzl7zr004bGPYiN/5EZpRUSFddQBra8Rqll5N0/vfpqlP9I9EXqAoGacuAbX6c9Ulg/Cjqglp5VkK6UQ==}
+    engines: {node: '>=16'}
     hasBin: true
     dependencies:
-      '@types/node': 20.8.7
-      playwright-core: 1.29.1
+      playwright: 1.39.0
     dev: true
 
   /@pmmmwh/react-refresh-webpack-plugin@0.5.11(react-refresh@0.11.0)(webpack@5.76.0):
@@ -16457,6 +16456,14 @@ packages:
   /fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
 
+  /fsevents@2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
   /fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -20140,10 +20147,20 @@ packages:
       find-up: 5.0.0
     dev: true
 
-  /playwright-core@1.29.1:
-    resolution: {integrity: sha512-20Ai3d+lMkWpI9YZYlxk8gxatfgax5STW8GaMozAHwigLiyiKQrdkt7gaoT9UQR8FIVDg6qVXs9IoZUQrDjIIg==}
-    engines: {node: '>=14'}
+  /playwright-core@1.39.0:
+    resolution: {integrity: sha512-+k4pdZgs1qiM+OUkSjx96YiKsXsmb59evFoqv8SKO067qBA+Z2s/dCzJij/ZhdQcs2zlTAgRKfeiiLm8PQ2qvw==}
+    engines: {node: '>=16'}
     hasBin: true
+    dev: true
+
+  /playwright@1.39.0:
+    resolution: {integrity: sha512-naE5QT11uC/Oiq0BwZ50gDmy8c8WLPRTEWuSSFVG2egBka/1qMoSqYQcROMT9zLwJ86oPofcTH2jBY/5wWOgIw==}
+    engines: {node: '>=16'}
+    hasBin: true
+    dependencies:
+      playwright-core: 1.39.0
+    optionalDependencies:
+      fsevents: 2.3.2
     dev: true
 
   /pluralize@8.0.0:
