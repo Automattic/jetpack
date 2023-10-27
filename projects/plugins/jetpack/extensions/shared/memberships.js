@@ -73,7 +73,7 @@ export function show_modal( data ) {
 export function show_modal_retrieve_subscriptions_from_email( blog, email ) {
 	// Email does not have to be
 	show_modal( {
-		email,
+		email: email ?? '',
 		blog,
 		plan: 'newsletter',
 		source: 'jetpack_retrieve_subscriptions',
