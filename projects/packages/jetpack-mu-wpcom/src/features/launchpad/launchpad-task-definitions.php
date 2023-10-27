@@ -1888,7 +1888,7 @@ add_action( 'jetpack_plugin_installed', 'wpcom_launchpad_mark_plugin_installed_c
 function wpcom_launchpad_mark_theme_selected_complete( $new_theme, $old_theme ) {
 	// This hook runs when site just gets setup, lets prevent checklist item from being complete
 	// when the theme is the same.
-	$is_same_theme = $new_theme['name'] === $old_theme['same'];
+	$is_same_theme = $new_theme['name'] === $old_theme['name'];
 	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_theme_selected' ) ) || $is_same_theme ) {
 		return;
 	}
