@@ -44,7 +44,7 @@
 			"default": {
 				"show": true,
 				"planId": null,
-				"amounts": [ 5, 15, 100 ],
+				"amounts": [5, 15, 100],
 				"heading": "Make a one-time donation",
 				"extraText": "Your contribution is appreciated.",
 				"buttonText": "Donate"
@@ -55,7 +55,7 @@
 			"default": {
 				"show": true,
 				"planId": null,
-				"amounts": [ 5, 15, 100 ],
+				"amounts": [5, 15, 100],
 				"heading": "Make a monthly donation",
 				"extraText": "Your contribution is appreciated.",
 				"buttonText": "Donate monthly"
@@ -66,7 +66,7 @@
 			"default": {
 				"show": true,
 				"planId": null,
-				"amounts": [ 5, 15, 100 ],
+				"amounts": [5, 15, 100],
 				"heading": "Make a yearly donation",
 				"extraText": "Your contribution is appreciated.",
 				"buttonText": "Donate yearly"
