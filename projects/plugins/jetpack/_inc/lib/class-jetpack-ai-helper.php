@@ -378,6 +378,9 @@ class Jetpack_AI_Helper {
 				'requests-limit'                => $requests_limit,
 				'site-require-upgrade'          => $require_upgrade,
 				'upgrade-type'                  => $upgrade_type,
+				'current-tier'                  => array(
+					'value' => $has_ai_assistant_feature ? 1 : 0,
+				),
 			);
 		}
 
