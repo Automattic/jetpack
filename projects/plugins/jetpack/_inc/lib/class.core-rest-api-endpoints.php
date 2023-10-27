@@ -765,6 +765,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 			)
 		);
+
+		// Save subscriber token and redirect
+		register_rest_route(
+			'jetpack/v4',
+			'/subscribers/auth',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::set_subscriber_cookie_and_redirect',
+				'permission_callback' => '__return_true',
+			)
+		);
 	}
 
 	/**
@@ -799,6 +810,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'token'   => $json->token,
 			'blog_id' => $blog_id,
 		);
+	}
+
+	/**
+	 * Set subscriber cookie and redirect
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public static function set_subscriber_cookie_and_redirect() {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		$token                = $subscription_service->get_and_set_token_from_request();
+		$payload              = $subscription_service->decode_token( $token );
+		$is_valid_token       = ! empty( $payload );
+		if ( $is_valid_token && isset( $payload['redirect_url'] ) ) {
+			return new WP_REST_Response( null, 302, array( 'location' => $payload['redirect_url'] ) );
+		}
+		return new WP_Error( 'invalid-token', 'Invalid Token' );
 	}
 
 	/**
