@@ -1313,7 +1313,7 @@ class Replicastore implements Replicastore_Interface {
 
 		$wpdb->queries = array();
 		try {
-			$checksum_table = $this->get_table_checksum_instance( $table, $salt, $perform_text_conversion );
+			$checksum_table = $this->get_table_checksum_instance( $table, $salt, $perform_text_conversion, $columns );
 		} catch ( Exception $ex ) {
 			return new WP_Error( 'checksum_disabled', $ex->getMessage() );
 		}
@@ -1437,21 +1437,22 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * Some tables require custom instances, due to different checksum logic.
 	 *
-	 * @param string $table The table that we want to get the instance for.
-	 * @param null   $salt  Salt to be used when generating the checksums.
-	 * @param false  $perform_text_conversion Should we perform text encoding conversion when calculating the checksum.
+	 * @param string $table                   The table that we want to get the instance for.
+	 * @param string $salt                    Salt to be used when generating the checksums.
+	 * @param bool   $perform_text_conversion Should we perform text encoding conversion when calculating the checksum.
+	 * @param array  $additional_columns      Additional columns to add to the checksum calculation.
 	 *
 	 * @return Table_Checksum|Table_Checksum_Usermeta
 	 * @throws Exception Might throw an exception if any of the input parameters were invalid.
 	 */
-	public function get_table_checksum_instance( $table, $salt = null, $perform_text_conversion = false ) {
+	public function get_table_checksum_instance( $table, $salt = null, $perform_text_conversion = false, $additional_columns = null ) {
 		if ( 'users' === $table ) {
-			return new Table_Checksum_Users( $table, $salt, $perform_text_conversion );
+			return new Table_Checksum_Users( $table, $salt, $perform_text_conversion, $additional_columns );
 		}
 		if ( 'usermeta' === $table ) {
-			return new Table_Checksum_Usermeta( $table, $salt, $perform_text_conversion );
+			return new Table_Checksum_Usermeta( $table, $salt, $perform_text_conversion, $additional_columns );
 		}
 
-		return new Table_Checksum( $table, $salt, $perform_text_conversion );
+		return new Table_Checksum( $table, $salt, $perform_text_conversion, $additional_columns );
 	}
 }

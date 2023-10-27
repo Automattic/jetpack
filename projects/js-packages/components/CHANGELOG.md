@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.44.1] - 2023-10-23
+### Changed
+- Use pointer-events: None on arrow icon so its click behavior falls back to the container/underlying component. [#33733]
+
 ## [0.44.0] - 2023-10-19
 ### Added
 - Add a `ProgressBar` component. [#33054]
@@ -856,6 +860,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.44.1]: https://github.com/Automattic/jetpack-components/compare/0.44.0...0.44.1
 [0.44.0]: https://github.com/Automattic/jetpack-components/compare/0.43.4...0.44.0
 [0.43.4]: https://github.com/Automattic/jetpack-components/compare/0.43.3...0.43.4
 [0.43.3]: https://github.com/Automattic/jetpack-components/compare/0.43.2...0.43.3

@@ -300,11 +300,6 @@ class Jetpack {
 			'Rank Math'                            => 'seo-by-rank-math/rank-math.php',
 			'Slim SEO'                             => 'slim-seo/slim-seo.php',
 		),
-		'lazy-images'        => array(
-			'Lazy Load'              => 'lazy-load/lazy-load.php',
-			'BJ Lazy Load'           => 'bj-lazy-load/bj-lazy-load.php',
-			'Lazy Load by WP Rocket' => 'rocket-lazy-load/rocket-lazy-load.php',
-		),
 	);
 
 	/**
@@ -5976,11 +5971,6 @@ endif;
 			'jetpack_cache_plans'                          => array(
 				'replacement' => null,
 				'version'     => 'jetpack-6.1.0',
-			),
-
-			'jetpack_lazy_images_skip_image_with_atttributes' => array(
-				'replacement' => 'jetpack_lazy_images_skip_image_with_attributes',
-				'version'     => 'jetpack-6.5.0',
 			),
 			'jetpack_enable_site_verification'             => array(
 				'replacement' => null,

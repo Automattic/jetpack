@@ -1,4 +1,7 @@
-import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isCurrentUserConnected,
+	getBlockIconComponent,
+} from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { InnerBlocks, InspectorControls, RichText } from '@wordpress/block-editor';
 import { Button, Placeholder, Spinner, TextControl, withNotices } from '@wordpress/components';
@@ -6,13 +9,23 @@ import { Fragment, Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import classnames from 'classnames';
+import metadata from './block.json';
 import { NOTIFICATION_PROCESSING, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from './constants';
 import { MailChimpBlockControls } from './controls';
-import { icon, innerButtonBlock } from '.';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
 const API_STATE_NOTCONNECTED = 2;
+
+const icon = getBlockIconComponent( metadata );
+const innerButtonBlock = {
+	name: 'jetpack/button',
+	attributes: {
+		element: 'button',
+		text: __( 'Join my Mailchimp audience', 'jetpack' ),
+		uniqueId: 'mailchimp-widget-id',
+	},
+};
 
 class MailchimpSubscribeEdit extends Component {
 	constructor() {

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
 require_once dirname( __DIR__ ) . '/_inc/subscription-service/include.php';
@@ -47,7 +48,8 @@ function render_login_button_block( $attributes, $content ) {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$has_token_parameter = isset( $_GET['token'] );
 
-	if ( is_user_logged_in() || $has_auth_cookie || $has_token_parameter ) {
+	$is_user_logged_in_on_wpcom = ( new Host() )->is_wpcom_simple() && is_user_logged_in();
+	if ( $is_user_logged_in_on_wpcom || $has_auth_cookie || $has_token_parameter ) {
 		// The viewer is logged it, so they shouldn't see the login button.
 		return '';
 	}

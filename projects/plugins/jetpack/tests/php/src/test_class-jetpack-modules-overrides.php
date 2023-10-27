@@ -63,16 +63,16 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 
 		add_filter( $filter_name, array( $this, 'force_active_modules' ) );
 		$expected = array(
-			'photon'      => 'active',
-			'lazy-images' => 'active',
+			'photon'     => 'active',
+			'photon-cdn' => 'active',
 		);
 		$this->assertSame( $expected, $this->instance->get_overrides( false ) );
 
 		add_filter( $filter_name, array( $this, 'force_inactive_module' ) );
 		$expected = array(
-			'photon'      => 'active',
-			'lazy-images' => 'active',
-			'sitemaps'    => 'inactive',
+			'photon'     => 'active',
+			'photon-cdn' => 'active',
+			'sitemaps'   => 'inactive',
 		);
 		$this->assertSame( $expected, $this->instance->get_overrides( false ) );
 
@@ -101,8 +101,8 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 
 		add_filter( $filter_name, array( $this, 'force_active_modules' ) );
 		$expected = array(
-			'photon'      => 'active',
-			'lazy-images' => 'active',
+			'photon'     => 'active',
+			'photon-cdn' => 'active',
 		);
 		$this->assertSame( $expected, $this->instance->get_overrides() );
 
@@ -121,14 +121,14 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	 */
 	public function test_get_module_override( $filter_name ) {
 		$this->assertFalse( $this->instance->get_module_override( 'photon' ) );
-		$this->assertFalse( $this->instance->get_module_override( 'lazy-images' ) );
+		$this->assertFalse( $this->instance->get_module_override( 'photon-cdn' ) );
 		$this->assertFalse( $this->instance->get_module_override( 'sitemaps' ) );
 
 		add_filter( $filter_name, array( $this, 'force_active_modules' ) );
 		add_filter( $filter_name, array( $this, 'force_inactive_module' ) );
 
 		$this->assertSame( 'active', $this->instance->get_module_override( 'photon' ) );
-		$this->assertSame( 'active', $this->instance->get_module_override( 'lazy-images' ) );
+		$this->assertSame( 'active', $this->instance->get_module_override( 'photon-cdn' ) );
 		$this->assertSame( 'inactive', $this->instance->get_module_override( 'sitemaps' ) );
 	}
 
@@ -137,14 +137,14 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	 */
 
 	/**
-	 * Helper to force active Photon and Lazy Images
+	 * Helper to force active Photon and the Asset CDN.
 	 *
 	 * @param array $modules Jetpack modules.
 	 *
 	 * @return array Jetpack modules.
 	 */
 	public function force_active_modules( $modules ) {
-		return array_merge( $modules, array( 'photon', 'lazy-images' ) );
+		return array_merge( $modules, array( 'photon', 'photon-cdn' ) );
 	}
 
 	/**

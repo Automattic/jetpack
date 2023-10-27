@@ -141,7 +141,6 @@
 	"projects/plugins/crm/includes/ZeroBSCRM.Mail.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.MailTracking.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.MetaBox.php",
-	"projects/plugins/crm/includes/ZeroBSCRM.MetaBoxes.Ownership.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.MetaBoxes.SubmitBoxes.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.MetaBoxes3.Companies.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.MetaBoxes3.Contacts.php",

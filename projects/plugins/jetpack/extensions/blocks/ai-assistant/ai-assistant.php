@@ -14,9 +14,6 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'ai-assistant';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
 /**
  * Registers our block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -29,7 +26,7 @@ function register_block() {
 	) && apply_filters( 'jetpack_ai_enabled', true )
 	) {
 		Blocks::jetpack_register_block(
-			BLOCK_NAME,
+			__DIR__,
 			array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
 		);
 	}
@@ -48,11 +45,11 @@ function load_assets( $attr, $content ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		$content
 	);
 }

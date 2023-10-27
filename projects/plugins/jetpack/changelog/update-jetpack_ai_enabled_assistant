@@ -1,4 +1,0 @@
-Significance: minor
-Type: compat
-
-Make the jetpack_ai_enabled filter decide whether to register AI editor extensions

@@ -16,9 +16,6 @@ use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Mapbox_Helper;
 
-const FEATURE_NAME = 'map';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
 if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
 	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-mapbox-helper.php';
 }
@@ -30,7 +27,7 @@ if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		__DIR__,
 		array(
 			'render_callback' => __NAMESPACE__ . '\load_assets',
 		)
@@ -123,7 +120,7 @@ function load_assets( $attr, $content ) {
 		);
 	}
 
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$map_provider = get_map_provider( $content );
 	if ( $map_provider === 'mapkit' ) {
@@ -175,7 +172,7 @@ function render_single_block_page() {
 
 	add_filter( 'jetpack_is_amp_request', '__return_false' );
 
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 	wp_scripts()->do_items();
 	wp_styles()->do_items();
 

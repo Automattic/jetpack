@@ -2525,7 +2525,6 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
     
     /**
      * Returns an ownerid against a invoice
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id invoice ID
      *

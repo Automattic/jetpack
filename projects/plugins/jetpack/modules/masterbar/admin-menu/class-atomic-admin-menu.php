@@ -130,14 +130,17 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_plugins_menu() {
 
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
-			return;
-		}
-
 		global $submenu;
 
 		// Calypso plugins screens link.
 		$plugins_slug = 'https://wordpress.com/plugins/' . $this->domain;
+
+		// Link to the Marketplace from Plugins > Add New on Atomic sites where the wpcom_admin_interface option is set to wp-admin.
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
+			$submenus_to_update = array( 'plugin-install.php' => $plugins_slug );
+			$this->update_submenus( 'plugins.php', $submenus_to_update );
+			return;
+		}
 
 		// Link to the Marketplace on sites that can't manage plugins.
 		if (
@@ -459,33 +462,5 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$jitm->dismiss( sanitize_text_field( wp_unslash( $_REQUEST['id'] ) ), sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) ) );
 		}
 		wp_die();
-	}
-
-	/**
-	 * Whether the current user has indicated they want to use the wp-admin interface.
-	 *
-	 * @param string $screen The current screen.
-	 * @return bool
-	 */
-	public function use_wp_admin_interface( $screen ) {
-		$screen_excluded = $this->is_excluded_wp_admin_interface_screen( $screen );
-		return ! $screen_excluded && 'wp-admin' === get_option( 'wpcom_admin_interface' );
-	}
-
-	/**
-	 * Returns whether we should default to wp_admin for the given screen.
-	 *
-	 * Screens that should not default to wp_admin when the wpcom_admin_interface is set.
-	 * This applies to screens that have both a wp-admin and a Calypso interface.
-	 *
-	 * @param string $screen The current screen.
-	 *
-	 * @return bool
-	 */
-	protected function is_excluded_wp_admin_interface_screen( $screen ) {
-		$excluded_screens = array(
-			'import.php',
-		);
-		return in_array( $screen, $excluded_screens, true );
 	}
 }
