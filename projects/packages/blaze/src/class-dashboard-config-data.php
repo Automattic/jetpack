@@ -40,7 +40,6 @@ class Dashboard_Config_Data {
 			'admin_page_base'          => $this->get_admin_path(),
 			'api_root'                 => esc_url_raw( rest_url() ),
 			'blog_id'                  => $blog_id,
-			'jetpack_version'          => Constants::get_constant( 'JETPACK__VERSION' ),
 			'enable_all_sections'      => false,
 			'env_id'                   => 'production',
 			'google_analytics_key'     => 'UA-10673494-15',
@@ -72,8 +71,9 @@ class Dashboard_Config_Data {
 							'products'     => array(),
 							'plan'         => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
 							'options'      => array(
-								'admin_url'  => admin_url(),
-								'gmt_offset' => $this->get_gmt_offset(),
+								'admin_url'       => admin_url(),
+								'gmt_offset'      => $this->get_gmt_offset(),
+								'jetpack_version' => Constants::get_constant( 'JETPACK__VERSION' ),
 							),
 						),
 					),
