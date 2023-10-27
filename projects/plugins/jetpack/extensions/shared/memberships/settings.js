@@ -1,4 +1,3 @@
-import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import {
 	Flex,
 	FlexBlock,
@@ -15,7 +14,7 @@ import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useState } from 'react';
-import paywallBlockMetadata from '../../blocks/paywall/block.json';
+import { icon as paywallIcon, blockName as paywallBlockName } from '../../blocks/paywall';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import './settings.scss';
 import PlansSetupDialog from '../components/plans-setup-dialog';
@@ -25,8 +24,6 @@ import {
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
 import { getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
-
-const paywallIcon = getBlockIconComponent( paywallBlockMetadata );
 
 export function Link( { href, children } ) {
 	return (
@@ -197,7 +194,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 				isLoading: isApiStateLoading(),
 				stripeConnectUrl: getConnectUrl(),
 				hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
-				foundPaywallBlock: getBlocks().find( block => block.name === paywallBlockMetadata.name ),
+				foundPaywallBlock: getBlocks().find( block => block.name === paywallBlockName ),
 			};
 		}
 	);
@@ -293,7 +290,7 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 			isLoading: isApiStateLoading(),
 			stripeConnectUrl: getConnectUrl(),
 			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
-			postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockMetadata.name ),
+			postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockName ),
 		};
 	} );
 
