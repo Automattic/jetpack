@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Refactor blocks registration
+Updated package dependencies.
