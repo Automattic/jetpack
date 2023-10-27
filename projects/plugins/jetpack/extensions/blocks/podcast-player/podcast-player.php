@@ -136,7 +136,7 @@ function render_player( $player_data, $attributes ) {
 	$player_inline_style  = trim( "{$secondary_colors['style']} {$background_colors['style']}" );
 	$player_inline_style .= get_css_vars( $attributes );
 	$wrapper_attributes   = \WP_Block_Supports::get_instance()->apply_block_supports();
-	$block_classname      = Blocks::classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
+	$block_classname      = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attributes, array( 'is-default' ) );
 	$is_amp               = Blocks::is_amp_request();
 
 	ob_start();
