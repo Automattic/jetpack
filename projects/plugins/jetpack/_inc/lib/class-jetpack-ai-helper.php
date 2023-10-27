@@ -33,6 +33,13 @@ class Jetpack_AI_Helper {
 	public static $image_generation_cache_timeout = MONTH_IN_SECONDS;
 
 	/**
+	 * Cache AI-assistant feature for ten seconds.
+	 *
+	 * @var int
+	 */
+	public static $ai_assistant_feature_cache_timeout = 10;
+
+	/**
 	 * Stores the number of JetpackAI calls in case we want to mark AI-assisted posts some way.
 	 *
 	 * @var int
@@ -128,6 +135,16 @@ class Jetpack_AI_Helper {
 	 */
 	public static function transient_name_for_completion() {
 		return 'jetpack_openai_completion_' . get_current_user_id(); // Cache for each user, so that other users dont get weird cached version from somebody else.
+	}
+
+	/**
+	 * Get the name of the transient for AI assistance feature. Unique per user.
+	 *
+	 * @param  int $blog_id - Blog ID to get the transient name for.
+	 * @return string
+	 */
+	public static function transient_name_for_ai_assistance_feature( $blog_id ) {
+		return 'jetpack_openai_ai_assistance_feature_' . $blog_id;
 	}
 
 	/**
@@ -315,6 +332,15 @@ class Jetpack_AI_Helper {
 	 * @return mixed
 	 */
 	public static function get_ai_assistance_feature() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		// Try to pick the AI Assistant feature from cache.
+		$transient_name = self::transient_name_for_ai_assistance_feature( $blog_id );
+		$cache          = get_transient( $transient_name );
+		if ( $cache ) {
+			return $cache;
+		}
+
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$has_ai_assistant_feature = \wpcom_site_has_feature( 'ai-assistant' );
 			if ( ! class_exists( 'OpenAI' ) ) {
@@ -384,7 +410,6 @@ class Jetpack_AI_Helper {
 			);
 		}
 
-		$blog_id      = Jetpack_Options::get_option( 'id' );
 		$request_path = sprintf( '/sites/%d/jetpack-ai/ai-assistant-feature', $blog_id );
 
 		$wpcom_request = Client::wpcom_json_api_request_as_user(
@@ -402,7 +427,12 @@ class Jetpack_AI_Helper {
 
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 		if ( 200 === $response_code ) {
-			return json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
+			$ai_assistant_feature_data = json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
+
+			// Cache the AI Assistant feature, for Jetpack sites.
+			set_transient( $transient_name, $ai_assistant_feature_data, self::$ai_assistant_feature_cache_timeout );
+
+			return $ai_assistant_feature_data;
 		} else {
 			return new WP_Error(
 				'failed_to_fetch_data',
