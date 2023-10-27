@@ -82,7 +82,7 @@ export default function AiAssistantPluginSidebar() {
 							<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
 						</BaseControl>
 					</PanelRow>
-					{ requireUpgrade && (
+					{ requireUpgrade && ! isUsagePanelAvailable && (
 						<PanelRow>
 							<Upgrade onClick={ autosaveAndRedirect } type={ upgradeType } />
 						</PanelRow>

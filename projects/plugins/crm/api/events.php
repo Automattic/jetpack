@@ -28,7 +28,19 @@ jpcrm_api_check_http_method( array( 'GET' ) );
 // Process the pagination parameters from the query
 list( $page, $per_page ) = jpcrm_api_process_pagination();
 
-$owner = -1;
+/**
+ * Allow events to be filtered by owner. Docs are ambiguous about
+ * whether we should use `owned` or `owner`, so let's support both.
+ */
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
+if ( isset( $_GET['owner'] ) && (int) $_GET['owner'] > 0 ) {
+	$owner = (int) $_GET['owner'];
+} elseif ( isset( $_GET['owned'] ) && (int) $_GET['owned'] > 0 ) {
+	$owner = (int) $_GET['owned'];
+} else {
+	$owner = -1;
+}
+// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 $args = array(
 	'withAssigned' => true,

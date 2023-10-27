@@ -2,6 +2,39 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.8-a.7 - 2023-10-26
+### Enhancements
+- Add a filter that allows disabling Scan module. [#33764]
+- AI Assistant: Add Upgrade button component on the UsagePanel. [#33720]
+- AI Assistant: Connect real usage data on the UsagePanel. [#33714]
+- AI Extension: Consolidate upgrade section of proofread and usage sections. [#33804]
+- AI Extension: Implement usage message in the UsageBar component. [#33794]
+- Alter the admin toolbar when the wpcom-admin-interface setting is set to wp-admin (fall back to the original WordPress menu). [#33707]
+- Change links for 'Appearance > Themes' on Atomic sites with wpcom_admin_interface option set to wp-admin to point to WP.com Marketplace. [#33772]
+- Jetpack: Add UsagePanel story. [#33771]
+- Jetpack: Improve process to extend paid blocks with upgrade banner. [#33752]
+- Jetpack AI: Expose current period usage data on feature endpoint. [#33623]
+- Link plugins to WP.com Marketplace on Atomic sites. [#33758]
+- Metered billing: Hide usage bar when site has AI plan. [#33770]
+- Register WordAds block earlier to make it more discoverable. [#33700]
+- Remove Jetpack option jetpack-memberships-connected-account-id. [#32354]
+
+### Improved compatibility
+- Donations Block: Update to be compatible with the upcoming version of WordPress, 6.4. [#33778]
+- General: Indicate full compatibility with the latest version of WordPress, 6.4. [#33776]
+- Lazy Images: Remove the feature from the plugin. You can now rely on WordPress' own Lazy Image features on your site. [#33782]
+
+### Bug fixes
+- Carousel: Resolve warning with AMP plugin. [#33738]
+- Fix block paid icon rendering error on simple sites. [#33807]
+- Fix the google fonts module is not loaded after the late initialization. [#33795]
+- Newsletter: If site has no plan, downgrade post access to subscribers-only. [#33750]
+- Prevent issue on jetpack proxy when tier is added. [#33788]
+- Require login on wpcom for paid content access without cookie or token. [#33761]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Refactor blocks registration. [#33086] [#33573] [#33604]
+
 ## 12.8-a.5 - 2023-10-24
 ### Enhancements
 - Jetpack: Add @wordpress/wordcount dependency. [#33745]
