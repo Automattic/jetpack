@@ -4,7 +4,7 @@ import { currencyDollar } from '@wordpress/icons';
 import { getIconColor } from '../../shared/block-icons';
 import donationMetadata from '../donations/block.json';
 import { settings as premiumContentSettings } from '../premium-content';
-import recurringPaymentsMetadata from '../recurring-payments/block.json';
+import { settings as recurringPaymentSettings } from '../recurring-payments';
 import edit from './edit';
 
 export const name = 'payments-intro';
@@ -21,8 +21,8 @@ export const settings = {
 		...new Set( [
 			donationMetadata.title,
 			...donationMetadata.keywords,
-			recurringPaymentsMetadata.title,
-			...recurringPaymentsMetadata.keywords,
+			recurringPaymentSettings.title,
+			...recurringPaymentSettings.keywords,
 			premiumContentSettings.title,
 			...premiumContentSettings.keywords,
 			_x( 'paid', 'block search term', 'jetpack' ),

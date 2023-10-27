@@ -13,6 +13,9 @@ use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 use Jetpack_Podcast_Helper;
 
+const FEATURE_NAME = 'podcast-player';
+const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+
 if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
 	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
 }
@@ -23,9 +26,37 @@ if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		__DIR__,
+		BLOCK_NAME,
 		array(
+			'attributes'      => array(
+				'url'                    => array(
+					'type' => 'string',
+				),
+				'itemsToShow'            => array(
+					'type'    => 'integer',
+					'default' => 5,
+				),
+				'showCoverArt'           => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
+				'showEpisodeTitle'       => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
+				'showEpisodeDescription' => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
+			),
 			'render_callback' => __NAMESPACE__ . '\render_block',
+			'supports'        => array(
+				'align'   => array( 'wide', 'full' ),
+				'spacing' => array(
+					'padding' => true,
+					'margin'  => true,
+				),
+			),
 			// Since Gutenberg #31873.
 			'style'           => 'wp-mediaelement',
 
@@ -187,7 +218,7 @@ function render_player( $player_data, $attributes ) {
 	if ( ! $is_amp ) {
 		wp_enqueue_style( 'wp-mediaelement' );
 	}
-	Jetpack_Gutenberg::load_assets_as_required( __DIR__, array( 'mediaelement' ) );
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'mediaelement' ) );
 
 	return ob_get_clean();
 }

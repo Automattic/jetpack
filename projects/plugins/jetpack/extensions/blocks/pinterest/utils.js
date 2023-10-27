@@ -1,5 +1,5 @@
 import { getPath } from '@wordpress/url';
-import { URL_REGEX } from './constants';
+import { URL_REGEX } from '.';
 
 /**
  * Determines the Pinterest embed type from the URL.
