@@ -1,20 +1,10 @@
+import { name, settings } from '../';
 import runBlockFixtureTests from '../../../shared/test/block-fixtures';
-import metadata from '../block.json';
-import deprecated from '../deprecated';
-import edit from '../edit';
 
-const { name } = metadata;
-const blocks = [
-	{
-		name,
-		settings: {
-			...metadata,
-			edit,
-			deprecated,
-		},
-	},
-];
+// Need to include all the blocks involved in rendering this block.
+// The main block should be the first in the array.
+const blocks = [ { name: `jetpack/${ name }`, settings } ];
 
 jest.mock( '@wordpress/notices', () => {}, { virtual: true } );
 
-runBlockFixtureTests( name, blocks, __dirname );
+runBlockFixtureTests( `jetpack/${ name }`, blocks, __dirname );
