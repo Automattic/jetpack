@@ -388,6 +388,9 @@ class Jetpack_AI_Helper {
 			/*
 			 * Usage since the last plan purchase day
 			 */
+			$current_period_start = WPCOM\Jetpack_AI\Usage\Helper::get_usage_period_start_date( $blog_id );
+			$current_period_start = isset( $current_period_start ) ? $current_period_start->format( 'Y-m-d H:i:s' ) : null;
+
 			$current_period_requests_count = WPCOM\Jetpack_AI\Usage\Helper::get_current_period_requests_count( $blog_id );
 
 			// Check if the site requires an upgrade.
@@ -397,14 +400,17 @@ class Jetpack_AI_Helper {
 			$upgrade_type = wpcom_is_vip( $blog_id ) ? 'vip' : 'default';
 
 			return array(
-				'has-feature'                   => $has_ai_assistant_feature,
-				'is-over-limit'                 => $is_over_limit,
-				'requests-count'                => $requests_count,
-				'current-period-requests-count' => $current_period_requests_count,
-				'requests-limit'                => $requests_limit,
-				'site-require-upgrade'          => $require_upgrade,
-				'upgrade-type'                  => $upgrade_type,
-				'current-tier'                  => array(
+				'has-feature'          => $has_ai_assistant_feature,
+				'is-over-limit'        => $is_over_limit,
+				'requests-count'       => $requests_count,
+				'requests-limit'       => $requests_limit,
+				'current-period'       => array(
+					'start'          => $current_period_start,
+					'requests-count' => $current_period_requests_count,
+				),
+				'site-require-upgrade' => $require_upgrade,
+				'upgrade-type'         => $upgrade_type,
+				'current-tier'         => array(
 					'value' => $has_ai_assistant_feature ? 1 : 0,
 				),
 			);
