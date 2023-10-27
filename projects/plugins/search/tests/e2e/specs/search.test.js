@@ -8,8 +8,8 @@ import {
 	clearSearchPlanInfo,
 } from '../helpers/search-helper.js';
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
-import playwrightConfig from '../playwright.config.cjs';
+import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
+import playwrightConfig from '../playwright.config.mjs';
 
 test.describe( 'Instant Search', () => {
 	let homepage;

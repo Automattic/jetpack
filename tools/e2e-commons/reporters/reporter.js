@@ -1,6 +1,6 @@
-const logger = require( '../logger.cjs' );
+import logger from '../logger.js';
 
-class LogReporter {
+export default class LogReporter {
 	onBegin( config, suite ) {
 		logger.debug( `Starting the run for ${ this.getSuiteName( suite ) }` );
 	}
@@ -38,4 +38,3 @@ class LogReporter {
 		return level.titlePath().join( ' ' ).trim();
 	}
 }
-module.exports = LogReporter;
