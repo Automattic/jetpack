@@ -9,6 +9,8 @@
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Status\Host;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
 
@@ -42,7 +44,14 @@ class Jetpack_Memberships {
 	 *
 	 * @var string
 	 */
-	public static $post_access_level_meta_name = \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+	public static $post_access_level_meta_name = META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+
+	/**
+	 * Post meta that will store the tier ID of access for newsletters
+	 *
+	 * @var string
+	 */
+	public static $post_access_tier_meta_name = META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 	/**
 	 * Button block type to use.
@@ -479,6 +488,32 @@ class Jetpack_Memberships {
 			$post_access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 		return $post_access_level;
+	}
+
+	/**
+	 * Get the post tier plan
+	 *
+	 * If no ID is provided, the method tries to get it from the global post object.
+	 *
+	 * @param int|null $post_id The ID of the post. Default is null.
+	 *
+	 * @return WP_Post|null the actual post tier.
+	 */
+	public static function get_post_tier( $post_id = null ) {
+		if ( ! $post_id ) {
+			$post_id = get_the_ID();
+		}
+
+		if ( ! $post_id ) {
+			return null;
+		}
+
+		$post_tier_id = get_post_meta( $post_id, self::$post_access_tier_meta_name, true );
+		if ( empty( $post_tier_id ) ) {
+			return null;
+		}
+
+		return get_post( $post_tier_id );
 	}
 
 	/**
