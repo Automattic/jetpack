@@ -34,8 +34,9 @@ class Jetpack_Memberships_Json_Api_Endpoints {
 			'jetpack/v4',
 			'/subscribers/auth',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => __CLASS__ . '::set_subscriber_cookie_and_redirect',
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::set_subscriber_cookie_and_redirect',
+				'permission_callback' => true,
 			)
 		);
 
@@ -44,9 +45,10 @@ class Jetpack_Memberships_Json_Api_Endpoints {
 			'jetpack/v4',
 			'/subscribers/has_token_refreshed',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => __CLASS__ . '::has_token_refreshed',
-				'args'     => array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::has_token_refreshed',
+				'permission_callback' => true,
+				'args'                => array(
 					'old_token' => array( 'type' => 'string' ),
 				),
 			)
