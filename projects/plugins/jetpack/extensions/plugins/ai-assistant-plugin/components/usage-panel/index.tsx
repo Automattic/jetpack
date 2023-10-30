@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { Button } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -28,15 +27,6 @@ export default function UsagePanel() {
 				requestsCount={ requestsCount }
 				requestsLimit={ requestsLimit }
 			/>
-
-			{ false && (
-				<p className="muted">
-					{
-						// translators: %1$d: number of days until the next usage count reset
-						sprintf( __( 'Requests will reset in %1$d days.', 'jetpack' ), 10 )
-					}
-				</p>
-			) }
 
 			{ ! hasFeature && canUpgrade && (
 				<Button
