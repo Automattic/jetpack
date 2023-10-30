@@ -2414,8 +2414,6 @@ class lessc_parser {
 		if (empty($this->buffer)) return false;
 		$s = $this->seek();
 
-		$block = null; // Initialize for wpcom's rector.
-
 		if ($this->whitespace()) {
 			return true;
 		}
@@ -2515,6 +2513,7 @@ class lessc_parser {
 			} catch (exception $e) {
 				$this->seek($s);
 				$this->throwError($e->getMessage());
+				$block = null; // Rector.
 			}
 
 			$hidden = false;
