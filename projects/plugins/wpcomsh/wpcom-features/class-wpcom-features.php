@@ -160,6 +160,18 @@ class WPCOM_Features {
 	private const AKISMET_ENTERPRISE_2M_MONTHLY               = 'ak_ep2m_monthly_1'; // 2324
 	private const AKISMET_ENTERPRISE_GT2M_YEARLY              = 'ak_epgt2m_yearly_1'; // 2325
 	private const AKISMET_ENTERPRISE_GT2M_MONTHLY             = 'ak_epgt2m_monthly_1'; // 2326
+	private const AKISMET_PRO_500_MONTHLY                     = 'ak_pro5h_monthly'; // 2332
+	private const AKISMET_PRO_500_YEARLY                      = 'ak_pro5h_yearly'; // 2333
+	private const AKISMET_PRO_500_BI_YEARLY                   = 'ak_pro5h_bi_yearly'; // 2334
+	private const AKISMET_BUSINESS_5K_MONTHLY                 = 'ak_bus5k_monthly'; // 2335
+	private const AKISMET_BUSINESS_5K_YEARLY                  = 'ak_bus5k_yearly'; // 2336
+	private const AKISMET_BUSINESS_5K_BI_YEARLY               = 'ak_bus5k_bi_yearly'; // 2337
+	private const AKISMET_ENTERPRISE_15K_MONTHLY              = 'ak_ep15k_monthly'; // 2338
+	private const AKISMET_ENTERPRISE_15K_YEARLY               = 'ak_ep15k_yearly'; // 2339
+	private const AKISMET_ENTERPRISE_15K_BI_YEARLY            = 'ak_ep15k_bi_yearly'; // 2340
+	private const AKISMET_ENTERPRISE_25K_MONTHLY              = 'ak_ep25k_monthly'; // 2341
+	private const AKISMET_ENTERPRISE_25K_YEARLY               = 'ak_ep25k_yearly'; // 2342
+	private const AKISMET_ENTERPRISE_25K_BI_YEARLY            = 'ak_ep25k_bi_yearly'; // 2343
 	private const JETPACK_BOOST_BI_YEARLY                     = 'jetpack_boost_bi_yearly'; // 2036
 	private const JETPACK_BOOST                               = 'jetpack_boost_yearly'; // 2401
 	private const JETPACK_BOOST_MONTHLY                       = 'jetpack_boost_monthly'; // 2400
@@ -281,6 +293,18 @@ class WPCOM_Features {
 		self::AKISMET_ENTERPRISE_350K_YEARLY,
 		self::AKISMET_ENTERPRISE_2M_MONTHLY,
 		self::AKISMET_ENTERPRISE_2M_YEARLY,
+		self::AKISMET_PRO_500_MONTHLY,
+		self::AKISMET_PRO_500_YEARLY,
+		self::AKISMET_PRO_500_BI_YEARLY,
+		self::AKISMET_BUSINESS_5K_MONTHLY,
+		self::AKISMET_BUSINESS_5K_YEARLY,
+		self::AKISMET_BUSINESS_5K_BI_YEARLY,
+		self::AKISMET_ENTERPRISE_15K_MONTHLY,
+		self::AKISMET_ENTERPRISE_15K_YEARLY,
+		self::AKISMET_ENTERPRISE_15K_BI_YEARLY,
+		self::AKISMET_ENTERPRISE_25K_MONTHLY,
+		self::AKISMET_ENTERPRISE_25K_YEARLY,
+		self::AKISMET_ENTERPRISE_25K_BI_YEARLY,
 	);
 
 	// Features automatically granted to all sites regardless of their purchases are mapped to these constants.
