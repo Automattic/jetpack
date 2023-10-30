@@ -211,6 +211,8 @@ class Initializer {
 					'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
 					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 				),
+				'wpcomURL'              => self::get_site()->data->URL,
+				'wpcomURLSuffix'        => ( new Status() )->get_site_suffix( self::get_site()->data->URL ),
 			)
 		);
 
