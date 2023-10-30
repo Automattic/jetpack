@@ -5,7 +5,6 @@ import { Button } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import './style.scss';
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAIFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../../../blocks/ai-assistant/lib/connection';
@@ -17,7 +16,7 @@ export default function UsagePanel() {
 	const canUpgrade = canUserPurchasePlan();
 
 	// fetch usage data
-	const { hasFeature, requestsCount, requestsLimit, isOverLimit } = useAIFeature();
+	const { hasFeature, requestsCount, requestsLimit, isOverLimit, currentPeriod } = useAIFeature();
 
 	return (
 		<div className="jetpack-ai-usage-panel">
@@ -26,6 +25,7 @@ export default function UsagePanel() {
 				hasFeature={ hasFeature }
 				requestsCount={ requestsCount }
 				requestsLimit={ requestsLimit }
+				currentPeriod={ currentPeriod }
 			/>
 
 			{ ! hasFeature && canUpgrade && (
