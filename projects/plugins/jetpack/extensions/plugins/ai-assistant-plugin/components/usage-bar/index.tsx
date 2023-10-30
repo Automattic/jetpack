@@ -55,13 +55,20 @@ function UsageControl( {
 	'isOverLimit' | 'hasFeature' | 'requestsCount' | 'requestsLimit' | 'currentPeriod'
 > ) {
 	// Compute the number of days from start to now
-	const currentPediorStart = new Date( currentPeriod.start );
-	const numberOfDays = Math.floor(
-		( Date.now() - currentPediorStart.getTime() ) / ( 1000 * 60 * 60 * 24 )
-	);
+	let resetMsg = '';
+	if ( currentPeriod?.start ) {
+		const currentPediorStart = new Date( currentPeriod.start );
+		const currentPeriodEnd = new Date( currentPediorStart );
+		currentPeriodEnd.setMonth( currentPeriodEnd.getMonth() + 1 );
 
-	// translators: %1$d: number of days
-	const resetMsg = sprintf( __( 'Requests will reset in %1$d days.', 'jetpack' ), numberOfDays );
+		// Number of days in the current period
+		const numberOfDays = Math.floor(
+			( currentPeriodEnd.getTime() - Date.now() ) / ( 1000 * 60 * 60 * 24 )
+		);
+
+		// translators: %1$d: number of days
+		resetMsg = sprintf( __( 'Requests will reset in %1$d days.', 'jetpack' ), numberOfDays );
+	}
 
 	let help = __( 'Unlimited requests for your site', 'jetpack' );
 
