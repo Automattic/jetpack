@@ -90,7 +90,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				$flow = get_option( 'site_intent' );
-				return '/setup/' . $flow . '/plans/?siteSlug=' . $data['site_slug_encoded'];
+				return '/setup/' . $flow . '/plans?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
 		'plan_selected'                   => array(
