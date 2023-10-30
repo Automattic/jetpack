@@ -1461,7 +1461,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "af8c4beb7c0aaae888e30ae904c91be129ea189c"
+                "reference": "e13900c78f3b7dfc0ed2ecede10c8ddcc9a5fd4d"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1492,7 +1492,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.5.x-dev"
+                    "dev-trunk": "2.6.x-dev"
                 }
             },
             "autoload": {
