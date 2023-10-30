@@ -63,6 +63,8 @@ function domain_email_nag() {
 		return;
 	}
 
+	bump_stats_extras( 'wpcom-domain-email-nag-shown', $domain );
+
 	wp_enqueue_style( 'wpcom-domain-email-nag-style', plugins_url( 'domain-nag.style.css', __FILE__ ), array(), Jetpack_Mu_Wpcom::PACKAGE_VERSION );
 
 	$notice = sprintf(
@@ -77,7 +79,7 @@ function domain_email_nag() {
 			<p class="wp-domain-nag-text"><?php echo wp_kses( $notice, array( 'strong' => array() ) ); ?></p>
 			<a class="button" href="<?php echo esc_url( get_account_url() ); ?>"><?php esc_html_e( 'Fix', 'jetpack-mu-wpcom' ); ?></a>
 		</div>
-	</div>
+	</div>	
 	<?php
 }
 add_action( 'wp_footer', __NAMESPACE__ . '\domain_email_nag' );
