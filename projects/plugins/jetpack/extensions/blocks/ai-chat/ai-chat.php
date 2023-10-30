@@ -85,7 +85,9 @@ function add_ai_chat_block_data() {
 	$initial_state = array(
 		'jetpackSettings' => array(
 			'instant_search_enabled' => $search->is_instant_search_enabled(),
+			'is_free_plan'           => $plan->is_free_plan(),
 			'plan_supports_search'   => $plan->supports_instant_search(),
+			'calypsoSlug'            => ( new Status() )->get_site_suffix(),
 		),
 	);
 	wp_add_inline_script(
