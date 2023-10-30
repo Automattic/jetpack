@@ -394,6 +394,9 @@ class Masterbar {
 			$bar->remove_node( $node->id );
 		}
 
+		// This disables a submenu from being placed under the My Sites button.
+		add_filter( 'jetpack_load_admin_menu_class', '__return_true' );
+
 		// Here we add the My sites and Reader buttons
 		$this->wpcom_adminbar_add_secondary_groups( $bar );
 		$this->add_my_sites_submenu( $bar );
