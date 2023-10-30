@@ -38,7 +38,6 @@
 		"automattic/jetpack-licensing": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
-		"automattic/jetpack-partner": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-post-list": "@dev",
 		"automattic/jetpack-publicize": "@dev",
