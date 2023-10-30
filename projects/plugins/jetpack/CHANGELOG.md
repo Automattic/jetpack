@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.8-beta - 2023-10-30
+## 12.8-a.9 - 2023-10-30
 ### Enhancements
 - Earn: Rename Earn to Monetize. [#33741]
 - Jetpack AI: Cache the AI assistant feature data for Jetpack sites. [#33391]

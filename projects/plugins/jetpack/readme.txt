@@ -291,7 +291,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.8-beta - 2023-10-30
+### 12.8-a.9 - 2023-10-30
 #### Enhancements
 - Add a filter that allows disabling Scan module.
 - Adds new modifications for the admin menu on Atomic sites that ensures that all links go to wp-admin except those that are only available in Calypso.
