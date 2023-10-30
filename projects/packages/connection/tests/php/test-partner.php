@@ -33,6 +33,15 @@ class Partner_Test extends TestCase {
 	}
 
 	/**
+	 * Test teardown.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+		Monkey\tearDown();
+	}
+
+	/**
 	 * Tests the class returns the instance.
 	 */
 	public function test_init_returns_instance() {
