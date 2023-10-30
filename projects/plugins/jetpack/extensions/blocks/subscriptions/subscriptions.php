@@ -1095,7 +1095,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		$access_question = get_paywall_access_question( $newsletter_access_level );
 
 		$sign_in = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
-<p class="has-text-align-center" style="font-size:14px"><a href="' . $sign_in_link . '">' . esc_html( $access_question ) . '</a></p>
+<p class="has-text-align-center" style="font-size:14px"><a href="' . $sign_in_link . '">' . $access_question . '</a></p>
 <!-- /wp:paragraph -->';
 	}
 
