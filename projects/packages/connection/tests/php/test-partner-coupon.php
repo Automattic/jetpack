@@ -3,7 +3,7 @@
 /**
  * Tests the partner-coupon package.
  *
- * @package automattic/jetpack-partner
+ * @package automattic/jetpack-connection
  */
 
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -16,7 +16,7 @@ use WorDBless\BaseTestCase;
 /**
  * Class Partner_Coupon_Test
  *
- * @package Automattic\Jetpack
+ * @package Automattic\jetpack-connection
  * @covers Automattic\Jetpack\Partner_Coupon
  */
 class Partner_Coupon_Test extends BaseTestCase {

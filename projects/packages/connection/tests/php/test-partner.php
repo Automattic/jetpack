@@ -2,7 +2,7 @@
 /**
  * Tests the partner package.
  *
- * @package automattic/jetpack-partner
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack;
@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class Partner_Test
  *
- * @package Automattic\Jetpack
+ * @package Automattic\jetpack-connection
  * @covers Automattic\Jetpack\Partner
  */
 class Partner_Test extends TestCase {
