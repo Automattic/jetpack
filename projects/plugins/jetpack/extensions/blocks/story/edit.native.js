@@ -1,3 +1,4 @@
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import {
 	MediaPlaceholder,
 	BlockMediaUpdateProgress,
@@ -17,9 +18,11 @@ import {
 	requestMediaFilesEditorLoad,
 } from '@wordpress/react-native-bridge';
 import { View, TouchableWithoutFeedback } from 'react-native';
+import metadata from './block.json';
 import styles from './editor.scss';
 import StoryEditingButton from './story-editing-button';
-import { icon } from '.';
+
+const icon = getBlockIconComponent( metadata );
 
 const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus } ) => {
 	const { mediaFiles } = attributes;

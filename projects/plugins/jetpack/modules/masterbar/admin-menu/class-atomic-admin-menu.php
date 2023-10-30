@@ -463,32 +463,4 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 		wp_die();
 	}
-
-	/**
-	 * Whether the current user has indicated they want to use the wp-admin interface.
-	 *
-	 * @param string $screen The current screen.
-	 * @return bool
-	 */
-	public function use_wp_admin_interface( $screen ) {
-		$screen_excluded = $this->is_excluded_wp_admin_interface_screen( $screen );
-		return ! $screen_excluded && 'wp-admin' === get_option( 'wpcom_admin_interface' );
-	}
-
-	/**
-	 * Returns whether we should default to wp_admin for the given screen.
-	 *
-	 * Screens that should not default to wp_admin when the wpcom_admin_interface is set.
-	 * This applies to screens that have both a wp-admin and a Calypso interface.
-	 *
-	 * @param string $screen The current screen.
-	 *
-	 * @return bool
-	 */
-	protected function is_excluded_wp_admin_interface_screen( $screen ) {
-		$excluded_screens = array(
-			'import.php',
-		);
-		return in_array( $screen, $excluded_screens, true );
-	}
 }

@@ -82,19 +82,14 @@ export default function AiAssistantPluginSidebar() {
 							<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
 						</BaseControl>
 					</PanelRow>
-					{ requireUpgrade && (
+					{ requireUpgrade && ! isUsagePanelAvailable && (
 						<PanelRow>
 							<Upgrade onClick={ autosaveAndRedirect } type={ upgradeType } />
 						</PanelRow>
 					) }
 					{ isUsagePanelAvailable && (
 						<PanelRow>
-							<BaseControl
-								className="jetpack-ai-usage-panel-control__header"
-								label={ __( 'Usage', 'jetpack' ) }
-							>
-								<UsagePanel />
-							</BaseControl>
+							<UsagePanel />
 						</PanelRow>
 					) }
 				</PanelBody>

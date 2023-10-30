@@ -905,22 +905,6 @@ function zeroBSCRM_isJson( $str ) {
 		return $endArr;
 	}
 
-
-	// recursive utf8-ing 
-	// https://stackoverflow.com/questions/19361282/why-would-json-encode-return-an-empty-string
-	function zeroBSCRM_utf8ize($d) {
-	    if (is_array($d)) {
-	        foreach ($d as $k => $v) {
-	            $d[$k] = zeroBSCRM_utf8ize($v);
-	        }
-	    } else if (is_string ($d)) {
-			// TODO: utf8_encode has been deprecated in PHP 8.2, and needs to be replaced.
-			return utf8_encode($d); // phpcs:ignore
-	    }
-	    return $d;
-	}
-
-
 	// returns a filetype img if avail
 	// returns 48px from  https://github.com/redbooth/free-file-icons
 	// ... cpp has fullsize 512px variants, but NOT to be added to core, adds bloat
