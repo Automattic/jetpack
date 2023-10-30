@@ -36,7 +36,7 @@ class Jetpack_Memberships_Json_Api_Endpoints {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::set_subscriber_cookie_and_redirect',
-				'permission_callback' => true,
+				'permission_callback' => '__return_true',
 			)
 		);
 
@@ -47,7 +47,7 @@ class Jetpack_Memberships_Json_Api_Endpoints {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::has_token_refreshed',
-				'permission_callback' => true,
+				'permission_callback' => '__return_true',
 				'args'                => array(
 					'old_token' => array( 'type' => 'string' ),
 				),
