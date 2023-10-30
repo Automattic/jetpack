@@ -149,7 +149,7 @@ class scssc {
 			return;
 		}
 
-		$i = count($this->extends);
+		$i = is_countable( $this->extends ) ? count( $this->extends ) : 0;
 		$this->extends[] = array($target, $origin);
 
 		foreach ($target as $part) {
@@ -208,7 +208,9 @@ class scssc {
 					}
 				}
 
-				$origin[$j][count($origin[$j]) - 1] = $this->combineSelectorSingle(end($new), $rem);
+				if ( is_countable( $origin[$j] ) ) {
+					$origin[$j][count($origin[$j]) - 1] = $this->combineSelectorSingle(end($new), $rem);
+				}
 			}
 
 			$outOrigin = array_merge($outOrigin, $origin);
@@ -273,7 +275,7 @@ class scssc {
 					$this->matchExtends($result, $out, $i, false);
 
 					// selector sequence merging
-					if (!empty($before) && count($new) > 1) {
+					if ( ! empty($before) && is_countable( $new ) && count($new) > 1) {
 						$result2 = array_merge(
 							array_slice($new, 0, -1),
 							$k > 0 ? array_slice($before, $k) : $before,
@@ -565,7 +567,7 @@ class scssc {
 		}
 		$m1 = '';
 		$t1 = '';
-		if (count($type1) > 1) {
+		if ( is_countable( $type1 ) && count($type1) > 1 ) {
 			$m1= strtolower($type1[0]);
 			$t1= strtolower($type1[1]);
 		} else {
@@ -573,7 +575,7 @@ class scssc {
 		}
 		$m2 = '';
 		$t2 = '';
-		if (count($type2) > 1) {
+		if ( is_countable( $type2 ) && count($type2) > 1 ) {
 			$m2 = strtolower($type2[0]);
 			$t2 = strtolower($type2[1]);
 		} else {
@@ -612,7 +614,9 @@ class scssc {
 		}
 		if ($rawPath[0] == "list") {
 			// handle a list of strings
-			if (count($rawPath[2]) == 0) return false;
+			if ( ! is_countable( $rawPath[2] ) || count($rawPath[2]) == 0 ) {
+				return false;
+			}
 			foreach ($rawPath[2] as $path) {
 				if ($path[0] != "string") return false;
 			}
@@ -1247,7 +1251,7 @@ class scssc {
 			$g = round($g);
 			$b = round($b);
 
-			if (count($value) == 5 && $value[4] != 1) { // rgba
+			if ( is_countable( $value ) && count($value) == 5 && $value[4] != 1 ) { // rgba
 				return 'rgba('.$r.', '.$g.', '.$b.', '.$value[4].')';
 			}
 
@@ -1283,10 +1287,10 @@ class scssc {
 			list(, $interpolate, $left, $right) = $value;
 			list(,, $whiteLeft, $whiteRight) = $interpolate;
 
-			$left = count($left[2]) > 0 ?
+			$left = is_countable( $left[2] ) && count($left[2]) > 0 ?
 				$this->compileValue($left).$whiteLeft : "";
 
-			$right = count($right[2]) > 0 ?
+			$right = is_countable( $right[2] ) && count($right[2]) > 0 ?
 				$whiteRight.$this->compileValue($right) : "";
 
 			return $left.$this->compileValue($interpolate).$right;
@@ -1876,7 +1880,7 @@ class scssc {
 				$h = 60 * ($green - $blue) / $d;
 			elseif ($green == $max)
 				$h = 60 * ($blue - $red) / $d + 120;
-			elseif ($blue == $max)
+			else
 				$h = 60 * ($red - $green) / $d + 240;
 		}
 
@@ -2364,7 +2368,7 @@ class scssc {
 	protected static $lib_length = array("list");
 	protected function lib_length($args) {
 		$list = $this->coerceList($args[0]);
-		return count($list[2]);
+		return is_countable( $list[2] ) ? count($list[2]) : 0;
 	}
 
 	protected static $lib_nth = array("list", "n");
@@ -2698,11 +2702,11 @@ class scss_parser {
 		$this->rootParser = $rootParser;
 
 		if (empty(self::$operatorStr)) {
-			self::$operatorStr = $this->makeOperatorStr(self::$operators);
+			self::$operatorStr = static::makeOperatorStr(self::$operators);
 
-			$commentSingle = $this->preg_quote(self::$commentSingle);
-			$commentMultiLeft = $this->preg_quote(self::$commentMultiLeft);
-			$commentMultiRight = $this->preg_quote(self::$commentMultiRight);
+			$commentSingle = static::preg_quote(self::$commentSingle);
+			$commentMultiLeft = static::preg_quote(self::$commentMultiLeft);
+			$commentMultiRight = static::preg_quote(self::$commentMultiRight);
 			self::$commentMulti = $commentMultiLeft.'.*?'.$commentMultiRight;
 			self::$whitePattern = '/'.$commentSingle.'[^\n]*\s*|('.self::$commentMulti.')\s*|\s+/Ais';
 		}
@@ -3092,7 +3096,7 @@ class scss_parser {
 			return true;
 		}
 
-		if ($def[0] == "list") {
+		if ( $def[0] == "list" && is_countable( $value[2] ) ) {
 			return $this->stripDefault($value[2][count($value[2]) - 1]);
 		}
 
@@ -3115,7 +3119,7 @@ class scss_parser {
 			}
 		}
 
-		return $this->match($this->preg_quote($what), $m, $eatWhitespace);
+		return $this->match( static::preg_quote($what), $m, $eatWhitespace );
 	}
 
 	// tree builders
@@ -3158,9 +3162,11 @@ class scss_parser {
 
 	// last child that was appended
 	protected function last() {
-		$i = count($this->env->children) - 1;
-		if (isset($this->env->children[$i]))
-			return $this->env->children[$i];
+		if ( is_countable( $this->env->children ) ) {
+			$i = count($this->env->children) - 1;
+			if (isset($this->env->children[$i]))
+				return $this->env->children[$i];
+		}
 	}
 
 	// high level parsers (they return parts of ast)
@@ -3266,6 +3272,7 @@ class scss_parser {
 	}
 
 	protected function genericList(&$out, $parseItem, $delim="", $flatten=true) {
+		$value = null; // output param; init for rector
 		$s = $this->seek();
 		$items = array();
 		while ($this->$parseItem($value)) {
@@ -4030,7 +4037,7 @@ class scss_parser {
 		} else {
 			$validChars = $allowNewline ? "." : "[^\n]";
 		}
-		if (!$this->match('('.$validChars.'*?)'.$this->preg_quote($what), $m, !$until)) return false;
+		if (!$this->match('('.$validChars.'*?)' . static::preg_quote($what), $m, !$until)) return false;
 		if ($until) $this->count -= strlen($what); // give back $what
 		$out = $m[1];
 		return true;
@@ -4157,7 +4164,7 @@ class scss_parser {
 
 	// turn list of length 1 into value type
 	protected function flattenList($value) {
-		if ($value[0] == "list" && count($value[2]) == 1) {
+		if ($value[0] == "list" && is_countable( $value[2] ) && count($value[2]) == 1) {
 			return $this->flattenList($value[2][0]);
 		}
 		return $value;
@@ -4299,7 +4306,8 @@ class scss_formatter_nested extends scss_formatter {
 		foreach ($block->children as $i => $child) {
 			// echo "*** block: ".$block->depth." child: ".$child->depth."\n";
 			$this->block($child);
-			if ($i < count($block->children) - 1) {
+			$children_count = is_countable( $block->children ) ? count( $block->children ) : 0;
+			if ($i < $children_count - 1) {
 				echo $this->break;
 
 				if (isset($block->children[$i + 1])) {
