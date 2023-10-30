@@ -37,7 +37,7 @@ class Jetpack_Memberships {
 	 *
 	 * @var string
 	 */
-	public static $tier_type = 'tier';
+	public static $type_tier = 'tier';
 
 	/**
 	 * Option stores status for memberships (Stripe, etc.).
@@ -710,7 +710,7 @@ class Jetpack_Memberships {
 						'fields'         => 'ids',
 						'post_type'      => self::$post_type_plan,
 						'meta_key'       => 'jetpack_memberships_type',
-						'meta_value'     => self::$tier_type,
+						'meta_value'     => self::$type_tier,
 					)
 				)
 			);
