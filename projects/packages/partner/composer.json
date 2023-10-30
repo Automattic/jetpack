@@ -56,5 +56,6 @@
 		"allow-plugins": {
 			"roots/wordpress-core-installer": true
 		}
-	}
+	},
+	"abandoned": "automattic/jetpack-connection"
 }
