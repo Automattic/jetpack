@@ -1079,23 +1079,10 @@ function get_paywall_blocks( $newsletter_access_level ) {
 
 		}
 	} else {
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			// custom domain
-			$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
-		} else {
-			$sign_in_link = add_query_arg(
-				array(
-					'site_id'      => intval( \Jetpack_Options::get_option( 'id' ) ),
-					'redirect_url' => rawurlencode( get_current_url() ),
-					'v2'           => '',
-				),
-				'https://subscribe.wordpress.com/memberships/jwt'
-			);
-		}
 		$access_question = get_paywall_access_question( $newsletter_access_level );
-
-		$sign_in = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
-<p class="has-text-align-center" style="font-size:14px"><a href="' . $sign_in_link . '">' . $access_question . '</a></p>
+		$id              = 'jp_retrieve_subscriptions_link' . ( get_the_ID() ? get_the_ID() : '' );
+		$sign_in         = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
+<p class="has-text-align-center" style="font-size:14px"><a id="' . $id . '" href="#">' . $access_question . '</a></p>
 <!-- /wp:paragraph -->';
 	}
 
