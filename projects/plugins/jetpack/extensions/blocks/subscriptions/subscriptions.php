@@ -608,7 +608,7 @@ function get_post_access_level_for_current_post() {
  * @return string
  */
 function render_for_website( $data, $classes, $styles ) {
-	$blog_id            = get_current_blog_id();
+	$blog_id            = \Jetpack_Options::get_option( 'id' );
 	$form_id            = 'subscribe-blog-' . $data['widget_id'];
 	$form_url           = defined( 'SUBSCRIBE_BLOG_URL' ) ? SUBSCRIBE_BLOG_URL : '#';
 	$post_access_level  = get_post_access_level_for_current_post();
