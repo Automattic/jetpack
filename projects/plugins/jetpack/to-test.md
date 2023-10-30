@@ -1,71 +1,9 @@
-## Jetpack 12.8
+## Jetpack 12.7
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
-
-### AI Assistant
-
-[Beta extension]
-- Inside the editor, click the 'Jetpack' icon and open the 'AI Assistant' section.
-- There should be a usage meter indicating how many requests you've used.
-- Add/use an AI block, save the post/draft, and refresh the page.
-- The usage counter should increase.
-- If you're not on an AI plan, a visual usage bar should be shown along with an 'Upgrade' button.
-- Clicking the 'Upgrade' button should take you to the appropriate upgrade page.
-- After completing the flow and purchasing the upgrade, you should no longer see the visual usage indicator or the upgrade button. Instead a message should be displayed about you having unlimited requests.
-
-AI Extensions are now disabled for empty blocks preventing unnecessary requests.
-
-- Add an empty paragraph block. Adding a few spaces will work too.
-- Click the AI Extension button on the block toolbar.
-- There should be a notice indicating you need to add content before the options become enabled.
-
-You can use the new `jetpack_ai_enabled` filter to register the plugin.
-
-- Add the following filter to your site: `add_filter( 'jetpack_ai_enabled', '__return_false' );`.
-- AI features should now become unavailable on your site.
-
-### SEO/Sharing
-
-Character counts for SEO Title and SEO Description are now also displayed when over limit, instead of just getting a warning message.
-
-- Edit a post.
-- In the editor, click the 'Jetpack' icon and expand the 'SEO' section.
-- Click 'Activate Jetpack SEO' button if not already activated.
-- Type into the 'SEO Title' field.
-- Once you go past 70 characters, ensure you continue to see the current character count at the end '(xx used)', in addition to the warning.
-- Verify the same is true for 'SEO Description'.
-
-### Subscriptions
-
-Site administrators can now see the subscribe modal/popup for demo/debugging purposes.
-
-- Go to Jetpack > Settings > Newsletters and ensure the subscriber modal is enabled.
-- While logged in as an admin, go to a frontend post without a paywall or limited access, scroll, and confirm the modal loads.
-
-Not logged users shoudl see a 'retrieve subscriptions' link. [33656]
-
-### WordAds
-
-You should now be able to use Ad block before the module is enabled.
-
-- Navigate to `/wp-admin/admin.php?page=jetpack_modules` and make sure the Ads module is disabled.
-- Make sure you don't have a plan that supports Ads.
-- Create a new post.
-- You should not see the Ad block in the blocks inserter.
-- Purchase the 'Jetpack Complete' plan but make sure the Ads module remains disabled.
-- Create a new post. You should now see the Ad block in the inserter.
-- Add the Ad block to your post. It should contain an 'Activate WordAds' button.
-- Activate the module and check that the form works as expected.
-
-### Scan
-
-The scan module can now be disabled using a dedicated filter.
-
-- Add the following filter to your site: `add_filter( 'jetpack_disable_scan', '__return_true' );`.
-- Scan module should be distabled on your site.
 
 ### Add additional properties to WooCommerce analytics checkout and purchase events
 
@@ -106,6 +44,57 @@ The scan module can now be disabled using a dedicated filter.
 - Go to the Checkout page (Pages -> Checkout) and add extra blocks to the Checkout page.
 - Go to the Checkout block and ensure the additional blocks you added are in the `additional_blocks` property.
 - Change the checkout page to use the shortcode (`[woocommerce_checkout]`) and repeat these steps. Ensure the correct value is tracked for each event. **Note that the `checkout_page_contains_cart_shortcode` property is stored in a transient so this will be incorrect if changing, but it has been tested in another PR and is known to be working.**
+
+
+### SEO Tools/Sharing Sidebar
+
+There are some new options in the Jetpack sidebar in the block editor. To test:
+
+- Go to Posts > Add New.
+- Click on the Jetpack plugin sidebar.
+- Click on the "SEO" panel title.
+- Click on the button.
+- Verify that the module is enabled and working as expected.
+- Click on the "Likes and Sharing" panel title.
+- Click on the button.
+- Verify that the module is enabled and working as expected.
+
+### Jetpack AI Search Block
+
+We've launched and AI Search block, moving it from beta to production! To test, create a new post and add the AI Chat bot. Play around with the block and the sidebar settings and make sure things work in the editor and on the front end.
+
+## Known Issues:
+
+- Button styling can be improved.
+- It can sometimes be very slow.
+- The search can be very hit or miss depending on keywords used in the question.
+- It can only chat with posts & pages reliably. Products are harder to find.
+
+### New Quick Share Options
+
+We've added the quick-share options to the block editor panel. To test:
+
+* Open up a new post, there should not be anything new.
+* After publishing you should see the new Quick share Button if our panel is open
+* Clicking the icon should open the Quick share dropdown
+* Clicking on any of the icons there should work
+* Clicking the learn more on the dropdown should open the help modal and close the dropdown.
+
+### Add Forced 2FA Functionality when SSO is enabled
+
+We have a new filter that will allow someone to force 2FA to be enabled when SSO is also enabled. There's no UI for this yet, but it would be good to do some functionality testing. To do so:
+
+* Jetpack connnected + SSO enabled.
+* Connect an account that does not have 2fa enabled to the Jetpack site (either cycle the connection or make a new admin user connected to a non-2fa WP.com account.)
+* Create a new user with subscriber or contributor role.
+* Log out and log back into admin account with regular WP creds (not SSO) This should work.
+* Enable flag via `add_filter( 'jetpack_force_2fa', '__return_true' );`
+* Log out and log back in with regular WP creds. It should fail.
+* Log in with WP.com SSO with an account that has 2fa enabled. It should work.
+* Log out and login with the non-2fa WP.com account via SSO. It should fail.
+* Add a filter to modify the cap, e.g. `add_filter( 'jetpack_force_2fa_cap, function() { return 'read' } );`
+* Verify that the contributor forces SSO.
+
 
 ### And More!
 

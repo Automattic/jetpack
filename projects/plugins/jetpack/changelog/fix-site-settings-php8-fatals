@@ -1,0 +1,5 @@
+Significance: patch
+Type: compat
+Comment: WordPress.com REST API: fix potential fatal error in API call to system running PHP8.
+
+
