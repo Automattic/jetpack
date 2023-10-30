@@ -408,7 +408,8 @@ class Jetpack_AI_Helper {
 				'requests-count'       => $requests_count,
 				'requests-limit'       => $requests_limit,
 				'usage-period'         => array(
-					'start'          => $usage_period_start,
+					'current-start'  => $usage_period_start,
+					'next-start'     => $usage_next_period_start,
 					'requests-count' => $usage_period_requests_count,
 				),
 				'site-require-upgrade' => $require_upgrade,
