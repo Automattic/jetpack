@@ -8,15 +8,18 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useReducer } from 'react';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
 import PublicizeConnectionVerify from '../connection-verify';
 import PublicizeForm from '../form';
+import OneClickSharingDropdown from '../one-click-sharing-dropdown';
+import OneClickSharingModal from '../one-click-sharing-modal';
 import { SharePostRow } from '../share-post';
-import PublicizeTwitterOptions from '../twitter/options';
+import styles from './styles.module.scss';
 
-const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
+const PublicizePanel = ( { prePublish, children } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
@@ -33,6 +36,7 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 		isEnhancedPublishingEnabled,
 		isSocialImageGeneratorAvailable,
 		shouldShowAdvancedPlanNudge,
+		jetpackSharingSettingsUrl,
 	} = usePublicizeConfig();
 
 	// Refresh connections when the post is just published.
@@ -49,10 +53,21 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 
 	// Panel wrapper.
 	const PanelWrapper = prePublish ? Fragment : PanelBody;
-	const wrapperProps = prePublish ? {} : { title: __( 'Share this post', 'jetpack' ) };
+	const wrapperProps = prePublish
+		? {}
+		: { title: __( 'Share this post', 'jetpack' ), className: styles.panel };
+
+	const [ isModalOpen, toggleModal ] = useReducer( isOpen => ! isOpen, false );
 
 	return (
 		<PanelWrapper { ...wrapperProps }>
+			{ isPostPublished && (
+				<OneClickSharingDropdown
+					onClickLearnMore={ toggleModal }
+					className={ styles[ 'one-click-share-dropdown' ] }
+				/>
+			) }
+			{ isModalOpen && <OneClickSharingModal onClose={ toggleModal } /> }
 			{ children }
 			{ ! hidePublicizeFeature && (
 				<Fragment>
@@ -85,10 +100,8 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 						isSocialImageGeneratorAvailable={ isSocialImageGeneratorAvailable }
 						adminUrl={ adminUrl }
 						shouldShowAdvancedPlanNudge={ shouldShowAdvancedPlanNudge }
+						jetpackSharingSettingsUrl={ jetpackSharingSettingsUrl }
 					/>
-					{ enableTweetStorm && isPublicizeEnabled && (
-						<PublicizeTwitterOptions prePublish={ prePublish } />
-					) }
 					<SharePostRow />
 				</Fragment>
 			) }

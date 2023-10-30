@@ -678,5 +678,4 @@ class Settings {
 	public static function is_custom_queue_table_enabled() {
 		return (bool) self::get_setting( 'custom_queue_table_enabled' );
 	}
-
 }

@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Backup;
  */
 class Package_Version {
 
-	const PACKAGE_VERSION = '1.17.3-alpha';
+	const PACKAGE_VERSION = '1.17.9';
 
 	const PACKAGE_SLUG = 'backup';
 
@@ -27,5 +27,4 @@ class Package_Version {
 		$package_versions[ self::PACKAGE_SLUG ] = self::PACKAGE_VERSION;
 		return $package_versions;
 	}
-
 }

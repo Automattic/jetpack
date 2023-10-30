@@ -4,9 +4,7 @@
 
 use Automattic\Jetpack\Tracking;
 
-/**
- * Disable direct access/execution to/of the widget code.
- */
+// Disable direct access/execution to/of the widget code.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

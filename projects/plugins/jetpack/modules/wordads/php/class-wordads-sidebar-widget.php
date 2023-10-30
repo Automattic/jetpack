@@ -137,7 +137,7 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 				$splits      = explode( '_', $properties['tag'] );
 				$unit_pretty = "{$splits[0]} {$splits[1]}";
 				$selected    = selected( $ad_unit, $unit, false );
-				echo "<option value='", esc_attr( $ad_unit ) ,"' ", esc_attr( $selected ), '>', esc_html( $unit_pretty ) , '</option>';
+				echo "<option value='", esc_attr( $ad_unit ), "' ", esc_attr( $selected ), '>', esc_html( $unit_pretty ), '</option>';
 		}
 		?>
 			</select>

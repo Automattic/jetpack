@@ -85,7 +85,7 @@ class Launchpad_Task_Lists {
 	 * @return bool True if successful, false if not.
 	 */
 	public function register_task( $task = array() ) {
-		if ( ! $this->validate_task( $task ) ) {
+		if ( ! static::validate_task( $task ) ) {
 			return false;
 		}
 		// TODO: Handle duplicate tasks
@@ -463,7 +463,7 @@ class Launchpad_Task_Lists {
 	 */
 	private function load_calypso_path( $task ) {
 		if ( null === $this->site_slug ) {
-			$this->site_slug = wpcom_launchpad_get_site_slug();
+			$this->site_slug = wpcom_get_site_slug();
 		}
 
 		$data = array(
@@ -651,6 +651,26 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
+	 * Gets a list of completed tasks.
+	 *
+	 * @param string $task_list_id Optional. Will default to `site_intent` option.
+	 * @return array Array of completed tasks.
+	 */
+	private function get_completed_tasks( $task_list_id = null ) {
+		$task_list_id = $task_list_id ? $task_list_id : get_option( 'site_intent' );
+		if ( ! $task_list_id ) {
+			return array();
+		}
+		$task_list = $this->get_task_list( $task_list_id );
+		if ( empty( $task_list ) ) {
+			return array();
+		}
+		$built_tasks = $this->build( $task_list_id );
+		// filter for incomplete tasks
+		return wp_list_filter( $built_tasks, array( 'completed' => true ) );
+	}
+
+	/**
 	 * Checks if there are any active tasks.
 	 *
 	 * @param string|null $task_list_id Optional. Will default to `site_intent` option.
@@ -733,10 +753,18 @@ class Launchpad_Task_Lists {
 	 * @return void
 	 */
 	public function maybe_disable_fullscreen_launchpad() {
-		if ( $this->has_active_tasks() ) {
-			return;
+		$completed_site_launched_task = wp_list_filter(
+			$this->get_completed_tasks(),
+			array(
+				'isLaunchTask' => true,
+			)
+		);
+
+		$site_launched = ! empty( $completed_site_launched_task );
+
+		if ( $site_launched || ! $this->has_active_tasks() ) {
+			$this->disable_fullscreen_launchpad();
 		}
-		$this->disable_fullscreen_launchpad();
 	}
 
 	/**
@@ -801,5 +829,4 @@ class Launchpad_Task_Lists {
 	private function disable_fullscreen_launchpad() {
 		return update_option( 'launchpad_screen', 'off' );
 	}
-
 }

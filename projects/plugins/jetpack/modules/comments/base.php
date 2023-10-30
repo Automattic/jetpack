@@ -24,14 +24,14 @@ class Highlander_Comments_Base {
 	/**
 	 * Set any global variables or class variables
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 */
 	protected function setup_globals() {}
 
 	/**
 	 * Setup actions for methods in this class
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 */
 	protected function setup_actions() {
 		// Before a comment is posted.
@@ -44,7 +44,7 @@ class Highlander_Comments_Base {
 	/**
 	 * Setup filters for methods in this class
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 */
 	protected function setup_filters() {
 		add_filter( 'comments_array', array( $this, 'comments_array' ) );
@@ -53,7 +53,7 @@ class Highlander_Comments_Base {
 
 	/**
 	 * Is this a Highlander POST request?
-	 * Optionally restrict to one or more credentials slug (facebook, twitter, ...)
+	 * Optionally restrict to one or more credentials slug (facebook, ...)
 	 *
 	 * @param mixed ...$args Comments credentials slugs.
 	 * @return false|string false if it's not a Highlander POST request.  The matching credentials slug if it is.
@@ -154,7 +154,7 @@ class Highlander_Comments_Base {
 	/**
 	 * Comment sort comparator: comment_date_gmt
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 * @param object $a The first comment to compare dates with.
 	 * @param object $b The second comment to compare dates with.
 	 * @return int
@@ -170,7 +170,7 @@ class Highlander_Comments_Base {
 	/**
 	 * Get the current commenter's information from their cookie
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 * @return array Commenters information from cookie
 	 */
 	protected function get_current_commenter() {
@@ -201,13 +201,13 @@ class Highlander_Comments_Base {
 	}
 
 	/**
-	 * Allows a logged out user to leave a comment as a facebook or twitter credentialed user.
+	 * Allows a logged out user to leave a comment as a facebook credentialed user.
 	 * Overrides WordPress' core comment_registration option to treat these commenters as "registered" (verified) users.
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 */
 	public function allow_logged_out_user_to_comment_as_external() {
-		if ( ! $this->is_highlander_comment_post( 'facebook', 'twitter' ) ) {
+		if ( ! $this->is_highlander_comment_post( 'facebook' ) ) {
 			return;
 		}
 
@@ -216,11 +216,11 @@ class Highlander_Comments_Base {
 	}
 
 	/**
-	 * Allow a logged in user to post as a guest, FB, or twitter credentialed request.
+	 * Allow a logged in user to post as a guest, or FB credentialed request.
 	 * Bypasses WordPress' core overrides that force a logged in user to comment as that user.
 	 * Respects comment_registration option.
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 * @param array $comment_data All data for a specific comment.
 	 * @return array Modified comment data, or an error if the required fields or a valid email address are not entered.
 	 */
@@ -236,7 +236,7 @@ class Highlander_Comments_Base {
 		}
 
 		// Bail if this is not a guest or external service credentialed request.
-		if ( ! $this->is_highlander_comment_post( 'guest', 'facebook', 'twitter' ) ) {
+		if ( ! $this->is_highlander_comment_post( 'guest', 'facebook' ) ) {
 			return $comment_data;
 		}
 
@@ -287,7 +287,7 @@ class Highlander_Comments_Base {
 	/**
 	 * Set the comment cookies or bail if comment is invalid
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 * @param int $comment_id The comment ID.
 	 */
 	public function set_comment_cookies( $comment_id ) {
@@ -316,7 +316,7 @@ class Highlander_Comments_Base {
 	/**
 	 * Get an avatar from Photon
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 * @param string $url The avatar URL.
 	 * @param int    $size The avatar size.
 	 * @return string

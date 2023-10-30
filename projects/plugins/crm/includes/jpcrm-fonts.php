@@ -621,5 +621,4 @@ class JPCRM_Fonts {
 
 		return false;
 	}
-
 }

@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Dashboard_Customizations\Admin_Color_Schemes;
+use WpOrg\Requests\Requests;
 
 require_once JETPACK__PLUGIN_DIR . 'tests/php/lib/class-wp-test-jetpack-rest-testcase.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/admin-color-schemes/class-admin-color-schemes.php';

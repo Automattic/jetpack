@@ -697,7 +697,6 @@ class Jetpack_Comic {
 		$post_types[] = self::POST_TYPE;
 		return $post_types;
 	}
-
 }
 
 add_action( 'init', array( 'Jetpack_Comic', 'init' ) );

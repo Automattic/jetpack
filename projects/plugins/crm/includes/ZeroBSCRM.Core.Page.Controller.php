@@ -88,7 +88,7 @@ function zeroBSCRM_pages_admin_addedit_page( $type = 'contact', $action = 'new',
 		case ZBS_TYPE_QUOTE:
 		case ZBS_TYPE_INVOICE:
 		case ZBS_TYPE_TRANSACTION:
-		case ZBS_TYPE_EVENT:
+		case ZBS_TYPE_TASK:
 		case ZBS_TYPE_FORM:
 		case ZBS_TYPE_QUOTETEMPLATE:
 			if ( zeroBSCRM_permsObjType( $obj_type_id ) ) {
@@ -247,7 +247,7 @@ function zeroBSCRM_prehtml_pages_admin_addedit() {
 				$zbsEditView   = new zeroBSCRM_Edit(
 					array(
 						'objID'      => $zbsid,
-						'objTypeID'  => ZBS_TYPE_EVENT,
+						'objTypeID'  => ZBS_TYPE_TASK,
 						'langLabels' => array(),
 						'extraBoxes' => $upsellBoxHTML,
 					)
@@ -347,7 +347,7 @@ function zeroBSCRM_prehtml_pages_admin_addedit() {
 				$zbsDeleteView = new zeroBSCRM_Delete(
 					array(
 						'objID'      => $zbsid,
-						'objTypeID'  => ZBS_TYPE_EVENT,
+						'objTypeID'  => ZBS_TYPE_TASK,
 						'langLabels' => array(),
 					)
 				);

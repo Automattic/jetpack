@@ -4,13 +4,14 @@
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import RecommendationContext from '../../../elements/RecommendationContext.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
-	import { modulesState } from '../../../stores/modules';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
-	import { isaData } from '../store/isa-data';
-	import { imageDataActiveGroup } from '../store/isa-summary';
 
 	export let needsRefresh: boolean;
 	export let refresh: () => Promise< void >;
+	export let isImageCdnModuleActive: boolean;
+	export let isaLastUpdated: number;
+	export let hasActiveGroup: boolean;
+	export let totalIssueCount: number;
 
 	const formatter = new Intl.DateTimeFormat( 'en-US', {
 		month: 'long',
@@ -21,25 +22,25 @@
 	} );
 </script>
 
-{#if $imageDataActiveGroup && $isaData.data.last_updated}
-	{@const  lastUpdated = formatter.format( $isaData.data.last_updated ) }
+{#if hasActiveGroup && isaLastUpdated}
+	{@const  lastUpdated = formatter.format( isaLastUpdated ) }
 
 	<div class="jb-hero" in:fade={{ duration: 300, easing: quadOut }}>
 		<span>Latest report as of {lastUpdated}</span>
-		{#if $imageDataActiveGroup.issue_count}
+		{#if totalIssueCount}
 			<h1>
 				{sprintf(
 					/* translators: %d: number of image recommendations */
 					_n(
 						'%d Image Recommendation',
 						'%d Image Recommendations',
-						$imageDataActiveGroup.issue_count,
+						totalIssueCount,
 						'jetpack-boost'
 					),
-					$imageDataActiveGroup.issue_count
+					totalIssueCount
 				)}
 
-				{#if ! $modulesState.image_cdn.active && $imageDataActiveGroup.issue_count > 0}
+				{#if ! isImageCdnModuleActive && totalIssueCount > 0}
 					<RecommendationContext />
 				{/if}
 			</h1>

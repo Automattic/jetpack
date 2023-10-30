@@ -109,12 +109,6 @@ const ContextualizedConnection = props => {
 								) }
 							</li>
 							<li>
-								{ createInterpolateElement(
-									__( '<strong>Free</strong> lazy image loading', 'jetpack' ),
-									{ strong: <strong /> }
-								) }
-							</li>
-							<li>
 								{ createInterpolateElement( __( '<strong>Free</strong> SEO tools', 'jetpack' ), {
 									strong: <strong />,
 								} ) }

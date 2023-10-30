@@ -20,5 +20,4 @@ class File_System_Exception extends Waf_Exception {
 	 * @var string
 	 */
 	const SLUG = 'file_system_error';
-
 }

@@ -843,14 +843,11 @@ function zeroBSCRM_is_quotetemplate_edit_page() {
 
 	// ========= / QUOTE TEMPLATES =========================================
 
-	// ========= EVENTS ====================================================
+	// ========= TASKS ====================================================
 
-	// generic check for any page concerning 'events'
-function zeroBSCRM_isAnyEventPage() {
+	// generic check for any page concerning tasks
+function zeroBSCRM_isAnyTaskPage() {
 
-	if ( zeroBSCRM_is_event_list_page() ) {
-		return true;
-	}
 	if ( zeroBSCRM_is_task_new_page() ) {
 		return true;
 	}
@@ -863,16 +860,11 @@ function zeroBSCRM_isAnyEventPage() {
 	if ( zeroBSCRM_is_task_list_page() ) {
 		return true;
 	}
-	if ( zeroBSCRM_is_eventtags_page() ) {
+	if ( zeroBSCRM_is_tasktags_page() ) {
 		return true;
 	}
 
 	return false;
-}
-
-function zeroBSCRM_is_event_list_page() {
-
-	return zeroBS_isPage( array( 'edit.php' ), array( 'zerobs_event' ) );
 }
 
 function zeroBSCRM_is_task_new_page() {
@@ -898,16 +890,16 @@ function zeroBSCRM_is_task_edit_page() {
 function zeroBSCRM_is_task_calendar_page() {
 
 	global $zbs;
-	return zeroBS_isPage( array( 'admin.php' ), false, array( $zbs->slugs['manage-events'] ) );
+	return zeroBS_isPage( array( 'admin.php' ), false, array( $zbs->slugs['manage-tasks'] ) );
 }
 
 function zeroBSCRM_is_task_list_page() {
 
 	global $zbs;
-	return zeroBS_isPage( array( 'admin.php' ), false, array( $zbs->slugs['manage-events-list'] ) );
+	return zeroBS_isPage( array( 'admin.php' ), false, array( $zbs->slugs['manage-tasks-list'] ) );
 }
 
-function zeroBSCRM_is_eventtags_page() {
+function zeroBSCRM_is_tasktags_page() {
 
 	// v3.0+ only
 	global $zbs;
@@ -924,7 +916,7 @@ function zeroBSCRM_is_eventtags_page() {
 	return false;
 }
 
-	// ========= / EVENTS =================================================
+	// ========= / TASKS =================================================
 
 	// ========= FORMS ====================================================
 
@@ -946,7 +938,7 @@ function zeroBSCRM_isAnyFormPage() {
 	if ( zeroBSCRM_is_task_list_page() ) {
 		return true;
 	}
-	if ( zeroBSCRM_is_eventtags_page() ) {
+	if ( zeroBSCRM_is_tasktags_page() ) {
 		return true;
 	}
 
@@ -1048,7 +1040,7 @@ function jpcrm_is_full_width_page( $page_name ) {
 		'manage-invoices',
 		'manage-quote-templates',
 		'manage-transactions',
-		'manage-events',
+		'manage-tasks',
 		'manage-forms',
 	);
 

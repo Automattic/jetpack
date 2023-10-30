@@ -40,5 +40,4 @@ class Visitor {
 
 		return ! empty( $_SERVER['REMOTE_ADDR'] ) ? filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 	}
-
 }

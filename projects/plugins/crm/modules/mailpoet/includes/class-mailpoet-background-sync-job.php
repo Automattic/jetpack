@@ -662,6 +662,4 @@ class Mailpoet_Background_Sync_Job {
 		return false;
 
 	}
-
-
 }

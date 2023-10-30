@@ -58,6 +58,29 @@ class Jetpack_SSO {
 		add_action( 'login_form_jetpack-sso', '__return_true' );
 
 		add_filter( 'wp_login_errors', array( $this, 'sso_reminder_logout_wpcom' ) );
+
+		/**
+		 * Filter to include Force 2FA feature.
+		 *
+		 * By default, `manage_options` users are forced when enable. The capability can be modified
+		 * with the `jetpack_force_2fa_cap` filter.
+		 *
+		 * To enable the feature, add the following code:
+		 * add_filter( 'jetpack_force_2fa', '__return_true' );
+		 *
+		 * @param bool $force_2fa Whether to force 2FA or not.
+		 *
+		 * @todo Provide a UI to enable/disable the feature.
+		 *
+		 * @since 12.7
+		 * @module SSO
+		 * @return bool
+		 */
+		if ( ! class_exists( 'Jetpack_Force_2FA' ) && apply_filters( 'jetpack_force_2fa', false ) ) {
+			// Checking for the class to avoid collisions with existing standalone Jetpack Force 2FA plugin and break out if so.
+			require_once JETPACK__PLUGIN_DIR . 'modules/sso/class-jetpack-force-2fa.php';
+			new Jetpack_Force_2FA();
+		}
 	}
 
 	/**

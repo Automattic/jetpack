@@ -424,7 +424,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( $expected_completion_status, $first_task['completed'] );
 
 		// Verify that the task option has the right value.
-		$this->assertSame( $expected_completion_status, wpcom_is_task_option_completed( $task ) );
+		$this->assertSame( $expected_completion_status, wpcom_launchpad_is_task_option_completed( $task ) );
 	}
 
 	/**

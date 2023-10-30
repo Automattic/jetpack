@@ -18,7 +18,7 @@ class Settings {
 	 *
 	 * @var string
 	 */
-	const OPTION_NAME = 'jetpack_social_auto_conversion_settings';
+	const OPTION_NAME = 'jetpack_social_settings';
 
 	/**
 	 * Array with auto conversion settings.
@@ -40,13 +40,12 @@ class Settings {
 	 * @return array
 	 */
 	private function get_settings() {
-		$settings = get_option( self::OPTION_NAME );
-
-		if ( empty( $settings ) || ! is_array( $settings ) ) {
-			return array();
-		}
-
-		return $settings;
+		return get_option(
+			self::OPTION_NAME,
+			array(
+				'image' => $this->is_available( 'image' ),
+			)
+		);
 	}
 
 	/**

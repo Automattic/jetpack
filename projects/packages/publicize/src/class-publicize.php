@@ -515,6 +515,7 @@ class Publicize extends Publicize_Base {
 			'tumblr'             => array(),
 			'mastodon'           => array(),
 			'instagram-business' => array(),
+			'nextdoor'           => array(),
 		);
 
 		if ( 'all' === $filter ) {

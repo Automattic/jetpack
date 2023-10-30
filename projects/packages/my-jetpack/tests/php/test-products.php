@@ -98,6 +98,4 @@ class Test_Products extends TestCase {
 		add_filter( 'my_jetpack_products_classes', array( $this, 'return_invalid_class' ) );
 		Products::get_products_classes();
 	}
-
 }
-

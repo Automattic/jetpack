@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/contact-info",
 	"title": "Contact Info",
-	"description": "Lets you add an email address, phone number, and physical address with improved markup for better SEO results.",
+	"description": "Add an email address, phone number, and physical address with improved markup for better SEO results.",
 	"keywords": [ "email", "phone", "address" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
@@ -25,5 +25,31 @@
 			"lineHeight": true
 		}
 	},
-	"editorScript": "file:../editor.js"
+	"example": {
+		"attributes": {},
+		"innerBlocks": [
+			{
+				"name": "jetpack/email",
+				"attributes": {
+					"email": "hello@yourjetpack.blog"
+				}
+			},
+			{
+				"name": "jetpack/phone",
+				"attributes": {
+					"phone": "123-456-7890"
+				}
+			},
+			{
+				"name": "jetpack/address",
+				"attributes": {
+					"address": "987 Photon Drive",
+					"city": "Speedyville",
+					"region": "CA",
+					"postal": "12345",
+					"country": "USA"
+				}
+			}
+		]
+	}
 }

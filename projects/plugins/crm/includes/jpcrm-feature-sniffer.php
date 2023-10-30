@@ -9,12 +9,25 @@ if ( !defined( 'ZEROBSCRM_PATH' ) ) exit;
  */
 class JPCRM_FeatureSniffer {
 
+	/**
+	 * An array of plugins installed.
+	 *
+	 * @var array
+	 */
+	public $all_plugins = array();
+
+	/**
+	 * An array of alerts to display to user.
+	 *
+	 * @var array
+	 */
+	public $alerts = array();
+
 	public function __construct() {
 		if ( !function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 		$this->all_plugins = get_plugins();
-		$this->alerts = array();
 	}
 
 	/**

@@ -178,4 +178,3 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 		return $extra_data;
 	}
 }
-

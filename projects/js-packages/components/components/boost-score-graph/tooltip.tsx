@@ -22,6 +22,11 @@ export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => 
 	const scoreLetter = getScoreLetter( mobile_overall_score, desktop_overall_score );
 	const date = dateI18n( 'F j, Y', new Date( period.timestamp ), false );
 
+	// If any of the key properties are missing, don't render the tooltip.
+	if ( ! scoreLetter || ! mobile_overall_score || ! desktop_overall_score || ! date ) {
+		return null;
+	}
+
 	return (
 		<div className="jb-score-tooltip">
 			<div className="jb-score-tooltip__date">{ date }</div>
@@ -39,22 +44,28 @@ export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => 
 					}
 				</div>
 			</div>
-			<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
-				<div className="jb-score-tooltip__column">
-					{ __( 'Largest Contentful Paint', 'jetpack' ) }
+			{ typeof desktop_lcp === 'number' && (
+				<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
+					<div className="jb-score-tooltip__column">
+						{ __( 'Largest Contentful Paint', 'jetpack' ) }
+					</div>
+					<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', desktop_lcp ) }</div>
 				</div>
-				<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', desktop_lcp ) }</div>
-			</div>
-			<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
-				<div className="jb-score-tooltip__column">{ __( 'Total Blocking Time', 'jetpack' ) }</div>
-				<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', desktop_tbt ) }</div>
-			</div>
-			<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
-				<div className="jb-score-tooltip__column">
-					{ __( 'Cumulative Layout Shift', 'jetpack' ) }
+			) }
+			{ typeof desktop_tbt === 'number' && (
+				<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
+					<div className="jb-score-tooltip__column">{ __( 'Total Blocking Time', 'jetpack' ) }</div>
+					<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', desktop_tbt ) }</div>
 				</div>
-				<div className="jb-score-tooltip__column">{ sprintf( '%0.2f', desktop_cls ) }</div>
-			</div>
+			) }
+			{ typeof desktop_cls === 'number' && (
+				<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
+					<div className="jb-score-tooltip__column">
+						{ __( 'Cumulative Layout Shift', 'jetpack' ) }
+					</div>
+					<div className="jb-score-tooltip__column">{ sprintf( '%0.2f', desktop_cls ) }</div>
+				</div>
+			) }
 			<hr />
 			<div className="jb-score-tooltip__row">
 				<div className="jb-score-tooltip__column">{ __( 'Mobile score', 'jetpack' ) }</div>
@@ -65,22 +76,28 @@ export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => 
 					}
 				</div>
 			</div>
-			<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
-				<div className="jb-score-tooltip__column">
-					{ __( 'Largest Contentful Paint', 'jetpack' ) }
+			{ typeof mobile_lcp === 'number' && (
+				<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
+					<div className="jb-score-tooltip__column">
+						{ __( 'Largest Contentful Paint', 'jetpack' ) }
+					</div>
+					<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', mobile_lcp ) }</div>
 				</div>
-				<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', mobile_lcp ) }</div>
-			</div>
-			<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
-				<div className="jb-score-tooltip__column">{ __( 'Total Blocking Time', 'jetpack' ) }</div>
-				<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', mobile_tbt ) }</div>
-			</div>
-			<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
-				<div className="jb-score-tooltip__column">
-					{ __( 'Cumulative Layout Shift', 'jetpack' ) }
+			) }
+			{ typeof mobile_tbt === 'number' && (
+				<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
+					<div className="jb-score-tooltip__column">{ __( 'Total Blocking Time', 'jetpack' ) }</div>
+					<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', mobile_tbt ) }</div>
 				</div>
-				<div className="jb-score-tooltip__column">{ sprintf( '%0.2f', mobile_cls ) }</div>
-			</div>
+			) }
+			{ typeof mobile_cls === 'number' && (
+				<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
+					<div className="jb-score-tooltip__column">
+						{ __( 'Cumulative Layout Shift', 'jetpack' ) }
+					</div>
+					<div className="jb-score-tooltip__column">{ sprintf( '%0.2f', mobile_cls ) }</div>
+				</div>
+			) }
 			<div className="jb-score-tooltip__pointer"></div>
 		</div>
 	);

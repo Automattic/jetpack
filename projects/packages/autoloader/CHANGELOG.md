@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.12.0] - 2023-09-28
+### Added
+- Add an `AutoloadGenerator::VERSION` constant, and use that for the autoloader's version in preference to whatever Composer has. [#33156]
+
+## [2.11.23] - 2023-09-19
+
+- Minor internal updates.
+
 ## [2.11.22] - 2023-08-23
 ### Changed
 - Updated package dependencies. [#32605]
@@ -324,6 +332,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Custom Autoloader
 
+[2.12.0]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.23...v2.12.0
+[2.11.23]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.22...v2.11.23
 [2.11.22]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.21...v2.11.22
 [2.11.21]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.20...v2.11.21
 [2.11.20]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.19...v2.11.20

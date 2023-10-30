@@ -434,5 +434,4 @@ class ChangeEntryTest extends TestCase {
 			),
 		);
 	}
-
 }

@@ -73,12 +73,7 @@ function render() {
 		return;
 	}
 
-	// @todo: Remove fallback when we drop support for WP 6.1
-	if ( WPElement.createRoot ) {
-		WPElement.createRoot( container ).render( <VideoPress /> );
-	} else {
-		WPElement.render( <VideoPress />, container );
-	}
+	WPElement.createRoot( container ).render( <VideoPress /> );
 }
 
 render();

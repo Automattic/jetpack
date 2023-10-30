@@ -2,8 +2,11 @@
 	import { useNavigate } from 'svelte-navigator';
 	import { recordBoostEvent } from '../../../utils/analytics';
 	import { Link } from '../../../utils/router';
-	import { isaData } from '../store/isa-data';
-	import { isaGroupLabels, imageDataGroupTabs } from '../store/isa-summary';
+	import { type ISASummaryGroup } from '../store/isa-summary';
+
+	export let activeGroup: string;
+	export let imageDataGroupTabs: Record< string, ISASummaryGroup >;
+	export let isaGroupLabels;
 
 	const navigate = useNavigate();
 
@@ -18,13 +21,13 @@
 		dropdownOpen = ! dropdownOpen;
 	}
 
-	$: currentTab = $imageDataGroupTabs[ $isaData.query.group ];
+	$: currentTab = imageDataGroupTabs[ activeGroup ];
 </script>
 
 <div class="dropdown">
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<div class="head-bar" on:click={onClickDropdown}>
-		{isaGroupLabels[ $isaData.query.group ]}
+		{isaGroupLabels[ activeGroup ]}
 		{#if currentTab?.issue_count > 0}
 			<span class="issues">{currentTab.issue_count}</span>
 		{/if}
@@ -33,13 +36,13 @@
 
 	{#if dropdownOpen}
 		<ul class="options">
-			{#each Object.entries( $imageDataGroupTabs ) as [group, details]}
+			{#each Object.entries( imageDataGroupTabs ) as [group, details]}
 				{@const  issues = details.issue_count }
 
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<li
 					class:active={issues > 0}
-					class:selected={$isaData.query.group === group}
+					class:selected={activeGroup === group}
 					on:click={() => issues > 0 && selectGroup( group )}
 				>
 					{isaGroupLabels[ group ]}
@@ -51,11 +54,11 @@
 </div>
 
 <div class="jb-tabs">
-	{#each Object.entries( $imageDataGroupTabs ) as [group, details]}
+	{#each Object.entries( imageDataGroupTabs ) as [group, details]}
 		{@const  label = isaGroupLabels[ group ] }
 		{@const  issues = details.issue_count }
 
-		<div class="jb-tab jb-tab--{group}" class:active={$isaData.query.group === group}>
+		<div class="jb-tab jb-tab--{group}" class:active={activeGroup === group}>
 			<div class="jb-tab__header">
 				{#if issues > 0}
 					<Link

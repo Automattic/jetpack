@@ -1,78 +1,77 @@
-import { BlockIcon, InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import {
-	Button,
-	CheckboxControl,
-	Flex,
-	FlexBlock,
-	FlexItem,
-	Icon,
-	Notice,
-	PanelBody,
-	Placeholder,
-	Spinner,
-	SearchControl,
-	ToggleControl,
-} from '@wordpress/components';
-import { useState, useEffect, useCallback } from '@wordpress/element';
+import { InspectorControls, useBlockProps, InnerBlocks } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
+import { PanelBody, ToggleControl, FlexBlock, Spinner, Notice } from '@wordpress/components';
+import { dispatch } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import './editor.scss';
-import icon from './icon';
+import classNames from 'classnames';
+import BlogrollAppender from './components/blogroll-appender';
+import useRecommendations from './use-recommendations';
+import { useSiteRecommendationSync } from './use-site-recommendations';
 import useSubscriptions from './use-subscriptions';
+import { createBlockFromRecommendation } from './utils';
+import './editor.scss';
 
-export function BlogRollEdit( { className, attributes, setAttributes, isSelected } ) {
-	const [ selectedSubscriptions, setSelectedSubscriptions ] = useState( [] );
-	const [ showSubscriptions, setShowSubscriptions ] = useState( false );
-	const { recommendations, ignore_user_blogs } = attributes;
-	const { isLoading, errorMessage, subscriptions } = useSubscriptions( { ignore_user_blogs } );
-	const showPlaceholder = ! selectedSubscriptions.length && ( ! showSubscriptions || ! isSelected );
+export function BlogRollEdit( { className, attributes, setAttributes, clientId } ) {
+	const {
+		show_avatar,
+		show_description,
+		open_links_new_window,
+		ignore_user_blogs,
+		load_placeholders,
+	} = attributes;
+
+	const {
+		isLoading: isLoadingRecommendations,
+		recommendations,
+		errorMessage: recommendationsErrorMessage,
+	} = useRecommendations( load_placeholders );
+	const {
+		isLoading: isLoadingSubscriptions,
+		subscriptions,
+		errorMessage: subscriptionsErrorMessage,
+	} = useSubscriptions( {
+		ignore_user_blogs,
+	} );
+	useSiteRecommendationSync( { clientId } );
+	const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
 
 	useEffect( () => {
-		setSelectedSubscriptions( recommendations.map( ( { blog_id } ) => blog_id ) );
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
+		if ( load_placeholders && recommendations.length ) {
+			setAttributes( { load_placeholders: false } );
 
-	useEffect( () => {
-		// Update recommendations when selectedSubscriptions changes
-		setAttributes( {
-			recommendations: subscriptions.filter( subscription =>
-				selectedSubscriptions.includes( subscription.blog_id )
-			),
-		} );
-	}, [ selectedSubscriptions, setAttributes, subscriptions ] );
+			const blocks = [
+				createBlock( 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ),
+				...recommendations.map( createBlockFromRecommendation ),
+			];
+			replaceInnerBlocks( clientId, blocks );
+		}
+	}, [ recommendations, load_placeholders, setAttributes, clientId, replaceInnerBlocks ] );
 
-	const handleChecked = useCallback(
-		subscriptionId => {
-			if ( selectedSubscriptions.includes( subscriptionId ) ) {
-				setSelectedSubscriptions( selectedSubscriptions.filter( id => id !== subscriptionId ) );
-			} else {
-				setSelectedSubscriptions( [ ...selectedSubscriptions, subscriptionId ] );
-			}
-		},
-		[ selectedSubscriptions ]
-	);
+	const blockProps = useBlockProps( {
+		className: classNames( className, {
+			'hide-avatar': ! show_avatar,
+			'hide-description': ! show_description,
+		} ),
+	} );
 
-	/**
-	 * Write the block editor UI.
-	 *
-	 * @returns {object} The UI displayed when user edits this block.
-	 */
+	const errorMessage = recommendationsErrorMessage || subscriptionsErrorMessage;
 
 	return (
-		<div { ...useBlockProps() } className={ className }>
-			{ showPlaceholder && (
-				<Placeholder
-					label={ __( 'Blogroll', 'jetpack' ) }
-					icon={ <BlockIcon icon={ icon } /> }
-					instructions={ __(
-						'Recommend sites that you like and follow. Select the sites you want to recommend to your visitors.',
-						'jetpack'
-					) }
-				>
-					<Button variant="primary" onClick={ () => setShowSubscriptions( true ) }>
-						{ __( 'Select Recommendations', 'jetpack' ) }
-					</Button>
-				</Placeholder>
-			) }
+		<div { ...blockProps }>
+			<InnerBlocks
+				template={ [ [ 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ] ] }
+				allowedBlocks={ [ 'jetpack/blogroll-item' ] }
+				renderAppender={ () =>
+					! isLoadingRecommendations && (
+						<BlogrollAppender
+							isLoading={ isLoadingSubscriptions }
+							subscriptions={ subscriptions }
+							clientId={ clientId }
+						/>
+					)
+				}
+			/>
 
 			{ errorMessage && (
 				<Notice status="error" isDismissible={ false }>
@@ -80,103 +79,37 @@ export function BlogRollEdit( { className, attributes, setAttributes, isSelected
 				</Notice>
 			) }
 
-			{ isLoading && (
-				<FlexBlock style={ { padding: '10px', textAlign: 'center' } }>
+			{ load_placeholders && isLoadingRecommendations && (
+				<FlexBlock style={ { padding: '30px', textAlign: 'center' } }>
 					<Spinner />
 				</FlexBlock>
-			) }
-
-			{ ! isLoading && ! showPlaceholder && (
-				<BlogrollContent
-					{ ...{ isLoading, subscriptions, selectedSubscriptions, handleChecked, isSelected } }
-				/>
 			) }
 
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 					<ToggleControl
-						label={ __( 'Hide user blogs', 'jetpack' ) }
+						label={ __( 'Show avatar', 'jetpack' ) }
+						checked={ !! show_avatar }
+						onChange={ () => setAttributes( { show_avatar: ! show_avatar } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show description', 'jetpack' ) }
+						checked={ !! show_description }
+						onChange={ () => setAttributes( { show_description: ! show_description } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Open links in a new window', 'jetpack' ) }
+						checked={ !! open_links_new_window }
+						onChange={ () => setAttributes( { open_links_new_window: ! open_links_new_window } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Hide my own sites', 'jetpack' ) }
 						checked={ !! ignore_user_blogs }
 						onChange={ () => setAttributes( { ignore_user_blogs: ! ignore_user_blogs } ) }
 					/>
 				</PanelBody>
 			</InspectorControls>
 		</div>
-	);
-}
-
-function BlogrollContent( { subscriptions, selectedSubscriptions, handleChecked, isSelected } ) {
-	const [ searchQuery, setSearchQuery ] = useState( '' );
-	const [ filteredSubscriptions, setFilteredSubscriptions ] = useState( subscriptions );
-
-	useEffect( () => {
-		if ( ! isSelected ) {
-			setSearchQuery( '' );
-			setFilteredSubscriptions( subscriptions );
-		}
-	}, [ subscriptions, setFilteredSubscriptions, setSearchQuery, isSelected ] );
-
-	const handleSearchInputChange = value => {
-		const query = value.toLowerCase();
-		const filtered = subscriptions.filter( subscription =>
-			subscription.name.toLowerCase().includes( query )
-		);
-		setFilteredSubscriptions( filtered );
-		setSearchQuery( query );
-	};
-
-	return (
-		<Flex gap={ 2 } justify="space-between" direction="column">
-			{ isSelected && (
-				<SearchControl
-					value={ searchQuery }
-					onChange={ handleSearchInputChange }
-					placeholder={ __( 'Search subscriptions…', 'jetpack' ) }
-				/>
-			) }
-
-			{ ! filteredSubscriptions.length && <p>{ __( 'No results found', 'jetpack' ) }</p> }
-
-			{ filteredSubscriptions.map( subscription => {
-				const isSubscriptionSelected = selectedSubscriptions.includes( subscription.blog_id );
-
-				return (
-					<FlexItem
-						key={ subscription.blog_id }
-						style={ {
-							padding: '10px',
-							display: ! isSubscriptionSelected && ! isSelected ? 'none' : '',
-						} }
-					>
-						<Flex gap={ 4 } justify="space-between">
-							<FlexItem>
-								{ ! subscription.site_icon && (
-									<Icon icon="admin-site" className="icon" size={ 36 } />
-								) }
-								{ subscription.site_icon && (
-									<img
-										className="icon"
-										src={ subscription.site_icon }
-										alt={ subscription.name }
-										height={ 36 }
-										width={ 36 }
-									/>
-								) }
-							</FlexItem>
-							<FlexBlock>{ subscription.name }</FlexBlock>
-							<FlexItem>
-								{ isSelected && (
-									<CheckboxControl
-										checked={ isSubscriptionSelected }
-										onChange={ () => handleChecked( subscription.blog_id ) }
-									/>
-								) }
-							</FlexItem>
-						</Flex>
-					</FlexItem>
-				);
-			} ) }
-		</Flex>
 	);
 }
 

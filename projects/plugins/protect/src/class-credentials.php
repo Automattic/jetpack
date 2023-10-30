@@ -52,5 +52,4 @@ class Credentials {
 
 		return isset( $parsed_response->credentials ) ? $parsed_response->credentials : array();
 	}
-
 }

@@ -1,18 +1,20 @@
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 
 /**
  * @typedef {object} NoticeTypes
  * @property {string} instagram - The name of the Instagram notice.
  * @property {string} advancedUpgradeEditor - The name of the advanced upgrade nudge in the editor.
  * @property {string} advancedUpgradeAdmin - The name of the advanced upgrade nudge in the admin page.
+ * @property {string} autoConversion - The name of the auto conversion notice.
  */
 
 const NOTICES = {
 	instagram: 'instagram',
 	advancedUpgradeEditor: 'advanced-upgrade-nudge-editor',
 	advancedUpgradeAdmin: 'advanced-upgrade-nudge-admin',
+	autoConversion: 'auto-conversion-editor-notice',
 };
 
 const calculateReappearanceTime = seconds => {

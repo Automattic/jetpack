@@ -141,15 +141,25 @@ function zerobscrm_doing_it_wrong( $function, $message, $version ) {
 
 	}
 
-
-	function zeroBSCRM_stripSlashesFromArr($value){
-	    $value = is_array($value) ?
-	                array_map('zeroBSCRM_stripSlashesFromArr', $value) :
-	                stripslashes($value);
-
-	    return $value;
+/**
+ * Recursively strips slashes from an array.
+ *
+ * Quite similar to zeroBSCRM_stripSlashes(), but that given
+ * its legacy status any changes to there and its returns may
+ * have negative implications
+ *
+ * @param array|string|null $value Some value to strip.
+ *
+ * @return array|string|null
+ */
+function zeroBSCRM_stripSlashesFromArr( $value ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+	if ( is_array( $value ) ) {
+		return array_map( 'zeroBSCRM_stripSlashesFromArr', $value );
+	} elseif ( is_string( $value ) ) {
+		return stripslashes( $value );
 	}
-
+	return $value;
+}
 
    # from http://wordpress.stackexchange.com/questions/91900/how-to-force-a-404-on-wordpress
 	function zeroBSCRM_force_404() {
@@ -895,22 +905,6 @@ function zeroBSCRM_isJson( $str ) {
 		return $endArr;
 	}
 
-
-	// recursive utf8-ing 
-	// https://stackoverflow.com/questions/19361282/why-would-json-encode-return-an-empty-string
-	function zeroBSCRM_utf8ize($d) {
-	    if (is_array($d)) {
-	        foreach ($d as $k => $v) {
-	            $d[$k] = zeroBSCRM_utf8ize($v);
-	        }
-	    } else if (is_string ($d)) {
-			// TODO: utf8_encode has been deprecated in PHP 8.2, and needs to be replaced.
-			return utf8_encode($d); // phpcs:ignore
-	    }
-	    return $d;
-	}
-
-
 	// returns a filetype img if avail
 	// returns 48px from  https://github.com/redbooth/free-file-icons
 	// ... cpp has fullsize 512px variants, but NOT to be added to core, adds bloat
@@ -1338,7 +1332,7 @@ function zeroBSCRM_portal_linkObj( $obj_id = -1, $type_int = ZBS_TYPE_INVOICE ) 
 function jpcrm_get_portal_slug() {
 	$portal_page_id   = zeroBSCRM_getSetting( 'portalpage' );
 	$portal_post      = get_post( $portal_page_id );
-	$portal_permalink = rtrim( _get_page_link( $portal_post ), '/' );
+	$portal_permalink = $portal_post ? rtrim( _get_page_link( $portal_post ), '/' ) : '';
 	$portal_slug      = str_replace( home_url(), "", $portal_permalink);
 	
 	if ( empty( $portal_slug ) ) {
@@ -1737,7 +1731,7 @@ function jpcrm_get_mimetype( $file_path ) {
 /**
  * Retrieve an array of quote statuses with their corresponding labels.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  *
  * @return array Associative array of quote statuses with labels.
  */

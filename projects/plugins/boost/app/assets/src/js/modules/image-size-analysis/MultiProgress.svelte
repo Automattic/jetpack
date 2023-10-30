@@ -5,43 +5,41 @@
 	import ProgressBar from '../../elements/ProgressBar.svelte';
 	import Spinner from '../../elements/Spinner.svelte';
 	import WarningIcon from '../../svg/warning-outline.svg';
-	import { isaGroupLabels, isaSummary } from './store/isa-summary';
+	import { isaGroupLabel } from './store/isa-summary';
 
-	function safePercent( value: number, outOf: number ): number {
-		if ( ! outOf ) {
-			return 100;
-		}
-
-		return Math.min( 100, Math.max( 0, ( value * 100 ) / outOf ) );
-	}
+	export let summaryProgress: {
+		group: string;
+		issue_count?: number;
+		scanned_pages?: number;
+		total_pages?: number;
+		progress: number;
+		done: boolean;
+		has_issues: boolean;
+	}[];
 </script>
 
 <div class="jb-multi-progress">
-	{#each Object.entries( $isaSummary.groups ) as [group, summary], index}
-		{@const  progress = safePercent( summary.scanned_pages, summary.total_pages ) }
-		{@const  isDone = progress === 100 }
-		{@const  hasIssues = summary.issue_count > 0 }
-
+	{#each summaryProgress as summary, index}
 		<div class="jb-entry">
 			<div class="jb-progress">
-				<ProgressBar progress={safePercent( summary.scanned_pages, summary.total_pages )} />
+				<ProgressBar progress={summary.progress} />
 			</div>
 
-			{#if progress > 0 && progress < 100}
+			{#if summary.progress > 0 && summary.progress < 100}
 				<Spinner />
 			{:else}
 				<ConditionalLink
-					isLink={hasIssues}
+					isLink={summary.has_issues}
 					class="jb-navigator-link"
-					to="/image-size-analysis/{group}/1"
+					to="/image-size-analysis/{summary.group}/1"
 					trackEvent="clicked_isa_group_on_summary_page"
-					trackEventProps={group}
+					trackEventProps={summary.group}
 				>
-					<span class="jb-bubble" class:done={isDone} class:has-issues={hasIssues}>
-						{#if hasIssues}
+					<span class="jb-bubble" class:done={summary.done} class:has-issues={summary.has_issues}>
+						{#if summary.has_issues}
 							<WarningIcon class="icon" />
 						{:else}
-							{isDone ? '✓' : index + 1}
+							{summary.done ? '✓' : index + 1}
 						{/if}
 					</span>
 				</ConditionalLink>
@@ -49,29 +47,29 @@
 
 			<div class="jb-category-name">
 				<ConditionalLink
-					isLink={hasIssues}
+					isLink={summary.has_issues}
 					class="jb-navigator-link"
-					to="/image-size-analysis/{group}/1"
+					to="/image-size-analysis/{summary.group}/1"
 					trackEvent="clicked_isa_group_on_summary_page"
-					trackEventProps={group}
+					trackEventProps={summary.group}
 				>
-					{isaGroupLabels[ group ] || group}
+					{isaGroupLabel( summary.group )}
 				</ConditionalLink>
-				{#if 'other' === group}
+				{#if 'other' === summary.group}
 					<OtherGroupContext />
 				{/if}
 			</div>
 
-			{#if isDone || hasIssues}
-				<div class="jb-status" class:has-issues={hasIssues}>
+			{#if summary.done || summary.has_issues}
+				<div class="jb-status" class:has-issues={summary.has_issues}>
 					<ConditionalLink
-						isLink={hasIssues}
+						isLink={summary.has_issues}
 						class="jb-navigator-link"
-						to="/image-size-analysis/{group}/1"
+						to="/image-size-analysis/{summary.group}/1"
 						trackEvent="clicked_isa_group_on_summary_page"
-						trackEventProps={group}
+						trackEventProps={summary.group}
 					>
-						{#if hasIssues}
+						{#if summary.has_issues}
 							{sprintf(
 								/* translators: %d is the number of items in this list hidden behind this link */
 								__( '%d issues', 'jetpack-boost' ),

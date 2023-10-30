@@ -430,5 +430,4 @@ class csstidy_print { // phpcs:ignore
 			return ( strlen( $this->output_css_plain ) / 1000 );
 		}
 	}
-
 }

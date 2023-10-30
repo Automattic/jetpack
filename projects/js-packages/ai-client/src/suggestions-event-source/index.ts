@@ -12,6 +12,7 @@ import requestJwt from '../jwt';
  * Types & constants
  */
 import {
+	ERROR_CONTEXT_TOO_LARGE,
 	ERROR_MODERATION,
 	ERROR_NETWORK,
 	ERROR_QUOTA_EXCEEDED,
@@ -19,7 +20,12 @@ import {
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
 } from '../types';
-import type { PromptMessagesProp, PromptProp, SuggestionErrorCode } from '../types';
+import type {
+	AiModelTypeProp,
+	PromptMessagesProp,
+	PromptProp,
+	SuggestionErrorCode,
+} from '../types';
 
 type SuggestionsEventSourceConstructorArgs = {
 	url?: string;
@@ -30,6 +36,7 @@ type SuggestionsEventSourceConstructorArgs = {
 		feature?: 'ai-assistant-experimental' | string | undefined;
 		fromCache?: boolean;
 		functions?: Array< object >;
+		model?: AiModelTypeProp;
 	};
 };
 
@@ -47,16 +54,17 @@ const debug = debugFactory( 'jetpack-ai-client:suggestions-event-source' );
  * It also emits a 'suggestion' event with the full suggestion received so far
  *
  * @returns {EventSource} The event source
- * @fires suggestion                - The full suggestion has been received so far
- * @fires message                   - A message has been received
- * @fires chunk                     - A chunk of data has been received
- * @fires done                      - The stream has been closed. No more data will be received
- * @fires error                     - An error has occurred
- * @fires error_network             - The EventSource connection to the server returned some error
- * @fires error_service_unavailable - The server returned a 503 error
- * @fires error_quota_exceeded      - The server returned a 429 error
- * @fires error_moderation          - The server returned a 422 error
- * @fires error_unclear_prompt      - The server returned a message starting with JETPACK_AI_ERROR
+ * @fires SuggestionsEventSource#suggestion                - The full suggestion has been received so far
+ * @fires SuggestionsEventSource#message                   - A message has been received
+ * @fires SuggestionsEventSource#chunk                     - A chunk of data has been received
+ * @fires SuggestionsEventSource#done                      - The stream has been closed. No more data will be received
+ * @fires SuggestionsEventSource#error                     - An error has occurred
+ * @fires SuggestionsEventSource#error_network             - The EventSource connection to the server returned some error
+ * @fires SuggestionsEventSource#error_context_too_large   - The server returned a 413 error
+ * @fires SuggestionsEventSource#error_moderation          - The server returned a 422 error
+ * @fires SuggestionsEventSource#error_quota_exceeded      - The server returned a 429 error
+ * @fires SuggestionsEventSource#error_service_unavailable - The server returned a 503 error
+ * @fires SuggestionsEventSource#error_unclear_prompt      - The server returned a message starting with JETPACK_AI_ERROR
  */
 export default class SuggestionsEventSource extends EventTarget {
 	fullMessage: string;
@@ -103,6 +111,7 @@ export default class SuggestionsEventSource extends EventTarget {
 			question?: PromptProp;
 			feature?: string;
 			functions?: Array< object >;
+			model?: AiModelTypeProp;
 		} = {};
 
 		// Populate body data with post id
@@ -142,6 +151,12 @@ export default class SuggestionsEventSource extends EventTarget {
 			bodyData.functions = options.functions;
 		}
 
+		// Model
+		if ( options?.model?.length ) {
+			debug( 'Model: %o', options.model );
+			bodyData.model = options.model;
+		}
+
 		await fetchEventSource( url, {
 			openWhenHidden: true,
 			method: 'POST',
@@ -174,7 +189,7 @@ export default class SuggestionsEventSource extends EventTarget {
 				if (
 					response.status >= 400 &&
 					response.status <= 500 &&
-					! [ 422, 429 ].includes( response.status )
+					! [ 413, 422, 429 ].includes( response.status )
 				) {
 					this.processConnectionError( response );
 				}
@@ -189,12 +204,12 @@ export default class SuggestionsEventSource extends EventTarget {
 				}
 
 				/*
-				 * error code 429
-				 * you exceeded your current quota please check your plan and billing details
+				 * error code 413
+				 * request context too large
 				 */
-				if ( response.status === 429 ) {
-					errorCode = ERROR_QUOTA_EXCEEDED;
-					this.dispatchEvent( new CustomEvent( ERROR_QUOTA_EXCEEDED ) );
+				if ( response.status === 413 ) {
+					errorCode = ERROR_CONTEXT_TOO_LARGE;
+					this.dispatchEvent( new CustomEvent( ERROR_CONTEXT_TOO_LARGE ) );
 				}
 
 				/*
@@ -204,6 +219,15 @@ export default class SuggestionsEventSource extends EventTarget {
 				if ( response.status === 422 ) {
 					errorCode = ERROR_MODERATION;
 					this.dispatchEvent( new CustomEvent( ERROR_MODERATION ) );
+				}
+
+				/*
+				 * error code 429
+				 * you exceeded your current quota please check your plan and billing details
+				 */
+				if ( response.status === 429 ) {
+					errorCode = ERROR_QUOTA_EXCEEDED;
+					this.dispatchEvent( new CustomEvent( ERROR_QUOTA_EXCEEDED ) );
 				}
 
 				// Always dispatch a global ERROR_RESPONSE event

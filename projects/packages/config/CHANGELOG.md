@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.4] - 2023-09-19
+- Minor internal updates.
+
 ## [1.15.3] - 2023-06-26
 ### Changed
 - Blaze can now be loaded as a module, instead of relying on the Config package. [#31479]
@@ -184,6 +187,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Trying to add deterministic initialization.
 
+[1.15.4]: https://github.com/Automattic/jetpack-config/compare/v1.15.3...v1.15.4
 [1.15.3]: https://github.com/Automattic/jetpack-config/compare/v1.15.2...v1.15.3
 [1.15.2]: https://github.com/Automattic/jetpack-config/compare/v1.15.1...v1.15.2
 [1.15.1]: https://github.com/Automattic/jetpack-config/compare/v1.15.0...v1.15.1

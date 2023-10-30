@@ -4,23 +4,36 @@
 
 <script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
+	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
+	import Notice from '../../../elements/Notice.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import RecommendationsMeta from '../../../modules/image-size-analysis/RecommendationsMeta.svelte';
+	import {
+		initializeIsaSummary,
+		isaSummary,
+	} from '../../../modules/image-size-analysis/store/isa-summary';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
+	import config from '../../../stores/config';
 	import {
 		criticalCssState,
 		continueGeneratingLocalCriticalCss,
 		regenerateCriticalCss,
+		criticalCssProgress,
+		isFatalError,
 	} from '../../../stores/critical-css-state';
+	import { criticalCssIssues, primaryErrorSet } from '../../../stores/critical-css-state-errors';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
+	import { imageCdnQuality } from '../../../stores/image-cdn';
 	import { minifyJsExcludesStore, minifyCssExcludesStore } from '../../../stores/minify';
 	import { modulesState } from '../../../stores/modules';
+	import { premiumFeatures } from '../../../stores/premium-features';
 	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
+	import ImageCdnQualitySettings from '../elements/ImageCdnQualitySettings.svelte';
 	import MinifyMeta from '../elements/MinifyMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumTooltip from '../elements/PremiumTooltip.svelte';
@@ -31,11 +44,26 @@
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
 	const lazyLoadLink = getRedirectUrl( 'jetpack-boost-lazy-load' );
+	const learnLazyLoadDeprecation = () => {
+		window.open( getRedirectUrl( 'jetpack-boost-lazy-load-deprecation' ), '_blank' );
+	};
+
+	$: lazyLoadDeprecationMessage = $modulesState.lazy_images?.available
+		? __(
+				'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature will consequently be removed from Jetpack Boost.',
+				'jetpack-boost'
+		  )
+		: __(
+				'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature has been disabled to avoid potential conflicts with Gutenberg 16.6.0+ or WordPress 6.4+. This feature will consequently be removed from Jetpack Boost.',
+				'jetpack-boost'
+		  );
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
 
 	const suggestRegenerate = suggestRegenerateDS.store;
+
+	$: yearlyPricing = $config.pricing.yearly;
 
 	async function resume() {
 		if ( alreadyResumed ) {
@@ -48,6 +76,12 @@
 		}
 		await continueGeneratingLocalCriticalCss( $criticalCssState );
 	}
+
+	onMount( () => {
+		if ( $modulesState.image_size_analysis.active ) {
+			initializeIsaSummary();
+		}
+	} );
 </script>
 
 <div class="jb-container--narrow">
@@ -88,7 +122,16 @@
 		</div>
 
 		<div slot="meta">
-			<CriticalCssMeta />
+			<CriticalCssMeta
+				cssState={$criticalCssState}
+				isCloudCssAvailable={$modulesState.cloud_css?.available}
+				criticalCssProgress={$criticalCssProgress}
+				issues={$criticalCssIssues}
+				isFatalError={$isFatalError}
+				primaryErrorSet={$primaryErrorSet}
+				suggestRegenerate={$suggestRegenerate}
+				{regenerateCriticalCss}
+			/>
 		</div>
 
 		<div slot="notice">
@@ -102,9 +145,10 @@
 		<svelte:fragment slot="cta">
 			<UpgradeCTA
 				description={__(
-					'Save time by upgrading to Automatic Critical CSS generation',
+					'Save time by upgrading to Automatic Critical CSS generation.',
 					'jetpack-boost'
 				)}
+				{yearlyPricing}
 			/>
 		</svelte:fragment>
 	</Module>
@@ -144,7 +188,16 @@
 		</div>
 
 		<div slot="meta" class="jb-feature-toggle__meta">
-			<CloudCssMeta />
+			<CloudCssMeta
+				cssState={$criticalCssState}
+				isCloudCssAvailable={$modulesState.cloud_css?.available}
+				criticalCssProgress={$criticalCssProgress}
+				issues={$criticalCssIssues}
+				isFatalError={$isFatalError}
+				primaryErrorSet={$primaryErrorSet}
+				suggestRegenerate={$suggestRegenerate}
+				{regenerateCriticalCss}
+			/>
 		</div>
 	</Module>
 
@@ -174,6 +227,18 @@
 				vars={externalLinkTemplateVar( lazyLoadLink )}
 			/>
 		</p>
+		<Notice
+			title={__( 'Lazy image loading is going away', 'jetpack-boost' )}
+			message={lazyLoadDeprecationMessage}
+			actions={[
+				{
+					label: __( 'Learn more', 'jetpack-boost' ),
+					onClick: learnLazyLoadDeprecation,
+					isExternalLink: true,
+					variant: 'link',
+				},
+			]}
+		/>
 	</Module>
 
 	<Module slug="minify_js">
@@ -224,6 +289,13 @@
 				'jetpack-boost'
 			)}
 		</p>
+
+		<div slot="meta">
+			<ImageCdnQualitySettings
+				bind:quality={$imageCdnQuality}
+				isPremium={$premiumFeatures.includes( 'image-cdn-quality' )}
+			/>
+		</div>
 	</Module>
 
 	<div class="settings">
@@ -247,6 +319,7 @@
 							'Upgrade to scan your site for issues - automatically!',
 							'jetpack-boost'
 						)}
+						{yearlyPricing}
 					/>
 				{/if}
 			</svelte:fragment>
@@ -264,7 +337,12 @@
 			</p>
 
 			<svelte:fragment slot="meta">
-				<RecommendationsMeta />
+				{#if $modulesState.image_size_analysis.active}
+					<RecommendationsMeta
+						isaSummary={$isaSummary}
+						isCdnActive={$modulesState.image_cdn.active}
+					/>
+				{/if}
 			</svelte:fragment>
 		</Module>
 	</div>

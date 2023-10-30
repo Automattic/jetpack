@@ -24,5 +24,4 @@ class Module {
 	public function is_enabled() {
 		return $this->status->is_enabled();
 	}
-
 }

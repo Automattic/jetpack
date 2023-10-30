@@ -89,5 +89,4 @@ function jpcrm_woosync_ajax_get_auth_url(){
 	}
 
 	zeroBSCRM_sendJSONError(array());
-
 }

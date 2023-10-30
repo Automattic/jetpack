@@ -27,6 +27,7 @@ function bad_in_71( object $o ) {}
 bad_in_72( $a, $b, );
 $bad_in_73 ??= true;
 // TODO: More stuff for 8.0+ once PHPCompatibility 10 finally releases.
+
 EOF;
 
 	const SRC2 = <<<'EOF'
@@ -38,6 +39,7 @@ ini_get( 'session.cookie_samesite' );
 ini_get( 'opcache.cache_id' );
 ini_get( 'zend.exception_string_param_max_len' );
 ini_get( 'fiber.stack_size' );
+
 EOF;
 
 	/**
@@ -136,5 +138,4 @@ EOF;
 		yield array( 'Jetpack-Compat-81', self::SRC2, array_slice( $lines2, 7 ) );
 		yield array( 'Jetpack-Compat-82', self::SRC2, array_slice( $lines2, 8 ) );
 	}
-
 }

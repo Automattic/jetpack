@@ -99,6 +99,11 @@ type useAiSuggestionsProps = {
 	request: ( prompt: PromptProp, options?: AskQuestionOptionsArgProps ) => Promise< void >;
 
 	/*
+	 * Reset the request state.
+	 */
+	reset: () => void;
+
+	/*
 	 * The handler to stop a suggestion.
 	 */
 	stopSuggestion: () => void;
@@ -295,6 +300,17 @@ export default function useAiSuggestions( {
 	);
 
 	/**
+	 * Reset the request state.
+	 *
+	 * @returns {void}
+	 */
+	const reset = useCallback( () => {
+		setRequestingState( 'init' );
+		setSuggestion( '' );
+		setError( undefined );
+	}, [] );
+
+	/**
 	 * Stop suggestion handler.
 	 *
 	 * @returns {void}
@@ -358,9 +374,10 @@ export default function useAiSuggestions( {
 		error,
 		requestingState,
 
-		// Request/stop handlers
+		// Requests handlers
 		request,
 		stopSuggestion,
+		reset,
 
 		// SuggestionsEventSource
 		eventSource: eventSourceRef.current,

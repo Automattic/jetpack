@@ -32,8 +32,8 @@ const DUMMY_CONNECTIONS = [
 const INVALID_TYPES = [ 'imagejpg', 'image/tgif', 'video/mp5', '', null ];
 
 const VALID_MEDIA_ALL = [
-	{ metaData: { mime: 'image/jpg', fileSize: 40 } },
-	{ metaData: { mime: 'image/jpeg', fileSize: 20 } },
+	{ metaData: { mime: 'image/jpg', fileSize: 40 }, mediaData: { width: 400, height: 500 } },
+	{ metaData: { mime: 'image/jpeg', fileSize: 20 }, mediaData: { width: 400, height: 500 } },
 ];
 const ALLOWED_MEDIA_TYPES_ALL = [
 	'image/jpeg',
@@ -68,7 +68,7 @@ describe( 'useMediaRestrictions hook', () => {
 	test( 'should not get any errors for image that accepted by all platforms', () => {
 		VALID_MEDIA_ALL.forEach( media => {
 			const { result } = renderHook( () => useMediaRestrictions( ...getHookProps( { media } ) ) );
-			expect( result.current ).toEqual( {} );
+			expect( result.current.validationErrors ).toEqual( {} );
 		} );
 	} );
 
@@ -77,7 +77,7 @@ describe( 'useMediaRestrictions hook', () => {
 			const { result } = renderHook( () =>
 				useMediaRestrictions( ...getHookProps( { media, connections: [] } ) )
 			);
-			expect( result.current ).toEqual( {} );
+			expect( result.current.validationErrors ).toEqual( {} );
 		} );
 	} );
 
@@ -90,7 +90,7 @@ describe( 'useMediaRestrictions hook', () => {
 					...getHookProps( { media, isSocialImageGeneratorEnabledForPost: true } )
 				)
 			);
-			expect( result.current ).toEqual( {} );
+			expect( result.current.validationErrors ).toEqual( {} );
 		} );
 	} );
 
@@ -105,7 +105,7 @@ describe( 'useMediaRestrictions hook', () => {
 					} )
 				)
 			);
-			expect( result.current ).toEqual( {} );
+			expect( result.current.validationErrors ).toEqual( {} );
 		} );
 	} );
 
@@ -118,7 +118,7 @@ describe( 'useMediaRestrictions hook', () => {
 					...getHookProps( { media, connections: DUMMY_CONNECTIONS.splice( 0, -1 ) } ) // Instagram checks even if not uploaded
 				)
 			);
-			expect( result.current ).toEqual( {} );
+			expect( result.current.validationErrors ).toEqual( {} );
 		} );
 	} );
 
@@ -131,39 +131,63 @@ describe( 'useMediaRestrictions hook', () => {
 					...getHookProps( { media } ) // Instagram checks even if not uploaded
 				)
 			);
-			expect( Object.values( result.current ) ).toHaveLength(
+			expect( Object.values( result.current.validationErrors ) ).toHaveLength(
 				Object.keys( DUMMY_CONNECTIONS ).length
 			);
-			expect( Object.values( result.current ).every( error => error === FILE_TYPE_ERROR ) ).toBe(
-				true
-			);
+			expect(
+				Object.values( result.current.validationErrors ).every( error => error === FILE_TYPE_ERROR )
+			).toBe( true );
 		} );
 	} );
 
 	test( 'Instagram should only accept good sized image', () => {
 		[
-			{ media: { metaData: { mime: 'image/jpg', fileSize: 10000000 } }, error: FILE_SIZE_ERROR }, // Too big image
-			{ media: { metaData: { mime: 'image/png', fileSize: 10000000 } }, error: FILE_TYPE_ERROR }, // Png
-			{ media: { metaData: { mime: 'video/mp5', fileSize: 10 } }, error: FILE_TYPE_ERROR }, // Bad Video
+			{
+				media: {
+					metaData: { mime: 'image/jpg', fileSize: 10000000 },
+					mediaData: { width: 400, height: 500 },
+				},
+				error: FILE_SIZE_ERROR,
+			}, // Too big image
+			{
+				media: {
+					metaData: { mime: 'image/png', fileSize: 10000000 },
+					mediaData: { width: 400, height: 500 },
+				},
+				error: FILE_TYPE_ERROR,
+			}, // Png
+			{
+				media: {
+					metaData: { mime: 'video/mp5', fileSize: 10 },
+					mediaData: { width: 320, height: 500 },
+				},
+				error: FILE_TYPE_ERROR,
+			}, // Bad Video
 		].forEach( testData => {
 			const { result } = renderHook( () =>
 				useMediaRestrictions(
 					...getHookProps( { media: testData.media, connections: [ DUMMY_CONNECTIONS[ 4 ] ] } )
 				)
 			);
-			expect( result.current ).toHaveProperty( 'instagram-business' );
-			expect( result.current[ 'instagram-business' ] ).toEqual( testData.error );
+			expect( result.current.validationErrors ).toHaveProperty( 'instagram-business' );
+			expect( result.current.validationErrors[ 'instagram-business' ] ).toEqual( testData.error );
 		} );
 	} );
 
 	test( 'Can get video length error', () => {
 		[
 			{
-				media: { metaData: { mime: 'video/mp4', fileSize: 1000000, length: 2 } },
+				media: {
+					metaData: { mime: 'video/mp4', fileSize: 1000000, length: 2 },
+					mediaData: { width: 10, height: 10 },
+				},
 				error: VIDEO_LENGTH_TOO_SHORT_ERROR,
 			}, // Too short video
 			{
-				media: { metaData: { mime: 'video/mp4', fileSize: 1000000, length: 20000 } },
+				media: {
+					metaData: { mime: 'video/mp4', fileSize: 1000000, length: 20000 },
+					mediaData: { width: 10, height: 10 },
+				},
 				error: VIDEO_LENGTH_TOO_LONG_ERROR,
 			}, // Too long video
 		].forEach( testData => {
@@ -175,7 +199,7 @@ describe( 'useMediaRestrictions hook', () => {
 					} ) // Instagram not support videos
 				)
 			);
-			expect( result.current.linkedin ).toEqual( testData.error );
+			expect( result.current.validationErrors.linkedin ).toEqual( testData.error );
 		} );
 	} );
 } );

@@ -94,7 +94,6 @@ class Admin {
 			wp_safe_redirect( get_home_url() );
 		}
 	}
-
 }
 
 add_action(

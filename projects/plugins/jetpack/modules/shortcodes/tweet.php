@@ -171,5 +171,4 @@ class Jetpack_Tweet {
 			wp_print_scripts( 'twitter-widgets' );
 		}
 	}
-
 } // class end

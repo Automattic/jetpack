@@ -306,5 +306,4 @@ class Test_REST_Endpoints extends TestCase {
 
 		$this->assertEquals( 401, $response->get_status() );
 	}
-
 }

@@ -61,3 +61,9 @@ To assist with this case, we provide additional rulesets that disable PHPCompati
 
 Note this isn't a perfect replacement for raising `testVersion`, as it cannot _add_ PHPCompatibility rules that do not trigger when `testVersion` indicates support for PHP 5.6.
 For example, `Jetpack-Compat-74` disables the `PHPCompatibility.Classes.NewTypedProperties.Found` rule ("Typed properties are not supported in PHP 7.3 or earlier") but cannot enable more specific rules like `PHPCompatibility.Classes.NewTypedProperties.UnionTypeFound` ("Union types are not present in PHP version 7.4 or earlier") that would be triggered if `testVersion` were set to `7.4-`.
+
+You may also run into cases where certain subdirectories contain code that is not intended to run under WordPress. We provide additional rulesets to help with this situation as well:
+
+* `<rule ref="Jetpack-Compat-NoWP" />` will re-enable rules that PHPCompatibilityWP disables because WordPress provides polyfills for various functions.
+* `<rule ref="Jetpack-NoWP" />` includes Jetpack-Compat-NoWP and disables additional rules checking for use of WordPress-provided functions over PHP-native ones.
+* `<rule ref="Jetpack-Tests" />` will disable certain rules that do not make much sense in PHPUnit tests.

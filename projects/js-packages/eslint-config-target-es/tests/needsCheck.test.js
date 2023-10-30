@@ -205,7 +205,7 @@ const mockDebug = jest.fn();
 mockDebug.enabled = true;
 jest.mock(
 	'debug',
-	() => name => name.startsWith( '@automattic/eslint-config-target-es' ) ? mockDebug : () => {}
+	() => name => ( name.startsWith( '@automattic/eslint-config-target-es' ) ? mockDebug : () => {} )
 );
 beforeEach( () => {
 	mockDebug.mockClear();

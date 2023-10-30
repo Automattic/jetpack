@@ -355,5 +355,4 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 		$this->assertTrue( Utils::validate_ip_range( '1.1.1.1', '1.1.1.1' ) );
 		$this->assertTrue( Utils::validate_ip_range( '2001:db8::1', '2001:db8::1' ) );
 	}
-
 }

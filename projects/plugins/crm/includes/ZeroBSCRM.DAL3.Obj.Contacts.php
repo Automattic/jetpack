@@ -911,7 +911,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                 'assignedContact'   => $potentialRes->ID, // assigned to company id (int)
                                 'page'              => $objs_page,
                                 'perPage'           => $objs_per_page,
-                                'ignoreowner'       => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT),                                    
+                                'ignoreowner'       => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK),                                    
                                 'sortByField'       => 'zbse_start',
                                 'sortOrder'         => 'DESC',
                                 'withAssigned'      => false // no need, it's assigned to this obj already
@@ -2168,7 +2168,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                         'assignedContact'   => $resDataLine->ID, // assigned to company id (int)
                                         'page'       => -1,
                                         'perPage'       => -1,
-                                        'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT),                                    
+                                        'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK),                                    
                                         'sortByField'   => 'zbse_start',
                                         'sortOrder'     => 'DESC',
                                         'withAssigned'  => false // no need, it's assigned to this obj already
@@ -3960,7 +3960,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
     /**
      * Returns an ownerid against a contact
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id Contact ID
      *
@@ -5020,56 +5019,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
             }
 
-            #} Tags
-            //if (in_array('tagged', $columnsRequired)){
-
-            //    $resArr['tags'] = $contact['tags'];
-
-            //}
-
-            #} Quotes
-            //if (in_array('hasquote', $columnsRequired)){
-
-            //    $resArr['quotes'] = $contact['quotes'];
-
-            //}
-
-            #} Invoices
-            //if (in_array('hasinvoice', $columnsRequired)){
-
-            //    $resArr['invoices'] = $contact['invoices'];
-
-            //}
-
-            // DAL2 :)
-            //if (isset($customer['lastcontacted'])){
-
-            //    $resArr['lastcontacted'] = $contact['lastcontacted'];
-
-            //}
-
-            #} latest log
-            //if (in_array('latestlog', $columnsRequired)){
-            //if (isset($contact['lastlog'])){
-
-            //    $resArr['lastlog'] = $contact['lastlog'];
-
-            //}
-
-
-            #} Assigned to
-            /* no longer needed, is dealt with by withOwner
-            if (in_array('assigned', $columnsRequired)){
-
-                $resArr['owner'] = $contact['owner'];
-
-                // Actually needs owner obj!
-                if ($zbs->isDAL2() && isset($resArr['owner']) && !empty($resArr['owner'])) {
-
-                    $resArr['owner'] = zeroBS_getOwnerObj($resArr['owner']);
-                }
-            } */
-
             #} Company
             if (in_array('company',$columnsRequired)){
 
@@ -5217,6 +5166,4 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
     // =========== / Formatting    ===================================================
     // ===============================================================================
-    
-
 } // / class

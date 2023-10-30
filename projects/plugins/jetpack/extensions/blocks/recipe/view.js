@@ -53,7 +53,7 @@ class JetpackRecipe {
           
             .wp-block-jetpack-recipe-details__detail {
               font-size: 0.875rem;
-              margin-right: 1rem;
+              margin-inline-end: 1rem;
               padding-right: 1rem;
               text-align: center;
             }

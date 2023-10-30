@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Updated Jetpack submenu sort order so individual features are alpha-sorted.

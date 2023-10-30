@@ -1,24 +1,20 @@
 import './editor.scss';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, ToolbarButton, ToolbarGroup } from '@wordpress/components';
-import { useEntityProp } from '@wordpress/core-data';
+import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { arrowDown, Icon } from '@wordpress/icons';
-import {
-	accessOptions,
-	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
-} from '../../shared/memberships/constants';
+import { arrowDown, Icon, people, check } from '@wordpress/icons';
+import PlansSetupDialog from '../../shared/components/plans-setup-dialog';
+import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
-import { PaywallBlockSettings } from '../../shared/memberships/settings';
+import { NewsletterAccessRadioButtons, useSetAccess } from '../../shared/memberships/settings';
 
 function PaywallEdit( { className } ) {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
-	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
 	const { stripeConnectUrl, hasNewsletterPlans } = useSelect( select => {
 		const { getNewsletterProducts, getConnectUrl } = select( 'jetpack/membership-products' );
@@ -27,26 +23,26 @@ function PaywallEdit( { className } ) {
 			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
 		};
 	} );
-	const isStripeConnected = stripeConnectUrl === null;
+
+	const [ showDialog, setShowDialog ] = useState( false );
+	const closeDialog = () => setShowDialog( false );
+	const setAccess = useSetAccess();
 
 	useEffect( () => {
 		if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
-			setPostMeta( {
-				[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: accessOptions.subscribers.key,
-			} );
+			setAccess( accessOptions.subscribers.key );
 		}
-	}, [ accessLevel, setPostMeta ] );
+	}, [ accessLevel, setAccess ] );
 
-	function switchToAnyoneSubscribed() {
-		setPostMeta( {
-			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: accessOptions.subscribers.key,
-		} );
-	}
-
-	function switchToPaidSubscribers() {
-		setPostMeta( {
-			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: accessOptions.paid_subscribers.key,
-		} );
+	function selectAccess( value ) {
+		if (
+			accessOptions.paid_subscribers.key === value &&
+			( stripeConnectUrl || ! hasNewsletterPlans )
+		) {
+			setShowDialog( true );
+			return;
+		}
+		setAccess( value );
 	}
 
 	const getText = key => {
@@ -60,11 +56,26 @@ function PaywallEdit( { className } ) {
 		}
 	};
 
+	const getLabel = key => {
+		switch ( key ) {
+			case accessOptions.paid_subscribers.key:
+				return accessOptions.paid_subscribers.label;
+			default:
+				return accessOptions.subscribers.label;
+		}
+	};
+
 	const text = getText( accessLevel );
 
 	const style = {
 		width: `${ text.length + 1.2 }em`,
+		userSelect: 'none',
 	};
+
+	let _accessLevel = accessLevel ?? accessOptions.subscribers.key;
+	if ( _accessLevel === accessOptions.everybody.key ) {
+		_accessLevel = accessOptions.subscribers.key;
+	}
 
 	return (
 		<>
@@ -74,25 +85,43 @@ function PaywallEdit( { className } ) {
 					<Icon icon={ arrowDown } size={ 16 } />
 				</span>
 			</div>
-			<BlockControls>
-				<ToolbarGroup>
-					<ToolbarButton
-						className="components-tab-button"
-						isPressed={ accessLevel === accessOptions.subscribers.key }
-						onClick={ switchToAnyoneSubscribed }
-					>
-						{ __( 'Anyone subscribed', 'jetpack' ) }
-					</ToolbarButton>
-					<ToolbarButton
-						className="components-tab-button"
-						isPressed={ accessLevel === accessOptions.paid_subscribers.key }
-						onClick={ switchToPaidSubscribers }
-						disabled={ ! isStripeConnected || ! hasNewsletterPlans }
-					>
-						{ __( 'Paid subscribers', 'jetpack' ) }
-					</ToolbarButton>
-				</ToolbarGroup>
+			<BlockControls __experimentalShareWithChildBlocks group="block">
+				<ToolbarDropdownMenu
+					className="product-management-control-toolbar__dropdown-button"
+					icon={ people }
+					text={ getLabel( accessLevel ) }
+				>
+					{ ( { onClose: closeDropdown } ) => (
+						<>
+							<MenuGroup>
+								<MenuItem
+									onClick={ () => {
+										selectAccess( accessOptions.subscribers.key );
+										closeDropdown();
+									} }
+									isSelected={ accessLevel === accessOptions.subscribers.key }
+									icon={ accessLevel === accessOptions.subscribers.key && check }
+									iconPosition="right"
+								>
+									{ getLabel( accessOptions.subscribers.key ) }
+								</MenuItem>
+								<MenuItem
+									onClick={ () => {
+										selectAccess( accessOptions.paid_subscribers.key );
+										closeDropdown();
+									} }
+									isSelected={ accessLevel === accessOptions.paid_subscribers.key }
+									icon={ accessLevel === accessOptions.paid_subscribers.key && check }
+									iconPosition="right"
+								>
+									{ getLabel( accessOptions.paid_subscribers.key ) }
+								</MenuItem>
+							</MenuGroup>
+						</>
+					) }
+				</ToolbarDropdownMenu>
 			</BlockControls>
+			<PlansSetupDialog closeDialog={ closeDialog } showDialog={ showDialog } />
 			<InspectorControls>
 				<PanelBody
 					className="jetpack-subscribe-newsletters-panel"
@@ -100,17 +129,12 @@ function PaywallEdit( { className } ) {
 					icon={ <JetpackEditorPanelLogo /> }
 					initialOpen={ true }
 				>
-					<p>
-						{ __(
-							'Choose who will be able to read the content below the paywall block.',
-							'jetpack'
-						) }
-					</p>
-					<PaywallBlockSettings
-						accessLevel={ accessLevel }
-						setPostMeta={ setPostMeta }
+					<NewsletterAccessRadioButtons
+						isEditorPanel={ true }
+						accessLevel={ _accessLevel }
 						stripeConnectUrl={ stripeConnectUrl }
 						hasNewsletterPlans={ hasNewsletterPlans }
+						postHasPaywallBlock={ true }
 					/>
 				</PanelBody>
 			</InspectorControls>

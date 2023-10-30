@@ -4,11 +4,20 @@ Full details of the Automattic Security Policy can be found on [automattic.com](
 
 ## Supported Versions
 
-Generally, only the latest version of Jetpack has continued support. If a critical vulnerability is found in the current version of Jetpack, we may opt to backport any patches to previous versions. 
+Generally, only the latest version of Jetpack and its associated plugins have continued support. If a critical vulnerability is found in the current version of a plugin, we may opt to backport any patches to previous versions. 
 
 ## Reporting a Vulnerability
 
-[Jetpack](https://jetpack.com/) is an open-source plugin for WordPress. Our HackerOne program covers the plugin software, as well as a variety of related projects and infrastructure.
+Our HackerOne program covers the below plugin software, as well as a variety of related projects and infrastructure:
+
+* [Jetpack](https://jetpack.com/)
+* Jetpack Backup
+* Jetpack Boost
+* Jetpack CRM
+* Jetpack Protect
+* Jetpack Search
+* Jetpack Social
+* Jetpack VideoPress
 
 **For responsible disclosure of security issues and to be eligible for our bug bounty program, please submit your report via the [HackerOne](https://hackerone.com/automattic) portal.**
 

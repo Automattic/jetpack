@@ -282,5 +282,4 @@ class Test_REST_Endpoints extends TestCase {
 
 		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
 	}
-
 }

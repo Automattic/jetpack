@@ -2,21 +2,20 @@
  * External dependencies
  */
 import { createBlock, getSaveContent } from '@wordpress/blocks';
-import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
-import { blockName } from '..';
+import metadata from '../block.json';
 import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assistant';
+import { areBackendPromptsEnabled } from '../lib/prompt';
+import turndownService from '../lib/turndown';
 /**
  * Types
  */
 import type { ExtendedBlockProp } from '../extensions/ai-assistant';
 import type { PromptItemProps } from '../lib/prompt';
 
-const turndownService = new TurndownService( { emDelimiter: '_', headingStyle: 'atx' } );
-
-const from = [];
+const from: unknown[] = [];
 
 /**
  * Return an AI Assistant block instance from a given block type.
@@ -38,19 +37,31 @@ export function transformToAIAssistantBlock( blockType: ExtendedBlockProp, attrs
 	// Convert the content to markdown.
 	const aiAssistantBlockcontent = turndownService.turndown( htmlContent );
 
-	// Create a pair of user/assistant messages.
-	const messages: Array< PromptItemProps > = [
-		{
+	// A list of messages to start with
+	const messages: Array< PromptItemProps > = [];
+
+	// If the backend prompts are enabled, add the relevant content prompt.
+	if ( areBackendPromptsEnabled ) {
+		messages.push( {
+			role: 'jetpack-ai',
+			context: {
+				type: 'ai-assistant-relevant-content',
+				content: aiAssistantBlockcontent,
+			},
+		} );
+	} else {
+		messages.push( {
 			role: 'user',
 			content: 'Tell me some content for this block, please.',
-		},
-		{
+		} );
+
+		messages.push( {
 			role: 'assistant',
 			content: aiAssistantBlockcontent,
-		},
-	];
+		} );
+	}
 
-	return createBlock( blockName, {
+	return createBlock( metadata.name, {
 		...restAttrs,
 		content: aiAssistantBlockcontent,
 		originalContent: aiAssistantBlockcontent,

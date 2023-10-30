@@ -53,7 +53,7 @@ class Test_Global_Styles_Font_Introspector extends TestCase {
 			),
 		);
 
-		Functions\expect( 'gutenberg_get_global_styles' )
+		Functions\expect( 'wp_get_global_styles' )
 			->once()
 			->andReturn( $global_styles );
 
@@ -82,7 +82,7 @@ class Test_Global_Styles_Font_Introspector extends TestCase {
 			),
 		);
 
-		Functions\expect( 'gutenberg_get_global_styles' )
+		Functions\expect( 'wp_get_global_styles' )
 			->once()
 			->andReturn( $global_styles );
 
@@ -107,7 +107,7 @@ class Test_Global_Styles_Font_Introspector extends TestCase {
 			),
 		);
 
-		Functions\expect( 'gutenberg_get_global_styles' )
+		Functions\expect( 'wp_get_global_styles' )
 			->once()
 			->andReturn( $global_styles );
 

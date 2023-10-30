@@ -171,6 +171,7 @@
 							! $( this ).hasClass( 'preview-reddit' ) &&
 							! $( this ).hasClass( 'preview-telegram' ) &&
 							! $( this ).hasClass( 'preview-jetpack-whatsapp' ) &&
+							! $( this ).hasClass( 'preview-x' ) &&
 							! $( this ).hasClass( 'share-custom' ) &&
 							! $( this ).hasClass( 'share-deprecated' )
 						) {

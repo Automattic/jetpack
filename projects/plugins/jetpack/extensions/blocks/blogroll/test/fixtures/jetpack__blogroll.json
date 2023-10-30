@@ -4,8 +4,11 @@
 		"name": "jetpack/blogroll",
 		"isValid": true,
 		"attributes": {
-			"recommendations": [],
-			"ignore_user_blogs": false
+			"show_avatar": true,
+			"show_description": true,
+			"open_links_new_window": true,
+			"ignore_user_blogs": true,
+			"load_placeholders": true
 		},
 		"innerBlocks": [],
 		"originalContent": ""

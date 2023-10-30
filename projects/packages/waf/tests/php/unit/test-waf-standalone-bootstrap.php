@@ -218,5 +218,4 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$this->expectExceptionMessage( 'Failed creating WAF standalone bootstrap file directory: /awesome/dir/jetpack-waf' );
 		$sut->generate();
 	}
-
 }

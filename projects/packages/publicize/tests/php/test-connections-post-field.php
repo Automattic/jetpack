@@ -15,7 +15,7 @@ use WP_REST_Server;
  *
  * @package automattic/jetpack-publicize
  */
-class Test_Connections_Post_Field  extends TestCase {
+class Test_Connections_Post_Field extends TestCase {
 
 	/**
 	 * User ID.

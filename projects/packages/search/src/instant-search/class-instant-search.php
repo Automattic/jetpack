@@ -356,8 +356,8 @@ class Instant_Search extends Classic_Search {
 	 * @since  8.8.0
 	 */
 	public function auto_config_overlay_sidebar_widgets() {
-		$sidebars                              = get_option( 'sidebars_widgets', array() );
-		list(,$sidebar_jp_searchbox_wiget_id ) = $this->get_search_widget_indices( $sidebars, self::INSTANT_SEARCH_SIDEBAR );
+		$sidebars                               = get_option( 'sidebars_widgets', array() );
+		list(, $sidebar_jp_searchbox_wiget_id ) = $this->get_search_widget_indices( $sidebars, self::INSTANT_SEARCH_SIDEBAR );
 		// If there's JP search widget in overly sidebar, abort.
 		if ( false !== $sidebar_jp_searchbox_wiget_id ) {
 			return;
@@ -373,7 +373,7 @@ class Instant_Search extends Classic_Search {
 
 		$next_id = $this->get_next_jp_search_widget_id( $widget_options );
 
-		list(,$sidebar_jp_searchbox_wiget_id ) = $this->get_search_widget_indices( $sidebars, self::AUTO_CONFIG_SIDEBAR );
+		list(, $sidebar_jp_searchbox_wiget_id ) = $this->get_search_widget_indices( $sidebars, self::AUTO_CONFIG_SIDEBAR );
 		if ( false !== $sidebar_jp_searchbox_wiget_id && isset( $widget_options[ $sidebar_jp_searchbox_wiget_id ] ) ) {
 			// If there is a JP search widget in the theme sidebar, copy it over to the search overlay sidebar.
 			$widget_options[ $next_id ] = $widget_options[ $sidebar_jp_searchbox_wiget_id ];
@@ -397,7 +397,7 @@ class Instant_Search extends Classic_Search {
 			return;
 		}
 
-		list( $sidebar_searchbox_idx,$sidebar_jp_searchbox_wiget_id ) = $this->get_search_widget_indices( $sidebars );
+		list( $sidebar_searchbox_idx, $sidebar_jp_searchbox_wiget_id ) = $this->get_search_widget_indices( $sidebars );
 		// If there's JP search widget in theme sidebar, abort.
 		if ( false !== $sidebar_jp_searchbox_wiget_id ) {
 			return;

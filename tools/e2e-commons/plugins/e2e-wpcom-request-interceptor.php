@@ -34,4 +34,3 @@ function e2e_intercept_wpcom_request( $return, $r, $url ) {
 
 	return $return;
 }
-

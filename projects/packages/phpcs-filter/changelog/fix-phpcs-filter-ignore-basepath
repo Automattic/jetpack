@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ignore `--basepath` command line option. It doesn't mean what we thought it means.

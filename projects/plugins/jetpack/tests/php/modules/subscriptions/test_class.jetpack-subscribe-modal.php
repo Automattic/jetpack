@@ -61,5 +61,4 @@ class WP_Test_Jetpack_Subscribe_Modal extends WP_UnitTestCase {
 		add_filter( 'jetpack_subscriptions_modal_enabled', '__return_true', 11 );
 		$this->assertTrue( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) );
 	}
-
 }

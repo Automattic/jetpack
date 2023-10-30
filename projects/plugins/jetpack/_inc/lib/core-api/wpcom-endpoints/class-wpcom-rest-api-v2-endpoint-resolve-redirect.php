@@ -113,7 +113,7 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect extends WP_REST_Controller {
 	/**
 	 * Finds the destination url from an http response.
 	 *
-	 * @todo Add WpOrg\Requests\Response type hint to method when the minimum required WP version is WP 6.2.
+	 * @todo Add WpOrg\Requests\Response type hint to method when wpcom picks up the new Requests lib (it seems it was skipped during their update to 6.2)
 	 *
 	 * @param \WpOrg\Requests\Response|Requests_Response $response Response object.
 	 * @return string                                    Final url of the response.

@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
+Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jasmussen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 12.5
-Requires at least: 6.1
+Stable tag: 12.7
+Requires at least: 6.2
 Requires PHP: 5.6
-Tested up to: 6.3
+Tested up to: 6.4
 
 Improve your WP security with powerful one-click tools like backup, WAF, and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -35,7 +35,6 @@ You can purchase all of Jetpack’s security features in our [Security bundle](h
 Get blazing fast site speed with Jetpack. Jetpack’s free CDN (content delivery network) auto optimizes your images. Watch your page load times decrease — we’ll optimize your images and serve them from our own powerful global network, and speed up your site on mobile devices to reduce bandwidth usage and save money!
 
 * Image CDN for images and core static files, like CSS and JavaScript, served from our servers, not yours, which saves you money and bandwidth.
-* Lazy load images for a super fast experience, even on mobile. Jetpack’s lazy loading automatically delays the loading of media on your posts and pages until your visitors scroll down to where they appear on the page.
 * Unlimited, high speed, ad free video hosting keeps the focus on your content, not on ads or recommendations that lead people off site.
 * Custom site search is incredibly powerful and customizable. Helps your visitors instantly find the right content so they read and buy more. Works great with WooCommerce / eCommerce sites to help filter products so customers get what they want on your site faster.
 * Recommended to use with WP Super Cache for ultimate WordPress site speed.
@@ -188,7 +187,6 @@ Jetpack is the ultimate toolkit for WP for both the classic editor and the block
 * Google Analytics (GA) — Track your WordPress site statistics thanks to Google Analytics.
 * Infinite Scroll — Pulls the next posts automatically into view when the reader approaches the bottom of the page.
 * JSON API — Authorizes applications and services to securely connect to your blog, and allows them to use your content or offer you new functionality.
-* Lazy Load Images — Makes pages load faster by only lazy loading images that are on the screen, and loads other images as the user scrolls
 * Likes — Allows readers to show their appreciation for your posts with a single click.
 * Markdown — Allows you to compose posts and comments with links, lists, and other styles using regular characters and punctuation marks. Markdown is used by writers and bloggers who want a quick and easy way to write rich text without having to take their hands off the keyboard.
 * Malware detection - automatic malware scans that help protect your WP website with an automated resolution.
@@ -293,84 +291,71 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.5 - 2023-08-23
+### 12.7 - 2023-10-12
 #### Enhancements
-- Added SIG modal ui
-- Add Inspector Panel with Newsletter visibility options to Paywall Block
-- AI Assistant: Add requirement for one button in forms
-- AI Assistant: Auto open AI control in form assistant
-- AI Assistant: change tracked event to English instead of translated value and track language and tone change
-- AI Assistant: disable feedback button if post is empty
-- AI Assistant: Fix form popover after changing viewport
-- AI Assistant: fix grammar and typos on Proofread feature
-- AI Assistant: Fix incomplete HTML tags and allow columns on forms
-- AI Assistant: Render response from the AI
-- AI Assistant: tweaks assistant bar in narrow spaces
-- AI Assistant: various backend improvements.
-- AI Assistant: various stylistic and back-end enhancements to the Jetpack AI Assistant.
-- AI Extension: allow AI response generation to be stopped.
-- AI Extension: Connect AI Control component on popover placement.
-- AI Extension: Connect AI Data context with components
-- AI Extension: fix AI Assistant bar position in the Top toolbar mode.
-- AI Extension: fix visual issue in Assistant bar when switching viewport size. [#32344]
-- AI Extension: handle AI assistant component in mobile
-- AI Extension: Improve undo action behavior by controlling the way received valid blocks are rendered.
-- AI Extension: increase the page height when AI Assistant bar is visible
-- AI Extension: Introduce AI Assistant bar.
-- AI Extension: launch Jetpack AI support for Form blocks.
-- AI Extension: relocate the Assistant component for the Jetpack From block
-- AI Extension: select Form when selecting child block
-- AI Extension: Send custom feature name for requesting form completions so they can be handled differently on the backend.
-- AI Extension: show AiStatusIndicator into the assistant bar
-- AI Extension: show a Notice when AI needs to provide feedback
-- AI Extension: stop suggestion when form block is deleted
-- AI Extension: Update placeholder copyright
-- AI Extension: update view of AI assistant bar on mobile.
-- AI Extension: use assistant to edit Jetpack Format content
-- AI Extension: various improvements AI Assistant, update styles, and bug fixes.
-- AI Plugin: Add track for get feedback feature
-- Better Paywall Block styles
-- Block editor: add Google Photo integration to Gutenberg's Media Sidebar for Jetpack connected sites.
-- Dashboard: add Social Image Generator options to Jetpack Social settings.
-- Dashboard: make My Jetpack the default WP-Admin page for Jetpack.
-- Dashboard: update the likes and sharing button controls in the Jetpack sidebar from checkboxes to toggles.
-- Dashboard: update the SEO hide page control from a checkbox to a toggle.
-- Donation block: display the default Stripe currency in the Donation block and add a "check" icon next to the selected currency in the currency dropdown
-- Fix small regression on Newsletter panels
-- Jetpack editor extensions: use shared component for the logo.
-- Mailchimp block: allow transforming to subscribe block.
-- Make 'My Jetpack' the first sub-menu item, above 'Dashboard'.
-- Memberships: Ensure endpoint handles source param
-- Newsletter: move Newsletter settings to their own section.
-- Newsletters: update the appearance of "subscribers only" and "paid subscribers only" content wall
-- Paywall Block: add a notice explaining what the Paywall block does in relationship to newsletters.
-- Paywall block: add transforms for "more" and "nextpage" core blocks.
-- Paywall Block: improve paywall rendering on emails.
-- Paywall block: update the block styles.
-- Paywall block: various improvements to UX and styles.
-- paywall dynamic copy
-- Social: update social connection toggles to be button switches.
-- SSO: enable "Match by Email" by default.
-- Subscribe Modal: make subscribe modal editable.
-- Subscription modal: adjust modal template markup and styles for easier modification and mobile friendliness.
-- Subscriptions: add a Subscribers menu to the Jetpack dashboard navigation.
-- Subscriptions: a membership product can be created without a prior connected account
+- Added a new post publish panel for quick sharing.
+- AI Assistant: Modify language reminder for toolbar options.
+- AI Assistant: Start using backend to generate the prompts.
+- AI Assistant: Update block description.
+- AI Chat: Enhanced error presentation and UX improvements. [#33387]
+- AI Chat: Fix feedback section styles and include svg for icons.
+- AI Chat: Show guideline message.
+- AI Excerpt: Add `Beta` label to sidebar panel.
+- AI Excerpt: disable `Generate` button when there's no post content.
+- AI Extension: Add keyboard shortcut to stop action on forms.
+- AI Extension: Show AI Form extension with connection nudge for disconnected users.
+- AI Search Block: release the Jetpack AI Search Block.
+- Block Editor: add a new post publish panel for quick sharing.
+- Block Editor: display the SEO and Sharing editor panels in the block editor under the Jetpack side menu. [#33258]
+- Blogroll: Add blog appender site searching.
+- Blogroll: Disable blogroll appender sites that have been added to blogroll block.
+- Blogroll: Fix blogroll block typography editor styling.
+- Blogroll: move blogroll and blogroll-items blocks from beta to production, along with various improvements. [#33475]
+- Blogroll: Update blogroll appender height, max lines of text, and container scrolling.
+- Blogroll: Update CSS styling to allow blogroll block color styling customizations.
+- Blogroll Block: Add the ability to subscribe to recommended blogs.
+- Blogroll Block: Update blogroll appender styling and functionality.
+- Fix styling of multiple elements in the ai-chat block.
+- Improves the blogroll subscribe form alignment.
+- Jetpack Likes: display the Likes editor panel with an invitation to activate the feature when it is disabled.
+- Newsletter: launch the ability to create tiered newsletter plans.
+- Paywall: add a filter to define a custom paywall.
+- Paywall Block: Update description.
+- Sharing: add X sharing button.
+- Sidebar: Rename the "Inbox" menu to "My Mailboxes" for domain-only sites.
+- Social Menu & Social Media Icons: Add support for the X icon.
+- SSO: offer ability to force a site to use Jetpack SSO with Two-Factor Authentication for certain roles.
+- Subscription block: drop unnecessary .0 from big subscriber counts.
+- Update Blogroll appender accessibility.
 
 #### Improved compatibility
-- Blocks: add block.json metadata.
-- Infinite Scroll: avoid PHP notices when using the latest version of WordPress, 6.3.
+- Admin menu: Update view capabilities for Home & Stats to be independant from edit_posts.
+- AI Chat block: fix icon color in block selector.
+- Improve color handling for the newsletter categories.
+- Lazy Images: prepare feature for its deprecation, coming in November. You will be able to rely on Lazy loading features provided by WordPress itself.
+- Notifications: temporarily disable the notifications admin bar menu on any block editor page to allow for Gutenberg 16.7 compatability.
 
 #### Bug fixes
-- Add subscribe button on premium content block on self-hosted
-- AI Extension: fix visual issue of AI toolbar when editor sidebar is opened
-- AI Extension: Stop handling popover close event to prevent the AI Control from hiding when it loses focus.
-- Blocks: ensure the Markdown and Repeat Visitor blocks use clear contrasting colors when using a dark theme.
-- Dashboard: do not allow toggling the Subscriptions feature on or off when not connected to Jetpack.
-- Donation block: fix issue where an invalid amount entered would persist when switching tabs in the block editor.
-- Publicize: prevent metadata updates for published posts
-- Shortcode embeds: avoid errors when a request to Flickr fails.
-- Social: Fix race condition in mobile app's post request
-- Subscriptions: adds more accurate check for when to show the subscribe modal
+- AI Assistant: do not register the editor plugin if the site is not connected to WordPress.com.
+- AI Chat: Remove extra request in $search->is_active() and only load initial state in editor.
+- AI Chat block: fix text wrapping in button for Firefox.
+- AI Excerpts: avoid errors on Custom Post Types that do not support excerpts.
+- AI Extension: Revert PR causing stream rendering issue on Firefox.
+- Block Editor: update the Likes and Sharing copy in the Jetpack menu to address grammatical mistake.
+- Carousel: avoid invalid markup notices in Google Pagespeed insights.
+- Dashboard: Avoid errors when dashboard is accessed by WordPress users with a custom non-admin role.
+- Dashboard: avoid errors when dashboard is accessed by WordPress users with a custom non-admin role.
+- Dashboard: do not display Apps and Support cards to users who do not need that information.
+- External Media: do not surface the endpoint to contributors, are unable to upload media anyway.
+- Fix menu focus state without My Jetpack.
+- Fix subscribe block button not showing on newline.
+- Google Doc block: fix Google Doc blocks not rendering in the editor.
+- Hide launchpad modal on first post for bloggers.
+- Shortcodes: improve validation of attributes dislayed with the Crowdsignal shortcode.
+- Site Editor: Fix block exception error in Site Editor.
+- Skip video file addition to upload queue if it fails the space/allowance check.
+- Subscriptions: Fix conditions for showing modal.
+- Subscriptions module: fix fatal error caused by undefined constant.
 
 --------
 

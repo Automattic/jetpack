@@ -643,5 +643,4 @@ class ManagerTest extends TestCase {
 	public function filter_api_constant( $value, $name ) {
 		return constant( __NAMESPACE__ . "\Utils::DEFAULT_$name" );
 	}
-
 }

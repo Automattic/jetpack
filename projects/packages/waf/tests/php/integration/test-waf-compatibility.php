@@ -189,5 +189,4 @@ final class WafCompatibilityIntegrationTest extends WorDBless\BaseTestCase {
 		// Check that the automatic rules option is enabled by default.
 		$this->assertTrue( Waf_Runner::is_enabled() );
 	}
-
 }

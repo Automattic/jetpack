@@ -4,8 +4,10 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
+use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
+use Automattic\Jetpack_Boost\Data_Sync\Premium_Features_Entry;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 
@@ -134,6 +136,8 @@ $critical_css_suggest_regenerate_schema = Schema::enum(
 	)
 )->nullable();
 
+$premium_features_schema = Schema::as_array( Schema::as_string() )->fallback( array() );
+
 /**
  * Register Data Sync Stores
  */
@@ -162,5 +166,77 @@ $js_excludes_entry  = new Minify_Excludes_State_Entry( 'minify_js_excludes' );
 $css_excludes_entry = new Minify_Excludes_State_Entry( 'minify_css_excludes' );
 jetpack_boost_register_option( 'minify_js_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_JS::$default_excludes ), $js_excludes_entry );
 jetpack_boost_register_option( 'minify_css_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_CSS::$default_excludes ), $css_excludes_entry );
+jetpack_boost_register_option(
+	'image_cdn_quality',
+	Schema::as_assoc_array(
+		array(
+			'jpg'  => Schema::as_assoc_array(
+				array(
+					'quality'  => Schema::as_number(),
+					'lossless' => Schema::as_boolean(),
+				)
+			),
+			'png'  => Schema::as_assoc_array(
+				array(
+					'quality'  => Schema::as_number(),
+					'lossless' => Schema::as_boolean(),
+				)
+			),
+			'webp' => Schema::as_assoc_array(
+				array(
+					'quality'  => Schema::as_number(),
+					'lossless' => Schema::as_boolean(),
+				)
+			),
+		)
+	)->fallback(
+		array(
+			'jpg'  => array(
+				'quality'  => 89,
+				'lossless' => false,
+			),
+			'png'  => array(
+				'quality'  => 80,
+				'lossless' => false,
+			),
+			'webp' => array(
+				'quality'  => 80,
+				'lossless' => false,
+			),
+		)
+	)
+);
+
+jetpack_boost_register_option( 'premium_features', $premium_features_schema, new Premium_Features_Entry() );
 
 jetpack_boost_register_option( 'performance_history_toggle', Schema::as_boolean()->fallback( false ) );
+
+/**
+ * Register Super Cache Notice Disabled store.
+ */
+jetpack_boost_register_option( 'super_cache_notice_disabled', Schema::as_boolean()->fallback( false ) );
+
+/**
+ * Entry to store alerts that shouldn't be shown again.
+ */
+jetpack_boost_register_option(
+	'dismissed_alerts',
+	Schema::as_assoc_array(
+		array(
+			'performance_history_fresh_start' => Schema::as_boolean(),
+		)
+	)->fallback(
+		array(
+			'performance_history_fresh_start' => false,
+		)
+	),
+	new Mergeable_Array_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE . '_dismissed_alerts' )
+);
+
+/**
+ * Register Score Prompt store.
+ */
+jetpack_boost_register_option(
+	'dismissed_score_prompt',
+	Schema::as_array( Schema::as_string() )->fallback( array() )
+);

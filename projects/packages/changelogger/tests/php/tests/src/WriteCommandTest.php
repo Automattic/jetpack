@@ -1150,5 +1150,4 @@ class WriteCommandTest extends CommandTestCase {
 		$code   = $tester->execute( array() );
 		$this->assertSame( WriteCommand::FATAL_EXIT, $code );
 	}
-
 }

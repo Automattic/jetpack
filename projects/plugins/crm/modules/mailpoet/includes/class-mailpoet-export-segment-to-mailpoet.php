@@ -358,5 +358,4 @@ class Mailpoet_Export_Segment_To_MailPoet {
 		return $name;
 
 	}
-
 }

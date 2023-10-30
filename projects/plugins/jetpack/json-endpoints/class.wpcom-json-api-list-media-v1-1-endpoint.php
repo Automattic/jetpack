@@ -348,5 +348,4 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint { 
 		$orderby .= " `$wpdb->posts`.ID $order";
 		return $orderby;
 	}
-
 }

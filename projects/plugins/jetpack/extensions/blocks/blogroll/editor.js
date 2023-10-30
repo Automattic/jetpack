@@ -1,4 +1,24 @@
-import registerJetpackBlock from '../../shared/register-jetpack-block';
-import { name, settings } from '.';
+import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
+import metadata from './block.json';
+import {
+	name as blogRollItemBlockName,
+	settings as blogRollItemBlockSettings,
+} from './blogroll-item';
+import edit from './edit';
+import save from './save';
 
-registerJetpackBlock( name, settings );
+import './editor.scss';
+
+registerJetpackBlockFromMetadata(
+	metadata,
+	{
+		edit,
+		save,
+	},
+	[
+		{
+			name: blogRollItemBlockName,
+			settings: blogRollItemBlockSettings,
+		},
+	]
+);

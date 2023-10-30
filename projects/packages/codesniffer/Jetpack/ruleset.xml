@@ -23,7 +23,6 @@
 	<rule ref="MediaWiki.Usage.ReferenceThis" />
 	<rule ref="MediaWiki.WhiteSpace.EmptyLinesBetweenUse" />
 	<rule ref="MediaWiki.WhiteSpace.MultipleEmptyLines" />
-	<rule ref="MediaWiki.WhiteSpace.SpaceAfterClosure" />
 	<rule ref="MediaWiki.Usage.IsNull" />
 	<!-- Maybe in the future
 	<rule ref="MediaWiki.AlternativeSyntax.UnicodeEscape" /> // syntax it checks requires PHP 7.0+
@@ -84,6 +83,12 @@
 		<properties>
 			<property name="allowWordPressPassByRefFunctions" value="true" />
 		</properties>
+	</rule>
+
+	<!-- This is not the right way to fix the underlying issue. https://core.trac.wordpress.org/ticket/59282 is. -->
+	<!-- See also https://github.com/WordPress/WordPress-Coding-Standards/issues/2374 -->
+	<rule ref="WordPress.Security.EscapeOutput.ExceptionNotEscaped">
+		<exclude name="WordPress.Security.EscapeOutput.ExceptionNotEscaped" />
 	</rule>
 
 	<!-- Due to conversation within WPCS, we're disabling this rule for now. See https://github.com/WordPress/WordPress-Coding-Standards/issues/1624 -->

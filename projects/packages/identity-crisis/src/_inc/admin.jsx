@@ -36,7 +36,6 @@ function render() {
 	} = window.JP_IDENTITY_CRISIS__INITIAL_STATE;
 
 	if ( ! isSafeModeConfirmed ) {
-		// @todo: Remove fallback when we drop support for WP 6.1
 		const component = (
 			<IDCScreen
 				wpcomHomeUrl={ wpcomHomeUrl }
@@ -54,12 +53,7 @@ function render() {
 				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
 			/>
 		);
-
-		if ( WPElement.createRoot ) {
-			WPElement.createRoot( container ).render( component );
-		} else {
-			WPElement.render( component, container );
-		}
+		WPElement.createRoot( container ).render( component );
 	}
 }
 

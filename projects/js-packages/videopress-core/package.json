@@ -1,5 +1,4 @@
 {
-	"private": true,
 	"name": "@automattic/jetpack-videopress-core",
 	"version": "0.1.0-alpha",
 	"description": "VideoPress Core Functionality",
@@ -25,8 +24,8 @@
 	"devDependencies": {
 		"jest": "*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.22.9",
-		"@babel/preset-react": "7.22.5",
+		"@babel/core": "7.23.2",
+		"@babel/preset-react": "7.22.15",
 		"@types/jest": "29.2.5",
 		"ts-loader": "9.4.2",
 		"tslib": "2.5.0",

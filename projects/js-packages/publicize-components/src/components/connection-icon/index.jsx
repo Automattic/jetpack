@@ -20,6 +20,18 @@ const ConnectionIcon = props => {
 		[ onClick ]
 	);
 
+	const getServiceName = () => {
+		if ( 'instagram-business' === serviceName ) {
+			return 'instagram';
+		}
+
+		if ( 'twitter' === serviceName ) {
+			return 'x';
+		}
+
+		return serviceName;
+	};
+
 	return (
 		<div
 			onClick={ onClick }
@@ -34,9 +46,8 @@ const ConnectionIcon = props => {
 			{ hasDisplayPicture && <img src={ profilePicture } alt={ label } onError={ onError } /> }
 			<SocialServiceIcon
 				alt={ label }
-				serviceName={ 'instagram-business' === serviceName ? 'instagram' : serviceName }
+				serviceName={ getServiceName() }
 				className="jetpack-publicize-gutenberg-social-icon"
-				invert={ 'tumblr' === serviceName }
 			/>
 		</div>
 	);

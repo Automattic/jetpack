@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid deprecation warning in PHP 8.1 when viewing Beta settings screen.

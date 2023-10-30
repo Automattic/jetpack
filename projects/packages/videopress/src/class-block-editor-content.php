@@ -207,7 +207,7 @@ class Block_Editor_Content {
 					}
 
 					// Also test for old v.wordpress.com oembed URL.
-					if ( ! $videopress_guid && preg_match( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', $url, $matches ) ) { // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+					if ( ! $videopress_guid && preg_match( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', $url, $matches ) ) { // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 						$videopress_guid = $matches[1];
 					}
 

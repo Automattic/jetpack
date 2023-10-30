@@ -45,7 +45,6 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 			'infinite-scroll',
 			'json-api',
 			'latex',
-			'lazy-images',
 			'likes',
 			'markdown',
 			'masterbar',

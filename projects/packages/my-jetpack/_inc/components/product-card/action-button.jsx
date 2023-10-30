@@ -11,6 +11,7 @@ export const PRODUCT_STATUSES = {
 	ABSENT_WITH_PLAN: 'plugin_absent_with_plan',
 	NEEDS_PURCHASE: 'needs_purchase',
 	NEEDS_PURCHASE_OR_FREE: 'needs_purchase_or_free',
+	CAN_UPGRADE: 'can_upgrade',
 };
 
 const ActionButton = ( {
@@ -75,7 +76,8 @@ const ActionButton = ( {
 						) }
 				</Button>
 			);
-		case PRODUCT_STATUSES.NEEDS_PURCHASE: {
+		case PRODUCT_STATUSES.NEEDS_PURCHASE:
+		case PRODUCT_STATUSES.CAN_UPGRADE: {
 			const upgradeText = __( 'Upgrade', 'jetpack-my-jetpack' );
 			const purchaseText = __( 'Purchase', 'jetpack-my-jetpack' );
 			const buttonText = purchaseUrl ? upgradeText : purchaseText;

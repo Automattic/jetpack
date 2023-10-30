@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.3.0 - 2023-09-20
+### Added
+- Add the change settings logic in Social for the auto conversion feature. [#32712]
+
+### Changed
+- Changed logic that disables the connections based on the auto-conversion feature. [#32671]
+- General: remove WP 6.1 backwards compatibility checks. [#32772]
+- General: update WordPress version requirements to WordPress 6.2. [#32762]
+- Updated Jetpack submenu sort order so individual features are alpha-sorted. [#32958]
+- Updated package dependencies. [#32803], [#32804], [#32966]
+- Updated package dependencies. [#33001]
+
 ## 2.2.0 - 2023-08-23
 ### Added
 - Add admin-page upsell notice [#32128]

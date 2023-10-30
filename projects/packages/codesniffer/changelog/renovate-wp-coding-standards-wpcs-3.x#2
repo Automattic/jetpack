@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Remove `MediaWiki.WhiteSpace.SpaceAfterClosure`, as `Squiz.Functions.MultiLineFunctionDeclaration` now catches the same thing and more.

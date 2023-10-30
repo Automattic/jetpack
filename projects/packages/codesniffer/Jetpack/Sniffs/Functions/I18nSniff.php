@@ -292,5 +292,4 @@ class I18nSniff implements Sniff {
 			}
 		}
 	}
-
 }

@@ -1,8 +1,8 @@
-import { name, settings } from '../';
 import runBlockFixtureTests from '../../../shared/test/block-fixtures';
+import metadata from '../block.json';
+import edit from '../edit';
 
-// Need to include all the blocks involved in rendering this block.
-// The main block should be the first in the array.
-const blocks = [ { name: `jetpack/${ name }`, settings } ];
+const { name } = metadata;
+const blocks = [ { name, settings: { ...metadata, edit } } ];
 
-runBlockFixtureTests( `jetpack/${ name }`, blocks, __dirname );
+runBlockFixtureTests( name, blocks, __dirname );

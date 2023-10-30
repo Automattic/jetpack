@@ -51,8 +51,7 @@ class Jetpack_Social {
 			_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-social' ),
 			'manage_options',
 			'jetpack-social',
-			array( $this, 'plugin_settings_page' ),
-			99
+			array( $this, 'plugin_settings_page' )
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
@@ -346,8 +345,10 @@ class Jetpack_Social {
 					'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
 					'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
 					'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
-					'isAutoConversionAvailable'       => $auto_conversion_settings->is_available( 'image' ),
-					'isAutoConversionEnabled'         => $auto_conversion_settings->is_enabled( 'image' ),
+					'autoConversionSettings'          => array(
+						'available' => $auto_conversion_settings->is_available( 'image' ),
+						'image'     => $auto_conversion_settings->is_enabled( 'image' ),
+					),
 					'dismissedNotices'                => $publicize->get_dismissed_notices(),
 					'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
 					'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),

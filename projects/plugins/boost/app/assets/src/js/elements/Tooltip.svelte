@@ -5,11 +5,14 @@
 <div class="jb-tooltip">
 	<span class="jb-tooltip__info-icon">i</span>
 	<div class="jb-tooltip__info-container">
-		{#if title}
-			<div class="jp-tooltip__info-title">
-				{title}
+		{#if $$slots.title}
+			<div class="jb-tooltip__info-title">
+				<slot name="title" />
 			</div>
+		{:else if title}
+			<div class="jb-tooltip__info-title">{title}</div>
 		{/if}
+
 		<slot />
 		<i />
 	</div>
@@ -76,13 +79,13 @@
 		}
 	}
 
-	.jp-tooltip__info-title {
+	.jb-tooltip__info-title {
 		font-weight: 600;
 		font-size: 20px;
 		line-height: 1.3;
 	}
 
-	.jp-tooltip__info-title:not( :last-child ) {
+	.jb-tooltip__info-title:not( :last-child ) {
 		margin-bottom: 20px;
 	}
 

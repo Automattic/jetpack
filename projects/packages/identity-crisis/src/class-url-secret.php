@@ -131,5 +131,4 @@ class URL_Secret {
 	private function generate_secret() {
 		return wp_generate_password( 12, false );
 	}
-
 }

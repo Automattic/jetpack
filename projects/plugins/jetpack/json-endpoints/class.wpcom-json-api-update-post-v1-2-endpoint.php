@@ -164,7 +164,7 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint(
 	)
 );
 
-use function \Automattic\Jetpack\Extensions\Map\map_block_from_geo_points;
+use function Automattic\Jetpack\Extensions\Map\map_block_from_geo_points;
 
 // phpcs:disable PEAR.NamingConventions.ValidClassName.Invalid
 /**

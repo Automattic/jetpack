@@ -63,6 +63,6 @@ class Domain_Only_Admin_Menu extends Base_Admin_Menu {
 		}
 
 		add_menu_page( esc_attr__( 'Manage Purchases', 'jetpack' ), __( 'Manage Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 'dashicons-cart' );
-		add_menu_page( esc_attr__( 'Inbox', 'jetpack' ), __( 'Inbox', 'jetpack' ), 'manage_options', 'https://wordpress.com/inbox/' . $this->domain, null, 'dashicons-email' );
+		add_menu_page( esc_attr__( 'My Mailboxes', 'jetpack' ), __( 'My Mailboxes', 'jetpack' ), 'manage_options', 'https://wordpress.com/mailboxes/' . $this->domain, null, 'dashicons-email' );
 	}
 }

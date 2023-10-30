@@ -1,7 +1,7 @@
 import { select, dispatch } from '@wordpress/data';
 import { PluginBlockSettingsMenuItem } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
-import { name } from '../index';
+import metadata from '../block.json';
 import { transformToCoreGroup } from './transform-to-core-group';
 
 function replaceBlockAndKeepContent() {
@@ -19,7 +19,7 @@ function replaceBlockAndKeepContent() {
  */
 export default () => (
 	<PluginBlockSettingsMenuItem
-		allowedBlocks={ [ name ] }
+		allowedBlocks={ [ metadata.name ] }
 		label={ __( 'Remove block and keep content', 'jetpack' ) }
 		onClick={ replaceBlockAndKeepContent }
 	/>

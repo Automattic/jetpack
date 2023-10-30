@@ -361,6 +361,16 @@ export function isAtomicPlatform( state ) {
 }
 
 /**
+ * Get the current theme's stylesheet (slug).
+ *
+ * @param {object} state - Global state tree.
+ * @returns {string} theme stylesheet, e.g. twentytwentythree.
+ */
+export function currentThemeStylesheet( state ) {
+	return get( state.jetpack.initialState.themeData, 'stylesheet' );
+}
+
+/**
  * Check that theme supports a certain feature
  *
  * @param {Object} state   Global state tree.
@@ -708,4 +718,14 @@ export function isSubscriptionModalEnabled( state ) {
  */
 export function arePreConnectionHelpersEnabled( state ) {
 	return !! state.jetpack.initialState.preConnectionHelpers;
+}
+
+/**
+ * Returns information about the Gutenberg plugin and its Interactivity API support.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {object} Gutenberg plugin information.
+ */
+export function getGutenbergState( state ) {
+	return state.jetpack.initialState.gutenbergInitialState;
 }

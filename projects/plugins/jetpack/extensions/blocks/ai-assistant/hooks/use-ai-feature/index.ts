@@ -2,23 +2,14 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState } from 'react';
-
+import { useEffect, useState } from '@wordpress/element';
+/**
+ * Types & constants
+ */
 export type UpgradeTypeProp = 'vip' | 'default';
+import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../../../types';
 
-export type SiteAIAssistantFeatureEndpointResponseProps = {
-	'has-feature': boolean;
-	'is-over-limit': boolean;
-	'requests-count': number;
-	'requests-limit': number;
-	'site-require-upgrade': boolean;
-	'error-message': string;
-	'error-code': string;
-	'is-playground-visible': boolean;
-	'upgrade-type': UpgradeTypeProp;
-};
-
-type AIFeatureProps = {
+export type AIFeatureProps = {
 	hasFeature: boolean;
 	isOverLimit: boolean;
 	requestsCount: number;

@@ -128,5 +128,4 @@ class TestCase extends PHPUnit_TestCase {
 		$w->loaded = false;
 		Config::setComposerJsonPath( null );
 	}
-
 }

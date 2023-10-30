@@ -107,5 +107,4 @@ class Extension_Model {
 
 		$this->threats = $threats;
 	}
-
 }

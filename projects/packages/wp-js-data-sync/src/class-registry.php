@@ -152,5 +152,4 @@ class Registry {
 	public function get_namespace_http() {
 		return $this->sanitize_url_key( $this->namespace );
 	}
-
 }

@@ -12,8 +12,7 @@ use Automattic\Jetpack_Inspect\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Inspect\REST_API\Permissions\Current_User_Admin;
 use WP_REST_Server;
 
-class
-Latest implements Endpoint {
+class Latest implements Endpoint {
 
 	public function name() {
 		return 'latest';

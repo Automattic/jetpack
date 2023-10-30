@@ -218,4 +218,116 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( 'skipped', get_option( 'launchpad_screen' ) );
 	}
+
+	/**
+	 * Provide test cases for {@see test_set_hide_fse_next_steps_modal()}.
+	 *
+	 * @return array[]
+	 */
+	public function provide_hide_fse_next_steps_modal_test_cases() {
+		return array(
+			// Flag value to pass, initial option, expected option.
+			'Empty option and false flag'     => array( false, false, false ),
+			'Empty sub-option and false flag' => array(
+				false,
+				array( 'test_test_test' => 1 ),
+				array( 'test_test_test' => 1 ),
+			),
+			'True sub-option and false flag'  => array(
+				false,
+				array( 'hide_fse_next_steps_modal' => true ),
+				false,
+			),
+			'True sub-option with other value and false flag' => array(
+				false,
+				array(
+					'test_test_test'            => 2,
+					'hide_fse_next_steps_modal' => true,
+				),
+				array(
+					'test_test_test' => 2,
+				),
+			),
+			'Empty option and true flag'      => array(
+				true,
+				false,
+				array(
+					'hide_fse_next_steps_modal' => true,
+				),
+			),
+			'Empty sub-option and true flag'  => array(
+				true,
+				array( 'test_test_test' => 1 ),
+				array(
+					'test_test_test'            => 1,
+					'hide_fse_next_steps_modal' => true,
+				),
+			),
+			'True sub-option and true flag'   => array(
+				true,
+				array( 'hide_fse_next_steps_modal' => true ),
+				array( 'hide_fse_next_steps_modal' => true ),
+			),
+			'True sub-option with other value and true flag' => array(
+				true,
+				array(
+					'test_test_test'            => 2,
+					'hide_fse_next_steps_modal' => true,
+				),
+				array(
+					'test_test_test'            => 2,
+					'hide_fse_next_steps_modal' => true,
+				),
+			),
+		);
+	}
+
+	/**
+	 * Test updates to the `hide_fse_next_steps_modal` setting.
+	 *
+	 * @dataProvider provide_hide_fse_next_steps_modal_test_cases()
+	 * @param bool  $flag_in_api The value of hide_fse_next_steps_modal to send.
+	 * @param mixed $initial_option_value The initial value for the wpcom_launchpad_config option.
+	 * @param mixed $expected_option_value The expected value for the wpcom_launchpad_config option.
+	 */
+	public function test_set_hide_fse_next_steps_modal( $flag_in_api, $initial_option_value, $expected_option_value ) {
+		wp_set_current_user( $this->admin_id );
+
+		$data = array(
+			'hide_fse_next_steps_modal' => $flag_in_api,
+		);
+
+		delete_option( 'wpcom_launchpad_config' );
+
+		if ( false !== $initial_option_value ) {
+			$this->assertTrue( update_option( 'wpcom_launchpad_config', $initial_option_value ) );
+		}
+
+		$result = $this->call_launchpad_api( Requests::POST, $data );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( $data, $result->get_data()['updated'] );
+
+		$this->assertSame( $flag_in_api, wpcom_launchpad_is_fse_next_steps_modal_hidden() );
+
+		$this->assertSame( $expected_option_value, get_option( 'wpcom_launchpad_config' ) );
+	}
+
+	/**
+	 * Helper function to create a new WP_REST_Request and call the Launchpad REST API.
+	 *
+	 * @param string     $method The HTTP method to use.
+	 * @param null|array $body The body to send in the request.
+	 * @return WP_REST_Response The response.
+	 */
+	protected function call_launchpad_api( $method, $body ) {
+		$request = new WP_REST_Request( $method, '/wpcom/v2/launchpad' );
+		$request->set_header( 'content_type', 'application/json' );
+
+		if ( null !== $body ) {
+			$request->set_body( wp_json_encode( $body ) );
+		}
+
+		return rest_do_request( $request );
+	}
 }

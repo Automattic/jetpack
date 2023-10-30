@@ -203,7 +203,6 @@ class ZBS_Form_Widget extends WP_Widget {
 	 	$instance['id'] = ( !empty( $new_instance['id'] ) ) ? strip_tags( $new_instance['id'] ) : '';
         return $instance;
     }
- 
 }
 add_action( 'widgets_init', function() { register_widget( 'ZBS_Form_Widget' ); } );
 

@@ -84,5 +84,4 @@ class ParserTest extends TestCase {
 		$mock = $this->getMockBuilder( Parser::class )->getMockForAbstractClass();
 		$this->assertInstanceOf( ChangeEntry::class, $mock->newChangeEntry() );
 	}
-
 }

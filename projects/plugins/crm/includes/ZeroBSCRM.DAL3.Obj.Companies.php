@@ -334,6 +334,33 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 
     }
 
+	/**
+	 * Retrieves the company ID by its name.
+	 *
+	 * @param  string $name  The name of the company whose ID is to be retrieved.
+	 * @return int|bool      Returns the ID of the company if found, false otherwise.
+	 *
+	 * @throws Exception     Catches and handles exceptions, logging SQL errors.
+	 *
+	 * @since  6.2.0
+	 */
+	public function get_company_id_by_name( $name ) {
+		global $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		global $wpdb;
+
+		try {
+			$query  = $this->prepare( 'SELECT ID FROM ' . $ZBSCRM_t['companies'] . ' WHERE zbsco_name LIKE %s', $name ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$result = $wpdb->get_row( $query, OBJECT ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.NotPrepared
+
+			if ( isset( $result ) && ( $result->ID ) ) {
+				return $result->ID;
+			}
+		} catch ( Exception $e ) {
+			$this->catchSQLError( $e );
+		}
+		return false;
+	}
+
     /**
      * returns full company line +- details
      *
@@ -388,6 +415,8 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
             (!empty($id) && $id > 0)
             ||
             (!empty($email))
+					||
+					( ! empty( $name ) )
             ||
             (!empty($externalSource) && !empty($externalSourceUID))
             ){
@@ -766,7 +795,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                                 'assignedCompany'   => $potentialRes->ID, // assigned to company id (int)
                                 'page'       => -1,
                                 'perPage'       => -1,
-                                'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT),                                    
+                                'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK),                                    
                                 'sortByField'   => 'zbse_start',
                                 'sortOrder'     => 'DESC',
                                 'withAssigned'  => false // no need, it's assigned to this obj already
@@ -1646,7 +1675,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                                     'assignedCompany'   => $resDataLine->ID, // assigned to company id (int)
                                     'page'       => -1,
                                     'perPage'       => -1,
-                                    'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT),                                    
+                                    'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK),                                    
                                     'sortByField'   => 'zbse_start',
                                     'sortOrder'     => 'DESC',
                                     'withAssigned'  => false // no need, it's assigned to this obj already
@@ -2862,7 +2891,6 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
     
     /**
      * Returns an ownerid against a company
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id company ID
      *
@@ -3366,5 +3394,4 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 
     // =========== / Formatting    ===================================================
     // ===============================================================================
-
 } // / class

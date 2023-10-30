@@ -32,6 +32,22 @@ export function* updateAutoConversionSettings( settings ) {
 }
 
 /**
+ * Yield actions to refresh settings
+ *
+ * @yields {object} - an action object.
+ * @returns {object} - an action object.
+ */
+export function* refreshAutoConversionSettings() {
+	try {
+		const updatedSettings = yield fetchAutoConversionSettings();
+		yield setAutoConversionSettings( updatedSettings );
+		return true;
+	} catch ( e ) {
+		return false;
+	}
+}
+
+/**
  * Set state updating action
  *
  * @returns {object} - an action object.
@@ -59,4 +75,8 @@ export function setAutoConversionSettings( options ) {
 	return { type: SET_AUTO_CONVERSION_SETTINGS, options };
 }
 
-export default { updateAutoConversionSettings, setAutoConversionSettings };
+export default {
+	updateAutoConversionSettings,
+	setAutoConversionSettings,
+	refreshAutoConversionSettings,
+};

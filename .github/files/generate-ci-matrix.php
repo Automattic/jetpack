@@ -6,7 +6,7 @@
  * @package automattic/jetpack
  */
 
-// phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.WP.GlobalVariablesOverride
+// phpcs:disable WordPress.WP.GlobalVariablesOverride
 
 chdir( __DIR__ . '/../../' );
 
@@ -49,6 +49,9 @@ $default_matrix_vars = array(
 
 	// {string} A valid artifact name for any generated artifacts. If not given, will be derived from the name.
 	'artifact'            => null,
+
+	// {bool} Whether to install WooCommerce.
+	'with-woocommerce'    => false,
 );
 
 // Matrix definitions. Each will be combined with `$default_matrix_vars` later in processing.
@@ -74,11 +77,8 @@ $matrix[] = array(
 	'timeout' => 20, // 2022-01-25: 5.6 tests have started timing out at 15 minutes. Previously: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
 );
 
-foreach ( array( 'previous', 'trunk', 'special' ) as $wp ) {
-	$phpver = $versions['PHP_VERSION'];
-	if ( $wp === 'special' ) {
-		$phpver = '8.0'; // WordPress 6.1 is not ready for PHP 8.1+.
-	}
+foreach ( array( 'previous', 'trunk' ) as $wp ) {
+	$phpver   = $versions['PHP_VERSION'];
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP {$phpver} WP $wp",
 		'script'  => 'test-php',
@@ -87,6 +87,16 @@ foreach ( array( 'previous', 'trunk', 'special' ) as $wp ) {
 		'timeout' => 15, // 2021-01-18: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
 	);
 }
+
+// Add WooCommerce tests.
+$matrix[] = array(
+	'name'             => 'PHP tests: PHP 7.4 WP latest with WooCommerce',
+	'script'           => 'test-php',
+	'php'              => '7.4',
+	'wp'               => 'latest',
+	'timeout'          => 20,
+	'with-woocommerce' => true,
+);
 
 // Add JS tests.
 $matrix[] = array(
@@ -117,7 +127,6 @@ function error( ...$args ) {
 			"\n" => '%0A',
 		)
 	);
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	fprintf( STDERR, "---\n::error::%s\n---\n", $msg );
 }
 
@@ -206,7 +215,7 @@ foreach ( $matrix as &$m ) {
 	}
 
 	// Only specific values allowed for `wp`.
-	$valid_wp = array( 'latest', 'previous', 'trunk', 'special', 'none' );
+	$valid_wp = array( 'latest', 'previous', 'trunk', 'none' );
 	if ( ! in_array( $m['wp'], $valid_wp, true ) ) {
 		$valid_wp = join_or(
 			array_map(

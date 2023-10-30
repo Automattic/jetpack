@@ -11,6 +11,8 @@ namespace Automattic\JetpackCRM;
 // block direct access
 defined( 'ZEROBSCRM_PATH' ) || exit;
 
+// Prevent PHP 8.2 deprecation notices, as we currently add each module as a dynamic property
+#[\AllowDynamicProperties]
 class CRM_Modules {
 
 	/**
@@ -131,7 +133,7 @@ class CRM_Modules {
 			wp_safe_redirect( $redirect_to );
 			exit;
 		} else {
-			echo sprintf( 'Module %s not found. Error #607', esc_html( $module_name ) );
+			printf( 'Module %s not found. Error #607', esc_html( $module_name ) );
 		}
 
 	}
@@ -152,5 +154,4 @@ class CRM_Modules {
 	public function get_safe_function_string( $module_name ) {
 		return str_replace( '-', '_', $module_name );
 	}
-
 }

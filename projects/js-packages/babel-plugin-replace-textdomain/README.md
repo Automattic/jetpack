@@ -38,6 +38,6 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-i18n-loader-webpack-plugin is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+babel-plugin-replace-textdomain is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
 
 [@wordpress/i18n]: https://www.npmjs.com/package/@wordpress/i18n

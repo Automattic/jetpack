@@ -127,5 +127,4 @@ class Test_Plan extends Search_Test_Case {
 		do_action( 'jetpack_heartbeat' );
 		$this->assertNotEmpty( get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) );
 	}
-
 }
