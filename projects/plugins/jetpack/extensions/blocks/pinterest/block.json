@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/pinterest",
 	"title": "Pinterest",
 	"description": "Embed a Pinterest pin, board, or user.",
@@ -22,6 +22,5 @@
 		"attributes": {
 			"url": "https://pinterest.com/anapinskywalker/"
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }

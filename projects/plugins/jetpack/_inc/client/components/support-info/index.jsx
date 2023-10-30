@@ -73,7 +73,7 @@ export default class SupportInfo extends Component {
 				>
 					{ text + ' ' }
 					{ link && (
-						<span className="jp-support-info__learn-more">
+						<div className="jp-support-info__learn-more">
 							<ExternalLink
 								href={ link }
 								onClick={ this.trackLearnMoreClick }
@@ -81,7 +81,7 @@ export default class SupportInfo extends Component {
 							>
 								{ __( 'Learn more', 'jetpack' ) }
 							</ExternalLink>
-						</span>
+						</div>
 					) }
 					<span className="jp-support-info__privacy">
 						<ExternalLink
