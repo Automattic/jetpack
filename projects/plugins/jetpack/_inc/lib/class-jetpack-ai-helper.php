@@ -391,7 +391,10 @@ class Jetpack_AI_Helper {
 			$usage_period_start = WPCOM\Jetpack_AI\Usage\Helper::get_usage_period_start_date( $blog_id );
 			$usage_period_start = isset( $usage_period_start ) ? $usage_period_start->format( 'Y-m-d H:i:s' ) : null;
 
-			$usage_period_requests_count = WPCOM\Jetpack_AI\Usage\Helper::get_usage_period_requests_count( $blog_id );
+			$usage_next_period_start = WPCOM\Jetpack_AI\Usage\Helper::get_usage_next_period_start_date( $blog_id );
+			$usage_next_period_start = isset( $usage_next_period_start ) ? $usage_next_period_start->format( 'Y-m-d H:i:s' ) : null;
+
+			$usage_period_requests_count = WPCOM\Jetpack_AI\Usage\Helper::get_current_period_requests_count( $blog_id );
 
 			// Check if the site requires an upgrade.
 			$require_upgrade = $is_over_limit && ! $has_ai_assistant_feature;
