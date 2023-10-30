@@ -50,21 +50,19 @@ function UsageControl( {
 	hasFeature,
 	requestsCount,
 	requestsLimit,
-	currentPeriod,
+	usagePeriod,
 }: Pick<
 	AIFeatureProps,
-	'isOverLimit' | 'hasFeature' | 'requestsCount' | 'requestsLimit' | 'currentPeriod'
+	'isOverLimit' | 'hasFeature' | 'requestsCount' | 'requestsLimit' | 'usagePeriod'
 > ) {
 	// Compute the number of days from start to now
 	let resetMsg = '';
-	if ( currentPeriod?.start ) {
-		const currentPediorStart = new Date( currentPeriod.start );
-		const currentPeriodEnd = new Date( currentPediorStart );
-		currentPeriodEnd.setMonth( currentPeriodEnd.getMonth() + 1 );
+	if ( usagePeriod?.currentStart ) {
+		const nextPeriodStart = new Date( usagePeriod.nextStart );
 
 		// Number of days in the current period
 		const numberOfDays = Math.floor(
-			( currentPeriodEnd.getTime() - Date.now() ) / ( 1000 * 60 * 60 * 24 )
+			( nextPeriodStart.getTime() - Date.now() ) / ( 1000 * 60 * 60 * 24 )
 		);
 
 		// translators: %1$d: number of days
