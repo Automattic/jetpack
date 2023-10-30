@@ -4,13 +4,14 @@
 import { BaseControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
-import './style.scss';
 /**
  * Types
  */
 import type { UsageBarProps } from './types';
 import type { AIFeatureProps } from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import type React from 'react';
+
+import './style.scss';
 
 /**
  * UsageBar component

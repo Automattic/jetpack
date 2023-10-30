@@ -9,6 +9,7 @@ import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout
 import useAIFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../../../blocks/ai-assistant/lib/connection';
 import UsageControl from '../usage-bar';
+
 import './style.scss';
 
 export default function UsagePanel() {
