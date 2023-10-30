@@ -49,17 +49,32 @@ function UsageControl( {
 	hasFeature,
 	requestsCount,
 	requestsLimit,
-}: Pick< AIFeatureProps, 'isOverLimit' | 'hasFeature' | 'requestsCount' | 'requestsLimit' > ) {
+	currentPeriod,
+}: Pick<
+	AIFeatureProps,
+	'isOverLimit' | 'hasFeature' | 'requestsCount' | 'requestsLimit' | 'currentPeriod'
+> ) {
+	// Compute the number of days from start to now
+	const currentPediorStart = new Date( currentPeriod.start );
+	const numberOfDays = Math.floor(
+		( Date.now() - currentPediorStart.getTime() ) / ( 1000 * 60 * 60 * 24 )
+	);
+
+	// translators: %1$d: number of days
+	const resetMsg = sprintf( __( 'Requests will reset in %1$d days.', 'jetpack' ), numberOfDays );
+
 	let help = __( 'Unlimited requests for your site', 'jetpack' );
 
 	if ( ! hasFeature ) {
 		// translators: %1$d: number of requests allowed in the free plan
 		help = sprintf( __( '%1$d free requests for your site', 'jetpack' ), requestsLimit );
+		help += ' ' + resetMsg;
 	}
 
 	const limitReached = isOverLimit && ! hasFeature;
 	if ( limitReached ) {
 		help = __( 'You have reached your plan requests limit.', 'jetpack' );
+		help += ' ' + resetMsg;
 	}
 
 	// build messages
