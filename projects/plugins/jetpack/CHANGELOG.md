@@ -2,25 +2,6 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.8-a.9 - 2023-10-30
-### Enhancements
-- Earn: Rename Earn to Monetize. [#33741]
-- Jetpack AI: Cache the AI assistant feature data for Jetpack sites. [#33391]
-- Jetpack AI: Expose current plan tier information on feature endpoint. [#33820]
-- Jetpack Dashboard: improve Akismet tooltip. [#33547]
-- Paywall: Improve already subscriber experience. [#33763]
-- Subscription block: Improve wording to get access to content. [#33835]
-- Utilize the Jetpack Admin UI package for handling the Akismet menu. [#33559]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Add subscribers auth endpoint. [#33815]
-- Dashboard / My Plan: update the link to licensing management for a better UX in the My Plan header. [#33813]
-- Dashboard: Remove link to "My Jetpack". [#33811]
-- Fix bug tier selector. [#33838]
-- Updated package dependencies. [#33821] [#33826]
-- Update lockfile. [#33607]
-- scssphp: Upgrade from 0.0.9 to 0.0.12. [#33822]
-
 ## 12.8-a.7 - 2023-10-26
 ### Enhancements
 - Add a filter that allows disabling Scan module. [#33764]
