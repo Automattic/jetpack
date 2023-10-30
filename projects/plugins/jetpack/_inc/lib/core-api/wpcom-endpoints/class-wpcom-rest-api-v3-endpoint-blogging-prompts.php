@@ -306,6 +306,10 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 			$data['answered_link_text'] = __( 'View all responses', 'jetpack' );
 		}
 
+		if ( rest_is_field_included( 'bloganuary_id', $fields ) ) {
+			$data['bloganuary_id'] = 'bloganuary-' . $this->prepare_date_response( $prompt->post_date_gmt );
+		}
+
 		return $data;
 	}
 
@@ -442,6 +446,10 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 				),
 				'answered_link_text'    => array(
 					'description' => __( 'Text for the link to answers for the prompt.', 'jetpack' ),
+					'type'        => 'string',
+				),
+				'bloganuary_id'         => array(
+					'description' => __( 'Id used by the bloganuary promotion', 'jetpack' ),
 					'type'        => 'string',
 				),
 			),
