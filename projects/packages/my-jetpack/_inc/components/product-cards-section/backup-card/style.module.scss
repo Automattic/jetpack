@@ -1,0 +1,25 @@
+.no-backup-stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+
+    .main-stats {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .main-stat {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+
+        font-size: var(--font-body-small);
+    }
+
+    .more-stats {
+        margin: 0;
+
+        font-size: var(--font-body-small);
+    }
+}

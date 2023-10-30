@@ -179,6 +179,7 @@ for ( const name of [
 	'modules/widgets/gallery/css/admin',
 	'modules/sso/jetpack-sso-login',
 	'modules/masterbar/admin-menu/admin-menu',
+	'modules/masterbar/admin-menu/admin-menu-nav-unification',
 ] ) {
 	weirdRtlNominEntries[ name ] = path.join( __dirname, '..', name + '.css' );
 	weirdRtlEntries[ name + '.min' ] = path.join( __dirname, '..', name + '.css' );

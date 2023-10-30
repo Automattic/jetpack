@@ -514,6 +514,44 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/earn/payments-plans/' . $data['site_slug_encoded'];
 			},
 		),
+
+		// Hosting flow tasks
+		'site_theme_selected'             => array(
+			'get_title'            => function () {
+				return __( 'Choose a theme', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/themes/' . $data['site_slug_encoded'];
+			},
+		),
+		'install_custom_plugin'           => array(
+			'get_title'            => function () {
+				return __( 'Install a custom plugin', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/plugins/' . $data['site_slug_encoded'];
+			},
+		),
+		'setup_ssh'                       => array(
+			'get_title'            => function () {
+				return __( 'Set up ssh', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/hosting-config/' . $data['site_slug_encoded'] . '#sftp-credentials';
+			},
+		),
+		'site_monitoring_page'            => array(
+			'get_title'            => function () {
+				return __( 'View site metrics', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/site-monitoring/' . $data['site_slug_encoded'];
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -1829,3 +1867,31 @@ function wpcom_trigger_email_campaign() {
 	);
 }
 add_action( 'update_option_launchpad_checklist_tasks_statuses', 'wpcom_trigger_email_campaign', 10, 3 );
+
+/**
+ * Mark task complete when plugin is installed.
+ */
+function wpcom_launchpad_mark_plugin_installed_complete() {
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'install_custom_plugin' ) ) ) {
+		return;
+	}
+	wpcom_mark_launchpad_task_complete( 'install_custom_plugin' );
+}
+add_action( 'jetpack_plugin_installed', 'wpcom_launchpad_mark_plugin_installed_complete', 10 );
+
+/**
+ * Mark task complete when theme is selected.
+ *
+ * @param array $new_theme    The new theme object.
+ * @param array $old_theme The old theme object.
+ */
+function wpcom_launchpad_mark_theme_selected_complete( $new_theme, $old_theme ) {
+	// This hook runs when site just gets setup, lets prevent checklist item from being complete
+	// when the theme is the same.
+	$is_same_theme = $new_theme['name'] === $old_theme['name'];
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_theme_selected' ) ) || $is_same_theme ) {
+		return;
+	}
+	wpcom_mark_launchpad_task_complete( 'site_theme_selected' );
+}
+add_action( 'jetpack_sync_current_theme_support', 'wpcom_launchpad_mark_theme_selected_complete', 10, 2 );
