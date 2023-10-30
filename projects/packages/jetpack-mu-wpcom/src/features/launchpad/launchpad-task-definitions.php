@@ -386,6 +386,9 @@ function wpcom_launchpad_get_task_definitions() {
 				// that are not in the Customer Home page. We should find a better way to handle this.
 				return '/domains/add/' . $data['site_slug_encoded'] . '?from=my-home';
 			},
+			'extended_content'     => array(
+				wpcom_launchpad_add_task_extended_context( array( 'launchpad-navigator' ) ),
+			),
 		),
 
 		'share_site'                      => array(
@@ -1895,3 +1898,72 @@ function wpcom_launchpad_mark_theme_selected_complete( $new_theme, $old_theme ) 
 	wpcom_mark_launchpad_task_complete( 'site_theme_selected' );
 }
 add_action( 'jetpack_sync_current_theme_support', 'wpcom_launchpad_mark_theme_selected_complete', 10, 2 );
+
+/**
+ * Adds a task component.
+ *
+ * @param string $type    The type of the component ('text' or 'link').
+ * @param string $content The content of the component.
+ * @param array  $options Additional options for the component (optional).
+ * @return array The task component.
+ */
+function wpcom_launchpad_add_task_component( $type, $content, $options = array() ) {
+	// Add validation and sanitization checks if necessary.
+
+	return array(
+		'type'    => $type,
+		'content' => $content,
+		'options' => $options,
+	);
+}
+
+/**
+ * Adds a link task action.
+ *
+ * @param string $label The label (text) of the link.
+ * @param string $href  The URL of the link.
+ * @return array The link task component.
+ */
+function wpcom_launchpad_task_action_link( $label, $href ) {
+	return wpcom_launchpad_add_task_component( 'link', $label, array( 'href' => $href ) );
+}
+
+/**
+ * Adds the extended context for a task.
+ *
+ * @param string $contexts The contexts in which the task should be shown.
+ * @param string $actions_callback The callback to use for the task actions.
+ * @param string $content_callback The callback to use for the task content.
+ * @return array The extended context.
+ */
+function wpcom_launchpad_add_task_extended_context( $contexts, $actions_callback = 'wpcom_launchpad_customize_task_actions', $content_callback = 'wpcom_launchpad_customize_task_content' ) {
+	return array(
+		'contexts' => $contexts,
+		'actions'  => $actions_callback,
+		'content'  => $content_callback,
+	);
+}
+
+/**
+ * Adds custom actions to tasks.
+ *
+ * @param array      $extended_content The extended content for the task.
+ * @param array|null $default The default array with actions for the task.
+ * @param string     $task_id The task ID.
+ * @return array The array with actions for the task.
+ */
+function wpcom_launchpad_customize_task_actions( $extended_content, $default, $task_id ) {
+	return apply_filters( 'wpcom_launchpad_customize_task_actions', null, $task_id );
+}
+
+/**
+ * Adds custom content to tasks.
+ *
+ * @param array      $extended_content The extended content for the task.
+ * @param array|null $default The default array with actions for the task.
+ * @param string     $task_id The task ID.
+ * @return string The content for the task.
+ */
+function wpcom_launchpad_customize_task_content( $extended_content, $default, $task_id ) {
+	return apply_filters( 'wpcom_launchpad_customize_task_content', null, $task_id );
+}

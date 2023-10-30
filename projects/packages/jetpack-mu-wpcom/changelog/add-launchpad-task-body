@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adds basic functionality for adding body to the tasks. This will allow us for example to add text or buttons to the task.

@@ -370,6 +370,11 @@ class Launchpad_Task_Lists {
 			}
 		}
 
+		$extended_content = $this->load_extended_content( $task );
+		if ( $extended_content ) {
+			$built_task['extended_content'] = $extended_content;
+		}
+
 		return $built_task;
 	}
 
@@ -443,6 +448,38 @@ class Launchpad_Task_Lists {
 			$task['subtitle'];
 		}
 		return '';
+	}
+
+	/**
+	 * Loads the extended content for a task.
+	 *
+	 * @param Task $task A task definition.
+	 * @return array|null The extended content for the task.
+	 */
+	private function load_extended_content( $task ) {
+		if ( ! isset( $task['extended_content'] ) ) {
+			return null;
+		}
+
+		$extended_content_context = array();
+
+		foreach ( $task['extended_content'] as $context => $extended_content ) {
+			$loaded_extended_context = array();
+
+			$actions = $this->load_value_from_callback( $extended_content, 'actions', null, $task['id'] );
+			if ( $actions ) {
+				$loaded_extended_context['actions'] = $actions;
+			}
+
+			$content = $this->load_value_from_callback( $extended_content, 'content', null, $task['id'] );
+			if ( $actions ) {
+				$loaded_extended_context['content'] = $content;
+			}
+
+			$extended_content_context[ $context ] = $loaded_extended_context;
+		}
+
+		return $extended_content_context;
 	}
 
 	/**
