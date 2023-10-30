@@ -56,7 +56,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		offset, // The distance (in px) between the anchor and the popover.
 		focusOnMount: 'container' as const,
 		onClose: hideTooltip,
-		className: 'icon-tooltip-container',
+		className: classNames( 'icon-tooltip-container', 'icon-tooltip-helper', { 'is-wide': wide } ),
 	};
 
 	const isAnchorWrapper = popoverAnchorStyle === 'wrapper';
@@ -76,10 +76,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 				</Button>
 			) }
 
-			<div
-				className={ classNames( 'icon-tooltip-helper', { 'is-wide': wide } ) }
-				style={ iconShiftBySize }
-			>
+			<div style={ iconShiftBySize }>
 				{ ( isForcedToShow || isVisible ) && (
 					<Popover { ...args }>
 						<div>
