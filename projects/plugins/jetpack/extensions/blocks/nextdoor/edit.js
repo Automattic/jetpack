@@ -36,7 +36,7 @@ export function NextdoorEdit( {
 		noticeOperations.removeAllNotices();
 		noticeOperations.createErrorNotice(
 			__(
-				"Your Nextdoor post couldn't be embedded. Please double check your URL or code.",
+				"Your Nextdoor post couldn't be embedded. Please double check the URL or code.",
 				'jetpack'
 			)
 		);

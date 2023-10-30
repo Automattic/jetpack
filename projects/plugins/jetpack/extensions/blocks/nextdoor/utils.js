@@ -1,4 +1,4 @@
-export const REGEX = /(^|\/\/|www.)(nextdoor\.[^"']*)/i;
+export const REGEX = /(^|\/\/|www\.)(nextdoor\.[^"']*)/i;
 
 const PATH_REGEX = /([^/]+$)/;
 

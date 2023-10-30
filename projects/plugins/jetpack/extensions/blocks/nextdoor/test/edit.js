@@ -13,15 +13,6 @@ jest.mock( '../utils.js', () => {
 
 jest.mock( '../utils.js', () => ( {
 	__esModule: true,
-	default: jest.fn().mockImplementation( ( url, setIsResolvingUrl ) => {
-		setIsResolvingUrl( true );
-		return new Promise( ( resolve, reject ) => {
-			if ( url === 'https://calendly.com/username' ) {
-				setIsResolvingUrl( false );
-			}
-			url === 'https://calendly.com/invalid-url' ? reject() : resolve( url );
-		} );
-	} ),
 	parseUrl: jest.fn(),
 } ) );
 
