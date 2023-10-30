@@ -7,12 +7,16 @@
 		border-radius: 2px;
 		background-color: var(--jp-gray-5);
 		overflow: hidden;
-		margin: 1em 0;
+		margin: 0;
 	}
 
 	&-usage {
 		height: 100%;
 		border-radius: 2px;
 		background-color: var(--jp-green-40 );
+
+		&.is-limit-reached {
+			background-color: var(--jp-red);
+		}
 	}
 }

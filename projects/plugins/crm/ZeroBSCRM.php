@@ -7,8 +7,8 @@
  * Author: Automattic - Jetpack CRM team
  * Author URI: https://jetpackcrm.com
  * Text Domain: zero-bs-crm
- * Requires at least: 5.0
- * Requires PHP: 7.3
+ * Requires at least: 6.0
+ * Requires PHP: 7.4
  * License: GPLv2
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
@@ -99,7 +99,7 @@ add_action( 'activate_plugin', 'jpcrm_activation_checks', 10, 2 );
  * @return bool
  */
 function jpcrm_check_min_php_version() {
-	$min_php_version = '7.3';
+	$min_php_version = '7.4';
 
 	if ( version_compare( PHP_VERSION, $min_php_version, '<' ) ) {
 
