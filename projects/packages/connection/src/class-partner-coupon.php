@@ -2,7 +2,7 @@
 /**
  * Class for the Jetpack partner coupon logic.
  *
- * @package automattic/jetpack-partner
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack;
@@ -21,7 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class Jetpack_Partner_Coupon
  *
- * @since 1.6.0
+ * @since partner-1.6.0
+ * @since $$next-version$$
  */
 class Partner_Coupon {
 
@@ -436,7 +437,8 @@ class Partner_Coupon {
 		/**
 		 * Allow external code to add additional supported partners.
 		 *
-		 * @since 1.6.0
+		 * @since partner-1.6.0
+		 * @since $$next-version$$
 		 *
 		 * @param array $supported_partners A list of supported partners.
 		 * @return array
@@ -453,7 +455,8 @@ class Partner_Coupon {
 		/**
 		 * Allow external code to add additional supported presets.
 		 *
-		 * @since 1.6.0
+		 * @since partner-1.6.0
+		 * @since $$next-version$$
 		 *
 		 * @param array $supported_presets A list of supported presets.
 		 * @return array
