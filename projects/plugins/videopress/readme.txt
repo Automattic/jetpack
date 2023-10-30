@@ -84,24 +84,45 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.5 - 2023-03-22
+### 1.6 - 2023-10-30
+#### Security
+- Escape VideoPress attributes poster, and anchor when rendering block.
+
 #### Added
-- Added request and update video poster functionality
-- Added label and help properties support for the TimestampControl component
-- Added basic upload functionality to mobile app block version
-- Added details panel to mobile app block's settings
-- Added check to remove tracks from previous video after replacement on block
+- Added Divi Builder Compatibility.
+- Added play button when the video block Show controls and Preview On Hover are enabled.
+- Integrated video poster with Preview On Hover effect.
+- Pick video block attributes from URL when pasting/inserting.
 
 #### Changed
-- Indicated full compatibility with the latest version of WordPress, 6.2.
-- Updated deprecated core prop
-- Replaced loading placeholder
-- Updated package dependencies
+- Changed max duration of the Preview On Hover effect to ten seconds.
+- Hide core Video and embed VideOpress variations, when video block is available.
+- Improved the connection prompt when the Jetpack VideoPress module is not active.
+- Indicate full compatibility with WordPress 6.3
+- Made the Jetpack menu item default to point to My Jetpack.
+- Render VideoPress video block 100% dynamically instead of saving html representation.
+- Support autoplay playback option when Preview On Hover is enabled.
+- Updated WordPress version requirement to WordPress 6.2
+- Video block: Added Privacy and Rating panel to native block's settings.
+- Video block: Added replace functionality for the native version of the block.
+- Video block: Create VideoPress video block when pasting URLs.
+- Video block: Handle uploading video files when dropping in the editor canvas.
+- Video block: Stopped saving HTML markup representation.
 
 #### Fixed
-- Fixed video details form change detection
-- Fixed race condition when saving the post too fast after uploading a video
-- Fixed video library displaying arbitrary video in first page
-- Fixed opening upload options automatically when  block is inserted from the block inserter menu (mobile)
-- Fixed handling failed uploads on VideoPress block
+- Added a Notice when trying to edit a video that doesn't belong to the site.
+- Added error handling for track files upload process.
+- Avoid conflicts with Better Click To Tweet plugin.
+- Defer assets enqueuing for non block themes so they don't load on every page.
+- Enqueue token bridge file in the front-end only when required.
+- Ensure the appropriate scripts are enqueued to support private VideoPress videos rendered by the VideoPress Divi module.
+- Fixed compatibility with Timber theme.
+- Fixed false values not working on shortcodes.
+- Fixed issue with disabled Privacy and rating panel.
+- Fixed JITM layout on video edit page.
+- Fixed playback of private videos on private sites.
+- Fixed playing state of poster mini-player.
+- Handle block registration in the REST API request context.
+- Set video player position according to "starting point" and "duration".
+- Video block: Fixed blocking state when stopping an upload.
 
