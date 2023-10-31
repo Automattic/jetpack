@@ -28,7 +28,7 @@ const DefaultUpgradePrompt = (): React.ReactNode => {
 	const upgradeCTA = sprintf(
 		/** translators: string is next upgrade limit */
 		__( 'Upgrade to %s requests', 'jetpack' ),
-		nextTier?.readableLimit || nextTier.limit
+		nextTier.readableLimit || nextTier.limit
 	);
 
 	if ( ! canUpgrade ) {
