@@ -50,6 +50,20 @@ function get_domain_with_unverified_email() {
 }
 
 /**
+ * Bump the MC stat for wpcom-domain-email-nag-shown.
+ *
+ * @param string $domain the domain to bump the stat for.
+ */
+function bump_mc_stats( $domain ) {
+	$pixel_url = sprintf(
+		'http://pixel.wp.com/g.gif?v=wpcom-no-pv&x_%s=%s',
+		'wpcom-domain-email-nag-shown',
+		$domain
+	);
+	wp_remote_get( $pixel_url );
+}
+
+/**
  * Decides whether to render to the email nag.
  */
 function domain_email_nag() {
@@ -63,7 +77,7 @@ function domain_email_nag() {
 		return;
 	}
 
-	bump_stats_extras( 'wpcom-domain-email-nag-shown', $domain );
+	bump_mc_stats( $domain );
 
 	wp_enqueue_style( 'wpcom-domain-email-nag-style', plugins_url( 'domain-nag.style.css', __FILE__ ), array(), Jetpack_Mu_Wpcom::PACKAGE_VERSION );
 
