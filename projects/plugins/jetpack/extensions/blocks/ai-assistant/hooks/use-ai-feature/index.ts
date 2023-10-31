@@ -18,12 +18,9 @@ export type AIFeatureProps = {
 	errorMessage: string;
 	errorCode: string;
 	upgradeType: UpgradeTypeProp;
-<<<<<<< HEAD
 	currentTier: {
 		value: 0 | 1 | 100 | 200 | 500;
 	};
-=======
->>>>>>> bbcdd9b573 (update useAiFeature data)
 	usagePeriod: {
 		currentStart: string;
 		nextStart: string;
