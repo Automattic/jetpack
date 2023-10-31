@@ -563,6 +563,7 @@ function render_block( $attributes ) {
 		),
 		'subscribe_placeholder'  => get_attribute( $attributes, 'subscribePlaceholder', esc_html__( 'Type your email…', 'jetpack' ) ),
 		'submit_button_text'     => get_attribute( $attributes, 'submitButtonText', $is_paid_subscriber ? esc_html__( 'Upgrade', 'jetpack' ) : esc_html__( 'Subscribe', 'jetpack' ) ),
+		'subscribed_button_text' => get_attribute( $attributes, 'subscribedButtonText', esc_html__( '✓ Subscribed', 'jetpack' ) ),
 		'success_message'        => get_attribute(
 			$attributes,
 			'successMessage',
@@ -624,7 +625,40 @@ function render_for_website( $data, $classes, $styles ) {
 			'success_message' => $data['success_message'],
 		)
 	);
-	?>
+
+	if ( Jetpack_Memberships::user_can_view_post() ) { ?>
+		<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
+		<div class="jetpack_subscription_widget">
+			<div class="wp-block-jetpack-subscriptions__container">
+				<div class="wp-block-jetpack-subscriptions__form-elements">
+					<p id="subscribe-submit"
+							<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
+								style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
+							<?php endif; ?>
+						>
+							<button type="submit"
+								<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
+									class="<?php echo esc_attr( $classes['submit_button'] ); ?> wp-block-jetpack-subscriptions__subscribed"
+								<?php endif; ?>
+								<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
+									style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
+								<?php endif; ?>
+									name="jetpack_subscriptions_widget"
+							>
+								<?php
+								echo wp_kses(
+									html_entity_decode( $data['subscribed_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
+									Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
+								);
+								?>
+							</button>
+						</p>
+					</div>
+				</form>
+			</div>
+		</div>
+		</div>
+	<?php } else { ?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="jetpack_subscription_widget">
 			<div class="wp-block-jetpack-subscriptions__container">
@@ -723,7 +757,8 @@ function render_for_website( $data, $classes, $styles ) {
 			</div>
 		</div>
 	</div>
-	<?php
+		<?php
+	}
 
 	return ob_get_clean();
 }
@@ -1030,6 +1065,9 @@ function get_paywall_access_question( $post_access_level ) {
  */
 function is_user_auth() {
 	if ( ( new Host() )->is_wpcom_simple() && is_user_logged_in() ) {
+		return true;
+	}
+	if ( current_user_can( 'manage_options' ) ) {
 		return true;
 	}
 	if ( class_exists( 'Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service' ) ) {
