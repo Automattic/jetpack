@@ -2587,6 +2587,9 @@ importers:
       '@wordpress/element':
         specifier: 5.21.0
         version: 5.21.0
+      classnames:
+        specifier: 2.3.2
+        version: 2.3.2
       history:
         specifier: 5.3.0
         version: 5.3.0
