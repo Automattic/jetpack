@@ -832,7 +832,7 @@ function zeroBSCRM_mailDelivery_sendViaSMTP($smtpHost='',$smtpPort='',$smtpUser=
 
 		#} Recipient(s)
 		#} Currently stored as csv in defined ^^ so discern.... messy, improve.
-		if (strpos($toEmail,',') > -1 && strpos($toName,',') > -1){
+		if ( str_contains( $toEmail, ',' ) && str_contains( $toName, ',' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			$toEmail = explode(',',$toEmail);
 			$toName = explode(',',$toName);
 		}

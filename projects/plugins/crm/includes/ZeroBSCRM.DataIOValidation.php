@@ -260,31 +260,23 @@
      */
     function jpcrm_dataIO_file_path_seems_unsafe( $file_path_string ){
 
-        // this one is important enough to be hard typed here #gh-2501
-        if ( strpos( $file_path_string, 'phar' ) > -1 ){
+	// this one is important enough to be hard typed here #gh-2501
+	if ( str_contains( $file_path_string, 'phar' ) ) {
+		return true;
+	}
 
-            return true;
+	// these we block with their full string (unless we find a reason to open them up)
+	$blocked_protocols = array( 'file', 'http', 'ftp', 'php', 'zlib', 'data', 'glob', 'ssh2', 'rar', 'ogg', 'expect' );
+	foreach ( $blocked_protocols as $protocol ) {
 
-        }
+		if ( str_contains( $file_path_string, $protocol . '://' ) ) {
+			return true;
+		}
+	}
+	// this is only as accurate as what we know here and now (!)
+	return false;
+}
 
-        // these we block with their full string (unless we find a reason to open them up)
-        $blocked_protocols = array( 'file', 'http', 'ftp', 'php', 'zlib', 'data', 'glob', 'ssh2', 'rar', 'ogg', 'expect' );
-        foreach ( $blocked_protocols as $protocol ){
-
-            if ( strpos( $file_path_string, $protocol . '://' ) > -1 ){
-
-                return true;
-
-            }
-
-        }
-
-
-        // this is only as accurate as what we know here and now (!)
-        return false;
-
-    }
-    
     /*
      * A check which does it's best to ensure a URI is an url with the same root as existing site
      */
@@ -373,10 +365,10 @@ function zeroBSCRM_segments_filterConditions($conditions=array(),$processCharact
                         ){
 
                         // hmmm what if peeps use ' - ' in their date formats? This won't work if they do!
-                        if (strpos($val,' - ') > -1){
+					if ( str_contains( $val, ' - ' ) ) {
 
-                            $dates = explode(' - ', $val);
-                            if (count($dates) == 2){
+						$dates = explode( ' - ', $val );
+						if ( count( $dates ) === 2 ) {
 
 								$local_date_time = new DateTime( $dates[0], wp_timezone() );
 								$local_date_time->setTimezone( new DateTimeZone( 'UTC' ) );

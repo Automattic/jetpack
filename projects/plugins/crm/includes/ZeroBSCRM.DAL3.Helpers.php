@@ -7949,7 +7949,7 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 
 		    if ($asArray){
 
-		    	if (strpos('#'.$zbsStatusStr, ',') > -1){
+		if ( str_contains( '#' . $zbsStatusStr, ',' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		    		$arr = explode(',',$zbsStatusStr);
 		    		$ret = array();
@@ -7964,44 +7964,53 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 		    return $zbsStatusStr;
 		}
 
-		// retrieves statuses from object :)
-		function zeroBSCRM_getTransactionsStatuses($returnArray=false){
-		    
-		    global $zbs;
+/**
+ * Retrieve valid transaction statuses
+ *
+ * @param bool $return_array Return an array instead of a CSV.
+ */
+function zeroBSCRM_getTransactionsStatuses( $return_array = false ) {
+	global $zbs;
 
-		    $setting = $zbs->DAL->setting('customisedfields',false);
+	$setting = $zbs->DAL->setting( 'customisedfields', false ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-		    $zbsStatusStr = '';
+	$zbs_status_str = '';
 
-		    #} stored here: $settings['customisedfields']
-		    if (is_array($setting) && isset($setting['transactions']['status']) && is_array($setting['transactions']['status'])) $zbsStatusStr = $setting['transactions']['status'][1];                                        
-		    if (empty($zbsStatusStr)) {
-		      #} Defaults:
-		      global $zbsTransactionFields; if (is_array($zbsTransactionFields)) $zbsStatusStr = implode(',',$zbsTransactionFields['status'][3]);
-		    }  
-
-		    if ($returnArray){
-
-		    	if (strpos($zbsStatusStr,',') > -1) 
-		    		return explode(',', $zbsStatusStr);
-		    	else
-		    		return array();
-		    }
-
-		    return $zbsStatusStr;
+	if ( is_array( $setting ) && isset( $setting['transactions']['status'] ) && is_array( $setting['transactions']['status'] ) ) {
+		$zbs_status_str = $setting['transactions']['status'][1];
+	}
+	if ( empty( $zbs_status_str ) ) {
+		global $zbsTransactionFields; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		if ( is_array( $zbsTransactionFields ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$zbs_status_str = implode( ',', $zbsTransactionFields['status'][3] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		}
+	}
 
-		// retrieves statuses from object :)
-		function zeroBSCRM_getInvoicesStatuses(){
-			// for DAL3+ these are hard typed, probably need to sit in the obj:
-			return array(
-				'Draft',
-				'Unpaid',
-				'Paid',
-				'Overdue',
-				'Deleted',
-			);
+	if ( $return_array ) {
+
+		if ( str_contains( $zbs_status_str, ',' ) ) {
+			return explode( ',', $zbs_status_str );
+		} else {
+			return array();
 		}
+	}
+
+	return $zbs_status_str;
+}
+
+/**
+ * Retrieve an array of valid invoice statuses
+ */
+function zeroBSCRM_getInvoicesStatuses() {
+	// for DAL3+ these are hard typed, probably need to sit in the obj:
+	return array(
+		'Draft',
+		'Unpaid',
+		'Paid',
+		'Overdue',
+		'Deleted',
+	);
+}
 
 
 		function zeroBSCRM_getCompanyStatusesCSV(){
@@ -8022,15 +8031,18 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 		    return $zbsStatusStr;
 		}
 
-		function zeroBSCRM_getCompanyStatuses(){
-		    
-		    $statusesSTR = zeroBSCRM_getCompanyStatusesCSV();
-		    
-	    	if (strpos($statusesSTR,',') > -1) 
-	    		return explode(',', $statusesSTR);
-	    	else
-	    		return array();
-		}
+/**
+ * Retrieve an array of valid company statuses
+ */
+function zeroBSCRM_getCompanyStatuses() {
+	$statuses_str = zeroBSCRM_getCompanyStatusesCSV();
+
+	if ( str_contains( $statuses_str, ',' ) ) {
+		return explode( ',', $statuses_str );
+	} else {
+		return array();
+	}
+}
 
 		/// ======= / Statuses wrappers - bit antiquated  now... 
 
