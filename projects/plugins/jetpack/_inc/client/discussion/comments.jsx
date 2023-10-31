@@ -194,7 +194,7 @@ class CommentsComponent extends React.Component {
 										toggleModule={ this.props.toggleModuleNow }
 									>
 										<span className="jp-form-toggle-explanation">
-											{ __( 'Enable comment likes.', 'jetpack' ) }
+											{ __( 'Enable comment Likes.', 'jetpack' ) }
 										</span>
 									</ModuleToggle>
 								</FormFieldset>
