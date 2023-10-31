@@ -663,12 +663,12 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 		// There was some old usage of pwmanager on companys with CPTs, for now we're skipping support.
 		// $pws = get_post_meta($id,$zbsPasswordManager['dbkey'],true);
 
-		// hash secret if not already hashed
-		$api_secret = $zbs->DAL->setting( 'api_secret' );
-		if ( strpos( $api_secret, 'zbscrm_' ) === 0 ) {
-			$hashed_api_secret = $zbs->encryption->hash( $api_secret );
-			$zbs->DAL->updateSetting( 'api_secret', $hashed_api_secret );
-    }
+	// hash secret if not already hashed
+	$api_secret = $zbs->DAL->setting( 'api_secret' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	if ( str_starts_with( $api_secret, 'zbscrm_' ) ) {
+		$hashed_api_secret = $zbs->encryption->hash( $api_secret );
+		$zbs->DAL->updateSetting( 'api_secret', $hashed_api_secret ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	}
 
 		global $wpdb, $ZBSCRM_t;
 		// add indexes for performance
