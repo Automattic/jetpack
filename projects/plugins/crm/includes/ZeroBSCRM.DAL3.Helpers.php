@@ -3112,7 +3112,7 @@ function zeroBS___________DAL30Helpers(){return;}
 		            			if (isset($fV[2])) {
 		            			    $formatExample = $fV[2];
                                 }
-		            			if (!empty($formatExample) && strpos($formatExample, '#') !== false ){
+						if ( ! empty( $formatExample ) && str_contains( $formatExample, '#' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		            				// has a rule at least
 		            				$formatParts = explode('#', $formatExample);
@@ -3133,7 +3133,7 @@ function zeroBS___________DAL30Helpers(){return;}
 		                			if ($no > 0 && $no !== false) $retArray[$outputPrefix.$fK] = $autono;
 
 
-		            			}
+						}
 		            	}
 
 			        } // / if autonumber

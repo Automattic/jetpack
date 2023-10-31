@@ -76,7 +76,7 @@ class Invoice_Field_Contains extends Base_Condition {
 
 		switch ( $operator ) {
 			case 'contains':
-				$this->condition_met = ( strpos( $invoice->{$field}, $value ) !== false );
+				$this->condition_met = ( str_contains( $invoice->{$field}, $value ) );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;

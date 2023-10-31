@@ -90,7 +90,7 @@ class Transaction_Field extends Base_Condition {
 				break;
 
 			case 'contains':
-				$this->condition_met = ( strpos( $transaction->{$field}, $value ) !== false );
+				$this->condition_met = ( str_contains( $transaction->{$field}, $value ) );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				break;
 
