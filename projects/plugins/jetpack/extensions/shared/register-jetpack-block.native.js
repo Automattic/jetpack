@@ -17,7 +17,9 @@ function requiresPlan( unavailableReason, details ) {
 /**
  * Registers a gutenberg block if the availability requirements are met.
  *
- * @param {string} nameOrMetadata - The block's name.
+ * @param {string} nameOrMetadata - The block's name or metadata object. Jetpack blocks must be
+ * registered with a name prefixed with `jetpack/`. This function accepts an unprefixed name too,
+ * though (it'd handle both `business-hours` and `jetpack/business-hours` similarly, for instance).
  * @param {object} settings - The block's settings.
  * @param {object} childBlocks - The block's child blocks.
  * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
