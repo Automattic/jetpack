@@ -256,7 +256,7 @@ class zeroBSCRM_Plugin_Updater {
 									// ===========================
 									// Local Mods to dl obj - these are needed in get_info and all_info (here)
 
-									$newSlug = ''; //substr($pluginDetails['path'],0,strpos('/',$pluginDetails['path']));
+									$newSlug = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 									$e = false;
 									if ( is_array( $pluginDetails ) && isset( $pluginDetails['path'] ) ) {
 										$e = explode( '/', $pluginDetails['path'] );
@@ -354,7 +354,7 @@ class zeroBSCRM_Plugin_Updater {
 							// ===========================
 							// Local Mods to dl obj - these are needed in get_info and all_info (here)
 
-							$newSlug = ''; //substr($pluginDetails['path'],0,strpos('/',$pluginDetails['path']));
+							$newSlug = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							$e = explode( '/', $core['path'] );
 							if ( is_array( $e ) ) {
 								$newSlug = $e[0];
@@ -479,7 +479,9 @@ class zeroBSCRM_Plugin_Updater {
 					// ===========================
 					// Local Mods to dl obj - these are needed in get_info (here) and all_info
 
-					$newSlug = ''; $modifiedDLLink = ''; //substr($pluginDetails['path'],0,strpos('/',$pluginDetails['path']));
+					$newSlug        = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$modifiedDLLink = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 					$e = explode('/',$possibleExtension['path']);
 					if (is_array($e)) $newSlug = $e[0];
 					if (empty($newSlug)) $newSlug = $res['slug'];
@@ -1169,5 +1171,4 @@ function zeroBSCRM_localDblCheck(){
 	    } */
 
 	    return array();
-
-	}
+}

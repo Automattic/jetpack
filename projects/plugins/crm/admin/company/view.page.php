@@ -765,9 +765,6 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								$hasFiles = true;
 
 								$fileLineIndx = 0; foreach ( $zbsFiles as $zbsFile ) {
-
-									// $fileFullname = basename($zbsFile['file']);
-									// $file = substr($fileFullname,strpos($fileFullname, '-')+1);
 									$file = zeroBSCRM_files_baseName( $zbsFile['file'], isset( $zbsFile['priv'] ) );
 									?>
 								<tr>

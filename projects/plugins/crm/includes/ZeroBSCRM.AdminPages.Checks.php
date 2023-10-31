@@ -160,12 +160,6 @@ function zeroBSCRM_isWelcomeWizPage() {
 }
 
 function zeroBSCRM_isAPIRequest() {
-
-	// print_r($_SERVER['QUERY_STRING']);
-
-	// print_r($_SERVER);
-	// print_r(array((isset($_SERVER['SCRIPT_URL'])),strpos('#'.$_SERVER['SCRIPT_URL'], '/zbs_api/'))); exit();
-
 	// SCRIPT_URL not present in $_SERVER on mine: https://stackoverflow.com/questions/24428981/serverscript-url-when-is-it-reliably-present
 	// below is more reliable as QUERY_STRING will always be set for API requests.
 
