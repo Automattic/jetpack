@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed an issue where Social initial states were messed up
