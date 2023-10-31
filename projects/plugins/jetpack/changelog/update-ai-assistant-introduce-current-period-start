@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Assistant: expose current period start in the ai-assistant-feature endpoint

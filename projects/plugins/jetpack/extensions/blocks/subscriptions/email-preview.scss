@@ -11,16 +11,16 @@
 
   .components-modal__content {
     margin-top: 52px;
-    margin-left: 20px;
+    margin-inline-start: 20px;
     margin-bottom: 10px;
   }
 }
 
 .jetpack-email-preview__img {
   height: 110px;
-  padding-right: 30px;
-  padding-left: 80px;
-  margin-left: auto;
+  padding-inline-end: 30px;
+  padding-inline-start: 80px;
+  margin-inline-start: auto;
 }
 
 .jetpack-email-preview__email-sent {
@@ -45,7 +45,7 @@
     background-color: $studio-gray-5;
     color: $studio-gray;
     min-width: 266px;
-    padding-left: 13px;
+    padding-inline-start: 13px;
     font-size: 14px;
   }
 }

@@ -20,9 +20,6 @@ use Jetpack_Gutenberg;
  * @since 7.1.0
  */
 class WordAds {
-	const FEATURE_NAME = 'wordads';
-	const BLOCK_NAME   = 'jetpack/' . self::FEATURE_NAME;
-
 	/**
 	 * Check if site is on WP.com Simple.
 	 *
@@ -60,7 +57,7 @@ class WordAds {
 	public static function register() {
 		if ( self::is_available() ) {
 			Blocks::jetpack_register_block(
-				self::BLOCK_NAME,
+				__DIR__,
 				array(
 					'render_callback' => array( __CLASS__, 'gutenblock_render' ),
 				)
@@ -72,12 +69,14 @@ class WordAds {
 	 * Set if the WordAds block is available.
 	 */
 	public static function set_availability() {
+		$block_name = Blocks::get_block_name( __DIR__ );
+
 		if ( ! self::is_available() ) {
-			Jetpack_Gutenberg::set_extension_unavailable( self::BLOCK_NAME, 'WordAds unavailable' );
+			Jetpack_Gutenberg::set_extension_unavailable( $block_name, 'WordAds unavailable' );
 			return;
 		}
 		// Make the block available. Just in case it wasn't registered before.
-		Jetpack_Gutenberg::set_extension_available( self::BLOCK_NAME );
+		Jetpack_Gutenberg::set_extension_available( $block_name );
 	}
 
 	/**
