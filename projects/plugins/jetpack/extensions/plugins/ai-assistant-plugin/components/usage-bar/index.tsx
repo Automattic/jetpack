@@ -55,7 +55,7 @@ function UsageControl( {
 	AIFeatureProps,
 	'isOverLimit' | 'hasFeature' | 'requestsCount' | 'requestsLimit' | 'usagePeriod'
 > ) {
-	// Compute the number of days from start to now
+	// Compute the number of days from now to the next period
 	let resetMsg = '';
 	if ( usagePeriod?.currentStart ) {
 		const nextPeriodStart = new Date( usagePeriod.nextStart );
