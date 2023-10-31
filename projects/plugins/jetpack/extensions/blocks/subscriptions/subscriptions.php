@@ -609,11 +609,12 @@ function get_post_access_level_for_current_post() {
  */
 function render_for_website( $data, $classes, $styles ) {
 	$blog_id            = \Jetpack_Options::get_option( 'id' );
-	$form_id            = 'subscribe-blog-' . $data['widget_id'];
+	$widget_id_suffix   = Jetpack_Subscriptions_Widget::$instance_count > 1 ? '-' . Jetpack_Subscriptions_Widget::$instance_count : '';
+	$form_id            = 'subscribe-blog' . $widget_id_suffix;
 	$form_url           = defined( 'SUBSCRIBE_BLOG_URL' ) ? SUBSCRIBE_BLOG_URL : '#';
 	$post_access_level  = get_post_access_level_for_current_post();
 	$post_id            = get_the_ID();
-	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field-', $data['widget_id'] );
+	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
 	$tier_id            = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
 
 	ob_start();
