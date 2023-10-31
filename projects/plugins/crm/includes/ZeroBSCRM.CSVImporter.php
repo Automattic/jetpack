@@ -244,7 +244,7 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 	$file_path = realpath( $file_path );
 	// This ensures that the provided file exists and is inside the upload folder or one of its subdirs (ie `/wp-content/uploads/*`)
 	// and not somewhere else, also prevent traversal attacks, and usage of wrappers like phar:// etc
-	if ( $file_path === false || strpos( $file_path, $tmp_dir ) !== 0 ) {
+	if ( $file_path === false || ! str_starts_with( $file_path, $tmp_dir ) ) {
 		// Traversal attempt, file does not exist, invalid wrapper
 		throw new Exception( __( 'There was an error processing your CSV file. Please try again.', 'zero-bs-crm' ) );
 	}

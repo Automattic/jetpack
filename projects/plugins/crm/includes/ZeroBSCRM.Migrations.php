@@ -1209,7 +1209,7 @@ function zeroBSCRM_migration_invoice_language_fixes() {
 
 			foreach ( $woosync_settings as $setting => $value ) {
 				// if not a setting we care about, continue
-				if ( strpos( $setting, 'order_invoice_map_' ) !== 0 ) {
+				if ( ! str_starts_with( $setting, 'order_invoice_map_' ) ) {
 					continue;
 				}
 
