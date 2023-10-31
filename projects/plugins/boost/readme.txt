@@ -187,7 +187,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 2.2.0-beta - 2023-10-26
+### 2.2.0 - 2023-10-31
 #### Changed
 - General: Indicate full compatibility with the latest version of WordPress, 6.4.
 - Getting Started: Improved how features are sorted in the getting started page.
