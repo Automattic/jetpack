@@ -2,8 +2,9 @@
 	import { quadOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
 	import { __, _n, sprintf } from '@wordpress/i18n';
-	import RecommendationContext from '../../../elements/RecommendationContext.svelte';
+	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
+	import { RecommendationContext } from '../../../react-components/recommendation-context';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
 
 	export let needsRefresh: boolean;
@@ -23,7 +24,7 @@
 </script>
 
 {#if hasActiveGroup && isaLastUpdated}
-	{@const  lastUpdated = formatter.format( isaLastUpdated ) }
+	{@const ( lastUpdated = formatter.format( isaLastUpdated ) )}
 
 	<div class="jb-hero" in:fade={{ duration: 300, easing: quadOut }}>
 		<span>Latest report as of {lastUpdated}</span>
@@ -41,7 +42,7 @@
 				)}
 
 				{#if ! isImageCdnModuleActive && totalIssueCount > 0}
-					<RecommendationContext />
+					<ReactComponent this={RecommendationContext} />
 				{/if}
 			</h1>
 		{/if}
