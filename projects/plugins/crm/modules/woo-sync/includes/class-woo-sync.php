@@ -375,10 +375,8 @@ class Woo_Sync {
 	 */
 	private function init_features( ) {
 
-		global $zbs;
-
 		// Contact Tabs
-		if ( $zbs->isDAL2() && zeroBSCRM_is_customer_view_page() ){
+		if ( zeroBSCRM_is_customer_view_page() ) {
 
 			require_once JPCRM_WOO_SYNC_ROOT_PATH . 'includes/jpcrm-woo-sync-contact-tabs.php';
 			$this->contact_tabs = Woo_Sync_Contact_Tabs::instance();
@@ -870,26 +868,35 @@ class Woo_Sync {
 	 */
 	public function render_pay_via_woo_checkout_button( $invoice_id = -1 ) {
 
+		global $zbs;
+
+		// We can't generate a Woo payment button if WooCommerce isn't active
+		if ( ! $zbs->woocommerce_is_active() ) {
+			// show an error if an invoice admin
+			if ( zeroBSCRM_permsInvoices() ) {
+				$admin_alert  = '<b>' . esc_html__( 'Admin note', 'zero-bs-crm' ) . ':</b> ';
+				$admin_alert .= esc_html__( 'Please enable WooCommerce to show the payment link here.', 'zero-bs-crm' );
+				return $admin_alert;
+			} else {
+				return false;
+			}
+		}
+
 		if ( $invoice_id > 0 ) {
 
 			$api = $this->get_invoice_meta( $invoice_id, 'api' );
 			$order_post_id = $this->get_invoice_meta( $invoice_id, 'order_post_id' );
 
 			// intercept pay button and set to pay via woo checkout
-			if ( empty( $api ) ) {
+			if ( empty( $api ) && ! empty( $order_post_id ) ) {
+				remove_filter( 'invoicing_pro_paypal_button', 'zeroBSCRM_paypalbutton', 1 );
+				remove_filter( 'invoicing_pro_stripe_button', 'zeroBSCRM_stripebutton', 1 );
+				$order        = wc_get_order( $order_post_id );
+				$payment_page = $order->get_checkout_payment_url();
+				$res          = '<h3>' . __( 'Pay Invoice', 'zero-bs-crm' ) . '</h3>';
+				$res         .= '<a href="' . esc_url( $payment_page ) . '" class="ui button btn">' . __( 'Pay Now', 'zero-bs-crm' ) . '</a>';
 
-				if ( !empty( $order_post_id ) ) {
-
-					remove_filter( 'invoicing_pro_paypal_button', 'zeroBSCRM_paypalbutton' , 1 );
-					remove_filter( 'invoicing_pro_stripe_button', 'zeroBSCRM_stripebutton', 1 );
-					$order = wc_get_order( $order_post_id );
-					$payment_page = $order->get_checkout_payment_url();
-					$res = '<h3>' . __( "Pay Invoice", 'zero-bs-crm' ) . '</h3>';
-					$res .= '<a href="' . esc_url( $payment_page ) . '" class="ui button btn">' . __( "Pay Now", 'zero-bs-crm' ) .'</a>';
-
-					return $res;
-
-				}
+				return $res;
 			}
 
 			return $invoice_id;

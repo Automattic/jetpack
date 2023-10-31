@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Add WooCommerce to env setup for CI tests.

@@ -136,6 +136,7 @@ const ProductCard = props => {
 		status,
 		onActivate,
 		isFetching,
+		isDataLoading,
 		isInstallingStandalone,
 		isDeactivatingStandalone,
 		slug,
@@ -151,7 +152,6 @@ const ProductCard = props => {
 		onDeactivateStandalone,
 	} = props;
 
-	const isActive = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isAbsent =
 		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
@@ -237,8 +237,8 @@ const ProductCard = props => {
 
 	return (
 		<Card
-			className={ containerClassName }
 			title={ name }
+			className={ classNames( styles.container, containerClassName ) }
 			headerRightContent={
 				showMenu && (
 					<Menu
@@ -253,17 +253,16 @@ const ProductCard = props => {
 				)
 			}
 		>
-			{
-				// If is not active, no reason to use children
-				// Since we want user to take action if isn't active
-				isActive && children ? (
-					children
-				) : (
-					<Text variant="body-small" className={ styles.description }>
-						{ description }
-					</Text>
-				)
-			}
+			<Text variant="body-small" className={ styles.description }>
+				{ description }
+			</Text>
+
+			{ isDataLoading ? (
+				<span className={ styles.loading }>{ __( 'Loading…', 'jetpack-my-jetpack' ) }</span>
+			) : (
+				children
+			) }
+
 			<div className={ styles.actions }>
 				<ActionButton
 					{ ...props }

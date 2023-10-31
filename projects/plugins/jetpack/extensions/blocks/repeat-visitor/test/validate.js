@@ -1,6 +1,9 @@
 import { RichText } from '@wordpress/block-editor';
-import { name, settings } from '../';
 import runBlockFixtureTests from '../../../shared/test/block-fixtures';
+import metadata from '../block.json';
+import edit from '../components/edit';
+import save from '../components/save';
+import v1 from '../deprecated/v1/attributes';
 
 // To test that this block can contain arbitrary blocks, register a
 // fake paragraph block so that core paragraph block markup can appear
@@ -33,8 +36,9 @@ const fakeParagraphBlockSettings = {
 
 // Register the block under test, and a fake core paragraph block
 // to avoid having to register all core blocks.
+const { name } = metadata;
 const blocks = [
-	{ name: `jetpack/${ name }`, settings },
+	{ name, settings: { ...metadata, edit, save, deprecated: [ v1 ] } },
 	{ name: 'core/paragraph', settings: fakeParagraphBlockSettings },
 ];
-runBlockFixtureTests( `jetpack/${ name }`, blocks, __dirname );
+runBlockFixtureTests( name, blocks, __dirname );

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add jetpack-plans dependency. It will be use to restore the reverted change on #33410

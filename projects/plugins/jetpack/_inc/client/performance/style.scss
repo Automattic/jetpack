@@ -22,19 +22,3 @@
 		}
 	}
 }
-
-/* Lazy Images */
-.jp-form-settings-group--lazy_images {
-	.jp-form-settings-notice {
-		a.components-external-link {
-			color: $white;
-		}
-	}
-	&.jp-form-settings-group--lazy_images_disabled {
-		.jp-form-toggle-explanation {
-			color: $gray-5;
-		}
-	}
-}
-
-

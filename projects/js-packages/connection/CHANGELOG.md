@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.30.5] - 2023-10-23
+### Added
+- Added getCalypsoOrigin() helper function. [#33257]
+
 ## [0.30.4] - 2023-10-19
 ### Changed
 - Updated package dependencies. [#33687]
@@ -648,6 +652,7 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.30.5]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.4...v0.30.5
 [0.30.4]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.3...v0.30.4
 [0.30.3]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.2...v0.30.3
 [0.30.2]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.1...v0.30.2

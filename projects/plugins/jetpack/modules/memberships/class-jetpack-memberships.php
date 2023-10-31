@@ -9,6 +9,8 @@
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Status\Host;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
 
@@ -31,18 +33,14 @@ class Jetpack_Memberships {
 	public static $post_type_plan = 'jp_mem_plan';
 
 	/**
-	 * Option that will store currently set up account (Stripe etc) id for memberships.
+	 * Tier type for plans
 	 *
-	 *  TODO: remove
-	 *
-	 * @deprecated
 	 * @var string
 	 */
-	public static $connected_account_id_option_name = 'jetpack-memberships-connected-account-id';
+	public static $type_tier = 'tier';
 
 	/**
-	 * Option that will toggle account enabled for memberships (i.e. Stripe is
-	 * configured, etc. ).
+	 * Option stores status for memberships (Stripe, etc.).
 	 *
 	 * @var string
 	 */
@@ -53,7 +51,14 @@ class Jetpack_Memberships {
 	 *
 	 * @var string
 	 */
-	public static $post_access_level_meta_name = \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+	public static $post_access_level_meta_name = META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+
+	/**
+	 * Post meta that will store the tier ID of access for newsletters
+	 *
+	 * @var string
+	 */
+	public static $post_access_tier_meta_name = META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 	/**
 	 * Button block type to use.
@@ -465,9 +470,7 @@ class Jetpack_Memberships {
 			return true;
 		}
 
-		// This is the fallback solution.
-		// TODO: Remove this once the has_connected_account_option is migrated to all sites.
-		return get_option( 'jetpack-memberships-connected-account-id', false ) ? true : false;
+		return false;
 	}
 
 	/**
@@ -492,6 +495,32 @@ class Jetpack_Memberships {
 			$post_access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 		return $post_access_level;
+	}
+
+	/**
+	 * Get the post tier plan
+	 *
+	 * If no ID is provided, the method tries to get it from the global post object.
+	 *
+	 * @param int|null $post_id The ID of the post. Default is null.
+	 *
+	 * @return WP_Post|null the actual post tier.
+	 */
+	public static function get_post_tier( $post_id = null ) {
+		if ( ! $post_id ) {
+			$post_id = get_the_ID();
+		}
+
+		if ( ! $post_id ) {
+			return null;
+		}
+
+		$post_tier_id = get_post_meta( $post_id, self::$post_access_tier_meta_name, true );
+		if ( empty( $post_tier_id ) ) {
+			return null;
+		}
+
+		return get_post( $post_tier_id );
 	}
 
 	/**
@@ -556,8 +585,20 @@ class Jetpack_Memberships {
 		}
 
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-		$paywall       = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$can_view_post = $paywall->visitor_can_view_content( self::get_all_newsletter_plan_ids(), $post_access_level );
+		$paywall = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+
+		$all_newsletters_plan_ids = self::get_all_newsletter_plan_ids();
+
+		if ( 0 === count( $all_newsletters_plan_ids ) &&
+			Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS === $post_access_level ||
+			Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS === $post_access_level
+		) {
+			// The post is paywalled but there is no newsletter plans on the site.
+			// We downgrade the post level to subscribers-only
+			$post_access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
+		}
+
+		$can_view_post = $paywall->visitor_can_view_content( $all_newsletters_plan_ids, $post_access_level );
 
 		self::$user_can_view_post_cache[ $cache_key ] = $can_view_post;
 		return $can_view_post;
@@ -643,22 +684,45 @@ class Jetpack_Memberships {
 		// We can retrieve the data directly except on a Jetpack/Atomic cached site or
 		$is_cached_site = ( new Host() )->is_wpcom_simple() && is_jetpack_site();
 		if ( ! $is_cached_site ) {
-			return get_posts(
-				array(
-					'posts_per_page' => -1,
-					'fields'         => 'ids',
-					'meta_value'     => true,
-					'post_type'      => self::$post_type_plan,
-					'meta_key'       => 'jetpack_memberships_site_subscriber',
+			return array_merge(
+				get_posts(
+					array(
+						'posts_per_page' => -1,
+						'fields'         => 'ids',
+						'post_type'      => self::$post_type_plan,
+						'meta_query'     => array(
+							'relation' => 'AND',
+							array(
+								'key'   => 'jetpack_memberships_site_subscriber',
+								'value' => true,
+							),
+							array(
+								'key'     => 'jetpack_memberships_interval',
+								'value'   => 'one-time',
+								'compare' => '!=',
+							),
+						),
+					)
+				),
+				get_posts(
+					array(
+						'posts_per_page' => -1,
+						'fields'         => 'ids',
+						'post_type'      => self::$post_type_plan,
+						'meta_key'       => 'jetpack_memberships_type',
+						'meta_value'     => self::$type_tier,
+					)
 				)
 			);
 
 		} else {
 			// On cached site on WPCOM
 			require_lib( 'memberships' );
-			$only_newsletter = true;
-			$allow_deleted   = true;
-			$list            = Memberships_Product::get_product_list( get_current_blog_id(), null, null, $only_newsletter, $allow_deleted );
+			$only_tiers    = true;
+			$allow_deleted = true;
+			// In https://github.com/Automattic/gold/issues/190, it needs to be changed to
+			// Memberships_Product::get_product_list( $this->blog_id, Membership_Product::TIER_TYPE)
+			$list = Memberships_Product::get_product_list( get_current_blog_id(), null, null, $only_tiers, $allow_deleted );
 
 			return array_map(
 				function ( $product ) {

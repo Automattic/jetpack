@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/image-compare",
 	"title": "Image Compare",
 	"description": "Compare two images with a slider. Works best with images of the same size.",
@@ -26,6 +26,5 @@
 			"type": "string",
 			"default": "horizontal"
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }

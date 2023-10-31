@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-AI Client: remove obsolete blockListBlockWithAiDataProvider() HOC component
