@@ -81,16 +81,18 @@ class Settings {
 	/**
 	 * Check if SIG is enabled.
 	 *
+	 * @param bool $ignore_module Whether to ignore if the Publicize module is active. Used for populating the initial state.
+	 *
 	 * @return bool True if SIG is enabled, false otherwise.
 	 */
-	public function is_enabled() {
+	public function is_enabled( $ignore_module = false ) {
 		// If the feature isn't available it should never be enabled.
 		if ( ! $this->is_available() ) {
 			return false;
 		}
 
 		// SIG cannot be enabled without Publicize.
-		if ( ! ( new Modules() )->is_active( 'publicize' ) ) {
+		if ( ! $ignore_module && ! ( new Modules() )->is_active( 'publicize' ) ) {
 			return false;
 		}
 

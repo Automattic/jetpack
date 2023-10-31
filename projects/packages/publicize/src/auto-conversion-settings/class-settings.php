@@ -83,17 +83,18 @@ class Settings {
 	 * Check if the auto conversion feature is enabled.
 	 *
 	 * @param string $type Whether video or image.
+	 * @param bool   $ignore_module Whether to ignore if the Publicize module is active. Used for populating the initial state.
 	 *
 	 * @return bool True if the feature is enabled, false otherwise.
 	 */
-	public function is_enabled( $type ) {
+	public function is_enabled( $type, $ignore_module = false ) {
 		// If the feature isn't available it should never be enabled.
 		if ( ! $this->is_available( $type ) ) {
 			return false;
 		}
 
 		// The feature cannot be enabled without Publicize.
-		if ( ! ( new Modules() )->is_active( 'publicize' ) ) {
+		if ( ! $ignore_module && ! ( new Modules() )->is_active( 'publicize' ) ) {
 			return false;
 		}
 
