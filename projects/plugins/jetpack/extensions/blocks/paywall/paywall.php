@@ -30,7 +30,7 @@ function register_block() {
 	}
 
 	Blocks::jetpack_register_block(
-		__DIR__,
+		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
 		)
@@ -61,6 +61,6 @@ function render_block() {
  * @return array The allowed blocks.
  */
 function excerpt_allowed_blocks( $allowed_blocks ) {
-	return array_merge( $allowed_blocks, array( Blocks::get_block_name( __DIR__ ) ) );
+	return array_merge( $allowed_blocks, array( BLOCK_NAME ) );
 }
 add_filter( 'excerpt_allowed_blocks', __NAMESPACE__ . '\excerpt_allowed_blocks' );

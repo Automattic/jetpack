@@ -1,10 +1,8 @@
-import { useAnalytics, getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import metadata from './block.json';
-
-const icon = getBlockIconComponent( metadata );
+import { icon, settings } from './';
 
 export const SubscriptionsPlaceholder = ( { changeStatus, isLoading, isModuleActive } ) => {
 	const { tracks } = useAnalytics();
@@ -26,7 +24,7 @@ export const SubscriptionsPlaceholder = ( { changeStatus, isLoading, isModuleAct
 				"You'll need to activate the Subscriptions feature to use the Subcribe block.",
 				'jetpack'
 			) }
-			label={ metadata.title }
+			label={ settings.title }
 		>
 			<Button
 				disabled={ isModuleActive || isLoading }
