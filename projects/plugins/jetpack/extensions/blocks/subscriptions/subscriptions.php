@@ -960,7 +960,6 @@ function get_paywall_blocks( $newsletter_access_level ) {
 			$sign_in_link = add_query_arg(
 				array(
 					'site_id'      => intval( \Jetpack_Options::get_option( 'id' ) ),
-					'blog_id'      => intval( \Jetpack_Options::get_option( 'id' ) ),
 					'redirect_url' => rawurlencode( get_current_url() ),
 					'v2'           => '',
 				),
