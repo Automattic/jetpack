@@ -111,6 +111,21 @@ const recommendationsRoutes = [
 	'/recommendations/summary',
 	'/recommendations/vaultpress-backup',
 	'/recommendations/vaultpress-for-woocommerce',
+	'/recommendations/welcome-backup',
+	'/recommendations/welcome-complete',
+	'/recommendations/welcome-security',
+	'/recommendations/welcome-starter',
+	'/recommendations/welcome-antispam',
+	'/recommendations/welcome-videopress',
+	'/recommendations/welcome-search',
+	'/recommendations/welcome-scan',
+	'/recommendations/welcome-golden-token',
+	'/recommendations/server-credentials',
+	'/recommendations/backup-activated',
+	'/recommendations/backup-activated',
+	'/recommendations/antispam-activated',
+	'/recommendations/videopress-activated',
+	'/recommendations/search-activated',
 ];
 
 const myJetpackRoutes = [ 'my-jetpack ' ];
