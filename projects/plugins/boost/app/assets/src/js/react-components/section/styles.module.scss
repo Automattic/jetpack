@@ -1,0 +1,10 @@
+.section {
+	padding-top: 48px; // @todo - use variable $padding
+	padding-bottom: 48px; // @todo - use variable $padding
+	isolation: isolate;
+	z-index: 10;
+
+	.jetpack-boost-jitm-card .jitm-card {
+		margin: 0 0 2.5rem auto;
+	}
+}
