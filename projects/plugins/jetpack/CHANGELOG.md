@@ -2,6 +2,46 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.8-a.11 - 2023-10-31
+### Enhancements
+- Add a new block for supporting Nextdoor embeds. [#33751]
+- AI Assistant: Expose current period start in the ai-assistant-feature endpoint. [#33843]
+- Newsletters: Add level for all paid subscribers. [#33841]
+- Refactor blocks registration [#33682] [#33689] [#33694] [#33840]
+- Subscribe block: Change "followers" term to "subscribers". [#33860]
+
+### Improved compatibility
+- Add NL tier type. [#33757]
+
+### Bug fixes
+- Fix Cookie Consent block icon. [#33869]
+- Fixes style for multiple choice checkbox in Froms block. [#33827]
+- Fix issue in tier selector when tier is null. [#33879]
+- Fix unresponsive Simple Payment block. [#33889]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- custom-css: Upgrades for PHP 8. [#33816]
+- Plugin assets: Add mag-16 language versions of our banners. [#33850]
+
+## 12.8-a.9 - 2023-10-30
+### Enhancements
+- Earn: Rename Earn to Monetize. [#33741]
+- Jetpack AI: Cache the AI assistant feature data for Jetpack sites. [#33391]
+- Jetpack AI: Expose current plan tier information on feature endpoint. [#33820]
+- Jetpack Dashboard: improve Akismet tooltip. [#33547]
+- Paywall: Improve already subscriber experience. [#33763]
+- Subscription block: Improve wording to get access to content. [#33835]
+- Utilize the Jetpack Admin UI package for handling the Akismet menu. [#33559]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add subscribers auth endpoint. [#33815]
+- Dashboard / My Plan: update the link to licensing management for a better UX in the My Plan header. [#33813]
+- Dashboard: Remove link to "My Jetpack". [#33811]
+- Fix bug tier selector. [#33838]
+- Updated package dependencies. [#33821] [#33826]
+- Update lockfile. [#33607]
+- scssphp: Upgrade from 0.0.9 to 0.0.12. [#33822]
+
 ## 12.8-a.7 - 2023-10-26
 ### Enhancements
 - Add a filter that allows disabling Scan module. [#33764]

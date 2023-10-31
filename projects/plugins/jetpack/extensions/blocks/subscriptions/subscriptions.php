@@ -49,7 +49,7 @@ function register_block() {
 		|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
 	) {
 		Blocks::jetpack_register_block(
-			__DIR__,
+			BLOCK_NAME,
 			array(
 				'render_callback' => __NAMESPACE__ . '\render_block',
 				'supports'        => array(
@@ -176,6 +176,9 @@ function render_newsletter_access_rows( $column_id, $post_id ) {
 	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 
 	switch ( $access_level ) {
+		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
+			echo esc_html__( 'Paid Subscribers (all plans)', 'jetpack' );
+			break;
 		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
 			echo esc_html__( 'Paid Subscribers', 'jetpack' );
 			break;
@@ -524,7 +527,7 @@ function render_block( $attributes ) {
 
 	if ( class_exists( '\Jetpack_Memberships' ) ) {
 		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript and thickbox.
-		Jetpack_Gutenberg::load_assets_as_required( __DIR__, array( 'thickbox' ) );
+		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
 		if ( ! wp_style_is( 'enqueued' ) ) {
 			wp_enqueue_style( 'thickbox' );
 		}
