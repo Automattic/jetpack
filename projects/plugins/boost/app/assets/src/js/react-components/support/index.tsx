@@ -1,21 +1,23 @@
 import { __ } from '@wordpress/i18n';
-import { openPaidSupport } from '../../../../utils/paid-plan';
+import { openPaidSupport } from '../../utils/paid-plan';
+import { Section } from '../section';
+import styles from './styles.module.scss';
 
 export const Support = () => {
 	return (
-		<div className="jb-section">
+		<Section>
 			<div className="jb-container--narrow">
-				<div className="jb-support">
-					<div className="jb-support__content">
-						<h3 className="jb-support__title">{ __( "We're here to help", 'jetpack-boost' ) }</h3>
-						<p className="jb-support__description">
+				<div className={ styles.support }>
+					<div className="content">
+						<h3 className={ styles.title }>{ __( "We're here to help", 'jetpack-boost' ) }</h3>
+						<p>
 							{ __(
 								'Your paid plan gives you access to prioritized Jetpack Boost support',
 								'jetpack-boost'
 							) }
 						</p>
 					</div>
-					<div className="jb-support__cta">
+					<div className={ styles.cta }>
 						<button
 							className="components-button jb-button jb-button--outline"
 							onClick={ openPaidSupport }
@@ -26,6 +28,6 @@ export const Support = () => {
 					</div>
 				</div>
 			</div>
-		</div>
+		</Section>
 	);
 };
