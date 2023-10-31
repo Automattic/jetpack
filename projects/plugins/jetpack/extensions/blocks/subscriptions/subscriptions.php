@@ -176,6 +176,9 @@ function render_newsletter_access_rows( $column_id, $post_id ) {
 	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 
 	switch ( $access_level ) {
+		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
+			echo esc_html__( 'Paid Subscribers (all plans)', 'jetpack' );
+			break;
 		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
 			echo esc_html__( 'Paid Subscribers', 'jetpack' );
 			break;
