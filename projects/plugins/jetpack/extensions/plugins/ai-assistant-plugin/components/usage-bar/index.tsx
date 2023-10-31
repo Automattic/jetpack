@@ -57,7 +57,7 @@ function UsageControl( {
 > ) {
 	// Compute the number of days from now to the next period
 	let resetMsg = '';
-	if ( usagePeriod?.currentStart ) {
+	if ( usagePeriod?.nextStart ) {
 		const nextPeriodStart = new Date( usagePeriod.nextStart );
 
 		// Number of days in the current period
