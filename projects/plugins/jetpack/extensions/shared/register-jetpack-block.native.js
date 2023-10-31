@@ -5,6 +5,8 @@ import {
 import { registerBlockType } from '@wordpress/blocks';
 import extensionList from '../index.json';
 
+const JETPACK_PREFIX = 'jetpack/';
+
 const betaExtensions = extensionList.beta || [];
 
 function requiresPlan( unavailableReason, details ) {
@@ -22,41 +24,51 @@ function requiresPlan( unavailableReason, details ) {
  * though (it'd handle both `business-hours` and `jetpack/business-hours` similarly, for instance).
  * @param {object} settings - The block's settings.
  * @param {object} childBlocks - The block's child blocks.
+ * @param {boolean} prefix - Should this block be prefixed with `jetpack/`?
  * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
-export default function registerJetpackBlock( nameOrMetadata, settings, childBlocks = [] ) {
+export default function registerJetpackBlock(
+	nameOrMetadata,
+	settings,
+	childBlocks = [],
+	prefix = true
+) {
 	const name = typeof nameOrMetadata === 'string' ? nameOrMetadata : nameOrMetadata.name;
+	const isNamePrefixed = name.startsWith( JETPACK_PREFIX );
+	const rawName = isNamePrefixed ? name.slice( JETPACK_PREFIX.length ) : name;
 
-	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );
+	const { available, details, unavailableReason } = getJetpackExtensionAvailability( rawName );
 
 	const requiredPlan = requiresPlan( unavailableReason, details );
+	const jpPrefix = prefix || isNamePrefixed ? JETPACK_PREFIX : '';
 
 	if ( ! available && ! requiredPlan ) {
 		if ( 'production' !== process.env.NODE_ENV ) {
 			// eslint-disable-next-line no-console
 			console.warn(
-				`Block ${ name } couldn't be registered because it is unavailable (${ unavailableReason }).`
+				`Block ${ rawName } couldn't be registered because it is unavailable (${ unavailableReason }).`
 			);
 		}
 		return false;
 	}
 
-	const result = registerBlockType( `jetpack/${ name }`, {
+	const prefixedName = jpPrefix + rawName;
+	const result = registerBlockType( nameOrMetadata === 'object' ? nameOrMetadata : prefixedName, {
 		...settings,
-		title: betaExtensions.includes( name ) ? `${ settings.title } (beta)` : settings.title,
+		title: betaExtensions.includes( prefixedName ) ? `${ settings.title } (beta)` : settings.title,
 		edit: settings.edit,
 		example: requiredPlan ? undefined : settings.example,
 	} );
 
 	if ( 'production' !== process.env.NODE_ENV ) {
 		// eslint-disable-next-line no-console
-		console.log( `Block jetpack/${ name } registered.` );
+		console.log( `Block ${ prefixedName } registered.` );
 	}
 
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
 	// their parent is available, we register them all, without checking for their individual availability.
 	childBlocks.forEach( childBlock =>
-		registerBlockType( `jetpack/${ childBlock.name }`, childBlock.settings )
+		registerBlockType( jpPrefix + childBlock.name, childBlock.settings )
 	);
 
 	return result;
