@@ -120,12 +120,12 @@ const recommendationsRoutes = [
 	'/recommendations/welcome-search',
 	'/recommendations/welcome-scan',
 	'/recommendations/welcome-golden-token',
-	'/recommendations/server-credentials',
 	'/recommendations/backup-activated',
-	'/recommendations/backup-activated',
+	'/recommendations/scan-activated',
 	'/recommendations/antispam-activated',
 	'/recommendations/videopress-activated',
 	'/recommendations/search-activated',
+	'/recommendations/server-credentials',
 ];
 
 const myJetpackRoutes = [ 'my-jetpack ' ];
