@@ -7,9 +7,6 @@
 
 namespace Automattic\Jetpack;
 
-use Brain\Monkey;
-use Brain\Monkey\Filters;
-use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -23,12 +20,11 @@ class Partner_Test extends TestCase {
 	const TEST_CODE = 'abc-123';
 
 	/**
-	 * Set ups the tests.
+	 * Reset the environment after each test.
 	 *
-	 * @before
+	 * @after
 	 */
-	public function set_up() {
-		Monkey\setUp();
+	public function tear_down() {
 		Partner::reset();
 	}
 
@@ -72,8 +68,20 @@ class Partner_Test extends TestCase {
 	 * @throws Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 */
 	public function test_partner_code_is_empty_by_default( $code_type, $option_name ) {
-		Functions\expect( 'get_option' )->once()->with( $option_name )->andReturn( '' );
-		$this->assertEmpty( Partner::init()->get_partner_code( $code_type ) );
+		$call_counter  = 0;
+		$option_filter = function () use ( &$call_counter ) {
+			++$call_counter;
+			return '';
+		};
+
+		add_filter( 'pre_option_' . $option_name, $option_filter );
+
+		$partner_code = Partner::init()->get_partner_code( $code_type );
+
+		remove_filter( 'pre_option_' . $option_name, $option_filter );
+
+		$this->assertEmpty( $partner_code );
+		$this->assertSame( 1, $call_counter, 'The option should be loaded once.' );
 	}
 
 	/**
@@ -87,8 +95,20 @@ class Partner_Test extends TestCase {
 	 * @throws Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 */
 	public function test_partner_code_is_set_via_option( $code_type, $option_name ) {
-		Functions\expect( 'get_option' )->once()->with( $option_name, '' )->andReturn( self::TEST_CODE );
-		$this->assertEquals( self::TEST_CODE, Partner::init()->get_partner_code( $code_type ) );
+		$call_counter  = 0;
+		$option_filter = function () use ( &$call_counter ) {
+			++$call_counter;
+			return self::TEST_CODE;
+		};
+
+		add_filter( 'pre_option_' . $option_name, $option_filter );
+
+		$partner_code = Partner::init()->get_partner_code( $code_type );
+
+		remove_filter( 'pre_option_' . $option_name, $option_filter );
+
+		$this->assertEquals( self::TEST_CODE, $partner_code );
+		$this->assertSame( 1, $call_counter, 'The option should be loaded once.' );
 	}
 
 	/**
@@ -102,8 +122,28 @@ class Partner_Test extends TestCase {
 	 * @throws Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 */
 	public function test_partner_code_is_set_via_filter( $code_type, $option_name ) {
-		Functions\expect( 'get_option' )->once()->with( $option_name )->andReturn( '' );
-		Filters\expectApplied( $option_name )->once()->with( '' )->with( self::TEST_CODE );
-		$this->assertEquals( self::TEST_CODE, Partner::init()->get_partner_code( $code_type ) );
+		$call_counter  = 0;
+		$option_filter = function () use ( &$call_counter ) {
+			++$call_counter;
+			return '';
+		};
+
+		$filter_call_counter = 0;
+		$filter_filter       = function () use ( &$filter_call_counter ) {
+			++$filter_call_counter;
+			return self::TEST_CODE;
+		};
+
+		add_filter( 'pre_option_' . $option_name, $option_filter );
+		add_filter( $option_name, $filter_filter );
+
+		$partner_code = Partner::init()->get_partner_code( $code_type );
+
+		remove_filter( 'pre_option_' . $option_name, $option_filter );
+		remove_filter( $option_name, $filter_filter );
+
+		$this->assertEquals( self::TEST_CODE, $partner_code );
+		$this->assertSame( 1, $call_counter, 'The option should be loaded once.' );
+		$this->assertSame( 1, $filter_call_counter, 'The filter should be called once.' );
 	}
 }

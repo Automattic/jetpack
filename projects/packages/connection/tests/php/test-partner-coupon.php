@@ -11,7 +11,7 @@
 namespace Automattic\Jetpack;
 
 use Jetpack_Options;
-use WorDBless\BaseTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class Partner_Coupon_Test
@@ -19,7 +19,7 @@ use WorDBless\BaseTestCase;
  * @package Automattic\jetpack-connection
  * @covers Automattic\Jetpack\Partner_Coupon
  */
-class Partner_Coupon_Test extends BaseTestCase {
+class Partner_Coupon_Test extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	const PRODUCT = array(
