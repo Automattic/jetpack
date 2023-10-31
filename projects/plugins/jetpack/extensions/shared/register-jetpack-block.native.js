@@ -87,6 +87,7 @@ export function registerJetpackBlockFromMetadata( metadata, settings, childBlock
 	const mergedSettings = {
 		...settings,
 		icon: getBlockIconProp( metadata ),
+		title: metadata.title,
 		attributes: metadata.attributes || {},
 	};
 	const { variations } = metadata;
