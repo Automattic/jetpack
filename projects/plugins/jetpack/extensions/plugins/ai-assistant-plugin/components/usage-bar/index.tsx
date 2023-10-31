@@ -61,7 +61,7 @@ function UsageControl( {
 		const nextPeriodStart = new Date( usagePeriod.nextStart );
 
 		// Number of days in the current period
-		const numberOfDays = Math.floor(
+		const numberOfDays = Math.ceil(
 			( nextPeriodStart.getTime() - Date.now() ) / ( 1000 * 60 * 60 * 24 )
 		);
 
