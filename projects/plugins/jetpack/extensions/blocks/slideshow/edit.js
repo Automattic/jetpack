@@ -1,3 +1,4 @@
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
 import { MediaPlaceholder, BlockControls, InspectorControls } from '@wordpress/block-editor';
 import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
@@ -7,12 +8,14 @@ import { mediaUpload } from '@wordpress/editor';
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { filter, get, map, pick } from 'lodash';
+import metadata from './block.json';
 import { PanelControls, ToolbarControls } from './controls';
 import Slideshow from './slideshow';
-import { icon } from '.';
+
 import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image' ];
+const icon = getBlockIconComponent( metadata );
 
 export const pickRelevantMediaFiles = ( image, sizeSlug ) => {
 	const imageProps = pick( image, [ 'alt', 'id', 'link', 'caption' ] );

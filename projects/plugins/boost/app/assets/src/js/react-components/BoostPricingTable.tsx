@@ -24,15 +24,6 @@ const deferJSContext = createInterpolateElement( deferJSContextTemplate, {
 	link: <a href={ getRedirectUrl( 'jetpack-boost-defer-js' ) } target="_blank" rel="noreferrer" />,
 } );
 
-const lazyLoadingContextTemplate = __(
-	'Improve page loading speed by only loading images when they are required. Read more on <link>web.dev</link>.',
-	'jetpack-boost'
-);
-const lazyLoadingContext = createInterpolateElement( lazyLoadingContextTemplate, {
-	// eslint-disable-next-line jsx-a11y/anchor-has-content
-	link: <a href={ getRedirectUrl( 'jetpack-boost-lazy-load' ) } target="_blank" rel="noreferrer" />,
-} );
-
 const imageGuideContext = __(
 	'Discover and fix images with a suboptimal resolution, aspect ratio, or file size, improving user experience and page speed.',
 	'jetpack-boost'
@@ -141,6 +132,16 @@ export const BoostPricingTable = ( {
 					tooltipPlacement: 'bottom-start',
 				},
 				{
+					name: __( 'Image CDN', 'jetpack-boost' ),
+					tooltipInfo: imageCdnContext,
+					tooltipPlacement: 'bottom-start',
+				},
+				{
+					name: __( 'Automatic image size analysis', 'jetpack-boost' ),
+					tooltipInfo: isaContext,
+					tooltipPlacement: 'bottom-start',
+				},
+				{
 					name: __( 'Historical performance scores', 'jetpack-boost' ),
 					tooltipInfo: performanceHistoryContext,
 					tooltipPlacement: 'bottom-start',
@@ -151,28 +152,13 @@ export const BoostPricingTable = ( {
 					tooltipPlacement: 'bottom-start',
 				},
 				{
-					name: __( 'Lazy image loading', 'jetpack-boost' ),
-					tooltipInfo: lazyLoadingContext,
-					tooltipPlacement: 'bottom-start',
-				},
-				{
 					name: __( 'Image guide', 'jetpack-boost' ),
 					tooltipInfo: imageGuideContext,
 					tooltipPlacement: 'bottom-start',
 				},
 				{
-					name: __( 'Image CDN', 'jetpack-boost' ),
-					tooltipInfo: imageCdnContext,
-					tooltipPlacement: 'bottom-start',
-				},
-				{
 					name: __( 'Concatenate JS and CSS', 'jetpack-boost' ),
 					tooltipInfo: concatenateContext,
-					tooltipPlacement: 'bottom-start',
-				},
-				{
-					name: __( 'Automatic image size analysis', 'jetpack-boost' ),
-					tooltipInfo: isaContext,
 					tooltipPlacement: 'bottom-start',
 				},
 				{
@@ -207,15 +193,14 @@ export const BoostPricingTable = ( {
 					tooltipInfo={ automaticallyUpdatedContext }
 					tooltipClassName="wide-tooltip"
 				/>
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem
 					isIncluded={ true }
 					label={ <strong>{ __( 'Included + quality settings', 'jetpack-boost' ) }</strong> }
 					tooltipInfo={ __( 'Fine-tune image quality settings to your liking.', 'jetpack-boost' ) }
 				/>
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
@@ -245,13 +230,12 @@ export const BoostPricingTable = ( {
 					tooltipInfo={ manuallyUpdatedContext }
 					tooltipClassName="wide-tooltip"
 				/>
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />
 				<PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />
 				<PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />
 			</PricingTableColumn>
 		</PricingTable>

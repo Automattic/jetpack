@@ -189,11 +189,6 @@ HTML;
 			return false;
 		}
 
-		// Dont show if user is member of site.
-		if ( is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
-			return false;
-		}
-
 		// Don't show if user is subscribed to blog.
 		require_once __DIR__ . '/../views.php';
 		if ( $this->has_subscription_cookie() || Jetpack_Subscriptions_Widget::is_current_user_subscribed() ) {

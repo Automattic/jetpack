@@ -12,9 +12,7 @@ namespace Automattic\Jetpack\Extensions\CookieConsent;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'cookie-consent';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-const COOKIE_NAME  = 'eucookielaw';
+const COOKIE_NAME = 'eucookielaw';
 
 /**
  * Should the block be registered?
@@ -48,7 +46,7 @@ function register_block() {
 	}
 
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' ),
 		array(
 			'attributes' => array(
@@ -89,11 +87,11 @@ function load_assets( $attr, $content ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		$content
 	);
 }

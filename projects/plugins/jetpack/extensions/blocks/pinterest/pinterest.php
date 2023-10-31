@@ -12,9 +12,7 @@ namespace Automattic\Jetpack\Extensions\Pinterest;
 use Automattic\Jetpack\Blocks;
 use WP_Error;
 
-const FEATURE_NAME = 'pinterest';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-const URL_PATTERN  = '#^https?://(?:www\.)?(?:[a-z]{2}\.)?pinterest\.[a-z.]+/pin/(?P<pin_id>[^/]+)/?#i'; // Taken from AMP plugin, originally from Jetpack.
+const URL_PATTERN = '#^https?://(?:www\.)?(?:[a-z]{2}\.)?pinterest\.[a-z.]+/pin/(?P<pin_id>[^/]+)/?#i'; // Taken from AMP plugin, originally from Jetpack.
 // This is the validate Pinterest URLs, converted from URL_REGEX in extensions/blocks/pinterest/index.js.
 const PINTEREST_URL_REGEX = '/^https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^\/]+)(\/[^\/]+)?/i';
 // This looks for matches in /foo/ of https://www.pinterest.ca/foo/.
@@ -61,7 +59,7 @@ function pin_type( $url ) {
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
 	);
 }
@@ -238,7 +236,7 @@ function load_assets( $attr, $content ) {
 				<a data-pin-do="%2$s" href="%3$s"></a>
 			</div>
 		',
-			esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+			esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 			esc_attr( $type ),
 			esc_url( $url )
 		);

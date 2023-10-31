@@ -1,11 +1,36 @@
 import { createBlock } from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
-import registerJetpackBlock from '../../shared/register-jetpack-block';
+import { __ } from '@wordpress/i18n';
+import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import { waitForEditor } from '../../shared/wait-for-editor';
-import { name, settings } from '.';
+import metadata from './block.json';
+import edit from './edit';
+import avatar1 from './example-avatars/avatar1.jpg';
+import avatar2 from './example-avatars/avatar2.jpg';
+import avatar3 from './example-avatars/avatar3.jpg';
+import save from './save';
+
+import './editor.scss';
 import './style.scss';
 
-registerJetpackBlock( name, settings );
+registerJetpackBlockFromMetadata( metadata, {
+	edit,
+	save,
+	example: {
+		attributes: {
+			answersLink: 'https://wordpress.com/tag/dailyprompt',
+			answersLinkText: __( 'View all responses', 'jetpack' ),
+			gravatars: [ { url: avatar1 }, { url: avatar2 }, { url: avatar3 } ],
+			promptLabel: __( 'Daily writing prompt', 'jetpack' ),
+			promptText: __( "What's your favorite place to visit?", 'jetpack' ),
+			promptFetched: true,
+			promptId: 1234,
+			showResponses: true,
+			showLabel: true,
+			tagsAdded: true,
+		},
+	},
+} );
 
 async function insertTemplate( promptId ) {
 	await waitForEditor();

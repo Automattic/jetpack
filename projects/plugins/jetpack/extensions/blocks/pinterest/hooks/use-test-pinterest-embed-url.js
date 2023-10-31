@@ -1,6 +1,6 @@
 import { useEffect, useState } from '@wordpress/element';
-import { PINTEREST_EXAMPLE_URL } from '../';
 import testEmbedUrl from '../../../shared/test-embed-url';
+import { PINTEREST_EXAMPLE_URL } from '../constants';
 
 const useTestPinterestEmbedUrl = ( initialValue = '' ) => {
 	const [ isFetching, setIsFetching ] = useState( false );

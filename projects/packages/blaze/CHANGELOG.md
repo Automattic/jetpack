@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2023-10-23
+### Added
+- DSP media endpoints allowlisting. [#33598]
+
+### Changed
+- Updated package dependencies. [#33646] [#33687]
+
+### Fixed
+- Fix unsetting `sub_path` in `Dashboard_REST_Controller`. [#33668]
+
 ## [0.10.4] - 2023-10-16
 ### Changed
 - Updated package dependencies. [#33429]
@@ -215,6 +225,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.11.0]: https://github.com/automattic/jetpack-blaze/compare/v0.10.4...v0.11.0
 [0.10.4]: https://github.com/automattic/jetpack-blaze/compare/v0.10.3...v0.10.4
 [0.10.3]: https://github.com/automattic/jetpack-blaze/compare/v0.10.2...v0.10.3
 [0.10.2]: https://github.com/automattic/jetpack-blaze/compare/v0.10.1...v0.10.2

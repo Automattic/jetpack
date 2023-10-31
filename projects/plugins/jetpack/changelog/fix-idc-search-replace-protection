@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Connection: added protection for wpcom urls stored in the database during identity crisis.

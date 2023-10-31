@@ -1,3 +1,7 @@
+import { ThemeProvider } from '@automattic/jetpack-components';
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { WordAdsPlaceholder } from './components/jetpack-wordads-placeholder';
+import { WordAdsSkeletonLoader } from './components/jetpack-wordads-skeleton-loader';
 import { AD_FORMATS } from './constants';
 import AdControls from './controls';
 import wideSkyscraperExample from './example_160x600.png';
@@ -9,6 +13,8 @@ import './editor.scss';
 
 const WordAdsEdit = ( { attributes, setAttributes } ) => {
 	const { format } = attributes;
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+		useModuleStatus( 'wordads' );
 	const selectedFormatObject = AD_FORMATS.find( ( { tag } ) => tag === format );
 
 	const getExampleAd = formatting => {
@@ -23,6 +29,24 @@ const WordAdsEdit = ( { attributes, setAttributes } ) => {
 				return rectangleExample;
 		}
 	};
+
+	if ( ! isModuleActive ) {
+		if ( isLoadingModules ) {
+			return (
+				<ThemeProvider>
+					<WordAdsSkeletonLoader />
+				</ThemeProvider>
+			);
+		}
+
+		return (
+			<WordAdsPlaceholder
+				changeStatus={ changeStatus }
+				isModuleActive={ isModuleActive }
+				isLoading={ isChangingStatus }
+			/>
+		);
+	}
 
 	return (
 		<>
@@ -41,4 +65,5 @@ const WordAdsEdit = ( { attributes, setAttributes } ) => {
 		</>
 	);
 };
+
 export default WordAdsEdit;

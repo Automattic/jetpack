@@ -13,10 +13,12 @@ const iconWithSrc = {
 
 const iconWithSrcWithPaidIcon = {
 	src: (
-		<SVG xmlns="http://www.w3.org/2000/svg">
-			<G />
+		<>
+			<SVG xmlns="http://www.w3.org/2000/svg">
+				<G />
+			</SVG>
 			<PaidSymbol key="paid-symbol" />
-		</SVG>
+		</>
 	),
 	foreground: '#50575e',
 };
@@ -28,10 +30,12 @@ const iconWithouthSrc = (
 );
 
 const iconWithouthSrcWithPaidIcon = (
-	<SVG xmlns="http://www.w3.org/2000/svg">
-		<G />
+	<>
+		<SVG xmlns="http://www.w3.org/2000/svg">
+			<G />
+		</SVG>
 		<PaidSymbol key="paid-symbol" />
-	</SVG>
+	</>
 );
 
 describe( 'renderPaidIcon enhance the default block icon', () => {

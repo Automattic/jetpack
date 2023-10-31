@@ -286,6 +286,13 @@ class Masterbar {
 	 * Enqueue our own CSS and JS to display our custom admin bar.
 	 */
 	public function add_styles_and_scripts() {
+		// WoA sites: If wpcom_admin_interface is set to wp-admin, load the wp-admin styles.
+		// These include only styles to enable the "My Sites" and "Reader" links that will be added.
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$css_file = $this->is_rtl ? 'masterbar-wp-admin-rtl.css' : 'masterbar-wp-admin.css';
+			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/' . $css_file ), array(), JETPACK__VERSION );
+			return;
+		}
 
 		if ( $this->is_rtl ) {
 			wp_enqueue_style( 'a8c-wpcom-masterbar-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/rtl/wpcom-admin-bar-rtl.css' ), array(), JETPACK__VERSION );
@@ -356,8 +363,78 @@ class Masterbar {
 			return false;
 		}
 
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			$this->build_wp_admin_interface_bar( $wp_admin_bar );
+			return;
+		}
+
 		$this->clear_core_masterbar( $wp_admin_bar );
 		$this->build_wpcom_masterbar( $wp_admin_bar );
+	}
+
+	/**
+	 * This reorganizes the original wp admin bar for when an atomic site
+	 * has the wpcom_admin_interface set to wp-admin.
+	 *
+	 * The wpcom_admin_interface = wp-admin setting indicates that the users wishes
+	 * to NOT use the wpcom master bar. We do need to adjust a couple of things
+	 * though.
+	 *
+	 * @param WP_Admin_Bar $bar The admin bar object.
+	 *
+	 * @return void
+	 */
+	protected function build_wp_admin_interface_bar( $bar ) {
+
+		$nodes = array();
+
+		// First, lets gather all nodes and remove them.
+		foreach ( $bar->get_nodes() as $node ) {
+			$nodes[ $node->id ] = $node;
+			$bar->remove_node( $node->id );
+		}
+
+		// Here we add the My sites and Reader buttons
+		$this->wpcom_adminbar_add_secondary_groups( $bar );
+		$this->add_my_sites_submenu( $bar );
+		$this->add_reader_submenu( $bar );
+
+		foreach ( $nodes as $id => $node ) {
+
+			if ( $id === 'edit-profile' ) {
+				$this->add_wpcom_profile_link( $bar );
+			}
+
+			$bar->add_node( $node );
+		}
+
+		// Add a menu item to the user menu
+		// Add a custom link to the user menu.
+		$this->add_wpcom_profile_link( $bar );
+
+		// Remove some things
+		$bar->remove_node( 'wp-logo' );
+	}
+
+	/**
+	 * Add a link to the user` profile on WordPress.com
+	 *
+	 * @param WP_Admin_Bar $bar The admin bar object.
+	 *
+	 * @return void
+	 */
+	protected function add_wpcom_profile_link( $bar ) {
+		$custom_node = array(
+			'parent' => 'user-actions',
+			'id'     => 'wpcom-profile-link',
+			'title'  => __( 'WordPress.com Profile', 'jetpack' ),
+			'href'   => 'https://wordpress.com/me',
+			'meta'   => array(
+				'title' => __( 'Go to your profile page on WordPress.com', 'jetpack' ), // Optional, tooltip text.
+			),
+		);
+
+		$bar->add_node( $custom_node );
 	}
 
 	/**
