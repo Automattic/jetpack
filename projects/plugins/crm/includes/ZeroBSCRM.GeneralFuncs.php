@@ -1296,8 +1296,8 @@ function zeroBSCRM_portal_linkObj( $obj_id = -1, $type_int = ZBS_TYPE_INVOICE ) 
 	$use_hash        = zeroBSCRM_getSetting( 'easyaccesslinks' );
 	$portal_base_url = zeroBS_portal_link();
 	// The separator for values in invoices and quotes should be '=' when plain permalinks are being used
-	$url_separator   = ( strpos( $portal_base_url, '?' ) === false ) ? '/' : '=';
-                
+	$url_separator = ( ! str_contains( $portal_base_url, '?' ) ) ? '/' : '=';
+
 	switch ( $type_int ) {
 		case ZBS_TYPE_INVOICE:
 			$settings          = zeroBSCRM_get_invoice_settings();
@@ -1345,7 +1345,7 @@ function jpcrm_get_portal_slug() {
 function jpcrm_get_client_portal_root_url() {
 	$client_portal_root_url  = home_url( jpcrm_get_portal_slug() );
 	// The url separator should be '&' when plain permalinks are being used
-	$client_portal_root_url .= ( strpos( $client_portal_root_url, '?' ) === false ) ? '/' : '&';
+	$client_portal_root_url .= ( ! str_contains( $client_portal_root_url, '?' ) ) ? '/' : '&';
 
 	return $client_portal_root_url;
 }

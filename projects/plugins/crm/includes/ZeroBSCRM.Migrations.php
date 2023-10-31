@@ -1025,7 +1025,7 @@ function zeroBSCRM_migration_560_move_file_array( $meta_row ) { // phpcs:ignore 
 		// Skip if this file doesn`t exist (user may have deleted using the filesystem).
 		if (
 			! isset( $outdated_file_meta['file'] )
-			|| strpos( $outdated_file_meta['file'], "/$previous_folder/" ) === false
+			|| ! str_contains( $outdated_file_meta['file'], "/$previous_folder/" )
 			|| ! file_exists( $outdated_file_meta['file'] )
 		) {
 			$new_file_array[] = $outdated_file_meta;

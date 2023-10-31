@@ -95,7 +95,7 @@ class Transaction_Field extends Base_Condition {
 				break;
 
 			case 'does_not_contain':
-				$this->condition_met = ( strpos( $transaction->{$field}, $value ) === false );
+				$this->condition_met = ( ! str_contains( $transaction->{$field}, $value ) );
 				break;
 
 			default:
