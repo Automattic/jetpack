@@ -15,7 +15,7 @@ import { getBlockStyles } from './util';
 const BLOCK_NAME = 'recurring-payments';
 
 export default function Edit( { attributes, clientId, setAttributes } ) {
-	const { align, planId, width } = attributes;
+	const { align, planId, planIds, width } = attributes;
 	const editorType = getEditorType();
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
 
@@ -43,6 +43,10 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 	useEffect( () => {
 		updateSubscriptionPlan( planId );
 	}, [ planId, updateSubscriptionPlan ] );
+
+	const updateSubscriptionPlans = planIds => {
+		planIds.array.forEach( updateSubscriptionPlan );
+	};
 
 	/**
 	 * Filters the editor settings of the Payment Button block (`jetpack/recurring-payments`).
@@ -90,8 +94,8 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 				<ProductManagementControls
 					blockName={ BLOCK_NAME }
 					clientId={ clientId }
-					selectedProductId={ planId }
-					setSelectedProductId={ updateSubscriptionPlan }
+					selectedProductIds={ [ planId ] }
+					setSelectedProductIds={ updateSubscriptionPlans }
 				/>
 			) }
 			<InspectorControls>

@@ -45,6 +45,7 @@
 	},
 	"providesContext": {
 		"premium-content/planId": "selectedPlanId",
+		"premium-content/planIds": "selectedPlanIds",
 		"premium-content/isPreview": "isPreview",
 		"isPremiumContentChild": "isPremiumContentChild"
 	},
@@ -68,6 +69,10 @@
 		"selectedPlanId": {
 			"type": "number",
 			"default": 0
+		},
+		"selectedPlanIds": {
+			"type": "array",
+			"default": []
 		},
 		"isPreview": {
 			"type": "boolean",
