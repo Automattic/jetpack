@@ -69,18 +69,16 @@ function UsageControl( {
 		resetMsg = sprintf( __( 'Requests will reset in %1$d days.', 'jetpack' ), numberOfDays );
 	}
 
-	let help = __( 'Unlimited requests for your site', 'jetpack' );
+	let help = __( 'Unlimited requests for your site.', 'jetpack' );
 
 	if ( ! hasFeature ) {
 		// translators: %1$d: number of requests allowed in the free plan
 		help = sprintf( __( '%1$d free requests for your site', 'jetpack' ), requestsLimit );
-	} else {
-		help += '. ' + resetMsg;
 	}
 
 	const limitReached = isOverLimit && ! hasFeature;
 	if ( limitReached ) {
-		help = __( 'You have reached your plan requests limit', 'jetpack' );
+		help = __( 'You have reached your plan requests limit.', 'jetpack' );
 	}
 
 	// build messages
@@ -98,8 +96,16 @@ function UsageControl( {
 
 	const usage = requestsCount / requestsLimit;
 
+	const helpComponent = (
+		<>
+			{ help }
+			<br />
+			{ hasFeature ? resetMsg : null }
+		</>
+	);
+
 	return (
-		<BaseControl help={ help } label={ __( 'Usage', 'jetpack' ) }>
+		<BaseControl help={ helpComponent } label={ __( 'Usage', 'jetpack' ) }>
 			<p>{ hasFeature ? unlimitedPlanUsageMessage : freeUsageMessage }</p>
 			{ ! hasFeature && <UsageBar usage={ usage } limitReached={ limitReached } /> }
 		</BaseControl>
