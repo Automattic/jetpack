@@ -33,6 +33,7 @@ const Admin = () => {
 
 	const {
 		isModuleEnabled,
+		isUpdatingJetpackSettings,
 		showPricingPage,
 		hasPaidPlan,
 		isShareLimitEnabled,
@@ -44,6 +45,7 @@ const Admin = () => {
 		const store = select( SOCIAL_STORE_ID );
 		return {
 			isModuleEnabled: store.isModuleEnabled(),
+			isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
 			showPricingPage: store.showPricingPage(),
 			hasPaidPlan: store.hasPaidPlan(),
 			isShareLimitEnabled: store.isShareLimitEnabled(),
@@ -87,8 +89,12 @@ const Admin = () => {
 						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
 						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
-						{ isModuleEnabled && isAutoConversionAvailable && <AutoConversionToggle /> }
-						{ isModuleEnabled && isSocialImageGeneratorAvailable && <SocialImageGeneratorToggle /> }
+						{ isModuleEnabled && isAutoConversionAvailable && (
+							<AutoConversionToggle disabled={ isUpdatingJetpackSettings } />
+						) }
+						{ isModuleEnabled && isSocialImageGeneratorAvailable && (
+							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
+						) }
 					</AdminSection>
 					<AdminSectionHero>
 						<InfoSection />

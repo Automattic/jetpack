@@ -9,7 +9,11 @@ import ToggleSection from '../toggle-section';
 import { SocialStoreSelectors } from '../types/types';
 import styles from './styles.module.scss';
 
-const AutoConversionToggle: React.FC = () => {
+interface AutoConversionToggleProps {
+	disabled?: boolean;
+}
+
+const AutoConversionToggle: React.FC< AutoConversionToggleProps > = ( { disabled } ) => {
 	const { isEnabled, isUpdating } = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
 		return {
@@ -30,7 +34,7 @@ const AutoConversionToggle: React.FC = () => {
 	return (
 		<ToggleSection
 			title={ __( 'Automatically convert images for compatibility', 'jetpack-social' ) }
-			disabled={ isUpdating }
+			disabled={ isUpdating || disabled }
 			checked={ isEnabled }
 			onChange={ toggleStatus }
 		>

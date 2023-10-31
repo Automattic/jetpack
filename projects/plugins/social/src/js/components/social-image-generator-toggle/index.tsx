@@ -9,7 +9,13 @@ import ToggleSection from '../toggle-section';
 import { SocialStoreSelectors } from '../types/types';
 import styles from './styles.module.scss';
 
-const SocialImageGeneratorToggle: React.FC = () => {
+interface SocialImageGeneratorToggleProps {
+	disabled?: boolean;
+}
+
+const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = ( {
+	disabled,
+} ) => {
 	const [ currentTemplate, setCurrentTemplate ] = useState( null );
 	const { isEnabled, isUpdating, defaultTemplate } = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
@@ -44,19 +50,19 @@ const SocialImageGeneratorToggle: React.FC = () => {
 				fullWidth={ isSmall }
 				className={ styles.button }
 				variant="secondary"
-				disabled={ isUpdating || ! isEnabled }
+				disabled={ isUpdating || ! isEnabled || disabled }
 				onClick={ open }
 			>
 				{ __( 'Change default template', 'jetpack-social' ) }
 			</Button>
 		),
-		[ isEnabled, isSmall, isUpdating ]
+		[ disabled, isEnabled, isSmall, isUpdating ]
 	);
 
 	return (
 		<ToggleSection
 			title={ __( 'Enable Social Image Generator', 'jetpack-social' ) }
-			disabled={ isUpdating }
+			disabled={ isUpdating || disabled }
 			checked={ isEnabled }
 			onChange={ toggleStatus }
 		>
