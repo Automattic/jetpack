@@ -14,4 +14,10 @@
 			top: rem( 5px );
 		}
 	}
+
+	.jp-form-toggle-markdown-comments {
+		label.components-toggle-control__label {
+			font-size: 0.875rem;
+		}
+	}
 }

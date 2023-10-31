@@ -157,6 +157,7 @@ class CommentsComponent extends React.Component {
 							<div className="jp-toggle-set">
 								<FormFieldset>
 									<ToggleControl
+										className="jp-form-toggle-markdown-comments"
 										checked={
 											!! this.props.getOptionValue(
 												'wpcom_publish_comments_with_markdown',
