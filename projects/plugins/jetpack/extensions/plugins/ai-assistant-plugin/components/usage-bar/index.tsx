@@ -51,9 +51,10 @@ function UsageControl( {
 	requestsCount,
 	requestsLimit,
 	usagePeriod,
+	currentTier,
 }: Pick<
 	AIFeatureProps,
-	'isOverLimit' | 'hasFeature' | 'requestsCount' | 'requestsLimit' | 'usagePeriod'
+	'isOverLimit' | 'hasFeature' | 'requestsCount' | 'requestsLimit' | 'usagePeriod' | 'currentTier'
 > ) {
 	// Compute the number of days from now to the next period
 	let resetMsg = '';
@@ -69,7 +70,12 @@ function UsageControl( {
 		resetMsg = sprintf( __( 'Requests will reset in %1$d days.', 'jetpack' ), numberOfDays );
 	}
 
-	let help = __( 'Unlimited requests for your site.', 'jetpack' );
+	const isUnlimitedTier = currentTier?.value === 1;
+	let help = '';
+
+	if ( isUnlimitedTier ) {
+		help = __( 'Unlimited requests for your site.', 'jetpack' );
+	}
 
 	if ( ! hasFeature ) {
 		// translators: %1$d: number of requests allowed in the free plan
@@ -80,6 +86,18 @@ function UsageControl( {
 	if ( limitReached ) {
 		help = __( 'You have reached your plan requests limit.', 'jetpack' );
 	}
+
+	const helpComponent = (
+		<>
+			{ help }
+			{ hasFeature && ! isUnlimitedTier ? (
+				<>
+					<br />
+					{ resetMsg }
+				</>
+			) : null }
+		</>
+	);
 
 	// build messages
 	const freeUsageMessage = sprintf(
@@ -95,14 +113,6 @@ function UsageControl( {
 	);
 
 	const usage = requestsCount / requestsLimit;
-
-	const helpComponent = (
-		<>
-			{ help }
-			<br />
-			{ hasFeature ? resetMsg : null }
-		</>
-	);
 
 	return (
 		<BaseControl help={ helpComponent } label={ __( 'Usage', 'jetpack' ) }>
