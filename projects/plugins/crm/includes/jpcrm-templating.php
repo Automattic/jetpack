@@ -215,7 +215,7 @@ function jpcrm_retrieve_template_variants( $original_template_path = '' ) {
 			),
 			array( 
 				'name' => __( 'Template Path directory', 'zero-bs-crm' ), 
-				'path' => TEMPLATEPATH . '/' . $zbs->template_path . '/'
+				'path' => get_template_directory() . '/' . $zbs->template_path . '/',
 			),
 			array( 
 				'name' => __( 'Theme Compat directory', 'zero-bs-crm' ), 
