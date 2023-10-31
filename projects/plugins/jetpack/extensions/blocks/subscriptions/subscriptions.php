@@ -49,7 +49,7 @@ function register_block() {
 		|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
 	) {
 		Blocks::jetpack_register_block(
-			BLOCK_NAME,
+			__DIR__,
 			array(
 				'render_callback' => __NAMESPACE__ . '\render_block',
 				'supports'        => array(
@@ -524,7 +524,7 @@ function render_block( $attributes ) {
 
 	if ( class_exists( '\Jetpack_Memberships' ) ) {
 		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript and thickbox.
-		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
+		Jetpack_Gutenberg::load_assets_as_required( __DIR__, array( 'thickbox' ) );
 		if ( ! wp_style_is( 'enqueued' ) ) {
 			wp_enqueue_style( 'thickbox' );
 		}
@@ -724,8 +724,7 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 			<?php if ( $data['show_subscribers_total'] && $data['subscribers_total'] ) : ?>
 				<div class="wp-block-jetpack-subscriptions__subscount">
 					<?php
-					/* translators: %s: number of folks following the blog */
-					echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $data['subscribers_total'], 'jetpack' ), number_format_i18n( $data['subscribers_total'] ) ) );
+					echo esc_html( Jetpack_Memberships::get_join_others_text( $data['subscribers_total'] ) );
 					?>
 				</div>
 			<?php endif; ?>
@@ -1096,7 +1095,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		$access_question = get_paywall_access_question( $newsletter_access_level );
 
 		$sign_in = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
-<p class="has-text-align-center" style="font-size:14px"><a href="' . $sign_in_link . '">' . esc_html( $access_question ) . '</a></p>
+<p class="has-text-align-center" style="font-size:14px"><a href="' . $sign_in_link . '">' . $access_question . '</a></p>
 <!-- /wp:paragraph -->';
 	}
 

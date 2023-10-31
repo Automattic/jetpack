@@ -57,6 +57,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		focusOnMount: 'container' as const,
 		onClose: hideTooltip,
 		className: 'icon-tooltip-container',
+		inline: true,
 	};
 
 	const isAnchorWrapper = popoverAnchorStyle === 'wrapper';

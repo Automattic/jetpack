@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/related-posts",
 	"title": "Related Posts",
 	"description": "Display a list of related posts.",
@@ -73,6 +73,5 @@
 			"headline": "",
 			"postsToShow": 2
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }

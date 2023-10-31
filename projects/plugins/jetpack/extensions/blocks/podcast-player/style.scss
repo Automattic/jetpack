@@ -116,7 +116,7 @@ $jetpack-podcast-player-error: $alert-red;
 
 	.jetpack-podcast-player__cover {
 		width: $cover-image-size;
-		margin-right: $gutter-l;
+		margin-inline-end: $gutter-l;
 		flex-shrink: 0;
 	}
 
@@ -204,8 +204,8 @@ $jetpack-podcast-player-error: $alert-red;
 		justify-content: space-between;
 		padding-top: $gutter-s;
 		padding-bottom: $gutter-s;
-		padding-left: $gutter-l - 2px; // Adjustments on left padding to account for SVG sound icon spacing
-		padding-right: $gutter-l;
+		padding-inline-start: $gutter-l - 2px; // Adjustments on left padding to account for SVG sound icon spacing
+		padding-inline-end: $gutter-l;
 		transition: none;
 	}
 
@@ -244,7 +244,7 @@ $jetpack-podcast-player-error: $alert-red;
 	.jetpack-podcast-player__track-title-link {
 		display: inline-block;
 		height: $current-track-title-icon-size;
-		margin-left: $gutter-s * 0.5;
+		margin-inline-start: $gutter-s * 0.5;
 		vertical-align: top;
 
 		&,
@@ -296,7 +296,7 @@ $jetpack-podcast-player-error: $alert-red;
 	 */
 	.jetpack-podcast-player__track-error {
 		display: block;
-		margin-left: ( $gutter-l - 2px ) + $track-status-icon-size + $gutter-m; // has to be aligned with the track title
+		margin-inline-start: ( $gutter-l - 2px ) + $track-status-icon-size + $gutter-m; // has to be aligned with the track title
 		margin-bottom: $gutter-s;
 		font-size: 0.8em;
 		font-weight: normal;
@@ -363,7 +363,7 @@ $jetpack-podcast-player-error: $alert-red;
 	 */
 	&.is-default {
 		.jetpack-podcast-player__track-title {
-			padding-left: 0; // Account for missing space for status-icon.
+			padding-inline-start: 0; // Account for missing space for status-icon.
 		}
 
 		.jetpack-audio-player,
