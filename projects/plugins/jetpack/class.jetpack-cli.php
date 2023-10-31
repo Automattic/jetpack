@@ -1976,6 +1976,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 			? $assoc_args['slug']
 			: sanitize_title( $title );
 
+		$next_version = "\x24\x24next-version$$"; // Escapes to hide the string from tools/replace-next-version-tag.sh
+
 		$variation_options = array( 'production', 'experimental', 'beta' );
 		$variation         = ( isset( $assoc_args['variation'] ) && in_array( $assoc_args['variation'], $variation_options, true ) )
 			? $assoc_args['variation']
@@ -2007,53 +2009,49 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$has_keywords = isset( $assoc_args['keywords'] );
 
 		$files = array(
-			"$path/$slug.php"     => self::render_block_file(
-				'block-register-php',
-				array(
-					'nextVersion'      => "\x24\x24next-version$$", // Escapes to hide the string from tools/replace-next-version-tag.sh
-					'slug'             => $slug,
-					'title'            => $title,
-					'underscoredSlug'  => str_replace( '-', '_', $slug ),
-					'underscoredTitle' => str_replace( ' ', '_', $title ),
-				)
-			),
-			"$path/index.js"      => self::render_block_file(
-				'block-index-js',
+			"$path/block.json"  => self::render_block_file(
+				'block-block-json',
 				array(
 					'slug'        => $slug,
 					'title'       => $title,
 					'description' => isset( $assoc_args['description'] )
 						? $assoc_args['description']
 						: $title,
+					'nextVersion' => $next_version,
 					'keywords'    => $has_keywords
-					? array_map(
-						function ( $keyword ) {
-								// Construction necessary for Mustache lists.
-								return array( 'keyword' => trim( $keyword ) );
-						},
-						explode( ',', $assoc_args['keywords'], 3 )
-					)
-					: '',
-					'hasKeywords' => $has_keywords,
+						? array_map(
+							function ( $keyword ) {
+									// Construction necessary for Mustache lists.
+									return '"' . trim( $keyword ) . '"';
+							},
+							explode( ',', $assoc_args['keywords'], 3 )
+						)
+						: '',
 				)
 			),
-			"$path/editor.js"     => self::render_block_file( 'block-editor-js' ),
-			"$path/editor.scss"   => self::render_block_file(
+			"$path/$slug.php"   => self::render_block_file(
+				'block-register-php',
+				array(
+					'nextVersion'      => $next_version,
+					'title'            => $title,
+					'underscoredTitle' => str_replace( ' ', '_', $title ),
+				)
+			),
+			"$path/editor.js"   => self::render_block_file( 'block-editor-js' ),
+			"$path/editor.scss" => self::render_block_file(
 				'block-editor-scss',
 				array(
 					'slug'  => $slug,
 					'title' => $title,
 				)
 			),
-			"$path/edit.js"       => self::render_block_file(
+			"$path/edit.js"     => self::render_block_file(
 				'block-edit-js',
 				array(
 					'title'     => $title,
 					'className' => str_replace( ' ', '', ucwords( str_replace( '-', ' ', $slug ) ) ),
 				)
 			),
-			"$path/icon.js"       => self::render_block_file( 'block-icon-js' ),
-			"$path/attributes.js" => self::render_block_file( 'block-attributes-js' ),
 		);
 
 		$files_written = array();
