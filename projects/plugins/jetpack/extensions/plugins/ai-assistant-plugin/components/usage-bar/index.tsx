@@ -75,12 +75,12 @@ function UsageControl( {
 		// translators: %1$d: number of requests allowed in the free plan
 		help = sprintf( __( '%1$d free requests for your site', 'jetpack' ), requestsLimit );
 	} else {
-		help += ' ' + resetMsg;
+		help += '. ' + resetMsg;
 	}
 
 	const limitReached = isOverLimit && ! hasFeature;
 	if ( limitReached ) {
-		help = __( 'You have reached your plan requests limit.', 'jetpack' );
+		help = __( 'You have reached your plan requests limit', 'jetpack' );
 	}
 
 	// build messages
