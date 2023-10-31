@@ -77,7 +77,7 @@ export default function registerJetpackBlock(
 /**
  * Wrapper around registerJetpackBlock to register a block by specifying its metadata.
  *
- * @param {object }metadata - Metadata of the block (content of block.json)
+ * @param {object} metadata - Metadata of the block (content of block.json)
  * @param {object} settings - See registerJetpackBlock.
  * @param {object} childBlocks - See registerJetpackBlock.
  * @param {boolean} prefix - See registerJetpackBlock.
