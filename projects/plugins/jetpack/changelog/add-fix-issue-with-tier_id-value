@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Fix issue in tier selector when tier is null
