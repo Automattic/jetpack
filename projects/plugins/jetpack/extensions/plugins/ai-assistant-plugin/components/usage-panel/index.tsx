@@ -17,7 +17,8 @@ export default function UsagePanel() {
 	const canUpgrade = canUserPurchasePlan();
 
 	// fetch usage data
-	const { hasFeature, requestsCount, requestsLimit, isOverLimit, usagePeriod } = useAIFeature();
+	const { hasFeature, requestsCount, requestsLimit, isOverLimit, usagePeriod, currentTier } =
+		useAIFeature();
 
 	return (
 		<div className="jetpack-ai-usage-panel">
@@ -27,6 +28,7 @@ export default function UsagePanel() {
 				requestsCount={ requestsCount }
 				requestsLimit={ requestsLimit }
 				usagePeriod={ usagePeriod }
+				currentTier={ currentTier }
 			/>
 
 			{ ! hasFeature && canUpgrade && (
