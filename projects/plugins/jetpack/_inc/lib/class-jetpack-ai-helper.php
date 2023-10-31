@@ -405,7 +405,7 @@ class Jetpack_AI_Helper {
 			 * - 100, 200, 500 represents a site with the new plans,
 			 * with the respective number of allowed requests.
 			 */
-			$current_tier_value = $has_ai_assistant_feature ? 1 : 0;
+			$current_tier_value = $has_ai_assistant_feature ? WPCOM\Jetpack_AI\Usage\Helper::get_tier_usage_quantity( $blog_id ) : 0;
 
 			// Check if the site requires an upgrade.
 			$require_upgrade = $is_over_limit && ! $has_ai_assistant_feature;
