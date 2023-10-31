@@ -1,3 +1,4 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import Button from 'components/button';
 import JetpackBanner from 'components/jetpack-banner';
@@ -476,12 +477,12 @@ export default connect(
 			vaultPressData: getVaultPressData( state ),
 			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 			getModule: module_name => getModule( state, module_name ),
-			adsUpgradeUrl: getUpgradeUrl( state, 'settings-ads' ),
+			adsUpgradeUrl: getRedirectUrl( 'jetpack-creator-landing' ),
 			securityUpgradeUrl: getProductDescriptionUrl( state, 'security' ),
 			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 			gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
 			searchUpgradeUrl: getProductDescriptionUrl( state, 'search' ),
-			simplePaymentsUpgradeUrl: getProductDescriptionUrl( state, 'security' ),
+			simplePaymentsUpgradeUrl: getRedirectUrl( 'jetpack-creator-landing' ),
 			spamUpgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			multisite: isMultisite( state ),
 			inOfflineMode: isOfflineMode( state ),
