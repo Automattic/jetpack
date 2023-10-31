@@ -1,11 +1,10 @@
 import { __ } from '@wordpress/i18n';
 import { openPaidSupport } from '../../utils/paid-plan';
-import { Section } from '../section';
 import styles from './styles.module.scss';
 
 export const Support = () => {
 	return (
-		<Section>
+		<div className="jb-section">
 			<div className="jb-container--narrow">
 				<div className={ styles.support }>
 					<div className="content">
@@ -28,6 +27,6 @@ export const Support = () => {
 					</div>
 				</div>
 			</div>
-		</Section>
+		</div>
 	);
 };
