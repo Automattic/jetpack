@@ -1,4 +1,7 @@
-import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
+import {
+	getJetpackExtensionAvailability,
+	getBlockIconProp,
+} from '@automattic/jetpack-shared-extension-utils';
 import { registerBlockType } from '@wordpress/blocks';
 import extensionList from '../index.json';
 
@@ -14,12 +17,14 @@ function requiresPlan( unavailableReason, details ) {
 /**
  * Registers a gutenberg block if the availability requirements are met.
  *
- * @param {string} name - The block's name.
+ * @param {string} nameOrMetadata - The block's name.
  * @param {object} settings - The block's settings.
  * @param {object} childBlocks - The block's child blocks.
  * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
-export default function registerJetpackBlock( name, settings, childBlocks = [] ) {
+export default function registerJetpackBlock( nameOrMetadata, settings, childBlocks = [] ) {
+	const name = typeof nameOrMetadata === 'string' ? nameOrMetadata : nameOrMetadata.name;
+
 	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );
 
 	const requiredPlan = requiresPlan( unavailableReason, details );
@@ -53,4 +58,33 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	);
 
 	return result;
+}
+
+/**
+ * Wrapper around registerJetpackBlock to register a block by specifying its metadata.
+ *
+ * @param {object }metadata - Metadata of the block (content of block.json)
+ * @param {object} settings - See registerJetpackBlock.
+ * @param {object} childBlocks - See registerJetpackBlock.
+ * @param {boolean} prefix - See registerJetpackBlock.
+ * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
+ */
+export function registerJetpackBlockFromMetadata( metadata, settings, childBlocks, prefix ) {
+	const mergedSettings = {
+		...settings,
+		icon: getBlockIconProp( metadata ),
+		attributes: metadata.attributes || {},
+	};
+	const { variations } = metadata;
+
+	if ( Array.isArray( variations ) && variations.length > 0 ) {
+		mergedSettings.variations = variations.map( variation => {
+			return {
+				...variation,
+				icon: getBlockIconProp( variation ),
+			};
+		} );
+	}
+
+	return registerJetpackBlock( metadata, mergedSettings, childBlocks, prefix );
 }
