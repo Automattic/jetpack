@@ -72,7 +72,7 @@ async function needsThirdPartyFix( octokit, owner, repo, number, action, eventLa
 		labels.push( eventLabel.name );
 	}
 
-	return labels.match( /^\[Status\] Needs (3rd Party|Core) Fix$/ );
+	return labels.some( label => label.match( /^\[Status\] Needs (3rd Party|Core) Fix$/ ) );
 }
 
 /**
