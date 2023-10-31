@@ -762,8 +762,8 @@ class Jetpack_Subscriptions {
 	 */
 	public function widget_submit() {
 		// Check the nonce.
-		if ( is_user_logged_in() ) {
-			check_admin_referer( 'blogsub_subscribe_' . get_current_blog_id() );
+		if ( ! wp_verify_nonce( 'blogsub_subscribe_' . \Jetpack_Options::get_option( 'id' ) ) ) {
+			return false;
 		}
 
 		if ( empty( $_REQUEST['email'] ) || ! is_string( $_REQUEST['email'] ) ) {
