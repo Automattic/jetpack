@@ -123,6 +123,7 @@ abstract class Jetpack_Admin_Page {
 		if ( current_user_can( 'jetpack_connect' ) && $connectable ) {
 			$this->add_connection_banner_actions();
 		}
+		add_action( 'wp_head', array( $this, 'add_ios_smart_banner' ) );
 	}
 
 	/**
@@ -201,6 +202,12 @@ abstract class Jetpack_Admin_Page {
 		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
 		wp_style_add_data( 'jetpack-admin', 'rtl', 'replace' );
 		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
+	}
+	/**
+	 * Adds iOS Smart banner to let folks know about the Jetpack app on iOS.
+	 */
+	public function add_ios_smart_banner() {
+		echo "<meta name=\"apple-itunes-app\" content=\"app-id=1565481562\" />\n";
 	}
 
 	/**
