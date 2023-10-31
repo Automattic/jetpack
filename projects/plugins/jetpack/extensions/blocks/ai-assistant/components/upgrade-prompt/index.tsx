@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 /*
  * Internal dependencies
@@ -11,6 +11,7 @@ import { Nudge } from '../../../../shared/components/upgrade-nudge';
 import useAICheckout from '../../hooks/use-ai-checkout';
 import useAIFeature from '../../hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../lib/connection';
+import { getNextTierByUsage } from '../../lib/tiers';
 
 /**
  * The default upgrade prompt for the AI Assistant block, containing the Upgrade button and linking
@@ -21,6 +22,14 @@ import { canUserPurchasePlan } from '../../lib/connection';
 const DefaultUpgradePrompt = (): React.ReactNode => {
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
 	const canUpgrade = canUserPurchasePlan();
+
+	const { requestsCount } = useAIFeature();
+	const nextTier = getNextTierByUsage( requestsCount );
+	const upgradeCTA = sprintf(
+		/** translators: string is next upgrade limit */
+		__( 'Upgrade to %s requests', 'jetpack' ),
+		nextTier?.readableLimit || nextTier.limit
+	);
 
 	if ( ! canUpgrade ) {
 		return (
@@ -47,7 +56,7 @@ const DefaultUpgradePrompt = (): React.ReactNode => {
 
 	return (
 		<Nudge
-			buttonText={ 'Upgrade' }
+			buttonText={ upgradeCTA }
 			checkoutUrl={ checkoutUrl }
 			className={ 'jetpack-ai-upgrade-banner' }
 			description={ createInterpolateElement(
