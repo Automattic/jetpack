@@ -21,6 +21,8 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
 	// moved from invoice builder settings -> biz info 16/7/18
 
+	$updatedSettings = array(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 	// } Invoice Chunks
 	$updatedSettings['businessname'] = '';
 	if ( isset( $_POST['businessname'] ) ) {
