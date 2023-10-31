@@ -251,12 +251,12 @@ class Jetpack_Social {
 					'sharesData'                   => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
 					'socialImageGeneratorSettings' => array(
 						'available'       => $sig_settings->is_available(),
-						'enabled'         => $sig_settings->is_enabled(),
+						'enabled'         => $sig_settings->is_enabled( true ),
 						'defaultTemplate' => $sig_settings->get_default_template(),
 					),
 					'autoConversionSettings'       => array(
 						'available' => $auto_conversion_settings->is_available( 'image' ),
-						'image'     => $auto_conversion_settings->is_enabled( 'image' ),
+						'image'     => $auto_conversion_settings->is_enabled( 'image', true ),
 					),
 				)
 			);

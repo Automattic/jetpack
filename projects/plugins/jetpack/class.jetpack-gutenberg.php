@@ -741,13 +741,13 @@ class Jetpack_Gutenberg {
 				'hasPaidPlan'                     => $publicize->has_paid_plan(),
 				'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
 				'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
-				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
+				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled( true ),
 				'dismissedNotices'                => $publicize->get_dismissed_notices(),
 				'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
 				'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
 				'autoConversionSettings'          => array(
 					'available' => $auto_conversion_settings->is_available( 'image' ),
-					'image'     => $auto_conversion_settings->is_enabled( 'image' ),
+					'image'     => $auto_conversion_settings->is_enabled( 'image', true ),
 				),
 				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
 			);
