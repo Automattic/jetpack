@@ -1,11 +1,12 @@
 <script lang="ts">
-	import ImageCDNRecommendation from './ImageCDNRecommendation.svelte';
+	import { ImageCdnRecommendation } from '../react-components/image-cdn-recommendation';
+	import ReactComponent from './ReactComponent.svelte';
 </script>
 
 <div class="jb-score-context">
 	<span class="jb-score-context__info-icon">i</span>
 	<div class="jb-score-context__info-container">
-		<ImageCDNRecommendation />
+		<ReactComponent this={ImageCdnRecommendation} />
 		<i />
 	</div>
 </div>
