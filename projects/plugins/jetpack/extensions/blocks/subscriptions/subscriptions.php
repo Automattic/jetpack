@@ -563,7 +563,7 @@ function render_block( $attributes ) {
 		),
 		'subscribe_placeholder'  => get_attribute( $attributes, 'subscribePlaceholder', esc_html__( 'Type your email…', 'jetpack' ) ),
 		'submit_button_text'     => get_attribute( $attributes, 'submitButtonText', $is_paid_subscriber ? esc_html__( 'Upgrade', 'jetpack' ) : esc_html__( 'Subscribe', 'jetpack' ) ),
-		'subscribed_button_text' => get_attribute( $attributes, 'subscribedButtonText', esc_html__( '✓ Subscribed', 'jetpack' ) ),
+		'subscribed_button_text' => get_attribute( $attributes, 'subscribedButtonText', esc_html__( 'Subscribed', 'jetpack' ) ),
 		'success_message'        => get_attribute(
 			$attributes,
 			'successMessage',
@@ -645,6 +645,7 @@ function render_for_website( $data, $classes, $styles ) {
 								<?php endif; ?>
 									name="jetpack_subscriptions_widget"
 							>
+								✓ 
 								<?php
 								echo wp_kses(
 									html_entity_decode( $data['subscribed_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
