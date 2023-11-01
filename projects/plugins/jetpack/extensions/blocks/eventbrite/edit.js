@@ -1,4 +1,8 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isAtomicSite,
+	isSimpleSite,
+	getBlockIconComponent,
+} from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InnerBlocks } from '@wordpress/block-editor';
 import {
 	Placeholder,
@@ -13,14 +17,23 @@ import { __, _x } from '@wordpress/i18n';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import testEmbedUrl from '../../shared/test-embed-url';
-import attributeDetails from './attributes';
+import metadata from './block.json';
+import { EVENTBRITE_EXAMPLE_URL, URL_REGEX } from './constants';
 import { ToolbarControls } from './controls';
 import EventbriteInPageExample from './eventbrite-in-page-example.png';
 import { convertToLink, eventIdFromUrl, normalizeUrlInput } from './utils';
-import { icon, URL_REGEX, EVENTBRITE_EXAMPLE_URL } from '.';
-import { innerButtonBlock } from './';
+
 import './editor.scss';
 
+const icon = getBlockIconComponent( metadata );
+const innerButtonBlock = {
+	name: 'jetpack/button',
+	attributes: {
+		element: 'a',
+		text: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
+		uniqueId: 'eventbrite-widget-id',
+	},
+};
 export class EventbriteEdit extends Component {
 	state = {
 		editedUrl: this.props.attributes.url || '',
@@ -54,7 +67,7 @@ export class EventbriteEdit extends Component {
 
 			testEmbedUrl( newAttributes.url, this.setIsResolvingUrl )
 				.then( resolvedUrl => {
-					const newValidatedAttributes = getValidatedAttributes( attributeDetails, {
+					const newValidatedAttributes = getValidatedAttributes( metadata.attributes, {
 						...newAttributes,
 						url: resolvedUrl,
 					} );

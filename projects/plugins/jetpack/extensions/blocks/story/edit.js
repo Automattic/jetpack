@@ -1,3 +1,4 @@
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
 import { MediaPlaceholder } from '@wordpress/block-editor';
 import { withNotices } from '@wordpress/components';
@@ -6,12 +7,14 @@ import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { get, pick } from 'lodash';
+import metadata from './block.json';
 import Controls from './controls';
 import StoryPlayer from './player';
-import { icon } from '.';
+
 import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image', 'video' ];
+const icon = getBlockIconComponent( metadata );
 
 export const pickRelevantMediaFiles = media => {
 	const mediaProps = pick( media, [

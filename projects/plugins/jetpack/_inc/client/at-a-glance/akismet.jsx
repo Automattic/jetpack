@@ -91,11 +91,11 @@ class DashAkismet extends Component {
 
 		const support = {
 			text: __(
-				'Jetpack Anti-spam powered by Akismet. Comments and contact form submissions are checked against our global database of spam.',
+				'Comments and contact form submissions are checked against our global database of spam.',
 				'jetpack'
 			),
 			// Hide the action link from Atomic sites because it promotes purchase of Jetpack product
-			link: this.props.isAtomicSite ? null : 'https://akismet.com/',
+			link: this.props.isAtomicSite ? null : 'https://akismet.com/features',
 			privacyLink: 'https://automattic.com/privacy/',
 		};
 
