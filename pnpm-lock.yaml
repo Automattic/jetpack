@@ -1873,6 +1873,9 @@ importers:
       classnames:
         specifier: 2.3.2
         version: 2.3.2
+      gridicons:
+        specifier: 3.4.1
+        version: 3.4.1(react@18.2.0)
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
