@@ -140,23 +140,26 @@
       return preg_match('/^(https?:\/\/|www\.)\w+(\.\w+)*?(\/[^\s]*)?$/', $s);
     }
 
-   /*
-    * checks if host of a given URL is using a whitelisted TLD
-    *
-    * @param str $s URL string
-    * @param array $valid_tlds list of approved TLDs
-    *
-    * return bool
-    */
-    function jpcrm_has_valid_tld( $s, $valid_tlds = array( '.com', '.net', '.org', '.edu', '.gov', '.co.uk' ) ) {
-      $host = parse_url( jpcrm_url_with_scheme($s), PHP_URL_HOST );
-      if ( !$host ) return false;
-      foreach ($valid_tlds as $tld) {
-        $tld_length = strlen( $tld );
-        if ( substr( $host, -$tld_length ) === $tld ) return true;
-      }
-      return false;
-    }
+/**
+ * Checks if host of a given URL is using a whitelisted TLD
+ *
+ * @param string $s URL string.
+ * @param array  $valid_tlds List of approved TLDs.
+ *
+ * @return boolean
+ */
+function jpcrm_has_valid_tld( $s, $valid_tlds = array( '.com', '.net', '.org', '.edu', '.gov', '.co.uk' ) ) {
+	$host = wp_parse_url( jpcrm_url_with_scheme( $s ), PHP_URL_HOST );
+	if ( ! $host ) {
+		return false;
+	}
+	foreach ( $valid_tlds as $tld ) {
+		if ( str_ends_with( $host, $tld ) ) {
+			return true;
+		}
+	}
+	return false;
+}
 
    /*
     * adds a scheme to a URL string if it doesn't exist

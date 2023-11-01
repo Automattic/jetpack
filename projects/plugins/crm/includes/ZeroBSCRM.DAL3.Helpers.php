@@ -5212,7 +5212,7 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 				// Retrieve invoice endpoint & portal root URL
 				$invoice_endpoint = $zbs->modules->portal->get_endpoint( ZBS_TYPE_INVOICE );
 				$portalLink = zeroBS_portal_link();
-				if ( substr( $portalLink, -1 ) !== '/' ) {
+				if ( ! str_ends_with( $portalLink, '/' ) ) {  // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					$portalLink .= '/';
 				}
 
