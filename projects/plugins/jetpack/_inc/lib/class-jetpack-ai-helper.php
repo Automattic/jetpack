@@ -388,13 +388,9 @@ class Jetpack_AI_Helper {
 			/*
 			 * Usage since the last plan purchase day
 			 */
-			$usage_period_start = WPCOM\Jetpack_AI\Usage\Helper::get_usage_period_start_date( $blog_id );
-			$usage_period_start = isset( $usage_period_start ) ? $usage_period_start->format( 'Y-m-d H:i:s' ) : null;
-
-			$usage_next_period_start = WPCOM\Jetpack_AI\Usage\Helper::get_usage_next_period_start_date( $blog_id );
-			$usage_next_period_start = isset( $usage_next_period_start ) ? $usage_next_period_start->format( 'Y-m-d H:i:s' ) : null;
-
-			$usage_period_requests_count = WPCOM\Jetpack_AI\Usage\Helper::get_current_period_requests_count( $blog_id );
+			$usage_period_start          = null;
+			$usage_next_period_start     = null;
+			$usage_period_requests_count = 0;
 
 			/*
 			 * Get current tier value, a number representing
