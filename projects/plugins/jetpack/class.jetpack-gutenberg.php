@@ -677,7 +677,7 @@ class Jetpack_Gutenberg {
 		}
 
 		// AI Assistant
-		$ai_assistant_state = Jetpack_AI_Helper::get_ai_assistance_feature();
+		$ai_assistant_state = array();
 
 		if ( is_wp_error( $ai_assistant_state ) ) {
 			$ai_assistant_state = array(
