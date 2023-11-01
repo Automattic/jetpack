@@ -645,13 +645,6 @@ class zeroBSCRM_Plugin_Updater {
 			// cycle through each, check if matches
 			foreach ( $this->installedExts as $extName => $extDeets ) {
 
-				// debug
-				//echo 'comparing '.$extDeets['slug'].' to '.$slug.'<br>';
-
-				// is slug in this arr?				
-				//if (is_array($extDeets) && isset($extDeets['path']) && $extDeets['path'] == $slug) {
-				// this WAS working, but somehow decayed. Tweaked below
-				//if (is_array($extDeets) && isset($extDeets['slug']) && (str_replace('.php','',$extDeets['slug']) == $slug || $extDeets['slug'] == $slug)) {
 				if (
 					// something else we changed, changed this. Use first part of path now, not slug.
 					(is_array($extDeets) && isset($extDeets['path']) && substr($extDeets['path'], 0,strlen($slug)) == $slug)
