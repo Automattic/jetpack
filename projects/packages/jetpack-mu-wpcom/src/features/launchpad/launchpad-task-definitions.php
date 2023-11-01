@@ -1724,7 +1724,7 @@ add_action( 'update_option_subscription_options', 'wpcom_launchpad_mark_customiz
  * @return void
  */
 function wpcom_launchpad_mark_customize_welcome_message_complete_on_add( $value ) {
-	if ( $value['invitation'] ) {
+	if ( isset( $value['invitation'] ) && $value['invitation'] ) {
 		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
 	}
 }
