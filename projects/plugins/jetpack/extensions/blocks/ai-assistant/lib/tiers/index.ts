@@ -7,32 +7,38 @@ export type AiAssistantTier = {
 	slug: string;
 	limit: number;
 	readableLimit?: string;
+	value: number;
 };
 
 const TIER_AI_FREE: AiAssistantTier = {
 	slug: 'ai-assistant-tier-free',
 	limit: 20,
+	value: 0,
 };
 
 const TIER_AI_MONTHLY_100: AiAssistantTier = {
 	slug: 'ai-assistant-tier-100',
 	limit: 100,
+	value: 100,
 };
 
 const TIER_AI_MONTHLY_200: AiAssistantTier = {
 	slug: 'ai-assistant-tier-200',
 	limit: 200,
+	value: 200,
 };
 
 const TIER_AI_MONTHLY_500: AiAssistantTier = {
 	slug: 'ai-assistant-tier-500',
 	limit: 500,
+	value: 500,
 };
 
 const TIER_AI_UNLIMITED: AiAssistantTier = {
 	slug: 'ai-assistant-tier-unlimited',
 	limit: Infinity,
 	readableLimit: __( 'unlimited', 'jetpack' ),
+	value: 1,
 };
 
 const TIERS = [
