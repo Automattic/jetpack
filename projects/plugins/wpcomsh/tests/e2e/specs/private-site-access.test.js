@@ -76,7 +76,7 @@ describe( 'Private Site -- Logged out Access', () => {
 			data: {
 				status: 403,
 			},
-			message: 'Cookie nonce is invalid',
+			message: 'Cookie check failed',
 		} );
 	} );
 
@@ -126,7 +126,7 @@ describe( 'Private Site -- Logged in Access', () => {
 		expect( wpAdmin ).toMatch( /<body\s+.*\bclass="[^\"]*wp-admin[\s\"].*>/ );
 		expect( wpAdmin ).toMatch( /wpcomsh test/ );
 		expect( wpAdmin ).not.toMatch( 'Private Site' );
-	} );
+	}, 15000 );
 
 	it( 'Should redirect when login page browsed directly for logged in user', async () => {
 		const res = await fetchPathLoggedIn( '/wp-login.php?redirect_to=/' );
@@ -166,7 +166,7 @@ describe( 'Private Site -- Logged in Access', () => {
 		const posts = await res.json();
 		expect( posts ).toStrictEqual( {
 			code: 'rest_cookie_invalid_nonce',
-			message: 'Cookie nonce is invalid',
+			message: 'Cookie check failed',
 			data: { status: 403 },
 		} );
 	} );

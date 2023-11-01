@@ -53,7 +53,7 @@ DB=`docker create \
   --env MYSQL_ROOT_PASSWORD=jfdsaf9wjfaospfopdsafjsda \
   --env MYSQL_DATABASE=wordpress --env MYSQL_USER=wp \
   --env MYSQL_PASSWORD=iojdgoisajsoife83489398f8ds9a \
-  mariadb:10.3.23`
+  mariadb:11`
 
 WP=`docker create \
   --name ${PROJECT}_wp \
@@ -67,7 +67,7 @@ WP=`docker create \
   --env WORDPRESS_DB_PASSWORD=iojdgoisajsoife83489398f8ds9a \
   --env WORDPRESS_TABLE_PREFIX=wp_ \
   --env WORDPRESS_DEBUG=1 \
-  wordpress:5.5.3-php7.4-fpm`
+  wordpress:6-fpm`
 
 WPCLI=`docker create \
   --name ${PROJECT}_wpcli \
@@ -75,7 +75,13 @@ WPCLI=`docker create \
   --network $NETWORK \
   --mount source=$WPDATA,target=/var/www/html \
   --entrypoint tail \
-  wordpress:cli-2.4-php7.4 \
+  --env WORDPRESS_DB_HOST=db \
+  --env WORDPRESS_DB_USER=wp \
+  --env WORDPRESS_DB_NAME=wordpress \
+  --env WORDPRESS_DB_PASSWORD=iojdgoisajsoife83489398f8ds9a \
+  --env WORDPRESS_TABLE_PREFIX=wp_ \
+  --env WORDPRESS_DEBUG=1 \
+  wordpress:cli-2 \
   -f /dev/null` # arguments for entrypoint go after the image
 
 NGINX=`docker create \
@@ -85,7 +91,7 @@ NGINX=`docker create \
   --restart always \
   --publish 8989:8989/tcp \
   --mount source=$WPDATA,target=/var/www/html \
-  nginx:1.16.1`
+  nginx:stable`
 
 echo Copying wpcli utils
 docker cp ./bin/wait-for $WPCLI:/usr/local/bin/wait-for
@@ -160,7 +166,7 @@ JEST=`docker create \
   --env SUBSCRIBER_AUTH_COOKIE=${SUBSCRIBER_AUTH_COOKIE} \
   --env SUBSCRIBER_USER_ID=${SUBSCRIBER_USER_ID} \
   --entrypoint tail \
-  node:12.20-buster-slim \
+  node:18-bullseye-slim \
   -f /dev/null` # arguments for entrypoint go after the image
 
 echo Copying jest utils
