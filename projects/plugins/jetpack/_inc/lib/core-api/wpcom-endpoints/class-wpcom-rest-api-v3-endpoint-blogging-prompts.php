@@ -332,6 +332,9 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 */
 	protected function get_bloganuary_id( $post_date_gmt ) {
 		$post_year_day = gmdate( 'Y-d', strtotime( $post_date_gmt ) );
+		if ( $this->force_year ) {
+			$post_year_day = $this->force_year . '-' . gmdate( 'd', strtotime( $post_date_gmt ) );
+		}
 		return 'bloganuary-' . $post_year_day;
 	}
 
