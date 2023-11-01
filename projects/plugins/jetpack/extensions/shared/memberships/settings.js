@@ -12,7 +12,8 @@ import { useViewportMatch } from '@wordpress/compose';
 import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useState } from 'react';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
@@ -279,10 +280,9 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 }
 
 export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
-	const { isLoading, postHasPaywallBlock } = useSelect( select => {
-		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
-			'jetpack/membership-products'
-		);
+	const { isLoading, postHasPaywallBlock, newsletterCategories } = useSelect( select => {
+		const { getNewsletterProducts, getConnectUrl, isApiStateLoading, getNewsletterCategories } =
+			select( 'jetpack/membership-products' );
 		const { getBlocks } = select( 'core/block-editor' );
 
 		return {
@@ -290,10 +290,21 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 			stripeConnectUrl: getConnectUrl(),
 			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
 			postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockMetadata.name ),
+			newsletterCategories: getNewsletterCategories(),
 		};
 	} );
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
+	const postCategories = useSelect( select =>
+		select( editorStore ).getEditedPostAttribute( 'categories' )
+	);
+
+	// If the post has a non newsletter category, then it's going to be sent to 'All Content' subscribers
+	const hasNonNewsletterCategory = postCategories.some( postCategory => {
+		return ! newsletterCategories.some( newsletterCategory => {
+			return newsletterCategory.id === postCategory;
+		} );
+	} );
 
 	if ( isLoading ) {
 		return (
@@ -310,6 +321,20 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 			if ( ! postHasPaywallBlock ) {
 				return __( 'This post will be sent to paid subscribers only.', 'jetpack' );
 			}
+		}
+		if ( newsletterCategories && newsletterCategories.length > 0 ) {
+			const categoryNames = hasNonNewsletterCategory
+				? __( "'All Content'", 'jetpack' )
+				: newsletterCategories.map( category => category.name ).join( ', ' );
+
+			return createInterpolateElement(
+				sprintf(
+					// translators: %s: list of categories names separated by commas
+					__( 'This post will be sent to everyone subscribed to <b>%1$s</b>.', 'jetpack' ),
+					categoryNames
+				),
+				{ b: <strong /> }
+			);
 		}
 		return __( 'This post will be sent to all subscribers.', 'jetpack' );
 	};
