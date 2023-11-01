@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Backup\Helper_Script_Manager;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Sync\Sender;
 
 /**
@@ -26,6 +27,11 @@ function jetpack_uninstall() {
 	}
 
 	require JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.php';
+
+	if ( ! Connection_Manager::is_ready_for_cleanup( 'jetpack' ) ) {
+		// There are other active Jetpack plugins, no need for cleanup.
+		return;
+	}
 
 	Jetpack_Options::delete_all_known_options();
 
