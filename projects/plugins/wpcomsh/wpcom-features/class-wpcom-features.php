@@ -1098,6 +1098,10 @@ class WPCOM_Features {
 			self::JETPACK_PERSONAL_AND_HIGHER,
 			self::JETPACK_SOCIAL_PLANS,
 			self::JETPACK_SOCIAL_ADVANCED_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_MIGRATION_TRIAL_PLANS,
+				self::WPCOM_HOSTING_TRIAL_PLANS,
+			),
 		),
 
 		self::SUBSCRIPTION_GIFTING             => array(
