@@ -24,6 +24,15 @@
 		border-inline-end-width: 0 !important;
 	}
 }
+.is-style-button {
+	.wp-block-jetpack-subscriptions__textfield {
+		display: none;
+	}
+	.wp-block-jetpack-subscriptions__button,
+	.wp-block-button__link {
+		margin-left: 0 !important;
+	}
+}
 
 .wp-block-jetpack-subscriptions.wp-block-jetpack-subscriptions__supports-newline {
 

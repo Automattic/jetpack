@@ -18,6 +18,10 @@
 	},
 	"styles": [
 		{
+			"name": "button",
+			"label": "Button only"
+		},
+		{
 			"name": "compact",
 			"label": "Compact"
 		},
