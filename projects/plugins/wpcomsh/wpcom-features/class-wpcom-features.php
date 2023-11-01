@@ -1073,6 +1073,9 @@ class WPCOM_Features {
 			self::SPACE_50GB,
 			self::SPACE_100GB,
 			self::SPACE_200GB,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_HOSTING_TRIAL_PLANS,
+			),
 		),
 		self::STAGING_SITES                    => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
