@@ -104,7 +104,7 @@
         if ( is_string($var) ){
 
             // catch negative
-            if (substr($var,0,1) == '-') {
+		if ( str_starts_with( $var, '-' ) ) {
 
                 // use ctype where available
                 if ( function_exists('ctype_digit') ){
@@ -112,7 +112,7 @@
                 } else {
                     return is_numeric( $var );
                 }
-            }
+		}
 
             // use ctype_digit where available to check the string only contains digits
             if ( function_exists('ctype_digit') ){
@@ -127,18 +127,20 @@
 
     }
 
-   /*
-    * checks if a given string is a URL
-    *
-    * @param str $s potential URL string
-    * @param bool $do_tld_check use TLD check instead of regex to confirm if it is a valid URL
-    *
-    * return bool
-    */
-    function jpcrm_is_url($s, $do_tld_check = false) {
-      if ( $do_tld_check ) return jpcrm_has_valid_tld( $s );
-      return preg_match('/^(https?:\/\/|www\.)\w+(\.\w+)*?(\/[^\s]*)?$/', $s);
-    }
+/**
+ * Checks if a given string is a URL
+ *
+ * @param string  $s Potential URL string.
+ * @param boolean $do_tld_check use TLD check instead of regex to confirm if it is a valid URL.
+ *
+ * @return boolean
+ */
+function jpcrm_is_url( $s, $do_tld_check = false ) {
+	if ( $do_tld_check ) {
+		return jpcrm_has_valid_tld( $s );
+	}
+	return preg_match( '/^(https?:\/\/|www\.)\w+(\.\w+)*?(\/[^\s]*)?$/', $s );
+}
 
 /**
  * Checks if host of a given URL is using a whitelisted TLD
@@ -216,22 +218,19 @@ function jpcrm_has_valid_tld( $s, $valid_tlds = array( '.com', '.net', '.org', '
 	return false;
 }
 
-    /*
-     * A check which does it's best to ensure a URI is an url with the same root as existing site
-     */
-    function jpcrm_url_appears_to_match_site( $url_string, $site_path = '' ){
-
-        $this_site_url = site_url( $site_path );
-
-        if ( substr( $url_string, 0, strlen( $this_site_url ) ) == $this_site_url ){
-
-            return true;
-
-        }
-
-        return false;
-
-    }
+/**
+ * A check which does its best to ensure a URI is an url with the same root as existing site
+ *
+ * @param string $url_string A URL string.
+ * @param string $site_path  The site path if applicable.
+ */
+function jpcrm_url_appears_to_match_site( $url_string, $site_path = '' ) {
+	$this_site_url = site_url( $site_path );
+	if ( str_starts_with( $url_string, $this_site_url ) ) {
+		return true;
+	}
+	return false;
+}
 
 /* ======================================================
   / Data Validation Functions

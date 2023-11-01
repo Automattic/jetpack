@@ -398,9 +398,8 @@ function zeroBSCRM_mailDelivery_sendMessage($mailDeliveryAccKey='',$mail=-1){
 					// From (esp req for wpmail):
 					$newHeaders = array();
 					$headerPresent = false;
-					foreach ($headers as $h){
-						
-						if (substr($h, 0, 5) == 'From:'){
+				foreach ( $headers as $h ) {
+					if ( str_starts_with( $h, 'From:' ) ) {
 
 							// replace it :)
 							$newHeaders[] = 'From: '.$mailSettings['fromname'].' <'.$mailSettings['fromemail'].'>';
@@ -998,7 +997,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 							$emailSentMsg = '';
 
 							#success: or error:
-							if (substr($emailDebug,0,6) == 'error:'){
+						if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								$emailWasSent = false;									
 								$emailSentMsg = __('Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)',"zero-bs-crm");						
@@ -1008,10 +1007,9 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 										$emailSentMsg .= "
 	".__('This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.',"zero-bs-crm");
 								}
-						
-						
-							} else if (substr($emailDebug,0,8) == 'success:'){
-								
+
+						} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 								$emailWasSent = true;								
 								$emailSentMsg .= __("Success! Your SMTP details are correct. (A test email was successfully sent)","zero-bs-crm");
 
@@ -1117,7 +1115,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 
 											#} Analysis of send - THIS ISN'T DRY!
 											#success: or error:
-											if (substr($emailDebug,0,6) == 'error:'){
+								if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 												$emailWasSent = false;									
 												$emailSentMsg = __('Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)',"zero-bs-crm");						
@@ -1127,10 +1125,9 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 														$emailSentMsg .= "
 					".__('This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.',"zero-bs-crm");
 												}
-										
-										
-											} else if (substr($emailDebug,0,8) == 'success:'){
-												
+
+								} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 												$emailWasSent = true;								
 												$emailSentMsg .= __("Success! Your SMTP details are correct. (A test email was successfully sent)","zero-bs-crm");
 
@@ -1206,7 +1203,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 
 										#} Analysis of send - THIS ISN'T DRY
 										#success: or error:
-										if (substr($emailDebug,0,6) == 'error:'){
+							if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 											$emailWasSent = false;									
 											$emailSentMsg = __('Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)',"zero-bs-crm");						
@@ -1216,10 +1213,9 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 													$emailSentMsg .= "
 				".__('This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.',"zero-bs-crm");
 											}
-									
-									
-										} else if (substr($emailDebug,0,8) == 'success:'){
-											
+
+							} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 											$emailWasSent = true;								
 											$emailSentMsg .= __("Success! Your SMTP details are correct. (A test email was successfully sent)","zero-bs-crm");
 
@@ -1273,7 +1269,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 
 										#} Analysis of send - THIS ISN'T DRY
 										#success: or error:
-										if (substr($emailDebug,0,6) == 'error:'){
+							if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 											$emailWasSent = false;									
 											$emailSentMsg = __('Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)',"zero-bs-crm");						
@@ -1283,10 +1279,9 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 													$emailSentMsg .= "
 				".__('This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.',"zero-bs-crm");
 											}
-									
-									
-										} else if (substr($emailDebug,0,8) == 'success:'){
-											
+
+							} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 											$emailWasSent = true;								
 											$emailSentMsg .= __("Success! Your SMTP details are correct. (A test email was successfully sent)","zero-bs-crm");
 

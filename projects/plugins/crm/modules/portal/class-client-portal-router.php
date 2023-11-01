@@ -80,7 +80,7 @@ class Client_Portal_Router {
 	* @return  bool
 	*/
 	function jpcrm_is_easy_access_hash( $obj_id_or_hash='' ) {
-		return substr( $obj_id_or_hash, 0, 3 ) == 'zh-';
+		return str_starts_with( $obj_id_or_hash, 'zh-' );
 	}
 
 

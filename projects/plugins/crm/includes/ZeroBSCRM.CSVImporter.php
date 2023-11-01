@@ -372,11 +372,11 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						foreach ( $first_line_parts as $userField ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							// } Clean user field - ""
-							if ( substr( $userField, 0, 1 ) == '"' && substr( $userField, -1 ) == '"' ) {
+							if ( str_starts_with( $userField, '"' ) && str_ends_with( $userField, '"' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								$userField = substr( $userField, 1, strlen( $userField ) - 2 );
 							}
 							// } Clean user field - ''
-							if ( substr( $userField, 0, 1 ) == "'" && substr( $userField, -1 ) == "'" ) {
+							if ( str_starts_with( $userField, "'" ) && str_ends_with( $userField, "'" ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								$userField = substr( $userField, 1, strlen( $userField ) - 2 );
 							}
 
@@ -465,11 +465,11 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 							}
 
 							// Clean user field - ""
-							if ( substr( $fromStr, 0, 1 ) == '"' && substr( $fromStr, -1 ) == '"' ) {
+							if ( str_starts_with( $fromStr, '"' ) && str_ends_with( $fromStr, '"' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								$fromStr = substr( $fromStr, 1, strlen( $fromStr ) - 2 );
 							}
 							// Clean user field - ''
-							if ( substr( $fromStr, 0, 1 ) == "'" && substr( $fromStr, -1 ) == "'" ) {
+							if ( str_starts_with( $fromStr, "'" ) && str_ends_with( $fromStr, "'" ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								$fromStr = substr( $fromStr, 1, strlen( $fromStr ) - 2 );
 							}
 

@@ -1061,7 +1061,10 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 						// some weird case where getting empties, so added check
 						if (isset($field['key']) && !empty($field['key'])){ 
 
-							$dePrefixed = ''; if (substr($field['key'],0,strlen('zbsq_')) === 'zbsq_') $dePrefixed = substr($field['key'], strlen('zbsq_'));
+						$dePrefixed = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( str_starts_with( $field['key'], 'zbsq_' ) ) {
+							$dePrefixed = substr( $field['key'], strlen( 'zbsq_' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 
 							if (isset($customFields[$field['key']])){
 

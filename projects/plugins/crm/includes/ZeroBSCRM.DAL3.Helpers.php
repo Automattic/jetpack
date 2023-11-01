@@ -1376,7 +1376,7 @@ function zeroBSCRM_mergeCustomers($dominantID=-1,$slaveID=-1){
 
             				// ADDRESSES. Here we just use the foreach to check if the master has any secaddr fields
             				// just sets a flag used below in logic :)
-            				if (substr($fieldKey, 0, 8) == 'secaddr_'){
+						if ( str_starts_with( $fieldKey, 'secaddr_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             					// check presence (of any secaddr_ field)
             					if (isset($master[$fieldKey]) && !empty($master[$fieldKey])) $masterHasSecondAddr = true;
@@ -6915,8 +6915,10 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 		//SANITIZE
 		$hash = sanitize_text_field($hash); //sanitize it here
 
-        // if prefix still present, chunk off
-        if (substr($hash,0,3) == 'zh-') $hash = substr($hash,3);
+	// if prefix still present, chunk off
+	if ( str_starts_with( $hash, 'zh-' ) ) {
+		$hash = substr( $hash, 3 );
+	}
 
         // get if poss
         if (!empty($hash) && $objTypeID > 0){

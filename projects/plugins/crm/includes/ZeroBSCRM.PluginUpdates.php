@@ -647,7 +647,7 @@ class zeroBSCRM_Plugin_Updater {
 
 				if (
 					// something else we changed, changed this. Use first part of path now, not slug.
-					(is_array($extDeets) && isset($extDeets['path']) && substr($extDeets['path'], 0,strlen($slug)) == $slug)
+					( is_array( $extDeets ) && isset( $extDeets['path'] ) && str_starts_with( $extDeets['path'], $slug ) ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					) {
 
 					// simple return.
@@ -686,7 +686,7 @@ class zeroBSCRM_Plugin_Updater {
 					// is this it?
 					if (
 					// something else we changed, changed this. Use first part of path now, not slug.
-					(is_array($core) && isset($core['path']) && substr($core['path'], 0,strlen($slug)) == $slug)
+					( is_array( $core ) && isset( $core['path'] ) && str_starts_with( $core['path'], $slug ) )
 					) {
 
 						$x = $core;

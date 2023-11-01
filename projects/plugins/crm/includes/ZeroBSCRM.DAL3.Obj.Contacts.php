@@ -1539,7 +1539,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                         // where status = x
                         // USE hasStatus above now...
-                        if (substr($qFilter,0,7) == 'status_'){
+					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                             $qFilterStatus = substr($qFilter,7);
                             $qFilterStatus = str_replace('_',' ',$qFilterStatus);
@@ -1547,27 +1547,27 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                             // check status
                             $wheres['quickfilterstatus'] = array('zbsc_status','LIKE','%s',ucwords($qFilterStatus));
 
-                        } elseif ($qFilter == 'assigned_to_me'){
+					} elseif ( $qFilter === 'assigned_to_me' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                             $wheres['assigned_to_me'] = array( 'zbs_owner', '=', zeroBSCRM_user() );
 
-                        } elseif ($qFilter == 'not_assigned'){
+					} elseif ( $qFilter === 'not_assigned' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                             $wheres['not_assigned'] = array( 'zbs_owner', '<=', '0' );
 
-                        } elseif (substr($qFilter,0,14) == 'notcontactedin'){
+					} elseif ( str_starts_with( $qFilter, 'notcontactedin' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                                 // check
                                 $notcontactedinDays = (int)substr($qFilter,14);
                                 $notcontactedinDaysSeconds = $notcontactedinDays*86400;
                                 $wheres['notcontactedinx'] = array('zbsc_lastcontacted','<','%d',time()-$notcontactedinDaysSeconds);
 
-                        } elseif (substr($qFilter,0,9) == 'olderthan'){
+					} elseif ( str_starts_with( $qFilter, 'olderthan' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                                 // check
                                 $olderThanDays = (int)substr($qFilter,9);
                                 $olderThanDaysSeconds = $olderThanDays*86400;
                                 $wheres['olderthanx'] = array('zbsc_created','<','%d',time()-$olderThanDaysSeconds);
 
-                        } elseif (substr($qFilter,0,8) == 'segment_'){
+					} elseif ( str_starts_with( $qFilter, 'segment_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                             // a SEGMENT
                             $qFilterSegmentSlug = substr($qFilter,8);
@@ -1615,7 +1615,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                     }
 
 
-                        } else {
+					} else {
 
                                 // normal/hardtyped
 
@@ -1649,7 +1649,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
 
 
-                            } // / hardtyped
+					} // / hardtyped
 
                         }
 
@@ -2351,7 +2351,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                         // some weird case where getting empties, so added check
                         if (isset($field['key']) && !empty($field['key'])){ 
 
-                            $dePrefixed = ''; if (substr($field['key'],0,strlen('zbsc_')) === 'zbsc_') $dePrefixed = substr($field['key'], strlen('zbsc_'));
+						$dePrefixed = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( str_starts_with( $field['key'], 'zbsc_' ) ) {
+							$dePrefixed = substr( $field['key'], strlen( 'zbsc_' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 
                             if (isset($customFields[$field['key']])){
 
