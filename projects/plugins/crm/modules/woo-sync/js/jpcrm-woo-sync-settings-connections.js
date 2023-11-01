@@ -77,7 +77,7 @@ function jpcrm_woosync_bind_add_connection() {
 					// disallow duplicate URL
 					else if (
 						window.zbs_root.woosync_connections &&
-						window.zbs_root.woosync_connections.indexOf( site_url ) >= 0
+						window.zbs_root.woosync_connections.includes( site_url )
 					) {
 						// error, show notice
 						jQuery( '#jpcrm-woosync-connect-to-store-invalid-url-duplicate' ).removeClass(

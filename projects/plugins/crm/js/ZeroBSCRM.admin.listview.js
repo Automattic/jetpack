@@ -650,7 +650,7 @@ function jpcrm_listview_table_header() {
 		}
 
 		jQuery.each( window.zbsListViewParams.columns, function ( lvhInd, lvhEle ) {
-			if (zbsSortables && zbsSortables.indexOf( lvhEle.fieldstr ) > -1) {
+			if ( zbsSortables && zbsSortables.includes( lvhEle.fieldstr ) ) {
 				sortDirectionUrlParam = 'asc';
 				var sortDirection = 'down';
 				if (zbsListViewParams.sortorder && window.zbsListViewParams.sortorder === 'asc' && zbsListViewParams.sort && zbsListViewParams.sort === lvhEle.fieldstr) {
