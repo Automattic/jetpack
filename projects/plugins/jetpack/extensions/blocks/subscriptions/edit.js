@@ -323,8 +323,7 @@ export function SubscriptionEdit( props ) {
 				) }
 				{ showLogin && (
 					<p className="wp-block-jetpack-subscriptions__login has-text-align-center">
-						{ __( 'Already a subscriber?', 'jetpack' ) }{ ' ' }
-						<a href="#">{ __( 'Log in', 'jetpack' ) }</a>
+						<a href="#">{ __( "I'm already a subscriber", 'jetpack' ) }</a>
 					</p>
 				) }
 			</div>

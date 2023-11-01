@@ -703,31 +703,38 @@ function render_for_website( $data, $classes, $styles ) {
 							echo '<input type="hidden" name="post_id" value="' . esc_attr( $post_id ) . '"/>';
 						}
 
-						if ( ! empty( $tier_id ) ) {
-							echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
-						}
+							if ( ! empty( $tier_id ) ) {
+								echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
+							}
+							?>
+							<button type="submit"
+								<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
+									class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
+								<?php endif; ?>
+								<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
+									style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
+								<?php endif; ?>
+								name="jetpack_subscriptions_widget"
+							>
+								<?php echo esc_html( $button_text ); ?>
+							</button>
+						</p>
+					</div>
+				</form>
+				<?php if ( $data['show_subscribers_total'] && $data['subscribers_total'] ) : ?>
+					<div class="wp-block-jetpack-subscriptions__subscount">
+						<?php
+						echo esc_html( Jetpack_Memberships::get_join_others_text( $data['subscribers_total'] ) );
 						?>
-						<button type="submit"
-							<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
-								class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
-							<?php endif; ?>
-							<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
-								style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
-							<?php endif; ?>
-							name="jetpack_subscriptions_widget"
-						>
-							<?php echo sanitize_submit_text( $button_text ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-						</button>
-					</p>
-				</div>
-			</form>
-			<?php if ( $data['show_subscribers_total'] && $data['subscribers_total'] ) : ?>
-				<div class="wp-block-jetpack-subscriptions__subscount">
-					<?php
-					echo esc_html( Jetpack_Memberships::get_join_others_text( $data['subscribers_total'] ) );
-					?>
-				</div>
-			<?php endif; ?>
+					</div>
+				<?php endif; ?>
+				<?php
+				if ( $data['show_login'] && ! is_user_auth() ) {
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo get_subscriber_login_link( $post_access_level );
+				}
+				?>
+			</div>
 		</div>
 	</div>
 	<?php
@@ -961,36 +968,12 @@ function sanitize_submit_text( $text ) {
 }
 
 /**
- * Returns paywall content blocks if user is not authenticated
+ * Returns paywall or subscribe block login link
  *
  * @param string $newsletter_access_level The newsletter access level.
  * @return string
  */
-function get_paywall_blocks( $newsletter_access_level ) {
-	$custom_paywall = apply_filters( 'jetpack_custom_paywall_blocks', false );
-	if ( ! empty( $custom_paywall ) ) {
-		return $custom_paywall;
-	}
-	if ( ! jetpack_is_frontend() ) { // emails
-		return get_paywall_simple();
-	}
-	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
-	// Only display paid texts when Stripe is connected and the post is marked for paid subscribers
-	$is_paid_post       = $newsletter_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
-	$is_paid_subscriber = Jetpack_Memberships::user_is_paid_subscriber();
-
-	$access_heading = $is_paid_subscriber
-		? esc_html__( 'Upgrade to continue reading', 'jetpack' )
-		: esc_html__( 'Subscribe to continue reading', 'jetpack' );
-
-	$subscribe_text = $is_paid_post
-		// translators: %s is the name of the site.
-		? $is_paid_subscriber
-		? esc_html__( 'Upgrade to get access to the rest of this post and other exclusive content.', 'jetpack' )
-		: esc_html__( 'Become a paid subscriber to get access to the rest of this post and other exclusive content.', 'jetpack' )
-		// translators: %s is the name of the site.
-		: esc_html__( 'Subscribe to get access to the rest of this post and other subscriber-only content.', 'jetpack' );
-
+function get_subscriber_login_link( $newsletter_access_level ) {
 	$sign_in         = '';
 	$switch_accounts = '';
 	if ( is_user_auth() ) {
@@ -1021,6 +1004,40 @@ function get_paywall_blocks( $newsletter_access_level ) {
 <!-- /wp:paragraph -->';
 	}
 
+	return do_blocks( $sign_in . $switch_accounts );
+}
+
+/**
+ * Returns paywall content blocks if user is not authenticated
+ *
+ * @param string $newsletter_access_level The newsletter access level.
+ * @return string
+ */
+function get_paywall_blocks( $newsletter_access_level ) {
+	$custom_paywall = apply_filters( 'jetpack_custom_paywall_blocks', false );
+	if ( ! empty( $custom_paywall ) ) {
+		return $custom_paywall;
+	}
+	if ( ! jetpack_is_frontend() ) { // emails
+		return get_paywall_simple();
+	}
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+	// Only display paid texts when Stripe is connected and the post is marked for paid subscribers
+	$is_paid_post       = $newsletter_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
+	$is_paid_subscriber = Jetpack_Memberships::user_is_paid_subscriber();
+
+	$access_heading = $is_paid_subscriber
+		? esc_html__( 'Upgrade to continue reading', 'jetpack' )
+		: esc_html__( 'Subscribe to continue reading', 'jetpack' );
+
+	$subscribe_text = $is_paid_post
+		// translators: %s is the name of the site.
+		? $is_paid_subscriber
+		? esc_html__( 'Upgrade to get access to the rest of this post and other exclusive content.', 'jetpack' )
+		: esc_html__( 'Become a paid subscriber to get access to the rest of this post and other exclusive content.', 'jetpack' )
+		// translators: %s is the name of the site.
+		: esc_html__( 'Subscribe to get access to the rest of this post and other subscriber-only content.', 'jetpack' );
+
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
 
 	return '
@@ -1038,9 +1055,8 @@ function get_paywall_blocks( $newsletter_access_level ) {
 <p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:14px">' . $subscribe_text . '</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact","isPaidSubscriber":' . ( $is_paid_subscriber ? 'true' : 'false' ) . '} /-->
-' . $sign_in . '
-' . $switch_accounts . '
+<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact","isPaidSubscriber":' . ( $is_paid_subscriber ? 'true' : 'false' ) . ',"showLogin":true} /-->
+
 </div>
 <!-- /wp:group -->
 ';
