@@ -167,12 +167,8 @@ const ActionButton = ( {
 	// By default, we set the first "addition action" as the current action shown on the card.
 	// If there are none, set it to the status action.
 	useEffect( () => {
-		if ( hasAdditionalActions ) {
-			setCurrentAction( allActions[ 0 ] );
-		} else {
-			setCurrentAction( getStatusAction() );
-		}
-	}, [ additionalActions, getStatusAction, hasAdditionalActions, allActions ] );
+		setCurrentAction( allActions[ 0 ] );
+	}, [ allActions ] );
 
 	if ( ! admin ) {
 		return (

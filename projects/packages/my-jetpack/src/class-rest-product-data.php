@@ -76,11 +76,15 @@ class REST_Product_Data {
 	 * This will fetch the last rewindable event from the Activity Log and
 	 * the last rewind_id prior to that.
 	 *
-	 * @param int $page - numbered page of activity logs to fetch.
+	 * @param mixed $page - numbered page of activity logs to fetch.
 	 *
 	 * @return array|WP_Error
 	 */
-	public static function get_site_backup_undo_event( int $page = 1 ) {
+	public static function get_site_backup_undo_event( mixed $page = null ) {
+		if ( ! $page ) {
+			$page = 1;
+		}
+
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 
 		$response = Client::wpcom_json_api_request_as_user(
