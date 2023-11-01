@@ -123,7 +123,7 @@ abstract class Jetpack_Admin_Page {
 		if ( current_user_can( 'jetpack_connect' ) && $connectable ) {
 			$this->add_connection_banner_actions();
 		}
-		add_action( 'wp_head', array( $this, 'add_ios_smart_banner' ) );
+		add_action( 'admin_head', array( $this, 'add_ios_smart_banner' ) );
 	}
 
 	/**
