@@ -396,6 +396,17 @@ class Jetpack_AI_Helper {
 
 			$usage_period_requests_count = WPCOM\Jetpack_AI\Usage\Helper::get_current_period_requests_count( $blog_id );
 
+			/*
+			 * Get current tier value, a number representing
+			 * the current tier of the site.
+			 *
+			 * - 0 represents a site with the free plan.
+			 * - 1 represents a site with the current, unlimited plan.
+			 * - 100, 200, 500 represents a site with the new plans,
+			 * with the respective number of allowed requests.
+			 */
+			$current_tier_value = $has_ai_assistant_feature ? WPCOM\Jetpack_AI\Usage\Helper::get_tier_usage_quantity( $blog_id ) : 0;
+
 			// Check if the site requires an upgrade.
 			$require_upgrade = $is_over_limit && ! $has_ai_assistant_feature;
 
@@ -415,7 +426,7 @@ class Jetpack_AI_Helper {
 				'site-require-upgrade' => $require_upgrade,
 				'upgrade-type'         => $upgrade_type,
 				'current-tier'         => array(
-					'value' => $has_ai_assistant_feature ? 1 : 0,
+					'value' => $current_tier_value,
 				),
 			);
 		}
