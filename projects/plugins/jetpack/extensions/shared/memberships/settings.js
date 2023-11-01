@@ -306,6 +306,10 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 		} );
 	} );
 
+	const postNewsletterCategories = newsletterCategories.filter( category =>
+		postCategories.includes( category.id )
+	);
+
 	if ( isLoading ) {
 		return (
 			<Flex direction="column" align="center">
@@ -322,10 +326,10 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 				return __( 'This post will be sent to paid subscribers only.', 'jetpack' );
 			}
 		}
-		if ( newsletterCategories && newsletterCategories.length > 0 ) {
+		if ( hasNonNewsletterCategory || postNewsletterCategories?.length > 0 ) {
 			const categoryNames = hasNonNewsletterCategory
 				? __( "'All Content'", 'jetpack' )
-				: newsletterCategories.map( category => category.name ).join( ', ' );
+				: postNewsletterCategories.map( category => category.name ).join( ', ' );
 
 			return createInterpolateElement(
 				sprintf(
