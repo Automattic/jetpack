@@ -388,7 +388,20 @@ class Jetpack_AI_Helper {
 			/*
 			 * Usage since the last plan purchase day
 			 */
-			$current_period_requests_count = WPCOM\Jetpack_AI\Usage\Helper::get_current_period_requests_count( $blog_id );
+			$usage_period_start          = null;
+			$usage_next_period_start     = null;
+			$usage_period_requests_count = 0;
+
+			/*
+			 * Get current tier value, a number representing
+			 * the current tier of the site.
+			 *
+			 * - 0 represents a site with the free plan.
+			 * - 1 represents a site with the current, unlimited plan.
+			 * - 100, 200, 500 represents a site with the new plans,
+			 * with the respective number of allowed requests.
+			 */
+			$current_tier_value = $has_ai_assistant_feature ? 1 : 0;
 
 			// Check if the site requires an upgrade.
 			$require_upgrade = $is_over_limit && ! $has_ai_assistant_feature;
@@ -397,15 +410,19 @@ class Jetpack_AI_Helper {
 			$upgrade_type = wpcom_is_vip( $blog_id ) ? 'vip' : 'default';
 
 			return array(
-				'has-feature'                   => $has_ai_assistant_feature,
-				'is-over-limit'                 => $is_over_limit,
-				'requests-count'                => $requests_count,
-				'current-period-requests-count' => $current_period_requests_count,
-				'requests-limit'                => $requests_limit,
-				'site-require-upgrade'          => $require_upgrade,
-				'upgrade-type'                  => $upgrade_type,
-				'current-tier'                  => array(
-					'value' => $has_ai_assistant_feature ? 1 : 0,
+				'has-feature'          => $has_ai_assistant_feature,
+				'is-over-limit'        => $is_over_limit,
+				'requests-count'       => $requests_count,
+				'requests-limit'       => $requests_limit,
+				'usage-period'         => array(
+					'current-start'  => $usage_period_start,
+					'next-start'     => $usage_next_period_start,
+					'requests-count' => $usage_period_requests_count,
+				),
+				'site-require-upgrade' => $require_upgrade,
+				'upgrade-type'         => $upgrade_type,
+				'current-tier'         => array(
+					'value' => $current_tier_value,
 				),
 			);
 		}

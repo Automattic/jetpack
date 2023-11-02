@@ -20,11 +20,11 @@ export DEBIAN_FRONTEND=noninteractive
 
 # Determine packages to install.
 PKGS=(
-	"libapache2-mod-php${VER}"
 	"php${VER}"
 	"php${VER}-bcmath"
 	"php${VER}-cli"
 	"php${VER}-curl"
+	"php${VER}-fpm"
 	"php${VER}-intl"
 	"php${VER}-ldap"
 	"php${VER}-mbstring"

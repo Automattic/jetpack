@@ -33,6 +33,13 @@ class Jetpack_Memberships {
 	public static $post_type_plan = 'jp_mem_plan';
 
 	/**
+	 * Tier type for plans
+	 *
+	 * @var string
+	 */
+	public static $type_tier = 'tier';
+
+	/**
 	 * Option stores status for memberships (Stripe, etc.).
 	 *
 	 * @var string
@@ -677,32 +684,45 @@ class Jetpack_Memberships {
 		// We can retrieve the data directly except on a Jetpack/Atomic cached site or
 		$is_cached_site = ( new Host() )->is_wpcom_simple() && is_jetpack_site();
 		if ( ! $is_cached_site ) {
-			return get_posts(
-				array(
-					'posts_per_page' => -1,
-					'fields'         => 'ids',
-					'post_type'      => self::$post_type_plan,
-					'meta_query'     => array(
-						'relation' => 'AND',
-						array(
-							'key'   => 'jetpack_memberships_site_subscriber',
-							'value' => true,
+			return array_merge(
+				get_posts(
+					array(
+						'posts_per_page' => -1,
+						'fields'         => 'ids',
+						'post_type'      => self::$post_type_plan,
+						'meta_query'     => array(
+							'relation' => 'AND',
+							array(
+								'key'   => 'jetpack_memberships_site_subscriber',
+								'value' => true,
+							),
+							array(
+								'key'     => 'jetpack_memberships_interval',
+								'value'   => 'one-time',
+								'compare' => '!=',
+							),
 						),
-						array(
-							'key'     => 'jetpack_memberships_interval',
-							'value'   => 'one-time',
-							'compare' => '!=',
-						),
-					),
+					)
+				),
+				get_posts(
+					array(
+						'posts_per_page' => -1,
+						'fields'         => 'ids',
+						'post_type'      => self::$post_type_plan,
+						'meta_key'       => 'jetpack_memberships_type',
+						'meta_value'     => self::$type_tier,
+					)
 				)
 			);
 
 		} else {
 			// On cached site on WPCOM
 			require_lib( 'memberships' );
-			$only_newsletter = true;
-			$allow_deleted   = true;
-			$list            = Memberships_Product::get_product_list( get_current_blog_id(), null, null, $only_newsletter, $allow_deleted );
+			$only_tiers    = true;
+			$allow_deleted = true;
+			// In https://github.com/Automattic/gold/issues/190, it needs to be changed to
+			// Memberships_Product::get_product_list( $this->blog_id, Membership_Product::TIER_TYPE)
+			$list = Memberships_Product::get_product_list( get_current_blog_id(), null, null, $only_tiers, $allow_deleted );
 
 			return array_map(
 				function ( $product ) {

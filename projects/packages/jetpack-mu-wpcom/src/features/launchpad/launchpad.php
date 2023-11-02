@@ -199,6 +199,18 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => '__return_true',
 		),
+		'host-site'              => array(
+			'title'               => 'Hosting Flow',
+			'task_ids'            => array(
+				'site_theme_selected',
+				'install_custom_plugin',
+				'setup_ssh',
+				'verify_email',
+				'site_monitoring_page',
+				'site_launched',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_is_hosting_flow_enabled',
+		),
 	);
 
 	$extended_task_list_definitions = apply_filters( 'wpcom_launchpad_extended_task_list_definitions', array() );
@@ -884,6 +896,15 @@ function wpcom_launchpad_is_keep_building_enabled() {
 	}
 
 	return false;
+}
+
+/**
+ * Checks if the hosting flow task list is enabled.
+ *
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_launchpad_is_hosting_flow_enabled() {
+	return apply_filters( 'is_launchpad_intent_hosting_enabled', false );
 }
 
 /**

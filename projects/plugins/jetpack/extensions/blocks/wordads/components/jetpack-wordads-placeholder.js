@@ -1,6 +1,9 @@
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Placeholder, ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { icon, title } from '..';
+import metadata from '../block.json';
+
+const icon = getBlockIconComponent( metadata );
 
 export const WordAdsPlaceholder = ( { changeStatus, isLoading, isModuleActive } ) => {
 	return (
@@ -10,7 +13,7 @@ export const WordAdsPlaceholder = ( { changeStatus, isLoading, isModuleActive } 
 				"You'll need to activate the WordAds feature to use this block.",
 				'jetpack'
 			) }
-			label={ title }
+			label={ metadata.title }
 		>
 			<Button
 				disabled={ isModuleActive || isLoading }
