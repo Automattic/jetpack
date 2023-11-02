@@ -23,7 +23,7 @@ const MyCssMinimizerPlugin = options => new CssMinimizerPlugin( options );
 const isProduction = process.env.NODE_ENV === 'production';
 const isDevelopment = ! isProduction;
 const mode = isProduction ? 'production' : 'development';
-const devtool = isProduction ? false : 'eval-cheap-module-source-map';
+const devtool = isProduction ? false : 'source-map';
 const output = {
 	filename: '[name].js',
 	chunkFilename: '[name].js?minify=false&ver=[contenthash]',
