@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix Assistant not showing Jetpack header on some Assistant routes.

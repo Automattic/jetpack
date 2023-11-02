@@ -241,13 +241,6 @@ function zeroBS_setCustomerWPID($cID=-1,$wpID=-1){
 
 }
 
-function zeroBS_getCustomerOwner($customerID=-1){
-
-	// Actually, this one is more accurate, as returns obj :) global $zbs; return $zbs->DAL->contacts->getContactOwner($customerID);
-	return zeroBS_getOwner($customerID,true,'zerobs_customer');
-
-}
-
 function zeroBSCRM_getCustomerTags($hide_empty=false){
 	
 	global $zbs; 
@@ -1183,20 +1176,42 @@ function zeroBS_getOwner($objID=-1,$withDeets=true,$objType=-1,$knownOwnerID=-1)
 	return false;
 }
 
-function zeroBS_getOwnerObj($wpUserID=-1,$simpleUserData=true){
+/**
+ * Retrieves the owner object based on a given WP user ID.
+ *
+ * This function gets the owner's data without revealing sensitive information
+ * (e.g. `user_pass`).
+ *
+ * @param int $wp_user_id The WordPress user ID. Default is -1.
+ *
+ * @return array|bool Returns an associative array containing the 'ID' and 'OBJ' (user data object) if successful, false otherwise.
+ */
+function zeroBS_getOwnerObj( $wp_user_id = -1 ) {
+	if ( $wp_user_id > 0 ) {
 
-	if ($wpUserID !== -1){
+		$user = get_userdata( $wp_user_id );
 
-		if ($simpleUserData)
-			$data = zeroBS_getWPUserSimple($wpUserID);
-		else
-			$data = get_userdata($wpUserID);
+		if ( ! isset( $user->ID ) || ! isset( $user->data ) ) {
+			return false;
+		}
+
+		/**
+		 * Ideally we'd restructure this, but the return result is used extensively,
+		 * particularly from `zeroBS_getOwner` calls. For now we'll explicitly set what
+		 * fields are provided (e.g. don't show `user_pass`).
+		 */
+		$user_data = (object) array(
+			'ID'            => $user_data->data->ID,
+			'user_login'    => $user_data->data->user_login,
+			'user_nicename' => $user_data->data->user_nicename,
+			'display_name'  => $user_data->data->display_name,
+		);
 
 		return array(
 
-						'ID'=> $wpUserID,
-						'OBJ'=> $data
-				);
+			'ID'  => $wp_user_id,
+			'OBJ' => $user_data,
+		);
 
 	}
 
@@ -5917,9 +5932,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 
 			global $zbs;
 
-				// legacy from dal1
 				$actualPage = $page;
-				if (!$zbs->isDAL2()) $actualPage = $page-1;  // only DAL1 needed this
 				if ($actualPage < 0) $actualPage = 0;
 
 				// make ARGS
@@ -7844,19 +7857,6 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 			}
 			return false;
 		}
-	}
-
-	// Simplifies the data to be returned by get_userdata
-	function zeroBS_getWPUserSimple($wpUserID=-1){
-
-		if ($wpUserID > 0){
-			
-			$d = get_userdata($wpUserID);
-
-			if (isset($d->ID) && isset($d->data)) return $d->data;
-		}
-
-		return false;
 	}
 
 	/*

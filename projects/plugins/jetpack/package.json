@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack",
-	"version": "12.8.0-a.4",
+	"version": "12.8.0-a.12",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -127,8 +127,8 @@
 		"@testing-library/react": "13.4.0",
 		"@testing-library/user-event": "14.4.3",
 		"@types/jest": "29.2.5",
-		"@types/react": "18.2.19",
-		"@types/wordpress__block-editor": "11.5.1",
+		"@types/react": "18.2.33",
+		"@types/wordpress__block-editor": "11.5.6",
 		"@wordpress/api-fetch": "6.41.0",
 		"@wordpress/babel-plugin-import-jsx-pragma": "4.27.0",
 		"@wordpress/blob": "3.44.0",

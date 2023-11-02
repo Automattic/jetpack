@@ -85,7 +85,6 @@ const supportedModules = [
 	'masterbar',
 	'videopress',
 	'comment-likes',
-	'lazy-images',
 	'scan',
 	'wordads',
 	'theme-tools/responsive-videos',

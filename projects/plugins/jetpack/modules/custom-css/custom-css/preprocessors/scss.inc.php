@@ -4,19 +4,19 @@
  *
  * @copyright 2012-2013 Leaf Corcoran
  *
- * @license https://opensource.org/licenses/gpl-license GPL-3.0
- * @license https://opensource.org/licenses/MIT MIT
+ * @license http://opensource.org/licenses/gpl-license GPL-3.0
+ * @license http://opensource.org/licenses/MIT MIT
  *
- * @link https://leafo.net/scssphp
+ * @link http://leafo.net/scssphp
  */
 
 /**
  * The scss compiler and parser.
  *
  * Converting SCSS to CSS is a three stage process. The incoming file is parsed
- * by `scssc_parser` into a syntax tree, then it is compiled into another tree
+ * by `scss_parser` into a syntax tree, then it is compiled into another tree
  * representing the CSS structure by `scssc`. The CSS tree is fed into a
- * formatter, like `scssc_formatter` which then outputs CSS as a string.
+ * formatter, like `scss_formatter` which then outputs CSS as a string.
  *
  * During the first compile, all values are *reduced*, which means that their
  * types are brought to the lowest form before being dump as strings. This
@@ -31,9 +31,9 @@
  * evaluation context, such as all available mixins and variables at any given
  * time.
  *
- * The `scssc_parser` class is only concerned with parsing its input.
+ * The `scss_parser` class is only concerned with parsing its input.
  *
- * The `scssc_formatter` takes a CSS tree, and dumps it to a formatted string,
+ * The `scss_formatter` takes a CSS tree, and dumps it to a formatted string,
  * handling things like indentation.
  */
 
@@ -43,7 +43,7 @@
  * @author Leaf Corcoran <leafot@gmail.com>
  */
 class scssc {
-	static public $VERSION = "v0.0.9";
+	static public $VERSION = 'v0.0.12';
 
 	static protected $operatorNames = array(
 		'+' => "add",
@@ -89,34 +89,48 @@ class scssc {
 	protected $importCache = array();
 
 	protected $userFunctions = array();
+	protected $registeredVars = array();
 
 	protected $numberPrecision = 5;
 
 	protected $formatter = "scss_formatter_nested";
 
-	public function compile($code, $name=null) {
-		$this->indentLevel = -1;
+	/**
+	 * Compile scss
+	 *
+	 * @param string $code
+	 * @param string $name
+	 *
+	 * @return string
+	 */
+	public function compile($code, $name = null)
+	{
+		$this->indentLevel  = -1;
 		$this->commentsSeen = array();
-		$this->extends = array();
-		$this->extendsMap = array();
+		$this->extends      = array();
+		$this->extendsMap   = array();
+		$this->parsedFiles  = array();
+		$this->env          = null;
+		$this->scope        = null;
 
 		$locale = setlocale(LC_NUMERIC, 0);
 		setlocale(LC_NUMERIC, "C");
 
-		$this->parsedFiles = array();
 		$this->parser = new scss_parser($name);
+
 		$tree = $this->parser->parse($code);
 
 		$this->formatter = new $this->formatter();
 
-		$this->env = null;
-		$this->scope = null;
-
+		$this->pushEnv($tree);
+		$this->injectVariables($this->registeredVars);
 		$this->compileRoot($tree);
+		$this->popEnv();
 
 		$out = $this->formatter->format($this->scope);
 
 		setlocale(LC_NUMERIC, $locale);
+
 		return $out;
 	}
 
@@ -306,47 +320,50 @@ class scssc {
 		}
 	}
 
-	protected function compileRoot($rootBlock) {
-		$this->pushEnv($rootBlock);
-		$this->scope = $this->makeOutputBlock("root");
+	protected function compileRoot($rootBlock)
+	{
+		$this->scope = $this->makeOutputBlock('root');
 
 		$this->compileChildren($rootBlock->children, $this->scope);
 		$this->flattenSelectors($this->scope);
-
-		$this->popEnv();
 	}
 
 	protected function compileMedia($media) {
 		$this->pushEnv($media);
-		$parentScope = $this->mediaParent($this->scope);
 
-		$this->scope = $this->makeOutputBlock("media", array(
-			$this->compileMediaQuery($this->multiplyMedia($this->env)))
-		);
+		$mediaQuery = $this->compileMediaQuery($this->multiplyMedia($this->env));
 
-		$parentScope->children[] = $this->scope;
+		if (!empty($mediaQuery)) {
 
-		// top level properties in a media cause it to be wrapped
-		$needsWrap = false;
-		foreach ($media->children as $child) {
-			$type = $child[0];
-			if ($type !== 'block' && $type !== 'media' && $type !== 'directive') {
-				$needsWrap = true;
-				break;
+			$this->scope = $this->makeOutputBlock("media", array($mediaQuery));
+
+			$parentScope = $this->mediaParent($this->scope);
+
+			$parentScope->children[] = $this->scope;
+
+			// top level properties in a media cause it to be wrapped
+			$needsWrap = false;
+			foreach ($media->children as $child) {
+				$type = $child[0];
+				if ($type !== 'block' && $type !== 'media' && $type !== 'directive') {
+					$needsWrap = true;
+					break;
+				}
 			}
+
+			if ($needsWrap) {
+				$wrapped = (object)array(
+					"selectors" => array(),
+					"children" => $media->children
+				);
+				$media->children = array(array("block", $wrapped));
+			}
+
+			$this->compileChildren($media->children, $this->scope);
+
+			$this->scope = $this->scope->parent;
 		}
 
-		if ($needsWrap) {
-			$wrapped = (object)array(
-				"selectors" => array(),
-				"children" => $media->children
-			);
-			$media->children = array(array("block", $wrapped));
-		}
-
-		$this->compileChildren($media->children, $this->scope);
-
-		$this->scope = $this->scope->parent;
 		$this->popEnv();
 	}
 
@@ -492,7 +509,7 @@ class scssc {
 	protected function compileChildren($stms, $out) {
 		foreach ($stms as $stm) {
 			$ret = $this->compileChild($stm, $out);
-			if (!is_null($ret)) return $ret;
+			if (isset($ret)) return $ret;
 		}
 	}
 
@@ -500,11 +517,19 @@ class scssc {
 		$out = "@media";
 		$first = true;
 		foreach ($queryList as $query){
+			$type = null;
 			$parts = array();
 			foreach ($query as $q) {
 				switch ($q[0]) {
 					case "mediaType":
-						$parts[] = implode(" ", array_map(array($this, "compileValue"), array_slice($q, 1)));
+						if ($type) {
+							$type = $this->mergeMediaTypes($type, array_map(array($this, "compileValue"), array_slice($q, 1)));
+							if (empty($type)) { // merge failed
+								return null;
+							}
+						} else {
+							$type = array_map(array($this, "compileValue"), array_slice($q, 1));
+						}
 						break;
 					case "mediaExp":
 						if (isset($q[2])) {
@@ -514,6 +539,9 @@ class scssc {
 						}
 						break;
 				}
+			}
+			if ($type) {
+				array_unshift($parts, implode(' ', array_filter($type)));
 			}
 			if (!empty($parts)) {
 				if ($first) {
@@ -526,6 +554,50 @@ class scssc {
 			}
 		}
 		return $out;
+	}
+
+	protected function mergeMediaTypes($type1, $type2) {
+		if (empty($type1)) {
+			return $type2;
+		}
+		if (empty($type2)) {
+			return $type1;
+		}
+		$m1 = '';
+		$t1 = '';
+		if (count($type1) > 1) {
+			$m1= strtolower($type1[0]);
+			$t1= strtolower($type1[1]);
+		} else {
+			$t1 = strtolower($type1[0]);
+		}
+		$m2 = '';
+		$t2 = '';
+		if (count($type2) > 1) {
+			$m2 = strtolower($type2[0]);
+			$t2 = strtolower($type2[1]);
+		} else {
+			$t2 = strtolower($type2[0]);
+		}
+		if (($m1 == 'not') ^ ($m2 == 'not')) {
+			if ($t1 == $t2) {
+				return null;
+			}
+			return array(
+				$m1 == 'not' ? $m2 : $m1,
+				$m1 == 'not' ? $t2 : $t1
+			);
+		} elseif ($m1 == 'not' && $m2 == 'not') {
+			# CSS has no way of representing "neither screen nor print"
+			if ($t1 != $t2) {
+				return null;
+			}
+			return array('not', $t1);
+		} elseif ($t1 != $t2) {
+			return null;
+		} else { // t1 == t2, neither m1 nor m2 are "not"
+			return array(empty($m1)? $m2 : $m1, $t1);
+		}
 	}
 
 	// returns true if the value was something that could be imported
@@ -718,12 +790,12 @@ class scssc {
 				$this->env->depth--;
 			}
 
-			if (!is_null($content)) {
+			if (isset($content)) {
 				$content->scope = $callingScope;
 				$this->setRaw(self::$namespaces["special"] . "content", $content);
 			}
 
-			if (!is_null($mixin->args)) {
+			if (isset($mixin->args)) {
 				$this->applyArguments($mixin->args, $argValues);
 			}
 
@@ -736,7 +808,7 @@ class scssc {
 			break;
 		case "mixin_content":
 			$content = $this->get(self::$namespaces["special"] . "content");
-			if (is_null($content)) {
+			if (!isset($content)) {
 				$this->throwError("Expected @content inside of mixin");
 			}
 
@@ -870,7 +942,7 @@ class scssc {
 						$out = $this->$fn($left, $right, $shouldEval);
 					}
 
-					if (!is_null($out)) {
+					if (isset($out)) {
 						if ($unitChange && $out[0] == "number") {
 							$out = $this->coerceUnit($out, $targetUnit);
 						}
@@ -946,7 +1018,7 @@ class scssc {
 					$ret = $this->compileChildren($func->children, $tmp);
 					$this->popEnv();
 
-					return is_null($ret) ? self::$defaultValue : $ret;
+					return !isset($ret) ? self::$defaultValue : $ret;
 				}
 
 				// built in function
@@ -1323,7 +1395,7 @@ class scssc {
 	}
 
 	protected function multiplyMedia($env, $childQueries = null) {
-		if (is_null($env) ||
+		if (!isset($env) ||
 			!empty($env->block->type) && $env->block->type != "media")
 		{
 			return $childQueries;
@@ -1353,11 +1425,11 @@ class scssc {
 
 	// convert something to list
 	protected function coerceList($item, $delim = ",") {
-		if (!is_null($item) && $item[0] == "list") {
+		if (isset($item) && $item[0] == "list") {
 			return $item;
 		}
 
-		return array("list", $delim, is_null($item) ? array(): array($item));
+		return array("list", $delim, !isset($item) ? array(): array($item));
 	}
 
 	protected function applyArguments($argDef, $argValues) {
@@ -1460,9 +1532,9 @@ class scssc {
 	}
 
 	protected function setExisting($name, $value, $env = null) {
-		if (is_null($env)) $env = $this->getStoreEnv();
+		if (!isset($env)) $env = $this->getStoreEnv();
 
-		if (isset($env->store[$name]) || is_null($env->parent)) {
+		if (isset($env->store[$name]) || !isset($env->parent)) {
 			$env->store[$name] = $value;
 		} else {
 			$this->setExisting($name, $value, $env->parent);
@@ -1477,8 +1549,8 @@ class scssc {
 	public function get($name, $defaultValue = null, $env = null) {
 		$name = $this->normalizeName($name);
 
-		if (is_null($env)) $env = $this->getStoreEnv();
-		if (is_null($defaultValue)) $defaultValue = self::$defaultValue;
+		if (!isset($env)) $env = $this->getStoreEnv();
+		if (!isset($defaultValue)) $defaultValue = self::$defaultValue;
 
 		if (isset($env->store[$name])) {
 			return $env->store[$name];
@@ -1487,6 +1559,54 @@ class scssc {
 		}
 
 		return $defaultValue; // found nothing
+	}
+
+	protected function injectVariables(array $args)
+	{
+		if (empty($args)) {
+			return;
+		}
+
+		$parser = new scss_parser(__METHOD__, false);
+
+		foreach ($args as $name => $strValue) {
+			if ($name[0] === '$') {
+				$name = substr($name, 1);
+			}
+
+			$parser->env             = null;
+			$parser->count           = 0;
+			$parser->buffer          = (string) $strValue;
+			$parser->inParens        = false;
+			$parser->eatWhiteDefault = true;
+			$parser->insertComments  = true;
+
+			if ( ! $parser->valueList($value)) {
+				throw new Exception("failed to parse passed in variable $name: $strValue");
+			}
+
+			$this->set($name, $value);
+		}
+	}
+
+	/**
+	 * Set variables
+	 *
+	 * @param array $variables
+	 */
+	public function setVariables(array $variables)
+	{
+		$this->registeredVars = array_merge($this->registeredVars, $variables);
+	}
+
+	/**
+	 * Unset variable
+	 *
+	 * @param string $name
+	 */
+	public function unsetVariable($name)
+	{
+		unset($this->registeredVars[$name]);
 	}
 
 	protected function popEnv() {
@@ -1588,9 +1708,8 @@ class scssc {
 		$name = $this->normalizeName($name);
 		$libName = "lib_".$name;
 		$f = array($this, $libName);
-		$prototype = isset(self::$$libName) ? self::$$libName : null;
-
 		if (is_callable($f)) {
+			$prototype = isset(self::$$libName) ? self::$$libName : null;
 			$sorted = $this->sortArgs($prototype, $args);
 			foreach ($sorted as &$val) {
 				$val = $this->reduce($val, true);
@@ -1639,7 +1758,7 @@ class scssc {
 			}
 		}
 
-		if (is_null($prototype)) return $posArgs;
+		if (!isset($prototype)) return $posArgs;
 
 		$finalArgs = array();
 		foreach ($prototype as $i => $names) {
@@ -1679,10 +1798,10 @@ class scssc {
 		case "keyword":
 			$name = $value[1];
 			if (isset(self::$cssColors[$name])) {
-				@list($r, $g, $b, $a) = explode(',', self::$cssColors[$name]);
-				return isset($a)
-					? array('color', (int) $r, (int) $g, (int) $b, (int) $a)
-					: array('color', (int) $r, (int) $g, (int) $b);
+				$rgba = explode(',', self::$cssColors[$name]);
+				return isset($rgba[3])
+					? array('color', (int) $rgba[0], (int) $rgba[1], (int) $rgba[2], (int) $rgba[3])
+					: array('color', (int) $rgba[0], (int) $rgba[1], (int) $rgba[2]);
 			}
 			return null;
 		}
@@ -1738,32 +1857,30 @@ class scssc {
 	}
 
 	public function toHSL($red, $green, $blue) {
-		$r = $red / 255;
-		$g = $green / 255;
-		$b = $blue / 255;
+		$min = min($red, $green, $blue);
+		$max = max($red, $green, $blue);
 
-		$min = min($r, $g, $b);
-		$max = max($r, $g, $b);
-		$d = $max - $min;
-		$l = ($min + $max) / 2;
+		$l = $min + $max;
 
 		if ($min == $max) {
 			$s = $h = 0;
 		} else {
-			if ($l < 0.5)
-				$s = $d / (2 * $l);
-			else
-				$s = $d / (2 - 2 * $l);
+			$d = $max - $min;
 
-			if ($r == $max)
-				$h = 60 * ($g - $b) / $d;
-			elseif ($g == $max)
-				$h = 60 * ($b - $r) / $d + 120;
-			elseif ($b == $max)
-				$h = 60 * ($r - $g) / $d + 240;
+			if ($l < 255)
+				$s = $d / $l;
+			else
+				$s = $d / (510 - $l);
+
+			if ($red == $max)
+				$h = 60 * ($green - $blue) / $d;
+			elseif ($green == $max)
+				$h = 60 * ($blue - $red) / $d + 120;
+			elseif ($blue == $max)
+				$h = 60 * ($red - $green) / $d + 240;
 		}
 
-		return array('hsl', fmod($h, 360), $s * 100, $l * 100);
+		return array('hsl', fmod($h, 360), $s * 100, $l / 5.1);
 	}
 
 	public function hueToRGB($m1, $m2, $h) {
@@ -1810,7 +1927,7 @@ class scssc {
 	protected static $lib_if = array("condition", "if-true", "if-false");
 	protected function lib_if($args) {
 		list($cond,$t, $f) = $args;
-		if ($cond == self::$false) return $f;
+		if (!$this->isTruthy($cond)) return $f;
 		return $t;
 	}
 
@@ -1839,7 +1956,7 @@ class scssc {
 		"green", "blue", "alpha");
 	protected function lib_rgba($args) {
 		if ($color = $this->coerceColor($args[0])) {
-			$num = is_null($args[1]) ? $args[3] : $args[1];
+			$num = !isset($args[1]) ? $args[3] : $args[1];
 			$alpha = $this->assertNumber($num);
 			$color[4] = $alpha;
 			return $color;
@@ -1854,7 +1971,7 @@ class scssc {
 		$color = $this->assertColor($args[0]);
 
 		foreach (array(1,2,3,7) as $i) {
-			if (!is_null($args[$i])) {
+			if (isset($args[$i])) {
 				$val = $this->assertNumber($args[$i]);
 				$ii = $i == 7 ? 4 : $i; // alpha
 				$color[$ii] =
@@ -1862,10 +1979,10 @@ class scssc {
 			}
 		}
 
-		if (!is_null($args[4]) || !is_null($args[5]) || !is_null($args[6])) {
+		if (isset($args[4]) || isset($args[5]) || isset($args[6])) {
 			$hsl = $this->toHSL($color[1], $color[2], $color[3]);
 			foreach (array(4,5,6) as $i) {
-				if (!is_null($args[$i])) {
+				if (isset($args[$i])) {
 					$val = $this->assertNumber($args[$i]);
 					$hsl[$i - 3] = $this->$fn($hsl[$i - 3], $val, $i);
 				}
@@ -1983,7 +2100,7 @@ class scssc {
 		$first = $this->assertColor($first);
 		$second = $this->assertColor($second);
 
-		if (is_null($weight)) {
+		if (!isset($weight)) {
 			$weight = 0.5;
 		} else {
 			$weight = $this->coercePercent($weight);
@@ -2258,7 +2375,7 @@ class scssc {
 	}
 
 	protected function listSeparatorForJoin($list1, $sep) {
-		if (is_null($sep)) return $list1[1];
+		if (!isset($sep)) return $list1[1];
 		switch ($this->compileValue($sep)) {
 		case "comma":
 			return ",";
@@ -2380,7 +2497,7 @@ class scssc {
 	/**
 	 * CSS Colors
 	 *
-	 * @see https://www.w3.org/TR/css-color-4/
+	 * @see http://www.w3.org/TR/css3-color
 	 */
 	static protected $cssColors = array(
 		'aliceblue' => '240,248,255',
@@ -2502,7 +2619,6 @@ class scssc {
 		'plum' => '221,160,221',
 		'powderblue' => '176,224,230',
 		'purple' => '128,0,128',
-		'rebeccapurple' => '102,51,153',
 		'red' => '255,0,0',
 		'rosybrown' => '188,143,143',
 		'royalblue' => '65,105,225',
@@ -2571,6 +2687,12 @@ class scss_parser {
 	static protected $commentMultiLeft = "/*";
 	static protected $commentMultiRight = "*/";
 
+	/**
+	 * Constructor
+	 *
+	 * @param string  $sourceName
+	 * @param boolean $rootParser
+	 */
 	public function __construct($sourceName = null, $rootParser = true) {
 		$this->sourceName = $sourceName;
 		$this->rootParser = $rootParser;
@@ -2591,27 +2713,38 @@ class scss_parser {
 			$operators)).')';
 	}
 
-	public function parse($buffer) {
-		$this->count = 0;
-		$this->env = null;
-		$this->inParens = false;
-		$this->pushBlock(null); // root block
+	/**
+	 * Parser buffer
+	 *
+	 * @param string $buffer;
+	 *
+	 * @return \StdClass
+	 */
+	public function parse($buffer)
+	{
+		$this->count           = 0;
+		$this->env             = null;
+		$this->inParens        = false;
 		$this->eatWhiteDefault = true;
-		$this->insertComments = true;
+		$this->insertComments  = true;
+		$this->buffer          = $buffer;
 
-		$this->buffer = $buffer;
-
+		$this->pushBlock(null); // root block
 		$this->whitespace();
-		while (false !== $this->parseChunk());
 
-		if ($this->count != strlen($this->buffer))
+		while (false !== $this->parseChunk())
+			;
+
+		if ($this->count != strlen($this->buffer)) {
 			$this->throwParseError();
+		}
 
 		if (!empty($this->env->parent)) {
 			$this->throwParseError("unclosed block");
 		}
 
-		$this->env->isRoot = true;
+		$this->env->isRoot    = true;
+
 		return $this->env;
 	}
 
@@ -2813,7 +2946,7 @@ class scss_parser {
 			}
 
 			$last = $this->last();
-			if (!is_null($last) && $last[0] == "if") {
+			if (isset($last) && $last[0] == "if") {
 				list(, $if) = $last;
 				if ($this->literal("@else")) {
 					if ($this->literal("{")) {
@@ -2967,7 +3100,7 @@ class scss_parser {
 	}
 
 	protected function literal($what, $eatWhitespace = null) {
-		if (is_null($eatWhitespace)) $eatWhitespace = $this->eatWhiteDefault;
+		if (!isset($eatWhitespace)) $eatWhitespace = $this->eatWhiteDefault;
 
 		// shortcut on single letter
 		if (!isset($what[1]) && isset($this->buffer[$this->count])) {
@@ -3115,13 +3248,21 @@ class scss_parser {
 		return false;
 	}
 
-
-	protected function valueList(&$out) {
-		return $this->genericList($out, "spaceList", ",");
+	/**
+	 * Parse list
+	 *
+	 * @param string $out
+	 *
+	 * @return boolean
+	 */
+	public function valueList(&$out)
+	{
+		return $this->genericList($out, 'spaceList', ',');
 	}
 
-	protected function spaceList(&$out) {
-		return $this->genericList($out, "expression");
+	protected function spaceList(&$out)
+	{
+		return $this->genericList($out, 'expression');
 	}
 
 	protected function genericList(&$out, $parseItem, $delim="", $flatten=true) {
@@ -3896,7 +4037,7 @@ class scss_parser {
 	}
 
 	public function throwParseError($msg = "parse error", $count = null) {
-		$count = is_null($count) ? $this->count : $count;
+		$count = !isset($count) ? $this->count : $count;
 
 		$line = $this->getLineNo($count);
 
@@ -3931,7 +4072,7 @@ class scss_parser {
 		$token = null;
 
 		$end = strpos($this->buffer, "\n", $this->count);
-		if ($end === false) {
+		if ($end === false || $this->buffer[$end - 1] == '\\' || $this->buffer[$end - 2] == '\\' && $this->buffer[$end - 1] == "\r") {
 			$end = strlen($this->buffer);
 		}
 
@@ -3961,7 +4102,7 @@ class scss_parser {
 
 	// try to match something on head of buffer
 	protected function match($regex, &$out, $eatWhitespace = null) {
-		if (is_null($eatWhitespace)) $eatWhitespace = $this->eatWhiteDefault;
+		if (!isset($eatWhitespace)) $eatWhitespace = $this->eatWhiteDefault;
 
 		$r = '/'.$regex.'/Ais';
 		if (preg_match($r, $this->buffer, $out, null, $this->count)) {
@@ -3989,7 +4130,7 @@ class scss_parser {
 	}
 
 	protected function peek($regex, &$out, $from=null) {
-		if (is_null($from)) $from = $this->count;
+		if (!isset($from)) $from = $this->count;
 
 		$r = '/'.$regex.'/Ais';
 		$result = preg_match($r, $this->buffer, $out, null, $from);
@@ -4295,6 +4436,26 @@ class scss_server {
 	}
 
 	/**
+	 * Get If-Modified-Since header from client request
+	 *
+	 * @return string
+	 */
+	protected function getModifiedSinceHeader()
+	{
+		$modifiedSince = '';
+
+		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+			$modifiedSince = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
+
+			if (false !== ($semicolonPos = strpos($modifiedSince, ';'))) {
+				$modifiedSince = substr($modifiedSince, 0, $semicolonPos);
+			}
+		}
+
+		return $modifiedSince;
+	}
+
+	/**
 	 * Compile .scss file
 	 *
 	 * @param string $in  Input path (.scss)
@@ -4308,7 +4469,7 @@ class scss_server {
 		$elapsed = round((microtime(true) - $start), 4);
 
 		$v = scssc::$VERSION;
-		$t = date('r');
+		$t = @date('r');
 		$css = "/* compiled by scssphp $v on $t (${elapsed}s) */\n\n" . $css;
 
 		file_put_contents($out, $css);
@@ -4323,27 +4484,56 @@ class scss_server {
 	 * @param string $salt Prefix a string to the filename for creating the cache name hash
 	 */
 	public function serve($salt = '') {
+		$protocol = isset($_SERVER['SERVER_PROTOCOL'])
+			? $_SERVER['SERVER_PROTOCOL']
+			: 'HTTP/1.0';
+
 		if ($input = $this->findInput()) {
 			$output = $this->cacheName($salt . $input);
-			header('Content-type: text/css');
 
 			if ($this->needsCompile($input, $output)) {
 				try {
-					echo $this->compile($input, $output);
+					$css = $this->compile($input, $output);
+
+					$lastModified = gmdate('D, d M Y H:i:s', filemtime($output)) . ' GMT';
+
+					header('Last-Modified: ' . $lastModified);
+					header('Content-type: text/css');
+
+					echo $css;
+
+					return;
 				} catch (Exception $e) {
-					header('HTTP/1.1 500 Internal Server Error');
+					header($protocol . ' 500 Internal Server Error');
+					header('Content-type: text/plain');
+
 					echo 'Parse error: ' . $e->getMessage() . "\n";
 				}
-			} else {
-				header('X-SCSS-Cache: true');
-				echo file_get_contents($output);
 			}
+
+			header('X-SCSS-Cache: true');
+			header('Content-type: text/css');
+
+			$modifiedSince = $this->getModifiedSinceHeader();
+			$mtime = filemtime($output);
+
+			if (@strtotime($modifiedSince) === $mtime) {
+				header($protocol . ' 304 Not Modified');
+
+				return;
+			}
+
+			$lastModified  = gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
+			header('Last-Modified: ' . $lastModified);
+
+			echo file_get_contents($output);
 
 			return;
 		}
 
-		header('HTTP/1.0 404 Not Found');
-		header('Content-type: text');
+		header($protocol . ' 404 Not Found');
+		header('Content-type: text/plain');
+
 		$v = scssc::$VERSION;
 		echo "/* INPUT NOT FOUND scss $v */\n";
 	}
@@ -4358,14 +4548,14 @@ class scss_server {
 	public function __construct($dir, $cacheDir=null, $scss=null) {
 		$this->dir = $dir;
 
-		if (is_null($cacheDir)) {
+		if (!isset($cacheDir)) {
 			$cacheDir = $this->join($dir, 'scss_cache');
 		}
 
 		$this->cacheDir = $cacheDir;
 		if (!is_dir($this->cacheDir)) mkdir($this->cacheDir, 0755, true);
 
-		if (is_null($scss)) {
+		if (!isset($scss)) {
 			$scss = new scssc();
 			$scss->setImportPaths($this->dir);
 		}
