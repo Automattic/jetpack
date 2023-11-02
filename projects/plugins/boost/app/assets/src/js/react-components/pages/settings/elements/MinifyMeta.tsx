@@ -1,44 +1,7 @@
-import { DataSyncProvider, useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useEffect, useState } from 'react';
-import { z } from 'zod';
 import { __, sprintf } from '@wordpress/i18n';
-
-export const minifyMetaOptions = [ 'minify_js_excludes', 'minify_css_excludes' ] as const;
-
-type MinifyMetaKeys = ( typeof minifyMetaOptions )[ number ];
-
-interface Props {
-	datasyncKey: MinifyMetaKeys;
-	inputLabel: string;
-	buttonText: string;
-	placeholder: string;
-	value: string[];
-}
-
-const useMetaQuery = ( key: MinifyMetaKeys ) => {
-	const { useQuery, useMutation } = useDataSync( 'jetpack_boost_ds', key, z.array( z.string() ) );
-	const { data } = useQuery();
-	const { mutate } = useMutation();
-
-	function updateValues( text: string ) {
-		mutate( text.split( ',' ).map( item => item.trim() ) );
-	}
-
-	return [ data, updateValues ] as const;
-};
-
-const useConfig = () => {
-	const { useQuery } = useDataSync(
-		'jetpack_boost_ds',
-		'config',
-		z.object( {
-			plugin_dir_url: z.string().url(),
-		} )
-	);
-	const { data } = useQuery();
-
-	return data;
-};
+import { type Props, useMetaQuery, useConfig } from '../../../../stores/minify';
 
 const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Props ) => {
 	const config = useConfig();
