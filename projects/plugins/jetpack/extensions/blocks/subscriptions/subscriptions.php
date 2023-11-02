@@ -955,7 +955,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 	} else {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			// custom domain
-			$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link' );
+			$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link', get_current_blog_id() );
 		} else {
 			$sign_in_link = add_query_arg(
 				array(

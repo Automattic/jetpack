@@ -32,7 +32,7 @@
 		"@rollup/plugin-replace": "5.0.2",
 		"@rollup/plugin-terser": "0.4.3",
 		"@rollup/plugin-typescript": "8.3.3",
-		"@types/jquery": "3.5.16",
+		"@types/jquery": "3.5.25",
 		"@wordpress/i18n": "4.44.0",
 		"concurrently": "7.6.0",
 		"livereload": "0.9.3",
