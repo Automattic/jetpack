@@ -1,12 +1,14 @@
 /**
  * External dependencies
  */
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelBody, PanelRow, BaseControl } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 /**
  * Internal dependencies
  */
@@ -73,34 +75,41 @@ export default function AiAssistantPluginSidebar() {
 	return (
 		<>
 			<JetpackPluginSidebar>
-				<PanelBody title={ title } initialOpen={ false }>
-					<PanelRow>
-						<BaseControl
-							className="jetpack-ai-proofread-control__header"
-							label={ __( 'AI feedback on post', 'jetpack' ) }
-						>
-							<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
-						</BaseControl>
-					</PanelRow>
-					{ requireUpgrade && ! isUsagePanelAvailable && (
+				<ThemeProvider>
+					<PanelBody title={ title } initialOpen={ false }>
 						<PanelRow>
-							<Upgrade onClick={ autosaveAndRedirect } type={ upgradeType } />
+							<BaseControl
+								className="jetpack-ai-proofread-control__header"
+								label={ __( 'AI feedback on post', 'jetpack' ) }
+							>
+								<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
+							</BaseControl>
 						</PanelRow>
-					) }
-					{ isUsagePanelAvailable && (
-						<PanelRow>
-							<UsagePanel />
-						</PanelRow>
-					) }
-				</PanelBody>
+						{ requireUpgrade && ! isUsagePanelAvailable && (
+							<PanelRow>
+								<Upgrade onClick={ autosaveAndRedirect } type={ upgradeType } />
+							</PanelRow>
+						) }
+						{ isUsagePanelAvailable && (
+							<PanelRow>
+								<UsagePanel />
+							</PanelRow>
+						) }
+					</PanelBody>
+				</ThemeProvider>
 			</JetpackPluginSidebar>
+
 			<PluginPrePublishPanel
 				title={ title }
 				icon={ <JetpackEditorPanelLogo /> }
 				initialOpen={ false }
 			>
-				<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
-				{ requireUpgrade && <Upgrade onClick={ autosaveAndRedirect } type={ upgradeType } /> }
+				<ThemeProvider>
+					<>
+						<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
+						{ requireUpgrade && <Upgrade onClick={ autosaveAndRedirect } type={ upgradeType } /> }
+					</>
+				</ThemeProvider>
 			</PluginPrePublishPanel>
 		</>
 	);
