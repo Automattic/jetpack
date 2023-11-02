@@ -264,7 +264,7 @@ export default function SubscriptionControls( {
 				<TextareaControl
 					value={ subscribePlaceholder }
 					label={ __( 'Input placeholder text', 'jetpack' ) }
-					help={ __( 'Edit the placeholder text of email address input.', 'jetpack' ) }
+					help={ __( 'Edit the placeholder text of the email address input.', 'jetpack' ) }
 					onChange={ placeholder => setAttributes( { subscribePlaceholder: placeholder } ) }
 				/>
 				<TextareaControl
