@@ -32,15 +32,17 @@ type TokenBrigeEventProps = {
 
 /**
  * Quick docReady implementation.
- *
- * @param {CallableFunction} fn - Call this on ready.
+ * @returns {Promise} promise.
  */
-function ready( fn: CallableFunction ) {
-	if ( document.readyState !== 'loading' ) {
-		fn();
-	} else {
-		document.addEventListener( 'DOMContentLoaded', fn );
-	}
+function ready(): Promise< void > {
+	return new Promise( function ( resolve ) {
+		if ( document.readyState !== 'loading' ) {
+			return resolve();
+		}
+		document.addEventListener( 'DOMContentLoaded', function () {
+			resolve();
+		} );
+	} );
 }
 
 /**
@@ -49,16 +51,13 @@ function ready( fn: CallableFunction ) {
  * @param {VideoGUID} guid - The guid.
  * @returns {Promise} promise.
  */
-function getSubscriberPlanIdIfExists( guid: VideoGUID ): Promise< number > {
-	return new Promise( function ( resolve ) {
-		ready( function () {
-			if ( ! window.__guidsToPlanIds ) {
-				return resolve( 0 );
-			}
-			const subscriptionPlanId = window.__guidsToPlanIds[ guid ] || 0;
-			resolve( subscriptionPlanId );
-		} );
-	} );
+async function getSubscriberPlanIdIfExists( guid: VideoGUID ): Promise< number > {
+	await ready();
+	if ( ! window.__guidsToPlanIds ) {
+		return 0;
+	}
+	const subscriptionPlanId = window.__guidsToPlanIds[ guid ] || 0;
+	return subscriptionPlanId;
 }
 
 /**
