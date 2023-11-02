@@ -480,6 +480,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			return;
 		}
 
+		$current_screen = get_current_screen();
+
+		if ( ! $current_screen ) {
+			return;
+		}
+
 		// Show the notice for the following screens and map them to the Calypso page.
 		$screen_map = array(
 			'options-general'    => 'general',
@@ -488,8 +494,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			'options-discussion' => 'discussion',
 		);
 
-		$mapped_screen = isset( $screen_map[ get_current_screen()->id ] )
-			? $screen_map[ get_current_screen()->id ]
+		$mapped_screen = isset( $screen_map[ $current_screen->id ] )
+			? $screen_map[ $current_screen->id ]
 			: false;
 
 		if ( ! $mapped_screen ) {
