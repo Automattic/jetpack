@@ -50,20 +50,6 @@ function get_domain_with_unverified_email() {
 }
 
 /**
- * Bump the MC stat for wpcom-domain-email-nag-shown.
- *
- * @param string $domain the domain to bump the stat for.
- */
-function bump_mc_stats( $domain ) {
-	$pixel_url = sprintf(
-		'http://pixel.wp.com/g.gif?v=wpcom-no-pv&x_%s=%s',
-		'wpcom-domain-email-nag-shown',
-		$domain
-	);
-	wp_remote_get( $pixel_url );
-}
-
-/**
  * Decides whether to render to the email nag.
  */
 function domain_email_nag() {
@@ -77,7 +63,11 @@ function domain_email_nag() {
 		return;
 	}
 
-	bump_mc_stats( $domain );
+	$pixel_url = sprintf(
+		'http://pixel.wp.com/g.gif?v=wpcom-no-pv&x_%s=%s',
+		'wpcom_frontend_unverified_domain_email_nag_shown',
+		$domain
+	);
 
 	wp_enqueue_style( 'wpcom-domain-email-nag-style', plugins_url( 'domain-nag.style.css', __FILE__ ), array(), Jetpack_Mu_Wpcom::PACKAGE_VERSION );
 
@@ -89,11 +79,12 @@ function domain_email_nag() {
 
 	?>
 	<div class="wp-domain-nag-sticky-message">
+		<img src="<?php echo esc_url( $pixel_url ); ?>" alt="" style="display:none;" />
 		<div class="wp-domain-nag-inner">
 			<p class="wp-domain-nag-text"><?php echo wp_kses( $notice, array( 'strong' => array() ) ); ?></p>
 			<a class="button" href="<?php echo esc_url( get_account_url() ); ?>"><?php esc_html_e( 'Fix', 'jetpack-mu-wpcom' ); ?></a>
 		</div>
-	</div>	
+	</div>
 	<?php
 }
 add_action( 'wp_footer', __NAMESPACE__ . '\domain_email_nag' );
