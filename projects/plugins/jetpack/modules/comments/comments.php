@@ -481,15 +481,15 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		}
 		?>
 		<script type="text/javascript">
-			const iframe = document.querySelector( '#jetpack_remote_comment' );
+			const iframe = document.getElementById( 'jetpack_remote_comment' );
 			<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
 			const watchReply = function() {
 				// Check addComment._Jetpack_moveForm to make sure we don't monkey-patch twice.
 				if ( 'undefined' !== typeof addComment && ! addComment._Jetpack_moveForm ) {
 					// Cache the Core function.
 					addComment._Jetpack_moveForm = addComment.moveForm;
-					const commentParent = document.querySelector( '#comment_parent' );
-					const cancel = document.querySelector( '#cancel-comment-reply-link' );
+					const commentParent = document.getElementById( 'comment_parent' );
+					const cancel = document.getElementById( 'cancel-comment-reply-link' );
 
 					function tellFrameNewParent ( commentParentValue ) {
 						const url = new URL( iframe.src );
