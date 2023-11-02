@@ -10,40 +10,24 @@ import './style.scss';
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAIFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../../../blocks/ai-assistant/lib/connection';
-import UsageBar from '../usage-bar';
+import UsageControl from '../usage-bar';
+import './style.scss';
 
 export default function UsagePanel() {
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
 	const canUpgrade = canUserPurchasePlan();
 
 	// fetch usage data
-	const { hasFeature, requestsCount, requestsLimit } = useAIFeature();
-
-	// build messages
-	const freeUsageMessage = sprintf(
-		// translators: %1$d: current request counter; %2$d: request allowance;
-		__( '%1$d / %2$d free requests.', 'jetpack' ),
-		requestsCount,
-		requestsLimit
-	);
-	const unlimitedPlanUsageMessage = sprintf(
-		// translators: placeholder is the current request counter;
-		__( '%d / ∞ requests.', 'jetpack' ),
-		requestsCount
-	);
-
-	/*
-	 * Calculate usage. When hasFeature is true, the user has the paid plan,
-	 * that grants unlimited requests for now. To show something meaningful in
-	 * the usage bar, we use a very low usage value.
-	 */
-	const usage = hasFeature ? 0.1 : requestsCount / requestsLimit;
+	const { hasFeature, requestsCount, requestsLimit, isOverLimit } = useAIFeature();
 
 	return (
-		<div className="jetpack-ai-usage-panel-control">
-			<p>{ hasFeature ? unlimitedPlanUsageMessage : freeUsageMessage }</p>
-
-			<UsageBar usage={ usage } />
+		<div className="jetpack-ai-usage-panel">
+			<UsageControl
+				isOverLimit={ isOverLimit }
+				hasFeature={ hasFeature }
+				requestsCount={ requestsCount }
+				requestsLimit={ requestsLimit }
+			/>
 
 			{ false && (
 				<p className="muted">

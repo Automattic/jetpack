@@ -90,7 +90,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				$flow = get_option( 'site_intent' );
-				return '/setup/' . $flow . '/plans/?siteSlug=' . $data['site_slug_encoded'];
+				return '/setup/' . $flow . '/plans?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
 		'plan_selected'                   => array(
@@ -512,6 +512,44 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/earn/payments-plans/' . $data['site_slug_encoded'];
+			},
+		),
+
+		// Hosting flow tasks
+		'site_theme_selected'             => array(
+			'get_title'            => function () {
+				return __( 'Choose a theme', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/themes/' . $data['site_slug_encoded'];
+			},
+		),
+		'install_custom_plugin'           => array(
+			'get_title'            => function () {
+				return __( 'Install a custom plugin', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/plugins/' . $data['site_slug_encoded'];
+			},
+		),
+		'setup_ssh'                       => array(
+			'get_title'            => function () {
+				return __( 'Set up ssh', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/hosting-config/' . $data['site_slug_encoded'] . '#sftp-credentials';
+			},
+		),
+		'site_monitoring_page'            => array(
+			'get_title'            => function () {
+				return __( 'View site metrics', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/site-monitoring/' . $data['site_slug_encoded'];
 			},
 		),
 	);
@@ -1664,13 +1702,15 @@ function wpcom_launchpad_is_edit_page_task_visible() {
  * if the subscription_options['invitation'] value
  * for the welcome message has changed on option update.
  *
- * @param string $old_value The old value of the welcome message.
- * @param string $value The new value of the welcome message.
+ * @param mixed $old_value The old value of the welcome message.
+ * @param mixed $value The new value of the welcome message.
  *
  * @return void
  */
 function wpcom_launchpad_mark_customize_welcome_message_complete_on_update( $old_value, $value ) {
-	if ( $value['invitation'] !== $old_value['invitation'] ) {
+	$new_invitation = is_array( $value ) && isset( $value['invitation'] ) ? $value['invitation'] : '';
+	$old_invitation = is_array( $old_value ) && isset( $old_value['invitation'] ) ? $old_value['invitation'] : '';
+	if ( $new_invitation !== $old_invitation ) {
 		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
 	}
 }
@@ -1681,12 +1721,12 @@ add_action( 'update_option_subscription_options', 'wpcom_launchpad_mark_customiz
  * if the subscription_options['invitation'] value
  * for the welcome message has been added.
  *
- * @param string $value The value of the welcome message.
+ * @param mixed $value The value of the welcome message.
  *
  * @return void
  */
 function wpcom_launchpad_mark_customize_welcome_message_complete_on_add( $value ) {
-	if ( $value['invitation'] ) {
+	if ( is_array( $value ) && $value['invitation'] ) {
 		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
 	}
 }
@@ -1829,3 +1869,31 @@ function wpcom_trigger_email_campaign() {
 	);
 }
 add_action( 'update_option_launchpad_checklist_tasks_statuses', 'wpcom_trigger_email_campaign', 10, 3 );
+
+/**
+ * Mark task complete when plugin is installed.
+ */
+function wpcom_launchpad_mark_plugin_installed_complete() {
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'install_custom_plugin' ) ) ) {
+		return;
+	}
+	wpcom_mark_launchpad_task_complete( 'install_custom_plugin' );
+}
+add_action( 'jetpack_plugin_installed', 'wpcom_launchpad_mark_plugin_installed_complete', 10 );
+
+/**
+ * Mark task complete when theme is selected.
+ *
+ * @param array $new_theme    The new theme object.
+ * @param array $old_theme The old theme object.
+ */
+function wpcom_launchpad_mark_theme_selected_complete( $new_theme, $old_theme ) {
+	// This hook runs when site just gets setup, lets prevent checklist item from being complete
+	// when the theme is the same.
+	$is_same_theme = $new_theme['name'] === $old_theme['name'];
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_theme_selected' ) ) || $is_same_theme ) {
+		return;
+	}
+	wpcom_mark_launchpad_task_complete( 'site_theme_selected' );
+}
+add_action( 'jetpack_sync_current_theme_support', 'wpcom_launchpad_mark_theme_selected_complete', 10, 2 );

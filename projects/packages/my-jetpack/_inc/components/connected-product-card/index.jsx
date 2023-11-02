@@ -11,7 +11,14 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
 import ProductCard, { PRODUCT_STATUSES } from '../product-card';
 
-const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuItems = [] } ) => {
+const ConnectedProductCard = ( {
+	admin,
+	slug,
+	children,
+	isDataLoading,
+	showMenu = false,
+	menuItems = [],
+} ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 
 	const {
@@ -99,6 +106,7 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			status={ status }
 			admin={ admin }
 			isFetching={ isFetching }
+			isDataLoading={ isDataLoading }
 			isInstallingStandalone={ installingStandalone }
 			isDeactivatingStandalone={ deactivatingStandalone }
 			onDeactivate={ deactivate }

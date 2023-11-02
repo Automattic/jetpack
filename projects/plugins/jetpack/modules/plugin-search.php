@@ -338,7 +338,6 @@ class Jetpack_Plugin_Search {
 				array_flip(
 					array(
 						'contact-form',
-						'lazy-images',
 						'monitor',
 						'photon',
 						'photon-cdn',

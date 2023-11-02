@@ -48,10 +48,12 @@ export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, pai
 
 export function useSetAccess() {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
-
+	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	return value => {
+		// We are removing the tier ID meta
+		delete metas[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
 		setPostMeta( {
+			...metas,
 			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: value,
 		} );
 	};
@@ -59,10 +61,10 @@ export function useSetAccess() {
 
 export function useSetTier() {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
-
+	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	return value => {
 		setPostMeta( {
+			...metas,
 			[ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: value,
 		} );
 	};
@@ -77,7 +79,7 @@ function TierSelector() {
 	// Find the current tier meta
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	// Destructure the tierId from the meta (set tierId using the META_NAME_FOR_POST_TIER_ID_SETTINGS constant)
-	let [ { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: tierId } ] = useEntityProp(
+	const [ { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: tierId } ] = useEntityProp(
 		'postType',
 		postType,
 		'meta'
@@ -88,12 +90,6 @@ function TierSelector() {
 	// the hooks have to run before any early returns)
 	if ( products.length < 2 ) {
 		return;
-	}
-
-	// if no tier are selected, we select the lowest one
-	if ( ! tierId ) {
-		tierId = products[ products.length - 1 ].id;
-		setTimeout( () => setTier( tierId ) );
 	}
 
 	return (
