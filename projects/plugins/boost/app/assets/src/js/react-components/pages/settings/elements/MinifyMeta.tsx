@@ -97,11 +97,9 @@ const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Pr
 						className="jb-collapsible-meta__edit-button components-button is-link"
 						onClick={ () => setIsEditing( true ) }
 					>
-						{ /* @TODO: Move static assets to /app/assets/static */ }
-						{ /* @TODO: Colorize the pencil */ }
 						<img
 							className="edit-icon"
-							src={ `${ config.plugin_dir_url }/app/assets/src/js/svg/pencil.svg` }
+							src={ `${ config.plugin_dir_url }/app/assets/static/images/pencil.svg` }
 							alt={ __( 'Edit', 'jetpack-boost' ) }
 						/>
 						{ buttonText }
