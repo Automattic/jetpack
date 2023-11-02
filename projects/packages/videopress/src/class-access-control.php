@@ -301,8 +301,6 @@ class Access_Control {
 				}
 		}
 
-		$this->update_video_restriction_details_on_wpcom( $guid, $restriction_details );
-
 		/**
 		 * Overrides video view authorization for current user.
 		 *
