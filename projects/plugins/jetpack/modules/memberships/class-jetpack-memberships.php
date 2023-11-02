@@ -795,10 +795,10 @@ class Jetpack_Memberships {
 	 *
 	 * @return boolean
 	 */
-	public static function is_current_user_subscribed() {
+	public static function get_current_user_subscriber_email() {
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		return $subscription_service->get_token_property( 'blog_sub' ) === Token_Subscription_Service::BLOG_SUB_ACTIVE;
+		return $subscription_service->get_token_property( 'blog_subscriber' );
 	}
 }
 Jetpack_Memberships::get_instance();
