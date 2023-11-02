@@ -40,7 +40,7 @@
 	},
 	"exports": {
 		".": {
-			"jetpack:src": "./build/index.js",
+			"jetpack:src": "./src/index.ts",
 			"types": "./build/index.d.ts",
 			"default": "./build/index.js"
 		}
