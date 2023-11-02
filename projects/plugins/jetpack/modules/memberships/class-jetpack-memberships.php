@@ -789,5 +789,16 @@ class Jetpack_Memberships {
 		/* translators: %s: number of folks following the blog */
 		return sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
 	}
+
+	/**
+	 * Returns if the current user is subscribed or not.
+	 *
+	 * @return boolean
+	 */
+	public static function is_current_user_subscribed() {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		return $subscription_service->get_token_property( 'blog_sub' ) === Token_Subscription_Service::BLOG_SUB_ACTIVE;
+	}
 }
 Jetpack_Memberships::get_instance();
