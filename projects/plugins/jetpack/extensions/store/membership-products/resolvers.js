@@ -230,7 +230,12 @@ export const getNewsletterCategories =
 
 		try {
 			const response = await fetchNewsletterCategories();
-			dispatch( setNewsletterCategories( response.newsletter_categories ) );
+			dispatch(
+				setNewsletterCategories( {
+					enabled: response.enabled,
+					categories: response.newsletter_categories,
+				} )
+			);
 		} catch ( error ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( error.message, registry );

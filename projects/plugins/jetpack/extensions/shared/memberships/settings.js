@@ -25,7 +25,11 @@ import {
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
-import { getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
+import {
+	getFormattedCategories,
+	getShowMisconfigurationWarning,
+	MisconfigurationWarning,
+} from './utils';
 
 const paywallIcon = getBlockIconComponent( paywallBlockMetadata );
 
@@ -280,34 +284,30 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 }
 
 export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
-	const { isLoading, postHasPaywallBlock, newsletterCategories } = useSelect( select => {
-		const { getNewsletterProducts, getConnectUrl, isApiStateLoading, getNewsletterCategories } =
-			select( 'jetpack/membership-products' );
-		const { getBlocks } = select( 'core/block-editor' );
+	const { isLoading, postHasPaywallBlock, newsletterCategories, newsletterCategoriesEnabled } =
+		useSelect( select => {
+			const {
+				getNewsletterProducts,
+				getConnectUrl,
+				isApiStateLoading,
+				getNewsletterCategories,
+				getNewsletterCategoriesEnabled,
+			} = select( 'jetpack/membership-products' );
+			const { getBlocks } = select( 'core/block-editor' );
 
-		return {
-			isLoading: isApiStateLoading(),
-			stripeConnectUrl: getConnectUrl(),
-			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
-			postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockMetadata.name ),
-			newsletterCategories: getNewsletterCategories(),
-		};
-	} );
+			return {
+				isLoading: isApiStateLoading(),
+				stripeConnectUrl: getConnectUrl(),
+				hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
+				postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockMetadata.name ),
+				newsletterCategories: getNewsletterCategories(),
+				newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
+			};
+		} );
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
 	const postCategories = useSelect( select =>
 		select( editorStore ).getEditedPostAttribute( 'categories' )
-	);
-
-	// If the post has a non newsletter category, then it's going to be sent to 'All Content' subscribers
-	const hasNonNewsletterCategory = postCategories.some( postCategory => {
-		return ! newsletterCategories.some( newsletterCategory => {
-			return newsletterCategory.id === postCategory;
-		} );
-	} );
-
-	const postNewsletterCategories = newsletterCategories.filter( category =>
-		postCategories.includes( category.id )
 	);
 
 	if ( isLoading ) {
@@ -319,26 +319,25 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 	}
 
 	const _accessLevel = accessLevel ?? accessOptions.everybody.key;
-
 	const getText = () => {
 		if ( _accessLevel === accessOptions.paid_subscribers.key ) {
 			if ( ! postHasPaywallBlock ) {
 				return __( 'This post will be sent to paid subscribers only.', 'jetpack' );
 			}
 		}
-		if ( hasNonNewsletterCategory || postNewsletterCategories?.length > 0 ) {
-			const categoryNames = hasNonNewsletterCategory
-				? __( "'All Content'", 'jetpack' )
-				: postNewsletterCategories.map( category => category.name ).join( ', ' );
+		if ( newsletterCategoriesEnabled && newsletterCategories.length ) {
+			const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
 
-			return createInterpolateElement(
-				sprintf(
-					// translators: %s: list of categories names separated by commas
-					__( 'This post will be sent to everyone subscribed to <b>%1$s</b>.', 'jetpack' ),
-					categoryNames
-				),
-				{ b: <strong /> }
-			);
+			if ( formattedCategoryNames ) {
+				return createInterpolateElement(
+					sprintf(
+						// translators: %1$s: list of categories names
+						__( 'This post will be sent to everyone subscribed to %1$s.', 'jetpack' ),
+						formattedCategoryNames
+					),
+					{ b: <strong /> }
+				);
+			}
 		}
 		return __( 'This post will be sent to all subscribers.', 'jetpack' );
 	};

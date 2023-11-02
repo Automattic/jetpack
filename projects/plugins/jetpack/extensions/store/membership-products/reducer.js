@@ -11,7 +11,10 @@ export const DEFAULT_STATE = {
 		emailSubscribers: null,
 		paidSubscribers: null,
 	},
-	newsletterCategories: [],
+	newsletterCategories: {
+		enabled: false,
+		categories: [],
+	},
 };
 
 export default function reducer( state = DEFAULT_STATE, action ) {
