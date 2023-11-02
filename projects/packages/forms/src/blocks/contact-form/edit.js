@@ -274,11 +274,10 @@ export const JetpackContactFormEdit = forwardRef(
 			);
 		};
 
-		if ( isLoadingModules ) {
-			return <ContactFormSkeletonLoader />;
-		}
-
 		if ( ! isModuleActive ) {
+			if ( isLoadingModules ) {
+				return <ContactFormSkeletonLoader />;
+			}
 			return (
 				<ContactFormPlaceholder
 					changeStatus={ val => {

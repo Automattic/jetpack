@@ -1,4 +1,5 @@
 import { select } from '@wordpress/data';
+import { isSimpleSite } from '../site-type-utils';
 import {
 	fetchJetpackModules,
 	updateJetpackModuleStatus as updateJetpackModuleStatusControl,
@@ -42,6 +43,10 @@ export function* updateJetpackModuleStatus( settings ) {
  * @returns {object} - an action object.
  */
 export function* fetchModules() {
+	// We don't fetch modules for Simple Site and aknowledge that all modules are active
+	if ( isSimpleSite() ) {
+		return true;
+	}
 	try {
 		yield setIsLoading( true );
 		const data = yield fetchJetpackModules();
