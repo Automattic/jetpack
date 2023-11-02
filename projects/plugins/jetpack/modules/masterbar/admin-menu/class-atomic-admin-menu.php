@@ -501,7 +501,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// Close over the $switch_url variable.
 		$admin_notices = function() use ( $switch_url ) {
 			// translators: %s is a link to the Calypso settings page.
-			$notice = __( 'You are currently using the Classic view, which doesn\'t offer the same set of features as the Default view. To Access additional settings and features, <a href="%s">switch to the Default view</a>. ', 'jetpack' );
+			$notice = __( 'You are currently using the Classic view, which doesn\'t offer the same set of features as the Default view. To access additional settings and features, <a href="%s">switch to the Default view</a>. ', 'jetpack' );
 			?>
 			<div class="notice notice-warning">
 				<p><?php echo wp_kses( sprintf( $notice, esc_url( $switch_url ) ), array( 'a' => array( 'href' => array() ) ) ); ?></p>
