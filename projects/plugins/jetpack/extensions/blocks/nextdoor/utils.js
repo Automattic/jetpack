@@ -33,8 +33,17 @@ export const parseUrl = postUrl => {
 };
 
 export const resizeIframeOnMessage = id => {
-	const iframe = document.getElementById( id );
-	let firstCall = true;
+	const figure = document.getElementById( id );
+	const link = figure.querySelector( 'a' );
+	const attributes = {
+		width: '100%',
+		height: '200',
+		frameborder: '0',
+		title: link.getAttribute( 'title' ),
+		src: getEmbedUrlFromPostUrl( link.href ),
+	};
+
+	const iframe = document.createElement( 'iframe' );
 	window.addEventListener( 'message', event => {
 		if ( ! event.origin.startsWith( 'https://nextdoor' ) ) {
 			return;
@@ -42,14 +51,10 @@ export const resizeIframeOnMessage = id => {
 		if ( event.source !== iframe.contentWindow ) {
 			return;
 		}
-		if ( firstCall ) {
-			firstCall = false;
-			iframe.setAttribute( 'width', '99%' );
-		} else {
-			setTimeout( () => {
-				iframe.setAttribute( 'width', '100%' );
-				iframe.setAttribute( 'height', event.data.height + 'px' );
-			}, 500 );
-		}
+		iframe.setAttribute( 'height', event.data.height + 'px' );
 	} );
+	Object.keys( attributes ).forEach( attribute =>
+		iframe.setAttribute( attribute, attributes[ attribute ] )
+	);
+	figure.replaceChild( iframe, link );
 };

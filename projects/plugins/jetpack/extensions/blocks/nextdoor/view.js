@@ -1,10 +1,10 @@
 import { resizeIframeOnMessage } from './utils';
 
 document.addEventListener( 'DOMContentLoaded', () => {
-	const iframes = document.querySelectorAll( 'iframe' );
-	iframes.forEach( iframe => {
-		if ( iframe.id.startsWith( 'nextdoor-block' ) ) {
-			resizeIframeOnMessage( iframe.id );
+	const embeds = document.querySelectorAll( 'figure' );
+	embeds.forEach( embed => {
+		if ( embed.id.startsWith( 'nextdoor-block' ) ) {
+			resizeIframeOnMessage( embed.id );
 		}
 	} );
 } );
