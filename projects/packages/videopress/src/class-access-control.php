@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Modules;
 use VIDEOPRESS_PRIVACY;
 
@@ -347,37 +346,6 @@ class Access_Control {
 		 * @return bool
 		 */
 		return (bool) apply_filters( 'videopress_is_current_user_authed_for_video', $is_user_authed, $guid, $embedded_post_id );
-	}
-	/**
-	 * Updates a video's privacy details on wpcom.
-	 *
-	 * @param string $guid    The video guid that needs updated privacy details.
-	 * @param array  $details The details.
-	 */
-	private function update_video_restriction_details_on_wpcom( $guid, $details = array() ) {
-		$video_blog_id   = $this->get_videopress_blog_id();
-		$args            = array(
-			'headers' => array( 'content-type' => 'application/json' ),
-			'method'  => 'POST',
-		);
-		$default_details = array(
-			'version'              => '1',
-			'provider'             => 'auth',
-			'title'                => 'Unauthorized',
-			'unauthorized_message' => 'Unauthorized',
-		);
-
-		$body = array_merge( $default_details, $details );
-
-		$endpoint = "sites/{$video_blog_id}/media/videopress-privacy-details/{$guid}";
-		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', $args, wp_json_encode( $body ), 'wpcom' );
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		$response = json_decode( $result['body'], true );
-
-		return $response;
 	}
 
 	/**
