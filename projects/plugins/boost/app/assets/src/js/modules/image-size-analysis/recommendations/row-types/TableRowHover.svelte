@@ -29,8 +29,13 @@
 		};
 		const response = await api.post( '/image-size-analysis/fix', data );
 		if ( response.status === 'success' ) {
-			recordBoostEvent( 'isa_fix_image_success', {} );
-			details.image.fixed = ! details.image.fixed;
+			if ( response.changed === 'fix' ) {
+				recordBoostEvent( 'isa_fix_image_success', {} );
+				details.image.fixed = true;
+			} else {
+				recordBoostEvent( 'isa_undo_fix_image_success', {} );
+				details.image.fixed = false;
+			}
 		} else {
 			recordBoostEvent( 'isa_fix_image_failure', {} );
 		}
