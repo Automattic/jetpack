@@ -482,7 +482,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		$current_screen = get_current_screen();
 
-		if ( ! $current_screen ) {
+		if ( ! $current_screen instanceof \WP_Screen ) {
 			return;
 		}
 
