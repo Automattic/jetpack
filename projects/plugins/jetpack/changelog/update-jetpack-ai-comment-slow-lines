@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack AI: Temporarely remove performance sensitive function calls to solve loading issue.

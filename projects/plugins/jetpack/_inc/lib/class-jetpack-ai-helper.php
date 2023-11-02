@@ -388,13 +388,9 @@ class Jetpack_AI_Helper {
 			/*
 			 * Usage since the last plan purchase day
 			 */
-			$usage_period_start = WPCOM\Jetpack_AI\Usage\Helper::get_usage_period_start_date( $blog_id );
-			$usage_period_start = isset( $usage_period_start ) ? $usage_period_start->format( 'Y-m-d H:i:s' ) : null;
-
-			$usage_next_period_start = WPCOM\Jetpack_AI\Usage\Helper::get_usage_next_period_start_date( $blog_id );
-			$usage_next_period_start = isset( $usage_next_period_start ) ? $usage_next_period_start->format( 'Y-m-d H:i:s' ) : null;
-
-			$usage_period_requests_count = WPCOM\Jetpack_AI\Usage\Helper::get_current_period_requests_count( $blog_id );
+			$usage_period_start          = null;
+			$usage_next_period_start     = null;
+			$usage_period_requests_count = 0;
 
 			/*
 			 * Get current tier value, a number representing
@@ -405,7 +401,7 @@ class Jetpack_AI_Helper {
 			 * - 100, 200, 500 represents a site with the new plans,
 			 * with the respective number of allowed requests.
 			 */
-			$current_tier_value = $has_ai_assistant_feature ? WPCOM\Jetpack_AI\Usage\Helper::get_tier_usage_quantity( $blog_id ) : 0;
+			$current_tier_value = $has_ai_assistant_feature ? 1 : 0;
 
 			// Check if the site requires an upgrade.
 			$require_upgrade = $is_over_limit && ! $has_ai_assistant_feature;
