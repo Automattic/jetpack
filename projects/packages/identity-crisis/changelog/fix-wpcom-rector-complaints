@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix possible use of an undefined variable.

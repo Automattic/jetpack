@@ -27,7 +27,7 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 			{ isEnabled && (
 				<>
 					<hr />
-					<GeneratedImagePreview shouldDebounce={ false } />
+					<GeneratedImagePreview />
 					<hr />
 					<Button
 						variant="secondary"

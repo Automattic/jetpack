@@ -126,8 +126,8 @@
 		}
 	},
 	"textdomain": "jetpack-videopress",
-	"editorScript": "jetpack-videopress-video-block",
-	"editorStyle": "jetpack-videopress-video-block",
-	"style": "jetpack-videopress-video-block-view",
-	"viewScript": "jetpack-videopress-video-block-view"
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style.css",
+	"viewScript": "file:./view.js"
 }

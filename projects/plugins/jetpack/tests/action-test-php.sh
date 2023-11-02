@@ -2,6 +2,15 @@
 
 set -eo pipefail
 
+# Conditionally allow WooCommerce/Jetpack integration tests to run.
+if [[ "$WITH_WOOCOMMERCE" == true ]]; then
+	export JETPACK_TEST_WOOCOMMERCE=1
+	echo "::group::Jetpack WooCommerce tests"
+	phpunit --group=woocommerce
+	echo "::endgroup::"
+	exit 0
+fi
+
 echo "::group::Jetpack tests"
 phpunit
 echo "::endgroup::"

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Blaze;
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
 use Jetpack_Options;
 
@@ -70,8 +71,9 @@ class Dashboard_Config_Data {
 							'products'     => array(),
 							'plan'         => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
 							'options'      => array(
-								'admin_url'  => admin_url(),
-								'gmt_offset' => $this->get_gmt_offset(),
+								'admin_url'       => admin_url(),
+								'gmt_offset'      => $this->get_gmt_offset(),
+								'jetpack_version' => Constants::get_constant( 'JETPACK__VERSION' ),
 							),
 						),
 					),
