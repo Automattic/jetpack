@@ -299,7 +299,6 @@ class Access_Control {
 					$restriction_details = $this->build_restriction_details( $guid, $embedded_post_id, $selected_plan_id );
 					$is_user_authed      = $restriction_details['can_access'];
 				}
-				break;
 		}
 
 		$this->update_video_restriction_details_on_wpcom( $guid, $restriction_details );
