@@ -335,7 +335,7 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 						__( 'This post will be sent to everyone subscribed to %1$s.', 'jetpack' ),
 						formattedCategoryNames
 					),
-					{ b: <strong /> }
+					{ strong: <strong /> }
 				);
 			}
 		}

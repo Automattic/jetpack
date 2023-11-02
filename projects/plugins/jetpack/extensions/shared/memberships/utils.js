@@ -100,7 +100,9 @@ export const getFormattedCategories = ( postCategories, newsletterCategories ) =
 		categoryNames.push( __( 'all content', 'jetpack' ) );
 	}
 
-	const formattedCategoriesArray = categoryNames.map( categoryName => `<b>${ categoryName }</b>` );
+	const formattedCategoriesArray = categoryNames.map(
+		categoryName => `<strong>${ categoryName }</strong>`
+	);
 	let formattedCategories = '';
 
 	if ( formattedCategoriesArray.length === 1 ) {
