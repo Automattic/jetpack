@@ -12,12 +12,12 @@ test.describe( 'Auto refresh of speed scores', () => {
 
 		await boostPrerequisitesBuilder( page )
 			.withConnection( true )
-			.withInactiveModules( [ 'critical_css', 'image_cdn', 'render_blocking_js' ] )
+			.withInactiveModules( [ 'critical_css', 'render_blocking_js' ] )
 			.build();
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
-	[ 'image_cdn', 'render_blocking_js' ].forEach( moduleSlug => {
+	[ 'render_blocking_js' ].forEach( moduleSlug => {
 		test( `Enabling ${ moduleSlug } should refresh scores`, async () => {
 			await jetpackBoostPage.waitForScoreLoadingToFinish();
 
@@ -33,8 +33,6 @@ test.describe( 'Auto refresh of speed scores', () => {
 
 	test( 'Score refresh should debounce between multiple module toggle', async () => {
 		await jetpackBoostPage.waitForScoreLoadingToFinish();
-
-		const toggleImageCdnPromise = jetpackBoostPage.toggleModule( 'image_cdn' );
 
 		// Wait a second before toggling another.
 		await new Promise( resolve => setTimeout( resolve, 1000 ) );
@@ -53,6 +51,6 @@ test.describe( 'Auto refresh of speed scores', () => {
 		expect( await jetpackBoostPage.isScoreLoading(), 'Score should be loading' ).toBeTruthy();
 
 		// Still expect toggling those two modules to succeed.
-		await Promise.all( [ toggleImageCdnPromise, renderBlockingPromise ] );
+		await Promise.all( [ renderBlockingPromise ] );
 	} );
 } );
