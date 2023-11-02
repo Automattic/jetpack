@@ -643,6 +643,8 @@ function render_for_website( $data, $classes, $styles ) {
 				>
 					<div class="wp-block-jetpack-subscriptions__form-elements">
 						<?php if ( ! Jetpack_Memberships::is_current_user_subscribed() ) : ?>
+						<input type="hidden" name="email" value="<?php echo esc_attr( $data['subscribe_email'] ); ?>">
+						<?php else : ?>
 						<p id="subscribe-email">
 							<label
 								id="<?php echo esc_attr( $subscribe_field_id . '-label' ); ?>"
@@ -701,11 +703,7 @@ function render_for_website( $data, $classes, $styles ) {
 							?>
 							<button type="submit"
 								<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
-									class="<?php echo esc_attr( $classes['submit_button'] ); ?>
-														<?php
-														if ( Jetpack_Memberships::is_current_user_subscribed() ) :
-															?>
-										wp-block-jetpack-subscriptions__subscribed<?php endif; ?>"
+									class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
 								<?php endif; ?>
 								<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
 									style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
