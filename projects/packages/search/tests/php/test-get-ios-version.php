@@ -6,13 +6,13 @@ require_once __DIR__ . '/../../compatibility/ios-lt-16.php';
 use Automattic\Jetpack\Search\Test_Case as Search_Test_Case;
 
 /**
- * Unit tests for the REST_Controller class.
+ * Unit tests for the get_ios_version_from_user_agent.
  *
  * @package automattic/jetpack-search
  */
 class Test_Get_IOS_Version extends Search_Test_Case {
 	/**
-	 * Initialize static member `$plan`
+	 * Remove filter.
 	 *
 	 * @beforeClass
 	 */
