@@ -552,7 +552,11 @@ function render_block( $attributes ) {
 	$include_social_followers = isset( $attributes['includeSocialFollowers'] ) ? (bool) get_attribute( $attributes, 'includeSocialFollowers' ) : true;
 	$is_paid_subscriber       = get_attribute( $attributes, 'isPaidSubscriber', false );
 
+	$blog_id_attribute = get_attribute( $attributes, 'blogId' );
+	$blog_id           = ! empty( $blog_id_attribute ) ? $blog_id_attribute : \Jetpack_Options::get_option( 'id' );
+
 	$data = array(
+		'blog_id'                => (int) $blog_id,
 		'widget_id'              => Jetpack_Subscriptions_Widget::$instance_count,
 		'subscribe_email'        => $subscribe_email,
 
@@ -608,7 +612,6 @@ function get_post_access_level_for_current_post() {
  * @return string
  */
 function render_for_website( $data, $classes, $styles ) {
-	$blog_id            = \Jetpack_Options::get_option( 'id' );
 	$widget_id_suffix   = Jetpack_Subscriptions_Widget::$instance_count > 1 ? '-' . Jetpack_Subscriptions_Widget::$instance_count : '';
 	$form_id            = 'subscribe-blog' . $widget_id_suffix;
 	$form_url           = defined( 'SUBSCRIBE_BLOG_URL' ) ? SUBSCRIBE_BLOG_URL : '#';
@@ -632,7 +635,7 @@ function render_for_website( $data, $classes, $styles ) {
 					action="<?php echo esc_url( $form_url ); ?>"
 					method="post"
 					accept-charset="utf-8"
-					data-blog="<?php echo esc_attr( $blog_id ); ?>"
+					data-blog="<?php echo esc_attr( $data['blog_id'] ); ?>"
 					data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 					id="<?php echo esc_attr( $form_id ); ?>"
 				>
@@ -678,12 +681,12 @@ function render_for_website( $data, $classes, $styles ) {
 							<?php endif; ?>
 						>
 							<input type="hidden" name="action" value="subscribe"/>
-							<input type="hidden" name="blog_id" value="<?php echo (int) $blog_id; ?>"/>
+							<input type="hidden" name="blog_id" value="<?php echo (int) $data['blog_id']; ?>"/>
 							<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
 							<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
 							<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
 							<?php
-							wp_nonce_field( 'blogsub_subscribe_' . $blog_id, '_wpnonce', false );
+							wp_nonce_field( 'blogsub_subscribe_' . $data['blog_id'], '_wpnonce', false );
 
 							if ( ! empty( $post_id ) ) {
 								echo '<input type="hidden" name="post_id" value="' . esc_attr( $post_id ) . '"/>';

@@ -1,6 +1,9 @@
 import { __ } from '@wordpress/i18n';
 
 export default {
+	blogId: {
+		type: 'number',
+	},
 	subscribePlaceholder: {
 		type: 'string',
 		default: __( 'Type your email…', 'jetpack' ),
