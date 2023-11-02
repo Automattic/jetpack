@@ -3,6 +3,7 @@
  */
 import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import React from 'react';
 /**
  * Internal dependencies
  */
@@ -46,7 +47,7 @@ export default function UsagePanel() {
 					onClick={ autosaveAndRedirect }
 					disabled={ isRedirecting }
 				>
-					Upgrade
+					{ __( 'Upgrade', 'jetpack' ) }
 				</Button>
 			) }
 		</div>
