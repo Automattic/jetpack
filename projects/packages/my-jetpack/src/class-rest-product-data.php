@@ -60,8 +60,13 @@ class REST_Product_Data {
 		$response_code  = wp_remote_retrieve_response_code( $response );
 		$body           = json_decode( wp_remote_retrieve_body( $response ) );
 
-		// If site has backups, add latest undo event
-		if ( $body->backups->last_finished_backup_time ) {
+		$capabilities = self::get_backup_capabilities();
+
+		// If site has backups and the realtime backup capability, add latest undo event
+		if (
+			$body->backups->last_finished_backup_time &&
+			in_array( 'backup-realtime', $capabilities->data['capabilities'], true )
+		) {
 			$body->backups->last_undoable_event = self::get_site_backup_undo_event();
 		}
 
@@ -73,16 +78,53 @@ class REST_Product_Data {
 	}
 
 	/**
+	 * Get an array of backup/scan/anti-spam site capabilities
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return WP_Error|\WP_REST_Response|null An array of capabilities
+	 */
+	public static function get_backup_capabilities() {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/rewind/capabilities',
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return null;
+		}
+
+		if ( 200 !== $response['response']['code'] ) {
+			return null;
+		}
+
+		return rest_ensure_response(
+			json_decode( $response['body'], true )
+		);
+	}
+
+	/**
 	 * This will fetch the last rewindable event from the Activity Log and
 	 * the last rewind_id prior to that.
 	 *
 	 * @param int $page - numbered page of activity logs to fetch.
 	 *
-	 * @return array|WP_Error
+	 * @return array|WP_Error|null
 	 */
 	public static function get_site_backup_undo_event( $page = null ) {
 		if ( ! $page ) {
 			$page = 1;
+		}
+
+		// Cap out at checking 10 pages of activity log
+		if ( $page >= 10 ) {
+			return null;
 		}
 
 		$blog_id = \Jetpack_Options::get_option( 'id' );
@@ -105,6 +147,7 @@ class REST_Product_Data {
 			return null;
 		}
 
+		// If page has no item, we have reached the end of the activity log.
 		if ( ! isset( $body['current']['orderedItems'] ) || count( $body['current']['orderedItems'] ) === 0 ) {
 			return null;
 		}
