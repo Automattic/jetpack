@@ -26,7 +26,7 @@ function jetpack_get_google_fonts_data() {
 			return null;
 		}
 
-		set_transient( $cache_key, $data, HOUR_IN_SECONDS );
+		set_transient( $cache_key, $data, DAY_IN_SECONDS );
 	}
 
 	// Replace the google fonts api url if the custom one is provided.
