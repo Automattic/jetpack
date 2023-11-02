@@ -128,8 +128,8 @@ const BlockPreview = ( { defaultClassName, iframeUrl } ) => {
 
 	return (
 		<>
-			<SandBox html={ html } />
 			<div className={ `${ defaultClassName }-overlay` }></div>
+			<SandBox html={ html } />
 		</>
 	);
 };
