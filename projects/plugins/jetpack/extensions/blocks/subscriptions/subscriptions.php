@@ -642,7 +642,7 @@ function render_for_website( $data, $classes, $styles ) {
 					id="<?php echo esc_attr( $form_id ); ?>"
 				>
 					<div class="wp-block-jetpack-subscriptions__form-elements">
-						<?php if ( ! Jetpack_Memberships::is_current_user_subscribed() ) : ?>
+						<?php if ( Jetpack_Memberships::is_current_user_subscribed() ) : ?>
 						<input type="hidden" name="email" value="<?php echo esc_attr( $data['subscribe_email'] ); ?>">
 						<?php else : ?>
 						<p id="subscribe-email">
