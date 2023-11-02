@@ -609,12 +609,19 @@ function get_post_access_level_for_current_post() {
  * @return string
  */
 function render_for_website( $data, $classes, $styles ) {
-	$blog_id            = \Jetpack_Options::get_option( 'id' );
-	$widget_id_suffix   = Jetpack_Subscriptions_Widget::$instance_count > 1 ? '-' . Jetpack_Subscriptions_Widget::$instance_count : '';
-	$form_id            = 'subscribe-blog' . $widget_id_suffix;
-	$form_url           = defined( 'SUBSCRIBE_BLOG_URL' ) ? SUBSCRIBE_BLOG_URL : '#';
-	$post_access_level  = get_post_access_level_for_current_post();
-	$post_id            = get_the_ID();
+	$blog_id           = \Jetpack_Options::get_option( 'id' );
+	$widget_id_suffix  = Jetpack_Subscriptions_Widget::$instance_count > 1 ? '-' . Jetpack_Subscriptions_Widget::$instance_count : '';
+	$form_id           = 'subscribe-blog' . $widget_id_suffix;
+	$form_url          = defined( 'SUBSCRIBE_BLOG_URL' ) ? SUBSCRIBE_BLOG_URL : '#';
+	$post_access_level = get_post_access_level_for_current_post();
+
+	$post_id = null;
+	if ( in_the_loop() ) {
+		$post_id = get_the_ID();
+	} elseif ( is_singular( 'post' ) ) {
+		$post_id = get_queried_object_id();
+	}
+
 	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
 	$tier_id            = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
 	$is_subscribed      = Jetpack_Memberships::is_current_user_subscribed();
