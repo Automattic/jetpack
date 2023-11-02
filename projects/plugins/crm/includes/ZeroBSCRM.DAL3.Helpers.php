@@ -1201,14 +1201,13 @@ function zeroBS_getOwnerObj( $wp_user_id = -1 ) {
 		 * fields are provided (e.g. don't show `user_pass`).
 		 */
 		$user_data = (object) array(
-			'ID'            => $user_data->data->ID,
-			'user_login'    => $user_data->data->user_login,
-			'user_nicename' => $user_data->data->user_nicename,
-			'display_name'  => $user_data->data->display_name,
+			'ID'            => $user->data->ID,
+			'user_login'    => $user->data->user_login,
+			'user_nicename' => $user->data->user_nicename,
+			'display_name'  => $user->data->display_name,
 		);
 
 		return array(
-
 			'ID'  => $wp_user_id,
 			'OBJ' => $user_data,
 		);
