@@ -82,13 +82,32 @@ export async function getAIFeatures(): Promise< AIFeatureProps > {
 
 export default function useAIFeature() {
 	const [ data, setData ] = useState< AIFeatureProps >( AI_Assistant_Initial_State );
+	const [ loading, setLoading ] = useState< boolean >( false );
+	const [ failed, setFailed ] = useState< boolean >( false );
+
+	const loadFeatures = async () => {
+		setLoading( true );
+		setFailed( false );
+
+		try {
+			const aiFeatures = await getAIFeatures();
+			setData( aiFeatures );
+		} catch ( error ) {
+			setFailed( true );
+		} finally {
+			setLoading( false );
+		}
+	};
 
 	useEffect( () => {
-		getAIFeatures().then( setData );
+		loadFeatures();
 	}, [] );
 
 	return {
 		...data,
-		refresh: () => getAIFeatures().then( setData ),
+		loading,
+		failed,
+		setLoading,
+		refresh: loadFeatures,
 	};
 }
