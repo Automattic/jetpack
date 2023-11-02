@@ -51,9 +51,10 @@ function load_assets( $attr ) {
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	$iframe_markup = '<iframe src="' . esc_url( $url ) . '" frameborder="0" title="' . esc_html__( 'Nextdoor embed', 'jetpack' ) . '" height="200" width="100%"></iframe>';
+	$block_id      = wp_unique_id( 'nextdoor-block-' );
+	$iframe_markup = '<iframe id="' . esc_attr( $block_id ) . '" src="' . esc_url( $url ) . '" frameborder="0" title="' . esc_html__( 'Nextdoor embed', 'jetpack' ) . '" height="400" width="100%"></iframe>';
 
-	$block_classes = Blocks::classes( __DIR__, $attr );
+	$block_classes = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr );
 
 	$html =
 		'<figure class="' . esc_attr( $block_classes ) . '">' .

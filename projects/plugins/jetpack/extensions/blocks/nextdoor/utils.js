@@ -31,3 +31,25 @@ export const parseUrl = postUrl => {
 
 	return newUrl;
 };
+
+export const resizeIframeOnMessage = id => {
+	const iframe = document.getElementById( id );
+	let firstCall = true;
+	window.addEventListener( 'message', event => {
+		if ( ! event.origin.startsWith( 'https://nextdoor' ) ) {
+			return;
+		}
+		if ( event.source !== iframe.contentWindow ) {
+			return;
+		}
+		if ( firstCall ) {
+			firstCall = false;
+			iframe.setAttribute( 'width', '99%' );
+		} else {
+			setTimeout( () => {
+				iframe.setAttribute( 'width', '100%' );
+				iframe.setAttribute( 'height', event.data.height + 'px' );
+			}, 500 );
+		}
+	} );
+};
