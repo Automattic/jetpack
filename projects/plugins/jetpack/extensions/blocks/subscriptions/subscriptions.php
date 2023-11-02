@@ -716,7 +716,7 @@ function render_for_website( $data, $classes, $styles ) {
 								<?php endif; ?>
 								name="jetpack_subscriptions_widget"
 							>
-								<?php echo esc_html( $button_text ); ?>
+								<?php echo sanitize_submit_text( $button_text ); ?>
 							</button>
 						</p>
 					</div>
@@ -1063,12 +1063,12 @@ function get_paywall_blocks( $newsletter_access_level ) {
 }
 
 /**
- * Returns Get Access question for the paywall
+ * Returns the login button text.
  *
  * @param string $post_access_level The newsletter access level.
  * @return string.
  */
-function get_paywall_access_question( $post_access_level ) {
+function get_subscriber_login_link_text( $post_access_level ) {
 	switch ( $post_access_level ) {
 		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
 		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
