@@ -1,6 +1,5 @@
 /* eslint-disable jsdoc/no-undefined-types */
-import { createElement, Platform } from '@wordpress/element';
-import { SvgXml } from 'react-native-svg';
+import { createElement } from '@wordpress/element';
 import getIconColor from './get-icon-color';
 
 /**
@@ -34,17 +33,10 @@ export function getBlockIconComponent( metadata ) {
 		);
 	}
 
-	// Parse SVG string with a custom function on native, since DOM parsing is unavailable.
-	const isNative = Platform.isNative;
-
-	return isNative ? (
-		<SvgXml xml={ metadata.icon } />
-	) : (
-		createElement( tagName, {
-			...attrs,
-			dangerouslySetInnerHTML: { __html: markup || '' },
-		} )
-	);
+	return createElement( tagName, {
+		...attrs,
+		dangerouslySetInnerHTML: { __html: markup || '' },
+	} );
 }
 
 /**
