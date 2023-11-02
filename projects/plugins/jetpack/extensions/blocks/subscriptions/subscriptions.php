@@ -553,29 +553,29 @@ function render_block( $attributes ) {
 	$is_paid_subscriber       = get_attribute( $attributes, 'isPaidSubscriber', false );
 
 	$data = array(
-		'widget_id'              => Jetpack_Subscriptions_Widget::$instance_count,
-		'subscribe_email'        => $subscribe_email,
+		'widget_id'                     => Jetpack_Subscriptions_Widget::$instance_count,
+		'subscribe_email'               => $subscribe_email,
 
-		'wrapper_attributes'     => get_block_wrapper_attributes(
+		'wrapper_attributes'            => get_block_wrapper_attributes(
 			array(
 				'class' => $classes['block_wrapper'],
 			)
 		),
-		'subscribe_placeholder'  => get_attribute( $attributes, 'subscribePlaceholder', esc_html__( 'Type your email…', 'jetpack' ) ),
-		'submit_button_text'     => get_attribute( $attributes, 'submitButtonText', $is_paid_subscriber ? esc_html__( 'Upgrade', 'jetpack' ) : esc_html__( 'Subscribe', 'jetpack' ) ),
-		'subscribed_button_text' => get_attribute( $attributes, 'subscribedButtonText', esc_html__( 'Subscribed', 'jetpack' ) ),
-		'success_message'        => get_attribute(
+		'subscribe_placeholder'         => get_attribute( $attributes, 'subscribePlaceholder', esc_html__( 'Type your email…', 'jetpack' ) ),
+		'submit_button_text'            => get_attribute( $attributes, 'submitButtonText', $is_paid_subscriber ? esc_html__( 'Upgrade', 'jetpack' ) : esc_html__( 'Subscribe', 'jetpack' ) ),
+		'submit_button_text_subscribed' => get_attribute( $attributes, 'submitButtonTextSubscribed', esc_html__( 'Subscribed', 'jetpack' ) ),
+		'success_message'               => get_attribute(
 			$attributes,
 			'successMessage',
 			esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' )
 		),
-		'show_subscribers_total' => (bool) get_attribute( $attributes, 'showSubscribersTotal' ),
-		'subscribers_total'      => get_subscriber_count( $include_social_followers ),
-		'referer'                => esc_url_raw(
+		'show_subscribers_total'        => (bool) get_attribute( $attributes, 'showSubscribersTotal' ),
+		'subscribers_total'             => get_subscriber_count( $include_social_followers ),
+		'referer'                       => esc_url_raw(
 			( is_ssl() ? 'https' : 'http' ) . '://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) .
 			( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' )
 		),
-		'source'                 => 'subscribe-block',
+		'source'                        => 'subscribe-block',
 	);
 
 	if ( ! jetpack_is_frontend() ) {
@@ -617,6 +617,10 @@ function render_for_website( $data, $classes, $styles ) {
 	$post_id            = get_the_ID();
 	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
 	$tier_id            = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
+	$button_text        = wp_kses(
+		html_entity_decode( Jetpack_Memberships::is_current_user_subscribed() ? ( '✓ ' . $data['submit_button_text_subscribed'] ) : $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
+		Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
+	);
 
 	ob_start();
 
@@ -629,33 +633,6 @@ function render_for_website( $data, $classes, $styles ) {
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="jetpack_subscription_widget">
 			<div class="wp-block-jetpack-subscriptions__container">
-			<?php if ( Jetpack_Memberships::user_can_view_post() ) : ?>
-				<div class="wp-block-jetpack-subscriptions__form-elements">
-					<p id="subscribe-submit"
-						<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
-							style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
-						<?php endif; ?>
-					>
-						<button type="submit"
-							<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
-								class="<?php echo esc_attr( $classes['submit_button'] ); ?> wp-block-jetpack-subscriptions__subscribed"
-							<?php endif; ?>
-							<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
-								style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
-							<?php endif; ?>
-								name="jetpack_subscriptions_widget"
-						>
-							✓
-							<?php
-							echo wp_kses(
-								html_entity_decode( $data['subscribed_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
-								Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
-							);
-							?>
-						</button>
-					</p>
-				</div>
-			<?php else : ?>
 				<form
 					action="<?php echo esc_url( $form_url ); ?>"
 					method="post"
@@ -665,6 +642,7 @@ function render_for_website( $data, $classes, $styles ) {
 					id="<?php echo esc_attr( $form_id ); ?>"
 				>
 					<div class="wp-block-jetpack-subscriptions__form-elements">
+						<?php if ( ! Jetpack_Memberships::is_current_user_subscribed() ) : ?>
 						<p id="subscribe-email">
 							<label
 								id="<?php echo esc_attr( $subscribe_field_id . '-label' ); ?>"
@@ -699,7 +677,7 @@ function render_for_website( $data, $classes, $styles ) {
 							);
 							?>
 						</p>
-
+						<?php endif; ?>
 						<p id="subscribe-submit"
 							<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
 								style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
@@ -723,24 +701,22 @@ function render_for_website( $data, $classes, $styles ) {
 							?>
 							<button type="submit"
 								<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
-									class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
+									class="<?php echo esc_attr( $classes['submit_button'] ); ?>
+														<?php
+														if ( Jetpack_Memberships::is_current_user_subscribed() ) :
+															?>
+										wp-block-jetpack-subscriptions__subscribed<?php endif; ?>"
 								<?php endif; ?>
 								<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
 									style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
 								<?php endif; ?>
 								name="jetpack_subscriptions_widget"
 							>
-								<?php
-								echo wp_kses(
-									html_entity_decode( $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
-									Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
-								);
-								?>
+								<?php echo esc_html( $button_text ); ?>
 							</button>
 						</p>
 					</div>
 				</form>
-
 				<?php if ( $data['show_subscribers_total'] && $data['subscribers_total'] ) : ?>
 					<div class="wp-block-jetpack-subscriptions__subscount">
 						<?php
@@ -748,7 +724,6 @@ function render_for_website( $data, $classes, $styles ) {
 						?>
 					</div>
 				<?php endif; ?>
-			<?php endif; ?>
 			</div>
 		</div>
 	</div>
