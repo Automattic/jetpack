@@ -505,7 +505,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$switch_url = sprintf( 'https://wordpress.com/settings/%s/%s', $mapped_screen, $this->domain );
 
 		// Close over the $switch_url variable.
-		$admin_notices = function() use ( $switch_url ) {
+		$admin_notices = function () use ( $switch_url ) {
 			// translators: %s is a link to the Calypso settings page.
 			$notice = __( 'You are currently using the Classic view, which doesn\'t offer the same set of features as the Default view. To access additional settings and features, <a href="%s">switch to the Default view</a>. ', 'jetpack' );
 			?>
