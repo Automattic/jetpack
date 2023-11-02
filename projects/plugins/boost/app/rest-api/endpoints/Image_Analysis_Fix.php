@@ -42,13 +42,13 @@ class Image_Analysis_Fix implements Endpoint {
 			} else {
 				unset( $fixes[ md5( $image_url ) ] );
 			}
-			$changed = true;
+			$changed = 'removed';
 		} elseif ( $attachment_id ) {
 			$fixes[ $attachment_id ] = $params;
-			$changed                 = true;
+			$changed                 = 'added';
 		} else {
 			$fixes[ md5( $image_url ) ] = $params; // hot linked image, possibly from another site.
-			$changed                    = true;
+			$changed                    = 'added';
 		}
 
 		if ( $changed ) {
@@ -65,8 +65,9 @@ class Image_Analysis_Fix implements Endpoint {
 		} else {
 			return rest_ensure_response(
 				array(
-					'status' => 'success',
-					'code'   => 'fixes-saved',
+					'status'  => 'success',
+					'code'    => 'fixes-saved',
+					'changed' => $changed,
 				)
 			);
 		}
