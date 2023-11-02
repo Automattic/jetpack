@@ -13,7 +13,6 @@
 		"contact-info",
 		"donations",
 		"eventbrite",
-		"gathering-tweetstorms",
 		"gif",
 		"google-calendar",
 		"image-compare",
@@ -67,7 +66,8 @@
 		"videopress/video-chapters",
 		"create-with-voice",
 		"ai-assistant-backend-prompts",
-		"ai-assistant-usage-panel"
+		"ai-assistant-usage-panel",
+		"nextdoor"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

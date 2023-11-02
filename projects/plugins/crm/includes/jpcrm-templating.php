@@ -209,23 +209,23 @@ function jpcrm_retrieve_template_variants( $original_template_path = '' ) {
 		// Seeks out template files matching a pattern (in wp theme directories, and our core template directory)
 		// Adapted from locate_template: https://core.trac.wordpress.org/browser/tags/5.8/src/wp-includes/template.php#L697
 		$template_locations = array(
-			array( 
-				'name' => __( 'Theme directory', 'zero-bs-crm' ), 
-				'path' => STYLESHEETPATH . '/' . $zbs->template_path . '/' 
+			array(
+				'name' => __( 'Theme directory', 'zero-bs-crm' ),
+				'path' => get_stylesheet_directory() . '/' . $zbs->template_path . '/',
 			),
 			array( 
-				'name' => __( 'Template Path directory', 'zero-bs-crm' ), 
-				'path' => TEMPLATEPATH . '/' . $zbs->template_path . '/'
+				'name' => __( 'Template Path directory', 'zero-bs-crm' ),
+				'path' => get_template_directory() . '/' . $zbs->template_path . '/',
 			),
 			array( 
 				'name' => __( 'Theme Compat directory', 'zero-bs-crm' ), 
-				'path' => ABSPATH . WPINC . '/theme-compat/' . $zbs->template_path . '/'
+				'path' => ABSPATH . WPINC . '/theme-compat/' . $zbs->template_path . '/',
 			),
 			array( 
-				'name' => __( 'Core Plugin', 'zero-bs-crm' ), 
-				'path' => ZEROBSCRM_PATH . 'templates/'
-			)
-		); 
+				'name' => __( 'Core Plugin', 'zero-bs-crm' ),
+				'path' => ZEROBSCRM_PATH . 'templates/',
+			),
+		);
 
 		// we flip the array, so that top-down preference is maintained
 		$template_locations = array_reverse( $template_locations );

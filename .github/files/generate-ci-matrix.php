@@ -49,6 +49,9 @@ $default_matrix_vars = array(
 
 	// {string} A valid artifact name for any generated artifacts. If not given, will be derived from the name.
 	'artifact'            => null,
+
+	// {bool} Whether to install WooCommerce.
+	'with-woocommerce'    => false,
 );
 
 // Matrix definitions. Each will be combined with `$default_matrix_vars` later in processing.
@@ -84,6 +87,16 @@ foreach ( array( 'previous', 'trunk' ) as $wp ) {
 		'timeout' => 15, // 2021-01-18: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
 	);
 }
+
+// Add WooCommerce tests.
+$matrix[] = array(
+	'name'             => 'PHP tests: PHP 7.4 WP latest with WooCommerce',
+	'script'           => 'test-php',
+	'php'              => '7.4',
+	'wp'               => 'latest',
+	'timeout'          => 20,
+	'with-woocommerce' => true,
+);
 
 // Add JS tests.
 $matrix[] = array(

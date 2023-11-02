@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Subscriptions: Add blog_id param to login link.

@@ -83,6 +83,7 @@ $allowed = array(
 		'wp-data',
 		'wp-element',
 		'wp-keycodes',
+		'wp-plugins',
 		'wp-primitives',
 	),
 );

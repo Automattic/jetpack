@@ -42,11 +42,11 @@
 	}
 </script>
 
-<div class="hover">
-	<p>{instructions}</p>
+<div class="jb-row-hover">
+	<p class="jb-row-hover__instruction">{instructions}</p>
 
 	{#if edit_url}
-		<div class="button-container">
+		<div class="jb-row-hover__button-container">
 			{#if $config.autoFix && device_type === 'desktop'}
 				<Button width="auto" fill on:click={() => handleFixClick()}>
 					{details.image.fixed ? __( 'Undo Fix', 'jetpack-boost' ) : __( 'Fix', 'jetpack-boost' )}
@@ -66,14 +66,3 @@
 		</div>
 	{/if}
 </div>
-
-<style lang="scss">
-	.hover {
-		display: flex;
-		align-items: center;
-		gap: var( --gap );
-	}
-	p {
-		flex-grow: 1;
-	}
-</style>

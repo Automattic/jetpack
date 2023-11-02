@@ -565,7 +565,7 @@ class iCalendarReader {
 			return false;
 		}
 
-		// rewrite webcal: URI schem to HTTP.
+		// rewrite webcal: URI scheme to HTTP.
 		$url = preg_replace( '/^webcal/', 'http', $url );
 		// try to fetch.
 		$r = wp_safe_remote_get(

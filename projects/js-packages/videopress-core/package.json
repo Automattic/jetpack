@@ -1,5 +1,4 @@
 {
-	"private": true,
 	"name": "@automattic/jetpack-videopress-core",
 	"version": "0.1.0-alpha",
 	"description": "VideoPress Core Functionality",
