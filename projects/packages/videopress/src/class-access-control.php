@@ -388,11 +388,6 @@ class Access_Control {
 	 * @return int the blog id
 	 */
 	public function get_videopress_blog_id() {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return get_current_blog_id();
-		}
-
-		$options = Options::get_options();
-		return $options['shadow_blog_id'];
+		return \Jetpack_Options::get_option( 'id' );
 	}
 }
