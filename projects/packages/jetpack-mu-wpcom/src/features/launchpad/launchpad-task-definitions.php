@@ -552,6 +552,27 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/site-monitoring/' . $data['site_slug_encoded'];
 			},
 		),
+		'import_subscribers'              => array(
+			'get_title'            => function () {
+				return __( 'Import existing subscribers', 'jetpack-mu-wpcom' );
+			},
+			'id_map'               => 'subscribers_added',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
+			},
+		),
+		'add_subscribe_block'             => array(
+			'get_title'            => function () {
+				return __( 'Add the Subscribe Block to your theme', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/site-editor/' . $data['site_slug_encoded'];
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -1767,6 +1788,35 @@ function wpcom_launchpad_edit_page_check( $post_id, $post ) {
 	wpcom_mark_launchpad_task_complete( 'edit_page' );
 }
 add_action( 'post_updated', 'wpcom_launchpad_edit_page_check', 10, 3 );
+
+/**
+ * When a template part is saved, make sure the subscribe block is in the content.
+ *
+ * @param int     $post_id The ID of the post being updated.
+ * @param WP_Post $post The post object.
+ *
+ * @return bool True if the task is completed, false otherwise.
+ */
+function wpcom_launchpad_add_subscribe_block_check( $post_id, $post ) {
+	// If this is just a revision, don't proceed.
+	if ( wp_is_post_revision( $post_id ) ) {
+		return;
+	}
+
+	// Check if it's a published template part.
+	if ( $post->post_type !== 'wp_template_part' || $post->post_status !== 'publish' ) {
+		return;
+	}
+
+	// Check if our subscribe block is in the template part content.
+	if ( has_block( 'jetpack/subscriptions', $post->post_content ) ) {
+		// Run your specific function if the subscribe block is found.
+		wpcom_mark_launchpad_task_complete( 'subscriber_block_added' );
+	}
+}
+
+// Hook the above function to the save_post action, specifically for 'wp_template_part' post type.
+add_action( 'save_post_wp_template_part', 'wpcom_launchpad_add_subscribe_block_check', 10, 3 );
 
 /**
  * Returns if the site has domain or bundle purchases.
