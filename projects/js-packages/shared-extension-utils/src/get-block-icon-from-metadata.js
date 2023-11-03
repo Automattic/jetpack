@@ -1,5 +1,5 @@
 /* eslint-disable jsdoc/no-undefined-types */
-import { createElement } from '@wordpress/element';
+import { createElement, Platform } from '@wordpress/element';
 import getIconColor from './get-icon-color';
 
 /**
@@ -42,15 +42,19 @@ export function getBlockIconComponent( metadata ) {
 /**
  * A block icon needs to be redefined on the front end as a React component, since a string - even
  * SVG markup - is interpreted as a dashicon. This function returns the object that must be passed
- * to the `icon` attribute when registering the block in the front end. It also sets the color
- * of the icon.
+ * to the `icon` attribute when registering the block in the front end. For native, this isn't necessary
+ * as there is logic for parsing the string in Gutenberg's `/components/block-icon/index.native.js`
+ * file.
+ *
+ * This function also sets the color of the icon.
  *
  * @param {object} metadata - Block.json content
  * @returns {object} Icon property for client registration
  */
 export function getBlockIconProp( metadata ) {
+	const isNative = Platform.isNative;
 	return {
-		src: getBlockIconComponent( metadata ),
+		src: isNative ? metadata.icon : getBlockIconComponent( metadata ),
 		foreground: getIconColor(),
 	};
 }
