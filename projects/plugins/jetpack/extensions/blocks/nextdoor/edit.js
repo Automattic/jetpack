@@ -14,6 +14,7 @@ const icon = getBlockIconComponent( metadata );
 
 export function NextdoorEdit( {
 	attributes,
+	clientId,
 	className,
 	name,
 	noticeOperations,
@@ -99,7 +100,11 @@ export function NextdoorEdit( {
 				{ ...{ defaultClassName, nextdoorShareUrl, onFormSubmit, setNextdoorShareUrl } }
 			/>
 			{ iframeUrl ? (
-				<BlockPreview defaultClassName={ defaultClassName } iframeUrl={ iframeUrl } />
+				<BlockPreview
+					defaultClassName={ defaultClassName }
+					iframeUrl={ iframeUrl }
+					clientId={ clientId }
+				/>
 			) : (
 				blockPlaceholder
 			) }
@@ -107,14 +112,14 @@ export function NextdoorEdit( {
 	);
 }
 
-const BlockPreview = ( { defaultClassName, iframeUrl } ) => {
+const BlockPreview = ( { defaultClassName, iframeUrl, clientId } ) => {
 	const html = `
 		<script>
 			window.addEventListener( 'message', function ( event ) {
 				if ( ! event.origin.startsWith( 'https://nextdoor' ) ) {
 					return;
 				}
-				var iframe = document.getElementById( 'nextdoor-embed' );
+				var iframe = document.getElementById( 'nextdoor-embed-${ clientId }' );
 				if ( event.source !== iframe.contentWindow ) {
 					return;
 				}
@@ -123,7 +128,7 @@ const BlockPreview = ( { defaultClassName, iframeUrl } ) => {
 				window.parent.postMessage( { action: 'resize', width: clientBoundingRect.width, height: clientBoundingRect.height }, '*' );
 			} );
 		</script>
-		<iframe id="nextdoor-embed" width="100%" height="200" frameBorder="0" src="${ iframeUrl }" title="Nextdoor" />
+		<iframe id="nextdoor-embed-${ clientId }" width="100%" height="200" frameBorder="0" src="${ iframeUrl }" title="Nextdoor" />
 		`;
 
 	return (
