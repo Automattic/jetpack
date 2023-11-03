@@ -28,6 +28,9 @@
 		}
 	],
 	"attributes": {
+		"blogId": {
+			"type": "number"
+		},
 		"subscribePlaceholder": {
 			"type": "string",
 			"default": "Type your email…"
