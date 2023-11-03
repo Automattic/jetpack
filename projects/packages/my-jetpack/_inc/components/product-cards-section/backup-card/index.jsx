@@ -202,6 +202,7 @@ const BackupCard = ( { admin, productData, fetchingProductData } ) => {
 	const undoAction = {
 		href: getRedirectUrl( 'jetpack-backup-undo-cta', {
 			path: undoBackupId,
+			site: window?.myJetpackInitialState?.siteSuffix,
 		} ),
 		size: 'small',
 		variant: 'primary',
