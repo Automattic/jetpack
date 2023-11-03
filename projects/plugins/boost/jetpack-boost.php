@@ -90,6 +90,7 @@ if ( is_readable( $boost_packages_path ) ) {
 	}
 } else {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		/** @noinspection ForgottenDebugOutputInspection */
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			sprintf(
 			/* translators: Placeholder is a link to a support document. */
