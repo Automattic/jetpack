@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix Vaulthe issue where the VaultPress submenu is not visible when the standalone plugin is inactive
