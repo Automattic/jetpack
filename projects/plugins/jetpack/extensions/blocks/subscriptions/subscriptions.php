@@ -569,6 +569,7 @@ function render_block( $attributes ) {
 			'successMessage',
 			esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' )
 		),
+		'show_login'                    => (bool) get_attribute( $attributes, 'showLogin', false ),
 		'show_subscribers_total'        => (bool) get_attribute( $attributes, 'showSubscribersTotal' ),
 		'subscribers_total'             => get_subscriber_count( $include_social_followers ),
 		'referer'                       => esc_url_raw(
