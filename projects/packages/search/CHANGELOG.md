@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.39.5] - 2023-11-03
+
 ## [0.39.4] - 2023-10-30
 ### Changed
 - Instant Search: rely on browsers' native lazy loading functionality when we want to lazy load images. [#33817]
@@ -830,6 +832,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.39.5]: https://github.com/Automattic/jetpack-search/compare/v0.39.4...v0.39.5
 [0.39.4]: https://github.com/Automattic/jetpack-search/compare/v0.39.3...v0.39.4
 [0.39.3]: https://github.com/Automattic/jetpack-search/compare/v0.39.2...v0.39.3
 [0.39.2]: https://github.com/Automattic/jetpack-search/compare/v0.39.1...v0.39.2
