@@ -7,36 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.0.1 - 2023-11-03
 ### Added
-- Updated composer.lock [#31978]
+- Updated composer.lock. [#31978]
 
 ### Changed
-- General: indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
-- General: indicate full compatibility with the latest version of WordPress, 6.4. [#33776]
-- General: remove WP 6.1 backwards compatibility checks [#32772]
-- General: update WordPress version requirements to WordPress 6.2. [#32762]
-- Updated package dependencies. [#31308]
-- Updated package dependencies. [#31468]
-- Updated package dependencies. [#31659]
-- Updated package dependencies. [#31769]
-- Updated package dependencies. [#31785]
-- Updated package dependencies. [#31872]
-- Updated package dependencies. [#32040]
-- Updated package dependencies. [#32166]
-- Updated package dependencies. [#32307]
-- Updated package dependencies. [#32605]
-- Updated package dependencies. [#32803]
-- Updated package dependencies. [#32804]
-- Updated package dependencies. [#32966]
-- Updated package dependencies. [#33001]
-- Updated package dependencies. [#33428]
-- Updated package dependencies. [#33429]
-- Updated package dependencies. [#33498]
-- Updated package dependencies. [#33646]
-- Updated package dependencies. [#33687]
-- Updated package dependencies. [#33692]
-- Updated package dependencies. [#33821]
+- General: Indicate full compatibility with the latest version of WordPress, 6.4. [#33776]
+- General: Remove WP 6.1 backwards compatibility checks. [#32772]
 - Updated package dependencies. [#33826]
-- Update lockfile [#33607]
+- Update lockfile. [#33607]
 - Use the new method to render Connection initial state. [#32499]
 
 ## 1.0.0 - 2023-06-15

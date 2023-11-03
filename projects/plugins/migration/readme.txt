@@ -41,35 +41,11 @@ If you need a little help during or after the migration, you’ll have round-the
 == Changelog ==
 ### 1.0.1 - 2023-11-03
 #### Added
-- Updated composer.lock
+- Updated composer.lock.
 
 #### Changed
-- General: indicate full compatibility with the latest version of WordPress, 6.3.
-- General: indicate full compatibility with the latest version of WordPress, 6.4.
-- General: remove WP 6.1 backwards compatibility checks
-- General: update WordPress version requirements to WordPress 6.2.
+- General: Indicate full compatibility with the latest version of WordPress, 6.4.
+- General: Remove WP 6.1 backwards compatibility checks.
 - Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
-- Update lockfile
+- Update lockfile.
 - Use the new method to render Connection initial state.
-
