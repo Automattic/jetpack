@@ -385,13 +385,12 @@ class Jetpack_Memberships {
 
 		return add_query_arg(
 			array(
-				'block_type' => $block_type,
-				'block_name' => self::$button_block_name,
 				'blog'       => esc_attr( self::get_blog_id() ),
 				'plan'       => esc_attr( $plan_id ),
 				'lang'       => esc_attr( get_locale() ),
 				'pid'        => esc_attr( get_the_ID() ), // Needed for analytics purposes.
 				'redirect'   => esc_attr( rawurlencode( home_url( $wp->request ) ) ), // Needed for redirect back in case of redirect-based flow.
+				'block_type' => $block_type, // Needed for analytics purposes.
 			),
 			'https://subscribe.wordpress.com/memberships/'
 		);
