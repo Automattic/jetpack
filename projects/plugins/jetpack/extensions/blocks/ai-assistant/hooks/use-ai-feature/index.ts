@@ -18,6 +18,14 @@ export type AIFeatureProps = {
 	errorMessage: string;
 	errorCode: string;
 	upgradeType: UpgradeTypeProp;
+	currentTier: {
+		value: 0 | 1 | 100 | 200 | 500;
+	};
+	usagePeriod: {
+		currentStart: string;
+		nextStart: string;
+		requestsCount: number;
+	};
 };
 
 const NUM_FREE_REQUESTS_LIMIT = 20;
@@ -33,6 +41,14 @@ export const AI_Assistant_Initial_State = {
 	errorMessage: aiAssistantFeature?.[ 'error-message' ] || '',
 	errorCode: aiAssistantFeature?.[ 'error-code' ],
 	upgradeType: aiAssistantFeature?.[ 'upgrade-type' ] || 'default',
+	usagePeriod: {
+		currentStart: aiAssistantFeature?.[ 'usage-period' ]?.[ 'current-start' ],
+		nextStart: aiAssistantFeature?.[ 'usage-period' ]?.[ 'next-start' ],
+		requestsCount: aiAssistantFeature?.[ 'usage-period' ]?.[ 'requests-count' ] || 0,
+	},
+	currentTier: {
+		value: aiAssistantFeature?.[ 'current-tier' ]?.value || 1,
+	},
 };
 
 export async function getAIFeatures(): Promise< AIFeatureProps > {
@@ -50,6 +66,14 @@ export async function getAIFeatures(): Promise< AIFeatureProps > {
 			errorMessage: response[ 'error-message' ],
 			errorCode: response[ 'error-code' ],
 			upgradeType: response[ 'upgrade-type' ],
+			usagePeriod: {
+				currentStart: response[ 'usage-period' ]?.[ 'current-start' ],
+				nextStart: response[ 'usage-period' ]?.[ 'next-start' ],
+				requestsCount: response[ 'usage-period' ]?.[ 'requests-count' ] || 0,
+			},
+			currentTier: {
+				value: response[ 'current-tier' ]?.value || 1,
+			},
 		};
 	} catch ( error ) {
 		console.error( error ); // eslint-disable-line no-console
