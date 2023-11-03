@@ -802,7 +802,7 @@ function zeroBSCRM_unpackListViewSettings() {
                         $cfTitle = $fKey; if (is_array($fDetail) && isset($fDetail[1])) $cfTitle = $fDetail[1];
 
                         // secaddr get's dealt with:
-                        if (substr($fKey,0,8) == 'secaddr_') {
+												if ( str_starts_with( $fKey, 'secaddr_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                           $cfTitle .= ' (' . esc_html( $second_address_label ) . ')';
                           if ($useSecondAddress !== 1) $skip = true;
                         }
