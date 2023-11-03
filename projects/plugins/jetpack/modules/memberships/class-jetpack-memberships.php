@@ -798,7 +798,7 @@ class Jetpack_Memberships {
 	public static function get_current_user_subscriber_email() {
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		return $subscription_service->get_token_property( 'blog_subscriber' );
+		return $subscription_service->get_subscriber_email();
 	}
 }
 Jetpack_Memberships::get_instance();
