@@ -84,7 +84,7 @@ export const getFormattedCategories = ( postCategories, newsletterCategories ) =
 		? postCategories
 		: [ UNCATEGORIZED_CATEGORY_ID ];
 
-	// If the post has a non newsletter category, then it's going to be sent to 'All Content' subscribers
+	// If the post has a non newsletter category, then it's going to be sent to 'All content' subscribers
 	const hasNonNewsletterCategory = updatedPostCategories.some( postCategory => {
 		return ! newsletterCategories.some( newsletterCategory => {
 			return newsletterCategory.id === postCategory;
@@ -97,7 +97,7 @@ export const getFormattedCategories = ( postCategories, newsletterCategories ) =
 		.map( category => category.name );
 
 	if ( hasNonNewsletterCategory ) {
-		categoryNames.push( __( 'all content', 'jetpack' ) );
+		categoryNames.push( __( 'All content', 'jetpack' ) );
 	}
 
 	const formattedCategoriesArray = categoryNames.map(
