@@ -35,6 +35,7 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 				planId: newPlanId,
 				url: resolvePaymentUrl( newPlanId ),
 				uniqueId: `recurring-payments-${ newPlanId }`,
+				blockType: 'payment-button',
 			} );
 		},
 		[ editorType, postLink, setAttributes ]

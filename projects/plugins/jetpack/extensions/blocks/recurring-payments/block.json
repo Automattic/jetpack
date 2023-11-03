@@ -61,6 +61,10 @@
 			"type": "string",
 			"default": "id"
 		},
+		"blockType": {
+			"type": "string",
+			"default": "recurring-payments"
+		},
 		"width": {
 			"type": "string"
 		}
