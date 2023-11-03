@@ -179,6 +179,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			return;
 		}
 
+		// Unnecessary because "My Sites" always links to the Sites page.
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+			return;
+		}
+
 		// Add the menu item.
 		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/sites', null, 'dashicons-arrow-left-alt2', 0 );
 		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );

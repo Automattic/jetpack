@@ -924,12 +924,19 @@ class Masterbar {
 			$blog_name = mb_substr( html_entity_decode( $blog_name, ENT_QUOTES ), 0, 20 ) . '&hellip;';
 		}
 
+		$my_site_url   = 'https://wordpress.com/sites/' . $this->primary_site_url;
+		$my_site_title = _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' );
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+			$my_site_url   = 'https://wordpress.com/sites';
+			$my_site_title = esc_html__( 'My Sites', 'jetpack' );
+		}
+
 		$wp_admin_bar->add_menu(
 			array(
 				'parent' => 'root-default',
 				'id'     => 'blog',
-				'title'  => _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' ),
-				'href'   => 'https://wordpress.com/sites/' . $this->primary_site_url,
+				'title'  => $my_site_title,
+				'href'   => $my_site_url,
 				'meta'   => array(
 					'class' => 'my-sites mb-trackable',
 				),
