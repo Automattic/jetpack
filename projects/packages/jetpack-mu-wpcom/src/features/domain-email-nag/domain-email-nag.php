@@ -65,8 +65,8 @@ function domain_email_nag() {
 
 	$pixel_url = sprintf(
 		'http://pixel.wp.com/b.gif?v=wpcom-no-pv&x_%s=%s',
-		'wpcom_frontend_unverified_domain_email_nag_shown',
-		$domain
+		'wpcom_frontend_unverified_domain_email_nag',
+		'shown'
 	);
 
 	wp_enqueue_style( 'wpcom-domain-email-nag-style', plugins_url( 'domain-nag.style.css', __FILE__ ), array(), Jetpack_Mu_Wpcom::PACKAGE_VERSION );
