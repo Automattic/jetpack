@@ -1,15 +1,39 @@
+import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
-import { jetpack_boost_ds } from './data-sync-client';
 
-export const minifyJsExcludesClient = jetpack_boost_ds.createAsyncStore(
-	'minify_js_excludes',
-	z.array( z.string() )
-);
+export const minifyMetaOptions = [ 'minify_js_excludes', 'minify_css_excludes' ] as const;
 
-export const minifyCssExcludesClient = jetpack_boost_ds.createAsyncStore(
-	'minify_css_excludes',
-	z.array( z.string() )
-);
+type MinifyMetaKeys = ( typeof minifyMetaOptions )[ number ];
 
-export const minifyJsExcludesStore = minifyJsExcludesClient.store;
-export const minifyCssExcludesStore = minifyCssExcludesClient.store;
+export interface Props {
+	datasyncKey: MinifyMetaKeys;
+	inputLabel: string;
+	buttonText: string;
+	placeholder: string;
+	value: string[];
+}
+
+export const useMetaQuery = ( key: MinifyMetaKeys ) => {
+	const { useQuery, useMutation } = useDataSync( 'jetpack_boost_ds', key, z.array( z.string() ) );
+	const { data } = useQuery();
+	const { mutate } = useMutation();
+
+	function updateValues( text: string ) {
+		mutate( text.split( ',' ).map( item => item.trim() ) );
+	}
+
+	return [ data, updateValues ] as const;
+};
+
+export const useConfig = () => {
+	const { useQuery } = useDataSync(
+		'jetpack_boost_ds',
+		'config',
+		z.object( {
+			plugin_dir_url: z.string().url(),
+		} )
+	);
+	const { data } = useQuery();
+
+	return data;
+};

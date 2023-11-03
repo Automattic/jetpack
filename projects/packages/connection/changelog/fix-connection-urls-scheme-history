@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Make sure scheme history option is an array.
