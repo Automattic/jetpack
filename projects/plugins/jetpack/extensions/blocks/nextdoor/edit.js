@@ -128,7 +128,10 @@ const BlockPreview = ( { defaultClassName, iframeUrl, clientId } ) => {
 				window.parent.postMessage( { action: 'resize', width: clientBoundingRect.width, height: clientBoundingRect.height }, '*' );
 			} );
 		</script>
-		<iframe id="nextdoor-embed-${ clientId }" width="100%" height="200" frameBorder="0" src="${ iframeUrl }" title="Nextdoor" />
+		<iframe id="nextdoor-embed-${ clientId }" width="100%" height="200" frameBorder="0" src="${ iframeUrl }" title="${ __(
+			'Nextdoor',
+			'jetpack'
+		) }" />
 		`;
 
 	return (
