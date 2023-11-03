@@ -6,7 +6,7 @@
  */
 namespace Automattic\Jetpack\Search\Compatibility;
 
-add_filter( 'option_instant_search_enabled', __NAMESPACE__ . '\disable_instant_search_for_ios_lt_16', 10, 1 );
+add_filter( 'jetpack_search_classic_search_enabled', __NAMESPACE__ . '\enable_classic_search_for_unsupported_browsers', 10, 1 );
 
 /**
  * Get the iOS version from the user agent.
@@ -26,17 +26,14 @@ function get_ios_version_from_user_agent( $user_agent ) {
 }
 
 /**
- * Disable Instant Search for iOS < 16, where the frontend is not working.
+ * Enable Classic Search for unsupported browsers as fallback, where Instant Search is not working.
  *
- * @param boolean $instant_search_enabled Whether Instant Search is enabled.
+ * @param boolean $classic_search_enabled whether Classic Search is enabled.
  */
-function disable_instant_search_for_ios_lt_16( $instant_search_enabled ) {
-	if ( is_admin() ) {
-		return $instant_search_enabled;
-	}
+function enable_classic_search_for_unsupported_browsers( $classic_search_enabled ) {
 	$ios_version = get_ios_version_from_user_agent( isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '' );
 	if ( $ios_version && version_compare( $ios_version, '16.0', '<' ) ) {
-		return false;
+		return true;
 	}
-	return $instant_search_enabled;
+	return $classic_search_enabled;
 }
