@@ -1790,7 +1790,7 @@ function wpcom_launchpad_edit_page_check( $post_id, $post ) {
 add_action( 'post_updated', 'wpcom_launchpad_edit_page_check', 10, 3 );
 
 /**
- * When a template part is saved, make sure the subscribe block is in the content.
+ * When a template or template part is saved, check if the subscribe block is in the content.
  *
  * @param int     $post_id The ID of the post being updated.
  * @param WP_Post $post The post object.
@@ -1803,20 +1803,20 @@ function wpcom_launchpad_add_subscribe_block_check( $post_id, $post ) {
 		return;
 	}
 
-	// Check if it's a published template part.
-	if ( $post->post_type !== 'wp_template_part' || $post->post_status !== 'publish' ) {
+	// Check if it's a published template or template part.
+	if ( $post->post_status !== 'publish' || ( $post->post_type !== 'wp_template' && $post->post_type !== 'wp_template_part' ) ) {
 		return;
 	}
 
-	// Check if our subscribe block is in the template part content.
+	// Check if our subscribe block is in the template or template part content.
 	if ( has_block( 'jetpack/subscriptions', $post->post_content ) ) {
 		// Run your specific function if the subscribe block is found.
-		wpcom_mark_launchpad_task_complete( 'subscriber_block_added' );
+		wpcom_mark_launchpad_task_complete( 'add_subscribe_block' );
 	}
 }
 
-// Hook the above function to the save_post action, specifically for 'wp_template_part' post type.
-add_action( 'save_post_wp_template_part', 'wpcom_launchpad_add_subscribe_block_check', 10, 3 );
+// Hook the function to the save_post action for all post types.
+add_action( 'save_post', 'wpcom_launchpad_add_subscribe_block_check', 10, 2 );
 
 /**
  * Returns if the site has domain or bundle purchases.
