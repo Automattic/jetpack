@@ -195,7 +195,7 @@ const BackupCard = ( { admin, productData, fetchingProductData } ) => {
 	const handleUndoClick = () => {
 		recordEvent( 'jetpack_myjetpack_backup_card_undo_click', {
 			product: slug,
-			undoBackupId,
+			undo_backup_id: undoBackupId,
 		} );
 	};
 
