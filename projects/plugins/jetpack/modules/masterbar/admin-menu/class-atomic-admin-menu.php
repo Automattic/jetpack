@@ -179,6 +179,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			return;
 		}
 
+		// Unnecessary because "My Sites" always links to the Sites page.
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+			return;
+		}
+
 		// Add the menu item.
 		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/sites', null, 'dashicons-arrow-left-alt2', 0 );
 		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
@@ -220,6 +225,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds site card component.
 	 */
 	public function add_site_card_menu() {
+		// Unnecessary because core toolbar links to the site.
+		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+			return;
+		}
+
 		$default        = plugins_url( 'globe-icon.svg', __FILE__ );
 		$icon           = get_site_icon_url( 32, $default );
 		$blog_name      = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
