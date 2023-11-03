@@ -946,24 +946,21 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		// translators: %s is the name of the site.
 		: esc_html__( 'Subscribe to get access to the rest of this post and other subscriber-only content.', 'jetpack' );
 
-	$sign_in         = '';
-	$switch_accounts = '';
-	if ( is_user_auth() && ( new Host() )->is_wpcom_simple() ) {
+	if ( is_user_logged_in() && ( new Host() )->is_wpcom_simple() ) {
 			$switch_accounts_link = wp_logout_url( get_current_url() );
 			$switch_accounts      = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
 <p class="has-text-align-center" style="font-size:14px"><a href="' . $switch_accounts_link . '">' . __( 'Switch Accounts', 'jetpack' ) . '</a></p>
 <!-- /wp:paragraph -->';
 
 	} else {
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			// custom domain
-			$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link', get_current_blog_id() );
-		} else {
-			$id           = 'jp_retrieve_subscriptions_link' . ( get_the_ID() ? get_the_ID() : '' );
-			$sign_in_link = '#'; // listening to "click" event in view.js
-		}
-		$button_text = get_paywall_access_question( $newsletter_access_level );
+		$id           = 'jp_retrieve_subscriptions_link' . ( get_the_ID() ? get_the_ID() : '' );
+		$sign_in_link = '#'; // listening to "click" event in view.js
 
+		if ( Jetpack_Token_Subscription_Service::has_token_from_cookie() ) {
+			$button_text = esc_html__( 'Switch accounts', 'jetpack' );
+		} else {
+			$button_text = get_paywall_access_question( $newsletter_access_level );
+		}
 		$sign_in = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
 			<p class="has-text-align-center" style="font-size:14px">' .
 			' <a id="' . $id . '" href="' . $sign_in_link . '">' . $button_text . '</a>' .
