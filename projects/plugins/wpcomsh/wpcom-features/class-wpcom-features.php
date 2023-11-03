@@ -186,6 +186,9 @@ class WPCOM_Features {
 	private const JETPACK_SOCIAL_ADVANCED                     = 'jetpack_social_advanced_yearly'; // 2602
 	private const JETPACK_SOCIAL_ADVANCED_MONTHLY             = 'jetpack_social_advanced_monthly'; // 2603
 	private const JETPACK_GOLDEN_TOKEN                        = 'jetpack_golden_token_lifetime'; // 2900
+	private const JETPACK_CREATOR_MONTHLY                     = 'jetpack_creator_monthly'; // 2610
+	private const JETPACK_CREATOR_YEARLY                      = 'jetpack_creator_yearly'; // 2611
+	private const JETPACK_CREATOR_BI_YEARLY                   = 'jetpack_creator_bi_yearly'; // 2612
 
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS           = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
@@ -247,6 +250,8 @@ class WPCOM_Features {
 	private const JETPACK_BACKUP_T0_PLANS       = array( self::JETPACK_BACKUP_T0_MONTHLY, self::JETPACK_BACKUP_T0_YEARLY );
 	private const JETPACK_BACKUP_T1_PLANS       = array( self::JETPACK_BACKUP_T1_MONTHLY, self::JETPACK_BACKUP_T1_YEARLY, self::JETPACK_BACKUP_T1_BI_YEARLY );
 	private const JETPACK_BACKUP_T2_PLANS       = array( self::JETPACK_BACKUP_T2_MONTHLY, self::JETPACK_BACKUP_T2_YEARLY );
+
+	private const JETPACK_CREATOR_PLANS         = array( self::JETPACK_CREATOR_MONTHLY, self::JETPACK_CREATOR_YEARLY, self::JETPACK_CREATOR_BI_YEARLY );
 
 	// Jetpack "Level 3": Groups of level 2.
 	private const JETPACK_PERSONAL_AND_HIGHER = array(
@@ -983,6 +988,7 @@ class WPCOM_Features {
 		self::SIMPLE_PAYMENTS                  => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
+			self::JETPACK_CREATOR_PLANS,
 		),
 		self::SITE_PREVIEW_LINKS               => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -1101,6 +1107,7 @@ class WPCOM_Features {
 			self::JETPACK_PERSONAL_AND_HIGHER,
 			self::JETPACK_SOCIAL_PLANS,
 			self::JETPACK_SOCIAL_ADVANCED_PLANS,
+			self::JETPACK_CREATOR_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_MIGRATION_TRIAL_PLANS,
 				self::WPCOM_HOSTING_TRIAL_PLANS,
@@ -1306,6 +1313,7 @@ class WPCOM_Features {
 			self::JETPACK_STARTER_PLANS,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
+			self::JETPACK_CREATOR_PLANS,
 		),
 
 		/*
