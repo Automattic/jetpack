@@ -662,7 +662,9 @@ abstract class Base_Admin_Menu {
 			if ( ! $fallback_global_preference ) {
 				return self::UNKNOWN_VIEW;
 			}
-			return $this->should_link_to_wp_admin() ? self::CLASSIC_VIEW : self::DEFAULT_VIEW;
+
+			$should_link_to_wp_admin = $this->should_link_to_wp_admin( $screen ) || $this->use_wp_admin_interface( $screen );
+			return $should_link_to_wp_admin ? self::CLASSIC_VIEW : self::DEFAULT_VIEW;
 		}
 
 		return $preferred_views[ $screen ];
