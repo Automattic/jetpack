@@ -64,7 +64,7 @@ function domain_email_nag() {
 	}
 
 	$pixel_url = sprintf(
-		'http://pixel.wp.com/g.gif?v=wpcom-no-pv&x_%s=%s',
+		'http://pixel.wp.com/b.gif?v=wpcom-no-pv&x_%s=%s',
 		'wpcom_frontend_unverified_domain_email_nag_shown',
 		$domain
 	);
