@@ -5,7 +5,7 @@
 }
 
 .is-style-compact {
-	&:has(input[name="email"]) {
+	&:has(input[type="email"]) {
 		.wp-block-jetpack-subscriptions__button,
 		.wp-block-button__link {
 			margin-inline-start: 0 !important;
@@ -34,10 +34,11 @@
 
 	.wp-block-jetpack-subscriptions__form,
 	form  {
-
-		.wp-block-jetpack-subscriptions__form-elements {
-			display: flex;
-			align-items: flex-start;
+		&:has(input[type="email"]) {
+			.wp-block-jetpack-subscriptions__form-elements {
+				display: flex;
+				align-items: flex-start;
+			}
 		}
 
 		.wp-block-jetpack-subscriptions__textfield .components-text-control__input,
