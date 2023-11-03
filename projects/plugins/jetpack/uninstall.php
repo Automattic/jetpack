@@ -28,7 +28,7 @@ function jetpack_uninstall() {
 
 	require JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.php';
 
-	if ( ! Connection_Manager::is_ready_for_cleanup( dirname( plugin_basename( __FILE__ ) ) ) ) {
+	if ( method_exists( Connection_Manager::class, 'is_ready_for_cleanup' ) && ! Connection_Manager::is_ready_for_cleanup( dirname( plugin_basename( __FILE__ ) ) ) ) {
 		// There are other active Jetpack plugins, no need for cleanup.
 		return;
 	}
