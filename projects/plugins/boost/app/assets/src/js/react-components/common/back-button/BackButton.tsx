@@ -12,7 +12,7 @@ const BackButton: React.FC< BackButtonProps > = ( { route = '/' } ) => {
 
 	return (
 		<button
-			className="components-button aaa components-button--back is-link close"
+			className="components-button components-button--back is-link close"
 			onClick={ handleBack }
 		>
 			<LeftArrow />
