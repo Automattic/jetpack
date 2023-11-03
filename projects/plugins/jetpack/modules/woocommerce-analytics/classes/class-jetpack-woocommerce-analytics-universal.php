@@ -504,10 +504,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$other_blocks  = array_filter(
 			$parsed_blocks,
 			function ( $block ) {
-				if ( is_checkout() && isset( $block['blockName'] ) && $block['blockName'] !== 'woocommerce/checkout' ) {
+				if ( is_checkout() && isset( $block['blockName'] ) && 'woocommerce/checkout' !== $block['blockName'] ) {
 					return true;
 				}
-				if ( is_cart() && isset( $block['blockName'] ) && $block['blockName'] !== 'woocommerce/cart' ) {
+				if ( is_cart() && isset( $block['blockName'] ) && 'woocommerce/cart' !== $block['blockName'] ) {
 					return true;
 				}
 				return false;
@@ -524,7 +524,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				$all_inner_blocks[] = $block['blockName'];
 			}
 
-			if ( ! isset( $block['innerBlocks'] ) || ! is_array( $block['innerBlocks'] ) || count( $block['innerBlocks'] ) === 0 ) {
+			if ( ! isset( $block['innerBlocks'] ) || ! is_array( $block['innerBlocks'] ) || 0 === count( $block['innerBlocks'] ) ) {
 				continue;
 			}
 
