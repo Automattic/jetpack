@@ -1,6 +1,11 @@
+@import '@automattic/jetpack-base-styles/style';
+
 .jetpack-ai-usage-panel {
+	--spacing-base: 8px;
+
 	.jetpack-ai-usage-panel-loading {
 		height: calc( var( --spacing-base ) * 11 + 0.5px );
+		background-color: var( --jp-gray );
 	}
 
 	.ai-assistant-usage-bar {

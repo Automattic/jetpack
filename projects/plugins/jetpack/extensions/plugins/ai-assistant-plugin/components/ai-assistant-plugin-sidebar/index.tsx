@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { ThemeProvider } from '@automattic/jetpack-components';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelBody, PanelRow, BaseControl } from '@wordpress/components';
@@ -75,28 +74,26 @@ export default function AiAssistantPluginSidebar() {
 	return (
 		<>
 			<JetpackPluginSidebar>
-				<ThemeProvider>
-					<PanelBody title={ title } initialOpen={ false }>
+				<PanelBody title={ title } initialOpen={ false }>
+					<PanelRow>
+						<BaseControl
+							className="jetpack-ai-proofread-control__header"
+							label={ __( 'AI feedback on post', 'jetpack' ) }
+						>
+							<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
+						</BaseControl>
+					</PanelRow>
+					{ requireUpgrade && ! isUsagePanelAvailable && (
 						<PanelRow>
-							<BaseControl
-								className="jetpack-ai-proofread-control__header"
-								label={ __( 'AI feedback on post', 'jetpack' ) }
-							>
-								<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
-							</BaseControl>
+							<Upgrade onClick={ autosaveAndRedirect } type={ upgradeType } />
 						</PanelRow>
-						{ requireUpgrade && ! isUsagePanelAvailable && (
-							<PanelRow>
-								<Upgrade onClick={ autosaveAndRedirect } type={ upgradeType } />
-							</PanelRow>
-						) }
-						{ isUsagePanelAvailable && (
-							<PanelRow>
-								<UsagePanel />
-							</PanelRow>
-						) }
-					</PanelBody>
-				</ThemeProvider>
+					) }
+					{ isUsagePanelAvailable && (
+						<PanelRow>
+							<UsagePanel />
+						</PanelRow>
+					) }
+				</PanelBody>
 			</JetpackPluginSidebar>
 
 			<PluginPrePublishPanel
@@ -104,12 +101,10 @@ export default function AiAssistantPluginSidebar() {
 				icon={ <JetpackEditorPanelLogo /> }
 				initialOpen={ false }
 			>
-				<ThemeProvider>
-					<>
-						<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
-						{ requireUpgrade && <Upgrade onClick={ autosaveAndRedirect } type={ upgradeType } /> }
-					</>
-				</ThemeProvider>
+				<>
+					<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
+					{ requireUpgrade && <Upgrade onClick={ autosaveAndRedirect } type={ upgradeType } /> }
+				</>
 			</PluginPrePublishPanel>
 		</>
 	);
