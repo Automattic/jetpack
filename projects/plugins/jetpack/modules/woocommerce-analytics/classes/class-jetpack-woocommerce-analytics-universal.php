@@ -504,10 +504,13 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$other_blocks  = array_filter(
 			$parsed_blocks,
 			function ( $block ) {
-				if ( is_checkout() && isset( $block['blockName'] ) && 'woocommerce/checkout' !== $block['blockName'] ) {
+				if ( ! isset( $block['blockName'] ) ) {
+					return false;
+				}
+				if ( is_checkout() && 'woocommerce/checkout' !== $block['blockName'] ) {
 					return true;
 				}
-				if ( is_cart() && isset( $block['blockName'] ) && 'woocommerce/cart' !== $block['blockName'] ) {
+				if ( is_cart() && 'woocommerce/cart' !== $block['blockName'] ) {
 					return true;
 				}
 				return false;
