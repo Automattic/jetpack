@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Passes block type attribute along to memberships checkout form.
