@@ -187,22 +187,19 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 2.1.1 - 2023-09-13
-#### Added
-- Image CDN: Added quality settings for premium users.
-- Performance History: New section to display historical performance.
-
+### 2.2.0-beta - 2023-10-26
 #### Changed
-- Image Size Analyzer: Removed get parameters from image URLs on ISA report details page.
-- UI: Improved discount elements for pricing section.
-- UI: Updated Image Size Analyzer error feedback.
-- General: Removed WP 6.1 backwards compatibility checks.
+- General: Indicate full compatibility with the latest version of WordPress, 6.4.
+- Getting Started: Improved how features are sorted in the getting started page.
+- Performance History: Improvements in design.
+
+#### Deprecated
+- Lazy Images: Added deprecation notice.
+- Lazy Images: Force disable feature to avoid conflict with new version of Gutenberg and WordPress 6.4.
 
 #### Fixed
-- UI: Added the footer back on the getting started page.
-- Critical CSS: Improved the regenerate button to eliminate the possibility of accidental parallel regeneration.
-- Image Guide: Fixed oversize ratio in some cases.
-- Image Guide: Fixed grammar issue in the feature description on the Boost dashboard.
+- Concatenate JS/CSS: Fixed generating invalid html ID values for concatenated stylesheets.
+- Image CDN: Update quality slider UI.
 
 --------
 

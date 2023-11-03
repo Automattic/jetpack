@@ -48,10 +48,12 @@ export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, pai
 
 export function useSetAccess() {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
-
+	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	return value => {
+		// We are removing the tier ID meta
+		delete metas[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
 		setPostMeta( {
+			...metas,
 			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: value,
 			// When a access is set, we need to clear the tier
 			[ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: null,
@@ -61,10 +63,10 @@ export function useSetAccess() {
 
 export function useSetTier() {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
-
+	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	return value => {
 		setPostMeta( {
+			...metas,
 			[ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: value,
 		} );
 	};

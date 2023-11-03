@@ -7,7 +7,7 @@ module.exports = [
 			index: './_inc/admin.jsx',
 		},
 		mode: jetpackWebpackConfig.mode,
-		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+		devtool: jetpackWebpackConfig.devtool,
 		output: {
 			...jetpackWebpackConfig.output,
 			path: path.resolve( './build' ),

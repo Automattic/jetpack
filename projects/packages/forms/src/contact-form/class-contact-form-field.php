@@ -454,7 +454,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				. $extra_attrs_string
 				. '>'
 				. esc_html( $label )
-				. ( $required ? '<span>' . $required_field_text . '</span>' : '' )
+				. ( $required ? '<span class="grunion-label-required">' . $required_field_text . '</span>' : '' )
 				. "</label>\n";
 	}
 

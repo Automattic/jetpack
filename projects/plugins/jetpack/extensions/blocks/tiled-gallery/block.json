@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/tiled-gallery",
 	"title": "Tiled Gallery",
 	"description": "Display multiple images in an elegantly organized tiled layout.",
@@ -108,57 +108,5 @@
 			"type": "integer",
 			"default": 0
 		}
-	},
-	"example": {
-		"attributes": {
-			"align": "center",
-			"className": "is-style-rectangular",
-			"images": [
-				{
-					"alt": "",
-					"link": "",
-					"url": "tiledGalleryExample1",
-					"width": 160,
-					"height": 95
-				},
-				{
-					"alt": "",
-					"link": "",
-					"url": "tiledGalleryExample2",
-					"width": 160,
-					"height": 107
-				},
-				{
-					"alt": "",
-					"link": "",
-					"url": "tiledGalleryExample3",
-					"width": 304,
-					"height": 203
-				},
-				{
-					"alt": "",
-					"link": "",
-					"url": "tiledGalleryExample4",
-					"width": 312,
-					"height": 207
-				},
-				{
-					"alt": "",
-					"link": "",
-					"url": "tiledGalleryExample5",
-					"width": 152,
-					"height": 101
-				},
-				{
-					"alt": "",
-					"link": "",
-					"url": "tiledGalleryExample6",
-					"width": 152,
-					"height": 105
-				}
-			],
-			"linkTo": "none"
-		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }
