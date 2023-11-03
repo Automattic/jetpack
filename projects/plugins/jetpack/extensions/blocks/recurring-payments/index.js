@@ -91,6 +91,10 @@ export const settings = {
 			// Used for blocks created without the payment form auto open feature.
 			default: 'id',
 		},
+		blockType: {
+			type: 'string',
+			default: 'recurring-payments',
+		},
 		width: {
 			type: 'string',
 		},
