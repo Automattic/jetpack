@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Respect the user's view setting when wpcom_admin_interface is wp-admin

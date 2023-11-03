@@ -100,11 +100,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 */
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
 
-		// The preferred view will always be wp-admin (classic view) when the wpcom_admin_interface option is set to 'wp-admin'.
-		if ( $this->use_wp_admin_interface( $screen ) ) {
-			return self::CLASSIC_VIEW;
-		}
-
 		// Export on Atomic sites are always managed on WP Admin.
 		if ( in_array( $screen, array( 'export.php' ), true ) ) {
 			return self::CLASSIC_VIEW;
