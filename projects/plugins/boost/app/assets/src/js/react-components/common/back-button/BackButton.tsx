@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { navigate } from '../../../utils/navigate';
 import LeftArrow from '../../svg/left-arrow.svg';
 
 type BackButtonProps = {
@@ -7,7 +8,7 @@ type BackButtonProps = {
 
 const BackButton: React.FC< BackButtonProps > = ( { route = '/' } ) => {
 	const handleBack = () => {
-		window.location.hash = route;
+		navigate( route );
 	};
 
 	return (
