@@ -26,7 +26,7 @@ function get_ios_version_from_user_agent( $user_agent ) {
 }
 
 /**
- * Enable Classic Search for unsupported browsers as fallback, where Instant Search is not working.
+ * Enable Classic Search for browsers that we don't support for Instant Search.
  *
  * @param boolean $classic_search_enabled whether Classic Search is enabled.
  */
