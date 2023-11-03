@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 namespace Automattic\Jetpack\Search;
 
-require_once __DIR__ . '/../../compatibility/ios-15.php';
+require_once __DIR__ . '/../../compatibility/unsupported-browsers.php';
 
 use Automattic\Jetpack\Search\Test_Case as Search_Test_Case;
 
