@@ -5,6 +5,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Blocks;
+
 /**
  * Get the task definitions for the Launchpad.
  *
@@ -568,7 +570,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Add the Subscribe Block to your theme', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'is_visible_callback'  => '__return_true',
+			'is_visible_callback'  => 'wpcom_launchpad_is_add_subscribe_block_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/site-editor/' . $data['site_slug_encoded'];
 			},
@@ -1788,6 +1790,15 @@ function wpcom_launchpad_edit_page_check( $post_id, $post ) {
 	wpcom_mark_launchpad_task_complete( 'edit_page' );
 }
 add_action( 'post_updated', 'wpcom_launchpad_edit_page_check', 10, 3 );
+
+/**
+ * Determine `add_subscribe_block` task visibility. The task is visible if using a FSE theme.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_launchpad_is_add_subscribe_block_visible() {
+	return Blocks::is_fse_theme();
+}
 
 /**
  * When a template or template part is saved, check if the subscribe block is in the content.
