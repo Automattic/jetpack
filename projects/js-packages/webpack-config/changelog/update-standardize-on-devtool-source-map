@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Default devtool in development mode is now 'source-map'. This is technically a breaking change, as now `.map` files will be generated in development mode.
