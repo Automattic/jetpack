@@ -509,7 +509,7 @@ function wpsc_get_accept_header() {
 	static $accept = 'N/A';
 
 	if ( $accept === 'N/A' ) {
-		$json_list = array( 'application/json', 'application/activity+json', 'application/ld+json' );
+		$json_list = apply_filters( 'wpsc_accept_list', array( 'application/json', 'application/activity+json', 'application/ld+json' ) );
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- $accept is checked and set below.
 		$accept = isset( $_SERVER['HTTP_ACCEPT'] ) ? strtolower( filter_var( $_SERVER['HTTP_ACCEPT'] ) ) : '';
