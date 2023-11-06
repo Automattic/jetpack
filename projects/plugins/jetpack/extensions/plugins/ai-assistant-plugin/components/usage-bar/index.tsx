@@ -1,16 +1,18 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
 import { BaseControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
+import React from 'react';
+/**
+ * Internal dependencies
+ */
 import './style.scss';
 /**
  * Types
  */
-import type { UsageBarProps } from './types';
-import type { AIFeatureProps } from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
-import type React from 'react';
+import type { UsageBarProps, UsageControlProps } from './types';
 
 /**
  * UsageBar component
@@ -49,7 +51,7 @@ function UsageControl( {
 	hasFeature,
 	requestsCount,
 	requestsLimit,
-}: Pick< AIFeatureProps, 'isOverLimit' | 'hasFeature' | 'requestsCount' | 'requestsLimit' > ) {
+}: UsageControlProps ) {
 	let help = __( 'Unlimited requests for your site', 'jetpack' );
 
 	if ( ! hasFeature ) {
