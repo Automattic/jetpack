@@ -11,14 +11,20 @@ type Plan = {
 	product_slug: string;
 };
 
+type Feature = {
+	feature_id: number;
+};
+
 type PlanStateProps = {
 	plans: Array< Plan >;
+	features: Array< Feature >;
 };
 
 const store = 'wordpress-com/plans';
 
 const INITIAL_STATE: PlanStateProps = {
 	plans: [],
+	features: [],
 };
 
 const actions = {
