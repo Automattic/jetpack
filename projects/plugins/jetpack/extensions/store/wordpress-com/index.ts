@@ -12,7 +12,7 @@ type Plan = {
 };
 
 type Feature = {
-	feature_id: number;
+	feature_slug: 'AI_ASSISTANT' | string;
 };
 
 type PlanStateProps = {
@@ -44,6 +44,8 @@ const actions = {
 };
 
 const wordpressPlansStore = createReduxStore( store, {
+	__experimentalUseThunks: true,
+
 	reducer( state = INITIAL_STATE, action ) {
 		switch ( action.type ) {
 			case 'SET_PLANS':
@@ -68,6 +70,16 @@ const wordpressPlansStore = createReduxStore( store, {
 		 */
 		getPlan( state: PlanStateProps, planSlug: string ) {
 			return state.plans.find( plan => plan.product_slug === planSlug );
+		},
+
+		/**
+		 * Return the AI Assistant feature.
+		 *
+		 * @param {object} state - The Plans state tree.
+		 * @returns {object}       The AI Assistant feature data.
+		 */
+		getAiAssistantFeature( state: PlanStateProps ) {
+			return state.features.find( feature => feature.feature_slug === 'AI_ASSISTANT' );
 		},
 	},
 
