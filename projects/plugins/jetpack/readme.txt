@@ -291,7 +291,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.8-a.9 - 2023-10-30
+### 12.8 - 2023-11-06
 #### Enhancements
 - Add a filter that allows disabling Scan module.
 - Adds new modifications for the admin menu on Atomic sites that ensures that all links go to wp-admin except those that are only available in Calypso.
@@ -301,8 +301,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - AI Assistant: Add Upgrade button component on the UsagePanel.
 - AI Assistant: Add UsageBar component and add a sample of it to the Usage Panel.
 - AI Assistant: Connect real usage data on the UsagePanel.
-- AI Assistant: Enable backend prompts for 50% of production sites.
-- AI Assistant: Enable backend prompts for 100% of production sites.
+- AI Assistant: Enable backend prompts.
 - AI Assistant: Enhance toolbar UX.
 - AI Assistant: Register ai-assistant-usage-panel beta extension.
 - AI Extension: Change the filter to populate the Jetpack Form block with AI components.
@@ -329,9 +328,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Link plugins to WP.com Marketplace on Atomic sites.
 - Metered billing: Hide usage bar when site has AI plan.
 - Paywall: Improve already subscriber experience.
+- Refactor blocks registration.
 - Register WordAds block earlier to make it more discoverable.
 - Remove Jetpack option jetpack-memberships-connected-account-id.
-- SEO Title & Description - Display the current nucount of characters, even when over the suggested limit.
+- SEO Title & Description: Display the current nucount of characters, even when over the suggested limit.
 - Sitemaps: Update the colors used on the sitemap page to match updated Jetpack branding colors.
 - Subscribers: Allow admins to see subscribe modal.
 - Subscription block: Improve wording to get access to content.
@@ -357,12 +357,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Do not list one-time interval payment plans as newsletter plans.
 - Fix block paid icon rendering error on simple sites.
 - Fixed a bug that prevent customers from downloading invoices from the my account page in WooCommerce.
+- Fixed an issue where initial state is not in sync.
+- Fixes style for multiple choice checkbox in Froms block.
+- Fix issue in tier selector when tier is null.
 - Fix issue when email was double encoded.
 - Fix Map block not rendering.
 - Fix missing block translations.
 - Fix the google fonts module is not loaded after the late initialization.
 - Jetpack: Fix performance issues by not calling useAnalytics hook for all paragraphs.
 - Newsletter: If site has no plan, downgrade post access to subscribers-only.
+- Prevent a PHP Warning when accessing inner blocks on cart and checkout pages.
 - Prevent issue on jetpack proxy when tier is added.
 - Require login on wpcom for paid content access without cookie or token.
 - REST API: Fix GA settings field, wga, for settings endpoints on API version 1.3 and 1.4.
