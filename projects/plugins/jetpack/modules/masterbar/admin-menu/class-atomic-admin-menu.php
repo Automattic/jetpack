@@ -45,6 +45,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// Add notices to the settings pages when there is a Calypso page available.
 		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 			add_action( 'current_screen', array( $this, 'add_settings_page_notice' ) );
+
 		}
 	}
 
@@ -322,6 +323,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_stats_menu() {
 
 		if ( $this->use_wp_admin_interface( 'jetpack' ) ) {
+			$this->move_jetpack_stats_menu_item();
 			return;
 		}
 
@@ -341,6 +343,50 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+	}
+
+	/**
+	 * This method moves the Jetpack -> Stats item to the root level of the navigation menu.
+	 * This is done to make the stats menu more prominent, as is also the case in Calypso.
+	 *
+	 * We also ensure to call and register the original Jetpack Stats hooks needed to load all additional logic
+	 * that is required to render the stats page.
+	 *
+	 * @return void
+	 */
+	public function move_jetpack_stats_menu_item() {
+		global $submenu;
+
+		// Ignore if the Jetpack submenu is not registered.
+		if ( ! isset( $submenu['jetpack'] ) ) {
+			return;
+		}
+
+		// Loop through the Jetpack submenu items and find the stats menu item.
+		foreach ( $submenu['jetpack'] as $menu_item ) {
+			if ( 'stats' !== $menu_item[2] ) {
+				continue;
+			}
+
+			// Remove the stats item from the Jetpack menu
+			remove_submenu_page( 'jetpack', 'stats' );
+
+			$menu_title = __( 'Stats', 'jetpack' );
+
+			// Add the stats page to the top menu and register the jetpack admin ui wrapper callback needed to load the page.
+			$hook_suffix = add_menu_page(
+				$menu_title,
+				$menu_title,
+				'view_stats',
+				'stats',
+				'jetpack_admin_ui_stats_report_page_wrapper',
+				'dashicons-chart-bar',
+				3
+			);
+
+			// Register the hook that adds scripts, styles and other logic needed to successfully load the stats page.
+			add_action( 'load-' . $hook_suffix, 'stats_reports_load' );
+		}
 	}
 
 	/**
