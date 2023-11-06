@@ -2024,7 +2024,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 									// Construction necessary for Mustache lists.
 									return '"' . trim( $keyword ) . '"';
 							},
-							explode( ',', $assoc_args['keywords'], 3 )
+							array_slice( explode( ',', $assoc_args['keywords'] ), 0, 3 )
 						)
 						: '',
 				)
