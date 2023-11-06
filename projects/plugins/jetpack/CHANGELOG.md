@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.8-beta - 2023-11-03
+## 12.8 - 2023-11-06
 ### Enhancements
 - Added a notice for wp-admin settings pages when the wpcom_admin_interface option is set to wp-admin. [#33933]
 - Added nextdoor block to production blocks. [#33950]
@@ -23,6 +23,8 @@
 ### Bug fixes
 - Comments: Improve compatibility with WordPress 6.4 and drop IE support. [#33709]
 - Fix Assistant not showing Jetpack header on some Assistant routes. [#33896]
+- Fixed an issue where initial state is not in sync
+- Prevent a PHP Warning when accessing inner blocks on cart and checkout pages.
 - Respect the user's view setting when wpcom_admin_interface is wp-admin. [#33945]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
