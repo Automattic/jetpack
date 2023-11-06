@@ -1451,8 +1451,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$nice       = $user->user_nicename;
 			}
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
-				$active_blog = get_active_blog_for_user( $id );
-				$site_id     = $active_blog->blog_id;
+				$active_blog = apply_filters( 'wpcom_pre_get_active_blog_for_user', false, $id );
+				if ( false === $active_blog ) {
+					$active_blog = get_active_blog_for_user( $id );
+				}
+				$site_id = $active_blog->blog_id;
 				if ( $site_id > -1 ) {
 					$site_visible = (
 						-1 !== (int) $active_blog->public ||
