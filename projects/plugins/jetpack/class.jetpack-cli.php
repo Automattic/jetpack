@@ -2006,8 +2006,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$wp_filesystem->mkdir( $path );
 
-		$has_keywords = isset( $assoc_args['keywords'] );
-
 		$files = array(
 			"$path/block.json"  => self::render_block_file(
 				'block-block-json',
@@ -2018,13 +2016,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 						? $assoc_args['description']
 						: $title,
 					'nextVersion' => $next_version,
-					'keywords'    => $has_keywords
-						? array_map(
-							function ( $keyword ) {
-									// Construction necessary for Mustache lists.
-									return '"' . trim( $keyword ) . '"';
-							},
-							array_slice( explode( ',', $assoc_args['keywords'] ), 0, 3 )
+					'keywords'    => isset( $assoc_args['keywords'] )
+						? implode(
+							',',
+							array_map(
+								function ( $keyword ) {
+										return '"' . trim( $keyword ) . '"';
+								},
+								array_slice( explode( ',', $assoc_args['keywords'] ), 0, 3 )
+							)
 						)
 						: '',
 				)
