@@ -535,8 +535,7 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Determines whether the current user can view the post based on the newsletter access level
-	 * and caches the result.
+	 * Determines whether the current user is a paid subscriber and caches the result.
 	 *
 	 * @return bool Whether the post can be viewed
 	 */
@@ -555,11 +554,15 @@ class Jetpack_Memberships {
 	 * Determines whether the current user can view the post based on the newsletter access level
 	 * and caches the result.
 	 *
+	 * @param int|null $post_id Explicit post id to check against.
+	 *
 	 * @return bool Whether the post can be viewed
 	 */
-	public static function user_can_view_post() {
+	public static function user_can_view_post( $post_id = null ) {
 		$user_id = get_current_user_id();
-		$post_id = get_the_ID();
+		if ( null === $post_id ) {
+			$post_id = get_the_ID();
+		}
 
 		if ( false === $post_id ) {
 			$post_id = 0;
