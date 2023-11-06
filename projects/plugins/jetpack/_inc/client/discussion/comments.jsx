@@ -157,7 +157,6 @@ class CommentsComponent extends React.Component {
 							<div className="jp-toggle-set">
 								<FormFieldset>
 									<ToggleControl
-										className="jp-form-toggle-markdown-comments"
 										checked={
 											!! this.props.getOptionValue(
 												'wpcom_publish_comments_with_markdown',
@@ -172,7 +171,11 @@ class CommentsComponent extends React.Component {
 											'wpcom_publish_comments_with_markdown',
 										] ) }
 										onChange={ this.handleMarkdownCommentsToggle }
-										label={ __( 'Enable Markdown use for comments.', 'jetpack' ) }
+										label={
+											<span className="jp-form-toggle-explanation">
+												{ __( 'Enable Markdown use for comments.', 'jetpack' ) }
+											</span>
+										}
 									/>
 								</FormFieldset>
 								<SupportInfo
