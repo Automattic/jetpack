@@ -89,21 +89,23 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Jetpack AI Assistant brings the power of AI right into your WordPress editor, letting your content creation soar to new heights.', 'jetpack-my-jetpack' );
+		return __( 'The most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' );
 	}
 
 	/**
 	 * Get the internationalized features list
 	 *
-	 * @return array CRM features list
+	 * @return array Jetpack AI features list
 	 */
 	public static function get_features() {
 		return array(
-			__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
-			__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
-			__( 'Refine the tone and content to your liking', 'jetpack-my-jetpack' ),
-			__( 'Get feedback about your post', 'jetpack-my-jetpack' ),
-			__( 'Seamless WordPress editor Integration', 'jetpack-my-jetpack' ),
+			__( 'Prompt based content generation', 'jetpack-my-jetpack' ),
+			__( 'Generate text, tables, and lists', 'jetpack-my-jetpack' ),
+			__( 'Adaptive tone adjustment', 'jetpack-my-jetpack' ),
+			__( 'Superior spelling and grammar correction', 'jetpack-my-jetpack' ),
+			__( 'Title & summary generation', 'jetpack-my-jetpack' ),
+			__( 'Priority support', 'jetpack-my-jetpack' ),
+			__( '100 requests per month', 'jetpack-my-jetpack' ),
 		);
 	}
 
