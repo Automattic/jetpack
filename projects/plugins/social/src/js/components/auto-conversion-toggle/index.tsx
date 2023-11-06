@@ -3,13 +3,29 @@ import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import ToggleSection from '../toggle-section';
 import { SocialStoreSelectors } from '../types/types';
 import styles from './styles.module.scss';
 
-const AutoConversionToggle: React.FC = () => {
+type AutoConversionToggleProps = {
+	/**
+	 * Whether or not to refresh the settings.
+	 */
+	shouldRefresh?: boolean;
+};
+
+const AutoConversionToggle: React.FC< AutoConversionToggleProps > = ( {
+	shouldRefresh = false,
+} ) => {
+	const refreshSettings = useDispatch( SOCIAL_STORE_ID ).refreshAutoConversionSettings;
+
+	useEffect( () => {
+		shouldRefresh && refreshSettings();
+	}, [ shouldRefresh, refreshSettings ] );
+
 	const { isEnabled, isUpdating } = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
 		return {
