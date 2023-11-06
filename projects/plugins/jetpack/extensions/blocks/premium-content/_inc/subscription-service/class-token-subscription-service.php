@@ -161,7 +161,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return boolean
 	 */
 	public function is_current_user_subscribed() {
-		return (bool) $this->get_token_property( 'blog_sub' );
+		return $this->get_token_property( 'blog_sub' ) === 'active';
 	}
 
 	/**
