@@ -199,7 +199,7 @@ module.exports = [
 						context: path.join( __dirname, '../extensions/blocks' ),
 						noErrorOnMissing: true,
 						// Automatically link scripts and styles
-						transform( content, absoluteFrom ) {
+						transform( content ) {
 							let metadata = {};
 
 							try {
@@ -212,31 +212,14 @@ module.exports = [
 								return metadata;
 							}
 
-							const metadataDir = path.dirname( absoluteFrom );
-							let scriptName = 'editor';
-
-							if ( presetIndex.beta.includes( name ) ) {
-								scriptName += '-beta';
-							} else if ( presetIndex.experimental.includes( name ) ) {
-								scriptName += '-experimental';
-							}
-
+							// `editorScript` is required for block.json to be valid and WordPress.org to be able
+							// to parse it before building the page at https://wordpress.org/plugins/jetpack/.
+							// Don't add other scripts or styles while block assets are still enqueued manually
+							// in the backend.
 							const result = {
 								...metadata,
-								editorScript: `file:../${ scriptName }.js`,
-								editorStyle: `file:../${ scriptName }.css`,
+								editorScript: `jetpack-blocks-editor`,
 							};
-
-							if ( fs.existsSync( path.join( metadataDir, 'view.js' ) ) ) {
-								result.viewScript = 'file:./view.js';
-							}
-
-							if (
-								fs.existsSync( path.join( metadataDir, 'style.scss' ) ) ||
-								fs.existsSync( path.join( metadataDir, 'view.scss' ) )
-							) {
-								result.style = 'file:./view.css';
-							}
 
 							return JSON.stringify( result, null, 4 );
 						},

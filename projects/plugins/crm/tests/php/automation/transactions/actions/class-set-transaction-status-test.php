@@ -18,7 +18,7 @@ class Set_Transaction_Status_Test extends JPCRM_Base_Integration_Test_Case {
 	/**
 	 * A helper class to generate data for the automation tests.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var Automation_Faker
 	 */
@@ -54,11 +54,11 @@ class Set_Transaction_Status_Test extends JPCRM_Base_Integration_Test_Case {
 			'initial_step' => 0,
 			'steps'        => array(
 				0 => array(
-					'slug'       => Set_Transaction_Status::get_slug(),
-					'attributes' => array(
+					'slug'           => Set_Transaction_Status::get_slug(),
+					'attributes'     => array(
 						'new_status' => 'Paid',
 					),
-					'next_step'  => null,
+					'next_step_true' => null,
 				),
 			),
 		);

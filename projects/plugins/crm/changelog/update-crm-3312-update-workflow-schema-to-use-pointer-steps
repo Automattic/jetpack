@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Internal workflow schema update. Adding pointers to the steps inside of a workflow.

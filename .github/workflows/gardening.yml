@@ -82,3 +82,5 @@ jobs:
           slack_editorial_channel: ${{ secrets.SLACK_EDITORIAL_CHANNEL }}
           slack_he_triage_channel: ${{ secrets.SLACK_HE_TRIAGE_CHANNEL }}
           slack_quality_channel: ${{ secrets.SLACK_QUALITY_CHANNEL }}
+          triage_projects_token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
+          project_board_url: ${{ secrets.PROJECT_BOARD_URL }}

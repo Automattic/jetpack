@@ -12,6 +12,9 @@
 	export let needsUpgrade: boolean;
 	export let onToggle;
 
+	export let isFreshStart: boolean;
+	export let onDismissFreshStart;
+
 	const siteIsOnline = Jetpack_Boost.site.online;
 
 	let loadError;
@@ -70,6 +73,8 @@
 		this={PerformanceHistory}
 		{onToggle}
 		{isOpen}
+		{isFreshStart}
+		{onDismissFreshStart}
 		{needsUpgrade}
 		handleUpgrade={() => routerHistory.navigate( '/upgrade' )}
 		{periods}

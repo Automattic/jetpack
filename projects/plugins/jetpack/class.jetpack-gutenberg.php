@@ -745,6 +745,7 @@ class Jetpack_Gutenberg {
 				'dismissedNotices'                => $publicize->get_dismissed_notices(),
 				'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
 				'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
+				'isNextdoorConnectionSupported'   => $publicize->has_nextdoor_connection_feature(),
 				'autoConversionSettings'          => array(
 					'available' => $auto_conversion_settings->is_available( 'image' ),
 					'image'     => $auto_conversion_settings->is_enabled( 'image' ),

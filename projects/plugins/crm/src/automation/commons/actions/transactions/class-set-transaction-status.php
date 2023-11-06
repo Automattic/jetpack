@@ -3,13 +3,12 @@
  * Jetpack CRM Automation Set_Transaction_Status action.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
 use Automattic\Jetpack\CRM\Automation\Base_Action;
-use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Transaction_Data;
 use Automattic\Jetpack\CRM\Entities\Transaction;
@@ -17,14 +16,14 @@ use Automattic\Jetpack\CRM\Entities\Transaction;
 /**
  * Adds the Set_Transaction_Status class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Set_Transaction_Status extends Base_Action {
 
 	/**
 	 * Get the slug name of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug name of the step.
 	 */
@@ -35,7 +34,7 @@ class Set_Transaction_Status extends Base_Action {
 	/**
 	 * Get the title of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The title of the step.
 	 */
@@ -46,7 +45,7 @@ class Set_Transaction_Status extends Base_Action {
 	/**
 	 * Get the description of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The description of the step.
 	 */
@@ -57,7 +56,7 @@ class Set_Transaction_Status extends Base_Action {
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */
@@ -68,7 +67,7 @@ class Set_Transaction_Status extends Base_Action {
 	/**
 	 * Get the category of the step.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string|null The category of the step.
 	 */
@@ -79,15 +78,11 @@ class Set_Transaction_Status extends Base_Action {
 	/**
 	 * Update the DAL with the transaction status.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
-	 *
-	 * @throws Data_Type_Exception If the data do not look valid.
 	 */
-	public function execute( Data_Type $data ) {
-		$this->validate( $data );
-
+	protected function execute( Data_Type $data ) {
 		/** @var Transaction $transaction */
 		$transaction = $data->get_data();
 

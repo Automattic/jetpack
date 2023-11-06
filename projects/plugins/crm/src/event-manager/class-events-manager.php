@@ -10,14 +10,14 @@ namespace Automattic\Jetpack\CRM\Event_Manager;
 /**
  * Events_Manager class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Events_Manager {
 
 	/**
 	 * The Events_Manager instance.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var Events_Manager
 	 */
 	private static $instance = null;
@@ -25,7 +25,7 @@ class Events_Manager {
 	/**
 	 * Get the singleton instance of this class.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return Events_Manager The Events_Manager instance.
 	 */
@@ -40,7 +40,7 @@ class Events_Manager {
 	/**
 	 * Return the Contact_Event instance.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return Contact_Event A Contact_Event instance.
 	 */
@@ -51,7 +51,7 @@ class Events_Manager {
 	/**
 	 * Return the Invoice_Event instance.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return Invoice_Event A Invoice_Event instance.
 	 */
@@ -62,7 +62,7 @@ class Events_Manager {
 	/**
 	 * Return the Transaction_Event instance.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return Transaction_Event A Transaction_Event instance.
 	 */

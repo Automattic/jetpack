@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 /**
  * Class Token_Subscription_Service
@@ -17,15 +18,16 @@ use Automattic\Jetpack\Extensions\Premium_Content\JWT;
  */
 abstract class Token_Subscription_Service implements Subscription_Service {
 
-	const JWT_AUTH_TOKEN_COOKIE_NAME         = 'jp-premium-content-session';
-	const DECODE_EXCEPTION_FEATURE           = 'memberships';
-	const DECODE_EXCEPTION_MESSAGE           = 'Problem decoding provided token';
-	const REST_URL_ORIGIN                    = 'https://subscribe.wordpress.com/';
-	const BLOG_SUB_ACTIVE                    = 'active';
-	const BLOG_SUB_PENDING                   = 'pending';
-	const POST_ACCESS_LEVEL_EVERYBODY        = 'everybody';
-	const POST_ACCESS_LEVEL_SUBSCRIBERS      = 'subscribers';
-	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS = 'paid_subscribers';
+	const JWT_AUTH_TOKEN_COOKIE_NAME                   = 'jp-premium-content-session';
+	const DECODE_EXCEPTION_FEATURE                     = 'memberships';
+	const DECODE_EXCEPTION_MESSAGE                     = 'Problem decoding provided token';
+	const REST_URL_ORIGIN                              = 'https://subscribe.wordpress.com/';
+	const BLOG_SUB_ACTIVE                              = 'active';
+	const BLOG_SUB_PENDING                             = 'pending';
+	const POST_ACCESS_LEVEL_EVERYBODY                  = 'everybody';
+	const POST_ACCESS_LEVEL_SUBSCRIBERS                = 'subscribers';
+	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS           = 'paid_subscribers';
+	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS = 'paid_subscribers_all_tiers';
 
 	/**
 	 * Initialize the token subscription service.
@@ -33,10 +35,55 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @inheritDoc
 	 */
 	public function initialize() {
+		$this->get_and_set_token_from_request();
+	}
+
+	/**
+	 * Set the token from the Request to the cookie and retrieve the token.
+	 *
+	 * @return string|null
+	 */
+	public function get_and_set_token_from_request() {
+		// URL token always has a precedence, so it can overwrite the cookie when new data available.
 		$token = $this->token_from_request();
 		if ( null !== $token ) {
 			$this->set_token_cookie( $token );
+			return $token;
 		}
+
+		return $this->token_from_cookie();
+	}
+
+	/**
+	 * Get the token payload .
+	 *
+	 * @return array.
+	 */
+	public function get_token_payload() {
+		$token = $this->get_and_set_token_from_request();
+		if ( empty( $token ) ) {
+			return array();
+		}
+		$token_payload = $this->decode_token( $token );
+		if ( ! is_array( $token_payload ) ) {
+			return array();
+		}
+		return $token_payload;
+	}
+
+	/**
+	 * Get a token property, otherwise return false.
+	 *
+	 * @param string $key the property name.
+	 *
+	 * @return mixed|false.
+	 */
+	public function get_token_property( $key ) {
+		$token_payload = $this->get_token_payload();
+		if ( ! isset( $token_payload[ $key ] ) ) {
+			return false;
+		}
+		return $token_payload[ $key ];
 	}
 
 	/**
@@ -56,26 +103,21 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return bool Whether the user can view the content
 	 */
 	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
+		global $current_user;
+		$old_user = $current_user; // backup the current user so we can set the current user to the token user for paywall purposes
 
-		// URL token always has a precedence, so it can overwrite the cookie when new data available.
-		$token = $this->token_from_request();
-		if ( $token ) {
-			$this->set_token_cookie( $token );
-		} else {
-			$token = $this->token_from_cookie();
+		$payload        = $this->get_token_payload();
+		$is_valid_token = ! empty( $payload );
+
+		if ( $is_valid_token && isset( $payload['user_id'] ) ) {
+			// set the current user to the payload's user id
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$current_user = get_user_by( 'id', $payload['user_id'] );
 		}
 
-		$is_valid_token = true;
-
-		if ( empty( $token ) ) {
-			// no token, no access.
-			$is_valid_token = false;
-		} else {
-			$payload = $this->decode_token( $token );
-			if ( empty( $payload ) ) {
-				$is_valid_token = false;
-			}
-		}
+		$is_blog_subscriber = false;
+		$is_paid_subscriber = false;
+		$subscriptions      = array();
 
 		if ( $is_valid_token ) {
 			/**
@@ -91,13 +133,29 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 				true
 			);
 			$subscriptions      = (array) $payload['subscriptions'];
-			$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
-		} else {
-			// Token not valid. We bail even unless the post can be accessed publicly.
-			return $this->user_has_access( $access_level, false, false, get_the_ID() );
+			$is_paid_subscriber = static::validate_subscriptions( $valid_plan_ids, $subscriptions );
 		}
 
-		return $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID() );
+		$has_access = $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID(), $subscriptions );
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$current_user = $old_user;
+		return $has_access;
+	}
+
+	/**
+	 * Retrieves the email of the currently authenticated subscriber.
+	 *
+	 * This function checks if the current user has an active subscription. If the user is subscribed,
+	 * their email is returned. Otherwise, it returns an empty string to indicate no active subscription.
+	 *
+	 * @return string The email address of the subscribed user or an empty string if not subscribed.
+	 */
+	public function get_subscriber_email() {
+		$email = $this->get_token_property( 'blog_subscriber' );
+		if ( empty( $email ) ) {
+			return '';
+		}
+		return $email;
 	}
 
 	/**
@@ -107,31 +165,190 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @param bool   $is_blog_subscriber Is user a subscriber of the blog.
 	 * @param bool   $is_paid_subscriber Is user a paid subscriber of the blog.
 	 * @param int    $post_id Post ID.
+	 * @param array  $user_abbreviated_subscriptions User subscription abbreviated.
 	 *
 	 * @return bool Whether the user has access to the content.
 	 */
-	protected function user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id ) {
+	protected function user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id, $user_abbreviated_subscriptions ) {
 
 		if ( is_user_logged_in() && current_user_can( 'edit_post', $post_id ) ) {
 			// Admin has access
-			return true;
+			$has_access = true;
+		} else {
+			switch ( $access_level ) {
+				case self::POST_ACCESS_LEVEL_EVERYBODY:
+				default:
+					$has_access = true;
+					break;
+				case self::POST_ACCESS_LEVEL_SUBSCRIBERS:
+					$has_access = $is_blog_subscriber || $is_paid_subscriber;
+					break;
+				case self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
+					$has_access = $is_paid_subscriber;
+					break;
+				case self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
+					$has_access = $is_paid_subscriber &&
+						! $this->maybe_gate_access_for_user_if_post_tier( $post_id, $user_abbreviated_subscriptions );
+					break;
+			}
 		}
 
-		if ( empty( $access_level ) || $access_level === self::POST_ACCESS_LEVEL_EVERYBODY ) {
-			// empty level means the post is not gated for paid users
-			return true;
+		do_action( 'earn_user_has_access', $access_level, $has_access, $is_blog_subscriber, $is_paid_subscriber, $post_id );
+		return $has_access;
+	}
+
+	/**
+	 * Check post access for tiers.
+	 *
+	 * @param int   $post_id Current post id.
+	 * @param array $user_abbreviated_subscriptions User subscription abbreviated.
+	 *
+	 * @return bool
+	 */
+	private function maybe_gate_access_for_user_if_post_tier( $post_id, $user_abbreviated_subscriptions ) {
+		$tier_id = intval(
+			get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true )
+		);
+
+		if ( ! $tier_id ) {
+			return false;
 		}
 
-		if ( $access_level === self::POST_ACCESS_LEVEL_SUBSCRIBERS ) {
-			return $is_blog_subscriber || $is_paid_subscriber;
+		return $this->maybe_gate_access_for_user_if_tier( $tier_id, $user_abbreviated_subscriptions );
+	}
+
+	/**
+	 * Find metadata in post
+	 *
+	 * @param WP_Post|StdClass $post        Post.
+	 * @param string           $meta_key    Meta to retrieve.
+	 *
+	 * @return mixed|null
+	 */
+	private function find_metadata( $post, $meta_key ) {
+
+		if ( is_a( $post, '\WP_Post' ) ) {
+			return $post->{$meta_key};
 		}
 
-		if ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ) {
-			return $is_paid_subscriber;
+		foreach ( $post->metadata as $meta ) {
+			if ( $meta->key === $meta_key ) {
+				return $meta->value;
+			}
 		}
 
-		// This should not be a use case
-		return false;
+		return null;
+	}
+
+	/**
+	 * Check access for tier.
+	 *
+	 * @param int   $tier_id Tier id.
+	 * @param array $user_abbreviated_subscriptions User subscription abbreviated.
+	 *
+	 * @return bool
+	 */
+	public function maybe_gate_access_for_user_if_tier( $tier_id, $user_abbreviated_subscriptions ) {
+
+		$plan_ids = \Jetpack_Memberships::get_all_newsletter_plan_ids();
+
+		if ( ! in_array( $tier_id, $plan_ids, true ) ) {
+			// If the tier is not in the plans, we bail
+			return false;
+		}
+
+		// We now need the tier price and currency, and the same for the annual price (if available)
+		$all_plans = \Jetpack_Memberships::get_all_plans();
+		$tier      = null;
+		foreach ( $all_plans as $post ) {
+			if ( $post->ID === $tier_id ) {
+				$tier = $post;
+				break;
+			}
+		}
+
+		if ( $tier === null ) {
+			return false;
+		}
+
+		$tier_price        = $this->find_metadata( $tier, 'jetpack_memberships_price' );
+		$tier_currency     = $this->find_metadata( $tier, 'jetpack_memberships_currency' );
+		$tier_product_id   = $this->find_metadata( $tier, 'jetpack_memberships_product_id' );
+		$annual_tier_price = $tier_price * 12;
+
+		if ( $tier_price === null || $tier_currency === null || $tier_product_id === null ) {
+			// There is an issue with the meta
+			return false;
+		}
+
+		$tier_price = floatval( $tier_price );
+
+		// At this point we know the post is
+		$annual_tier_id = null;
+		$annual_tier    = null;
+		foreach ( $all_plans as $plan ) {
+			if ( intval( $this->find_metadata( $plan, 'jetpack_memberships_tier' ) ) === $tier_id ) {
+				$annual_tier = $plan;
+				break;
+			}
+		}
+
+		if ( ! empty( $annual_tier ) ) {
+			$annual_tier_id    = $annual_tier->ID;
+			$annual_tier_price = floatval( $this->find_metadata( $annual_tier, 'jetpack_memberships_price' ) );
+		}
+
+		foreach ( $user_abbreviated_subscriptions as $subscription_plan_id => $details ) {
+			$details = (array) $details;
+			$end     = is_int( $details['end_date'] ) ? $details['end_date'] : strtotime( $details['end_date'] );
+			if ( $end < time() ) {
+				// subscription not active anymore
+				continue;
+			}
+
+			$subscription_post = null;
+			foreach ( $all_plans as $plan ) {
+				if ( intval( $this->find_metadata( $plan, 'jetpack_memberships_product_id' ) ) === intval( $subscription_plan_id ) ) {
+					$subscription_post = $plan;
+					break;
+				}
+			}
+
+			if ( empty( $subscription_post ) ) {
+				// No post linked to this plan
+				continue;
+			}
+			$subscription_post_id = $subscription_post->ID;
+
+			if ( $subscription_post_id === $tier_id || $subscription_post_id === $annual_tier_id ) {
+				// User is subscribed to the right tier
+				return false;
+			}
+
+			$subscription_price    = $this->find_metadata( $subscription_post, 'jetpack_memberships_price' );
+			$subscription_currency = $this->find_metadata( $subscription_post, 'jetpack_memberships_currency' );
+			$subscription_interval = $this->find_metadata( $subscription_post, 'jetpack_memberships_interval' );
+
+			if ( $subscription_price === null || $subscription_currency === null || $subscription_interval === null ) {
+				// There is an issue with the meta
+				continue;
+			}
+
+			$subscription_price = floatval( $subscription_price );
+
+			if ( $tier_currency !== $subscription_currency ) {
+				// For now, we don't count if there are different currency (not sure how to convert price in a pure JP env)
+				continue;
+			}
+
+			if ( ( $subscription_interval === '1 month' && $subscription_price >= $tier_price ) ||
+					( $subscription_interval === '1 year' && $subscription_price >= $annual_tier_price )
+			) {
+				// One subscription is more expensive than the minimum set by the post' selected tier
+				return false;
+			}
+		}
+		return true; // No user subscription is more expensive than the post's tier price...
 	}
 
 	/**
@@ -142,6 +359,10 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return array|false
 	 */
 	public function decode_token( $token ) {
+		if ( empty( $token ) ) {
+			return false;
+		}
+
 		try {
 			$key = $this->get_key();
 			return $key ? (array) JWT::decode( $token, $key, array( 'HS256' ) ) : false;
@@ -163,11 +384,13 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 *
 	 * @param string $mode Access mode (either "subscribe" or "login").
 	 */
-	public function access_url( $mode = 'subscribe' ) {
+	public function access_url( $mode = 'subscribe', $permalink = null ) {
 		global $wp;
-		$permalink = get_permalink();
 		if ( empty( $permalink ) ) {
-			$permalink = add_query_arg( $wp->query_vars, home_url( $wp->request ) );
+			$permalink = get_permalink();
+			if ( empty( $permalink ) ) {
+				$permalink = add_query_arg( $wp->query_vars, home_url( $wp->request ) );
+			}
 		}
 
 		$login_url = $this->get_rest_api_token_url( $this->get_site_id(), $permalink );
@@ -185,6 +408,15 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			return $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ];
 		}
+	}
+
+	/**
+	 * Check whether the JWT_TOKEN cookie is set
+	 *
+	 * @return bool
+	 */
+	public static function has_token_from_cookie() {
+		return isset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] ) && ! empty( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
 	}
 
 	/**

@@ -707,7 +707,7 @@ async function buildProject( t ) {
 						cwd: t.cwd,
 						stdio: [ null, 'pipe', null ],
 					} )
-				 ).stdout.match( /^.*-a\.(\d+)$/ );
+				).stdout.match( /^.*-a\.(\d+)$/ );
 				prerelease = 'a.' + ( m ? ( parseInt( m[ 1 ] ) & ~1 ) + 2 : 0 );
 			}
 			await t.execa(
@@ -731,7 +731,7 @@ async function buildProject( t ) {
 					cwd: t.cwd,
 					stdio: [ null, 'pipe', null ],
 				} )
-			 ).stdout;
+			).stdout;
 			await t.execa(
 				npath.resolve( 'tools/replace-next-version-tag.sh' ),
 				[ '-v', t.project, ver ],
@@ -994,7 +994,13 @@ async function buildProject( t ) {
 	await once( rl, 'close' );
 
 	if ( ! projectVersionNumber ) {
-		throw new Error( `\nError fetching latest version number from ${ changelogFileName }\n` );
+		const dir = npath.relative(
+			process.cwd(),
+			npath.resolve( t.cwd, composerJson.extra?.changelogger?.[ 'changes-dir' ] || 'changelog' )
+		);
+		throw new Error(
+			`\nFailed to fetch latest version number from ${ changelogFileName }\n\nIf this is the initial commit of a new project, be sure there's a change entry in ${ dir }/\n`
+		);
 	}
 
 	if ( t.project.startsWith( 'packages/' ) && projectVersionNumber.endsWith( 'alpha' ) ) {
@@ -1003,7 +1009,7 @@ async function buildProject( t ) {
 				cwd: t.cwd,
 				stdio: [ null, 'pipe', null ],
 			} )
-		 ).stdout;
+		).stdout;
 		if ( ts.match( /^\d+$/ ) ) {
 			projectRunVersionNumber += '.' + ts;
 		}

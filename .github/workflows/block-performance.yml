@@ -4,6 +4,10 @@ on:
   schedule:
     - cron:  '0 */12 * * *'
 
+env:
+  # Work around a bug in node 18.18.0. See https://github.com/webpack-contrib/thread-loader/issues/191 for details.
+  UV_USE_IO_URING: 0
+
 jobs:
   block-performance:
     name: "Performance tests"

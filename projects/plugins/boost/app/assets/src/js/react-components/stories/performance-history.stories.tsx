@@ -167,6 +167,7 @@ const meta: Meta< typeof PerformanceHistory > = {
 		isOpen: { control: 'boolean' },
 		isLoading: { control: 'boolean' },
 		needsUpgrade: { control: 'boolean' },
+		isFreshStart: { control: 'boolean' },
 	},
 	decorators: [
 		Story => (

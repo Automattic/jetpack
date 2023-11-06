@@ -1,6 +1,7 @@
 import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
+import PlaceholderSiteIcon from '../placeholder-site-icon.svg';
 import edit from './edit';
 import icon from './icon';
 import './editor.scss';
@@ -51,7 +52,7 @@ export const settings = {
 		},
 		icon: {
 			type: 'string',
-			default: 'https://s0.wp.com/i/webclip.png',
+			default: PlaceholderSiteIcon,
 		},
 		url: {
 			type: 'string',

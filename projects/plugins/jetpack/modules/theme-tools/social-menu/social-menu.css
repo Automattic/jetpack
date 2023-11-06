@@ -201,6 +201,11 @@ Genericons
 	content: "\f205";
 }
 
+/* X */
+.jetpack-social-navigation-genericons a[href*="x.com"]:before {
+	content: "\f10e";
+}
+
 /* YouTube */
 .jetpack-social-navigation-genericons a[href*="youtube.com"]:before {
 	content: "\f213";

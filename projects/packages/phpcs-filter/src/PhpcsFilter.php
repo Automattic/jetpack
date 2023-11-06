@@ -124,9 +124,6 @@ class PhpcsFilter extends Filter {
 
 		$dir = $config->getConfigData( 'jetpack-filter-basedir' );
 		if ( null === $dir ) {
-			$dir = $config->basepath;
-		}
-		if ( null === $dir ) {
 			$dir = '.';
 		}
 

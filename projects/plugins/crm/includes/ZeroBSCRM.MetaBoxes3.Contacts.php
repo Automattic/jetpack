@@ -142,7 +142,6 @@
         public function __construct( $plugin_file ) {
 
             // set these
-            // DAL3 switched for objType $this->postType = 'zerobs_customer';
             $this->objType = 'contact';
             $this->metaboxID = 'zerobs-customer-edit';
             $this->metaboxTitle = __('Contact Details',"zero-bs-crm");
@@ -258,21 +257,14 @@
 		}
 		$field_group = '';
 
-		/*
-			* We need to know if we are in the first column or not because
-			* when we have a group (e.g. addresses), they should start in
-			* the first column. We are using only two columns.
-			*/
-		$is_first_column = false;
 		foreach ( $fields as $field_key => $field_value ) {
-			$is_first_column = ! $is_first_column;
-			$show_field      = ! isset( $field_value['opt'] ) || isset( $zbsFieldsEnabled[ $field_value['opt'] ] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			$show_field      = isset( $fields_to_hide['customer'] )
+			$show_field = ! isset( $field_value['opt'] ) || isset( $zbsFieldsEnabled[ $field_value['opt'] ] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$show_field = isset( $fields_to_hide['customer'] )
 				&& is_array( $fields_to_hide['customer'] )
 				&& in_array( $field_key, $fields_to_hide['customer'] ) // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 				? false
 				: $show_field;
-			$show_field      = isset( $field_value[0] )
+			$show_field = isset( $field_value[0] )
 				&& 'selectcountry' === $field_value[0]
 				&& 0 === $show_country_fields
 				? false
@@ -282,9 +274,6 @@
 				if ( $show_addresses !== 1 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					continue;
 				} elseif ( $field_group === '' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-					if ( ! $is_first_column ) {
-						echo '<div class="jpcrm-empty-form-group">&nbsp;</div>';
-					}
 					echo '<div class="jpcrm-form-grid" style="padding:0px;grid-template-columns: 1fr;">';
 					echo '<div class="jpcrm-form-group"><label>';
 					echo esc_html__( $field_value['area'], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText
@@ -650,7 +639,6 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
 
     public function __construct( $plugin_file ) {
     
-        // DAL3 switched for objType $this->postType = 'zerobs_customer';
         $this->objType = 'contact';
         $this->metaboxID = 'zerobs-customer-actions';
         $this->metaboxTitle = __('Contact Actions',"zero-bs-crm");
@@ -803,7 +791,6 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
 
         public function __construct( $plugin_file, $idOverride='',$titleOverride='' ) {
 
-            // DAL3 switched for objType $this->postType = 'zerobs_customer';
             $this->objType = 'contact';
             $this->metaboxID = 'zerobs-customer-custom-files';
             $this->metaboxTitle = __('Other Files',"zero-bs-crm");
@@ -1047,20 +1034,9 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
                                             ///update_post_meta($contact_id, 'zbs_customer_files', $zbsCustomerFiles);  
                                             zeroBSCRM_updateCustomerFiles($contact_id,$zbsCustomerFiles);                                            
 
-                                            // AND associate with this 'slot'
-                                            if ($zbs->isDAL2()){
-                                                
-                                                // DAL2
                                                 // actually got wrappers now :) $zbs->updateMeta(ZBS_TYPE_CONTACT,$contact_id,'cfile_'.$cfSubKey,$upload['file']);
                                                 // this'll override any prev in that slot, too
                                                 zeroBSCRM_fileslots_addToSlot($cfSubKey,$upload['file'],$contact_id,ZBS_TYPE_CONTACT,true);        
-
-                                            } else {
-
-                                                // DAL1
-                                                update_post_meta($contact_id,'cfile_'.$cfSubKey,$upload['file']);
-
-                                            }
 
                                             // Fire any 'post-upload-processing' (e.g. CPP makes thumbnails of pdf, jpg, etc.)
                                             do_action('zbs_post_upload_contact',$upload);
@@ -1103,7 +1079,6 @@ add_action('add_meta_boxes', 'zeroBS__addCustomerMetaBoxes');  */
 
         public function __construct( $plugin_file ) {
 
-            // DAL3 switched for objType $this->postType = 'zerobs_customer';
             $this->objType = 'contact';
             $this->metaboxID = 'zerobs-customer-files';
             $this->metaboxTitle = __('Other Files',"zero-bs-crm");
@@ -1435,7 +1410,6 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
 
     public function __construct( $plugin_file, $metabox_screen = 'zbs-add-edit-contact-edit' ) {
 
-        // DAL3 switched for objType $this->postType = 'zerobs_customer';
         $this->objType = 'contact';
         $this->metaboxID = 'zerobs-customer-portal';
         $this->metaboxTitle = __('Client Portal',"zero-bs-crm");
@@ -1755,7 +1729,6 @@ class zeroBS__Metabox_ContactSocial extends zeroBS__Metabox{
 
     public function __construct( $plugin_file ) {
     
-        // DAL3 switched for objType $this->postType = 'zerobs_customer';
         $this->objType = 'contact';
         $this->metaboxID = 'zerobs-customer-social';
         $this->metaboxTitle = __('Social Profiles',"zero-bs-crm");
@@ -1845,7 +1818,6 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox{
 
     public function __construct( $plugin_file ) {
     
-        // DAL3 switched for objType $this->postType = 'zerobs_customer';
         $this->objType = 'contact';
         $this->metaboxID = 'zerobs-customer-aka';
         $this->metaboxTitle = __('Contact Aliases (AKA)',"zero-bs-crm");
@@ -2180,7 +2152,6 @@ class zeroBS__Metabox_ContactTags extends zeroBS__Metabox_Tags{
     public function __construct( $plugin_file ) {
     
         $this->objTypeID = ZBS_TYPE_CONTACT;
-        // DAL3 switched for objType $this->postType = 'zerobs_customer';
         $this->objType = 'contact';
         $this->metaboxID = 'zerobs-customer-tags';
         $this->metaboxTitle = __('Contact Tags',"zero-bs-crm");
@@ -2219,8 +2190,8 @@ class zeroBS__Metabox_ContactLogs extends zeroBS__Metabox_LogsV2{
 
     public function __construct( $plugin_file ) {
     
-        $this->objtypeid = 1; // until db2 ZBS_TYPE_CONTACT;
-        // DAL3 switched for objType $this->postType = 'zerobs_customer';
+		$this->objtypeid = ZBS_TYPE_CONTACT;
+
         $this->objType = 'contact';
         $this->metaboxID = 'zerobs-customer-logs';
         $this->metaboxTitle = __('Activity Log',"zero-bs-crm");
@@ -2265,7 +2236,6 @@ class zeroBS__Metabox_ContactCompany extends zeroBS__Metabox{
         $companyOrOrg = zeroBSCRM_getSetting('coororg');
         $companyLabel = jpcrm_label_company();
     
-        // DAL3 switched for objType $this->postType = 'zerobs_customer';
         $this->objType = 'contact';
         $this->metaboxID = 'zerobs-customer-company';
         $this->metaboxTitle = __($companyLabel, "zero-bs-crm");
@@ -2410,7 +2380,6 @@ class zeroBS__Metabox_Contact_Activity extends zeroBS__Metabox {
 
     public function __construct( $plugin_file ) {
     
-        $this->postType = 'zerobs_customer';
         $this->metaboxID = 'zbs-contact-activity-metabox';
         $this->metaboxTitle = __('Activity', 'zero-bs-crm');
         $this->metaboxIcon = 'heartbeat';

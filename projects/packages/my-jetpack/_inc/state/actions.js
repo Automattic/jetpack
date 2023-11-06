@@ -23,6 +23,8 @@ const SET_CHAT_AUTHENTICATION_IS_FETCHING = 'SET_CHAT_AUTHENTICATION_IS_FETCHING
 const SET_CHAT_AUTHENTICATION = 'SET_CHAT_AUTHENTICATION';
 const SET_PRODUCT_DATA_IS_FETCHING = 'SET_PRODUCT_DATA_IS_FETCHING';
 const SET_PRODUCT_DATA = 'SET_PRODUCT_DATA';
+const SET_STATS_COUNTS_IS_FETCHING = 'SET_STATS_COUNTS_IS_FETCHING';
+const SET_STATS_COUNTS = 'SET_STATS_COUNTS';
 
 const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
 const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
@@ -44,6 +46,10 @@ const setChatAuthenticationIsFetching = isFetching => {
 
 const setProductDataIsFetching = isFetching => {
 	return { type: SET_PRODUCT_DATA_IS_FETCHING, isFetching };
+};
+
+const setStatsCountsIsFetching = isFetching => {
+	return { type: SET_STATS_COUNTS_IS_FETCHING, isFetching };
 };
 
 const fetchPurchases = () => {
@@ -77,6 +83,8 @@ const setAvailableLicenses = availableLicenses => {
 const setProduct = product => ( { type: SET_PRODUCT, product } );
 
 const setProductData = productData => ( { type: SET_PRODUCT_DATA, productData } );
+
+const setStatsCounts = statsCounts => ( { type: SET_STATS_COUNTS, statsCounts } );
 
 const setRequestProductError = ( productId, error ) => ( {
 	type: SET_PRODUCT_REQUEST_ERROR,
@@ -286,6 +294,8 @@ const actions = {
 	setAvailableLicenses,
 	setProductStats,
 	setIsFetchingProductStats,
+	setStatsCounts,
+	setStatsCountsIsFetching,
 	...noticeActions,
 	...productActions,
 };
@@ -312,5 +322,7 @@ export {
 	SET_CHAT_AUTHENTICATION_IS_FETCHING,
 	SET_PRODUCT_DATA_IS_FETCHING,
 	SET_PRODUCT_DATA,
+	SET_STATS_COUNTS_IS_FETCHING,
+	SET_STATS_COUNTS,
 	actions as default,
 };

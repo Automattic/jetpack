@@ -24,6 +24,14 @@
 
         private $acceptableTypes = array('contact','company','transaction','invoice');
 
+	/**
+	 * The object type ID using this metabox.
+	 *
+	 * @since 6.2.0
+	 * @var int
+	 */
+	private $objTypeID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+
         public function __construct( $plugin_file, $objType='contact',$metaboxScreen='zbs-add-edit-contact-edit' ) {
 
             global $zbs;

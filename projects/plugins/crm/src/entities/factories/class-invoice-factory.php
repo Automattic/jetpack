@@ -3,7 +3,7 @@
  * Invoice Factory.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Entities\Factories;
@@ -13,14 +13,14 @@ use Automattic\Jetpack\CRM\Entities\Invoice;
 /**
  * Invoice Factory class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Invoice_Factory extends Entity_Factory {
 
 	/**
 	 * Invoice DB field name mapping. db_field => model_field.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var array
 	 */
 	protected static $field_map = array(
@@ -69,7 +69,7 @@ class Invoice_Factory extends Entity_Factory {
 	 *
 	 * For tags, invoices, transactions, quotes, tasks...
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var array
 	 */
 	protected static $associative_field_map = array(
@@ -79,7 +79,7 @@ class Invoice_Factory extends Entity_Factory {
 	/**
 	 * Get the invoice instance based on the $data array.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $data The invoice data from the DAL.
 	 * @return mixed The invoice instance.
@@ -100,7 +100,7 @@ class Invoice_Factory extends Entity_Factory {
 	/**
 	 * Validate the data array (Tidy from DAL)
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $tidy_invoice The tidy data array.
 	 * @return bool If it's valid or not.

@@ -719,3 +719,13 @@ export function isSubscriptionModalEnabled( state ) {
 export function arePreConnectionHelpersEnabled( state ) {
 	return !! state.jetpack.initialState.preConnectionHelpers;
 }
+
+/**
+ * Returns information about the Gutenberg plugin and its Interactivity API support.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {object} Gutenberg plugin information.
+ */
+export function getGutenbergState( state ) {
+	return state.jetpack.initialState.gutenbergInitialState;
+}

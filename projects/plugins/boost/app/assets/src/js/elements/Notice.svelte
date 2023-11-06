@@ -10,12 +10,14 @@
 		onClick?: () => void;
 		isLoading?: boolean;
 		disabled?: boolean;
+		isExternalLink?: boolean;
+		variant?: 'primary' | 'secondary' | 'link' | 'tertiary';
 	};
 
 	export let level: 'info' | 'warning' | 'success' | 'error' = 'info';
 	export let title: string;
 	export let message: string;
-	export let actions: ActionButton[] | undefined;
+	export let actions: ActionButton[] = [];
 	export let hideCloseButton = true;
 
 	const dispatch = createEventDispatcher();
@@ -29,6 +31,8 @@
 				key: index,
 				isLoading: !! action.isLoading,
 				disabled: !! action.disabled,
+				isExternalLink: !! action.isExternalLink,
+				variant: action.variant || 'primary',
 			},
 			action.label
 		)

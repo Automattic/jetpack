@@ -16,7 +16,7 @@ use Automattic\Jetpack\CRM\Entities\Factories\Contact_Factory;
 /**
  * CRM Invoice to CRM Contact Transformer class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Data_Transformer_Invoice_To_Contact extends Data_Transformer_Base {
 
@@ -44,7 +44,7 @@ class Data_Transformer_Invoice_To_Contact extends Data_Transformer_Base {
 	/**
 	 * Transform invoice entity to a contact.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data The invoice data type we want to transform.
 	 * @return Data_Type Return the Data_Type_Contact of the invoice owner.

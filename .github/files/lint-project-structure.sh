@@ -200,6 +200,14 @@ for PROJECT in projects/*/*; do
 		fi
 	fi
 
+	# Should have only one of jsconfig.json or tsconfig.json.
+	# @todo Having neither is ok in some cases. Can we determine when one is needed to flag that it should be added?
+	if [[ -e "$PROJECT/jsconfig.json" && -e "$PROJECT/tsconfig.json" ]]; then
+		EXIT=1
+		echo "::error file=$PROJECT/jsconfig.json::The project should have either jsconfig.json or tsconfig.json, not both. Keep tsconfig if the project uses TypeScript, or jsconfig if the project is JS-only."
+		echo "::error file=$PROJECT/tsconfig.json::The project should have either jsconfig.json or tsconfig.json, not both. Keep tsconfig if the project uses TypeScript, or jsconfig if the project is JS-only."
+	fi
+
 	# - composer.json must exist.
 	if [[ ! -e "$PROJECT/composer.json" ]]; then
 		EXIT=1
@@ -313,6 +321,11 @@ for PROJECT in projects/*/*; do
 			echo "---" # Bracket message containing newlines for better visibility in GH's logs.
 			echo "::error file=$PROJECT/package.json::Package $SLUG is published to npmjs but does not specify \`.bugs.url\`.%0A\`\`\`%0A\"bugs\": ${JSON//$'\n'/%0A},%0A\`\`\`"
 			echo "---"
+		fi
+		if jq -e '.private' "$PROJECT/package.json" >/dev/null; then
+			EXIT=1
+			LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["private"] then input_line_number else empty end' "$PROJECT/package.json" | head -n 1)
+			echo "::error file=$PROJECT/package.json,line=$LINE::Package $SLUG is published to npmjs but is marked as private."
 		fi
 
 		for WHICH in dependencies peerDependencies; do

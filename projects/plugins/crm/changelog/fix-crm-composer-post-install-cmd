@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Remove WorDBless post-install-cmd and post-update-cmd left behind by PR #32498
-
-

@@ -48,6 +48,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					askButtonLabel={ attributes.askButtonLabel }
 					placeholder={ attributes.placeholder }
 					setAttributes={ setAttributes }
+					showCopy={ attributes.showCopy }
+					showFeedback={ attributes.showFeedback }
+					showSources={ attributes.showSources }
 				/>
 			</InspectorControls>
 		</div>

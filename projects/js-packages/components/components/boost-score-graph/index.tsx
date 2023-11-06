@@ -28,7 +28,7 @@ export interface BoostScoreGraphProps {
 export type ScoreGraphAlignedData = [
 	number[], // timestamps
 	number[], // desktop_overall_score
-	number[] // mobile_overall_score
+	number[], // mobile_overall_score
 ];
 
 /**
@@ -59,6 +59,17 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 		startDate = Math.min( periods[ 0 ].timestamp - 12 * 60 * 60 * 1000, dayBeforeEndDate );
 	} else {
 		startDate = Math.min( periods[ 0 ].timestamp, dayBeforeEndDate );
+	}
+
+	// Add a fake period before the start date to make the chart look better
+	if ( periods.length > 0 ) {
+		periods = [
+			{
+				timestamp: startDate - 24 * 60 * 60 * 1000,
+				dimensions: periods[ 0 ].dimensions,
+			},
+			...periods,
+		];
 	}
 
 	return (

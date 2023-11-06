@@ -3,6 +3,8 @@
  * Tests for /wpcom/v2/external-media endpoints.
  */
 
+use WpOrg\Requests\Requests;
+
 require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
 
 /**

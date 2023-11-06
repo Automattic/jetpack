@@ -111,7 +111,6 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'markdown_supported'                      => '(bool) Whether markdown is supported for this site',
 			'wpcom_publish_posts_with_markdown'       => '(bool) Whether markdown is enabled for posts',
 			'wpcom_publish_comments_with_markdown'    => '(bool) Whether markdown is enabled for comments',
-			'amp_is_enabled'                          => '(bool) Whether AMP is enabled for this site',
 			'site_icon'                               => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 			'api_cache'                               => '(bool) Turn on/off the Jetpack JSON API cache',
 			'posts_per_page'                          => '(int) Number of posts to show on blog pages',
@@ -441,9 +440,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'site_icon'                        => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
 						Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
 						Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
-						'amp_is_supported'                 => (bool) function_exists( 'wpcom_is_amp_supported' ) && wpcom_is_amp_supported( $blog_id ),
-						'amp_is_enabled'                   => (bool) function_exists( 'wpcom_is_amp_enabled' ) && wpcom_is_amp_enabled( $blog_id ),
-						'amp_is_deprecated'                => (bool) function_exists( 'wpcom_is_amp_deprecated' ) && wpcom_is_amp_deprecated( $blog_id ),
 						'api_cache'                        => $api_cache,
 						'posts_per_page'                   => (int) get_option( 'posts_per_page' ),
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
@@ -463,8 +459,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-						$response[ $key ]['wpcom_publish_posts_with_markdown']    = (bool) WPCom_Markdown::is_posting_enabled();
-						$response[ $key ]['wpcom_publish_comments_with_markdown'] = (bool) WPCom_Markdown::is_commenting_enabled();
+						$response[ $key ]['wpcom_publish_posts_with_markdown']    = (bool) WPCom_Markdown::get_instance()->is_posting_enabled();
+						$response[ $key ]['wpcom_publish_comments_with_markdown'] = (bool) WPCom_Markdown::get_instance()->is_commenting_enabled();
 
 						// WPCOM-specific Infinite Scroll Settings.
 						if ( is_callable( array( 'The_Neverending_Home_Page', 'get_settings' ) ) ) {
@@ -576,8 +572,20 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * Get GA tracking code.
 	 */
 	protected function get_google_analytics() {
-		$option_name = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'wga' : 'jetpack_wga';
+		$option_name = $this->get_google_analytics_option_name();
+
 		return get_option( $option_name );
+	}
+
+	/**
+	 * Get GA tracking code option name.
+	 */
+	protected function get_google_analytics_option_name() {
+		/** This filter is documented in class.json-api-endpoints.php */
+		$is_jetpack  = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
+		$option_name = $is_jetpack ? 'jetpack_wga' : 'wga';
+
+		return $option_name;
 	}
 
 	/**
@@ -694,8 +702,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						return new WP_Error( 'invalid_code', 'Invalid UA ID' );
 					}
 
-					$is_wpcom    = defined( 'IS_WPCOM' ) && IS_WPCOM;
-					$option_name = $is_wpcom ? 'wga' : 'jetpack_wga';
+					$option_name = $this->get_google_analytics_option_name();
 
 					$wga         = get_option( $option_name, array() );
 					$wga['code'] = $value['code']; // maintain compatibility with wp-google-analytics.
@@ -719,6 +726,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					/** This action is documented in modules/widgets/social-media-icons.php */
 					do_action( 'jetpack_bump_stats_extras', 'google-analytics', $enabled_or_disabled );
 
+					$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
 					if ( $is_wpcom ) {
 						$business_plugins = WPCOM_Business_Plugins::instance();
 						$business_plugins->activate_plugin( 'wp-google-analytics' );
@@ -817,7 +825,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						break;
 					}
 
-					$allowed_keys   = array( 'invitation', 'comment_follow' );
+					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome' );
 					$filtered_value = array_filter(
 						$value,
 						function ( $key ) use ( $allowed_keys ) {
@@ -989,15 +997,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 					} elseif ( update_option( $key, $coerce_value ) ) { // If the option already exists use update_option.
 						$updated[ $key ] = $coerce_value;
-					}
-					break;
-
-				case 'amp_is_enabled':
-					if ( function_exists( 'wpcom_update_amp_enabled' ) ) {
-						$saved = wpcom_update_amp_enabled( $blog_id, $value );
-						if ( $saved ) {
-							$updated[ $key ] = (bool) $value;
-						}
 					}
 					break;
 

@@ -13,14 +13,14 @@ use Automattic\Jetpack\CRM\Entities\Transaction;
 /**
  * Transaction Event class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Transaction_Event implements Event {
 
 	/**
 	 * The Transaction_Event instance.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var Transaction_Event
 	 */
 	private static $instance = null;
@@ -28,7 +28,7 @@ class Transaction_Event implements Event {
 	/**
 	 * Get the singleton instance of this class.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return Transaction_Event The Transaction_Event instance.
 	 */
@@ -43,7 +43,7 @@ class Transaction_Event implements Event {
 	/**
 	 * A new transaction was created.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $transaction_data The created transaction data.
 	 * @return void
@@ -58,7 +58,7 @@ class Transaction_Event implements Event {
 	/**
 	 * The transaction was updated.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $transaction_data The updated transaction data.
 	 * @return void
@@ -72,7 +72,7 @@ class Transaction_Event implements Event {
 	/**
 	 * The transaction was deleted.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param int $transaction_id The deleted transaction id.
 	 * @return void

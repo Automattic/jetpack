@@ -105,12 +105,12 @@
 
 	add_action( 'zbsclearautodrafts', 'zeroBSCRM_cron_clearAutoDrafts' );
 
-	function zeroBSCRM_cron_notifyEvents() {
+	function jpcrm_cron_notify_tasks() {
 
 		// } Simple
-		zeroBSCRM_notifyEvents();
+		jpcrm_notify_tasks();
 	}
-	add_action( 'zbsnotifyevents', 'zeroBSCRM_cron_notifyEvents' );
+	add_action( 'zbsnotifyevents', 'jpcrm_cron_notify_tasks' );
 
 	function jpcrm_cron_watcher() {
 		global $zbscrm_CRONList;
@@ -161,23 +161,18 @@
 	CRONNABLE FUNCTION (should house these somewhere)
 	====================================================== */
 
-	// Notify user of upcoming event (task)
-	function zeroBSCRM_notifyEvents() {
+	// Notify user of upcoming task (task)
+	function jpcrm_notify_tasks() {
 
 		// is the email notification active? (if not, nothing to do)
-		if ( ! zeroBSCRM_get_email_status( ZBSEMAIL_EVENTNOTIFICATION ) ) {
+		if ( ! zeroBSCRM_get_email_status( ZBSEMAIL_TASK_NOTIFICATION ) ) {
 			return;
 		}
 
 		global $zbs;
 
-		// Backward compatibility replaced with DAL2+ support in 4.0.7
-		if ( ! $zbs->isDAL2() ) {
-			return;
-		}
-
-		// retrieve upcoming event reminders
-		$dueEventReminders = $zbs->DAL->eventreminders->getEventreminders(
+		// retrieve upcoming task reminders
+		$due_task_reminders = $zbs->DAL->eventreminders->getEventreminders(
 			array(
 
 				'dueBefore' => time() + 3600, // anytime within next hour
@@ -188,17 +183,17 @@
 		);
 
 		// cycle through them, if any
-		foreach ( $dueEventReminders as $eventReminder ) {
+		foreach ( $due_task_reminders as $task_reminder ) {
 
-			$event = $zbs->DAL->events->getEvent( $eventReminder['event'] );
+			$task = $zbs->DAL->events->getEvent( $task_reminder['event'] );
 
-			// check if event
-			// check event not complete (if so, no need to send)
-			// check if event has owner
-			if ( is_array( $event ) && $event['complete'] !== 1 && $event['owner'] > 0 ) {
+			// check if task
+			// check task not complete (if so, no need to send)
+			// check if task has owner
+			if ( is_array( $task ) && $task['complete'] !== 1 && $task['owner'] > 0 ) {
 
-				// retrieve target (event owner)
-				$owner_info = get_userdata( $event['owner'] );
+				// retrieve target (task owner)
+				$owner_info = get_userdata( $task['owner'] );
 				if ( $owner_info > 0 ) {
 
 					// email
@@ -210,14 +205,14 @@
 					// =================================== MAIL SENDING =========================================
 
 					// generate html
-					$emailHTML = zeroBSCRM_Event_generateNotificationHTML( true, $owner_email, $event['id'], $event );
+					$emailHTML = jpcrm_task_generate_notification_html( true, $owner_email, $task['id'], $task );
 
 						// build send array
 						$mailArray = array(
 							'toEmail'  => $owner_email,
 							'toName'   => '',
-							'subject'  => zeroBSCRM_mailTemplate_getSubject( ZBSEMAIL_EVENTNOTIFICATION ),
-							'headers'  => zeroBSCRM_mailTemplate_getHeaders( ZBSEMAIL_EVENTNOTIFICATION ),
+							'subject'  => zeroBSCRM_mailTemplate_getSubject( ZBSEMAIL_TASK_NOTIFICATION ),
+							'headers'  => zeroBSCRM_mailTemplate_getHeaders( ZBSEMAIL_TASK_NOTIFICATION ),
 							'body'     => $emailHTML,
 							'textbody' => '',
 							'options'  => array(
@@ -225,10 +220,10 @@
 							),
 							'tracking' => array(
 								// tracking :D (auto-inserted pixel + saved in history db)
-								'emailTypeID'     => ZBSEMAIL_EVENTNOTIFICATION,
-								'targetObjID'     => $event['owner'],
+								'emailTypeID'     => ZBSEMAIL_TASK_NOTIFICATION,
+								'targetObjID'     => $task['owner'],
 								'senderWPID'      => -13,
-								'associatedObjID' => $event['id'],
+								'associatedObjID' => $task['id'],
 							),
 						);
 
@@ -236,7 +231,7 @@
 						// and logs tracking :)
 
 						// discern delivery method
-						$mailDeliveryMethod = zeroBSCRM_mailTemplate_getMailDelMethod( ZBSEMAIL_EVENTNOTIFICATION );
+						$mailDeliveryMethod = zeroBSCRM_mailTemplate_getMailDelMethod( ZBSEMAIL_TASK_NOTIFICATION ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 						if ( ! isset( $mailDeliveryMethod ) || empty( $mailDeliveryMethod ) ) {
 							$mailDeliveryMethod = -1;
 						}
@@ -245,14 +240,14 @@
 						$sent = zeroBSCRM_mailDelivery_sendMessage( $mailDeliveryMethod, $mailArray );
 
 						// mark as sent
-						$zbs->DAL->eventreminders->setSentStatus( $eventReminder['id'], 1 );
+						$zbs->DAL->eventreminders->setSentStatus( $task_reminder['id'], 1 );
 
 						// =================================== / MAIL SENDING =======================================
 						// ==========================================================================================
 
 				} // / if owner exists as wp user
 
-			} // / if event, if event not complete, if event has owner
+			} // / if task, if task not complete, if task has owner
 
 		}
 	}

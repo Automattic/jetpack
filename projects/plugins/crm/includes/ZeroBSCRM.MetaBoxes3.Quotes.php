@@ -717,6 +717,9 @@
 
         public function html( $quote, $metabox ) {
 
+		if ( $quote === false ) {
+			$quote = array();
+		}
             global $zbs;
 
             // localise ID & content

@@ -107,7 +107,6 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => '(string) The SEO meta description for the site.',
 			Jetpack_SEO_Titles::TITLE_FORMATS_OPTION  => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 			'verification_services_codes'             => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex, facebook',
-			'amp_is_enabled'                          => '(bool) Whether AMP is enabled for this site',
 			'podcasting_archive'                      => '(string) The post category, if any, used for publishing podcasts',
 			'site_icon'                               => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 			'api_cache'                               => '(bool) Turn on/off the Jetpack JSON API cache',
@@ -127,7 +126,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'show_on_front'                           => '(string) Whether homepage should display related posts or a static page. The expected value is \'posts\' or \'page\'.',
 			'page_on_front'                           => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
 			'page_for_posts'                          => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
-			'subscription_options'                    => '(array) Array of two options used in subscription email templates: \'invitation\' and \'comment_follow\' strings.',
+			'subscription_options'                    => '(array) Array of three options used in subscription email templates: \'invitation\', \'welcome\' and \'comment_follow\' strings.',
 		),
 
 		'response_format' => array(

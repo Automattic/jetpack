@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.2] - 2023-11-03
+
+## [0.11.1] - 2023-10-19
+### Changed
+- Updated package dependencies. [#33687]
+
+### Fixed
+- Fix possible use of an undefined variable. [#33668]
+
+## [0.11.0] - 2023-10-17
+### Changed
+- Updated package dependencies. [#33646]
+
+### Fixed
+- Added search and replace protection for wpcom urls stored in the database. [#33412]
+
+## [0.10.7] - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429]
+
+## [0.10.6] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
 ## [0.10.5] - 2023-09-19
 ### Changed
 - Updated package dependencies. [#33001]
@@ -413,6 +437,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Connection/Urls for home_url and site_url functions migrated from Sync.
 
+[0.11.2]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.11.1...v0.11.2
+[0.11.1]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.11.0...v0.11.1
+[0.11.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.7...v0.11.0
+[0.10.7]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.6...v0.10.7
+[0.10.6]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.5...v0.10.6
 [0.10.5]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.4...v0.10.5
 [0.10.4]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.3...v0.10.4
 [0.10.3]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.10.2...v0.10.3

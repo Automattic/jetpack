@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix erroneous path check in Jetpack_Gutenberg class

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-API: rewrite rules are now flushed after enabling module

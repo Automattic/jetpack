@@ -3,7 +3,7 @@
  * Jetpack CRM Automation Contact_Field_Changed condition.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Conditions;
@@ -18,26 +18,41 @@ use Automattic\Jetpack\CRM\Entities\Contact;
 /**
  * Contact_Field_Changed condition class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Contact_Field_Changed extends Base_Condition {
 
 	/**
 	 * Contact_Field_Changed constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param array $step_data The step data.
 	 */
 	public function __construct( array $step_data ) {
 		parent::__construct( $step_data );
 
-		// TODO: Fetch automation fields from our DAL.
 		$contact_fields = array(
-			'id'       => __( 'ID', 'zero-bs-crm' ),
-			'fname'    => __( 'First Name', 'zero-bs-crm' ),
-			'lname'    => __( 'Last Name', 'zero-bs-crm' ),
-			'fullname' => __( 'Full Name', 'zero-bs-crm' ),
+			'id'               => __( 'ID', 'zero-bs-crm' ),
+			'fname'            => __( 'First Name', 'zero-bs-crm' ),
+			'lname'            => __( 'Last Name', 'zero-bs-crm' ),
+			'status'           => __( 'Status', 'zero-bs-crm' ),
+			'email'            => __( 'Email', 'zero-bs-crm' ),
+			'addr1'            => __( 'Adddress Line 1', 'zero-bs-crm' ),
+			'addr2'            => __( 'Adddress Line 2', 'zero-bs-crm' ),
+			'city'             => __( 'City', 'zero-bs-crm' ),
+			'county'           => __( 'County', 'zero-bs-crm' ),
+			'country'          => __( 'Country', 'zero-bs-crm' ),
+			'postcode'         => __( 'Postcode', 'zero-bs-crm' ),
+			'secaddr_addr1'    => __( 'Seccond Adddress Line 1', 'zero-bs-crm' ),
+			'secaddr_addr2'    => __( 'Seccond Adddress Line 2', 'zero-bs-crm' ),
+			'secaddr_city'     => __( 'Seccond City', 'zero-bs-crm' ),
+			'secaddr_county'   => __( 'Seccond County', 'zero-bs-crm' ),
+			'secaddr_country'  => __( 'Seccond Country', 'zero-bs-crm' ),
+			'secaddr_postcode' => __( 'Seccond Postcode', 'zero-bs-crm' ),
+			'hometel'          => __( 'Home Telephone', 'zero-bs-crm' ),
+			'worktel'          => __( 'Work Telephone', 'zero-bs-crm' ),
+			'mobtel'           => __( 'Mobile Telephone', 'zero-bs-crm' ),
 		);
 
 		$this->valid_operators = array(
@@ -58,14 +73,14 @@ class Contact_Field_Changed extends Base_Condition {
 	 * Executes the condition. If the condition is met, the value stored in the
 	 * attribute $condition_met is set to true; otherwise, it is set to false.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data Data passed from the trigger.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( Data_Type $data ) {
+	protected function execute( Data_Type $data ) {
 
 		/** @var Contact $contact */
 		$contact = $data->get_data();
@@ -101,7 +116,7 @@ class Contact_Field_Changed extends Base_Condition {
 	/**
 	 * Get the title for the contact field changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The title 'Contact Field Changed'.
 	 */
@@ -112,7 +127,7 @@ class Contact_Field_Changed extends Base_Condition {
 	/**
 	 * Get the slug for the contact field changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug 'contact_field_changed'.
 	 */
@@ -123,7 +138,7 @@ class Contact_Field_Changed extends Base_Condition {
 	/**
 	 * Get the description for the contact field changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The description for the condition.
 	 */
@@ -134,7 +149,7 @@ class Contact_Field_Changed extends Base_Condition {
 	/**
 	 * Get the category of the contact field changed condition.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The category 'jpcrm/contact_condition'.
 	 */
@@ -145,7 +160,7 @@ class Contact_Field_Changed extends Base_Condition {
 	/**
 	 * Get the data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The type of the step.
 	 */

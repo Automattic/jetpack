@@ -59,63 +59,104 @@ function load_assets( $attr, $content, $block ) {
 	$submit_text               = esc_html__( 'Submit', 'jetpack' );
 	$cancel_text               = esc_html__( 'Cancel', 'jetpack' );
 	$disabled_subscribe_button = '';
-	$is_following              = function_exists( 'wpcom_subs_is_subscribed' ) && wpcom_subs_is_subscribed(
+	$subscribe_button_class    = 'is-style-fill';
+	$is_following              = ( function_exists( 'wpcom_subs_is_subscribed' ) && wpcom_subs_is_subscribed(
 		array(
 			'user_id' => get_current_user_id(),
 			'blog_id' => $id,
 		)
-	);
+	) ) || isset( $_GET['blogid'] ) && $id === $_GET['blogid']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic.
 
 	if ( $is_following ) {
 		$subscribe_text            = esc_html__( 'Subscribed', 'jetpack' );
 		$disabled_subscribe_button = 'disabled';
+		$subscribe_button_class    = 'is-style-outline';
 	}
+
+	$placeholder_site_icon = '';
+	$site_icon_html        = <<<HTML
+	<img src="$icon" alt="$name_attr" onerror="this.parentNode.classList.add('empty-site-icon')">
+HTML;
 
 	if ( empty( $icon ) ) {
-		$icon = 'https://s0.wp.com/i/webclip.png';
+		$site_icon_html        = '';
+		$placeholder_site_icon = 'empty-site-icon';
 	}
 
-	$buttons      = <<<HTML
-		<!-- wp:buttons -->
-		<div class="wp-block-buttons"><!-- wp:button {"className":"is-style-fill"} -->
-		<div class="wp-block-button is-style-fill"><button type="submit" name="blog_id" value="$id" class="wp-block-button__link wp-element-button">$submit_text</button></div>
-		<!-- /wp:button -->
+	if ( ! jetpack_is_frontend() ) {
+		return <<<HTML
+			<div style="margin-bottom: 10px;">
+				<a href="$url">$name</a><div>$description</div>
+			</div>
+HTML;
+	}
 
-		<!-- wp:button {"className":"is-style-outline"} -->
-		<div class="wp-block-button is-style-outline"><button type="reset" class="wp-block-button__link wp-element-button jetpack-blogroll-item-cancel-button">$cancel_text</button></div>
-		<!-- /wp:button --></div>
+	$form_buttons = <<<HTML
+		<!-- wp:buttons {"style":{"spacing":{"blockGap":"10px"}}} -->
+		<div class="wp-block-buttons">
+			<!-- wp:button {"className":"is-style-fill"} -->
+			<div class="wp-block-button jetpack-blogroll-item-submit-button is-style-fill">
+				<button type="submit" name="blog_id" value="$id" class="wp-block-button__link wp-element-button">$submit_text</button>
+			</div>
+			<!-- /wp:button -->
+
+			<!-- wp:button {"className":"is-style-outline"} -->
+			<div class="wp-block-button jetpack-blogroll-item-cancel-button is-style-outline">
+				<button type="reset" class="wp-block-button__link wp-element-button">$cancel_text</button>
+			</div>
+		</div>
 		<!-- /wp:buttons -->
 HTML;
-	$buttons_html = do_blocks( $buttons );
+
+	$subscribe_button = <<<HTML
+		<!-- wp:button {"className":"$subscribe_button_class"} -->
+		<div class="wp-block-button jetpack-blogroll-item-subscribe-button $subscribe_button_class">
+			<button type="button" class="wp-block-button__link wp-element-button" {$disabled_subscribe_button}>$subscribe_text</button>
+		</div>
+		<!-- /wp:button -->
+HTML;
+
+	$subscribe_button_html = '';
+	$fieldset              = '';
+	$has_subscription_form = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$classes               = Blocks::classes( FEATURE_NAME, $attr );
+
+	if ( $has_subscription_form ) {
+		$classes              .= ' has-subscription-form';
+		$form_buttons_html     = do_blocks( $form_buttons );
+		$subscribe_button_html = do_blocks( $subscribe_button );
+
+		$fieldset = <<<HTML
+	<fieldset disabled class="jetpack-blogroll-item-submit">
+		<input type="hidden" name="_wpnonce" value="$wp_nonce">
+		<input type="email" name="email" placeholder="Email address" value="$email" class="jetpack-blogroll-item-email-input">
+		$form_buttons_html
+	</fieldset>
+HTML;
+	}
 
 	/**
 	 * Build the block content.
 	 */
 	$content = <<<HTML
 		<div class="jetpack-blogroll-item-information">
-			<figure>
-				<img src="$icon" alt="$name_attr">
+			<figure class="$placeholder_site_icon">
+				$site_icon_html
 			</figure>
 			<div>
 				<a class="jetpack-blogroll-item-title" href="$url" target="$target" rel="noopener noreferrer">$name</a>
 				<div class="jetpack-blogroll-item-description">$description</div>
 			</div>
-			<button type="button" class="jetpack-blogroll-item-subscribe-button wp-block-button__link" {$disabled_subscribe_button}>
-				$subscribe_text
-			</button>
+			$subscribe_button_html
 		</div>
-		<fieldset disabled class="jetpack-blogroll-item-submit">
-			<input type="hidden" name="_wpnonce" value="$wp_nonce">
-			<input type="email" placeholder="Email address" value="$email" class="jetpack-blogroll-item-email-input">
-			$buttons_html
-		</fieldset>
+		$fieldset
 HTML;
 
 	return sprintf(
 		'<div class="%1$s">
 			<div class="jetpack-blogroll-item-slider">%2$s</div>
 		</div>',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+		esc_attr( $classes ),
 		$content
 	);
 }

@@ -7,13 +7,14 @@ import { addFilter } from '@wordpress/hooks';
 /**
  * Internal dependencies
  */
+import metadata from '../../blocks/ai-assistant/block.json';
 import { isPossibleToExtendBlock } from '../../blocks/ai-assistant/extensions/ai-assistant';
 import { aiExcerptPluginName, aiExcerptPluginSettings } from '.';
 
 export const AI_CONTENT_LENS = 'ai-content-lens';
 
 const isAiAssistantSupportExtensionEnabled =
-	window?.Jetpack_Editor_Initial_State.available_blocks[ 'ai-content-lens' ];
+	window?.Jetpack_Editor_Initial_State?.available_blocks[ 'ai-content-lens' ];
 
 /**
  * Extend the editor with AI Content Lens features,
@@ -24,8 +25,15 @@ const isAiAssistantSupportExtensionEnabled =
  * @returns {object}          Block settings.
  */
 function extendAiContentLensFeatures( settings, name ) {
+	// Do not extend if the site requires an upgrade.
+	const siteRequireUpgrade =
+		window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'site-require-upgrade' ];
+	if ( siteRequireUpgrade ) {
+		return settings;
+	}
+
 	// Bail early when the block is not the AI Assistant.
-	if ( name !== 'jetpack/ai-assistant' ) {
+	if ( name !== metadata.name ) {
 		return settings;
 	}
 

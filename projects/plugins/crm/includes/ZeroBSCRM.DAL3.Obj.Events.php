@@ -29,7 +29,7 @@
 */
 class zbsDAL_events extends zbsDAL_ObjectLayer {
 
-    protected $objectType = ZBS_TYPE_EVENT;
+    protected $objectType = ZBS_TYPE_TASK;
     protected $objectDBPrefix = 'zbse_';
     protected $include_in_templating = true;
     protected $objectModel = array(
@@ -161,7 +161,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
             'withAssigned'      => true, // return ['contact'] & ['company'] objs if has link
 
             // permissions
-            'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT), // this'll let you not-check the owner of obj
+            'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK), // this'll let you not-check the owner of obj
 
             // returns scalar ID of line
             'onlyID'        => false,
@@ -191,7 +191,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                 if ($withCustomFields && !$onlyID){
                     
                     #} Retrieve any cf
-                    $custFields = $this->DAL()->getActiveCustomFields(array('objtypeid'=>ZBS_TYPE_EVENT));
+                    $custFields = $this->DAL()->getActiveCustomFields(array('objtypeid'=>ZBS_TYPE_TASK));
 
                     #} Cycle through + build into query
                     if (is_array($custFields)) foreach ($custFields as $cK => $cF){
@@ -200,7 +200,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                         $extraSelect .= ',(SELECT zbscf_objval FROM '.$ZBSCRM_t['customfields']." WHERE zbscf_objid = event.ID AND zbscf_objkey = %s AND zbscf_objtype = %d LIMIT 1) '".$cK."'";
                         
                         // add params
-                        $params[] = $cK; $params[] = ZBS_TYPE_EVENT;
+                        $params[] = $cK; $params[] = ZBS_TYPE_TASK;
 
                     }
 
@@ -237,7 +237,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                 
                 if (!empty($externalSource) && !empty($externalSourceUID)){
 
-                    $wheres['extsourcecheck'] = array('ID','IN','(SELECT DISTINCT zbss_objid FROM '.$ZBSCRM_t['externalsources']." WHERE zbss_objtype = ".ZBS_TYPE_EVENT." AND zbss_source = %s AND zbss_uid = %s)",array($externalSource,$externalSourceUID));
+                    $wheres['extsourcecheck'] = array('ID','IN','(SELECT DISTINCT zbss_objid FROM '.$ZBSCRM_t['externalsources']." WHERE zbss_objtype = ".ZBS_TYPE_TASK." AND zbss_source = %s AND zbss_uid = %s)",array($externalSource,$externalSourceUID));
 
                 }
 
@@ -290,14 +290,14 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                     if ($withReminders){
 
                         // add all event reminder lines
-                        $res['reminders'] = $this->DAL()->eventreminders->getEventreminders(array('eventID'=>$potentialRes->ID,'perPage'=>1000,'ignoreowner'=>zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT)));
+                        $res['reminders'] = $this->DAL()->eventreminders->getEventreminders(array('eventID'=>$potentialRes->ID,'perPage'=>1000,'ignoreowner'=>zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK)));
                     
                     }
 
                     if ($withTags){
 
                         // add all tags lines
-                        $res['tags'] = $this->DAL()->getTagsForObjID(array('objtypeid'=>ZBS_TYPE_EVENT,'objid'=>$potentialRes->ID));
+                        $res['tags'] = $this->DAL()->getTagsForObjID(array('objtypeid'=>ZBS_TYPE_TASK,'objid'=>$potentialRes->ID));
                     
                     }
 
@@ -322,14 +322,14 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
 
                             // add all assigned contacts/companies
                             $res['contact'] = $this->DAL()->contacts->getContacts(array(
-                                'hasObjTypeLinkedTo'=>ZBS_TYPE_EVENT,
+                                'hasObjTypeLinkedTo'=>ZBS_TYPE_TASK,
                                 'hasObjIDLinkedTo'=>$potentialRes->ID,
                                 'page' => 0,
                                 'perPage'=>1, // FORCES 1
                                 'ignoreowner'=>zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_CONTACT)));
 
                             $res['company'] = $this->DAL()->companies->getCompanies(array(
-                                'hasObjTypeLinkedTo'=>ZBS_TYPE_EVENT,
+                                'hasObjTypeLinkedTo'=>ZBS_TYPE_TASK,
                                 'hasObjIDLinkedTo'=>$potentialRes->ID,
                                 'page' => 0,
                                 'perPage'=>1, // FORCES 1
@@ -400,7 +400,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
             'whereCase'          => 'AND', // DEFAULT = AND
 
             // permissions
-            'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT), // this'll let you not-check the owner of obj
+            'ignoreowner'   => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK), // this'll let you not-check the owner of obj
 
 
         ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
@@ -469,7 +469,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
             if ($withCustomFields){
                 
                 #} Retrieve any cf
-                $custFields = $this->DAL()->getActiveCustomFields(array('objtypeid'=>ZBS_TYPE_EVENT));
+                $custFields = $this->DAL()->getActiveCustomFields(array('objtypeid'=>ZBS_TYPE_TASK));
 
                 #} Cycle through + build into query
                 if (is_array($custFields)) foreach ($custFields as $cK => $cF){
@@ -494,7 +494,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                     $extraSelect .= ',(SELECT zbscf_objval FROM '.$ZBSCRM_t['customfields']." WHERE zbscf_objid = event.ID AND zbscf_objkey = %s AND zbscf_objtype = %d) ".$cKey;
                     
                     // add params
-                    $params[] = $cK; $params[] = ZBS_TYPE_EVENT;
+                    $params[] = $cK; $params[] = ZBS_TYPE_TASK;
 
                 }
 
@@ -540,7 +540,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                 
                     // simplistic add
                     // NOTE: This IGNORES ownership of custom field lines.
-                    $searchWheres['search_customfields'] = array('ID','IN',"(SELECT zbscf_objid FROM ".$ZBSCRM_t['customfields']." WHERE zbscf_objval LIKE %s AND zbscf_objtype = ".ZBS_TYPE_EVENT.")",'%'.$searchPhrase.'%');
+                    $searchWheres['search_customfields'] = array('ID','IN',"(SELECT zbscf_objid FROM ".$ZBSCRM_t['customfields']." WHERE zbscf_objval LIKE %s AND zbscf_objtype = ".ZBS_TYPE_TASK.")",'%'.$searchPhrase.'%');
 
                 }
 
@@ -583,7 +583,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
             if ( !empty( $externalSource ) ){
 
                 // NO owernship built into this, check when roll out multi-layered ownsership
-                $wheres['externalsource'] = array('ID','IN','(SELECT DISTINCT zbss_objid FROM '.$ZBSCRM_t['externalsources']." WHERE zbss_objtype = ".ZBS_TYPE_EVENT." AND zbss_source = %s)",$externalSource);
+                $wheres['externalsource'] = array('ID','IN','(SELECT DISTINCT zbss_objid FROM '.$ZBSCRM_t['externalsources']." WHERE zbss_objtype = ".ZBS_TYPE_TASK." AND zbss_source = %s)",$externalSource);
 
             }
 
@@ -598,8 +598,8 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
             if (!empty($datedAfter) && $datedAfter > 0 && $datedAfter !== false) $wheres['datedAfter'] = array('zbse_start','>=','%d',$datedAfter);
             
             // assignedContact + assignedCompany
-            if (!empty($assignedContact) && $assignedContact !== false && $assignedContact > 0) $wheres['assignedContact'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_EVENT." AND zbsol_objtype_to = ".ZBS_TYPE_CONTACT." AND zbsol_objid_to = %d)",$assignedContact);
-            if (!empty($assignedCompany) && $assignedCompany !== false && $assignedCompany > 0) $wheres['assignedCompany'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_EVENT." AND zbsol_objtype_to = ".ZBS_TYPE_COMPANY." AND zbsol_objid_to = %d)",$assignedCompany);
+            if (!empty($assignedContact) && $assignedContact !== false && $assignedContact > 0) $wheres['assignedContact'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_TASK." AND zbsol_objtype_to = ".ZBS_TYPE_CONTACT." AND zbsol_objid_to = %d)",$assignedContact);
+            if (!empty($assignedCompany) && $assignedCompany !== false && $assignedCompany > 0) $wheres['assignedCompany'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_TASK." AND zbsol_objtype_to = ".ZBS_TYPE_COMPANY." AND zbsol_objid_to = %d)",$assignedCompany);
 
             // completed status
             if ( $isComplete ) $wheres['status'] = array('zbse_complete','=','1');
@@ -623,7 +623,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
 
                 // add where tagged                 
                 // 1 int: 
-                $wheres['direct'][] = array('((SELECT COUNT(ID) FROM '.$ZBSCRM_t['taglinks'].' WHERE zbstl_objtype = %d AND zbstl_objid = event.ID AND zbstl_tagid = %d) > 0)',array(ZBS_TYPE_EVENT,$isTagged));
+                $wheres['direct'][] = array('((SELECT COUNT(ID) FROM '.$ZBSCRM_t['taglinks'].' WHERE zbstl_objtype = %d AND zbstl_objid = event.ID AND zbstl_tagid = %d) > 0)',array(ZBS_TYPE_TASK,$isTagged));
 
             } else if (is_array($isTagged) && count($isTagged) > 0){
 
@@ -639,7 +639,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                 }
                 if (!empty($tagStr)){
                     
-                    $wheres['direct'][] = array('((SELECT COUNT(ID) FROM '.$ZBSCRM_t['taglinks'].' WHERE zbstl_objtype = %d AND zbstl_objid = event.ID AND zbstl_tagid IN (%s)) > 0)',array(ZBS_TYPE_EVENT,$tagStr));
+                    $wheres['direct'][] = array('((SELECT COUNT(ID) FROM '.$ZBSCRM_t['taglinks'].' WHERE zbstl_objtype = %d AND zbstl_objid = event.ID AND zbstl_tagid IN (%s)) > 0)',array(ZBS_TYPE_TASK,$tagStr));
 
                 }
 
@@ -653,7 +653,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
 
                 // add where tagged                 
                 // 1 int: 
-                $wheres['direct'][] = array('((SELECT COUNT(ID) FROM '.$ZBSCRM_t['taglinks'].' WHERE zbstl_objtype = %d AND zbstl_objid = event.ID AND zbstl_tagid = %d) = 0)',array(ZBS_TYPE_EVENT,$isNotTagged));
+                $wheres['direct'][] = array('((SELECT COUNT(ID) FROM '.$ZBSCRM_t['taglinks'].' WHERE zbstl_objtype = %d AND zbstl_objid = event.ID AND zbstl_tagid = %d) = 0)',array(ZBS_TYPE_TASK,$isNotTagged));
 
             } else if (is_array($isNotTagged) && count($isNotTagged) > 0){
 
@@ -669,7 +669,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                 }
                 if (!empty($tagStr)){
                     
-                    $wheres['direct'][] = array('((SELECT COUNT(ID) FROM '.$ZBSCRM_t['taglinks'].' WHERE zbstl_objtype = %d AND zbstl_objid = event.ID AND zbstl_tagid IN (%s)) = 0)',array(ZBS_TYPE_EVENT,$tagStr));
+                    $wheres['direct'][] = array('((SELECT COUNT(ID) FROM '.$ZBSCRM_t['taglinks'].' WHERE zbstl_objtype = %d AND zbstl_objid = event.ID AND zbstl_tagid IN (%s)) = 0)',array(ZBS_TYPE_TASK,$tagStr));
 
                 }
 
@@ -767,14 +767,14 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                     if ($withReminders){
 
                         // add all event reminder lines
-                        $resArr['reminders'] = $this->DAL()->eventreminders->getEventreminders(array('eventID'=>$resDataLine->ID,'perPage'=>1000,'ignoreowner'=>zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT)));
+                        $resArr['reminders'] = $this->DAL()->eventreminders->getEventreminders(array('eventID'=>$resDataLine->ID,'perPage'=>1000,'ignoreowner'=>zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_TASK)));
                     
                     }
 
                     if ($withTags){
 
                         // add all tags lines
-                        $resArr['tags'] = $this->DAL()->getTagsForObjID(array('objtypeid'=>ZBS_TYPE_EVENT,'objid'=>$resDataLine->ID));
+                        $resArr['tags'] = $this->DAL()->getTagsForObjID(array('objtypeid'=>ZBS_TYPE_TASK,'objid'=>$resDataLine->ID));
 
                     }
                     if ($withAssigned){
@@ -798,14 +798,14 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
 
                             // add all assigned contacts/companies
                             $resArr['contact'] = $this->DAL()->contacts->getContacts(array(
-                                'hasObjTypeLinkedTo'=>ZBS_TYPE_EVENT,
+                                'hasObjTypeLinkedTo'=>ZBS_TYPE_TASK,
                                 'hasObjIDLinkedTo'=>$resDataLine->ID,
                                 'page' => 0,
                                 'perPage'=>1, // FORCES 1
                                 'ignoreowner'=>zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_CONTACT)));
 
                             $resArr['company'] = $this->DAL()->companies->getCompanies(array(
-                                'hasObjTypeLinkedTo'=>ZBS_TYPE_EVENT,
+                                'hasObjTypeLinkedTo'=>ZBS_TYPE_TASK,
                                 'hasObjIDLinkedTo'=>$resDataLine->ID,
                                 'page' => 0,
                                 'perPage'=>1, // FORCES 1
@@ -817,7 +817,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                     #} With Assigned?
                     if ($withOwner){
 
-                        $resArr['owner'] = zeroBS_getOwner( $resDataLine->ID, true, ZBS_TYPE_EVENT, $resDataLine->zbs_owner );
+                        $resArr['owner'] = zeroBS_getOwner( $resDataLine->ID, true, ZBS_TYPE_TASK, $resDataLine->zbs_owner );
 
                     }
 
@@ -853,7 +853,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
         $whereArr = array();
 
         return $this->DAL()->getFieldByWHERE(array(
-            'objtype' => ZBS_TYPE_EVENT,
+            'objtype' => ZBS_TYPE_TASK,
             'colname' => 'COUNT(ID)',
             'where' => $whereArr,
             'ignoreowner' => $ignoreowner));
@@ -874,7 +874,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
         global $ZBSCRM_t,$wpdb,$zbs;
             
         #} Retrieve any cf
-        $customFields = $this->DAL()->getActiveCustomFields(array('objtypeid'=>ZBS_TYPE_EVENT));
+        $customFields = $this->DAL()->getActiveCustomFields(array('objtypeid'=>ZBS_TYPE_TASK));
 
         #} ============ LOAD ARGS =============
         $defaultArgs = array(
@@ -958,7 +958,10 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                         // some weird case where getting empties, so added check
                         if (isset($field['key']) && !empty($field['key'])){ 
 
-                            $dePrefixed = ''; if (substr($field['key'],0,strlen('zbse_')) === 'zbse_') $dePrefixed = substr($field['key'], strlen('zbse_'));
+						$dePrefixed = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( str_starts_with( $field['key'], 'zbse_' ) ) {
+							$dePrefixed = substr( $field['key'], strlen( 'zbse_' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 
                             if (isset($customFields[$field['key']])){
 
@@ -1329,7 +1332,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                                 $approvedExternalSource = $this->DAL()->addUpdateExternalSources(
                                     array(
                                         'obj_id'           => $id,
-                                        'obj_type_id'      => ZBS_TYPE_EVENT,
+                                        'obj_type_id'      => ZBS_TYPE_TASK,
                                         'external_sources' => isset($data['externalSources']) ? $data['externalSources'] : array(),
                                     )
                                 ); // for IA below
@@ -1345,7 +1348,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                                             // add update
                                             $cfID = $this->DAL()->addUpdateCustomField(array(
                                                 'data'  => array(
-                                                        'objtype'   => ZBS_TYPE_EVENT,
+                                                        'objtype'   => ZBS_TYPE_TASK,
                                                         'objid'     => $id,
                                                         'objkey'    => $cK,
                                                         'objval'    => $data[$cK]
@@ -1373,7 +1376,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
 
                                     #} Brutal update
                                     //update_post_meta($postID, 'zbs_customer_extra_'.$cleanKey, $v);
-                                    $this->DAL()->updateMeta(ZBS_TYPE_EVENT,$id,'extra_'.$cleanKey,$v);
+                                    $this->DAL()->updateMeta(ZBS_TYPE_TASK,$id,'extra_'.$cleanKey,$v);
 
                                     #} Add it to this, which passes to IA
                                     $confirmedExtraMeta[$cleanKey] = $v;
@@ -1521,7 +1524,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                     $approvedExternalSource = $this->DAL()->addUpdateExternalSources(
                         array(
                             'obj_id'           => $newID,
-                            'obj_type_id'      => ZBS_TYPE_EVENT,
+                            'obj_type_id'      => ZBS_TYPE_TASK,
                             'external_sources' => isset($data['externalSources']) ? $data['externalSources'] : array(),
                         )
                     ); // for IA below
@@ -1537,7 +1540,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                                 // add update
                                 $cfID = $this->DAL()->addUpdateCustomField(array(
                                     'data'  => array(
-                                            'objtype'   => ZBS_TYPE_EVENT,
+                                            'objtype'   => ZBS_TYPE_TASK,
                                             'objid'     => $newID,
                                             'objkey'    => $cK,
                                             'objval'    => $data[$cK]
@@ -1563,7 +1566,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
 
                             #} Brutal update
                             //update_post_meta($postID, 'zbs_customer_extra_'.$cleanKey, $v);
-                            $this->DAL()->updateMeta(ZBS_TYPE_EVENT,$newID,'extra_'.$cleanKey,$v);
+                            $this->DAL()->updateMeta(ZBS_TYPE_TASK,$newID,'extra_'.$cleanKey,$v);
 
                             #} Add it to this, which passes to IA
                             $confirmedExtraMeta[$cleanKey] = $v;
@@ -1649,7 +1652,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
 
         return $this->DAL()->addUpdateObjectTags(
             array(
-                'objtype'   => ZBS_TYPE_EVENT,
+                'objtype'   => ZBS_TYPE_TASK,
                 'objid'     => $id,
                 'tag_input' => $tag_input,
                 'tags'      => $tags,
@@ -1722,12 +1725,12 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                 // delete any tag links
                 $this->DAL()->deleteTagObjLinks(array(
 
-                        'objtype'       => ZBS_TYPE_EVENT,
+                        'objtype'       => ZBS_TYPE_TASK,
                         'objid'         => $id
                 ));
 
                 // delete any objlinks
-                $this->addUpdateObjectLinks($id,'unset',ZBS_TYPE_EVENT);
+                $this->addUpdateObjectLinks($id,'unset',ZBS_TYPE_TASK);
 
                 // delete any reminders
                 $this->DAL()->eventreminders->deleteEventRemindersForEvent(array('eventID'=>$id));
@@ -1735,7 +1738,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                 // delete any external source information
                 $this->DAL()->delete_external_sources( array(
 
-                    'obj_type'       => ZBS_TYPE_EVENT,
+                    'obj_type'       => ZBS_TYPE_TASK,
                     'obj_id'         => $id,
                     'obj_source'    => 'all',
 
@@ -1797,7 +1800,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
 
                 
             // custom fields - tidy any that are present:
-            if ($withCustomFields) $res = $this->tidyAddCustomFields(ZBS_TYPE_EVENT,$obj,$res,false);
+            if ($withCustomFields) $res = $this->tidyAddCustomFields(ZBS_TYPE_TASK,$obj,$res,false);
 
         } 
 
@@ -1826,7 +1829,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
 
             return $this->DAL()->getMeta(array(
 
-                'objtype' => ZBS_TYPE_EVENT,
+                'objtype' => ZBS_TYPE_TASK,
                 'objid' => $id,
                 'key' => $key,
                 'fullDetails' => false,
@@ -1844,7 +1847,6 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
     
     /**
      * Returns an ownerid against a event
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id event ID
      *
@@ -1860,7 +1862,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
 
             return $this->DAL()->getFieldByID(array(
                 'id' => $id,
-                'objtype' => ZBS_TYPE_EVENT,
+                'objtype' => ZBS_TYPE_TASK,
                 'colname' => 'zbs_owner',
                 'ignoreowner'=>true));
 
@@ -1888,7 +1890,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
 
             return $this->DAL()->getFieldByID(array(
                 'id' => $id,
-                'objtype' => ZBS_TYPE_EVENT,
+                'objtype' => ZBS_TYPE_TASK,
                 'colname' => 'zbse_status',
                 'ignoreowner'=>true));
 

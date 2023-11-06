@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/markdown",
 	"title": "Markdown",
-	"description": "Use regular characters and punctuation to style text, links, and lists.",
+	"description": "Add headings, lists, or links to plain text with ease.",
 	"keywords": [ "formatting", "syntax", "markup" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
@@ -22,5 +22,9 @@
 		}
 	},
 	"attributes": { "source": { "type": "string" } },
-	"editorScript": "file:../editor.js"
+	"example": {
+		"attributes": {
+			"source": "## ## Try Markdown\n\nMarkdown is a text formatting syntax that is converted into HTML. You can _emphasize_ text or **make it strong** with just a few characters."
+		}
+	}
 }

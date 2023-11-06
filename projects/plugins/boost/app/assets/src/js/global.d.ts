@@ -22,8 +22,6 @@ declare global {
 	// Constants provided by the plugin.
 	const Jetpack_Boost: {
 		preferences: {
-			showRatingPrompt: boolean;
-			showScorePrompt: boolean;
 			prioritySupport: boolean;
 		};
 		isPremium: boolean;
@@ -34,9 +32,6 @@ declare global {
 		};
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
-		showRatingPromptNonce?: string;
-		showScorePromptNonce?: string;
-		dismissedScorePrompts: string[];
 		superCache: {
 			pluginActive: boolean;
 			cacheEnabled: boolean;

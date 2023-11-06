@@ -1,26 +1,15 @@
-import { Step, Workflow } from 'crm/state/automations-admin/types';
+import { Workflow, ServerPreparedWorkflow } from 'crm/state/automations-admin/types';
 
 /**
- * Finds a step in a Workflow by ID.
+ * Gets a workflow which has been prepared for sending to the server.
  *
- * @param {Workflow} workflow - The workflow to search for the step
- * @param {string} stepId - The ID of the step to search for
- * @returns {object} An object containing the step, its previous step, and its next step if they exist, or undefined otherwise
+ * @param {Workflow} workflow - The workflow to prepare
+ * @returns {ServerPreparedWorkflow} The prepared workflow
  */
-export const findStep = ( workflow: Workflow, stepId: string ) => {
-	const step: Step | undefined = workflow.steps[ stepId ];
-
-	let nextStep: Step | undefined;
-	let previousStep: Step | undefined;
-
-	if ( step ) {
-		nextStep = step.next_step ? workflow.steps[ step.next_step ] : undefined;
-		previousStep = Object.values( workflow.steps ).find( x => x.next_step === step.id );
-	}
-
+export const getServerPreparedWorkflow = ( workflow: Workflow ) => {
 	return {
-		step,
-		nextStep,
-		previousStep,
+		...workflow,
+		triggers: workflow.triggers.map( trigger => trigger.slug ),
+		id: Number( workflow.id ),
 	};
 };

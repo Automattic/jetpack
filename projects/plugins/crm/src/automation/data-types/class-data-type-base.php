@@ -3,7 +3,7 @@
  * Base Data Type class.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Data_Types;
@@ -13,7 +13,7 @@ use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 /**
  * Abstract Data Type base class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 abstract class Data_Type_Base implements Data_Type {
 
@@ -22,7 +22,7 @@ abstract class Data_Type_Base implements Data_Type {
 	 *
 	 * This could be of any shape: a class, object, array, or a simple value.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var mixed
 	 */
 	protected $data = null;
@@ -31,7 +31,7 @@ abstract class Data_Type_Base implements Data_Type {
 	 * The previous data that represents an instance of the data type.
 	 * This could be of any shape: a class, object, array, or a simple value.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var mixed
 	 */
 	protected $previous_data = null;
@@ -39,7 +39,7 @@ abstract class Data_Type_Base implements Data_Type {
 	/**
 	 * Constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param mixed $data A data that represents the data type.
 	 * @param mixed $previous_data A data that represents the previous data.
@@ -63,7 +63,7 @@ abstract class Data_Type_Base implements Data_Type {
 	 * This method is meant to validate if the data has the expected inheritance
 	 * or structure and will be used to throw a fatal error if not.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param mixed $data The data to validate.
 	 * @return bool Whether the data is valid.
@@ -76,7 +76,7 @@ abstract class Data_Type_Base implements Data_Type {
 	 * We do not know what shape this takes. It could be a class, object,
 	 * or array. We leave it up to the data type to decide.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return mixed
 	 */
@@ -90,7 +90,7 @@ abstract class Data_Type_Base implements Data_Type {
 	 * We do not know what shape this takes. It could be a class, object,
 	 * or array. We leave it up to the data type to decide.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return mixed
 	 */

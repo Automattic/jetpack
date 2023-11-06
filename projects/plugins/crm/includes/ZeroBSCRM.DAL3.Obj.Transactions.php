@@ -232,7 +232,7 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
 		/**
 		 * Events_Manager instance. Manages CRM events.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.2.0
 		 *
 		 * @var Events_Manager
 		 */
@@ -889,7 +889,7 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
 
                         // where status = x
                         // USE hasStatus above now...
-                        if (substr($qFilter,0,7) == 'status_'){
+					if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                             $qFilterStatus = substr($qFilter,7);
                             $qFilterStatus = str_replace('_',' ',$qFilterStatus);
@@ -897,14 +897,13 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                             // check status
                             $wheres['quickfilterstatus'] = array('zbst_status','LIKE','%s',ucwords($qFilterStatus));
 
-                        } else {
+					} else {
 
                             // if we've hit no filter query, let external logic hook in to provide alternatives
                             // First used in WooSync module
                             $wheres = apply_filters( 'jpcrm_transaction_query_quickfilter', $wheres, $qFilter );
 
-                        }
-
+					}
                 } 
 
             }// / quickfilters
@@ -1281,7 +1280,10 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
                         // some weird case where getting empties, so added check
                         if (isset($field['key']) && !empty($field['key'])){ 
 
-                            $dePrefixed = ''; if (substr($field['key'],0,strlen('zbst_')) === 'zbst_') $dePrefixed = substr($field['key'], strlen('zbst_'));
+						$dePrefixed = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( str_starts_with( $field['key'], 'zbst_' ) ) {
+							$dePrefixed = substr( $field['key'], strlen( 'zbst_' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 
                             if (isset($customFields[$field['key']])){
 
@@ -2352,7 +2354,6 @@ class zbsDAL_transactions extends zbsDAL_ObjectLayer {
 
     /**
      * Returns an ownerid against a transaction
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id transaction ID
      *

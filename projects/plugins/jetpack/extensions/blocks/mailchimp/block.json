@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/mailchimp",
 	"title": "Mailchimp",
-	"description": "A form enabling readers to join a Mailchimp audience.",
+	"description": "Allow readers to join a Mailchimp audience.",
 	"keywords": [ "email", "subscription", "newsletter" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
@@ -55,5 +55,19 @@
 			"default": false
 		}
 	},
-	"editorScript": "file:../editor.js"
+	"example": {
+		"attributes": {
+			"preview": true
+		},
+		"innerBlocks": [
+			{
+				"name": "jetpack/button",
+				"attributes": {
+					"element": "button",
+					"text": "Join my Mailchimp audience",
+					"uniqueId": "mailchimp-widget-id"
+				}
+			}
+		]
+	}
 }

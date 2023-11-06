@@ -101,7 +101,7 @@ describe( 'Inspector settings', () => {
 			// eslint-disable-next-line testing-library/no-node-access
 			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
 			await user.click(
-				within( popoverContainer ).getAllByRole( 'button', { name: /^Color: / } )[ 0 ]
+				within( popoverContainer ).getAllByRole( 'option', { name: /^Color: / } )[ 0 ]
 			);
 
 			expect( setTextColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
@@ -116,7 +116,7 @@ describe( 'Inspector settings', () => {
 			// eslint-disable-next-line testing-library/no-node-access
 			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
 			await user.click(
-				within( popoverContainer ).getAllByRole( 'button', { name: /^Color: / } )[ 0 ]
+				within( popoverContainer ).getAllByRole( 'option', { name: /^Color: / } )[ 0 ]
 			);
 
 			expect( setBackgroundColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
@@ -159,7 +159,7 @@ describe( 'Inspector settings', () => {
 			// eslint-disable-next-line testing-library/no-node-access
 			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
 			await user.click(
-				within( popoverContainer ).getAllByRole( 'button', { name: /^Color: / } )[ 0 ]
+				within( popoverContainer ).getAllByRole( 'option', { name: /^Color: / } )[ 0 ]
 			);
 
 			expect( setTextColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
@@ -175,7 +175,7 @@ describe( 'Inspector settings', () => {
 			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
 			await user.click( within( popoverContainer ).getByRole( 'tab', { name: 'Solid' } ) );
 			await user.click(
-				within( popoverContainer ).getAllByRole( 'button', { name: /^Color: / } )[ 0 ]
+				within( popoverContainer ).getAllByRole( 'option', { name: /^Color: / } )[ 0 ]
 			);
 
 			expect( setBackgroundColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
@@ -191,7 +191,7 @@ describe( 'Inspector settings', () => {
 			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
 			await user.click( within( popoverContainer ).getByRole( 'tab', { name: 'Gradient' } ) );
 			await user.click(
-				within( popoverContainer ).getAllByRole( 'button', { name: /^Gradient: / } )[ 0 ]
+				within( popoverContainer ).getAllByRole( 'option', { name: /^Gradient: / } )[ 0 ]
 			);
 
 			expect( setGradient.mock.calls[ 0 ][ 0 ] ).toMatch( /linear-gradient\((.+)\)/ );

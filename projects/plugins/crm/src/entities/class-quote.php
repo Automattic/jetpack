@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\CRM\Entities;
 /**
  * Quote class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Quote {
 

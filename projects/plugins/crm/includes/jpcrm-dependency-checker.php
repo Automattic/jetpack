@@ -31,15 +31,18 @@ class JPCRM_DependencyChecker {
 	 */
 	protected $dal_ver;
 
-  public function __construct( ) {
-    if ( ! function_exists( 'get_plugins' ) ) {
-      require_once ABSPATH . 'wp-admin/includes/plugin.php';
-    }
-    global $zbs;
-    $this->all_plugins = get_plugins();
-    $this->core_ver = $zbs->version;
-    $this->dal_ver = $zbs->dal_version;
-  }
+	/**
+	 * Build DependencyChecker class
+	 */
+	public function __construct() {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		global $zbs;
+		$this->all_plugins = get_plugins();
+		$this->core_ver    = $zbs->version ?? '';
+		$this->dal_ver     = $zbs->dal_version ?? '';
+	}
 
   /**
    * 
@@ -95,7 +98,12 @@ class JPCRM_DependencyChecker {
     // otherwise, proceed to trigger an admin notice
     $feature_name = !empty( $feature_name ) ? $feature_name : __( 'CRM feature', 'zero-bs-crm' );
 
-    if ( !$is_good_core_ver ) {
+		if ( empty( $this->core_ver ) || empty( $this->dal_ver ) ) {
+			$error_msg = __( 'Your CRM install appears to have issues. Please verify the CRM is fully installed and any notices are properly handled before trying again.', 'zero-bs-crm' );
+			##WLREMOVE
+			$error_msg = __( 'Your Jetpack CRM install appears to have issues. Please verify the CRM is fully installed and any notices are properly handled before trying again.', 'zero-bs-crm' );
+			##/WLREMOVE
+		} elseif ( ! $is_good_core_ver ) {
       $error_msg = sprintf( __( '%s requires CRM version %s or greater, but version %s is currently installed. Please update your CRM to use this feature.', 'zero-bs-crm' ), $feature_name, $req_core_ver, $this->core_ver );
       ##WLREMOVE
       $error_msg = sprintf( __( '%s requires Jetpack CRM version %s or greater, but version %s is currently installed. Please update Jetpack CRM to use this feature.', 'zero-bs-crm' ), $feature_name, $req_core_ver, $this->core_ver );

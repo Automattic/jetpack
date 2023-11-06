@@ -14,10 +14,18 @@ import {
 	PLAN_BUSINESS_2_YEARS,
 	PLAN_BUSINESS_3_YEARS,
 	PLAN_BUSINESS_MONTHLY,
+	PLAN_BUSINESS_TRIAL,
+	PLAN_MIGRATION_TRIAL,
+	PLAN_100_YEARS,
 	PLAN_ECOMMERCE,
 	PLAN_ECOMMERCE_2_YEARS,
 	PLAN_ECOMMERCE_3_YEARS,
 	PLAN_ECOMMERCE_MONTHLY,
+	PLAN_WOOEXPRESS_ESSENTIALS,
+	PLAN_WOOEXPRESS_ESSENTIALS_MONTHLY,
+	PLAN_WOOEXPRESS_PERFORMANCE,
+	PLAN_WOOEXPRESS_PERFORMANCE_MONTHLY,
+	PLAN_WOOEXPRESS_TRIAL,
 	PLAN_PRO,
 	PLAN_VIP,
 	PLAN_WPCOM_SEARCH,
@@ -88,6 +96,9 @@ import {
 	PLAN_JETPACK_STATS_MONTHLY,
 	PLAN_JETPACK_STATS_PWYW_YEARLY,
 	PLAN_JETPACK_STATS_FREE,
+	PLAN_JETPACK_CREATOR_BI_YEARLY,
+	PLAN_JETPACK_CREATOR_YEARLY,
+	PLAN_JETPACK_CREATOR_MONTHLY,
 } from 'lib/plans/constants';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -109,11 +120,19 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_BUSINESS_2_YEARS ]: 'plans/wpcom-business.svg',
 	[ PLAN_BUSINESS_3_YEARS ]: 'plans/wpcom-business.svg',
 	[ PLAN_BUSINESS_MONTHLY ]: 'plans/wpcom-business.svg',
+	[ PLAN_BUSINESS_TRIAL ]: 'plans/wpcom-business.svg',
+	[ PLAN_MIGRATION_TRIAL ]: 'plans/wpcom-business.svg',
 	[ PLAN_PRO ]: 'plans/wpcom-business.svg',
+	[ PLAN_100_YEARS ]: 'plans/wpcom-business.svg',
 	[ PLAN_ECOMMERCE ]: 'plans/wpcom-ecommerce.svg',
 	[ PLAN_ECOMMERCE_2_YEARS ]: 'plans/wpcom-ecommerce.svg',
 	[ PLAN_ECOMMERCE_3_YEARS ]: 'plans/wpcom-ecommerce.svg',
 	[ PLAN_ECOMMERCE_MONTHLY ]: 'plans/wpcom-ecommerce.svg',
+	[ PLAN_WOOEXPRESS_ESSENTIALS ]: 'plans/wpcom-ecommerce.svg',
+	[ PLAN_WOOEXPRESS_ESSENTIALS_MONTHLY ]: 'plans/wpcom-ecommerce.svg',
+	[ PLAN_WOOEXPRESS_PERFORMANCE ]: 'plans/wpcom-ecommerce.svg',
+	[ PLAN_WOOEXPRESS_PERFORMANCE_MONTHLY ]: 'plans/wpcom-ecommerce.svg',
+	[ PLAN_WOOEXPRESS_TRIAL ]: 'plans/wpcom-ecommerce.svg',
 	[ PLAN_VIP ]: 'plans/wpcom-ecommerce.svg',
 	[ PLAN_WPCOM_SEARCH ]: 'products/product-jetpack-search.svg',
 	[ PLAN_WPCOM_SEARCH_MONTHLY ]: 'products/product-jetpack-search.svg',
@@ -161,6 +180,9 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_SOCIAL_ADVANCED ]: 'products/product-jetpack-social.svg',
 	[ PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY ]: 'products/product-jetpack-social.svg',
 	[ PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME ]: 'plans/jetpack-golden-token.svg',
+	[ PLAN_JETPACK_CREATOR_BI_YEARLY ]: 'plans/jetpack.svg',
+	[ PLAN_JETPACK_CREATOR_YEARLY ]: 'plans/jetpack.svg',
+	[ PLAN_JETPACK_CREATOR_MONTHLY ]: 'plans/jetpack.svg',
 
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
@@ -271,6 +293,9 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_SOCIAL_ADVANCED,
 		PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY,
 		PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME,
+		PLAN_JETPACK_CREATOR_BI_YEARLY,
+		PLAN_JETPACK_CREATOR_YEARLY,
+		PLAN_JETPACK_CREATOR_MONTHLY,
 
 		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.

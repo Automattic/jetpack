@@ -14,7 +14,7 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
 /**
  * Base Data Transformer class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 abstract class Data_Transformer_Base {
 
@@ -48,7 +48,7 @@ abstract class Data_Transformer_Base {
 	 *
 	 * Example: 'invoice_to_contact', 'contact_to_woo_customer', etc.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The slug of the data transformer.
 	 */
@@ -57,7 +57,7 @@ abstract class Data_Transformer_Base {
 	/**
 	 * Get the data type class we transform from.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The data type class we transform from.
 	 */
@@ -66,7 +66,7 @@ abstract class Data_Transformer_Base {
 	/**
 	 * Get the data type class we transform to.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return string The data type class we transform to.
 	 */
@@ -77,7 +77,7 @@ abstract class Data_Transformer_Base {
 	 *
 	 * This method should transform the data to the "to" data type.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param Data_Type $data The data type we want to transform.
 	 * @return Data_Type Return a transformed data type.

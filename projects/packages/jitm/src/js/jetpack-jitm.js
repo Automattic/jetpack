@@ -72,6 +72,7 @@ jQuery( document ).ready( function ( $ ) {
 				html +=
 					'<a href="#" data-module="' +
 					envelope.activate_module +
+					'" data-settings_link="' + envelope.module_settings_link +
 					'" type="button" class="jitm-button is-compact is-primary" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
 					envelope.id +
 					'-activate_module" data-jitm-path="' +
@@ -80,6 +81,18 @@ jQuery( document ).ready( function ( $ ) {
 					window.jitm_config.activate_module_text +
 					'</a>';
 				html += '</div>';
+				if ( envelope.module_settings_link){
+					html += '<div class="jitm-banner__action" id="jitm-banner__settings" style="display:none;">';
+					html +=
+						'<a href="' +
+						envelope.module_settings_link +
+						'" type="button" class="jitm-button is-compact is-primary" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
+						envelope.id +
+						'-settings_link">' +
+						window.jitm_config.settings_module_text +
+						'</a>';
+					html += '</div>';
+				}
 			}
 			if ( envelope.CTA.message ) {
 				var ctaClasses = 'jitm-button is-compact';
@@ -209,8 +222,15 @@ jQuery( document ).ready( function ( $ ) {
 					$( '#jitm-banner__activate a' ).attr( 'disabled', true );
 				},
 			} ).done( function () {
+				// Display the link to settings and hide the activate link
 				$( '#jitm-banner__activate a' ).text( window.jitm_config.activated_module_text );
 				$( '#jitm-banner__activate a' ).attr( 'disabled', true );
+
+				if ( $activate_button.data( 'settings_link' ) ) {
+					$( '#jitm-banner__settings' ).show();
+					$( '#jitm-banner__activate' ).hide();
+					return;
+				}
 
 				// Hide the JITM after 2 seconds.
 				setTimeout( function () {
@@ -239,7 +259,6 @@ jQuery( document ).ready( function ( $ ) {
 
 		// Handle tracking for JITM CTA buttons
 		$template.find( '.jitm-button' ).on( 'click', function ( e ) {
-			e.preventDefault();
 
 			var button = $( this );
 			var eventName = button.attr( 'data-jptracks-name' );

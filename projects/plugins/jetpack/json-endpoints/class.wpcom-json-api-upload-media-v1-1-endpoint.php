@@ -218,6 +218,12 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			return $file;
 		}
 
+		// We don't know if this is an upload or a sideload, but in either case the tmp_name should be a path, not a URL.
+		if ( wp_parse_url( $file['tmp_name'], PHP_URL_SCHEME ) !== null ) {
+			$file['error'] = 'rest_upload_invalid|' . __( 'Specified file failed upload test.', 'default' ); // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
+			return $file;
+		}
+
 		if ( defined( 'WP_IMPORTING' ) ) {
 			return $file;
 		}

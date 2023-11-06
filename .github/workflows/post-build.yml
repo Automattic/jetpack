@@ -40,6 +40,10 @@ jobs:
     outputs:
       upgrade_check: ${{ steps.upgrade_check.outputs.id }}
     steps:
+      - name: Log info
+        run: |
+          echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+
       - uses: actions/checkout@v3
 
       - name: Get token

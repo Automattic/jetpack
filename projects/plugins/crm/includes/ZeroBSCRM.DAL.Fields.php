@@ -1202,7 +1202,7 @@ $zbsFieldSorts = array();
 
 									// } adadpt key :/ (to stop conflicts from cf1 - this makes this addr_cf1)
 									$adaptedFieldKey = $addrFieldKey;
-									if ( substr( $addrFieldKey, 0, 2 ) == 'cf' ) {
+									if ( str_starts_with( $addrFieldKey, 'cf' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 										$adaptedFieldKey = 'addr_' . $addrFieldKey;
 									}
 
@@ -1320,7 +1320,7 @@ $zbsFieldSorts = array();
 
 									// } adadpt key :/ (to stop conflicts from cf1 - this makes this addr_cf1)
 									$adaptedFieldKey = $addrFieldKey;
-									if ( substr( $addrFieldKey, 0, 2 ) == 'cf' ) {
+									if ( str_starts_with( $addrFieldKey, 'cf' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 										$adaptedFieldKey = 'addr_' . $addrFieldKey;
 									}
 

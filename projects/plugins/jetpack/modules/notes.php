@@ -105,6 +105,9 @@ class Jetpack_Notifications {
 	 * @return void
 	 */
 	public function styles_and_scripts() {
+		if ( self::is_block_editor() ) {
+			return;
+		}
 		$is_rtl = is_rtl();
 
 		if ( Jetpack::is_module_active( 'masterbar' ) ) {
@@ -160,6 +163,10 @@ class Jetpack_Notifications {
 		global $wp_admin_bar;
 
 		if ( ! is_object( $wp_admin_bar ) ) {
+			return;
+		}
+
+		if ( self::is_block_editor() ) {
 			return;
 		}
 
@@ -229,6 +236,19 @@ class Jetpack_Notifications {
 	}, false );
 </script>
 		<?php
+	}
+
+	/**
+	 * Checks to see if we're in the block editor.
+	 */
+	public static function is_block_editor() {
+		if ( function_exists( 'get_current_screen' ) ) {
+			$current_screen = get_current_screen();
+			if ( ! empty( $current_screen ) && $current_screen->is_block_editor() ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 

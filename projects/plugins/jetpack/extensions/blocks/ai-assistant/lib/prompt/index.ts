@@ -43,10 +43,8 @@ export const PROMPT_TYPE_LIST = [
 
 export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
 
-// Support backend prompts as a beta extension.
-export const areBackendPromptsEnabled: boolean =
-	window?.Jetpack_Editor_Initial_State?.available_blocks[ 'ai-assistant-backend-prompts' ]
-		?.available || false;
+// Enable backend prompts for all sites
+export const areBackendPromptsEnabled: boolean = true;
 
 export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant' | 'jetpack-ai';

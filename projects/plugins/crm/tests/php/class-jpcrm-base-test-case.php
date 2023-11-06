@@ -16,7 +16,7 @@ class JPCRM_Base_Test_Case extends WP_UnitTestCase {
 	 * This can be used to always reset to the original state.
 	 * Use-case: someone has to mock part of ZBS for a specific outcome. E.g.: returning a fatal error?
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @var ?ZeroBSCRM
 	 */
@@ -25,7 +25,7 @@ class JPCRM_Base_Test_Case extends WP_UnitTestCase {
 	/**
 	 * Store the initial state of ZBS.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return void
 	 */
@@ -42,7 +42,7 @@ class JPCRM_Base_Test_Case extends WP_UnitTestCase {
 	/**
 	 * Restore the original state of ZBS.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return void
 	 */

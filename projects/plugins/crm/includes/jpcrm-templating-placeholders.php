@@ -818,7 +818,7 @@ class jpcrm_templating_placeholders {
 					'origin' 			=> __( 'Task Scheduler', 'zero-bs-crm' ),
 					'expected_format' 	=> 'str',
 					'available_in'	 	=> array(),
-					'associated_type' 	=> ZBS_TYPE_EVENT,
+					'associated_type' 	=> ZBS_TYPE_TASK,
 					'replace_str'		=> '##TASK-TITLE##',
 					'aliases'			=> array( '###EVENTTITLE###', '##EVENT-TITLE##' )
 				),
@@ -829,7 +829,7 @@ class jpcrm_templating_placeholders {
 					'origin' 			=> __( 'Task Scheduler', 'zero-bs-crm' ),
 					'expected_format' 	=> 'html',
 					'available_in'	 	=> array(),
-					'associated_type' 	=> ZBS_TYPE_EVENT,
+					'associated_type' 	=> ZBS_TYPE_TASK,
 					'replace_str'		=> '##TASK-LINK##',
 					'aliases'			=> array( '###EVENTLINK###' )
 				),
@@ -840,7 +840,7 @@ class jpcrm_templating_placeholders {
 					'origin' 			=> __( 'Task Scheduler', 'zero-bs-crm' ),
 					'expected_format' 	=> 'html',
 					'available_in'	 	=> array(),
-					'associated_type' 	=> ZBS_TYPE_EVENT,
+					'associated_type' 	=> ZBS_TYPE_TASK,
 					'replace_str'		=> '##TASK-LINK-BUTTON##',
 					'aliases'			=> array( '###EVENTLINKBUTTON###' )
 				),
@@ -851,7 +851,7 @@ class jpcrm_templating_placeholders {
 					'origin' 			=> __( 'Task Scheduler', 'zero-bs-crm' ),
 					'expected_format' 	=> 'html',
 					'available_in'	 	=> array(),
-					'associated_type' 	=> ZBS_TYPE_EVENT,
+					'associated_type' 	=> ZBS_TYPE_TASK,
 					'replace_str'		=> '##TASK-BODY##',
 					'aliases'			=> array( '###EVENTBODY###' )
 				),

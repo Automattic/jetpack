@@ -1147,10 +1147,13 @@ abstract class Publicize_Base {
 							'items' => array(
 								'type'       => 'object',
 								'properties' => array(
-									'id'  => array(
+									'id'   => array(
 										'type' => 'number',
 									),
-									'url' => array(
+									'url'  => array(
+										'type' => 'string',
+									),
+									'type' => array(
 										'type' => 'string',
 									),
 								),
@@ -1816,6 +1819,15 @@ abstract class Publicize_Base {
 	 */
 	public function has_mastodon_connection_feature() {
 		return Current_Plan::supports( 'social-mastodon-connection' );
+	}
+
+	/**
+	 * Check if Nextdoor connection is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_nextdoor_connection_feature() {
+		return Current_Plan::supports( 'social-nextdoor-connection' );
 	}
 
 	/**

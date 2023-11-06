@@ -5,7 +5,6 @@ import {
 	Popover,
 	Spinner,
 } from '@automattic/jetpack-components';
-import { useState } from 'react';
 import { Panel, PanelBody, PanelRow } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -25,6 +24,8 @@ const GraphComponent = ( {
 	endDate,
 	needsUpgrade,
 	handleUpgrade,
+	isFreshStart,
+	handleDismissFreshStart,
 	isLoading,
 } ) => {
 	if ( isLoading ) {
@@ -34,8 +35,6 @@ const GraphComponent = ( {
 			</div>
 		);
 	}
-
-	const [ showFreshStartPopover, setFreshStartPopover ] = useState( periods.length === 0 );
 
 	if ( needsUpgrade ) {
 		return (
@@ -57,13 +56,13 @@ const GraphComponent = ( {
 		);
 	}
 
-	if ( showFreshStartPopover ) {
+	if ( isFreshStart ) {
 		return (
 			<DummyGraph>
 				<Popover
 					icon={ <Gridicon icon="checkmark" /> }
 					action={
-						<Button onClick={ () => setFreshStartPopover( false ) }>
+						<Button onClick={ handleDismissFreshStart }>
 							{ __( 'Okay, got it!', 'jetpack-boost' ) }
 						</Button>
 					}
@@ -92,6 +91,10 @@ export const PerformanceHistory = ( {
 	handleUpgrade = () => {
 		/* noop */
 	},
+	isFreshStart = true,
+	onDismissFreshStart = () => {
+		/* noop */
+	},
 } ) => {
 	return (
 		<Panel>
@@ -107,8 +110,10 @@ export const PerformanceHistory = ( {
 							periods={ periods }
 							startDate={ startDate }
 							endDate={ endDate }
+							isFreshStart={ isFreshStart }
 							needsUpgrade={ needsUpgrade }
 							handleUpgrade={ handleUpgrade }
+							handleDismissFreshStart={ onDismissFreshStart }
 							isLoading={ isLoading }
 						/>
 					</div>

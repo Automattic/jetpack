@@ -188,4 +188,76 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_Test_Case {
 			$this->assertEquals( $workflows_persisted[ $workflow->get_id() ]->to_array(), $workflow->to_array() );
 		}
 	}
+
+	/**
+	 * DataProvider for pagination tests.
+	 *
+	 * These scenarios assume that we always have 5 workflows when defining expectations.
+	 *
+	 * @return array Pagination criteria.
+	 */
+	public function dataprovider_pagination_criteria() {
+		return array(
+			'return all if we provide default arguments' => array(
+				array(
+					'limit'  => 0,
+					'offset' => 0,
+				),
+				5,
+			),
+			'return a specific amount if we provide a limit' => array(
+				array(
+					'limit'  => 3,
+					'offset' => 0,
+				),
+				3,
+			),
+			'return the remaining workflows if we provide an offset' => array(
+				array(
+					'limit'  => 0,
+					'offset' => 1,
+				),
+				4,
+			),
+			'return the last two workflows if we use a combination of limit and workflow' => array(
+				array(
+					'limit'  => 3,
+					'offset' => 3,
+				),
+				2,
+			),
+		);
+	}
+
+	/**
+	 * Find by pagination criteria.
+	 *
+	 * @dataProvider dataprovider_pagination_criteria
+	 *
+	 * @since 6.2.0
+	 *
+	 * @param array $args Dynamic criteria for pagination.
+	 * @param int $expected_count The expected number of returned workflows.
+	 */
+	public function test_find_by_pagination( array $args, int $expected_count ) {
+		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
+		$repo          = new Workflow_Repository();
+
+		// Create 5 workflows.
+		for ( $i = 0; $i < 5; $i++ ) {
+			$workflow_data['name'] = sprintf( 'Workflow %d', $i );
+			$workflow              = new Automation_Workflow( $workflow_data );
+			$repo->persist( $workflow );
+		}
+
+		$this->assertCount(
+			$expected_count,
+			$repo->find_by(
+				array(),
+				'id',
+				$args['limit'],
+				$args['offset']
+			)
+		);
+	}
 }

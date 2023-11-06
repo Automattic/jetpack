@@ -1,9 +1,11 @@
 import { Container, Col, Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Icon, commentContent, people, starEmpty } from '@wordpress/icons';
-import React from 'react';
+import React, { useCallback } from 'react';
+import useAnalytics from '../../hooks/use-analytics';
 import { useProduct } from '../../hooks/use-product';
 import Card from '../card';
+import { PRODUCT_STATUSES } from '../product-card';
 import Status from '../product-card/status';
 import CountComparisonCard from './count-comparison-card';
 import eye from './eye';
@@ -20,9 +22,24 @@ import styles from './style.module.scss';
  */
 const StatsCards = ( { counts, previousCounts } ) => {
 	const { detail } = useProduct( 'stats' );
+	const { recordEvent } = useAnalytics();
+	const statsHasError = detail.status === PRODUCT_STATUSES.ERROR;
+
+	/**
+	 * Function called when the button is clicked.
+	 */
+	const onActionButtonClick = useCallback( () => {
+		const subActionName = statsHasError ? 'fixconnection' : 'seedetailedstats';
+
+		recordEvent( `jetpack_myjetpack_stats_card_${ subActionName }_click`, {
+			product: 'stats',
+		} );
+	}, [ statsHasError, recordEvent ] );
+
+	const buttonHref = statsHasError ? '#/connection' : 'admin.php?page=stats';
 
 	return (
-		<Container fluid>
+		<Container fluid horizontalSpacing={ 0 }>
 			<Col lg={ 12 }>
 				<Card title="Stats">
 					<h3 className={ styles[ 'section-title' ] }>
@@ -64,10 +81,12 @@ const StatsCards = ( { counts, previousCounts } ) => {
 						<Button
 							size="small"
 							weight="regular"
-							variant="secondary"
-							href={ 'admin.php?page=stats' }
+							variant={ statsHasError ? 'primary' : 'secondary' }
+							href={ buttonHref }
+							onClick={ onActionButtonClick }
 						>
-							{ __( 'See detailed stats', 'jetpack-my-jetpack' ) }
+							{ statsHasError && __( 'Fix connection', 'jetpack-my-jetpack' ) }
+							{ ! statsHasError && __( 'See detailed stats', 'jetpack-my-jetpack' ) }
 						</Button>
 						<Status status={ detail.status } />
 					</div>

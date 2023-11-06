@@ -3,7 +3,7 @@
  * Defines Jetpack CRM Automation exceptions.
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -11,14 +11,14 @@ namespace Automattic\Jetpack\CRM\Automation;
 /**
  * Adds the Automation_Exception class.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  */
 class Automation_Exception extends \Exception {
 
 	/**
 	 * Step class not found code.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var int
 	 */
 	const STEP_CLASS_NOT_FOUND = 10;
@@ -26,7 +26,7 @@ class Automation_Exception extends \Exception {
 	/**
 	 * Step slug exists code.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var int
 	 */
 	const STEP_SLUG_EXISTS = 11;
@@ -34,7 +34,7 @@ class Automation_Exception extends \Exception {
 	/**
 	 * Step slug empty code.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var int
 	 */
 	const STEP_SLUG_EMPTY = 12;
@@ -42,7 +42,7 @@ class Automation_Exception extends \Exception {
 	/**
 	 * Trigger class not found code.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var int
 	 */
 	const TRIGGER_CLASS_NOT_FOUND = 20;
@@ -50,7 +50,7 @@ class Automation_Exception extends \Exception {
 	/**
 	 * Trigger slug exists code.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var int
 	 */
 	const TRIGGER_SLUG_EXISTS = 21;
@@ -58,7 +58,7 @@ class Automation_Exception extends \Exception {
 	/**
 	 * Trigger slug empty code.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var int
 	 */
 	const TRIGGER_SLUG_EMPTY = 22;
@@ -66,7 +66,7 @@ class Automation_Exception extends \Exception {
 	/**
 	 * Condition invalid operator code.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var int
 	 */
 	const CONDITION_INVALID_OPERATOR = 30;
@@ -74,7 +74,7 @@ class Automation_Exception extends \Exception {
 	/**
 	 * Condition operator not implemented code.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var int
 	 */
 	const CONDITION_OPERATOR_NOT_IMPLEMENTED = 31;
@@ -82,7 +82,7 @@ class Automation_Exception extends \Exception {
 	/**
 	 * General error code.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 * @var int
 	 */
 	const GENERAL_ERROR = 999;
@@ -90,7 +90,7 @@ class Automation_Exception extends \Exception {
 	/**
 	 * Automation_Exception constructor.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @param string $message Allows an exception message to be passed.
 	 * @param int    $code The error code to be included in the exception output.

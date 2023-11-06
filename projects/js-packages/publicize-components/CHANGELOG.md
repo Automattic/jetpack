@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.41.1] - 2023-10-26
+### Fixed
+- Fixed Social Image Generator debouncing. [#33767]
+
+## [0.41.0] - 2023-10-23
+### Added
+- Added media restrictions for nextdoor media. [#33630]
+
+### Changed
+- Updated package dependencies. [#33646] [#33687]
+
+### Removed
+- Social: Remove tweetstorm editor components. [#33723]
+
+### Fixed
+- Connection Toggle: Prevented the change handler for firing when the component is disabled. [#33602]
+
+## [0.40.2] - 2023-10-16
+### Added
+- Added aspect-ratio validation for Instagram images. [#33522]
+
+### Changed
+- Added type prop to custom media for social posts. [#33504]
+- Changed Twitter icon and label to X. [#33445]
+- Convert Twitter to X. [#33574]
+- Replaced inline social icons with social-logos package. [#33613]
+- Updated package dependencies. [#33429]
+
+### Fixed
+- Fixed an issue with conditional className property [#33592]
+- Fixed tracking for quick share buttons [#33589]
+
+## [0.40.1] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.40.0] - 2023-10-03
+### Added
+- Added a new post-publish panel for quick sharing [#33244]
+
+## [0.39.1] - 2023-09-28
+### Added
+- Added Copy to clipboard button to sharing buttons [#33261]
+
 ## [0.39.0] - 2023-09-25
 ### Added
 - Added a new post-publish panel for quick sharing. [#33231]
@@ -439,6 +483,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.41.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.41.0...v0.41.1
+[0.41.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.40.2...v0.41.0
+[0.40.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.40.1...v0.40.2
+[0.40.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.40.0...v0.40.1
+[0.40.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.39.1...v0.40.0
+[0.39.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.39.0...v0.39.1
 [0.39.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.38.0...v0.39.0
 [0.38.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.37.0...v0.38.0
 [0.37.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.36.0...v0.37.0

@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Added check for jetpack sync option to only run on Atomic

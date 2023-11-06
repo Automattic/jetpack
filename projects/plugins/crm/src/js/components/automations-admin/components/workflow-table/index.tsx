@@ -8,10 +8,11 @@ import { sortWorkflows } from './util';
 
 type WorkflowTableProps = {
 	workflows: Workflow[];
+	refetchWorkflows: () => void;
 };
 
 export const WorkflowTable: React.FC< WorkflowTableProps > = props => {
-	const { workflows } = props;
+	const { workflows, refetchWorkflows } = props;
 
 	const [ sortedColumn, setSortedColumn ] = useState< SortableWorkflowTableColumn >( 'name' );
 	const [ sortDirection, setSortDirection ] = useState< SortDirection >( 'ascending' );
@@ -46,15 +47,17 @@ export const WorkflowTable: React.FC< WorkflowTableProps > = props => {
 	const sortedWorkflows = sortWorkflows( workflows, sortedColumn, sortDirection );
 
 	return (
-		<table className={ styles.table }>
-			<tr className={ styles[ 'header-row' ] }>
-				<WorkflowTableHeader column={ 'checkbox' } />
-				{ sortableColumns.map( column => getSortableWorkflowTableHeader( column ) ) }
-				<WorkflowTableHeader column={ 'edit' } />
-			</tr>
-			{ sortedWorkflows.map( workflow => (
-				<WorkflowRow workflow={ workflow } />
-			) ) }
-		</table>
+		<div className={ styles.container }>
+			<table className={ styles.table }>
+				<tr className={ styles[ 'header-row' ] }>
+					<WorkflowTableHeader column={ 'checkbox' } />
+					{ sortableColumns.map( column => getSortableWorkflowTableHeader( column ) ) }
+					<WorkflowTableHeader column={ 'edit' } />
+				</tr>
+				{ sortedWorkflows.map( workflow => (
+					<WorkflowRow workflow={ workflow } refetchWorkflows={ refetchWorkflows } />
+				) ) }
+			</table>
+		</div>
 	);
 };

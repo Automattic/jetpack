@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/subscriptions",
 	"title": "Subscribe",
-	"description": "Let readers subscribe to this blog's posts as a newsletter.",
+	"description": "Subscribe to this blog's posts as a newsletter.",
 	"keywords": [ "newsletter", "email", "follow" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",

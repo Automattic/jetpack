@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+
 /**
  * WordPress dependencies
  */
@@ -52,24 +54,27 @@ export default function Feedback( { blogType, blogId, cacheKey, feedbackSubmitte
 			) }
 			{ showFeedbackForm && (
 				<div className="jetpack-ai-chat-answer-feedback">
+					<hr />
 					<div className="jetpack-ai-chat-answer-feedback-buttons">
 						{ __( 'Was this helpful?', 'jetpack' ) }
-						<Button
+						<a
+							role="button"
 							className="thumbs-up"
 							disabled={ isSubmittingFeedback || feedback.rank === 'thumbs-up' }
 							label={ __( 'Thumbs up', 'jetpack' ) }
 							onClick={ () => handleRankSubmit( 'thumbs-up' ) }
 						>
 							<Icon icon={ ThumbsUp } />
-						</Button>
-						<Button
+						</a>
+						<a
+							role="button"
 							className="thumbs-down"
 							disabled={ isSubmittingFeedback || feedback.rank === 'thumbs-down' }
 							label={ __( 'Thumbs down', 'jetpack' ) }
 							onClick={ () => handleRankSubmit( 'thumbs-down' ) }
 						>
 							<Icon icon={ ThumbsDown } />
-						</Button>
+						</a>
 					</div>
 					{ showCommentForm && (
 						<div className="jetpack-ai-chat-feedback-form">

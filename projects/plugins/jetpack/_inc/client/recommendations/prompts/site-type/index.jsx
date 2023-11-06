@@ -1,4 +1,4 @@
-import ProgressBar from '@automattic/components/dist/esm/progress-bar';
+import { ProgressBar } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
@@ -89,7 +89,13 @@ const SiteTypeQuestionComponent = props => {
 
 	return (
 		<PromptLayout
-			progressBar={ <ProgressBar color={ '#00A32A' } value={ '14' } /> }
+			progressBar={
+				<ProgressBar
+					className={ 'progress-bar' }
+					progressClassName={ 'progress-bar__progress' }
+					progress={ 0.14 }
+				/>
+			}
 			question={
 				/* translators: placeholder is the title of the site */
 				sprintf( __( 'Tell us more about %s?', 'jetpack' ), siteTitle )

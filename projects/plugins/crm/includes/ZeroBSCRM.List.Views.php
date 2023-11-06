@@ -521,7 +521,7 @@ function zeroBSCRM_render_quotetemplateslist_page() { // phpcs:ignore WordPress.
  *
  * @return void
  */
-function zeroBSCRM_render_eventslist_page() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+function zeroBSCRM_render_tasks_list_page() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
 
 	// has no sync ext? Sell them
 	$upsell_box_html = '';
@@ -534,25 +534,25 @@ function zeroBSCRM_render_eventslist_page() { // phpcs:ignore WordPress.NamingCo
 			'plural'      => esc_html__( 'Tasks', 'zero-bs-crm' ),
 			'tag'         => '',
 			'postType'    => 'zerobs_event',
-			'postPage'    => 'manage-events-list',
+			'postPage'    => 'manage-tasks-list',
 			'langLabels'  => array(
 
 				// Status
-				'incomplete'                 => esc_html__( 'Incomplete', 'zero-bs-crm' ),
-				'complete'                   => esc_html__( 'Complete', 'zero-bs-crm' ),
+				'incomplete'                  => esc_html__( 'Incomplete', 'zero-bs-crm' ),
+				'complete'                    => esc_html__( 'Complete', 'zero-bs-crm' ),
 
 				// bulk action labels
-				'delete'                     => esc_html__( 'Delete Task(s)', 'zero-bs-crm' ),
-				'markcomplete'               => esc_html__( 'Mark Task(s) Completed', 'zero-bs-crm' ),
-				'markincomplete'             => esc_html__( 'Mark Task(s) Incomplete', 'zero-bs-crm' ),
+				'delete'                      => esc_html__( 'Delete Task(s)', 'zero-bs-crm' ),
+				'markcomplete'                => esc_html__( 'Mark Task(s) Completed', 'zero-bs-crm' ),
+				'markincomplete'              => esc_html__( 'Mark Task(s) Incomplete', 'zero-bs-crm' ),
 
-				// bulk actions - event actions
-				'eventsdeleted'              => esc_html__( 'Your Task(s) have been deleted.', 'zero-bs-crm' ),
-				'noteventsdeleted'           => esc_html__( 'Your Task(s) could not be deleted.', 'zero-bs-crm' ),
-				'areyousureeventscompleted'  => esc_html__( 'Are you sure you want to mark these tasks as completed?', 'zero-bs-crm' ),
-				'areyousureeventsincomplete' => esc_html__( 'Are you sure you want to mark these tasks as incomplete?', 'zero-bs-crm' ),
-				'eventsmarked'               => esc_html__( 'Your Task(s) have been updated.', 'zero-bs-crm' ),
-				'noteventsmarked'            => esc_html__( 'Your Task(s) could not be updated.', 'zero-bs-crm' ),
+				// bulk actions - task actions
+				'tasks_deleted'               => esc_html__( 'Your Task(s) have been deleted.', 'zero-bs-crm' ),
+				'tasks_not_deleted'           => esc_html__( 'Your Task(s) could not be deleted.', 'zero-bs-crm' ),
+				'areyousure_tasks_completed'  => esc_html__( 'Are you sure you want to mark these tasks as completed?', 'zero-bs-crm' ),
+				'areyousure_tasks_incomplete' => esc_html__( 'Are you sure you want to mark these tasks as incomplete?', 'zero-bs-crm' ),
+				'tasks_marked'                => esc_html__( 'Your Task(s) have been updated.', 'zero-bs-crm' ),
+				'tasks_not_marked'            => esc_html__( 'Your Task(s) could not be updated.', 'zero-bs-crm' ),
 
 			),
 			'bulkActions' => array( 'addtag', 'removetag', 'delete', 'markcomplete', 'markincomplete' ),

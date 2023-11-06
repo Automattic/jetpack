@@ -12,7 +12,7 @@ class Contact_Created_Trigger extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/contact_created';
+		return 'jpcrm/contact_created_mock';
 	}
 
 	/** Get the title of the trigger
@@ -42,8 +42,10 @@ class Contact_Created_Trigger extends Base_Trigger {
 
 	/**
 	 * Listen to the desired event
+	 *
+	 * @return void
 	 */
-	protected function listen_to_event() {
+	protected function listen_to_event(): void {
 		$event_emitter = Event_Emitter::instance();
 
 		$event_emitter->on(

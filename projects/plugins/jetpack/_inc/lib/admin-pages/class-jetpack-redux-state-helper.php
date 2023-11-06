@@ -241,6 +241,47 @@ class Jetpack_Redux_State_Helper {
 			/** This filter is documented in plugins/jetpack/modules/subscriptions/subscribe-module/class-jetpack-subscribe-module.php */
 			'isSubscriptionModalEnabled'  => apply_filters( 'jetpack_subscriptions_modal_enabled', false ),
 			'socialInitialState'          => self::get_publicize_initial_state(),
+			'gutenbergInitialState'       => self::get_gutenberg_initial_state(),
+		);
+	}
+
+	/**
+	 * Get information about the Gutenberg plugin and its Interactivity API support.
+	 *
+	 * @see https://make.wordpress.org/core/tag/interactivity-api/
+	 *
+	 * @return array
+	 */
+	private static function get_gutenberg_initial_state() {
+		// If Gutenberg is not installed,
+		// check if we run a version of WP that would include support.
+		if ( ! Constants::is_true( 'IS_GUTENBERG_PLUGIN' ) ) {
+			global $wp_version;
+			return array(
+				'isAvailable'         => false,
+				'hasInteractivityApi' => version_compare( $wp_version, '6.4', '>=' ),
+			);
+		}
+
+		// If we're running a dev version, assume it's the latest.
+		if ( Constants::is_true( 'GUTENBERG_DEVELOPMENT_MODE' ) ) {
+			return array(
+				'isAvailable'         => true,
+				'hasInteractivityApi' => true,
+			);
+		}
+
+		$gutenberg_version = Constants::get_constant( 'GUTENBERG_VERSION' );
+		if ( ! $gutenberg_version ) {
+			return array(
+				'isAvailable'         => false,
+				'hasInteractivityApi' => false,
+			);
+		}
+
+		return array(
+			'isAvailable'         => true,
+			'hasInteractivityApi' => version_compare( $gutenberg_version, '16.6.0', '>=' ),
 		);
 	}
 

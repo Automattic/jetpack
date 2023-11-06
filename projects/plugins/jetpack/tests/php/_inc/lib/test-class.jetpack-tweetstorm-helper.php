@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use WpOrg\Requests\Requests;
+
 /**
  * Class for Tweetstorm testing.
  */

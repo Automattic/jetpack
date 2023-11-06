@@ -12,14 +12,18 @@ import { PaidBlockContext, PaidBlockProvider } from './components';
 import UpgradePlanBanner from './upgrade-plan-banner';
 import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 
-export default createHigherOrderComponent(
+const withUpgradeBanner = createHigherOrderComponent(
 	BlockEdit => props => {
 		const { name, clientId, isSelected, attributes, setAttributes } = props || {};
-		const { hasParentBanner } = useContext( PaidBlockContext ) || {};
-		const { tracks } = useAnalytics();
-
 		const requiredPlan = getRequiredPlan( name );
 
+		// CAUTION: code added before this line will be executed for all blocks
+		// (also the paragraph block, every time on typing), not just paid
+		// blocks!
+		// NOTE: creating hooks conditionally is not a good practice,
+		// but still it's better than having the code executed for all blocks.
+		// @see https://legacy.reactjs.org/docs/hooks-rules.html#only-call-hooks-at-the-top-level
+		// @todo: work on a better implementation.
 		if ( ! requiredPlan ) {
 			return <BlockEdit { ...props } />;
 		}
@@ -35,10 +39,10 @@ export default createHigherOrderComponent(
 			select => select( 'core/block-editor' ).hasSelectedInnerBlock( clientId, true ),
 			[]
 		);
-
+		const { hasParentBanner } = useContext( PaidBlockContext ) || {};
 		// Banner should be not be displayed if one of its parents is already displaying a banner.
 		const isBannerVisible = ( isSelected || hasChildrenSelected ) && isVisible && ! hasParentBanner;
-
+		const { tracks } = useAnalytics();
 		const trackEventData = useMemo(
 			() => ( {
 				plan: requiredPlan,
@@ -99,3 +103,28 @@ export default createHigherOrderComponent(
 	},
 	'withUpgradeBanner'
 );
+
+export default withUpgradeBanner;
+
+/**
+ * Helper function that extends the Edit function
+ * of the block with the upgrade banner,
+ * by using the `withUpgradeBanner` HOC.
+ * It has been designed to be bound with a `blocks.registerBlockType` call.
+ *
+ * @param {object} settings - The block settings.
+ * @param {string} name     - The block name.
+ * @returns {object}          The extended block settings.
+ */
+
+export function blockEditWithUpgradeBanner( settings, name ) {
+	const requiredPlan = getRequiredPlan( name );
+	if ( ! requiredPlan ) {
+		return settings;
+	}
+
+	return {
+		...settings,
+		edit: withUpgradeBanner( settings.edit ),
+	};
+}

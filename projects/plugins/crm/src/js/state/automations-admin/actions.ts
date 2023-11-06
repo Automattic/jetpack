@@ -10,7 +10,13 @@ export type AutomationsAction =
 	| HydrateWorkflowsAction
 	| ActivateWorkflowAction
 	| DeactivateWorkflowAction
-	| SetAttributeAction;
+	| SetAttributeAction
+	| SelectWorkflowAction
+	| DeselectWorkflowAction
+	| SelectAllWorkflowsAction
+	| DeselectAllWorkflowsAction
+	| ActivateSelectedWorkflowsAction
+	| DeactivateSelectedWorkflowsAction;
 
 export type HydrateWorkflowsAction = {
 	type: HYDRATE_WORKFLOWS;
@@ -66,4 +72,68 @@ export const setAttribute = (
 		workflowId,
 		stepId,
 		attribute: { key, value },
-	} as SetAttributeAction );
+	} ) as SetAttributeAction;
+
+export type SelectWorkflowAction = {
+	type: 'SELECT_WORKFLOW';
+	id: number;
+};
+
+export const selectWorkflow = ( id: number ) => {
+	return {
+		type: 'SELECT_WORKFLOW',
+		id,
+	} as SelectWorkflowAction;
+};
+
+export type DeselectWorkflowAction = {
+	type: 'DESELECT_WORKFLOW';
+	id: number;
+};
+
+export const deselectWorkflow = ( id: number ) => {
+	return {
+		type: 'DESELECT_WORKFLOW',
+		id,
+	} as DeselectWorkflowAction;
+};
+
+export type SelectAllWorkflowsAction = {
+	type: 'SELECT_ALL_WORKFLOWS';
+};
+
+export const selectAllWorkflows = () => {
+	return {
+		type: 'SELECT_ALL_WORKFLOWS',
+	} as SelectAllWorkflowsAction;
+};
+
+export type DeselectAllWorkflowsAction = {
+	type: 'DESELECT_ALL_WORKFLOWS';
+};
+
+export const deselectAllWorkflows = () => {
+	return {
+		type: 'DESELECT_ALL_WORKFLOWS',
+	} as DeselectAllWorkflowsAction;
+};
+
+export type ActivateSelectedWorkflowsAction = {
+	type: 'ACTIVATE_SELECTED_WORKFLOWS';
+};
+
+export const activateSelectedWorkflows = () => {
+	return {
+		type: 'ACTIVATE_SELECTED_WORKFLOWS',
+	} as ActivateSelectedWorkflowsAction;
+};
+
+export type DeactivateSelectedWorkflowsAction = {
+	type: 'DEACTIVATE_SELECTED_WORKFLOWS';
+};
+
+export const deactivateSelectedWorkflows = () => {
+	return {
+		type: 'DEACTIVATE_SELECTED_WORKFLOWS',
+	} as DeactivateSelectedWorkflowsAction;
+};

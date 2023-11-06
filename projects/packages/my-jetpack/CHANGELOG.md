@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.11.1] - 2023-11-03
+
+## [3.11.0] - 2023-10-30
+### Added
+- Add site data to unpurchased state of VaultPress Backup card to My Jetpack. [#33607]
+
+## [3.10.0] - 2023-10-23
+### Added
+- Add jetpack-plans dependency. It will be use to restore the reverted change on #33410. [#33706]
+
+### Changed
+- Update checkout flow to connect "After" checkout vs before (if not connected). [#33257]
+
+### Fixed
+- Use Current_Plan to check/return from has_required_plan on VP product class. [#33708]
+
+## [3.9.1] - 2023-10-19
+### Changed
+- Make has_required_plan return true (as it was before #33410) as a way to revert the change. [#33697]
+- Updated package dependencies. [#33687]
+
+## [3.9.0] - 2023-10-17
+### Added
+- Add has_required_plan method for VideoPress product class, check plan purchase exists for site [#33410]
+
+### Changed
+- Updated package dependencies. [#33646]
+
+## [3.8.2] - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429, #33584]
+
+## [3.8.1] - 2023-10-10
+### Changed
+- Changes title of the my-jetpack page to "My Jetpack" [#33486]
+- Updated package dependencies. [#33428]
+
+### Fixed
+- My Jetpack: fix fatal error [#33523]
+- My Jetpack: fix Stats card status when not connected [#33521]
+
+## [3.8.0] - 2023-10-03
+### Added
+- Display a new section on My Jetpack to display the stats of the site. [#33283]
+
+## [3.7.0] - 2023-09-28
+### Added
+- Add a section to display stats from Jetpack Stats in My Jetpack [#33160]
+
+### Changed
+- Redirect to a proper upgrade page for free license owners [#33297]
+
 ## [3.6.0] - 2023-09-25
 ### Added
 - Add barebones infrastructure for querying jetpack product data. [#33095]
@@ -1033,6 +1085,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[3.11.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.11.0...3.11.1
+[3.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.10.0...3.11.0
+[3.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.9.1...3.10.0
+[3.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.9.0...3.9.1
+[3.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.8.2...3.9.0
+[3.8.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.8.1...3.8.2
+[3.8.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.8.0...3.8.1
+[3.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.7.0...3.8.0
+[3.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.6.0...3.7.0
 [3.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.5.0...3.6.0
 [3.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.4.5...3.5.0
 [3.4.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.4.4...3.4.5

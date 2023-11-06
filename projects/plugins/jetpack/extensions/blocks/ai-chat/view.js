@@ -3,7 +3,15 @@ import { render } from '@wordpress/element';
 import QuestionAnswer from './question-answer';
 import './view.scss';
 
-const AiChat = ( { askButtonLabel, blogId, blogType, placeholder } ) => {
+const AiChat = ( {
+	askButtonLabel,
+	blogId,
+	blogType,
+	placeholder,
+	showCopy,
+	showFeedback,
+	showSources,
+} ) => {
 	return (
 		<div>
 			<QuestionAnswer
@@ -11,6 +19,9 @@ const AiChat = ( { askButtonLabel, blogId, blogType, placeholder } ) => {
 				blogId={ blogId }
 				blogType={ blogType }
 				placeholder={ placeholder }
+				settingShowCopy={ showCopy }
+				settingShowFeedback={ showFeedback }
+				settingShowSources={ showSources }
 			/>
 		</div>
 	);
@@ -28,6 +39,9 @@ domReady( function () {
 			blogId={ blogId }
 			blogType={ blogType }
 			placeholder={ placeholder }
+			showCopy={ !! parseInt( container.getAttribute( 'data-show-copy' ) ) }
+			showFeedback={ !! parseInt( container.getAttribute( 'data-show-feedback' ) ) }
+			showSources={ !! parseInt( container.getAttribute( 'data-show-sources' ) ) }
 		/>,
 		container
 	);

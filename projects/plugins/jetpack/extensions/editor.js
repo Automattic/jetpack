@@ -14,6 +14,7 @@ import './shared/styles/external-link-fix.scss';
 // Register media source store to the centralized data registry.
 import './store/media-source';
 import './store/membership-products';
+import './store/wordpress-com';
 import extensionList from './index.json';
 import './index.scss';
 
@@ -86,14 +87,21 @@ function setBetaBlockTitle( settings, name ) {
 	const { title, keywords } = settings;
 	const titleSuffix = '(beta)';
 	const betaKeyword = 'beta';
-
-	return {
+	const result = {
 		...settings,
-		title: title.toLowerCase().endsWith( titleSuffix )
-			? title
-			: `${ settings.title } ${ titleSuffix }`,
-		kewords: keywords.includes( betaKeyword ) ? keywords : [ ...keywords, betaKeyword ],
 	};
+
+	if ( title ) {
+		result.title = title.toLowerCase().endsWith( titleSuffix )
+			? title
+			: `${ settings.title } ${ titleSuffix }`;
+	}
+
+	if ( Array.isArray( keywords ) ) {
+		result.keywords = keywords.includes( betaKeyword ) ? keywords : [ ...keywords, betaKeyword ];
+	}
+
+	return result;
 }
 
 addFilter( 'blocks.registerBlockType', 'jetpack/label-beta-blocks-title', setBetaBlockTitle );

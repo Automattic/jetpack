@@ -445,7 +445,7 @@ function zeroBSCRM_populateEmailTemplateList() {
 	}
 
 	// IDs
-	// 5 - Event Notification (leave for now)...
+	// 5 - Task Notification (leave for now)...
 
 	$ID       = 5;
 	$reply_to = '';
@@ -454,7 +454,7 @@ function zeroBSCRM_populateEmailTemplateList() {
 
 	// } The email stuff...
 	$subject = __( 'Your scheduled Task starts soon', 'zero-bs-crm' );
-	$content = zeroBSCRM_mail_retrieveDefaultBodyTemplate( 'eventnotification' );
+	$content = zeroBSCRM_mail_retrieveDefaultBodyTemplate( 'tasknotification' );
 
 	// BRUTAL DELETE old one (avoids dupes)
 	$wpdb->delete( $ZBSCRM_t['system_mail_templates'], array( 'zbsmail_id' => $ID ) );

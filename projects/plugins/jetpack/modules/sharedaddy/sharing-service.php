@@ -108,6 +108,7 @@ class Sharing_Service {
 			'jetpack-whatsapp' => 'Jetpack_Share_WhatsApp',
 			'mastodon'         => 'Share_Mastodon',
 			'nextdoor'         => 'Share_Nextdoor',
+			'x'                => 'Share_X',
 			// deprecated.
 			'skype'            => 'Share_Skype',
 		);
@@ -293,8 +294,8 @@ class Sharing_Service {
 		if ( ! is_array( $enabled ) ) {
 			$enabled = array(
 				'visible' => array(
-					'twitter',
 					'facebook',
+					'x',
 				),
 				'hidden'  => array(),
 			);
