@@ -1,5 +1,0 @@
-Significance: patch
-Type: removed
-Comment: Remove redundant jsconfig.json file (tsconfig.json already exists).
-
-
