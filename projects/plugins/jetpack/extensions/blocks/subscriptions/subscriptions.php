@@ -643,7 +643,7 @@ function render_for_website( $data, $classes, $styles ) {
 					id="<?php echo esc_attr( $form_id ); ?>"
 				>
 					<div class="wp-block-jetpack-subscriptions__form-elements">
-						<?php if ( empty( $data['subscribe_email'] ) ) : ?>
+						<?php if ( empty( Jetpack_Memberships::get_current_user_subscriber_email() ) ) : ?>
 						<p id="subscribe-email">
 							<label
 								id="<?php echo esc_attr( $subscribe_field_id . '-label' ); ?>"
