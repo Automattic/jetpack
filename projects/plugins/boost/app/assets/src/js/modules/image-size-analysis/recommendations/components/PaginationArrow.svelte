@@ -11,7 +11,7 @@
 </script>
 
 {#if inactive}
-	<span class="jb-pagination__page jb-pagination__inactive">
+	<span class="jb-pagination__page jb-pagination__page--inactive">
 		<slot />
 	</span>
 {:else}
@@ -19,22 +19,3 @@
 		<slot />
 	</Link>
 {/if}
-
-<style lang="scss">
-	.jb-pagination__page {
-		background-color: transparent;
-		border: 0;
-		cursor: pointer;
-		padding: 7px 12px;
-		aspect-ratio: 1;
-		line-height: 1;
-		font-size: 13px;
-		font-weight: 600;
-		text-decoration: none;
-
-		&.jb-pagination__inactive {
-			opacity: 0.25;
-			cursor: not-allowed;
-		}
-	}
-</style>

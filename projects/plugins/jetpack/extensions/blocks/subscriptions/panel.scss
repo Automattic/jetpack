@@ -10,7 +10,7 @@
 	}
 
 	&__heading {
-		margin-inline-start: 3px;
+		margin-left: 3px;
 	}
 
 	.components-notice__content {
@@ -24,7 +24,7 @@
 			margin-top: 0px;
 
 			&.is-info {
-				border-inline-start-color: #fff;
+				border-left-color: #fff;
 
 				a {
 					text-decoration: underline;

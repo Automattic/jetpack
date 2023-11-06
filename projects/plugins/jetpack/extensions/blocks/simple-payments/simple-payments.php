@@ -12,6 +12,9 @@ namespace Automattic\Jetpack\Extensions\SimplePayments;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Simple_Payments;
 
+const FEATURE_NAME = 'simple-payments';
+const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -19,7 +22,7 @@ use Jetpack_Simple_Payments;
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		__DIR__,
+		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
 			'plan_check'      => true,

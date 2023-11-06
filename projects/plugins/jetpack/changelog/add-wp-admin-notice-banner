@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Added a notice for wp-admin settings pages when the wpcom_admin_interface option is set to wp-admin
