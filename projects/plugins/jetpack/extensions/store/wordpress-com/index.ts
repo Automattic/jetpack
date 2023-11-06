@@ -1,4 +1,6 @@
-import { registerStore } from '@wordpress/data';
+import { createReduxStore, register } from '@wordpress/data';
+
+const store = 'wordpress-com/plans';
 
 const actions = {
 	setPlans( plans ) {
@@ -16,7 +18,7 @@ const actions = {
 	},
 };
 
-registerStore( 'wordpress-com/plans', {
+const wordpressPlansStore = createReduxStore( store, {
 	reducer( state = [], action ) {
 		switch ( action.type ) {
 			case 'SET_PLANS':
@@ -29,7 +31,7 @@ registerStore( 'wordpress-com/plans', {
 	actions,
 
 	selectors: {
-		getPlan( state, planSlug ) {
+		getPlan( state, planSlug: string ) {
 			return state.find( plan => plan.product_slug === planSlug );
 		},
 	},
@@ -53,3 +55,5 @@ registerStore( 'wordpress-com/plans', {
 		},
 	},
 } );
+
+register( wordpressPlansStore );
