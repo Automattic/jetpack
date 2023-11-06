@@ -8,6 +8,10 @@
 	padding-left: 10px;
 }
 
+.tooltip p:first-child {
+	margin-top: 0;
+}
+
 .tooltip button svg {
 	margin: 0;
 	fill: var( --gray-30 );
