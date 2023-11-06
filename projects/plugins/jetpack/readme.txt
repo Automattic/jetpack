@@ -291,12 +291,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.8-beta - 2023-11-03
+### 12.8 - 2023-11-06
 #### Enhancements
 - Add a filter that allows disabling Scan module.
-- Add a new block for supporting Nextdoor embeds.
-- Added a notice for wp-admin settings pages when the wpcom_admin_interface option is set to wp-admin.
-- Added nextdoor block to production blocks.
 - Adds new modifications for the admin menu on Atomic sites that ensures that all links go to wp-admin except those that are only available in Calypso.
 - Add support for welcome message inside WP Admin.
 - AI Assistant: Add scaffolding for the Usage Panel.
@@ -304,10 +301,8 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - AI Assistant: Add Upgrade button component on the UsagePanel.
 - AI Assistant: Add UsageBar component and add a sample of it to the Usage Panel.
 - AI Assistant: Connect real usage data on the UsagePanel.
-- AI Assistant: Enable backend prompts for 50% of production sites.
-- AI Assistant: Enable backend prompts for 100% of production sites.
+- AI Assistant: Enable backend prompts.
 - AI Assistant: Enhance toolbar UX.
-- AI Assistant: Expose current period start in the ai-assistant-feature endpoint.
 - AI Assistant: Register ai-assistant-usage-panel beta extension.
 - AI Extension: Change the filter to populate the Jetpack Form block with AI components.
 - AI Extension: Consolidate upgrade section of proofread and usage sections.
@@ -318,14 +313,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - AI Extension: Show "no content" notice when the extended block content is empty.
 - AI Extension: Use registerBlockType filter to extend Jetpack Form / children block instances.
 - AI Extension: Use registerBlockType to connect components with AI Data and UI Handler.
-- AI Tiered Plans: Pick and expose tier plan data.
 - Allow users to retrieve subscriptions on self-hosted.
 - Alter the admin toolbar when the wpcom-admin-interface setting is set to wp-admin (fall back to the original WordPress menu).
-- Always links 'My Sites' to the Sites page when 'wp-admin' is the admin interface.
-- Cache the remote google fonts JSON data.
 - Change links for 'Appearance > Themes' on Atomic sites with wpcom_admin_interface option set to wp-admin to point to WP.com Marketplace.
-- Change WordAds and Simple Payments upsell CTAs to JP Creator redirect.
-- Display SSO form for user who has wpcom-admin-interface setting set to wp-admin (fall back to the original WordPress menu).
 - Earn: Rename Earn to Monetize.
 - Jetpack: Add @wordpress/wordcount dependency.
 - Jetpack: Add UsagePanel story.
@@ -334,36 +324,27 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Jetpack AI: Cache the AI assistant feature data for Jetpack sites.
 - Jetpack AI: Expose current period usage data on feature endpoint.
 - Jetpack AI: Expose current plan tier information on feature endpoint.
-- Jetpack AI: Temporarely remove performance sensitive function calls to solve loading issue.
-- Jetpack AI: Use Jetpack AI Usage Helper to set current plan tier information on feature endpoint.
 - Jetpack Dashboard: improve Akismet tooltip.
 - Link plugins to WP.com Marketplace on Atomic sites.
 - Metered billing: Hide usage bar when site has AI plan.
-- Newsletters: Add level for all paid subscribers.
 - Paywall: Improve already subscriber experience.
-- Refactor blocks registration. [#33682] [#33689] [#33694]
+- Refactor blocks registration.
 - Register WordAds block earlier to make it more discoverable.
 - Remove Jetpack option jetpack-memberships-connected-account-id.
-- SEO Title & Description - Display the current nucount of characters, even when over the suggested limit.
+- SEO Title & Description: Display the current nucount of characters, even when over the suggested limit.
 - Sitemaps: Update the colors used on the sitemap page to match updated Jetpack branding colors.
-- Subscribe Block: Add subscribed status.
-- Subscribe block: Change "followers" term to "subscribers".
 - Subscribers: Allow admins to see subscribe modal.
 - Subscription block: Improve wording to get access to content.
-- Subscriptions: Add blog_id param to login link.
 - Subscriptions: Do not display token in URL.
-- Update classic Jetpack widget to not show up if user is subscribed.
 - Utilize the Jetpack Admin UI package for handling the Akismet menu.
 
 #### Improved compatibility
-- Add NL tier type.
 - Connection: added protection for wpcom urls stored in the database during identity crisis.
 - Donations Block: Update to be compatible with the upcoming version of WordPress, 6.4.
 - General: Indicate full compatibility with the latest version of WordPress, 6.4.
 - Lazy Images: Remove the feature from the plugin. You can now rely on WordPress' own Lazy Image features on your site.
 - Make the jetpack_ai_enabled filter decide whether to register AI editor extensions.
 - Memberships: Prevent data to be retrieved from cache sites on WP.com.
-- Nextdoor: Fix the embed resizing.
 - Social: Remove the tweetstorm editor components.
 
 #### Bug fixes
@@ -373,24 +354,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Block Editor: Disable some of Twitter's Thread publishing tools since the feature is no longer accessible.
 - Blogging prompts block: Add default gravatar attribute to prevent js error.
 - Carousel: Resolve warning with AMP plugin.
-- Comments: Improve compatibility with WordPress 6.4 and drop IE support.
 - Do not list one-time interval payment plans as newsletter plans.
-- Fix Assistant not showing Jetpack header on some Assistant routes.
 - Fix block paid icon rendering error on simple sites.
-- Fix Cookie Consent block icon.
 - Fixed a bug that prevent customers from downloading invoices from the my account page in WooCommerce.
+- Fixed an issue where initial state is not in sync.
 - Fixes style for multiple choice checkbox in Froms block.
 - Fix issue in tier selector when tier is null.
 - Fix issue when email was double encoded.
 - Fix Map block not rendering.
 - Fix missing block translations.
 - Fix the google fonts module is not loaded after the late initialization.
-- Fix unresponsive Simple Payment block.
 - Jetpack: Fix performance issues by not calling useAnalytics hook for all paragraphs.
 - Newsletter: If site has no plan, downgrade post access to subscribers-only.
+- Prevent a PHP Warning when accessing inner blocks on cart and checkout pages.
 - Prevent issue on jetpack proxy when tier is added.
 - Require login on wpcom for paid content access without cookie or token.
-- Respect the user's view setting when wpcom_admin_interface is wp-admin.
 - REST API: Fix GA settings field, wga, for settings endpoints on API version 1.3 and 1.4.
 - REST API settings endpoint: Fix google analytics option handling for Jetpack sites.
 - Subscribe modal: Match block markup with params.
