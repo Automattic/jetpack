@@ -6,7 +6,7 @@ const ScoreContext = () => {
 	return (
 		<IconTooltip
 			title=""
-			placement={ 'bottom-end' }
+			placement={ 'bottom' }
 			className={ styles.tooltip }
 			iconSize={ 22 }
 			offset={ 10 }
