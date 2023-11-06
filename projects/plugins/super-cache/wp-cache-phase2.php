@@ -515,7 +515,7 @@ function wpsc_get_accept_header() {
 		$accept = isset( $_SERVER['HTTP_ACCEPT'] ) ? strtolower( filter_var( $_SERVER['HTTP_ACCEPT'] ) ) : '';
 
 		foreach ( $json_list as $header ) {
-			if ( strpos( $accept, $header ) ) {
+			if ( strpos( $accept, $header ) !== false ) {
 				$accept = 'application/json';
 			}
 		}
