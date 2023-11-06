@@ -523,7 +523,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		foreach ( $other_blocks as $block ) {
 
 			// This check is necessary because sometimes this is null when using templates.
-			if ( isset( $block['blockName'] ) && $block['blockName'] ) {
+			if ( ! empty( $block['blockName'] ) ) {
 				$all_inner_blocks[] = $block['blockName'];
 			}
 
