@@ -1,16 +1,7 @@
-.wrapper {
-	top: -4px;
+.tooltip {
+	margin-left: 8px;
 }
 
-.container {
-	left: -118px;
-	min-width: 400px;
-}
-
-.container i {
-	left: 315px;
-}
-
-.icon {
-	margin-left: 0;
+.tooltip svg {
+	fill: #8c8f94;
 }
