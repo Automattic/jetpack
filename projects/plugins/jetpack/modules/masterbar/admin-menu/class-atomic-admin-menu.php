@@ -362,6 +362,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			return;
 		}
 
+		// Ensure that the required callbacks exist
+		if ( ! function_exists( 'jetpack_admin_ui_stats_report_page_wrapper' ) || ! function_exists( 'stats_reports_load' ) ) {
+			return;
+		}
+
 		// Loop through the Jetpack submenu items and find the stats menu item.
 		foreach ( $submenu['jetpack'] as $menu_item ) {
 			if ( 'stats' !== $menu_item[2] ) {
