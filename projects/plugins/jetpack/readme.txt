@@ -291,7 +291,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.8-beta - 2023-11-03
+### 12.8 - 2023-11-06
 #### Enhancements
 - Add a filter that allows disabling Scan module.
 - Add a new block for supporting Nextdoor embeds.
@@ -304,8 +304,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - AI Assistant: Add Upgrade button component on the UsagePanel.
 - AI Assistant: Add UsageBar component and add a sample of it to the Usage Panel.
 - AI Assistant: Connect real usage data on the UsagePanel.
-- AI Assistant: Enable backend prompts for 50% of production sites.
-- AI Assistant: Enable backend prompts for 100% of production sites.
+- AI Assistant: Enable backend prompts.
 - AI Assistant: Enhance toolbar UX.
 - AI Assistant: Expose current period start in the ai-assistant-feature endpoint.
 - AI Assistant: Register ai-assistant-usage-panel beta extension.
@@ -341,10 +340,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Metered billing: Hide usage bar when site has AI plan.
 - Newsletters: Add level for all paid subscribers.
 - Paywall: Improve already subscriber experience.
-- Refactor blocks registration. [#33682] [#33689] [#33694]
+- Refactor blocks registration.
 - Register WordAds block earlier to make it more discoverable.
 - Remove Jetpack option jetpack-memberships-connected-account-id.
-- SEO Title & Description - Display the current nucount of characters, even when over the suggested limit.
+- SEO Title & Description: Display the current nucount of characters, even when over the suggested limit.
 - Sitemaps: Update the colors used on the sitemap page to match updated Jetpack branding colors.
 - Subscribe Block: Add subscribed status.
 - Subscribe block: Change "followers" term to "subscribers".
@@ -379,6 +378,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Fix block paid icon rendering error on simple sites.
 - Fix Cookie Consent block icon.
 - Fixed a bug that prevent customers from downloading invoices from the my account page in WooCommerce.
+- Fixed an issue where initial state is not in sync.
 - Fixes style for multiple choice checkbox in Froms block.
 - Fix issue in tier selector when tier is null.
 - Fix issue when email was double encoded.
@@ -388,6 +388,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Fix unresponsive Simple Payment block.
 - Jetpack: Fix performance issues by not calling useAnalytics hook for all paragraphs.
 - Newsletter: If site has no plan, downgrade post access to subscribers-only.
+- Prevent a PHP Warning when accessing inner blocks on cart and checkout pages.
 - Prevent issue on jetpack proxy when tier is added.
 - Require login on wpcom for paid content access without cookie or token.
 - Respect the user's view setting when wpcom_admin_interface is wp-admin.
