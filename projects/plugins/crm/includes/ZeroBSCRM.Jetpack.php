@@ -83,7 +83,7 @@ function zero_bs_crm_capture_jetpack_form( $post_id, $all_field_data, $is_spam, 
 	foreach ( (array) $all_field_data as $field => $field_data ) {
 		$field_id = $field_data->get_attribute( 'id' );
 
-		if ( 0 === strpos( $field_id, $jpcrm_field_prefix ) && ! empty( $field_data->value ) ) {
+		if ( str_starts_with( $field_id, $jpcrm_field_prefix ) && ! empty( $field_data->value ) ) {
 			$data_key = substr( $field_id, strlen( $jpcrm_field_prefix ) );
 
 			if ( ! in_array( $data_key, $restricted_keys, true ) ) {

@@ -7,9 +7,6 @@ p {
 	font-size: 16px;
 	color: $gray_80;
 }
-.jb-dashboard--main {
-	background-color: $primary-white;
-}
 // Override WordPress component styles
 .jb-dashboard {
 	--wp-admin-theme-color: #{$jetpack_green_50};
@@ -26,7 +23,13 @@ p {
 	min-height: calc(100vh - 60px);
 	display: flex;
 	flex-direction: column;
-  	position: relative;
+	position: relative;
+	background-color: #f9f9f6;
+
+
+	&--main {
+		background-color: $primary-white;
+	}
 
 	a {
 		color: var( --wp-admin-theme-link-color );

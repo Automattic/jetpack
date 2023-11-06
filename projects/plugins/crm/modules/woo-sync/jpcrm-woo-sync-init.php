@@ -109,7 +109,7 @@ function jpcrm_warning_message_woosync_ext( $actions, $plugin_file = '', $plugin
 
 	$is_woosyc_ext_installed = false;
 	foreach ( $woosync_ext_files as $ext_file ) {
-		$is_woosyc_ext_installed = ( strpos( $plugin_file, $ext_file ) !== false );
+		$is_woosyc_ext_installed = ( str_contains( $plugin_file, $ext_file ) );
 
 		if ( $is_woosyc_ext_installed ) {
 			break;

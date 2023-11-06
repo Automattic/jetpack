@@ -1,4 +1,4 @@
-import { Button, Text } from '@automattic/jetpack-components';
+import { Button } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { moreVertical, download } from '@wordpress/icons';
@@ -132,7 +132,7 @@ Menu.defaultProps = {
 const ProductCard = props => {
 	const {
 		name,
-		description,
+		Description,
 		status,
 		onActivate,
 		isFetching,
@@ -140,6 +140,7 @@ const ProductCard = props => {
 		isInstallingStandalone,
 		isDeactivatingStandalone,
 		slug,
+		additionalActions,
 		children,
 		// Menu Related
 		showMenu = false,
@@ -253,9 +254,7 @@ const ProductCard = props => {
 				)
 			}
 		>
-			<Text variant="body-small" className={ styles.description }>
-				{ description }
-			</Text>
+			<Description />
 
 			{ isDataLoading ? (
 				<span className={ styles.loading }>{ __( 'Loading…', 'jetpack-my-jetpack' ) }</span>
@@ -271,6 +270,7 @@ const ProductCard = props => {
 					onManage={ manageHandler }
 					onAdd={ addHandler }
 					className={ styles.button }
+					additionalActions={ additionalActions }
 				/>
 				{ ! isAbsent && (
 					<Status
@@ -288,7 +288,7 @@ const ProductCard = props => {
 ProductCard.propTypes = {
 	children: PropTypes.node,
 	name: PropTypes.string.isRequired,
-	description: PropTypes.string.isRequired,
+	Description: PropTypes.func.isRequired,
 	admin: PropTypes.bool.isRequired,
 	isFetching: PropTypes.bool,
 	isInstallingStandalone: PropTypes.bool,
@@ -307,6 +307,7 @@ ProductCard.propTypes = {
 			onClick: PropTypes.func,
 		} )
 	),
+	additionalActions: PropTypes.array,
 	onInstallStandalone: PropTypes.func,
 	onActivateStandalone: PropTypes.func,
 	onDeactivateStandalone: PropTypes.func,

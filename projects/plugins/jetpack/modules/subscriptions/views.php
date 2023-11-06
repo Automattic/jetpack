@@ -111,6 +111,9 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @param array $instance The settings for the particular instance of the widget.
 	 */
 	public function widget( $args, $instance ) {
+		if ( self::is_wpcom() && ! self::wpcom_has_status_message() && self::is_current_user_subscribed() ) {
+			return null;
+		}
 		if ( self::is_jetpack() &&
 			/** This filter is documented in modules/contact-form/grunion-contact-form.php */
 			false === apply_filters( 'jetpack_auto_fill_logged_in_user', false )

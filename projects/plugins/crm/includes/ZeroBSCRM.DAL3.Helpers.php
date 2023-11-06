@@ -1201,14 +1201,13 @@ function zeroBS_getOwnerObj( $wp_user_id = -1 ) {
 		 * fields are provided (e.g. don't show `user_pass`).
 		 */
 		$user_data = (object) array(
-			'ID'            => $user_data->data->ID,
-			'user_login'    => $user_data->data->user_login,
-			'user_nicename' => $user_data->data->user_nicename,
-			'display_name'  => $user_data->data->display_name,
+			'ID'            => $user->data->ID,
+			'user_login'    => $user->data->user_login,
+			'user_nicename' => $user->data->user_nicename,
+			'display_name'  => $user->data->display_name,
 		);
 
 		return array(
-
 			'ID'  => $wp_user_id,
 			'OBJ' => $user_data,
 		);
@@ -1376,7 +1375,7 @@ function zeroBSCRM_mergeCustomers($dominantID=-1,$slaveID=-1){
 
             				// ADDRESSES. Here we just use the foreach to check if the master has any secaddr fields
             				// just sets a flag used below in logic :)
-            				if (substr($fieldKey, 0, 8) == 'secaddr_'){
+						if ( str_starts_with( $fieldKey, 'secaddr_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             					// check presence (of any secaddr_ field)
             					if (isset($master[$fieldKey]) && !empty($master[$fieldKey])) $masterHasSecondAddr = true;
@@ -3112,7 +3111,7 @@ function zeroBS___________DAL30Helpers(){return;}
 		            			if (isset($fV[2])) {
 		            			    $formatExample = $fV[2];
                                 }
-		            			if (!empty($formatExample) && strpos($formatExample, '#') !== false ){
+						if ( ! empty( $formatExample ) && str_contains( $formatExample, '#' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		            				// has a rule at least
 		            				$formatParts = explode('#', $formatExample);
@@ -3133,7 +3132,7 @@ function zeroBS___________DAL30Helpers(){return;}
 		                			if ($no > 0 && $no !== false) $retArray[$outputPrefix.$fK] = $autono;
 
 
-		            			}
+						}
 		            	}
 
 			        } // / if autonumber
@@ -5212,7 +5211,7 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 				// Retrieve invoice endpoint & portal root URL
 				$invoice_endpoint = $zbs->modules->portal->get_endpoint( ZBS_TYPE_INVOICE );
 				$portalLink = zeroBS_portal_link();
-				if ( substr( $portalLink, -1 ) !== '/' ) {
+				if ( ! str_ends_with( $portalLink, '/' ) ) {  // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					$portalLink .= '/';
 				}
 
@@ -6915,8 +6914,10 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 		//SANITIZE
 		$hash = sanitize_text_field($hash); //sanitize it here
 
-        // if prefix still present, chunk off
-        if (substr($hash,0,3) == 'zh-') $hash = substr($hash,3);
+	// if prefix still present, chunk off
+	if ( str_starts_with( $hash, 'zh-' ) ) {
+		$hash = substr( $hash, 3 );
+	}
 
         // get if poss
         if (!empty($hash) && $objTypeID > 0){
@@ -7949,7 +7950,7 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 
 		    if ($asArray){
 
-		    	if (strpos('#'.$zbsStatusStr, ',') > -1){
+		if ( str_contains( '#' . $zbsStatusStr, ',' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		    		$arr = explode(',',$zbsStatusStr);
 		    		$ret = array();
@@ -7964,44 +7965,53 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 		    return $zbsStatusStr;
 		}
 
-		// retrieves statuses from object :)
-		function zeroBSCRM_getTransactionsStatuses($returnArray=false){
-		    
-		    global $zbs;
+/**
+ * Retrieve valid transaction statuses
+ *
+ * @param bool $return_array Return an array instead of a CSV.
+ */
+function zeroBSCRM_getTransactionsStatuses( $return_array = false ) {
+	global $zbs;
 
-		    $setting = $zbs->DAL->setting('customisedfields',false);
+	$setting = $zbs->DAL->setting( 'customisedfields', false ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-		    $zbsStatusStr = '';
+	$zbs_status_str = '';
 
-		    #} stored here: $settings['customisedfields']
-		    if (is_array($setting) && isset($setting['transactions']['status']) && is_array($setting['transactions']['status'])) $zbsStatusStr = $setting['transactions']['status'][1];                                        
-		    if (empty($zbsStatusStr)) {
-		      #} Defaults:
-		      global $zbsTransactionFields; if (is_array($zbsTransactionFields)) $zbsStatusStr = implode(',',$zbsTransactionFields['status'][3]);
-		    }  
-
-		    if ($returnArray){
-
-		    	if (strpos($zbsStatusStr,',') > -1) 
-		    		return explode(',', $zbsStatusStr);
-		    	else
-		    		return array();
-		    }
-
-		    return $zbsStatusStr;
+	if ( is_array( $setting ) && isset( $setting['transactions']['status'] ) && is_array( $setting['transactions']['status'] ) ) {
+		$zbs_status_str = $setting['transactions']['status'][1];
+	}
+	if ( empty( $zbs_status_str ) ) {
+		global $zbsTransactionFields; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		if ( is_array( $zbsTransactionFields ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$zbs_status_str = implode( ',', $zbsTransactionFields['status'][3] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		}
+	}
 
-		// retrieves statuses from object :)
-		function zeroBSCRM_getInvoicesStatuses(){
-			// for DAL3+ these are hard typed, probably need to sit in the obj:
-			return array(
-				'Draft',
-				'Unpaid',
-				'Paid',
-				'Overdue',
-				'Deleted',
-			);
+	if ( $return_array ) {
+
+		if ( str_contains( $zbs_status_str, ',' ) ) {
+			return explode( ',', $zbs_status_str );
+		} else {
+			return array();
 		}
+	}
+
+	return $zbs_status_str;
+}
+
+/**
+ * Retrieve an array of valid invoice statuses
+ */
+function zeroBSCRM_getInvoicesStatuses() {
+	// for DAL3+ these are hard typed, probably need to sit in the obj:
+	return array(
+		'Draft',
+		'Unpaid',
+		'Paid',
+		'Overdue',
+		'Deleted',
+	);
+}
 
 
 		function zeroBSCRM_getCompanyStatusesCSV(){
@@ -8022,15 +8032,18 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 		    return $zbsStatusStr;
 		}
 
-		function zeroBSCRM_getCompanyStatuses(){
-		    
-		    $statusesSTR = zeroBSCRM_getCompanyStatusesCSV();
-		    
-	    	if (strpos($statusesSTR,',') > -1) 
-	    		return explode(',', $statusesSTR);
-	    	else
-	    		return array();
-		}
+/**
+ * Retrieve an array of valid company statuses
+ */
+function zeroBSCRM_getCompanyStatuses() {
+	$statuses_str = zeroBSCRM_getCompanyStatusesCSV();
+
+	if ( str_contains( $statuses_str, ',' ) ) {
+		return explode( ',', $statuses_str );
+	} else {
+		return array();
+	}
+}
 
 		/// ======= / Statuses wrappers - bit antiquated  now... 
 

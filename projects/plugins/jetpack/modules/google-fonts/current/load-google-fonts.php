@@ -13,15 +13,20 @@
 function jetpack_get_google_fonts_data() {
 	$default_google_fonts_api_url        = 'https://fonts.gstatic.com';
 	$jetpack_google_fonts_collection_url = 'https://s0.wp.com/i/font-collections/jetpack-google-fonts.json';
+	$cache_key                           = 'jetpack_google_fonts_' . md5( $jetpack_google_fonts_collection_url );
+	$data                                = get_transient( $cache_key );
+	if ( $data === false ) {
+		$response = wp_remote_get( $jetpack_google_fonts_collection_url );
+		if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
+			return null;
+		}
 
-	$response = wp_remote_get( $jetpack_google_fonts_collection_url );
-	if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
-		return null;
-	}
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( $data === null ) {
+			return null;
+		}
 
-	$data = json_decode( wp_remote_retrieve_body( $response ), true );
-	if ( $data === null ) {
-		return null;
+		set_transient( $cache_key, $data, DAY_IN_SECONDS );
 	}
 
 	// Replace the google fonts api url if the custom one is provided.

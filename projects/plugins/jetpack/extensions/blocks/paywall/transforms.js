@@ -1,12 +1,12 @@
 import { createBlock } from '@wordpress/blocks';
-import metadata from './block.json';
+import { name } from './';
 
 const transforms = {
 	from: [
 		{
 			type: 'block',
 			blocks: [ 'core/more', 'core/nextpage' ],
-			transform: () => createBlock( metadata.name ),
+			transform: () => createBlock( `jetpack/${ name }` ),
 		},
 	],
 	to: [

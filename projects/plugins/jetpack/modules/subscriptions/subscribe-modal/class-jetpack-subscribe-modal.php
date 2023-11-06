@@ -169,6 +169,12 @@ HTML;
 			return false;
 		}
 
+		// Don't show when previewing blog posts or site's theme
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['preview'] ) || isset( $_GET['theme_preview'] ) || isset( $_GET['customize_preview'] ) || isset( $_GET['hide_banners'] ) ) {
+			return false;
+		}
+
 		// Don't show if one of subscribe query params is set.
 		// They are set when user submits the subscribe form.
 		// The nonce is checked elsewhere before redirect back to this page with query params.
