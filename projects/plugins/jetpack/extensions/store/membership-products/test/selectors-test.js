@@ -14,6 +14,7 @@ describe( 'Membership Products Selectors', () => {
 		const newsletter_product = {
 			id: 3,
 			subscribe_as_site_subscriber: true,
+			type: 'tier',
 		};
 
 		const state = {

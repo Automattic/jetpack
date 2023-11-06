@@ -62,9 +62,14 @@ domReady( function () {
 	if ( ! form.payments_attached ) {
 		form.payments_attached = true;
 		form.addEventListener( 'submit', function ( event ) {
-			const email = form.querySelector( 'input[type=email]' ).value;
+			if ( form.resubmitted ) {
+				return;
+			}
 
-			if ( form.resubmitted || ! email ) {
+			const emailInput = form.querySelector( 'input[type=email]' );
+			const email = emailInput ? emailInput.value : form.dataset.subscriber_email;
+
+			if ( ! email ) {
 				return;
 			}
 

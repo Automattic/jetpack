@@ -2,8 +2,8 @@
 	import { PricingCard } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import ActivateLicense from '../../elements/ActivateLicense.svelte';
-	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import BackButton from '../../react-components/common/back-button/BackButton';
 	import Footer from '../../sections/Footer.svelte';
 	import { getUpgradeURL } from '../../stores/connection';
 	import Logo from '../../svg/jetpack-green.svg';
@@ -42,7 +42,7 @@
 
 	<div class="jb-benefits__body">
 		<div class="jb-container jb-container--fixed mt-2">
-			<BackButton />
+			<ReactComponent this={BackButton} />
 			<div class="jb-card">
 				<div class="jb-card__content">
 					<Logo class="my-2" />

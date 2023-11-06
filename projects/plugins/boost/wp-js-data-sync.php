@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
@@ -19,12 +20,19 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
  * Make it easier to register a Jetpack Boost Data-Sync option.
  *
  * @param $key    string - The key for this option.
- * @param $schema Schema - The schema for this option.
+ * @param $parser Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser - The schema for this option.
  * @param $entry  Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry|null - The entry handler for this option.
  */
-function jetpack_boost_register_option( $key, $schema, $entry = null ) {
+function jetpack_boost_register_option( $key, $parser, $entry = null ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-			->register( $key, $schema, $entry );
+			->register( $key, $parser, $entry );
+}
+
+/**
+ * Make it easier to register a Jetpack Boost Read-only Data-Sync option.
+ */
+function jetpack_boost_register_readonly_option( $key, $callback ) {
+	jetpack_boost_register_option( $key, Schema::as_unsafe_any(), new Data_Sync_Readonly( $callback ) );
 }
 
 /**
@@ -240,3 +248,14 @@ jetpack_boost_register_option(
 	'dismissed_score_prompt',
 	Schema::as_array( Schema::as_string() )->fallback( array() )
 );
+
+/**
+ * Deliver static, read-only values to the UI.
+ * @return array
+ */
+function jetpack_boost_ui_config() {
+	return array(
+		'plugin_dir_url' => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
+	);
+}
+jetpack_boost_register_readonly_option( 'config', 'jetpack_boost_ui_config' );

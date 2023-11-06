@@ -1,9 +1,10 @@
-import { numberFormat } from '@automattic/jetpack-components';
-import { __, sprintf } from '@wordpress/i18n';
-import { Icon, commentContent, post, page, image, video, audio } from '@wordpress/icons';
+import { numberFormat, Text, getRedirectUrl } from '@automattic/jetpack-components';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
+import Gridicon from 'gridicons';
 import PropTypes from 'prop-types';
 import { useEffect, useState, useMemo } from 'react';
+import useAnalytics from '../../../hooks/use-analytics';
 import { useProduct } from '../../../hooks/use-product';
 import ProductCard from '../../connected-product-card';
 import { PRODUCT_STATUSES } from '../../product-card/action-button';
@@ -11,20 +12,12 @@ import styles from './style.module.scss';
 
 const getIcon = slug => {
 	switch ( slug ) {
-		case 'comment':
-			return <Icon icon={ commentContent } size={ 24 } />;
 		case 'post':
-			return <Icon icon={ post } size={ 24 } />;
+			return <Gridicon icon="posts" size={ 24 } />;
 		case 'page':
-			return <Icon icon={ page } size={ 24 } />;
-		case 'image':
-			return <Icon icon={ image } size={ 24 } />;
-		case 'video':
-			return <Icon icon={ video } size={ 24 } />;
-		case 'audio':
-			return <Icon icon={ audio } size={ 24 } />;
+			return <Gridicon icon="pages" size={ 24 } />;
 		default:
-			return null;
+			return <Gridicon icon={ slug } size={ 24 } />;
 	}
 };
 
@@ -43,7 +36,7 @@ const getTitle = slug => {
 		case 'audio':
 			return 'Audio Files';
 		default:
-			return '';
+			return slug;
 	}
 };
 
@@ -119,20 +112,129 @@ const NoBackupsValueSection = ( { siteData } ) => {
 	);
 };
 
-// eslint-disable-next-line no-unused-vars
+const WithBackupsValueSection = ( { lastUndoableEvent } ) => {
+	if ( ! lastUndoableEvent || ! lastUndoableEvent.data ) {
+		return null;
+	}
+	const { last_rewindable_event: lastRewindableEvent = {} } = lastUndoableEvent.data;
+
+	return (
+		<div className={ styles.activity }>
+			<Gridicon icon={ lastRewindableEvent.gridicon } size={ 24 } />
+			<p className={ styles.summary }>{ lastRewindableEvent.summary }</p>
+		</div>
+	);
+};
+
+const getTimeSinceLastRenewableEvent = lastRewindableEventTime => {
+	if ( ! lastRewindableEventTime ) {
+		return '';
+	}
+
+	const now = new Date();
+	const lastRewindableEventDate = new Date( lastRewindableEventTime );
+	const timeSinceLastRenewableEvent = now - lastRewindableEventDate;
+
+	if ( timeSinceLastRenewableEvent > 0 ) {
+		const days = Math.floor( timeSinceLastRenewableEvent / ( 1000 * 60 * 60 * 24 ) );
+		const hours = Math.floor(
+			( timeSinceLastRenewableEvent % ( 1000 * 60 * 60 * 24 ) ) / ( 1000 * 60 * 60 )
+		);
+		const minutes = Math.floor(
+			( timeSinceLastRenewableEvent % ( 1000 * 60 * 60 ) ) / ( 1000 * 60 )
+		);
+		const seconds = Math.floor( ( timeSinceLastRenewableEvent % ( 1000 * 60 ) ) / 1000 );
+
+		if ( days > 0 ) {
+			return sprintf(
+				// translators: %s is the number of days since the last backup
+				_n( '%s day ago', '%s days ago', days, 'jetpack-my-jetpack' ),
+				days
+			);
+		}
+
+		if ( hours > 0 ) {
+			return sprintf(
+				// translators: %s is the number of hours since the last backup
+				_n( '%s hour ago', '%s hours ago', hours, 'jetpack-my-jetpack' ),
+				hours
+			);
+		}
+
+		if ( minutes > 0 ) {
+			return sprintf(
+				// translators: %s is the number of minutes since the last backup
+				_n( '%s minute ago', '%s minutes ago', minutes, 'jetpack-my-jetpack' ),
+				minutes
+			);
+		}
+
+		return sprintf(
+			// translators: %s is the number of seconds since the last backup
+			_n( '%s second ago', '%s seconds ago', seconds, 'jetpack-my-jetpack' ),
+			seconds
+		);
+	}
+};
+
 const BackupCard = ( { admin, productData, fetchingProductData } ) => {
 	const slug = 'backup';
 
+	const { recordEvent } = useAnalytics();
 	const { detail } = useProduct( slug );
 	const { status } = detail;
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
-	const { site_data: siteData = {} } = productData || {};
+	const { site_data: siteData = {}, last_undoable_event: lastUndoableEvent = {} } =
+		productData || {};
+
+	const lastRewindableEventTime = lastUndoableEvent?.data?.last_rewindable_event?.published;
+	const hasRewindableEvent = hasBackups && lastUndoableEvent?.data;
+	const undoBackupId = lastUndoableEvent?.data?.undo_backup_id;
+
+	const handleUndoClick = () => {
+		recordEvent( 'jetpack_myjetpack_backup_card_undo_click', {
+			product: slug,
+			undo_backup_id: undoBackupId,
+		} );
+	};
+
+	const undoAction = {
+		href: getRedirectUrl( 'jetpack-backup-undo-cta', {
+			path: undoBackupId,
+			site: window?.myJetpackInitialState?.siteSuffix,
+		} ),
+		size: 'small',
+		variant: 'primary',
+		weight: 'regular',
+		label: __( 'Undo', 'jetpack-my-jetpack' ),
+		onClick: handleUndoClick,
+		isExternalLink: true,
+	};
+
+	const WithBackupsDescription = () => (
+		<Text variant="body-small" className={ styles.description }>
+			<span>{ __( 'Activity Detected', 'jetpack-my-jetpack' ) }</span>
+			<span className={ styles.time }>
+				{ getTimeSinceLastRenewableEvent( lastRewindableEventTime ) }
+			</span>
+		</Text>
+	);
 
 	return (
-		<ProductCard admin={ admin } slug={ slug } showMenu isDataLoading={ fetchingProductData }>
-			{ /* todo: Add component for when users do have backups and an activity log */ }
-			{ hasBackups ? <></> : <NoBackupsValueSection siteData={ siteData } /> }
+		<ProductCard
+			admin={ admin }
+			slug={ slug }
+			showMenu
+			isDataLoading={ fetchingProductData }
+			Description={ hasRewindableEvent ? WithBackupsDescription : null }
+			additionalActions={ hasRewindableEvent ? [ undoAction ] : null }
+		>
+			{ hasBackups ? (
+				<WithBackupsValueSection lastUndoableEvent={ lastUndoableEvent } />
+			) : (
+				<NoBackupsValueSection siteData={ siteData } />
+			) }
 		</ProductCard>
 	);
 };

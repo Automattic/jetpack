@@ -46,18 +46,21 @@ function load_assets( $attr ) {
 		return;
 	}
 
+	$url = preg_replace( '#/embed/#', '/p/', $url );
+
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-	$iframe_markup = '<iframe src="' . esc_url( $url ) . '" frameborder="0" title="' . esc_html__( 'Nextdoor embed', 'jetpack' ) . '" height="200" width="100%"></iframe>';
+	$block_id    = wp_unique_id( 'nextdoor-block-' );
+	$link_markup = '<a href="' . esc_url( $url ) . '" title="' . esc_html__( 'Nextdoor embed', 'jetpack' ) . '">' . esc_html( $url ) . '</a>';
 
-	$block_classes = Blocks::classes( __DIR__, $attr );
+	$block_classes = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr );
 
 	$html =
-		'<figure class="' . esc_attr( $block_classes ) . '">' .
-			$iframe_markup .
+		'<figure id="' . esc_attr( $block_id ) . '" class="' . esc_attr( $block_classes ) . '">' .
+			$link_markup .
 		'</figure>';
 
 	return $html;
