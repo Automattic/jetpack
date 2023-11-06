@@ -3,4 +3,10 @@
 	display: flex;
 	flex-direction: column;
 	gap: calc( var( --gap ) / 2 );
+	transition: opacity 300ms ease-out;
+	opacity: 0;
+}
+
+.fade-in {
+	opacity: 1;
 }

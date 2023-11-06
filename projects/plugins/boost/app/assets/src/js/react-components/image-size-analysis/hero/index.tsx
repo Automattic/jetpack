@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+import React, { useEffect, useState } from 'react';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { RecommendationContext } from '../../recommendation-context';
@@ -13,6 +15,16 @@ export const Hero = ( {
 	hasActiveGroup,
 	totalIssueCount,
 } ) => {
+	const [ fadeProp, setFadeProp ] = useState( false );
+
+	useEffect( () => {
+		// Set the fadeProp to true to apply the 'fade-in' class after the component mounts
+		const timeoutId = setTimeout( () => setFadeProp( true ), 50 ); // 50ms or some small delay
+
+		// Clean up the timeout if the component unmounts before the timeout fires
+		return () => clearTimeout( timeoutId );
+	}, [] );
+
 	const formatter = new Intl.DateTimeFormat( 'en-US', {
 		month: 'long',
 		day: 'numeric',
@@ -25,7 +37,11 @@ export const Hero = ( {
 	const showLatestReport = hasActiveGroup && !! isaLastUpdated;
 
 	return (
-		<div className={ styles.hero }>
+		<div
+			className={ classNames( styles.hero, {
+				[ styles[ 'fade-in' ] ]: fadeProp,
+			} ) }
+		>
 			{ showLatestReport ? (
 				<>
 					<span>Latest report as of { lastUpdated }</span>
