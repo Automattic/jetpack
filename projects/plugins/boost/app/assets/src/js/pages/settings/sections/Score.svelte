@@ -9,6 +9,7 @@
 	import { scoreChangeModal, ScoreChangeMessage } from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
+	import ScoreContext from '../../../react-components/score-context';
 	import { performanceHistoryPanelDS } from '../../../stores/data-sync-client';
 	import { dismissedAlerts } from '../../../stores/dismissed-alerts';
 	import { modulesState } from '../../../stores/modules';
@@ -18,7 +19,6 @@
 	import { castToString } from '../../../utils/cast-to-string';
 	import debounce from '../../../utils/debounce';
 	import PopOut from '../elements/PopOut.svelte';
-	import ScoreContext from '../elements/ScoreContext.svelte';
 	import History from './History.svelte';
 
 	// Flat list of which modules are active; useful for tracking changes in state.
@@ -145,11 +145,11 @@
 					{/if}
 				</h2>
 				{#if ! isLoading && ! loadError}
-					<ScoreContext />
+					<ReactComponent this={ScoreContext} />
 				{/if}
 				<button
 					type="button"
-					class="components-button is-link"
+					class="action-button components-button is-link"
 					disabled={isLoading}
 					on:click={() => loadScore( true )}
 				>

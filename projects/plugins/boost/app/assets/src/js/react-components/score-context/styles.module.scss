@@ -1,0 +1,14 @@
+.table {
+	width: 49%;
+	margin: 0;
+	display: inline-block;
+}
+
+.table td {
+	padding-left: 10px;
+}
+
+.tooltip button svg {
+	margin: 0;
+	fill: var( --gray-30 );
+}
