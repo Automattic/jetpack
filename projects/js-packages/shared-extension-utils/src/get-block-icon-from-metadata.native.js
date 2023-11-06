@@ -13,7 +13,11 @@ import getIconColor from './get-icon-color';
  * @returns {JSX.Element} Icon component
  */
 export function getBlockIconComponent( metadata ) {
-	return <SvgXml xml={ metadata.icon } />;
+	// If the SVG has been passed as a string, use SvgXml to correctly parse it.
+	if ( typeof metadata.icon === 'string' && metadata.icon.startsWith( '<svg' ) ) {
+		return <SvgXml xml={ metadata.icon } />;
+	}
+	return metadata.icon || '';
 }
 
 /**
