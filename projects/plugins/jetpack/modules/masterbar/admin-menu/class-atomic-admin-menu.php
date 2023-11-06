@@ -320,13 +320,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
-
-		if ( $this->use_wp_admin_interface( 'jetpack' ) ) {
-			return;
-		}
-
 		$menu_title = __( 'Stats', 'jetpack' );
-
 		if (
 			! $this->is_api_request &&
 			\Jetpack::is_module_active( 'stats' ) &&
