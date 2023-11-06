@@ -40,6 +40,7 @@ const Admin = () => {
 		isSocialImageGeneratorAvailable,
 		isAutoConversionAvailable,
 		shouldShowAdvancedPlanNudge,
+		isUpdatingJetpackSettings,
 	} = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID );
 		return {
@@ -51,6 +52,7 @@ const Admin = () => {
 			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
 			isAutoConversionAvailable: store.isAutoConversionAvailable(),
 			shouldShowAdvancedPlanNudge: store.shouldShowAdvancedPlanNudge(),
+			isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
 		};
 	} );
 
@@ -87,8 +89,12 @@ const Admin = () => {
 						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
 						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
-						{ isModuleEnabled && isAutoConversionAvailable && <AutoConversionToggle /> }
-						{ isModuleEnabled && isSocialImageGeneratorAvailable && <SocialImageGeneratorToggle /> }
+						{ ! isUpdatingJetpackSettings && isModuleEnabled && isAutoConversionAvailable && (
+							<AutoConversionToggle shouldRefresh />
+						) }
+						{ ! isUpdatingJetpackSettings && isModuleEnabled && isSocialImageGeneratorAvailable && (
+							<SocialImageGeneratorToggle shouldRefresh />
+						) }
 					</AdminSection>
 					<AdminSectionHero>
 						<InfoSection />

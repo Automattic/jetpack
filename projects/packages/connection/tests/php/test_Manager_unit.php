@@ -643,4 +643,46 @@ class ManagerTest extends TestCase {
 	public function filter_api_constant( $value, $name ) {
 		return constant( __NAMESPACE__ . "\Utils::DEFAULT_$name" );
 	}
+
+	/**
+	 * Test the `is_ready_for_cleanup()` method with the negative result (has other connected plugins).
+	 *
+	 * @return void
+	 */
+	public function test_is_ready_for_cleanup_no() {
+		$option_filter = function () {
+			return array(
+				'jetpack-backup' => array(
+					'name' => 'Jetpack Backup',
+				),
+			);
+		};
+
+		add_filter( 'pre_option_jetpack_connection_active_plugins', $option_filter );
+		$is_ready = Manager::is_ready_for_cleanup( 'jetpack' );
+		remove_filter( 'pre_option_jetpack_connection_active_plugins', $option_filter );
+
+		$this->assertFalse( $is_ready );
+	}
+
+	/**
+	 * Test the `is_ready_for_cleanup()` method with the positive result (no other connected plugins).
+	 *
+	 * @return void
+	 */
+	public function test_is_ready_for_cleanup_yes() {
+		$option_filter = function () {
+			return array(
+				'jetpack' => array(
+					'name' => 'Jetpack',
+				),
+			);
+		};
+
+		add_filter( 'pre_option_jetpack_connection_active_plugins', $option_filter );
+		$is_ready = Manager::is_ready_for_cleanup( 'jetpack' );
+		remove_filter( 'pre_option_jetpack_connection_active_plugins', $option_filter );
+
+		$this->assertTrue( $is_ready );
+	}
 }
