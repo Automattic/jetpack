@@ -55,6 +55,28 @@ export function getLinkedInDetails( { forceDefaults = false } = {} ) {
 }
 
 /**
+ * Returns a template for nextdoor data, based on the first nextdoor account found.
+ *
+ * @param {object} args - Arguments.
+ * @param {boolean} args.forceDefaults - Whether to use default values.
+ * @returns {{name: string; profileImage: string}} The nextdoor account data.
+ */
+export function getNextdoorDetails( { forceDefaults = false } = {} ) {
+	if ( ! forceDefaults ) {
+		const connection = getConnections().find( ( { service_name } ) => 'nextdoor' === service_name );
+
+		if ( connection ) {
+			return {
+				name: connection.display_name,
+				profileImage: connection.profile_picture,
+			};
+		}
+	}
+
+	return { name: '', profileImage: '' };
+}
+
+/**
  * Returns a template for Instagram data, based on the first Instagram account found.
  *
  * @returns {{name: string; profileImage: string}} The Instagram account data.
@@ -206,6 +228,15 @@ export function getImageGeneratorPostSettings() {
  */
 export function isInstagramConnectionSupported() {
 	return !! getJetpackData()?.social?.isInstagramConnectionSupported;
+}
+
+/**
+ * Checks if the Instagram connection is supported.
+ *
+ * @returns {boolean} Whether the Instagram connection is supported
+ */
+export function isNextdoorConnectionSupported() {
+	return !! getJetpackData()?.social?.isNextdoorConnectionSupported;
 }
 
 /**

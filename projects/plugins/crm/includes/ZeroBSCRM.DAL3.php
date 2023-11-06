@@ -5770,32 +5770,27 @@ class zbsDAL {
 
     }
 
-    /**
-     * Returns an origin string and type from a prefixed origin string
-     *
-     * @param string $string - prefixed origin string
-     *
-     * @return array|bool(false) - origin string and type, or false
-     */
-    public function hydrate_origin( $string ){
+	/**
+	 * Returns an origin string and type from a prefixed origin string
+	 *
+	 * @param string $string Prefixed origin string.
+	 *
+	 * @return array|bool(false) - origin string and type, or false
+	 */
+	public function hydrate_origin( $string ) {
 
-        // domain
-        if ( substr( $string, 0, 2 ) == 'd:' ){
+		// domain
+		if ( str_starts_with( $string, 'd:' ) ) {
 
-            return array(
-                'origin'      => $this->remove_origin_prefix( $string ),
-                'origin_type' => 'domain'
-            );
+			return array(
+				'origin'      => $this->remove_origin_prefix( $string ),
+				'origin_type' => 'domain',
+			);
 
-        }
+		}
 
-        return false;
-
-    }
-
-
-    
-
+		return false;
+	}
 
     // =========== / Origin Helpers      =============================================
     // ===============================================================================

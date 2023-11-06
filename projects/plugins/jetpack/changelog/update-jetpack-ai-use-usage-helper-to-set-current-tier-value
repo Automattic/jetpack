@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack AI: Use Jetpack AI Usage Helper to set current plan tier information on feature endpoint.

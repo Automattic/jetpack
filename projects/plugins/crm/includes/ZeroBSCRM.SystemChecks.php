@@ -287,7 +287,11 @@ function zeroBSCRM_checkSystemFeat( $key = '', $with_info = false ) {
 	  	// run check tables
 	  	zeroBSCRM_checkTablesExist();
 	  	$lastError = $wpdb->last_error;
-	  	$okay = true; if (strpos($lastError,'command denied') > -1) $okay = false;
+
+	$okay = true;
+	if ( str_contains( $lastError, 'command denied' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$okay = false;
+	}
 
 		if (!$withInfo)
 			return $okay;

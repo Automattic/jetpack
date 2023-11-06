@@ -1,6 +1,7 @@
 import { ToggleControl } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import React from 'react';
 import { SOCIAL_STORE_ID } from '../../../social-store';
 import { SocialStoreSelectors } from '../../../types/types';
@@ -15,6 +16,11 @@ type SocialImageGeneratorToggleProps = {
 	 * The class name to add to the toggle.
 	 */
 	toggleClass?: string;
+
+	/**
+	 * Whether or not to refresh the settings.
+	 */
+	shouldRefresh?: boolean;
 };
 
 /**
@@ -23,7 +29,17 @@ type SocialImageGeneratorToggleProps = {
  * @param {SocialImageGeneratorToggleProps} props - Component props.
  * @returns {React.ReactElement} - JSX.Element
  */
-const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = props => {
+const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = ( {
+	toggleClass,
+	children,
+	shouldRefresh = false,
+} ) => {
+	const refreshSettings = useDispatch( SOCIAL_STORE_ID ).refreshSocialImageGeneratorSettings;
+
+	useEffect( () => {
+		shouldRefresh && refreshSettings();
+	}, [ refreshSettings, shouldRefresh ] );
+
 	const { isEnabled, isUpdating } = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
 		return {
@@ -43,11 +59,11 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 
 	return (
 		<ToggleControl
-			className={ props.toggleClass }
+			className={ toggleClass }
 			disabled={ isUpdating }
 			checked={ isEnabled }
 			onChange={ toggleStatus }
-			label={ props.children }
+			label={ children }
 		/>
 	);
 };

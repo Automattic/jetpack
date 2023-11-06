@@ -1518,7 +1518,7 @@ final class ZeroBSCRM {
 	 * @return array
 	 */
 	public static function plugin_row_meta( $links_array, $plugin ) {
-		if ( strpos( $plugin, plugin_basename( ZBS_ROOTFILE ) ) === false ) {
+		if ( ! str_contains( $plugin, plugin_basename( ZBS_ROOTFILE ) ) ) {
 			return $links_array;
 		}
 

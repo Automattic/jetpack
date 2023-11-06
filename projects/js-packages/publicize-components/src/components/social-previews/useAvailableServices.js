@@ -7,6 +7,7 @@ import GoogleSearch from './google-search';
 import { Instagram } from './instagram';
 import { LinkedIn } from './linkedin';
 import MastodonPreview from './mastodon';
+import { Nextdoor } from './nextdoor';
 import TumblrPreview from './tumblr';
 import Twitter from './twitter';
 
@@ -16,12 +17,13 @@ import Twitter from './twitter';
  * @returns {Array<{title: string, icon: React.Component, name: string, preview: React.Component}>} The list of available services.
  */
 export function useAvailableSerivces() {
-	const { isInstagramSupported, isMastodonSupported } = useSelect( select => {
+	const { isInstagramSupported, isMastodonSupported, isNextdoorSupported } = useSelect( select => {
 		const store = select( 'jetpack/publicize' );
 
 		return {
 			isInstagramSupported: store.isInstagramConnectionSupported(),
 			isMastodonSupported: store.isMastodonConnectionSupported(),
+			isNextdoorSupported: store.isNextdoorConnectionSupported(),
 		};
 	} );
 
@@ -60,6 +62,14 @@ export function useAvailableSerivces() {
 					name: 'linkedin',
 					preview: LinkedIn,
 				},
+				isNextdoorSupported
+					? {
+							title: __( 'Nextdoor', 'jetpack' ),
+							icon: props => <SocialServiceIcon serviceName="nextdoor" { ...props } />,
+							name: 'nextdoor',
+							preview: Nextdoor,
+					  }
+					: null,
 				{
 					title: __( 'Tumblr', 'jetpack' ),
 					icon: props => <SocialServiceIcon serviceName="tumblr-alt" { ...props } />,
@@ -75,6 +85,6 @@ export function useAvailableSerivces() {
 					  }
 					: null,
 			].filter( Boolean ),
-		[ isInstagramSupported, isMastodonSupported ]
+		[ isInstagramSupported, isMastodonSupported, isNextdoorSupported ]
 	);
 }

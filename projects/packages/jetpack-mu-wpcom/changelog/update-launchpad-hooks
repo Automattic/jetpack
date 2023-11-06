@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Launchpad hooks: Made more resilient against non-array values

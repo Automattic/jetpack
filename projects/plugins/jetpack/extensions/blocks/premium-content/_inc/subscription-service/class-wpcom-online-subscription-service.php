@@ -48,6 +48,30 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 	}
 
 	/**
+	 * Retrieves the email of the currently authenticated subscriber.
+	 *
+	 * This function checks if the current user has an active subscription. If the user is subscribed,
+	 * their email is returned. Otherwise, it returns an empty string to indicate no active subscription.
+	 *
+	 * @return string The email address of the subscribed user or an empty string if not subscribed.
+	 */
+	public function get_subscriber_email() {
+		include_once WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
+		$email             = wp_get_current_user()->user_email;
+		$subscriber_object = \Blog_Subscriber::get( $email );
+
+		if ( empty( $subscriber_object ) ) {
+			return '';
+		}
+		$blog_id             = $this->get_site_id();
+		$subscription_status = \Blog_Subscription::get_subscription_status_for_blog( $subscriber_object, $blog_id );
+		if ( 'active' !== $subscription_status ) {
+			return '';
+		}
+		return $email;
+	}
+
+	/**
 	 * Lookup users subscriptions for a site and determine if the user has a valid subscription to match the plan ID
 	 *
 	 * @param array  $valid_plan_ids .

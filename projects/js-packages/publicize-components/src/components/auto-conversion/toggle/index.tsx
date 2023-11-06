@@ -1,6 +1,7 @@
 import { ToggleControl } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import React from 'react';
 import { SOCIAL_STORE_ID } from '../../../social-store';
 import { SocialStoreSelectors } from '../../../types/types';
@@ -15,6 +16,11 @@ type AutoConversionToggleProps = {
 	 * The class name to add to the toggle.
 	 */
 	toggleClass?: string;
+
+	/**
+	 * Whether or not to refresh the settings.
+	 */
+	shouldRefresh?: boolean;
 };
 
 /**
@@ -23,7 +29,17 @@ type AutoConversionToggleProps = {
  * @param {AutoConversionToggleProps} props - Component props.
  * @returns {React.ReactElement} - JSX.Element
  */
-const AutoConversionToggle: React.FC< AutoConversionToggleProps > = props => {
+const AutoConversionToggle: React.FC< AutoConversionToggleProps > = ( {
+	shouldRefresh = false,
+	toggleClass,
+	children,
+} ) => {
+	const refreshSettings = useDispatch( SOCIAL_STORE_ID ).refreshAutoConversionSettings;
+
+	useEffect( () => {
+		shouldRefresh && refreshSettings();
+	}, [ shouldRefresh, refreshSettings ] );
+
 	const { isEnabled, isUpdating } = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
 		return {
@@ -43,11 +59,11 @@ const AutoConversionToggle: React.FC< AutoConversionToggleProps > = props => {
 
 	return (
 		<ToggleControl
-			className={ props.toggleClass }
+			className={ toggleClass }
 			disabled={ isUpdating }
 			checked={ isEnabled }
 			onChange={ toggleStatus }
-			label={ props.children }
+			label={ children }
 		/>
 	);
 };

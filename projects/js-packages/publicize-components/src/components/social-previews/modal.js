@@ -123,7 +123,10 @@ export default withSelect( select => {
 				}
 			}
 			if ( 0 === media.length && featuredImageId ) {
-				media.push( getMediaDetails( featuredImageId ) );
+				const mediaDetails = getMediaDetails( featuredImageId );
+				if ( mediaDetails ) {
+					media.push( mediaDetails );
+				}
 			}
 		}
 	}

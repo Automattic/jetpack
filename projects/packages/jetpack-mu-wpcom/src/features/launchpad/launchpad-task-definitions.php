@@ -1702,13 +1702,15 @@ function wpcom_launchpad_is_edit_page_task_visible() {
  * if the subscription_options['invitation'] value
  * for the welcome message has changed on option update.
  *
- * @param string $old_value The old value of the welcome message.
- * @param string $value The new value of the welcome message.
+ * @param mixed $old_value The old value of the welcome message.
+ * @param mixed $value The new value of the welcome message.
  *
  * @return void
  */
 function wpcom_launchpad_mark_customize_welcome_message_complete_on_update( $old_value, $value ) {
-	if ( $value['invitation'] !== $old_value['invitation'] ) {
+	$new_invitation = is_array( $value ) && isset( $value['invitation'] ) ? $value['invitation'] : '';
+	$old_invitation = is_array( $old_value ) && isset( $old_value['invitation'] ) ? $old_value['invitation'] : '';
+	if ( $new_invitation !== $old_invitation ) {
 		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
 	}
 }
@@ -1719,12 +1721,12 @@ add_action( 'update_option_subscription_options', 'wpcom_launchpad_mark_customiz
  * if the subscription_options['invitation'] value
  * for the welcome message has been added.
  *
- * @param string $value The value of the welcome message.
+ * @param mixed $value The value of the welcome message.
  *
  * @return void
  */
 function wpcom_launchpad_mark_customize_welcome_message_complete_on_add( $value ) {
-	if ( $value['invitation'] ) {
+	if ( is_array( $value ) && $value['invitation'] ) {
 		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
 	}
 }

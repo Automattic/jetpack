@@ -4,7 +4,9 @@
 /.cache/
 /.phpunit.result.cache
 **/css/*.css
+**/css/*.css.map
 **/css/**/*.css
+**/css/**/*.css.map
 **/js/*.min.js.map
 **/js/**/*.min.js.map
 **/js/*.min.js
