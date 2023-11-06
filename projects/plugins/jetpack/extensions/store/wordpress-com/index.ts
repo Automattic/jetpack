@@ -1,16 +1,35 @@
+/**
+ * External dependencies
+ */
 import { createReduxStore, register } from '@wordpress/data';
+/**
+ * Types & Constants
+ */
+type Plan = {
+	product_id: number;
+	product_name: string;
+	product_slug: string;
+};
+
+type PlanStateProps = {
+	plans: Array< Plan >;
+};
 
 const store = 'wordpress-com/plans';
 
+const INITIAL_STATE: PlanStateProps = {
+	plans: [],
+};
+
 const actions = {
-	setPlans( plans ) {
+	setPlans( plans: Array< Plan > ) {
 		return {
 			type: 'SET_PLANS',
 			plans,
 		};
 	},
 
-	fetchFromAPI( url ) {
+	fetchFromAPI( url: string ) {
 		return {
 			type: 'FETCH_FROM_API',
 			url,
@@ -19,10 +38,13 @@ const actions = {
 };
 
 const wordpressPlansStore = createReduxStore( store, {
-	reducer( state = [], action ) {
+	reducer( state = INITIAL_STATE, action ) {
 		switch ( action.type ) {
 			case 'SET_PLANS':
-				return action.plans;
+				return {
+					...state,
+					plans: action.plans,
+				};
 		}
 
 		return state;
@@ -31,8 +53,15 @@ const wordpressPlansStore = createReduxStore( store, {
 	actions,
 
 	selectors: {
-		getPlan( state, planSlug: string ) {
-			return state.find( plan => plan.product_slug === planSlug );
+		/*
+		 * Return the plan with the given slug.
+		 *
+		 * @param {Object} state    - The Plans state tree.
+		 * @param {string} planSlug - The plan slug to find.
+		 * @return {Object}           The plan.
+		 */
+		getPlan( state: PlanStateProps, planSlug: string ) {
+			return state.plans.find( plan => plan.product_slug === planSlug );
 		},
 	},
 
