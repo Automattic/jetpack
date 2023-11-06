@@ -470,7 +470,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 */
 	private function get_inner_blocks( $inner_blocks ) {
 		$block_names = array();
-		if ( isset( $inner_blocks['blockName'] ) && $inner_blocks['blockName'] ) {
+		if ( ! empty( $inner_blocks['blockName'] ) ) {
 			$block_names[] = $inner_blocks['blockName'];
 		}
 		if ( isset( $inner_blocks['innerBlocks'] ) && is_array( $inner_blocks['innerBlocks'] ) ) {
