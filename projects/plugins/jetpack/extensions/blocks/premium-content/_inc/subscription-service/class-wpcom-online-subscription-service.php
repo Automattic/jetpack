@@ -71,7 +71,6 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 		include_once WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
 		$email             = wp_get_current_user()->user_email;
 		$subscriber_object = \Blog_Subscriber::get( $email );
-
 		if ( empty( $subscriber_object ) ) {
 			return false;
 		}
