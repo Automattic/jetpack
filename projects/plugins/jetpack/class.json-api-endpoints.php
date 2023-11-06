@@ -1455,7 +1455,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 				if ( false === $active_blog ) {
 					$active_blog = get_active_blog_for_user( $id );
 				}
-				$site_id = $active_blog->blog_id;
+				if ( ! empty( $active_blog ) ) {
+					$site_id = $active_blog->blog_id;
+				}
 				if ( $site_id > -1 ) {
 					$site_visible = (
 						-1 !== (int) $active_blog->public ||
