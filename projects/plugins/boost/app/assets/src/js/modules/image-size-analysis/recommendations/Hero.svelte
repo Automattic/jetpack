@@ -23,7 +23,7 @@
 </script>
 
 {#if hasActiveGroup && isaLastUpdated}
-	{@const  lastUpdated = formatter.format( isaLastUpdated ) }
+	{@const ( lastUpdated = formatter.format( isaLastUpdated ) )}
 
 	<div class="jb-hero" in:fade={{ duration: 300, easing: quadOut }}>
 		<span>Latest report as of {lastUpdated}</span>

@@ -160,12 +160,6 @@ function zeroBSCRM_isWelcomeWizPage() {
 }
 
 function zeroBSCRM_isAPIRequest() {
-
-	// print_r($_SERVER['QUERY_STRING']);
-
-	// print_r($_SERVER);
-	// print_r(array((isset($_SERVER['SCRIPT_URL'])),strpos('#'.$_SERVER['SCRIPT_URL'], '/zbs_api/'))); exit();
-
 	// SCRIPT_URL not present in $_SERVER on mine: https://stackoverflow.com/questions/24428981/serverscript-url-when-is-it-reliably-present
 	// below is more reliable as QUERY_STRING will always be set for API requests.
 
@@ -187,14 +181,14 @@ function zeroBSCRM_isAPIRequest() {
 	// doesn't validate auth or anything, just 'LOOKS LIKE REST  URL'
 	// https://wordpress.stackexchange.com/questions/221202/does-something-like-is-rest-exist
 function zeroBSCRM_isRestUrl() {
-	$bIsRest = false;
+	$is_rest_url = false;
 	if ( function_exists( 'rest_url' ) && ! empty( $_SERVER['REQUEST_URI'] ) ) {
 		$sRestUrlBase = get_rest_url( get_current_blog_id(), '/' );
 		$sRestPath    = trim( parse_url( $sRestUrlBase, PHP_URL_PATH ), '/' );
 		$sRequestPath = trim( $_SERVER['REQUEST_URI'], '/' );
-		$bIsRest      = ( strpos( $sRequestPath, $sRestPath ) === 0 );
+		$is_rest_url  = ( str_starts_with( $sRequestPath, $sRestPath ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
-	return $bIsRest;
+	return $is_rest_url;
 }
 
 function zeroBSCRM_isClientPortalPage() {

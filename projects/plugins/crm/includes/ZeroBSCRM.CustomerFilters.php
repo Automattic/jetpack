@@ -765,7 +765,7 @@ function zbs_customerFiltersRetrieveCustomers( $perPage = 10, $page = 1, $forceP
 								$filterPostcode = str_replace( ' ', '', $appliedFilters['postcode'] );
 
 								// } Check Postcode
-								if ( substr( $cleanPostcode, 0, strlen( $filterPostcode ) ) != $filterPostcode ) {
+								if ( ! str_starts_with( $cleanPostcode, $filterPostcode ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 									$includeThisCustomer = false;
 								}
 							}

@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Display SSO form for user who has wpcom-admin-interface setting set to wp-admin (fall back to the original WordPress menu)

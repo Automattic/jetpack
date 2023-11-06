@@ -1,6 +1,6 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
-import { Button, Placeholder, withNotices } from '@wordpress/components';
+import { SandBox, Button, Placeholder, withNotices } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
@@ -14,6 +14,7 @@ const icon = getBlockIconComponent( metadata );
 
 export function NextdoorEdit( {
 	attributes,
+	clientId,
 	className,
 	name,
 	noticeOperations,
@@ -93,23 +94,52 @@ export function NextdoorEdit( {
 		</Placeholder>
 	);
 
-	const blockPreview = () => {
-		return (
-			<>
-				<div className={ `${ defaultClassName }-overlay` }></div>
-				<iframe width="100%" height="200" frameBorder="0" src={ iframeUrl } title="Nextdoor" />
-			</>
-		);
-	};
-
 	return (
 		<div className={ className }>
 			<NextdoorControls
 				{ ...{ defaultClassName, nextdoorShareUrl, onFormSubmit, setNextdoorShareUrl } }
 			/>
-			{ iframeUrl ? blockPreview() : blockPlaceholder }
+			{ iframeUrl ? (
+				<BlockPreview
+					defaultClassName={ defaultClassName }
+					iframeUrl={ iframeUrl }
+					clientId={ clientId }
+				/>
+			) : (
+				blockPlaceholder
+			) }
 		</div>
 	);
 }
+
+const BlockPreview = ( { defaultClassName, iframeUrl, clientId } ) => {
+	const html = `
+		<script>
+			window.addEventListener( 'message', function ( event ) {
+				if ( ! event.origin.startsWith( 'https://nextdoor' ) ) {
+					return;
+				}
+				var iframe = document.getElementById( 'nextdoor-embed-${ clientId }' );
+				if ( event.source !== iframe.contentWindow ) {
+					return;
+				}
+				iframe.setAttribute( 'height', event.data.height );
+				var clientBoundingRect = document.body.getBoundingClientRect();
+				window.parent.postMessage( { action: 'resize', width: clientBoundingRect.width, height: clientBoundingRect.height }, '*' );
+			} );
+		</script>
+		<iframe id="nextdoor-embed-${ clientId }" width="100%" height="200" frameBorder="0" src="${ iframeUrl }" title="${ __(
+			'Nextdoor',
+			'jetpack'
+		) }" />
+		`;
+
+	return (
+		<>
+			<div className={ `${ defaultClassName }-overlay` }></div>
+			<SandBox html={ html } />
+		</>
+	);
+};
 
 export default withNotices( NextdoorEdit );

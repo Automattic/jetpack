@@ -455,104 +455,53 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			// @todo Implement AMP support.
 			return;
 		}
-
-		$url_origin = 'https://jetpack.wordpress.com';
 		?>
-
-		<!--[if IE]>
 		<script type="text/javascript">
-			if ( 0 === window.location.hash.indexOf( '#comment-' ) ) {
-				// window.location.reload() doesn't respect the Hash in IE
-				window.location.hash = window.location.hash;
-			}
-		</script>
-		<![endif]-->
-		<script type="text/javascript">
-			(function () {
-				var comm_par_el = document.getElementById( 'comment_parent' ),
-					comm_par = ( comm_par_el && comm_par_el.value ) ? comm_par_el.value : '',
-					frame = document.getElementById( 'jetpack_remote_comment' ),
-					tellFrameNewParent;
-
-				tellFrameNewParent = function () {
-					if ( comm_par ) {
-						frame.src = "<?php echo esc_url_raw( $this->signed_url ); ?>" + '&replytocom=' + parseInt( comm_par, 10 ).toString();
-					} else {
-						frame.src = "<?php echo esc_url_raw( $this->signed_url ); ?>";
-					}
-				};
-
-				<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
-
-				if ( 'undefined' !== typeof addComment ) {
+			const iframe = document.getElementById( 'jetpack_remote_comment' );
+			<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
+			const watchReply = function() {
+				// Check addComment._Jetpack_moveForm to make sure we don't monkey-patch twice.
+				if ( 'undefined' !== typeof addComment && ! addComment._Jetpack_moveForm ) {
+					// Cache the Core function.
 					addComment._Jetpack_moveForm = addComment.moveForm;
+					const commentParent = document.getElementById( 'comment_parent' );
+					const cancel = document.getElementById( 'cancel-comment-reply-link' );
 
-					addComment.moveForm = function ( commId, parentId, respondId, postId ) {
-						var returnValue = addComment._Jetpack_moveForm( commId, parentId, respondId, postId ),
-							cancelClick, cancel;
-
-						if ( false === returnValue ) {
-							cancel = document.getElementById( 'cancel-comment-reply-link' );
-							cancelClick = cancel.onclick;
-							cancel.onclick = function () {
-								var cancelReturn = cancelClick.call( this );
-								if ( false !== cancelReturn ) {
-									return cancelReturn;
-								}
-
-								if ( ! comm_par ) {
-									return cancelReturn;
-								}
-
-								comm_par = 0;
-
-								tellFrameNewParent();
-
-								return cancelReturn;
-							};
+					function tellFrameNewParent ( commentParentValue ) {
+						const url = new URL( iframe.src );
+						if ( commentParentValue ) {
+							url.searchParams.set( 'replytocom', commentParentValue )
+						} else {
+							url.searchParams.delete( 'replytocom' );
 						}
-
-						if ( comm_par == parentId ) {
-							return returnValue;
+						if( iframe.src !== url.href ) {
+							iframe.src = url.href;
 						}
+					};
 
-						comm_par = parentId;
+					cancel.addEventListener( 'click', function () {
+						tellFrameNewParent( false );
+					} );
 
-						tellFrameNewParent();
-
-						return returnValue;
+					addComment.moveForm = function ( _, parentId ) {
+						tellFrameNewParent( parentId );
+						return addComment._Jetpack_moveForm.apply( null, arguments );
 					};
 				}
+			}
+			document.addEventListener( 'DOMContentLoaded', watchReply );
+			// In WP 6.4+, the script is loaded asynchronously, so we need to wait for it to load before we monkey-patch the functions it introduces.
+			document.querySelector('#comment-reply-js')?.addEventListener( 'load', watchReply );
 
-				<?php endif; ?>
+			<?php endif; ?>
 
-				// Do the post message bit after the dom has loaded.
-				document.addEventListener( 'DOMContentLoaded', function () {
-					var iframe_url = <?php echo wp_json_encode( esc_url_raw( $url_origin ) ); ?>;
-					if ( window.postMessage ) {
-						if ( document.addEventListener ) {
-							window.addEventListener( 'message', function ( event ) {
-								var origin = event.origin.replace( /^http:\/\//i, 'https://' );
-								if ( iframe_url.replace( /^http:\/\//i, 'https://' ) !== origin ) {
-									return;
-								}
-								frame.style.height = event.data + 'px';
-							});
-						} else if ( document.attachEvent ) {
-							window.attachEvent( 'message', function ( event ) {
-								var origin = event.origin.replace( /^http:\/\//i, 'https://' );
-								if ( iframe_url.replace( /^http:\/\//i, 'https://' ) !== origin ) {
-									return;
-								}
-								frame.style.height = event.data + 'px';
-							});
-						}
-					}
-				})
-
-			})();
+			window.addEventListener( 'message', function ( event ) {
+				if ( event.origin !== 'https://jetpack.wordpress.com' ) {
+					return;
+				}
+				iframe.style.height = event.data + 'px';
+			});
 		</script>
-
 		<?php
 	}
 

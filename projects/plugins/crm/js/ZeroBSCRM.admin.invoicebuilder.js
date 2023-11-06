@@ -1573,7 +1573,7 @@ function zbscrm_JS_calc_amount_due() {
 			var multiplier = 1; // gets turned to -1 if negotive ()
 
 			// got -?
-			if ( v.indexOf( '(' ) !== -1 ) {
+			if ( v.includes( '(' ) ) {
 				v = v.replace( '(', '' ).replace( ')', '' );
 				multiplier = -1;
 			}

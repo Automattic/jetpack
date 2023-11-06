@@ -424,6 +424,7 @@ class Jetpack_AI_Helper {
 				'current-tier'         => array(
 					'value' => $current_tier_value,
 				),
+				'tier-plans'           => WPCOM\Jetpack_AI\Usage\Helper::get_tier_plans_list(),
 			);
 		}
 
