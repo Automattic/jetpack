@@ -26,7 +26,7 @@ export const Hero = ( {
 
 	return (
 		<div className={ styles.hero }>
-			{ showLatestReport && (
+			{ showLatestReport ? (
 				<>
 					<span>Latest report as of { lastUpdated }</span>
 					{ totalIssueCount > 0 && (
@@ -71,8 +71,7 @@ export const Hero = ( {
 						</span>
 					) }
 				</>
-			) }
-			{ ! showLatestReport && (
+			) : (
 				<>
 					<span>&nbsp;</span>
 					<h1>&nbsp;</h1>
