@@ -1,7 +1,13 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { createReduxStore, register } from '@wordpress/data';
+/**
+ * Internal dependencies
+ */
+import { AIFeatureProps } from '../../blocks/ai-assistant/hooks/use-ai-feature';
+import { SiteAIAssistantFeatureEndpointResponseProps } from '../../types';
 /**
  * Types & Constants
  */
@@ -11,20 +17,22 @@ type Plan = {
 	product_slug: string;
 };
 
-type Feature = {
+type Feature = AIFeatureProps & {
 	feature_slug: 'AI_ASSISTANT' | string;
 };
 
 type PlanStateProps = {
 	plans: Array< Plan >;
-	features: Array< Feature >;
+	features: {
+		aiAssistantFeature?: Feature;
+	};
 };
 
 const store = 'wordpress-com/plans';
 
 const INITIAL_STATE: PlanStateProps = {
 	plans: [],
-	features: [],
+	features: {},
 };
 
 const actions = {
@@ -41,6 +49,13 @@ const actions = {
 			url,
 		};
 	},
+
+	storeAiAssistantFeature( feature: Feature ) {
+		return {
+			type: 'STORE_AI_ASSISTANT_FEATURE',
+			feature,
+		};
+	},
 };
 
 const wordpressPlansStore = createReduxStore( store, {
@@ -53,6 +68,16 @@ const wordpressPlansStore = createReduxStore( store, {
 					...state,
 					plans: action.plans,
 				};
+
+			case 'STORE_AI_ASSISTANT_FEATURE': {
+				return {
+					...state,
+					features: {
+						...state.features,
+						aiAssistant: action.feature,
+					},
+				};
+			}
 		}
 
 		return state;
@@ -78,8 +103,8 @@ const wordpressPlansStore = createReduxStore( store, {
 		 * @param {object} state - The Plans state tree.
 		 * @returns {object}       The AI Assistant feature data.
 		 */
-		getAiAssistantFeature( state: PlanStateProps ) {
-			return state.features.find( feature => feature.feature_slug === 'AI_ASSISTANT' );
+		getAiAssistantFeature( state: PlanStateProps ): object {
+			return state.features.aiAssistantFeature;
 		},
 	},
 
@@ -100,6 +125,17 @@ const wordpressPlansStore = createReduxStore( store, {
 			const plans = yield actions.fetchFromAPI( url );
 			return actions.setPlans( plans );
 		},
+
+		getAiAssistantFeature:
+			() =>
+			async ( { dispatch } ) => {
+				const response: SiteAIAssistantFeatureEndpointResponseProps = await apiFetch( {
+					path: '/wpcom/v2/jetpack-ai/ai-assistant-feature',
+				} );
+
+				// Store the feature in the store.
+				dispatch( actions.storeAiAssistantFeature( response ) );
+			},
 	},
 } );
 
