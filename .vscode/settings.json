@@ -30,5 +30,5 @@
 		"**/jetpack_vendor/**",
 		"**/vendor/**",
 	],
-	"prettier.prettierPath": "node_modules/.pnpm/wp-prettier@2.8.5/node_modules/wp-prettier/index.js"
+	"prettier.prettierPath": "tools/js-tools/node_modules/prettier/index.cjs"
 }
