@@ -9,7 +9,7 @@ import { FormFieldset } from '../../components/forms';
 const AutoConversionSection = () => {
 	return (
 		<FormFieldset>
-			<AutoConversionToggle toggleClass="jp-settings-sharing__sig-toggle">
+			<AutoConversionToggle shouldRefresh toggleClass="jp-settings-sharing__sig-toggle">
 				<div>
 					<div>
 						<Text>

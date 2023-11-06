@@ -535,8 +535,7 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Determines whether the current user can view the post based on the newsletter access level
-	 * and caches the result.
+	 * Determines whether the current user is a paid subscriber and caches the result.
 	 *
 	 * @return bool Whether the post can be viewed
 	 */
@@ -555,11 +554,15 @@ class Jetpack_Memberships {
 	 * Determines whether the current user can view the post based on the newsletter access level
 	 * and caches the result.
 	 *
+	 * @param int|null $post_id Explicit post id to check against.
+	 *
 	 * @return bool Whether the post can be viewed
 	 */
-	public static function user_can_view_post() {
+	public static function user_can_view_post( $post_id = null ) {
 		$user_id = get_current_user_id();
-		$post_id = get_the_ID();
+		if ( null === $post_id ) {
+			$post_id = get_the_ID();
+		}
 
 		if ( false === $post_id ) {
 			$post_id = 0;
@@ -788,6 +791,17 @@ class Jetpack_Memberships {
 
 		/* translators: %s: number of folks following the blog */
 		return sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
+	}
+
+	/**
+	 * Returns if the current user is subscribed or not.
+	 *
+	 * @return boolean
+	 */
+	public static function get_current_user_subscriber_email() {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		return $subscription_service->get_subscriber_email();
 	}
 }
 Jetpack_Memberships::get_instance();

@@ -129,6 +129,15 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 			keywords.add( 'Actions' );
 		}
 
+		// The Contact Form feature now lives in both a package and a Jetpack module.
+		const contactForm = file.match( /^projects\/packages\/forms\/(?<blocks>src\/blocks)?/ );
+		if ( contactForm !== null ) {
+			keywords.add( '[Feature] Contact Form' );
+			if ( contactForm.groups.blocks ) {
+				keywords.add( '[Block] Contact Form' );
+			}
+		}
+
 		// Docker.
 		const docker = file.match( /^(projects\/plugins\/boost\/docker|tools\/docker)\// );
 		if ( docker !== null ) {

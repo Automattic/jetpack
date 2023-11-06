@@ -11,6 +11,11 @@
 			return;
 		}
 
+		var adminbarBlogMenuList = adminbar.querySelector( '#wp-admin-bar-blog > .ab-sub-wrapper ul' );
+		if ( ! adminbarBlogMenuList ) {
+			return;
+		}
+
 		function setAriaExpanded( value ) {
 			var anchors = adminbar.querySelectorAll( '#wp-admin-bar-blog a' );
 			for ( var i = 0; i < anchors.length; i++ ) {
