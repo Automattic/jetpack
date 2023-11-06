@@ -11969,30 +11969,6 @@ packages:
       - utf-8-validate
       - vite
 
-  /@wordpress/data@8.6.0(react@18.2.0):
-    resolution: {integrity: sha512-+bQ5dTkJkHeOng3mXXzLBZkudUlOifJql1U99sWGbtLarU/yjfF0ldi/a6uR1cVvDJkGizDYHf9vv/nA39Oaqw==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^18.0.0
-    dependencies:
-      '@babel/runtime': 7.23.2
-      '@wordpress/compose': 6.21.0(react@18.2.0)
-      '@wordpress/deprecated': 3.44.0
-      '@wordpress/element': 5.21.0
-      '@wordpress/is-shallow-equal': 4.44.0
-      '@wordpress/priority-queue': 2.44.0
-      '@wordpress/private-apis': 0.11.0
-      '@wordpress/redux-routine': 4.44.0(redux@4.2.1)
-      deepmerge: 4.3.1
-      equivalent-key-map: 0.2.2
-      is-plain-object: 5.0.0
-      is-promise: 4.0.0
-      react: 18.2.0
-      redux: 4.2.1
-      turbo-combine-reducers: 1.0.2
-      use-memo-one: 1.1.3(react@18.2.0)
-    dev: true
-
   /@wordpress/data@9.13.0(react@18.2.0):
     resolution: {integrity: sha512-SayS6JsOFL2SBKIk4NFlmGLYvH7ocqOf6iuMq2aJ8E04VuExLEDqnDjxXkdOgLrrie6dOLG21EvNRk7Vc7QDOA==}
     engines: {node: '>=12'}
@@ -12776,13 +12752,6 @@ packages:
     dependencies:
       '@babel/runtime': 7.23.2
       requestidlecallback: 0.3.0
-
-  /@wordpress/private-apis@0.11.0:
-    resolution: {integrity: sha512-GpAZ34Ou9YkYi9fuJCb9oDIZhsLqj41stuHflxpTNih6vV/Qw7ApBkLZDhDCyWjOybnjtHQH1LWw3K3RCN4miw==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@babel/runtime': 7.23.2
-    dev: true
 
   /@wordpress/private-apis@0.25.0:
     resolution: {integrity: sha512-y1+U+wAwcjQ5QTDEDGvJbcc0VhyFx0tJh61i6eeBYy2mFXRGJDHyQVjp3agO8YXQdyHeAusVVOKTMT7mZdzUMw==}
