@@ -53,7 +53,6 @@ function create_legacy_buttons_markup( $attributes, $content, $block ) {
 			'customTextButtonColor'       => empty( $attributes['customTextButtonColor'] ) ? '' : esc_attr( $attributes['customTextButtonColor'] ),
 			'customBackgroundButtonColor' => empty( $attributes['customBackgroundButtonColor'] ) ? '' : esc_attr( $attributes['customBackgroundButtonColor'] ),
 			'submitButtonText'            => empty( $attributes['subscribeButtonText'] ) ? __( 'Subscribe', 'jetpack' ) : esc_attr( $attributes['subscribeButtonText'] ),
-			'blockType'                   => 'paid-content',
 		),
 		$content,
 		$block

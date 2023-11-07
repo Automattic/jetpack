@@ -365,7 +365,7 @@ class Jetpack_Memberships {
 			$block_id      = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
 			$content       = str_replace( 'recurring-payments-id', $block_id, $content );
 			$content       = str_replace( 'wp-block-jetpack-recurring-payments', 'wp-block-jetpack-recurring-payments wp-block-button', $content );
-			$subscribe_url = $this->get_subscription_url( $plan_id, $attributes['blockType'] );
+			$subscribe_url = $this->get_subscription_url( $plan_id );
 			return preg_replace( '/(href=".*")/U', 'href="' . $subscribe_url . '"', $content );
 		}
 
@@ -377,20 +377,18 @@ class Jetpack_Memberships {
 	 * supplied plan IDs.
 	 *
 	 * @param integer $plan_id - Unique ID for the plan being subscribed to.
-	 * @param string  $block_type - The type of block which links to this subscription url.
 	 * @return string
 	 */
-	public function get_subscription_url( $plan_id, $block_type = '' ) {
+	public function get_subscription_url( $plan_id ) {
 		global $wp;
 
 		return add_query_arg(
 			array(
-				'blog'       => esc_attr( self::get_blog_id() ),
-				'plan'       => esc_attr( $plan_id ),
-				'lang'       => esc_attr( get_locale() ),
-				'pid'        => esc_attr( get_the_ID() ), // Needed for analytics purposes.
-				'redirect'   => esc_attr( rawurlencode( home_url( $wp->request ) ) ), // Needed for redirect back in case of redirect-based flow.
-				'block_type' => $block_type, // Needed for analytics purposes.
+				'blog'     => esc_attr( self::get_blog_id() ),
+				'plan'     => esc_attr( $plan_id ),
+				'lang'     => esc_attr( get_locale() ),
+				'pid'      => esc_attr( get_the_ID() ), // Needed for analytics purposes.
+				'redirect' => esc_attr( rawurlencode( home_url( $wp->request ) ) ), // Needed for redirect back in case of redirect-based flow.
 			),
 			'https://subscribe.wordpress.com/memberships/'
 		);
