@@ -13,6 +13,7 @@ export type PlanStateProps = {
 
 // AI Assistant feature props
 export type UpgradeTypeProp = 'vip' | 'default';
+export type TierValueProp = 1 | 20 | 100 | 200 | 500;
 export type AIFeatureProps = {
 	hasFeature: boolean;
 	isOverLimit: boolean;
@@ -23,7 +24,7 @@ export type AIFeatureProps = {
 	errorCode: string;
 	upgradeType: UpgradeTypeProp;
 	currentTier: {
-		value: 0 | 1 | 100 | 200 | 500;
+		value: TierValueProp;
 	};
 	usagePeriod: {
 		currentStart: string;
