@@ -701,7 +701,7 @@ class Jetpack_Memberships {
 			// On cached site on WPCOM
 			require_lib( 'memberships' );
 			$allow_deleted = true;
-			$list          = Memberships_Product::get_product_list( get_current_blog_id(), self::$tier_type, null, $allow_deleted );
+			$list          = Memberships_Product::get_product_list( get_current_blog_id(), self::$type_tier, null, $allow_deleted );
 
 			return array_map(
 				function ( $product ) {
