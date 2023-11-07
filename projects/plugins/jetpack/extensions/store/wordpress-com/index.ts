@@ -17,14 +17,10 @@ type Plan = {
 	product_slug: string;
 };
 
-type Feature = AIFeatureProps & {
-	feature_slug: 'AI_ASSISTANT' | string;
-};
-
 type PlanStateProps = {
 	plans: Array< Plan >;
 	features: {
-		aiAssistant?: Feature;
+		aiAssistant?: AIFeatureProps;
 	};
 };
 
