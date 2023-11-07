@@ -113,7 +113,6 @@ export const JETPACK_MONTHLY_PLANS = [
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_MONTHLY,
 	PLAN_JETPACK_COMPLETE_MONTHLY,
-	PLAN_JETPACK_CREATOR_MONTHLY,
 
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
@@ -308,6 +307,12 @@ export const JETPACK_STATS_PRODUCTS = [
 	PLAN_JETPACK_STATS_MONTHLY,
 	PLAN_JETPACK_STATS_PWYW_YEARLY,
 	PLAN_JETPACK_STATS_FREE,
+];
+
+export const JETPACK_CREATOR_PRODUCTS = [
+	PLAN_JETPACK_CREATOR_MONTHLY,
+	PLAN_JETPACK_CREATOR_YEARLY,
+	PLAN_JETPACK_CREATOR_BI_YEARLY,
 ];
 
 export const PLAN_MONTHLY_PERIOD = 31;
@@ -527,6 +532,16 @@ export function isJetpackStats( product ) {
 }
 
 /**
+ * Determines if a product is Jetpack Creator.
+ *
+ * @param {string} product - The product id.
+ * @returns {boolean} True if the product is Jetpack Creator, false otherwise.
+ */
+export function isJetpackCreator( product ) {
+	return JETPACK_CREATOR_PRODUCTS.includes( product );
+}
+
+/**
  * Checks if a product slug is a Jetpack product.
  *
  * @param {string} product - The product id.
@@ -542,7 +557,8 @@ export function isJetpackProduct( product ) {
 		isJetpackSocial( product ) ||
 		isJetpackBoost( product ) ||
 		isJetpackAI( product ) ||
-		isJetpackStats( product )
+		isJetpackStats( product ) ||
+		isJetpackCreator( product )
 	);
 }
 
@@ -739,7 +755,6 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_STATS_MONTHLY:
 		case PLAN_JETPACK_STATS_PWYW_YEARLY:
 			return 'is-jetpack-stats-plan';
-
 		case PLAN_JETPACK_STATS_FREE:
 			return 'is-free-jetpack-stats-plan';
 
@@ -772,8 +787,6 @@ export function getMonthlyPlanByYearly( plan ) {
 			return PLAN_JETPACK_SECURITY_T2_MONTHLY;
 		case PLAN_JETPACK_COMPLETE:
 			return PLAN_JETPACK_COMPLETE_MONTHLY;
-		case PLAN_JETPACK_CREATOR_YEARLY:
-			return PLAN_JETPACK_CREATOR_MONTHLY;
 
 		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
