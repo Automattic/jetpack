@@ -189,7 +189,7 @@ function jpcrm_export_process_file_export() {
 			foreach ( $_POST as $k => $v ) {
 
 				// retrieve all posted pre-keys
-				if ( substr( $k, 0, strlen( 'zbs-export-field-' ) ) == 'zbs-export-field-' ) {
+				if ( str_starts_with( $k, 'zbs-export-field-' ) ) {
 
 					// is *probably* one of ours (doesn't guarantee)
 					$fieldKey = sanitize_text_field( $v );
@@ -341,7 +341,7 @@ function jpcrm_export_process_file_export() {
 							// catch legacy secaddr_addr1 issues. (only for contacts)
 							// blurgh.
 							// secaddr1 => secaddr_addr1
-							if ( $obj_type_id == ZBS_TYPE_CONTACT && substr( $fK, 0, 3 ) == 'sec' ) {
+							if ( $obj_type_id == ZBS_TYPE_CONTACT && str_starts_with( $fK, 'sec' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,Universal.Operators.StrictComparisons.LooseEqual
 								if ( isset( $obj[ str_replace( 'sec', 'secaddr_', $fK ) ] ) ) {
 									$v = $obj[ str_replace( 'sec', 'secaddr_', $fK ) ];
 								}
@@ -350,7 +350,7 @@ function jpcrm_export_process_file_export() {
 							// here we account for linked objects
 								// as of 4.1.1 this is contact/company for quote/invoice/transaction
 								// passed in format: linked_obj_{OBJTYPEINT}_{FIELD}
-							if ( substr( $fK, 0, 11 ) == 'linked_obj_' ) {
+							if ( str_starts_with( $fK, 'linked_obj_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								// take objtype from field
 								$linked_obj_type_int_and_field = substr( $fK, 11 );

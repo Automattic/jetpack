@@ -9,8 +9,23 @@ import ToggleSection from '../toggle-section';
 import { SocialStoreSelectors } from '../types/types';
 import styles from './styles.module.scss';
 
-const SocialImageGeneratorToggle: React.FC = () => {
-	const [ currentTemplate, setCurrentTemplate ] = useState( null );
+interface SocialImageGeneratorToggleProps {
+	/**
+	 * Whether or not to refresh the settings.
+	 */
+	shouldRefresh: boolean;
+}
+
+const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = ( {
+	shouldRefresh,
+} ) => {
+	const refreshSettings = useDispatch( SOCIAL_STORE_ID ).refreshSocialImageGeneratorSettings;
+
+	useEffect( () => {
+		shouldRefresh && refreshSettings();
+	}, [ shouldRefresh, refreshSettings ] );
+
+	const [ currentTemplate, setCurrentTemplate ] = useState< string | null >( null );
 	const { isEnabled, isUpdating, defaultTemplate } = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
 		return {

@@ -8,7 +8,7 @@ module.exports = [
 			[ 'classic-editor-connections' ]: './src/js/classic-editor-connections.js',
 		},
 		mode: jetpackWebpackConfig.mode,
-		devtool: jetpackWebpackConfig.isProduction ? false : 'source-map',
+		devtool: jetpackWebpackConfig.devtool,
 		output: {
 			...jetpackWebpackConfig.output,
 			path: path.resolve( './build' ),

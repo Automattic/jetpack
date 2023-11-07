@@ -408,9 +408,9 @@ if ( isset( $sbupdated ) ) {
 						foreach ( $roles as $roleKey => $roleArr ) {
 
 							// for their protection, gonna NOT include admin roles here..
-							$blockedArr = array( 'zerobs_admin', 'administrator' );
+							$blocked_array = array( 'zerobs_admin', 'administrator' );
 							// in fact no other zbs role... either...
-							if ( substr( $roleKey, 0, 7 ) != 'zerobs_' && ! in_array( $roleKey, $blockedArr ) ) {
+							if ( str_starts_with( $roleKey, 'zerobs_' ) && ! in_array( $roleKey, $blocked_array, true ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 								?>
 								<option value="<?php echo esc_attr( $roleKey ); ?>"

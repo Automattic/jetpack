@@ -318,7 +318,7 @@ EOF;
 	 * @return bool Whether the current request is for an admin page or not.
 	 */
 	private function isAdminPageRequest( $page ) {
-		return 0 === strpos( $page, $this->getAdminPath() );
+		return str_starts_with( $page, $this->getAdminPath() );
 	}
 
 	/**

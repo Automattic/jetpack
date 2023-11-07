@@ -127,7 +127,7 @@
 	gap: 12px;
 }
 
-.contact-form label span {
+.contact-form label span.grunion-label-required {
 	font-size: 85%;
 	margin-left: 0.25em;
 	font-weight: normal;

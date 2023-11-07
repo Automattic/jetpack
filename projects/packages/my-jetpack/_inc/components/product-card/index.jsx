@@ -1,4 +1,4 @@
-import { Button, Text } from '@automattic/jetpack-components';
+import { Button } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { moreVertical, download } from '@wordpress/icons';
@@ -132,13 +132,15 @@ Menu.defaultProps = {
 const ProductCard = props => {
 	const {
 		name,
-		description,
+		Description,
 		status,
 		onActivate,
 		isFetching,
+		isDataLoading,
 		isInstallingStandalone,
 		isDeactivatingStandalone,
 		slug,
+		additionalActions,
 		children,
 		// Menu Related
 		showMenu = false,
@@ -151,7 +153,6 @@ const ProductCard = props => {
 		onDeactivateStandalone,
 	} = props;
 
-	const isActive = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isAbsent =
 		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
@@ -237,8 +238,8 @@ const ProductCard = props => {
 
 	return (
 		<Card
-			className={ containerClassName }
 			title={ name }
+			className={ classNames( styles.container, containerClassName ) }
 			headerRightContent={
 				showMenu && (
 					<Menu
@@ -253,17 +254,14 @@ const ProductCard = props => {
 				)
 			}
 		>
-			{
-				// If is not active, no reason to use children
-				// Since we want user to take action if isn't active
-				isActive && children ? (
-					children
-				) : (
-					<Text variant="body-small" className={ styles.description }>
-						{ description }
-					</Text>
-				)
-			}
+			<Description />
+
+			{ isDataLoading ? (
+				<span className={ styles.loading }>{ __( 'Loading…', 'jetpack-my-jetpack' ) }</span>
+			) : (
+				children
+			) }
+
 			<div className={ styles.actions }>
 				<ActionButton
 					{ ...props }
@@ -272,6 +270,7 @@ const ProductCard = props => {
 					onManage={ manageHandler }
 					onAdd={ addHandler }
 					className={ styles.button }
+					additionalActions={ additionalActions }
 				/>
 				{ ! isAbsent && (
 					<Status
@@ -289,7 +288,7 @@ const ProductCard = props => {
 ProductCard.propTypes = {
 	children: PropTypes.node,
 	name: PropTypes.string.isRequired,
-	description: PropTypes.string.isRequired,
+	Description: PropTypes.func.isRequired,
 	admin: PropTypes.bool.isRequired,
 	isFetching: PropTypes.bool,
 	isInstallingStandalone: PropTypes.bool,
@@ -308,6 +307,7 @@ ProductCard.propTypes = {
 			onClick: PropTypes.func,
 		} )
 	),
+	additionalActions: PropTypes.array,
 	onInstallStandalone: PropTypes.func,
 	onActivateStandalone: PropTypes.func,
 	onDeactivateStandalone: PropTypes.func,

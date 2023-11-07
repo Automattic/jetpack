@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+RNMobile: Update block registration code to allow registration using metadata

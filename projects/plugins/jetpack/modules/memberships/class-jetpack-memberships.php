@@ -9,6 +9,8 @@
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Status\Host;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
 
@@ -31,6 +33,13 @@ class Jetpack_Memberships {
 	public static $post_type_plan = 'jp_mem_plan';
 
 	/**
+	 * Tier type for plans
+	 *
+	 * @var string
+	 */
+	public static $type_tier = 'tier';
+
+	/**
 	 * Option stores status for memberships (Stripe, etc.).
 	 *
 	 * @var string
@@ -42,7 +51,14 @@ class Jetpack_Memberships {
 	 *
 	 * @var string
 	 */
-	public static $post_access_level_meta_name = \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+	public static $post_access_level_meta_name = META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+
+	/**
+	 * Post meta that will store the tier ID of access for newsletters
+	 *
+	 * @var string
+	 */
+	public static $post_access_tier_meta_name = META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 	/**
 	 * Button block type to use.
@@ -482,6 +498,32 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * Get the post tier plan
+	 *
+	 * If no ID is provided, the method tries to get it from the global post object.
+	 *
+	 * @param int|null $post_id The ID of the post. Default is null.
+	 *
+	 * @return WP_Post|null the actual post tier.
+	 */
+	public static function get_post_tier( $post_id = null ) {
+		if ( ! $post_id ) {
+			$post_id = get_the_ID();
+		}
+
+		if ( ! $post_id ) {
+			return null;
+		}
+
+		$post_tier_id = get_post_meta( $post_id, self::$post_access_tier_meta_name, true );
+		if ( empty( $post_tier_id ) ) {
+			return null;
+		}
+
+		return get_post( $post_tier_id );
+	}
+
+	/**
 	 * Determines whether the current user can edit.
 	 *
 	 * @return bool Whether the user can edit.
@@ -493,8 +535,7 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Determines whether the current user can view the post based on the newsletter access level
-	 * and caches the result.
+	 * Determines whether the current user is a paid subscriber and caches the result.
 	 *
 	 * @return bool Whether the post can be viewed
 	 */
@@ -513,11 +554,15 @@ class Jetpack_Memberships {
 	 * Determines whether the current user can view the post based on the newsletter access level
 	 * and caches the result.
 	 *
+	 * @param int|null $post_id Explicit post id to check against.
+	 *
 	 * @return bool Whether the post can be viewed
 	 */
-	public static function user_can_view_post() {
+	public static function user_can_view_post( $post_id = null ) {
 		$user_id = get_current_user_id();
-		$post_id = get_the_ID();
+		if ( null === $post_id ) {
+			$post_id = get_the_ID();
+		}
 
 		if ( false === $post_id ) {
 			$post_id = 0;
@@ -647,27 +692,16 @@ class Jetpack_Memberships {
 					'posts_per_page' => -1,
 					'fields'         => 'ids',
 					'post_type'      => self::$post_type_plan,
-					'meta_query'     => array(
-						'relation' => 'AND',
-						array(
-							'key'   => 'jetpack_memberships_site_subscriber',
-							'value' => true,
-						),
-						array(
-							'key'     => 'jetpack_memberships_interval',
-							'value'   => 'one-time',
-							'compare' => '!=',
-						),
-					),
+					'meta_key'       => 'jetpack_memberships_type',
+					'meta_value'     => self::$type_tier,
 				)
 			);
 
 		} else {
 			// On cached site on WPCOM
 			require_lib( 'memberships' );
-			$only_newsletter = true;
-			$allow_deleted   = true;
-			$list            = Memberships_Product::get_product_list( get_current_blog_id(), null, null, $only_newsletter, $allow_deleted );
+			$allow_deleted = true;
+			$list          = Memberships_Product::get_product_list( get_current_blog_id(), self::$type_tier, null, $allow_deleted );
 
 			return array_map(
 				function ( $product ) {
@@ -733,6 +767,28 @@ class Jetpack_Memberships {
 
 		/* translators: %s: number of folks following the blog */
 		return sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
+	}
+
+	/**
+	 * Returns the email of the current user.
+	 *
+	 * @return string
+	 */
+	public static function get_current_user_email() {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		return $subscription_service->get_subscriber_email();
+	}
+
+	/**
+	 * Returns if the current user is subscribed or not.
+	 *
+	 * @return boolean
+	 */
+	public static function is_current_user_subscribed() {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		return $subscription_service->is_current_user_subscribed();
 	}
 }
 Jetpack_Memberships::get_instance();

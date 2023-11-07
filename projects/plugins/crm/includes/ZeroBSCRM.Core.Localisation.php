@@ -117,7 +117,7 @@ function zeroBSCRM_locale_dateToUTS( $dateInFormat = '', $withTime = false, $spe
 		if ( $withTime ) {
 			$format .= ' H:i';
 			// hacky catch of AM/PM + add to format end...?
-			if ( strpos( $dateInFormat, 'AM' ) > -1 || strpos( $dateInFormat, 'PM' ) > -1 ) {
+			if ( str_contains( $dateInFormat, 'AM' ) || str_contains( $dateInFormat, 'PM' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				$format .= ' A';
 			}
 		}
