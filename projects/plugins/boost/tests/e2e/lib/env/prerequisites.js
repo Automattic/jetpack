@@ -1,5 +1,5 @@
-import logger from 'jetpack-e2e-commons/logger.cjs';
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import logger from 'jetpack-e2e-commons/logger.js';
+import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 
 import { expect } from '@playwright/test';
 import { JetpackBoostPage } from '../pages/index.js';

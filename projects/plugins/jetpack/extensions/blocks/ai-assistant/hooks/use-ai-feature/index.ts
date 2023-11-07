@@ -6,27 +6,8 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Types & constants
  */
-export type UpgradeTypeProp = 'vip' | 'default';
+import { AiFeatureProps } from '../../../../store/wordpress-com/types';
 import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../../../types';
-
-export type AIFeatureProps = {
-	hasFeature: boolean;
-	isOverLimit: boolean;
-	requestsCount: number;
-	requestsLimit: number;
-	requireUpgrade: boolean;
-	errorMessage: string;
-	errorCode: string;
-	upgradeType: UpgradeTypeProp;
-	currentTier: {
-		value: 0 | 1 | 100 | 200 | 500;
-	};
-	usagePeriod: {
-		currentStart: string;
-		nextStart: string;
-		requestsCount: number;
-	};
-};
 
 const NUM_FREE_REQUESTS_LIMIT = 20;
 
@@ -51,44 +32,59 @@ export const AI_Assistant_Initial_State = {
 	},
 };
 
-export async function getAIFeatures(): Promise< AIFeatureProps > {
+export async function getAIFeatures(): Promise< AiFeatureProps > {
 	const response: SiteAIAssistantFeatureEndpointResponseProps = await apiFetch( {
 		path: '/wpcom/v2/jetpack-ai/ai-assistant-feature',
 	} );
 
-	try {
-		return {
-			hasFeature: !! response[ 'has-feature' ],
-			isOverLimit: !! response[ 'is-over-limit' ],
-			requestsCount: response[ 'requests-count' ],
-			requestsLimit: response[ 'requests-limit' ],
-			requireUpgrade: !! response[ 'site-require-upgrade' ],
-			errorMessage: response[ 'error-message' ],
-			errorCode: response[ 'error-code' ],
-			upgradeType: response[ 'upgrade-type' ],
-			usagePeriod: {
-				currentStart: response[ 'usage-period' ]?.[ 'current-start' ],
-				nextStart: response[ 'usage-period' ]?.[ 'next-start' ],
-				requestsCount: response[ 'usage-period' ]?.[ 'requests-count' ] || 0,
-			},
-			currentTier: {
-				value: response[ 'current-tier' ]?.value || 1,
-			},
-		};
-	} catch ( error ) {
-		console.error( error ); // eslint-disable-line no-console
-	}
+	return {
+		hasFeature: !! response[ 'has-feature' ],
+		isOverLimit: !! response[ 'is-over-limit' ],
+		requestsCount: response[ 'requests-count' ],
+		requestsLimit: response[ 'requests-limit' ],
+		requireUpgrade: !! response[ 'site-require-upgrade' ],
+		errorMessage: response[ 'error-message' ],
+		errorCode: response[ 'error-code' ],
+		upgradeType: response[ 'upgrade-type' ],
+		usagePeriod: {
+			currentStart: response[ 'usage-period' ]?.[ 'current-start' ],
+			nextStart: response[ 'usage-period' ]?.[ 'next-start' ],
+			requestsCount: response[ 'usage-period' ]?.[ 'requests-count' ] || 0,
+		},
+		currentTier: {
+			value: response[ 'current-tier' ]?.value || 1,
+		},
+	};
 }
 
 export default function useAIFeature() {
-	const [ data, setData ] = useState< AIFeatureProps >( AI_Assistant_Initial_State );
+	const [ data, setData ] = useState< AiFeatureProps >( AI_Assistant_Initial_State );
+	const [ loading, setLoading ] = useState< boolean >( false );
+	const [ error, setError ] = useState< Error >( null );
+
+	const loadFeatures = async () => {
+		setLoading( true );
+		setError( null );
+
+		try {
+			const aiFeatures = await getAIFeatures();
+			setData( aiFeatures );
+		} catch ( err ) {
+			setError( err );
+		} finally {
+			setLoading( false );
+		}
+	};
 
 	useEffect( () => {
-		getAIFeatures().then( setData );
+		loadFeatures();
 	}, [] );
 
 	return {
 		...data,
-		refresh: () => getAIFeatures().then( setData ),
+		loading,
+		error,
+		setLoading,
+		refresh: loadFeatures,
 	};
 }

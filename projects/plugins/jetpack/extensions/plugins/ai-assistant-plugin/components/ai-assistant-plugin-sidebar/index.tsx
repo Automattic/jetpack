@@ -7,6 +7,7 @@ import { Button, PanelBody, PanelRow, BaseControl } from '@wordpress/components'
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 /**
  * Internal dependencies
  */
@@ -94,13 +95,16 @@ export default function AiAssistantPluginSidebar() {
 					) }
 				</PanelBody>
 			</JetpackPluginSidebar>
+
 			<PluginPrePublishPanel
 				title={ title }
 				icon={ <JetpackEditorPanelLogo /> }
 				initialOpen={ false }
 			>
-				<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
-				{ requireUpgrade && <Upgrade onClick={ autosaveAndRedirect } type={ upgradeType } /> }
+				<>
+					<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
+					{ requireUpgrade && <Upgrade onClick={ autosaveAndRedirect } type={ upgradeType } /> }
+				</>
 			</PluginPrePublishPanel>
 		</>
 	);

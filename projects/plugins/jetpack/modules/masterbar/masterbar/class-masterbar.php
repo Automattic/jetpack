@@ -404,11 +404,17 @@ class Masterbar {
 
 		foreach ( $nodes as $id => $node ) {
 
-			if ( $id === 'edit-profile' ) {
-				$this->add_wpcom_profile_link( $bar );
-			}
-
 			$bar->add_node( $node );
+			// Add our custom node and change the title of the edit profile node.
+			if ( 'edit-profile' === $id ) {
+				$this->add_wpcom_profile_link( $bar );
+				$bar->add_node(
+					array(
+						'id'    => 'edit-profile',
+						'title' => __( 'Site Profile', 'jetpack' ),
+					)
+				);
+			}
 		}
 
 		// Add a menu item to the user menu
