@@ -1,9 +1,19 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { prerequisitesBuilder } from '../env/prerequisites.js';
 import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from '../helpers/utils-helper.cjs';
 import _ from 'lodash';
+import path from 'path';
 
-const numAttempts = 3;
+const testRounds = 3;
+const gutenbergPath = path.resolve( __dirname, '../../gutenberg' );
+if ( ! existsSync( gutenbergPath ) ) {
+	throw new Error( `Could not find Gutenberg at ${ gutenbergPath }` );
+}
+
+const resultsPath = path.resolve( __dirname, 'results' );
+if ( ! existsSync( resultsPath ) ) {
+	throw new Error( `Could not find results directory at ${ resultsPath }` );
+}
 
 function envReset() {
 	console.log( execSyncShellCommand( 'pwd' ) );
@@ -24,28 +34,28 @@ async function envSetup( type ) {
 	);
 }
 
-async function runTests( id ) {
-	const siteUrl = resolveSiteUrl();
-
+async function runTests( type, round ) {
 	execSyncShellCommand(
-		`export WP_BASE_URL=${ siteUrl } &&
-	export WP_ARTIFACTS_PATH=./results &&
-	export RESULTS_ID=base.${ id } &&
-	cd ../../gutenberg &&
-	npm run test:performance -- post-editor`
+		[
+			`WP_ARTIFACTS_PATH=${ resultsPath }`,
+			`WP_BASE_URL=${ resolveSiteUrl() }`,
+			`RESULTS_ID=${ type }.${ round }`,
+			`npm run test:performance -- post-editor.spec.js`,
+		].join( ' && ' ),
+		{ cwd: gutenbergPath }
 	);
 }
 
-async function testRun( type, id ) {
-	console.log( `Starting test run #${ id } for ${ type }` );
+async function testRun( type, round ) {
+	console.log( `Starting test run #${ round } for ${ type }` );
 	envReset();
 	await envSetup( type );
-	await runTests( id );
-	console.log( `Finished test run #${ id } for ${ type }` );
+	await runTests( type, round );
+	console.log( `Finished test run #${ round } for ${ type }` );
 }
 
 async function main() {
-	for ( let i = 0; i < numAttempts; i++ ) {
+	for ( let i = 0; i < testRounds; i++ ) {
 		await testRun( 'base', i );
 		await testRun( 'jetpack', i );
 	}
@@ -53,8 +63,12 @@ async function main() {
 
 function mergeResults( type ) {
 	const objs = [];
-	for ( let i = 0; i < numAttempts; i++ ) {
-		const file = `results/${ type }.${ i }.performance-results.json`;
+	for ( let i = 0; i < testRounds; i++ ) {
+		const file = path.join( resultsPath, `${ type }.${ i }.performance-results.json` );
+		if ( ! existsSync( file ) ) {
+			throw new Error( `Could not find results file at ${ file }` );
+		}
+
 		objs.push( JSON.parse( readFileSync( file ) ) );
 	}
 
@@ -64,7 +78,10 @@ function mergeResults( type ) {
 		}
 	} );
 
-	writeFileSync( `results/${ type }.performance-results.json`, JSON.stringify( out ) );
+	writeFileSync(
+		path.join( resultsPath, `${ type }.performance-results.json` ),
+		JSON.stringify( out )
+	);
 }
 
 main().then( () => {

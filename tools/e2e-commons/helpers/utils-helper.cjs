@@ -36,8 +36,8 @@ async function execShellCommand( cmd ) {
 	} );
 }
 
-function execSyncShellCommand( cmd ) {
-	return execSync( cmd ).toString();
+function execSyncShellCommand( cmd, options ) {
+	return execSync( cmd, options ).toString();
 }
 
 async function resetWordpressInstall() {

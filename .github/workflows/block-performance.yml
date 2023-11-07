@@ -19,7 +19,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: '.nvmrc'
 
       - uses: actions/checkout@v3
         with:
@@ -30,7 +30,8 @@ jobs:
         working-directory: gutenberg
         run: |
           npm ci
-          npm run build
+          npx playwright install chromium --with-deps
+          npm run build:packages
 
       - uses: actions/cache@v3
         with:
