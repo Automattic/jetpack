@@ -396,7 +396,7 @@ class Jetpack_AI_Helper {
 				'is-over-limit'        => $is_over_limit,
 				'requests-count'       => $requests_count,
 				'requests-limit'       => $requests_limit,
-				'usage-period'         => WPCOM\Jetpack_AI\Usage\Helper::get_usage_period( $blog_id ),
+				'usage-period'         => WPCOM\Jetpack_AI\Usage\Helper::get_period_data( $blog_id ),
 				'site-require-upgrade' => $require_upgrade,
 				'upgrade-type'         => $upgrade_type,
 				'current-tier'         => WPCOM\Jetpack_AI\Usage\Helper::get_current_tier( $blog_id ),
