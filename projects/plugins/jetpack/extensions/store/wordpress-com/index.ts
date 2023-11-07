@@ -6,27 +6,8 @@ import { createReduxStore, register } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { AIFeatureProps } from '../../blocks/ai-assistant/hooks/use-ai-feature';
-import { SiteAIAssistantFeatureEndpointResponseProps } from '../../types';
-/**
- * Types & Constants
- */
-type Plan = {
-	product_id: number;
-	product_name: string;
-	product_slug: string;
-};
-
-type Feature = AIFeatureProps & {
-	feature_slug: 'AI_ASSISTANT' | string;
-};
-
-type PlanStateProps = {
-	plans: Array< Plan >;
-	features: {
-		aiAssistant?: Feature;
-	};
-};
+import type { AIFeatureProps, Plan, PlanStateProps } from '../../store/wordpress-com/types';
+import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../types';
 
 const store = 'wordpress-com/plans';
 
@@ -50,7 +31,7 @@ const actions = {
 		};
 	},
 
-	storeAiAssistantFeature( feature: Feature ) {
+	storeAiAssistantFeature( feature: AIFeatureProps ) {
 		return {
 			type: 'STORE_AI_ASSISTANT_FEATURE',
 			feature,
