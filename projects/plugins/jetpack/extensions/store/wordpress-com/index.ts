@@ -10,7 +10,7 @@ import actions from './actions';
 /**
  * Types
  */
-import type { AIFeatureProps, PlanStateProps } from './types';
+import type { AiFeatureProps, PlanStateProps } from './types';
 import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../types';
 
 const store = 'wordpress-com/plans';
@@ -24,11 +24,11 @@ const INITIAL_STATE: PlanStateProps = {
  * Map the response from the `sites/$site/ai-assistant-feature`
  * endpoint to the AI Assistant feature props.
  * @param { SiteAIAssistantFeatureEndpointResponseProps } response - The response from the endpoint.
- * @returns { AIFeatureProps }                                       The AI Assistant feature props.
+ * @returns { AiFeatureProps }                                       The AI Assistant feature props.
  */
-function mapAIFeatureResponseToAIFeatureProps(
+function mapAIFeatureResponseToAiFeatureProps(
 	response: SiteAIAssistantFeatureEndpointResponseProps
-): AIFeatureProps {
+): AiFeatureProps {
 	return {
 		hasFeature: !! response[ 'has-feature' ],
 		isOverLimit: !! response[ 'is-over-limit' ],
@@ -126,7 +126,7 @@ const wordpressPlansStore = createReduxStore( store, {
 
 				// Store the feature in the store.
 				dispatch(
-					actions.storeAiAssistantFeature( mapAIFeatureResponseToAIFeatureProps( response ) )
+					actions.storeAiAssistantFeature( mapAIFeatureResponseToAiFeatureProps( response ) )
 				);
 			},
 	},

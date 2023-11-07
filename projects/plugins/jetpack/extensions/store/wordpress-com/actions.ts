@@ -2,7 +2,7 @@
  * Types
  */
 import type { Plan } from './types';
-import type { AIFeatureProps } from './types';
+import type { AiFeatureProps } from './types';
 
 const actions = {
 	setPlans( plans: Array< Plan > ) {
@@ -19,7 +19,7 @@ const actions = {
 		};
 	},
 
-	storeAiAssistantFeature( feature: AIFeatureProps ) {
+	storeAiAssistantFeature( feature: AiFeatureProps ) {
 		return {
 			type: 'STORE_AI_ASSISTANT_FEATURE',
 			feature,
