@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Assistant: register isFetching state in the plans store
