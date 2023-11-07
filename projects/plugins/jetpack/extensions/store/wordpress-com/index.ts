@@ -104,10 +104,14 @@ const wordpressPlansStore = createReduxStore( store, {
 		 * Return the AI Assistant feature.
 		 *
 		 * @param {PlanStateProps} state - The Plans state tree.
-		 * @returns {object}       The AI Assistant feature data.
+		 * @returns {object}               The AI Assistant feature data.
 		 */
 		getAiAssistantFeature( state: PlanStateProps ): object {
-			return state.features.aiAssistant;
+			// Clean up the _meta property.
+			const data = { ...state.features.aiAssistant };
+			delete data._meta;
+
+			return data;
 		},
 
 		/**
