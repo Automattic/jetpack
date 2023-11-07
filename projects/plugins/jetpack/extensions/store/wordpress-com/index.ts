@@ -29,12 +29,27 @@ const wordpressPlansStore = createReduxStore( store, {
 					plans: action.plans,
 				};
 
+			case 'REQUEST_AI_ASSISTANT_FEATURE':
+				return {
+					...state,
+					features: {
+						...state.features,
+						aiAssistant: {
+							...state.features.aiAssistant,
+							isFetching: true,
+						},
+					},
+				};
+
 			case 'STORE_AI_ASSISTANT_FEATURE': {
 				return {
 					...state,
 					features: {
 						...state.features,
-						aiAssistant: action.feature,
+						aiAssistant: {
+							...action.feature,
+							isFetching: false,
+						},
 					},
 				};
 			}

@@ -67,6 +67,9 @@ const actions = {
 	 */
 	fetchAiAssistantFeature() {
 		return async ( { dispatch } ) => {
+			// Dispatch isFetching action.
+			dispatch( { type: 'REQUEST_AI_ASSISTANT_FEATURE' } );
+
 			try {
 				const response: SiteAIAssistantFeatureEndpointResponseProps = await apiFetch( {
 					path: '/wpcom/v2/jetpack-ai/ai-assistant-feature',
