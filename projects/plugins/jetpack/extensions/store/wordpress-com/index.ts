@@ -36,7 +36,7 @@ const wordpressPlansStore = createReduxStore( store, {
 						...state.features,
 						aiAssistant: {
 							...state.features.aiAssistant,
-							isFetching: true,
+							isRequesting: true,
 						},
 					},
 				};
@@ -48,7 +48,7 @@ const wordpressPlansStore = createReduxStore( store, {
 						...state.features,
 						aiAssistant: {
 							...action.feature,
-							isFetching: false,
+							isRequesting: false,
 						},
 					},
 				};
