@@ -1,18 +1,21 @@
 #!/usr/bin/env node
 
-const fs = require( 'fs' );
-const childProcess = require( 'child_process' );
-const config = require( 'config' );
+import fs from 'fs';
+import childProcess from 'child_process';
+import { fileURLToPath } from 'url';
+import config from 'config';
+import { getReusableUrlFromFile } from '../helpers/utils-helper.js';
+import axios from 'axios';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import localtunnel from 'localtunnel';
+
 const tunnelConfig = config.get( 'tunnel' );
-const { getReusableUrlFromFile } = require( '../helpers/utils-helper.cjs' );
-const axios = require( 'axios' );
-const yargs = require( 'yargs' );
-const localtunnel = require( 'localtunnel' );
 
 fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
 
 // eslint-disable-next-line no-unused-expressions
-yargs
+yargs( hideBin( process.argv ) )
 	.usage( 'Usage: $0 <cmd>' )
 	.demandCommand( 1, 1 )
 	.command(
@@ -49,7 +52,7 @@ async function tunnelOn( argv ) {
 		} );
 	}
 
-	const cp = childProcess.fork( __filename, [ 'child' ], {
+	const cp = childProcess.fork( fileURLToPath( import.meta.url ), [ 'child' ], {
 		detached: true,
 		stdio: [ 'ignore', s, s, 'ipc' ],
 	} );

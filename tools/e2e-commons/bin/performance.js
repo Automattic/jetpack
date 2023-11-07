@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { prerequisitesBuilder } from '../env/prerequisites.js';
-import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from '../helpers/utils-helper.cjs';
+import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from '../helpers/utils-helper.js';
 import _ from 'lodash';
 
 const numAttempts = 3;

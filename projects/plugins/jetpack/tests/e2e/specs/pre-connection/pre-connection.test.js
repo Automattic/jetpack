@@ -4,10 +4,10 @@ import {
 	DashboardPage,
 	JetpackPage,
 } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import playwrightConfig from '../../playwright.config.cjs';
+import playwrightConfig from '../../playwright.config.mjs';
 
 test.beforeAll( async ( { browser } ) => {
 	const page = await browser.newPage( playwrightConfig.use );
