@@ -6,27 +6,8 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Types & constants
  */
-export type UpgradeTypeProp = 'vip' | 'default';
+import { AIFeatureProps } from '../../../../store/wordpress-com/types';
 import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../../../types';
-
-export type AIFeatureProps = {
-	hasFeature: boolean;
-	isOverLimit: boolean;
-	requestsCount: number;
-	requestsLimit: number;
-	requireUpgrade: boolean;
-	errorMessage: string;
-	errorCode: string;
-	upgradeType: UpgradeTypeProp;
-	currentTier: {
-		value: 0 | 1 | 100 | 200 | 500;
-	};
-	usagePeriod: {
-		currentStart: string;
-		nextStart: string;
-		requestsCount: number;
-	};
-};
 
 const NUM_FREE_REQUESTS_LIMIT = 20;
 

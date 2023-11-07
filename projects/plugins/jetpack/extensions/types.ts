@@ -1,7 +1,7 @@
 /**
  * Types for the AI Assistant feature.
  */
-import { UpgradeTypeProp } from './blocks/ai-assistant/hooks/use-ai-feature';
+import { UpgradeTypeProp } from './store/wordpress-com/types';
 
 /*
  * `sites/$site/ai-assistant-feature` endpoint response body props
