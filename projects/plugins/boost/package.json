@@ -11,6 +11,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-react-data-sync-client": "workspace:*",
 		"@automattic/jetpack-svelte-data-sync-client": "workspace:*",
+		"@svgr/rollup": "8.1.0",
 		"@wordpress/components": "25.10.0",
 		"@wordpress/element": "5.21.0",
 		"history": "5.3.0",

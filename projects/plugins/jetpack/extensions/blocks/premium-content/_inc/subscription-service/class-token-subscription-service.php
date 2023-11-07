@@ -143,6 +143,28 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	}
 
 	/**
+	 * Retrieves the email of the currently authenticated subscriber.
+	 *
+	 * @return string The email address of the current user.
+	 */
+	public function get_subscriber_email() {
+		$email = $this->get_token_property( 'blog_subscriber' );
+		if ( empty( $email ) ) {
+			return '';
+		}
+		return $email;
+	}
+
+	/**
+	 * Returns true if the current authenticated user is subscribed to the current site.
+	 *
+	 * @return boolean
+	 */
+	public function is_current_user_subscribed() {
+		return $this->get_token_property( 'blog_sub' ) === 'active';
+	}
+
+	/**
 	 * Return if the user has access to the content depending on the access level and the user rights
 	 *
 	 * @param string $access_level Post or blog access level.

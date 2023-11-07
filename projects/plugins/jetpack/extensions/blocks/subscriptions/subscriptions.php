@@ -535,7 +535,7 @@ function render_block( $attributes ) {
 		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 	}
 
-	$subscribe_email = Jetpack_Memberships::get_current_user_subscriber_email();
+	$subscribe_email = Jetpack_Memberships::get_current_user_email();
 
 	/** This filter is documented in modules/contact-form/grunion-contact-form.php */
 	if ( is_wpcom() || false !== apply_filters( 'jetpack_auto_fill_logged_in_user', false ) ) {
@@ -617,8 +617,9 @@ function render_for_website( $data, $classes, $styles ) {
 	$post_id            = get_the_ID();
 	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
 	$tier_id            = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
+	$is_subscribed      = Jetpack_Memberships::is_current_user_subscribed();
 	$button_text        = wp_kses(
-		html_entity_decode( Jetpack_Memberships::get_current_user_subscriber_email() ? ( '✓ ' . $data['submit_button_text_subscribed'] ) : $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
+		html_entity_decode( $is_subscribed ? ( '✓ ' . $data['submit_button_text_subscribed'] ) : $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
 		Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
 	);
 
@@ -631,7 +632,7 @@ function render_for_website( $data, $classes, $styles ) {
 	);
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
-		<div class="jetpack_subscription_widget">
+		<div class="jetpack_subscription_widget<?php echo ! $is_subscribed ? ' is-not-subscriber' : ''; ?>">
 			<div class="wp-block-jetpack-subscriptions__container">
 				<form
 					action="<?php echo esc_url( $form_url ); ?>"
@@ -639,11 +640,11 @@ function render_for_website( $data, $classes, $styles ) {
 					accept-charset="utf-8"
 					data-blog="<?php echo esc_attr( $blog_id ); ?>"
 					data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
-					data-subscriber_email="<?php echo esc_attr( Jetpack_Memberships::get_current_user_subscriber_email() ); ?>"
+					data-subscriber_email="<?php echo esc_attr( $data['subscribe_email'] ); ?>"
 					id="<?php echo esc_attr( $form_id ); ?>"
 				>
 					<div class="wp-block-jetpack-subscriptions__form-elements">
-						<?php if ( empty( $data['subscribe_email'] ) ) : ?>
+						<?php if ( ! $is_subscribed ) : ?>
 						<p id="subscribe-email">
 							<label
 								id="<?php echo esc_attr( $subscribe_field_id . '-label' ); ?>"
