@@ -15,7 +15,29 @@ const store = 'wordpress-com/plans';
 
 const INITIAL_STATE: PlanStateProps = {
 	plans: [],
-	features: {},
+	features: {
+		aiAssistant: {
+			hasFeature: false,
+			isOverLimit: false,
+			requestsCount: 0,
+			requestsLimit: 0,
+			requireUpgrade: false,
+			errorMessage: '',
+			errorCode: '',
+			upgradeType: 'default',
+			currentTier: {
+				value: 1,
+			},
+			usagePeriod: {
+				currentStart: '',
+				nextStart: '',
+				requestsCount: 0,
+			},
+			_meta: {
+				isRequesting: false,
+			},
+		},
+	},
 };
 
 const wordpressPlansStore = createReduxStore( store, {
