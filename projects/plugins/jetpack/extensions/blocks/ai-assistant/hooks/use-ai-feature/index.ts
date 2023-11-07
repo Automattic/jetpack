@@ -2,6 +2,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 /**
  * Types & constants
@@ -58,33 +59,28 @@ export async function getAIFeatures(): Promise< AiFeatureProps > {
 }
 
 export default function useAIFeature() {
-	const [ data, setData ] = useState< AiFeatureProps >( AI_Assistant_Initial_State );
-	const [ loading, setLoading ] = useState< boolean >( false );
-	const [ error, setError ] = useState< Error >( null );
+	const [ error ] = useState< Error >( null );
 
-	const loadFeatures = async () => {
-		setLoading( true );
-		setError( null );
+	const { data, loading } = useSelect( select => {
+		const { getAiAssistantFeature, getIsRequestingAiAssistantFeature } =
+			select( 'wordpress-com/plans' );
 
-		try {
-			const aiFeatures = await getAIFeatures();
-			setData( aiFeatures );
-		} catch ( err ) {
-			setError( err );
-		} finally {
-			setLoading( false );
-		}
-	};
+		return {
+			data: getAiAssistantFeature(),
+			loading: getIsRequestingAiAssistantFeature(),
+		};
+	}, [] );
+
+	const { fetchAiAssistantFeature: loadFeatures } = useDispatch( 'wordpress-com/plans' );
 
 	useEffect( () => {
 		loadFeatures();
-	}, [] );
+	}, [ loadFeatures ] );
 
 	return {
 		...data,
 		loading,
 		error,
-		setLoading,
 		refresh: loadFeatures,
 	};
 }
