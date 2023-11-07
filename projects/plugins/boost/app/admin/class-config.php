@@ -15,6 +15,11 @@ use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
  */
 class Config {
 
+	/**
+	 * Nonce action for setting the statuses of rating and score prompts.
+	 */
+	const FIX_IMAGE_DIMENSIONS_NONCE = 'fix_image_dimensions';
+
 	public function init() {
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_change' ), 10, 2 );
 	}
@@ -43,6 +48,7 @@ class Config {
 			'preferences'   => array(
 				'prioritySupport' => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
 			),
+			'fixImageNonce' => wp_create_nonce( self::FIX_IMAGE_DIMENSIONS_NONCE ),
 
 			/**
 			 * A bit of necessary magic,

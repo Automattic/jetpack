@@ -33,6 +33,7 @@ declare global {
 		};
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
+		fixImageNonce?: string;
 		superCache: {
 			pluginActive: boolean;
 			cacheEnabled: boolean;
