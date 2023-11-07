@@ -1461,6 +1461,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 				 * @param bool|int $active_blog  Blog ID, or false by default.
 				 * @param int      $id           User ID.
 				 */
+				$site_id = -1;
+
 				$active_blog = apply_filters( 'wpcom_pre_get_active_blog_for_user', false, $id );
 				if ( false === $active_blog ) {
 					$active_blog = get_active_blog_for_user( $id );
