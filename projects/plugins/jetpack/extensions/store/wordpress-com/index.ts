@@ -6,7 +6,11 @@ import { createReduxStore, register } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import type { AIFeatureProps, Plan, PlanStateProps } from './types';
+import actions from './actions';
+/**
+ * Types
+ */
+import type { AIFeatureProps, PlanStateProps } from './types';
 import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../types';
 
 const store = 'wordpress-com/plans';
@@ -14,29 +18,6 @@ const store = 'wordpress-com/plans';
 const INITIAL_STATE: PlanStateProps = {
 	plans: [],
 	features: {},
-};
-
-const actions = {
-	setPlans( plans: Array< Plan > ) {
-		return {
-			type: 'SET_PLANS',
-			plans,
-		};
-	},
-
-	fetchFromAPI( url: string ) {
-		return {
-			type: 'FETCH_FROM_API',
-			url,
-		};
-	},
-
-	storeAiAssistantFeature( feature: AIFeatureProps ) {
-		return {
-			type: 'STORE_AI_ASSISTANT_FEATURE',
-			feature,
-		};
-	},
 };
 
 /**
