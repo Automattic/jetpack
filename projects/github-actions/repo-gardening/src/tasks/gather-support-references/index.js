@@ -88,7 +88,7 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 
 		// xxx-zen is the preferred format for tickets.
 		// xxx-zd, as well as its uppercase version, is considered an alternate version.
-		const wrongId = supportId.match( /([0-9]*)-zd/i );
+		const wrongId = supportId.match( /^([0-9]*)-zd$/i );
 		if ( wrongId ) {
 			const correctedId = `${ wrongId[ 1 ] }-zen`;
 			correctedSupportIds.add( correctedId );
