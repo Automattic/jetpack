@@ -52,36 +52,39 @@ function is_custom_domain() {
  */
 function domain_email_nag() {
 	if ( ! is_on_frontend_and_logged_in() && is_custom_domain() ) {
-
-		wp_enqueue_style( 'wpcom-domain-email-nag-style', plugins_url( 'domain-nag.style.css', __FILE__ ), array(), Jetpack_Mu_Wpcom::PACKAGE_VERSION );
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
-		wc_enqueue_js(
-			sprintf(
-				"
-				const base = 'https://public-api.wordpress.com';
-				const path = '/v1/domains/%s/is-domain-email-unverified';
-				
-				fetch(base + path).then(function (result) {
-					if (result) {
-						result.json().then(function (body) {
-							if (body.unverified) {
-								const nag = document.querySelector('.wp-domain-nag-sticky-message');
-								if (nag) {
-									nag.style.display = 'block';
-									const statUrl =
-										'http://pixel.wp.com/b.gif?v=wpcom-no-pv&x_wpcom_frontend_unverified_domain_email_nag=shown';
-									fetch(statUrl);
-								}
-							}
-						});
-					}
-				});
-			",
-				$blog_id
-			)
-		);
+		return;
 	}
+
+	wp_enqueue_style( 'wpcom-domain-email-nag-style', plugins_url( 'domain-nag.style.css', __FILE__ ), array(), Jetpack_Mu_Wpcom::PACKAGE_VERSION );
+
+	$blog_id = Jetpack_Options::get_option( 'id' );
+
+	wc_enqueue_js(
+		sprintf(
+			"
+			const base = 'https://public-api.wordpress.com';
+			const path = '/v1/domains/%s/is-domain-email-unverified';
+			
+			fetch(base + path).then(function (result) {
+				if (result) {
+					result.json().then(function (body) {
+						if (body.unverified) {
+							const nag = document.querySelector('.wp-domain-nag-sticky-message');
+							if (nag) {
+								nag.style.display = 'block';
+								const statUrl =
+									'http://pixel.wp.com/b.gif?v=wpcom-no-pv&x_wpcom_frontend_unverified_domain_email_nag=shown';
+								fetch(statUrl);
+							}
+						}
+					});
+				}
+			});
+		",
+			$blog_id
+		)
+	);
+
 	$domain = get_domain();
 
 	$notice = sprintf(
