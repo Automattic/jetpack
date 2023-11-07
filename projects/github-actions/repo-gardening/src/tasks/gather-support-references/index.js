@@ -50,7 +50,7 @@ async function getListComment( issueComments ) {
  */
 async function getIssueReferences( octokit, owner, repo, number, issueComments ) {
 	const ticketReferences = [];
-	const referencesRegexP = /([0-9]*-(?:zen|zd)|[a-zA-Z0-9-]+-p2#comment-[0-9]*)/gim;
+	const referencesRegexP = /[0-9]*-(?:zen|zd)|[a-zA-Z0-9-]+-p2#comment-[0-9]*/gim;
 
 	debug( `gather-support-references: Getting references from issue body.` );
 	const {
