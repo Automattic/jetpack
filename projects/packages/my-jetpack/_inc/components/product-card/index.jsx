@@ -1,4 +1,4 @@
-import { Button, Text } from '@automattic/jetpack-components';
+import { Button } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { moreVertical, download } from '@wordpress/icons';
@@ -6,15 +6,18 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
-import ActionButton, { PRODUCT_STATUSES } from './action-buton';
+import Card from '../card';
+import ActionButton, { PRODUCT_STATUSES } from './action-button';
+import Status from './status';
 import styles from './style.module.scss';
 
-const PRODUCT_STATUSES_LABELS = {
+export const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.ACTIVE ]: __( 'Active', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.INACTIVE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ERROR ]: __( 'Error', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.CAN_UPGRADE ]: __( 'Active', 'jetpack-my-jetpack' ),
 };
 
 /* eslint-disable react/jsx-no-bind */
@@ -129,13 +132,15 @@ Menu.defaultProps = {
 const ProductCard = props => {
 	const {
 		name,
-		description,
+		Description,
 		status,
 		onActivate,
 		isFetching,
+		isDataLoading,
 		isInstallingStandalone,
 		isDeactivatingStandalone,
 		slug,
+		additionalActions,
 		children,
 		// Menu Related
 		showMenu = false,
@@ -148,29 +153,18 @@ const ProductCard = props => {
 		onDeactivateStandalone,
 	} = props;
 
-	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
-	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
 	const isAbsent =
 		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
 	const isPurchaseRequired =
 		status === PRODUCT_STATUSES.NEEDS_PURCHASE ||
 		status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE;
 
-	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
-
-	const containerClassName = classNames( styles.container, {
+	const containerClassName = classNames( {
 		[ styles.plugin_absent ]: isAbsent,
 		[ styles[ 'is-purchase-required' ] ]: isPurchaseRequired,
 		[ styles[ 'is-link' ] ]: isAbsent,
 		[ styles[ 'has-error' ] ]: isError,
-	} );
-
-	const statusClassName = classNames( styles.status, {
-		[ styles.active ]: isActive,
-		[ styles.inactive ]: isInactive || isPurchaseRequired,
-		[ styles.error ]: isError,
-		[ styles[ 'is-fetching' ] ]: isFetching || isInstallingStandalone || isDeactivatingStandalone,
 	} );
 
 	const { recordEvent } = useAnalytics();
@@ -243,12 +237,11 @@ const ProductCard = props => {
 	}, [ slug, onDeactivateStandalone, recordEvent ] );
 
 	return (
-		<div className={ containerClassName }>
-			<div className={ styles.title }>
-				<div className={ styles.name }>
-					<Text variant="title-medium">{ name }</Text>
-				</div>
-				{ showMenu && (
+		<Card
+			title={ name }
+			className={ classNames( styles.container, containerClassName ) }
+			headerRightContent={
+				showMenu && (
 					<Menu
 						items={ menuItems }
 						showActivate={ showActivateOption }
@@ -258,19 +251,17 @@ const ProductCard = props => {
 						showInstall={ showInstallOption }
 						onInstall={ installStandaloneHandler }
 					/>
-				) }
-			</div>
-			{
-				// If is not active, no reason to use children
-				// Since we want user to take action if isn't active
-				isActive && children ? (
-					children
-				) : (
-					<Text variant="body-small" className={ styles.description }>
-						{ description }
-					</Text>
 				)
 			}
+		>
+			<Description />
+
+			{ isDataLoading ? (
+				<span className={ styles.loading }>{ __( 'Loading…', 'jetpack-my-jetpack' ) }</span>
+			) : (
+				children
+			) }
+
 			<div className={ styles.actions }>
 				<ActionButton
 					{ ...props }
@@ -279,21 +270,25 @@ const ProductCard = props => {
 					onManage={ manageHandler }
 					onAdd={ addHandler }
 					className={ styles.button }
+					additionalActions={ additionalActions }
 				/>
 				{ ! isAbsent && (
-					<Text variant="label" className={ statusClassName }>
-						{ flagLabel }
-					</Text>
+					<Status
+						status={ status }
+						isFetching={ isDeactivatingStandalone }
+						isInstallingStandalone={ isInstallingStandalone }
+						isDeactivatingStandalone={ isFetching }
+					/>
 				) }
 			</div>
-		</div>
+		</Card>
 	);
 };
 
 ProductCard.propTypes = {
 	children: PropTypes.node,
 	name: PropTypes.string.isRequired,
-	description: PropTypes.string.isRequired,
+	Description: PropTypes.func.isRequired,
 	admin: PropTypes.bool.isRequired,
 	isFetching: PropTypes.bool,
 	isInstallingStandalone: PropTypes.bool,
@@ -312,6 +307,7 @@ ProductCard.propTypes = {
 			onClick: PropTypes.func,
 		} )
 	),
+	additionalActions: PropTypes.array,
 	onInstallStandalone: PropTypes.func,
 	onActivateStandalone: PropTypes.func,
 	onDeactivateStandalone: PropTypes.func,
@@ -323,6 +319,7 @@ ProductCard.propTypes = {
 		PRODUCT_STATUSES.ABSENT_WITH_PLAN,
 		PRODUCT_STATUSES.NEEDS_PURCHASE,
 		PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE,
+		PRODUCT_STATUSES.CAN_UPGRADE,
 	] ).isRequired,
 };
 

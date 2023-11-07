@@ -110,16 +110,21 @@ function getReactComponentViewMapping() {
 
 const crmWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: false,
+	devtool: jetpackWebpackConfig.devtool,
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.resolve( __dirname, '.' ),
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
+		mangleExports: false,
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
+		alias: {
+			...jetpackWebpackConfig.resolve.alias,
+			crm: path.resolve( __dirname, 'src/js/' ),
+		}
 	},
 	node: false,
 	plugins: [
@@ -290,7 +295,21 @@ module.exports = [
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [ 'sass-loader' ],
+					extraLoaders: [ 
+						{
+							loader: 'sass-loader',
+							options: {
+								sassOptions: {
+									outputStyle: 'expanded',
+								},
+							},
+						},
+					],
+					CssLoader: {
+						modules: ! jetpackWebpackConfig.isProduction ? {
+							localIdentName: '[name]__[local]--[hash:base64:5]',
+						} : {},
+					}
 				} ),
 
 				// Handle images.

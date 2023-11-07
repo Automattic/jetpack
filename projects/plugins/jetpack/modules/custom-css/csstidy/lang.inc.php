@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * Localization of CSS Optimiser Interface of CSSTidy
  *

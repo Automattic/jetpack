@@ -179,7 +179,7 @@ const ConnectionStatusCard = props => {
 						{ ! isUserConnected && (
 							<ConnectionListItem
 								onClick={ handleConnectUser }
-								text={ __( 'You’re not connected.', 'jetpack-my-jetpack' ) }
+								text={ __( 'User account not connected.', 'jetpack-my-jetpack' ) }
 								actionText={ __( 'Connect', 'jetpack-my-jetpack' ) }
 								status="error"
 							/>

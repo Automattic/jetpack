@@ -48,3 +48,17 @@ jobs:
         env:
           JETPACKSTAGING_K6_USERNAME: ${{ secrets.JETPACKSTAGING_K6_USERNAME }}
           JETPACKSTAGING_K6_PASSWORD: ${{ secrets.JETPACKSTAGING_K6_PASSWORD }}
+
+  trigger_e2e_tests:
+    needs: run_shell_script
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Execute shell script
+        shell: bash
+        run: .github/files/jetpack-staging-sites/run-atomic-deploy-e2e-tests.sh
+        env:
+          SIGNATURE_KEY: ${{ secrets.ATOMIC_DEPLOY_E2E_TESTS_KEY }}
+          TRIGGER_URL: ${{ secrets.ATOMIC_DEPLOY_E2E_TESTS_URL }}

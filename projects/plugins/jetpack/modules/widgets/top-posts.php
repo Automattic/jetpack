@@ -16,9 +16,7 @@ use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status;
 
-/**
- * Register the widget for use in Appearance -> Widgets
- */
+// Register the widget for use in Appearance -> Widgets
 add_action( 'widgets_init', 'jetpack_top_posts_widget_init' );
 
 /**

@@ -4,7 +4,7 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 module.exports = {
 	entry: './src/index.ts',
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isProduction ? false : 'source-map',
+	devtool: jetpackWebpackConfig.devtool,
 	module: {
 		strictExportPresence: true,
 		rules: [

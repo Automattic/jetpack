@@ -129,5 +129,4 @@ class Test_Module_Product extends TestCase {
 		// also check deactivate returns false.
 		$this->assertFalse( Sample_Module_Product::deactivate() );
 	}
-
 }

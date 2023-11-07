@@ -27,5 +27,4 @@ class Image_Size_Analysis implements Pluggable, Has_Endpoints, Is_Always_On {
 			new Image_Analysis_Start(),
 		);
 	}
-
 }

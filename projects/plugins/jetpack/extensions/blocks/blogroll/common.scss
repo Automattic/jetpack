@@ -1,0 +1,60 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+$jetpack-blogroll-item-container: bitem;
+
+@mixin break-bloroll-container-mobile() {
+	@container #{ ($jetpack-blogroll-item-container)} (min-width: #{ ($break-mobile) }) {
+		@content;
+	}
+}
+
+.wp-block-jetpack-blogroll {
+	@include break-bloroll-container-mobile() {
+		padding: 24px;
+	}
+
+	.block-editor-inner-blocks {
+		h3 {
+			font-size: 20px;
+			font-style: normal;
+			font-weight: 700;
+			line-height: 28px;
+			margin-top: 0;
+			margin-bottom: 24px;
+		}
+	}
+
+	&.hide-avatar {
+		figure {
+			display: none;
+		}
+	}
+
+	&.hide-description {
+		.jetpack-blogroll-item-description {
+			display: none;
+		}
+	}
+
+	.wp-block-jetpack-blogroll-item {
+		container-type: inline-size;
+		container-name: bitem;
+	}
+
+	.wp-block-jetpack-blogroll-item .jetpack-blogroll-item-information {
+		display: flex;
+		padding: 20px 8px;
+		gap: 20px;
+		flex-direction: column;
+		align-items: flex-start;
+
+		@include break-bloroll-container-mobile() {
+			flex-direction: row;
+			align-items: center;
+		}
+	}
+
+	.wp-block-jetpack-blogroll-item + .wp-block-jetpack-blogroll-item {
+		border-top: 1px solid var(--gray-gray-5, #DCDCDE);
+	}
+}

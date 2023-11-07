@@ -8,6 +8,7 @@ const projects = [
 		testArgs: [ 'specs/connection', '--retries=1' ],
 		targets: [ 'plugins/jetpack' ],
 		suite: '',
+		buildGroup: 'jetpack-core',
 	},
 	{
 		project: 'Jetpack pre-connection',
@@ -15,6 +16,7 @@ const projects = [
 		testArgs: [ 'specs/pre-connection', '--retries=1' ],
 		targets: [ 'plugins/jetpack', 'monorepo' ],
 		suite: '',
+		buildGroup: 'jetpack-core',
 	},
 	{
 		project: 'Jetpack post-connection',
@@ -22,6 +24,7 @@ const projects = [
 		testArgs: [ 'specs/post-connection', '--retries=1' ],
 		targets: [ 'plugins/jetpack' ],
 		suite: '',
+		buildGroup: 'jetpack-core',
 	},
 	{
 		project: 'Jetpack sync',
@@ -29,6 +32,7 @@ const projects = [
 		testArgs: [ 'specs/sync', '--retries=1' ],
 		targets: [ 'packages/sync' ],
 		suite: '',
+		buildGroup: 'jetpack-sync',
 	},
 	{
 		project: 'Jetpack blocks',
@@ -36,13 +40,31 @@ const projects = [
 		testArgs: [ 'specs/blocks', '--retries=1' ],
 		targets: [ 'plugins/jetpack' ],
 		suite: '',
+		buildGroup: 'jetpack-core',
 	},
 	{
-		project: 'Boost',
+		project: 'Jetpack Boost - Base',
 		path: 'projects/plugins/boost/tests/e2e',
-		testArgs: [],
+		testArgs: [ 'specs/base', '--retries=1' ],
 		targets: [ 'plugins/boost' ],
 		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
+		project: 'Jetpack Boost - Modules',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/modules', '--retries=1' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
+		project: 'Jetpack Boost - Critical CSS',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/critical-css', '--retries=1' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
 	},
 	{
 		project: 'Search',
@@ -50,6 +72,7 @@ const projects = [
 		testArgs: [],
 		targets: [ 'plugins/search' ],
 		suite: '',
+		buildGroup: 'jetpack-search',
 	},
 	{
 		project: 'VideoPress',
@@ -57,6 +80,7 @@ const projects = [
 		testArgs: [],
 		targets: [ 'plugins/videopress' ],
 		suite: '',
+		buildGroup: 'jetpack-videopress',
 	},
 	{
 		project: 'Social',
@@ -64,6 +88,7 @@ const projects = [
 		testArgs: [],
 		targets: [ 'plugins/social' ],
 		suite: '',
+		buildGroup: 'jetpack-social',
 	},
 ];
 
@@ -94,10 +119,6 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 		}
 		break;
 	}
-	case 'workflow_run': {
-		matrix.push( ...projects );
-		break;
-	}
 	case 'repository_dispatch':
 		if ( process.env.DISPATCH_REPO ) {
 			const repoName = process.env.DISPATCH_REPO.split( '/' )[ 1 ];
@@ -118,6 +139,15 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 						path: 'projects/plugins/jetpack/tests/e2e',
 						testArgs: [ 'blocks', '--retries=1' ],
 						suite: 'atomic',
+					} );
+				}
+
+				if ( refName === 'trunk' ) {
+					projects.push( {
+						project: 'Jetpack on VIP',
+						path: 'projects/plugins/jetpack/tests/e2e',
+						testArgs: [ 'blocks', '--retries=1' ],
+						suite: 'vip',
 					} );
 				}
 			}

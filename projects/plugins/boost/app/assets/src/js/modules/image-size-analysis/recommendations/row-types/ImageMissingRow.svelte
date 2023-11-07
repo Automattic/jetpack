@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
+	import { removeGetParams } from '../../../../utils/remove-get-params';
 	import Device from '../components/Device.svelte';
 	import Pill from '../components/Pill.svelte';
 	import RowTitle from '../components/RowTitle.svelte';
@@ -15,12 +16,12 @@
 
 <TableRow {enableTransition} expandable={false}>
 	<svelte:fragment slot="main">
-		<div class="jb-table-row__thumbnail">
-			{__( 'Missing Image', 'jetpack-boost' )}
+		<div class="jb-thumbnail__image--missing">
+			{__( 'Image Missing', 'jetpack-boost' )}
 		</div>
 
 		<div class="jb-table-row__title">
-			<RowTitle {title} url={details.page.url} />
+			<RowTitle title={removeGetParams( title )} url={details.page.url} />
 		</div>
 
 		<div class="jb-table-row__potential-size">
@@ -50,17 +51,3 @@
 		</div>
 	</svelte:fragment>
 </TableRow>
-
-<style lang="scss">
-	.jb-table-row__thumbnail {
-		border-radius: 10px;
-		border: 3px solid #999;
-		color: #666;
-		text-align: center;
-		aspect-ratio: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 80%;
-	}
-</style>

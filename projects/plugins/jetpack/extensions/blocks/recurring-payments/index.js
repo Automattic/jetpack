@@ -4,7 +4,6 @@ import { Path, Rect, SVG, G, ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
-import { isPriceValid } from '../../shared/currencies';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
 import edit from './edit';
@@ -152,28 +151,3 @@ export const settings = {
 		],
 	},
 };
-
-/**
- * Removes products with prices below their minimums.
- *
- * TS compatible typedef, but JSDoc lint doesn't like it.
- * typedef {{
- *   buyer_can_change_amount: ?boolean
- *   connected_account_product_id: string
- *   connected_destination_account_id: string
- *   currency: string
- *   description: string
- *   id: number
- *   interval: string
- *   multiple_per_user: ?boolean
- *   price: string
- *   site_id: string
- *   title: string
- * }} Product
- *
- * @param {Array<Product>} products List of membership products.
- * @return {Array<Product>} List of producits with invalid products removed.
- */
-export function removeInvalidProducts( products ) {
-	return products.filter( product => isPriceValid( product.currency, product.price ) );
-}

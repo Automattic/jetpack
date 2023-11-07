@@ -112,5 +112,4 @@ class Jetpack_Sitemap_Finder {
 			'sitemap_name' => $filename,
 		);
 	}
-
 }

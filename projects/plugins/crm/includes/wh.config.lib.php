@@ -437,9 +437,6 @@
 				
 			
 		}
-		
-		
-		
 	}
 
 
@@ -548,7 +545,6 @@
 			return $zbs->settings->dmzGetConfig($this->extperma);
 
 		}
-
 	}
 
 

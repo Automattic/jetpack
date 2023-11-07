@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
@@ -77,7 +78,7 @@ class Jetpack_Admin {
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );
 
 		if ( class_exists( 'Akismet_Admin' ) ) {
-			// If the site has Jetpack Anti-Spam, change the Akismet menu label and logo accordingly.
+			// If the site has Jetpack Anti-spam, change the Akismet menu label and logo accordingly.
 			$site_products         = array_column( Jetpack_Plan::get_products(), 'product_slug' );
 			$has_anti_spam_product = count( array_intersect( array( 'jetpack_anti_spam', 'jetpack_anti_spam_monthly' ), $site_products ) ) > 0;
 
@@ -91,13 +92,8 @@ class Jetpack_Admin {
 					4
 				);
 
-				// Add an Anti-spam menu item for Jetpack.
-				add_action(
-					'jetpack_admin_menu',
-					function () {
-						add_submenu_page( 'jetpack', __( 'Anti-Spam', 'jetpack' ), __( 'Anti-Spam', 'jetpack' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
-					}
-				);
+				// Add an Anti-spam menu item for Jetpack. This is handled automatically by the Admin_Menu as long as it has been initialized.
+				Admin_Menu::init();
 				add_action( 'admin_enqueue_scripts', array( $this, 'akismet_logo_replacement_styles' ) );
 			}
 		}
@@ -112,7 +108,7 @@ class Jetpack_Admin {
 	}
 
 	/**
-	 * Generate styles to replace Akismet logo for the Jetpack Akismet Anti-Spam logo.
+	 * Generate styles to replace Akismet logo for the Jetpack Akismet Anti-spam logo.
 		Without this, we would have to change the logo from Akismet codebase and we want to avoid that.
 	 */
 	public function akismet_logo_replacement_styles() {
@@ -132,7 +128,7 @@ class Jetpack_Admin {
 		 * Custom CSS for the Customizer is deprecated for block themes as of WP 6.1, so we only expose it with a menu
 		 * if the site already has existing CSS code.
 		 */
-		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+		if ( wp_is_block_theme() ) {
 			$styles = wp_get_custom_css();
 			if ( ! $styles ) {
 				return;

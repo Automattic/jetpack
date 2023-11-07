@@ -1,17 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Autoloader file writer.
  *
  * @package automattic/jetpack-autoloader
  */
-
-// phpcs:disable WordPress.Files.FileName.InvalidClassFileName
-// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
-// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_var_export
 
 namespace Automattic\Jetpack\Autoloader;
 
@@ -88,7 +80,12 @@ AUTOLOADER_COMMENT;
 	private static function prepareAutoloaderFile( $filename, $suffix ) {
 		$header  = self::COMMENT;
 		$header .= PHP_EOL;
-		$header .= 'namespace Automattic\Jetpack\Autoloader\jp' . $suffix . ';';
+		if ( $suffix === 'Current' ) {
+			// Unit testing.
+			$header .= 'namespace Automattic\Jetpack\Autoloader\jpCurrent;';
+		} else {
+			$header .= 'namespace Automattic\Jetpack\Autoloader\jp' . $suffix . '\al' . preg_replace( '/[^0-9a-zA-Z]/', '_', AutoloadGenerator::VERSION ) . ';';
+		}
 		$header .= PHP_EOL . PHP_EOL;
 
 		$sourceLoader  = fopen( __DIR__ . '/' . $filename, 'r' );

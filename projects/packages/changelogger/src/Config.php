@@ -303,5 +303,4 @@ class Config {
 		}
 		return self::$cache['versioning'];
 	}
-
 }

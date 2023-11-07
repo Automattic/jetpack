@@ -82,7 +82,18 @@ export class MeasurableImage {
 	}
 
 	public getOversizedRatio( fileSize: Dimensions, sizeOnPage: Dimensions ) {
+		// The image is not loaded, we can't calculate the ratio
+		if ( fileSize.width === 0 || fileSize.height === 0 ) {
+			return 1;
+		}
+
 		const { width, height } = this.getExpectedSize( sizeOnPage );
+
+		// The image is not visible on screen, we can't calculate the ratio
+		if ( width === 0 || height === 0 ) {
+			return 1;
+		}
+
 		return ( fileSize.width * fileSize.height ) / ( width * height );
 	}
 
@@ -91,6 +102,7 @@ export class MeasurableImage {
 	 * by reading the Content-Length header.
 	 *
 	 * @param {string} url -  string The URL of the image.
+	 * @returns {number} Weight.
 	 */
 	private async fetchFileWeight( url: string ) {
 		const response = await this.fetch( url );
@@ -108,6 +120,7 @@ export class MeasurableImage {
 	 * This creates a new image element and loads the image.
 	 *
 	 * @param {string} url -  image url
+	 * @returns {object} dimensions File dimensions.
 	 */
 	private async fetchFileDimensions( url: string ) {
 		const img = new Image();

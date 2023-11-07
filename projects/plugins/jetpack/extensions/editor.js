@@ -14,6 +14,7 @@ import './shared/styles/external-link-fix.scss';
 // Register media source store to the centralized data registry.
 import './store/media-source';
 import './store/membership-products';
+import './store/wordpress-com';
 import extensionList from './index.json';
 import './index.scss';
 
@@ -53,7 +54,12 @@ apiFetch.use( ( options, next ) => {
 /**
  * Detect whether the extension is a beta extension.
  *
- * @param {string} name - Block name
+ * @example
+ * ```js
+ * import { isBetaExtension } from './';
+ * isBetaExtension( 'ai-content-lens' ); // true
+ * ```
+ * @param {string} name - Extension name
  * @returns {boolean}     Whether the extension is a beta extension
  */
 export function isBetaExtension( name ) {
@@ -78,11 +84,24 @@ function setBetaBlockTitle( settings, name ) {
 		return settings;
 	}
 
-	return {
+	const { title, keywords } = settings;
+	const titleSuffix = '(beta)';
+	const betaKeyword = 'beta';
+	const result = {
 		...settings,
-		title: `${ settings.title } (beta)`,
-		kewords: [ ...settings.keywords, 'beta' ],
 	};
+
+	if ( title ) {
+		result.title = title.toLowerCase().endsWith( titleSuffix )
+			? title
+			: `${ settings.title } ${ titleSuffix }`;
+	}
+
+	if ( Array.isArray( keywords ) ) {
+		result.keywords = keywords.includes( betaKeyword ) ? keywords : [ ...keywords, betaKeyword ];
+	}
+
+	return result;
 }
 
 addFilter( 'blocks.registerBlockType', 'jetpack/label-beta-blocks-title', setBetaBlockTitle );

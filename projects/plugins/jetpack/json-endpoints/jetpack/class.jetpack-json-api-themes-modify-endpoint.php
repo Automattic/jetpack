@@ -175,5 +175,4 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 
 		return true;
 	}
-
 }

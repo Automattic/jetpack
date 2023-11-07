@@ -49,7 +49,7 @@ class Test_Initial_State extends TestCase {
 			'isOfflineMode'      => ( new Status() )->is_offline_mode(),
 			'calypsoEnv'         => 'wpcalypso',
 		);
-		$expected_value = 'var JP_CONNECTION_INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $expected_state ) ) . '"));';
+		$expected_value = 'var JP_CONNECTION_INITIAL_STATE; typeof JP_CONNECTION_INITIAL_STATE === "object" || (JP_CONNECTION_INITIAL_STATE = JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $expected_state ) ) . '")));';
 
 		$actual_value = Initial_State::render();
 
@@ -57,8 +57,5 @@ class Test_Initial_State extends TestCase {
 		unset( $_GET['calypso_env'] );
 
 		$this->assertEquals( $expected_value, $actual_value );
-
-		// Ensure that a second request returns null.
-		$this->assertNull( Initial_State::render() );
 	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Plans: introduce `plans` prop to plans store

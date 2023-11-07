@@ -372,12 +372,13 @@ class Helper_Script_Manager {
 				require_once ABSPATH . 'wp-admin/includes/file.php';
 			}
 
-			if ( ! \WP_Filesystem() ) {
+			$credentials = request_filesystem_credentials( self_admin_url() );
+
+			if ( ! \WP_Filesystem( $credentials ) ) {
 				return null;
 			}
 		}
 
 		return $wp_filesystem;
 	}
-
 }

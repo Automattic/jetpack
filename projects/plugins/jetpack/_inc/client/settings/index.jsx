@@ -2,6 +2,7 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import Discussion from 'discussion';
 import Earn from 'earn';
+import Subscriptions from 'newsletter';
 import Performance from 'performance';
 import Privacy from 'privacy';
 import React from 'react';
@@ -56,6 +57,11 @@ class Settings extends React.Component {
 					<Discussion
 						siteRawUrl={ siteRawUrl }
 						active={ '/discussion' === pathname }
+						{ ...commonProps }
+					/>
+					<Subscriptions
+						siteRawUrl={ siteRawUrl }
+						active={ '/newsletter' === pathname }
 						{ ...commonProps }
 					/>
 					<Earn siteRawUrl={ siteRawUrl } active={ '/earn' === pathname } { ...commonProps } />

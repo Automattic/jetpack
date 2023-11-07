@@ -43,7 +43,7 @@ test( 'Connect button is displayed on dashboard page', async ( { page } ) => {
 } );
 
 test( 'Connect button is displayed  on Jetpack page', async ( { page } ) => {
-	await ( await Sidebar.init( page ) ).selectJetpack();
+	await ( await Sidebar.init( page ) ).selectJetpackSubMenuItem();
 
 	const jetpackPage = await JetpackPage.init( page );
 	expect(

@@ -138,5 +138,3 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 		return $providers->get_provider_for_key( $key );
 	}
 }
-
-

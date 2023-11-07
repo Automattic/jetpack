@@ -266,5 +266,4 @@ function jpcrm_render_external_sources_info( $external_sources, $object_id, $obj
         echo '<p><i class="address book icon"></i> ' . esc_html( sprintf( __( '%s added manually.', 'zero-bs-crm' ), ucwords( $zbs->DAL->objTypeKey( $object_type_id ) ) ) ) . '</p>';
 
     }
-
 }

@@ -1,0 +1,23 @@
+{ 
+	"intelephense.files.exclude": [
+	"**/.git/**",
+	"**/.svn/**",
+	"**/.hg/**",
+	"**/CVS/**",
+	"**/.DS_Store/**",
+	"**/node_modules/**",
+	"**/bower_components/**",
+	"**/vendor/**/{Tests,tests}/**",
+	"**/.history/**",
+	"**/vendor/**/vendor/**",
+	"**/packages/**/vendor/**",
+	"**/projects/**/vendor/**",
+	"**/plugins/**/vendor/**",
+	"**/packages/**/wordpress/**",
+	"**/projects/**/wordpress/**",
+	"**/plugins/**/wordpress/**",
+	"**/.cache/**",
+	"**/jetpack_vendor/**/jetpack_vendor/**",
+	"**/jetpack_vendor/**"
+	]
+}

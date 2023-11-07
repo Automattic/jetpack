@@ -143,9 +143,75 @@ class Stats extends Module_Product {
 				if ( 0 === strpos( $purchase->product_slug, 'jetpack_stats' ) ) {
 					return true;
 				}
+				if ( 0 === strpos( $purchase->product_slug, 'jetpack_complete' ) ) {
+					return true;
+				}
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Checks whether the product can be upgraded to a different product.
+	 * Only Jetpack Stats Commercial plan is not upgradable.
+	 *
+	 * @return boolean
+	 */
+	public static function is_upgradable() {
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				if (
+					(
+						// Purchase is Jetpack Stats...
+						0 === strpos( $purchase->product_slug, 'jetpack_stats' ) &&
+						// but not Jetpack Stats Free...
+						false === strpos( $purchase->product_slug, 'free' )
+					) || 0 === strpos( $purchase->product_slug, 'jetpack_complete' )
+				) {
+					// Only Jetpack Stats paid plans should be eligible for this conditional.
+					// Sample product slugs: jetpack_stats_monthly
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Returns a redirect parameter for an upgrade URL if current purchase license is a free license
+	 * or an empty string otherwise.
+	 *
+	 * @return string
+	 */
+	public static function get_url_redirect_string() {
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return '';
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				if (
+					0 === strpos( $purchase->product_slug, static::get_wpcom_free_product_slug() )
+				) {
+					return '&productType=personal';
+				}
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Checks whether the product supports trial or not.
+	 * Since Jetpack Stats has been widely available as a free product in the past, it "supports" a trial.
+	 *
+	 * @return boolean
+	 */
+	public static function has_trial_support() {
+		return true;
 	}
 
 	/**
@@ -154,9 +220,14 @@ class Stats extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_purchase_url() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
 		// The returning URL could be customized by changing the `redirect_uri` param with relative path.
-		return sprintf( 'https://wordpress.com/stats/purchase/%d?from=jetpack-my-jetpack&redirect_uri=%s', $blog_id, rawurldecode( 'admin.php?page=stats' ) );
+		return sprintf(
+			'%s#!/stats/purchase/%d?from=jetpack-my-jetpack%s&redirect_uri=%s',
+			admin_url( 'admin.php?page=stats' ),
+			Jetpack_Options::get_option( 'id' ),
+			static::get_url_redirect_string(),
+			rawurlencode( 'admin.php?page=stats' )
+		);
 	}
 
 	/**

@@ -726,5 +726,4 @@ class Full_Sync extends Module {
 	private function get_config() {
 		return \Jetpack_Options::get_raw_option( 'jetpack_sync_full_config' );
 	}
-
 }

@@ -80,5 +80,4 @@ class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 		$this->assertEquals( 'url', $this->wp_customize->controls()['custom_css_control']->cta_url );
 		$this->assertEquals( 'message', $this->wp_customize->controls()['custom_css_control']->nudge_copy );
 	}
-
 }

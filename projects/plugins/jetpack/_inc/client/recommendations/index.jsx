@@ -197,7 +197,7 @@ const RecommendationsComponent = props => {
 				</div>
 			) : (
 				<Switch>
-					{ /* TODO: Why we don't redirect inproper step paths? */ }
+					{ /* TODO: Why we don't redirect improper step paths? */ }
 					<Redirect exact from={ '/recommendations' } to={ '/recommendations' + redirectPath } />
 					<Route path="/recommendations/site-type">
 						<SiteTypeQuestion />

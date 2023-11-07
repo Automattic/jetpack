@@ -2,6 +2,99 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.44.4] - 2023-11-03
+### Changed
+- Updated package dependencies. [#33904]
+
+## [0.44.3] - 2023-10-31
+### Fixed
+- Fix IconTooltip Popover styles. [#33856]
+
+## [0.44.2] - 2023-10-30
+### Changed
+- Social: Update Nextdoor icon styling so it's round. [#33834]
+
+## [0.44.1] - 2023-10-23
+### Changed
+- Use pointer-events: None on arrow icon so its click behavior falls back to the container/underlying component. [#33733]
+
+## [0.44.0] - 2023-10-19
+### Added
+- Add a `ProgressBar` component. [#33054]
+- Social: Add the Nextdoor connection toggle [#33663]
+
+### Changed
+- Updated package dependencies. [#33687]
+
+## [0.43.4] - 2023-10-17
+### Changed
+- Updated package dependencies. [#33646]
+
+## [0.43.3] - 2023-10-16
+### Changed
+- Replaced inline social icons with social-logos package. [#33613]
+- Updated package dependencies. [#33584, #33429]
+
+## [0.43.2] - 2023-10-11
+### Changed
+- Changed Twitter icon and label to X [#33445]
+
+## [0.43.1] - 2023-10-10
+### Changed
+- Boost Score Graph: Show a straight line before the first data point. [#33133]
+- Updated package dependencies. [#33428]
+
+## [0.43.0] - 2023-10-03
+### Added
+- Added new sharing icon [#33244]
+
+## [0.42.5] - 2023-09-25
+### Added
+- Added WhatsApp social icon. [#33074]
+- Added CopyToClipboard component. [#33265]
+
+## [0.42.4] - 2023-09-19
+
+- Minor internal updates.
+
+## [0.42.3] - 2023-09-13
+### Changed
+- Updated package dependencies. [#33001]
+
+## [0.42.2] - 2023-09-11
+### Changed
+- Bump pkgs version [#32825]
+
+## [0.42.1] - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+- Updated package dependencies. [#32804]
+
+## [0.42.0] - 2023-09-01
+### Added
+- Popover: Added new component. [#32690]
+
+### Changed
+- Renamed pricing-slider to number-slider [#32780]
+
+### Removed
+- Remove unnecessary files from mirror repo and published package. [#32674]
+
+## [0.41.2] - 2023-08-28
+### Added
+- Add uPlot library and boost score graph component [#32016]
+
+### Changed
+- UI: Improve discount elements for pricing section [#32545]
+- Updated package dependencies. [#32016]
+
+### Fixed
+- BoostScoreGraph: add mock module to avoid the mobile editor importing incompatible web dependencies. [#32672]
+
+## [0.41.1] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
 ## [0.41.0] - 2023-07-24
 ### Added
 - Jetpack Footer: added generic links [#31627]
@@ -779,6 +872,24 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.44.4]: https://github.com/Automattic/jetpack-components/compare/0.44.3...0.44.4
+[0.44.3]: https://github.com/Automattic/jetpack-components/compare/0.44.2...0.44.3
+[0.44.2]: https://github.com/Automattic/jetpack-components/compare/0.44.1...0.44.2
+[0.44.1]: https://github.com/Automattic/jetpack-components/compare/0.44.0...0.44.1
+[0.44.0]: https://github.com/Automattic/jetpack-components/compare/0.43.4...0.44.0
+[0.43.4]: https://github.com/Automattic/jetpack-components/compare/0.43.3...0.43.4
+[0.43.3]: https://github.com/Automattic/jetpack-components/compare/0.43.2...0.43.3
+[0.43.2]: https://github.com/Automattic/jetpack-components/compare/0.43.1...0.43.2
+[0.43.1]: https://github.com/Automattic/jetpack-components/compare/0.43.0...0.43.1
+[0.43.0]: https://github.com/Automattic/jetpack-components/compare/0.42.5...0.43.0
+[0.42.5]: https://github.com/Automattic/jetpack-components/compare/0.42.4...0.42.5
+[0.42.4]: https://github.com/Automattic/jetpack-components/compare/0.42.3...0.42.4
+[0.42.3]: https://github.com/Automattic/jetpack-components/compare/0.42.2...0.42.3
+[0.42.2]: https://github.com/Automattic/jetpack-components/compare/0.42.1...0.42.2
+[0.42.1]: https://github.com/Automattic/jetpack-components/compare/0.42.0...0.42.1
+[0.42.0]: https://github.com/Automattic/jetpack-components/compare/0.41.2...0.42.0
+[0.41.2]: https://github.com/Automattic/jetpack-components/compare/0.41.1...0.41.2
+[0.41.1]: https://github.com/Automattic/jetpack-components/compare/0.41.0...0.41.1
 [0.41.0]: https://github.com/Automattic/jetpack-components/compare/0.40.4...0.41.0
 [0.40.4]: https://github.com/Automattic/jetpack-components/compare/0.40.3...0.40.4
 [0.40.3]: https://github.com/Automattic/jetpack-components/compare/0.40.2...0.40.3

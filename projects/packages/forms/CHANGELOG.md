@@ -5,6 +5,68 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.6] - 2023-11-03
+
+## [0.22.5] - 2023-10-31
+### Fixed
+- Fixes style for multiple choice checkbox in Froms block. [#33827]
+
+## [0.22.4] - 2023-10-23
+### Changed
+- Updated package dependencies. [#33646] [#33687]
+
+## [0.22.3] - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429]
+
+## [0.22.2] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.22.1] - 2023-09-28
+### Changed
+- Minor internal updates.
+
+## [0.22.0] - 2023-09-19
+### Changed
+- Moving block registration when plugin activated [#33050]
+- Updated package dependencies. [#33001]
+
+## [0.21.0] - 2023-09-04
+### Added
+- Add Jetpack AI Form section to new Forms landing page [#32726]
+
+### Changed
+- Updated package dependencies. [#32803]
+- Updated package dependencies. [#32804]
+
+### Fixed
+- Fix block icons for display on wp.org [#32754]
+
+## [0.20.1] - 2023-08-28
+### Changed
+- Updated package dependencies. [#32605]
+
+## [0.20.0] - 2023-08-21
+### Added
+- Add block.json file to Contact Form block [#32583]
+- Forms block - allow transforming to a subscribe block. [#32478]
+
+### Changed
+- Forms block: rename "Newsletter Connection" to "Creative Mail" to avoid confusing with "Jetpack Newsletters" and subscription block. Call the block a "Lead Capture" block (not sign up). [#32481]
+
+## [0.19.11] - 2023-08-14
+### Changed
+- Add a unified/consistent visual aid for focused elements. [#30219]
+
+## [0.19.10] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## [0.19.9] - 2023-08-07
+### Added
+- Added SIG modal ui [#31665]
+
 ## [0.19.8] - 2023-07-25
 ### Changed
 - Updated package dependencies. [#32040]
@@ -292,6 +354,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.22.6]: https://github.com/automattic/jetpack-forms/compare/v0.22.5...v0.22.6
+[0.22.5]: https://github.com/automattic/jetpack-forms/compare/v0.22.4...v0.22.5
+[0.22.4]: https://github.com/automattic/jetpack-forms/compare/v0.22.3...v0.22.4
+[0.22.3]: https://github.com/automattic/jetpack-forms/compare/v0.22.2...v0.22.3
+[0.22.2]: https://github.com/automattic/jetpack-forms/compare/v0.22.1...v0.22.2
+[0.22.1]: https://github.com/automattic/jetpack-forms/compare/v0.22.0...v0.22.1
+[0.22.0]: https://github.com/automattic/jetpack-forms/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/automattic/jetpack-forms/compare/v0.20.1...v0.21.0
+[0.20.1]: https://github.com/automattic/jetpack-forms/compare/v0.20.0...v0.20.1
+[0.20.0]: https://github.com/automattic/jetpack-forms/compare/v0.19.11...v0.20.0
+[0.19.11]: https://github.com/automattic/jetpack-forms/compare/v0.19.10...v0.19.11
+[0.19.10]: https://github.com/automattic/jetpack-forms/compare/v0.19.9...v0.19.10
+[0.19.9]: https://github.com/automattic/jetpack-forms/compare/v0.19.8...v0.19.9
 [0.19.8]: https://github.com/automattic/jetpack-forms/compare/v0.19.7...v0.19.8
 [0.19.7]: https://github.com/automattic/jetpack-forms/compare/v0.19.6...v0.19.7
 [0.19.6]: https://github.com/automattic/jetpack-forms/compare/v0.19.5...v0.19.6

@@ -85,7 +85,7 @@ class Launchpad_Task_Lists {
 	 * @return bool True if successful, false if not.
 	 */
 	public function register_task( $task = array() ) {
-		if ( ! $this->validate_task( $task ) ) {
+		if ( ! static::validate_task( $task ) ) {
 			return false;
 		}
 		// TODO: Handle duplicate tasks
@@ -150,6 +150,59 @@ class Launchpad_Task_Lists {
 		$task_list = $this->get_task_list( $id );
 
 		return $this->load_value_from_callback( $task_list, 'is_enabled_callback', null );
+	}
+
+	/**
+	 * Check if a task list was dismissed by the user.
+	 *
+	 * @param string $id Task List id.
+	 * @return bool|null True if dismissed, false if not.
+	 */
+	public function is_task_list_dismissed( $id ) {
+		$task_list_dismissed_status = $this->get_task_list_dismissed_status();
+
+		// Return true if the task list is on the dismissed status array and its value is true.
+		return isset( $task_list_dismissed_status[ $id ] ) && true === $task_list_dismissed_status[ $id ];
+	}
+
+	/**
+	 * Set wether a task list is dismissed or not for a site.
+	 *
+	 * @param string $id Task List id.
+	 * @param bool   $is_dismissed True if dismissed, false if not.
+	 */
+	public function set_task_list_dismissed( $id, $is_dismissed ) {
+		$task_list = $this->get_task_list( $id );
+		if ( empty( $id ) || empty( $task_list ) ) {
+			return;
+		}
+
+		$task_list_dismissed_status = $this->get_task_list_dismissed_status();
+		$is_dismissed               = (bool) $is_dismissed;
+
+		if ( $is_dismissed ) {
+			$task_list_dismissed_status[ $id ] = true;
+		} else {
+			unset( $task_list_dismissed_status[ $id ] );
+		}
+
+		$launchpad_config                               = get_option( 'wpcom_launchpad_config', array() );
+		$launchpad_config['task_list_dismissed_status'] = $task_list_dismissed_status;
+		update_option( 'wpcom_launchpad_config', $launchpad_config );
+	}
+
+	/**
+	 * Get the task list visibility status for a site.
+	 *
+	 * @return array
+	 */
+	protected function get_task_list_dismissed_status() {
+		$launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+		if ( ! isset( $launchpad_config['task_list_dismissed_status'] ) || ! is_array( $launchpad_config['task_list_dismissed_status'] ) ) {
+			return array();
+		}
+
+		return $launchpad_config['task_list_dismissed_status'];
 	}
 
 	/**
@@ -410,7 +463,7 @@ class Launchpad_Task_Lists {
 	 */
 	private function load_calypso_path( $task ) {
 		if ( null === $this->site_slug ) {
-			$this->site_slug = wpcom_launchpad_get_site_slug();
+			$this->site_slug = wpcom_get_site_slug();
 		}
 
 		$data = array(
@@ -424,12 +477,36 @@ class Launchpad_Task_Lists {
 			return null;
 		}
 
-		// Require that the string start with `/`, but don't allow `//`.
-		if ( '/' !== substr( $calypso_path, 0, 1 ) || '/' === substr( $calypso_path, 1, 1 ) ) {
+		if ( ! $this->is_valid_admin_url_or_absolute_path( $calypso_path ) ) {
 			return null;
 		}
 
 		return $calypso_path;
+	}
+
+	/**
+	 * Checks if a string is a Stripe connection, valid admin URL, or absolute path.
+	 *
+	 * @param string $input The string to check.
+	 * @return boolean
+	 */
+	private function is_valid_admin_url_or_absolute_path( $input ) {
+		// Allow Stripe connection URLs for `set_up_payments` task.
+		if ( strpos( $input, 'https://connect.stripe.com' ) === 0 ) {
+			return true;
+		}
+
+		// Checks if the string is URL starting with the admin URL.
+		if ( strpos( $input, admin_url() ) === 0 ) {
+			return true;
+		}
+
+		// Require that the string start with a slash, but not two slashes.
+		if ( '/' === substr( $input, 0, 1 ) && '/' !== substr( $input, 1, 1 ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -574,6 +651,26 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
+	 * Gets a list of completed tasks.
+	 *
+	 * @param string $task_list_id Optional. Will default to `site_intent` option.
+	 * @return array Array of completed tasks.
+	 */
+	private function get_completed_tasks( $task_list_id = null ) {
+		$task_list_id = $task_list_id ? $task_list_id : get_option( 'site_intent' );
+		if ( ! $task_list_id ) {
+			return array();
+		}
+		$task_list = $this->get_task_list( $task_list_id );
+		if ( empty( $task_list ) ) {
+			return array();
+		}
+		$built_tasks = $this->build( $task_list_id );
+		// filter for incomplete tasks
+		return wp_list_filter( $built_tasks, array( 'completed' => true ) );
+	}
+
+	/**
 	 * Checks if there are any active tasks.
 	 *
 	 * @param string|null $task_list_id Optional. Will default to `site_intent` option.
@@ -591,7 +688,7 @@ class Launchpad_Task_Lists {
 	 */
 	public function add_hooks_for_active_tasks( $task_list_id = null ) {
 		// leave things alone if Launchpad is not enabled.
-		if ( ! $this->is_launchpad_enabled() ) {
+		if ( ! $this->is_fullscreen_launchpad_enabled() ) {
 			return;
 		}
 
@@ -626,17 +723,9 @@ class Launchpad_Task_Lists {
 	 * @return bool True if successful, false if not.
 	 */
 	public function mark_task_complete( $task_id ) {
-		$task = $this->get_task( $task_id );
-		if ( empty( $task ) ) {
-			return false;
-		}
+		$result = wpcom_mark_launchpad_task_complete( $task_id );
 
-		$key              = $this->get_task_key( $task );
-		$statuses         = get_option( 'launchpad_checklist_tasks_statuses', array() );
-		$statuses[ $key ] = true;
-		$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
-
-		$this->maybe_disable_launchpad();
+		$this->maybe_disable_fullscreen_launchpad();
 
 		return $result;
 	}
@@ -659,15 +748,23 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
-	 * Disables Launchpad if all tasks are complete.
+	 * Disables fullscreen Launchpad if all tasks are complete.
 	 *
 	 * @return void
 	 */
-	public function maybe_disable_launchpad() {
-		if ( $this->has_active_tasks() ) {
-			return;
+	public function maybe_disable_fullscreen_launchpad() {
+		$completed_site_launched_task = wp_list_filter(
+			$this->get_completed_tasks(),
+			array(
+				'isLaunchTask' => true,
+			)
+		);
+
+		$site_launched = ! empty( $completed_site_launched_task );
+
+		if ( $site_launched || ! $this->has_active_tasks() ) {
+			$this->disable_fullscreen_launchpad();
 		}
-		$this->disable_launchpad();
 	}
 
 	/**
@@ -716,7 +813,7 @@ class Launchpad_Task_Lists {
 	 *
 	 * @return boolean
 	 */
-	public function is_launchpad_enabled() {
+	public function is_fullscreen_launchpad_enabled() {
 		$launchpad_screen = get_option( 'launchpad_screen' );
 		if ( 'full' !== $launchpad_screen ) {
 			return false;
@@ -729,8 +826,7 @@ class Launchpad_Task_Lists {
 	 *
 	 * @return bool True if successful, false if not.
 	 */
-	private function disable_launchpad() {
+	private function disable_fullscreen_launchpad() {
 		return update_option( 'launchpad_screen', 'off' );
 	}
-
 }

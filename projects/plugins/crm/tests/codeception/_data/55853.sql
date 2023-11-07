@@ -81,7 +81,7 @@ CREATE TABLE `wp_comments` (
 LOCK TABLES `wp_comments` WRITE;
 /*!40000 ALTER TABLE `wp_comments` DISABLE KEYS */;
 INSERT INTO `wp_comments` VALUES
-(1,1,'A WordPress Commenter','wapuu@wordpress.example','https://wordpress.org/','','2022-07-12 21:17:35','2022-07-12 21:17:35','Hi, this is a comment.\nTo get started with moderating, editing, and deleting comments, please visit the Comments screen in the dashboard.\nCommenter avatars come from <a href=\"https://en.gravatar.com/\">Gravatar</a>.',0,'1','','comment',0,0);
+(1,1,'A WordPress Commenter','wapuu@wordpress.example','https://wordpress.org/','','2022-07-12 21:17:35','2022-07-12 21:17:35','Hi, this is a comment.\nTo get started with moderating, editing, and deleting comments, please visit the Comments screen in the dashboard.\nCommenter avatars come from <a href=\"https://gravatar.com/\">Gravatar</a>.',0,'1','','comment',0,0);
 /*!40000 ALTER TABLE `wp_comments` ENABLE KEYS */;
 UNLOCK TABLES;
 

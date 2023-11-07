@@ -7,7 +7,7 @@ import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
  */
-import { blockName } from '../..';
+import metadata from '../../block.json';
 import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
 import { isUserConnected } from '../../lib/connection';
 
@@ -30,7 +30,7 @@ type BlockSettingsProps = {
 };
 
 export const isAiAssistantSupportExtensionEnabled =
-	window?.Jetpack_Editor_Initial_State.available_blocks?.[ AI_ASSISTANT_SUPPORT_NAME ];
+	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ AI_ASSISTANT_SUPPORT_NAME ];
 
 /**
  * Check if it is possible to extend the block.
@@ -38,7 +38,7 @@ export const isAiAssistantSupportExtensionEnabled =
  * @returns {boolean} True if it is possible to extend the block.
  */
 export function isPossibleToExtendBlock(): boolean {
-	const isBlockRegistered = getBlockType( blockName );
+	const isBlockRegistered = getBlockType( metadata.name );
 	if ( ! isBlockRegistered ) {
 		return false;
 	}
@@ -66,7 +66,7 @@ export function isPossibleToExtendBlock(): boolean {
 	 */
 	const { getHiddenBlockTypes } = select( 'core/edit-post' ) || {};
 	const hiddenBlocks = getHiddenBlockTypes?.() || []; // It will extend the block if the function is undefined.
-	if ( hiddenBlocks.includes( blockName ) ) {
+	if ( hiddenBlocks.includes( metadata.name ) ) {
 		return false;
 	}
 

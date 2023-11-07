@@ -3,6 +3,7 @@
 namespace Automatic\Jetpack\CRM\Automation\Tests\Mocks;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Tests\Event_Emitter;
 
 class Empty_Slug_Trigger extends Base_Trigger {
@@ -32,13 +33,22 @@ class Empty_Slug_Trigger extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_category(): ?string {
-		return __( 'contact', 'zero-bs-crm' );
+		return 'contact';
+	}
+
+	/**
+	 * Get the data type of the trigger.
+	 *
+	 * @return string
+	 */
+	public static function get_data_type(): string {
+		return Contact_Data::class;
 	}
 
 	/**
 	 * Listen to the desired event
 	 */
-	protected function listen_to_event() {
+	protected function listen_to_event(): void {
 		$event_emitter = Event_Emitter::instance();
 
 		$event_emitter->on(

@@ -127,7 +127,8 @@ class WPCOM_JSON_API_List_Terms_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 */
 	public function get_found( $taxonomy, $args ) {
 		unset( $args['offset'] );
-		return wp_count_terms( $taxonomy, $args );
+		$args['taxonomy'] = $taxonomy;
+		return wp_count_terms( $args );
 	}
 
 	/**
@@ -137,7 +138,8 @@ class WPCOM_JSON_API_List_Terms_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @param array  $args - the arguments.
 	 */
 	public function get_formatted_terms( $taxonomy, $args ) {
-		$terms = get_terms( $taxonomy, $args );
+		$args['taxonomy'] = $taxonomy;
+		$terms            = get_terms( $args );
 
 		$formatted_terms = array();
 		foreach ( $terms as $term ) {

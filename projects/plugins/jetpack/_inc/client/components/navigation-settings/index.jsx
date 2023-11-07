@@ -171,7 +171,6 @@ export class NavigationSettings extends React.Component {
 						'comments',
 						'gravatar-hovercards',
 						'markdown',
-						'subscriptions',
 					] ) && (
 						<NavItem
 							path="#discussion"
@@ -197,13 +196,22 @@ export class NavigationSettings extends React.Component {
 							{ _x( 'Traffic', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
+					{ this.props.hasAnyOfTheseModules( [ 'subscriptions' ] ) && (
+						<NavItem
+							path="#newsletter"
+							onClick={ this.handleClickForTracking( 'newsletter' ) }
+							selected={ this.props.location.pathname === '/newsletter' }
+						>
+							{ _x( 'Newsletter', 'Navigation item.', 'jetpack' ) }
+						</NavItem>
+					) }
 					{ this.props.hasAnyOfTheseModules( [ 'wordads' ] ) && (
 						<NavItem
 							path="#earn"
 							onClick={ this.handleClickForTracking( 'earn' ) }
 							selected={ this.props.location.pathname === '/earn' }
 						>
-							{ _x( 'Earn', 'Navigation item.', 'jetpack' ) }
+							{ _x( 'Monetize', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
 				</NavTabs>

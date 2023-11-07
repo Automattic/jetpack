@@ -24,7 +24,7 @@ const TumblrPreview = props => {
 
 	if ( connection ) {
 		user = {
-			displayName: author,
+			displayName: connection.display_name || author,
 			avatarUrl: connection.profile_picture,
 		};
 	}

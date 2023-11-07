@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.4",
+		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"scripts": {
@@ -23,5 +23,13 @@
 		}
 	],
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-analytics",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-analytics/compare/v${old}...v${new}"
+		},
+		"autotagger": true,
+		"npmjs-autopublish": true
+	}
 }

@@ -8,6 +8,8 @@ import {
 	ToolbarDropdownMenu,
 	DropdownMenu,
 	Icon,
+	Button,
+	Tooltip,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chevronRight } from '@wordpress/icons';
@@ -130,6 +132,8 @@ export type ToneProp = ( typeof PROMPT_TONES_LIST )[ number ];
 type ToneToolbarDropdownMenuProps = {
 	value?: ToneProp;
 	onChange: ( value: ToneProp ) => void;
+	label?: string;
+	disabled?: boolean;
 };
 
 const ToneMenuGroup = ( { value, onChange }: ToneToolbarDropdownMenuProps ) => (
@@ -149,13 +153,15 @@ const ToneMenuGroup = ( { value, onChange }: ToneToolbarDropdownMenuProps ) => (
 );
 
 export function ToneDropdownMenu( {
+	label = __( 'Change tone', 'jetpack' ),
 	value = DEFAULT_PROMPT_TONE,
 	onChange,
+	disabled = false,
 }: ToneToolbarDropdownMenuProps ) {
 	return (
 		<DropdownMenu
 			icon={ speakToneIcon }
-			label={ __( 'Change tone', 'jetpack' ) }
+			label={ label }
 			className="ai-assistant__tone-dropdown"
 			popoverProps={ {
 				variant: 'toolbar',
@@ -163,15 +169,22 @@ export function ToneDropdownMenu( {
 			toggleProps={ {
 				children: (
 					<>
-						<div className="ai-assistant__tone-dropdown__toggle-label">
-							{ __( 'Change tone', 'jetpack' ) }
-						</div>
+						<div className="ai-assistant__tone-dropdown__toggle-label">{ label }</div>
 						<Icon icon={ chevronRight } />
 					</>
 				),
+				disabled,
 			} }
 		>
-			{ () => <ToneMenuGroup value={ value } onChange={ onChange } /> }
+			{ ( { onClose } ) => (
+				<ToneMenuGroup
+					value={ value }
+					onChange={ newTone => {
+						onChange( newTone );
+						onClose();
+					} }
+				/>
+			) }
 		</DropdownMenu>
 	);
 }
@@ -179,14 +192,24 @@ export function ToneDropdownMenu( {
 export default function ToneToolbarDropdownMenu( {
 	value = DEFAULT_PROMPT_TONE,
 	onChange,
+	disabled = false,
 }: ToneToolbarDropdownMenuProps ) {
-	return (
+	const label = __( 'Change tone', 'jetpack' );
+
+	return disabled ? (
+		<Tooltip text={ label }>
+			<Button disabled>
+				<Icon icon={ speakToneIcon } />
+			</Button>
+		</Tooltip>
+	) : (
 		<ToolbarDropdownMenu
 			icon={ speakToneIcon }
-			label={ __( 'Change tone', 'jetpack' ) }
+			label={ label }
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
+			disabled={ disabled }
 		>
 			{ () => <ToneMenuGroup value={ value } onChange={ onChange } /> }
 		</ToolbarDropdownMenu>

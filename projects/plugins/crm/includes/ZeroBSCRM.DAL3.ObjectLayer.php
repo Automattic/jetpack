@@ -1214,10 +1214,7 @@ class zbsDAL_ObjectLayer {
 
         }
         public function stripSlashes($obj=false){
-
-            // pass back to main $zbs->DAL
-            return $this->DAL()->stripSlashes($obj);
-
+			return zeroBSCRM_stripSlashes( $obj );
         }
         public function decodeIfJSON($str=''){
 
@@ -1334,6 +1331,4 @@ class zbsDAL_ObjectLayer {
 
     // =========== / DAL2 WRAPPERS ===================================================
     // ===============================================================================
-
-
 } // / class

@@ -56,5 +56,4 @@ class Boost_API {
 	public static function post( $path, $payload = array() ) {
 		return self::get_client()->post( $path, $payload );
 	}
-
 }

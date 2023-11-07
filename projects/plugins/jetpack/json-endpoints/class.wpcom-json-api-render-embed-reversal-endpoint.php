@@ -135,5 +135,4 @@ class WPCOM_JSON_API_Render_Embed_Reversal_Endpoint extends WPCOM_JSON_API_Rende
 		}
 		return false;
 	}
-
 }

@@ -10,7 +10,7 @@
 use Automattic\Jetpack\Blocks;
 
 Blocks::jetpack_register_block(
-	'jetpack/contact-info',
+	__DIR__,
 	array(
 		'render_callback' => array( 'Jetpack_Contact_Info_Block', 'render' ),
 	)

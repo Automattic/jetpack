@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.58.3] - 2023-11-03
+### Fixed
+- Make sure scheme history option is an array. [#33905]
+
+## [1.58.2] - 2023-10-19
+### Changed
+- Updated package dependencies. [#33687]
+
+## [1.58.1] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [1.58.0] - 2023-09-25
+### Added
+- Disallow private IP addresses for site connection. [#32898]
+
+## [1.57.5] - 2023-09-19
+
+- Minor internal updates.
+
+## [1.57.4] - 2023-09-13
+### Fixed
+- Use JS to check if initial state is already rendered. [#32932]
+
+## [1.57.3] - 2023-09-11
+### Changed
+- General: remove WP 6.1 backwards compatibility checks [#32772]
+
+## [1.57.2] - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+
+## [1.57.1] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
+## [1.57.0] - 2023-08-21
+### Added
+- Better way to render initial state. [#32499]
+
+## [1.56.1] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+### Removed
+- Tests: remove invalid tests for WP 6.3 [#32353]
+
 ## [1.56.0] - 2023-08-01
 ### Added
 - Add a filter to modify response for the `jetpack.idcUrlValidation` endpoint, add unit test. [#32005]
@@ -853,6 +900,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.58.3]: https://github.com/Automattic/jetpack-connection/compare/v1.58.2...v1.58.3
+[1.58.2]: https://github.com/Automattic/jetpack-connection/compare/v1.58.1...v1.58.2
+[1.58.1]: https://github.com/Automattic/jetpack-connection/compare/v1.58.0...v1.58.1
+[1.58.0]: https://github.com/Automattic/jetpack-connection/compare/v1.57.5...v1.58.0
+[1.57.5]: https://github.com/Automattic/jetpack-connection/compare/v1.57.4...v1.57.5
+[1.57.4]: https://github.com/Automattic/jetpack-connection/compare/v1.57.3...v1.57.4
+[1.57.3]: https://github.com/Automattic/jetpack-connection/compare/v1.57.2...v1.57.3
+[1.57.2]: https://github.com/Automattic/jetpack-connection/compare/v1.57.1...v1.57.2
+[1.57.1]: https://github.com/Automattic/jetpack-connection/compare/v1.57.0...v1.57.1
+[1.57.0]: https://github.com/Automattic/jetpack-connection/compare/v1.56.1...v1.57.0
+[1.56.1]: https://github.com/Automattic/jetpack-connection/compare/v1.56.0...v1.56.1
 [1.56.0]: https://github.com/Automattic/jetpack-connection/compare/v1.55.0...v1.56.0
 [1.55.0]: https://github.com/Automattic/jetpack-connection/compare/v1.54.1...v1.55.0
 [1.54.1]: https://github.com/Automattic/jetpack-connection/compare/v1.54.0...v1.54.1

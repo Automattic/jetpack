@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.5] - 2023-11-03
+### Changed
+- Update dependencies.
+
+## [0.12.4] - 2023-10-19
+### Changed
+- Updated package dependencies. [#33687]
+
+## [0.12.3] - 2023-10-17
+### Changed
+- Updated package dependencies. [#33646]
+
+## [0.12.2] - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429]
+
+## [0.12.1] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.12.0] - 2023-09-19
+### Added
+- Helpers functions for block icons [#32698]
+
+## [0.11.5] - 2023-09-13
+### Changed
+- Updated package dependencies. [#33001]
+
+## [0.11.4] - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+- Updated package dependencies. [#32804]
+
+### Removed
+- Remove unnecessary files from mirror repo and published package. [#32674]
+
+## [0.11.3] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
+## [0.11.2] - 2023-08-21
+### Changed
+- Use the new method to render Connection initial state. [#32499]
+
+### Fixed
+- Add a stub module to avoid the native mobile editor importing incompatible web modules. [#32468]
+
+## [0.11.1] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## [0.11.0] - 2023-08-07
+### Added
+- Add shared block editor logo component. [#32257]
+
 ## [0.10.9] - 2023-07-17
 ### Changed
 - Updated package dependencies. [#31872]
@@ -221,6 +276,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.12.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.4...0.12.5
+[0.12.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.3...0.12.4
+[0.12.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.2...0.12.3
+[0.12.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.1...0.12.2
+[0.12.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.0...0.12.1
+[0.12.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.11.5...0.12.0
+[0.11.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.11.4...0.11.5
+[0.11.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.11.3...0.11.4
+[0.11.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.11.2...0.11.3
+[0.11.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.11.1...0.11.2
+[0.11.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.11.0...0.11.1
+[0.11.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.9...0.11.0
 [0.10.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.8...0.10.9
 [0.10.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.7...0.10.8
 [0.10.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.6...0.10.7

@@ -332,5 +332,4 @@ class Partner_Coupon_Test extends BaseTestCase {
 			),
 		);
 	}
-
 }

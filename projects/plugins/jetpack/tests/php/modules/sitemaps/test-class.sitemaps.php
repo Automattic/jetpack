@@ -65,5 +65,4 @@ class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 		// Clean up.
 		delete_option( 'jetpack_sitemap_location' );
 	}
-
 }

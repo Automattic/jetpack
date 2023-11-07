@@ -1,6 +1,6 @@
 name: Bug Report
 description: Report issues with one of our products.
-labels: [ 'Needs triage', '[Type] Bug', 'User Report' ]
+labels: [ 'Needs triage', '[Type] Bug' ]
 body:
   - type: markdown
     attributes:

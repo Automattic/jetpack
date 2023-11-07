@@ -69,5 +69,4 @@ class Woo_Sync_Segment_Conditions {
 		$this->conditions['woo_order_count'] = new \Segment_Condition_Woo_Order_Count();
 
 	}
-
 }

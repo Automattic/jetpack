@@ -152,5 +152,4 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 		$this->assertTrue( $librarian->read_sitemap_data( 'name-2', 'type' ) === null );
 		$this->assertTrue( $librarian->read_sitemap_data( 'name-3', 'type' ) === null );
 	}
-
 }

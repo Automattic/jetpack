@@ -451,7 +451,6 @@ class VaultPress_kses {
 		else
 			return '';
 	}
-
 }
 
 if ( !function_exists( 'get_available_languages' ) ) {

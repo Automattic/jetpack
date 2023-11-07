@@ -618,13 +618,4 @@ add_action( 'rest_api_init', 'jetpack_post_likes_register_rest_field' );
 // restapi_theme_init because they depend on theme support, so let's also hook to that.
 add_action( 'restapi_theme_init', 'jetpack_post_likes_register_rest_field', 20 );
 
-/**
- * Set the Likes and Sharing Gutenberg extension availability.
- */
-function jetpack_post_likes_set_extension_availability() {
-	Jetpack_Gutenberg::set_extension_available( 'likes' );
-}
-
-add_action( 'jetpack_register_gutenberg_extensions', 'jetpack_post_likes_set_extension_availability' );
-
 Jetpack_Likes::init();

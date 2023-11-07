@@ -19,7 +19,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'id_map'                => 'site_edited',
 			'add_listener_callback' => function () {
-				add_action( 'load-site-editor.php', 'wpcom_track_edit_site_task' );
+				add_action( 'load-site-editor.php', 'wpcom_launchpad_track_edit_site_task' );
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
 				return '/site-editor/' . $data['site_slug_encoded'];
@@ -30,22 +30,29 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$flow = get_option( 'site_intent' );
+				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'] . '&flow=' . $flow;
+			},
 		),
 		'design_selected'                 => array(
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
-			'is_disabled_callback' => 'wpcom_is_design_step_enabled',
+			'is_disabled_callback' => 'wpcom_launchpad_is_design_step_enabled',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'];
+			},
 		),
 		'domain_claim'                    => array(
 			'get_title'            => function () {
 				return __( 'Claim your free one-year domain', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_domain_claim_completed',
-			'is_visible_callback'  => 'wpcom_domain_claim_is_visible_callback',
-			'get_task_url'         => function ( $task, $default, $data ) {
+			'is_complete_callback' => 'wpcom_launchpad_is_domain_claim_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_domain_claim_is_visible_callback',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/domains/add/' . $data['site_slug_encoded'];
 			},
 		),
@@ -54,11 +61,15 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Choose a domain', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_domain_upsell_completed',
-			'badge_text_callback'  => 'wpcom_get_domain_upsell_badge_text',
-			'is_visible_callback'  => 'wpcom_is_domain_upsell_task_visible',
-			'get_task_url'         => function ( $task, $default, $data ) {
-				return '/domains/add/' . $data['site_slug_encoded'];
+			'is_complete_callback' => 'wpcom_launchpad_is_domain_upsell_completed',
+			'badge_text_callback'  => 'wpcom_launchpad_get_domain_upsell_badge_text',
+			'is_visible_callback'  => 'wpcom_launchpad_is_domain_upsell_task_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_checklists()->is_task_complete( $task ) ) {
+						return '/domains/manage/' . $data['site_slug_encoded'];
+				}
+
+				return '/setup/domain-upsell/domains?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
 		'first_post_published'            => array(
@@ -66,7 +77,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Write your first post', 'jetpack-mu-wpcom' );
 			},
 			'add_listener_callback' => function () {
-				add_action( 'publish_post', 'wpcom_track_publish_first_post_task' );
+				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
 				return '/post/' . $data['site_slug_encoded'];
@@ -76,16 +87,22 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Choose a plan', 'jetpack-mu-wpcom' );
 			},
-			'subtitle'             => 'wpcom_get_plan_completed_subtitle', // This callback doesn't seem to exist.
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$flow = get_option( 'site_intent' );
+				return '/setup/' . $flow . '/plans?siteSlug=' . $data['site_slug_encoded'];
+			},
 		),
 		'plan_selected'                   => array(
 			'get_title'            => function () {
 				return __( 'Choose a plan', 'jetpack-mu-wpcom' );
 			},
-			'subtitle'             => 'wpcom_get_plan_selected_subtitle',
+			'subtitle'             => 'wpcom_launchpad_get_plan_selected_subtitle',
 			'is_complete_callback' => '__return_true',
-			'badge_text_callback'  => 'wpcom_get_plan_selected_badge_text',
+			'badge_text_callback'  => 'wpcom_launchpad_get_plan_selected_badge_text',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/plans/' . $data['site_slug_encoded'];
+			},
 		),
 		'setup_general'                   => array(
 			'get_title'            => function () {
@@ -93,24 +110,34 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => '__return_true',
 			'is_disabled_callback' => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/settings/general/' . $data['site_slug_encoded'];
+			},
 		),
 		'site_launched'                   => array(
 			'get_title'             => function () {
 				return __( 'Launch your site', 'jetpack-mu-wpcom' );
 			},
 			'isLaunchTask'          => true,
-			'add_listener_callback' => 'wpcom_add_site_launch_listener',
-			'get_task_url'          => function ( $task, $default, $data ) {
-				return '/settings/general/' . $data['site_slug_encoded'] . '#site-privacy-settings';
-			},
+			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'verify_email'                    => array(
-			'get_title'           => function () {
-				return __( 'Confirm email (check your inbox)', 'jetpack-mu-wpcom' );
+			'get_title'            => function () {
+				return __( 'Verify email address', 'jetpack-mu-wpcom' );
 			},
-			'is_visible_callback' => 'wpcom_launchpad_is_email_unverified',
-			'get_task_url'        => function () {
+			'is_complete_callback' => 'wpcom_launchpad_is_email_verified',
+			'is_disabled_callback' => 'wpcom_launchpad_is_email_verified',
+			'get_calypso_path'     => function () {
 				return '/me/account';
+			},
+		),
+		'verify_domain_email'             => array(
+			'get_title'           => function () {
+				return __( 'Verify domain email address', 'jetpack-mu-wpcom' );
+			},
+			'is_visible_callback' => 'wpcom_launchpad_is_domain_email_unverified',
+			'get_calypso_path'    => function ( $task, $default, $data ) {
+				return '/domains/manage/' . $data['site_slug_encoded'];
 			},
 		),
 
@@ -121,7 +148,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Start writing', 'jetpack-mu-wpcom' );
 			},
 			'add_listener_callback' => function () {
-				add_action( 'publish_post', 'wpcom_track_publish_first_post_task' );
+				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
 				return '/post/' . $data['site_slug_encoded'];
@@ -131,7 +158,10 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'           => function () {
 				return __( 'Create paid Newsletter', 'jetpack-mu-wpcom' );
 			},
-			'is_visible_callback' => 'wpcom_has_goal_paid_subscribers',
+			'is_visible_callback' => 'wpcom_launchpad_has_goal_paid_subscribers',
+			'get_calypso_path'    => function ( $task, $default, $data ) {
+				return '/earn/payments-plans/' . $data['site_slug_encoded'] . '#add-newsletter-payment-plan';
+			},
 		),
 		'setup_newsletter'                => array(
 			'id'                   => 'setup_newsletter',
@@ -139,19 +169,44 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Personalize newsletter', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/settings/general/' . $data['site_slug_encoded'];
+			},
 		),
 		'set_up_payments'                 => array(
 			'get_title'           => function () {
 				return __( 'Set up payment method', 'jetpack-mu-wpcom' );
 			},
-			'is_visible_callback' => 'wpcom_has_goal_paid_subscribers',
+			'is_visible_callback' => 'wpcom_launchpad_has_goal_paid_subscribers',
+			'get_calypso_path'    => function ( $task, $default, $data ) {
+				if ( function_exists( 'get_memberships_connected_account_redirect' ) ) {
+					return get_memberships_connected_account_redirect(
+						get_current_user_id(),
+						get_current_blog_id()
+					);
+				}
+				return '/earn/payments/' . $data['site_slug_encoded'];
+			},
 		),
 		'subscribers_added'               => array(
 			'get_title'            => function () {
 				return __( 'Add subscribers', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
-			'is_visible_callback'  => 'wpcom_has_goal_import_subscribers',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/subscribers/' . $data['site_slug_encoded'];
+			},
+		),
+		'migrate_content'                 => array(
+			'get_title'            => function () {
+				return __( 'Migrate content', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/import/' . $data['site_slug_encoded'];
+			},
 		),
 
 		// Link in bio tasks.
@@ -160,8 +215,8 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Launch your site', 'jetpack-mu-wpcom' );
 			},
 			'id_map'                => 'site_launched',
-			'is_disabled_callback'  => 'wpcom_is_link_in_bio_launch_disabled',
-			'add_listener_callback' => 'wpcom_add_site_launch_listener',
+			'is_disabled_callback'  => 'wpcom_launchpad_is_link_in_bio_launch_disabled',
+			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'links_added'                     => array(
 			'get_title'             => function () {
@@ -169,7 +224,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'id_map'                => 'links_edited',
 			'add_listener_callback' => function () {
-				add_action( 'load-site-editor.php', 'wpcom_track_edit_site_task' );
+				add_action( 'load-site-editor.php', 'wpcom_launchpad_track_edit_site_task' );
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
 				return '/site-editor/' . $data['site_slug_encoded'];
@@ -180,6 +235,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Personalize Link in Bio', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/setup/link-in-bio-post-setup/linkInBioPostSetup?siteSlug=' . $data['site_slug_encoded'];
+			},
 		),
 
 		// Videopress tasks.
@@ -188,8 +246,8 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'             => function () {
 				return __( 'Launch site', 'jetpack-mu-wpcom' );
 			},
-			'is_disabled_callback'  => 'wpcom_is_videopress_launch_disabled',
-			'add_listener_callback' => 'wpcom_add_site_launch_listener',
+			'is_disabled_callback'  => 'wpcom_launchpad_is_videopress_launch_disabled',
+			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'videopress_setup'                => array(
 			'get_title'            => function () {
@@ -202,9 +260,16 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'             => function () {
 				return __( 'Upload your first video', 'jetpack-mu-wpcom' );
 			},
-			'is_disabled_callback'  => 'wpcom_is_videopress_upload_disabled',
+			'is_disabled_callback'  => 'wpcom_launchpad_is_videopress_upload_disabled',
 			'add_listener_callback' => function () {
-				add_action( 'add_attachment', 'wpcom_track_video_uploaded_task' );
+				add_action( 'add_attachment', 'wpcom_launchpad_track_video_uploaded_task' );
+			},
+			'get_calypso_path'      => function ( $task, $default, $data ) {
+				$page_on_front = get_option( 'page_on_front', false );
+				if ( $page_on_front ) {
+					return '/page/' . $data['site_slug_encoded'] . '/' . $page_on_front;
+				}
+				return '/site-editor/' . $data['site_slug_encoded'] . '?canvas=edit';
 			},
 		),
 
@@ -214,13 +279,18 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Launch your blog', 'jetpack-mu-wpcom' );
 			},
 			'isLaunchTask'          => true,
-			'add_listener_callback' => 'wpcom_add_site_launch_listener',
+			'is_disabled_callback'  => 'wpcom_launchpad_is_blog_launched_task_disabled',
+			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
 		),
 		'setup_blog'                      => array(
 			'get_title'            => function () {
 				return __( 'Name your blog', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$flow = get_option( 'site_intent' );
+				return '/setup/' . $flow . '/setup-blog?siteSlug=' . $data['site_slug_encoded'];
+			},
 		),
 
 		// Free plan tasks.
@@ -229,6 +299,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Personalize your site', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/settings/general/' . $data['site_slug_encoded'];
+			},
 		),
 
 		// Write tasks.
@@ -245,7 +318,8 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_site_title_task_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/settings/general/' . $data['site_slug_encoded'];
 			},
@@ -255,7 +329,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Drive traffic to your site', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/marketing/connections/' . $data['site_slug_encoded'];
 			},
@@ -265,7 +339,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Add a new page', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/page/' . $data['site_slug_encoded'];
 			},
@@ -275,15 +349,15 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Update your About page', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
-			'is_visible_callback'  => 'wpcom_is_update_about_page_task_visible',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_update_about_page_task_visible',
 			'extra_data_callback'  => function () {
 				return array(
-					'about_page_id' => wpcom_get_site_about_page_id(),
+					'about_page_id' => wpcom_launchpad_get_site_about_page_id(),
 				);
 			},
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/page/' . $data['site_slug_encoded'] . '/' . wpcom_get_site_about_page_id();
+				return '/page/' . $data['site_slug_encoded'] . '/' . wpcom_launchpad_get_site_about_page_id();
 			},
 		),
 
@@ -291,8 +365,8 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Edit a page', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
-			'is_visible_callback'  => 'wpcom_is_edit_page_task_visible',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_edit_page_task_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/pages/' . $data['site_slug_encoded'];
 			},
@@ -303,10 +377,14 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Customize your domain', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_domain_customize_completed',
-			'is_visible_callback'  => 'wpcom_is_domain_customize_task_visible',
+			'is_complete_callback' => 'wpcom_launchpad_is_domain_customize_completed',
+			'is_disabled_callback' => 'wpcom_launchpad_is_domain_customize_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/domains/add/' . $data['site_slug_encoded'];
+				// The from parameter is used to redirect the user back to the Launchpad when they
+				// click on the Back button on the domain customization page.
+				// TODO: This can cause problem if this task is used in the future for other flows
+				// that are not in the Customer Home page. We should find a better way to handle this.
+				return '/domains/add/' . $data['site_slug_encoded'] . '?from=my-home';
 			},
 		),
 
@@ -314,7 +392,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Share your site', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 		),
 
 		// Newsletter post-launch tasks.
@@ -322,7 +400,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Earn money with your newsletter', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/earn/' . $data['site_slug_encoded'];
 			},
@@ -332,17 +410,20 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Customize welcome message', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/settings/reading/' . $data['site_slug_encoded'] . '#newsletter-settings';
+				return '/settings/newsletter/' . $data['site_slug_encoded'];
 			},
 		),
 		'enable_subscribers_modal'        => array(
 			'get_title'            => function () {
 				return __( 'Enable subscribers modal', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
-			'is_visible_callback'  => 'wpcom_is_enable_subscribers_modal_visible',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_enable_subscribers_modal_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/settings/newsletter/' . $data['site_slug_encoded'];
+			},
 		),
 		'add_10_email_subscribers'        => array(
 			'get_title'                 => function () {
@@ -362,13 +443,16 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'repetition_count_callback' => 'wpcom_launchpad_get_write_3_posts_repetition_count',
 			'target_repetitions'        => 3,
+			'get_calypso_path'          => function ( $task, $default, $data ) {
+				return '/post/' . $data['site_slug_encoded'];
+			},
 		),
 		'manage_subscribers'              => array(
 			'get_title'            => function () {
 				return __( 'Manage your subscribers', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
-			'is_visible_callback'  => 'wpcom_has_goal_import_subscribers',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/subscribers/' . $data['site_slug_encoded'];
 			},
@@ -380,6 +464,92 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'get_calypso_path' => function ( $task, $default, $data ) {
 				return '/marketing/connections/' . $data['site_slug_encoded'];
+			},
+		),
+		'manage_paid_newsletter_plan'     => array(
+			'get_title'            => function () {
+				return __( 'Manage your paid Newsletter plan', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_has_goal_paid_subscribers',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/earn/payments-plans/' . $data['site_slug_encoded'];
+			},
+		),
+		'add_about_page'                  => array(
+			'get_title'            => function () {
+				return __( 'Add your About page', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_add_about_page_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/page/' . $data['site_slug_encoded'];
+			},
+		),
+
+		// Earn tasks
+		'stripe_connected'                => array(
+			'get_title'            => function () {
+				return __( 'Connect a Stripe account to collect payments', 'jetpack-mu-wpcom' );
+			},
+			'is_visible_callback'  => '__return_true',
+			'is_complete_callback' => 'wpcom_launchpad_is_stripe_connected',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( function_exists( 'get_memberships_connected_account_redirect' ) ) {
+					return get_memberships_connected_account_redirect(
+						get_current_user_id(),
+						get_current_blog_id()
+					);
+				}
+				return '/earn/payments/' . $data['site_slug_encoded'];
+			},
+		),
+		'paid_offer_created'              => array(
+			'get_title'            => function () {
+				return __( 'Set up an offer for your supporters', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_has_paid_membership_plans',
+			'is_visible_callback'  => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/earn/payments-plans/' . $data['site_slug_encoded'];
+			},
+		),
+
+		// Hosting flow tasks
+		'site_theme_selected'             => array(
+			'get_title'            => function () {
+				return __( 'Choose a theme', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/themes/' . $data['site_slug_encoded'];
+			},
+		),
+		'install_custom_plugin'           => array(
+			'get_title'            => function () {
+				return __( 'Install a custom plugin', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/plugins/' . $data['site_slug_encoded'];
+			},
+		),
+		'setup_ssh'                       => array(
+			'get_title'            => function () {
+				return __( 'Set up ssh', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/hosting-config/' . $data['site_slug_encoded'] . '#sftp-credentials';
+			},
+		),
+		'site_monitoring_page'            => array(
+			'get_title'            => function () {
+				return __( 'View site metrics', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/site-monitoring/' . $data['site_slug_encoded'];
 			},
 		),
 	);
@@ -415,33 +585,137 @@ function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array() 
 }
 
 /**
+ * Returns a list of mappings from 'id_map' to the actual task id.
+ *
+ * @return array
+ */
+function wpcom_launchpad_get_reverse_id_mappings() {
+	$task_definitions = wpcom_launchpad_get_task_definitions();
+
+	$mapping = array();
+	foreach ( $task_definitions as $task_id => $value ) {
+		if ( ! isset( $value['id_map'] ) ) {
+			continue;
+		}
+		$mapping[ $value['id_map'] ] = $task_id;
+	}
+
+	return $mapping;
+}
+/**
  * Mark a task as complete.
  *
- * @param string $task_id The task ID.
+ * Also included wp-content/lib/memberships/connected-accounts.php#36
+ * and wp-content/lib/memberships/class.membership-product.php#497
+ *
+ * @param string $task_id The task ID that should be marked as complete.
+ *
  * @return bool True if the task was marked as complete, false otherwise.
  */
 function wpcom_mark_launchpad_task_complete( $task_id ) {
-	$task_definitions = wpcom_launchpad_get_task_definitions();
-
-	// If the task ID isn't defined, return false.
-	if ( ! isset( $task_definitions[ $task_id ] ) ) {
+	if ( empty( $task_id ) ) {
 		return false;
 	}
 
-	// If the task has an id_map, use that instead.
-	$key = $task_id;
-	if ( isset( $task_definitions[ $task_id ]['id_map'] ) ) {
-		$key = $task_definitions[ $task_id ]['id_map'];
+	$result = wpcom_launchpad_update_task_status( array( $task_id => true ) );
+
+	return isset( $result[ $task_id ] ) && $result[ $task_id ];
+}
+
+/**
+ * Mark a task as incomplete.
+ *
+ * @param string $task_id The task ID that should be marked as incomplete.
+ * @return bool True if the task was marked as incomplete, false otherwise.
+ */
+function wpcom_mark_launchpad_task_incomplete( $task_id ) {
+	if ( empty( $task_id ) ) {
+		return false;
 	}
 
-	$statuses         = get_option( 'launchpad_checklist_tasks_statuses', array() );
-	$statuses[ $key ] = true;
-	$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
+	$result = wpcom_launchpad_update_task_status( array( $task_id => false ) );
 
-	// Record the completion event in Tracks.
-	wpcom_launchpad_track_completed_task( $key );
+	return isset( $result[ $task_id ] ) && ! $result[ $task_id ];
+}
 
-	return $result;
+/**
+ * Updates task/s statuses. If a non-existent task is passed, it will be ignored.
+ *
+ * @param bool[] $new_statuses Array of mappings [ task_id: string => new_status: bool ].
+ * @return bool[] Return the new values of the requested statuses with the requested task ID as the key. This will be an empty array if the option update fails, and any ignored status values will not be returned.
+ */
+function wpcom_launchpad_update_task_status( $new_statuses ) {
+	if ( ! is_array( $new_statuses ) ) {
+		return array();
+	}
+
+	$task_definitions = wpcom_launchpad_get_task_definitions();
+	$reverse_id_map   = wpcom_launchpad_get_reverse_id_mappings();
+
+	$statuses_to_update = array();
+	$response_statuses  = array();
+	$option_map         = array();
+
+	foreach ( $new_statuses as $requested_task_id => $new_status ) {
+		// Work out what the underlying task ID/option is.
+		if ( isset( $task_definitions[ $requested_task_id ] ) ) {
+			// Check if the requested task has an id_map.
+			if ( isset( $task_definitions[ $requested_task_id ]['id_map'] ) ) {
+				$resolved_task_id = $task_definitions[ $requested_task_id ]['id_map'];
+			} else {
+				$resolved_task_id = $requested_task_id;
+			}
+		} elseif ( isset( $reverse_id_map[ $requested_task_id ] ) ) {
+			// We have some tasks that are only an id_map, but not a standalone task ID.
+			$resolved_task_id = $requested_task_id;
+		} else {
+			continue;
+		}
+
+		$new_status = (bool) $new_status;
+
+		$statuses_to_update[ $resolved_task_id ] = $new_status;
+		$response_statuses[ $requested_task_id ] = $new_status;
+		$option_map[ $resolved_task_id ]         = $requested_task_id;
+	}
+
+	$old_values = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+	// Only store truthy values.
+	$new_values = array_filter(
+		array_merge( $old_values, $statuses_to_update )
+	);
+
+	// Check for a no-op where we are not actually writing anything.
+	if ( $new_values === $old_values ) {
+		return $response_statuses;
+	}
+
+	if ( empty( $new_values ) ) {
+		// If the new value is empty, but we had values before, we need to delete the option.
+		$update_result = delete_option( 'launchpad_checklist_tasks_statuses' );
+	} else {
+		$update_result = update_option( 'launchpad_checklist_tasks_statuses', $new_values );
+	}
+
+	if ( ! $update_result ) {
+		return array();
+	}
+
+	// Track task completion for newly completed tasks.
+	$maybe_newly_completed_tasks = array_filter( $statuses_to_update );
+
+	foreach ( $maybe_newly_completed_tasks as $task_id => $task_status ) {
+		if ( isset( $old_values[ $task_id ] ) ) {
+			// Task was already complete - no need to mark as complete again.
+			continue;
+		}
+		// Use the requested task ID for completion tracking.
+		$requested_task_id = $option_map[ $task_id ];
+
+		wpcom_launchpad_track_completed_task( $requested_task_id );
+	}
+
+	return $response_statuses;
 }
 
 /**
@@ -506,7 +780,7 @@ add_action( 'init', 'wpcom_launchpad_init_task_definitions', 11 );
  * @param string $task_id The task ID.
  * @return bool True if successful, false if not.
  */
-function wpcom_mark_launchpad_task_complete_if_active( $task_id ) {
+function wpcom_launchpad_mark_launchpad_task_complete_if_active( $task_id ) {
 	if ( wpcom_launchpad_checklists()->mark_task_complete_if_active( $task_id ) ) {
 		wpcom_launchpad_track_completed_task( $task_id );
 		return true;
@@ -520,9 +794,9 @@ function wpcom_mark_launchpad_task_complete_if_active( $task_id ) {
  *
  * @return void
  */
-function wpcom_track_edit_site_task() {
-	wpcom_mark_launchpad_task_complete_if_active( 'links_added' );
-	wpcom_mark_launchpad_task_complete_if_active( 'design_edited' );
+function wpcom_launchpad_track_edit_site_task() {
+	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'links_added' );
+	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'design_edited' );
 }
 
 /**
@@ -530,7 +804,7 @@ function wpcom_track_edit_site_task() {
  *
  * @return boolean
  */
-function wpcom_is_design_step_enabled() {
+function wpcom_launchpad_is_design_step_enabled() {
 	return ! wpcom_can_update_design_selected_task();
 }
 
@@ -541,7 +815,7 @@ function wpcom_is_design_step_enabled() {
  * @param mixed $default The default value.
  * @return bool True if domain upsell task is completed.
  */
-function wpcom_is_domain_upsell_completed( $task, $default ) {
+function wpcom_launchpad_is_domain_upsell_completed( $task, $default ) {
 	if ( wpcom_site_has_feature( 'custom-domain' ) ) {
 		return true;
 	}
@@ -570,7 +844,7 @@ function wpcom_is_domain_upsell_completed( $task, $default ) {
  *
  * @return string Badge text
  */
-function wpcom_get_domain_upsell_badge_text() {
+function wpcom_launchpad_get_domain_upsell_badge_text() {
 	// Never run `wpcom_is_checklist_task_complete` within a is_complete_callback unless you are fond of infinite loops.
 	return wpcom_is_checklist_task_complete( 'domain_upsell' ) ? '' : __( 'Upgrade plan', 'jetpack-mu-wpcom' );
 }
@@ -580,7 +854,7 @@ function wpcom_get_domain_upsell_badge_text() {
  *
  * @return bool True if user is on a free plan.
  */
-function wpcom_is_domain_upsell_task_visible() {
+function wpcom_launchpad_is_domain_upsell_task_visible() {
 	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
 		return false;
 	}
@@ -648,18 +922,64 @@ function wpcom_launchpad_get_newsletter_subscriber_count() {
 }
 
 /**
+ * Determines if Stripe has been connected.
+ *
+ * @return bool Whether Stripe account is connected.
+ */
+function wpcom_launchpad_is_stripe_connected() {
+	$membership_settings = wpcom_launchpad_get_membership_settings();
+	if ( ! $membership_settings ) {
+		return false;
+	}
+	return isset( $membership_settings['connected_account_id'] ) && $membership_settings['connected_account_id'] !== '';
+}
+
+/**
+ * Determines if any paid membership plan exists.
+ *
+ * @return bool Whether paid plan exists.
+ */
+function wpcom_launchpad_has_paid_membership_plans() {
+	$membership_settings = wpcom_launchpad_get_membership_settings();
+	if ( ! $membership_settings ) {
+		return false;
+	}
+	return isset( $membership_settings['products'] ) && is_array( $membership_settings['products'] ) && ( count( $membership_settings['products'] ) > 0 );
+}
+
+/**
+ * Get membership settings.
+ *
+ * @return array|null Membership settings or null.
+ */
+function wpcom_launchpad_get_membership_settings() {
+	$is_atomic = defined( 'IS_ATOMIC' ) && IS_ATOMIC;
+
+	// Memberships lib is only available on Simple sites.
+	// A follow up will fetch membership settings for Atomic.
+	if ( $is_atomic ) {
+		return null;
+	}
+
+	require_lib( 'memberships' );
+	$blog_id  = get_current_blog_id();
+	$settings = (array) get_memberships_settings_for_site( $blog_id );
+	return $settings;
+}
+
+/**
  * Callback for completing first post published task.
  *
  * @return void
  */
-function wpcom_track_publish_first_post_task() {
-	// Ensure that Headstart posts don't mark this as complete
+function wpcom_launchpad_track_publish_first_post_task() {
+	// Ensure that Headstart posts don't mark this as complete.
 	if ( defined( 'HEADSTART' ) && HEADSTART ) {
 		return;
 	}
 	// Since we share the same callback for generic first post and newsletter-specific, we mark both.
-	wpcom_mark_launchpad_task_complete_if_active( 'first_post_published' );
-	wpcom_mark_launchpad_task_complete_if_active( 'first_post_published_newsletter' );
+	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'first_post_published' );
+	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'first_post_published_newsletter' );
 }
 
 /**
@@ -668,7 +988,7 @@ function wpcom_track_publish_first_post_task() {
  * @return int
  */
 function wpcom_launchpad_get_published_non_headstart_posts_count() {
-	// Ensure that Headstart posts don't affect the count
+	// Ensure that Headstart posts don't affect the count.
 	if ( defined( 'HEADSTART' ) && HEADSTART ) {
 		return 0;
 	}
@@ -695,7 +1015,7 @@ function wpcom_launchpad_get_published_non_headstart_posts_count() {
  */
 function wpcom_launchpad_track_write_3_posts_task() {
 	// If the task is already completed, don't do anything.
-	if ( wpcom_is_task_option_completed( array( 'id' => 'write_3_posts' ) ) ) {
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'write_3_posts' ) ) ) {
 		return;
 	}
 
@@ -725,7 +1045,7 @@ function wpcom_launchpad_get_write_3_posts_repetition_count( $task ) {
  * @param array $task The task data.
  * @return bool True if the option for the task is marked as complete, false otherwise.
  */
-function wpcom_is_task_option_completed( $task ) {
+function wpcom_launchpad_is_task_option_completed( $task ) {
 	$checklist = get_option( 'launchpad_checklist_tasks_statuses', array() );
 	if ( ! empty( $checklist[ $task['id'] ] ) ) {
 		return true;
@@ -783,14 +1103,14 @@ function wpcom_launchpad_is_repeated_task_complete( $task, $is_option_complete )
  *
  * @return string Subtitle text
  */
-function wpcom_get_plan_selected_subtitle() {
+function wpcom_launchpad_get_plan_selected_subtitle() {
 	if ( ! function_exists( 'wpcom_global_styles_in_use' ) || ! function_exists( 'wpcom_should_limit_global_styles' ) ) {
 		return '';
 	}
 
 	return wpcom_global_styles_in_use() && wpcom_should_limit_global_styles()
 		? __(
-			'Your site contains custom styles. Upgrade now to publish them and unlock tons of other features.',
+			'Your site contains premium styles. Upgrade now to publish them and unlock tons of other features.',
 			'jetpack-mu-wpcom'
 		) : '';
 }
@@ -800,7 +1120,7 @@ function wpcom_get_plan_selected_subtitle() {
  *
  * @return string Badge text
  */
-function wpcom_get_plan_selected_badge_text() {
+function wpcom_launchpad_get_plan_selected_badge_text() {
 	if ( ! function_exists( 'wpcom_global_styles_in_use' ) || ! function_exists( 'wpcom_should_limit_global_styles' ) ) {
 		return '';
 	}
@@ -809,47 +1129,19 @@ function wpcom_get_plan_selected_badge_text() {
 }
 
 /**
- * Helper function to return the site slug for Calypso URLs.
- * The fallback logic here is derived from the following code:
- *
- * @see https://github.com/Automattic/wc-calypso-bridge/blob/85664e2c7836b2ddc29e99871ec2c5dc4015bcc8/class-wc-calypso-bridge.php#L227-L251
- *
- * @return string
- */
-function wpcom_launchpad_get_site_slug() {
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
-		return WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
-	}
-
-	// The Jetpack class should be auto-loaded if Jetpack has been loaded,
-	// but we've seen fatal errors from cases where the class wasn't defined.
-	// So let's make double-sure it exists before calling it.
-	if ( class_exists( '\Automattic\Jetpack\Status' ) ) {
-		$jetpack_status = new \Automattic\Jetpack\Status();
-
-		return $jetpack_status->get_site_suffix();
-	}
-
-	// If the Jetpack Status class doesn't exist, fall back on site_url()
-	// with any trailing '/' characters removed.
-	$site_url = untrailingslashit( site_url( '/', 'https' ) );
-
-	// Remove the leading 'https://' and replace any remaining `/` characters with ::
-	return str_replace( '/', '::', substr( $site_url, 8 ) );
-}
-
-/**
  * Callback for completing site launched task.
+ *
+ * Also included in bin/tests/isolated/suites/Guides/observer-modules/OnboardingUseCaseBlogTest.php
  *
  * @return void
  */
 function wpcom_track_site_launch_task() {
 	// it would be ideal if the registry was smart enough to map based on id_map but it isn't.
 	// So we mark them all. We'd avoid this if we had dedicated callbacks for each task.
-	wpcom_mark_launchpad_task_complete_if_active( 'site_launched' );
-	wpcom_mark_launchpad_task_complete_if_active( 'link_in_bio_launched' );
-	wpcom_mark_launchpad_task_complete_if_active( 'videopress_launched' );
-	wpcom_mark_launchpad_task_complete_if_active( 'blog_launched' );
+	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'site_launched' );
+	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'link_in_bio_launched' );
+	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'videopress_launched' );
+	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'blog_launched' );
 
 	// Remove site intent for blog onboarding flows and disable launchpad.
 	$site_intent = get_option( 'site_intent' );
@@ -874,11 +1166,11 @@ function wpcom_track_site_launch_task() {
  *
  * @return void
  */
-function wpcom_add_site_launch_listener() {
+function wpcom_launchpad_add_site_launch_listener() {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		add_action( 'wpcom_site_launched', 'wpcom_track_site_launch_task' );
 	} else {
-		add_action( 'update_option_blog_public', 'wpcom_launch_task_listener_atomic', 10, 2 );
+		add_action( 'update_option_blog_public', 'wpcom_launchpad_launch_task_listener_atomic', 10, 2 );
 	}
 }
 
@@ -889,7 +1181,7 @@ function wpcom_add_site_launch_listener() {
  * @param string $new_value The previous option value.
  * @return void
  */
-function wpcom_launch_task_listener_atomic( $old_value, $new_value ) {
+function wpcom_launchpad_launch_task_listener_atomic( $old_value, $new_value ) {
 	$blog_public = (int) $new_value;
 	// 'blog_public' is set to '1' when a site is launched.
 	if ( $blog_public === 1 ) {
@@ -898,17 +1190,32 @@ function wpcom_launch_task_listener_atomic( $old_value, $new_value ) {
 }
 
 /**
- * Callback for email verification visibility.
+ * Callback for email verification completion.
+ *
+ * @return bool True if email is verified, false otherwise.
+ */
+function wpcom_launchpad_is_email_verified() {
+	// TODO: handle the edge case where an Atomic user can be unverified.
+	if ( ! class_exists( 'Email_Verification' ) ) {
+		return true;
+	}
+
+	return ! Email_Verification::is_email_unverified();
+}
+
+/**
+ * Callback for email verification visibility when the user has a
+ * custom domain.
  *
  * @return bool True if email is unverified, false otherwise.
  */
-function wpcom_launchpad_is_email_unverified() {
+function wpcom_launchpad_is_domain_email_unverified() {
 	// TODO: handle the edge case where an Atomic user can be unverified.
 	if ( ! class_exists( 'Email_Verification' ) ) {
 		return false;
 	}
 
-	return Email_Verification::is_email_unverified();
+	return Email_Verification::is_domain_email_unverified();
 }
 
 /**
@@ -916,7 +1223,7 @@ function wpcom_launchpad_is_email_unverified() {
  *
  * @return bool True if the site has a paid-subscriber goal, false otherwise.
  */
-function wpcom_has_goal_paid_subscribers() {
+function wpcom_launchpad_has_goal_paid_subscribers() {
 	return in_array( 'paid-subscribers', get_option( 'site_goals', array() ), true );
 }
 
@@ -925,7 +1232,7 @@ function wpcom_has_goal_paid_subscribers() {
  *
  * @return bool True if the site has a import-subscriber goal, false otherwise.
  */
-function wpcom_has_goal_import_subscribers() {
+function wpcom_launchpad_has_goal_import_subscribers() {
 	return in_array( 'import-subscribers', get_option( 'site_goals', array() ), true );
 }
 
@@ -934,7 +1241,7 @@ function wpcom_has_goal_import_subscribers() {
  *
  * @return boolean True if link-in-bio launch task is enabled
  */
-function wpcom_is_link_in_bio_launch_disabled() {
+function wpcom_launchpad_is_link_in_bio_launch_disabled() {
 	return ! wpcom_is_checklist_task_complete( 'links_added' );
 }
 
@@ -943,8 +1250,35 @@ function wpcom_is_link_in_bio_launch_disabled() {
  *
  * @return boolean True if videopress launch task is enabled
  */
-function wpcom_is_videopress_launch_disabled() {
+function wpcom_launchpad_is_videopress_launch_disabled() {
 	return ! wpcom_is_checklist_task_complete( 'videopress_upload' );
+}
+
+/**
+ * Determines whether or not the blog launch task is enabled
+ *
+ * @return boolean True if blog launch task is enabled
+ */
+function wpcom_launchpad_is_blog_launched_task_disabled() {
+	if ( 'design-first' === get_option( 'site_intent' ) ) {
+		// We only want the blog_launched task enabled after other key tasks are all complete.
+		if ( wpcom_is_checklist_task_complete( 'plan_completed' )
+			&& wpcom_is_checklist_task_complete( 'domain_upsell' )
+			&& wpcom_is_checklist_task_complete( 'setup_blog' ) ) {
+			return false;
+		}
+		return true;
+	}
+	if ( 'start-writing' === get_option( 'site_intent' ) ) {
+		if ( wpcom_is_checklist_task_complete( 'plan_completed' )
+			&& wpcom_is_checklist_task_complete( 'domain_upsell' )
+			&& wpcom_is_checklist_task_complete( 'setup_blog' )
+			&& wpcom_is_checklist_task_complete( 'first_post_published' ) ) {
+			return false;
+		}
+		return true;
+	}
+	return false;
 }
 
 /**
@@ -952,7 +1286,7 @@ function wpcom_is_videopress_launch_disabled() {
  *
  * @return boolean True if videopress upload task is enabled
  */
-function wpcom_is_videopress_upload_disabled() {
+function wpcom_launchpad_is_videopress_upload_disabled() {
 	return wpcom_is_checklist_task_complete( 'videopress_upload' );
 }
 
@@ -964,7 +1298,7 @@ function wpcom_is_videopress_upload_disabled() {
  * @param string $post_id The id of the post being udpated.
  * @return void
  */
-function wpcom_track_video_uploaded_task( $post_id ) {
+function wpcom_launchpad_track_video_uploaded_task( $post_id ) {
 	// Not using `wp_attachment_is` because it requires the actual file
 	// which is not the case for Atomic VideoPress.
 	if ( 0 !== strpos( get_post_mime_type( $post_id ), 'video/' ) ) {
@@ -981,12 +1315,12 @@ function wpcom_track_video_uploaded_task( $post_id ) {
  *
  * @return void
  */
-function wpcom_mark_site_title_complete( $old_value, $value ) {
+function wpcom_launchpad_mark_site_title_complete( $old_value, $value ) {
 	if ( $value !== $old_value ) {
 		wpcom_mark_launchpad_task_complete( 'site_title' );
 	}
 }
-add_action( 'update_option_blogname', 'wpcom_mark_site_title_complete', 10, 3 );
+add_action( 'update_option_blogname', 'wpcom_launchpad_mark_site_title_complete', 10, 3 );
 
 /**
  * Mark the enable_subscribers_modal task complete
@@ -997,20 +1331,20 @@ add_action( 'update_option_blogname', 'wpcom_mark_site_title_complete', 10, 3 );
  *
  * @return void
  */
-function wpcom_mark_enable_subscribers_modal_complete( $old_value, $value ) {
+function wpcom_launchpad_mark_enable_subscribers_modal_complete( $old_value, $value ) {
 	if ( $value ) {
 		wpcom_mark_launchpad_task_complete( 'enable_subscribers_modal' );
 	}
 }
-add_action( 'update_option_sm_enabled', 'wpcom_mark_enable_subscribers_modal_complete', 10, 3 );
-add_action( 'add_option_sm_enabled', 'wpcom_mark_enable_subscribers_modal_complete', 10, 3 );
+add_action( 'update_option_sm_enabled', 'wpcom_launchpad_mark_enable_subscribers_modal_complete', 10, 3 );
+add_action( 'add_option_sm_enabled', 'wpcom_launchpad_mark_enable_subscribers_modal_complete', 10, 3 );
 
 /**
  * Determines whether the enable_subscribers_modal task should show.
  *
  * @return bool True if the task should show, false otherwise.
  */
-function wpcom_is_enable_subscribers_modal_visible() {
+function wpcom_launchpad_is_enable_subscribers_modal_visible() {
 	return apply_filters( 'jetpack_subscriptions_modal_enabled', false );
 }
 
@@ -1019,7 +1353,7 @@ function wpcom_is_enable_subscribers_modal_visible() {
  *
  * @return bool True if we should show the task, false otherwise.
  */
-function wpcom_domain_claim_is_visible_callback() {
+function wpcom_launchpad_domain_claim_is_visible_callback() {
 	if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
 		return false;
 	}
@@ -1032,7 +1366,7 @@ function wpcom_domain_claim_is_visible_callback() {
  *
  * @return bool True if domain claim task is completed.
  */
-function wpcom_is_domain_claim_completed() {
+function wpcom_launchpad_is_domain_claim_completed() {
 	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
 		return false;
 	}
@@ -1056,9 +1390,9 @@ function wpcom_is_domain_claim_completed() {
  * @param int    $post_id The ID of the post being updated.
  * @param object $post    The post object.
  */
-function wpcom_add_new_page_check( $post_id, $post ) {
+function wpcom_launchpad_add_new_page_check( $post_id, $post ) {
 	// Don't do anything if the task is already complete.
-	if ( wpcom_is_task_option_completed( array( 'id' => 'add_new_page' ) ) ) {
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'add_new_page' ) ) ) {
 		return;
 	}
 
@@ -1078,13 +1412,13 @@ function wpcom_add_new_page_check( $post_id, $post ) {
 	}
 
 	// This is necessary to avoid marking the task as complete when the about page is updated.
-	if ( $post_id === wpcom_get_site_about_page_id() ) {
+	if ( $post_id === wpcom_launchpad_get_site_about_page_id() ) {
 		return;
 	}
 
 	wpcom_mark_launchpad_task_complete( 'add_new_page' );
 }
-add_action( 'wp_insert_post', 'wpcom_add_new_page_check', 10, 3 );
+add_action( 'wp_insert_post', 'wpcom_launchpad_add_new_page_check', 10, 3 );
 
 /**
  * Return the about page id, if any.
@@ -1093,7 +1427,7 @@ add_action( 'wp_insert_post', 'wpcom_add_new_page_check', 10, 3 );
  *
  * @return int|null The page ID of the 'About' page if it exists, null otherwise.
  */
-function wpcom_get_site_about_page_id() {
+function wpcom_launchpad_get_site_about_page_id() {
 	// First, attempt to get the page ID from the cache.
 	$about_page_id_cache_key = 'wpcom_about_page_id';
 	$about_page_id           = wp_cache_get( $about_page_id_cache_key, 'jetpack_mu_wpcom' );
@@ -1108,7 +1442,7 @@ function wpcom_get_site_about_page_id() {
 	}
 
 	// Call the current function implementation without any caching logic.
-	$about_page_id = wpcom_find_site_about_page_id();
+	$about_page_id = wpcom_launchpad_find_site_about_page_id();
 
 	if ( null === $about_page_id ) {
 		// In the event that we don't have a page id, cache -1 to avoid caching null
@@ -1130,7 +1464,7 @@ function wpcom_get_site_about_page_id() {
  *
  * @return int|null The page ID of the 'About' page if it exists, null otherwise.
  */
-function wpcom_find_site_about_page_id() {
+function wpcom_launchpad_find_site_about_page_id() {
 	if ( ! function_exists( 'wpcom_get_theme_annotation' ) ) {
 		return null;
 	}
@@ -1218,17 +1552,85 @@ function wpcom_launchpad_has_translation( $string, $domain = 'jetpack-mu-wpcom' 
 }
 
 /**
+ * Determine `add_new_page` task visibility. The task is visible if there is no 'About' page on the site.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_launchpad_is_add_about_page_visible() {
+	return ! wpcom_launchpad_is_update_about_page_task_visible() && registered_meta_key_exists( 'post', '_wpcom_template_layout_category', 'page' );
+}
+
+/**
+ * Determine `site_title` task visibility. The task is not visible if the name was already set.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_launchpad_is_site_title_task_visible() {
+	// Hide the task if it's already completed on write intent
+	if ( get_option( 'site_intent' ) === 'write' && wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_title' ) ) ) {
+		return false;
+	}
+	return true;
+}
+/**
+ * Completion hook for the `add_about_page` task.
+ *
+ * @param int    $post_id The post ID.
+ * @param object $post    The post object.
+ */
+function wpcom_launchpad_add_about_page_check( $post_id, $post ) {
+	// Ensure that Headstart posts don't mark this as complete
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	// We only care about pages, ignore other post types.
+	if ( $post->post_type !== 'page' ) {
+		return;
+	}
+
+	// We only care about published pages. Pages added via the API are not published by default.
+	if ( $post->post_status !== 'publish' ) {
+		return;
+	}
+
+	// Don't do anything if we don't have the page category post_meta field registered.
+	if ( ! registered_meta_key_exists( 'post', '_wpcom_template_layout_category', 'page' ) ) {
+		return;
+	}
+
+	// Don't do anything if the task is already complete.
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'add_about_page' ) ) ) {
+		return;
+	}
+
+	// If the page is the previously located About page, ignore it.
+	$about_page_id = wpcom_launchpad_get_site_about_page_id();
+	if ( null !== $about_page_id && $post->ID === $about_page_id ) {
+		return;
+	}
+
+	$stored_page_categories = get_post_meta( $post->ID, '_wpcom_template_layout_category', true );
+	if ( ! is_array( $stored_page_categories ) || ! in_array( 'about', $stored_page_categories, true ) ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'add_about_page' );
+}
+add_action( 'wp_insert_post', 'wpcom_launchpad_add_about_page_check', 10, 3 );
+
+/**
  * Determine `update_about_page` task visibility. The task is visible if there is an 'About' page on the site.
  *
  * @return bool True if we should show the task, false otherwise.
  */
-function wpcom_is_update_about_page_task_visible() {
+function wpcom_launchpad_is_update_about_page_task_visible() {
 	// The task isn't visible if the task title hasn't been translated into the current locale.
 	if ( ! wpcom_launchpad_has_translation( 'Update your About page', 'jetpack-mu-wpcom' ) ) {
 		return false;
 	}
 
-	return wpcom_get_site_about_page_id() !== null;
+	return wpcom_launchpad_get_site_about_page_id() !== null;
 }
 
 /**
@@ -1237,7 +1639,7 @@ function wpcom_is_update_about_page_task_visible() {
  * @param int     $post_id The ID of the post being updated.
  * @param WP_Post $post The post object.
  */
-function wpcom_update_about_page_check( $post_id, $post ) {
+function wpcom_launchpad_update_about_page_check( $post_id, $post ) {
 	// Ensure that Headstart posts don't mark this as complete
 	if ( defined( 'HEADSTART' ) && HEADSTART ) {
 		return;
@@ -1254,33 +1656,33 @@ function wpcom_update_about_page_check( $post_id, $post ) {
 	}
 
 	// Don't do anything if the task is already complete.
-	if ( wpcom_is_task_option_completed( array( 'id' => 'update_about_page' ) ) ) {
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'update_about_page' ) ) ) {
 		return;
 	}
 
 	// If the page is not the previously located About page, ignore it.
-	$about_page_id = wpcom_get_site_about_page_id();
+	$about_page_id = wpcom_launchpad_get_site_about_page_id();
 	if ( null === $about_page_id || $post->ID !== $about_page_id ) {
 		return;
 	}
 
 	wpcom_mark_launchpad_task_complete( 'update_about_page' );
 }
-add_action( 'post_updated', 'wpcom_update_about_page_check', 10, 3 );
+add_action( 'post_updated', 'wpcom_launchpad_update_about_page_check', 10, 3 );
 
 /**
  * Determine `edit_page` task visibility. The task is visible if there is at least one page and the add_new_page task is complete.
  *
  * @return bool True if we should show the task, false otherwise.
  */
-function wpcom_is_edit_page_task_visible() {
+function wpcom_launchpad_is_edit_page_task_visible() {
 	// Don't show the task if the update_about_page task is visible.
-	if ( wpcom_is_update_about_page_task_visible() ) {
+	if ( wpcom_launchpad_is_update_about_page_task_visible() ) {
 		return false;
 	}
 
 	// Otherwise, don't show the task until after a page has been added.
-	if ( ! wpcom_is_task_option_completed( array( 'id' => 'add_new_page' ) ) ) {
+	if ( ! wpcom_launchpad_is_task_option_completed( array( 'id' => 'add_new_page' ) ) ) {
 		return false;
 	}
 
@@ -1298,19 +1700,37 @@ function wpcom_is_edit_page_task_visible() {
 /**
  * Mark the customize_welcome_message task complete
  * if the subscription_options['invitation'] value
- * for the welcome message has changed.
+ * for the welcome message has changed on option update.
  *
- * @param string $old_value The old value of the welcome message.
- * @param string $value The new value of the welcome message.
+ * @param mixed $old_value The old value of the welcome message.
+ * @param mixed $value The new value of the welcome message.
  *
  * @return void
  */
-function wpcom_mark_customize_welcome_message_complete( $old_value, $value ) {
-	if ( $value['invitation'] !== $old_value['invitation'] ) {
+function wpcom_launchpad_mark_customize_welcome_message_complete_on_update( $old_value, $value ) {
+	$new_invitation = is_array( $value ) && isset( $value['invitation'] ) ? $value['invitation'] : '';
+	$old_invitation = is_array( $old_value ) && isset( $old_value['invitation'] ) ? $old_value['invitation'] : '';
+	if ( $new_invitation !== $old_invitation ) {
 		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
 	}
 }
-add_action( 'update_option_subscription_options', 'wpcom_mark_customize_welcome_message_complete', 10, 3 );
+add_action( 'update_option_subscription_options', 'wpcom_launchpad_mark_customize_welcome_message_complete_on_update', 10, 2 );
+
+/**
+ * Mark the customize_welcome_message task complete
+ * if the subscription_options['invitation'] value
+ * for the welcome message has been added.
+ *
+ * @param mixed $value The value of the welcome message.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_customize_welcome_message_complete_on_add( $value ) {
+	if ( is_array( $value ) && $value['invitation'] ) {
+		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
+	}
+}
+add_action( 'add_option_subscription_options', 'wpcom_launchpad_mark_customize_welcome_message_complete_on_add', 10, 1 );
 
 /**
  * When a page is updated, check to see if we've already completed the `add_new_page` task and mark the `edit_page` task complete accordingly.
@@ -1318,14 +1738,14 @@ add_action( 'update_option_subscription_options', 'wpcom_mark_customize_welcome_
  * @param int     $post_id The ID of the post being updated.
  * @param WP_Post $post The post object.
  */
-function wpcom_edit_page_check( $post_id, $post ) {
+function wpcom_launchpad_edit_page_check( $post_id, $post ) {
 	// Don't do anything if the task is already complete.
-	if ( wpcom_is_task_option_completed( array( 'id' => 'edit_page' ) ) ) {
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'edit_page' ) ) ) {
 		return;
 	}
 
 	// Don't do anything if the add_new_page task is incomplete.
-	if ( ! wpcom_is_task_option_completed( array( 'id' => 'add_new_page' ) ) ) {
+	if ( ! wpcom_launchpad_is_task_option_completed( array( 'id' => 'add_new_page' ) ) ) {
 		return false;
 	}
 
@@ -1346,14 +1766,14 @@ function wpcom_edit_page_check( $post_id, $post ) {
 
 	wpcom_mark_launchpad_task_complete( 'edit_page' );
 }
-add_action( 'post_updated', 'wpcom_edit_page_check', 10, 3 );
+add_action( 'post_updated', 'wpcom_launchpad_edit_page_check', 10, 3 );
 
 /**
  * Returns if the site has domain or bundle purchases.
  *
  * @return array Array of booleans, first value is if the site has a bundle, second is if the site has a domain.
  */
-function wpcom_domain_customize_check_purchases() {
+function wpcom_launchpad_domain_customize_check_purchases() {
 	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
 		return false;
 	}
@@ -1382,49 +1802,22 @@ function wpcom_domain_customize_check_purchases() {
  * @param mixed $default The default value.
  * @return bool True if domain customize task is complete.
  */
-function wpcom_is_domain_customize_completed( $task, $default ) {
-	$result = wpcom_domain_customize_check_purchases();
+function wpcom_launchpad_is_domain_customize_completed( $task, $default ) {
+	$result = wpcom_launchpad_domain_customize_check_purchases();
 
-	if ( $result === false ) {
+	if ( false === $result ) {
 		return false;
 	}
 
-	list( $has_bundle, $has_domain ) = $result;
+	$has_domain = $result[1];
 
-	// For paid users with a custom domain, show the task as complete.
-	if ( $has_bundle && $has_domain ) {
+	// For users with a custom domain, show the task as complete.
+	if ( $has_domain ) {
 		return true;
 	}
 
 	// For everyone else, show the task as incomplete.
 	return $default;
-}
-
-/**
- * Determines whether or not domain customize task is visible.
- *
- * @return bool True if user is on a free plan and didn't purchase domain or if user is on a paid plan and did purchase a domain.
- */
-function wpcom_is_domain_customize_task_visible() {
-	$result = wpcom_domain_customize_check_purchases();
-
-	if ( $result === false ) {
-		return false;
-	}
-
-	list( $has_bundle, $has_domain ) = $result;
-
-	// Free user who didn't purchase a domain.
-	if ( ! $has_bundle && ! $has_domain ) {
-		return true;
-	}
-
-	// Paid user who purchased a domain.
-	if ( $has_bundle && $has_domain ) {
-		return true;
-	}
-
-	return false;
 }
 
 /**
@@ -1437,7 +1830,7 @@ function wpcom_is_domain_customize_task_visible() {
  *
  * @return void
  */
-function wpcom_mark_domain_tasks_complete( $blog_id, $user_id, $product_id ) {
+function wpcom_launchpad_mark_domain_tasks_complete( $blog_id, $user_id, $product_id ) {
 	if ( ! class_exists( 'domains' ) ) {
 		return;
 	}
@@ -1450,10 +1843,14 @@ function wpcom_mark_domain_tasks_complete( $blog_id, $user_id, $product_id ) {
 	wpcom_mark_launchpad_task_complete( 'domain_upsell' );
 	wpcom_mark_launchpad_task_complete( 'domain_upsell_deferred' );
 }
-add_action( 'activate_product', 'wpcom_mark_domain_tasks_complete', 10, 6 );
+add_action( 'activate_product', 'wpcom_launchpad_mark_domain_tasks_complete', 10, 6 );
 
 /**
  * Re-trigger email campaigns for blog onboarding after user edit one of the fields in the launchpad.
+ *
+ * Also included bin/tests/isolated/suites/Guides/observer-modules/OnboardingUseCaseBlogTest.php#601
+ *
+ * @return void
  */
 function wpcom_trigger_email_campaign() {
 	$site_intent = get_option( 'site_intent' );
@@ -1472,3 +1869,31 @@ function wpcom_trigger_email_campaign() {
 	);
 }
 add_action( 'update_option_launchpad_checklist_tasks_statuses', 'wpcom_trigger_email_campaign', 10, 3 );
+
+/**
+ * Mark task complete when plugin is installed.
+ */
+function wpcom_launchpad_mark_plugin_installed_complete() {
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'install_custom_plugin' ) ) ) {
+		return;
+	}
+	wpcom_mark_launchpad_task_complete( 'install_custom_plugin' );
+}
+add_action( 'jetpack_plugin_installed', 'wpcom_launchpad_mark_plugin_installed_complete', 10 );
+
+/**
+ * Mark task complete when theme is selected.
+ *
+ * @param array $new_theme    The new theme object.
+ * @param array $old_theme The old theme object.
+ */
+function wpcom_launchpad_mark_theme_selected_complete( $new_theme, $old_theme ) {
+	// This hook runs when site just gets setup, lets prevent checklist item from being complete
+	// when the theme is the same.
+	$is_same_theme = $new_theme['name'] === $old_theme['name'];
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_theme_selected' ) ) || $is_same_theme ) {
+		return;
+	}
+	wpcom_mark_launchpad_task_complete( 'site_theme_selected' );
+}
+add_action( 'jetpack_sync_current_theme_support', 'wpcom_launchpad_mark_theme_selected_complete', 10, 2 );

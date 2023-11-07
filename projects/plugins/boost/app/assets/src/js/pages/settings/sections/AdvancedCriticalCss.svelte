@@ -1,16 +1,17 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
 	import { __, _n, sprintf } from '@wordpress/i18n';
-	import BackButton from '../../../elements/BackButton.svelte';
 	import CloseButton from '../../../elements/CloseButton.svelte';
+	import ReactComponent from '../../../elements/ReactComponent.svelte';
+	import BackButton from '../../../react-components/common/back-button/BackButton';
 	import { replaceCssState, updateProvider } from '../../../stores/critical-css-state';
-	import {
-		criticalCssIssues,
-		groupErrorsByFrequency,
-	} from '../../../stores/critical-css-state-errors';
+	import { groupErrorsByFrequency } from '../../../stores/critical-css-state-errors';
+	import { type Provider } from '../../../stores/critical-css-state-types';
 	import InfoIcon from '../../../svg/info.svg';
 	import routerHistory from '../../../utils/router-history';
 	import CriticalCssErrorDescription from '../elements/CriticalCssErrorDescription.svelte';
+
+	export let issues: Provider[];
 
 	const { navigate } = routerHistory;
 
@@ -28,16 +29,16 @@
 	 * Automatically navigate back to main Settings page if generator isn't done.
 	 */
 
-	$: if ( $criticalCssIssues.length === 0 ) {
+	$: if ( issues.length === 0 ) {
 		navigate( -1 );
 	}
 
-	$: dismissedIssues = $criticalCssIssues.filter( issue => issue.error_status === 'dismissed' );
-	$: activeIssues = $criticalCssIssues.filter( issue => issue.error_status !== 'dismissed' );
+	$: dismissedIssues = issues.filter( issue => issue.error_status === 'dismissed' );
+	$: activeIssues = issues.filter( issue => issue.error_status !== 'dismissed' );
 
 	function showDismissedIssues() {
 		replaceCssState( {
-			providers: $criticalCssIssues.map( issue => {
+			providers: issues.map( issue => {
 				issue.error_status = 'active';
 				return issue;
 			} ),
@@ -46,7 +47,7 @@
 </script>
 
 <div class="jb-container--narrow jb-critical-css__advanced">
-	<BackButton />
+	<ReactComponent this={BackButton} />
 
 	<h3>
 		{__( 'Critical CSS advanced recommendations', 'jetpack-boost' )}

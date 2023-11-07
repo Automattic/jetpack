@@ -1,65 +1,55 @@
-<?php 
-/*!
- * Jetpack CRM
- * https://jetpackcrm.com
- * V2.99.12+
+<?php
+/**
+ * Contains wrapper for "naked" CRM form
  *
- * Copyright 2019+ ZeroBSCRM.com
- *
- * Date: 29/10/2019
+ * @package automattic/jetpack-crm
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+// prevent direct access
+if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
+	exit;
+}
 
-    global $zbs;    
+if ( isset( $_GET['fid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-if (isset($_GET['fid'])) { 
+	// Load assets we need
+	zeroBSCRM_forms_scriptsStylesRegister();
+	zeroBSCRM_forms_enqueuements();
 
-    #} Assets we need specifically here
-    zeroBSCRM_forms_scriptsStylesRegister();
-    zeroBSCRM_forms_enqueuements();
+	// Check for valid form
+	$form_id  = (int) $_GET['fid']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$zbs_form = zeroBS_getForm( $form_id );
 
+	// If valid, build form
+	if ( is_array( $zbs_form ) && isset( $zbs_form['id'] ) ) {
 
-    // attempt retrieval
-    $formid = (int)sanitize_text_field($_GET['fid']);
-    $zbsForm = zeroBS_getForm($formid);
-    if (is_array($zbsForm) && isset($zbsForm['id'])){
-
-        $formhandler =  esc_url( admin_url('admin-ajax.php') );
-
-?><!DOCTYPE html>
+		?>
+<!DOCTYPE html>
 <html lang="en-US" class="no-js">
-<head>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name='robots' content='noindex,nofollow' />
+		<title><?php esc_html_e( 'Jetpack CRM Form', 'zero-bs-crm' ); ?></title>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name='robots' content='noindex,nofollow' />
+		<?php
+		wp_print_styles( 'zbsfrontendformscss' );
+		wp_print_scripts();
 
-    <title>ZBSCRM Form</title>
+		zeroBSCRM_forms_formHTMLHeader();
+		?>
+	</head>
+	<body>
 
-    <?php 
+		<?php
+		echo zeroBSCRM_forms_build_form_html( $form_id, 'content' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		?>
 
-        wp_print_styles();
-        wp_print_scripts(); //wp_scripts
+	</body>
+</html>
+		<?php
 
-        zeroBSCRM_forms_formHTMLHeader(); 
+	}
+}
 
-    ?>
-
-</head><body>
-
-<?php echo zeroBSCRM_forms_build_form_html($formid, 'content');  ?>
-
-</body></html><?php 
-
-    } // / if form exists
-
-}  // / if fid 
-
-exit (); ?>
+exit();

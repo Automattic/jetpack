@@ -277,6 +277,11 @@ class Connections_Post_Field {
 			return array();
 		}
 
+		$post = get_post( $post_id );
+		if ( isset( $post->post_status ) && 'publish' === $post->post_status ) {
+			return array();
+		}
+
 		if ( isset( $this->memoized_updates[ $post_id ] ) ) {
 			return $this->memoized_updates[ $post_id ];
 		}
@@ -464,5 +469,4 @@ class Connections_Post_Field {
 	private function is_valid_for_context( $schema, $context ) {
 		return empty( $schema['context'] ) || in_array( $context, $schema['context'], true );
 	}
-
 }

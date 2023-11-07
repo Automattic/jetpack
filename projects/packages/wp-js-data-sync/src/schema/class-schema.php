@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Any;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Any_JSON;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Array;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Assoc_Array;
@@ -159,4 +160,12 @@ class Schema implements Parser {
 		return new self( new Type_Any_JSON() );
 	}
 
+	/**
+	 * Use With Caution! This will not parse the data - it will simply return it as-is.
+	 * This is useful for delivering read-only data that we don't need to parse server-side.
+	 * @see Type_Any
+	 */
+	public static function as_unsafe_any() {
+		return new self( new Type_Any() );
+	}
 }

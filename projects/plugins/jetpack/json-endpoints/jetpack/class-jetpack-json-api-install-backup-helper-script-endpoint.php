@@ -86,5 +86,4 @@ class Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint extends Jetpack_JSO
 
 		return $this->result;
 	}
-
 }

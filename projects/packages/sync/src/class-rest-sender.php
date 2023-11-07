@@ -140,5 +140,4 @@ class REST_Sender {
 
 		return $buffer;
 	}
-
 }

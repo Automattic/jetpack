@@ -13,7 +13,7 @@ import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
 import useMediaDetails from '../../../hooks/use-media-details';
 import GeneratedImagePreview from '../../generated-image-preview';
 import MediaPicker from '../../media-picker';
-import TemplatePicker from '../template-picker';
+import TemplatePicker from '../template-picker/picker';
 import styles from './styles.module.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];

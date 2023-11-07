@@ -56,6 +56,7 @@ global $wpdb, $ZBSCRM_t;
   $ZBSCRM_t['eventreminders']         = $wpdb->prefix . "zbs_event_reminders";
   $ZBSCRM_t['tax']                    = $wpdb->prefix . "zbs_tax_table";
   $ZBSCRM_t['security_log']           = $wpdb->prefix . "zbs_security_log";
+  $ZBSCRM_t['automation-workflows']  = $wpdb->prefix . 'zbs_workflows'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Universal.WhiteSpace.PrecisionAlignment.Found
 
 
 /**
@@ -596,7 +597,7 @@ function zeroBSCRM_createTables(){
   COLLATE = ".$collation.";";
   zeroBSCRM_db_runDelta($sql);
 
-  // Events (DB3.0+)
+  // Tasks (DB3.0+)
    $sql = "CREATE TABLE IF NOT EXISTS ". $ZBSCRM_t['events'] ."(
   `ID` INT NOT NULL AUTO_INCREMENT,
   `zbs_site` INT NULL DEFAULT NULL,
@@ -621,7 +622,7 @@ function zeroBSCRM_createTables(){
   COLLATE = ".$collation.";";
   zeroBSCRM_db_runDelta($sql);
 
-  // Event Reminders (DB3.0+)
+  // Task Reminders (DB3.0+)
    $sql = "CREATE TABLE IF NOT EXISTS ". $ZBSCRM_t['eventreminders'] ."(
   `ID` INT NOT NULL AUTO_INCREMENT,
   `zbs_site` INT NULL DEFAULT NULL,
@@ -879,6 +880,34 @@ function zeroBSCRM_createTables(){
   COLLATE = ".$collation.";"; 
   zeroBSCRM_db_runDelta($sql);
 
+	// Add table to store automation workflows.
+	// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['automation-workflows'] . '(
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`zbs_site` INT NOT NULL,
+	`zbs_team` INT NOT NULL,
+	`zbs_owner` INT NOT NULL,
+	`name` VARCHAR(255) NOT NULL,
+	`description` VARCHAR(600) NULL DEFAULT NULL,
+	`category` VARCHAR(255) NOT NULL,
+	`triggers` LONGTEXT NOT NULL,
+	`initial_step` VARCHAR(255) NOT NULL,
+	`steps` LONGTEXT NOT NULL,
+	`active` TINYINT(1) NOT NULL DEFAULT 0,
+	`version` INT(14) NOT NULL DEFAULT 1,
+	`created_at` INT(14) DEFAULT NULL,
+	`updated_at` INT(14) DEFAULT NULL,
+	PRIMARY KEY (`id`),
+	INDEX `name` (`name` ASC),
+	INDEX `active` (`active` ASC),
+	INDEX `category` (`category` ASC),
+	INDEX `created_at` (`created_at` ASC)
+	) ' . $storageEngineLine . '
+	DEFAULT CHARACTER SET = ' . $characterSet . '
+	COLLATE = ' . $collation . ';';
+	// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	zeroBSCRM_db_runDelta( $sql );
+
   // As of v5.0, if we've created via the above SQL, we're at DAL3 :)
   // so on fresh installs, immitate the fact that we've 'completed' DAL1->DAL2->DAL3 Migration chain
   update_option( 'zbs_db_migration_253', array('completed'=>time(),'started'=>time()), false);
@@ -1026,12 +1055,20 @@ function jpcrm_database_server_has_ability( $ability_name ) {
    Uninstall Funcs
    ====================================================== */
 
-// dangerous, brutal, savage.
-// This one removes all data except settings & migrations
-// see zeroBSCRM_database_nuke for the full show
-function zeroBSCRM_database_reset(){
+/**
+ * dangerous, brutal, savage.
+ *
+ * This one removes all data except settings & migrations
+ * see zeroBSCRM_database_nuke for the full show.
+ *
+ * @param bool $check_permissions (default true) whether to check current user can manage_options.
+ * @return void
+ */
+function zeroBSCRM_database_reset( $check_permissions = true ) {
 
-  if (current_user_can('manage_options')){
+	if ( $check_permissions && ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
 
       #} Brutal Reset of DB settings & removal of tables
       global $wpdb, $ZBSCRM_t;
@@ -1057,18 +1094,23 @@ function zeroBSCRM_database_reset(){
         );
       foreach ($options as $option)  $wpdb->query($wpdb->prepare("DELETE FROM $wpdb->options WHERE `option_name` = %s",array($option)));
 
-      #} DAL 3.0 tables
-      $ZBSCRM_t['totaltrans'] = $wpdb->prefix . "zbs_global_total_trans";
-      foreach ($ZBSCRM_t as $k => $v){
-        
-        //do not truncate the settings
-        if($k != 'settings'){  
-          $wpdb->query("TRUNCATE TABLE " . $v);
-        }
+	// phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect,Generic.WhiteSpace.ScopeIndent.IncorrectExact,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+	// DAL 3.0 tables.
+	$ZBSCRM_t['totaltrans'] = $wpdb->prefix . 'zbs_global_total_trans'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-      }
+	foreach ( $ZBSCRM_t as $k => $v ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-  }
+		// Do not truncate the settings.
+		if ( $k !== 'settings' ) {
+			// Copy how maybe_create_table() looks for existing tables.
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $v ) ) ) !== $v ) {
+				continue;
+			}
+
+			$wpdb->query( 'TRUNCATE TABLE ' . $v ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		}
+	}
+	// phpcs:enable Generic.WhiteSpace.ScopeIndent.Incorrect,Generic.WhiteSpace.ScopeIndent.IncorrectExact,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 }
 

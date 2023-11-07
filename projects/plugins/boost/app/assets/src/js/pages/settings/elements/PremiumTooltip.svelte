@@ -16,29 +16,29 @@
 <Tooltip title={__( 'Manual Critical CSS regeneration', 'jetpack-boost' )}>
 	<p>
 		{__(
-			'Actions that could change your CSS or HTML structure included but are not limited to:',
+			'Actions that could change your CSS or HTML structure include, but are not limited to:',
 			'jetpack-boost'
 		)}
 	</p>
 	<ul>
-		<li>{__( 'Make theme changes.', 'jetpack-boost' )}</li>
-		<li>{__( 'Write a new post/page.', 'jetpack-boost' )}</li>
-		<li>{__( 'Edit a post/page.', 'jetpack-boost' )}</li>
+		<li>{__( 'Making theme changes.', 'jetpack-boost' )}</li>
+		<li>{__( 'Writing a new post/page.', 'jetpack-boost' )}</li>
+		<li>{__( 'Editing a post/page.', 'jetpack-boost' )}</li>
 		<li>
 			{__(
-				'Activate, deactivate, or update plugins that impact your site layout or HTML structure.',
+				'Activating, deactivating, or updating plugins that will be impacting your site layout or HTML structure.',
 				'jetpack-boost'
 			)}
 		</li>
 		<li>
 			{__(
-				'Change settings of plugins that impact your site layout or HTML structure.',
+				'Changing settings of plugins that will be impacting your site layout or HTML structure.',
 				'jetpack-boost'
 			)}
 		</li>
 		<li>
 			{__(
-				'Upgrade your WordPress version if the new release includes core CSS changes.',
+				'Upgrading your WordPress version if the new release will be including core CSS changes.',
 				'jetpack-boost'
 			)}
 		</li>

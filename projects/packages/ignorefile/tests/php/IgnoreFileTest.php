@@ -415,5 +415,4 @@ class IgnoreFileTest extends TestCase {
 			'Trailing backslash in something looking like a character class range' => array( 'foo[a-\\', 'Unexpected trailing backslash in pattern `foo[a-\\` at index 0' ),
 		);
 	}
-
 }

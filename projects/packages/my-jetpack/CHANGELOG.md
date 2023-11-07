@@ -5,6 +5,129 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.11.1] - 2023-11-03
+
+## [3.11.0] - 2023-10-30
+### Added
+- Add site data to unpurchased state of VaultPress Backup card to My Jetpack. [#33607]
+
+## [3.10.0] - 2023-10-23
+### Added
+- Add jetpack-plans dependency. It will be use to restore the reverted change on #33410. [#33706]
+
+### Changed
+- Update checkout flow to connect "After" checkout vs before (if not connected). [#33257]
+
+### Fixed
+- Use Current_Plan to check/return from has_required_plan on VP product class. [#33708]
+
+## [3.9.1] - 2023-10-19
+### Changed
+- Make has_required_plan return true (as it was before #33410) as a way to revert the change. [#33697]
+- Updated package dependencies. [#33687]
+
+## [3.9.0] - 2023-10-17
+### Added
+- Add has_required_plan method for VideoPress product class, check plan purchase exists for site [#33410]
+
+### Changed
+- Updated package dependencies. [#33646]
+
+## [3.8.2] - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429, #33584]
+
+## [3.8.1] - 2023-10-10
+### Changed
+- Changes title of the my-jetpack page to "My Jetpack" [#33486]
+- Updated package dependencies. [#33428]
+
+### Fixed
+- My Jetpack: fix fatal error [#33523]
+- My Jetpack: fix Stats card status when not connected [#33521]
+
+## [3.8.0] - 2023-10-03
+### Added
+- Display a new section on My Jetpack to display the stats of the site. [#33283]
+
+## [3.7.0] - 2023-09-28
+### Added
+- Add a section to display stats from Jetpack Stats in My Jetpack [#33160]
+
+### Changed
+- Redirect to a proper upgrade page for free license owners [#33297]
+
+## [3.6.0] - 2023-09-25
+### Added
+- Add barebones infrastructure for querying jetpack product data. [#33095]
+
+### Changed
+- Stats: link to purchase page within WP Admin. [#33227]
+
+## [3.5.0] - 2023-09-19
+### Changed
+- Added support for upgradable products. Updated the Stats card  to handle upgradeable products. [#33058]
+- Updated Jetpack submenu sort order so individual features are alpha-sorted. [#32958]
+
+### Fixed
+- My Jetpack: Add AI Assistant Monthly to required plan check [#33078]
+
+## [3.4.5] - 2023-09-13
+### Changed
+- Updated package dependencies. [#33001]
+
+## [3.4.4] - 2023-09-11
+### Changed
+- General: remove WP 6.1 backwards compatibility checks [#32772]
+
+### Fixed
+- Stats: stop showing upgrade button for sites with Complete plan [#32870]
+
+## [3.4.3] - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+- Updated package dependencies. [#32804]
+
+## [3.4.2] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
+## [3.4.1] - 2023-08-22
+### Changed
+- Connection: allow dismissing the IDC modal. [#32594]
+
+## [3.4.0] - 2023-08-21
+### Added
+- Support Jetpack AI Yearly offering [#32130]
+
+### Changed
+- Use the new method to render Connection initial state. [#32499]
+
+## [3.3.3] - 2023-08-14
+### Added
+- Make My Jetpack the default WP-Admin page for Jetpack. [#32385]
+
+### Changed
+- Start showing My Jetpack for authors, editors, and contributors [#32420]
+
+## [3.3.2] - 2023-08-09
+### Fixed
+- Revert My Jetpack as first menu item. [#32384]
+
+## [3.3.1] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## [3.3.0] - 2023-08-07
+### Added
+- Add Identity Crisis screen modal. [#32249]
+
+### Changed
+- Move 'My Jetpack' sub-menu item to first position. [#32240]
+
+### Fixed
+- Fix IDC modal height issue. [#32316]
+
 ## [3.2.1] - 2023-08-01
 ### Added
 - Add transient caching for zendesk jwt auth token. [#32140]
@@ -962,6 +1085,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[3.11.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.11.0...3.11.1
+[3.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.10.0...3.11.0
+[3.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.9.1...3.10.0
+[3.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.9.0...3.9.1
+[3.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.8.2...3.9.0
+[3.8.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.8.1...3.8.2
+[3.8.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.8.0...3.8.1
+[3.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.7.0...3.8.0
+[3.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.6.0...3.7.0
+[3.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.5.0...3.6.0
+[3.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.4.5...3.5.0
+[3.4.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.4.4...3.4.5
+[3.4.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.4.3...3.4.4
+[3.4.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.4.2...3.4.3
+[3.4.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.4.1...3.4.2
+[3.4.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.4.0...3.4.1
+[3.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.3.3...3.4.0
+[3.3.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.3.2...3.3.3
+[3.3.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.3.1...3.3.2
+[3.3.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.3.0...3.3.1
+[3.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.2.1...3.3.0
 [3.2.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.2.0...3.2.1
 [3.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.1.3...3.2.0
 [3.1.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.1.2...3.1.3

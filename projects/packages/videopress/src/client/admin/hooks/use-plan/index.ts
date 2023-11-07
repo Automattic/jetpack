@@ -20,10 +20,10 @@ import {
 } from './types';
 
 const {
-	paidFeatures = <paidFeaturesProp>{},
-	siteProductData = <siteProductOriginalProps>{},
-	productData = <productOriginalProps>{},
-	productPrice = <productPriceOriginalProps>{},
+	paidFeatures = < paidFeaturesProp >{},
+	siteProductData = < siteProductOriginalProps >{},
+	productData = < productOriginalProps >{},
+	productPrice = < productPriceOriginalProps >{},
 } = window && window.jetpackVideoPressInitialState ? window.jetpackVideoPressInitialState : {};
 
 export const usePlan = (): usePlanProps => {
@@ -50,8 +50,10 @@ export const usePlan = (): usePlanProps => {
 	}
 
 	const hasVideoPressPurchase = [
+		'jetpack_videopress_bi_yearly',
 		'jetpack_videopress',
 		'jetpack_videopress_monthly',
+		'jetpack_complete_bi_yearly',
 		'jetpack_complete',
 		'jetpack_complete_monthly',
 		'jetpack_business',
@@ -81,12 +83,20 @@ export const usePlan = (): usePlanProps => {
 		'business-bundle-monthly',
 		'business-bundle-2y',
 		'business-bundle-3y',
+		'wp_com_hundred_year_bundle_centennially',
+		'wp_bundle_migration_trial_monthly',
+		'wp_bundle_hosting_trial_monthly',
 
 		// WPCOM eCommerce plans
 		'ecommerce-bundle',
 		'ecommerce-bundle-monthly',
 		'ecommerce-bundle-2y',
 		'ecommerce-bundle-3y',
+		'ecommerce-trial-bundle-monthly',
+		'wooexpress-small-bundle-yearly',
+		'wooexpress-small-bundle-monthly',
+		'wooexpress-medium-bundle-yearly',
+		'wooexpress-medium-bundle-monthly',
 	].some( plan => hasPurchase( plan ) );
 
 	return {

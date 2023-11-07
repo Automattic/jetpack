@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.27] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
 ## [1.4.26] - 2023-06-12
 ### Fixed
 - Catch PHP notice if User Agent is not available [#31279]
@@ -159,6 +163,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Moving jetpack_is_mobile into a package
 
+[1.4.27]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.26...v1.4.27
 [1.4.26]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.25...v1.4.26
 [1.4.25]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.24...v1.4.25
 [1.4.24]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.23...v1.4.24

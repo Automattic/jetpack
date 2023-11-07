@@ -15,13 +15,6 @@ use Automattic\Jetpack\Status;
 class Initial_State {
 
 	/**
-	 * Whether the initial state was already rendered
-	 *
-	 * @var boolean
-	 */
-	private static $rendered = false;
-
-	/**
 	 * Get the initial state data.
 	 *
 	 * @return array
@@ -52,11 +45,17 @@ class Initial_State {
 	 * @return string
 	 */
 	public static function render() {
-		if ( self::$rendered ) {
-			return null;
-		}
-		self::$rendered = true;
-		return 'var JP_CONNECTION_INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( self::get_data() ) ) . '"));';
+		return 'var JP_CONNECTION_INITIAL_STATE; typeof JP_CONNECTION_INITIAL_STATE === "object" || (JP_CONNECTION_INITIAL_STATE = JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( self::get_data() ) ) . '")));';
 	}
 
+	/**
+	 * Render the initial state using an inline script.
+	 *
+	 * @param string $handle The JS script handle.
+	 *
+	 * @return void
+	 */
+	public static function render_script( $handle ) {
+		wp_add_inline_script( $handle, static::render(), 'before' );
+	}
 }

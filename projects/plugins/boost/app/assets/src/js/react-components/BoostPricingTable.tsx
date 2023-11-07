@@ -24,15 +24,6 @@ const deferJSContext = createInterpolateElement( deferJSContextTemplate, {
 	link: <a href={ getRedirectUrl( 'jetpack-boost-defer-js' ) } target="_blank" rel="noreferrer" />,
 } );
 
-const lazyLoadingContextTemplate = __(
-	'Improve page loading speed by only loading images when they are required. Read more on <link>web.dev</link>.',
-	'jetpack-boost'
-);
-const lazyLoadingContext = createInterpolateElement( lazyLoadingContextTemplate, {
-	// eslint-disable-next-line jsx-a11y/anchor-has-content
-	link: <a href={ getRedirectUrl( 'jetpack-boost-lazy-load' ) } target="_blank" rel="noreferrer" />,
-} );
-
 const imageGuideContext = __(
 	'Discover and fix images with a suboptimal resolution, aspect ratio, or file size, improving user experience and page speed.',
 	'jetpack-boost'
@@ -102,6 +93,11 @@ const concatenateContext = __(
 	'jetpack-boost'
 );
 
+const performanceHistoryContext = __(
+	'Get access to your historical performance scores and see advanced Core Web Vitals data.',
+	'jetpack-boost'
+);
+
 const isaContext = __(
 	"Scan your site for images that aren't properly sized for the device they're being viewed on.",
 	'jetpack-boost'
@@ -119,10 +115,10 @@ export const BoostPricingTable = ( {
 		pricing = { yearly: {} };
 	}
 
-	// If the first year discount ends, we want to remove the label without updating the plugin.
-	const promoLabel = pricing.yearly.isIntroductoryOffer
-		? __( 'First Year Discount', 'jetpack-boost' )
-		: '';
+	// If the first year discount ends, we want to show the default label.
+	const legend = pricing.yearly.isIntroductoryOffer
+		? __( '/month for the first year, billed yearly', 'jetpack-boost' )
+		: undefined;
 
 	const isDiscounted = pricing.yearly.priceBefore > pricing.yearly.priceAfter;
 
@@ -136,13 +132,23 @@ export const BoostPricingTable = ( {
 					tooltipPlacement: 'bottom-start',
 				},
 				{
-					name: __( 'Defer non-essential JavaScript', 'jetpack-boost' ),
-					tooltipInfo: deferJSContext,
+					name: __( 'Image CDN', 'jetpack-boost' ),
+					tooltipInfo: imageCdnContext,
 					tooltipPlacement: 'bottom-start',
 				},
 				{
-					name: __( 'Lazy image loading', 'jetpack-boost' ),
-					tooltipInfo: lazyLoadingContext,
+					name: __( 'Automatic image size analysis', 'jetpack-boost' ),
+					tooltipInfo: isaContext,
+					tooltipPlacement: 'bottom-start',
+				},
+				{
+					name: __( 'Historical performance scores', 'jetpack-boost' ),
+					tooltipInfo: performanceHistoryContext,
+					tooltipPlacement: 'bottom-start',
+				},
+				{
+					name: __( 'Defer non-essential JavaScript', 'jetpack-boost' ),
+					tooltipInfo: deferJSContext,
 					tooltipPlacement: 'bottom-start',
 				},
 				{
@@ -151,18 +157,8 @@ export const BoostPricingTable = ( {
 					tooltipPlacement: 'bottom-start',
 				},
 				{
-					name: __( 'Image CDN', 'jetpack-boost' ),
-					tooltipInfo: imageCdnContext,
-					tooltipPlacement: 'bottom-start',
-				},
-				{
 					name: __( 'Concatenate JS and CSS', 'jetpack-boost' ),
 					tooltipInfo: concatenateContext,
-					tooltipPlacement: 'bottom-start',
-				},
-				{
-					name: __( 'Automatic image size analysis', 'jetpack-boost' ),
-					tooltipInfo: isaContext,
 					tooltipPlacement: 'bottom-start',
 				},
 				{
@@ -179,7 +175,7 @@ export const BoostPricingTable = ( {
 						offPrice={ isDiscounted ? pricing.yearly.priceAfter / 12 : null }
 						currency={ pricing.yearly.currencyCode }
 						hideDiscountLabel={ false }
-						promoLabel={ promoLabel }
+						legend={ legend }
 					/>
 					<Button
 						onClick={ onPremiumCTA }
@@ -197,7 +193,11 @@ export const BoostPricingTable = ( {
 					tooltipInfo={ automaticallyUpdatedContext }
 					tooltipClassName="wide-tooltip"
 				/>
-				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem
+					isIncluded={ true }
+					label={ <strong>{ __( 'Included + quality settings', 'jetpack-boost' ) }</strong> }
+					tooltipInfo={ __( 'Fine-tune image quality settings to your liking.', 'jetpack-boost' ) }
+				/>
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
@@ -231,11 +231,11 @@ export const BoostPricingTable = ( {
 					tooltipClassName="wide-tooltip"
 				/>
 				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />
+				<PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />
 			</PricingTableColumn>
 		</PricingTable>

@@ -73,5 +73,4 @@ class Tokens_Locks {
 		add_filter( 'ai1wm_export', array( $this, 'aiowpm_set_lock' ), 180 );
 		add_filter( 'ai1wm_export', array( $this, 'aiowpm_remove_lock' ), 250 );
 	}
-
 }

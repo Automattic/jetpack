@@ -1,3 +1,5 @@
+import { get } from 'svelte/store';
+import { criticalCssMeta } from '../stores/critical-css-meta';
 import {
 	localCriticalCSSProgress,
 	saveCriticalCssChunk,
@@ -36,19 +38,21 @@ export default async function generateCriticalCss(
 
 		// Prepare GET parameters to include with each request.
 		const requestGetParameters = {
-			'jb-generate-critical-css': cssState.generation_nonce,
+			'jb-generate-critical-css': Date.now().toString(),
 		};
 
 		logPreCriticalCSSGeneration();
+
+		const { viewports, callback_passthrough, proxy_nonce } = get( criticalCssMeta );
 
 		const pendingProviders = cssState.providers.filter( provider => provider.status === 'pending' );
 		if ( pendingProviders.length > 0 ) {
 			return await generateForKeys(
 				pendingProviders,
 				requestGetParameters,
-				cssState.viewports as Viewport[],
-				cssState.callback_passthrough as JSONObject,
-				cssState.proxy_nonce
+				viewports as Viewport[],
+				callback_passthrough as JSONObject,
+				proxy_nonce
 			);
 		}
 	} catch ( err ) {

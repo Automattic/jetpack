@@ -143,5 +143,4 @@ final class Bootstrap {
 	public function render_page() {
 		echo '<div id="jetpack-crm-obw-root"></div>';
 	}
-
 }

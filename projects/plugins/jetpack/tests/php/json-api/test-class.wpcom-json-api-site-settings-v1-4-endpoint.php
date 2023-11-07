@@ -89,11 +89,12 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 	 *
 	 * @dataProvider setting_value_pairs_get_request
 	 *
+	 * @param string $option_name The option lookup key.
 	 * @param string $setting_name The setting lookup key.
 	 * @param string $setting_value The setting value to test.
 	 */
-	public function test_get_settings_contains_keys_values( $setting_name, $setting_value ) {
-		update_option( $setting_name, $setting_value );
+	public function test_get_settings_contains_keys_values( $option_name, $setting_name, $setting_value ) {
+		update_option( $option_name, $setting_value );
 
 		$response = $this->make_get_request();
 		$settings = $response['settings'];
@@ -255,7 +256,6 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 					Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => '(string) The SEO meta description for the site.',
 					Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 					'verification_services_codes'          => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex, facebook',
-					'amp_is_enabled'                       => '(bool) Whether AMP is enabled for this site',
 					'podcasting_archive'                   => '(string) The post category, if any, used for publishing podcasts',
 					'site_icon'                            => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 					'api_cache'                            => '(bool) Turn on/off the Jetpack JSON API cache',
@@ -296,6 +296,22 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 			'woocommerce_default_country'    => array( 'woocommerce_default_country', '' ),
 			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', '' ),
 			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array() ),
+			'wga'                            => array(
+				'wga',
+				array(
+					'code'                          => '',
+					'anonymize_ip'                  => false,
+					'honor_dnt'                     => false,
+					'ec_track_purchases'            => false,
+					'ec_track_add_to_cart'          => false,
+					'enh_ec_tracking'               => false,
+					'enh_ec_track_remove_from_cart' => false,
+					'enh_ec_track_prod_impression'  => false,
+					'enh_ec_track_prod_click'       => false,
+					'enh_ec_track_prod_detail_view' => false,
+					'enh_ec_track_checkout_started' => false,
+				),
+			),
 		);
 	}
 
@@ -306,12 +322,29 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 	 */
 	public function setting_value_pairs_get_request() {
 		return array(
-			'woocommerce_store_address'      => array( 'woocommerce_store_address', 'Street 34th 1/2' ),
-			'woocommerce_store_address_2'    => array( 'woocommerce_store_address_2', 'Apt #1' ),
-			'woocommerce_store_city'         => array( 'woocommerce_store_city', 'City' ),
-			'woocommerce_default_country'    => array( 'woocommerce_default_country', 'US:NY' ),
-			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', '98738' ),
-			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array( 'test' => 'test value' ) ),
+			'woocommerce_store_address'      => array( 'woocommerce_store_address', 'woocommerce_store_address', 'Street 34th 1/2' ),
+			'woocommerce_store_address_2'    => array( 'woocommerce_store_address_2', 'woocommerce_store_address_2', 'Apt #1' ),
+			'woocommerce_store_city'         => array( 'woocommerce_store_city', 'woocommerce_store_city', 'City' ),
+			'woocommerce_default_country'    => array( 'woocommerce_default_country', 'woocommerce_default_country', 'US:NY' ),
+			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', 'woocommerce_store_postcode', '98738' ),
+			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', 'woocommerce_onboarding_profile', array( 'test' => 'test value' ) ),
+			'wga'                            => array(
+				'jetpack_wga',
+				'wga',
+				array(
+					'code'                          => 'G-TESTING',
+					'anonymize_ip'                  => false,
+					'honor_dnt'                     => false,
+					'ec_track_purchases'            => false,
+					'ec_track_add_to_cart'          => false,
+					'enh_ec_tracking'               => false,
+					'enh_ec_track_remove_from_cart' => false,
+					'enh_ec_track_prod_impression'  => false,
+					'enh_ec_track_prod_click'       => false,
+					'enh_ec_track_prod_detail_view' => false,
+					'enh_ec_track_checkout_started' => false,
+				),
+			),
 		);
 	}
 
@@ -343,6 +376,15 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 				array(
 					'invitation'     => 'Test string <a href="#">link</a>',
 					'comment_follow' => "Test string 2\n\n Other line",
+				),
+			),
+			'wga'                                       => array(
+				'wga',
+				array(
+					'code' => 'G-TESTING',
+				),
+				array(
+					'code' => 'G-TESTING',
 				),
 			),
 		);

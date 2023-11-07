@@ -38,10 +38,6 @@ function get_wp_cache_key( $url = false ) {
 	if ( ! $url ) {
 		$url = $wp_cache_request_uri;
 	}
-	// Prevent a PHP 8.1+ notice when passed into str_replace()
-	if ( null === $url ) {
-		$url = '';
-	}
 	$server_port = isset( $_SERVER['SERVER_PORT'] ) ? intval( $_SERVER['SERVER_PORT'] ) : 0;
 
 	// Prepare a tag to include in the cache key if the request is anything other than text/html
@@ -368,7 +364,7 @@ function wp_cache_serve_cache_file() {
 		}
 	} elseif ( $do_not_serve_gzip_data ) {
 		$cache        = wp_cache_get_legacy_cache( $cache_file );
-		$uncompressed = gzuncompress( $cache );
+		$uncompressed = @gzuncompress( $cache ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- there is a small chance the cache isn't gzipped despite being configured to be.
 		if ( $uncompressed ) {
 			$cache = $uncompressed;
 			unset( $uncompressed );
@@ -392,8 +388,17 @@ function wp_cache_get_legacy_cache( $cache_file ) {
 
 function wp_cache_postload() {
 	global $cache_enabled, $wp_super_cache_late_init;
+	global $wp_cache_request_uri;
+
+	// have to sanitize here because formatting.php is loaded after wp_cache_request_uri is set
+	$wp_cache_request_uri = esc_url_raw( wp_unslash( $wp_cache_request_uri ) );
 
 	if ( ! $cache_enabled ) {
+		return true;
+	}
+
+	if ( wpsc_is_backend() ) {
+		wp_cache_debug( 'wp_cache_postload: backend detected, not running' );
 		return true;
 	}
 

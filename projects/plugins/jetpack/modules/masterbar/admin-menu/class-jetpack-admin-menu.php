@@ -209,7 +209,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		add_menu_page( esc_attr__( 'Appearance', 'jetpack' ), __( 'Appearance', 'jetpack' ), 'switch_themes', $themes_url, null, 'dashicons-admin-appearance', 60 );
 		add_submenu_page( $themes_url, esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), 'switch_themes', 'https://wordpress.com/themes/' . $this->domain );
 
-		if ( ! has_action( 'customize_register' ) && function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+		if ( ! has_action( 'customize_register' ) && wp_is_block_theme() ) {
 			return $customize_url;
 		}
 
@@ -270,6 +270,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		add_submenu_page( $slug, esc_attr__( 'Writing', 'jetpack' ), __( 'Writing', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/writing/' . $this->domain );
 		add_submenu_page( $slug, esc_attr__( 'Reading', 'jetpack' ), __( 'Reading', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/reading/' . $this->domain );
 		add_submenu_page( $slug, esc_attr__( 'Discussion', 'jetpack' ), __( 'Discussion', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/discussion/' . $this->domain );
+		add_submenu_page( $slug, esc_attr__( 'Newsletter', 'jetpack' ), __( 'Newsletter', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain );
 
 		$plan_supports_scan = Jetpack_Plan::supports( 'scan' );
 		$products           = Jetpack_Plan::get_products();

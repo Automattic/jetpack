@@ -98,5 +98,4 @@ class Registry {
 	public function get_namespace_http() {
 		return $this->sanitize_http_name( $this->namespace );
 	}
-
 }

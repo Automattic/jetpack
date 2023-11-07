@@ -91,5 +91,3 @@ if ( $replace_hyphens_in_response === 1 ) {
 }
 
 wp_send_json( $customer_matches );
-
-

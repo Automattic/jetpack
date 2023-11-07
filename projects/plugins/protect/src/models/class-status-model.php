@@ -138,5 +138,4 @@ class Status_Model {
 			}
 		}
 	}
-
 }

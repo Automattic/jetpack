@@ -580,5 +580,4 @@ class Jetpack_Stats_Upgrade_Nudges {
 		self::get_crm_output();
 		self::print_footer();
 	}
-
 }

@@ -36,6 +36,7 @@ An object with the following properties:
 - `requestingState: RequestingStateProp`: The state of the request.
 - `eventSource: SuggestionsEventSource | undefined`: The event source of the request.
 - `request: ( prompt: Array< PromptItemProps >, options: AskQuestionOptionsArgProps ) => Promise< void >`: The request handler.
+- `reset`: `() => void`: Reset the request state.
 
 ### `PromptItemProps`
 

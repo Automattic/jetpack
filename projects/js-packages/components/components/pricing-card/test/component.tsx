@@ -1,10 +1,11 @@
+// Note we're using @testing-library/react/pure here to disable the automatic cleanup.
+// So be sure to call `cleanup()` for each `render()`.
+/* eslint-disable testing-library/no-render-in-lifecycle */
+/* eslint-disable testing-library/no-manual-cleanup */
+
 import { jest } from '@jest/globals';
 import { render, screen, cleanup } from '@testing-library/react/pure';
 import PricingCard from '../index';
-
-// Note we're using @testing-library/react/pure here to disable the automatic cleanup.
-// So be sure to call `cleanup()` for each `render()`.
-/* eslint-disable testing-library/no-render-in-setup */
 
 describe( 'PricingCard', () => {
 	const testProps = {

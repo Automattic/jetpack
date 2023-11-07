@@ -1,7 +1,10 @@
 .connections-list {
 	list-style-type: none;
+	display: inherit;
 	margin: 0;
 	width: 100%;
+	display: flex;
+	flex-wrap: wrap;
 
 	.components-notice {
 		margin: 5px 0 10px;
@@ -15,4 +18,10 @@
 .more-link {
 	display: inline-block;
 	margin-top: 6px;
+}
+
+.change-settings-button {
+	padding: 0;
+	height: auto;
+	margin-inline-start: 15px;
 }

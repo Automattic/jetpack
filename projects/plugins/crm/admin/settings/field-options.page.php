@@ -54,7 +54,7 @@ if ( isset( $_POST['editwplf'] ) ) {
 	// } Update
 
 	// } any here? or 1?
-	if ( strpos( $zbsStatusStr, ',' ) > -1 ) {
+	if ( str_contains( $zbsStatusStr, ',' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// } Trim them...
 		$zbsStatusArr        = array();
@@ -77,7 +77,7 @@ if ( isset( $_POST['editwplf'] ) ) {
 	}
 
 	// } any here? or 1?
-	if ( strpos( $zbsPrefixStr, ',' ) > -1 ) {
+	if ( str_contains( $zbsPrefixStr, ',' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// } Trim them...
 		$zbsPrefixArr        = array();

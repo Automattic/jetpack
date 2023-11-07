@@ -225,5 +225,4 @@ class Jetpack_Sync_Settings {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Settings' );
 		Settings::set_is_sending( $is_sending );
 	}
-
 }

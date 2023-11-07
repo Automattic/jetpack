@@ -721,5 +721,4 @@ class Woo_Sync_My_Account_Integration {
 			}
 		}
 	}
-
 }

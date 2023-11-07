@@ -106,6 +106,38 @@ class Jetpack_PostImages {
 	}
 
 	/**
+	 * Filtering out images with broken URL from galleries.
+	 *
+	 * @param array $galleries Galleries.
+	 * @return array $filtered_galleries
+	 */
+	public static function filter_gallery_urls( $galleries ) {
+		$filtered_galleries = array();
+		foreach ( $galleries as $this_gallery ) {
+			if ( ! isset( $this_gallery['src'] ) ) {
+				continue;
+			}
+			$ids = isset( $this_gallery['ids'] ) ? explode( ',', $this_gallery['ids'] ) : array();
+			// Make sure 'src' array isn't associative and has no holes.
+			$this_gallery['src'] = array_values( $this_gallery['src'] );
+			foreach ( $this_gallery['src'] as $idx => $src_url ) {
+				if ( filter_var( $src_url, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED ) === false ) {
+					unset( $this_gallery['src'][ $idx ] );
+					unset( $ids[ $idx ] );
+				}
+			}
+			if ( isset( $this_gallery['ids'] ) ) {
+				$this_gallery['ids'] = implode( ',', $ids );
+			}
+			// Remove any holes we introduced.
+			$this_gallery['src']  = array_values( $this_gallery['src'] );
+			$filtered_galleries[] = $this_gallery;
+		}
+
+		return $filtered_galleries;
+	}
+
+	/**
 	 * If a gallery is detected, then get all the images from it.
 	 *
 	 * @param int $post_id Post ID.
@@ -123,6 +155,7 @@ class Jetpack_PostImages {
 		if ( ! empty( $post->post_password ) ) {
 			return $images;
 		}
+		add_filter( 'get_post_galleries', array( __CLASS__, 'filter_gallery_urls' ), 999999 );
 
 		$permalink = get_permalink( $post->ID );
 
@@ -732,9 +765,10 @@ class Jetpack_PostImages {
 	 * @param  array $image Array containing details of the image.
 	 * @param  int   $base_width Base image width (i.e., the width at 1x).
 	 * @param  int   $base_height Base image height (i.e., the height at 1x).
+	 * @param  bool  $use_widths Whether to generate the srcset with widths instead of multipliers.
 	 * @return string The srcset for the image.
 	 */
-	public static function generate_cropped_srcset( $image, $base_width, $base_height ) {
+	public static function generate_cropped_srcset( $image, $base_width, $base_height, $use_widths = false ) {
 		$srcset = '';
 
 		if ( ! is_array( $image ) || empty( $image['src'] ) || empty( $image['src_width'] ) ) {
@@ -750,12 +784,17 @@ class Jetpack_PostImages {
 				break;
 			}
 
-			$srcset_url      = self::fit_image_url(
+			$srcset_url = self::fit_image_url(
 				$image['src'],
 				$srcset_width,
 				$srcset_height
 			);
-			$srcset_values[] = "{$srcset_url} {$multiplier}x";
+
+			if ( $use_widths ) {
+				$srcset_values[] = "{$srcset_url} {$srcset_width}w";
+			} else {
+				$srcset_values[] = "{$srcset_url} {$multiplier}x";
+			}
 		}
 
 		if ( count( $srcset_values ) > 1 ) {

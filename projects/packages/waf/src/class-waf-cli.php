@@ -7,8 +7,8 @@
 
 namespace Automattic\Jetpack\Waf;
 
-use \WP_CLI;
-use \WP_CLI_Command;
+use WP_CLI;
+use WP_CLI_Command;
 
 /**
  * Just a few sample commands to learn how WP-CLI works

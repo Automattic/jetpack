@@ -5,6 +5,154 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.16.2] - 2023-11-03
+### Fixed
+- Launchpad hooks: Made more resilient against non-array values. [#33923]
+
+## [4.16.1] - 2023-10-31
+### Fixed
+- Clicking on the 'Choose a plan' task would not redirect to the plans page. [#33872]
+
+## [4.16.0] - 2023-10-30
+### Added
+- Add launchpad checklist for host-site intent. [#33698]
+
+### Fixed
+- Disable fullscreen launchpad when completing the site_launched task. [#33819]
+
+## [4.15.1] - 2023-10-26
+### Changed
+- Coming Soon feature: Be more defensive when checking for meta data. [#33769]
+
+## [4.15.0] - 2023-10-16
+### Added
+- Launchpad: Add earn-newsletter checklist. [#33200]
+
+### Changed
+- Launchpad: Update copy for global styles in plan_selected task. [#33462]
+
+## [4.14.0] - 2023-10-10
+### Added
+- Expose newsletter_categories_location to JavaScript [#33374]
+
+### Changed
+- Changed domain launchpad task visibility [#33456]
+- Changed email verification visibility [#33457]
+
+## [4.13.0] - 2023-10-03
+### Added
+- Add new task for user to confirm email when purchasing a domain. [#33373]
+- Add plugin to show frontend email nag for domains with unverified email address [#33390]
+- Adds a URL param to identify the source of the navigation on the Customize domain task. [#33404]
+
+## [4.12.0] - 2023-09-28
+### Added
+- Added calypso_path to Launchpad task [#33355]
+- Support Design First tasks on the Customer Home Launchpad [#33272]
+- Support Start Writing tasks on the Customer Home Launchpad [#33281]
+
+### Fixed
+- Added check for jetpack sync option to only run on Atomic [#33286]
+
+## [4.11.0] - 2023-09-25
+### Added
+- Adds 100 Year Plan features, including the ability to set a legacy contact and enable locked mode. [#33081]
+- Adds a feature to include helpers for the First Posts stream. In particular, an option is being added to the sync list. [#33253]
+- Add the Calypso path for the setup_link_in_bio task. [#32905]
+- Support Videopress tasks on the Customer Home Launchpad. [#33153]
+
+### Fixed
+- Locked Mode: Now applies cap filter in REST API requests as well. [#33246]
+
+## [4.10.0] - 2023-09-19
+### Added
+- Add removal capability for navigator available checklists [#33019]
+- add updating capabilities for current checklist [#32964]
+- Change the Site Editor's dashboard link [#33024]
+- Change the way the navigator checklists are handled [#33011]
+
+### Fixed
+- Make map block settings load after registering the script [#33066]
+
+## [4.9.0] - 2023-09-11
+### Added
+- adding navigator api endpoint [#32963]
+- capability for getting the current active checklist [#32965]
+
+## [4.8.0] - 2023-09-07
+### Added
+- Add HEIC/HEIF image upload support [#32900]
+- Add updater for WPCOM Marketplace plugins [#32872]
+
+### Changed
+- Update version numbers [#32902]
+
+## [4.7.0] - 2023-09-06
+### Added
+- Added Calypso paths for setup_free and domain_upsell tasks [#32851]
+- Launchpad: added Calypso paths for newsletter tasks [#32882]
+
+## [4.6.0] - 2023-09-04
+### Added
+- Added sub-option to show/hide launchpad modal in editor [#32730]
+- Use the task id to validate the task update request [#32591]
+
+### Changed
+- Adapt the pre launch tasks to work on the Customer Home [#32796]
+- Update function prefixes for task list definitions [#32563]
+- Update the unused get_task_url prop on the task definition to the get_calypso_path [#32790]
+
+### Removed
+- Remove the is launched check for the build intent [#32810]
+
+## [4.5.1] - 2023-08-28
+### Changed
+- Updated package dependencies. [#32605]
+
+## [4.5.0] - 2023-08-21
+### Added
+- Added new 'skipped' option to launchpad checklist [#32500]
+
+### Changed
+- Remove the initial slash to match the pattern used throughout the project [#32365]
+
+### Fixed
+- Add calypso path for set_up_payments task. [#32526]
+- Fix completion logic for welcome message on newsletters task. [#32466]
+- Reuse completion method to make it easier to add tracking and check for list completion. [#31471]
+
+## [4.4.1] - 2023-08-15
+### Changed
+- Reduce number of tasks in the free and paid newsletter task lists [#32459]
+
+## [4.4.0] - 2023-08-14
+### Added
+- Newsletter launchpad: add migrate content task. [#32357]
+
+## [4.3.1] - 2023-08-09
+### Added
+- Adds the 'Write 3 posts' launchpad task to the 'Write' intent [#32341]
+
+### Changed
+- Update the email verification task copy [#32364]
+
+## [4.3.0] - 2023-08-07
+### Added
+- Added add_about_page Launchpad task [#32245]
+- Added new Launchpad task [#32204]
+- Added new Launchpad task [#32250]
+- Add the path for the Write 3 posts and Enable subscriber modal tasks [#32233]
+- Launchpad: add 'Get your first 10 subscribers' task for newsletters and add general repeated task completion logic [#32075]
+- Launchpad: add a way to query and set checklist dismissed status [#32200]
+
+### Changed
+- Add the Earn money task to the Free Newsletter task list [#32315]
+- Refactors is_launchpad_enabled method  to make it clear they are related to the fullscreen launchpad [#32269]
+- Refactors refactor disable_launchpad & maybe_disable_launchpad to make it clear they are related to the fullscreen launchpad [#32268]
+
+### Fixed
+- Fix the new get_calypso_path for the customize_welcome_message task [#32195]
+
 ## [4.2.0] - 2023-08-01
 ### Added
 - Add manage subscribers task. [#32064]
@@ -270,6 +418,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[4.16.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.16.1...v4.16.2
+[4.16.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.16.0...v4.16.1
+[4.16.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.15.1...v4.16.0
+[4.15.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.15.0...v4.15.1
+[4.15.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.14.0...v4.15.0
+[4.14.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.13.0...v4.14.0
+[4.13.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.12.0...v4.13.0
+[4.12.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.11.0...v4.12.0
+[4.11.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.10.0...v4.11.0
+[4.10.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.9.0...v4.10.0
+[4.9.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.8.0...v4.9.0
+[4.8.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.7.0...v4.8.0
+[4.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.6.0...v4.7.0
+[4.6.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.5.1...v4.6.0
+[4.5.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.5.0...v4.5.1
+[4.5.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.4.1...v4.5.0
+[4.4.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.4.0...v4.4.1
+[4.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.3.1...v4.4.0
+[4.3.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.3.0...v4.3.1
+[4.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.2.0...v4.3.0
 [4.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.1.0...v4.2.0
 [4.1.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.7.0...v4.0.0

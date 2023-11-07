@@ -169,9 +169,8 @@ class Status {
 		// Check for localhost and sites using an IP only first.
 		$is_local = $site_url && false === strpos( $site_url, '.' );
 
-		// @todo Remove function_exists when the package has a documented minimum WP version.
-		// Use Core's environment check, if available. Added in 5.5.0 / 5.5.1 (for `local` return value).
-		if ( function_exists( 'wp_get_environment_type' ) && 'local' === wp_get_environment_type() ) {
+		// Use Core's environment check, if available.
+		if ( 'local' === wp_get_environment_type() ) {
 			$is_local = true;
 		}
 
@@ -184,6 +183,7 @@ class Status {
 			'#\.docksal\.site$#i', // Docksal.
 			'#\.dev\.cc$#i',       // ServerPress.
 			'#\.lndo\.site$#i',    // Lando.
+			'#^https?://127\.0\.0\.1$#',
 		);
 
 		if ( ! $is_local ) {
@@ -221,24 +221,26 @@ class Status {
 			return $cached;
 		}
 
-		// @todo Remove function_exists when the package has a documented minimum WP version.
-		// Core's wp_get_environment_type allows for a few specific options. We should default to bowing out gracefully for anything other than production or local.
-		$is_staging = function_exists( 'wp_get_environment_type' ) && ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
+		/*
+		 * Core's wp_get_environment_type allows for a few specific options.
+		 * We should default to bowing out gracefully for anything other than production or local.
+		 */
+		$is_staging = ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
 
 		$known_staging = array(
 			'urls'      => array(
-				'#\.staging\.wpengine\.com$#i', // WP Engine. This is their legacy staging URL structure. Their new platform does not have a common URL. https://github.com/Automattic/jetpack/issues/21504
-				'#\.staging\.kinsta\.com$#i',   // Kinsta.com.
-				'#\.kinsta\.cloud$#i',          // Kinsta.com.
-				'#\.stage\.site$#i',            // DreamPress.
-				'#\.newspackstaging\.com$#i',   // Newspack.
-				'#\.pantheonsite\.io$#i',       // Pantheon.
-				'#\.flywheelsites\.com$#i',     // Flywheel.
-				'#\.flywheelstaging\.com$#i',   // Flywheel.
-				'#\.cloudwaysapps\.com$#i',     // Cloudways.
-				'#\.azurewebsites\.net$#i',     // Azure.
-				'#\.wpserveur\.net$#i',         // WPServeur.
-				'#\-liquidwebsites\.com$#i',    // Liquidweb.
+				'#\.staging\.wpengine\.com$#i',                    // WP Engine. This is their legacy staging URL structure. Their new platform does not have a common URL. https://github.com/Automattic/jetpack/issues/21504
+				'#\.staging\.kinsta\.com$#i',                      // Kinsta.com.
+				'#\.kinsta\.cloud$#i',                             // Kinsta.com.
+				'#\.stage\.site$#i',                               // DreamPress.
+				'#\.newspackstaging\.com$#i',                      // Newspack.
+				'#^(?!live-)([a-zA-Z0-9-]+)\.pantheonsite\.io$#i', // Pantheon.
+				'#\.flywheelsites\.com$#i',                        // Flywheel.
+				'#\.flywheelstaging\.com$#i',                      // Flywheel.
+				'#\.cloudwaysapps\.com$#i',                        // Cloudways.
+				'#\.azurewebsites\.net$#i',                        // Azure.
+				'#\.wpserveur\.net$#i',                            // WPServeur.
+				'#\-liquidwebsites\.com$#i',                       // Liquidweb.
 			),
 			'constants' => array(
 				'IS_WPE_SNAPSHOT',      // WP Engine. This is used on their legacy staging environment. Their new platform does not have a constant. https://github.com/Automattic/jetpack/issues/21504
@@ -409,5 +411,4 @@ class Status {
 
 		return rtrim( $url, ':' );
 	}
-
 }

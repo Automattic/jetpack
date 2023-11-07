@@ -1,15 +1,15 @@
 import { Dialog, ProductOffer, TermsOfService } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
+import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { STORE_ID } from '../../store';
 import background from './background.svg';
 import illustration from './illustration.png';
 import styles from './styles.module.scss';
 const ConnectionScreen = () => {
 	const connectProps = useSelect( select => {
-		const store = select( STORE_ID );
+		const store = select( SOCIAL_STORE_ID );
 		return {
 			apiRoot: store.getAPIRootUrl(),
 			apiNonce: store.getAPINonce(),
@@ -40,7 +40,7 @@ const ConnectionScreen = () => {
 							'jetpack-social'
 						) }
 						features={ [
-							'Connect with Twitter, Facebook, LinkedIn and Tumblr',
+							'Connect with Instagram, Facebook, Mastodon, LinkedIn, and Tumblr',
 							'Select the social media to share posts while publishing',
 							'Publish custom messages',
 						] }

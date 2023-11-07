@@ -47,5 +47,4 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		return true;
 	}
-
 }

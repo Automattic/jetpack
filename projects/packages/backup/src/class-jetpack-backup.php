@@ -98,8 +98,7 @@ class Jetpack_Backup {
 			_x( 'VaultPress Backup', 'The Jetpack VaultPress Backup product name, without the Jetpack prefix', 'jetpack-backup-pkg' ),
 			'manage_options',
 			'jetpack-backup',
-			array( __CLASS__, 'plugin_settings_page' ),
-			99
+			array( __CLASS__, 'plugin_settings_page' )
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 
@@ -184,7 +183,7 @@ class Jetpack_Backup {
 		Assets::enqueue_script( 'jetpack-backup' );
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-backup', self::get_initial_state(), 'before' );
-		wp_add_inline_script( 'jetpack-backup', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'jetpack-backup' );
 
 		// Load script for analytics.
 		if ( self::can_use_analytics() ) {
@@ -729,5 +728,4 @@ class Jetpack_Backup {
 		$manager = new Connection_Manager( 'jetpack-backup' );
 		$manager->remove_connection();
 	}
-
 }

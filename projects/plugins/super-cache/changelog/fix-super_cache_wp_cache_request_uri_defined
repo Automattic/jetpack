@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Caching: make sure $wp_cache_request_uri is defined to avoid warnings about "NULL" parameters.

@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Connection\Client as Client;
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
@@ -51,7 +51,7 @@ class REST_Purchases {
 			);
 		}
 
-		return current_user_can( 'manage_options' );
+		return current_user_can( 'edit_posts' );
 	}
 
 	/**

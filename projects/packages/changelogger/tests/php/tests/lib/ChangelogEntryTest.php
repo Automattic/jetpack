@@ -260,5 +260,4 @@ class ChangelogEntryTest extends TestCase {
 			),
 		);
 	}
-
 }

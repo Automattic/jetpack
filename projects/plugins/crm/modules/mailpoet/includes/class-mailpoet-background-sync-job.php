@@ -419,80 +419,72 @@ class Mailpoet_Background_Sync_Job {
 
 		// tags
 		$tags = array();
-		if ( $settings['tag_with_list'] == 1 ){
+		if ( $settings['tag_with_list'] == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 
 			// tag with subscriber list
-			if ( isset( $subscriber['subscriptions'] ) && is_array( $subscriber['subscriptions'] ) ){
+			if ( isset( $subscriber['subscriptions'] ) && is_array( $subscriber['subscriptions'] ) ) {
 
-				foreach ( $subscriber['subscriptions'] as $subscription ){
+				foreach ( $subscriber['subscriptions'] as $subscription ) {
 
 					// only for subs
-					if ( $subscription['status'] == 'subscribed' ){
+					if ( $subscription['status'] === 'subscribed' ) {
 
-						/* 
-                            [id] => 1
-                            [subscriber_id] => 1
-                            [created_at] => 2022-10-11 07:55:51
-                            [segment_id] => 1
-                            [status] => subscribed
-                            [updated_at] => 2022-10-11 07:55:51
-	                    */
+						/* // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+								[id] => 1
+								[subscriber_id] => 1
+								[created_at] => 2022-10-11 07:55:51
+								[segment_id] => 1
+								[status] => subscribed
+								[updated_at] => 2022-10-11 07:55:51
+						*/
 
-	                    // find segment (list) name from our summary data
-	                    // note: if this doesn't find a match it's likely 
-	                    // id 1+2 which seem to be WP and Woo user data sets
-	                    // which are not returned by the API `getLists()`
-	                    $segment_name = ( isset( $this->segment_list[ $subscription['segment_id'] ] ) ? $this->segment_list[ $subscription['segment_id'] ]['name'] : '' );
+						// find segment (list) name from our summary data
+						// note: if this doesn't find a match it's likely
+						// id 1+2 which seem to be WP and Woo user data sets
+						// which are not returned by the API `getLists()`
+						$segment_name = ( isset( $this->segment_list[ $subscription['segment_id'] ] ) ? $this->segment_list[ $subscription['segment_id'] ]['name'] : '' );
 
-	                    // valid list name?
-	                    // here we sidestep any with suffix `| CRM` or `| Jetpack CRM`
-	                    // .. to avoid us exporting a CRM segment into a list, then reimporting and adding a tag we created
-	                    if ( !empty( $segment_name ) && substr( $segment_name, -5 ) !== '| CRM' && substr( $segment_name, -13 ) !== '| Jetpack CRM' ){
+						// valid list name?
+						// here we sidestep any with suffix `| CRM` or `| Jetpack CRM`
+						// .. to avoid us exporting a CRM segment into a list, then reimporting and adding a tag we created
+						if ( ! empty( $segment_name ) && ! str_ends_with( $segment_name, '| CRM' ) && ! str_ends_with( $segment_name, '| Jetpack CRM' ) ) {
 
-	                    	$tags[] = $settings['tag_list_prefix'] . $segment_name;
+							$tags[] = $settings['tag_list_prefix'] . $segment_name;
 
-	                    }
-
-	                }
-
+						}
+					}
 				}
-
 			}
 
-			
-
 		}
-		if ( $settings['tag_with_tags'] == 1 ){
+
+		if ( $settings['tag_with_tags'] == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 
 			// tag with subscriber tags
-			if ( isset( $subscriber['tags'] ) && is_array( $subscriber['tags'] ) ){
+			if ( isset( $subscriber['tags'] ) && is_array( $subscriber['tags'] ) ) {
 
-				foreach ( $subscriber['tags'] as $tag ){
+				foreach ( $subscriber['tags'] as $tag ) {
 
-					/* 
-	                    [id] => 54
-	                    [subscriber_id] => 1
-	                    [tag_id] => 4
-	                    [created_at] => 2022-11-03 13:23:38
-	                    [updated_at] => 2022-11-03 13:23:38
-	                    [name] => xxx
-                    */
+					/* // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+						[id] => 54
+						[subscriber_id] => 1
+						[tag_id] => 4
+						[created_at] => 2022-11-03 13:23:38
+						[updated_at] => 2022-11-03 13:23:38
+						[name] => xxx
+					*/
 
-	                    // here we sidestep any with suffix `| CRM` or `| Jetpack CRM`
-	                    // .. to avoid us exporting a CRM segment into a list, then reimporting and adding a tag we created
-	                    if ( substr( $tag['name'], -5 ) !== '| CRM' && substr( $tag['name'], -13 ) !== '| Jetpack CRM' ){
-                    
-                    		$tags[] = $settings['tag_tag_prefix'] . $tag['name'];
+					// here we sidestep any with suffix `| CRM` or `| Jetpack CRM`
+					// .. to avoid us exporting a CRM segment into a list, then reimporting and adding a tag we created
+					if ( ! str_ends_with( $tag['name'], '| CRM' ) && ! str_ends_with( $tag['name'], '| Jetpack CRM' ) ) {
 
-                    	}
+						$tags[] = $settings['tag_tag_prefix'] . $tag['name'];
 
+					}
 				}
-
 			}
 
-
 		}
-
 
 		// got tags?
 		if ( count( $tags ) > 0 ){
@@ -662,6 +654,4 @@ class Mailpoet_Background_Sync_Job {
 		return false;
 
 	}
-
-
 }

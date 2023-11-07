@@ -2,14 +2,15 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
-use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Quote_Data;
 use Automattic\Jetpack\CRM\Automation\Triggers\Quote_Accepted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Quote_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Quote_Deleted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Quote_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Quote_Updated;
-use WorDBless\BaseTestCase;
+use Automattic\Jetpack\CRM\Entities\Quote;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -18,7 +19,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation
  */
-class Quote_Trigger_Test extends BaseTestCase {
+class Quote_Trigger_Test extends JPCRM_Base_Test_Case {
 
 	private $automation_faker;
 
@@ -38,15 +39,16 @@ class Quote_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
 		// Init the Quote_Updated trigger.
 		$trigger->init( $workflow );
 
-		// Fake event data.
-		$quote_data = $this->automation_faker->quote_data();
+		/** @var Quote $quote */
+		$quote      = $this->automation_faker->quote();
+		$quote_data = new Quote_Data( $quote );
 
 		// We expect the workflow to be executed on quote_update event with the quote data
 		$workflow->expects( $this->once() )
@@ -57,7 +59,7 @@ class Quote_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the quote_update action.
-		do_action( 'jpcrm_quote_update', $quote_data );
+		do_action( 'jpcrm_quote_update', $quote );
 	}
 
 	/**
@@ -71,15 +73,16 @@ class Quote_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
 		// Init the Quote_Updated trigger.
 		$trigger->init( $workflow );
 
-		// Fake event data.
-		$quote_data = $this->automation_faker->quote_data();
+		/** @var Quote $quote */
+		$quote      = $this->automation_faker->quote();
+		$quote_data = new Quote_Data( $quote );
 
 		// We expect the workflow to be executed on quote_status_update event with the quote data
 		$workflow->expects( $this->once() )
@@ -90,7 +93,7 @@ class Quote_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the quote_status_update action.
-		do_action( 'jpcrm_quote_status_update', $quote_data );
+		do_action( 'jpcrm_quote_status_update', $quote );
 	}
 
 	/**
@@ -104,15 +107,16 @@ class Quote_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
 		// Init the Quote_Created trigger.
 		$trigger->init( $workflow );
 
-		// Fake event data.
-		$quote_data = $this->automation_faker->quote_data();
+		/** @var Quote $quote */
+		$quote      = $this->automation_faker->quote();
+		$quote_data = new Quote_Data( $quote );
 
 		// We expect the workflow to be executed on quote_created event with the quote data
 		$workflow->expects( $this->once() )
@@ -123,7 +127,7 @@ class Quote_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the quote_created action.
-		do_action( 'jpcrm_quote_created', $quote_data );
+		do_action( 'jpcrm_quote_created', $quote );
 	}
 
 	/**
@@ -137,15 +141,16 @@ class Quote_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
 		// Init the Quote_Created trigger.
 		$trigger->init( $workflow );
 
-		// Fake event data.
-		$quote_data = $this->automation_faker->quote_data();
+		/** @var Quote $quote */
+		$quote      = $this->automation_faker->quote();
+		$quote_data = new Quote_Data( $quote );
 
 		// We expect the workflow to be executed on quote_created event with the quote data
 		$workflow->expects( $this->once() )
@@ -156,7 +161,7 @@ class Quote_Trigger_Test extends BaseTestCase {
 		);
 
 		// Notify the quote_accepted event.
-		do_action( 'jpcrm_quote_accepted', $quote_data );
+		do_action( 'jpcrm_quote_accepted', $quote );
 	}
 
 	/**
@@ -170,15 +175,16 @@ class Quote_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
 		// Init the Quote_Deleted trigger.
 		$trigger->init( $workflow );
 
-		// Fake event data.
-		$quote_data = $this->automation_faker->quote_data();
+		/** @var Quote $quote */
+		$quote      = $this->automation_faker->quote();
+		$quote_data = new Quote_Data( $quote );
 
 		// We expect the workflow to be executed on quote_deleted event with the quote data
 		$workflow->expects( $this->once() )
@@ -189,6 +195,6 @@ class Quote_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the quote_deleted action.
-		do_action( 'jpcrm_quote_delete', $quote_data );
+		do_action( 'jpcrm_quote_delete', $quote );
 	}
 }

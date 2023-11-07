@@ -1,5 +1,10 @@
 import { useRef, useMemo } from '@wordpress/element';
-import { DEFAULT_RESTRICTIONS, GLOBAL_MAX_SIZE, RESTRICTIONS } from './restrictions';
+import {
+	DEFAULT_RESTRICTIONS,
+	GLOBAL_MAX_SIZE,
+	PHOTON_CONVERTIBLE_TYPES,
+	RESTRICTIONS,
+} from './restrictions';
 
 export const NO_MEDIA_ERROR = 'NO_MEDIA_ERROR';
 export const FILE_TYPE_ERROR = 'FILE_TYPE_ERROR';
@@ -19,14 +24,63 @@ export function isVideo( mime ) {
 }
 
 /**
+ * Checks whether a media is convertible so we can convert it if needed.
+ *
+ * @param {object} metaData - Media metadata, mime, fileSize and length.
+ * @returns {boolean} Whether it is convertible.
+ */
+const isMediaConvertible = metaData => {
+	if ( ! metaData?.mime || ! metaData?.fileSize ) {
+		return false;
+	}
+
+	const { mime, fileSize } = metaData;
+	if ( isVideo( mime ) ) {
+		return false;
+	}
+
+	if ( ! PHOTON_CONVERTIBLE_TYPES.includes( mime ) ) {
+		return false;
+	}
+
+	const sizeInMb = fileSize ? fileSize / Math.pow( 1000, 2 ) : null;
+
+	if ( sizeInMb >= 55 ) {
+		return false;
+	}
+
+	return true;
+};
+
+/**
  * This function is used to check if the provided image is valid based on it's size and type.
  *
  * @param {number} sizeInMb - The fileSize in bytes.
- * @param {number} maxImageSize - The maximum size to check against.
+ * @param {number} width - Width of the image.
+ * @param {number} height - Height of the image.
+ * @param {object} imageLimits - Has the properties to check against
  * @returns {FILE_SIZE_ERROR} Returns validation error.
  */
-const getImageValidationError = ( sizeInMb, maxImageSize ) =>
-	! sizeInMb || sizeInMb > maxImageSize ? FILE_SIZE_ERROR : null;
+const getImageValidationError = ( sizeInMb, width, height, imageLimits ) => {
+	const {
+		maxSize = GLOBAL_MAX_SIZE,
+		minWidth = 0,
+		maxWidth = GLOBAL_MAX_SIZE,
+		aspectRatio = DEFAULT_RESTRICTIONS.image.aspectRatio,
+	} = imageLimits;
+
+	const ratio = width / height;
+	if (
+		ratio < aspectRatio.min ||
+		ratio > aspectRatio.max ||
+		width > maxWidth ||
+		width < minWidth
+	) {
+		return DIMENSION_ERROR;
+	}
+
+	return ! sizeInMb || sizeInMb > maxSize ? FILE_SIZE_ERROR : null;
+};
 
 /**
  * This function is used to check if the provided video is valid based on it's size and type and length.
@@ -94,17 +148,21 @@ const getValidationError = ( metaData, mediaData, serviceName, shouldUploadAttac
 		return FILE_TYPE_ERROR;
 	}
 
+	if ( ! mediaData?.width || ! mediaData?.height ) {
+		return DIMENSION_ERROR;
+	}
+
 	const sizeInMb = fileSize ? fileSize / Math.pow( 1000, 2 ) : null;
 
 	return isVideo( mime )
 		? getVideoValidationError(
 				sizeInMb,
 				metaData.length,
-				mediaData?.width,
-				mediaData?.height,
+				mediaData.width,
+				mediaData.height,
 				restrictions.video
 		  )
-		: getImageValidationError( sizeInMb, restrictions.image.maxSize );
+		: getImageValidationError( sizeInMb, mediaData.width, mediaData.height, restrictions.image );
 };
 
 /**
@@ -137,10 +195,14 @@ const useMediaRestrictions = (
 					}
 					return errs;
 			  }, {} );
+
 		if ( JSON.stringify( newErrors ) !== JSON.stringify( errors.current ) ) {
 			errors.current = newErrors;
 		}
-		return errors.current;
+		return {
+			validationErrors: errors.current,
+			isConvertible: isMediaConvertible( media.metaData ),
+		};
 	}, [
 		isSocialImageGeneratorEnabledForPost,
 		connections,

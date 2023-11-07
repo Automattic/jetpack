@@ -23,7 +23,7 @@ if ( ! defined( 'JETPACK_BOOST_REST_PREFIX' ) ) {
  */
 class Speed_Score {
 
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.2.2';
 
 	/**
 	 * An instance of Automatic\Jetpack_Boost\Modules\Modules_Setup passed to the constructor
@@ -79,6 +79,26 @@ class Speed_Score {
 				'permission_callback' => array( $this, 'can_access_speed_scores' ),
 			)
 		);
+
+		register_rest_route(
+			JETPACK_BOOST_REST_NAMESPACE,
+			JETPACK_BOOST_REST_PREFIX . '/speed-scores-history',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'dispatch_speed_score_graph_history_request' ),
+				'permission_callback' => array( $this, 'can_access_speed_scores' ),
+				'args'                => array(
+					'start' => array(
+						'required' => true,
+						'type'     => 'number',
+					),
+					'end'   => array(
+						'required' => true,
+						'type'     => 'number',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -129,6 +149,19 @@ class Speed_Score {
 		$score_request_no_boost = $this->maybe_dispatch_no_boost_score_request( $url );
 
 		return $this->prepare_speed_score_response( $url, $score_request, $score_request_no_boost );
+	}
+
+	/**
+	 * Handler for POST /speed-scores-history.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 *
+	 * @return \WP_REST_Response|\WP_Error The response.
+	 */
+	public function dispatch_speed_score_graph_history_request( $request ) {
+		$score_history_request = new Speed_Score_Graph_History_Request( $request->get_param( 'start' ), $request->get_param( 'end' ), array() );
+		// Send the request.
+		return $score_history_request->execute();
 	}
 
 	/**
@@ -308,5 +341,4 @@ class Speed_Score {
 
 		return rest_ensure_response( $response );
 	}
-
 }

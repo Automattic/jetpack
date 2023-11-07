@@ -63,5 +63,4 @@ class Mailpoet_Admin_Integration {
 		// /wp-admin/admin.php?page=mailpoet-subscribers#/
 
 	}
-
 }

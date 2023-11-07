@@ -68,7 +68,7 @@ const fetchSubscriberCounts = async () => {
 		path: '/wpcom/v2/subscribers/counts',
 	} );
 
-	if ( ! response && typeof response !== 'object' ) {
+	if ( ! response || typeof response !== 'object' ) {
 		throw new Error( 'Unexpected API response' );
 	}
 

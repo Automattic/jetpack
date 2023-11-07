@@ -108,6 +108,4 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie_Locator {
 		$enclosures = $xpath->query( "//enclosure[starts-with(@type,'audio/')]" );
 		return ! $enclosures ? false : $enclosures->length > 0;
 	}
-
 }
-

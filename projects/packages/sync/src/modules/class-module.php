@@ -250,7 +250,7 @@ abstract class Module {
 		$listener              = Listener::get_instance();
 
 		// Count down from max_id to min_id so we get newest posts/comments/etc first.
-		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$previous_interval_end} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
 			// Request posts in groups of N for efficiency.
 			$chunked_ids = array_chunk( $ids, self::ARRAY_CHUNK_SIZE );
@@ -338,7 +338,7 @@ SQL
 		$limits = Settings::get_setting( 'full_sync_limits' )[ $this->name() ];
 
 		$chunks_sent = 0;
-		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 		while ( $objects = $this->get_next_chunk( $config, $status, $limits['chunk_size'] ) ) {
 			if ( $chunks_sent++ === $limits['max_chunks'] || microtime( true ) >= $send_until ) {
 				return $status;
@@ -600,5 +600,4 @@ SQL
 	public function get_where_sql( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return '1=1';
 	}
-
 }

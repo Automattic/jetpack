@@ -232,7 +232,7 @@ class Milestone_Widget extends WP_Widget {
 
 		self::$config_js['instances'][] = $config;
 
-		echo sprintf( '<div id="%s" class="milestone-content">', esc_html( $config['content_id'] ) );
+		printf( '<div id="%s" class="milestone-content">', esc_html( $config['content_id'] ) );
 
 		echo '<div class="milestone-header">';
 		echo '<strong class="event">' . esc_html( $instance['event'] ) . '</strong>';

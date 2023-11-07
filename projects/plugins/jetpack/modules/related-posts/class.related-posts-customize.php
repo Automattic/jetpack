@@ -288,7 +288,6 @@ class Jetpack_Related_Posts_Customize {
 			false
 		);
 	}
-
 } // class end
 
 /**

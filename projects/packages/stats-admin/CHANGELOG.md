@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.12.2 - 2023-09-19
+### Changed
+- Updated Jetpack submenu sort order so individual features are alpha-sorted. [#32958]
+
+## 0.12.1 - 2023-08-28
+### Changed
+- Updated package dependencies. [#32605]
+
 ## 0.12.0 - 2023-07-05
 ### Added
 - Stats Admin: add plan and product for site [#31663]

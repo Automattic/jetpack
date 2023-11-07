@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { __, sprintf } from '@wordpress/i18n';
 	import Notice from '../../../elements/Notice.svelte';
+	import { superCacheNoticeDisabledClientStore } from '../../../stores/notice';
 	import { measureSuperCacheSaving } from '../../../utils/measure-super-cache-saving';
 	import { isSuperCachePluginActive, isSuperCacheEnabled } from '../../../utils/super-cache';
 
@@ -57,12 +58,15 @@
 			actions={[ { label: runLabel, onClick: runTest } ]}
 		/>
 	{/if}
-{:else if isSuperCachePluginActive()}
+{:else if isSuperCachePluginActive() && ! $superCacheNoticeDisabledClientStore}
 	<Notice
 		level="warning"
 		title={__( 'Super Cache is installed but not enabled', 'jetpack-boost' )}
 		message={__( 'Enable Super Cache to speed your site up further.', 'jetpack-boost' )}
 		actions={[ { label: __( 'Set up', 'jetpack-boost' ), onClick: navToSuperCacheSettings } ]}
-		dismissalKey={'super-cache-not-enabled'}
+		hideCloseButton={false}
+		on:onClose={() => {
+			$superCacheNoticeDisabledClientStore = true;
+		}}
 	/>
 {/if}

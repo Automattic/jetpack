@@ -5,7 +5,7 @@ import { useCallback, useContext, useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { ERROR_RESPONSE } from '../types';
+import { ERROR_RESPONSE, RequestingErrorProps } from '../types';
 import { AiDataContext } from '.';
 /**
  * Types & constants
@@ -32,7 +32,7 @@ export type UseAiContextOptions = {
 	/*
 	 * onError callback.
 	 */
-	onError?: ( error: Error ) => void;
+	onError?: ( error: RequestingErrorProps ) => void;
 };
 
 /**

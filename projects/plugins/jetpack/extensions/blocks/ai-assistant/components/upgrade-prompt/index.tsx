@@ -1,12 +1,6 @@
 /*
  * External dependencies
  */
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import {
-	isAtomicSite,
-	isSimpleSite,
-	getSiteFragment,
-} from '@automattic/jetpack-shared-extension-utils';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
@@ -14,8 +8,9 @@ import React from 'react';
  * Internal dependencies
  */
 import { Nudge } from '../../../../shared/components/upgrade-nudge';
-import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
+import useAICheckout from '../../hooks/use-ai-checkout';
 import useAIFeature from '../../hooks/use-ai-feature';
+import { canUserPurchasePlan } from '../../lib/connection';
 
 /**
  * The default upgrade prompt for the AI Assistant block, containing the Upgrade button and linking
@@ -24,16 +19,31 @@ import useAIFeature from '../../hooks/use-ai-feature';
  * @returns {React.ReactNode} the Nudge component with the prompt.
  */
 const DefaultUpgradePrompt = (): React.ReactNode => {
-	const wpcomCheckoutUrl = getRedirectUrl( 'jetpack-ai-monthly-plan-ai-assistant-block-banner', {
-		site: getSiteFragment(),
-	} );
+	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
+	const canUpgrade = canUserPurchasePlan();
 
-	const checkoutUrl =
-		isAtomicSite() || isSimpleSite()
-			? wpcomCheckoutUrl
-			: `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/add-jetpack-ai`;
-
-	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( checkoutUrl );
+	if ( ! canUpgrade ) {
+		return (
+			<Nudge
+				showButton={ false }
+				className={ 'jetpack-ai-upgrade-banner' }
+				description={ createInterpolateElement(
+					__(
+						'Congratulations on exploring Jetpack AI and reaching the free requests limit!<br /><strong>Reach out to the site administrator to upgrade and keep using Jetpack AI.</strong>',
+						'jetpack'
+					),
+					{
+						br: <br />,
+						strong: <strong />,
+					}
+				) }
+				visible={ true }
+				align={ null }
+				title={ null }
+				context={ null }
+			/>
+		);
+	}
 
 	return (
 		<Nudge

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix the new get_calypso_path for the customize_welcome_message task

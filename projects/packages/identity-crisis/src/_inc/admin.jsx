@@ -9,9 +9,15 @@ import './style.scss';
  * The initial renderer function.
  */
 function render() {
-	const container = document.getElementById( 'jp-identity-crisis-container' );
+	if ( ! window.hasOwnProperty( 'JP_IDENTITY_CRISIS__INITIAL_STATE' ) ) {
+		return;
+	}
 
-	if ( null === container || ! window.hasOwnProperty( 'JP_IDENTITY_CRISIS__INITIAL_STATE' ) ) {
+	const container = document.getElementById(
+		window.JP_IDENTITY_CRISIS__INITIAL_STATE.containerID || 'jp-identity-crisis-container'
+	);
+
+	if ( null === container ) {
 		return;
 	}
 
@@ -30,7 +36,6 @@ function render() {
 	} = window.JP_IDENTITY_CRISIS__INITIAL_STATE;
 
 	if ( ! isSafeModeConfirmed ) {
-		// @todo: Remove fallback when we drop support for WP 6.1
 		const component = (
 			<IDCScreen
 				wpcomHomeUrl={ wpcomHomeUrl }
@@ -48,12 +53,8 @@ function render() {
 				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
 			/>
 		);
-		if ( WPElement.createRoot ) {
-			WPElement.createRoot( container ).render( component );
-		} else {
-			WPElement.render( component, container );
-		}
+		WPElement.createRoot( container ).render( component );
 	}
 }
 
-render();
+window.addEventListener( 'load', () => render() );

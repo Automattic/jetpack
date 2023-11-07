@@ -7,5 +7,6 @@ module.exports = {
 				allowedTextDomain: 'zero-bs-crm',
 			},
 		],
+		'jsdoc/require-jsdoc': 'off',
 	},
 };

@@ -15,7 +15,7 @@
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.1",
-		"yoast/phpunit-polyfills": "1.0.4",
+		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"suggest": {
@@ -66,7 +66,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.3.x-dev"
+			"dev-trunk": "2.5.x-dev"
 		}
 	}
 }

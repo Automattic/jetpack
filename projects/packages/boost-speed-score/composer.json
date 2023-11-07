@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.4",
+		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev",
 		"brain/monkey": "^2.6"
 	},

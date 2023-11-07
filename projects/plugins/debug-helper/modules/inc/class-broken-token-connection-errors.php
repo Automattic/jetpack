@@ -320,7 +320,6 @@ class Broken_Token_Connection_Errors {
 
 		$this->admin_post_redirect_referrer();
 	}
-
 }
 
 // phpcs:enable

@@ -7,8 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
-use \WorDBless\BaseTestCase;
-use \WorDBless\Posts;
+use WorDBless\BaseTestCase;
+use WorDBless\Posts;
 
 /**
  * Test class for Contact_Form

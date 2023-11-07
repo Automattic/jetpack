@@ -12,7 +12,6 @@ use Automattic\Jetpack\Connection\Tokens;
  * Main Comments class
  *
  * @package automattic/jetpack
- * @version 1.4
  * @since   1.4
  */
 class Jetpack_Comments extends Highlander_Comments_Base {
@@ -59,7 +58,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	/**
 	 * Main constructor for Comments
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 */
 	public function __construct() {
 		parent::__construct();
@@ -106,7 +105,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 *
 	 * This is primarily defining the comment form sources.
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 */
 	protected function setup_globals() {
 		parent::setup_globals();
@@ -116,7 +115,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			'guest',
 			'jetpack',
 			'wordpress',
-			'twitter',
 			'facebook',
 		);
 	}
@@ -124,7 +122,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	/**
 	 * Setup actions for methods in this class
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 */
 	protected function setup_actions() {
 		parent::setup_actions();
@@ -156,9 +154,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
-	 * Get the comment avatar from Gravatar, Twitter, or Facebook
+	 * Get the comment avatar from Gravatar or Twitter/Facebook.
 	 *
-	 * @since JetpackComments (1.4)
+	 * Leaving the Twitter reference for legacy comments even though support is no longer offered.
+	 *
+	 * @since 1.4
 	 *
 	 * @param string $avatar  Current avatar URL.
 	 * @param string $comment Comment for the avatar.
@@ -172,7 +172,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			return $avatar;
 		}
 
-		// Detect whether it's a Facebook or Twitter avatar.
+		// Detect whether it's a Facebook avatar.
 		$foreign_avatar          = get_comment_meta( $comment->comment_ID, 'hc_avatar', true );
 		$foreign_avatar_hostname = wp_parse_url( $foreign_avatar, PHP_URL_HOST );
 		if ( ! $foreign_avatar_hostname ||
@@ -209,7 +209,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 *
 	 * Comment form output will only be captured if comments are enabled - we return otherwise.
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 */
 	public function comment_form_before() {
 		/**
@@ -241,7 +241,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * Noop the default comment form output, get some options, and output our
 	 * tricked out totally radical comment form.
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 */
 	public function comment_form_after() {
 		/** This filter is documented in modules/comments/comments.php */
@@ -257,30 +257,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		// Throw it all out and drop in our replacement.
 		ob_end_clean();
-
-		// If users are required to be logged in, and they're not, then we don't need to do anything else.
-		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
-			/**
-			 * Changes the log in to comment prompt.
-			 *
-			 * @module comments
-			 *
-			 * @since  1.4.0
-			 *
-			 * @param string $var Default is "You must log in to post a comment."
-			 */
-			echo '<p class="must-log-in">' . wp_kses_post(
-				sprintf(
-					apply_filters(
-						'jetpack_must_log_in_to_comment',
-						/* translators: %s is the wp-login URL for the site */
-						__( 'You must <a href="%s">log in</a> to post a comment.', 'jetpack' )
-					),
-					wp_login_url( get_permalink() . '#respond' )
-				)
-			) . '</p>';
-			return;
-		}
 
 		if ( in_array( 'subscriptions', Jetpack::get_active_modules(), true ) ) {
 			$stb_enabled = get_option( 'stb_enabled', 1 );
@@ -472,111 +448,60 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 *
 	 * If AMP is enabled, we don't make any changes.
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 */
 	public function watch_comment_parent() {
 		if ( class_exists( Jetpack_AMP_Support::class ) && Jetpack_AMP_Support::is_amp_request() ) {
 			// @todo Implement AMP support.
 			return;
 		}
-
-		$url_origin = 'https://jetpack.wordpress.com';
 		?>
-
-		<!--[if IE]>
 		<script type="text/javascript">
-			if ( 0 === window.location.hash.indexOf( '#comment-' ) ) {
-				// window.location.reload() doesn't respect the Hash in IE
-				window.location.hash = window.location.hash;
-			}
-		</script>
-		<![endif]-->
-		<script type="text/javascript">
-			(function () {
-				var comm_par_el = document.getElementById( 'comment_parent' ),
-					comm_par = ( comm_par_el && comm_par_el.value ) ? comm_par_el.value : '',
-					frame = document.getElementById( 'jetpack_remote_comment' ),
-					tellFrameNewParent;
-
-				tellFrameNewParent = function () {
-					if ( comm_par ) {
-						frame.src = "<?php echo esc_url_raw( $this->signed_url ); ?>" + '&replytocom=' + parseInt( comm_par, 10 ).toString();
-					} else {
-						frame.src = "<?php echo esc_url_raw( $this->signed_url ); ?>";
-					}
-				};
-
-				<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
-
-				if ( 'undefined' !== typeof addComment ) {
+			const iframe = document.getElementById( 'jetpack_remote_comment' );
+			<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
+			const watchReply = function() {
+				// Check addComment._Jetpack_moveForm to make sure we don't monkey-patch twice.
+				if ( 'undefined' !== typeof addComment && ! addComment._Jetpack_moveForm ) {
+					// Cache the Core function.
 					addComment._Jetpack_moveForm = addComment.moveForm;
+					const commentParent = document.getElementById( 'comment_parent' );
+					const cancel = document.getElementById( 'cancel-comment-reply-link' );
 
-					addComment.moveForm = function ( commId, parentId, respondId, postId ) {
-						var returnValue = addComment._Jetpack_moveForm( commId, parentId, respondId, postId ),
-							cancelClick, cancel;
-
-						if ( false === returnValue ) {
-							cancel = document.getElementById( 'cancel-comment-reply-link' );
-							cancelClick = cancel.onclick;
-							cancel.onclick = function () {
-								var cancelReturn = cancelClick.call( this );
-								if ( false !== cancelReturn ) {
-									return cancelReturn;
-								}
-
-								if ( ! comm_par ) {
-									return cancelReturn;
-								}
-
-								comm_par = 0;
-
-								tellFrameNewParent();
-
-								return cancelReturn;
-							};
+					function tellFrameNewParent ( commentParentValue ) {
+						const url = new URL( iframe.src );
+						if ( commentParentValue ) {
+							url.searchParams.set( 'replytocom', commentParentValue )
+						} else {
+							url.searchParams.delete( 'replytocom' );
 						}
-
-						if ( comm_par == parentId ) {
-							return returnValue;
+						if( iframe.src !== url.href ) {
+							iframe.src = url.href;
 						}
+					};
 
-						comm_par = parentId;
+					cancel.addEventListener( 'click', function () {
+						tellFrameNewParent( false );
+					} );
 
-						tellFrameNewParent();
-
-						return returnValue;
+					addComment.moveForm = function ( _, parentId ) {
+						tellFrameNewParent( parentId );
+						return addComment._Jetpack_moveForm.apply( null, arguments );
 					};
 				}
+			}
+			document.addEventListener( 'DOMContentLoaded', watchReply );
+			// In WP 6.4+, the script is loaded asynchronously, so we need to wait for it to load before we monkey-patch the functions it introduces.
+			document.querySelector('#comment-reply-js')?.addEventListener( 'load', watchReply );
 
-				<?php endif; ?>
+			<?php endif; ?>
 
-				// Do the post message bit after the dom has loaded.
-				document.addEventListener( 'DOMContentLoaded', function () {
-					var iframe_url = <?php echo wp_json_encode( esc_url_raw( $url_origin ) ); ?>;
-					if ( window.postMessage ) {
-						if ( document.addEventListener ) {
-							window.addEventListener( 'message', function ( event ) {
-								var origin = event.origin.replace( /^http:\/\//i, 'https://' );
-								if ( iframe_url.replace( /^http:\/\//i, 'https://' ) !== origin ) {
-									return;
-								}
-								frame.style.height = event.data + 'px';
-							});
-						} else if ( document.attachEvent ) {
-							window.attachEvent( 'message', function ( event ) {
-								var origin = event.origin.replace( /^http:\/\//i, 'https://' );
-								if ( iframe_url.replace( /^http:\/\//i, 'https://' ) !== origin ) {
-									return;
-								}
-								frame.style.height = event.data + 'px';
-							});
-						}
-					}
-				})
-
-			})();
+			window.addEventListener( 'message', function ( event ) {
+				if ( event.origin !== 'https://jetpack.wordpress.com' ) {
+					return;
+				}
+				iframe.style.height = event.data + 'px';
+			});
 		</script>
-
 		<?php
 	}
 
@@ -586,7 +511,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * If the Jetpack token is missing we return nothing,
 	 * and if the token is unknown or invalid, or comments not allowed, an error is returned.
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 */
 	public function pre_comment_on_post() {
 		$post_array = stripslashes_deep( $_POST );
@@ -635,7 +560,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * Add some additional comment meta after comment is saved about what
 	 * service the comment is from, the avatar, user_id, etc...
 	 *
-	 * @since JetpackComments (1.4)
+	 * @since 1.4
 	 *
 	 * @param int $comment_id The comment ID.
 	 */
@@ -646,12 +571,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		switch ( $this->is_highlander_comment_post() ) {
 			case 'facebook':
 				$comment_meta['hc_post_as']         = 'facebook';
-				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
-				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
-				break;
-
-			case 'twitter':
-				$comment_meta['hc_post_as']         = 'twitter';
 				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
 				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
 				break;

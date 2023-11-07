@@ -9,6 +9,7 @@ export { default as askQuestion } from './src/ask-question';
  * Hooks
  */
 export { default as useAiSuggestions } from './src/hooks/use-ai-suggestions';
+export { default as useMediaRecording } from './src/hooks/use-media-recording';
 
 /*
  * Components: Icons
@@ -18,7 +19,7 @@ export * from './src/icons';
 /*
  * Components
  */
-export { default as AIControl } from './src/components/ai-control';
+export * from './src/components';
 
 /*
  * Contexts

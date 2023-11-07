@@ -281,7 +281,7 @@ function zeroBSCRM_html_contactTimeline($contactID=-1,$logs=false,$contactObj=fa
 			if ($zbs->isDAL2()) $creationLog = zeroBSCRM_getObjCreationLog($contactID,1);
 
 		}
-		if (is_array($creationLog)){ //$creationLog['type'] == 'Create' || strpos($creationLog['shortdesc'], 'Created') > 0){
+		if ( is_array( $creationLog ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			$logsToShow[] = $creationLog;
 
@@ -703,7 +703,7 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
 			    $creationLog = zeroBSCRM_getObjCreationLog( $companyID, 1 );
             }
 		}
-		if (is_array($creationLog)){ //if ($creationLog['type'] == 'Create' || strpos($creationLog['shortdesc'], 'Created') > 0){
+		if ( is_array( $creationLog ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			$logsToShow[] = $creationLog;
 
@@ -1145,7 +1145,7 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 				$email_details_html .= '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['fname'] . ' ' . $customer['lname'] ) . '</a>';
 			}
 		} elseif ( $em_hist->zbsmail_sender_wpid === '-13' ) {
-			// -13 is the event notification (sent to the OWNER of the event) so a WP user (not ZBS contact)...
+			// -13 is the task notification (sent to the OWNER of the task) so a WP user (not ZBS contact)...
 			$user_obj = get_user_by( 'ID', $em_hist->zbsmail_target_objid );
 			if ( ! $user_obj ) {
 				continue;
@@ -1264,20 +1264,6 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 	   					 if (isset($dataArr['secaddr_postcode'])) $value = $dataArr['secaddr_postcode'];
 	   					 break;
 	   			}
-	   			/* old way, doesn't work reliably - more likely to break custom fields:
-	   			if (strpos($fieldKey, 'secaddr') > -1){
-
-	   				if ($value == -99){
-
-	   					// try the alternate (secaddr_addr1 -> secaddr1)
-	   					// ... really this fix is only req. for contacts, and will fudge up if users use custom fields with similar names..
-	   					// ... def overcome more latterally v3.0+
-	   					//$tempKey = str_replace('secaddr_','sec',$fieldKey);	   					
-	   					if (isset($dataArr[$tempKey])) $value = $dataArr[$tempKey];secaddr_addr1
-	   				}	   		
-	   				
-	   				//echo $fieldKey.' = '.$tempKey.' = '.$value.'!<br>';
-	   			}*/
 
    			global $zbs;
 

@@ -7,3 +7,4 @@ node_modules      export-ignore
 /.eslintrc.cjs    production-exclude
 /.gitignore       production-exclude
 /jest.config.cjs  production-exclude
+/test/**          production-exclude

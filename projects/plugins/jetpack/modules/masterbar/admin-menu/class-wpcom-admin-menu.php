@@ -35,7 +35,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
-		add_filter( 'block_editor_settings_all', array( $this, 'site_editor_dashboard_link' ) );
 	}
 
 	/**
@@ -45,7 +44,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_my_home_menu();
-		$this->add_inbox_menu();
+		$this->add_my_mailboxes_menu();
 		$this->remove_gutenberg_menu();
 
 		// Not needed outside of wp-admin.
@@ -271,7 +270,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'edit_posts', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'read', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
 	}
 
 	/**
@@ -323,7 +322,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$user_can_customize = current_user_can( 'customize' );
 
-		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+		if ( wp_is_block_theme() ) {
 			add_filter( 'safecss_is_freetrial', '__return_false', PHP_INT_MAX );
 			if ( class_exists( 'Jetpack_Custom_CSS' ) && empty( Jetpack_Custom_CSS::get_css() ) ) {
 				$user_can_customize = false;
@@ -363,6 +362,13 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::add_options_menu();
 
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 10 );
+	}
+
+	/**
+	 * Adds My Home menu.
+	 */
+	public function add_my_home_menu() {
+		$this->update_menu( 'index.php', 'https://wordpress.com/home/' . $this->domain, __( 'My Home', 'jetpack' ), 'read', 'dashicons-admin-home' );
 	}
 
 	/**
