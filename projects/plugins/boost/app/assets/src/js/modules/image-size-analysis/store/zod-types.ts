@@ -36,12 +36,10 @@ export const ImageData = z
 		instructions: z.string(),
 	} )
 
-	.catch( () => {
-		return {
-			id: Math.random().toString(),
-			type: 'bad_entry',
-			status: 'active', // We still want to show the UI for this.
-		};
+	.catch( {
+		id: Math.random().toString(),
+		type: 'bad_entry',
+		status: 'active', // We still want to show the UI for this.
 	} );
 
 export type ImageDataType = z.infer< typeof ImageData >;
