@@ -51,7 +51,7 @@ function is_custom_domain() {
  * Decides whether to render to the email nag.
  */
 function domain_email_nag() {
-	if ( ! is_on_frontend_and_logged_in() && is_custom_domain() ) {
+	if ( ! is_on_frontend_and_logged_in() && ! is_custom_domain() ) {
 		return;
 	}
 
