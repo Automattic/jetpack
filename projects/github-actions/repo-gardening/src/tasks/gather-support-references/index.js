@@ -80,12 +80,6 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 	ticketReferences.map( reference => {
 		const supportId = reference[ 0 ];
 
-		// Do not correct p2 comment references.
-		if ( supportId.includes( '-p2#comment-' ) ) {
-			correctedSupportIds.add( supportId );
-			return;
-		}
-
 		// xxx-zen is the preferred format for tickets.
 		// xxx-zd, as well as its uppercase version, is considered an alternate version.
 		const wrongId = supportId.match( /^([0-9]*)-zd$/i );
