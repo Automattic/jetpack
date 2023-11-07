@@ -2011,17 +2011,17 @@ class Jetpack_CLI extends WP_CLI_Command {
 				'block-block-json',
 				array(
 					'slug'        => $slug,
-					'title'       => $title,
+					'title'       => addcslashes( $title, '\n"\\' ),
 					'description' => isset( $assoc_args['description'] )
-						? $assoc_args['description']
-						: $title,
+						? addcslashes( $assoc_args['description'], '\n"\\' )
+						: addcslashes( $title, '\n"\\' ),
 					'nextVersion' => $next_version,
 					'keywords'    => isset( $assoc_args['keywords'] )
 						? implode(
 							',',
 							array_map(
 								function ( $keyword ) {
-										return '"' . trim( $keyword ) . '"';
+										return '"' . trim( addcslashes( $keyword, '\n"\\' ) ) . '"';
 								},
 								array_slice( explode( ',', $assoc_args['keywords'] ), 0, 3 )
 							)
