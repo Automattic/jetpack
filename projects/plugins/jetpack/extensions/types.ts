@@ -21,7 +21,7 @@ export type SiteAIAssistantFeatureEndpointResponseProps = {
 	'error-code'?: string;
 	'is-playground-visible'?: boolean;
 	'upgrade-type': UpgradeTypeProp;
-	'currnet-tier': {
+	'current-tier': {
 		value: TierValueProp;
 	};
 	'tier-plans': Array< {
