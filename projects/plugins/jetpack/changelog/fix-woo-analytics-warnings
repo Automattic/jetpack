@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Prevent a PHP Warning when accessing inner blocks on cart and checkout pages.
