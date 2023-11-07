@@ -1,7 +1,8 @@
 <script lang="ts">
 	import ReRouter from '../../elements/ReRouter.svelte';
+	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import Header from '../../react-components/sections/header';
 	import Footer from '../../sections/Footer.svelte';
-	import Header from '../../sections/Header.svelte';
 	import config from '../../stores/config';
 	import { connection } from '../../stores/connection';
 	import { criticalCssIssues } from '../../stores/critical-css-state-errors';
@@ -22,7 +23,7 @@
 
 <ReRouter to="/getting-started" when={shouldGetStarted}>
 	<div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
-		<Header />
+		<ReactComponent this={Header} />
 
 		<div class="jb-section jb-section--alt jb-section--scores">
 			<Score {activeModules} {criticalCssCreated} {criticalCssIsGenerating} />

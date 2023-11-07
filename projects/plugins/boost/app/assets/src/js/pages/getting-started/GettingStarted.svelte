@@ -1,10 +1,11 @@
 <script lang="ts">
+	import React from 'react';
 	import { Snackbar } from '@wordpress/components';
-	import ActivateLicense from '../../elements/ActivateLicense.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
+	import ActivateLicense from '../../react-components/components/activate-license';
+	import Header from '../../react-components/sections/header';
 	import Footer from '../../sections/Footer.svelte';
-	import Header from '../../sections/Header.svelte';
 	import { initializeConnection, getUpgradeURL } from '../../stores/connection';
 	import { recordBoostEvent } from '../../utils/analytics';
 
@@ -45,12 +46,17 @@
 			selectedPlan = false;
 		}
 	}
+
+	const activateLicense = React.createElement( ActivateLicense );
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
+	<!-- 	
 	<Header>
 		<ActivateLicense />
-	</Header>
+	</Header> -->
+
+	<ReactComponent this={Header} children={activateLicense} />
 
 	<div class="jb-section jb-section--alt">
 		<div class="jb-container">

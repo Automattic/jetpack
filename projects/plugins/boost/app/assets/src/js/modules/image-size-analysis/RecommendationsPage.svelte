@@ -2,8 +2,9 @@
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
+	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import Header from '../../react-components/sections/header';
 	import Footer from '../../sections/Footer.svelte';
-	import Header from '../../sections/Header.svelte';
 	import { modulesState } from '../../stores/modules';
 	import Hero from './recommendations/Hero.svelte';
 	import Pagination from './recommendations/Pagination.svelte';
@@ -51,7 +52,7 @@
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
-	<Header subPage={__( 'Image analysis report', 'jetpack-boost' )} />
+	<ReactComponent this={Header} subPage={__( 'Image analysis report', 'jetpack-boost' )} />
 	<div class="jb-recommendations-page jb-section--alt">
 		<div class="jb-container">
 			<Hero
