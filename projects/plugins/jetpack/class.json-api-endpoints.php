@@ -1451,6 +1451,16 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$nice       = $user->user_nicename;
 			}
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
+				/**
+				 * Allow customizing the blog ID returned with the author in WordPress.com REST API queries.
+				 *
+				 * @since $$next-version$$
+				 *
+				 * @module json-api
+				 *
+				 * @param bool|int $active_blog  Blog ID, or false by default.
+				 * @param int      $id           User ID.
+				 */
 				$active_blog = apply_filters( 'wpcom_pre_get_active_blog_for_user', false, $id );
 				if ( false === $active_blog ) {
 					$active_blog = get_active_blog_for_user( $id );
