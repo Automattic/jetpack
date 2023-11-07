@@ -24,7 +24,7 @@ type Feature = AIFeatureProps & {
 type PlanStateProps = {
 	plans: Array< Plan >;
 	features: {
-		aiAssistantFeature?: Feature;
+		aiAssistant?: Feature;
 	};
 };
 
@@ -104,7 +104,7 @@ const wordpressPlansStore = createReduxStore( store, {
 		 * @returns {object}       The AI Assistant feature data.
 		 */
 		getAiAssistantFeature( state: PlanStateProps ): object {
-			return state.features.aiAssistantFeature;
+			return state.features.aiAssistant;
 		},
 	},
 
