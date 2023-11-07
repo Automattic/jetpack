@@ -131,6 +131,7 @@ export const settings = {
 						element: 'a',
 						text: fromInnerBlock.attributes.text ?? '',
 						className: fromInnerBlock.attributes.className ?? '',
+						blockType: fromInnerBlock.attributes.blockType ?? '',
 					};
 
 					const width = fromInnerBlock.attributes.width;
