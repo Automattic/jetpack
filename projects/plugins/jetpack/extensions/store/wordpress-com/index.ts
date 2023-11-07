@@ -6,7 +6,7 @@ import { createReduxStore, register } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import type { AIFeatureProps, Plan, PlanStateProps } from '../../store/wordpress-com/types';
+import type { AIFeatureProps, Plan, PlanStateProps } from './types';
 import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../types';
 
 const store = 'wordpress-com/plans';
@@ -38,6 +38,35 @@ const actions = {
 		};
 	},
 };
+
+/**
+ * Map the response from the `sites/$site/ai-assistant-feature`
+ * endpoint to the AI Assistant feature props.
+ * @param { SiteAIAssistantFeatureEndpointResponseProps } response - The response from the endpoint.
+ * @returns { AIFeatureProps }                                       The AI Assistant feature props.
+ */
+function mapAIFeatureResponseToAIFeatureProps(
+	response: SiteAIAssistantFeatureEndpointResponseProps
+): AIFeatureProps {
+	return {
+		hasFeature: !! response[ 'has-feature' ],
+		isOverLimit: !! response[ 'is-over-limit' ],
+		requestsCount: response[ 'requests-count' ],
+		requestsLimit: response[ 'requests-limit' ],
+		requireUpgrade: !! response[ 'site-require-upgrade' ],
+		errorMessage: response[ 'error-message' ],
+		errorCode: response[ 'error-code' ],
+		upgradeType: response[ 'upgrade-type' ],
+		usagePeriod: {
+			currentStart: response[ 'usage-period' ]?.[ 'current-start' ],
+			nextStart: response[ 'usage-period' ]?.[ 'next-start' ],
+			requestsCount: response[ 'usage-period' ]?.[ 'requests-count' ] || 0,
+		},
+		currentTier: {
+			value: response[ 'current-tier' ]?.value || 1,
+		},
+	};
+}
 
 const wordpressPlansStore = createReduxStore( store, {
 	__experimentalUseThunks: true,
@@ -115,7 +144,9 @@ const wordpressPlansStore = createReduxStore( store, {
 				} );
 
 				// Store the feature in the store.
-				dispatch( actions.storeAiAssistantFeature( response ) );
+				dispatch(
+					actions.storeAiAssistantFeature( mapAIFeatureResponseToAIFeatureProps( response ) )
+				);
 			},
 	},
 } );
