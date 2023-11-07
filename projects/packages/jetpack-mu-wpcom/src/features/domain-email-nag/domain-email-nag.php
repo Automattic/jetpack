@@ -14,7 +14,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
  *
  * @return boolean
  */
-function should_show_domain_frontend_email_nag() {
+function is_on_frontend_and_logged_in() {
 	if ( ! is_front_page() || ( is_front_page() && ! is_user_logged_in() ) ) {
 		return false;
 	}
@@ -32,54 +32,66 @@ function get_account_url() {
 }
 
 /**
- * Find the domain, if any, that has an unverified email address.
+ * Get the current domain for the site.
  */
-function get_domain_with_unverified_email() {
-	if ( ! class_exists( 'Domain_Management' ) ) {
-		return false;
-	}
+function get_domain() {
+	$urlparts = wp_parse_url( home_url() );
+	return $urlparts['host'];
+}
 
-	$domains = \Domain_Management::get_paid_domains_with_icann_verification_status();
-
-	foreach ( $domains as $domain ) {
-		if ( $domain['is_pending_icann_verification'] === true ) {
-			return $domain['domain'];
-		}
-	}
-	return false;
+/**
+ * Checks if the site is using a custom domain.
+ */
+function is_custom_domain() {
+	$domain = get_domain();
+	return ! str_ends_with( $domain, 'wpcomstaging.com' ) && ! str_ends_with( $domain, 'wordpress.com' );
 }
 
 /**
  * Decides whether to render to the email nag.
  */
 function domain_email_nag() {
-	if ( ! should_show_domain_frontend_email_nag() ) {
-		return;
+	if ( ! is_on_frontend_and_logged_in() && is_custom_domain() ) {
+
+		wp_enqueue_style( 'wpcom-domain-email-nag-style', plugins_url( 'domain-nag.style.css', __FILE__ ), array(), Jetpack_Mu_Wpcom::PACKAGE_VERSION );
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		wc_enqueue_js(
+			sprintf(
+				"
+				const base = 'https://public-api.wordpress.com';
+				const path = '/v1/domains/%s/is-domain-email-unverified';
+				
+				fetch(base + path).then(function (result) {
+					if (result) {
+						result.json().then(function (body) {
+							if (body.unverified) {
+								const nag = document.querySelector('.wp-domain-nag-sticky-message');
+								if (nag) {
+									nag.style.display = 'block';
+									const statUrl =
+										'http://pixel.wp.com/b.gif?v=wpcom-no-pv&x_wpcom_frontend_unverified_domain_email_nag=shown';
+									fetch(statUrl);
+								}
+							}
+						});
+					}
+				});
+			",
+				$blog_id
+			)
+		);
 	}
-
-	$domain = get_domain_with_unverified_email();
-
-	if ( ! $domain ) {
-		return;
-	}
-
-	$pixel_url = sprintf(
-		'http://pixel.wp.com/g.gif?v=wpcom-no-pv&x_%s=%s',
-		'wpcom_frontend_unverified_domain_email_nag_shown',
-		$domain
-	);
-
-	wp_enqueue_style( 'wpcom-domain-email-nag-style', plugins_url( 'domain-nag.style.css', __FILE__ ), array(), Jetpack_Mu_Wpcom::PACKAGE_VERSION );
+	$domain = get_domain();
 
 	$notice = sprintf(
-	/* translators: %1 User's email address, %2 current domain */
+		/* translators: %1 User's email address, %2 current domain */
 		__( 'You need to confirm your domain email address to avoid having your domain <strong>%1$s</strong> suspended. Please check your inbox.', 'jetpack-mu-wpcom' ),
 		$domain
 	);
 
 	?>
-	<div class="wp-domain-nag-sticky-message">
-		<img src="<?php echo esc_url( $pixel_url ); ?>" alt="" style="display:none;" />
+	<div class="wp-domain-nag-sticky-message" style="display:none;">
 		<div class="wp-domain-nag-inner">
 			<p class="wp-domain-nag-text"><?php echo wp_kses( $notice, array( 'strong' => array() ) ); ?></p>
 			<a class="button" href="<?php echo esc_url( get_account_url() ); ?>"><?php esc_html_e( 'Fix', 'jetpack-mu-wpcom' ); ?></a>
