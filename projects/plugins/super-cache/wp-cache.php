@@ -1859,6 +1859,10 @@ function wp_super_cache_enable() {
 
 	$super_cache_enabled = true;
 
+	if ( ! $supercachedir ) {
+		$supercachedir = get_supercache_dir();
+	}
+
 	if ( is_dir( $supercachedir . '.disabled' ) ) {
 		if ( is_dir( $supercachedir ) ) {
 			prune_super_cache( $supercachedir . '.disabled', true );
@@ -1881,6 +1885,10 @@ function wp_super_cache_disable() {
 	wp_cache_debug( 'wp_super_cache_disable: disable cache' );
 
 	$super_cache_enabled = false;
+
+	if ( ! $supercachedir ) {
+		$supercachedir = get_supercache_dir();
+	}
 
 	if ( is_dir( $supercachedir ) ) {
 		@rename( $supercachedir, $supercachedir . '.disabled' );
