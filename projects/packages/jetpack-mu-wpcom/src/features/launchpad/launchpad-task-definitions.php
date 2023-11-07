@@ -5,8 +5,6 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Blocks;
-
 /**
  * Get the task definitions for the Launchpad.
  *
@@ -567,7 +565,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'add_subscribe_block'             => array(
 			'get_title'            => function () {
-				return __( 'Add the Subscribe Block to your theme', 'jetpack-mu-wpcom' );
+				return __( 'Add the Subscribe Block to your site', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_subscribe_block_visible',
