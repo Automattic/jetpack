@@ -1,8 +1,11 @@
+import path from 'path';
+import { URL } from 'url';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
+import _ from 'lodash';
 import { prerequisitesBuilder } from '../env/prerequisites.js';
 import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from '../helpers/utils-helper.cjs';
-import _ from 'lodash';
-import path from 'path';
+
+const __dirname = new URL( '.', import.meta.url ).pathname;
 
 const testRounds = 3;
 const gutenbergPath = path.resolve( __dirname, '../../gutenberg' );
