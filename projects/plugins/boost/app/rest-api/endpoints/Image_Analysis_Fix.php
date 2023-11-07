@@ -45,10 +45,10 @@ class Image_Analysis_Fix implements Endpoint {
 			$changed = 'removed';
 		} elseif ( $attachment_id ) {
 			$fixes[ $attachment_id ] = $params;
-			$changed                 = 'added';
+			$changed                 = 'fix';
 		} else {
 			$fixes[ md5( $image_url ) ] = $params; // hot linked image, possibly from another site.
-			$changed                    = 'added';
+			$changed                    = 'fix';
 		}
 
 		if ( $changed ) {
