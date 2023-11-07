@@ -211,6 +211,14 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_hosting_flow_enabled',
 		),
+		'subscribers'            => array(
+			'title'    => 'Subscribers',
+			'task_ids' => array(
+				'import_subscribers',
+				'add_subscribe_block',
+				'share_site',
+			),
+		),
 	);
 
 	$extended_task_list_definitions = apply_filters( 'wpcom_launchpad_extended_task_list_definitions', array() );

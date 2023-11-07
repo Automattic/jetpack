@@ -6,6 +6,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
+import svgr from '@svgr/rollup';
 import copy from 'rollup-plugin-copy';
 import postcss from 'rollup-plugin-postcss';
 import svelte from 'rollup-plugin-svelte';
@@ -128,13 +129,19 @@ export default [
 				minimize: production,
 			} ),
 
-			svelteSVG(),
+			svgr( {
+				include: '**/react-components/svg/*.svg',
+			} ),
+			svelteSVG( {
+				exclude: '**/react-components/svg/*.svg',
+			} ),
 			svelte( {
 				preprocess: sveltePreprocess( { sourceMap: ! production } ),
 				compilerOptions: {
 					// enable run-time checks when not in production
 					dev: ! production,
 				},
+				exclude: '**/react-components/svg/*.svg',
 			} ),
 
 			typescript( {

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Use 'source-map' devtool when building in development mode. No change to the production plugin.
+
+

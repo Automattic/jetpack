@@ -54,7 +54,7 @@ class Wordpress_User_Integration {
 		// ... though it seems the best approach
 		if ( is_object( $wp_query ) && isset( $wp_query->queried_object ) && isset( $wp_query->queried_object->post_content ) ){
 
-			if ( strpos( $wp_query->queried_object->post_content, '[woocommerce_my_account]' ) > -1 ){
+			if ( str_contains( $wp_query->queried_object->post_content, '[woocommerce_my_account]' ) ) {
 
 				$change_via_woo_account = true;
 

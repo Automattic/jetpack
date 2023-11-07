@@ -65,11 +65,10 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 
 final class Data_Sync {
 
-	const PACKAGE_VERSION = '0.3.0';
+	const PACKAGE_VERSION = '0.3.1-alpha';
 
 	/**
 	 * @var Registry
@@ -166,12 +165,12 @@ final class Data_Sync {
 	 * If you do, `Entry_Can_Get` interface is required, and all other Entry_Can_* interfaces are optional.
 	 *
 	 * @param $key    string - The key to register the entry under.
-	 * @param $schema Schema - The schema to use for the entry.
+	 * @param $parser Parser - The parser to use for the entry.
 	 * @param $entry  Entry_Can_Get - The entry to register. If null, a new Data_Sync_Option will be created.
 	 *
 	 * @return void
 	 */
-	public function register( $key, $schema, $custom_entry_instance = null ) {
+	public function register( $key, $parser, $custom_entry_instance = null ) {
 		$option_key = $this->namespace . '_' . $key;
 
 		// If a custom entry instance is provided, and it implements Entry_Can_Get, use that.
@@ -196,7 +195,7 @@ final class Data_Sync {
 		 *      $Data_Sync->get_registry()->register(...)` instead of `$Data_Sync->register(...)
 		 * ```
 		 */
-		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $schema );
+		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $parser );
 		$this->registry->register( $key, $entry_adapter );
 	}
 }

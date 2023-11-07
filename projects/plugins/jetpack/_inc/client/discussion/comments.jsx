@@ -171,7 +171,11 @@ class CommentsComponent extends React.Component {
 											'wpcom_publish_comments_with_markdown',
 										] ) }
 										onChange={ this.handleMarkdownCommentsToggle }
-										label={ __( 'Enable Markdown use for comments.', 'jetpack' ) }
+										label={
+											<span className="jp-form-toggle-explanation">
+												{ __( 'Enable Markdown use for comments.', 'jetpack' ) }
+											</span>
+										}
 									/>
 								</FormFieldset>
 								<SupportInfo
@@ -193,7 +197,7 @@ class CommentsComponent extends React.Component {
 										toggleModule={ this.props.toggleModuleNow }
 									>
 										<span className="jp-form-toggle-explanation">
-											{ __( 'Enable comment likes.', 'jetpack' ) }
+											{ __( 'Enable comment Likes.', 'jetpack' ) }
 										</span>
 									</ModuleToggle>
 								</FormFieldset>

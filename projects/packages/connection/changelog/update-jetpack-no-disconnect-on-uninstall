@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a method to check if Jetpack is ready for uninstall cleanup.

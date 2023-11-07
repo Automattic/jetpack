@@ -461,6 +461,16 @@ class MyPlanHeader extends React.Component {
 					tagLine: __( 'Simple, yet powerful analytics.', 'jetpack' ),
 					title: __( 'Jetpack Stats Free', 'jetpack' ),
 				};
+			case 'is-jetpack-creator-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'Craft stunning content, boost your subscriber base, and monetize your online presence.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Creator', 'jetpack' ),
+				};
 
 			default:
 				return {

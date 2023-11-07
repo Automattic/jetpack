@@ -244,7 +244,7 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 	$file_path = realpath( $file_path );
 	// This ensures that the provided file exists and is inside the upload folder or one of its subdirs (ie `/wp-content/uploads/*`)
 	// and not somewhere else, also prevent traversal attacks, and usage of wrappers like phar:// etc
-	if ( $file_path === false || strpos( $file_path, $tmp_dir ) !== 0 ) {
+	if ( $file_path === false || ! str_starts_with( $file_path, $tmp_dir ) ) {
 		// Traversal attempt, file does not exist, invalid wrapper
 		throw new Exception( __( 'There was an error processing your CSV file. Please try again.', 'zero-bs-crm' ) );
 	}
@@ -372,11 +372,11 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						foreach ( $first_line_parts as $userField ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							// } Clean user field - ""
-							if ( substr( $userField, 0, 1 ) == '"' && substr( $userField, -1 ) == '"' ) {
+							if ( str_starts_with( $userField, '"' ) && str_ends_with( $userField, '"' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								$userField = substr( $userField, 1, strlen( $userField ) - 2 );
 							}
 							// } Clean user field - ''
-							if ( substr( $userField, 0, 1 ) == "'" && substr( $userField, -1 ) == "'" ) {
+							if ( str_starts_with( $userField, "'" ) && str_ends_with( $userField, "'" ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								$userField = substr( $userField, 1, strlen( $userField ) - 2 );
 							}
 
@@ -465,11 +465,11 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 							}
 
 							// Clean user field - ""
-							if ( substr( $fromStr, 0, 1 ) == '"' && substr( $fromStr, -1 ) == '"' ) {
+							if ( str_starts_with( $fromStr, '"' ) && str_ends_with( $fromStr, '"' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								$fromStr = substr( $fromStr, 1, strlen( $fromStr ) - 2 );
 							}
 							// Clean user field - ''
-							if ( substr( $fromStr, 0, 1 ) == "'" && substr( $fromStr, -1 ) == "'" ) {
+							if ( str_starts_with( $fromStr, "'" ) && str_ends_with( $fromStr, "'" ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								$fromStr = substr( $fromStr, 1, strlen( $fromStr ) - 2 );
 							}
 

@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
 	import { __, _n, sprintf } from '@wordpress/i18n';
-	import BackButton from '../../../elements/BackButton.svelte';
 	import CloseButton from '../../../elements/CloseButton.svelte';
+	import ReactComponent from '../../../elements/ReactComponent.svelte';
+	import BackButton from '../../../react-components/common/back-button/BackButton';
 	import { replaceCssState, updateProvider } from '../../../stores/critical-css-state';
 	import { groupErrorsByFrequency } from '../../../stores/critical-css-state-errors';
 	import { type Provider } from '../../../stores/critical-css-state-types';
@@ -46,7 +47,7 @@
 </script>
 
 <div class="jb-container--narrow jb-critical-css__advanced">
-	<BackButton />
+	<ReactComponent this={BackButton} />
 
 	<h3>
 		{__( 'Critical CSS advanced recommendations', 'jetpack-boost' )}

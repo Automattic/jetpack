@@ -2,6 +2,77 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.8 - 2023-11-06
+### Enhancements
+- Added a notice for wp-admin settings pages when the wpcom_admin_interface option is set to wp-admin. [#33933]
+- Added nextdoor block to production blocks. [#33950]
+- AI Tiered Plans: Pick and expose tier plan data. [#33901]
+- Always links 'My Sites' to the Sites page when 'wp-admin' is the admin interface. [#33951]
+- Cache the remote google fonts JSON data. [#33930]
+- Change WordAds and Simple Payments upsell CTAs to JP Creator redirect. [#33893]
+- Display SSO form for user who has wpcom-admin-interface setting set to wp-admin (fall back to the original WordPress menu). [#33940]
+- Jetpack AI: Temporarely remove performance sensitive function calls to solve loading issue. [#33915]
+- Jetpack AI: Use Jetpack AI Usage Helper to set current plan tier information on feature endpoint. [#33894]
+- Subscribe Block: Add subscribed status. [#33897]
+- Subscriptions: Add blog_id param to login link. [#33900]
+- Update classic Jetpack widget to not show up if user is subscribed. [#33785]
+
+### Improved compatibility
+- Nextdoor: Fix the embed resizing. [#33931]
+
+### Bug fixes
+- Comments: Improve compatibility with WordPress 6.4 and drop IE support. [#33709]
+- Fix Assistant not showing Jetpack header on some Assistant routes. [#33896]
+- Fixed an issue where initial state is not in sync
+- Prevent a PHP Warning when accessing inner blocks on cart and checkout pages.
+- Respect the user's view setting when wpcom_admin_interface is wp-admin. [#33945]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added Nextdoor to Social Previews. [#33907]
+- Add tier-plans on ai-assistant-feature endpoint payload containing the collection of available tiered plans. [#33939]
+- Subscribe block: Refactor block rendering into a single function. [#33865]
+- Updated package dependencies. [#33904]
+
+## 12.8-a.11 - 2023-10-31
+### Enhancements
+- Add a new block for supporting Nextdoor embeds. [#33751]
+- AI Assistant: Expose current period start in the ai-assistant-feature endpoint. [#33843]
+- Newsletters: Add level for all paid subscribers. [#33841]
+- Refactor blocks registration [#33682] [#33689] [#33694] [#33840]
+- Subscribe block: Change "followers" term to "subscribers". [#33860]
+
+### Improved compatibility
+- Add NL tier type. [#33757]
+
+### Bug fixes
+- Fix Cookie Consent block icon. [#33869]
+- Fixes style for multiple choice checkbox in Froms block. [#33827]
+- Fix issue in tier selector when tier is null. [#33879]
+- Fix unresponsive Simple Payment block. [#33889]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- custom-css: Upgrades for PHP 8. [#33816]
+- Plugin assets: Add mag-16 language versions of our banners. [#33850]
+
+## 12.8-a.9 - 2023-10-30
+### Enhancements
+- Earn: Rename Earn to Monetize. [#33741]
+- Jetpack AI: Cache the AI assistant feature data for Jetpack sites. [#33391]
+- Jetpack AI: Expose current plan tier information on feature endpoint. [#33820]
+- Jetpack Dashboard: improve Akismet tooltip. [#33547]
+- Paywall: Improve already subscriber experience. [#33763]
+- Subscription block: Improve wording to get access to content. [#33835]
+- Utilize the Jetpack Admin UI package for handling the Akismet menu. [#33559]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add subscribers auth endpoint. [#33815]
+- Dashboard / My Plan: update the link to licensing management for a better UX in the My Plan header. [#33813]
+- Dashboard: Remove link to "My Jetpack". [#33811]
+- Fix bug tier selector. [#33838]
+- Updated package dependencies. [#33821] [#33826]
+- Update lockfile. [#33607]
+- scssphp: Upgrade from 0.0.9 to 0.0.12. [#33822]
+
 ## 12.8-a.7 - 2023-10-26
 ### Enhancements
 - Add a filter that allows disabling Scan module. [#33764]

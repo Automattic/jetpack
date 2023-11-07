@@ -40,7 +40,7 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editcompanysettings'] ) ) {
 	}
 
 	// } any here? or 1?
-	if ( strpos( $companyStatusStr, ',' ) > -1 ) {
+	if ( str_contains( $companyStatusStr, ',' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// } Trim them...
 		$zbsStatusArr        = array();

@@ -470,10 +470,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 */
 	private function get_inner_blocks( $inner_blocks ) {
 		$block_names = array();
-		if ( $inner_blocks['blockName'] ) {
+		if ( ! empty( $inner_blocks['blockName'] ) ) {
 			$block_names[] = $inner_blocks['blockName'];
 		}
-		if ( $inner_blocks['innerBlocks'] ) {
+		if ( isset( $inner_blocks['innerBlocks'] ) && is_array( $inner_blocks['innerBlocks'] ) ) {
 			$block_names = array_merge( $block_names, $this->get_inner_blocks( $inner_blocks['innerBlocks'] ) );
 		}
 		return $block_names;
@@ -504,10 +504,13 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$other_blocks  = array_filter(
 			$parsed_blocks,
 			function ( $block ) {
-				if ( is_checkout() && $block['blockName'] !== 'woocommerce/checkout' ) {
+				if ( ! isset( $block['blockName'] ) ) {
+					return false;
+				}
+				if ( is_checkout() && 'woocommerce/checkout' !== $block['blockName'] ) {
 					return true;
 				}
-				if ( is_cart() && $block['blockName'] !== 'woocommerce/cart' ) {
+				if ( is_cart() && 'woocommerce/cart' !== $block['blockName'] ) {
 					return true;
 				}
 				return false;
@@ -520,11 +523,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		foreach ( $other_blocks as $block ) {
 
 			// This check is necessary because sometimes this is null when using templates.
-			if ( $block['blockName'] ) {
+			if ( ! empty( $block['blockName'] ) ) {
 				$all_inner_blocks[] = $block['blockName'];
 			}
 
-			if ( ! is_array( $block['innerBlocks'] ) || count( $block['innerBlocks'] ) === 0 ) {
+			if ( ! isset( $block['innerBlocks'] ) || ! is_array( $block['innerBlocks'] ) || 0 === count( $block['innerBlocks'] ) ) {
 				continue;
 			}
 
