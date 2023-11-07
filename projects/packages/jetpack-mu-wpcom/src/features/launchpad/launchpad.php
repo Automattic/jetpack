@@ -215,8 +215,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'title'    => 'Subscribers',
 			'task_ids' => array(
 				'import_subscribers',
-				'share_site',
 				'add_subscribe_block',
+				'share_site',
 			),
 		),
 	);
