@@ -1,5 +1,5 @@
 /* eslint-disable jsdoc/no-undefined-types */
-import { SvgXml } from 'react-native-svg';
+import { SvgXml } from '@wordpress/primitives';
 import getIconColor from './get-icon-color';
 
 /**
