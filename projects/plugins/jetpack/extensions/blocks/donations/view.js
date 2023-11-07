@@ -59,7 +59,6 @@ class JetpackDonations {
 				'href',
 				addQueryArgs( url, {
 					amount: this.amount,
-					block_type: 'donations',
 					...( this.isCustomAmount && { customAmount: true } ),
 				} )
 			);
