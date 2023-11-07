@@ -24,7 +24,7 @@ import React from 'react';
  */
 import ConnectPrompt from '../../../../components/connect-prompt';
 import UpgradePrompt from '../../../../components/upgrade-prompt';
-import useAIFeature from '../../../../hooks/use-ai-feature';
+import useAiFeature from '../../../../hooks/use-ai-feature';
 import { isUserConnected } from '../../../../lib/connection';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
@@ -96,7 +96,7 @@ export default function AiAssistantBar( {
 		onDone: focusOnPrompt,
 	} );
 
-	const { requireUpgrade } = useAIFeature();
+	const { requireUpgrade } = useAiFeature();
 
 	const siteRequireUpgrade = requestingError?.code === ERROR_QUOTA_EXCEEDED || requireUpgrade;
 

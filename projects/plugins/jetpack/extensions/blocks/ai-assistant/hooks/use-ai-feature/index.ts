@@ -27,7 +27,7 @@ export const AI_Assistant_Initial_State = {
 	},
 };
 
-export default function useAIFeature() {
+export default function useAiFeature() {
 	const [ error ] = useState< Error >( null );
 
 	const { data, loading } = useSelect( select => {

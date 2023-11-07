@@ -33,7 +33,7 @@ import { promptTemplates } from './components/prompt-templates-control';
 import ToolbarControls from './components/toolbar-controls';
 import UpgradePrompt from './components/upgrade-prompt';
 import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
-import useAIFeature from './hooks/use-ai-feature';
+import useAiFeature from './hooks/use-ai-feature';
 import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
 import { isUserConnected } from './lib/connection';
 import { getImagesFromOpenAI } from './lib/image';
@@ -89,7 +89,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
-	const { requireUpgrade: requireUpgradeOnStart, refresh: refreshFeatureData } = useAIFeature();
+	const { requireUpgrade: requireUpgradeOnStart, refresh: refreshFeatureData } = useAiFeature();
 
 	const requireUpgrade = requireUpgradeOnStart || errorData?.code === 'error_quota_exceeded';
 
