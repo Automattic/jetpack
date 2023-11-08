@@ -42,14 +42,12 @@ function execSyncShellCommand( cmd, options ) {
 		...options,
 	} );
 
-	const stdout = result.toString();
-	const stderr = result.stderr.toString();
-
-	if ( stderr ) {
+	if ( result.stderr ) {
+		const stderr = result.stderr.toString();
 		throw new Error( `Command failed with error: ${ stderr }` );
 	}
 
-	return stdout;
+	return result.toString();
 }
 
 async function resetWordpressInstall() {
