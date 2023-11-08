@@ -707,7 +707,7 @@ function render_for_website( $data, $classes, $styles ) {
 								<?php endif; ?>
 								name="jetpack_subscriptions_widget"
 							>
-								<?php echo esc_html( $button_text ); ?>
+								<?php echo esc_html( sanitize_submit_text( $button_text ) ); ?>
 							</button>
 						</p>
 					</div>
@@ -736,17 +736,14 @@ function render_for_website( $data, $classes, $styles ) {
  */
 function render_for_email( $data, $styles ) {
 	$submit_button_wrapper_style = ! empty( $styles['submit_button_wrapper'] ) ? 'style="' . esc_attr( $styles['submit_button_wrapper'] ) . '"' : '';
-	$button_text                 = wp_kses(
-		html_entity_decode( get_submit_button_text( $data ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
-		Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
-	);
+	$button_text                 = get_submit_button_text( $data );
 
 	$html = '<div ' . wp_kses_data( $data['wrapper_attributes'] ) . '>
 		<div>
 			<div>
 				<div>
 					<p ' . $submit_button_wrapper_style . '>
-						<a href="' . esc_url( get_post_permalink() ) . '" style="text-decoration: none; ' . esc_attr( $styles['submit_button'] ) . '">' . $button_text . '</a>
+						<a href="' . esc_url( get_post_permalink() ) . '" style="text-decoration: none; ' . esc_attr( $styles['submit_button'] ) . '">' . sanitize_submit_text( $button_text ) . '</a>
 					</p>
 				</div>
 			</div>
@@ -918,12 +915,12 @@ function get_current_url() {
  */
 function get_submit_button_text( $data ) {
 	if ( ! Jetpack_Memberships::is_current_user_subscribed() ) {
-		return sanitize_submit_text( $data['submit_button_text'] );
+		return $data['submit_button_text'];
 	}
 	if ( ! Jetpack_Memberships::user_can_view_post() ) {
-		return sanitize_submit_text( $data['submit_button_text_upgrade'] );
+		return $data['submit_button_text_upgrade'];
 	}
-	return sanitize_submit_text( '✓ ' . $data['submit_button_text_subscribed'] );
+	return '✓ ' . $data['submit_button_text_subscribed'];
 }
 
 /**
