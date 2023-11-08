@@ -64,10 +64,6 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 			),
 		);
 
-		// Visual indication that groups are working
-		if ( $this->group !== 'all' ) {
-			shuffle( $results['data']['images'] );
-		}
 		return $results;
 	}
 
