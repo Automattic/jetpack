@@ -45,6 +45,7 @@ export default function useAiFeature() {
 		increaseAiAssistantRequestsCount: increaseRequestsCount,
 	} = useDispatch( 'wordpress-com/plans' );
 
+	// @todo: remove once optimistic updates are implemented.
 	useEffect( () => {
 		loadFeatures();
 	}, [ loadFeatures ] );
