@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
- * Compatibility for iOS <= 15.x
+ * Compatibility for browsers that don't support Instant Search.
  *
  * @package automattic/jetpack-search
  */
@@ -26,7 +26,7 @@ function get_ios_version_from_user_agent( $user_agent ) {
 }
 
 /**
- * Enable Classic Search for browsers that we don't support for Instant Search.
+ * Force enable Classic Search for browsers for iOS versions < 16.
  *
  * @param boolean $classic_search_enabled whether Classic Search is enabled.
  */
