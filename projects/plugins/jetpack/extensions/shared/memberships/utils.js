@@ -22,10 +22,10 @@ export const encodeValueForShortcodeAttribute = value => {
 		.replace( /\u200b/g, '&#x200b;' );
 };
 
-export const getPaidPlanLink = alreadyHasNewsletterPlans => {
+export const getPaidPlanLink = alreadyHasTierPlans => {
 	const link = 'https://wordpress.com/earn/payments-plans/' + location.hostname;
 	// We force the "Newsletters plan" link only if there is no plans already created
-	return alreadyHasNewsletterPlans ? link : link + '#add-newsletter-payment-plan';
+	return alreadyHasTierPlans ? link : link + '#add-tier-plan';
 };
 
 export const getShowMisconfigurationWarning = ( postVisibility, accessLevel ) => {

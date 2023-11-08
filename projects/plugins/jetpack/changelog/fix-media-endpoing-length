@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Add duration for videopress and media files that might have it set

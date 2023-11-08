@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Take id_map in consideration when checking if a task is completed inside wpcom_launchpad_is_task_option_completed.

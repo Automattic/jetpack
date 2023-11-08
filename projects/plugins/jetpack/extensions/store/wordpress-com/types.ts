@@ -31,4 +31,7 @@ export type AiFeatureProps = {
 		nextStart: string;
 		requestsCount: number;
 	};
+	_meta?: {
+		isRequesting: boolean;
+	};
 };

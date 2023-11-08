@@ -1,80 +1,25 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import { createReduxStore, register } from '@wordpress/data';
 /**
  * Internal dependencies
  */
 import actions from './actions';
+import reducer from './reducer';
 /**
  * Types
  */
-import type { AiFeatureProps, PlanStateProps } from './types';
-import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../types';
+import type { PlanStateProps } from './types';
 
 const store = 'wordpress-com/plans';
-
-const INITIAL_STATE: PlanStateProps = {
-	plans: [],
-	features: {},
-};
-
-/**
- * Map the response from the `sites/$site/ai-assistant-feature`
- * endpoint to the AI Assistant feature props.
- * @param { SiteAIAssistantFeatureEndpointResponseProps } response - The response from the endpoint.
- * @returns { AiFeatureProps }                                       The AI Assistant feature props.
- */
-function mapAIFeatureResponseToAiFeatureProps(
-	response: SiteAIAssistantFeatureEndpointResponseProps
-): AiFeatureProps {
-	return {
-		hasFeature: !! response[ 'has-feature' ],
-		isOverLimit: !! response[ 'is-over-limit' ],
-		requestsCount: response[ 'requests-count' ],
-		requestsLimit: response[ 'requests-limit' ],
-		requireUpgrade: !! response[ 'site-require-upgrade' ],
-		errorMessage: response[ 'error-message' ],
-		errorCode: response[ 'error-code' ],
-		upgradeType: response[ 'upgrade-type' ],
-		usagePeriod: {
-			currentStart: response[ 'usage-period' ]?.[ 'current-start' ],
-			nextStart: response[ 'usage-period' ]?.[ 'next-start' ],
-			requestsCount: response[ 'usage-period' ]?.[ 'requests-count' ] || 0,
-		},
-		currentTier: {
-			value: response[ 'current-tier' ]?.value || 1,
-		},
-	};
-}
 
 const wordpressPlansStore = createReduxStore( store, {
 	__experimentalUseThunks: true,
 
-	reducer( state = INITIAL_STATE, action ) {
-		switch ( action.type ) {
-			case 'SET_PLANS':
-				return {
-					...state,
-					plans: action.plans,
-				};
-
-			case 'STORE_AI_ASSISTANT_FEATURE': {
-				return {
-					...state,
-					features: {
-						...state.features,
-						aiAssistant: action.feature,
-					},
-				};
-			}
-		}
-
-		return state;
-	},
-
 	actions,
+
+	reducer,
 
 	selectors: {
 		/*
@@ -117,18 +62,13 @@ const wordpressPlansStore = createReduxStore( store, {
 			return actions.setPlans( plans );
 		},
 
-		getAiAssistantFeature:
-			() =>
-			async ( { dispatch } ) => {
-				const response: SiteAIAssistantFeatureEndpointResponseProps = await apiFetch( {
-					path: '/wpcom/v2/jetpack-ai/ai-assistant-feature',
-				} );
+		getAiAssistantFeature: ( state: PlanStateProps ) => {
+			if ( state?.features?.aiAssistant ) {
+				return;
+			}
 
-				// Store the feature in the store.
-				dispatch(
-					actions.storeAiAssistantFeature( mapAIFeatureResponseToAiFeatureProps( response ) )
-				);
-			},
+			return actions.fetchAiAssistantFeature();
+		},
 	},
 } );
 

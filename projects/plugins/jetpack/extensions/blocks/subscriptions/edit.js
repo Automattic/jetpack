@@ -20,7 +20,7 @@ import { isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
 import GetAddPaidPlanButton from '../../shared/memberships/utils';
 import './view.scss';
 import { store as membershipProductsStore } from '../../store/membership-products';
-import defaultAttributes from './attributes';
+import metadata from './block.json';
 import {
 	DEFAULT_BORDER_RADIUS_VALUE,
 	DEFAULT_BORDER_WEIGHT_VALUE,
@@ -31,10 +31,10 @@ import {
 import SubscriptionControls from './controls';
 import { SubscriptionsPlaceholder } from './subscription-placeholder';
 import SubscriptionSkeletonLoader from './subscription-skeleton-loader';
-import { name } from './';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
+const name = metadata.name.replace( 'jetpack/', '' );
 
 const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 	const { buttonBackgroundColor, textColor } = ownProps;
@@ -73,7 +73,7 @@ export function SubscriptionEdit( props ) {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( name );
 
-	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
+	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
 		setAttributes( validatedAttributes );
 	}
