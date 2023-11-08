@@ -4,7 +4,7 @@
 	import ProgressBar from '../../elements/ProgressBar.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import Spinner from '../../elements/Spinner.svelte';
-	import OtherGroupContext from '../../react-components/image-size-analysis/other-group-context';
+	import OtherGroupContext from '../../react-components/components/isa-other-group-context';
 	import WarningIcon from '../../svg/warning-outline.svg';
 	import { isaGroupLabel } from './store/isa-summary';
 

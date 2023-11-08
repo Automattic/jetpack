@@ -3,7 +3,7 @@
 	import { get } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
-	import { Hero } from '../../react-components/image-size-analysis/hero';
+	import { Hero } from '../../react-components/components/isa-hero';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import { modulesState } from '../../stores/modules';
