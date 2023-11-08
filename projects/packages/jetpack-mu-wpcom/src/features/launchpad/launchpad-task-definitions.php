@@ -1071,6 +1071,9 @@ function wpcom_launchpad_is_task_option_completed( $task ) {
 	if ( ! empty( $checklist[ $task['id'] ] ) ) {
 		return true;
 	}
+	if ( isset( $task['id_map'] ) && ! empty( $checklist[ $task['id_map'] ] ) ) {
+		return true;
+	}
 	return false;
 }
 
