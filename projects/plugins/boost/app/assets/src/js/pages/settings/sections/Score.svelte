@@ -21,6 +21,8 @@
 	import PopOut from '../elements/PopOut.svelte';
 	import History from './History.svelte';
 
+	// @todo - move score-context markup/styles here, as it's not used anywhere else.
+
 	// Flat list of which modules are active; useful for tracking changes in state.
 	export let activeModules: boolean[];
 	export let criticalCssCreated: number;
