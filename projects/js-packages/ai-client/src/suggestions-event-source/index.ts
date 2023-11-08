@@ -161,7 +161,7 @@ export default class SuggestionsEventSource extends EventTarget {
 		}
 
 		// Clean the unclear prompt trigger flag
-		this._error_unclear_prompt_triggered = false;
+		this.errorUnclearPromptTriggered = false;
 
 		await fetchEventSource( url, {
 			openWhenHidden: true,
@@ -267,10 +267,10 @@ export default class SuggestionsEventSource extends EventTarget {
 			 * Check if the unclear prompt event was already dispatched,
 			 * to ensure that it is dispatched only once per request.
 			 */
-			if ( this._error_unclear_prompt_triggered ) {
+			if ( this.errorUnclearPromptTriggered ) {
 				return;
 			}
-			this._error_unclear_prompt_triggered = true;
+			this.errorUnclearPromptTriggered = true;
 
 			// The unclear prompt marker was found, so we dispatch an error event
 			this.dispatchEvent( new CustomEvent( ERROR_UNCLEAR_PROMPT ) );
