@@ -106,7 +106,7 @@ const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit =>
 				 * only for valid errors.
 				 * @todo: move this at store level.
 				 */
-				if ( error.code === 'error_network' ) {
+				if ( error.code === 'error_network' || error.code === 'error_quota_exceeded' ) {
 					return;
 				}
 
