@@ -16,7 +16,7 @@ const INITIAL_STATE: PlanStateProps = {
 			hasFeature: false,
 			isOverLimit: false,
 			requestsCount: 0,
-			requestsLimit: 0,
+			requestsLimit: 20,
 			requireUpgrade: false,
 			errorMessage: '',
 			errorCode: '',
