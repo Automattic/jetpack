@@ -300,7 +300,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 		$menu    = array(
 			70 => array(
-				'My Profile',
+				'Profile',
 				'read',
 				'profile.php',
 				'',
@@ -311,7 +311,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		);
 		$submenu = array(
 			'profile.php' => array(
-				0 => array( 'My Profile', 'read', 'profile.php' ),
+				0 => array( 'Profile', 'read', 'profile.php' ),
 			),
 		);
 

@@ -319,7 +319,7 @@ function get_submenu_fixture() {
 				'user-new.php',
 			),
 			15 => array(
-				'My Profile',
+				'Profile',
 				'read',
 				'profile.php',
 			),
