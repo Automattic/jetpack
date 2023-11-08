@@ -13,7 +13,7 @@ if ( ! existsSync( gutenbergPath ) ) {
 	throw new Error( `Could not find Gutenberg at ${ gutenbergPath }` );
 }
 
-const resultsPath = path.resolve( __dirname, 'results' );
+const resultsPath = path.resolve( __dirname, '../results' );
 if ( ! existsSync( resultsPath ) ) {
 	throw new Error( `Could not find results directory at ${ resultsPath }` );
 }
