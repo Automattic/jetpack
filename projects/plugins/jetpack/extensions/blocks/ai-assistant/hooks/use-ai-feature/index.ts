@@ -40,7 +40,10 @@ export default function useAiFeature() {
 		};
 	}, [] );
 
-	const { fetchAiAssistantFeature: loadFeatures } = useDispatch( 'wordpress-com/plans' );
+	const {
+		fetchAiAssistantFeature: loadFeatures,
+		increaseAiAssistantRequestsCount: increaseRequestsCount,
+	} = useDispatch( 'wordpress-com/plans' );
 
 	useEffect( () => {
 		loadFeatures();
@@ -51,5 +54,6 @@ export default function useAiFeature() {
 		loading,
 		error,
 		refresh: loadFeatures,
+		increaseRequestsCount,
 	};
 }
