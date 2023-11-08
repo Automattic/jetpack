@@ -82,6 +82,9 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			// Compute if the site is over the limit.
 			const isOverLimit = requestsCount >= state.features.aiAssistant.requestsLimit;
 
+			// Compute require upgrade.
+			const requireUpgrade = isOverLimit && ! state.features.aiAssistant.hasFeature;
+
 			return {
 				...state,
 				features: {
@@ -90,6 +93,7 @@ export default function reducer( state = INITIAL_STATE, action ) {
 						...state.features.aiAssistant,
 						isOverLimit,
 						requestsCount,
+						requireUpgrade,
 					},
 				},
 			};
