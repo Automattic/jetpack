@@ -2,7 +2,7 @@ import { IconTooltip } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 
-const ScoreContext = () => {
+const ContextTooltip = () => {
 	return (
 		<IconTooltip
 			title=""
@@ -54,4 +54,4 @@ const ScoreContext = () => {
 	);
 };
 
-export default ScoreContext;
+export default ContextTooltip;
