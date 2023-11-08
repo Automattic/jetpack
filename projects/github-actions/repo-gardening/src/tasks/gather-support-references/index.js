@@ -33,7 +33,13 @@ async function getListComment( issueComments ) {
 }
 
 /**
- * Scan the contents of the issue as well as all its comments, get all support references, and add them to an array of references.
+ * Scan the contents of the issue as well as all its comments,
+ * get all support references, and add them to an array of references.
+ *
+ * Support references can be in the following formats:
+ * - xxx-zen
+ * - xxx-zd
+ * - xxxx-xxx-p2#comment-xxx
  *
  * @param {GitHub} octokit      - Initialized Octokit REST client.
  * @param {string} owner        - Repository owner.
@@ -44,7 +50,7 @@ async function getListComment( issueComments ) {
  */
 async function getIssueReferences( octokit, owner, repo, number, issueComments ) {
 	const ticketReferences = [];
-	const referencesRegexP = /[0-9]*-(?:zen|zd)/gim;
+	const referencesRegexP = /[0-9]*-(?:zen|zd)|[a-zA-Z0-9-]+-p2#comment-[0-9]*/gim;
 
 	debug( `gather-support-references: Getting references from issue body.` );
 	const {
@@ -76,7 +82,7 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 
 		// xxx-zen is the preferred format for tickets.
 		// xxx-zd, as well as its uppercase version, is considered an alternate version.
-		const wrongId = supportId.match( /([0-9]*)-zd/i );
+		const wrongId = supportId.match( /^([0-9]*)-zd$/i );
 		if ( wrongId ) {
 			const correctedId = `${ wrongId[ 1 ] }-zen`;
 			correctedSupportIds.add( correctedId );

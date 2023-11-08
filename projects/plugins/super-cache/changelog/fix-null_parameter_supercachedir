@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+super-cache: fixed null parameter warning when using $supercachedir

@@ -467,6 +467,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		update_post_meta( $this->plan_id, 'jetpack_memberships_product_id', $this->product_id );
 		update_post_meta( $this->plan_id, 'jetpack_memberships_site_subscriber', true );
 		update_post_meta( $this->plan_id, 'jetpack_memberships_interval', '1 month' );
+		update_post_meta( $this->plan_id, 'jetpack_memberships_type', Jetpack_Memberships::$type_tier );
 
 		// Connect the site to Stripe
 		update_option( Jetpack_Memberships::$has_connected_account_option_name, true );
@@ -560,6 +561,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		update_post_meta( $newsletter_plan_id, 'jetpack_memberships_price', $price );
 		update_post_meta( $newsletter_plan_id, 'jetpack_memberships_currency', $currency );
 		update_post_meta( $newsletter_plan_id, 'jetpack_memberships_interval', '1 month' );
+		update_post_meta( $newsletter_plan_id, 'jetpack_memberships_type', 'tier' );
 
 		$this->factory->post->create();
 
@@ -575,6 +577,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_currency', $currency );
 			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_interval', '1 year' );
 			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_tier', $newsletter_plan_id );
+			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_type', 'tier' );
 
 			$this->factory->post->create();
 		}
