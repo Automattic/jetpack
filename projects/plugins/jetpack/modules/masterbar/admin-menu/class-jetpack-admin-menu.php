@@ -232,7 +232,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		if ( current_user_can( 'list_users' ) ) {
 			add_menu_page( esc_attr__( 'Users', 'jetpack' ), __( 'Users', 'jetpack' ), 'list_users', 'https://wordpress.com/people/team/' . $this->domain, null, 'dashicons-admin-users', 70 );
 		} else {
-			add_menu_page( esc_attr__( 'Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', 'https://wordpress.com/me', null, 'dashicons-admin-users', 70 );
+			add_menu_page( esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', 'https://wordpress.com/me', null, 'dashicons-admin-users', 70 );
 		}
 	}
 
