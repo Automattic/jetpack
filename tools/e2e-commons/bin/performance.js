@@ -38,15 +38,18 @@ async function envSetup( type ) {
 }
 
 async function runTests( type, round ) {
-	execSyncShellCommand( 'npm run test:performance -- post-editor.spec.js', {
-		cwd: gutenbergPath,
-		env: {
-			...process.env,
-			WP_BASE_URL: resolveSiteUrl(),
-			WP_ARTIFACTS_PATH: resultsPath,
-			RESULTS_ID: `${ type }.${ round }`,
-		},
-	} );
+	execSyncShellCommand(
+		'npx playwright test --config test/performance/playwright.config.ts post-editor',
+		{
+			cwd: gutenbergPath,
+			env: {
+				...process.env,
+				WP_BASE_URL: resolveSiteUrl(),
+				WP_ARTIFACTS_PATH: resultsPath,
+				RESULTS_ID: `${ type }.${ round }`,
+			},
+		}
+	);
 }
 
 async function testRun( type, round ) {
