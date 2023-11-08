@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
 
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings as SocialSettings;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Server;
@@ -47,17 +48,17 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_settings() {
-		$settings   = new Settings();
+		$settings   = ( new SocialSettings() )->get_settings();
 		$response   = array();
 		$schema     = $this->get_item_schema();
 		$properties = array_keys( $schema['properties'] );
 
 		if ( in_array( 'enabled', $properties, true ) ) {
-			$response['enabled'] = $settings->is_enabled();
+			$response['enabled'] = $settings['socialImageGeneratorSettings']['enabled'];
 		}
 
 		if ( in_array( 'defaults', $properties, true ) ) {
-			$response['defaults'] = $settings->get_defaults();
+			$response['defaults'] = $settings['socialImageGeneratorSettings']['defaults'];
 		}
 
 		return rest_ensure_response( $response );
@@ -71,14 +72,14 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function update_settings( $request ) {
-		$settings = new Settings();
+		$social_settings = new SocialSettings();
 
 		if ( isset( $request['enabled'] ) ) {
-			$settings->set_enabled( $request['enabled'] );
+			$social_settings->update_social_image_generator_settings( array( 'enabled' => $request['enabled'] ) );
 		}
 
-		if ( $request['defaults'] && $request['defaults']['template'] ) {
-			$settings->set_default_template( $request['defaults']['template'] );
+		if ( ( $request['defaults'] && $request['defaults']['template'] ) ) {
+			$social_settings->update_social_image_generator_settings( array( 'defaults' => array( 'template' => $request['defaults']['template'] ) ) );
 		}
 
 		return rest_ensure_response( $this->get_settings() );
