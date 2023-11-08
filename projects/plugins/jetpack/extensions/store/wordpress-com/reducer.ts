@@ -16,7 +16,7 @@ const INITIAL_STATE: PlanStateProps = {
 			hasFeature: false,
 			isOverLimit: false,
 			requestsCount: 0,
-			requestsLimit: 20,
+			requestsLimit: 1000,
 			requireUpgrade: false,
 			errorMessage: '',
 			errorCode: '',
@@ -76,13 +76,20 @@ export default function reducer( state = INITIAL_STATE, action ) {
 		}
 
 		case ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT: {
+			// Increase request count;
+			const requestsCount = state.features.aiAssistant.requestsCount + action.count;
+
+			// Compute if the site is over the limit.
+			const isOverLimit = requestsCount >= state.features.aiAssistant.requestsLimit;
+
 			return {
 				...state,
 				features: {
 					...state.features,
 					aiAssistant: {
 						...state.features.aiAssistant,
-						requestsCount: state.features.aiAssistant.requestsCount + action.count,
+						isOverLimit,
+						requestsCount,
 					},
 				},
 			};
