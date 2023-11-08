@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2b8490513547f47bac46eb904faa06fa",
+    "content-hash": "66c872a237ff17fbc71637899c9bbc06",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -208,16 +208,16 @@
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v4.16.1",
+            "version": "v4.17.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "a28676f5ac3d3cf4b9b31c15a4b06218d4c87486"
+                "reference": "a00ca4e8791e8c974cec983b2a0df4e23c47c819"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/a28676f5ac3d3cf4b9b31c15a4b06218d4c87486",
-                "reference": "a28676f5ac3d3cf4b9b31c15a4b06218d4c87486",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/a00ca4e8791e8c974cec983b2a0df4e23c47c819",
+                "reference": "a00ca4e8791e8c974cec983b2a0df4e23c47c819",
                 "shasum": ""
             },
             "require-dev": {
@@ -236,7 +236,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "4.16.x-dev"
+                    "dev-trunk": "4.17.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -254,9 +254,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v4.16.1"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v4.17.0"
             },
-            "time": "2023-10-31T20:28:55+00:00"
+            "time": "2023-11-08T09:11:16+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
@@ -2477,5 +2477,5 @@
         "php": ">=7.0.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
