@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Allow cookieinformationscanner and facebookexternalhit to be detected as bots
