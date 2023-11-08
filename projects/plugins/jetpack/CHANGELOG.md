@@ -14,7 +14,7 @@
 ### Bug fixes
 - WoA: Added back the "Stats" menu item for WoA sites in Calypso. [#33974]
 - Dashboard: Fixed the display of the settings for Markdown for comments. [#33880]
-- vaultPress: Fixed an issue with the VaultPress submenu not being registered when the standalone plugin is inactive and the product is active. [#33955]
+- VaultPress: Fixed an issue with the VaultPress submenu not being registered when the standalone plugin is inactive and the product is active. [#33955]
 - Font Library: Fixed PHP warnings that happen when the font name is not defined. [#34005]
 - Related Posts: Ensured the Related Posts Block can be displayed properly. [#33994]
 - Mobile: Fix a regression preventing correct block registration on mobile. [#33890]
