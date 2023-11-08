@@ -42,7 +42,6 @@ async function runTests( type, round ) {
 		cwd: gutenbergPath,
 		env: {
 			...process.env,
-			PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1,
 			WP_BASE_URL: resolveSiteUrl(),
 			WP_ARTIFACTS_PATH: resultsPath,
 			RESULTS_ID: `${ type }.${ round }`,
