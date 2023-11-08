@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Current_Plan;
-use Automattic\Jetpack\Publicize\Social_Image_Generator\Settings;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings as SocialSettings;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -18,7 +18,7 @@ use WorDBless\Users as WorDBless_Users;
 /**
  * Testing the Settings class.
  */
-class Settings_Test extends BaseTestCase {
+class Social_Image_Generator_Settings_Test extends BaseTestCase {
 	/**
 	 * Instance of the Settings class.
 	 *
@@ -41,7 +41,7 @@ class Settings_Test extends BaseTestCase {
 		$plan                       = Current_Plan::PLAN_DATA['free'];
 		$plan['features']['active'] = array( 'social-image-generator' );
 		update_option( Current_Plan::PLAN_OPTION, $plan, true );
-		$this->settings = new Settings();
+		$this->settings = new SocialSettings();
 	}
 
 	/**
@@ -72,36 +72,44 @@ class Settings_Test extends BaseTestCase {
 	 * Test that SIG is available based on the plan check.
 	 */
 	public function test_correctly_returns_available_status() {
-		$this->assertTrue( $this->settings->is_available() );
+		$this->assertTrue( $this->settings->is_sig_available() );
 	}
 
 	/**
 	 * Test that it correctly returns enabled or disabled.
 	 */
 	public function test_correctly_returns_enabled_status() {
-		$this->assertFalse( $this->settings->is_enabled() );
+		$sig_settings = $this->settings->get_settings()['socialImageGeneratorSettings'];
+		$this->assertFalse( $sig_settings['enabled'] );
 	}
 
 	/**
 	 * Test that it correctly updates the enabled status.
 	 */
 	public function test_correctly_updates_enabled_status() {
-		$this->settings->set_enabled( true );
-		$this->assertTrue( $this->settings->is_enabled() );
+		$sig_settings = $this->settings->get_settings()['socialImageGeneratorSettings'];
+		$this->assertFalse( $sig_settings['enabled'] );
+
+		$this->settings->update_social_image_generator_settings( array( 'enabled' => true ) );
+
+		$sig_settings = $this->settings->get_settings()['socialImageGeneratorSettings'];
+		$this->assertTrue( $sig_settings['enabled'] );
 	}
 
 	/**
 	 * Test that it returns the default template if a template is not set.
 	 */
 	public function test_returns_default_template_if_not_set() {
-		$this->assertEquals( Templates::DEFAULT_TEMPLATE, $this->settings->get_default_template() );
+		$sig_settings = $this->settings->get_settings()['socialImageGeneratorSettings'];
+		$this->assertEquals( Templates::DEFAULT_TEMPLATE, $sig_settings['defaults']['template'] );
 	}
 
 	/**
 	 * Test that it returns all the correct defaults.
 	 */
 	public function test_defaults_have_all_required_keys() {
-		$defaults = $this->settings->get_defaults();
+		$sig_settings = $this->settings->get_settings()['socialImageGeneratorSettings'];
+		$defaults     = $sig_settings['defaults'];
 		$this->assertArrayHasKey( 'template', $defaults );
 		$this->assertCount( 1, $defaults );
 	}
@@ -110,7 +118,9 @@ class Settings_Test extends BaseTestCase {
 	 * Test that it returns correct template if set.
 	 */
 	public function test_returns_correct_template_if_set() {
-		$this->settings->set_default_template( 'example_template' );
-		$this->assertEquals( 'example_template', $this->settings->get_default_template() );
+		$this->settings->update_social_image_generator_settings( array( 'defaults' => array( 'template' => 'example_template' ) ) );
+		$sig_settings = $this->settings->get_settings()['socialImageGeneratorSettings'];
+
+		$this->assertEquals( 'example_template', $sig_settings['defaults']['template'] );
 	}
 }

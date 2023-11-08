@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Publicize\Auto_Conversion\Settings as Auto_Conversion_Settings;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings as SocialSettings;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
@@ -36,7 +36,7 @@ class Auto_Conversion_Test extends BaseTestCase {
 		$publicize->method( 'has_social_auto_conversion_feature' )
 		->withAnyParameters()
 		->willReturn( true );
-		$this->settings = new Auto_Conversion_Settings();
+		$this->settings = new SocialSettings();
 	}
 
 	/**
@@ -66,41 +66,32 @@ class Auto_Conversion_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that SIG is available based on the plan check.
+	 * Test that Auto-Conversion is available based on the plan check.
 	 */
 	public function test_correctly_returns_available_status() {
-		$this->assertTrue( $this->settings->is_available( 'image' ) );
-		$this->assertTrue( $this->settings->is_available( 'video' ) );
+		$this->assertTrue( $this->settings->is_auto_conversion_available() );
 	}
 
 	/**
 	 * Test that it correctly returns enabled or disabled.
 	 */
 	public function test_correctly_returns_enabled_status() {
-		$this->assertTrue( $this->settings->is_enabled( 'image' ) );
-		$this->assertFalse( $this->settings->is_enabled( 'video' ) );
+		$auto_conversion_settings = $this->settings->get_settings()['autoConversionSettings'];
+		$this->assertTrue( $auto_conversion_settings['image'] );
+		$this->assertFalse( isset( $auto_conversion_settings['video'] ) ? $auto_conversion_settings['video'] : false );
 	}
 
 	/**
 	 * Test that it correctly returns enabled or disabled.
 	 */
 	public function test_correctly_updates_enabled_status() {
-		$this->settings->set_enabled( 'image', true );
-		$this->settings->set_enabled( 'auto-conversion', true );
-		$this->assertTrue( $this->settings->is_enabled( 'auto-conversion' ) );
-		$this->assertTrue( $this->settings->is_enabled( 'image' ) );
-		$this->assertFalse( $this->settings->is_enabled( 'video' ) );
-		$this->settings->set_enabled( 'video', true );
-		$this->assertTrue( $this->settings->is_enabled( 'image' ) );
-		$this->assertTrue( $this->settings->is_enabled( 'video' ) );
+		$this->settings->update_auto_conversion_settings( array( 'image' => false ) );
+		$auto_conversion_settings = $this->settings->get_settings()['autoConversionSettings'];
+		$this->assertFalse( $auto_conversion_settings['image'] );
 
-		$this->settings->set_enabled( 'image', false );
-		$this->assertFalse( $this->settings->is_enabled( 'image' ) );
-		$this->assertTrue( $this->settings->is_enabled( 'video' ) );
-		$this->settings->set_enabled( 'video', false );
-		$this->assertFalse( $this->settings->is_enabled( 'video' ) );
-		$this->assertTrue( $this->settings->is_enabled( 'auto-conversion' ) );
-		$this->settings->set_enabled( 'auto-conversion', false );
-		$this->assertFalse( $this->settings->is_enabled( 'auto-conversion' ) );
+		$this->settings->update_auto_conversion_settings( array( 'video' => true ) );
+		$auto_conversion_settings = $this->settings->get_settings()['autoConversionSettings'];
+		$this->assertFalse( $auto_conversion_settings['image'] );
+		$this->assertTrue( $auto_conversion_settings['video'] );
 	}
 }
