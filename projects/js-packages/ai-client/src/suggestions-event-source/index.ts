@@ -72,6 +72,9 @@ export default class SuggestionsEventSource extends EventTarget {
 	isPromptClear: boolean;
 	controller: AbortController;
 
+	// Flag to detect if the unclear prompt event was already dispatched
+	_error_unclear_prompt_triggered: boolean;
+
 	constructor( data: SuggestionsEventSourceConstructorArgs ) {
 		super();
 		this.fullMessage = '';
@@ -156,6 +159,9 @@ export default class SuggestionsEventSource extends EventTarget {
 			debug( 'Model: %o', options.model );
 			bodyData.model = options.model;
 		}
+
+		// Clean the unclear prompt trigger flag
+		this._error_unclear_prompt_triggered = false;
 
 		await fetchEventSource( url, {
 			openWhenHidden: true,
@@ -257,8 +263,19 @@ export default class SuggestionsEventSource extends EventTarget {
 		 */
 		const replacedMessage = this.fullMessage.replace( /__|(\*\*)/g, '' );
 		if ( replacedMessage.startsWith( 'JETPACK_AI_ERROR' ) ) {
+			/*
+			 * Check if the unclear prompt even was already dispatched,
+			 * to ensure that it is dispatched only once per request.
+			 */
+			if ( this._error_unclear_prompt_triggered ) {
+				return;
+			}
+			this._error_unclear_prompt_triggered = true;
+
 			// The unclear prompt marker was found, so we dispatch an error event
 			this.dispatchEvent( new CustomEvent( ERROR_UNCLEAR_PROMPT ) );
+			debug( 'Unclear error prompt dispatched' );
+
 			this.dispatchEvent(
 				new CustomEvent( ERROR_RESPONSE, {
 					detail: getErrorData( ERROR_UNCLEAR_PROMPT ),
