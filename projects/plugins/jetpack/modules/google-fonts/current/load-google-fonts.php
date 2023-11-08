@@ -92,7 +92,9 @@ function jetpack_get_theme_fonts_map() {
 
 	$theme_fonts_map = array();
 	foreach ( $raw_data['settings']['typography']['fontFamilies'] as $font_family ) {
-		$theme_fonts_map[ $font_family['name'] ] = true;
+		if ( isset( $font_family['name'] ) ) {
+			$theme_fonts_map[ $font_family['name'] ] = true;
+		}
 	}
 
 	return $theme_fonts_map;
