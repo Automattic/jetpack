@@ -8,7 +8,7 @@ import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from '../helpers/
 const __dirname = new URL( '.', import.meta.url ).pathname;
 
 const testRounds = 3;
-const gutenbergPath = path.resolve( __dirname, '../../gutenberg' );
+const gutenbergPath = path.resolve( __dirname, '../../../gutenberg' );
 if ( ! existsSync( gutenbergPath ) ) {
 	throw new Error( `Could not find Gutenberg at ${ gutenbergPath }` );
 }
