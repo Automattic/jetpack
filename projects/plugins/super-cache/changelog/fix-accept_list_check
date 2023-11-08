@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Super Cache: fix "accept header" check, and add new "wpsc_accept_list" filter on JSON accept list

@@ -13,7 +13,7 @@
 /** Subscribe button **/
 .wp-block-premium-content-logged-out-view .wp-block-jetpack-recurring-payments {
 	display: inline-block;
-	margin-right: 0.5em;
+	margin-inline-end: 0.5em;
 }
 
 /* Login button */
@@ -34,7 +34,7 @@
 }
 
 .wp-block-premium-content-logged-out-view__buttons .wp-block-button__link {
-	margin-right: 20px;
+	margin-inline-end: 20px;
 }
 
 @media ( min-width: 660px ) {
