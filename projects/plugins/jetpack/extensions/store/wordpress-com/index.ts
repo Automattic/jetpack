@@ -10,7 +10,7 @@ import reducer from './reducer';
 /**
  * Types
  */
-import type { PlanStateProps } from './types';
+import type { AiFeatureProps, PlanStateProps } from './types';
 
 const store = 'wordpress-com/plans';
 
@@ -36,11 +36,25 @@ const wordpressPlansStore = createReduxStore( store, {
 		/**
 		 * Return the AI Assistant feature.
 		 *
-		 * @param {object} state - The Plans state tree.
-		 * @returns {object}       The AI Assistant feature data.
+		 * @param {PlanStateProps} state - The Plans state tree.
+		 * @returns {AiFeatureProps}       The AI Assistant feature data.
 		 */
-		getAiAssistantFeature( state: PlanStateProps ): object {
-			return state.features.aiAssistant;
+		getAiAssistantFeature( state: PlanStateProps ): AiFeatureProps {
+			// Clean up the _meta property.
+			const data = { ...state.features.aiAssistant };
+			delete data._meta;
+
+			return data;
+		},
+
+		/**
+		 * Get the isRequesting flag for the AI Assistant feature.
+		 *
+		 * @param {PlanStateProps} state - The Plans state tree.
+		 * @returns {boolean}              The isRequesting flag.
+		 */
+		getIsRequestingAiAssistantFeature( state: PlanStateProps ): boolean {
+			return state.features.aiAssistant?._meta?.isRequesting;
 		},
 	},
 

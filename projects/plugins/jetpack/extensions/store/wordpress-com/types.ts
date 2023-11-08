@@ -7,7 +7,7 @@ export type Plan = {
 export type PlanStateProps = {
 	plans: Array< Plan >;
 	features: {
-		aiAssistant?: AiFeatureProps;
+		aiAssistant?: AiFeatureStateProps;
 	};
 };
 
@@ -31,6 +31,9 @@ export type AiFeatureProps = {
 		nextStart: string;
 		requestsCount: number;
 	};
+};
+
+export type AiFeatureStateProps = AiFeatureProps & {
 	_meta?: {
 		isRequesting: boolean;
 	};
