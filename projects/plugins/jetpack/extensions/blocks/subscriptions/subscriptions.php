@@ -707,7 +707,7 @@ function render_for_website( $data, $classes, $styles ) {
 								<?php endif; ?>
 								name="jetpack_subscriptions_widget"
 							>
-								<?php echo esc_html( sanitize_submit_text( $button_text ) ); ?>
+								<?php echo sanitize_submit_text( $button_text ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							</button>
 						</p>
 					</div>
