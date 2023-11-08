@@ -6,6 +6,7 @@ import { createReduxStore, register } from '@wordpress/data';
  * Internal dependencies
  */
 import actions from './actions';
+import reducer from './reducer';
 /**
  * Types
  */
@@ -13,80 +14,12 @@ import type { PlanStateProps } from './types';
 
 const store = 'wordpress-com/plans';
 
-const INITIAL_STATE: PlanStateProps = {
-	plans: [],
-	features: {
-		aiAssistant: {
-			hasFeature: false,
-			isOverLimit: false,
-			requestsCount: 0,
-			requestsLimit: 0,
-			requireUpgrade: false,
-			errorMessage: '',
-			errorCode: '',
-			upgradeType: 'default',
-			currentTier: {
-				value: 1,
-			},
-			usagePeriod: {
-				currentStart: '',
-				nextStart: '',
-				requestsCount: 0,
-			},
-			_meta: {
-				isRequesting: false,
-			},
-		},
-	},
-};
-
 const wordpressPlansStore = createReduxStore( store, {
 	__experimentalUseThunks: true,
 
-	reducer( state = INITIAL_STATE, action ) {
-		switch ( action.type ) {
-			case 'SET_PLANS':
-				return {
-					...state,
-					plans: action.plans,
-				};
-
-			case 'REQUEST_AI_ASSISTANT_FEATURE':
-				return {
-					...state,
-					features: {
-						...state.features,
-						aiAssistant: {
-							...state.features.aiAssistant,
-							_meta: {
-								...state.features.aiAssistant._meta,
-								isRequesting: true,
-							},
-						},
-					},
-				};
-
-			case 'STORE_AI_ASSISTANT_FEATURE': {
-				return {
-					...state,
-					features: {
-						...state.features,
-						aiAssistant: {
-							...action.feature,
-							_meta: {
-								...state.features.aiAssistant._meta,
-								isRequesting: false,
-							},
-						},
-					},
-				};
-			}
-		}
-
-		return state;
-	},
-
 	actions,
+
+	reducer,
 
 	selectors: {
 		/*
