@@ -1,6 +1,5 @@
 import { IconTooltip } from '@automattic/jetpack-components';
 import classNames from 'classnames';
-import React, { useEffect, useState } from 'react';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import ImageCdnRecommendation from '../../components/image-cdn-recommendation';
@@ -16,16 +15,6 @@ export const Hero = ( {
 	hasActiveGroup,
 	totalIssueCount,
 } ) => {
-	const [ fadeProp, setFadeProp ] = useState( false );
-
-	useEffect( () => {
-		// Set the fadeProp to true to apply the 'fade-in' class after the component mounts
-		const timeoutId = setTimeout( () => setFadeProp( true ), 50 ); // 50ms or some small delay
-
-		// Clean up the timeout if the component unmounts before the timeout fires
-		return () => clearTimeout( timeoutId );
-	}, [] );
-
 	const formatter = new Intl.DateTimeFormat( 'en-US', {
 		month: 'long',
 		day: 'numeric',
@@ -38,13 +27,9 @@ export const Hero = ( {
 	const showLatestReport = hasActiveGroup && !! isaLastUpdated;
 
 	return (
-		<div
-			className={ classNames( styles.hero, {
-				[ styles[ 'fade-in' ] ]: fadeProp,
-			} ) }
-		>
+		<>
 			{ showLatestReport ? (
-				<>
+				<div className={ classNames( styles.hero, styles[ 'fade-in' ] ) }>
 					<span>Latest report as of { lastUpdated }</span>
 					{ totalIssueCount > 0 && (
 						<h1>
@@ -98,13 +83,13 @@ export const Hero = ( {
 							) }
 						</span>
 					) }
-				</>
+				</div>
 			) : (
 				<>
 					<span>&nbsp;</span>
 					<h1>&nbsp;</h1>
 				</>
 			) }
-		</div>
+		</>
 	);
 };
