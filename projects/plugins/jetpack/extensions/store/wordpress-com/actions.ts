@@ -3,8 +3,9 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 /**
- * Types
+ * Types & Constants
  */
+import { AI_ASSISTANT_FEATURE_ENDPOINT } from './constants';
 import type { Plan } from './types';
 import type { AiFeatureProps } from './types';
 import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../types';
@@ -72,7 +73,7 @@ const actions = {
 
 			try {
 				const response: SiteAIAssistantFeatureEndpointResponseProps = await apiFetch( {
-					path: '/wpcom/v2/jetpack-ai/ai-assistant-feature',
+					path: AI_ASSISTANT_FEATURE_ENDPOINT,
 				} );
 
 				// Store the feature in the store.
