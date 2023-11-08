@@ -73,7 +73,7 @@ export default class SuggestionsEventSource extends EventTarget {
 	controller: AbortController;
 
 	// Flag to detect if the unclear prompt event was already dispatched
-	_error_unclear_prompt_triggered: boolean;
+	errorUnclearPromptTriggered: boolean;
 
 	constructor( data: SuggestionsEventSourceConstructorArgs ) {
 		super();
