@@ -2,8 +2,8 @@
 	import { PricingCard } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
-	import { ActivateLicense } from '../../react-components/activate-license';
-	import BackButton from '../../react-components/common/back-button/BackButton';
+	import ActivateLicense from '../../react-components/components/activate-license';
+	import BackButton from '../../react-components/components/back-button';
 	import Footer from '../../sections/Footer.svelte';
 	import { getUpgradeURL } from '../../stores/connection';
 	import Logo from '../../svg/jetpack-green.svg';

@@ -2,7 +2,7 @@
 	import { Snackbar } from '@wordpress/components';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
-	import { ActivateLicense } from '../../react-components/activate-license';
+	import ActivateLicense from '../../react-components/components/activate-license';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import { initializeConnection, getUpgradeURL } from '../../stores/connection';

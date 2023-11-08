@@ -2,7 +2,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 
-export const ImageCdnRecommendation = () => {
+const ImageCdnRecommendation = () => {
 	return (
 		<>
 			<p className={ styles.paragraph }>
@@ -24,3 +24,5 @@ export const ImageCdnRecommendation = () => {
 		</>
 	);
 };
+
+export default ImageCdnRecommendation;

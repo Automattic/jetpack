@@ -1,8 +1,8 @@
 import { __ } from '@wordpress/i18n';
-import { openPaidSupport } from '../../utils/paid-plan';
+import { openPaidSupport } from '../../../utils/paid-plan';
 import styles from './styles.module.scss';
 
-export const Support = () => {
+const Support = () => {
 	return (
 		<div className="jb-section">
 			<div className="jb-container--narrow">
@@ -30,3 +30,5 @@ export const Support = () => {
 		</div>
 	);
 };
+
+export default Support;

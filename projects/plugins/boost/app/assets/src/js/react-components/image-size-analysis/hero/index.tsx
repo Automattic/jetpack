@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { RecommendationContext } from '../../recommendation-context';
+import RecommendationContext from '../../components/recommendation-context';
 import styles from './styles.module.scss';
 
 // removed in:fade={{ duration: 300, easing: quadOut }} from .jb-hero

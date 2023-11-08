@@ -2,7 +2,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 
-export const ActivateLicense = () => {
+const ActivateLicense = () => {
 	const activateLicenseUrl = 'admin.php?page=my-jetpack#/add-license';
 
 	return (
@@ -20,3 +20,5 @@ export const ActivateLicense = () => {
 		</p>
 	);
 };
+
+export default ActivateLicense;

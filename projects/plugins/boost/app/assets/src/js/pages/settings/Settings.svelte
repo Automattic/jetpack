@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ReRouter from '../../elements/ReRouter.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
-	import { Support } from '../../react-components/support';
+	import Support from '../../react-components/sections/support';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import config from '../../stores/config';

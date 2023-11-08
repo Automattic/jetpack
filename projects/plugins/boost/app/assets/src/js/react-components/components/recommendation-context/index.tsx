@@ -1,8 +1,8 @@
 import { IconTooltip } from '@automattic/jetpack-components';
-import { ImageCdnRecommendation } from '../image-cdn-recommendation';
+import ImageCdnRecommendation from '../image-cdn-recommendation';
 import styles from './styles.module.scss';
 
-export const RecommendationContext = () => {
+const RecommendationContext = () => {
 	return (
 		<IconTooltip
 			title=""
@@ -16,3 +16,5 @@ export const RecommendationContext = () => {
 		</IconTooltip>
 	);
 };
+
+export default RecommendationContext;
