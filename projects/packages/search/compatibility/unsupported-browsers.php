@@ -15,7 +15,7 @@ add_filter( 'jetpack_search_classic_search_enabled', __NAMESPACE__ . '\enable_cl
  * @return null|string The iOS version, or null if not found.
  */
 function get_ios_version_from_user_agent( $user_agent ) {
-	preg_match( '#\((iPhone|iPad|iPod).*?OS (\d+_?\d?+_?\d?).*?\)#', $user_agent, $matches );
+	preg_match( '#\((iPhone|iPad|iPod).*?OS (\d+_?\d?_?\d?).*?\)#', $user_agent, $matches );
 
 	if ( empty( $matches[2] ) ) {
 		return null;
