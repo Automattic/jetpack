@@ -8,6 +8,8 @@
 	import WarningIcon from '../../svg/warning-outline.svg';
 	import { isaGroupLabel } from './store/isa-summary';
 
+	// @todo - move other-group-context markup/styles here, as it's not used anywhere else.
+
 	export let summaryProgress: {
 		group: string;
 		issue_count?: number;
