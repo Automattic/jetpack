@@ -6,27 +6,8 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Types & constants
  */
-export type UpgradeTypeProp = 'vip' | 'default';
+import { AiFeatureProps } from '../../../../store/wordpress-com/types';
 import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../../../types';
-
-export type AIFeatureProps = {
-	hasFeature: boolean;
-	isOverLimit: boolean;
-	requestsCount: number;
-	requestsLimit: number;
-	requireUpgrade: boolean;
-	errorMessage: string;
-	errorCode: string;
-	upgradeType: UpgradeTypeProp;
-	currentTier: {
-		value: 0 | 1 | 100 | 200 | 500;
-	};
-	usagePeriod: {
-		currentStart: string;
-		nextStart: string;
-		requestsCount: number;
-	};
-};
 
 const NUM_FREE_REQUESTS_LIMIT = 20;
 
@@ -51,7 +32,7 @@ export const AI_Assistant_Initial_State = {
 	},
 };
 
-export async function getAIFeatures(): Promise< AIFeatureProps > {
+export async function getAIFeatures(): Promise< AiFeatureProps > {
 	const response: SiteAIAssistantFeatureEndpointResponseProps = await apiFetch( {
 		path: '/wpcom/v2/jetpack-ai/ai-assistant-feature',
 	} );
@@ -77,7 +58,7 @@ export async function getAIFeatures(): Promise< AIFeatureProps > {
 }
 
 export default function useAIFeature() {
-	const [ data, setData ] = useState< AIFeatureProps >( AI_Assistant_Initial_State );
+	const [ data, setData ] = useState< AiFeatureProps >( AI_Assistant_Initial_State );
 	const [ loading, setLoading ] = useState< boolean >( false );
 	const [ error, setError ] = useState< Error >( null );
 

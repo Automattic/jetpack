@@ -28,9 +28,12 @@ import {
 } from '../../shared/memberships/settings';
 import { getShowMisconfigurationWarning } from '../../shared/memberships/utils';
 import { store as membershipProductsStore } from '../../store/membership-products';
+import metadata from './block.json';
 import EmailPreview from './email-preview';
-import { name } from './';
+
 import './panel.scss';
+
+const name = metadata.name.replace( 'jetpack/', '' );
 
 const SubscriptionsPanelPlaceholder = ( { children } ) => {
 	return (

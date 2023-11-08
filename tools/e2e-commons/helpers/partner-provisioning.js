@@ -1,8 +1,8 @@
 import config from 'config';
 import path from 'path';
 import shellescape from 'shell-escape';
-import logger from '../logger.cjs';
-import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from './utils-helper.cjs';
+import logger from '../logger.js';
+import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from './utils-helper.js';
 import * as url from 'url';
 
 /**
