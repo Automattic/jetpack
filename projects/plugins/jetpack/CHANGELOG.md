@@ -2,6 +2,37 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.9-a.1 - 2023-11-08
+### Enhancements
+- VideoPress: Added support for gated content. [#32154]
+- Subscribe modal: Updated the modal to not show when previewing post or theme. [#33967]
+- WoA: Updated the wording on the profile menu for WoA sites using the classic style. [#33982]
+
+### Improved compatibility
+- Added a check for connected plugins before cleaning up plugin options or uninstalling Jetpack. [#33920]
+
+### Bug fixes
+- WoA: Added back the "Stats" menu item for WoA sites in Calypso. [#33974]
+- Dashboard: Fixed the display of the settings for Markdown for comments. [#33880]
+- vaultPress: Fixed an issue with the VaultPress submenu not being registered when the standalone plugin is inactive and the product is active. [#33955]
+- Font Library: Fixed PHP warnings that happen when the font name is not defined. [#34005]
+- Related Posts: Ensured the Related Posts Block can be displayed properly. [#33994]
+- Mobile: Fix a regression preventing correct block registration on mobile. [#33890]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Added loading state to the usage panel. [#33942]
+- AI Assistant: Created a map for the AI Assistant feature data. [#33993]
+- AI Assistant: Registered 'isFetching' state in the plans store. [#33996]
+- Decouple tiers from subscribe_as_site_subscriber parameter. [#33773]
+- Jetpack: Reduxified AI Assistant feature. [#33985]
+- Jetpack Plans: Addressed TS issues with AI Assistant feature data. [#33986]
+- Plans: Introduced `plans` prop to plans store. [#33971]
+- Plans: Minor code refactoring for wordpress-com/plans store. [#33919]
+- Refactor Instagram Gallery block registration. [#33884]
+- Fixed a misspelled variable. [#33991]
+- Removed scssc 0.0.12 and replaced it with with ScssPhp 1.1.11. [#33928]
+- Rollback change. [#33973]
+
 ## 12.8 - 2023-11-06
 ### Enhancements
 - Added a notice for wp-admin settings pages when the wpcom_admin_interface option is set to wp-admin. [#33933]
