@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix the PHP warning that happens when the font name is not defined.
