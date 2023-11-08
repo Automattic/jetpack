@@ -1,9 +1,9 @@
-const path = require( 'path' );
-const fetch = require( 'node-fetch' );
+import { fileURLToPath } from 'url';
+import fetch from 'node-fetch';
 
 // Below call should be BEFORE requiring config, so library wil pick it up.
-process.env.NODE_CONFIG_DIR = path.resolve( __dirname, '../config' );
-const { resolveSiteUrl, getSiteCredentials } = require( '../helpers/utils-helper.cjs' );
+process.env.NODE_CONFIG_DIR = fileURLToPath( new URL( '../config', import.meta.url ) );
+const { resolveSiteUrl, getSiteCredentials } = await import( '../helpers/utils-helper.js' );
 
 function getAuthHeader() {
 	const credentials = getSiteCredentials();

@@ -7,14 +7,14 @@ export type Plan = {
 export type PlanStateProps = {
 	plans: Array< Plan >;
 	features: {
-		aiAssistant?: AIFeatureProps;
+		aiAssistant?: AiFeatureProps;
 	};
 };
 
 // AI Assistant feature props
 export type UpgradeTypeProp = 'vip' | 'default';
 export type TierValueProp = 1 | 20 | 100 | 200 | 500;
-export type AIFeatureProps = {
+export type AiFeatureProps = {
 	hasFeature: boolean;
 	isOverLimit: boolean;
 	requestsCount: number;
@@ -30,5 +30,8 @@ export type AIFeatureProps = {
 		currentStart: string;
 		nextStart: string;
 		requestsCount: number;
+	};
+	_meta?: {
+		isRequesting: boolean;
 	};
 };

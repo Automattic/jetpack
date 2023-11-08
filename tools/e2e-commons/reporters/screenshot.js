@@ -1,8 +1,8 @@
-const path = require( 'path' );
-const config = require( 'config' );
-const logger = require( '../logger.cjs' );
-const fs = require( 'fs' );
-const { fileNameFormatter } = require( '../helpers/utils-helper.cjs' );
+import path from 'path';
+import config from 'config';
+import logger from '../logger.js';
+import fs from 'fs';
+import { fileNameFormatter } from '../helpers/utils-helper.js';
 
 /**
  * Takes a screenshot of the given page
@@ -12,7 +12,7 @@ const { fileNameFormatter } = require( '../helpers/utils-helper.cjs' );
  * @param {Object} allure   instance of allure reporter
  * @return {Promise<void>}
  */
-async function takeScreenshot( page, fileName, allure ) {
+export async function takeScreenshot( page, fileName, allure ) {
 	let filePath;
 
 	try {
@@ -32,5 +32,3 @@ async function takeScreenshot( page, fileName, allure ) {
 
 	return filePath;
 }
-
-module.exports = { takeScreenshot };

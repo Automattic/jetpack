@@ -1,12 +1,16 @@
-const config = require( 'config' );
-const fs = require( 'fs' );
-const path = require( 'path' );
+import config from 'config';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 
 const reporter = [
 	[ 'list' ],
 	[ 'json', { outputFile: `${ config.get( 'dirs.output' ) }/summary.json` } ],
 	[ 'allure-playwright' ],
-	[ `${ path.resolve( __dirname, '../', config.get( 'dirs.reporters' ) ) }/reporter.cjs` ],
+	[
+		`${ fileURLToPath(
+			new URL( '../' + config.get( 'dirs.reporters' ), import.meta.url )
+		) }/reporter.js`,
+	],
 ];
 
 if ( process.env.CI ) {
@@ -55,4 +59,4 @@ const playwrightConfig = {
 	reportSlowTests: null,
 };
 
-module.exports = playwrightConfig;
+export default playwrightConfig;
