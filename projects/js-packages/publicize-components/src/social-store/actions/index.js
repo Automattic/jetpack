@@ -1,11 +1,9 @@
-import autoConversionSettingActions from './auto-conversion-settings';
 import siteSettingActions from './jetpack-settings';
-import socialImageGeneratorSettingActions from './social-image-generator-settings';
+import jetpackSocialSettingActions from './jetpack-social-settings';
 
 const actions = {
 	...siteSettingActions,
-	...socialImageGeneratorSettingActions,
-	...autoConversionSettingActions,
+	...jetpackSocialSettingActions,
 };
 
 export default actions;

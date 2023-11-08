@@ -8,6 +8,9 @@ export const UPDATE_SOCIAL_IMAGE_GENERATOR_SETTINGS = 'UPDATE_SOCIAL_IMAGE_GENER
 export const FETCH_AUTO_CONVERSION_SETTINGS = 'FETCH_AUTO_CONVERSION_SETTINGS';
 export const UPDATE_AUTO_CONVERSION_SETTINGS = 'UPDATE_AUTO_CONVERSION_SETTINGS';
 
+export const FETCH_JETPACK_SOCIAL_SETTINGS = 'FETCH_JETPACK_SOCIAL_SETTINGS';
+export const UPDATE_JETPACK_SOCIAL_SETTINGS = 'UPDATE_JETPACK_SOCIAL_SETTINGS';
+
 /**
  * fetchJetpackSettings action
  *
@@ -80,6 +83,17 @@ export const updateAutoConversionSettings = settings => {
 	};
 };
 
+/**
+ * fetchJetpackSocialSettings action
+ *
+ * @returns {object} - an action object.
+ */
+export const fetchJetpackSocialSettings = () => {
+	return {
+		type: FETCH_JETPACK_SOCIAL_SETTINGS,
+	};
+};
+
 export default {
 	[ FETCH_JETPACK_SETTINGS ]: function () {
 		return apiFetch( { path: '/jetpack/v4/social/settings' } );
@@ -91,24 +105,28 @@ export default {
 			data: action.settings,
 		} );
 	},
-	[ FETCH_SOCIAL_IMAGE_GENERATOR_SETTINGS ]: function () {
-		return apiFetch( { path: '/jetpack/v4/social-image-generator/settings' } );
+	[ FETCH_JETPACK_SOCIAL_SETTINGS ]: function () {
+		return apiFetch( { path: '/jetpack/v4/jetpack-social/settings' } );
 	},
-	[ UPDATE_SOCIAL_IMAGE_GENERATOR_SETTINGS ]: function ( action ) {
+	[ UPDATE_JETPACK_SOCIAL_SETTINGS ]: function ( action ) {
 		return apiFetch( {
-			path: '/jetpack/v4/social-image-generator/settings',
+			path: '/jetpack/v4/jetpack-social/settings',
 			method: 'POST',
 			data: action.settings,
 		} );
 	},
-	[ FETCH_AUTO_CONVERSION_SETTINGS ]: function () {
-		return apiFetch( { path: '/jetpack/v4/auto-conversion/settings' } );
+	[ UPDATE_SOCIAL_IMAGE_GENERATOR_SETTINGS ]: function ( action ) {
+		return apiFetch( {
+			path: '/jetpack/v4/jetpack-social/settings',
+			method: 'POST',
+			data: { socialImageGeneratorSettings: action.settings },
+		} );
 	},
 	[ UPDATE_AUTO_CONVERSION_SETTINGS ]: function ( action ) {
 		return apiFetch( {
-			path: '/jetpack/v4/auto-conversion/settings',
+			path: '/jetpack/v4/jetpack-social/settings',
 			method: 'POST',
-			data: action.settings,
+			data: { autoConversionSettings: action.settings },
 		} );
 	},
 };

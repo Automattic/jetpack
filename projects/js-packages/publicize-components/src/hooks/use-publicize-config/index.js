@@ -31,6 +31,8 @@ export default function usePublicizeConfig() {
 		getJetpackData()?.social?.publicizeConnectionsUrl ??
 		'https://wordpress.com/marketing/connections/';
 
+	const jetpackSocialSettings = getJetpackData()?.social?.jetpackSocialSettings;
+
 	/*
 	 * isPublicizeEnabledMeta:
 	 * It's stored in the jetpack_publicize_feature_enabled post metadata,
@@ -98,7 +100,7 @@ export default function usePublicizeConfig() {
 	 * isAutoConversionEnabled:
 	 * Whether the site has the auto conversion feature enabled.
 	 */
-	const isAutoConversionEnabled = !! getJetpackData()?.social?.isAutoConversionEnabled;
+	const isAutoConversionEnabled = jetpackSocialSettings?.autoConversionSettings?.image;
 
 	return {
 		isPublicizeEnabledMeta,
@@ -114,8 +116,9 @@ export default function usePublicizeConfig() {
 		shouldShowAdvancedPlanNudge: sharesData.show_advanced_plan_upgrade_nudge,
 		hasPaidPlan,
 		isEnhancedPublishingEnabled,
-		isSocialImageGeneratorAvailable: !! getJetpackData()?.social?.isSocialImageGeneratorAvailable,
-		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
+		isSocialImageGeneratorAvailable:
+			!! jetpackSocialSettings?.socialImageGeneratorSettings?.available,
+		isSocialImageGeneratorEnabled: !! jetpackSocialSettings?.socialImageGeneratorSettings?.enabled,
 		connectionsAdminUrl: connectionsRootUrl + getSiteFragment(),
 		adminUrl: getJetpackData()?.social?.adminUrl,
 		isAutoConversionEnabled,

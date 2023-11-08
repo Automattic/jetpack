@@ -733,22 +733,29 @@ class Jetpack_Gutenberg {
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
 			$publicize                = publicize_init();
-			$sig_settings             = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
-			$auto_conversion_settings = new Automattic\Jetpack\Publicize\Auto_Conversion\Settings();
+
+			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
+			$settings = $jetpack_social_settings->get_settings();
 
 			$initial_state['social'] = array(
 				'sharesData'                      => $publicize->get_publicize_shares_info( $blog_id ),
 				'hasPaidPlan'                     => $publicize->has_paid_plan(),
 				'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
-				'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
-				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
 				'dismissedNotices'                => $publicize->get_dismissed_notices(),
 				'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
 				'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
 				'isNextdoorConnectionSupported'   => $publicize->has_nextdoor_connection_feature(),
-				'autoConversionSettings'          => array(
-					'available' => $auto_conversion_settings->is_available( 'image' ),
-					'image'     => $auto_conversion_settings->is_enabled( 'image' ),
+				'jetpackSocialSettings' => array(
+					'autoConversionSettings' => array_merge( 
+						$settings['autoConversionSettings'], array(
+							'available' => $jetpack_social_settings->is_auto_conversion_available() 
+						)
+					),
+					'socialImageGeneratorSettings' => array_merge( 
+						$settings['socialImageGeneratorSettings'], array(
+							'available' => $jetpack_social_settings->is_sig_available() 
+						)
+					),
 				),
 				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
 			);
