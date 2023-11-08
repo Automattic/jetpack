@@ -10,3 +10,11 @@
 .fade-in {
 	opacity: 1;
 }
+
+.tooltip {
+	margin-left: 8px;
+}
+
+.tooltip button svg {
+	fill: var( --gray-30 );
+}
