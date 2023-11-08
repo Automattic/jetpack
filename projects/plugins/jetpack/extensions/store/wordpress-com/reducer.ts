@@ -2,6 +2,7 @@
  * Types
  */
 import {
+	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
 	ACTION_SET_PLANS,
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
@@ -69,6 +70,19 @@ export default function reducer( state = INITIAL_STATE, action ) {
 							...state.features.aiAssistant._meta,
 							isRequesting: false,
 						},
+					},
+				},
+			};
+		}
+
+		case ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT: {
+			return {
+				...state,
+				features: {
+					...state.features,
+					aiAssistant: {
+						...state.features.aiAssistant,
+						requestsCount: state.features.aiAssistant.requestsCount + action.count,
 					},
 				},
 			};
