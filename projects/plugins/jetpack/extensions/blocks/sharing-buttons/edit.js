@@ -1,11 +1,8 @@
-/**
- * External dependencies
- */
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
-/**
- * Internal dependencies
- */
+import { SharingBlockPlaceholder } from './components/sharing-block-placeholder';
+import { SharingBlockSkeletonLoader } from './components/sharing-block-skeleton-loader';
 import SharingButtonsContainer from './components/sharing-buttons-container';
 import './editor.scss';
 
@@ -26,6 +23,9 @@ function SharingButtonsEdit( {
 		};
 	}, [] );
 
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+		useModuleStatus( 'sharedaddy' );
+
 	useEffect( () => {
 		setAttributes( { ...attributes, post } );
 	}, [ post, setAttributes, attributes ] );
@@ -41,6 +41,20 @@ function SharingButtonsEdit( {
 		const updatedServices = Array.isArray( services ) ? [ ...services, service ] : [ service ];
 		setAttributes( { ...attributes, services: updatedServices } );
 	};
+
+	if ( ! isModuleActive ) {
+		if ( isLoadingModules ) {
+			return <SharingBlockSkeletonLoader />;
+		}
+
+		return (
+			<SharingBlockPlaceholder
+				changeStatus={ changeStatus }
+				isModuleActive={ isModuleActive }
+				isLoading={ isChangingStatus }
+			/>
+		);
+	}
 
 	return (
 		<div className={ className }>
