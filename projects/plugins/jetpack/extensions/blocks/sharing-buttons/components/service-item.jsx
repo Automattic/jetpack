@@ -1,8 +1,10 @@
 import { CheckboxControl } from '@wordpress/components';
-function EditorSerivceItem({ onChange }) {
+
+function EditorSerivceItem( { onChange } ) {
+	let label;
 	return (
 		<div>
-			<CheckboxControl onChange={onChange} label={label} />
+			<CheckboxControl onChange={ onChange } label={ label } />
 		</div>
 	);
 }

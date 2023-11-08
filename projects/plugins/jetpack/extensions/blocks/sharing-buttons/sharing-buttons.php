@@ -12,10 +12,7 @@ namespace Automattic\Jetpack\Extensions\Sharing_Buttons;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-require_once  __DIR__ . '/../../../modules/sharedaddy/sharing-service.php' ;
-
-const FEATURE_NAME = 'sharing-buttons';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+require_once __DIR__ . '/../../../modules/sharedaddy/sharing-service.php';
 
 /**
  * Registers the block for use in Gutenberg
@@ -24,7 +21,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
 	);
 }
@@ -42,6 +39,6 @@ function load_assets( $attr, $content ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 	return $content;
 }

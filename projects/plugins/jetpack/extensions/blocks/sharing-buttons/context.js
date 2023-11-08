@@ -1,4 +1,6 @@
-const SharingButtonsContext = React.createContext( {
+import { createContext } from 'react';
+
+const SharingButtonsContext = createContext( {
 	isEditor: false,
 } );
 

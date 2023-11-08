@@ -4,7 +4,7 @@ export default {
 	facebook: { label: 'Facebook', icon: 'facebook' },
 	linkedin: { label: 'LinkedIn', icon: 'linkedin' },
 	reddit: { label: 'Reddit', icon: 'reddit' },
-	twitter: { label: 'Twitter', icon: 'twitter' },
+	x: { label: 'X', icon: 'x' },
 	tumblr: { label: 'Tumblr', icon: 'tumblr' },
 	pinterest: { label: 'Pinterest', icon: 'pinterest' },
 	pocket: { label: 'Pocket', icon: 'pocket' },
