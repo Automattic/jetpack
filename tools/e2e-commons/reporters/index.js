@@ -1,3 +1,3 @@
-import { takeScreenshot } from './screenshot.cjs';
+import { takeScreenshot } from './screenshot.js';
 
 export { takeScreenshot };

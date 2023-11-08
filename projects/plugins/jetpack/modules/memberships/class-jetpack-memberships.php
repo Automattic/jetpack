@@ -701,7 +701,7 @@ class Jetpack_Memberships {
 			// On cached site on WPCOM
 			require_lib( 'memberships' );
 			$allow_deleted = true;
-			$list          = Memberships_Product::get_product_list( get_current_blog_id(), self::$tier_type, null, $allow_deleted );
+			$list          = Memberships_Product::get_product_list( get_current_blog_id(), self::$type_tier, null, $allow_deleted );
 
 			return array_map(
 				function ( $product ) {
@@ -770,14 +770,25 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * Returns the email of the current user.
+	 *
+	 * @return string
+	 */
+	public static function get_current_user_email() {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		return $subscription_service->get_subscriber_email();
+	}
+
+	/**
 	 * Returns if the current user is subscribed or not.
 	 *
 	 * @return boolean
 	 */
-	public static function get_current_user_subscriber_email() {
+	public static function is_current_user_subscribed() {
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		return $subscription_service->get_subscriber_email();
+		return $subscription_service->is_current_user_subscribed();
 	}
 }
 Jetpack_Memberships::get_instance();

@@ -1,5 +1,5 @@
 import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 
 const apiEndpointsRegex = {
 	'modules-state': /jetpack-boost-ds\/modules-state\/merge/,

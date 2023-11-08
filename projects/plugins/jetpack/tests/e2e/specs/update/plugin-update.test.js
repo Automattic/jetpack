@@ -2,7 +2,7 @@ import {
 	execShellCommand,
 	resolveSiteUrl,
 	execContainerShellCommand,
-} from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+} from 'jetpack-e2e-commons/helpers/utils-helper.js';
 import { PluginsPage, JetpackDashboardPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';

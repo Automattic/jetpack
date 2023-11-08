@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Convert E2E configs to ESM. No change to the plugin itself.
+
+

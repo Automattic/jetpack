@@ -1,5 +1,5 @@
 import EditorCanvas from './editor-canvas.js';
-import logger from '../../../logger.cjs';
+import logger from '../../../logger.js';
 export default class FormBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Form block' );

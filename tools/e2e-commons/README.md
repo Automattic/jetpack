@@ -162,7 +162,7 @@ constructor( page ) {
 
 ## Reporting
 
-A few [reporters](https://playwright.dev/docs/test-reporters) are configured by default, check `config/playwright.config.default.cjs` for details.
+A few [reporters](https://playwright.dev/docs/test-reporters) are configured by default, check `config/playwright.config.default.mjs` for details.
 
 ### Allure reporter
 

@@ -1,7 +1,7 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { RecommendationsPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { Plans, prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
-import playwrightConfig from '../../playwright.config.cjs';
+import playwrightConfig from '../../playwright.config.mjs';
 
 test.beforeAll( async ( { browser } ) => {
 	const page = await browser.newPage( playwrightConfig.use );

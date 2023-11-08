@@ -19,5 +19,16 @@
 	"**/.cache/**",
 	"**/jetpack_vendor/**/jetpack_vendor/**",
 	"**/jetpack_vendor/**"
-	]
+	],
+	"phpCodeSniffer.autoExecutable": true,
+	"phpCodeSniffer.standard": "Automatic",
+	"phpCodeSniffer.exclude": [
+		"**/.git/**",
+		"**/.svn/**",
+		"**/.hg/**",
+		"**/.cache/**",
+		"**/jetpack_vendor/**",
+		"**/vendor/**",
+	],
+	"prettier.prettierPath": "tools/js-tools/node_modules/prettier/index.cjs"
 }

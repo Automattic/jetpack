@@ -3,41 +3,46 @@
  */
 import { createReduxStore, register } from '@wordpress/data';
 /**
- * Types & Constants
+ * Internal dependencies
  */
-type Plan = {
-	product_id: number;
-	product_name: string;
-	product_slug: string;
-};
-
-type PlanStateProps = {
-	plans: Array< Plan >;
-};
+import actions from './actions';
+/**
+ * Types
+ */
+import type { PlanStateProps } from './types';
 
 const store = 'wordpress-com/plans';
 
 const INITIAL_STATE: PlanStateProps = {
 	plans: [],
-};
-
-const actions = {
-	setPlans( plans: Array< Plan > ) {
-		return {
-			type: 'SET_PLANS',
-			plans,
-		};
-	},
-
-	fetchFromAPI( url: string ) {
-		return {
-			type: 'FETCH_FROM_API',
-			url,
-		};
+	features: {
+		aiAssistant: {
+			hasFeature: false,
+			isOverLimit: false,
+			requestsCount: 0,
+			requestsLimit: 0,
+			requireUpgrade: false,
+			errorMessage: '',
+			errorCode: '',
+			upgradeType: 'default',
+			currentTier: {
+				value: 1,
+			},
+			usagePeriod: {
+				currentStart: '',
+				nextStart: '',
+				requestsCount: 0,
+			},
+			_meta: {
+				isRequesting: false,
+			},
+		},
 	},
 };
 
 const wordpressPlansStore = createReduxStore( store, {
+	__experimentalUseThunks: true,
+
 	reducer( state = INITIAL_STATE, action ) {
 		switch ( action.type ) {
 			case 'SET_PLANS':
@@ -45,6 +50,37 @@ const wordpressPlansStore = createReduxStore( store, {
 					...state,
 					plans: action.plans,
 				};
+
+			case 'REQUEST_AI_ASSISTANT_FEATURE':
+				return {
+					...state,
+					features: {
+						...state.features,
+						aiAssistant: {
+							...state.features.aiAssistant,
+							_meta: {
+								...state.features.aiAssistant._meta,
+								isRequesting: true,
+							},
+						},
+					},
+				};
+
+			case 'STORE_AI_ASSISTANT_FEATURE': {
+				return {
+					...state,
+					features: {
+						...state.features,
+						aiAssistant: {
+							...action.feature,
+							_meta: {
+								...state.features.aiAssistant._meta,
+								isRequesting: false,
+							},
+						},
+					},
+				};
+			}
 		}
 
 		return state;
@@ -62,6 +98,16 @@ const wordpressPlansStore = createReduxStore( store, {
 		 */
 		getPlan( state: PlanStateProps, planSlug: string ) {
 			return state.plans.find( plan => plan.product_slug === planSlug );
+		},
+
+		/**
+		 * Return the AI Assistant feature.
+		 *
+		 * @param {object} state - The Plans state tree.
+		 * @returns {object}       The AI Assistant feature data.
+		 */
+		getAiAssistantFeature( state: PlanStateProps ): object {
+			return state.features.aiAssistant;
 		},
 	},
 
@@ -81,6 +127,14 @@ const wordpressPlansStore = createReduxStore( store, {
 			const url = 'https://public-api.wordpress.com/rest/v1.5/plans';
 			const plans = yield actions.fetchFromAPI( url );
 			return actions.setPlans( plans );
+		},
+
+		getAiAssistantFeature: ( state: PlanStateProps ) => {
+			if ( state?.features?.aiAssistant ) {
+				return;
+			}
+
+			return actions.fetchAiAssistantFeature();
 		},
 	},
 } );

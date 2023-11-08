@@ -44,7 +44,7 @@ function render_block( $attributes, $content ) {
 	// If the Related Posts module is not active, don't render the block.
 	if (
 		! ( new Host() )->is_wpcom_simple()
-		&& ! ( new Modules() )->is_active( FEATURE_NAME )
+		&& ! ( new Modules() )->is_active( 'related-posts' )
 	) {
 		return '';
 	}
