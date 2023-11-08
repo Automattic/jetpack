@@ -32,6 +32,7 @@ const INITIAL_STATE: PlanStateProps = {
 			_meta: {
 				isRequesting: false,
 			},
+			nextTier: null,
 		},
 	},
 };

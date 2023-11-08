@@ -37,4 +37,5 @@ export type AiFeatureStateProps = AiFeatureProps & {
 	_meta?: {
 		isRequesting: boolean;
 	};
+	nextTier: null;
 };

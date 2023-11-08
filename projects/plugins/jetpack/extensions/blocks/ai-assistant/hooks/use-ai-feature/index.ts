@@ -25,6 +25,7 @@ export const AI_Assistant_Initial_State = {
 	currentTier: {
 		value: aiAssistantFeature?.[ 'current-tier' ]?.value || 1,
 	},
+	nextTier: aiAssistantFeature?.[ 'next-tier' ] || null,
 };
 
 export default function useAiFeature() {
