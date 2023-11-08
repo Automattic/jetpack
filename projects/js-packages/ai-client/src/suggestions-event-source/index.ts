@@ -264,7 +264,7 @@ export default class SuggestionsEventSource extends EventTarget {
 		const replacedMessage = this.fullMessage.replace( /__|(\*\*)/g, '' );
 		if ( replacedMessage.startsWith( 'JETPACK_AI_ERROR' ) ) {
 			/*
-			 * Check if the unclear prompt even was already dispatched,
+			 * Check if the unclear prompt event was already dispatched,
 			 * to ensure that it is dispatched only once per request.
 			 */
 			if ( this._error_unclear_prompt_triggered ) {
