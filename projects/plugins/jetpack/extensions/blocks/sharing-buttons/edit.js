@@ -1,5 +1,7 @@
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
-import { useSelect } from '@wordpress/data';
+import { compose } from '@wordpress/compose';
+import { withDispatch, withSelect } from '@wordpress/data';
+import { store } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
 import { SharingBlockPlaceholder } from './components/sharing-block-placeholder';
 import { SharingBlockSkeletonLoader } from './components/sharing-block-skeleton-loader';
@@ -9,26 +11,17 @@ import './editor.scss';
 function SharingButtonsEdit( {
 	attributes,
 	className,
-	// noticeOperations,
-	// noticeUI,
+	post,
 	setAttributes,
+	disableOriginalSharing,
 } ) {
-	/**
-	 * Fetch post data from the REST API.
-	 */
-	const { post } = useSelect( select => {
-		const { getCurrentPost } = select( 'core/editor' );
-		return {
-			post: getCurrentPost(),
-		};
-	}, [] );
-
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'sharedaddy' );
 
 	useEffect( () => {
 		setAttributes( { ...attributes, post } );
-	}, [ post, setAttributes, attributes ] );
+		disableOriginalSharing();
+	}, [ post, setAttributes, attributes, disableOriginalSharing ] );
 
 	const handleServiceSelect = service => {
 		const { services } = attributes;
@@ -77,4 +70,18 @@ function SharingButtonsEdit( {
 // 	);
 // }
 
-export default SharingButtonsEdit;
+export default compose( [
+	withSelect( select => {
+		return {
+			post: select( store ).getCurrentPost(),
+		};
+	} ),
+	withDispatch( dispatch => {
+		const { editPost } = dispatch( store );
+
+		return {
+			disableOriginalSharing: () => editPost( { jetpack_sharing_enabled: false } ),
+		};
+	} ),
+] )( SharingButtonsEdit );
+SharingButtonsEdit;
