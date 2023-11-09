@@ -43,7 +43,7 @@ class Publicize_Setup {
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 		add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
 		// add_action( 'rest_api_init', array( new Auto_Conversion\REST_Settings_Controller(), 'register_routes' ) );
-		add_action( 'rest_api_init', array( new Jetpack_Social_Settings\REST_Settings_Controller(), 'register_routes' ) );
+		add_action( 'rest_api_init', array( new Jetpack_Social_Settings\Settings(), 'register_settings' ) );
 
 		( new Social_Image_Generator\Setup() )->init();
 	}
