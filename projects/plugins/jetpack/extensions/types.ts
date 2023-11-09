@@ -29,4 +29,5 @@ export type SiteAIAssistantFeatureEndpointResponseProps = {
 		limit: number;
 		value: TierValueProp;
 	} >;
+	'next-tier'?: null;
 };

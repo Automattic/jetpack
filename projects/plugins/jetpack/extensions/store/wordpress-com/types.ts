@@ -31,6 +31,7 @@ export type AiFeatureProps = {
 		nextStart: string;
 		requestsCount: number;
 	};
+	nextTier: null;
 };
 
 export type AiFeatureStateProps = AiFeatureProps & {
