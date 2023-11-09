@@ -11,14 +11,14 @@ import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wor
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
-import React from 'react';
 /**
  * Internal dependencies
  */
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
+import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { isBetaExtension } from '../../../../editor';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
@@ -61,10 +61,36 @@ function AiPostExcerpt() {
 	const [ language, setLanguage ] = useState< LanguageProp >();
 	const [ tone, setTone ] = useState< ToneProp >();
 	const [ model, setModel ] = useState< AiModelTypeProp >( AI_MODEL_GPT_4 );
+	const { increaseRequestsCount } = useAiFeature();
 
-	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions(
-		{}
-	);
+	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions( {
+		onDone: useCallback( () => {
+			/*
+			 * Increase the AI Suggestion counter.
+			 * @todo: move this at store level.
+			 */
+			increaseRequestsCount();
+		}, [ increaseRequestsCount ] ),
+		onError: useCallback(
+			suggestionError => {
+				/*
+				 * Incrses AI Suggestion counter
+				 * only for valid errors.
+				 * @todo: move this at store level.
+				 */
+				if (
+					suggestionError.code === 'error_network' ||
+					suggestionError.code === 'error_quota_exceeded'
+				) {
+					return;
+				}
+
+				// Increase the AI Suggestion counter.
+				increaseRequestsCount();
+			},
+			[ increaseRequestsCount ]
+		),
+	} );
 
 	// Cancel and reset AI suggestion when the component is unmounted
 	useEffect( () => {
