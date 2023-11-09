@@ -96,7 +96,7 @@ const actions = {
 	},
 
 	increaseAiAssistantRequestsCount( count = 1 ) {
-		return async ( { select, dispatch } ) => {
+		return ( { select, dispatch } ) => {
 			dispatch( {
 				type: ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 				count,
