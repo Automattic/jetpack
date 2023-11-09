@@ -43,7 +43,13 @@ async function runTests( type, round ) {
 		stream?._handle?.setBlocking?.( true );
 	}
 
-	execShellCommand( 'npm run test:performance -- post-editor.spec.js', {
+	console.log( 'resultsPath', resultsPath );
+	console.log( 'gutenbergPath', gutenbergPath );
+	console.log( 'siteurl', resolveSiteUrl() );
+	console.log( 'cwd', process.cwd() );
+	console.log( 'process.env', process.env );
+
+	await execShellCommand( 'npm run test:performance -- post-editor.spec.js', {
 		cwd: gutenbergPath,
 		env: {
 			shell: true, // See https://stackoverflow.com/a/59830014/7225515
