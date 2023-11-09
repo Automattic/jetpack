@@ -1,0 +1,30 @@
+.benefits__header {
+	padding-block-start: 40px;
+	padding-block-end: 40px;
+	background-color: var( --jp-white );
+	height: unset;
+
+	.header__logo {
+		max-width: 240px;
+		height: unset;
+	}
+
+	.container--fixed {
+		flex-basis: 100%;
+
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 24px;
+	}
+}
+
+.benefits__body {
+	background-color: var( --jp-white-off );
+	padding-block-end: 64px;
+}
+
+.benefits__footer {
+	background-color: var( --jp-white );
+}

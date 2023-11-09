@@ -1,9 +1,10 @@
 <script lang="ts">
+	import ReactComponent from './elements/ReactComponent.svelte';
 	import RecommendationsPage from './modules/image-size-analysis/RecommendationsPage.svelte';
-	import BenefitsInterstitial from './pages/benefits/BenefitsInterstitial.svelte';
 	import GettingStarted from './pages/getting-started/GettingStarted.svelte';
 	import PurchaseSuccess from './pages/purchase-success/PurchaseSuccess.svelte';
 	import Settings from './pages/settings/Settings.svelte';
+	import Upgrade from './react-components/pages/upgrade';
 	import config from './stores/config';
 	import { connection } from './stores/connection';
 	import { criticalCssState, isGenerating } from './stores/critical-css-state';
@@ -45,8 +46,8 @@
 </script>
 
 <Router history={routerHistory}>
-	<Route path="upgrade" let:location let:navigate>
-		<BenefitsInterstitial {location} {navigate} {pricing} {siteDomain} {userConnected} />
+	<Route path="upgrade">
+		<ReactComponent this={Upgrade} {pricing} {siteDomain} {userConnected} />
 	</Route>
 	<Route
 		path="getting-started"
