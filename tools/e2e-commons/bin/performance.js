@@ -51,6 +51,7 @@ async function runTests( type, round ) {
 			WP_BASE_URL: resolveSiteUrl(),
 			WP_ARTIFACTS_PATH: resultsPath,
 			RESULTS_ID: `${ type }.${ round }`,
+			DEBUG: 'pw:api',
 		},
 	} );
 }
