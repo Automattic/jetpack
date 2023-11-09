@@ -19,6 +19,6 @@ export default class ThemesPage extends WpPage {
 
 	async getActiveThemeSlug() {
 		const selector = '.theme.active';
-		return await this.getAttribute( selector, 'data-slug' );
+		return await this.page.getAttribute( selector, 'data-slug' );
 	}
 }
