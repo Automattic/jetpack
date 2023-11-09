@@ -95,6 +95,7 @@ function mergeResults( type ) {
 }
 
 function execShellCommand( command, options ) {
+	console.log( `Running command: ${ command }` );
 	return new Promise( ( resolve, reject ) => {
 		const childProcess = spawn( command, [], options );
 
