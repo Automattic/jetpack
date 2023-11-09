@@ -44,7 +44,7 @@ function get_domain() {
  */
 function is_custom_domain() {
 	$domain = get_domain();
-	return ! str_ends_with( $domain, 'wpcomstaging.com' ) && ! str_ends_with( $domain, 'wordpress.com' );
+	return ! str_ends_with( $domain, '.wpcomstaging.com' ) && ! str_ends_with( $domain, '.wordpress.com' );
 }
 
 /**
