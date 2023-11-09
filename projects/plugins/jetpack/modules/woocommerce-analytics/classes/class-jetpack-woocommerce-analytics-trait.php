@@ -194,14 +194,14 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		$cart_template_id     = null;
 		$checkout_template_id = null;
 		$block_controller     = Automattic\WooCommerce\Blocks\Package::container()->get( Automattic\WooCommerce\Blocks\BlockTemplatesController::class );
-		$templates            = $block_controller->get_block_templates( array( 'cart', 'checkout' ) );
+		$templates            = $block_controller->get_block_templates( array( 'cart', 'checkout', 'page-checkout', 'page-cart' ) );
 
 		foreach ( $templates as $template ) {
-			if ( 'cart' === $template->slug ) {
+			if ( 'cart' === $template->slug || 'page-cart' === $template->slug ) {
 				$cart_template_id = ( $template->id );
 				continue;
 			}
-			if ( 'checkout' === $template->slug ) {
+			if ( 'checkout' === $template->slug || 'page-checkout' === $template->slug ) {
 				$checkout_template_id = ( $template->id );
 			}
 		}
