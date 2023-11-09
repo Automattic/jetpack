@@ -242,11 +242,24 @@ EOF
 					$type = strtolower( $type );
 				}
 				if ( $isInteractive ) {
-					$question = new ChoiceQuestion( 'Type of change.', $types, $type );
-					$type     = $this->getHelper( 'question' )->ask( $input, $output, $question );
-					if ( null === $type ) { // non-interactive.
-						$output->writeln( 'Got EOF when attempting to query user, aborting.', OutputInterface::VERBOSITY_VERBOSE ); // @codeCoverageIgnore
-						return 1;
+					$question     = new ChoiceQuestion(
+						'Is this a change users would want to know about?',
+						array(
+							'Y' => 'Yes',
+							'n' => 'No',
+						),
+						'Y'
+					);
+					$isUserFacing = $this->getHelper( 'question' )->ask( $input, $output, $question );
+					if ( $isUserFacing === 'n' ) {
+						$type = 'other';
+					} else {
+						$question = new ChoiceQuestion( 'Type of change.', $types, $type );
+						$type     = $this->getHelper( 'question' )->ask( $input, $output, $question );
+						if ( null === $type ) { // non-interactive.
+							$output->writeln( 'Got EOF when attempting to query user, aborting.', OutputInterface::VERBOSITY_VERBOSE ); // @codeCoverageIgnore
+							return 1;
+						}
 					}
 				} else {
 					if ( null === $type ) {
