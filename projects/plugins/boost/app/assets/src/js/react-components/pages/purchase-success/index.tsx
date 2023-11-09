@@ -13,19 +13,12 @@ type PurchaseSuccessProps = {
 
 const PurchaseSuccess: React.FC< PurchaseSuccessProps > = ( { isImageGuideActive } ) => {
 	useEffect( () => {
-		const mount = async () => {
-			enableCloudCss();
+		enableCloudCss();
 
-			// If image guide is enabled, request a new ISA report.
-			if ( isImageGuideActive ) {
-				// Check if images can be resized.
-				if ( false !== Jetpack_Boost.site.canResizeImages ) {
-					await requestImageAnalysis();
-				}
-			}
-		};
-
-		mount();
+		// If image guide is enabled, request a new ISA report.
+		if ( isImageGuideActive && false !== Jetpack_Boost.site.canResizeImages ) {
+			requestImageAnalysis();
+		}
 	}, [ isImageGuideActive ] );
 
 	const wpcomPricingUrl = getRedirectUrl( 'wpcom-pricing' );
