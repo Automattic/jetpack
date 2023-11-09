@@ -99,7 +99,7 @@ function jetpack_gravatar_profile_shortcode( $atts ) {
 	}
 
 	$hashed_email = hash( 'sha256', strtolower( trim( $user->user_email ) ) );
-	$cache_key    = 'grofile-' . $hashed_email;
+	$cache_key    = 'jetpack_gravatar_profile_' . $hashed_email;
 	$profile      = get_transient( $cache_key );
 
 	if ( empty( $profile ) ) {
@@ -108,34 +108,32 @@ function jetpack_gravatar_profile_shortcode( $atts ) {
 			$hashed_email
 		);
 
-		$expire        = 300;
 		$response      = wp_remote_get(
 			esc_url_raw( $profile_url ),
-			array( 'User-Agent' => 'WordPress.com Gravatar Profile Widget' )
+			array( 'User-Agent' => 'Jetpack Plugin Gravatar Profile Shortcode' )
 		);
 		$response_code = wp_remote_retrieve_response_code( $response );
+		$expire        = 300; // Cache any errors for 5 minutes.
+		$profile       = array();
 
 		if ( $response_code === 200 ) {
-			$profile = wp_remote_retrieve_body( $response );
-			$profile = json_decode( $profile, true );
+			$profile = json_decode( wp_remote_retrieve_body( $response ), true );
 
-			if ( is_array( $profile ) && ! empty( $profile['entry'] ) && is_array( $profile['entry'] ) ) {
-				// Cache for 15 minutes.
+			if (
+				is_array( $profile )
+				&& ! empty( $profile['entry'] )
+				&& is_array( $profile['entry'] )
+			) {
+				// Sucessfully fetched the profile. Cache for 15 minutes.
 				$expire  = 900;
 				$profile = $profile['entry'][0];
-			} else {
-				// Something strange happened.  Cache for 5 minutes.
-				$profile = array();
 			}
-		} else {
-			// Cache for 15 minutes.
-			$expire  = 900;
-			$profile = array();
 		}
 
 		set_transient( $cache_key, $profile, $expire );
 	}
 
+	// Fetching the profile returned an error. Bail.
 	if ( empty( $profile ) ) {
 		return false;
 	}
