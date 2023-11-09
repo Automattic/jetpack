@@ -56,6 +56,10 @@ const wordpressPlansStore = createReduxStore( store, {
 		getIsRequestingAiAssistantFeature( state: PlanStateProps ): boolean {
 			return state.features.aiAssistant?._meta?.isRequesting;
 		},
+
+		getNewAsyncRequestCountdown( state: PlanStateProps ): number {
+			return state.features.aiAssistant?._meta?.newAsyncRequestCountdown;
+		},
 	},
 
 	controls: {
