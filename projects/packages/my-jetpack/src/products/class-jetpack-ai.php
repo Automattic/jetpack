@@ -81,7 +81,11 @@ class Jetpack_Ai extends Product {
 	 */
 	public static function get_next_usage_tier() {
 		$info         = self::get_ai_assistant_feature();
-		$current_tier = $info['current-tier']['value'];
+		$current_tier = isset( $info['current-tier']['value'] ) ? $info['current-tier']['value'] : null;
+
+		if ( null === $current_tier ) {
+			return 1;
+		}
 
 		// If the current tier is 1 or 500, there is no next tier.
 		if ( 1 === $current_tier || 500 === $current_tier ) {
@@ -162,7 +166,7 @@ class Jetpack_Ai extends Product {
 			),
 		);
 
-		return isset( $features[ $tier ] ) ? $features[ $tier ] : null;
+		return isset( $features[ $tier ] ) ? $features[ $tier ] : array();
 	}
 
 	/**
