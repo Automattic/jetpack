@@ -78,9 +78,34 @@ class Jetpack {
 	public $xmlrpc_server = null;
 
 	/**
+	 * List of Jetpack modules that have CSS that gets concatenated into jetpack.css.
+	 *
+	 * See $concatenated_style_handles for the list of handles,
+	 * and the implode_frontend_css method for more details.
+	 *
+	 * When updating this list, make sure to update $concatenated_style_handles as well.
+	 *
+	 * @var array List of Jetpack modules.
+	 */
+	public $modules_with_concatenated_css = array(
+		'carousel',
+		'contact-form',
+		'infinite-scroll',
+		'likes',
+		'related-posts',
+		'sharedaddy',
+		'shortcodes',
+		'subscriptions',
+		'tiled-gallery',
+		'widgets',
+	);
+
+	/**
 	 * The handles of styles that are concatenated into jetpack.css.
 	 *
-	 * When making changes to that list, you must also update concat_list in tools/webpack.config.css.js.
+	 * When making changes to that list,
+	 * you must also update concat_list in tools/webpack.config.css.js,
+	 * and to $modules_with_concatenated_css if necessary.
 	 *
 	 * @var array The handles of styles that are concatenated into jetpack.css.
 	 */
@@ -6228,6 +6253,18 @@ endif;
 
 		// Do not implode CSS when the page loads via the AMP plugin.
 		if ( class_exists( Jetpack_AMP_Support::class ) && Jetpack_AMP_Support::is_amp_request() ) {
+			$do_implode = false;
+		}
+
+		/*
+		 * Only proceed if at least 2 modules with concatenated CSS are active.
+		 * There is no point in serving a big concatenated CSS file
+		 * if there are no features (or only one) that actually need some CSS loaded.
+		 */
+		$active_modules                = self::get_active_modules();
+		$modules_with_concatenated_css = $this->modules_with_concatenated_css;
+		$active_module_with_css_count  = count( array_intersect( $active_modules, $modules_with_concatenated_css ) );
+		if ( $active_module_with_css_count < 2 ) {
 			$do_implode = false;
 		}
 
