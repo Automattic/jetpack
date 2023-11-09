@@ -63,27 +63,30 @@ function domain_email_nag() {
 		return;
 	}
 
-	$script = sprintf(
-		"
+	$script = <<<'EOD'
 		const base = 'https://public-api.wordpress.com';
-		const path = '/v1/domains/%d/is-domain-email-unverified';
-		
+		const path = '/rest/v1/domains/%d/is-domain-email-unverified';
+
 		fetch(base + path).then(function (result) {
 			if (result) {
 				result.json().then(function (body) {
 					if (body.unverified) {
 						const nag = document.querySelector('.wp-domain-nag-sticky-message');
+						console.log( nag );
 						if (nag) {
 							nag.style.display = 'block';
 							const statUrl =
-								'http://pixel.wp.com/b.gif?v=wpcom-no-pv&x_wpcom_frontend_unverified_domain_email_nag=shown';
+								'https://pixel.wp.com/b.gif?v=wpcom-no-pv&x_wpcom_frontend_unverified_domain_email_nag=shown';
 							fetch(statUrl);
 						}
 					}
 				});
 			}
 		});
-	",
+EOD;
+
+	$script = sprintf(
+		$script,
 		$blog_id
 	);
 
@@ -102,7 +105,7 @@ function domain_email_nag() {
 			<a class="button" href="<?php echo esc_url( get_account_url() ); ?>"><?php esc_html_e( 'Fix', 'jetpack-mu-wpcom' ); ?></a>
 		</div>
 	</div>
-	<script><?php echo esc_js( $script ); ?></script>
+	<script><?php echo $script; // phpcs:ignore -- output generated on server ?></script>
 	<?php
 }
 add_action( 'wp_footer', __NAMESPACE__ . '\domain_email_nag' );
