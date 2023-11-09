@@ -10,5 +10,4 @@ export default {
 	pocket: { label: 'Pocket', icon: 'pocket' },
 	telegram: { label: 'Telegram', icon: 'telegram' },
 	'jetpack-whatsapp': { label: 'WhatsApp', icon: 'whatsapp' },
-	skype: { label: 'Skype', icon: 'skype' },
 };

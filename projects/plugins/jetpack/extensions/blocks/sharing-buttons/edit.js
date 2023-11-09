@@ -1,27 +1,19 @@
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { compose } from '@wordpress/compose';
-import { withDispatch, withSelect } from '@wordpress/data';
+import { withSelect } from '@wordpress/data';
 import { store } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
 import { SharingBlockPlaceholder } from './components/sharing-block-placeholder';
 import { SharingBlockSkeletonLoader } from './components/sharing-block-skeleton-loader';
 import SharingButtonsContainer from './components/sharing-buttons-container';
-import './editor.scss';
 
-function SharingButtonsEdit( {
-	attributes,
-	className,
-	post,
-	setAttributes,
-	disableOriginalSharing,
-} ) {
+function SharingButtonsEdit( { attributes, className, post, setAttributes } ) {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'sharedaddy' );
 
 	useEffect( () => {
 		setAttributes( { ...attributes, post } );
-		disableOriginalSharing();
-	}, [ post, setAttributes, attributes, disableOriginalSharing ] );
+	}, [ post, setAttributes, attributes ] );
 
 	const handleServiceSelect = service => {
 		const { services } = attributes;
@@ -61,27 +53,10 @@ function SharingButtonsEdit( {
 	);
 }
 
-// function Instructions() {
-// 	return createInterpolateElement(
-// 		__( 'Customize your sharing settings via <a>Jetpack Sharing Settings</a>', 'jetpack' ),
-// 		{
-// 			a: <a href="/wp-admin/admin.php?page=jetpack#/sharing" target="_blank" />,
-// 		}
-// 	);
-// }
-
 export default compose( [
 	withSelect( select => {
 		return {
 			post: select( store ).getCurrentPost(),
 		};
 	} ),
-	withDispatch( dispatch => {
-		const { editPost } = dispatch( store );
-
-		return {
-			disableOriginalSharing: () => editPost( { jetpack_sharing_enabled: false } ),
-		};
-	} ),
 ] )( SharingButtonsEdit );
-SharingButtonsEdit;
