@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack form: memoize the onDone and onError callbacks passed to the hook

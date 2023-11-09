@@ -93,26 +93,29 @@ const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit =>
 		const { increaseRequestsCount } = useAiFeature();
 
 		const { eventSource } = useAiContext( {
-			onDone: () => {
+			onDone: useCallback( () => {
 				/*
 				 * Increase the AI Suggestion counter.
 				 * @todo: move this at store level.
 				 */
 				increaseRequestsCount();
-			},
-			onError: error => {
-				/*
-				 * Incrses AI Suggestion counter
-				 * only for valid errors.
-				 * @todo: move this at store level.
-				 */
-				if ( error.code === 'error_network' || error.code === 'error_quota_exceeded' ) {
-					return;
-				}
+			}, [ increaseRequestsCount ] ),
+			onError: useCallback(
+				error => {
+					/*
+					 * Incrses AI Suggestion counter
+					 * only for valid errors.
+					 * @todo: move this at store level.
+					 */
+					if ( error.code === 'error_network' || error.code === 'error_quota_exceeded' ) {
+						return;
+					}
 
-				// Increase the AI Suggestion counter.
-				increaseRequestsCount();
-			},
+					// Increase the AI Suggestion counter.
+					increaseRequestsCount();
+				},
+				[ increaseRequestsCount ]
+			),
 		} );
 
 		const stopSuggestion = useCallback( () => {
