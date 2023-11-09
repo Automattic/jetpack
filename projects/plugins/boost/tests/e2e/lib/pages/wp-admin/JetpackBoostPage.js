@@ -152,7 +152,7 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async isScoreDescriptionPopinVisible() {
-		const selector = '.jb-score-context__info-container';
+		const selector = '.jb-site-score__top .icon-tooltip-wrapper .components-popover__content';
 		return this.page.isVisible( selector );
 	}
 
