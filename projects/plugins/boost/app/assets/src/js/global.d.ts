@@ -24,7 +24,7 @@ declare global {
 		preferences: {
 			prioritySupport: boolean;
 		};
-		autoFix: boolean;
+		isaFixButton: boolean;
 		isPremium: boolean;
 		version: string;
 		api: {

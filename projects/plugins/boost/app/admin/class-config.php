@@ -59,7 +59,7 @@ class Config {
 			'nonces'        => Nonce::get_generated_nonces(),
 		);
 
-		$constants['autoFix'] = defined( 'AUTOFIX' ) && AUTOFIX ? true : false;
+		$constants['isaFixButton'] = defined( 'ISA_FIX_BUTTON' ) && ISA_FIX_BUTTON ? true : false;
 
 		// Give each module an opportunity to define extra constants.
 		return apply_filters( 'jetpack_boost_js_constants', $constants );

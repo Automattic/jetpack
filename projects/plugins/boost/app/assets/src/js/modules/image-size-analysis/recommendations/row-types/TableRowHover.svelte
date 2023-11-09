@@ -52,7 +52,7 @@
 
 	{#if edit_url}
 		<div class="jb-row-hover__button-container">
-			{#if $config.autoFix && device_type === 'desktop'}
+			{#if $config.isaFixButton && device_type === 'desktop'}
 				<Button width="auto" fill on:click={() => handleFixClick()}>
 					{details.image.fixed ? __( 'Undo Fix', 'jetpack-boost' ) : __( 'Fix', 'jetpack-boost' )}
 				</Button>
