@@ -1,6 +1,7 @@
 import path from 'path';
 import { URL } from 'url';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { spawn } from 'child_process';
 import _ from 'lodash';
 import { prerequisitesBuilder } from '../env/prerequisites.js';
 import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from '../helpers/utils-helper.cjs';
@@ -38,7 +39,7 @@ async function envSetup( type ) {
 }
 
 async function runTests( type, round ) {
-	execSyncShellCommand(
+	execShellCommand(
 		'npx playwright test --config test/performance/playwright.config.ts post-editor',
 		{
 			cwd: gutenbergPath,
@@ -88,6 +89,35 @@ function mergeResults( type ) {
 		path.join( resultsPath, `${ type }.performance-results.json` ),
 		JSON.stringify( out )
 	);
+}
+
+function execShellCommand( command, options ) {
+	return new Promise( ( resolve, reject ) => {
+		const childProcess = spawn( command, [], options );
+
+		childProcess.stdout.on( 'data', data => {
+			const output = data.toString();
+			console.log( output );
+		} );
+
+		childProcess.stderr.on( 'data', data => {
+			const error = data.toString();
+			console.error( error );
+		} );
+
+		childProcess.on( 'close', code => {
+			if ( code === 0 ) {
+				console.log( 'Command finished successfully' );
+				resolve();
+			} else {
+				reject( new Error( `Command failed with code ${ code }` ) );
+			}
+		} );
+
+		childProcess.on( 'error', err => {
+			reject( err );
+		} );
+	} );
 }
 
 main().then( () => {
