@@ -1,70 +1,25 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import { createReduxStore, register } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import type { AIFeatureProps, Plan, PlanStateProps } from '../../store/wordpress-com/types';
-import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../types';
+import actions from './actions';
+import reducer from './reducer';
+/**
+ * Types
+ */
+import type { AiFeatureProps, PlanStateProps } from './types';
 
 const store = 'wordpress-com/plans';
-
-const INITIAL_STATE: PlanStateProps = {
-	plans: [],
-	features: {},
-};
-
-const actions = {
-	setPlans( plans: Array< Plan > ) {
-		return {
-			type: 'SET_PLANS',
-			plans,
-		};
-	},
-
-	fetchFromAPI( url: string ) {
-		return {
-			type: 'FETCH_FROM_API',
-			url,
-		};
-	},
-
-	storeAiAssistantFeature( feature: AIFeatureProps ) {
-		return {
-			type: 'STORE_AI_ASSISTANT_FEATURE',
-			feature,
-		};
-	},
-};
 
 const wordpressPlansStore = createReduxStore( store, {
 	__experimentalUseThunks: true,
 
-	reducer( state = INITIAL_STATE, action ) {
-		switch ( action.type ) {
-			case 'SET_PLANS':
-				return {
-					...state,
-					plans: action.plans,
-				};
-
-			case 'STORE_AI_ASSISTANT_FEATURE': {
-				return {
-					...state,
-					features: {
-						...state.features,
-						aiAssistant: action.feature,
-					},
-				};
-			}
-		}
-
-		return state;
-	},
-
 	actions,
+
+	reducer,
 
 	selectors: {
 		/*
@@ -81,11 +36,25 @@ const wordpressPlansStore = createReduxStore( store, {
 		/**
 		 * Return the AI Assistant feature.
 		 *
-		 * @param {object} state - The Plans state tree.
-		 * @returns {object}       The AI Assistant feature data.
+		 * @param {PlanStateProps} state - The Plans state tree.
+		 * @returns {AiFeatureProps}       The AI Assistant feature data.
 		 */
-		getAiAssistantFeature( state: PlanStateProps ): object {
-			return state.features.aiAssistant;
+		getAiAssistantFeature( state: PlanStateProps ): AiFeatureProps {
+			// Clean up the _meta property.
+			const data = { ...state.features.aiAssistant };
+			delete data._meta;
+
+			return data;
+		},
+
+		/**
+		 * Get the isRequesting flag for the AI Assistant feature.
+		 *
+		 * @param {PlanStateProps} state - The Plans state tree.
+		 * @returns {boolean}              The isRequesting flag.
+		 */
+		getIsRequestingAiAssistantFeature( state: PlanStateProps ): boolean {
+			return state.features.aiAssistant?._meta?.isRequesting;
 		},
 	},
 
@@ -107,16 +76,13 @@ const wordpressPlansStore = createReduxStore( store, {
 			return actions.setPlans( plans );
 		},
 
-		getAiAssistantFeature:
-			() =>
-			async ( { dispatch } ) => {
-				const response: SiteAIAssistantFeatureEndpointResponseProps = await apiFetch( {
-					path: '/wpcom/v2/jetpack-ai/ai-assistant-feature',
-				} );
+		getAiAssistantFeature: ( state: PlanStateProps ) => {
+			if ( state?.features?.aiAssistant ) {
+				return;
+			}
 
-				// Store the feature in the store.
-				dispatch( actions.storeAiAssistantFeature( response ) );
-			},
+			return actions.fetchAiAssistantFeature();
+		},
 	},
 } );
 

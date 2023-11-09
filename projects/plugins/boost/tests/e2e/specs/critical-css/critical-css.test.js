@@ -3,7 +3,7 @@ import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../../lib/pages/index.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import { DashboardPage, ThemesPage, Sidebar } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
+import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
 
 test.describe( 'Critical CSS module', () => {
 	let page;
