@@ -75,6 +75,23 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
+	 * Get the next usage tier
+	 *
+	 * @return int
+	 */
+	public static function get_next_usage_tier() {
+		$info         = self::get_ai_assistant_feature();
+		$current_tier = $info['current-tier']['value'];
+
+		// If the current tier is 1 or 500, there is no next tier.
+		if ( 1 === $current_tier || 500 === $current_tier ) {
+			return null;
+		}
+
+		return $info['next-tier']['value'];
+	}
+
+	/**
 	 * Get the internationalized product description
 	 *
 	 * @return string
@@ -84,12 +101,66 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
+	 * Get the internationalized usage tier long description
+	 *
+	 * @param int $tier The usage tier.
+	 * @return string
+	 */
+	public static function get_long_description_by_usage_tier( $tier ) {
+		$long_descriptions = array(
+			1   => __( 'Jetpack AI Assistant brings the power of AI right into your WordPress editor, letting your content creation soar to new heights.', 'jetpack-my-jetpack' ),
+			100 => __( 'The most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' ),
+			200 => __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' ),
+			500 => __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' ),
+		);
+
+		return isset( $long_descriptions[ $tier ] ) ? $long_descriptions[ $tier ] : null;
+	}
+
+	/**
 	 * Get the internationalized product long description
 	 *
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'The most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' );
+		$next_tier = self::get_next_usage_tier();
+
+		return self::get_long_description_by_usage_tier( $next_tier );
+	}
+
+	/**
+	 * Get the internationalized usage tier features
+	 *
+	 * @param int $tier The usage tier.
+	 * @return string
+	 */
+	public static function get_features_by_usage_tier( $tier ) {
+		$features = array(
+			1   => array(
+				__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
+				__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
+				__( 'Refine the tone and content to your liking', 'jetpack-my-jetpack' ),
+				__( 'Get feedback about your post', 'jetpack-my-jetpack' ),
+				__( 'Seamless WordPress editor Integration', 'jetpack-my-jetpack' ),
+			),
+			100 => array(
+				__( 'Prompt based content generation', 'jetpack-my-jetpack' ),
+				__( 'Generate text, tables, and lists', 'jetpack-my-jetpack' ),
+				__( 'Adaptive tone adjustment', 'jetpack-my-jetpack' ),
+				__( 'Superior spelling and grammar correction', 'jetpack-my-jetpack' ),
+				__( 'Title & summary generation', 'jetpack-my-jetpack' ),
+				__( 'Priority support', 'jetpack-my-jetpack' ),
+				__( '100 requests per month', 'jetpack-my-jetpack' ),
+			),
+			200 => array(
+				__( '200 requests per month', 'jetpack-my-jetpack' ),
+			),
+			500 => array(
+				__( '500 requests per month', 'jetpack-my-jetpack' ),
+			),
+		);
+
+		return isset( $features[ $tier ] ) ? $features[ $tier ] : null;
 	}
 
 	/**
@@ -98,15 +169,9 @@ class Jetpack_Ai extends Product {
 	 * @return array Jetpack AI features list
 	 */
 	public static function get_features() {
-		return array(
-			__( 'Prompt based content generation', 'jetpack-my-jetpack' ),
-			__( 'Generate text, tables, and lists', 'jetpack-my-jetpack' ),
-			__( 'Adaptive tone adjustment', 'jetpack-my-jetpack' ),
-			__( 'Superior spelling and grammar correction', 'jetpack-my-jetpack' ),
-			__( 'Title & summary generation', 'jetpack-my-jetpack' ),
-			__( 'Priority support', 'jetpack-my-jetpack' ),
-			__( '100 requests per month', 'jetpack-my-jetpack' ),
-		);
+		$next_tier = self::get_next_usage_tier();
+
+		return self::get_features_by_usage_tier( $next_tier );
 	}
 
 	/**
