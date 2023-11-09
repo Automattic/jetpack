@@ -1,6 +1,6 @@
 import fs from 'fs';
-import { execWpCommand, resolveSiteUrl } from './utils-helper.cjs';
-import logger from '../logger.cjs';
+import { execWpCommand, resolveSiteUrl } from './utils-helper.js';
+import logger from '../logger.js';
 import config from 'config';
 import path from 'path';
 

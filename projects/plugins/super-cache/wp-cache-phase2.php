@@ -509,13 +509,14 @@ function wpsc_get_accept_header() {
 	static $accept = 'N/A';
 
 	if ( $accept === 'N/A' ) {
-		$json_list = array( 'application/json', 'application/activity+json', 'application/ld+json' );
+		$accept_headers = apply_filters( 'wpsc_accept_headers', array( 'application/json', 'application/activity+json', 'application/ld+json' ) );
+		$accept_headers = array_map( 'strtolower', $accept_headers );
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- $accept is checked and set below.
 		$accept = isset( $_SERVER['HTTP_ACCEPT'] ) ? strtolower( filter_var( $_SERVER['HTTP_ACCEPT'] ) ) : '';
 
-		foreach ( $json_list as $header ) {
-			if ( strpos( $accept, $header ) ) {
+		foreach ( $accept_headers as $header ) {
+			if ( strpos( $accept, $header ) !== false ) {
 				$accept = 'application/json';
 			}
 		}

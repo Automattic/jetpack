@@ -615,6 +615,8 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 		global $wp_version;
 		$previous_version = $wp_version;
 
+		Constants::set_constant( 'IS_JETPACK_LAZY_IMAGES_TESTS', false ); // disable hack for this test
+
 		Constants::set_constant( 'IS_GUTENBERG_PLUGIN', $version_details['gutenberg'] );
 		Constants::set_constant( 'GUTENBERG_VERSION', $version_details['gutenberg_version'] );
 		if ( true === $version_details['is_gutenberg_dev'] ) {

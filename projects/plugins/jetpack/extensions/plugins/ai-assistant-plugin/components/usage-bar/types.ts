@@ -1,7 +1,7 @@
 /**
  * Types
  */
-import { AIFeatureProps } from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
+import { AiFeatureProps } from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 
 export type UsageBarProps = {
 	/**
@@ -15,6 +15,6 @@ export type UsageBarProps = {
 	limitReached: boolean;
 };
 export type UsageControlProps = Pick<
-	AIFeatureProps,
+	AiFeatureProps,
 	'isOverLimit' | 'hasFeature' | 'requestsCount' | 'requestsLimit'
 >;
