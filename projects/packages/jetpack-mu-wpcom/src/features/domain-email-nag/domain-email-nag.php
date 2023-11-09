@@ -65,7 +65,7 @@ function domain_email_nag() {
 
 	$script = <<<'EOD'
 		const base = 'https://public-api.wordpress.com';
-		const path = '/rest/v1/domains/%d/is-domain-email-unverified';
+		const path = '/wpcom/v2/sites/%d/has-unverified-domain-email';
 
 		fetch(base + path).then(function (result) {
 			if (result) {
