@@ -1,5 +1,5 @@
 /**
- * Types
+ * Types & Constants
  */
 import {
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
@@ -16,7 +16,7 @@ const INITIAL_STATE: PlanStateProps = {
 			hasFeature: false,
 			isOverLimit: false,
 			requestsCount: 0,
-			requestsLimit: 0,
+			requestsLimit: 1000,
 			requireUpgrade: false,
 			errorMessage: '',
 			errorCode: '',
@@ -31,6 +31,10 @@ const INITIAL_STATE: PlanStateProps = {
 			},
 			_meta: {
 				isRequesting: false,
+			},
+			nextTier: {
+				slug: 'ai-assistant-tier-unlimited',
+				value: 1,
 			},
 		},
 	},
@@ -76,13 +80,27 @@ export default function reducer( state = INITIAL_STATE, action ) {
 		}
 
 		case ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT: {
+			// Increase request count;
+			const requestsCount = state.features.aiAssistant.requestsCount + action.count;
+
+			/**
+			 * Compute the AI Assistant Feature data optimistically,
+			 * based on the Jetpack_AI_Helper::get_ai_assistance_feature() helper.
+			 *
+			 * @see _inc/lib/class-jetpack-ai-helper.php
+			 */
+			const isOverLimit = requestsCount >= state.features.aiAssistant.requestsLimit;
+			const requireUpgrade = isOverLimit && ! state.features.aiAssistant.hasFeature;
+
 			return {
 				...state,
 				features: {
 					...state.features,
 					aiAssistant: {
 						...state.features.aiAssistant,
-						requestsCount: state.features.aiAssistant.requestsCount + action.count,
+						isOverLimit,
+						requestsCount,
+						requireUpgrade,
 					},
 				},
 			};

@@ -194,14 +194,14 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		$cart_template_id     = null;
 		$checkout_template_id = null;
 		$block_controller     = Automattic\WooCommerce\Blocks\Package::container()->get( Automattic\WooCommerce\Blocks\BlockTemplatesController::class );
-		$templates            = $block_controller->get_block_templates( array( 'cart', 'checkout' ) );
+		$templates            = $block_controller->get_block_templates( array( 'cart', 'checkout', 'page-checkout', 'page-cart' ) );
 
 		foreach ( $templates as $template ) {
-			if ( 'cart' === $template->slug ) {
+			if ( 'cart' === $template->slug || 'page-cart' === $template->slug ) {
 				$cart_template_id = ( $template->id );
 				continue;
 			}
-			if ( 'checkout' === $template->slug ) {
+			if ( 'checkout' === $template->slug || 'page-checkout' === $template->slug ) {
 				$checkout_template_id = ( $template->id );
 			}
 		}
@@ -215,6 +215,16 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		if ( function_exists( 'gutenberg_get_block_template' ) ) {
 			$cart_template     = get_block_template( $cart_template_id );
 			$checkout_template = get_block_template( $checkout_template_id );
+		}
+
+		// Something failed with the template retrieval, return early with 0 values rather than let a warning appear.
+		if ( ! $cart_template || ! $checkout_template ) {
+			return array(
+				'cart_page_contains_cart_block'         => 0,
+				'cart_page_contains_cart_shortcode'     => 0,
+				'checkout_page_contains_checkout_block' => 0,
+				'checkout_page_contains_checkout_shortcode' => 0,
+			);
 		}
 
 		// Update the info transient with data we got from the templates, if the site isn't using WC Blocks we

@@ -19,7 +19,7 @@ import {
 } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { RawHTML, useState } from '@wordpress/element';
+import { RawHTML, useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import MarkdownIt from 'markdown-it';
@@ -33,7 +33,7 @@ import { promptTemplates } from './components/prompt-templates-control';
 import ToolbarControls from './components/toolbar-controls';
 import UpgradePrompt from './components/upgrade-prompt';
 import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
-import useAIFeature from './hooks/use-ai-feature';
+import useAiFeature from './hooks/use-ai-feature';
 import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
 import { isUserConnected } from './lib/connection';
 import { getImagesFromOpenAI } from './lib/image';
@@ -73,7 +73,17 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		};
 	}, [] );
 
+	const {
+		requireUpgrade: requireUpgradeOnStart,
+		refresh: refreshFeatureData,
+		increaseRequestsCount,
+	} = useAiFeature();
+
 	const focusOnPrompt = () => {
+		/*
+		 * Increase the AI Suggestion counter.
+		 * @todo: move this at store level.
+		 */
 		// Small delay to avoid focus crash
 		setTimeout( () => {
 			aiControlRef.current?.focus?.();
@@ -88,8 +98,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
-
-	const { requireUpgrade: requireUpgradeOnStart, refresh: refreshFeatureData } = useAIFeature();
 
 	const requireUpgrade = requireUpgradeOnStart || errorData?.code === 'error_quota_exceeded';
 
@@ -106,8 +114,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		wholeContent,
 		requestingState,
 	} = useSuggestionsFromOpenAI( {
-		onSuggestionDone: focusOnPrompt,
-		onUnclearPrompt: focusOnPrompt,
+		onSuggestionDone: useCallback( () => {
+			focusOnPrompt();
+			increaseRequestsCount();
+		}, [ increaseRequestsCount ] ),
+		onUnclearPrompt: useCallback( () => {
+			focusOnBlock();
+			increaseRequestsCount();
+		}, [ increaseRequestsCount ] ),
 		onModeration: focusOnPrompt,
 		attributes,
 		clientId,

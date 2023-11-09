@@ -13,6 +13,7 @@ import React from 'react';
 /*
  * Internal dependencies
  */
+import useAiFeature from '../../hooks/use-ai-feature';
 import AiAssistantBar from './components/ai-assistant-bar';
 import AiAssistantToolbarButton from './components/ai-assistant-toolbar-button';
 import { isJetpackFromBlockAiCompositionAvailable } from './constants';
@@ -103,7 +104,33 @@ const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit =>
 			clientId: props.clientId,
 		} );
 
-		const { eventSource } = useAiContext();
+		const { increaseRequestsCount } = useAiFeature();
+
+		const { eventSource } = useAiContext( {
+			onDone: useCallback( () => {
+				/*
+				 * Increase the AI Suggestion counter.
+				 * @todo: move this at store level.
+				 */
+				increaseRequestsCount();
+			}, [ increaseRequestsCount ] ),
+			onError: useCallback(
+				error => {
+					/*
+					 * Incrses AI Suggestion counter
+					 * only for valid errors.
+					 * @todo: move this at store level.
+					 */
+					if ( error.code === 'error_network' || error.code === 'error_quota_exceeded' ) {
+						return;
+					}
+
+					// Increase the AI Suggestion counter.
+					increaseRequestsCount();
+				},
+				[ increaseRequestsCount ]
+			),
+		} );
 
 		const stopSuggestion = useCallback( () => {
 			if ( ! eventSource ) {

@@ -10,7 +10,7 @@ import React from 'react';
  */
 import './style.scss';
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
-import useAIFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
+import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../../../blocks/ai-assistant/lib/connection';
 import UsageControl from '../usage-bar';
 import './style.scss';
@@ -20,7 +20,7 @@ export default function UsagePanel() {
 	const canUpgrade = canUserPurchasePlan();
 
 	// fetch usage data
-	const { hasFeature, requestsCount, requestsLimit, isOverLimit, loading } = useAIFeature();
+	const { hasFeature, requestsCount, requestsLimit, isOverLimit, loading } = useAiFeature();
 
 	return (
 		<div className="jetpack-ai-usage-panel">

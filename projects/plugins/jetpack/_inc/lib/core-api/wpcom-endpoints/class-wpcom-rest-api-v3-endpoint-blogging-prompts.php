@@ -306,7 +306,36 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 			$data['answered_link_text'] = __( 'View all responses', 'jetpack' );
 		}
 
+		if ( $this->is_in_bloganuary( $prompt->post_date_gmt ) && rest_is_field_included( 'bloganuary_id', $fields ) ) {
+			$data['bloganuary_id'] = $this->get_bloganuary_id( $prompt->post_date_gmt );
+		}
+
 		return $data;
+	}
+
+	/**
+	 * Return true if the post is in "Bloganuary"
+	 *
+	 * @param string $post_date_gmt Post date in GMT.
+	 * @return bool True if the post is in "Bloganuary".
+	 */
+	protected function is_in_bloganuary( $post_date_gmt ) {
+		$post_month = gmdate( 'm', strtotime( $post_date_gmt ) );
+		return $post_month === '01';
+	}
+
+	/**
+	 * Return the bloganuary id of the form `bloganuary-yyyy-dd`
+	 *
+	 * @param string $post_date_gmt Post date in GMT.
+	 * @return string Bloganuary id.
+	 */
+	protected function get_bloganuary_id( $post_date_gmt ) {
+		$post_year_day = gmdate( 'Y-d', strtotime( $post_date_gmt ) );
+		if ( $this->force_year ) {
+			$post_year_day = $this->force_year . '-' . gmdate( 'd', strtotime( $post_date_gmt ) );
+		}
+		return 'bloganuary-' . $post_year_day;
 	}
 
 	/**
@@ -442,6 +471,10 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 				),
 				'answered_link_text'    => array(
 					'description' => __( 'Text for the link to answers for the prompt.', 'jetpack' ),
+					'type'        => 'string',
+				),
+				'bloganuary_id'         => array(
+					'description' => __( 'Id used by the bloganuary promotion', 'jetpack' ),
 					'type'        => 'string',
 				),
 			),
