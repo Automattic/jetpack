@@ -128,6 +128,10 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 			return $this->proxy_request_to_wpcom( $request, $request->get_param( 'id' ) );
 		}
 
+		if ( $request->get_param( 'force_year' ) ) {
+			$this->force_year = $request->get_param( 'force_year' );
+		}
+
 		switch_to_blog( self::TEMPLATE_BLOG_ID );
 		$item = parent::get_item( $request );
 		restore_current_blog();
