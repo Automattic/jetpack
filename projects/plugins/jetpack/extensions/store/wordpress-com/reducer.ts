@@ -1,5 +1,5 @@
 /**
- * Types
+ * Types & Constants
  */
 import {
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
@@ -32,7 +32,10 @@ const INITIAL_STATE: PlanStateProps = {
 			_meta: {
 				isRequesting: false,
 			},
-			nextTier: null,
+			nextTier: {
+				slug: 'ai-assistant-tier-unlimited',
+				value: 1,
+			},
 		},
 	},
 };
