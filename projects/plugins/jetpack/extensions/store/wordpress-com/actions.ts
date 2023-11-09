@@ -43,6 +43,7 @@ export function mapAIFeatureResponseToAiFeatureProps(
 		currentTier: {
 			value: response[ 'current-tier' ]?.value || 1,
 		},
+		nextTier: response[ 'next-tier' ] || null,
 	};
 }
 

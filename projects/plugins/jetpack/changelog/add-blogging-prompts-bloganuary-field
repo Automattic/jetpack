@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Add bloganuary date field to blogging prompts api. This field will be used for the bloganuary promotion.

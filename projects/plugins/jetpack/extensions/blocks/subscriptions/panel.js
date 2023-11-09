@@ -26,7 +26,10 @@ import {
 	NewsletterAccessDocumentSettings,
 	NewsletterAccessPrePublishSettings,
 } from '../../shared/memberships/settings';
-import { getShowMisconfigurationWarning } from '../../shared/memberships/utils';
+import {
+	getFormattedCategories,
+	getShowMisconfigurationWarning,
+} from '../../shared/memberships/utils';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import metadata from './block.json';
 import EmailPreview from './email-preview';
@@ -190,6 +193,21 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
 
+	const { newsletterCategories, newsletterCategoriesEnabled } = useSelect( select => {
+		const { getNewsletterCategories, getNewsletterCategoriesEnabled } = select(
+			'jetpack/membership-products'
+		);
+
+		return {
+			newsletterCategories: getNewsletterCategories(),
+			newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
+		};
+	} );
+
+	const postCategories = useSelect( select =>
+		select( editorStore ).getEditedPostAttribute( 'categories' )
+	);
+
 	const reachCount = getReachForAccessLevelKey(
 		accessLevel,
 		emailSubscribers,
@@ -201,7 +219,7 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 		subscriberType = __( 'paid subscribers', 'jetpack' );
 	}
 
-	const numberOfSubscribersText = sprintf(
+	let numberOfSubscribersText = sprintf(
 		/* translators: %1s is the post name,  %2s is the number of subscribers in numerical format, %3s Options are paid subscribers or subscribers */
 		__(
 			'<postPublishedLink>%1$s</postPublishedLink> was sent to <strong>%2$s %3$s</strong>.',
@@ -211,6 +229,26 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 		reachCount,
 		subscriberType
 	);
+
+	if (
+		newsletterCategoriesEnabled &&
+		newsletterCategories.length &&
+		accessLevel !== accessOptions.paid_subscribers.key
+	) {
+		const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
+
+		if ( formattedCategoryNames ) {
+			numberOfSubscribersText = sprintf(
+				// translators: %1s is the post name,  %2s is the list of categories
+				__(
+					'<postPublishedLink>%1$s</postPublishedLink> was sent to everyone subscribed to %2$s.',
+					'jetpack'
+				),
+				postName,
+				formattedCategoryNames
+			);
+		}
+	}
 
 	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
 

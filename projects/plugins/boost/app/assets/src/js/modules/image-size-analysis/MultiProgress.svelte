@@ -1,11 +1,14 @@
 <script lang="ts">
 	import { sprintf, __ } from '@wordpress/i18n';
 	import ConditionalLink from '../../elements/ConditionalLink.svelte';
-	import OtherGroupContext from '../../elements/OtherGroupContext.svelte';
 	import ProgressBar from '../../elements/ProgressBar.svelte';
+	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import Spinner from '../../elements/Spinner.svelte';
+	import OtherGroupContext from '../../react-components/components/isa-other-group-context';
 	import WarningIcon from '../../svg/warning-outline.svg';
 	import { isaGroupLabel } from './store/isa-summary';
+
+	// @todo - move other-group-context markup/styles here, as it's not used anywhere else.
 
 	export let summaryProgress: {
 		group: string;
@@ -56,7 +59,7 @@
 					{isaGroupLabel( summary.group )}
 				</ConditionalLink>
 				{#if 'other' === summary.group}
-					<OtherGroupContext />
+					<ReactComponent this={OtherGroupContext} />
 				{/if}
 			</div>
 

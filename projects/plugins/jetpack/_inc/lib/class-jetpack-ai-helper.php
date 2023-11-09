@@ -400,6 +400,7 @@ class Jetpack_AI_Helper {
 				'site-require-upgrade' => $require_upgrade,
 				'upgrade-type'         => $upgrade_type,
 				'current-tier'         => WPCOM\Jetpack_AI\Usage\Helper::get_current_tier( $blog_id ),
+				'next-tier'            => WPCOM\Jetpack_AI\Usage\Helper::get_next_tier( $blog_id ),
 				'tier-plans'           => WPCOM\Jetpack_AI\Usage\Helper::get_tier_plans_list(),
 			);
 		}
