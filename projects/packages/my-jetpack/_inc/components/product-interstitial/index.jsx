@@ -37,6 +37,7 @@ import videoPressImage from './videopress.png';
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
  * @param {boolean} props.preferProductName      - Use product name instead of title
  * @param {string} props.imageContainerClassName - Append a class to the image container
+ * @param {string} [props.ctaButtonLabel]          - The label for the Call To Action button
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -48,6 +49,7 @@ export default function ProductInterstitial( {
 	preferProductName = false,
 	children = null,
 	imageContainerClassName = '',
+	ctaButtonLabel = null,
 } ) {
 	const { activate, detail } = useProduct( slug );
 	const { isUpgradableByBundle, tiers } = detail;
@@ -160,6 +162,7 @@ export default function ProductInterstitial( {
 									className={ isUpgradableByBundle ? styles.container : null }
 									supportingInfo={ supportingInfo }
 									preferProductName={ preferProductName }
+									ctaButtonLabel={ ctaButtonLabel }
 								/>
 							</Col>
 							<Col
@@ -273,11 +276,15 @@ export function JetpackAIInterstitial() {
 		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
 	}
 
+	const { hasRequiredPlan } = detail;
+	const ctaLabel = hasRequiredPlan ? __( 'Upgrade Jetpack AI', 'jetpack-my-jetpack' ) : null;
+
 	return (
 		<ProductInterstitial
 			slug="jetpack-ai"
 			installsPlugin={ true }
 			imageContainerClassName={ styles.aiImageContainer }
+			ctaButtonLabel={ ctaLabel }
 		>
 			<img src={ jetpackAiImage } alt="Jetpack AI" />
 		</ProductInterstitial>
