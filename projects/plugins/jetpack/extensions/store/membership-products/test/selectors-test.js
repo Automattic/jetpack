@@ -1,4 +1,9 @@
-import { getNewsletterProducts, getProducts } from '../selectors';
+import {
+	getNewsletterCategories,
+	getNewsletterCategoriesEnabled,
+	getNewsletterProducts,
+	getProducts,
+} from '../selectors';
 
 describe( 'Membership Products Selectors', () => {
 	test( 'GetProducts and getNewsletterProducts works as expected', () => {
@@ -23,5 +28,21 @@ describe( 'Membership Products Selectors', () => {
 
 		expect( getProducts( state ) ).toStrictEqual( state.products );
 		expect( getNewsletterProducts( state ) ).toStrictEqual( [ newsletter_product ] );
+	} );
+
+	test( 'getNewsletterCategories and getNewsletterCategoriesEnabled works as expected', () => {
+		const state = {
+			newsletterCategories: {
+				categories: [ 'category1', 'category2' ],
+				enabled: true,
+			},
+		};
+
+		expect( getNewsletterCategories( state ) ).toStrictEqual(
+			state.newsletterCategories.categories
+		);
+		expect( getNewsletterCategoriesEnabled( state ) ).toStrictEqual(
+			state.newsletterCategories.enabled
+		);
 	} );
 } );
