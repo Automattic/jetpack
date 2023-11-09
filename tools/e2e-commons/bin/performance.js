@@ -39,6 +39,10 @@ async function envSetup( type ) {
 }
 
 async function runTests( type, round ) {
+	for ( const stream of [ process.stdout, process.stderr ] ) {
+		stream?._handle?.setBlocking?.( true );
+	}
+
 	execShellCommand( 'npm run test:performance -- post-editor.spec.js', {
 		cwd: gutenbergPath,
 		env: {
