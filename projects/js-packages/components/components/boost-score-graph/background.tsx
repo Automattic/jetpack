@@ -96,23 +96,23 @@ export const Background: FunctionComponent = () => {
 				<path
 					d="M-42 98C-42 98 -23.5 83.5 13.5 82C50.5 80.5 67 95 96 94.5C125 94 162.495 76.7241 178 75.5C216 72.5 243.5 65.5 261 78.5C278.5 91.5 308.5 161 344 163.5C379.5 166 394 91.5 426 79.5C458 67.5 473.5 92 509.5 91.5C545.5 91 562 76 592 75.5C622 75 648.5 83.5 675 83.5C701.5 83.5 759 75.5 759 75.5L844 67.5C844 67.5 884.5 66 926 59.5C967.5 53 1008 30.5 1008 30.5"
 					stroke="#069E08"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
+					strokeWidth="2"
+					strokeLinecap="round"
+					strokeLinejoin="round"
 				/>
-				<circle cx="1008" cy="30.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="926" cy="59.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="843" cy="67.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="759" cy="75.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="675" cy="83.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="593" cy="75.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="509" cy="91.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="427" cy="79.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="343" cy="163.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="261" cy="78.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="178" cy="75.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="96" cy="94.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="14" cy="82.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
+				<circle cx="1008" cy="30.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="926" cy="59.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="843" cy="67.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="759" cy="75.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="675" cy="83.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="593" cy="75.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="509" cy="91.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="427" cy="79.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="343" cy="163.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="261" cy="78.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="178" cy="75.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="96" cy="94.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="14" cy="82.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
 				<path
 					opacity="0.16"
 					d="M261 99.9992C239 87.4992 207 98.0875 178 95.9992C149 93.911 124 98.3228 96 109.911C68 121.499 46 142.146 14 149.823C-18 157.499 -43 147.999 -43 147.999V198.999H1009V44.4992C1009 44.4992 962 66.9992 926 75.4992C890 83.9993 869.5 81.9992 843 78.4992C816.5 74.9993 789.5 39.4992 759 40.4992C728.5 41.4993 699.5 96.4992 676.5 99.9992C653.5 103.499 612.5 95.4992 593.5 95.4992C574.5 95.4992 524.5 111.499 509.5 111.999C494.5 112.499 455.5 111.499 427 115.499C398.5 119.499 372 138.999 344 138.999C316 138.999 283 112.499 261 99.9992Z"
@@ -121,23 +121,23 @@ export const Background: FunctionComponent = () => {
 				<path
 					d="M-41.5 148.5C-41.5 148.5 -8 156.639 21 148.32C50 140 66.5 122 95.5 109.351C124.5 96.7013 145.5 93.0007 178 95.5006C210.5 98.0005 236.5 86.5006 262 100.501C287.5 114.501 310.5 140.001 344 138.501C377.5 137.001 396 121.501 427 115.501C458 109.501 489 113.001 510.5 111.501C532 110.001 572.5 96.0006 593 95.5006C613.5 95.0006 646.5 103.001 676 99.5006C705.5 96.0006 719 43.5006 759 41.5006C799 39.5006 805 72.0006 844 78.5006C883 85.0006 901 78.5006 925 75.5006C949 72.5006 1008 45.5006 1008 45.5006"
 					stroke="#069E08"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
+					strokeWidth="2"
+					strokeLinecap="round"
+					strokeLinejoin="round"
 				/>
-				<circle cx="178" cy="95.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="96" cy="109.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="14" cy="149.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="261" cy="100.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="343" cy="138.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="427" cy="115.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="509" cy="111.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="593" cy="95.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="675" cy="99.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="759" cy="41.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="843" cy="78.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="926" cy="75.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
-				<circle cx="1008" cy="45.5" r="2.75" fill="white" stroke="#069E08" stroke-width="1.5" />
+				<circle cx="178" cy="95.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="96" cy="109.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="14" cy="149.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="261" cy="100.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="343" cy="138.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="427" cy="115.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="509" cy="111.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="593" cy="95.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="675" cy="99.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="759" cy="41.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="843" cy="78.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="926" cy="75.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
+				<circle cx="1008" cy="45.5" r="2.75" fill="white" stroke="#069E08" strokeWidth="1.5" />
 			</g>
 			<defs>
 				<filter
@@ -147,9 +147,9 @@ export const Background: FunctionComponent = () => {
 					width="1185.3"
 					height="239.127"
 					filterUnits="userSpaceOnUse"
-					color-interpolation-filters="sRGB"
+					colorInterpolationFilters="sRGB"
 				>
-					<feFlood flood-opacity="0" result="BackgroundImageFix" />
+					<feFlood floodOpacity="0" result="BackgroundImageFix" />
 					<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
 					<feGaussianBlur stdDeviation="4" result="effect1_foregroundBlur_3726_6340" />
 				</filter>
@@ -161,8 +161,8 @@ export const Background: FunctionComponent = () => {
 					y2="199"
 					gradientUnits="userSpaceOnUse"
 				>
-					<stop stop-color="#069E08" />
-					<stop offset="1" stop-color="#069E08" stop-opacity="0" />
+					<stop stopColor="#069E08" />
+					<stop offset="1" stopColor="#069E08" stopOpacity="0" />
 				</linearGradient>
 				<linearGradient
 					id="paint1_linear_3726_6340"
@@ -172,8 +172,8 @@ export const Background: FunctionComponent = () => {
 					y2="220.999"
 					gradientUnits="userSpaceOnUse"
 				>
-					<stop stop-color="#069E08" />
-					<stop offset="1" stop-color="#069E08" stop-opacity="0" />
+					<stop stopColor="#069E08" />
+					<stop offset="1" stopColor="#069E08" stopOpacity="0" />
 				</linearGradient>
 			</defs>
 		</svg>
