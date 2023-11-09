@@ -49,17 +49,20 @@ async function runTests( type, round ) {
 	console.log( 'cwd', process.cwd() );
 	console.log( 'process.env', process.env );
 
-	await execShellCommand( 'npm run test:performance -- post-editor.spec.js', {
-		cwd: gutenbergPath,
-		env: {
-			shell: true, // See https://stackoverflow.com/a/59830014/7225515
-			...process.env,
-			WP_BASE_URL: resolveSiteUrl(),
-			WP_ARTIFACTS_PATH: resultsPath,
-			RESULTS_ID: `${ type }.${ round }`,
-			DEBUG: 'pw:api',
-		},
-	} );
+	await execShellCommand(
+		'npx playwright test --config test/performance/playwright.config.ts post-editor',
+		{
+			cwd: gutenbergPath,
+			env: {
+				shell: true, // See https://stackoverflow.com/a/59830014/7225515
+				...process.env,
+				WP_BASE_URL: resolveSiteUrl(),
+				WP_ARTIFACTS_PATH: resultsPath,
+				RESULTS_ID: `${ type }.${ round }`,
+				DEBUG: 'pw:api',
+			},
+		}
+	);
 }
 
 async function testRun( type, round ) {
