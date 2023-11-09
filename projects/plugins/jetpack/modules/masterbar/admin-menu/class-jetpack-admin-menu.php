@@ -231,8 +231,11 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		if ( current_user_can( 'list_users' ) ) {
 			$users_url = 'https://wordpress.com/people/team/' . $this->domain;
 			add_menu_page( esc_attr__( 'Users', 'jetpack' ), __( 'Users', 'jetpack' ), 'list_users', $users_url, null, 'dashicons-admin-users', 70 );
-			add_submenu_page( $users_url, esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 1 );
-			add_submenu_page( $users_url, esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', 'https://wordpress.com/me', null, 2 );
+			add_submenu_page( $users_url, esc_attr__( 'All Users', 'jetpack' ), __( 'All Users', 'jetpack' ), 'list_users', $users_url, null, 10 );
+			add_submenu_page( $users_url, esc_attr__( 'Add New User', 'jetpack' ), __( 'Add New User', 'jetpack' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 20 );
+			add_submenu_page( $users_url, esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 30 );
+			add_submenu_page( $users_url, esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', 'https://wordpress.com/me', null, 40 );
+			add_submenu_page( $users_url, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account', null, 50 );
 		} else {
 			add_menu_page( esc_attr__( 'My Profile', 'jetpack' ), __( 'Profile', 'jetpack' ), 'read', 'https://wordpress.com/me', null, 'dashicons-admin-users', 70 );
 		}
