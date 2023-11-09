@@ -1,9 +1,16 @@
+/**
+ * External dependencies
+ */
 import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import React, { useCallback, useEffect } from 'react';
+/**
+ * Internal dependencies
+ */
 import useAnalytics from '../../hooks/use-analytics';
+import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
 import GoBackLink from '../go-back-link';
@@ -12,6 +19,7 @@ import ProductDetailTable from '../product-detail-table';
 import boostImage from './boost.png';
 import crmImage from './crm.png';
 import extrasImage from './extras.png';
+import { JetpackAIInterstitialMoreRequests } from './jetpack-ai/more-requests';
 import jetpackAiImage from './jetpack-ai.png';
 import searchImage from './search.png';
 import styles from './style.module.scss';
@@ -45,6 +53,7 @@ export default function ProductInterstitial( {
 	const { isUpgradableByBundle, tiers } = detail;
 
 	const { recordEvent } = useAnalytics();
+	const { onClickGoBack } = useGoBack( { slug } );
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
@@ -101,21 +110,6 @@ export default function ProductInterstitial( {
 			} );
 		},
 		[ navigateToMyJetpackOverviewPage, activate ]
-	);
-
-	const onClickGoBack = useCallback(
-		event => {
-			if ( slug ) {
-				recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
-			}
-
-			if ( document.referrer.includes( window.location.host ) ) {
-				// Prevent default here to minimize page change within the My Jetpack app.
-				event.preventDefault();
-				history.back();
-			}
-		},
-		[ recordEvent, slug ]
 	);
 
 	return (
@@ -268,6 +262,17 @@ export function ExtrasInterstitial() {
  * @returns {object} JetpackAIInterstitial react component.
  */
 export function JetpackAIInterstitial() {
+	const slug = 'jetpack-ai';
+	const { detail } = useProduct( slug );
+	const { onClickGoBack } = useGoBack( { slug } );
+
+	const currentTier = detail?.[ 'ai-assistant-feature' ]?.[ 'current-tier' ]?.value;
+	const hasNextTier = ! [ 1, 500 ].includes( currentTier );
+
+	if ( ! hasNextTier ) {
+		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
+	}
+
 	return (
 		<ProductInterstitial
 			slug="jetpack-ai"
