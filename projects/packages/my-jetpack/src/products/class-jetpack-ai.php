@@ -88,7 +88,9 @@ class Jetpack_Ai extends Product {
 			return null;
 		}
 
-		return $info['next-tier']['value'];
+		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+		// return $info['next-tier']['value'];
+		return 1; // Return the unlimited tier for now.
 	}
 
 	/**
