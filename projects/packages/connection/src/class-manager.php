@@ -1917,7 +1917,7 @@ class Manager {
 				'allow_site_connection' => ! $this->has_connected_owner(),
 				'calypso_env'           => ( new Host() )->get_calypso_env(),
 				// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				'source'                => isset( $_GET['source'] ) ? wp_unslash( $_GET['source'] ) : null,
+				'source'                => isset( $_GET['source'] ) ? wp_unslash( $_GET['source'] ) : '',
 			)
 		);
 
