@@ -118,7 +118,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			focusOnPrompt();
 			increaseRequestsCount();
 		}, [ increaseRequestsCount ] ),
-		onUnclearPrompt: focusOnPrompt,
+		onUnclearPrompt: useCallback( () => {
+			focusOnBlock();
+			increaseRequestsCount();
+		}, [ increaseRequestsCount ] ),
 		onModeration: focusOnPrompt,
 		attributes,
 		clientId,
