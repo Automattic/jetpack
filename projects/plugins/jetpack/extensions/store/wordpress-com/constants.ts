@@ -11,4 +11,4 @@ export const ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT = 'INCREASE_AI_ASSISTAN
  */
 export const ENDPOINT_AI_ASSISTANT_FEATURE = '/wpcom/v2/jetpack-ai/ai-assistant-feature';
 
-export const NEW_ASYNC_REQUEST_COUNTDOWN = 1;
+export const NEW_ASYNC_REQUEST_COUNTDOWN = 3;

@@ -45,6 +45,8 @@ export function mapAIFeatureResponseToAiFeatureProps(
 	};
 }
 
+let contdownTimerId: number;
+
 const actions = {
 	setPlans( plans: Array< Plan > ) {
 		return {
@@ -94,7 +96,7 @@ const actions = {
 	},
 
 	increaseAiAssistantRequestsCount( count = 1 ) {
-		return ( { select, dispatch } ) => {
+		return async ( { select, dispatch } ) => {
 			dispatch( {
 				type: ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 				count,
@@ -102,8 +104,13 @@ const actions = {
 
 			// Perform a new async request to keep data in sync
 			const asyncCoundown = select.getNewAsyncRequestCountdown();
-			if ( ! asyncCoundown ) {
-				setTimeout( () => {
+			if ( asyncCoundown <= 0 ) {
+				// Reset the previous timer in case it was set
+				if ( contdownTimerId ) {
+					window?.clearTimeout( contdownTimerId );
+				}
+
+				contdownTimerId = setTimeout( () => {
 					dispatch( actions.fetchAiAssistantFeature() );
 				}, 5000 ); // backend process requires a delay to be able to see the new value
 			}
