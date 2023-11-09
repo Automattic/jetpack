@@ -63,7 +63,7 @@ function domain_email_nag() {
 		sprintf(
 			"
 			const base = 'https://public-api.wordpress.com';
-			const path = '/v1/domains/%s/is-domain-email-unverified';
+			const path = '/v1/domains/%d/is-domain-email-unverified';
 			
 			fetch(base + path).then(function (result) {
 				if (result) {
