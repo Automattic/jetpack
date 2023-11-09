@@ -22,10 +22,8 @@ export const AI_Assistant_Initial_State = {
 		nextStart: aiAssistantFeature?.[ 'usage-period' ]?.[ 'next-start' ],
 		requestsCount: aiAssistantFeature?.[ 'usage-period' ]?.[ 'requests-count' ] || 0,
 	},
-	currentTier: {
-		value: aiAssistantFeature?.[ 'current-tier' ]?.value || 1,
-	},
-	nextTier: aiAssistantFeature?.[ 'next-tier' ] || {},
+	currentTier: aiAssistantFeature?.[ 'current-tier' ],
+	nextTier: aiAssistantFeature?.[ 'next-tier' ] || null,
 };
 
 export default function useAiFeature() {

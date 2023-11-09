@@ -40,10 +40,8 @@ export function mapAIFeatureResponseToAiFeatureProps(
 			nextStart: response[ 'usage-period' ]?.[ 'next-start' ],
 			requestsCount: response[ 'usage-period' ]?.[ 'requests-count' ] || 0,
 		},
-		currentTier: {
-			value: response[ 'current-tier' ]?.value || 1,
-		},
-		nextTier: response[ 'next-tier' ] || null,
+		currentTier: response[ 'current-tier' ],
+		nextTier: response[ 'next-tier' ],
 	};
 }
 
