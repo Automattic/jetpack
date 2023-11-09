@@ -3,7 +3,7 @@
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import CloseButton from '../../../elements/CloseButton.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
-	import BackButton from '../../../react-components/common/back-button/BackButton';
+	import BackButton from '../../../react-components/components/back-button';
 	import { replaceCssState, updateProvider } from '../../../stores/critical-css-state';
 	import { groupErrorsByFrequency } from '../../../stores/critical-css-state-errors';
 	import { type Provider } from '../../../stores/critical-css-state-types';

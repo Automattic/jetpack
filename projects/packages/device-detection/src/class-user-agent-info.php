@@ -1559,6 +1559,8 @@ class User_Agent_Info {
 			'domaintunocrawler',
 			'grapeshotcrawler',
 			'cloudflare-alwaysonline',
+			'cookieinformationscanner', // p1699315886066389-slack-C0438NHCLSY
+			'facebookexternalhit', // https://www.facebook.com/externalhit_uatext.php
 		);
 
 		foreach ( $bot_agents as $bot_agent ) {
