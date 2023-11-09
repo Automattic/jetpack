@@ -65,7 +65,7 @@ async function testRun( type, round ) {
 async function main() {
 	for ( let i = 0; i < testRounds; i++ ) {
 		await testRun( 'base', i );
-		await testRun( 'jetpack', i );
+		// await testRun( 'jetpack', i );
 	}
 }
 
@@ -123,6 +123,6 @@ function execShellCommand( command, options ) {
 
 main().then( () => {
 	mergeResults( 'base' );
-	mergeResults( 'jetpack' );
+	// mergeResults( 'jetpack' );
 	console.log( 'Done!' );
 } );
