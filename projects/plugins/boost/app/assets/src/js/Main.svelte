@@ -1,9 +1,10 @@
 <script lang="ts">
+	import ReactComponent from './elements/ReactComponent.svelte';
 	import RecommendationsPage from './modules/image-size-analysis/RecommendationsPage.svelte';
 	import BenefitsInterstitial from './pages/benefits/BenefitsInterstitial.svelte';
-	import GettingStarted from './pages/getting-started/GettingStarted.svelte';
 	import PurchaseSuccess from './pages/purchase-success/PurchaseSuccess.svelte';
 	import Settings from './pages/settings/Settings.svelte';
+	import GettingStarted from './react-components/pages/getting-started';
 	import config from './stores/config';
 	import { connection } from './stores/connection';
 	import { criticalCssState, isGenerating } from './stores/critical-css-state';
@@ -48,14 +49,15 @@
 	<Route path="upgrade" let:location let:navigate>
 		<BenefitsInterstitial {location} {navigate} {pricing} {siteDomain} {userConnected} />
 	</Route>
-	<Route
-		path="getting-started"
-		component={GettingStarted}
-		{userConnected}
-		{pricing}
-		{isPremium}
-		domain={siteDomain}
-	/>
+	<Route path="getting-started">
+		<ReactComponent
+			this={GettingStarted}
+			{userConnected}
+			{pricing}
+			{isPremium}
+			domain={siteDomain}
+		/>
+	</Route>
 	<Route path="purchase-successful" let:location let:navigate>
 		<PurchaseSuccess {location} {navigate} {isImageGuideActive} />
 	</Route>
