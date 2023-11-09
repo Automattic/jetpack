@@ -3,8 +3,16 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 /**
- * Types
+ * Types & Constants
  */
+import {
+	ACTION_FETCH_FROM_API,
+	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
+	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
+	ACTION_SET_PLANS,
+	ACTION_STORE_AI_ASSISTANT_FEATURE,
+	ENDPOINT_AI_ASSISTANT_FEATURE,
+} from './constants';
 import type { Plan } from './types';
 import type { AiFeatureProps } from './types';
 import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../types';
@@ -41,21 +49,21 @@ export function mapAIFeatureResponseToAiFeatureProps(
 const actions = {
 	setPlans( plans: Array< Plan > ) {
 		return {
-			type: 'SET_PLANS',
+			type: ACTION_SET_PLANS,
 			plans,
 		};
 	},
 
 	fetchFromAPI( url: string ) {
 		return {
-			type: 'FETCH_FROM_API',
+			type: ACTION_FETCH_FROM_API,
 			url,
 		};
 	},
 
 	storeAiAssistantFeature( feature: AiFeatureProps ) {
 		return {
-			type: 'STORE_AI_ASSISTANT_FEATURE',
+			type: ACTION_STORE_AI_ASSISTANT_FEATURE,
 			feature,
 		};
 	},
@@ -68,11 +76,11 @@ const actions = {
 	fetchAiAssistantFeature() {
 		return async ( { dispatch } ) => {
 			// Dispatch isFetching action.
-			dispatch( { type: 'REQUEST_AI_ASSISTANT_FEATURE' } );
+			dispatch( { type: ACTION_REQUEST_AI_ASSISTANT_FEATURE } );
 
 			try {
 				const response: SiteAIAssistantFeatureEndpointResponseProps = await apiFetch( {
-					path: '/wpcom/v2/jetpack-ai/ai-assistant-feature',
+					path: ENDPOINT_AI_ASSISTANT_FEATURE,
 				} );
 
 				// Store the feature in the store.
@@ -83,6 +91,13 @@ const actions = {
 				// @todo: Handle error.
 				console.error( err ); // eslint-disable-line no-console
 			}
+		};
+	},
+
+	increaseAiAssistantRequestsCount( count = 1 ) {
+		return {
+			type: ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
+			count,
 		};
 	},
 };

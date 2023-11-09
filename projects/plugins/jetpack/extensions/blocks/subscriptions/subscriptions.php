@@ -550,20 +550,20 @@ function render_block( $attributes ) {
 	$styles  = get_element_styles_from_attributes( $attributes );
 
 	$include_social_followers = isset( $attributes['includeSocialFollowers'] ) ? (bool) get_attribute( $attributes, 'includeSocialFollowers' ) : true;
-	$is_paid_subscriber       = get_attribute( $attributes, 'isPaidSubscriber', false );
 
 	$data = array(
 		'widget_id'                     => Jetpack_Subscriptions_Widget::$instance_count,
 		'subscribe_email'               => $subscribe_email,
-
+		'is_paid_subscriber'            => get_attribute( $attributes, 'isPaidSubscriber', false ),
 		'wrapper_attributes'            => get_block_wrapper_attributes(
 			array(
 				'class' => $classes['block_wrapper'],
 			)
 		),
-		'subscribe_placeholder'         => get_attribute( $attributes, 'subscribePlaceholder', esc_html__( 'Type your email…', 'jetpack' ) ),
-		'submit_button_text'            => get_attribute( $attributes, 'submitButtonText', $is_paid_subscriber ? esc_html__( 'Upgrade', 'jetpack' ) : esc_html__( 'Subscribe', 'jetpack' ) ),
-		'submit_button_text_subscribed' => get_attribute( $attributes, 'submitButtonTextSubscribed', esc_html__( 'Subscribed', 'jetpack' ) ),
+		'subscribe_placeholder'         => get_attribute( $attributes, 'subscribePlaceholder', __( 'Type your email…', 'jetpack' ) ),
+		'submit_button_text'            => get_attribute( $attributes, 'submitButtonText', __( 'Subscribe', 'jetpack' ) ),
+		'submit_button_text_subscribed' => get_attribute( $attributes, 'submitButtonTextSubscribed', __( 'Subscribed', 'jetpack' ) ),
+		'submit_button_text_upgrade'    => get_attribute( $attributes, 'submitButtonTextUpgrade', __( 'Upgrade subscription', 'jetpack' ) ),
 		'success_message'               => get_attribute(
 			$attributes,
 			'successMessage',
@@ -618,10 +618,7 @@ function render_for_website( $data, $classes, $styles ) {
 	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
 	$tier_id            = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
 	$is_subscribed      = Jetpack_Memberships::is_current_user_subscribed();
-	$button_text        = wp_kses(
-		html_entity_decode( $is_subscribed ? ( '✓ ' . $data['submit_button_text_subscribed'] ) : $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
-		Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
-	);
+	$button_text        = get_submit_button_text( $data );
 
 	ob_start();
 
@@ -710,7 +707,7 @@ function render_for_website( $data, $classes, $styles ) {
 								<?php endif; ?>
 								name="jetpack_subscriptions_widget"
 							>
-								<?php echo esc_html( $button_text ); ?>
+								<?php echo sanitize_submit_text( $button_text ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							</button>
 						</p>
 					</div>
@@ -739,17 +736,14 @@ function render_for_website( $data, $classes, $styles ) {
  */
 function render_for_email( $data, $styles ) {
 	$submit_button_wrapper_style = ! empty( $styles['submit_button_wrapper'] ) ? 'style="' . esc_attr( $styles['submit_button_wrapper'] ) . '"' : '';
-	$button_text                 = wp_kses(
-		html_entity_decode( $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
-		Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
-	);
+	$button_text                 = get_submit_button_text( $data );
 
 	$html = '<div ' . wp_kses_data( $data['wrapper_attributes'] ) . '>
 		<div>
 			<div>
 				<div>
 					<p ' . $submit_button_wrapper_style . '>
-						<a href="' . esc_url( get_post_permalink() ) . '" style="text-decoration: none; ' . esc_attr( $styles['submit_button'] ) . '">' . $button_text . '</a>
+						<a href="' . esc_url( get_post_permalink() ) . '" style="text-decoration: none; ' . esc_attr( $styles['submit_button'] ) . '">' . sanitize_submit_text( $button_text ) . '</a>
 					</p>
 				</div>
 			</div>
@@ -910,6 +904,37 @@ function get_current_url() {
 	}
 
 	return $current_url;
+}
+
+/**
+ * Get the submit button text based on the subscription status.
+ *
+ * @param array $data Array containing block view data.
+ *
+ * @return string
+ */
+function get_submit_button_text( $data ) {
+	if ( ! Jetpack_Memberships::is_current_user_subscribed() ) {
+		return $data['submit_button_text'];
+	}
+	if ( ! Jetpack_Memberships::user_can_view_post() ) {
+		return $data['submit_button_text_upgrade'];
+	}
+	return '✓ ' . $data['submit_button_text_subscribed'];
+}
+
+/**
+ * Sanitize the submit button text.
+ *
+ * @param string $text String containing the submit button text.
+ *
+ * @return string
+ */
+function sanitize_submit_text( $text ) {
+	return wp_kses(
+		html_entity_decode( $text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
+		Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
+	);
 }
 
 /**
