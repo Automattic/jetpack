@@ -79,10 +79,13 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			// Increase request count;
 			const requestsCount = state.features.aiAssistant.requestsCount + action.count;
 
-			// Compute if the site is over the limit.
+			/**
+			 * Compute the AI Assistant Feature data optimistically,
+			 * based on the Jetpack_AI_Helper::get_ai_assistance_feature() helper.
+			 *
+			 * @see _inc/lib/class-jetpack-ai-helper.php
+			 */
 			const isOverLimit = requestsCount >= state.features.aiAssistant.requestsLimit;
-
-			// Compute require upgrade.
 			const requireUpgrade = isOverLimit && ! state.features.aiAssistant.hasFeature;
 
 			return {
