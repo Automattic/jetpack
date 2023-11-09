@@ -8,15 +8,15 @@ export type UpgradeTypeProp = 'vip' | 'default';
 
 export type TierUnlimitedProps = {
 	slug: 'ai-assistant-tier-unlimited';
-	limit: 9223372036854776000n;
+	limit: 922337203685477600;
 	value: 1;
-	readableLimit: 'Unlimited';
+	readableLimit: string;
 };
 
 export type TierFreeProps = {
 	slug: 'ai-assistant-tier-free';
 	limit: 20;
-	value: 20;
+	value: 0;
 };
 
 export type Tier100Props = {
@@ -37,12 +37,27 @@ export type Tier500Props = {
 	value: 500;
 };
 
+export type TierProp = {
+	slug: TierSlugProp;
+	limit: TierLimitProp;
+	value: TierValueProp;
+	readableLimit?: string;
+};
+
+export type TierLimitProp =
+	| TierUnlimitedProps[ 'limit' ]
+	| TierFreeProps[ 'limit' ]
+	| Tier100Props[ 'limit' ]
+	| Tier200Props[ 'limit' ]
+	| Tier500Props[ 'limit' ];
+
 export type TierSlugProp =
 	| TierUnlimitedProps[ 'slug' ]
 	| TierFreeProps[ 'slug' ]
 	| Tier100Props[ 'slug' ]
 	| Tier200Props[ 'slug' ]
 	| Tier500Props[ 'slug' ];
+
 export type TierValueProp =
 	| TierUnlimitedProps[ 'value' ]
 	| TierFreeProps[ 'value' ]
@@ -59,20 +74,13 @@ export type AiFeatureProps = {
 	errorMessage: string;
 	errorCode: string;
 	upgradeType: UpgradeTypeProp;
-	currentTier: {
-		value: TierValueProp;
-	};
+	currentTier: TierProp;
 	usagePeriod: {
 		currentStart: string;
 		nextStart: string;
 		requestsCount: number;
 	};
-	nextTier: {
-		slug: TierSlugProp;
-		value: TierValueProp;
-		limit?: number;
-		redeableLimit?: string;
-	};
+	nextTier: TierProp | null;
 };
 
 // Type used in the `wordpress-com/plans` store.

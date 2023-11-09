@@ -1,6 +1,7 @@
 /**
  * Types & Constants
  */
+import { __ } from '@wordpress/i18n';
 import {
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
@@ -22,7 +23,9 @@ const INITIAL_STATE: PlanStateProps = {
 			errorCode: '',
 			upgradeType: 'default',
 			currentTier: {
-				value: 1,
+				slug: 'ai-assistant-tier-free',
+				value: 0,
+				limit: 20,
 			},
 			usagePeriod: {
 				currentStart: '',
@@ -35,6 +38,8 @@ const INITIAL_STATE: PlanStateProps = {
 			nextTier: {
 				slug: 'ai-assistant-tier-unlimited',
 				value: 1,
+				limit: 922337203685477600,
+				readableLimit: __( 'Unlimited', 'jetpack' ),
 			},
 		},
 	},
