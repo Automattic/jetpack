@@ -7,6 +7,7 @@ import {
 	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
 	ACTION_SET_PLANS,
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
+	NEW_ASYNC_REQUEST_COUNTDOWN,
 } from './constants';
 import type { PlanStateProps } from './types';
 
@@ -32,14 +33,15 @@ const INITIAL_STATE: PlanStateProps = {
 				nextStart: '',
 				requestsCount: 0,
 			},
-			_meta: {
-				isRequesting: false,
-			},
 			nextTier: {
 				slug: 'ai-assistant-tier-unlimited',
 				value: 1,
 				limit: 922337203685477600,
 				readableLimit: __( 'Unlimited', 'jetpack' ),
+			},
+			_meta: {
+				isRequesting: false,
+				newAsyncRequestCountdown: NEW_ASYNC_REQUEST_COUNTDOWN,
 			},
 		},
 	},
@@ -63,6 +65,7 @@ export default function reducer( state = INITIAL_STATE, action ) {
 						_meta: {
 							...state.features.aiAssistant._meta,
 							isRequesting: true,
+							newAsyncRequestCountdown: NEW_ASYNC_REQUEST_COUNTDOWN,
 						},
 					},
 				},
@@ -106,6 +109,11 @@ export default function reducer( state = INITIAL_STATE, action ) {
 						isOverLimit,
 						requestsCount,
 						requireUpgrade,
+						_meta: {
+							...state.features.aiAssistant._meta,
+							newAsyncRequestCountdown:
+								state.features.aiAssistant._meta.newAsyncRequestCountdown - 1,
+						},
 					},
 				},
 			};

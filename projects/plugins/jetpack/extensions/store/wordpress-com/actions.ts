@@ -94,9 +94,19 @@ const actions = {
 	},
 
 	increaseAiAssistantRequestsCount( count = 1 ) {
-		return {
-			type: ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
-			count,
+		return ( { select, dispatch } ) => {
+			dispatch( {
+				type: ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
+				count,
+			} );
+
+			// Perform a new async request to keep data in sync
+			const asyncCoundown = select.getNewAsyncRequestCountdown();
+			if ( ! asyncCoundown ) {
+				setTimeout( () => {
+					dispatch( actions.fetchAiAssistantFeature() );
+				}, 5000 ); // backend process requires a delay to be able to see the new value
+			}
 		};
 	},
 };
