@@ -3,7 +3,7 @@ import { navigate } from '../../../utils/navigate';
 import LeftArrow from '../../svg/left-arrow.svg';
 
 type BackButtonProps = {
-	route: string;
+	route?: string;
 };
 
 const BackButton: React.FC< BackButtonProps > = ( { route = '/' } ) => {
