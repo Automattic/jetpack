@@ -1916,8 +1916,7 @@ class Manager {
 				'site_created'          => $this->get_assumed_site_creation_date(),
 				'allow_site_connection' => ! $this->has_connected_owner(),
 				'calypso_env'           => ( new Host() )->get_calypso_env(),
-				// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				'source'                => isset( $_GET['source'] ) ? wp_unslash( $_GET['source'] ) : '',
+				'source'                => ( new Host() )->get_source_query(),
 			)
 		);
 
