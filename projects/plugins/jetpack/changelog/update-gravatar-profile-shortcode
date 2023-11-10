@@ -1,4 +1,4 @@
-Significance: minor
-Type: enhancement
+Significance: patch
+Type: bugfix
 
-Use the same retrieval process as the gravatar widget by requesting the json from Gravatar
+Shortcode embeds: fix and refactor the display of Gravatars and Gravatar profiless.
