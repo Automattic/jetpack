@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added source as query param to the Jetpack connect url

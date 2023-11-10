@@ -43,6 +43,7 @@ declare global {
 			online: boolean;
 			assetPath: string;
 			canResizeImages: boolean;
+			isAtomic: boolean;
 			postTypes: {
 				[ key: string ]: string;
 			};
