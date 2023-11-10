@@ -243,7 +243,7 @@ EOF
 				}
 				if ( $isInteractive ) {
 					$question     = new ChoiceQuestion(
-						'Is this a change users would want to know about?',
+						'Is this a change site admins would want to know about?',
 						array(
 							'Y' => 'Yes',
 							'n' => 'No',
