@@ -73,11 +73,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		};
 	}, [] );
 
-	const {
-		requireUpgrade: requireUpgradeOnStart,
-		refresh: refreshFeatureData,
-		increaseRequestsCount,
-	} = useAiFeature();
+	const { requireUpgrade: requireUpgradeOnStart, increaseRequestsCount } = useAiFeature();
 
 	const focusOnPrompt = () => {
 		/*
@@ -129,7 +125,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		setError,
 		tracks,
 		userPrompt,
-		refreshFeatureData,
 		requireUpgrade,
 	} );
 
