@@ -73,7 +73,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		};
 	}, [] );
 
-	const { requireUpgrade: requireUpgradeOnStart, increaseRequestsCount } = useAiFeature();
+	const { requireUpgrade, increaseRequestsCount } = useAiFeature();
 
 	const focusOnPrompt = () => {
 		/*
@@ -94,8 +94,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
-
-	const requireUpgrade = requireUpgradeOnStart || errorData?.code === 'error_quota_exceeded';
 
 	const {
 		isLoadingCategories,
