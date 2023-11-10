@@ -55,7 +55,8 @@ export default function Proofread( {
 		setIsProofreadModalVisible( ! isProofreadModalVisible );
 	};
 
-	const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
+	const { increaseAiAssistantRequestsCount, dequeueAiAssistantFeatureAyncRequest } =
+		useDispatch( 'wordpress-com/plans' );
 
 	const handleSuggestion = ( content: string ) => {
 		const text = content.split( '\n' ).map( ( line, idx ) => {
@@ -93,6 +94,13 @@ export default function Proofread( {
 				},
 			},
 		];
+
+		/*
+		 * Always dequeue/cancel the AI Assistant feature async request,
+		 * in case there is one pending,
+		 * when performing a new AI suggestion request.
+		 */
+		dequeueAiAssistantFeatureAyncRequest();
 
 		request( messages );
 		toggleProofreadModal();
