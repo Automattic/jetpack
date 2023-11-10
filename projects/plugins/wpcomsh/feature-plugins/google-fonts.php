@@ -46,9 +46,11 @@ function wpcomsh_activate_google_fonts_module() {
 	$problematic_themes = array(
 		'course',
 		'pendant',
-		'twenty-twenty-two',
+		'twentytwentytwo',
 		'smithland',
 		'pendant-1',
+		'awburn',
+		'nokul',
 	);
 	$incompatible_theme = in_array( get_option( 'stylesheet' ), $problematic_themes, true );
 
