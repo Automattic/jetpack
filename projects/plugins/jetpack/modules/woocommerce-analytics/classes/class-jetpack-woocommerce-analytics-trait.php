@@ -169,19 +169,19 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 				'cart_page_contains_cart_block'         => $this->post_contains_text(
 					$cart_page_id,
 					'<!-- wp:woocommerce/cart'
-				),
+				) ? 1 : 0,
 				'cart_page_contains_cart_shortcode'     => $this->post_contains_text(
 					$cart_page_id,
 					'[woocommerce_cart]'
-				),
+				) ? 1 : 0,
 				'checkout_page_contains_checkout_block' => $this->post_contains_text(
 					$checkout_page_id,
 					'<!-- wp:woocommerce/checkout'
-				),
+				) ? 1 : 0,
 				'checkout_page_contains_checkout_shortcode' => $this->post_contains_text(
 					$checkout_page_id,
 					'[woocommerce_checkout]'
-				),
+				) ? 1 : 0,
 			);
 			set_transient( $transient_name, $info, DAY_IN_SECONDS );
 			return $info;
