@@ -140,7 +140,7 @@ const Suggestion: React.FC< SuggestionTypes > = ( {
 				</p>
 			) }
 
-			<FooterComponent />
+			{ FooterComponent && <FooterComponent /> }
 		</>
 	);
 };
