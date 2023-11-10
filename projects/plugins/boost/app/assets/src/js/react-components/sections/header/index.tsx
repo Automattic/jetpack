@@ -1,8 +1,10 @@
+import classNames from 'classnames';
 import React from 'react';
 import { navigate } from '../../../utils/navigate';
 import BackButton from '../../components/back-button';
 import ChevronRight from '../../svg/chevron-right';
 import Logo from '../../svg/logo';
+import styles from './styles.module.scss';
 
 interface HeaderProps {
 	subPageTitle?: string;
@@ -11,11 +13,11 @@ interface HeaderProps {
 
 const Header = ( { subPageTitle = '', children }: HeaderProps ) => {
 	return (
-		<div className="jb-dashboard-header">
-			<div className="jb-container masthead">
-				<div className="nav-area">
+		<div className={ classNames( styles[ 'jb-dashboard-header' ] ) }>
+			<div className={ classNames( 'jb-container', styles.masthead ) }>
+				<div className={ classNames( styles[ 'nav-area' ] ) }>
 					<div
-						className="jb-dashboard-header__logo"
+						className={ classNames( styles.logo ) }
 						onClick={ () => navigate( '/' ) }
 						onKeyDown={ event => {
 							if ( event.key === 'Enter' || event.key === ' ' ) {
@@ -30,10 +32,10 @@ const Header = ( { subPageTitle = '', children }: HeaderProps ) => {
 
 					{ subPageTitle !== '' && (
 						<>
-							<div className="chevron">
+							<div className={ classNames( styles.chevron ) }>
 								<ChevronRight />
 							</div>
-							<div className="subpage">{ subPageTitle }</div>
+							<div className={ classNames( styles.subpage ) }>{ subPageTitle }</div>
 						</>
 					) }
 				</div>
@@ -42,7 +44,7 @@ const Header = ( { subPageTitle = '', children }: HeaderProps ) => {
 			</div>
 
 			{ subPageTitle !== '' && (
-				<div className="jb-container back-button">
+				<div className="jb-container">
 					<BackButton />
 				</div>
 			) }

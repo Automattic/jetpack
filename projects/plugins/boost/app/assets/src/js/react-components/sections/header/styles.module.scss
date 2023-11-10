@@ -1,4 +1,4 @@
-.jb-dashboard-header {
+.header {
 	background-color: var( --primary-white );
 }
 
@@ -16,28 +16,28 @@
 	display: flex;
 	align-items: center;
 	flex-direction: row;
+}
 
-	.jb-dashboard-header__logo {
-		cursor: pointer;
+.logo {
+	cursor: pointer;
 
-		:global( svg ) {
-			height: 42px;
-			width: 100%;
-		}
+	:global( svg ) {
+		height: 42px;
+		width: 100%;
 	}
+}
 
-	.chevron {
-		margin-left: 16px;
-		margin-right: 16px;
-		width: 24px;
-		height: 24px;
-		padding-top: 2px;
-		text-align: center;
-	}
+.chevron {
+	margin-left: 16px;
+	margin-right: 16px;
+	width: 24px;
+	height: 24px;
+	padding-top: 2px;
+	text-align: center;
+}
 
-	.subpage {
-		color: var( --gray-40 );
-		font-size: 16px;
-		margin-top: -2px;
-	}
+.subpage {
+	color: var( --gray-40 );
+	font-size: 16px;
+	margin-top: -2px;
 }
