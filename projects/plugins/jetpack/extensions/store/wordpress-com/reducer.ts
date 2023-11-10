@@ -8,6 +8,7 @@ import {
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
 	ACTION_SET_PLANS,
+	ACTION_SET_AI_ASSISTANT_FEATURE_REQUIRE_UPGRADE,
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
 	ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
 } from './constants';
@@ -145,6 +146,21 @@ export default function reducer( state = INITIAL_STATE, action ) {
 							...state.features.aiAssistant._meta,
 							asyncRequestTimerId: action.timerId,
 						},
+					},
+				},
+			};
+		}
+
+		case ACTION_SET_AI_ASSISTANT_FEATURE_REQUIRE_UPGRADE: {
+			return {
+				...state,
+				features: {
+					...state.features,
+					aiAssistant: {
+						...state.features.aiAssistant,
+						requireUpgrade: action.requireUpgrade,
+						hasFeature: ! action.requireUpgrade, // If we require an upgrade, we don't have the feature.
+						isOverLimit: true, // If we require an upgrade, we are over the limit.
 					},
 				},
 			};

@@ -40,7 +40,8 @@ const useSuggestionsFromOpenAI = ( {
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ lastPrompt, setLastPrompt ] = useState( '' );
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
-	const { dequeueAiAssistantFeatureAyncRequest } = useDispatch( 'wordpress-com/plans' );
+	const { dequeueAiAssistantFeatureAyncRequest, setAiAssistantFeatureRequireUpgrade } =
+		useDispatch( 'wordpress-com/plans' );
 	const [ requestingState, setRequestingState ] = useState( 'init' );
 	const source = useRef();
 
@@ -148,6 +149,9 @@ const useSuggestionsFromOpenAI = ( {
 				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
 				status: 'info',
 			} );
+
+			// Dispatch the action to set the feature as requiring an upgrade.
+			setAiAssistantFeatureRequireUpgrade( true );
 
 			return;
 		}
@@ -453,6 +457,10 @@ const useSuggestionsFromOpenAI = ( {
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( false );
+
+			// Dispatch the action to set the feature as requiring an upgrade.
+			setAiAssistantFeatureRequireUpgrade( true );
+
 			setError( {
 				code: 'error_quota_exceeded',
 				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),

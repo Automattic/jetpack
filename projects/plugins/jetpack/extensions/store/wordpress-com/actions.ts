@@ -13,6 +13,7 @@ import {
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
 	ACTION_SET_PLANS,
+	ACTION_SET_AI_ASSISTANT_FEATURE_REQUIRE_UPGRADE,
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
 	ENDPOINT_AI_ASSISTANT_FEATURE,
 	NEW_ASYNC_REQUEST_TIMER_INTERVAL,
@@ -170,6 +171,13 @@ const actions = {
 			}
 
 			window?.clearTimeout( timerId );
+		};
+	},
+
+	setAiAssistantFeatureRequireUpgrade( requireUpgrade: boolean = true ) {
+		return {
+			type: ACTION_SET_AI_ASSISTANT_FEATURE_REQUIRE_UPGRADE,
+			requireUpgrade,
 		};
 	},
 };
