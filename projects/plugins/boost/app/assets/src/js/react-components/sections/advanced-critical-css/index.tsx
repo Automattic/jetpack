@@ -2,6 +2,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { replaceCssState, updateProvider } from '../../../stores/critical-css-state';
 import { groupErrorsByFrequency } from '../../../stores/critical-css-state-errors';
 import { type Provider } from '../../../stores/critical-css-state-types';
+import { navigate } from '../../../utils/navigate';
 import BackButton from '../../components/back-button';
 import CloseButton from '../../components/close-button';
 import CriticalCssErrorDescription from '../../components/critical-css-error-description';
@@ -13,6 +14,13 @@ type PropTypes = {
 };
 
 const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
+	/**
+	 * Automatically navigate back to main Settings page if generator isn't done.
+	 */
+	if ( issues.length === 0 ) {
+		navigate( '/' );
+	}
+
 	const dismissedIssues = issues.filter( issue => issue.error_status === 'dismissed' );
 	const activeIssues = issues.filter( issue => issue.error_status !== 'dismissed' );
 
@@ -23,14 +31,6 @@ const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
 					'While Jetpack Boost has been able to automatically generate optimized CSS for most of your important files & sections, we have identified a few more that require your attention.',
 					'jetpack-boost'
 			  );
-
-	/**
-	 * Automatically navigate back to main Settings page if generator isn't done.
-	 */
-	// @todo - implement
-	// $: if ( issues.length === 0 ) {
-	// 	navigate( -1 );
-	// }
 
 	function showDismissedIssues() {
 		replaceCssState( {
