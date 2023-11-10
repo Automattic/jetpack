@@ -30,7 +30,7 @@ const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
 		} );
 	}
 
-	function dismissProviderByKey( key ) {
+	function dismissProvider( { key }: Provider ) {
 		updateProvider( key, { error_status: 'dismissed' } );
 	}
 
@@ -61,10 +61,10 @@ const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
 				) }
 			</section>
 
-			{ activeIssues.map( ( { key, label } ) => (
+			{ activeIssues.map( ( { key, label, ...provider }: Provider ) => (
 				// Add transition:slide|local to the div below
 				<div className="panel" key={ key }>
-					<CloseButton onClick={ dismissProviderByKey( key ) } />
+					<CloseButton onClick={ () => dismissProvider( provider ) } />
 
 					<h4>
 						<InfoIcon />
