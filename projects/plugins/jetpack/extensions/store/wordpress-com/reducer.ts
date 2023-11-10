@@ -118,6 +118,7 @@ export default function reducer( state = INITIAL_STATE, action ) {
 						isOverLimit,
 						requestsCount,
 						requireUpgrade,
+						usagePeriod: { ...usagePeriod },
 					},
 				},
 			};
