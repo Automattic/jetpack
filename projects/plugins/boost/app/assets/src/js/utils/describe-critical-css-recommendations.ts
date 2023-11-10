@@ -8,6 +8,7 @@ import type { ComponentType } from 'react';
 type Suggestion = {
 	paragraph: string;
 	list?: string[];
+	listLink?: string;
 	closingParagraph?: string;
 };
 
@@ -169,7 +170,7 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 				),
 				list: [
 					__(
-						'Learn about the error and common solutions by <a target="_blank" href="https://wordpress.org/support/article/common-wordpress-errors/#internal-server-error">clicking here</a>.',
+						'Learn about the error and common solutions by <link>clicking here</link>.',
 						'jetpack-boost'
 					),
 					__(
@@ -181,6 +182,7 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 						'jetpack-boost'
 					),
 				],
+				listLink: 'https://wordpress.org/support/article/common-wordpress-errors/#internal-server-error',
 			};
 
 		default:
@@ -306,7 +308,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 			),
 			list: [
 				__(
-					'Visit the page and look at the protocol and host name to ensure it matches the one in your <a target="_blank" href="https://wordpress.org/support/article/administration-screens/">WordPress Administration Screen</a>.',
+					'Visit the page and look at the protocol and host name to ensure it matches the one in your <link>WordPress Administration Screen</link>.',
 					'jetpack-boost'
 				),
 				__(
@@ -318,6 +320,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 					'jetpack-boost'
 				),
 			],
+			listLink: 'https://wordpress.org/support/article/administration-screens/',
 		} ),
 		footerComponent: () => UrlComponentsExample,
 	},

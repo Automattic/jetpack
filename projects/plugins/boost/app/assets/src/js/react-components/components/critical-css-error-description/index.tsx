@@ -10,6 +10,7 @@ import {
 	rawError,
 } from '../../../utils/describe-critical-css-recommendations';
 import actionLinkInterpolateVar from '../../utils/action-link-interpolate-var';
+import { type InterpolateVars } from '../../utils/interplate-vars-types';
 import supportLinkInterpolateVar from '../../utils/support-link-interpolate-var';
 import FoldingElement from '../folding-element';
 import styles from './styles.module.scss';
@@ -42,11 +43,18 @@ const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > 
 
 	const rawErrors = rawError( errorSet );
 
-	const intepolateVars = {
+	const intepolateVars: InterpolateVars = {
 		...actionLinkInterpolateVar( regenerateCriticalCss, 'retry' ),
 		...supportLinkInterpolateVar(),
 		b: <b />,
 	};
+
+	if ( 'listLink' in suggestion( errorSet ) ) {
+		intepolateVars.link = (
+			// eslint-disable-next-line jsx-a11y/anchor-has-content
+			<a href={ suggestion( errorSet ).listLink } target="_blank" rel="noreferrer" />
+		);
+	}
 
 	return (
 		<div className={ styles[ 'error-description' ] }>
@@ -88,7 +96,6 @@ const MoreList: React.FC< MoreListTypes > = ( { entries = [], showLimit = 2 } ) 
 		<>
 			<ul className={ styles[ 'more-list' ] }>
 				{ listItems.map( ( { href, label }, index ) => (
-					// @todo - fix key.
 					<li key={ index }>
 						<a href={ href } target="_blank" rel="noreferrer">
 							{ label }
@@ -150,8 +157,6 @@ const NumberedList: React.FC< NumberedListTypes > = ( { items, interpolateVars }
 	return (
 		<ol className="numbered-list">
 			{ items.map( ( item, index ) => (
-				// @todo - fix key
-				// @todo - fix item that shows for error 500. It holds a hard-coded link in the translatable string.
 				<li key={ index }>
 					<span className="index">{ index + 1 }</span>
 					<span className="text">{ createInterpolateElement( item, interpolateVars ) }</span>
