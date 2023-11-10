@@ -2,10 +2,10 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { replaceCssState, updateProvider } from '../../../stores/critical-css-state';
 import { groupErrorsByFrequency } from '../../../stores/critical-css-state-errors';
 import { type Provider } from '../../../stores/critical-css-state-types';
+import BackButton from '../../components/back-button';
+import CloseButton from '../../components/close-button';
+import CriticalCssErrorDescription from '../../components/critical-css-error-description';
 import InfoIcon from '../../svg/info';
-import BackButton from '../back-button';
-import CloseButton from '../close-button';
-import CriticalCssErrorDescription from '../critical-css-error-description';
 
 type PropTypes = {
 	issues: Provider[];
