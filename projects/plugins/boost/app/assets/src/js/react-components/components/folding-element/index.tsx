@@ -1,4 +1,6 @@
+import classNames from 'classnames';
 import { useState } from 'react';
+import styles from './styles.module.scss';
 
 type PropTypes = {
 	labelExpandedText: string;
@@ -17,10 +19,11 @@ const FoldingElement: React.FC< PropTypes > = ( {
 	const label = expanded ? labelCollapsedText : labelExpandedText;
 
 	return (
-		// <button className="components-button is-link foldable-element-control" class:visible onClick={toggle}>
 		<>
 			<button
-				className="components-button is-link foldable-element-control"
+				className={ classNames( 'components-button is-link', styles[ 'foldable-element-control' ], {
+					visible: expanded,
+				} ) }
 				onClick={ () => setExpanded( ! expanded ) }
 			>
 				{ label }

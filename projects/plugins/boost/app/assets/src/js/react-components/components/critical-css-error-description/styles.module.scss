@@ -1,41 +1,24 @@
 .error-description {
 	line-height: 1.5rem;
-	color: --primary-black;
+	color: var( --primary-black );
 
-	a, h5, a.action {
-		color: inherit;
+	a, .suggestion-title {
+		color: inherit !important;
 	}
 
-	button.foldable-element-control {
-		color: --primary-black;
-		font-size: 16px;
-		margin-bottom: 24px;
-	}
-
-	button.foldable-element-control.visible {
-		margin-bottom: 0;
-	}
-
-	ul {
+	.more-list {
 		margin-top: 4px;
 	}
 
-	h5 {
+	.suggestion-title {
 		font-size: 16px;
 		margin-top: 24px;
 		margin-bottom: 8px;
 		font-weight: bold;
 	}
 
-	.problem {
-		img {
-			margin-top: 20px;
-			display: block;
-		}
-	}
-
-	p.suggestion, p.suggestion-closing, p.raw-error {
-		color: --primary-black;
+	.suggestion, .suggestion-closing, .raw-error {
+		color: var( --primary-black );
 		margin-top: 8px;
 		margin-bottom: 24px;
 	}

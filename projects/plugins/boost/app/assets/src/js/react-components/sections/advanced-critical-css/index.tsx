@@ -6,6 +6,7 @@ import BackButton from '../../components/back-button';
 import CloseButton from '../../components/close-button';
 import CriticalCssErrorDescription from '../../components/critical-css-error-description';
 import InfoIcon from '../../svg/info';
+import styles from './styles.module.scss';
 
 type PropTypes = {
 	issues: Provider[];
@@ -81,7 +82,7 @@ const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
 						{ provider.label }
 					</h4>
 
-					<div className="problem">
+					<div className={ styles.problem }>
 						<CriticalCssErrorDescription errorSet={ groupErrorsByFrequency( provider )[ 0 ] } />
 					</div>
 				</div>

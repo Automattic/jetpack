@@ -68,11 +68,11 @@ const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > 
 						labelCollapsedText={ __( 'Hide error message', 'jetpack-boost' ) }
 					>
 						{ /* @todo - <p className="raw-error" transition:slide|local> */ }
-						<p className="raw-error">{ rawErrors }</p>
+						<p className={ styles[ 'raw-error' ] }>{ rawErrors }</p>
 					</FoldingElement>
 				) : (
 					// @todo - <p class="raw-error" transition:slide|local>
-					<p className="raw-error">{ rawErrors }</p>
+					<p className={ styles[ 'raw-error' ] }>{ rawErrors }</p>
 				) ) }
 		</div>
 	);
@@ -85,7 +85,7 @@ const MoreList: React.FC< MoreListTypes > = ( { entries = [], showLimit = 2 } ) 
 
 	return (
 		<>
-			<ul>
+			<ul className={ styles[ 'more-list' ] }>
 				{ listItems.map( ( { href, label }, index ) => (
 					// @todo - fix key.
 					<li key={ index }>
@@ -124,9 +124,9 @@ const Suggestion: React.FC< SuggestionTypes > = ( {
 
 	return (
 		<>
-			<h5>{ __( 'What to do', 'jetpack-boost' ) }</h5>
+			<h5 className={ styles[ 'suggestion-title' ] }>{ __( 'What to do', 'jetpack-boost' ) }</h5>
 
-			<p className="suggestion">
+			<p className={ styles.suggestion }>
 				{ createInterpolateElement( suggestion( errorSet ).paragraph, interpolateVars ) }
 			</p>
 
@@ -135,7 +135,7 @@ const Suggestion: React.FC< SuggestionTypes > = ( {
 			) }
 
 			{ showClosingParagraph && !! suggestion( errorSet ).closingParagraph && (
-				<p className="suggestion-closing">
+				<p className={ styles[ 'suggestion-closing' ] }>
 					{ createInterpolateElement( suggestion( errorSet ).closingParagraph, interpolateVars ) }
 				</p>
 			) }
@@ -151,7 +151,6 @@ const NumberedList: React.FC< NumberedListTypes > = ( { items, interpolateVars }
 			{ items.map( ( item, index ) => (
 				// @todo - fix key
 				// @todo - fix item that shows for error 500. It holds a hard-coded link in the translatable string.
-				// @todo - retry is also broken.
 				<li key={ index }>
 					<span className="index">{ index + 1 }</span>
 					<span className="text">{ createInterpolateElement( item, interpolateVars ) }</span>

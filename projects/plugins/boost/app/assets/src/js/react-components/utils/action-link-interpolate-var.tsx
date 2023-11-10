@@ -19,9 +19,11 @@ const actionLinkInterpolateVar = (
 		callback( ( event.target as Element ).getAttribute( 'name' ) );
 	};
 
+	const anchorStyle = { color: 'inherit !important' };
+
 	return {
 		// eslint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid
-		[ elementKey ]: <a className="action" onClick={ handleOnClick } href="#" />,
+		[ elementKey ]: <a style={ anchorStyle } onClick={ handleOnClick } href="#" />,
 	};
 };
 
