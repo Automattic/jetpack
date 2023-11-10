@@ -21,7 +21,7 @@ export function* getJetpackModules() {
 /**
  * When requesting data on particular module
  * we want to make sure to have the latest state
- * @returns {object} - an action object.
+ * @returns {boolean} - if action was completed successfully.
  */
 export function isModuleActive() {
 	return fetchModules();

@@ -40,7 +40,7 @@ export function* updateJetpackModuleStatus( settings ) {
 /**
  * Yield actions to update module status
  * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @returns {boolean} - if operation is successful or not.
  */
 export function* fetchModules() {
 	// We don't fetch modules for Simple Site and aknowledge that all modules are active
