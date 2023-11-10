@@ -231,10 +231,11 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		// won't be doing this so no concern about overwriting.
 		$info = array(
 			'cart_page_contains_cart_block'             => str_contains( $cart_template->content, '<!-- wp:woocommerce/cart' ) ? 1 : 0,
-			'cart_page_contains_cart_shortcode'         => str_contains( $cart_template->content, '[woocommerce_cart]' ) ? 1 : 0,
+			'cart_page_contains_cart_shortcode'         => ( str_contains( $cart_template->content, '[woocommerce_cart]' ) || str_contains( $cart_template->content, '<!-- wp:woocommerce/classic-shortcode' ) ) ? 1 : 0,
 			'checkout_page_contains_checkout_block'     => str_contains( $checkout_template->content, '<!-- wp:woocommerce/checkout' ) ? 1 : 0,
-			'checkout_page_contains_checkout_shortcode' => str_contains( $checkout_template->content, '[woocommerce_checkout]' ) ? 1 : 0,
+			'checkout_page_contains_checkout_shortcode' => ( str_contains( $checkout_template->content, '[woocommerce_checkout]' ) || str_contains( $checkout_template->content, '<!-- wp:woocommerce/classic-shortcode' ) ) ? 1 : 0,
 		);
+
 		set_transient( $transient_name, $info, DAY_IN_SECONDS );
 		return $info;
 	}
