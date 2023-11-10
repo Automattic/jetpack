@@ -9,7 +9,7 @@ import React from 'react';
  */
 import { Nudge } from '../../../../shared/components/upgrade-nudge';
 import useAICheckout from '../../hooks/use-ai-checkout';
-import useAIFeature from '../../hooks/use-ai-feature';
+import useAiFeature from '../../hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../lib/connection';
 
 /**
@@ -102,7 +102,7 @@ const VIPUpgradePrompt = (): React.ReactNode => {
 };
 
 const UpgradePrompt = () => {
-	const { upgradeType } = useAIFeature();
+	const { upgradeType } = useAiFeature();
 
 	// If the user is on a VIP site, show the VIP upgrade prompt.
 	if ( upgradeType === 'vip' ) {

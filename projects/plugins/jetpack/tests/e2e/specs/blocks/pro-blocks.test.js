@@ -7,7 +7,7 @@ import {
 } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
-import playwrightConfig from '../../playwright.config.cjs';
+import playwrightConfig from '../../playwright.config.mjs';
 
 let blockEditor;
 test.beforeAll( async ( { browser } ) => {

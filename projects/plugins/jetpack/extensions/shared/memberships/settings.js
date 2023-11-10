@@ -1,3 +1,4 @@
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import {
 	Flex,
 	FlexBlock,
@@ -11,10 +12,11 @@ import { useViewportMatch } from '@wordpress/compose';
 import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useState } from 'react';
-import { icon as paywallIcon, blockName as paywallBlockName } from '../../blocks/paywall';
+import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import './settings.scss';
 import PlansSetupDialog from '../components/plans-setup-dialog';
@@ -23,7 +25,13 @@ import {
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
-import { getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
+import {
+	getFormattedCategories,
+	getShowMisconfigurationWarning,
+	MisconfigurationWarning,
+} from './utils';
+
+const paywallIcon = getBlockIconComponent( paywallBlockMetadata );
 
 export function Link( { href, children } ) {
 	return (
@@ -190,7 +198,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 				isLoading: isApiStateLoading(),
 				stripeConnectUrl: getConnectUrl(),
 				hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
-				foundPaywallBlock: getBlocks().find( block => block.name === paywallBlockName ),
+				foundPaywallBlock: getBlocks().find( block => block.name === paywallBlockMetadata.name ),
 			};
 		}
 	);
@@ -276,21 +284,31 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 }
 
 export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
-	const { isLoading, postHasPaywallBlock } = useSelect( select => {
-		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
-			'jetpack/membership-products'
-		);
-		const { getBlocks } = select( 'core/block-editor' );
+	const { isLoading, postHasPaywallBlock, newsletterCategories, newsletterCategoriesEnabled } =
+		useSelect( select => {
+			const {
+				getNewsletterProducts,
+				getConnectUrl,
+				isApiStateLoading,
+				getNewsletterCategories,
+				getNewsletterCategoriesEnabled,
+			} = select( 'jetpack/membership-products' );
+			const { getBlocks } = select( 'core/block-editor' );
 
-		return {
-			isLoading: isApiStateLoading(),
-			stripeConnectUrl: getConnectUrl(),
-			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
-			postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockName ),
-		};
-	} );
+			return {
+				isLoading: isApiStateLoading(),
+				stripeConnectUrl: getConnectUrl(),
+				hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
+				postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockMetadata.name ),
+				newsletterCategories: getNewsletterCategories(),
+				newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
+			};
+		} );
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
+	const postCategories = useSelect( select =>
+		select( editorStore ).getEditedPostAttribute( 'categories' )
+	);
 
 	if ( isLoading ) {
 		return (
@@ -301,11 +319,24 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 	}
 
 	const _accessLevel = accessLevel ?? accessOptions.everybody.key;
-
 	const getText = () => {
 		if ( _accessLevel === accessOptions.paid_subscribers.key ) {
 			if ( ! postHasPaywallBlock ) {
 				return __( 'This post will be sent to paid subscribers only.', 'jetpack' );
+			}
+		}
+		if ( newsletterCategoriesEnabled && newsletterCategories.length ) {
+			const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
+
+			if ( formattedCategoryNames ) {
+				return createInterpolateElement(
+					sprintf(
+						// translators: %1$s: list of categories names
+						__( 'This post will be sent to everyone subscribed to %1$s.', 'jetpack' ),
+						formattedCategoryNames
+					),
+					{ strong: <strong /> }
+				);
 			}
 		}
 		return __( 'This post will be sent to all subscribers.', 'jetpack' );

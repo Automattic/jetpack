@@ -56,19 +56,30 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 	 * @return string The email address of the subscribed user or an empty string if not subscribed.
 	 */
 	public function get_subscriber_email() {
+		if ( ! is_user_logged_in() ) {
+			return '';
+		}
+		return wp_get_current_user()->user_email;
+	}
+
+	/**
+	 * Returns true if the current authenticated user is subscribed to the current site.
+	 *
+	 * @return boolean
+	 */
+	public function is_current_user_subscribed() {
 		include_once WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
 		$email             = wp_get_current_user()->user_email;
 		$subscriber_object = \Blog_Subscriber::get( $email );
-
 		if ( empty( $subscriber_object ) ) {
-			return '';
+			return false;
 		}
 		$blog_id             = $this->get_site_id();
 		$subscription_status = \Blog_Subscription::get_subscription_status_for_blog( $subscriber_object, $blog_id );
 		if ( 'active' !== $subscription_status ) {
-			return '';
+			return false;
 		}
-		return $email;
+		return true;
 	}
 
 	/**
