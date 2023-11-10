@@ -14,9 +14,19 @@ const Header = ( { subPageTitle = '', children }: HeaderProps ) => {
 		<div className="jb-dashboard-header">
 			<div className="jb-container masthead">
 				<div className="nav-area">
-					<button className="jb-dashboard-header__logo" onClick={ () => navigate( '/' ) }>
+					<div
+						className="jb-dashboard-header__logo"
+						onClick={ () => navigate( '/' ) }
+						onKeyDown={ event => {
+							if ( event.key === 'Enter' || event.key === ' ' ) {
+								navigate( '/' );
+							}
+						} }
+						role="button"
+						tabIndex={ 0 }
+					>
 						<Logo />
-					</button>
+					</div>
 
 					{ subPageTitle !== '' && (
 						<>
