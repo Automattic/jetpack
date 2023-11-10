@@ -37,7 +37,8 @@ import videoPressImage from './videopress.png';
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
  * @param {boolean} props.preferProductName      - Use product name instead of title
  * @param {string} props.imageContainerClassName - Append a class to the image container
- * @param {string} [props.ctaButtonLabel]          - The label for the Call To Action button
+ * @param {string} [props.ctaButtonLabel]        - The label for the Call To Action button
+ * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -50,6 +51,7 @@ export default function ProductInterstitial( {
 	children = null,
 	imageContainerClassName = '',
 	ctaButtonLabel = null,
+	hideTOS = false,
 } ) {
 	const { activate, detail } = useProduct( slug );
 	const { isUpgradableByBundle, tiers } = detail;
@@ -163,6 +165,7 @@ export default function ProductInterstitial( {
 									supportingInfo={ supportingInfo }
 									preferProductName={ preferProductName }
 									ctaButtonLabel={ ctaButtonLabel }
+									hideTOS={ hideTOS }
 								/>
 							</Col>
 							<Col
@@ -285,6 +288,7 @@ export function JetpackAIInterstitial() {
 			installsPlugin={ true }
 			imageContainerClassName={ styles.aiImageContainer }
 			ctaButtonLabel={ ctaLabel }
+			hideTOS={ true }
 		>
 			<img src={ jetpackAiImage } alt="Jetpack AI" />
 		</ProductInterstitial>
