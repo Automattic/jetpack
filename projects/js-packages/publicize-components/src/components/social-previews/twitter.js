@@ -1,6 +1,7 @@
 import { TwitterPreviews } from '@automattic/social-previews';
 import { useSelect } from '@wordpress/data';
 import React from 'react';
+import { SOCIAL_STORE_ID } from '../../social-store';
 
 /**
  * The twitter tab component.
@@ -16,7 +17,8 @@ import React from 'react';
 function Twitter( { title, description, image, url, media } ) {
 	const tweets = useSelect(
 		select => {
-			const { getTweetTemplate, getShareMessage } = select( 'jetpack/publicize' );
+			const { getShareMessage } = select( 'jetpack/publicize' );
+			const { getTweetTemplate } = select( SOCIAL_STORE_ID );
 			return [
 				{
 					...getTweetTemplate(),
