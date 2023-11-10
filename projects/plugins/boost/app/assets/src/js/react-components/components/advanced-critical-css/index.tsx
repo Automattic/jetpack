@@ -61,14 +61,14 @@ const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
 				) }
 			</section>
 
-			{ activeIssues.map( ( { key, label, ...provider }: Provider ) => (
+			{ activeIssues.map( ( provider: Provider ) => (
 				// Add transition:slide|local to the div below
-				<div className="panel" key={ key }>
+				<div className="panel" key={ provider.key }>
 					<CloseButton onClick={ () => dismissProvider( provider ) } />
 
 					<h4>
 						<InfoIcon />
-						{ label }
+						{ provider.label }
 					</h4>
 
 					{ /* <div className="problem">
