@@ -3,11 +3,12 @@
  */
 import { __ } from '@wordpress/i18n';
 import {
+	ACTION_DECREASE_NEW_ASYNC_REQUEST_COUNTDOWN,
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
 	ACTION_SET_PLANS,
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
-	NEW_ASYNC_REQUEST_COUNTDOWN,
+	NEW_ASYNC_REQUEST_COUNTDOWN_VALUE,
 } from './constants';
 import type { PlanStateProps } from './types';
 
@@ -41,7 +42,7 @@ const INITIAL_STATE: PlanStateProps = {
 			},
 			_meta: {
 				isRequesting: false,
-				newAsyncRequestCountdown: NEW_ASYNC_REQUEST_COUNTDOWN,
+				newAsyncRequestCountdown: NEW_ASYNC_REQUEST_COUNTDOWN_VALUE,
 			},
 		},
 	},
@@ -65,7 +66,7 @@ export default function reducer( state = INITIAL_STATE, action ) {
 						_meta: {
 							...state.features.aiAssistant._meta,
 							isRequesting: true,
-							newAsyncRequestCountdown: NEW_ASYNC_REQUEST_COUNTDOWN,
+							newAsyncRequestCountdown: NEW_ASYNC_REQUEST_COUNTDOWN_VALUE,
 						},
 					},
 				},
@@ -109,6 +110,18 @@ export default function reducer( state = INITIAL_STATE, action ) {
 						isOverLimit,
 						requestsCount,
 						requireUpgrade,
+					},
+				},
+			};
+		}
+
+		case ACTION_DECREASE_NEW_ASYNC_REQUEST_COUNTDOWN: {
+			return {
+				...state,
+				features: {
+					...state.features,
+					aiAssistant: {
+						...state.features.aiAssistant,
 						_meta: {
 							...state.features.aiAssistant._meta,
 							newAsyncRequestCountdown:

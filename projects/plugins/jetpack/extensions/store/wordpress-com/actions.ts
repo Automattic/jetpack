@@ -6,6 +6,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Types & Constants
  */
 import {
+	ACTION_DECREASE_NEW_ASYNC_REQUEST_COUNTDOWN,
 	ACTION_FETCH_FROM_API,
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
@@ -102,6 +103,9 @@ const actions = {
 				count,
 			} );
 
+			// Every time the requests count is increased, decrease the countdown
+			dispatch( actions.decreaseNewAsyncRequestCountdown() );
+
 			// Perform a new async request to keep data in sync
 			const asyncCoundown = select.getNewAsyncRequestCountdown();
 			if ( asyncCoundown <= 0 ) {
@@ -114,6 +118,12 @@ const actions = {
 					dispatch( actions.fetchAiAssistantFeature() );
 				}, 5000 ); // backend process requires a delay to be able to see the new value
 			}
+		};
+	},
+
+	decreaseNewAsyncRequestCountdown() {
+		return {
+			type: ACTION_DECREASE_NEW_ASYNC_REQUEST_COUNTDOWN,
 		};
 	},
 };
