@@ -18,10 +18,17 @@ function Twitter( { title, description, image, url, media } ) {
 	const tweets = useSelect(
 		select => {
 			const { getShareMessage } = select( 'jetpack/publicize' );
-			const { getTweetTemplate } = select( SOCIAL_STORE_ID );
+			const {
+				displayName: name,
+				profileImage,
+				username: screenName,
+			} = select( SOCIAL_STORE_ID ).getConnectionProfileDetails( 'twitter' );
+
 			return [
 				{
-					...getTweetTemplate(),
+					name,
+					profileImage,
+					screenName,
 					text: getShareMessage() + ( media.length ? ` ${ url }` : '' ),
 					cardType: image ? 'summary_large_image' : 'summary',
 					title,

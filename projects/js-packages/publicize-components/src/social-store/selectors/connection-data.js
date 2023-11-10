@@ -54,90 +54,33 @@ export function getMustReauthConnections( state ) {
 }
 
 /**
- * Returns a template for linkedIn data, based on the first linkedin account found.
+ * Get the profile details for a connection
  *
  * @param {object} state - State object.
+ * @param {string} service - The service name.
  * @param {object} args - Arguments.
  * @param {boolean} args.forceDefaults - Whether to use default values.
- * @returns {object} The linkedin account data.
+ *
+ * @returns {object} The profile details.
  */
-export function getLinkedInDetails( state, { forceDefaults = false } = {} ) {
+export function getConnectionProfileDetails( state, service, { forceDefaults = false } = {} ) {
+	let displayName = '';
+	let profileImage = '';
+	let username = '';
+
 	if ( ! forceDefaults ) {
 		const connection = getConnections( state ).find(
-			( { service_name } ) => 'linkedin' === service_name
+			( { service_name } ) => service === service_name
 		);
 
 		if ( connection ) {
-			return {
-				name: connection.display_name,
-				profileImage: connection.profile_picture,
-			};
+			const { display_name, profile_display_name, profile_picture } = connection;
+
+			displayName = 'twitter' === service ? profile_display_name : display_name;
+			username = 'twitter' === service ? display_name : connection.username;
+			profileImage = profile_picture;
 		}
 	}
 
-	return { name: '', profileImage: '' };
-}
-
-/**
- * Returns a template for nextdoor data, based on the first nextdoor account found.
- * @param {object} state - State object.
- * @param {object} args - Arguments.
- * @param {boolean} args.forceDefaults - Whether to use default values.
- * @returns {{name: string; profileImage: string}} The nextdoor account data.
- */
-export function getNextdoorDetails( state, { forceDefaults = false } = {} ) {
-	if ( ! forceDefaults ) {
-		const connection = getConnections( state ).find(
-			( { service_name } ) => 'nextdoor' === service_name
-		);
-
-		if ( connection ) {
-			return {
-				name: connection.display_name,
-				profileImage: connection.profile_picture,
-			};
-		}
-	}
-
-	return { name: '', profileImage: '' };
-}
-
-/**
- * Returns a template for Instagram data, based on the first Instagram account found.
- * @param {object} state - State object.
- * @returns {{name: string; profileImage: string}} The Instagram account data.
- */
-export function getInstagramDetails( state ) {
-	const connection = getConnections( state ).find(
-		( { service_name } ) => 'instagram-business' === service_name
-	);
-
-	if ( connection ) {
-		return {
-			name: connection.username,
-			profileImage: connection.profile_picture,
-		};
-	}
-
-	return {
-		name: 'username',
-		profileImage: '',
-	};
-}
-
-/**
- * Returns a template for tweet data, based on the first Twitter account found.
- *
- * @param {object} state - State object.
- * @returns {object} The Twitter account data.
- */
-export function getTweetTemplate( state ) {
-	const connections = getConnections( state );
-	const twitterAccount = connections?.find( connection => 'twitter' === connection.service_name );
-
-	return {
-		name: twitterAccount?.profile_display_name,
-		profileImage: twitterAccount?.profile_picture,
-		screenName: twitterAccount?.display_name,
-	};
+	return { displayName, profileImage, username };
 }

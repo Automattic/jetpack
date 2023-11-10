@@ -12,8 +12,8 @@ import { SOCIAL_STORE_ID } from '../../social-store';
  */
 export function Instagram( props ) {
 	const { title, image, media } = props;
-	const { name, profileImage } = useSelect( select =>
-		select( SOCIAL_STORE_ID ).getInstagramDetails()
+	const { username: name, profileImage } = useSelect( select =>
+		select( SOCIAL_STORE_ID ).getConnectionProfileDetails( 'instagram-business' )
 	);
 
 	const { message: text } = useSocialMediaMessage();

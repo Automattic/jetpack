@@ -14,8 +14,8 @@ import { SOCIAL_STORE_ID } from '../../social-store';
 export function LinkedIn( props ) {
 	const { title, url, image, media } = props;
 
-	const { name, profileImage } = useSelect( select =>
-		select( SOCIAL_STORE_ID ).getLinkedInDetails()
+	const { displayName: name, profileImage } = useSelect( select =>
+		select( SOCIAL_STORE_ID ).getConnectionProfileDetails( 'linkedin' )
 	);
 
 	const { message: text } = useSocialMediaMessage();
