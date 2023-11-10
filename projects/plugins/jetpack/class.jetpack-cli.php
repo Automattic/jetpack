@@ -2006,27 +2006,26 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$wp_filesystem->mkdir( $path );
 
+		$keywords = isset( $assoc_args['keywords'] )
+			? array_map(
+				function ( $keyword ) {
+					return trim( $keyword );
+				},
+				array_slice( explode( ',', $assoc_args['keywords'] ), 0, 3 )
+			)
+			: array();
+
 		$files = array(
 			"$path/block.json"  => self::render_block_file(
 				'block-block-json',
 				array(
 					'slug'        => $slug,
-					'title'       => addcslashes( $title, '\n"\\' ),
+					'title'       => wp_json_encode( $title, JSON_UNESCAPED_UNICODE ),
 					'description' => isset( $assoc_args['description'] )
-						? addcslashes( $assoc_args['description'], '\n"\\' )
-						: addcslashes( $title, '\n"\\' ),
+						? wp_json_encode( $assoc_args['description'], JSON_UNESCAPED_UNICODE )
+						: wp_json_encode( $title, JSON_UNESCAPED_UNICODE ),
 					'nextVersion' => $next_version,
-					'keywords'    => isset( $assoc_args['keywords'] )
-						? implode(
-							',',
-							array_map(
-								function ( $keyword ) {
-										return '"' . trim( addcslashes( $keyword, '\n"\\' ) ) . '"';
-								},
-								array_slice( explode( ',', $assoc_args['keywords'] ), 0, 3 )
-							)
-						)
-						: '',
+					'keywords'    => wp_json_encode( $keywords, JSON_UNESCAPED_UNICODE ),
 				)
 			),
 			"$path/$slug.php"   => self::render_block_file(
