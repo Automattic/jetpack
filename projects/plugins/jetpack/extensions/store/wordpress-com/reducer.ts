@@ -11,7 +11,7 @@ import {
 	ACTION_SET_AI_ASSISTANT_FEATURE_REQUIRE_UPGRADE,
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
 	ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
-	FREE_PLANT_REQUESTS_LIMIT,
+	FREE_PLAN_REQUESTS_LIMIT,
 } from './constants';
 import type { PlanStateProps } from './types';
 
@@ -24,7 +24,7 @@ const INITIAL_STATE: PlanStateProps = {
 			hasFeature: !! aiAssistantFeature?.[ 'has-feature' ],
 			isOverLimit: !! aiAssistantFeature?.[ 'is-over-limit' ],
 			requestsCount: aiAssistantFeature?.[ 'requests-count' ] || 0,
-			requestsLimit: aiAssistantFeature?.[ 'requests-limit' ] || FREE_PLANT_REQUESTS_LIMIT,
+			requestsLimit: aiAssistantFeature?.[ 'requests-limit' ] || FREE_PLAN_REQUESTS_LIMIT,
 			requireUpgrade: !! aiAssistantFeature?.[ 'site-require-upgrade' ],
 			errorMessage: aiAssistantFeature?.[ 'error-message' ] || '',
 			errorCode: aiAssistantFeature?.[ 'error-code' ],
