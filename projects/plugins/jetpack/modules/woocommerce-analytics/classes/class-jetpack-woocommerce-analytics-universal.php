@@ -488,9 +488,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		global $post;
 		$content = $post->post_content;
 
-		$cart_checkout_templates_in_use = class_exists( 'Automattic\WooCommerce\Blocks\Package' ) && version_compare( Automattic\WooCommerce\Blocks\Package::get_version(), '10.6.0', '>=' );
-
-		if ( $cart_checkout_templates_in_use ) {
+		if ( $this->cart_checkout_templates_in_use ) {
 			if ( function_exists( 'get_block_template' ) ) {
 				$content = get_block_template( 'woocommerce/woocommerce//page-checkout' )->content;
 			}
