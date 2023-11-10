@@ -1,9 +1,9 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import UrlComponentsExample from '../pages/settings/elements/UrlComponentsExample.svelte';
+import UrlComponentsExample from '../react-components/components/url-components-example';
 import { CriticalCssErrorDetails } from '../stores/critical-css-state-types';
 import { castToNumber } from './cast-to-number';
 import type { ErrorSet } from '../stores/critical-css-state-errors';
-import type { SvelteComponent } from 'svelte';
+import type { ComponentType } from 'react';
 
 type Suggestion = {
 	paragraph: string;
@@ -40,12 +40,12 @@ export function suggestion( set: ErrorSet ): Suggestion {
 }
 
 /**
- * Returns a Svelte component to display in the footer of the given error set,
+ * Returns a React component to display in the footer of the given error set,
  * or null if no component should be displayed.
  *
  * @param {ErrorSet} set Set to get a footer component for.
  */
-export function footerComponent( set: ErrorSet ): typeof SvelteComponent | null {
+export function footerComponent( set: ErrorSet ): typeof ComponentType | null {
 	const spec = getErrorSpec( set.type );
 
 	if ( spec.footerComponent ) {
@@ -181,6 +181,7 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 						'jetpack-boost'
 					),
 				],
+				closingParagraph: __( 'This is a test.', 'jetpack-boost' ),
 			};
 
 		default:
@@ -235,7 +236,7 @@ type ErrorTypeSpec = {
 	groupKey?: ( error: CriticalCssErrorDetails ) => string; // Returns a string which helps determine error groupings. If unspecified, type is used.
 	describeSet: ( set: ErrorSet ) => string; // Returns a string used to describe a set of this type of error.
 	suggestion?: ( set: ErrorSet ) => Suggestion; // Returns a simple string with suggestions. Gets templated on display.
-	footerComponent?: () => typeof SvelteComponent; // Returns an extra Svelte component to add to the footer of the error.
+	footerComponent?: () => typeof ComponentType; // Returns an extra React component to add to the footer of the error.
 	rawError?: ( set: ErrorSet ) => string; // Returns a string of the first raw error message
 };
 
@@ -252,7 +253,9 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				),
 				set.firstMeta.code
 			),
+		rawError: set => Object.values( set.byUrl )[ 0 ].message,
 		suggestion: set => httpErrorSuggestion( castToNumber( set.firstMeta.code ), urlCount( set ) ),
+		footerComponent: () => UrlComponentsExample,
 	},
 
 	RedirectError: {

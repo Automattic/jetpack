@@ -1,9 +1,11 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { replaceCssState, updateProvider } from '../../../stores/critical-css-state';
+import { groupErrorsByFrequency } from '../../../stores/critical-css-state-errors';
 import { type Provider } from '../../../stores/critical-css-state-types';
 import InfoIcon from '../../svg/info';
 import BackButton from '../back-button';
 import CloseButton from '../close-button';
+import CriticalCssErrorDescription from '../critical-css-error-description';
 
 type PropTypes = {
 	issues: Provider[];
@@ -71,9 +73,9 @@ const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
 						{ provider.label }
 					</h4>
 
-					{ /* <div className="problem">
-						<CriticalCssErrorDescription errorSet={groupErrorsByFrequency( provider )[ 0 ]} />
-					</div> */ }
+					<div className="problem">
+						<CriticalCssErrorDescription errorSet={ groupErrorsByFrequency( provider )[ 0 ] } />
+					</div>
 				</div>
 			) ) }
 		</div>

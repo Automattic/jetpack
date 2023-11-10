@@ -8,8 +8,9 @@
 	import { __ } from '@wordpress/i18n';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import FoldingElement from '../../../elements/FoldingElement.svelte';
+	import ReactComponent from '../../../elements/ReactComponent.svelte';
+	import CriticalCssErrorDescription from '../../../react-components/components/critical-css-error-description';
 	import { CriticalCssState } from '../../../stores/critical-css-state-types';
-	import CriticalCssErrorDescription from './CriticalCssErrorDescription.svelte';
 
 	export let supportLink = 'https://wordpress.org/support/plugin/jetpack-boost/';
 	export let status: CriticalCssState[ 'status' ];
@@ -46,7 +47,8 @@
 		>
 			<div class="raw-error" transition:slide|local>
 				{#if showProviderError}
-					<CriticalCssErrorDescription
+					<ReactComponent
+						this={CriticalCssErrorDescription}
 						errorSet={primaryErrorSet}
 						showSuggestion={true}
 						showClosingParagraph={false}

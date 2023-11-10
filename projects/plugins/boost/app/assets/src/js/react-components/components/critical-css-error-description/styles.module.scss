@@ -1,0 +1,52 @@
+.error-description {
+	line-height: 1.5rem;
+	color: --primary-black;
+
+	a, h5, a.action {
+		color: inherit;
+	}
+
+	button.foldable-element-control {
+		color: --primary-black;
+		font-size: 16px;
+		margin-bottom: 24px;
+	}
+
+	button.foldable-element-control.visible {
+		margin-bottom: 0;
+	}
+
+	ul {
+		margin-top: 4px;
+	}
+
+	h5 {
+		font-size: 16px;
+		margin-top: 24px;
+		margin-bottom: 8px;
+		font-weight: bold;
+	}
+
+	.problem {
+		img {
+			margin-top: 20px;
+			display: block;
+		}
+	}
+
+	p.suggestion, p.suggestion-closing, p.raw-error {
+		color: --primary-black;
+		margin-top: 8px;
+		margin-bottom: 24px;
+	}
+
+	pre {
+		background-color: #f1f1f1;
+		padding: 25px;
+		margin: 20px 0;
+		text-align: left;
+		white-space: pre-wrap;
+		color: #0f0f0f;
+		border-radius: 6px;
+	}
+}

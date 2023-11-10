@@ -4,12 +4,12 @@
 	import CloseButton from '../../../elements/CloseButton.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import BackButton from '../../../react-components/components/back-button';
+	import CriticalCssErrorDescription from '../../../react-components/components/critical-css-error-description';
 	import { replaceCssState, updateProvider } from '../../../stores/critical-css-state';
 	import { groupErrorsByFrequency } from '../../../stores/critical-css-state-errors';
 	import { type Provider } from '../../../stores/critical-css-state-types';
 	import InfoIcon from '../../../svg/info.svg';
 	import routerHistory from '../../../utils/router-history';
-	import CriticalCssErrorDescription from '../elements/CriticalCssErrorDescription.svelte';
 
 	export let issues: Provider[];
 
@@ -86,7 +86,10 @@
 			</h4>
 
 			<div class="problem">
-				<CriticalCssErrorDescription errorSet={groupErrorsByFrequency( provider )[ 0 ]} />
+				<ReactComponent
+					this={CriticalCssErrorDescription}
+					errorSet={groupErrorsByFrequency( provider )[ 0 ]}
+				/>
 			</div>
 		</div>
 	{/each}
