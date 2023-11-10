@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Pass empty email string to subscribe modal when no email is present

@@ -67,17 +67,13 @@ domReady( function () {
 				const emailInput = form.querySelector( 'input[type=email]' );
 				const email = emailInput ? emailInput.value : form.dataset.subscriber_email;
 
-				if ( ! email ) {
-					return;
-				}
-
 				event.preventDefault();
 
 				const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
 				const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
 
 				show_iframe( {
-					email,
+					email: email ? email : '',
 					post_id,
 					tier_id,
 					blog: form.dataset.blog,
