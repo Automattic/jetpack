@@ -48,7 +48,7 @@ const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'po
 const isPlaygroundVisible =
 	window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-playground-visible' ];
 
-export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
+export default function AIAssistantEdit( { attributes, setAttributes, clientId, isSelected } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
 	const [ errorData, setError ] = useState( {} );
 	const [ loadingImages, setLoadingImages ] = useState( false );
@@ -505,7 +505,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 					</InspectorControls>
 				) }
 
-				{ requireUpgrade && <UpgradePrompt /> }
+				{ requireUpgrade && isSelected && <UpgradePrompt /> }
 				{ ! connected && <ConnectPrompt /> }
 				{ ! isWaitingState && connected && ! requireUpgrade && (
 					<ToolbarControls
