@@ -105,6 +105,10 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			const isOverLimit = requestsCount >= state.features.aiAssistant.requestsLimit;
 			const requireUpgrade = isOverLimit && ! state.features.aiAssistant.hasFeature;
 
+			// Increase the requests count also fo the Usage Period.
+			const usagePeriod = state.features.aiAssistant.usagePeriod || { requestsCount: 0 };
+			usagePeriod.requestsCount += action.count;
+
 			return {
 				...state,
 				features: {
@@ -114,6 +118,7 @@ export default function reducer( state = INITIAL_STATE, action ) {
 						isOverLimit,
 						requestsCount,
 						requireUpgrade,
+						usagePeriod: { ...usagePeriod },
 					},
 				},
 			};
