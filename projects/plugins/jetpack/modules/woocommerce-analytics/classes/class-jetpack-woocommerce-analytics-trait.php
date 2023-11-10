@@ -182,8 +182,7 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 					$checkout_page_id,
 					'<!-- wp:woocommerce/checkout'
 				) ? 1 : 0,
-				'checkout_page_contains_checkout_shortcode' => (
-					$this->post_contains_text(
+				'checkout_page_contains_checkout_shortcode' => ( $this->post_contains_text(
 					$checkout_page_id,
 					'[woocommerce_checkout]'
 				) ||
