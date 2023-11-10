@@ -50,7 +50,7 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 	// Log that we found a HEIF image.
 	jetpack_wpcom_maybe_log_heif_to_jpg(
 		array(
-			'message'  => sprintf( 'Found HEIF image with magic bytes: %s', $magic_bytes ),
+			'message'  => sprintf( 'Found HEIF image: %s with magic bytes: %s', $filename, $magic_bytes ),
 			'severity' => 'info',
 		)
 	);
