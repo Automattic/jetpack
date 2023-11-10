@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import { useState } from 'react';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
@@ -67,12 +68,12 @@ const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > 
 						labelExpandedText={ __( 'See error message', 'jetpack-boost' ) }
 						labelCollapsedText={ __( 'Hide error message', 'jetpack-boost' ) }
 					>
-						{ /* @todo - <p className="raw-error" transition:slide|local> */ }
 						<p className={ styles[ 'raw-error' ] }>{ rawErrors }</p>
 					</FoldingElement>
 				) : (
-					// @todo - <p class="raw-error" transition:slide|local>
-					<p className={ styles[ 'raw-error' ] }>{ rawErrors }</p>
+					<p className={ classNames( styles[ 'raw-error' ], styles[ 'fade-in' ] ) }>
+						{ rawErrors }
+					</p>
 				) ) }
 		</div>
 	);

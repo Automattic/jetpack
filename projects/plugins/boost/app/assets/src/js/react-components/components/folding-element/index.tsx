@@ -29,7 +29,7 @@ const FoldingElement: React.FC< PropTypes > = ( {
 				{ label }
 			</button>
 
-			{ expanded && <>{ children }</> }
+			{ expanded && <div className={ styles[ 'fade-in' ] }>{ children }</div> }
 		</>
 	);
 };

@@ -7,3 +7,18 @@
 .foldable-element-control.visible {
 	margin-bottom: 0 !important;
 }
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+.fade-in {
+	animation-duration: 300ms;
+	animation-name: fadeIn;
+}

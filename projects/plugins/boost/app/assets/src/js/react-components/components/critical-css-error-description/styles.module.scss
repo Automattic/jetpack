@@ -33,3 +33,18 @@
 		border-radius: 6px;
 	}
 }
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+.fade-in {
+	animation-duration: 300ms;
+	animation-name: fadeIn;
+}
