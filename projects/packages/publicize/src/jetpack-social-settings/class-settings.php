@@ -47,7 +47,7 @@ class Settings {
 			return;
 		}
 
-		$this->update_auto_conversion_settings( $auto_conversion_settings['image'] );
+		update_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES, $auto_conversion_settings['image'] );
 		delete_option( 'jetpack_social_settings' );
 	}
 
@@ -106,7 +106,7 @@ class Settings {
 
 	public function update_settings( $updated, $name, $value ) {
 		if ( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES === $name ) {
-			return $this->update_auto_conversion_settings( $value );
+			return $this->update_auto_conversion_setting( $value );
 		}
 
 		if ( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS === $name ) {
@@ -117,7 +117,7 @@ class Settings {
 
 	public function update_auto_conversion_setting( $new_setting ) {
 		$this->migrate_old_option();
-		return update_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS, $new_setting );
+		return update_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES, $new_setting );
 	}
 
 	public function update_social_image_generator_settings( $new_settings ) {
