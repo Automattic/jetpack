@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Client: do not dispatch `done` event when JETPACK_AI_ERROR

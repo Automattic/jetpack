@@ -348,8 +348,8 @@ class Jetpack_AI_Helper {
 			}
 
 			if ( ! class_exists( 'OpenAI_Limit_Usage' ) ) {
-				if ( is_readable( WP_PLUGIN_DIR . '/openai/openai-limit-usage.php' ) ) {
-					require_once WP_PLUGIN_DIR . '/openai/openai-limit-usage.php';
+				if ( is_readable( WP_CONTENT_DIR . '/lib/openai/openai-limit-usage.php' ) ) {
+					require_once WP_CONTENT_DIR . '/lib/openai/openai-limit-usage.php';
 				} else {
 					return new WP_Error(
 						'openai_limit_usage_not_found',
@@ -359,8 +359,8 @@ class Jetpack_AI_Helper {
 			}
 
 			if ( ! class_exists( 'OpenAI_Request_Count' ) ) {
-				if ( is_readable( WP_PLUGIN_DIR . '/openai/openai-request-count.php' ) ) {
-					require_once WP_PLUGIN_DIR . '/openai/openai-request-count.php';
+				if ( is_readable( WP_CONTENT_DIR . '/lib/openai/openai-request-count.php' ) ) {
+					require_once WP_CONTENT_DIR . '/lib/openai/openai-request-count.php';
 				} else {
 					return new WP_Error(
 						'openai_request_count_not_found',
@@ -400,6 +400,7 @@ class Jetpack_AI_Helper {
 				'site-require-upgrade' => $require_upgrade,
 				'upgrade-type'         => $upgrade_type,
 				'current-tier'         => WPCOM\Jetpack_AI\Usage\Helper::get_current_tier( $blog_id ),
+				'next-tier'            => WPCOM\Jetpack_AI\Usage\Helper::get_next_tier( $blog_id ),
 				'tier-plans'           => WPCOM\Jetpack_AI\Usage\Helper::get_tier_plans_list(),
 			);
 		}

@@ -40,6 +40,7 @@ const useSuggestionsFromOpenAI = ( {
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ lastPrompt, setLastPrompt ] = useState( '' );
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
+	const { dequeueAiAssistantFeatureAyncRequest } = useDispatch( 'wordpress-com/plans' );
 	const [ requestingState, setRequestingState ] = useState( 'init' );
 	const source = useRef();
 
@@ -119,6 +120,13 @@ const useSuggestionsFromOpenAI = ( {
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
 	const getStreamedSuggestionFromOpenAI = async ( type, options = {} ) => {
+		/*
+		 * Always dequeue/cancel the AI Assistant feature async request,
+		 * in case there is one pending,
+		 * when performing a new AI suggestion request.
+		 */
+		dequeueAiAssistantFeatureAyncRequest();
+
 		const implementedFunctions = options?.functions?.reduce( ( acc, { name, implementation } ) => {
 			return {
 				...acc,

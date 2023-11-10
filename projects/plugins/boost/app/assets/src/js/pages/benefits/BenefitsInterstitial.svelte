@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { PricingCard } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
-	import ActivateLicense from '../../elements/ActivateLicense.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
-	import BackButton from '../../react-components/common/back-button/BackButton';
+	import ActivateLicense from '../../react-components/components/activate-license';
+	import BackButton from '../../react-components/components/back-button';
 	import Footer from '../../sections/Footer.svelte';
 	import { getUpgradeURL } from '../../stores/connection';
 	import Logo from '../../svg/jetpack-green.svg';
@@ -36,7 +36,7 @@
 				<JetpackBoostLogo />
 			</div>
 
-			<ActivateLicense />
+			<ReactComponent this={ActivateLicense} />
 		</div>
 	</div>
 

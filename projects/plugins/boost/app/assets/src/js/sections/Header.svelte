@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { useNavigate } from 'svelte-navigator';
 	import ReactComponent from '../elements/ReactComponent.svelte';
-	import BackButton from '../react-components/common/back-button/BackButton';
+	import BackButton from '../react-components/components/back-button';
 	import ChevronRight from '../svg/chevron-right.svg';
 	import Logo from '../svg/logo.svg';
 

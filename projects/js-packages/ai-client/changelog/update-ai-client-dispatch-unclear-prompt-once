@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Client: ensure dispatching unclear error prompt once per request/response
