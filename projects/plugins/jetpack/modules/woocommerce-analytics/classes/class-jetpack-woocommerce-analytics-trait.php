@@ -165,31 +165,39 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			$cart_page_id     = wc_get_page_id( 'cart' );
 			$checkout_page_id = wc_get_page_id( 'checkout' );
 
-			$info = array(
-				'cart_page_contains_cart_block'         => $this->post_contains_text(
-					$cart_page_id,
-					'<!-- wp:woocommerce/cart'
-				) ? 1 : 0,
-				'cart_page_contains_cart_shortcode'     => ( $this->post_contains_text(
+			$cart_page_contains_cart_block     = $this->post_contains_text(
+				$cart_page_id,
+				'<!-- wp:woocommerce/cart'
+			);
+			$cart_page_contains_cart_shortcode =
+				$this->post_contains_text(
 					$cart_page_id,
 					'[woocommerce_cart]'
 				) ||
-				                                             $this->post_contains_text(
+				$this->post_contains_text(
 					$cart_page_id,
 					'<!-- wp:woocommerce/classic-shortcode'
-				) ) ? 1 : 0,
-				'checkout_page_contains_checkout_block' => $this->post_contains_text(
-					$checkout_page_id,
-					'<!-- wp:woocommerce/checkout'
-				) ? 1 : 0,
-				'checkout_page_contains_checkout_shortcode' => ( $this->post_contains_text(
+				);
+
+			$checkout_page_contains_checkout_block     = $this->post_contains_text(
+				$checkout_page_id,
+				'<!-- wp:woocommerce/checkout'
+			);
+			$checkout_page_contains_checkout_shortcode =
+				$this->post_contains_text(
 					$checkout_page_id,
 					'[woocommerce_checkout]'
 				) ||
-				                                                 $this->post_contains_text(
+				$this->post_contains_text(
 					$checkout_page_id,
 					'<!-- wp:woocommerce/classic-shortcode'
-					) ) ? 1 : 0,
+				);
+
+			$info = array(
+				'cart_page_contains_cart_block'         => $cart_page_contains_cart_block ? 1 : 0,
+				'cart_page_contains_cart_shortcode'     => $cart_page_contains_cart_shortcode ? 1 : 0,
+				'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block ? 1 : 0,
+				'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode ? 1 : 0,
 			);
 			set_transient( $transient_name, $info, DAY_IN_SECONDS );
 			return $info;
