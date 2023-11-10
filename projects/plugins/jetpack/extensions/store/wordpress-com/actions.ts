@@ -7,12 +7,15 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import {
 	ACTION_DECREASE_NEW_ASYNC_REQUEST_COUNTDOWN,
+	ACTION_DEQUEUE_ASYNC_REQUEST,
+	ACTION_ENQUEUE_ASYNC_REQUEST,
 	ACTION_FETCH_FROM_API,
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
 	ACTION_SET_PLANS,
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
 	ENDPOINT_AI_ASSISTANT_FEATURE,
+	NEW_ASYNC_REQUEST_TIMER_INTERVAL,
 } from './constants';
 import type { Plan } from './types';
 import type { AiFeatureProps } from './types';
@@ -45,8 +48,6 @@ export function mapAIFeatureResponseToAiFeatureProps(
 		nextTier: response[ 'next-tier' ],
 	};
 }
-
-let contdownTimerId: number;
 
 const actions = {
 	setPlans( plans: Array< Plan > ) {
@@ -96,34 +97,79 @@ const actions = {
 		};
 	},
 
-	increaseAiAssistantRequestsCount( count = 1 ) {
-		return ( { select, dispatch } ) => {
+	/**
+	 * This thunk action is used to increase
+	 * the requests count for the current usage period.
+	 * @param {number} count - The number of requests to increase. Default is 1.
+	 * @returns {Function}     The thunk action.
+	 */
+	increaseAiAssistantRequestsCount( count: number = 1 ) {
+		return ( { dispatch } ) => {
 			dispatch( {
 				type: ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 				count,
 			} );
 
 			// Every time the requests count is increased, decrease the countdown
-			dispatch( actions.decreaseNewAsyncRequestCountdown() );
+			dispatch( actions.decreaseAsyncRequestCountdownValue() );
+		};
+	},
 
-			// Perform a new async request to keep data in sync
-			const asyncCoundown = select.getNewAsyncRequestCountdown();
+	/**
+	 * This thunk action is used to decrease
+	 * the countdown value for the new async request.
+	 * When the countdown reaches 0, enqueue a new async request.
+	 *
+	 * @returns {Function} The thunk action.
+	 */
+	decreaseAsyncRequestCountdownValue() {
+		return async ( { dispatch, select } ) => {
+			dispatch( { type: ACTION_DECREASE_NEW_ASYNC_REQUEST_COUNTDOWN } );
+
+			const asyncCoundown = select.getAsyncRequestCountdownValue();
 			if ( asyncCoundown <= 0 ) {
-				// Reset the previous timer in case it was set
-				if ( contdownTimerId ) {
-					window?.clearTimeout( contdownTimerId );
-				}
-
-				contdownTimerId = setTimeout( () => {
-					dispatch( actions.fetchAiAssistantFeature() );
-				}, 5000 ); // backend process requires a delay to be able to see the new value
+				dispatch( actions.enqueueAiAssistantFeatureAyncRequest() );
 			}
 		};
 	},
 
-	decreaseNewAsyncRequestCountdown() {
-		return {
-			type: ACTION_DECREASE_NEW_ASYNC_REQUEST_COUNTDOWN,
+	/**
+	 * This thunk action is used to enqueue a new async request.
+	 * If already exist an enqueue request, clear it and enqueue a new one.
+	 *
+	 * @returns {Function} The thunk action.
+	 */
+	enqueueAiAssistantFeatureAyncRequest() {
+		return ( { dispatch } ) => {
+			// Check if there is already a timer running
+			dispatch.dequeueAiAssistantFeatureAyncRequest();
+
+			const contdownTimerId = setTimeout( () => {
+				dispatch( actions.fetchAiAssistantFeature() );
+			}, NEW_ASYNC_REQUEST_TIMER_INTERVAL ); // backend process requires a delay to be able to see the new value
+
+			dispatch( { type: ACTION_ENQUEUE_ASYNC_REQUEST, timerId: contdownTimerId } );
+		};
+	},
+
+	/**
+	 * This thunk action is used to dequeue a new async request.
+	 * It will clear the timer if there is one,
+	 * canceling the enqueue async request.
+	 *
+	 * @returns {Function} The thunk action.
+	 */
+	dequeueAiAssistantFeatureAyncRequest() {
+		return ( { dispatch, select } ) => {
+			dispatch( { type: ACTION_DEQUEUE_ASYNC_REQUEST, timerId: 0 } );
+
+			const timerId = select.getAsyncRequestCountdownTimerId();
+			// If there is no timer, there is nothing to clear
+			if ( ! timerId ) {
+				return;
+			}
+
+			window?.clearTimeout( timerId );
 		};
 	},
 };

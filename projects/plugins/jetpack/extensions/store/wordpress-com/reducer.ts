@@ -4,11 +4,12 @@
 import { __ } from '@wordpress/i18n';
 import {
 	ACTION_DECREASE_NEW_ASYNC_REQUEST_COUNTDOWN,
+	ACTION_ENQUEUE_ASYNC_REQUEST,
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
 	ACTION_SET_PLANS,
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
-	NEW_ASYNC_REQUEST_COUNTDOWN_VALUE,
+	ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
 } from './constants';
 import type { PlanStateProps } from './types';
 
@@ -42,7 +43,8 @@ const INITIAL_STATE: PlanStateProps = {
 			},
 			_meta: {
 				isRequesting: false,
-				newAsyncRequestCountdown: NEW_ASYNC_REQUEST_COUNTDOWN_VALUE,
+				asyncRequestCountdown: ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
+				asyncRequestTimerId: 0,
 			},
 		},
 	},
@@ -66,7 +68,8 @@ export default function reducer( state = INITIAL_STATE, action ) {
 						_meta: {
 							...state.features.aiAssistant._meta,
 							isRequesting: true,
-							newAsyncRequestCountdown: NEW_ASYNC_REQUEST_COUNTDOWN_VALUE,
+							asyncRequestCountdown: ASYNC_REQUEST_COUNTDOWN_INIT_VALUE, // restore the countdown
+							asyncRequestTimerId: 0, // reset the timer id
 						},
 					},
 				},
@@ -124,8 +127,23 @@ export default function reducer( state = INITIAL_STATE, action ) {
 						...state.features.aiAssistant,
 						_meta: {
 							...state.features.aiAssistant._meta,
-							newAsyncRequestCountdown:
-								state.features.aiAssistant._meta.newAsyncRequestCountdown - 1,
+							asyncRequestCountdown: state.features.aiAssistant._meta.asyncRequestCountdown - 1,
+						},
+					},
+				},
+			};
+		}
+
+		case ACTION_ENQUEUE_ASYNC_REQUEST: {
+			return {
+				...state,
+				features: {
+					...state.features,
+					aiAssistant: {
+						...state.features.aiAssistant,
+						_meta: {
+							...state.features.aiAssistant._meta,
+							asyncRequestTimerId: action.timerId,
 						},
 					},
 				},
