@@ -82,6 +82,11 @@ class Jetpack_Lazy_Images {
 	 * @return bool
 	 */
 	public static function should_force_deactivate() {
+		// Don't try disabling when running phpunit tests. A bug in packages/status makes that fail.
+		if ( Constants::is_true( 'IS_JETPACK_LAZY_IMAGES_TESTS' ) ) {
+			return false;
+		}
+
 		// If Gutenberg is not installed,
 		// check if we run a version of WP that would conflict with Lazy Images.
 		if ( ! Constants::is_true( 'IS_GUTENBERG_PLUGIN' ) ) {

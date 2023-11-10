@@ -3,10 +3,10 @@
 	import { get } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import { Hero } from '../../react-components/components/isa-hero';
 	import Header from '../../react-components/sections/header';
 	import Footer from '../../sections/Footer.svelte';
 	import { modulesState } from '../../stores/modules';
-	import Hero from './recommendations/Hero.svelte';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
 	import Tabs from './recommendations/Tabs.svelte';
@@ -55,7 +55,8 @@
 	<ReactComponent this={Header} subPage={__( 'Image analysis report', 'jetpack-boost' )} />
 	<div class="jb-recommendations-page jb-section--alt">
 		<div class="jb-container">
-			<Hero
+			<ReactComponent
+				this={Hero}
 				{needsRefresh}
 				{refresh}
 				{isImageCdnModuleActive}

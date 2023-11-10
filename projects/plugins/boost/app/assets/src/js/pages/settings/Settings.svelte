@@ -2,6 +2,7 @@
 	import ReRouter from '../../elements/ReRouter.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import Header from '../../react-components/sections/header';
+	import Support from '../../react-components/sections/support';
 	import Footer from '../../sections/Footer.svelte';
 	import config from '../../stores/config';
 	import { connection } from '../../stores/connection';
@@ -11,7 +12,6 @@
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
 	import Modules from './sections/Modules.svelte';
 	import Score from './sections/Score.svelte';
-	import Support from './sections/Support.svelte';
 	import Tips from './sections/Tips.svelte';
 
 	export let activeModules: boolean[];
@@ -43,7 +43,7 @@
 		<Tips />
 
 		{#if $hasPrioritySupport}
-			<Support />
+			<ReactComponent this={Support} />
 		{/if}
 
 		<Footer />

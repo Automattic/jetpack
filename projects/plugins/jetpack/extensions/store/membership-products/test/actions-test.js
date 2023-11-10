@@ -9,6 +9,7 @@ import {
 	setProducts,
 	setSiteSlug,
 	setConnectedAccountDefaultCurrency,
+	setNewsletterCategories,
 } from '../actions';
 import * as utils from '../utils';
 
@@ -299,5 +300,19 @@ describe( 'Membership Products Actions', () => {
 		expect( selectedProductCallback ).toHaveBeenCalledWith( apiResponseProduct.id );
 		expect( noticeMock ).not.toHaveBeenCalled();
 		expect( getMessageMock ).not.toHaveBeenCalled();
+	} );
+
+	test( 'Set newsletter categories works as expected', () => {
+		// Given
+		const anyValidNewsletterCategoriesWithType = {
+			type: 'SET_NEWSLETTER_CATEGORIES',
+			newsletterCategories: ANY_VALID_DATA,
+		};
+
+		// When
+		const result = setNewsletterCategories( ANY_VALID_DATA );
+
+		// Then
+		expect( result ).toStrictEqual( anyValidNewsletterCategoriesWithType );
 	} );
 } );

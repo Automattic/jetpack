@@ -51,11 +51,6 @@
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
-	<!-- 	
-	<Header>
-		<ActivateLicense />
-	</Header> -->
-
 	<ReactComponent this={Header} children={activateLicense} />
 
 	<div class="jb-section jb-section--alt">
