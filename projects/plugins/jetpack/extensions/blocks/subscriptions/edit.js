@@ -286,7 +286,7 @@ export function SubscriptionEdit( props ) {
 			) }
 
 			<div className={ getBlockClassName() } style={ cssVars }>
-				<div className="jetpack_subscription_widget is-not-subscriber">
+				<div className="wp-block-jetpack-subscriptions__container is-not-subscriber">
 					<div className="wp-block-jetpack-subscriptions__form" role="form">
 						<div className="wp-block-jetpack-subscriptions__form-elements">
 							<TextControl

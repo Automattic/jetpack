@@ -33,15 +33,20 @@
 		flex-direction: column;
 	}
 
-	.is-not-subscriber {
-		.wp-block-jetpack-subscriptions__form,
-	form  {
+	&:not(.wp-block-jetpack-subscriptions__use-newline) 
+	{
+		.is-not-subscriber {
 			.wp-block-jetpack-subscriptions__form-elements {
 				display: flex;
 				align-items: flex-start;
 			}
 		}
+		p#subscribe-submit {
+			justify-content: center;
+			display: flex;
+		}
 	}
+
 	.wp-block-jetpack-subscriptions__form,
 	form  {
 		.wp-block-jetpack-subscriptions__textfield .components-text-control__input,
@@ -85,8 +90,6 @@
 		p#subscribe-submit,
 		p#subscribe-email {
 			margin: 0;
-			justify-content: center;
-  			display: flex;
 		}
 	}
 
