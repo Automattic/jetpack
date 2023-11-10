@@ -250,7 +250,7 @@ EOF
 						),
 						'Y'
 					);
-					$isUserFacing = $this->getHelper( 'question' )->ask( $input, $output, $question );
+					$isUserFacing = Config::nonUserFacingType() ? $this->getHelper( 'question' )->ask( $input, $output, $question ) : 'Y';
 					if ( $isUserFacing === 'n' ) {
 						$type = 'other';
 					} else {

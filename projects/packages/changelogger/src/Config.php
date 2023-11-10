@@ -20,12 +20,13 @@ class Config {
 	 * @var array
 	 */
 	private static $defaultConfig = array(
-		'changelog'     => 'CHANGELOG.md',
-		'changes-dir'   => 'changelog',
-		'link-template' => null,
-		'ordering'      => array( 'subheading', 'content' ),
-		'formatter'     => 'keepachangelog',
-		'types'         => array(
+		'changelog'            => 'CHANGELOG.md',
+		'changes-dir'          => 'changelog',
+		'link-template'        => null,
+		'ordering'             => array( 'subheading', 'content' ),
+		'formatter'            => 'keepachangelog',
+		'non-user-facing-type' => false,
+		'types'                => array(
 			'security'   => 'Security',
 			'added'      => 'Added',
 			'changed'    => 'Changed',
@@ -33,7 +34,7 @@ class Config {
 			'removed'    => 'Removed',
 			'fixed'      => 'Fixed',
 		),
-		'versioning'    => 'semver',
+		'versioning'           => 'semver',
 	);
 
 	/**
@@ -225,6 +226,19 @@ class Config {
 			}
 		}
 		return self::$cache['types'];
+	}
+
+	/**
+	 * Get the non-user-facing configuration.
+	 *
+	 * @return bool
+	 */
+	public static function nonUserFacingType() {
+		self::load();
+		if ( isset( self::$config['non-user-facing-type'] ) ) {
+			return (bool) self::$config['non-user-facing-type'];
+		}
+		return false;
 	}
 
 	/**
