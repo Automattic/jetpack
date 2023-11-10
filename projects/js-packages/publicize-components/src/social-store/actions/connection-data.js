@@ -37,7 +37,7 @@ export function toggleConnection( connectionId ) {
  * @returns {Function} - a function to merge connections.
  */
 export function mergeConnections( freshConnections ) {
-	return async function ( { dispatch, select } ) {
+	return function ( { dispatch, select } ) {
 		// Combine current connections with new connections.
 		const prevConnections = select.getConnections();
 		const connections = [];
@@ -104,7 +104,7 @@ export function refreshConnectionTestResults( syncToMeta = false ) {
  * @returns {Function} Sync connections to post meta action.
  */
 export function syncConnectionsToPostMeta() {
-	return async function ( { registry, select } ) {
+	return function ( { registry, select } ) {
 		const connections = select.getConnections();
 
 		// Update post metadata.
