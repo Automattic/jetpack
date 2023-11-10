@@ -6,6 +6,26 @@
  * @package wpcomsh
  */
 
+/*
+ * Disable the new Font Library feature in Gutenberg while the incompatibility quirks
+ * with the Google Fonts module are being worked out. I couldn't find a way to tie this
+ * to the presence of Jetpack+Google Fonts - in this context `Jetpack` is not available,
+ * and if using actions (such as `muplugins_loaded` or `plugins_loaded`), then the constant
+ * is either not available (because the Jetpack plugin hasn't been loaded) or you can't
+ * guarantee the constant is defined *before* Gutenberg is loaded.
+ *
+ * The best solution I could find was to define it at this point, in that case, it is defined
+ * before Gutenberg is loaded as `wpcomsh` is a must-use plugin.
+ *
+ * We can also assume Jetpack will always be available and Google fonts enabled as wpcomsh is
+ * a WPCOM `mu-plugin` and Jetpack is always active in WPCOM sites.
+ *
+ * For more context, see: p1695320359288239/1694704864.359509-slack-C048CUFRGFQ
+ */
+if ( ! defined( 'FONT_LIBRARY_DISABLED' ) ) {
+	define( 'FONT_LIBRARY_DISABLED', true );
+}
+
 /**
  * Force-enable the Google fonts module
  * If you use a version of Jetpack that supports it,
@@ -21,8 +41,20 @@ function wpcomsh_activate_google_fonts_module() {
 		return;
 	}
 
-	if ( ! Jetpack::is_module_active( 'google-fonts' ) ) {
+	// Hotfix to google fonts causing issues with Gutenberg 16.9 and specific themes
+	// https://github.com/Automattic/wp-calypso/issues/83986
+	$problematic_themes = array(
+		'course',
+		'pendant',
+		'twenty-twenty-two',
+	);
+	$incompatible_theme = in_array( get_option( 'stylesheet' ), $problematic_themes, true );
+
+	// Force-activate for safe themes and deactivate for the rest
+	if ( ! Jetpack::is_module_active( 'google-fonts' ) && ! $incompatible_theme ) {
 		Jetpack::activate_module( 'google-fonts', false, false );
+	} elseif ( $incompatible_theme ) {
+		Jetpack::deactivate_module( 'google-fonts' );
 	}
 }
 add_action( 'setup_theme', 'wpcomsh_activate_google_fonts_module' );
