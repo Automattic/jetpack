@@ -72,6 +72,7 @@ const addVideoPressSupport = ( settings, name ) => {
 			source: 'attribute',
 			selector: 'video',
 			attribute: 'src',
+			default: 'undefined',
 		},
 		useAverageColor: {
 			type: 'boolean',
