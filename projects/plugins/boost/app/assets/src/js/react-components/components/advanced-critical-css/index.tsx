@@ -23,6 +23,14 @@ const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
 					'jetpack-boost'
 			  );
 
+	/**
+	 * Automatically navigate back to main Settings page if generator isn't done.
+	 */
+	// @todo - implement
+	// $: if ( issues.length === 0 ) {
+	// 	navigate( -1 );
+	// }
+
 	function showDismissedIssues() {
 		replaceCssState( {
 			providers: issues.map( issue => {
