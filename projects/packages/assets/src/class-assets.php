@@ -103,6 +103,8 @@ class Assets {
 	/**
 	 * A helper function that lets you enqueue scripts in an async fashion.
 	 *
+	 * @since n.e.x.t Leverages script strategy for WordPress 6.4 and greater.
+	 *
 	 * @param string $handle        Name of the script. Should be unique.
 	 * @param string $min_path      Minimized script path.
 	 * @param string $non_min_path  Full Script path.
@@ -112,7 +114,17 @@ class Assets {
 	 */
 	public static function enqueue_async_script( $handle, $min_path, $non_min_path, $deps = array(), $ver = false, $in_footer = true ) {
 		$assets_instance = self::instance();
-		$assets_instance->add_async_script( $handle );
+
+		// WordPress 6.4 introduces support for async/defer via the strategy attribute.
+		if ( version_compare( get_blog_info( 'version' ), '6.4', '>=' ) ) {
+			$in_footer = array(
+				'in_footer' => $in_footer,
+				'strategy'  => 'defer',
+			);
+		} else {
+			// Pre 6.4 approach.
+			$assets_instance->add_async_script( $handle );
+		}
 		wp_enqueue_script( $handle, self::get_file_url_for_environment( $min_path, $non_min_path ), $deps, $ver, $in_footer );
 	}
 
@@ -307,6 +319,7 @@ class Assets {
 	 * This wrapper handles all of that.
 	 *
 	 * @since 1.12.0
+	 * @since n.e.x.t Update the `in_footer` argument to accept an array to leverage script_strategy.
 	 * @param string $handle      Name of the script. Should be unique across both scripts and styles.
 	 * @param string $path        Minimized script path.
 	 * @param string $relative_to File that `$path` is relative to. Pass `__FILE__`.
@@ -317,7 +330,7 @@ class Assets {
 	 *  - `css_path`:         (string|null) `.css` to load. Default is to base it on `$path`.
 	 *  - `dependencies`:     (string[]) Additional script dependencies to queue.
 	 *  - `enqueue`:          (bool) Set true to enqueue the script immediately.
-	 *  - `in_footer`:        (bool) Set true to register script for the footer.
+	 *  - `in_footer`:        (bool|array) Pass an array of args to leverage script_strategy since WordPress 6.4. Set true to register script for the footer.
 	 *  - `media`:            (string) Media for the css file. Default 'all'.
 	 *  - `minify`:           (bool|null) Set true to pass `minify=true` in the query string, or `null` to suppress the normal `minify=false`.
 	 *  - `nonmin_path`:      (string) Non-minified script path.
@@ -378,7 +391,13 @@ class Assets {
 
 		wp_register_script( $handle, $url, $options['dependencies'], $ver, $options['in_footer'] );
 		if ( $options['async'] ) {
-			self::instance()->add_async_script( $handle );
+			// For WordPress 6.4 and greater, use the script strategy.
+			if ( version_compare( get_blog_info( 'version' ), '6.4', '>=' ) ) {
+				wp_script_add_data( $handle, 'strategy', 'defer' );
+			} else {
+				// Pre 6.4 approach.
+				self::instance()->add_async_script( $handle );
+			}
 		}
 		if ( $options['textdomain'] ) {
 			// phpcs:ignore Jetpack.Functions.I18n.DomainNotLiteral
