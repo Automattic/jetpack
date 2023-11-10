@@ -97,8 +97,19 @@ export default function reducer( state = INITIAL_STATE, action ) {
 		}
 
 		case ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT: {
-			// Increase request count;
-			const requestsCount = state.features.aiAssistant.requestsCount + action.count;
+			const currentTierValue = state.features.aiAssistant.currentTier.value;
+
+			const isUnlimitedTierPlan =
+				( typeof currentTierValue === 'undefined' && state.features.aiAssistant.hasFeature ) ||
+				currentTierValue === 1;
+
+			const requestsLimit = isUnlimitedTierPlan
+				? state.features.aiAssistant.requestsLimit
+				: state.features.aiAssistant.currentTier?.limit;
+
+			const requestsCount = isUnlimitedTierPlan
+				? state.features.aiAssistant.requestsCount
+				: state.features.aiAssistant.currentTier?.limit;
 
 			/**
 			 * Compute the AI Assistant Feature data optimistically,
@@ -106,7 +117,7 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			 *
 			 * @see _inc/lib/class-jetpack-ai-helper.php
 			 */
-			const isOverLimit = requestsCount >= state.features.aiAssistant.requestsLimit;
+			const isOverLimit = requestsCount >= requestsLimit;
 			const requireUpgrade = isOverLimit && ! state.features.aiAssistant.hasFeature;
 
 			// Increase the requests count also fo the Usage Period.
