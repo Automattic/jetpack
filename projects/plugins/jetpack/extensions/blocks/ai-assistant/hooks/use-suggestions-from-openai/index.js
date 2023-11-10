@@ -31,7 +31,6 @@ const useSuggestionsFromOpenAI = ( {
 	onSuggestionDone,
 	onUnclearPrompt,
 	onModeration,
-	refreshFeatureData,
 	requireUpgrade,
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
@@ -356,8 +355,6 @@ const useSuggestionsFromOpenAI = ( {
 			const blocks = parse( detail );
 			const validBlocks = blocks.filter( block => block.isValid );
 			replaceInnerBlocks( clientId, validBlocks );
-
-			refreshFeatureData();
 		};
 
 		const onErrorUnclearPrompt = () => {
