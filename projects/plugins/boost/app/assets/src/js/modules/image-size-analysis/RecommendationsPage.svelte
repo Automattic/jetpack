@@ -52,7 +52,7 @@
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
-	<ReactComponent this={Header} subPage={__( 'Image analysis report', 'jetpack-boost' )} />
+	<ReactComponent this={Header} subPageTitle={__( 'Image analysis report', 'jetpack-boost' )} />
 	<div class="jb-recommendations-page jb-section--alt">
 		<div class="jb-container">
 			<ReactComponent
