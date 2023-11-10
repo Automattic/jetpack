@@ -47,6 +47,8 @@ function wpcomsh_activate_google_fonts_module() {
 		'course',
 		'pendant',
 		'twenty-twenty-two',
+		'smithland',
+		'pendant-1',
 	);
 	$incompatible_theme = in_array( get_option( 'stylesheet' ), $problematic_themes, true );
 
