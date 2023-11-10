@@ -20,6 +20,7 @@ export const ENDPOINT_AI_ASSISTANT_FEATURE = '/wpcom/v2/jetpack-ai/ai-assistant-
 /**
  * New AI Assistant feature async request
  */
+export const FREE_PLAN_REQUESTS_LIMIT = 20;
 export const ASYNC_REQUEST_COUNTDOWN_INIT_VALUE = 3;
 export const NEW_ASYNC_REQUEST_TIMER_INTERVAL = 5000;
 export const ACTION_DECREASE_NEW_ASYNC_REQUEST_COUNTDOWN = 'DECREASE_NEW_ASYNC_REQUEST_COUNTDOWN';
