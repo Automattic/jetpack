@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
 
 const NUM_FREE_REQUESTS_LIMIT = 20;
 
@@ -27,8 +26,6 @@ export const AI_Assistant_Initial_State = {
 };
 
 export default function useAiFeature() {
-	const [ error ] = useState< Error >( null );
-
 	const { data, loading } = useSelect( select => {
 		const { getAiAssistantFeature, getIsRequestingAiAssistantFeature } =
 			select( 'wordpress-com/plans' );
@@ -44,15 +41,10 @@ export default function useAiFeature() {
 		increaseAiAssistantRequestsCount: increaseRequestsCount,
 	} = useDispatch( 'wordpress-com/plans' );
 
-	// @todo: remove once optimistic updates are implemented.
-	useEffect( () => {
-		loadFeatures();
-	}, [ loadFeatures ] );
-
 	return {
 		...data,
 		loading,
-		error,
+		error: null, // @todo: handle error at store level
 		refresh: loadFeatures,
 		increaseRequestsCount,
 	};
