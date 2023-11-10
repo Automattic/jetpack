@@ -114,6 +114,10 @@ export default function reducer( state = INITIAL_STATE, action ) {
 						isOverLimit,
 						requestsCount,
 						requireUpgrade,
+						currentTier: {
+							...state.features.aiAssistant.currentTier,
+							value: state.features.aiAssistant.currentTier.value + action.count,
+						},
 					},
 				},
 			};
