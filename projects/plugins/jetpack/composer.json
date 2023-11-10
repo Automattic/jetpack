@@ -125,6 +125,7 @@
 		"changelogger-default-type": "other",
 		"changelogger": {
 			"versioning": "wordpress",
+			"non-user-facing-type": true,
 			"types": {
 				"major": "Major Enhancements",
 				"enhancement": "Enhancements",
