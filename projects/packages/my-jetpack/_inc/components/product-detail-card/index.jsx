@@ -65,6 +65,7 @@ function Price( { value, currency, isOld } ) {
  * @param {string} props.className               - A className to be concat with default ones
  * @param {boolean} props.preferProductName      - Use product name instead of title
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
+ * @param {string} [props.ctaButtonLabel]        - The label for the Call To Action button
  * @returns {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( {
@@ -74,6 +75,7 @@ const ProductDetailCard = ( {
 	className,
 	preferProductName,
 	supportingInfo,
+	ctaButtonLabel = null,
 } ) => {
 	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackUrl } =
 		window?.myJetpackInitialState ?? {};
@@ -221,7 +223,7 @@ const ProductDetailCard = ( {
 
 	// If we prefer the product name, use that everywhere instead of the title
 	const productMoniker = name && preferProductName ? name : title;
-	const ctaLabel =
+	const defaultCtaLabel =
 		! isBundle && hasRequiredPlan
 			? sprintf(
 					/* translators: placeholder is product name. */
@@ -233,6 +235,8 @@ const ProductDetailCard = ( {
 					__( 'Get %s', 'jetpack-my-jetpack' ),
 					productMoniker
 			  );
+	const ctaLabel = ctaButtonLabel || defaultCtaLabel;
+
 	return (
 		<div
 			className={ classnames( styles.card, className, {
