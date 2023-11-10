@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ReRouter from '../../elements/ReRouter.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import AdvancedCriticalCss from '../../react-components/components/advanced-critical-css';
 	import Support from '../../react-components/sections/support';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
@@ -9,7 +10,7 @@
 	import { criticalCssIssues } from '../../stores/critical-css-state-errors';
 	import { hasPrioritySupport } from '../../utils/paid-plan';
 	import { Router, Route } from '../../utils/router';
-	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
+	import AdvancedCriticalCssSvelte from './sections/AdvancedCriticalCss.svelte';
 	import Modules from './sections/Modules.svelte';
 	import Score from './sections/Score.svelte';
 	import Tips from './sections/Tips.svelte';
@@ -31,11 +32,10 @@
 
 		<Router>
 			<div class="jb-section jb-section--main">
-				<Route
-					path="critical-css-advanced"
-					component={AdvancedCriticalCss}
-					issues={$criticalCssIssues}
-				/>
+				<Route path="critical-css-advanced">
+					<AdvancedCriticalCssSvelte issues={$criticalCssIssues} />
+					<ReactComponent this={AdvancedCriticalCss} issues={$criticalCssIssues} />
+				</Route>
 				<Route path="/" component={Modules} />
 			</div>
 		</Router>
