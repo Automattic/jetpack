@@ -90,10 +90,8 @@ export function refreshConnectionTestResults( syncToMeta = false ) {
 			if ( syncToMeta ) {
 				dispatch( syncConnectionsToPostMeta() );
 			}
-
-			return true;
 		} catch ( e ) {
-			return false;
+			// Do nothing.
 		}
 	};
 }
