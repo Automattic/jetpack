@@ -615,11 +615,14 @@ function render_for_website( $data, $classes, $styles ) {
 	$form_url          = defined( 'SUBSCRIBE_BLOG_URL' ) ? SUBSCRIBE_BLOG_URL : '#';
 	$post_access_level = get_post_access_level_for_current_post();
 
+	// Post ID is used for pulling post-specific paid status, and returning to the right post after confirming subscription
 	$post_id = null;
 	if ( in_the_loop() ) {
 		$post_id = get_the_ID();
-	} elseif ( is_singular( 'post' ) ) {
+	} elseif ( is_singular( 'post' ) || is_page() ) {
 		$post_id = get_queried_object_id();
+	} else {
+		$post_id = get_option( 'page_on_front' );
 	}
 
 	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
