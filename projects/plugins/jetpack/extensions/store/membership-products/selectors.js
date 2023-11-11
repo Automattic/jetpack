@@ -37,6 +37,9 @@ export const getNewsletterCategoriesEnabled = state => state.newsletterCategorie
 export const getNewsletterCategoriesSubscriptionsCount = state =>
 	state.newsletterCategoriesSubscriptionsCount;
 
-export const hasInvalidProducts = ( state, selectedProductIds ) =>
-	!! selectedProductIds &&
-	selectedProductIds.some( productId => isInvalidProduct( state, productId ) );
+export const hasInvalidProducts = ( state, selectedProductIds ) => {
+	return (
+		!! selectedProductIds &&
+		selectedProductIds.some( productId => isInvalidProduct( state, productId ) )
+	);
+};

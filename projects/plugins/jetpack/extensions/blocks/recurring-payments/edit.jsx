@@ -1,7 +1,7 @@
 import { InspectorControls, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useMemo } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 import { useCallback } from 'react';
 import ProductManagementControls from '../../shared/components/product-management-controls';
@@ -15,12 +15,14 @@ import { getBlockStyles } from './util';
 const BLOCK_NAME = 'recurring-payments';
 
 export default function Edit( { attributes, clientId, setAttributes } ) {
-	const { align, planId, planIds, width } = attributes;
+	const { align, planId, width } = attributes;
+	const planIds = useMemo( () => ( planId ? planId.split( '+' ) : [] ), [ planId ] );
 	const editorType = getEditorType();
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
 
-	const updateSubscriptionPlan = useCallback(
-		newPlanId => {
+	const updateSubscriptionPlans = useCallback(
+		newPlanIds => {
+			const newPlanId = newPlanIds.join( '+' );
 			const resolvePaymentUrl = paymentPlanId => {
 				if ( POST_EDITOR !== editorType || ! postLink ) {
 					return '#';
@@ -33,6 +35,7 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 
 			setAttributes( {
 				planId: newPlanId,
+				planIds: newPlanIds,
 				url: resolvePaymentUrl( newPlanId ),
 				uniqueId: `recurring-payments-${ newPlanId }`,
 			} );
@@ -41,12 +44,8 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 	);
 
 	useEffect( () => {
-		updateSubscriptionPlan( planId );
-	}, [ planId, updateSubscriptionPlan ] );
-
-	const updateSubscriptionPlans = planIds => {
-		planIds.array.forEach( updateSubscriptionPlan );
-	};
+		updateSubscriptionPlans( planIds );
+	}, [ planIds, updateSubscriptionPlans ] );
 
 	/**
 	 * Filters the editor settings of the Payment Button block (`jetpack/recurring-payments`).
@@ -94,7 +93,7 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 				<ProductManagementControls
 					blockName={ BLOCK_NAME }
 					clientId={ clientId }
-					selectedProductIds={ [ planId ] }
+					selectedProductIds={ planIds }
 					setSelectedProductIds={ updateSubscriptionPlans }
 				/>
 			) }
