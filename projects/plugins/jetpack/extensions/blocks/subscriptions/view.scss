@@ -19,10 +19,9 @@
 			border-start-end-radius: 0 !important;
 			border-end-end-radius: 0 !important;
 		}
-
-		&:not(.wp-block-jetpack-subscriptions__use-newline) .components-text-control__input {
-			border-inline-end-width: 0 !important;
-		}
+	}
+	&:not(.wp-block-jetpack-subscriptions__use-newline) .components-text-control__input {
+		border-inline-end-width: 0 !important;
 	}
 }
 
