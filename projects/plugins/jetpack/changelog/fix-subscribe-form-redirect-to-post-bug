@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Subscribe block: only redirect to post when inside a post context

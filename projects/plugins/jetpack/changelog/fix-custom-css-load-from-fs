@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Custom-CSS: do not attempt to load `@import` from the filesystem. `@import` of CSS from URLs can still be done.
