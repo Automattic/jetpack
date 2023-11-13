@@ -113,10 +113,12 @@ class Assets {
 	 * @param bool   $in_footer       Should the script be included in the footer.
 	 */
 	public static function enqueue_async_script( $handle, $min_path, $non_min_path, $deps = array(), $ver = false, $in_footer = true ) {
+		global $wp_version;
+
 		$assets_instance = self::instance();
 
 		// WordPress 6.3 introduces support for async/defer via the strategy attribute.
-		if ( version_compare( get_blog_info( 'version' ), '6.3', '>=' ) ) {
+		if ( version_compare( $wp_version, '6.3', '>=' ) ) {
 			$in_footer = array(
 				'in_footer' => $in_footer,
 				'strategy'  => 'defer',
@@ -339,6 +341,8 @@ class Assets {
 	 * @throws \InvalidArgumentException If arguments are invalid.
 	 */
 	public static function register_script( $handle, $path, $relative_to, array $options = array() ) {
+		global $wp_version;
+
 		if ( substr( $path, -3 ) !== '.js' ) {
 			throw new \InvalidArgumentException( '$path must end in ".js"' );
 		}
@@ -392,7 +396,7 @@ class Assets {
 		wp_register_script( $handle, $url, $options['dependencies'], $ver, $options['in_footer'] );
 		if ( $options['async'] ) {
 			// For WordPress 6.3 and greater, use the script strategy.
-			if ( version_compare( get_blog_info( 'version' ), '6.3', '>=' ) ) {
+			if ( version_compare( $wp_version, '6.3', '>=' ) ) {
 				wp_script_add_data( $handle, 'strategy', 'defer' );
 			} else {
 				// Pre 6.3 approach.
