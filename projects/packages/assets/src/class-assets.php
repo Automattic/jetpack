@@ -103,7 +103,7 @@ class Assets {
 	/**
 	 * A helper function that lets you enqueue scripts in an async fashion.
 	 *
-	 * @since n.e.x.t Leverages script strategy for WordPress 6.3 and greater.
+	 * @since $$next-version$$ Leverages script strategy for WordPress 6.3 and greater.
 	 *
 	 * @param string $handle        Name of the script. Should be unique.
 	 * @param string $min_path      Minimized script path.
