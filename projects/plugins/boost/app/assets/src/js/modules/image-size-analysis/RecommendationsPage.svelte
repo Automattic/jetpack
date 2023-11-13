@@ -4,7 +4,7 @@
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { Hero } from '../../react-components/components/isa-hero';
-	import Footer from '../../sections/Footer.svelte';
+	import Footer from '../../react-components/sections/footer';
 	import Header from '../../sections/Header.svelte';
 	import { modulesState } from '../../stores/modules';
 	import Pagination from './recommendations/Pagination.svelte';
@@ -84,7 +84,7 @@
 				current={$isaData.query.page}
 				total={$isaData.data.total_pages}
 			/>
-			<Footer />
+			<ReactComponent this={Footer} />
 		</div>
 	</div>
 </div>
