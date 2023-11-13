@@ -319,7 +319,7 @@ class Assets {
 	 * This wrapper handles all of that.
 	 *
 	 * @since 1.12.0
-	 * @since n.e.x.t Update the `in_footer` argument to accept an array to leverage script_strategy.
+	 * @since $$next-version$$ Update the `in_footer` argument to accept an array to leverage script_strategy.
 	 * @param string $handle      Name of the script. Should be unique across both scripts and styles.
 	 * @param string $path        Minimized script path.
 	 * @param string $relative_to File that `$path` is relative to. Pass `__FILE__`.
