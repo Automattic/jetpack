@@ -48,11 +48,18 @@ function wpcomsh_activate_google_fonts_module() {
 		'pendant',
 		'twentytwentytwo',
 		'smithland',
-		'pendant-1',
 		'awburn',
 		'nokul',
+		'ueno',
 	);
-	$incompatible_theme = in_array( get_option( 'stylesheet' ), $problematic_themes, true );
+	$incompatible_theme = false;
+	$stylesheet         = get_option( 'stylesheet' );
+	foreach ( $problematic_themes as $problematic_theme ) {
+		if ( strpos( $stylesheet, $problematic_theme ) === 0 ) {
+			$incompatible_theme = true;
+			break;
+		}
+	}
 
 	// Force-activate for safe themes and deactivate for the rest
 	if ( ! Jetpack::is_module_active( 'google-fonts' ) && ! $incompatible_theme ) {
