@@ -1,5 +1,4 @@
 import { type ErrorSet } from '../../../stores/critical-css-state-errors';
-import { type InterpolateVars } from '../../utils/interplate-vars-types';
 
 export type CriticalCssErrorDescriptionTypes = {
 	errorSet: ErrorSet;
@@ -17,15 +16,4 @@ export type FormattedURL = {
 	 * The URL to link to.
 	 */
 	label: string;
-};
-
-export type MoreListTypes = {
-	entries: FormattedURL[];
-	showLimit?: number;
-};
-
-export type SuggestionTypes = {
-	errorSet: ErrorSet;
-	interpolateVars: InterpolateVars;
-	showClosingParagraph: boolean;
 };
