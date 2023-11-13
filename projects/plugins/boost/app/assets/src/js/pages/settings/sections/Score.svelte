@@ -9,6 +9,7 @@
 	import { scoreChangeModal, ScoreChangeMessage } from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
+	import ContextTooltip from '../../../react-components/sections/score/context-tooltip';
 	import { performanceHistoryPanelDS } from '../../../stores/data-sync-client';
 	import { dismissedAlerts } from '../../../stores/dismissed-alerts';
 	import { modulesState } from '../../../stores/modules';
@@ -18,8 +19,9 @@
 	import { castToString } from '../../../utils/cast-to-string';
 	import debounce from '../../../utils/debounce';
 	import PopOut from '../elements/PopOut.svelte';
-	import ScoreContext from '../elements/ScoreContext.svelte';
 	import History from './History.svelte';
+
+	// @todo - move score-context markup/styles here, as it's not used anywhere else.
 
 	// Flat list of which modules are active; useful for tracking changes in state.
 	export let activeModules: boolean[];
@@ -145,11 +147,11 @@
 					{/if}
 				</h2>
 				{#if ! isLoading && ! loadError}
-					<ScoreContext />
+					<ReactComponent this={ContextTooltip} />
 				{/if}
 				<button
 					type="button"
-					class="components-button is-link"
+					class="action-button components-button is-link"
 					disabled={isLoading}
 					on:click={() => loadScore( true )}
 				>

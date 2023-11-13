@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { Snackbar } from '@wordpress/components';
-	import ActivateLicense from '../../elements/ActivateLicense.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
-	import Footer from '../../sections/Footer.svelte';
+	import ActivateLicense from '../../react-components/components/activate-license';
+	import Footer from '../../react-components/sections/footer';
 	import Header from '../../sections/Header.svelte';
 	import { initializeConnection, getUpgradeURL } from '../../stores/connection';
 	import { recordBoostEvent } from '../../utils/analytics';
@@ -49,7 +49,7 @@
 
 <div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
 	<Header>
-		<ActivateLicense />
+		<ReactComponent this={ActivateLicense} />
 	</Header>
 
 	<div class="jb-section jb-section--alt">
@@ -74,7 +74,7 @@
 		</div>
 	</div>
 
-	<Footer />
+	<ReactComponent this={Footer} />
 </div>
 
 <style lang="scss">

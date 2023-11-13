@@ -425,7 +425,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "33fa9d546d5a36d1c046e23d71488fb10d0356b3"
+                "reference": "77832a49749a4587e9eb6793a058ab360c83930c"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -456,7 +456,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.59.x-dev"
+                    "dev-trunk": "1.60.x-dev"
                 }
             },
             "autoload": {
@@ -548,7 +548,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "fef1f53b844143c5358061d969d7472bb321af18"
+                "reference": "fd0107efb4a3e0f3c2d37c6955a1c83b172e1499"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -565,7 +565,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-device-detection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.4.x-dev"
+                    "dev-trunk": "1.5.x-dev"
                 }
             },
             "autoload": {
@@ -1315,7 +1315,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "f7cb46ce4ddb975b79fd27163da1a908888322d6"
+                "reference": "cdefb1a0342cba4a8368ecc6278f5d85aeab8197"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -1337,7 +1337,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.18.x-dev"
+                    "dev-trunk": "1.19.x-dev"
                 }
             },
             "autoload": {

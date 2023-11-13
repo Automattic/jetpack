@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { PricingCard } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
-	import ActivateLicense from '../../elements/ActivateLicense.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
-	import BackButton from '../../react-components/common/back-button/BackButton';
-	import Footer from '../../sections/Footer.svelte';
+	import ActivateLicense from '../../react-components/components/activate-license';
+	import BackButton from '../../react-components/components/back-button';
+	import Footer from '../../react-components/sections/footer';
 	import { getUpgradeURL } from '../../stores/connection';
 	import Logo from '../../svg/jetpack-green.svg';
 	import JetpackBoostLogo from '../../svg/logo.svg';
@@ -36,7 +36,7 @@
 				<JetpackBoostLogo />
 			</div>
 
-			<ActivateLicense />
+			<ReactComponent this={ActivateLicense} />
 		</div>
 	</div>
 
@@ -99,7 +99,7 @@
 	</div>
 
 	<div class="jb-benefits-footer">
-		<Footer />
+		<ReactComponent this={Footer} />
 	</div>
 </div>
 
