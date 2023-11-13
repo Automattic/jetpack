@@ -1,9 +1,9 @@
 <script lang="ts">
 	import ReRouter from '../../elements/ReRouter.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import Footer from '../../react-components/sections/footer';
 	import Header from '../../react-components/sections/header';
 	import Support from '../../react-components/sections/support';
-	import Footer from '../../sections/Footer.svelte';
 	import config from '../../stores/config';
 	import { connection } from '../../stores/connection';
 	import { criticalCssIssues } from '../../stores/critical-css-state-errors';
@@ -46,7 +46,7 @@
 			<ReactComponent this={Support} />
 		{/if}
 
-		<Footer />
+		<ReactComponent this={Footer} />
 	</div>
 </ReRouter>
 

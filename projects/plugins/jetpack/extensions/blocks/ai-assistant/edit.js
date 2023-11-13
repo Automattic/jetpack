@@ -48,7 +48,7 @@ const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'po
 const isPlaygroundVisible =
 	window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-playground-visible' ];
 
-export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
+export default function AIAssistantEdit( { attributes, setAttributes, clientId, isSelected } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
 	const [ errorData, setError ] = useState( {} );
 	const [ loadingImages, setLoadingImages ] = useState( false );
@@ -73,11 +73,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		};
 	}, [] );
 
-	const {
-		requireUpgrade: requireUpgradeOnStart,
-		refresh: refreshFeatureData,
-		increaseRequestsCount,
-	} = useAiFeature();
+	const { requireUpgrade, increaseRequestsCount } = useAiFeature();
 
 	const focusOnPrompt = () => {
 		/*
@@ -98,8 +94,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
-
-	const requireUpgrade = requireUpgradeOnStart || errorData?.code === 'error_quota_exceeded';
 
 	const {
 		isLoadingCategories,
@@ -129,7 +123,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		setError,
 		tracks,
 		userPrompt,
-		refreshFeatureData,
 		requireUpgrade,
 	} );
 
@@ -512,7 +505,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 					</InspectorControls>
 				) }
 
-				{ requireUpgrade && <UpgradePrompt /> }
+				{ requireUpgrade && isSelected && <UpgradePrompt /> }
 				{ ! connected && <ConnectPrompt /> }
 				{ ! isWaitingState && connected && ! requireUpgrade && (
 					<ToolbarControls

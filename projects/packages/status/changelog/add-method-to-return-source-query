@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added a new method that returns "source" query param from the URL

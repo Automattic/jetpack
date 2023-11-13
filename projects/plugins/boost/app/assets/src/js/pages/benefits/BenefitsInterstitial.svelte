@@ -5,8 +5,8 @@
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import ActivateLicense from '../../react-components/components/activate-license';
 	import BackButton from '../../react-components/components/back-button';
+	import Footer from '../../react-components/sections/footer';
 	import Header from '../../react-components/sections/header';
-	import Footer from '../../sections/Footer.svelte';
 	import { getUpgradeURL } from '../../stores/connection';
 	import Logo from '../../svg/jetpack-green.svg';
 	import { recordBoostEvent } from '../../utils/analytics';
@@ -94,7 +94,7 @@
 	</div>
 
 	<div class="jb-benefits-footer">
-		<Footer />
+		<ReactComponent this={Footer} />
 	</div>
 </div>
 
