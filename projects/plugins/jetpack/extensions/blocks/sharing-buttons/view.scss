@@ -1,5 +1,5 @@
 .wp-block-jetpack-sharing-buttons {
-  .jetpack-sharing-buttons {
+    .jetpack-sharing-buttons {
         &__sharing-services-list {
             list-style-type: none;
             padding: 0;
@@ -27,7 +27,6 @@
             .jetpack-sharing-buttons__service-label {
                 margin-left: 5px;
             }
-            .social-logo {}
         }
 
         &__share-button:hover {
