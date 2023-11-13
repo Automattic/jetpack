@@ -274,6 +274,8 @@ export function SubscriptionEdit( props ) {
 					subscriberCount={ subscriberCount }
 					textColor={ textColor }
 					buttonWidth={ buttonWidth }
+					subscribePlaceholder={ subscribePlaceholder }
+					submitButtonText={ submitButtonText }
 					successMessage={ successMessage }
 				/>
 			</InspectorControls>
