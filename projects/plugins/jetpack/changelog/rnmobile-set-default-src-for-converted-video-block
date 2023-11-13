@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+RNMobile: Prevent converted video blocks from displaying empty thumbnails on mobile.

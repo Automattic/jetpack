@@ -145,4 +145,32 @@ class Test_Host extends TestCase {
 			'default'     => array( '' ),
 		);
 	}
+
+	/**
+	 * Test adding a source parameter to the Calypso URL.
+	 *
+	 * @covers Automattic\Jetpack\Status\Host::get_source_query
+	 * @dataProvider get_source_query_params
+	 *
+	 * @param string $source Source parameter.
+	 * @param string $expected Expected query string.
+	 */
+	public function test_get_source_query( $source, $expected ) {
+		$_GET['source'] = $source;
+		$this->assertEquals( $expected, $this->host_obj->get_source_query( $source ) );
+		unset( $_GET['source'] );
+	}
+
+	/**
+	 * Data provider for `test_get_source_query()` test method.
+	 *
+	 * @return array
+	 */
+	public function get_source_query_params() {
+			return array(
+				'empty'   => array( '', '' ),
+				'valid'   => array( 'jetpack-manage', 'jetpack-manage' ),
+				'invalid' => array( 'invalid-param', '' ),
+			);
+	}
 }

@@ -3,7 +3,7 @@
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
 	import ActivateLicense from '../../react-components/components/activate-license';
-	import Footer from '../../sections/Footer.svelte';
+	import Footer from '../../react-components/sections/footer';
 	import Header from '../../sections/Header.svelte';
 	import { initializeConnection, getUpgradeURL } from '../../stores/connection';
 	import { recordBoostEvent } from '../../utils/analytics';
@@ -74,7 +74,7 @@
 		</div>
 	</div>
 
-	<Footer />
+	<ReactComponent this={Footer} />
 </div>
 
 <style lang="scss">

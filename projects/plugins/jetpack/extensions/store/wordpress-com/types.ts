@@ -87,6 +87,8 @@ export type AiFeatureProps = {
 export type AiFeatureStateProps = AiFeatureProps & {
 	_meta?: {
 		isRequesting: boolean;
+		asyncRequestCountdown: number;
+		asyncRequestTimerId: number;
 	};
 };
 
