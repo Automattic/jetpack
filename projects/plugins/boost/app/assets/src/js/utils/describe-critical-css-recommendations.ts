@@ -184,7 +184,6 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 				],
 				listLink:
 					'https://wordpress.org/support/article/common-wordpress-errors/#internal-server-error',
-				closingParagraph: __( 'This is a test.', 'jetpack-boost' ),
 			};
 
 		default:
@@ -256,9 +255,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				),
 				set.firstMeta.code
 			),
-		rawError: set => Object.values( set.byUrl )[ 0 ].message,
 		suggestion: set => httpErrorSuggestion( castToNumber( set.firstMeta.code ), urlCount( set ) ),
-		footerComponent: () => UrlComponentsExample,
 	},
 
 	RedirectError: {
