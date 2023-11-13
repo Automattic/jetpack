@@ -1,4 +1,9 @@
-import registerJetpackBlock from '../../shared/register-jetpack-block';
-import { name, settings } from '.';
+import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
+import metadata from './block.json';
+import edit from './edit';
+import './editor.scss';
 
-registerJetpackBlock( name, settings );
+registerJetpackBlockFromMetadata( metadata, {
+	edit,
+	save: () => null, // TODO: Implement save.
+} );
