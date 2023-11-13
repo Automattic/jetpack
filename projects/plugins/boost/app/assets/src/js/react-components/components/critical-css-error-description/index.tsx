@@ -1,26 +1,20 @@
 import classNames from 'classnames';
-import { useState } from 'react';
 import { createInterpolateElement } from '@wordpress/element';
-import { sprintf, __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { regenerateCriticalCss } from '../../../stores/critical-css-state';
 import {
 	describeErrorSet,
 	suggestion,
-	footerComponent,
 	rawError,
 } from '../../../utils/describe-critical-css-recommendations';
 import actionLinkInterpolateVar from '../../utils/action-link-interpolate-var';
 import { type InterpolateVars } from '../../utils/interplate-vars-types';
 import supportLinkInterpolateVar from '../../utils/support-link-interpolate-var';
-import FoldingElement from '../folding-element';
+import FoldingElement from './folding-element';
+import MoreList from './more-list';
 import styles from './styles.module.scss';
-import {
-	CriticalCssErrorDescriptionTypes,
-	MoreListTypes,
-	FormattedURL,
-	SuggestionTypes,
-	NumberedListTypes,
-} from './types';
+import Suggestion from './suggestion';
+import { CriticalCssErrorDescriptionTypes, FormattedURL } from './types';
 
 const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > = ( {
 	errorSet,
@@ -84,85 +78,6 @@ const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > 
 					</p>
 				) ) }
 		</div>
-	);
-};
-
-const MoreList: React.FC< MoreListTypes > = ( { entries = [], showLimit = 2 } ) => {
-	const { expanded, setExpanded } = useState( false );
-	const listItems = expanded ? entries : entries.slice( 0, showLimit );
-	const showExpandButton = ! expanded && entries.length > showLimit;
-
-	return (
-		<>
-			<ul className={ styles[ 'more-list' ] }>
-				{ listItems.map( ( { href, label }, index ) => (
-					<li key={ index }>
-						<a href={ href } target="_blank" rel="noreferrer">
-							{ label }
-						</a>
-					</li>
-				) ) }
-			</ul>
-			{ showExpandButton && (
-				// eslint-disable-next-line jsx-a11y/anchor-is-valid
-				<a
-					onClick={ event => {
-						event.preventDefault();
-						setExpanded( ! expanded );
-					} }
-					href="#"
-				>
-					{ sprintf(
-						/* translators: %d is the number of items in this list hidden behind this link */
-						__( '…and %d more', 'jetpack-boost' ),
-						entries.length - showLimit
-					) }
-				</a>
-			) }
-		</>
-	);
-};
-
-const Suggestion: React.FC< SuggestionTypes > = ( {
-	errorSet,
-	interpolateVars,
-	showClosingParagraph,
-} ) => {
-	const FooterComponent = footerComponent( errorSet );
-
-	return (
-		<>
-			<h5 className={ styles[ 'suggestion-title' ] }>{ __( 'What to do', 'jetpack-boost' ) }</h5>
-
-			<p className={ styles.suggestion }>
-				{ createInterpolateElement( suggestion( errorSet ).paragraph, interpolateVars ) }
-			</p>
-
-			{ suggestion( errorSet ).list && (
-				<NumberedList items={ suggestion( errorSet ).list } interpolateVars={ interpolateVars } />
-			) }
-
-			{ showClosingParagraph && !! suggestion( errorSet ).closingParagraph && (
-				<p className={ styles[ 'suggestion-closing' ] }>
-					{ createInterpolateElement( suggestion( errorSet ).closingParagraph, interpolateVars ) }
-				</p>
-			) }
-
-			{ FooterComponent && <FooterComponent /> }
-		</>
-	);
-};
-
-const NumberedList: React.FC< NumberedListTypes > = ( { items, interpolateVars } ) => {
-	return (
-		<ol className="numbered-list">
-			{ items.map( ( item, index ) => (
-				<li key={ index }>
-					<span className="index">{ index + 1 }</span>
-					<span className="text">{ createInterpolateElement( item, interpolateVars ) }</span>
-				</li>
-			) ) }
-		</ol>
 	);
 };
 

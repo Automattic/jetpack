@@ -2,22 +2,11 @@
 	line-height: 1.5rem;
 	color: var( --primary-black );
 
-	a, .suggestion-title {
+	a {
 		color: inherit !important;
 	}
 
-	.more-list {
-		margin-top: 4px;
-	}
-
-	.suggestion-title {
-		font-size: 16px;
-		margin-top: 24px;
-		margin-bottom: 8px;
-		font-weight: bold;
-	}
-
-	.suggestion, .suggestion-closing, .raw-error {
+	.raw-error {
 		color: var( --primary-black );
 		margin-top: 8px;
 		margin-bottom: 24px;

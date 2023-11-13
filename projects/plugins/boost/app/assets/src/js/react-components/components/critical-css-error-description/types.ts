@@ -29,8 +29,3 @@ export type SuggestionTypes = {
 	interpolateVars: InterpolateVars;
 	showClosingParagraph: boolean;
 };
-
-export type NumberedListTypes = {
-	items: string[];
-	interpolateVars: InterpolateVars;
-};
