@@ -2,8 +2,8 @@
 	import ReactComponent from './elements/ReactComponent.svelte';
 	import RecommendationsPage from './modules/image-size-analysis/RecommendationsPage.svelte';
 	import GettingStarted from './pages/getting-started/GettingStarted.svelte';
-	import PurchaseSuccess from './pages/purchase-success/PurchaseSuccess.svelte';
 	import Settings from './pages/settings/Settings.svelte';
+	import PurchaseSuccess from './react-components/pages/purchase-success';
 	import Upgrade from './react-components/pages/upgrade';
 	import config from './stores/config';
 	import { connection } from './stores/connection';
@@ -57,8 +57,8 @@
 		{isPremium}
 		domain={siteDomain}
 	/>
-	<Route path="purchase-successful" let:location let:navigate>
-		<PurchaseSuccess {location} {navigate} {isImageGuideActive} />
+	<Route path="purchase-successful">
+		<ReactComponent this={PurchaseSuccess} {isImageGuideActive} />
 	</Route>
 	{#if isImageSizeAnalysisAvailable && isImageSizeAnalysisActive}
 		<Route path="image-size-analysis/:group/:page" component={RecommendationsPage} />

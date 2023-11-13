@@ -1,7 +1,7 @@
 /**
  * Types for the AI Assistant feature.
  */
-import type { TierValueProp, UpgradeTypeProp } from './store/wordpress-com/types';
+import type { TierProp, UpgradeTypeProp } from './store/wordpress-com/types';
 
 /*
  * `sites/$site/ai-assistant-feature` endpoint response body props
@@ -21,13 +21,7 @@ export type SiteAIAssistantFeatureEndpointResponseProps = {
 	'error-code'?: string;
 	'is-playground-visible'?: boolean;
 	'upgrade-type': UpgradeTypeProp;
-	'current-tier': {
-		value: TierValueProp;
-	};
-	'tier-plans': Array< {
-		slug: string;
-		limit: number;
-		value: TierValueProp;
-	} >;
-	'next-tier'?: null;
+	'current-tier': TierProp;
+	'tier-plans': Array< TierProp >;
+	'next-tier'?: TierProp | null;
 };

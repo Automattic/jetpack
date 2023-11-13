@@ -13,12 +13,15 @@ import {
 	setSiteSlug,
 	setConnectedAccountDefaultCurrency,
 	setSubscriberCounts,
+	setNewsletterCategories,
 } from './actions';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
 import { onError } from './utils';
 
 const EXECUTION_KEY = 'membership-products-resolver-getProducts';
 const SUBSCRIBER_COUNT_EXECUTION_KEY = 'membership-products-resolver-getSubscriberCounts';
+const GET_NEWSLETTER_CATEGORIES_EXECUTION_KEY =
+	'membership-products-resolver-getNewsletterCategories';
 let hydratedFromAPI = false;
 
 const fetchMemberships = async () => {
@@ -66,6 +69,31 @@ const mapAPIResponseToMembershipProductsStoreData = ( response, registry, dispat
 const fetchSubscriberCounts = async () => {
 	const response = await apiFetch( {
 		path: '/wpcom/v2/subscribers/counts',
+	} );
+
+	if ( ! response || typeof response !== 'object' ) {
+		throw new Error( 'Unexpected API response' );
+	}
+
+	/**
+	 * WP_Error returns a list of errors with custom names:
+	 * `errors: { foo: [ 'message' ], bar: [ 'message' ] }`
+	 * Since we don't know their names, to get the message, we transform the object
+	 * into an array, and just pick the first message of the first error.
+	 *
+	 * @see https://developer.wordpress.org/reference/classes/wp_error/
+	 */
+	const wpError = response?.errors && Object.values( response.errors )?.[ 0 ]?.[ 0 ];
+	if ( wpError ) {
+		throw new Error( wpError );
+	}
+
+	return response;
+};
+
+const fetchNewsletterCategories = async () => {
+	const response = await apiFetch( {
+		path: '/wpcom/v2/newsletter-categories',
 	} );
 
 	if ( ! response || typeof response !== 'object' ) {
@@ -184,6 +212,28 @@ export const getSubscriberCounts =
 					socialFollowers: response.counts.social_followers,
 					emailSubscribers: response.counts.email_subscribers,
 					paidSubscribers: response.counts.paid_subscribers,
+				} )
+			);
+		} catch ( error ) {
+			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
+			onError( error.message, registry );
+		}
+		executionLock.release( lock );
+	};
+
+export const getNewsletterCategories =
+	() =>
+	async ( { dispatch, registry } ) => {
+		await executionLock.blockExecution( GET_NEWSLETTER_CATEGORIES_EXECUTION_KEY );
+
+		const lock = executionLock.acquire( GET_NEWSLETTER_CATEGORIES_EXECUTION_KEY );
+
+		try {
+			const response = await fetchNewsletterCategories();
+			dispatch(
+				setNewsletterCategories( {
+					enabled: response.enabled,
+					categories: response.newsletter_categories,
 				} )
 			);
 		} catch ( error ) {

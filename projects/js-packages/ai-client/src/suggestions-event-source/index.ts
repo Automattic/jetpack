@@ -296,6 +296,14 @@ export default class SuggestionsEventSource extends EventTarget {
 
 	processEvent( e: EventSourceMessage ) {
 		if ( e.data === '[DONE]' ) {
+			/*
+			 * Check if the unclear prompt event was already dispatched,
+			 * to ensure that it is dispatched only once per request.
+			 */
+			if ( this.errorUnclearPromptTriggered ) {
+				return;
+			}
+
 			if ( this.fullMessage.length ) {
 				// Dispatch an event with the full content
 				this.dispatchEvent( new CustomEvent( 'done', { detail: this.fullMessage } ) );

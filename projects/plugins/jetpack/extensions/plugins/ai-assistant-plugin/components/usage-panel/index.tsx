@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
@@ -20,43 +19,39 @@ export default function UsagePanel() {
 	const canUpgrade = canUserPurchasePlan();
 
 	// fetch usage data
-	const { hasFeature, requestsCount, requestsLimit, isOverLimit, loading } = useAiFeature();
+	const { hasFeature, requestsCount, requestsLimit, isOverLimit } = useAiFeature();
 
 	return (
 		<div className="jetpack-ai-usage-panel">
-			{ loading ? (
-				<LoadingPlaceholder className="jetpack-ai-usage-panel-loading" />
-			) : (
-				<>
-					<UsageControl
-						isOverLimit={ isOverLimit }
-						hasFeature={ hasFeature }
-						requestsCount={ requestsCount }
-						requestsLimit={ requestsLimit }
-					/>
+			<>
+				<UsageControl
+					isOverLimit={ isOverLimit }
+					hasFeature={ hasFeature }
+					requestsCount={ requestsCount }
+					requestsLimit={ requestsLimit }
+				/>
 
-					{ false && (
-						<p className="muted">
-							{
-								// translators: %1$d: number of days until the next usage count reset
-								sprintf( __( 'Requests will reset in %1$d days.', 'jetpack' ), 10 )
-							}
-						</p>
-					) }
+				{ false && (
+					<p className="muted">
+						{
+							// translators: %1$d: number of days until the next usage count reset
+							sprintf( __( 'Requests will reset in %1$d days.', 'jetpack' ), 10 )
+						}
+					</p>
+				) }
 
-					{ ! hasFeature && canUpgrade && (
-						<Button
-							variant="primary"
-							label="Upgrade your Jetpack AI plan"
-							href={ checkoutUrl }
-							onClick={ autosaveAndRedirect }
-							disabled={ isRedirecting }
-						>
-							{ __( 'Upgrade', 'jetpack' ) }
-						</Button>
-					) }
-				</>
-			) }
+				{ ! hasFeature && canUpgrade && (
+					<Button
+						variant="primary"
+						label="Upgrade your Jetpack AI plan"
+						href={ checkoutUrl }
+						onClick={ autosaveAndRedirect }
+						disabled={ isRedirecting }
+					>
+						{ __( 'Upgrade', 'jetpack' ) }
+					</Button>
+				) }
+			</>
 		</div>
 	);
 }
