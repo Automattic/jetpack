@@ -2,6 +2,19 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.8.1 - 2023-11-13
+### Improved compatibility
+- Paywall: Improved styles. [#34040]
+
+### Bug fixes
+- Fixed a PHP Warning when WooCommerce templates were not found due to a name change. [#34030]
+- Fixed the PHP warning that happens when the font name is not defined. [#34005]
+- Related Posts: Ensured the Related Posts Block can be properly displayed. [#33994]
+- Subscribe Block: Fixed the block not rendering correctly in the editor. [#34023]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Fixed Subscribe Block alignment. [#34003]
+
 ## 12.8 - 2023-11-06
 ### Enhancements
 - Added a notice for wp-admin settings pages when the wpcom_admin_interface option is set to wp-admin. [#33933]
