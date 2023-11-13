@@ -686,7 +686,7 @@ class Jetpack_Memberships {
 
 		// We can retrieve the data directly except on a Jetpack/Atomic cached site or
 		$is_cached_site = ( new Host() )->is_wpcom_simple() && is_jetpack_site();
-		if ( ! $is_cached_site ) {
+		if ( $is_cached_site ) {
 			return get_posts(
 				array(
 					'posts_per_page' => -1,
