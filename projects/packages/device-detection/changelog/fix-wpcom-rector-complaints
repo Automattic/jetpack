@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Call static functions with `static::` rather than `$this->` to make wpcom's rector happy. No functionality change.
+
+

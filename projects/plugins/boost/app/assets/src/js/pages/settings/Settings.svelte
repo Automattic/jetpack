@@ -1,8 +1,8 @@
 <script lang="ts">
 	import ReRouter from '../../elements/ReRouter.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import Footer from '../../react-components/sections/footer';
 	import Support from '../../react-components/sections/support';
-	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import config from '../../stores/config';
 	import { connection } from '../../stores/connection';
@@ -46,7 +46,7 @@
 			<ReactComponent this={Support} />
 		{/if}
 
-		<Footer />
+		<ReactComponent this={Footer} />
 	</div>
 </ReRouter>
 
