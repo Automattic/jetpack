@@ -405,6 +405,10 @@ class Assets {
 				self::instance()->add_async_script( $handle ); // Adds `defer` to script tag.
 			}
 		}
+		if ( 'async' === $options['strategy'] && version_compare( $wp_version, '6.3', '>=' ) ) {
+			wp_script_add_data( $handle, 'strategy', 'async' );
+		}
+
 		if ( $options['textdomain'] ) {
 			// phpcs:ignore Jetpack.Functions.I18n.DomainNotLiteral
 			wp_set_script_translations( $handle, $options['textdomain'] );
