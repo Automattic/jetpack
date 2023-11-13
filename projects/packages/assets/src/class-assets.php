@@ -321,7 +321,7 @@ class Assets {
 	 * This wrapper handles all of that.
 	 *
 	 * @since 1.12.0
-	 * @since $$next-version$$ Update the `in_footer` argument to accept an array to leverage script_strategy.
+	 * @since $$next-version$$ Add a new `strategy` to leverage >= 6.3. script strategy feature.
 	 * @param string $handle      Name of the script. Should be unique across both scripts and styles.
 	 * @param string $path        Minimized script path.
 	 * @param string $relative_to File that `$path` is relative to. Pass `__FILE__`.
@@ -332,12 +332,13 @@ class Assets {
 	 *  - `css_path`:         (string|null) `.css` to load. Default is to base it on `$path`.
 	 *  - `dependencies`:     (string[]) Additional script dependencies to queue.
 	 *  - `enqueue`:          (bool) Set true to enqueue the script immediately.
-	 *  - `in_footer`:        (bool|array) Pass an array of args to leverage script_strategy since WordPress 6.4. Set true to register script for the footer.
+	 *  - `in_footer`:        (bool) Set true to register script for the footer.
 	 *  - `media`:            (string) Media for the css file. Default 'all'.
 	 *  - `minify`:           (bool|null) Set true to pass `minify=true` in the query string, or `null` to suppress the normal `minify=false`.
 	 *  - `nonmin_path`:      (string) Non-minified script path.
 	 *  - `textdomain`:       (string) Text domain for the script. Required if the script depends on wp-i18n.
 	 *  - `version`:          (string) Override the version from the `asset_path` file.
+	 *  - `strategy`:         (string) Specify a script strategy to use, eg. `defer` or `async`. Default is `""`.
 	 * @throws \InvalidArgumentException If arguments are invalid.
 	 */
 	public static function register_script( $handle, $path, $relative_to, array $options = array() ) {
@@ -360,6 +361,7 @@ class Assets {
 			'media'            => 'all',
 			'minify'           => false,
 			'textdomain'       => null,
+			'strategy'         => '',
 		);
 
 		if ( $options['css_path'] && substr( $options['css_path'], -4 ) !== '.css' ) {
@@ -394,13 +396,13 @@ class Assets {
 		}
 
 		wp_register_script( $handle, $url, $options['dependencies'], $ver, $options['in_footer'] );
-		if ( $options['async'] ) {
+		if ( $options['async'] || 'defer' === $options['strategy'] ) {
 			// For WordPress 6.3 and greater, use the script strategy.
 			if ( version_compare( $wp_version, '6.3', '>=' ) ) {
 				wp_script_add_data( $handle, 'strategy', 'defer' );
 			} else {
 				// Pre 6.3 approach.
-				self::instance()->add_async_script( $handle );
+				self::instance()->add_async_script( $handle ); // Adds `defer` to script tag.
 			}
 		}
 		if ( $options['textdomain'] ) {
