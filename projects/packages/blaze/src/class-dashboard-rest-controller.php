@@ -66,7 +66,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Checkout route
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%1$d/wordads/dsp/api/v1/wpcom/checkout', $site_id ),
+			sprintf( '/sites/%1$d/wordads/dsp/api/v1/wpcom/checkout(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'edit_wpcom_checkout' ),
