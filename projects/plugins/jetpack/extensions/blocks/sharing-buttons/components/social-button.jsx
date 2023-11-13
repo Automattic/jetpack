@@ -1,3 +1,4 @@
+import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import SocialIcon from 'social-logos';
 import availableServices from '../available-services';
@@ -5,7 +6,11 @@ import availableServices from '../available-services';
 const mountLink = ( service, post ) => {
 	if ( 'email' === service ) {
 		return addQueryArgs( 'mailto:', {
-			subject: `Shared post: ${ post.title }`,
+			subject: sprintf(
+				/* translators: placeholder is post title. */
+				__( 'Shared post: %s', 'jetpack' ),
+				post.title
+			),
 			body: post.link,
 		} );
 	}
