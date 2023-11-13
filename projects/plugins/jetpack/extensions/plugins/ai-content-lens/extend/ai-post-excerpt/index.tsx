@@ -54,6 +54,8 @@ function AiPostExcerpt() {
 
 	const { editPost } = useDispatch( 'core/editor' );
 
+	const { dequeueAiAssistantFeatureAyncRequest } = useDispatch( 'wordpress-com/plans' );
+
 	// Post excerpt words number
 	const [ excerptWordsNumber, setExcerptWordsNumber ] = useState( 50 );
 
@@ -166,6 +168,13 @@ ${ postContent }
 				context: messageContext,
 			},
 		];
+
+		/*
+		 * Always dequeue/cancel the AI Assistant feature async request,
+		 * in case there is one pending,
+		 * when performing a new AI suggestion request.
+		 */
+		dequeueAiAssistantFeatureAyncRequest();
 
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 	}
