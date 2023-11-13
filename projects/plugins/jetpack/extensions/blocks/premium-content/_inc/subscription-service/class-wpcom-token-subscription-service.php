@@ -43,4 +43,13 @@ class WPCOM_Token_Subscription_Service extends Token_Subscription_Service {
 	 // phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
 		return defined( 'EARN_JWT_SIGNING_KEY' ) ? EARN_JWT_SIGNING_KEY : false;
 	}
+
+	/**
+	 * Returns true if the current authenticated user is subscribed to the current site.
+	 *
+	 * @return boolean
+	 */
+	public function is_current_user_subscribed() {
+		return false;
+	}
 }

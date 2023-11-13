@@ -703,6 +703,10 @@ class Jetpack_Memberships {
 			$allow_deleted = true;
 			$list          = Memberships_Product::get_product_list( get_current_blog_id(), self::$type_tier, null, $allow_deleted );
 
+			if ( is_wp_error( $list ) ) {
+				return array();
+			}
+
 			return array_map(
 				function ( $product ) {
 					return $product['id'];

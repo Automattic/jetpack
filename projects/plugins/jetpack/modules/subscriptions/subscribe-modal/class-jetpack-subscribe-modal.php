@@ -197,26 +197,10 @@ HTML;
 
 		// Don't show if user is subscribed to blog.
 		require_once __DIR__ . '/../views.php';
-		if ( $this->has_subscription_cookie() || Jetpack_Subscriptions_Widget::is_current_user_subscribed() ) {
+		if ( Jetpack_Memberships::is_current_user_subscribed() ) {
 			return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Returns true if site visitor has subscribed
-	 * to the blog and has a subscription cookie.
-	 *
-	 * @return bool
-	 */
-	public function has_subscription_cookie() {
-		$cookies = $_COOKIE;
-		foreach ( $cookies as $name => $value ) {
-			if ( strpos( $name, 'jetpack_blog_subscribe_' ) !== false ) {
-				return true;
-			}
-		}
-		return false;
 	}
 }
 
