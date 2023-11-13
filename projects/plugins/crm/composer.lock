@@ -570,7 +570,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "7e70d6d91c99ca7224e3fe409f998b039ddc91f1"
+                "reference": "30fefd8cf38874ba06dfeee3ea78a6cd710c8ca6"
             },
             "require": {
                 "php": ">=5.6",
@@ -589,7 +589,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "3.3.x-dev"
+                    "dev-trunk": "3.4.x-dev"
                 },
                 "mirror-repo": "Automattic/jetpack-changelogger",
                 "version-constants": {
