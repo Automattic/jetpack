@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.13.0] - 2023-11-13
 ### Added
-- Adding redux store for jetpack modules data [#33397]
+- Added a Redux store for Jetpack modules data. [#33397]
 
 ## [0.12.6] - 2023-11-08
 ### Fixed

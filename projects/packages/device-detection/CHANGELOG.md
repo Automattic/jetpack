@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.0] - 2023-11-13
 ### Added
-- Allow cookieinformationscanner and facebookexternalhit to be detected as bots [#34026]
+- Added 'cookieinformationscanner' and 'facebookexternalhit' to the bot user agent list. [#34026]
 
 ## [1.4.27] - 2023-08-23
 ### Changed

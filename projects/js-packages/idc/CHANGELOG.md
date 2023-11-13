@@ -4,7 +4,7 @@
 
 ## 0.10.51 - 2023-11-13
 ### Changed
-- Update dependencies.
+- Updated dependencies.
 
 ## 0.10.50 - 2023-10-19
 ### Changed

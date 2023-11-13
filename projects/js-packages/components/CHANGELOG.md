@@ -4,7 +4,7 @@
 
 ## [0.45.0] - 2023-11-13
 ### Fixed
-- Fix react warnings in Boost Score Graph. [#34014]
+- Fixed React warnings in Boost Score Graph. [#34014]
 
 ## [0.44.4] - 2023-11-03
 ### Changed

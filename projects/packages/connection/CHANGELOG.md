@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.60.0] - 2023-11-13
 ### Added
-- Added source as query param to the Jetpack connect url [#33984]
+- Added a 'source' query param to the Jetpack connect URL. [#33984]
 
 ## [1.59.0] - 2023-11-08
 ### Added

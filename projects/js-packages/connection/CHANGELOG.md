@@ -4,7 +4,7 @@
 
 ## [0.30.6] - 2023-11-13
 ### Changed
-- Update dependencies.
+- Updated dependencies.
 
 ## [0.30.5] - 2023-10-23
 ### Added

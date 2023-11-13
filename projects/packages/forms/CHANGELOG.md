@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.23.0] - 2023-11-13
 ### Changed
-- Change useModuleActive to use redux store instead from Jetpack Modules store [#33397]
+- Updated 'useModuleStatus' to use the new Jetpack modules store. [#33397]
 
 ## [0.22.6] - 2023-11-03
 

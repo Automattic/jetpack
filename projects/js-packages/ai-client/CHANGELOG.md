@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.15] - 2023-11-13
 ### Changed
-- AI Client: do not dispatch `done` event when JETPACK_AI_ERROR [#34051]
-- AI Client: ensure dispatching unclear error prompt once per request/response [#34025]
+- Prevented dispatching the `done` event for JETPACK_AI_ERROR. [#34051]
+- Ensured the unclear prompt error is dispatched only once per request. [#34025]
 
 ## [0.1.14] - 2023-11-03
 

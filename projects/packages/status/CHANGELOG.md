@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.19.0] - 2023-11-13
 ### Added
-- Added a new method that returns "source" query param from the URL [#33984]
+- Added Host::get_source_query() to return the 'source' query param from the current URL. [#33984]
 
 ## [1.18.5] - 2023-09-25
 ### Changed

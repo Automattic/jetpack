@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.39.6] - 2023-11-13
 ### Fixed
-- Search: use classic search for iOS<16 [#33929]
+- Switched to classic search for iOS 15 or lower. [#33929]
 
 ## [0.39.5] - 2023-11-03
 

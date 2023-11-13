@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.12.1] - 2023-11-13
 ### Changed
-- AI Assistant: Change image and text for interstitial based on tiers [#33981]
-- AI Assistant: Remove TOS notice from interstitial page [#34076]
+- AI Assistant: Updated the text and image for the interstitial based on AI plan tiers. [#33981]
+- AI Assistant: Removed the ToS notice from the interstitial page. [#34076]
 
 ## [3.12.0] - 2023-11-08
 ### Added
