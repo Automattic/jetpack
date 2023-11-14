@@ -17,45 +17,48 @@ import { AiDataContextProvider } from '.';
  * @param {React.ReactElement} WrappedComponent - component to wrap.
  * @returns {React.ReactElement}          		  Wrapped component, with the AI Assistant Data context.
  */
-const withAiDataProvider = createHigherOrderComponent( ( WrappedComponent: React.ReactElement ) => {
-	return props => {
-		// Connect with the AI Assistant communication layer.
-		const {
-			suggestion,
-			error: requestingError,
-			requestingState,
-			request: requestSuggestion,
-			stopSuggestion,
-			eventSource,
-		} = useAiSuggestions();
-
-		// Build the context value to pass to the ai assistant data provider.
-		const dataContextValue = useMemo(
-			() => ( {
+const withAiDataProvider = createHigherOrderComponent(
+	( WrappedComponent: React.ComponentType ) => {
+		return props => {
+			// Connect with the AI Assistant communication layer.
+			const {
 				suggestion,
-				requestingError,
+				error: requestingError,
 				requestingState,
-				eventSource,
-
-				requestSuggestion,
+				request: requestSuggestion,
 				stopSuggestion,
-			} ),
-			[
-				suggestion,
-				requestingError,
-				requestingState,
 				eventSource,
-				requestSuggestion,
-				stopSuggestion,
-			]
-		);
+			} = useAiSuggestions();
 
-		return (
-			<AiDataContextProvider value={ dataContextValue }>
-				<WrappedComponent { ...props } />
-			</AiDataContextProvider>
-		);
-	};
-}, 'withAiDataProvider' );
+			// Build the context value to pass to the ai assistant data provider.
+			const dataContextValue = useMemo(
+				() => ( {
+					suggestion,
+					requestingError,
+					requestingState,
+					eventSource,
+
+					requestSuggestion,
+					stopSuggestion,
+				} ),
+				[
+					suggestion,
+					requestingError,
+					requestingState,
+					eventSource,
+					requestSuggestion,
+					stopSuggestion,
+				]
+			);
+
+			return (
+				<AiDataContextProvider value={ dataContextValue }>
+					<WrappedComponent { ...props } />
+				</AiDataContextProvider>
+			);
+		};
+	},
+	'withAiDataProvider'
+);
 
 export default withAiDataProvider;
