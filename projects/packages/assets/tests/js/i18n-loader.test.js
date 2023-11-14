@@ -140,7 +140,7 @@ test( 'Failed fetch', async () => {
 test( 'Bad JSON', async () => {
 	fetch.mockFetchResponse( '<html>Whatever</html>' );
 	await expect( loader.downloadI18n( 'foo.js', 'bar', 'plugin' ) ).rejects.toThrow(
-		'Unexpected token < in JSON at position 0'
+		'Unexpected token \'<\', "<html>What"... is not valid JSON'
 	);
 	expect( global.fetch ).toHaveBeenCalledTimes( 1 );
 	expect( global.fetch ).toHaveBeenCalledWith(

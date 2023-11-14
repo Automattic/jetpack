@@ -58,9 +58,5 @@
 	],
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }
