@@ -66,6 +66,9 @@ export type AiModelTypeProp = typeof AI_MODEL_GPT_3_5_Turbo_16K | typeof AI_MODE
 interface JPConnectionInitialState {
 	apiNonce: string;
 	siteSuffix: string;
+	connectionStatus: {
+		isActive: boolean;
+	};
 }
 
 // Global
