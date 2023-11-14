@@ -52,7 +52,7 @@ const AutoConversionToggle: React.FC< AutoConversionToggleProps > = ( {
 
 	const toggleStatus = useCallback( () => {
 		const newOption = {
-			image: ! isEnabled,
+			enabled: ! isEnabled,
 		};
 		updateOptions( newOption );
 	}, [ isEnabled, updateOptions ] );
