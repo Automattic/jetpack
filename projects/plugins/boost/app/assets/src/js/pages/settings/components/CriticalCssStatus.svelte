@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { __, _n, sprintf } from '@wordpress/i18n';
-	import TemplatedString from '../../../elements/TemplatedString.svelte';
-	import TimeAgo from '../../../elements/TimeAgo.svelte';
+	import TemplatedString from '../../../components/TemplatedString.svelte';
+	import TimeAgo from '../../../components/TimeAgo.svelte';
 	import { regenerateCriticalCss } from '../../../stores/critical-css-state';
 	import { CriticalCssState } from '../../../stores/critical-css-state-types';
 	import InfoIcon from '../../../svg/info.svg';

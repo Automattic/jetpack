@@ -3,7 +3,7 @@
 	import { __ } from '@wordpress/i18n';
 	import ActivateLicense from '../../components/ActivateLicense/ActivateLicense';
 	import BackButton from '../../components/BackButton/BackButton';
-	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import ReactComponent from '../../components/ReactComponent.svelte';
 	import Footer from '../../sections/footer';
 	import { getUpgradeURL } from '../../stores/connection';
 	import Logo from '../../svg/jetpack-green.svg';

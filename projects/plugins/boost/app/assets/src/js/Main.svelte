@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Redirect from './elements/Redirect.svelte';
-	import ReactComponent from './elements/ReactComponent.svelte';
+	import Redirect from './components/Redirect.svelte';
+	import ReactComponent from './components/ReactComponent.svelte';
 	import RecommendationsPage from './routes/image-size-analysis/ImageSizeAnalysis.svelte';
 	import Upgrade from './routes/upgrade/Upgrade.svelte';
 	import GettingStarted from './routes/getting-started/GettingStarted.svelte';

@@ -2,8 +2,8 @@
 	import { requestSpeedScoresHistory } from '@automattic/jetpack-boost-score-api';
 	import { __ } from '@wordpress/i18n';
 	import { PerformanceHistory } from '../../routes/index/PerformanceHistory/PerformanceHistory';
-	import ErrorNotice from '../../elements/ErrorNotice.svelte';
-	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import ErrorNotice from '../../components/ErrorNotice.svelte';
+	import ReactComponent from '../../components/ReactComponent.svelte';
 	import { recordBoostEvent } from '../../utils/analytics';
 	import { castToString } from '../../utils/cast-to-string';
 	import routerHistory from '../../utils/router-history';

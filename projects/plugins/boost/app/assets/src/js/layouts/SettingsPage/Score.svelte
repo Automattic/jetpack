@@ -7,8 +7,8 @@
 	import { BoostScoreBar } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import { scoreChangeModal, ScoreChangeMessage } from '../../api/speed-scores';
-	import ErrorNotice from '../../elements/ErrorNotice.svelte';
-	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import ErrorNotice from '../../components/ErrorNotice.svelte';
+	import ReactComponent from '../../components/ReactComponent.svelte';
 	import ContextTooltip from '../../sections/score/context-tooltip';
 	import { performanceHistoryPanelDS } from '../../stores/data-sync-client';
 	import { dismissedAlerts } from '../../stores/dismissed-alerts';
@@ -18,7 +18,7 @@
 	import { recordBoostEvent } from '../../utils/analytics';
 	import { castToString } from '../../utils/cast-to-string';
 	import debounce from '../../utils/debounce';
-	import PopOut from '../../pages/settings/elements/PopOut.svelte';
+	import PopOut from '../../pages/settings/components/PopOut.svelte';
 	import History from './History.svelte';
 
 	// @todo - move score-context markup/styles here, as it's not used anywhere else.

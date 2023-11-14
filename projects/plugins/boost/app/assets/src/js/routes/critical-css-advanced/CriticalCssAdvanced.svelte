@@ -2,9 +2,9 @@
 	import { slide } from 'svelte/transition';
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import BackButton from '../../components/BackButton/BackButton';
-	import CloseButton from '../../elements/CloseButton.svelte';
-	import ReactComponent from '../../elements/ReactComponent.svelte';
-	import CriticalCssErrorDescription from '../../pages/settings/elements/CriticalCssErrorDescription.svelte';
+	import CloseButton from '../../components/CloseButton.svelte';
+	import ReactComponent from '../../components/ReactComponent.svelte';
+	import CriticalCssErrorDescription from '../../pages/settings/components/CriticalCssErrorDescription.svelte';
 	import { replaceCssState, updateProvider } from '../../stores/critical-css-state';
 	import { groupErrorsByFrequency } from '../../stores/critical-css-state-errors';
 	import { type Provider } from '../../stores/critical-css-state-types';

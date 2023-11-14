@@ -6,8 +6,8 @@
 	import { onDestroy } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { __ } from '@wordpress/i18n';
-	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
-	import FoldingElement from '../../../elements/FoldingElement.svelte';
+	import ErrorNotice from '../../../components/ErrorNotice.svelte';
+	import FoldingElement from '../../../components/FoldingElement.svelte';
 	import { CriticalCssState } from '../../../stores/critical-css-state-types';
 	import CriticalCssErrorDescription from './CriticalCssErrorDescription.svelte';
 

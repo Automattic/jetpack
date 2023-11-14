@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { useNavigate } from 'svelte-navigator';
 	import { __, sprintf } from '@wordpress/i18n';
-	import TemplatedString from '../../../elements/TemplatedString.svelte';
-	import Tooltip from '../../../elements/Tooltip.svelte';
+	import TemplatedString from '../../../components/TemplatedString.svelte';
+	import Tooltip from '../../../components/Tooltip.svelte';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
 	import CollapsibleMeta from './CollapsibleMeta.svelte';
 	import ImageCdnQualityControl from './ImageCdnQualityControl.svelte';

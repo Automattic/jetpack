@@ -6,7 +6,7 @@
 	import Support from '../../sections/support';
 	import { hasPrioritySupport } from '../../utils/paid-plan';
 	import { criticalCssState, isGenerating } from '../../stores/critical-css-state';
-	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import ReactComponent from '../../components/ReactComponent.svelte';
 	import { modulesState } from '../../stores/modules';
 
 	$: criticalCssCreated = $criticalCssState.created;

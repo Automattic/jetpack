@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
-	import Button from '../../../../elements/Button.svelte';
+	import Button from '../../../../components/Button.svelte';
 	import { recordBoostEventAndRedirect } from '../../../../utils/analytics';
 	import { removeGetParams } from '../../../../utils/remove-get-params';
 	import Device from '../components/Device.svelte';

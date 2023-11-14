@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
-	import Button from '../../../../elements/Button.svelte';
+	import Button from '../../../../components/Button.svelte';
 	import { recordBoostEventAndRedirect } from '../../../../utils/analytics';
 	export let edit_url: string | null;
 	export let instructions: string;
