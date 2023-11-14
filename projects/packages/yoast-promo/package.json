@@ -47,9 +47,5 @@
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
-	],
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	}
+	]
 }
