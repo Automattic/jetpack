@@ -9,7 +9,7 @@
 	import { scoreChangeModal, ScoreChangeMessage } from '../../api/speed-scores';
 	import ErrorNotice from '../../components/ErrorNotice.svelte';
 	import ReactComponent from '../../components/ReactComponent.svelte';
-	import ContextTooltip from '../../sections/score/context-tooltip';
+	import ContextTooltip from './ContextTooltip/ContextTooltip';
 	import { performanceHistoryPanelDS } from '../../stores/data-sync-client';
 	import { dismissedAlerts } from '../../stores/dismissed-alerts';
 	import { modulesState } from '../../stores/modules';

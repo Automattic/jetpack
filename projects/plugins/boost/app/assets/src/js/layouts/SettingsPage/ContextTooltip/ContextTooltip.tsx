@@ -1,6 +1,6 @@
 import { IconTooltip } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import styles from './styles.module.scss';
+import styles from './ContextTooltip.module.scss';
 
 const ContextTooltip = () => {
 	return (
