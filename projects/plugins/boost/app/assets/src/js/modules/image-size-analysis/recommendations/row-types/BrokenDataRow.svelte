@@ -10,9 +10,3 @@
 		</div>
 	</svelte:fragment>
 </TableRow>
-
-<style lang="scss">
-	.jb-table-row__title {
-		grid-column: title;
-	}
-</style>

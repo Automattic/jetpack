@@ -274,6 +274,8 @@ export function SubscriptionEdit( props ) {
 					subscriberCount={ subscriberCount }
 					textColor={ textColor }
 					buttonWidth={ buttonWidth }
+					subscribePlaceholder={ subscribePlaceholder }
+					submitButtonText={ submitButtonText }
 					successMessage={ successMessage }
 				/>
 			</InspectorControls>
@@ -286,29 +288,31 @@ export function SubscriptionEdit( props ) {
 			) }
 
 			<div className={ getBlockClassName() } style={ cssVars }>
-				<div className="wp-block-jetpack-subscriptions__form" role="form">
-					<div className="wp-block-jetpack-subscriptions__form-elements">
-						<TextControl
-							placeholder={ subscribePlaceholder }
-							disabled={ true }
-							className={ classnames(
-								emailFieldClasses,
-								'wp-block-jetpack-subscriptions__textfield'
-							) }
-							style={ emailFieldStyles }
-						/>
-						<RichText
-							className={ classnames(
-								buttonClasses,
-								'wp-block-jetpack-subscriptions__button',
-								'wp-block-button__link'
-							) }
-							onChange={ value => setAttributes( { submitButtonText: value } ) }
-							style={ buttonStyles }
-							value={ submitButtonText }
-							withoutInteractiveFormatting
-							allowedFormats={ [ 'core/bold', 'core/italic', 'core/strikethrough' ] }
-						/>
+				<div className="wp-block-jetpack-subscriptions__container is-not-subscriber">
+					<div className="wp-block-jetpack-subscriptions__form" role="form">
+						<div className="wp-block-jetpack-subscriptions__form-elements">
+							<TextControl
+								placeholder={ subscribePlaceholder }
+								disabled={ true }
+								className={ classnames(
+									emailFieldClasses,
+									'wp-block-jetpack-subscriptions__textfield'
+								) }
+								style={ emailFieldStyles }
+							/>
+							<RichText
+								className={ classnames(
+									buttonClasses,
+									'wp-block-jetpack-subscriptions__button',
+									'wp-block-button__link'
+								) }
+								onChange={ value => setAttributes( { submitButtonText: value } ) }
+								style={ buttonStyles }
+								value={ submitButtonText }
+								withoutInteractiveFormatting
+								allowedFormats={ [ 'core/bold', 'core/italic', 'core/strikethrough' ] }
+							/>
+						</div>
 					</div>
 				</div>
 				{ showSubscribersTotal && (

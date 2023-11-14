@@ -1,12 +1,11 @@
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { JetpackBoostPage } from '../../lib/pages/index.js';
-import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
+import playwrightConfig from 'jetpack-e2e-commons/playwright.config.mjs';
 
 const modules = [
 	// ['MODULE_NAME', 'DEFAULT STATE'],
 	[ 'critical_css', 'disabled' ],
-	[ 'lazy_images', 'disabled' ],
 	[ 'render_blocking_js', 'disabled' ],
 ];
 
@@ -19,7 +18,7 @@ test.describe.serial( 'Modules', () => {
 
 		await boostPrerequisitesBuilder( page )
 			.withConnection( true )
-			.withInactiveModules( [ 'critical_css', 'lazy_images', 'render_blocking_js' ] )
+			.withInactiveModules( [ 'critical_css', 'render_blocking_js' ] )
 			.build();
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
@@ -17,6 +18,8 @@ const ConnectedProductCard = ( {
 	children,
 	isDataLoading,
 	showMenu = false,
+	Description = null,
+	additionalActions = null,
 	menuItems = [],
 } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
@@ -29,7 +32,13 @@ const ConnectedProductCard = ( {
 		installStandalonePlugin,
 		deactivateStandalonePlugin,
 	} = useProduct( slug );
-	const { name, description, requiresUserConnection, standalonePluginInfo, status } = detail;
+	const {
+		name,
+		description: defaultDescription,
+		requiresUserConnection,
+		standalonePluginInfo,
+		status,
+	} = detail;
 	const [ installingStandalone, setInstallingStandalone ] = useState( false );
 	const [ deactivatingStandalone, setDeactivatingStandalone ] = useState( false );
 
@@ -99,10 +108,16 @@ const ConnectedProductCard = ( {
 			} );
 	}, [ deactivateStandalonePlugin ] );
 
+	const DefaultDescription = () => (
+		<Text variant="body-small" style={ { flexGrow: 1 } }>
+			{ defaultDescription }
+		</Text>
+	);
+
 	return (
 		<ProductCard
 			name={ name }
-			description={ description }
+			Description={ Description ? Description : DefaultDescription }
 			status={ status }
 			admin={ admin }
 			isFetching={ isFetching }
@@ -110,6 +125,7 @@ const ConnectedProductCard = ( {
 			isInstallingStandalone={ installingStandalone }
 			isDeactivatingStandalone={ deactivatingStandalone }
 			onDeactivate={ deactivate }
+			additionalActions={ additionalActions }
 			slug={ slug }
 			onActivate={ handleActivate }
 			showMenu={ menuIsActive }
@@ -130,6 +146,10 @@ ConnectedProductCard.propTypes = {
 	children: PropTypes.node,
 	admin: PropTypes.bool.isRequired,
 	slug: PropTypes.string.isRequired,
+	isDataLoading: PropTypes.bool,
+	showMenu: PropTypes.bool,
+	additionalActions: PropTypes.array,
+	menuItems: PropTypes.array,
 };
 
 export default ConnectedProductCard;

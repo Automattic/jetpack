@@ -195,7 +195,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/subscribers/' . $data['site_slug_encoded'];
+				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
 			},
 		),
 		'migrate_content'                 => array(
@@ -550,6 +550,27 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/site-monitoring/' . $data['site_slug_encoded'];
+			},
+		),
+		'import_subscribers'              => array(
+			'get_title'            => function () {
+				return __( 'Import existing subscribers', 'jetpack-mu-wpcom' );
+			},
+			'id_map'               => 'subscribers_added',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
+			},
+		),
+		'add_subscribe_block'             => array(
+			'get_title'            => function () {
+				return __( 'Add the Subscribe Block to your site', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_add_subscribe_block_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/site-editor/' . $data['site_slug_encoded'];
 			},
 		),
 	);
@@ -1048,6 +1069,9 @@ function wpcom_launchpad_get_write_3_posts_repetition_count( $task ) {
 function wpcom_launchpad_is_task_option_completed( $task ) {
 	$checklist = get_option( 'launchpad_checklist_tasks_statuses', array() );
 	if ( ! empty( $checklist[ $task['id'] ] ) ) {
+		return true;
+	}
+	if ( isset( $task['id_map'] ) && ! empty( $checklist[ $task['id_map'] ] ) ) {
 		return true;
 	}
 	return false;
@@ -1702,13 +1726,15 @@ function wpcom_launchpad_is_edit_page_task_visible() {
  * if the subscription_options['invitation'] value
  * for the welcome message has changed on option update.
  *
- * @param string $old_value The old value of the welcome message.
- * @param string $value The new value of the welcome message.
+ * @param mixed $old_value The old value of the welcome message.
+ * @param mixed $value The new value of the welcome message.
  *
  * @return void
  */
 function wpcom_launchpad_mark_customize_welcome_message_complete_on_update( $old_value, $value ) {
-	if ( $value['invitation'] !== $old_value['invitation'] ) {
+	$new_invitation = is_array( $value ) && isset( $value['invitation'] ) ? $value['invitation'] : '';
+	$old_invitation = is_array( $old_value ) && isset( $old_value['invitation'] ) ? $old_value['invitation'] : '';
+	if ( $new_invitation !== $old_invitation ) {
 		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
 	}
 }
@@ -1719,12 +1745,12 @@ add_action( 'update_option_subscription_options', 'wpcom_launchpad_mark_customiz
  * if the subscription_options['invitation'] value
  * for the welcome message has been added.
  *
- * @param string $value The value of the welcome message.
+ * @param mixed $value The value of the welcome message.
  *
  * @return void
  */
 function wpcom_launchpad_mark_customize_welcome_message_complete_on_add( $value ) {
-	if ( $value['invitation'] ) {
+	if ( is_array( $value ) && $value['invitation'] ) {
 		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
 	}
 }
@@ -1765,6 +1791,44 @@ function wpcom_launchpad_edit_page_check( $post_id, $post ) {
 	wpcom_mark_launchpad_task_complete( 'edit_page' );
 }
 add_action( 'post_updated', 'wpcom_launchpad_edit_page_check', 10, 3 );
+
+/**
+ * Determine `add_subscribe_block` task visibility. The task is visible if using a FSE theme.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_launchpad_is_add_subscribe_block_visible() {
+	return is_callable( array( '\Automattic\Jetpack\Blocks', 'is_fse_theme' ) ) && \Automattic\Jetpack\Blocks::is_fse_theme();
+}
+
+/**
+ * When a template or template part is saved, check if the subscribe block is in the content.
+ *
+ * @param int     $post_id The ID of the post being updated.
+ * @param WP_Post $post The post object.
+ *
+ * @return bool True if the task is completed, false otherwise.
+ */
+function wpcom_launchpad_add_subscribe_block_check( $post_id, $post ) {
+	// If this is just a revision, don't proceed.
+	if ( wp_is_post_revision( $post_id ) ) {
+		return;
+	}
+
+	// Check if it's a published template or template part.
+	if ( $post->post_status !== 'publish' || ( $post->post_type !== 'wp_template' && $post->post_type !== 'wp_template_part' ) ) {
+		return;
+	}
+
+	// Check if our subscribe block is in the template or template part content.
+	if ( has_block( 'jetpack/subscriptions', $post->post_content ) ) {
+		// Run your specific function if the subscribe block is found.
+		wpcom_mark_launchpad_task_complete( 'add_subscribe_block' );
+	}
+}
+
+// Hook the function to the save_post action for all post types.
+add_action( 'save_post', 'wpcom_launchpad_add_subscribe_block_check', 10, 2 );
 
 /**
  * Returns if the site has domain or bundle purchases.

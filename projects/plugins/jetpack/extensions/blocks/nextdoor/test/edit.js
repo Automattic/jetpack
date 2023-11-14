@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { SandBox } from '@wordpress/components';
 import { NextdoorEdit } from '../edit';
 import { parseUrl } from '../utils';
 
@@ -11,9 +12,18 @@ jest.mock( '../utils.js', () => {
 	};
 } );
 
+jest.mock( '@wordpress/components', () => {
+	const originalComponents = jest.requireActual( '@wordpress/components' );
+	return {
+		...originalComponents,
+		SandBox: jest.fn(),
+	};
+} );
+
 jest.mock( '../utils.js', () => ( {
 	__esModule: true,
 	parseUrl: jest.fn(),
+	resizeIframeOnMessage: jest.fn(),
 } ) );
 
 describe( 'NextdoorEdit', () => {
@@ -70,11 +80,11 @@ describe( 'NextdoorEdit', () => {
 
 		render( <NextdoorEdit { ...{ ...defaultProps, attributes } } /> );
 
-		let iframe;
-		await waitFor( () => ( iframe = screen.getByTitle( 'Nextdoor' ) ) );
+		expect( SandBox ).toHaveBeenCalled();
 
-		expect( iframe ).toBeInTheDocument();
-		// eslint-disable-next-line testing-library/no-node-access
-		expect( iframe.previousElementSibling ).toHaveClass( 'wp-block-jetpack-nextdoor-overlay' );
+		const callDetails = SandBox.mock.calls[ 0 ][ 0 ];
+
+		expect( callDetails ).toHaveProperty( 'html' );
+		expect( callDetails.html ).toContain( 'src="https://nextdoor.com/embed/valid-url"' );
 	} );
 } );

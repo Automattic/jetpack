@@ -107,8 +107,8 @@ pnpm test:run --debug
 # One test file
 pnpm test:run ./specs/some.test.js
 
-# All tests having 'blocks' in their name
-pnpm test:run blocks
+# All tests having 'connection' in their name
+pnpm test:run connection
 
 # Run only run tests matching a regular expression.
 pnpm test:run --grep "mailchimp"

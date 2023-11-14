@@ -83,7 +83,7 @@ The default is development mode; set `NODE_ENV=production` in node's environment
 
 Webpack has several different devtools with various tradeoffs. This value selects an appropriate devtool for the mode.
 
-In development mode, we choose 'eval-cheap-module-source-map'. This provides correct line numbers and filenames for error messages, while still being reasonably fast to build.
+In development mode we choose 'source-map' for maximum debugability.
 
 In production mode we choose no devtool, mainly because we don't currently distribute source maps in production.
 

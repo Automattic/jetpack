@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Removed deprecated constants for better WP 6.4 compatibility
+
+

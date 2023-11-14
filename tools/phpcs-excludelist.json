@@ -214,7 +214,6 @@
 	"projects/plugins/crm/modules/mailpoet/jpcrm-mailpoet-init.php",
 	"projects/plugins/crm/modules/portal/class-client-portal-endpoint.php",
 	"projects/plugins/crm/modules/portal/class-client-portal-render-helper.php",
-	"projects/plugins/crm/modules/portal/class-client-portal-router.php",
 	"projects/plugins/crm/modules/portal/class-client-portal.php",
 	"projects/plugins/crm/modules/portal/endpoints/class-cancel-endpoint.php",
 	"projects/plugins/crm/modules/portal/endpoints/class-dashboard-endpoint.php",

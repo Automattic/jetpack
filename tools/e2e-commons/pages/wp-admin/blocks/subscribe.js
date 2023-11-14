@@ -37,9 +37,6 @@ export default class SubscribeBlock extends EditorCanvas {
 	 */
 	async isRenderedInFrontend( frontendPage ) {
 		await frontendPage.waitForElementToBeVisible(
-			".wp-block-jetpack-subscriptions__container input[name='email']"
-		);
-		await frontendPage.waitForElementToBeVisible(
 			'.wp-block-jetpack-subscriptions__container button'
 		);
 		return true;

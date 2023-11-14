@@ -605,6 +605,7 @@ class MyPlanBody extends React.Component {
 			case 'is-search-plan':
 			case 'is-jetpack-golden-token-plan':
 			case 'is-free-search-plan':
+			case 'is-jetpack-creator-plan':
 			case 'offline':
 			// DEPRECATED: Daily and Real-time variations will soon be retired.
 			// Remove after all customers are migrated to new products.

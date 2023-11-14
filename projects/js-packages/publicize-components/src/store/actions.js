@@ -2,31 +2,6 @@ import { select } from '@wordpress/data';
 
 /**
  * Returns an action object used in signalling that
- * we're refreshing the Publicize connection.
- *
- * @returns {object} Action object.
- */
-export function refreshConnectionTestResults() {
-	return {
-		type: 'REFRESH_CONNECTION_TEST_RESULTS',
-	};
-}
-
-/**
- * Returns an action object to toggle the publicize connection
- *
- * @param {number} connectionId - The connection ID to toggle
- * @returns {object} Action object.
- */
-export function toggleConnectionById( connectionId ) {
-	return {
-		type: 'TOGGLE_CONNECTION_BY_ID',
-		connectionId,
-	};
-}
-
-/**
- * Returns an action object used in signalling that
  * we're toggling the post share feature.
  *
  * @returns {object} Action object.

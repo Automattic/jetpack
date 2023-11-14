@@ -2,10 +2,11 @@
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
-	import Footer from '../../sections/Footer.svelte';
-	import Header from '../../sections/Header.svelte';
+	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import { Hero } from '../../react-components/components/isa-hero';
+	import Footer from '../../react-components/sections/footer';
+	import Header from '../../react-components/sections/header';
 	import { modulesState } from '../../stores/modules';
-	import Hero from './recommendations/Hero.svelte';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
 	import Tabs from './recommendations/Tabs.svelte';
@@ -51,10 +52,11 @@
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
-	<Header subPage={__( 'Image analysis report', 'jetpack-boost' )} />
-	<div class="recommendations-page jb-section--alt">
+	<ReactComponent this={Header} subPageTitle={__( 'Image analysis report', 'jetpack-boost' )} />
+	<div class="jb-recommendations-page jb-section--alt">
 		<div class="jb-container">
-			<Hero
+			<ReactComponent
+				this={Hero}
 				{needsRefresh}
 				{refresh}
 				{isImageCdnModuleActive}
@@ -65,7 +67,7 @@
 			<Tabs {activeGroup} imageDataGroupTabs={dataGroupTabs} {isaGroupLabels} />
 		</div>
 
-		<div class="table-wrap">
+		<div class="jb-table-wrap">
 			<Table
 				{needsRefresh}
 				{refresh}
@@ -82,84 +84,7 @@
 				current={$isaData.query.page}
 				total={$isaData.data.total_pages}
 			/>
-			<Footer />
+			<ReactComponent this={Footer} />
 		</div>
 	</div>
 </div>
-
-<style lang="scss">
-	.jb-dashboard {
-		background-color: #f9f9f6;
-	}
-
-	.table-wrap {
-		width: 87.5%;
-		margin-left: auto;
-		margin-right: auto;
-
-		@media ( max-width: 782px ) {
-			width: 100%;
-		}
-	}
-
-	.recommendations-page {
-		// Table
-		--gap: 16px;
-		--expanded-gap: 8px;
-		--padding: 16px;
-		--border-radius: 4px;
-
-		--thumbnail-size: 65px;
-		--border: 1px solid #ddd;
-
-		// Table Columns: Headers
-		--table-header-image: calc(
-			var( --table-column-title ) + var( --thumbnail-size ) + var( --gap )
-		);
-		--table-header-device: 10%;
-		--table-header-potential-size: 15%;
-
-		// Table Columns: Content
-		--table-column-device: var( --table-header-device );
-		--table-column-expand: 65px;
-		--table-column-title: 33%;
-		--table-column-potential-size: var( --table-header-potential-size );
-
-		line-height: 1.5;
-		-webkit-font-smoothing: antialiased;
-
-		/**
-		 * Narrow screen overrides.
-		 */
-		@media ( max-width: 782px ) {
-			--expanded-gap: 0px;
-			--border-radius: 0px;
-			--table-column-expand: 32px;
-		}
-	}
-
-	:global( .recommendation-page-grid ) {
-		display: grid;
-		padding: var( --padding );
-		gap: var( --gap );
-		align-items: center;
-		grid-template-columns:
-			[thumbnail] var( --thumbnail-size )
-			[title] var( --table-column-title )
-			[potential-size] var( --table-column-potential-size )
-			[device] var( --table-column-device )
-			[page] 1fr
-			[expand] var( --table-column-expand );
-
-		/**
-		 * Narrow screen overrides.
-		 */
-		@media ( max-width: 782px ) {
-			// Remove some columns
-			grid-template-columns:
-				[thumbnail] var( --thumbnail-size )
-				[title] 1fr
-				[expand] var( --table-column-expand );
-		}
-	}
-</style>
