@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { PricingCard } from '@automattic/jetpack-components';
+	import React from 'react';
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import ActivateLicense from '../../react-components/components/activate-license';
 	import BackButton from '../../react-components/components/back-button';
 	import Footer from '../../react-components/sections/footer';
+	import Header from '../../react-components/sections/header';
 	import { getUpgradeURL } from '../../stores/connection';
 	import Logo from '../../svg/jetpack-green.svg';
-	import JetpackBoostLogo from '../../svg/logo.svg';
 	import { recordBoostEvent } from '../../utils/analytics';
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
@@ -27,18 +28,12 @@
 	if ( ! ( 'yearly' in pricing ) ) {
 		goToCheckout();
 	}
+
+	const activateLicense = React.createElement( ActivateLicense );
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
-	<div class="jb-dashboard-header jb-benefits-header">
-		<div class="jb-container jb-container--fixed">
-			<div class="jb-dashboard-header__logo">
-				<JetpackBoostLogo />
-			</div>
-
-			<ReactComponent this={ActivateLicense} />
-		</div>
-	</div>
+	<ReactComponent this={Header} children={activateLicense} />
 
 	<div class="jb-benefits__body">
 		<div class="jb-container jb-container--fixed mt-2">

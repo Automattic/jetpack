@@ -5,7 +5,7 @@
 		"node_modules/*",
 		"app/assets/dist/*",
 		"tests/e2e/*",
-		"app/assets/src/js/react-components/stories/*"
+		"app/assets/src/js/react-components/**/stories/*"
 	],
 	"compilerOptions": {
 		"target": "es6",
@@ -15,6 +15,7 @@
 		 * Values from "@tsconfig/svelte/tsconfig.json"
 		 */
 		"sourceMap": true,
-		"forceConsistentCasingInFileNames": true
+		"forceConsistentCasingInFileNames": true,
+		"lib": [ "dom", "es2021" ]
 	}
 }

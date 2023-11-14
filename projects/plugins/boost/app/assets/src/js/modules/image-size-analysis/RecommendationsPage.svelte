@@ -5,7 +5,7 @@
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { Hero } from '../../react-components/components/isa-hero';
 	import Footer from '../../react-components/sections/footer';
-	import Header from '../../sections/Header.svelte';
+	import Header from '../../react-components/sections/header';
 	import { modulesState } from '../../stores/modules';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
@@ -52,7 +52,7 @@
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
-	<Header subPage={__( 'Image analysis report', 'jetpack-boost' )} />
+	<ReactComponent this={Header} subPageTitle={__( 'Image analysis report', 'jetpack-boost' )} />
 	<div class="jb-recommendations-page jb-section--alt">
 		<div class="jb-container">
 			<ReactComponent
