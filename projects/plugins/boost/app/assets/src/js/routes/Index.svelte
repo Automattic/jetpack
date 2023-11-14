@@ -11,11 +11,6 @@
 	import Notice from '../elements/Notice.svelte';
 	import ReactComponent from '../elements/ReactComponent.svelte';
 	import TemplatedString from '../elements/TemplatedString.svelte';
-	import RecommendationsMeta from '../modules/image-size-analysis/RecommendationsMeta.svelte';
-	import {
-		initializeIsaSummary,
-		isaSummary,
-	} from '../modules/image-size-analysis/store/isa-summary';
 	import CloudCssMeta from '../pages/settings/elements/CloudCssMeta.svelte';
 	import CriticalCssMeta from '../pages/settings/elements/CriticalCssMeta.svelte';
 	import ImageCdnQualitySettings from '../pages/settings/elements/ImageCdnQualitySettings.svelte';
@@ -39,6 +34,7 @@
 	import { premiumFeatures } from '../stores/premium-features';
 	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../utils/cloud-css';
 	import externalLinkTemplateVar from '../utils/external-link-template-var';
+	import { initializeIsaSummary, isaSummary } from './image-size-analysis/store/isa-summary';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );

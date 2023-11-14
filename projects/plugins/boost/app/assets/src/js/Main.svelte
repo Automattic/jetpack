@@ -1,18 +1,18 @@
 <script lang="ts">
-	import ReRouter from './elements/ReRouter.svelte';
+	import Redirect from './elements/Redirect.svelte';
 	import ReactComponent from './elements/ReactComponent.svelte';
-	import RecommendationsPage from './modules/image-size-analysis/RecommendationsPage.svelte';
-	import BenefitsInterstitial from './pages/benefits/BenefitsInterstitial.svelte';
-	import GettingStarted from './pages/getting-started/GettingStarted.svelte';
-	import PurchaseSuccess from './pages/purchase-success';
+	import RecommendationsPage from './routes/image-size-analysis/ImageSizeAnalysis.svelte';
+	import Upgrade from './routes/upgrade/Upgrade.svelte';
+	import GettingStarted from './routes/getting-started/GettingStarted.svelte';
+	import PurchaseSuccess from './routes/purchase-success/PurchaseSuccess';
 	import Score from './pages/settings/sections/Score.svelte';
 	import Tips from './pages/settings/sections/Tips.svelte';
+	import AdvancedCriticalCss from './routes/critical-css-advanced/CriticalCssAdvanced.svelte';
 	import Index from './routes/Index.svelte';
-	import AdvancedCriticalCss from './routes/critical-css-advanced/AdvancedCriticalCss.svelte';
-	import Header from './sections/Header.svelte';
 	import Footer from './sections/footer';
-	import Support from './sections/support';
 	import config from './stores/config';
+	import Header from './sections/Header.svelte';
+	import Support from './sections/support';
 	import { connection } from './stores/connection';
 	import { criticalCssState, isGenerating } from './stores/critical-css-state';
 	import { criticalCssIssues } from './stores/critical-css-state-errors';
@@ -57,7 +57,7 @@
 
 <Router history={routerHistory}>
 	<Route path="upgrade" let:location let:navigate>
-		<BenefitsInterstitial {location} {navigate} {pricing} {siteDomain} {userConnected} />
+		<Upgrade {location} {navigate} {pricing} {siteDomain} {userConnected} />
 	</Route>
 	<Route
 		path="getting-started"
@@ -74,7 +74,7 @@
 		<Route path="image-size-analysis/:group/:page" component={RecommendationsPage} />
 	{/if}
 	<Route>
-		<ReRouter to="/getting-started" when={shouldGetStarted}>
+		<Redirect when={shouldGetStarted} to="/getting-started">
 			<div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
 				<Header />
 
@@ -101,7 +101,7 @@
 
 				<ReactComponent this={Footer} />
 			</div>
-		</ReRouter>
+		</Redirect>
 	</Route>
 </Router>
 
