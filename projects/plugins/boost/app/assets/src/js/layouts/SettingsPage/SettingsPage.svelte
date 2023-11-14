@@ -2,7 +2,7 @@
 	import ReactComponent from '../../components/ReactComponent.svelte';
 	import Footer from '../../components/sections/Footer/Footer';
 	import Header from '../../components/sections/Header/Header';
-	import Support from '../../components/sections/support';
+	import Support from '../../components/sections/Support/Support';
 	import { criticalCssState, isGenerating } from '../../lib/stores/critical-css-state';
 	import { modulesState } from '../../lib/stores/modules';
 	import { hasPrioritySupport } from '../../lib/utils/paid-plan';
