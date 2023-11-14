@@ -110,7 +110,6 @@ EOF;
 		);
 
 		yield array( 'Jetpack', self::SRC1, $lines1 );
-		yield array( 'Jetpack-Compat-70', self::SRC1, array_slice( $lines1, 1 ) );
 		yield array( 'Jetpack-Compat-71', self::SRC1, array_slice( $lines1, 2 ) );
 		yield array( 'Jetpack-Compat-72', self::SRC1, array_slice( $lines1, 3 ) );
 		yield array( 'Jetpack-Compat-73', self::SRC1, array_slice( $lines1, 4 ) );
@@ -129,7 +128,6 @@ EOF;
 		);
 
 		yield array( 'Jetpack', self::SRC2, $lines2 );
-		yield array( 'Jetpack-Compat-70', self::SRC2, array_slice( $lines2, 1 ) );
 		yield array( 'Jetpack-Compat-71', self::SRC2, array_slice( $lines2, 2 ) );
 		yield array( 'Jetpack-Compat-72', self::SRC2, array_slice( $lines2, 3 ) );
 		yield array( 'Jetpack-Compat-73', self::SRC2, array_slice( $lines2, 4 ) );
