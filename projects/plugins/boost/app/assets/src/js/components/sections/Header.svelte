@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { useNavigate } from 'svelte-navigator';
-	import BackButton from '../components/BackButton/BackButton';
-	import ReactComponent from '../components/ReactComponent.svelte';
-	import ChevronRight from '../svg/chevron-right.svg';
-	import Logo from '../svg/logo.svg';
+	import BackButton from '../BackButton/BackButton';
+	import ReactComponent from '../ReactComponent.svelte';
+	import ChevronRight from '../../svg/chevron-right.svg';
+	import Logo from '../../svg/logo.svg';
 
 	const navigate = useNavigate();
 

@@ -3,8 +3,8 @@
 	import { BoostPricingTable } from './BoostPricingTable/BoostPricingTable';
 	import ActivateLicense from '../../components/ActivateLicense/ActivateLicense';
 	import ReactComponent from '../../components/ReactComponent.svelte';
-	import Header from '../../sections/Header.svelte';
-	import Footer from '../../sections/Footer/Footer';
+	import Header from '../../components/sections/Header.svelte';
+	import Footer from '../../components/sections/Footer/Footer';
 	import { initializeConnection, getUpgradeURL } from '../../stores/connection';
 	import { recordBoostEvent } from '../../utils/analytics';
 

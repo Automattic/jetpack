@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Score from './Score.svelte';
 	import Tips from './Tips.svelte';
-	import Footer from '../../sections/Footer/Footer';
-	import Header from '../../sections/Header.svelte';
-	import Support from '../../sections/support';
+	import Footer from '../../components/sections/Footer/Footer';
+	import Header from '../../components/sections/Header.svelte';
+	import Support from '../../components/sections/support';
 	import { hasPrioritySupport } from '../../utils/paid-plan';
 	import { criticalCssState, isGenerating } from '../../stores/critical-css-state';
 	import ReactComponent from '../../components/ReactComponent.svelte';

@@ -4,7 +4,7 @@
 	import ActivateLicense from '../../components/ActivateLicense/ActivateLicense';
 	import BackButton from '../../components/BackButton/BackButton';
 	import ReactComponent from '../../components/ReactComponent.svelte';
-	import Footer from '../../sections/Footer/Footer';
+	import Footer from '../../components/sections/Footer/Footer';
 	import { getUpgradeURL } from '../../stores/connection';
 	import Logo from '../../svg/jetpack-green.svg';
 	import JetpackBoostLogo from '../../svg/logo.svg';
