@@ -7,7 +7,7 @@ import React, { ReactNode } from 'react';
 /**
  * Internal Dependencies
  */
-import { useAiSuggestions } from '../../';
+import useAiSuggestions from '../hooks/use-ai-suggestions';
 import { AiDataContextProvider } from '.';
 
 /**
