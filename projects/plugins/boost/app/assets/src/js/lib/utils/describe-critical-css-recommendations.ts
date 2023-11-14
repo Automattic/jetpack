@@ -1,5 +1,5 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import UrlComponentsExample from '../../routes/index/UrlComponentsExample.svelte';
+import UrlComponentsExample from '../../components/UrlComponentsExample.svelte';
 import { CriticalCssErrorDetails } from '../stores/critical-css-state-types';
 import { castToNumber } from './cast-to-number';
 import type { ErrorSet } from '../stores/critical-css-state-errors';

@@ -16,10 +16,10 @@
 	import { recordBoostEvent } from '../../lib/utils/analytics';
 	import { castToString } from '../../lib/utils/cast-to-string';
 	import debounce from '../../lib/utils/debounce';
-	import PopOut from '../../routes/index/PopOut.svelte';
 	import RefreshIcon from '../../svg/refresh.svg';
 	import ContextTooltip from './ContextTooltip/ContextTooltip';
 	import History from './History.svelte';
+	import PopOut from './PopOut.svelte';
 
 	// @todo - move score-context markup/styles here, as it's not used anywhere else.
 

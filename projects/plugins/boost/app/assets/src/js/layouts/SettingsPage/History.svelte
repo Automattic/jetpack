@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { requestSpeedScoresHistory } from '@automattic/jetpack-boost-score-api';
 	import { __ } from '@wordpress/i18n';
-	import { PerformanceHistory } from '../../routes/index/PerformanceHistory/PerformanceHistory';
 	import ErrorNotice from '../../components/ErrorNotice.svelte';
 	import ReactComponent from '../../components/ReactComponent.svelte';
 	import { recordBoostEvent } from '../../lib/utils/analytics';
 	import { castToString } from '../../lib/utils/cast-to-string';
 	import routerHistory from '../../lib/utils/router-history';
+	import { PerformanceHistory } from './PerformanceHistory/PerformanceHistory';
 
 	export let isOpen: boolean;
 	export let needsUpgrade: boolean;
