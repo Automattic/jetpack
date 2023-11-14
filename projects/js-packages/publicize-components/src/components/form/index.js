@@ -23,6 +23,7 @@ import useRefreshConnections from '../../hooks/use-refresh-connections';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { SOCIAL_STORE_ID } from '../../social-store';
+import { isInstagramConnectionSupported } from '../../utils';
 import PublicizeConnection from '../connection';
 import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
@@ -30,7 +31,6 @@ import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
 
-const PUBLICIZE_STORE_ID = 'jetpack/publicize';
 const MONTH_IN_SECONDS = 30 * 24 * 60 * 60;
 
 const checkConnectionCode = ( connection, code ) =>
@@ -69,17 +69,13 @@ export default function PublicizeForm( {
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 	const { dismissNotice, shouldShowNotice, NOTICES } = useDismissNotice();
 
-	const { isInstagramConnectionSupported } = useSelect( select => ( {
-		isInstagramConnectionSupported: select( PUBLICIZE_STORE_ID ).isInstagramConnectionSupported(),
-	} ) );
-
 	const hasInstagramConnection = connections.some(
 		connection => connection.service_name === 'instagram-business'
 	);
 
 	const shouldShowInstagramNotice =
 		! hasInstagramConnection &&
-		isInstagramConnectionSupported &&
+		isInstagramConnectionSupported() &&
 		shouldShowNotice( NOTICES.instagram );
 
 	const onDismissInstagramNotice = useCallback( () => {

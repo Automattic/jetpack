@@ -1,7 +1,11 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
+import {
+	isInstagramConnectionSupported,
+	isMastodonConnectionSupported,
+	isNextdoorConnectionSupported,
+} from '../../utils';
 import FacebookPreview from './facebook';
 import GoogleSearch from './google-search';
 import { Instagram } from './instagram';
@@ -17,15 +21,9 @@ import Twitter from './twitter';
  * @returns {Array<{title: string, icon: React.Component, name: string, preview: React.Component}>} The list of available services.
  */
 export function useAvailableSerivces() {
-	const { isInstagramSupported, isMastodonSupported, isNextdoorSupported } = useSelect( select => {
-		const store = select( 'jetpack/publicize' );
-
-		return {
-			isInstagramSupported: store.isInstagramConnectionSupported(),
-			isMastodonSupported: store.isMastodonConnectionSupported(),
-			isNextdoorSupported: store.isNextdoorConnectionSupported(),
-		};
-	} );
+	const isInstagramSupported = isInstagramConnectionSupported();
+	const isMastodonSupported = isMastodonConnectionSupported();
+	const isNextdoorSupported = isNextdoorConnectionSupported();
 
 	return useMemo(
 		() =>
