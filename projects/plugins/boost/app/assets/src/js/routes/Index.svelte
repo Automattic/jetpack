@@ -54,9 +54,6 @@
 				'jetpack-boost'
 		  );
 
-	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
-	export let location, navigate;
-
 	const suggestRegenerate = suggestRegenerateDS.store;
 
 	$: yearlyPricing = $config.pricing.yearly;
