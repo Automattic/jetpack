@@ -2,6 +2,22 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.9-a.5 - 2023-11-14
+### Enhancements
+- AI Excerpt: dequeue AI feature async request when asking a new suggestion [#34094]
+- Jetpack Form: handle AI requests counter when asking AI suggestions [#34096]
+- Sharing block: code & copy polish [#34085]
+- Subscribe block: return to correct page even when not subscribing from a post [#34086]
+
+### Bug fixes
+- Subscribe Block: Fix button in new line [#34075]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- CLI Tools: update block scaffolding CLI tool to use block.json to register blocks. [#33883]
+- e2e tests: remove block tests. [#34016]
+- Updated package dependencies. [#34087]
+- Updated package dependencies. [#34093]
+
 ## 12.9-a.3 - 2023-11-13
 ### Enhancements
 - Blocks: Added the Jetpack Sharing Buttons block. [#27243]
