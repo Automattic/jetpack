@@ -19,7 +19,7 @@
 	import { castToString } from '../../utils/cast-to-string';
 	import debounce from '../../utils/debounce';
 	import PopOut from '../../pages/settings/elements/PopOut.svelte';
-	import History from '../../pages/settings/sections/History.svelte';
+	import History from './History.svelte';
 
 	// @todo - move score-context markup/styles here, as it's not used anywhere else.
 
