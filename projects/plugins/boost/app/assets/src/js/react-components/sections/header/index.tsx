@@ -6,10 +6,10 @@ import ChevronRight from '../../svg/chevron-right';
 import Logo from '../../svg/logo';
 import styles from './styles.module.scss';
 
-interface HeaderProps {
+type HeaderProps = {
 	subPageTitle?: string;
 	children?: React.ReactNode;
-}
+};
 
 const Header = ( { subPageTitle = '', children }: HeaderProps ) => {
 	return (
