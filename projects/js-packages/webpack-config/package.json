@@ -62,9 +62,5 @@
 		"./webpack": "./src/webpack.js",
 		"./babel": "./src/babel.js",
 		"./babel/preset": "./src/babel-preset.js"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

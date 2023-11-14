@@ -32,10 +32,6 @@
 		"winston": "3.8.1",
 		"yargs": "17.6.2"
 	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	},
 	"browserslist": [],
 	"bin": {
 		"e2e-env": "./bin/e2e-env.sh",
