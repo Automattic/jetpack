@@ -100,4 +100,6 @@ register( wordpressPlansStore );
  * Ensure to request the AI Assistant feature data
  * by calling the selector. Resolver will take care.
  */
-select( store ).getAiAssistantFeature();
+if ( window.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-enabled' ] ) {
+	select( store ).getAiAssistantFeature();
+}
