@@ -1,8 +1,7 @@
 import { TumblrPreviews } from '@automattic/social-previews';
 import { useSelect } from '@wordpress/data';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
-import { SOCIAL_STORE_ID } from '../../social-store';
-import { CONNECTION_SERVICE_TUMBLR } from '../../social-store/constants';
+import { SOCIAL_STORE_ID, CONNECTION_SERVICE_TUMBLR } from '../../social-store';
 
 const TumblrPreview = props => {
 	const { content, author } = useSelect( select => {

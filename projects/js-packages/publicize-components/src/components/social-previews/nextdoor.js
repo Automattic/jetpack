@@ -2,8 +2,7 @@ import { NextdoorPreviews } from '@automattic/social-previews';
 import { useSelect } from '@wordpress/data';
 import React from 'react';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
-import { SOCIAL_STORE_ID } from '../../social-store';
-import { CONNECTION_SERVICE_NEXTDOOR } from '../../social-store/constants';
+import { SOCIAL_STORE_ID, CONNECTION_SERVICE_NEXTDOOR } from '../../social-store';
 
 /**
  * The linkedin tab component.

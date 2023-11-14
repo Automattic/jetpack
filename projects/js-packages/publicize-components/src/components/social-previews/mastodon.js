@@ -2,8 +2,7 @@ import { MastodonPreviews } from '@automattic/social-previews';
 import { useSelect } from '@wordpress/data';
 import { decodeEntities } from '@wordpress/html-entities';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
-import { SOCIAL_STORE_ID } from '../../social-store';
-import { CONNECTION_SERVICE_MASTODON } from '../../social-store/constants';
+import { SOCIAL_STORE_ID, CONNECTION_SERVICE_MASTODON } from '../../social-store';
 import { shouldUploadAttachedMedia } from '../../store/selectors';
 
 const MastodonPreview = props => {

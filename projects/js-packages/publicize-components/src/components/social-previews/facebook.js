@@ -1,8 +1,7 @@
 import { FacebookPreviews as Previews } from '@automattic/social-previews';
 import { useSelect, withSelect } from '@wordpress/data';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
-import { SOCIAL_STORE_ID } from '../../social-store';
-import { CONNECTION_SERVICE_FACEBOOK } from '../../social-store/constants';
+import { SOCIAL_STORE_ID, CONNECTION_SERVICE_FACEBOOK } from '../../social-store';
 
 const FacebookPreview = props => {
 	const { message } = useSocialMediaMessage();
