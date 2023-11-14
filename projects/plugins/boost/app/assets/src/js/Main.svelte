@@ -7,7 +7,7 @@
 	import PurchaseSuccess from './routes/purchase-success/PurchaseSuccess';
 
 	import AdvancedCriticalCss from './routes/critical-css-advanced/CriticalCssAdvanced.svelte';
-	import Index from './routes/Index.svelte';
+	import Index from './routes/index/Index.svelte';
 
 	import config from './lib/stores/config';
 
