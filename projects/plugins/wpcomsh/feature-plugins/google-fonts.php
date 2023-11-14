@@ -27,6 +27,20 @@ if ( ! defined( 'FONT_LIBRARY_DISABLED' ) ) {
 }
 
 /**
+ * Jetpack adds a redirect on Jetpack::deactivate_module() to the current page,
+ * by adding a filter on wp_redirect which changes all redirect destinations.
+ *
+ * If we're calling Jetpack::deactivate_module() directly ourselves, we end up
+ * breaking future redirects in the request.
+ * This function is meant to unhook the filter that JP adds.
+ */
+function wpcomsh_jp_module_fix_redirect() {
+	if ( has_filter( 'wp_redirect', 'wp_get_referer' ) ) {
+		remove_filter( 'wp_redirect', 'wp_get_referer' );
+	}
+}
+
+/**
  * Force-enable the Google fonts module
  * If you use a version of Jetpack that supports it,
  * and if it is not already enabled.
@@ -65,7 +79,9 @@ function wpcomsh_activate_google_fonts_module() {
 	if ( ! Jetpack::is_module_active( 'google-fonts' ) && ! $incompatible_theme ) {
 		Jetpack::activate_module( 'google-fonts', false, false );
 	} elseif ( $incompatible_theme ) {
+		add_action( 'jetpack_pre_deactivate_module', 'wpcomsh_jp_module_fix_redirect', 20, 0 );
 		Jetpack::deactivate_module( 'google-fonts' );
+		remove_action( 'jetpack_pre_deactivate_module', 'wpcomsh_jp_module_fix_redirect', 20, 0 );
 	}
 }
 add_action( 'setup_theme', 'wpcomsh_activate_google_fonts_module' );
