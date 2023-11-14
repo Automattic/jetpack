@@ -13,7 +13,7 @@ interface HeaderProps {
 
 const Header = ( { subPageTitle = '', children }: HeaderProps ) => {
 	return (
-		<div className={ classNames( styles[ 'jb-dashboard-header' ] ) }>
+		<div className={ classNames( styles.header ) }>
 			<div className={ classNames( 'jb-container', styles.masthead ) }>
 				<div className={ classNames( styles[ 'nav-area' ] ) }>
 					<div
