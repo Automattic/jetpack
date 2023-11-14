@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { __, sprintf } from '@wordpress/i18n';
+	import ImageCdnRecommendation from '../../components/image-cdn-recommendation';
 	import Button from '../../elements/Button.svelte';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
-	import ImageCdnRecommendation from '../../react-components/components/image-cdn-recommendation';
 	import RefreshIcon from '../../svg/refresh.svg';
 	import WarningIcon from '../../svg/warning-outline.svg';
 	import { recordBoostEvent, recordBoostEventAndRedirect } from '../../utils/analytics';

@@ -2,10 +2,10 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { requestImageAnalysis } from '../../../modules/image-size-analysis/store/isa-summary';
-import enableCloudCss from '../../../utils/enable-cloud-css';
-import { navigate } from '../../../utils/navigate';
+import { requestImageAnalysis } from '../../modules/image-size-analysis/store/isa-summary';
 import Logo from '../../svg/jetpack-green';
+import enableCloudCss from '../../utils/enable-cloud-css';
+import { navigate } from '../../utils/navigate';
 
 type PurchaseSuccessProps = {
 	isImageGuideActive: boolean;

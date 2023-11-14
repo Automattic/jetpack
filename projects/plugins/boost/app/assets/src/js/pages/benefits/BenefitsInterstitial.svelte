@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { PricingCard } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
+	import ActivateLicense from '../../components/activate-license';
+	import BackButton from '../../components/back-button';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
-	import ActivateLicense from '../../react-components/components/activate-license';
-	import BackButton from '../../react-components/components/back-button';
-	import Footer from '../../react-components/sections/footer';
+	import Footer from '../../sections/footer';
 	import { getUpgradeURL } from '../../stores/connection';
 	import Logo from '../../svg/jetpack-green.svg';
 	import JetpackBoostLogo from '../../svg/logo.svg';

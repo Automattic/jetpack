@@ -6,6 +6,8 @@
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
+	import { RegenerateCriticalCssSuggestion } from '../../../RegenerateCriticalCssSuggestion';
+	import MinifyMeta from '../../../components/minify-meta';
 	import Notice from '../../../elements/Notice.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
@@ -14,8 +16,6 @@
 		initializeIsaSummary,
 		isaSummary,
 	} from '../../../modules/image-size-analysis/store/isa-summary';
-	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
-	import MinifyMeta from '../../../react-components/components/minify-meta';
 	import config from '../../../stores/config';
 	import {
 		criticalCssState,

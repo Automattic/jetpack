@@ -1,9 +1,9 @@
 <script lang="ts">
 	import ReRouter from '../../elements/ReRouter.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
-	import Footer from '../../react-components/sections/footer';
-	import Support from '../../react-components/sections/support';
 	import Header from '../../sections/Header.svelte';
+	import Footer from '../../sections/footer';
+	import Support from '../../sections/support';
 	import config from '../../stores/config';
 	import { connection } from '../../stores/connection';
 	import { criticalCssIssues } from '../../stores/critical-css-state-errors';

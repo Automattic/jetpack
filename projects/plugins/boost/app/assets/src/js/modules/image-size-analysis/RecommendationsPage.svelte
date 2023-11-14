@@ -2,10 +2,10 @@
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
+	import { Hero } from '../../components/isa-hero';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
-	import { Hero } from '../../react-components/components/isa-hero';
-	import Footer from '../../react-components/sections/footer';
 	import Header from '../../sections/Header.svelte';
+	import Footer from '../../sections/footer';
 	import { modulesState } from '../../stores/modules';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';

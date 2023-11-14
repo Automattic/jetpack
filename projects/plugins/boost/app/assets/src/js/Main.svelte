@@ -3,8 +3,8 @@
 	import RecommendationsPage from './modules/image-size-analysis/RecommendationsPage.svelte';
 	import BenefitsInterstitial from './pages/benefits/BenefitsInterstitial.svelte';
 	import GettingStarted from './pages/getting-started/GettingStarted.svelte';
+	import PurchaseSuccess from './pages/purchase-success';
 	import Settings from './pages/settings/Settings.svelte';
-	import PurchaseSuccess from './react-components/pages/purchase-success';
 	import config from './stores/config';
 	import { connection } from './stores/connection';
 	import { criticalCssState, isGenerating } from './stores/critical-css-state';
