@@ -15,7 +15,8 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run compile-ts",
+		"build": "pnpm run clean && pnpm run compile-ts",
+		"clean": "rm -rf build/",
 		"compile-ts": "tsc --pretty",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
 	},
