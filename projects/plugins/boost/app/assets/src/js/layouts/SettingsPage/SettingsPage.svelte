@@ -1,13 +1,13 @@
 <script lang="ts">
-	import Score from '../pages/settings/sections/Score.svelte';
-	import Tips from '../pages/settings/sections/Tips.svelte';
-	import Footer from '../sections/footer';
-	import Header from '../sections/Header.svelte';
-	import Support from '../sections/support';
-	import { hasPrioritySupport } from '../utils/paid-plan';
-	import { criticalCssState, isGenerating } from '../stores/critical-css-state';
-	import ReactComponent from '../elements/ReactComponent.svelte';
-	import { modulesState } from '../stores/modules';
+	import Score from './Score.svelte';
+	import Tips from './Tips.svelte';
+	import Footer from '../../sections/footer';
+	import Header from '../../sections/Header.svelte';
+	import Support from '../../sections/support';
+	import { hasPrioritySupport } from '../../utils/paid-plan';
+	import { criticalCssState, isGenerating } from '../../stores/critical-css-state';
+	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import { modulesState } from '../../stores/modules';
 
 	$: criticalCssCreated = $criticalCssState.created;
 	$: criticalCssIsGenerating = $isGenerating;

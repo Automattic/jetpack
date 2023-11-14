@@ -20,7 +20,7 @@
 
 	import { Route, Router } from './utils/router';
 	import routerHistory from './utils/router-history';
-	import SettingsPage from './components/SettingsPage.svelte';
+	import SettingsPage from './layouts/SettingsPage/SettingsPage.svelte';
 
 	routerHistory.listen(
 		debounce( history => {

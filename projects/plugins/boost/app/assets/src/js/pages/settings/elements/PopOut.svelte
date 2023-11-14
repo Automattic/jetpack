@@ -7,9 +7,13 @@
 	import CloseButton from '../../../elements/CloseButton.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import slideRightTransition from '../../../utils/slide-right-transition';
+	import { TemplateVars } from '../../../utils/copy-dom-template';
 
 	export let title = '';
-	export let message = {
+	export let message: {
+		text: string;
+		vars?: TemplateVars;
+	} = {
 		text: '',
 		vars: {},
 	};
