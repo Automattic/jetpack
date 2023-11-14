@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { __, sprintf } from '@wordpress/i18n';
-	import ImageCdnRecommendation from '../../components/ImageCdnRecommendation';
+	import ImageCdnRecommendation from '../../components/ImageCdnRecommendation/ImageCdnRecommendation';
 	import Button from '../../elements/Button.svelte';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';

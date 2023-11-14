@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
-	import { Hero } from '../../components/IsaHero';
+	import { Hero } from '../../components/IsaHero/IsaHero';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import Header from '../../sections/Header.svelte';
 	import Footer from '../../sections/footer';

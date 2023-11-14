@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { sprintf, __ } from '@wordpress/i18n';
-	import OtherGroupContext from '../../components/IsaOtherGroupContext';
+	import OtherGroupContext from '../../components/IsaOtherGroupContext/IsaOtherGroupContext';
 	import ConditionalLink from '../../elements/ConditionalLink.svelte';
 	import ProgressBar from '../../elements/ProgressBar.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';

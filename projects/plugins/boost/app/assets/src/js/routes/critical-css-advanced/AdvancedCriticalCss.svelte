@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
 	import { __, _n, sprintf } from '@wordpress/i18n';
-	import BackButton from '../../../components/BackButton';
-	import CloseButton from '../../../elements/CloseButton.svelte';
-	import ReactComponent from '../../../elements/ReactComponent.svelte';
-	import { replaceCssState, updateProvider } from '../../../stores/critical-css-state';
-	import { groupErrorsByFrequency } from '../../../stores/critical-css-state-errors';
-	import { type Provider } from '../../../stores/critical-css-state-types';
-	import InfoIcon from '../../../svg/info.svg';
-	import routerHistory from '../../../utils/router-history';
-	import CriticalCssErrorDescription from '../elements/CriticalCssErrorDescription.svelte';
+	import BackButton from '../../components/BackButton/BackButton';
+	import CloseButton from '../../elements/CloseButton.svelte';
+	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import CriticalCssErrorDescription from '../../pages/settings/elements/CriticalCssErrorDescription.svelte';
+	import { replaceCssState, updateProvider } from '../../stores/critical-css-state';
+	import { groupErrorsByFrequency } from '../../stores/critical-css-state-errors';
+	import { type Provider } from '../../stores/critical-css-state-types';
+	import InfoIcon from '../../svg/info.svg';
+	import routerHistory from '../../utils/router-history';
 
 	export let issues: Provider[];
 

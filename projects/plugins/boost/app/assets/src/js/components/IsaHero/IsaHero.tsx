@@ -2,8 +2,8 @@ import { IconTooltip } from '@automattic/jetpack-components';
 import classNames from 'classnames';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import ImageCdnRecommendation from '../ImageCdnRecommendation';
-import styles from './styles.module.scss';
+import ImageCdnRecommendation from '../ImageCdnRecommendation/ImageCdnRecommendation';
+import styles from '../ImageCdnRecommendation/ImageCdnRecommendation.module.scss';
 
 // removed in:fade={{ duration: 300, easing: quadOut }} from .jb-hero
 

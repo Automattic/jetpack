@@ -1,6 +1,6 @@
 import { IconTooltip } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import styles from './styles.module.scss';
+import styles from './IsaOtherGroupContext.module.scss';
 
 const OtherGroupContext = () => {
 	return (

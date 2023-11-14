@@ -1,69 +1,370 @@
-<script lang="ts">
-	import ReactComponent from '../elements/ReactComponent.svelte';
-	import RecommendationsPage from '../modules/image-size-analysis/RecommendationsPage.svelte';
-	import BenefitsInterstitial from '../pages/benefits/BenefitsInterstitial.svelte';
-	import GettingStarted from '../pages/getting-started/GettingStarted.svelte';
-	import PurchaseSuccess from '../pages/purchase-success';
-	import Settings from '../pages/settings/Settings.svelte';
-	import config from '../stores/config';
-	import { connection } from '../stores/connection';
-	import { criticalCssState, isGenerating } from '../stores/critical-css-state';
-	import { modulesState } from '../stores/modules';
-	import { recordBoostEvent } from '../utils/analytics';
-	import debounce from '../utils/debounce';
-	import { Router, Route } from '../utils/router';
-	import routerHistory from '../utils/router-history';
-
-	routerHistory.listen(
-		debounce( history => {
-			// Event names must conform to the following regex: ^[a-z_][a-z0-9_]*$
-			let path = history.location.pathname.replace( /[-/]/g, '_' );
-			if ( path === '_' ) {
-				path = '_settings';
-			}
-
-			recordBoostEvent( `page_view${ path }`, {
-				path: history.location.pathname,
-			} );
-		}, 10 )
-	);
-
-	$: pricing = $config.pricing;
-	$: activeModules = Object.entries( $modulesState ).reduce( ( acc, [ key, value ] ) => {
-		if ( key !== 'image_guide' && key !== 'image_size_analysis' ) {
-			acc.push( value.active );
-		}
-		return acc;
-	}, [] );
-	$: siteDomain = $config.site.domain;
-	$: userConnected = $connection.userConnected;
-	$: isPremium = $config.isPremium;
-	$: isImageGuideActive = $modulesState.image_guide.active;
-	$: isImageSizeAnalysisAvailable = $modulesState.image_size_analysis.available;
-	$: isImageSizeAnalysisActive = $modulesState.image_size_analysis.active;
-	$: criticalCssCreated = $criticalCssState.created;
-	$: criticalCssIsGenerating = $isGenerating;
+<script lang="ts" context="module">
+	let alreadyResumed = false;
 </script>
 
-<Router history={routerHistory}>
-	<Route path="upgrade" let:location let:navigate>
-		<BenefitsInterstitial {location} {navigate} {pricing} {siteDomain} {userConnected} />
-	</Route>
-	<Route
-		path="getting-started"
-		component={GettingStarted}
-		{userConnected}
-		{pricing}
-		{isPremium}
-		domain={siteDomain}
-	/>
-	<Route path="purchase-successful">
-		<ReactComponent this={PurchaseSuccess} {isImageGuideActive} />
-	</Route>
-	{#if isImageSizeAnalysisAvailable && isImageSizeAnalysisActive}
-		<Route path="image-size-analysis/:group/:page" component={RecommendationsPage} />
-	{/if}
-	<Route>
-		<Settings {activeModules} {criticalCssCreated} {criticalCssIsGenerating} />
-	</Route>
-</Router>
+<script lang="ts">
+	import { getRedirectUrl } from '@automattic/jetpack-components';
+	import { onMount } from 'svelte';
+	import { __ } from '@wordpress/i18n';
+	import { RegenerateCriticalCssSuggestion } from '../RegenerateCriticalCssSuggestion/RegenerateCriticalCssSuggestion';
+	import MinifyMeta from '../components/MinifyMeta/MinifyMeta';
+	import Notice from '../elements/Notice.svelte';
+	import ReactComponent from '../elements/ReactComponent.svelte';
+	import TemplatedString from '../elements/TemplatedString.svelte';
+	import RecommendationsMeta from '../modules/image-size-analysis/RecommendationsMeta.svelte';
+	import {
+		initializeIsaSummary,
+		isaSummary,
+	} from '../modules/image-size-analysis/store/isa-summary';
+	import CloudCssMeta from '../pages/settings/elements/CloudCssMeta.svelte';
+	import CriticalCssMeta from '../pages/settings/elements/CriticalCssMeta.svelte';
+	import ImageCdnQualitySettings from '../pages/settings/elements/ImageCdnQualitySettings.svelte';
+	import Module from '../pages/settings/elements/Module.svelte';
+	import PremiumTooltip from '../pages/settings/elements/PremiumTooltip.svelte';
+	import ResizingUnavailable from '../pages/settings/elements/ResizingUnavailable.svelte';
+	import SuperCacheInfo from '../pages/settings/elements/SuperCacheInfo.svelte';
+	import UpgradeCTA from '../pages/settings/elements/UpgradeCTA.svelte';
+	import config from '../stores/config';
+	import {
+		criticalCssState,
+		continueGeneratingLocalCriticalCss,
+		regenerateCriticalCss,
+		criticalCssProgress,
+		isFatalError,
+	} from '../stores/critical-css-state';
+	import { criticalCssIssues, primaryErrorSet } from '../stores/critical-css-state-errors';
+	import { suggestRegenerateDS } from '../stores/data-sync-client';
+	import { imageCdnQuality } from '../stores/image-cdn';
+	import { modulesState } from '../stores/modules';
+	import { premiumFeatures } from '../stores/premium-features';
+	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../utils/cloud-css';
+	import externalLinkTemplateVar from '../utils/external-link-template-var';
+
+	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
+	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
+	const lazyLoadLink = getRedirectUrl( 'jetpack-boost-lazy-load' );
+	const learnLazyLoadDeprecation = () => {
+		window.open( getRedirectUrl( 'jetpack-boost-lazy-load-deprecation' ), '_blank' );
+	};
+
+	$: lazyLoadDeprecationMessage = $modulesState.lazy_images?.available
+		? __(
+				'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature will consequently be removed from Jetpack Boost.',
+				'jetpack-boost'
+		  )
+		: __(
+				'Modern browsers now support lazy loading, and WordPress itself bundles lazy loading for images. This feature has been disabled to avoid potential conflicts with Gutenberg 16.6.0+ or WordPress 6.4+. This feature will consequently be removed from Jetpack Boost.',
+				'jetpack-boost'
+		  );
+
+	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
+	export let location, navigate;
+
+	const suggestRegenerate = suggestRegenerateDS.store;
+
+	$: yearlyPricing = $config.pricing.yearly;
+
+	async function resume() {
+		if ( alreadyResumed ) {
+			return;
+		}
+		alreadyResumed = true;
+
+		if ( ! $criticalCssState || $criticalCssState.status === 'not_generated' ) {
+			return regenerateCriticalCss();
+		}
+		await continueGeneratingLocalCriticalCss( $criticalCssState );
+	}
+
+	onMount( () => {
+		if ( $modulesState.image_size_analysis.active ) {
+			initializeIsaSummary();
+		}
+	} );
+</script>
+
+<div class="jb-container--narrow">
+	<Module
+		slug="critical_css"
+		on:enabled={resume}
+		on:mountEnabled={resume}
+		on:disabled={() => ( alreadyResumed = false )}
+	>
+		<h3 slot="title">
+			{__( 'Optimize Critical CSS Loading (manual)', 'jetpack-boost' )}
+		</h3>
+
+		<div slot="description">
+			<p>
+				<TemplatedString
+					template={__(
+						`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
+						'jetpack-boost'
+					)}
+					vars={externalLinkTemplateVar( criticalCssLink )}
+				/>
+			</p>
+
+			<p>
+				<TemplatedString
+					template={__(
+						`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
+						'jetpack-boost'
+					)}
+					vars={{
+						b: [ 'strong', {}, '' ],
+					}}
+				/>
+
+				<PremiumTooltip />
+			</p>
+		</div>
+
+		<div slot="meta">
+			<CriticalCssMeta
+				cssState={$criticalCssState}
+				isCloudCssAvailable={$modulesState.cloud_css?.available}
+				criticalCssProgress={$criticalCssProgress}
+				issues={$criticalCssIssues}
+				isFatalError={$isFatalError}
+				primaryErrorSet={$primaryErrorSet}
+				suggestRegenerate={$suggestRegenerate}
+				{regenerateCriticalCss}
+			/>
+		</div>
+
+		<div slot="notice">
+			<ReactComponent
+				this={RegenerateCriticalCssSuggestion}
+				show={$suggestRegenerate && $criticalCssState.status !== 'pending'}
+				type={$suggestRegenerate}
+			/>
+		</div>
+
+		<svelte:fragment slot="cta">
+			<UpgradeCTA
+				description={__(
+					'Save time by upgrading to Automatic Critical CSS generation.',
+					'jetpack-boost'
+				)}
+				{yearlyPricing}
+			/>
+		</svelte:fragment>
+	</Module>
+
+	<Module
+		slug="cloud_css"
+		on:enabled={startPollingCloudStatus}
+		on:disabled={stopPollingCloudCssStatus}
+		on:mountEnabled={startPollingCloudStatus}
+	>
+		<h3 slot="title">
+			{__( 'Automatically Optimize CSS Loading', 'jetpack-boost' )}
+			<span class="jb-badge">Upgraded</span>
+		</h3>
+		<div slot="description">
+			<p>
+				<TemplatedString
+					template={__(
+						`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
+						'jetpack-boost'
+					)}
+					vars={externalLinkTemplateVar( criticalCssLink )}
+				/>
+			</p>
+
+			<p>
+				<TemplatedString
+					template={__(
+						`<b>Boost will automatically generate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
+						'jetpack-boost'
+					)}
+					vars={{
+						b: [ 'strong', {}, '' ],
+					}}
+				/>
+			</p>
+		</div>
+
+		<div slot="meta" class="jb-feature-toggle__meta">
+			<CloudCssMeta
+				cssState={$criticalCssState}
+				isCloudCssAvailable={$modulesState.cloud_css?.available}
+				criticalCssProgress={$criticalCssProgress}
+				issues={$criticalCssIssues}
+				isFatalError={$isFatalError}
+				primaryErrorSet={$primaryErrorSet}
+				suggestRegenerate={$suggestRegenerate}
+				{regenerateCriticalCss}
+			/>
+		</div>
+	</Module>
+
+	<Module slug="render_blocking_js">
+		<h3 slot="title">
+			{__( 'Defer Non-Essential JavaScript', 'jetpack-boost' )}
+		</h3>
+		<p slot="description">
+			<TemplatedString
+				template={__(
+					`Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly. Read more on <link>web.dev</link>.`,
+					'jetpack-boost'
+				)}
+				vars={externalLinkTemplateVar( deferJsLink )}
+			/>
+		</p>
+	</Module>
+
+	<Module slug="lazy_images">
+		<h3 slot="title">{__( 'Lazy Image Loading', 'jetpack-boost' )}</h3>
+		<p slot="description">
+			<TemplatedString
+				template={__(
+					`Improve page loading speed by only loading images when they are required. Read more on <link>web.dev</link>.`,
+					'jetpack-boost'
+				)}
+				vars={externalLinkTemplateVar( lazyLoadLink )}
+			/>
+		</p>
+		<Notice
+			title={__( 'Lazy image loading is going away', 'jetpack-boost' )}
+			message={lazyLoadDeprecationMessage}
+			actions={[
+				{
+					label: __( 'Learn more', 'jetpack-boost' ),
+					onClick: learnLazyLoadDeprecation,
+					isExternalLink: true,
+					variant: 'link',
+				},
+			]}
+		/>
+	</Module>
+
+	<Module slug="minify_js">
+		<h3 slot="title">{__( 'Concatenate JS', 'jetpack-boost' )}</h3>
+		<p slot="description">
+			{__(
+				'Scripts are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
+				'jetpack-boost'
+			)}
+		</p>
+		<div slot="meta">
+			<ReactComponent
+				this={MinifyMeta}
+				datasyncKey="minify_js_excludes"
+				inputLabel={__( 'Exclude JS Strings:', 'jetpack-boost' )}
+				buttonText={__( 'Exclude JS Strings', 'jetpack-boost' )}
+				placeholder={__( 'Comma separated list of JS scripts to exclude', 'jetpack-boost' )}
+			/>
+		</div>
+	</Module>
+
+	<Module slug="minify_css">
+		<h3 slot="title">{__( 'Concatenate CSS', 'jetpack-boost' )}</h3>
+		<p slot="description">
+			{__(
+				'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
+				'jetpack-boost'
+			)}
+		</p>
+
+		<div slot="meta">
+			<ReactComponent
+				this={MinifyMeta}
+				datasyncKey="minify_css_excludes"
+				inputLabel={__( 'Exclude CSS Strings:', 'jetpack-boost' )}
+				buttonText={__( 'Exclude CSS Strings', 'jetpack-boost' )}
+				placeholder={__( 'Comma separated list of CSS stylesheets to exclude', 'jetpack-boost' )}
+			/>
+		</div>
+	</Module>
+
+	<Module slug="image_cdn">
+		<h3 slot="title">{__( 'Image CDN', 'jetpack-boost' )}</h3>
+		<p slot="description">
+			{__(
+				`Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.`,
+				'jetpack-boost'
+			)}
+		</p>
+
+		<div slot="meta">
+			<ImageCdnQualitySettings
+				bind:quality={$imageCdnQuality}
+				isPremium={$premiumFeatures.includes( 'image-cdn-quality' )}
+			/>
+		</div>
+	</Module>
+
+	<div class="settings">
+		<Module slug="image_guide">
+			<h3 slot="title">{__( 'Image Guide', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
+			<p slot="description">
+				{__(
+					`This feature helps you discover images that are too large. When you browse your site, the image guide will show you an overlay with information about each image's size.`,
+					'jetpack-boost'
+				)}
+			</p>
+			<!-- svelte-ignore missing-declaration -->
+			{#if false === Jetpack_Boost.site.canResizeImages}
+				<ResizingUnavailable />
+			{/if}
+
+			<svelte:fragment slot="cta">
+				{#if ! $modulesState.image_size_analysis.available}
+					<UpgradeCTA
+						description={__(
+							'Upgrade to scan your site for issues - automatically!',
+							'jetpack-boost'
+						)}
+						{yearlyPricing}
+					/>
+				{/if}
+			</svelte:fragment>
+		</Module>
+
+		<Module slug="image_size_analysis" toggle={false}>
+			<h3 slot="title">
+				{__( 'Image Size Analysis', 'jetpack-boost' )}<span class="beta">Beta</span>
+			</h3>
+			<p slot="description">
+				{__(
+					`This tool will search your site for images that are too large and have an impact on your visitors' experience, page loading times, and search rankings. Once finished, it will give you a report of all improperly sized images with suggestions on how to fix them.`,
+					'jetpack-boost'
+				)}
+			</p>
+
+			<svelte:fragment slot="meta">
+				{#if $modulesState.image_size_analysis.active}
+					<RecommendationsMeta
+						isaSummary={$isaSummary}
+						isCdnActive={$modulesState.image_cdn.active}
+					/>
+				{/if}
+			</svelte:fragment>
+		</Module>
+	</div>
+
+	<SuperCacheInfo />
+</div>
+
+<style lang="scss">
+	.settings {
+		border-top: 1px solid hsl( 0, 0%, 90% );
+		padding-top: 20px;
+	}
+	.beta {
+		background: var( --jp-green-5 );
+		color: var( --jp-green-60 );
+		padding: 2px 5px;
+		border-radius: 3px;
+		font-size: 0.8rem;
+		margin-left: 10px;
+		transform: translateY( -4.5px );
+		display: inline-block;
+	}
+
+	[slot='notice'] {
+		margin-top: 1rem;
+	}
+</style>

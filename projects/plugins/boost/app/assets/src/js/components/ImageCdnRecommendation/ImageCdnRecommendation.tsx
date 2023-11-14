@@ -1,6 +1,6 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import styles from './styles.module.scss';
+import styles from './ImageCdnRecommendation.module.scss';
 
 const ImageCdnRecommendation = () => {
 	return (

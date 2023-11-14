@@ -1,7 +1,7 @@
-import Main from './Main.svelte';
+import App from './Main.svelte';
 import '../css/admin-style.scss';
 
 const target = document.getElementById( 'jb-admin-settings' );
-const app = new Main( { target } );
+const app = new App( { target } );
 
 export default app;

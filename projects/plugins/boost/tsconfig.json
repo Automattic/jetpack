@@ -5,7 +5,7 @@
 		"node_modules/*",
 		"app/assets/dist/*",
 		"tests/e2e/*",
-		"app/assets/src/js/react-components/stories/*"
+		"app/assets/src/js/stories/*"
 	],
 	"compilerOptions": {
 		"target": "es6",
