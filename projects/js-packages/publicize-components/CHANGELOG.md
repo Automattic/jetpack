@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.41.5] - 2023-11-14
 ### Added
-- Add jetpack social store connections unit tests [#34064]
+- Added unit tests for Jetpack social store connections. [#34064]
 
 ### Changed
 - Updated package dependencies. [#34093]
 
 ### Fixed
-- Fixed post editor dirty state cause by publicize store [#34064]
+- Fixed post editor dirty state caused by Publicize state. [#34064]
 
 ## [0.41.4] - 2023-11-13
 ### Changed

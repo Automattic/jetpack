@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.12.2] - 2023-11-14
 ### Changed
-- My Jetpack: Fix bug when the Jetpack AI feature information is not available. [#34095]
+- My Jetpack: Fix a bug causing PHP fatal errors when the Jetpack AI feature information is not available. [#34095]
 - Updated package dependencies. [#34093]
 
 ## [3.12.1] - 2023-11-13
