@@ -35,6 +35,7 @@
 	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../utils/cloud-css';
 	import externalLinkTemplateVar from '../utils/external-link-template-var';
 	import { initializeIsaSummary, isaSummary } from './image-size-analysis/store/isa-summary';
+	import RecommendationsMeta from './image-size-analysis/RecommendationsMeta.svelte';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
