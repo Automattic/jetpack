@@ -223,7 +223,7 @@ describe( 'Membership Products Actions', () => {
 			products: registryProductList.concat( [ apiResponseProduct ] ),
 			type: 'SET_PRODUCTS',
 		} );
-		expect( selectedProductCallback ).toHaveBeenCalledWith( apiResponseProduct.id );
+		expect( selectedProductCallback ).toHaveBeenCalledWith( [ apiResponseProduct.id ] );
 		expect( noticeMock ).toHaveBeenCalled();
 		expect( getMessageMock ).toHaveBeenCalledWith(
 			'successfully created product',
@@ -298,7 +298,7 @@ describe( 'Membership Products Actions', () => {
 			products: registryProductList.concat( [ apiResponseProduct ] ),
 			type: 'SET_PRODUCTS',
 		} );
-		expect( selectedProductCallback ).toHaveBeenCalledWith( apiResponseProduct.id );
+		expect( selectedProductCallback ).toHaveBeenCalledWith( [ apiResponseProduct.id ] );
 		expect( noticeMock ).not.toHaveBeenCalled();
 		expect( getMessageMock ).not.toHaveBeenCalled();
 	} );
