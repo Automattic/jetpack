@@ -15,6 +15,7 @@
 		 * Values from "@tsconfig/svelte/tsconfig.json"
 		 */
 		"sourceMap": true,
-		"forceConsistentCasingInFileNames": true
+		"forceConsistentCasingInFileNames": true,
+		"lib": [ "dom", "es2021" ]
 	}
 }

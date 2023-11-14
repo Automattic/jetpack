@@ -4,8 +4,8 @@
 	import { __ } from '@wordpress/i18n';
 	import { Hero } from '../../components/IsaHero/IsaHero';
 	import ReactComponent from '../../components/ReactComponent.svelte';
-	import Header from '../../components/sections/Header.svelte';
 	import Footer from '../../components/sections/Footer/Footer';
+	import Header from '../../components/sections/Header/Header';
 	import { modulesState } from '../../lib/stores/modules';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
@@ -52,7 +52,7 @@
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
-	<Header subPage={__( 'Image analysis report', 'jetpack-boost' )} />
+	<ReactComponent this={Header} subPageTitle={__( 'Image analysis report', 'jetpack-boost' )} />
 	<div class="jb-recommendations-page jb-section--alt">
 		<div class="jb-container">
 			<ReactComponent

@@ -1,13 +1,13 @@
 <script lang="ts">
+	import ReactComponent from '../../components/ReactComponent.svelte';
+	import Footer from '../../components/sections/Footer/Footer';
+	import Header from '../../components/sections/Header/Header';
+	import Support from '../../components/sections/support';
+	import { criticalCssState, isGenerating } from '../../lib/stores/critical-css-state';
+	import { modulesState } from '../../lib/stores/modules';
+	import { hasPrioritySupport } from '../../lib/utils/paid-plan';
 	import Score from './Score.svelte';
 	import Tips from './Tips.svelte';
-	import Footer from '../../components/sections/Footer/Footer';
-	import Header from '../../components/sections/Header.svelte';
-	import Support from '../../components/sections/support';
-	import { hasPrioritySupport } from '../../lib/utils/paid-plan';
-	import { criticalCssState, isGenerating } from '../../lib/stores/critical-css-state';
-	import ReactComponent from '../../components/ReactComponent.svelte';
-	import { modulesState } from '../../lib/stores/modules';
 
 	$: criticalCssCreated = $criticalCssState.created;
 	$: criticalCssIsGenerating = $isGenerating;
@@ -20,7 +20,7 @@
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
-	<Header />
+	<ReactComponent this={Header} />
 
 	<div class="jb-section jb-section--alt jb-section--scores">
 		<Score {activeModules} {criticalCssCreated} {criticalCssIsGenerating} />

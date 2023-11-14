@@ -6,19 +6,19 @@
 	} from '@automattic/jetpack-boost-score-api';
 	import { BoostScoreBar } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
-	import { scoreChangeModal, ScoreChangeMessage } from '../../lib/api/speed-scores';
 	import ErrorNotice from '../../components/ErrorNotice.svelte';
 	import ReactComponent from '../../components/ReactComponent.svelte';
-	import ContextTooltip from './ContextTooltip/ContextTooltip';
+	import { scoreChangeModal, ScoreChangeMessage } from '../../lib/api/speed-scores';
 	import { performanceHistoryPanelDS } from '../../lib/stores/data-sync-client';
 	import { dismissedAlerts } from '../../lib/stores/dismissed-alerts';
 	import { modulesState } from '../../lib/stores/modules';
 	import { dismissedScorePromptStore } from '../../lib/stores/prompt';
-	import RefreshIcon from '../../svg/refresh.svg';
 	import { recordBoostEvent } from '../../lib/utils/analytics';
 	import { castToString } from '../../lib/utils/cast-to-string';
 	import debounce from '../../lib/utils/debounce';
-	import PopOut from '../../routes/index/components/PopOut.svelte';
+	import PopOut from '../../routes/index/PopOut.svelte';
+	import RefreshIcon from '../../svg/refresh.svg';
+	import ContextTooltip from './ContextTooltip/ContextTooltip';
 	import History from './History.svelte';
 
 	// @todo - move score-context markup/styles here, as it's not used anywhere else.

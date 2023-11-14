@@ -1,12 +1,13 @@
 <script lang="ts">
+	import React from 'react';
 	import { Snackbar } from '@wordpress/components';
-	import { BoostPricingTable } from './BoostPricingTable/BoostPricingTable';
 	import ActivateLicense from '../../components/ActivateLicense/ActivateLicense';
 	import ReactComponent from '../../components/ReactComponent.svelte';
-	import Header from '../../components/sections/Header.svelte';
 	import Footer from '../../components/sections/Footer/Footer';
+	import Header from '../../components/sections/Header/Header';
 	import { initializeConnection, getUpgradeURL } from '../../lib/stores/connection';
 	import { recordBoostEvent } from '../../lib/utils/analytics';
+	import { BoostPricingTable } from './BoostPricingTable/BoostPricingTable';
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let navigate, location;
@@ -45,12 +46,12 @@
 			selectedPlan = false;
 		}
 	}
+
+	const activateLicense = React.createElement( ActivateLicense );
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
-	<Header>
-		<ReactComponent this={ActivateLicense} />
-	</Header>
+	<ReactComponent this={Header} children={activateLicense} />
 
 	<div class="jb-section jb-section--alt">
 		<div class="jb-container">
