@@ -58,9 +58,5 @@
 		"svelte": "3.58.0",
 		"typescript": "5.0.4",
 		"yaml": "2.2.2"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }
