@@ -6,22 +6,6 @@ import '../../shared/memberships.scss';
 import domReady from '@wordpress/dom-ready';
 import { handleIframeResult } from '../../shared/memberships';
 
-function get_token_from_cookie() {
-	let cookies = [];
-	if ( document.cookie.indexOf( ';' ) > -1 ) {
-		cookies = document.cookie.split( ';' );
-	} else {
-		cookies = [ document.cookie ];
-	}
-
-	for ( let i = 0; i < cookies.length; i++ ) {
-		const cookie_data = cookies[ i ].split( '=' );
-		if ( 'jp-premium-content-session' === cookie_data[ 0 ] ) {
-			return cookie_data[ 1 ];
-		}
-	}
-}
-
 // @ts-ignore
 function show_iframe_retrieve_subscriptions_from_email() {
 	const form = document.querySelector( '.wp-block-jetpack-subscriptions__container form' );
@@ -43,7 +27,6 @@ function show_iframe_retrieve_subscriptions_from_email() {
 		source: 'jetpack_retrieve_subscriptions',
 		post_access_level: form.dataset.post_access_level,
 		display: 'alternate',
-		jwt_token: get_token_from_cookie(),
 	} );
 }
 
@@ -102,7 +85,6 @@ domReady( function () {
 					source: 'jetpack_subscribe',
 					post_access_level: form.dataset.post_access_level,
 					display: 'alternate',
-					jwt_token: get_token_from_cookie(),
 				} );
 			} );
 		}

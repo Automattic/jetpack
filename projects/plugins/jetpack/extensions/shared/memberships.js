@@ -31,7 +31,11 @@ function setUpThickbox( button ) {
 		event.preventDefault();
 		const url = button.getAttribute( 'href' );
 		window.scrollTo( 0, 0 );
-		tb_show( null, url + '&display=alternate&TB_iframe=true', null );
+		tb_show(
+			null,
+			url + '&display=alternate&jwt_token=' + getTokenFromCookie() + '&TB_iframe=true',
+			null
+		);
 		window.addEventListener( 'message', handleIframeResult, false );
 		const tbWindow = document.querySelector( '#TB_window' );
 		tbWindow.classList.add( 'jetpack-memberships-modal' );
@@ -97,4 +101,20 @@ export const reloadPageWithPremiumContentQueryString = function (
 		} );
 	}
 	document.location.href = newQueryString;
+};
+
+export const getTokenFromCookie = function () {
+	let attributes = [];
+	if ( document.cookie.indexOf( ';' ) > -1 ) {
+		attributes = document.cookie.split( ';' );
+	} else {
+		attributes = [ document.cookie ];
+	}
+
+	for ( let i = 0; i < attributes.length; i++ ) {
+		const [ key, value ] = attributes[ i ].trim().split( '=' );
+		if ( 'jp-premium-content-session' === key ) {
+			return value;
+		}
+	}
 };
