@@ -27,5 +27,5 @@ export const CONNECTION_SERVICE_NEXTDOOR = 'nextdoor';
 export const CONNECTION_SERVICE_TUMBLR = 'tumblr';
 export const CONNECTION_SERVICE_TWITTER = 'twitter';
 
-const store = createReduxStore( SOCIAL_STORE_ID, SOCIAL_STORE_CONFIG );
+export const store = createReduxStore( SOCIAL_STORE_ID, SOCIAL_STORE_CONFIG );
 register( store );
