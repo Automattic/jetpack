@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { ApiError } from '../lib/api/api-error';
-	import NoticeIcon from '../svg/notice-outline.svg';
 	import actionLinkTemplateVar from '../lib/utils/action-link-template-var';
 	import { TemplateVars } from '../lib/utils/copy-dom-template';
 	import { standardizeError } from '../lib/utils/standardize-error';
 	import supportLinkTemplateVar from '../lib/utils/support-link-template-var';
+	import NoticeIcon from '../svg/notice-outline.svg';
 	import TemplatedString from './TemplatedString.svelte';
 
 	/**

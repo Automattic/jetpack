@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
-import { reloadModulesState } from './modules';
 import api from '../api/api';
+import { reloadModulesState } from './modules';
 
 export type ConnectionStatus = {
 	connected: boolean;
