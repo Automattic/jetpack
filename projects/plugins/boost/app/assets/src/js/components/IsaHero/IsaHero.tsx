@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import ImageCdnRecommendation from '../ImageCdnRecommendation/ImageCdnRecommendation';
-import styles from '../ImageCdnRecommendation/ImageCdnRecommendation.module.scss';
+import styles from './IsaHero.module.scss';
 
 // removed in:fade={{ duration: 300, easing: quadOut }} from .jb-hero
 
