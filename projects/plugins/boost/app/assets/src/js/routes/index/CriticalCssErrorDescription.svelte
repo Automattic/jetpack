@@ -7,7 +7,6 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
 	import { __ } from '@wordpress/i18n';
-	import FoldingElement from '../../components/FoldingElement.svelte';
 	import NumberedList from '../../components/NumberedList.svelte';
 	import TemplatedString from '../../components/TemplatedString.svelte';
 	import { regenerateCriticalCss } from '../../lib/stores/critical-css-state';
@@ -21,6 +20,7 @@
 		rawError,
 	} from '../../lib/utils/describe-critical-css-recommendations';
 	import supportLinkTemplateVar from '../../lib/utils/support-link-template-var';
+	import FoldingElement from './FoldingElement.svelte';
 	import MoreList from './MoreList.svelte';
 
 	export let showSuggestion = true;

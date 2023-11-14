@@ -7,9 +7,9 @@
 	import { slide } from 'svelte/transition';
 	import { __ } from '@wordpress/i18n';
 	import ErrorNotice from '../../components/ErrorNotice.svelte';
-	import FoldingElement from '../../components/FoldingElement.svelte';
 	import { CriticalCssState } from '../../lib/stores/critical-css-state-types';
 	import CriticalCssErrorDescription from './CriticalCssErrorDescription.svelte';
+	import FoldingElement from './FoldingElement.svelte';
 
 	export let supportLink = 'https://wordpress.org/support/plugin/jetpack-boost/';
 	export let status: CriticalCssState[ 'status' ];
