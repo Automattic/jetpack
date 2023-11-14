@@ -4,7 +4,7 @@
 	import { recordBoostEventAndRedirect } from '../../../../utils/analytics';
 	export let edit_url: string | null;
 	export let instructions: string;
-	export let device_type: string;
+	export let device_type: string | undefined;
 </script>
 
 <div class="jb-row-hover">
