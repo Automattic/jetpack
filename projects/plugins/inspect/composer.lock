@@ -616,10 +616,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "7e70d6d91c99ca7224e3fe409f998b039ddc91f1"
+                "reference": "6f5693b8a7a73598e3af8010ffbee44cd23eb2fc"
             },
             "require": {
-                "php": ">=5.6",
+                "php": ">=7.0",
                 "symfony/console": "^3.4 || ^5.2 || ^6.0",
                 "symfony/process": "^3.4 || ^5.2 || ^6.0",
                 "wikimedia/at-ease": "^1.2 || ^2.0"
@@ -635,7 +635,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "3.3.x-dev"
+                    "dev-trunk": "3.4.x-dev"
                 },
                 "mirror-repo": "Automattic/jetpack-changelogger",
                 "version-constants": {
