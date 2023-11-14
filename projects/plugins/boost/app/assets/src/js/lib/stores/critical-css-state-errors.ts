@@ -1,6 +1,6 @@
 import { derived, Readable } from 'svelte/store';
-import { castToString } from '../lib/utils/cast-to-string';
-import { sortByFrequency } from '../lib/utils/sort-by-frequency';
+import { castToString } from '../utils/cast-to-string';
+import { sortByFrequency } from '../utils/sort-by-frequency';
 import { criticalCssState } from './critical-css-state';
 import {
 	CriticalCssErrorDetails,

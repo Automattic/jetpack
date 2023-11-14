@@ -4,7 +4,7 @@
  */
 
 import { __, sprintf } from '@wordpress/i18n';
-import { JSONObject } from '../lib/stores/data-sync-client';
+import { JSONObject } from '../stores/data-sync-client';
 import { ApiError } from './api-error';
 
 function getEndpointUrl( path: string ): string {

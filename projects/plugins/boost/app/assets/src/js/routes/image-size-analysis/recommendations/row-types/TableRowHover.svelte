@@ -2,9 +2,9 @@
 	import { __ } from '@wordpress/i18n';
 	import Button from '../../../../components/Button.svelte';
 	import { recordBoostEventAndRedirect } from '../../../../lib/utils/analytics';
-	export let edit_url: string | null;
+	export let edit_url: string | null = null;
 	export let instructions: string;
-	export let device_type: string | undefined;
+	export let device_type: string | null = null;
 </script>
 
 <div class="jb-row-hover">

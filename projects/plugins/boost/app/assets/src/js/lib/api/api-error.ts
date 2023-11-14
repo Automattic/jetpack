@@ -1,7 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { JSONObject } from '../lib/stores/data-sync-client';
-import { castToString } from '../lib/utils/cast-to-string';
-import { isJsonObject } from '../lib/utils/json-types';
+import { JSONObject } from '../stores/data-sync-client';
+import { castToString } from '../utils/cast-to-string';
+import { isJsonObject } from '../utils/json-types';
 
 /**
  * Special error subclass returned by API Calls with extra

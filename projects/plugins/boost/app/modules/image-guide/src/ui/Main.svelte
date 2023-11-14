@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { guideState } from '../lib/stores/GuideState';
+	import { guideState } from '../stores/GuideState';
 	import Bubble from './Bubble.svelte';
 	import Popup from './Popup.svelte';
-	import type { MeasurableImageStore } from '../lib/stores/MeasurableImageStore';
+	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 	import type { GuideSize } from '../types';
 
 	export let stores: MeasurableImageStore[];
@@ -120,8 +120,17 @@
 
 		// !important statements override theme styles
 		font-size: 15px !important;
-		font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans',
-			'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif !important;
+		font-family:
+			'Inter',
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			'Roboto',
+			'Oxygen-Sans',
+			'Ubuntu',
+			'Cantarell',
+			'Helvetica Neue',
+			sans-serif !important;
 	}
 
 	.previews {
@@ -133,7 +142,9 @@
 	}
 
 	:global( .jetpack-boost-guide__backdrop ) {
-		transition: opacity 0.2s ease-in-out, filter 0.2s ease-in-out;
+		transition:
+			opacity 0.2s ease-in-out,
+			filter 0.2s ease-in-out;
 		filter: brightness( 0.3 );
 	}
 </style>

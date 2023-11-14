@@ -6,7 +6,7 @@
 	import JetpackLogo from './JetpackLogo.svelte';
 	import Portal from './Portal.svelte';
 	import External from './assets/External.svelte';
-	import type { MeasurableImageStore } from '../lib/stores/MeasurableImageStore';
+	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 	import type { GuideSize } from '../types';
 
 	export let store: MeasurableImageStore;

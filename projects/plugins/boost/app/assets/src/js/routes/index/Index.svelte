@@ -8,17 +8,17 @@
 	import { __ } from '@wordpress/i18n';
 	import { RegenerateCriticalCssSuggestion } from './RegenerateCriticalCssSuggestion/RegenerateCriticalCssSuggestion';
 	import MinifyMeta from '../../components/MinifyMeta/MinifyMeta';
-	import Notice from '../../elements/Notice.svelte';
-	import ReactComponent from '../../elements/ReactComponent.svelte';
-	import TemplatedString from '../../elements/TemplatedString.svelte';
-	import CloudCssMeta from './elements/CloudCssMeta.svelte';
-	import CriticalCssMeta from './elements/CriticalCssMeta.svelte';
-	import ImageCdnQualitySettings from './elements/ImageCdnQualitySettings.svelte';
-	import Module from './elements/Module.svelte';
-	import PremiumTooltip from './elements/PremiumTooltip.svelte';
-	import ResizingUnavailable from './elements/ResizingUnavailable.svelte';
-	import SuperCacheInfo from './elements/SuperCacheInfo.svelte';
-	import UpgradeCTA from './elements/UpgradeCTA.svelte';
+	import Notice from '../../components/Notice.svelte';
+	import ReactComponent from '../../components/ReactComponent.svelte';
+	import TemplatedString from '../../components/TemplatedString.svelte';
+	import CloudCssMeta from './components/CloudCssMeta.svelte';
+	import CriticalCssMeta from './components/CriticalCssMeta.svelte';
+	import ImageCdnQualitySettings from './components/ImageCdnQualitySettings.svelte';
+	import Module from './components/Module.svelte';
+	import PremiumTooltip from './components/PremiumTooltip.svelte';
+	import ResizingUnavailable from './components/ResizingUnavailable.svelte';
+	import SuperCacheInfo from './components/SuperCacheInfo.svelte';
+	import UpgradeCTA from './components/UpgradeCTA.svelte';
 	import config from '../../lib/stores/config';
 	import {
 		criticalCssState,

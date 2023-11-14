@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import api from '../lib/api/api';
+import api from '../api/api';
 
 const { subscribe, update } = writable( Jetpack_Boost );
 

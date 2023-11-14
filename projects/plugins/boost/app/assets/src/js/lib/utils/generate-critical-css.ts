@@ -1,18 +1,18 @@
 import { get } from 'svelte/store';
-import { criticalCssMeta } from '../lib/stores/critical-css-meta';
+import { criticalCssMeta } from '../stores/critical-css-meta';
 import {
 	localCriticalCSSProgress,
 	saveCriticalCssChunk,
 	criticalCssFatalError,
 	storeGenerateError,
 	updateProvider,
-} from '../lib/stores/critical-css-state';
+} from '../stores/critical-css-state';
 import {
 	CriticalCssState,
 	Critical_CSS_Error_Type,
 	Provider,
-} from '../lib/stores/critical-css-state-types';
-import { JSONObject } from '../lib/stores/data-sync-client';
+} from '../stores/critical-css-state-types';
+import { JSONObject } from '../stores/data-sync-client';
 import { recordBoostEvent, TracksEventProperties } from './analytics';
 import { castToNumber } from './cast-to-number';
 import { logPreCriticalCSSGeneration } from './console';

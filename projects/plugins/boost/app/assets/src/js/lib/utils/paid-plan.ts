@@ -1,5 +1,5 @@
 import { derived } from 'svelte/store';
-import config from '../lib/stores/config';
+import config from '../stores/config';
 
 export const hasPrioritySupport = derived( config, $config => $config.preferences.prioritySupport );
 

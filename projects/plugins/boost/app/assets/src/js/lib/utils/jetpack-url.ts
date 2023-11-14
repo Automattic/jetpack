@@ -1,5 +1,5 @@
 import { get } from 'svelte/store';
-import config from '../lib/stores/config';
+import config from '../stores/config';
 
 export function jetpackURL( url ) {
 	const siteUrl = get( config ).site.url;

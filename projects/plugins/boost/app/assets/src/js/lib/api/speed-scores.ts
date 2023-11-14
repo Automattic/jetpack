@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { TemplateVars } from '../lib/utils/copy-dom-template';
+import { TemplateVars } from '../utils/copy-dom-template';
 
 type SpeedScores = {
 	mobile: number;
