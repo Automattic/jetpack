@@ -3,43 +3,53 @@
  */
 import { __ } from '@wordpress/i18n';
 import {
+	ACTION_DECREASE_NEW_ASYNC_REQUEST_COUNTDOWN,
+	ACTION_ENQUEUE_ASYNC_REQUEST,
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
 	ACTION_SET_PLANS,
+	ACTION_SET_AI_ASSISTANT_FEATURE_REQUIRE_UPGRADE,
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
+	ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
+	FREE_PLAN_REQUESTS_LIMIT,
 } from './constants';
 import type { PlanStateProps } from './types';
+
+const aiAssistantFeature = window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ];
 
 const INITIAL_STATE: PlanStateProps = {
 	plans: [],
 	features: {
 		aiAssistant: {
-			hasFeature: false,
-			isOverLimit: false,
-			requestsCount: 0,
-			requestsLimit: 1000,
-			requireUpgrade: false,
-			errorMessage: '',
-			errorCode: '',
-			upgradeType: 'default',
-			currentTier: {
+			hasFeature: !! aiAssistantFeature?.[ 'has-feature' ],
+			isOverLimit: !! aiAssistantFeature?.[ 'is-over-limit' ],
+			requestsCount: aiAssistantFeature?.[ 'requests-count' ] || 0,
+			requestsLimit: aiAssistantFeature?.[ 'requests-limit' ] || FREE_PLAN_REQUESTS_LIMIT,
+			requireUpgrade: !! aiAssistantFeature?.[ 'site-require-upgrade' ],
+			errorMessage: aiAssistantFeature?.[ 'error-message' ] || '',
+			errorCode: aiAssistantFeature?.[ 'error-code' ],
+			upgradeType: aiAssistantFeature?.[ 'upgrade-type' ] || 'default',
+			currentTier: aiAssistantFeature?.[ 'current-tier' ] || {
 				slug: 'ai-assistant-tier-free',
 				value: 0,
 				limit: 20,
 			},
 			usagePeriod: {
-				currentStart: '',
-				nextStart: '',
-				requestsCount: 0,
+				currentStart:
+					aiAssistantFeature?.[ 'usage-period' ]?.[ 'current-start' ] || 'ai-assistant-tier-free',
+				nextStart: aiAssistantFeature?.[ 'usage-period' ]?.[ 'next-start' ] || '',
+				requestsCount: aiAssistantFeature?.[ 'usage-period' ]?.[ 'requests-count' ] || 0,
 			},
-			_meta: {
-				isRequesting: false,
-			},
-			nextTier: {
+			nextTier: aiAssistantFeature?.[ 'next-tier' ] || {
 				slug: 'ai-assistant-tier-unlimited',
 				value: 1,
 				limit: 922337203685477600,
 				readableLimit: __( 'Unlimited', 'jetpack' ),
+			},
+			_meta: {
+				isRequesting: false,
+				asyncRequestCountdown: ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
+				asyncRequestTimerId: 0,
 			},
 		},
 	},
@@ -63,6 +73,8 @@ export default function reducer( state = INITIAL_STATE, action ) {
 						_meta: {
 							...state.features.aiAssistant._meta,
 							isRequesting: true,
+							asyncRequestCountdown: ASYNC_REQUEST_COUNTDOWN_INIT_VALUE, // restore the countdown
+							asyncRequestTimerId: 0, // reset the timer id
 						},
 					},
 				},
@@ -97,6 +109,10 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			const isOverLimit = requestsCount >= state.features.aiAssistant.requestsLimit;
 			const requireUpgrade = isOverLimit && ! state.features.aiAssistant.hasFeature;
 
+			// Increase the requests count also fo the Usage Period.
+			const usagePeriod = state.features.aiAssistant.usagePeriod || { requestsCount: 0 };
+			usagePeriod.requestsCount += action.count;
+
 			return {
 				...state,
 				features: {
@@ -106,6 +122,54 @@ export default function reducer( state = INITIAL_STATE, action ) {
 						isOverLimit,
 						requestsCount,
 						requireUpgrade,
+						usagePeriod: { ...usagePeriod },
+					},
+				},
+			};
+		}
+
+		case ACTION_DECREASE_NEW_ASYNC_REQUEST_COUNTDOWN: {
+			return {
+				...state,
+				features: {
+					...state.features,
+					aiAssistant: {
+						...state.features.aiAssistant,
+						_meta: {
+							...state.features.aiAssistant._meta,
+							asyncRequestCountdown: state.features.aiAssistant._meta.asyncRequestCountdown - 1,
+						},
+					},
+				},
+			};
+		}
+
+		case ACTION_ENQUEUE_ASYNC_REQUEST: {
+			return {
+				...state,
+				features: {
+					...state.features,
+					aiAssistant: {
+						...state.features.aiAssistant,
+						_meta: {
+							...state.features.aiAssistant._meta,
+							asyncRequestTimerId: action.timerId,
+						},
+					},
+				},
+			};
+		}
+
+		case ACTION_SET_AI_ASSISTANT_FEATURE_REQUIRE_UPGRADE: {
+			return {
+				...state,
+				features: {
+					...state.features,
+					aiAssistant: {
+						...state.features.aiAssistant,
+						requireUpgrade: action.requireUpgrade,
+						hasFeature: ! action.requireUpgrade, // If we require an upgrade, we don't have the feature.
+						isOverLimit: true, // If we require an upgrade, we are over the limit.
 					},
 				},
 			};
