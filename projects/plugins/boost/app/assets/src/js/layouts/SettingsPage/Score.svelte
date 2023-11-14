@@ -6,7 +6,7 @@
 	} from '@automattic/jetpack-boost-score-api';
 	import { BoostScoreBar } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
-	import { scoreChangeModal, ScoreChangeMessage } from '../../api/speed-scores';
+	import { scoreChangeModal, ScoreChangeMessage } from '../../lib/api/speed-scores';
 	import ErrorNotice from '../../components/ErrorNotice.svelte';
 	import ReactComponent from '../../components/ReactComponent.svelte';
 	import ContextTooltip from './ContextTooltip/ContextTooltip';

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import { ApiError } from '../api/api-error';
+	import { ApiError } from '../lib/api/api-error';
 	import NoticeIcon from '../svg/notice-outline.svg';
 	import actionLinkTemplateVar from '../utils/action-link-template-var';
 	import { TemplateVars } from '../utils/copy-dom-template';
