@@ -2,6 +2,7 @@ import { FacebookPreviews as Previews } from '@automattic/social-previews';
 import { useSelect, withSelect } from '@wordpress/data';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { SOCIAL_STORE_ID } from '../../social-store';
+import { CONNECTION_SERVICE_FACEBOOK } from '../../social-store/constants';
 
 const FacebookPreview = props => {
 	const { message } = useSocialMediaMessage();
@@ -9,8 +10,9 @@ const FacebookPreview = props => {
 	const { title, excerpt, content } = props;
 
 	const user = useSelect( select => {
-		const { displayName, profileImage: avatarUrl } =
-			select( SOCIAL_STORE_ID ).getConnectionProfileDetails( 'facebook' );
+		const { displayName, profileImage: avatarUrl } = select(
+			SOCIAL_STORE_ID
+		).getConnectionProfileDetails( CONNECTION_SERVICE_FACEBOOK );
 
 		return { displayName, avatarUrl };
 	} );

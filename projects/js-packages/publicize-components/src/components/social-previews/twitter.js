@@ -2,6 +2,7 @@ import { TwitterPreviews } from '@automattic/social-previews';
 import { useSelect } from '@wordpress/data';
 import React from 'react';
 import { SOCIAL_STORE_ID } from '../../social-store';
+import { CONNECTION_SERVICE_TWITTER } from '../../social-store/constants';
 
 /**
  * The twitter tab component.
@@ -22,7 +23,7 @@ function Twitter( { title, description, image, url, media } ) {
 				displayName: name,
 				profileImage,
 				username: screenName,
-			} = select( SOCIAL_STORE_ID ).getConnectionProfileDetails( 'twitter' );
+			} = select( SOCIAL_STORE_ID ).getConnectionProfileDetails( CONNECTION_SERVICE_TWITTER );
 
 			return [
 				{

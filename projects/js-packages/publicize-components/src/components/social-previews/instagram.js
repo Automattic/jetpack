@@ -3,6 +3,7 @@ import { useSelect } from '@wordpress/data';
 import React from 'react';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { SOCIAL_STORE_ID } from '../../social-store';
+import { CONNECTION_SERVICE_INSTAGRAM_BUSINESS } from '../../social-store/constants';
 
 /**
  * The Instagram tab component.
@@ -13,7 +14,7 @@ import { SOCIAL_STORE_ID } from '../../social-store';
 export function Instagram( props ) {
 	const { title, image, media } = props;
 	const { username: name, profileImage } = useSelect( select =>
-		select( SOCIAL_STORE_ID ).getConnectionProfileDetails( 'instagram-business' )
+		select( SOCIAL_STORE_ID ).getConnectionProfileDetails( CONNECTION_SERVICE_INSTAGRAM_BUSINESS )
 	);
 
 	const { message: text } = useSocialMediaMessage();

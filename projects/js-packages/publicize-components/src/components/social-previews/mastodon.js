@@ -3,6 +3,7 @@ import { useSelect } from '@wordpress/data';
 import { decodeEntities } from '@wordpress/html-entities';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { SOCIAL_STORE_ID } from '../../social-store';
+import { CONNECTION_SERVICE_MASTODON } from '../../social-store/constants';
 import { shouldUploadAttachedMedia } from '../../store/selectors';
 
 const MastodonPreview = props => {
@@ -23,7 +24,7 @@ const MastodonPreview = props => {
 			displayName,
 			profileImage: avatarUrl,
 			username: address,
-		} = select( SOCIAL_STORE_ID ).getConnectionProfileDetails( 'mastodon' );
+		} = select( SOCIAL_STORE_ID ).getConnectionProfileDetails( CONNECTION_SERVICE_MASTODON );
 
 		return { displayName, avatarUrl, address };
 	} );
