@@ -85,6 +85,8 @@ export default function AiAssistantBar( {
 	const { inputValue, setInputValue, isVisible, assistantAnchor } =
 		useContext( AiAssistantUiContext );
 
+	const { dequeueAiAssistantFeatureAyncRequest } = useDispatch( 'wordpress-com/plans' );
+
 	const focusOnPrompt = () => {
 		// Small delay to avoid focus crash
 		setTimeout( () => {
@@ -124,9 +126,22 @@ export default function AiAssistantBar( {
 			content: getSerializedContentFromBlock( clientId ),
 		} );
 
+		/*
+		 * Always dequeue/cancel the AI Assistant feature async request,
+		 * in case there is one pending,
+		 * when performing a new AI suggestion request.
+		 */
+		dequeueAiAssistantFeatureAyncRequest();
+
 		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
 		wrapperRef?.current?.focus();
-	}, [ clientId, inputValue, removeNotice, requestSuggestion ] );
+	}, [
+		clientId,
+		dequeueAiAssistantFeatureAyncRequest,
+		inputValue,
+		removeNotice,
+		requestSuggestion,
+	] );
 
 	const handleStopSuggestion = useCallback( () => {
 		stopSuggestion();
