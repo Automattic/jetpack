@@ -987,9 +987,11 @@ function get_paywall_blocks( $newsletter_access_level ) {
 
 		}
 	} else {
+		$access_question = get_paywall_access_question( $newsletter_access_level );
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			// custom domain
-			$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link', get_current_blog_id() );
+			$sign_in_link     = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link', get_current_blog_id() );
+			$access_question .= ' ' . __( 'Log in.', 'jetpack' );
 		} else {
 			$sign_in_link = add_query_arg(
 				array(
@@ -1000,7 +1002,6 @@ function get_paywall_blocks( $newsletter_access_level ) {
 				'https://subscribe.wordpress.com/memberships/jwt'
 			);
 		}
-		$access_question = get_paywall_access_question( $newsletter_access_level );
 
 		$sign_in = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
 <p class="has-text-align-center" style="font-size:14px"><a href="' . $sign_in_link . '">' . $access_question . '</a></p>
@@ -1046,14 +1047,14 @@ function get_paywall_access_question( $post_access_level ) {
 			if ( $tier !== null ) {
 				return sprintf(
 				// translators:  Placeholder is the tier name
-					__( 'I am already a <i>%s</i> paid-subscriber', 'jetpack' ),
+					__( 'Already a <i>%s</i> paid subscriber?', 'jetpack' ),
 					esc_html( $tier->post_title )
 				);
 			} else {
-				return esc_html__( 'I am already a paid-subscriber', 'jetpack' );
+				return esc_html__( 'Already a paid subscriber?', 'jetpack' );
 			}
 		default:
-			return esc_html__( 'I am already a subscriber', 'jetpack' );
+			return esc_html__( 'Already a subscriber?', 'jetpack' );
 	}
 }
 
