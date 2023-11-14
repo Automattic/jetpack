@@ -36,6 +36,7 @@ const zSummary = z
 				singular_page: zSummaryGroup.optional(),
 				singular_post: zSummaryGroup.optional(),
 				other: zSummaryGroup.optional(),
+				fixed: zSummaryGroup.optional(),
 			} )
 			.nullable()
 			.optional(),
@@ -63,6 +64,7 @@ export const isaGroupLabels = {
 	singular_page: __( 'Pages', 'jetpack-boost' ),
 	singular_post: __( 'Posts', 'jetpack-boost' ),
 	other: __( 'Other', 'jetpack-boost' ),
+	fixed: __( 'Fixed Images', 'jetpack-boost' ),
 };
 
 export function isaGroupLabel( group: keyof typeof isaGroupLabels | string ) {

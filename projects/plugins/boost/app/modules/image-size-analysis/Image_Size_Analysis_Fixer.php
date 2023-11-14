@@ -45,6 +45,26 @@ class Image_Size_Analysis_Fixer {
 		return $fixes[ $post_id ];
 	}
 
+	public static function get_all_fixes() {
+		$fixes = array();
+		$posts = get_posts(
+			array(
+				'posts_per_page' => -1,
+				'meta_key'       => '_jb_image_fixes',
+				'meta_compare'   => 'EXISTS',
+			)
+		);
+
+		foreach ( $posts as $post ) {
+			$fix = get_post_meta( $post->ID, '_jb_image_fixes', true );
+			if ( ! empty( $fix ) ) {
+				$fixes[ $post->ID ] = $fix;
+			}
+		}
+
+		return $fixes;
+	}
+
 	public static function get_post_id( $edit_url ) {
 
 		if ( empty( $edit_url ) ) {

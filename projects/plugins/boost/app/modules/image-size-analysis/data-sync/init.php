@@ -113,6 +113,7 @@ $summary_schema = Schema::as_assoc_array(
 				'singular_page'   => $group_schema,
 				'singular_post'   => $group_schema,
 				'other'           => $group_schema,
+				'fixed'           => $group_schema,
 			)
 		)->nullable(),
 	)
