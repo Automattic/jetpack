@@ -3,8 +3,8 @@ import { Button } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Logo from '../../svg/jetpack-green';
-import enableCloudCss from '../../utils/enable-cloud-css';
-import { navigate } from '../../utils/navigate';
+import enableCloudCss from '../../lib/utils/enable-cloud-css';
+import { navigate } from '../../lib/utils/navigate';
 import { requestImageAnalysis } from '../image-size-analysis/store/isa-summary';
 
 type PurchaseSuccessProps = {

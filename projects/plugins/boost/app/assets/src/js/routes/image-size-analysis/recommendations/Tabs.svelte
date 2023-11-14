@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { useNavigate } from 'svelte-navigator';
-	import { recordBoostEvent } from '../../../utils/analytics';
-	import { Link } from '../../../utils/router';
+	import { recordBoostEvent } from '../../../lib/utils/analytics';
+	import { Link } from '../../../lib/utils/router';
 	import { type ISASummaryGroup } from '../store/isa-summary';
 
 	export let activeGroup: string;

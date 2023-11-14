@@ -4,10 +4,10 @@
 	import Footer from '../../components/sections/Footer/Footer';
 	import Header from '../../components/sections/Header.svelte';
 	import Support from '../../components/sections/support';
-	import { hasPrioritySupport } from '../../utils/paid-plan';
-	import { criticalCssState, isGenerating } from '../../stores/critical-css-state';
+	import { hasPrioritySupport } from '../../lib/utils/paid-plan';
+	import { criticalCssState, isGenerating } from '../../lib/stores/critical-css-state';
 	import ReactComponent from '../../components/ReactComponent.svelte';
-	import { modulesState } from '../../stores/modules';
+	import { modulesState } from '../../lib/stores/modules';
 
 	$: criticalCssCreated = $criticalCssState.created;
 	$: criticalCssIsGenerating = $isGenerating;

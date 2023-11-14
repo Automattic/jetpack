@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import { derived, get, writable } from 'svelte/store';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import api from '../api/api';
-import { startPollingCloudStatus } from '../utils/cloud-css';
-import generateCriticalCss from '../utils/generate-critical-css';
+import api from '../lib/api/api';
+import { startPollingCloudStatus } from '../lib/utils/cloud-css';
+import generateCriticalCss from '../lib/utils/generate-critical-css';
 import { CriticalCssStateSchema } from './critical-css-state-types';
 import { jetpack_boost_ds, JSONObject, suggestRegenerateDS } from './data-sync-client';
 import { modulesState } from './modules';

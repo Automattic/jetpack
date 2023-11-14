@@ -5,11 +5,11 @@
 	import CloseButton from '../../components/CloseButton.svelte';
 	import ReactComponent from '../../components/ReactComponent.svelte';
 	import CriticalCssErrorDescription from '../index/components/CriticalCssErrorDescription.svelte';
-	import { replaceCssState, updateProvider } from '../../stores/critical-css-state';
-	import { groupErrorsByFrequency } from '../../stores/critical-css-state-errors';
-	import { type Provider } from '../../stores/critical-css-state-types';
+	import { replaceCssState, updateProvider } from '../../lib/stores/critical-css-state';
+	import { groupErrorsByFrequency } from '../../lib/stores/critical-css-state-errors';
+	import { type Provider } from '../../lib/stores/critical-css-state-types';
 	import InfoIcon from '../../svg/info.svg';
-	import routerHistory from '../../utils/router-history';
+	import routerHistory from '../../lib/utils/router-history';
 
 	export let issues: Provider[];
 

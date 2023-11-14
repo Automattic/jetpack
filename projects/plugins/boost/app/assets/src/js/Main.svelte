@@ -9,17 +9,17 @@
 	import AdvancedCriticalCss from './routes/critical-css-advanced/CriticalCssAdvanced.svelte';
 	import Index from './routes/Index.svelte';
 
-	import config from './stores/config';
+	import config from './lib/stores/config';
 
-	import { connection } from './stores/connection';
+	import { connection } from './lib/stores/connection';
 
-	import { criticalCssIssues } from './stores/critical-css-state-errors';
-	import { modulesState } from './stores/modules';
-	import { recordBoostEvent } from './utils/analytics';
-	import debounce from './utils/debounce';
+	import { criticalCssIssues } from './lib/stores/critical-css-state-errors';
+	import { modulesState } from './lib/stores/modules';
+	import { recordBoostEvent } from './lib/utils/analytics';
+	import debounce from './lib/utils/debounce';
 
-	import { Route, Router } from './utils/router';
-	import routerHistory from './utils/router-history';
+	import { Route, Router } from './lib/utils/router';
+	import routerHistory from './lib/utils/router-history';
 	import SettingsPage from './layouts/SettingsPage/SettingsPage.svelte';
 
 	routerHistory.listen(

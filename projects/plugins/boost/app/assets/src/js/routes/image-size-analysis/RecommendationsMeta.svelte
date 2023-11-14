@@ -6,8 +6,8 @@
 	import ReactComponent from '../../components/ReactComponent.svelte';
 	import RefreshIcon from '../../svg/refresh.svg';
 	import WarningIcon from '../../svg/warning-outline.svg';
-	import { recordBoostEvent, recordBoostEventAndRedirect } from '../../utils/analytics';
-	import getIsaErrorSuggestion from '../../utils/get-isa-error-suggestion';
+	import { recordBoostEvent, recordBoostEventAndRedirect } from '../../lib/utils/analytics';
+	import getIsaErrorSuggestion from '../../lib/utils/get-isa-error-suggestion';
 	import MultiProgress from './MultiProgress.svelte';
 	import { resetIsaQuery } from './store/isa-data';
 	import {

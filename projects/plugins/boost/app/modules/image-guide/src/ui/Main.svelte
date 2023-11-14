@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { guideState } from '../stores/GuideState';
+	import { guideState } from '../lib/stores/GuideState';
 	import Bubble from './Bubble.svelte';
 	import Popup from './Popup.svelte';
-	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
+	import type { MeasurableImageStore } from '../lib/stores/MeasurableImageStore';
 	import type { GuideSize } from '../types';
 
 	export let stores: MeasurableImageStore[];

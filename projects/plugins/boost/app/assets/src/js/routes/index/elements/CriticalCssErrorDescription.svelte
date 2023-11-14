@@ -7,10 +7,10 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
 	import { __ } from '@wordpress/i18n';
-	import FoldingElement from '../../../components/FoldingElement.svelte';
-	import MoreList from '../../../components/MoreList.svelte';
-	import NumberedList from '../../../components/NumberedList.svelte';
-	import TemplatedString from '../../../components/TemplatedString.svelte';
+	import FoldingElement from '../../../elements/FoldingElement.svelte';
+	import MoreList from '../../../elements/MoreList.svelte';
+	import NumberedList from '../../../elements/NumberedList.svelte';
+	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import { regenerateCriticalCss } from '../../../lib/stores/critical-css-state';
 	import { ErrorSet } from '../../../lib/stores/critical-css-state-errors';
 	import actionLinkTemplateVar from '../../../lib/utils/action-link-template-var';

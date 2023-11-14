@@ -5,8 +5,8 @@
 	import ReactComponent from '../../components/ReactComponent.svelte';
 	import Header from '../../components/sections/Header.svelte';
 	import Footer from '../../components/sections/Footer/Footer';
-	import { initializeConnection, getUpgradeURL } from '../../stores/connection';
-	import { recordBoostEvent } from '../../utils/analytics';
+	import { initializeConnection, getUpgradeURL } from '../../lib/stores/connection';
+	import { recordBoostEvent } from '../../lib/utils/analytics';
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let navigate, location;

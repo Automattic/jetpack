@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { TemplateVars } from '../utils/copy-dom-template';
+	import { TemplateVars } from '../lib/utils/copy-dom-template';
 	import TemplatedString from './TemplatedString.svelte';
 
 	/**

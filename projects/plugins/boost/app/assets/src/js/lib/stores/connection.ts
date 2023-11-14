@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import api from '../api/api';
+import api from '../lib/api/api';
 import { reloadModulesState } from './modules';
 
 export type ConnectionStatus = {

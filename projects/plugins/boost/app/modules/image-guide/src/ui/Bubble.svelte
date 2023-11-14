@@ -4,7 +4,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import Spinner from './Spinner.svelte';
 	import Checkmark from './assets/Checkmark.svelte';
-	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
+	import type { MeasurableImageStore } from '../lib/stores/MeasurableImageStore';
 
 	export let index: number;
 	export let store: MeasurableImageStore;

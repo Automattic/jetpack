@@ -4,9 +4,9 @@
 	import { PerformanceHistory } from '../../routes/index/PerformanceHistory/PerformanceHistory';
 	import ErrorNotice from '../../components/ErrorNotice.svelte';
 	import ReactComponent from '../../components/ReactComponent.svelte';
-	import { recordBoostEvent } from '../../utils/analytics';
-	import { castToString } from '../../utils/cast-to-string';
-	import routerHistory from '../../utils/router-history';
+	import { recordBoostEvent } from '../../lib/utils/analytics';
+	import { castToString } from '../../lib/utils/cast-to-string';
+	import routerHistory from '../../lib/utils/router-history';
 
 	export let isOpen: boolean;
 	export let needsUpgrade: boolean;

@@ -6,7 +6,7 @@
 	import JetpackLogo from './JetpackLogo.svelte';
 	import Portal from './Portal.svelte';
 	import External from './assets/External.svelte';
-	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
+	import type { MeasurableImageStore } from '../lib/stores/MeasurableImageStore';
 	import type { GuideSize } from '../types';
 
 	export let store: MeasurableImageStore;
@@ -106,7 +106,7 @@
 						{/if}
 					</div>
 				{:else}
-					{@const  stretchedBy = maybeDecimals( 1 / $oversizedRatio ) }
+					{@const ( stretchedBy = maybeDecimals( 1 / $oversizedRatio ) )}
 					<div class="explanation">
 						The image file is {stretchedBy}x smaller than expected on this screen. This might be
 						fine, but you may want to check if the image appears blurry.

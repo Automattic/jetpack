@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
 	import Button from '../../../../components/Button.svelte';
-	import { recordBoostEventAndRedirect } from '../../../../utils/analytics';
-	import { removeGetParams } from '../../../../utils/remove-get-params';
+	import { recordBoostEventAndRedirect } from '../../../../lib/utils/analytics';
+	import { removeGetParams } from '../../../../lib/utils/remove-get-params';
 	import Device from '../components/Device.svelte';
 	import Pill from '../components/Pill.svelte';
 	import RowTitle from '../components/RowTitle.svelte';

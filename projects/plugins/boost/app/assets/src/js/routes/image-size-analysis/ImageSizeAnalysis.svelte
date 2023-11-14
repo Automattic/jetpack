@@ -6,7 +6,7 @@
 	import ReactComponent from '../../components/ReactComponent.svelte';
 	import Header from '../../components/sections/Header.svelte';
 	import Footer from '../../components/sections/Footer/Footer';
-	import { modulesState } from '../../stores/modules';
+	import { modulesState } from '../../lib/stores/modules';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
 	import Tabs from './recommendations/Tabs.svelte';

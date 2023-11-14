@@ -2,7 +2,7 @@
 	import { __ } from '@wordpress/i18n';
 	import ProgressActivityLabel from '../../../components/ProgressActivityLabel.svelte';
 	import ProgressBar from '../../../components/ProgressBar.svelte';
-	import { CriticalCssState } from '../../../stores/critical-css-state-types';
+	import { CriticalCssState } from '../../../lib/stores/critical-css-state-types';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
 

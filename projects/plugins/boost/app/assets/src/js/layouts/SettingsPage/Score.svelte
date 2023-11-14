@@ -10,14 +10,14 @@
 	import ErrorNotice from '../../components/ErrorNotice.svelte';
 	import ReactComponent from '../../components/ReactComponent.svelte';
 	import ContextTooltip from './ContextTooltip/ContextTooltip';
-	import { performanceHistoryPanelDS } from '../../stores/data-sync-client';
-	import { dismissedAlerts } from '../../stores/dismissed-alerts';
-	import { modulesState } from '../../stores/modules';
-	import { dismissedScorePromptStore } from '../../stores/prompt';
+	import { performanceHistoryPanelDS } from '../../lib/stores/data-sync-client';
+	import { dismissedAlerts } from '../../lib/stores/dismissed-alerts';
+	import { modulesState } from '../../lib/stores/modules';
+	import { dismissedScorePromptStore } from '../../lib/stores/prompt';
 	import RefreshIcon from '../../svg/refresh.svg';
-	import { recordBoostEvent } from '../../utils/analytics';
-	import { castToString } from '../../utils/cast-to-string';
-	import debounce from '../../utils/debounce';
+	import { recordBoostEvent } from '../../lib/utils/analytics';
+	import { castToString } from '../../lib/utils/cast-to-string';
+	import debounce from '../../lib/utils/debounce';
 	import PopOut from '../../routes/index/components/PopOut.svelte';
 	import History from './History.svelte';
 

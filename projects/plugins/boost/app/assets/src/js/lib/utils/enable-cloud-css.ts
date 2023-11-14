@@ -1,4 +1,4 @@
-import { modulesState } from '../stores/modules';
+import { modulesState } from '../lib/stores/modules';
 
 export default function enableCloudCss() {
 	// Enable cloud css module on upgrade.

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { __, sprintf } from '@wordpress/i18n';
-	import Notice from '../../../components/Notice.svelte';
+	import Notice from '../../../elements/Notice.svelte';
 	import { superCacheNoticeDisabledClientStore } from '../../../lib/stores/notice';
 	import { measureSuperCacheSaving } from '../../../lib/utils/measure-super-cache-saving';
 	import { isSuperCachePluginActive, isSuperCacheEnabled } from '../../../lib/utils/super-cache';

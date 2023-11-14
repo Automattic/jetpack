@@ -1,6 +1,6 @@
 import { Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { suggestRegenerateDS, type RegenReason } from '../../../stores/data-sync-client';
+import { suggestRegenerateDS, type RegenReason } from '../../../lib/stores/data-sync-client';
 
 export const RegenerateCriticalCssSuggestion = ( { show, type } ) => {
 	if ( ! show ) {

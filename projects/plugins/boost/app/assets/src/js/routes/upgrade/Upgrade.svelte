@@ -5,10 +5,10 @@
 	import BackButton from '../../components/BackButton/BackButton';
 	import ReactComponent from '../../components/ReactComponent.svelte';
 	import Footer from '../../components/sections/Footer/Footer';
-	import { getUpgradeURL } from '../../stores/connection';
+	import { getUpgradeURL } from '../../lib/stores/connection';
 	import Logo from '../../svg/jetpack-green.svg';
 	import JetpackBoostLogo from '../../svg/logo.svg';
-	import { recordBoostEvent } from '../../utils/analytics';
+	import { recordBoostEvent } from '../../lib/utils/analytics';
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;

@@ -4,7 +4,7 @@
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import describeTimeAgo from '../utils/describe-time-ago';
+	import describeTimeAgo from '../lib/utils/describe-time-ago';
 
 	export let time: Date;
 

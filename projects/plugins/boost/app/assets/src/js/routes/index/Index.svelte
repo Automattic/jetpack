@@ -6,36 +6,36 @@
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
-	import { RegenerateCriticalCssSuggestion } from './index/RegenerateCriticalCssSuggestion/RegenerateCriticalCssSuggestion';
-	import MinifyMeta from '../components/MinifyMeta/MinifyMeta';
-	import Notice from '../components/Notice.svelte';
-	import ReactComponent from '../components/ReactComponent.svelte';
-	import TemplatedString from '../components/TemplatedString.svelte';
-	import CloudCssMeta from './index/components/CloudCssMeta.svelte';
-	import CriticalCssMeta from './index/components/CriticalCssMeta.svelte';
-	import ImageCdnQualitySettings from './index/components/ImageCdnQualitySettings.svelte';
-	import Module from './index/components/Module.svelte';
-	import PremiumTooltip from './index/components/PremiumTooltip.svelte';
-	import ResizingUnavailable from './index/components/ResizingUnavailable.svelte';
-	import SuperCacheInfo from './index/components/SuperCacheInfo.svelte';
-	import UpgradeCTA from './index/components/UpgradeCTA.svelte';
-	import config from '../lib/stores/config';
+	import { RegenerateCriticalCssSuggestion } from './RegenerateCriticalCssSuggestion/RegenerateCriticalCssSuggestion';
+	import MinifyMeta from '../../components/MinifyMeta/MinifyMeta';
+	import Notice from '../../elements/Notice.svelte';
+	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import TemplatedString from '../../elements/TemplatedString.svelte';
+	import CloudCssMeta from './elements/CloudCssMeta.svelte';
+	import CriticalCssMeta from './elements/CriticalCssMeta.svelte';
+	import ImageCdnQualitySettings from './elements/ImageCdnQualitySettings.svelte';
+	import Module from './elements/Module.svelte';
+	import PremiumTooltip from './elements/PremiumTooltip.svelte';
+	import ResizingUnavailable from './elements/ResizingUnavailable.svelte';
+	import SuperCacheInfo from './elements/SuperCacheInfo.svelte';
+	import UpgradeCTA from './elements/UpgradeCTA.svelte';
+	import config from '../../lib/stores/config';
 	import {
 		criticalCssState,
 		continueGeneratingLocalCriticalCss,
 		regenerateCriticalCss,
 		criticalCssProgress,
 		isFatalError,
-	} from '../lib/stores/critical-css-state';
-	import { criticalCssIssues, primaryErrorSet } from '../lib/stores/critical-css-state-errors';
-	import { suggestRegenerateDS } from '../lib/stores/data-sync-client';
-	import { imageCdnQuality } from '../lib/stores/image-cdn';
-	import { modulesState } from '../lib/stores/modules';
-	import { premiumFeatures } from '../lib/stores/premium-features';
-	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../lib/utils/cloud-css';
-	import externalLinkTemplateVar from '../lib/utils/external-link-template-var';
-	import { initializeIsaSummary, isaSummary } from './image-size-analysis/store/isa-summary';
-	import RecommendationsMeta from './image-size-analysis/RecommendationsMeta.svelte';
+	} from '../../lib/stores/critical-css-state';
+	import { criticalCssIssues, primaryErrorSet } from '../../lib/stores/critical-css-state-errors';
+	import { suggestRegenerateDS } from '../../lib/stores/data-sync-client';
+	import { imageCdnQuality } from '../../lib/stores/image-cdn';
+	import { modulesState } from '../../lib/stores/modules';
+	import { premiumFeatures } from '../../lib/stores/premium-features';
+	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../../lib/utils/cloud-css';
+	import externalLinkTemplateVar from '../../lib/utils/external-link-template-var';
+	import { initializeIsaSummary, isaSummary } from '../image-size-analysis/store/isa-summary';
+	import RecommendationsMeta from '../image-size-analysis/RecommendationsMeta.svelte';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );

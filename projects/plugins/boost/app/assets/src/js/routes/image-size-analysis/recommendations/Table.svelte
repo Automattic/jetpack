@@ -2,7 +2,7 @@
 	import { __ } from '@wordpress/i18n';
 	import Spinner from '../../../components/Spinner.svelte';
 	import TemplatedString from '../../../components/TemplatedString.svelte';
-	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
+	import actionLinkTemplateVar from '../../../lib/utils/action-link-template-var';
 	import { type ISA_Data } from '../store/isa-data';
 	import { ISAStatus, type ISASummary } from '../store/isa-summary';
 	import BrokenDataRow from './row-types/BrokenDataRow.svelte';

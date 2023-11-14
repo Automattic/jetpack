@@ -1,9 +1,9 @@
 import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { __ } from '@wordpress/i18n';
-import api from '../../../api/api';
-import { jetpack_boost_ds } from '../../../stores/data-sync-client';
-import { setPromiseInterval } from '../../../utils/set-promise-interval';
+import api from '../../../lib/api/api';
+import { jetpack_boost_ds } from '../../../lib/stores/data-sync-client';
+import { setPromiseInterval } from '../../../lib/utils/set-promise-interval';
 import { isaData } from './isa-data';
 
 /**
