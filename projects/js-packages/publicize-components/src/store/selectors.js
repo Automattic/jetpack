@@ -10,122 +10,6 @@ const ATTACHMENT_MESSAGE_PADDING = 24;
 const MAXIMUM_MESSAGE_LENGTH = 280 - ATTACHMENT_MESSAGE_PADDING - 1;
 
 /**
- * Returns the failed Publicize connections.
- *
- * @returns {Array} List of connections.
- */
-export function getFailedConnections() {
-	const connections = getConnections();
-	return connections.filter( connection => false === connection.test_success );
-}
-
-/**
- * Returns a list of Publicize connection service names that require reauthentication from users.
- * iFor example, when LinkedIn switched its API from v1 to v2.
- *
- * @returns {Array} List of service names that need reauthentication.
- */
-export function getMustReauthConnections() {
-	const connections = getConnections();
-	return connections
-		.filter( connection => 'must_reauth' === connection.test_success )
-		.map( connection => connection.service_name );
-}
-
-/**
- * Returns a template for linkedIn data, based on the first linkedin account found.
- *
- * @param {object} args - Arguments.
- * @param {boolean} args.forceDefaults - Whether to use default values.
- * @returns {object} The linkedin account data.
- */
-export function getLinkedInDetails( { forceDefaults = false } = {} ) {
-	if ( ! forceDefaults ) {
-		const connection = getConnections().find( ( { service_name } ) => 'linkedin' === service_name );
-
-		if ( connection ) {
-			return {
-				name: connection.display_name,
-				profileImage: connection.profile_picture,
-			};
-		}
-	}
-
-	return { name: '', profileImage: '' };
-}
-
-/**
- * Returns a template for nextdoor data, based on the first nextdoor account found.
- *
- * @param {object} args - Arguments.
- * @param {boolean} args.forceDefaults - Whether to use default values.
- * @returns {{name: string; profileImage: string}} The nextdoor account data.
- */
-export function getNextdoorDetails( { forceDefaults = false } = {} ) {
-	if ( ! forceDefaults ) {
-		const connection = getConnections().find( ( { service_name } ) => 'nextdoor' === service_name );
-
-		if ( connection ) {
-			return {
-				name: connection.display_name,
-				profileImage: connection.profile_picture,
-			};
-		}
-	}
-
-	return { name: '', profileImage: '' };
-}
-
-/**
- * Returns a template for Instagram data, based on the first Instagram account found.
- *
- * @returns {{name: string; profileImage: string}} The Instagram account data.
- */
-export function getInstagramDetails() {
-	const connection = getConnections().find(
-		( { service_name } ) => 'instagram-business' === service_name
-	);
-
-	if ( connection ) {
-		return {
-			name: connection.username,
-			profileImage: connection.profile_picture,
-		};
-	}
-
-	return {
-		name: 'username',
-		profileImage: '',
-	};
-}
-
-/**
- * Returns a template for tweet data, based on the first Twitter account found.
- *
- * @param {object} state - State object.
- * @returns {object} The Twitter account data.
- */
-export function getTweetTemplate( state ) {
-	/*
-	 * state.connections is not used anymore,
-	 * since they are stored into the post meta.
-	 * This is kept for backward compatibility,
-	 * especially for the selector tests.
-	 * it should be removed in the future.
-	 * Take a look at the getTweetstormHelper
-	 * helper for more details,
-	 */
-	const connections = state.connections || getConnections();
-	const twitterAccount = connections?.find( connection => 'twitter' === connection.service_name );
-
-	return {
-		name: twitterAccount?.profile_display_name,
-		profileImage: twitterAccount?.profile_picture,
-		screenName: twitterAccount?.display_name,
-	};
-}
-
-/**
  * Gets the message that will be used hen sharing this post.
  *
  * @returns {string} The share message.
@@ -149,15 +33,6 @@ export function getShareMessage() {
  */
 export function getShareMessageMaxLength() {
 	return MAXIMUM_MESSAGE_LENGTH;
-}
-/**
- * Return social media connections.
- * This selector consumes the post metadata like primary source data.
- *
- * @returns {Array} An array of fresh social media connections for the current post.
- */
-export function getConnections() {
-	return select( editorStore ).getEditedPostAttribute( 'jetpack_publicize_connections' ) || [];
 }
 
 /**

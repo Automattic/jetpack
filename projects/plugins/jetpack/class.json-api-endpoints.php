@@ -1456,7 +1456,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				/**
 				 * Allow customizing the blog ID returned with the author in WordPress.com REST API queries.
 				 *
-				 * @since $$next-version$$
+				 * @since 12.9
 				 *
 				 * @module json-api
 				 *

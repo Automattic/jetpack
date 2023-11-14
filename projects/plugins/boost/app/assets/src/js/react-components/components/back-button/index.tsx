@@ -1,9 +1,9 @@
 import { __ } from '@wordpress/i18n';
 import { navigate } from '../../../utils/navigate';
-import LeftArrow from '../../svg/left-arrow.svg';
+import LeftArrow from '../../svg/left-arrow';
 
 type BackButtonProps = {
-	route: string;
+	route?: string;
 };
 
 const BackButton: React.FC< BackButtonProps > = ( { route = '/' } ) => {

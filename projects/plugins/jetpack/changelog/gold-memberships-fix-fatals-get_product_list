@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-fix fatal from not checking get_product_list() result correctly.
