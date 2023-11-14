@@ -161,9 +161,5 @@
 	"optionalDependencies": {
 		"react": "18.2.0",
 		"react-dom": "18.2.0"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }
