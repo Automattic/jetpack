@@ -80,9 +80,9 @@ export function useSetTier() {
 
 function TierSelector() {
 	// TODO: figure out how to handle different currencies
-	const products = useSelect( select => select( membershipProductsStore ).getProducts() )
-		.filter( product => product.subscribe_as_site_subscriber && product.interval === '1 month' )
-		.sort( ( p1, p2 ) => Number( p2.price ) - Number( p1.price ) );
+	const products = useSelect( select =>
+		select( membershipProductsStore ).getNewsletterTierProducts()
+	).sort( ( p1, p2 ) => Number( p2.price ) - Number( p1.price ) );
 
 	// Find the current tier meta
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
@@ -189,7 +189,7 @@ export function NewsletterAccessRadioButtons( {
 export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading, foundPaywallBlock } = useSelect(
 		select => {
-			const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
+			const { getNewsletterTierProducts, getConnectUrl, isApiStateLoading } = select(
 				'jetpack/membership-products'
 			);
 			const { getBlocks } = select( 'core/block-editor' );
@@ -197,7 +197,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 			return {
 				isLoading: isApiStateLoading(),
 				stripeConnectUrl: getConnectUrl(),
-				hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
+				hasNewsletterPlans: getNewsletterTierProducts()?.length !== 0,
 				foundPaywallBlock: getBlocks().find( block => block.name === paywallBlockMetadata.name ),
 			};
 		}
@@ -287,7 +287,7 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 	const { isLoading, postHasPaywallBlock, newsletterCategories, newsletterCategoriesEnabled } =
 		useSelect( select => {
 			const {
-				getNewsletterProducts,
+				getNewsletterTierProducts,
 				getConnectUrl,
 				isApiStateLoading,
 				getNewsletterCategories,
@@ -298,7 +298,7 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 			return {
 				isLoading: isApiStateLoading(),
 				stripeConnectUrl: getConnectUrl(),
-				hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
+				hasNewsletterPlans: getNewsletterTierProducts()?.length !== 0,
 				postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockMetadata.name ),
 				newsletterCategories: getNewsletterCategories(),
 				newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),

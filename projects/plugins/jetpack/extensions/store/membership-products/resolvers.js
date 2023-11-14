@@ -151,7 +151,7 @@ const setDefaultProductIfNeeded = ( selectedProductId, setSelectedProductId, sel
 	}
 };
 
-export const getNewsletterProducts = (
+export const getNewsletterTierProducts = (
 	productType = PRODUCT_TYPE_PAYMENT_PLAN,
 	selectedProductId = 0,
 	setSelectedProductId = () => {}
