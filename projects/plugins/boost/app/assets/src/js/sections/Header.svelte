@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { useNavigate } from 'svelte-navigator';
-	import BackButton from '../components/back-button';
+	import BackButton from '../components/BackButton';
 	import ReactComponent from '../elements/ReactComponent.svelte';
 	import ChevronRight from '../svg/chevron-right.svg';
 	import Logo from '../svg/logo.svg';
