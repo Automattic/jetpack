@@ -11,14 +11,14 @@
 	import Notice from '../components/Notice.svelte';
 	import ReactComponent from '../components/ReactComponent.svelte';
 	import TemplatedString from '../components/TemplatedString.svelte';
-	import CloudCssMeta from '../pages/settings/components/CloudCssMeta.svelte';
-	import CriticalCssMeta from '../pages/settings/components/CriticalCssMeta.svelte';
-	import ImageCdnQualitySettings from '../pages/settings/components/ImageCdnQualitySettings.svelte';
-	import Module from '../pages/settings/components/Module.svelte';
-	import PremiumTooltip from '../pages/settings/components/PremiumTooltip.svelte';
-	import ResizingUnavailable from '../pages/settings/components/ResizingUnavailable.svelte';
-	import SuperCacheInfo from '../pages/settings/components/SuperCacheInfo.svelte';
-	import UpgradeCTA from '../pages/settings/components/UpgradeCTA.svelte';
+	import CloudCssMeta from './index/components/CloudCssMeta.svelte';
+	import CriticalCssMeta from './index/components/CriticalCssMeta.svelte';
+	import ImageCdnQualitySettings from './index/components/ImageCdnQualitySettings.svelte';
+	import Module from './index/components/Module.svelte';
+	import PremiumTooltip from './index/components/PremiumTooltip.svelte';
+	import ResizingUnavailable from './index/components/ResizingUnavailable.svelte';
+	import SuperCacheInfo from './index/components/SuperCacheInfo.svelte';
+	import UpgradeCTA from './index/components/UpgradeCTA.svelte';
 	import config from '../stores/config';
 	import {
 		criticalCssState,

@@ -18,7 +18,7 @@
 	import { recordBoostEvent } from '../../utils/analytics';
 	import { castToString } from '../../utils/cast-to-string';
 	import debounce from '../../utils/debounce';
-	import PopOut from '../../pages/settings/components/PopOut.svelte';
+	import PopOut from '../../routes/index/components/PopOut.svelte';
 	import History from './History.svelte';
 
 	// @todo - move score-context markup/styles here, as it's not used anywhere else.
