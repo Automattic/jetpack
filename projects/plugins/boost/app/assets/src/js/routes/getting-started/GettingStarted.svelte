@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Snackbar } from '@wordpress/components';
-	import { BoostPricingTable } from '../../BoostPricingTable/BoostPricingTable';
+	import { BoostPricingTable } from './BoostPricingTable/BoostPricingTable';
 	import ActivateLicense from '../../components/ActivateLicense/ActivateLicense';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import Header from '../../sections/Header.svelte';

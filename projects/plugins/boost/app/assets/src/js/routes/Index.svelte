@@ -6,7 +6,7 @@
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
-	import { RegenerateCriticalCssSuggestion } from '../RegenerateCriticalCssSuggestion/RegenerateCriticalCssSuggestion';
+	import { RegenerateCriticalCssSuggestion } from './index/RegenerateCriticalCssSuggestion/RegenerateCriticalCssSuggestion';
 	import MinifyMeta from '../components/MinifyMeta/MinifyMeta';
 	import Notice from '../elements/Notice.svelte';
 	import ReactComponent from '../elements/ReactComponent.svelte';
