@@ -29,8 +29,14 @@
 		"typescript": "5.0.4"
 	},
 	"exports": {
-		".": "./index.ts"
+		".": {
+			"jetpack:src": "./src/index.ts",
+			"types": "./build/index.d.ts",
+			"default": "./build/index.js"
+		}
 	},
+	"main": "./build/index.js",
+	"types": "./build/index.d.ts",
 	"dependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
