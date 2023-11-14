@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { sprintf, __ } from '@wordpress/i18n';
-	import OtherGroupContext from '../../components/IsaOtherGroupContext/IsaOtherGroupContext';
 	import ConditionalLink from '../../components/ConditionalLink.svelte';
 	import ProgressBar from '../../components/ProgressBar.svelte';
 	import ReactComponent from '../../components/ReactComponent.svelte';
 	import Spinner from '../../components/Spinner.svelte';
 	import WarningIcon from '../../svg/warning-outline.svg';
+	import OtherGroupContext from './OtherGroupContext/OtherGroupContext';
 	import { isaGroupLabel } from './store/isa-summary';
 
 	// @todo - move other-group-context markup/styles here, as it's not used anywhere else.
