@@ -6,9 +6,9 @@
 	import { onDestroy } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { __ } from '@wordpress/i18n';
-	import ErrorNotice from '../../../components/ErrorNotice.svelte';
-	import FoldingElement from '../../../components/FoldingElement.svelte';
-	import { CriticalCssState } from '../../../lib/stores/critical-css-state-types';
+	import ErrorNotice from '../../components/ErrorNotice.svelte';
+	import FoldingElement from '../../components/FoldingElement.svelte';
+	import { CriticalCssState } from '../../lib/stores/critical-css-state-types';
 	import CriticalCssErrorDescription from './CriticalCssErrorDescription.svelte';
 
 	export let supportLink = 'https://wordpress.org/support/plugin/jetpack-boost/';

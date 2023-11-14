@@ -1,6 +1,6 @@
 <script lang="ts">
-	import PencilIcon from '../../../../../static/images/pencil.svg';
-	import CloseIcon from '../../../svg/close.svg';
+	import PencilIcon from '../../../../static/images/pencil.svg';
+	import CloseIcon from '../../svg/close.svg';
 
 	export let editText: string;
 	export let closeEditText: string;
@@ -38,7 +38,7 @@
 </div>
 
 <style lang="scss">
-	@use '../../../../css/main/variables.scss' as *;
+	@use '../../../css/main/variables.scss' as *;
 
 	.jb-collapsible-meta {
 		margin-top: 2em;

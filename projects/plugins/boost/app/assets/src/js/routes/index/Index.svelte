@@ -3,7 +3,6 @@
 </script>
 
 <script lang="ts">
-	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
 	import { RegenerateCriticalCssSuggestion } from './RegenerateCriticalCssSuggestion/RegenerateCriticalCssSuggestion';
@@ -11,14 +10,14 @@
 	import Notice from '../../components/Notice.svelte';
 	import ReactComponent from '../../components/ReactComponent.svelte';
 	import TemplatedString from '../../components/TemplatedString.svelte';
-	import CloudCssMeta from './components/CloudCssMeta.svelte';
-	import CriticalCssMeta from './components/CriticalCssMeta.svelte';
-	import ImageCdnQualitySettings from './components/ImageCdnQualitySettings.svelte';
-	import Module from './components/Module.svelte';
-	import PremiumTooltip from './components/PremiumTooltip.svelte';
-	import ResizingUnavailable from './components/ResizingUnavailable.svelte';
-	import SuperCacheInfo from './components/SuperCacheInfo.svelte';
-	import UpgradeCTA from './components/UpgradeCTA.svelte';
+	import CloudCssMeta from './CloudCssMeta.svelte';
+	import CriticalCssMeta from './CriticalCssMeta.svelte';
+	import ImageCdnQualitySettings from './ImageCdnQualitySettings.svelte';
+	import Module from './Module.svelte';
+	import PremiumTooltip from './PremiumTooltip.svelte';
+	import ResizingUnavailable from './ResizingUnavailable.svelte';
+	import SuperCacheInfo from './SuperCacheInfo.svelte';
+	import UpgradeCTA from './UpgradeCTA.svelte';
 	import config from '../../lib/stores/config';
 	import {
 		criticalCssState,
@@ -36,6 +35,7 @@
 	import externalLinkTemplateVar from '../../lib/utils/external-link-template-var';
 	import { initializeIsaSummary, isaSummary } from '../image-size-analysis/store/isa-summary';
 	import RecommendationsMeta from '../image-size-analysis/RecommendationsMeta.svelte';
+	import { getRedirectUrl } from '@automattic/jetpack-components';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );

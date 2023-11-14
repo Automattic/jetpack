@@ -4,7 +4,7 @@
 	import BackButton from '../../components/BackButton/BackButton';
 	import CloseButton from '../../components/CloseButton.svelte';
 	import ReactComponent from '../../components/ReactComponent.svelte';
-	import CriticalCssErrorDescription from '../index/components/CriticalCssErrorDescription.svelte';
+	import CriticalCssErrorDescription from '../index/CriticalCssErrorDescription.svelte';
 	import { replaceCssState, updateProvider } from '../../lib/stores/critical-css-state';
 	import { groupErrorsByFrequency } from '../../lib/stores/critical-css-state-errors';
 	import { type Provider } from '../../lib/stores/critical-css-state-types';

@@ -7,21 +7,21 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
 	import { __ } from '@wordpress/i18n';
-	import FoldingElement from '../../../components/FoldingElement.svelte';
-	import MoreList from '../../../components/MoreList.svelte';
-	import NumberedList from '../../../components/NumberedList.svelte';
-	import TemplatedString from '../../../components/TemplatedString.svelte';
-	import { regenerateCriticalCss } from '../../../lib/stores/critical-css-state';
-	import { ErrorSet } from '../../../lib/stores/critical-css-state-errors';
-	import actionLinkTemplateVar from '../../../lib/utils/action-link-template-var';
-	import { TemplateVars } from '../../../lib/utils/copy-dom-template';
+	import FoldingElement from '../../components/FoldingElement.svelte';
+	import MoreList from '../../components/MoreList.svelte';
+	import NumberedList from '../../components/NumberedList.svelte';
+	import TemplatedString from '../../components/TemplatedString.svelte';
+	import { regenerateCriticalCss } from '../../lib/stores/critical-css-state';
+	import { ErrorSet } from '../../lib/stores/critical-css-state-errors';
+	import actionLinkTemplateVar from '../../lib/utils/action-link-template-var';
+	import { TemplateVars } from '../../lib/utils/copy-dom-template';
 	import {
 		describeErrorSet,
 		suggestion,
 		footerComponent,
 		rawError,
-	} from '../../../lib/utils/describe-critical-css-recommendations';
-	import supportLinkTemplateVar from '../../../lib/utils/support-link-template-var';
+	} from '../../lib/utils/describe-critical-css-recommendations';
+	import supportLinkTemplateVar from '../../lib/utils/support-link-template-var';
 
 	export let showSuggestion = true;
 	export let foldRawErrors = true;
