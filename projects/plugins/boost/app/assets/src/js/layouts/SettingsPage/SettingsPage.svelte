@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Score from './Score.svelte';
 	import Tips from './Tips.svelte';
-	import Footer from '../../sections/footer';
+	import Footer from '../../sections/Footer/Footer';
 	import Header from '../../sections/Header.svelte';
 	import Support from '../../sections/support';
 	import { hasPrioritySupport } from '../../utils/paid-plan';

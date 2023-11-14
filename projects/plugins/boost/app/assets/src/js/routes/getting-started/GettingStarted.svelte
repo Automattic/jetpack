@@ -4,7 +4,7 @@
 	import ActivateLicense from '../../components/ActivateLicense/ActivateLicense';
 	import ReactComponent from '../../components/ReactComponent.svelte';
 	import Header from '../../sections/Header.svelte';
-	import Footer from '../../sections/footer';
+	import Footer from '../../sections/Footer/Footer';
 	import { initializeConnection, getUpgradeURL } from '../../stores/connection';
 	import { recordBoostEvent } from '../../utils/analytics';
 

@@ -5,7 +5,7 @@
 	import { Hero } from '../../components/IsaHero/IsaHero';
 	import ReactComponent from '../../components/ReactComponent.svelte';
 	import Header from '../../sections/Header.svelte';
-	import Footer from '../../sections/footer';
+	import Footer from '../../sections/Footer/Footer';
 	import { modulesState } from '../../stores/modules';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
