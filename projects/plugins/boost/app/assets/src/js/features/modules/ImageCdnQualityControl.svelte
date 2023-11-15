@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
-	import NumberSlider from '$features/NumberSlider.svelte';
+	import ReactComponent from '$features/ReactComponent.svelte';
+	import { NumberSlider } from '@automattic/jetpack-components';
 
 	export let label: string;
 
@@ -18,7 +19,13 @@
 		{label}
 	</div>
 	<div class="jb-image-cdn-quality-control__slider" class:disabled={config.lossless}>
-		<NumberSlider bind:currentValue={config.quality} {minValue} {maxValue} />
+		<ReactComponent
+			this={NumberSlider}
+			value={config.quality}
+			{minValue}
+			{maxValue}
+			onAfterChange={newValue => ( config.quality = newValue )}
+		/>
 	</div>
 	<label class="jb-image-cdn-quality-control__lossless">
 		<input type="checkbox" bind:checked={config.lossless} />
