@@ -317,7 +317,7 @@ function wpsc_is_boost_installed() {
 	$plugins = array_keys( get_plugins() );
 
 	foreach ( $plugins as $plugin ) {
-		if ( false !== strpos( $plugin, 'jetpack-boost.php' ) ) {
+		if ( str_contains( $plugin, 'jetpack-boost.php' ) ) {
 			return true;
 		}
 	}
@@ -603,8 +603,8 @@ function wp_cache_manager_error_checks() {
 		echo '<div class="notice notice-warning"><h4>' . __( 'Mobile rewrite rules detected', 'wp-super-cache' ) . "</h4>";
 		echo "<p>" . __( 'For best performance you should enable "Mobile device support" or delete the mobile rewrite rules in your .htaccess. Look for the 2 lines with the text "2.0\ MMP|240x320" and delete those.', 'wp-super-cache' ) . "</p><p>" . __( 'This will have no affect on ordinary users but mobile users will see uncached pages.', 'wp-super-cache' ) . "</p></div>";
 	} elseif ( $wp_cache_mod_rewrite && $cache_enabled && $wp_cache_mobile_enabled && $scrules != '' && (
-		( '' != $wp_cache_mobile_prefixes && false === strpos( $scrules, addcslashes( str_replace( ', ', '|', $wp_cache_mobile_prefixes ), ' ' ) ) ) ||
-		( '' != $wp_cache_mobile_browsers && false === strpos( $scrules, addcslashes( str_replace( ', ', '|', $wp_cache_mobile_browsers ), ' ' ) ) ) )
+		( '' != $wp_cache_mobile_prefixes && ! str_contains( $scrules, addcslashes( str_replace( ', ', '|', $wp_cache_mobile_prefixes ), ' ' ) ) ) ||
+		( '' != $wp_cache_mobile_browsers && ! str_contains( $scrules, addcslashes( str_replace( ', ', '|', $wp_cache_mobile_browsers ), ' ' ) ) ) )
 		) {
 		?>
 			<div class="notice notice-warning"><h4><?php _e( 'Rewrite rules must be updated', 'wp-super-cache' ); ?></h4>
@@ -2158,7 +2158,7 @@ function wp_cache_verify_config_file() {
 
 	if ( file_exists($wp_cache_config_file) ) {
 		$lines = implode( ' ', file( $wp_cache_config_file ) );
-		if( strpos( $lines, 'WPCACHEHOME' ) === false ) {
+		if( ! str_contains( $lines, 'WPCACHEHOME' ) ) {
 			if( is_writeable_ACLSafe( $wp_cache_config_file ) ) {
 				@unlink( $wp_cache_config_file );
 			} else {
@@ -2460,7 +2460,7 @@ function wp_cache_files() {
 			}
 		}
 		while( false !== ( $file = readdir( $handle ) ) ) {
-			if ( strpos( $file, $file_prefix ) !== false && substr( $file, -4 ) == '.php' ) {
+			if ( str_contains( $file, $file_prefix ) && substr( $file, -4 ) == '.php' ) {
 				if ( false == file_exists( $blog_cache_dir . 'meta/' . $file ) ) {
 					@unlink( $blog_cache_dir . $file );
 					continue; // meta does not exist
@@ -2743,7 +2743,7 @@ function wp_cache_clean_legacy_files( $dir, $file_prefix ) {
 				continue;
 			}
 
-			if ( strpos( $file, $file_prefix ) !== false ) {
+			if ( str_contains( $file, $file_prefix ) ) {
 				if ( strpos( $file, '.html' ) ) {
 					// delete old WPCache files immediately
 					@unlink( $dir . $file);
@@ -2786,7 +2786,7 @@ function wp_cache_clean_expired($file_prefix) {
 	$now = time();
 	if ( $handle = @opendir( $blog_cache_dir ) ) {
 		while ( false !== ( $file = readdir( $handle ) ) ) {
-			if ( strpos( $file, $file_prefix ) !== false ) {
+			if ( str_contains( $file, $file_prefix ) ) {
 				if ( strpos( $file, '.html' ) ) {
 					@unlink( $blog_cache_dir . $file);
 					@unlink( $blog_cache_dir . 'meta/' . str_replace( '.html', '.meta', $file ) );
@@ -2915,7 +2915,7 @@ function wp_cache_check_site() {
 		}
 
 		// Check for broken front page
-		if ( isset( $wp_super_cache_front_page_text ) && $wp_super_cache_front_page_text != '' && false === strpos( $front_page[ 'body' ], $wp_super_cache_front_page_text ) ) {
+		if ( isset( $wp_super_cache_front_page_text ) && $wp_super_cache_front_page_text != '' && ! str_contains( $front_page[ 'body' ], $wp_super_cache_front_page_text ) ) {
 			if ( !isset( $wp_super_cache_front_page_clear ) || ( isset( $wp_super_cache_front_page_clear ) && $wp_super_cache_front_page_clear == 0 ) ) {
 				wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is not correct! Please clear cache!', 'wp-super-cache' ), home_url() ), sprintf( __( 'Please visit %1$s to clear the cache as the front page of your site is not correct and missing the text, "%2$s"!', 'wp-super-cache' ), admin_url( 'options-general.php?page=wpsupercache' ), $wp_super_cache_front_page_text ) );
 			} else {

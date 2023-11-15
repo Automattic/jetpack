@@ -115,7 +115,7 @@ class Test_Helpers extends TestCase {
 		if ( method_exists( 'self', 'assertStringContainsString' ) ) {
 			self::assertStringContainsString( $needle, $haystack, $message );
 		} else {
-			self::assertTrue( strpos( $haystack, $needle ) !== false, $message );
+			self::assertTrue( str_contains( $haystack, $needle ), $message );
 		}
 	}
 
@@ -130,7 +130,7 @@ class Test_Helpers extends TestCase {
 		if ( method_exists( 'self', 'assertStringNotContainsString' ) ) {
 			self::assertStringNotContainsString( $needle, $haystack, $message );
 		} else {
-			self::assertTrue( strpos( $haystack, $needle ) === false, $message );
+			self::assertTrue( ! str_contains( $haystack, $needle ), $message );
 		}
 	}
 

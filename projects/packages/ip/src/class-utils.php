@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\IP;
  */
 class Utils {
 
-	const PACKAGE_VERSION = '0.1.6';
+	const PACKAGE_VERSION = '0.1.7-alpha';
 
 	/**
 	 * Get the current user's IP address.
@@ -92,7 +92,7 @@ class Utils {
 	 */
 	public static function ip_is_private( $ip ) {
 		// We are dealing with ipv6, so we can simply rely on filter_var.
-		if ( false === strpos( $ip, '.' ) ) {
+		if ( ! str_contains( $ip, '.' ) ) {
 			return ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
 		}
 		// We are dealing with ipv4.

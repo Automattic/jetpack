@@ -31,7 +31,7 @@ foreach ( $regex as $path_to_file => $value ) {
 	$path_from_repo_root = str_replace( $jetpack_path, '', $path_to_file );
 
 	// Ignore top-level files.
-	if ( false === strpos( $path_from_repo_root, '/' ) ) {
+	if ( ! str_contains( $path_from_repo_root, '/' ) ) {
 		continue;
 	}
 

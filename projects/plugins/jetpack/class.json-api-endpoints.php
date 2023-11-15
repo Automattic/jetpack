@@ -583,7 +583,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$return[ $key ] = false;
 				break;
 			case 'url':
-				if ( is_object( $value ) && isset( $value->url ) && false !== strpos( $value->url, 'https://videos.files.wordpress.com/' ) ) {
+				if ( is_object( $value ) && isset( $value->url ) && str_contains( $value->url, 'https://videos.files.wordpress.com/' ) ) {
 					$value = $value->url;
 				}
 				// Check for string since esc_url_raw() expects one.
@@ -995,7 +995,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'>' => 'subtype',
 				'=' => 'default',
 			) as $operator => $meaning ) {
-				if ( false !== strpos( $type, $operator ) ) {
+				if ( str_contains( $type, $operator ) ) {
 					$item     = explode( $operator, $type, 2 );
 					$return[] = array(
 						'type'   => $item[0],
@@ -2485,7 +2485,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		if ( ! empty( $video_exts ) ) {
 			foreach ( $video_exts as $ext ) {
 				foreach ( $mime_list as $ext_pattern => $mime ) {
-					if ( '' !== $ext && strpos( $ext_pattern, $ext ) !== false ) {
+					if ( '' !== $ext && str_contains( $ext_pattern, $ext ) ) {
 						$video_mimes[ $ext_pattern ] = $mime;
 					}
 				}

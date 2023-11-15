@@ -351,7 +351,7 @@ class Google_Fonts_Provider extends \WP_Webfonts_Provider {
 		$font_weights = trim( $font_weights );
 
 		// A single font-weight.
-		if ( false === strpos( $font_weights, ' ' ) ) {
+		if ( ! str_contains( $font_weights, ' ' ) ) {
 			return array( $font_weights );
 		}
 

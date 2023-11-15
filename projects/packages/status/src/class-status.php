@@ -167,7 +167,7 @@ class Status {
 		$site_url = site_url();
 
 		// Check for localhost and sites using an IP only first.
-		$is_local = $site_url && false === strpos( $site_url, '.' );
+		$is_local = $site_url && ! str_contains( $site_url, '.' );
 
 		// Use Core's environment check, if available.
 		if ( 'local' === wp_get_environment_type() ) {

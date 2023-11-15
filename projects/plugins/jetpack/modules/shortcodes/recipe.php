@@ -493,7 +493,7 @@ class Jetpack_Recipes {
 		if (
 			strpos( $content, '&#8211;' ) !== false ||
 			strpos( $content, '&#8212;' ) !== false ||
-			strpos( $content, '-' ) !== false ||
+			str_contains( $content, '-' ) ||
 			strpos( $content, '*' ) !== false ||
 			strpos( $content, '#' ) !== false ||
 			strpos( $content, '–' ) !== false || // ndash.

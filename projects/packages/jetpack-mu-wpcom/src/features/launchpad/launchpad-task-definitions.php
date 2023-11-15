@@ -1508,7 +1508,7 @@ function wpcom_launchpad_find_site_about_page_id() {
 				return false;
 			}
 
-			if ( 'about' === $page['post_name'] || false !== strpos( $page['post_title'], 'About' ) ) {
+			if ( 'about' === $page['post_name'] || str_contains( $page['post_title'], 'About' ) ) {
 				return true;
 			}
 		}

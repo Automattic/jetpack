@@ -255,7 +255,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 		return $url;
 	}
 
-	if ( false === strpos( $url, '?' ) ) {
+	if ( ! str_contains( $url, '?' ) ) {
 		$q = '';
 	} else {
 		list( $url, $q ) = explode( '?', $url, 2 );

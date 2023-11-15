@@ -403,10 +403,10 @@ class ManagerTest extends TestCase {
 		$access_token->secret = 'abcd.1234';
 
 		$signed_token = ( new Tokens() )->get_signed_token( $access_token );
-		$this->assertTrue( strpos( $signed_token, 'token' ) !== false );
-		$this->assertTrue( strpos( $signed_token, 'timestamp' ) !== false );
-		$this->assertTrue( strpos( $signed_token, 'nonce' ) !== false );
-		$this->assertTrue( strpos( $signed_token, 'signature' ) !== false );
+		$this->assertTrue( str_contains( $signed_token, 'token' ) );
+		$this->assertTrue( str_contains( $signed_token, 'timestamp' ) );
+		$this->assertTrue( str_contains( $signed_token, 'nonce' ) );
+		$this->assertTrue( str_contains( $signed_token, 'signature' ) );
 	}
 
 	/**

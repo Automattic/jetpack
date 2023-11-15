@@ -335,7 +335,7 @@ class Partner_Coupon {
 	 * @return array|bool
 	 */
 	private function get_coupon_partner( $coupon_code ) {
-		if ( ! is_string( $coupon_code ) || false === strpos( $coupon_code, '_' ) ) {
+		if ( ! is_string( $coupon_code ) || ! str_contains( $coupon_code, '_' ) ) {
 			return false;
 		}
 

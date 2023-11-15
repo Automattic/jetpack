@@ -192,10 +192,10 @@ class TokensTest extends TestCase {
 		$access_token->secret = 'abcd.1234';
 
 		$signed_token = ( new Tokens() )->get_signed_token( $access_token );
-		$this->assertTrue( strpos( $signed_token, 'token' ) !== false );
-		$this->assertTrue( strpos( $signed_token, 'timestamp' ) !== false );
-		$this->assertTrue( strpos( $signed_token, 'nonce' ) !== false );
-		$this->assertTrue( strpos( $signed_token, 'signature' ) !== false );
+		$this->assertTrue( str_contains( $signed_token, 'token' ) );
+		$this->assertTrue( str_contains( $signed_token, 'timestamp' ) );
+		$this->assertTrue( str_contains( $signed_token, 'nonce' ) );
+		$this->assertTrue( str_contains( $signed_token, 'signature' ) );
 	}
 
 	/**
@@ -208,7 +208,7 @@ class TokensTest extends TestCase {
 	 * @return array
 	 */
 	public function intercept_jetpack_token_health_request_failed( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 
@@ -232,7 +232,7 @@ class TokensTest extends TestCase {
 	 * @return array
 	 */
 	public function intercept_jetpack_token_health_request_success( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 

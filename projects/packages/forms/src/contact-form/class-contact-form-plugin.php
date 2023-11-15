@@ -1468,7 +1468,7 @@ class Contact_Form_Plugin {
 		 * Limits search to `post_content` only, and we only match the
 		 * author's email address whenever it's on a line by itself.
 		 */
-		if ( $this->pde_email_address && false !== strpos( $search, '..PDE..AUTHOR EMAIL:..PDE..' ) ) {
+		if ( $this->pde_email_address && str_contains( $search, '..PDE..AUTHOR EMAIL:..PDE..' ) ) {
 			$search = $wpdb->prepare(
 				" AND (
 					{$wpdb->posts}.post_content LIKE %s
@@ -2011,7 +2011,7 @@ class Contact_Form_Plugin {
 
 		if ( count( $content ) > 1 ) {
 			$content = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
-			if ( strpos( $content, 'JSON_DATA' ) !== false ) {
+			if ( str_contains( $content, 'JSON_DATA' ) ) {
 				$chunks     = explode( "\nJSON_DATA", $content );
 				$all_values = json_decode( $chunks[1], true );
 				if ( is_array( $all_values ) ) {

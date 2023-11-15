@@ -483,10 +483,10 @@ class Instant_Search extends Classic_Search {
 			$widget_blocks = get_option( 'widget_block', array() );
 			$widget_index  = str_replace( 'block-', '', $widget_id );
 			// A single block could be of type string or array.
-			if ( isset( $widget_blocks[ $widget_index ]['content'] ) && false !== strpos( (string) $widget_blocks[ $widget_index ]['content'], 'wp:search' ) ) {
+			if ( isset( $widget_blocks[ $widget_index ]['content'] ) && str_contains( (string) $widget_blocks[ $widget_index ]['content'], 'wp:search' ) ) {
 				return true;
 			}
-			if ( isset( $widget_blocks[ $widget_index ] ) && is_string( $widget_blocks[ $widget_index ] ) && false !== strpos( $widget_blocks[ $widget_index ], 'wp:search' ) ) {
+			if ( isset( $widget_blocks[ $widget_index ] ) && is_string( $widget_blocks[ $widget_index ] ) && str_contains( $widget_blocks[ $widget_index ], 'wp:search' ) ) {
 				return true;
 			}
 		}
