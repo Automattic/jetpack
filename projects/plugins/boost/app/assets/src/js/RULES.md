@@ -1,5 +1,7 @@
 
 ## Kebab Case
+In Svelte, files were named using Pascal case.
+
 As we migrate to React, we should migrate to Kebab case both in filenames and path names. Careful with case-sensitivity and committing to git.
 
 
