@@ -5,7 +5,7 @@
 	import ConditionalLink from '$features/image-size-analysis/ConditionalLink.svelte';
 	import ProgressBar from '$features/ui/ProgressBar.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
-	import Spinner from '$features/Spinner.svelte';
+	import Spinner from '$features/ui/Spinner.svelte';
 	import WarningIcon from '$svg/warning-outline.svg';
 
 	// @todo - move other-group-context markup/styles here, as it's not used anywhere else.
