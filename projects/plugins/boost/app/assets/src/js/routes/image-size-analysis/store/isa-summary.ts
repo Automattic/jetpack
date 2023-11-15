@@ -1,10 +1,10 @@
-import api from '@lib/api/api';
-import { jetpack_boost_ds } from '@lib/stores/data-sync-client';
-import { setPromiseInterval } from '@lib/utils/set-promise-interval';
 import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { __ } from '@wordpress/i18n';
 import { isaData } from './isa-data';
+import api from '$lib/api/api';
+import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
+import { setPromiseInterval } from '$lib/utils/set-promise-interval';
 
 /**
  * Valid values for the status field.

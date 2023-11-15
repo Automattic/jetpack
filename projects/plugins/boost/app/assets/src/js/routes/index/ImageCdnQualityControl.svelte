@@ -1,6 +1,6 @@
 <script lang="ts">
-	import NumberSlider from '@components/NumberSlider.svelte';
 	import { __ } from '@wordpress/i18n';
+	import NumberSlider from '$components/NumberSlider.svelte';
 
 	export let label: string;
 

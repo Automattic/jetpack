@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { CriticalCssState } from '@lib/stores/critical-css-state-types';
 	import { __ } from '@wordpress/i18n';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
+	import { CriticalCssState } from '$lib/stores/critical-css-state-types';
 
 	export let cssState: CriticalCssState;
 	export let isCloudCssAvailable: boolean;

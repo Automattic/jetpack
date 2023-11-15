@@ -1,8 +1,4 @@
 <script lang="ts">
-	import ReactComponent from '@components/ReactComponent.svelte';
-	import Footer from '@components/sections/Footer/Footer';
-	import Header from '@components/sections/Header/Header';
-	import { modulesState } from '@lib/stores/modules';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
@@ -19,6 +15,10 @@
 		totalIssueCount,
 		isaSummary,
 	} from './store/isa-summary';
+	import ReactComponent from '$components/ReactComponent.svelte';
+	import Footer from '$components/sections/Footer/Footer';
+	import Header from '$components/sections/Header/Header';
+	import { modulesState } from '$lib/stores/modules';
 
 	initializeIsaData();
 

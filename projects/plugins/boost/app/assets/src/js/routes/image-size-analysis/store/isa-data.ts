@@ -1,8 +1,8 @@
-import { jetpack_boost_ds } from '@lib/stores/data-sync-client';
 import { derived } from 'svelte/store';
 import { useParams } from 'svelte-navigator';
 import { z } from 'zod';
 import { ImageData, ImageSizeAnalysis, emptyImageSizeAnalysisData } from './zod-types';
+import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
 
 /**
  * Initialize the stores

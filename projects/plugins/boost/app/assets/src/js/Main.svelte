@@ -1,12 +1,4 @@
 <script lang="ts">
-	import config from '@lib/stores/config';
-	import { connection } from '@lib/stores/connection';
-	import { criticalCssIssues } from '@lib/stores/critical-css-state-errors';
-	import { modulesState } from '@lib/stores/modules';
-	import { recordBoostEvent } from '@lib/utils/analytics';
-	import debounce from '@lib/utils/debounce';
-	import { Route, Router } from '@lib/utils/router';
-	import routerHistory from '@lib/utils/router-history';
 	import ReactComponent from './components/ReactComponent.svelte';
 	import Redirect from './components/Redirect.svelte';
 	import SettingsPage from './layouts/SettingsPage/SettingsPage.svelte';
@@ -16,6 +8,14 @@
 	import Index from './routes/index/Index.svelte';
 	import PurchaseSuccess from './routes/purchase-success/PurchaseSuccess';
 	import Upgrade from './routes/upgrade/Upgrade.svelte';
+	import config from '$lib/stores/config';
+	import { connection } from '$lib/stores/connection';
+	import { criticalCssIssues } from '$lib/stores/critical-css-state-errors';
+	import { modulesState } from '$lib/stores/modules';
+	import { recordBoostEvent } from '$lib/utils/analytics';
+	import debounce from '$lib/utils/debounce';
+	import { Route, Router } from '$lib/utils/router';
+	import routerHistory from '$lib/utils/router-history';
 
 	routerHistory.listen(
 		debounce( history => {

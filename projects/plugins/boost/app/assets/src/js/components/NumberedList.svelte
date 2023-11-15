@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { TemplateVars } from '@lib/utils/copy-dom-template';
 	import TemplatedString from './TemplatedString.svelte';
+	import { TemplateVars } from '$lib/utils/copy-dom-template';
 
 	/**
 	 * List of string items to include in the list.

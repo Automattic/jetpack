@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { Link } from '@lib/utils/router';
 	import ChevronLeft from '@svg/chevron-left.svg';
 	import ChevronRight from '@svg/chevron-right.svg';
 	import PaginationArrow from './components/PaginationArrow.svelte';
+	import { Link } from '$lib/utils/router';
 
 	export let group: string;
 	export let current: number;

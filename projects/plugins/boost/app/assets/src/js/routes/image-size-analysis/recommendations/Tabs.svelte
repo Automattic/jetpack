@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { recordBoostEvent } from '@lib/utils/analytics';
-	import { Link } from '@lib/utils/router';
 	import { useNavigate } from 'svelte-navigator';
 	import { type ISASummaryGroup } from '../store/isa-summary';
+	import { recordBoostEvent } from '$lib/utils/analytics';
+	import { Link } from '$lib/utils/router';
 
 	export let activeGroup: string;
 	export let imageDataGroupTabs: Record< string, ISASummaryGroup >;

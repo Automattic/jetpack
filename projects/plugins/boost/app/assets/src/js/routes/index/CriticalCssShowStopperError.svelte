@@ -3,13 +3,13 @@
 </script>
 
 <script lang="ts">
-	import ErrorNotice from '@components/ErrorNotice.svelte';
-	import { CriticalCssState } from '@lib/stores/critical-css-state-types';
 	import { onDestroy } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { __ } from '@wordpress/i18n';
 	import CriticalCssErrorDescription from './CriticalCssErrorDescription.svelte';
 	import FoldingElement from './FoldingElement.svelte';
+	import ErrorNotice from '$components/ErrorNotice.svelte';
+	import { CriticalCssState } from '$lib/stores/critical-css-state-types';
 
 	export let supportLink = 'https://wordpress.org/support/plugin/jetpack-boost/';
 	export let status: CriticalCssState[ 'status' ];

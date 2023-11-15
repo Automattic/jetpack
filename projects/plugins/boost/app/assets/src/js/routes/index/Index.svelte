@@ -4,24 +4,8 @@
 
 <script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
-	import Notice from '@components/Notice.svelte';
-	import ReactComponent from '@components/ReactComponent.svelte';
-	import TemplatedString from '@components/TemplatedString.svelte';
-	import config from '@lib/stores/config';
-	import {
-		criticalCssState,
-		continueGeneratingLocalCriticalCss,
-		regenerateCriticalCss,
-		criticalCssProgress,
-		isFatalError,
-	} from '@lib/stores/critical-css-state';
-	import { criticalCssIssues, primaryErrorSet } from '@lib/stores/critical-css-state-errors';
-	import { suggestRegenerateDS } from '@lib/stores/data-sync-client';
-	import { imageCdnQuality } from '@lib/stores/image-cdn';
-	import { modulesState } from '@lib/stores/modules';
-	import { premiumFeatures } from '@lib/stores/premium-features';
-	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '@lib/utils/cloud-css';
-	import externalLinkTemplateVar from '@lib/utils/external-link-template-var';
+	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '$lib/utils/cloud-css';
+	import externalLinkTemplateVar from '$lib/utils/external-link-template-var';
 	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
 	import RecommendationsMeta from '../image-size-analysis/RecommendationsMeta.svelte';
@@ -36,6 +20,22 @@
 	import ResizingUnavailable from './ResizingUnavailable.svelte';
 	import SuperCacheInfo from './SuperCacheInfo.svelte';
 	import UpgradeCTA from './UpgradeCTA.svelte';
+	import Notice from '$components/Notice.svelte';
+	import ReactComponent from '$components/ReactComponent.svelte';
+	import TemplatedString from '$components/TemplatedString.svelte';
+	import config from '$lib/stores/config';
+	import {
+		criticalCssState,
+		continueGeneratingLocalCriticalCss,
+		regenerateCriticalCss,
+		criticalCssProgress,
+		isFatalError,
+	} from '$lib/stores/critical-css-state';
+	import { criticalCssIssues, primaryErrorSet } from '$lib/stores/critical-css-state-errors';
+	import { suggestRegenerateDS } from '$lib/stores/data-sync-client';
+	import { imageCdnQuality } from '$lib/stores/image-cdn';
+	import { modulesState } from '$lib/stores/modules';
+	import { premiumFeatures } from '$lib/stores/premium-features';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );

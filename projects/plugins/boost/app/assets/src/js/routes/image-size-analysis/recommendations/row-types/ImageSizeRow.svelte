@@ -1,15 +1,15 @@
 <script lang="ts">
-	import Button from '@components/Button.svelte';
-	import Device from '@components/Device.svelte';
-	import Pill from '@components/Pill.svelte';
-	import RowTitle from '@components/RowTitle.svelte';
-	import Thumbnail from '@components/Thumbnail.svelte';
-	import { recordBoostEventAndRedirect } from '@lib/utils/analytics';
-	import { removeGetParams } from '@lib/utils/remove-get-params';
 	import { __ } from '@wordpress/i18n';
 	import TableRow from './TableRow.svelte';
 	import TableRowHover from './TableRowHover.svelte';
 	import type { ImageDataType } from '../../store/zod-types';
+	import Button from '$components/Button.svelte';
+	import Device from '$components/Device.svelte';
+	import Pill from '$components/Pill.svelte';
+	import RowTitle from '$components/RowTitle.svelte';
+	import Thumbnail from '$components/Thumbnail.svelte';
+	import { recordBoostEventAndRedirect } from '$lib/utils/analytics';
+	import { removeGetParams } from '$lib/utils/remove-get-params';
 
 	export let enableTransition: boolean;
 	export let details: ImageDataType;
