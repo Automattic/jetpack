@@ -18,12 +18,12 @@
 	import CriticalCssMeta from '$features/critical-css/CriticalCssMeta.svelte';
 	import ImageCdnQualitySettings from '$features/image-cdn/ImageCdnQualitySettings.svelte';
 	import MinifyMeta from '$features/minify-meta/minify-meta';
-	import Module from '$features/modules/Module.svelte';
-	import PremiumTooltip from '$features/modules/PremiumTooltip.svelte';
+	import Module from '$features/Module.svelte';
+	import PremiumTooltip from '$features/PremiumTooltip.svelte';
 	import { RegenerateCriticalCssSuggestion } from '$features/critical-css/RegenerateCriticalCssSuggestion/RegenerateCriticalCssSuggestion';
 	import ResizingUnavailable from './ResizingUnavailable.svelte';
-	import SuperCacheInfo from '$features/modules/SuperCacheInfo.svelte';
-	import UpgradeCTA from '$features/modules/UpgradeCTA.svelte';
+	import SuperCacheInfo from '$features/SuperCacheInfo.svelte';
+	import UpgradeCTA from '$features/UpgradeCTA.svelte';
 	import config from '$lib/stores/config';
 	import {
 		criticalCssState,
