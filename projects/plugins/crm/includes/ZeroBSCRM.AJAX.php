@@ -2309,7 +2309,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					$hasQuickFilterForLogs = false;
 				if ( is_array( $possibleQuickFilters ) && count( $possibleQuickFilters ) > 0 ) {
 					foreach ( $possibleQuickFilters as $pqf ) {
-						if ( substr( $pqf, 0, 14 ) == 'notcontactedin' ) {
+						if ( str_starts_with( $pqf, 'notcontactedin' ) ) {
 										$hasQuickFilterForLogs = true;
 						}
 					}
@@ -2612,7 +2612,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					$hasQuickFilterForLogs = false;
 				if ( is_array( $possibleQuickFilters ) && count( $possibleQuickFilters ) > 0 ) {
 					foreach ( $possibleQuickFilters as $pqf ) {
-						if ( substr( $pqf, 0, 14 ) == 'notcontactedin' ) {
+						if ( str_starts_with( $pqf, 'notcontactedin' ) ) {
 										$hasQuickFilterForLogs = true;
 						}
 					}

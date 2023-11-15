@@ -1916,6 +1916,7 @@ class Manager {
 				'site_created'          => $this->get_assumed_site_creation_date(),
 				'allow_site_connection' => ! $this->has_connected_owner(),
 				'calypso_env'           => ( new Host() )->get_calypso_env(),
+				'source'                => ( new Host() )->get_source_query(),
 			)
 		);
 
@@ -2557,5 +2558,19 @@ class Manager {
 			);
 		}
 		return (int) $site_id;
+	}
+
+	/**
+	 * Check if Jetpack is ready for uninstall cleanup.
+	 *
+	 * @param string $current_plugin_slug The current plugin's slug.
+	 *
+	 * @return bool
+	 */
+	public static function is_ready_for_cleanup( $current_plugin_slug ) {
+		$active_plugins = get_option( Plugin_Storage::ACTIVE_PLUGINS_OPTION_NAME );
+
+		return empty( $active_plugins ) || ! is_array( $active_plugins )
+			|| ( count( $active_plugins ) === 1 && array_key_exists( $current_plugin_slug, $active_plugins ) );
 	}
 }

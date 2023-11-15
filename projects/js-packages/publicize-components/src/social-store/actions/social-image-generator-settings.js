@@ -59,4 +59,27 @@ export function setSocialImageGeneratorSettings( options ) {
 	return { type: SET_SOCIAL_IMAGE_GENERATOR_SETTINGS, options };
 }
 
-export default { updateSocialImageGeneratorSettings, setSocialImageGeneratorSettings };
+/**
+ * Yield actions to refresh settings
+ *
+ * @yields {object} - an action object.
+ * @returns {object} - an action object.
+ */
+export function* refreshSocialImageGeneratorSettings() {
+	try {
+		yield setUpdatingSocialImageGeneratorSettings();
+		const updatedSettings = yield fetchSocialImageGeneratorSettings();
+		yield setSocialImageGeneratorSettings( updatedSettings );
+		return true;
+	} catch ( e ) {
+		return false;
+	} finally {
+		yield setUpdatingSocialImageGeneratorSettingsDone();
+	}
+}
+
+export default {
+	updateSocialImageGeneratorSettings,
+	setSocialImageGeneratorSettings,
+	refreshSocialImageGeneratorSettings,
+};

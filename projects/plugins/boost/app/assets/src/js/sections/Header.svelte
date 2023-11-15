@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { useNavigate } from 'svelte-navigator';
-	import BackButton from '../elements/BackButton.svelte';
+	import ReactComponent from '../elements/ReactComponent.svelte';
+	import BackButton from '../react-components/components/back-button';
 	import ChevronRight from '../svg/chevron-right.svg';
 	import Logo from '../svg/logo.svg';
 
@@ -33,7 +34,7 @@
 
 	{#if subPage}
 		<div class="jb-container back-button">
-			<BackButton route="/" />
+			<ReactComponent this={BackButton} />
 		</div>
 	{/if}
 </div>

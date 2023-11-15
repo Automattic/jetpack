@@ -11,6 +11,7 @@ import { withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { includes } from 'lodash';
+import { SOCIAL_STORE_ID } from '../../social-store';
 import ConnectionToggle from '../connection-toggle';
 import componentStyles from '../styles.module.scss';
 import styles from './styles.module.scss';
@@ -94,6 +95,6 @@ class PublicizeConnection extends Component {
 }
 
 export default withSelect( select => ( {
-	failedConnections: select( 'jetpack/publicize' ).getFailedConnections(),
-	mustReauthConnections: select( 'jetpack/publicize' ).getMustReauthConnections(),
+	failedConnections: select( SOCIAL_STORE_ID ).getFailedConnections(),
+	mustReauthConnections: select( SOCIAL_STORE_ID ).getMustReauthConnections(),
 } ) )( PublicizeConnection );

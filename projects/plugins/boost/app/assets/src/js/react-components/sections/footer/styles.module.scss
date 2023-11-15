@@ -1,0 +1,18 @@
+.signature--jetpack {
+	margin-left: 7px;
+	font-weight: 600;
+	font-size: 12px;
+	color: #23282D;
+
+	display: flex;
+	align-items: center;
+
+	svg {
+		margin-right: .5em;
+	}
+}
+
+.signature--automattic {
+	// align the baseline with Jetpack Boost text
+	transform: translateY(-2px)
+}

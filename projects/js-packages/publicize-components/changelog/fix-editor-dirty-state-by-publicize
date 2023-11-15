@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed post editor dirty state cause by publicize store
