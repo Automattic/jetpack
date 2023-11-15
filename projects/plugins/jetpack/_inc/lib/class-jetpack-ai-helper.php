@@ -381,7 +381,7 @@ class Jetpack_AI_Helper {
 			}
 
 			$blog_id        = get_current_blog_id();
-			$is_over_limit  = \OpenAI_Limit_Usage::is_blog_over_request_limit( $blog_id );
+			$is_over_limit  = WPCOM\Jetpack_AI\Usage\Helper::is_over_limit( $blog_id );
 			$requests_limit = \OpenAI_Limit_Usage::get_free_requests_limit( $blog_id );
 			$requests_count = \OpenAI_Request_Count::get_count( $blog_id );
 
