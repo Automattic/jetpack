@@ -16,13 +16,16 @@ const BLOCK_NAME = 'recurring-payments';
 
 export default function Edit( { attributes, clientId, setAttributes } ) {
 	const { align, planId, width } = attributes;
-	const planIds = useMemo( () => ( planId ? planId.split( '+' ) : [] ), [ planId ] );
+	const planIds = useMemo( () => {
+		const _planIds = ( '' + planId ).split( '+' ).map( id => parseInt( id, 10 ) );
+		return _planIds;
+	}, [ planId ] );
 	const editorType = getEditorType();
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
 
 	const updateSubscriptionPlans = useCallback(
 		newPlanIds => {
-			const newPlanId = newPlanIds.join( '+' );
+			const newPlanId = newPlanIds !== planIds ? newPlanIds.join( '+' ) : planId;
 			const resolvePaymentUrl = paymentPlanId => {
 				if ( POST_EDITOR !== editorType || ! postLink ) {
 					return '#';
@@ -35,12 +38,11 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 
 			setAttributes( {
 				planId: newPlanId,
-				planIds: newPlanIds,
 				url: resolvePaymentUrl( newPlanId ),
 				uniqueId: `recurring-payments-${ newPlanId }`,
 			} );
 		},
-		[ editorType, postLink, setAttributes ]
+		[ editorType, planId, planIds, postLink, setAttributes ]
 	);
 
 	useEffect( () => {
