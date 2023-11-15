@@ -1116,6 +1116,11 @@ class WPCOM_Features {
 
 		self::SUBSCRIPTION_GIFTING             => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_MIGRATION_TRIAL_PLANS,
+				self::WPCOM_HOSTING_TRIAL_PLANS,
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
 		),
 
 		// SUPPORT - Everybody needs somebody.
