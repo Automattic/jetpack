@@ -17,7 +17,7 @@
 	import CloudCssMeta from '$features/critical-css/CloudCssMeta.svelte';
 	import CriticalCssMeta from '$features/critical-css/CriticalCssMeta.svelte';
 	import ImageCdnQualitySettings from '$features/image-cdn/ImageCdnQualitySettings.svelte';
-	import MinifyMeta from '$features/modules/minify-meta/minify-meta';
+	import MinifyMeta from '$features/minify-meta/minify-meta';
 	import Module from '$features/modules/Module.svelte';
 	import PremiumTooltip from '$features/modules/PremiumTooltip.svelte';
 	import { RegenerateCriticalCssSuggestion } from '$features/critical-css/RegenerateCriticalCssSuggestion/RegenerateCriticalCssSuggestion';
