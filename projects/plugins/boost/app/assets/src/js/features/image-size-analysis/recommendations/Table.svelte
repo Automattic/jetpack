@@ -6,7 +6,7 @@
 	import ImageMissingRow from './RowTypes/ImageMissingRow.svelte';
 	import ImageSizeRow from './RowTypes/ImageSizeRow.svelte';
 	import LoadingRow from './RowTypes/LoadingRow.svelte';
-	import Spinner from '$features/Spinner.svelte';
+	import Spinner from '$features/ui/Spinner.svelte';
 	import TemplatedString from '$features/TemplatedString.svelte';
 	import actionLinkTemplateVar from '$lib/utils/action-link-template-var';
 
