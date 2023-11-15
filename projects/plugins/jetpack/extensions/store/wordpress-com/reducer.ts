@@ -109,10 +109,14 @@ export default function reducer( state = INITIAL_STATE, action ) {
 				( typeof currentTierValue === 'undefined' && state.features.aiAssistant.hasFeature ) ||
 				currentTierValue === 1;
 
-			const requestsLimit =
-				isUnlimitedTierPlan || isFreeTierPlan // @todo: update once tier data is available
-					? state.features.aiAssistant.requestsLimit
-					: state.features.aiAssistant.currentTier?.limit;
+			// Request limit defined with the current tier limit by default.
+			let requestsLimit = state.features.aiAssistant.currentTier?.limit;
+
+			if ( isUnlimitedTierPlan ) {
+				requestsLimit = Infinity;
+			} else if ( isFreeTierPlan ) {
+				requestsLimit = state.features.aiAssistant.requestsLimit;
+			}
 
 			const currentCount =
 				isUnlimitedTierPlan || isFreeTierPlan // @todo: update once tier data is available

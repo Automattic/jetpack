@@ -8,7 +8,7 @@ export type UpgradeTypeProp = 'vip' | 'default';
 
 export type TierUnlimitedProps = {
 	slug: 'ai-assistant-tier-unlimited';
-	limit: 922337203685477600;
+	limit: number;
 	value: 1;
 	readableLimit: string;
 };
