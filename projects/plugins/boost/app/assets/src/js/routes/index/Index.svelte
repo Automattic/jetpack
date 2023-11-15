@@ -4,8 +4,6 @@
 
 <script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
-	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '$lib/utils/cloud-css';
-	import externalLinkTemplateVar from '$lib/utils/external-link-template-var';
 	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
 	import RecommendationsMeta from '../image-size-analysis/RecommendationsMeta.svelte';
@@ -36,6 +34,8 @@
 	import { imageCdnQuality } from '$lib/stores/image-cdn';
 	import { modulesState } from '$lib/stores/modules';
 	import { premiumFeatures } from '$lib/stores/premium-features';
+	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '$lib/utils/cloud-css';
+	import externalLinkTemplateVar from '$lib/utils/external-link-template-var';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );

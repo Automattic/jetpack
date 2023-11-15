@@ -1,13 +1,13 @@
 <script lang="ts">
-	import ReactComponent from './components/ReactComponent.svelte';
-	import Redirect from './components/Redirect.svelte';
-	import SettingsPage from './layouts/SettingsPage/SettingsPage.svelte';
 	import AdvancedCriticalCss from './routes/critical-css-advanced/CriticalCssAdvanced.svelte';
 	import GettingStarted from './routes/getting-started/GettingStarted.svelte';
 	import RecommendationsPage from './routes/image-size-analysis/ImageSizeAnalysis.svelte';
 	import Index from './routes/index/Index.svelte';
 	import PurchaseSuccess from './routes/purchase-success/PurchaseSuccess';
 	import Upgrade from './routes/upgrade/Upgrade.svelte';
+	import ReactComponent from '$features/ReactComponent.svelte';
+	import Redirect from '$features/Redirect.svelte';
+	import SettingsPage from '$layout/SettingsPage/SettingsPage.svelte';
 	import config from '$lib/stores/config';
 	import { connection } from '$lib/stores/connection';
 	import { criticalCssIssues } from '$lib/stores/critical-css-state-errors';

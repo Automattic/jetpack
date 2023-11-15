@@ -16,8 +16,8 @@
 		isaSummary,
 	} from './store/isa-summary';
 	import ReactComponent from '$features/ReactComponent.svelte';
-	import Footer from '$features/sections/Footer/Footer';
-	import Header from '$features/sections/Header/Header';
+	import Footer from '$layout/Footer/Footer';
+	import Header from '$layout/Header/Header';
 	import { modulesState } from '$lib/stores/modules';
 
 	initializeIsaData();

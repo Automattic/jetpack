@@ -26,8 +26,8 @@
 			"$features/*": [
 				"./app/assets/src/js/features/*"
 			],
-			"$components/*": [
-				"./app/assets/src/js/components/*"
+			"$layout/*": [
+				"./app/assets/src/js/layout/*"
 			],
 			"$svg/*": [
 				"./app/assets/src/js/svg/*"
