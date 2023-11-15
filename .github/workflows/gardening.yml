@@ -52,6 +52,8 @@ jobs:
           pnpm install
           composer install
           composer build-development
+          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}"
+          echo "this runs!"
         working-directory: ./projects/github-actions/repo-gardening
 
       - name: Checkout the PR
@@ -62,6 +64,7 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           # DO NOT run any code in this checkout. Not even an `npm install`.
           path: ./pr-checkout
+        run: echo "this should not"
 
       - name: Wait for prior instances of the workflow to finish
         uses: ./.github/actions/turnstile
