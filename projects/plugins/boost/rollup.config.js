@@ -4,6 +4,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
+import alias from '@rollup/plugin-alias';
 import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 import svgr from '@svgr/rollup';
@@ -96,6 +97,27 @@ export default [
 		},
 		external: [ '@wordpress/components', '@wordpress/i18n', 'react', 'react-dom' ],
 		plugins: [
+			alias( {
+				entries: [
+					{
+						find: '$lib',
+						replacement: path.join( __dirname, '/app/assets/src/js/lib' ),
+					},
+					{
+						find: '$features',
+						replacement: path.join( __dirname, '/app/assets/src/js/features' ),
+					},
+					{
+						find: '$layout',
+						replacement: path.join( __dirname, '/app/assets/src/js/layout' ),
+					},
+					{
+						find: '$svg',
+						replacement: path.join( __dirname, '/app/assets/src/js/svg' ),
+					},
+				],
+			} ),
+
 			replace( {
 				preventAssignment: true,
 				delimiters: [ '', '' ],
