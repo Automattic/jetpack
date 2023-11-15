@@ -6,21 +6,24 @@
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
-	import RecommendationsMeta from '../image-size-analysis/RecommendationsMeta.svelte';
-	import { initializeIsaSummary, isaSummary } from '../image-size-analysis/store/isa-summary';
-	import CloudCssMeta from './CloudCssMeta.svelte';
-	import CriticalCssMeta from './CriticalCssMeta.svelte';
-	import ImageCdnQualitySettings from './ImageCdnQualitySettings.svelte';
-	import MinifyMeta from './MinifyMeta/MinifyMeta';
-	import Module from './Module.svelte';
-	import PremiumTooltip from './PremiumTooltip.svelte';
-	import { RegenerateCriticalCssSuggestion } from './RegenerateCriticalCssSuggestion/RegenerateCriticalCssSuggestion';
-	import ResizingUnavailable from './ResizingUnavailable.svelte';
-	import SuperCacheInfo from './SuperCacheInfo.svelte';
-	import UpgradeCTA from './UpgradeCTA.svelte';
 	import Notice from '$features/Notice.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import TemplatedString from '$features/TemplatedString.svelte';
+	import RecommendationsMeta from '$features/image-size-analysis/RecommendationsMeta.svelte';
+	import {
+		initializeIsaSummary,
+		isaSummary,
+	} from '$features/image-size-analysis/store/isa-summary';
+	import CloudCssMeta from '$features/modules/CloudCssMeta.svelte';
+	import CriticalCssMeta from '$features/modules/CriticalCssMeta.svelte';
+	import ImageCdnQualitySettings from '$features/modules/ImageCdnQualitySettings.svelte';
+	import MinifyMeta from '$features/modules/MinifyMeta/MinifyMeta';
+	import Module from '$features/modules/Module.svelte';
+	import PremiumTooltip from '$features/modules/PremiumTooltip.svelte';
+	import { RegenerateCriticalCssSuggestion } from '$features/modules/RegenerateCriticalCssSuggestion/RegenerateCriticalCssSuggestion';
+	import ResizingUnavailable from '$features/modules/ResizingUnavailable.svelte';
+	import SuperCacheInfo from '$features/modules/SuperCacheInfo.svelte';
+	import UpgradeCTA from '$features/modules/UpgradeCTA.svelte';
 	import config from '$lib/stores/config';
 	import {
 		criticalCssState,

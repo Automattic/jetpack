@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
 	import { __, _n, sprintf } from '@wordpress/i18n';
-	import CriticalCssErrorDescription from '../index/CriticalCssErrorDescription.svelte';
 	import BackButton from '$features/BackButton/BackButton';
 	import CloseButton from '$features/CloseButton.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
+	import CriticalCssErrorDescription from '$features/modules/CriticalCssErrorDescription.svelte';
 	import { replaceCssState, updateProvider } from '$lib/stores/critical-css-state';
 	import { groupErrorsByFrequency } from '$lib/stores/critical-css-state-errors';
 	import { type Provider } from '$lib/stores/critical-css-state-types';
