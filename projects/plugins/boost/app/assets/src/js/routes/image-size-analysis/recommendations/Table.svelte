@@ -1,8 +1,8 @@
 <script lang="ts">
+	import Spinner from '@components/Spinner.svelte';
+	import TemplatedString from '@components/TemplatedString.svelte';
 	import actionLinkTemplateVar from '@lib/utils/action-link-template-var';
 	import { __ } from '@wordpress/i18n';
-	import Spinner from '../../../components/Spinner.svelte';
-	import TemplatedString from '../../../components/TemplatedString.svelte';
 	import { type ISA_Data } from '../store/isa-data';
 	import { ISAStatus, type ISASummary } from '../store/isa-summary';
 	import BrokenDataRow from './row-types/BrokenDataRow.svelte';

@@ -23,6 +23,9 @@
 			"@lib/*": [
 				"./app/assets/src/js/lib/*"
 			],
+			"@components/*": [
+				"./app/assets/src/js/components/*"
+			],
 			"@svg/*": [
 				"./app/assets/src/js/svg/*"
 			]

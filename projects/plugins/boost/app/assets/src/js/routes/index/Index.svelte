@@ -4,6 +4,9 @@
 
 <script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
+	import Notice from '@components/Notice.svelte';
+	import ReactComponent from '@components/ReactComponent.svelte';
+	import TemplatedString from '@components/TemplatedString.svelte';
 	import config from '@lib/stores/config';
 	import {
 		criticalCssState,
@@ -21,9 +24,6 @@
 	import externalLinkTemplateVar from '@lib/utils/external-link-template-var';
 	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
-	import Notice from '../../components/Notice.svelte';
-	import ReactComponent from '../../components/ReactComponent.svelte';
-	import TemplatedString from '../../components/TemplatedString.svelte';
 	import RecommendationsMeta from '../image-size-analysis/RecommendationsMeta.svelte';
 	import { initializeIsaSummary, isaSummary } from '../image-size-analysis/store/isa-summary';
 	import CloudCssMeta from './CloudCssMeta.svelte';

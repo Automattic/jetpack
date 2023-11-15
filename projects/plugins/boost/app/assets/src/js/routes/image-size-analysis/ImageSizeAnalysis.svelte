@@ -1,11 +1,11 @@
 <script lang="ts">
+	import ReactComponent from '@components/ReactComponent.svelte';
+	import Footer from '@components/sections/Footer/Footer';
+	import Header from '@components/sections/Header/Header';
 	import { modulesState } from '@lib/stores/modules';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
-	import ReactComponent from '../../components/ReactComponent.svelte';
-	import Footer from '../../components/sections/Footer/Footer';
-	import Header from '../../components/sections/Header/Header';
 	import { Hero } from './Hero/Hero';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';

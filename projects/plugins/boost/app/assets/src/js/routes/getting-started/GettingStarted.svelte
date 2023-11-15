@@ -1,12 +1,12 @@
 <script lang="ts">
+	import ActivateLicense from '@components/ActivateLicense/ActivateLicense';
+	import ReactComponent from '@components/ReactComponent.svelte';
+	import Footer from '@components/sections/Footer/Footer';
+	import Header from '@components/sections/Header/Header';
 	import { initializeConnection, getUpgradeURL } from '@lib/stores/connection';
 	import { recordBoostEvent } from '@lib/utils/analytics';
 	import React from 'react';
 	import { Snackbar } from '@wordpress/components';
-	import ActivateLicense from '../../components/ActivateLicense/ActivateLicense';
-	import ReactComponent from '../../components/ReactComponent.svelte';
-	import Footer from '../../components/sections/Footer/Footer';
-	import Header from '../../components/sections/Header/Header';
 	import { BoostPricingTable } from './BoostPricingTable/BoostPricingTable';
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.

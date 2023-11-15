@@ -5,6 +5,8 @@
 	It can include a list of failed URLs, what a user can do, and extra information.
 -->
 <script lang="ts">
+	import NumberedList from '@components/NumberedList.svelte';
+	import TemplatedString from '@components/TemplatedString.svelte';
 	import { regenerateCriticalCss } from '@lib/stores/critical-css-state';
 	import { ErrorSet } from '@lib/stores/critical-css-state-errors';
 	import actionLinkTemplateVar from '@lib/utils/action-link-template-var';
@@ -18,8 +20,6 @@
 	import supportLinkTemplateVar from '@lib/utils/support-link-template-var';
 	import { slide } from 'svelte/transition';
 	import { __ } from '@wordpress/i18n';
-	import NumberedList from '../../components/NumberedList.svelte';
-	import TemplatedString from '../../components/TemplatedString.svelte';
 	import FoldingElement from './FoldingElement.svelte';
 	import MoreList from './MoreList.svelte';
 

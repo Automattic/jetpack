@@ -1,4 +1,7 @@
 <script lang="ts">
+	import BackButton from '@components/BackButton/BackButton';
+	import CloseButton from '@components/CloseButton.svelte';
+	import ReactComponent from '@components/ReactComponent.svelte';
 	import { replaceCssState, updateProvider } from '@lib/stores/critical-css-state';
 	import { groupErrorsByFrequency } from '@lib/stores/critical-css-state-errors';
 	import { type Provider } from '@lib/stores/critical-css-state-types';
@@ -6,9 +9,6 @@
 	import InfoIcon from '@svg/info.svg';
 	import { slide } from 'svelte/transition';
 	import { __, _n, sprintf } from '@wordpress/i18n';
-	import BackButton from '../../components/BackButton/BackButton';
-	import CloseButton from '../../components/CloseButton.svelte';
-	import ReactComponent from '../../components/ReactComponent.svelte';
 	import CriticalCssErrorDescription from '../index/CriticalCssErrorDescription.svelte';
 
 	export let issues: Provider[];

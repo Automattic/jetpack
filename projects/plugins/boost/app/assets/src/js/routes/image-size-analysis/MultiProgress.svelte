@@ -1,10 +1,10 @@
 <script lang="ts">
+	import ConditionalLink from '@components/ConditionalLink.svelte';
+	import ProgressBar from '@components/ProgressBar.svelte';
+	import ReactComponent from '@components/ReactComponent.svelte';
+	import Spinner from '@components/Spinner.svelte';
 	import WarningIcon from '@svg/warning-outline.svg';
 	import { sprintf, __ } from '@wordpress/i18n';
-	import ConditionalLink from '../../components/ConditionalLink.svelte';
-	import ProgressBar from '../../components/ProgressBar.svelte';
-	import ReactComponent from '../../components/ReactComponent.svelte';
-	import Spinner from '../../components/Spinner.svelte';
 	import OtherGroupContext from './OtherGroupContext/OtherGroupContext';
 	import { isaGroupLabel } from './store/isa-summary';
 

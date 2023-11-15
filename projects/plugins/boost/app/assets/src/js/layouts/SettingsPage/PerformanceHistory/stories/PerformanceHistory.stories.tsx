@@ -1,6 +1,6 @@
 import { PerformanceHistory } from '../PerformanceHistory';
 import type { Meta } from '@storybook/react';
-import '../../../../../css/components/performance-history.scss';
+import '@components/performance-history.scss';
 
 const exampleRawResponse = {
 	data: {

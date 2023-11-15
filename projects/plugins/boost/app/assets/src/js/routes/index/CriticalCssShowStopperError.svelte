@@ -3,11 +3,11 @@
 </script>
 
 <script lang="ts">
+	import ErrorNotice from '@components/ErrorNotice.svelte';
 	import { CriticalCssState } from '@lib/stores/critical-css-state-types';
 	import { onDestroy } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { __ } from '@wordpress/i18n';
-	import ErrorNotice from '../../components/ErrorNotice.svelte';
 	import CriticalCssErrorDescription from './CriticalCssErrorDescription.svelte';
 	import FoldingElement from './FoldingElement.svelte';
 

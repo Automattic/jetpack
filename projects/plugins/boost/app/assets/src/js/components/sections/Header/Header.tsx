@@ -1,9 +1,9 @@
+import BackButton from '@components/BackButton/BackButton';
 import { navigate } from '@lib/utils/navigate';
 import ChevronRight from '@svg/chevron-right';
 import Logo from '@svg/logo';
 import classNames from 'classnames';
 import React from 'react';
-import BackButton from '../../BackButton/BackButton';
 import styles from './Header.module.scss';
 
 type HeaderProps = {

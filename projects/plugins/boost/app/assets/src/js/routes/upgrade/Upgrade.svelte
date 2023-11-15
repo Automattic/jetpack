@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { PricingCard } from '@automattic/jetpack-components';
+	import ActivateLicense from '@components/ActivateLicense/ActivateLicense';
+	import BackButton from '@components/BackButton/BackButton';
+	import ReactComponent from '@components/ReactComponent.svelte';
+	import Footer from '@components/sections/Footer/Footer';
+	import Header from '@components/sections/Header/Header';
 	import { getUpgradeURL } from '@lib/stores/connection';
 	import { recordBoostEvent } from '@lib/utils/analytics';
 	import Logo from '@svg/jetpack-green.svg';
 	import React from 'react';
 	import { __ } from '@wordpress/i18n';
-	import ActivateLicense from '../../components/ActivateLicense/ActivateLicense';
-	import BackButton from '../../components/BackButton/BackButton';
-	import ReactComponent from '../../components/ReactComponent.svelte';
-	import Footer from '../../components/sections/Footer/Footer';
-	import Header from '../../components/sections/Header/Header';
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;

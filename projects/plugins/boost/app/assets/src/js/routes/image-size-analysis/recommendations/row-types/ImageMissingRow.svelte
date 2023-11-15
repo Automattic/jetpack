@@ -1,9 +1,9 @@
 <script lang="ts">
+	import Device from '@components/Device.svelte';
+	import Pill from '@components/Pill.svelte';
+	import RowTitle from '@components/RowTitle.svelte';
 	import { removeGetParams } from '@lib/utils/remove-get-params';
 	import { __ } from '@wordpress/i18n';
-	import Device from '../components/Device.svelte';
-	import Pill from '../components/Pill.svelte';
-	import RowTitle from '../components/RowTitle.svelte';
 	import TableRow from './TableRow.svelte';
 	import TableRowHover from './TableRowHover.svelte';
 	import type { ImageDataType } from '../../store/zod-types';

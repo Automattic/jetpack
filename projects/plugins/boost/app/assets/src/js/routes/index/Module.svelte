@@ -1,7 +1,7 @@
 <script lang="ts">
+	import Toggle from '@components/Toggle.svelte';
 	import { modulesState, modulesStatePending } from '@lib/stores/modules';
 	import { createEventDispatcher, onMount } from 'svelte';
-	import Toggle from '../../components/Toggle.svelte';
 
 	export let toggle = true;
 	export let slug: string;

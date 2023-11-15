@@ -1,9 +1,9 @@
 <script lang="ts">
+	import TemplatedString from '@components/TemplatedString.svelte';
+	import Tooltip from '@components/Tooltip.svelte';
 	import actionLinkTemplateVar from '@lib/utils/action-link-template-var';
 	import { useNavigate } from 'svelte-navigator';
 	import { __, sprintf } from '@wordpress/i18n';
-	import TemplatedString from '../../components/TemplatedString.svelte';
-	import Tooltip from '../../components/Tooltip.svelte';
 	import CollapsibleMeta from './CollapsibleMeta.svelte';
 	import ImageCdnQualityControl from './ImageCdnQualityControl.svelte';
 	import type { ImageCdnQuality } from '@lib/stores/image-cdn';
