@@ -1,4 +1,5 @@
 import { select } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { getShareMessageMaxLength } from './get-share-message-max-length';
 
 /**
@@ -7,7 +8,7 @@ import { getShareMessageMaxLength } from './get-share-message-max-length';
  * @returns {string} The share message.
  */
 export function getShareMessage() {
-	const { getEditedPostAttribute } = select( 'core/editor' );
+	const { getEditedPostAttribute } = select( editorStore );
 	const meta = getEditedPostAttribute( 'meta' );
 	const message = `${ meta?.jetpack_publicize_message || '' }`;
 
