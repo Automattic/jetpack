@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { __, sprintf } from '@wordpress/i18n';
 	import MultiProgress from './MultiProgress.svelte';
-	import Button from './components/Button.svelte';
+	import Button from './Button.svelte';
 	import { resetIsaQuery } from './store/isa-data';
 	import {
 		requestImageAnalysis,
