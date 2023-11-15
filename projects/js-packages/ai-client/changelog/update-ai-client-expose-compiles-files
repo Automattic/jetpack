@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-AI Client: expose build folder
+AI Client: include built JavaScript code in addition to TypeScript.
