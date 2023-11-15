@@ -3,7 +3,7 @@ import { CriticalCssErrorDetails } from '../stores/critical-css-state-types';
 import { castToNumber } from './cast-to-number';
 import type { ErrorSet } from '../stores/critical-css-state-errors';
 import type { SvelteComponent } from 'svelte';
-import UrlComponentsExample from '$features/UrlComponentsExample.svelte';
+import UrlComponentsExample from '$features/critical-css/UrlComponentsExample.svelte';
 
 type Suggestion = {
 	paragraph: string;
