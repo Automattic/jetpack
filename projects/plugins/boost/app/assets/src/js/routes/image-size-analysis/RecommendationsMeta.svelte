@@ -1,14 +1,14 @@
 <script lang="ts">
+	import { recordBoostEvent, recordBoostEventAndRedirect } from '@lib/utils/analytics';
+	import getIsaErrorSuggestion from '@lib/utils/get-isa-error-suggestion';
+	import RefreshIcon from '@svg/refresh.svg';
+	import WarningIcon from '@svg/warning-outline.svg';
 	import { __, sprintf } from '@wordpress/i18n';
-	import Button from './components/Button.svelte';
 	import ErrorNotice from '../../components/ErrorNotice.svelte';
 	import ImageCdnRecommendation from '../../components/ImageCdnRecommendation/ImageCdnRecommendation';
 	import ReactComponent from '../../components/ReactComponent.svelte';
-	import { recordBoostEvent, recordBoostEventAndRedirect } from '../../lib/utils/analytics';
-	import getIsaErrorSuggestion from '../../lib/utils/get-isa-error-suggestion';
-	import RefreshIcon from '../../svg/refresh.svg';
-	import WarningIcon from '../../svg/warning-outline.svg';
 	import MultiProgress from './MultiProgress.svelte';
+	import Button from './components/Button.svelte';
 	import { resetIsaQuery } from './store/isa-data';
 	import {
 		requestImageAnalysis,

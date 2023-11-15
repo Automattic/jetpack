@@ -3,8 +3,8 @@
 	the past. Mouseover to show the exact time.
 -->
 <script lang="ts">
+	import describeTimeAgo from '@lib/utils/describe-time-ago';
 	import { onMount } from 'svelte';
-	import describeTimeAgo from '../lib/utils/describe-time-ago';
 
 	export let time: Date;
 

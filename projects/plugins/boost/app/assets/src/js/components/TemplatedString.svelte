@@ -1,7 +1,7 @@
 <script lang="ts">
+	import { copyDomTemplate, TemplateVars } from '@lib/utils/copy-dom-template';
+	import { parsePseudoHTML } from '@lib/utils/parse-pseudo-html';
 	import { onMount } from 'svelte';
-	import { copyDomTemplate, TemplateVars } from '../lib/utils/copy-dom-template';
-	import { parsePseudoHTML } from '../lib/utils/parse-pseudo-html';
 
 	/**
 	 * String template to display in this component. <pseudo-html/> tags will

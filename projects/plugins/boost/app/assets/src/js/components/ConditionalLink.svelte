@@ -1,7 +1,7 @@
 <!-- Utility: Show a <Link> if a condition is met. Otherwise, just show the contents. -->
 <script>
-	import { recordBoostEvent } from '../lib/utils/analytics';
-	import { Link } from '../lib/utils/router';
+	import { recordBoostEvent } from '@lib/utils/analytics';
+	import { Link } from '@lib/utils/router';
 
 	export let isLink = true;
 	export let trackEvent = '';

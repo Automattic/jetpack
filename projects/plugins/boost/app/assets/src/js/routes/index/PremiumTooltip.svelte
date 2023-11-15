@@ -1,8 +1,8 @@
 <script lang="ts">
+	import { recordBoostEvent } from '@lib/utils/analytics';
+	import routerHistory from '@lib/utils/router-history';
 	import { __ } from '@wordpress/i18n';
 	import Tooltip from '../../components/Tooltip.svelte';
-	import { recordBoostEvent } from '../../lib/utils/analytics';
-	import routerHistory from '../../lib/utils/router-history';
 
 	const { navigate } = routerHistory;
 

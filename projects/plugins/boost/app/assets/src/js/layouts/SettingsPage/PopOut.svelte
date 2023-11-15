@@ -2,12 +2,12 @@
 	This component pops out and shows a message based on the props passed to it
 -->
 <script lang="ts">
+	import { TemplateVars } from '@lib/utils/copy-dom-template';
+	import slideRightTransition from '@lib/utils/slide-right-transition';
 	import { createEventDispatcher } from 'svelte';
 	import { __ } from '@wordpress/i18n/';
 	import CloseButton from '../../components/CloseButton.svelte';
 	import TemplatedString from '../../components/TemplatedString.svelte';
-	import { TemplateVars } from '../../lib/utils/copy-dom-template';
-	import slideRightTransition from '../../lib/utils/slide-right-transition';
 
 	export let title = '';
 	export let message: {

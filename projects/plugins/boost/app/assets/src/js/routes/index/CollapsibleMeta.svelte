@@ -1,6 +1,6 @@
 <script lang="ts">
+	import CloseIcon from '@svg/close.svg';
 	import PencilIcon from '../../../../static/images/pencil.svg';
-	import CloseIcon from '../../svg/close.svg';
 
 	export let editText: string;
 	export let closeEditText: string;

@@ -1,10 +1,10 @@
 <script lang="ts">
+	import { criticalCssState, isGenerating } from '@lib/stores/critical-css-state';
+	import { modulesState } from '@lib/stores/modules';
+	import { hasPrioritySupport } from '@lib/utils/paid-plan';
 	import ReactComponent from '../../components/ReactComponent.svelte';
 	import Footer from '../../components/sections/Footer/Footer';
 	import Header from '../../components/sections/Header/Header';
-	import { criticalCssState, isGenerating } from '../../lib/stores/critical-css-state';
-	import { modulesState } from '../../lib/stores/modules';
-	import { hasPrioritySupport } from '../../lib/utils/paid-plan';
 	import Score from './Score.svelte';
 	import Support from './Support/Support';
 	import Tips from './Tips.svelte';

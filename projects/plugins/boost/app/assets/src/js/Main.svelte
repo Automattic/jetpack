@@ -1,15 +1,15 @@
 <script lang="ts">
+	import config from '@lib/stores/config';
+	import { connection } from '@lib/stores/connection';
+	import { criticalCssIssues } from '@lib/stores/critical-css-state-errors';
+	import { modulesState } from '@lib/stores/modules';
+	import { recordBoostEvent } from '@lib/utils/analytics';
+	import debounce from '@lib/utils/debounce';
+	import { Route, Router } from '@lib/utils/router';
+	import routerHistory from '@lib/utils/router-history';
 	import ReactComponent from './components/ReactComponent.svelte';
 	import Redirect from './components/Redirect.svelte';
 	import SettingsPage from './layouts/SettingsPage/SettingsPage.svelte';
-	import config from './lib/stores/config';
-	import { connection } from './lib/stores/connection';
-	import { criticalCssIssues } from './lib/stores/critical-css-state-errors';
-	import { modulesState } from './lib/stores/modules';
-	import { recordBoostEvent } from './lib/utils/analytics';
-	import debounce from './lib/utils/debounce';
-	import { Route, Router } from './lib/utils/router';
-	import routerHistory from './lib/utils/router-history';
 	import AdvancedCriticalCss from './routes/critical-css-advanced/CriticalCssAdvanced.svelte';
 	import GettingStarted from './routes/getting-started/GettingStarted.svelte';
 	import RecommendationsPage from './routes/image-size-analysis/ImageSizeAnalysis.svelte';

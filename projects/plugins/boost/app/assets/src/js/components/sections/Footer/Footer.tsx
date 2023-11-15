@@ -1,6 +1,6 @@
+import AutomatticLogo from '@svg/automattic';
+import JetpackLogo from '@svg/jetpack';
 import { __ } from '@wordpress/i18n';
-import AutomatticLogo from '../../../svg/automattic';
-import JetpackLogo from '../../../svg/jetpack';
 import styles from './Footer.module.scss';
 
 const Footer = () => {

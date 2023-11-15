@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Link } from '../../../../lib/utils/router';
+	import { Link } from '@lib/utils/router';
 
 	export let group: string;
 	export let direction: 'left' | 'right';

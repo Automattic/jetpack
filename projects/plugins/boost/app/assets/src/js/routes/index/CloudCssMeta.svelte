@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { CriticalCssState } from '@lib/stores/critical-css-state-types';
 	import { __ } from '@wordpress/i18n';
-	import { CriticalCssState } from '../../lib/stores/critical-css-state-types';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
 

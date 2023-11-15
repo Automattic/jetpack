@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
+	import externalLinkTemplateVar from '@lib/utils/external-link-template-var';
 	import { __ } from '@wordpress/i18n';
 	import TemplatedString from '../../components/TemplatedString.svelte';
-	import externalLinkTemplateVar from '../../lib/utils/external-link-template-var';
 
 	const pingdomLink = getRedirectUrl( 'jetpack-boost-pingdom' );
 	const whySpeedLink = getRedirectUrl( 'jetpack-boost-why-speed' );
