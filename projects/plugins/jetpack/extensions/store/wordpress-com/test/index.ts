@@ -5,6 +5,7 @@ import actions from '../actions';
 import {
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 	FREE_PLAN_REQUESTS_LIMIT,
+	UNLIMITED_PLAN_REQUESTS_LIMIT,
 } from '../constants';
 import reducer from '../reducer';
 import { AiFeatureProps, PlanStateProps } from '../types';
@@ -31,7 +32,7 @@ describe( 'actions', () => {
 } );
 
 describe( 'reducer', () => {
-	it( 'should set the feature unavalaible for a Free plan when the site achieves the limit', () => {
+	it( 'should set the feature unavalaible for Free plan when the site achieves the limit', () => {
 		const initialState: PlanStateProps = {
 			plans: [],
 			features: {
@@ -75,5 +76,94 @@ describe( 'reducer', () => {
 		expect( reducer( initialState, action ) ).toEqual( expectedState );
 	} );
 
-	// Pruebas adicionales para otras acciones aquí...
+	it( 'should set the feature avalaible for Unlimited plan', () => {
+		const initialState: PlanStateProps = {
+			plans: [],
+			features: {
+				aiAssistant: {
+					hasFeature: true,
+					isOverLimit: false,
+					requestsCount: 12345,
+					requestsLimit: UNLIMITED_PLAN_REQUESTS_LIMIT,
+					requireUpgrade: false,
+					upgradeType: 'default',
+					currentTier: null,
+					nextTier: null,
+					usagePeriod: {
+						currentStart: 'ai-assistant-tier-free',
+						nextStart: '',
+						requestsCount: 4,
+					},
+				},
+			},
+		};
+
+		const action = { type: ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT, count: 1 };
+
+		const expectedState = {
+			...initialState,
+			features: {
+				aiAssistant: {
+					...initialState.features.aiAssistant,
+					hasFeature: true,
+					isOverLimit: false,
+					requestsCount: 12346,
+					requireUpgrade: false,
+					usagePeriod: {
+						...initialState.features.aiAssistant.usagePeriod,
+						requestsCount: 5,
+					},
+				},
+			},
+		};
+
+		expect( reducer( initialState, action ) ).toEqual( expectedState );
+	} );
+
+	it( 'should require an upgrade when the tier plan achieves the limit', () => {
+		const initialState: PlanStateProps = {
+			plans: [],
+			features: {
+				aiAssistant: {
+					hasFeature: true,
+					isOverLimit: false,
+					requestsCount: 123, // it should be ignored for Tier plans
+					requestsLimit: UNLIMITED_PLAN_REQUESTS_LIMIT, // it should be ignored for Tier plans
+					requireUpgrade: false,
+					upgradeType: 'default',
+					currentTier: {
+						slug: 'ai-assistant-tier-100',
+						value: 100,
+						limit: 100,
+					},
+					usagePeriod: {
+						currentStart: 'ai-assistant-tier-free',
+						nextStart: '',
+						requestsCount: 99,
+					},
+				},
+			},
+		};
+
+		const action = { type: ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT, count: 1 };
+
+		const expectedState = {
+			...initialState,
+			features: {
+				aiAssistant: {
+					...initialState.features.aiAssistant,
+					hasFeature: true, // @todo: should it be false?
+					isOverLimit: true,
+					requestsCount: 124,
+					requireUpgrade: true,
+					usagePeriod: {
+						...initialState.features.aiAssistant.usagePeriod,
+						requestsCount: 100,
+					},
+				},
+			},
+		};
+
+		expect( reducer( initialState, action ) ).toEqual( expectedState );
+	} );
 } );
