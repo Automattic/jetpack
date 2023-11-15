@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Score from './Score.svelte';
+	import Score from '../../features/speed-score/Score.svelte';
 	import Support from './Support/Support';
 	import Tips from './Tips.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
