@@ -395,18 +395,23 @@ class Assets {
 			$ver = isset( $options['version'] ) ? $options['version'] : filemtime( "$dir/$path" );
 		}
 
-		wp_register_script( $handle, $url, $options['dependencies'], $ver, $options['in_footer'] );
-		if ( $options['async'] || 'defer' === $options['strategy'] ) {
-			// For WordPress 6.3 and greater, use the script strategy.
-			if ( version_compare( $wp_version, '6.3', '>=' ) ) {
-				wp_script_add_data( $handle, 'strategy', 'defer' );
-			} else {
-				// Pre 6.3 approach.
-				self::instance()->add_async_script( $handle ); // Adds `defer` to script tag.
+		if ( version_compare( $wp_version, '6.3', '>=' ) ) {
+			wp_register_script(
+				$handle,
+				$url,
+				$options['dependencies'],
+				$ver,
+				array(
+					'in_footer' => $options['in_footer'],
+					'strategy'  => $options['strategy'],
+				)
+			);
+		} else {
+			// Pre 6.3 approach.
+			wp_register_script( $handle, $url, $options['dependencies'], $ver, $options['in_footer'] );
+			if ( $options['async'] || 'defer' === $options['strategy'] ) {
+				static::add_async_script( $handle ); // Adds `defer` to script tag.
 			}
-		}
-		if ( 'async' === $options['strategy'] && version_compare( $wp_version, '6.3', '>=' ) ) {
-			wp_script_add_data( $handle, 'strategy', 'async' );
 		}
 
 		if ( $options['textdomain'] ) {
