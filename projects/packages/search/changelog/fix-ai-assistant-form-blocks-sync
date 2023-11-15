@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix JS tests by mocking Connection initial state.
-
-

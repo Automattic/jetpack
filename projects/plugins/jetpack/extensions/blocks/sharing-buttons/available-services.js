@@ -1,6 +1,8 @@
+import { __ } from '@wordpress/i18n';
+
 export default {
-	print: { label: 'Print', icon: 'print' },
-	email: { label: 'Email', icon: 'mail' },
+	print: { label: __( 'Print', 'jetpack' ), icon: 'print' },
+	email: { label: __( 'Email', 'jetpack' ), icon: 'mail' },
 	facebook: { label: 'Facebook', icon: 'facebook' },
 	linkedin: { label: 'LinkedIn', icon: 'linkedin' },
 	reddit: { label: 'Reddit', icon: 'reddit' },

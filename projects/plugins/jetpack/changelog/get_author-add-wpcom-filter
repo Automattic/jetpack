@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-get_author: wpcom: Add a new wpcom_api_pre_get_active_blog_author filter

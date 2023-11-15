@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix a PHP Warning when WooCommerce templates were not found due to a name change

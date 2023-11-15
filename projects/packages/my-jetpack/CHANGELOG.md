@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.12.2] - 2023-11-14
+### Changed
+- My Jetpack: Fix a bug causing PHP fatal errors when the Jetpack AI feature information is not available. [#34095]
+- Updated package dependencies. [#34093]
+
+## [3.12.1] - 2023-11-13
+### Changed
+- AI Assistant: Updated the text and image for the interstitial based on AI plan tiers. [#33981]
+- AI Assistant: Removed the ToS notice from the interstitial page. [#34076]
+
 ## [3.12.0] - 2023-11-08
 ### Added
 - Updated purchased state for VaultPress backup card on My Jetpack. [#33927]
@@ -1089,6 +1099,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[3.12.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.12.1...3.12.2
+[3.12.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.12.0...3.12.1
 [3.12.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.11.1...3.12.0
 [3.11.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.11.0...3.11.1
 [3.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.10.0...3.11.0

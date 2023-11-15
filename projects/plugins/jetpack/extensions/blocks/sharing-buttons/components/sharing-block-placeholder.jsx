@@ -23,8 +23,8 @@ export const SharingBlockPlaceholder = ( { changeStatus, isLoading, isModuleActi
 				variant="secondary"
 			>
 				{ isLoading
-					? __( 'Activating Sharing Buttons', 'jetpack' )
-					: __( 'Activate Sharing Buttons', 'jetpack', 0 ) }
+					? __( 'Activating sharing buttons', 'jetpack' )
+					: __( 'Activate sharing buttons', 'jetpack', 0 ) }
 			</Button>
 			<div className="membership-button__disclaimer">
 				<ExternalLink href={ getRedirectUrl( 'jetpack-support-sharing' ) }>

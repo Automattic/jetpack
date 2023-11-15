@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Change useModuleActive to use redux store instead from Jetpack Modules store

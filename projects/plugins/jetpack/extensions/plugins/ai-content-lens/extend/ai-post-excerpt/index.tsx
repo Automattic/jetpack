@@ -18,7 +18,6 @@ import { count } from '@wordpress/wordcount';
  * Internal dependencies
  */
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
-import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { isBetaExtension } from '../../../../editor';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
@@ -54,6 +53,9 @@ function AiPostExcerpt() {
 
 	const { editPost } = useDispatch( 'core/editor' );
 
+	const { dequeueAiAssistantFeatureAyncRequest, increaseAiAssistantRequestsCount } =
+		useDispatch( 'wordpress-com/plans' );
+
 	// Post excerpt words number
 	const [ excerptWordsNumber, setExcerptWordsNumber ] = useState( 50 );
 
@@ -61,7 +63,6 @@ function AiPostExcerpt() {
 	const [ language, setLanguage ] = useState< LanguageProp >();
 	const [ tone, setTone ] = useState< ToneProp >();
 	const [ model, setModel ] = useState< AiModelTypeProp >( AI_MODEL_GPT_4 );
-	const { increaseRequestsCount } = useAiFeature();
 
 	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions( {
 		onDone: useCallback( () => {
@@ -69,8 +70,8 @@ function AiPostExcerpt() {
 			 * Increase the AI Suggestion counter.
 			 * @todo: move this at store level.
 			 */
-			increaseRequestsCount();
-		}, [ increaseRequestsCount ] ),
+			increaseAiAssistantRequestsCount();
+		}, [ increaseAiAssistantRequestsCount ] ),
 		onError: useCallback(
 			suggestionError => {
 				/*
@@ -86,9 +87,9 @@ function AiPostExcerpt() {
 				}
 
 				// Increase the AI Suggestion counter.
-				increaseRequestsCount();
+				increaseAiAssistantRequestsCount();
 			},
-			[ increaseRequestsCount ]
+			[ increaseAiAssistantRequestsCount ]
 		),
 	} );
 
@@ -166,6 +167,13 @@ ${ postContent }
 				context: messageContext,
 			},
 		];
+
+		/*
+		 * Always dequeue/cancel the AI Assistant feature async request,
+		 * in case there is one pending,
+		 * when performing a new AI suggestion request.
+		 */
+		dequeueAiAssistantFeatureAyncRequest();
 
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 	}

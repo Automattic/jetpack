@@ -193,7 +193,8 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 			$year = $this->force_year ? $this->force_year : wp_date( 'Y' );
 
 			// Grab the current sort order, `ASC` or `DESC`, so we can reuse it.
-			$order = end( explode( ' ', $clauses['orderby'] ) );
+			$exploded = explode( ' ', $clauses['orderby'] );
+			$order    = end( $exploded );
 
 			// Calculate the day of year for each prompt, from 1 to 366, but use the current year so that prompts published
 			// during leap years have the correct day for non-leap years.
