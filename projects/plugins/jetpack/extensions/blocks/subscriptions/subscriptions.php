@@ -987,11 +987,9 @@ function get_paywall_blocks( $newsletter_access_level ) {
 
 		}
 	} else {
-		$access_question = get_paywall_access_question( $newsletter_access_level );
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			// custom domain
-			$sign_in_link     = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link', get_current_blog_id() );
-			$access_question .= ' ' . __( 'Log in.', 'jetpack' );
+			$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link', get_current_blog_id() );
 		} else {
 			$sign_in_link = add_query_arg(
 				array(
@@ -1002,8 +1000,8 @@ function get_paywall_blocks( $newsletter_access_level ) {
 				'https://subscribe.wordpress.com/memberships/jwt'
 			);
 		}
-
-		$sign_in = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
+		$access_question = get_paywall_access_question( $newsletter_access_level );
+		$sign_in         = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
 <p class="has-text-align-center" style="font-size:14px"><a href="' . $sign_in_link . '">' . $access_question . '</a></p>
 <!-- /wp:paragraph -->';
 	}
