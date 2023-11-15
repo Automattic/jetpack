@@ -6,7 +6,7 @@ import { store as editorStore } from '@wordpress/editor';
  *
  * @returns {boolean} Object with Jetpack Social options.
  */
-export function getJetpackSocialPostAlreadyShared(): boolean {
+export function getJetpackSocialPostAlreadyShared() {
 	const { getEditedPostAttribute } = select( editorStore );
 
 	const alreadyShared = getEditedPostAttribute( 'meta' )?.jetpack_social_post_already_shared;

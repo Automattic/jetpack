@@ -7,7 +7,7 @@ import { store as editorStore } from '@wordpress/editor';
  *
  * @returns {boolean} Whether or not the publicize feature is enabled.
  */
-export function isPublicizeEnabled(): boolean {
+export function isPublicizeEnabled() {
 	const { getEditedPostAttribute } = select( editorStore );
 
 	const enabled = getEditedPostAttribute( 'meta' )?.jetpack_publicize_feature_enabled;

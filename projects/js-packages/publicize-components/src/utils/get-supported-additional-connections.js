@@ -5,6 +5,6 @@ import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
  *
  * @returns {Array<string>} A list of connection names
  */
-export function getSupportedAdditionalConnections(): Array< string > {
+export function getSupportedAdditionalConnections() {
 	return getJetpackData()?.social?.supportedAdditionalConnections || [];
 }

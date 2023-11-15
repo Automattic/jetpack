@@ -7,7 +7,7 @@ import { JetpackSocialOptions } from './types';
  *
  * @returns {JetpackSocialOptions} Object with Jetpack Social options.
  */
-export function getJetpackSocialOptions(): JetpackSocialOptions {
+export function getJetpackSocialOptions() {
 	const { getEditedPostAttribute } = select( editorStore );
 	const meta = getEditedPostAttribute( 'meta' );
 
