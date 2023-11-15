@@ -1,6 +1,4 @@
 <script lang="ts">
-	import InfoIcon from '@svg/info.svg';
-	import RefreshIcon from '@svg/refresh.svg';
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '$components/TemplatedString.svelte';
 	import TimeAgo from '$components/TimeAgo.svelte';
@@ -8,6 +6,8 @@
 	import { CriticalCssState } from '$lib/stores/critical-css-state-types';
 	import actionLinkTemplateVar from '$lib/utils/action-link-template-var';
 	import routerHistory from '$lib/utils/router-history';
+	import InfoIcon from '$svg/info.svg';
+	import RefreshIcon from '$svg/refresh.svg';
 
 	export let status: CriticalCssState[ 'status' ];
 	export let successCount = 0;

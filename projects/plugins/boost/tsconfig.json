@@ -20,13 +20,13 @@
 			"./app/assets/src/js"
 		],
 		"paths": {
-			"@lib/*": [
+			"$lib/*": [
 				"./app/assets/src/js/lib/*"
 			],
-			"@components/*": [
+			"$components/*": [
 				"./app/assets/src/js/components/*"
 			],
-			"@svg/*": [
+			"$svg/*": [
 				"./app/assets/src/js/svg/*"
 			]
 		},

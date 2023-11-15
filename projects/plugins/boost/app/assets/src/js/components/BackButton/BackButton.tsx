@@ -1,6 +1,6 @@
-import LeftArrow from '@svg/left-arrow';
 import { __ } from '@wordpress/i18n';
 import { navigate } from '$lib/utils/navigate';
+import LeftArrow from '$svg/left-arrow';
 
 type BackButtonProps = {
 	route?: string;

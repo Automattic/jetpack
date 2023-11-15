@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { getCurrencyObject } from '@automattic/format-currency';
-	import RightArrow from '@svg/right-arrow.svg';
 	import { onMount } from 'svelte';
 	import { __, sprintf } from '@wordpress/i18n';
 	import { recordBoostEvent } from '$lib/utils/analytics';
 	import routerHistory from '$lib/utils/router-history';
+	import RightArrow from '$svg/right-arrow.svg';
 
 	const { navigate } = routerHistory;
 
