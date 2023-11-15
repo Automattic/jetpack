@@ -112,7 +112,7 @@ class Assets {
 	/**
 	 * A helper function that lets you enqueue scripts in an async fashion.
 	 *
-	 * @since $$next-version$$ Leverages script strategy for WordPress 6.3 and greater.
+	 * @deprecated Since $$next-version$$ - use the strategy feature instead.
 	 *
 	 * @param string $handle        Name of the script. Should be unique.
 	 * @param string $min_path      Minimized script path.
@@ -122,20 +122,13 @@ class Assets {
 	 * @param bool   $in_footer       Should the script be included in the footer.
 	 */
 	public static function enqueue_async_script( $handle, $min_path, $non_min_path, $deps = array(), $ver = false, $in_footer = true ) {
+		_deprecated_function( __METHOD__, '$$next-version$$ ' );
 		global $wp_version;
 
 		$assets_instance = self::instance();
 
-		// WordPress 6.3 introduces support for async/defer via the strategy attribute.
-		if ( version_compare( $wp_version, '6.3', '>=' ) ) {
-			$in_footer = array(
-				'in_footer' => $in_footer,
-				'strategy'  => 'defer',
-			);
-		} else {
-			// Pre 6.3 approach.
-			$assets_instance->add_async_script( $handle );
-		}
+		$assets_instance->add_async_script( $handle );
+
 		wp_enqueue_script( $handle, self::get_file_url_for_environment( $min_path, $non_min_path ), $deps, $ver, $in_footer );
 	}
 
