@@ -1,6 +1,9 @@
 export type SIGSettings = {
-	template?: string;
 	enabled: boolean;
+	custom_text?: string;
+	image_type?: string;
+	image_id?: number;
+	template?: string;
 	token?: string;
 };
 
