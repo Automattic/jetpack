@@ -117,7 +117,7 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			const currentCount =
 				isUnlimitedTierPlan || isFreeTierPlan // @todo: update once tier data is available
 					? requestsCount
-					: state.features.aiAssistant.currentTier?.limit;
+					: state.features.aiAssistant.usagePeriod?.requestsCount;
 
 			/**
 			 * Compute the AI Assistant Feature data optimistically,
