@@ -5,7 +5,8 @@ import api from '../api/api';
 import { startPollingCloudStatus } from '../utils/cloud-css';
 import generateCriticalCss from '../utils/generate-critical-css';
 import { CriticalCssStateSchema } from './critical-css-state-types';
-import { jetpack_boost_ds, JSONObject, suggestRegenerateDS } from './data-sync-client';
+import { jetpack_boost_ds, JSONObject } from './data-sync-client';
+import { suggestRegenerateDS } from '$features/critical-css';
 import { modulesState } from './modules';
 import type { CriticalCssState, Provider } from './critical-css-state-types';
 

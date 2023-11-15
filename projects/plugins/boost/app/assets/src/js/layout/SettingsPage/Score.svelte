@@ -12,7 +12,7 @@
 	import ErrorNotice from '$features/ErrorNotice.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import { scoreChangeModal, ScoreChangeMessage } from '$lib/api/speed-scores';
-	import { performanceHistoryPanelDS } from '$lib/stores/data-sync-client';
+	import { performanceHistoryPanelDS } from './performance-history/store';
 	import { dismissedAlerts } from '$lib/stores/dismissed-alerts';
 	import { modulesState } from '$lib/stores/modules';
 	import { dismissedScorePromptStore } from '$lib/stores/prompt';

@@ -33,7 +33,7 @@
 		isFatalError,
 	} from '$lib/stores/critical-css-state';
 	import { criticalCssIssues, primaryErrorSet } from '$lib/stores/critical-css-state-errors';
-	import { suggestRegenerateDS } from '$lib/stores/data-sync-client';
+	import { suggestRegenerateDS } from '$features/critical-css';
 	import { imageCdnQuality } from '$features/image-cdn/store';
 	import { modulesState } from '$lib/stores/modules';
 	import { premiumFeatures } from '$lib/stores/premium-features';
