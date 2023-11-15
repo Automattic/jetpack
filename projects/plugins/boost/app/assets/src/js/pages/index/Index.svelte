@@ -20,7 +20,7 @@
 	import MinifyMeta from '$features/minify-meta/minify-meta';
 	import Module from '$features/Module.svelte';
 	import PremiumTooltip from '$features/PremiumTooltip.svelte';
-	import { RegenerateCriticalCssSuggestion } from '$features/critical-css/RegenerateCriticalCssSuggestion/RegenerateCriticalCssSuggestion';
+	import { RegenerateCriticalCssSuggestion } from '$features/critical-css';
 	import ResizingUnavailable from '../../features/ResizingUnavailable.svelte';
 	import SuperCacheInfo from '$features/SuperCacheInfo.svelte';
 	import UpgradeCTA from '$features/UpgradeCTA.svelte';
