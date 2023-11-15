@@ -31,9 +31,5 @@
 		"shell-escape": "0.2.0",
 		"ts-jest": "29.0.3",
 		"typescript": "5.0.4"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

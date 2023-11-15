@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-analytics",
-	"version": "0.1.27",
+	"version": "0.1.28-alpha",
 	"description": "Jetpack Analytics Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/analytics/#readme",
 	"bugs": {
@@ -25,9 +25,5 @@
 	},
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }
