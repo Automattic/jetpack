@@ -3,7 +3,7 @@
 	import React from 'react';
 	import { __ } from '@wordpress/i18n';
 	import ActivateLicense from '$features/activate-license/activate-license';
-	import BackButton from '$features/back-button/back-button';
+	import { BackButton } from '$features/ui';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Footer from '$layout/Footer/Footer';
 	import Header from '$layout/Header/Header';
