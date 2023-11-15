@@ -1,0 +1,3 @@
+{
+	"redefinable-internals": [ "str_starts_with" ]
+}

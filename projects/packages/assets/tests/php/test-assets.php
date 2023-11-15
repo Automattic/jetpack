@@ -728,6 +728,15 @@ class AssetsTest extends TestCase {
 				return "http://example.com/wp-content/$v";
 			}
 		);
+		// Mock str_starts_with() for tests ran  with PHP < 8.
+		Functions\when( 'str_starts_with' )->alias(
+			function ( $haystack, $needle ) {
+				if ( '' === $needle ) {
+					return true;
+				}
+				return 0 === strpos( $haystack, $needle );
+			}
+		);
 
 		$obj = Filters\expectApplied( 'jetpack_i18n_state' )->once()->with( $expect_filter );
 		if ( array_key_exists( 'filter', $options ) ) {
