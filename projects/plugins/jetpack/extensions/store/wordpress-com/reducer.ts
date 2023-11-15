@@ -103,7 +103,7 @@ export default function reducer( state = INITIAL_STATE, action ) {
 
 			const isFreeTierPlan =
 				( typeof currentTierValue === 'undefined' && ! state.features.aiAssistant.hasFeature ) ||
-				currentTierValue === 1;
+				currentTierValue === 0;
 
 			const isUnlimitedTierPlan =
 				( typeof currentTierValue === 'undefined' && state.features.aiAssistant.hasFeature ) ||
