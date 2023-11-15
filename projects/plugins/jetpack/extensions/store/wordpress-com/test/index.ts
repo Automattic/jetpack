@@ -120,6 +120,53 @@ describe( 'reducer', () => {
 		expect( reducer( initialState, action ) ).toEqual( expectedState );
 	} );
 
+	it( 'should not require an upgrade when the tier plan does not achieves the limit', () => {
+		const initialState: PlanStateProps = {
+			plans: [],
+			features: {
+				aiAssistant: {
+					hasFeature: true,
+					isOverLimit: false,
+					requestsCount: 123, // it should be ignored for Tier plans
+					requestsLimit: UNLIMITED_PLAN_REQUESTS_LIMIT, // it should be ignored for Tier plans
+					requireUpgrade: false,
+					upgradeType: 'default',
+					currentTier: {
+						slug: 'ai-assistant-tier-100',
+						value: 100,
+						limit: 100,
+					},
+					usagePeriod: {
+						currentStart: 'ai-assistant-tier-free',
+						nextStart: '',
+						requestsCount: 98,
+					},
+				},
+			},
+		};
+
+		const action = { type: ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT, count: 1 };
+
+		const expectedState = {
+			...initialState,
+			features: {
+				aiAssistant: {
+					...initialState.features.aiAssistant,
+					hasFeature: true,
+					isOverLimit: false,
+					requestsCount: 124,
+					requireUpgrade: false,
+					usagePeriod: {
+						...initialState.features.aiAssistant.usagePeriod,
+						requestsCount: 99,
+					},
+				},
+			},
+		};
+
+		expect( reducer( initialState, action ) ).toEqual( expectedState );
+	} );
+
 	it( 'should require an upgrade when the tier plan achieves the limit', () => {
 		const initialState: PlanStateProps = {
 			plans: [],
