@@ -1,11 +1,12 @@
 <script lang="ts">
 	import React from 'react';
 	import { Snackbar } from '@wordpress/components';
-	import { BoostPricingTable } from './BoostPricingTable/BoostPricingTable';
+	import { BoostPricingTable } from '$features/BoostPricingTable/BoostPricingTable';
 	import ActivateLicense from '$features/ActivateLicense/ActivateLicense';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Footer from '$layout/Footer/Footer';
 	import Header from '$layout/Header/Header';
+
 	import { initializeConnection, getUpgradeURL } from '$lib/stores/connection';
 	import { recordBoostEvent } from '$lib/utils/analytics';
 
