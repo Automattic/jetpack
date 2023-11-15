@@ -5,7 +5,7 @@
 	import ImageCdnQualityControl from './ImageCdnQualityControl.svelte';
 	import type { ImageCdnQuality } from '$lib/stores/image-cdn';
 	import TemplatedString from '$features/TemplatedString.svelte';
-	import Tooltip from '$features/Tooltip.svelte';
+	import Tooltip from '$features/ui/Tooltip.svelte';
 	import actionLinkTemplateVar from '$lib/utils/action-link-template-var';
 
 	const navigate = useNavigate();

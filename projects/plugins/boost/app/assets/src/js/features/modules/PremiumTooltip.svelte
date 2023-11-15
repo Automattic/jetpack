@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
-	import Tooltip from '$features/Tooltip.svelte';
+	import Tooltip from '$features/ui/Tooltip.svelte';
 	import { recordBoostEvent } from '$lib/utils/analytics';
 	import routerHistory from '$lib/utils/router-history';
 
