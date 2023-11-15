@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
 	import { __, _n, sprintf } from '@wordpress/i18n';
-	import BackButton from '$features/back-button/BackButton';
+	import BackButton from '$features/back-button/back-button';
 	import CloseButton from '$features/CloseButton.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import CriticalCssErrorDescription from '$features/critical-css/CriticalCssErrorDescription.svelte';

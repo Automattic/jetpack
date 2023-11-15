@@ -11,7 +11,7 @@
 		type ISASummary,
 	} from './store/isa-summary';
 	import ErrorNotice from '$features/ErrorNotice.svelte';
-	import ImageCdnRecommendation from '$features/image-cdn-recommendation/ImageCdnRecommendation';
+	import ImageCdnRecommendation from '$features/image-cdn-recommendation/image-cdn-recommendation';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import { recordBoostEvent, recordBoostEventAndRedirect } from '$lib/utils/analytics';
 	import getIsaErrorSuggestion from '$lib/utils/get-isa-error-suggestion';

@@ -3,7 +3,7 @@
 	import GettingStarted from './routes/getting-started/GettingStarted.svelte';
 	import RecommendationsPage from './routes/image-size-analysis/ImageSizeAnalysis.svelte';
 	import Index from './routes/index/Index.svelte';
-	import PurchaseSuccess from './routes/purchase-success/PurchaseSuccess';
+	import PurchaseSuccess from './routes/purchase-success/purchase-success';
 	import Upgrade from './routes/upgrade/Upgrade.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Redirect from '$features/Redirect.svelte';

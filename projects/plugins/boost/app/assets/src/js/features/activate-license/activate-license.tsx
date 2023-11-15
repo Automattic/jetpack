@@ -1,6 +1,6 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import styles from './ActivateLicense.module.scss';
+import styles from './activate-license.module.scss';
 
 const ActivateLicense = () => {
 	const activateLicenseUrl = 'admin.php?page=my-jetpack#/add-license';

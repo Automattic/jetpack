@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
-	import { Hero } from '$features/image-size-analysis/Hero/Hero';
+	import { Hero } from '$features/image-size-analysis/the-hero/the-hero';
 	import Pagination from '$features/image-size-analysis/recommendations/Pagination.svelte';
 	import Table from '$features/image-size-analysis/recommendations/Table.svelte';
 	import Tabs from '$features/image-size-analysis/recommendations/Tabs.svelte';
