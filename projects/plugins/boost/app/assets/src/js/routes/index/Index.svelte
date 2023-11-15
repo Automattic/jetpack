@@ -16,7 +16,7 @@
 	import TemplatedString from '$features/TemplatedString.svelte';
 	import CloudCssMeta from '$features/critical-css/CloudCssMeta.svelte';
 	import CriticalCssMeta from '$features/critical-css/CriticalCssMeta.svelte';
-	import ImageCdnQualitySettings from '$features/modules/ImageCdnQualitySettings.svelte';
+	import ImageCdnQualitySettings from '$features/image-cdn/ImageCdnQualitySettings.svelte';
 	import MinifyMeta from '$features/modules/minify-meta/minify-meta';
 	import Module from '$features/modules/Module.svelte';
 	import PremiumTooltip from '$features/modules/PremiumTooltip.svelte';
@@ -34,7 +34,7 @@
 	} from '$lib/stores/critical-css-state';
 	import { criticalCssIssues, primaryErrorSet } from '$lib/stores/critical-css-state-errors';
 	import { suggestRegenerateDS } from '$lib/stores/data-sync-client';
-	import { imageCdnQuality } from '$lib/stores/image-cdn';
+	import { imageCdnQuality } from '$features/image-cdn/store';
 	import { modulesState } from '$lib/stores/modules';
 	import { premiumFeatures } from '$lib/stores/premium-features';
 	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '$lib/utils/cloud-css';
