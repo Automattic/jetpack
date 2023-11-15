@@ -107,7 +107,11 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 		);
 
 		// Make sure the script loads asynchronously (add a defer attribute).
-		Assets::instance()->add_async_script( 'jetpack-stats' );
+		if ( version_compare( $wp_version, '6.3', '>=' ) ) {
+			wp_script_add_data( 'jetpack-stats', 'strategy', 'defer' );
+		} else {
+			Assets::instance()->add_async_script( 'jetpack-stats' );
+		}
 
 		$data = self::build_view_data();
 
