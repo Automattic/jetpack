@@ -26,7 +26,9 @@
 		<Score {activeModules} {criticalCssCreated} {criticalCssIsGenerating} />
 	</div>
 
-	<slot />
+	<div class="jb-section jb-section--main">
+		<slot />
+	</div>
 
 	<Tips />
 
