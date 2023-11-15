@@ -1,7 +1,7 @@
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
-import { getJetpackSocialOptions, getImageGeneratorSettings } from '../../utils';
+import { getJetpackSocialOptions, getImageGeneratorPostSettings } from '../../utils';
 
 const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
 	isEnabled: sigSettings?.enabled ?? ! isPostPublished,
@@ -53,7 +53,7 @@ export default function useImageGeneratorConfig() {
 
 	const updateProperty = useCallback(
 		( key, value ) => {
-			const settings = { ...getImageGeneratorSettings(), [ key ]: value };
+			const settings = { ...getImageGeneratorPostSettings(), [ key ]: value };
 			_commitPostUpdate( settings );
 		},
 		[ _commitPostUpdate ]
@@ -61,7 +61,7 @@ export default function useImageGeneratorConfig() {
 
 	const updateSettings = useCallback(
 		settings => {
-			const newSettings = { ...getImageGeneratorSettings(), ...settings };
+			const newSettings = { ...getImageGeneratorPostSettings(), ...settings };
 			_commitPostUpdate( newSettings );
 		},
 		[ _commitPostUpdate ]

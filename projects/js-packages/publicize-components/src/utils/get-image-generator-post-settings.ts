@@ -6,6 +6,6 @@ import { SIGSettings } from './types';
  *
  * @returns {SIGSettings} An object of image generator settings.
  */
-export function getImageGeneratorSettings(): SIGSettings {
+export function getImageGeneratorPostSettings(): SIGSettings {
 	return getJetpackSocialOptions()?.image_generator_settings ?? { enabled: false };
 }

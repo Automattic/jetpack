@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import {
 	getAttachedMedia,
-	getImageGeneratorSettings,
+	getImageGeneratorPostSettings,
 	shouldUploadAttachedMedia,
 } from '../../utils';
 import { getSigImageUrl } from '../generated-image-preview/utils';
@@ -72,7 +72,7 @@ export default withSelect( select => {
 	// Use the featured image by default, if it's available.
 	let image = featuredImageId ? getMediaSourceUrl( getMedia( featuredImageId ) ) : '';
 
-	const sigSettings = getImageGeneratorSettings();
+	const sigSettings = getImageGeneratorPostSettings();
 
 	const sigImageUrl = sigSettings.enabled ? getSigImageUrl( sigSettings.token ) : '';
 

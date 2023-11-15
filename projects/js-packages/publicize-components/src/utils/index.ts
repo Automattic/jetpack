@@ -1,5 +1,5 @@
 export * from './get-attached-media';
-export * from './get-image-generator-settings';
+export * from './get-image-generator-post-settings';
 export * from './get-jetpack-social-options';
 export * from './get-jetpack-social-post-already-shared';
 export * from './get-share-message';
