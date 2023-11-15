@@ -3,9 +3,9 @@
 	import TableRow from './TableRow.svelte';
 	import TableRowHover from './TableRowHover.svelte';
 	import type { ImageDataType } from '../../store/zod-types';
-	import Device from '$features/image-size-analysis/recommendations/components/Device.svelte';
-	import Pill from '$features/image-size-analysis/recommendations/components/Pill.svelte';
-	import RowTitle from '$features/image-size-analysis/recommendations/components/RowTitle.svelte';
+	import Device from '$features/ImageSizeAnalysis/recommendations/components/Device.svelte';
+	import Pill from '$features/ImageSizeAnalysis/recommendations/components/Pill.svelte';
+	import RowTitle from '$features/ImageSizeAnalysis/recommendations/components/RowTitle.svelte';
 	import { removeGetParams } from '$lib/utils/remove-get-params';
 
 	export let enableTransition: boolean;
