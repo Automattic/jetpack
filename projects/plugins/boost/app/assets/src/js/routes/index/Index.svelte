@@ -21,7 +21,7 @@
 	import Module from '$features/modules/Module.svelte';
 	import PremiumTooltip from '$features/modules/PremiumTooltip.svelte';
 	import { RegenerateCriticalCssSuggestion } from '$features/critical-css/RegenerateCriticalCssSuggestion/RegenerateCriticalCssSuggestion';
-	import ResizingUnavailable from '$features/modules/ResizingUnavailable.svelte';
+	import ResizingUnavailable from './ResizingUnavailable.svelte';
 	import SuperCacheInfo from '$features/modules/SuperCacheInfo.svelte';
 	import UpgradeCTA from '$features/modules/UpgradeCTA.svelte';
 	import config from '$lib/stores/config';
