@@ -64,10 +64,13 @@ class Assets {
 	 * Initalize the hooks as needed.
 	 */
 	private function init_hooks() {
+		global $wp_version;
 		/*
-		 * Load some scripts asynchronously.
+		 * Load some scripts asynchronously. Pre-WordPress 6.3 approach.
 		 */
-		add_filter( 'script_loader_tag', array( $this, 'script_add_async' ), 10, 2 );
+		if( version_compare( $wp_version, '6.3', '<' ) ) {
+			add_filter( 'script_loader_tag', array( $this, 'script_add_async' ), 10, 2 );
+		}
 	}
 
 	/**
