@@ -7,6 +7,7 @@ export const UPDATE_SOCIAL_IMAGE_GENERATOR_SETTINGS = 'UPDATE_SOCIAL_IMAGE_GENER
 
 export const FETCH_AUTO_CONVERSION_SETTINGS = 'FETCH_AUTO_CONVERSION_SETTINGS';
 export const UPDATE_AUTO_CONVERSION_SETTINGS = 'UPDATE_AUTO_CONVERSION_SETTINGS';
+export const FETCH_JETPACK_SOCIAL_SETTINGS = 'FETCH_JETPACK_SOCIAL_SETTINGS';
 
 /**
  * fetchJetpackSettings action
@@ -68,6 +69,17 @@ export const fetchAutoConversionSettings = () => {
 };
 
 /**
+ * fetchJetpackSocialSettings action
+ *
+ * @returns {object} - an action object.
+ */
+export const fetchJetpackSocialSettings = () => {
+	return {
+		type: FETCH_JETPACK_SOCIAL_SETTINGS,
+	};
+};
+
+/**
  * updateAutoConversionSettings action
  *
  * @param {*} settings - Auto conversion settings object.
@@ -117,6 +129,11 @@ export default {
 			data: {
 				jetpack_social_autoconvert_images: action.settings,
 			},
+		} );
+	},
+	[ FETCH_JETPACK_SOCIAL_SETTINGS ]: function () {
+		return apiFetch( {
+			path: '/wp/v2/settings?_fields=jetpack_social_autoconvert_images,jetpack_social_image_generator_settings',
 		} );
 	},
 };
