@@ -1,8 +1,8 @@
 import { Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { suggestRegenerateDS, type RegenReason } from '$lib/stores/data-sync-client';
+import { suggestRegenerateDS, type RegenerationReason } from '$lib/stores/data-sync-client';
 
-const GetSuggestionMessage = ( type: RegenReason | null ) => {
+const GetSuggestionMessage = ( type: RegenerationReason | null ) => {
 	let message;
 	if ( 'page_saved' === type ) {
 		message = __(
