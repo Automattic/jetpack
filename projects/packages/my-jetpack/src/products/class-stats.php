@@ -140,10 +140,10 @@ class Stats extends Module_Product {
 		}
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				if ( 0 === strpos( $purchase->product_slug, 'jetpack_stats' ) ) {
+				if ( str_starts_with( $purchase->product_slug, 'jetpack_stats' ) ) {
 					return true;
 				}
-				if ( 0 === strpos( $purchase->product_slug, 'jetpack_complete' ) ) {
+				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
 					return true;
 				}
 			}
@@ -167,10 +167,10 @@ class Stats extends Module_Product {
 				if (
 					(
 						// Purchase is Jetpack Stats...
-						0 === strpos( $purchase->product_slug, 'jetpack_stats' ) &&
+						str_starts_with( $purchase->product_slug, 'jetpack_stats' ) &&
 						// but not Jetpack Stats Free...
 						false === strpos( $purchase->product_slug, 'free' )
-					) || 0 === strpos( $purchase->product_slug, 'jetpack_complete' )
+					) || str_starts_with( $purchase->product_slug, 'jetpack_complete' )
 				) {
 					// Only Jetpack Stats paid plans should be eligible for this conditional.
 					// Sample product slugs: jetpack_stats_monthly
@@ -195,7 +195,7 @@ class Stats extends Module_Product {
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
 				if (
-					0 === strpos( $purchase->product_slug, static::get_wpcom_free_product_slug() )
+					str_starts_with( $purchase->product_slug, static::get_wpcom_free_product_slug() )
 				) {
 					return '&productType=personal';
 				}
