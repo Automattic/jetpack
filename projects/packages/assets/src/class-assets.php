@@ -73,9 +73,12 @@ class Assets {
 	/**
 	 * A public method for adding the async script.
 	 *
+	 * @deprecated Since $$next-version$$, the `strategy` feature should be used instead.
+	 *
 	 * @param string $script_handle Script handle.
 	 */
 	public static function add_async_script( $script_handle ) {
+		_deprecated_function( __METHOD__, '$$next-version$$ ' );
 		$assets_instance                         = self::instance();
 		$assets_instance->defer_script_handles[] = $script_handle;
 	}
