@@ -336,9 +336,9 @@ class Assets {
 	 *  - `media`:            (string) Media for the css file. Default 'all'.
 	 *  - `minify`:           (bool|null) Set true to pass `minify=true` in the query string, or `null` to suppress the normal `minify=false`.
 	 *  - `nonmin_path`:      (string) Non-minified script path.
+	 *  - `strategy`:         (string) Specify a script strategy to use, eg. `defer` or `async`. Default is `""`.
 	 *  - `textdomain`:       (string) Text domain for the script. Required if the script depends on wp-i18n.
 	 *  - `version`:          (string) Override the version from the `asset_path` file.
-	 *  - `strategy`:         (string) Specify a script strategy to use, eg. `defer` or `async`. Default is `""`.
 	 * @throws \InvalidArgumentException If arguments are invalid.
 	 */
 	public static function register_script( $handle, $path, $relative_to, array $options = array() ) {
