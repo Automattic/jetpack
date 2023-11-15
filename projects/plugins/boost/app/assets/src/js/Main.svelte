@@ -1,10 +1,10 @@
 <script lang="ts">
-	import AdvancedCriticalCss from './routes/critical-css-advanced/CriticalCssAdvanced.svelte';
-	import GettingStarted from './routes/getting-started/GettingStarted.svelte';
-	import RecommendationsPage from './routes/image-size-analysis/ImageSizeAnalysis.svelte';
-	import Index from './routes/index/Index.svelte';
-	import PurchaseSuccess from './routes/purchase-success/purchase-success';
-	import Upgrade from './routes/upgrade/Upgrade.svelte';
+	import AdvancedCriticalCss from './pages/critical-css-advanced/CriticalCssAdvanced.svelte';
+	import GettingStarted from './pages/getting-started/GettingStarted.svelte';
+	import RecommendationsPage from './pages/image-size-analysis/ImageSizeAnalysis.svelte';
+	import Index from './pages/index/Index.svelte';
+	import PurchaseSuccess from './pages/purchase-success/purchase-success';
+	import Upgrade from './pages/upgrade/Upgrade.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Redirect from '$features/Redirect.svelte';
 	import SettingsPage from '$layout/SettingsPage/SettingsPage.svelte';
