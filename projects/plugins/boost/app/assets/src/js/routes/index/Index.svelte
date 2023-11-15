@@ -11,8 +11,8 @@
 	import Notice from '$features/Notice.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import TemplatedString from '$features/TemplatedString.svelte';
-	import CloudCssMeta from '$features/modules/CloudCssMeta.svelte';
-	import CriticalCssMeta from '$features/modules/CriticalCssMeta.svelte';
+	import CloudCssMeta from '$features/critical-css/CloudCssMeta.svelte';
+	import CriticalCssMeta from '$features/critical-css/CriticalCssMeta.svelte';
 	import ImageCdnQualitySettings from '$features/modules/ImageCdnQualitySettings.svelte';
 	import MinifyMeta from '$features/modules/MinifyMeta/MinifyMeta';
 	import Module from '$features/modules/Module.svelte';
