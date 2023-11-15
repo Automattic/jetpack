@@ -175,12 +175,12 @@ ${ postContent }
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 	}
 
-	function setExpert() {
+	function setExcerpt() {
 		editPost( { excerpt: suggestion } );
 		reset();
 	}
 
-	function discardExpert() {
+	function discardExcerpt() {
 		editPost( { excerpt: excerpt } );
 		reset();
 	}
@@ -252,7 +252,7 @@ ${ postContent }
 				>
 					<div className="jetpack-generated-excerpt__generate-buttons-container">
 						<Button
-							onClick={ discardExpert }
+							onClick={ discardExcerpt }
 							variant="secondary"
 							isDestructive
 							disabled={ requestingState !== 'done' || isQuotaExceeded }
@@ -260,7 +260,7 @@ ${ postContent }
 							{ __( 'Discard', 'jetpack' ) }
 						</Button>
 						<Button
-							onClick={ setExpert }
+							onClick={ setExcerpt }
 							variant="secondary"
 							disabled={ requestingState !== 'done' || isQuotaExceeded }
 						>
