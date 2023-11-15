@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
-	import Toggle from '$components/ui/Toggle.svelte';
+	import Toggle from '$features/ui/Toggle.svelte';
 	import { modulesState, modulesStatePending } from '$lib/stores/modules';
 
 	export let toggle = true;

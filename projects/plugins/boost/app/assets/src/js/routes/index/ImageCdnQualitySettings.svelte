@@ -4,8 +4,8 @@
 	import CollapsibleMeta from './CollapsibleMeta.svelte';
 	import ImageCdnQualityControl from './ImageCdnQualityControl.svelte';
 	import type { ImageCdnQuality } from '$lib/stores/image-cdn';
-	import TemplatedString from '$components/TemplatedString.svelte';
-	import Tooltip from '$components/Tooltip.svelte';
+	import TemplatedString from '$features/TemplatedString.svelte';
+	import Tooltip from '$features/Tooltip.svelte';
 	import actionLinkTemplateVar from '$lib/utils/action-link-template-var';
 
 	const navigate = useNavigate();

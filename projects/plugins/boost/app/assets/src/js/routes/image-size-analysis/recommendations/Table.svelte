@@ -6,8 +6,8 @@
 	import ImageMissingRow from './row-types/ImageMissingRow.svelte';
 	import ImageSizeRow from './row-types/ImageSizeRow.svelte';
 	import LoadingRow from './row-types/LoadingRow.svelte';
-	import Spinner from '$components/Spinner.svelte';
-	import TemplatedString from '$components/TemplatedString.svelte';
+	import Spinner from '$features/Spinner.svelte';
+	import TemplatedString from '$features/TemplatedString.svelte';
 	import actionLinkTemplateVar from '$lib/utils/action-link-template-var';
 
 	export let needsRefresh: boolean;

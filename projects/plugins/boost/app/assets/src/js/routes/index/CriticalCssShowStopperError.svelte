@@ -8,7 +8,7 @@
 	import { __ } from '@wordpress/i18n';
 	import CriticalCssErrorDescription from './CriticalCssErrorDescription.svelte';
 	import FoldingElement from './FoldingElement.svelte';
-	import ErrorNotice from '$components/ErrorNotice.svelte';
+	import ErrorNotice from '$features/ErrorNotice.svelte';
 	import { CriticalCssState } from '$lib/stores/critical-css-state-types';
 
 	export let supportLink = 'https://wordpress.org/support/plugin/jetpack-boost/';

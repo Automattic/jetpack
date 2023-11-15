@@ -3,9 +3,9 @@
 	import TableRow from './TableRow.svelte';
 	import TableRowHover from './TableRowHover.svelte';
 	import type { ImageDataType } from '../../store/zod-types';
-	import Device from '$components/Device.svelte';
-	import Pill from '$components/Pill.svelte';
-	import RowTitle from '$components/RowTitle.svelte';
+	import Device from '$features/Device.svelte';
+	import Pill from '$features/Pill.svelte';
+	import RowTitle from '$features/RowTitle.svelte';
 	import { removeGetParams } from '$lib/utils/remove-get-params';
 
 	export let enableTransition: boolean;

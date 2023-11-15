@@ -2,9 +2,9 @@
 	import Score from './Score.svelte';
 	import Support from './Support/Support';
 	import Tips from './Tips.svelte';
-	import ReactComponent from '$components/ReactComponent.svelte';
-	import Footer from '$components/sections/Footer/Footer';
-	import Header from '$components/sections/Header/Header';
+	import ReactComponent from '$features/ReactComponent.svelte';
+	import Footer from '$features/sections/Footer/Footer';
+	import Header from '$features/sections/Header/Header';
 	import { criticalCssState, isGenerating } from '$lib/stores/critical-css-state';
 	import { modulesState } from '$lib/stores/modules';
 	import { hasPrioritySupport } from '$lib/utils/paid-plan';

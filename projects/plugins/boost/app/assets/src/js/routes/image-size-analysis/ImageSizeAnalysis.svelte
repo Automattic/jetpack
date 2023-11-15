@@ -15,9 +15,9 @@
 		totalIssueCount,
 		isaSummary,
 	} from './store/isa-summary';
-	import ReactComponent from '$components/ReactComponent.svelte';
-	import Footer from '$components/sections/Footer/Footer';
-	import Header from '$components/sections/Header/Header';
+	import ReactComponent from '$features/ReactComponent.svelte';
+	import Footer from '$features/sections/Footer/Footer';
+	import Header from '$features/sections/Header/Header';
 	import { modulesState } from '$lib/stores/modules';
 
 	initializeIsaData();

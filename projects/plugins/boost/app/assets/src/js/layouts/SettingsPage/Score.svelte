@@ -9,8 +9,8 @@
 	import ContextTooltip from './ContextTooltip/ContextTooltip';
 	import History from './History.svelte';
 	import PopOut from './PopOut.svelte';
-	import ErrorNotice from '$components/ErrorNotice.svelte';
-	import ReactComponent from '$components/ReactComponent.svelte';
+	import ErrorNotice from '$features/ErrorNotice.svelte';
+	import ReactComponent from '$features/ReactComponent.svelte';
 	import { scoreChangeModal, ScoreChangeMessage } from '$lib/api/speed-scores';
 	import { performanceHistoryPanelDS } from '$lib/stores/data-sync-client';
 	import { dismissedAlerts } from '$lib/stores/dismissed-alerts';

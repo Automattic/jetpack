@@ -9,8 +9,8 @@
 	import { __ } from '@wordpress/i18n';
 	import FoldingElement from './FoldingElement.svelte';
 	import MoreList from './MoreList.svelte';
-	import NumberedList from '$components/NumberedList.svelte';
-	import TemplatedString from '$components/TemplatedString.svelte';
+	import NumberedList from '$features/NumberedList.svelte';
+	import TemplatedString from '$features/TemplatedString.svelte';
 	import { regenerateCriticalCss } from '$lib/stores/critical-css-state';
 	import { ErrorSet } from '$lib/stores/critical-css-state-errors';
 	import actionLinkTemplateVar from '$lib/utils/action-link-template-var';

@@ -2,10 +2,10 @@
 	import React from 'react';
 	import { Snackbar } from '@wordpress/components';
 	import { BoostPricingTable } from './BoostPricingTable/BoostPricingTable';
-	import ActivateLicense from '$components/ActivateLicense/ActivateLicense';
-	import ReactComponent from '$components/ReactComponent.svelte';
-	import Footer from '$components/sections/Footer/Footer';
-	import Header from '$components/sections/Header/Header';
+	import ActivateLicense from '$features/ActivateLicense/ActivateLicense';
+	import ReactComponent from '$features/ReactComponent.svelte';
+	import Footer from '$features/sections/Footer/Footer';
+	import Header from '$features/sections/Header/Header';
 	import { initializeConnection, getUpgradeURL } from '$lib/stores/connection';
 	import { recordBoostEvent } from '$lib/utils/analytics';
 

@@ -3,11 +3,11 @@
 	import TableRow from './TableRow.svelte';
 	import TableRowHover from './TableRowHover.svelte';
 	import type { ImageDataType } from '../../store/zod-types';
-	import Button from '$components/Button.svelte';
-	import Device from '$components/Device.svelte';
-	import Pill from '$components/Pill.svelte';
-	import RowTitle from '$components/RowTitle.svelte';
-	import Thumbnail from '$components/Thumbnail.svelte';
+	import Button from '$features/Button.svelte';
+	import Device from '$features/Device.svelte';
+	import Pill from '$features/Pill.svelte';
+	import RowTitle from '$features/RowTitle.svelte';
+	import Thumbnail from '$features/Thumbnail.svelte';
 	import { recordBoostEventAndRedirect } from '$lib/utils/analytics';
 	import { removeGetParams } from '$lib/utils/remove-get-params';
 

@@ -20,9 +20,9 @@
 	import ResizingUnavailable from './ResizingUnavailable.svelte';
 	import SuperCacheInfo from './SuperCacheInfo.svelte';
 	import UpgradeCTA from './UpgradeCTA.svelte';
-	import Notice from '$components/Notice.svelte';
-	import ReactComponent from '$components/ReactComponent.svelte';
-	import TemplatedString from '$components/TemplatedString.svelte';
+	import Notice from '$features/Notice.svelte';
+	import ReactComponent from '$features/ReactComponent.svelte';
+	import TemplatedString from '$features/TemplatedString.svelte';
 	import config from '$lib/stores/config';
 	import {
 		criticalCssState,

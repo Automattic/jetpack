@@ -10,9 +10,9 @@
 		type ISASummaryGroup,
 		type ISASummary,
 	} from './store/isa-summary';
-	import ErrorNotice from '$components/ErrorNotice.svelte';
-	import ImageCdnRecommendation from '$components/ImageCdnRecommendation/ImageCdnRecommendation';
-	import ReactComponent from '$components/ReactComponent.svelte';
+	import ErrorNotice from '$features/ErrorNotice.svelte';
+	import ImageCdnRecommendation from '$features/ImageCdnRecommendation/ImageCdnRecommendation';
+	import ReactComponent from '$features/ReactComponent.svelte';
 	import { recordBoostEvent, recordBoostEventAndRedirect } from '$lib/utils/analytics';
 	import getIsaErrorSuggestion from '$lib/utils/get-isa-error-suggestion';
 	import RefreshIcon from '$svg/refresh.svg';
