@@ -90,7 +90,7 @@ describe( 'reducer', () => {
 					currentTier: null,
 					nextTier: null,
 					usagePeriod: {
-						currentStart: 'ai-assistant-tier-free',
+						currentStart: 'ai-assistant-tier-unlimited',
 						nextStart: '',
 						requestsCount: 4,
 					},
@@ -127,8 +127,8 @@ describe( 'reducer', () => {
 				aiAssistant: {
 					hasFeature: true,
 					isOverLimit: false,
-					requestsCount: 123, // it should be ignored for Tier plans
-					requestsLimit: UNLIMITED_PLAN_REQUESTS_LIMIT, // it should be ignored for Tier plans
+					requestsCount: 123, // ignored for Tier plans
+					requestsLimit: UNLIMITED_PLAN_REQUESTS_LIMIT, // ignored for Tier plans
 					requireUpgrade: false,
 					upgradeType: 'default',
 					currentTier: {
@@ -174,8 +174,8 @@ describe( 'reducer', () => {
 				aiAssistant: {
 					hasFeature: true,
 					isOverLimit: false,
-					requestsCount: 123, // it should be ignored for Tier plans
-					requestsLimit: UNLIMITED_PLAN_REQUESTS_LIMIT, // it should be ignored for Tier plans
+					requestsCount: 123, // ignored for Tier plans
+					requestsLimit: UNLIMITED_PLAN_REQUESTS_LIMIT, // ignored for Tier plans
 					requireUpgrade: false,
 					upgradeType: 'default',
 					currentTier: {
