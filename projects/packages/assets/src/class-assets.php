@@ -87,10 +87,13 @@ class Assets {
 	 * Add an async attribute to scripts that can be loaded deferred.
 	 * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script
 	 *
+	 * @deprecated Since $$next-version$$, the `strategy` feature should be used instead.
+	 *
 	 * @param string $tag    The <script> tag for the enqueued script.
 	 * @param string $handle The script's registered handle.
 	 */
 	public function script_add_async( $tag, $handle ) {
+		_deprecated_function( __METHOD__, '$$next-version$$ ' );
 		if ( empty( $this->defer_script_handles ) ) {
 			return $tag;
 		}
