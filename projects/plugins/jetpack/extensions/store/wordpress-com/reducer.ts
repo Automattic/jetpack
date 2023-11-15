@@ -15,32 +15,29 @@ import {
 } from './constants';
 import type { PlanStateProps } from './types';
 
-const aiAssistantFeature = window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ];
-
 const INITIAL_STATE: PlanStateProps = {
 	plans: [],
 	features: {
 		aiAssistant: {
-			hasFeature: !! aiAssistantFeature?.[ 'has-feature' ],
-			isOverLimit: !! aiAssistantFeature?.[ 'is-over-limit' ],
-			requestsCount: aiAssistantFeature?.[ 'requests-count' ] || 0,
-			requestsLimit: aiAssistantFeature?.[ 'requests-limit' ] || FREE_PLAN_REQUESTS_LIMIT,
-			requireUpgrade: !! aiAssistantFeature?.[ 'site-require-upgrade' ],
-			errorMessage: aiAssistantFeature?.[ 'error-message' ] || '',
-			errorCode: aiAssistantFeature?.[ 'error-code' ],
-			upgradeType: aiAssistantFeature?.[ 'upgrade-type' ] || 'default',
-			currentTier: aiAssistantFeature?.[ 'current-tier' ] || {
+			hasFeature: true,
+			isOverLimit: false,
+			requestsCount: 0,
+			requestsLimit: FREE_PLAN_REQUESTS_LIMIT,
+			requireUpgrade: false,
+			errorMessage: '',
+			errorCode: '',
+			upgradeType: 'default',
+			currentTier: {
 				slug: 'ai-assistant-tier-free',
 				value: 0,
 				limit: 20,
 			},
 			usagePeriod: {
-				currentStart:
-					aiAssistantFeature?.[ 'usage-period' ]?.[ 'current-start' ] || 'ai-assistant-tier-free',
-				nextStart: aiAssistantFeature?.[ 'usage-period' ]?.[ 'next-start' ] || '',
-				requestsCount: aiAssistantFeature?.[ 'usage-period' ]?.[ 'requests-count' ] || 0,
+				currentStart: 'ai-assistant-tier-free',
+				nextStart: '',
+				requestsCount: 0,
 			},
-			nextTier: aiAssistantFeature?.[ 'next-tier' ] || {
+			nextTier: {
 				slug: 'ai-assistant-tier-unlimited',
 				value: 1,
 				limit: 922337203685477600,
