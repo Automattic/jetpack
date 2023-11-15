@@ -71,16 +71,16 @@ export type AiFeatureProps = {
 	requestsCount: number;
 	requestsLimit: number;
 	requireUpgrade: boolean;
-	errorMessage: string;
-	errorCode: string;
+	errorMessage?: string;
+	errorCode?: string;
 	upgradeType: UpgradeTypeProp;
-	currentTier: TierProp;
-	usagePeriod: {
+	currentTier?: TierProp;
+	usagePeriod?: {
 		currentStart: string;
 		nextStart: string;
 		requestsCount: number;
 	};
-	nextTier: TierProp | null;
+	nextTier?: TierProp | null;
 };
 
 // Type used in the `wordpress-com/plans` store.
