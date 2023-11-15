@@ -1,5 +1,5 @@
 <script lang="ts">
-	import PaginationArrow from './components/PaginationArrow.svelte';
+	import PaginationArrow from './ui/PaginationArrow.svelte';
 	import { Link } from '$lib/utils/router';
 	import ChevronLeft from '$svg/chevron-left.svg';
 	import ChevronRight from '$svg/chevron-right.svg';
