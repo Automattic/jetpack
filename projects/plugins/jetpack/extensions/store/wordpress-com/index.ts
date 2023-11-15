@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { createReduxStore, register } from '@wordpress/data';
+import { createReduxStore, register, select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
@@ -95,3 +95,11 @@ const wordpressPlansStore = createReduxStore( store, {
 } );
 
 register( wordpressPlansStore );
+
+/*
+ * Ensure to request the AI Assistant feature data
+ * by calling the selector. Resolver will take care.
+ */
+if ( window.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-enabled' ] ) {
+	select( store ).getAiAssistantFeature();
+}
