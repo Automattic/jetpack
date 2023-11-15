@@ -1045,7 +1045,7 @@ function get_paywall_access_question( $post_access_level ) {
 			if ( $tier !== null ) {
 				return sprintf(
 				// translators:  Placeholder is the tier name
-					__( 'Already a <i>%s</i> paid subscriber?', 'jetpack' ),
+					__( 'Already a higher-tier paid subscriber?', 'jetpack' ),
 					esc_html( $tier->post_title )
 				);
 			} else {
