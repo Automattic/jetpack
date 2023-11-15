@@ -49,8 +49,13 @@ async function runTests( type, round ) {
 	console.log( 'cwd', process.cwd() );
 	console.log( 'process.env', process.env );
 
+	const testPath = path.join( gutenbergPath, 'test/performance/specs/post-editor.spec.js' );
+	if ( ! existsSync( testPath ) ) {
+		throw new Error( `Could not find test file at ${ testPath }` );
+	}
+
 	await execShellCommand(
-		'npx playwright test --config test/performance/playwright.config.ts post-editor',
+		`npx playwright test --config test/performance/playwright.config.ts ${ testPath }`,
 		{
 			cwd: gutenbergPath,
 			env: {
