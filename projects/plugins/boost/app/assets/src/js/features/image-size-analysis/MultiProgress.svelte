@@ -3,7 +3,7 @@
 	import OtherGroupContext from './other-group-context/other-group-context';
 	import { isaGroupLabel } from './store/isa-summary';
 	import ConditionalLink from '$features/image-size-analysis/ConditionalLink.svelte';
-	import ProgressBar from '$features/ProgressBar.svelte';
+	import ProgressBar from '$features/ui/ProgressBar.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Spinner from '$features/Spinner.svelte';
 	import WarningIcon from '$svg/warning-outline.svg';

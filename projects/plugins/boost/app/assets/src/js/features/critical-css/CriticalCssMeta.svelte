@@ -3,7 +3,7 @@
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
 	import ProgressActivityLabel from './ProgressActivityLabel.svelte';
-	import ProgressBar from '$features/ProgressBar.svelte';
+	import ProgressBar from '$features/ui/ProgressBar.svelte';
 	import { CriticalCssState } from '$lib/stores/critical-css-state-types';
 
 	export let cssState: CriticalCssState;
