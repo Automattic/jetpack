@@ -7,12 +7,12 @@
 	import { BoostScoreBar } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import ContextTooltip from './ContextTooltip/ContextTooltip';
-	import History from './History.svelte';
+	import History from '../../features/performance-history/History.svelte';
 	import PopOut from './PopOut.svelte';
 	import ErrorNotice from '$features/ErrorNotice.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import { scoreChangeModal, ScoreChangeMessage } from '$lib/api/speed-scores';
-	import { performanceHistoryPanelDS } from './performance-history/store';
+	import { performanceHistoryPanelDS } from '$features/performance-history/store';
 	import { dismissedAlerts } from '$lib/stores/dismissed-alerts';
 	import { modulesState } from '$lib/stores/modules';
 	import { dismissedScorePromptStore } from '$lib/stores/prompt';
