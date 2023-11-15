@@ -114,7 +114,7 @@ describe( 'Membership Products Actions', () => {
 
 	test.each( productsForTitleTesting )( '$name', async testCase => {
 		// Given
-		const selectedProductIdCallback = anyFunction;
+		const selectedProductIdsCallback = anyFunction;
 		const paymentPlanProductType = PRODUCT_TYPE_PAYMENT_PLAN;
 		const noticeMock = jest.spyOn( utils, 'onError' ).mockImplementation( anyFunction );
 		const getMessageMock = jest
@@ -125,7 +125,7 @@ describe( 'Membership Products Actions', () => {
 		await saveProduct(
 			testCase.product,
 			paymentPlanProductType,
-			selectedProductIdCallback
+			selectedProductIdsCallback
 		)( anyFunction, anyFunction );
 
 		// Then

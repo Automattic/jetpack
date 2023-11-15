@@ -87,6 +87,7 @@ export const saveProduct =
 			const products = registry.select( STORE_NAME ).getProducts();
 
 			dispatch( setProducts( products.concat( [ newProduct ] ) ) );
+			// TODO: Should we check the current selected product ids and add the new product id if it's not there?
 			setSelectedProductIds( [ newProduct.id ] );
 			if ( shouldDisplayProductCreationNotice ) {
 				onSuccess(

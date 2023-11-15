@@ -351,8 +351,7 @@ class Jetpack_Memberships {
 		}
 
 		// This is string of '+` separated plan ids. Loop through them and
-		// filter out the ones that are not valid.  If none are valid, return.
-		// (Returning like this makes the button disappear.)
+		// filter out the ones that are not valid.
 		$plan_ids    = explode( '+', $attributes['planId'] );
 		$valid_plans = array();
 		foreach ( $plan_ids as $plan_id ) {
@@ -369,6 +368,8 @@ class Jetpack_Memberships {
 			$valid_plans[] = $plan_id;
 		}
 
+		// If none are valid, return.
+		// (Returning like this makes the button disappear.)
 		if ( empty( $valid_plans ) ) {
 			return;
 		}
