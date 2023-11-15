@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { RefreshJetpackSocialSettingsWrapper } from '@automattic/jetpack-publicize-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
@@ -154,10 +155,14 @@ export const Publicize = withModuleSettingsFormHelpers(
 							>
 								{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
 							</ModuleToggle>
-							{ shouldShowChildElements && hasAutoConversion && <AutoConversionSection /> }
-							{ shouldShowChildElements && hasSocialImageGenerator && (
-								<SocialImageGeneratorSection />
-							) }
+							<RefreshJetpackSocialSettingsWrapper
+								shouldRefresh={ ! isActive && this.props.isSavingAnyOption( 'publicize' ) }
+							>
+								{ shouldShowChildElements && hasAutoConversion && <AutoConversionSection /> }
+								{ shouldShowChildElements && hasSocialImageGenerator && (
+									<SocialImageGeneratorSection />
+								) }
+							</RefreshJetpackSocialSettingsWrapper>
 						</SettingsGroup>
 					) }
 
