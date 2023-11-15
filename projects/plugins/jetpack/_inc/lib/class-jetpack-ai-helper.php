@@ -343,31 +343,6 @@ class Jetpack_AI_Helper {
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$has_ai_assistant_feature = \wpcom_site_has_feature( 'ai-assistant' );
-			if ( ! class_exists( 'OpenAI' ) ) {
-				\require_lib( 'openai' );
-			}
-
-			if ( ! class_exists( 'OpenAI_Limit_Usage' ) ) {
-				if ( is_readable( WP_CONTENT_DIR . '/lib/openai/openai-limit-usage.php' ) ) {
-					require_once WP_CONTENT_DIR . '/lib/openai/openai-limit-usage.php';
-				} else {
-					return new WP_Error(
-						'openai_limit_usage_not_found',
-						__( 'OpenAI_Limit_Usage class not found.', 'jetpack' )
-					);
-				}
-			}
-
-			if ( ! class_exists( 'OpenAI_Request_Count' ) ) {
-				if ( is_readable( WP_CONTENT_DIR . '/lib/openai/openai-request-count.php' ) ) {
-					require_once WP_CONTENT_DIR . '/lib/openai/openai-request-count.php';
-				} else {
-					return new WP_Error(
-						'openai_request_count_not_found',
-						__( 'OpenAI_Request_Count class not found.', 'jetpack' )
-					);
-				}
-			}
 
 			if ( ! class_exists( 'WPCOM\Jetpack_AI\Usage\Helper' ) ) {
 				if ( is_readable( WP_CONTENT_DIR . '/lib/jetpack-ai/usage/helper.php' ) ) {
