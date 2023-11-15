@@ -9,7 +9,7 @@
 	import { __ } from '@wordpress/i18n';
 	import FoldingElement from './FoldingElement.svelte';
 	import MoreList from './MoreList.svelte';
-	import NumberedList from '$features/critical-css/NumberedList.svelte';
+	import NumberedList from '$features/critical-css/NumberedList.sveltee';
 	import TemplatedString from '$features/TemplatedString.svelte';
 	import { regenerateCriticalCss } from '$lib/stores/critical-css-state';
 	import { ErrorSet } from '$lib/stores/critical-css-state-errors';

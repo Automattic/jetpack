@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import styles from './Header.module.scss';
-import BackButton from '$features/BackButton/BackButton';
+import BackButton from '$features/back-button/back-button';
 import { navigate } from '$lib/utils/navigate';
 import ChevronRight from '$svg/chevron-right';
 import Logo from '$svg/logo';

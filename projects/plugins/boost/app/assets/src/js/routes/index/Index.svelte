@@ -6,8 +6,11 @@
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
-	import RecommendationsMeta from '$features/ImageSizeAnalysis/RecommendationsMeta.svelte';
-	import { initializeIsaSummary, isaSummary } from '$features/ImageSizeAnalysis/store/isa-summary';
+	import RecommendationsMeta from '$features/image-size-analysis/RecommendationsMeta.svelte';
+	import {
+		initializeIsaSummary,
+		isaSummary,
+	} from '$features/image-size-analysis/store/isa-summary';
 	import Notice from '$features/Notice.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import TemplatedString from '$features/TemplatedString.svelte';

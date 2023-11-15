@@ -1,0 +1,3 @@
+
+## Kebab Case
+As we migrate to React, we should migrate to Kebab case both in filenames and path names. Careful with case-sensitivity and committing to git.

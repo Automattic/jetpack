@@ -2,16 +2,16 @@
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
-	import { Hero } from '$features/ImageSizeAnalysis/Hero/Hero';
-	import Pagination from '$features/ImageSizeAnalysis/recommendations/Pagination.svelte';
-	import Table from '$features/ImageSizeAnalysis/recommendations/Table.svelte';
-	import Tabs from '$features/ImageSizeAnalysis/recommendations/Tabs.svelte';
+	import { Hero } from '$features/image-size-analysis/Hero/Hero';
+	import Pagination from '$features/image-size-analysis/recommendations/Pagination.svelte';
+	import Table from '$features/image-size-analysis/recommendations/Table.svelte';
+	import Tabs from '$features/image-size-analysis/recommendations/Tabs.svelte';
 	import {
 		initializeIsaData,
 		isaData,
 		isaDataLoading,
 		refreshIsaData,
-	} from '$features/ImageSizeAnalysis/store/isa-data';
+	} from '$features/image-size-analysis/store/isa-data';
 	import {
 		isaGroupLabels,
 		imageDataActiveGroup,
@@ -19,7 +19,7 @@
 		initializeIsaSummary,
 		totalIssueCount,
 		isaSummary,
-	} from '$features/ImageSizeAnalysis/store/isa-summary';
+	} from '$features/image-size-analysis/store/isa-summary';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Footer from '$layout/Footer/Footer';
 	import Header from '$layout/Header/Header';

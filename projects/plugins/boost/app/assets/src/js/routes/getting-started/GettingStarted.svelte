@@ -1,8 +1,8 @@
 <script lang="ts">
 	import React from 'react';
 	import { Snackbar } from '@wordpress/components';
-	import { BoostPricingTable } from '$features/BoostPricingTable/BoostPricingTable';
-	import ActivateLicense from '$features/ActivateLicense/ActivateLicense';
+	import { BoostPricingTable } from '$features/boost-pricing-table/BoostPricingTable';
+	import ActivateLicense from '$features/activate-license/ActivateLicense';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Footer from '$layout/Footer/Footer';
 	import Header from '$layout/Header/Header';

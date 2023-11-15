@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { requestImageAnalysis } from '$features/ImageSizeAnalysis/store/isa-summary';
+import { requestImageAnalysis } from '$features/image-size-analysis/store/isa-summary';
 import enableCloudCss from '$lib/utils/enable-cloud-css';
 import { navigate } from '$lib/utils/navigate';
 import Logo from '$svg/jetpack-green';
