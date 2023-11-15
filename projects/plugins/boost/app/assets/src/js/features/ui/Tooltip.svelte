@@ -19,8 +19,8 @@
 </div>
 
 <style lang="scss">
-	@use '../../css/main/mixins.scss' as *;
-	@use '../../css/main/variables.scss' as *;
+	@use '../../../css/main/mixins.scss' as *;
+	@use '../../../css/main/variables.scss' as *;
 
 	.jb-tooltip {
 		display: inline-block;
