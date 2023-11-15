@@ -22,8 +22,8 @@ import useRefreshAutoConversionSettings from '../../hooks/use-refresh-auto-conve
 import useRefreshConnections from '../../hooks/use-refresh-connections';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
-import { SOCIAL_STORE_ID } from '../../social-store';
-import { isInstagramConnectionSupported } from '../../utils';
+import { CONNECTION_SERVICE_INSTAGRAM_BUSINESS, SOCIAL_STORE_ID } from '../../social-store';
+import { getSupportedAdditionalConnections } from '../../utils';
 import PublicizeConnection from '../connection';
 import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
@@ -75,7 +75,7 @@ export default function PublicizeForm( {
 
 	const shouldShowInstagramNotice =
 		! hasInstagramConnection &&
-		isInstagramConnectionSupported() &&
+		getSupportedAdditionalConnections().includes( CONNECTION_SERVICE_INSTAGRAM_BUSINESS ) &&
 		shouldShowNotice( NOTICES.instagram );
 
 	const onDismissInstagramNotice = useCallback( () => {
