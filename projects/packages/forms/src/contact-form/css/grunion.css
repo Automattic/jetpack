@@ -123,6 +123,40 @@
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 12px;
+
+	margin: 0;
+	padding: 0;
+
+	border: none;
+}
+
+.contact-form .is-style-outlined .grunion-checkbox-multiple-options,
+.contact-form .is-style-outlined .grunion-radio-options {
+	border: solid 1px var( --jetpack--contact-form--border-color );
+}
+
+.contact-form .grunion-checkbox-multiple-options legend,
+.contact-form .grunion-radio-options legend {
+	margin-bottom: 0.25em;
+	padding: 0;
+
+	font-weight: 700;
+}
+
+.contact-form .is-style-outlined .grunion-checkbox-multiple-options legend,
+.contact-form .is-style-outlined .grunion-radio-options legend {
+	margin: 0 0 -0.75em;
+	padding: 0 0.25em;
+
+	font-size: 0.8em;
+	font-weight: 300;
+}
+
+.contact-form .grunion-checkbox-multiple-options .contact-form-field,
+.contact-form .grunion-radio-options .contact-form-field {
+	display: flex;
+
+	margin: 0;
 }
 
 .contact-form label span.required {
@@ -549,13 +583,6 @@ on production builds, the attributes are being reordered, causing side-effects
 	padding-right: var(--field-padding);
 }
 
-.contact-form .is-style-animated .grunion-field-checkbox-multiple-wrap .grunion-checkbox-multiple-options,
-.contact-form .is-style-animated .grunion-field-radio-wrap .grunion-radio-options {
-	padding-bottom: var(--jetpack--contact-form--input-padding, 16px);
-	padding-top: 1.8em;
-	flex-grow: 1
-}
-
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label {
 	position: absolute;
 	top: 50%;
@@ -649,7 +676,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .grunion-field-wrap input.checkbox-multiple:checked::before {
-	content: "✓";
+	content: "\2713";
 }
 
 .contact-form .grunion-field-wrap input.radio:checked::after {
