@@ -7,8 +7,8 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
-import { useSelect } from '@wordpress/data';
-import { useState, useCallback } from '@wordpress/element';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useState, useCallback, useEffect } from '@wordpress/element';
 import React from 'react';
 import AdvancedUpsellNotice from '../advanced-upsell-notice';
 import AutoConversionToggle from '../auto-conversion-toggle';
@@ -27,6 +27,18 @@ const Admin = () => {
 	const { isUserConnected, isRegistered } = useConnection();
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	const [ forceDisplayPricingPage, setForceDisplayPricingPage ] = useState( false );
+
+	const refreshJetpackSocialSettings = useDispatch( SOCIAL_STORE_ID ).refreshJetpackSocialSettings;
+
+	useEffect( () => {
+		if (
+			isModuleEnabled &&
+			isUpdatingJetpackSettings &&
+			( isAutoConversionAvailable || isSocialImageGeneratorAvailable )
+		) {
+			refreshJetpackSocialSettings();
+		}
+	} );
 
 	const onUpgradeToggle = useCallback( () => setForceDisplayPricingPage( true ), [] );
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
@@ -90,10 +102,10 @@ const Admin = () => {
 						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
 						{ ! isUpdatingJetpackSettings && isModuleEnabled && isAutoConversionAvailable && (
-							<AutoConversionToggle shouldRefresh />
+							<AutoConversionToggle />
 						) }
 						{ ! isUpdatingJetpackSettings && isModuleEnabled && isSocialImageGeneratorAvailable && (
-							<SocialImageGeneratorToggle shouldRefresh />
+							<SocialImageGeneratorToggle />
 						) }
 					</AdminSection>
 					<AdminSectionHero>
