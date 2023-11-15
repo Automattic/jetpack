@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	AI_MODEL_GPT_4,
-	ERROR_QUOTA_EXCEEDED,
-	useAiSuggestions,
-} from '@automattic/jetpack-ai-client';
+import { AI_MODEL_GPT_4, useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -18,6 +14,7 @@ import { count } from '@wordpress/wordcount';
  * Internal dependencies
  */
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
+import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { isBetaExtension } from '../../../../editor';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
@@ -188,7 +185,7 @@ ${ postContent }
 		reset();
 	}
 
-	const isQuotaExceeded = error?.code === ERROR_QUOTA_EXCEEDED;
+	const { requireUpgrade: isQuotaExceeded } = useAiFeature();
 
 	// Set the docs link depending on the site type
 	const docsLink =
