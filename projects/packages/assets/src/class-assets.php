@@ -396,6 +396,9 @@ class Assets {
 		}
 
 		if ( version_compare( $wp_version, '6.3', '>=' ) ) {
+			if ( $options['async'] && '' === $options['strategy'] ) { // Handle the deprecated `async` option
+				$options['strategy'] = 'defer';
+			}
 			wp_register_script(
 				$handle,
 				$url,
