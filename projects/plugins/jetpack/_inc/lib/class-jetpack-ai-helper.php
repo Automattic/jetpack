@@ -383,7 +383,7 @@ class Jetpack_AI_Helper {
 			$blog_id        = get_current_blog_id();
 			$is_over_limit  = WPCOM\Jetpack_AI\Usage\Helper::is_over_limit( $blog_id );
 			$requests_limit = WPCOM\Jetpack_AI\Usage\Helper::get_free_requests_limit( $blog_id );
-			$requests_count = \OpenAI_Request_Count::get_count( $blog_id );
+			$requests_count = WPCOM\Jetpack_AI\Usage\Helper::get_all_time_requests_count( $blog_id );
 
 			// Check if the site requires an upgrade.
 			$require_upgrade = $is_over_limit && ! $has_ai_assistant_feature;
