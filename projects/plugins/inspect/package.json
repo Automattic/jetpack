@@ -21,10 +21,6 @@
 		"build-production-js": "rollup -c rollup.config.js",
 		"clean": "rm -rf app-ui/build/"
 	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	},
 	"dependencies": {
 		"tslib": "2.5.0"
 	},
