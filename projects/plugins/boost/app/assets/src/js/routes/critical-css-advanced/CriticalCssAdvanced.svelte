@@ -2,7 +2,7 @@
 	import { slide } from 'svelte/transition';
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import BackButton from '$features/back-button/back-button';
-	import CloseButton from '$features/CloseButton.svelte';
+	import CloseButton from '$features/ui/CloseButton.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import CriticalCssErrorDescription from '$features/critical-css/CriticalCssErrorDescription.svelte';
 	import { replaceCssState, updateProvider } from '$lib/stores/critical-css-state';

@@ -4,7 +4,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { __ } from '@wordpress/i18n/';
-	import CloseButton from '$features/CloseButton.svelte';
+	import CloseButton from '$features/ui/CloseButton.svelte';
 	import TemplatedString from '$features/TemplatedString.svelte';
 	import { TemplateVars } from '$lib/utils/copy-dom-template';
 	import slideRightTransition from '$lib/utils/slide-right-transition';
