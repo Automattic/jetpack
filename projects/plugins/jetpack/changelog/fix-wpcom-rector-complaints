@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Use a temporary variable instead of `end( explode() )` to avoid "Only variables should be passed by reference" notice.
+
+
