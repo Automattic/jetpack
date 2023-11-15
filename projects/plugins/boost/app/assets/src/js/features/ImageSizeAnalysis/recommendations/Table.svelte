@@ -2,10 +2,10 @@
 	import { __ } from '@wordpress/i18n';
 	import { type ISA_Data } from '../store/isa-data';
 	import { ISAStatus, type ISASummary } from '../store/isa-summary';
-	import BrokenDataRow from './row-types/BrokenDataRow.svelte';
-	import ImageMissingRow from './row-types/ImageMissingRow.svelte';
-	import ImageSizeRow from './row-types/ImageSizeRow.svelte';
-	import LoadingRow from './row-types/LoadingRow.svelte';
+	import BrokenDataRow from './RowTypes/BrokenDataRow.svelte';
+	import ImageMissingRow from './RowTypes/ImageMissingRow.svelte';
+	import ImageSizeRow from './RowTypes/ImageSizeRow.svelte';
+	import LoadingRow from './RowTypes/LoadingRow.svelte';
 	import Spinner from '$features/Spinner.svelte';
 	import TemplatedString from '$features/TemplatedString.svelte';
 	import actionLinkTemplateVar from '$lib/utils/action-link-template-var';
