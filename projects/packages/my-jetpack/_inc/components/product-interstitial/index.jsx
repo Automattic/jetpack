@@ -39,6 +39,7 @@ import videoPressImage from './videopress.png';
  * @param {string} props.imageContainerClassName - Append a class to the image container
  * @param {string} [props.ctaButtonLabel]        - The label for the Call To Action button
  * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
+ * @param {number} [props.quantity]              - The quantity of the product to purchase
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -52,6 +53,7 @@ export default function ProductInterstitial( {
 	imageContainerClassName = '',
 	ctaButtonLabel = null,
 	hideTOS = false,
+	quantity = null,
 } ) {
 	const { activate, detail } = useProduct( slug );
 	const { isUpgradableByBundle, tiers } = detail;
@@ -166,6 +168,7 @@ export default function ProductInterstitial( {
 									preferProductName={ preferProductName }
 									ctaButtonLabel={ ctaButtonLabel }
 									hideTOS={ hideTOS }
+									quantity={ quantity }
 								/>
 							</Col>
 							<Col
@@ -180,6 +183,7 @@ export default function ProductInterstitial( {
 										trackButtonClick={ trackBundleClick }
 										onClick={ clickHandler }
 										className={ isUpgradableByBundle ? styles.container : null }
+										quantity={ quantity }
 									/>
 								) : (
 									children
@@ -273,7 +277,9 @@ export function JetpackAIInterstitial() {
 	const { onClickGoBack } = useGoBack( { slug } );
 
 	const currentTier = detail?.[ 'ai-assistant-feature' ]?.[ 'current-tier' ]?.value;
-	const hasNextTier = ! [ 1, 500 ].includes( currentTier );
+	const nextTier = detail?.[ 'ai-assistant-feature' ]?.[ 'next-tier' ]?.value;
+	const hasNextTier = !! nextTier && ! [ 1, 500 ].includes( currentTier );
+	const quantity = hasNextTier ? nextTier : null;
 
 	if ( ! hasNextTier ) {
 		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
@@ -289,6 +295,7 @@ export function JetpackAIInterstitial() {
 			imageContainerClassName={ styles.aiImageContainer }
 			ctaButtonLabel={ ctaLabel }
 			hideTOS={ true }
+			quantity={ quantity }
 		>
 			<img src={ jetpackAiImage } alt="Jetpack AI" />
 		</ProductInterstitial>
