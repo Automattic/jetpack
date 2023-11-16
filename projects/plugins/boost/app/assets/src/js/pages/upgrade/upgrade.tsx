@@ -34,7 +34,7 @@ const Upgrade: React.FC< UpgradeProps > = ( { pricing, siteDomain, userConnected
 				<ActivateLicense />
 			</Header>
 
-			<div className={ styles.benefits__body }>
+			<div className={ styles.body }>
 				<div
 					className={ classNames(
 						'jb-container jb-container--fixed mt-2',
@@ -102,7 +102,7 @@ const Upgrade: React.FC< UpgradeProps > = ( { pricing, siteDomain, userConnected
 				</div>
 			</div>
 
-			<div className={ styles.benefits__footer }>
+			<div className={ styles.footer }>
 				<Footer />
 			</div>
 		</div>
