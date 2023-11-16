@@ -2,10 +2,10 @@
 import { derived, get, writable } from 'svelte/store';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import api from '$lib/api/api';
-import { startPollingCloudStatus } from '$features/critical-css/lib/cloud-css';
+import { startPollingCloudStatus } from '../cloud-css';
 import { CriticalCssStateSchema } from './critical-css-state-types';
 import { jetpack_boost_ds, JSONObject } from '$lib/stores/data-sync-client';
-import { suggestRegenerateDS } from '$features/critical-css';
+import { suggestRegenerateDS } from './suggest-regenerate';
 import { modulesState } from '$lib/stores/modules';
 import type { CriticalCssState, Provider } from './critical-css-state-types';
 import generateCriticalCss from '../generate-critical-css';

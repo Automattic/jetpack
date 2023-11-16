@@ -1,6 +1,6 @@
 import { Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { suggestRegenerateDS, type RegenerationReason } from '$features/critical-css';
+import { suggestRegenerateDS, RegenerationReason } from '$features/critical-css';
 
 const GetSuggestionMessage = ( type: RegenerationReason | null ) => {
 	let message;
