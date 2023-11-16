@@ -28,19 +28,3 @@ function handleFormStyles() {
 		}
 	}
 }
-
-const initForm = form => {
-	form.addEventListener( 'submit', e => {
-		e.preventDefault();
-
-		// TODO
-	} );
-};
-
-const initPageForms = () => {
-	document.querySelectorAll( `${ FRONTEND_SELECTOR } form.contact-form` ).forEach( initForm );
-};
-
-document.addEventListener( 'DOMContentLoaded', () => {
-	initPageForms();
-} );
