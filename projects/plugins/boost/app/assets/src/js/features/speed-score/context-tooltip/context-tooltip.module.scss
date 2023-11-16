@@ -1,0 +1,22 @@
+.table {
+	width: 49%;
+	margin: 0;
+	display: inline-block;
+}
+
+.table td {
+	padding-left: 10px;
+}
+
+.tooltip {
+	margin: 8px 0 0 6px;
+}
+
+.tooltip p:first-child {
+	margin-top: 0;
+}
+
+.tooltip button svg {
+	margin: 0;
+	fill: var( --gray-30 );
+}

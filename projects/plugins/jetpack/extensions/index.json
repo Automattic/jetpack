@@ -55,7 +55,9 @@
 		"paywall",
 		"ai-content-lens",
 		"blogroll",
-		"blogroll-item"
+		"blogroll-item",
+		"nextdoor",
+		"ai-assistant-usage-panel"
 	],
 	"beta": [
 		"amazon",
@@ -66,7 +68,7 @@
 		"videopress/video-chapters",
 		"create-with-voice",
 		"ai-assistant-backend-prompts",
-		"ai-assistant-usage-panel"
+		"sharing-buttons"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

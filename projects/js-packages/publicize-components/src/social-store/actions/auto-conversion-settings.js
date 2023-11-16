@@ -39,11 +39,14 @@ export function* updateAutoConversionSettings( settings ) {
  */
 export function* refreshAutoConversionSettings() {
 	try {
+		yield setUpdatingAutoConversionSettings();
 		const updatedSettings = yield fetchAutoConversionSettings();
 		yield setAutoConversionSettings( updatedSettings );
 		return true;
 	} catch ( e ) {
 		return false;
+	} finally {
+		yield setUpdatingAutoConversionSettingsDone();
 	}
 }
 

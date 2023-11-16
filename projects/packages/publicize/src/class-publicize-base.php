@@ -1804,6 +1804,40 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Check if a connection is enabled.
+	 *
+	 * @param string $connection The connection name like 'instagram', 'mastodon', 'nextdoor' etc.
+	 *
+	 * @return bool
+	 */
+	public function has_connection_feature( $connection ) {
+		return Current_Plan::supports( "social-$connection-connection" );
+	}
+
+	/**
+	 * Get a list of additional connections that are supported by the current plan.
+	 *
+	 * @return array
+	 */
+	public function get_supported_additional_connections() {
+		$additional_connections = array();
+
+		if ( $this->has_connection_feature( 'instagram' ) ) {
+			$additional_connections[] = 'instagram-business';
+		}
+
+		if ( $this->has_connection_feature( 'mastodon' ) ) {
+			$additional_connections[] = 'mastodon';
+		}
+
+		if ( $this->has_connection_feature( 'nextdoor' ) ) {
+			$additional_connections[] = 'nextdoor';
+		}
+
+		return $additional_connections;
+	}
+
+	/**
 	 * Check if Instagram connection is enabled.
 	 *
 	 * @return bool
@@ -1819,6 +1853,15 @@ abstract class Publicize_Base {
 	 */
 	public function has_mastodon_connection_feature() {
 		return Current_Plan::supports( 'social-mastodon-connection' );
+	}
+
+	/**
+	 * Check if Nextdoor connection is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_nextdoor_connection_feature() {
+		return Current_Plan::supports( 'social-nextdoor-connection' );
 	}
 
 	/**

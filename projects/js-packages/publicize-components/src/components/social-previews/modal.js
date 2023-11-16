@@ -12,7 +12,7 @@ import {
 	getAttachedMedia,
 	getImageGeneratorPostSettings,
 	shouldUploadAttachedMedia,
-} from '../../store/selectors';
+} from '../../utils';
 import { getSigImageUrl } from '../generated-image-preview/utils';
 import { useAvailableSerivces } from './useAvailableServices';
 import { getMediaSourceUrl } from './utils';
@@ -123,7 +123,10 @@ export default withSelect( select => {
 				}
 			}
 			if ( 0 === media.length && featuredImageId ) {
-				media.push( getMediaDetails( featuredImageId ) );
+				const mediaDetails = getMediaDetails( featuredImageId );
+				if ( mediaDetails ) {
+					media.push( mediaDetails );
+				}
 			}
 		}
 	}

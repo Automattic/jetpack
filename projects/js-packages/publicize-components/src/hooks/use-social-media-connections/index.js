@@ -1,4 +1,5 @@
 import { useDispatch, useSelect } from '@wordpress/data';
+import { SOCIAL_STORE_ID } from '../../social-store';
 
 /**
  * Hooks to deal with the social media connections.
@@ -7,9 +8,9 @@ import { useDispatch, useSelect } from '@wordpress/data';
  */
 export default function useSocialMediaConnections() {
 	const { refreshConnectionTestResults: refresh, toggleConnectionById } =
-		useDispatch( 'jetpack/publicize' );
+		useDispatch( SOCIAL_STORE_ID );
 
-	const connections = useSelect( select => select( 'jetpack/publicize' ).getConnections(), [] );
+	const connections = useSelect( select => select( SOCIAL_STORE_ID ).getConnections(), [] );
 	const skippedConnections = connections
 		.filter( connection => ! connection.enabled )
 		.map( connection => connection.id );

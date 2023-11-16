@@ -2,6 +2,171 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.9-a.5 - 2023-11-14
+### Enhancements
+- Subscribe Block: Improved the redirect logic after confirming a subscriptions. [#34086]
+
+### Bug fixes
+- Subscribe Block: Fixed the button in a new line option not working. [#34075]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- CLI Tools: Updated block scaffolding CLI tool to use block.json to register blocks. [#33883]
+- E2E Tests: Removed block tests. [#34016]
+- Updated package dependencies. [#34093] [#34087]
+- Sharing Block: Cleaned up code & copy. [#34085]
+- Jetpack Form: Updated handling of AI requests counter when asking AI for suggestions. [#34096]
+- AI Excerpt: Added dequeueing for AI feature async requests when asking for new suggestions. [#34094]
+
+## 12.9-a.3 - 2023-11-13
+### Enhancements
+- Blocks: Added the Jetpack Sharing Buttons block. [#27243]
+- AI Assistant: Updated AI Assistant to display an upgrade banner when the feature endpoint returns with 'quota exceeded'. [#34057]
+- AI Assistant: Updated the AI Assistant block to display the upgrade banner only once a block is selected. [#34081]
+- Blocks: Added capability for editing Subscription block placeholder text and button label. [#33938]
+- WoA: Added "Subscribers" and "My profile" under the "Users" menu in the Calypso sidebar. [#33988]
+- Newsletters: Updated the pre-publish and post-publish panels to display the newsletter categories that the post will be sent to. [#33917]
+
+### Improved compatibility
+- Blocks: Fixed lack of spacing for the Paywall block in some themes. [#34040]
+- Improved the consistency of the "Users" admin menu across all environments. [#34008]
+- Subscribe Modal: Fixed lack of spacing in the modal for some themes. [#34032]
+
+### Bug fixes
+- AI Assistant: Fixed an AI error sometimes being rendered for prompts marked unclear. [#34051]
+- Media: Fixed VideoPress videos and media length not being displayed when available. [#34002]
+- Custom-CSS: Disabled loading `@import` directives from the filesystem. `@import` of CSS from URLs can still be done. [#33959]
+- Fixed a PHP Warning triggered when WooCommerce templates were not found due to a name change. [#34030]
+- Fixed fatal error triggered by not checking get_product_list() result correctly. [#34059]
+- Mobile: Prevented converted video blocks from displaying empty thumbnails on mobile. [#34073]
+- Shortcode embeds: Fixed and updated the display of Gravatars and Gravatar profiles. [#34012]
+- Subscribe Block: Fix display in the editor. [#34023]
+- Subscribe Block: Fixed incorrect redirects from the block when shown outside of a post page. [#33932]
+- Subscribe Modal: Fixed the issue with the block being shown to subscribers. [#34039]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Updated 'useModuleStatus' to use the new Jetpack modules store. [#33397]
+- Added a Bloganuary date field to blogging prompts API. This field will be used for the Bloganuary promotion. [#33852]
+- AI Assistant: Connected the 'useAiFeature' hook with the plans store. [#34001]
+- AI Assistant: Updated the requests counter to optimistically increase the request count for the usage period. [#34029] [#34048] [#34082]
+- AI Assistant: Added an action for increasing the requests counter value. [#34019]
+- AI Assistant: Updated the way in which AI feature data is fetched from the API in order to prevent unnecessary requests. [#34060]
+- AI Assistant: Updated TS types for the AI Assistant feature data. [#34038]
+- AI Assistant: Moved the initial state from 'useAiFeature' hook to the 'wordpress-com/plans' store. [#34080]
+- AI Assistant: Simplified the code for rendering the upgrade banner inside the AI Assistant block. [#34069]
+- Blocks: Imporved Contact Form block performance. [#34049]
+- Blocks: Refactored payment-related blocks registration. [#33941]
+- AI Assistant: Updated the paths used to require OpenAI classes. [#34056]
+- Add next-tier prop to the AI assistant feature endpoint response. Add the prop to hooks and state. [#34028]
+- Change Creator product constants to be a product rather than a plan. [#33998]
+- Fixed Subscribe block alignment. [#34003]
+- Added a new wpcom_api_pre_get_active_blog_author filter. [#33980]
+- Improved the Subscribe block on simple sites. [#34070]
+- Introduced tier types and props for current and next tier. [#34046]
+- Passed block type attributes along to the memberships checkout form. [#33963]
+- Switched to the new methods on the WPCOM helper to build the AI assistant feature payload. [#33990]
+
+## 12.9-a.1 - 2023-11-08
+### Enhancements
+- VideoPress: Added support for gated content. [#32154]
+- Subscribe modal: Updated the modal to not show when previewing post or theme. [#33967]
+- WoA: Updated the wording on the profile menu for WoA sites using the classic style. [#33982]
+
+### Improved compatibility
+- Added a check for connected plugins before cleaning up plugin options or uninstalling Jetpack. [#33920]
+
+### Bug fixes
+- WoA: Added back the "Stats" menu item for WoA sites in Calypso. [#33974]
+- Dashboard: Fixed the display of the settings for Markdown for comments. [#33880]
+- VaultPress: Fixed an issue with the VaultPress submenu not being registered when the standalone plugin is inactive and the product is active. [#33955]
+- Font Library: Fixed PHP warnings that happen when the font name is not defined. [#34005]
+- Related Posts: Ensured the Related Posts Block can be displayed properly. [#33994]
+- Mobile: Fix a regression preventing correct block registration on mobile. [#33890]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Added loading state to the usage panel. [#33942]
+- AI Assistant: Created a map for the AI Assistant feature data. [#33993]
+- AI Assistant: Registered 'isFetching' state in the plans store. [#33996]
+- Decouple tiers from subscribe_as_site_subscriber parameter. [#33773]
+- Jetpack: Reduxified AI Assistant feature. [#33985]
+- Jetpack Plans: Addressed TS issues with AI Assistant feature data. [#33986]
+- Plans: Introduced `plans` prop to plans store. [#33971]
+- Plans: Minor code refactoring for wordpress-com/plans store. [#33919]
+- Refactor Instagram Gallery block registration. [#33884]
+- Fixed a misspelled variable. [#33991]
+- Removed scssc 0.0.12 and replaced it with with ScssPhp 1.1.11. [#33928]
+- Rollback change. [#33973]
+
+## 12.8 - 2023-11-06
+### Enhancements
+- Added a notice for wp-admin settings pages when the wpcom_admin_interface option is set to wp-admin. [#33933]
+- Added nextdoor block to production blocks. [#33950]
+- AI Tiered Plans: Pick and expose tier plan data. [#33901]
+- Always links 'My Sites' to the Sites page when 'wp-admin' is the admin interface. [#33951]
+- Cache the remote google fonts JSON data. [#33930]
+- Change WordAds and Simple Payments upsell CTAs to JP Creator redirect. [#33893]
+- Display SSO form for user who has wpcom-admin-interface setting set to wp-admin (fall back to the original WordPress menu). [#33940]
+- Jetpack AI: Temporarely remove performance sensitive function calls to solve loading issue. [#33915]
+- Jetpack AI: Use Jetpack AI Usage Helper to set current plan tier information on feature endpoint. [#33894]
+- Subscribe Block: Add subscribed status. [#33897]
+- Subscriptions: Add blog_id param to login link. [#33900]
+- Update classic Jetpack widget to not show up if user is subscribed. [#33785]
+
+### Improved compatibility
+- Nextdoor: Fix the embed resizing. [#33931]
+
+### Bug fixes
+- Comments: Improve compatibility with WordPress 6.4 and drop IE support. [#33709]
+- Fix Assistant not showing Jetpack header on some Assistant routes. [#33896]
+- Fixed an issue where initial state is not in sync
+- Prevent a PHP Warning when accessing inner blocks on cart and checkout pages.
+- Respect the user's view setting when wpcom_admin_interface is wp-admin. [#33945]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added Nextdoor to Social Previews. [#33907]
+- Add tier-plans on ai-assistant-feature endpoint payload containing the collection of available tiered plans. [#33939]
+- Subscribe block: Refactor block rendering into a single function. [#33865]
+- Updated package dependencies. [#33904]
+
+## 12.8-a.11 - 2023-10-31
+### Enhancements
+- Add a new block for supporting Nextdoor embeds. [#33751]
+- AI Assistant: Expose current period start in the ai-assistant-feature endpoint. [#33843]
+- Newsletters: Add level for all paid subscribers. [#33841]
+- Refactor blocks registration [#33682] [#33689] [#33694] [#33840]
+- Subscribe block: Change "followers" term to "subscribers". [#33860]
+
+### Improved compatibility
+- Add NL tier type. [#33757]
+
+### Bug fixes
+- Fix Cookie Consent block icon. [#33869]
+- Fixes style for multiple choice checkbox in Froms block. [#33827]
+- Fix issue in tier selector when tier is null. [#33879]
+- Fix unresponsive Simple Payment block. [#33889]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- custom-css: Upgrades for PHP 8. [#33816]
+- Plugin assets: Add mag-16 language versions of our banners. [#33850]
+
+## 12.8-a.9 - 2023-10-30
+### Enhancements
+- Earn: Rename Earn to Monetize. [#33741]
+- Jetpack AI: Cache the AI assistant feature data for Jetpack sites. [#33391]
+- Jetpack AI: Expose current plan tier information on feature endpoint. [#33820]
+- Jetpack Dashboard: improve Akismet tooltip. [#33547]
+- Paywall: Improve already subscriber experience. [#33763]
+- Subscription block: Improve wording to get access to content. [#33835]
+- Utilize the Jetpack Admin UI package for handling the Akismet menu. [#33559]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add subscribers auth endpoint. [#33815]
+- Dashboard / My Plan: update the link to licensing management for a better UX in the My Plan header. [#33813]
+- Dashboard: Remove link to "My Jetpack". [#33811]
+- Fix bug tier selector. [#33838]
+- Updated package dependencies. [#33821] [#33826]
+- Update lockfile. [#33607]
+- scssphp: Upgrade from 0.0.9 to 0.0.12. [#33822]
+
 ## 12.8-a.7 - 2023-10-26
 ### Enhancements
 - Add a filter that allows disabling Scan module. [#33764]

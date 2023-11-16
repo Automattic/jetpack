@@ -57,12 +57,13 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @return string
 	 */
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
+		$force_default_view = in_array( $screen, array( 'users.php', 'options-general.php' ), true );
+		$use_wp_admin       = $this->use_wp_admin_interface( $screen );
+
 		// When no preferred view has been set for "Users > All Users" or "Settings > General", keep the previous
 		// behavior that forced the default view regardless of the global preference.
-		if (
-			$fallback_global_preference &&
-			in_array( $screen, array( 'users.php', 'options-general.php' ), true )
-		) {
+		// This behavior is overriden by the wpcom_admin_interface option when it is set to wp-admin.
+		if ( ! $use_wp_admin && $fallback_global_preference && $force_default_view ) {
 			$preferred_view = parent::get_preferred_view( $screen, false );
 			if ( self::UNKNOWN_VIEW === $preferred_view ) {
 				return self::DEFAULT_VIEW;

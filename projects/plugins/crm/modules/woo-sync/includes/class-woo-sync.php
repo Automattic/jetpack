@@ -1285,16 +1285,14 @@ class Woo_Sync {
 	public function process_error( $error ){
 
 		// number 1: Invalid JSON = endpoint incorrect...
-		if ( strpos( $error, 'Invalid JSON returned for' ) !== false){
+		if ( str_contains( $error, 'Invalid JSON returned for' ) ) {
 
-			return __( "Error. Your WooCommerce endpoint may be incorrect!", 'zero-bs-crm' );
+			return __( 'Error. Your WooCommerce endpoint may be incorrect!', 'zero-bs-crm' );
 
 		}
 
 		return $error;
-
 	}
-
 
 	/**
 	 * Returns CRM Invoice meta with a specified key

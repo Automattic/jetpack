@@ -1,5 +1,5 @@
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
-import logger from 'jetpack-e2e-commons/logger.cjs';
+import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.js';
+import logger from 'jetpack-e2e-commons/logger.js';
 import { SearchHomepage } from '../pages/index.js';
 
 export async function enableInstantSearch() {

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.0.1 - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## 3.0.0 - 2023-11-03
+### Changed
+- Default devtool in development mode is now 'source-map'. This is technically a breaking change, as now `.map` files will be generated in development mode. [#33924]
+
 ## 2.0.4 - 2023-10-19
 ### Changed
 - Updated package dependencies. [#33687]

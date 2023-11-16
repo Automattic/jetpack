@@ -11,10 +11,9 @@ import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wor
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
-import React from 'react';
 /**
  * Internal dependencies
  */
@@ -54,6 +53,9 @@ function AiPostExcerpt() {
 
 	const { editPost } = useDispatch( 'core/editor' );
 
+	const { dequeueAiAssistantFeatureAyncRequest, increaseAiAssistantRequestsCount } =
+		useDispatch( 'wordpress-com/plans' );
+
 	// Post excerpt words number
 	const [ excerptWordsNumber, setExcerptWordsNumber ] = useState( 50 );
 
@@ -62,9 +64,34 @@ function AiPostExcerpt() {
 	const [ tone, setTone ] = useState< ToneProp >();
 	const [ model, setModel ] = useState< AiModelTypeProp >( AI_MODEL_GPT_4 );
 
-	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions(
-		{}
-	);
+	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions( {
+		onDone: useCallback( () => {
+			/*
+			 * Increase the AI Suggestion counter.
+			 * @todo: move this at store level.
+			 */
+			increaseAiAssistantRequestsCount();
+		}, [ increaseAiAssistantRequestsCount ] ),
+		onError: useCallback(
+			suggestionError => {
+				/*
+				 * Incrses AI Suggestion counter
+				 * only for valid errors.
+				 * @todo: move this at store level.
+				 */
+				if (
+					suggestionError.code === 'error_network' ||
+					suggestionError.code === 'error_quota_exceeded'
+				) {
+					return;
+				}
+
+				// Increase the AI Suggestion counter.
+				increaseAiAssistantRequestsCount();
+			},
+			[ increaseAiAssistantRequestsCount ]
+		),
+	} );
 
 	// Cancel and reset AI suggestion when the component is unmounted
 	useEffect( () => {
@@ -140,6 +167,13 @@ ${ postContent }
 				context: messageContext,
 			},
 		];
+
+		/*
+		 * Always dequeue/cancel the AI Assistant feature async request,
+		 * in case there is one pending,
+		 * when performing a new AI suggestion request.
+		 */
+		dequeueAiAssistantFeatureAyncRequest();
 
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 	}

@@ -55,34 +55,42 @@ domReady( function () {
 		} );
 	}
 
-	const form = document.querySelector( '.wp-block-jetpack-subscriptions__container form' );
-	if ( ! form ) {
-		return;
-	}
-	if ( ! form.payments_attached ) {
-		form.payments_attached = true;
-		form.addEventListener( 'submit', function ( event ) {
-			const email = form.querySelector( 'input[type=email]' ).value;
+	const forms = document.querySelectorAll( '.wp-block-jetpack-subscriptions__container form' );
+	forms.forEach( form => {
+		if ( ! form.payments_attached ) {
+			form.payments_attached = true;
+			form.addEventListener( 'submit', function ( event ) {
+				if ( form.resubmitted ) {
+					return;
+				}
 
-			if ( form.resubmitted || ! email ) {
-				return;
-			}
+				const emailInput = form.querySelector( 'input[type=email]' );
+				const email = emailInput ? emailInput.value : form.dataset.subscriber_email;
 
-			event.preventDefault();
+				if ( ! email ) {
+					return;
+				}
 
-			const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
-			const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
+				const action = form.querySelector( 'input[name=action]' ).value;
 
-			show_iframe( {
-				email,
-				post_id,
-				tier_id,
-				blog: form.dataset.blog,
-				plan: 'newsletter',
-				source: 'jetpack_subscribe',
-				post_access_level: form.dataset.post_access_level,
-				display: 'alternate',
+				if ( action === 'subscribe' ) {
+					event.preventDefault();
+
+					const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
+					const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
+
+					show_iframe( {
+						email,
+						post_id,
+						tier_id,
+						blog: form.dataset.blog,
+						plan: 'newsletter',
+						source: 'jetpack_subscribe',
+						post_access_level: form.dataset.post_access_level,
+						display: 'alternate',
+					} );
+				}
 			} );
-		} );
-	}
+		}
+	} );
 } );

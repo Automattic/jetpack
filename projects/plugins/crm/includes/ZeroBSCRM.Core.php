@@ -24,7 +24,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '6.2.0';
+	public $version = '6.3.0';
 
 	/**
 	 * WordPress version tested with.
@@ -1518,7 +1518,7 @@ final class ZeroBSCRM {
 	 * @return array
 	 */
 	public static function plugin_row_meta( $links_array, $plugin ) {
-		if ( strpos( $plugin, plugin_basename( ZBS_ROOTFILE ) ) === false ) {
+		if ( ! str_contains( $plugin, plugin_basename( ZBS_ROOTFILE ) ) ) {
 			return $links_array;
 		}
 
