@@ -41,6 +41,13 @@ function register_patterns_on_api_request( $register_patterns_func ) {
 	 * @param WP_REST_Request $request
 	 */
 	return function ( $response, $request ) use ( $register_patterns_func ) {
+		/**
+		 * Do nothing if it is loaded in the ETK.
+		 */
+		if ( class_exists( 'A8C\FSE\Block_Patterns_From_API' ) ) {
+			return $response;
+		}
+
 		$route = $request->get_route();
 		// Matches either /wp/v2/sites/123/block-patterns/patterns or /wp/v2/block-patterns/patterns
 		// to handle the API format of both WordPress.com and WordPress core.
@@ -65,6 +72,6 @@ add_filter(
 			( new Wpcom_Block_Patterns_From_Api() )->register_patterns();
 		}
 	),
-	10,
+	11,
 	2
 );
