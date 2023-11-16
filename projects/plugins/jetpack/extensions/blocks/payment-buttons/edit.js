@@ -64,7 +64,7 @@ function PaymentButtonsEdit( { clientId, attributes } ) {
 		orientation: 'horizontal',
 		template: [ [ 'jetpack/recurring-payments' ] ],
 		templateInsertUpdatesSelection: true,
-		__experimentalLayout: layout,
+		layout,
 	} );
 
 	// The ID needs to be just on the outermost wrapper - the toolbar and wpcom upgrade nudge
