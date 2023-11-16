@@ -14,7 +14,6 @@ It's fine to have multiple components in a single file, but if the file is getti
 
 ### Top-Level Structure
 
-
 ```bash
 /
 	- index.ts # Public exports
@@ -53,6 +52,7 @@ It's fine to have multiple components in a single file, but if the file is getti
 * `layout/` - Global layout components. These are components that are used in multiple pages, such as the header, footer, etc.
 
 ### Feature Structure
+
 Every feature can be either a simple component like `my-feature/my-feature.tsx` or advanced and include multiple related files and logic, for example:
 
 ```bash
@@ -66,3 +66,9 @@ Every feature can be either a simple component like `my-feature/my-feature.tsx` 
 		- stores # Stores for this feature
 			- some-store.ts
 ```
+
+
+
+### Private & Public interfaces
+
+// TODO
