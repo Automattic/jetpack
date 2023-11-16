@@ -82,15 +82,13 @@ export default function ProductInterstitial( {
 
 	const clickHandler = useCallback(
 		( checkout, product, tier ) => {
-			const activateOrCheckout = () => ( product?.isBundle ? Promise.resolve() : activate() );
+			if ( product?.isBundle ) {
+				// Get straight to the checkout page.
+				checkout?.();
+				return;
+			}
 
-			activateOrCheckout().finally( () => {
-				if ( product?.isBundle ) {
-					// Get straight to the checkout page.
-					checkout?.();
-					return;
-				}
-
+			activate().finally( () => {
 				const postActivationUrl = product?.postActivationUrl;
 				const hasRequiredPlan = tier
 					? product?.hasRequiredTier?.[ tier ]
