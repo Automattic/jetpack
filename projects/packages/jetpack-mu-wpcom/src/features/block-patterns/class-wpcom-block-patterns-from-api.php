@@ -1,18 +1,19 @@
 <?php
 /**
- * Block Patterns file.
+ * Class Wpcom Block Patterns From Api
  *
- * @package A8C\FSE
+ * @package automattic/jetpack-mu-wpcom
  */
-
-namespace A8C\FSE;
-
-require_once __DIR__ . '/class-block-patterns-utils.php';
 
 /**
- * Class Block_Patterns_From_API
+ * Require the utils class.
  */
-class Block_Patterns_From_API {
+require_once __DIR__ . '/class-wpcom-block-patterns-utils.php';
+
+/**
+ * Class Wpcom_Block_Patterns_From_Api
+ */
+class Wpcom_Block_Patterns_From_Api {
 	const PATTERN_NAMESPACE = 'a8c/';
 
 	/**
@@ -25,7 +26,7 @@ class Block_Patterns_From_API {
 	/**
 	 * A collection of utility methods.
 	 *
-	 * @var Block_Patterns_Utils
+	 * @var Wpcom_Block_Patterns_Utils
 	 */
 	private $utils;
 
@@ -41,12 +42,12 @@ class Block_Patterns_From_API {
 	/**
 	 * Block_Patterns constructor.
 	 *
-	 * @param Block_Patterns_Utils|null $utils       A class dependency containing utils methods.
+	 * @param Wpcom_Block_Patterns_Utils|null $utils       A class dependency containing utils methods.
 	 */
-	public function __construct( Block_Patterns_Utils $utils = null ) {
+	public function __construct( Wpcom_Block_Patterns_Utils $utils = null ) {
 		$this->patterns_sources = array( 'block_patterns' );
 
-		$this->utils = empty( $utils ) ? new \A8C\FSE\Block_Patterns_Utils() : $utils;
+		$this->utils = empty( $utils ) ? new Wpcom_Block_Patterns_Utils() : $utils;
 
 		// Add categories to this array using the core pattern name as the key for core patterns we wish to "recategorize".
 		$this->core_to_wpcom_categories_dictionary = array(
