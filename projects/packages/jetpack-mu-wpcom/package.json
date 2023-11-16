@@ -20,7 +20,7 @@
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "echo 'Not implemented.'",
 		"clean": "true",
-		"newspack-blocks": "./bin/sync-newspack-blocks.sh --nodemodules && NODE_ENV=production calypso-build --env source='src/features/newspack-blocks/'"
+		"newspack-blocks": "./bin/sync-newspack-blocks.sh --nodemodules && NODE_ENV=production calypso-build --env source='newspack-blocks/blog-posts-block-editor','newspack-blocks/blog-posts-block-view','newspack-blocks/carousel-block-editor','newspack-blocks/carousel-block-view'"
 	},
 	"devDependencies": {
 		"@automattic/calypso-build": "^10.0.0",
