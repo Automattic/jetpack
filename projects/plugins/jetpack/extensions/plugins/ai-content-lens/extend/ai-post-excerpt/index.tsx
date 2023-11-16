@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	AI_MODEL_GPT_4,
-	ERROR_QUOTA_EXCEEDED,
-	useAiSuggestions,
-} from '@automattic/jetpack-ai-client';
+import { AI_MODEL_GPT_4, useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -18,6 +14,7 @@ import { count } from '@wordpress/wordcount';
  * Internal dependencies
  */
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
+import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { isBetaExtension } from '../../../../editor';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
@@ -178,17 +175,17 @@ ${ postContent }
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 	}
 
-	function setExpert() {
+	function setExcerpt() {
 		editPost( { excerpt: suggestion } );
 		reset();
 	}
 
-	function discardExpert() {
+	function discardExcerpt() {
 		editPost( { excerpt: excerpt } );
 		reset();
 	}
 
-	const isQuotaExceeded = error?.code === ERROR_QUOTA_EXCEEDED;
+	const { requireUpgrade: isQuotaExceeded } = useAiFeature();
 
 	// Set the docs link depending on the site type
 	const docsLink =
@@ -255,7 +252,7 @@ ${ postContent }
 				>
 					<div className="jetpack-generated-excerpt__generate-buttons-container">
 						<Button
-							onClick={ discardExpert }
+							onClick={ discardExcerpt }
 							variant="secondary"
 							isDestructive
 							disabled={ requestingState !== 'done' || isQuotaExceeded }
@@ -263,7 +260,7 @@ ${ postContent }
 							{ __( 'Discard', 'jetpack' ) }
 						</Button>
 						<Button
-							onClick={ setExpert }
+							onClick={ setExcerpt }
 							variant="secondary"
 							disabled={ requestingState !== 'done' || isQuotaExceeded }
 						>

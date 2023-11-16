@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+CSS Concatenation: avoid optimizing CSS loading when less than 2 modules that require it are active.

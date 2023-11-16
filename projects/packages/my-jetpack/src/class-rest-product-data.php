@@ -62,16 +62,15 @@ class REST_Product_Data {
 
 		$capabilities = self::get_backup_capabilities();
 
+		if ( is_wp_error( $response ) || empty( $response['body'] ) || 200 !== $response_code ) {
+			return new WP_Error( 'site_products_data_fetch_failed', 'Site products data fetch failed', array( 'status' => $response_code ? $response_code : 400 ) );
+		}
+
 		// If site has backups and the realtime backup capability, add latest undo event
 		if (
-			$body->backups->last_finished_backup_time &&
 			in_array( 'backup-realtime', $capabilities->data['capabilities'], true )
 		) {
 			$body->backups->last_undoable_event = self::get_site_backup_undo_event();
-		}
-
-		if ( is_wp_error( $response ) || empty( $response['body'] ) || 200 !== $response_code ) {
-			return new WP_Error( 'site_products_data_fetch_failed', 'Site products data fetch failed', array( 'status' => $response_code ? $response_code : 400 ) );
 		}
 
 		return rest_ensure_response( $body, 200 );
@@ -113,24 +112,13 @@ class REST_Product_Data {
 	 * This will fetch the last rewindable event from the Activity Log and
 	 * the last rewind_id prior to that.
 	 *
-	 * @param int $page - numbered page of activity logs to fetch.
-	 *
 	 * @return array|WP_Error|null
 	 */
-	public static function get_site_backup_undo_event( $page = null ) {
-		if ( ! $page ) {
-			$page = 1;
-		}
-
-		// Cap out at checking 10 pages of activity log
-		if ( $page >= 10 ) {
-			return null;
-		}
-
+	public static function get_site_backup_undo_event() {
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 
 		$response = Client::wpcom_json_api_request_as_user(
-			'/sites/' . $blog_id . '/activity?force=wpcom&page=' . $page,
+			'/sites/' . $blog_id . '/activity/rewindable?force=wpcom',
 			'v2',
 			array(),
 			null,
@@ -144,11 +132,6 @@ class REST_Product_Data {
 		$body = json_decode( $response['body'], true );
 
 		if ( ! isset( $body['current'] ) ) {
-			return null;
-		}
-
-		// If page has no item, we have reached the end of the activity log.
-		if ( ! isset( $body['current']['orderedItems'] ) || count( $body['current']['orderedItems'] ) === 0 ) {
 			return null;
 		}
 
@@ -183,12 +166,6 @@ class REST_Product_Data {
 					break;
 				}
 			}
-		}
-
-		// Keep checking for rewindable event until one is found.
-		if ( $undo_event['last_rewindable_event'] === null || $undo_event['undo_backup_id'] === null ) {
-			$new_page = $page + 1;
-			return self::get_site_backup_undo_event( $new_page );
 		}
 
 		return rest_ensure_response( $undo_event, 200 );
