@@ -67,6 +67,8 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
 
 		require_once __DIR__ . '/features/media/heif-support.php';
+
+		require_once __DIR__ . '/features/block-patterns/load-block-patterns.php';
 	}
 
 	/**
@@ -212,14 +214,5 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_first_posts_stream_helpers() {
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
-	}
-
-	/**
-	 * Load Block Patterns.
-	 *
-	 * @return void
-	 */
-	public static function load_block_patterns() {
-		require_once __DIR__ . '/features/block-patterns/load-block-patterns.php';
 	}
 }
