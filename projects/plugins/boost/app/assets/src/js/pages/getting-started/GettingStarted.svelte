@@ -4,8 +4,8 @@
 	import { BoostPricingTable } from '$features/boost-pricing-table/boost-pricing-table';
 	import ActivateLicense from '$features/activate-license/activate-license';
 	import ReactComponent from '$features/ReactComponent.svelte';
-	import Footer from '$layout/the-footer/Footer';
-	import Header from '$layout/the-header/Header';
+	import Footer from '$layout/footer/footer';
+	import Header from '$layout/header/header';
 
 	import { initializeConnection, getUpgradeURL } from '$lib/stores/connection';
 	import { recordBoostEvent } from '$lib/utils/analytics';

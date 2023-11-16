@@ -21,8 +21,8 @@
 		isaSummary,
 	} from '$features/image-size-analysis/store/isa-summary';
 	import ReactComponent from '$features/ReactComponent.svelte';
-	import Footer from '$layout/the-footer/Footer';
-	import Header from '$layout/the-header/Header';
+	import Footer from '$layout/footer/footer';
+	import Header from '$layout/header/header';
 	import { modulesState } from '$lib/stores/modules';
 
 	initializeIsaData();
