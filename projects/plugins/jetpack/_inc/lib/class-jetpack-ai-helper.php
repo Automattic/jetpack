@@ -332,15 +332,6 @@ class Jetpack_AI_Helper {
 	 * @return mixed
 	 */
 	public static function get_ai_assistance_feature() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
-		// Try to pick the AI Assistant feature from cache.
-		$transient_name = self::transient_name_for_ai_assistance_feature( $blog_id );
-		$cache          = get_transient( $transient_name );
-		if ( $cache ) {
-			return $cache;
-		}
-
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$has_ai_assistant_feature = \wpcom_site_has_feature( 'ai-assistant' );
 
@@ -392,6 +383,16 @@ class Jetpack_AI_Helper {
 				'next-tier'            => WPCOM\Jetpack_AI\Usage\Helper::get_next_tier( $blog_id ),
 				'tier-plans'           => WPCOM\Jetpack_AI\Usage\Helper::get_tier_plans_list(),
 			);
+		}
+
+		// Outside of WPCOM, we need to fetch the data from the site.
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		// Try to pick the AI Assistant feature from cache.
+		$transient_name = self::transient_name_for_ai_assistance_feature( $blog_id );
+		$cache          = get_transient( $transient_name );
+		if ( $cache ) {
+			return $cache;
 		}
 
 		$request_path = sprintf( '/sites/%d/jetpack-ai/ai-assistant-feature', $blog_id );
