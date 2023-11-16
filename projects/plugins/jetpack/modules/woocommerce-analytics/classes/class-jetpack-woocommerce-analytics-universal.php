@@ -486,16 +486,29 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 */
 	public function get_additional_blocks_on_page() {
 		global $post;
-		$content = $post->post_content;
+		$content  = $post->post_content;
+		$template = null;
 
 		if ( $this->cart_checkout_templates_in_use ) {
 			if ( function_exists( 'get_block_template' ) ) {
-				$content = get_block_template( 'woocommerce/woocommerce//page-checkout' )->content;
+				$template = get_block_template( 'woocommerce/woocommerce//page-checkout' );
+				if ( ! $template ) {
+					$template = get_block_template( 'woocommerce/woocommerce//checkout' );
+				}
 			}
 
 			if ( function_exists( 'gutenberg_get_block_template' ) ) {
-				$content = gutenberg_get_block_template( 'woocommerce/woocommerce//page-checkout' )->content;
+				$template = gutenberg_get_block_template( 'woocommerce/woocommerce//page-checkout' );
+				if ( ! $template ) {
+					$template = gutenberg_get_block_template( 'woocommerce/woocommerce//checkout' );
+				}
 			}
+
+			if ( ! $template ) {
+				return;
+			}
+
+			$content = $template->content;
 		}
 
 		$parsed_blocks = parse_blocks( $content );
