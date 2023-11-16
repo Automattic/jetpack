@@ -16,7 +16,7 @@ class Jetpack_Mu_Wpcom {
 
 	const PACKAGE_VERSION = '4.19.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
-	const BASE_DIR        = __DIR__;
+	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
 
 	/**
