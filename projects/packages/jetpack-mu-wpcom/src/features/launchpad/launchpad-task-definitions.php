@@ -80,12 +80,14 @@ function wpcom_launchpad_get_task_definitions() {
 				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
+				$base_path = '/post/' . $data['site_slug_encoded'];
+
 				// Add an answer_prompt query param for Write sites.
 				if ( 'write' === get_option( 'site_intent' ) ) {
-					return '/post/' . $data['site_slug_encoded'] . '/?answer_prompt=true';
+					return $base_path . '/?answer_prompt=true';
 				};
 
-				return '/post/' . $data['site_slug_encoded'];
+				return $base_path;
 			},
 		),
 		'plan_completed'                  => array(
