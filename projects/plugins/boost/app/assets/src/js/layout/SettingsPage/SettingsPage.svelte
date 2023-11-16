@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Score from '../../features/speed-score/Score.svelte';
-	import Support from './Support/Support';
+	import Support from './support/support';
 	import Tips from './Tips.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Footer from '$layout/Footer/Footer';

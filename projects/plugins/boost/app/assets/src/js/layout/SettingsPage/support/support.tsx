@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import styles from './Support.module.scss';
+import styles from './support.module.scss';
 import { openPaidSupport } from '$lib/utils/paid-plan';
 
 const Support = () => {
