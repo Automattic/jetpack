@@ -6,14 +6,13 @@ import { JETPACK_MODULES_STORE_ID } from '@automattic/jetpack-shared-extension-u
 import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { select, useSelect } from '@wordpress/data';
+import { select, useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useCallback } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import React from 'react';
 /*
  * Internal dependencies
  */
-import useAiFeature from '../../hooks/use-ai-feature';
 import AiAssistantBar from './components/ai-assistant-bar';
 import AiAssistantToolbarButton from './components/ai-assistant-toolbar-button';
 import { isJetpackFromBlockAiCompositionAvailable } from './constants';
@@ -104,7 +103,7 @@ const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit =>
 			clientId: props.clientId,
 		} );
 
-		const { increaseRequestsCount } = useAiFeature();
+		const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
 
 		const { eventSource } = useAiContext( {
 			onDone: useCallback( () => {
@@ -112,8 +111,8 @@ const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit =>
 				 * Increase the AI Suggestion counter.
 				 * @todo: move this at store level.
 				 */
-				increaseRequestsCount();
-			}, [ increaseRequestsCount ] ),
+				increaseAiAssistantRequestsCount();
+			}, [ increaseAiAssistantRequestsCount ] ),
 			onError: useCallback(
 				error => {
 					/*
@@ -126,9 +125,9 @@ const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit =>
 					}
 
 					// Increase the AI Suggestion counter.
-					increaseRequestsCount();
+					increaseAiAssistantRequestsCount();
 				},
-				[ increaseRequestsCount ]
+				[ increaseAiAssistantRequestsCount ]
 			),
 		} );
 

@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Rename "Profile" submenu to "My Profile". Ensure correct order of "Subscribers" submenu on Atomic.
