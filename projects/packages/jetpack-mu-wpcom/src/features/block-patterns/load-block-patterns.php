@@ -9,7 +9,7 @@
  * Re-register some core patterns to push them down in the inserter list.
  * The reason is that Dotcom curate the pattern list based on their look.
  */
-function reorder_curated_core_patterns() {
+function wpcom_reorder_curated_core_patterns() {
 	$pattern_names = array( 'core/social-links-shared-background-color' );
 	foreach ( $pattern_names as $pattern_name ) {
 		$pattern = \WP_Block_Patterns_Registry::get_instance()->get_registered( $pattern_name );
@@ -59,7 +59,7 @@ function register_patterns_on_api_request( $register_patterns_func ) {
 
 		$register_patterns_func();
 
-		reorder_curated_core_patterns();
+		wpcom_reorder_curated_core_patterns();
 
 		return $response;
 	};
