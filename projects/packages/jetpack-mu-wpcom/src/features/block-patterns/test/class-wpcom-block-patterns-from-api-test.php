@@ -176,11 +176,12 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 			$request_mock = $this->createMock( \WP_REST_Request::class );
 			$request_mock->method( 'get_route' )->willReturn( $route );
 
-			register_patterns_on_api_request(
+			$function = register_patterns_on_api_request(
 				function () use ( $patterns_from_api_mock ) {
 					$patterns_from_api_mock->register_patterns();
 				}
-			)( null, $request_mock );
+			);
+			$function( null, $request_mock );
 		}
 	}
 

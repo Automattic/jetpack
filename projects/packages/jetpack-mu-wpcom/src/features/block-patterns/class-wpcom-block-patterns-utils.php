@@ -134,7 +134,14 @@ class Wpcom_Block_Patterns_Utils {
 		// the template related types and to pages - this is to avoid the pattern appearing in
 		// the inserter for posts and other post types. Pages are included because it's not unusual
 		// to use a blank template and add a specific header and footer to a page.
-		if ( $block_types_count && count( array_filter( $block_types, fn( $block_type ) => preg_match( '#core/template-part/#', $block_type ) ) ) === $block_types_count ) {
+		if ( $block_types_count && count(
+			array_filter(
+				$block_types,
+				function ( $block_type ) {
+					return preg_match( '#core/template-part/#', $block_type );
+				}
+			)
+		) === $block_types_count ) {
 			$post_types = array( 'wp_template', 'wp_template_part', 'page' );
 		}
 		return $post_types;
