@@ -444,7 +444,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'repetition_count_callback' => 'wpcom_launchpad_get_write_3_posts_repetition_count',
 			'target_repetitions'        => 3,
 			'get_calypso_path'          => function ( $task, $default, $data ) {
-				return '/post/' . $data['site_slug_encoded'];
+				return '/post/' . $data['site_slug_encoded'] . '/?answer_prompt=true';
 			},
 		),
 		'manage_subscribers'              => array(
