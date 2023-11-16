@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
-	import { type ISA_Data } from '../store/isa-data';
-	import { ISAStatus, type ISASummary } from '../store/isa-summary';
+	import { type ISA_Data } from '../lib/stores/isa-data';
+	import { ISAStatus, type ISASummary } from '../lib/stores/isa-summary';
 	import BrokenDataRow from './row-types/BrokenDataRow.svelte';
 	import ImageMissingRow from './row-types/ImageMissingRow.svelte';
 	import ImageSizeRow from './row-types/ImageSizeRow.svelte';

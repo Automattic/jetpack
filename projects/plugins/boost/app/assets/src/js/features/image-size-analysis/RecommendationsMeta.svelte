@@ -2,14 +2,14 @@
 	import { __, sprintf } from '@wordpress/i18n';
 	import MultiProgress from './MultiProgress.svelte';
 	import Button from './Button.svelte';
-	import { resetIsaQuery } from './store/isa-data';
+	import { resetIsaQuery } from './lib/stores/isa-data';
 	import {
 		requestImageAnalysis,
 		ISAStatus,
 		getSummaryProgress,
 		type ISASummaryGroup,
 		type ISASummary,
-	} from './store/isa-summary';
+	} from './lib/stores/isa-summary';
 	import ErrorNotice from '$features/ErrorNotice.svelte';
 	import ImageCdnRecommendation from '$features/image-size-analysis/image-cdn-recommendation/image-cdn-recommendation';
 	import ReactComponent from '$features/ReactComponent.svelte';

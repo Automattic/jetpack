@@ -11,7 +11,7 @@
 		isaData,
 		isaDataLoading,
 		refreshIsaData,
-	} from '$features/image-size-analysis/store/isa-data';
+	} from '$features/image-size-analysis/lib/stores/isa-data';
 	import {
 		isaGroupLabels,
 		imageDataActiveGroup,
@@ -19,7 +19,7 @@
 		initializeIsaSummary,
 		totalIssueCount,
 		isaSummary,
-	} from '$features/image-size-analysis/store/isa-summary';
+	} from '$features/image-size-analysis/lib/stores/isa-summary';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Footer from '$layout/footer/footer';
 	import Header from '$layout/header/header';

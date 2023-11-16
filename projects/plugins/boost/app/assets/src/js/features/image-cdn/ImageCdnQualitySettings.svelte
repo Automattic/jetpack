@@ -3,13 +3,12 @@
 	import { __, sprintf } from '@wordpress/i18n';
 	import CollapsibleMeta from './CollapsibleMeta.svelte';
 	import ImageCdnQualityControl from './ImageCdnQualityControl.svelte';
-	import type { ImageCdnQuality } from '$lib/stores/image-cdn';
+	import { imageCdnQuality } from './lib/stores/image-cdn-store';
 	import TemplatedString from '$features/TemplatedString.svelte';
 	import Tooltip from '$features/ui/Tooltip.svelte';
 	import actionLinkTemplateVar from '$lib/utils/action-link-template-var';
 
 	const navigate = useNavigate();
-	export let quality: ImageCdnQuality;
 	export let isPremium: boolean;
 </script>
 
@@ -37,25 +36,31 @@
 			{sprintf(
 				/* translators: %1$s is the JPEG quality value, %2$s is PNG quality value, and %3$s is WEBP quality value. Each value may also say 'lossless' */
 				__( 'JPEG Quality: %1$s, PNG Quality: %2$s, WEBP Quality: %3$s', 'jetpack-boost' ),
-				quality.jpg.lossless ? __( 'lossless', 'jetpack-boost' ) : quality.jpg.quality.toString(),
-				quality.png.lossless ? __( 'lossless', 'jetpack-boost' ) : quality.png.quality.toString(),
-				quality.webp.lossless ? __( 'lossless', 'jetpack-boost' ) : quality.webp.quality.toString()
+				$imageCdnQuality.jpg.lossless
+					? __( 'lossless', 'jetpack-boost' )
+					: $imageCdnQuality.jpg.quality.toString(),
+				$imageCdnQuality.png.lossless
+					? __( 'lossless', 'jetpack-boost' )
+					: $imageCdnQuality.png.quality.toString(),
+				$imageCdnQuality.webp.lossless
+					? __( 'lossless', 'jetpack-boost' )
+					: $imageCdnQuality.webp.quality.toString()
 			)}
 		</div>
 
 		<ImageCdnQualityControl
 			label={__( 'JPEG', 'jetpack-boost' )}
-			bind:config={quality.jpg}
+			bind:config={$imageCdnQuality.jpg}
 			maxValue={89}
 		/>
 		<ImageCdnQualityControl
 			label={__( 'PNG', 'jetpack-boost' )}
-			bind:config={quality.png}
+			bind:config={$imageCdnQuality.png}
 			maxValue={80}
 		/>
 		<ImageCdnQualityControl
 			label={__( 'WEBP', 'jetpack-boost' )}
-			bind:config={quality.webp}
+			bind:config={$imageCdnQuality.webp}
 			maxValue={80}
 		/>
 	</CollapsibleMeta>

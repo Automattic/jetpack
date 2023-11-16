@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { useNavigate } from 'svelte-navigator';
-	import { type ISASummaryGroup } from '../store/isa-summary';
+	import { type ISASummaryGroup } from '../lib/stores/isa-summary';
 	import { recordBoostEvent } from '$lib/utils/analytics';
 	import { Link } from '$lib/utils/router';
 

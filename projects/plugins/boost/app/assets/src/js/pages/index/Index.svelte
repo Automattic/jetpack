@@ -10,7 +10,7 @@
 	import {
 		initializeIsaSummary,
 		isaSummary,
-	} from '$features/image-size-analysis/store/isa-summary';
+	} from '$features/image-size-analysis/lib/stores/isa-summary';
 	import Notice from '$features/Notice.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import TemplatedString from '$features/TemplatedString.svelte';
@@ -35,7 +35,6 @@
 		primaryErrorSet,
 	} from '$features/critical-css';
 	import { suggestRegenerateDS } from '$features/critical-css';
-	import { imageCdnQuality } from '$features/image-cdn/store';
 	import { modulesState } from '$lib/stores/modules';
 	import { premiumFeatures } from '$lib/stores/premium-features';
 	import {
@@ -290,10 +289,7 @@
 		</p>
 
 		<div slot="meta">
-			<ImageCdnQualitySettings
-				bind:quality={$imageCdnQuality}
-				isPremium={$premiumFeatures.includes( 'image-cdn-quality' )}
-			/>
+			<ImageCdnQualitySettings isPremium={$premiumFeatures.includes( 'image-cdn-quality' )} />
 		</div>
 	</Module>
 

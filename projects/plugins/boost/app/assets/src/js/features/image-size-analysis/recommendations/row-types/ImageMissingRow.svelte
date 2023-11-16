@@ -2,7 +2,7 @@
 	import { __ } from '@wordpress/i18n';
 	import TableRow from './TableRow.svelte';
 	import TableRowHover from './TableRowHover.svelte';
-	import type { ImageDataType } from '../../store/zod-types';
+	import type { ImageDataType } from '../../lib/stores/zod-types';
 	import Device from '$features/image-size-analysis/recommendations/ui/Device.svelte';
 	import Pill from '$features/image-size-analysis/recommendations/ui/Pill.svelte';
 	import RowTitle from '$features/image-size-analysis/recommendations/ui/RowTitle.svelte';
