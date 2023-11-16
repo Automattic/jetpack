@@ -1795,55 +1795,55 @@ importers:
         version: 18.2.0(react@18.2.0)
     devDependencies:
       '@automattic/jetpack-webpack-config':
-        specifier: workspace:3.0.2-alpha
+        specifier: workspace:*
         version: link:../../js-packages/webpack-config
       '@playwright/test':
-        specifier: 1.39.0
+        specifier: ^1.39.0
         version: 1.39.0
       '@typescript-eslint/eslint-plugin':
-        specifier: 6.7.5
+        specifier: ^6.7.5
         version: 6.7.5(@typescript-eslint/parser@6.7.5)(eslint@8.51.0)(typescript@5.0.4)
       '@typescript-eslint/parser':
-        specifier: 6.7.5
+        specifier: ^6.7.5
         version: 6.7.5(eslint@8.51.0)(typescript@5.0.4)
       '@wordpress/components':
-        specifier: 25.11.0
+        specifier: ^25.11.0
         version: 25.11.0(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/scripts':
-        specifier: 26.16.0
+        specifier: ^26.16.0
         version: 26.16.0(@playwright/test@1.39.0)(@typescript-eslint/eslint-plugin@6.7.5)(eslint-config-prettier@9.0.0)(eslint-plugin-import@2.28.1)(eslint-plugin-jest@27.4.2)(eslint-plugin-jsdoc@46.8.2)(eslint-plugin-jsx-a11y@6.7.1)(eslint-plugin-playwright@0.16.0)(eslint-plugin-prettier@5.0.1)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.33.2)(react-dom@18.2.0)(react@18.2.0)(typescript@5.0.4)
       eslint-config-prettier:
-        specifier: 9.0.0
+        specifier: ^9.0.0
         version: 9.0.0(eslint@8.51.0)
       eslint-plugin-import:
-        specifier: 2.28.1
+        specifier: ^2.28.1
         version: 2.28.1(@typescript-eslint/parser@6.7.5)(eslint@8.51.0)
       eslint-plugin-jest:
-        specifier: 27.4.2
+        specifier: ^27.4.2
         version: 27.4.2(@typescript-eslint/eslint-plugin@6.7.5)(eslint@8.51.0)(typescript@5.0.4)
       eslint-plugin-jsdoc:
-        specifier: 46.8.2
+        specifier: ^46.8.2
         version: 46.8.2(eslint@8.51.0)
       eslint-plugin-jsx-a11y:
-        specifier: 6.7.1
+        specifier: ^6.7.1
         version: 6.7.1(eslint@8.51.0)
       eslint-plugin-playwright:
-        specifier: 0.16.0
+        specifier: ^0.16.0
         version: 0.16.0(eslint-plugin-jest@27.4.2)(eslint@8.51.0)
       eslint-plugin-prettier:
-        specifier: 5.0.1
+        specifier: ^5.0.1
         version: 5.0.1(eslint-config-prettier@9.0.0)(eslint@8.51.0)(prettier@3.1.0)
       eslint-plugin-react:
-        specifier: 7.33.2
+        specifier: ^7.33.2
         version: 7.33.2(eslint@8.51.0)
       eslint-plugin-react-hooks:
-        specifier: 4.6.0
+        specifier: ^4.6.0
         version: 4.6.0(eslint@8.51.0)
       prettier:
-        specifier: 3.1.0
+        specifier: ^3.1.0
         version: 3.1.0
       typescript:
-        specifier: 5.0.4
+        specifier: ^5.0.4
         version: 5.0.4
 
   projects/packages/jitm:
@@ -13252,11 +13252,11 @@ packages:
       eslint: 8.51.0
       eslint-config-prettier: 9.0.0(eslint@8.51.0)
       eslint-plugin-import: 2.28.1(@typescript-eslint/parser@6.7.5)(eslint@8.51.0)
-      eslint-plugin-jest: 27.4.2(@typescript-eslint/eslint-plugin@6.7.5)(eslint@8.51.0)(typescript@5.0.4)
+      eslint-plugin-jest: 27.4.2(@typescript-eslint/eslint-plugin@6.7.5)(eslint@8.51.0)(jest@29.4.3)(typescript@5.0.4)
       eslint-plugin-jsdoc: 46.8.2(eslint@8.51.0)
       eslint-plugin-jsx-a11y: 6.7.1(eslint@8.51.0)
       eslint-plugin-playwright: 0.16.0(eslint-plugin-jest@27.4.2)(eslint@8.51.0)
-      eslint-plugin-prettier: 5.0.1(eslint-config-prettier@9.0.0)(eslint@8.51.0)(prettier@3.1.0)
+      eslint-plugin-prettier: 5.0.1(eslint-config-prettier@9.0.0)(eslint@8.51.0)(wp-prettier@3.0.3)
       eslint-plugin-react: 7.33.2(eslint@8.51.0)
       eslint-plugin-react-hooks: 4.6.0(eslint@8.51.0)
       globals: 13.23.0
@@ -13854,7 +13854,7 @@ packages:
       clean-webpack-plugin: 3.0.0(webpack@5.89.0)
       copy-webpack-plugin: 10.2.4(webpack@5.89.0)
       cross-spawn: 5.1.0
-      css-loader: 6.8.1(webpack@5.89.0)
+      css-loader: 6.5.1(webpack@5.89.0)
       cssnano: 6.0.1(postcss@8.4.31)
       cwd: 0.10.0
       dir-glob: 3.0.1
@@ -14595,7 +14595,7 @@ packages:
     resolution: {integrity: sha512-x1FCFnFifvYDDzTaLII71vG5uvDwgtmDTEVWAxrgeiR8VjMONcCXJx7E+USjDtHlwFmt9MysbqgF9b9Vjr6w+w==}
     engines: {node: '>=4'}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.5.0
     dev: true
 
   /ast-types@0.14.2:
@@ -15125,7 +15125,7 @@ packages:
   /builtins@5.0.1:
     resolution: {integrity: sha512-qwVpFEHNfhYJIzNRBvd2C1kyo6jz3ZSMPyyuR47OPdiKWlbYnZNyDWuyR175qDnAJLiCo5fBBqPb3RiXgWlkOQ==}
     dependencies:
-      semver: 7.5.4
+      semver: 7.5.2
     dev: true
 
   /bundle-name@3.0.0:
@@ -16009,6 +16009,23 @@ packages:
       semver: 7.5.2
       webpack: 5.76.0(webpack-cli@4.9.1)
 
+  /css-loader@6.5.1(webpack@5.89.0):
+    resolution: {integrity: sha512-gEy2w9AnJNnD9Kuo4XAP9VflW/ujKoS9c/syO+uWMlm5igc7LysKzPXaDoR2vroROkSwsTS2tGr1yGGEbZOYZQ==}
+    engines: {node: '>= 12.13.0'}
+    peerDependencies:
+      webpack: ^5.0.0
+    dependencies:
+      icss-utils: 5.1.0(postcss@8.4.31)
+      postcss: 8.4.31
+      postcss-modules-extract-imports: 3.0.0(postcss@8.4.31)
+      postcss-modules-local-by-default: 4.0.3(postcss@8.4.31)
+      postcss-modules-scope: 3.0.0(postcss@8.4.31)
+      postcss-modules-values: 4.0.0(postcss@8.4.31)
+      postcss-value-parser: 4.2.0
+      semver: 7.5.2
+      webpack: 5.89.0(webpack-cli@5.1.4)
+    dev: true
+
   /css-loader@6.8.1(webpack@5.76.0):
     resolution: {integrity: sha512-xDAXtEVGlD0gJ07iclwWVkLoZOpEvAWaSyf6W18S2pOC//K8+qUDIx8IIT3D+HjnmkJPQeesOPv5aiUaJsCM2g==}
     engines: {node: '>= 12.13.0'}
@@ -16024,23 +16041,6 @@ packages:
       postcss-value-parser: 4.2.0
       semver: 7.5.2
       webpack: 5.76.0(@swc/core@1.3.96)(webpack-cli@4.9.1)
-    dev: true
-
-  /css-loader@6.8.1(webpack@5.89.0):
-    resolution: {integrity: sha512-xDAXtEVGlD0gJ07iclwWVkLoZOpEvAWaSyf6W18S2pOC//K8+qUDIx8IIT3D+HjnmkJPQeesOPv5aiUaJsCM2g==}
-    engines: {node: '>= 12.13.0'}
-    peerDependencies:
-      webpack: ^5.0.0
-    dependencies:
-      icss-utils: 5.1.0(postcss@8.4.31)
-      postcss: 8.4.31
-      postcss-modules-extract-imports: 3.0.0(postcss@8.4.31)
-      postcss-modules-local-by-default: 4.0.3(postcss@8.4.31)
-      postcss-modules-scope: 3.0.0(postcss@8.4.31)
-      postcss-modules-values: 4.0.0(postcss@8.4.31)
-      postcss-value-parser: 4.2.0
-      semver: 7.5.4
-      webpack: 5.89.0(webpack-cli@5.1.4)
     dev: true
 
   /css-minimizer-webpack-plugin@5.0.1(webpack@5.76.0):
@@ -18558,7 +18558,7 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       array-union: 1.0.2
-      glob: 7.2.3
+      glob: 7.1.6
       object-assign: 4.1.1
       pify: 2.3.0
       pinkie-promise: 2.0.1
@@ -21959,7 +21959,7 @@ packages:
     dependencies:
       hosted-git-info: 4.1.0
       is-core-module: 2.13.1
-      semver: 7.5.4
+      semver: 7.5.2
       validate-npm-package-license: 3.0.4
     dev: true
 
@@ -22002,7 +22002,7 @@ packages:
       log-symbols: 4.1.0
       meow: 9.0.0
       plur: 4.0.0
-      semver: 7.5.4
+      semver: 7.5.2
       slash: 3.0.0
       strip-json-comments: 3.1.1
       type-fest: 3.13.1
@@ -22017,7 +22017,7 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
-      glob: 7.2.3
+      glob: 7.1.6
       ignore-walk: 4.0.1
       npm-bundled: 1.1.2
       npm-normalize-package-bin: 1.0.1
@@ -22818,7 +22818,7 @@ packages:
       cosmiconfig: 7.1.0
       klona: 2.0.6
       postcss: 8.4.31
-      semver: 7.5.4
+      semver: 7.5.2
       webpack: 5.89.0(webpack-cli@5.1.4)
     dev: true
 
@@ -23659,7 +23659,7 @@ packages:
       '@types/react': 18.2.33
       react: 18.2.0
       react-style-singleton: 2.2.1(@types/react@18.2.33)(react@18.2.0)
-      tslib: 2.5.0
+      tslib: 2.6.2
 
   /react-remove-scroll-bar@2.3.4(react@18.2.0):
     resolution: {integrity: sha512-63C4YQBUt0m6ALadE9XV56hV8BgJWDmmTPY758iIJjfQKt2nYwoUrPk0LXRXcB/yIj82T1/Ixfdpdk68LwIB0A==}
@@ -23724,7 +23724,7 @@ packages:
       react: 18.2.0
       react-remove-scroll-bar: 2.3.4(@types/react@18.2.33)(react@18.2.0)
       react-style-singleton: 2.2.1(@types/react@18.2.33)(react@18.2.0)
-      tslib: 2.5.0
+      tslib: 2.6.2
       use-callback-ref: 1.3.0(@types/react@18.2.33)(react@18.2.0)
       use-sidecar: 1.1.2(@types/react@18.2.33)(react@18.2.0)
 
@@ -23913,7 +23913,7 @@ packages:
       get-nonce: 1.0.1
       invariant: 2.2.4
       react: 18.2.0
-      tslib: 2.5.0
+      tslib: 2.6.2
 
   /react-style-singleton@2.2.1(react@18.2.0):
     resolution: {integrity: sha512-ZWj0fHEMyWkHzKYUr2Bs/4zU6XLmq9HsgBURm7g5pAVfyn49DgUiNgY2d4lXRlYSiCif9YBGpQleewkcqddc7g==}
@@ -25761,7 +25761,7 @@ packages:
     engines: {node: ^14.18.0 || >=16.0.0}
     dependencies:
       '@pkgr/utils': 2.4.2
-      tslib: 2.6.2
+      tslib: 2.5.0
     dev: true
 
   /tabbable@5.3.3:
@@ -26574,7 +26574,7 @@ packages:
     dependencies:
       '@types/react': 18.2.33
       react: 18.2.0
-      tslib: 2.5.0
+      tslib: 2.6.2
 
   /use-callback-ref@1.3.0(react@18.2.0):
     resolution: {integrity: sha512-3FT9PRuRdbB9HfXhEq35u4oZkvpJ5kuYbpqhCfmiZyReuRgpnhDlbr2ZEnnuS0RrJAPn6l23xjFg9kpDM+Ms7w==}
@@ -26652,7 +26652,7 @@ packages:
       '@types/react': 18.2.33
       detect-node-es: 1.1.0
       react: 18.2.0
-      tslib: 2.5.0
+      tslib: 2.6.2
 
   /use-sidecar@1.1.2(react@18.2.0):
     resolution: {integrity: sha512-epTbsLuzZ7lPClpz2TyryBfztm7m+28DlEv2ZCQ3MDr5ssiwyOwGH/e5F9CkfWjJ1t4clvI58yF822/GUkjjhw==}
