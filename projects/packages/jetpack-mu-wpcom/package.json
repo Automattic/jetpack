@@ -20,7 +20,7 @@
 		"build-js:error-reporting": "wp-scripts build error-reporting --output-path=build/error-reporting",
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "echo 'Not implemented.'",
-		"clean": "true"
+		"clean": "rm -rf build/"
 	},
 	"optionalDependencies": {
 		"react": "^18.2.0",
