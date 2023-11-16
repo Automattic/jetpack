@@ -142,6 +142,31 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	}
 
 	/**
+	 * Gets an array containing the block or shortcode use properties for the Cart page.
+	 *
+	 * @param int $cart_page_id The Cart page's ID.
+	 * @return int[]            An array containing the block or shortcode use properties for the Cart page.
+	 */
+	public function get_cart_page_block_usage( $cart_page_id ) {
+		$new_info = array();
+
+		$new_info['cart_page_contains_cart_block'] = $this->post_contains_text(
+			$cart_page_id,
+			'<!-- wp:woocommerce/cart'
+		) ? 1 : 0;
+
+		$new_info['cart_page_contains_cart_shortcode'] = ( $this->post_contains_text(
+				$cart_page_id,
+				'[woocommerce_cart]'
+			) || $this->post_contains_text(
+				$cart_page_id,
+				'<!-- wp:woocommerce/classic-shortcode'
+			) ) ? 1 : 0;
+
+		return $new_info;
+	}
+
+	/**
 	 * Get info about the cart & checkout pages, in particular
 	 * whether the store is using shortcodes or Gutenberg blocks.
 	 * This info is cached in a transient.
