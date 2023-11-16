@@ -12,6 +12,7 @@ import {
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
 	ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
 	FREE_PLAN_REQUESTS_LIMIT,
+	UNLIMITED_PLAN_REQUESTS_LIMIT,
 } from './constants';
 import type { PlanStateProps } from './types';
 
@@ -40,7 +41,7 @@ const INITIAL_STATE: PlanStateProps = {
 			nextTier: {
 				slug: 'ai-assistant-tier-unlimited',
 				value: 1,
-				limit: 922337203685477600,
+				limit: UNLIMITED_PLAN_REQUESTS_LIMIT,
 				readableLimit: __( 'Unlimited', 'jetpack' ),
 			},
 			_meta: {
@@ -94,8 +95,37 @@ export default function reducer( state = INITIAL_STATE, action ) {
 		}
 
 		case ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT: {
-			// Increase request count;
+			// Usage Period data
+			const usagePeriod = state.features.aiAssistant.usagePeriod || { requestsCount: 0 };
+
+			// Increase requests counters
 			const requestsCount = state.features.aiAssistant.requestsCount + action.count;
+			usagePeriod.requestsCount += action.count;
+
+			// Current tier value
+			const currentTierValue = state.features.aiAssistant.currentTier?.value;
+
+			const isFreeTierPlan =
+				( typeof currentTierValue === 'undefined' && ! state.features.aiAssistant.hasFeature ) ||
+				currentTierValue === 0;
+
+			const isUnlimitedTierPlan =
+				( typeof currentTierValue === 'undefined' && state.features.aiAssistant.hasFeature ) ||
+				currentTierValue === 1;
+
+			// Request limit defined with the current tier limit by default.
+			let requestsLimit = state.features.aiAssistant.currentTier?.limit;
+
+			if ( isUnlimitedTierPlan ) {
+				requestsLimit = UNLIMITED_PLAN_REQUESTS_LIMIT;
+			} else if ( isFreeTierPlan ) {
+				requestsLimit = state.features.aiAssistant.requestsLimit;
+			}
+
+			const currentCount =
+				isUnlimitedTierPlan || isFreeTierPlan // @todo: update once tier data is available
+					? requestsCount
+					: state.features.aiAssistant.usagePeriod?.requestsCount;
 
 			/**
 			 * Compute the AI Assistant Feature data optimistically,
@@ -103,12 +133,8 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			 *
 			 * @see _inc/lib/class-jetpack-ai-helper.php
 			 */
-			const isOverLimit = requestsCount >= state.features.aiAssistant.requestsLimit;
-			const requireUpgrade = isOverLimit && ! state.features.aiAssistant.hasFeature;
-
-			// Increase the requests count also fo the Usage Period.
-			const usagePeriod = state.features.aiAssistant.usagePeriod || { requestsCount: 0 };
-			usagePeriod.requestsCount += action.count;
+			const isOverLimit = currentCount >= requestsLimit;
+			const requireUpgrade = isOverLimit;
 
 			return {
 				...state,

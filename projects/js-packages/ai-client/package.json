@@ -1,7 +1,7 @@
 {
 	"private": false,
 	"name": "@automattic/jetpack-ai-client",
-	"version": "0.1.17-alpha",
+	"version": "0.2.0-alpha",
 	"description": "A JS client for consuming Jetpack AI services",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/ai-client/#readme",
 	"bugs": {
@@ -15,7 +15,8 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run compile-ts",
+		"build": "pnpm run clean && pnpm run compile-ts",
+		"clean": "rm -rf build/",
 		"compile-ts": "tsc --pretty",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
 	},
@@ -29,13 +30,20 @@
 		"typescript": "5.0.4"
 	},
 	"exports": {
-		".": "./index.ts"
+		".": {
+			"jetpack:src": "./src/index.ts",
+			"types": "./build/index.d.ts",
+			"default": "./build/index.js"
+		}
 	},
+	"main": "./build/index.js",
+	"types": "./build/index.d.ts",
 	"dependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@microsoft/fetch-event-source": "2.0.1",
+		"@types/react": "18.2.33",
 		"@wordpress/api-fetch": "6.42.0",
 		"@wordpress/block-editor": "12.13.0",
 		"@wordpress/components": "25.11.0",

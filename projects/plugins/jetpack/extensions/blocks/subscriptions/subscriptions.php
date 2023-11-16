@@ -612,7 +612,7 @@ function render_for_website( $data, $classes, $styles ) {
 	$blog_id           = \Jetpack_Options::get_option( 'id' );
 	$widget_id_suffix  = Jetpack_Subscriptions_Widget::$instance_count > 1 ? '-' . Jetpack_Subscriptions_Widget::$instance_count : '';
 	$form_id           = 'subscribe-blog' . $widget_id_suffix;
-	$form_url          = defined( 'SUBSCRIBE_BLOG_URL' ) ? SUBSCRIBE_BLOG_URL : '#';
+	$form_url          = 'https://wordpress.com/email-subscriptions';
 	$post_access_level = get_post_access_level_for_current_post();
 
 	// Post ID is used for pulling post-specific paid status, and returning to the right post after confirming subscription
@@ -691,7 +691,7 @@ function render_for_website( $data, $classes, $styles ) {
 							style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
 						<?php endif; ?>
 					>
-						<input type="hidden" name="action" value="subscribe"/>
+						<input type="hidden" name="action" value="<?php echo is_top_subscription() ? 'subscribed' : 'subscribe'; ?>"/>
 						<input type="hidden" name="blog_id" value="<?php echo (int) $blog_id; ?>"/>
 						<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
@@ -929,6 +929,21 @@ function get_submit_button_text( $data ) {
 		return $data['submit_button_text_upgrade'];
 	}
 	return '✓ ' . $data['submit_button_text_subscribed'];
+}
+
+/**
+ * Returns true if there are no more tiers to upgrade to.
+ *
+ * @return boolean
+ */
+function is_top_subscription() {
+	if ( ! Jetpack_Memberships::is_current_user_subscribed() ) {
+		return false;
+	}
+	if ( ! Jetpack_Memberships::user_can_view_post() ) {
+		return false;
+	}
+	return true;
 }
 
 /**

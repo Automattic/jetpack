@@ -213,6 +213,10 @@ class Identity_Crisis {
 			$query_args['migrate_for_idc'] = true;
 		}
 
+		if ( is_multisite() ) {
+			$query_args['multisite'] = true;
+		}
+
 		return add_query_arg( $query_args, $url );
 	}
 
