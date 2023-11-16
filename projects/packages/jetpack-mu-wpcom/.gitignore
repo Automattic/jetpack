@@ -1,3 +1,4 @@
+.cache/
 src/build/
 vendor/
 node_modules/
