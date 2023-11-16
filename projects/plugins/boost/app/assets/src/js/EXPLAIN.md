@@ -23,10 +23,21 @@ It's fine to have multiple components in a single file, but if the file is getti
 		- stores/ # App-wide stores
 		- utils/ # Utility functions
 	- features/ # Features
-		- f1
-		- f2, etc.
+		- ui # generic, reusable components
+			- back-button
+		- critical-css
+			- index.ts
+			- CriticalCssMeta.svelte
+			- lib # Features have their own lib to keep it nice and clean
+				- stores
+					- critical-css-state.ts
+					- ...
+		- ...
 	- pages/ # Pages (a.k.a. routes)
-		- p1
+		- critical-css-advanced
+			- CriticalCssAdvanced.svelte
+		- purchase-success
+			- purchase-success.tsx # react is kebab case now
 		- p2, etc.
 	- layout/ # Global layout components
 		- header
