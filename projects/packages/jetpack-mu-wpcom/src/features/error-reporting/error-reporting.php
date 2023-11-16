@@ -5,8 +5,10 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
 /**
- * Whether or not the site is eligible for Error Reporting, which is a feature that's specific to WPCOM.
+ * Whether the site is eligible for Error Reporting, which is a feature that's specific to WPCOM.
  *
  * By default, sites should not be eligible.
  *
