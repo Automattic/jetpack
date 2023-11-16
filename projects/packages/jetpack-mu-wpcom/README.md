@@ -19,7 +19,10 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 _Note: `cd` to `projects/packages/jetpack-mu-wpcom` before running these commands_
 
 - `npm run build-js`<br>
-  Compiles and minifies the plugins for production.
+  Compiles the plugins for development - the files are not minified and we produce a source map.
+
+- `npm run build-production-js`<br>
+  Compiles the plugins for production - we produce minified files without source maps.
 
 - `npm run clean`<br>
   Removes all build files.
@@ -31,6 +34,10 @@ The entry point is:
 The output is:
 
 - **Plugin**: `/projects/packages/jetpack-mu-wpcom/src/build/{{feature-name}}/{{feature-name}}.js`
+
+### Adding files to the build system
+
+If you're adding a new feature that includes Javascript or Typescript, you will need to add the primary source file to the `entry` section in `projects/packages/jetpack-mu-wpcom/webpack.config.js`, where we'll use the key as the core file name, and the value as the primary input file for that module.
 
 ## License
 
