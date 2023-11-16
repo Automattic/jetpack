@@ -2,10 +2,11 @@
  * External dependencies
  */
 import { useAiContext, withAiDataProvider } from '@automattic/jetpack-ai-client';
+import { JETPACK_MODULES_STORE_ID } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { select, useSelect } from '@wordpress/data';
+import { select, useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useCallback } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import React from 'react';
@@ -30,7 +31,7 @@ type IsPossibleToExtendJetpackFormBlockProps = {
  * @param {boolean} checkChildrenBlocks - Check if the block is a child of a Jetpack Form block.
  * @returns {boolean}                     True if it is possible to extend the block.
  */
-export function isPossibleToExtendJetpackFormBlock(
+export function useIsPossibleToExtendJetpackFormBlock(
 	blockName: string | undefined,
 	{ checkChildrenBlocks = false, clientId }: IsPossibleToExtendJetpackFormBlockProps = {
 		clientId: '',
@@ -38,6 +39,15 @@ export function isPossibleToExtendJetpackFormBlock(
 ): boolean {
 	// Check if the AI Assistant block is registered.
 	const isBlockRegistered = getBlockType( 'jetpack/ai-assistant' );
+	const isModuleActive = useSelect(
+		selectData => selectData( JETPACK_MODULES_STORE_ID ).isModuleActive( 'contact-form' ),
+		[ JETPACK_MODULES_STORE_ID ]
+	);
+
+	if ( ! isModuleActive ) {
+		return false;
+	}
+
 	if ( ! isBlockRegistered ) {
 		return false;
 	}
@@ -89,7 +99,37 @@ export function isPossibleToExtendJetpackFormBlock(
  */
 const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	return props => {
-		const { eventSource } = useAiContext();
+		const possibleToExtendJetpackFormBlock = useIsPossibleToExtendJetpackFormBlock( props?.name, {
+			clientId: props.clientId,
+		} );
+
+		const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
+
+		const { eventSource } = useAiContext( {
+			onDone: useCallback( () => {
+				/*
+				 * Increase the AI Suggestion counter.
+				 * @todo: move this at store level.
+				 */
+				increaseAiAssistantRequestsCount();
+			}, [ increaseAiAssistantRequestsCount ] ),
+			onError: useCallback(
+				error => {
+					/*
+					 * Incrses AI Suggestion counter
+					 * only for valid errors.
+					 * @todo: move this at store level.
+					 */
+					if ( error.code === 'error_network' || error.code === 'error_quota_exceeded' ) {
+						return;
+					}
+
+					// Increase the AI Suggestion counter.
+					increaseAiAssistantRequestsCount();
+				},
+				[ increaseAiAssistantRequestsCount ]
+			),
+		} );
 
 		const stopSuggestion = useCallback( () => {
 			if ( ! eventSource ) {
@@ -114,7 +154,7 @@ const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit =>
 		}, [ stopSuggestion, props?.name ] );
 
 		// Only extend Jetpack Form block (children not included).
-		if ( ! isPossibleToExtendJetpackFormBlock( props?.name, { clientId: props.clientId } ) ) {
+		if ( ! possibleToExtendJetpackFormBlock ) {
 			return <BlockEdit { ...props } />;
 		}
 
@@ -190,12 +230,12 @@ const jetpackFormChildrenEditWithAiComponents = createHigherOrderComponent( Bloc
 			[ props.clientId ]
 		);
 
-		if (
-			! isPossibleToExtendJetpackFormBlock( props?.name, {
-				checkChildrenBlocks: true,
-				clientId: parentClientId,
-			} )
-		) {
+		const possibleToExtendJetpackFormBlock = useIsPossibleToExtendJetpackFormBlock( props?.name, {
+			checkChildrenBlocks: true,
+			clientId: parentClientId,
+		} );
+
+		if ( ! possibleToExtendJetpackFormBlock ) {
 			return <BlockEdit { ...props } />;
 		}
 

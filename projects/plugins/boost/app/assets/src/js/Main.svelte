@@ -1,18 +1,21 @@
 <script lang="ts">
-	import ReactComponent from './elements/ReactComponent.svelte';
-	import RecommendationsPage from './modules/image-size-analysis/RecommendationsPage.svelte';
-	import BenefitsInterstitial from './pages/benefits/BenefitsInterstitial.svelte';
-	import PurchaseSuccess from './pages/purchase-success/PurchaseSuccess.svelte';
-	import Settings from './pages/settings/Settings.svelte';
-	import GettingStarted from './react-components/pages/getting-started';
-	import config from './stores/config';
-	import { connection } from './stores/connection';
-	import { criticalCssState, isGenerating } from './stores/critical-css-state';
-	import { modulesState } from './stores/modules';
-	import { recordBoostEvent } from './utils/analytics';
-	import debounce from './utils/debounce';
-	import { Router, Route } from './utils/router';
-	import routerHistory from './utils/router-history';
+	import AdvancedCriticalCss from './pages/critical-css-advanced/CriticalCssAdvanced.svelte';
+	import GettingStarted from './pages/getting-started/getting-started';
+	import RecommendationsPage from './pages/image-size-analysis/ImageSizeAnalysis.svelte';
+	import Index from './pages/index/Index.svelte';
+	import PurchaseSuccess from './pages/purchase-success/purchase-success';
+	import Upgrade from './pages/upgrade/Upgrade.svelte';
+	import ReactComponent from '$features/ReactComponent.svelte';
+	import Redirect from '$features/Redirect.svelte';
+	import SettingsPage from '$layout/SettingsPage/SettingsPage.svelte';
+	import config from '$lib/stores/config';
+	import { connection } from '$lib/stores/connection';
+	import { criticalCssIssues } from '$features/critical-css';
+	import { modulesState } from '$lib/stores/modules';
+	import { recordBoostEvent } from '$lib/utils/analytics';
+	import debounce from '$lib/utils/debounce';
+	import { Route, Router } from '$lib/utils/router';
+	import routerHistory from '$lib/utils/router-history';
 
 	routerHistory.listen(
 		debounce( history => {
@@ -29,26 +32,22 @@
 	);
 
 	$: pricing = $config.pricing;
-	$: activeModules = Object.entries( $modulesState ).reduce( ( acc, [ key, value ] ) => {
-		if ( key !== 'image_guide' && key !== 'image_size_analysis' ) {
-			acc.push( value.active );
-		}
-		return acc;
-	}, [] );
+
 	$: siteDomain = $config.site.domain;
 	$: userConnected = $connection.userConnected;
 	$: isPremium = $config.isPremium;
 	$: isImageGuideActive = $modulesState.image_guide.active;
 	$: isImageSizeAnalysisAvailable = $modulesState.image_size_analysis.available;
 	$: isImageSizeAnalysisActive = $modulesState.image_size_analysis.active;
-	$: criticalCssCreated = $criticalCssState.created;
-	$: criticalCssIsGenerating = $isGenerating;
+
+	$: shouldGetStarted = ! $connection.connected && $config.site.online;
 </script>
 
 <Router history={routerHistory}>
 	<Route path="upgrade" let:location let:navigate>
-		<BenefitsInterstitial {location} {navigate} {pricing} {siteDomain} {userConnected} />
+		<Upgrade {location} {navigate} {pricing} {siteDomain} {userConnected} />
 	</Route>
+
 	<Route path="getting-started">
 		<ReactComponent
 			this={GettingStarted}
@@ -58,13 +57,34 @@
 			domain={siteDomain}
 		/>
 	</Route>
-	<Route path="purchase-successful" let:location let:navigate>
-		<PurchaseSuccess {location} {navigate} {isImageGuideActive} />
+
+	<Route path="purchase-successful">
+		<ReactComponent this={PurchaseSuccess} {isImageGuideActive} />
 	</Route>
+
+	<Route path="critical-css-advanced">
+		<Redirect when={shouldGetStarted} to="/getting-started">
+			<SettingsPage>
+				<AdvancedCriticalCss issues={$criticalCssIssues} />
+			</SettingsPage>
+		</Redirect>
+	</Route>
+
+	<Route path="/">
+		<Redirect when={shouldGetStarted} to="/getting-started">
+			<SettingsPage>
+				<Index />
+			</SettingsPage>
+		</Redirect>
+	</Route>
+
 	{#if isImageSizeAnalysisAvailable && isImageSizeAnalysisActive}
 		<Route path="image-size-analysis/:group/:page" component={RecommendationsPage} />
 	{/if}
-	<Route>
-		<Settings {activeModules} {criticalCssCreated} {criticalCssIsGenerating} />
-	</Route>
 </Router>
+
+<style lang="scss">
+	.jb-section--main {
+		z-index: 14;
+	}
+</style>

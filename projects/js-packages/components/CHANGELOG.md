@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.45.1] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.45.0] - 2023-11-13
+### Fixed
+- Fixed React warnings in Boost Score Graph. [#34014]
+
 ## [0.44.4] - 2023-11-03
 ### Changed
 - Updated package dependencies. [#33904]
@@ -872,6 +880,8 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.45.1]: https://github.com/Automattic/jetpack-components/compare/0.45.0...0.45.1
+[0.45.0]: https://github.com/Automattic/jetpack-components/compare/0.44.4...0.45.0
 [0.44.4]: https://github.com/Automattic/jetpack-components/compare/0.44.3...0.44.4
 [0.44.3]: https://github.com/Automattic/jetpack-components/compare/0.44.2...0.44.3
 [0.44.2]: https://github.com/Automattic/jetpack-components/compare/0.44.1...0.44.2

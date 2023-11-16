@@ -1,5 +1,5 @@
 import { get } from 'svelte/store';
-import { recordBoostPixelEvent } from '../../../assets/src/js/utils/analytics';
+import { recordBoostPixelEvent } from '../../../assets/src/js/lib/utils/analytics';
 import { guideState } from './stores/GuideState';
 import { MeasurableImageStore } from './stores/MeasurableImageStore';
 

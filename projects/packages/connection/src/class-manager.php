@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\A8c_Mc_Stats;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
+use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -138,6 +139,9 @@ class Manager {
 
 		// Initialize token locks.
 		new Tokens_Locks();
+
+		// Initial Partner management.
+		Partner::init();
 	}
 
 	/**
@@ -1916,6 +1920,7 @@ class Manager {
 				'site_created'          => $this->get_assumed_site_creation_date(),
 				'allow_site_connection' => ! $this->has_connected_owner(),
 				'calypso_env'           => ( new Host() )->get_calypso_env(),
+				'source'                => ( new Host() )->get_source_query(),
 			)
 		);
 
@@ -1923,7 +1928,10 @@ class Manager {
 
 		$api_url = $this->api_url( 'authorize' );
 
-		return add_query_arg( $body, $api_url );
+		$url = add_query_arg( $body, $api_url );
+
+		/** This filter is documented in plugins/jetpack/class-jetpack.php  */
+		return apply_filters( 'jetpack_build_authorize_url', $url );
 	}
 
 	/**

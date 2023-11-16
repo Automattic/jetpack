@@ -14,7 +14,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { isPossibleToExtendJetpackFormBlock } from '..';
+import { useIsPossibleToExtendJetpackFormBlock } from '..';
 import { compareBlocks } from '../../../lib/utils/compare-blocks';
 import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
 import { AiAssistantUiContextProvider } from './context';
@@ -290,7 +290,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		 * and the AI Assistant component (popover)
 		 * only if is't possible to extend the block.
 		 */
-		if ( ! isPossibleToExtendJetpackFormBlock( props.name, { clientId: props.clientId } ) ) {
+		if ( ! useIsPossibleToExtendJetpackFormBlock( props.name, { clientId: props.clientId } ) ) {
 			return <BlockListBlock { ...props } />;
 		}
 
