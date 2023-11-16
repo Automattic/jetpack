@@ -1553,5 +1553,5 @@ abstract class SAL_Site {
 	 *
 	 * @see class.json-api-site-jetpack.php for implementation.
 	 */
-	abstract public function is_favorite();
+	abstract public function is_user_favorite();
 }

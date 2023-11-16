@@ -692,7 +692,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return null
 	 */
-	public function is_favorite() {
+	public function is_user_favorite() {
 		return null;
 	}
 }
