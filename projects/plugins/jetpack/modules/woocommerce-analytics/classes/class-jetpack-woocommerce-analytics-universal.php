@@ -504,7 +504,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				}
 			}
 
-			if ( ! $template ) {
+			if ( ! $template || empty( $template->content ) ) {
+				// $this->additional_blocks_on_page is an empty array already, so no need to reset it here we can just return.
 				return;
 			}
 
