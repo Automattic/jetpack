@@ -6,7 +6,7 @@
 	} from '@automattic/jetpack-boost-score-api';
 	import { BoostScoreBar } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
-	import ContextTooltip from '../../layout/SettingsPage/ContextTooltip/ContextTooltip';
+	import ContextTooltip from './context-tooltip/context-tooltip';
 	import History from '../performance-history/History.svelte';
 	import PopOut from './PopOut.svelte';
 	import ErrorNotice from '$features/ErrorNotice.svelte';
