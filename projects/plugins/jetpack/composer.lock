@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e31054679dbd36c7a3e5eb4345d15ca",
+    "content-hash": "2b5fe1c8d3a7f6f75ab962e21ceb6434",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1461,7 +1461,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "abf3747a9f310a0dfc412252d27f098cb1cb2406"
+                "reference": "e13900c78f3b7dfc0ed2ecede10c8ddcc9a5fd4d"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1469,7 +1469,6 @@
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-device-detection": "@dev",
                 "automattic/jetpack-logo": "@dev",
-                "automattic/jetpack-partner": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev"
             },
@@ -1493,7 +1492,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.5.x-dev"
+                    "dev-trunk": "2.6.x-dev"
                 }
             },
             "autoload": {
@@ -1638,7 +1637,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "e57d5539d4458fa476194c0364c59df998a5b383"
+                "reference": "3eb2f21243cf091284e6a9f9819be6a62230057a"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1669,7 +1668,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.12.x-dev"
+                    "dev-trunk": "3.13.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1716,65 +1715,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-partner",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/partner",
-                "reference": "617ebd443fc95dbd3e907b463eed621506da8e31"
-            },
-            "require": {
-                "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-status": "@dev"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "@dev",
-                "brain/monkey": "2.6.1",
-                "yoast/phpunit-polyfills": "1.1.0"
-            },
-            "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-partner",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-partner/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-trunk": "1.7.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "post-install-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
-                ],
-                "post-update-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Support functions for Jetpack hosting partners.",
             "transport-options": {
                 "relative": true
             }
@@ -5765,7 +5705,6 @@
         "automattic/jetpack-licensing": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-my-jetpack": 20,
-        "automattic/jetpack-partner": 20,
         "automattic/jetpack-plugins-installer": 20,
         "automattic/jetpack-post-list": 20,
         "automattic/jetpack-publicize": 20,

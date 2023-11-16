@@ -2635,6 +2635,9 @@ importers:
       '@babel/preset-react':
         specifier: 7.22.15
         version: 7.22.15(@babel/core@7.23.2)
+      '@rollup/plugin-alias':
+        specifier: 5.0.1
+        version: 5.0.1(rollup@2.79.1)
       '@rollup/plugin-babel':
         specifier: 5.3.1
         version: 5.3.1(@babel/core@7.23.2)(rollup@2.79.1)
@@ -8807,6 +8810,19 @@ packages:
     resolution: {integrity: sha512-bgVQM4ZJ2u2CM8k1ey70o1ePFXsEzYVZoWghh6WjM8p59jQ7HxzbHW4SbnWFG7V9ig9chLawQxDTZ3xzOF8MkQ==}
     engines: {node: '>=14'}
     dev: false
+
+  /@rollup/plugin-alias@5.0.1(rollup@2.79.1):
+    resolution: {integrity: sha512-JObvbWdOHoMy9W7SU0lvGhDtWq9PllP5mjpAy+TUslZG/WzOId9u80Hsqq1vCUn9pFJ0cxpdcnAv+QzU2zFH3Q==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      rollup: 2.79.1
+      slash: 4.0.0
+    dev: true
 
   /@rollup/plugin-babel@5.3.1(@babel/core@7.23.2)(rollup@2.79.1):
     resolution: {integrity: sha512-WFfdLWU/xVWKeRQnKmIAQULUI7Il0gZnBIH/ZFO069wYIfPu+8zrfp/KMW0atmELoRDq8FbiP3VCss9MhCut7Q==}
