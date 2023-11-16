@@ -10,7 +10,7 @@
 	import SettingsPage from '$layout/SettingsPage/SettingsPage.svelte';
 	import config from '$lib/stores/config';
 	import { connection } from '$lib/stores/connection';
-	import { criticalCssIssues } from '$lib/stores/critical-css-state-errors';
+	import { criticalCssIssues } from '$features/critical-css';
 	import { modulesState } from '$lib/stores/modules';
 	import { recordBoostEvent } from '$lib/utils/analytics';
 	import debounce from '$lib/utils/debounce';

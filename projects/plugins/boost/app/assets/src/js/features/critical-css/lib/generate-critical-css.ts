@@ -1,25 +1,25 @@
 import { get } from 'svelte/store';
-import { criticalCssMeta } from '../stores/critical-css-meta';
+import { criticalCssMeta } from './stores/critical-css-meta';
 import {
 	localCriticalCSSProgress,
 	saveCriticalCssChunk,
 	criticalCssFatalError,
 	storeGenerateError,
 	updateProvider,
-} from '../stores/critical-css-state';
+} from './stores/critical-css-state';
 import {
 	CriticalCssState,
 	Critical_CSS_Error_Type,
 	Provider,
-} from '../stores/critical-css-state-types';
-import { JSONObject } from '../stores/data-sync-client';
-import { recordBoostEvent, TracksEventProperties } from './analytics';
-import { castToNumber } from './cast-to-number';
-import { logPreCriticalCSSGeneration } from './console';
-import { isSameOrigin } from './is-same-origin';
-import { loadCriticalCssLibrary } from './load-critical-css-library';
-import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
-import type { Viewport } from './types';
+} from './stores/critical-css-state-types';
+import { JSONObject } from '$lib/stores/data-sync-client';
+import { recordBoostEvent, TracksEventProperties } from '$lib/utils/analytics';
+import { castToNumber } from '$lib/utils/cast-to-number';
+import { logPreCriticalCSSGeneration } from '$lib/utils/console';
+import { isSameOrigin } from '$lib/utils/is-same-origin';
+import { loadCriticalCssLibrary } from '$lib/utils/load-critical-css-library';
+import { prepareAdminAjaxRequest } from '$lib/utils/make-admin-ajax-request';
+import type { Viewport } from '$lib/utils/types';
 
 /**
  * Generate Critical CSS for this site. Will load the Critical CSS Generator

@@ -1,5 +1,5 @@
 import { get } from 'svelte/store';
-import { criticalCssProgress, criticalCssState } from '../stores/critical-css-state';
+import { criticalCssProgress, criticalCssState } from './stores/critical-css-state';
 
 let statusIntervalId = null;
 

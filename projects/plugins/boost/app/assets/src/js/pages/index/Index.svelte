@@ -31,13 +31,17 @@
 		regenerateCriticalCss,
 		criticalCssProgress,
 		isFatalError,
-	} from '$lib/stores/critical-css-state';
-	import { criticalCssIssues, primaryErrorSet } from '$lib/stores/critical-css-state-errors';
+		criticalCssIssues,
+		primaryErrorSet,
+	} from '$features/critical-css';
 	import { suggestRegenerateDS } from '$features/critical-css';
 	import { imageCdnQuality } from '$features/image-cdn/store';
 	import { modulesState } from '$lib/stores/modules';
 	import { premiumFeatures } from '$lib/stores/premium-features';
-	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '$lib/utils/cloud-css';
+	import {
+		startPollingCloudStatus,
+		stopPollingCloudCssStatus,
+	} from '$features/critical-css/lib/cloud-css';
 	import externalLinkTemplateVar from '$lib/utils/external-link-template-var';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );

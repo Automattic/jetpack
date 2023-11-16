@@ -1,13 +1,13 @@
 import { derived, Readable } from 'svelte/store';
-import { castToString } from '../utils/cast-to-string';
-import { sortByFrequency } from '../utils/sort-by-frequency';
+import { castToString } from '$lib/utils/cast-to-string';
+import { sortByFrequency } from '$lib/utils/sort-by-frequency';
 import { criticalCssState } from './critical-css-state';
 import {
 	CriticalCssErrorDetails,
 	Critical_CSS_Error_Type,
 	Provider,
 } from './critical-css-state-types';
-import { JSONObject } from './data-sync-client';
+import type { JSONObject } from '$lib/stores/data-sync-client';
 
 /**
  * Specification for a set of errors that can appear as a part of a recommendation.

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { jetpack_boost_ds } from './data-sync-client';
+import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
 
 const CriticalCssMetaSchema = z
 	.object( {

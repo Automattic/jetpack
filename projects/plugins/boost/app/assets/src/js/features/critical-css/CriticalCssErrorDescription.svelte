@@ -11,8 +11,8 @@
 	import MoreList from './MoreList.svelte';
 	import NumberedList from '$features/critical-css/NumberedList.svelte';
 	import TemplatedString from '$features/TemplatedString.svelte';
-	import { regenerateCriticalCss } from '$lib/stores/critical-css-state';
-	import { ErrorSet } from '$lib/stores/critical-css-state-errors';
+	import { regenerateCriticalCss } from './lib/stores/critical-css-state';
+	import { ErrorSet } from './lib/stores/critical-css-state-errors';
 	import actionLinkTemplateVar from '$lib/utils/action-link-template-var';
 	import { TemplateVars } from '$lib/utils/copy-dom-template';
 	import {
@@ -20,7 +20,7 @@
 		suggestion,
 		footerComponent,
 		rawError,
-	} from '$lib/utils/describe-critical-css-recommendations';
+	} from '$features/critical-css/lib/describe-critical-css-recommendations';
 	import supportLinkTemplateVar from '$lib/utils/support-link-template-var';
 
 	export let showSuggestion = true;

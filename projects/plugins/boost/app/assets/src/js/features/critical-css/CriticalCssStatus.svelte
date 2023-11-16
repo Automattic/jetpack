@@ -2,8 +2,8 @@
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '$features/TemplatedString.svelte';
 	import TimeAgo from '$features/critical-css/TimeAgo.svelte';
-	import { regenerateCriticalCss } from '$lib/stores/critical-css-state';
-	import { CriticalCssState } from '$lib/stores/critical-css-state-types';
+	import { regenerateCriticalCss } from './lib/stores/critical-css-state';
+	import type { CriticalCssState } from './lib/stores/critical-css-state-types';
 	import actionLinkTemplateVar from '$lib/utils/action-link-template-var';
 	import routerHistory from '$lib/utils/router-history';
 	import InfoIcon from '$svg/info.svg';

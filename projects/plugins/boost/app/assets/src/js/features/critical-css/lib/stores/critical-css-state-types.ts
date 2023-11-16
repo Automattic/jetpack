@@ -1,5 +1,5 @@
 import z from 'zod';
-import { JSONSchema } from './data-sync-client';
+import { JSONSchema } from '$lib/stores/data-sync-client';
 
 const CriticalCssErrorType = z.enum( [
 	'SuccessTargetError',

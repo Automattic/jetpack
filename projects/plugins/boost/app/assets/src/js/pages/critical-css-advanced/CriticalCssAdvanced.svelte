@@ -5,9 +5,9 @@
 	import CloseButton from '$features/ui/CloseButton.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import CriticalCssErrorDescription from '$features/critical-css/CriticalCssErrorDescription.svelte';
-	import { replaceCssState, updateProvider } from '$lib/stores/critical-css-state';
-	import { groupErrorsByFrequency } from '$lib/stores/critical-css-state-errors';
-	import { type Provider } from '$lib/stores/critical-css-state-types';
+	import { replaceCssState, updateProvider } from '$features/critical-css';
+	import { groupErrorsByFrequency } from '$features/critical-css';
+	import { type Provider } from '$features/critical-css';
 	import routerHistory from '$lib/utils/router-history';
 	import InfoIcon from '$svg/info.svg';
 

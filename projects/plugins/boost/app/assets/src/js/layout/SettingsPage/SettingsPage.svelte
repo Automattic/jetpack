@@ -5,7 +5,7 @@
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Footer from '$layout/Footer/Footer';
 	import Header from '$layout/Header/Header';
-	import { criticalCssState, isGenerating } from '$lib/stores/critical-css-state';
+	import { criticalCssState, isGenerating } from '$features/critical-css';
 	import { modulesState } from '$lib/stores/modules';
 	import { hasPrioritySupport } from '$lib/utils/paid-plan';
 

@@ -1,7 +1,7 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { CriticalCssErrorDetails } from '../stores/critical-css-state-types';
-import { castToNumber } from './cast-to-number';
-import type { ErrorSet } from '../stores/critical-css-state-errors';
+import { CriticalCssErrorDetails } from './stores/critical-css-state-types';
+import { castToNumber } from '$lib/utils/cast-to-number';
+import type { ErrorSet } from './stores/critical-css-state-errors';
 import type { SvelteComponent } from 'svelte';
 import UrlComponentsExample from '$features/critical-css/UrlComponentsExample.svelte';
 
