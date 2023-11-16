@@ -123,12 +123,8 @@ class Assets {
 	 */
 	public static function enqueue_async_script( $handle, $min_path, $non_min_path, $deps = array(), $ver = false, $in_footer = true ) {
 		_deprecated_function( __METHOD__, '$$next-version$$ ' );
-		global $wp_version;
-
 		$assets_instance = self::instance();
-
 		$assets_instance->add_async_script( $handle );
-
 		wp_enqueue_script( $handle, self::get_file_url_for_environment( $min_path, $non_min_path ), $deps, $ver, $in_footer );
 	}
 
