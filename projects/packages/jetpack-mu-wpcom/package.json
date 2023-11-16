@@ -18,7 +18,7 @@
 		"build": "echo 'Not implemented.'",
 		"build-js": "pnpm clean && webpack",
 		"build-production": "echo 'Not implemented.'",
-		"build-production-js": "NODE_ENV=production pnpm build-js",
+		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm build-js",
 		"clean": "rm -rf src/build/"
 	},
 	"optionalDependencies": {
