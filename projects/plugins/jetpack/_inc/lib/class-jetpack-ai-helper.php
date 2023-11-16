@@ -360,8 +360,22 @@ class Jetpack_AI_Helper {
 			$requests_limit = WPCOM\Jetpack_AI\Usage\Helper::get_free_requests_limit( $blog_id );
 			$requests_count = WPCOM\Jetpack_AI\Usage\Helper::get_all_time_requests_count( $blog_id );
 
-			// Check if the site requires an upgrade.
-			$require_upgrade = $is_over_limit && ! $has_ai_assistant_feature;
+			/**
+			 * Check if the site requires an upgrade.
+			 *
+			 * The site will require an upgrade when it's
+			 * over the limit of requests, be it the free
+			 * allowance of the current tier allowance.
+			 *
+			 * Previously, we were checking if the site
+			 * does not have the AI Assistant feature,
+			 * meaning we only checked the free limit.
+			 *
+			 * With tiered plans, we need to check if the
+			 * site is over the limit even when it has the
+			 * feature.
+			 */
+			$require_upgrade = $is_over_limit;
 
 			// Determine the upgrade type
 			$upgrade_type = wpcom_is_vip( $blog_id ) ? 'vip' : 'default';
