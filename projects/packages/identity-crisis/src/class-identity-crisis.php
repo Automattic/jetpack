@@ -27,7 +27,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.11.3-alpha';
+	const PACKAGE_VERSION = '0.11.4-alpha';
 
 	/**
 	 * Instance of the object.
@@ -211,6 +211,10 @@ class Identity_Crisis {
 
 		if ( \Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
 			$query_args['migrate_for_idc'] = true;
+		}
+
+		if ( is_multisite() ) {
+			$query_args['multisite'] = true;
 		}
 
 		return add_query_arg( $query_args, $url );

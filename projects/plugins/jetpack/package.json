@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack",
-	"version": "12.9.0-a.4",
+	"version": "12.9.0-a.6",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -161,9 +161,5 @@
 	"optionalDependencies": {
 		"react": "18.2.0",
 		"react-dom": "18.2.0"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

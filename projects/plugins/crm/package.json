@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-crm",
-	"version": "6.3.0-alpha",
+	"version": "6.3.1-alpha",
 	"description": "The CRM for WordPress",
 	"author": "Automattic",
 	"license": "GPL-2.0",
@@ -58,9 +58,5 @@
 		"typescript": "5.0.4",
 		"webpack": "5.76.0",
 		"webpack-cli": "4.9.1"
-	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }
