@@ -7,6 +7,7 @@ import type { TierProp, UpgradeTypeProp } from './store/wordpress-com/types';
  * `sites/$site/ai-assistant-feature` endpoint response body props
  */
 export type SiteAIAssistantFeatureEndpointResponseProps = {
+	'is-enabled': boolean;
 	'has-feature': boolean;
 	'is-over-limit': boolean;
 	'requests-count': number;
