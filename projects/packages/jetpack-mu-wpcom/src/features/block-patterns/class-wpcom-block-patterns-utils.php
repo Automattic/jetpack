@@ -2,15 +2,13 @@
 /**
  * Block Patterns Utils.
  *
- * @package A8C\FSE
+ * @package automattic/jetpack-mu-wpcom
  */
-
-namespace A8C\FSE;
 
 /**
- * Class Block_Patterns_Utils
+ * Class Wpcom_Block_Patterns_Utils
  */
-class Block_Patterns_Utils {
+class Wpcom_Block_Patterns_Utils {
 	/**
 	 * Make remote get requests.
 	 *

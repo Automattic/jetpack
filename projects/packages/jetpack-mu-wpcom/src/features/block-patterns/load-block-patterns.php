@@ -61,8 +61,8 @@ add_filter(
 	'rest_dispatch_request',
 	register_patterns_on_api_request(
 		function () {
-			require_once __DIR__ . '/class-block-patterns-from-api.php';
-			( new Block_Patterns_From_API() )->register_patterns();
+			require_once __DIR__ . '/class-wpcom-block-patterns-from-api.php';
+			( new Wpcom_Block_Patterns_From_Api() )->register_patterns();
 		}
 	),
 	10,

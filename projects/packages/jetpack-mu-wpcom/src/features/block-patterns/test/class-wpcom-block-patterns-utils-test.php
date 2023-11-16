@@ -12,16 +12,16 @@ namespace A8C\FSE;
 
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . '/../class-block-patterns-utils.php';
+require_once __DIR__ . '/../class-wpcom-block-patterns-utils.php';
 
 /**
  * Class Coming_Soon_Test
  */
-class Block_Patterns_Utils_Test extends TestCase {
+class Wpcom_Block_Patterns_Utils_Test extends TestCase {
 	/**
-	 * Block_Patterns_Utils
+	 * Wpcom_Block_Patterns_Utils
 	 *
-	 * @var Block_Patterns_Utils
+	 * @var Wpcom_Block_Patterns_Utils
 	 */
 	protected $utils;
 
@@ -30,7 +30,7 @@ class Block_Patterns_Utils_Test extends TestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		$this->utils = new Block_Patterns_Utils();
+		$this->utils = new Wpcom_Block_Patterns_Utils();
 	}
 
 	/**
