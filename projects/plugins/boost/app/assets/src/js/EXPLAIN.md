@@ -55,12 +55,18 @@ It's fine to have multiple components in a single file, but if the file is getti
 
 Every feature can be either a simple component like `my-feature/my-feature.tsx` or advanced and include multiple related files and logic, for example:
 
+**This sort of mirrors the top-level structure.**
+
 ```bash
 /my-feature/
 	- index.ts # Public exports
 	- my-feature.tsx # The main component
 	- my-feature.modules.scss # CSS modules
 	- my-feature.stories.tsx # Storybook stories
+	- ui # Tiny little components that are only used in this feature
+		- /my-feature-button
+			- my-feature-button.tsx
+			- my-feature-input.tsx
 	- lib/ # Feature-specific code
 		- some-utility.ts # Utility functions for this feature
 		- stores # Stores for this feature
