@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <ruleset>
 
-	<config name="minimum_supported_wp_version" value="6.0" />
+	<config name="minimum_supported_wp_version" value="6.3" />
 	<config name="testVersion" value="7.0-"/>
 
 	<!-- Ruleset under test. -->
