@@ -19,7 +19,14 @@
 		"build-js": "echo 'Not implemented.'",
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "echo 'Not implemented.'",
-		"clean": "true"
+		"clean": "true",
+		"newspack-blocks": "./bin/sync-newspack-blocks.sh --nodemodules && NODE_ENV=production calypso-build --env source='src/features/newspack-blocks/'"
 	},
-	"devDependencies": {}
+	"devDependencies": {
+		"@automattic/calypso-build": "^10.0.0",
+		"@automattic/newspack-blocks": "^2.0.0"
+	},
+	"dependencies": {
+		"@automattic/calypso-eslint-overrides": "^1.0.0"
+	}
 }
