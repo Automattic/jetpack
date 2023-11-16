@@ -26,11 +26,11 @@ _Note: `cd` to `projects/packages/jetpack-mu-wpcom` before running these command
 
 The entry point is:
 
-- **Plugin**: `projects/packages/jetpack-mu-wpcom/src/features/{{feature-directory}}/index.js`
+- **Plugin**: `projects/packages/jetpack-mu-wpcom/src/features/{{feature-name}}/index.js`
 
 The output is:
 
-- **Plugin**: `/projects/packages/jetpack-mu-wpcom/src/build`
+- **Plugin**: `/projects/packages/jetpack-mu-wpcom/src/build/{{feature-name}}/{{feature-name}}.js`
 
 ## License
 
