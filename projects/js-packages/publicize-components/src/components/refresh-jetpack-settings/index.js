@@ -1,5 +1,4 @@
 import { useDispatch } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
 import { SOCIAL_STORE_ID } from '../../social-store';
 
 /**
@@ -13,11 +12,9 @@ import { SOCIAL_STORE_ID } from '../../social-store';
 export default function RefreshJetpackSocialSettingsWrapper( { shouldRefresh, children } ) {
 	const refreshOptions = useDispatch( SOCIAL_STORE_ID ).refreshJetpackSocialSettings;
 
-	useEffect( () => {
-		if ( shouldRefresh ) {
-			refreshOptions();
-		}
-	} );
+	if ( shouldRefresh ) {
+		refreshOptions();
+	}
 
 	return children;
 }
