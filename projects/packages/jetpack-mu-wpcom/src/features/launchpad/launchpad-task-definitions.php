@@ -85,7 +85,7 @@ function wpcom_launchpad_get_task_definitions() {
 				// Add an answer_prompt query param for Write sites.
 				if ( 'write' === get_option( 'site_intent' ) ) {
 					return $base_path . '/?new_prompt=true';
-				};
+				}
 
 				return $base_path;
 			},
