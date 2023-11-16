@@ -156,12 +156,12 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		) ? 1 : 0;
 
 		$new_info['cart_page_contains_cart_shortcode'] = ( $this->post_contains_text(
-				$cart_page_id,
-				'[woocommerce_cart]'
-			) || $this->post_contains_text(
-				$cart_page_id,
-				'<!-- wp:woocommerce/classic-shortcode'
-			) ) ? 1 : 0;
+			$cart_page_id,
+			'[woocommerce_cart]'
+		) || $this->post_contains_text(
+			$cart_page_id,
+			'<!-- wp:woocommerce/classic-shortcode'
+		) ) ? 1 : 0;
 
 		return $new_info;
 	}
@@ -274,6 +274,16 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			'checkout_page_contains_checkout_block'     => str_contains( $checkout_template->content, '<!-- wp:woocommerce/checkout' ) ? 1 : 0,
 			'checkout_page_contains_checkout_shortcode' => ( str_contains( $checkout_template->content, '[woocommerce_checkout]' ) || str_contains( $checkout_template->content, '<!-- wp:woocommerce/classic-shortcode' ) ) ? 1 : 0,
 		);
+
+		$is_cart_using_page_content     = str_contains( $cart_template->content, '<!-- wp:woocommerce/page-content-wrapper {"page":"cart"}' );
+		$is_checkout_using_page_content = str_contains( $checkout_template->content, '<!-- wp:woocommerce/page-content-wrapper {"page":"checkout"}' );
+
+		if ( $is_cart_using_page_content ) {
+			$info = array_merge( $info, $this->get_cart_page_block_usage( $cart_page_id ) );
+		}
+		if ( $is_checkout_using_page_content ) {
+			$info = array_merge( $info, $this->get_checkout_page_block_usage( $checkout_page_id ) );
+		}
 
 		set_transient( $transient_name, $info, DAY_IN_SECONDS );
 		return $info;
