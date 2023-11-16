@@ -72,13 +72,13 @@ class Tonesque {
 			// If it's a url pointing to a local media library url.
 			$content_url = content_url();
 			$_image_url  = set_url_scheme( $image_url );
-			if ( wp_startswith( $_image_url, $content_url ) ) {
+			if ( str_starts_with( $_image_url, $content_url ) ) {
 				$_image_path = str_replace( $content_url, WP_CONTENT_DIR, $_image_url );
 				if ( file_exists( $_image_path ) ) {
 					$filetype = wp_check_filetype( $_image_path );
 					$type     = $filetype['type'];
 
-					if ( wp_startswith( $type, 'image/' ) ) {
+					if ( str_starts_with( $type, 'image/' ) ) {
 						$data = file_get_contents( $_image_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 					}
 				}
@@ -88,7 +88,7 @@ class Tonesque {
 				$response = wp_safe_remote_get( $image_url );
 				if (
 					is_wp_error( $response )
-					|| ! wp_startswith( $response['headers']['content-type'], 'image/' )
+					|| ! str_starts_with( $response['headers']['content-type'], 'image/' )
 				) {
 					return false;
 				}
@@ -101,7 +101,7 @@ class Tonesque {
 			$filetype = wp_check_filetype( $image_url );
 			$type     = $filetype['type'];
 
-			if ( wp_startswith( $type, 'image/' ) ) {
+			if ( str_starts_with( $type, 'image/' ) ) {
 				$data = file_get_contents( $image_url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			}
 		}
