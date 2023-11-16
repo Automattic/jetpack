@@ -21,10 +21,6 @@
 		"watch": "pnpm run build && pnpm webpack watch",
 		"test": "jest --config=tests/jest.config.js"
 	},
-	"engines": {
-		"node": "^18.13.0",
-		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"sass": "1.64.1",

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: ensure that partner partners are passed on during the connection process, regardless of the plugin you use to connect.
