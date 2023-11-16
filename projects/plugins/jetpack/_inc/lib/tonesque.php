@@ -86,7 +86,10 @@ class Tonesque {
 
 			if ( empty( $data ) ) {
 				$response = wp_safe_remote_get( $image_url );
-				if ( is_wp_error( $response ) ) {
+				if ( 
+					is_wp_error( $response )
+					|| ! wp_startswith( $response['headers']['content-type'], 'image/' )
+				) {
 					return false;
 				}
 				$data = wp_remote_retrieve_body( $response );
@@ -101,6 +104,10 @@ class Tonesque {
 			if ( wp_startswith( $type, 'image/' ) ) {
 				$data = file_get_contents( $image_url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			}
+		}
+
+		if ( null === $data ) {
+			return false;
 		}
 
 		// Now turn it into an image and return it.
