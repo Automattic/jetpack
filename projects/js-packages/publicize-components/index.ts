@@ -1,7 +1,6 @@
 //TODO: Work out a more explicit way of initialising the store
 //where it's needed. It's not clear if we'll always want the
 //store for the components, but at the moment they're tied.
-import './src/store';
 import './src/social-store';
 
 export { default as Connection } from './src/components/connection';
@@ -26,6 +25,7 @@ export { default as useSharePost } from './src/hooks/use-share-post';
 export { default as useDismissNotice } from './src/hooks/use-dismiss-notice';
 
 export * from './src/social-store';
+export * from './src/utils';
 export * from './src/components/share-post';
 export * from './src/hooks/use-saving-post';
 export * from './src/components/share-buttons';
