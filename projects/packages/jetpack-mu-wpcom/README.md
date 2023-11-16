@@ -14,6 +14,24 @@ If you plan on using this package in your WordPress plugin, we would recommend t
 
 Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
 
+## Build System
+
+_Note: `cd` to `projects/packages/jetpack-mu-wpcom` before running these commands_
+
+- `npm run build-js`<br>
+  Compiles and minifies the plugins for production.
+
+- `npm run clean`<br>
+  Removes all build files.
+
+The entry point is:
+
+- **Plugin**: `projects/packages/jetpack-mu-wpcom/src/features/{{feature-directory}}/index.js`
+
+The output is:
+
+- **Plugin**: `/projects/packages/jetpack-mu-wpcom/src/build`
+
 ## License
 
 jetpack-mu-wpcom is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
