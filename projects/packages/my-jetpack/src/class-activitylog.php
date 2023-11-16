@@ -28,7 +28,7 @@ class Activitylog {
 	 * @return void|null|string The resulting page's hook_suffix
 	 */
 	public static function add_submenu_jetpack() {
-		// Only proceed if the site is connected to WordPress.com.
+		// Only proceed if the user is connected to WordPress.com.
 		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
 			return;
 		}
