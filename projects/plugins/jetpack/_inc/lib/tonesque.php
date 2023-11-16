@@ -86,7 +86,7 @@ class Tonesque {
 
 			if ( empty( $data ) ) {
 				$response = wp_safe_remote_get( $image_url );
-				if ( 
+				if (
 					is_wp_error( $response )
 					|| ! wp_startswith( $response['headers']['content-type'], 'image/' )
 				) {
