@@ -5,6 +5,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+
 /**
  * Class Wpcom_Block_Patterns_Utils
  */
@@ -82,7 +84,7 @@ class Wpcom_Block_Patterns_Utils {
 	public function get_block_patterns_locale() {
 		// Block patterns display in the user locale.
 		$language = get_user_locale();
-		return \A8C\FSE\Common\get_iso_639_locale( $language );
+		return Common\get_iso_639_locale( $language );
 	}
 
 	/**
