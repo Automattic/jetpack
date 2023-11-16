@@ -16,11 +16,10 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "echo 'Not implemented.'",
-		"build-js": "pnpm /^build-js:.*/",
-		"build-js:error-reporting": "wp-scripts build error-reporting --output-path=build/error-reporting",
+		"build-js": "pnpm clean && webpack",
 		"build-production": "echo 'Not implemented.'",
-		"build-production-js": "echo 'Not implemented.'",
-		"clean": "rm -rf build/"
+		"build-production-js": "NODE_ENV=production pnpm build-js",
+		"clean": "rm -rf src/build/"
 	},
 	"optionalDependencies": {
 		"react": "^18.2.0",
@@ -43,7 +42,9 @@
 		"eslint-plugin-react": "^7.33.2",
 		"eslint-plugin-react-hooks": "^4.6.0",
 		"prettier": "^3.1.0",
-		"typescript": "^5.0.4"
+		"typescript": "^5.0.4",
+		"webpack": "5.76.0",
+		"webpack-cli": "4.9.1"
 	},
 	"dependencies": {
 		"@sentry/browser": "7.80.1",

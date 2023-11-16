@@ -9,7 +9,8 @@ module.exports = {
 	devtool: jetpackConfig.devtool,
 	output: {
 		...jetpackConfig.output,
-		path: path.resolve( __dirname, 'dist' ),
+		filename: '[name]/[name].js',
+		path: path.resolve( __dirname, 'src/build' ),
 	},
 	optimization: {
 		...jetpackConfig.optimization,

@@ -1855,6 +1855,12 @@ importers:
       typescript:
         specifier: ^5.0.4
         version: 5.0.4
+      webpack:
+        specifier: 5.76.0
+        version: 5.76.0(webpack-cli@4.9.1)
+      webpack-cli:
+        specifier: 4.9.1
+        version: 4.9.1(webpack@5.76.0)
 
   projects/packages/jitm:
     devDependencies:
@@ -25971,6 +25977,30 @@ packages:
       serialize-javascript: 6.0.1
       terser: 5.24.0
       webpack: 5.76.0(webpack-cli@4.9.1)
+    dev: false
+
+  /terser-webpack-plugin@5.3.9(webpack@5.76.0):
+    resolution: {integrity: sha512-ZuXsqE07EcggTWQjXUj+Aot/OMcD0bMKGgF63f7UxYcu5/AJF53aIpK1YoP5xR9l6s/Hy2b+t1AM0bLNPRuhwA==}
+    engines: {node: '>= 10.13.0'}
+    peerDependencies:
+      '@swc/core': '*'
+      esbuild: '*'
+      uglify-js: '*'
+      webpack: ^5.1.0
+    peerDependenciesMeta:
+      '@swc/core':
+        optional: true
+      esbuild:
+        optional: true
+      uglify-js:
+        optional: true
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.20
+      jest-worker: 27.5.1
+      schema-utils: 3.3.0
+      serialize-javascript: 6.0.1
+      terser: 5.24.0
+      webpack: 5.76.0(webpack-cli@4.9.1)
 
   /terser-webpack-plugin@5.3.9(webpack@5.89.0):
     resolution: {integrity: sha512-ZuXsqE07EcggTWQjXUj+Aot/OMcD0bMKGgF63f7UxYcu5/AJF53aIpK1YoP5xR9l6s/Hy2b+t1AM0bLNPRuhwA==}
@@ -27194,7 +27224,7 @@ packages:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.3(webpack@5.76.0)
+      terser-webpack-plugin: 5.3.9(webpack@5.76.0)
       watchpack: 2.4.0
       webpack-cli: 4.9.1(webpack@5.76.0)
       webpack-sources: 3.2.3
