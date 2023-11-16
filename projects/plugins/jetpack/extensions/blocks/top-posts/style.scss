@@ -1,0 +1,30 @@
+/**
+ * Editor styles for Top Posts
+ */
+
+.wp-block-jetpack-top-posts {
+	.jetpack-top-posts-item {
+		margin-bottom: 24px;
+	}
+
+	img {
+		width: 100%;
+	}
+
+	span {
+		display: block;
+	}
+
+	&.is-grid-layout {
+		.jetpack-top-posts-wrapper {
+			display: flex;
+			justify-content: space-evenly;
+			flex-wrap: wrap;
+		}
+
+		.jetpack-top-posts-item {
+			flex-basis: calc( 33.3% - 24px );
+			margin-right: 24px;
+		}
+	}
+}

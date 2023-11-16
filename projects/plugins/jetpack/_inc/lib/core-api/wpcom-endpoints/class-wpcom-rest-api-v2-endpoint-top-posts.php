@@ -1,0 +1,166 @@
+<?php
+/**
+ * Get post types and top posts.
+ *
+ * @package automattic/jetpack
+ */
+
+/**
+ * Top Posts & Pages block endpoint.
+ */
+use Automattic\Jetpack\Stats\WPCOM_Stats;
+use Automattic\Jetpack\Status;
+
+class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
+    /**
+     * Constructor.
+     */
+    public function __construct() {
+        add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+    }
+
+    /**
+     * Register endpoint routes.
+     */
+    public function register_routes() {
+        register_rest_route(
+            'wpcom/v2',
+            '/post-types',
+            array(
+                array(
+                    'methods'             => WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_post_types' ),
+                ),
+            )
+        );
+
+        register_rest_route(
+            'wpcom/v2',
+            '/top-posts',
+            array(
+                array(
+                    'methods'             => WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_top_posts' ),
+                    'args' => array(
+						'timeframe' => array(
+							'description'       => __( 'Timeframe for stats.', 'jetpack' ),
+							'type'              => 'integer',
+							'required'          => false,
+							'minimum'           => 1,
+							'validate_callback' => function ( $param ) {
+								return is_numeric( $param ) && (int) $param > 0;
+							},
+						),
+                        'period' => array(
+							'description'       => __( 'Period for stats.', 'jetpack' ),
+							'type'              => 'string',
+							'required'          => false,
+							'minimum'           => 1,
+						),
+					),
+                ),
+            )
+        );
+    }
+
+    /**
+     * Get the site's post types.
+     *
+     * @param \WP_REST_Request $request request object.
+     *
+     * @return array Site's post types. 
+     */
+    function get_post_types( $request ) {
+        $post_types = array_values( get_post_types( array( 'public' => true ) ) );
+        $post_types_array = array();
+
+        foreach ( $post_types as $type ) {
+            $post_types_array[] = array(
+                'label' => get_post_type_object( $type )->labels->name,
+                'id' => $type,
+            );
+        }
+
+        return $post_types_array;
+    }
+
+    /**
+     * Get the site's top content.
+     *
+     * @param \WP_REST_Request $request request object.
+     *
+     * @return array Data on top posts. 
+     */
+    public function get_top_posts( $request ) {
+        $options = Jetpack_Options::get_option( 'stats', array() );
+        $enabled = isset( $options['enabled'] ) ? (bool) $options['enabled'] : false;
+
+        // While we only display ten posts, users can filter out content types. 
+        // As such, obtain a few spare posts from the Stats endpoint.
+        $posts_to_obtain_count = 20;
+
+        $query_args      = array(
+            'max'       => $posts_to_obtain_count,
+            'summarize' => true,
+            'num'       => $request->get_param( 'timeframe' ),
+            'period'    => $request->get_param( 'period' ),
+            'pretty' => true,
+        );
+
+        $data            = ( new WPCOM_Stats() )->get_top_posts( $query_args, true );
+        $posts_retrieved = count( $data['summary']['postviews']);
+
+        // Fallback to random posts if user has no top content.
+        if ( $posts_retrieved < $posts_to_obtain_count ) {
+            $args = array(
+                'numberposts' => $posts_to_obtain_count - $posts_retrieved,
+                'exclude' => array_column($data['summary']['postviews'], 'id'),
+                'orderby' => 'rand',
+                'post_status' => 'publish',
+            );
+
+            $random_posts = get_posts($args);
+
+            foreach ($random_posts as $post) {
+                $random_posts_data = array(
+                    'id' => $post->ID,
+                    'href' => get_permalink($post->ID),
+                    'date' => $post->post_date,
+                    'title' => $post->post_title,
+                    'type' => 'post',
+                    'public' => true,
+                );
+
+                $data['summary']['postviews'][] = $random_posts_data;
+            }
+
+            $data['summary']['postviews'] = array_slice($data['summary']['postviews'], 0, 10);
+        }
+
+        $top_posts = array();
+
+        foreach ( $data['summary']['postviews'] as $post) {
+            $post_id = $post['id'];
+
+            if ( $post['public'] ) {
+                $top_posts[] = array(
+                    'id' => $post_id,
+                    'author' => get_the_author_meta( 'display_name' , get_post_field( 'post_author', $post_id ) ) ,
+                    'context' => get_the_category( $post_id ) ? get_the_category( $post_id ) : get_the_tags( $post_id ),
+                    'href' => $post['href'],
+                    'date' => get_the_date( '', $post_id ),
+                    'title' => $post['title'],
+                    'type' => $post['type'],
+                    'public' => $post['public'],
+                    'views' => $post['views'],
+                    'video_play' => $post['video_play'],
+                    'thumbnail' => get_the_post_thumbnail_url( $post_id ),
+                );
+            }
+        }
+
+        return $top_posts;
+    }
+}
+
+wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Top_Posts' );
