@@ -82,7 +82,9 @@ function TierSelector() {
 	// TODO: figure out how to handle different currencies
 	const products = useSelect( select =>
 		select( membershipProductsStore ).getNewsletterTierProducts()
-	).sort( ( p1, p2 ) => Number( p2.price ) - Number( p1.price ) );
+	)
+		.filter( product => product.interval === '1 month' )
+		.sort( ( p1, p2 ) => Number( p2.price ) - Number( p1.price ) );
 
 	// Find the current tier meta
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
