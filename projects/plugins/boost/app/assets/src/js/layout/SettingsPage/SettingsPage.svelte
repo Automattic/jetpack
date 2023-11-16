@@ -3,8 +3,8 @@
 	import Support from './support/support';
 	import Tips from './Tips.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
-	import Footer from '$layout/Footer/Footer';
-	import Header from '$layout/Header/Header';
+	import Footer from '$layout/the-footer/Footer';
+	import Header from '$layout/the-header/Header';
 	import { criticalCssState, isGenerating } from '$features/critical-css';
 	import { modulesState } from '$lib/stores/modules';
 	import { hasPrioritySupport } from '$lib/utils/paid-plan';
