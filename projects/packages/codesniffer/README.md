@@ -50,7 +50,6 @@ you may run into a situation where a subdir wants to be compatible down to a lat
 
 To assist with this case, we provide additional rulesets that disable PHPCompatibility rules detecting issues that only apply to older versions:
 
-* `<rule ref="Jetpack-Compat-70" />` will disable rules detecting issues that only apply to PHP < 7.0.
 * `<rule ref="Jetpack-Compat-71" />` will disable rules detecting issues that only apply to PHP < 7.1.
 * `<rule ref="Jetpack-Compat-72" />` will disable rules detecting issues that only apply to PHP < 7.2.
 * `<rule ref="Jetpack-Compat-73" />` will disable rules detecting issues that only apply to PHP < 7.3.
