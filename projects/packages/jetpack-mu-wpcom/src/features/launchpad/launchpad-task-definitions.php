@@ -81,7 +81,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
 				// Add an answer_prompt query param for Write sites.
-				if ( 'write' === get_option( 'site-intent' ) ) {
+				if ( 'write' === get_option( 'site_intent' ) ) {
 					return '/post/' . $data['site_slug_encoded'] . '/?answer_prompt=true';
 				};
 
