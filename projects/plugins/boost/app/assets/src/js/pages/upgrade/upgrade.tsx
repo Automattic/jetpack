@@ -82,7 +82,7 @@ const Upgrade: React.FC< UpgradeProps > = ( { pricing, siteDomain, userConnected
 							{ 'yearly' in pricing && (
 								<PricingCard
 									title={ __( 'Jetpack Boost', 'jetpack-boost' ) }
-									icon={ `${ Jetpack_Boost.site.assetPath }../static/images/forward.svg` }
+									icon={ `${ Jetpack_Boost.site.staticAssetPath }images/forward.svg` }
 									priceBefore={ pricing.yearly.priceBefore / 12 }
 									priceAfter={ pricing.yearly.priceAfter / 12 }
 									priceDetails={ __( '/month, paid yearly', 'jetpack-boost' ) }
