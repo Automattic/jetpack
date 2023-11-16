@@ -5,8 +5,6 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-
 /**
  * Whether the site is eligible for Error Reporting, which is a feature that's specific to WPCOM.
  *
@@ -116,14 +114,19 @@ function wpcom_should_activate_sentry( $user_id, $blog_id ) {
  * Enqueue assets
  */
 function wpcom_enqueue_error_reporting_script() {
-	$asset_file          = include Jetpack_Mu_Wpcom::PKG_DIR . 'build/error-reporting/error-reporting.asset.php';
+	// Bail if ETK has enqueued its script.
+	if ( wp_script_is( 'a8c-fse-error-reporting-script' ) ) {
+		return;
+	}
+
+	$asset_file          = include plugin_dir_path( __FILE__ ) . 'build/error-reporting.asset.php';
 	$script_dependencies = isset( $asset_file['dependencies'] ) ? $asset_file['dependencies'] : array();
-	$script_version      = isset( $asset_file['version'] ) ? $asset_file['version'] : filemtime( Jetpack_Mu_Wpcom::PKG_DIR . 'build/error-reporting/error-reporting.js' );
+	$script_version      = isset( $asset_file['version'] ) ? $asset_file['version'] : filemtime( plugin_dir_path( __FILE__ ) . 'build/error-reporting.js' );
 	$script_id           = 'wpcom-error-reporting-script';
 
 	wp_enqueue_script(
 		$script_id,
-		plugins_url( 'build/error-reporting/error-reporting.js', Jetpack_Mu_Wpcom::PKG_DIR ),
+		plugins_url( 'build/error-reporting.js', __FILE__ ),
 		$script_dependencies,
 		$script_version,
 		true
@@ -144,5 +147,5 @@ if ( wpcom_is_site_eligible_for_error_reporting() ) {
 	add_filter( 'script_loader_tag', 'wpcom_add_crossorigin_to_script_elements', 99, 2 );
 
 	// We load as last as possible for performance reasons. The head handler will capture errors until the main handler is loaded.
-	add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_error_reporting_script', 99 );
+	add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_error_reporting_script', 100 );
 }
