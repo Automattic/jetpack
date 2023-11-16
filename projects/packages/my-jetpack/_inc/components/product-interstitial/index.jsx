@@ -40,6 +40,7 @@ import videoPressImage from './videopress.png';
  * @param {string} [props.ctaButtonLabel]        - The label for the Call To Action button
  * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
  * @param {number} [props.quantity]              - The quantity of the product to purchase
+ * @param {number} [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -54,6 +55,7 @@ export default function ProductInterstitial( {
 	ctaButtonLabel = null,
 	hideTOS = false,
 	quantity = null,
+	directCheckout = false,
 } ) {
 	const { activate, detail } = useProduct( slug );
 	const { isUpgradableByBundle, tiers } = detail;
@@ -82,7 +84,7 @@ export default function ProductInterstitial( {
 
 	const clickHandler = useCallback(
 		( checkout, product, tier ) => {
-			if ( product?.isBundle ) {
+			if ( product?.isBundle || directCheckout ) {
 				// Get straight to the checkout page.
 				checkout?.();
 				return;
@@ -113,7 +115,7 @@ export default function ProductInterstitial( {
 				checkout?.();
 			} );
 		},
-		[ navigateToMyJetpackOverviewPage, activate ]
+		[ directCheckout, activate, navigateToMyJetpackOverviewPage ]
 	);
 
 	return (
@@ -294,6 +296,7 @@ export function JetpackAIInterstitial() {
 			ctaButtonLabel={ ctaLabel }
 			hideTOS={ true }
 			quantity={ quantity }
+			directCheckout={ hasRequiredPlan }
 		>
 			<img src={ jetpackAiImage } alt="Jetpack AI" />
 		</ProductInterstitial>
