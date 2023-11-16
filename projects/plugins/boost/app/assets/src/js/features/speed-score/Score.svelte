@@ -12,7 +12,6 @@
 	import ErrorNotice from '$features/ErrorNotice.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import { scoreChangeModal, ScoreChangeMessage } from '$lib/api/speed-scores';
-	import { performanceHistoryPanelDS } from '$features/performance-history/store';
 	import { dismissedAlerts } from '$lib/stores/dismissed-alerts';
 	import { modulesState } from '$lib/stores/modules';
 	import { dismissedScorePromptStore } from '$lib/stores/prompt';
@@ -118,17 +117,11 @@
 		dismissModal();
 	}
 
-	const panelStore = performanceHistoryPanelDS.store;
-	function onTogglePerformanceHistory( status ) {
-		$panelStore = status;
-	}
-
 	const onPerformanceHistoryDismissFreshStart = () => {
 		$dismissedAlerts.performance_history_fresh_start = true;
 	};
 
 	$: performanceHistoryNeedsUpgrade = $modulesState.performance_history.available === false;
-	$: performanceHistoryIsOpen = $panelStore;
 	$: performanceHistoryIsFreshStart = $dismissedAlerts.performance_history_fresh_start !== true;
 </script>
 
@@ -206,9 +199,7 @@
 	</div>
 	{#if siteIsOnline}
 		<History
-			isOpen={performanceHistoryIsOpen}
 			needsUpgrade={performanceHistoryNeedsUpgrade}
-			onToggle={onTogglePerformanceHistory}
 			onDismissFreshStart={onPerformanceHistoryDismissFreshStart}
 			isFreshStart={performanceHistoryIsFreshStart}
 		/>

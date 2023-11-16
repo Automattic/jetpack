@@ -7,10 +7,9 @@
 	import { recordBoostEvent } from '$lib/utils/analytics';
 	import { castToString } from '$lib/utils/cast-to-string';
 	import routerHistory from '$lib/utils/router-history';
+	import { showPerformanceHistory } from './lib/stores/store';
 
-	export let isOpen: boolean;
 	export let needsUpgrade: boolean;
-	export let onToggle;
 
 	export let isFreshStart: boolean;
 	export let onDismissFreshStart;
@@ -71,8 +70,8 @@
 	{/if}
 	<ReactComponent
 		this={PerformanceHistory}
-		{onToggle}
-		{isOpen}
+		onToggle={value => ( $showPerformanceHistory = value )}
+		isOpen={$showPerformanceHistory}
 		{isFreshStart}
 		{onDismissFreshStart}
 		{needsUpgrade}
