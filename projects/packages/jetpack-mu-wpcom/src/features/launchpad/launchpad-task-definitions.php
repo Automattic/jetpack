@@ -84,7 +84,7 @@ function wpcom_launchpad_get_task_definitions() {
 
 				// Add a new_prompt query param for Write sites.
 				if ( 'write' === get_option( 'site_intent' ) ) {
-					return add_query_arg( 'new_prompt', true, $base_path );
+					return add_query_arg( 'new_prompt', 'true', $base_path );
 				}
 
 				return $base_path;
