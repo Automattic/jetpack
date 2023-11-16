@@ -333,7 +333,9 @@ class Jetpack_AI_Helper {
 	 */
 	public static function get_ai_assistance_feature() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$has_ai_assistant_feature = \wpcom_site_has_feature( 'ai-assistant' );
+			// On WPCOM, we can get the ID from the site.
+			$blog_id                  = get_current_blog_id();
+			$has_ai_assistant_feature = \wpcom_site_has_feature( 'ai-assistant', $blog_id );
 
 			if ( ! class_exists( 'WPCOM\Jetpack_AI\Usage\Helper' ) ) {
 				if ( is_readable( WP_CONTENT_DIR . '/lib/jetpack-ai/usage/helper.php' ) ) {
@@ -346,10 +348,7 @@ class Jetpack_AI_Helper {
 				}
 			}
 
-			$blog_id        = get_current_blog_id();
-			$is_over_limit  = WPCOM\Jetpack_AI\Usage\Helper::is_over_limit( $blog_id );
-			$requests_limit = WPCOM\Jetpack_AI\Usage\Helper::get_free_requests_limit( $blog_id );
-			$requests_count = WPCOM\Jetpack_AI\Usage\Helper::get_all_time_requests_count( $blog_id );
+			$is_over_limit = WPCOM\Jetpack_AI\Usage\Helper::is_over_limit( $blog_id );
 
 			/**
 			 * Check if the site requires an upgrade.
@@ -364,7 +363,8 @@ class Jetpack_AI_Helper {
 			 *
 			 * With tiered plans, we need to check if the
 			 * site is over the limit even when it has the
-			 * feature.
+			 * feature, and this is now handled by Helper::is_over_limit.
+			 * site-require-upgrade/$require_upgrade remains for backward compatibility.
 			 */
 			$require_upgrade = $is_over_limit;
 
@@ -374,8 +374,8 @@ class Jetpack_AI_Helper {
 			return array(
 				'has-feature'          => $has_ai_assistant_feature,
 				'is-over-limit'        => $is_over_limit,
-				'requests-count'       => $requests_count,
-				'requests-limit'       => $requests_limit,
+				'requests-count'       => WPCOM\Jetpack_AI\Usage\Helper::get_all_time_requests_count( $blog_id ),
+				'requests-limit'       => WPCOM\Jetpack_AI\Usage\Helper::get_free_requests_limit( $blog_id ),
 				'usage-period'         => WPCOM\Jetpack_AI\Usage\Helper::get_period_data( $blog_id ),
 				'site-require-upgrade' => $require_upgrade,
 				'upgrade-type'         => $upgrade_type,
