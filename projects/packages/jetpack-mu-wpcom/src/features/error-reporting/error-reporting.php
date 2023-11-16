@@ -114,14 +114,14 @@ function wpcom_should_activate_sentry( $user_id, $blog_id ) {
  * Enqueue assets
  */
 function wpcom_enqueue_error_reporting_script() {
-	$asset_file          = include plugin_dir_path( __FILE__ ) . 'build/error-reporting/error-reporting.asset.php';
+	$asset_file          = include Jetpack_Mu_Wpcom::PKG_DIR . 'build/error-reporting/error-reporting.asset.php';
 	$script_dependencies = isset( $asset_file['dependencies'] ) ? $asset_file['dependencies'] : array();
-	$script_version      = isset( $asset_file['version'] ) ? $asset_file['version'] : filemtime( plugin_dir_path( __FILE__ ) . 'build/error-reporting/error-reporting.js' );
+	$script_version      = isset( $asset_file['version'] ) ? $asset_file['version'] : filemtime( Jetpack_Mu_Wpcom::PKG_DIR . 'build/error-reporting/error-reporting.js' );
 	$script_id           = 'wpcom-error-reporting-script';
 
 	wp_enqueue_script(
 		$script_id,
-		plugins_url( 'build/error-reporting/error-reporting.js', __FILE__ ),
+		plugins_url( 'build/error-reporting/error-reporting.js', Jetpack_Mu_Wpcom::PKG_DIR ),
 		$script_dependencies,
 		$script_version,
 		true
