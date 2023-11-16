@@ -684,4 +684,15 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	public function get_wpcom_admin_interface() {
 		return null;
 	}
+
+	/**
+	 * Returns whether the user marked the site as favorite. Not used in Jetpack.
+	 *
+	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 *
+	 * @return null
+	 */
+	public function is_favorite() {
+		return null;
+	}
 }

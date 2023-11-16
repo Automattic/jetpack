@@ -1547,4 +1547,11 @@ abstract class SAL_Site {
 	public function get_wpcom_admin_interface() {
 		return (string) get_option( 'wpcom_admin_interface' );
 	}
+
+	/**
+	 * Returns whether the user marked the site as favorite. Not used in Jetpack.
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function is_favorite();
 }
