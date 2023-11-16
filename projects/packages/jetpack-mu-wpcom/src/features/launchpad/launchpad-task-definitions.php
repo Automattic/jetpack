@@ -82,7 +82,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_calypso_path'      => function ( $task, $default, $data ) {
 				$base_path = '/post/' . $data['site_slug_encoded'];
 
-				// Add an answer_prompt query param for Write sites.
+				// Add a new_prompt query param for Write sites.
 				if ( 'write' === get_option( 'site_intent' ) ) {
 					return $base_path . '/?new_prompt=true';
 				}
