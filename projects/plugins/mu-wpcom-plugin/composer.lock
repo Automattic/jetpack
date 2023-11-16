@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "36a72b04dabeae38a9d02f35e1ba4e79b5c19377"
+                "reference": "8432855efd1dd48642696dea4f963a1d2abd38ec"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -50,10 +50,10 @@
                     "@composer phpunit"
                 ],
                 "build-production": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build-production-js"
                 ],
                 "build-development": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build-js"
                 ],
                 "post-install-cmd": [
                     "WorDBless\\Composer\\InstallDropin::copy"
