@@ -144,8 +144,7 @@ class Access_Control {
 		$default_auth        = $this->get_default_user_capability_for_post( $post_to_check );
 		$restriction_details = $this->default_video_restriction_details( $default_auth );
 
-		$is_memberships_active = ( new Modules() )->is_active( 'memberships' );
-		if ( $this->jetpack_memberships_available() && $is_memberships_active ) {
+		if ( $this->jetpack_memberships_available() ) {
 			$post_access_level = \Jetpack_Memberships::get_post_access_level();
 			if ( 'everybody' !== $post_access_level ) {
 				$memberships_can_view_post         = \Jetpack_Memberships::user_can_view_post( $embedded_post_id );
