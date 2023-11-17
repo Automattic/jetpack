@@ -34,6 +34,8 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
             )
         );
 
+        // Number of posts and selected post types are not needed in the Editor.
+        // This is to minimise requests when it can already be handled by the block. 
         register_rest_route(
             'wpcom/v2',
             '/top-posts',
@@ -42,20 +44,29 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
                     'methods'             => WP_REST_Server::READABLE,
                     'callback'            => array( $this, 'get_top_posts' ),
                     'args' => array(
-						'timeframe' => array(
+						'period' => array(
 							'description'       => __( 'Timeframe for stats.', 'jetpack' ),
-							'type'              => 'integer',
-							'required'          => false,
-							'minimum'           => 1,
+							'type'              => array('string', 'integer'),
+							'required'          => true,
 							'validate_callback' => function ( $param ) {
-								return is_numeric( $param ) && (int) $param > 0;
+								return is_numeric( $param ) || is_string( $param );
 							},
 						),
-                        'period' => array(
-							'description'       => __( 'Period for stats.', 'jetpack' ),
+                        'number' => array(
+							'description'       => __( 'Number of posts to display.', 'jetpack' ),
+							'type'              => 'integer',
+							'required'          => false,
+							'validate_callback' => function ( $param ) {
+								return is_numeric( $param );
+							},
+						),
+                        'types' => array(
+							'description'       => __( 'Types of content to include.', 'jetpack' ),
 							'type'              => 'string',
 							'required'          => false,
-							'minimum'           => 1,
+							'validate_callback' => function ( $param ) {
+								return is_string( $param );
+							},
 						),
 					),
                 ),
@@ -92,22 +103,29 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
      * @return array Data on top posts. 
      */
     public function get_top_posts( $request ) {
+
         $options = Jetpack_Options::get_option( 'stats', array() );
         $enabled = isset( $options['enabled'] ) ? (bool) $options['enabled'] : false;
+        $period  = $request->get_param( 'period' );
+
+        $all_time_days = floor((time() - strtotime(get_option('site_created_date'))) / (60 * 60 * 24 * 365));
 
         // While we only display ten posts, users can filter out content types. 
-        // As such, obtain a few spare posts from the Stats endpoint.
+        // As such, we should obtain a few spare posts from the Stats endpoint.
         $posts_to_obtain_count = 20;
+
+        // We should not override cache when displaying the block on the frontend.
+        // But we should allow instant preview of changes when editing the block.
+        $override_cache  = ! isset( $request['types'] );
 
         $query_args      = array(
             'max'       => $posts_to_obtain_count,
             'summarize' => true,
-            'num'       => $request->get_param( 'timeframe' ),
-            'period'    => $request->get_param( 'period' ),
-            'pretty' => true,
+            'num'       => $period !== 'all-time' ? $period : $all_time_days,
+            'period'    => 'day',
         );
 
-        $data            = ( new WPCOM_Stats() )->get_top_posts( $query_args, true );
+        $data            = ( new WPCOM_Stats() )->get_top_posts( $query_args, $override_cache );
         $posts_retrieved = count( $data['summary']['postviews']);
 
         // Fallback to random posts if user has no top content.
@@ -121,10 +139,10 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 
             $random_posts = get_posts($args);
 
-            foreach ($random_posts as $post) {
+            foreach ( $random_posts as $post ) {
                 $random_posts_data = array(
                     'id' => $post->ID,
-                    'href' => get_permalink($post->ID),
+                    'href' => get_permalink( $post->ID ),
                     'date' => $post->post_date,
                     'title' => $post->post_title,
                     'type' => 'post',
@@ -134,7 +152,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
                 $data['summary']['postviews'][] = $random_posts_data;
             }
 
-            $data['summary']['postviews'] = array_slice($data['summary']['postviews'], 0, 10);
+            $data['summary']['postviews'] = array_slice( $data['summary']['postviews'], 0, 10 );
         }
 
         $top_posts = array();
@@ -159,6 +177,19 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
             }
         }
 
+        // This applies for rendering the block front-end, but not for editing it.
+        if ( isset( $request['types'] ) ) {
+            $acceptable_types = explode( ',', $request->get_param( 'types' ) );
+    
+            $top_posts = array_filter($top_posts, function( $item ) use ( $acceptable_types ) {
+                return in_array( $item['type'], $acceptable_types );
+            } );
+        };
+
+        if ( isset( $request['number'] ) ) {
+            $top_posts = array_slice( $top_posts, 0, $request->get_param( 'number' ) );
+        }
+    
         return $top_posts;
     }
 }

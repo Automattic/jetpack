@@ -1,15 +1,14 @@
-import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { BlockIcon } from '@wordpress/block-editor';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
-import { Placeholder, withNotices } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import metadata from './block.json';
 import { TopPostsBlockControls, TopPostsInspectorControls } from './controls';
+import { InactiveStatsPlaceholder } from './inactive-placeholder';
 import { TopPostsSkeleton } from './skeleton';
 import './style.scss';
+import './editor.scss';
 
 function TopPostsPreviewItem( props ) {
 	return (
@@ -42,47 +41,42 @@ function TopPostsPreviewItem( props ) {
 }
 
 function TopPostsEdit( { attributes, className, noticeOperations, noticeUI, setAttributes } ) {
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+		useModuleStatus( 'stats' );
+
 	const [ postsData, setPostsData ] = useState();
 	const [ postsToDisplay, setPostsToDisplay ] = useState();
-	const [ notice, setNotice ] = useState();
 	const [ postTypesData, setPostTypesData ] = useState();
 	const [ toggleAttributes, setToggleAttributes ] = useState( {} );
 
 	useEffect( () => {
-		apiFetch( { path: `/wpcom/v2/post-types` } )
-			.then( response => {
-				setPostTypesData( response );
-				response.forEach( type => {
-					console.log( attributes.postTypes );
-					console.log( 'fara' );
-					if ( attributes.postTypes && attributes.postTypes[ type.id ] ) {
-						setToggleAttributes( prevToggleAttributes => ( {
-							...prevToggleAttributes,
-							[ type.id ]: true,
-						} ) );
-					}
-				} );
-			} )
-			.catch( error => {
-				console.log( error );
+		apiFetch( { path: `/wpcom/v2/post-types` } ).then( response => {
+			setPostTypesData( response );
+			response.forEach( type => {
+				if ( attributes.postTypes && attributes.postTypes[ type.id ] ) {
+					setToggleAttributes( prevToggleAttributes => ( {
+						...prevToggleAttributes,
+						[ type.id ]: true,
+					} ) );
+				}
 			} );
+		} );
 	}, [] );
 
 	useEffect( () => {
-		apiFetch( {
-			path: `/wpcom/v2/top-posts?timeframe=${ attributes.timeframeRange }&period=${ attributes.period }`,
-		} )
-			.then( response => {
+		if ( isModuleActive ) {
+			apiFetch( {
+				path: `/wpcom/v2/top-posts?period=${ attributes.period }`,
+			} ).then( response => {
 				updatePostsDisplay( response );
 				setPostsData( response );
-			} )
-			.catch( error => {
-				console.log( error );
 			} );
-	}, [ attributes.timeframeRange, attributes.period ] );
+		}
+	}, [ attributes.period, isModuleActive ] );
 
 	useEffect( () => {
 		updatePostsDisplay( postsData );
+		console.log( attributes.period );
 	}, [ attributes ] );
 
 	const updatePostsDisplay = data => {
@@ -91,7 +85,7 @@ function TopPostsEdit( { attributes, className, noticeOperations, noticeUI, setA
 		}
 
 		const newPosts = [];
-		for ( let i = 0; i < attributes.postsToShow; i++ ) {
+		for ( let i = 0; newPosts.length !== attributes.postsToShow; i++ ) {
 			if ( data[ i ] && attributes.postTypes[ data[ i ].type ] ) {
 				newPosts.push(
 					<TopPostsPreviewItem
@@ -108,22 +102,32 @@ function TopPostsEdit( { attributes, className, noticeOperations, noticeUI, setA
 					/>
 				);
 			}
+
+			// Out of posts.
+			if ( ! data[ i ] ) {
+				break;
+			}
 		}
+
 		setPostsToDisplay( newPosts );
 	};
 
-	/* Call this function when you want to show an error in the placeholder. */
-	const setErrorNotice = () => {
-		noticeOperations.removeAllNotices();
-		noticeOperations.createErrorNotice( __( 'Sorry, there was an error.', 'jetpack' ) );
-	};
+	console.log( isLoadingModules );
+	console.log( 'edsdsf' );
+
+	if ( ! isModuleActive && ! isLoadingModules ) {
+		return (
+			<InactiveStatsPlaceholder
+				className={ className }
+				changeStatus={ changeStatus }
+				isLoading={ isChangingStatus }
+			/>
+		);
+	}
 
 	if ( ! postsToDisplay ) {
 		return <TopPostsSkeleton />;
 	}
-
-	console.log( 'kitten' );
-	console.log( attributes.postTypes );
 
 	return (
 		<>

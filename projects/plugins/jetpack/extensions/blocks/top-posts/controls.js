@@ -44,15 +44,18 @@ export function TopPostsInspectorControls( {
 	};
 
 	const periodOptions = [
-		{ label: __( 'Days', 'jetpack' ), value: 'day' },
-		{ label: __( 'Weeks', 'jetpack' ), value: 'week' },
-		{ label: __( 'Months', 'jetpack' ), value: 'month' },
-		{ label: __( 'Years', 'jetpack' ), value: 'year' },
+		{ label: __( 'Last 24 hours', 'jetpack' ), value: '1' },
+		{ label: __( 'Last 48 hours', 'jetpack' ), value: '2' },
+		{ label: __( 'Last 7 days', 'jetpack' ), value: '7' },
+		{ label: __( 'Last 30 days', 'jetpack' ), value: '30' },
+		{ label: __( 'Last 90 days', 'jetpack' ), value: '90' },
+		{ label: __( 'Last year', 'jetpack' ), value: '365' },
+		{ label: __( 'All-time', 'jetpack' ), value: 'all-time' },
 	];
 
 	return (
 		<>
-			<PanelBody title={ __( 'Layout settings', 'jetpack' ) }>
+			<PanelBody title={ __( 'Block settings', 'jetpack' ) }>
 				<RangeControl
 					label={ __( 'Number of items', 'jetpack' ) }
 					value={ postsToShow }
@@ -60,23 +63,8 @@ export function TopPostsInspectorControls( {
 					min={ 1 }
 					max={ 10 }
 				/>
-			</PanelBody>
-			<PanelBody title={ __( 'Stats settings', 'jetpack' ) }>
-				<TextControl
-					label={ sprintf(
-						/* translators: %s: Days/weeks/months. */
-						__( 'Number of %s', 'jetpack' ),
-						periodOptions.find( option => option.value === period ).label
-					) }
-					type="number"
-					inputMode="numeric"
-					min="1"
-					value={ timeframeRange }
-					onChange={ value => setAttributes( { timeframeRange: value } ) }
-				/>
-
 				<SelectControl
-					label={ __( 'Period', 'jetpack' ) }
+					label={ __( 'Stats period', 'jetpack' ) }
 					value={ period }
 					onChange={ value => setAttributes( { period: value } ) }
 					options={ periodOptions }

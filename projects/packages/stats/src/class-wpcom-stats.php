@@ -80,14 +80,14 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/top-posts/
 	 * @param array $args Optional query parameters.
-	 * @param bool $overrideCache Override cache.
+	 * @param bool $override_cache Override cache.
 	 * @return array|WP_Error
 	 */
-	public function get_top_posts( $args = array(), $overrideCache = false ) {
+	public function get_top_posts( $args = array(), $override_cache = false ) {
 		$this->resource = 'top-posts';
 
 		// Needed for the Top Posts block, so users can preview changes instantly.
-		if ( $overrideCache ) {
+		if ( $override_cache ) {
 			return $this->fetch_remote_stats( $this->build_endpoint(), $args );
 		}
 
