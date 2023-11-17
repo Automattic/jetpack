@@ -94,7 +94,7 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 				allowedBlocks={ ALLOWED_BLOCKS }
 				template={ isPreview ? previewTemplate : template }
 				templateInsertUpdatesSelection={ false }
-				__experimentalLayout={ { type: 'default', alignments: [] } }
+				layout={ { type: 'default', alignments: [] } }
 				__experimentalMoverDirection="horizontal"
 			/>
 		</div>

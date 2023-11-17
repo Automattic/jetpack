@@ -24,7 +24,7 @@ import React from 'react';
  */
 import ConnectPrompt from '../../../../components/connect-prompt';
 import UpgradePrompt from '../../../../components/upgrade-prompt';
-import useAIFeature from '../../../../hooks/use-ai-feature';
+import useAiFeature from '../../../../hooks/use-ai-feature';
 import { isUserConnected } from '../../../../lib/connection';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
@@ -85,6 +85,8 @@ export default function AiAssistantBar( {
 	const { inputValue, setInputValue, isVisible, assistantAnchor } =
 		useContext( AiAssistantUiContext );
 
+	const { dequeueAiAssistantFeatureAyncRequest } = useDispatch( 'wordpress-com/plans' );
+
 	const focusOnPrompt = () => {
 		// Small delay to avoid focus crash
 		setTimeout( () => {
@@ -96,7 +98,7 @@ export default function AiAssistantBar( {
 		onDone: focusOnPrompt,
 	} );
 
-	const { requireUpgrade } = useAIFeature();
+	const { requireUpgrade } = useAiFeature();
 
 	const siteRequireUpgrade = requestingError?.code === ERROR_QUOTA_EXCEEDED || requireUpgrade;
 
@@ -124,9 +126,22 @@ export default function AiAssistantBar( {
 			content: getSerializedContentFromBlock( clientId ),
 		} );
 
+		/*
+		 * Always dequeue/cancel the AI Assistant feature async request,
+		 * in case there is one pending,
+		 * when performing a new AI suggestion request.
+		 */
+		dequeueAiAssistantFeatureAyncRequest();
+
 		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
 		wrapperRef?.current?.focus();
-	}, [ clientId, inputValue, removeNotice, requestSuggestion ] );
+	}, [
+		clientId,
+		dequeueAiAssistantFeatureAyncRequest,
+		inputValue,
+		removeNotice,
+		requestSuggestion,
+	] );
 
 	const handleStopSuggestion = useCallback( () => {
 		stopSuggestion();

@@ -1,5 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
+import { getShareMessage } from '../../utils';
 
 /**
  * Prepares the text to share.
@@ -15,8 +16,7 @@ export function useShareButtonText() {
 		return {
 			link: getEditedPostAttribute( 'link' ),
 			message:
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				( select( 'jetpack/publicize' ) as any ).getShareMessage() ||
+				getShareMessage() ||
 				getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title ||
 				getEditedPostAttribute( 'title' ),
 		};

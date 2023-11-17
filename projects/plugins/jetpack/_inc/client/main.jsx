@@ -974,7 +974,9 @@ export default connect(
  *
  * @param pageOrder
  */
-window.wpNavMenuClassChange = function ( pageOrder = { myJetpack: 1, dashboard: 2, settings: 3 } ) {
+window.wpNavMenuClassChange = function (
+	pageOrder = { myJetpack: 1, activityLog: 2, dashboard: 3, settings: 4 }
+) {
 	let hash = window.location.hash;
 	let page = new URLSearchParams( window.location.search );
 

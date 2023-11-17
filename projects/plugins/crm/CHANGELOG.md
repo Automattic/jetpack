@@ -5,6 +5,29 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.3.0] - 2023-11-15
+### Added
+- API: Add support for creating transactions with custom fields. [#33645]
+
+### Changed
+- Requires PHP 7.4 or higher. [#33806]
+- Requires WordPress 6.0 or higher. [#33805]
+
+### Fixed
+- API: Allow events endpoint to be filtered by owner. [#33789]
+- API: The `create_event` endpoint no longer throws a 100 error. [#33712]
+- API: Restrict what owner data is returned with events endpoint. [#33736]
+- Backend: Prevent error if OpenSSL functions aren't available in PHP. [#33605]
+- Backend: Changing how styles are added to the page on several stand-alone pages to prevent WordPress 6.4 compatibility issues. [#33678]
+- Client Portal: Better PHP 8.2 support. [#33740]
+- Contacts: Fixed display issues on the Add and Edit pages that occurred when moving fields. [#33762]
+- Listviews: Remove legacy code. [#33718]
+- Mail Delivery: Removed usage of deprecated function utf8_encode. [#33777]
+- Quote Templates: Fix issue with notes field rendering HTML entities in some cases. [#33614]
+- Quote Templates: Make sure quote titles with apostrophes do not have backslashes added when rendered. [#33596]
+- WooSync: Catch PHP error in Client Portal invoice if WooCommerce is disabled. [#33759]
+- WooSync: Contacts can now be assigned to existing companies. [#33711]
+
 ## [6.2.0] - 2023-10-11
 ### Added
 - Tests: Add mock globals for testing. [#32755]
@@ -229,6 +252,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Added a migration to remove outdated AKA lines
 
 [5.5.4-a.1]: https://github.com/Automattic/jetpack-crm/compare/v5.5.3...v5.5.4-a.1
+[6.3.0]: https://github.com/Automattic/jetpack-crm/compare/6.2.0...6.3.0
 [6.2.0]: https://github.com/Automattic/jetpack-crm/compare/6.1.0...6.2.0
 [6.1.0]: https://github.com/Automattic/jetpack-crm/compare/6.0.0...6.1.0
 [6.0.0]: https://github.com/Automattic/jetpack-crm/compare/5.8.0...6.0.0
