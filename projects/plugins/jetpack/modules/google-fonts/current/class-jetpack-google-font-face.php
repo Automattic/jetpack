@@ -51,7 +51,7 @@ class Jetpack_Google_Font_Face {
 	 * Print fonts that are used in global styles or block-level settings.
 	 */
 	public function print_font_faces() {
-		$fonts          = WP_Font_Face_Resolver::get_fonts_from_theme_json();
+		$fonts          = $this->get_fonts();
 		$fonts_to_print = array();
 
 		$this->collect_global_styles_fonts();
@@ -62,7 +62,9 @@ class Jetpack_Google_Font_Face {
 			}
 		}
 
-		wp_print_font_faces( $fonts_to_print );
+		if ( ! empty( $fonts_to_print ) ) {
+			wp_print_font_faces( $fonts_to_print );
+		}
 	}
 
 	/**
@@ -112,6 +114,43 @@ class Jetpack_Google_Font_Face {
 		}
 
 		return $content;
+	}
+
+	/**
+	 * Get all font definitions from theme json.
+	 */
+	public function get_fonts() {
+		$fonts = WP_Font_Face_Resolver::get_fonts_from_theme_json();
+
+		// The font definition might define an alias slug name, so we have to add the map from the slug name to font faces.
+		// See https://github.com/WordPress/twentytwentyfour/blob/df92472089ede6fae5924c124a93c843b84e8cbd/theme.json#L215.
+		$theme_json = WP_Theme_JSON_Resolver::get_theme_data();
+		$raw_data   = $theme_json->get_data();
+		if ( ! empty( $raw_data['settings']['typography']['fontFamilies'] ) ) {
+			foreach ( $raw_data['settings']['typography']['fontFamilies'] as $font ) {
+				$font_family_name = $this->get_font_family_name( $font );
+				$font_slug        = isset( $font['slug'] ) ? $font['slug'] : '';
+				if ( $font_slug && ! array_key_exists( $font_slug, $fonts ) && array_key_exists( $font_family_name, $fonts ) ) {
+					$fonts[ $font_slug ] = $fonts[ $font_family_name ];
+				}
+			}
+		}
+
+		return $fonts;
+	}
+
+	/**
+	 * Get the font family name from a font.
+	 *
+	 * @param array $font The font definition object.
+	 */
+	public function get_font_family_name( $font ) {
+		$font_family = $font['fontFamily'];
+		if ( str_contains( $font_family, ',' ) ) {
+			$font_family = explode( ',', $font_family )[0];
+		}
+
+		return trim( $font_family, "\"'" );
 	}
 
 	/**
