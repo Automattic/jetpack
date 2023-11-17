@@ -704,21 +704,21 @@ function render_for_website( $data, $classes, $styles ) {
 							echo '<input type="hidden" name="post_id" value="' . esc_attr( $post_id ) . '"/>';
 						}
 
-							if ( ! empty( $tier_id ) ) {
-								echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
-							}
-							?>
-							<button type="submit"
-								<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
-									class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
-								<?php endif; ?>
-								<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
-									style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
-								<?php endif; ?>
-								name="jetpack_subscriptions_widget"
-							>
-								<?php echo sanitize_submit_text( $button_text ); ?>
-							</button>
+						if ( ! empty( $tier_id ) ) {
+							echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
+						}
+						?>
+						<button type="submit"
+							<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
+								class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
+							<?php endif; ?>
+							<?php if ( ! empty( $styles['submit_button'] ) ) : ?>
+								style="<?php echo esc_attr( $styles['submit_button'] ); ?>"
+							<?php endif; ?>
+							name="jetpack_subscriptions_widget"
+						>
+							<?php echo sanitize_submit_text( $button_text ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						</button>
 						</p>
 					</div>
 				</form>
@@ -999,7 +999,7 @@ function get_subscriber_login_link( $newsletter_access_level ) {
 				'https://subscribe.wordpress.com/memberships/jwt'
 			);
 		}
-		$access_question = get_paywall_access_question( $newsletter_access_level );
+		$access_question = get_subscriber_login_link_text( $newsletter_access_level );
 		$sign_in         = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
 <p class="has-text-align-center" style="font-size:14px"><a href="' . $sign_in_link . '">' . $access_question . '</a></p>
 <!-- /wp:paragraph -->';
