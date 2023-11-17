@@ -8,7 +8,7 @@ import {
 import { useConnection } from '@automattic/jetpack-connection';
 import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import React from 'react';
 import AdvancedUpsellNotice from '../advanced-upsell-notice';
 import AutoConversionToggle from '../auto-conversion-toggle';
@@ -32,6 +32,8 @@ const Admin = () => {
 
 	const onUpgradeToggle = useCallback( () => setForceDisplayPricingPage( true ), [] );
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
+
+	const hasRefreshedSettings = useRef( false );
 
 	const {
 		isModuleEnabled,
@@ -62,8 +64,10 @@ const Admin = () => {
 		if (
 			isModuleEnabled &&
 			isUpdatingJetpackSettings &&
+			! hasRefreshedSettings.current &&
 			( isAutoConversionAvailable || isSocialImageGeneratorAvailable )
 		) {
+			hasRefreshedSettings.current = true;
 			refreshJetpackSocialSettings();
 		}
 		// We want this to run only once, when the module is enabled.
@@ -103,11 +107,11 @@ const Admin = () => {
 						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
 						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
-						{ ! isUpdatingJetpackSettings && isModuleEnabled && isAutoConversionAvailable && (
-							<AutoConversionToggle />
+						{ isModuleEnabled && isAutoConversionAvailable && (
+							<AutoConversionToggle disabled={ isUpdatingJetpackSettings } />
 						) }
-						{ ! isUpdatingJetpackSettings && isModuleEnabled && isSocialImageGeneratorAvailable && (
-							<SocialImageGeneratorToggle />
+						{ isModuleEnabled && isSocialImageGeneratorAvailable && (
+							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
 						) }
 					</AdminSection>
 					<AdminSectionHero>
