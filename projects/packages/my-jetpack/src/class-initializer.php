@@ -76,6 +76,9 @@ class Initializer {
 		// Sets up JITMS.
 		JITM::configure();
 
+		// Add "Activity Log" menu item.
+		Activitylog::init();
+
 		/**
 		 * Fires after the My Jetpack package is initialized
 		 *

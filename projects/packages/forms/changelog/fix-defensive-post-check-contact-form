@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Avoid errors when a saved feedback form does not have the expected WP_Post format.

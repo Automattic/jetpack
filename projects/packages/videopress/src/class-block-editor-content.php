@@ -129,6 +129,7 @@ class Block_Editor_Content {
 		'</figure>';
 
 		$version = Package_Version::PACKAGE_VERSION;
+		Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 		wp_enqueue_script( 'videopress-iframe', 'https://videopress.com/videopress-iframe.js', array(), $version, true );
 
 		return sprintf( $block_template, $src, $width, $height, $cover );
