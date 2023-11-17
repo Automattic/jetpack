@@ -5,7 +5,6 @@ import {
 	Popover,
 	Spinner,
 } from '@automattic/jetpack-components';
-import { Panel, PanelBody, PanelRow } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const DummyGraph = ( { children } ) => {
@@ -80,47 +79,4 @@ const GraphComponent = ( {
 	return <BoostScoreGraph periods={ periods } startDate={ startDate } endDate={ endDate } />;
 };
 
-const PerformanceHistoryPanel = ( {
-	periods,
-	onToggle,
-	isOpen,
-	startDate,
-	endDate,
-	isLoading,
-	needsUpgrade = false,
-	handleUpgrade = () => {
-		/* noop */
-	},
-	isFreshStart = true,
-	onDismissFreshStart = () => {
-		/* noop */
-	},
-} ) => {
-	return (
-		<Panel>
-			<PanelBody
-				title={ __( 'Historical Performance', 'jetpack-boost' ) }
-				initialOpen={ isOpen }
-				onToggle={ onToggle }
-				className="jb-performance-history__panel"
-			>
-				<PanelRow>
-					<div style={ { flexGrow: 1, minHeight: '300px' } }>
-						<GraphComponent
-							periods={ periods }
-							startDate={ startDate }
-							endDate={ endDate }
-							isFreshStart={ isFreshStart }
-							needsUpgrade={ needsUpgrade }
-							handleUpgrade={ handleUpgrade }
-							handleDismissFreshStart={ onDismissFreshStart }
-							isLoading={ isLoading }
-						/>
-					</div>
-				</PanelRow>
-			</PanelBody>
-		</Panel>
-	);
-};
-
-export default PerformanceHistoryPanel;
+export default GraphComponent;
