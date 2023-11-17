@@ -2487,8 +2487,8 @@ function wp_cache_files() {
 		while( false !== ( $file = readdir( $handle ) ) ) {
 			if (
 				str_contains( $file, $file_prefix )
-				&& substr( $file, -4 ) == '.php' // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-			) {
+				&& substr( $file, -4 ) == '.php' // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			) { // phpcs:ignore Generic.WhiteSpace.ScopeIndent.Incorrect
 				if ( false == file_exists( $blog_cache_dir . 'meta/' . $file ) ) {
 					@unlink( $blog_cache_dir . $file );
 					continue; // meta does not exist
@@ -2945,7 +2945,7 @@ function wp_cache_check_site() {
 		// Check for broken front page
 		if (
 			! empty( $wp_super_cache_front_page_text )
-			&& ! str_contains( $front_page[ 'body' ], $wp_super_cache_front_page_text )
+			&& ! str_contains( $front_page['body'], $wp_super_cache_front_page_text )
 		) {
 			if ( !isset( $wp_super_cache_front_page_clear ) || ( isset( $wp_super_cache_front_page_clear ) && $wp_super_cache_front_page_clear == 0 ) ) {
 				wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is not correct! Please clear cache!', 'wp-super-cache' ), home_url() ), sprintf( __( 'Please visit %1$s to clear the cache as the front page of your site is not correct and missing the text, "%2$s"!', 'wp-super-cache' ), admin_url( 'options-general.php?page=wpsupercache' ), $wp_super_cache_front_page_text ) );
