@@ -49,25 +49,17 @@ async function runTests( type, round ) {
 	console.log( 'cwd', process.cwd() );
 	console.log( 'process.env', process.env );
 
-	const testPath = path.join( gutenbergPath, 'test/performance/specs/post-editor.spec.js' );
-	if ( ! existsSync( testPath ) ) {
-		throw new Error( `Could not find test file at ${ testPath }` );
-	}
-
-	await execShellCommand(
-		`npx playwright test --config test/performance/playwright.config.ts ${ testPath }`,
-		{
-			cwd: gutenbergPath,
-			env: {
-				shell: true, // See https://stackoverflow.com/a/59830014/7225515
-				...process.env,
-				WP_BASE_URL: resolveSiteUrl(),
-				WP_ARTIFACTS_PATH: resultsPath,
-				RESULTS_ID: `${ type }.${ round }`,
-				DEBUG: 'pw:api',
-			},
-		}
-	);
+	await execShellCommand( 'npm', [ 'run', 'test:performance', '--', 'post-editor.spec.js' ], {
+		cwd: gutenbergPath,
+		env: {
+			shell: true, // See https://stackoverflow.com/a/59830014/7225515
+			...process.env,
+			WP_BASE_URL: resolveSiteUrl(),
+			WP_ARTIFACTS_PATH: resultsPath,
+			RESULTS_ID: `${ type }.${ round }`,
+			DEBUG: 'pw:api',
+		},
+	} );
 }
 
 async function testRun( type, round ) {
@@ -108,10 +100,9 @@ function mergeResults( type ) {
 	);
 }
 
-function execShellCommand( command, options ) {
-	console.log( `Running command: ${ command }` );
+function execShellCommand( command, args, options ) {
 	return new Promise( ( resolve, reject ) => {
-		const childProcess = spawn( command, [], options );
+		const childProcess = spawn( command, args, options );
 
 		childProcess.stdout.on( 'data', data => {
 			const output = data.toString();
