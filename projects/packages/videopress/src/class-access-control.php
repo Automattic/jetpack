@@ -145,7 +145,7 @@ class Access_Control {
 		$restriction_details = $this->default_video_restriction_details( $default_auth );
 
 		if ( $this->jetpack_memberships_available() ) {
-			$post_access_level = \Jetpack_Memberships::get_post_access_level();
+			$post_access_level = \Jetpack_Memberships::get_post_access_level( $embedded_post_id );
 			if ( 'everybody' !== $post_access_level ) {
 				$memberships_can_view_post         = \Jetpack_Memberships::user_can_view_post( $embedded_post_id );
 				$restriction_details               = $this->get_subscriber_only_restriction_details( $default_auth );
