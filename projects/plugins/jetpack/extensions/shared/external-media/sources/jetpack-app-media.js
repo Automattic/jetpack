@@ -1,4 +1,6 @@
 import { QRCode } from '@automattic/jetpack-components';
+import { select } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useRef, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MediaBrowser from '../media-browser';
@@ -31,14 +33,18 @@ export function useInterval( callback, delay ) {
 }
 
 function JetpackAppMedia( props ) {
-	const { media, insertMedia, isCopying, isLoading, pageHandle, multiple, getMedia } = props;
+	const { media, insertMedia, isCopying, isLoading, multiple, getMedia } = props;
 
+	const wpcomBlogId = window?.Jetpack_Editor_Initial_State?.wpcomBlogId || 0;
+	const postId = select( editorStore ).getCurrentPostId();
 	const getNextPage = useCallback( () => {
 		getMedia( '/wpcom/v2/app-media?refresh=true', true );
 	}, [ getMedia ] );
+
 	const getNextPagePull = useCallback( () => {
 		getMedia( '/wpcom/v2/app-media?refresh=true', false, false );
 	}, [ getMedia ] );
+
 	const onCopy = useCallback(
 		items => {
 			insertMedia( items );
@@ -48,14 +54,16 @@ function JetpackAppMedia( props ) {
 
 	// Load initial results for the random example query. Only do it once.
 	useEffect( getNextPage, [] ); // eslint-disable-line react-hooks/exhaustive-deps
-
 	useInterval( getNextPagePull, 5000 );
 
 	return (
 		<div className="jetpack-external-media-wrapper__jetpack_app_media">
 			<div className="jetpack-external-media-wrapper__jetpack_app_media-qr-code-wrapper">
 				<div className="jetpack-external-media-wrapper__jetpack_app_media-qr-code">
-					<QRCode value="https://apps.wordpress.com/get?campaign=qr-code-media&data={post_id:1234,site_id:1234,token:abcd}" />
+					<QRCode
+						size="80"
+						value={ `https://apps.wordpress.com/get?campaign=qr-code-media&data={post_id:${ postId },site_id:${ wpcomBlogId }}` }
+					/>
 				</div>
 				<div className="jetpack-external-media-wrapper__jetpack_app_media-instructions">
 					<ol>
@@ -65,7 +73,7 @@ function JetpackAppMedia( props ) {
 					</ol>
 				</div>
 			</div>
-
+			<h3>{ __( 'Recently uploaded', 'jetpack' ) }</h3>
 			<MediaBrowser
 				key={ 'jetpack-app-media' }
 				className="jetpack-external-media-browser__jetpack_app_media_browser"
@@ -74,7 +82,7 @@ function JetpackAppMedia( props ) {
 				isLoading={ isLoading }
 				nextPage={ getNextPage }
 				onCopy={ onCopy }
-				pageHandle={ pageHandle }
+				pageHandle={ false }
 				multiple={ multiple }
 			/>
 		</div>
