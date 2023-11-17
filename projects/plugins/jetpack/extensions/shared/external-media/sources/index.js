@@ -1,12 +1,14 @@
 import { __ } from '@wordpress/i18n';
-import { GooglePhotosIcon, OpenverseIcon, PexelsIcon } from '../../icons';
+import { GooglePhotosIcon, OpenverseIcon, PexelsIcon, JetpackAppMediaIcon } from '../../icons';
 import {
 	SOURCE_WORDPRESS,
 	SOURCE_GOOGLE_PHOTOS,
 	SOURCE_OPENVERSE,
 	SOURCE_PEXELS,
+	SOURCE_JETPACK_APP_MEDIA,
 } from '../constants';
 import GooglePhotosMedia from './google-photos';
+import JetpackAppMedia from './jetpack-app-media';
 import OpenverseMedia from './openverse';
 import PexelsMedia from './pexels';
 
@@ -28,6 +30,12 @@ export const mediaSources = [
 		label: __( 'Openverse', 'jetpack' ),
 		icon: <OpenverseIcon className="components-menu-items__item-icon" />,
 		keyword: 'openverse',
+	},
+	{
+		id: SOURCE_JETPACK_APP_MEDIA,
+		label: __( 'Jetpack App Media', 'jetpack' ),
+		icon: <JetpackAppMediaIcon className="components-menu-items__item-icon" />,
+		keyword: 'jetpack app media',
 	},
 ];
 
@@ -63,8 +71,9 @@ export function getExternalLibrary( type ) {
 		return GooglePhotosMedia;
 	} else if ( type === SOURCE_OPENVERSE ) {
 		return OpenverseMedia;
+	} else if ( type === SOURCE_JETPACK_APP_MEDIA ) {
+		return JetpackAppMedia;
 	}
-
 	return null;
 }
 

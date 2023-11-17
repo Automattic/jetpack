@@ -237,6 +237,29 @@ export const JetpackLogo = ( { size = 24, border = 0, className, color = COLOR_J
 	);
 };
 
+export const JetpackAppMediaIcon = () => {
+	return (
+		<SVG enableBackground="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24">
+			<G>
+				<Rect fill="none" height="24" width="24" />
+			</G>
+			<G>
+				<Path d="M3,11h8V3H3V11z M5,5h4v4H5V5z" />
+				<Path d="M3,21h8v-8H3V21z M5,15h4v4H5V15z" />
+				<Path d="M13,3v8h8V3H13z M19,9h-4V5h4V9z" />
+				<Rect height="2" width="2" x="19" y="19" />
+				<Rect height="2" width="2" x="13" y="13" />
+				<Rect height="2" width="2" x="15" y="15" />
+				<Rect height="2" width="2" x="13" y="17" />
+				<Rect height="2" width="2" x="15" y="19" />
+				<Rect height="2" width="2" x="17" y="17" />
+				<Rect height="2" width="2" x="17" y="13" />
+				<Rect height="2" width="2" x="19" y="15" />
+			</G>
+		</SVG>
+	);
+};
+
 export const LoomIcon = {
 	foreground: getIconColor(),
 	src: (

@@ -454,3 +454,12 @@ $grid-size: 8px;
 		display: none;
 	}
 }
+
+.jetpack-external-media-wrapper__jetpack_app_media-qr-code-wrapper{
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	flex-grow: 1;
+	padding-bottom: 40px;
+}

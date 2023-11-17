@@ -95,7 +95,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 				return base;
 			}
 
-			getMedia = ( url, resetMedia = false ) => {
+			getMedia = ( url, resetMedia = false, isLoading = true ) => {
 				if ( this.state.isLoading ) {
 					return;
 				}
@@ -107,7 +107,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 				this.setState(
 					{
 						account: resetMedia ? this.defaultAccount : this.state.account,
-						isLoading: true,
+						isLoading: isLoading,
 						media: resetMedia ? [] : this.state.media,
 						nextHandle: resetMedia ? false : this.state.nextHandle,
 					},
@@ -227,11 +227,49 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 						}
 
 						this.props.onClose();
-
 						// Select the image(s). This will close the modal
 						this.props.onSelect( addToGallery ? value.concat( result ) : media );
 					} )
 					.catch( this.handleApiError );
+			};
+
+			insertMedia = items => {
+				this.setState( { isCopying: items } );
+				this.props.noticeOperations.removeAllNotices();
+
+				// If we have a modal element set, focus it.
+				// Otherwise focus is reset to the body instead of staying within the Modal.
+				if ( this.modalElement ) {
+					this.modalElement.focus();
+				}
+				let result = [];
+				// insert media
+				if ( items.length !== 0 ) {
+					result = items.map( image => ( {
+						alt: image.name,
+						caption: image.caption,
+						id: image.ID,
+						type: 'image',
+						url: image.guid,
+					} ) );
+				} else {
+					result = [
+						{
+							alt: items.name,
+							caption: items.caption,
+							id: items.ID,
+							type: 'image',
+							url: items.guid,
+						},
+					];
+				}
+
+				const { value, multiple, addToGallery } = this.props;
+				const media = multiple ? result : result[ 0 ];
+
+				this.props.onClose();
+				this.props.onSelect( addToGallery ? value.concat( result ) : media );
+				// end insert media
 			};
 
 			onChangePath = ( path, cb ) => {
@@ -243,9 +281,15 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 					this.state;
 				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
-				const title = isCopying
-					? __( 'Inserting media', 'jetpack' )
-					: __( 'Select media', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+				// eslint-disable-next-line no-nested-ternary
+
+				const defaultTitle =
+					mediaSource !== 'jetpack_app_media'
+						? __( 'Select media', 'jetpack' )
+						: __( 'Scan QR Code', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+
+				const title = isCopying ? __( 'Inserting media', 'jetpack' ) : defaultTitle;
+
 				const description = isCopying
 					? __(
 							'When the media is finished copying and inserting, you will be returned to the editor.',
@@ -281,6 +325,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 								account={ account }
 								getMedia={ this.getMedia }
 								copyMedia={ this.copyMedia }
+								insertMedia={ this.insertMedia }
 								isCopying={ isCopying }
 								isLoading={ isLoading }
 								media={ media }
