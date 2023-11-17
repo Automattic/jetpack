@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import React, { useMemo } from 'react';
 import numberFormat from '../number-format';
 
@@ -36,6 +37,11 @@ export type RecordMeterBarProps = {
 	 * The sort style for legend item. If not provided, it defaults to no sorting.
 	 */
 	sortByCount?: 'ascending' | 'descending';
+
+	/**
+	 * Additional class name to be added to the component
+	 */
+	className?: string;
 };
 
 /**
@@ -49,6 +55,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 	items = [],
 	showLegendLabelBeforeCount = false,
 	sortByCount,
+	className,
 } ) => {
 	const total = useMemo( () => {
 		// If total count is not given, then compute it from items' count
@@ -71,7 +78,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 	}, [ items, sortByCount ] );
 
 	return (
-		<div className="record-meter-bar">
+		<div className={ classNames( 'record-meter-bar', className ) }>
 			<div className="record-meter-bar__items" aria-hidden="true">
 				{ itemsToRender.map( ( { count, label, backgroundColor } ) => {
 					const widthPercent = ( ( count / total ) * 100 ).toPrecision( 2 );
