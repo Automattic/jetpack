@@ -1,1 +1,0 @@
-import './view.scss';

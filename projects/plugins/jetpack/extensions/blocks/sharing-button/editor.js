@@ -2,9 +2,10 @@ import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-
 import metadata from './block.json';
 import edit from './edit';
 import save from './save';
-import './style.scss';
+import variations from './variations';
 
 registerJetpackBlockFromMetadata( metadata, {
 	edit,
+	variations,
 	save,
 } );

@@ -1,62 +1,60 @@
-import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
-import { compose } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
-import { store } from '@wordpress/editor';
-import { useEffect } from '@wordpress/element';
-import { SharingBlockPlaceholder } from './components/sharing-block-placeholder';
-import { SharingBlockSkeletonLoader } from './components/sharing-block-skeleton-loader';
-import SharingButtonsContainer from './components/sharing-buttons-container';
+//Sharing Buttons Block
+/**
+ * External dependencies
+ */
 
-function SharingButtonsEdit( { attributes, className, post, setAttributes } ) {
-	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
-		useModuleStatus( 'sharedaddy' );
+/**
+ * WordPress dependencies
+ */
+import { useInnerBlocksProps, useBlockProps, InspectorControls } from '@wordpress/block-editor';
+import { PanelBody, ToggleControl } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import './editor.scss';
 
-	useEffect( () => {
-		setAttributes( { ...attributes, post } );
-	}, [ post, setAttributes, attributes ] );
+const ALLOWED_BLOCKS = [ 'jetpack/sharing-button' ];
+// const ALLOWED_BLOCKS = [ 'core/social-link' ];
 
-	const handleServiceSelect = service => {
-		const { services } = attributes;
-		// Remove service from services if present and return
-		if ( Array.isArray( services ) && services.includes( service ) ) {
-			setAttributes( { ...attributes, services: services.filter( item => item !== service ) } );
-			return;
-		}
+export function SocialLinksEdit( props ) {
+	const { attributes, setAttributes } = props;
 
-		const updatedServices = Array.isArray( services ) ? [ ...services, service ] : [ service ];
-		setAttributes( { ...attributes, services: updatedServices } );
-	};
+	const { openInNewTab, showLabels } = attributes;
 
-	if ( ! isModuleActive ) {
-		if ( isLoadingModules ) {
-			return <SharingBlockSkeletonLoader />;
-		}
+	// const logosOnly = attributes.className?.includes( 'is-style-logos-only' );
 
-		return (
-			<SharingBlockPlaceholder
-				changeStatus={ changeStatus }
-				isModuleActive={ isModuleActive }
-				isLoading={ isChangingStatus }
-			/>
-		);
-	}
+	const SharingButtonsPlaceholder = <li>{ __( 'Click plus to add', 'jetpack' ) }</li>;
+
+	const className = 'jetpack-sharing-buttons__sharing-services-list';
+
+	const blockProps = useBlockProps( { className } );
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		allowedBlocks: ALLOWED_BLOCKS,
+		placeholder: SharingButtonsPlaceholder,
+		templateLock: false,
+		orientation: attributes.layout?.orientation ?? 'horizontal',
+		sharingEventsAdded: true,
+		__experimentalAppenderTagName: 'li',
+	} );
 
 	return (
-		<div className={ className }>
-			<div className={ `${ className }__block-body` }>
-				<SharingButtonsContainer
-					selectedServices={ attributes.services || [] }
-					onServiceClick={ handleServiceSelect }
-				/>
-			</div>
-		</div>
+		<>
+			<InspectorControls>
+				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Open links in new tab', 'jetpack' ) }
+						checked={ openInNewTab }
+						onChange={ () => setAttributes( { openInNewTab: ! openInNewTab } ) }
+					/>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Show labels', 'jetpack' ) }
+						checked={ showLabels }
+						onChange={ () => setAttributes( { showLabels: ! showLabels } ) }
+					/>
+				</PanelBody>
+			</InspectorControls>
+			<ul { ...innerBlocksProps } />
+		</>
 	);
 }
-
-export default compose( [
-	withSelect( select => {
-		return {
-			post: select( store ).getCurrentPost(),
-		};
-	} ),
-] )( SharingButtonsEdit );
+export default SocialLinksEdit;

@@ -7,10 +7,11 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\Sharing_Buttons;
+namespace Automattic\Jetpack\Extensions\Sharing_Button;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
+
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
