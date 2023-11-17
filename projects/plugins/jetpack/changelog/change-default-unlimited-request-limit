@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Use the same value as in backend for unlimited plan limit (needed for int comparisons), 999.999.999 (almost a billion), as a constant. Replace literal value usage.

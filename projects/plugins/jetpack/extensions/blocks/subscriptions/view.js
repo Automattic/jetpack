@@ -71,21 +71,25 @@ domReady( function () {
 					return;
 				}
 
-				event.preventDefault();
+				const action = form.querySelector( 'input[name=action]' ).value;
 
-				const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
-				const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
+				if ( action === 'subscribe' ) {
+					event.preventDefault();
 
-				show_iframe( {
-					email,
-					post_id,
-					tier_id,
-					blog: form.dataset.blog,
-					plan: 'newsletter',
-					source: 'jetpack_subscribe',
-					post_access_level: form.dataset.post_access_level,
-					display: 'alternate',
-				} );
+					const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
+					const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
+
+					show_iframe( {
+						email,
+						post_id,
+						tier_id,
+						blog: form.dataset.blog,
+						plan: 'newsletter',
+						source: 'jetpack_subscribe',
+						post_access_level: form.dataset.post_access_level,
+						display: 'alternate',
+					} );
+				}
 			} );
 		}
 	} );
