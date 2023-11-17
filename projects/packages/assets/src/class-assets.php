@@ -450,9 +450,10 @@ class Assets {
 		$content_dir = Jetpack_Constants::get_constant( 'WP_CONTENT_DIR' );
 		$abspath     = Jetpack_Constants::get_constant( 'ABSPATH' );
 
-		if ( \str_starts_with( $lang_dir, $content_dir ) ) {
+		// Note: str_starts_with() is not used here, as wp-includes/compat.php may not be loaded at this point.
+		if ( strpos( $lang_dir, $content_dir ) === 0 ) {
 			$data['baseUrl'] = content_url( substr( trailingslashit( $lang_dir ), strlen( trailingslashit( $content_dir ) ) ) );
-		} elseif ( \str_starts_with( $lang_dir, $abspath ) ) {
+		} elseif ( strpos( $lang_dir, $abspath ) === 0 ) {
 			$data['baseUrl'] = site_url( substr( trailingslashit( $lang_dir ), strlen( untrailingslashit( $abspath ) ) ) );
 		}
 
