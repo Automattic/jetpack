@@ -33,8 +33,15 @@
 	&.mastodon {
 		fill: var( --color-mastodon );
 	}
+	&.nextdoor {
+		fill: var( --color-nextdoor );
+		border-radius: 50%;
+	}
 	&.instagram {
 		fill: var( --color-instagram );
+	}
+	&.whatsapp {
+		fill: var( --color-whatsapp );
 	}
 }
 

@@ -2,13 +2,18 @@ import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-export default function useRecommendations() {
+export default function useRecommendations( enabled = false ) {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( null );
 	const [ recommendations, setRecommendations ] = useState( [] );
 	const abortControllerRef = useRef();
 
 	useEffect( () => {
+		if ( ! enabled ) {
+			setIsLoading( false );
+			return;
+		}
+
 		setIsLoading( true );
 		setErrorMessage( null );
 
@@ -53,8 +58,7 @@ export default function useRecommendations() {
 				abortControllerRef.current = null;
 				setIsLoading( false );
 			} );
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
+	}, [ enabled ] );
 
 	return { isLoading, errorMessage, recommendations };
 }

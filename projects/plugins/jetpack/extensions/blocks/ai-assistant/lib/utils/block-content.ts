@@ -4,10 +4,10 @@
 import { getBlockContent } from '@wordpress/blocks';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
-import TurndownService from 'turndown';
-
-// Turndown instance
-const turndownService = new TurndownService();
+/**
+ * Internal dependencies
+ */
+import turndownService from '../turndown';
 
 /**
  * Returns partial content from the beginning of the post
@@ -57,33 +57,8 @@ export function getTextContentFromInnerBlocks( clientId: string ) {
 
 	return block.innerBlocks
 		.filter( blq => blq != null ) // Safeguard against null or undefined blocks
-		.map( blq => getBlockTextContent( blq.clientId ) )
+		.map( blq => getBlockContent( blq.clientId ) )
 		.join( '\n\n' );
-}
-
-/**
- * Return the block content from the given block clientId using the `getBlockContent` function.
- *
- * @param {string} clientId   - The block clientId.
- * @returns {string}            The block content.
- */
-export function getBlockTextContent( clientId: string ): string {
-	if ( ! clientId ) {
-		return '';
-	}
-
-	const editor = select( 'core/block-editor' );
-	const block = editor.getBlock( clientId );
-
-	/*
-	 * In some context, the block can be undefined,
-	 * for instance, when previewing the block.
-	 */
-	if ( ! block ) {
-		return '';
-	}
-
-	return getBlockContent( block );
 }
 
 /**

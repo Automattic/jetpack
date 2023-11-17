@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.1] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.13.0] - 2023-11-13
+### Added
+- Added a Redux store for Jetpack modules data. [#33397]
+
+## [0.12.6] - 2023-11-08
+### Fixed
+- Mobile: Fix a regression preventing correct block registration on mobile. [#33890]
+
+## [0.12.5] - 2023-11-03
+### Changed
+- Update dependencies.
+
+## [0.12.4] - 2023-10-19
+### Changed
+- Updated package dependencies. [#33687]
+
+## [0.12.3] - 2023-10-17
+### Changed
+- Updated package dependencies. [#33646]
+
+## [0.12.2] - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429]
+
+## [0.12.1] - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## [0.12.0] - 2023-09-19
+### Added
+- Helpers functions for block icons [#32698]
+
 ## [0.11.5] - 2023-09-13
 ### Changed
 - Updated package dependencies. [#33001]
@@ -252,6 +288,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.13.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.13.0...0.13.1
+[0.13.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.6...0.13.0
+[0.12.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.5...0.12.6
+[0.12.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.4...0.12.5
+[0.12.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.3...0.12.4
+[0.12.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.2...0.12.3
+[0.12.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.1...0.12.2
+[0.12.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.12.0...0.12.1
+[0.12.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.11.5...0.12.0
 [0.11.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.11.4...0.11.5
 [0.11.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.11.3...0.11.4
 [0.11.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.11.2...0.11.3

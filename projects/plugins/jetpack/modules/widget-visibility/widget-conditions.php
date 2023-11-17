@@ -1187,7 +1187,6 @@ class Jetpack_Widget_Conditions {
 			}
 		}
 	}
-
 }
 
 add_action( 'init', array( 'Jetpack_Widget_Conditions', 'init' ) );

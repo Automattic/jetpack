@@ -1,5 +1,5 @@
 import { JETPACK_DATA_PATH } from '@automattic/jetpack-shared-extension-utils';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import InstagramGalleryEdit from '../edit';
 
@@ -56,15 +56,15 @@ describe( 'InstagramGalleryEdit', () => {
 			Promise.resolve( { status: 200, json: () => Promise.resolve( [] ) } )
 		);
 
-		render( <InstagramGalleryEdit { ...defaultProps } /> );
+		const { container } = render( <InstagramGalleryEdit { ...defaultProps } /> );
 
 		await waitFor( () => {
 			expect(
-				screen.getByText( 'Connect to Instagram to start sharing your images.' )
+				within( container ).getByText( 'Connect to Instagram to start sharing your images.' )
 			).toBeInTheDocument();
 		} );
 
-		expect( screen.getByText( 'Connect to Instagram' ) ).toBeInTheDocument();
+		expect( within( container ).getByText( 'Connect to Instagram' ) ).toBeInTheDocument();
 	} );
 
 	test( 'updates instagram user and access token when selecting existing connection', async () => {

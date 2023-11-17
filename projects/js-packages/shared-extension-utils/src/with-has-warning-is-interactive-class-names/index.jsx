@@ -10,12 +10,11 @@ import './style.scss';
 // We thus add a new `is-interactive` class to be able to override that behavior.
 export default name =>
 	createHigherOrderComponent(
-		BlockListBlock => props =>
-			(
-				<BlockListBlock
-					{ ...props }
-					className={ props.name === name ? 'has-warning is-interactive' : props.className }
-				/>
-			),
+		BlockListBlock => props => (
+			<BlockListBlock
+				{ ...props }
+				className={ props.name === name ? 'has-warning is-interactive' : props.className }
+			/>
+		),
 		'withHasWarningIsInteractiveClassNames'
 	);

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Add missing BLOCK_NAME constant to SimplePayments block

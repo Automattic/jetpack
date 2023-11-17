@@ -10,7 +10,7 @@ import { uniq } from 'lodash';
 import paidBlockMediaPlaceholder from './media-placeholder';
 import paidBlockMediaReplaceFlow from './media-replace-flow';
 import renderPaidIcon from './render-paid-icon.js';
-import withUpgradeBanner from './with-upgrade-banner';
+import { blockEditWithUpgradeBanner } from './with-upgrade-banner';
 
 import './editor.scss';
 
@@ -55,8 +55,11 @@ const jetpackPaidBlock = ( settings, name ) => {
 // Extend BlockType.
 addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPaidBlock );
 
-// Extend BlockListBlock.
-addFilter( 'editor.BlockEdit', 'jetpack/paid-block-with-warning', withUpgradeBanner );
+addFilter(
+	'blocks.registerBlockType',
+	'jetpack/paid-block-with-upgrade-banner',
+	blockEditWithUpgradeBanner
+);
 
 // Take the control of the MediaPlaceholder.
 addFilter(

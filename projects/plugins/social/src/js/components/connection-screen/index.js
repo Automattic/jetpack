@@ -40,7 +40,7 @@ const ConnectionScreen = () => {
 							'jetpack-social'
 						) }
 						features={ [
-							'Connect with Twitter, Facebook, LinkedIn and Tumblr',
+							'Connect with Instagram, Facebook, Mastodon, LinkedIn, and Tumblr',
 							'Select the social media to share posts while publishing',
 							'Publish custom messages',
 						] }

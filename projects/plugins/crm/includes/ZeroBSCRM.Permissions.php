@@ -582,9 +582,9 @@ function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.
 				return zeroBSCRM_permsForms();
 				break;
 
-			case ZBS_TYPE_EVENT:
+			case ZBS_TYPE_TASK:
 
-				return zeroBSCRM_permsEvents();
+				return zeroBSCRM_perms_tasks();
 				break;			
 
 		}
@@ -706,7 +706,7 @@ function zeroBSCRM_permsCustomers() {
 	    return false;
 	}
 
-	function zeroBSCRM_permsEvents(){
+	function zeroBSCRM_perms_tasks(){
 
 	    $cu = wp_get_current_user();
 	    if ($cu->has_cap('admin_zerobs_events')) return true;
@@ -766,7 +766,7 @@ function zeroBSCRM_permsCustomers() {
 	function zeroBS_getPossibleQuoteOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','zerobs_customermgr')); }
 	function zeroBS_getPossibleInvoiceOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','zerobs_customermgr')); }
 	function zeroBS_getPossibleTransactionOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','zerobs_customermgr')); }
-	function zeroBS_getPossibleEventOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','admin_zerobs_events')); }
+	function zeroBS_getPossibleTaskOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','admin_zerobs_events')); }
 
 
 	// added this because Multi-site doesn't reliably 
@@ -972,9 +972,9 @@ function jpcrm_can_wp_user_view_object( $wp_user, $obj_id, $obj_type_id ) {
       $is_invoice_admin = $wp_user->has_cap( 'admin_zerobs_invoices' );
       $obj_data = zeroBS_getInvoice( $obj_id );
       // draft invoice
-      if ( is_array($obj_data) && $obj_data['status'] == __( 'Draft', 'zero-bs-crm' ) && !$is_invoice_admin ) {
-        return false;
-      }
+			if ( is_array( $obj_data ) && $obj_data['status'] === 'Draft' && ! $is_invoice_admin ) {
+				return false;
+			}
       $assigned_contact_id = zeroBSCRM_invoice_getContactAssigned( $obj_id );
       break;
   }

@@ -15,10 +15,11 @@ import {
 	ToggleControl,
 	TextareaControl,
 	Button,
+	KeyboardShortcuts,
 } from '@wordpress/components';
-import { useKeyboardShortcut, useViewportMatch } from '@wordpress/compose';
+import { useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { RawHTML, useState } from '@wordpress/element';
+import { RawHTML, useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import MarkdownIt from 'markdown-it';
@@ -28,10 +29,11 @@ import { useEffect, useRef } from 'react';
  */
 import ConnectPrompt from './components/connect-prompt';
 import ImageWithSelect from './components/image-with-select';
+import { promptTemplates } from './components/prompt-templates-control';
 import ToolbarControls from './components/toolbar-controls';
 import UpgradePrompt from './components/upgrade-prompt';
 import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
-import useAIFeature from './hooks/use-ai-feature';
+import useAiFeature from './hooks/use-ai-feature';
 import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
 import { isUserConnected } from './lib/connection';
 import { getImagesFromOpenAI } from './lib/image';
@@ -46,7 +48,7 @@ const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'po
 const isPlaygroundVisible =
 	window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-playground-visible' ];
 
-export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
+export default function AIAssistantEdit( { attributes, setAttributes, clientId, isSelected } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
 	const [ errorData, setError ] = useState( {} );
 	const [ loadingImages, setLoadingImages ] = useState( false );
@@ -56,10 +58,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const { tracks } = useAnalytics();
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
-	const getBlock = useSelect(
-		select => () => select( 'core/block-editor' ).getBlock( clientId ),
-		[ clientId ]
-	);
+	const { getBlock } = useSelect( 'core/block-editor' );
 
 	const aiControlRef = useRef( null );
 	const blockRef = useRef( null );
@@ -74,7 +73,13 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		};
 	}, [] );
 
+	const { requireUpgrade, increaseRequestsCount } = useAiFeature();
+
 	const focusOnPrompt = () => {
+		/*
+		 * Increase the AI Suggestion counter.
+		 * @todo: move this at store level.
+		 */
 		// Small delay to avoid focus crash
 		setTimeout( () => {
 			aiControlRef.current?.focus?.();
@@ -90,10 +95,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
-	const { requireUpgrade: requireUpgradeOnStart, refresh: refreshFeatureData } = useAIFeature();
-
-	const requireUpgrade = requireUpgradeOnStart || errorData?.code === 'error_quota_exceeded';
-
 	const {
 		isLoadingCategories,
 		isLoadingCompletion,
@@ -107,8 +108,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		wholeContent,
 		requestingState,
 	} = useSuggestionsFromOpenAI( {
-		onSuggestionDone: focusOnPrompt,
-		onUnclearPrompt: focusOnPrompt,
+		onSuggestionDone: useCallback( () => {
+			focusOnPrompt();
+			increaseRequestsCount();
+		}, [ increaseRequestsCount ] ),
+		onUnclearPrompt: useCallback( () => {
+			focusOnBlock();
+			increaseRequestsCount();
+		}, [ increaseRequestsCount ] ),
 		onModeration: focusOnPrompt,
 		attributes,
 		clientId,
@@ -116,7 +123,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		setError,
 		tracks,
 		userPrompt,
-		refreshFeatureData,
 		requireUpgrade,
 	} );
 
@@ -172,7 +178,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}
 
 		// Bail out if the block already has children blocks
-		const block = getBlock();
+		const block = getBlock( clientId );
 		if ( block?.innerBlocks?.length ) {
 			return;
 		}
@@ -191,6 +197,24 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		// Populate block inner blocks
 		replaceBlocks( clientId, storedInnerBlocks );
 	}, [ initialContent, clientId, replaceBlocks, getBlock, attributes?.useGutenbergSyntax ] );
+
+	const [ promptPlaceholder, setPromptPlaceholder ] = useState( '' );
+	const [ currentIndex, setCurrentIndex ] = useState( 0 );
+
+	// Loop through placeholder prompts for a nice UX effect.
+	useEffect( () => {
+		const interval = setInterval( () => {
+			if ( currentIndex < promptTemplates.length ) {
+				setPromptPlaceholder( promptTemplates[ currentIndex ].label );
+				setCurrentIndex( prevIndex => prevIndex + 1 );
+			} else {
+				clearInterval( interval );
+				setPromptPlaceholder( __( 'Ask Jetpack AI', 'jetpack' ) );
+			}
+		}, 1600 );
+
+		return () => clearInterval( interval );
+	}, [ promptPlaceholder, currentIndex ] );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
@@ -319,7 +343,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			 * - Blocks are already created
 			 * - blocks are children of the current block
 			 */
-			newGeneratedBlocks = getBlock();
+			newGeneratedBlocks = getBlock( clientId );
 			newGeneratedBlocks = newGeneratedBlocks?.innerBlocks || [];
 		}
 
@@ -352,6 +376,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	const handleStopSuggestion = () => {
 		stopSuggestion();
+		focusOnPrompt();
 	};
 
 	const handleImageRequest = () => {
@@ -372,18 +397,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		} );
 	};
 
-	useKeyboardShortcut(
-		'esc',
-		e => {
-			e.stopImmediatePropagation();
-			handleStopSuggestion();
-			focusOnPrompt();
-		},
-		{
-			target: blockRef,
-		}
-	);
-
 	/*
 	 * Custom prompt modal
 	 */
@@ -400,174 +413,189 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const innerBlocks = useInnerBlocksProps( blockProps );
 
 	return (
-		<div { ...blockProps }>
-			{ errorData?.message && ! errorDismissed && errorData?.code !== 'error_quota_exceeded' && (
-				<Notice
-					status={ errorData.status }
-					isDismissible={ false }
-					className="jetpack-ai-assistant__error"
-				>
-					{ errorData.message }
-				</Notice>
-			) }
-
-			{ contentIsLoaded && ! useGutenbergSyntax && (
-				<div className="jetpack-ai-assistant__content">
-					<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
-				</div>
-			) }
-
-			{ contentIsLoaded && useGutenbergSyntax && (
-				<div className="jetpack-ai-assistant__content is-layout-building-mode" { ...innerBlocks } />
-			) }
-
-			{ isPlaygroundVisible && (
-				<InspectorControls>
-					<PanelBody title={ __( 'AI Playground', 'jetpack' ) } initialOpen={ true }>
-						<PanelRow>
-							<ToggleControl
-								label={ __( 'Gutenberg Syntax', 'jetpack' ) }
-								onChange={ check => setAttributes( { useGutenbergSyntax: check } ) }
-								checked={ attributes.useGutenbergSyntax }
-							/>
-						</PanelRow>
-						<PanelRow>
-							<ToggleControl
-								label={ __( 'GPT-4', 'jetpack' ) }
-								onChange={ check => setAttributes( { useGpt4: check } ) }
-								checked={ attributes.useGpt4 }
-							/>
-						</PanelRow>
-						<PanelRow>
-							{ isCustomPrompModalVisible && (
-								<Modal
-									title={ __( 'Custom System Prompt', 'jetpack' ) }
-									onRequestClose={ toogleShowCustomPromptModal }
-								>
-									<TextareaControl
-										rows={ 20 }
-										label={ __( 'Set up the custom system prompt ', 'jetpack' ) }
-										onChange={ value => setAttributes( { customSystemPrompt: value } ) }
-										className="jetpack-ai-assistant__custom-prompt"
-										value={
-											attributes.customSystemPrompt ||
-											getInitialSystemPrompt( {
-												useGutenbergSyntax: attributes.useGutenbergSyntax,
-												useGpt4: attributes.useGpt4,
-											} )?.content
-										}
-									/>
-									<div className="jetpack-ai-assistant__custom-prompt__footer">
-										<Button
-											onClick={ () => setAttributes( { customSystemPrompt: '' } ) }
-											variant="secondary"
-										>
-											{ __( 'Restore the prompt', 'jetpack' ) }
-										</Button>
-
-										<Button onClick={ toogleShowCustomPromptModal } variant="secondary">
-											{ __( 'Close', 'jetpack' ) }
-										</Button>
-									</div>
-								</Modal>
-							) }
-							<Button onClick={ toogleShowCustomPromptModal } variant="secondary">
-								{ __( 'Set system custom prompt', 'jetpack' ) }
-							</Button>
-						</PanelRow>
-					</PanelBody>
-				</InspectorControls>
-			) }
-
-			{ requireUpgrade && <UpgradePrompt /> }
-			{ ! connected && <ConnectPrompt /> }
-			{ ! isWaitingState && connected && ! requireUpgrade && (
-				<ToolbarControls
-					isWaitingState={ isWaitingState }
-					contentIsLoaded={ contentIsLoaded }
-					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
-					retryRequest={ retryRequest }
-					handleAcceptContent={ handleAcceptContent }
-					handleAcceptTitle={ handleAcceptTitle }
-					handleGetSuggestion={ handleGetSuggestion }
-					handleImageRequest={ handleImageRequest }
-					handleTryAgain={ handleTryAgain }
-					showRetry={ showRetry }
-					contentBefore={ contentBefore }
-					hasPostTitle={ !! postTitle?.length }
-					wholeContent={ wholeContent }
-					promptType={ attributes.promptType }
-					setUserPrompt={ prompt => {
-						if ( ! aiControlRef?.current ) {
-							return;
-						}
-
-						const userPromptInput = aiControlRef.current;
-
-						// Focus the text area
-						userPromptInput.focus();
-
-						// Add a typing effect in the text area
-						for ( let i = 0; i < prompt.length; i++ ) {
-							setTimeout( () => {
-								setUserPrompt( prompt.slice( 0, i + 1 ) );
-							}, 25 * i );
-						}
-					} }
-					recordEvent={ tracks.recordEvent }
-					isGeneratingTitle={ isGeneratingTitle }
-				/>
-			) }
-			<AIControl
-				ref={ aiControlRef }
-				disabled={ requireUpgrade }
-				value={ userPrompt }
-				placeholder={ __( 'Ask Jetpack AI', 'jetpack' ) }
-				onChange={ handleChange }
-				onSend={ handleSend }
-				onStop={ handleStopSuggestion }
-				onAccept={ handleAccept }
-				state={ requestingState }
-				isTransparent={ requireUpgrade }
-				showButtonLabels={ ! isMobileViewport }
-				showAccept={ contentIsLoaded && ! isWaitingState }
-				acceptLabel={ acceptLabel }
-				showClearButton={ ! isWaitingState }
-			/>
-
-			{ ! loadingImages && resultImages.length > 0 && (
-				<Flex direction="column" style={ { width: '100%' } }>
-					<FlexBlock
-						style={ { textAlign: 'center', margin: '12px', fontStyle: 'italic', width: '100%' } }
+		<KeyboardShortcuts
+			bindGlobal
+			shortcuts={ {
+				esc: () => {
+					if ( [ 'requesting', 'suggesting' ].includes( requestingState ) ) {
+						handleStopSuggestion();
+					}
+				},
+			} }
+		>
+			<div { ...blockProps }>
+				{ errorData?.message && ! errorDismissed && errorData?.code !== 'error_quota_exceeded' && (
+					<Notice
+						status={ errorData.status }
+						isDismissible={ false }
+						className="jetpack-ai-assistant__error"
 					>
-						{ attributes.requestedPrompt }
-					</FlexBlock>
-					<FlexBlock style={ { fontSize: '20px', lineHeight: '38px' } }>
-						{ __( 'Please choose your image', 'jetpack' ) }
-					</FlexBlock>
-					<Flex direction="row" wrap={ true }>
-						{ resultImages.map( image => (
-							<ImageWithSelect
-								setImageModal={ setImageModal }
-								saveImage={ saveImage }
-								image={ image }
-								key={ image }
-							/>
-						) ) }
-					</Flex>
-				</Flex>
-			) }
+						{ errorData.message }
+					</Notice>
+				) }
 
-			{ ! loadingImages && imageModal && (
-				<Modal onRequestClose={ () => setImageModal( null ) }>
-					<ImageWithSelect
-						saveImage={ saveImage }
-						setImageModal={ setImageModal }
-						image={ imageModal }
-						inModal={ true }
+				{ contentIsLoaded && ! useGutenbergSyntax && (
+					<div className="jetpack-ai-assistant__content">
+						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
+					</div>
+				) }
+
+				{ contentIsLoaded && useGutenbergSyntax && (
+					<div
+						className="jetpack-ai-assistant__content is-layout-building-mode"
+						{ ...innerBlocks }
 					/>
-				</Modal>
-			) }
-		</div>
+				) }
+
+				{ isPlaygroundVisible && (
+					<InspectorControls>
+						<PanelBody title={ __( 'AI Playground', 'jetpack' ) } initialOpen={ true }>
+							<PanelRow>
+								<ToggleControl
+									label={ __( 'Gutenberg Syntax', 'jetpack' ) }
+									onChange={ check => setAttributes( { useGutenbergSyntax: check } ) }
+									checked={ attributes.useGutenbergSyntax }
+								/>
+							</PanelRow>
+							<PanelRow>
+								<ToggleControl
+									label={ __( 'GPT-4', 'jetpack' ) }
+									onChange={ check => setAttributes( { useGpt4: check } ) }
+									checked={ attributes.useGpt4 }
+								/>
+							</PanelRow>
+							<PanelRow>
+								{ isCustomPrompModalVisible && (
+									<Modal
+										title={ __( 'Custom System Prompt', 'jetpack' ) }
+										onRequestClose={ toogleShowCustomPromptModal }
+									>
+										<TextareaControl
+											rows={ 20 }
+											label={ __( 'Set up the custom system prompt ', 'jetpack' ) }
+											onChange={ value => setAttributes( { customSystemPrompt: value } ) }
+											className="jetpack-ai-assistant__custom-prompt"
+											value={
+												attributes.customSystemPrompt ||
+												getInitialSystemPrompt( {
+													useGutenbergSyntax: attributes.useGutenbergSyntax,
+													useGpt4: attributes.useGpt4,
+												} )?.content
+											}
+										/>
+										<div className="jetpack-ai-assistant__custom-prompt__footer">
+											<Button
+												onClick={ () => setAttributes( { customSystemPrompt: '' } ) }
+												variant="secondary"
+											>
+												{ __( 'Restore the prompt', 'jetpack' ) }
+											</Button>
+
+											<Button onClick={ toogleShowCustomPromptModal } variant="secondary">
+												{ __( 'Close', 'jetpack' ) }
+											</Button>
+										</div>
+									</Modal>
+								) }
+								<Button onClick={ toogleShowCustomPromptModal } variant="secondary">
+									{ __( 'Set system custom prompt', 'jetpack' ) }
+								</Button>
+							</PanelRow>
+						</PanelBody>
+					</InspectorControls>
+				) }
+
+				{ requireUpgrade && isSelected && <UpgradePrompt /> }
+				{ ! connected && <ConnectPrompt /> }
+				{ ! isWaitingState && connected && ! requireUpgrade && (
+					<ToolbarControls
+						isWaitingState={ isWaitingState }
+						contentIsLoaded={ contentIsLoaded }
+						getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+						retryRequest={ retryRequest }
+						handleAcceptContent={ handleAcceptContent }
+						handleAcceptTitle={ handleAcceptTitle }
+						handleGetSuggestion={ handleGetSuggestion }
+						handleImageRequest={ handleImageRequest }
+						handleTryAgain={ handleTryAgain }
+						showRetry={ showRetry }
+						contentBefore={ contentBefore }
+						hasPostTitle={ !! postTitle?.length }
+						wholeContent={ wholeContent }
+						promptType={ attributes.promptType }
+						setUserPrompt={ prompt => {
+							if ( ! aiControlRef?.current ) {
+								return;
+							}
+
+							const userPromptInput = aiControlRef.current;
+
+							// Focus the text area
+							userPromptInput.focus();
+
+							// Add a typing effect in the text area
+							for ( let i = 0; i < prompt.length; i++ ) {
+								setTimeout( () => {
+									setUserPrompt( prompt.slice( 0, i + 1 ) );
+								}, 25 * i );
+							}
+						} }
+						recordEvent={ tracks.recordEvent }
+						isGeneratingTitle={ isGeneratingTitle }
+					/>
+				) }
+				<AIControl
+					ref={ aiControlRef }
+					disabled={ requireUpgrade || ! connected }
+					value={ userPrompt }
+					placeholder={ promptPlaceholder || __( 'Ask Jetpack AI', 'jetpack' ) }
+					onChange={ handleChange }
+					onSend={ handleSend }
+					onStop={ handleStopSuggestion }
+					onAccept={ handleAccept }
+					state={ requestingState }
+					isTransparent={ requireUpgrade || ! connected }
+					showButtonLabels={ ! isMobileViewport }
+					showAccept={ contentIsLoaded && ! isWaitingState }
+					acceptLabel={ acceptLabel }
+					showClearButton={ ! isWaitingState }
+					showGuideLine={ contentIsLoaded }
+				/>
+
+				{ ! loadingImages && resultImages.length > 0 && (
+					<Flex direction="column" style={ { width: '100%' } }>
+						<FlexBlock
+							style={ { textAlign: 'center', margin: '12px', fontStyle: 'italic', width: '100%' } }
+						>
+							{ attributes.requestedPrompt }
+						</FlexBlock>
+						<FlexBlock style={ { fontSize: '20px', lineHeight: '38px' } }>
+							{ __( 'Please choose your image', 'jetpack' ) }
+						</FlexBlock>
+						<Flex direction="row" wrap={ true }>
+							{ resultImages.map( image => (
+								<ImageWithSelect
+									setImageModal={ setImageModal }
+									saveImage={ saveImage }
+									image={ image }
+									key={ image }
+								/>
+							) ) }
+						</Flex>
+					</Flex>
+				) }
+
+				{ ! loadingImages && imageModal && (
+					<Modal onRequestClose={ () => setImageModal( null ) }>
+						<ImageWithSelect
+							saveImage={ saveImage }
+							setImageModal={ setImageModal }
+							image={ imageModal }
+							inModal={ true }
+						/>
+					</Modal>
+				) }
+			</div>
+		</KeyboardShortcuts>
 	);
 }

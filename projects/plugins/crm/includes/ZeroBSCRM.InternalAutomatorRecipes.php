@@ -678,7 +678,7 @@
 
 	} 
 
-	#} Adds a "created" log to customer (of event) (if setting)
+	#} Adds a "created" log to customer (of task) (if setting)
 	function zeroBSCRM_IA_NewEventLog($obj=array()){
 
 		$newLogID = false;
@@ -758,12 +758,11 @@
 					#} No override, use default processing...
 
 					#} Retrieve necessary info:
-					$eventID = ''; if (is_array($obj) && isset($obj['id'])) $eventID = $obj['id'];
-					//$eventName = ''; if (is_array($obj) && isset($obj['id']) && isset($obj['eventMeta']) && is_array($obj['eventMeta']) && isset($obj['eventMeta']['name'])) $quoteName = $obj['eventMeta']['name'];
-					$eventName =''; if (!empty($eventID)) $eventName = get_the_title( $eventID );
+					$task_id = ''; if (is_array($obj) && isset($obj['id'])) $task_id = $obj['id'];
+					$task_name =''; if (!empty($task_id)) $task_name = get_the_title( $task_id );
 
 					#} got meta?
-					$eventDateStr = ''; if (is_array($obj) && isset($obj['id']) && isset($obj['eventMeta']) && is_array($obj['eventMeta']) && isset($obj['eventMeta']['from'])){
+					$task_date_str = ''; if (is_array($obj) && isset($obj['id']) && isset($obj['eventMeta']) && is_array($obj['eventMeta']) && isset($obj['eventMeta']['from'])){
 
 						// takenfromMike's + tweaked for readability
 	                    if($obj['eventMeta'] == ''){
@@ -777,24 +776,24 @@
 	                         $end_d = $d->format('l M jS G:i');
 	                    }
 
-	                    if (!empty($start_d)) $eventDateStr = $start_d;
-	                    if ($end_d != $start_d) $eventDateStr .= ' '.__('to',"zero-bs-crm").' '.$end_d;
+	                    if (!empty($start_d)) $task_date_str = $start_d;
+	                    if ($end_d != $start_d) $task_date_str .= ' '.__('to',"zero-bs-crm").' '.$end_d;
 
 	                }
 
 					$noteShortDesc = '';
 					$note_long_description = '';
-					if (!empty($eventName)) {
-						$noteShortDesc = $eventName;
-						$note_long_description = $eventName;
+					if (!empty($task_name)) {
+						$noteShortDesc = $task_name;
+						$note_long_description = $task_name;
 					}
-					if (!empty($eventDateStr)) {
+					if (!empty($task_date_str)) {
 						if (!empty($note_long_description)) $note_long_description .= '<br />';
-						$note_long_description .= $eventDateStr;
+						$note_long_description .= $task_date_str;
 					}
-					if (!empty($eventID)) {
+					if (!empty($task_id)) {
 						if (!empty($noteShortDesc)) $noteShortDesc .= ' ';
-						$noteShortDesc .= '(#'.$eventID.')';
+						$noteShortDesc .= '(#'.$task_id.')';
 					}
 
 

@@ -874,5 +874,4 @@ class Jetpack_XMLRPC_Server {
 		}
 		return array();
 	}
-
 }

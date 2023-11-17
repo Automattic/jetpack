@@ -19,9 +19,11 @@ import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
 import useMediaRestrictions, { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions';
 import useRefreshAutoConversionSettings from '../../hooks/use-refresh-auto-conversion-settings';
+import useRefreshConnections from '../../hooks/use-refresh-connections';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
-import { SOCIAL_STORE_ID } from '../../social-store';
+import { CONNECTION_SERVICE_INSTAGRAM_BUSINESS, SOCIAL_STORE_ID } from '../../social-store';
+import { getSupportedAdditionalConnections } from '../../utils';
 import PublicizeConnection from '../connection';
 import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
@@ -29,7 +31,6 @@ import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
 
-const PUBLICIZE_STORE_ID = 'jetpack/publicize';
 const MONTH_IN_SECONDS = 30 * 24 * 60 * 60;
 
 const checkConnectionCode = ( connection, code ) =>
@@ -63,13 +64,10 @@ export default function PublicizeForm( {
 } ) {
 	const { connections, toggleById, hasConnections, enabledConnections } =
 		useSocialMediaConnections();
+	const refreshConnections = useRefreshConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 	const { dismissNotice, shouldShowNotice, NOTICES } = useDismissNotice();
-
-	const { isInstagramConnectionSupported } = useSelect( select => ( {
-		isInstagramConnectionSupported: select( PUBLICIZE_STORE_ID ).isInstagramConnectionSupported(),
-	} ) );
 
 	const hasInstagramConnection = connections.some(
 		connection => connection.service_name === 'instagram-business'
@@ -77,7 +75,7 @@ export default function PublicizeForm( {
 
 	const shouldShowInstagramNotice =
 		! hasInstagramConnection &&
-		isInstagramConnectionSupported &&
+		getSupportedAdditionalConnections().includes( CONNECTION_SERVICE_INSTAGRAM_BUSINESS ) &&
 		shouldShowNotice( NOTICES.instagram );
 
 	const onDismissInstagramNotice = useCallback( () => {
@@ -160,6 +158,33 @@ export default function PublicizeForm( {
 					) }
 				</Notice>
 			) }
+			{ shouldAutoConvert &&
+				showValidationNotice &&
+				mediaId &&
+				shouldShowNotice( NOTICES.autoConversion ) && (
+					<Notice
+						type={ 'warning' }
+						actions={ [
+							<Button onClick={ onAutoConversionNoticeDismiss } key="dismiss" variant="primary">
+								{ __( 'Got it', 'jetpack' ) }
+							</Button>,
+							<Button
+								className={ styles[ 'change-settings-button' ] }
+								key="change-settings"
+								href={ adminUrl || jetpackSharingSettingsUrl }
+								target="_blank"
+								rel="noreferrer noopener"
+							>
+								{ __( 'Change settings', 'jetpack' ) }
+							</Button>,
+						] }
+					>
+						{ __(
+							'When your post is published, the selected image will be converted for maximum compatibility across your connected social networks.',
+							'jetpack'
+						) }
+					</Notice>
+				) }
 		</>
 	);
 
@@ -250,9 +275,11 @@ export default function PublicizeForm( {
 		);
 	};
 
+	refreshConnections();
+
 	return (
 		<Wrapper>
-			{ hasConnections && (
+			{ hasConnections ? (
 				<>
 					<PanelRow>
 						<ul className={ styles[ 'connections-list' ] }>
@@ -345,6 +372,14 @@ export default function PublicizeForm( {
 							? renderInstagramNotice()
 							: renderValidationNotice() ) }
 				</>
+			) : (
+				! shouldShowInstagramNotice && (
+					<PanelRow>
+						<ExternalLink href={ connectionsAdminUrl }>
+							{ __( 'Connect an account', 'jetpack' ) }
+						</ExternalLink>
+					</PanelRow>
+				)
 			) }
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
@@ -383,6 +418,21 @@ export default function PublicizeForm( {
 								onChange={ updateMessage }
 								message={ message }
 							/>
+							{ isEnhancedPublishingEnabled && (
+								<MediaSection
+									disabled={ shouldDisableMediaPicker }
+									socialPostDisabled={ ! mediaId && ! isSocialImageGeneratorEnabledForPost }
+									connections={ connections }
+									disabledNoticeMessage={
+										shouldDisableMediaPicker
+											? __(
+													'It is not possible to add an image or video when Social Image Generator is enabled.',
+													'jetpack'
+											  )
+											: null
+									}
+								/>
+							) }
 						</>
 					) }
 					{ shouldShowAdvancedPlanNudge && shouldShowNotice( NOTICES.advancedUpgradeEditor ) && (
@@ -404,54 +454,6 @@ export default function PublicizeForm( {
 								}
 							) }
 						</Notice>
-					) }
-					{ isEnhancedPublishingEnabled && (
-						<MediaSection
-							disabled={ shouldDisableMediaPicker }
-							socialPostDisabled={ ! mediaId && ! isSocialImageGeneratorEnabledForPost }
-							connections={ connections }
-							disabledNoticeMessage={
-								shouldDisableMediaPicker
-									? __(
-											'It is not possible to add an image or video when Social Image Generator is enabled.',
-											'jetpack'
-									  )
-									: null
-							}
-							CustomNotice={
-								shouldAutoConvert &&
-								showValidationNotice &&
-								mediaId &&
-								shouldShowNotice( NOTICES.autoConversion ) && (
-									<Notice
-										type={ 'warning' }
-										actions={ [
-											<Button
-												onClick={ onAutoConversionNoticeDismiss }
-												key="dismiss"
-												variant="primary"
-											>
-												{ __( 'Got it', 'jetpack' ) }
-											</Button>,
-											<Button
-												className={ styles[ 'change-settings-button' ] }
-												key="change-settings"
-												href={ adminUrl || jetpackSharingSettingsUrl }
-												target="_blank"
-												rel="noreferrer noopener"
-											>
-												{ __( 'Change settings', 'jetpack' ) }
-											</Button>,
-										] }
-									>
-										{ __(
-											'When your post is published, this image will be converted for maximum compatibility across your connected social networks.',
-											'jetpack'
-										) }
-									</Notice>
-								)
-							}
-						/>
 					) }
 				</Fragment>
 			) }

@@ -5,6 +5,7 @@ const extras = require( './extra-context' );
  * Decides if the current workflow failed
  *
  * @param {string} token - GitHub token
+ * @returns {boolean} Whether it failed.
  */
 async function isWorkflowFailed( token ) {
 	// eslint-disable-next-line new-cap

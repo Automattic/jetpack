@@ -1,12 +1,11 @@
 <?php
-
-use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-
 /**
  * Automated testing of the post-by-email REST API.
  *
  * @package automattic/jetpack
  */
+
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 
 if ( defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/post-by-email.php';
@@ -330,5 +329,4 @@ class WP_Test_Post_By_Email_API extends WP_Test_Jetpack_REST_Testcase {
 
 		return $this->server->dispatch( $this->request );
 	}
-
 }

@@ -1388,7 +1388,8 @@ class Admin {
 		$query = 'post_type=feedback&post_status=publish';
 
 		if ( isset( $_POST['limit'] ) && isset( $_POST['offset'] ) ) {
-			$query .= '&posts_per_page=' . (int) $_POST['limit'] . '&offset=' . (int) $_POST['offset'];
+			// phpcs:ignore Generic.Strings.UnnecessaryStringConcat.Found -- Avoiding https://github.com/WordPress/WordPress-Coding-Standards/issues/2390
+			$query .= '&posts_per' . '_page=' . (int) $_POST['limit'] . '&offset=' . (int) $_POST['offset'];
 		}
 
 		$approved_feedbacks = get_posts( $query );

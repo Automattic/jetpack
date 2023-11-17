@@ -1,4 +1,8 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isAtomicSite,
+	isSimpleSite,
+	getBlockIconComponent,
+} from '@automattic/jetpack-shared-extension-utils';
 import { InspectorControls, InspectorAdvancedControls } from '@wordpress/block-editor';
 import {
 	getBlockDefaultClassName,
@@ -17,21 +21,18 @@ import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEmpty, isEqual, join } from 'lodash';
-import './editor.scss';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import {
-	buttonStyle,
-	defaultAttributes,
-	getStyleOptions,
-	getStyleValues,
-	languageOptions,
-	languageValues,
-} from './attributes';
-import icon from './icon';
+import metadata from './block.json';
+import { languageOptions, languageValues } from './i18n';
 import RestaurantPicker from './restaurant-picker';
+import { buttonStyle, getStyleOptions, getStyleValues } from './styles';
 import usePrevious from './use-previous';
 import { getAttributesFromEmbedCode } from './utils';
+
+import './editor.scss';
+
+const icon = getBlockIconComponent( metadata );
 
 function OpenTableEdit( {
 	attributes,
@@ -44,7 +45,7 @@ function OpenTableEdit( {
 	setAttributes,
 } ) {
 	const defaultClassName = getBlockDefaultClassName( name );
-	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
+	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
 		setAttributes( validatedAttributes );
@@ -81,7 +82,7 @@ function OpenTableEdit( {
 
 	// Don't allow button style with multiple restaurant IDs.
 	useEffect( () => {
-		if ( 'button' === selectedStyle && Array.isArray( rid ) && rid.length > 1 ) {
+		if ( 'button' === selectedStyle && Array.isArray( rid ) && rid?.length > 1 ) {
 			setAttributes( { className: '', style: '' } );
 		}
 	}, [ rid, selectedStyle, setAttributes ] );
@@ -92,7 +93,7 @@ function OpenTableEdit( {
 			return;
 		}
 
-		if ( Array.isArray( rid ) && rid.length > 1 ) {
+		if ( Array.isArray( rid ) && rid?.length > 1 ) {
 			unregisterBlockStyle( 'jetpack/opentable', [ 'button' ] );
 		} else {
 			registerBlockStyle( 'jetpack/opentable', buttonStyle );
@@ -131,14 +132,14 @@ function OpenTableEdit( {
 			);
 		}
 
-		const validatedNewAttributes = getValidatedAttributes( defaultAttributes, newAttributes );
+		const validatedNewAttributes = getValidatedAttributes( metadata.attributes, newAttributes );
 		setAttributes( validatedNewAttributes );
 		noticeOperations.removeAllNotices();
 	};
 
 	const styleValues = getStyleValues( rid );
 	const getTypeAndTheme = fromStyle =>
-		rid.length > 1
+		rid?.length > 1
 			? [ 'multi', 'button' !== fromStyle ? fromStyle : 'standard' ]
 			: [
 					'button' === fromStyle ? 'button' : 'standard',

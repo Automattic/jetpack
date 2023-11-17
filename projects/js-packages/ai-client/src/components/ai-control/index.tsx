@@ -19,6 +19,22 @@ import { GuidelineMessage } from './message';
  * Types
  */
 import type { RequestingStateProp } from '../../types';
+type AIControlProps = {
+	disabled?: boolean;
+	value: string;
+	placeholder?: string;
+	showAccept?: boolean;
+	acceptLabel?: string;
+	showButtonLabels?: boolean;
+	isTransparent?: boolean;
+	state?: RequestingStateProp;
+	showClearButton?: boolean;
+	showGuideLine?: boolean;
+	onChange?: ( newValue: string ) => void;
+	onSend?: ( currentValue: string ) => void;
+	onStop?: () => void;
+	onAccept?: () => void;
+};
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
@@ -26,22 +42,9 @@ const noop = () => {};
 /**
  * AI Control component.
  *
- * @param {object} props                   - Component props
- * @param {boolean} props.disabled         - Input disabled state
- * @param {string} props.value             - The input value
- * @param {string} props.placeholder       - The input placeholder
- * @param {boolean} props.showAccept       - Whether to show the accept button
- * @param {string} props.acceptLabel       - The accept button label
- * @param {boolean} props.showButtonLabels - Whether to show the button labels
- * @param {boolean} props.isTransparent    - Whether the component has low opacity
- * @param {string} props.state             - The request state
- * @param {boolean} props.showClearButton  - Whether to show the clear button when the input has a value
- * @param {Function} props.onChange        - Input change handler
- * @param {Function} props.onSend          - Request send handler
- * @param {Function} props.onStop          - Request stop handler
- * @param {Function} props.onAccept        - Response accept handler
- * @param {object} ref                     - Auto injected ref from react
- * @returns {object} - AI Control component
+ * @param {AIControlProps} props       - Component props.
+ * @param {React.MutableRefObject} ref - Ref to the component.
+ * @returns {React.ReactElement}         Rendered component.
  */
 export function AIControl(
 	{
@@ -54,6 +57,7 @@ export function AIControl(
 		isTransparent = false,
 		state = 'init',
 		showClearButton = true,
+		showGuideLine = false,
 		onChange = noop,
 		onSend = noop,
 		onStop = noop,
@@ -68,16 +72,16 @@ export function AIControl(
 		isTransparent?: boolean;
 		state?: RequestingStateProp;
 		showClearButton?: boolean;
+		showGuideLine?: boolean;
 		onChange?: ( newValue: string ) => void;
 		onSend?: ( currentValue: string ) => void;
 		onStop?: () => void;
 		onAccept?: () => void;
 	},
-	ref
-) {
+	ref: React.MutableRefObject< null > // eslint-disable-line @typescript-eslint/ban-types
+): React.ReactElement {
 	const promptUserInputRef = useRef( null );
 	const loading = state === 'requesting' || state === 'suggesting';
-	const showGuideLine = ! ( loading || disabled || value?.length || isTransparent );
 
 	// Pass the ref to forwardRef.
 	useImperativeHandle( ref, () => promptUserInputRef.current );
@@ -141,7 +145,7 @@ export function AIControl(
 					{ ! loading ? (
 						<Button
 							className={ actionButtonClasses }
-							onClick={ () => onSend( value ) }
+							onClick={ () => onSend?.( value ) }
 							isSmall={ true }
 							disabled={ ! value?.length || disabled }
 							label={ __( 'Send request', 'jetpack-ai-client' ) }
@@ -157,7 +161,7 @@ export function AIControl(
 							label={ __( 'Stop request', 'jetpack-ai-client' ) }
 						>
 							<Icon icon={ closeSmall } />
-							{ showButtonLabels && __( 'Stop', 'jetpack-ai-client' ) }
+							{ showButtonLabels && __( 'Stop (ESC)', 'jetpack-ai-client' ) }
 						</Button>
 					) }
 				</div>

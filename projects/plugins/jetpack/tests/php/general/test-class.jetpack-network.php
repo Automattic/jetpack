@@ -241,6 +241,5 @@ if ( is_multisite() ) :
 				'is_super_admin: false; connection_override: false' => array( false, false, false ),
 			);
 		}
-
 	} // end class
 endif;

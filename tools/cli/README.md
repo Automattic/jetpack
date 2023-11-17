@@ -6,6 +6,9 @@ The `jetpack` CLI tool is used to help with development in [the Jetpack monorepo
 
 If you normally use just one Jetpack Monorepo checkout, you can add `jetpack` to your path by running
 ```sh
+pnpm setup
+# Make sure the above succeeds, and do anything it tells you to.
+
 pnpm install
 pnpm jetpack cli link
 ```

@@ -301,8 +301,9 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 	 */
 	$sort_types_map = array(
 		'address'  => array(
-			'custom_key' => 'addresses',
-			'obj_key'    => 'zbsAddressFields',
+			'custom_key'        => 'addresses',
+			'obj_key'           => 'zbsAddressFields',
+			'force_addr_prefix' => 'addr_',
 		),
 		'customer' => array(
 			'custom_key' => 'customers',
@@ -320,13 +321,6 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 	 * fields, then adding all others (that should be the default ones).
 	 */
 	$sort_field_names = array();
-	foreach ( $custom_fields as $custom_type => $field_arrays ) {
-		foreach ( $field_arrays as $field_array ) {
-			if ( isset( $field_array[3] ) ) {
-					$sort_field_names[ $custom_type ][ $field_array[3] ] = true;
-			}
-		}
-	}
 	foreach ( $sort_types_map as $sort_type => $sort_map ) {
 		$custom_type = $sort_map['custom_key'];
 		$field_types = isset( $GLOBALS[ $sort_map['obj_key'] ] ) ? $GLOBALS[ $sort_map['obj_key'] ] : array();
@@ -343,16 +337,31 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 		}
 	}
 
+	foreach ( $custom_fields as $custom_type => $field_arrays ) {
+		$field_prefix = array_column( $sort_types_map, 'force_addr_prefix', 'custom_key' )[ $custom_type ] ?? '';
+		foreach ( $field_arrays as $field_array ) {
+			if ( isset( $field_array[3] ) ) {
+				$field_slug                                      = $field_prefix . $field_array[3];
+				$sort_field_names[ $custom_type ][ $field_slug ] = true;
+			}
+		}
+	}
+
 	/*
 	 * In this step, we remove any field that no longer exists. Additionally, if
 	 * a field type becomes empty, we also remove the corresponding entry from
 	 * the sort array. We have two distinct settings for sorting fields: one for
-	 * the sorting itself and another for hidden fields.
+	 * the sorting itself and another for hidden fields. For fieldsorts we add all
+	 * newly added fields, we don't do this for fieldhides.
 	 */
 	$settings_to_update = array( 'fieldsorts', 'fieldhides' );
 	foreach ( $settings_to_update as $setting ) {
 		$fields = $zbs->settings->get( $setting );
 		foreach ( $fields as $sort_type => $sort_names ) {
+			if ( empty( $sort_names ) ) {
+				continue;
+			}
+
 			$custom_type = $sort_types_map[ $sort_type ]['custom_key'];
 
 			if ( ! isset( $custom_fields[ $custom_type ] ) || ! isset( $sort_field_names[ $custom_type ] ) ) {
@@ -360,7 +369,7 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 				continue;
 			}
 
-			$fields[ $sort_type ] = array_values(
+			$valid_fields = array_values(
 				array_filter(
 					$sort_names,
 					function ( $field_name ) use ( $sort_field_names, $custom_type ) {
@@ -368,6 +377,17 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 					}
 				)
 			);
+			if ( $setting === 'fieldsorts' ) {
+				/**
+				* The operation below ensures that any newly added custom fields are included in the final array (only for fieldsorts).
+				* Although this could be optimized for performance, readability is prioritized here.
+				* Note: This operation is only invoked when custom fields are added or removed, minimizing the performance impact.
+				*/
+				$all_fields           = array_keys( $sort_field_names[ $custom_type ] );
+				$fields[ $sort_type ] = array_unique( array_merge( $valid_fields, $all_fields ) );
+			} else {
+				$fields[ $sort_type ] = $valid_fields;
+			}
 
 			if ( empty( $fields[ $sort_type ] ) ) {
 				unset( $fields[ $sort_type ] );

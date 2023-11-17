@@ -1147,10 +1147,13 @@ abstract class Publicize_Base {
 							'items' => array(
 								'type'       => 'object',
 								'properties' => array(
-									'id'  => array(
+									'id'   => array(
 										'type' => 'number',
 									),
-									'url' => array(
+									'url'  => array(
+										'type' => 'string',
+									),
+									'type' => array(
 										'type' => 'string',
 									),
 								),
@@ -1427,6 +1430,11 @@ abstract class Publicize_Base {
 
 		$labels = array();
 		foreach ( $services as $service_name => $display_names ) {
+			// Twitter connections do not trigger Publicize anymore. Skip.
+			if ( 'Twitter' === $service_name ) {
+				continue;
+			}
+
 			$labels[] = sprintf(
 				/* translators: Service name is %1$s, and account name is %2$s. */
 				esc_html__( '%1$s (%2$s)', 'jetpack-publicize-pkg' ),
@@ -1436,7 +1444,7 @@ abstract class Publicize_Base {
 		}
 
 		$messages['post'][6] = sprintf(
-			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack) */
 			esc_html__( 'Post published and sharing on %1$s.', 'jetpack-publicize-pkg' ),
 			implode( ', ', $labels )
 		) . $view_post_link_html;
@@ -1445,7 +1453,7 @@ abstract class Publicize_Base {
 			$subscription = \Jetpack_Subscriptions::init();
 			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
 				$messages['post'][6] = sprintf(
-					/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+					/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack) */
 					esc_html__( 'Post published, sending emails to subscribers and sharing post on %1$s.', 'jetpack-publicize-pkg' ),
 					implode( ', ', $labels )
 				) . $view_post_link_html;
@@ -1453,7 +1461,7 @@ abstract class Publicize_Base {
 		}
 
 		$messages['jetpack-portfolio'][6] = sprintf(
-			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack) */
 			esc_html__( 'Project published and sharing project on %1$s.', 'jetpack-publicize-pkg' ),
 			implode( ', ', $labels )
 		) . $view_post_link_html;
@@ -1796,6 +1804,40 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Check if a connection is enabled.
+	 *
+	 * @param string $connection The connection name like 'instagram', 'mastodon', 'nextdoor' etc.
+	 *
+	 * @return bool
+	 */
+	public function has_connection_feature( $connection ) {
+		return Current_Plan::supports( "social-$connection-connection" );
+	}
+
+	/**
+	 * Get a list of additional connections that are supported by the current plan.
+	 *
+	 * @return array
+	 */
+	public function get_supported_additional_connections() {
+		$additional_connections = array();
+
+		if ( $this->has_connection_feature( 'instagram' ) ) {
+			$additional_connections[] = 'instagram-business';
+		}
+
+		if ( $this->has_connection_feature( 'mastodon' ) ) {
+			$additional_connections[] = 'mastodon';
+		}
+
+		if ( $this->has_connection_feature( 'nextdoor' ) ) {
+			$additional_connections[] = 'nextdoor';
+		}
+
+		return $additional_connections;
+	}
+
+	/**
 	 * Check if Instagram connection is enabled.
 	 *
 	 * @return bool
@@ -1811,6 +1853,15 @@ abstract class Publicize_Base {
 	 */
 	public function has_mastodon_connection_feature() {
 		return Current_Plan::supports( 'social-mastodon-connection' );
+	}
+
+	/**
+	 * Check if Nextdoor connection is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_nextdoor_connection_feature() {
+		return Current_Plan::supports( 'social-nextdoor-connection' );
 	}
 
 	/**

@@ -747,7 +747,7 @@ class AssetsTest extends TestCase {
 					),
 					array( 'wp-i18n' ),
 				),
-				array( 'wp-jp-i18n-state', null, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) )
+				array( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) )
 			);
 		$mock->expects( $this->exactly( 3 ) )->method( 'add_inline_script' )
 			->withConsecutive(
@@ -1105,5 +1105,4 @@ class AssetsTest extends TestCase {
 			),
 		);
 	}
-
 }

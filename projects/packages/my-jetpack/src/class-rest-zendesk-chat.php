@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Connection\Client as Client;
+use Automattic\Jetpack\Connection\Client;
 
 /**
  * Registers the REST routes for Zendesk Chat.

@@ -132,5 +132,4 @@ class Main {
 		// Initialize health-related hooks after plugins have loaded.
 		Health::init();
 	}
-
 }

@@ -217,5 +217,4 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( $expected_output, $to_embed );
 	}
-
 }

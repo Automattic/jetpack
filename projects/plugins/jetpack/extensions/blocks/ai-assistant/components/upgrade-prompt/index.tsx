@@ -9,7 +9,8 @@ import React from 'react';
  */
 import { Nudge } from '../../../../shared/components/upgrade-nudge';
 import useAICheckout from '../../hooks/use-ai-checkout';
-import useAIFeature from '../../hooks/use-ai-feature';
+import useAiFeature from '../../hooks/use-ai-feature';
+import { canUserPurchasePlan } from '../../lib/connection';
 
 /**
  * The default upgrade prompt for the AI Assistant block, containing the Upgrade button and linking
@@ -19,6 +20,30 @@ import useAIFeature from '../../hooks/use-ai-feature';
  */
 const DefaultUpgradePrompt = (): React.ReactNode => {
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
+	const canUpgrade = canUserPurchasePlan();
+
+	if ( ! canUpgrade ) {
+		return (
+			<Nudge
+				showButton={ false }
+				className={ 'jetpack-ai-upgrade-banner' }
+				description={ createInterpolateElement(
+					__(
+						'Congratulations on exploring Jetpack AI and reaching the free requests limit!<br /><strong>Reach out to the site administrator to upgrade and keep using Jetpack AI.</strong>',
+						'jetpack'
+					),
+					{
+						br: <br />,
+						strong: <strong />,
+					}
+				) }
+				visible={ true }
+				align={ null }
+				title={ null }
+				context={ null }
+			/>
+		);
+	}
 
 	return (
 		<Nudge
@@ -77,7 +102,7 @@ const VIPUpgradePrompt = (): React.ReactNode => {
 };
 
 const UpgradePrompt = () => {
-	const { upgradeType } = useAIFeature();
+	const { upgradeType } = useAiFeature();
 
 	// If the user is on a VIP site, show the VIP upgrade prompt.
 	if ( upgradeType === 'vip' ) {

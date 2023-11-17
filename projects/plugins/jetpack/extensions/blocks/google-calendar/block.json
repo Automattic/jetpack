@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/google-calendar",
 	"title": "Google Calendar",
-	"description": "Embed a Google Calendar",
+	"description": "Embed a Google Calendar.",
 	"keywords": [ "events", "dates", "schedule", "appointments" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
@@ -19,5 +19,9 @@
 			"default": 600
 		}
 	},
-	"editorScript": "file:../editor.js"
+	"example": {
+		"attributes": {
+			"url": "https://calendar.google.com/calendar/embed?src=jb4bu80jirp0u11a6niie21pp4%40group.calendar.google.com&ctz=America/New_York"
+		}
+	}
 }

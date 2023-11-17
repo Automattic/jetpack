@@ -239,4 +239,3 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return $response;
 	}
 }
-

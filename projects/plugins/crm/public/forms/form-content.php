@@ -33,7 +33,7 @@ if ( isset( $_GET['fid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerificat
 		<title><?php esc_html_e( 'Jetpack CRM Form', 'zero-bs-crm' ); ?></title>
 
 		<?php
-		wp_print_styles();
+		wp_print_styles( 'zbsfrontendformscss' );
 		wp_print_scripts();
 
 		zeroBSCRM_forms_formHTMLHeader();

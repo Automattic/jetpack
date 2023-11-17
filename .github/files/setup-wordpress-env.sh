@@ -40,7 +40,7 @@ case "$WP_BRANCH" in
 	previous)
 		# We hard-code the version here because there's a time near WP releases where
 		# we've dropped the old 'previous' but WP hasn't actually released the new 'latest'
-		TAG=6.2
+		TAG=6.3
 		;;
 	*)
 		echo "Unrecognized value for WP_BRANCH: $WP_BRANCH" >&2
@@ -128,6 +128,38 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	echo "::endgroup::"
 done
 
+# Install WooCommerce plugin used for some Jetpack integration tests.
+if [[ "$WITH_WOOCOMMERCE" == true ]]; then
+	echo "::group::Installing plugin WooCommerce into WordPress"
+
+	WOO_REPO_URL="https://github.com/woocommerce/woocommerce"
+	WOO_GH_API_URL="https://api.github.com/repos/woocommerce/woocommerce/releases/latest"
+
+	RESPONSE=$(curl -sSL --fail --header "Authorization: Bearer $API_TOKEN_GITHUB" "$WOO_GH_API_URL")
+	WOO_LATEST_TAG=$(jq -r '.tag_name' <<< "$RESPONSE")
+	WOO_DL_URL=$(jq -r '.assets[0].browser_download_url' <<< "$RESPONSE")
+
+	if [[ -n "$WOO_LATEST_TAG" && -n "$WOO_DL_URL" ]]; then
+		cd "/tmp"
+		echo "Fetching latest WooCommerce tag: $WOO_LATEST_TAG"
+
+		# Download the built Woo plugin.
+		curl -sS -L --fail "$WOO_DL_URL" -o "woocommerce.zip"
+		unzip -q "woocommerce.zip"
+		mv woocommerce "wordpress-$WP_BRANCH/src/wp-content/plugins"
+
+		# Add the '/tests' directory not present in the built Woo download.
+		git clone --depth 1 --branch "$WOO_LATEST_TAG" "$WOO_REPO_URL" &> /dev/null
+		cp -r "woocommerce/plugins/woocommerce/tests" "wordpress-$WP_BRANCH/src/wp-content/plugins/woocommerce"
+	else
+		echo "::error::Error fetching latest WooCommerce plugin for Jetpack integration tests."
+		EXIT=1
+	fi
+
+	cd "$BASE"
+	echo "::endgroup::"
+fi
+
 cd "/tmp/wordpress-$WP_BRANCH"
 
 cp wp-tests-config-sample.php wp-tests-config.php
@@ -135,5 +167,8 @@ sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
 sed -i "s/yourusernamehere/root/" wp-tests-config.php
 sed -i "s/yourpasswordhere/root/" wp-tests-config.php
 sed -i "s/localhost/127.0.0.1/" wp-tests-config.php
+
+# If WooCommerce is installed, be sure we get the monorepo versions rather than the versions distributed with that.
+echo "define( 'JETPACK_AUTOLOAD_DEV', true );" >> wp-tests-config.php
 
 exit $EXIT

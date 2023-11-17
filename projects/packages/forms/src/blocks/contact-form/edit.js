@@ -1,3 +1,4 @@
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { getJetpackData, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
 	InnerBlocks,
@@ -24,6 +25,8 @@ import classnames from 'classnames';
 import { filter, get, isArray, map } from 'lodash';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
+import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
+import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
@@ -79,6 +82,10 @@ export const JetpackContactFormEdit = forwardRef(
 			defaultVariation,
 			canUserInstallPlugins,
 			style,
+			isModuleActive,
+			isLoadingModules,
+			isChangingStatus,
+			updateJetpackModuleStatus,
 		},
 		ref
 	) => {
@@ -267,6 +274,24 @@ export const JetpackContactFormEdit = forwardRef(
 			);
 		};
 
+		if ( ! isModuleActive ) {
+			if ( isLoadingModules ) {
+				return <ContactFormSkeletonLoader />;
+			}
+			return (
+				<ContactFormPlaceholder
+					changeStatus={ val => {
+						updateJetpackModuleStatus( {
+							name: 'contact-form',
+							active: val,
+						} );
+					} }
+					isModuleActive={ isModuleActive }
+					isLoading={ isChangingStatus }
+				/>
+			);
+		}
+
 		if ( ! hasInnerBlocks && registerBlockVariation ) {
 			return renderVariationPicker();
 		}
@@ -325,12 +350,19 @@ export const JetpackContactFormEdit = forwardRef(
 	}
 );
 
+const withThemeProvider = WrappedComponent => props => (
+	<ThemeProvider>
+		<WrappedComponent { ...props } />
+	</ThemeProvider>
+);
+
 export default compose( [
 	withSelect( ( select, props ) => {
 		const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( 'core/blocks' );
 		const { getBlocks } = select( 'core/block-editor' );
 		const { getEditedPostAttribute } = select( 'core/editor' );
 		const { getSite, getUser, canUser } = select( 'core' );
+		const { isModuleActive, areModulesLoading, areModulesUpdating } = select( 'jetpack-modules' );
 		const innerBlocks = getBlocks( props.clientId );
 
 		const authorId = getEditedPostAttribute( 'author' );
@@ -355,11 +387,16 @@ export default compose( [
 			siteTitle: get( getSite && getSite(), [ 'title' ] ),
 			postTitle: postTitle,
 			postAuthorEmail: authorEmail,
+			isModuleActive: isModuleActive( 'contact-form' ),
+			isLoadingModules: areModulesLoading(),
+			isChangingStatus: areModulesUpdating(),
 		};
 	} ),
 	withDispatch( dispatch => {
 		const { replaceInnerBlocks, selectBlock } = dispatch( 'core/block-editor' );
-		return { replaceInnerBlocks, selectBlock };
+		const { updateJetpackModuleStatus } = dispatch( 'jetpack-modules' );
+		return { replaceInnerBlocks, selectBlock, updateJetpackModuleStatus };
 	} ),
 	withInstanceId,
+	withThemeProvider,
 ] )( withStyleVariables( JetpackContactFormEdit ) );

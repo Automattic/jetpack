@@ -103,5 +103,4 @@ class REST_Contacts_Controller_Test extends REST_Base_Test_Case {
 		$this->assertSame( 'rest_unknown_error', $response->get_data()['code'] );
 		$this->assertSame( 'Mock fatal', $response->get_data()['message'] );
 	}
-
 }

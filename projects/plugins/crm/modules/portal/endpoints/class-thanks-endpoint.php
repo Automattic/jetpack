@@ -20,5 +20,4 @@ class Thanks_Endpoint extends Client_Portal_Endpoint {
 		$endpoints[] = $new_endpoint;
 		return $endpoints;
 	}
-
 }

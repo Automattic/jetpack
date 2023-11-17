@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
+	"apiVersion": 1,
 	"name": "jetpack/simple-payments",
 	"title": "Pay with PayPal",
-	"description": "Lets you add credit and debit card payment buttons with minimal setup. Good for collecting donations or payments for products and services.",
+	"description": "Add credit and debit card payment buttons with minimal setup. Good for collecting donations or payments for products and services.",
 	"keywords": [
 		"buy",
 		"commerce",
@@ -34,7 +34,7 @@
 	"attributes": {
 		"currency": {
 			"type": "string",
-			"default": "DEFAULT_CURRENCY"
+			"default": "USD"
 		},
 		"content": {
 			"type": "string",
@@ -101,6 +101,5 @@
 			"email": "jetpack@jetpack.com",
 			"featuredMediaUrl": "./simple-payments_example-1.jpg"
 		}
-	},
-	"editorScript": "file:../editor.js"
+	}
 }

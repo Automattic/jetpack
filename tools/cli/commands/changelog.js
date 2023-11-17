@@ -595,7 +595,7 @@ async function checkChangelogFiles() {
 
 	// Check for any existing changelog files.
 	for ( const file of touchedFiles ) {
-		const match = file.match( /^projects\/([^/]+\/[^/]+)\/changelog\// );
+		const match = file.match( /^projects\/([^/]+\/[^/]+)\/changelog\/[^.]/ );
 		if ( match ) {
 			changelogsAdded.add( match[ 1 ] );
 		}

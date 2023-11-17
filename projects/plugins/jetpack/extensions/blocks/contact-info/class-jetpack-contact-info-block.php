@@ -22,7 +22,7 @@ class Jetpack_Contact_Info_Block {
 	 * @return string
 	 */
 	public static function render( $attr, $content ) {
-		Jetpack_Gutenberg::load_styles_as_required( 'contact-info' );
+		Jetpack_Gutenberg::load_styles_as_required( __DIR__ );
 		return str_replace(
 			'class="wp-block-jetpack-contact-info', // Closing " intentionally ommited to that the user can also add the className as expected.
 			'itemprop="location" itemscope itemtype="http://schema.org/Organization" class="wp-block-jetpack-contact-info',

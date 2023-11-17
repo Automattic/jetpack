@@ -233,5 +233,4 @@ class REST_Endpoints {
 				array( 'status' => rest_authorization_required_code() )
 			);
 	}
-
 }

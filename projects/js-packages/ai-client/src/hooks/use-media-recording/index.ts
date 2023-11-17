@@ -189,6 +189,15 @@ export default function useMediaRecording( {
 				throw err;
 			} );
 		return () => {
+			/*
+			 * mediaRecordRef is not defined when
+			 * the getUserMedia API is not supported,
+			 * or when the user has not granted access
+			 */
+			if ( ! mediaRecordRef?.current ) {
+				return;
+			}
+
 			mediaRecordRef.current.removeEventListener( 'start', onStartListener );
 			mediaRecordRef.current.removeEventListener( 'stop', onStopListener );
 			mediaRecordRef.current.removeEventListener( 'pause', onPauseListener );

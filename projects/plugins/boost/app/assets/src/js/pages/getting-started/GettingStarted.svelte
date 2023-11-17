@@ -1,108 +1,58 @@
 <script lang="ts">
-	import { derived, writable } from 'svelte/store';
+	import React from 'react';
 	import { Snackbar } from '@wordpress/components';
-	import ActivateLicense from '../../elements/ActivateLicense.svelte';
-	import ReactComponent from '../../elements/ReactComponent.svelte';
-	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
-	import Footer from '../../sections/Footer.svelte';
-	import Header from '../../sections/Header.svelte';
-	import config, { markGetStartedComplete } from '../../stores/config';
-	import { connection } from '../../stores/connection';
-	import { recordBoostEvent } from '../../utils/analytics';
-	import { getUpgradeURL } from '../../utils/upgrade';
+	import { BoostPricingTable } from '$features/boost-pricing-table/boost-pricing-table';
+	import ActivateLicense from '$features/activate-license/activate-license';
+	import ReactComponent from '$features/ReactComponent.svelte';
+	import Footer from '$layout/footer/footer';
+	import Header from '$layout/header/header';
 
-	$: pricing = $config.pricing;
+	import { initializeConnection, getUpgradeURL } from '$lib/stores/connection';
+	import { recordBoostEvent } from '$lib/utils/analytics';
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let navigate, location;
+	export let userConnected: boolean;
+	export let pricing: ( typeof Jetpack_Boost )[ 'pricing' ];
+	export let isPremium: boolean;
+	export let domain: string;
 
-	let initiatingFreePlan = false;
-	let initiatingPaidPlan = false;
-	const dismissedSnackbar = writable( false );
+	let snackbarMessage: string;
+	let selectedPlan: 'free' | 'premium' | false = false;
+	$: if ( selectedPlan !== false ) {
+		initialize( selectedPlan );
+	}
 
-	const snackbarMessage = derived(
-		[ connection, dismissedSnackbar ],
-		( [ $connection, $dismissedSnackbar ] ) => {
-			if ( ! $dismissedSnackbar && ! $connection.connected && $connection.error?.message ) {
-				return $connection.error.message;
+	async function initialize( plan: 'free' | 'premium' ) {
+		try {
+			// Make sure there is a Jetpack connection
+			await initializeConnection();
+
+			// Record this selection. This must be done after the connection is initialized.
+			// Possible Events:
+			// * free_cta_from_getting_started_page_in_plugin
+			// * premium_cta_from_getting_started_page_in_plugin
+			recordBoostEvent( `${ plan }_cta_from_getting_started_page_in_plugin`, {} );
+
+			// Go to the purchase flow if the user doesn't have a premium plan.
+			if ( ! isPremium && plan === 'premium' ) {
+				window.location.href = getUpgradeURL( domain, userConnected );
 			}
-
-			return null;
-		}
-	);
-
-	/**
-	 * Mark that getting started is completed, and head to the next page.
-	 *
-	 * @param {string} externalPage If specified, head to the external page instead of staying on the dashboard.
-	 */
-	function finishGettingStarted( externalPage?: string ) {
-		markGetStartedComplete();
-
-		if ( externalPage ) {
-			window.location.href = externalPage;
-		} else {
+			// Otherwise go to dashboard home.
 			navigate( '/', { replace: true } );
-		}
-	}
-
-	/**
-	 * User clicked "Free plan"
-	 */
-	async function chooseFreePlan() {
-		initiatingFreePlan = true;
-
-		try {
-			// Make sure there is a Jetpack connection
-			await connection.initialize();
-
-			// Record this selection. This must be done after the connection is initialized.
-			recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} );
-
-			// Head to the settings page.
-			finishGettingStarted();
 		} catch ( e ) {
-			// Un-dismiss snackbar on error. Actual error comes from connection object.
-			dismissedSnackbar.set( false );
+			// Display the error in a snackbar message
+			snackbarMessage = e.message || 'Unknown error occurred during the plan selection.';
 		} finally {
-			initiatingFreePlan = false;
+			selectedPlan = false;
 		}
 	}
 
-	/**
-	 * User clicked Premium.
-	 */
-	async function choosePaidPlan() {
-		initiatingPaidPlan = true;
-
-		try {
-			// Make sure there is a Jetpack connection
-			await connection.initialize();
-
-			// Record this selection. This must be done after the connection is initialized.
-			recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );
-
-			// Check if the site is already on a premium plan and go directly to settings if so.
-			if ( $config.isPremium ) {
-				finishGettingStarted();
-				return;
-			}
-
-			// Go to the purchase flow.
-			finishGettingStarted( getUpgradeURL() );
-		} catch ( e ) {
-			// Un-dismiss snackbar on error. Actual error comes from connection object.
-			dismissedSnackbar.set( false );
-		} finally {
-			initiatingPaidPlan = false;
-		}
-	}
+	const activateLicense = React.createElement( ActivateLicense );
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
-	<Header>
-		<ActivateLicense />
-	</Header>
+	<ReactComponent this={Header} children={activateLicense} />
 
 	<div class="jb-section jb-section--alt">
 		<div class="jb-container">
@@ -110,23 +60,23 @@
 				<ReactComponent
 					this={BoostPricingTable}
 					{pricing}
-					onPremiumCTA={choosePaidPlan}
-					onFreeCTA={chooseFreePlan}
-					chosenFreePlan={initiatingFreePlan}
-					chosenPaidPlan={initiatingPaidPlan}
+					onPremiumCTA={() => ( selectedPlan = 'premium' )}
+					onFreeCTA={() => ( selectedPlan = 'free' )}
+					chosenFreePlan={selectedPlan === 'free'}
+					chosenPaidPlan={selectedPlan === 'premium'}
 				/>
-				{#if $snackbarMessage}
+				{#if snackbarMessage}
 					<ReactComponent
 						this={Snackbar}
-						children={$snackbarMessage}
-						onDismiss={() => dismissedSnackbar.set( true )}
+						children={snackbarMessage}
+						onDismiss={() => ( snackbarMessage = '' )}
 					/>
 				{/if}
 			</div>
 		</div>
 	</div>
 
-	<Footer />
+	<ReactComponent this={Footer} />
 </div>
 
 <style lang="scss">

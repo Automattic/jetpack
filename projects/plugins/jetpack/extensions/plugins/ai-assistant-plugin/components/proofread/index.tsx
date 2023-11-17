@@ -5,19 +5,14 @@ import { AiStatusIndicator, useAiSuggestions } from '@automattic/jetpack-ai-clie
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { serialize } from '@wordpress/blocks';
 import { Modal, Button } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
-import {
-	delimiter,
-	getDelimitedContent,
-	getInitialSystemPrompt,
-} from '../../../../blocks/ai-assistant/lib/prompt';
 import './style.scss';
 
 // Turndown instance
@@ -60,6 +55,9 @@ export default function Proofread( {
 		setIsProofreadModalVisible( ! isProofreadModalVisible );
 	};
 
+	const { increaseAiAssistantRequestsCount, dequeueAiAssistantFeatureAyncRequest } =
+		useDispatch( 'wordpress-com/plans' );
+
 	const handleSuggestion = ( content: string ) => {
 		const text = content.split( '\n' ).map( ( line, idx ) => {
 			return line?.length ? <p key={ `line-${ idx }` }>{ line }</p> : null;
@@ -72,9 +70,9 @@ export default function Proofread( {
 		/// TODO: Handle Error
 	};
 
-	const handleDone = () => {
-		// TODO: Handle Done
-	};
+	const handleDone = useCallback( () => {
+		increaseAiAssistantRequestsCount();
+	}, [ increaseAiAssistantRequestsCount ] );
 
 	const { request, requestingState } = useAiSuggestions( {
 		askQuestionOptions: {
@@ -86,27 +84,23 @@ export default function Proofread( {
 	} );
 
 	const handleRequest = () => {
+		// Message to request a backend prompt for this feature
 		const messages = [
-			getInitialSystemPrompt( {
-				context:
-					'You are an advanced polyglot ghostwriter. Your task is to review blog content and provide reasonable actions and feedback about the content, without suggesting to rewrite it. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg sidebar. You are inside the WordPress editor',
-				rules: [
-					'Format your response in plain text only including line breaks',
-					'Focus on feedback and do not summarize the content',
-					"Be concise and direct, don't repeat the content and avoid repeating the request. Ex. 'The content delimited ...'",
-					'Do not ask to assist with anything else',
-					'Answer in the same language as the content',
-				],
-				useGutenbergSyntax: false,
-				useMarkdown: false,
-			} ),
+			{
+				role: 'jetpack-ai',
+				context: {
+					type: 'proofread-plugin',
+					content: postContent,
+				},
+			},
 		];
-		messages.push( {
-			role: 'user',
-			content: `Provide a short feedback about the post content delimited with ${ delimiter }. If it could be improved, provide a list of actions on how to do it. ${ getDelimitedContent(
-				postContent
-			) }`,
-		} );
+
+		/*
+		 * Always dequeue/cancel the AI Assistant feature async request,
+		 * in case there is one pending,
+		 * when performing a new AI suggestion request.
+		 */
+		dequeueAiAssistantFeatureAyncRequest();
 
 		request( messages );
 		toggleProofreadModal();

@@ -114,5 +114,4 @@ class WP_Test_Jetpack_Sync_Menus extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $event->args[0], $menu_id );
 		$this->assertEquals( 'DELETEME', $event->args[2]->name );
 	}
-
 }

@@ -75,5 +75,4 @@ class WP_Test_Jetpack_Recommendations extends WP_UnitTestCase {
 			'class' => 'free',
 		);
 	}
-
 }

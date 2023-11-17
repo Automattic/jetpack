@@ -17,8 +17,7 @@ use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
  */
-class Jetpack_Core_API_Module_Toggle_Endpoint
-	extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
+class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 	/**
 	 * Check if the module requires the site to be publicly accessible from WPCOM.

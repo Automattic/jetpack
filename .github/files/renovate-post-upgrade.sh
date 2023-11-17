@@ -14,6 +14,14 @@ function die {
 	exit 1
 }
 
+# Renovate has a bug where they modify `.npmrc` and don't clean up after themselves,
+# resulting in those modifications being included in the diff.
+# https://github.com/renovatebot/renovate/issues/23528
+# Further, it seems they're reluctant to even admit this is actually a bug, and would
+# rather cast aspersions than collaborate on a fix.
+# So work around it by manually reverting the file.
+git restore .npmrc
+
 # Renovate may get confused if we leave installed node_modules or the like behind.
 # So delete everything that's git-ignored on exit.
 function cleanup {
@@ -39,11 +47,11 @@ cd projects/packages/changelogger
 composer update
 cd "$BASE"
 
-# Add change files for anything that changed. But ignore .npmrc, renovate mangles those.
+# Add change files for anything that changed.
 echo "Changed files:"
-git -c core.quotepath=off diff --name-only HEAD | grep -E -v '(^|/)\.npmrc'
+git -c core.quotepath=off diff --name-only HEAD
 ANY=false
-for DIR in $(git -c core.quotepath=off diff --name-only HEAD | grep -E -v '(^|/)\.npmrc' | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!\1!p' | sort -u); do
+for DIR in $(git -c core.quotepath=off diff --name-only HEAD | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!\1!p' | sort -u); do
 	ANY=true
 	SLUG="${DIR#projects/}"
 	echo "Adding change file for $SLUG"

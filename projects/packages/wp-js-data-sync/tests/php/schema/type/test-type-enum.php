@@ -15,5 +15,4 @@ class Test_Type_Enum extends TestCase {
 		$this->expectException( \Error::class );
 		$validator->parse( 'invalid' );
 	}
-
 }

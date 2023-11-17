@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Autoloader guard test suite.
  *

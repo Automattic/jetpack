@@ -86,5 +86,4 @@ abstract class Parser {
 	public function newChangeEntry( $data = array() ) {
 		return new ChangeEntry( $data );
 	}
-
 }

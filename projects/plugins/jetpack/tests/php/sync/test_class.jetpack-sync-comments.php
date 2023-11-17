@@ -631,5 +631,4 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$untrash_post_comments_event = $this->server_event_storage->get_most_recent_event( 'untrash_post_comments' );
 		$this->assertFalse( $untrash_post_comments_event );
 	}
-
 }

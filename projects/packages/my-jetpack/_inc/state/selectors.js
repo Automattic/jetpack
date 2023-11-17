@@ -77,6 +77,11 @@ const productSelectors = {
 	getProductsThatRequiresUserConnection,
 };
 
+const productDataSelectors = {
+	getProductData: state => state.productData?.items || {},
+	isFetchingProductData: state => state.productData?.isFetching || false,
+};
+
 const purchasesSelectors = {
 	getPurchases: state => state.purchases?.items || [],
 	isRequestingPurchases: state => state.purchases?.isFetching || false,
@@ -129,15 +134,30 @@ const productStatsSelectors = {
 	isFetchingProductStats,
 };
 
+const getStatsCounts = state => {
+	return state.statsCounts?.data;
+};
+
+const isFetchingStatsCounts = state => {
+	return state.statsCounts?.isFetching || false;
+};
+
+const statsCountsSelectors = {
+	getStatsCounts,
+	isFetchingStatsCounts,
+};
+
 const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
 	...chatAvailabilitySelectors,
 	...chatAuthenticationSelectors,
+	...productDataSelectors,
 	...availableLicensesSelectors,
 	...noticeSelectors,
 	...pluginSelectors,
 	...productStatsSelectors,
+	...statsCountsSelectors,
 };
 
 export default selectors;

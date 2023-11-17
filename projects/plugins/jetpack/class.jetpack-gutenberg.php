@@ -466,7 +466,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Only enqueue block assets when needed.
 	 *
-	 * @param string $type Slug of the block or absolute path to the directory containing the block.json file.
+	 * @param string $type Slug of the block or absolute path to the block source code directory.
 	 * @param array  $script_dependencies Script dependencies. Will be merged with automatically
 	 *                                    detected script dependencies from the webpack build.
 	 *
@@ -478,9 +478,10 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
-		// Retrieve the feature from block.json if its path is passed.
-		if ( '/' === substr( $type, 0, 1 ) ) {
-			$feature = Blocks::get_block_feature_from_metadata( Blocks::get_block_metadata_from_file( $type ) );
+		// Retrieve the feature from block.json if a path is passed.
+		if ( path_is_absolute( $type ) ) {
+			$metadata = Blocks::get_block_metadata_from_file( Blocks::get_path_to_block_metadata( $type ) );
+			$feature  = Blocks::get_block_feature_from_metadata( $metadata );
 
 			if ( ! empty( $feature ) ) {
 				$type = $feature;
@@ -676,16 +677,10 @@ class Jetpack_Gutenberg {
 		}
 
 		// AI Assistant
-		$ai_assistant_state = Jetpack_AI_Helper::get_ai_assistance_feature();
-
-		if ( is_wp_error( $ai_assistant_state ) ) {
-			$ai_assistant_state = array(
-				'error-message' => $ai_assistant_state->get_error_message(),
-				'error-code'    => $ai_assistant_state->get_error_code(),
-			);
-		} else {
-			$ai_assistant_state['is-playground-visible'] = Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' );
-		}
+		$ai_assistant_state = array(
+			'is-enabled'            => apply_filters( 'jetpack_ai_enabled', true ),
+			'is-playground-visible' => Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' ),
+		);
 
 		$screen_base = null;
 		if ( function_exists( 'get_current_screen' ) ) {
@@ -742,8 +737,7 @@ class Jetpack_Gutenberg {
 				'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
 				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
 				'dismissedNotices'                => $publicize->get_dismissed_notices(),
-				'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
-				'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
+				'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
 				'autoConversionSettings'          => array(
 					'available' => $auto_conversion_settings->is_available( 'image' ),
 					'image'     => $auto_conversion_settings->is_enabled( 'image' ),

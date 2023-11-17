@@ -1,10 +1,10 @@
 === Jetpack CRM - Clients, Leads, Invoices, Billing, Email Marketing, & Automation ===
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
-Tested up to: 6.3
-Stable tag: 6.0.0
-Requires at least: 5.0
-Requires PHP: 7.3
+Tested up to: 6.4
+Stable tag: 6.2.0
+Requires at least: 6.0
+Requires PHP: 7.4
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -389,18 +389,26 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.1.0 - 2023-07-24
+### 6.3.0 - 2023-11-15
 #### Added
-- Listing pages: Add a new setting that allows listing pages to utilize the full width of the screen
+- API: Add support for creating transactions with custom fields.
 
 #### Changed
-- General: indicate full compatibility with the latest version of WordPress, 6.3
+- Requires PHP 7.4 or higher.
+- Requires WordPress 6.0 or higher.
 
 #### Fixed
-- API: Fixed error 200 while saving new api connections
-- Contacts: Fix bug that prevented the creation of contacts WP user for the Client Portal
-- Contacts: Fix Filter options not available on the main contacts listing
-- File Uploads: Fix bug that prevented file uploads from working in environments where the PHP finfo_open function was not available
-- Menu: Improved alignment for items in the menu
-- OAuth/Gmail: Fix to enable sending links and images in the email content, supporting text/plain
-- Segments: Fix bug that prevented dates to be saved in some environments
+- API: Allow events endpoint to be filtered by owner.
+- API: The `create_event` endpoint no longer throws a 100 error.
+- API: Restrict what owner data is returned with events endpoint.
+- Backend: Prevent error if OpenSSL functions aren't available in PHP.
+- Backend: Changing how styles are added to the page on several stand-alone pages to prevent WordPress 6.4 compatibility issues.
+- Client Portal: Better PHP 8.2 support.
+- Contacts: Fixed display issues on the Add and Edit pages that occurred when moving fields.
+- Listviews: Remove legacy code.
+- Mail Delivery: Removed usage of deprecated function utf8_encode.
+- Quote Templates: Fix issue with notes field rendering HTML entities in some cases.
+- Quote Templates: Make sure quote titles with apostrophes do not have backslashes added when rendered.
+- WooSync: Catch PHP error in Client Portal invoice if WooCommerce is disabled.
+- WooSync: Contacts can now be assigned to existing companies.
+

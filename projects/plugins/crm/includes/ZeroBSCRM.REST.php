@@ -109,7 +109,7 @@ add_action( 'rest_api_init', function () {
 		$controller = new Automattic\Jetpack\CRM\REST_API\V4\REST_Contacts_Controller();
 		$controller->register_routes();
 
-		$automation_controller = new Automattic\Jetpack\CRM\REST_API\V4\REST_Automation_Controller();
+		$automation_controller = new Automattic\Jetpack\CRM\REST_API\V4\REST_Automation_Workflows_Controller();
 		$automation_controller->register_routes();
 	}
 });

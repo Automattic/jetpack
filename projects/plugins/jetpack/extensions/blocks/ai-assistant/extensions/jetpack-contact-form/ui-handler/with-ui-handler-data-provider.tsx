@@ -14,7 +14,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { isPossibleToExtendJetpackFormBlock } from '..';
+import { useIsPossibleToExtendJetpackFormBlock } from '..';
 import { compareBlocks } from '../../../lib/utils/compare-blocks';
 import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
 import { AiAssistantUiContextProvider } from './context';
@@ -213,8 +213,12 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 					lastBlockUpdated = ! compareBlocks( lastBlock, lastBlockFromCurrentList );
 				}
 
-				// Only update the blocks when the valid list changed, meaning a new block arrived or the last block was updated.
-				if ( validBlocks.length !== currentListOfValidBlocks.current.length || lastBlockUpdated ) {
+				if (
+					// Only update the blocks when there are valid blocks, to avoid having no children and triggering the empty state.
+					validBlocks.length > 0 &&
+					// Only update the blocks when the valid list changed, meaning a new block arrived or the last block was updated.
+					( validBlocks.length !== currentListOfValidBlocks.current.length || lastBlockUpdated )
+				) {
 					// Only update the valid blocks
 					replaceInnerBlocks( clientId, validBlocks );
 
@@ -263,6 +267,9 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 							} ),
 						] );
 					}
+
+					// Reset the list of valid blocks after the request is done.
+					currentListOfValidBlocks.current = [];
 				}
 			},
 			[ clientId, replaceInnerBlocks ]
@@ -283,7 +290,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		 * and the AI Assistant component (popover)
 		 * only if is't possible to extend the block.
 		 */
-		if ( ! isPossibleToExtendJetpackFormBlock( props.name, { clientId: props.clientId } ) ) {
+		if ( ! useIsPossibleToExtendJetpackFormBlock( props.name, { clientId: props.clientId } ) ) {
 			return <BlockListBlock { ...props } />;
 		}
 

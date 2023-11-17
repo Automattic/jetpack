@@ -16,7 +16,7 @@
  * @phpcs:disable WordPress.Files.FileName
  */
 
-use \Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
 /**
  * A class providing device properties detection.

@@ -8,6 +8,9 @@
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
+use Automattic\Jetpack\Status\Host;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
 
@@ -30,18 +33,14 @@ class Jetpack_Memberships {
 	public static $post_type_plan = 'jp_mem_plan';
 
 	/**
-	 * Option that will store currently set up account (Stripe etc) id for memberships.
+	 * Tier type for plans
 	 *
-	 *  TODO: remove
-	 *
-	 * @deprecated
 	 * @var string
 	 */
-	public static $connected_account_id_option_name = 'jetpack-memberships-connected-account-id';
+	public static $type_tier = 'tier';
 
 	/**
-	 * Option that will toggle account enabled for memberships (i.e. Stripe is
-	 * configured, etc. ).
+	 * Option stores status for memberships (Stripe, etc.).
 	 *
 	 * @var string
 	 */
@@ -52,7 +51,14 @@ class Jetpack_Memberships {
 	 *
 	 * @var string
 	 */
-	public static $post_access_level_meta_name = \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+	public static $post_access_level_meta_name = META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+
+	/**
+	 * Post meta that will store the tier ID of access for newsletters
+	 *
+	 * @var string
+	 */
+	public static $post_access_tier_meta_name = META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 	/**
 	 * Button block type to use.
@@ -97,12 +103,18 @@ class Jetpack_Memberships {
 	private static $user_can_view_post_cache = array();
 
 	/**
+	 * Cached results of user_is_paid_subscriber() method.
+	 *
+	 * @var array
+	 */
+	private static $user_is_paid_subscriber_cache = array();
+
+	/**
 	 * Currencies we support and Stripe's minimum amount for a transaction in that currency.
 	 *
 	 * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
 	 *
-	 * List has to be in with `SUPPORTED_CURRENCIES` in extensions/shared/currencies.js and
-	 * `Memberships_Product::SUPPORTED_CURRENCIES` in the WP.com memberships library.
+	 * List has to be in with `SUPPORTED_CURRENCIES` in extensions/shared/currencies.js.
 	 */
 	const SUPPORTED_CURRENCIES = array(
 		'USD' => 0.5,
@@ -162,6 +174,15 @@ class Jetpack_Memberships {
 			),
 			'site_subscriber' => array(
 				'meta' => $meta_prefix . 'site_subscriber',
+			),
+			'product_id'      => array(
+				'meta' => $meta_prefix . 'product_id',
+			),
+			'tier'            => array(
+				'meta' => $meta_prefix . 'tier',
+			),
+			'is_deleted'      => array(
+				'meta' => $meta_prefix . 'is_deleted',
 			),
 		);
 		return $properties;
@@ -304,9 +325,9 @@ class Jetpack_Memberships {
 		}
 
 		return $is_premium_content_child &&
-				$user_can_edit &&
-				$requires_stripe_connection &&
-				$jetpack_ready;
+			$user_can_edit &&
+			$requires_stripe_connection &&
+			$jetpack_ready;
 	}
 
 	/**
@@ -408,7 +429,7 @@ class Jetpack_Memberships {
 		$button_styles = implode( ';', $button_styles );
 
 		return sprintf(
-			'<div class="%1$s"><a role="button" %6$s href="%2$s" class="%3$s" style="%4$s">%5$s</a></div>',
+			'<div class="%1$s"><a role="button" href="%2$s" class="%3$s" style="%4$s">%5$s</a></div>',
 			esc_attr(
 				Blocks::classes(
 					self::$button_block_name,
@@ -419,8 +440,7 @@ class Jetpack_Memberships {
 			esc_url( $this->get_subscription_url( $plan_id ) ),
 			isset( $attrs['submitButtonClasses'] ) ? esc_attr( $attrs['submitButtonClasses'] ) : 'wp-block-button__link',
 			esc_attr( $button_styles ),
-			wp_kses( $button_label, self::$tags_allowed_in_the_button ),
-			isset( $attrs['submitButtonAttributes'] ) ? sanitize_text_field( $attrs['submitButtonAttributes'] ) : '' // Needed for arbitrary target=_blank on WPCOM VIP.
+			wp_kses( $button_label, self::$tags_allowed_in_the_button )
 		);
 	}
 
@@ -450,9 +470,7 @@ class Jetpack_Memberships {
 			return true;
 		}
 
-		// This is the fallback solution.
-		// TODO: Remove this once the has_connected_account_option is migrated to all sites.
-		return get_option( 'jetpack-memberships-connected-account-id', false ) ? true : false;
+		return false;
 	}
 
 	/**
@@ -480,6 +498,32 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * Get the post tier plan
+	 *
+	 * If no ID is provided, the method tries to get it from the global post object.
+	 *
+	 * @param int|null $post_id The ID of the post. Default is null.
+	 *
+	 * @return WP_Post|null the actual post tier.
+	 */
+	public static function get_post_tier( $post_id = null ) {
+		if ( ! $post_id ) {
+			$post_id = get_the_ID();
+		}
+
+		if ( ! $post_id ) {
+			return null;
+		}
+
+		$post_tier_id = get_post_meta( $post_id, self::$post_access_tier_meta_name, true );
+		if ( empty( $post_tier_id ) ) {
+			return null;
+		}
+
+		return get_post( $post_tier_id );
+	}
+
+	/**
 	 * Determines whether the current user can edit.
 	 *
 	 * @return bool Whether the user can edit.
@@ -491,14 +535,34 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Determines whether the current user can view the post based on the newsletter access level
-	 * and caches the result.
+	 * Determines whether the current user is a paid subscriber and caches the result.
 	 *
 	 * @return bool Whether the post can be viewed
 	 */
-	public static function user_can_view_post() {
+	public static function user_is_paid_subscriber() {
 		$user_id = get_current_user_id();
-		$post_id = get_the_ID();
+
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$paywall            = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		$is_paid_subscriber = $paywall->visitor_can_view_content( self::get_all_newsletter_plan_ids(), Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS );
+
+		self::$user_is_paid_subscriber_cache[ $user_id ] = $is_paid_subscriber;
+		return $is_paid_subscriber;
+	}
+
+	/**
+	 * Determines whether the current user can view the post based on the newsletter access level
+	 * and caches the result.
+	 *
+	 * @param int|null $post_id Explicit post id to check against.
+	 *
+	 * @return bool Whether the post can be viewed
+	 */
+	public static function user_can_view_post( $post_id = null ) {
+		$user_id = get_current_user_id();
+		if ( null === $post_id ) {
+			$post_id = get_the_ID();
+		}
 
 		if ( false === $post_id ) {
 			$post_id = 0;
@@ -524,8 +588,20 @@ class Jetpack_Memberships {
 		}
 
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-		$paywall       = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$can_view_post = $paywall->visitor_can_view_content( self::get_all_newsletter_plan_ids(), $post_access_level );
+		$paywall = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+
+		$all_newsletters_plan_ids = self::get_all_newsletter_plan_ids();
+
+		if ( 0 === count( $all_newsletters_plan_ids ) &&
+			Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS === $post_access_level ||
+			Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS === $post_access_level
+		) {
+			// The post is paywalled but there is no newsletter plans on the site.
+			// We downgrade the post level to subscribers-only
+			$post_access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
+		}
+
+		$can_view_post = $paywall->visitor_can_view_content( $all_newsletters_plan_ids, $post_access_level );
 
 		self::$user_can_view_post_cache[ $cache_key ] = $can_view_post;
 		return $can_view_post;
@@ -570,24 +646,74 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Return membership plans
+	 * Return the list of plan posts
 	 *
-	 * @return array
+	 * @return WP_Post[]|WP_Error
 	 */
-	public static function get_all_newsletter_plan_ids() {
+	public static function get_all_plans() {
 		if ( ! self::is_enabled_jetpack_recurring_payments() ) {
 			return array();
 		}
 
-		return get_posts(
-			array(
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-				'meta_value'     => true,
-				'post_type'      => self::$post_type_plan,
-				'meta_key'       => 'jetpack_memberships_site_subscriber',
-			)
-		);
+		// We can retrieve the data directly except on a Jetpack/Atomic cached site or
+		$is_cached_site = ( new Host() )->is_wpcom_simple() && is_jetpack_site();
+		if ( ! $is_cached_site ) {
+			return get_posts(
+				array(
+					'posts_per_page' => -1,
+					'post_type'      => self::$post_type_plan,
+				)
+			);
+		} else {
+			// On cached site on WPCOM
+			require_lib( 'memberships' );
+			return Memberships_Product::get_plans_posts_list( get_current_blog_id() );
+		}
+	}
+
+	/**
+	 * Return all membership plans ids (deleted or not)
+	 * This function is used both on WPCOM or on Jetpack self-hosted.
+	 * Depending on the environment we need to mitigate where the data is retrieved from.
+	 *
+	 * @return array
+	 */
+	public static function get_all_newsletter_plan_ids() {
+
+		if ( ! self::is_enabled_jetpack_recurring_payments() ) {
+			return array();
+		}
+
+		// We can retrieve the data directly except on a Jetpack/Atomic cached site or
+		$is_cached_site = ( new Host() )->is_wpcom_simple() && is_jetpack_site();
+		if ( ! $is_cached_site ) {
+			return get_posts(
+				array(
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'post_type'      => self::$post_type_plan,
+					'meta_key'       => 'jetpack_memberships_type',
+					'meta_value'     => self::$type_tier,
+				)
+			);
+
+		} else {
+			// On cached site on WPCOM
+			require_lib( 'memberships' );
+			$allow_deleted = true;
+			$list          = Memberships_Product::get_product_list( get_current_blog_id(), self::$type_tier, null, $allow_deleted );
+
+			if ( is_wp_error( $list ) ) {
+				return array();
+			}
+
+			return array_map(
+				function ( $product ) {
+					return $product['id'];
+				}, // Returning only post ids
+				$list
+			);
+		}
 	}
 
 	/**
@@ -636,15 +762,37 @@ class Jetpack_Memberships {
 	public static function get_join_others_text( $subscribers_total ) {
 		if ( $subscribers_total >= 1000000 ) {
 			/* translators: %s: number of folks following the blog, millions(M) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sM other subscribers', 'jetpack' ), number_format_i18n( $subscribers_total / 1000000, 1 ) );
+			return sprintf( __( 'Join %sM other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000000, 1 ) ) );
 		}
 		if ( $subscribers_total >= 10000 ) {
 			/* translators: %s: number of folks following the blog, thousands(K) with one decimal. i.e. 1.1 */
-			return sprintf( __( 'Join %sK other subscribers', 'jetpack' ), number_format_i18n( $subscribers_total / 1000, 1 ) );
+			return sprintf( __( 'Join %sK other subscribers', 'jetpack' ), floatval( number_format_i18n( $subscribers_total / 1000, 1 ) ) );
 		}
 
 		/* translators: %s: number of folks following the blog */
 		return sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
+	}
+
+	/**
+	 * Returns the email of the current user.
+	 *
+	 * @return string
+	 */
+	public static function get_current_user_email() {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		return $subscription_service->get_subscriber_email();
+	}
+
+	/**
+	 * Returns if the current user is subscribed or not.
+	 *
+	 * @return boolean
+	 */
+	public static function is_current_user_subscribed() {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		return $subscription_service->is_current_user_subscribed();
 	}
 }
 Jetpack_Memberships::get_instance();

@@ -110,16 +110,21 @@ function getReactComponentViewMapping() {
 
 const crmWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: false,
+	devtool: jetpackWebpackConfig.devtool,
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.resolve( __dirname, '.' ),
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
+		mangleExports: false,
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
+		alias: {
+			...jetpackWebpackConfig.resolve.alias,
+			crm: path.resolve( __dirname, 'src/js/' ),
+		}
 	},
 	node: false,
 	plugins: [

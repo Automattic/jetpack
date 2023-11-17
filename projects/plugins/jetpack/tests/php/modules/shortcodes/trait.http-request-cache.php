@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * Trait to cache HTTP requests for unit tests.
  *

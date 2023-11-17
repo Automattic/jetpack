@@ -11,11 +11,15 @@ concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}
   cancel-in-progress: true
 
+env:
+  # Work around a bug in node 18.18.0. See https://github.com/webpack-contrib/thread-loader/issues/191 for details.
+  UV_USE_IO_URING: 0
+
 jobs:
   create-test-matrix:
     name: "Determine tests matrix"
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5  # 2023-09-15: The pnpm install may take a few minutes on cache miss.
     # Only run tests in the main repository
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     outputs:
@@ -246,7 +250,7 @@ jobs:
           echo "TEST_SITE=${SITE}" >> $GITHUB_ENV
 
           # Wait for the site to pick up latest tag version (DISPATCH_REF_NAME)
-          TEST_SITE="${SITE}" node "$GITHUB_WORKSPACE/tools/e2e-commons/bin/update-beta-version.cjs" $DISPATCH_REF_TYPE $DISPATCH_REF_NAME
+          TEST_SITE="${SITE}" node "$GITHUB_WORKSPACE/tools/e2e-commons/bin/update-beta-version.js" $DISPATCH_REF_TYPE $DISPATCH_REF_NAME
 
       - name: Set up VIP site
         if: ${{ matrix.suite == 'vip' }}

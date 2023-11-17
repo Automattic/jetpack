@@ -22,14 +22,29 @@ const ConnectScreenVisual = props => {
 		buttonLabel,
 		handleButtonClick,
 		displayButtonError,
+		errorCode,
 		buttonIsLoading,
 		footer,
 		isOfflineMode,
 		logo,
 	} = props;
 
-	const errorMessage = isOfflineMode
-		? createInterpolateElement( __( 'Unavailable in <a>Offline Mode</a>', 'jetpack' ), {
+	const getErrorMessage = () => {
+		// Explicit error code takes precedence over the offline mode.
+		switch ( errorCode ) {
+			case 'fail_domain_forbidden':
+			case 'fail_ip_forbidden':
+			case 'fail_domain_tld':
+			case 'fail_subdomain_wpcom':
+			case 'siteurl_private_ip':
+				return __(
+					'Your site host is on a private network. Jetpack can only connect to public sites.',
+					'jetpack'
+				);
+		}
+
+		if ( isOfflineMode ) {
+			return createInterpolateElement( __( 'Unavailable in <a>Offline Mode</a>', 'jetpack' ), {
 				a: (
 					<a
 						href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
@@ -37,8 +52,11 @@ const ConnectScreenVisual = props => {
 						rel="noopener noreferrer"
 					/>
 				),
-		  } )
-		: undefined;
+			} );
+		}
+	};
+
+	const errorMessage = getErrorMessage( errorCode, isOfflineMode );
 
 	return (
 		<ConnectScreenLayout
@@ -87,6 +105,8 @@ ConnectScreenVisual.propTypes = {
 	handleButtonClick: PropTypes.func,
 	/** Whether the error message appears or not. */
 	displayButtonError: PropTypes.bool,
+	/** The connection error code. */
+	errorCode: PropTypes.string,
 	/** Whether the button is loading or not. */
 	buttonIsLoading: PropTypes.bool,
 	/** Node that will be rendered after ToS */
@@ -101,6 +121,7 @@ ConnectScreenVisual.defaultProps = {
 	isLoading: false,
 	buttonIsLoading: false,
 	displayButtonError: false,
+	errorCode: null,
 	handleButtonClick: () => {},
 	footer: null,
 	isOfflineMode: false,

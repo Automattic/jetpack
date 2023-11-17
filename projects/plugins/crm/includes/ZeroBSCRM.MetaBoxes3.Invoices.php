@@ -437,7 +437,6 @@ class zeroBS__Metabox_Invoice extends zeroBS__Metabox {
 		$zbs->pageMessages[] = $msg;
 
 	}
-
 }
 
 
@@ -733,7 +732,6 @@ class zeroBS__Metabox_InvoiceTags extends zeroBS__Metabox_Tags{
     }
 
     // html + save dealt with by parent class :) 
-
 }
 
 /* ======================================================
@@ -856,5 +854,4 @@ class zeroBS__Metabox_InvoiceTags extends zeroBS__Metabox_Tags{
         }
 
         // saved via main metabox
-
     }

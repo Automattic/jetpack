@@ -51,8 +51,7 @@ class Jetpack_Social {
 			_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-social' ),
 			'manage_options',
 			'jetpack-social',
-			array( $this, 'plugin_settings_page' ),
-			99
+			array( $this, 'plugin_settings_page' )
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
@@ -242,8 +241,7 @@ class Jetpack_Social {
 						'showNudge'                      => ! $publicize->has_paid_plan( true ),
 						'isEnhancedPublishingEnabled'    => $publicize->has_enhanced_publishing_feature(),
 						'dismissedNotices'               => $publicize->get_dismissed_notices(),
-						'isInstagramConnectionSupported' => $publicize->has_instagram_connection_feature(),
-						'isMastodonConnectionSupported'  => $publicize->has_mastodon_connection_feature(),
+						'supportedAdditionalConnections' => $publicize->get_supported_additional_connections(),
 					),
 					'connectionData'               => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
@@ -351,8 +349,8 @@ class Jetpack_Social {
 						'image'     => $auto_conversion_settings->is_enabled( 'image' ),
 					),
 					'dismissedNotices'                => $publicize->get_dismissed_notices(),
-					'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
-					'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
+					'isNextdoorConnectionSupported'   => $publicize->has_nextdoor_connection_feature(),
+					'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
 				),
 			)
 		);

@@ -72,8 +72,6 @@ for PROJECT in projects/*; do
 	fi
 done
 
-ROOT_PACKAGE_JSON_ENGINES="$(jq '.engines | .pnpm |= empty' package.json)"
-
 for PROJECT in projects/*/*; do
 	SLUG="${PROJECT#projects/}"
 	TYPE="${SLUG%/*}"
@@ -95,25 +93,6 @@ for PROJECT in projects/*/*; do
 	if [[ "$TYPE" == "packages" && "$(git check-attr export-ignore -- $PROJECT/.github/)" != *": export-ignore: set" ]]; then
 		EXIT=1
 		echo "::error file=$PROJECT/.gitattributes::$PROJECT/.github/ should have git attribute export-ignore."
-	fi
-
-	# - package.json engines should match monorepo root package.json engines
-	if [[ -e "$PROJECT/package.json" ]]; then
-		PACKAGE_JSON_ENGINES="$(jq '.engines' "$PROJECT/package.json")"
-		if [[ "$PACKAGE_JSON_ENGINES" != "$ROOT_PACKAGE_JSON_ENGINES" ]]; then
-			EXIT=1
-			LINE=$(jq --stream --arg obj "$PACKAGE_JSON_ENGINES" 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines"] then input_line_number - ( $obj | gsub( "[^\n]"; "" ) | length ) else empty end' "$PROJECT/package.json")
-			if [[ -n "$LINE" ]]; then
-				echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-				echo "::error file=$PROJECT/package.json,line=$LINE::Engines must match those in the monorepo root package.json (but omitting \"pnpm\").%0A  \"engines\": ${ROOT_PACKAGE_JSON_ENGINES//$'\n'/%0A  }"
-				echo "---"
-			else
-				LINE=$(wc -l < "$PROJECT/package.json")
-				echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-				echo "::error file=$PROJECT/package.json,line=$LINE::Engines must be specified, matching those in the monorepo root package.json (but omitting \"pnpm\").%0A  \"engines\": ${ROOT_PACKAGE_JSON_ENGINES//$'\n'/%0A  }"
-				echo "---"
-			fi
-		fi
 	fi
 
 	# - package.json for js modules should look like a library to renovate.
@@ -198,6 +177,14 @@ for PROJECT in projects/*/*; do
 			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","directory"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
 			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.directory\` to point to the project's path within the monorepo, i.e. \"$PROJECT\"."
 		fi
+	fi
+
+	# Should have only one of jsconfig.json or tsconfig.json.
+	# @todo Having neither is ok in some cases. Can we determine when one is needed to flag that it should be added?
+	if [[ -e "$PROJECT/jsconfig.json" && -e "$PROJECT/tsconfig.json" ]]; then
+		EXIT=1
+		echo "::error file=$PROJECT/jsconfig.json::The project should have either jsconfig.json or tsconfig.json, not both. Keep tsconfig if the project uses TypeScript, or jsconfig if the project is JS-only."
+		echo "::error file=$PROJECT/tsconfig.json::The project should have either jsconfig.json or tsconfig.json, not both. Keep tsconfig if the project uses TypeScript, or jsconfig if the project is JS-only."
 	fi
 
 	# - composer.json must exist.
@@ -313,6 +300,11 @@ for PROJECT in projects/*/*; do
 			echo "---" # Bracket message containing newlines for better visibility in GH's logs.
 			echo "::error file=$PROJECT/package.json::Package $SLUG is published to npmjs but does not specify \`.bugs.url\`.%0A\`\`\`%0A\"bugs\": ${JSON//$'\n'/%0A},%0A\`\`\`"
 			echo "---"
+		fi
+		if jq -e '.private' "$PROJECT/package.json" >/dev/null; then
+			EXIT=1
+			LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["private"] then input_line_number else empty end' "$PROJECT/package.json" | head -n 1)
+			echo "::error file=$PROJECT/package.json,line=$LINE::Package $SLUG is published to npmjs but is marked as private."
 		fi
 
 		for WHICH in dependencies peerDependencies; do

@@ -37,5 +37,4 @@ interface DummyPlugin {
 	 * @param OutputInterface $output OutputInterface.
 	 */
 	public function setIO( InputInterface $input, OutputInterface $output );
-
 }

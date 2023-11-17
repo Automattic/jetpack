@@ -180,5 +180,4 @@ class Table_Checksum_Users extends Table_Checksum {
 
 		return $result;
 	}
-
 }

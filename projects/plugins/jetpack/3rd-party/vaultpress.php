@@ -25,7 +25,7 @@ function jetpack_vaultpress_rewind_enabled_notice() {
 		<p>
 			<?php esc_html_e( 'VaultPress is no longer needed and has been deactivated.', 'jetpack' ); ?>
 			<?php
-				echo sprintf(
+				printf(
 					wp_kses(
 						/* Translators: first variable is the full URL to the new dashboard */
 						__( 'You can access your backups at <a href="%s" target="_blank" rel="noopener noreferrer">this dashboard</a>.', 'jetpack' ),

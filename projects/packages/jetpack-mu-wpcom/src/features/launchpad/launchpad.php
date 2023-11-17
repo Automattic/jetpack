@@ -14,6 +14,7 @@
  * @since 1.4.0
  */
 
+require_once __DIR__ . '/../../utils.php';
 require_once __DIR__ . '/class-launchpad-task-lists.php';
 require_once __DIR__ . '/launchpad-task-definitions.php';
 
@@ -27,6 +28,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'build'                  => array(
 			'title'               => 'Build',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'setup_general',
 				'design_selected',
 				'plan_selected',
@@ -39,6 +41,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'free'                   => array(
 			'title'               => 'Free',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'plan_selected',
 				'setup_free',
 				'design_selected',
@@ -52,6 +55,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'link-in-bio'            => array(
 			'title'               => 'Link In Bio',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'design_selected',
 				'setup_link_in_bio',
 				'plan_selected',
@@ -63,6 +67,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'link-in-bio-tld'        => array(
 			'title'               => 'Link In Bio',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'design_selected',
 				'setup_link_in_bio',
 				'plan_selected',
@@ -88,6 +93,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'videopress'             => array(
 			'title'               => 'Videopress',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'videopress_setup',
 				'plan_selected',
 				'videopress_upload',
@@ -98,6 +104,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'write'                  => array(
 			'title'               => 'Write',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'setup_write',
 				'design_selected',
 				'plan_selected',
@@ -109,6 +116,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'start-writing'          => array(
 			'title'               => 'Start Writing',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'first_post_published',
 				'setup_blog',
 				'domain_upsell',
@@ -120,6 +128,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'design-first'           => array(
 			'title'               => 'Pick a Design',
 			'task_ids'            => array(
+				'verify_domain_email',
 				'design_completed',
 				'setup_blog',
 				'domain_upsell',
@@ -181,6 +190,34 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'add_about_page',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_paid_newsletter_enabled',
+		),
+		'earn'                   => array(
+			'title'               => 'Earn',
+			'task_ids'            => array(
+				'stripe_connected',
+				'paid_offer_created',
+			),
+			'is_enabled_callback' => '__return_true',
+		),
+		'host-site'              => array(
+			'title'               => 'Hosting Flow',
+			'task_ids'            => array(
+				'site_theme_selected',
+				'install_custom_plugin',
+				'setup_ssh',
+				'verify_email',
+				'site_monitoring_page',
+				'site_launched',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_is_hosting_flow_enabled',
+		),
+		'subscribers'            => array(
+			'title'    => 'Subscribers',
+			'task_ids' => array(
+				'import_subscribers',
+				'add_subscribe_block',
+				'share_site',
+			),
 		),
 	);
 
@@ -728,6 +765,49 @@ function wpcom_launchpad_navigator_update_checklists( $new_checklists ) {
 }
 
 /**
+ * Removes a checklist from the list of checklists that are currently available for the navigator.
+ *
+ * @param string $checklist_slug The slug of the checklist to remove.
+ * @return array Array with two values: whether the option update succeeded, and the new active checklist slug.
+ */
+function wpcom_launchpad_navigator_remove_checklist( $checklist_slug ) {
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+
+	if ( ! isset( $wpcom_launchpad_config['navigator_checklists'] ) ) {
+		return array(
+			'updated'              => false,
+			'new_active_checklist' => null,
+		);
+	}
+
+	$current_active_checklist = wpcom_launchpad_get_active_checklist();
+
+	$checklists = $wpcom_launchpad_config['navigator_checklists'];
+	// Find if $checklist_slug is in the checklists array. If it is, remove it.
+	$key = array_search( $checklist_slug, $checklists, true );
+	if ( $key === false ) {
+		return array(
+			'updated'              => false,
+			'new_active_checklist' => $current_active_checklist,
+		);
+	}
+
+	unset( $checklists[ $key ] );
+
+	$new_active_checklist = $current_active_checklist;
+	if ( $current_active_checklist === $checklist_slug ) {
+		// get last item on $checklists array, if there is one; otherwise set to null
+		$new_active_checklist = end( $checklists ) ? end( $checklists ) : null;
+		wpcom_launchpad_set_current_active_checklist( $new_active_checklist );
+	}
+
+	return array(
+		'updated'              => wpcom_launchpad_navigator_update_checklists( $checklists ),
+		'new_active_checklist' => $new_active_checklist,
+	);
+}
+
+/**
  * Adds a new checklist to the list of checklists that are currently available for the navigator.
  *
  * @param string $new_checklist_slug The slug of the launchpad task list to add.
@@ -824,6 +904,15 @@ function wpcom_launchpad_is_keep_building_enabled() {
 	}
 
 	return false;
+}
+
+/**
+ * Checks if the hosting flow task list is enabled.
+ *
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_launchpad_is_hosting_flow_enabled() {
+	return apply_filters( 'is_launchpad_intent_hosting_enabled', false );
 }
 
 /**

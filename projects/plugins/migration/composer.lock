@@ -183,7 +183,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "0770a6f80877d30c1d1767d4395af6e17f8768be"
+                "reference": "034c5ee91cce3ce330103056adb2157aa9bb3f24"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -200,8 +200,11 @@
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-autoloader/compare/v${old}...v${new}"
                 },
+                "version-constants": {
+                    "::VERSION": "src/AutoloadGenerator.php"
+                },
                 "branch-alias": {
-                    "dev-trunk": "2.11.x-dev"
+                    "dev-trunk": "2.12.x-dev"
                 }
             },
             "autoload": {
@@ -422,7 +425,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "3e9d40adbe49f562b5b22ce9b463a00196a61f00"
+                "reference": "77832a49749a4587e9eb6793a058ab360c83930c"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -453,7 +456,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.57.x-dev"
+                    "dev-trunk": "1.60.x-dev"
                 }
             },
             "autoload": {
@@ -545,7 +548,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "fef1f53b844143c5358061d969d7472bb321af18"
+                "reference": "fd0107efb4a3e0f3c2d37c6955a1c83b172e1499"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -562,7 +565,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-device-detection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.4.x-dev"
+                    "dev-trunk": "1.5.x-dev"
                 }
             },
             "autoload": {
@@ -592,7 +595,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "bdb1408d3bb21f92d0d920bc6c7fa417238af18f"
+                "reference": "ca590c3fe1ae0c9fe2f645e4a48e19080a7f6aff"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -621,7 +624,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.10.x-dev"
+                    "dev-trunk": "0.11.x-dev"
                 }
             },
             "autoload": {
@@ -719,7 +722,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "3b5f4e2030b1dd42dfc17a85a457da86a124b208"
+                "reference": "e13900c78f3b7dfc0ed2ecede10c8ddcc9a5fd4d"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -727,7 +730,6 @@
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-device-detection": "@dev",
                 "automattic/jetpack-logo": "@dev",
-                "automattic/jetpack-partner": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev"
             },
@@ -751,7 +753,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.3.x-dev"
+                    "dev-trunk": "2.6.x-dev"
                 }
             },
             "autoload": {
@@ -896,7 +898,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "8c7e56e6c97632cf8fff1285acff16362892e0ac"
+                "reference": "3eb2f21243cf091284e6a9f9819be6a62230057a"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -905,6 +907,7 @@
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-jitm": "@dev",
                 "automattic/jetpack-licensing": "@dev",
+                "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-plugins-installer": "@dev",
                 "automattic/jetpack-redirect": "@dev"
             },
@@ -926,7 +929,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.4.x-dev"
+                    "dev-trunk": "3.13.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -973,65 +976,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-partner",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/partner",
-                "reference": "617ebd443fc95dbd3e907b463eed621506da8e31"
-            },
-            "require": {
-                "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-status": "@dev"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "@dev",
-                "brain/monkey": "2.6.1",
-                "yoast/phpunit-polyfills": "1.1.0"
-            },
-            "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-partner",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-partner/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-trunk": "1.7.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "post-install-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
-                ],
-                "post-update-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Support functions for Jetpack hosting partners.",
             "transport-options": {
                 "relative": true
             }
@@ -1087,6 +1031,70 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Password Checker.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-plans",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/plans",
+                "reference": "86261db42c82c72b7e452d58f7f87e688166ebf4"
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "automattic/wordbless": "@dev",
+                "yoast/phpunit-polyfills": "1.1.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-plans",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.3.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Fetch information about Jetpack Plans from wpcom",
             "transport-options": {
                 "relative": true
             }
@@ -1247,7 +1255,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "f7cb46ce4ddb975b79fd27163da1a908888322d6"
+                "reference": "cdefb1a0342cba4a8368ecc6278f5d85aeab8197"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -1269,7 +1277,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.18.x-dev"
+                    "dev-trunk": "1.19.x-dev"
                 }
             },
             "autoload": {
@@ -1299,7 +1307,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "13867202a8d95960f5afa3e16324d8e42eac735a"
+                "reference": "421bbdeb621e9370537399dbfe037cd12bf07d6f"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1330,7 +1338,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.57.x-dev"
+                    "dev-trunk": "1.60.x-dev"
                 }
             },
             "autoload": {
@@ -1780,16 +1788,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "9.2.27",
+            "version": "9.2.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "b0a88255cb70d52653d80c890bd7f38740ea50d1"
+                "reference": "6a3a87ac2bbe33b25042753df8195ba4aa534c76"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/b0a88255cb70d52653d80c890bd7f38740ea50d1",
-                "reference": "b0a88255cb70d52653d80c890bd7f38740ea50d1",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/6a3a87ac2bbe33b25042753df8195ba4aa534c76",
+                "reference": "6a3a87ac2bbe33b25042753df8195ba4aa534c76",
                 "shasum": ""
             },
             "require": {
@@ -1846,7 +1854,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
                 "security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.27"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.29"
             },
             "funding": [
                 {
@@ -1854,7 +1862,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-07-26T13:44:30+00:00"
+            "time": "2023-09-19T04:57:46+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -2099,16 +2107,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.6.11",
+            "version": "9.6.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "810500e92855eba8a7a5319ae913be2da6f957b0"
+                "reference": "f3d767f7f9e191eab4189abe41ab37797e30b1be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/810500e92855eba8a7a5319ae913be2da6f957b0",
-                "reference": "810500e92855eba8a7a5319ae913be2da6f957b0",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/f3d767f7f9e191eab4189abe41ab37797e30b1be",
+                "reference": "f3d767f7f9e191eab4189abe41ab37797e30b1be",
                 "shasum": ""
             },
             "require": {
@@ -2123,7 +2131,7 @@
                 "phar-io/manifest": "^2.0.3",
                 "phar-io/version": "^3.0.2",
                 "php": ">=7.3",
-                "phpunit/php-code-coverage": "^9.2.13",
+                "phpunit/php-code-coverage": "^9.2.28",
                 "phpunit/php-file-iterator": "^3.0.5",
                 "phpunit/php-invoker": "^3.1.1",
                 "phpunit/php-text-template": "^2.0.3",
@@ -2182,7 +2190,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.11"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.13"
             },
             "funding": [
                 {
@@ -2198,7 +2206,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-08-19T07:10:56+00:00"
+            "time": "2023-09-19T05:39:22+00:00"
         },
         {
             "name": "psr/container",
@@ -2255,7 +2263,7 @@
         },
         {
             "name": "roots/wordpress",
-            "version": "6.3.1",
+            "version": "6.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/roots/wordpress.git",
@@ -2286,7 +2294,7 @@
             ],
             "support": {
                 "issues": "https://github.com/roots/wordpress/issues",
-                "source": "https://github.com/roots/wordpress/tree/6.3.1"
+                "source": "https://github.com/roots/wordpress/tree/6.4.1"
             },
             "funding": [
                 {
@@ -2369,22 +2377,22 @@
         },
         {
             "name": "roots/wordpress-no-content",
-            "version": "6.3.1",
+            "version": "6.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress/WordPress.git",
-                "reference": "6.3.1"
+                "reference": "6.4.1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/release/wordpress-6.3.1-no-content.zip",
-                "shasum": "102bc5e48d9372f1a71fbb133270e113af2363e3"
+                "url": "https://downloads.wordpress.org/release/wordpress-6.4.1-no-content.zip",
+                "shasum": "eb9d263b8ca8f087086dd41439d02900c5f66f99"
             },
             "require": {
                 "php": ">= 7.0.0"
             },
             "provide": {
-                "wordpress/core-implementation": "6.3.1"
+                "wordpress/core-implementation": "6.4.1"
             },
             "suggest": {
                 "ext-curl": "Performs remote request operations.",
@@ -2435,7 +2443,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2023-08-29T14:23:47+00:00"
+            "time": "2023-11-09T01:14:36+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -3403,16 +3411,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v6.3.4",
+            "version": "v6.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "eca495f2ee845130855ddf1cf18460c38966c8b6"
+                "reference": "0d14a9f6d04d4ac38a8cea1171f4554e325dae92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/eca495f2ee845130855ddf1cf18460c38966c8b6",
-                "reference": "eca495f2ee845130855ddf1cf18460c38966c8b6",
+                "url": "https://api.github.com/repos/symfony/console/zipball/0d14a9f6d04d4ac38a8cea1171f4554e325dae92",
+                "reference": "0d14a9f6d04d4ac38a8cea1171f4554e325dae92",
                 "shasum": ""
             },
             "require": {
@@ -3473,7 +3481,7 @@
                 "terminal"
             ],
             "support": {
-                "source": "https://github.com/symfony/console/tree/v6.3.4"
+                "source": "https://github.com/symfony/console/tree/v6.3.8"
             },
             "funding": [
                 {
@@ -3489,7 +3497,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-08-16T10:10:12+00:00"
+            "time": "2023-10-31T08:09:35+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -4033,16 +4041,16 @@
         },
         {
             "name": "symfony/string",
-            "version": "v6.3.2",
+            "version": "v6.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/string.git",
-                "reference": "53d1a83225002635bca3482fcbf963001313fb68"
+                "reference": "13880a87790c76ef994c91e87efb96134522577a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/string/zipball/53d1a83225002635bca3482fcbf963001313fb68",
-                "reference": "53d1a83225002635bca3482fcbf963001313fb68",
+                "url": "https://api.github.com/repos/symfony/string/zipball/13880a87790c76ef994c91e87efb96134522577a",
+                "reference": "13880a87790c76ef994c91e87efb96134522577a",
                 "shasum": ""
             },
             "require": {
@@ -4099,7 +4107,7 @@
                 "utf8"
             ],
             "support": {
-                "source": "https://github.com/symfony/string/tree/v6.3.2"
+                "source": "https://github.com/symfony/string/tree/v6.3.8"
             },
             "funding": [
                 {
@@ -4115,7 +4123,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-07-05T08:41:27+00:00"
+            "time": "2023-11-09T08:28:21+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -4302,5 +4310,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }

@@ -772,5 +772,4 @@ class Error_Handler {
 
 		$this->report_error( $error, false, true );
 	}
-
 }

@@ -1,23 +1,10 @@
 import { createBlock } from '@wordpress/blocks';
+import PlaceholderSiteIcon from './placeholder-site-icon.svg';
 
 export function createBlockFromRecommendation( attrs ) {
-	const { icon } = attrs;
-
 	return createBlock( 'jetpack/blogroll-item', {
 		...attrs,
-		icon: getSiteIconOrPlaceholder( icon ),
 	} );
-}
-
-function getSiteIconOrPlaceholder( site_icon ) {
-	if ( ! site_icon ) {
-		return (
-			'data:image/svg+xml;base64,' +
-			btoa( '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"></svg>' )
-		);
-	}
-
-	return site_icon;
 }
 
 export function createBlockFromSubscription( subscription ) {
@@ -30,4 +17,29 @@ export function createBlockFromSubscription( subscription ) {
 		name,
 		description,
 	} );
+}
+
+export function getValidDomain( siteURL ) {
+	if ( ! siteURL ) {
+		return null;
+	}
+
+	const pattern = new RegExp(
+		'^([a-zA-Z]+:\\/\\/)?' + // protocol
+			'((([a-z\\d]([a-z\\d-]*[a-z\\d])?)\\.)+[a-z]{2,})', // domain name
+		'i'
+	);
+
+	try {
+		return new URL( siteURL )?.host;
+	} catch ( e ) {
+		return siteURL.match( pattern )?.[ 2 ] ?? null;
+	}
+}
+
+export function getSiteIcon( siteIconURL ) {
+	if ( ! siteIconURL ) {
+		return PlaceholderSiteIcon;
+	}
+	return siteIconURL;
 }

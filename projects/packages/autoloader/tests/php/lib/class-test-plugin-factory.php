@@ -5,8 +5,6 @@
  * @package automattic/jetpack-autoloader
  */
 
-// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
-
 /**
  * Class Test_Plugin_Factory
  */
@@ -25,7 +23,7 @@ class Test_Plugin_Factory {
 	/**
 	 * A constant for the autoloader version of a current plugin.
 	 */
-	const VERSION_CURRENT = '1000.0.0.0';
+	const VERSION_CURRENT = \Automattic\Jetpack\Autoloader\AutoloadGenerator::VERSION;
 
 	/**
 	 * Indicates whether or not the plugin is an mu-plugin.
@@ -460,7 +458,7 @@ class Test_Plugin_Factory {
 		}
 
 		// We can finally execute Composer now that we're ready.
-		putenv( 'COMPOSER_HOME=' . TEST_TEMP_BIN_DIR ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv
+		putenv( 'COMPOSER_HOME=' . TEST_TEMP_BIN_DIR );
 		exec( 'php ' . escapeshellarg( $composer_bin ) . ' install -q -d ' . escapeshellarg( $plugin_dir ) );
 		if ( ! is_file( $plugin_dir . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php' ) ) {
 			throw new \RuntimeException( 'Unable to execute the `' . $composer_bin . '` archive for tests.' );
@@ -499,7 +497,7 @@ class Test_Plugin_Factory {
 
 		$empty_directories    = array();
 		$directories_to_empty = array( $dir );
-		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 		while ( null !== ( $dir = array_shift( $directories_to_empty ) ) ) {
 			$paths = scandir( $dir );
 			foreach ( $paths as $path ) {

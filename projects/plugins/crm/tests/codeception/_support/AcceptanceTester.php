@@ -30,7 +30,7 @@ class AcceptanceTester extends \Codeception\Actor {
 		'quotes'       => 'manage-quotes',
 		'invoices'     => 'manage-invoices',
 		'transactions' => 'manage-transactions',
-		'events'       => 'manage-events',
+		'tasks'        => 'manage-tasks',
 		'settings'     => 'zerobscrm-plugin-settings',
 		'extensions'   => 'zerobscrm-extensions',
 		'add-edit'     => 'zbs-add-edit',
@@ -39,5 +39,4 @@ class AcceptanceTester extends \Codeception\Actor {
 	public function gotoAdminPage( $page_name, $query = '' ) {
 		$this->amOnAdminPage( 'admin.php?page=' . $this->pages[ $page_name ] . $query );
 	}
-
 }

@@ -174,7 +174,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 * Checks if a given request has access to external media libraries.
 	 */
 	public function permission_callback() {
-		return current_user_can( 'edit_posts' );
+		return current_user_can( 'upload_files' );
 	}
 
 	/**

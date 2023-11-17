@@ -1384,14 +1384,15 @@ class Nova_Restaurant {
 	 * @return array
 	 */
 	public function get_menus( $args = array() ) {
-		$args = wp_parse_args(
+		$args             = wp_parse_args(
 			$args,
 			array(
 				'hide_empty' => false,
 			)
 		);
+		$args['taxonomy'] = self::MENU_TAX;
 
-		$terms = get_terms( self::MENU_TAX, $args );
+		$terms = get_terms( $args );
 		if ( ! $terms || is_wp_error( $terms ) ) {
 			return array();
 		}

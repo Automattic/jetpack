@@ -31,7 +31,6 @@ const useSuggestionsFromOpenAI = ( {
 	onSuggestionDone,
 	onUnclearPrompt,
 	onModeration,
-	refreshFeatureData,
 	requireUpgrade,
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
@@ -40,6 +39,8 @@ const useSuggestionsFromOpenAI = ( {
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ lastPrompt, setLastPrompt ] = useState( '' );
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
+	const { dequeueAiAssistantFeatureAyncRequest, setAiAssistantFeatureRequireUpgrade } =
+		useDispatch( 'wordpress-com/plans' );
 	const [ requestingState, setRequestingState ] = useState( 'init' );
 	const source = useRef();
 
@@ -119,6 +120,13 @@ const useSuggestionsFromOpenAI = ( {
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
 	const getStreamedSuggestionFromOpenAI = async ( type, options = {} ) => {
+		/*
+		 * Always dequeue/cancel the AI Assistant feature async request,
+		 * in case there is one pending,
+		 * when performing a new AI suggestion request.
+		 */
+		dequeueAiAssistantFeatureAyncRequest();
+
 		const implementedFunctions = options?.functions?.reduce( ( acc, { name, implementation } ) => {
 			return {
 				...acc,
@@ -140,6 +148,9 @@ const useSuggestionsFromOpenAI = ( {
 				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
 				status: 'info',
 			} );
+
+			// Dispatch the action to set the feature as requiring an upgrade.
+			setAiAssistantFeatureRequireUpgrade( true );
 
 			return;
 		}
@@ -270,6 +281,7 @@ const useSuggestionsFromOpenAI = ( {
 			source?.current?.removeEventListener( 'done', onDone );
 			source?.current?.removeEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
 			source?.current?.removeEventListener( 'error_network', onErrorNetwork );
+			source?.current?.removeEventListener( 'error_context_too_large', onErrorContextTooLarge );
 			source?.current?.removeEventListener(
 				'error_service_unavailable',
 				onErrorServiceUnavailable
@@ -290,6 +302,7 @@ const useSuggestionsFromOpenAI = ( {
 			source?.current?.addEventListener( 'done', onDone );
 			source?.current?.addEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
 			source?.current?.addEventListener( 'error_network', onErrorNetwork );
+			source?.current?.addEventListener( 'error_context_too_large', onErrorContextTooLarge );
 			source?.current?.addEventListener( 'error_service_unavailable', onErrorServiceUnavailable );
 			source?.current?.addEventListener( 'error_quota_exceeded', onErrorQuotaExceeded );
 			source?.current?.addEventListener( 'error_moderation', onErrorModeration );
@@ -342,8 +355,6 @@ const useSuggestionsFromOpenAI = ( {
 			const blocks = parse( detail );
 			const validBlocks = blocks.filter( block => block.isValid );
 			replaceInnerBlocks( clientId, validBlocks );
-
-			refreshFeatureData();
 		};
 
 		const onErrorUnclearPrompt = () => {
@@ -357,6 +368,22 @@ const useSuggestionsFromOpenAI = ( {
 				status: 'info',
 			} );
 			onUnclearPrompt?.();
+		};
+
+		const onErrorContextTooLarge = () => {
+			setRequestingState( 'error' );
+			source?.current?.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( false );
+			setError( {
+				code: 'error_context_too_large',
+				message: __(
+					'The content is too large to be processed all at once. Please try to shorten it or divide it into smaller parts.',
+					'jetpack'
+				),
+				status: 'info',
+			} );
 		};
 
 		const onErrorNetwork = ( { detail: error } ) => {
@@ -376,7 +403,7 @@ const useSuggestionsFromOpenAI = ( {
 
 				/*
 				 * Update the last prompt with the new messages.
-				 * @todo: Iterate over Prompt libraru to address properly the messages.
+				 * @todo: Iterate over Prompt library to address properly the messages.
 				 */
 				prompt = buildPromptForBlock( {
 					generatedContent: content,
@@ -427,6 +454,10 @@ const useSuggestionsFromOpenAI = ( {
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( false );
+
+			// Dispatch the action to set the feature as requiring an upgrade.
+			setAiAssistantFeatureRequireUpgrade( true );
+
 			setError( {
 				code: 'error_quota_exceeded',
 				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
@@ -479,6 +510,7 @@ const useSuggestionsFromOpenAI = ( {
 		source?.current?.addEventListener( 'done', onDone );
 		source?.current?.addEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
 		source?.current?.addEventListener( 'error_network', onErrorNetwork );
+		source?.current?.addEventListener( 'error_context_too_large', onErrorContextTooLarge );
 		source?.current?.addEventListener( 'error_service_unavailable', onErrorServiceUnavailable );
 		source?.current?.addEventListener( 'error_quota_exceeded', onErrorQuotaExceeded );
 		source?.current?.addEventListener( 'error_moderation', onErrorModeration );

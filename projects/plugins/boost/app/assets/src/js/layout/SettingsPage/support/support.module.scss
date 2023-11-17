@@ -1,0 +1,13 @@
+.support {
+	display: grid;
+	grid-template-columns: auto auto;
+	align-items: center;
+}
+
+.title {
+	margin-bottom: 24px !important; // @todo - use variable $halfling
+}
+
+.cta {
+	text-align: right;
+}

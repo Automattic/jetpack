@@ -219,7 +219,7 @@ class zeroBSCRM_Delete{
 
                                 break;
 
-                            case ZBS_TYPE_EVENT:
+                            case ZBS_TYPE_TASK:
 
                                 // for now always kill links
                                 $saveOrphans = false;
@@ -498,5 +498,4 @@ class zeroBSCRM_Delete{
                     echo "var zbscrmjs_secToken = '" . esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ) . "';"; ?></script><?php
 
     } // /draw func
-
 } // class

@@ -121,5 +121,4 @@ class Uploader_Rest_Endpoints {
 			);
 		}
 	}
-
 }

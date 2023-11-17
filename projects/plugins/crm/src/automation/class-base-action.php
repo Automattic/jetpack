@@ -3,7 +3,7 @@
  * Base Action implementation
  *
  * @package automattic/jetpack-crm
- * @since $$next-version$$
+ * @since 6.2.0
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\CRM\Automation;
 /**
  * Base Action Step.
  *
- * @since $$next-version$$
+ * @since 6.2.0
  * {@inheritDoc}
  */
 abstract class Base_Action extends Base_Step implements Action {

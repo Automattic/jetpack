@@ -115,4 +115,3 @@ class VideoPress_Divi_Module extends ET_Builder_Module {
 		return $format_string;
 	}
 }
-

@@ -73,5 +73,3 @@ if ( ! function_exists( 'wp_unslash' ) ) {
 		return $value;
 	}
 }
-
-

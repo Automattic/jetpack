@@ -4,7 +4,10 @@ namespace Automattic\Jetpack\CRM\Automation\Tests\Mocks;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type;
+use Automattic\Jetpack\CRM\Entities\Contact;
+use Automattic\Jetpack\CRM\Entities\Factories\Contact_Factory;
 
 class Contact_Condition extends Base_Condition {
 
@@ -90,13 +93,24 @@ class Contact_Condition extends Base_Condition {
 	/**
 	 * Execute the step
 	 *
-	 * @param mixed  $data Data passed from the trigger.
-	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 * @param Data_Type $data_type Data passed from the trigger.
 	 * @return void
 	 *
 	 * @throws Automation_Exception
 	 */
-	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function execute( Data_Type $data_type ): void { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
+		if ( ! $data_type instanceof Contact_Data ) {
+			$this->logger->log( 'Invalid data type' );
+			$this->condition_met = false;
+			return;
+		}
+
+		/** @var Contact $contact */
+		$contact = $data_type->get_data();
+
+		$data = Contact_Factory::tidy_data( $contact );
+
 		if ( ! $this->is_valid_contact_data( $data ) ) {
 			$this->logger->log( 'Invalid contact data' );
 			$this->condition_met = false;
@@ -139,14 +153,10 @@ class Contact_Condition extends Base_Condition {
 	}
 
 	public static function get_data_type(): string {
-		return Data_Type_Contact::get_slug();
+		return Contact_Data::class;
 	}
 
 	public static function get_category(): ?string {
 		return 'testing';
-	}
-
-	public static function get_allowed_triggers(): ?array {
-		return array( 'jpcrm/contact_created' );
 	}
 }

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
@@ -157,4 +158,13 @@ class Videopress extends Hybrid_Product {
 		}
 	}
 
+	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		// using second argument `true` to force fetching from wpcom
+		return Current_Plan::supports( 'videopress-1tb-storage', true );
+	}
 }
