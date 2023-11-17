@@ -59,15 +59,34 @@ export function getScheduledSharesCount( state: SocialStoreState ) {
 	return state.sharesData?.to_be_publicized_count ?? 0;
 }
 
+export type TotalSharesCountOptions = {
+	/**
+	 * Whether to include active connections
+	 */
+	includeActiveConnections?: boolean;
+};
+
 /**
  * Returns the total number of shares used and scheduled.
  *
  * @param {SocialStoreState} state - Global state tree
+ * @param {TotalSharesCountOptions} options - Options
  *
  * @returns {number} Total number of shares used and scheduled
  */
-export function getTotalSharesCount( state: SocialStoreState ) {
-	return getSharesUsedCount( state ) + getScheduledSharesCount( state );
+export function getTotalSharesCount(
+	state: SocialStoreState,
+	options: TotalSharesCountOptions = {}
+) {
+	const count = getSharesUsedCount( state ) + getScheduledSharesCount( state );
+
+	if ( ! options.includeActiveConnections ) {
+		return count;
+	}
+
+	const enabledConnections = getEnabledConnections( state );
+
+	return count + enabledConnections.length;
 }
 
 /**

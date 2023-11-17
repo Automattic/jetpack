@@ -18,7 +18,7 @@ export function useShareLimits(): ShareLimits {
 		const store = select( socialStore );
 
 		const shareLimit = store.getShareLimit();
-		const totalSharesCount = store.getTotalSharesCount();
+		const totalSharesCount = store.getTotalSharesCount( { includeActiveConnections: true } );
 
 		if ( totalSharesCount > shareLimit ) {
 			return 'crossed';
