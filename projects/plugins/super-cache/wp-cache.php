@@ -639,7 +639,7 @@ function wp_cache_manager_error_checks() {
 			$cache_enabled
 			&& $super_cache_enabled
 			&& $wp_cache_mod_rewrite
-			&& $scrules == '' // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+			&& $scrules == '' // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 		) {
 			?>
 			<div class='notice notice-warning'><h4><?php esc_html_e( 'Rewrite rules must be updated', 'wp-super-cache' ); ?></h4>
@@ -2485,7 +2485,7 @@ function wp_cache_files() {
 			}
 		}
 		while( false !== ( $file = readdir( $handle ) ) ) {
-			if (
+			if ( // phpcs:ignore Generic.WhiteSpace.ScopeIndent.IncorrectExact
 				str_contains( $file, $file_prefix )
 				&& substr( $file, -4 ) == '.php' // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			) { // phpcs:ignore Generic.WhiteSpace.ScopeIndent.Incorrect
