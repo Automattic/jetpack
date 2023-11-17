@@ -74,19 +74,26 @@ const PerformanceHistory = ( { needsUpgrade, isFreshStart, onDismissFreshStart }
 				>
 					<PanelRow>
 						<div style={ { flexGrow: 1, minHeight: '300px' } }>
-							{ isError && (
+							{ isError && ! isFetching ? (
 								<ErrorNotice
 									title={ __( 'Failed to load performance history', 'jetpack-boost' ) }
 									error={ error }
 									data={ JSON.stringify( error, null, 2 ) }
 									suggestion={ __( '<action>Try again</action>', 'jetpack-boost' ) }
 									vars={ {
-										// eslint-disable-next-line jsx-a11y/anchor-is-valid, jsx-a11y/anchor-has-content
-										action: <a onClick={ () => refetch() } href="#" />,
+										action: (
+											// eslint-disable-next-line jsx-a11y/anchor-is-valid, jsx-a11y/anchor-has-content
+											<a
+												onClick={ event => {
+													event.preventDefault();
+													refetch();
+												} }
+												href="#"
+											/>
+										),
 									} }
 								/>
-							) }
-							{ ! isError && (
+							) : (
 								<GraphComponent
 									periods={ periods }
 									startDate={ startDate }
