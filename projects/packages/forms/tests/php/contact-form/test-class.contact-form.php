@@ -965,7 +965,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	 * @param DOMElement $wrapper_div The wrapper div.
 	 * @param array      $attributes An associative array containing the field's attributes.
 	 */
-	public function assertCommonValidHtml( $wrapper_div, $attributes ) {
+	public function assertFieldClasses( $wrapper_div, $attributes ) {
 		if ( 'date' === $attributes['type'] ) {
 			$attributes['class'] = 'jp-contact-form-date';
 		}
@@ -981,9 +981,18 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			$css_class,
 			'div class attribute doesn\'t match'
 		);
+	}
 
-		// Get label.
-		$label = $this->getFirstElement( $wrapper_div, 'label' );
+	/**
+	 * Tests whether the label in the wrapper div matches the field's label.
+	 *
+	 * @param DOMElement $wrapper_div The wrapper div.
+	 * @param array      $attributes An associative array containing the field's attributes.
+	 * @param string     $tag_name The tag used to label the field. Could be `legend` for checkboxes
+	 *                                                       and radio buttons.
+	 */
+	public function assertFieldLabel( $wrapper_div, $attributes, $tag_name = 'label' ) {
+		$label = $this->getFirstElement( $wrapper_div, $tag_name );
 
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$this->assertEquals( trim( $label->nodeValue ), $attributes['label'], 'Label is not what we expect it to be...' );
@@ -998,7 +1007,8 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function assertValidField( $html, $attributes ) {
 
 		$wrapper_div = $this->getCommonDiv( $html );
-		$this->assertCommonValidHtml( $wrapper_div, $attributes );
+		$this->assertFieldClasses( $wrapper_div, $attributes );
+		$this->assertFieldLabel( $wrapper_div, $attributes );
 
 		// Get label.
 		$label = $this->getFirstElement( $wrapper_div, 'label' );
@@ -1061,7 +1071,8 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function assertValidCheckboxField( $html, $attributes ) {
 
 		$wrapper_div = $this->getCommonDiv( $html );
-		$this->assertCommonValidHtml( $wrapper_div, $attributes );
+		$this->assertFieldClasses( $wrapper_div, $attributes );
+		$this->assertFieldLabel( $wrapper_div, $attributes );
 
 		$label = $this->getFirstElement( $wrapper_div, 'label' );
 		$input = $this->getFirstElement( $label, 'input' );
@@ -1087,13 +1098,13 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	public function assertValidFieldMultiField( $html, $attributes ) {
 
 		$wrapper_div = $this->getCommonDiv( $html );
-		$this->assertCommonValidHtml( $wrapper_div, $attributes );
-
-		// Get label.
-		$label = $this->getFirstElement( $wrapper_div, 'label' );
+		$this->assertFieldClasses( $wrapper_div, $attributes );
 
 		// Inputs.
 		if ( 'select' === $attributes['type'] ) {
+			$label = $this->getFirstElement( $wrapper_div, 'label' );
+
+			$this->assertFieldLabel( $wrapper_div, $attributes );
 			$this->assertEquals( 'grunion-field-label select', $label->getAttribute( 'class' ), 'label class doesn\'t match' );
 
 			$select = $this->getFirstElement( $wrapper_div, 'select' );
@@ -1128,18 +1139,22 @@ class WP_Test_Contact_Form extends BaseTestCase {
 				$this->assertEquals( $option->nodeValue, $attributes['options'][ $i ], 'Input does not match the option' );
 			}
 		} else {
+			$label = $this->getFirstElement( $wrapper_div, 'legend' );
+
+			$this->assertFieldLabel( $wrapper_div, $attributes, 'legend' );
 			$this->assertEquals( 'grunion-field-label', $label->getAttribute( 'class' ), 'label class doesn\'t match' );
 			// Radio and Checkboxes.
 			$labels = $wrapper_div->getElementsByTagName( 'label' );
-			$n      = $labels->length - 1;
+			$n      = $labels->length;
 			$this->assertCount( $n, $attributes['options'], 'Number of inputs doesn\'t match number of options' );
 			$this->assertCount( $n, $attributes['values'], 'Number of inputs doesn\'t match number of values' );
 			for ( $i = 0; $i < $n; $i++ ) {
-				$item_label = $labels->item( $i + 1 );
+				$item_label = $labels->item( $i );
 				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				$this->assertEquals( $item_label->nodeValue, ' ' . $attributes['options'][ $i ] ); // extra space added for a padding.
+				$this->assertEquals( $item_label->nodeValue, $attributes['options'][ $i ] ); // extra space added for a padding.
 
-				$input = $this->getFirstElement( $item_label, 'input' );
+				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$input = $item_label->previousElementSibling;
 				$this->assertEquals( $input->getAttribute( 'type' ), $attributes['input_type'], 'Type doesn\'t match' );
 				if ( 'radio' === $attributes['input_type'] ) {
 					$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
