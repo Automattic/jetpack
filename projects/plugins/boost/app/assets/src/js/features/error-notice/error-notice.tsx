@@ -30,7 +30,7 @@ const ErrorNotice = ( {
 		<div className={ classNames( styles.errorNotice ) }>
 			<NoticeOutline className={ classNames( styles.icon ) } />
 
-			<div className={ classNames( styles.mainContent ) }>
+			<div className={ classNames( styles.offset ) }>
 				<div className={ classNames( styles.description ) }>{ title }</div>
 
 				<div className={ classNames( styles.message ) }>

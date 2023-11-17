@@ -34,18 +34,11 @@
 	color: inherit;
 	height: 20px;
 	width: 20px;
-	position: absolute;
-	left: -65px;
-	top: 0;
 	line-height: 0;
 }
 
 .offset {
-	padding-left: 2em;
-
-	&:before {
-		left: 0;
-	}
+	padding-left: 0.5em;
 }
 
 .mainAction:not( :empty ) {
