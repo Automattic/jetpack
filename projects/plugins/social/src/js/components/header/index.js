@@ -24,6 +24,7 @@ const Header = () => {
 		newPostUrl,
 		postsCount,
 		sharesCount,
+		totalShareCount,
 		siteSuffix,
 		showShareLimits,
 		shareLimit,
@@ -36,7 +37,8 @@ const Header = () => {
 			isModuleEnabled: store.isModuleEnabled(),
 			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
 			postsCount: store.getSharedPostsCount(),
-			sharesCount: store.getTotalSharesCount(),
+			totalShareCount: store.getTotalSharesCount(),
+			sharesCount: store.getSharesUsedCount(),
 			siteSuffix: store.getSiteSuffix(),
 			showShareLimits: store.showShareLimits(),
 			shareLimit: store.getShareLimit(),
@@ -109,8 +111,8 @@ const Header = () => {
 								{
 									icon: <SocialIcon />,
 									label: __( 'Total shares past 30 days', 'jetpack-social' ),
-									loading: null === sharesCount,
-									value: formatter.format( sharesCount ),
+									loading: null === totalShareCount,
+									value: formatter.format( totalShareCount ),
 								},
 								{
 									icon: <Icon icon={ postList } />,
