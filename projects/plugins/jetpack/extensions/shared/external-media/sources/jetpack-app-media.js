@@ -33,7 +33,7 @@ export function useInterval( callback, delay ) {
 }
 
 function JetpackAppMedia( props ) {
-	const { media, insertMedia, isCopying, isLoading, multiple, getMedia } = props;
+	const { media, insertMedia, isCopying, multiple, getMedia } = props;
 
 	const wpcomBlogId = window?.Jetpack_Editor_Initial_State?.wpcomBlogId || 0;
 	const postId = select( editorStore ).getCurrentPostId();
@@ -79,7 +79,7 @@ function JetpackAppMedia( props ) {
 				className="jetpack-external-media-browser__jetpack_app_media_browser"
 				media={ media }
 				isCopying={ isCopying }
-				isLoading={ isLoading }
+				isLoading={ false }
 				nextPage={ getNextPage }
 				onCopy={ onCopy }
 				pageHandle={ false }
