@@ -54,7 +54,7 @@ function JetpackAppMedia( props ) {
 
 	// Load initial results for the random example query. Only do it once.
 	useEffect( getNextPage, [] ); // eslint-disable-line react-hooks/exhaustive-deps
-	useInterval( getNextPagePull, 5000 );
+	useInterval( getNextPagePull, 500 );
 
 	return (
 		<div className="jetpack-external-media-wrapper__jetpack_app_media">
