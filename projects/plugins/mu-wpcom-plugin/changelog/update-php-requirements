@@ -1,5 +1,4 @@
-Significance: patch
+Significance: major
 Type: changed
-Comment: Updated composer.lock.
 
-
+General: updated PHP requirement to PHP 7.0+
