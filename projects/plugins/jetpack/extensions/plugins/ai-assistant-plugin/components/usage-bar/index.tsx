@@ -48,41 +48,65 @@ export const UsageBar: React.FC< UsageBarProps > = ( {
 
 function UsageControl( {
 	isOverLimit,
-	hasFeature,
+	planType,
 	requestsCount,
 	requestsLimit,
+	daysUntilReset = null,
 }: UsageControlProps ) {
-	let help = __( 'Unlimited requests for your site', 'jetpack' );
+	// Trust on the isOverLimit flag, but also do a local check
+	const limitReached = isOverLimit || requestsCount >= requestsLimit;
 
-	if ( ! hasFeature ) {
-		// translators: %1$d: number of requests allowed in the free plan
-		help = sprintf( __( '%1$d free requests for your site', 'jetpack' ), requestsLimit );
+	// The message we may want to show.
+	const helpMessages = Array< string >();
+
+	if ( limitReached && planType === 'free' ) {
+		helpMessages.push( __( "You've reached your free requests limit.", 'jetpack' ) );
 	}
 
-	const limitReached = isOverLimit && ! hasFeature;
-	if ( limitReached ) {
-		help = __( 'You have reached your plan requests limit.', 'jetpack' );
+	if ( limitReached && planType === 'tiered' ) {
+		helpMessages.push( __( "You've reached your plan requests limit.", 'jetpack' ) );
 	}
 
-	// build messages
-	const freeUsageMessage = sprintf(
-		// translators: %1$d: current request counter; %2$d: request allowance;
-		__( '%1$d / %2$d free requests.', 'jetpack' ),
-		requestsCount,
-		requestsLimit
-	);
-	const unlimitedPlanUsageMessage = sprintf(
-		// translators: placeholder is the current request counter;
-		__( '%d / ∞ requests.', 'jetpack' ),
-		requestsCount
-	);
+	if ( daysUntilReset && planType === 'tiered' ) {
+		const daysUntilResetMessage = sprintf(
+			// translators: %1$d: number of days until the next usage count reset
+			__( 'Requests will reset in %1$d days.', 'jetpack' ),
+			daysUntilReset
+		);
+		helpMessages.push( daysUntilResetMessage );
+	}
 
 	const usage = requestsCount / requestsLimit;
 
 	return (
-		<BaseControl help={ help } label={ __( 'Usage', 'jetpack' ) }>
-			<p>{ hasFeature ? unlimitedPlanUsageMessage : freeUsageMessage }</p>
-			{ ! hasFeature && <UsageBar usage={ usage } limitReached={ limitReached } /> }
+		<BaseControl
+			help={ helpMessages.length ? helpMessages.join( ' ' ) : null }
+			label={ __( 'Usage', 'jetpack' ) }
+		>
+			{ planType === 'free' && (
+				<p>
+					{ sprintf(
+						// translators: %1$d: current request counter; %2$d: request allowance;
+						__( '%1$d / %2$d free requests.', 'jetpack' ),
+						requestsCount,
+						requestsLimit
+					) }
+				</p>
+			) }
+			{ planType === 'tiered' && (
+				<p>
+					{ sprintf(
+						// translators: %1$d: current request counter; %2$d: request allowance;
+						__( '%1$d / %2$d requests.', 'jetpack' ),
+						requestsCount,
+						requestsLimit
+					) }
+				</p>
+			) }
+			{ planType === 'unlimited' && <p>{ __( 'Unlimited requests.', 'jetpack' ) }</p> }
+			{ ( planType === 'free' || planType === 'tiered' ) && (
+				<UsageBar usage={ usage } limitReached={ limitReached } />
+			) }
 		</BaseControl>
 	);
 }
