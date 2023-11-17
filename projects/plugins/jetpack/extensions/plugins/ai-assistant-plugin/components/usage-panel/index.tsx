@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Button } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import React from 'react';
 /**
  * Internal dependencies
@@ -77,15 +77,6 @@ export default function UsagePanel() {
 					daysUntilReset={ daysUntilReset }
 					planType={ planType }
 				/>
-
-				{ false && (
-					<p className="muted">
-						{
-							// translators: %1$d: number of days until the next usage count reset
-							sprintf( __( 'Requests will reset in %1$d days.', 'jetpack' ), 10 )
-						}
-					</p>
-				) }
 
 				{ ! hasFeature && canUpgrade && (
 					<Button
