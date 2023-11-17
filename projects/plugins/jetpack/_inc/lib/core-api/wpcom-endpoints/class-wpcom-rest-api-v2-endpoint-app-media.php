@@ -115,13 +115,6 @@ class WPCOM_REST_API_V2_Endpoint_App_Media extends WP_REST_Controller {
 			'post_type'   => 'attachment',
 			'post_status' => 'inherit',
 			'number'      => $number,
-			'meta_query'  => array(
-				array(
-					'key'     => '_created_via',
-					'value'   => 'jetpack_app',
-					'compare' => '=',
-				),
-			),
 		);
 		$media_query = new WP_Query( $query_args );
 		$response    = $this->format_response( $media_query );
