@@ -12,6 +12,7 @@ import {
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
 	ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
 	FREE_PLAN_REQUESTS_LIMIT,
+	UNLIMITED_PLAN_REQUESTS_LIMIT,
 } from './constants';
 import type { PlanStateProps } from './types';
 
@@ -40,7 +41,7 @@ const INITIAL_STATE: PlanStateProps = {
 			nextTier: {
 				slug: 'ai-assistant-tier-unlimited',
 				value: 1,
-				limit: 922337203685477600,
+				limit: UNLIMITED_PLAN_REQUESTS_LIMIT,
 				readableLimit: __( 'Unlimited', 'jetpack' ),
 			},
 			_meta: {
@@ -116,7 +117,7 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			let requestsLimit = state.features.aiAssistant.currentTier?.limit;
 
 			if ( isUnlimitedTierPlan ) {
-				requestsLimit = Infinity;
+				requestsLimit = UNLIMITED_PLAN_REQUESTS_LIMIT;
 			} else if ( isFreeTierPlan ) {
 				requestsLimit = state.features.aiAssistant.requestsLimit;
 			}

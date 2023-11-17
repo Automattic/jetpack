@@ -67,6 +67,7 @@ function Price( { value, currency, isOld } ) {
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
  * @param {string} [props.ctaButtonLabel]        - The label for the Call To Action button
  * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
+ * @param {number} [props.quantity]              - The quantity of the product to purchase
  * @returns {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( {
@@ -78,6 +79,7 @@ const ProductDetailCard = ( {
 	supportingInfo,
 	ctaButtonLabel = null,
 	hideTOS = false,
+	quantity = null,
 } ) => {
 	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackUrl } =
 		window?.myJetpackInitialState ?? {};
@@ -131,6 +133,7 @@ const ProductDetailCard = ( {
 			adminUrl,
 			connectAfterCheckout: true,
 			from: 'my-jetpack',
+			quantity,
 		} );
 
 	const { run: trialCheckoutRedirect, hasCheckoutStarted: hasTrialCheckoutStarted } =
@@ -139,6 +142,7 @@ const ProductDetailCard = ( {
 			redirectUrl: myJetpackUrl,
 			siteSuffix,
 			from: 'my-jetpack',
+			quantity,
 		} );
 
 	// Suppported products icons.

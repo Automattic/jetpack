@@ -57,7 +57,7 @@
 		"blogroll",
 		"blogroll-item",
 		"nextdoor",
-		"top-posts"
+		"ai-assistant-usage-panel"
 	],
 	"beta": [
 		"amazon",
@@ -67,8 +67,8 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"create-with-voice",
+    "top-posts",
 		"ai-assistant-backend-prompts",
-		"ai-assistant-usage-panel",
 		"sharing-buttons"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],

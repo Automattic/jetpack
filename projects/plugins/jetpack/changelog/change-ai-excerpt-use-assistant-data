@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Use new async flow to get isOverLimit from useAiFeature. Fix wee typos on excerpt term"

@@ -39,10 +39,8 @@
 		"@wordpress/icons": "9.36.0",
 		"@wordpress/notices": "4.13.0",
 		"classnames": "2.3.2",
-		"lodash": "4.17.21",
 		"prop-types": "15.8.1",
 		"react-page-visibility": "7.0.0",
-		"refx": "3.1.1",
 		"rememo": "4.0.1"
 	},
 	"devDependencies": {

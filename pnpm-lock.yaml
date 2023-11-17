@@ -77,8 +77,8 @@ importers:
         specifier: 5.1.1
         version: 5.1.1
       '@slack/web-api':
-        specifier: 6.7.2
-        version: 6.7.2
+        specifier: 6.10.0
+        version: 6.10.0
       glob:
         specifier: 8.0.3
         version: 8.0.3
@@ -849,18 +849,12 @@ importers:
       classnames:
         specifier: 2.3.2
         version: 2.3.2
-      lodash:
-        specifier: 4.17.21
-        version: 4.17.21
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
       react-page-visibility:
         specifier: 7.0.0
         version: 7.0.0(react@18.2.0)
-      refx:
-        specifier: 3.1.1
-        version: 3.1.1
       rememo:
         specifier: 4.0.1
         version: 4.0.1
@@ -2641,6 +2635,9 @@ importers:
       '@babel/preset-react':
         specifier: 7.22.15
         version: 7.22.15(@babel/core@7.23.2)
+      '@rollup/plugin-alias':
+        specifier: 5.0.1
+        version: 5.0.1(rollup@2.79.1)
       '@rollup/plugin-babel':
         specifier: 5.3.1
         version: 5.3.1(@babel/core@7.23.2)(rollup@2.79.1)
@@ -3891,8 +3888,8 @@ importers:
         specifier: 1.39.0
         version: 1.39.0
       '@slack/web-api':
-        specifier: 6.7.2
-        version: 6.7.2
+        specifier: 6.10.0
+        version: 6.10.0
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -8814,6 +8811,19 @@ packages:
     engines: {node: '>=14'}
     dev: false
 
+  /@rollup/plugin-alias@5.0.1(rollup@2.79.1):
+    resolution: {integrity: sha512-JObvbWdOHoMy9W7SU0lvGhDtWq9PllP5mjpAy+TUslZG/WzOId9u80Hsqq1vCUn9pFJ0cxpdcnAv+QzU2zFH3Q==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      rollup: 2.79.1
+      slash: 4.0.0
+    dev: true
+
   /@rollup/plugin-babel@5.3.1(@babel/core@7.23.2)(rollup@2.79.1):
     resolution: {integrity: sha512-WFfdLWU/xVWKeRQnKmIAQULUI7Il0gZnBIH/ZFO069wYIfPu+8zrfp/KMW0atmELoRDq8FbiP3VCss9MhCut7Q==}
     engines: {node: '>= 10.0.0'}
@@ -9049,18 +9059,18 @@ packages:
     resolution: {integrity: sha512-YfZGo0xVOmI7CHhiwCmEC33HzjQl1lakNmyo5GPGb4KHKEaUoY7zenAdKsYCJqYwdaM9OL+hqYt/tZ2zgvVc7g==}
     engines: {node: '>= 12.13.0', npm: '>= 6.12.0'}
 
-  /@slack/web-api@6.7.2:
-    resolution: {integrity: sha512-qgWMxdy1A2uNvhETfRl349UjTEvnUzHl947Ly5c+lqOrXJIwsG12szL4tD3WrRlTuxCijDemF3FjtUNz18YAxg==}
+  /@slack/web-api@6.10.0:
+    resolution: {integrity: sha512-UTX7EKWEf1MQ6+p//4KX7tNTbvzS2W9dbhd2hYk4Lt0mfXf9khe6ZYRYPnV7QBycYcZ3t6FJRJAB55GTcccZ/A==}
     engines: {node: '>= 12.13.0', npm: '>= 6.12.0'}
     dependencies:
       '@slack/logger': 3.0.0
       '@slack/types': 2.9.0
       '@types/is-stream': 1.1.0
       '@types/node': 20.9.0
-      axios: 0.27.2
+      axios: 1.6.0
       eventemitter3: 3.1.2
       form-data: 2.5.1
-      is-electron: 2.2.0
+      is-electron: 2.2.2
       is-stream: 1.1.0
       p-queue: 6.6.2
       p-retry: 4.6.2
@@ -13982,14 +13992,6 @@ packages:
       - debug
     dev: true
 
-  /axios@0.27.2:
-    resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
-    dependencies:
-      follow-redirects: 1.15.3
-      form-data: 4.0.0
-    transitivePeerDependencies:
-      - debug
-
   /axios@1.6.0:
     resolution: {integrity: sha512-EZ1DYihju9pwVB+jg67ogm+Tmqc6JmhamRN6I4Zt8DfZu5lbcQGw3ozH9lFejSJgs/ibaef3A9PMXPLeefFGJg==}
     dependencies:
@@ -17262,16 +17264,6 @@ packages:
       once: 1.4.0
       path-is-absolute: 1.0.1
 
-  /glob@7.2.3:
-    resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    dependencies:
-      fs.realpath: 1.0.0
-      inflight: 1.0.6
-      inherits: 2.0.4
-      minimatch: 3.1.2
-      once: 1.4.0
-      path-is-absolute: 1.0.1
-
   /glob@8.0.3:
     resolution: {integrity: sha512-ull455NHSHI/Y1FqGaaYFaLGkNMMJbavMrEGFXG/PGrg6y7sutWHUHrz6gy6WEBH6akM1M414dWKCNs+IhKdiQ==}
     engines: {node: '>=12'}
@@ -17927,8 +17919,8 @@ packages:
     hasBin: true
     dev: true
 
-  /is-electron@2.2.0:
-    resolution: {integrity: sha512-SpMppC2XR3YdxSzczXReBjqs2zGscWQpBIKqwXYBFic0ERaxNVgwLCHwOLZeESfdJQjX0RDvrJ1lBXX2ij+G1Q==}
+  /is-electron@2.2.2:
+    resolution: {integrity: sha512-FO/Rhvz5tuw4MCWkpMzHFKWD2LsfHzIb7i6MdPYZ/KW7AlxawyLkqdy+jPZP1WubqEADE3O4FUENlJHDfQASRg==}
 
   /is-extglob@2.1.1:
     resolution: {integrity: sha512-SbKbANkN603Vi4jEZv49LeVJMn4yGwsbzZworEoyEiutsN3nJYdbO36zfhGJ6QEDpOZIFkDtnq5JRxmvl3jsoQ==}
@@ -22392,7 +22384,7 @@ packages:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
     hasBin: true
     dependencies:
-      glob: 7.2.3
+      glob: 7.1.6
 
   /rollup-plugin-copy@3.4.0:
     resolution: {integrity: sha512-rGUmYYsYsceRJRqLVlE9FivJMxJ7X6jDlP79fmFkL8sJs7VVMSVyA2yfyL+PGyO/vJs4A87hwhgVfz61njI+uQ==}
@@ -24954,7 +24946,6 @@ packages:
     resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/450c06a55c1982c67c3200045e9be13ea6b13629}
     name: jetpack-boost-critical-css-gen
     version: 0.0.10
-    prepare: true
     requiresBuild: true
     dependencies:
       clean-css: 5.3.2
