@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack AI: use the Usage Helper to set fields on the ai-assistant-feature endpoint.

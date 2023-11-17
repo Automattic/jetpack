@@ -153,7 +153,7 @@ class Jetpack_Ai extends Product {
 				__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
 				__( 'Refine the tone and content to your liking', 'jetpack-my-jetpack' ),
 				__( 'Get feedback about your post', 'jetpack-my-jetpack' ),
-				__( 'Seamless WordPress editor Integration', 'jetpack-my-jetpack' ),
+				__( 'Seamless WordPress editor integration', 'jetpack-my-jetpack' ),
 			),
 			100 => array(
 				__( 'Prompt based content generation', 'jetpack-my-jetpack' ),

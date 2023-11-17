@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-CLI Tools: update block scaffolding CLI tool to use block.json to register blocks.

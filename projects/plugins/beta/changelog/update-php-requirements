@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+General: updated PHP requirement to PHP 7.0+

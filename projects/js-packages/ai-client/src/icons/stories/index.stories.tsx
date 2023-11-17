@@ -13,7 +13,12 @@ import styles from './style.module.scss';
  */
 import type { Meta } from '@storybook/react';
 
-export default {
+interface AIControlStoryMeta extends Meta< typeof allIcons > {
+	title?: string;
+	component?: React.ReactElement;
+}
+
+const meta: AIControlStoryMeta = {
 	title: 'JS Packages/AI Client/Icons',
 	component: allIcons,
 	parameters: {},
@@ -44,3 +49,5 @@ const Template = args => <IconsStory { ...args } />;
 const DefaultArgs = {};
 export const Default = Template.bind( {} );
 Default.args = DefaultArgs;
+
+export default meta;

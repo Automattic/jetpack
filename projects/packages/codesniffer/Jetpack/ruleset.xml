@@ -111,7 +111,7 @@
 		<exclude name="WordPress.WP.CapitalPDangit" />
 	</rule>
 
-	<!-- Not useful until we can use PHP 8's named parameters. We're currently stuck on 5.6! -->
+	<!-- Not useful until we can use PHP 8's named parameters. We're currently stuck on 7.0! -->
 	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames">
 		<exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames" />
 	</rule>
