@@ -80,3 +80,35 @@ add_filter( 'wp_resource_hints', 'wpcomsh_google_fonts_proxy' );
 add_filter( 'jetpack_google_fonts_api_url', 'wpcomsh_google_fonts_proxy' );
 add_filter( 'custom_fonts_google_fonts_api_url', 'wpcomsh_google_fonts_proxy' );
 add_filter( 'jetpack_global_styles_google_fonts_api_url', 'wpcomsh_google_fonts_proxy' );
+
+// Sync the changes to avoid printing all google fonts on frontend via wpcomsh plugin first.
+// We will remove this change after the next release of Jetpack.
+// See https://github.com/Automattic/jetpack/pull/34157.
+add_action(
+	'plugins_loaded',
+	function () {
+		// Google fonts was introduced in Jetpack 10.8.
+		if ( ! defined( 'JETPACK__VERSION' ) || version_compare( JETPACK__VERSION, '10.8', '<' ) ) {
+			return;
+		}
+
+		if ( ! Jetpack::is_module_active( 'google-fonts' ) ) {
+			return;
+		}
+
+		if ( ! class_exists( 'WP_Font_Face' ) ) {
+			return;
+		}
+
+		if ( ! class_exists( 'Jetpack_Google_Font_Face' ) ) {
+			require_once __DIR__ . '/class-jetpack-google-font-face.php';
+
+			// Initialize Jetpack Google Font Face to avoid printing **ALL** google fonts provided by this module.
+			// See p1700040028362329-slack-C4GAQ900P and p7DVsv-jib-p2
+			new Jetpack_Google_Font_Face();
+		}
+	},
+	// Ensure the action to be loaded after the Jetpack Google Fonts module is ready.
+	// See https://github.com/Automattic/jetpack/blob/3df0b5697ac7aca175a11eb9933dd85cc9c7bc36/projects/plugins/jetpack/modules/google-fonts/load.php#L21.
+	1000
+);
