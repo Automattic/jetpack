@@ -32,7 +32,7 @@ import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 import { maybeCopyElementsToSiteEditorContext } from '../../shared/block-editor-asset-loader';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { fetchPodcastFeed, fetchTrackQuantity } from './api';
-import attributesValidation from './attributes';
+import metadata from './block.json';
 import PodcastPlayer from './components/podcast-player';
 import { PODCAST_FEED, EMBED_BLOCK } from './constants';
 import { queueMusic } from './icons/';
@@ -69,7 +69,7 @@ const PodcastPlayerEdit = ( {
 	replaceWithEmbedBlock,
 } ) => {
 	// Validated attributes.
-	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
+	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 	const {
 		url,
 		selectedEpisodes,

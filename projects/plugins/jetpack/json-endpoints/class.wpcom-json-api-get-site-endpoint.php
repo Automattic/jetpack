@@ -79,6 +79,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_staging_site'       => '(bool) If the site is a WP.com staging site.',
 		'user_interactions'           => '(array) An array of user interactions with a site.',
 		'was_ecommerce_trial'         => '(bool) If the site ever used an eCommerce trial.',
+		'was_migration_trial'         => '(bool) If the site ever used a migration trial.',
+		'was_hosting_trial'           => '(bool) If the site ever used a hosting trial.',
+		'wpcom_site_setup'            => '(string) The WP.com site setup identifier.',
 	);
 
 	/**
@@ -201,6 +204,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'wpcom_production_blog_id',
 		'wpcom_staging_blog_ids',
 		'can_blaze',
+		'wpcom_site_setup',
+		'is_commercial',
+		'wpcom_admin_interface',
 	);
 
 	/**
@@ -225,6 +231,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'site_owner',
 		'is_wpcom_staging_site',
 		'was_ecommerce_trial',
+		'was_migration_trial',
+		'was_hosting_trial',
 	);
 
 	/**
@@ -267,6 +275,19 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'blogging_prompts_settings',
 		'wpcom_production_blog_id',
 		'wpcom_staging_blog_ids',
+		'is_commercial',
+		'wpcom_admin_interface',
+	);
+
+	/**
+	 * Current enabled trials.
+	 *
+	 * @var array $jetpack_enabled_trials
+	 */
+	public static $jetpack_enabled_trials = array(
+		'was_ecommerce_trial' => 'ecommerce',
+		'was_migration_trial' => 'migration',
+		'was_hosting_trial'   => 'hosting',
 	);
 
 	/**
@@ -577,7 +598,13 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->get_p2_thumbnail_elements();
 				break;
 			case 'was_ecommerce_trial':
-				$response[ $key ] = $this->site->was_ecommerce_trial();
+				$response[ $key ] = $this->site->was_trial( self::$jetpack_enabled_trials['was_ecommerce_trial'] );
+				break;
+			case 'was_migration_trial':
+				$response[ $key ] = $this->site->was_trial( self::$jetpack_enabled_trials['was_migration_trial'] );
+				break;
+			case 'was_hosting_trial':
+				$response[ $key ] = $this->site->was_trial( self::$jetpack_enabled_trials['was_hosting_trial'] );
 				break;
 		}
 
@@ -877,6 +904,15 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'can_blaze':
 					$options[ $key ] = $site->can_blaze();
+					break;
+				case 'wpcom_site_setup':
+					$options[ $key ] = $site->get_wpcom_site_setup();
+					break;
+				case 'is_commercial':
+					$options[ $key ] = $site->is_commercial();
+					break;
+				case 'wpcom_admin_interface':
+					$options[ $key ] = $site->get_wpcom_admin_interface();
 					break;
 			}
 		}

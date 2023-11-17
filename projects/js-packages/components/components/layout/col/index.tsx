@@ -1,4 +1,5 @@
 import classnames from 'classnames';
+import { createElement } from 'react';
 import { ColProps } from '../types';
 import styles from './style.module.scss';
 import type React from 'react';
@@ -14,7 +15,7 @@ const lgCols = Number( styles.lgCols );
  * @returns {React.ReactElement}   Col component.
  */
 const Col: React.FC< ColProps > = props => {
-	const { children, className } = props;
+	const { children, tagName = 'div', className } = props;
 
 	const sm = Math.min( smCols, typeof props.sm === 'number' ? props.sm : smCols ); // max of 4, if undefined = 4
 	const smStart = Math.min( smCols, typeof props.sm === 'object' ? props.sm.start : 0 ); // max of 4, if undefined = 0
@@ -43,7 +44,13 @@ const Col: React.FC< ColProps > = props => {
 		[ styles[ `col-lg-${ lgEnd }-end` ] ]: lgEnd > 0,
 	} );
 
-	return <div className={ colClassName }>{ children }</div>;
+	return createElement(
+		tagName,
+		{
+			className: colClassName,
+		},
+		children
+	);
 };
 
 export default Col;

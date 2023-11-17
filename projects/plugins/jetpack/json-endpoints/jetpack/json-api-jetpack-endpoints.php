@@ -1390,7 +1390,7 @@ new Jetpack_JSON_API_User_Create_Endpoint(
         "name": "binarysmash",
         "URL": "http:\/\/binarysmash.wordpress.com",
         "avatar_URL": "http:\/\/0.gravatar.com\/avatar\/a178ebb1731d432338e6bb0158720fcc?s=96&d=identicon&r=G",
-        "profile_URL": "http:\/\/en.gravatar.com\/binarysmash",
+        "profile_URL": "http:\/\/gravatar.com\/binarysmash",
         "roles": [ "administrator" ]
     }',
 		'example_request'         => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/users/create',

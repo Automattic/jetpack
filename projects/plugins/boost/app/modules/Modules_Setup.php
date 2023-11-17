@@ -3,8 +3,10 @@
 namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
@@ -82,6 +84,9 @@ class Modules_Setup implements Has_Setup {
 	public function on_module_status_update( $module_slug, $is_activated ) {
 		$status = new Status( $module_slug );
 		$status->on_update( $is_activated );
-	}
 
+		if ( $module_slug === Cloud_CSS::get_slug() && $is_activated ) {
+			( new Regenerate() )->start();
+		}
+	}
 }

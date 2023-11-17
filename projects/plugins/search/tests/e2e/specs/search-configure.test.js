@@ -11,7 +11,7 @@ import {
 	clearSearchPlanInfo,
 } from '../helpers/search-helper.js';
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
-import playwrightConfig from '../playwright.config.cjs';
+import playwrightConfig from '../playwright.config.mjs';
 
 test.describe( 'Search Configure', () => {
 	let searchConfigure;
@@ -51,6 +51,7 @@ test.describe( 'Search Configure', () => {
 		await searchConfigure.waitForNetworkIdle();
 	} );
 
+	// eslint-disable-next-line playwright/expect-expect -- expects are inside `checkSettings` helper function
 	test( 'Can configure search overlay', async () => {
 		await test.step( 'Can change and reflect settings', async () => {
 			await searchConfigure.chooseDarkTheme();

@@ -11,6 +11,8 @@ import './style.scss';
 const ConnectUserBar = props => {
 	const { feature, featureLabel, text, doConnectUser } = props;
 
+	const from = 'unlinked-user-connect';
+
 	const customConnect = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'connection-bar-click',
@@ -19,8 +21,8 @@ const ConnectUserBar = props => {
 			is_connection_owner: 'no',
 		} );
 
-		doConnectUser( featureLabel );
-	}, [ doConnectUser, feature, featureLabel ] );
+		doConnectUser( featureLabel, from );
+	}, [ doConnectUser, feature, featureLabel, from ] );
 
 	return (
 		<Card compact className="jp-connect-user-bar__card">
@@ -34,7 +36,7 @@ const ConnectUserBar = props => {
 
 			<ConnectButton
 				connectUser={ true }
-				from="unlinked-user-connect"
+				from={ from }
 				connectLegend={ __( 'Connect your WordPress.com account', 'jetpack' ) }
 				customConnect={ customConnect }
 				rna={ true }
@@ -51,7 +53,5 @@ ConnectUserBar.propTypes = {
 };
 
 export default connect( null, dispatch => ( {
-	doConnectUser: featureLabel => {
-		return dispatch( connectUser( featureLabel ) );
-	},
+	doConnectUser: ( featureLabel, from ) => dispatch( connectUser( featureLabel, from ) ),
 } ) )( ConnectUserBar );

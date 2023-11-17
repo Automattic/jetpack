@@ -7,6 +7,10 @@ import React from 'react';
 
 import './style.scss';
 
+window.wp = {
+	i18n: {},
+};
+
 const preview = {
 	parameters: {
 		backgrounds: {

@@ -278,16 +278,16 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_inbox_menu
+	 * Tests add_my_mailboxes_menu
 	 *
-	 * @covers ::add_inbox_menu
+	 * @covers ::add_my_mailboxes_menu
 	 */
-	public function test_add_inbox_menu() {
+	public function test_add_my_mailboxes_menu() {
 		global $menu;
 
-		static::$admin_menu->add_inbox_menu();
+		static::$admin_menu->add_my_mailboxes_menu();
 
-		$this->assertSame( 'https://wordpress.com/inbox/' . static::$domain, $menu['4.64424'][2] );
+		$this->assertSame( 'https://wordpress.com/mailboxes/' . static::$domain, $menu['4.64424'][2] );
 	}
 
 	/**
@@ -311,28 +311,11 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		global $submenu;
 
 		static::$admin_menu->add_users_menu();
-		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][16][2] );
-	}
-
-	/**
-	 * Tests subscribers not being shown when locale is not English.
-	 *
-	 * @covers ::add_users_menu
-	 */
-	public function test_add_users_menu_not_english() {
-		global $submenu;
-
-		add_filter( 'locale', array( $this, 'set_test_locale_to_not_english' ) );
-
-		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
-		static::$admin_menu->add_users_menu();
-		if ( isset( $submenu['users.php'][16][2] ) ) {
-			$this->assertNotSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][16][2] );
-		} else {
-			$this->assertTrue( true );
-		}
-
-		remove_filter( 'locale', array( $this, 'set_test_locale_to_not_english' ) );
+		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
+		$this->assertSame( 'user-new.php', $submenu['users.php'][2][2] );
+		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][4][2] );
+		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][5][2] );
+		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][6][2] );
 	}
 
 	/**
@@ -371,34 +354,16 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the filter for adding the Site Logs menu
+	 * Tests add_tools_menu
 	 *
 	 * @covers ::add_tools_menu
 	 */
-	public function test_site_logs_menu_filter() {
+	public function test_add_site_monitoring_menu() {
 		global $submenu;
 
-		add_filter( 'jetpack_show_wpcom_site_logs_menu', '__return_false', 99 );
 		static::$admin_menu->add_tools_menu();
-		remove_filter( 'jetpack_show_wpcom_site_logs_menu', '__return_false', 99 );
+		$menu_position = 7;
 
-		$links = wp_list_pluck( array_values( $submenu['tools.php'] ), 2 );
-
-		$this->assertNotContains( 'https://wordpress.com/site-logs/' . static::$domain, $links );
-
-		add_filter( 'jetpack_show_wpcom_site_logs_menu', '__return_true', 99 );
-		static::$admin_menu->add_tools_menu();
-		remove_filter( 'jetpack_show_wpcom_site_logs_menu', '__return_true', 99 );
-
-		$links = wp_list_pluck( array_values( $submenu['tools.php'] ), 2 );
-
-		$this->assertContains( 'https://wordpress.com/site-logs/' . static::$domain, $links );
-	}
-
-	/**
-	 * Override the user's locale to be not English.
-	 */
-	public function set_test_locale_to_not_english() {
-		return 'nl_BE';
+		$this->assertSame( 'https://wordpress.com/site-monitoring/' . static::$domain, $submenu['tools.php'][ $menu_position ][2] );
 	}
 }

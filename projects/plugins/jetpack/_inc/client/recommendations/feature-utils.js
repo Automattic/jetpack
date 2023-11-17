@@ -47,6 +47,13 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: '#/settings?term=monitor',
 			};
+		case 'newsletter':
+			return {
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				displayName: __( 'Newsletter', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
+				configLink: '#/settings?term=subscriptions',
+			};
 		case 'related-posts':
 			return {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
@@ -197,6 +204,12 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 					return dispatch( updateSettings( { monitor: true } ) );
 				},
 			};
+		case 'newsletter':
+			return {
+				activateFeature: () => {
+					return dispatch( updateSettings( { subscriptions: true } ) );
+				},
+			};
 		case 'related-posts':
 			return {
 				activateFeature: () => {
@@ -299,10 +312,21 @@ export const getStepContent = ( state, stepSlug ) => {
 					'The Jetpack Newsletter Form combined with Creative Mail by Constant Contact can help automatically gather subscribers and send them beautiful emails. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
-				descriptionLink:
-					'https://jetpack.com/support/jetpack-blocks/form-block/newsletter-sign-up-form/',
+				descriptionLink: getRedirectUrl( 'jetpack-support-jetpack-blocks-newsletter-sign-up' ),
 				ctaText: __( 'Install Creative Mail', 'jetpack' ),
 				illustration: 'assistant-creative-mail',
+			};
+		case 'newsletter':
+			return {
+				progressValue: '70',
+				question: __( 'Send subscribers your latest blog posts via email?', 'jetpack' ),
+				description: __(
+					'With Jetpack Newsletter you can keep your audience engaged by automatically sending your content via email. <ExternalLink>Learn more</ExternalLink>',
+					'jetpack'
+				),
+				descriptionLink: getRedirectUrl( 'jetpack-newsletter-landing' ),
+				ctaText: __( 'Enable Newsletter', 'jetpack' ),
+				illustration: 'assistant-newsletter',
 			};
 		case 'monitor':
 			return {
@@ -315,7 +339,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'If your site ever goes down, Downtime Monitoring will send you an email or push notitification to let you know. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
-				descriptionLink: 'https://jetpack.com/support/monitor/',
+				descriptionLink: getRedirectUrl( 'jetpack-support-monitor' ),
 				ctaText: __( 'Enable Downtime Monitoring', 'jetpack' ),
 				illustration: 'assistant-downtime-monitoring',
 			};
@@ -330,7 +354,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'Displaying Related Posts at the end of your content keeps visitors engaged and on your site. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
-				descriptionLink: 'https://jetpack.com/support/related-posts/',
+				descriptionLink: getRedirectUrl( 'jetpack-support-related-posts' ),
 				ctaText: __( 'Enable Related Posts', 'jetpack' ),
 				illustration: 'assistant-related-post',
 			};
@@ -342,7 +366,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'Faster sites get better ranking in search engines and help keep visitors on your site longer. Jetpack will automatically optimize and load your images and files from our global Content Delivery Network (CDN). <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
-				descriptionLink: 'https://jetpack.com/support/site-accelerator/',
+				descriptionLink: getRedirectUrl( 'jetpack-support-site-accelerator' ),
 				ctaText: __( 'Enable Site Accelerator', 'jetpack' ),
 				illustration: 'assistant-site-accelerator',
 			};
@@ -401,7 +425,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'We’re partnered with <strong>WooCommerce</strong> — a customizable, open-source eCommerce platform built for WordPress. It’s everything you need to start selling products today. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
-				descriptionLink: 'https://woocommerce.com/woocommerce-features/',
+				descriptionLink: getRedirectUrl( 'woocommerce-features-landing' ),
 				ctaText: __( 'Install WooCommerce', 'jetpack' ),
 				illustration: 'assistant-woo-commerce',
 			};

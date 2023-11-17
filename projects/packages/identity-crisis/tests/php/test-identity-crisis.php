@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
@@ -583,6 +584,8 @@ class Test_Identity_Crisis extends BaseTestCase {
 				),
 				$input
 			);
+			// Add reversed_url key
+			$expected_option['reversed_url'] = true;
 		} else {
 			$expected_option = false;
 		}
@@ -978,5 +981,61 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 */
 	public function return_string_1() {
 		return '1';
+	}
+
+	/**
+	 * Test the `add_secret_to_url_validation_response()` method.
+	 *
+	 * @return void
+	 */
+	public static function test_add_secret_to_url_validation_response() {
+		$data = array(
+			'key1' => 'value1',
+			'key2' => 'value2',
+		);
+
+		$data_updated = Identity_Crisis::add_secret_to_url_validation_response( $data );
+
+		$secret_db          = Jetpack_Options::get_option( URL_Secret::OPTION_KEY );
+		$data['url_secret'] = $secret_db['secret'];
+
+		static::assertEquals( $data, $data_updated );
+		static::assertArrayNotHasKey( 'url_secret_error', $data_updated );
+	}
+
+	/**
+	 * Test the `reverse_wpcom_urls_for_idc()` method.
+	 *
+	 * @return void
+	 */
+	public function testReverseWpcomUrlsForIdc() {
+		// Create a sample input array for testing
+		$sync_error = array(
+			'reversed_url'  => true,
+			'wpcom_siteurl' => 'example.com',
+			'wpcom_home'    => 'example.org',
+		);
+
+		// Call the method to be tested
+		$result = Identity_Crisis::reverse_wpcom_urls_for_idc( $sync_error );
+
+		// Assert that the 'wpcom_siteurl' and 'wpcom_home' keys have been reversed
+		$this->assertEquals( 'moc.elpmaxe', $result['wpcom_siteurl'] );
+		$this->assertEquals( 'gro.elpmaxe', $result['wpcom_home'] );
+
+		// Test with an array that doesn't contain 'reversed_url'
+		$sync_error2 = array(
+			'wpcom_siteurl' => 'example.com',
+			'wpcom_home'    => 'example.org',
+		);
+
+		$result2 = Identity_Crisis::reverse_wpcom_urls_for_idc( $sync_error2 );
+
+		// Assert that 'wpcom_siteurl' and 'wpcom_home' keys have been reversed
+		$this->assertEquals( 'example.com', $result2['wpcom_siteurl'] );
+		$this->assertEquals( 'example.org', $result2['wpcom_home'] );
+
+		// Assert that 'reversed_url' key is not present, and other keys are not changed
+		$this->assertArrayNotHasKey( 'reversed_url', $result2 );
 	}
 }

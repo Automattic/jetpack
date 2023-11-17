@@ -582,9 +582,9 @@ function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.
 				return zeroBSCRM_permsForms();
 				break;
 
-			case ZBS_TYPE_EVENT:
+			case ZBS_TYPE_TASK:
 
-				return zeroBSCRM_permsEvents();
+				return zeroBSCRM_perms_tasks();
 				break;			
 
 		}
@@ -592,12 +592,51 @@ function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.
 		return false;
 	}
 
-	function zeroBSCRM_permsCustomers(){
+/**
+ * Determine if a user is allowed to manage contacts.
+ *
+ * @since 6.1.0
+ *
+ * @param WP_User $user The WP User to check permission access for.
+ * @param int     $contact_id (Optional) The ID of the CRM contact.
+ * @return bool Returns a bool representing a user permission state.
+ */
+function jpcrm_can_user_manage_contacts( WP_User $user, $contact_id = null ) {
+	/**
+	 * Allow third party plugins to modify the permission conditions for contacts.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param boolean  $allowed A boolean that represents the permission state.
+	 * @param WP_User  $user The WP User to check permission access for.
+	 * @param int|null $contact_id (Optional) The ID of the CRM contact.
+	 */
+	return (bool) apply_filters(
+		'jpcrm_can_user_manage_contacts',
+		$user->has_cap( 'admin_zerobs_customers' ),
+		$user,
+		$contact_id
+	);
+}
 
-	    $cu = wp_get_current_user();
-	    if ($cu->has_cap('admin_zerobs_customers')) return true;
-	    return false;
+/**
+ * Determine if the current user is allowed to manage contacts.
+ *
+ * @deprecated 6.1.0 Use jpcrm_can_user_manage_contacts()
+ *
+ * @return bool
+ *
+ * @phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+ */
+function zeroBSCRM_permsCustomers() {
+	$current_user = wp_get_current_user();
+
+	if ( ! $current_user instanceof WP_User ) {
+		return false;
 	}
+
+	return jpcrm_can_user_manage_contacts( $current_user ) === true;
+}
 
 	function zeroBSCRM_permsSendEmailContacts(){
 
@@ -667,7 +706,7 @@ function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.
 	    return false;
 	}
 
-	function zeroBSCRM_permsEvents(){
+	function zeroBSCRM_perms_tasks(){
 
 	    $cu = wp_get_current_user();
 	    if ($cu->has_cap('admin_zerobs_events')) return true;
@@ -727,7 +766,7 @@ function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.
 	function zeroBS_getPossibleQuoteOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','zerobs_customermgr')); }
 	function zeroBS_getPossibleInvoiceOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','zerobs_customermgr')); }
 	function zeroBS_getPossibleTransactionOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','zerobs_customermgr')); }
-	function zeroBS_getPossibleEventOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','admin_zerobs_events')); }
+	function zeroBS_getPossibleTaskOwners(){ return zeroBS_getPossibleOwners(array('zerobs_admin','admin_zerobs_events')); }
 
 
 	// added this because Multi-site doesn't reliably 
@@ -933,9 +972,9 @@ function jpcrm_can_wp_user_view_object( $wp_user, $obj_id, $obj_type_id ) {
       $is_invoice_admin = $wp_user->has_cap( 'admin_zerobs_invoices' );
       $obj_data = zeroBS_getInvoice( $obj_id );
       // draft invoice
-      if ( is_array($obj_data) && $obj_data['status'] == __( 'Draft', 'zero-bs-crm' ) && !$is_invoice_admin ) {
-        return false;
-      }
+			if ( is_array( $obj_data ) && $obj_data['status'] === 'Draft' && ! $is_invoice_admin ) {
+				return false;
+			}
       $assigned_contact_id = zeroBSCRM_invoice_getContactAssigned( $obj_id );
       break;
   }

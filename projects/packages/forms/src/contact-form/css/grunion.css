@@ -60,6 +60,20 @@
 	min-width: 150px;
 }
 
+/*
+	On Grunion Forms, the regular HTML select is replaced by a custom select by jQuery UI.
+ 	To keep the required validation working the select can't be 'display: none'
+ 	This solution will keep the select hidden without using 'display: none'
+ */
+.contact-form .contact-form-dropdown[aria-hidden="true"] {
+	position: absolute;
+	z-index: -1;
+	width: 100%;
+	display: block !important;
+	opacity: 0;
+	pointer-events: none;
+}
+
 .contact-form input[type='radio'],
 .contact-form input[type='checkbox'] {
 	width: 1rem;
@@ -209,6 +223,7 @@
 
 .wp-block-jetpack-contact-form .grunion-field-wrap {
 	box-sizing: border-box;
+	position: relative;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-25-wrap {

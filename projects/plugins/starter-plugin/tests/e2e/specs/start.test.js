@@ -1,7 +1,7 @@
 import { test } from '@playwright/test';
 import { Sidebar, DashboardPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
-import playwrightConfig from '../playwright.config.cjs';
+import playwrightConfig from '../playwright.config.mjs';
 
 test.describe( 'Starter plugin!', () => {
 	test.beforeEach( async ( { browser } ) => {
@@ -10,6 +10,7 @@ test.describe( 'Starter plugin!', () => {
 		await page.close();
 	} );
 
+	// eslint-disable-next-line playwright/expect-expect -- TODO: Fix/justify this.
 	test( 'Visit Jetpack page', async ( { page } ) => {
 		await DashboardPage.visit( page );
 		await ( await Sidebar.init( page ) ).selectJetpack();

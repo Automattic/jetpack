@@ -1,5 +1,5 @@
 import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 
 const apiEndpointsRegex = {
 	'modules-state': /jetpack-boost-ds\/modules-state\/merge/,
@@ -16,7 +16,7 @@ export default class JetpackBoostPage extends WpPage {
 	 * Select the free plan from getting started page.
 	 */
 	async chooseFreePlan() {
-		const button = await this.page.locator( 'text=Start for free' );
+		const button = this.page.locator( 'text=Start for free' );
 		await button.click();
 		await this.waitForElementToBeVisible( '.jb-section--scores' );
 	}
@@ -78,14 +78,18 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async getSpeedScore( platform ) {
-		const speedBar = await this.page.waitForSelector(
-			`div.jb-score-bar--${ platform }  .jb-score-bar__filler`
-		);
-		await this.page.waitForSelector( '.jb-score-bar__score', {
+		const parent = `div.jb-score-bar--${ platform }  .jb-score-bar__filler`;
+
+		await this.page.waitForSelector( parent + ' .jb-score-bar__score', {
 			state: 'visible',
 			timeout: 40 * 1000,
 		} );
-		return Number( await speedBar.$eval( '.jb-score-bar__score', e => e.textContent ) );
+
+		return Number(
+			await this.page.evaluate(
+				"document.querySelector( '" + parent + " .jb-score-bar__score' ).textContent"
+			)
+		);
 	}
 
 	async isScorebarLoading( platform ) {
@@ -148,7 +152,7 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async isScoreDescriptionPopinVisible() {
-		const selector = '.jb-score-context__info-container';
+		const selector = '.jb-site-score__top .icon-tooltip-wrapper .components-popover__content';
 		return this.page.isVisible( selector );
 	}
 

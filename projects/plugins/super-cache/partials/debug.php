@@ -1,9 +1,11 @@
+<div class="wpsc-settings-inner">
 <?php
 extract( wpsc_update_debug_settings() ); // $wp_super_cache_debug, $wp_cache_debug_log, $wp_cache_debug_ip, $wp_super_cache_comments, $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear, $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification, $wp_super_cache_advanced_debug, $wp_cache_debug_username
 $admin_url = admin_url( 'options-general.php?page=wpsupercache' );
 
 echo '<a name="debug"></a>';
 echo '<fieldset class="options">';
+echo '<div class="wpsc-card">';
 echo '<p>' . __( 'Fix problems with the plugin by debugging it here. It will log to a file in your cache directory.', 'wp-super-cache' ) . '</p>';
 // $wp_cache_debug_log is declared when this file is included.
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
@@ -40,7 +42,9 @@ echo "<input type='hidden' name='wp_super_cache_debug' value='" . $not_status . 
 wp_nonce_field('wp-cache');
 submit_button( $debug_status_message, 'primary', 'wpsc_log_status', true );
 echo "</form>";
+echo '</div>';
 
+echo '<div class="wpsc-card">';
 echo '<form name="wp_cache_debug" action="' . esc_url_raw( add_query_arg( 'tab', 'debug', $admin_url ) ) . '" method="post">';
 echo "<input type='hidden' name='wp_cache_debug' value='1' /><br />";
 echo "<table class='form-table'>";
@@ -65,4 +69,6 @@ if ( isset( $wp_super_cache_advanced_debug ) ) {
 echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save Settings', 'wp-super-cache' ) . '" /></div>';
 wp_nonce_field('wp-cache');
 echo "</form>\n";
+echo '</div>';
 echo '</fieldset>';
+echo '</div>';

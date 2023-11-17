@@ -78,7 +78,7 @@ class Dummy_Class {
 		// MediaWiki.WhiteSpace.MultipleEmptyLines.
 
 
-		// MediaWiki.WhiteSpace.SpaceAfterClosure.
+		// Formerly MediaWiki.WhiteSpace.SpaceAfterClosure, now Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction.
 		$u->func2 = function() {
 		};
 
@@ -88,5 +88,5 @@ class Dummy_Class {
 	// MediaWiki.WhiteSpace.MultipleEmptyLines again.
 
 
+	// ...
 }
-

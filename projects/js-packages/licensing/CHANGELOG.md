@@ -5,6 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.11.12 - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## 0.11.11 - 2023-11-13
+### Changed
+- Updated dependencies.
+
+## 0.11.10 - 2023-10-19
+### Changed
+- Updated package dependencies. [#33687]
+
+## 0.11.9 - 2023-10-17
+### Changed
+- Updated package dependencies. [#33646]
+
+## 0.11.8 - 2023-10-16
+### Changed
+- Updated package dependencies. [#33429]
+
+## 0.11.7 - 2023-10-10
+### Changed
+- Updated package dependencies. [#33428]
+
+## 0.11.6 - 2023-09-13
+### Changed
+- Updated package dependencies. [#33001]
+
+## 0.11.5 - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+- Updated package dependencies. [#32804]
+
+## 0.11.4 - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
+## 0.11.3 - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## 0.11.2 - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+## 0.11.1 - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## 0.11.0 - 2023-07-10
+### Removed
+- Remove Jetpack Starter activation screen [#31751]
+
+## 0.10.4 - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
 ## 0.10.3 - 2023-06-23
 ### Changed
 - Updated package dependencies. [#31468]

@@ -2,7 +2,15 @@ import apiFetch from '@wordpress/api-fetch';
 import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../../shared/components/product-management-controls/constants';
 import * as message from '../../../shared/components/product-management-controls/utils';
 import * as currencies from '../../../shared/currencies';
-import { saveProduct, setApiState, setConnectUrl, setProducts, setSiteSlug } from '../actions';
+import {
+	saveProduct,
+	setApiState,
+	setConnectUrl,
+	setProducts,
+	setSiteSlug,
+	setConnectedAccountDefaultCurrency,
+	setNewsletterCategories,
+} from '../actions';
 import * as utils from '../utils';
 
 const ANY_VALID_DATA = {
@@ -48,6 +56,20 @@ describe( 'Membership Products Actions', () => {
 
 		// Then
 		expect( result ).toStrictEqual( anyValidConnectUrlWithType );
+	} );
+
+	test( 'Set ConnectedAccountDefaultCurrency works as expected', () => {
+		// Given
+		const anyValidConnectedAccountDefaultCurrencyWithType = {
+			type: 'SET_CONNECTED_ACCOUNT_DEFAULT_CURRENCY',
+			connectedAccountDefaultCurrency: ANY_VALID_DATA,
+		};
+
+		// When
+		const result = setConnectedAccountDefaultCurrency( ANY_VALID_DATA );
+
+		// Then
+		expect( result ).toStrictEqual( anyValidConnectedAccountDefaultCurrencyWithType );
 	} );
 
 	test( 'Set apiState works as expected', () => {
@@ -278,5 +300,19 @@ describe( 'Membership Products Actions', () => {
 		expect( selectedProductCallback ).toHaveBeenCalledWith( apiResponseProduct.id );
 		expect( noticeMock ).not.toHaveBeenCalled();
 		expect( getMessageMock ).not.toHaveBeenCalled();
+	} );
+
+	test( 'Set newsletter categories works as expected', () => {
+		// Given
+		const anyValidNewsletterCategoriesWithType = {
+			type: 'SET_NEWSLETTER_CATEGORIES',
+			newsletterCategories: ANY_VALID_DATA,
+		};
+
+		// When
+		const result = setNewsletterCategories( ANY_VALID_DATA );
+
+		// Then
+		expect( result ).toStrictEqual( anyValidNewsletterCategoriesWithType );
 	} );
 } );

@@ -4,6 +4,7 @@
 
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 
 /**
  * Internal variables
@@ -66,7 +67,7 @@ const sharedWebpackConfig = {
 						loader: 'postcss-loader',
 						options: {
 							// postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
-							postcssOptions: { plugins: { autoprefixer: {} } },
+							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
 						},
 					},
 					'sass-loader',
@@ -82,6 +83,17 @@ const sharedWebpackConfig = {
 module.exports = [
 	{
 		...sharedWebpackConfig,
-		plugins: [ ...sharedWebpackConfig.plugins ],
+		plugins: [
+			...sharedWebpackConfig.plugins,
+			new CopyWebpackPlugin( {
+				patterns: [
+					{
+						from: 'src/blocks/**/block.json',
+						to: '[name][ext]',
+						noErrorOnMissing: true,
+					},
+				],
+			} ),
+		],
 	},
 ];

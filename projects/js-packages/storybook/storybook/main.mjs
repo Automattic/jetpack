@@ -2,11 +2,11 @@
  * This file is inspired by https://github.com/WordPress/gutenberg/blob/trunk/storybook/main.js
  */
 
+import path from 'node:path';
 import { fileURLToPath } from 'url';
 import postcssPlugins from '@wordpress/postcss-plugins-preset';
 import { EsbuildPlugin } from 'esbuild-loader';
 import remarkGfm from 'remark-gfm';
-import { ProgressPlugin } from 'webpack';
 import projects from './projects.js';
 
 const storiesSearch = '*.@(mdx|@(story|stories).@(js|jsx|ts|tsx))';
@@ -28,6 +28,8 @@ const sbconfig = {
 				mdxPluginOptions: {
 					mdxCompileOptions: {
 						remarkPlugins: [ remarkGfm ],
+						// Workaround https://github.com/storybookjs/storybook/issues/23217
+						providerImportSource: require.resolve( '@storybook/addon-docs/mdx-react-shim' ),
 					},
 				},
 			},
@@ -43,7 +45,7 @@ const sbconfig = {
 		// Remove ProgressPlugin and source maps in production builds.
 		if ( process.env.NODE_ENV === 'production' ) {
 			config.devtool = false;
-			config.plugins = config.plugins.filter( p => ! ( p instanceof ProgressPlugin ) );
+			config.plugins = config.plugins.filter( p => p.constructor.name !== 'ProgressPlugin' );
 		}
 
 		// Use esbuild to minify.
@@ -85,6 +87,16 @@ const sbconfig = {
 			fileURLToPath( new URL( '../../../packages/search/src/dashboard/', import.meta.url ) )
 		);
 
+		config.resolve.alias = {
+			...config.resolve.alias,
+
+			// Boost specific aliases
+			$lib: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/lib' ),
+			$features: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/features' ),
+			$layout: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/layout' ),
+			$svg: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/svg' ),
+		};
+
 		return config;
 	},
 	refs: {
@@ -94,7 +106,9 @@ const sbconfig = {
 		},
 	},
 	framework: {
-		name: '@storybook/react-webpack5',
+		// Workaround https://github.com/storybookjs/storybook/issues/21710
+		// from https://storybook.js.org/docs/react/faq#how-do-i-fix-module-resolution-while-using-pnpm-plug-n-play
+		name: path.dirname( require.resolve( '@storybook/react-webpack5/package.json' ) ),
 		options: {},
 	},
 	docs: {

@@ -5,8 +5,8 @@
  * @package automattic/jetpack-debug-helper
  */
 
-use \Automattic\Jetpack\Waf\Waf_Rules_Manager;
-use \Automattic\Jetpack\Waf\Waf_Runner;
+use Automattic\Jetpack\Waf\Waf_Rules_Manager;
+use Automattic\Jetpack\Waf\Waf_Runner;
 
 /**
  * Helps debug WAF
@@ -182,7 +182,7 @@ class Waf_Helper {
 		<hr>
 
 		<h2>Status</h2>
-		<p>Environment is supported: <code><?php echo Waf_Runner::is_supported_environment() ? 'true' : 'false'; ?></code></p>
+		<p>WAF is supported: <code><?php echo Waf_Runner::is_supported_environment() ? 'true' : 'false'; ?></code></p>
 		<p>Firewall status: <code><?php echo Waf_Runner::is_enabled() ? 'enabled' : 'disabled'; ?></code></p>
 
 		<hr>
@@ -242,7 +242,6 @@ class Waf_Helper {
 
 		<?php
 	}
-
 }
 
 add_action(

@@ -95,9 +95,9 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, data } ) =>
 
 			req._xhr.open( req._method, req._url, true );
 			// Set the headers again, reopening the xhr resets them.
-			Object.keys( req._headers ).map( function ( headerName ) {
+			for ( const headerName in req._headers ) {
 				req.setHeader( headerName, req._headers[ headerName ] );
-			} );
+			}
 
 			if ( 'POST' === method ) {
 				const hasJWT = !! data.token;
@@ -116,7 +116,7 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, data } ) =>
 				if ( jwtsForKeys[ maybeUploadkey ] ) {
 					req.setHeader( 'x-videopress-upload-token', jwtsForKeys[ maybeUploadkey ] );
 				} else if ( 'HEAD' === method ) {
-					return getJWT( maybeUploadkey ).then( responseData => {
+					return getJWT().then( responseData => {
 						jwtsForKeys[ maybeUploadkey ] = responseData.token;
 						req.setHeader( 'x-videopress-upload-token', responseData.token );
 						return req;

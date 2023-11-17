@@ -22,8 +22,6 @@ declare global {
 	// Constants provided by the plugin.
 	const Jetpack_Boost: {
 		preferences: {
-			showRatingPrompt: boolean;
-			showScorePrompt: boolean;
 			prioritySupport: boolean;
 		};
 		isPremium: boolean;
@@ -34,21 +32,22 @@ declare global {
 		};
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
-		showRatingPromptNonce?: string;
-		showScorePromptNonce?: string;
-		dismissedScorePrompts: string[];
 		superCache: {
 			pluginActive: boolean;
 			cacheEnabled: boolean;
-			disableCacheKey?: string;
+			cachePageSecret?: string;
 		};
 		site: {
 			domain: string;
 			url: string;
 			online: boolean;
 			assetPath: string;
-			getStarted: boolean;
+			staticAssetPath: string;
 			canResizeImages: boolean;
+			isAtomic: boolean;
+			postTypes: {
+				[ key: string ]: string;
+			};
 		};
 		optimizations: Optimizations;
 		shownAdminNoticeIds: string[];

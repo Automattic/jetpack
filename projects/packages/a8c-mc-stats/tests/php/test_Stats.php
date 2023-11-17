@@ -72,5 +72,4 @@ class StatsTest extends TestCase {
 		$this->assertArrayHasKey( 'x_jetpack-group', $check );
 		$this->assertEquals( 'test,test2', $check['x_jetpack-group'] );
 	}
-
 }

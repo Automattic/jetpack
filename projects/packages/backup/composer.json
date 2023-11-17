@@ -16,7 +16,7 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"yoast/phpunit-polyfills": "1.0.4",
+		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/wordbless": "@dev"
 	},
 	"suggest": {
@@ -75,7 +75,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.16.x-dev"
+			"dev-trunk": "1.17.x-dev"
 		}
 	},
 	"config": {

@@ -413,8 +413,9 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 								$return[ $key ] = (object) array();
 							}
 
-							if ( isset( $last_post['ID'] ) ) {
-								$return[ $key ]->next_page = $this->build_page_handle( $last_post, $query );
+							$handle = $this->build_page_handle( $last_post, $query );
+							if ( $handle !== null ) {
+								$return[ $key ]->next_page = $handle;
 							}
 						}
 					}
@@ -445,6 +446,9 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 		$column = $query['orderby'];
 		if ( ! $column ) {
 			$column = 'date';
+		}
+		if ( ! isset( $post['ID'] ) || ! isset( $post[ $column ] ) ) {
+			return null;
 		}
 		return build_query(
 			array(

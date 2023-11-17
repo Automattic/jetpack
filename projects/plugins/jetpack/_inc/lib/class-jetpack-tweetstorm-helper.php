@@ -1651,7 +1651,7 @@ class Jetpack_Tweetstorm_Helper {
 
 		$requests = array_filter( $requests );
 
-		// Remove this check once WordPress 6.2 is the minimum supported version.
+		// @todo Remove this check when wpcom picks up the new Requests lib (it seems it was skipped during their update to 6.2)
 		if ( ! class_exists( '\WpOrg\Requests\Hooks' ) ) {
 			$hooks = new Requests_Hooks();
 		} else {
@@ -1663,7 +1663,7 @@ class Jetpack_Tweetstorm_Helper {
 			array( self::class, 'validate_redirect_url' )
 		);
 
-		// Remove this check once WordPress 6.2 is the minimum supported version.
+		// @todo Remove this check when wpcom picks up the new Requests lib (it seems it was skipped during their update to 6.2)
 		$results = class_exists( '\WpOrg\Requests\Requests' )
 			? \WpOrg\Requests\Requests::request_multiple( $requests, array( 'hooks' => $hooks ) )
 			: Requests::request_multiple( $requests, array( 'hooks' => $hooks ) );
@@ -1744,7 +1744,7 @@ class Jetpack_Tweetstorm_Helper {
 	 */
 	public static function validate_redirect_url( $redirect_url ) {
 		if ( ! wp_http_validate_url( $redirect_url ) ) {
-			// Remove this check once WordPress 6.2 is the minimum supported version.
+			// @todo Remove this check when wpcom picks up the new Requests lib (it seems it was skipped during their update to 6.2)
 			if ( ! class_exists( '\WpOrg\Requests\Exception' ) ) {
 				throw new Requests_Exception( __( 'A valid URL was not provided.', 'jetpack' ), 'wp_http.redirect_failed_validation' );
 			}

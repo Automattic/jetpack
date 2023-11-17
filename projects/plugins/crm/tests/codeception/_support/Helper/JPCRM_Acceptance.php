@@ -5,16 +5,6 @@ use Module\WPBrowser;
 
 class JPCRM_Acceptance extends WPBrowser {
 
-	protected $requiredFields = array(
-		'adminUsername',
-		'adminPassword',
-		'adminPath',
-		'database',
-		'wp_prefix',
-		'jpcrm_prefix',
-		'wp_path',
-	);
-
 	protected $server_output_path = __DIR__ . '/../../_output/server_output.log';
 
 	// we use core.php slugs directly copied in via __CONSTRUCT below to allow easy updating.
@@ -25,6 +15,18 @@ class JPCRM_Acceptance extends WPBrowser {
 
 	public function _beforeSuite( $settings = array() ) {
 		parent::_beforeSuite( $settings );
+
+		// To set this as a field, Codeception v5 needs "protected array $requiredFields = ...". But PHP 7.3 doesn't support that syntax.
+		// @todo When we drop support for PHP 7.3, we can move this back to "protected array $requiredFields"
+		$this->requiredFields = array(
+			'adminUsername',
+			'adminPassword',
+			'adminPath',
+			'database',
+			'wp_prefix',
+			'jpcrm_prefix',
+			'wp_path',
+		);
 
 		// todo: prepare the database (remove and restore, change the home and siteurl options
 		// $this->setup_database();
@@ -105,7 +107,7 @@ class JPCRM_Acceptance extends WPBrowser {
 			$row = fgets( $output );
 			// todo: we can do the same using a regular expression and preg_match
 			foreach ( $php_errors as $php_error ) {
-				if ( strpos( $row, $php_error ) !== false ) {
+				if ( str_contains( $row, $php_error ) ) {
 					$errors[] = $row;
 				}
 			}
@@ -168,8 +170,8 @@ class JPCRM_Acceptance extends WPBrowser {
 		$this->slugs['manageformscrm']     = 'manage-forms';
 		$this->slugs['segments']           = 'manage-segments';
 		$this->slugs['quote-templates']    = 'manage-quote-templates';
-		$this->slugs['manage-events']      = 'manage-events';
-		// $this->slugs['manage-events-completed'] = "manage-events-completed";  // <<< 403 Forbidden
+		$this->slugs['manage-tasks']       = 'manage-tasks';
+		// $this->slugs['manage-tasks-completed'] = "manage-tasks-completed";  // <<< 403 Forbidden
 		// $this->slugs['managecontactsprev']      = "manage-customers-crm";     // <<< 403 Forbidden
 		// $this->slugs['managequotesprev']        = "manage-quotes-crm";        // <<< 403 Forbidden
 		// $this->slugs['managetransactionsprev']  = "manage-transactions-crm";  // <<< 403 Forbidden
@@ -206,8 +208,7 @@ class JPCRM_Acceptance extends WPBrowser {
 		// tag manager
 		$this->slugs['tagmanager'] = 'tag-manager';
 
-		// } Deletion and no access
-		$this->slugs['zbs-deletion'] = 'zbs-deletion';
+		// no access
 		$this->slugs['zbs-noaccess'] = 'zbs-noaccess';
 
 		// } Modules/extensions
@@ -288,5 +289,4 @@ class JPCRM_Acceptance extends WPBrowser {
 		$this->dontSee( 'Warning:  ' );
 		$this->dontSee( 'Fatal error:  ' );
 	}
-
 }

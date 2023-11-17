@@ -1226,7 +1226,7 @@ msgstr "<strong>Fehler: WP_CACHE ist nicht aktiviert</strong> in deiner <code>wp
 
 #: wp-cache.php:1827
 msgid "Edit <code>%s</code> and add the following line:<br /> <code>define('WP_CACHE', true);</code><br />Otherwise, <strong>WP-Cache will not be executed</strong> by WordPress core. "
-msgstr "Bearbeite <code>%s</code> und füge folgende Zeile hinzu:<br /> <code>define('WP_CACHE', true);</code><br />Ansonsten wird <strong>WP-Cache nicht ausgeführt</strong> durch Wordpress."
+msgstr "Bearbeite <code>%s</code> und füge folgende Zeile hinzu:<br /> <code>define('WP_CACHE', true);</code><br />Ansonsten wird <strong>WP-Cache nicht ausgeführt</strong> durch WordPress."
 
 #: wp-cache.php:1831
 msgid "<h3>WP_CACHE constant added to wp-config.php</h3><p>If you continue to see this warning message please see point 5 of the <a href=\"http://wordpress.org/extend/plugins/wp-super-cache/faq/\">FAQ</a>. The WP_CACHE line must be moved up."

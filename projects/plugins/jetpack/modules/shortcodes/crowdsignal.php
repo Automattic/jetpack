@@ -259,7 +259,7 @@ if (
 				}
 
 				$rating    = (int) $attributes['rating'];
-				$unique_id = preg_replace( '/[^\-_a-z0-9]/i', '', wp_strip_all_tags( $attributes['unique_id'] ) );
+				$unique_id = sanitize_key( wp_strip_all_tags( $attributes['unique_id'] ) );
 				$item_id   = wp_strip_all_tags( $attributes['item_id'] );
 				$item_id   = preg_replace( '/[^_a-z0-9]/i', '', $item_id );
 
@@ -350,7 +350,7 @@ if (
 
 				$poll_js   = sprintf( 'https://secure.polldaddy.com/p/%d.js', $poll );
 				$poll_link = sprintf(
-					'<a href="%s" target="_blank">%s</a>',
+					'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
 					esc_url( $poll_url ),
 					esc_html( $attributes['title'] )
 				);
@@ -514,7 +514,13 @@ if (
 							$survey_url = 'https://polldaddy.com/s/' . $survey;
 						}
 					} elseif ( isset( $attributes['domain'] ) && isset( $attributes['id'] ) ) {
-						$survey_url = 'https://' . $attributes['domain'] . '.survey.fm/' . $attributes['id'];
+						$survey_domain = preg_replace( '/[^a-z0-9\-]/i', '', $attributes['domain'] );
+						$survey_id     = preg_replace( '/[\/\?&\{\}]/', '', $attributes['id'] );
+						$survey_url    = sprintf(
+							'https://%1$s.survey.fm/%2$s',
+							$survey_domain,
+							$survey_id
+						);
 					}
 
 					$survey_link = sprintf(
@@ -585,8 +591,8 @@ if (
 							);
 						}
 					} else {
-						$text_color = preg_replace( '/[^a-f0-9]/i', '', $attributes['text_color'] );
-						$back_color = preg_replace( '/[^a-f0-9]/i', '', $attributes['back_color'] );
+						$text_color = sanitize_hex_color_no_hash( $attributes['text_color'] );
+						$back_color = sanitize_hex_color_no_hash( $attributes['back_color'] );
 
 						if (
 							! in_array(

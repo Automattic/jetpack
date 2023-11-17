@@ -19,7 +19,7 @@
  * Init Social_Links if the theme declares support.
  */
 function jetpack_theme_supports_social_links() {
-	if ( current_theme_supports( 'social-links' ) && function_exists( 'publicize_init' ) ) {
+	if ( ! wp_is_block_theme() && current_theme_supports( 'social-links' ) && function_exists( 'publicize_init' ) ) {
 		new Social_Links();
 	}
 }

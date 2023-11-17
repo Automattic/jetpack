@@ -1,5 +1,5 @@
 import WpPage from '../wp-page.js';
-import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
+import { resolveSiteUrl } from '../../helpers/utils-helper.js';
 
 export default class RecommendationsPage extends WpPage {
 	constructor( page ) {
@@ -38,15 +38,11 @@ export default class RecommendationsPage extends WpPage {
 	}
 
 	get enableRelatedPostsButtonSel() {
-		return 'a[href*="recommendations/creative-mail"] >> text="Enable Related Posts"';
+		return 'a[href*="recommendations/newsletter"] >> text="Enable Related Posts"';
 	}
 
-	get installCreativeMailButtonSel() {
-		return 'a[href*="recommendations/site-accelerator"] >> text="Install Creative Mail"';
-	}
-
-	get skipCreativeMailButtonSel() {
-		return 'a[href*="recommendations/site-accelerator"] >> text="Not now"';
+	get enableNewsletterButtonSel() {
+		return 'a[href*="recommendations/site-accelerator"] >> text="Enable Newsletter"';
 	}
 
 	get enableSiteAcceleratorButtonSel() {
@@ -81,8 +77,8 @@ export default class RecommendationsPage extends WpPage {
 		return '.jp-recommendations-feature-summary.is-feature-enabled >> a >> text="Related Posts"';
 	}
 
-	get creativeMailFeatureNotEnabledSel() {
-		return '.jp-recommendations-feature-summary:not(.is-feature-enabled) >> a >> text="Creative Mail"';
+	get newsletterFeatureEnabledSel() {
+		return '.jp-recommendations-feature-summary.is-feature-enabled >> a >> text="Newsletter"';
 	}
 
 	get siteAcceleratorFeatureNotEnabledSel() {
@@ -144,12 +140,12 @@ export default class RecommendationsPage extends WpPage {
 		return await this.click( this.enableRelatedPostsButtonSel );
 	}
 
-	async isInstallCreativeMailButtonVisible() {
-		return await this.isElementVisible( this.installCreativeMailButtonSel );
+	async isEnableNewsletterButtonVisible() {
+		return await this.isElementVisible( this.enableNewsletterButtonSel );
 	}
 
-	async skipCreativeMailAndContinue() {
-		return await this.click( this.skipCreativeMailButtonSel );
+	async enableNewsletterAndContinue() {
+		return await this.click( this.enableNewsletterButtonSel );
 	}
 
 	async isEnableSiteAcceleratorButtonVisible() {
@@ -184,8 +180,8 @@ export default class RecommendationsPage extends WpPage {
 		return await this.isElementVisible( this.relatedPostsFeatureEnabledSel );
 	}
 
-	async isCreativeMailFeatureEnabled() {
-		return await this.isElementVisible( this.creativeMailFeatureNotEnabledSel );
+	async isNewsletterFeatureEnabled() {
+		return await this.isElementVisible( this.newsletterFeatureEnabledSel );
 	}
 
 	async isSiteAcceleratorFeatureEnabled() {

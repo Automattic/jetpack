@@ -84,17 +84,17 @@ export const Loading = () => {
 			<div className="lg-col-span-4 md-col-span-4 sm-col-span-4">
 				<LoadingPlaceholder width={ 344 } height={ 182 } />
 			</div>
-			<div class="lg-col-span-0 md-col-span-4 sm-col-span-0"></div>
-			<div class="lg-col-span-2 md-col-span-2 sm-col-span-2">
+			<div className="lg-col-span-0 md-col-span-4 sm-col-span-0"></div>
+			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 				<LoadingPlaceholder width={ 160 } height={ 152 } />
 			</div>
-			<div class="lg-col-span-2 md-col-span-2 sm-col-span-2">
+			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 				<LoadingPlaceholder width={ 160 } height={ 152 } />
 			</div>
-			<div class="lg-col-span-2 md-col-span-2 sm-col-span-2">
+			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 				<LoadingPlaceholder width={ 160 } height={ 152 } />
 			</div>
-			<div class="lg-col-span-2 md-col-span-2 sm-col-span-2">
+			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 				<LoadingPlaceholder width={ 160 } height={ 152 } />
 			</div>
 		</div>
@@ -191,12 +191,12 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 					! backupsStopped &&
 					createInterpolateElement(
 						__(
-							'<Button>See backups in the cloud</Button><br/><ExternalLink>Or view your most recent restore point</ExternalLink>',
+							'<Button>See your backups in the cloud</Button><br/><ExternalLink>View activity log</ExternalLink>',
 							'jetpack-backup-pkg'
 						),
 						{
 							Button: (
-								<a
+								<ExternalLink
 									className="button"
 									href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
 									onClick={ trackSeeBackupsCtaClick }

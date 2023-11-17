@@ -8,12 +8,12 @@ import {
 	getRedirectUrl,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
+import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import useProductInfo from '../../hooks/use-product-info';
-import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
 
 const UNLIMITED = __( 'Unlimited', 'jetpack-social' );
@@ -24,8 +24,8 @@ const UP_TO_30_SHARES = __( 'Up to 30 shares in 30 days', 'jetpack-social' );
 const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 	const [ productInfo ] = useProductInfo();
 
-	const siteSuffix = useSelect( select => select( STORE_ID ).getSiteSuffix() );
-	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
+	const siteSuffix = useSelect( select => select( SOCIAL_STORE_ID ).getSiteSuffix() );
+	const updateOptions = useDispatch( SOCIAL_STORE_ID ).updateJetpackSettings;
 
 	const [ isLarge ] = useBreakpointMatch( 'lg' );
 
@@ -62,7 +62,7 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 				{ name: __( 'Number of shares in 30 days', 'jetpack-social' ) },
 				{ name: __( 'Priority support', 'jetpack-social' ) },
 				{ name: __( 'Schedule posting', 'jetpack-social' ) },
-				{ name: __( 'Twitter, Facebook, LinkedIn & Tumblr', 'jetpack-social' ) },
+				{ name: __( 'Instagram, Facebook, Mastodon, LinkedIn, & Tumblr', 'jetpack-social' ) },
 				{ name: __( 'Customize publications', 'jetpack-social' ) },
 				{
 					name: __( 'Recycle content', 'jetpack-social' ),
@@ -80,22 +80,20 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 				},
 				{
 					name: __( 'Video sharing', 'jetpack-social' ),
-					tooltipTitle: __( 'Coming soon', 'jetpack-social' ),
 					tooltipInfo: __( 'Upload and share videos to your social platforms.', 'jetpack-social' ),
+				},
+				{
+					name: __( 'Image generator', 'jetpack-social' ),
+					tooltipInfo: __(
+						'Automatically create custom images, saving you hours of tedious work.',
+						'jetpack-social'
+					),
 				},
 				{
 					name: __( 'Multi-image sharing', 'jetpack-social' ),
 					tooltipTitle: __( 'Coming soon', 'jetpack-social' ),
 					tooltipInfo: __(
 						'Share multiple images at once on social media platforms.',
-						'jetpack-social'
-					),
-				},
-				{
-					name: __( 'Image generator', 'jetpack-social' ),
-					tooltipTitle: __( 'Coming soon', 'jetpack-social' ),
-					tooltipInfo: __(
-						'Automatically create custom images, saving you hours of tedious work.',
 						'jetpack-social'
 					),
 				},
@@ -139,8 +137,8 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
-				<PricingTableItem isComingSoon />
-				<PricingTableItem isComingSoon />
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
 				<PricingTableItem isComingSoon />
 			</PricingTableColumn>
 			<PricingTableColumn primary>

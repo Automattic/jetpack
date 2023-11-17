@@ -6,14 +6,21 @@
 }
 
 .price-container {
+	display: flex;
+    align-items: flex-start;
 	flex-grow: 2;
 	flex-basis: 0;
+
+	.promo-label {
+		margin-left: auto;
+	}
 }
 
 .price {
 	display: inline-flex;
 	align-items: flex-start;
 	position: relative;
+	flex: 0 0 auto;
 
 	&:first-child {
 		margin-right: calc( var( --spacing-base ) * 2 );

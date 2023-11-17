@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Don't fail on case mismatch for `@singleuser` pseudo-teams.

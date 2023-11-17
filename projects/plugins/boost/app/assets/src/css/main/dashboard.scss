@@ -26,7 +26,7 @@
 
 .jb-section--scores {
 	position: relative;
-	z-index: 10;
+	z-index: 15;
 }
 
 .jb-container {
@@ -45,23 +45,6 @@
 		width: auto;
 		padding-left: $spacing-unit * 2;
 		padding-right: $spacing-unit * 2;
-	}
-}
-
-.jb-dashboard-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	height: 120px;
-	position: relative;
-
-	&__logo {
-		max-width: 240px;
-		max-height: 42px;
-
-		svg {
-			height: auto;
-		}
 	}
 }
 
@@ -84,26 +67,6 @@
 	margin-top: $halfling;
 	color: $gray_70;
 }
-
-.jb-signature--jetpack {
-	margin-left: 7px;
-	font-weight: 600;
-	font-size: 12px;
-	color: #23282D;
-
-	display: flex;
-	align-items: center;
-
-	svg {
-		margin-right: .5em;
-	}
-}
-
-.jb-signature--automattic {
-	// align the baseline with Jetpack Boost text
-	transform: translateY(-2px)
-}
-
 
 .jb-warning-modal {
 	&__actions {

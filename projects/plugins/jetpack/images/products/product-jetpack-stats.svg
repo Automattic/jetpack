@@ -1,0 +1,8 @@
+<svg viewBox="0 0 128 128" width="128" height="128" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+<rect x="12.1904" y="12.1905" width="103.619" height="103.619" rx="12.1905" fill="#2C3338"/>
+<g style="mix-blend-mode:screen">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M 60.501 36 L 67.499 36 L 67.499 92 L 60.501 92 L 60.501 36 Z" fill="white" />
+<path fill-rule="evenodd" clip-rule="evenodd" d="M 36 54.666 L 42.999 54.666 L 42.999 92 L 36 92 L 36 54.666 Z" fill="white" />
+<path fill-rule="evenodd" clip-rule="evenodd" d="M 92 69.6 L 85.001 69.6 L 85.001 92 L 92 92 L 92 69.6 Z" fill="white" />
+</g>
+</svg>

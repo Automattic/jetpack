@@ -78,38 +78,9 @@ export class Footer extends React.Component {
 
 	render() {
 		const classes = classNames( this.props.className, 'jp-footer' );
-
 		const version = this.props.currentVersion;
+		const menu = [];
 
-		const aboutPageUrl = this.props.siteConnectionStatus
-			? this.props.siteAdminUrl + 'admin.php?page=jetpack_about'
-			: getRedirectUrl( 'jetpack' );
-
-		const menu = [
-			{
-				label: _x( 'About', 'Link to learn more about Jetpack.', 'jetpack' ),
-				title: __( 'About Jetpack', 'jetpack' ),
-				href: aboutPageUrl,
-				target: this.props.siteConnectionStatus ? '_self' : '_blank',
-				onClick: this.trackAboutClick,
-			},
-			{
-				label: _x( 'Privacy', 'Shorthand for Privacy Policy.', 'jetpack' ),
-				title: __( "Automattic's Privacy Policy", 'jetpack' ),
-				href: this.props.siteConnectionStatus
-					? this.props.siteAdminUrl + 'admin.php?page=jetpack#/privacy'
-					: getRedirectUrl( 'a8c-privacy' ),
-				target: this.props.siteConnectionStatus ? '_self' : '_blank',
-				onClick: this.trackPrivacyClick,
-			},
-			{
-				label: _x( 'Terms', 'Shorthand for Terms of Service.', 'jetpack' ),
-				title: __( 'WordPress.com Terms of Service', 'jetpack' ),
-				href: getRedirectUrl( 'wpcom-tos' ),
-				target: '_blank',
-				onClick: this.trackTermsClick,
-			},
-		];
 		// Maybe add the version link.
 		if ( ! this.props.isAtomicPlatform ) {
 			menu.push( {
@@ -174,8 +145,11 @@ export class Footer extends React.Component {
 					<div className="jp-footer__container">
 						<JetpackFooter
 							menu={ menu }
-							a8cLogoHref={ aboutPageUrl }
 							moduleNameHref={ getRedirectUrl( 'jetpack' ) }
+							siteAdminUrl={ this.props.siteAdminUrl }
+							onAboutClick={ this.trackAboutClick }
+							onPrivacyClick={ this.trackPrivacyClick }
+							onTermsClick={ this.trackTermsClick }
 						/>
 					</div>
 					{ this.props.isDevVersion && this.props.displayDevCard && <DevCard /> }

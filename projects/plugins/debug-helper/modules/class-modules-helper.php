@@ -106,7 +106,6 @@ class Modules_Helper {
 
 		<?php
 	}
-
 }
 
 add_action(

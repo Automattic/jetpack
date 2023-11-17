@@ -93,15 +93,12 @@ export function getMessageByProductType( message, productType = PRODUCT_TYPE_PAY
 }
 
 const titles = {
-	'false,1 month': __( 'Monthly Subscription', 'jetpack' ),
-	'true,1 month': __( 'Monthly Donation', 'jetpack' ),
-	'false,1 year': __( 'Yearly Subscription', 'jetpack' ),
-	'true,1 year': __( 'Yearly Donation', 'jetpack' ),
-	'false,one-time': __( 'Subscription', 'jetpack' ),
-	'true,one-time': __( 'Donation', 'jetpack' ),
+	'1 month': __( 'Monthly Subscription', 'jetpack' ),
+	'1 year': __( 'Yearly Subscription', 'jetpack' ),
+	'one-time': __( 'Subscription', 'jetpack' ),
 };
 
-export function getTitleByProps( isDonation, interval ) {
-	const key = [ isDonation, interval ];
+export function getTitleByProps( interval ) {
+	const key = [ interval ];
 	return titles[ key ] ?? '';
 }

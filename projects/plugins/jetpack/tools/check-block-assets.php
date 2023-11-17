@@ -63,6 +63,7 @@ $allowed = array(
 		'react',
 		'react-dom',
 		'wp-components',
+		'wp-compose',
 		'wp-element',
 	),
 	'podcast-player' => array(
@@ -82,6 +83,7 @@ $allowed = array(
 		'wp-data',
 		'wp-element',
 		'wp-keycodes',
+		'wp-plugins',
 		'wp-primitives',
 	),
 );

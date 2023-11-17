@@ -1,8 +1,0 @@
-// Config for a JS-using project. If using typescript, rename this to "tsconfig.json".
-{
-	"compilerOptions": {
-		"jsx": "react"
-	},
-	// List all sources and source-containing subdirs.
-	"include": [ "./index.jsx", "./src" ]
-}

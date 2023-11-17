@@ -107,7 +107,25 @@ export async function handler( argv ) {
 		argv.project = allProjects();
 	}
 
+	// Check for unknown projects.
+	let missing = new Set();
+	argv.project = [ ...new Set( argv.project ) ];
+	if ( argv.project.length > 0 ) {
+		missing = new Set( argv.project.filter( p => ! dependencies.has( p ) ) );
+		if ( missing.size > 0 ) {
+			argv.project = argv.project.filter( p => dependencies.has( p ) );
+			// If there are no projects left, print now (then the next block will prompt).
+			// If run with `-v`, also print now in case the user wants to Ctrl+C. Without `-v`, rely on them paying attention to the listr list.
+			if ( argv.project.length === 0 || argv.v ) {
+				for ( const project of missing ) {
+					console.error( chalk.red( `Project ${ project } does not exist!` ) );
+				}
+			}
+		}
+	}
+
 	if ( argv.project.length === 0 ) {
+		missing.clear();
 		if ( argv.forMirrors ) {
 			console.error( 'Please specify projects on the command line with --for-mirrors' );
 			process.exit( 1 );
@@ -116,16 +134,6 @@ export async function handler( argv ) {
 		argv = await promptForProject( argv );
 		argv = await promptForDeps( argv );
 		argv.project = [ argv.project ];
-	}
-
-	// Check for unknown projects.
-	argv.project = [ ...new Set( argv.project ) ];
-	const missing = new Set( argv.project.filter( p => ! dependencies.has( p ) ) );
-	if ( missing.size ) {
-		for ( const project of missing ) {
-			console.error( chalk.red( `Project ${ project } does not exist!` ) );
-		}
-		argv.project = argv.project.filter( p => dependencies.has( p ) );
 	}
 
 	// Filter to just what we want to build.
@@ -181,17 +189,28 @@ export async function handler( argv ) {
 		mirrorMutex: pLimit( 1 ),
 		versions: {},
 	};
-	await listr.run( ctx ).catch( err => {
-		if ( argv.v && ctx.concurrent ) {
-			console.error( '\nThe following builds failed:' );
-			for ( const pkg of Object.keys( ctx.promises ).sort() ) {
-				if ( ctx.promises[ pkg ].status === 'rejected' && ctx.promises[ pkg ].buildStarted ) {
-					console.error( ` - ${ pkg }` );
+	await listr
+		.run( ctx )
+		.finally( () => {
+			if ( missing.size ) {
+				console.error( '' );
+				const wrap = argv.v ? v => v : chalk.red;
+				for ( const project of missing ) {
+					console.error( wrap( `Project ${ project } was ignored as it does not exist.` ) );
 				}
 			}
-		}
-		process.exit( err.exitCode || 1 );
-	} );
+		} )
+		.catch( err => {
+			if ( argv.v && ctx.concurrent ) {
+				console.error( '\nThe following builds failed:' );
+				for ( const pkg of Object.keys( ctx.promises ).sort() ) {
+					if ( ctx.promises[ pkg ].status === 'rejected' && ctx.promises[ pkg ].buildStarted ) {
+						console.error( ` - ${ pkg }` );
+					}
+				}
+			}
+			process.exit( err.exitCode || 1 );
+		} );
 }
 
 /**
@@ -525,6 +544,40 @@ async function copyFileAtomic( src, dest ) {
 }
 
 /**
+ * Check for filename collisions.
+ *
+ * @param {string} basedir - Base directory.
+ * @returns {string[]} Colliding file names.
+ */
+async function checkCollisions( basedir ) {
+	// @todo Once we require Node 20.1+, use the new `recursive` option to `fs.readdir` instead of manually recursing here.
+	// Doing `const files = await fs.readdir( basedir, { recursive: true } );` should suffice.
+	const files = [];
+	const ls = async dir => {
+		for ( const file of await fs.readdir( dir, { withFileTypes: true } ) ) {
+			const path = npath.join( dir, file.name );
+			files.push( npath.relative( basedir, path ) );
+			if ( file.isDirectory() ) {
+				await ls( path );
+			}
+		}
+	};
+	await ls( basedir );
+
+	const collisions = new Set();
+	const compare = Intl.Collator( 'und', { sensitivity: 'accent' } ).compare;
+	let prev = null;
+	for ( const file of files.sort( compare ) ) {
+		if ( prev !== null && compare( file, prev ) === 0 ) {
+			collisions.add( prev );
+			collisions.add( file );
+		}
+		prev = file;
+	}
+	return [ ...collisions ];
+}
+
+/**
  * Build a project.
  *
  * @param {object} t - Task object.
@@ -654,7 +707,7 @@ async function buildProject( t ) {
 						cwd: t.cwd,
 						stdio: [ null, 'pipe', null ],
 					} )
-				 ).stdout.match( /^.*-a\.(\d+)$/ );
+				).stdout.match( /^.*-a\.(\d+)$/ );
 				prerelease = 'a.' + ( m ? ( parseInt( m[ 1 ] ) & ~1 ) + 2 : 0 );
 			}
 			await t.execa(
@@ -678,7 +731,7 @@ async function buildProject( t ) {
 					cwd: t.cwd,
 					stdio: [ null, 'pipe', null ],
 				} )
-			 ).stdout;
+			).stdout;
 			await t.execa(
 				npath.resolve( 'tools/replace-next-version-tag.sh' ),
 				[ '-v', t.project, ver ],
@@ -825,15 +878,12 @@ async function buildProject( t ) {
 		);
 	}
 
-	// Remove engines, workspace refs, and jetpack:src from package.json.
+	// Remove workspace refs and jetpack:src from package.json.
 	let packageJson;
 	if ( await fsExists( `${ buildDir }/package.json` ) ) {
 		packageJson = JSON.parse(
 			await fs.readFile( `${ buildDir }/package.json`, { encoding: 'utf8' } )
 		);
-
-		packageJson.engines = packageJson.publish_engines; // May be undefined, that's ok.
-		delete packageJson.publish_engines;
 
 		const depTypes = [
 			'dependencies',
@@ -889,7 +939,8 @@ async function buildProject( t ) {
 
 	// If npmjs-autopublish is active, default to ignoring .github and composer.json (and not ignoring anything else) in the publish.
 	if ( composerJson.extra?.[ 'npmjs-autopublish' ] ) {
-		let ignore = '# Automatically generated ignore rules.\n/.github/\n/composer.json\n';
+		let ignore =
+			'# Automatically generated ignore rules.\n/.gitattributes\n/.github/\n/composer.json\n';
 		if ( await fsExists( `${ buildDir }/.npmignore` ) ) {
 			ignore +=
 				'\n# Package ignore file.\n' +
@@ -907,6 +958,15 @@ async function buildProject( t ) {
 				( await fs.readFile( `${ buildDir }/.gitattributes`, { encoding: 'utf8' } ) );
 		}
 		await fs.writeFile( `${ buildDir }/.gitattributes`, rules, { encoding: 'utf8' } );
+	}
+
+	// Check directory for filenames that differ only in case, as this will likely break.
+	const collisions = await checkCollisions( buildDir );
+	if ( collisions.length > 0 ) {
+		throw new Error(
+			'Build output constains files that differ only in case. This will be a compatibility issue.\n- ' +
+				collisions.join( '\n- ' )
+		);
 	}
 
 	// Get the project version number from the changelog.md file.
@@ -931,7 +991,13 @@ async function buildProject( t ) {
 	await once( rl, 'close' );
 
 	if ( ! projectVersionNumber ) {
-		throw new Error( `\nError fetching latest version number from ${ changelogFileName }\n` );
+		const dir = npath.relative(
+			process.cwd(),
+			npath.resolve( t.cwd, composerJson.extra?.changelogger?.[ 'changes-dir' ] || 'changelog' )
+		);
+		throw new Error(
+			`\nFailed to fetch latest version number from ${ changelogFileName }\n\nIf this is the initial commit of a new project, be sure there's a change entry in ${ dir }/\n`
+		);
 	}
 
 	if ( t.project.startsWith( 'packages/' ) && projectVersionNumber.endsWith( 'alpha' ) ) {
@@ -940,7 +1006,7 @@ async function buildProject( t ) {
 				cwd: t.cwd,
 				stdio: [ null, 'pipe', null ],
 			} )
-		 ).stdout;
+		).stdout;
 		if ( ts.match( /^\d+$/ ) ) {
 			projectRunVersionNumber += '.' + ts;
 		}

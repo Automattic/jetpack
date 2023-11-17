@@ -80,7 +80,7 @@ class Block_Editor_Content {
 		// Make sure "false" will be actually false.
 		foreach ( $atts as $key => $value ) {
 			if ( is_string( $value ) && 'false' === strtolower( $value ) ) {
-				$atts[ $key ] = false;
+				$atts[ $key ] = 0;
 			}
 		}
 
@@ -129,6 +129,7 @@ class Block_Editor_Content {
 		'</figure>';
 
 		$version = Package_Version::PACKAGE_VERSION;
+		Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 		wp_enqueue_script( 'videopress-iframe', 'https://videopress.com/videopress-iframe.js', array(), $version, true );
 
 		return sprintf( $block_template, $src, $width, $height, $cover );
@@ -207,7 +208,7 @@ class Block_Editor_Content {
 					}
 
 					// Also test for old v.wordpress.com oembed URL.
-					if ( ! $videopress_guid && preg_match( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', $url, $matches ) ) { // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+					if ( ! $videopress_guid && preg_match( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', $url, $matches ) ) { // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 						$videopress_guid = $matches[1];
 					}
 

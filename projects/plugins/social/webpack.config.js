@@ -2,7 +2,7 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const socialWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	devtool: jetpackWebpackConfig.devtool,
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.resolve( './build' ),
@@ -87,12 +87,12 @@ module.exports = [
 							loader: 'postcss-loader',
 							options: {
 								postcssOptions: {
-									plugins: {
-										'postcss-custom-properties': {
+									plugins: [
+										require( 'postcss-custom-properties' )( {
 											disableDeprecationNotice: true,
-										},
-										autoprefixer: {},
-									},
+										} ),
+										require( 'autoprefixer' ),
+									],
 								},
 							},
 						},

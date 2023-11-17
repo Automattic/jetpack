@@ -202,6 +202,10 @@
 			max-width: 800px !important;
 		}
 	}
+
+	&.jpcrm-full-width {
+		max-width: none;
+	}
 }
 
 div.ui.learn.button {
@@ -296,7 +300,7 @@ div.ui.learn.button {
 #zbs-quote-learn-nav,
 #zbs-invoice-learn-nav,
 #zbs-transaction-learn-nav,
-#zbs-event-learn-nav {
+#jpcrm-task-learn-nav {
     display: flex;
 }
 

@@ -12,9 +12,7 @@ use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Tracking;
 
-/**
- * Disable direct access and execution.
- */
+// Disable direct access and execution.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -340,7 +338,6 @@ class Jetpack_Plugin_Search {
 				array_flip(
 					array(
 						'contact-form',
-						'lazy-images',
 						'monitor',
 						'photon',
 						'photon-cdn',
@@ -602,7 +599,6 @@ class Jetpack_Plugin_Search {
 
 		return $links;
 	}
-
 }
 
 /**

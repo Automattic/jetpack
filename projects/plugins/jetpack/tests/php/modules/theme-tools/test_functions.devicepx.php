@@ -39,5 +39,4 @@ class WP_Test_Jetpack_Theme_Tools_Devicepx extends WP_UnitTestCase {
 		// Remove to not mess with other tests.
 		remove_theme_support( 'jetpack-devicepx' );
 	}
-
 }

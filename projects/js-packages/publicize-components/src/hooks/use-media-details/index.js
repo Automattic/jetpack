@@ -1,5 +1,5 @@
 import { useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 
 /**
  * Get meta data from a VideoPress video.
@@ -53,7 +53,7 @@ const getMediaDetails = async media => {
 
 	const sizes = media?.media_details?.sizes ?? {};
 
-	if ( Object.keys( sizes ).length === 0 ) {
+	if ( ! sizes.full ) {
 		return {
 			mediaData: {
 				width: media.media_details.width,
@@ -64,15 +64,22 @@ const getMediaDetails = async media => {
 		};
 	}
 
-	const mediaObject = sizes.large || sizes.thumbnail;
+	// We use medium image size for previews to decrease the load time.
+	const previewSize = sizes.medium || sizes.large;
+	const previewData = {
+		width: previewSize.width,
+		height: previewSize.height,
+		sourceUrl: previewSize.source_url,
+	};
 
 	return {
 		mediaData: {
-			width: mediaObject.width,
-			height: mediaObject.height,
-			sourceUrl: mediaObject.source_url,
+			width: sizes.full.width,
+			height: sizes.full.height,
+			sourceUrl: sizes.full.source_url,
 		},
 		metaData,
+		previewData,
 	};
 };
 
@@ -83,7 +90,7 @@ const getMediaDetails = async media => {
  * @returns {[ mediaDetails: {metaData: {mime: string, fileSize: number, length: number}, mediaData: {width: number, height: number, sourceUrl: string}} ]} - The media details
  */
 export default function useMediaDetails( mediaId = null ) {
-	const [ mediaDetails, setMediaDetails ] = useState( {} );
+	const [ mediaDetails, setMediaDetails ] = useState( [ {} ] );
 
 	const mediaObject = useSelect(
 		select => select( 'core' ).getMedia( mediaId, { context: 'view' } ),
@@ -93,9 +100,9 @@ export default function useMediaDetails( mediaId = null ) {
 	const getAsyncDetails = useCallback( async () => {
 		try {
 			const details = await getMediaDetails( mediaObject );
-			setMediaDetails( details ?? {} );
+			setMediaDetails( [ details ?? {} ] );
 		} catch {
-			setMediaDetails( {} );
+			setMediaDetails( [ {} ] );
 		}
 	}, [ mediaObject ] );
 
@@ -103,5 +110,5 @@ export default function useMediaDetails( mediaId = null ) {
 		getAsyncDetails();
 	}, [ getAsyncDetails ] );
 
-	return [ mediaDetails ];
+	return mediaDetails;
 }

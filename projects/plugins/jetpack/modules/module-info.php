@@ -335,7 +335,7 @@ add_action( 'jetpack_learn_more_button_comments', 'jetpack_comments_learn_more_b
  */
 function jetpack_comments_more_info() {
 	esc_html_e(
-		'Allow visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on
+		'Allow visitors to use their WordPress.com or Facebook accounts when commenting on
 		your site. Jetpack will match your site\'s color scheme automatically (but you can adjust that).',
 		'jetpack'
 	);
@@ -460,27 +460,6 @@ function jetpack_photon_more_info() {
 	);
 }
 add_action( 'jetpack_module_more_info_photon', 'jetpack_photon_more_info' );
-
-/**
- * Lazy Images support link.
- */
-function jetpack_lazy_images_more_link() {
-	echo esc_url( Redirect::get_url( 'jetpack-support-lazy-images' ) );
-}
-add_action( 'jetpack_learn_more_button_lazy-images', 'jetpack_lazy_images_more_link' );
-
-/**
- * Lazy Images description.
- */
-function jetpack_lazy_images_more_info() {
-	esc_html_e(
-		'Improve your site\'s speed by only loading images visible on the screen.
-		New images will load just before they scroll into view. This prevents viewers
-		from having to download all the images on a page all at once, even ones they can\'t see.',
-		'jetpack'
-	);
-}
-add_action( 'jetpack_module_more_info_lazy-images', 'jetpack_lazy_images_more_info' );
 
 /**
  * Tiled Galleries support link.

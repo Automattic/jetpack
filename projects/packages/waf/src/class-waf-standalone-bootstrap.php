@@ -168,5 +168,4 @@ class Waf_Standalone_Bootstrap {
 
 		return $bootstrap_file;
 	}
-
 }

@@ -1,7 +1,7 @@
-import logger from '../logger.cjs';
+import logger from '../logger.js';
 import chalk from 'chalk';
 import config from 'config';
-import pwConfig from '../playwright.config.cjs';
+import pwConfig from '../playwright.config.mjs';
 
 /**
  * This is an abstraction for most important page actions
@@ -93,10 +93,13 @@ export default class PageActions {
 	/**
 	 * Waits for page to reach the 'networkidle' load state or timeout in given ms
 	 *
+	 * TODO: Deprecate and remove this, see https://github.com/playwright-community/eslint-plugin-playwright/blob/main/docs/rules/no-networkidle.md
+	 *
 	 * @param {number} timeout
 	 * @return {Promise<void>}
 	 */
 	async waitForNetworkIdle( timeout = this.timeout ) {
+		// eslint-disable-next-line playwright/no-networkidle
 		await this.waitForLoadState( 'networkidle', timeout );
 	}
 

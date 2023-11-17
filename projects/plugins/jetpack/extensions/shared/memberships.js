@@ -1,17 +1,27 @@
 /* global tb_show, tb_remove */
 
+let premiumContentJWTTokenForCookie = '';
+
 /**
- * Since "close" button is inside our checkout iframe, in order to close it, it has to pass a message to higher scope to close the modal.
- *
- * @param {event} eventFromIframe - message event that gets emmited in the checkout iframe.
- * @listens message
+ * @typedef globalThis
+ * @param {globalThis.Event} eventFromIframe - message event that gets emitted in the checkout iframe.
+ * @listens window#message
  */
-function handleIframeResult( eventFromIframe ) {
+export function handleIframeResult( eventFromIframe ) {
 	if ( eventFromIframe.origin === 'https://subscribe.wordpress.com' && eventFromIframe.data ) {
 		const data = JSON.parse( eventFromIframe.data );
-		if ( data && data.action === 'close' ) {
+		if ( data && data.result && data.result.jwt_token ) {
+			// We save the token for now, doing nothing.
+			premiumContentJWTTokenForCookie = data.result.jwt_token;
+			setPurchaseResultCookie( premiumContentJWTTokenForCookie );
+		}
+		if ( data && data.action === 'close' && premiumContentJWTTokenForCookie ) {
+			// The token was set during the purchase flow, we want to reload the whole page so the content is displayed
+			window.location.reload();
+		} else if ( data && data.action === 'close' ) {
+			// User just aborted.
 			window.removeEventListener( 'message', handleIframeResult );
-			tb_remove();
+			tb_remove && tb_remove();
 		}
 	}
 }

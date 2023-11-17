@@ -1,11 +1,11 @@
 /* eslint-disable eqeqeq */
-import { check, sleep } from 'k6';
+import { check, group, sleep } from 'k6';
 import http from 'k6/http';
 import { sites } from './k6-shared.js';
 
 export const options = {
-	vus: 3,
-	iterations: 3,
+	vus: 1,
+	iterations: 1,
 	thresholds: {
 		checks: [
 			{
@@ -24,26 +24,19 @@ export const options = {
  */
 export default function () {
 	sites.forEach( site => {
-		// Homepage.
-		let res = http.get( site.url );
-		check( res, {
-			'status was 200': r => r.status == 200,
-		} );
-
-		// A random post.
-		res = http.get( `${ site.url }/?random` );
-		check( res, {
-			'status was 200': r => r.status == 200,
-		} );
-
-		// Jetpack Blocks test post.
-		if ( site.url !== 'https://jetpackedgeprivate.wpcomstaging.com' ) {
-			res = http.get( `${ site.url }/2023/06/09/jetpack-blocks/` );
+		group( `Frontend tests for site: ${ site.url } ( ${ site.blog_id } )`, () => {
+			// Homepage.
+			let res = http.get( site.url );
 			check( res, {
-				'status was 200': r => r.status == 200,
-				'verify post end contents': r => r.body.includes( 'End of Jetpack Blocks post content' ),
+				'homepage status was 200': r => r.status == 200,
 			} );
-		}
+
+			// A random post.
+			res = http.get( `${ site.url }/?random` );
+			check( res, {
+				'random post status was 200': r => r.status == 200,
+			} );
+		} );
 	} );
 
 	sleep( 1 );

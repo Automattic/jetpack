@@ -1,0 +1,42 @@
+# Unison preferences file
+
+# The local path to jetpack
+# This can be adjusted to a specific sub-path of the Jetpack repo (like jetpack-mu-wpcom)
+root = /local/path/to/jetpack
+force = /local/path/to/jetpack
+
+# This is the remote host you will be syncing changes to.
+root = ssh://username@remote-host.com//path/to/jetpack/on/remote
+
+batch = true
+
+# Ignore common files
+ignore = Path .idea
+ignore = Path .nbproject
+ignore = Path .sublime-project
+ignore = Path .sublime-workspace
+ignore = Path .vscode
+ignore = Path *.ts
+ignore = Path *.tsx
+ignore = Path *.jsx
+ignore = Path changelog
+ignore = Path tests
+
+# Ignore common temp files
+ignore = Name node_modules
+ignore = Name *.tmp
+ignore = Name .svn
+ignore = Name .FBCIndex
+ignore = Name .FBCLockFolder
+ignore = Name {.Trash*,.VolumeIcon.icns,.HSicon,Temporary*,.Temporary*,TheFindByContentFolder}
+ignore = Name {TheVolumeSettingsFolder,.Metadata,.filler,.idsff,.Spotlight,.DS_Store,.CFUserTextEncoding}
+
+# Ignore common Windows temp files
+ignore = Name Thumbs.db
+
+# Ignore other files
+ignore = Name {.gitattributes, .gitignore, .phpcs.dir.xml}
+
+# Don't try to set permissions - Unison can muck up perms on your sandbox otherwise
+perms = 0
+dontchmod = false

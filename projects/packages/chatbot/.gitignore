@@ -1,0 +1,6 @@
+vendor/
+wordpress/
+node_modules/
+dist/
+build/
+.cache/

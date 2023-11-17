@@ -59,6 +59,24 @@ describe( 'Membership products reducer testing', () => {
 		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, connectUrl: anyConnectUrl } );
 	} );
 
+	test( 'set default connected account currency action type adds the currency to the state object.', () => {
+		// Given
+		const defaultCurrency = 'usd';
+		const anySetConnectedAcccountDefaultCurrencyAction = {
+			type: 'SET_CONNECTED_ACCOUNT_DEFAULT_CURRENCY',
+			connectedAccountDefaultCurrency: defaultCurrency,
+		};
+
+		// When
+		const returnedState = reducer( DEFAULT_STATE, anySetConnectedAcccountDefaultCurrencyAction );
+
+		// Then
+		expect( returnedState ).toStrictEqual( {
+			...DEFAULT_STATE,
+			connectedAccountDefaultCurrency: defaultCurrency,
+		} );
+	} );
+
 	test( 'set api state action type adds the api state to the returned state.', () => {
 		// Given
 		const anyApiState = 'anyApiState';
@@ -87,5 +105,26 @@ describe( 'Membership products reducer testing', () => {
 
 		// Then
 		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, siteSlug: anySiteSlug } );
+	} );
+
+	test( 'set newsletter categories action type adds the newsletter categories to the returned state.', () => {
+		// Given
+		const anyNewsletterCategories = {
+			enabled: true,
+			categories: [ { name: 'Any Category' } ],
+		};
+		const anySetNewsletterCategoriesAction = {
+			type: 'SET_NEWSLETTER_CATEGORIES',
+			newsletterCategories: anyNewsletterCategories,
+		};
+
+		// When
+		const returnedState = reducer( DEFAULT_STATE, anySetNewsletterCategoriesAction );
+
+		// Then
+		expect( returnedState ).toStrictEqual( {
+			...DEFAULT_STATE,
+			newsletterCategories: anyNewsletterCategories,
+		} );
 	} );
 } );

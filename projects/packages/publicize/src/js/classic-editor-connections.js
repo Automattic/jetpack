@@ -1,7 +1,8 @@
 import { _n, __ } from '@wordpress/i18n';
 import jQuery from 'jquery';
 
-const { ajaxUrl, connectionsUrl } = window.jetpackSocialClassicEditorConnections;
+const { ajaxUrl, connectionsUrl, isEnhancedPublishingEnabled } =
+	window.jetpackSocialClassicEditorOptions;
 const CONNECTIONS_NEED_MEDIA = [ 'instagram-business' ];
 
 const validateFeaturedMedia = ( $, connectionsNeedValidation ) => {
@@ -34,11 +35,16 @@ const validateFeaturedMedia = ( $, connectionsNeedValidation ) => {
 		return;
 	}
 
-	/* translators: %s is the link to the media upload best practices. */
-	const connectionNeedsMediaString = __(
-		'You need a valid image in your post to share to Instagram. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more</a>.',
-		'jetpack-publicize-pkg'
-	);
+	const connectionNeedsMediaString = isEnhancedPublishingEnabled
+		? /* translators: %s is the link to the media upload best practices. */ __(
+				'You need a featured image to share to Instagram. Use the block editor for more advanced media features! <a href="%s" rel="noopener noreferrer" target="_blank">Learn more</a>.',
+				'jetpack-publicize-pkg'
+		  )
+		: /* translators: %s is the link to the media upload best practices. */ __(
+				'You need a featured image to share to Instagram. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more</a>.',
+				'jetpack-publicize-pkg',
+				/* dummy arg to avoid bad minification */ 0
+		  );
 
 	warningDiv
 		.addClass( 'notice-warning publicize__notice-media-warning publicize__notice-warning' )

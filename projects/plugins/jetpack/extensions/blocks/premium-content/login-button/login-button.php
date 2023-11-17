@@ -22,15 +22,12 @@ const LOGIN_BUTTON_NAME = 'premium-content/login-button';
  * registration if we need to.
  */
 function register_login_button_block() {
-	// Only load this block on WordPress.com.
-	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Host() )->is_woa_site() ) {
-		Blocks::jetpack_register_block(
-			LOGIN_BUTTON_NAME,
-			array(
-				'render_callback' => __NAMESPACE__ . '\render_login_button_block',
-			)
-		);
-	}
+	Blocks::jetpack_register_block(
+		LOGIN_BUTTON_NAME,
+		array(
+			'render_callback' => __NAMESPACE__ . '\render_login_button_block',
+		)
+	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_login_button_block' );
 
@@ -51,7 +48,8 @@ function render_login_button_block( $attributes, $content ) {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$has_token_parameter = isset( $_GET['token'] );
 
-	if ( is_user_logged_in() || $has_auth_cookie || $has_token_parameter ) {
+	$is_user_logged_in_on_wpcom = ( new Host() )->is_wpcom_simple() && is_user_logged_in();
+	if ( $is_user_logged_in_on_wpcom || $has_auth_cookie || $has_token_parameter ) {
 		// The viewer is logged it, so they shouldn't see the login button.
 		return '';
 	}

@@ -427,11 +427,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			case 'text/json':
 				$return = json_decode( $input, true );
 
-				if ( function_exists( 'json_last_error' ) ) {
-					if ( JSON_ERROR_NONE !== json_last_error() ) { // phpcs:ignore PHPCompatibility
-						return null;
-					}
-				} elseif ( $return === null && wp_json_encode( null ) !== $input ) {
+				if ( JSON_ERROR_NONE !== json_last_error() ) {
 					return null;
 				}
 
@@ -1393,7 +1389,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$last_name   = '';
 			$url         = $author->comment_author_url;
 			$avatar_url  = $this->api->get_avatar_url( $author );
-			$profile_url = 'https://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
+			$profile_url = 'https://gravatar.com/' . md5( strtolower( trim( $email ) ) );
 			$nice        = '';
 			$site_id     = -1;
 
@@ -1455,17 +1451,34 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$nice       = $user->user_nicename;
 			}
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
-				$active_blog = get_active_blog_for_user( $id );
-				$site_id     = $active_blog->blog_id;
+				$site_id = -1;
+
+				/**
+				 * Allow customizing the blog ID returned with the author in WordPress.com REST API queries.
+				 *
+				 * @since 12.9
+				 *
+				 * @module json-api
+				 *
+				 * @param bool|int $active_blog  Blog ID, or false by default.
+				 * @param int      $id           User ID.
+				 */
+				$active_blog = apply_filters( 'wpcom_api_pre_get_active_blog_author', false, $id );
+				if ( false === $active_blog ) {
+					$active_blog = get_active_blog_for_user( $id );
+				}
+				if ( ! empty( $active_blog ) ) {
+					$site_id = $active_blog->blog_id;
+				}
 				if ( $site_id > -1 ) {
 					$site_visible = (
 						-1 !== (int) $active_blog->public ||
 						is_private_blog_user( $site_id, get_current_user_id() )
 					);
 				}
-				$profile_url = "https://en.gravatar.com/{$login}";
+				$profile_url = "https://gravatar.com/{$login}";
 			} else {
-				$profile_url = 'https://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
+				$profile_url = 'https://gravatar.com/' . md5( strtolower( trim( $email ) ) );
 				$site_id     = -1;
 			}
 
@@ -1665,6 +1678,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 			if ( isset( $metadata['length'] ) ) {
 				$response['length'] = $metadata['length'];
+			}
+
+			if ( empty( $response['length'] ) && isset( $metadata['duration'] ) ) {
+				$response['length'] = (int) $metadata['duration'];
+			}
+
+			if ( empty( $response['length'] ) && isset( $metadata['videopress']['duration'] ) ) {
+				$response['length'] = ceil( $metadata['videopress']['duration'] / 1000 );
 			}
 
 			// add VideoPress info.
@@ -2164,6 +2185,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return false;
 		}
 
+		// We don't know if this is an upload or a sideload, but in either case the tmp_name should be a path, not a URL.
+		if ( wp_parse_url( $media_item['tmp_name'], PHP_URL_SCHEME ) !== null ) {
+			return false;
+		}
+
 		// Check if video is longer than 5 minutes.
 		$video_meta = wp_read_video_metadata( $media_item['tmp_name'] );
 		if (
@@ -2591,7 +2617,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 *  $data: HTTP 200, json_encode( $data ) response body
 	 */
 	abstract public function callback( $path = '' );
-
 }
 
 require_once __DIR__ . '/json-endpoints.php';

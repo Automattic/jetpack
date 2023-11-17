@@ -388,7 +388,7 @@ class AddCommandTest extends CommandTestCase {
 			),
 			'Non-interactive use with missing entry'       => array(
 				array(
-					'--significance' => 'patch',
+					'--significance' => 'minor',
 					'--type'         => 'fixed',
 				),
 				array( 'interactive' => false ),
@@ -397,6 +397,20 @@ class AddCommandTest extends CommandTestCase {
 				null,
 				array(
 					'/Entry must be specified in non-interactive mode/',
+				),
+			),
+			'Non-interactive use with missing entry and significance of patch' => array(
+				array(
+					'--significance' => 'patch',
+					'--type'         => 'fixed',
+				),
+				array( 'interactive' => false ),
+				array(),
+				1,
+				null,
+				array(
+					'/Entry must be specified in non-interactive mode\./',
+					'/If you want to have an empty entry for this change, pass the empty string as the entry \(like --entry=\) and also please provide a comment \(using --comment\)\./',
 				),
 			),
 			'Non-interactive use with invalid entry'       => array(
@@ -478,5 +492,4 @@ class AddCommandTest extends CommandTestCase {
 			),
 		);
 	}
-
 }

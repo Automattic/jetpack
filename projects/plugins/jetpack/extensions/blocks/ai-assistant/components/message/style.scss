@@ -1,13 +1,13 @@
 @import '@automattic/jetpack-base-styles/style';
 
 .jetpack-ai-assistant__message {
-	display: flex;
-    line-height: 28px;
+    display: flex;
+    line-height: 1.5;
     font-size: 12px;
     align-self: center;
     align-items: center;
     background-color: var( --jp-white-off );
-    padding: 0 12px;
+    padding: 4px 12px;
 
     > svg {
         fill: var( --jp-gray-40 );

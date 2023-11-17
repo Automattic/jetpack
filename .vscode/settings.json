@@ -1,0 +1,34 @@
+{ 
+	"intelephense.files.exclude": [
+	"**/.git/**",
+	"**/.svn/**",
+	"**/.hg/**",
+	"**/CVS/**",
+	"**/.DS_Store/**",
+	"**/node_modules/**",
+	"**/bower_components/**",
+	"**/vendor/**/{Tests,tests}/**",
+	"**/.history/**",
+	"**/vendor/**/vendor/**",
+	"**/packages/**/vendor/**",
+	"**/projects/**/vendor/**",
+	"**/plugins/**/vendor/**",
+	"**/packages/**/wordpress/**",
+	"**/projects/**/wordpress/**",
+	"**/plugins/**/wordpress/**",
+	"**/.cache/**",
+	"**/jetpack_vendor/**/jetpack_vendor/**",
+	"**/jetpack_vendor/**"
+	],
+	"phpCodeSniffer.autoExecutable": true,
+	"phpCodeSniffer.standard": "Automatic",
+	"phpCodeSniffer.exclude": [
+		"**/.git/**",
+		"**/.svn/**",
+		"**/.hg/**",
+		"**/.cache/**",
+		"**/jetpack_vendor/**",
+		"**/vendor/**",
+	],
+	"prettier.prettierPath": "tools/js-tools/node_modules/prettier/index.cjs"
+}

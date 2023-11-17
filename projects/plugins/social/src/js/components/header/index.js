@@ -9,10 +9,10 @@ import {
 	getUserLocale,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
+import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
-import { STORE_ID } from '../../store';
 import ShareCounter from '../share-counter';
 import StatCards from '../stat-cards';
 import styles from './styles.module.scss';
@@ -29,17 +29,17 @@ const Header = () => {
 		sharesCount,
 		siteSuffix,
 	} = useSelect( select => {
-		const store = select( STORE_ID );
+		const store = select( SOCIAL_STORE_ID );
 		return {
 			connectionsAdminUrl: store.getConnectionsAdminUrl(),
 			hasConnections: store.hasConnections(),
-			hasPaidPlan: select( STORE_ID ).hasPaidPlan(),
+			hasPaidPlan: select( SOCIAL_STORE_ID ).hasPaidPlan(),
 			isModuleEnabled: store.isModuleEnabled(),
-			isShareLimitEnabled: select( STORE_ID ).isShareLimitEnabled(),
+			isShareLimitEnabled: select( SOCIAL_STORE_ID ).isShareLimitEnabled(),
 			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
-			postsCount: select( STORE_ID ).getPostsCount(),
-			sharesCount: select( STORE_ID ).getSharesCount(),
-			siteSuffix: select( STORE_ID ).getSiteSuffix(),
+			postsCount: select( SOCIAL_STORE_ID ).getPostsCount(),
+			sharesCount: select( SOCIAL_STORE_ID ).getSharesCount(),
+			siteSuffix: select( SOCIAL_STORE_ID ).getSiteSuffix(),
 		};
 	} );
 	const { hasConnectionError } = useConnectionErrorNotice();

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Import root styles from js-packages to load root variables used by components

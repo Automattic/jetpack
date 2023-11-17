@@ -194,7 +194,7 @@ class Jetpack_Provision {
 		}
 
 		// Add calypso env if set.
-		$calypso_env = Jetpack::get_calypso_env();
+		$calypso_env = ( new \Automattic\Jetpack\Status\Host() )->get_calypso_env();
 		if ( ! empty( $calypso_env ) ) {
 			$url = add_query_arg( array( 'calypso_env' => $calypso_env ), $url );
 		}
@@ -308,7 +308,7 @@ class Jetpack_Provision {
 	 * @return string API URL.
 	 */
 	private static function get_api_host() {
-		$env_api_host = getenv( 'JETPACK_START_API_HOST', true ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctionParameters.getenv_local_onlyFound
+		$env_api_host = getenv( 'JETPACK_START_API_HOST', true );
 		return $env_api_host ? 'https://' . $env_api_host : JETPACK__WPCOM_JSON_API_BASE;
 	}
 }

@@ -140,6 +140,15 @@ function zeroBSCRM_pages_admin_view_page_company( $id = -1 ) {
 	jpcrm_render_company_view_page( $id );
 }
 
+/**
+ * Load the Automations admin page
+ *
+ * @return void
+ */
+function jpcrm_pages_automations() {
+	jpcrm_load_admin_page( 'automations/main' );
+}
+
 /*
 ======================================================
 	/ Page loading
@@ -1035,7 +1044,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 						}
 
 							// if we're showing any email which requires CRON to send it, we show this message to further guide the end user:
-						if ( in_array( $emailtab, array( ZBSEMAIL_EVENTNOTIFICATION ) ) ) {
+						if ( in_array( $emailtab, array( ZBSEMAIL_TASK_NOTIFICATION ), true ) ) {
 
 							?>
 								<div class="ui blue label right floated"><i class="circle info icon link"></i> <?php esc_html_e( 'Note: This email requires cron.', 'zero-bs-crm' ); ?> <a href="<?php echo esc_url( $zbs->urls['kbcronlimitations'] ); ?>"><?php esc_html_e( 'Read about WordPress cron', 'zero-bs-crm' ); ?></a></div>
@@ -1158,7 +1167,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 								case 4: // You have received a new Proposal
 									$tooling_areas = array( 'global', 'quote', 'contact', 'company' );
 									break;
-								case 5: // Your Event starts soon
+								case 5: // Your Task starts soon
 									$tooling_areas = array( 'global', 'event', 'contact', 'company' );
 									break;
 								case 6: // Your Client Portal Password
@@ -1275,27 +1284,6 @@ function zeroBSCRM_pages_installextensionshelper() {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'zero-bs-crm' ) ); }
 	// } Settings
 	zeroBSCRM_html_installextensionshelper();
-
-	?>
-</div>
-	<?php
-}
-
-// } Post(after) deletion Page
-function zeroBSCRM_pages_postdelete() {
-
-	global $wpdb, $zbs; // } Req
-
-	if (
-	! zeroBSCRM_permsCustomers()
-	&& ! zeroBSCRM_permsQuotes()
-	&& ! zeroBSCRM_permsInvoices()
-	&& ! zeroBSCRM_permsTransactions()
-	) {
-		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'zero-bs-crm' ) ); }
-
-	// } Post Deletion page
-	zeroBSCRM_html_deletion();
 
 	?>
 </div>
@@ -2343,8 +2331,6 @@ function jpcrm_html_modules() {
 			if ( $module_messages['action'] === 'install' ) {
 				$msgHTML .= __( 'Successfully activated module:', 'zero-bs-crm' );
 			} else {
-				// TODO: It totally works here, but put this flush in a nicer place.
-				flush_rewrite_rules();
 				$msgHTML .= __( 'Successfully deactivated module:', 'zero-bs-crm' );
 			}
 			$msgHTML .= ' ' . $module_messages['pretty_name'];
@@ -2456,195 +2442,6 @@ function jpcrm_html_modules() {
 		echo '</div>';
 
 		echo '</div>';
-}
-
-// } post-deletion page
-function zeroBSCRM_html_deletion() {
-
-	global $wpdb, $zbs;  // } Req
-
-	// } Discern type of deletion:
-	$delType    = '?'; // Customer
-	$delStr     = '?'; // Mary Jones ID 123
-	$delID      = -1;
-	$delIDVar   = '';
-	$isRestore  = false;
-	$backToPage = 'edit.php?post_type=zerobs_customer&page=manage-customers';
-
-	// } Perhaps this needs nonce?
-	if ( isset( $_GET['restoreplz'] ) && $_GET['restoreplz'] == 'kthx' ) {
-		$isRestore = true;
-	}
-
-	// } Discern type
-	if ( isset( $_GET['cid'] ) && ! empty( $_GET['cid'] ) ) {
-
-		$delID      = (int) sanitize_text_field( $_GET['cid'] );
-		$delIDVar   = 'cid';
-		$backToPage = 'edit.php?post_type=zerobs_customer&page=manage-customers';
-
-		// } Fill out
-		$delType = __( 'Contact', 'zero-bs-crm' );
-		$delStr  = zeroBS_getCustomerName( $delID );
-
-	} elseif ( isset( $_GET['qid'] ) && ! empty( $_GET['qid'] ) ) {
-
-		// } Quote
-		$delID      = (int) sanitize_text_field( $_GET['qid'] );
-		$delIDVar   = 'qid';
-		$backToPage = 'edit.php?post_type=zerobs_quote&page=manage-quotes';
-
-		// } Fill out
-		$delType = 'Quote';
-		$delStr  = 'Quote ID: ' . $delID; // TODO - these probably need offset
-
-	} elseif ( isset( $_GET['qtid'] ) && ! empty( $_GET['qtid'] ) ) {
-
-		// } Quote
-		$delID      = (int) sanitize_text_field( $_GET['qtid'] );
-		$delIDVar   = 'qtid';
-		$backToPage = 'edit.php?post_type=zerobs_quote&page=manage-quote-templates';
-
-		// } Fill out
-		$delType = 'Quote Template';
-		$delStr  = 'Quote Template ID: ' . $delID; // TODO - these probably need offset
-
-	} elseif ( isset( $_GET['iid'] ) && ! empty( $_GET['iid'] ) ) {
-
-		// } Invoice
-		$delID      = (int) sanitize_text_field( $_GET['iid'] );
-		$delIDVar   = 'iid';
-		$backToPage = 'admin.php?page=manage-invoices';
-
-		// } Fill out
-		$delType = 'Invoice';
-		$delStr  = 'Invoice ID: ' . $delID; // TODO - these probably need offset
-
-	} elseif ( isset( $_GET['tid'] ) && ! empty( $_GET['tid'] ) ) {
-
-		// } Transaction
-		$delID      = (int) sanitize_text_field( $_GET['tid'] );
-		$delIDVar   = 'tid';
-		$backToPage = 'edit.php?post_type=zerobs_transaction&page=manage-transactions';
-
-		// } Fill out
-		$delType = 'Transaction';
-		$delStr  = 'Transaction ID: ' . $delID;
-
-	} elseif ( isset( $_GET['eid'] ) && ! empty( $_GET['eid'] ) ) {
-
-		// } Transaction
-		$delID      = (int) sanitize_text_field( $_GET['eid'] );
-		$delIDVar   = 'eid';
-		$backToPage = 'edit.php?post_type=zerobs_event&page=manage-events';
-
-		// } Fill out
-		$delType = __( 'Task', 'zero-bs-crm' );
-		$delStr  = 'Task ID: ' . $delID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-
-	}
-
-	$perm = 0;
-	if ( isset( $_GET['perm'] ) && ! empty( $_GET['perm'] ) ) {
-
-		// wh added - mediocre last min check :/
-		if ( zeroBSCRM_permsEvents() ) {
-
-			// only for events for now
-			if ( isset( $_GET['eid'] ) && ! empty( $_GET['eid'] ) ) {
-
-				$perm = (int) sanitize_text_field( $_GET['perm'] );
-				if ( $perm == 1 ) {
-					wp_delete_post( $delID );
-				}
-			}
-		}
-	}
-
-	// } Actual restore
-	if ( $isRestore && ! empty( $delID ) ) {
-
-		wp_untrash_post( $delID );
-
-	}
-
-	if ( $perm == 1 ) {
-		?>
-
-	<div id="zbsDeletionPage">
-		<div id="zbsDeletionMsgWrap">
-		<div id="zbsDeletionIco"><i class="fa fa-trash" aria-hidden="true"></i></div>
-		<div class="zbsDeletionMsg">
-				<?php echo $delStr . esc_html__( ' Successfully deleted', 'zero-bs-crm' ); ?>
-		</div>
-		<div class="zbsDeletionAction">
-			<button type="button" class="ui button primary" onclick="javascript:window.location='<?php echo esc_url( $backToPage ); ?>'">Back to <?php echo esc_html( $delType ); ?>s</button>
-		</div>
-		</div>
-	</div> 
-
-
-		<?php
-
-	} else {
-
-		?>
-	<div id="zbsDeletionPage">
-		<div id="zbsDeletionMsgWrap">
-		<div id="zbsDeletionIco"><i class="fa 
-		<?php
-		if ( $isRestore ) {
-			?>
-			fa-undo
-			<?php
-		} else {
-			?>
-			fa-trash<?php } ?>" aria-hidden="true"></i></div>
-		<div class="zbsDeletionMsg"><?php echo $delStr; ?> <?php esc_html_e( 'successfully', 'zero-bs-crm' ); ?> 
-			<?php if ( $isRestore ) { ?>
-				<?php esc_html_e( 'retrieved from Trash', 'zero-bs-crm' ); ?>
-			<?php } else { // trashed ?>
-				<?php esc_html_e( 'moved to Trash', 'zero-bs-crm' ); ?>
-			<?php } ?>
-		</div>
-		<div class="zbsDeletionAction">
-			<?php if ( $isRestore ) { ?>
-			<button type="button" class="ui button primary" onclick="javascript:window.location='<?php echo esc_url( $backToPage ); ?>'">Back to <?php echo esc_html( $delType ); ?>s</button>
-			<?php } else { // trashed ?>
-			<button type="button" class="ui button green" onclick="javascript:window.location='admin.php?page=zbs-deletion&<?php echo esc_attr( $delIDVar ); ?>=<?php echo esc_attr( $delID ); ?>&restoreplz=kthx'">Undo (Restore <?php echo esc_html( $delType ); ?>)</button>
-			&nbsp;&nbsp;
-			<button type="button" class="ui button primary" onclick="javascript:window.location='<?php echo esc_url( $backToPage ); ?>'">Back to <?php echo esc_html( $delType ); ?>s</button>
-			<?php } ?>
-
-
-		  
-			<?php
-			if ( isset( $_GET['eid'] ) && ! empty( $_GET['eid'] ) ) {
-				// right now, we only ever "trash" things without the ability to fully delete...
-				// WHLOOK - won't work with new DB2.0 data objects will need our own process for
-				// 1.) Trash
-				// 2.) Permanently Delete
-				// Might already be there, but MS not familiar. Events currently in old DB1.0 layout.
-				// to discuss.
-				$delID       = (int) sanitize_text_field( $_GET['eid'] );
-				$delete_link = admin_url( 'admin.php?page=zbs-deletion&eid=' . $delID . '&perm=1' );
-				?>
-			<br/>
-				<?php esc_html_e( 'or', 'zero-bs-crm' ); ?>
-			<br/>
-			<a href='<?php echo esc_url( $delete_link ); ?>'><?php esc_html_e( 'Delete Permanently', 'zero-bs-crm' ); ?></a>
-				<?php
-				// this allows me to hook in and say "deleting permanently also deletes the outlook event permanently"
-				do_action( 'zbs-delete-event-permanently' );
-			}
-			?>
-
-		</div>
-		</div>
-	</div>        
-		<?php
-
-	}
 }
 
 // } post-deletion page

@@ -418,5 +418,4 @@ class Test_Licensing extends BaseTestCase {
 
 		$licensing->attach_stored_licenses_on_connection();
 	}
-
 }

@@ -65,5 +65,4 @@ class Jetpack_JSON_API_Get_Option_Backup_Endpoint extends Jetpack_JSON_API_Endpo
 		global $wpdb;
 		return $wpdb->get_row( $wpdb->prepare( "select * from `{$wpdb->options}` where option_name = %s", $name ) );
 	}
-
 }

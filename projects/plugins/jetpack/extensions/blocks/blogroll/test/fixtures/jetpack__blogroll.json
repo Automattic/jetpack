@@ -1,0 +1,16 @@
+[
+	{
+		"clientId": "_clientId_0",
+		"name": "jetpack/blogroll",
+		"isValid": true,
+		"attributes": {
+			"show_avatar": true,
+			"show_description": true,
+			"open_links_new_window": true,
+			"ignore_user_blogs": true,
+			"load_placeholders": true
+		},
+		"innerBlocks": [],
+		"originalContent": ""
+	}
+]

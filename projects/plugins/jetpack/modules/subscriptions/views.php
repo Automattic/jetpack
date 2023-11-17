@@ -111,6 +111,9 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @param array $instance The settings for the particular instance of the widget.
 	 */
 	public function widget( $args, $instance ) {
+		if ( self::is_wpcom() && ! self::wpcom_has_status_message() && self::is_current_user_subscribed() ) {
+			return null;
+		}
 		if ( self::is_jetpack() &&
 			/** This filter is documented in modules/contact-form/grunion-contact-form.php */
 			false === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
@@ -443,11 +446,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					</button>
 				</p>
 			</form>
-			<?php if ( $show_subscribers_total && $subscribers_total ) { ?>
+			<?php if ( $show_subscribers_total && $subscribers_total > 0 ) { ?>
 				<div class="wp-block-jetpack-subscriptions__subscount">
 					<?php
-					/* translators: %s: number of folks following the blog */
-					echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+					echo esc_html( Jetpack_Memberships::get_join_others_text( $subscribers_total ) );
 					?>
 				</div>
 			<?php } ?>
@@ -538,8 +540,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			<?php if ( $show_subscribers_total && 0 < $subscribers_total ) { ?>
 				<div class="wp-block-jetpack-subscriptions__subscount">
 					<?php
-					/* translators: %s: number of folks following the blog */
-					echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+					echo esc_html( Jetpack_Memberships::get_join_others_text( $subscribers_total ) );
 					?>
 				</div>
 			<?php } ?>
@@ -1033,6 +1034,8 @@ function subscription_options_fallback( $default, $option, $passed_default ) {
 		/* translators: Both %1$s and %2$s is site address */
 		'invitation'     => sprintf( __( "Howdy,\nYou recently subscribed to <a href='%1\$s'>%2\$s</a> and we need to verify the email you provided. Once you confirm below, you'll be able to receive and read new posts.\n\nIf you believe this is an error, ignore this message and nothing more will happen.", 'jetpack' ), $site_url, $display_url ),
 		'comment_follow' => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again.", 'jetpack' ),
+		/* translators: %1$s is the site address */
+		'welcome'        => sprintf( __( 'Cool, you are now subscribed to %1$s and will receive an email notification when a new post is published.', 'jetpack' ), $display_url ),
 	);
 }
 

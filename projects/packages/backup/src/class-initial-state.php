@@ -51,5 +51,4 @@ class Initial_State {
 
 		return 'var JPBACKUP_INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->get_data() ) ) . '"));';
 	}
-
 }

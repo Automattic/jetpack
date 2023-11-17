@@ -10,7 +10,7 @@ const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plug
 
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	devtool: jetpackWebpackConfig.devtool,
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.join( __dirname, '..' ),
@@ -43,7 +43,7 @@ const sharedWebpackConfig = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { plugins: { autoprefixer: {} } },
+							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
 						},
 					},
 					{

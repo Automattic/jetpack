@@ -18,17 +18,12 @@ function init() {
 		return;
 	}
 
-	// @todo: Remove fallback when we drop support for WP 6.1
 	const component = (
 		<ThemeProvider>
 			<WordAdsDashboard />
 		</ThemeProvider>
 	);
-	if ( WPElement.createRoot ) {
-		WPElement.createRoot( container ).render( component );
-	} else {
-		WPElement.render( component, container );
-	}
+	WPElement.createRoot( container ).render( component );
 }
 
 // Initialize the dashboard when DOMContentLoaded is fired, or immediately if it already has been.

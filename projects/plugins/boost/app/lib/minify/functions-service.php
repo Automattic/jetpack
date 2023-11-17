@@ -13,7 +13,7 @@ function jetpack_boost_page_optimize_types() {
 }
 
 /**
- * Handle serving a minified / concatenated file from the virtual _static dir.
+ * Handle serving a minified / concatenated file from the virtual _jb_static dir.
  */
 function jetpack_boost_page_optimize_service_request() {
 	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
@@ -153,9 +153,9 @@ function jetpack_boost_page_optimize_build_output() {
 	}
 
 	// Ensure the path follows one of these forms:
-	// /_static/??/foo/bar.css,/foo1/bar/baz.css?m=293847g
+	// /_jb_static/??/foo/bar.css,/foo1/bar/baz.css?m=293847g
 	// -- or --
-	// /_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
+	// /_jb_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $utils->unslash( $_SERVER['REQUEST_URI'] ) : '';
 	$args        = $utils->parse_url( $request_uri, PHP_URL_QUERY );
@@ -166,7 +166,7 @@ function jetpack_boost_page_optimize_build_output() {
 	$args = substr( $args, strpos( $args, '?' ) + 1 );
 
 	// Detect paths with - in their filename - this implies a base64 encoded gzipped string for the file list.
-	// e.g.: /_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
+	// e.g.: /_jb_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
 	if ( '-' === $args[0] ) {
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 		$args = @gzuncompress( base64_decode( substr( $args, 1 ) ) );
@@ -199,7 +199,7 @@ function jetpack_boost_page_optimize_build_output() {
 	// We can't assume that the root serves the same content as the subdir.
 	$subdir_path_prefix = '';
 	$request_path       = $utils->parse_url( $request_uri, PHP_URL_PATH );
-	$_static_index      = strpos( $request_path, '/_static/' );
+	$_static_index      = strpos( $request_path, jetpack_boost_get_static_prefix() );
 	if ( $_static_index > 0 ) {
 		$subdir_path_prefix = substr( $request_path, 0, $_static_index );
 	}
@@ -314,9 +314,12 @@ function jetpack_boost_page_optimize_build_output() {
 		}
 	}
 
+	// Don't let trailing whitespace ruin everyone's day. Seems to get stripped by batcache
+	// resulting in ns_error_net_partial_transfer errors.
+	$output = rtrim( $output );
+
 	$headers = array(
 		'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $last_modified ) . ' GMT',
-		'Content-Length: ' . ( strlen( $pre_output ) + strlen( $output ) ),
 		"Content-Type: $mime_type",
 	);
 

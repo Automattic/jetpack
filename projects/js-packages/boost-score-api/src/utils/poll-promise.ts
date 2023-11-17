@@ -1,12 +1,12 @@
 import { __ } from '@wordpress/i18n';
 
-type Resolve< ReturnType = void > = ( value: ReturnType | PromiseLike< ReturnType > ) => void;
+type Resolve< RetType = void > = ( value: RetType | PromiseLike< RetType > ) => void;
 
-type PollPromiseArgs< ReturnType = void > = {
+type PollPromiseArgs< RetType = void > = {
 	interval: number;
 	timeout: number;
 	timeoutError?: string;
-	callback: ( resolve: Resolve< ReturnType > ) => Promise< void > | void;
+	callback: ( resolve: Resolve< RetType > ) => Promise< void > | void;
 };
 
 /**
@@ -16,26 +16,30 @@ type PollPromiseArgs< ReturnType = void > = {
  *
  * Rejects with a timeout after <timeout> milliseconds.
  *
- * @template ReturnType
+ * @template RetType
  * @param {object}   obj              - Arguments object.
  * @param {number}   obj.interval     - Milliseconds between calling callback
  * @param {number}   obj.timeout      - Milliseconds before rejecting w/ a timeout
  * @param {Function} obj.callback     - Callback to call every <interval> ms.
  * @param {string}   obj.timeoutError - Message to throw on timeout.
- * @returns {Promise< ReturnType >} - A promise which resolves to the value resolved() inside callback.
+ * @returns {Promise< RetType >} - A promise which resolves to the value resolved() inside callback.
  */
-export default async function pollPromise< ReturnType = void >( {
+export default async function pollPromise< RetType = void >( {
 	interval,
 	callback,
 	timeout,
 	timeoutError,
-}: PollPromiseArgs< ReturnType > ): Promise< ReturnType > {
-	let timeoutHandle: number, intervalHandle: number;
+}: PollPromiseArgs< RetType > ): Promise< RetType > {
+	let timeoutHandle: ReturnType< typeof setTimeout >,
+		intervalHandle: ReturnType< typeof setInterval >;
 
-	return new Promise< ReturnType >( ( resolve, reject ) => {
-		timeoutHandle = setTimeout( () => {
-			reject( new Error( timeoutError || __( 'Timed out', 'boost-score-api' ) ) );
-		}, timeout || 2 * 60 * 1000 );
+	return new Promise< RetType >( ( resolve, reject ) => {
+		timeoutHandle = setTimeout(
+			() => {
+				reject( new Error( timeoutError || __( 'Timed out', 'boost-score-api' ) ) );
+			},
+			timeout || 2 * 60 * 1000
+		);
 
 		intervalHandle = setInterval( async () => {
 			try {

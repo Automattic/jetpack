@@ -27,5 +27,13 @@
 		}
 	],
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-config-js",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-config-js/compare/v${old}...v${new}"
+		},
+		"autotagger": true,
+		"npmjs-autopublish": true
+	}
 }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add filtering for unattached and unrevoked licenses within upgrade flow check

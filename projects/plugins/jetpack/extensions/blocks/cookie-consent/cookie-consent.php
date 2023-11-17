@@ -12,9 +12,7 @@ namespace Automattic\Jetpack\Extensions\CookieConsent;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'cookie-consent';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-const COOKIE_NAME  = 'eucookielaw';
+const COOKIE_NAME = 'eucookielaw';
 
 /**
  * Should the block be registered?
@@ -48,8 +46,16 @@ function register_block() {
 	}
 
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
-		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+		__DIR__,
+		array( 'render_callback' => __NAMESPACE__ . '\load_assets' ),
+		array(
+			'attributes' => array(
+				'render_from_template' => array(
+					'default' => false,
+					'type'    => 'boolean',
+				),
+			),
+		)
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
@@ -73,14 +79,19 @@ function load_assets( $attr, $content ) {
 		return '';
 	}
 
+	$option = get_option( 'cookie_consent_template' );
+	if ( ! empty( $option ) && empty( $attr['render_from_template'] ) ) {
+		return '';
+	}
+
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		$content
 	);
 }
@@ -96,3 +107,51 @@ function notify_batcache_that_content_changed() {
 		vary_cache_on_function( 'return isset( $_COOKIE[ "' . COOKIE_NAME . '" ] );' );
 	}
 }
+
+/**
+ * Render the cookie consent template.
+ *
+ * @since 12.4
+ */
+function render_cookie_consent_template() {
+
+	if ( is_admin() ) {
+		return;
+	}
+
+	// Check whether block theme functions exist.
+	if ( ! function_exists( 'parse_blocks' ) ) {
+		return;
+	}
+
+	$template = get_option( 'cookie_consent_template' );
+
+	if ( empty( $template ) ) {
+		return;
+	}
+
+	$parsed = parse_blocks( $template );
+	if ( ! empty( $parsed[0] ) ) {
+		$parsed[0]['attrs']['render_from_template'] = true;
+		echo render_block( $parsed[0] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+}
+add_action( 'wp_footer', __NAMESPACE__ . '\render_cookie_consent_template' );
+
+/**
+ * Register cookie_consent_template setting
+ *
+ * @since 12.4
+ */
+function cookie_consent_register_settings() {
+	register_setting(
+		'general',
+		'cookie_consent_template',
+		array(
+			'type'         => 'string',
+			'show_in_rest' => true,
+		)
+	);
+}
+
+add_action( 'rest_api_init', __NAMESPACE__ . '\cookie_consent_register_settings' );

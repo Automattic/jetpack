@@ -10,10 +10,9 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
-use Automattic\Jetpack\Constants as Constants;
+use Automattic\Jetpack\IdentityCrisis\Exception;
 use Automattic\Jetpack\IdentityCrisis\UI;
-use Automattic\Jetpack\Status as Status;
-use Automattic\Jetpack\Tracking as Tracking;
+use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Jetpack_Options;
 use WP_Error;
 
@@ -28,7 +27,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.8.49';
+	const PACKAGE_VERSION = '0.11.4-alpha';
 
 	/**
 	 * Instance of the object.
@@ -86,6 +85,10 @@ class Identity_Crisis {
 		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( __CLASS__, 'jetpack_connection_disconnect_site_wpcom_filter' ) );
 
 		add_filter( 'jetpack_remote_request_url', array( $this, 'add_idc_query_args_to_url' ) );
+
+		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_secret_to_url_validation_response' ) );
+
+		add_filter( 'jetpack_options', array( static::class, 'reverse_wpcom_urls_for_idc' ) );
 
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
@@ -210,6 +213,10 @@ class Identity_Crisis {
 			$query_args['migrate_for_idc'] = true;
 		}
 
+		if ( is_multisite() ) {
+			$query_args['multisite'] = true;
+		}
+
 		return add_query_arg( $query_args, $url );
 	}
 
@@ -284,7 +291,6 @@ class Identity_Crisis {
 		if ( ! $connection->is_connected() || ( new Status() )->is_offline_mode() || ! self::validate_sync_error_idc_option() ) {
 			return false;
 		}
-
 		return Jetpack_Options::get_option( 'sync_error_idc' );
 	}
 
@@ -335,7 +341,7 @@ class Identity_Crisis {
 			);
 
 			if ( in_array( $error_code, $allowed_idc_error_codes, true ) ) {
-				\Jetpack_Options::update_option(
+				Jetpack_Options::update_option(
 					'sync_error_idc',
 					self::get_sync_error_idc_option( $response )
 				);
@@ -437,6 +443,24 @@ class Identity_Crisis {
 	}
 
 	/**
+	 * Reverses WP.com URLs stored in sync_error_idc option.
+	 *
+	 * @param array $sync_error error option containing reversed URLs.
+	 * @return array
+	 */
+	public static function reverse_wpcom_urls_for_idc( $sync_error ) {
+		if ( isset( $sync_error['reversed_url'] ) ) {
+			if ( array_key_exists( 'wpcom_siteurl', $sync_error ) ) {
+				$sync_error['wpcom_siteurl'] = strrev( $sync_error['wpcom_siteurl'] );
+			}
+			if ( array_key_exists( 'wpcom_home', $sync_error ) ) {
+				$sync_error['wpcom_home'] = strrev( $sync_error['wpcom_home'] );
+			}
+		}
+		return $sync_error;
+	}
+
+	/**
 	 * Normalizes a url by doing three things:
 	 *  - Strips protocol
 	 *  - Strips www
@@ -504,6 +528,12 @@ class Identity_Crisis {
 			}
 
 			$returned_values[ $key ] = $normalized_url;
+		}
+		// We need to protect WPCOM URLs from search & replace by reversing them. See https://wp.me/pf5801-3R
+		// Add 'reversed_url' key for backward compatibility
+		if ( array_key_exists( 'wpcom_home', $returned_values ) && array_key_exists( 'wpcom_siteurl', $returned_values ) ) {
+			$returned_values['reversed_url'] = true;
+			$returned_values                 = self::reverse_wpcom_urls_for_idc( $returned_values );
 		}
 
 		return $returned_values;
@@ -1285,5 +1315,30 @@ class Identity_Crisis {
 		}
 
 		return $path;
+	}
+
+	/**
+	 * Adds `url_secret` to the `jetpack.idcUrlValidation` URL validation endpoint.
+	 * Adds `url_secret_error` in case of an error.
+	 *
+	 * @param array $response The endpoint response that we're modifying.
+	 *
+	 * @return array
+	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- The exception is being caught, false positive.
+	 */
+	public static function add_secret_to_url_validation_response( array $response ) {
+		try {
+			$secret = new URL_Secret();
+
+			$secret->create();
+
+			if ( $secret->exists() ) {
+				$response['url_secret'] = $secret->get_secret();
+			}
+		} catch ( Exception $e ) {
+			$response['url_secret_error'] = new WP_Error( 'unable_to_create_url_secret', $e->getMessage() );
+		}
+
+		return $response;
 	}
 }

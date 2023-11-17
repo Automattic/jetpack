@@ -94,5 +94,4 @@ class WPCOM_JSON_API_List_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		return $return;
 	}
-
 }

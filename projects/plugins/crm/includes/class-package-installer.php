@@ -456,5 +456,4 @@ class Package_Installer {
 		delete_option( 'jpcrm_package_fail_' . $package_key );
 
 	}
-
 }

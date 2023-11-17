@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Wrapper over tunnel.cjs script
+# Wrapper over tunnel.js script
 
 set -e
 
@@ -22,44 +22,29 @@ export PATH="$BASE_DIR/../node_modules/.bin:$PATH"
 
 function up() {
 	down
-	pm2 save --force
-	pm2 start "$BASE_DIR"/../config/ecosystem.config.cjs
-	pm2 save --force
-	pm2 logs --nostream --lines 4
+	node "$BASE_DIR"/tunnel.js on "$@"
 }
 
 function down() {
-	pm2 save --force
-	pm2 delete "$BASE_DIR"/../config/ecosystem.config.cjs
-	pm2 save --force
-	NODE_ENV="test" node "$BASE_DIR"/tunnel.cjs off
+	node "$BASE_DIR"/tunnel.js off
 }
 
 function reset() {
+	down
 	rm -rf config/tmp
 	up
 }
 
-function logs() {
-	pm2 logs --nostream --lines 10000 >"${1}"
-}
-
 case $1 in
 	up)
-		up
+		shift
+		up "$@"
 		;;
 	down)
 		down
 		;;
 	reset)
 		reset
-		;;
-	logs)
-		if [ -z "${2}" ]; then
-			usage
-		else
-			logs "${2}"
-		fi
 		;;
 	*)
 		usage

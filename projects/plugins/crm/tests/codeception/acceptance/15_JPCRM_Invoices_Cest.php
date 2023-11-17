@@ -102,5 +102,4 @@ class JPCRM_Invoices_Cest {
 	}
 
 	// todo: Check invoice autonumber. Configurate the autonumber
-
 }

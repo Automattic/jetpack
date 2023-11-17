@@ -83,5 +83,4 @@ class SetCookieSniff extends AbstractFunctionParameterSniff {
 			);
 		}
 	}
-
 }

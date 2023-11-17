@@ -12,6 +12,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit;
 
 /**
  * Learn menu class
+ * This is a bit of a misnomer, as it really refers to the page titlebar (under the top menu).
  */
 class Learn_Menu {
 
@@ -29,6 +30,104 @@ class Learn_Menu {
 	 * @var string
 	 */
 	protected $override_slug;
+
+	/**
+	 * Title of page
+	 *
+	 * @var string
+	 */
+	private $page_title;
+
+	/**
+	 * HTML to the left of the page header, often containing buttons
+	 *
+	 * @var string
+	 */
+	private $left_buttons;
+
+	/**
+	 * HTML to the right of the page header, often containing buttons
+	 *
+	 * @var string
+	 */
+	private $right_buttons;
+
+	/**
+	 * Whether or not to show the learn button
+	 *
+	 * @var bool
+	 */
+	private $show_learn;
+
+	/**
+	 * The learn box title
+	 *
+	 * @var string
+	 */
+	private $learn_title;
+
+	/**
+	 * The learn box content (HTML)
+	 *
+	 * @var string
+	 */
+	private $learn_content;
+
+	/**
+	 * The "learn more" link url
+	 *
+	 * @var string
+	 */
+	private $learn_more_url;
+
+	/**
+	 * The learn image url
+	 *
+	 * @var string
+	 */
+	private $learn_image_url;
+
+	/**
+	 * The learn video url
+	 *
+	 * @var string
+	 */
+	private $learn_video_url;
+
+	/**
+	 * Any extra JS to output
+	 *
+	 * @var string
+	 */
+	private $extra_js;
+
+	/**
+	 * Any extra css styles to add to the popup element
+	 *
+	 * @var string
+	 */
+	private $popup_extra_css;
+
+	/**
+	 * If $learn_video_url is provided, specify a video title here
+	 *
+	 * @var string
+	 */
+	private $learn_video_title;
+
+	/**
+	 * An icon to show before the page title
+	 *
+	 * @var string
+	 */
+	private $icon_class;
+
+	/**
+	 * The slug to use for a "back to list" link, or false if not used
+	 *
+	 * @var string|bool
+	 */
+	private $back_slug;
 
 	/**
 	 * Setup learn menu.
@@ -271,7 +370,7 @@ class Learn_Menu {
 			$slug = 'transactiontags';
 		}
 
-		// Events
+		// Tasks
 		if ( zeroBSCRM_is_task_new_page() ) {
 			$slug = 'tasknew';
 		} elseif ( zeroBSCRM_is_task_edit_page() ) {
@@ -432,7 +531,7 @@ class Learn_Menu {
 				<?php echo $extra_js . "\n"; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
 			});
 		</script>
-		<div class="jpcrm-learn-menu-container">
+		<div class="<?php echo esc_attr( $this->get_learn_menu_container_css_classes() ); ?>">
 			<?php
 			if ( $back_slug ) {
 				?>
@@ -440,7 +539,7 @@ class Learn_Menu {
 				<?php
 			}
 			?>
-			<div class="jpcrm-learn-menu">
+			<div class="<?php echo esc_attr( $this->get_learn_menu_css_classes() ); ?>">
 				<div class="jpcrm-learn-menu-subdiv-75">
 					<div class="jpcrm-learn-menu-subdiv-75">
 						<div class="jpcrm-learn-page-title">
@@ -830,14 +929,14 @@ class Learn_Menu {
 				'content'     => '<p>' . __( 'Add a new form and choose your form layout.', 'zero-bs-crm' ) . '</p><p>' . __( 'Each form has its views and submissions tracked.', 'zero-bs-crm' ) . '</p><p>' . __( 'The more information asked for on a form, the lower the submission rate. Only ask for what you need and keep your contact list growing fast.', 'zero-bs-crm' ) . '</p>',
 				'back_slug'   => $zbs->slugs['manageformscrm'],
 			),
-			'manage-events'      => array(
+			'manage-tasks'      => array(
 				'title'           => __( 'Task Calendar', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/tasks/',
 				'img'             => 'learn-task-calendar.png',
 				'content'         => '<p>' . __( 'Tasks are our internal word for managing things to do related to contacts.', 'zero-bs-crm' ) . '</p><p>' . __( 'They are not intended to be a full appointment system operatable from the front end. They are useful to schedule short appointments and if using Client Portal Pro your clients can add them to their Calendar.', 'zero-bs-crm' ) . '</p>',
 				'filter_function' => 'jpcrm_taskcalendar_learn_menu',
 			),
-			'manage-events-list' => array(
+			'manage-tasks-list' => array(
 				'title'           => __( 'Task List', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/tasks/',
 				'img'             => 'learn-task-calendar.png',
@@ -1214,4 +1313,35 @@ class Learn_Menu {
 		return $learn_menu_array;
 	}
 
+	/**
+	 * Retrieves the CSS classes for the Learn menu container.
+	 *
+	 * @return string The CSS classes for the Learn menu container.
+	 */
+	private function get_learn_menu_container_css_classes() {
+		$classes = 'jpcrm-learn-menu-container';
+
+		if ( isset( $_GET['page'] ) && jpcrm_is_full_width_page( wp_unslash( $_GET['page'] ) ) ) { // phpcs:ignore
+			$classes .= ' jpcrm-full-width';
+		}
+
+		$classes = apply_filters( 'jetpack_crm_learn_menu_container_css_classes', $classes );
+		return $classes;
+	}
+
+	/**
+	 * Retrieves the CSS classes for the Learn menu.
+	 *
+	 * @return string The CSS classes for the Learn menu.
+	 */
+	private function get_learn_menu_css_classes() {
+		$classes = 'jpcrm-learn-menu';
+
+		if ( isset( $_GET['page'] ) && jpcrm_is_full_width_page( wp_unslash( $_GET['page'] ) ) ) { // phpcs:ignore
+			$classes .= ' jpcrm-full-width';
+		}
+
+		$classes = apply_filters( 'jetpack_crm_learn_menu_css_classes', $classes );
+		return $classes;
+	}
 }

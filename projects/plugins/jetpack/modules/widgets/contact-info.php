@@ -494,7 +494,6 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				wp_die();
 			}
 		}
-
 	}
 
 }

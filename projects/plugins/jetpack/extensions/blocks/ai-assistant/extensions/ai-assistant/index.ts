@@ -7,8 +7,7 @@ import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
  */
-import { blockName } from '../..';
-import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
+import metadata from '../../block.json';
 import { isUserConnected } from '../../lib/connection';
 
 /*
@@ -17,7 +16,7 @@ import { isUserConnected } from '../../lib/connection';
 export const AI_ASSISTANT_SUPPORT_NAME = 'ai-assistant-support';
 
 // List of blocks that can be extended.
-export const EXTENDED_BLOCKS = [ 'core/paragraph', 'core/heading', 'core/list-item' ] as const;
+export const EXTENDED_BLOCKS = [ 'core/paragraph', 'core/heading', 'core/list' ] as const;
 
 export type ExtendedBlockProp = ( typeof EXTENDED_BLOCKS )[ number ];
 
@@ -30,9 +29,7 @@ type BlockSettingsProps = {
 };
 
 export const isAiAssistantSupportExtensionEnabled =
-	window?.Jetpack_Editor_Initial_State.available_blocks?.[ AI_ASSISTANT_SUPPORT_NAME ];
-
-const siteRequiresUpgrade = AI_Assistant_Initial_State.requireUpgrade;
+	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ AI_ASSISTANT_SUPPORT_NAME ];
 
 /**
  * Check if it is possible to extend the block.
@@ -40,7 +37,7 @@ const siteRequiresUpgrade = AI_Assistant_Initial_State.requireUpgrade;
  * @returns {boolean} True if it is possible to extend the block.
  */
 export function isPossibleToExtendBlock(): boolean {
-	const isBlockRegistered = getBlockType( blockName );
+	const isBlockRegistered = getBlockType( metadata.name );
 	if ( ! isBlockRegistered ) {
 		return false;
 	}
@@ -56,13 +53,9 @@ export function isPossibleToExtendBlock(): boolean {
 		return false;
 	}
 
-	// Do not extend the block if the site requires an upgrade.
-	if ( siteRequiresUpgrade ) {
-		return false;
-	}
-
 	// Do not extend if there is an error getting the feature.
-	if ( AI_Assistant_Initial_State.errorCode ) {
+	const { errorCode } = select( 'wordpress-com/plans' )?.getAiAssistantFeature?.() || {};
+	if ( errorCode ) {
 		return false;
 	}
 
@@ -73,7 +66,7 @@ export function isPossibleToExtendBlock(): boolean {
 	 */
 	const { getHiddenBlockTypes } = select( 'core/edit-post' ) || {};
 	const hiddenBlocks = getHiddenBlockTypes?.() || []; // It will extend the block if the function is undefined.
-	if ( hiddenBlocks.includes( blockName ) ) {
+	if ( hiddenBlocks.includes( metadata.name ) ) {
 		return false;
 	}
 

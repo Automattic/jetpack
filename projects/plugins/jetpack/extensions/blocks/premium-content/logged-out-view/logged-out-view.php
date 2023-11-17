@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
 const LOGGEDOUT_VIEW_NAME = 'premium-content/logged-out-view';
@@ -21,20 +20,17 @@ require_once dirname( __DIR__ ) . '/_inc/access-check.php';
  * registration if we need to.
  */
 function register_loggedout_view_block() {
-	// Only load this block on WordPress.com.
-	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Host() )->is_woa_site() ) {
-		// Determine required `context` key based on Gutenberg version.
-		$deprecated = function_exists( 'gutenberg_get_post_from_context' );
-		$uses       = $deprecated ? 'context' : 'uses_context';
+	// Determine required `context` key based on Gutenberg version.
+	$deprecated = function_exists( 'gutenberg_get_post_from_context' );
+	$uses       = $deprecated ? 'context' : 'uses_context';
 
-		Blocks::jetpack_register_block(
-			LOGGEDOUT_VIEW_NAME,
-			array(
-				'render_callback' => __NAMESPACE__ . '\render_loggedout_view_block',
-				$uses             => array( 'premium-content/planId' ),
-			)
-		);
-	}
+	Blocks::jetpack_register_block(
+		LOGGEDOUT_VIEW_NAME,
+		array(
+			'render_callback' => __NAMESPACE__ . '\render_loggedout_view_block',
+			$uses             => array( 'premium-content/planId' ),
+		)
+	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_loggedout_view_block' );
 

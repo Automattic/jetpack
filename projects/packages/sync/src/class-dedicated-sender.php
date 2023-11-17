@@ -220,6 +220,13 @@ class Dedicated_Sender {
 	public static function try_lock_spawn_request() {
 		$current_microtime = (string) microtime( true );
 
+		if ( wp_using_ext_object_cache() ) {
+			if ( true !== wp_cache_add( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, $current_microtime, 'jetpack', self::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT ) ) {
+				// Cache lock has been claimed already.
+				return false;
+			}
+		}
+
 		$current_lock_value = \Jetpack_Options::get_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null );
 
 		if ( ! empty( $current_lock_value ) ) {
@@ -264,9 +271,14 @@ class Dedicated_Sender {
 			return new WP_Error( 'dedicated_request_lock_invalid', 'Invalid lock_id supplied for unlock' );
 		}
 
-		$current_lock_value = \Jetpack_Options::get_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null );
+		if ( wp_using_ext_object_cache() ) {
+			if ( (string) $lock_id === wp_cache_get( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, 'jetpack', true ) ) {
+				wp_cache_delete( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, 'jetpack' );
+			}
+		}
 
 		// If this is the flow that has the lock, let's release it so we can spawn other requests afterwards
+		$current_lock_value = \Jetpack_Options::get_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null );
 		if ( (string) $lock_id === $current_lock_value ) {
 			\Jetpack_Options::delete_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME );
 			return true;

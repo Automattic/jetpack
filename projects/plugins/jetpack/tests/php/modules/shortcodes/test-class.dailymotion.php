@@ -226,5 +226,4 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
 		$this->assertStringNotContainsString( 'amp-dailymotion', do_shortcode( $shortcode_content ) );
 	}
-
 }

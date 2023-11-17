@@ -34,8 +34,7 @@ class Jetpack_Starter_Plugin {
 			_x( 'Starter Plugin', 'The Jetpack Starter Plugin product name, without the Jetpack prefix', 'jetpack-starter-plugin' ),
 			'manage_options',
 			'jetpack-starter-plugin',
-			array( $this, 'plugin_settings_page' ),
-			99
+			array( $this, 'plugin_settings_page' )
 		);
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
@@ -88,7 +87,7 @@ class Jetpack_Starter_Plugin {
 		);
 		Assets::enqueue_script( 'jetpack-starter-plugin' );
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-starter-plugin', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'jetpack-starter-plugin' );
 		wp_add_inline_script( 'jetpack-starter-plugin', $this->render_initial_state(), 'before' );
 	}
 

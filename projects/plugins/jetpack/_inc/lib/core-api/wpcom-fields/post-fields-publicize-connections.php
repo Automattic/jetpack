@@ -319,7 +319,12 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	protected function get_meta_to_update( $requested_connections, $post_id = 0 ) {
 		global $publicize;
 
-		if ( ! $publicize ) {
+		if ( ! $publicize || ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) {
+			return array();
+		}
+
+		$post = get_post( $post_id );
+		if ( isset( $post->post_status ) && 'publish' === $post->post_status ) {
 			return array();
 		}
 

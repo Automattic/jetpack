@@ -28,6 +28,7 @@ const config = {
 	temp: {
 		storage: `${ tempDir }/storage.json`,
 		tunnels: `${ tempDir }/e2e-tunnels.txt`,
+		pid: `${ tempDir }/tunnel.pid`,
 		jetpackPrivateOptions: `${ tempDir }/jetpack-private-options.json`,
 		planData: `${ tempDir }/plan-data.json`,
 	},

@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: DRY in phpcs config. No change to the project itself.
-
-

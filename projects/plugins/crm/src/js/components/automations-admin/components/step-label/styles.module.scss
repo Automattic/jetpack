@@ -1,0 +1,22 @@
+.label {
+	border-radius: 32px;
+	font-size: var(--font-label);
+	user-select: none;
+
+	&--trigger {
+		background-color: var(--jp-blue-5);
+		// The custom color is equivalent to var(--jp-blue-50) but "blue 50" has
+		// not yet been defined in the RNA variable library.
+		color: #0675C4;
+	}
+
+	&--condition {
+		background-color: var(--jp-gray-5);
+		color: var(--jp-gray-50);
+	}
+
+	&--action {
+		background-color: var(--jp-green-5);
+		color: var(--jp-green-50);
+	}
+}

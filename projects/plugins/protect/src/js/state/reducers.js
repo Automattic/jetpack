@@ -154,7 +154,8 @@ const hasRequiredPlan = ( state = false, action ) => {
 };
 
 const defaultWaf = {
-	isSupported: null,
+	wafSupported: null,
+	bruteForceSupported: null,
 	isSeen: false,
 	upgradeIsSeen: false,
 	isEnabled: false,

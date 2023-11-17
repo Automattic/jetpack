@@ -88,7 +88,7 @@ jobs:
             org.opencontainers.image.documentation=${{ github.server_url }}/${{ github.repository }}/blob/trunk/tools/docker/README.md
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: tools/docker
           platforms: linux/amd64,linux/arm64

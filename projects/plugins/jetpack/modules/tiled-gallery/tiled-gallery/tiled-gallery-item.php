@@ -14,13 +14,6 @@ abstract class Jetpack_Tiled_Gallery_Item {
 	public $grayscale;
 
 	/**
-	 * The image URL, in grayscale.
-	 *
-	 * @var string
-	 */
-	public $img_src_grayscale;
-
-	/**
 	 * The image title.
 	 *
 	 * @var string
@@ -61,6 +54,13 @@ abstract class Jetpack_Tiled_Gallery_Item {
 	 * @var string
 	 */
 	public $img_src;
+
+	/**
+	 * The image srcset.
+	 *
+	 * @var string
+	 */
+	public $img_srcset;
 
 	/**
 	 * The image data.
@@ -109,6 +109,11 @@ abstract class Jetpack_Tiled_Gallery_Item {
 		// The function will always photonoize the URL (even if Photon is
 		// not active). We need to photonize the URL to set the width/height.
 		$this->img_src = Image_CDN_Core::cdn_url( $this->orig_file, $img_args );
+
+		$image_meta = wp_get_attachment_metadata( $attachment_image->ID );
+		$size_array = array( absint( $this->image->width ), absint( $this->image->height ) );
+
+		$this->img_srcset = wp_calculate_image_srcset( $size_array, $this->img_src, $image_meta, $attachment_image->ID );
 	}
 
 	/**
@@ -186,7 +191,6 @@ class Jetpack_Tiled_Gallery_Rectangular_Item extends Jetpack_Tiled_Gallery_Item 
 	 */
 	public function __construct( $attachment_image, $needs_attachment_link, $grayscale ) {
 		parent::__construct( $attachment_image, $needs_attachment_link, $grayscale );
-		$this->img_src_grayscale = Image_CDN_Core::cdn_url( $this->img_src, array( 'filter' => 'grayscale' ) );
 
 		$this->size = 'large';
 
@@ -200,26 +204,6 @@ class Jetpack_Tiled_Gallery_Rectangular_Item extends Jetpack_Tiled_Gallery_Item 
  * Tiled gallery square item class.
  */
 class Jetpack_Tiled_Gallery_Square_Item extends Jetpack_Tiled_Gallery_Item { // phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.OpeningBraceSameLine.ContentAfterBrace
-	/**
-	 * Constructor function.
-	 *
-	 * @param object $attachment_image - the attachment image.
-	 * @param string $needs_attachment_link - the attachment link.
-	 * @param bool   $grayscale - if the image is in grayscale.
-	 */
-	public function __construct( $attachment_image, $needs_attachment_link, $grayscale ) {
-		parent::__construct( $attachment_image, $needs_attachment_link, $grayscale );
-		$this->img_src_grayscale = Image_CDN_Core::cdn_url(
-			$this->img_src,
-			array(
-				'filter' => 'grayscale',
-				'resize' => array(
-					$this->image->width,
-					$this->image->height,
-				),
-			)
-		);
-	}
 }
 
 /**

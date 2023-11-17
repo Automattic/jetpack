@@ -12,6 +12,7 @@ vendor/automattic/**                            production-include
 vendor/composer/**                              production-include
 vendor/jetpack-autoloader/**                    production-include
 vendor/tedivm/**                                production-include
+vendor/tubalmartin/**                           production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.

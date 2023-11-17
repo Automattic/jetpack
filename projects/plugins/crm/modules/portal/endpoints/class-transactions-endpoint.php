@@ -23,5 +23,4 @@ class Transactions_Endpoint extends Client_Portal_Endpoint {
 		}
 		return $endpoints;
 	}
-
 }

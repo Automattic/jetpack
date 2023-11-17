@@ -532,6 +532,10 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ apiRoot }jetpack/v4/migration/status`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+		fetchBackupUndoEvent: () =>
+			getRequest( `${ apiRoot }jetpack/v4/site/backup/undo-event`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	/**

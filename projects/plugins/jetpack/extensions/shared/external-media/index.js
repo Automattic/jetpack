@@ -2,6 +2,7 @@ import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-uti
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { addFilter } from '@wordpress/hooks';
 import MediaButton from './media-button';
+import { addPexelsToMediaInserter, addGooglePhotosToMediaInserter } from './media-service';
 import { mediaSources } from './sources';
 import './editor.scss';
 
@@ -17,6 +18,9 @@ function insertExternalMediaBlocks( settings, name ) {
 }
 
 if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
+	addPexelsToMediaInserter();
+	addGooglePhotosToMediaInserter();
+
 	const isFeaturedImage = props =>
 		props.unstableFeaturedImageFlow ||
 		( props.modalClass && props.modalClass.indexOf( 'featured-image' ) > -1 );

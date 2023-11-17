@@ -154,7 +154,7 @@ class Publicize_UI {
 		}
 
 		Assets::register_script(
-			'jetpack-social-classic-editor-connections',
+			'jetpack-social-classic-editor-options',
 			'../build/classic-editor-connections.js',
 			__FILE__,
 			array(
@@ -164,11 +164,12 @@ class Publicize_UI {
 			)
 		);
 		wp_add_inline_script(
-			'jetpack-social-classic-editor-connections',
-			'var jetpackSocialClassicEditorConnections = ' . wp_json_encode(
+			'jetpack-social-classic-editor-options',
+			'var jetpackSocialClassicEditorOptions = ' . wp_json_encode(
 				array(
-					'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
-					'connectionsUrl' => esc_url( $this->publicize_settings_url ),
+					'ajaxUrl'                     => admin_url( 'admin-ajax.php' ),
+					'connectionsUrl'              => esc_url( $this->publicize_settings_url ),
+					'isEnhancedPublishingEnabled' => $this->publicize->has_enhanced_publishing_feature(),
 				)
 			),
 			'before'

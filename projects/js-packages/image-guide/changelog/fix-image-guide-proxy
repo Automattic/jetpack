@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Check response.url, not response.ok to verify a response worked

@@ -3,10 +3,6 @@
  * Script to be directly executed to output the latest version of WP.
  *
  * @package automattic/jetpack
- *
- * Disable WordPress-related coding standards; this script does not run within WP.
- * @phpcs:disable WordPress.Security
- * @phpcs:disable WordPress.WP.AlternativeFunctions
  */
 
 $ch = curl_init();

@@ -1,13 +1,13 @@
-import { JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
+	getSiteFragment,
 	isComingSoon,
 	isPrivateSite,
-	useModuleStatus,
+	JetpackEditorPanelLogo,
 	useAnalytics,
-	getSiteFragment,
+	useModuleStatus,
 } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink, Flex, FlexItem, Notice, PanelRow } from '@wordpress/components';
-import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import {
 	PluginPrePublishPanel,
@@ -15,70 +15,56 @@ import {
 	PluginPostPublishPanel,
 } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useState, createInterpolateElement } from '@wordpress/element';
+import { useState, createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
-import { store as membershipProductsStore } from '../../store/membership-products';
-import { getSubscriberCounts } from './api';
-import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
-import EmailPreview from './email-preview';
+import { accessOptions } from '../../shared/memberships/constants';
+import { useAccessLevel, isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
 import {
 	Link,
 	getReachForAccessLevelKey,
 	NewsletterAccessDocumentSettings,
 	NewsletterAccessPrePublishSettings,
-} from './settings';
-import { isNewsletterFeatureEnabled } from './utils';
-import { name } from './';
+} from '../../shared/memberships/settings';
+import {
+	getFormattedCategories,
+	getShowMisconfigurationWarning,
+} from '../../shared/memberships/utils';
+import { store as membershipProductsStore } from '../../store/membership-products';
+import metadata from './block.json';
+import EmailPreview from './email-preview';
 
 import './panel.scss';
+
+const name = metadata.name.replace( 'jetpack/', '' );
 
 const SubscriptionsPanelPlaceholder = ( { children } ) => {
 	return (
 		<Flex align="center" gap={ 4 } direction="column" style={ { alignItems: 'center' } }>
 			<FlexItem>
 				{ __(
-					"In order to share your posts with your subscribers, you'll need to activate the Subscriptions feature.",
+					'In order to send posts to your subscribers, activate the Subscriptions feature.',
 					'jetpack'
 				) }
 			</FlexItem>
 			<FlexItem>{ children }</FlexItem>
 			<FlexItem>
 				<ExternalLink href="https://jetpack.com/support/subscriptions/">
-					{ __( 'Learn more about the Subscriptions feature.', 'jetpack' ) }
+					{ __( 'Learn more about Subscriptions', 'jetpack' ) }
 				</ExternalLink>
 			</FlexItem>
 		</Flex>
 	);
 };
 
-function NewsletterEditorSettingsPanel( {
-	accessLevel,
-	setPostMeta,
-	socialFollowers,
-	emailSubscribers,
-	paidSubscribers,
-	isModuleActive,
-	showMisconfigurationWarning,
-} ) {
-	if ( ! isModuleActive ) {
-		return null;
-	}
-
+function NewsletterEditorSettingsPanel( { accessLevel } ) {
 	return (
 		<PluginDocumentSettingPanel
 			className="jetpack-subscribe-newsletters-panel"
-			title={ __( 'Newsletter visibility', 'jetpack' ) }
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			title={ __( 'Access', 'jetpack' ) }
+			icon={ <JetpackEditorPanelLogo /> }
 		>
-			<NewsletterAccessDocumentSettings
-				accessLevel={ accessLevel }
-				setPostMeta={ setPostMeta }
-				socialFollowers={ socialFollowers }
-				emailSubscribers={ emailSubscribers }
-				paidSubscribers={ paidSubscribers }
-				showMisconfigurationWarning={ showMisconfigurationWarning }
-			/>
+			<NewsletterAccessDocumentSettings accessLevel={ accessLevel } />
 		</PluginDocumentSettingPanel>
 	);
 }
@@ -94,21 +80,21 @@ const NewsletterDisabledPanels = () => (
 		<PluginDocumentSettingPanel
 			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Newsletter visibility', 'jetpack' ) }
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			icon={ <JetpackEditorPanelLogo /> }
 		>
 			<NewsletterDisabledNotice />
 		</PluginDocumentSettingPanel>
 		<PluginPrePublishPanel
 			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Newsletter visibility', 'jetpack' ) }
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			icon={ <JetpackEditorPanelLogo /> }
 		>
 			<NewsletterDisabledNotice />
 		</PluginPrePublishPanel>
 		<PluginPostPublishPanel
 			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Newsletter visibility', 'jetpack' ) }
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			icon={ <JetpackEditorPanelLogo /> }
 		>
 			<NewsletterDisabledNotice />
 		</PluginPostPublishPanel>
@@ -118,11 +104,7 @@ const NewsletterDisabledPanels = () => (
 function NewsletterPrePublishSettingsPanel( {
 	accessLevel,
 	setPostMeta,
-	socialFollowers,
-	emailSubscribers,
-	paidSubscribers,
 	isModuleActive,
-	showMisconfigurationWarning,
 	showPreviewModal,
 } ) {
 	const { tracks } = useAnalytics();
@@ -153,20 +135,16 @@ function NewsletterPrePublishSettingsPanel( {
 					) }
 				</>
 			}
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			icon={ <JetpackEditorPanelLogo /> }
 		>
 			{ isModuleActive && (
 				<>
 					<NewsletterAccessPrePublishSettings
 						accessLevel={ accessLevel }
 						setPostMeta={ setPostMeta }
-						socialFollowers={ socialFollowers }
-						emailSubscribers={ emailSubscribers }
-						paidSubscribers={ paidSubscribers }
-						showMisconfigurationWarning={ showMisconfigurationWarning }
 					/>
 					<Button variant="secondary" onClick={ showPreviewModal }>
-						{ __( 'Preview', 'jetpack' ) }
+						{ __( 'Send test email', 'jetpack' ) }
 					</Button>
 				</>
 			) }
@@ -193,13 +171,11 @@ function NewsletterPrePublishSettingsPanel( {
 	);
 }
 
-function NewsletterPostPublishSettingsPanel( {
-	accessLevel,
-	emailSubscribers,
-	paidSubscribers,
-	isModuleActive,
-	showMisconfigurationWarning,
-} ) {
+function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
+	const { emailSubscribers, paidSubscribers } = useSelect( select =>
+		select( membershipProductsStore ).getSubscriberCounts()
+	);
+
 	const { postName, postPublishedLink } = useSelect( select => {
 		const currentPost = select( editorStore ).getCurrentPost();
 		return {
@@ -215,18 +191,35 @@ function NewsletterPostPublishSettingsPanel( {
 		};
 	} );
 
-	if ( ! isModuleActive ) {
-		return null;
-	}
+	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
 
-	const reachCount = getReachForAccessLevelKey( accessLevel, emailSubscribers, paidSubscribers );
+	const { newsletterCategories, newsletterCategoriesEnabled } = useSelect( select => {
+		const { getNewsletterCategories, getNewsletterCategoriesEnabled } = select(
+			'jetpack/membership-products'
+		);
+
+		return {
+			newsletterCategories: getNewsletterCategories(),
+			newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
+		};
+	} );
+
+	const postCategories = useSelect( select =>
+		select( editorStore ).getEditedPostAttribute( 'categories' )
+	);
+
+	const reachCount = getReachForAccessLevelKey(
+		accessLevel,
+		emailSubscribers,
+		paidSubscribers
+	).toLocaleString();
 
 	let subscriberType = __( 'subscribers', 'jetpack' );
 	if ( accessLevel === accessOptions.paid_subscribers.key ) {
 		subscriberType = __( 'paid subscribers', 'jetpack' );
 	}
 
-	const numberOfSubscribersText = sprintf(
+	let numberOfSubscribersText = sprintf(
 		/* translators: %1s is the post name,  %2s is the number of subscribers in numerical format, %3s Options are paid subscribers or subscribers */
 		__(
 			'<postPublishedLink>%1$s</postPublishedLink> was sent to <strong>%2$s %3$s</strong>.',
@@ -236,6 +229,28 @@ function NewsletterPostPublishSettingsPanel( {
 		reachCount,
 		subscriberType
 	);
+
+	if (
+		newsletterCategoriesEnabled &&
+		newsletterCategories.length &&
+		accessLevel !== accessOptions.paid_subscribers.key
+	) {
+		const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
+
+		if ( formattedCategoryNames ) {
+			numberOfSubscribersText = sprintf(
+				// translators: %1s is the post name,  %2s is the list of categories
+				__(
+					'<postPublishedLink>%1$s</postPublishedLink> was sent to everyone subscribed to %2$s.',
+					'jetpack'
+				),
+				postName,
+				formattedCategoryNames
+			);
+		}
+	}
+
+	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
 
 	return (
 		<>
@@ -252,7 +267,7 @@ function NewsletterPostPublishSettingsPanel( {
 					</>
 				}
 				className="jetpack-subscribe-newsletters-panel jetpack-subscribe-post-publish-panel"
-				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+				icon={ <JetpackEditorPanelLogo /> }
 			>
 				{ ! showMisconfigurationWarning && (
 					<Notice className="jetpack-subscribe-post-publish-panel__notice" isDismissible={ false }>
@@ -269,7 +284,7 @@ function NewsletterPostPublishSettingsPanel( {
 					initialOpen
 					className="jetpack-subscribe-newsletters-panel paid-newsletters-post-publish-panel"
 					title={ __( 'Set up a paid newsletter', 'jetpack' ) }
-					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+					icon={ <JetpackEditorPanelLogo /> }
 				>
 					<PanelRow>
 						<p>
@@ -302,45 +317,17 @@ function NewsletterPostPublishSettingsPanel( {
 
 export default function SubscribePanels() {
 	const { isModuleActive } = useModuleStatus( name );
-	const [ paidSubscribers, setPaidSubscribers ] = useState( null );
-	const [ socialFollowers, setSocialFollowers ] = useState( null );
-	const [ emailSubscribers, setEmailSubscribers ] = useState( null );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
+
 	const { tracks } = useAnalytics();
-
-	// Set the accessLevel to "everybody" when one is not defined
-	let accessLevel =
-		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? accessOptions.everybody.key;
-
-	// If accessLevel is ''
-	if ( ! accessLevel ) {
-		accessLevel = accessOptions.everybody.key;
-	}
-
-	useEffect( () => {
-		if ( ! isModuleActive ) {
-			return;
-		}
-		getSubscriberCounts( counts => {
-			setEmailSubscribers( counts.email_subscribers );
-			setSocialFollowers( counts.social_followers );
-			setPaidSubscribers( counts.paid_subscribers );
-		} );
-	}, [ isModuleActive ] );
-
-	// Can be “private”, “password”, or “public”.
-	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
+	const accessLevel = useAccessLevel( postType );
 
 	// Subscriptions are only available for posts. Additionally, we will allow access level selector for pages.
 	// TODO: Make it available for pages later.
 	if ( postType !== 'post' ) {
 		return null;
 	}
-
-	const showMisconfigurationWarning =
-		postVisibility !== 'public' && accessLevel !== accessOptions.everybody.key;
 
 	// Only show the panels when the corresponding filter is enabled
 	if ( ! isNewsletterFeatureEnabled() ) {
@@ -355,36 +342,16 @@ export default function SubscribePanels() {
 
 	return (
 		<>
-			<NewsletterEditorSettingsPanel
-				accessLevel={ accessLevel }
-				setPostMeta={ setPostMeta }
-				socialFollowers={ socialFollowers }
-				emailSubscribers={ emailSubscribers }
-				paidSubscribers={ paidSubscribers }
-				showMisconfigurationWarning={ showMisconfigurationWarning }
-				isModuleActive={ isModuleActive }
-			/>
+			{ isModuleActive && <NewsletterEditorSettingsPanel accessLevel={ accessLevel } /> }
 			<NewsletterPrePublishSettingsPanel
 				accessLevel={ accessLevel }
-				setPostMeta={ setPostMeta }
-				socialFollowers={ socialFollowers }
-				emailSubscribers={ emailSubscribers }
-				paidSubscribers={ paidSubscribers }
 				isModuleActive={ isModuleActive }
-				showMisconfigurationWarning={ showMisconfigurationWarning }
 				showPreviewModal={ () => {
 					tracks.recordEvent( 'jetpack_send_email_preview_prepublish_preview_button' );
 					setIsModalOpen( true );
 				} }
 			/>
-			<NewsletterPostPublishSettingsPanel
-				accessLevel={ accessLevel }
-				setPostMeta={ setPostMeta }
-				emailSubscribers={ emailSubscribers }
-				paidSubscribers={ paidSubscribers }
-				isModuleActive={ isModuleActive }
-				showMisconfigurationWarning={ showMisconfigurationWarning }
-			/>
+			{ isModuleActive && <NewsletterPostPublishSettingsPanel accessLevel={ accessLevel } /> }
 			<EmailPreview isModalOpen={ isModalOpen } closeModal={ () => setIsModalOpen( false ) } />
 		</>
 	);

@@ -1399,7 +1399,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @param string the title of the email
 		 */
-		$title   = apply_filters( 'jetpack_forms_response_email_title', __( 'You got a new response!', 'jetpack-forms' ) );
+		$title   = (string) apply_filters( 'jetpack_forms_response_email_title', '' );
 		$message = self::get_compiled_form_for_email( $post_id, $this );
 
 		if ( is_user_logged_in() ) {
@@ -1689,7 +1689,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'',
 				$template
 			),
-			$title,
+			( $title !== '' ? '<h1>' . $title . '</h1>' : '' ),
 			$body,
 			'',
 			'',
@@ -1741,7 +1741,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			foreach ( $vars as $key => $data ) {
 				$value->{$key} = $this->addslashes_deep( $data );
 			}
-			return $value;
+			return (array) $value;
 		}
 
 		return addslashes( $value );

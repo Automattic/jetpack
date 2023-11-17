@@ -806,7 +806,7 @@ msgid "Warning"
 msgstr "Увага"
 
 #: wp-cache.php:1131
-msgid "GZIP compression is enabled in Wordpress, wp-cache will be bypassed until you disable gzip compression."
+msgid "GZIP compression is enabled in WordPress, wp-cache will be bypassed until you disable gzip compression."
 msgstr "Стиск GZIP ввімкнено у Вордпресі, Вордпрес-Кеш буде пропущено, поки Ви не відключите стиск GZIP."
 
 #: wp-cache.php:1189
@@ -877,7 +877,7 @@ msgstr "<strong>Помилка: WP_CACHE не ввімкнено</strong> у В�
 
 #: wp-cache.php:1319
 #, php-format
-msgid "Edit <code>%s</code> and add the following line:<br /> <code>define('WP_CACHE', true);</code><br />Otherwise, <strong>WP-Cache will not be executed</strong> by Wordpress core. "
+msgid "Edit <code>%s</code> and add the following line:<br /> <code>define('WP_CACHE', true);</code><br />Otherwise, <strong>WP-Cache will not be executed</strong> by WordPress core. "
 msgstr "Відредагуйте код <code>%s</code> та додайте наступну стрічку:<br /> <code>define('WP_CACHE', true);</code><br />  В іншому випадку <strong>Вордпрес-Кеш не виконається</strong> за допомогою ядра Вордпресу."
 
 #: wp-cache.php:1322

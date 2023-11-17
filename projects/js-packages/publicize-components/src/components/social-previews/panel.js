@@ -5,7 +5,7 @@
  */
 
 import { Button } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { useAvailableSerivces } from './useAvailableServices';
 import './panel.scss';
 
@@ -32,7 +32,7 @@ const SocialPreviewsPanel = ( { openModal } ) => {
 				onClick={ openModal }
 				label={ __( 'Open Social Previews', 'jetpack' ) }
 			>
-				{ __( 'Preview', 'jetpack' ) }
+				{ _x( 'Preview', 'Button label that opens the social previews modal', 'jetpack' ) }
 			</Button>
 		</div>
 	);

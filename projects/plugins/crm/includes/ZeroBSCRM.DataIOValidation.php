@@ -104,7 +104,7 @@
         if ( is_string($var) ){
 
             // catch negative
-            if (substr($var,0,1) == '-') {
+		if ( str_starts_with( $var, '-' ) ) {
 
                 // use ctype where available
                 if ( function_exists('ctype_digit') ){
@@ -112,7 +112,7 @@
                 } else {
                     return is_numeric( $var );
                 }
-            }
+		}
 
             // use ctype_digit where available to check the string only contains digits
             if ( function_exists('ctype_digit') ){
@@ -127,36 +127,41 @@
 
     }
 
-   /*
-    * checks if a given string is a URL
-    *
-    * @param str $s potential URL string
-    * @param bool $do_tld_check use TLD check instead of regex to confirm if it is a valid URL
-    *
-    * return bool
-    */
-    function jpcrm_is_url($s, $do_tld_check = false) {
-      if ( $do_tld_check ) return jpcrm_has_valid_tld( $s );
-      return preg_match('/^(https?:\/\/|www\.)\w+(\.\w+)*?(\/[^\s]*)?$/', $s);
-    }
+/**
+ * Checks if a given string is a URL
+ *
+ * @param string  $s Potential URL string.
+ * @param boolean $do_tld_check use TLD check instead of regex to confirm if it is a valid URL.
+ *
+ * @return boolean
+ */
+function jpcrm_is_url( $s, $do_tld_check = false ) {
+	if ( $do_tld_check ) {
+		return jpcrm_has_valid_tld( $s );
+	}
+	return preg_match( '/^(https?:\/\/|www\.)\w+(\.\w+)*?(\/[^\s]*)?$/', $s );
+}
 
-   /*
-    * checks if host of a given URL is using a whitelisted TLD
-    *
-    * @param str $s URL string
-    * @param array $valid_tlds list of approved TLDs
-    *
-    * return bool
-    */
-    function jpcrm_has_valid_tld( $s, $valid_tlds = array( '.com', '.net', '.org', '.edu', '.gov', '.co.uk' ) ) {
-      $host = parse_url( jpcrm_url_with_scheme($s), PHP_URL_HOST );
-      if ( !$host ) return false;
-      foreach ($valid_tlds as $tld) {
-        $tld_length = strlen( $tld );
-        if ( substr( $host, -$tld_length ) === $tld ) return true;
-      }
-      return false;
-    }
+/**
+ * Checks if host of a given URL is using a whitelisted TLD
+ *
+ * @param string $s URL string.
+ * @param array  $valid_tlds List of approved TLDs.
+ *
+ * @return boolean
+ */
+function jpcrm_has_valid_tld( $s, $valid_tlds = array( '.com', '.net', '.org', '.edu', '.gov', '.co.uk' ) ) {
+	$host = wp_parse_url( jpcrm_url_with_scheme( $s ), PHP_URL_HOST );
+	if ( ! $host ) {
+		return false;
+	}
+	foreach ( $valid_tlds as $tld ) {
+		if ( str_ends_with( $host, $tld ) ) {
+			return true;
+		}
+	}
+	return false;
+}
 
    /*
     * adds a scheme to a URL string if it doesn't exist
@@ -180,70 +185,6 @@
 
 	}
 
-
-	#} roughly adopted from a Non-chosen answer from here:
-	#} http://stackoverflow.com/questions/3090862/how-to-validate-phone-number-using-php
-	function zeroBSCRM_validateUSTel($string=''){
-
-		$isPhoneNum = false;
-
-		//eliminate every char except 0-9
-		$justNums = preg_replace("/[^0-9]/", '', $string);
-
-		//eliminate leading 1 if its there
-		if (strlen($justNums) == 11) $justNums = preg_replace("/^1/", '',$justNums);
-
-		//if we have 10 digits left, it's probably valid.
-		if (strlen($justNums) == 10) $isPhoneNum = true;
-
-		return $isPhoneNum;
-	}
-
-	#} roughly adopted from a Non-chosen answer from here:
-	#} http://stackoverflow.com/questions/8099177/validating-uk-phone-numbers-in-php
-	function zeroBSCRM_validateUKMob($aNumber=''){
-		$origNo = $aNumber;
-		#DEBUG echo 'zeroBSCRM_validateUKMob:'.$aNumber.'|';
-		#DEBUG $aNumber = intval($aNumber);
-		#DEBUG echo 'int:'.$aNumber.'|';
-		#DEBUG echo 'a:'.preg_match('/(^\d{12}$)|(^\d{10}$)/', $aNumber).'|';
-		#DEBUG echo 'b:'.preg_match('/(^7)|(^447)/', $aNumber).'|';
-
-		#} intval doesn't work yet!
-		$aNumber = preg_replace("/[^0-9]/", '', $origNo);
-		if (substr($aNumber,0,1) == '0') $aNumber = substr($aNumber,1);
-		#DEBUG echo '<br >justNums:'.$aNumber.'|';
-		#DEBUG echo 'a:'.preg_match('/(^\d{12}$)|(^\d{10}$)/', $aNumber).'|';
-		#DEBUG echo 'b:'.preg_match('/(^7)|(^447)/', $aNumber).'|';
-
-	    return preg_match('/(^\d{12}$)|(^\d{10}$)/', $aNumber) && preg_match('/(^7)|(^447)/', $aNumber);
-
-	}
-
-	#} Country based validation... doesn't work outside UK US
-	function zeroBSCRM_ValidateMob($number){
-
-		$nation = zeroBSCRM_getSetting('googcountrycode');
-
-		switch ($nation){
-
-			case 'GB':
-				return zeroBSCRM_validateUKMob($number);
-				break;
-			case 'US':
-				return zeroBSCRM_validateUSTel($number);
-				break;
-			default:
-				return true;
-				break;
-
-
-		}
-
-		return false;
-
-	}
-
     function zeroBSCRM_dataIO_postedArrayOfInts($array=false){
 
         $ret = array(); if (is_array($array)) $ret = $array; 
@@ -260,47 +201,36 @@
      */
     function jpcrm_dataIO_file_path_seems_unsafe( $file_path_string ){
 
-        // this one is important enough to be hard typed here #gh-2501
-        if ( strpos( $file_path_string, 'phar' ) > -1 ){
+	// this one is important enough to be hard typed here #gh-2501
+	if ( str_contains( $file_path_string, 'phar' ) ) {
+		return true;
+	}
 
-            return true;
+	// these we block with their full string (unless we find a reason to open them up)
+	$blocked_protocols = array( 'file', 'http', 'ftp', 'php', 'zlib', 'data', 'glob', 'ssh2', 'rar', 'ogg', 'expect' );
+	foreach ( $blocked_protocols as $protocol ) {
 
-        }
+		if ( str_contains( $file_path_string, $protocol . '://' ) ) {
+			return true;
+		}
+	}
+	// this is only as accurate as what we know here and now (!)
+	return false;
+}
 
-        // these we block with their full string (unless we find a reason to open them up)
-        $blocked_protocols = array( 'file', 'http', 'ftp', 'php', 'zlib', 'data', 'glob', 'ssh2', 'rar', 'ogg', 'expect' );
-        foreach ( $blocked_protocols as $protocol ){
-
-            if ( strpos( $file_path_string, $protocol . '://' ) > -1 ){
-
-                return true;
-
-            }
-
-        }
-
-
-        // this is only as accurate as what we know here and now (!)
-        return false;
-
-    }
-    
-    /*
-     * A check which does it's best to ensure a URI is an url with the same root as existing site
-     */
-    function jpcrm_url_appears_to_match_site( $url_string, $site_path = '' ){
-
-        $this_site_url = site_url( $site_path );
-
-        if ( substr( $url_string, 0, strlen( $this_site_url ) ) == $this_site_url ){
-
-            return true;
-
-        }
-
-        return false;
-
-    }
+/**
+ * A check which does its best to ensure a URI is an url with the same root as existing site
+ *
+ * @param string $url_string A URL string.
+ * @param string $site_path  The site path if applicable.
+ */
+function jpcrm_url_appears_to_match_site( $url_string, $site_path = '' ) {
+	$this_site_url = site_url( $site_path );
+	if ( str_starts_with( $url_string, $this_site_url ) ) {
+		return true;
+	}
+	return false;
+}
 
 /* ======================================================
   / Data Validation Functions
@@ -373,21 +303,21 @@ function zeroBSCRM_segments_filterConditions($conditions=array(),$processCharact
                         ){
 
                         // hmmm what if peeps use ' - ' in their date formats? This won't work if they do!
-                        if (strpos($val,' - ') > -1){
+					if ( str_contains( $val, ' - ' ) ) {
 
-                            $dates = explode(' - ', $val);
-                            if (count($dates) == 2){
+						$dates = explode( ' - ', $val );
+						if ( count( $dates ) === 2 ) {
 
-                                $val = $dates[0];
-                                $addition['value'] = zeroBSCRM_locale_dateToUTS( $dates[0] );
-                                $addition['value2'] = zeroBSCRM_locale_dateToUTS( $dates[1] );
+								$local_date_time = new DateTime( $dates[0], wp_timezone() );
+								$local_date_time->setTimezone( new DateTimeZone( 'UTC' ) );
+								$value = $local_date_time->format( 'Y-m-d H:i' );
 
-                                // for those dates used in 'AFTER' this needs to effectively be midnight on the day (start of next day)
-                                if ( $c['operator'] == 'daterange' && !empty( $addition['value2'] ) ) {
-
-                                    $addition['value2'] += (60*60*24);
-
-                                }
+								$local_date_time_2 = new DateTime( $dates[1], wp_timezone() );
+								$local_date_time_2->setTimezone( new DateTimeZone( 'UTC' ) );
+								$value_2 = $local_date_time_2->format( 'Y-m-d H:i' );
+								// Set the converted dates to UTC.
+								$addition['value']  = zeroBSCRM_locale_dateToUTS( $value );
+								$addition['value2'] = zeroBSCRM_locale_dateToUTS( $value_2 );
                             }
 
                         }

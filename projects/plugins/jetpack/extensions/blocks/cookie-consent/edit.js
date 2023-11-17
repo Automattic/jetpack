@@ -2,18 +2,21 @@ import { InspectorControls, useBlockProps, InnerBlocks, RichText } from '@wordpr
 import { PanelBody, TextControl, SelectControl } from '@wordpress/components';
 import { __, isRTL } from '@wordpress/i18n';
 import './editor.scss';
+import { useSaveCookieConsentSettings } from './use-save-cookie-consent-settings';
 
 /**
  * Cookie Consent Edit Component.
  *
  * @param {object} props - Component props.
+ * @param {string} props.clientId - Block id
  * @param {object} props.attributes	- {object} Block attributes.
  * @param {Function} props.setAttributes - Set block attributes.
  * @returns {object} Element to render.
  */
-function CookieConsentBlockEdit( { attributes, setAttributes } ) {
+function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 	const { consentExpiryDays, align, text } = attributes;
 
+	useSaveCookieConsentSettings( clientId );
 	/**
 	 * Update the alignment of the block. This takes care setting names alignments (left, right, etc..) or eg width=500.
 	 *

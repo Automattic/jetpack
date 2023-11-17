@@ -361,6 +361,16 @@ export function isAtomicPlatform( state ) {
 }
 
 /**
+ * Get the current theme's stylesheet (slug).
+ *
+ * @param {object} state - Global state tree.
+ * @returns {string} theme stylesheet, e.g. twentytwentythree.
+ */
+export function currentThemeStylesheet( state ) {
+	return get( state.jetpack.initialState.themeData, 'stylesheet' );
+}
+
+/**
  * Check that theme supports a certain feature
  *
  * @param {Object} state   Global state tree.
@@ -370,6 +380,16 @@ export function isAtomicPlatform( state ) {
  */
 export function currentThemeSupports( state, feature ) {
 	return get( state.jetpack.initialState.themeData, [ 'support', feature ], false );
+}
+
+/**
+ * Check that the current theme is a block theme.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the current theme is a block theme, false otherwise.
+ */
+export function currentThemeIsBlockTheme( state ) {
+	return get( state.jetpack.initialState.themeData, [ 'isBlockTheme' ], false );
 }
 
 /**
@@ -688,4 +708,14 @@ export function isBlazeDashboardEnabled( state ) {
  */
 export function arePreConnectionHelpersEnabled( state ) {
 	return !! state.jetpack.initialState.preConnectionHelpers;
+}
+
+/**
+ * Returns information about the Gutenberg plugin and its Interactivity API support.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {object} Gutenberg plugin information.
+ */
+export function getGutenbergState( state ) {
+	return state.jetpack.initialState.gutenbergInitialState;
 }

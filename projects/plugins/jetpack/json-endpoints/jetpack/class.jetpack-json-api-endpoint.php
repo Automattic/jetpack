@@ -174,5 +174,4 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		return true;
 	}
-
 }

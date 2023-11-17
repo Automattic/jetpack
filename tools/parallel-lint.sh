@@ -27,8 +27,9 @@ if $ALL; then
 	if php -r 'exit( PHP_VERSION_ID < 70000 ? 0 : 1 );'; then
 		SKIPS+=( -o -name php7 )
 	fi
-	if php -r 'exit( PHP_VERSION_ID < 70200 ? 0 : 1 );'; then
-		# Plugin requires PHP 7.2 or later.
+	if php -r 'exit( PHP_VERSION_ID < 70400 ? 0 : 1 );'; then
+		# Plugin requires PHP 7.4 or later.
+		SKIPS+=( -o -path ./projects/plugins/inspect )
 		SKIPS+=( -o -path ./projects/plugins/crm )
 	fi
 	if php -r 'exit( PHP_VERSION_ID < 80000 ? 0 : 1 );'; then

@@ -17,7 +17,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 function my_app_enqueue_script() {
 	// ...
 	wp_enqueue_script( 'my-app-script' );
-	wp_add_inline_script( 'my-app-script', Connection_Initial_State::render(), 'before' );
+	Connection_Initial_State::render_script( 'my-app-script' );
 }
 ```
 

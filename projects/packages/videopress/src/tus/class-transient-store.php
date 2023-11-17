@@ -67,4 +67,3 @@ class Transient_Store extends Tus_Abstract_Cache {
 		return get_transient( $prefix );
 	}
 }
-

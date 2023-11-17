@@ -10,7 +10,7 @@ import { Notice, ExternalLink } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { includes } from 'lodash';
+import { SOCIAL_STORE_ID } from '../../social-store';
 import ConnectionToggle from '../connection-toggle';
 import componentStyles from '../styles.module.scss';
 import styles from './styles.module.scss';
@@ -46,10 +46,13 @@ class PublicizeConnection extends Component {
 	 *
 	 * @returns {boolean} True if connection must be reauthenticated.
 	 */
-	connectionNeedsReauth = () => includes( this.props.mustReauthConnections, this.props.name );
+	connectionNeedsReauth = () => this.props.mustReauthConnections.includes( this.props.name );
 
 	onConnectionChange = () => {
 		const { id } = this.props;
+		if ( this.isDisabled() ) {
+			return;
+		}
 		this.props.toggleConnection( id );
 	};
 
@@ -58,8 +61,12 @@ class PublicizeConnection extends Component {
 		return failedConnections.some( connection => connection.service_name === name );
 	}
 
+	isDisabled() {
+		return this.props.disabled || this.connectionIsFailing() || this.connectionNeedsReauth();
+	}
+
 	render() {
-		const { disabled, enabled, id, label, name, profilePicture } = this.props;
+		const { enabled, id, label, name, profilePicture } = this.props;
 		const fieldId = 'connection-' + name + '-' + id;
 		// Genericon names are dash separated
 		const serviceName = name.replace( '_', '-' );
@@ -70,7 +77,7 @@ class PublicizeConnection extends Component {
 				className={ styles[ 'connection-toggle' ] }
 				checked={ enabled }
 				onChange={ this.onConnectionChange }
-				disabled={ disabled || this.connectionIsFailing() || this.connectionNeedsReauth() }
+				disabled={ this.isDisabled() }
 				serviceName={ serviceName }
 				label={ label }
 				profilePicture={ profilePicture }
@@ -87,6 +94,6 @@ class PublicizeConnection extends Component {
 }
 
 export default withSelect( select => ( {
-	failedConnections: select( 'jetpack/publicize' ).getFailedConnections(),
-	mustReauthConnections: select( 'jetpack/publicize' ).getMustReauthConnections(),
+	failedConnections: select( SOCIAL_STORE_ID ).getFailedConnections(),
+	mustReauthConnections: select( SOCIAL_STORE_ID ).getMustReauthConnections(),
 } ) )( PublicizeConnection );

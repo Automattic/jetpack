@@ -33,7 +33,13 @@ async function getListComment( issueComments ) {
 }
 
 /**
- * Scan the contents of the issue as well as all its comments, get all support references, and add them to an array of references.
+ * Scan the contents of the issue as well as all its comments,
+ * get all support references, and add them to an array of references.
+ *
+ * Support references can be in the following formats:
+ * - xxx-zen
+ * - xxx-zd
+ * - xxxx-xxx-p2#comment-xxx
  *
  * @param {GitHub} octokit      - Initialized Octokit REST client.
  * @param {string} owner        - Repository owner.
@@ -44,7 +50,7 @@ async function getListComment( issueComments ) {
  */
 async function getIssueReferences( octokit, owner, repo, number, issueComments ) {
 	const ticketReferences = [];
-	const referencesRegexP = /[0-9]*-(?:zen|zd)/gim;
+	const referencesRegexP = /[0-9]*-(?:zen|zd)|[a-zA-Z0-9-]+-p2#comment-[0-9]*/gim;
 
 	debug( `gather-support-references: Getting references from issue body.` );
 	const {
@@ -76,7 +82,7 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 
 		// xxx-zen is the preferred format for tickets.
 		// xxx-zd, as well as its uppercase version, is considered an alternate version.
-		const wrongId = supportId.match( /([0-9]*)-zd/i );
+		const wrongId = supportId.match( /^([0-9]*)-zd$/i );
 		if ( wrongId ) {
 			const correctedId = `${ wrongId[ 1 ] }-zen`;
 			correctedSupportIds.add( correctedId );
@@ -389,6 +395,35 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 }
 
 /**
+ * Add a label to the issue, if it does not exist yet.
+ *
+ * @param {GitHub} octokit       - Initialized Octokit REST client.
+ * @param {string} ownerLogin    - Repository owner login.
+ * @param {string} repo          - Repository name.
+ * @param {number} number        - Issue number.
+ * @returns {Promise<void>}
+ */
+async function addHappinessLabel( octokit, ownerLogin, repo, number ) {
+	const happinessLabel = 'Customer Report';
+
+	const labels = await getLabels( octokit, ownerLogin, repo, number );
+	if ( labels.includes( happinessLabel ) ) {
+		debug(
+			`gather-support-references: Issue #${ number } already has the "${ happinessLabel }" label.`
+		);
+		return;
+	}
+
+	debug( `gather-support-references: Adding ${ happinessLabel } label to issue #${ number }` );
+	await octokit.rest.issues.addLabels( {
+		owner: ownerLogin,
+		repo,
+		issue_number: number,
+		labels: [ happinessLabel ],
+	} );
+}
+
+/**
  * Post or update a comment with a to-do list of all support references on that issue.
  *
  * @param {WebhookPayloadIssue} payload - Issue or issue comment event payload.
@@ -404,6 +439,7 @@ async function gatherSupportReferences( payload, octokit ) {
 	if ( issueReferences.length > 0 ) {
 		debug( `gather-support-references: Found ${ issueReferences.length } references.` );
 		await createOrUpdateComment( payload, octokit, issueReferences, issueComments );
+		await addHappinessLabel( octokit, owner.login, repo, number );
 	}
 }
 

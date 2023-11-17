@@ -253,16 +253,16 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_inbox_menu
+	 * Tests add_my_mailboxes_menu
 	 *
-	 * @covers ::add_inbox_menu
+	 * @covers ::add_my_mailboxes_menu
 	 */
-	public function test_add_inbox_menu() {
+	public function test_add_my_mailboxes_menu() {
 		global $menu;
 
-		static::$admin_menu->add_inbox_menu();
+		static::$admin_menu->add_my_mailboxes_menu();
 
-		$this->assertSame( 'https://wordpress.com/inbox/' . static::$domain, $menu['4.64424'][2] );
+		$this->assertSame( 'https://wordpress.com/mailboxes/' . static::$domain, $menu['4.64424'][2] );
 	}
 
 	/**
@@ -278,23 +278,6 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_users_menu();
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $submenu['users.php'] )[2] );
 		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][2][2] );
-	}
-
-	/**
-	 * Tests subscribers not being shown when locale is not English.
-	 *
-	 * @covers ::add_users_menu
-	 */
-	public function test_add_users_menu_not_english() {
-		global $submenu;
-
-		add_filter( 'locale', array( $this, 'set_test_locale_to_not_english' ) );
-
-		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
-		static::$admin_menu->add_users_menu();
-		$this->assertNotSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][2][2] );
-
-		remove_filter( 'locale', array( $this, 'set_test_locale_to_not_english' ) );
 	}
 
 	/**
@@ -321,12 +304,5 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		// Gutenberg plugin menu should not be visible.
 		$this->assertArrayNotHasKey( 101, $menu );
-	}
-
-	/**
-	 * Override the user's locale to be not English.
-	 */
-	public function set_test_locale_to_not_english() {
-		return 'nl_BE';
 	}
 }

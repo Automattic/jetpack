@@ -1,9 +1,12 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -16,6 +19,7 @@ import CloseSVG from './svg/close-svg';
 import ExportSVG from './svg/export-svg';
 import NotificationsSVG from './svg/notifications-svg';
 import WordpressSVG from './svg/wordpress-svg';
+
 /**
  * Style dependencies
  */
@@ -25,6 +29,10 @@ const LandingPage = () => {
 	const ASSETS_URL = config( 'pluginAssetsURL' );
 	const TEASER_IMG_PATH =
 		isAtomicSite() || isSimpleSite() ? 'responses-inbox-wp-com.png' : 'responses-inbox.png';
+
+	useEffect( () => {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_display' );
+	}, [] );
 
 	const onButtonClickHandler = showPatterns => async () => {
 		const data = new FormData();
@@ -36,7 +44,28 @@ const LandingPage = () => {
 		const { post_url } = await response.json();
 
 		if ( post_url ) {
+			jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_cta_click', {
+				button: 'forms',
+			} );
 			window.open( `${ post_url }${ showPatterns ? '&showJetpackFormsPatterns' : '' }` );
+		}
+	};
+
+	const onAIButtonClickHandler = () => {
+		const siteHasAI = config( 'hasAI' );
+
+		if ( siteHasAI ) {
+			onButtonClickHandler( false )();
+		} else {
+			const plansPageUrl = getRedirectUrl( 'jetpack-plans', {
+				site: config( 'siteURL' ),
+				anchor: 'jetpack_ai_yearly',
+			} );
+			jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_cta_click', {
+				button: 'ai',
+				isAIEnabledForSite: siteHasAI,
+			} );
+			window.open( plansPageUrl );
 		}
 	};
 
@@ -56,6 +85,53 @@ const LandingPage = () => {
 						className="jp-forms__teaser-image"
 						alt={ __( 'Jetpack Forms teaser video', 'jetpack-forms' ) }
 					/>
+				</div>
+			</section>
+			<section className="jp-forms__landing-section features-block">
+				<div className="jp-forms__landing-content">
+					<div className="jp-forms__block">
+						<div className="jp-forms__block-text">
+							<h1 className="mb-6">
+								{ __( 'Jetpack AI Assistant makes creating forms a breeze.', 'jetpack-forms' ) }
+							</h1>
+							<p>
+								{ __(
+									'Jetpack AI Assistant enhances the Forms Block with AI-powered features for effortless form creation:',
+									'jetpack-forms'
+								) }
+							</p>
+							<ul>
+								<li>
+									{ __(
+										'Creating a registration form for a global event? Automatically populate a country dropdown list with the AI Assistant.',
+										'jetpack-forms'
+									) }
+								</li>
+								<li>
+									{ __(
+										'Need an RSVP form for your event site? Simply ask AI Assistant to prepare a form that includes options for meal preferences, attendance status, or plus-ones.',
+										'jetpack-forms'
+									) }
+								</li>
+							</ul>
+							<button
+								className="button button-primary"
+								//eslint-disable-next-line react/jsx-no-bind
+								onClick={ onAIButtonClickHandler }
+							>
+								{ __( 'Explore Jetpack AI', 'jetpack-forms' ) }
+							</button>
+						</div>
+						<div className="jp-forms__block-media">
+							<img
+								src={ `${ ASSETS_URL }/images/ai-forms.png` }
+								alt={ __(
+									'An illustration demonstrating how Jetpack AI can help to create forms',
+									'jetpack-forms'
+								) }
+							/>
+						</div>
+					</div>
 				</div>
 			</section>
 			<section className="jp-forms__landing-section">

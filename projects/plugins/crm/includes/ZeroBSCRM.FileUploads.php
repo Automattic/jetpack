@@ -917,13 +917,12 @@ function jpcrm_file_check_mime_extension( $FILE, $check_file_extension = 'settin
 			// also check the mime type directly inferred from the uploaded file
 			// note: we don't check this type against $FILE['type'] because it
 			// doesn't really matter if they are different but both accepted types
-			$tmp_file_info = finfo_open( FILEINFO_MIME_TYPE );
-			$tmp_file_type = finfo_file( $tmp_file_info, $FILE['tmp_name'] );
+			$tmp_file_type = jpcrm_get_mimetype( $FILE['tmp_name'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 			if ( ! in_array( $tmp_file_type, $check_mime_type ) ) {
 				return false;
 			}
 		}
 
 		return true;
-
 }

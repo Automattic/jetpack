@@ -52,27 +52,32 @@
 	#} - WH commented out, you need to have a corresponding function for any of these you add:
 	#// zeroBSCRM_AddInternalAutomatorRecipe('status.change','zeroBSCRM_IA_StatusChange',array());
 
-	#} WP Hook tie-ins (for Mike [and 3rd party developers!], mostly)
-	zeroBSCRM_AddInternalAutomatorRecipe('contact.new','zeroBSCRM_IA_NewCustomerWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('contact.update','zeroBSCRM_IA_EditCustomerWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('contact.vitals.update','zeroBSCRM_IA_EditCustomerVitalsWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('contact.email.update','zeroBSCRM_IA_EditCustomerEmailWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('contact.delete','zeroBSCRM_IA_DeleteCustomerWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('company.new','zeroBSCRM_IA_NewCompanyWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('company.delete','zeroBSCRM_IA_DeleteCompanyWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('quote.new','zeroBSCRM_IA_NewQuoteWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('quote.accepted','zeroBSCRM_IA_AcceptedQuoteWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('quote.delete','zeroBSCRM_IA_DeleteQuoteWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('invoice.new','zeroBSCRM_IA_NewInvoiceWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('invoice.delete','zeroBSCRM_IA_DeleteInvoiceWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('transaction.new','zeroBSCRM_IA_NewTransactionWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('transaction.delete','zeroBSCRM_IA_DeleteTransactionWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('event.new','zeroBSCRM_IA_NewEventWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('event.update','zeroBSCRM_IA_UpdateEventWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('event.delete','zeroBSCRM_IA_DeleteEventWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('clientwpuser.new','zeroBSCRM_IA_NewClientPortalUserHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('segment.delete','zeroBSCRM_IA_DeleteSegmentWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('contact.before.delete','zeroBSCRM_IA_BeforeDeleteCustomerWPHook',array());
+	// WP Hook tie-ins (for Mike [and 3rd party developers!], mostly).
+	zeroBSCRM_AddInternalAutomatorRecipe( 'contact.new', 'zeroBSCRM_IA_NewCustomerWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'contact.update', 'zeroBSCRM_IA_EditCustomerWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'contact.status.update', 'zeroBSCRM_IA_EditCustomerWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'contact.vitals.update', 'zeroBSCRM_IA_EditCustomerVitalsWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'contact.email.update', 'zeroBSCRM_IA_EditCustomerEmailWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'contact.delete', 'zeroBSCRM_IA_DeleteCustomerWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'company.new', 'zeroBSCRM_IA_NewCompanyWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'company.delete', 'zeroBSCRM_IA_DeleteCompanyWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'quote.new', 'zeroBSCRM_IA_NewQuoteWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'quote.accepted', 'zeroBSCRM_IA_AcceptedQuoteWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'quote.update', 'zeroBSCRM_IA_EditInvoiceWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'quote.status.update', 'zeroBSCRM_IA_EditInvoiceWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'quote.delete', 'zeroBSCRM_IA_DeleteQuoteWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'invoice.new', 'zeroBSCRM_IA_NewInvoiceWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'invoice.update', 'zeroBSCRM_IA_EditInvoiceWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'invoice.status.update', 'zeroBSCRM_IA_EditInvoiceWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'invoice.delete', 'zeroBSCRM_IA_DeleteInvoiceWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'transaction.new', 'zeroBSCRM_IA_NewTransactionWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'transaction.delete', 'zeroBSCRM_IA_DeleteTransactionWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'event.new', 'zeroBSCRM_IA_NewEventWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'event.update', 'zeroBSCRM_IA_UpdateEventWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'event.delete', 'zeroBSCRM_IA_DeleteEventWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'clientwpuser.new', 'zeroBSCRM_IA_NewClientPortalUserHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'segment.delete', 'zeroBSCRM_IA_DeleteSegmentWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'contact.before.delete', 'zeroBSCRM_IA_BeforeDeleteCustomerWPHook', array() );
 	// don't need to expose tbh
 	//zeroBSCRM_AddInternalAutomatorRecipe('form.delete','zeroBSCRM_IA_DeleteFormWPHook',array());
 
@@ -673,7 +678,7 @@
 
 	} 
 
-	#} Adds a "created" log to customer (of event) (if setting)
+	#} Adds a "created" log to customer (of task) (if setting)
 	function zeroBSCRM_IA_NewEventLog($obj=array()){
 
 		$newLogID = false;
@@ -753,12 +758,11 @@
 					#} No override, use default processing...
 
 					#} Retrieve necessary info:
-					$eventID = ''; if (is_array($obj) && isset($obj['id'])) $eventID = $obj['id'];
-					//$eventName = ''; if (is_array($obj) && isset($obj['id']) && isset($obj['eventMeta']) && is_array($obj['eventMeta']) && isset($obj['eventMeta']['name'])) $quoteName = $obj['eventMeta']['name'];
-					$eventName =''; if (!empty($eventID)) $eventName = get_the_title( $eventID );
+					$task_id = ''; if (is_array($obj) && isset($obj['id'])) $task_id = $obj['id'];
+					$task_name =''; if (!empty($task_id)) $task_name = get_the_title( $task_id );
 
 					#} got meta?
-					$eventDateStr = ''; if (is_array($obj) && isset($obj['id']) && isset($obj['eventMeta']) && is_array($obj['eventMeta']) && isset($obj['eventMeta']['from'])){
+					$task_date_str = ''; if (is_array($obj) && isset($obj['id']) && isset($obj['eventMeta']) && is_array($obj['eventMeta']) && isset($obj['eventMeta']['from'])){
 
 						// takenfromMike's + tweaked for readability
 	                    if($obj['eventMeta'] == ''){
@@ -772,24 +776,24 @@
 	                         $end_d = $d->format('l M jS G:i');
 	                    }
 
-	                    if (!empty($start_d)) $eventDateStr = $start_d;
-	                    if ($end_d != $start_d) $eventDateStr .= ' '.__('to',"zero-bs-crm").' '.$end_d;
+	                    if (!empty($start_d)) $task_date_str = $start_d;
+	                    if ($end_d != $start_d) $task_date_str .= ' '.__('to',"zero-bs-crm").' '.$end_d;
 
 	                }
 
 					$noteShortDesc = '';
 					$note_long_description = '';
-					if (!empty($eventName)) {
-						$noteShortDesc = $eventName;
-						$note_long_description = $eventName;
+					if (!empty($task_name)) {
+						$noteShortDesc = $task_name;
+						$note_long_description = $task_name;
 					}
-					if (!empty($eventDateStr)) {
+					if (!empty($task_date_str)) {
 						if (!empty($note_long_description)) $note_long_description .= '<br />';
-						$note_long_description .= $eventDateStr;
+						$note_long_description .= $task_date_str;
 					}
-					if (!empty($eventID)) {
+					if (!empty($task_id)) {
 						if (!empty($noteShortDesc)) $noteShortDesc .= ' ';
-						$noteShortDesc .= '(#'.$eventID.')';
+						$noteShortDesc .= '(#'.$task_id.')';
 					}
 
 
@@ -1282,7 +1286,7 @@ function zeroBSCRM_IA_NewLogCatchContactsDB2( $obj = array() ) {
 	function zeroBSCRM_IA_NewCustomerWPHook($obj=array()){
 
 		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) {
-		
+
 			do_action( 'jpcrm_after_contact_insert', $obj['id'] );
 
 			// legacy, use `jpcrm_after_contact_insert` from 5.3+
@@ -1291,57 +1295,94 @@ function zeroBSCRM_IA_NewLogCatchContactsDB2( $obj = array() ) {
 		}
 
 	}
-   	#} Fires on 'customer.edit' IA 
-	function zeroBSCRM_IA_EditCustomerWPHook($obj=array()){
 
-		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) {
-		
-			do_action( 'jpcrm_after_contact_update', $obj['id'] );
+/**
+ * Fires on 'contact.update', 'contact.email.update', and 'contact.status.update IA.
+ *
+ * @param array $obj An array holding contact object data.
+ */
+function zeroBSCRM_IA_EditCustomerWPHook( $obj = array() ) {
 
-			// legacy, use `jpcrm_after_contact_update` from 5.3+
-			do_action( 'zbs_edit_customer', $obj['id'] );
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
 
-		}
+		do_action( 'jpcrm_after_contact_update', $obj['id'] );
+
+		// legacy, use `jpcrm_after_contact_update` from 5.3+
+		do_action( 'zbs_edit_customer', $obj['id'] );
 
 	}
-   	#} Fires on 'customer.vitals.edit' IA 
+}
+
+	#} Fires on 'customer.vitals.edit' IA.
 	function zeroBSCRM_IA_EditCustomerVitalsWPHook($obj=array()){
 
 		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_edit_customer_vitals', $obj['id']);
 
 	}
-   	#} Fires on 'customer.email.edit' IA 
+
+	/**
+	 * Fires on 'contact.email.update' IA. Now legacy, redirecting to zeroBSCRM_IA_EditCustomerWPHook
+	 *
+	 * @param array $obj An array holding contact object data.
+	 */
 	function zeroBSCRM_IA_EditCustomerEmailWPHook($obj=array()){
 
 		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_edit_customer_email', $obj['id']);
 
 	}
-   	#} Fires on 'customer.delete' IA 
-	function zeroBSCRM_IA_DeleteCustomerWPHook($obj=array()){
 
-		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_delete_customer', $obj['id']);
+/**
+ * Fires on 'contact.delete' IA.
+ *
+ * @param array $obj An array holding contact object data.
+ */
+function zeroBSCRM_IA_DeleteCustomerWPHook( $obj = array() ) {
 
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
+		// Legacy:
+		do_action( 'zbs_delete_customer', $obj['id'] );
 	}
+}
 
-	#} Fires on 'contact.before.delete' IA
+	/**
+	 * Fires on 'contact.before.delete' IA.
+	 *
+	 * @param array $obj An array holding contact object data.
+	 */
 	function zeroBSCRM_IA_BeforeDeleteCustomerWPHook($obj=array()){
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
+		do_action( 'jpcrm_before_delete_contact', $obj );
+	}
+}
 
-		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('jpcrm_before_delete_contact', $obj);
+/**
+ * Fires on 'company.new' IA.
+ *
+ * @param array $obj An array holding company object data.
+ */
+function zeroBSCRM_IA_NewCompanyWPHook( $obj = array() ) {
+
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
+
+		// Legacy:
+		do_action( 'zbs_new_company', $obj['id'] );
 
 	}
+}
 
-   	#} Fires on 'company.new' IA 
-	function zeroBSCRM_IA_NewCompanyWPHook($obj=array()){
+/**
+ * Fires on 'company.delete' IA.
+ *
+ * @param array $obj An array holding company object data.
+ */
+function zeroBSCRM_IA_DeleteCompanyWPHook( $obj = array() ) {
 
-		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_new_company', $obj['id']);
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
 
+		// Legacy:
+		do_action( 'zbs_delete_company', $obj['id'] );
 	}
-   	#} Fires on 'company.delete' IA 
-	function zeroBSCRM_IA_DeleteCompanyWPHook($obj=array()){
-
-		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_delete_company', $obj['id']);
-
-	}
+}
    	#} Fires on 'quote.new' IA 
 	function zeroBSCRM_IA_NewQuoteWPHook($obj=array()){
 
@@ -1360,18 +1401,42 @@ function zeroBSCRM_IA_NewLogCatchContactsDB2( $obj = array() ) {
 		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_delete_quote', $obj['id']);
 
 	}
-   	#} Fires on 'invoice.new' IA 
-	function zeroBSCRM_IA_NewInvoiceWPHook($obj=array()){
 
-		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_new_invoice', $obj['id']);
+/**
+ * Fires on 'invoice.new' IA.
+ *
+ * @param array $obj An array holding invoice object data.
+ */
+function zeroBSCRM_IA_NewInvoiceWPHook( $obj = array() ) {
 
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
+		do_action( 'zbs_new_invoice', $obj['id'] );
 	}
-   	#} Fires on 'invoice.delete' IA 
-	function zeroBSCRM_IA_DeleteInvoiceWPHook($obj=array()){
+}
 
-		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_delete_invoice', $obj['id']);
-
+/**
+ * Fires on 'invoice.update' and 'invoice.status.update' IA.
+ *
+ * @param array $obj An array holding invoice object data.
+ */
+function zeroBSCRM_IA_EditInvoiceWPHook( $obj = array() ) {
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
+		do_action( 'zbs_new_invoice', $obj['id'] );
 	}
+}
+
+/**
+ * Fires on 'invoice.delete' IA.
+ *
+ * @param array $obj An array holding invoice object data.
+ */
+function zeroBSCRM_IA_DeleteInvoiceWPHook( $obj = array() ) {
+
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
+		do_action( 'zbs_delete_invoice', $obj['id'] );
+	}
+}
+
    	#} Fires on 'transaction.new' IA 
 	function zeroBSCRM_IA_NewTransactionWPHook($obj=array()){
 

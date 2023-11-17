@@ -31,6 +31,7 @@ const StatCard = ( { className, icon, label, value, variant = 'square' }: StatCa
 			<div className={ classnames( styles.info ) }>
 				<Text className={ styles.label }>{ label }</Text>
 				{ variant === 'square' ? (
+					// @todo Switch to `placement` once WordPress 6.4 is the minimum.
 					<Tooltip text={ formattedValue } position="top center">
 						<Text variant="headline-small" className={ classnames( styles.value ) }>
 							{ compactValue }

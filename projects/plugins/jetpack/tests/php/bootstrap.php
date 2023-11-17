@@ -69,6 +69,11 @@ if ( ! is_readable( $jp_autoloader ) || ! is_readable( __DIR__ . '/../../modules
 	exit( 1 );
 }
 
+// If we're running under `jetpack docker phpunit --php`, load the autoloader for that.
+if ( getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) ) {
+	require getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) . '/vendor/autoload.php';
+}
+
 require $jp_autoloader;
 
 if ( '1' !== getenv( 'WP_MULTISITE' ) && ( ! defined( 'WP_TESTS_MULTISITE' ) || ! WP_TESTS_MULTISITE ) ) {
@@ -99,7 +104,7 @@ function _manually_install_woocommerce() {
 	// clean existing install first
 	define( 'WP_UNINSTALL_PLUGIN', true );
 	define( 'WC_REMOVE_ALL_DATA', true );
-	include JETPACK_WOOCOMMERCE_INSTALL_DIR . '/uninstall.php';
+	require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/uninstall.php';
 
 	WC_Install::install();
 
@@ -140,10 +145,6 @@ if ( '1' === getenv( 'LEGACY_FULL_SYNC' ) ) {
 }
 
 require $test_root . '/includes/bootstrap.php';
-
-// Disable warning about deprecated request library.
-// @todo Remove this once we drop support for WordPress 6.1
-define( 'REQUESTS_SILENCE_PSR0_DEPRECATIONS', true );
 
 // Load the shortcodes module to test properly.
 if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_uninstall_group() ) {

@@ -1,0 +1,25 @@
+.title {
+	margin-bottom: 8px;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.container {
+	position: relative;
+	margin-bottom: 18px;
+	background: var(--jp-gray-0);
+	padding: 24px;
+	margin: 0 -32px var(--jp-modal-padding-large) -32px;
+}
+
+.step-label {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	margin-left: -35px;
+	margin-top: -9px;
+	padding: 3px 0;
+	min-width: 70px;
+	display: flex;
+	justify-content: center;
+}

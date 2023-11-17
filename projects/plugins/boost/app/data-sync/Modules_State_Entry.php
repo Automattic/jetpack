@@ -18,11 +18,18 @@ class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
 		 * We combining the states of all modules into a single record and attaching the availability of the module.
 		 */
 		foreach ( $modules as $module ) {
-			$slug        = $module::get_slug();
-			$option_name = $this->get_module_option_name( $slug );
+			$slug      = $module::get_slug();
+			$always_on = is_subclass_of( $module, 'Automattic\Jetpack_Boost\Contracts\Is_Always_On' );
+
+			if ( $always_on ) {
+				$is_on = true;
+			} else {
+				$option_name = $this->get_module_option_name( $slug );
+				$is_on       = (bool) get_option( $option_name, false );
+			}
 
 			$modules_state[ $slug ] = array(
-				'active'    => isset( $available_modules[ $slug ] ) && get_option( $option_name, false ),
+				'active'    => isset( $available_modules[ $slug ] ) && $is_on,
 				'available' => isset( $available_modules[ $slug ] ),
 			);
 		}

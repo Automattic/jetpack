@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove "private" flag from package.json so package can be published.

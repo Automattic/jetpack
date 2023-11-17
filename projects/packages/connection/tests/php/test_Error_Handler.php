@@ -98,18 +98,21 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$error  = $this->get_sample_error( 'invalid_token', 1, 'xmlrpc' );
 		$error2 = $this->get_sample_error( 'unknown_user', 1, 'rest' );
+		$error3 = $this->get_sample_error( 'invalid_connection_owner', 'invalid', 'connection' );
 
 		$this->error_handler->report_error( $error );
 		$this->error_handler->report_error( $error2 );
+		$this->error_handler->report_error( $error3 );
 
 		$stored_errors = $this->error_handler->get_stored_errors();
 
-		$this->assertCount( 2, $stored_errors );
+		$this->assertCount( 3, $stored_errors );
 
 		$this->arrayHasKey( 'invalid_token', $stored_errors );
 
 		$this->assertCount( 1, $stored_errors['invalid_token'] );
 		$this->assertCount( 1, $stored_errors['unknown_user'] );
+		$this->assertCount( 1, $stored_errors['invalid_connection_owner'] );
 
 		$this->arrayHasKey( '1', $stored_errors['unknown_user'] );
 
@@ -125,6 +128,10 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->arrayHasKey( 'nonce', $stored_errors['unknown_user']['1'] );
 		$this->arrayHasKey( 'error_type', $stored_errors['unknown_user']['1'] );
 		$this->assertEquals( 'rest', $stored_errors['unknown_user']['1']['error_type'] );
+
+		$this->arrayHasKey( 'invalid', $stored_errors['invalid_connection_owner'] );
+		$this->arrayHasKey( 'error_type', $stored_errors['invalid_connection_owner']['invalid'] );
+		$this->assertEquals( 'connection', $stored_errors['invalid_connection_owner']['invalid']['error_type'] );
 	}
 
 	/**
@@ -369,5 +376,34 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->arrayHasKey( '1', $verified_errors['unknown_token'] );
 		$this->arrayHasKey( 'error_code', $verified_errors['unknown_token']['0'] );
 		$this->assertEquals( 'rest', $verified_errors['unknown_token']['0']['error_type'] );
+	}
+
+	/**
+	 * Test storing errors
+	 */
+	public function test_delete_all_api_errors() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$error  = $this->get_sample_error( 'invalid_token', 1, 'xmlrpc' );
+		$error2 = $this->get_sample_error( 'unknown_user', 1, 'rest' );
+		$error3 = $this->get_sample_error( 'invalid_connection_owner', 'invalid', 'connection' );
+
+		$this->error_handler->report_error( $error );
+		$this->error_handler->report_error( $error2 );
+		$this->error_handler->report_error( $error3 );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertCount( 3, $stored_errors );
+
+		$this->error_handler->delete_all_api_errors();
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertCount( 1, $stored_errors );
+
+		$this->assertArrayNotHasKey( 'invalid_token', $stored_errors );
+		$this->assertArrayNotHasKey( 'unknown_user', $stored_errors );
+		$this->assertArrayHasKey( 'invalid_connection_owner', $stored_errors );
 	}
 }

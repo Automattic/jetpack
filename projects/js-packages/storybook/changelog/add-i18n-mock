@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Added a mock for window.wp.i18n for storybook component
+
+

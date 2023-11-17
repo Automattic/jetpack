@@ -174,5 +174,4 @@ class Plan {
 		update_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, $plan_info );
 		return true;
 	}
-
 }

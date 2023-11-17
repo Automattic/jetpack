@@ -216,7 +216,7 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 	html += '<div id="zbs_invoice_actions">';
 
 	html += '<div class="zbs-invoice-status">';
-	html += '<span class="' + res.invoiceObj.status + ' statty">' + res.invoiceObj.status + '</span>';
+	html += '<span class="' + jpcrm.esc_attr(res.invoiceObj.status.toLowerCase()) + ' statty">' + jpcrm.esc_html(res.invoiceObj.status_label) + '</span>';
 	html += '</div>';
 
 	//now the preview, download pdf, and send buttons controlled by the data output (not via complex PHP ifs on page)
@@ -529,20 +529,30 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
  */
 function generateInvoiceStatusHtml( res ) {
 	let html = '<select id="invoice-status" name="invoice_status">';
-	const currentStatus = res.invoiceObj.status;
-	const allStatuses = [ 
-		[ 'Draft', 'status_draft' ],
-		[ 'Unpaid', 'status_unpaid' ],
-		[ 'Paid', 'status_paid' ],
-		[ 'Overdue', 'status_overdue'],
-		[ 'Deleted', 'status_deleted']
+	const current_status = res.invoiceObj.status;
+
+	// Status (value) is always stored in the database in English; key is used for lang lookup
+	const all_statuses = [
+		{value: 'Draft', key: 'status_draft'},
+		{value: 'Unpaid', key: 'status_unpaid'},
+		{value: 'Paid', key: 'status_paid'},
+		{value: 'Overdue', key: 'status_overdue'},
+		{value: 'Deleted', key: 'status_deleted'}
 	];
-	for ( const statusItem of allStatuses ) {
-		html += '<option value=' + statusItem[0];
-		if ( currentStatus === statusItem[0] ) {
+
+	is_selected = false;
+	for ( const status of all_statuses ) {
+		html += '<option value=' + status.value;
+		if ( current_status === status.value ) {
 			html += ' selected';
+			is_selected = true;
 		}
-		html += '>' + zbscrm_JS_invoice_lang( statusItem[1] ) + '</option>';
+		html += '>' + zbscrm_JS_invoice_lang( status.key ) + '</option>';
+	}
+
+	// if set to some odd status, append it to the dropdown and select it
+	if (!is_selected && current_status !== '') {
+		html += '<option value="' + jpcrm.esc_attr(current_status) + '" selected>' + jpcrm.esc_html(current_status) + '</option>';
 	}
 	html += '</select>';
 	return html;
@@ -1563,7 +1573,7 @@ function zbscrm_JS_calc_amount_due() {
 			var multiplier = 1; // gets turned to -1 if negotive ()
 
 			// got -?
-			if ( v.indexOf( '(' ) !== -1 ) {
+			if ( v.includes( '(' ) ) {
 				v = v.replace( '(', '' ).replace( ')', '' );
 				multiplier = -1;
 			}

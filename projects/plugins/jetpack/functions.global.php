@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * This file is meant to be the home for any generic & reusable functions
  * that can be accessed anywhere within Jetpack.
@@ -15,9 +15,7 @@ use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Functions;
 
-/**
- * Disable direct access.
- */
+// Disable direct access.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

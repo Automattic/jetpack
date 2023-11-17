@@ -1,14 +1,21 @@
 <script lang="ts">
-	import RecommendationsPage from './modules/image-size-analysis/RecommendationsPage.svelte';
-	import BenefitsInterstitial from './pages/benefits/BenefitsInterstitial.svelte';
+	import AdvancedCriticalCss from './pages/critical-css-advanced/CriticalCssAdvanced.svelte';
 	import GettingStarted from './pages/getting-started/GettingStarted.svelte';
-	import PurchaseSuccess from './pages/purchase-success/PurchaseSuccess.svelte';
-	import Settings from './pages/settings/Settings.svelte';
-	import { modulesState } from './stores/modules';
-	import { recordBoostEvent } from './utils/analytics';
-	import debounce from './utils/debounce';
-	import { Router, Route } from './utils/router';
-	import routerHistory from './utils/router-history';
+	import RecommendationsPage from './pages/image-size-analysis/ImageSizeAnalysis.svelte';
+	import Index from './pages/index/Index.svelte';
+	import PurchaseSuccess from './pages/purchase-success/purchase-success';
+	import Upgrade from './pages/upgrade/upgrade';
+	import ReactComponent from '$features/ReactComponent.svelte';
+	import Redirect from '$features/Redirect.svelte';
+	import SettingsPage from '$layout/SettingsPage/SettingsPage.svelte';
+	import config from '$lib/stores/config';
+	import { connection } from '$lib/stores/connection';
+	import { criticalCssIssues } from '$features/critical-css';
+	import { modulesState } from '$lib/stores/modules';
+	import { recordBoostEvent } from '$lib/utils/analytics';
+	import debounce from '$lib/utils/debounce';
+	import { Route, Router } from '$lib/utils/router';
+	import routerHistory from '$lib/utils/router-history';
 
 	routerHistory.listen(
 		debounce( history => {
@@ -23,14 +30,60 @@
 			} );
 		}, 10 )
 	);
+
+	$: pricing = $config.pricing;
+
+	$: siteDomain = $config.site.domain;
+	$: userConnected = $connection.userConnected;
+	$: isPremium = $config.isPremium;
+	$: isImageGuideActive = $modulesState.image_guide.active;
+	$: isImageSizeAnalysisAvailable = $modulesState.image_size_analysis.available;
+	$: isImageSizeAnalysisActive = $modulesState.image_size_analysis.active;
+
+	$: shouldGetStarted = ! $connection.connected && $config.site.online;
 </script>
 
 <Router history={routerHistory}>
-	<Route path="upgrade" component={BenefitsInterstitial} />
-	<Route path="purchase-successful" component={PurchaseSuccess} />
-	<Route path="getting-started" component={GettingStarted} />
-	{#if $modulesState.image_size_analysis.available && $modulesState.image_size_analysis.active}
+	<Route path="upgrade">
+		<ReactComponent this={Upgrade} {pricing} {siteDomain} {userConnected} />
+	</Route>
+
+	<Route
+		path="getting-started"
+		component={GettingStarted}
+		{userConnected}
+		{pricing}
+		{isPremium}
+		domain={siteDomain}
+	/>
+
+	<Route path="purchase-successful">
+		<ReactComponent this={PurchaseSuccess} {isImageGuideActive} />
+	</Route>
+
+	<Route path="critical-css-advanced">
+		<Redirect when={shouldGetStarted} to="/getting-started">
+			<SettingsPage>
+				<AdvancedCriticalCss issues={$criticalCssIssues} />
+			</SettingsPage>
+		</Redirect>
+	</Route>
+
+	<Route path="/">
+		<Redirect when={shouldGetStarted} to="/getting-started">
+			<SettingsPage>
+				<Index />
+			</SettingsPage>
+		</Redirect>
+	</Route>
+
+	{#if isImageSizeAnalysisAvailable && isImageSizeAnalysisActive}
 		<Route path="image-size-analysis/:group/:page" component={RecommendationsPage} />
 	{/if}
-	<Route component={Settings} />
 </Router>
+
+<style lang="scss">
+	.jb-section--main {
+		z-index: 14;
+	}
+</style>

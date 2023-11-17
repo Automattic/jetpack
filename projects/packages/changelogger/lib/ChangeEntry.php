@@ -334,5 +334,4 @@ class ChangeEntry implements JsonSerializable {
 		}
 		return new $class( $data );
 	}
-
 }

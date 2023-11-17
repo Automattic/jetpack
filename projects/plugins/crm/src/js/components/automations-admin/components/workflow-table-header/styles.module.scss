@@ -1,0 +1,26 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.header {
+	padding: 5px 10px;
+    
+    &.clickable {
+        cursor: pointer
+    }
+}
+
+.container {
+	display: flex;
+	flex-direction: row;
+}
+
+.text {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.chevron {
+	fill: var(--jp-gray-60);
+	width: 24px;
+	height: 24px;
+}

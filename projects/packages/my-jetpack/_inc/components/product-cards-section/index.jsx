@@ -1,5 +1,6 @@
 import { Container, Col } from '@automattic/jetpack-components';
 import React from 'react';
+import useProductData from '../../hooks/use-product-data';
 import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
@@ -9,7 +10,11 @@ import ScanAndProtectCard from './scan-protect-card';
 import SearchCard from './search-card';
 import SocialCard from './social-card';
 import StatsCard from './stats-card';
+import styles from './style.module.scss';
 import VideopressCard from './videopress-card';
+
+// flag for enabling stats card.
+const { showJetpackStatsCard = false } = window.myJetpackInitialState?.myJetpackFlags ?? {};
 
 /**
  * Product cards section component.
@@ -17,38 +22,44 @@ import VideopressCard from './videopress-card';
  * @returns {object} ProductCardsSection React component.
  */
 const ProductCardsSection = () => {
+	const { productData, fetchingProductData } = useProductData();
+
+	const items = {
+		backups: BackupCard,
+		scan: ScanAndProtectCard,
+		antispam: AntiSpamCard,
+		boost: BoostCard,
+		search: SearchCard,
+		videopress: VideopressCard,
+		stats: showJetpackStatsCard ? StatsCard : null,
+		crm: CrmCard,
+		social: SocialCard,
+		ai: AiCard,
+	};
+
 	return (
-		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
-			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<BackupCard admin={ true } />
-			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<ScanAndProtectCard admin={ true } />
-			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<AntiSpamCard admin={ true } />
-			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<BoostCard admin={ true } />
-			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<SearchCard admin={ true } />
-			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<VideopressCard admin={ true } />
-			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<StatsCard admin={ true } />
-			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<CrmCard admin={ true } />
-			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<SocialCard admin={ true } />
-			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<AiCard admin={ true } />
-			</Col>
+		<Container
+			className={ styles.cardlist }
+			tagName="ul"
+			fluid
+			horizontalSpacing={ 0 }
+			horizontalGap={ 3 }
+		>
+			{ Object.entries( items ).map( ( [ key, Item ] ) => {
+				if ( ! Item ) {
+					return null;
+				}
+
+				return (
+					<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ key }>
+						<Item
+							admin={ !! window?.myJetpackInitialState?.userIsAdmin }
+							productData={ productData[ key ] }
+							fetchingProductData={ fetchingProductData }
+						/>
+					</Col>
+				);
+			} ) }
 		</Container>
 	);
 };

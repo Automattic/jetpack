@@ -1301,5 +1301,4 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
 		$this->assertTrue( ! empty( $start_event ) );
 	}
-
 }

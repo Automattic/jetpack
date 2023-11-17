@@ -358,11 +358,7 @@ class Image_CDN_Core {
 		$haystack = (string) $haystack;
 		$needle   = (string) $needle;
 
-		if ( function_exists( 'str_ends_with' ) ) { // remove when PHP 8.0 is the minimum supported.
-			return str_ends_with( $haystack, $needle ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions
-
-		}
-		return $needle === substr( $haystack, -strlen( $needle ) );
+		return str_ends_with( $haystack, $needle );
 	}
 
 	/**

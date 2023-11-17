@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.4] - 2023-10-26
+### Changed
+- Updated package dependencies. [#32957]
+- Updated package dependencies. [#33567]
+- Updated package dependencies. [#33569]
+
+## [0.5.3] - 2023-09-13
+### Changed
+- Updated package dependencies. [#32953]
+
+## [0.5.2] - 2023-09-01
+### Changed
+- Updated package dependencies. [#31815] [#32605]
+- Update tiny image check to treat images who's dimentions are missing as tiny. [#32144]
+
+### Removed
+- Remove unnecessary files from mirror repo and published package. [#32674]
+
+### Fixed
+- Handle zero dimensions in getOversizedRatio [#32548]
+
+## [0.5.1] - 2023-07-11
+### Fixed
+- Image Guide: Fix for broken background-images causing the image guide not to load [#31792]
+
+## [0.5.0] - 2023-07-07
+### Added
+- Boost: exclude small images from Image Size Analysis [#31504]
+
+### Changed
+- Return an error when an image is missing, instead of -1 by -1 dimensions. [#31632]
+
+### Fixed
+- Check response.url, not response.ok to verify a response worked [#31538]
+
 ## [0.4.0] - 2023-06-23
 ### Added
 - Jetpack Boost: add a proxy to Image Guide so it can load remote images. [#31145]
@@ -49,4 +84,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Minor package.json change - removing private entry.
 
+[0.5.4]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.3...v0.5.4
+[0.5.3]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.2...v0.5.3
+[0.5.2]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/Automattic/jetpack-image-guide/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Automattic/jetpack-image-guide/compare/v0.3.0...v0.4.0

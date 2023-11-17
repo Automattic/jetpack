@@ -33,6 +33,11 @@ class Waf_Compatibility {
 	/**
 	 * Run compatibility migrations.
 	 *
+	 * Note that this method should be compatible with sites where
+	 * the request firewall is not active or not supported.
+	 *
+	 * @see Waf_Runner::is_supported_environment().
+	 *
 	 * @since 0.11.0
 	 *
 	 * @return void
@@ -224,5 +229,4 @@ class Waf_Compatibility {
 	public static function is_brute_force_running_in_jetpack() {
 		return defined( 'JETPACK__VERSION' ) && version_compare( JETPACK__VERSION, '12', '<' );
 	}
-
 }

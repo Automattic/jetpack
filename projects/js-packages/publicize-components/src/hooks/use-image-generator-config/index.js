@@ -1,8 +1,7 @@
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
-
-const PUBLICIZE_STORE_ID = 'jetpack/publicize';
+import { getJetpackSocialOptions, getImageGeneratorPostSettings } from '../../utils';
 
 const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
 	isEnabled: sigSettings?.enabled ?? ! isPostPublished,
@@ -22,10 +21,7 @@ const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
  * @property {number} imageId - Optional. ID of the image in the generated image.
  * @property {string} template - Template for the generated image.
  * @property {Function} setIsEnabled - Callback to enable or disable the image generator for a post.
- * @property {Function} setCustomText - Callback to change the custom text.
- * @property {Function} setImageType - Callback to change the image type.
- * @property {Function} setImageId - Callback to change the image ID.
- * @property {Function} setTemplate - Callback to change the template.
+ * @property {Function} updateProperty - Callback to update various SIG settings.
  * @property {Function} setToken - Callback to change the token.
  */
 
@@ -37,34 +33,44 @@ const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
 export default function useImageGeneratorConfig() {
 	const { editPost } = useDispatch( editorStore );
 
-	const { postSettings, currentOptions } = useSelect( select => ( {
-		postSettings: select( PUBLICIZE_STORE_ID ).getImageGeneratorPostSettings(),
-		currentOptions: select( PUBLICIZE_STORE_ID ).getJetpackSocialOptions(),
-	} ) );
-
 	const { isPostPublished } = useSelect( select => ( {
 		isPostPublished: select( editorStore ).isCurrentPostPublished(),
 	} ) );
 
-	const updateSettings = useCallback(
-		( key, value ) => {
-			const settings = { ...postSettings, [ key ]: value };
+	const _commitPostUpdate = useCallback(
+		settings => {
 			editPost( {
 				meta: {
-					jetpack_social_options: { ...currentOptions, image_generator_settings: settings },
+					jetpack_social_options: {
+						...getJetpackSocialOptions(),
+						image_generator_settings: settings,
+					},
 				},
 			} );
 		},
-		[ currentOptions, editPost, postSettings ]
+		[ editPost ]
+	);
+
+	const updateProperty = useCallback(
+		( key, value ) => {
+			const settings = { ...getImageGeneratorPostSettings(), [ key ]: value };
+			_commitPostUpdate( settings );
+		},
+		[ _commitPostUpdate ]
+	);
+
+	const updateSettings = useCallback(
+		settings => {
+			const newSettings = { ...getImageGeneratorPostSettings(), ...settings };
+			_commitPostUpdate( newSettings );
+		},
+		[ _commitPostUpdate ]
 	);
 
 	return {
-		...getCurrentSettings( currentOptions?.image_generator_settings, isPostPublished ),
-		setIsEnabled: value => updateSettings( 'enabled', value ),
-		setCustomText: value => updateSettings( 'custom_text', value ),
-		setImageType: value => updateSettings( 'image_type', value ),
-		setImageId: value => updateSettings( 'image_id', value ),
-		setTemplate: value => updateSettings( 'template', value ),
-		setToken: value => updateSettings( 'token', value ),
+		...getCurrentSettings( getJetpackSocialOptions().image_generator_settings, isPostPublished ),
+		setIsEnabled: value => updateProperty( 'enabled', value ),
+		setToken: value => updateProperty( 'token', value ),
+		updateSettings,
 	};
 }

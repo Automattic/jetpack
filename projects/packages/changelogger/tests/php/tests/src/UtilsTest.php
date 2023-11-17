@@ -27,6 +27,7 @@ use function Wikimedia\quietCall;
  */
 class UtilsTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertObjectProperty;
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
@@ -179,7 +180,7 @@ class UtilsTest extends TestCase {
 				} catch ( LoadChangeFileException $ex ) {
 					$this->assertInstanceOf( get_class( $expect ), $ex );
 					$this->assertMatchesRegularExpression( $expect->getMessage(), $ex->getMessage() );
-					$this->assertObjectHasAttribute( 'fileLine', $ex );
+					$this->assertObjectHasProperty( 'fileLine', $ex );
 					$this->assertSame( $expect->fileLine, $ex->fileLine );
 				}
 			}
@@ -488,5 +489,4 @@ class UtilsTest extends TestCase {
 			$out->fetch()
 		);
 	}
-
 }

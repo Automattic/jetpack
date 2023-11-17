@@ -1,7 +1,7 @@
 import WpPage from '../wp-page.js';
-import logger from '../../logger.cjs';
+import logger from '../../logger.js';
 import { takeScreenshot } from '../../reporters/index.js';
-import { getSiteCredentials, resolveSiteUrl } from '../../helpers/utils-helper.cjs';
+import { getSiteCredentials, resolveSiteUrl } from '../../helpers/utils-helper.js';
 
 export default class WPLoginPage extends WpPage {
 	constructor( page ) {
@@ -11,6 +11,12 @@ export default class WPLoginPage extends WpPage {
 
 	async login( credentials = getSiteCredentials(), { retry = true } = {} ) {
 		logger.step( 'Log in to wp-admin' );
+
+		// If the SSO login button (a tag with the jetpack-sso class) is present,
+		// click on the link (a tag with the jetpack-sso-toggle class) to log in with the default core WP login form instead.
+		if ( await this.isElementVisible( '.jetpack-sso' ) ) {
+			await this.click( '.jetpack-sso-toggle' );
+		}
 
 		await this.fill( '#user_login', credentials.username );
 		await this.fill( '#user_pass', credentials.password );

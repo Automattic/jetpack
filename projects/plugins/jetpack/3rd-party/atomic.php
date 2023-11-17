@@ -21,10 +21,7 @@ function atomic_weekly_override( $development_version ) {
 	if ( ( new Host() )->is_atomic_platform() ) {
 		$haystack = Constants::get_constant( 'JETPACK__PLUGIN_DIR' );
 		$needle   = '/jetpack-dev/';
-		if (
-			( function_exists( 'str_ends_with' ) && str_ends_with( $haystack, $needle ) ) || // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.str_ends_withFound
-			0 === substr_compare( $haystack, $needle, -13 )
-		) {
+		if ( str_ends_with( $haystack, $needle ) ) {
 			return $development_version; // Returns the default response if the active Jetpack version is from the beta plugin.
 		}
 

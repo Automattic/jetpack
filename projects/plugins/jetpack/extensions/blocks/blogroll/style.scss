@@ -1,0 +1,108 @@
+@import './common';
+
+.wp-block-jetpack-blogroll {
+	.wp-block-jetpack-blogroll-item {
+		overflow-x: clip;
+
+		&.has-subscription-form .jetpack-blogroll-item-slider {
+			width: 200%;
+		}
+
+		.jetpack-blogroll-item-slider {
+			display: flex;
+			transition: transform 0.3s ease-in-out;
+
+			@media (prefers-reduced-motion: reduce) {
+				transition: none;
+			}
+		}
+
+		&.open {
+			.jetpack-blogroll-item-slider {
+				transform: translateX(-50%);
+			}
+		}
+
+		.jetpack-blogroll-item-title {
+			font-size: 1.2em;
+		}
+
+		.jetpack-blogroll-item-title, .jetpack-blogroll-item-description {
+			word-break: break-word;
+		}
+
+		.jetpack-blogroll-item-information {
+			width: 100%;
+			display: flex;
+			padding: 20px 8px;
+			gap: 20px;
+			box-sizing: border-box;
+
+			figure {
+				margin: 0;
+				flex-shrink: 0;
+				height: 48px;
+				width: 48px;
+
+				&.empty-site-icon {
+					background: url('./placeholder-site-icon.svg');
+					background-size: cover;
+
+					img {
+						display: none;
+					}
+				}
+
+				img {
+					border-radius: 50%;
+					width: 48px;
+					height: 48px;
+				}
+			}
+		}
+
+		.jetpack-blogroll-item-subscribe-button {
+			@include break-bloroll-container-mobile() {
+				margin-left: auto;
+				align-self: center;
+			}
+			white-space: nowrap;
+		}
+
+		.jetpack-blogroll-item-subscribe-button, .jetpack-blogroll-item-submit-button, .jetpack-blogroll-item-cancel-button {
+			button {
+				margin: 0;
+			}
+		}
+
+		.jetpack-blogroll-item-email-input {
+			padding: 14px;
+			margin: 0;
+			font: inherit;
+			border: 1px solid #8c8f94;
+			border-radius: 0;
+			width: 100%;
+			box-sizing: border-box;
+		}
+
+		.jetpack-blogroll-item-submit {
+			width: 100%;
+			border: none;
+			padding: 0;
+			margin: 0;
+			display: flex;
+			gap: 10px;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+
+			@include break-bloroll-container-mobile() {
+				flex-direction: row;
+
+				.jetpack-blogroll-item-email-input {
+					flex: 1;
+				}
+			}
+		}
+	}
+}

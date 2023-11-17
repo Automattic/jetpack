@@ -76,7 +76,7 @@ function zeroBSCRM_generateClientPortalUser() { // phpcs:ignore WordPress.Naming
 		// $email_exists will be either false/int (id of wp user)
 		$email_exists = email_exists( $email );
 
-		if ( ! empty( $contact_id ) && null === $email_exists && ! empty( $email ) ) {
+		if ( ! empty( $contact_id ) && ( null === $email_exists || false === $email_exists ) && ! empty( $email ) ) {
 
 			global $zbs;
 

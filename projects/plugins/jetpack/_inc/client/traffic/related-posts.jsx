@@ -14,7 +14,7 @@ class RelatedPostsComponent extends React.Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {{show_headline: Boolean, show_thumbnails: Boolean}} Initial state object.
+	 * @returns {{show_headline: boolean, show_thumbnails: boolean}} Initial state object.
 	 */
 	state = {
 		show_headline: this.props.getOptionValue( 'show_headline', 'related-posts' ),
@@ -24,7 +24,7 @@ class RelatedPostsComponent extends React.Component {
 	/**
 	 * Update state so preview is updated instantly and toggle options.
 	 *
-	 * @param {string} optionName Slug of option to update.
+	 * @param {string} optionName - Slug of option to update.
 	 */
 	updateOptions = optionName => {
 		this.setState(
@@ -46,6 +46,48 @@ class RelatedPostsComponent extends React.Component {
 	trackConfigureClick = () => {
 		analytics.tracks.recordJetpackClick( 'configure-related-posts' );
 	};
+
+	renderConfigureLink() {
+		const { isBlockThemeActive, lastPostUrl, siteAdminUrl } = this.props;
+
+		if ( isBlockThemeActive ) {
+			return (
+				<Card
+					compact
+					className="jp-settings-card__configure-link"
+					onClick={ this.trackConfigureClick }
+					href={ getRedirectUrl( 'jetpack-support-related-posts', {
+						anchor: 'adding-related-posts-block-theme',
+					} ) }
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					{ __(
+						'Add a Related Posts Block to your site’s template in the site editor',
+						'jetpack'
+					) }
+				</Card>
+			);
+		}
+
+		return (
+			<Card
+				compact
+				className="jp-settings-card__configure-link"
+				onClick={ this.trackConfigureClick }
+				href={
+					siteAdminUrl +
+					'customize.php?autofocus[section]=jetpack_relatedposts' +
+					'&return=' +
+					encodeURIComponent( siteAdminUrl + 'admin.php?page=jetpack#/traffic' ) +
+					'&url=' +
+					encodeURIComponent( lastPostUrl )
+				}
+			>
+				{ __( 'Configure related posts in the Customizer', 'jetpack' ) }
+			</Card>
+		);
+	}
 
 	render() {
 		const isRelatedPostsActive = this.props.getOptionValue( 'related-posts' ),
@@ -177,16 +219,9 @@ class RelatedPostsComponent extends React.Component {
 						) }
 					</FormFieldset>
 				</SettingsGroup>
-				{ ! this.props.isUnavailableInOfflineMode( 'related-posts' ) && isRelatedPostsActive && (
-					<Card
-						compact
-						className="jp-settings-card__configure-link"
-						onClick={ this.trackConfigureClick }
-						href={ this.props.configureUrl }
-					>
-						{ __( 'Configure related posts in the Customizer', 'jetpack' ) }
-					</Card>
-				) }
+				{ ! this.props.isUnavailableInOfflineMode( 'related-posts' ) &&
+					isRelatedPostsActive &&
+					this.renderConfigureLink() }
 			</SettingsCard>
 		);
 	}

@@ -1,33 +1,12 @@
 import analytics from '@automattic/jetpack-analytics';
 import { getMeasurableImages } from '@automattic/jetpack-image-guide';
-import { isSameOrigin } from '../../../assets/src/js/utils/is-same-origin';
-import { prepareAdminAjaxRequest } from '../../../assets/src/js/utils/make-admin-ajax-request';
+import { isSameOrigin } from '../../../assets/src/js/lib/utils/is-same-origin';
+import { prepareAdminAjaxRequest } from '../../../assets/src/js/lib/utils/make-admin-ajax-request';
 import ImageGuideAnalytics from './analytics';
 import { attachGuides } from './initialize';
 import { guideState } from './stores/GuideState';
 import AdminBarToggle from './ui/AdminBarToggle.svelte';
 import type { MeasurableImageStore } from './stores/MeasurableImageStore';
-import type { MeasurableImage } from '@automattic/jetpack-image-guide';
-
-/**
- * A helper function to filter out images
- * that are too small, for example
- * avatars, icons, etc.
- *
- * @param images An array of images to filter
- */
-function discardSmallImages( images: MeasurableImage[] ) {
-	const minSize = 65;
-	const elements = images.filter( image => {
-		const { width, height } = image.getSizeOnPage();
-		if ( ! width || ! height ) {
-			return false;
-		}
-		return width >= minSize && height >= minSize;
-	} );
-
-	return elements;
-}
 
 /**
  * Fetches the weight of a resource using a proxy if the resource is not on the same origin.
@@ -142,7 +121,7 @@ function initialize() {
 		if ( $state === 'paused' ) {
 			return;
 		}
-		const measurableImages = getMeasurableImages(
+		const measurableImages = await getMeasurableImages(
 			Array.from(
 				document.querySelectorAll(
 					'body *:not(.jetpack-boost-guide > *):not(.jetpack-boost-guide)'
@@ -150,19 +129,24 @@ function initialize() {
 			),
 			fetchWeightUsingProxy
 		);
-		const filteredImages = discardSmallImages( measurableImages );
-		stores.push( ...attachGuides( filteredImages ) );
+
+		// wait for isImageTiny() to return true/false for each image.
+		const tinyImages = await Promise.all( measurableImages.map( image => image.isImageTiny() ) );
+		stores.push(
+			...attachGuides( measurableImages.filter( ( _, index ) => ! tinyImages[ index ] ) )
+		);
 
 		ImageGuideAnalytics.trackPage( stores );
 	} );
 }
 
-/**
- * Initialize the guides after window has loaded,
- * we don't need the guides sooner because
- * images have likely not loaded yet.
- */
+// Only show the image guide when not in the customizer (or any other iframe).
 if ( ! window.frameElement ) {
+	/**
+	 * Initialize the guides after window has loaded,
+	 * we don't need the guides sooner because
+	 * images have likely not loaded yet.
+	 */
 	window.addEventListener( 'load', () => {
 		initialize();
 		window.addEventListener( 'resize', debounceDimensionUpdates() );

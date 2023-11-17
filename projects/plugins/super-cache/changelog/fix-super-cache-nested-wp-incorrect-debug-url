@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed debug URL in wp-admin for nested WP instances.

@@ -4,6 +4,7 @@
  */
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use WorDBless\BaseTestCase;
 
 /**
@@ -195,8 +196,8 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 			);
 
 			$this->assertInstanceOf( 'IXR_Error', $response );
-			$this->assertObjectHasAttribute( 'code', $response );
-			$this->assertObjectHasAttribute( 'message', $response );
+			$this->assertObjectHasProperty( 'code', $response );
+			$this->assertObjectHasProperty( 'message', $response );
 			$this->assertEquals( 400, $response->code );
 			$this->assertEquals(
 				'Jetpack: [token_fetch_failed] Failed to fetch user token from WordPress.com.',
@@ -222,8 +223,8 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 		);
 
 		$this->assertInstanceOf( 'IXR_Error', $response );
-		$this->assertObjectHasAttribute( 'code', $response );
-		$this->assertObjectHasAttribute( 'message', $response );
+		$this->assertObjectHasProperty( 'code', $response );
+		$this->assertObjectHasProperty( 'message', $response );
 		$this->assertEquals( 400, $response->code );
 		$this->assertEquals(
 			'Jetpack: [input_error] Valid user is required.',
@@ -243,8 +244,8 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 		);
 
 		$this->assertInstanceOf( 'IXR_Error', $response );
-		$this->assertObjectHasAttribute( 'code', $response );
-		$this->assertObjectHasAttribute( 'message', $response );
+		$this->assertObjectHasProperty( 'code', $response );
+		$this->assertObjectHasProperty( 'message', $response );
 		$this->assertEquals( 400, $response->code );
 		$this->assertEquals(
 			'Jetpack: [input_error] A non-empty nonce must be supplied.',
@@ -269,8 +270,8 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 		);
 
 		$this->assertInstanceOf( 'IXR_Error', $response );
-		$this->assertObjectHasAttribute( 'code', $response );
-		$this->assertObjectHasAttribute( 'message', $response );
+		$this->assertObjectHasProperty( 'code', $response );
+		$this->assertObjectHasProperty( 'message', $response );
 		$this->assertEquals( 400, $response->code );
 		$this->assertEquals(
 			'Jetpack: [token_fetch_failed] Failed to fetch user token from WordPress.com.',
@@ -299,8 +300,8 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 		);
 
 		$this->assertInstanceOf( 'IXR_Error', $response );
-		$this->assertObjectHasAttribute( 'code', $response );
-		$this->assertObjectHasAttribute( 'message', $response );
+		$this->assertObjectHasProperty( 'code', $response );
+		$this->assertObjectHasProperty( 'message', $response );
 		$this->assertEquals( 400, $response->code );
 		$this->assertEquals(
 			'Jetpack: [token_fetch_failed] Failed to fetch user token from WordPress.com.',
@@ -329,6 +330,38 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 		);
 
 		$this->assertTrue( $response );
+	}
+
+	/**
+	 * Unit test for the `validate_urls_for_idc_mitigation()` method.
+	 */
+	public function test_validate_urls_for_idc_mitigation() {
+		$url          = 'http://example.org';
+		$custom_param = 'test12345';
+
+		Constants::set_constant( 'WP_HOME', $url );
+		Constants::set_constant( 'WP_SITEURL', $url );
+
+		$response_filter = function ( array $response ) use ( $custom_param ) {
+			$response['custom_param'] = $custom_param;
+			return $response;
+		};
+
+		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', $response_filter );
+
+		$server   = new Jetpack_XMLRPC_Server();
+		$response = $server->validate_urls_for_idc_mitigation();
+
+		Constants::clear_single_constant( 'WP_HOME' );
+		Constants::clear_single_constant( 'WP_SITEURL' );
+		remove_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', $response_filter );
+
+		$expected = array(
+			'home'         => $url,
+			'siteurl'      => $url,
+			'custom_param' => $custom_param,
+		);
+		$this->assertEquals( $expected, $response );
 	}
 
 	/*
@@ -414,5 +447,4 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 
 		return $xml;
 	}
-
 }

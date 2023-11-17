@@ -185,5 +185,4 @@ class Health {
 			self::update_status( self::STATUS_IN_SYNC );
 		}
 	}
-
 }

@@ -146,7 +146,7 @@ function zeroBS_contact_actions( $cID = -1, $cObj = false ) {
 
 					$actions_array['addtask'] = array(
 
-						'url'   => jpcrm_esc_link( 'create', -1, ZBS_TYPE_EVENT ) . '&zbsprefillcust=' . $cID, // admin_url('post-new.php?post_type=zerobs_event&zbsprefill='.$cID),
+						'url'   => jpcrm_esc_link( 'create', -1, ZBS_TYPE_TASK ) . '&zbsprefillcust=' . $cID,
 						'label' => __( 'Add Task', 'zero-bs-crm' ),
 						'ico'   => 'calendar icon',
 

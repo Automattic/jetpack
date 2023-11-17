@@ -161,12 +161,16 @@ describe( 'NavigationSettings', () => {
 			isSubscriber: false,
 		};
 
-		it( 'renders tabs with Discussion, Security, Performance, Traffic, Writing, Sharing', () => {
+		it( 'renders tabs with Discussion, Newsletter, Earn, Security, Performance, Traffic, Writing, Sharing', () => {
 			render( <NavigationSettings { ...currentTestProps } /> );
-			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 6 );
-			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 6 );
+			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 8 );
+			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 8 );
 			expect( screen.getByRole( 'menuitem', { name: 'Discussion' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'option', { name: 'Discussion' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'menuitem', { name: 'Monetize' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Monetize' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'menuitem', { name: 'Newsletter' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Newsletter' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'menuitem', { name: 'Security' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'option', { name: 'Security' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'menuitem', { name: 'Performance' } ) ).toBeInTheDocument();
@@ -244,6 +248,38 @@ describe( 'NavigationSettings', () => {
 			};
 			render( <NavigationSettings { ...currentTestProps2 } /> );
 			const option = screen.getByRole( 'option', { name: 'Traffic' } );
+			expect( option ).toHaveAttribute( 'aria-selected', 'true' );
+		} );
+
+		// @todo Formerly this test was titled "when clicked", even though it tested setting the location routeName props as shown here.
+		// When I tried using userEvent to actually do a click, it didn't work. The link click changes the hash (after a delay), but
+		// I think the "history" prop isn't noticing.
+		it( 'switches to Earn tab when location is set accordingly', () => {
+			const currentTestProps2 = {
+				...currentTestProps,
+				location: {
+					pathname: '/earn',
+				},
+				routeName: 'Earn',
+			};
+			render( <NavigationSettings { ...currentTestProps2 } /> );
+			const option = screen.getByRole( 'option', { name: 'Monetize' } );
+			expect( option ).toHaveAttribute( 'aria-selected', 'true' );
+		} );
+
+		// @todo Formerly this test was titled "when clicked", even though it tested setting the location routeName props as shown here.
+		// When I tried using userEvent to actually do a click, it didn't work. The link click changes the hash (after a delay), but
+		// I think the "history" prop isn't noticing.
+		it( 'switches to Newsletter tab when location is set accordingly', () => {
+			const currentTestProps2 = {
+				...currentTestProps,
+				location: {
+					pathname: '/newsletter',
+				},
+				routeName: 'Newsletter',
+			};
+			render( <NavigationSettings { ...currentTestProps2 } /> );
+			const option = screen.getByRole( 'option', { name: 'Newsletter' } );
 			expect( option ).toHaveAttribute( 'aria-selected', 'true' );
 		} );
 	} );

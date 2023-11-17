@@ -26,12 +26,12 @@
 
   &__detail {
     font-size: 0.875rem;
-    margin-right: 1rem;
-    padding-right: 1rem;
+    margin-inline-end: 1rem;
+    padding-inline-end: 1rem;
     text-align: center;
 
     &:not(:last-child) {
-      border-right: 1px solid currentColor;
+      border-inline-end: 1px solid currentColor;
     }
 
     p {
@@ -62,7 +62,7 @@
     font-size: 0.875rem;
     height: 28px;
     justify-content: center;
-    left: -2.5rem;
+    inset-inline-start: -2.5rem;
     line-height: 1;
     position: absolute;
     text-align: center;

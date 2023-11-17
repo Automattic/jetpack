@@ -1,8 +1,7 @@
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
-
-const PUBLICIZE_STORE = 'jetpack/publicize';
+import { getAttachedMedia, getJetpackSocialOptions, shouldUploadAttachedMedia } from '../../utils';
 
 /**
  * @typedef {object} AttachedMediaHook
@@ -20,26 +19,20 @@ const PUBLICIZE_STORE = 'jetpack/publicize';
 export default function useAttachedMedia() {
 	const { editPost } = useDispatch( editorStore );
 
-	const { shouldUploadAttachedMedia, attachedMedia, currentOptions } = useSelect( select => ( {
-		shouldUploadAttachedMedia: select( PUBLICIZE_STORE ).shouldUploadAttachedMedia(),
-		attachedMedia: select( PUBLICIZE_STORE ).getAttachedMedia(),
-		currentOptions: select( PUBLICIZE_STORE ).getJetpackSocialOptions(),
-	} ) );
-
 	const updateJetpackSocialOptions = useCallback(
 		( key, value ) => {
 			editPost( {
 				meta: {
-					jetpack_social_options: { ...currentOptions, [ key ]: value },
+					jetpack_social_options: { ...getJetpackSocialOptions(), [ key ]: value },
 				},
 			} );
 		},
-		[ currentOptions, editPost ]
+		[ editPost ]
 	);
 
 	return {
-		attachedMedia,
-		shouldUploadAttachedMedia,
+		attachedMedia: getAttachedMedia(),
+		shouldUploadAttachedMedia: shouldUploadAttachedMedia(),
 		updateAttachedMedia: media => updateJetpackSocialOptions( 'attached_media', media ),
 		updateShouldUploadAttachedMedia: option =>
 			updateJetpackSocialOptions( 'should_upload_attached_media', option ),

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Updated e2e test to account for recent updates to the lazy loading module.

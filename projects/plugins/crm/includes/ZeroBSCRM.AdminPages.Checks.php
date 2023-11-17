@@ -160,17 +160,11 @@ function zeroBSCRM_isWelcomeWizPage() {
 }
 
 function zeroBSCRM_isAPIRequest() {
-
-	// print_r($_SERVER['QUERY_STRING']);
-
-	// print_r($_SERVER);
-	// print_r(array((isset($_SERVER['SCRIPT_URL'])),strpos('#'.$_SERVER['SCRIPT_URL'], '/zbs_api/'))); exit();
-
 	// SCRIPT_URL not present in $_SERVER on mine: https://stackoverflow.com/questions/24428981/serverscript-url-when-is-it-reliably-present
 	// below is more reliable as QUERY_STRING will always be set for API requests.
 
 	// lazy, non-wp way of doing this
-	if ( isset( $_SERVER['QUERY_STRING'] ) && strpos( '#' . $_SERVER['QUERY_STRING'], 'api_key=zbscrm_' ) > 0 ) {
+	if ( isset( $_SERVER['QUERY_STRING'] ) && ( strpos( '#' . sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ), 'api_key=zbscrm_' ) > 0 || strpos( '#' . sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ), 'api_key=jpcrm_' ) ) ) {
 		return true;
 	}
 
@@ -187,14 +181,14 @@ function zeroBSCRM_isAPIRequest() {
 	// doesn't validate auth or anything, just 'LOOKS LIKE REST  URL'
 	// https://wordpress.stackexchange.com/questions/221202/does-something-like-is-rest-exist
 function zeroBSCRM_isRestUrl() {
-	$bIsRest = false;
+	$is_rest_url = false;
 	if ( function_exists( 'rest_url' ) && ! empty( $_SERVER['REQUEST_URI'] ) ) {
 		$sRestUrlBase = get_rest_url( get_current_blog_id(), '/' );
 		$sRestPath    = trim( parse_url( $sRestUrlBase, PHP_URL_PATH ), '/' );
 		$sRequestPath = trim( $_SERVER['REQUEST_URI'], '/' );
-		$bIsRest      = ( strpos( $sRequestPath, $sRestPath ) === 0 );
+		$is_rest_url  = ( str_starts_with( $sRequestPath, $sRestPath ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
-	return $bIsRest;
+	return $is_rest_url;
 }
 
 function zeroBSCRM_isClientPortalPage() {
@@ -843,14 +837,11 @@ function zeroBSCRM_is_quotetemplate_edit_page() {
 
 	// ========= / QUOTE TEMPLATES =========================================
 
-	// ========= EVENTS ====================================================
+	// ========= TASKS ====================================================
 
-	// generic check for any page concerning 'events'
-function zeroBSCRM_isAnyEventPage() {
+	// generic check for any page concerning tasks
+function zeroBSCRM_isAnyTaskPage() {
 
-	if ( zeroBSCRM_is_event_list_page() ) {
-		return true;
-	}
 	if ( zeroBSCRM_is_task_new_page() ) {
 		return true;
 	}
@@ -863,16 +854,11 @@ function zeroBSCRM_isAnyEventPage() {
 	if ( zeroBSCRM_is_task_list_page() ) {
 		return true;
 	}
-	if ( zeroBSCRM_is_eventtags_page() ) {
+	if ( zeroBSCRM_is_tasktags_page() ) {
 		return true;
 	}
 
 	return false;
-}
-
-function zeroBSCRM_is_event_list_page() {
-
-	return zeroBS_isPage( array( 'edit.php' ), array( 'zerobs_event' ) );
 }
 
 function zeroBSCRM_is_task_new_page() {
@@ -898,16 +884,16 @@ function zeroBSCRM_is_task_edit_page() {
 function zeroBSCRM_is_task_calendar_page() {
 
 	global $zbs;
-	return zeroBS_isPage( array( 'admin.php' ), false, array( $zbs->slugs['manage-events'] ) );
+	return zeroBS_isPage( array( 'admin.php' ), false, array( $zbs->slugs['manage-tasks'] ) );
 }
 
 function zeroBSCRM_is_task_list_page() {
 
 	global $zbs;
-	return zeroBS_isPage( array( 'admin.php' ), false, array( $zbs->slugs['manage-events-list'] ) );
+	return zeroBS_isPage( array( 'admin.php' ), false, array( $zbs->slugs['manage-tasks-list'] ) );
 }
 
-function zeroBSCRM_is_eventtags_page() {
+function zeroBSCRM_is_tasktags_page() {
 
 	// v3.0+ only
 	global $zbs;
@@ -924,7 +910,7 @@ function zeroBSCRM_is_eventtags_page() {
 	return false;
 }
 
-	// ========= / EVENTS =================================================
+	// ========= / TASKS =================================================
 
 	// ========= FORMS ====================================================
 
@@ -946,7 +932,7 @@ function zeroBSCRM_isAnyFormPage() {
 	if ( zeroBSCRM_is_task_list_page() ) {
 		return true;
 	}
-	if ( zeroBSCRM_is_eventtags_page() ) {
+	if ( zeroBSCRM_is_tasktags_page() ) {
 		return true;
 	}
 
@@ -1023,4 +1009,36 @@ function jpcrm_is_settings_page() {
 
 	global $zbs;
 	return zeroBS_isPage( array( 'admin.php' ), false, array( $zbs->slugs['settings'] ) );
+}
+
+/**
+ * Checks if a page is designated as a full-width page in Jetpack CRM.
+ *
+ * @param string $page_name The name of the page to check (usually this is the http `page` GET param).
+ *
+ * @return bool Whether the page should be displayed in full width.
+ */
+function jpcrm_is_full_width_page( $page_name ) {
+	global $zbs;
+
+	if ( $zbs->settings->get( 'showfullwidthforlisting' ) !== 1 ) {
+		return false;
+	}
+
+	$full_width_pages = array(
+		'tag-manager',
+		'manage-customers',
+		'manage-companies',
+		'manage-segments',
+		'manage-quotes',
+		'manage-invoices',
+		'manage-quote-templates',
+		'manage-transactions',
+		'manage-tasks',
+		'manage-forms',
+	);
+
+	$full_width_pages = apply_filters( 'jetpack_crm_full_width_pages', $full_width_pages );
+
+	return in_array( $page_name, $full_width_pages, true );
 }

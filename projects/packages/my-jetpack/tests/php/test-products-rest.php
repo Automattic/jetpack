@@ -249,5 +249,4 @@ class Test_Products_Rest extends TestCase {
 		$this->assertEquals( 'plugin_php_incompatible', $data['code'] );
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 	}
-
 }

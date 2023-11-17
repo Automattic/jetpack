@@ -368,20 +368,9 @@ class SignatureTest extends TestCase {
 			// Invalid values.
 			array(
 				'',
-				new stdClass(),
-				'',
-			),
-			array(
-				'',
 				'string',
 				'',
 			),
-			array(
-				'',
-				array( 'string' ),
-				'',
-			),
-
 		);
 	}
 
@@ -408,5 +397,4 @@ class SignatureTest extends TestCase {
 		$this->test_get_request_port( 445, '444', '445', true );
 		$this->test_get_request_port( '445', '444', '445', true );
 	}
-
 }

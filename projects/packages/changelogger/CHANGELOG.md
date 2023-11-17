@@ -3,6 +3,30 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.11] - 2023-09-28
+### Changed
+- Minor internal updates.
+
+## [3.3.10] - 2023-09-25
+
+- Minor internal updates.
+
+## [3.3.9] - 2023-09-19
+
+- Minor internal updates.
+
+## [3.3.8] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
+## [3.3.7] - 2023-07-17
+### Added
+- When omitting `--entry` for `changelogger add` in non-interactive mode for a patch-significance change, provide a hint on how to successfully create an empty entry. [#31630]
+
+## [3.3.6] - 2023-07-10
+
+- Minor internal updates.
+
 ## [3.3.5] - 2023-06-26
 
 ## [3.3.4] - 2023-05-22
@@ -155,6 +179,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[3.3.11]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.10...3.3.11
+[3.3.10]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.9...3.3.10
+[3.3.9]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.8...3.3.9
+[3.3.8]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.7...3.3.8
+[3.3.7]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.6...3.3.7
+[3.3.6]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.5...3.3.6
 [3.3.5]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.4...3.3.5
 [3.3.4]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.3...3.3.4
 [3.3.3]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.2...3.3.3
