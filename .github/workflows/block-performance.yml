@@ -64,6 +64,7 @@ jobs:
           mkdir results
           pnpm config:decrypt
           pnpm env:start
+          pnpm jetpack docker --type e2e --name t1 wp theme install twentytwentyone 
 
       - name: Run performance tests
         working-directory: tools/e2e-commons
