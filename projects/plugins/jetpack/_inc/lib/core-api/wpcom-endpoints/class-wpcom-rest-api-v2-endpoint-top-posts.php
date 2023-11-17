@@ -28,47 +28,47 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
             '/post-types',
             array(
                 array(
-                    'methods'             => WP_REST_Server::READABLE,
-                    'callback'            => array( $this, 'get_post_types' ),
+                    'methods'    => WP_REST_Server::READABLE,
+                    'callback'   => array( $this, 'get_post_types' ),
                 ),
             )
         );
 
         // Number of posts and selected post types are not needed in the Editor.
-        // This is to minimise requests when it can already be handled by the block. 
+        // This is to minimise requests when it can already be handled by the block.
         register_rest_route(
             'wpcom/v2',
             '/top-posts',
             array(
                 array(
-                    'methods'             => WP_REST_Server::READABLE,
-                    'callback'            => array( $this, 'get_top_posts' ),
-                    'args' => array(
-						'period' => array(
-							'description'       => __( 'Timeframe for stats.', 'jetpack' ),
-							'type'              => array('string', 'integer'),
-							'required'          => true,
-							'validate_callback' => function ( $param ) {
-								return is_numeric( $param ) || is_string( $param );
-							},
-						),
+                    'methods'    => WP_REST_Server::READABLE,
+                    'callback'   => array( $this, 'get_top_posts' ),
+                    'args'       => array(
+                        'period' => array(
+                            'description'       => __( 'Timeframe for stats.', 'jetpack' ),
+                            'type'              => array('string', 'integer'),
+                            'required'          => true,
+                            'validate_callback' => function ( $param ) {
+                                return is_numeric( $param ) || is_string( $param );
+                            },
+                        ),
                         'number' => array(
-							'description'       => __( 'Number of posts to display.', 'jetpack' ),
-							'type'              => 'integer',
-							'required'          => false,
-							'validate_callback' => function ( $param ) {
-								return is_numeric( $param );
-							},
-						),
+                            'description'       => __( 'Number of posts to display.', 'jetpack' ),
+                            'type'              => 'integer',
+                            'required'          => false,
+                            'validate_callback' => function ( $param ) {
+                                return is_numeric( $param );
+                            },
+                        ),
                         'types' => array(
-							'description'       => __( 'Types of content to include.', 'jetpack' ),
-							'type'              => 'string',
-							'required'          => false,
-							'validate_callback' => function ( $param ) {
-								return is_string( $param );
-							},
-						),
-					),
+                            'description'       => __( 'Types of content to include.', 'jetpack' ),
+                            'type'              => 'string',
+                            'required'          => false,
+                            'validate_callback' => function ( $param ) {
+                                return is_string( $param );
+                            },
+                        ),
+                    ),
                 ),
             )
         );
@@ -79,9 +79,9 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
      *
      * @param \WP_REST_Request $request request object.
      *
-     * @return array Site's post types. 
+     * @return array Site's post types.
      */
-    function get_post_types( $request ) {
+    public function get_post_types( $request ) {
         $post_types = array_values( get_post_types( array( 'public' => true ) ) );
         $post_types_array = array();
 
@@ -100,17 +100,16 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
      *
      * @param \WP_REST_Request $request request object.
      *
-     * @return array Data on top posts. 
+     * @return array Data on top posts.
      */
     public function get_top_posts( $request ) {
-
         $options = Jetpack_Options::get_option( 'stats', array() );
         $enabled = isset( $options['enabled'] ) ? (bool) $options['enabled'] : false;
         $period  = $request->get_param( 'period' );
 
         $all_time_days = floor((time() - strtotime(get_option('site_created_date'))) / (60 * 60 * 24 * 365));
 
-        // While we only display ten posts, users can filter out content types. 
+        // While we only display ten posts, users can filter out content types.
         // As such, we should obtain a few spare posts from the Stats endpoint.
         $posts_to_obtain_count = 20;
 
@@ -180,16 +179,16 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
         // This applies for rendering the block front-end, but not for editing it.
         if ( isset( $request['types'] ) ) {
             $acceptable_types = explode( ',', $request->get_param( 'types' ) );
-    
+
             $top_posts = array_filter($top_posts, function( $item ) use ( $acceptable_types ) {
                 return in_array( $item['type'], $acceptable_types );
             } );
-        };
+        }
 
         if ( isset( $request['number'] ) ) {
             $top_posts = array_slice( $top_posts, 0, $request->get_param( 'number' ) );
         }
-    
+
         return $top_posts;
     }
 }
