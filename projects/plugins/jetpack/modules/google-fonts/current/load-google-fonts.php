@@ -6,11 +6,6 @@
  */
 
 /**
- * Load Jetpack Google Font Face
- */
-require_once __DIR__ . '/class-jetpack-google-font-face.php';
-
-/**
  * Gets the Google Fonts data
  *
  * @return object[] The collection data of the Google Fonts.
@@ -153,6 +148,13 @@ function jetpack_register_google_fonts_to_theme_json( $theme_json ) {
 
 add_filter( 'wp_theme_json_data_default', 'jetpack_register_google_fonts_to_theme_json' );
 
-// Initialize Jetpack Google Font Face to avoid printing **ALL** google fonts provided by this module.
-// See p1700040028362329-slack-C4GAQ900P and p7DVsv-jib-p2
-new Jetpack_Google_Font_Face();
+if ( ! class_exists( 'Jetpack_Google_Font_Face' ) ) {
+	/**
+	 * Load Jetpack Google Font Face
+	 */
+	require_once __DIR__ . '/class-jetpack-google-font-face.php';
+
+	// Initialize Jetpack Google Font Face to avoid printing **ALL** google fonts provided by this module.
+	// See p1700040028362329-slack-C4GAQ900P and p7DVsv-jib-p2
+	new Jetpack_Google_Font_Face();
+}
