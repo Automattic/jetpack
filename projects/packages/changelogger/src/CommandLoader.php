@@ -5,7 +5,7 @@
  * @package automattic/jetpack-changelogger
  */
 
-namespace Automattic\Jetpack\Changelogger\php7;
+namespace Automattic\Jetpack\Changelogger;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\CommandLoader\CommandLoaderInterface;
