@@ -17,6 +17,9 @@ require_once __DIR__ . '/functions.php';
 
 /**
  * A class providing device properties detection.
+ *
+ * Note: str_contains() and other PHP8+ functions that have a polyfill in core are not used here,
+ * as wp-includes/compat.php may not be loaded yet.
  */
 class User_Agent_Info {
 
@@ -209,7 +212,7 @@ class User_Agent_Info {
 			$agent       = $this->useragent;
 			$dumb_agents = $this->dumb_agents;
 			foreach ( $dumb_agents as $dumb_agent ) {
-				if ( str_contains( $agent, $dumb_agent ) ) {
+				if ( false !== strpos( $agent, $dumb_agent ) ) {
 					return $dumb_agent;
 				}
 			}
@@ -438,7 +441,7 @@ class User_Agent_Info {
 		}
 
 		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		if ( ( str_contains( $ua, 'iphone' ) ) || ( str_contains( $ua, 'ipod' ) ) ) {
+		if ( ( strpos( $ua, 'iphone' ) !== false ) || ( strpos( $ua, 'ipod' ) !== false ) ) {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
 				return false;
 			} else {
@@ -466,8 +469,8 @@ class User_Agent_Info {
 		}
 
 		$ua        = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		$is_iphone = ( str_contains( $ua, 'iphone' ) ) || ( str_contains( $ua, 'ipod' ) );
-		$is_safari = ( str_contains( $ua, 'safari' ) );
+		$is_iphone = ( strpos( $ua, 'iphone' ) !== false ) || ( strpos( $ua, 'ipod' ) !== false );
+		$is_safari = ( false !== strpos( $ua, 'safari' ) );
 
 		if ( 'iphone-safari' === $type ) {
 			return $is_iphone && $is_safari;
@@ -515,7 +518,7 @@ class User_Agent_Info {
 
 		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		if ( str_contains( $ua, 'ipad' ) ) {
+		if ( strpos( $ua, 'ipad' ) !== false ) {
 			return false;
 		}
 
@@ -541,7 +544,7 @@ class User_Agent_Info {
 
 		if ( strpos( $ua, 'twitter for ipad' ) !== false ) {
 			return true;
-		} elseif ( str_contains( $ua, 'ipad' ) && strpos( $ua, 'twitter for iphone' ) !== false ) {
+		} elseif ( strpos( $ua, 'ipad' ) !== false && strpos( $ua, 'twitter for iphone' ) !== false ) {
 			return true;
 		} else {
 			return false;
@@ -561,15 +564,15 @@ class User_Agent_Info {
 
 		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		if ( ! str_contains( $ua, 'iphone' ) ) {
+		if ( false === strpos( $ua, 'iphone' ) ) {
 			return false;
 		}
 
-		if ( str_contains( $ua, 'facebook' ) && ! str_contains( $ua, 'ipad' ) ) {
+		if ( false !== strpos( $ua, 'facebook' ) && false === strpos( $ua, 'ipad' ) ) {
 			return true;
-		} elseif ( str_contains( $ua, 'fbforiphone' ) && ! str_contains( $ua, 'tablet' ) ) {
+		} elseif ( false !== strpos( $ua, 'fbforiphone' ) && false === strpos( $ua, 'tablet' ) ) {
 			return true;
-		} elseif ( str_contains( $ua, 'fban/fbios;' ) && ! str_contains( $ua, 'tablet' ) ) { // FB app v5.0 or higher.
+		} elseif ( false !== strpos( $ua, 'fban/fbios;' ) && false === strpos( $ua, 'tablet' ) ) { // FB app v5.0 or higher.
 			return true;
 		} else {
 			return false;
@@ -589,11 +592,11 @@ class User_Agent_Info {
 
 		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		if ( ! str_contains( $ua, 'ipad' ) ) {
+		if ( false === strpos( $ua, 'ipad' ) ) {
 			return false;
 		}
 
-		if ( str_contains( $ua, 'facebook' ) || str_contains( $ua, 'fbforiphone' ) || str_contains( $ua, 'fban/fbios;' ) ) {
+		if ( false !== strpos( $ua, 'facebook' ) || false !== strpos( $ua, 'fbforiphone' ) || false !== strpos( $ua, 'fban/fbios;' ) ) {
 			return true;
 		} else {
 			return false;
@@ -609,7 +612,7 @@ class User_Agent_Info {
 		}
 
 		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		if ( str_contains( $ua, 'wp-iphone' ) ) {
+		if ( false !== strpos( $ua, 'wp-iphone' ) ) {
 			return true;
 		} else {
 			return false;
@@ -634,8 +637,8 @@ class User_Agent_Info {
 
 		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		$is_ipad   = ( str_contains( $ua, 'ipad' ) );
-		$is_safari = ( str_contains( $ua, 'safari' ) );
+		$is_ipad   = ( false !== strpos( $ua, 'ipad' ) );
+		$is_safari = ( false !== strpos( $ua, 'safari' ) );
 
 		if ( 'ipad-safari' === $type ) {
 			return $is_ipad && $is_safari;
@@ -661,7 +664,7 @@ class User_Agent_Info {
 
 		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		if ( str_contains( $ua, 'fennec' ) ) {
+		if ( strpos( $ua, 'fennec' ) !== false ) {
 			return true;
 		} else {
 			return false;
@@ -683,7 +686,7 @@ class User_Agent_Info {
 
 		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		if ( str_contains( $ua, 'firefox' ) && ! str_contains( $ua, 'mobile' ) && ! str_contains( $ua, 'tablet' ) ) {
+		if ( false !== strpos( $ua, 'firefox' ) && false === strpos( $ua, 'mobile' ) && false === strpos( $ua, 'tablet' ) ) {
 			return true;
 		} else {
 			return false;
@@ -703,7 +706,7 @@ class User_Agent_Info {
 
 		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		if ( str_contains( $ua, 'mozilla' ) && str_contains( $ua, 'mobile' ) && str_contains( $ua, 'gecko' ) && str_contains( $ua, 'firefox' ) ) {
+		if ( strpos( $ua, 'mozilla' ) !== false && strpos( $ua, 'mobile' ) !== false && strpos( $ua, 'gecko' ) !== false && strpos( $ua, 'firefox' ) !== false ) {
 			return true;
 		} else {
 			return false;
@@ -722,7 +725,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		if ( ! str_contains( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 'OPR/' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		if ( false === strpos( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 'OPR/' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 			return false;
 		}
 
@@ -748,9 +751,9 @@ class User_Agent_Info {
 
 		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		if ( str_contains( $ua, 'opera' ) && str_contains( $ua, 'mobi' ) ) {
+		if ( strpos( $ua, 'opera' ) !== false && strpos( $ua, 'mobi' ) !== false ) {
 			return true;
-		} elseif ( str_contains( $ua, 'opera' ) && strpos( $ua, 'nintendo dsi' ) !== false ) {
+		} elseif ( strpos( $ua, 'opera' ) !== false && strpos( $ua, 'nintendo dsi' ) !== false ) {
 			return true;
 		} else {
 			return false;
@@ -775,7 +778,7 @@ class User_Agent_Info {
 
 		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		if ( str_contains( $ua, 'opera' ) && str_contains( $ua, 'mini' ) ) {
+		if ( strpos( $ua, 'opera' ) !== false && strpos( $ua, 'mini' ) !== false ) {
 			return true;
 		} else {
 			return false;
@@ -793,8 +796,8 @@ class User_Agent_Info {
 		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( self::is_opera_mini() ) {
-			if ( str_contains( $ua, 'android' ) || str_contains( $ua, 'iphone' ) || str_contains( $ua, 'ipod' )
-			|| str_contains( $ua, 'ipad' ) || str_contains( $ua, 'blackberry' ) ) {
+			if ( strpos( $ua, 'android' ) !== false || strpos( $ua, 'iphone' ) !== false || strpos( $ua, 'ipod' ) !== false
+			|| strpos( $ua, 'ipad' ) !== false || strpos( $ua, 'blackberry' ) !== false ) {
 				return false;
 			} else {
 				return true;
@@ -815,7 +818,7 @@ class User_Agent_Info {
 
 		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		if ( ! str_contains( $ua, 'windows phone os 7' ) ) {
+		if ( false === strpos( $ua, 'windows phone os 7' ) ) {
 			return false;
 		} elseif ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
 			return false;
@@ -854,7 +857,7 @@ class User_Agent_Info {
 
 		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		if ( ! str_contains( $ua, 'webos' ) ) {
+		if ( false === strpos( $ua, 'webos' ) ) {
 			return false;
 		} elseif ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
 			return false;
@@ -875,7 +878,7 @@ class User_Agent_Info {
 		}
 
 		$http_user_agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		if ( str_contains( $http_user_agent, 'hp-tablet' ) || str_contains( $http_user_agent, 'hpwos' ) || str_contains( $http_user_agent, 'touchpad' ) ) {
+		if ( false !== strpos( $http_user_agent, 'hp-tablet' ) || false !== strpos( $http_user_agent, 'hpwos' ) || false !== strpos( $http_user_agent, 'touchpad' ) ) {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
 				return false;
 			} else {
@@ -909,14 +912,14 @@ class User_Agent_Info {
 		$pos_webkit = strpos( $agent, 'webkit' );
 		if ( false !== $pos_webkit ) {
 			// First, test for WebKit, then make sure it's either Symbian or S60.
-			if ( str_contains( $agent, 'symbian' ) || str_contains( $agent, 'series60' ) ) {
+			if ( strpos( $agent, 'symbian' ) !== false || strpos( $agent, 'series60' ) !== false ) {
 					return true;
 			} else {
 				return false;
 			}
-		} elseif ( str_contains( $agent, 'symbianos' ) && str_contains( $agent, 'series60' ) ) {
+		} elseif ( strpos( $agent, 'symbianos' ) !== false && strpos( $agent, 'series60' ) !== false ) {
 			return true;
-		} elseif ( str_contains( $agent, 'nokia' ) && str_contains( $agent, 'series60' ) ) {
+		} elseif ( strpos( $agent, 'nokia' ) !== false && strpos( $agent, 'series60' ) !== false ) {
 			return true;
 		}
 
@@ -937,17 +940,17 @@ class User_Agent_Info {
 		$pos_webkit = strpos( $agent, 'webkit' );
 		if ( false !== $pos_webkit ) {
 			// First, test for WebKit, then make sure it's either Symbian or S60.
-			if ( str_contains( $agent, 'symbian' ) || str_contains( $agent, 'series60' ) ) {
+			if ( strpos( $agent, 'symbian' ) !== false || strpos( $agent, 'series60' ) !== false ) {
 					return true;
 			} else {
 				return false;
 			}
-		} elseif ( str_contains( $agent, 'symbianos' ) && str_contains( $agent, 'series60' ) ) {
+		} elseif ( strpos( $agent, 'symbianos' ) !== false && strpos( $agent, 'series60' ) !== false ) {
 			return true;
-		} elseif ( str_contains( $agent, 'nokia' ) && str_contains( $agent, 'series60' ) ) {
+		} elseif ( strpos( $agent, 'nokia' ) !== false && strpos( $agent, 'series60' ) !== false ) {
 			return true;
 		} elseif ( strpos( $agent, 'opera mini' ) !== false ) {
-			if ( str_contains( $agent, 'symbianos' ) || str_contains( $agent, 'symbos' ) || strpos( $agent, 'series 60' ) !== false ) {
+			if ( strpos( $agent, 'symbianos' ) !== false || strpos( $agent, 'symbos' ) !== false || strpos( $agent, 'series 60' ) !== false ) {
 				return true;
 			}
 		}
@@ -968,8 +971,8 @@ class User_Agent_Info {
 
 		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		if ( str_contains( $agent, 'series40' ) ) {
-			if ( str_contains( $agent, 'nokia' ) || str_contains( $agent, 'ovibrowser' ) || str_contains( $agent, 'nokiabrowser' ) ) {
+		if ( strpos( $agent, 'series40' ) !== false ) {
+			if ( strpos( $agent, 'nokia' ) !== false || strpos( $agent, 'ovibrowser' ) !== false || strpos( $agent, 'nokiabrowser' ) !== false ) {
 				return true;
 			}
 		}
@@ -992,7 +995,7 @@ class User_Agent_Info {
 
 		if ( strpos( $agent, 'j2me/midp' ) !== false ) {
 			return true;
-		} elseif ( str_contains( $agent, 'midp' ) && strpos( $agent, 'cldc' ) ) {
+		} elseif ( strpos( $agent, 'midp' ) !== false && strpos( $agent, 'cldc' ) ) {
 			return true;
 		}
 		return false;
@@ -1015,7 +1018,7 @@ class User_Agent_Info {
 		}
 
 		// Must be Linux + Tablet, or else it could be something else.
-		if ( str_contains( $agent, 'tablet' ) && str_contains( $agent, 'linux' ) ) {
+		if ( strpos( $agent, 'tablet' ) !== false && strpos( $agent, 'linux' ) !== false ) {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
 				return false;
 			} else {
@@ -1037,7 +1040,7 @@ class User_Agent_Info {
 
 		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		if ( ! str_contains( $ua, 'meego' ) ) {
+		if ( false === strpos( $ua, 'meego' ) ) {
 			return false;
 		} elseif ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
 			return false;
@@ -1264,7 +1267,7 @@ class User_Agent_Info {
 			return false;
 		}
 		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		return ( str_contains( $agent, 'bb10' ) ) && ( str_contains( $agent, 'mobile' ) );
+		return ( strpos( $agent, 'bb10' ) !== false ) && ( strpos( $agent, 'mobile' ) !== false );
 	}
 
 	/**
@@ -1442,7 +1445,7 @@ class User_Agent_Info {
 		$app_agents[] = 'wordpress/3.1';
 
 		foreach ( $app_agents as $app_agent ) {
-			if ( str_contains( $agent, $app_agent ) ) {
+			if ( false !== strpos( $agent, $app_agent ) ) {
 				return true;
 			}
 		}

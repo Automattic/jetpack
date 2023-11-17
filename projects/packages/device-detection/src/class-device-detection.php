@@ -17,6 +17,9 @@ use function Automattic\Jetpack\Device_Detection\wp_unslash;
  * Class Device_Detection
  *
  * Determine if the current User Agent matches the passed $kind.
+ *
+ * Note: str_contains() and other PHP8+ functions that have a polyfill in core are not used here,
+ * as wp-includes/compat.php may not be loaded yet.
  */
 class Device_Detection {
 
@@ -185,7 +188,7 @@ class Device_Detection {
 				$dumb_agents = $ua_info->dumb_agents;
 
 				foreach ( $dumb_agents as $dumb_agent ) {
-					if ( str_contains( $agent, $dumb_agent ) ) {
+					if ( false !== strpos( $agent, $dumb_agent ) ) {
 						$kinds['dumb'] = true;
 						$matched_agent = $dumb_agent;
 
@@ -197,7 +200,7 @@ class Device_Detection {
 					if ( isset( $_SERVER['HTTP_X_WAP_PROFILE'] ) ) {
 						$kinds['dumb'] = true;
 						$matched_agent = 'http_x_wap_profile';
-					} elseif ( isset( $_SERVER['HTTP_ACCEPT'] ) && ( preg_match( '/wap\.|\.wap/i', $_SERVER['HTTP_ACCEPT'] ) || str_contains( strtolower( $_SERVER['HTTP_ACCEPT'] ), 'application/vnd.wap.xhtml+xml' ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is doing the validating.
+					} elseif ( isset( $_SERVER['HTTP_ACCEPT'] ) && ( preg_match( '/wap\.|\.wap/i', $_SERVER['HTTP_ACCEPT'] ) || false !== strpos( strtolower( $_SERVER['HTTP_ACCEPT'] ), 'application/vnd.wap.xhtml+xml' ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is doing the validating.
 						$kinds['dumb'] = true;
 						$matched_agent = 'vnd.wap.xhtml+xml';
 					}
