@@ -63,6 +63,15 @@ export const initializeMembershipButtons = selector => {
 	} );
 };
 
+const tokenCookieName = 'jp-premium-content-session';
+const getTokenFromCookie = function () {
+	const value = `; ${ document.cookie }`;
+	const parts = value.split( `; ${ tokenCookieName } = ` );
+	if ( parts.length === 2 ) {
+		return parts.pop().split( ';' ).shift();
+	}
+};
+
 const updateQueryStringParameter = function ( uri, key, value ) {
 	const re = new RegExp( '([?&])' + key + '=.*?(&|$)', 'i' );
 	const separator = uri.indexOf( '?' ) !== -1 ? '&' : '?';
@@ -101,20 +110,4 @@ export const reloadPageWithPremiumContentQueryString = function (
 		} );
 	}
 	document.location.href = newQueryString;
-};
-
-export const getTokenFromCookie = function () {
-	let attributes = [];
-	if ( document.cookie.indexOf( ';' ) > -1 ) {
-		attributes = document.cookie.split( ';' );
-	} else {
-		attributes = [ document.cookie ];
-	}
-
-	for ( let i = 0; i < attributes.length; i++ ) {
-		const [ key, value ] = attributes[ i ].trim().split( '=' );
-		if ( 'jp-premium-content-session' === key ) {
-			return value;
-		}
-	}
 };
