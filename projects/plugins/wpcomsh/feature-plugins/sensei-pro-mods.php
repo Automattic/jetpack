@@ -41,6 +41,20 @@ function sensei_onboarding_mods() {
 add_action( 'admin_init', 'sensei_onboarding_mods' );
 
 /**
+ * Hide "Anyone can register" warning.
+ *
+ * Since the `sensei_onboarding_mods` updates the `users_can_register` to `1`,
+ * it starts displaying a notice. This function hides it.
+ */
+function sensei_hide_anyone_register_warning() {
+	if ( is_plugin_active( 'sensei-lms/sensei-lms.php' ) && 'subscriber' === get_option( 'default_role' ) ) {
+		remove_action( 'admin_notices', 'wpcomsh_anyone_register_warning' );
+	}
+}
+
+add_action( 'admin_init', 'sensei_hide_anyone_register_warning' );
+
+/**
  * Allow Sensei Home task complete option to be synced so we can use this status for the My Home Checklist
  *
  * @param array $options Jetpack sync allowed options.
