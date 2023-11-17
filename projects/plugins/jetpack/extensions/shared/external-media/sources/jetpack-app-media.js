@@ -73,7 +73,7 @@ function JetpackAppMedia( props ) {
 					</ol>
 				</div>
 			</div>
-			<h3>{ __( 'Recently uploaded', 'jetpack' ) }</h3>
+			{ !! media.length && <h3>{ __( 'Recently uploaded', 'jetpack' ) }</h3> }
 			<MediaBrowser
 				key={ 'jetpack-app-media' }
 				className="jetpack-external-media-browser__jetpack_app_media_browser"

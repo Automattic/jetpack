@@ -135,7 +135,8 @@ class WPCOM_REST_API_V2_Endpoint_App_Media extends WP_REST_Controller {
 	 * @param \WP_Query $media_query Media query.
 	 */
 	private function format_response( $media_query ) {
-		$response = array();
+		$response          = array();
+		$response['media'] = array();
 		while ( $media_query->have_posts() ) {
 			$media_query->the_post();
 			$response['media'][] = $this->format_item( $media_query->post );

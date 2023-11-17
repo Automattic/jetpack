@@ -463,3 +463,7 @@ $grid-size: 8px;
 	flex-grow: 1;
 	padding-bottom: 40px;
 }
+
+.jetpack-external-media-wrapper__jetpack_app_media .jetpack-external-media-browser__empty {
+	display: none;
+}
