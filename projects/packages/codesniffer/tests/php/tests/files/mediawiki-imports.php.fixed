@@ -34,6 +34,9 @@ class Dummy_Class {
 		// MediaWiki.AlternativeSyntax.LeadingZeroInFloat.
 		$u->dummy = 0.5;
 
+		// MediaWiki.AlternativeSyntax.UnicodeEscape
+		$u->unicode = "\u{00A0}\u{00A0}\u{1F389}\u{1F389}";
+
 		// MediaWiki.ExtraCharacters.ParenthesesAroundKeyword.
 		require_once 'bar.php';
 		$u->clone = clone $x;
