@@ -22,6 +22,7 @@ class Config {
 	public function constants() {
 		$optimizations = ( new Modules_Setup() )->get_status();
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
+		$static_path   = 'app/assets/static/';
 
 		$constants = array(
 			'version'       => JETPACK_BOOST_VERSION,
@@ -32,12 +33,13 @@ class Config {
 			'optimizations' => $optimizations,
 			'locale'        => get_locale(),
 			'site'          => array(
-				'domain'    => ( new Status() )->get_site_suffix(),
-				'url'       => get_home_url(),
-				'online'    => ! ( new Status() )->is_offline_mode(),
-				'assetPath' => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
-				'isAtomic'  => ( new Host() )->is_woa_site(),
-				'postTypes' => self::get_custom_post_types(),
+				'domain'          => ( new Status() )->get_site_suffix(),
+				'url'             => get_home_url(),
+				'online'          => ! ( new Status() )->is_offline_mode(),
+				'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
+				'staticAssetPath' => plugins_url( $static_path, JETPACK_BOOST_PATH ),
+				'isAtomic'        => ( new Host() )->is_woa_site(),
+				'postTypes'       => self::get_custom_post_types(),
 			),
 			'isPremium'     => Premium_Features::has_any(),
 			'preferences'   => array(

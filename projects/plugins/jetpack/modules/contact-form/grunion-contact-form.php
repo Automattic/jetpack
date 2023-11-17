@@ -3089,7 +3089,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					}
 				} else {
 					// The feedback content is stored as the first "half" of post_content
-					$value         = $feedback->post_content;
+					$value         = is_a( $feedback, '\WP_Post' ) ? $feedback->post_content : '';
 					list( $value ) = explode( '<!--more-->', $value );
 					$value         = trim( $value );
 				}
@@ -3182,7 +3182,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					}
 				} else {
 					// The feedback content is stored as the first "half" of post_content
-					$value         = $feedback->post_content;
+					$value         = is_a( $feedback, '\WP_Post' ) ? $feedback->post_content : '';
 					list( $value ) = explode( '<!--more-->', $value );
 					$value         = trim( $value );
 				}

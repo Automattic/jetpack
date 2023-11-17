@@ -1,8 +1,8 @@
 === Jetpack Social  ===
 Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk, danielpost
 Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
-Requires at least: 6.2
-Requires PHP: 5.6
+Requires at least: 6.3
+Requires PHP: 7.0
 Tested up to: 6.4
 Stable tag: 2.3.0
 License: GPLv2 or later

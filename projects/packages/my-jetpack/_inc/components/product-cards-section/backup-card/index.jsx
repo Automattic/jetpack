@@ -118,6 +118,10 @@ const WithBackupsValueSection = ( { lastUndoableEvent } ) => {
 	}
 	const { last_rewindable_event: lastRewindableEvent = {} } = lastUndoableEvent.data;
 
+	if ( ! lastRewindableEvent ) {
+		return null;
+	}
+
 	return (
 		<div className={ styles.activity }>
 			<Gridicon icon={ lastRewindableEvent.gridicon } size={ 24 } />
@@ -189,7 +193,7 @@ const BackupCard = ( { admin, productData, fetchingProductData } ) => {
 		productData || {};
 
 	const lastRewindableEventTime = lastUndoableEvent?.data?.last_rewindable_event?.published;
-	const hasRewindableEvent = hasBackups && lastUndoableEvent?.data;
+	const hasRewindableEvent = hasBackups && lastUndoableEvent?.data?.last_rewindable_event;
 	const undoBackupId = lastUndoableEvent?.data?.undo_backup_id;
 
 	const handleUndoClick = () => {

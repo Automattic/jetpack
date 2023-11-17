@@ -612,7 +612,7 @@ function render_for_website( $data, $classes, $styles ) {
 	$blog_id           = \Jetpack_Options::get_option( 'id' );
 	$widget_id_suffix  = Jetpack_Subscriptions_Widget::$instance_count > 1 ? '-' . Jetpack_Subscriptions_Widget::$instance_count : '';
 	$form_id           = 'subscribe-blog' . $widget_id_suffix;
-	$form_url          = defined( 'SUBSCRIBE_BLOG_URL' ) ? SUBSCRIBE_BLOG_URL : '#';
+	$form_url          = 'https://wordpress.com/email-subscriptions';
 	$post_access_level = get_post_access_level_for_current_post();
 
 	// Post ID is used for pulling post-specific paid status, and returning to the right post after confirming subscription
@@ -691,7 +691,7 @@ function render_for_website( $data, $classes, $styles ) {
 							style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
 						<?php endif; ?>
 					>
-						<input type="hidden" name="action" value="subscribe"/>
+						<input type="hidden" name="action" value="<?php echo is_top_subscription() ? 'subscribed' : 'subscribe'; ?>"/>
 						<input type="hidden" name="blog_id" value="<?php echo (int) $blog_id; ?>"/>
 						<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
@@ -932,6 +932,21 @@ function get_submit_button_text( $data ) {
 }
 
 /**
+ * Returns true if there are no more tiers to upgrade to.
+ *
+ * @return boolean
+ */
+function is_top_subscription() {
+	if ( ! Jetpack_Memberships::is_current_user_subscribed() ) {
+		return false;
+	}
+	if ( ! Jetpack_Memberships::user_can_view_post() ) {
+		return false;
+	}
+	return true;
+}
+
+/**
  * Sanitize the submit button text.
  *
  * @param string $text String containing the submit button text.
@@ -1001,8 +1016,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 			);
 		}
 		$access_question = get_paywall_access_question( $newsletter_access_level );
-
-		$sign_in = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
+		$sign_in         = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
 <p class="has-text-align-center" style="font-size:14px"><a href="' . $sign_in_link . '">' . $access_question . '</a></p>
 <!-- /wp:paragraph -->';
 	}
@@ -1046,14 +1060,14 @@ function get_paywall_access_question( $post_access_level ) {
 			if ( $tier !== null ) {
 				return sprintf(
 				// translators:  Placeholder is the tier name
-					__( 'I am already a <i>%s</i> paid-subscriber', 'jetpack' ),
+					__( 'Already a higher-tier paid subscriber?', 'jetpack' ),
 					esc_html( $tier->post_title )
 				);
 			} else {
-				return esc_html__( 'I am already a paid-subscriber', 'jetpack' );
+				return esc_html__( 'Already a paid subscriber?', 'jetpack' );
 			}
 		default:
-			return esc_html__( 'I am already a subscriber', 'jetpack' );
+			return esc_html__( 'Already a subscriber?', 'jetpack' );
 	}
 }
 
