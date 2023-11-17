@@ -1,0 +1,4 @@
+Significance: major
+Type: compat
+
+General: the plugin now requires PHP 7.0 and above.

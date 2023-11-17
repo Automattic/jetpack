@@ -3,7 +3,7 @@ Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
 Stable tag: 12.7
 Requires at least: 6.3
-Requires PHP: 5.6
+Requires PHP: 7.0
 Tested up to: 6.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -270,7 +270,7 @@ Jetpack has an image CDN that works by caching and serving your WordPress images
 
 = What version of PHP do I need? =
 
-Sites must be built on PHP 5.6 or greater, but Jetpack always supports the latest version of PHP.
+Sites must be built on PHP 7.0 or greater, but Jetpack always supports the latest version of PHP.
 
 = Can Jetpack help my site comply with GDPR? =
 
