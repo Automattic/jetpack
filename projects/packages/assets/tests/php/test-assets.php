@@ -34,31 +34,24 @@ class AssetsTest extends TestCase {
 
 		Functions\stubs(
 			array(
-				'wp_parse_url'    => 'parse_url',
-				'wp_json_encode'  => 'json_encode',
-				'esc_html'        => function ( $text ) {
+				'wp_parse_url'   => 'parse_url',
+				'wp_json_encode' => 'json_encode',
+				'esc_html'       => function ( $text ) {
 					return htmlspecialchars( $text, ENT_QUOTES );
 				},
-				'esc_html__'      => function ( $text ) {
+				'esc_html__'     => function ( $text ) {
 					return htmlspecialchars( $text, ENT_QUOTES );
 				},
-				'add_query_arg'   => function ( ...$args ) {
+				'add_query_arg'  => function ( ...$args ) {
 					$this->assertCount( 3, $args );
 					list( $k, $v, $url ) = $args;
 					$url .= ( strpos( $url, '?' ) === false ? '?' : '&' ) . "$k=$v";
 					return $url;
 				},
-				'plugins_url'     => function ( $path, $plugin_path ) use ( $plugin_dir ) {
+				'plugins_url'    => function ( $path, $plugin_path ) use ( $plugin_dir ) {
 					$plugin_path = dirname( $plugin_path );
 					$this->stringStartsWith( $plugin_dir, $plugin_path );
 					return 'http://www.example.com/wp-content/plugins/jetpack/' . substr( $plugin_path, strlen( $plugin_dir ) ) . '/' . $path;
-				},
-				// Mock str_starts_with() for tests ran  with PHP < 8.
-				'str_starts_with' => function ( $haystack, $needle ) {
-					if ( '' === $needle ) {
-						return true;
-					}
-					return 0 === strpos( $haystack, $needle );
 				},
 			)
 		);

@@ -41,15 +41,6 @@ class RedirectTest extends TestCase {
 		Functions\when( 'home_url' )->justReturn( 'https://example.org' );
 		Functions\when( 'get_current_blog_id' )->justReturn( 1 );
 		Functions\when( 'get_option' )->justReturn();
-		// Mock str_starts_with() for tests ran  with PHP < 8.
-		Functions\when( 'str_starts_with' )->alias(
-			function ( $haystack, $needle ) {
-				if ( '' === $needle ) {
-					return true;
-				}
-				return 0 === strpos( $haystack, $needle );
-			}
-		);
 
 		$url = Redirect::get_url( 'simple' );
 		$this->assertEquals( 'https://jetpack.com/redirect/?source=simple&site=example.org', $url );
