@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { requestSpeedScoresHistory } from '@automattic/jetpack-boost-score-api';
 	import { __ } from '@wordpress/i18n';
-	import { PerformanceHistory } from './performance-history';
 	import ErrorNotice from '$features/ErrorNotice.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import { recordBoostEvent } from '$lib/utils/analytics';
 	import { castToString } from '$lib/utils/cast-to-string';
 	import routerHistory from '$lib/utils/router-history';
 	import { showPerformanceHistory } from './lib/stores/store';
+	import PerformanceHistoryPanel from './performance-history-panel';
 
 	export let needsUpgrade: boolean;
 
@@ -69,7 +69,7 @@
 		/>
 	{/if}
 	<ReactComponent
-		this={PerformanceHistory}
+		this={PerformanceHistoryPanel}
 		onToggle={value => ( $showPerformanceHistory = value )}
 		isOpen={$showPerformanceHistory}
 		{isFreshStart}

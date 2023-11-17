@@ -1,5 +1,5 @@
 import type { Meta } from '@storybook/react';
-import { PerformanceHistory } from '../performance-history';
+import PerformanceHistoryPanel from '../performance-history-panel';
 
 const exampleRawResponse = {
 	data: {
@@ -155,9 +155,9 @@ const exampleRawResponse = {
 	},
 };
 
-const meta: Meta< typeof PerformanceHistory > = {
+const meta: Meta< typeof PerformanceHistoryPanel > = {
 	title: 'Plugins/Boost/Performance History',
-	component: PerformanceHistory,
+	component: PerformanceHistoryPanel,
 	argTypes: {
 		startDate: { control: 'date' },
 		endDate: { control: 'date' },
@@ -188,6 +188,6 @@ const defaultValues = {
 
 export default meta;
 
-const Template = args => <PerformanceHistory { ...args } />;
+const Template = args => <PerformanceHistoryPanel { ...args } />;
 export const _default = Template.bind( {} );
 _default.args = defaultValues;

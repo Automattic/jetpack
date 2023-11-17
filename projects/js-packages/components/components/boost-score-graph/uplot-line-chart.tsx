@@ -186,7 +186,7 @@ export default function UplotLineChart( { range, periods }: UplotChartProps ) {
 	}, [] );
 
 	return (
-		<div ref={ uplotContainer }>
+		<div ref={ uplotContainer } className="boost-uplot-container">
 			<UplotReact data={ data } onCreate={ onCreate } options={ options } />
 		</div>
 	);

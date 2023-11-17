@@ -7,7 +7,6 @@
 	import { BoostScoreBar } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import ContextTooltip from './context-tooltip/context-tooltip';
-	import History from '../performance-history/History.svelte';
 	import PopOut from './PopOut.svelte';
 	import ErrorNotice from '$features/ErrorNotice.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
@@ -19,6 +18,7 @@
 	import { castToString } from '$lib/utils/cast-to-string';
 	import debounce from '$lib/utils/debounce';
 	import RefreshIcon from '$svg/refresh.svg';
+	import PerformanceHistory from '$features/performance-history/performance-history';
 
 	// @todo - move score-context markup/styles here, as it's not used anywhere else.
 
@@ -198,7 +198,8 @@
 		/>
 	</div>
 	{#if siteIsOnline}
-		<History
+		<ReactComponent
+			this={PerformanceHistory}
 			needsUpgrade={performanceHistoryNeedsUpgrade}
 			onDismissFreshStart={onPerformanceHistoryDismissFreshStart}
 			isFreshStart={performanceHistoryIsFreshStart}
