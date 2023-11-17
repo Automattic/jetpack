@@ -87,7 +87,7 @@ const Header = () => {
 								scheduledCount={ scheduledShares }
 								text={ sprintf(
 									// translators: %1$d is the number of shares allowed in 30 days.
-									__( 'Share limit for 30 days: %1$d', 'jetpack-social' ),
+									__( 'Share limit for 30 days: %1$d.', 'jetpack-social' ),
 									shareLimit
 								) }
 							/>
