@@ -52,33 +52,25 @@ export function useShareLimits(): ShareLimits {
 		shareLimit
 	);
 
+	// Extract the strings here to avoid `msgid argument is not a string literal` error
+	const limitExceededMessage = __(
+		'You have exceeded your share limit. Your posts will not longer be shared.',
+		'jetpack'
+	);
+	const scheduledSharesMessage = __(
+		'Your scheduled posts will not get shared after you reach the sharing limit.',
+		'jetpack'
+	);
+
 	switch ( limitStatus ) {
 		case 'crossed':
 			noticeType = usedSharesCount >= shareLimit ? 'error' : 'warning';
-			message =
-				usedSharesCount >= shareLimit
-					? __(
-							'You have exceeded your share limit. Your posts will not longer be shared.',
-							'jetpack'
-					  )
-					: __(
-							'Your scheduled posts will not get shared after you reach the sharing limit.',
-							'jetpack'
-					  );
+			message = usedSharesCount >= shareLimit ? limitExceededMessage : scheduledSharesMessage;
 			break;
 
 		case 'full':
 			noticeType = scheduledShares > 0 ? 'warning' : 'error';
-			message =
-				scheduledShares > 0
-					? __(
-							'Your scheduled posts will not get shared after you reach the sharing limit.',
-							'jetpack'
-					  )
-					: __(
-							'You have exceeded your share limit. Your posts will not longer be shared.',
-							'jetpack'
-					  );
+			message = scheduledShares > 0 ? scheduledSharesMessage : limitExceededMessage;
 			break;
 
 		case 'close':
