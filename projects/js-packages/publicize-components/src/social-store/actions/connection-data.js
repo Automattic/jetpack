@@ -43,7 +43,7 @@ export function mergeConnections( freshConnections ) {
 		const connections = [];
 		const defaults = {
 			done: false,
-			enabled: Boolean( getJetpackData()?.social?.sharesData?.shares_remaining ),
+			enabled: select.numberOfSharesRemaining(),
 			toggleable: true,
 		};
 
