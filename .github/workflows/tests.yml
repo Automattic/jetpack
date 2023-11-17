@@ -135,6 +135,8 @@ jobs:
               echo "Skipping $SLUG, no changes in it or its dependencies"
             elif ! jq --arg script "$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
               echo "Skipping $SLUG, no test script is defined in composer.json"
+            elif php -r 'exit( preg_match( "/^>=\\s*(\\d+\\.\\d+)$/", $argv[1], $m ) && version_compare( PHP_VERSION, $m[1], "<" ) ? 0 : 1 );' "$( jq -r '.require.php // ""' "$P" )"; then
+              echo "Skipping $SLUG, requires PHP $( jq -r '.require.php // ""' "$P" ) but PHP version is $( php -r 'echo PHP_VERSION;' )"
             else
               if jq --arg script "skip-$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
                 { composer --working-dir="$DIR" run "skip-$TEST_SCRIPT"; CODE=$?; } || true

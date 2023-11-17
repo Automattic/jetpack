@@ -3,7 +3,9 @@
 	"description": "Handle .gitignore style files.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"php": ">=7.0"
+	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
 		"wikimedia/at-ease": "^1.2 || ^2.0",

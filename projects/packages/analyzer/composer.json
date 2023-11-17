@@ -8,6 +8,7 @@
 		"static analysis"
 	],
 	"require": {
+		"php": ">=7.0",
 		"nikic/php-parser": "4.13.2"
 	},
 	"require-dev": {
