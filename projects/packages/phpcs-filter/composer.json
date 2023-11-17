@@ -51,7 +51,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"branch-alias": {
-			"dev-trunk": "1.1.x-dev"
+			"dev-trunk": "2.0.x-dev"
 		}
 	}
 }

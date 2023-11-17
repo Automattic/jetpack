@@ -41,7 +41,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-tracking/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.14.x-dev"
+			"dev-trunk": "2.0.x-dev"
 		}
 	},
 	"abandoned": "automattic/jetpack-connection"
