@@ -719,23 +719,22 @@ function render_for_website( $data, $classes, $styles ) {
 						>
 							<?php echo sanitize_submit_text( $button_text ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</button>
-						</p>
-					</div>
-				</form>
-				<?php if ( $data['show_subscribers_total'] && $data['subscribers_total'] ) : ?>
-					<div class="wp-block-jetpack-subscriptions__subscount">
-						<?php
-						echo esc_html( Jetpack_Memberships::get_join_others_text( $data['subscribers_total'] ) );
-						?>
-					</div>
-				<?php endif; ?>
-				<?php
-				if ( $data['show_login'] && ! is_user_auth() ) {
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo get_subscriber_login_link( $post_access_level );
-				}
-				?>
-			</div>
+					</p>
+				</div>
+			</form>
+			<?php if ( $data['show_subscribers_total'] && $data['subscribers_total'] ) : ?>
+				<div class="wp-block-jetpack-subscriptions__subscount">
+					<?php
+					echo esc_html( Jetpack_Memberships::get_join_others_text( $data['subscribers_total'] ) );
+					?>
+				</div>
+			<?php endif; ?>
+			<?php
+			if ( $data['show_login'] && ! is_user_auth() ) {
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo get_subscriber_login_link( $post_access_level );
+			}
+			?>
 		</div>
 	</div>
 	<?php
