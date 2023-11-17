@@ -57,6 +57,7 @@
 		"blogroll",
 		"blogroll-item",
 		"nextdoor",
+		"ai-assistant-usage-panel",
 		"sharing-button",
 		"sharing-buttons"
 	],
@@ -68,8 +69,7 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"create-with-voice",
-		"ai-assistant-backend-prompts",
-		"ai-assistant-usage-panel"
+		"ai-assistant-backend-prompts"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

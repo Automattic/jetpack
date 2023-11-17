@@ -2,7 +2,7 @@
 Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas
 Tags: jetpack, backup, restore
 Requires at least: 6.3
-Requires PHP: 5.6
+Requires PHP: 7.0
 Tested up to: 6.4
 Stable tag: 2.2
 License: GPLv2 or later

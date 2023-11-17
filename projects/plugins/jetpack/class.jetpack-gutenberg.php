@@ -677,19 +677,10 @@ class Jetpack_Gutenberg {
 		}
 
 		// AI Assistant
-		$ai_assistant_state = Jetpack_AI_Helper::get_ai_assistance_feature();
-
-		if ( is_wp_error( $ai_assistant_state ) ) {
-			$ai_assistant_state = array(
-				'error-message' => $ai_assistant_state->get_error_message(),
-				'error-code'    => $ai_assistant_state->get_error_code(),
-			);
-		} else {
-			$ai_assistant_state['is-playground-visible'] = Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' );
-		}
-
-		// Jetpack AI enabled
-		$ai_assistant_state['is-enabled'] = apply_filters( 'jetpack_ai_enabled', true );
+		$ai_assistant_state = array(
+			'is-enabled'            => apply_filters( 'jetpack_ai_enabled', true ),
+			'is-playground-visible' => Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' ),
+		);
 
 		$screen_base = null;
 		if ( function_exists( 'get_current_screen' ) ) {
@@ -746,9 +737,7 @@ class Jetpack_Gutenberg {
 				'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
 				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
 				'dismissedNotices'                => $publicize->get_dismissed_notices(),
-				'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
-				'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
-				'isNextdoorConnectionSupported'   => $publicize->has_nextdoor_connection_feature(),
+				'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
 				'autoConversionSettings'          => array(
 					'available' => $auto_conversion_settings->is_available( 'image' ),
 					'image'     => $auto_conversion_settings->is_enabled( 'image' ),
