@@ -25,7 +25,6 @@ class Jwt_Token_Bridge {
 	 * This method should be called only once by the Initializer class. Do not call this method again.
 	 */
 	public static function init() {
-
 		if ( ! Status::is_active() ) {
 			return;
 		}

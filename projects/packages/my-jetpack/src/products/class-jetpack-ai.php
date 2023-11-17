@@ -80,7 +80,13 @@ class Jetpack_Ai extends Product {
 	 * @return int
 	 */
 	public static function get_next_usage_tier() {
-		$info         = self::get_ai_assistant_feature();
+		$info = self::get_ai_assistant_feature();
+
+		// Bail early if it's not possible to fetch the feature data.
+		if ( is_wp_error( $info ) ) {
+			return null;
+		}
+
 		$current_tier = isset( $info['current-tier']['value'] ) ? $info['current-tier']['value'] : null;
 
 		if ( null === $current_tier ) {

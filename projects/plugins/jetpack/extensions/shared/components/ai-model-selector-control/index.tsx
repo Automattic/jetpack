@@ -49,6 +49,7 @@ export default function AiModelSelectorControl( {
 				] }
 				onChange={ onModelChange }
 				help={ help }
+				disabled={ disabled }
 			/>
 		);
 	}
@@ -65,6 +66,7 @@ export default function AiModelSelectorControl( {
 			<ToggleGroupControlOption
 				label={ __( 'GTP-3.5 Turbo', 'jetpack' ) }
 				value={ AI_MODEL_GPT_3_5_Turbo_16K }
+				disabled={ disabled }
 			/>
 			<ToggleGroupControlOption label={ __( 'GPT-4', 'jetpack' ) } value={ AI_MODEL_GPT_4 } />
 		</ToggleGroupControl>

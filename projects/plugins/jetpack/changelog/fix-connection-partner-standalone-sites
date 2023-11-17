@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Partnerships: stop initializing the Partner package in the Jetpack plugin, it is now done directly in the Connection package.

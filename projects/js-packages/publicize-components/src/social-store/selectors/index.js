@@ -1,5 +1,5 @@
 import autoConversionSettingsSelectors from './auto-conversion-settings';
-import connectionDataSelectors from './connection-data';
+import * as connectionDataSelectors from './connection-data';
 import jetpackSettingSelectors from './jetpack-settings';
 import sharesDataSelectors from './shares-data';
 import siteDataSelectors from './site-data';

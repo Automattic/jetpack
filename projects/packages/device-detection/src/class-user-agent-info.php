@@ -147,63 +147,63 @@ class User_Agent_Info {
 	 * @return string The matched User Agent name, false otherwise.
 	 */
 	public function get_mobile_user_agent_name() {
-		if ( $this->is_chrome_for_iOS() ) { // Keep this check before the safari rule.
+		if ( static::is_chrome_for_iOS() ) { // Keep this check before the safari rule.
 			return 'chrome-for-ios';
-		} elseif ( $this->is_iphone_or_ipod( 'iphone-safari' ) ) {
+		} elseif ( static::is_iphone_or_ipod( 'iphone-safari' ) ) {
 			return 'iphone';
-		} elseif ( $this->is_ipad( 'ipad-safari' ) ) {
+		} elseif ( static::is_ipad( 'ipad-safari' ) ) {
 			return 'ipad';
-		} elseif ( $this->is_android_tablet() ) { // Keep this check before the android rule.
+		} elseif ( static::is_android_tablet() ) { // Keep this check before the android rule.
 			return 'android_tablet';
-		} elseif ( $this->is_android() ) {
+		} elseif ( static::is_android() ) {
 			return 'android';
-		} elseif ( $this->is_blackberry_10() ) {
+		} elseif ( static::is_blackberry_10() ) {
 			return 'blackberry_10';
-		} elseif ( $this->is_blackbeberry() ) {
+		} elseif ( static::is_blackbeberry() ) {
 			return 'blackberry';
-		} elseif ( $this->is_WindowsPhone7() ) {
+		} elseif ( static::is_WindowsPhone7() ) {
 			return 'win7';
-		} elseif ( $this->is_windows_phone_8() ) {
+		} elseif ( static::is_windows_phone_8() ) {
 			return 'winphone8';
-		} elseif ( $this->is_opera_mini() ) {
+		} elseif ( static::is_opera_mini() ) {
 			return 'opera-mini';
-		} elseif ( $this->is_opera_mini_dumb() ) {
+		} elseif ( static::is_opera_mini_dumb() ) {
 			return 'opera-mini-dumb';
-		} elseif ( $this->is_opera_mobile() ) {
+		} elseif ( static::is_opera_mobile() ) {
 			return 'opera-mobi';
-		} elseif ( $this->is_blackberry_tablet() ) {
+		} elseif ( static::is_blackberry_tablet() ) {
 			return 'blackberry_tablet';
-		} elseif ( $this->is_kindle_fire() ) {
+		} elseif ( static::is_kindle_fire() ) {
 			return 'kindle-fire';
-		} elseif ( $this->is_PalmWebOS() ) {
+		} elseif ( static::is_PalmWebOS() ) {
 			return 'webos';
-		} elseif ( $this->is_S60_OSSBrowser() ) {
+		} elseif ( static::is_S60_OSSBrowser() ) {
 			return 'series60';
-		} elseif ( $this->is_firefox_os() ) {
+		} elseif ( static::is_firefox_os() ) {
 			return 'firefoxOS';
-		} elseif ( $this->is_firefox_mobile() ) {
+		} elseif ( static::is_firefox_mobile() ) {
 			return 'firefox_mobile';
-		} elseif ( $this->is_MaemoTablet() ) {
+		} elseif ( static::is_MaemoTablet() ) {
 			return 'maemo';
-		} elseif ( $this->is_MeeGo() ) {
+		} elseif ( static::is_MeeGo() ) {
 			return 'meego';
-		} elseif ( $this->is_TouchPad() ) {
+		} elseif ( static::is_TouchPad() ) {
 			return 'hp_tablet';
-		} elseif ( $this->is_facebook_for_iphone() ) {
+		} elseif ( static::is_facebook_for_iphone() ) {
 			return 'facebook-for-iphone';
-		} elseif ( $this->is_facebook_for_ipad() ) {
+		} elseif ( static::is_facebook_for_ipad() ) {
 			return 'facebook-for-ipad';
-		} elseif ( $this->is_twitter_for_iphone() ) {
+		} elseif ( static::is_twitter_for_iphone() ) {
 			return 'twitter-for-iphone';
-		} elseif ( $this->is_twitter_for_ipad() ) {
+		} elseif ( static::is_twitter_for_ipad() ) {
 			return 'twitter-for-ipad';
-		} elseif ( $this->is_wordpress_for_ios() ) {
+		} elseif ( static::is_wordpress_for_ios() ) {
 			return 'ios-app';
-		} elseif ( $this->is_iphone_or_ipod( 'iphone-not-safari' ) ) {
+		} elseif ( static::is_iphone_or_ipod( 'iphone-not-safari' ) ) {
 			return 'iphone-unknown';
-		} elseif ( $this->is_ipad( 'ipad-not-safari' ) ) {
+		} elseif ( static::is_ipad( 'ipad-not-safari' ) ) {
 			return 'ipad-unknown';
-		} elseif ( $this->is_Nintendo_3DS() ) {
+		} elseif ( static::is_Nintendo_3DS() ) {
 			return 'nintendo-3ds';
 		} else {
 			$agent       = $this->useragent;
@@ -245,26 +245,26 @@ class User_Agent_Info {
 		} elseif ( strpos( $this->useragent, 'iphone' ) !== false ) {
 			$this->platform = self::PLATFORM_IPHONE;
 		} elseif ( strpos( $this->useragent, 'android' ) !== false ) {
-			if ( $this->is_android_tablet() ) {
+			if ( static::is_android_tablet() ) {
 				$this->platform = self::PLATFORM_ANDROID_TABLET;
 			} else {
 				$this->platform = self::PLATFORM_ANDROID;
 			}
-		} elseif ( $this->is_kindle_fire() ) {
+		} elseif ( static::is_kindle_fire() ) {
 			$this->platform = self::PLATFORM_ANDROID_TABLET;
-		} elseif ( $this->is_blackberry_10() ) {
+		} elseif ( static::is_blackberry_10() ) {
 			$this->platform = self::PLATFORM_BLACKBERRY_10;
 		} elseif ( strpos( $this->useragent, 'blackberry' ) !== false ) {
 			$this->platform = self::PLATFORM_BLACKBERRY;
-		} elseif ( $this->is_blackberry_tablet() ) {
+		} elseif ( static::is_blackberry_tablet() ) {
 			$this->platform = self::PLATFORM_BLACKBERRY;
-		} elseif ( $this->is_symbian_platform() ) {
+		} elseif ( static::is_symbian_platform() ) {
 			$this->platform = self::PLATFORM_SYMBIAN;
-		} elseif ( $this->is_symbian_s40_platform() ) {
+		} elseif ( static::is_symbian_s40_platform() ) {
 			$this->platform = self::PLATFORM_SYMBIAN_S40;
-		} elseif ( $this->is_J2ME_platform() ) {
+		} elseif ( static::is_J2ME_platform() ) {
 			$this->platform = self::PLATFORM_J2ME_MIDP;
-		} elseif ( $this->is_firefox_os() ) {
+		} elseif ( static::is_firefox_os() ) {
 			$this->platform = self::PLATFORM_FIREFOX_OS;
 		} else {
 			$this->platform = false;
@@ -286,77 +286,77 @@ class User_Agent_Info {
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_android() ) {
+		} elseif ( static::is_android() ) {
 			$this->matched_agent       = 'android';
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_windows_phone_8() ) {
+		} elseif ( static::is_windows_phone_8() ) {
 			$this->matched_agent       = 'winphone8';
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_WindowsPhone7() ) {
+		} elseif ( static::is_WindowsPhone7() ) {
 			$this->matched_agent       = 'win7';
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_blackberry_10() ) {
+		} elseif ( static::is_blackberry_10() ) {
 			$this->matched_agent       = 'blackberry-10';
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_blackbeberry() && 'blackberry-webkit' === $this->detect_blackberry_browser_version() ) {
+		} elseif ( static::is_blackbeberry() && 'blackberry-webkit' === static::detect_blackberry_browser_version() ) {
 			$this->matched_agent       = 'blackberry-webkit';
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_blackberry_tablet() ) {
+		} elseif ( static::is_blackberry_tablet() ) {
 			$this->matched_agent       = 'blackberry_tablet';
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_PalmWebOS() ) {
+		} elseif ( static::is_PalmWebOS() ) {
 			$this->matched_agent       = 'webos';
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_TouchPad() ) {
+		} elseif ( static::is_TouchPad() ) {
 			$this->matched_agent       = 'hp_tablet';
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_firefox_os() ) {
+		} elseif ( static::is_firefox_os() ) {
 			$this->matched_agent       = 'firefoxOS';
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_firefox_mobile() ) {
+		} elseif ( static::is_firefox_mobile() ) {
 			$this->matched_agent       = 'fennec';
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_opera_mobile() ) {
+		} elseif ( static::is_opera_mobile() ) {
 			$this->matched_agent       = 'opera-mobi';
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_MaemoTablet() ) {
+		} elseif ( static::is_MaemoTablet() ) {
 			$this->matched_agent       = 'maemo';
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_MeeGo() ) {
+		} elseif ( static::is_MeeGo() ) {
 			$this->matched_agent       = 'meego';
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_kindle_touch() ) {
+		} elseif ( static::is_kindle_touch() ) {
 			$this->matched_agent       = 'kindle-touch';
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_Nintendo_3DS() ) {
+		} elseif ( static::is_Nintendo_3DS() ) {
 			$this->matched_agent       = 'nintendo-3ds';
 			$this->isTierIphone        = true;
 			$this->isTierRichCss       = false;
@@ -381,18 +381,18 @@ class User_Agent_Info {
 		}
 
 		// The following devices are explicitly ok.
-		if ( $this->is_S60_OSSBrowser() ) {
+		if ( static::is_S60_OSSBrowser() ) {
 			$this->matched_agent       = 'series60';
 			$this->isTierIphone        = false;
 			$this->isTierRichCss       = true;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_opera_mini() ) {
+		} elseif ( static::is_opera_mini() ) {
 			$this->matched_agent       = 'opera-mini';
 			$this->isTierIphone        = false;
 			$this->isTierRichCss       = true;
 			$this->isTierGenericMobile = false;
-		} elseif ( $this->is_blackbeberry() ) {
-			$detectedDevice = $this->detect_blackberry_browser_version();
+		} elseif ( static::is_blackbeberry() ) {
+			$detectedDevice = static::detect_blackberry_browser_version();
 			if (
 				'blackberry-5' === $detectedDevice
 				|| 'blackberry-4.7' === $detectedDevice
