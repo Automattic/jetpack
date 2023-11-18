@@ -2,11 +2,9 @@ import {
 	PanelBody,
 	RangeControl,
 	SelectControl,
-	TextControl,
 	ToggleControl,
 	ToolbarGroup,
 } from '@wordpress/components';
-import { useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
 export function TopPostsInspectorControls( {
@@ -16,19 +14,8 @@ export function TopPostsInspectorControls( {
 	toggleAttributes,
 	setToggleAttributes,
 } ) {
-	const {
-		displayAuthor,
-		displayContext,
-		displayDate,
-		displayThumbnail,
-		period,
-		postsToShow,
-		postTypes,
-		timeframeRange,
-	} = attributes;
-
-	console.log( 'cat' );
-	console.log( postTypesData );
+	const { displayAuthor, displayContext, displayDate, displayThumbnail, period, postsToShow } =
+		attributes;
 
 	if ( ! postTypesData ) {
 		return;

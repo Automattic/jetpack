@@ -1,7 +1,7 @@
 import { LoadingPlaceholder, ThemeProvider } from '@automattic/jetpack-components';
 import { Placeholder, Flex, FlexItem } from '@wordpress/components';
 
-export const TopPostsSkeleton = () => {
+export const LoadingPostsGrid = () => {
 	return (
 		<ThemeProvider>
 			<Placeholder>

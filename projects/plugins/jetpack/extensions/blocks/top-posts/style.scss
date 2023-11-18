@@ -1,17 +1,19 @@
 /**
- * Editor styles for Top Posts
+ * Styles for Top Posts
  */
+@import '../../shared/styles/jetpack-variables.scss';
 
 .wp-block-jetpack-top-posts {
 	.jetpack-top-posts-item {
-		margin-bottom: 24px;
+		margin-bottom: $jetpack-block-margin-bottom;
 	}
 
 	img {
 		width: 100%;
 	}
 
-	span {
+	span,
+	a {
 		display: block;
 	}
 

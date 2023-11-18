@@ -30,6 +30,9 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
                 array(
                     'methods'    => WP_REST_Server::READABLE,
                     'callback'   => array( $this, 'get_post_types' ),
+                    'permission_callback' => function () {
+                        return current_user_can( 'edit_posts' );
+                    },
                 ),
             )
         );
@@ -107,7 +110,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
         $enabled = isset( $options['enabled'] ) ? (bool) $options['enabled'] : false;
         $period  = $request->get_param( 'period' );
 
-        $all_time_days = floor((time() - strtotime(get_option('site_created_date'))) / (60 * 60 * 24 * 365));
+        $all_time_days = floor( ( time() - strtotime( get_option('site_created_date') ) ) / ( 60 * 60 * 24 * 365 ));
 
         // While we only display ten posts, users can filter out content types.
         // As such, we should obtain a few spare posts from the Stats endpoint.
@@ -115,7 +118,8 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 
         // We should not override cache when displaying the block on the frontend.
         // But we should allow instant preview of changes when editing the block.
-        $override_cache  = ! isset( $request['types'] );
+        $is_rendering_block = isset( $request['types'] );
+        $override_cache     = ! $is_rendering_block;
 
         $query_args      = array(
             'max'       => $posts_to_obtain_count,
@@ -127,11 +131,11 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
         $data            = ( new WPCOM_Stats() )->get_top_posts( $query_args, $override_cache );
         $posts_retrieved = count( $data['summary']['postviews']);
 
-        // Fallback to random posts if user has no top content.
+        // Fallback to random posts if user does not have enough top content.
         if ( $posts_retrieved < $posts_to_obtain_count ) {
             $args = array(
                 'numberposts' => $posts_to_obtain_count - $posts_retrieved,
-                'exclude' => array_column($data['summary']['postviews'], 'id'),
+                'exclude' => array_column( $data['summary']['postviews'], 'id' ),
                 'orderby' => 'rand',
                 'post_status' => 'publish',
             );
@@ -156,7 +160,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 
         $top_posts = array();
 
-        foreach ( $data['summary']['postviews'] as $post) {
+        foreach ( $data['summary']['postviews'] as $post ) {
             $post_id = $post['id'];
 
             if ( $post['public'] ) {
@@ -177,15 +181,13 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
         }
 
         // This applies for rendering the block front-end, but not for editing it.
-        if ( isset( $request['types'] ) ) {
+        if ( $is_rendering_block ) {
             $acceptable_types = explode( ',', $request->get_param( 'types' ) );
 
-            $top_posts = array_filter($top_posts, function( $item ) use ( $acceptable_types ) {
+            $top_posts = array_filter( $top_posts, function( $item ) use ( $acceptable_types ) {
                 return in_array( $item['type'], $acceptable_types );
             } );
-        }
 
-        if ( isset( $request['number'] ) ) {
             $top_posts = array_slice( $top_posts, 0, $request->get_param( 'number' ) );
         }
 

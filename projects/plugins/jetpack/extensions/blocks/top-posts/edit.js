@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { TopPostsBlockControls, TopPostsInspectorControls } from './controls';
 import { InactiveStatsPlaceholder } from './inactive-placeholder';
-import { TopPostsSkeleton } from './skeleton';
+import { LoadingPostsGrid } from '../../shared/components/loading-posts-grid';
 import './style.scss';
 import './editor.scss';
 
@@ -40,7 +40,7 @@ function TopPostsPreviewItem( props ) {
 	);
 }
 
-function TopPostsEdit( { attributes, className, noticeOperations, noticeUI, setAttributes } ) {
+function TopPostsEdit( { attributes, className, setAttributes } ) {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'stats' );
 
@@ -49,11 +49,22 @@ function TopPostsEdit( { attributes, className, noticeOperations, noticeUI, setA
 	const [ postTypesData, setPostTypesData ] = useState();
 	const [ toggleAttributes, setToggleAttributes ] = useState( {} );
 
+	const {
+		displayAuthor,
+		displayContext,
+		displayDate,
+		displayThumbnail,
+		layout,
+		period,
+		postsToShow,
+		postTypes,
+	} = attributes;
+
 	useEffect( () => {
 		apiFetch( { path: `/wpcom/v2/post-types` } ).then( response => {
 			setPostTypesData( response );
 			response.forEach( type => {
-				if ( attributes.postTypes && attributes.postTypes[ type.id ] ) {
+				if ( postTypes && postTypes[ type.id ] ) {
 					setToggleAttributes( prevToggleAttributes => ( {
 						...prevToggleAttributes,
 						[ type.id ]: true,
@@ -66,17 +77,16 @@ function TopPostsEdit( { attributes, className, noticeOperations, noticeUI, setA
 	useEffect( () => {
 		if ( isModuleActive ) {
 			apiFetch( {
-				path: `/wpcom/v2/top-posts?period=${ attributes.period }`,
+				path: `/wpcom/v2/top-posts?period=${ period }`,
 			} ).then( response => {
 				updatePostsDisplay( response );
 				setPostsData( response );
 			} );
 		}
-	}, [ attributes.period, isModuleActive ] );
+	}, [ period, isModuleActive ] );
 
 	useEffect( () => {
 		updatePostsDisplay( postsData );
-		console.log( attributes.period );
 	}, [ attributes ] );
 
 	const updatePostsDisplay = data => {
@@ -85,8 +95,8 @@ function TopPostsEdit( { attributes, className, noticeOperations, noticeUI, setA
 		}
 
 		const newPosts = [];
-		for ( let i = 0; newPosts.length !== attributes.postsToShow; i++ ) {
-			if ( data[ i ] && attributes.postTypes[ data[ i ].type ] ) {
+		for ( let i = 0; newPosts.length !== postsToShow; i++ ) {
+			if ( data[ i ] && postTypes[ data[ i ].type ] ) {
 				newPosts.push(
 					<TopPostsPreviewItem
 						key={ 'jetpack-top-posts-' + data[ i ].id }
@@ -95,10 +105,10 @@ function TopPostsEdit( { attributes, className, noticeOperations, noticeUI, setA
 						author={ data[ i ].author }
 						thumbnail={ data[ i ].thumbnail }
 						context={ data[ i ].context }
-						displayDate={ attributes.displayDate }
-						displayAuthor={ attributes.displayAuthor }
-						displayThumbnail={ attributes.displayThumbnail }
-						displayContext={ attributes.displayContext }
+						displayDate={ displayDate }
+						displayAuthor={ displayAuthor }
+						displayThumbnail={ displayThumbnail }
+						displayContext={ displayContext }
 					/>
 				);
 			}
@@ -112,9 +122,6 @@ function TopPostsEdit( { attributes, className, noticeOperations, noticeUI, setA
 		setPostsToDisplay( newPosts );
 	};
 
-	console.log( isLoadingModules );
-	console.log( 'edsdsf' );
-
 	if ( ! isModuleActive && ! isLoadingModules ) {
 		return (
 			<InactiveStatsPlaceholder
@@ -126,7 +133,7 @@ function TopPostsEdit( { attributes, className, noticeOperations, noticeUI, setA
 	}
 
 	if ( ! postsToDisplay ) {
-		return <TopPostsSkeleton />;
+		return <LoadingPostsGrid />;
 	}
 
 	return (
@@ -145,7 +152,7 @@ function TopPostsEdit( { attributes, className, noticeOperations, noticeUI, setA
 				<TopPostsBlockControls attributes={ attributes } setAttributes={ setAttributes } />
 			</BlockControls>
 
-			<div className={ classNames( className, `is-${ attributes.layout }-layout` ) }>
+			<div className={ classNames( className, `is-${ layout }-layout` ) }>
 				<div className="jetpack-top-posts-wrapper">{ postsToDisplay }</div>
 			</div>
 		</>

@@ -9,7 +9,7 @@ import metadata from './block.json';
 import { RelatedPostsBlockControls, RelatedPostsInspectorControls } from './controls';
 import { useRelatedPostsStatus } from './hooks/use-status-toggle';
 import { InactiveRelatedPostsPlaceholder } from './inactive-placeholder';
-import { RelatedPostsSkeletonLoader } from './skeleton-loader';
+import { LoadingPostsGrid } from '../../shared/components/loading-posts-grid';
 import './editor.scss';
 
 const featureName = metadata.name.replace( 'jetpack/', '' );
@@ -182,7 +182,7 @@ export default function RelatedPostsEdit( props ) {
 	const { attributes, className, setAttributes } = props;
 
 	if ( isLoadingModules || isFetchingStatus ) {
-		return <RelatedPostsSkeletonLoader />;
+		return <LoadingPostsGrid />;
 	}
 
 	if ( ! isModuleActive || ! isEnabled ) {

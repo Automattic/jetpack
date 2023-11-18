@@ -3,8 +3,6 @@ import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import metadata from './block.json';
 
-const icon = getBlockIconComponent( metadata );
-
 export const InactiveStatsPlaceholder = ( { className, isLoading, changeStatus } ) => {
 	const enableFeature = () => {
 		return changeStatus( true );
@@ -18,7 +16,7 @@ export const InactiveStatsPlaceholder = ( { className, isLoading, changeStatus }
 	return (
 		<div className={ className }>
 			<Placeholder
-				icon={ icon }
+				icon={ getBlockIconComponent( metadata ) }
 				instructions={ __(
 					"You'll need to activate the Stats module to use this block.",
 					'jetpack'
