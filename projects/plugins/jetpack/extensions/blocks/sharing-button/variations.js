@@ -13,12 +13,6 @@ const variations = [
 		title: 'Facebook',
 		icon: <SocialIcon icon={ 'facebook' } size={ 32 } />,
 	},
-	// {
-	// 	name: 'instagram',
-	// 	attributes: { service: 'instagram' },
-	// 	title: 'Instagram',
-	// 	icon: InstagramIcon,
-	// },
 	{
 		name: 'linkedin',
 		attributes: { service: 'linkedin' },
@@ -74,18 +68,6 @@ const variations = [
 		title: 'Telegram',
 		icon: <SocialIcon icon={ 'telegram' } size={ 32 } />,
 	},
-	// {
-	// 	name: 'threads',
-	// 	attributes: { service: 'threads' },
-	// 	title: 'Threads',
-	// 	icon: ThreadsIcon,
-	// },
-	// {
-	// 	name: 'tiktok',
-	// 	attributes: { service: 'tiktok' },
-	// 	title: 'TikTok',
-	// 	icon: TiktokIcon,
-	// },
 	{
 		name: 'tumblr',
 		attributes: { service: 'tumblr' },
@@ -134,3 +116,23 @@ variations.forEach( variation => {
 } );
 
 export default variations;
+
+// TODO: add these in the future
+// {
+// 	name: 'threads',
+// 	attributes: { service: 'threads' },
+// 	title: 'Threads',
+// 	icon: ThreadsIcon,
+// },
+// {
+// 	name: 'tiktok',
+// 	attributes: { service: 'tiktok' },
+// 	title: 'TikTok',
+// 	icon: TiktokIcon,
+// },
+// {
+// 	name: 'instagram',
+// 	attributes: { service: 'instagram' },
+// 	title: 'Instagram',
+// 	icon: InstagramIcon,
+// },

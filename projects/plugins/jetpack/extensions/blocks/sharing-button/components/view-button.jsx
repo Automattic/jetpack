@@ -1,15 +1,11 @@
 import SocialIcon from 'social-logos';
 
-const mountLink = () => {
-	return '';
-};
-
-const ViewSocialButton = ( { service, post } ) => {
+const ViewSocialButton = ( { service, url } ) => {
 	return (
 		<a
 			rel="nofollow noopener noreferrer"
 			className={ `jetpack-sharing-button__button share-${ service }` }
-			href={ mountLink( service, post ) }
+			href={ url }
 			target="_blank"
 			data-shared={ `sharing-${ service }-` }
 			primary

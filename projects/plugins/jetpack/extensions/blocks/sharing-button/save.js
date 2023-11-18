@@ -1,11 +1,11 @@
 import ViewSocialButton from './components/view-button';
 import './style.scss';
 
-const SharingButtonsView = ( { attributes, post } ) => {
-	const { service } = attributes;
+const SharingButtonsView = ( { attributes } ) => {
+	const { service, url } = attributes;
 	return (
 		<li className="jetpack-sharing-button__list">
-			<ViewSocialButton service={ service } post={ post } />
+			<ViewSocialButton service={ service } url={ url } />
 		</li>
 	);
 };

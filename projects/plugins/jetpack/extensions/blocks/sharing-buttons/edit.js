@@ -1,29 +1,18 @@
-//Sharing Buttons Block
-/**
- * External dependencies
- */
-
-/**
- * WordPress dependencies
- */
 import { useInnerBlocksProps, useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl } from '@wordpress/components';
+import { PanelBody, MenuItemsChoice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import './editor.scss';
+import './style.scss';
 
 const ALLOWED_BLOCKS = [ 'jetpack/sharing-button' ];
-// const ALLOWED_BLOCKS = [ 'core/social-link' ];
 
-export function SocialLinksEdit( props ) {
+export function SharingButtonsEdit( props ) {
 	const { attributes, setAttributes } = props;
 
-	const { openInNewTab, showLabels } = attributes;
-
-	// const logosOnly = attributes.className?.includes( 'is-style-logos-only' );
+	const { styleType } = attributes;
 
 	const SharingButtonsPlaceholder = <li>{ __( 'Click plus to add', 'jetpack' ) }</li>;
 
-	const className = 'jetpack-sharing-buttons__sharing-services-list';
+	const className = 'jetpack-sharing-buttons__services-list';
 
 	const blockProps = useBlockProps( { className } );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
@@ -39,17 +28,15 @@ export function SocialLinksEdit( props ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
-					<ToggleControl
-						__nextHasNoMarginBottom
-						label={ __( 'Open links in new tab', 'jetpack' ) }
-						checked={ openInNewTab }
-						onChange={ () => setAttributes( { openInNewTab: ! openInNewTab } ) }
-					/>
-					<ToggleControl
-						__nextHasNoMarginBottom
-						label={ __( 'Show labels', 'jetpack' ) }
-						checked={ showLabels }
-						onChange={ () => setAttributes( { showLabels: ! showLabels } ) }
+					<MenuItemsChoice
+						choices={ [
+							{ value: 'icon-text', label: 'Icon & Text' },
+							{ value: 'icon', label: 'Icon Only' },
+							{ value: 'text', label: 'Text Only' },
+							{ value: 'official', label: 'Official Buttons' },
+						] }
+						value={ styleType }
+						onSelect={ value => setAttributes( { styleType: value } ) }
 					/>
 				</PanelBody>
 			</InspectorControls>
@@ -57,4 +44,4 @@ export function SocialLinksEdit( props ) {
 		</>
 	);
 }
-export default SocialLinksEdit;
+export default SharingButtonsEdit;

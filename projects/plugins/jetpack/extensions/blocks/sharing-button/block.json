@@ -23,17 +23,9 @@
 			"type": "string"
 		}
 	},
-	"usesContext": [
-		"openInNewTab",
-		"showLabels",
-		"iconColor",
-		"iconColorValue",
-		"iconBackgroundColor",
-		"iconBackgroundColorValue"
-	],
+	"usesContext": [ "styleType" ],
 	"supports": {
 		"reusable": false,
 		"html": false
-	},
-	"editorStyle": "wp-block-social-link-editor"
+	}
 }
