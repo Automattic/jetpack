@@ -89,7 +89,7 @@ function load_assets( $attributes, $content ) {
 
 		if ( $attributes['displayContext'] && ! empty( $item['context'] ) && is_array( $item['context'] ) ) {
 			$context = reset( $item['context'] );
-            $output .= '<a class="jetpack-top-posts-context has-small-font-size" href="' . esc_url( get_category_link( $context['term_id'] ) ) . '">' . esc_html( $context['name'] ) . '</a>';
+        	$output .= '<a class="jetpack-top-posts-context has-small-font-size" href="' . esc_url( get_category_link( $context['term_id'] ) ) . '">' . esc_html( $context['name'] ) . '</a>';
         }
 
         $output .= '</div>';
