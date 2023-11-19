@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Permit overriding cache when retrieving top posts.
