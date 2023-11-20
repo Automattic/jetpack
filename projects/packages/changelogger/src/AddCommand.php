@@ -165,7 +165,7 @@ EOF
 		try {
 			$dir = Config::changesDir();
 			if ( ! is_dir( $dir ) ) {
-				Utils::error_clear_last();
+				error_clear_last();
 				if ( ! quietCall( 'mkdir', $dir, 0775, true ) ) {
 					$err = error_get_last();
 					$output->writeln( "<error>Could not create directory $dir: {$err['message']}</>" );
@@ -322,7 +322,7 @@ EOF
 				OutputInterface::VERBOSITY_DEBUG
 			);
 			$contents .= "\n";
-			Utils::error_clear_last();
+			error_clear_last();
 			$fp = quietCall( 'fopen', "$dir/$filename", 'x' );
 			if ( ! $fp ||
 				quietCall( 'fwrite', $fp, $contents ) !== strlen( $contents ) ||

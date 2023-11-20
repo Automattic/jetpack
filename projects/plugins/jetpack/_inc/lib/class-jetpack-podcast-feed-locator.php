@@ -49,7 +49,7 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie_Locator {
 	private function safely_load_xml( $xml ) {
 		$disable_entity_loader = PHP_VERSION_ID < 80000;
 
-		if ( $disable_entity_loader && ! function_exists( 'libxml_disable_entity_loader' ) ) {
+		if ( $disable_entity_loader ) {
 			return false;
 		}
 

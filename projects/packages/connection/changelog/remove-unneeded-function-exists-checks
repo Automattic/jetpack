@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Add a comment pointing out why we `function_exists( 'ignore_user_abort' )`.
+
+

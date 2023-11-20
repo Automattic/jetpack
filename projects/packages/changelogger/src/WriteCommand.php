@@ -150,7 +150,7 @@ EOF
 			$changelog = new Changelog();
 		} else {
 			$output->writeln( "Reading changelog from $file...", OutputInterface::VERBOSITY_DEBUG );
-			Utils::error_clear_last();
+			error_clear_last();
 			$contents = quietCall( 'file_get_contents', $file );
 			// @codeCoverageIgnoreStart
 			if ( ! is_string( $contents ) ) {
@@ -221,7 +221,7 @@ EOF
 			return self::FATAL_EXIT;
 		}
 
-		Utils::error_clear_last();
+		error_clear_last();
 		$ok = quietCall( 'file_put_contents', $file, $contents );
 		if ( strlen( $contents ) !== $ok ) {
 			$err = error_get_last();
@@ -247,7 +247,7 @@ EOF
 			if ( $flag >= 2 ) {
 				continue;
 			}
-			Utils::error_clear_last();
+			error_clear_last();
 			$ok = quietCall( 'unlink', $dir . DIRECTORY_SEPARATOR . $name );
 			if ( $ok ) {
 				$output->writeln( "Deleted change file $name.", OutputInterface::VERBOSITY_DEBUG );

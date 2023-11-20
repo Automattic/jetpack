@@ -574,6 +574,7 @@ class Sender {
 		 * Now that we're sure we are about to sync, try to ignore user abort
 		 * so we can avoid getting into a bad state.
 		 */
+		// https://plugins.trac.wordpress.org/ticket/2041
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
 		}

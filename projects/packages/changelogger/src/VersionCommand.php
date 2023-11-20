@@ -147,7 +147,7 @@ EOF
 				return 1;
 			}
 
-			Utils::error_clear_last();
+			error_clear_last();
 			$contents = quietCall( 'file_get_contents', $file );
 			// @codeCoverageIgnoreStart
 			if ( ! is_string( $contents ) ) {
