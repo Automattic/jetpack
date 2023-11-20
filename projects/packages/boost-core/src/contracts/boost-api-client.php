@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Boost_Core\Contracts;
 /**
  * An interface to build Boost API client.
  *
- * Communication with Boost back-end should be done through this interface. !
+ * Communication with Boost back-end should be done through this interface.
  */
 interface Boost_API_Client {
 

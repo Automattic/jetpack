@@ -12,7 +12,7 @@ namespace Automattic\Jetpack;
  */
 class Action_Bar {
 	/**
-	 * Enqueue scripts for rendering Action Bar client. !
+	 * Enqueue scripts for rendering Action Bar client.
 	 */
 	public function enqueue_scripts() {
 		if ( is_admin() || ! is_single() ) {
