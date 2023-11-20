@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Dashboard: do not display the Auto-sharing toggle when your account is not connected yet.

@@ -100,7 +100,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 									'jetpack'
 								) }
 							</p>
-							{ showUpgradeLink && (
+							{ showUpgradeLink && isLinked && (
 								<>
 									<p>
 										{ ! hasSocialBasicFeatures
@@ -145,17 +145,21 @@ export const Publicize = withModuleSettingsFormHelpers(
 									</p>
 								</>
 							) }
-							<ModuleToggle
-								slug="publicize"
-								disabled={ unavailableInOfflineMode || ! this.props.isLinked }
-								activated={ isActive }
-								toggling={ this.props.isSavingAnyOption( 'publicize' ) }
-								toggleModule={ this.props.toggleModuleNow }
-							>
-								{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
-							</ModuleToggle>
-							{ shouldShowChildElements && hasAutoConversion && <AutoConversionSection /> }
-							{ shouldShowChildElements && hasSocialImageGenerator && (
+							{ isLinked && (
+								<ModuleToggle
+									slug="publicize"
+									disabled={ unavailableInOfflineMode }
+									activated={ isActive }
+									toggling={ this.props.isSavingAnyOption( 'publicize' ) }
+									toggleModule={ this.props.toggleModuleNow }
+								>
+									{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
+								</ModuleToggle>
+							) }
+							{ shouldShowChildElements && hasAutoConversion && isLinked && (
+								<AutoConversionSection />
+							) }
+							{ shouldShowChildElements && hasSocialImageGenerator && isLinked && (
 								<SocialImageGeneratorSection />
 							) }
 						</SettingsGroup>
