@@ -403,7 +403,7 @@ final class Image_CDN {
 					}
 
 					if ( preg_match( '#[\s"\']height=["\']?([\d%]+)["\']?#i', $images['img_tag'][ $index ], $height_string ) ) {
-						$height = ! str_contains( $height_string[1], '%' ) ? $height_string[1] : false;
+						$height = str_contains( $height_string[1], '%' ) ? false : $height_string[1];
 					}
 
 					// Detect WP registered image size from HTML class.
