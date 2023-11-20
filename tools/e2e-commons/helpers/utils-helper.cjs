@@ -36,18 +36,8 @@ async function execShellCommand( cmd ) {
 	} );
 }
 
-function execSyncShellCommand( cmd, options ) {
-	const result = execSync( cmd, {
-		encoding: 'utf8',
-		...options,
-	} );
-
-	if ( result.stderr ) {
-		const stderr = result.stderr.toString();
-		throw new Error( `Command failed with error: ${ stderr }` );
-	}
-
-	return result.toString();
+function execSyncShellCommand( cmd ) {
+	return execSync( cmd ).toString();
 }
 
 async function resetWordpressInstall() {
