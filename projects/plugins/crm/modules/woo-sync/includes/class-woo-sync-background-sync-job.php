@@ -1956,7 +1956,7 @@ class Woo_Sync_Background_Sync_Job {
 
 		}
 
-		// Let third parties modify the data array before it's stored as a CRM Object. 
+		// Let third parties modify the data array before it's stored as a CRM Object.
 		// This will allow totals to be updated when WooSync pulls data from a store in a different currency.
 		return apply_filters( 'jpcrm_woo_sync_order_data', $data );
 	}
