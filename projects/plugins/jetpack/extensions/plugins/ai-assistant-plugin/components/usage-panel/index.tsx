@@ -79,15 +79,17 @@ export default function UsagePanel() {
 				/>
 
 				{ ! hasFeature && canUpgrade && (
-					<Button
-						variant="primary"
-						label="Upgrade your Jetpack AI plan"
-						href={ checkoutUrl }
-						onClick={ autosaveAndRedirect }
-						disabled={ isRedirecting }
-					>
-						{ __( 'Upgrade', 'jetpack' ) }
-					</Button>
+					<div className="jetpack-ai-usage-panel-upgrade-button">
+						<Button
+							variant="primary"
+							label="Upgrade your Jetpack AI plan"
+							href={ checkoutUrl }
+							onClick={ autosaveAndRedirect }
+							disabled={ isRedirecting }
+						>
+							{ __( 'Upgrade', 'jetpack' ) }
+						</Button>
+					</div>
 				) }
 			</>
 		</div>
