@@ -311,7 +311,7 @@ async function changelogAdd( argv ) {
 		if ( needChangelog.length === 0 ) {
 			console.log(
 				chalk.green(
-					'Did not detect a touched project that still need a changelog. You can still add a changelog manually by running `jetpack changelog add <type/project>'
+					'Did not detect a touched project that still needs a changelog. You can still add a changelog manually by running `jetpack changelog add <type/project>'
 				)
 			);
 			return;
@@ -735,14 +735,12 @@ async function promptVersion( argv ) {
  * @returns {argv}.
  */
 async function promptChangelog( argv, needChangelog, types ) {
-	console.log( types );
 	const gitBranch = child_process
 		.spawnSync( 'git', [ 'branch', '--show-current' ] )
 		.stdout.toString()
 		.trim()
 		.replace( /\//g, '-' );
 	const maxLength = Math.max( ...Object.keys( types ).map( key => key.length ) );
-
 	const choices = Object.entries( types ).map( ( [ value, name ] ) => ( {
 		value,
 		name: `[${ value.padEnd( maxLength, ' ' ) }] ${ name }`,
