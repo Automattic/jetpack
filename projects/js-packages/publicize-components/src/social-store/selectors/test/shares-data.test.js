@@ -139,17 +139,7 @@ describe( 'Social store selectors: sharesData', () => {
 								publicized_count,
 							},
 							connectionData: {
-								connections: [
-									{
-										enabled: true,
-									},
-									{
-										enabled: true,
-									},
-									{
-										enabled: false,
-									},
-								],
+								connections: createActiveConnections( 2 ),
 							},
 						},
 						{ includeActiveConnections: true }
