@@ -80,7 +80,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/top-posts/
 	 * @param array $args Optional query parameters.
-	 * @param bool $override_cache Optional override cache.
+	 * @param bool  $override_cache Optional override cache.
 	 * @return array|WP_Error
 	 */
 	public function get_top_posts( $args = array(), $override_cache = false ) {

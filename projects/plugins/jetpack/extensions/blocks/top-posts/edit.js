@@ -2,11 +2,10 @@ import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import { useState, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
+import { LoadingPostsGrid } from '../../shared/components/loading-posts-grid';
 import { TopPostsBlockControls, TopPostsInspectorControls } from './controls';
 import { InactiveStatsPlaceholder } from './inactive-placeholder';
-import { LoadingPostsGrid } from '../../shared/components/loading-posts-grid';
 import './style.scss';
 import './editor.scss';
 
@@ -60,35 +59,6 @@ function TopPostsEdit( { attributes, className, setAttributes } ) {
 		postTypes,
 	} = attributes;
 
-	useEffect( () => {
-		apiFetch( { path: `/wpcom/v2/post-types` } ).then( response => {
-			setPostTypesData( response );
-			response.forEach( type => {
-				if ( postTypes && postTypes[ type.id ] ) {
-					setToggleAttributes( prevToggleAttributes => ( {
-						...prevToggleAttributes,
-						[ type.id ]: true,
-					} ) );
-				}
-			} );
-		} );
-	}, [] );
-
-	useEffect( () => {
-		if ( isModuleActive ) {
-			apiFetch( {
-				path: `/wpcom/v2/top-posts?period=${ period }`,
-			} ).then( response => {
-				updatePostsDisplay( response );
-				setPostsData( response );
-			} );
-		}
-	}, [ period, isModuleActive ] );
-
-	useEffect( () => {
-		updatePostsDisplay( postsData );
-	}, [ attributes ] );
-
 	const updatePostsDisplay = data => {
 		if ( ! data ) {
 			return;
@@ -121,6 +91,34 @@ function TopPostsEdit( { attributes, className, setAttributes } ) {
 
 		setPostsToDisplay( newPosts );
 	};
+
+	useEffect( () => {
+		apiFetch( { path: `/wpcom/v2/post-types` } ).then( response => {
+			setPostTypesData( response );
+			response.forEach( type => {
+				if ( postTypes && postTypes[ type.id ] ) {
+					setToggleAttributes( prevToggleAttributes => ( {
+						...prevToggleAttributes,
+						[ type.id ]: true,
+					} ) );
+				}
+			} );
+		} );
+	}, [ postTypes ] );
+
+	useEffect( () => {
+		if ( isModuleActive ) {
+			apiFetch( {
+				path: `/wpcom/v2/top-posts?period=${ period }`,
+			} ).then( response => {
+				setPostsData( response );
+			} );
+		}
+	}, [ period, isModuleActive ] );
+
+	useEffect( () => {
+		updatePostsDisplay( postsData );
+	}, [ attributes, postsData ] );
 
 	if ( ! isModuleActive && ! isLoadingModules ) {
 		return (

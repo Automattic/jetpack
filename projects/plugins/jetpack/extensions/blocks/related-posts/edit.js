@@ -5,11 +5,11 @@ import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
+import { LoadingPostsGrid } from '../../shared/components/loading-posts-grid';
 import metadata from './block.json';
 import { RelatedPostsBlockControls, RelatedPostsInspectorControls } from './controls';
 import { useRelatedPostsStatus } from './hooks/use-status-toggle';
 import { InactiveRelatedPostsPlaceholder } from './inactive-placeholder';
-import { LoadingPostsGrid } from '../../shared/components/loading-posts-grid';
 import './editor.scss';
 
 const featureName = metadata.name.replace( 'jetpack/', '' );

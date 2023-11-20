@@ -28,39 +28,35 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Top Posts block registration/dependency declaration.
  *
- * @param array  $attributes    Array containing the Top Posts block attributes.
- * @param string $content String containing the Top Posts block content.
+ * @param array  $attributes Array containing the Top Posts block attributes.
  *
  * @return string
  */
-function load_assets( $attributes, $content ) {
-    /*
-     * Enqueue necessary scripts and styles.
-     */
-    Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
+function load_assets( $attributes ) {
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
-    /*
-     * We cannot rely on obtaining posts from the block because 
-     * top posts might have changed since then. As such, we must
-     * make another request to check for updated stats.
-     */
-    $request_url = sprintf(
-        '/wp-json/wpcom/v2/top-posts?period=%1$s&number=%2$s&types=%3$s',
-        $attributes['period'],
-        $attributes['postsToShow'],
-        implode( ',', array_keys( array_filter( $attributes['postTypes'] ) ) )
-    );
+	/*
+	 * We cannot rely on obtaining posts from the block because 
+	 * top posts might have changed since then. As such, we must
+	 * make another request to check for updated stats.
+	 */
+	$request_url = sprintf(
+		'/wp-json/wpcom/v2/top-posts?period=%1$s&number=%2$s&types=%3$s',
+		$attributes['period'],
+		$attributes['postsToShow'],
+		implode( ',', array_keys( array_filter( $attributes['postTypes'] ) ) )
+	);
 
-    $request = wp_remote_get( home_url( $request_url ) );
-    $data    = json_decode( wp_remote_retrieve_body( $request ), true );
+	$request = wp_remote_get( home_url( $request_url ) );
+	$data    = json_decode( wp_remote_retrieve_body( $request ), true );
 
-    if ( is_wp_error( $request ) || ! is_array( $data ) ) {
-        return;
-    }
+	if ( is_wp_error( $request ) || ! is_array( $data ) ) {
+		return;
+	}
 
-    $wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
+	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 
-    $output = sprintf(
+	$output = sprintf(
 		'<div class="jetpack-top-posts%s%s%s"%s><div class="jetpack-top-posts-wrapper">',
 		! empty( $attributes['className'] ) ? ' ' . esc_attr( $attributes['className'] ) : '',
 		! empty( $wrapper_attributes['class'] ) ? ' ' . esc_attr( $wrapper_attributes['class'] ) : '',
@@ -68,34 +64,34 @@ function load_assets( $attributes, $content ) {
 		! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : ''
 	);
 
-    foreach ( $data as $item ) {
-        $output .= '<div class="jetpack-top-posts-item">';
+	foreach ( $data as $item ) {
+		$output .= '<div class="jetpack-top-posts-item">';
 
-        if ( $attributes['displayThumbnail'] && ! empty( $item['thumbnail'] ) ) {
-            $output .= '<a class="jetpack-top-posts-thumbnail-link">';
-            $output .= '<img class="jetpack-top-posts-thumbnail" src="' . esc_url( $item['thumbnail'] ) . '" alt="' . esc_attr( $item['title'] ) . '" rel="nofollow noopener noreferrer" target="_blank">';
-            $output .= '</a>';
-        }
+		if ( $attributes['displayThumbnail'] && ! empty( $item['thumbnail'] ) ) {
+			$output .= '<a class="jetpack-top-posts-thumbnail-link">';
+			$output .= '<img class="jetpack-top-posts-thumbnail" src="' . esc_url( $item['thumbnail'] ) . '" alt="' . esc_attr( $item['title'] ) . '" rel="nofollow noopener noreferrer" target="_blank">';
+			$output .= '</a>';
+		}
 
-        $output .= '<a class="jetpack-top-posts-title" href="' . esc_url( $item['href'] ) . '">' . esc_html( $item['title'] ) . '</a>';
+		$output .= '<a class="jetpack-top-posts-title" href="' . esc_url( $item['href'] ) . '">' . esc_html( $item['title'] ) . '</a>';
 
 		if ( $attributes['displayDate'] ) {
-        	$output .= '<span class="jetpack-top-posts-date has-small-font-size">' . esc_html( $item['date'] ) . '</span>';
+			$output .= '<span class="jetpack-top-posts-date has-small-font-size">' . esc_html( $item['date'] ) . '</span>';
 		}
-	
+
 		if ( $attributes['displayAuthor'] ) {
 			$output .= '<span class="jetpack-top-posts-author has-small-font-size">' . esc_html( $item['author'] ) . '</span>';
 		}
 
 		if ( $attributes['displayContext'] && ! empty( $item['context'] ) && is_array( $item['context'] ) ) {
 			$context = reset( $item['context'] );
-        	$output .= '<a class="jetpack-top-posts-context has-small-font-size" href="' . esc_url( get_category_link( $context['term_id'] ) ) . '">' . esc_html( $context['name'] ) . '</a>';
-        }
+			$output .= '<a class="jetpack-top-posts-context has-small-font-size" href="' . esc_url( get_category_link( $context['term_id'] ) ) . '">' . esc_html( $context['name'] ) . '</a>';
+		}
 
-        $output .= '</div>';
-    }
+		$output .= '</div>';
+	}
 
-    $output .= '</div></div>';
+	$output .= '</div></div>';
 
-    return $output;
+	return $output;
 }

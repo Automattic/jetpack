@@ -9,7 +9,6 @@
  * Top Posts & Pages block endpoint.
  */
 use Automattic\Jetpack\Stats\WPCOM_Stats;
-use Automattic\Jetpack\Status;
 
 class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
     /**
@@ -28,8 +27,8 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
             '/post-types',
             array(
                 array(
-                    'methods'    => WP_REST_Server::READABLE,
-                    'callback'   => array( $this, 'get_post_types' ),
+                    'methods'             => WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_post_types' ),
                     'permission_callback' => function () {
                         return current_user_can( 'edit_posts' );
                     },
@@ -44,9 +43,9 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
             '/top-posts',
             array(
                 array(
-                    'methods'    => WP_REST_Server::READABLE,
-                    'callback'   => array( $this, 'get_top_posts' ),
-                    'args'       => array(
+                    'methods'  => WP_REST_Server::READABLE,
+                    'callback' => array( $this, 'get_top_posts' ),
+                    'args'     => array(
                         'period' => array(
                             'description'       => __( 'Timeframe for stats.', 'jetpack' ),
                             'type'              => array('string', 'integer'),
@@ -63,7 +62,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
                                 return is_numeric( $param );
                             },
                         ),
-                        'types' => array(
+                        'types'  => array(
                             'description'       => __( 'Types of content to include.', 'jetpack' ),
                             'type'              => 'string',
                             'required'          => false,
@@ -84,8 +83,8 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
      *
      * @return array Site's post types.
      */
-    public function get_post_types( $request ) {
-        $post_types = array_values( get_post_types( array( 'public' => true ) ) );
+    public function get_post_types() {
+        $post_types       = array_values( get_post_types( array( 'public' => true ) ) );
         $post_types_array = array();
 
         foreach ( $post_types as $type ) {
