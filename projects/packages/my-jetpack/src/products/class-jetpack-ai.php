@@ -281,10 +281,10 @@ class Jetpack_Ai extends Product {
 		}
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				if ( 0 === strpos( $purchase->product_slug, static::get_wpcom_product_slug() ) ) {
+				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_product_slug() ) ) {
 					return true;
 				}
-				if ( 0 === strpos( $purchase->product_slug, static::get_wpcom_monthly_product_slug() ) ) {
+				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_monthly_product_slug() ) ) {
 					return true;
 				}
 			}

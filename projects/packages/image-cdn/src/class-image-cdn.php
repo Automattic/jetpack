@@ -422,7 +422,7 @@ final class Image_CDN {
 					// WP Attachment ID, if uploaded to this site.
 					if (
 						preg_match( '#class=["\']?[^"\']*wp-image-([\d]+)[^"\']*["\']?#i', $images['img_tag'][ $index ], $attachment_id ) &&
-						0 === strpos( $src, $upload_dir['baseurl'] ) &&
+						str_starts_with( $src, $upload_dir['baseurl'] ) &&
 						/**
 						 * Filter whether an image using an attachment ID in its class has to be uploaded to the local site to go through Photon.
 						 *
@@ -511,7 +511,7 @@ final class Image_CDN {
 					}
 
 					// Build URL, first maybe removing WP's resized string so we pass the original image to Photon.
-					if ( ! $fullsize_url && 0 === strpos( $src, $upload_dir['baseurl'] ) ) {
+					if ( ! $fullsize_url && str_starts_with( $src, $upload_dir['baseurl'] ) ) {
 						$src = self::strip_image_dimensions_maybe( $src );
 					}
 

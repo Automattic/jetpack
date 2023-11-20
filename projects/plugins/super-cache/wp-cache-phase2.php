@@ -825,7 +825,7 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 			}
 		} else {
 			$uri = str_replace( $site_url, '', $permalink );
-			if ( strpos( $uri, $wp_cache_home_path ) !== 0 ) {
+			if ( ! str_starts_with( $uri, $wp_cache_home_path ) ) {
 				$uri = rtrim( $wp_cache_home_path, '/' ) . $uri;
 			}
 		}
@@ -3529,7 +3529,7 @@ if ( ! function_exists( 'apache_request_headers' ) ) {
 		$headers = array();
 
 		foreach ( array_keys( $_SERVER ) as $skey ) {
-			if ( 0 === strpos( $skey, 'HTTP_' ) ) {
+			if ( str_starts_with( $skey, 'HTTP_' ) ) {
 				$header             = implode( '-', array_map( 'ucfirst', array_slice( explode( '_', strtolower( $skey ) ), 1 ) ) );
 				$headers[ $header ] = $_SERVER[ $skey ];
 			}
