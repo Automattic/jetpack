@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Update string functions to use PHP8 or polyfills
-
-
