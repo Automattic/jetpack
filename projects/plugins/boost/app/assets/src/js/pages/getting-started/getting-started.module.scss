@@ -1,9 +1,9 @@
 .pricing-table {
 	isolation: isolate;
+}
 
-	h2 {
-		font-size: 36px !important;
-		font-weight: 700 !important;
-		line-height: 40px !important;
-	}
+:global(.jb-dashboard) .pricing-table h2 {
+	font-size: 36px;
+	font-weight: 700;
+	line-height: 40px;
 }
