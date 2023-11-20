@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Rearrange the code for readability and make use of specific calls on different contexts. Leave comments behind for the future
