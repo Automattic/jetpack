@@ -65,9 +65,10 @@ const useDaysUntilReset = ( nextStartDate: string ): number => {
 		) - Date.now();
 
 	/*
-	 * Convert the difference in miliseconds to days. Use floor to round down.
+	 * Convert the difference in miliseconds to days. Use ceil to round up,
+	 * counting partial days as a full day.
 	 */
-	return Math.floor( differenceInMiliseconds / ( 1000 * 60 * 60 * 24 ) );
+	return Math.ceil( differenceInMiliseconds / ( 1000 * 60 * 60 * 24 ) );
 };
 
 export default function UsagePanel() {
