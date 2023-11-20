@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Snackbar } from '@wordpress/components';
 import { initializeConnection, getUpgradeURL } from '$lib/stores/connection';
 import { recordBoostEvent } from '$lib/utils/analytics';
@@ -25,11 +25,12 @@ const GettingStarted: React.FC< GettingStartedProps > = ( {
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
 	const [ snackbarMessage, setSnackbarMessage ] = useState< string >( '' );
 
-	if ( false !== selectedPlan ) {
-		initialize( selectedPlan );
-	}
-
-	async function initialize( plan: 'free' | 'premium' ) {
+	async function initialize(
+		plan: 'free' | 'premium',
+		isPremiumValue: boolean,
+		domainValue: string,
+		userConnectedValue: boolean
+	) {
 		try {
 			// Make sure there is a Jetpack connection
 			await initializeConnection();
@@ -41,13 +42,14 @@ const GettingStarted: React.FC< GettingStartedProps > = ( {
 			recordBoostEvent( `${ plan }_cta_from_getting_started_page_in_plugin`, {} );
 
 			// Go to the purchase flow if the user doesn't have a premium plan.
-			if ( ! isPremium && plan === 'premium' ) {
-				window.location.href = getUpgradeURL( domain, userConnected );
+			if ( ! isPremiumValue && plan === 'premium' ) {
+				window.location.href = getUpgradeURL( domainValue, userConnectedValue );
+			} else {
+				// Otherwise go to dashboard home.
+				// @todo - fix when react routing
+				// navigate( '/', { replace: true } );
+				navigate( '/' );
 			}
-			// Otherwise go to dashboard home.
-			// @todo - fix when react routing
-			// navigate( '/', { replace: true } );
-			navigate( '/' );
 		} catch ( e ) {
 			// Display the error in a snackbar message
 			setSnackbarMessage( e.message || 'Unknown error occurred during the plan selection.' );
@@ -55,6 +57,12 @@ const GettingStarted: React.FC< GettingStartedProps > = ( {
 			setSelectedPlan( false );
 		}
 	}
+
+	useEffect( () => {
+		if ( false !== selectedPlan ) {
+			initialize( selectedPlan, isPremium, domain, userConnected );
+		}
+	}, [ selectedPlan, isPremium, domain, userConnected ] );
 
 	return (
 		<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
