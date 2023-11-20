@@ -17,14 +17,12 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 	}
 
 	if ( empty( $filename ) ) {
-
 		jetpack_wpcom_maybe_log_heif_to_jpg(
 			array(
 				'message'  => 'file path is empty',
 				'severity' => 'error',
 			)
 		);
-
 		return false;
 	}
 
@@ -35,7 +33,6 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 				'severity' => 'error',
 			)
 		);
-
 		return false;
 	}
 
