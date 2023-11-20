@@ -303,9 +303,10 @@ async function changelogAdd( argv ) {
 		if ( needChangelog.length === 0 ) {
 			console.log(
 				chalk.green(
-					'Did not detect a touched project that still need a changelog. You can still add a changelog manually.'
+					'Did not detect a touched project that still need a changelog. You can still add a changelog manually by running `jetpack changelog add <type/project>'
 				)
 			);
+			return;
 		}
 	}
 
@@ -447,7 +448,6 @@ async function changelogArgs( argv ) {
 	// Remove the project from the list of args we're passing to changelogger.
 	argv = await removeArgs( argv, removeArg );
 
-	console.log( argv.args );
 	// Run the changelogger command.
 	await changeloggerCli( argv );
 
