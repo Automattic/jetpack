@@ -1,5 +1,4 @@
 Significance: patch
-Type: compat
-Comment: Code
+Type: other
 
-
+Code modernization: Replace usage of substr() with str_starts_with() and str_ends_with().
