@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Code Modernization: Replace usage of strpos() with str_starts_with().
