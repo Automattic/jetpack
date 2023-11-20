@@ -357,6 +357,28 @@ async function changelogAdd( argv ) {
 		}
 		return;
 	}
+
+	if ( promptConfirm.multiDifferentConfirm ) {
+		for ( const proj of needChangelog ) {
+			const defaultTypes = {
+				security: 'Improves or modifies the security of the project.',
+				added: 'Added new functionality.',
+				changed: 'Changed existing functionality.',
+				deprecated: 'Deprecated existing functionality.',
+				removed: 'Removed existing functionality.',
+				fixed: 'Fixed a bug.',
+			};
+			const response = await promptChangelog(
+				argv,
+				defaultProjects,
+				projectChangeTypes[ proj ] ? projectChangeTypes[ proj ] : defaultTypes
+			);
+			console.log( chalk.green( `Running changelogger for ${ proj }!` ) );
+			argv = await formatAutoArgs( proj, argv, response );
+			await changelogArgs( argv );
+		}
+		return;
+	}
 }
 
 /**
@@ -819,7 +841,7 @@ async function changelogAddPrompt( argv, needChangelog, uniqueProjects ) {
 				type: 'confirm',
 				name: 'multiDifferentConfirm',
 				message: 'Create changelog for each project individually?',
-				when: answers => ! answers.autoAdd,
+				when: answers => ! answers.multiSameConfirm,
 			},
 		] );
 		return response;
@@ -830,13 +852,13 @@ async function changelogAddPrompt( argv, needChangelog, uniqueProjects ) {
 		{
 			type: 'confirm',
 			name: 'multiSameConfirm',
-			message: `Found ${ needChangelog.length } projects that can accept the same changelog file.\n  Found ${ uniqueProjects.length } project(s) that requires manual configuration. \n  Add same changelog file to ${ needChangelog.length } project(s)?`,
+			message: `Found ${ needChangelog.length } projects that can accept the same changelog file.\n  Found ${ uniqueProjects.length } project(s) that requires a separate changelog configuration. \n  Add same changelog file to ${ needChangelog.length } project(s)?`,
 		},
 		{
 			type: 'confirm',
 			name: 'autoPrompt',
 			message: 'Create changelog for each project individually?',
-			when: answers => ! answers.autoAdd,
+			when: answers => ! answers.multiSameConfirm,
 		},
 	] );
 	return response;
