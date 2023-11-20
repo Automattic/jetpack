@@ -267,11 +267,11 @@ function jetpack_boost_page_optimize_build_output() {
 			);
 
 			// The @charset rules must be on top of the output
-			if ( 0 === strpos( $buf, '@charset' ) ) {
+			if ( str_starts_with( $buf, '@charset' ) ) {
 				preg_replace_callback(
 					'/(?P<charset_rule>@charset\s+[\'"][^\'"]+[\'"];)/i',
 					function ( $match ) use ( &$pre_output ) {
-						if ( 0 === strpos( $pre_output, '@charset' ) ) {
+						if ( str_starts_with( $pre_output, '@charset' ) ) {
 							return '';
 						}
 
@@ -289,7 +289,7 @@ function jetpack_boost_page_optimize_build_output() {
 				$buf = preg_replace_callback(
 					'/(?P<pre_path>@import\s+(?:url\s*\()?[\'"\s]*)(?P<path>[^\'"\s](?:https?:\/\/.+\/?)?.+?)(?P<post_path>[\'"\s\)]*;)/i',
 					function ( $match ) use ( $dirpath, &$pre_output ) {
-						if ( 0 !== strpos( $match['path'], 'http' ) && '/' !== $match['path'][0] ) {
+						if ( ! str_starts_with( $match['path'], 'http' ) && '/' !== $match['path'][0] ) {
 							$pre_output .= $match['pre_path'] . ( $dirpath === '/' ? '/' : $dirpath . '/' ) .
 											$match['path'] . $match['post_path'] . "\n";
 						} else {

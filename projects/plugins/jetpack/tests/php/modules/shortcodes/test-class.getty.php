@@ -61,7 +61,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 	}
 
 	public function getty_oembed_response( $html, $url ) {
-		if ( 0 !== strpos( $url, 'https://gty.im/' ) ) {
+		if ( ! str_starts_with( $url, 'https://gty.im/' ) ) {
 			return $html;
 		}
 

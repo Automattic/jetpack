@@ -220,7 +220,7 @@ class Options extends Module {
 		$options       = array();
 		$random_string = wp_generate_password();
 		foreach ( $this->options_whitelist as $option ) {
-			if ( 0 === strpos( $option, Settings::SETTINGS_OPTION_PREFIX ) ) {
+			if ( str_starts_with( $option, Settings::SETTINGS_OPTION_PREFIX ) ) {
 				$option_value       = Settings::get_setting( str_replace( Settings::SETTINGS_OPTION_PREFIX, '', $option ) );
 				$options[ $option ] = $option_value;
 			} else {
@@ -461,7 +461,7 @@ class Options extends Module {
 			$random_string = wp_generate_password();
 			// Only whitelisted options can be returned.
 			if ( in_array( $id, $this->options_whitelist, true ) ) {
-				if ( 0 === strpos( $id, Settings::SETTINGS_OPTION_PREFIX ) ) {
+				if ( str_starts_with( $id, Settings::SETTINGS_OPTION_PREFIX ) ) {
 					$option_value = Settings::get_setting( str_replace( Settings::SETTINGS_OPTION_PREFIX, '', $id ) );
 					return $option_value;
 				} else {
