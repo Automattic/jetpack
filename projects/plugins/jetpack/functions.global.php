@@ -34,7 +34,7 @@ require_once __DIR__ . '/functions.is-mobile.php';
  */
 function jetpack_deprecated_function( $function, $replacement, $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	// Bail early for non-Jetpack deprecations.
-	if ( 0 !== strpos( $version, 'jetpack-' ) ) {
+	if ( ! str_starts_with( $version, 'jetpack-' ) ) {
 		return;
 	}
 
@@ -74,7 +74,7 @@ add_action( 'deprecated_function_run', 'jetpack_deprecated_function', 10, 3 );
  */
 function jetpack_deprecated_file( $file, $replacement, $version, $message ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	// Bail early for non-Jetpack deprecations.
-	if ( 0 !== strpos( $version, 'jetpack-' ) ) {
+	if ( ! str_starts_with( $version, 'jetpack-' ) ) {
 		return;
 	}
 

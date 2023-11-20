@@ -651,7 +651,7 @@ class Jetpack_Recipes {
 
 		// Check if it's an absolute or relative URL, and return if not.
 		if (
-			0 !== strpos( $src, '/' )
+			! str_starts_with( $src, '/' )
 			&& false === filter_var( $src, FILTER_VALIDATE_URL )
 		) {
 			return '';

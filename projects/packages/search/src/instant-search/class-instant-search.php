@@ -459,7 +459,7 @@ class Instant_Search extends Classic_Search {
 					// The array index of wp search widget.
 					$sidebar_searchbox_idx = $idx;
 				}
-				if ( 0 === strpos( $widget_id, Helper::FILTER_WIDGET_BASE ) ) {
+				if ( str_starts_with( $widget_id, Helper::FILTER_WIDGET_BASE ) ) {
 					// The id of Jetpack Search widget.
 					$sidebar_jp_searchbox_id = str_replace( Helper::FILTER_WIDGET_BASE . '-', '', $widget_id );
 				}
@@ -475,11 +475,11 @@ class Instant_Search extends Classic_Search {
 	 */
 	protected function widget_has_search_block( $widget_id ) {
 		// test search widget.
-		if ( 0 === strpos( $widget_id, 'search-' ) ) {
+		if ( str_starts_with( $widget_id, 'search-' ) ) {
 			return true;
 		}
 		// test search block widget.
-		if ( 0 === strpos( $widget_id, 'block-' ) ) {
+		if ( str_starts_with( $widget_id, 'block-' ) ) {
 			$widget_blocks = get_option( 'widget_block', array() );
 			$widget_index  = str_replace( 'block-', '', $widget_id );
 			// A single block could be of type string or array.

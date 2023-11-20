@@ -66,7 +66,7 @@ abstract class Base_Admin_Menu {
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
-		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || isset( $_SERVER['REQUEST_URI'] ) && 0 === strpos( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || isset( $_SERVER['REQUEST_URI'] ) && str_starts_with( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
 		$this->domain         = ( new Status() )->get_site_suffix();
 
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
@@ -450,7 +450,7 @@ abstract class Base_Admin_Menu {
 				$menu_item[5] = preg_replace( '![:/.]+!', '_', $menu_item[5] );
 			}
 
-			if ( 0 === strpos( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
+			if ( str_starts_with( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
 				$svg_items[]   = array(
 					'icon' => $menu_item[6],
 					'id'   => $menu_item[5],

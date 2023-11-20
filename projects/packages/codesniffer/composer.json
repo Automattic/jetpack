@@ -12,6 +12,7 @@
 		"testing"
 	],
 	"require": {
+		"php": ">=7.4",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
 		"mediawiki/mediawiki-codesniffer": "^41.0",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
@@ -34,9 +35,6 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"skip-test-php": [
-			"./tests/action-skip-test-php.sh"
 		],
 		"test-php": [
 			"@composer phpunit"

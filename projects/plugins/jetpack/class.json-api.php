@@ -294,7 +294,7 @@ class WPCOM_JSON_API {
 					$this->content_type = 'application/x-www-form-urlencoded';
 				}
 
-				if ( 0 === strpos( strtolower( $this->content_type ), 'multipart/' ) ) {
+				if ( str_starts_with( strtolower( $this->content_type ), 'multipart/' ) ) {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$this->post_body    = http_build_query( stripslashes_deep( $_POST ) );
 					$this->files        = $_FILES;

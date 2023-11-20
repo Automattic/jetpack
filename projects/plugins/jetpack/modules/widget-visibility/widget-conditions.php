@@ -1167,9 +1167,9 @@ class Jetpack_Widget_Conditions {
 						$rule_type = false;
 
 						// Post type or type archive rule.
-						if ( 0 === strpos( $rule['minor'], 'post_type_archive' ) ) {
+						if ( str_starts_with( $rule['minor'], 'post_type_archive' ) ) {
 							$rule_type = 'post_type_archive';
-						} elseif ( 0 === strpos( $rule['minor'], 'post_type' ) ) {
+						} elseif ( str_starts_with( $rule['minor'], 'post_type' ) ) {
 							$rule_type = 'post_type';
 						}
 

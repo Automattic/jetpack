@@ -12,7 +12,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "fd0107efb4a3e0f3c2d37c6955a1c83b172e1499"
+                "reference": "8f53628f970ba5bc8912232a574aa439e7236311"
+            },
+            "require": {
+                "php": ">=7.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -29,7 +32,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-device-detection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.5.x-dev"
+                    "dev-trunk": "2.0.x-dev"
                 }
             },
             "autoload": {

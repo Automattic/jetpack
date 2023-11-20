@@ -24,7 +24,7 @@ class WP_Test_Jetpack_Shortcodes_Tweet extends WP_UnitTestCase {
 	}
 
 	public function pre_http_request( $response, $args, $url ) {
-		if ( 0 !== strpos( $url, 'https://publish.twitter.com/oembed?' ) ) {
+		if ( ! str_starts_with( $url, 'https://publish.twitter.com/oembed?' ) ) {
 			return $response;
 		}
 

@@ -551,7 +551,7 @@ jQuery( function() {
 			$post_data['post_content']          = $this->transform( $post_data['post_content'], array( 'id' => $post_id ) );
 			/** This filter is already documented in core/wp-includes/default-filters.php */
 			$post_data['post_content'] = apply_filters( 'content_save_pre', $post_data['post_content'] );
-		} elseif ( 0 === strpos( $post_data['post_name'], $post_data['post_parent'] . '-autosave' ) ) {
+		} elseif ( str_starts_with( $post_data['post_name'], $post_data['post_parent'] . '-autosave' ) ) {
 			// autosaves for previews are weird.
 			/** This filter is already documented in modules/markdown/easy-markdown.php */
 			$post_data['post_content_filtered'] = apply_filters( 'wpcom_untransformed_content', $post_data['post_content'] );

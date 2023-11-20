@@ -1024,7 +1024,7 @@ class The_Neverending_Home_Page {
 			}
 
 			// Slashes everywhere we need them
-			if ( 0 !== strpos( $path, '/' ) ) {
+			if ( ! str_starts_with( $path, '/' ) ) {
 				$path = '/' . $path;
 			}
 
@@ -1152,7 +1152,7 @@ class The_Neverending_Home_Page {
 					// Jetpack block scripts should always be sent, even if they've been
 					// sent before. These scripts only run once on when loaded, they don't
 					// watch for new blocks being added.
-					if ( 0 === strpos( $script_name, 'jetpack-block-' ) ) {
+					if ( str_starts_with( $script_name, 'jetpack-block-' ) ) {
 						return true;
 					}
 

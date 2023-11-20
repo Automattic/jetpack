@@ -2031,7 +2031,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 						foreach ( $base_paths as $base_path ) {
 
 							// only copy hooks with functions which are part of the specified files.
-							if ( 0 === strpos( $file_name, $base_path ) ) {
+							if ( str_starts_with( $file_name, $base_path ) ) {
 								add_action(
 									$to_hook,
 									$callback_data['function'],
@@ -2347,7 +2347,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				if ( ! empty( $id3_meta ) ) {
 					// Before updating metadata, ensure that the item is audio.
 					$item = $this->get_media_item_v1_1( $media_id );
-					if ( 0 === strpos( $item->mime_type, 'audio/' ) ) {
+					if ( str_starts_with( $item->mime_type, 'audio/' ) ) {
 						wp_update_attachment_metadata( $media_id, $id3_meta );
 					}
 				}
