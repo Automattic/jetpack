@@ -1,11 +1,15 @@
-.foldable-element-control {
-	color: var( --primary-black ) !important;
-	font-size: 16px !important;
-	margin-bottom: 24px !important;
+:global(.jb-dashboard .components-button.is-link) {
+	&.foldable-element-control {
+		color: var( --primary-black );
+		font-size: 16px;
+		margin-bottom: 24px;
+	}
 }
 
-.foldable-element-control.visible {
-	margin-bottom: 0 !important;
+:global(.jb-dashboard .components-button.is-link) {
+	&.foldable-element-control.visible {
+		margin-bottom: 0;
+	}
 }
 
 @keyframes fadeIn {
