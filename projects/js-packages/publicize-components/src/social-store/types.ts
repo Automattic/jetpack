@@ -7,15 +7,37 @@ export type SharesData = {
 	shared_posts_count: number;
 };
 
+export type Connection = {
+	id: string;
+	service_name: string;
+	display_name: string;
+	username: string;
+	enabled: boolean;
+	done: boolean;
+	toggleable: boolean;
+	connection_id: string;
+};
+
+export type ConnectionData = {
+	connections: Connection[];
+};
+
 export type JetpackSettings = {
 	showNudge?: boolean;
 };
 
 // TODO we should have a consistent structure across all the pages - editor, dashboard, admin page etc.
 export type SocialStoreState = {
+	connectionData: ConnectionData;
 	sharesData: SharesData;
 	// on post editor
 	hasPaidPlan?: boolean;
 	// on Jetack Social admin page
 	jetpackSettings?: JetpackSettings;
 };
+
+declare global {
+	interface Window {
+		jetpackSocialInitialState?: SocialStoreState;
+	}
+}

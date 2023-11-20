@@ -1,4 +1,4 @@
-import { SET_CONNECTIONS, TOGGLE_CONNECTION } from '../actions/connection-data';
+import { SET_CONNECTIONS, TOGGLE_CONNECTION } from '../actions/constants';
 
 const connectionData = ( state = {}, action ) => {
 	switch ( action.type ) {
