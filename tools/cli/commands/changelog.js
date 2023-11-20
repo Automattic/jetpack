@@ -867,10 +867,14 @@ async function changelogAddPrompt( argv, needChangelog, uniqueProjects ) {
 		},
 		{
 			type: 'confirm',
-			name: 'autoPrompt',
+			name: 'separateChangelogFiles',
 			message: 'Create changelog for each project individually?',
 			when: answers => ! answers.sameChangelogFiles,
 		},
 	] );
+
+	if ( ! response.sameChangelogFiles && ! response.separateChangelogFiles ) {
+		return false;
+	}
 	return response;
 }
