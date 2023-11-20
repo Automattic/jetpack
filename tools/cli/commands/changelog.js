@@ -347,7 +347,7 @@ async function changelogAdd( argv ) {
 	);
 
 	// If we're adding a single changelog or adding the same changelog to multiple projects:
-	if ( promptConfirm.changelogConfirm || promptConfirm.multiSameConfirm ) {
+	if ( promptConfirm.changelogConfirm || promptConfirm.sameChangelogFiles ) {
 		if ( defaultProjects.length > 0 ) {
 			console.log(
 				chalk.green(
@@ -373,7 +373,7 @@ async function changelogAdd( argv ) {
 	}
 
 	// If we want to add changelogs to multiple projects individually.
-	if ( promptConfirm.multiDifferentConfirm ) {
+	if ( promptConfirm.separateChangelogFiles ) {
 		for ( const proj of needChangelog ) {
 			const response = await promptChangelog(
 				argv,
@@ -841,18 +841,18 @@ async function changelogAddPrompt( argv, needChangelog, uniqueProjects ) {
 		const response = await inquirer.prompt( [
 			{
 				type: 'confirm',
-				name: 'multiSameConfirm',
+				name: 'sameChangelogFiles',
 				message: `Found ${ needChangelog.length } project(s) that need a changelog. Create and add same changelog to all projects?`,
 			},
 			{
 				type: 'confirm',
-				name: 'multiDifferentConfirm',
+				name: 'separateChangelogFiles',
 				message: 'Create changelog for each project individually?',
-				when: answers => ! answers.multiSameConfirm,
+				when: answers => ! answers.sameChangelogFiles,
 			},
 		] );
 
-		if ( ! response.multiSameConfirm && ! response.multiDifferentConfirm ) {
+		if ( ! response.sameChangelogFiles && ! response.separateChangelogFiles ) {
 			return false;
 		}
 		return response;
@@ -862,14 +862,14 @@ async function changelogAddPrompt( argv, needChangelog, uniqueProjects ) {
 	const response = await inquirer.prompt( [
 		{
 			type: 'confirm',
-			name: 'multiSameConfirm',
+			name: 'sameChangelogFiles',
 			message: `Found ${ needChangelog.length } projects that can accept the same changelog file.\n  Found ${ uniqueProjects.length } project(s) that requires a separate changelog configuration. \n  Add same changelog file to ${ needChangelog.length } project(s)?`,
 		},
 		{
 			type: 'confirm',
 			name: 'autoPrompt',
 			message: 'Create changelog for each project individually?',
-			when: answers => ! answers.multiSameConfirm,
+			when: answers => ! answers.sameChangelogFiles,
 		},
 	] );
 	return response;
