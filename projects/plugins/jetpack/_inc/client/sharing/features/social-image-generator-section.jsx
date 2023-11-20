@@ -10,7 +10,7 @@ import './style.scss';
 const SocialImageGeneratorSection = () => {
 	return (
 		<FormFieldset>
-			<SocialImageGeneratorToggle shouldRefresh toggleClass="jp-settings-sharing__sig-toggle">
+			<SocialImageGeneratorToggle toggleClass="jp-settings-sharing__sig-toggle">
 				<div>
 					<Text>
 						<strong>{ __( 'Enable Social Image Generator', 'jetpack' ) }</strong>
