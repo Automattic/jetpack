@@ -21,6 +21,7 @@ const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
 	 */
 	if ( issues.length === 0 ) {
 		navigate( '/' );
+		return null;
 	}
 
 	const dismissedIssues = issues.filter( issue => issue.error_status === 'dismissed' );
