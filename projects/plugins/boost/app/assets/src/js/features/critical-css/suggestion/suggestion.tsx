@@ -31,7 +31,7 @@ const Suggestion: React.FC< SuggestionTypes > = ( {
 				<NumberedList items={ suggestion( errorSet ).list } interpolateVars={ interpolateVars } />
 			) }
 
-			{ showClosingParagraph && !! suggestion( errorSet ).closingParagraph && (
+			{ showClosingParagraph && suggestion( errorSet ).closingParagraph && (
 				<p className={ styles[ 'suggestion-closing' ] }>
 					{ createInterpolateElement( suggestion( errorSet ).closingParagraph, interpolateVars ) }
 				</p>
