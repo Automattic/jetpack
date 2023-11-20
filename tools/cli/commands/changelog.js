@@ -292,6 +292,14 @@ async function changelogAdd( argv ) {
 	let needChangelog;
 	const defaultProjects = [];
 	const uniqueProjects = [];
+	const defaultTypes = {
+		security: 'Improves or modifies the security of the project.',
+		added: 'Added new functionality.',
+		changed: 'Changed existing functionality.',
+		deprecated: 'Deprecated existing functionality.',
+		removed: 'Removed existing functionality.',
+		fixed: 'Fixed a bug.',
+	};
 
 	if ( argv.project ) {
 		needChangelog = [ argv.project ];
@@ -318,31 +326,36 @@ async function changelogAdd( argv ) {
 			uniqueProjects.push( proj );
 		} else {
 			defaultProjects.push( proj );
+			projectChangeTypes[ proj ] = defaultTypes;
 		}
 	}
+
+	// Confirm what projects we're adding a changelog to, and how we want to add them.
 	const promptConfirm = await changelogAddPrompt( argv, defaultProjects, uniqueProjects );
 
+	if ( ! promptConfirm ) {
+		console.log( 'Changelog command cancelled' );
+		return;
+	}
+
 	console.log(
-		chalk.green(
+		chalk.yellow(
 			"When writing your changelog entry, please use the format 'Subject: change description.'\n" +
 				'Here is an example of a good changelog entry:\n' +
 				'  Sitemaps: ensure that the Home URL is slashed on subdirectory websites.\n'
 		)
 	);
 
+	// If we're adding a single changelog or adding the same changelog to multiple projects:
 	if ( promptConfirm.changelogConfirm || promptConfirm.multiSameConfirm ) {
 		if ( defaultProjects.length > 0 ) {
 			console.log(
-				chalk.green( `Running changelogger for ${ defaultProjects.length } project(s)!` )
+				chalk.green(
+					`Running changelogger for ${
+						defaultProjects.length
+					} project(s):\n\t${ defaultProjects.join( '\n\t' ) }`
+				)
 			);
-			const defaultTypes = {
-				security: 'Improves or modifies the security of the project.',
-				added: 'Added new functionality.',
-				changed: 'Changed existing functionality.',
-				deprecated: 'Deprecated existing functionality.',
-				removed: 'Removed existing functionality.',
-				fixed: 'Fixed a bug.',
-			};
 			const response = await promptChangelog( argv, defaultProjects, defaultTypes );
 			for ( const proj of defaultProjects ) {
 				argv = await formatAutoArgs( proj, argv, response );
@@ -359,19 +372,12 @@ async function changelogAdd( argv ) {
 		return;
 	}
 
+	// If we want to add changelogs to multiple projects individually.
 	if ( promptConfirm.multiDifferentConfirm ) {
 		for ( const proj of needChangelog ) {
-			const defaultTypes = {
-				security: 'Improves or modifies the security of the project.',
-				added: 'Added new functionality.',
-				changed: 'Changed existing functionality.',
-				deprecated: 'Deprecated existing functionality.',
-				removed: 'Removed existing functionality.',
-				fixed: 'Fixed a bug.',
-			};
 			const response = await promptChangelog(
 				argv,
-				defaultProjects,
+				proj,
 				projectChangeTypes[ proj ] ? projectChangeTypes[ proj ] : defaultTypes
 			);
 			console.log( chalk.green( `Running changelogger for ${ proj }!` ) );
@@ -729,6 +735,7 @@ async function promptVersion( argv ) {
  * @returns {argv}.
  */
 async function promptChangelog( argv, needChangelog, types ) {
+	console.log( types );
 	const gitBranch = child_process
 		.spawnSync( 'git', [ 'branch', '--show-current' ] )
 		.stdout.toString()
@@ -757,7 +764,7 @@ async function promptChangelog( argv, needChangelog, types ) {
 		{
 			type: 'list',
 			name: 'significance',
-			message: 'Significance of the change, in the style of semantic versioning<<<<<<<<>>>>>>',
+			message: 'Significance of the change, in the style of semantic versioning.',
 			choices: [
 				{
 					value: 'patch',
@@ -844,6 +851,10 @@ async function changelogAddPrompt( argv, needChangelog, uniqueProjects ) {
 				when: answers => ! answers.multiSameConfirm,
 			},
 		] );
+
+		if ( ! response.multiSameConfirm && ! response.multiDifferentConfirm ) {
+			return false;
+		}
 		return response;
 	}
 
