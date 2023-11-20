@@ -715,8 +715,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
-		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . ">\n";
+		$label_ns     = 'contact-form-label';
+		$label_id_key = "$label_ns-id";
+		$label_id_val = "$label_ns-$id";
+
+		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text, array( 'id' => $label_id_val ) );
+		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . "data-$label_id_key='" . esc_attr( $label_id_val ) . "'>\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
