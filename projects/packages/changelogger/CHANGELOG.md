@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2023-11-20
+### Changed
+- General: updated PHP requirement to PHP 7.0+ [#34126]
+
 ## [3.3.11] - 2023-09-28
 ### Changed
 - Minor internal updates.
@@ -179,6 +183,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[4.0.0]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.11...4.0.0
 [3.3.11]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.10...3.3.11
 [3.3.10]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.9...3.3.10
 [3.3.9]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.8...3.3.9

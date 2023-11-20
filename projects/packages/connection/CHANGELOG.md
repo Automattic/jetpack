@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2023-11-20
+### Added
+- Confirm blog ID and access token were saved before proceeding with connection flow. [#34136]
+
+### Changed
+- Code Modernization: Replace usage of strpos() with str_starts_with(). [#34135]
+- The package now requires PHP >= 7.0. [#34192]
+
+### Fixed
+- Connection: ensure that partner partners are passed on during the connection process, regardless of the plugin you use to connect. [#33832]
+
 ## [1.60.1] - 2023-11-14
 ### Changed
 - Updated package dependencies. [#34093]
@@ -912,6 +923,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[2.0.0]: https://github.com/Automattic/jetpack-connection/compare/v1.60.1...v2.0.0
 [1.60.1]: https://github.com/Automattic/jetpack-connection/compare/v1.60.0...v1.60.1
 [1.60.0]: https://github.com/Automattic/jetpack-connection/compare/v1.59.0...v1.60.0
 [1.59.0]: https://github.com/Automattic/jetpack-connection/compare/v1.58.3...v1.59.0

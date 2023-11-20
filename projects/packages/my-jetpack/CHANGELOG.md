@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2023-11-20
+### Added
+- Display an "Activity Log" menu item to connected users. [#34174]
+- My Jetpack: Add direct checkout support for products with quantity-based plans [#34177]
+- My Jetpack: Add Jetpack AI prices by tier to the interstitial page [#34196]
+
+### Changed
+- Code Modernization: Replace usage of strpos() with str_starts_with(). [#34135]
+- General: updated PHP requirement to PHP 7.0+ [#34126]
+- Remove condition from the backup undoable event call, this datapoint will be removed [#33997]
+
 ## [3.12.2] - 2023-11-14
 ### Changed
 - My Jetpack: Fix a bug causing PHP fatal errors when the Jetpack AI feature information is not available. [#34095]
@@ -1099,6 +1110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.12.2...4.0.0
 [3.12.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.12.1...3.12.2
 [3.12.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.12.0...3.12.1
 [3.12.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.11.1...3.12.0
