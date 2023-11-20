@@ -118,7 +118,7 @@ function TopPostsEdit( { attributes, className, setAttributes } ) {
 
 	useEffect( () => {
 		updatePostsDisplay( postsData );
-	}, [ attributes, postsData ] );
+	}, [ attributes, postsData, updatePostsDisplay ] );
 
 	if ( ! isModuleActive && ! isLoadingModules ) {
 		return (

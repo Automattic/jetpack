@@ -28,7 +28,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Top Posts block registration/dependency declaration.
  *
- * @param array  $attributes Array containing the Top Posts block attributes.
+ * @param array $attributes Array containing the Top Posts block attributes.
  *
  * @return string
  */
@@ -36,7 +36,7 @@ function load_assets( $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	/*
-	 * We cannot rely on obtaining posts from the block because 
+	 * We cannot rely on obtaining posts from the block because
 	 * top posts might have changed since then. As such, we must
 	 * make another request to check for updated stats.
 	 */

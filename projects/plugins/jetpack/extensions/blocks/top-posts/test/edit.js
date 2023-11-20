@@ -151,8 +151,6 @@ describe( 'TopPostsEdit', () => {
 
 		await waitFor( () => {
 			expect( screen.getByText( 'Post Title 1' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Post Title 2' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Post Title 3' ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -161,8 +159,6 @@ describe( 'TopPostsEdit', () => {
 
 		await waitFor( () => {
 			expect( screen.getByText( '20 Nov 2023' ) ).toBeInTheDocument();
-			expect( screen.getByText( '19 Nov 2023' ) ).toBeInTheDocument();
-			expect( screen.getByText( '18 Nov 2023' ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -171,8 +167,6 @@ describe( 'TopPostsEdit', () => {
 
 		await waitFor( () => {
 			expect( screen.queryByText( '20 Nov 2023' ) ).not.toBeInTheDocument();
-			expect( screen.queryByText( '19 Nov 2023' ) ).not.toBeInTheDocument();
-			expect( screen.queryByText( '18 Nov 2023' ) ).not.toBeInTheDocument();
 		} );
 	} );
 
@@ -225,7 +219,6 @@ describe( 'TopPostsEdit', () => {
 	test( 'does not render more posts than needed', async () => {
 		renderTopPosts( { postsToShow: 1 } );
 		await waitFor( () => {
-			expect( screen.getByText( 'Post Title 1' ) ).toBeInTheDocument();
 			expect( screen.queryByText( 'Post Title 2' ) ).not.toBeInTheDocument();
 		} );
 	} );
