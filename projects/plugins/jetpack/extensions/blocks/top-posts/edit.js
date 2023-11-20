@@ -116,7 +116,16 @@ function TopPostsEdit( { attributes, className, setAttributes } ) {
 		}
 
 		setPostsToDisplay( newPosts );
-	}, [ attributes, postsData, setPostsToDisplay ] );
+	}, [
+		displayAuthor,
+		displayContext,
+		displayDate,
+		displayThumbnail,
+		postsData,
+		postTypes,
+		postsToShow,
+		setPostsToDisplay,
+	] );
 
 	if ( ! isModuleActive && ! isLoadingModules ) {
 		return (

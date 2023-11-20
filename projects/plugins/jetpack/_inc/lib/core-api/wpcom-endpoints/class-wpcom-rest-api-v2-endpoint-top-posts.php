@@ -104,7 +104,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 	 */
 	public function get_top_posts( $request ) {
 		$period        = $request->get_param( 'period' );
-        $all_time_days = floor( ( time() - strtotime( get_option( 'site_created_date' ) ) ) / ( 60 * 60 * 24 * 365 ) );
+        	$all_time_days = floor( ( time() - strtotime( get_option( 'site_created_date' ) ) ) / ( 60 * 60 * 24 * 365 ) );
 
 		// While we only display ten posts, users can filter out content types.
 		// As such, we should obtain a few spare posts from the Stats endpoint.
@@ -160,7 +160,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 			if ( $post['public'] ) {
 				$top_posts[] = array(
 					'id'        => $post_id,
-					'author'    => get_the_author_meta( 'display_name', get_post_field( 'post_author', $post_id ) ) ,
+					'author'    => get_the_author_meta( 'display_name', get_post_field( 'post_author', $post_id ) ),
 					'context'   => get_the_category( $post_id ) ? get_the_category( $post_id ) : get_the_tags( $post_id ),
 					'href'      => $post['href'],
 					'date'      => get_the_date( '', $post_id ),
@@ -177,9 +177,12 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 		if ( $is_rendering_block ) {
 			$acceptable_types = explode( ',', $request->get_param( 'types' ) );
 
-			$top_posts = array_filter( $top_posts, function( $item ) use ( $acceptable_types ) {
-				return in_array( $item['type'], $acceptable_types );
-			} );
+            		$top_posts = array_filter(
+                		$top_posts,
+                		function ( $item ) use ( $acceptable_types ) {
+                    			return in_array( $item['type'], $acceptable_types, true );
+                		}
+            		);
 
 			$top_posts = array_slice( $top_posts, 0, $request->get_param( 'number' ) );
 		}
