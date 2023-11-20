@@ -13,19 +13,38 @@ import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../../../blocks/ai-assistant/lib/connection';
 import UsageControl from '../usage-bar';
 import './style.scss';
+import { PLAN_TYPE_FREE, PLAN_TYPE_TIERED, PLAN_TYPE_UNLIMITED } from '../usage-bar/types';
+import type { PlanType } from '../usage-bar/types';
 
-const useAiFeaturePlanType = currentTier => {
+/**
+ * Simple hook to get the plan type from the current tier
+ *
+ * @param {object} currentTier - the current tier from the AI Feature data
+ * @returns {PlanType} the plan type
+ */
+const usePlanType = ( currentTier ): PlanType => {
+	if ( ! currentTier ) {
+		return null;
+	}
+
 	if ( currentTier?.value === 0 ) {
-		return 'free';
-	}
-	if ( currentTier?.value === 1 ) {
-		return 'unlimited';
+		return PLAN_TYPE_FREE;
 	}
 
-	return 'tiered';
+	if ( currentTier?.value === 1 ) {
+		return PLAN_TYPE_UNLIMITED;
+	}
+
+	return PLAN_TYPE_TIERED;
 };
 
-const useAiFeatureDaysUntilReset = nextStartDate => {
+/**
+ * Simple hook to get the days until the next reset
+ *
+ * @param {string} nextStartDate - the next start date from the AI Feature data
+ * @returns {number} an integer with the days until the next reset
+ */
+const useDaysUntilReset = ( nextStartDate: string ): number => {
 	// Bail early if we don't have a next start date
 	if ( ! nextStartDate ) {
 		return null;
@@ -45,6 +64,9 @@ const useAiFeatureDaysUntilReset = nextStartDate => {
 			parsedNextStartDate.getDate()
 		) - Date.now();
 
+	/*
+	 * Convert the difference in miliseconds to days. Use floor to round down.
+	 */
 	return Math.floor( differenceInMiliseconds / ( 1000 * 60 * 60 * 24 ) );
 };
 
@@ -61,11 +83,12 @@ export default function UsagePanel() {
 		usagePeriod,
 		currentTier,
 	} = useAiFeature();
-	const planType = useAiFeaturePlanType( currentTier );
-	const daysUntilReset = useAiFeatureDaysUntilReset( usagePeriod?.nextStart );
+	const planType = usePlanType( currentTier );
+	const daysUntilReset = useDaysUntilReset( usagePeriod?.nextStart );
 
-	const requestsCount = planType === 'tiered' ? usagePeriod?.requestsCount : allTimeRequestsCount;
-	const requestsLimit = planType === 'free' ? freeRequestsLimit : currentTier?.limit;
+	const requestsCount =
+		planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
+	const requestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTier?.limit;
 
 	return (
 		<div className="jetpack-ai-usage-panel">
