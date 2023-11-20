@@ -16,8 +16,19 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 		return false;
 	}
 
-	if ( empty( $filename ) || ! file_exists( $filename ) ) {
+	if ( empty( $filename ) ) {
 
+		jetpack_wpcom_maybe_log_heif_to_jpg(
+			array(
+				'message'  => 'file path is empty',
+				'severity' => 'error',
+			)
+		);
+
+		return false;
+	}
+
+	if ( ! file_exists( $filename ) ) {
 		jetpack_wpcom_maybe_log_heif_to_jpg(
 			array(
 				'message'  => sprintf( 'file does not exist: %s', $filename ),
