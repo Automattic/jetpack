@@ -9,10 +9,17 @@ export type UsageBarProps = {
 	 */
 	limitReached: boolean;
 };
+
 export type UsageControlProps = {
 	requestsCount: number;
 	requestsLimit: number;
 	isOverLimit: boolean;
-	planType: 'free' | 'tiered' | 'unlimited';
+	planType: PlanType;
 	daysUntilReset: number;
 };
+
+export const PLAN_TYPE_FREE = 'free';
+export const PLAN_TYPE_TIERED = 'tiered';
+export const PLAN_TYPE_UNLIMITED = 'unlimited';
+
+export type PlanType = typeof PLAN_TYPE_FREE | typeof PLAN_TYPE_TIERED | typeof PLAN_TYPE_UNLIMITED;
