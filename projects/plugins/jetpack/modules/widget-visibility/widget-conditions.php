@@ -1197,7 +1197,7 @@ global $pagenow;
 $current_url = ! empty( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 if ( is_customize_preview()
 	|| 'widgets.php' === $pagenow
-	|| ( str_contains( $current_url, '/wp-json/wp/v2/block-renderer' ) )
+	|| str_contains( $current_url, '/wp-json/wp/v2/block-renderer' )
 	|| 1 === preg_match( '~^/wp/v2/sites/\d+/block-renderer~', $current_url )
 ) {
 	Jetpack_Widget_Conditions::add_block_attributes_filter();
