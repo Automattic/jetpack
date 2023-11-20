@@ -2,7 +2,7 @@
 Contributors: automattic, retrofox, leogermani, renatoagds, bjorsch, ebinnion, fgiannar, zinigor, miguelxavierpenha, dsmart, jeherve, manzoorwanijk, njweller, oskosk, samiff, siddarthan, wpkaren, arsihasi, kraftbj, kev, sermitr, kangzj, pabline, dkmyta
 Tags: jetpack, protect, security, malware, scan
 Requires at least: 6.3
-Requires PHP: 5.6
+Requires PHP: 7.0
 Tested up to: 6.4
 Stable tag: 1.4.1
 License: GPLv2 or later
