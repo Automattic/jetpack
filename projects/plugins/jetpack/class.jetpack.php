@@ -29,7 +29,6 @@ use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
-use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
@@ -981,7 +980,6 @@ class Jetpack {
 	public function late_initialization() {
 		add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 
-		Partner::init();
 		My_Jetpack_Initializer::init();
 
 		// Initialize Boost Speed Score
