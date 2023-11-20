@@ -351,7 +351,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		public static function get_custom_login_url() {
 			$login_url = wp_login_url();
 
-			if ( 'wp-login.php' === substr( $login_url, -12 ) ) {
+			if ( str_ends_with( $login_url, 'wp-login.php' ) ) {
 				// No custom URL found.
 				return null;
 			}

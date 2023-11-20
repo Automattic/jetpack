@@ -72,7 +72,7 @@ class Sharing_Service {
 				$config = array();
 
 				// Pre-load custom modules otherwise they won't know who they are
-				if ( substr( $id, 0, 7 ) === 'custom-' && is_array( $options[ $id ] ) ) {
+				if ( str_starts_with( $id, 'custom-' ) && is_array( $options[ $id ] ) ) {
 					$config = $options[ $id ];
 				}
 

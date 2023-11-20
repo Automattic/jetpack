@@ -129,7 +129,7 @@ function jetpack_boost_strip_parent_path( $parent_path, $path ) {
 		$trimmed_path = substr( $trimmed_path, strlen( $trimmed_parent ) );
 	}
 
-	return substr( $trimmed_path, 0, 1 ) === '/' ? $trimmed_path : '/' . $trimmed_path;
+	return str_starts_with( $trimmed_path, '/' ) ? $trimmed_path : '/' . $trimmed_path;
 }
 
 /**

@@ -960,7 +960,7 @@ class Contact_Form_Plugin {
 			} elseif ( in_array( $key, array( 'REMOTE_ADDR', 'REQUEST_URI', 'DOCUMENT_URI' ), true ) ) {
 				// All three of these are relevant indicators and should be passed along.
 				$form[ $key ] = $value;
-			} elseif ( substr( $key, 0, 5 ) === 'HTTP_' ) {
+			} elseif ( str_starts_with( $key, 'HTTP_' ) ) {
 				// Any other HTTP header indicators.
 				$form[ $key ] = $value;
 			}

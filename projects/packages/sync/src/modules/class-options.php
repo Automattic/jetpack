@@ -308,7 +308,7 @@ class Options extends Module {
 		}
 
 		// Filter our weird array( false ) value for theme_mods_*.
-		if ( 'theme_mods_' === substr( $args[0], 0, 11 ) ) {
+		if ( str_starts_with( $args[0], 'theme_mods_' ) ) {
 			$this->filter_theme_mods( $args[1] );
 			if ( isset( $args[2] ) ) {
 				$this->filter_theme_mods( $args[2] );
@@ -335,7 +335,7 @@ class Options extends Module {
 	 * @return boolean Whether the option is whitelisted.
 	 */
 	public function is_whitelisted_option( $option ) {
-		return in_array( $option, $this->options_whitelist, true ) || 'theme_mods_' === substr( $option, 0, 11 );
+		return in_array( $option, $this->options_whitelist, true ) || str_starts_with( $option, 'theme_mods_' );
 	}
 
 	/**
