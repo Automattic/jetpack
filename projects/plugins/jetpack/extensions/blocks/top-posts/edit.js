@@ -117,8 +117,39 @@ function TopPostsEdit( { attributes, className, setAttributes } ) {
 	}, [ period, isModuleActive ] );
 
 	useEffect( () => {
-		updatePostsDisplay( postsData );
-	}, [ attributes, postsData, updatePostsDisplay ] );
+		const data = postsData;
+
+		if ( ! data ) {
+			return;
+		}
+
+		const newPosts = [];
+		for ( let i = 0; newPosts.length !== postsToShow; i++ ) {
+			if ( data[ i ] && postTypes[ data[ i ].type ] ) {
+				newPosts.push(
+					<TopPostsPreviewItem
+						key={ 'jetpack-top-posts-' + data[ i ].id }
+						title={ data[ i ].title }
+						date={ data[ i ].date }
+						author={ data[ i ].author }
+						thumbnail={ data[ i ].thumbnail }
+						context={ data[ i ].context }
+						displayDate={ displayDate }
+						displayAuthor={ displayAuthor }
+						displayThumbnail={ displayThumbnail }
+						displayContext={ displayContext }
+					/>
+				);
+			}
+
+			// Out of posts.
+			if ( ! data[ i ] ) {
+				break;
+			}
+		}
+
+		setPostsToDisplay( newPosts );
+	}, [ attributes, postsData, setPostsToDisplay ] );
 
 	if ( ! isModuleActive && ! isLoadingModules ) {
 		return (

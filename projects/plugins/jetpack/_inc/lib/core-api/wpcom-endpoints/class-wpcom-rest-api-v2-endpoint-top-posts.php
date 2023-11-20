@@ -48,7 +48,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 					'args'     => array(
 						'period' => array(
 							'description'       => __( 'Timeframe for stats.', 'jetpack' ),
-							'type'              => array('string', 'integer'),
+							'type'              => array( 'string', 'integer' ),
 							'required'          => true,
 							'validate_callback' => function ( $param ) {
 								return is_numeric( $param ) || is_string( $param );
@@ -79,8 +79,6 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 	/**
 	 * Get the site's post types.
 	 *
-	 * @param \WP_REST_Request $request request object.
-	 *
 	 * @return array Site's post types.
 	 */
 	public function get_post_types() {
@@ -90,7 +88,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 		foreach ( $post_types as $type ) {
 			$post_types_array[] = array(
 				'label' => get_post_type_object( $type )->labels->name,
-				'id' => $type,
+				'id'    => $type,
 			);
 		}
 
@@ -105,10 +103,8 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 	 * @return array Data on top posts.
 	 */
 	public function get_top_posts( $request ) {
-		$options = Jetpack_Options::get_option( 'stats', array() );
-		$period  = $request->get_param( 'period' );
-
-		$all_time_days = floor( ( time() - strtotime( get_option('site_created_date') ) ) / ( 60 * 60 * 24 * 365 ));
+		$period        = $request->get_param( 'period' );
+        $all_time_days = floor( ( time() - strtotime( get_option( 'site_created_date' ) ) ) / ( 60 * 60 * 24 * 365 ) );
 
 		// While we only display ten posts, users can filter out content types.
 		// As such, we should obtain a few spare posts from the Stats endpoint.
@@ -119,7 +115,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 		$is_rendering_block = isset( $request['types'] );
 		$override_cache     = ! $is_rendering_block;
 
-		$query_args      = array(
+		$query_args = array(
 			'max'       => $posts_to_obtain_count,
 			'summarize' => true,
 			'num'       => $period !== 'all-time' ? $period : $all_time_days,
@@ -127,7 +123,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 		);
 
 		$data            = ( new WPCOM_Stats() )->get_top_posts( $query_args, $override_cache );
-		$posts_retrieved = count( $data['summary']['postviews']);
+		$posts_retrieved = count( $data['summary']['postviews'] );
 
 		// Fallback to random posts if user does not have enough top content.
 		if ( $posts_retrieved < $posts_to_obtain_count ) {
@@ -138,7 +134,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 				'post_status' => 'publish',
 			);
 
-			$random_posts = get_posts($args);
+			$random_posts = get_posts( $args );
 
 			foreach ( $random_posts as $post ) {
 				$random_posts_data = array(
@@ -163,16 +159,15 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 
 			if ( $post['public'] ) {
 				$top_posts[] = array(
-					'id' => $post_id,
-					'author' => get_the_author_meta( 'display_name' , get_post_field( 'post_author', $post_id ) ) ,
-					'context' => get_the_category( $post_id ) ? get_the_category( $post_id ) : get_the_tags( $post_id ),
-					'href' => $post['href'],
-					'date' => get_the_date( '', $post_id ),
-					'title' => $post['title'],
-					'type' => $post['type'],
-					'public' => $post['public'],
-					'views' => $post['views'],
-					'video_play' => $post['video_play'],
+					'id'        => $post_id,
+					'author'    => get_the_author_meta( 'display_name', get_post_field( 'post_author', $post_id ) ) ,
+					'context'   => get_the_category( $post_id ) ? get_the_category( $post_id ) : get_the_tags( $post_id ),
+					'href'      => $post['href'],
+					'date'      => get_the_date( '', $post_id ),
+					'title'     => $post['title'],
+					'type'      => $post['type'],
+					'public'    => $post['public'],
+					'views'     => $post['views'],
 					'thumbnail' => get_the_post_thumbnail_url( $post_id ),
 				);
 			}

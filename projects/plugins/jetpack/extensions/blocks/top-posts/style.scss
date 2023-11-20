@@ -12,8 +12,11 @@
 		width: 100%;
 	}
 
-	span,
 	a {
+		display: inline-block;
+	}
+
+	span {
 		display: block;
 	}
 
