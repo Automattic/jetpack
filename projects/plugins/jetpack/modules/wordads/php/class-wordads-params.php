@@ -119,7 +119,7 @@ class WordAds_Params {
 		}
 
 		$this->url = esc_url_raw( ( is_ssl() ? 'https' : 'http' ) . '://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : 'localhost' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) );
-		if ( ! ( ! str_contains( $this->url, '?' ) ) && ! isset( $_GET['p'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( str_contains( $this->url, '?' ) && ! isset( $_GET['p'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$this->url = substr( $this->url, 0, strpos( $this->url, '?' ) );
 		}
 
