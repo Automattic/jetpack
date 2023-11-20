@@ -4,6 +4,7 @@ import { WPDataRegistry } from '@wordpress/data/build-types/registry';
 import { useShareLimits } from '../';
 import { SOCIAL_STORE_CONFIG, SOCIAL_STORE_ID } from '../../../social-store';
 import { SocialStoreState } from '../../../social-store/types';
+import { createActiveConnections } from '../../../utils/test-utils';
 
 const messages = {
 	default: 'Share limit for 30 days: 30.',
@@ -57,26 +58,6 @@ function getStoreInitialState( data: DeepPartial< SocialStoreState > ) {
 			...data.sharesData,
 		},
 	};
-}
-
-/**
- * Creates an array of active connections.
- *
- * @param {number} count - Number of active connections to create.
- *
- * @returns {Array} Array of active connections.
- */
-function createActiveConnections( count: number ) {
-	return [
-		{
-			enabled: false,
-		},
-		// create number of connections based on the count
-		...Array.from( { length: count }, () => ( { enabled: true } ) ),
-		{
-			enabled: false,
-		},
-	];
 }
 
 describe( 'useShareLimits', () => {

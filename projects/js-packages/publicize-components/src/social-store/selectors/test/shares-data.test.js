@@ -1,3 +1,4 @@
+import { createActiveConnections } from '../../../utils/test-utils';
 import {
 	getScheduledSharesCount,
 	getShareLimit,
@@ -353,16 +354,7 @@ describe( 'Social store selectors: sharesData', () => {
 									share_limit: 30,
 								},
 								connectionData: {
-									connections: [
-										{
-											enabled: false,
-										},
-										// create number of connections based on the enabledConnections value
-										...Array.from( { length: enabledConnections }, () => ( { enabled: true } ) ),
-										{
-											enabled: false,
-										},
-									],
+									connections: createActiveConnections( enabledConnections ),
 								},
 							},
 							args
