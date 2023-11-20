@@ -268,15 +268,6 @@ async function changelogCommand( argv ) {
  */
 async function getProjectChangeTypes( needChangelog ) {
 	const types = {};
-	const defaultTypes = {
-		security: 'Improves or modifies the security of the project.',
-		added: 'Added new functionality.',
-		changed: 'Changed existing functionality.',
-		deprecated: 'Deprecated existing functionality.',
-		removed: 'Removed existing functionality.',
-		fixed: 'Fixed a bug.',
-	};
-
 	for ( const proj of needChangelog ) {
 		const composerJSON = readComposerJson( proj );
 		if (
@@ -286,7 +277,7 @@ async function getProjectChangeTypes( needChangelog ) {
 		) {
 			types[ proj ] = composerJSON.extra.changelogger.types;
 		} else {
-			types[ proj ] = defaultTypes;
+			types[ proj ] = 'default';
 		}
 	}
 	return types;
@@ -299,6 +290,8 @@ async function getProjectChangeTypes( needChangelog ) {
  */
 async function changelogAdd( argv ) {
 	let needChangelog;
+	const defaultProjects = [];
+	const uniqueProjects = [];
 
 	if ( argv.project ) {
 		needChangelog = [ argv.project ];
@@ -317,37 +310,52 @@ async function changelogAdd( argv ) {
 	}
 
 	const projectChangeTypes = await getProjectChangeTypes( needChangelog );
-	console.log( needChangelog );
-	console.log( projectChangeTypes );
-	const promptConfirm = await changelogAddPrompt( argv, needChangelog, uniqueProjects );
+
+	// Iterate over the project types, and if it's not default, add it to uniqueProjects.
+	for ( const proj in projectChangeTypes ) {
+		if ( projectChangeTypes[ proj ] !== 'default' ) {
+			uniqueProjects.push( proj );
+		} else {
+			defaultProjects.push( proj );
+		}
+	}
+	const promptConfirm = await changelogAddPrompt( argv, defaultProjects, uniqueProjects );
 
 	console.log(
-		"When writing your changelog entry, please use the format 'Subject: change description.'\n" +
-			'Here is an example of a good changelog entry:\n' +
-			'  Sitemaps: ensure that the Home URL is slashed on subdirectory websites.\n'
+		chalk.green(
+			"When writing your changelog entry, please use the format 'Subject: change description.'\n" +
+				'Here is an example of a good changelog entry:\n' +
+				'  Sitemaps: ensure that the Home URL is slashed on subdirectory websites.\n'
+		)
 	);
 
 	if ( promptConfirm.changelogConfirm || promptConfirm.multiSameConfirm ) {
-		const response = await promptChangelog( argv, needChangelog );
-		for ( const proj of needChangelog ) {
+		if ( defaultProjects.length > 0 ) {
+			console.log(
+				chalk.green( `Running changelogger for ${ defaultProjects.length } project(s)!` )
+			);
+			const defaultTypes = {
+				security: 'Improves or modifies the security of the project.',
+				added: 'Added new functionality.',
+				changed: 'Changed existing functionality.',
+				deprecated: 'Deprecated existing functionality.',
+				removed: 'Removed existing functionality.',
+				fixed: 'Fixed a bug.',
+			};
+			const response = await promptChangelog( argv, defaultProjects, defaultTypes );
+			for ( const proj of defaultProjects ) {
+				argv = await formatAutoArgs( proj, argv, response );
+				await changelogArgs( argv );
+			}
+		}
+
+		for ( const proj of uniqueProjects ) {
+			console.log( chalk.green( `Running changelogger for ${ proj }!` ) );
+			const response = await promptChangelog( argv, proj, projectChangeTypes[ proj ] );
 			argv = await formatAutoArgs( proj, argv, response );
 			await changelogArgs( argv );
 		}
 		return;
-	}
-
-	// Auto add the changelog files for the projects that we can:
-	if ( promptType.autoAdd ) {
-		console.log(
-			chalk.green( `Running auto changelogger for ${ needChangelog.length } project(s)!` )
-		);
-		const response = await promptChangelog( argv, needChangelog );
-		for ( const proj of needChangelog ) {
-			argv = await formatAutoArgs( proj, argv, response );
-			await changelogArgs( argv );
-		}
-
-		changelogArgs( argv );
 	}
 }
 
@@ -694,14 +702,22 @@ async function promptVersion( argv ) {
  *
  * @param {object} argv - the arguments passed.
  * @param {Array} needChangelog - projects that need changelog.
+ * @param {object} types - the changelog types for the projects.
+ *
  * @returns {argv}.
  */
-async function promptChangelog( argv, needChangelog ) {
+async function promptChangelog( argv, needChangelog, types ) {
 	const gitBranch = child_process
 		.spawnSync( 'git', [ 'branch', '--show-current' ] )
 		.stdout.toString()
 		.trim()
 		.replace( /\//g, '-' );
+	const maxLength = Math.max( ...Object.keys( types ).map( key => key.length ) );
+
+	const choices = Object.entries( types ).map( ( [ value, name ] ) => ( {
+		value,
+		name: `[${ value.padEnd( maxLength, ' ' ) }] ${ name }`,
+	} ) );
 	const commands = await inquirer.prompt( [
 		{
 			type: 'string',
@@ -739,32 +755,7 @@ async function promptChangelog( argv, needChangelog ) {
 			type: 'list',
 			name: 'type',
 			message: 'Type of change.',
-			choices: [
-				{
-					value: 'security',
-					name: '[security  ] Security',
-				},
-				{
-					value: 'added',
-					name: '[added     ] Added',
-				},
-				{
-					value: 'changed',
-					name: '[changed   ] Changed',
-				},
-				{
-					value: 'deprecated',
-					name: '[deprecated] Deprecated',
-				},
-				{
-					value: 'removed',
-					name: '[removed   ] Removed',
-				},
-				{
-					value: 'fixed',
-					name: '[fixed     ] Fixed',
-				},
-			],
+			choices: choices,
 		},
 		{
 			type: 'string',
