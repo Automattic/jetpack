@@ -326,7 +326,7 @@ class Assets {
 	 * @throws \InvalidArgumentException If arguments are invalid.
 	 */
 	public static function register_script( $handle, $path, $relative_to, array $options = array() ) {
-		if ( ! str_ends_with( $path, '.js' ) ) {
+		if ( substr( $path, -3 ) !== '.js' ) {
 			throw new \InvalidArgumentException( '$path must end in ".js"' );
 		}
 
@@ -345,7 +345,7 @@ class Assets {
 			'textdomain'       => null,
 		);
 
-		if ( $options['css_path'] && ! str_ends_with( $options['css_path'], '.css' ) ) {
+		if ( $options['css_path'] && substr( $options['css_path'], -4 ) !== '.css' ) {
 			throw new \InvalidArgumentException( '$options[\'css_path\'] must end in ".css"' );
 		}
 
