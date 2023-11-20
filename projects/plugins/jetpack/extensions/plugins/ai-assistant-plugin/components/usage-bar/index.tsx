@@ -9,6 +9,7 @@ import React from 'react';
  * Internal dependencies
  */
 import './style.scss';
+import { PLAN_TYPE_FREE, PLAN_TYPE_TIERED, PLAN_TYPE_UNLIMITED } from './types';
 /**
  * Types
  */
@@ -59,15 +60,15 @@ function UsageControl( {
 	// The message we may want to show.
 	const helpMessages = Array< string >();
 
-	if ( limitReached && planType === 'free' ) {
+	if ( limitReached && planType === PLAN_TYPE_FREE ) {
 		helpMessages.push( __( "You've reached your free requests limit.", 'jetpack' ) );
 	}
 
-	if ( limitReached && planType === 'tiered' ) {
+	if ( limitReached && planType === PLAN_TYPE_TIERED ) {
 		helpMessages.push( __( "You've reached your plan requests limit.", 'jetpack' ) );
 	}
 
-	if ( daysUntilReset && planType === 'tiered' ) {
+	if ( daysUntilReset && planType === PLAN_TYPE_TIERED ) {
 		const daysUntilResetMessage = sprintf(
 			// translators: %1$d: number of days until the next usage count reset
 			__( 'Requests will reset in %1$d days.', 'jetpack' ),
@@ -83,7 +84,7 @@ function UsageControl( {
 			help={ helpMessages.length ? helpMessages.join( ' ' ) : null }
 			label={ __( 'Usage', 'jetpack' ) }
 		>
-			{ planType === 'free' && (
+			{ planType === PLAN_TYPE_FREE && (
 				<p>
 					{ sprintf(
 						// translators: %1$d: current request counter; %2$d: request allowance;
@@ -93,7 +94,7 @@ function UsageControl( {
 					) }
 				</p>
 			) }
-			{ planType === 'tiered' && (
+			{ planType === PLAN_TYPE_TIERED && (
 				<p>
 					{ sprintf(
 						// translators: %1$d: current request counter; %2$d: request allowance;
@@ -103,8 +104,8 @@ function UsageControl( {
 					) }
 				</p>
 			) }
-			{ planType === 'unlimited' && <p>{ __( 'Unlimited requests.', 'jetpack' ) }</p> }
-			{ ( planType === 'free' || planType === 'tiered' ) && (
+			{ planType === PLAN_TYPE_UNLIMITED && <p>{ __( 'Unlimited requests.', 'jetpack' ) }</p> }
+			{ ( planType === PLAN_TYPE_FREE || planType === PLAN_TYPE_TIERED ) && (
 				<UsageBar usage={ usage } limitReached={ limitReached } />
 			) }
 		</BaseControl>
