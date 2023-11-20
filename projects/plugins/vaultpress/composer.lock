@@ -12,10 +12,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "034c5ee91cce3ce330103056adb2157aa9bb3f24"
+                "reference": "6c9f1a7060500a7b1a498dc31f1f785c04cf7488"
             },
             "require": {
-                "composer-plugin-api": "^1.1 || ^2.0"
+                "composer-plugin-api": "^1.1 || ^2.0",
+                "php": ">=7.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -33,7 +34,7 @@
                     "::VERSION": "src/AutoloadGenerator.php"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.12.x-dev"
+                    "dev-trunk": "3.0.x-dev"
                 }
             },
             "autoload": {
@@ -74,7 +75,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "c5c4c3918c9e6ae4da34f413a28a6d82d360aeab"
+                "reference": "e152a4c83d1f952442d40260c559c4880757b298"
+            },
+            "require": {
+                "php": ">=7.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -91,7 +95,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-logo/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.6.x-dev"
+                    "dev-trunk": "2.0.x-dev"
                 }
             },
             "autoload": {
