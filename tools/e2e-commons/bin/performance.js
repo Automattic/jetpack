@@ -94,7 +94,7 @@ function mergeResults( type ) {
 
 	writeFileSync(
 		path.join( resultsPath, `${ type }.performance-results.json` ),
-		JSON.stringify( out )
+		JSON.stringify( out, null, 2 )
 	);
 }
 
