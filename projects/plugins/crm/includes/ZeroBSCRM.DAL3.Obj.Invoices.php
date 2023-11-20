@@ -2753,50 +2753,48 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 
                 // get total due
                 $invoiceTotalValue = 0.0; if (isset($invoice['total'])) $invoiceTotalValue = (float)$invoice['total'];
-                // this one'll be a rolling sum
-                $transactionsTotalValue = 0.0;
 
-                // cycle through trans + calc existing balance
-                if (isset($invoice['transactions']) && is_array($invoice['transactions'])){
+						// this one'll be a rolling sum
+						$transactions_total_value = 0.0;
 
-                    // got trans
-                    foreach ($invoice['transactions'] as $transaction){
+						// cycle through trans + calc existing balance
+						if ( isset( $invoice['transactions'] ) && is_array( $invoice['transactions'] ) ) {
 
-                        // should we also check for status=completed/succeeded? (leaving for now, will let check all):
+							// got trans
+							foreach ( $invoice['transactions'] as $transaction ) {
 
-                        // get amount
-                        $transactionAmount = 0.0; if (isset($transaction['total'])) $transactionAmount = (float)$transaction['total'];
+								// should we also check for status=completed/succeeded? (leaving for now, will let check all):
 
-                        if ($transactionAmount > 0){
+								// get amount
+								$transaction_amount = 0.0;
 
-                            switch ($transaction['type']){
+								if ( isset( $transaction['total'] ) ) {
+									$transaction_amount = (float) $transaction['total'];
+								}
 
-                                case __('Sale','zero-bs-crm'):
+								// if the transaction total amount is negative, then add the amount to the total value, and vice versa
+								if ( $transaction_amount > 0 ) {
 
-                                    // these count as debits against invoice.
-                                    $transactionsTotalValue -= $transactionAmount;
+									switch ( $transaction['type'] ) {
 
-                                    break;
+										case __( 'Sale', 'zero-bs-crm' ):
+											// these count as debits against invoice.
+											$transactions_total_value -= $transaction_amount;
 
-                                case __('Refund','zero-bs-crm'):
-                                case __('Credit Note','zero-bs-crm'):
+											break;
+										case __( 'Refund', 'zero-bs-crm' ):
+										case __( 'Credit Note', 'zero-bs-crm' ):
+											// these count as credits against invoice.
+											$transactions_total_value += $transaction_amount;
+											break;
 
-                                    // these count as credits against invoice.
-                                    $transactionsTotalValue += $transactionAmount;
+									} // / switch on type (sale/refund)
+								}
+							} // / each trans
 
-                                    break;
-
-
-
-                            } // / switch on type (sale/refund)
-
-                        } // / if trans > 0
-
-                    } // / each trans
-
-                    // should now have $transactionsTotalValue & $invoiceTotalValue
-                    // ... so we sum + return.
-                    return $invoiceTotalValue + $transactionsTotalValue;
+							// should now have $transactions_total_valuee & $invoiceTotalValue
+							// ... so we sum + return.
+							return $invoiceTotalValue + $transactions_total_value; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 } // / if has trans
 
