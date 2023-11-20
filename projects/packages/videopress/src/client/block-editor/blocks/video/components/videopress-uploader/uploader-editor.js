@@ -75,7 +75,7 @@ const PosterActions = ( { hasPoster, onSelectPoster, onRemovePoster } ) => {
 	return (
 		<span className="uploading-editor__scrubber-help">
 			{ __(
-				'This is how the video will look. Use the slider to choose a poster image.',
+				'This is how the video will look. Use the slider to choose a poster image or change it from the block settings.',
 				'jetpack-videopress-pkg'
 			) }
 		</span>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+RNMobile: Ensure text is always visible in Contact Info block.
