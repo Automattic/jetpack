@@ -59,39 +59,6 @@ function TopPostsEdit( { attributes, className, setAttributes } ) {
 		postTypes,
 	} = attributes;
 
-	const updatePostsDisplay = data => {
-		if ( ! data ) {
-			return;
-		}
-
-		const newPosts = [];
-		for ( let i = 0; newPosts.length !== postsToShow; i++ ) {
-			if ( data[ i ] && postTypes[ data[ i ].type ] ) {
-				newPosts.push(
-					<TopPostsPreviewItem
-						key={ 'jetpack-top-posts-' + data[ i ].id }
-						title={ data[ i ].title }
-						date={ data[ i ].date }
-						author={ data[ i ].author }
-						thumbnail={ data[ i ].thumbnail }
-						context={ data[ i ].context }
-						displayDate={ displayDate }
-						displayAuthor={ displayAuthor }
-						displayThumbnail={ displayThumbnail }
-						displayContext={ displayContext }
-					/>
-				);
-			}
-
-			// Out of posts.
-			if ( ! data[ i ] ) {
-				break;
-			}
-		}
-
-		setPostsToDisplay( newPosts );
-	};
-
 	useEffect( () => {
 		apiFetch( { path: `/wpcom/v2/post-types` } ).then( response => {
 			setPostTypesData( response );
