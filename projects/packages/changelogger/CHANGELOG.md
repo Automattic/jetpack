@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [4.0.0] - 2023-11-20
 ### Changed
-- General: updated PHP requirement to PHP 7.0+ [#34126]
+- Updated required PHP version to >= 7.0. [#34126]
 
 ## [3.3.11] - 2023-09-28
 ### Changed

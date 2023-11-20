@@ -8,13 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.0.0] - 2023-11-20
 ### Added
 - Display an "Activity Log" menu item to connected users. [#34174]
-- My Jetpack: Add direct checkout support for products with quantity-based plans [#34177]
-- My Jetpack: Add Jetpack AI prices by tier to the interstitial page [#34196]
+- Added direct checkout support for products with quantity-based plans. [#34177]
+- Added Jetpack AI prices by tier to the interstitial page. [#34196]
 
 ### Changed
-- Code Modernization: Replace usage of strpos() with str_starts_with(). [#34135]
-- General: updated PHP requirement to PHP 7.0+ [#34126]
-- Remove condition from the backup undoable event call, this datapoint will be removed [#33997]
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34126]
+- Removed condition from the backup undoable event call, this datapoint will be removed. [#33997]
 
 ## [3.12.2] - 2023-11-14
 ### Changed

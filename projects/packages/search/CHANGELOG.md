@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.40.0] - 2023-11-20
 ### Changed
-- Code Modernization: Replace usage of strpos() with str_starts_with(). [#34135]
-- The package now requires PHP >= 7.0. [#34192]
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
 
 ## [0.39.7] - 2023-11-14
 ### Changed

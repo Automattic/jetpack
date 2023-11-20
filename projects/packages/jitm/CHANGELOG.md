@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.0.0] - 2023-11-20
 ### Changed
-- The package now requires PHP >= 7.0. [#34192]
+- Updated required PHP version to >= 7.0. [#34192]
 
 ### Removed
-- Do not require the Partner package anymore. Rely on the Connection package instead. [#33832]
+- Removed the Partner package requirement. Relying on the Connection package instead. [#33832]
 
 ## [2.5.3] - 2023-11-14
 ### Changed

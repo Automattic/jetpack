@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.21.0] - 2023-11-20
 ### Changed
-- Code Modernization: Replace usage of strpos() with str_starts_with(). [#34135]
-- The package now requires PHP >= 7.0. [#34192]
-- VideoPress Uploader: clarify video preview poster image selection notice [#32948]
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+- Clarified video preview poster image selection notice in the VideoPress uploader. [#32948]
 
 ### Fixed
-- Enqueue token-bridge script when processing videopress shortcode [#34121]
-- Fix interaction with memberships and VideoPress privacy. [#34189]
+- Enqueued token-bridge script when processing videopress shortcode. [#34121]
+- Fixed interaction with memberships and VideoPress privacy. [#34189]
 
 ## [0.20.2] - 2023-11-14
 ### Changed

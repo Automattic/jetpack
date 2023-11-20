@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.12.0] - 2023-11-20
 ### Added
-- Connection: add idc query argument to url for tracking multisite idcs. [#34090]
+- Added idc query argument to url for tracking multisite idcs. [#34090]
 
 ### Changed
-- Code Modernization: Replace usage of strpos() with str_starts_with(). [#34135]
-- The package now requires PHP >= 7.0. [#34192]
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
 
 ## [0.11.3] - 2023-11-14
 ### Changed

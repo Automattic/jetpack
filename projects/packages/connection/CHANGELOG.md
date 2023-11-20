@@ -10,11 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Confirm blog ID and access token were saved before proceeding with connection flow. [#34136]
 
 ### Changed
-- Code Modernization: Replace usage of strpos() with str_starts_with(). [#34135]
-- The package now requires PHP >= 7.0. [#34192]
+- Replace usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
 
 ### Fixed
-- Connection: ensure that partner partners are passed on during the connection process, regardless of the plugin you use to connect. [#33832]
+- Ensured that partner partners are passed on during the connection process, regardless of the plugin you use to connect. [#33832]
 
 ## [1.60.1] - 2023-11-14
 ### Changed

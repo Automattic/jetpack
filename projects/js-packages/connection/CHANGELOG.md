@@ -4,7 +4,7 @@
 
 ## [0.30.8] - 2023-11-20
 ### Added
-- Connection: Add optional quantity to product checkout workflow hook [#34177]
+- Add optional quantity to product checkout workflow hook. [#34177]
 
 ## [0.30.7] - 2023-11-14
 ### Changed

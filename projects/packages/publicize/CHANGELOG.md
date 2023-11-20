@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.37.0] - 2023-11-20
 ### Changed
-- Code Modernization: Replace usage of strpos() with str_starts_with(). [#34135]
-- Removed jetpack/publicize store [#34111]
-- The package now requires PHP >= 7.0. [#34192]
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Removed the 'jetpack/publicize' store. [#34111]
+- Updated required PHP version to >= 7.0. [#34192]
 
 ## [0.36.6] - 2023-11-14
 ### Changed

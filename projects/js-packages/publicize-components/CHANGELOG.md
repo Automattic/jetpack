@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.41.6] - 2023-11-20
 ### Removed
-- Removed jetpack/publicize store [#34111]
+- Removed the 'jetpack/publicize' store. [#34111]
 
 ## [0.41.5] - 2023-11-14
 ### Added

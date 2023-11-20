@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.24.0] - 2023-11-20
 ### Changed
-- Code Modernization: Replace usage of strpos() with str_starts_with(). [#34135]
-- The package now requires PHP >= 7.0. [#34192]
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
 
 ### Fixed
-- Add an accessible name to the Contact Form dropdown rendered in the front-end [#34139]
+- Added an accessible name to the Contact Form dropdown rendered in the front-end. [#34139]
 - Avoid errors when a saved feedback form does not have the expected WP_Post format. [#34129]
 
 ## [0.23.1] - 2023-11-14
