@@ -2,7 +2,6 @@ import { jest } from '@jest/globals';
 import { render, renderHook, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import React from 'react';
-import '../../../store';
 import { SOCIAL_STORE_ID } from '../../../social-store';
 import PublicizeConnection from '../index';
 

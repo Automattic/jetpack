@@ -360,21 +360,18 @@ class Jetpack_Subscriptions {
 
 		/** Enable Subscribe Modal */
 
-		/** This filter is documented in plugins/jetpack/modules/subscriptions/subscribe-module/class-jetpack-subscribe-module.php */
-		if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
-			add_settings_field(
-				'jetpack_subscriptions_comment_subscribe',
-				__( 'Enable Subscribe Modal', 'jetpack' ),
-				array( $this, 'subscribe_modal_setting' ),
-				'discussion',
-				'jetpack_subscriptions'
-			);
+		add_settings_field(
+			'jetpack_subscriptions_comment_subscribe',
+			__( 'Enable Subscribe Modal', 'jetpack' ),
+			array( $this, 'subscribe_modal_setting' ),
+			'discussion',
+			'jetpack_subscriptions'
+		);
 
-			register_setting(
-				'discussion',
-				'sm_enabled'
-			);
-		}
+		register_setting(
+			'discussion',
+			'sm_enabled'
+		);
 
 		/** Email me whenever: Someone follows my blog */
 		/* @since 8.1 */

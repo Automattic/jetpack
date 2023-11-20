@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Contact Form: avoid errors when a saved submitted contact form is requested but does not exist anymore.
