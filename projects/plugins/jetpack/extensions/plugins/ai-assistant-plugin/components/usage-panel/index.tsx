@@ -77,7 +77,6 @@ export default function UsagePanel() {
 
 	// fetch usage data
 	const {
-		hasFeature,
 		requestsCount: allTimeRequestsCount,
 		requestsLimit: freeRequestsLimit,
 		isOverLimit,
@@ -102,7 +101,7 @@ export default function UsagePanel() {
 					planType={ planType }
 				/>
 
-				{ ! hasFeature && canUpgrade && (
+				{ ( planType === PLAN_TYPE_FREE || planType === PLAN_TYPE_TIERED ) && canUpgrade && (
 					<div className="jetpack-ai-usage-panel-upgrade-button">
 						<Button
 							variant="primary"
