@@ -33,8 +33,6 @@ const Admin = () => {
 	const onUpgradeToggle = useCallback( () => setForceDisplayPricingPage( true ), [] );
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
-	const hasRefreshedSettings = useRef( false );
-
 	const {
 		isModuleEnabled,
 		showPricingPage,
@@ -60,19 +58,23 @@ const Admin = () => {
 		};
 	} );
 
+	const hasEnabledModule = useRef( isModuleEnabled );
+
 	useEffect( () => {
 		if (
 			isModuleEnabled &&
-			isUpdatingJetpackSettings &&
-			! hasRefreshedSettings.current &&
+			! hasEnabledModule.current &&
 			( isAutoConversionAvailable || isSocialImageGeneratorAvailable )
 		) {
-			hasRefreshedSettings.current = true;
+			hasEnabledModule.current = true;
 			refreshJetpackSocialSettings();
 		}
-		// We want this to run only once, when the module is enabled.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ isModuleEnabled ] );
+	}, [
+		isAutoConversionAvailable,
+		isModuleEnabled,
+		isSocialImageGeneratorAvailable,
+		refreshJetpackSocialSettings,
+	] );
 
 	const moduleName = `Jetpack Social ${ pluginVersion }`;
 
