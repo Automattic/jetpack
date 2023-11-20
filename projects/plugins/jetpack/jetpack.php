@@ -9,7 +9,7 @@
  * License: GPL2+
  * Text Domain: jetpack
  * Requires at least: 6.3
- * Requires PHP: 5.6
+ * Requires PHP: 7.0
  *
  * @package automattic/jetpack
  */
@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '6.3' );
-define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
+define( 'JETPACK__MINIMUM_PHP_VERSION', '7.0' );
 define( 'JETPACK__VERSION', '12.9-a.6' );
 
 /**

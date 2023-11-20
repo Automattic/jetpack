@@ -4,7 +4,7 @@
 	import RecommendationsPage from './pages/image-size-analysis/ImageSizeAnalysis.svelte';
 	import Index from './pages/index/Index.svelte';
 	import PurchaseSuccess from './pages/purchase-success/purchase-success';
-	import Upgrade from './pages/upgrade/Upgrade.svelte';
+	import Upgrade from './pages/upgrade/upgrade';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Redirect from '$features/Redirect.svelte';
 	import SettingsPage from '$layout/SettingsPage/SettingsPage.svelte';
@@ -44,8 +44,8 @@
 </script>
 
 <Router history={routerHistory}>
-	<Route path="upgrade" let:location let:navigate>
-		<Upgrade {location} {navigate} {pricing} {siteDomain} {userConnected} />
+	<Route path="upgrade">
+		<ReactComponent this={Upgrade} {pricing} {siteDomain} {userConnected} />
 	</Route>
 
 	<Route path="getting-started">
