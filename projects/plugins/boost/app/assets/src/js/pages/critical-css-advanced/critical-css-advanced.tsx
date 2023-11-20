@@ -1,4 +1,5 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { useState, useEffect } from 'react';
 import {
 	replaceCssState,
 	updateProvider,
@@ -24,8 +25,8 @@ const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
 		return null;
 	}
 
-	const dismissedIssues = issues.filter( issue => issue.error_status === 'dismissed' );
-	const activeIssues = issues.filter( issue => issue.error_status !== 'dismissed' );
+	const [ dismissedIssues, setDismissedIssues ] = useState( [] );
+	const [ activeIssues, setActiveIssues ] = useState( [] );
 
 	const heading =
 		activeIssues.length === 0
@@ -35,18 +36,23 @@ const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
 					'jetpack-boost'
 			  );
 
-	function showDismissedIssues() {
+	const showDismissedIssues = () => {
 		replaceCssState( {
 			providers: issues.map( issue => {
 				issue.error_status = 'active';
 				return issue;
 			} ),
 		} );
-	}
+	};
 
-	function dismissProvider( { key }: Provider ) {
+	const dismissProvider = ( { key }: Provider ) => {
 		updateProvider( key, { error_status: 'dismissed' } );
-	}
+	};
+
+	useEffect( () => {
+		setDismissedIssues( issues.filter( issue => issue.error_status === 'dismissed' ) );
+		setActiveIssues( issues.filter( issue => issue.error_status !== 'dismissed' ) );
+	}, [ issues ] );
 
 	return (
 		<div className="jb-container--narrow jb-critical-css__advanced">
