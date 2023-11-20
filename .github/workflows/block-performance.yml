@@ -64,6 +64,8 @@ jobs:
           mkdir results
           pnpm config:decrypt
           pnpm env:start
+
+          # The twentytwentyone theme is required for the post-editor test suite.
           pnpm jetpack docker --type e2e --name t1 wp theme install twentytwentyone 
 
       - name: Run performance tests
