@@ -52,12 +52,10 @@ async function runTests( type, round ) {
 	await execShellCommand( 'npm', [ 'run', 'test:performance', '--', 'post-editor.spec.js' ], {
 		cwd: gutenbergPath,
 		env: {
-			shell: true, // See https://stackoverflow.com/a/59830014/7225515
 			...process.env,
 			WP_BASE_URL: resolveSiteUrl(),
 			WP_ARTIFACTS_PATH: resultsPath,
 			RESULTS_ID: `${ type }.${ round }`,
-			DEBUG: 'pw:api',
 		},
 	} );
 }
