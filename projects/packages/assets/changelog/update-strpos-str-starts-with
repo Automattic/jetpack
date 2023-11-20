@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
+Comment: Comment why we don't use str_starts_with() in Assets::wp_default_scripts_hook. No change to functionality.
 
-Code Modernization: Replace usage of strpos() with str_starts_with().
