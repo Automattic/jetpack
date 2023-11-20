@@ -1,11 +1,13 @@
 import { DataSyncProvider, useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
-import GraphComponent from './graph-component';
+import GraphComponent from './graph-component/graph-component';
 import classNames from 'classnames';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { __ } from '@wordpress/i18n';
 import { Panel, PanelBody, PanelRow } from '@wordpress/components';
 import { navigate } from '$lib/utils/navigate';
+
+import styles from './performance-history.module.scss';
 
 const performanceHistoryDataSchema = z.object( {
 	periods: z.array(
@@ -62,15 +64,15 @@ const PerformanceHistory = ( { needsUpgrade, isFreshStart, onDismissFreshStart }
 	const [ isPanelOpen, setPanelOpen ] = usePerformanceHistoryPanelQuery();
 
 	return (
-		<div className={ classNames( 'jb-performance-history', { loading: isFetching } ) }>
-			<Panel>
+		<div className={ classNames( styles[ 'performance-history' ], { loading: isFetching } ) }>
+			<Panel className={ classNames( styles[ 'components-panel' ] ) }>
 				<PanelBody
 					title={ __( 'Historical Performance', 'jetpack-boost' ) }
 					initialOpen={ isPanelOpen }
 					onToggle={ value => {
 						setPanelOpen( value );
 					} }
-					className="jb-performance-history__panel"
+					className={ classNames( styles[ 'performance-history-body' ] ) }
 				>
 					<PanelRow>
 						<div style={ { flexGrow: 1, minHeight: '300px' } }>

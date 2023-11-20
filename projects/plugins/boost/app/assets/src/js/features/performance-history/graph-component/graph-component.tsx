@@ -6,10 +6,12 @@ import {
 	Spinner,
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import styles from './graph-component.module.scss';
+import classNames from 'classnames';
 
 const DummyGraph = ( { children } ) => {
 	return (
-		<div className="jb-performance-history__dummy">
+		<div className={ classNames( styles.dummy ) }>
 			{ children }
 
 			<BoostScoreGraph isPlaceholder={ true } />
@@ -29,7 +31,7 @@ const GraphComponent = ( {
 } ) => {
 	if ( isLoading ) {
 		return (
-			<div className="jb-performance-history__dummy">
+			<div className={ classNames( styles.dummy ) }>
 				<Spinner color="#000000" />
 			</div>
 		);

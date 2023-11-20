@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import type { Meta } from '@storybook/react';
-import GraphComponent from '../graph-component';
+import GraphComponent from '../graph-component/graph-component';
 
 const exampleRawResponse = {
 	data: {
@@ -157,7 +157,7 @@ const exampleRawResponse = {
 };
 
 const meta: Meta< typeof GraphComponent > = {
-	title: 'Plugins/Boost/Performance History/Graph',
+	title: 'Plugins/Boost/Performance History Graph',
 	component: GraphComponent,
 	argTypes: {
 		startDate: { control: 'date' },
@@ -180,7 +180,6 @@ const defaultValues = {
 	startDate: exampleRawResponse.data._meta.start,
 	endDate: exampleRawResponse.data._meta.end,
 	periods: exampleRawResponse.data.periods,
-	isOpen: true,
 	isLoading: false,
 	needsUpgrade: false,
 	isFreshStart: false,
