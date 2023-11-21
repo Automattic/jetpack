@@ -264,7 +264,7 @@ async function changelogCommand( argv ) {
  * Checks if any projects have special changelog type configurations.
  *
  * @param {Array} needChangelog - files that need a changelog.
- * @returns {Array} - array of projects with unique changelog configurations.
+ * @returns {object} - Object containing types associated with each project.
  */
 async function getProjectChangeTypes( needChangelog ) {
 	const types = {};
@@ -817,12 +817,12 @@ async function promptChangelog( argv, needChangelog, types ) {
  * Prompts you for how you want changelogger to run (add to all projects or not, etc).
  *
  * @param {object} argv - the arguments passed.
- * @param {Array} needChangelog - files that need changelogs.
+ * @param {Array} defaultProjects - projects that use the default changelog types.
  * @param {Array} uniqueProjects - projects with unique changelog types.
  * @returns {argv}.
  */
-async function changelogAddPrompt( argv, needChangelog, uniqueProjects ) {
-	const totalProjects = [ ...needChangelog, ...uniqueProjects ];
+async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
+	const totalProjects = [ ...defaultProjects, ...uniqueProjects ];
 
 	// If only one project needs a changelog, confirm.
 	if ( totalProjects.length === 1 ) {
@@ -835,12 +835,12 @@ async function changelogAddPrompt( argv, needChangelog, uniqueProjects ) {
 	}
 
 	// If multiple projects need a changelog that can be the same, confirm.
-	if ( uniqueProjects.length === 0 && needChangelog.length > 1 ) {
+	if ( uniqueProjects.length === 0 && defaultProjects.length > 1 ) {
 		const response = await inquirer.prompt( [
 			{
 				type: 'confirm',
 				name: 'sameChangelogFiles',
-				message: `Found ${ needChangelog.length } project(s) that need a changelog. Create and add same changelog to all projects?`,
+				message: `Found ${ defaultProjects.length } project(s) that need a changelog. Create and add same changelog to all projects?`,
 			},
 			{
 				type: 'confirm',
@@ -861,7 +861,7 @@ async function changelogAddPrompt( argv, needChangelog, uniqueProjects ) {
 		{
 			type: 'confirm',
 			name: 'sameChangelogFiles',
-			message: `Found ${ needChangelog.length } projects that can accept the same changelog file.\n  Found ${ uniqueProjects.length } project(s) that requires a separate changelog configuration. \n  Add same changelog file to ${ needChangelog.length } project(s)?`,
+			message: `Found ${ defaultProjects.length } projects that can accept the same changelog file.\n  Found ${ uniqueProjects.length } project(s) that requires a separate changelog configuration. \n  Add same changelog file to ${ defaultProjects.length } project(s)?`,
 		},
 		{
 			type: 'confirm',
