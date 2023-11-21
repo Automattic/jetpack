@@ -18,6 +18,7 @@ use WP_Error;
  * Connection Manager functionality testing.
  */
 class ManagerTest extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Temporary stack for `wp_redirect`.
@@ -403,10 +404,11 @@ class ManagerTest extends TestCase {
 		$access_token->secret = 'abcd.1234';
 
 		$signed_token = ( new Tokens() )->get_signed_token( $access_token );
-		$this->assertTrue( strpos( $signed_token, 'token' ) !== false );
-		$this->assertTrue( strpos( $signed_token, 'timestamp' ) !== false );
-		$this->assertTrue( strpos( $signed_token, 'nonce' ) !== false );
-		$this->assertTrue( strpos( $signed_token, 'signature' ) !== false );
+
+		$this->assertStringContainsString( 'token', $signed_token );
+		$this->assertStringContainsString( 'timestamp', $signed_token );
+		$this->assertStringContainsString( 'nonce', $signed_token );
+		$this->assertStringContainsString( 'signature', $signed_token );
 	}
 
 	/**

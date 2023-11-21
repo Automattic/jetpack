@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove use of `wikimedia/at-ease` package as PHP 7 improved the behavior of `@`.

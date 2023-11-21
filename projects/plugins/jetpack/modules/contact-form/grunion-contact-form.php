@@ -1703,7 +1703,7 @@ class Grunion_Contact_Form_Plugin {
 		 * Limits search to `post_content` only, and we only match the
 		 * author's email address whenever it's on a line by itself.
 		 */
-		if ( $this->pde_email_address && false !== strpos( $search, '..PDE..AUTHOR EMAIL:..PDE..' ) ) {
+		if ( $this->pde_email_address && str_contains( $search, '..PDE..AUTHOR EMAIL:..PDE..' ) ) {
 			$search = $wpdb->prepare(
 				" AND (
 					{$wpdb->posts}.post_content LIKE %s
@@ -2178,7 +2178,7 @@ class Grunion_Contact_Form_Plugin {
 
 		if ( count( $content ) > 1 ) {
 			$content = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
-			if ( strpos( $content, 'JSON_DATA' ) !== false ) {
+			if ( str_contains( $content, 'JSON_DATA' ) ) {
 				$chunks     = explode( "\nJSON_DATA", $content );
 				$all_values = json_decode( $chunks[1], true );
 				if ( is_array( $all_values ) ) {
@@ -2544,9 +2544,9 @@ class Crunion_Contact_Form_Shortcode {
 				$value = implode( ',', $value );
 			}
 
-			if ( false === strpos( $value, "'" ) ) {
+			if ( ! str_contains( $value, "'" ) ) {
 				$value = "'$value'";
-			} elseif ( false === strpos( $value, '"' ) ) {
+			} elseif ( ! str_contains( $value, '"' ) ) {
 				$value = '"' . $value . '"';
 			} else {
 				// Shortcodes can't contain both '"' and "'".  Strip one.
@@ -2912,7 +2912,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 * @param int $id Contact Form ID.
 			 */
 			$url                     = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
-			$has_submit_button_block = ! ( false === strpos( $content, 'wp-block-jetpack-button' ) );
+			$has_submit_button_block = str_contains( $content, 'wp-block-jetpack-button' );
 			$form_classes            = 'contact-form commentsblock';
 
 			if ( $has_submit_button_block ) {
@@ -4228,7 +4228,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	public static function wrap_message_in_html_tags( $title, $body, $footer ) {
 		// Don't do anything if the message was already wrapped in HTML tags
 		// That could have be done by a plugin via filters
-		if ( false !== strpos( $body, '<html' ) ) {
+		if ( str_contains( $body, '<html' ) ) {
 			return $body;
 		}
 

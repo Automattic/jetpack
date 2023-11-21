@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent fatal errors when filename is empty in the heif support feature

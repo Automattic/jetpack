@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add `symfony/*` v4.4 as an option, for use with PHP 7.1.

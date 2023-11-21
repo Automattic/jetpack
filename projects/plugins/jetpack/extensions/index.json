@@ -68,7 +68,8 @@
 		"videopress/video-chapters",
 		"create-with-voice",
 		"ai-assistant-backend-prompts",
-		"sharing-buttons"
+		"sharing-buttons",
+		"ai-enable-tier-plans-ui"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

@@ -1,5 +1,0 @@
-Significance: patch
-Type: removed
-Comment: Remove comment about tests failing in PHP 5.6 when run out of order. What was happening is that in PHPUnit <6.0, `@before` ran after `setUp()` so the first test's `Stats::init()` call would hook the hooks before WorDBless saved them. In PHPUnit 6.0 the `@before`-annotated methods run first so WorDBless saves the hooks before that first test's `Stats::init()` call.
-
-

@@ -502,7 +502,7 @@ class Launchpad_Task_Lists {
 		}
 
 		// Require that the string start with a slash, but not two slashes.
-		if ( '/' === substr( $input, 0, 1 ) && '/' !== substr( $input, 1, 1 ) ) {
+		if ( str_starts_with( $input, '/' ) && ! str_starts_with( $input, '//' ) ) {
 			return true;
 		}
 
