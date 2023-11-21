@@ -31,6 +31,8 @@ const GettingStarted: React.FC< GettingStartedProps > = ( {
 		domainValue: string,
 		userConnectedValue: boolean
 	) {
+		setSelectedPlan( plan );
+
 		try {
 			// Make sure there is a Jetpack connection
 			await initializeConnection();
@@ -53,16 +55,8 @@ const GettingStarted: React.FC< GettingStartedProps > = ( {
 		} catch ( e ) {
 			// Display the error in a snackbar message
 			setSnackbarMessage( e.message || 'Unknown error occurred during the plan selection.' );
-		} finally {
-			setSelectedPlan( false );
 		}
 	}
-
-	useEffect( () => {
-		if ( false !== selectedPlan ) {
-			initialize( selectedPlan, isPremium, domain, userConnected );
-		}
-	}, [ selectedPlan, isPremium, domain, userConnected ] );
 
 	return (
 		<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
@@ -75,8 +69,8 @@ const GettingStarted: React.FC< GettingStartedProps > = ( {
 					<div className={ styles[ 'pricing-table' ] }>
 						<BoostPricingTable
 							pricing={ pricing }
-							onPremiumCTA={ () => setSelectedPlan( 'premium' ) }
-							onFreeCTA={ () => setSelectedPlan( 'free' ) }
+							onPremiumCTA={ () => initialize( 'premium', isPremium, domain, userConnected ) }
+							onFreeCTA={ () => initialize( 'free', isPremium, domain, userConnected ) }
 							chosenFreePlan={ selectedPlan === 'free' }
 							chosenPaidPlan={ selectedPlan === 'premium' }
 						/>
