@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.0] - 2023-11-20
+### Changed
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+- Clarified video preview poster image selection notice in the VideoPress uploader. [#32948]
+
+### Fixed
+- Enqueued token-bridge script when processing videopress shortcode. [#34121]
+- Fixed interaction with memberships and VideoPress privacy. [#34189]
+
+## [0.20.2] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [0.20.1] - 2023-11-13
+### Changed
+- Updated dependencies.
+
+## [0.20.0] - 2023-11-08
+### Added
+- Added support for gated content in VideoPress. [#32154]
+
 ## [0.19.3] - 2023-11-03
 ### Changed
 - Updated package dependencies. [#33904]
@@ -1170,6 +1192,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.21.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.20.2...v0.21.0
+[0.20.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.20.1...v0.20.2
+[0.20.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.20.0...v0.20.1
+[0.20.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.19.3...v0.20.0
 [0.19.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.19.2...v0.19.3
 [0.19.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.19.1...v0.19.2
 [0.19.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.19.0...v0.19.1

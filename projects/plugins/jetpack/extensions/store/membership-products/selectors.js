@@ -26,3 +26,7 @@ export const isInvalidProduct = ( state, productId ) =>
 	!! productId && ! getProduct( state, productId );
 
 export const getSubscriberCounts = state => state.subscriberCounts;
+
+export const getNewsletterCategories = state => state.newsletterCategories.categories;
+
+export const getNewsletterCategoriesEnabled = state => state.newsletterCategories.enabled;

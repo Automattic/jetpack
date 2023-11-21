@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Remove option of `johnkary/phpunit-speedtrap` v1.1.0 now that we no longer support php 5.6.
+
+

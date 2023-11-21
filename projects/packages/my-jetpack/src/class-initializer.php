@@ -32,7 +32,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '3.12.0-alpha';
+	const PACKAGE_VERSION = '4.0.1-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -75,6 +75,9 @@ class Initializer {
 
 		// Sets up JITMS.
 		JITM::configure();
+
+		// Add "Activity Log" menu item.
+		Activitylog::init();
 
 		/**
 		 * Fires after the My Jetpack package is initialized

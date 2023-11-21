@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Jetpack Sync: Updated Checksums logic to handle exceptions gracefully
+
+

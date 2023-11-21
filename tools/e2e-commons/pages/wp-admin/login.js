@@ -1,7 +1,7 @@
 import WpPage from '../wp-page.js';
-import logger from '../../logger.cjs';
+import logger from '../../logger.js';
 import { takeScreenshot } from '../../reporters/index.js';
-import { getSiteCredentials, resolveSiteUrl } from '../../helpers/utils-helper.cjs';
+import { getSiteCredentials, resolveSiteUrl } from '../../helpers/utils-helper.js';
 
 export default class WPLoginPage extends WpPage {
 	constructor( page ) {

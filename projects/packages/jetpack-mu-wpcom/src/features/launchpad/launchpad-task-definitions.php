@@ -80,7 +80,14 @@ function wpcom_launchpad_get_task_definitions() {
 				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
-				return '/post/' . $data['site_slug_encoded'];
+				$base_path = '/post/' . $data['site_slug_encoded'];
+
+				// Add a new_prompt query param for Write sites.
+				if ( 'write' === get_option( 'site_intent' ) ) {
+					return add_query_arg( 'new_prompt', 'true', $base_path );
+				}
+
+				return $base_path;
 			},
 		),
 		'plan_completed'                  => array(
@@ -195,7 +202,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/subscribers/' . $data['site_slug_encoded'];
+				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
 			},
 		),
 		'migrate_content'                 => array(
@@ -420,7 +427,6 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Enable subscribers modal', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'is_visible_callback'  => 'wpcom_launchpad_is_enable_subscribers_modal_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/settings/newsletter/' . $data['site_slug_encoded'];
 			},
@@ -1071,6 +1077,9 @@ function wpcom_launchpad_is_task_option_completed( $task ) {
 	if ( ! empty( $checklist[ $task['id'] ] ) ) {
 		return true;
 	}
+	if ( isset( $task['id_map'] ) && ! empty( $checklist[ $task['id_map'] ] ) ) {
+		return true;
+	}
 	return false;
 }
 
@@ -1322,7 +1331,7 @@ function wpcom_launchpad_is_videopress_upload_disabled() {
 function wpcom_launchpad_track_video_uploaded_task( $post_id ) {
 	// Not using `wp_attachment_is` because it requires the actual file
 	// which is not the case for Atomic VideoPress.
-	if ( 0 !== strpos( get_post_mime_type( $post_id ), 'video/' ) ) {
+	if ( ! str_starts_with( get_post_mime_type( $post_id ), 'video/' ) ) {
 		return;
 	}
 	wpcom_mark_launchpad_task_complete( 'videopress_upload' );
@@ -1359,15 +1368,6 @@ function wpcom_launchpad_mark_enable_subscribers_modal_complete( $old_value, $va
 }
 add_action( 'update_option_sm_enabled', 'wpcom_launchpad_mark_enable_subscribers_modal_complete', 10, 3 );
 add_action( 'add_option_sm_enabled', 'wpcom_launchpad_mark_enable_subscribers_modal_complete', 10, 3 );
-
-/**
- * Determines whether the enable_subscribers_modal task should show.
- *
- * @return bool True if the task should show, false otherwise.
- */
-function wpcom_launchpad_is_enable_subscribers_modal_visible() {
-	return apply_filters( 'jetpack_subscriptions_modal_enabled', false );
-}
 
 /**
  * Determine `domain_claim` task visibility.
@@ -1562,7 +1562,7 @@ function wpcom_launchpad_has_translation( $string, $domain = 'jetpack-mu-wpcom' 
 	}
 
 	$current_locale = get_user_locale();
-	if ( is_string( $current_locale ) && 0 === strpos( $current_locale, 'en' ) ) {
+	if ( is_string( $current_locale ) && str_starts_with( $current_locale, 'en' ) ) {
 		return true;
 	}
 

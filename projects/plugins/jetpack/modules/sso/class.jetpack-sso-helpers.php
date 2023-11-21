@@ -358,7 +358,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 
 			$site_url = trailingslashit( site_url() );
 
-			if ( 0 !== strpos( $login_url, $site_url ) ) {
+			if ( ! str_starts_with( $login_url, $site_url ) ) {
 				// Something went wrong, we can't properly extract the custom URL.
 				return null;
 			}
