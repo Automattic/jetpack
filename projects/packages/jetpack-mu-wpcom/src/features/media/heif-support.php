@@ -95,7 +95,8 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
  * @return void
  */
 function jetpack_wpcom_maybe_log_heif_to_jpg( $params = array() ) {
-	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+
+	if ( ! file_exists( WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php' ) ) {
 		return;
 	}
 
