@@ -700,9 +700,9 @@ class Sharing_Service_Total {
 	 */
 	public static function cmp( $a, $b ) {
 		if ( $a->total === $b->total ) {
-			return $a->name < $b->name;
+			return $b->name <=> $a->name;
 		}
-		return $a->total < $b->total;
+		return $b->total <=> $a->total;
 	}
 }
 
@@ -761,9 +761,9 @@ class Sharing_Post_Total {
 	 */
 	public static function cmp( $a, $b ) {
 		if ( $a->total === $b->total ) {
-			return $a->id < $b->id;
+			return $b->id <=> $a->id;
 		}
-		return $a->total < $b->total;
+		return $b->total <=> $a->total;
 	}
 }
 
