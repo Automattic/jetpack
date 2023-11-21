@@ -245,7 +245,7 @@ class Filter_Embedded_HTML_Objects {
 		} else {
 			// no src found, search html.
 			foreach ( self::$html_strpos_filters as $match => $callback ) {
-				if ( false !== strpos( $html, $match ) ) {
+				if ( str_contains( $html, $match ) ) {
 					return call_user_func( $callback, $attrs );
 				}
 			}
@@ -263,7 +263,7 @@ class Filter_Embedded_HTML_Objects {
 
 		// check source filter.
 		foreach ( self::$strpos_filters as $match => $callback ) {
-			if ( false !== strpos( $src, $match ) ) {
+			if ( str_contains( $src, $match ) ) {
 				return call_user_func( $callback, $attrs );
 			}
 		}
@@ -276,7 +276,7 @@ class Filter_Embedded_HTML_Objects {
 
 		// check html filters.
 		foreach ( self::$html_strpos_filters as $match => $callback ) {
-			if ( false !== strpos( $html, $match ) ) {
+			if ( str_contains( $html, $match ) ) {
 				return call_user_func( $callback, $attrs );
 			}
 		}

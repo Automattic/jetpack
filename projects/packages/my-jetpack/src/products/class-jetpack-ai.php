@@ -75,11 +75,11 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
-	 * Get the next usage tier
+	 * Get the current usage tier
 	 *
 	 * @return int
 	 */
-	public static function get_next_usage_tier() {
+	public static function get_current_usage_tier() {
 		$info = self::get_ai_assistant_feature();
 
 		// Bail early if it's not possible to fetch the feature data.
@@ -88,6 +88,17 @@ class Jetpack_Ai extends Product {
 		}
 
 		$current_tier = isset( $info['current-tier']['value'] ) ? $info['current-tier']['value'] : null;
+
+		return $current_tier;
+	}
+
+	/**
+	 * Get the next usage tier
+	 *
+	 * @return int
+	 */
+	public static function get_next_usage_tier() {
+		$current_tier = self::get_current_usage_tier();
 
 		if ( null === $current_tier ) {
 			return 1;
@@ -290,6 +301,23 @@ class Jetpack_Ai extends Product {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Checks whether the product can be upgraded to a different product.
+	 *
+	 * @return boolean
+	 */
+	public static function is_upgradable() {
+		$has_required_plan = self::has_required_plan();
+		$current_tier      = self::get_current_usage_tier();
+
+		// Mark as not upgradable if user is on unlimited tier or does not have any plan.
+		if ( ! $has_required_plan || null === $current_tier || 1 === $current_tier ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

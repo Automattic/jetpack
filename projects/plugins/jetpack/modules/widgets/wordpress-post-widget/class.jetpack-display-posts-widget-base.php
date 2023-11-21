@@ -355,7 +355,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		if ( ! empty( $instance['url'] ) ) {
 			$blog_data = $this->fetch_blog_data( $instance['url'], array(), true );
 
-			if ( is_wp_error( $blog_data['site_info']['error'] ) && 'www.' === substr( $instance['url'], 0, 4 ) ) {
+			if ( is_wp_error( $blog_data['site_info']['error'] ) && str_starts_with( $instance['url'], 'www.' ) ) {
 				$blog_data = $this->fetch_blog_data( substr( $instance['url'], 4 ), array(), true );
 
 				if ( ! is_wp_error( $blog_data['site_info']['error'] ) ) {

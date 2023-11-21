@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Sync\Replicastore;
 
+use Exception;
+
 /**
  * Class to handle Table Checksums for the Users table.
  */

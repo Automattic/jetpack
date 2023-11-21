@@ -192,7 +192,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 	 */
 	public function rewrite_generic_upload_error( $errors ) {
 		foreach ( $errors as $k => $error ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			if ( 'upload_error' === $error['error'] && false !== strpos( $error['message'], '|' ) ) {
+			if ( 'upload_error' === $error['error'] && str_contains( $error['message'], '|' ) ) {
 				list( $errors[ $k ]['error'], $errors[ $k ]['message'] ) = explode( '|', $error['message'], 2 ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			}
 		}

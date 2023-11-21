@@ -18,7 +18,6 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
-use function Wikimedia\quietCall;
 
 /**
  * Tests for the changelogger utils.
@@ -35,7 +34,8 @@ class UtilsTest extends TestCase {
 	 * Test error_clear_last.
 	 */
 	public function test_error_clear_last() {
-		quietCall( 'trigger_error', 'Test', E_USER_NOTICE );
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+		@trigger_error( 'Test', E_USER_NOTICE );
 		$err = error_get_last();
 		$this->assertSame( 'Test', $err['message'] );
 

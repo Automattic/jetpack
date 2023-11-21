@@ -234,7 +234,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		// Exclude hidden menu items.
-		if ( false !== strpos( $menu_item[4], 'hide-if-js' ) ) {
+		if ( str_contains( $menu_item[4], 'hide-if-js' ) ) {
 			// Exclude submenu items as well.
 			if ( ! empty( $submenu[ $menu_item[2] ] ) ) {
 				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -244,7 +244,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		// Handle menu separators.
-		if ( false !== strpos( $menu_item[4], 'wp-menu-separator' ) ) {
+		if ( str_contains( $menu_item[4], 'wp-menu-separator' ) ) {
 			return array(
 				'type' => 'separator',
 			);
@@ -291,7 +291,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		// Exclude hidden submenu items.
-		if ( isset( $submenu_item[4] ) && false !== strpos( $submenu_item[4], 'hide-if-js' ) ) {
+		if ( isset( $submenu_item[4] ) && str_contains( $submenu_item[4], 'hide-if-js' ) ) {
 			return array();
 		}
 
@@ -431,7 +431,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		$item = array();
 
 		if (
-			false !== strpos( $title, 'count-' )
+			str_contains( $title, 'count-' )
 			&& preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches )
 		) {
 
@@ -446,7 +446,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		if (
-			false !== strpos( $title, 'inline-text' )
+			str_contains( $title, 'inline-text' )
 			&& preg_match( '/<span class="inline-text".+\s?>(.+)<\/span>/', $title, $matches )
 		) {
 
@@ -461,7 +461,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		if (
-			false !== strpos( $title, 'awaiting-mod' )
+			str_contains( $title, 'awaiting-mod' )
 			&& preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches )
 		) {
 
