@@ -3,7 +3,9 @@
 	"description": "Components used to promote Yoast as part of our collaboration",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"php": ">=7.0"
+	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev"
@@ -51,7 +53,7 @@
 			"link-template": "https://github.com/automattic/jetpack-yoast-promo/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.1.x-dev"
+			"dev-trunk": "0.2.x-dev"
 		},
 		"textdomain": "jetpack-yoast-promo",
 		"version-constants": {

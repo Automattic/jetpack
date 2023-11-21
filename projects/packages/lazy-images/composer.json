@@ -4,6 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"php": ">=7.0",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-status": "@dev"
@@ -56,7 +57,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.3.x-dev"
+			"dev-trunk": "3.0.x-dev"
 		}
 	},
 	"config": {

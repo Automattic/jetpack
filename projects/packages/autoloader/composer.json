@@ -12,6 +12,7 @@
 		"wordpress"
 	],
 	"require": {
+		"php": ">=7.0",
 		"composer-plugin-api": "^1.1 || ^2.0"
 	},
 	"require-dev": {
@@ -56,7 +57,7 @@
 			"::VERSION": "src/AutoloadGenerator.php"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.12.x-dev"
+			"dev-trunk": "3.0.x-dev"
 		}
 	}
 }
