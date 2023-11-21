@@ -76,7 +76,6 @@ class WP_Test_Contact_Info_Widget extends WP_UnitTestCase {
 		$this->contact_info_widget->form( $instance );
 		$output_string = ob_get_clean();
 
-		$apikey_field_displayed = ! str_contains( $output_string, '<input type="hidden" id="widget-widget_contact_info' );
-		$this->assertTrue( $apikey_field_displayed );
+		$this->assertStringNotContainsString( '<input type="hidden" id="widget-widget_contact_info', $output_string );
 	}
 }
