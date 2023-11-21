@@ -34,9 +34,6 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr, $content ) {
-	/*
-	 * Enqueue necessary scripts and styles.
-	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 	return $content;
 }

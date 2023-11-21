@@ -7,7 +7,6 @@ import { addQueryArgs } from '@wordpress/url';
 import classNames from 'classnames';
 import { useEffect } from 'react';
 import SocialIcon from 'social-logos';
-import SharingButtonInspectorControls from './components/inspector-controls';
 import { getNameBySite } from './utils';
 import './style.scss';
 
@@ -32,8 +31,6 @@ const SharingButtonEdit = ( { attributes, context, setAttributes, post } ) => {
 	const { service, label } = attributes;
 	const { styleType } = context;
 
-	const showLabels = styleType !== 'icon';
-
 	useEffect( () => {
 		const url = mountLink( service, post );
 		setAttributes( { url } );
@@ -41,27 +38,23 @@ const SharingButtonEdit = ( { attributes, context, setAttributes, post } ) => {
 
 	const socialLinkName = getNameBySite( service );
 	const socialLinkLabel = label ?? socialLinkName;
+
+	const sharingButtonClass = classNames(
+		'jetpack-sharing-button__button',
+		'style-' + styleType,
+		'share-' + service
+	);
+
 	const blockProps = useBlockProps( {
 		className: 'jetpack-sharing-button__list-item',
 	} );
 
 	return (
 		<>
-			<SharingButtonInspectorControls
-				attributes={ attributes }
-				setAttributes={ setAttributes }
-				socialLinkLabel={ socialLinkName }
-			/>
 			<li { ...blockProps }>
-				<Button className={ `jetpack-sharing-button__button share-${ service }` }>
+				<Button className={ sharingButtonClass }>
 					<SocialIcon icon={ service } size={ 24 } />
-					<span
-						className={ classNames( 'jetpack-sharing-button__service-label', {
-							'screen-reader-text': ! showLabels,
-						} ) }
-					>
-						{ socialLinkLabel }
-					</span>
+					<span className={ 'jetpack-sharing-button__service-label' }>{ socialLinkLabel }</span>
 				</Button>
 			</li>
 		</>
@@ -73,5 +66,3 @@ export default withSelect( select => {
 		post: select( store ).getCurrentPost(),
 	};
 } )( SharingButtonEdit );
-
-// export default SharingButtonEdit;

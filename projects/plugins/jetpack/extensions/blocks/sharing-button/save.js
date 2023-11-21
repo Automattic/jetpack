@@ -4,7 +4,7 @@ import './style.scss';
 const SharingButtonsView = ( { attributes } ) => {
 	const { service, url } = attributes;
 	return (
-		<li className="jetpack-sharing-button__list">
+		<li className="jetpack-sharing-button__list-item">
 			<ViewSocialButton service={ service } url={ url } />
 		</li>
 	);

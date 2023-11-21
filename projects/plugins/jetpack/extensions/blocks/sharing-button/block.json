@@ -8,7 +8,7 @@
 	"version": "12.5.0",
 	"textdomain": "jetpack",
 	"category": "embed",
-	"parent": [ "jetpack/sharing-buttonsss" ],
+	"parent": [ "jetpack/sharing-buttons" ],
 	"attributes": {
 		"url": {
 			"type": "string"
@@ -23,9 +23,10 @@
 			"type": "string"
 		}
 	},
-	"usesContext": [ "styleType" ],
+	"usesContext": [ "styleType", "postId" ],
 	"supports": {
 		"reusable": false,
 		"html": false
-	}
+	},
+	"viewScript": "file:./view.js"
 }
