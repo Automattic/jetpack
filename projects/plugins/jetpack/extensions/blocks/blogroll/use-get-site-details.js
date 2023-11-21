@@ -12,7 +12,7 @@ export default function useGetSiteDetails( { siteURL, subscriptions, enabled = f
 
 	if ( wpcomSite ) {
 		results.unshift( {
-			blog_id: wpcomSite?.ID,
+			blog_id: wpcomSite?.ID.toString(),
 			description: wpcomSite?.description,
 			URL: wpcomSite?.URL,
 			site_icon: getSiteIcon( wpcomSite?.logo?.url ),
