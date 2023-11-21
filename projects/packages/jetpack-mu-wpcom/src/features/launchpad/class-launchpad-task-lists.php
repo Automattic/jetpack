@@ -371,7 +371,7 @@ class Launchpad_Task_Lists {
 		}
 
 		$extended_content = $this->load_extended_content( $task );
-		if ( $extended_content ) {
+		if ( is_array( $extended_content ) && $extended_content !== array() ) {
 			$built_task['extended_content'] = $extended_content;
 		}
 
@@ -457,28 +457,48 @@ class Launchpad_Task_Lists {
 	 * @return array|null The extended content for the task.
 	 */
 	private function load_extended_content( $task ) {
-		if ( ! isset( $task['extended_content'] ) ) {
+		if ( ! isset( $task['extended_content'] ) || ! is_array( $task['extended_content'] ) ) {
 			return null;
 		}
 
 		$extended_content_context = array();
 
-		foreach ( $task['extended_content'] as $context => $extended_content ) {
-			$loaded_extended_context = array();
+		foreach ( $task['extended_content'] as $extended_content_callback ) {
+			if ( isset( $extended_content_callback ) && is_callable( $extended_content_callback ) ) {
+				$extended_content_for_context = call_user_func( $extended_content_callback, $task['id'] );
 
-			$actions = $this->load_value_from_callback( $extended_content, 'actions', null, $task['id'] );
-			if ( $actions ) {
-				$loaded_extended_context['actions'] = $actions;
+				if (
+					is_array( $extended_content_for_context )
+					&& isset( $extended_content_for_context['contexts'] )
+					&& is_array( $extended_content_for_context['contexts'] )
+					// require either actions or content - we might want both, or only require content
+					&& ( isset( $extended_content_for_context['actions'] ) || isset( $extended_content_for_context['content'] ) )
+				) {
+					$current_contexts        = $extended_content_for_context['contexts'];
+					$current_content_updated = false;
+					$current_context_data    = array(
+						'actions' => array(),
+						'content' => array(),
+					);
+
+					if ( isset( $extended_content_for_context['actions'] ) && is_array( $extended_content_for_context['actions'] ) && array() !== $extended_content_for_context['actions'] ) {
+						$current_context_data['actions'] = $extended_content_for_context['actions'];
+						$current_content_updated         = true;
+					}
+
+					if ( isset( $extended_content_for_context['content'] ) && is_array( $extended_content_for_context['content'] ) && array() !== $extended_content_for_context['content'] ) {
+						$current_context_data['content'] = $extended_content_for_context['content'];
+						$current_content_updated         = true;
+					}
+
+					if ( $current_content_updated ) {
+						foreach ( $current_contexts as $current_context ) {
+							$extended_content_context[ $current_context ] = $current_context_data;
+						}
+					}
+				}
 			}
-
-			$content = $this->load_value_from_callback( $extended_content, 'content', null, $task['id'] );
-			if ( $actions ) {
-				$loaded_extended_context['content'] = $content;
-			}
-
-			$extended_content_context[ $context ] = $loaded_extended_context;
 		}
-
 		return $extended_content_context;
 	}
 
