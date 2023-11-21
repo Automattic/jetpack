@@ -1,17 +1,10 @@
 import { renderHook } from '@testing-library/react';
 import { RegistryProvider, createRegistry, createReduxStore } from '@wordpress/data';
 import { WPDataRegistry } from '@wordpress/data/build-types/registry';
-import { useShareLimits } from '../';
+import { getMessages, useShareLimits } from '../';
 import { SOCIAL_STORE_CONFIG, SOCIAL_STORE_ID } from '../../../social-store';
 import { SocialStoreState } from '../../../social-store/types';
 import { createActiveConnections } from '../../../utils/test-utils';
-
-const messages = {
-	default: 'Share limit for 30 days: 30.',
-	limitExceeded: 'You have exceeded your share limit. Your posts will not longer be shared.',
-	scheduled: 'Your scheduled posts will not get shared after you reach the sharing limit.',
-	approachingLimit: 'You are approaching your share limit.',
-};
 
 type DeepPartial< T > = T extends object
 	? {
@@ -59,6 +52,8 @@ function getStoreInitialState( data: DeepPartial< SocialStoreState > ) {
 		},
 	};
 }
+
+const messages = getMessages( 30 );
 
 describe( 'useShareLimits', () => {
 	it( 'should return the default values', () => {
