@@ -1,8 +1,8 @@
 === WP Super Cache ===
 Contributors: donncha, automattic, adnan007, dilirity, mikemayhem3030, pyronaur, thingalon
 Tags: performance, caching, wp-cache, wp-super-cache, cache
-Requires at least: 6.2
-Requires PHP: 5.6
+Requires at least: 6.3
+Requires PHP: 7.0
 Tested up to: 6.4
 Stable tag: 1.10.0
 License: GPLv2 or later
@@ -268,34 +268,23 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.10.0 - 2023-08-16
+### 1.11.0 - 2023-11-08
 #### Added
-- Caching: Added support for the 'Accept' HTTP Header. Prevent caching JSON content.
-- Preload: Improved preload notification panel shows the last 5 preloaded URLs.
+- Super Cache: fix "accept header" check, and add new "wpsc_accept_headers" filter on accept header list
 
 #### Changed
-- General: Indicate full compatibility with the latest version of WordPress, 6.3.
-- General: Update Boost install / activate card styles.
-- General: Update documentation links to point to Jetpack.com docs.
-- General: Update the contributors list.
-- Preload: Faster and more robust preloading slower hosts.
-
-#### Removed
-- Cleanup: Removes unwanted development environment files from production version of the plugin.
-- Cleanup: Remove unused "object cache" code.
+- General: indicate full compatibility with the latest version of WordPress, 6.4.
+- General: update WordPress version requirements to WordPress 6.2.
+- Overhauled visual styling to match Jetpack branding
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
 
 #### Fixed
-- Cache Compression: Fix PHP warning appearing in gzip output stream.
-- Caching: Reject unknown or malformed URIs to prevent PHP warnings.
-- Dynamic Caching: Fixed incorrect encoding headers when using dynamic caching with compression.
-- Setting page: Fixed boost banner getting oversized when zoomed out
-- General: Fix incorrect Debug Log URL for nested WordPress installations.
-- General: Fix links to cache directory on sites that are in a sub directory.
-- General: Updated Nginx documentation hyperlink.
-- Preload: No longer deletes child taxonomies during preload.
-- Preload: Use a constant instead of hard-coded email numbers in preload dropdown.
-- Caching: Prevent Super Cache from attempting to gunzip content which is not zipped
-- General: Fix null/false warning in PHP8.1
+- Caching: make sure $wp_cache_request_uri is defined to avoid warnings about "NULL" parameters.
+- super-cache: fixed null parameter warning when using $supercachedir
+- Super Cache: cancel the full preload job correctly.
 
 --------
 

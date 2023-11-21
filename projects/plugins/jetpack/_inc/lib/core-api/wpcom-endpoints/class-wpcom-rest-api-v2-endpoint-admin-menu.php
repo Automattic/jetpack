@@ -323,9 +323,9 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		if ( ! empty( $icon ) && 'none' !== $icon && 'div' !== $icon ) {
 			$img = esc_url( $icon );
 
-			if ( 0 === strpos( $icon, 'data:image/svg+xml' ) ) {
+			if ( str_starts_with( $icon, 'data:image/svg+xml' ) ) {
 				$img = $icon;
-			} elseif ( 0 === strpos( $icon, 'dashicons-' ) ) {
+			} elseif ( str_starts_with( $icon, 'dashicons-' ) ) {
 				$img = $this->prepare_dashicon( $icon );
 			}
 		}
@@ -364,7 +364,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		// External URLS.
 		if ( preg_match( '/^https?:\/\//', $url ) ) {
 			// Allow URLs pointing to WordPress.com.
-			if ( 0 === strpos( $url, 'https://wordpress.com/' ) ) {
+			if ( str_starts_with( $url, 'https://wordpress.com/' ) ) {
 				// Calypso needs the domain removed so they're not interpreted as external links.
 				$url = str_replace( 'https://wordpress.com', '', $url );
 				// Replace special characters with their correct entities e.g. &amp; to &.
@@ -372,13 +372,13 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			}
 
 			// Allow URLs pointing to Jetpack.com.
-			if ( 0 === strpos( $url, 'https://jetpack.com/' ) ) {
+			if ( str_starts_with( $url, 'https://jetpack.com/' ) ) {
 				// Replace special characters with their correct entities e.g. &amp; to &.
 				return wp_specialchars_decode( esc_url_raw( $url ) );
 			}
 
 			// Disallow other external URLs.
-			if ( 0 !== strpos( $url, get_site_url() ) ) {
+			if ( ! str_starts_with( $url, get_site_url() ) ) {
 				return '';
 			}
 			// The URL matches that of the site, treat it as an internal URL.

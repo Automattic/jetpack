@@ -42,7 +42,9 @@ declare global {
 			url: string;
 			online: boolean;
 			assetPath: string;
+			staticAssetPath: string;
 			canResizeImages: boolean;
+			isAtomic: boolean;
 			postTypes: {
 				[ key: string ]: string;
 			};

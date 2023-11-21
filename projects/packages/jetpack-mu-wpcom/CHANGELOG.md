@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2023-11-20
+### Added
+- Ensure enable subscribe modal task in launchpad. [#33909]
+- Launchpad: Add query parameter to the write three posts prompt. [#34160]
+
+### Changed
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [4.18.0] - 2023-11-09
+### Added
+- Take id_map in consideration when checking if a task is completed inside wpcom_launchpad_is_task_option_completed. [#34009]
+
+## [4.17.0] - 2023-11-08
+### Added
+- Added Launchpad tasks and task list to the Subscriber page. [#33948]
+
+### Changed
+- Updated the URL for the Add Subscribers launchpad task to trigger the "Add Subscribers" modal. [#33913]
+
+## [4.16.2] - 2023-11-03
+### Fixed
+- Launchpad hooks: Made more resilient against non-array values. [#33923]
+
+## [4.16.1] - 2023-10-31
+### Fixed
+- Clicking on the 'Choose a plan' task would not redirect to the plans page. [#33872]
+
+## [4.16.0] - 2023-10-30
+### Added
+- Add launchpad checklist for host-site intent. [#33698]
+
+### Fixed
+- Disable fullscreen launchpad when completing the site_launched task. [#33819]
+
+## [4.15.1] - 2023-10-26
+### Changed
+- Coming Soon feature: Be more defensive when checking for meta data. [#33769]
+
 ## [4.15.0] - 2023-10-16
 ### Added
 - Launchpad: Add earn-newsletter checklist. [#33200]
@@ -399,6 +438,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.0.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.18.0...v5.0.0
+[4.18.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.17.0...v4.18.0
+[4.17.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.16.2...v4.17.0
+[4.16.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.16.1...v4.16.2
+[4.16.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.16.0...v4.16.1
+[4.16.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.15.1...v4.16.0
+[4.15.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.15.0...v4.15.1
 [4.15.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.14.0...v4.15.0
 [4.14.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.13.0...v4.14.0
 [4.13.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.12.0...v4.13.0

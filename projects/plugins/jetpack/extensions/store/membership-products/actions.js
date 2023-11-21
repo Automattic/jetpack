@@ -108,3 +108,8 @@ export const setSubscriberCounts = subscriberCounts => ( {
 	type: 'SET_SUBSCRIBER_COUNTS',
 	subscriberCounts,
 } );
+
+export const setNewsletterCategories = newsletterCategories => ( {
+	type: 'SET_NEWSLETTER_CATEGORIES',
+	newsletterCategories,
+} );

@@ -1,5 +1,5 @@
 import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
-import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 
 const apiEndpointsRegex = {
 	'modules-state': /jetpack-boost-ds\/modules-state\/merge/,
@@ -152,7 +152,7 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async isScoreDescriptionPopinVisible() {
-		const selector = '.jb-score-context__info-container';
+		const selector = '.jb-site-score__top .icon-tooltip-wrapper .components-popover__content';
 		return this.page.isVisible( selector );
 	}
 

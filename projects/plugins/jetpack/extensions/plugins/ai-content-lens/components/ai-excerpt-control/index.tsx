@@ -116,7 +116,12 @@ export function AiExcerptControl( {
 						label={ langLabel }
 					/>
 
-					<ToneDropdownMenu label={ toneLabel } value={ tone } onChange={ onToneChange } />
+					<ToneDropdownMenu
+						disabled={ disabled }
+						label={ toneLabel }
+						value={ tone }
+						onChange={ onToneChange }
+					/>
 
 					<AiModelSelectorControl
 						model={ model }

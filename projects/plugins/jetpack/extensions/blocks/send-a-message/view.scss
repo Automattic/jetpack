@@ -1,5 +1,5 @@
 div.wp-block-jetpack-whatsapp-button {
-	margin-right: 5px;
+	margin-inline-end: 5px;
 	display: flex;
 
 	a.whatsapp-block__button {
@@ -48,7 +48,7 @@ div.wp-block-jetpack-whatsapp-button {
 
 	&.has-no-text {
 		a.whatsapp-block__button {
-			padding-left: 48px;
+			padding-inline-start: 48px;
 		}
 	}
 

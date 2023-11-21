@@ -828,9 +828,9 @@ class Grunion_Contact_Form_Plugin {
 			check_admin_referer( "contact-form_{$id}" );
 		}
 
-		$is_widget              = 0 === strpos( $id, 'widget-' );
-		$is_block_template      = 0 === strpos( $id, 'block-template-' );
-		$is_block_template_part = 0 === strpos( $id, 'block-template-part-' );
+		$is_widget              = str_starts_with( $id, 'widget-' );
+		$is_block_template      = str_starts_with( $id, 'block-template-' );
+		$is_block_template_part = str_starts_with( $id, 'block-template-part-' );
 
 		$form = false;
 
@@ -3089,7 +3089,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					}
 				} else {
 					// The feedback content is stored as the first "half" of post_content
-					$value         = $feedback->post_content;
+					$value         = is_a( $feedback, '\WP_Post' ) ? $feedback->post_content : '';
 					list( $value ) = explode( '<!--more-->', $value );
 					$value         = trim( $value );
 				}
@@ -3182,7 +3182,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					}
 				} else {
 					// The feedback content is stored as the first "half" of post_content
-					$value         = $feedback->post_content;
+					$value         = is_a( $feedback, '\WP_Post' ) ? $feedback->post_content : '';
 					list( $value ) = explode( '<!--more-->', $value );
 					$value         = trim( $value );
 				}

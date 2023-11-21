@@ -1,4 +1,4 @@
-import { API_STATE_CONNECTED, API_STATE_LOADING } from './constants';
+import { API_STATE_CONNECTED, API_STATE_LOADING, TYPE_TIER } from './constants';
 
 export const getApiState = state => state.apiState;
 
@@ -14,9 +14,7 @@ export const getProduct = ( state, productId ) =>
 	getProducts( state ).find( product => product.id === productId );
 
 export const getNewsletterProducts = state =>
-	state.products.filter(
-		product => product.subscribe_as_site_subscriber && 'one-time' !== product.interval
-	);
+	state.products.filter( product => product.type === TYPE_TIER );
 
 export const getSiteSlug = state => state.siteSlug;
 
@@ -28,3 +26,7 @@ export const isInvalidProduct = ( state, productId ) =>
 	!! productId && ! getProduct( state, productId );
 
 export const getSubscriberCounts = state => state.subscriberCounts;
+
+export const getNewsletterCategories = state => state.newsletterCategories.categories;
+
+export const getNewsletterCategoriesEnabled = state => state.newsletterCategories.enabled;

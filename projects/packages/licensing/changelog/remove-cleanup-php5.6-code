@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix test class to use `set_up_before_class()` instead of having to cry inside.
+
+

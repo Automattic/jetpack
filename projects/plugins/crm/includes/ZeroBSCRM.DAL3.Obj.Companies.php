@@ -1316,7 +1316,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 
                         // where status = x
                         // USE hasStatus above now...
-                        if (substr($qFilter,0,7) == 'status_'){
+				if ( str_starts_with( $qFilter, 'status_' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                             $qFilterStatus = substr($qFilter,7);
                             $qFilterStatus = str_replace('_',' ',$qFilterStatus);
@@ -1324,21 +1324,21 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                             // check status
                             $wheres['quickfilterstatus'] = array('zbsco_status','LIKE','%s',ucwords($qFilterStatus));
 
-                        } elseif (substr($qFilter,0,14) == 'notcontactedin'){
+				} elseif ( str_starts_with( $qFilter, 'notcontactedin' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                                 // check
                                 $notcontactedinDays = (int)substr($qFilter,14);
                                 $notcontactedinDaysSeconds = $notcontactedinDays*86400;
                                 $wheres['notcontactedinx'] = array('zbsco_lastcontacted','<','%d',time()-$notcontactedinDaysSeconds);
 
-                        } elseif (substr($qFilter,0,9) == 'olderthan'){
+				} elseif ( str_starts_with( $qFilter, 'olderthan' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                                 // check
                                 $olderThanDays = (int)substr($qFilter,9);
                                 $olderThanDaysSeconds = $olderThanDays*86400;
                                 $wheres['olderthanx'] = array('zbsco_created','<','%d',time()-$olderThanDaysSeconds);
 
-                        } else {
+				} else {
 
                                 // normal/hardtyped
 
@@ -1865,7 +1865,10 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                         // some weird case where getting empties, so added check
                         if (isset($field['key']) && !empty($field['key'])){ 
 
-                            $dePrefixed = ''; if (substr($field['key'],0,strlen('zbsco_')) === 'zbsco_') $dePrefixed = substr($field['key'], strlen('zbsco_'));
+						$dePrefixed = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( str_starts_with( $field['key'], 'zbsco_' ) ) {
+							$dePrefixed = substr( $field['key'], strlen( 'zbsco_' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 
                             if (isset($customFields[$field['key']])){
 

@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { spawn } from 'child_process';
 import _ from 'lodash';
 import { prerequisitesBuilder } from '../env/prerequisites.js';
-import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from '../helpers/utils-helper.cjs';
+import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from '../helpers/utils-helper.js';
 
 const __dirname = new URL( '.', import.meta.url ).pathname;
 

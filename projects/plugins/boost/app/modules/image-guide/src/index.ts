@@ -1,7 +1,7 @@
 import analytics from '@automattic/jetpack-analytics';
 import { getMeasurableImages } from '@automattic/jetpack-image-guide';
-import { isSameOrigin } from '../../../assets/src/js/utils/is-same-origin';
-import { prepareAdminAjaxRequest } from '../../../assets/src/js/utils/make-admin-ajax-request';
+import { isSameOrigin } from '../../../assets/src/js/lib/utils/is-same-origin';
+import { prepareAdminAjaxRequest } from '../../../assets/src/js/lib/utils/make-admin-ajax-request';
 import ImageGuideAnalytics from './analytics';
 import { attachGuides } from './initialize';
 import { guideState } from './stores/GuideState';

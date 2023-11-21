@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2023-11-20
+### Changed
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [1.60.1] - 2023-10-31
+
+## [1.60.0] - 2023-10-26
+### Removed
+- Remove Jetpack option jetpack-memberships-connected-account-id. [#32354]
+
+## [1.59.2] - 2023-10-24
+### Changed
+- Update sync version.
+
+## [1.59.1] - 2023-10-24
+### Added
+- Sync: Add missing support for supplying additional columns to do checksum on. [#33440]
+
 ## [1.59.0] - 2023-10-23
 ### Changed
 - Dedicated Sync: Update 'init' hook priority on Dedicated Sync requests to 0, in order to start sending Sync actions to WPCOM and exit as early as possible. [#33594]
@@ -950,6 +969,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[2.0.0]: https://github.com/Automattic/jetpack-sync/compare/v1.60.1...v2.0.0
+[1.60.1]: https://github.com/Automattic/jetpack-sync/compare/v1.60.0...v1.60.1
+[1.60.0]: https://github.com/Automattic/jetpack-sync/compare/v1.59.2...v1.60.0
+[1.59.2]: https://github.com/Automattic/jetpack-sync/compare/v1.59.1...v1.59.2
+[1.59.1]: https://github.com/Automattic/jetpack-sync/compare/v1.59.0...v1.59.1
 [1.59.0]: https://github.com/Automattic/jetpack-sync/compare/v1.58.1...v1.59.0
 [1.58.1]: https://github.com/Automattic/jetpack-sync/compare/v1.58.0...v1.58.1
 [1.58.0]: https://github.com/Automattic/jetpack-sync/compare/v1.57.4...v1.58.0

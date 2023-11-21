@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.0 - 2023-11-20
+### Changed
+- Updated the required PHP version to >= 7.0. [#34126]
+
+## 1.7.11 - 2023-11-14
+### Changed
+- Updated package dependencies. [#34087]
+
+## 1.7.10 - 2023-11-13
+### Changed
+- Internal updates.
+
+## 1.7.9 - 2023-11-09
+
+## 1.7.8 - 2023-11-08
+
+## 1.7.7 - 2023-11-03
+
+## 1.7.6 - 2023-10-31
+### Changed
+- Internal updates.
+
+## 1.7.5 - 2023-10-30
+
+## 1.7.4 - 2023-10-26
+
+## 1.7.3 - 2023-10-24
+### Changed
+- Internal updates.
+
 ## 1.7.2 - 2023-10-23
 
 ## 1.7.1 - 2023-10-16

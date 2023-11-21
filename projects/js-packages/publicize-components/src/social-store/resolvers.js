@@ -1,4 +1,7 @@
+import { select } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { setAutoConversionSettings } from './actions/auto-conversion-settings';
+import { setConnections } from './actions/connection-data';
 import { setJetpackSettings } from './actions/jetpack-settings';
 import { setSocialImageGeneratorSettings } from './actions/social-image-generator-settings';
 import {
@@ -61,4 +64,25 @@ export function* getAutoConversionSettings() {
 	}
 }
 
-export default { getJetpackSettings, getSocialImageGeneratorSettings, getAutoConversionSettings };
+/**
+ * Resolves the connections from the post.
+ *
+ * @returns {Function} Resolver
+ */
+export function getConnections() {
+	return function ( { dispatch } ) {
+		// Get the initial connections from the post meta
+		const connections = select( editorStore ).getEditedPostAttribute(
+			'jetpack_publicize_connections'
+		);
+
+		dispatch( setConnections( connections || [] ) );
+	};
+}
+
+export default {
+	getJetpackSettings,
+	getSocialImageGeneratorSettings,
+	getAutoConversionSettings,
+	getConnections,
+};

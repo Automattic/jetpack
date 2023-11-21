@@ -57,12 +57,13 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @return string
 	 */
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
+		$force_default_view = in_array( $screen, array( 'users.php', 'options-general.php' ), true );
+		$use_wp_admin       = $this->use_wp_admin_interface( $screen );
+
 		// When no preferred view has been set for "Users > All Users" or "Settings > General", keep the previous
 		// behavior that forced the default view regardless of the global preference.
-		if (
-			$fallback_global_preference &&
-			in_array( $screen, array( 'users.php', 'options-general.php' ), true )
-		) {
+		// This behavior is overriden by the wpcom_admin_interface option when it is set to wp-admin.
+		if ( ! $use_wp_admin && $fallback_global_preference && $force_default_view ) {
 			$preferred_view = parent::get_preferred_view( $screen, false );
 			if ( self::UNKNOWN_VIEW === $preferred_view ) {
 				return self::DEFAULT_VIEW;
@@ -288,7 +289,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			$default_customize_background_slug_2 => add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), $customize_url ),
 		);
 
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'themes.php' ) ) {
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'themes.php' ) || self::CLASSIC_VIEW === $this->get_preferred_view( 'themes.php' ) ) {
 			$submenus_to_update['themes.php'] = 'https://wordpress.com/themes/' . $this->domain;
 		}
 
@@ -348,7 +349,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->hide_submenu_page( 'tools.php', 'delete-blog' );
 
 		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 0 );
-		add_submenu_page( 'tools.php', esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 1 );
+		add_submenu_page( 'tools.php', esc_attr__( 'Monetize', 'jetpack' ), __( 'Monetize', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 1 );
 	}
 
 	/**

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [1.19.0] - 2023-11-13
+### Added
+- Added Host::get_source_query() to return the 'source' query param from the current URL. [#33984]
+
 ## [1.18.5] - 2023-09-25
 ### Changed
 - Add 127.0.0.1 into the list of known local domains. [#32898]
@@ -285,6 +293,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[2.0.0]: https://github.com/Automattic/jetpack-status/compare/v1.19.0...v2.0.0
+[1.19.0]: https://github.com/Automattic/jetpack-status/compare/v1.18.5...v1.19.0
 [1.18.5]: https://github.com/Automattic/jetpack-status/compare/v1.18.4...v1.18.5
 [1.18.4]: https://github.com/Automattic/jetpack-status/compare/v1.18.3...v1.18.4
 [1.18.3]: https://github.com/Automattic/jetpack-status/compare/v1.18.2...v1.18.3
