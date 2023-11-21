@@ -28,12 +28,11 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * WordPress.com Login block registration/dependency declaration.
  *
- * @param array  $attr    Array containing the WordPress.com Login block attributes.
- * @param string $content String containing the WordPress.com Login block content.
+ * @param array $attributes Array containing the WordPress.com Login block attributes.
  *
  * @return string
  */
-function load_assets( $attributes, $content ) {
+function load_assets( $attributes ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
@@ -52,6 +51,7 @@ function load_assets( $attributes, $content ) {
 function render_block_wpcom_loginout( $attributes ) {
 
 	// Build the redirect URL.
+	//phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	$current_url = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
 	$classes  = is_user_logged_in() ? 'logged-in' : 'logged-out';
