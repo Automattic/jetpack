@@ -671,8 +671,8 @@ class Jetpack {
 
 		$first_priority = array_shift( $taken_priorities );
 
-		if ( defined( 'PHP_INT_MAX' ) && $first_priority <= - PHP_INT_MAX ) {
-			$new_priority = - PHP_INT_MAX;
+		if ( $first_priority <= PHP_INT_MIN ) {
+			$new_priority = PHP_INT_MIN;
 		} else {
 			$new_priority = $first_priority - 1;
 		}
@@ -3112,7 +3112,7 @@ p {
 	 * @return null|\WP_Error The domain validation error, or `null` if everything's fine.
 	 */
 	public static function registration_check_domains( $error ) {
-		if ( static::is_development_version() && defined( 'PHP_URL_HOST' ) ) {
+		if ( static::is_development_version() ) {
 			$domains_to_check = array_unique(
 				array(
 					'siteurl' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
