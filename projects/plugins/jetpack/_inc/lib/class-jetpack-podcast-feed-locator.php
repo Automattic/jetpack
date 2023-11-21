@@ -50,10 +50,6 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie_Locator {
 		$disable_entity_loader = PHP_VERSION_ID < 80000;
 
 		if ( $disable_entity_loader ) {
-			return false;
-		}
-
-		if ( $disable_entity_loader ) {
 			// This function has been deprecated in PHP 8.0 because in libxml 2.9.0, external entity loading
 			// is disabled by default, so this function is no longer needed to protect against XXE attacks.
 			// phpcs:ignore Generic.PHP.DeprecatedFunctions.Deprecated, PHPCompatibility.FunctionUse.RemovedFunctions.libxml_disable_entity_loaderDeprecated
