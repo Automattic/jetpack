@@ -5,7 +5,7 @@
 
 use WpOrg\Requests\Requests;
 
-require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
+require_once dirname( __DIR__, 2 ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
 
 /**
  * Class WP_Test_WPCOM_REST_API_V2_Endpoint_Transient

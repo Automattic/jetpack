@@ -12,7 +12,6 @@ use Symfony\Component\Console\Helper\DebugFormatterHelper;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use function error_clear_last; // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.error_clear_lastFound
-use function Wikimedia\quietCall;
 
 /**
  * Utilities for the changelogger tool.
@@ -28,7 +27,8 @@ class Utils {
 			error_clear_last();
 		} else {
 			// @codeCoverageIgnoreStart
-			quietCall( 'trigger_error', '', E_USER_NOTICE );
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+			@trigger_error( '', E_USER_NOTICE );
 			// @codeCoverageIgnoreEnd
 		}
 	}
@@ -111,7 +111,8 @@ class Utils {
 		}
 
 		self::error_clear_last();
-		$contents = quietCall( 'file_get_contents', $filename );
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$contents = @file_get_contents( $filename );
 		// @codeCoverageIgnoreStart
 		if ( false === $contents ) {
 			$err          = error_get_last();
@@ -203,7 +204,8 @@ class Utils {
 		}
 
 		if ( ! $repo_data['timestamp'] ) {
-			$mtime = quietCall( 'filemtime', $file );
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$mtime = @filemtime( $file );
 			if ( false !== $mtime ) {
 				$repo_data['timestamp'] = gmdate( 'Y-m-d\\TH:i:s\\Z', $mtime );
 			}

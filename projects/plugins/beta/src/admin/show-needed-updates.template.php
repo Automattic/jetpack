@@ -18,8 +18,7 @@ $plugin = isset( $plugin ) ? $plugin : null; // phpcs:ignore WordPress.WP.Global
 
 // -------------
 
-// TODO: Once we drop PHP 5.6 support, we can do `( function () { ... } )();` instead of assigning to `$tmp`.
-$tmp = function ( $plugin ) {
+( function ( $plugin ) {
 	$updates = Utils::plugins_needing_update( true );
 	if ( isset( $plugin ) ) {
 		$updates = array_intersect_key(
@@ -99,5 +98,4 @@ $tmp = function ( $plugin ) {
 		<?php } ?>
 	</div>
 	<?php
-};
-$tmp( $plugin );
+} )( $plugin );
