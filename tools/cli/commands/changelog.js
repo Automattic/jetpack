@@ -740,7 +740,7 @@ async function promptChangelog( argv, needChangelog, types ) {
 		.stdout.toString()
 		.trim()
 		.replace( /\//g, '-' );
-	const maxLength = Math.max( ...Object.keys( types ).map( key => key.length ) );
+	const maxLength = Object.keys( types ).reduce( ( a, v ) => v.length > a ? v.length : a, 0 );
 	const choices = Object.entries( types ).map( ( [ value, name ] ) => ( {
 		value,
 		name: `[${ value.padEnd( maxLength, ' ' ) }] ${ name }`,
