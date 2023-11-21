@@ -164,7 +164,7 @@ function jetpack_responsive_videos_remove_wrap_oembed( $block_content, $block ) 
 	if (
 		isset( $block['blockName'] )
 		&& (
-			false !== strpos( $block['blockName'], 'core-embed' ) // pre-WP 5.6 embeds (multiple embed blocks starting with 'core-embed').
+			str_contains( $block['blockName'], 'core-embed' ) // pre-WP 5.6 embeds (multiple embed blocks starting with 'core-embed').
 			|| 'core/embed' === $block['blockName'] // WP 5.6 embed block format (single embed block w/ block variations).
 		)
 	) {

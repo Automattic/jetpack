@@ -186,7 +186,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 											&& preg_match( $url_fragment, $icon['url'] )
 										)
 										// Then, regular host name.
-										|| false !== strpos( $icon['url'], $url_fragment )
+										|| str_contains( $icon['url'], $url_fragment )
 									) {
 										printf(
 											'<span class="screen-reader-text">%1$s</span>%2$s',

@@ -66,7 +66,7 @@ function get_map_provider( $html ) {
 	$mapbox_styles = array( 'is-style-terrain' );
 	// return mapbox if html contains one of the mapbox styles
 	foreach ( $mapbox_styles as $style ) {
-		if ( strpos( $html, $style ) !== false ) {
+		if ( str_contains( $html, $style ) ) {
 			return 'mapbox';
 		}
 	}

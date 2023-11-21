@@ -109,7 +109,7 @@ if ( ! function_exists( 'jetpack_social_menu_nav_menu_social_icons' ) ) :
 						&& preg_match( $attr, $item_output )
 					)
 					// Then, regular host name.
-					|| false !== strpos( $item_output, $attr )
+					|| str_contains( $item_output, $attr )
 				) {
 					$item_output = str_replace(
 						$args->link_after,

@@ -399,11 +399,11 @@ final class Image_CDN {
 					// First, check the image tag. Note we only check for pixel sizes now; HTML4 percentages have never been correctly
 					// supported, so we stopped pretending to support them in JP 9.1.0.
 					if ( preg_match( '#[\s"\']width=["\']?([\d%]+)["\']?#i', $images['img_tag'][ $index ], $width_string ) ) {
-						$width = false === strpos( $width_string[1], '%' ) ? $width_string[1] : false;
+						$width = str_contains( $width_string[1], '%' ) ? false : $width_string[1];
 					}
 
 					if ( preg_match( '#[\s"\']height=["\']?([\d%]+)["\']?#i', $images['img_tag'][ $index ], $height_string ) ) {
-						$height = false === strpos( $height_string[1], '%' ) ? $height_string[1] : false;
+						$height = str_contains( $height_string[1], '%' ) ? false : $height_string[1];
 					}
 
 					// Detect WP registered image size from HTML class.
@@ -1296,10 +1296,10 @@ final class Image_CDN {
 
 		if (
 			(
-				false !== strpos( $route, 'wp/v2/media' )
+				str_contains( $route, 'wp/v2/media' )
 				&& 'edit' === $request->get_param( 'context' )
 			)
-			|| false !== strpos( $route, 'wpcom/v2/external-media/copy' )
+			|| str_contains( $route, 'wpcom/v2/external-media/copy' )
 			|| (bool) $request->get_header( 'x-wp-api-fetch-from-editor' )
 		) {
 			// Don't use `__return_true()`: Use something unique. See ::_override_image_downsize_in_rest_edit_context()

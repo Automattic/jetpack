@@ -445,7 +445,7 @@ function jetpack_get_vary_headers( $headers = array() ) {
 		}
 
 		// If the header is a wildcard, we'll return that.
-		if ( false !== strpos( $header, '*' ) ) {
+		if ( str_contains( $header, '*' ) ) {
 			$vary_header_parts = array( '*' );
 			break;
 		}

@@ -527,7 +527,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 				wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
 		}
 
-		if ( false !== strpos( $post_array['hc_avatar'], '.gravatar.com' ) ) {
+		if ( str_contains( $post_array['hc_avatar'], '.gravatar.com' ) ) {
 			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'], ENT_COMPAT );
 		}
 

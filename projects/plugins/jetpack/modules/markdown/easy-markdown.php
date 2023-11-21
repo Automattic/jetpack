@@ -773,8 +773,8 @@ jQuery( function() {
 	 */
 	protected function check_for_early_methods() {
 		$raw_post_data = file_get_contents( 'php://input' );
-		if ( false === strpos( $raw_post_data, 'metaWeblog.getPost' )
-			&& false === strpos( $raw_post_data, 'wp.getPage' ) ) {
+		if ( ! str_contains( $raw_post_data, 'metaWeblog.getPost' )
+			&& ! str_contains( $raw_post_data, 'wp.getPage' ) ) {
 			return;
 		}
 		include_once ABSPATH . WPINC . '/class-IXR.php';

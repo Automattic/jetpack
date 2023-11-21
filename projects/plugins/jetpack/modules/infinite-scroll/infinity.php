@@ -661,7 +661,7 @@ class The_Neverending_Home_Page {
 
 		// actual testing. As search query combines multiple keywords with AND, it's enough to check if any of the keywords is present in the title
 		$term = current( $search_terms );
-		if ( ! empty( $term ) && false !== strpos( $post->post_title, $term ) ) {
+		if ( ! empty( $term ) && str_contains( $post->post_title, $term ) ) {
 			return true;
 		}
 
@@ -1779,7 +1779,7 @@ class The_Neverending_Home_Page {
 	 */
 	public function filter_grunion_redirect_url( $url ) {
 		// Remove IS query args, if present
-		if ( false !== strpos( $url, 'infinity=scrolling' ) ) {
+		if ( str_contains( $url, 'infinity=scrolling' ) ) {
 			$url = remove_query_arg(
 				array(
 					'infinity',

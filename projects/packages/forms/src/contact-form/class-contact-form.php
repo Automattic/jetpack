@@ -349,7 +349,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			 * @param int $id Contact Form ID.
 			 */
 			$url                     = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
-			$has_submit_button_block = ! ( false === strpos( $content, 'wp-block-jetpack-button' ) );
+			$has_submit_button_block = str_contains( $content, 'wp-block-jetpack-button' );
 			$form_classes            = 'contact-form commentsblock';
 
 			if ( $has_submit_button_block ) {
@@ -1665,7 +1665,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static function wrap_message_in_html_tags( $title, $body, $footer ) {
 		// Don't do anything if the message was already wrapped in HTML tags
 		// That could have be done by a plugin via filters
-		if ( false !== strpos( $body, '<html' ) ) {
+		if ( str_contains( $body, '<html' ) ) {
 			return $body;
 		}
 

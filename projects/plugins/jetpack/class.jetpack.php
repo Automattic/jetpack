@@ -5810,13 +5810,13 @@ endif;
 	 * @return mixed
 	 */
 	public static function set_suffix_on_min( $src, $handle ) {
-		if ( false === strpos( $src, '.min.css' ) ) {
+		if ( ! str_contains( $src, '.min.css' ) ) {
 			return $src;
 		}
 
 		if ( ! empty( self::$min_assets ) ) {
 			foreach ( self::$min_assets as $file => $path ) {
-				if ( false !== strpos( $src, $file ) ) {
+				if ( str_contains( $src, $file ) ) {
 					wp_style_add_data( $handle, 'suffix', '.min' );
 					return $src;
 				}
@@ -6440,7 +6440,7 @@ endif;
 		}
 
 		foreach ( $sorted as $box_context => $ids ) {
-			if ( false === strpos( $ids, 'dashboard_stats' ) ) {
+			if ( ! str_contains( $ids, 'dashboard_stats' ) ) {
 				// If the old id isn't anywhere in the ids, don't bother exploding and fail out.
 				continue;
 			}
