@@ -9,6 +9,32 @@ export type ShareLimits = {
 };
 
 /**
+ * Returns the messages for the share limits
+ *
+ * @param {number} shareLimit - Share limit
+ *
+ * @returns {ReturnType<typeof getMessages>} Share limits messages
+ */
+export function getMessages( shareLimit: number ) {
+	return {
+		default: sprintf(
+			// translators: %1$d is the number of shares allowed in 30 days.
+			__( 'Share limit for 30 days: %1$d.', 'jetpack' ),
+			shareLimit
+		),
+		limitExceeded: __(
+			'You have exceeded your share limit. Your posts will not longer be shared.',
+			'jetpack'
+		),
+		scheduled: __(
+			'Your scheduled posts will not get shared after you reach the sharing limit.',
+			'jetpack'
+		),
+		approachingLimit: __( 'You are approaching your share limit.', 'jetpack' ),
+	};
+}
+
+/**
  * Returns the share limits details
  *
  * @returns {ShareLimits} Share limits details
@@ -46,36 +72,24 @@ export function useShareLimits(): ShareLimits {
 	}, [] );
 
 	let noticeType: ShareLimits[ 'noticeType' ] = 'default';
-	let message = sprintf(
-		// translators: %1$d is the number of shares allowed in 30 days.
-		__( 'Share limit for 30 days: %1$d.', 'jetpack' ),
-		shareLimit
-	);
+	const messages = getMessages( shareLimit );
 
-	// Extract the strings here to avoid `msgid argument is not a string literal` error
-	const limitExceededMessage = __(
-		'You have exceeded your share limit. Your posts will not longer be shared.',
-		'jetpack'
-	);
-	const scheduledSharesMessage = __(
-		'Your scheduled posts will not get shared after you reach the sharing limit.',
-		'jetpack'
-	);
+	let message = messages.default;
 
 	switch ( limitStatus ) {
 		case 'crossed':
 			noticeType = usedSharesCount >= shareLimit ? 'error' : 'warning';
-			message = usedSharesCount >= shareLimit ? limitExceededMessage : scheduledSharesMessage;
+			message = usedSharesCount >= shareLimit ? messages.limitExceeded : messages.scheduled;
 			break;
 
 		case 'full':
 			noticeType = scheduledShares > 0 ? 'warning' : 'error';
-			message = scheduledShares > 0 ? scheduledSharesMessage : limitExceededMessage;
+			message = scheduledShares > 0 ? messages.scheduled : messages.limitExceeded;
 			break;
 
 		case 'close':
 			noticeType = 'warning';
-			message = __( 'You are approaching your share limit.', 'jetpack' );
+			message = messages.approachingLimit;
 			break;
 	}
 
