@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.1] - 2023-11-21
+### Added
+- My Jetpack: Mark Jetpack AI as upgradable in interstitial page [#34215]
+
 ## [4.0.0] - 2023-11-20
 ### Added
 - Display an "Activity Log" menu item to connected users. [#34174]
@@ -1110,6 +1114,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.0.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.12.2...4.0.0
 [3.12.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.12.1...3.12.2
 [3.12.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.12.0...3.12.1

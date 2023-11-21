@@ -2,6 +2,17 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.9-a.9 - 2023-11-21
+### Major Enhancements
+- Generate and print the fonts that are used in global styles or block-level settings if the Jetpack Google Fonts module is enabled to avoid printing all google fonts definition in the head [#34157]
+
+### Enhancements
+- Jetpack AI: add support for tiered plans on the usage panel. [#34195]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Replace nested `dirname` with use of the php 7.0+ `$levels` parameter. No change in functionality. [#34218]
+- Subscriber button: pointer cursor on hover [#34190]
+
 ## 12.9-a.7 - 2023-11-20
 ### Enhancements
 - Subscribe Modal: Added a subscribe modal toggle to the Newsletter settings. [#33909]
