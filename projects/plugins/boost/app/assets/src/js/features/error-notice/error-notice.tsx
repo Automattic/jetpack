@@ -1,6 +1,6 @@
 import { createInterpolateElement } from '@wordpress/element';
-import { standardizeError } from '../../lib/utils/standardize-error';
-import NoticeOutline from '../../svg/notice-outline';
+import { standardizeError } from '$lib/utils/standardize-error';
+import NoticeOutline from '$svg/notice-outline';
 import styles from './error-notice.module.scss';
 
 type ErrorNoticeProps = {
