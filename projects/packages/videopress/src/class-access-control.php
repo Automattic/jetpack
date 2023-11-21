@@ -85,7 +85,9 @@ class Access_Control {
 	 */
 	private function jetpack_subscriptions_available() {
 		$is_module_active = ( new Modules() )->is_active( 'subscriptions' );
-		if ( ! $is_module_active ) {
+		$is_wpcom         = defined( 'IS_WPCOM' ) && IS_WPCOM;
+
+		if ( ! $is_module_active && ! $is_wpcom ) {
 			return false;
 		}
 
