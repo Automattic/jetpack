@@ -120,8 +120,11 @@ const ProductDetailCard = ( {
 	 * Product needs purchase when:
 	 * - it's not free
 	 * - it does not have a required plan
+	 *
+	 * Or when:
+	 * - it's a quantity-based product
 	 */
-	const needsPurchase = ! isFree && ! hasRequiredPlan;
+	const needsPurchase = ( ! isFree && ! hasRequiredPlan ) || quantity != null;
 
 	const checkoutRedirectUrl = postCheckoutUrl ? postCheckoutUrl : myJetpackUrl;
 
