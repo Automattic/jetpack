@@ -14,7 +14,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
-use function Wikimedia\quietCall;
 
 /**
  * "Add" command for the changelogger tool CLI.
@@ -166,7 +165,8 @@ EOF
 			$dir = Config::changesDir();
 			if ( ! is_dir( $dir ) ) {
 				Utils::error_clear_last();
-				if ( ! quietCall( 'mkdir', $dir, 0775, true ) ) {
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				if ( ! @mkdir( $dir, 0775, true ) ) {
 					$err = error_get_last();
 					$output->writeln( "<error>Could not create directory $dir: {$err['message']}</>" );
 					return 1;
@@ -323,16 +323,20 @@ EOF
 			);
 			$contents .= "\n";
 			Utils::error_clear_last();
-			$fp = quietCall( 'fopen', "$dir/$filename", 'x' );
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$fp = @fopen( "$dir/$filename", 'x' );
 			if ( ! $fp ||
-				quietCall( 'fwrite', $fp, $contents ) !== strlen( $contents ) ||
-				! quietCall( 'fclose', $fp )
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				@fwrite( $fp, $contents ) !== strlen( $contents ) ||
+				! fclose( $fp )
 			) {
 				// @codeCoverageIgnoreStart
 				$err = error_get_last();
 				$output->writeln( "<error>Failed to write file \"$dir/$filename\": {$err['message']}.</>" );
-				quietCall( 'fclose', $fp );
-				quietCall( 'unlink', "$dir/$filename" );
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				@fclose( $fp );
+				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				@unlink( "$dir/$filename" );
 				return 1;
 				// @codeCoverageIgnoreEnd
 			}

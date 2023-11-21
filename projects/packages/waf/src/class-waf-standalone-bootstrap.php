@@ -80,7 +80,7 @@ class Waf_Standalone_Bootstrap {
 		if ( isset( $jetpack_autoloader_loader ) ) {
 			$class_file = $jetpack_autoloader_loader->find_class_file( Waf_Runner::class );
 			if ( $class_file ) {
-				$autoload_file = dirname( dirname( dirname( dirname( dirname( $class_file ) ) ) ) ) . '/vendor/autoload.php';
+				$autoload_file = dirname( $class_file, 5 ) . '/vendor/autoload.php';
 			}
 		}
 
@@ -91,13 +91,13 @@ class Waf_Standalone_Bootstrap {
 		) {
 			$package_file = InstalledVersions::getInstallPath( 'automattic/jetpack-waf' );
 			if ( substr( $package_file, -23 ) === '/automattic/jetpack-waf' ) {
-				$autoload_file = dirname( dirname( dirname( $package_file ) ) ) . '/vendor/autoload.php';
+				$autoload_file = dirname( $package_file, 3 ) . '/vendor/autoload.php';
 			}
 		}
 
 		// Guess. First look for being in a `vendor/automattic/jetpack-waf/src/', then see if we're standalone with our own vendor dir.
 		if ( null === $autoload_file ) {
-			$autoload_file = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/vendor/autoload.php';
+			$autoload_file = dirname( __DIR__, 4 ) . '/vendor/autoload.php';
 			if ( ! file_exists( $autoload_file ) ) {
 				$autoload_file = dirname( __DIR__ ) . '/vendor/autoload.php';
 			}
