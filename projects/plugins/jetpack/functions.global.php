@@ -440,7 +440,7 @@ function jetpack_get_vary_headers( $headers = array() ) {
 
 	foreach ( $headers as $header ) {
 		// Check for a Vary header.
-		if ( 'vary:' !== substr( strtolower( $header ), 0, 5 ) ) {
+		if ( ! str_starts_with( strtolower( $header ), 'vary:' ) ) {
 			continue;
 		}
 

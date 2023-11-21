@@ -903,9 +903,9 @@ class Jetpack_Widget_Conditions {
 								}
 								break;
 							default:
-								if ( substr( $rule['minor'], 0, 10 ) === 'post_type-' ) {
+								if ( str_starts_with( $rule['minor'], 'post_type-' ) ) {
 									$condition_result = is_singular( substr( $rule['minor'], 10 ) );
-								} elseif ( substr( $rule['minor'], 0, 18 ) === 'post_type_archive-' ) {
+								} elseif ( str_starts_with( $rule['minor'], 'post_type_archive-' ) ) {
 									$condition_result = is_post_type_archive( substr( $rule['minor'], 18 ) );
 								} elseif ( get_option( 'page_for_posts' ) === $rule['minor'] ) {
 									// If $rule['minor'] is a page ID which is also the posts page.
@@ -994,9 +994,9 @@ class Jetpack_Widget_Conditions {
 						}
 						break;
 					case 'post_type':
-						if ( substr( $rule['minor'], 0, 10 ) === 'post_type-' ) {
+						if ( str_starts_with( $rule['minor'], 'post_type-' ) ) {
 							$condition_result = is_singular( substr( $rule['minor'], 10 ) );
-						} elseif ( substr( $rule['minor'], 0, 18 ) === 'post_type_archive-' ) {
+						} elseif ( str_starts_with( $rule['minor'], 'post_type_archive-' ) ) {
 							$condition_result = is_post_type_archive( substr( $rule['minor'], 18 ) );
 						}
 						break;

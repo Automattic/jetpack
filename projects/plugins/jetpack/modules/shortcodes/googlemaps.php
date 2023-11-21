@@ -97,7 +97,7 @@ function jetpack_googlemaps_shortcode( $atts ) {
 		$url = '';
 		foreach ( (array) $arg as $key => $value ) {
 			if ( 'w' === $key ) {
-				$percent = ( '%' === substr( $value, -1 ) ) ? '%' : '';
+				$percent = ( str_ends_with( $value, '%' ) ) ? '%' : '';
 				$width   = (int) $value . $percent;
 			} elseif ( 'h' === $key ) {
 				$height = (int) $value;
