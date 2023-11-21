@@ -1,7 +1,6 @@
 name: Jetpack block performance
 
 on:
-  pull_request:
   schedule:
     - cron:  '0 */12 * * *'
 
@@ -65,7 +64,7 @@ jobs:
           pnpm env:start
 
           # The twentytwentyone theme is required for the post-editor test suite.
-          pnpm jetpack docker --type e2e --name t1 wp theme install twentytwentyone 
+          pnpm jetpack docker --type e2e --name t1 wp theme install twentytwentyone
 
       - name: Run performance tests
         working-directory: tools/e2e-commons
