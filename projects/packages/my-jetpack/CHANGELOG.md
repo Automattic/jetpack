@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.1] - 2023-11-21
 ### Added
-- My Jetpack: Mark Jetpack AI as upgradable in interstitial page [#34215]
+- Marked Jetpack AI as upgradable in the interstitial page. [#34215]
 
 ## [4.0.0] - 2023-11-20
 ### Added

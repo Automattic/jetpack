@@ -5,10 +5,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [4.0.1] - 2023-11-21
 ### Added
-- Add `symfony/*` v4.4 as an option, for use with PHP 7.1. [#34217]
+- Added `symfony/*` v4.4 as an option, for use with PHP 7.1. [#34217]
 
 ### Removed
-- Remove use of `wikimedia/at-ease` package as PHP 7 improved the behavior of `@`. [#34217]
+- Removed use of `wikimedia/at-ease` package as PHP 7 improved the behavior of `@`. [#34217]
 
 ## [4.0.0] - 2023-11-20
 ### Changed

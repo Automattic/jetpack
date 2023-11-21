@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.1] - 2023-11-21
 ### Fixed
-- Abstract static methods in `Automattic\Jetpack\Boost_Core\Lib\Cacheable` are now actually abstract, instead of being implemented to always throw. [#34220]
+- Made abstract static methods in `Automattic\Jetpack\Boost_Core\Lib\Cacheable` abstract, instead of being implemented to always throw. [#34220]
 
 ## [0.2.0] - 2023-11-20
 ### Changed
