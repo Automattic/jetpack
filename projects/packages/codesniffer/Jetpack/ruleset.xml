@@ -8,6 +8,7 @@
 
 	<!-- We only include some rules from mediawiki/mediawiki-codesniffer. -->
 	<rule ref="MediaWiki.AlternativeSyntax.LeadingZeroInFloat" />
+	<rule ref="MediaWiki.AlternativeSyntax.UnicodeEscape" />
 	<rule ref="MediaWiki.Classes.UnsortedUseStatements" />
 	<rule ref="MediaWiki.Classes.UnusedUseStatement" />
 	<rule ref="MediaWiki.ExtraCharacters.ParenthesesAroundKeyword" />
@@ -25,7 +26,6 @@
 	<rule ref="MediaWiki.WhiteSpace.MultipleEmptyLines" />
 	<rule ref="MediaWiki.Usage.IsNull" />
 	<!-- Maybe in the future
-	<rule ref="MediaWiki.AlternativeSyntax.UnicodeEscape" /> // syntax it checks requires PHP 7.0+
 	<rule ref="MediaWiki.Usage.NullableType" /> // syntax it enforces requires PHP 7.1+
 	-->
 

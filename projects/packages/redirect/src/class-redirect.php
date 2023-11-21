@@ -48,7 +48,7 @@ class Redirect {
 
 		$source_key = 'source';
 
-		if ( 0 === strpos( $source, 'https://' ) ) {
+		if ( \str_starts_with( $source, 'https://' ) ) {
 			$source_key = 'url';
 			$source_url = \wp_parse_url( $source );
 
