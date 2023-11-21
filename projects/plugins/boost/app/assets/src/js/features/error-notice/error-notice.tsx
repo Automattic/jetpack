@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import { createInterpolateElement } from '@wordpress/element';
 import { standardizeError } from '../../lib/utils/standardize-error';
 import NoticeOutline from '../../svg/notice-outline';
@@ -27,26 +26,24 @@ const ErrorNotice = ( {
 	const description = standardizeError( error ).message;
 
 	return (
-		<div className={ classNames( styles.errorNotice ) }>
-			<NoticeOutline className={ classNames( styles.icon ) } />
+		<div className={ styles[ 'error-notice' ] }>
+			<NoticeOutline className={ styles.icon } />
 
-			<div className={ classNames( styles.offset ) }>
-				<div className={ classNames( styles.description ) }>{ title }</div>
+			<div className={ styles.offset }>
+				<div className={ styles.description }>{ title }</div>
 
-				<div className={ classNames( styles.message ) }>
+				<div className={ styles.message }>
 					{ children || description }
 
-					{ data && <pre className={ classNames( styles.data ) }>{ data }</pre> }
+					{ data && <pre className={ styles.data }>{ data }</pre> }
 
 					{ suggestion && (
-						<p className={ classNames( styles.suggestion ) }>
-							{ createInterpolateElement( suggestion, vars ) }
-						</p>
+						<p className={ styles.suggestion }>{ createInterpolateElement( suggestion, vars ) }</p>
 					) }
 				</div>
 			</div>
 
-			<div className={ classNames( styles.mainAction ) }>{ actionButton }</div>
+			<div className={ styles[ 'main-action' ] }>{ actionButton }</div>
 		</div>
 	);
 };

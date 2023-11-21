@@ -1,7 +1,7 @@
 @import "../../../css/main/mixins.scss";
 @import "../../../css/main/variables.scss";
 
-.errorNotice {
+.error-notice {
 	position: relative;
 	color: #d63638;
 	display: block;
@@ -41,7 +41,7 @@
 	padding-left: 0.5em;
 }
 
-.mainAction:not( :empty ) {
+.main-action:not( :empty ) {
 	margin-left: auto;
 	button {
 		margin-left: 0;
@@ -61,10 +61,6 @@
 	list-style-type: disc;
 	color: $red_50;
 
-	.status-error {
-		color: $primary-black;
-	}
-
 	button {
 		color: $primary-black;
 		font-size: 16px;
@@ -74,13 +70,4 @@
 	li {
 		@include word-wrap();
 	}
-}
-
-.rawError {
-	color: $primary-black;
-}
-
-.action {
-	color: $gray_90;
-	font-weight: bold;
 }
