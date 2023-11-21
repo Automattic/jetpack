@@ -18,6 +18,7 @@ use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
  * Tokens functionality testing.
  */
 class TokensTest extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Used by filters to set the current `site_url`.
@@ -192,10 +193,11 @@ class TokensTest extends TestCase {
 		$access_token->secret = 'abcd.1234';
 
 		$signed_token = ( new Tokens() )->get_signed_token( $access_token );
-		$this->assertTrue( strpos( $signed_token, 'token' ) !== false );
-		$this->assertTrue( strpos( $signed_token, 'timestamp' ) !== false );
-		$this->assertTrue( strpos( $signed_token, 'nonce' ) !== false );
-		$this->assertTrue( strpos( $signed_token, 'signature' ) !== false );
+
+		$this->assertStringContainsString( 'token', $signed_token );
+		$this->assertStringContainsString( 'timestamp', $signed_token );
+		$this->assertStringContainsString( 'nonce', $signed_token );
+		$this->assertStringContainsString( 'signature', $signed_token );
 	}
 
 	/**
@@ -208,7 +210,7 @@ class TokensTest extends TestCase {
 	 * @return array
 	 */
 	public function intercept_jetpack_token_health_request_failed( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 
@@ -232,7 +234,7 @@ class TokensTest extends TestCase {
 	 * @return array
 	 */
 	public function intercept_jetpack_token_health_request_success( $response, $args, $url ) {
-		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+		if ( ! str_contains( $url, 'jetpack-token-health' ) ) {
 			return $response;
 		}
 

@@ -169,7 +169,7 @@ class Stats extends Module_Product {
 						// Purchase is Jetpack Stats...
 						str_starts_with( $purchase->product_slug, 'jetpack_stats' ) &&
 						// but not Jetpack Stats Free...
-						false === strpos( $purchase->product_slug, 'free' )
+						! str_contains( $purchase->product_slug, 'free' )
 					) || str_starts_with( $purchase->product_slug, 'jetpack_complete' )
 				) {
 					// Only Jetpack Stats paid plans should be eligible for this conditional.

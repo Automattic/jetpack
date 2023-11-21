@@ -453,7 +453,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		$link = $nudge['link'];
-		if ( substr( $link, 0, 1 ) === '/' ) {
+		if ( str_starts_with( $link, '/' ) ) {
 			$link = 'https://wordpress.com' . $link;
 		}
 		?>

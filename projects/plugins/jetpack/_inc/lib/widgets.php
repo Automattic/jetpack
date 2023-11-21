@@ -749,7 +749,7 @@ class Jetpack_Widgets {
 		// Retrieve index of first widget instance in that sidebar.
 		$widget_key = false;
 		foreach ( $sidebars_widgets[ $sidebar ] as $widget ) {
-			if ( strpos( $widget, $widget_id ) !== false ) {
+			if ( str_contains( $widget, $widget_id ) ) {
 				$widget_key = absint( str_replace( $widget_id . '-', '', $widget ) );
 				break;
 			}

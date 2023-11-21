@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\IP;
  */
 class Utils {
 
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.2.1-alpha';
 
 	/**
 	 * Get the current user's IP address.
@@ -92,6 +92,7 @@ class Utils {
 	 */
 	public static function ip_is_private( $ip ) {
 		// We are dealing with ipv6, so we can simply rely on filter_var.
+		// Note: str_contains() is not used here, as wp-includes/compat.php may not be loaded in this file.
 		if ( false === strpos( $ip, '.' ) ) {
 			return ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
 		}

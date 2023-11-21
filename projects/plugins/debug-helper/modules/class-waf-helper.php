@@ -93,7 +93,7 @@ class Waf_Helper {
 	 * @param string $url      The URL.
 	 */
 	public function break_wpcom_request( $response, $args, $url ) {
-		if ( false === strpos( $url, 'waf-rules' ) ) {
+		if ( ! str_contains( $url, 'waf-rules' ) ) {
 			return $response;
 		}
 

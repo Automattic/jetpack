@@ -66,7 +66,7 @@ $plugin = isset( $plugin ) ? $plugin : null; // phpcs:ignore WordPress.WP.Global
 				$name = $update->Name;
 			} else {
 				$isdev = false;
-				if ( substr( $slug, -4 ) === '-dev' ) {
+				if ( str_ends_with( $slug, '-dev' ) ) {
 					$isdev = true;
 					$slug  = substr( $slug, 0, -4 );
 				}
