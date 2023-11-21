@@ -86,7 +86,7 @@ class Jetpack_Google_Analytics_Legacy {
 			return;
 		}
 
-		if ( 'G-' === substr( $tracking_id, 0, 2 ) ) {
+		if ( str_starts_with( $tracking_id, 'G-' ) ) {
 			$this->render_gtag_code( $tracking_id );
 		} else {
 			$this->render_ga_code( $tracking_id );

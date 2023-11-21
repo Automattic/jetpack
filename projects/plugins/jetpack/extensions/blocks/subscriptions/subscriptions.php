@@ -772,7 +772,7 @@ function render_for_email( $data, $styles ) {
 function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
 	// The blogmagazine theme is overriding WP core `get_the_excerpt` filter and only passing the excerpt
 	// TODO: Until this is fixed, return the excerpt without gating. See https://github.com/Automattic/jetpack/pull/28102#issuecomment-1369161116
-	if ( $post && false !== strpos( $post->post_content, '<!-- wp:jetpack/subscriptions -->' ) ) {
+	if ( $post && str_contains( $post->post_content, '<!-- wp:jetpack/subscriptions -->' ) ) {
 		$excerpt .= sprintf(
 			// translators: %s is the permalink url to the current post.
 			__( "<p><a href='%s'>View post</a> to subscribe to site newsletter.</p>", 'jetpack' ),
@@ -901,7 +901,7 @@ function get_current_url() {
 		$path   = ! empty( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
 
 		// Support for local plugin development and testing using ngrok.
-		if ( ! empty( $_SERVER['HTTP_X_ORIGINAL_HOST'] ) && false !== strpos( $_SERVER['HTTP_X_ORIGINAL_HOST'], 'ngrok.io' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
+		if ( ! empty( $_SERVER['HTTP_X_ORIGINAL_HOST'] ) && str_contains( $_SERVER['HTTP_X_ORIGINAL_HOST'], 'ngrok.io' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			$host = wp_unslash( $_SERVER['HTTP_X_ORIGINAL_HOST'] );
 		}
 		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized

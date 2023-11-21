@@ -164,7 +164,7 @@ EOF
 		try {
 			$dir = Config::changesDir();
 			if ( ! is_dir( $dir ) ) {
-				Utils::error_clear_last();
+				error_clear_last();
 				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 				if ( ! @mkdir( $dir, 0775, true ) ) {
 					$err = error_get_last();
@@ -322,7 +322,7 @@ EOF
 				OutputInterface::VERBOSITY_DEBUG
 			);
 			$contents .= "\n";
-			Utils::error_clear_last();
+			error_clear_last();
 			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			$fp = @fopen( "$dir/$filename", 'x' );
 			if ( ! $fp ||

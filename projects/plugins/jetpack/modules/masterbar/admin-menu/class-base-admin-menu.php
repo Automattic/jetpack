@@ -446,7 +446,7 @@ abstract class Base_Admin_Menu {
 			}
 
 			// If the hookname contain a URL than sanitize it by replacing invalid characters.
-			if ( false !== strpos( $menu_item[5], '://' ) ) {
+			if ( str_contains( $menu_item[5], '://' ) ) {
 				$menu_item[5] = preg_replace( '![:/.]+!', '_', $menu_item[5] );
 			}
 
@@ -556,7 +556,7 @@ abstract class Base_Admin_Menu {
 	 * @param array $item A menu or submenu array.
 	 */
 	public function is_item_visible( $item ) {
-		return ! isset( $item[4] ) || false === strpos( $item[4], self::HIDE_CSS_CLASS );
+		return ! isset( $item[4] ) || ! str_contains( $item[4], self::HIDE_CSS_CLASS );
 	}
 
 	/**

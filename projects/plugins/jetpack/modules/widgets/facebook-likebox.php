@@ -426,7 +426,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	 * @param string $url URL to check.
 	 */
 	public function is_valid_facebook_url( $url ) {
-		return ( false !== strpos( $url, 'facebook.com' ) ) ? true : false;
+		return str_contains( $url, 'facebook.com' );
 	}
 
 	/**

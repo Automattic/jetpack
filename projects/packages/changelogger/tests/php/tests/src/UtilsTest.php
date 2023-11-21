@@ -31,20 +31,6 @@ class UtilsTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
-	 * Test error_clear_last.
-	 */
-	public function test_error_clear_last() {
-		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-		@trigger_error( 'Test', E_USER_NOTICE );
-		$err = error_get_last();
-		$this->assertSame( 'Test', $err['message'] );
-
-		Utils::error_clear_last();
-		$err = error_get_last();
-		$this->assertTrue( empty( $err['message'] ) ); // phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertEmpty -- We need the potential error suppression, behavior varies by PHP version.
-	}
-
-	/**
 	 * Test runCommand.
 	 *
 	 * @dataProvider provideRunCommand

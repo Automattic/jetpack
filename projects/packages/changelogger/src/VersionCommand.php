@@ -146,7 +146,7 @@ EOF
 				return 1;
 			}
 
-			Utils::error_clear_last();
+			error_clear_last();
 			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			$contents = @file_get_contents( $file );
 			// @codeCoverageIgnoreStart

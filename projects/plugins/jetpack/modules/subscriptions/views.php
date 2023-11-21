@@ -837,7 +837,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 }
 
-if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'class_alias' ) ) {
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	class_alias( 'Jetpack_Subscriptions_Widget', 'Blog_Subscription_Widget' );
 }
 
