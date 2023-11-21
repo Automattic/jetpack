@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Snackbar } from '@wordpress/components';
 import { initializeConnection, getUpgradeURL } from '$lib/stores/connection';
 import { recordBoostEvent } from '$lib/utils/analytics';
