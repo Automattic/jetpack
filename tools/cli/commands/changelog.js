@@ -730,7 +730,7 @@ async function promptChangelog( argv, needChangelog, types ) {
 		.stdout.toString()
 		.trim()
 		.replace( /\//g, '-' );
-	const maxLength = Object.keys( types ).reduce( ( a, v ) => v.length > a ? v.length : a, 0 );
+	const maxLength = Object.keys( types ).reduce( ( a, v ) => ( v.length > a ? v.length : a ), 0 );
 	const choices = Object.entries( types ).map( ( [ value, name ] ) => ( {
 		value,
 		name: `[${ value.padEnd( maxLength, ' ' ) }] ${ name }`,
@@ -863,7 +863,6 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 			},
 		];
 	}
-	console.log( prompts );
 	const response = await inquirer.prompt( prompts );
 	if ( ! response ) {
 		return false;
