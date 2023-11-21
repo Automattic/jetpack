@@ -11,27 +11,11 @@ use Automattic\Jetpack\Changelog\ChangeEntry;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
-use function error_clear_last; // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.error_clear_lastFound
 
 /**
  * Utilities for the changelogger tool.
  */
 class Utils {
-
-	/**
-	 * Calls `error_clear_last()` or emulates it.
-	 */
-	public static function error_clear_last() {
-		if ( is_callable( 'error_clear_last' ) ) {
-			// phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.error_clear_lastFound
-			error_clear_last();
-		} else {
-			// @codeCoverageIgnoreStart
-			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-			@trigger_error( '', E_USER_NOTICE );
-			// @codeCoverageIgnoreEnd
-		}
-	}
 
 	/**
 	 * Helper to run a process.
@@ -110,7 +94,7 @@ class Utils {
 			throw $ex;
 		}
 
-		self::error_clear_last();
+		error_clear_last();
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		$contents = @file_get_contents( $filename );
 		// @codeCoverageIgnoreStart

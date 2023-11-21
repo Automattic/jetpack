@@ -341,7 +341,7 @@ class Filter_Embedded_HTML_Objects {
 	 */
 	public static function get_attrs( $html ) {
 		if (
-			! ( class_exists( 'DOMDocument' ) && function_exists( 'libxml_use_internal_errors' ) && function_exists( 'simplexml_load_string' ) ) ) {
+			! ( class_exists( 'DOMDocument' ) && function_exists( 'simplexml_load_string' ) ) ) {
 			trigger_error( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				esc_html__( 'PHP’s XML extension is not available. Please contact your hosting provider to enable PHP’s XML extension.', 'jetpack' )
 			);

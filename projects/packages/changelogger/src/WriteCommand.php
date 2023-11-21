@@ -149,7 +149,7 @@ EOF
 			$changelog = new Changelog();
 		} else {
 			$output->writeln( "Reading changelog from $file...", OutputInterface::VERBOSITY_DEBUG );
-			Utils::error_clear_last();
+			error_clear_last();
 			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			$contents = @file_get_contents( $file );
 			// @codeCoverageIgnoreStart
@@ -221,7 +221,7 @@ EOF
 			return self::FATAL_EXIT;
 		}
 
-		Utils::error_clear_last();
+		error_clear_last();
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		$ok = @file_put_contents( $file, $contents );
 		if ( strlen( $contents ) !== $ok ) {
@@ -248,7 +248,7 @@ EOF
 			if ( $flag >= 2 ) {
 				continue;
 			}
-			Utils::error_clear_last();
+			error_clear_last();
 			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			$ok = @unlink( $dir . DIRECTORY_SEPARATOR . $name );
 			if ( $ok ) {
