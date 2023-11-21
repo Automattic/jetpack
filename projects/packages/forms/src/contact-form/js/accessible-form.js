@@ -249,10 +249,24 @@ const setFormInputErrors = form => {
 		if ( ! error ) {
 			error = createFormInputErrorContainer( input, errorId );
 
-			input.parentNode.insertBefore( error, input.nextSibling );
+			if ( input.classList.contains( 'contact-form-dropdown' ) ) {
+				// The current implementation uses jQuery UI selectmenu, which hides the original select
+				// tag and replaces it with a button and a list of options. Here we make sure the error
+				// is inserted after the button.
+				input.parentNode.appendChild( error );
+			} else if ( input.type === 'radio' ) {
+				const container = input.closest( '.grunion-radio-options' );
+
+				if ( container ) {
+					// Add the error after all the radio buttons.
+					container.appendChild( error );
+				}
+			} else {
+				input.parentNode.insertBefore( error, input.nextSibling );
+			}
 		}
 
-		error.appendChild( createError( input.validationMessage ) );
+		error.replaceChildren( createError( input.validationMessage ) );
 
 		input.setAttribute( 'aria-invalid', 'true' );
 		input.setAttribute( 'aria-describedby', errorId );
