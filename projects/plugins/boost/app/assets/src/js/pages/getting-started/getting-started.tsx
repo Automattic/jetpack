@@ -41,7 +41,7 @@ const GettingStarted: React.FC< GettingStartedProps > = ( {
 			// Possible Events:
 			// * free_cta_from_getting_started_page_in_plugin
 			// * premium_cta_from_getting_started_page_in_plugin
-			recordBoostEvent( `${ plan }_cta_from_getting_started_page_in_plugin`, {} );
+			await recordBoostEvent( `${ plan }_cta_from_getting_started_page_in_plugin`, {} );
 
 			// Go to the purchase flow if the user doesn't have a premium plan.
 			if ( ! isPremiumValue && plan === 'premium' ) {
