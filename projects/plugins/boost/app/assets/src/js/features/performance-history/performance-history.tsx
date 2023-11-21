@@ -65,14 +65,14 @@ const PerformanceHistory = ( { needsUpgrade, isFreshStart, onDismissFreshStart }
 
 	return (
 		<div className={ classNames( styles[ 'performance-history' ], { loading: isFetching } ) }>
-			<Panel className={ classNames( styles[ 'components-panel' ] ) }>
+			<Panel className={ styles[ 'components-panel' ] }>
 				<PanelBody
 					title={ __( 'Historical Performance', 'jetpack-boost' ) }
 					initialOpen={ isPanelOpen }
 					onToggle={ value => {
 						setPanelOpen( value );
 					} }
-					className={ classNames( styles[ 'performance-history-body' ] ) }
+					className={ styles[ 'performance-history-body' ] }
 				>
 					<PanelRow>
 						<div style={ { flexGrow: 1, minHeight: '300px' } }>
