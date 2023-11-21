@@ -41,7 +41,7 @@ const usePerformanceHistoryQuery = () => {
 /**
  * A custom hook to check if performance history needs upgrade.
  */
-export const usePerformanceHistoryPanelQuery = () => {
+const usePerformanceHistoryPanelQuery = () => {
 	const { useQuery, useMutation } = useDataSync(
 		'jetpack_boost_ds',
 		'performance_history_toggle',
