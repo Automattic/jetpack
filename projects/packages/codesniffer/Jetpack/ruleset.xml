@@ -74,6 +74,11 @@
 	<!-- Only include select VIP rules -->
 	<rule ref="WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath" />
 
+	<!-- Re-enable this rule that was disabled by WordPress-Extra now that we're on PHP 7.0+. -->
+	<rule ref="Modernize.FunctionCalls.Dirname.Nested">
+		<severity>5</severity>
+	</rule>
+
 	<!-- Elevate undefined variables to an Error instead of a Warning. -->
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable">
 		<type>error</type>

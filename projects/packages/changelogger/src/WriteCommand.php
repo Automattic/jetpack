@@ -17,7 +17,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use function Wikimedia\quietCall;
 
 /**
  * "Write" command for the changelogger tool CLI.
@@ -151,7 +150,8 @@ EOF
 		} else {
 			$output->writeln( "Reading changelog from $file...", OutputInterface::VERBOSITY_DEBUG );
 			Utils::error_clear_last();
-			$contents = quietCall( 'file_get_contents', $file );
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$contents = @file_get_contents( $file );
 			// @codeCoverageIgnoreStart
 			if ( ! is_string( $contents ) ) {
 				$err = error_get_last();
@@ -222,7 +222,8 @@ EOF
 		}
 
 		Utils::error_clear_last();
-		$ok = quietCall( 'file_put_contents', $file, $contents );
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$ok = @file_put_contents( $file, $contents );
 		if ( strlen( $contents ) !== $ok ) {
 			$err = error_get_last();
 			$output->writeln( "<error>Failed to write $file: {$err['message']}</>" );
@@ -248,7 +249,8 @@ EOF
 				continue;
 			}
 			Utils::error_clear_last();
-			$ok = quietCall( 'unlink', $dir . DIRECTORY_SEPARATOR . $name );
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$ok = @unlink( $dir . DIRECTORY_SEPARATOR . $name );
 			if ( $ok ) {
 				$output->writeln( "Deleted change file $name.", OutputInterface::VERBOSITY_DEBUG );
 			} else {
