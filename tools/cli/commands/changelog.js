@@ -331,7 +331,6 @@ async function changelogAdd( argv ) {
 	}
 
 	// Confirm what projects we're adding a changelog to, and how we want to add them.
-	console.log( argv.project );
 	const promptConfirm = argv.project
 		? true
 		: await changelogAddPrompt( argv, defaultProjects, uniqueProjects );
@@ -864,7 +863,7 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 		];
 	}
 	const response = await inquirer.prompt( prompts );
-	if ( ! response ) {
+	if ( ! response.sameChangelog && ! response.separateChangelogFiles ) {
 		return false;
 	}
 	return response;
