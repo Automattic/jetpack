@@ -331,7 +331,10 @@ async function changelogAdd( argv ) {
 	}
 
 	// Confirm what projects we're adding a changelog to, and how we want to add them.
-	const promptConfirm = await changelogAddPrompt( argv, defaultProjects, uniqueProjects );
+	console.log( argv.project );
+	const promptConfirm = argv.project
+		? true
+		: await changelogAddPrompt( argv, defaultProjects, uniqueProjects );
 
 	if ( ! promptConfirm ) {
 		console.log( 'Changelog command cancelled' );
@@ -346,46 +349,33 @@ async function changelogAdd( argv ) {
 		)
 	);
 
-	// If we're adding a single changelog or adding the same changelog to multiple projects:
-	if ( promptConfirm.changelogConfirm || promptConfirm.sameChangelogFiles ) {
-		if ( defaultProjects.length > 0 ) {
-			console.log(
-				chalk.green(
-					`Running changelogger for ${
-						defaultProjects.length
-					} project(s):\n\t${ defaultProjects.join( '\n\t' ) }`
-				)
-			);
-			const response = await promptChangelog( argv, defaultProjects, defaultTypes );
-			for ( const proj of defaultProjects ) {
-				argv = await formatAutoArgs( proj, argv, response );
-				await changelogArgs( argv );
-			}
-		}
-
-		for ( const proj of uniqueProjects ) {
-			console.log( chalk.green( `Running changelogger for ${ proj }!` ) );
-			const response = await promptChangelog( argv, proj, projectChangeTypes[ proj ] );
-			argv = await formatAutoArgs( proj, argv, response );
-			await changelogArgs( argv );
-		}
-		return;
-	}
-
-	// If we want to add changelogs to multiple projects individually.
 	if ( promptConfirm.separateChangelogFiles ) {
-		for ( const proj of needChangelog ) {
-			const response = await promptChangelog(
-				argv,
-				proj,
-				projectChangeTypes[ proj ] ? projectChangeTypes[ proj ] : defaultTypes
-			);
-			console.log( chalk.green( `Running changelogger for ${ proj }!` ) );
+		uniqueProjects.unshift( ...defaultProjects.splice( 0 ) );
+	}
+
+	if ( defaultProjects.length > 0 ) {
+		console.log(
+			chalk.green(
+				`Running changelogger for ${
+					defaultProjects.length
+				} project(s):\n\t${ defaultProjects.join( '\n\t' ) }`
+			)
+		);
+		const response = await promptChangelog( argv, defaultProjects, defaultTypes );
+		for ( const proj of defaultProjects ) {
 			argv = await formatAutoArgs( proj, argv, response );
 			await changelogArgs( argv );
 		}
-		return;
 	}
+
+	for ( const proj of uniqueProjects ) {
+		console.log( chalk.green( `Running changelogger for ${ proj }!` ) );
+		const response = await promptChangelog( argv, proj, projectChangeTypes[ proj ] );
+		argv = await formatAutoArgs( proj, argv, response );
+		await changelogArgs( argv );
+	}
+
+	return;
 }
 
 /**
@@ -823,55 +813,59 @@ async function promptChangelog( argv, needChangelog, types ) {
  */
 async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 	const totalProjects = [ ...defaultProjects, ...uniqueProjects ];
+	let prompts;
 
-	// If only one project needs a changelog, confirm.
+	/* changelogConfirm: Add changelog for the one project? */
 	if ( totalProjects.length === 1 ) {
-		const response = await inquirer.prompt( {
+		prompts = {
 			type: 'confirm',
 			name: 'changelogConfirm',
 			message: `Add changelog for ${ totalProjects[ 0 ] }?`,
-		} );
-		return response;
-	}
-
-	// If multiple projects need a changelog that can be the same, confirm.
-	if ( uniqueProjects.length === 0 && defaultProjects.length > 1 ) {
-		const response = await inquirer.prompt( [
+		};
+	} else if ( defaultProjects.length <= 1 && uniqueProjects.length > 0 ) {
+		/* separateChangelogFiles: Found N projects needing changelogs. Create for each one? */
+		prompts = {
+			type: 'confirm',
+			name: 'separateChangelogFiles',
+			message: `Found ${ totalProjects.length } project(s) that need a changelog. Create changelog for each one?`,
+		};
+	} else if ( defaultProjects.length > 0 && uniqueProjects.length === 0 ) {
+		console.log( "Where I'm supposed to be" );
+		/* sameChangelog: Found N projects. Same to all? */
+		prompts = [
 			{
 				type: 'confirm',
-				name: 'sameChangelogFiles',
+				name: 'sameChangelog',
 				message: `Found ${ defaultProjects.length } project(s) that need a changelog. Create and add same changelog to all projects?`,
 			},
+			/* separateChangelogFiles: (else) For each individually? */
 			{
 				type: 'confirm',
 				name: 'separateChangelogFiles',
 				message: 'Create changelog for each project individually?',
-				when: answers => ! answers.sameChangelogFiles,
+				when: answers => ! answers.sameChangelog,
 			},
-		] );
-
-		if ( ! response.sameChangelogFiles && ! response.separateChangelogFiles ) {
-			return false;
-		}
-		return response;
+		];
+	} else {
+		/* sameChangelog: Found N projects that can use the same changelog and M that need individual ones. Same to the N? */
+		prompts = [
+			{
+				type: 'confirm',
+				name: 'sameChangelog',
+				message: `Found ${ defaultProjects.length } project(s) that can accept the same changelog and ${ uniqueProjects.length } projects that need individual ones. Create and add same changelog to ones we're able?`,
+			},
+			/* separateChangelogFiles: (else) For each individually? */
+			{
+				type: 'confirm',
+				name: 'separateChangelogFiles',
+				message: 'Create changelog for every project individually?',
+				when: answers => ! answers.sameChangelog,
+			},
+		];
 	}
-
-	// If multiple projects need a changelog, but they have unique changelog configs, confirm.
-	const response = await inquirer.prompt( [
-		{
-			type: 'confirm',
-			name: 'sameChangelogFiles',
-			message: `Found ${ defaultProjects.length } projects that can accept the same changelog file.\n  Found ${ uniqueProjects.length } project(s) that requires a separate changelog configuration. \n  Add same changelog file to ${ defaultProjects.length } project(s)?`,
-		},
-		{
-			type: 'confirm',
-			name: 'separateChangelogFiles',
-			message: 'Create changelog for each project individually?',
-			when: answers => ! answers.sameChangelogFiles,
-		},
-	] );
-
-	if ( ! response.sameChangelogFiles && ! response.separateChangelogFiles ) {
+	console.log( prompts );
+	const response = await inquirer.prompt( prompts );
+	if ( ! response ) {
 		return false;
 	}
 	return response;
