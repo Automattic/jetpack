@@ -37,7 +37,7 @@ foreach ( $regex as $path_to_file => $value ) {
 
 	// Ignore explicit ignore list.
 	foreach ( $ignore_paths as $ignore_path ) {
-		if ( 0 === strpos( $path_from_repo_root, $ignore_path ) ) {
+		if ( str_starts_with( $path_from_repo_root, $ignore_path ) ) {
 			continue 2;
 		}
 	}

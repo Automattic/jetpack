@@ -451,7 +451,7 @@ abstract class Publicize_Base {
 		$cmeta = $this->get_connection_meta( $connection );
 
 		if ( isset( $cmeta['connection_data']['meta']['link'] ) ) {
-			if ( 'facebook' === $service_name && 0 === strpos( wp_parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
+			if ( 'facebook' === $service_name && str_starts_with( wp_parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
 				// App-scoped Facebook user IDs are not usable profile links.
 				return false;
 			}
@@ -1253,7 +1253,7 @@ abstract class Publicize_Base {
 				APP_REQUEST
 			)
 		&&
-			0 === strpos( $post->post_title, 'Temporary Post Used For Theme Detection' )
+			str_starts_with( $post->post_title, 'Temporary Post Used For Theme Detection' )
 		) {
 			$submit_post = false;
 		}
