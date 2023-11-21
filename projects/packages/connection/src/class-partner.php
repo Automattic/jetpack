@@ -11,7 +11,7 @@ namespace Automattic\Jetpack;
  * This class introduces functionality used by Jetpack hosting partners.
  *
  * @since partner-1.0.0
- * @since $$next-version$$
+ * @since 2.0.0
  */
 class Partner {
 
@@ -29,7 +29,7 @@ class Partner {
 	 * Singleton instance.
 	 *
 	 * @since partner-1.0.0
-	 * @since $$next-version$$
+	 * @since 2.0.0
 	 *
 	 * @var Partner This class instance.
 	 */
@@ -45,7 +45,7 @@ class Partner {
 	 * Initializes the class or returns the singleton.
 	 *
 	 * @since partner-1.0.0
-	 * @since $$next-version$$
+	 * @since 2.0.0
 	 *
 	 * @return Partner | false
 	 */
@@ -90,7 +90,7 @@ class Partner {
 	 * Adds the partner subsidiary code to the passed array.
 	 *
 	 * @since partner-1.5.0
-	 * @since $$next-version$$
+	 * @since 2.0.0
 	 *
 	 * @param array $params The parameters array.
 	 *
@@ -107,7 +107,7 @@ class Partner {
 	 * Adds the affiliate code to the passed array.
 	 *
 	 * @since partner-1.5.0
-	 * @since $$next-version$$
+	 * @since 2.0.0
 	 *
 	 * @param array $params The parameters array.
 	 *
@@ -124,7 +124,7 @@ class Partner {
 	 * Returns the passed URL with the partner code added as a URL query arg.
 	 *
 	 * @since partner-1.0.0
-	 * @since $$next-version$$
+	 * @since 2.0.0
 	 *
 	 * @param string $type The partner code.
 	 * @param string $url The URL where the partner subsidiary id will be added.
@@ -139,7 +139,7 @@ class Partner {
 	 * Gets the partner code in an associative array format
 	 *
 	 * @since partner-1.5.0
-	 * @since $$next-version$$
+	 * @since 2.0.0
 	 *
 	 * @param string $type The partner code.
 	 * @return array
@@ -169,7 +169,7 @@ class Partner {
 	 * Returns a partner code.
 	 *
 	 * @since partner-1.0.0
-	 * @since $$next-version$$
+	 * @since 2.0.0
 	 *
 	 * @param string $type This can be either 'affiliate' or 'subsidiary'. Returns empty string when code is unknown.
 	 *
@@ -183,7 +183,7 @@ class Partner {
 				 *
 				 * @since partner-1.0.0
 				 * @since-jetpack 6.9.0
-				 * @since $$next-version$$
+				 * @since 2.0.0
 				 *
 				 * @param string $affiliate_code The affiliate code, blank by default.
 				 */
@@ -193,7 +193,7 @@ class Partner {
 				 * Allow to filter the partner subsidiary id.
 				 *
 				 * @since partner-1.0.0
-				 * @since $$next-version$$
+				 * @since 2.0.0
 				 *
 				 * @param string $subsidiary_id The partner subsidiary id, blank by default.
 				 */

@@ -31,6 +31,7 @@ const ActionButton = ( {
 	isDeactivatingStandalone,
 	className,
 	onAdd,
+	upgradeInInterstitial,
 } ) => {
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 	const [ currentAction, setCurrentAction ] = useState( {} );
@@ -75,11 +76,21 @@ const ActionButton = ( {
 					onClick: null,
 				};
 			}
-			case PRODUCT_STATUSES.NEEDS_PURCHASE:
+			case PRODUCT_STATUSES.NEEDS_PURCHASE: {
+				return {
+					...buttonState,
+					href: purchaseUrl || `#/add-${ slug }`,
+					size: 'small',
+					variant: 'primary',
+					weight: 'regular',
+					label: __( 'Purchase', 'jetpack-my-jetpack' ),
+					onClick: onAdd,
+				};
+			}
 			case PRODUCT_STATUSES.CAN_UPGRADE: {
 				const upgradeText = __( 'Upgrade', 'jetpack-my-jetpack' );
 				const purchaseText = __( 'Purchase', 'jetpack-my-jetpack' );
-				const buttonText = purchaseUrl ? upgradeText : purchaseText;
+				const buttonText = purchaseUrl || upgradeInInterstitial ? upgradeText : purchaseText;
 
 				return {
 					...buttonState,
@@ -152,6 +163,7 @@ const ActionButton = ( {
 		purchaseUrl,
 		slug,
 		status,
+		upgradeInInterstitial,
 	] );
 
 	const allActions = useMemo(
