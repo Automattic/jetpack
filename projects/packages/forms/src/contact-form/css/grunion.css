@@ -125,11 +125,12 @@
 	gap: 12px;
 }
 
-.contact-form label span.required {
+.contact-form label span.required,
+.grunion-label-required {
 	font-size: 85%;
 	margin-left: 0.25em;
 	font-weight: normal;
-	opacity: 0.45;
+	opacity: 0.6;
 }
 
 .contact-form-submission {
