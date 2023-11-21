@@ -1,6 +1,6 @@
 <script lang="ts">
 	import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
-	import GettingStarted from './pages/getting-started/GettingStarted.svelte';
+	import GettingStarted from './pages/getting-started/getting-started';
 	import RecommendationsPage from './pages/image-size-analysis/ImageSizeAnalysis.svelte';
 	import Index from './pages/index/Index.svelte';
 	import PurchaseSuccess from './pages/purchase-success/purchase-success';
@@ -48,14 +48,15 @@
 		<ReactComponent this={Upgrade} {pricing} {siteDomain} {userConnected} />
 	</Route>
 
-	<Route
-		path="getting-started"
-		component={GettingStarted}
-		{userConnected}
-		{pricing}
-		{isPremium}
-		domain={siteDomain}
-	/>
+	<Route path="getting-started">
+		<ReactComponent
+			this={GettingStarted}
+			{userConnected}
+			{pricing}
+			{isPremium}
+			domain={siteDomain}
+		/>
+	</Route>
 
 	<Route path="purchase-successful">
 		<ReactComponent this={PurchaseSuccess} {isImageGuideActive} />
