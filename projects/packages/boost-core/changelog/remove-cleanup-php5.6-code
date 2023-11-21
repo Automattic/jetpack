@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Abstract static methods in `Automattic\Jetpack\Boost_Core\Lib\Cacheable` are now actually abstract, instead of being implemented to always throw.

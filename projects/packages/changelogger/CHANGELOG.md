@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.1] - 2023-11-21
+### Added
+- Added `symfony/*` v4.4 as an option, for use with PHP 7.1. [#34217]
+
+### Removed
+- Removed use of `wikimedia/at-ease` package as PHP 7 improved the behavior of `@`. [#34217]
+
 ## [4.0.0] - 2023-11-20
 ### Changed
 - Updated required PHP version to >= 7.0. [#34126]
@@ -183,6 +190,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[4.0.1]: https://github.com/Automattic/jetpack-changelogger/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.11...4.0.0
 [3.3.11]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.10...3.3.11
 [3.3.10]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.9...3.3.10
