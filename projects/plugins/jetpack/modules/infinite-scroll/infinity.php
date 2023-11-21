@@ -1162,7 +1162,6 @@ class The_Neverending_Home_Page {
 
 			// If new scripts are needed, extract relevant data from $wp_scripts
 			if ( ! empty( $new_scripts ) ) {
-				global $wp_version;
 				$results['scripts'] = array();
 
 				foreach ( $new_scripts as $handle ) {
@@ -1174,14 +1173,8 @@ class The_Neverending_Home_Page {
 						continue;
 					}
 
-					// Remove conditional once WordPress 6.3 is the minimum required version.
-					if ( version_compare( $wp_version, '6.3', '>=' ) ) {
-						$before_handle = $wp_scripts->get_inline_script_data( $handle, 'before' );
-						$after_handle  = $wp_scripts->get_inline_script_data( $handle, 'after' );
-					} else {
-						$before_handle = $wp_scripts->print_inline_script( $handle, 'before', false );
-						$after_handle  = $wp_scripts->print_inline_script( $handle, 'after', false );
-					}
+					$before_handle = $wp_scripts->get_inline_script_data( $handle, 'before' );
+					$after_handle  = $wp_scripts->get_inline_script_data( $handle, 'after' );
 
 					// Provide basic script data
 					$script_data = array(
