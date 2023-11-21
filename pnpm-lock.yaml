@@ -2771,8 +2771,8 @@ importers:
         specifier: 9.36.0
         version: 9.36.0(react@18.2.0)
       axios:
-        specifier: 1.6.0
-        version: 1.6.0
+        specifier: 1.6.2
+        version: 1.6.2
       classnames:
         specifier: 2.3.2
         version: 2.3.2
@@ -3709,8 +3709,8 @@ importers:
         specifier: ^29.0.0
         version: 29.4.3
       axios:
-        specifier: 1.6.0
-        version: 1.6.0
+        specifier: 1.6.2
+        version: 1.6.2
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
@@ -3894,8 +3894,8 @@ importers:
         specifier: 2.9.2
         version: 2.9.2
       axios:
-        specifier: 1.6.0
-        version: 1.6.0
+        specifier: 1.6.2
+        version: 1.6.2
       chalk:
         specifier: 5.0.1
         version: 5.0.1
@@ -9067,7 +9067,7 @@ packages:
       '@slack/types': 2.9.0
       '@types/is-stream': 1.1.0
       '@types/node': 20.9.0
-      axios: 1.6.0
+      axios: 1.6.2
       eventemitter3: 3.1.2
       form-data: 2.5.1
       is-electron: 2.2.2
@@ -13992,8 +13992,8 @@ packages:
       - debug
     dev: true
 
-  /axios@1.6.0:
-    resolution: {integrity: sha512-EZ1DYihju9pwVB+jg67ogm+Tmqc6JmhamRN6I4Zt8DfZu5lbcQGw3ozH9lFejSJgs/ibaef3A9PMXPLeefFGJg==}
+  /axios@1.6.2:
+    resolution: {integrity: sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==}
     dependencies:
       follow-redirects: 1.15.3
       form-data: 4.0.0
