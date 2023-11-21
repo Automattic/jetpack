@@ -122,7 +122,7 @@ add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
 		if ( apply_filters( 'jetpack_ai_enabled', true ) && apply_filters( 'jetpack_ai_tier_plans_enabled', false ) ) {
-			\Jetpack_Gutenberg::set_extension_available( 'enable-tier-plans-ui' );
+			\Jetpack_Gutenberg::set_extension_available( 'ai-enable-tier-plans-ui' );
 		}
 	}
 );
