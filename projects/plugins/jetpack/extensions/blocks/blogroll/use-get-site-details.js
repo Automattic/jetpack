@@ -6,8 +6,6 @@ export default function useGetSiteDetails( { siteURL, subscriptions, enabled = f
 
 	const { response: wpcomSite, isLoading } = useSite( validDomain, Boolean( enabled ) );
 
-	console.log( { wpcomSite, validDomain, isLoading });
-
 	const results = [
 		...( wpcomSite ? [{
 			blog_id: wpcomSite?.ID.toString(),

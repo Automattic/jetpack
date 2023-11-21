@@ -25,7 +25,6 @@ export default function BlogrollAppender( { isLoading, subscriptions, clientId }
 	};
 
 	const onSelect = subscription => {
-		console.log('onSelect', subscription);
 		insertBlock( createBlockFromSubscription( subscription ), undefined, clientId );
 		setIsVisible( false );
 	};
