@@ -172,7 +172,14 @@ for SLUG in "${TO_RELEASE[@]}"; do
 	RELEASED[$SLUG]=1
 
 	# Avoid "There are no changes with content for this write. Proceed?" prompts and empty changelog entries.
-	if [[ -z $( sed -sn '/^$/,$ { /[^ \t]/ p }' "$CHANGES_DIR"/* ) ]]; then
+	ANY=false
+	for f in "$CHANGES_DIR"/*; do
+		if [[ -n $( sed -n '/^$/,$ { /[^ \t]/ p }' "$CHANGES_DIR"/* ) ]]; then
+			ANY=true
+			break
+		fi
+	done
+	if ! $ANY; then
 		debug "  no changes with content, adding one"
 		changelogger_add 'Internal updates.' '' --filename=avoid-empty-changelog-entry
 	fi
