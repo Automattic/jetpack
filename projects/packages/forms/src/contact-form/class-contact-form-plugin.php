@@ -255,11 +255,22 @@ class Contact_Form_Plugin {
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
 		Assets::register_script(
-			'view-form',
-			'./js/view-form.js',
+			'accessible-form',
+			'./js/accessible-form.js',
 			__FILE__,
 			array(
 				'async' => true,
+			)
+		);
+
+		wp_localize_script(
+			'accessible-form',
+			'jetpackContactForm',
+			array(
+				/* translators: text read by a screen reader when a warning icon is displayed in front of an error message. */
+				'warning'     => __( 'Warning.', 'jetpack-forms' ),
+				/* translators: error message shown when one or more fields of the form are invalid. */
+				'invalidForm' => __( 'Please make sure all fields are valid.', 'jetpack-forms' ),
 			)
 		);
 
