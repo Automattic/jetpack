@@ -374,7 +374,7 @@ class Posts extends Module {
 	 */
 	public function is_whitelisted_post_meta( $meta_key ) {
 		// The _wpas_skip_ meta key is used by Publicize.
-		return in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ), true ) || ( 0 === strpos( $meta_key, '_wpas_skip_' ) );
+		return in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ), true ) || str_starts_with( $meta_key, '_wpas_skip_' );
 	}
 
 	/**

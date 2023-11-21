@@ -1,5 +1,5 @@
 <script lang="ts">
-	import AdvancedCriticalCss from './pages/critical-css-advanced/CriticalCssAdvanced.svelte';
+	import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
 	import GettingStarted from './pages/getting-started/getting-started';
 	import RecommendationsPage from './pages/image-size-analysis/ImageSizeAnalysis.svelte';
 	import Index from './pages/index/Index.svelte';
@@ -65,7 +65,7 @@
 	<Route path="critical-css-advanced">
 		<Redirect when={shouldGetStarted} to="/getting-started">
 			<SettingsPage>
-				<AdvancedCriticalCss issues={$criticalCssIssues} />
+				<ReactComponent this={AdvancedCriticalCss} issues={$criticalCssIssues} />
 			</SettingsPage>
 		</Redirect>
 	</Route>

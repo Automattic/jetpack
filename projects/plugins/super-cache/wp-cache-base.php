@@ -37,7 +37,7 @@ if ( is_multisite() ) {
 		}
 
 		if ( count( $wpsc_path_segs ) > $wpsc_base_count &&
-			( ! defined( 'PATH_CURRENT_SITE' ) || 0 === strpos( $request_uri, PATH_CURRENT_SITE ) )
+			( ! defined( 'PATH_CURRENT_SITE' ) || str_starts_with( $request_uri, PATH_CURRENT_SITE ) )
 		) {
 			$blogcacheid = $wpsc_path_segs[ $wpsc_base_count ];
 		}

@@ -2,6 +2,40 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.9-a.7 - 2023-11-20
+### Enhancements
+- Subscribe Modal: Added a subscribe modal toggle to the Newsletter settings. [#33909]
+- CSS Concatenation: Avoid optimizing CSS loading when less than 2 modules that require it are active. [#34110]
+- Jetpack AI: Enabled the AI Assistant usage panel. [#34122]
+
+### Improved compatibility
+- Updated PHP version reqirements to PHP 7.0 or newer. [#34126]
+- Updated WordPress version requirements to WordPress 6.3. [#34127]
+
+### Bug fixes
+- Added missing BLOCK_NAME constant to SimplePayments block. [#34143]
+- Contact Form: Prevented errors when a saved submitted contact form is requested but does not exist anymore. [#34129]
+- WoA: Restored Woo Express free trial upgrade JITM. [#34167]
+- Mobile: Ensured text is always visible in Contact Info block on mobile. [#33873]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Jetpack AI: Compute if the site requires an upgrade depending on the current tier. [#34083]
+- Jetpack AI: Stopped requesting AI Assistant feature data from the backend. [#34132]
+- Jetpack AI: Ensured the client performs the AI data feature request at least once. [#34109]
+- Jetpack AI: Updated logic for the require upgrade field to also work for tiered sites. [#34170]
+- Jetpack AI: Use the Usage Helper to set fields on the ai-assistant-feature endpoint. [#34151]
+- Use new async flow to get isOverLimit from useAiFeature. [#34156]
+- Blocks: Updated block support from __experimentalLayout to layout. [#34128]
+- Subscribe Modal: Updated wording. [#34130]
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Dashboard: Ensured the menu item focus supports the new "activity log" menu item. [#34174]
+- Partnerships: Stopped initializing the Partner package in the Jetpack plugin, it is now done directly in the Connection package. [#33832]
+- Rearranged the code for readability and made use of specific calls on different contexts. [#34176]
+- Removed the 'jetpack/publicize' store. [#34111]
+- Subscribe Block: Link to https://wordpress.com/email-subscriptions when subscribed. [#34148]
+- Updated package dependencies. [#34119]
+- Use the same value as in backend for unlimited plan limit (needed for int comparisons), 999.999.999 (almost a billion), as a constant. [#34169]
+
 ## 12.9-a.5 - 2023-11-14
 ### Enhancements
 - Subscribe Block: Improved the redirect logic after confirming a subscriptions. [#34086]

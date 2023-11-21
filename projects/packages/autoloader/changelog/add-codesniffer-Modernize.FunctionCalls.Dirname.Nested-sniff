@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Replace nested `dirname` with use of the php 7.0+ `$levels` parameter. No change in functionality.
+
+

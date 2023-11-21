@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Do not require the Partner package anymore. Rely on the Connection package instead.

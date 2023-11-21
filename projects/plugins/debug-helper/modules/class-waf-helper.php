@@ -50,7 +50,7 @@ class Waf_Helper {
 	 * @param string $hook Page hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( strpos( $hook, 'jetpack-debug_page_firewall-helper' ) === 0 ) {
+		if ( str_starts_with( $hook, 'jetpack-debug_page_firewall-helper' ) ) {
 			wp_enqueue_style( 'waf_helper_style', plugin_dir_url( __FILE__ ) . 'inc/css/waf-helper.css', array(), JETPACK_DEBUG_HELPER_VERSION );
 		}
 	}

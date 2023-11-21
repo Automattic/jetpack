@@ -6,7 +6,7 @@
  */
 
 // Assume we're in tests/php/bootstrap.php.
-$_plugin_root = dirname( dirname( __DIR__ ) );
+$_plugin_root = dirname( __DIR__, 2 );
 
 // Locate WordPress or wordpress-develop. We look in several places.
 if ( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
@@ -18,9 +18,9 @@ if ( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
 } elseif ( false !== getenv( 'WP_TESTS_DIR' ) ) {
 	// WordPress core environment variable.
 	$_tests_dir = getenv( 'WP_TESTS_DIR' );
-} elseif ( file_exists( dirname( dirname( $_plugin_root ) ) . '/tests/phpunit/includes/bootstrap.php' ) ) {
+} elseif ( file_exists( dirname( $_plugin_root, 2 ) . '/tests/phpunit/includes/bootstrap.php' ) ) {
 	// Installed inside wordpress-develop.
-	$_tests_dir = dirname( dirname( $_plugin_root ) ) . '/tests/phpunit/includes/bootstrap.php';
+	$_tests_dir = dirname( $_plugin_root, 2 ) . '/tests/phpunit/includes/bootstrap.php';
 } elseif ( file_exists( '/vagrant/www/wordpress-develop/public_html/tests/phpunit/includes/bootstrap.php' ) ) {
 	// VVV.
 	$_tests_dir = '/vagrant/www/wordpress-develop/public_html/tests/phpunit';
