@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Remove condition from the backup undoable event call, this datapoint will be removed

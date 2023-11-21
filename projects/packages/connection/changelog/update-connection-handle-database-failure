@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Confirm blog ID and access token were saved before proceeding with connection flow.

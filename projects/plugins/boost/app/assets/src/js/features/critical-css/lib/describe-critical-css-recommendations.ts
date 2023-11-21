@@ -2,12 +2,13 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { CriticalCssErrorDetails } from './stores/critical-css-state-types';
 import { castToNumber } from '$lib/utils/cast-to-number';
 import type { ErrorSet } from './stores/critical-css-state-errors';
-import type { SvelteComponent } from 'svelte';
-import UrlComponentsExample from '$features/critical-css/UrlComponentsExample.svelte';
+import type { ComponentType } from 'react';
+import UrlComponentsExample from '$features/critical-css/url-components-example/url-components-example';
 
 type Suggestion = {
 	paragraph: string;
 	list?: string[];
+	listLink?: string;
 	closingParagraph?: string;
 };
 
@@ -40,12 +41,12 @@ export function suggestion( set: ErrorSet ): Suggestion {
 }
 
 /**
- * Returns a Svelte component to display in the footer of the given error set,
+ * Returns a React component to display in the footer of the given error set,
  * or null if no component should be displayed.
  *
  * @param {ErrorSet} set Set to get a footer component for.
  */
-export function footerComponent( set: ErrorSet ): typeof SvelteComponent | null {
+export function footerComponent( set: ErrorSet ): typeof ComponentType | null {
 	const spec = getErrorSpec( set.type );
 
 	if ( spec.footerComponent ) {
@@ -169,7 +170,7 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 				),
 				list: [
 					__(
-						'Learn about the error and common solutions by <a target="_blank" href="https://wordpress.org/support/article/common-wordpress-errors/#internal-server-error">clicking here</a>.',
+						'Learn about the error and common solutions by <link>clicking here</link>.',
 						'jetpack-boost'
 					),
 					__(
@@ -181,6 +182,8 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 						'jetpack-boost'
 					),
 				],
+				listLink:
+					'https://wordpress.org/support/article/common-wordpress-errors/#internal-server-error',
 			};
 
 		default:
@@ -235,7 +238,7 @@ type ErrorTypeSpec = {
 	groupKey?: ( error: CriticalCssErrorDetails ) => string; // Returns a string which helps determine error groupings. If unspecified, type is used.
 	describeSet: ( set: ErrorSet ) => string; // Returns a string used to describe a set of this type of error.
 	suggestion?: ( set: ErrorSet ) => Suggestion; // Returns a simple string with suggestions. Gets templated on display.
-	footerComponent?: () => typeof SvelteComponent; // Returns an extra Svelte component to add to the footer of the error.
+	footerComponent?: () => typeof ComponentType; // Returns an extra React component to add to the footer of the error.
 	rawError?: ( set: ErrorSet ) => string; // Returns a string of the first raw error message
 };
 
@@ -306,7 +309,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 			),
 			list: [
 				__(
-					'Visit the page and look at the protocol and host name to ensure it matches the one in your <a target="_blank" href="https://wordpress.org/support/article/administration-screens/">WordPress Administration Screen</a>.',
+					'Visit the page and look at the protocol and host name to ensure it matches the one in your <link>WordPress Administration Screen</link>.',
 					'jetpack-boost'
 				),
 				__(
@@ -318,6 +321,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 					'jetpack-boost'
 				),
 			],
+			listLink: 'https://wordpress.org/support/article/administration-screens/',
 		} ),
 		footerComponent: () => UrlComponentsExample,
 	},
