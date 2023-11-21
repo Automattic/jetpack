@@ -1151,10 +1151,10 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			for ( $i = 0; $i < $n; $i++ ) {
 				$item_label = $labels->item( $i );
 				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				$this->assertEquals( $item_label->nodeValue, $attributes['options'][ $i ] ); // extra space added for a padding.
+				$this->assertEquals( $item_label->nodeValue, $attributes['options'][ $i ] );
 
 				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				$input = $item_label->previousElementSibling;
+				$input = $item_label->parentNode->getElementsByTagName( 'input' )->item( 0 );
 				$this->assertEquals( $input->getAttribute( 'type' ), $attributes['input_type'], 'Type doesn\'t match' );
 				if ( 'radio' === $attributes['input_type'] ) {
 					$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
