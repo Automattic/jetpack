@@ -98,20 +98,17 @@ class Jetpack_Ai extends Product {
 	 * @return int
 	 */
 	public static function get_next_usage_tier() {
-		$current_tier = self::get_current_usage_tier();
+		$info = self::get_ai_assistant_feature();
 
-		if ( null === $current_tier ) {
-			return 1;
-		}
-
-		// If the current tier is 1 or 500, there is no next tier.
-		if ( 1 === $current_tier || 500 === $current_tier ) {
+		// Bail early if it's not possible to fetch the feature data.
+		if ( is_wp_error( $info ) ) {
 			return null;
 		}
 
-		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-		// return $info['next-tier']['value'];
-		return 1; // Return the unlimited tier for now.
+		// Trust the next tier provided by the feature data.
+		$next_tier = isset( $info['next-tier']['value'] ) ? $info['next-tier']['value'] : null;
+
+		return $next_tier;
 	}
 
 	/**
