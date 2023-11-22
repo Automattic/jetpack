@@ -1,7 +1,15 @@
 /**
  * External dependencies
  */
-import { AdminPage, Button, Col, Container, Text, H3 } from '@automattic/jetpack-components';
+import {
+	AdminPage,
+	Button,
+	Col,
+	Container,
+	Text,
+	H3,
+	getRedirectUrl,
+} from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import React from 'react';
@@ -26,9 +34,7 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 		'Allow us to assist you in discovering the optimal plan tailored to your requirements, ensuring you can continue using the most advanced AI technology Jetpack has to offer.',
 		'jetpack-my-jetpack'
 	);
-	const contactEmailAddress = 'support@jetpack.com';
-	const contactEmailSubject = encodeURIComponent( 'Jetpack AI - Inquiry about more requests' );
-	const href = `mailto:${ contactEmailAddress }?subject=${ contactEmailSubject }`;
+	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
@@ -49,7 +55,9 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 									<H3>{ title }</H3>
 									<Text mb={ 3 }>{ longDescription }</Text>
 									<div className={ styles[ 'buttons-row' ] }>
-										<Button href={ href }>{ __( 'Contact Us', 'jetpack-my-jetpack' ) }</Button>
+										<Button href={ contactHref }>
+											{ __( 'Contact Us', 'jetpack-my-jetpack' ) }
+										</Button>
 										<Link to={ '/' } onClick={ onClickGoBack }>
 											<Button variant="secondary">{ __( 'Back', 'jetpack-my-jetpack' ) }</Button>
 										</Link>
