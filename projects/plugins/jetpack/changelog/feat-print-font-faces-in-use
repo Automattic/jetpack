@@ -1,4 +1,0 @@
-Significance: minor
-Type: major
-
-Generate and print the fonts that are used in global styles or block-level settings if the Jetpack Google Fonts module is enabled to avoid printing all google fonts definition in the head

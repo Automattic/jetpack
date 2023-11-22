@@ -91,7 +91,7 @@ function jetpack_spotify_embed_ids( $content ) {
 		}
 
 		// If this element does not contain a Spotify embed, continue.
-		if ( false === strpos( $element, 'spotify:' ) ) {
+		if ( ! str_contains( $element, 'spotify:' ) ) {
 			continue;
 		}
 

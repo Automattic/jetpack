@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Call `inet_pton` directly, it appears to have been available everywhere since PHP 5.3.
+
+

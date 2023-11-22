@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Code Modernization: add note of non-usage of PHP8+ functions yet.
