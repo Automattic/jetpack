@@ -8,7 +8,7 @@
 /**
  * Require the utils class.
  */
-require_once __DIR__ . '/block-patterns-utils.php';
+require_once __DIR__ . '/class-block-patterns-utils.php';
 
 /**
  * Class Block_Patterns_From_Api
