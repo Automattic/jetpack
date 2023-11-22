@@ -9,8 +9,7 @@ import {
 	useSocialMediaConnections as useSelectSocialMediaConnections,
 	usePostJustPublished,
 	usePublicizeConfig,
-	isPublicizeEnabled as isPublicizeFeatureEnabled,
-	togglePublicizeFeature,
+	usePostMeta,
 } from '@automattic/jetpack-publicize-components';
 import { PanelBody, PanelRow, ToggleControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -22,8 +21,7 @@ import Description from './description';
 const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	const isPublicizeEnabled = isPublicizeFeatureEnabled();
-
+	const { isPublicizeEnabled, togglePublicizeFeature } = usePostMeta();
 	const {
 		hasPaidPlan,
 		isShareLimitEnabled,
