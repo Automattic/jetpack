@@ -147,7 +147,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @return mixed.
 	 */
 	public function remove_from_cart_attributes( $url, $key ) {
-		if ( false !== strpos( $url, 'data-product_id' ) ) {
+		if ( str_contains( $url, 'data-product_id' ) ) {
 			return $url;
 		}
 

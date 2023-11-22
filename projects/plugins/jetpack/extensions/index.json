@@ -57,19 +57,19 @@
 		"blogroll",
 		"blogroll-item",
 		"nextdoor",
-		"ai-assistant-usage-panel",
-		"sharing-button",
-		"sharing-buttons"
+		"ai-assistant-usage-panel"
 	],
 	"beta": [
-		"amazon",
 		"google-docs-embed",
 		"launchpad-save-modal",
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"create-with-voice",
-		"ai-assistant-backend-prompts"
+		"ai-assistant-backend-prompts",
+		"sharing-button",
+		"sharing-buttons",
+		"ai-enable-tier-plans-ui"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

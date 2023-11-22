@@ -71,7 +71,7 @@ class Concatenate_CSS extends WP_Styles {
 			$do_concat = false;
 
 			// Only try to concat static css files
-			if ( false !== strpos( $css_url_parsed['path'], '.css' ) ) {
+			if ( str_contains( $css_url_parsed['path'], '.css' ) ) {
 				$do_concat = true;
 			} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					printf( "\n<!-- No Concat CSS %s => Maybe Not Static File %s -->\n", esc_html( $handle ), esc_html( $obj->src ) );

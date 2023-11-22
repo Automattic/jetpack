@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Avoid actually trying to send mail during tests. No change to the package itself.
+
+
