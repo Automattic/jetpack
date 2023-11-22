@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 /*
  * Internal dependencies
@@ -22,6 +22,12 @@ const DefaultUpgradePrompt = (): React.ReactNode => {
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
 	const canUpgrade = canUserPurchasePlan();
 
+	const tierPlansEnabled =
+		window?.Jetpack_Editor_Initial_State?.available_blocks[ 'ai-enable-tier-plans-ui' ] &&
+		window.Jetpack_Editor_Initial_State.available_blocks[ 'ai-enable-tier-plans-ui' ].available;
+
+	const { nextTier } = useAiFeature();
+
 	if ( ! canUpgrade ) {
 		return (
 			<Nudge
@@ -39,6 +45,60 @@ const DefaultUpgradePrompt = (): React.ReactNode => {
 				) }
 				visible={ true }
 				align={ null }
+				title={ null }
+				context={ null }
+			/>
+		);
+	}
+
+	if ( tierPlansEnabled ) {
+		if ( ! nextTier ) {
+			const contactEmailAddress = 'support@jetpack.com';
+			const contactEmailSubject = encodeURIComponent( 'Jetpack AI - Inquiry about more requests' );
+			const href = `mailto:${ contactEmailAddress }?subject=${ contactEmailSubject }`;
+			return (
+				<Nudge
+					buttonText={ __( 'Contact Us', 'jetpack' ) }
+					description={ __(
+						'You have reached the request limit for your current plan.',
+						'jetpack'
+					) }
+					className={ 'jetpack-ai-upgrade-banner' }
+					checkoutUrl={ href }
+					visible={ true }
+					align={ null }
+					title={ null }
+					context={ null }
+				/>
+			);
+		}
+		return (
+			<Nudge
+				buttonText={ sprintf(
+					/* Translators: number of requests */
+					__( 'Upgrade to %d requests', 'jetpack' ),
+					nextTier.limit
+				) }
+				checkoutUrl={ checkoutUrl }
+				className={ 'jetpack-ai-upgrade-banner' }
+				description={ createInterpolateElement(
+					sprintf(
+						/* Translators: number of requests */
+						__(
+							'You have reached the requests limit for your current plan.<br /><strong>Upgrade now to increase your requests limit to %d.</strong>',
+							'jetpack'
+						),
+						nextTier.limit
+					),
+					{
+						br: <br />,
+						strong: <strong />,
+					}
+				) }
+				goToCheckoutPage={ autosaveAndRedirect }
+				isRedirecting={ isRedirecting }
+				visible={ true }
+				align={ 'center' }
 				title={ null }
 				context={ null }
 			/>
