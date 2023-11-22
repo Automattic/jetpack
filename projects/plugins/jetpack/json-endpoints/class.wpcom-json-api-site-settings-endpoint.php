@@ -456,6 +456,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
 						'subscription_options'             => (array) get_option( 'subscription_options' ),
+						'verbum_subscription_modal'        => (bool) get_option( 'verbum_subscription_modal', true ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -976,6 +977,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'wpcom_publish_posts_with_markdown':
 				case 'wpcom_publish_comments_with_markdown':
+				case 'verbum_subscription_modal':
 					$coerce_value = (bool) $value;
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = $coerce_value;
