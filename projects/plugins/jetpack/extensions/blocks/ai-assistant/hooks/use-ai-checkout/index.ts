@@ -17,8 +17,7 @@ export default function useAICheckout(): {
 	isRedirecting: boolean;
 } {
 	const tierPlansEnabled =
-		window?.Jetpack_Editor_Initial_State?.available_blocks[ 'ai-enable-tier-plans-ui' ] &&
-		window.Jetpack_Editor_Initial_State.available_blocks[ 'ai-enable-tier-plans-ui' ].available;
+		window?.Jetpack_Editor_Initial_State?.available_blocks[ 'ai-enable-tier-plans-ui' ]?.available;
 
 	const { nextTier } = useAiFeature();
 
