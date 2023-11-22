@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\TestCase;
 
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/block-patterns/block-patterns.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/block-patterns/class-block-patterns-from-api.php';
 
 /**
@@ -23,8 +24,10 @@ class Block_Patterns_From_Api_Test extends TestCase {
 
 	/**
 	 * Pre-test setup.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function custom_setup() {
 		parent::setUp();
 		$this->pattern_mock_object = array(
 			'ID'            => '1',

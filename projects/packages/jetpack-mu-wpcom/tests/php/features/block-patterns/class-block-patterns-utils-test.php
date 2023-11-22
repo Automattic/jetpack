@@ -23,8 +23,10 @@ class Block_Patterns_Utils_Test extends TestCase {
 
 	/**
 	 * Pre-test setup.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function custom_setup() {
 		parent::setUp();
 		$this->utils = new Block_Patterns_Utils();
 	}
