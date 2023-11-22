@@ -173,8 +173,8 @@ class Security extends Module_Product {
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
 				if (
-					0 === strpos( $purchase->product_slug, 'jetpack_security' ) ||
-					0 === strpos( $purchase->product_slug, 'jetpack_complete' )
+					str_starts_with( $purchase->product_slug, 'jetpack_security' ) ||
+					str_starts_with( $purchase->product_slug, 'jetpack_complete' )
 				) {
 					return true;
 				}

@@ -53,7 +53,7 @@ class Jetpack_Widget_Conditions {
 		}
 
 		// API call to *list* the widget types doesn't use editing visibility or display widgets.
-		if ( isset( $_SERVER['REQUEST_URI'] ) && false !== strpos( $_SERVER['REQUEST_URI'], '/widget-types?' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( isset( $_SERVER['REQUEST_URI'] ) && str_contains( $_SERVER['REQUEST_URI'], '/widget-types?' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			return;
 		}
 
@@ -91,13 +91,13 @@ class Jetpack_Widget_Conditions {
 
 			// Batch API is usually saving but could be anything.
 			$current_url = ! empty( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-			if ( false !== strpos( $current_url, '/wp-json/batch/v1' ) || 1 === preg_match( '/^\/wp\/v2\/sites\/\d+\/batch\/v1/', $current_url ) ) {
+			if ( str_contains( $current_url, '/wp-json/batch/v1' ) || 1 === preg_match( '/^\/wp\/v2\/sites\/\d+\/batch\/v1/', $current_url ) ) {
 				$handle_widget_updates = true;
 				$add_html_to_form      = true;
 			}
 
 			// Saving widgets via non-batch API. This isn't used within WordPress but could be used by third parties in theory.
-			if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'GET' !== $_SERVER['REQUEST_METHOD'] && false !== strpos( $_SERVER['REQUEST_URI'], '/wp/v2/widgets' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'GET' !== $_SERVER['REQUEST_METHOD'] && str_contains( $_SERVER['REQUEST_URI'], '/wp/v2/widgets' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 				$handle_widget_updates = true;
 				$add_html_to_form      = true;
 			}
@@ -796,7 +796,7 @@ class Jetpack_Widget_Conditions {
 	public static function filter_widget( $instance ) {
 		// Don't filter widgets from the REST API when it's called via the widgets admin page - otherwise they could get
 		// filtered out and become impossible to edit.
-		if ( strpos( wp_get_raw_referer(), '/wp-admin/widgets.php' ) && isset( $_SERVER['REQUEST_URI'] ) && false !== strpos( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/wp-json/' ) ) {
+		if ( strpos( wp_get_raw_referer(), '/wp-admin/widgets.php' ) && isset( $_SERVER['REQUEST_URI'] ) && str_contains( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/wp-json/' ) ) {
 			return $instance;
 		}
 		// WordPress.com specific check - here, referer ends in /rest-proxy/ and doesn't tell us what's requesting.
@@ -903,9 +903,9 @@ class Jetpack_Widget_Conditions {
 								}
 								break;
 							default:
-								if ( substr( $rule['minor'], 0, 10 ) === 'post_type-' ) {
+								if ( str_starts_with( $rule['minor'], 'post_type-' ) ) {
 									$condition_result = is_singular( substr( $rule['minor'], 10 ) );
-								} elseif ( substr( $rule['minor'], 0, 18 ) === 'post_type_archive-' ) {
+								} elseif ( str_starts_with( $rule['minor'], 'post_type_archive-' ) ) {
 									$condition_result = is_post_type_archive( substr( $rule['minor'], 18 ) );
 								} elseif ( get_option( 'page_for_posts' ) === $rule['minor'] ) {
 									// If $rule['minor'] is a page ID which is also the posts page.
@@ -994,9 +994,9 @@ class Jetpack_Widget_Conditions {
 						}
 						break;
 					case 'post_type':
-						if ( substr( $rule['minor'], 0, 10 ) === 'post_type-' ) {
+						if ( str_starts_with( $rule['minor'], 'post_type-' ) ) {
 							$condition_result = is_singular( substr( $rule['minor'], 10 ) );
-						} elseif ( substr( $rule['minor'], 0, 18 ) === 'post_type_archive-' ) {
+						} elseif ( str_starts_with( $rule['minor'], 'post_type_archive-' ) ) {
 							$condition_result = is_post_type_archive( substr( $rule['minor'], 18 ) );
 						}
 						break;
@@ -1167,9 +1167,9 @@ class Jetpack_Widget_Conditions {
 						$rule_type = false;
 
 						// Post type or type archive rule.
-						if ( 0 === strpos( $rule['minor'], 'post_type_archive' ) ) {
+						if ( str_starts_with( $rule['minor'], 'post_type_archive' ) ) {
 							$rule_type = 'post_type_archive';
-						} elseif ( 0 === strpos( $rule['minor'], 'post_type' ) ) {
+						} elseif ( str_starts_with( $rule['minor'], 'post_type' ) ) {
 							$rule_type = 'post_type';
 						}
 
@@ -1197,7 +1197,7 @@ global $pagenow;
 $current_url = ! empty( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 if ( is_customize_preview()
 	|| 'widgets.php' === $pagenow
-	|| ( false !== strpos( $current_url, '/wp-json/wp/v2/block-renderer' ) )
+	|| str_contains( $current_url, '/wp-json/wp/v2/block-renderer' )
 	|| 1 === preg_match( '~^/wp/v2/sites/\d+/block-renderer~', $current_url )
 ) {
 	Jetpack_Widget_Conditions::add_block_attributes_filter();

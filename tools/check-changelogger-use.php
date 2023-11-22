@@ -65,7 +65,7 @@ for ( $i = 1; $i < $argc; $i++ ) {
 			usage();
 			break;
 		default:
-			if ( substr( $argv[ $i ], 0, 1 ) !== '-' ) {
+			if ( ! str_starts_with( $argv[ $i ], '-' ) ) {
 				switch ( $idx++ ) {
 					case 0:
 						$base = $argv[ $i ];
