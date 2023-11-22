@@ -17,6 +17,7 @@ import {
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
 	ENDPOINT_AI_ASSISTANT_FEATURE,
 	NEW_ASYNC_REQUEST_TIMER_INTERVAL,
+	ACTION_SET_TIER_PLANS_ENABLED,
 } from './constants';
 import type { Plan } from './types';
 import type { AiFeatureProps } from './types';
@@ -47,6 +48,7 @@ export function mapAIFeatureResponseToAiFeatureProps(
 		},
 		currentTier: response[ 'current-tier' ],
 		nextTier: response[ 'next-tier' ],
+		tierPlansEnabled: !! response[ 'tier-plans-enabled' ],
 	};
 }
 
@@ -178,6 +180,13 @@ const actions = {
 		return {
 			type: ACTION_SET_AI_ASSISTANT_FEATURE_REQUIRE_UPGRADE,
 			requireUpgrade,
+		};
+	},
+
+	setTierPlansEnabled( tierPlansEnabled: boolean = true ) {
+		return {
+			type: ACTION_SET_TIER_PLANS_ENABLED,
+			tierPlansEnabled,
 		};
 	},
 };

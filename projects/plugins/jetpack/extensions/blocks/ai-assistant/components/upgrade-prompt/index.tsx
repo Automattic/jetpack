@@ -23,10 +23,7 @@ const DefaultUpgradePrompt = (): React.ReactNode => {
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
 	const canUpgrade = canUserPurchasePlan();
 
-	const tierPlansEnabled =
-		window?.Jetpack_Editor_Initial_State?.available_blocks[ 'ai-enable-tier-plans-ui' ]?.available;
-
-	const { nextTier } = useAiFeature();
+	const { nextTier, tierPlansEnabled } = useAiFeature();
 
 	if ( ! canUpgrade ) {
 		return (
