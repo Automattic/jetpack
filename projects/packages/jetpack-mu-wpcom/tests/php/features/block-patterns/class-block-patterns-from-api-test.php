@@ -1,24 +1,19 @@
 <?php
 /**
- * Block patterns API tests
- * Run:
- * cd apps/editing-toolkit
- * yarn run test:php --testsuite block-patterns
+ * Test class for Block_Patterns_From_Api.
  *
- * @package full-site-editing-plugin
+ * @package automattic/jetpack-mu-wpcom
  */
 
-namespace A8C\FSE;
-
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . '/../../full-site-editing-plugin.php';
-require_once __DIR__ . '/../class-wpcom-block-patterns-from-api.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/block-patterns/class-block-patterns-from-api.php';
 
 /**
  * Tests block pattern registration in the API context.
  */
-class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
+class Block_Patterns_From_Api_Test extends TestCase {
 	/**
 	 * Representation of a Pattern as returned by the API.
 	 *
@@ -50,17 +45,17 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 	}
 
 	/**
-	 *  Returns a mock of Wpcom_Block_Patterns_Utils.
+	 *  Returns a mock of Block_Patterns_Utils.
 	 *
-	 * @param array      $pattern_mock_response     What we want Wpcom_Block_Patterns_Utils->remote_get() to return.
-	 * @param bool|array $cache_get                 What we want Wpcom_Block_Patterns_Utils->cache_get() to return.
-	 * @param bool       $cache_add                 What we want Wpcom_Block_Patterns_Utils->cache_add() to return.
-	 * @param string     $get_patterns_cache_key    What we want Wpcom_Block_Patterns_Utils->get_patterns_cache_key() to return.
-	 * @param string     $get_block_patterns_locale What we want Wpcom_Block_Patterns_Utils->get_block_patterns_locale() to return.
+	 * @param array      $pattern_mock_response     What we want Block_Patterns_Utils->remote_get() to return.
+	 * @param bool|array $cache_get                 What we want Block_Patterns_Utils->cache_get() to return.
+	 * @param bool       $cache_add                 What we want Block_Patterns_Utils->cache_add() to return.
+	 * @param string     $get_patterns_cache_key    What we want Block_Patterns_Utils->get_patterns_cache_key() to return.
+	 * @param string     $get_block_patterns_locale What we want Block_Patterns_Utils->get_block_patterns_locale() to return.
 	 * @return obj PHP Unit mock object.
 	 */
 	public function createBlockPatternsUtilsMock( $pattern_mock_response, $cache_get = false, $cache_add = true, $get_patterns_cache_key = 'key-largo', $get_block_patterns_locale = 'fr' ) {
-		$mock = $this->createMock( Wpcom_Block_Patterns_Utils::class );
+		$mock = $this->createMock( Block_Patterns_Utils::class );
 
 		$mock->method( 'remote_get' )
 			->willReturn( $pattern_mock_response );
@@ -84,8 +79,8 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 	 *  Tests that we're making a request where there are no cached patterns.
 	 */
 	public function test_patterns_request_succeeds_with_empty_cache() {
-		$utils_mock                    = $this->createBlockPatternsUtilsMock( array( $this->pattern_mock_object ) );
-		$wpcom_block_patterns_from_api = new Wpcom_Block_Patterns_From_Api( $utils_mock );
+		$utils_mock              = $this->createBlockPatternsUtilsMock( array( $this->pattern_mock_object ) );
+		$block_patterns_from_api = new Block_Patterns_From_Api( $utils_mock );
 
 		$utils_mock->expects( $this->once() )
 			->method( 'cache_get' )
@@ -99,15 +94,15 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 			->method( 'cache_add' )
 			->with( $this->stringContains( 'key-largo' ), array( $this->pattern_mock_object ), 'ptk_patterns', DAY_IN_SECONDS );
 
-		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $wpcom_block_patterns_from_api->register_patterns() );
+		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $block_patterns_from_api->register_patterns() );
 	}
 
 	/**
 	 *  Tests that we're making a request
 	 */
 	public function test_patterns_site_editor_source_site() {
-		$utils_mock                    = $this->createBlockPatternsUtilsMock( array( $this->pattern_mock_object ) );
-		$wpcom_block_patterns_from_api = new Wpcom_Block_Patterns_From_Api( $utils_mock );
+		$utils_mock              = $this->createBlockPatternsUtilsMock( array( $this->pattern_mock_object ) );
+		$block_patterns_from_api = new Block_Patterns_From_Api( $utils_mock );
 
 		$utils_mock->expects( $this->exactly( 1 ) )
 			->method( 'remote_get' )
@@ -115,15 +110,15 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 				array( 'https://public-api.wordpress.com/rest/v1/ptk/patterns/fr?tags=pattern&pattern_meta=is_web&patterns_source=block_patterns' )
 			);
 
-		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $wpcom_block_patterns_from_api->register_patterns() );
+		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $block_patterns_from_api->register_patterns() );
 	}
 
 	/**
 	 *  Tests that we're NOT making a request where there ARE cached patterns.
 	 */
 	public function test_patterns_request_succeeds_with_set_cache() {
-		$utils_mock                    = $this->createBlockPatternsUtilsMock( array( $this->pattern_mock_object ), array( $this->pattern_mock_object ) );
-		$wpcom_block_patterns_from_api = new Wpcom_Block_Patterns_From_Api( $utils_mock );
+		$utils_mock              = $this->createBlockPatternsUtilsMock( array( $this->pattern_mock_object ), array( $this->pattern_mock_object ) );
+		$block_patterns_from_api = new Block_Patterns_From_Api( $utils_mock );
 
 		$utils_mock->expects( $this->once() )
 			->method( 'cache_get' )
@@ -135,7 +130,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 		$utils_mock->expects( $this->never() )
 			->method( 'cache_add' );
 
-		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $wpcom_block_patterns_from_api->register_patterns() );
+		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $block_patterns_from_api->register_patterns() );
 	}
 
 	/**
@@ -147,8 +142,8 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 		};
 
 		add_filter( 'a8c_override_patterns_source_site', $example_site );
-		$utils_mock                    = $this->createBlockPatternsUtilsMock( array( $this->pattern_mock_object ) );
-		$wpcom_block_patterns_from_api = new Wpcom_Block_Patterns_From_Api( $utils_mock );
+		$utils_mock              = $this->createBlockPatternsUtilsMock( array( $this->pattern_mock_object ) );
+		$block_patterns_from_api = new Block_Patterns_From_Api( $utils_mock );
 
 		$utils_mock->expects( $this->never() )
 			->method( 'cache_get' );
@@ -160,7 +155,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 			->method( 'remote_get' )
 			->with( 'https://public-api.wordpress.com/rest/v1/ptk/patterns/fr?site=dotcom&tags=pattern&pattern_meta=is_web' );
 
-		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $wpcom_block_patterns_from_api->register_patterns() );
+		$this->assertEquals( array( 'a8c/' . $this->pattern_mock_object['name'] => true ), $block_patterns_from_api->register_patterns() );
 
 		remove_filter( 'a8c_override_patterns_source_site', $example_site );
 	}
@@ -188,7 +183,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 	/**
 	 * Tests that pattern registration does occur on API routes related to block patterns.
 	 */
-	public function test_load_Wpcom_Block_Patterns_From_Api_runs_in_correct_request_context() {
+	public function test_load_Block_Patterns_From_Api_runs_in_correct_request_context() {
 		add_filter( 'a8c_enable_block_patterns_api', '__return_true' );
 		$test_routes = array(
 			'/wp/v2/block-patterns/categories',
@@ -197,7 +192,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 			'/wp/v2/sites/178915379/block-patterns/patterns',
 		);
 
-		$patterns_mock = $this->createMock( Wpcom_Block_Patterns_From_Api::class );
+		$patterns_mock = $this->createMock( Block_Patterns_From_Api::class );
 		$patterns_mock->expects( $this->exactly( count( $test_routes ) ) )->method( 'register_patterns' );
 
 		$this->multiple_route_pattern_registration( $patterns_mock, $test_routes );
@@ -207,7 +202,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 	 * Tests that pattern registration does not occur on rest API routes unrelated
 	 * to block patterns.
 	 */
-	public function test_load_Wpcom_Block_Patterns_From_Api_is_skipped_in_wrong_request_context() {
+	public function test_load_Block_Patterns_From_Api_is_skipped_in_wrong_request_context() {
 		add_filter( 'a8c_enable_block_patterns_api', '__return_true' );
 
 		$test_routes = array(
@@ -222,7 +217,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 			'/wp/v2/123/block-patterns/categories',
 		);
 
-		$patterns_mock = $this->createMock( Wpcom_Block_Patterns_From_Api::class );
+		$patterns_mock = $this->createMock( Block_Patterns_From_Api::class );
 		$patterns_mock->expects( $this->never() )->method( 'register_patterns' );
 
 		$this->multiple_route_pattern_registration( $patterns_mock, $test_routes );
