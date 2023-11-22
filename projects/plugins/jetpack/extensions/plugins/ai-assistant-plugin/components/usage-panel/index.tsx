@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Button } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 /**
  * Internal dependencies
@@ -71,6 +71,32 @@ const useDaysUntilReset = ( nextStartDate: string ): number => {
 	return Math.ceil( differenceInMiliseconds / ( 1000 * 60 * 60 * 24 ) );
 };
 
+/**
+ * Handle the upgrade button text.
+ *
+ * @param {PlanType} planType - the type of the current plan
+ * @param {number} nextTierRequestLimit - the request limit of the next tier, or null if there is no next tier
+ * @returns {string} the proper upgrade button text
+ */
+const useUpgradeButtonText = ( planType: PlanType, nextTierRequestLimit: number ): string => {
+	// If the current plan is free, the upgrade button text is just "Upgrade"
+	if ( planType === PLAN_TYPE_FREE ) {
+		return __( 'Upgrade', 'jetpack' );
+	}
+
+	// If there is no next tier, the upgrade button text is just "Get more requests"
+	if ( ! nextTierRequestLimit ) {
+		return __( 'Get more requests', 'jetpack' );
+	}
+
+	// In other cases, the upgrade button text is "Get %d requests"
+	return sprintf(
+		// translators: %1$d: an integer, the number of requests to upgrade to on the next tier
+		__( 'Get %1$d requests', 'jetpack' ),
+		nextTierRequestLimit
+	);
+};
+
 export default function UsagePanel() {
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
 	const canUpgrade = canUserPurchasePlan();
@@ -82,6 +108,7 @@ export default function UsagePanel() {
 		isOverLimit,
 		usagePeriod,
 		currentTier,
+		nextTier,
 	} = useAiFeature();
 	const planType = usePlanType( currentTier );
 	const daysUntilReset = useDaysUntilReset( usagePeriod?.nextStart );
@@ -89,6 +116,9 @@ export default function UsagePanel() {
 	const requestsCount =
 		planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
 	const requestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTier?.limit;
+
+	// Determine the upgrade button text
+	const upgradeButtonText = useUpgradeButtonText( planType, nextTier?.limit );
 
 	return (
 		<div className="jetpack-ai-usage-panel">
@@ -110,7 +140,7 @@ export default function UsagePanel() {
 							onClick={ autosaveAndRedirect }
 							disabled={ isRedirecting }
 						>
-							{ __( 'Upgrade', 'jetpack' ) }
+							{ upgradeButtonText }
 						</Button>
 					</div>
 				) }
