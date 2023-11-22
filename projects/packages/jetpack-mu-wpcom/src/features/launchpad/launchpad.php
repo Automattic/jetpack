@@ -26,7 +26,6 @@ require_once __DIR__ . '/launchpad-task-definitions.php';
 function wpcom_launchpad_get_task_list_definitions() {
 	$core_task_list_definitions = array(
 		'build'                  => array(
-			'title'               => 'Build',
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -42,7 +41,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'free'                   => array(
-			'title'               => 'Free',
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -59,7 +57,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'link-in-bio'            => array(
-			'title'               => 'Link In Bio',
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -74,7 +71,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'link-in-bio-tld'        => array(
-			'title'               => 'Link In Bio',
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -89,7 +85,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'newsletter'             => array(
-			'title'               => 'Newsletter',
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -106,7 +101,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'videopress'             => array(
-			'title'               => 'Videopress',
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -120,7 +114,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'write'                  => array(
-			'title'               => 'Write',
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -135,7 +128,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'start-writing'          => array(
-			'title'               => 'Start Writing',
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -150,7 +142,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'design-first'           => array(
-			'title'               => 'Pick a Design',
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -166,7 +157,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'intent-build'           => array(
-			'title'               => 'Keep Building',
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -184,7 +174,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),
 		'intent-write'           => array(
-			'title'               => 'Blog',
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -199,7 +188,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_is_intent_write_enabled',
 		),
 		'intent-free-newsletter' => array(
-			'title'               => 'Free Newsletter',
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -214,7 +202,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_is_free_newsletter_enabled',
 		),
 		'intent-paid-newsletter' => array(
-			'title'               => 'Paid Newsletter',
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
