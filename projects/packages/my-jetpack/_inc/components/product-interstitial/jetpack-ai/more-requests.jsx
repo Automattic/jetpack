@@ -13,9 +13,6 @@ import GoBackLink from '../../go-back-link';
 import jetpackAiImage from '../jetpack-ai.png';
 import styles from './style.module.scss';
 
-// Disabled for now
-const onClick = () => {};
-
 /**
  * JetpackAIInterstitialMoreRequests component
  *
@@ -29,6 +26,9 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 		'Allow us to assist you in discovering the optimal plan tailored to your requirements, ensuring you can continue using the most advanced AI technology Jetpack has to offer.',
 		'jetpack-my-jetpack'
 	);
+	const contactEmailAddress = 'support@jetpack.com';
+	const contactEmailSubject = encodeURIComponent( 'Jetpack AI - Inquiry about more requests' );
+	const href = `mailto:${ contactEmailAddress }?subject=${ contactEmailSubject }`;
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
@@ -49,9 +49,7 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 									<H3>{ title }</H3>
 									<Text mb={ 3 }>{ longDescription }</Text>
 									<div className={ styles[ 'buttons-row' ] }>
-										<Button onClick={ onClick }>
-											{ __( 'Contact Us', 'jetpack-my-jetpack' ) }
-										</Button>
+										<Button href={ href }>{ __( 'Contact Us', 'jetpack-my-jetpack' ) }</Button>
 										<Link to={ '/' } onClick={ onClickGoBack }>
 											<Button variant="secondary">{ __( 'Back', 'jetpack-my-jetpack' ) }</Button>
 										</Link>
