@@ -29,7 +29,7 @@ import type { SiteAIAssistantFeatureEndpointResponseProps } from '../../types';
  * @param { SiteAIAssistantFeatureEndpointResponseProps } response - The response from the endpoint.
  * @returns { AiFeatureProps }                                       The AI Assistant feature props.
  */
-export function mapAIFeatureResponseToAiFeatureProps(
+export function mapAiFeatureResponseToAiFeatureProps(
 	response: SiteAIAssistantFeatureEndpointResponseProps
 ): AiFeatureProps {
 	return {
@@ -91,7 +91,7 @@ const actions = {
 
 				// Store the feature in the store.
 				dispatch(
-					actions.storeAiAssistantFeature( mapAIFeatureResponseToAiFeatureProps( response ) )
+					actions.storeAiAssistantFeature( mapAiFeatureResponseToAiFeatureProps( response ) )
 				);
 			} catch ( err ) {
 				// @todo: Handle error.
