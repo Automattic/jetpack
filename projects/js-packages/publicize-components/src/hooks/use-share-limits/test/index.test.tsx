@@ -60,7 +60,7 @@ describe( 'useShareLimits', () => {
 		const { result } = renderHook( () => useShareLimits() );
 
 		expect( result.current ).toEqual( {
-			limitStatus: 'none',
+			status: 'none',
 			noticeType: 'default',
 			message: messages.default,
 		} );
@@ -74,7 +74,7 @@ describe( 'useShareLimits', () => {
 				to_be_publicized_count: 0,
 			},
 			expected: {
-				limitStatus: 'none',
+				status: 'none',
 				noticeType: 'default',
 				message: messages.default,
 			},
@@ -86,7 +86,7 @@ describe( 'useShareLimits', () => {
 				to_be_publicized_count: 5,
 			},
 			expected: {
-				limitStatus: 'none',
+				status: 'none',
 				noticeType: 'default',
 				message: messages.default,
 			},
@@ -98,9 +98,9 @@ describe( 'useShareLimits', () => {
 				to_be_publicized_count: 0,
 			},
 			expected: {
-				limitStatus: 'full',
+				status: 'full',
 				noticeType: 'error',
-				message: messages.limitExceeded,
+				message: messages.exceeded,
 			},
 		},
 		{
@@ -110,7 +110,7 @@ describe( 'useShareLimits', () => {
 				to_be_publicized_count: 15,
 			},
 			expected: {
-				limitStatus: 'full',
+				status: 'full',
 				noticeType: 'warning',
 				message: messages.scheduled,
 			},
@@ -122,9 +122,9 @@ describe( 'useShareLimits', () => {
 				to_be_publicized_count: 0,
 			},
 			expected: {
-				limitStatus: 'crossed',
+				status: 'exceeded',
 				noticeType: 'error',
-				message: messages.limitExceeded,
+				message: messages.exceeded,
 			},
 		},
 		{
@@ -134,33 +134,33 @@ describe( 'useShareLimits', () => {
 				to_be_publicized_count: 5,
 			},
 			expected: {
-				limitStatus: 'crossed',
+				status: 'exceeded',
 				noticeType: 'error',
-				message: messages.limitExceeded,
+				message: messages.exceeded,
 			},
 		},
 		{
-			name: 'should return "close" with approaching limit message when the limit is approached without scheduled posts',
+			name: 'should return "approaching" with approaching limit message when the limit is approached without scheduled posts',
 			sharesData: {
 				publicized_count: 25,
 				to_be_publicized_count: 0,
 			},
 			expected: {
-				limitStatus: 'close',
+				status: 'approaching',
 				noticeType: 'warning',
-				message: messages.approachingLimit,
+				message: messages.approaching,
 			},
 		},
 		{
-			name: 'should return "close" with approaching limit message when the limit is approached with scheduled posts',
+			name: 'should return "approaching" with approaching limit message when the limit is approached with scheduled posts',
 			sharesData: {
 				publicized_count: 20,
 				to_be_publicized_count: 5,
 			},
 			expected: {
-				limitStatus: 'close',
+				status: 'approaching',
 				noticeType: 'warning',
-				message: messages.approachingLimit,
+				message: messages.approaching,
 			},
 		},
 		{
@@ -173,13 +173,13 @@ describe( 'useShareLimits', () => {
 				connections: createActiveConnections( 5 ),
 			},
 			expected: {
-				limitStatus: 'none',
+				status: 'none',
 				noticeType: 'default',
 				message: messages.default,
 			},
 		},
 		{
-			name: 'should return "close" when approaching the limit with active connections',
+			name: 'should return "approaching" when approaching the limit with active connections',
 			sharesData: {
 				publicized_count: 10,
 				to_be_publicized_count: 10,
@@ -188,9 +188,9 @@ describe( 'useShareLimits', () => {
 				connections: createActiveConnections( 5 ),
 			},
 			expected: {
-				limitStatus: 'close',
+				status: 'approaching',
 				noticeType: 'warning',
-				message: messages.approachingLimit,
+				message: messages.approaching,
 			},
 		},
 		{
@@ -203,7 +203,7 @@ describe( 'useShareLimits', () => {
 				connections: createActiveConnections( 5 ),
 			},
 			expected: {
-				limitStatus: 'full',
+				status: 'full',
 				noticeType: 'warning',
 				message: messages.scheduled,
 			},
@@ -218,7 +218,7 @@ describe( 'useShareLimits', () => {
 				connections: createActiveConnections( 5 ),
 			},
 			expected: {
-				limitStatus: 'crossed',
+				status: 'exceeded',
 				noticeType: 'warning',
 				message: messages.scheduled,
 			},
