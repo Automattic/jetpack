@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
@@ -69,7 +70,7 @@ class Wpcom_Block_Patterns_Utils {
 				'_',
 				array(
 					$patterns_slug,
-					A8C_ETK_PLUGIN_VERSION,
+					Jetpack_Mu_Wpcom::PACKAGE_VERSION,
 					$this->get_block_patterns_locale(),
 				)
 			)
