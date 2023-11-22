@@ -54,6 +54,28 @@ export function getMustReauthConnections( state ) {
 }
 
 /**
+ * Returns the Publicize connections that are enabled.
+ *
+ * @param {object} state - State object.
+ *
+ * @returns {Array} List of enabled connections.
+ */
+export function getEnabledConnections( state ) {
+	return getConnections( state ).filter( connection => connection.enabled );
+}
+
+/**
+ * Returns the Publicize connections that are disabled.
+ *
+ * @param {object} state - State object.
+ *
+ * @returns {Array} List of disabled connections.
+ */
+export function getDisabledConnections( state ) {
+	return getConnections( state ).filter( connection => ! connection.enabled );
+}
+
+/**
  * Get the profile details for a connection
  *
  * @param {object} state - State object.

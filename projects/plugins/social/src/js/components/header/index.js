@@ -9,11 +9,10 @@ import {
 	getUserLocale,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
-import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
+import { ShareLimitsBar, store as socialStore } from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
-import ShareCounter from '../share-counter';
 import StatCards from '../stat-cards';
 import styles from './styles.module.scss';
 
@@ -21,25 +20,29 @@ const Header = () => {
 	const {
 		connectionsAdminUrl,
 		hasConnections,
-		hasPaidPlan,
 		isModuleEnabled,
-		isShareLimitEnabled,
 		newPostUrl,
 		postsCount,
 		sharesCount,
+		totalShareCount,
 		siteSuffix,
+		showShareLimits,
+		shareLimit,
+		scheduledShares,
 	} = useSelect( select => {
-		const store = select( SOCIAL_STORE_ID );
+		const store = select( socialStore );
 		return {
 			connectionsAdminUrl: store.getConnectionsAdminUrl(),
 			hasConnections: store.hasConnections(),
-			hasPaidPlan: select( SOCIAL_STORE_ID ).hasPaidPlan(),
 			isModuleEnabled: store.isModuleEnabled(),
-			isShareLimitEnabled: select( SOCIAL_STORE_ID ).isShareLimitEnabled(),
 			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
-			postsCount: select( SOCIAL_STORE_ID ).getPostsCount(),
-			sharesCount: select( SOCIAL_STORE_ID ).getSharesCount(),
-			siteSuffix: select( SOCIAL_STORE_ID ).getSiteSuffix(),
+			postsCount: store.getSharedPostsCount(),
+			totalShareCount: store.getTotalSharesCount(),
+			sharesCount: store.getSharesUsedCount(),
+			siteSuffix: store.getSiteSuffix(),
+			showShareLimits: store.showShareLimits(),
+			shareLimit: store.getShareLimit(),
+			scheduledShares: store.getScheduledSharesCount(),
 		};
 	} );
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -76,9 +79,18 @@ const Header = () => {
 					</div>
 				</Col>
 				<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
-					{ isShareLimitEnabled && ! hasPaidPlan ? (
+					{ showShareLimits ? (
 						<>
-							<ShareCounter value={ sharesCount } max={ 30 } />
+							<ShareLimitsBar
+								maxCount={ shareLimit }
+								currentCount={ sharesCount }
+								scheduledCount={ scheduledShares }
+								text={ sprintf(
+									// translators: %1$d is the number of shares allowed in 30 days.
+									__( 'Share limit for 30 days: %1$d.', 'jetpack-social' ),
+									shareLimit
+								) }
+							/>
 							<ContextualUpgradeTrigger
 								className={ styles.cut }
 								description={ __(
@@ -99,8 +111,8 @@ const Header = () => {
 								{
 									icon: <SocialIcon />,
 									label: __( 'Total shares past 30 days', 'jetpack-social' ),
-									loading: null === sharesCount,
-									value: formatter.format( sharesCount ),
+									loading: null === totalShareCount,
+									value: formatter.format( totalShareCount ),
 								},
 								{
 									icon: <Icon icon={ postList } />,
