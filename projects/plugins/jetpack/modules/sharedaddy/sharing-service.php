@@ -696,13 +696,13 @@ class Sharing_Service_Total {
 	 * @param object $a Sharing_Service_Total object.
 	 * @param object $b Sharing_Service_Total object.
 	 *
-	 * @return bool
+	 * @return int -1, 0, or 1 if $a is <, =, or > $b
 	 */
 	public static function cmp( $a, $b ) {
 		if ( $a->total === $b->total ) {
-			return $a->name < $b->name;
+			return $b->name <=> $a->name;
 		}
-		return $a->total < $b->total;
+		return $b->total <=> $a->total;
 	}
 }
 
@@ -757,13 +757,13 @@ class Sharing_Post_Total {
 	 * @param object $a Sharing_Post_Total object.
 	 * @param object $b Sharing_Post_Total object.
 	 *
-	 * @return bool
+	 * @return int -1, 0, or 1 if $a is <, =, or > $b
 	 */
 	public static function cmp( $a, $b ) {
 		if ( $a->total === $b->total ) {
-			return $a->id < $b->id;
+			return $b->id <=> $a->id;
 		}
-		return $a->total < $b->total;
+		return $b->total <=> $a->total;
 	}
 }
 
