@@ -12,7 +12,6 @@ export function usePostMeta() {
 	const { editPost } = useDispatch( editorStore );
 
 	const metaValues = useSelect( select => {
-		// @ts-ignore The types for editPost are incorrect.
 		const meta = select( editorStore ).getEditedPostAttribute( 'meta' ) || {};
 
 		const isPublicizeEnabled = meta.jetpack_publicize_feature_enabled ?? true;
