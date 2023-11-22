@@ -25,3 +25,10 @@
 	height: auto;
 	margin-inline-start: 15px;
 }
+
+.bar-wrapper {
+	:global .record-meter-bar__legend--items{
+		flex-direction: column;
+		gap: 0.5rem
+	}
+}
