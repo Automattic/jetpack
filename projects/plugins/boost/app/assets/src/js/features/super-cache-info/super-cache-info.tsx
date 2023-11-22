@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { DataSyncProvider, useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { __, sprintf } from '@wordpress/i18n';
 import { Notice, Button } from '@automattic/jetpack-components';
-import { measureSuperCacheSaving } from './lib/utils/measure';
-import { isSuperCachePluginActive, isSuperCacheEnabled } from '$lib/utils/super-cache';
+import {
+	measureSuperCacheSaving,
+	isSuperCachePluginActive,
+	isSuperCacheEnabled,
+} from './lib/utils/measure';
 import { z } from 'zod';
 
 const SuperCacheInfo = () => {
