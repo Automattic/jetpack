@@ -748,6 +748,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'jetpack_portfolio':
 				case 'jetpack_comment_likes_enabled':
 				case 'wpcom_reader_views_enabled':
+				case 'verbum_subscription_modal':
 					// settings are stored as 1|0.
 					$coerce_value = (int) $value;
 					if ( update_option( $key, $coerce_value ) ) {
@@ -977,7 +978,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'wpcom_publish_posts_with_markdown':
 				case 'wpcom_publish_comments_with_markdown':
-				case 'verbum_subscription_modal':
 					$coerce_value = (bool) $value;
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = $coerce_value;
