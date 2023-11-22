@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
@@ -53,9 +54,7 @@ const DefaultUpgradePrompt = (): React.ReactNode => {
 
 	if ( tierPlansEnabled ) {
 		if ( ! nextTier ) {
-			const contactEmailAddress = 'support@jetpack.com';
-			const contactEmailSubject = encodeURIComponent( 'Jetpack AI - Inquiry about more requests' );
-			const href = `mailto:${ contactEmailAddress }?subject=${ contactEmailSubject }`;
+			const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
 			return (
 				<Nudge
 					buttonText={ __( 'Contact Us', 'jetpack' ) }
@@ -64,7 +63,7 @@ const DefaultUpgradePrompt = (): React.ReactNode => {
 						'jetpack'
 					) }
 					className={ 'jetpack-ai-upgrade-banner' }
-					checkoutUrl={ href }
+					checkoutUrl={ contactHref }
 					visible={ true }
 					align={ null }
 					title={ null }
