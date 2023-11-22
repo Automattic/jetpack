@@ -72,7 +72,6 @@ export default function PublicizeForm( {
 	const hasInstagramConnection = connections.some(
 		connection => connection.service_name === 'instagram-business'
 	);
-
 	const { showShareLimits, numberOfSharesRemaining } = useSelect( select => {
 		return {
 			showShareLimits: select( socialStore ).showShareLimits(),
