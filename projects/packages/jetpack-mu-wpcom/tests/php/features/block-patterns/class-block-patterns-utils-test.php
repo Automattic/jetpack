@@ -1,27 +1,23 @@
 <?php
 /**
- * Block patterns Utils tests
- * Run:
- * cd apps/editing-toolkit
- * yarn run test:php --testsuite block-patterns
+ * Test class for Block_Patterns_Utils.
  *
- * @package full-site-editing-plugin
+ * @package automattic/jetpack-mu-wpcom
  */
 
-namespace A8C\FSE;
-
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . '/../class-wpcom-block-patterns-utils.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/block-patterns/class-block-patterns-utils.php';
 
 /**
- * Class Coming_Soon_Test
+ * Class Block_Patterns_Utils_Test
  */
-class Wpcom_Block_Patterns_Utils_Test extends TestCase {
+class Block_Patterns_Utils_Test extends TestCase {
 	/**
-	 * Wpcom_Block_Patterns_Utils
+	 * Block_Patterns_Utils
 	 *
-	 * @var Wpcom_Block_Patterns_Utils
+	 * @var Block_Patterns_Utils
 	 */
 	protected $utils;
 
@@ -30,7 +26,7 @@ class Wpcom_Block_Patterns_Utils_Test extends TestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		$this->utils = new Wpcom_Block_Patterns_Utils();
+		$this->utils = new Block_Patterns_Utils();
 	}
 
 	/**
