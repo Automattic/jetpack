@@ -12,14 +12,14 @@ export type ShareLimitsBarProps = {
 	className?: string;
 };
 
-export const ShareLimitsBar: React.FC< ShareLimitsBarProps > = ( {
+export const ShareLimitsBar = ( {
 	currentCount,
 	maxCount,
 	scheduledCount,
 	activeConnectionsCount,
 	text,
 	className,
-} ) => {
+}: ShareLimitsBarProps ) => {
 	const items = useMemo( () => {
 		return [
 			{
