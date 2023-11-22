@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove `Utils::error_clear_last()`, the function can be called directly now.

@@ -1,6 +1,6 @@
 import { RecordMeterBar, Text } from '@automattic/jetpack-components';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useMemo } from 'react';
 import styles from './styles.module.scss';
 
 export type ShareLimitsBarProps = {
@@ -12,14 +12,14 @@ export type ShareLimitsBarProps = {
 	className?: string;
 };
 
-export const ShareLimitsBar: React.FC< ShareLimitsBarProps > = ( {
+export const ShareLimitsBar = ( {
 	currentCount,
 	maxCount,
 	scheduledCount,
 	activeConnectionsCount,
 	text,
 	className,
-} ) => {
+}: ShareLimitsBarProps ) => {
 	const items = useMemo( () => {
 		return [
 			{

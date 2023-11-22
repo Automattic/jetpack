@@ -17,6 +17,9 @@ require_once __DIR__ . '/functions.php';
 
 /**
  * A class providing device properties detection.
+ *
+ * Note: str_contains() and other PHP8+ functions that have a polyfill in core are not used here,
+ * as wp-includes/compat.php may not be loaded yet.
  */
 class User_Agent_Info {
 

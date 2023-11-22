@@ -429,7 +429,7 @@ class Jetpack_WPCOM_Block_Editor {
 			return false;
 		}
 
-		return false !== strpos( $post->post_content, '<!-- wp:paragraph {"align":"justify"' );
+		return str_contains( $post->post_content, '<!-- wp:paragraph {"align":"justify"' );
 	}
 
 	/**

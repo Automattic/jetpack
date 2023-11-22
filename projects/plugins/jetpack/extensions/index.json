@@ -60,7 +60,6 @@
 		"ai-assistant-usage-panel"
 	],
 	"beta": [
-		"amazon",
 		"google-docs-embed",
 		"launchpad-save-modal",
 		"recipe",
@@ -68,7 +67,8 @@
 		"videopress/video-chapters",
 		"create-with-voice",
 		"ai-assistant-backend-prompts",
-		"sharing-buttons"
+		"sharing-buttons",
+		"ai-enable-tier-plans-ui"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
