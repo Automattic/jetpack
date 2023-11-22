@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Expect output in `WP_Test_Jetpack_Sync_Sender` test instead of letting it go to the console. No change to the plugin itself.
+
+
