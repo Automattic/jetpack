@@ -153,7 +153,7 @@ class UI {
 				$priority1 = ( array_key_exists( 'priority', $c1 ) && (int) $c1['priority'] ) ? (int) $c1['priority'] : 10;
 				$priority2 = ( array_key_exists( 'priority', $c2 ) && (int) $c2['priority'] ) ? (int) $c2['priority'] : 10;
 
-				return $priority1 > $priority2 ? 1 : -1;
+				return $priority1 <=> $priority2;
 			}
 		);
 

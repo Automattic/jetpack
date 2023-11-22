@@ -8,7 +8,7 @@ domReady( function () {
 	}
 
 	const close = document.getElementsByClassName( 'jetpack-subscribe-modal__close' )[ 0 ];
-	const modalDismissedCookie = 'jetpack_subscribe_modal_dismissed';
+	const modalDismissedCookie = 'jetpack_post_subscribe_modal_dismissed';
 	const hasModalDismissedCookie =
 		document.cookie && document.cookie.indexOf( modalDismissedCookie ) > -1;
 	let hasLoaded = false;
@@ -43,6 +43,6 @@ domReady( function () {
 	function setModalDismissedCookie() {
 		// Expires in 1 day
 		const expires = new Date( Date.now() + 86400 * 1000 ).toUTCString();
-		document.cookie = `${ modalDismissedCookie }=true; expires=${ expires };`;
+		document.cookie = `${ modalDismissedCookie }=true; expires=${ expires };path=/;`;
 	}
 } );

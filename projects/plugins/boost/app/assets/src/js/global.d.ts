@@ -24,6 +24,7 @@ declare global {
 		preferences: {
 			prioritySupport: boolean;
 		};
+		isaFixButton: boolean;
 		isPremium: boolean;
 		version: string;
 		api: {
@@ -32,6 +33,7 @@ declare global {
 		};
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
+		fixImageNonce?: string;
 		superCache: {
 			pluginActive: boolean;
 			cacheEnabled: boolean;
