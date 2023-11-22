@@ -66,12 +66,13 @@ export function usePostMeta() {
 		[ metaValues.jetpackSocialOptions, updateMeta ]
 	);
 
-	return useMemo( () => {
-		return {
+	return useMemo(
+		() => ( {
 			...metaValues,
 			togglePublicizeFeature,
 			updateJetpackSocialOptions,
 			updateMeta,
-		};
-	}, [ metaValues, togglePublicizeFeature, updateJetpackSocialOptions, updateMeta ] );
+		} ),
+		[ metaValues, togglePublicizeFeature, updateJetpackSocialOptions, updateMeta ]
+	);
 }
