@@ -15,6 +15,7 @@ export const ImageData = z
 		thumbnail: z.string(),
 		image: z.object( {
 			url: z.string(),
+			fixed: z.boolean(),
 			dimensions: z.object( {
 				file: Dimensions,
 				expected: Dimensions,
@@ -34,8 +35,9 @@ export const ImageData = z
 		device_type: z.enum( [ 'phone', 'desktop' ] ),
 		instructions: z.string(),
 	} )
+
 	.catch( {
-		id: '',
+		id: Math.random().toString(),
 		type: 'bad_entry',
 		status: 'active', // We still want to show the UI for this.
 	} );

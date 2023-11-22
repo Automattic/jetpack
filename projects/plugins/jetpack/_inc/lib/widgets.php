@@ -643,13 +643,7 @@ class Jetpack_Widgets {
 	public static function sort_widgets( $a, $b ) {
 		$a_val = (int) self::get_widget_instance_key( $a['id'] );
 		$b_val = (int) self::get_widget_instance_key( $b['id'] );
-		if ( $a_val > $b_val ) {
-			return 1;
-		}
-		if ( $a_val < $b_val ) {
-			return -1;
-		}
-		return 0;
+		return $a_val <=> $b_val;
 	}
 
 	/**
