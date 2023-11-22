@@ -41,7 +41,6 @@ class Jetpack_Mu_Wpcom {
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_first_posts_stream_helpers' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_domain_email_nag' ) );
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_patterns' ) );
 
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
