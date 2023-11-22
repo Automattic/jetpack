@@ -104,11 +104,11 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 	 */
 	public function get_top_posts( $request ) {
 		$period        = $request->get_param( 'period' );
-        	$all_time_days = floor( ( time() - strtotime( get_option( 'site_created_date' ) ) ) / ( 60 * 60 * 24 * 365 ) );
+		$all_time_days = floor( ( time() - strtotime( get_option( 'site_created_date' ) ) ) / ( 60 * 60 * 24 * 365 ) );
 
 		// While we only display ten posts, users can filter out content types.
 		// As such, we should obtain a few spare posts from the Stats endpoint.
-		$posts_to_obtain_count = 20;
+		$posts_to_obtain_count = 30;
 
 		// We should not override cache when displaying the block on the frontend.
 		// But we should allow instant preview of changes when editing the block.
@@ -177,12 +177,12 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 		if ( $is_rendering_block ) {
 			$acceptable_types = explode( ',', $request->get_param( 'types' ) );
 
-            		$top_posts = array_filter(
-                		$top_posts,
-                		function ( $item ) use ( $acceptable_types ) {
-                    			return in_array( $item['type'], $acceptable_types, true );
-                		}
-            		);
+			$top_posts = array_filter(
+				$top_posts,
+				function ( $item ) use ( $acceptable_types ) {
+					return in_array( $item['type'], $acceptable_types, true );
+				}
+			);
 
 			$top_posts = array_slice( $top_posts, 0, $request->get_param( 'number' ) );
 		}

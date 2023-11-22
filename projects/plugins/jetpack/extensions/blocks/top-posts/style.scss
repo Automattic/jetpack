@@ -1,35 +1,63 @@
 /**
  * Styles for Top Posts
  */
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 @import '../../shared/styles/jetpack-variables.scss';
 
 .wp-block-jetpack-top-posts {
-	.jetpack-top-posts-item {
-		margin-bottom: $jetpack-block-margin-bottom;
-	}
+	margin-bottom: $jetpack-block-margin-bottom;
 
 	img {
 		width: 100%;
 	}
 
 	a {
-		display: inline-block;
+		display: inline;
 	}
 
 	span {
 		display: block;
 	}
 
+	&.is-list-layout .jetpack-top-posts-item {
+		margin-bottom: $jetpack-block-margin-bottom;
+	}
+
 	&.is-grid-layout {
 		.jetpack-top-posts-wrapper {
-			display: flex;
-			justify-content: space-evenly;
-			flex-wrap: wrap;
+			display: grid;
+			grid: auto / repeat( 6, 1fr );
+			gap: 16px 12px;
+
+			@media only screen and ( max-width: $break-small ) {
+				display: block;
+
+				.jetpack-top-posts-item {
+					margin-bottom: $jetpack-block-margin-bottom;
+				}
+			}
 		}
 
 		.jetpack-top-posts-item {
-			flex-basis: calc( 33.3% - 24px );
-			margin-right: 24px;
+			grid-column: span 2;
+		}
+
+		// These rows should display two items.
+		@for $i from 2 through 9 {
+			@if $i == 2 or $i == 4 {
+				&[data-item-count='#{$i}'] .jetpack-top-posts-item {
+					grid-column: span 3;
+				}
+			}
+
+			@if $i == 5 or $i == 7 {
+				&[data-item-count='#{$i}'] .jetpack-top-posts-item:nth-child( 5n ),
+				&[data-item-count='#{$i}'] .jetpack-top-posts-item:nth-child( 5n-1 ),
+				&[data-item-count='#{$i}'] .jetpack-top-posts-item:nth-child( #{$i}n ),
+				&[data-item-count='#{$i}'] .jetpack-top-posts-item:nth-child( #{$i}n-1 ) {
+					grid-column: span 3;
+				}
+			}
 		}
 	}
 }

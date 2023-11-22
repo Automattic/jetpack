@@ -57,11 +57,12 @@ function load_assets( $attributes ) {
 	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 
 	$output = sprintf(
-		'<div class="jetpack-top-posts%s%s%s"%s><div class="jetpack-top-posts-wrapper">',
+		'<div class="jetpack-top-posts%s%s%s"%sdata-item-count="%s"><div class="jetpack-top-posts-wrapper">',
 		! empty( $attributes['className'] ) ? ' ' . esc_attr( $attributes['className'] ) : '',
 		! empty( $wrapper_attributes['class'] ) ? ' ' . esc_attr( $wrapper_attributes['class'] ) : '',
 		' is-' . esc_attr( $attributes['layout'] ) . '-layout',
-		! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : ''
+		! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : '',
+		count( $data )
 	);
 
 	foreach ( $data as $item ) {
