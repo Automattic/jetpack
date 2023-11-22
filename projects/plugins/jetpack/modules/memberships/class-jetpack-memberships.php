@@ -605,7 +605,9 @@ class Jetpack_Memberships {
 
 		if ( $can_view_post && $post_access_level !== Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY ) {
 			// Prevent batcache to cache paywalled content
-			nocache_headers();
+			if ( headers_sent() === false ) {
+				nocache_headers();
+			}
 		}
 
 		self::$user_can_view_post_cache[ $cache_key ] = $can_view_post;
