@@ -28,9 +28,6 @@ const PublicizePanel = ( { prePublish, children } ) => {
 		hidePublicizeFeature,
 		isPublicizeDisabledBySitePlan,
 		togglePublicizeFeature,
-		isShareLimitEnabled,
-		numberOfSharesRemaining,
-		hasPaidPlan,
 		connectionsAdminUrl,
 		adminUrl,
 		isEnhancedPublishingEnabled,
@@ -93,9 +90,6 @@ const PublicizePanel = ( { prePublish, children } ) => {
 						isPublicizeEnabled={ isPublicizeEnabled }
 						isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
 						connectionsAdminUrl={ connectionsAdminUrl }
-						numberOfSharesRemaining={
-							isShareLimitEnabled && ! hasPaidPlan ? numberOfSharesRemaining : null
-						}
 						isEnhancedPublishingEnabled={ isEnhancedPublishingEnabled }
 						isSocialImageGeneratorAvailable={ isSocialImageGeneratorAvailable }
 						adminUrl={ adminUrl }
