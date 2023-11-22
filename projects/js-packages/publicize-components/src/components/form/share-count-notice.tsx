@@ -41,7 +41,7 @@ export const ShareCountNotice: React.FC = () => {
 			{ message }
 			<br />
 			{ createInterpolateElement(
-				__( '<upgradeLink>Upgrade now</upgradeLink> to remove the limit.', 'jetpack' ),
+				__( '<upgradeLink>Upgrade now</upgradeLink> to share more.', 'jetpack' ),
 				{
 					upgradeLink: (
 						<a

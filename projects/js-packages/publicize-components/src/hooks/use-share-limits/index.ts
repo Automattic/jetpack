@@ -27,7 +27,7 @@ export function getMessages( shareLimit: number ) {
 			'jetpack'
 		),
 		scheduled: __(
-			'Your scheduled posts will not get shared after you reach the sharing limit.',
+			'You have scheduled posts that will not be shared because you will exceed the share limit.',
 			'jetpack'
 		),
 		approachingLimit: __( 'You are approaching your share limit.', 'jetpack' ),
