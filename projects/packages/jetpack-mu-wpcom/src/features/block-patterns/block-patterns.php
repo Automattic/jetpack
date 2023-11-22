@@ -1,6 +1,6 @@
 <?php
 /**
- * Load block patterns from the API.
+ * Block Patterns
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -68,8 +68,8 @@ add_filter(
 	'rest_dispatch_request',
 	register_patterns_on_api_request(
 		function () {
-			require_once __DIR__ . '/class-wpcom-block-patterns-from-api.php';
-			( new Wpcom_Block_Patterns_From_Api() )->register_patterns();
+			require_once __DIR__ . '/block-patterns-from-api.php';
+			( new Block_Patterns_From_Api() )->register_patterns();
 		}
 	),
 	11,

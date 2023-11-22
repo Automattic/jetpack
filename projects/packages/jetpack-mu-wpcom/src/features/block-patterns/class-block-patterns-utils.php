@@ -1,6 +1,6 @@
 <?php
 /**
- * Block Patterns Utils.
+ * Block Patterns Utils
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -8,9 +8,9 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
- * Class Wpcom_Block_Patterns_Utils
+ * Class Block_Patterns_Utils
  */
-class Wpcom_Block_Patterns_Utils {
+class Block_Patterns_Utils {
 	/**
 	 * Make remote get requests.
 	 *
