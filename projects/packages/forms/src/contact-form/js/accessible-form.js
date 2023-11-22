@@ -237,38 +237,60 @@ const setFormError = form => {
  */
 const setFormInputErrors = form => {
 	const inputs = getFormInputs( form );
+	// Store the names of inputs that shares the same name, i.e., radio buttons and checkboxes.
+	const multipleInputNames = [];
 
 	for ( const input of inputs ) {
+		const { type, name } = input;
+
+		if ( [ 'radio', 'checkbox' ].includes( type ) ) {
+			// If we've already handled a similar input, move on.
+			if ( multipleInputNames.includes( name ) ) {
+				continue;
+			} else {
+				multipleInputNames.push( name );
+			}
+		}
+
 		if ( input.validity.valid ) {
 			continue;
 		}
 
-		const errorId = `${ input.id || input.name }-error`;
-		let error = form.querySelector( `#${ errorId }` );
-
-		if ( ! error ) {
-			error = createFormInputErrorContainer( input, errorId );
-
-			if ( input.classList.contains( 'contact-form-dropdown' ) ) {
-				// The current implementation uses jQuery UI selectmenu, which hides the original select
-				// tag and replaces it with a button and a list of options. Here we make sure the error
-				// is inserted after the button.
-				input.parentNode.appendChild( error );
-			} else if ( input.type === 'radio' ) {
-				const container = input.closest( '.grunion-radio-options' );
-
-				if ( container ) {
-					// Add the error after all the radio buttons.
-					container.appendChild( error );
-				}
-			} else {
-				input.parentNode.insertBefore( error, input.nextSibling );
-			}
-		}
-
-		error.replaceChildren( createError( input.validationMessage ) );
-
-		input.setAttribute( 'aria-invalid', 'true' );
-		input.setAttribute( 'aria-describedby', errorId );
+		setFormInputError( input, form );
 	}
+};
+
+/**
+ * Set the error elements of the specifiedi input.
+ * @param {HTMLElement} input Input element
+ * @param {HTMLFormElement} form Parent form element
+ */
+const setFormInputError = ( input, form ) => {
+	const errorId = `${ input.id || input.name }-error`;
+	let error = form.querySelector( `#${ errorId }` );
+
+	if ( ! error ) {
+		error = createFormInputErrorContainer( input, errorId );
+
+		if ( input.classList.contains( 'contact-form-dropdown' ) ) {
+			// The current implementation uses jQuery UI selectmenu, which hides the original select
+			// tag and replaces it with a button and a list of options. Here we make sure the error
+			// is inserted after the button.
+			input.parentNode.appendChild( error );
+		} else if ( [ 'radio', 'checkbox' ].includes( input.type ) ) {
+			const fieldset = input.closest( 'fieldset' );
+
+			if ( fieldset ) {
+				// Add the error after all the inputs.
+				fieldset.appendChild( error );
+			}
+		} else {
+			input.parentNode.insertBefore( error, input.nextSibling );
+		}
+	}
+
+	error.replaceChildren( createError( input.validationMessage ) );
+
+	input.setAttribute( 'aria-invalid', 'true' );
+	input.setAttribute( 'aria-describedby', errorId );
 };
