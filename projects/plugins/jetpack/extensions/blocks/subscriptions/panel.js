@@ -28,6 +28,7 @@ import {
 } from '../../shared/memberships/settings';
 import {
 	getFormattedCategories,
+	getFormattedSubscriptionsCount,
 	getShowMisconfigurationWarning,
 } from '../../shared/memberships/utils';
 import { store as membershipProductsStore } from '../../store/membership-products';
@@ -242,29 +243,19 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 		accessLevel !== accessOptions.paid_subscribers.key
 	) {
 		const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
+		const formattedSubscriptionsCount = getFormattedSubscriptionsCount( subscriptionsCount );
+		const categoryNamesAndSubscriptionsCount = formattedCategoryNames + formattedSubscriptionsCount;
 
 		if ( formattedCategoryNames ) {
-			numberOfSubscribersText =
-				subscriptionsCount > 0
-					? sprintf(
-							// translators: %1s is the post name,  %2s is the list of categories
-							__(
-								'<postPublishedLink>%1$s</postPublishedLink> was sent to everyone subscribed to %2$s (%3$s subscribers).',
-								'jetpack'
-							),
-							postName,
-							formattedCategoryNames,
-							subscriptionsCount
-					  )
-					: sprintf(
-							// translators: %1s is the post name,  %2s is the list of categories
-							__(
-								'<postPublishedLink>%1$s</postPublishedLink> was sent to everyone subscribed to %2$s.',
-								'jetpack'
-							),
-							postName,
-							formattedCategoryNames
-					  );
+			numberOfSubscribersText = sprintf(
+				// translators: %1s is the post name, %2s is the list of categories with subscriptions count
+				__(
+					'<postPublishedLink>%1$s</postPublishedLink> was sent to everyone subscribed to %2$s.',
+					'jetpack'
+				),
+				postName,
+				categoryNamesAndSubscriptionsCount
+			);
 		}
 	}
 

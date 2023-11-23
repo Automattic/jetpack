@@ -27,6 +27,7 @@ import {
 } from './constants';
 import {
 	getFormattedCategories,
+	getFormattedSubscriptionsCount,
 	getShowMisconfigurationWarning,
 	MisconfigurationWarning,
 } from './utils';
@@ -333,24 +334,17 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 		}
 		if ( newsletterCategoriesEnabled && newsletterCategories.length ) {
 			const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
+			const formattedSubscriptionsCount = getFormattedSubscriptionsCount( subscriptionsCount );
+			const categoryNamesAndSubscriptionsCount =
+				formattedCategoryNames + formattedSubscriptionsCount;
 
 			if ( formattedCategoryNames ) {
 				return createInterpolateElement(
-					subscriptionsCount > 0
-						? sprintf(
-								// translators: %1$s: list of categories names, %2$s: number of subscribers
-								__(
-									'This post will be sent to everyone subscribed to %1$s (%2$s subscribers).',
-									'jetpack'
-								),
-								formattedCategoryNames,
-								subscriptionsCount
-						  )
-						: sprintf(
-								// translators: %1$s: list of categories names
-								__( 'This post will be sent to everyone subscribed to %1$s.', 'jetpack' ),
-								formattedCategoryNames
-						  ),
+					sprintf(
+						// translators: %1$s is the list of categories with subscriptions count
+						__( 'This post will be sent to everyone subscribed to %1$s.', 'jetpack' ),
+						categoryNamesAndSubscriptionsCount
+					),
 					{ strong: <strong /> }
 				);
 			}
