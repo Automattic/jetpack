@@ -34,7 +34,7 @@ class Helper_Script_Manager {
 	 */
 	private $install_locations;
 
-	const HELPER_HEADER  = "<?php /* Jetpack Backup Helper Script */\n";
+	const HELPER_HEADER = "<?php /* Jetpack Backup Helper Script */\n";
 
 	const README_LINES = array(
 		'These files have been put on your server by Jetpack. They are cleaned up automatically when we no longer need them.',
@@ -72,9 +72,9 @@ class Helper_Script_Manager {
 			$install_locations[ $upload_dir_info['basedir'] ] = $upload_dir_info['baseurl'];
 		}
 
-		$this->temp_directory = $temp_directory;
-		$this->expiry_time = $expiry_time;
-		$this->max_filesize = $max_filesize;
+		$this->temp_directory    = $temp_directory;
+		$this->expiry_time       = $expiry_time;
+		$this->max_filesize      = $max_filesize;
 		$this->install_locations = $install_locations;
 	}
 
@@ -82,6 +82,7 @@ class Helper_Script_Manager {
 	 * Installs a Helper Script, and returns its filesystem path and access url.
 	 *
 	 * @param string $script_body Helper Script file contents.
+	 *
 	 * @return array|WP_Error     Either an array containing the path and url of the helper script, or an error.
 	 */
 	public function install_helper_script( $script_body ) {
@@ -111,7 +112,7 @@ class Helper_Script_Manager {
 
 		// Generate a random filename, avoid clashes.
 		$max_attempts = 5;
-		for ( $attempt = 0; $attempt < $max_attempts; $attempt++ ) {
+		for ( $attempt = 0; $attempt < $max_attempts; $attempt ++ ) {
 			$file_key  = wp_generate_password( 10, false );
 			$file_name = 'jp-helper-' . $file_key . '.php';
 			$file_path = trailingslashit( $temp_directory['path'] ) . $file_name;
@@ -144,6 +145,7 @@ class Helper_Script_Manager {
 	 * Given a path, verify it looks like a helper script and then delete it if so.
 	 *
 	 * @param string $path Path to Helper Script to delete.
+	 *
 	 * @return boolean     True if the file is deleted (or does not exist).
 	 */
 	public function delete_helper_script( $path ) {
@@ -214,6 +216,7 @@ class Helper_Script_Manager {
 	 * Delete a helper script directory if it's empty
 	 *
 	 * @param string $dir Path to Helper Script directory.
+	 *
 	 * @return boolean    True if the directory is deleted
 	 */
 	private function delete_empty_helper_directory( $dir ) {
@@ -318,7 +321,8 @@ class Helper_Script_Manager {
 	 * Write a file to the specified location with the specified contents.
 	 *
 	 * @param string $file_path Path to write to.
-	 * @param string $contents  File contents to write.
+	 * @param string $contents File contents to write.
+	 *
 	 * @return boolean          True if successfully written.
 	 */
 	private static function put_contents( $file_path, $contents ) {
@@ -333,8 +337,9 @@ class Helper_Script_Manager {
 	/**
 	 * Checks that a file exists, is readable, and has the expected header.
 	 *
-	 * @param string $file_path       File to verify.
+	 * @param string $file_path File to verify.
 	 * @param string $expected_header Header that the file should have.
+	 *
 	 * @return boolean                True if the file exists, is readable, and the header matches.
 	 */
 	private function verify_file_header( $file_path, $expected_header ) {
@@ -356,6 +361,7 @@ class Helper_Script_Manager {
 
 		// Read the file and verify its header.
 		$contents = $wp_filesystem->get_contents( $file_path );
+
 		return ( strncmp( $contents, $expected_header, strlen( $expected_header ) ) === 0 );
 	}
 
