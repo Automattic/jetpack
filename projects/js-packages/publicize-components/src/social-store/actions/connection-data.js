@@ -40,7 +40,7 @@ export function mergeConnections( freshConnections ) {
 		const connections = [];
 		const defaults = {
 			done: false,
-			enabled: select.numberOfSharesRemaining(),
+			enabled: Boolean( select.numberOfSharesRemaining() ),
 			toggleable: true,
 		};
 
