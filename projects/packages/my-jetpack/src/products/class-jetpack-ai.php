@@ -256,7 +256,7 @@ class Jetpack_Ai extends Product {
 	/**
 	 * Get the WPCOM product slug used to make the purchase
 	 *
-	 * @return ?string
+	 * @return string
 	 */
 	public static function get_wpcom_product_slug() {
 		return 'jetpack_ai_yearly';
@@ -265,7 +265,7 @@ class Jetpack_Ai extends Product {
 	/**
 	 * Get the WPCOM monthly product slug used to make the purchase
 	 *
-	 * @return ?string
+	 * @return string
 	 */
 	public static function get_wpcom_monthly_product_slug() {
 		return 'jetpack_ai_monthly';
@@ -274,7 +274,7 @@ class Jetpack_Ai extends Product {
 	/**
 	 * Get the WPCOM bi-yearly product slug used to make the purchase
 	 *
-	 * @return ?string
+	 * @return string
 	 */
 	public static function get_wpcom_bi_yearly_product_slug() {
 		return 'jetpack_ai_bi_yearly';
