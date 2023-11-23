@@ -50,21 +50,21 @@ export const MisconfigurationWarning = () => (
 	</Notice>
 );
 
-export default function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
-	const addPaidPlanButtonText = hasNewsletterPlans
+export default function GetAddPaidPlanButton( { context = 'other', hasTierPlans } ) {
+	const addPaidPlanButtonText = hasTierPlans
 		? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )
 		: __( 'Set up a paid plan', 'jetpack' );
 
 	if ( 'toolbar' === context ) {
 		return (
-			<ToolbarButton href={ getPaidPlanLink( hasNewsletterPlans ) } target="_blank">
+			<ToolbarButton href={ getPaidPlanLink( hasTierPlans ) } target="_blank">
 				{ addPaidPlanButtonText }
 			</ToolbarButton>
 		);
 	}
 
 	return (
-		<Button variant="primary" href={ getPaidPlanLink( hasNewsletterPlans ) } target="_blank">
+		<Button variant="primary" href={ getPaidPlanLink( hasTierPlans ) } target="_blank">
 			{ addPaidPlanButtonText }
 		</Button>
 	);

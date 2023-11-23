@@ -68,7 +68,7 @@ export function SubscriptionEdit( props ) {
 		borderColor,
 		setBorderColor,
 		fontSize,
-		hasNewsletterPlans,
+		hasTierPlans,
 	} = props;
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( name );
@@ -282,7 +282,7 @@ export function SubscriptionEdit( props ) {
 			{ isNewsletterFeatureEnabled() && (
 				<BlockControls>
 					<Toolbar>
-						<GetAddPaidPlanButton context={ 'toolbar' } hasNewsletterPlans={ hasNewsletterPlans } />
+						<GetAddPaidPlanButton context={ 'toolbar' } hasTierPlans={ hasTierPlans } />
 					</Toolbar>
 				</BlockControls>
 			) }
@@ -333,7 +333,7 @@ export default compose( [
 	withSelect( select => {
 		const newsletterPlans = select( 'jetpack/membership-products' )?.getNewsletterProducts();
 		return {
-			hasNewsletterPlans: newsletterPlans?.length !== 0,
+			hasTierPlans: newsletterPlans?.length !== 0,
 		};
 	} ),
 	withColors(
