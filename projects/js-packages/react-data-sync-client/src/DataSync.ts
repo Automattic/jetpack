@@ -114,7 +114,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			console.error(
 				`Failed to connect to REST API because of an invalid "window.${ this.namespace }.${ this.key }" value:\n`,
 				`	Expected Example: `,
-				{ value: '<any>', nonce: 'abc123' },
+				{ value: '<any>', nonce: 'abc123', lazy: '<optional>' },
 				`\n	Received Value: `,
 				window[ namespace ]?.[ this.key ],
 				'\n\nError originated from: \n ',
