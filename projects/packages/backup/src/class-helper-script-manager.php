@@ -59,8 +59,6 @@ class Helper_Script_Manager {
 	/**
 	 * Installs a Helper Script, and returns its filesystem path and access url.
 	 *
-	 * @access public
-	 *
 	 * @param string $script_body Helper Script file contents.
 	 * @return array|WP_Error     Either an array containing the path and url of the helper script, or an error.
 	 */
@@ -123,8 +121,6 @@ class Helper_Script_Manager {
 	/**
 	 * Given a path, verify it looks like a helper script and then delete it if so.
 	 *
-	 * @access public
-	 *
 	 * @param string $path Path to Helper Script to delete.
 	 * @return boolean     True if the file is deleted (or does not exist).
 	 */
@@ -148,8 +144,6 @@ class Helper_Script_Manager {
 
 	/**
 	 * Search for Helper Scripts that are suspiciously old, and clean them out.
-	 *
-	 * @access public
 	 */
 	public function cleanup_expired_helper_scripts() {
 		$this->cleanup_helper_scripts( time() - $this->expiry_time );
@@ -157,8 +151,6 @@ class Helper_Script_Manager {
 
 	/**
 	 * Search for and delete all Helper Scripts. Used during uninstallation.
-	 *
-	 * @access public
 	 */
 	public function delete_all_helper_scripts() {
 		$this->cleanup_helper_scripts( null );
@@ -167,8 +159,6 @@ class Helper_Script_Manager {
 	/**
 	 * Search for and delete Helper Scripts. If an $expiry_time is specified, only delete Helper Scripts
 	 * with an mtime older than $expiry_time. Otherwise, delete them all.
-	 *
-	 * @access public
 	 *
 	 * @param int|null $expiry_time If specified, only delete scripts older than $expiry_time.
 	 */
@@ -200,8 +190,6 @@ class Helper_Script_Manager {
 
 	/**
 	 * Delete a helper script directory if it's empty
-	 *
-	 * @access public
 	 *
 	 * @param string $dir Path to Helper Script directory.
 	 * @return boolean    True if the directory is deleted
@@ -257,8 +245,6 @@ class Helper_Script_Manager {
 	/**
 	 * Find an appropriate location for a jetpack-temp folder, and create one
 	 *
-	 * @access public
-	 *
 	 * @return WP_Error|array Array containing the url and path of the temp directory if successful, WP_Error if not.
 	 */
 	private function create_temp_directory() {
@@ -296,9 +282,6 @@ class Helper_Script_Manager {
 	/**
 	 * Write out an index.php file and a README file for a new jetpack-temp directory.
 	 *
-	 * @access public
-	 * @static
-	 *
 	 * @param string $dir Path to Helper Script directory.
 	 */
 	private static function write_supplementary_temp_files( $dir ) {
@@ -311,9 +294,6 @@ class Helper_Script_Manager {
 
 	/**
 	 * Write a file to the specified location with the specified contents.
-	 *
-	 * @access private
-	 * @static
 	 *
 	 * @param string $file_path Path to write to.
 	 * @param string $contents  File contents to write.
@@ -330,8 +310,6 @@ class Helper_Script_Manager {
 
 	/**
 	 * Checks that a file exists, is readable, and has the expected header.
-	 *
-	 * @access private
 	 *
 	 * @param string $file_path       File to verify.
 	 * @param string $expected_header Header that the file should have.
@@ -361,9 +339,6 @@ class Helper_Script_Manager {
 
 	/**
 	 * Gets an associative array of possible places to install a jetpack-temp directory, along with the URL to access each.
-	 *
-	 * @access private
-	 * @static
 	 *
 	 * @return array Array, with keys specifying the full path of install locations, and values with the equivalent URL.
 	 */
