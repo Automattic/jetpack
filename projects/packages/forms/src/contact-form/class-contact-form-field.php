@@ -889,7 +889,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						style="' . $this->label_styles . '"
 					>'
 			. esc_html( $label )
-			. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
+			. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>
 				</div>
 				<div class="notched-label__trailing"></div>
@@ -914,7 +914,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				style="' . $this->label_styles . '"
 			>'
 			. esc_html( $label )
-			. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
+			. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>';
 	}
 
