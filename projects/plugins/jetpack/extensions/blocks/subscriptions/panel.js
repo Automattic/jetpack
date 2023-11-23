@@ -208,6 +208,12 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 		select( editorStore ).getEditedPostAttribute( 'categories' )
 	);
 
+	const subscriptionsCount = useSelect( select => {
+		return select( 'jetpack/membership-products' ).getNewsletterCategoriesSubscriptionsCount(
+			postCategories
+		);
+	} );
+
 	const reachCount = getReachForAccessLevelKey(
 		accessLevel,
 		emailSubscribers,
@@ -238,15 +244,27 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 		const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
 
 		if ( formattedCategoryNames ) {
-			numberOfSubscribersText = sprintf(
-				// translators: %1s is the post name,  %2s is the list of categories
-				__(
-					'<postPublishedLink>%1$s</postPublishedLink> was sent to everyone subscribed to %2$s.',
-					'jetpack'
-				),
-				postName,
-				formattedCategoryNames
-			);
+			numberOfSubscribersText =
+				subscriptionsCount > 0
+					? sprintf(
+							// translators: %1s is the post name,  %2s is the list of categories
+							__(
+								'<postPublishedLink>%1$s</postPublishedLink> was sent to everyone subscribed to %2$s (%3$s subscribers).',
+								'jetpack'
+							),
+							postName,
+							formattedCategoryNames,
+							subscriptionsCount
+					  )
+					: sprintf(
+							// translators: %1s is the post name,  %2s is the list of categories
+							__(
+								'<postPublishedLink>%1$s</postPublishedLink> was sent to everyone subscribed to %2$s.',
+								'jetpack'
+							),
+							postName,
+							formattedCategoryNames
+					  );
 		}
 	}
 
