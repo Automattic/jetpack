@@ -8,6 +8,7 @@ import {
 	useMutation,
 	QueryClientProvider,
 } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import React from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
@@ -33,86 +34,46 @@ export function useDataSync<
 	Value extends z.infer< Schema >,
 	Key extends string,
 >( namespace: string, key: Key, schema: Schema ): DataSyncFactory< Value > {
-	const datasync = new DataSync( namespace, key, schema );
-	const queryKey = [ key ];
-	const queryConfigDefaults = {
-		queryKey,
-		queryFn: ( { signal } ) => datasync.GET( signal ),
-		initialData: datasync.getInitialValue(),
-	};
-	const mutationConfigDefaults = {
-		mutationKey: queryKey,
-		mutationFn: datasync.SET,
-		onMutate: async data => {
-			const value = schema.parse( data );
+	return useMemo( (): DataSyncFactory< Value > => {
+		const datasync = new DataSync( namespace, key, schema );
+		const queryKey = [ key ];
 
-			// Cancel any outgoing refetches
-			// (so they don't overwrite our optimistic update)
-			await queryClient.cancelQueries( { queryKey } );
+		const mutationConfigDefaults = {
+			mutationKey: queryKey,
+			mutationFn: datasync.SET,
+			onMutate: async data => {
+				const value = schema.parse( data );
 
-			// Snapshot the previous value
-			const previousValue = queryClient.getQueryData( queryKey );
+				// Cancel any outgoing refetches
+				// (so they don't overwrite our optimistic update)
+				await queryClient.cancelQueries( { queryKey } );
 
-			// Optimistically update to the new value
-			queryClient.setQueryData( queryKey, value );
+				// Snapshot the previous value
+				const previousValue = queryClient.getQueryData( queryKey );
 
-			// Return a context object with the snapshotted value
-			return { previousValue };
-		},
-		onError: ( _, __, context ) => {
-			queryClient.setQueryData( queryKey, context.previousValue );
-		},
-		onSettled: () => {
-			queryClient.invalidateQueries( { queryKey } );
-		},
-	};
+				// Optimistically update to the new value
+				queryClient.setQueryData( queryKey, value );
 
-	return {
-		useQuery: ( config = {} ) => useQuery( { ...queryConfigDefaults, ...config } ),
-		useMutation: ( config = {} ) => useMutation( { ...mutationConfigDefaults, ...config } ),
-	};
-}
-
-export function useLazyDataSync<
-	Schema extends z.ZodSchema,
-	Value extends z.infer< Schema >,
-	Key extends string,
->( namespace: string, key: Key, schema: Schema ): DataSyncFactory< Value > {
-	const datasync = new DataSync( namespace, key, schema );
-	const queryKey = [ key ];
-	const queryConfigDefaults = {
-		queryKey,
-		queryFn: ( { signal } ) => datasync.GET( signal ),
-	};
-	const mutationConfigDefaults = {
-		mutationKey: queryKey,
-		mutationFn: datasync.SET,
-		onMutate: async data => {
-			const value = schema.parse( data );
-
-			// Cancel any outgoing refetches
-			// (so they don't overwrite our optimistic update)
-			await queryClient.cancelQueries( { queryKey } );
-
-			// Snapshot the previous value
-			const previousValue = queryClient.getQueryData( queryKey );
-
-			// Optimistically update to the new value
-			queryClient.setQueryData( queryKey, value );
-
-			// Return a context object with the snapshotted value
-			return { previousValue };
-		},
-		onError: ( _, __, context ) => {
-			queryClient.setQueryData( queryKey, context.previousValue );
-		},
-		onSettled: () => {
-			queryClient.invalidateQueries( { queryKey } );
-		},
-	};
-
-	return {
-		useQuery: ( config = {} ) => useQuery( { ...queryConfigDefaults, ...config } ),
-		useMutation: ( config = {} ) => useMutation( { ...mutationConfigDefaults, ...config } ),
-	};
+				// Return a context object with the snapshotted value
+				return { previousValue };
+			},
+			onError: ( _, __, context ) => {
+				queryClient.setQueryData( queryKey, context.previousValue );
+			},
+			onSettled: () => {
+				queryClient.invalidateQueries( { queryKey } );
+			},
+		};
+		return {
+			useQuery: ( config = {} ) => {
+				const queryConfigDefaults = {
+					queryKey,
+					queryFn: ( { signal } ) => datasync.GET( signal ),
+				};
+				const initialData = config.initialData || datasync.getInitialValue();
+				return useQuery( { initialData, ...queryConfigDefaults, ...config } );
+			},
+			useMutation: ( config = {} ) => useMutation( { ...mutationConfigDefaults, ...config } ),
+		};
+	} );
 }
