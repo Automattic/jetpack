@@ -272,6 +272,15 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
+	 * Get the WPCOM bi-yearly product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_bi_yearly_product_slug() {
+		return 'jetpack_ai_bi_yearly';
+	}
+
+	/**
 	 * Checks whether the current plan (or purchases) of the site already supports the product
 	 *
 	 * @return boolean
@@ -287,6 +296,9 @@ class Jetpack_Ai extends Product {
 					return true;
 				}
 				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_monthly_product_slug() ) ) {
+					return true;
+				}
+				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_bi_yearly_product_slug() ) ) {
 					return true;
 				}
 			}
