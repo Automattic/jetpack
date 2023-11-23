@@ -7,8 +7,8 @@
 import { Button, Modal, TabPanel } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import { useAvailableSerivces } from './useAvailableServices';
-import { usePostData } from './usePostData';
+import { useAvailableSerivces } from './use-available-services';
+import { usePostData } from './use-post-data';
 import './modal.scss';
 
 const SocialPreviewsModal = function SocialPreviewsModal( { onClose, initialTabName } ) {
