@@ -16,10 +16,7 @@ export default function useAICheckout(): {
 	autosaveAndRedirect: ( event: any ) => void;
 	isRedirecting: boolean;
 } {
-	const tierPlansEnabled =
-		window?.Jetpack_Editor_Initial_State?.available_blocks[ 'ai-enable-tier-plans-ui' ]?.available;
-
-	const { nextTier } = useAiFeature();
+	const { nextTier, tierPlansEnabled } = useAiFeature();
 
 	const wpcomCheckoutUrl = tierPlansEnabled
 		? getRedirectUrl( 'jetpack-ai-yearly-tier-upgrade-nudge', {

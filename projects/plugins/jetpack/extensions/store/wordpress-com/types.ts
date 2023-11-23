@@ -81,6 +81,7 @@ export type AiFeatureProps = {
 		requestsCount: number;
 	};
 	nextTier?: TierProp | null;
+	tierPlansEnabled?: boolean;
 };
 
 // Type used in the `wordpress-com/plans` store.
