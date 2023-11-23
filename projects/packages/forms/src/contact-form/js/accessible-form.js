@@ -97,6 +97,15 @@ const getFormInputErrors = form => {
 	return form.querySelectorAll( '.contact-form__input-error' );
 };
 
+/**
+ * Return the elements marked as invalid in the specified form.
+ * @param {HTMLFormElement} form Form element
+ * @returns {NodeListOf<HTMLElement>} Invalid elements
+ */
+const getFormInvalidFields = form => {
+	return form.querySelectorAll( '[aria-invalid]' );
+};
+
 /******************************************************************************
  * BUILDERS
  ******************************************************************************/
@@ -180,20 +189,18 @@ const createFormInputErrorContainer = ( input, errorId ) => {
  */
 const clearErrors = form => {
 	const formError = getFormError( form );
-	const inputErrors = getFormInputErrors( form );
-	const inputs = getFormInputs( form );
 
 	if ( formError ) {
 		formError.textContent = '';
 	}
 
-	for ( const inputError of inputErrors ) {
+	for ( const inputError of getFormInputErrors( form ) ) {
 		inputError.textContent = '';
 	}
 
-	for ( const input of inputs ) {
-		input.removeAttribute( 'aria-invalid' );
-		input.removeAttribute( 'aria-describedby' );
+	for ( const field of getFormInvalidFields( form ) ) {
+		field.removeAttribute( 'aria-invalid' );
+		field.removeAttribute( 'aria-describedby' );
 	}
 };
 
@@ -236,37 +243,87 @@ const setFormError = form => {
  * @param {HTMLFormElement} form Form element
  */
 const setFormInputErrors = form => {
-	const inputs = getFormInputs( form );
-	// Store the names of inputs that shares the same name, i.e., radio buttons and checkboxes.
-	const multipleInputNames = [];
+	// Group inputs. Single inputs, checkbox groups and radio buttons handle validation and error
+	// messages differently.
+	const groupedInputs = getFormInputs( form ).reduce(
+		( acc, input ) => {
+			switch ( input.type ) {
+				case 'radio':
+					acc.radios.push( input );
+					break;
+				case 'checkbox':
+					if ( input.name.indexOf( '[]' ) === input.name.length - 2 ) {
+						acc.checkboxes.push( input );
+					} else {
+						acc.default.push( input );
+					}
+					break;
+				default:
+					acc.default.push( input );
+					break;
+			}
 
-	for ( const input of inputs ) {
-		const { type, name } = input;
+			return acc;
+		},
+		{ default: [], radios: [], checkboxes: [] }
+	);
 
-		if ( [ 'radio', 'checkbox' ].includes( type ) ) {
-			// If we've already handled a similar input, move on.
-			if ( multipleInputNames.includes( name ) ) {
-				continue;
-			} else {
-				multipleInputNames.push( name );
+	// Handle individual inputs
+	for ( const input of groupedInputs.default ) {
+		if ( ! input.validity.valid ) {
+			setFormInputError( input, form );
+		}
+	}
+
+	// Handle radio buttons
+	const radioButtonNames = groupedInputs.radios.reduce(
+		( acc, input ) => ( acc.includes( input.name ) ? acc : [ ...acc, input.name ] ),
+		[]
+	);
+
+	for ( const name of radioButtonNames ) {
+		// Get the first radio button of the group.
+		const input = form.querySelector( `input[type="radio"][name="${ name }"]` );
+
+		// If one of the group radio buttons is checked, all radio buttons are valid.
+		if ( ! input.validity.valid ) {
+			setFormGroupInputError( input, form );
+		}
+	}
+
+	// Handle checkbox groups
+	const checkboxNames = groupedInputs.checkboxes.reduce(
+		( acc, input ) => ( acc.includes( input.name ) ? acc : [ ...acc, input.name ] ),
+		[]
+	);
+
+	for ( const name of checkboxNames ) {
+		// Get the first checkbox of the group.
+		const input = form.querySelector( `input[type="checkbox"][name="${ name }"]` );
+		const fieldset = input.closest( 'fieldset' );
+		const isRequired = fieldset && fieldset.hasAttribute( 'data-required' );
+
+		if ( isRequired ) {
+			const formData = new FormData( form );
+
+			if ( formData.getAll( name ).length === 0 ) {
+				setFormGroupInputError(
+					input,
+					form,
+					L10N.checkboxMissingValue || 'Please select at least one option.'
+				);
 			}
 		}
-
-		if ( input.validity.valid ) {
-			continue;
-		}
-
-		setFormInputError( input, form );
 	}
 };
 
 /**
- * Set the error elements of the specifiedi input.
+ * Set the error element of the specified input.
  * @param {HTMLElement} input Input element
  * @param {HTMLFormElement} form Parent form element
  */
 const setFormInputError = ( input, form ) => {
-	const errorId = `${ input.id || input.name }-error`;
+	const errorId = `${ input.name }-error`;
 	let error = form.querySelector( `#${ errorId }` );
 
 	if ( ! error ) {
@@ -277,13 +334,9 @@ const setFormInputError = ( input, form ) => {
 			// tag and replaces it with a button and a list of options. Here we make sure the error
 			// is inserted after the button.
 			input.parentNode.appendChild( error );
-		} else if ( [ 'radio', 'checkbox' ].includes( input.type ) ) {
-			const fieldset = input.closest( 'fieldset' );
-
-			if ( fieldset ) {
-				// Add the error after all the inputs.
-				fieldset.appendChild( error );
-			}
+		} else if ( input.type === 'checkbox' ) {
+			// DIRTY: fix the case for single checkboxes in a subsequent PR
+			input.parentNode.parentNode.appendChild( error );
 		} else {
 			input.parentNode.insertBefore( error, input.nextSibling );
 		}
@@ -293,4 +346,32 @@ const setFormInputError = ( input, form ) => {
 
 	input.setAttribute( 'aria-invalid', 'true' );
 	input.setAttribute( 'aria-describedby', errorId );
+};
+
+/**
+ * Set the error element of a group of inputs, i.e. a group of radio buttons or checkboxes.
+ * These types of inputs are handled differently because the error message and invalidity
+ * apply to the group as a whole, not to each individual input.
+ * @param {HTMLElement} input An input element of the group
+ * @param {HTMLFormElement} form Parent form element
+ * @param {string} message Error message to display
+ */
+const setFormGroupInputError = ( input, form, message ) => {
+	const errorId = `${ input.name.replace( '[]', '' ) }-error`;
+	let error = form.querySelector( `#${ errorId }` );
+
+	if ( ! error ) {
+		error = createFormInputErrorContainer( input, errorId );
+	}
+
+	error.replaceChildren( createError( input.validationMessage || message ) );
+
+	const fieldset = input.closest( 'fieldset' );
+
+	if ( fieldset ) {
+		// Add the error after all the inputs.
+		fieldset.appendChild( error );
+		fieldset.setAttribute( 'aria-invalid', 'true' );
+		fieldset.setAttribute( 'aria-describedby', errorId );
+	}
 };

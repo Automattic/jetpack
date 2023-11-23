@@ -723,7 +723,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field  = '<fieldset class="grunion-checkbox-multiple-options">';
+		// The `data-required` attribute is used in `accessible-form.js` to ensure at least one
+		// checkbox is checked. Unlike radio buttons, for which the required attribute is satisfied if
+		// any of the radio buttons in the group is selected, adding a required attribute directly to
+		// a checkbox means that this specific checkbox must be checked.
+		$field  = '<fieldset class="grunion-checkbox-multiple-options"' . ( $required ? 'data-required' : '' ) . '>';
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
 		$field_style = 'style="' . $this->option_styles . '"';
@@ -735,7 +739,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$checkbox_id    = "$id-$checkbox_value";
 
 				$field .= "<p class='contact-form-field'>";
-				$field .= "<input type='checkbox' id='" . esc_attr( $checkbox_id ) . "' name='" . esc_attr( $id ) . "[]' value='" . esc_attr( $checkbox_value ) . "' " . $class . checked( in_array( $option, (array) $value, true ), true, false ) . ' /> ';
+				$field .= "<input
+									id='" . esc_attr( $checkbox_id ) . "'
+									type='checkbox'
+									name='" . esc_attr( $id ) . "[]'
+									value='" . esc_attr( $checkbox_value ) . "' "
+									. $class
+									. checked( in_array( $option, (array) $value, true ), true, false )
+									. ' /> ';
 				$field .= "<label for='" . esc_attr( $checkbox_id ) . "' {$field_style} class='grunion-checkbox-multiple-label checkbox-multiple " . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 				$field .= "<span class='grunion-field-text'>" . esc_html( $option ) . '</span>';
 				$field .= "</label>\n";

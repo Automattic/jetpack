@@ -268,9 +268,11 @@ class Contact_Form_Plugin {
 			'jetpackContactForm',
 			array(
 				/* translators: text read by a screen reader when a warning icon is displayed in front of an error message. */
-				'warning'     => __( 'Warning.', 'jetpack-forms' ),
+				'warning'              => __( 'Warning.', 'jetpack-forms' ),
 				/* translators: error message shown when one or more fields of the form are invalid. */
-				'invalidForm' => __( 'Please make sure all fields are valid.', 'jetpack-forms' ),
+				'invalidForm'          => __( 'Please make sure all fields are valid.', 'jetpack-forms' ),
+				/* translators: error message shown when a multiple choice field requires at least one option to be selected. */
+				'checkboxMissingValue' => __( 'Please select at least one option.', 'jetpack-forms' ),
 			)
 		);
 

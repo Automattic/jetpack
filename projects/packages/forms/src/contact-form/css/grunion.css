@@ -814,6 +814,11 @@ on production builds, the attributes are being reordered, causing side-effects
 	display: none;
 }
 
-.contact-form [aria-invalid="true"] {
+.contact-form [aria-invalid="true"]:not(fieldset) {
 	border: solid 1px var(--jetpack--contact-form--error-color);
+}
+
+.contact-form fieldset[aria-invalid="true"] {
+	outline: solid 1px var(--jetpack--contact-form--error-color);
+	outline-offset: 0.5em;
 }
