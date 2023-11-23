@@ -3,7 +3,7 @@ import { useSelect } from '@wordpress/data';
 import { decodeEntities } from '@wordpress/html-entities';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { SOCIAL_STORE_ID, CONNECTION_SERVICE_MASTODON } from '../../social-store';
-import { shouldUploadAttachedMedia } from '../../utils';
+import { usePostMeta } from '../../utils';
 
 const MastodonPreview = props => {
 	const { message } = useSocialMediaMessage();
@@ -16,7 +16,7 @@ const MastodonPreview = props => {
 			siteName: decodeEntities( getSite().title ),
 		};
 	} );
-	const isSocialPost = shouldUploadAttachedMedia();
+	const { shouldUploadAttachedMedia: isSocialPost } = usePostMeta();
 
 	const user = useSelect( select => {
 		const {
