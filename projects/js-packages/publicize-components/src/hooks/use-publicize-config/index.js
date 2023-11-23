@@ -52,14 +52,6 @@ export default function usePublicizeConfig() {
 	const isRePublicizeUpgradableViaUpsell =
 		isUpgradable( republicizeFeatureName ) && ! isRePublicizeFeatureAvailable;
 
-	// eslint-disable-next-line no-console
-	console.log( {
-		isPostPublished,
-		isRePublicizeFeatureAvailable,
-		isPublicizeEnabledMeta,
-		isShareLimitEnabled,
-	} );
-
 	/*
 	 * isPublicizeEnabled:
 	 * Althought the feature is enabled by the post meta,
