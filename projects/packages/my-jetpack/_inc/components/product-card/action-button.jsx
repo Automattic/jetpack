@@ -194,8 +194,8 @@ const ActionButton = ( {
 	}
 
 	const dropdown = hasAdditionalActions && (
-		<div className={ styles.dropdown }>
-			<ul className={ styles.dropdownMenu }>
+		<div className={ styles[ 'action-button-dropdown' ] }>
+			<ul className={ styles[ 'dropdown-menu' ] }>
 				{ [ ...additionalActions, getStatusAction() ].map( ( { label, isExternalLink }, index ) => {
 					const onDropdownMenuItemClick = () => {
 						setCurrentAction( allActions[ index ] );
@@ -205,14 +205,14 @@ const ActionButton = ( {
 					return (
 						<li key={ index }>
 							{ /* eslint-disable-next-line react/jsx-no-bind */ }
-							<button onClick={ onDropdownMenuItemClick } className={ styles.dropdownItem }>
-								<div className={ styles.dropdownItemLabel }>
+							<button onClick={ onDropdownMenuItemClick } className={ styles[ 'dropdown-item' ] }>
+								<div className={ styles[ 'dropdown-item-label' ] }>
 									{ label }
 									{ isExternalLink && <Icon icon={ external } size={ 16 } /> }
 								</div>
 
 								{ label === currentAction.label && (
-									<div className={ styles.activeActionCheckmark }>
+									<div className={ styles[ 'active-action-checkmark' ] }>
 										<Icon icon={ check } size={ 24 } fill="white" />
 									</div>
 								) }
@@ -228,8 +228,8 @@ const ActionButton = ( {
 		<>
 			<div
 				className={ cs(
-					styles.actionButton,
-					hasAdditionalActions ? styles.hasAdditionalActions : null
+					styles[ 'action-button' ],
+					hasAdditionalActions ? styles[ 'has-additional-actions' ] : null
 				) }
 			>
 				<Button { ...buttonState } { ...currentAction }>
@@ -238,7 +238,7 @@ const ActionButton = ( {
 				{ hasAdditionalActions && (
 					<button
 						className={ cs(
-							styles.dropdownChevron,
+							styles[ 'dropdown-chevron' ],
 							currentAction.variant === 'primary' ? styles.primary : styles.secondary
 						) }
 						onClick={ onChevronClick }
