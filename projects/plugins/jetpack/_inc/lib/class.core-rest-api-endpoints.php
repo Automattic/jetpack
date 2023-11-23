@@ -775,7 +775,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'callback'            => __CLASS__ . '::set_subscriber_cookie_and_redirect',
 				'permission_callback' => '__return_true',
 				'args'                => array(
-					'redirect)url' => array(
+					'redirect_url' => array(
 						'required'          => true,
 						'description'       => __( 'The URL to redirect_to.', 'jetpack' ),
 						'validate_callback' => 'wp_http_validate_url',
