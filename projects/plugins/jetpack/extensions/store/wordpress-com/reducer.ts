@@ -130,7 +130,9 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			 * @see _inc/lib/class-jetpack-ai-helper.php
 			 */
 			const isOverLimit = currentCount >= requestsLimit;
-			const requireUpgrade = isOverLimit;
+
+			// highest tier holds a soft limit so requireUpgrade is false on that case (nextTier null means highest tier)
+			const requireUpgrade = isOverLimit && state.features.aiAssistant.nextTier !== null;
 
 			return {
 				...state,
@@ -180,18 +182,19 @@ export default function reducer( state = INITIAL_STATE, action ) {
 		}
 
 		case ACTION_SET_AI_ASSISTANT_FEATURE_REQUIRE_UPGRADE: {
-			return {
-				...state,
-				features: {
-					...state.features,
-					aiAssistant: {
-						...state.features.aiAssistant,
-						requireUpgrade: action.requireUpgrade,
-						hasFeature: ! action.requireUpgrade, // If we require an upgrade, we don't have the feature.
-						isOverLimit: true, // If we require an upgrade, we are over the limit.
-					},
-				},
-			};
+			return { ...state };
+			// return {
+			// 	...state,
+			// 	features: {
+			// 		...state.features,
+			// 		aiAssistant: {
+			// 			...state.features.aiAssistant,
+			// 			requireUpgrade: action.requireUpgrade,
+			// 			hasFeature: ! action.requireUpgrade, // If we require an upgrade, we don't have the feature.
+			// 			isOverLimit: true, // If we require an upgrade, we are over the limit.
+			// 		},
+			// 	},
+			// };
 		}
 
 		case ACTION_SET_TIER_PLANS_ENABLED: {
