@@ -30,6 +30,11 @@ class Identity_Crisis {
 	const PACKAGE_VERSION = '0.12.1-alpha';
 
 	/**
+	 * Persistent WPCOM blog ID that stays in the options after disconnect.
+	 */
+	const PERSISTENT_BLOG_ID_OPTION_NAME = 'jetpack_persistent_blog_id';
+
+	/**
 	 * Instance of the object.
 	 *
 	 * @var Identity_Crisis
@@ -86,9 +91,12 @@ class Identity_Crisis {
 
 		add_filter( 'jetpack_remote_request_url', array( $this, 'add_idc_query_args_to_url' ) );
 
-		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_secret_to_url_validation_response' ) );
+		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_secret_to_url_validation_response' ), 10, 2 );
 
 		add_filter( 'jetpack_options', array( static::class, 'reverse_wpcom_urls_for_idc' ) );
+
+		add_filter( 'jetpack_register_request_body', array( static::class, 'register_request_body' ) );
+		add_action( 'jetpack_site_registered', array( static::class, 'site_registered' ) );
 
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
@@ -112,6 +120,8 @@ class Identity_Crisis {
 		} else {
 			$connection->disconnect_site( false );
 		}
+
+		delete_option( static::PERSISTENT_BLOG_ID_OPTION_NAME );
 
 		// Clear IDC options.
 		self::clear_all_idc_options();
@@ -1322,15 +1332,18 @@ class Identity_Crisis {
 	 * Adds `url_secret_error` in case of an error.
 	 *
 	 * @param array $response The endpoint response that we're modifying.
+	 * @param bool  $verify_secret If true, we will not generate new secret, and rely on the existing one.
 	 *
 	 * @return array
 	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- The exception is being caught, false positive.
 	 */
-	public static function add_secret_to_url_validation_response( array $response ) {
+	public static function add_secret_to_url_validation_response( array $response, $verify_secret = false ) {
 		try {
 			$secret = new URL_Secret();
 
-			$secret->create();
+			if ( ! $verify_secret || ! $secret->exists() ) {
+				$secret->create();
+			}
 
 			if ( $secret->exists() ) {
 				$response['url_secret'] = $secret->get_secret();
@@ -1340,5 +1353,47 @@ class Identity_Crisis {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Add IDC-related data to the registration query.
+	 *
+	 * @param array $params The existing query params.
+	 *
+	 * @return array
+	 */
+	public static function register_request_body( array $params ) {
+		$persistent_blog_id = get_option( static::PERSISTENT_BLOG_ID_OPTION_NAME );
+		if ( $persistent_blog_id ) {
+			$params['persistent_blog_id'] = $persistent_blog_id;
+
+			$hostname = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
+			if ( filter_var( $hostname, FILTER_VALIDATE_IP ) !== false ) {
+				try {
+					$secret = new URL_Secret();
+					$secret->create();
+
+					if ( $secret->exists() ) {
+						$params['url_secret'] = $secret->get_secret();
+					}
+				} catch ( Exception $e ) {
+					// No need to stop the registration flow, just track the error and proceed.
+					( new Tracking() )->record_user_event( 'registration_request_url_secret_failed', array( 'current_url' => Urls::site_url() ) );
+				}
+			}
+		}
+
+		return $params;
+	}
+
+	/**
+	 * Set the necessary options when site gets registered.
+	 *
+	 * @param int $blog_id The blog ID.
+	 *
+	 * @return void
+	 */
+	public static function site_registered( $blog_id ) {
+		update_option( static::PERSISTENT_BLOG_ID_OPTION_NAME, (int) $blog_id, false );
 	}
 }

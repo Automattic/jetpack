@@ -768,13 +768,18 @@ class Jetpack_XMLRPC_Server {
 	 *
 	 * @since 1.56.0 Additional data may be added via filter `jetpack_connection_validate_urls_for_idc_mitigation_response`.
 	 *
+	 * @param array $args The query args.
+	 *
 	 * @return array
 	 */
-	public function validate_urls_for_idc_mitigation() {
+	public function validate_urls_for_idc_mitigation( $args ) {
 		$response = array(
 			'home'    => Urls::home_url(),
 			'siteurl' => Urls::site_url(),
 		);
+
+		// If true, we will not generate new secret, and rely on the existing one.
+		$verify_secret = ! empty( $args[0] ) && $args[0] === 'verify-url-secret';
 
 		/**
 		 * Allows modifying the response.
@@ -783,7 +788,7 @@ class Jetpack_XMLRPC_Server {
 		 *
 		 * @param array $response
 		 */
-		return apply_filters( 'jetpack_connection_validate_urls_for_idc_mitigation_response', $response );
+		return apply_filters( 'jetpack_connection_validate_urls_for_idc_mitigation_response', $response, $verify_secret );
 	}
 
 	/**
