@@ -121,7 +121,8 @@ const fetchNewsletterCategories = async () => {
 
 export const fetchNewsletterCategoriesSubscriptionsCount = async termIds => {
 	const response = await apiFetch( {
-		path: `/wpcom/v2/newsletter-categories/subscriptions-count?term_ids=${ termIds.join( ',' ) }`,
+		path: `/wpcom/v2/newsletter-categories/count?term_ids=${ termIds.join( ',' ) }`,
+		method: 'GET',
 	} );
 
 	if ( ! response || typeof response !== 'object' ) {
