@@ -1,7 +1,6 @@
 /**
  * Types & Constants
  */
-import { __ } from '@wordpress/i18n';
 import {
 	ACTION_DECREASE_NEW_ASYNC_REQUEST_COUNTDOWN,
 	ACTION_ENQUEUE_ASYNC_REQUEST,
@@ -35,16 +34,11 @@ const INITIAL_STATE: PlanStateProps = {
 				limit: 20,
 			},
 			usagePeriod: {
-				currentStart: 'ai-assistant-tier-free',
+				currentStart: '',
 				nextStart: '',
 				requestsCount: 0,
 			},
-			nextTier: {
-				slug: 'ai-assistant-tier-unlimited',
-				value: 1,
-				limit: UNLIMITED_PLAN_REQUESTS_LIMIT,
-				readableLimit: __( 'Unlimited', 'jetpack' ),
-			},
+			nextTier: null,
 			tierPlansEnabled: false,
 			_meta: {
 				isRequesting: false,
