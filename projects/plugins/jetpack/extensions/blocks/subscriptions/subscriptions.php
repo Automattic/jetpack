@@ -999,7 +999,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		$redirect_url = get_current_url();
 	} else {
 		// On self-hosted we will save and hide the token
-		$redirect_url = 'https://' . get_site_url() . '/wp-json/jetpack/v4/subscribers/auth';
+		$redirect_url = get_site_url() . '/wp-json/jetpack/v4/subscribers/auth';
 		$redirect_url = add_query_arg( 'redirect_url', get_current_url(), $redirect_url );
 	}
 
