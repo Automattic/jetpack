@@ -25,7 +25,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Categories_Subscriptions_Count exten
 		$this->base_api_path                   = 'wpcom';
 		$this->version                         = 'v2';
 		$this->namespace                       = $this->base_api_path . '/' . $this->version;
-		$this->rest_base                       = '/newsletter-categories';
+		$this->rest_base                       = '/newsletter-categories/count';
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
@@ -58,7 +58,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Categories_Subscriptions_Count exten
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/subscriptions-count',
+			$this->rest_base,
 			$options
 		);
 	}
