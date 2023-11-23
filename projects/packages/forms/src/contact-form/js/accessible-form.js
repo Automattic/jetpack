@@ -365,24 +365,12 @@ const setFormInputError = ( input, form, opts ) => {
 	if ( ! error ) {
 		error = createFormInputErrorContainer( input, errorId );
 
-		if ( opts.hasInsetLabel ) {
-			const labelWrap = input.closest( '.contact-form__inset-label-wrap' );
+		const wrap = input.closest(
+			opts.hasInsetLabel ? '.contact-form__inset-label-wrap' : '.grunion-field-wrap'
+		);
 
-			if ( labelWrap ) {
-				labelWrap.appendChild( error );
-			}
-		} else {
-			if ( input.classList.contains( 'contact-form-dropdown' ) ) {
-				// The current implementation uses jQuery UI selectmenu, which hides the original select
-				// tag and replaces it with a button and a list of options. Here we make sure the error
-				// is inserted after the button.
-				input.parentNode.appendChild( error );
-			} else if ( input.type === 'checkbox' ) {
-				// DIRTY: fix the case for single checkboxes in a subsequent PR
-				input.parentNode.parentNode.appendChild( error );
-			} else {
-				input.parentNode.insertBefore( error, input.nextSibling );
-			}
+		if ( wrap ) {
+			wrap.appendChild( error );
 		}
 	}
 

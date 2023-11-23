@@ -285,11 +285,6 @@
 	align-self: center;
 }
 
-.grunion-field-checkbox-wrap {
-	display: inline-flex;
-	align-items: baseline;
-}
-
 @media only screen and ( min-width: 600px ) {
 	.contact-form input[type='text'],
 	.contact-form input[type='email'],
@@ -823,4 +818,9 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .wp-block-jetpack-contact-form:not(.is-style-outlined) fieldset[aria-invalid="true"] {
 	outline: solid 1px var(--jetpack--contact-form--error-color);
 	outline-offset: 0.5em;
+}
+
+.contact-form__checkbox-wrap {
+	display: inline-flex;
+	align-items: baseline;
 }
