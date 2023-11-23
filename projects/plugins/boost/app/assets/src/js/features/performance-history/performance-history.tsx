@@ -42,15 +42,9 @@ const PerformanceHistoryBody = ( { isFreshStart, onDismissFreshStart, needsUpgra
 		);
 	}
 
-	const periods = data?.periods || [];
-	const startDate = data?.startDate || 0;
-	const endDate = data?.endDate || 0;
-
 	return (
 		<GraphComponent
-			periods={ periods }
-			startDate={ startDate }
-			endDate={ endDate }
+			{ ...data }
 			isFreshStart={ isFreshStart }
 			needsUpgrade={ needsUpgrade }
 			handleUpgrade={ () => navigate( '/upgrade' ) }
