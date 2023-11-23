@@ -889,6 +889,9 @@ importers:
       '@testing-library/user-event':
         specifier: 14.4.3
         version: 14.4.3(@testing-library/dom@8.19.1)
+      '@types/jest':
+        specifier: 29.2.5
+        version: 29.2.5
       '@types/react':
         specifier: 18.2.33
         version: 18.2.33
