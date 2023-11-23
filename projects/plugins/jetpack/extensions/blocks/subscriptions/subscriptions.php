@@ -993,9 +993,17 @@ function get_paywall_blocks( $newsletter_access_level ) {
 
 	$sign_in         = '';
 	$switch_accounts = '';
+	$sign_in_link    = add_query_arg(
+		array(
+			'site_id'      => intval( \Jetpack_Options::get_option( 'id' ) ),
+			'redirect_url' => rawurlencode( get_current_url() ),
+			'v2'           => '',
+		),
+		'https://subscribe.wordpress.com/memberships/jwt'
+	);
 	if ( is_user_auth() ) {
 		if ( ( new Host() )->is_wpcom_simple() ) {
-			$switch_accounts_link = wp_logout_url( get_current_url() );
+			$switch_accounts_link = wp_logout_url( $sign_in_link );
 			$switch_accounts      = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
 <p class="has-text-align-center" style="font-size:14px"><a href="' . $switch_accounts_link . '">' . __( 'Switch Accounts', 'jetpack' ) . '</a></p>
 <!-- /wp:paragraph -->';
@@ -1005,15 +1013,6 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			// custom domain
 			$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link', get_current_blog_id() );
-		} else {
-			$sign_in_link = add_query_arg(
-				array(
-					'site_id'      => intval( \Jetpack_Options::get_option( 'id' ) ),
-					'redirect_url' => rawurlencode( get_current_url() ),
-					'v2'           => '',
-				),
-				'https://subscribe.wordpress.com/memberships/jwt'
-			);
 		}
 		$access_question = get_paywall_access_question( $newsletter_access_level );
 		$sign_in         = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
