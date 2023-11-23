@@ -997,7 +997,6 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		array(
 			'site_id'      => intval( \Jetpack_Options::get_option( 'id' ) ),
 			'redirect_url' => rawurlencode( get_current_url() ),
-			'v2'           => '',
 		),
 		'https://subscribe.wordpress.com/memberships/jwt'
 	);
