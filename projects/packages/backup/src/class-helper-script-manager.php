@@ -341,7 +341,7 @@ class Helper_Script_Manager {
 	 *
 	 * @return array Array, with keys specifying the full path of install locations, and values with the equivalent URL.
 	 */
-	public static function get_install_locations() {
+	private static function get_install_locations() {
 		// Include WordPress root and wp-content.
 		$install_locations = array(
 			\ABSPATH        => \get_site_url(),
