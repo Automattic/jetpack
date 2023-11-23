@@ -433,6 +433,15 @@ class Jetpack_Likes {
 		* we need a slightly more unique id / name for the widget wrapper.
 		*/
 		$uniqid     = uniqid();
+		/**
+		 * Enable an alternate Likes layout.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @module likes
+		 *
+		 * @param bool $new_layout Enable the new Likes layout. False by default.
+		 */
 		$new_layout = apply_filters( 'likes_new_layout', false ) ? '&amp;n=1' : '';
 
 		$src      = sprintf( 'https://widgets.wp.com/likes/#blog_id=%1$d&amp;post_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s%5$s', $blog_id, $post_id, $domain, $uniqid, $new_layout );

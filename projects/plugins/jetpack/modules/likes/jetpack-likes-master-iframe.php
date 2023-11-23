@@ -23,6 +23,7 @@ function jetpack_likes_master_iframe() {
 	$_locale   = isset( $gp_locale->slug ) ? $gp_locale->slug : '';
 
 	$likes_locale = ( '' === $_locale || 'en' === $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
+	/** This filter is documented in projects/plugins/jetpack/modules/likes.php */
 	$new_layout   = apply_filters( 'likes_new_layout', false ) ? '&amp;n=1' : '';
 
 	$src = sprintf(
