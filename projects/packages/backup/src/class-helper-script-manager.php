@@ -13,10 +13,22 @@ namespace Automattic\Jetpack\Backup;
  */
 class Helper_Script_Manager {
 
-	const TEMP_DIRECTORY = 'jetpack-temp';
+	/**
+	 * @var string
+	 */
+	private $temp_directory;
+
+	/**
+	 * @var int
+	 */
+	private $expiry_time;
+
+	/**
+	 * @var int
+	 */
+	private $max_filesize;
+
 	const HELPER_HEADER  = "<?php /* Jetpack Backup Helper Script */\n";
-	const EXPIRY_TIME    = 8 * 3600; // 8 hours
-	const MAX_FILESIZE   = 1024 * 1024; // 1 MiB
 
 	const README_LINES = array(
 		'These files have been put on your server by Jetpack to assist with backups and restores of your site content. They are cleaned up automatically when we no longer need them.',
@@ -26,6 +38,23 @@ class Helper_Script_Manager {
 	);
 
 	const INDEX_FILE = '<?php // Silence is golden';
+
+	/**
+	 * Create Helper Script Manager.
+	 *
+	 * @param string $temp_directory
+	 * @param int $expiry_time
+	 * @param int $max_filesize
+	 */
+	public function __construct(
+		$temp_directory = 'jetpack-temp',
+		$expiry_time = 60 * 60 * 8,
+		$max_filesize = 1024 * 1024
+	) {
+		$this->temp_directory = $temp_directory;
+		$this->expiry_time = $expiry_time;
+		$this->max_filesize = $max_filesize;
+	}
 
 	/**
 	 * Installs a Helper Script, and returns its filesystem path and access url.
@@ -42,7 +71,7 @@ class Helper_Script_Manager {
 		}
 
 		// Refuse to install a Helper Script that is too large.
-		if ( strlen( $script_body ) > static::MAX_FILESIZE ) {
+		if ( strlen( $script_body ) > $this->max_filesize ) {
 			return new \WP_Error( 'invalid_helper', 'Invalid Helper Script size' );
 		}
 
@@ -55,7 +84,7 @@ class Helper_Script_Manager {
 		}
 
 		// Create a jetpack-temp directory for the Helper Script.
-		$temp_directory = static::create_temp_directory();
+		$temp_directory = $this->create_temp_directory();
 		if ( \is_wp_error( $temp_directory ) ) {
 			return $temp_directory;
 		}
@@ -78,7 +107,7 @@ class Helper_Script_Manager {
 				}
 
 				// Always schedule a cleanup run shortly after EXPIRY_TIME.
-				\wp_schedule_single_event( time() + static::EXPIRY_TIME + 60, 'jetpack_backup_cleanup_helper_scripts' );
+				\wp_schedule_single_event( time() + $this->expiry_time + 60, 'jetpack_backup_cleanup_helper_scripts' );
 
 				// Success! Figure out the URL and return the path and URL.
 				return array(
@@ -110,7 +139,7 @@ class Helper_Script_Manager {
 		}
 
 		// Check this file looks like a JPR helper script.
-		if ( ! static::verify_file_header( $path, static::HELPER_HEADER ) ) {
+		if ( ! $this->verify_file_header( $path, static::HELPER_HEADER ) ) {
 			return false;
 		}
 
@@ -123,7 +152,7 @@ class Helper_Script_Manager {
 	 * @access public
 	 */
 	public function cleanup_expired_helper_scripts() {
-		$this->cleanup_helper_scripts( time() - static::EXPIRY_TIME );
+		$this->cleanup_helper_scripts( time() - $this->expiry_time );
 	}
 
 	/**
@@ -150,7 +179,7 @@ class Helper_Script_Manager {
 		}
 
 		foreach ( static::get_install_locations() as $directory => $url ) {
-			$temp_dir = trailingslashit( $directory ) . static::TEMP_DIRECTORY;
+			$temp_dir = trailingslashit( $directory ) . $this->temp_directory;
 
 			if ( $wp_filesystem->is_dir( $temp_dir ) ) {
 				// Find expired helper scripts and delete them.
@@ -164,7 +193,7 @@ class Helper_Script_Manager {
 				}
 
 				// Delete the directory if it's empty now.
-				static::delete_empty_helper_directory( $temp_dir );
+				$this->delete_empty_helper_directory( $temp_dir );
 			}
 		}
 	}
@@ -173,12 +202,11 @@ class Helper_Script_Manager {
 	 * Delete a helper script directory if it's empty
 	 *
 	 * @access public
-	 * @static
 	 *
 	 * @param string $dir Path to Helper Script directory.
 	 * @return boolean    True if the directory is deleted
 	 */
-	private static function delete_empty_helper_directory( $dir ) {
+	private function delete_empty_helper_directory( $dir ) {
 		$wp_filesystem = static::get_wp_filesystem();
 		if ( ! $wp_filesystem ) {
 			return false;
@@ -208,7 +236,7 @@ class Helper_Script_Manager {
 			}
 
 			// Verify the file starts with the expected contents.
-			if ( ! static::verify_file_header( $path, $allowed_files[ $basename ] ) ) {
+			if ( ! $this->verify_file_header( $path, $allowed_files[ $basename ] ) ) {
 				return false;
 			}
 
@@ -230,11 +258,10 @@ class Helper_Script_Manager {
 	 * Find an appropriate location for a jetpack-temp folder, and create one
 	 *
 	 * @access public
-	 * @static
 	 *
 	 * @return WP_Error|array Array containing the url and path of the temp directory if successful, WP_Error if not.
 	 */
-	private static function create_temp_directory() {
+	private function create_temp_directory() {
 		$wp_filesystem = static::get_wp_filesystem();
 		if ( ! $wp_filesystem ) {
 			return new \WP_Error( 'temp_directory', 'Failed to create jetpack-temp directory' );
@@ -247,7 +274,7 @@ class Helper_Script_Manager {
 			}
 
 			// Create if one doesn't already exist.
-			$temp_dir = trailingslashit( $directory ) . static::TEMP_DIRECTORY;
+			$temp_dir = trailingslashit( $directory ) . $this->temp_directory;
 			if ( ! $wp_filesystem->is_dir( $temp_dir ) ) {
 				if ( ! $wp_filesystem->mkdir( $temp_dir ) ) {
 					continue;
@@ -258,8 +285,8 @@ class Helper_Script_Manager {
 			}
 
 			return array(
-				'path' => trailingslashit( $directory ) . static::TEMP_DIRECTORY,
-				'url'  => trailingslashit( $url ) . static::TEMP_DIRECTORY,
+				'path' => trailingslashit( $directory ) . $this->temp_directory,
+				'url'  => trailingslashit( $url ) . $this->temp_directory,
 			);
 		}
 
@@ -305,13 +332,12 @@ class Helper_Script_Manager {
 	 * Checks that a file exists, is readable, and has the expected header.
 	 *
 	 * @access private
-	 * @static
 	 *
 	 * @param string $file_path       File to verify.
 	 * @param string $expected_header Header that the file should have.
 	 * @return boolean                True if the file exists, is readable, and the header matches.
 	 */
-	private static function verify_file_header( $file_path, $expected_header ) {
+	private function verify_file_header( $file_path, $expected_header ) {
 		$wp_filesystem = static::get_wp_filesystem();
 		if ( ! $wp_filesystem ) {
 			return false;
@@ -324,7 +350,7 @@ class Helper_Script_Manager {
 
 		// Verify that the file isn't too big or small.
 		$file_size = $wp_filesystem->size( $file_path );
-		if ( $file_size < strlen( $expected_header ) || $file_size > static::MAX_FILESIZE ) {
+		if ( $file_size < strlen( $expected_header ) || $file_size > $this->max_filesize ) {
 			return false;
 		}
 
