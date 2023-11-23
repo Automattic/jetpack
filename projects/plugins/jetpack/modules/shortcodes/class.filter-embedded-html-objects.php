@@ -245,7 +245,7 @@ class Filter_Embedded_HTML_Objects {
 		} else {
 			// no src found, search html.
 			foreach ( self::$html_strpos_filters as $match => $callback ) {
-				if ( false !== strpos( $html, $match ) ) {
+				if ( str_contains( $html, $match ) ) {
 					return call_user_func( $callback, $attrs );
 				}
 			}
@@ -263,7 +263,7 @@ class Filter_Embedded_HTML_Objects {
 
 		// check source filter.
 		foreach ( self::$strpos_filters as $match => $callback ) {
-			if ( false !== strpos( $src, $match ) ) {
+			if ( str_contains( $src, $match ) ) {
 				return call_user_func( $callback, $attrs );
 			}
 		}
@@ -276,7 +276,7 @@ class Filter_Embedded_HTML_Objects {
 
 		// check html filters.
 		foreach ( self::$html_strpos_filters as $match => $callback ) {
-			if ( false !== strpos( $html, $match ) ) {
+			if ( str_contains( $html, $match ) ) {
 				return call_user_func( $callback, $attrs );
 			}
 		}
@@ -341,7 +341,7 @@ class Filter_Embedded_HTML_Objects {
 	 */
 	public static function get_attrs( $html ) {
 		if (
-			! ( class_exists( 'DOMDocument' ) && function_exists( 'libxml_use_internal_errors' ) && function_exists( 'simplexml_load_string' ) ) ) {
+			! ( class_exists( 'DOMDocument' ) && function_exists( 'simplexml_load_string' ) ) ) {
 			trigger_error( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				esc_html__( 'PHP’s XML extension is not available. Please contact your hosting provider to enable PHP’s XML extension.', 'jetpack' )
 			);

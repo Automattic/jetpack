@@ -167,11 +167,11 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 
 			if ( 'googleplus' === $service
 				&& ! is_numeric( $username )
-				&& substr( $username, 0, 1 ) !== '+'
+				&& ! str_starts_with( $username, '+' )
 			) {
 				$link_username = '+' . $username;
 			}
-			if ( 'youtube' === $service && 'UC' === substr( $username, 0, 2 ) ) {
+			if ( 'youtube' === $service && str_starts_with( $username, 'UC' ) ) {
 				$link_username = 'channel/' . $username;
 			} elseif ( 'youtube' === $service ) {
 				$link_username = 'user/' . $username;
