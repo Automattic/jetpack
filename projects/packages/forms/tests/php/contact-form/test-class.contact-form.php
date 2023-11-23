@@ -66,6 +66,9 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	 * @before
 	 */
 	public function set_up_test_case() {
+		// Avoid actually trying to send any mail.
+		add_filter( 'pre_wp_mail', '__return_true', PHP_INT_MAX );
+
 		$this->set_globals();
 
 		$author_id = wp_insert_user(

@@ -141,7 +141,12 @@ class Test_Server_Sandbox extends BaseTestCase {
 		Constants::set_constant( 'JETPACK__SANDBOX_DOMAIN', $sandbox_constant );
 		$headers = array();
 
-		( new Server_Sandbox() )->server_sandbox( $url, $headers );
+		ini_set( 'error_log', '/dev/null' );
+		try {
+			( new Server_Sandbox() )->server_sandbox( $url, $headers );
+		} finally {
+			ini_restore( 'error_log' );
+		}
 
 		$this->assertSame( $expected_url, $url );
 		$this->assertSame( $expected_headers, $headers );
@@ -205,7 +210,12 @@ class Test_Server_Sandbox extends BaseTestCase {
 			add_filter( 'jetpack_sandbox_add_profile_parameter', '__return_true' );
 		}
 
-		( new Server_Sandbox() )->server_sandbox( $url, $headers, $body, $method );
+		ini_set( 'error_log', '/dev/null' );
+		try {
+			( new Server_Sandbox() )->server_sandbox( $url, $headers, $body, $method );
+		} finally {
+			ini_restore( 'error_log' );
+		}
 
 		$this->assertSame( $expected_url, $url );
 
