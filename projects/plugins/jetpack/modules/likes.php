@@ -432,7 +432,7 @@ class Jetpack_Likes {
 		* If the same post appears more then once on a page the page goes crazy
 		* we need a slightly more unique id / name for the widget wrapper.
 		*/
-		$uniqid     = uniqid();
+		$uniqid = uniqid();
 		/**
 		 * Enable an alternate Likes layout.
 		 *
