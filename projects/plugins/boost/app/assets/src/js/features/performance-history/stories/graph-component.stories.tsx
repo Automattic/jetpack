@@ -198,7 +198,6 @@ const Template = args => {
 	}, [args.isFreshStart, args.needsUpgrade] );
 
 	args.handleUpgrade = () => {
-		console.log( 'upgrade' );
 		setNeedsUpgrade( false );
 	}
 	args.handleDismissFreshStart = () => {
