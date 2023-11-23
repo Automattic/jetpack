@@ -28,6 +28,13 @@ class Helper_Script_Manager {
 	 */
 	private $max_filesize;
 
+	/**
+	 * Keys specify the full path of install locations, and values point to the equivalent URL.
+	 *
+	 * @var array
+	 */
+	private $install_locations;
+
 	const HELPER_HEADER  = "<?php /* Jetpack Backup Helper Script */\n";
 
 	const README_LINES = array(
@@ -45,15 +52,31 @@ class Helper_Script_Manager {
 	 * @param string $temp_directory
 	 * @param int $expiry_time
 	 * @param int $max_filesize
+	 * @param array $install_locations Associative array of possible places to install a jetpack-temp directory, along
+	 *   with the URL to access each.
 	 */
 	public function __construct(
 		$temp_directory = 'jetpack-temp',
 		$expiry_time = 60 * 60 * 8,
-		$max_filesize = 1024 * 1024
+		$max_filesize = 1024 * 1024,
+		$install_locations = null
 	) {
+		if ( is_null( $install_locations ) ) {
+			// Include WordPress root and wp-content.
+			$install_locations = array(
+				\ABSPATH        => \get_site_url(),
+				\WP_CONTENT_DIR => \WP_CONTENT_URL,
+			);
+
+			// Include uploads folder.
+			$upload_dir_info                                  = \wp_upload_dir();
+			$install_locations[ $upload_dir_info['basedir'] ] = $upload_dir_info['baseurl'];
+		}
+
 		$this->temp_directory = $temp_directory;
 		$this->expiry_time = $expiry_time;
 		$this->max_filesize = $max_filesize;
+		$this->install_locations = $install_locations;
 	}
 
 	/**
@@ -168,7 +191,7 @@ class Helper_Script_Manager {
 			return;
 		}
 
-		foreach ( static::get_install_locations() as $directory => $url ) {
+		foreach ( $this->install_locations as $directory => $url ) {
 			$temp_dir = trailingslashit( $directory ) . $this->temp_directory;
 
 			if ( $wp_filesystem->is_dir( $temp_dir ) ) {
@@ -253,7 +276,7 @@ class Helper_Script_Manager {
 			return new \WP_Error( 'temp_directory', 'Failed to create jetpack-temp directory' );
 		}
 
-		foreach ( static::get_install_locations() as $directory => $url ) {
+		foreach ( $this->install_locations as $directory => $url ) {
 			// Check if the install location is writeable.
 			if ( ! $wp_filesystem->is_writable( $directory ) ) {
 				continue;
@@ -335,25 +358,6 @@ class Helper_Script_Manager {
 		// Read the file and verify its header.
 		$contents = $wp_filesystem->get_contents( $file_path );
 		return ( strncmp( $contents, $expected_header, strlen( $expected_header ) ) === 0 );
-	}
-
-	/**
-	 * Gets an associative array of possible places to install a jetpack-temp directory, along with the URL to access each.
-	 *
-	 * @return array Array, with keys specifying the full path of install locations, and values with the equivalent URL.
-	 */
-	private static function get_install_locations() {
-		// Include WordPress root and wp-content.
-		$install_locations = array(
-			\ABSPATH        => \get_site_url(),
-			\WP_CONTENT_DIR => \WP_CONTENT_URL,
-		);
-
-		// Include uploads folder.
-		$upload_dir_info                                  = \wp_upload_dir();
-		$install_locations[ $upload_dir_info['basedir'] ] = $upload_dir_info['baseurl'];
-
-		return $install_locations;
 	}
 
 	/**
