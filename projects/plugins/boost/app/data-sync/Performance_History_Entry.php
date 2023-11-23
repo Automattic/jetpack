@@ -3,8 +3,9 @@
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Graph_History_Request;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
 
-class Performance_History_Entry implements Entry_Can_Get, Entry_Can_Set {
+class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_Set {
 	private $start_date;
 	private $end_date;
 
@@ -17,6 +18,14 @@ class Performance_History_Entry implements Entry_Can_Get, Entry_Can_Set {
 	public function get() {
 		$request = new Speed_Score_Graph_History_Request( $this->start_date, $this->end_date, array() );
 		$result  = $request->execute();
+
+		if ( is_wp_error( $result ) ) {
+			return array(
+				'startDate' => $this->start_date,
+				'endDate'   => $this->end_date,
+				'periods'   => array(),
+			);
+		}
 
 		return array(
 			'startDate' => $result->data->_meta->start,

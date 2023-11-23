@@ -72,3 +72,47 @@ export function useDataSync<
 		useMutation: ( config = {} ) => useMutation( { ...mutationConfigDefaults, ...config } ),
 	};
 }
+
+export function useLazyDataSync<
+	Schema extends z.ZodSchema,
+	Value extends z.infer< Schema >,
+	Key extends string,
+>( namespace: string, key: Key, schema: Schema ): DataSyncFactory< Value > {
+	const datasync = new DataSync( namespace, key, schema );
+	const queryKey = [ key ];
+	const queryConfigDefaults = {
+		queryKey,
+		queryFn: ( { signal } ) => datasync.GET( signal ),
+	};
+	const mutationConfigDefaults = {
+		mutationKey: queryKey,
+		mutationFn: datasync.SET,
+		onMutate: async data => {
+			const value = schema.parse( data );
+
+			// Cancel any outgoing refetches
+			// (so they don't overwrite our optimistic update)
+			await queryClient.cancelQueries( { queryKey } );
+
+			// Snapshot the previous value
+			const previousValue = queryClient.getQueryData( queryKey );
+
+			// Optimistically update to the new value
+			queryClient.setQueryData( queryKey, value );
+
+			// Return a context object with the snapshotted value
+			return { previousValue };
+		},
+		onError: ( _, __, context ) => {
+			queryClient.setQueryData( queryKey, context.previousValue );
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries( { queryKey } );
+		},
+	};
+
+	return {
+		useQuery: ( config = {} ) => useQuery( { ...queryConfigDefaults, ...config } ),
+		useMutation: ( config = {} ) => useMutation( { ...mutationConfigDefaults, ...config } ),
+	};
+}

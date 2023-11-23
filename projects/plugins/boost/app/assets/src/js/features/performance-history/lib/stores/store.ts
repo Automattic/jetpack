@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { useDataSync, useLazyDataSync } from '@automattic/jetpack-react-data-sync-client';
 
 const performanceHistoryDataSchema = z.object( {
 	periods: z.array(
@@ -22,7 +22,7 @@ const performanceHistoryDataSchema = z.object( {
 } );
 
 export const usePerformanceHistoryQuery = () => {
-	const { useQuery } = useDataSync(
+	const { useQuery } = useLazyDataSync(
 		'jetpack_boost_ds',
 		'performance_history',
 		performanceHistoryDataSchema

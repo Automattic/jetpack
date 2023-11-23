@@ -19,9 +19,9 @@ const DummyGraph = ( { children } ) => {
 };
 
 const GraphComponent = ( {
-	periods,
-	startDate,
-	endDate,
+	periods = [],
+	startDate = 0,
+	endDate = 0,
 	needsUpgrade,
 	handleUpgrade,
 	isFreshStart,
