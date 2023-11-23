@@ -21,8 +21,9 @@ import Description from './description';
 const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	const { isPublicizeEnabled, togglePublicizeFeature } = usePostMeta();
+	const { togglePublicizeFeature } = usePostMeta();
 	const {
+		isPublicizeEnabled,
 		hasPaidPlan,
 		isShareLimitEnabled,
 		numberOfSharesRemaining,
