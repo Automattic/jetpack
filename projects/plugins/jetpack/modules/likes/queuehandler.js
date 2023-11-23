@@ -268,6 +268,10 @@ function JetpackLikesMessageListener( event ) {
 				container.style.width = containerWidth + scrollbarWidth + 'px';
 				list.style.width = listWidth + scrollbarWidth + 'px';
 			}
+
+			// Fire Tracks click event.
+			window._tkq = window._tkq || [];
+			window._tkq.push( [ 'recordEvent', 'wpcom_post_like_expand' ] );
 		}
 	}
 }
