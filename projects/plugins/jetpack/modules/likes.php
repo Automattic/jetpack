@@ -53,7 +53,6 @@ class Jetpack_Likes {
 	 */
 	public static function init() {
 		static $instance = null;
-		add_filter( 'likes_new_layout', '__return_true' );
 
 		if ( ! $instance ) {
 			$instance = new Jetpack_Likes();
