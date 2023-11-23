@@ -15,7 +15,7 @@ import {
 	setSubscriberCounts,
 	setNewsletterCategories,
 } from './actions';
-import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED, TYPE_TIER } from './constants';
+import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
 import { onError } from './utils';
 
 const EXECUTION_KEY = 'membership-products-resolver-getProducts';
@@ -155,11 +155,7 @@ export const getNewsletterTierProducts = (
 	productType = PRODUCT_TYPE_PAYMENT_PLAN,
 	selectedProductId = 0,
 	setSelectedProductId = () => {}
-) =>
-	// Returns the products, but silences the snack bar if a default product is created
-	getProducts( productType, selectedProductId, setSelectedProductId, false ).filter(
-		product => product.type === TYPE_TIER
-	);
+) => getProducts( productType, selectedProductId, setSelectedProductId, false );
 
 export const getProducts =
 	(
