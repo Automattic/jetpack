@@ -39,12 +39,6 @@ export function usePostMeta() {
 		};
 	}, [] );
 
-	const togglePublicizeFeature = useCallback( () => {
-		return editPost( {
-			meta: { jetpack_publicize_feature_enabled: ! metaValues.isPublicizeEnabled },
-		} );
-	}, [ editPost, metaValues.isPublicizeEnabled ] );
-
 	const updateMeta = useCallback(
 		( metaKey, metaValue ) => {
 			editPost( {
@@ -55,6 +49,10 @@ export function usePostMeta() {
 		},
 		[ editPost ]
 	);
+
+	const togglePublicizeFeature = useCallback( () => {
+		updateMeta( 'jetpack_publicize_feature_enabled', ! metaValues.isPublicizeEnabled );
+	}, [ metaValues.isPublicizeEnabled, updateMeta ] );
 
 	const updateJetpackSocialOptions = useCallback(
 		( key, value ) => {
