@@ -791,14 +791,13 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form__input-error {
 	display: flex;
 	align-items: center;
-	gap: 0.5em;
-
-	margin-bottom: 0.25rem;
+	gap: 0.25em;
 
 	font-size: 1rem;
 }
 
 .contact-form__error {
+	margin-bottom: 0.25rem;
 	padding: 0.5em;
 
 	background-color: var(--jetpack--contact-form--error-color);
@@ -806,6 +805,8 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form__input-error {
+	margin: 0.25rem 0;
+
 	color: var(--jetpack--contact-form--error-color);
 }
 
@@ -814,11 +815,12 @@ on production builds, the attributes are being reordered, causing side-effects
 	display: none;
 }
 
-.contact-form [aria-invalid="true"]:not(fieldset) {
+.contact-form [aria-invalid="true"]:not(fieldset),
+.contact-form .wp-block-jetpack-contact-form.is-style-outlined fieldset[aria-invalid="true"] {
 	border: solid 1px var(--jetpack--contact-form--error-color);
 }
 
-.contact-form fieldset[aria-invalid="true"] {
+.contact-form .wp-block-jetpack-contact-form:not(.is-style-outlined) fieldset[aria-invalid="true"] {
 	outline: solid 1px var(--jetpack--contact-form--error-color);
 	outline-offset: 0.5em;
 }

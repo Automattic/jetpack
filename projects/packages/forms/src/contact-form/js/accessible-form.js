@@ -180,6 +180,62 @@ const createFormInputErrorContainer = ( input, errorId ) => {
 };
 
 /******************************************************************************
+ * UTILS
+ ******************************************************************************/
+
+/**
+ * Return whether the form has inset labels (like with the Outlined and Animates styles).
+ * @param {HTMLFormElement} form Form element
+ * @returns {boolean}
+ */
+const hasFormInsetLabels = form => {
+	const block = form.querySelector( '.wp-block-jetpack-contact-form' );
+
+	if ( ! block ) {
+		return;
+	}
+
+	const blockClassList = block.classList;
+
+	return (
+		blockClassList.contains( 'is-style-outlined' ) || blockClassList.contains( 'is-style-animated' )
+	);
+};
+
+/**
+ * Group radio inputs and checkbox inputs with multiple values.
+ * Single inputs, checkbox groups and radio buttons handle validation and error
+ * messages differently.
+ * @param {NodeListOf<HTMLElement>} inputs Form inputs
+ * @returns {object} Grouped inputs
+ */
+const groupFormInputs = inputs => {
+	return inputs.reduce(
+		( acc, input ) => {
+			switch ( input.type ) {
+				case 'radio':
+					acc.radios.push( input );
+					break;
+				case 'checkbox':
+					if ( input.name.indexOf( '[]' ) === input.name.length - 2 ) {
+						acc.checkboxes.push( input );
+					} else {
+						// Handle checkbox inputs with a single value like other inputs.
+						acc.default.push( input );
+					}
+					break;
+				default:
+					acc.default.push( input );
+					break;
+			}
+
+			return acc;
+		},
+		{ default: [], radios: [], checkboxes: [] }
+	);
+};
+
+/******************************************************************************
  * DOM UPDATES
  ******************************************************************************/
 
@@ -243,35 +299,15 @@ const setFormError = form => {
  * @param {HTMLFormElement} form Form element
  */
 const setFormInputErrors = form => {
-	// Group inputs. Single inputs, checkbox groups and radio buttons handle validation and error
-	// messages differently.
-	const groupedInputs = getFormInputs( form ).reduce(
-		( acc, input ) => {
-			switch ( input.type ) {
-				case 'radio':
-					acc.radios.push( input );
-					break;
-				case 'checkbox':
-					if ( input.name.indexOf( '[]' ) === input.name.length - 2 ) {
-						acc.checkboxes.push( input );
-					} else {
-						acc.default.push( input );
-					}
-					break;
-				default:
-					acc.default.push( input );
-					break;
-			}
-
-			return acc;
-		},
-		{ default: [], radios: [], checkboxes: [] }
-	);
+	const opts = {
+		hasInsetLabel: hasFormInsetLabels( form ),
+	};
+	const groupedInputs = groupFormInputs( getFormInputs( form ) );
 
 	// Handle individual inputs
 	for ( const input of groupedInputs.default ) {
 		if ( ! input.validity.valid ) {
-			setFormInputError( input, form );
+			setFormInputError( input, form, opts );
 		}
 	}
 
@@ -287,7 +323,7 @@ const setFormInputErrors = form => {
 
 		// If one of the group radio buttons is checked, all radio buttons are valid.
 		if ( ! input.validity.valid ) {
-			setFormGroupInputError( input, form );
+			setFormGroupInputError( input, form, opts );
 		}
 	}
 
@@ -307,11 +343,10 @@ const setFormInputErrors = form => {
 			const formData = new FormData( form );
 
 			if ( formData.getAll( name ).length === 0 ) {
-				setFormGroupInputError(
-					input,
-					form,
-					L10N.checkboxMissingValue || 'Please select at least one option.'
-				);
+				setFormGroupInputError( input, form, {
+					...opts,
+					message: L10N.checkboxMissingValue || 'Please select at least one option.',
+				} );
 			}
 		}
 	}
@@ -321,24 +356,33 @@ const setFormInputErrors = form => {
  * Set the error element of the specified input.
  * @param {HTMLElement} input Input element
  * @param {HTMLFormElement} form Parent form element
+ * @param {object} opts Options
  */
-const setFormInputError = ( input, form ) => {
+const setFormInputError = ( input, form, opts ) => {
 	const errorId = `${ input.name }-error`;
 	let error = form.querySelector( `#${ errorId }` );
 
 	if ( ! error ) {
 		error = createFormInputErrorContainer( input, errorId );
 
-		if ( input.classList.contains( 'contact-form-dropdown' ) ) {
-			// The current implementation uses jQuery UI selectmenu, which hides the original select
-			// tag and replaces it with a button and a list of options. Here we make sure the error
-			// is inserted after the button.
-			input.parentNode.appendChild( error );
-		} else if ( input.type === 'checkbox' ) {
-			// DIRTY: fix the case for single checkboxes in a subsequent PR
-			input.parentNode.parentNode.appendChild( error );
+		if ( opts.hasInsetLabel ) {
+			const labelWrap = input.closest( '.contact-form__inset-label-wrap' );
+
+			if ( labelWrap ) {
+				labelWrap.appendChild( error );
+			}
 		} else {
-			input.parentNode.insertBefore( error, input.nextSibling );
+			if ( input.classList.contains( 'contact-form-dropdown' ) ) {
+				// The current implementation uses jQuery UI selectmenu, which hides the original select
+				// tag and replaces it with a button and a list of options. Here we make sure the error
+				// is inserted after the button.
+				input.parentNode.appendChild( error );
+			} else if ( input.type === 'checkbox' ) {
+				// DIRTY: fix the case for single checkboxes in a subsequent PR
+				input.parentNode.parentNode.appendChild( error );
+			} else {
+				input.parentNode.insertBefore( error, input.nextSibling );
+			}
 		}
 	}
 
@@ -354,9 +398,9 @@ const setFormInputError = ( input, form ) => {
  * apply to the group as a whole, not to each individual input.
  * @param {HTMLElement} input An input element of the group
  * @param {HTMLFormElement} form Parent form element
- * @param {string} message Error message to display
+ * @param {object} opts Options
  */
-const setFormGroupInputError = ( input, form, message ) => {
+const setFormGroupInputError = ( input, form, opts ) => {
 	const errorId = `${ input.name.replace( '[]', '' ) }-error`;
 	let error = form.querySelector( `#${ errorId }` );
 
@@ -364,7 +408,7 @@ const setFormGroupInputError = ( input, form, message ) => {
 		error = createFormInputErrorContainer( input, errorId );
 	}
 
-	error.replaceChildren( createError( input.validationMessage || message ) );
+	error.replaceChildren( createError( input.validationMessage || opts.message || 'Error' ) );
 
 	const fieldset = input.closest( 'fieldset' );
 
