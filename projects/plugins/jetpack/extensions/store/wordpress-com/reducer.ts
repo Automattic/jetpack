@@ -13,6 +13,7 @@ import {
 	ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
 	FREE_PLAN_REQUESTS_LIMIT,
 	UNLIMITED_PLAN_REQUESTS_LIMIT,
+	ACTION_SET_TIER_PLANS_ENABLED,
 } from './constants';
 import type { PlanStateProps } from './types';
 
@@ -44,6 +45,7 @@ const INITIAL_STATE: PlanStateProps = {
 				limit: UNLIMITED_PLAN_REQUESTS_LIMIT,
 				readableLimit: __( 'Unlimited', 'jetpack' ),
 			},
+			tierPlansEnabled: false,
 			_meta: {
 				isRequesting: false,
 				asyncRequestCountdown: ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
@@ -193,6 +195,19 @@ export default function reducer( state = INITIAL_STATE, action ) {
 						requireUpgrade: action.requireUpgrade,
 						hasFeature: ! action.requireUpgrade, // If we require an upgrade, we don't have the feature.
 						isOverLimit: true, // If we require an upgrade, we are over the limit.
+					},
+				},
+			};
+		}
+
+		case ACTION_SET_TIER_PLANS_ENABLED: {
+			return {
+				...state,
+				features: {
+					...state.features,
+					aiAssistant: {
+						...state.features.aiAssistant,
+						tierPlansEnabled: action.tierPlansEnabled,
 					},
 				},
 			};

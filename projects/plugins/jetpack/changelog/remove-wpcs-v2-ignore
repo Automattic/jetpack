@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Remove `phpcs:ignore` comment that was added because wpcom was still on v2 now that they've updated. No code changes.
+
+
