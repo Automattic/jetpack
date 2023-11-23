@@ -34,9 +34,11 @@ class WP_Dashboard_Odyssey_Widget {
 					src="//en.wordpress.com/i/loading/loading-64.gif"
 				/>
 				<p>
-				<?php if ( $is_toggled_open ) { ?>
-					echo __( 'Please reload the page to see your stats...', 'jetpack-stats-admin' );
-				<?php } ?>
+				<?php
+				if ( $is_toggled_open ) {
+					echo esc_html__( 'Please reload the page to see your stats...', 'jetpack-stats-admin' );
+				}
+				?>
 				</p>
 			</div>
 		</div>
