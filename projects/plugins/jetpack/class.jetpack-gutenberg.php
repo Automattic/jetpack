@@ -633,7 +633,7 @@ class Jetpack_Gutenberg {
 
 			return;
 		}
-		
+
 		$status = new Status();
 
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
