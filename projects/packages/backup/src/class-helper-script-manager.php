@@ -31,12 +31,11 @@ class Helper_Script_Manager {
 	 * Installs a Helper Script, and returns its filesystem path and access url.
 	 *
 	 * @access public
-	 * @static
 	 *
 	 * @param string $script_body Helper Script file contents.
 	 * @return array|WP_Error     Either an array containing the path and url of the helper script, or an error.
 	 */
-	public static function install_helper_script( $script_body ) {
+	public function install_helper_script( $script_body ) {
 		// Check that the script body contains the correct header.
 		if ( strncmp( $script_body, self::HELPER_HEADER, strlen( self::HELPER_HEADER ) ) !== 0 ) {
 			return new \WP_Error( 'invalid_helper', 'Invalid Helper Script header' );
@@ -96,12 +95,11 @@ class Helper_Script_Manager {
 	 * Given a path, verify it looks like a helper script and then delete it if so.
 	 *
 	 * @access public
-	 * @static
 	 *
 	 * @param string $path Path to Helper Script to delete.
 	 * @return boolean     True if the file is deleted (or does not exist).
 	 */
-	public static function delete_helper_script( $path ) {
+	public function delete_helper_script( $path ) {
 		$wp_filesystem = self::get_wp_filesystem();
 		if ( ! $wp_filesystem ) {
 			return false;
@@ -123,20 +121,18 @@ class Helper_Script_Manager {
 	 * Search for Helper Scripts that are suspiciously old, and clean them out.
 	 *
 	 * @access public
-	 * @static
 	 */
-	public static function cleanup_expired_helper_scripts() {
-		self::cleanup_helper_scripts( time() - self::EXPIRY_TIME );
+	public function cleanup_expired_helper_scripts() {
+		$this->cleanup_helper_scripts( time() - self::EXPIRY_TIME );
 	}
 
 	/**
 	 * Search for and delete all Helper Scripts. Used during uninstallation.
 	 *
 	 * @access public
-	 * @static
 	 */
-	public static function delete_all_helper_scripts() {
-		self::cleanup_helper_scripts( null );
+	public function delete_all_helper_scripts() {
+		$this->cleanup_helper_scripts( null );
 	}
 
 	/**
@@ -144,11 +140,10 @@ class Helper_Script_Manager {
 	 * with an mtime older than $expiry_time. Otherwise, delete them all.
 	 *
 	 * @access public
-	 * @static
 	 *
 	 * @param int|null $expiry_time If specified, only delete scripts older than $expiry_time.
 	 */
-	public static function cleanup_helper_scripts( $expiry_time = null ) {
+	public function cleanup_helper_scripts( $expiry_time = null ) {
 		$wp_filesystem = self::get_wp_filesystem();
 		if ( ! $wp_filesystem ) {
 			return;
@@ -163,7 +158,7 @@ class Helper_Script_Manager {
 				if ( is_array( $helper_scripts ) ) {
 					foreach ( $helper_scripts as $entry ) {
 						if ( preg_match( '/^jp-helper-*\.php$/', $entry['name'] ) && ( null === $expiry_time || $entry['lastmodunix'] < $expiry_time ) ) {
-							self::delete_helper_script( trailingslashit( $temp_dir ) . $entry['name'] );
+							$this->delete_helper_script( trailingslashit( $temp_dir ) . $entry['name'] );
 						}
 					}
 				}
