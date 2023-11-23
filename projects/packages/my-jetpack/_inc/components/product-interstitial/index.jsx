@@ -276,9 +276,9 @@ export function JetpackAIInterstitial() {
 	const { detail } = useProduct( slug );
 	const { onClickGoBack } = useGoBack( { slug } );
 
-	const nextTier = detail?.[ 'ai-assistant-feature' ]?.[ 'next-tier' ]?.value;
+	const nextTier = detail?.[ 'ai-assistant-feature' ]?.[ 'next-tier' ] || null;
 
-	if ( nextTier == null ) {
+	if ( ! nextTier ) {
 		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
 	}
 
@@ -292,7 +292,7 @@ export function JetpackAIInterstitial() {
 			imageContainerClassName={ styles.aiImageContainer }
 			ctaButtonLabel={ ctaLabel }
 			hideTOS={ true }
-			quantity={ nextTier }
+			quantity={ nextTier.value }
 			directCheckout={ hasRequiredPlan }
 		>
 			<img src={ jetpackAiImage } alt="Jetpack AI" />
