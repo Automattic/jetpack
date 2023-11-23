@@ -277,6 +277,11 @@ export default function PublicizeForm( {
 
 	refreshConnections();
 
+	// eslint-disable-next-line no-console
+	console.log( {
+		isPublicizeEnabled,
+		connections,
+	} );
 	return (
 		<Wrapper>
 			{ hasConnections ? (
