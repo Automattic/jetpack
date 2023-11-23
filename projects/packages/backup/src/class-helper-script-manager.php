@@ -14,21 +14,29 @@ namespace Automattic\Jetpack\Backup;
 class Helper_Script_Manager {
 
 	/**
+	 * Name of a directory that will be created for storing the helper script.
+	 *
 	 * @var string
 	 */
 	private $temp_directory;
 
 	/**
+	 * How long until the helper script will "expire" and refuse taking requests, in seconds.
+	 *
 	 * @var int
 	 */
 	private $expiry_time;
 
 	/**
+	 * Maximum size of the helper script, in bytes.
+	 *
 	 * @var int
 	 */
 	private $max_filesize;
 
 	/**
+	 * Associative array of possible places to install a jetpack-temp directory, along with the URL to access each.
+	 *
 	 * Keys specify the full path of install locations, and values point to the equivalent URL.
 	 *
 	 * @var array
@@ -38,10 +46,12 @@ class Helper_Script_Manager {
 	const HELPER_HEADER = "<?php /* Jetpack Backup Helper Script */\n";
 
 	const README_LINES = array(
-		'These files have been put on your server by Jetpack to assist with backups and restores of your site content. They are cleaned up automatically when we no longer need them.',
+		'These files have been put on your server by Jetpack to assist with backups and restores of your site ' .
+		'content. They are cleaned up automatically when we no longer need them.',
 		'If you no longer have Jetpack connected to your site, you can delete them manually.',
 		'If you have questions or need assistance, please contact Jetpack Support at https://jetpack.com/support/',
-		'If you like to build amazing things with WordPress, you should visit automattic.com/jobs and apply to join the fun – mention this file when you apply!;',
+		'If you like to build amazing things with WordPress, you should visit automattic.com/jobs and apply to join ' .
+		'the fun – mention this file when you apply!;',
 	);
 
 	const INDEX_FILE = '<?php // Silence is golden';
@@ -49,11 +59,11 @@ class Helper_Script_Manager {
 	/**
 	 * Create Helper Script Manager.
 	 *
-	 * @param string $temp_directory
-	 * @param int $expiry_time
-	 * @param int $max_filesize
-	 * @param array $install_locations Associative array of possible places to install a jetpack-temp directory, along
-	 *   with the URL to access each.
+	 * @param string     $temp_directory Name of a directory that will be created for storing the helper script.
+	 * @param int        $expiry_time How long until the helper script will "expire" and refuse taking requests, in seconds.
+	 * @param int        $max_filesize Maximum size of the helper script, in bytes.
+	 * @param array|null $install_locations Associative array of possible places to install a jetpack-temp directory,
+	 *   along with the URL to access each.
 	 */
 	public function __construct(
 		$temp_directory = 'jetpack-temp',
@@ -61,7 +71,7 @@ class Helper_Script_Manager {
 		$max_filesize = 1024 * 1024,
 		$install_locations = null
 	) {
-		if ( is_null( $install_locations ) ) {
+		if ( $install_locations === null ) {
 			// Include WordPress root and wp-content.
 			$install_locations = array(
 				\ABSPATH        => \get_site_url(),
@@ -84,7 +94,7 @@ class Helper_Script_Manager {
 	 *
 	 * @param string $script_body Helper Script file contents.
 	 *
-	 * @return array|WP_Error     Either an array containing the path and url of the helper script, or an error.
+	 * @return array|\WP_Error Either an array containing the path and url of the helper script, or an error.
 	 */
 	public function install_helper_script( $script_body ) {
 		// Check that the script body contains the correct header.
@@ -97,7 +107,8 @@ class Helper_Script_Manager {
 			return new \WP_Error( 'invalid_helper', 'Invalid Helper Script size' );
 		}
 
-		// Replace '[wp_path]' in the Helper Script with the WordPress installation location. Allows the Helper Script to find WordPress.
+		// Replace '[wp_path]' in the Helper Script with the WordPress installation location. Allows the Helper Script
+		// to find WordPress.
 		$script_body = str_replace( '[wp_path]', addslashes( ABSPATH ), $script_body );
 
 		$wp_filesystem = static::get_wp_filesystem();
@@ -113,7 +124,7 @@ class Helper_Script_Manager {
 
 		// Generate a random filename, avoid clashes.
 		$max_attempts = 5;
-		for ( $attempt = 0; $attempt < $max_attempts; $attempt ++ ) {
+		for ( $attempt = 0; $attempt < $max_attempts; $attempt++ ) {
 			$file_key  = wp_generate_password( 10, false );
 			$file_name = 'jp-helper-' . $file_key . '.php';
 			$file_path = trailingslashit( $temp_directory['path'] ) . $file_name;
@@ -129,7 +140,10 @@ class Helper_Script_Manager {
 				}
 
 				// Always schedule a cleanup run shortly after EXPIRY_TIME.
-				\wp_schedule_single_event( time() + $this->expiry_time + 60, 'jetpack_backup_cleanup_helper_scripts' );
+				\wp_schedule_single_event(
+					time() + $this->expiry_time + 60,
+					'jetpack_backup_cleanup_helper_scripts'
+				);
 
 				// Success! Figure out the URL and return the path and URL.
 				return array(
@@ -147,7 +161,7 @@ class Helper_Script_Manager {
 	 *
 	 * @param string $path Path to Helper Script to delete.
 	 *
-	 * @return boolean     True if the file is deleted (or does not exist).
+	 * @return bool True if the file is deleted (or does not exist).
 	 */
 	public function delete_helper_script( $path ) {
 		$wp_filesystem = static::get_wp_filesystem();
@@ -178,12 +192,12 @@ class Helper_Script_Manager {
 	 * Search for and delete all Helper Scripts. Used during uninstallation.
 	 */
 	public function delete_all_helper_scripts() {
-		$this->cleanup_helper_scripts( null );
+		$this->cleanup_helper_scripts();
 	}
 
 	/**
 	 * Search for and delete Helper Scripts. If an $expiry_time is specified, only delete Helper Scripts
-	 * with an mtime older than $expiry_time. Otherwise, delete them all.
+	 * with a mtime older than $expiry_time. Otherwise, delete them all.
 	 *
 	 * @param int|null $expiry_time If specified, only delete scripts older than $expiry_time.
 	 */
@@ -201,7 +215,10 @@ class Helper_Script_Manager {
 				$helper_scripts = $wp_filesystem->dirlist( $temp_dir );
 				if ( is_array( $helper_scripts ) ) {
 					foreach ( $helper_scripts as $entry ) {
-						if ( preg_match( '/^jp-helper-*\.php$/', $entry['name'] ) && ( null === $expiry_time || $entry['lastmodunix'] < $expiry_time ) ) {
+						if (
+							preg_match( '/^jp-helper-*\.php$/', $entry['name'] ) &&
+							( null === $expiry_time || $entry['lastmodunix'] < $expiry_time )
+						) {
 							$this->delete_helper_script( trailingslashit( $temp_dir ) . $entry['name'] );
 						}
 					}
@@ -218,7 +235,7 @@ class Helper_Script_Manager {
 	 *
 	 * @param string $dir Path to Helper Script directory.
 	 *
-	 * @return boolean    True if the directory is deleted
+	 * @return bool True if the directory is deleted
 	 */
 	private function delete_empty_helper_directory( $dir ) {
 		$wp_filesystem = static::get_wp_filesystem();
@@ -271,7 +288,7 @@ class Helper_Script_Manager {
 	/**
 	 * Find an appropriate location for a jetpack-temp folder, and create one
 	 *
-	 * @return WP_Error|array Array containing the url and path of the temp directory if successful, WP_Error if not.
+	 * @return array|\WP_Error Array containing the url and path of the temp directory if successful, WP_Error if not.
 	 */
 	private function create_temp_directory() {
 		$wp_filesystem = static::get_wp_filesystem();
@@ -280,7 +297,7 @@ class Helper_Script_Manager {
 		}
 
 		foreach ( $this->install_locations as $directory => $url ) {
-			// Check if the install location is writeable.
+			// Check if the installation location is writeable.
 			if ( ! $wp_filesystem->is_writable( $directory ) ) {
 				continue;
 			}
@@ -324,7 +341,7 @@ class Helper_Script_Manager {
 	 * @param string $file_path Path to write to.
 	 * @param string $contents File contents to write.
 	 *
-	 * @return boolean          True if successfully written.
+	 * @return bool True if successfully written.
 	 */
 	private static function put_contents( $file_path, $contents ) {
 		$wp_filesystem = static::get_wp_filesystem();
@@ -341,7 +358,7 @@ class Helper_Script_Manager {
 	 * @param string $file_path File to verify.
 	 * @param string $expected_header Header that the file should have.
 	 *
-	 * @return boolean                True if the file exists, is readable, and the header matches.
+	 * @return bool True if the file exists, is readable, and the header matches.
 	 */
 	private function verify_file_header( $file_path, $expected_header ) {
 		$wp_filesystem = static::get_wp_filesystem();
