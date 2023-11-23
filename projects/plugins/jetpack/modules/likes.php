@@ -53,6 +53,7 @@ class Jetpack_Likes {
 	 */
 	public static function init() {
 		static $instance = null;
+		add_filter( 'likes_new_layout', '__return_true' );
 
 		if ( ! $instance ) {
 			$instance = new Jetpack_Likes();
@@ -433,7 +434,7 @@ class Jetpack_Likes {
 		* we need a slightly more unique id / name for the widget wrapper.
 		*/
 		$uniqid     = uniqid();
-		$new_layout = apply_filters( 'likes_new_layout', false ) ? '&amp;ver=2' : '';
+		$new_layout = apply_filters( 'likes_new_layout', false ) ? '&amp;n=1' : '';
 
 		$src      = sprintf( 'https://widgets.wp.com/likes/#blog_id=%1$d&amp;post_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s%5$s', $blog_id, $post_id, $domain, $uniqid, $new_layout );
 		$name     = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
