@@ -75,6 +75,24 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
+	 * Get the current usage tier
+	 *
+	 * @return int
+	 */
+	public static function get_current_usage_tier() {
+		$info = self::get_ai_assistant_feature();
+
+		// Bail early if it's not possible to fetch the feature data.
+		if ( is_wp_error( $info ) ) {
+			return null;
+		}
+
+		$current_tier = isset( $info['current-tier']['value'] ) ? $info['current-tier']['value'] : null;
+
+		return $current_tier;
+	}
+
+	/**
 	 * Get the next usage tier
 	 *
 	 * @return int
@@ -87,20 +105,10 @@ class Jetpack_Ai extends Product {
 			return null;
 		}
 
-		$current_tier = isset( $info['current-tier']['value'] ) ? $info['current-tier']['value'] : null;
+		// Trust the next tier provided by the feature data.
+		$next_tier = isset( $info['next-tier']['value'] ) ? $info['next-tier']['value'] : null;
 
-		if ( null === $current_tier ) {
-			return 1;
-		}
-
-		// If the current tier is 1 or 500, there is no next tier.
-		if ( 1 === $current_tier || 500 === $current_tier ) {
-			return null;
-		}
-
-		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-		// return $info['next-tier']['value'];
-		return 1; // Return the unlimited tier for now.
+		return $next_tier;
 	}
 
 	/**
@@ -113,7 +121,7 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
-	 * Get the internationalized usage tier long description
+	 * Get the internationalized usage tier long description by tier
 	 *
 	 * @param int $tier The usage tier.
 	 * @return string
@@ -141,7 +149,7 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
-	 * Get the internationalized usage tier features
+	 * Get the internationalized usage tier features by tier
 	 *
 	 * @param int $tier The usage tier.
 	 * @return string
@@ -153,7 +161,7 @@ class Jetpack_Ai extends Product {
 				__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
 				__( 'Refine the tone and content to your liking', 'jetpack-my-jetpack' ),
 				__( 'Get feedback about your post', 'jetpack-my-jetpack' ),
-				__( 'Seamless WordPress editor Integration', 'jetpack-my-jetpack' ),
+				__( 'Seamless WordPress editor integration', 'jetpack-my-jetpack' ),
 			),
 			100 => array(
 				__( 'Prompt based content generation', 'jetpack-my-jetpack' ),
@@ -187,17 +195,67 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
-	 * Get the product princing details
+	 * Get the product pricing details by tier
+	 *
+	 * @param int $tier The usage tier.
+	 * @return array Pricing details
+	 */
+	public static function get_pricing_for_ui_by_usage_tier( $tier ) {
+		$product      = Wpcom_Products::get_product( static::get_wpcom_product_slug() );
+		$base_pricing = Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() );
+
+		if ( empty( $product ) ) {
+			return array();
+		}
+
+		if ( empty( $product->price_tier_list ) ) {
+			return $base_pricing;
+		}
+
+		$price_tier_list = $product->price_tier_list;
+		$yearly_prices   = array();
+
+		foreach ( $price_tier_list as $price_tier ) {
+			if ( isset( $price_tier->maximum_units ) && isset( $price_tier->maximum_price ) ) {
+					// The prices are in cents
+					$yearly_prices[ $price_tier->maximum_units ] = $price_tier->maximum_price / 100;
+			}
+		}
+
+		$tiers  = array( 100, 200, 500 );
+		$prices = array( 1 => $base_pricing );
+
+		foreach ( $tiers as $tier_value ) {
+			if ( isset( $yearly_prices[ $tier_value ] ) ) {
+					$prices[ $tier_value ] = array_merge(
+						$base_pricing,
+						array(
+							'full_price'            => $yearly_prices[ $tier_value ],
+							'discount_price'        => $yearly_prices[ $tier_value ],
+							'is_introductory_offer' => false,
+							'introductory_offer'    => null,
+						)
+					);
+			}
+		}
+
+		return isset( $prices[ $tier ] ) ? $prices[ $tier ] : array();
+	}
+
+	/**
+	 * Get the product pricing details
 	 *
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
+		$next_tier = self::get_next_usage_tier();
+
 		return array_merge(
 			array(
 				'available'          => true,
 				'wpcom_product_slug' => static::get_wpcom_product_slug(),
 			),
-			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
+			self::get_pricing_for_ui_by_usage_tier( $next_tier )
 		);
 	}
 
@@ -231,15 +289,32 @@ class Jetpack_Ai extends Product {
 		}
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				if ( 0 === strpos( $purchase->product_slug, static::get_wpcom_product_slug() ) ) {
+				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_product_slug() ) ) {
 					return true;
 				}
-				if ( 0 === strpos( $purchase->product_slug, static::get_wpcom_monthly_product_slug() ) ) {
+				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_monthly_product_slug() ) ) {
 					return true;
 				}
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Checks whether the product can be upgraded to a different product.
+	 *
+	 * @return boolean
+	 */
+	public static function is_upgradable() {
+		$has_required_plan = self::has_required_plan();
+		$current_tier      = self::get_current_usage_tier();
+
+		// Mark as not upgradable if user is on unlimited tier or does not have any plan.
+		if ( ! $has_required_plan || null === $current_tier || 1 === $current_tier ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

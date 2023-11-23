@@ -245,7 +245,7 @@ class Plugin {
 	 */
 	protected function is_valid_url( &$v ) {
 		$v = filter_var( $v, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED );
-		return $v && substr( $v, 0, 8 ) === 'https://';
+		return $v && str_starts_with( $v, 'https://' );
 	}
 
 	/**

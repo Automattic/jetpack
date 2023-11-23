@@ -6,10 +6,11 @@
 	import { onDestroy } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { __ } from '@wordpress/i18n';
-	import CriticalCssErrorDescription from './CriticalCssErrorDescription.svelte';
+	import CriticalCssErrorDescription from './error-description/error-description';
 	import FoldingElement from './FoldingElement.svelte';
 	import ErrorNotice from '$features/ErrorNotice.svelte';
-	import { CriticalCssState } from '$features/critical-css-state-types';
+	import { CriticalCssState } from './lib/stores/critical-css-state-types';
+	import ReactComponent from '$features/ReactComponent.svelte';
 
 	export let supportLink = 'https://wordpress.org/support/plugin/jetpack-boost/';
 	export let status: CriticalCssState[ 'status' ];
@@ -46,7 +47,8 @@
 		>
 			<div class="raw-error" transition:slide|local>
 				{#if showProviderError}
-					<CriticalCssErrorDescription
+					<ReactComponent
+						this={CriticalCssErrorDescription}
 						errorSet={primaryErrorSet}
 						showSuggestion={true}
 						showClosingParagraph={false}
