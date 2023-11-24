@@ -31,7 +31,11 @@ function setUpThickbox( button ) {
 		event.preventDefault();
 		const url = button.getAttribute( 'href' );
 		window.scrollTo( 0, 0 );
-		tb_show( null, url + '&display=alternate&TB_iframe=true', null );
+		tb_show(
+			null,
+			url + '&display=alternate&jwt_token=' + getTokenFromCookie() + '&TB_iframe=true',
+			null
+		);
 		window.addEventListener( 'message', handleIframeResult, false );
 		const tbWindow = document.querySelector( '#TB_window' );
 		tbWindow.classList.add( 'jetpack-memberships-modal' );
@@ -57,6 +61,15 @@ export const initializeMembershipButtons = selector => {
 
 		button.setAttribute( 'data-jetpack-memberships-button-initialized', 'true' );
 	} );
+};
+
+const tokenCookieName = 'jp-premium-content-session';
+const getTokenFromCookie = function () {
+	const value = `; ${ document.cookie }`;
+	const parts = value.split( `; ${ tokenCookieName } = ` );
+	if ( parts.length === 2 ) {
+		return parts.pop().split( ';' ).shift();
+	}
 };
 
 const updateQueryStringParameter = function ( uri, key, value ) {

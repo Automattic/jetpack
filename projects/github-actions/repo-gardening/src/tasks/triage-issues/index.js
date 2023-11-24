@@ -304,7 +304,7 @@ async function triageIssues( payload, octokit ) {
 				debug(
 					`triage-issues: #${ number } doesn't have a Priority set. Sending in Slack message to the Kitkat team.`
 				);
-				const message = '@kitkat-team New bug missing priority. Please do a priority assessment.';
+				const message = 'New bug missing priority. Please do a priority assessment.';
 				const slackMessageFormat = formatSlackMessage( payload, channel, message );
 				await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
 			}

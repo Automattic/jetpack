@@ -17,6 +17,9 @@ use function Automattic\Jetpack\Device_Detection\wp_unslash;
  * Class Device_Detection
  *
  * Determine if the current User Agent matches the passed $kind.
+ *
+ * Note: str_contains() and other PHP8+ functions that have a polyfill in core are not used here,
+ * as wp-includes/compat.php may not be loaded yet.
  */
 class Device_Detection {
 

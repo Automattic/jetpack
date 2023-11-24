@@ -75,6 +75,24 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
+	 * Get the current usage tier
+	 *
+	 * @return int
+	 */
+	public static function get_current_usage_tier() {
+		$info = self::get_ai_assistant_feature();
+
+		// Bail early if it's not possible to fetch the feature data.
+		if ( is_wp_error( $info ) ) {
+			return null;
+		}
+
+		$current_tier = isset( $info['current-tier']['value'] ) ? $info['current-tier']['value'] : null;
+
+		return $current_tier;
+	}
+
+	/**
 	 * Get the next usage tier
 	 *
 	 * @return int
@@ -87,20 +105,10 @@ class Jetpack_Ai extends Product {
 			return null;
 		}
 
-		$current_tier = isset( $info['current-tier']['value'] ) ? $info['current-tier']['value'] : null;
+		// Trust the next tier provided by the feature data.
+		$next_tier = isset( $info['next-tier']['value'] ) ? $info['next-tier']['value'] : null;
 
-		if ( null === $current_tier ) {
-			return 1;
-		}
-
-		// If the current tier is 1 or 500, there is no next tier.
-		if ( 1 === $current_tier || 500 === $current_tier ) {
-			return null;
-		}
-
-		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-		// return $info['next-tier']['value'];
-		return 1; // Return the unlimited tier for now.
+		return $next_tier;
 	}
 
 	/**
@@ -119,14 +127,13 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_long_description_by_usage_tier( $tier ) {
-		$long_descriptions = array(
+		$long_descriptions  = array(
 			1   => __( 'Jetpack AI Assistant brings the power of AI right into your WordPress editor, letting your content creation soar to new heights.', 'jetpack-my-jetpack' ),
 			100 => __( 'The most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' ),
-			200 => __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' ),
-			500 => __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' ),
 		);
+		$tiered_description = __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' );
 
-		return isset( $long_descriptions[ $tier ] ) ? $long_descriptions[ $tier ] : null;
+		return isset( $long_descriptions[ $tier ] ) ? $long_descriptions[ $tier ] : $tiered_description;
 	}
 
 	/**
@@ -147,7 +154,7 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_features_by_usage_tier( $tier ) {
-		$features = array(
+		$features        = array(
 			1   => array(
 				__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
 				__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
@@ -164,15 +171,13 @@ class Jetpack_Ai extends Product {
 				__( 'Priority support', 'jetpack-my-jetpack' ),
 				__( '100 requests per month', 'jetpack-my-jetpack' ),
 			),
-			200 => array(
-				__( '200 requests per month', 'jetpack-my-jetpack' ),
-			),
-			500 => array(
-				__( '500 requests per month', 'jetpack-my-jetpack' ),
-			),
+		);
+		$tiered_features = array(
+			/* translators: %d is the number of requests. */
+			sprintf( __( '%d requests per month', 'jetpack-my-jetpack' ), $tier ),
 		);
 
-		return isset( $features[ $tier ] ) ? $features[ $tier ] : array();
+		return isset( $features[ $tier ] ) ? $features[ $tier ] : $tiered_features;
 	}
 
 	/**
@@ -214,21 +219,18 @@ class Jetpack_Ai extends Product {
 			}
 		}
 
-		$tiers  = array( 100, 200, 500 );
 		$prices = array( 1 => $base_pricing );
 
-		foreach ( $tiers as $tier_value ) {
-			if ( isset( $yearly_prices[ $tier_value ] ) ) {
-					$prices[ $tier_value ] = array_merge(
-						$base_pricing,
-						array(
-							'full_price'            => $yearly_prices[ $tier_value ],
-							'discount_price'        => $yearly_prices[ $tier_value ],
-							'is_introductory_offer' => false,
-							'introductory_offer'    => null,
-						)
-					);
-			}
+		foreach ( $yearly_prices as $units => $price ) {
+			$prices[ $units ] = array_merge(
+				$base_pricing,
+				array(
+					'full_price'            => $price,
+					'discount_price'        => $price,
+					'is_introductory_offer' => false,
+					'introductory_offer'    => null,
+				)
+			);
 		}
 
 		return isset( $prices[ $tier ] ) ? $prices[ $tier ] : array();
@@ -290,6 +292,23 @@ class Jetpack_Ai extends Product {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Checks whether the product can be upgraded to a different product.
+	 *
+	 * @return boolean
+	 */
+	public static function is_upgradable() {
+		$has_required_plan = self::has_required_plan();
+		$current_tier      = self::get_current_usage_tier();
+
+		// Mark as not upgradable if user is on unlimited tier or does not have any plan.
+		if ( ! $has_required_plan || null === $current_tier || 1 === $current_tier ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

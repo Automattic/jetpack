@@ -14,7 +14,7 @@ namespace Automattic\Jetpack;
  */
 class Jetpack_Mu_Wpcom {
 
-	const PACKAGE_VERSION = '5.0.0-alpha';
+	const PACKAGE_VERSION = '5.1.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 
 	/**
@@ -66,6 +66,8 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
 
 		require_once __DIR__ . '/features/media/heif-support.php';
+
+		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 	}
 
 	/**

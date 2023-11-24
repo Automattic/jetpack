@@ -23,6 +23,7 @@ $image_data = Schema::as_assoc_array(
 		'image'        => Schema::as_assoc_array(
 			array(
 				'url'        => Schema::as_string(),
+				'fixed'      => Schema::as_boolean()->fallback( false ),
 				'dimensions' => Schema::as_assoc_array(
 					array(
 						'file'           => Schema::as_assoc_array(
@@ -112,6 +113,7 @@ $summary_schema = Schema::as_assoc_array(
 				'singular_page'   => $group_schema,
 				'singular_post'   => $group_schema,
 				'other'           => $group_schema,
+				'fixed'           => $group_schema,
 			)
 		)->nullable(),
 	)

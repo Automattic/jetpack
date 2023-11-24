@@ -65,7 +65,7 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_End
 
 		$site = $this->get_platform()->get_site( $blog_id );
 
-		if ( false !== strpos( $path, '/posts/slug:' ) ) {
+		if ( str_contains( $path, '/posts/slug:' ) ) {
 			$post_id = $site->get_post_id_by_name( $post_id );
 			if ( is_wp_error( $post_id ) ) {
 				return $post_id;

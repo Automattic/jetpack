@@ -2,7 +2,7 @@ import { TwitterPreviews } from '@automattic/social-previews';
 import { useSelect } from '@wordpress/data';
 import React from 'react';
 import { SOCIAL_STORE_ID, CONNECTION_SERVICE_TWITTER } from '../../social-store';
-import { getShareMessage } from '../../utils';
+import { usePostMeta } from '../../utils';
 
 /**
  * The twitter tab component.
@@ -16,6 +16,8 @@ import { getShareMessage } from '../../utils';
  * @returns {React.ReactNode} The twitter tab component.
  */
 function Twitter( { title, description, image, url, media } ) {
+	const { shareMessage } = usePostMeta();
+
 	const tweets = useSelect(
 		select => {
 			const {
@@ -29,7 +31,7 @@ function Twitter( { title, description, image, url, media } ) {
 					name,
 					profileImage,
 					screenName,
-					text: getShareMessage() + ( media.length ? ` ${ url }` : '' ),
+					text: shareMessage + ( media.length ? ` ${ url }` : '' ),
 					cardType: image ? 'summary_large_image' : 'summary',
 					title,
 					description,
@@ -39,7 +41,7 @@ function Twitter( { title, description, image, url, media } ) {
 				},
 			];
 		},
-		[ title, image, description, media, url ]
+		[ title, image, description, media, url, shareMessage ]
 	);
 
 	return <TwitterPreviews tweets={ tweets } hidePostPreview />;
