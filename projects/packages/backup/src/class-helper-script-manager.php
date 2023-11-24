@@ -75,16 +75,20 @@ class Helper_Script_Manager {
 
 			$upload_dir_info = \wp_upload_dir();
 
+			$abspath_dir            = realpath( \ABSPATH );
+			$wp_content_dir         = realpath( \WP_CONTENT_DIR );
+			$wp_content_uploads_dir = realpath( $upload_dir_info['basedir'] );
+
 			$install_locations = array(
 
 				// WordPress root:
-				\ABSPATH                    => \get_site_url(),
+				$abspath_dir            => \get_site_url(),
 
 				// wp-content:
-				\WP_CONTENT_DIR             => \WP_CONTENT_URL,
+				$wp_content_dir         => \WP_CONTENT_URL,
 
 				// wp-content/uploads:
-				$upload_dir_info['basedir'] => $upload_dir_info['baseurl'],
+				$wp_content_uploads_dir => $upload_dir_info['baseurl'],
 
 			);
 
