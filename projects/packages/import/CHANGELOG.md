@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.1] - 2023-11-24
 ### Changed
-- Code Modernization: Replace usage of strpos() with str_contains() [#34137]
+- Replaced usage of strpos() with str_contains(). [#34137]
 
 ## [0.8.0] - 2023-11-20
 ### Changed

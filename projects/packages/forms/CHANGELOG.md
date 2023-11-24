@@ -7,14 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.24.1] - 2023-11-24
 ### Changed
-- Code Modernization: Replace usage of strpos() with str_contains() [#34137]
-- Code Modernization: Replace usage of substr() with str_starts_with() and str_ends_with(). [#34207]
-- Fix Contact Form single and multiple choice inputs markup accessibility [#34147]
-- Forms Block: prioritize the use of form elements in the block inserter inside form blocks. [#34247]
+- Replaced usage of strpos() with str_contains(). [#34137]
+- Replaced usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+- Fixed markup accessibility issues for Contact Form's single and multiple choice inputs. [#34147]
+- Updated form blocks to prioritize the use of form elements in the block inserter. [#34247]
 
 ### Fixed
-- Improved Contact Form required label contrast [#34237]
-- Use correct sorting function in `Admin::grunion_ajax_shortcode()` [#34230]
+- Improved Contact Form required label contrast. [#34237]
+- Updated `Admin::grunion_ajax_shortcode()` to use the correct sorting function. [#34230]
 
 ## [0.24.0] - 2023-11-20
 ### Changed

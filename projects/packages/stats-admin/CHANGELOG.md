@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.14.0 - 2023-11-24
 ### Added
-- Support load scripts conditionally for Stats widget [#34284]
+- Added support to load scripts conditionally for the Stats widget. [#34284]
 
 ## 0.13.0 - 2023-11-20
 ### Changed

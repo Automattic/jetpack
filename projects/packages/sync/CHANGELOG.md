@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.0] - 2023-11-24
 ### Added
-- Add jetpack_verbum_subscription_modal setting to manage subscription modal show/hide on Verbum [#34258]
+- Added jetpack_verbum_subscription_modal setting to manage subscription modal show/hide on Verbum. [#34258]
 
 ### Fixed
-- Silence the call to `gzinflate` to avoid a few PHP warnings. [#34186]
+- Silenced the call to `gzinflate` to avoid a few PHP warnings. [#34186]
 
 ## [2.0.2] - 2023-11-21
 ### Changed

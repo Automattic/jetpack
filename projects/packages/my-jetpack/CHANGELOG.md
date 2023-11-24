@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.3] - 2023-11-24
 ### Changed
-- My Jetpack: Change Jetpack AI insterstitial contact link to Jetpack Redirect [#34252]
-- My Jetpack: Link Jetpack AI Contact Us button to support email on interstitial page [#34240]
-- My Jetpack: Remove hardcoded tiers from Jetpack AI interstitial [#34259]
-- My Jetpack: Trust next tier provided by the Jetpack AI feature endpoint. [#34239]
+- Changed Jetpack AI insterstitial contact link to Jetpack Redirect. [#34252]
+- Link Jetpack AI Contact Us button to support email on interstitial page. [#34240]
+- Removed hardcoded tiers from Jetpack AI interstitial. [#34259]
+- Trust next tier provided by the Jetpack AI feature endpoint. [#34239]
 
 ## [4.0.2] - 2023-11-21
 ### Changed

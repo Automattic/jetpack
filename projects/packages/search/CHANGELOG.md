@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.40.1] - 2023-11-24
 ### Changed
-- Code Modernization: Replace usage of strpos() with str_contains() [#34137]
-- Code Modernization: Replace usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+- Replaced usage of strpos() with str_contains(). [#34137]
+- Replaced usage of substr() with str_starts_with() and str_ends_with(). [#34207]
 
 ## [0.40.0] - 2023-11-20
 ### Changed

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.1] - 2023-11-24
 ### Changed
-- Code Modernization: add note of non-usage of PHP8+ functions yet. [#34137]
+- Added a non-usage note for PHP8+ functions. [#34137]
 
 ## [0.7.0] - 2023-11-20
 ### Changed

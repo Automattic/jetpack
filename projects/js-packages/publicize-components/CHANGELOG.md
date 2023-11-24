@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.41.7] - 2023-11-24
 ### Fixed
-- Fixed pre-publish UI reactivity for Jetpack Social [#34243]
+- Fixed pre-publish UI reactivity for Jetpack Social. [#34243]
 
 ## [0.41.6] - 2023-11-20
 ### Removed

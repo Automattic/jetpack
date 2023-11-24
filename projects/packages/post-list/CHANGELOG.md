@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.1] - 2023-11-24
 ### Changed
-- Code Modernization: Replace usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+- Replaced usage of substr() with str_starts_with() and str_ends_with(). [#34207]
 
 ## [0.5.0] - 2023-11-20
 ### Changed

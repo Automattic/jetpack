@@ -7,15 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.1.0] - 2023-11-24
 ### Added
-- Add dynamic titles to task lists [#34244]
-- Migrate Block Patterns [#34162]
+- Added dynamic titles to task lists. [#34244]
+- Migrated Block Patterns. [#34162]
 
 ### Changed
-- Code Modernization: Replace usage of strpos() with str_contains() [#34137]
-- Code Modernization: Replace usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+- Replaced usage of strpos() with str_contains(). [#34137]
+- Replaced usage of substr() with str_starts_with() and str_ends_with(). [#34207]
 
 ### Fixed
-- Prevent fatal errors when filename is empty in the heif support feature [#34062]
+- Prevented fatal errors when filename is empty in the heif support feature. [#34062]
 
 ## [5.0.0] - 2023-11-20
 ### Added
