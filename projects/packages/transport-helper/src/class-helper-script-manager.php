@@ -17,21 +17,21 @@ class Helper_Script_Manager {
 	 *
 	 * @var string
 	 */
-	private $temp_directory;
+	protected $temp_directory;
 
 	/**
 	 * How long until the helper script will "expire" and refuse taking requests, in seconds.
 	 *
 	 * @var int
 	 */
-	private $expiry_time;
+	protected $expiry_time;
 
 	/**
 	 * Maximum size of the helper script, in bytes.
 	 *
 	 * @var int
 	 */
-	private $max_filesize;
+	protected $max_filesize;
 
 	/**
 	 * Associative array of possible places to install a jetpack-temp directory, along with the URL to access each.
@@ -40,7 +40,7 @@ class Helper_Script_Manager {
 	 *
 	 * @var array
 	 */
-	private $install_locations;
+	protected $install_locations;
 
 	const HELPER_HEADER = "<?php /* Jetpack Backup Helper Script */\n";
 
@@ -241,7 +241,7 @@ class Helper_Script_Manager {
 	 *
 	 * @return bool True if the directory is deleted
 	 */
-	private function delete_empty_helper_directory( $dir ) {
+	protected function delete_empty_helper_directory( $dir ) {
 		$wp_filesystem = static::get_wp_filesystem();
 		if ( ! $wp_filesystem ) {
 			return false;
@@ -294,7 +294,7 @@ class Helper_Script_Manager {
 	 *
 	 * @return array|\WP_Error Array containing the url and path of the temp directory if successful, WP_Error if not.
 	 */
-	private function create_temp_directory() {
+	protected function create_temp_directory() {
 		$wp_filesystem = static::get_wp_filesystem();
 		if ( ! $wp_filesystem ) {
 			return new \WP_Error( 'temp_directory', 'Failed to create jetpack-temp directory' );
@@ -331,7 +331,7 @@ class Helper_Script_Manager {
 	 *
 	 * @param string $dir Path to Helper Script directory.
 	 */
-	private static function write_supplementary_temp_files( $dir ) {
+	protected static function write_supplementary_temp_files( $dir ) {
 		$readme_path = trailingslashit( $dir ) . 'README';
 		static::put_contents( $readme_path, implode( "\n\n", static::README_LINES ) );
 
@@ -347,7 +347,7 @@ class Helper_Script_Manager {
 	 *
 	 * @return bool True if successfully written.
 	 */
-	private static function put_contents( $file_path, $contents ) {
+	protected static function put_contents( $file_path, $contents ) {
 		$wp_filesystem = static::get_wp_filesystem();
 		if ( ! $wp_filesystem ) {
 			return false;
@@ -364,7 +364,7 @@ class Helper_Script_Manager {
 	 *
 	 * @return bool True if the file exists, is readable, and the header matches.
 	 */
-	private function verify_file_header( $file_path, $expected_header ) {
+	protected function verify_file_header( $file_path, $expected_header ) {
 		$wp_filesystem = static::get_wp_filesystem();
 		if ( ! $wp_filesystem ) {
 			return false;
@@ -392,7 +392,7 @@ class Helper_Script_Manager {
 	 *
 	 * @return \WP_Filesystem|null
 	 */
-	private static function get_wp_filesystem() {
+	protected static function get_wp_filesystem() {
 		global $wp_filesystem;
 
 		if ( ! $wp_filesystem ) {
