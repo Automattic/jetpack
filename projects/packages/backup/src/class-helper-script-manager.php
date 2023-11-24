@@ -137,7 +137,19 @@ class Helper_Script_Manager {
 
 		// Replace '[wp_path]' in the Helper Script with the WordPress installation location. Allows the Helper Script
 		// to find WordPress.
-		$script_body = str_replace( '[wp_path]', addslashes( ABSPATH ), $script_body );
+		$wp_path_marker = '[wp_path]';
+		$script_body = str_replace(
+			$wp_path_marker,
+			addslashes( ABSPATH ),
+			$script_body,
+			$wp_path_marker_replacement_count
+		);
+		if ( 0 === $wp_path_marker_replacement_count ) {
+			return new \WP_Error(
+				'no_wp_path_marker',
+				"Helper script does not have the '$wp_path_marker' marker"
+			);
+		}
 
 		$wp_filesystem = static::get_wp_filesystem();
 		if ( ! $wp_filesystem ) {
