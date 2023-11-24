@@ -1572,7 +1572,7 @@ function zbscrm_JS_calc_amount_due() {
 			// detect +-
 			var multiplier = 1; // gets turned to -1 if negotive ()
 
-			// got -?
+			// if there are brackets, this a credit or refund, so we are looking for a negative amount.
 			if ( v.includes( '(' ) ) {
 				v = v.replace( '(', '' ).replace( ')', '' );
 				multiplier = -1;
@@ -1581,8 +1581,8 @@ function zbscrm_JS_calc_amount_due() {
 
 			// debug console.log('amount:',[jQuery('.zbs-partial-value',ele).text(),amount_due,v]);
 
-			// do it :)
-			amount_due -= v;
+			// As a negative amount, this will be deducted from the amount due (deducting a negative = adding)
+			amount_due += v;
 		} );
 
 		jQuery( '#inv-amount-due' ).html( amount_due.toFixed( zbs_root.currencyOptions.noOfDecimals ) );

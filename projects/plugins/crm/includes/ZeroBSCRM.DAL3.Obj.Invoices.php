@@ -2772,31 +2772,30 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 									$transaction_amount = (float) $transaction['total'];
 								}
 
-								// if the transaction total amount is negative, then add the amount to the total value, and vice versa
-								if ( $transaction_amount > 0 ) {
+								switch ( $transaction['type'] ) {
 
-									switch ( $transaction['type'] ) {
+									case __( 'Sale', 'zero-bs-crm' ):
+										// these count as debits against invoice.
+										$transactions_total_value -= $transaction_amount;
 
-										case __( 'Sale', 'zero-bs-crm' ):
-											// these count as debits against invoice.
-											$transactions_total_value -= $transaction_amount;
+										break;
 
-											break;
-										case __( 'Refund', 'zero-bs-crm' ):
-										case __( 'Credit Note', 'zero-bs-crm' ):
-											// these count as credits against invoice.
-											$transactions_total_value += $transaction_amount;
-											break;
+									case __( 'Refund', 'zero-bs-crm' ):
+									case __( 'Credit Note', 'zero-bs-crm' ):
+										// these count as credits against invoice, but should be marked as negative (thus being deducted).
+										$transactions_total_value += $transaction_amount;
 
-									} // / switch on type (sale/refund)
-								}
+										break;
+
+								} // / switch on type (sale/refund)
+
 							} // / each trans
 
-							// should now have $transactions_total_valuee & $invoiceTotalValue
+							// should now have $transactionsTotalValue & $invoiceTotalValue
 							// ... so we sum + return.
 							return $invoiceTotalValue + $transactions_total_value; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                } // / if has trans
+						} // / if has trans
 
             } // / if retrieved inv
 

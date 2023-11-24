@@ -621,19 +621,22 @@ function zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id = -1, $return
 
 						// ignore if status_bool (non-completed status)
 						$partial['status_bool'] = (int) $partial['status_bool'];
-						if ( isset( $partial ) && $partial['status_bool'] == 1 && isset( $partial['total'] ) && $partial['total'] > 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-							// v3.0+ has + or - partials. Account for that:
-							if ( $partial['type_accounting'] === 'credit' ) {
-								// credit note, or refund
-								$balance = $balance + $partial['total'];
-								// add to payments
-								$payments += $partial['total'];
-							} else {
-								// assume debit
-								$balance = $balance - $partial['total'];
+						if ( isset( $partial ) && $partial['status_bool'] == 1 && isset( $partial['total'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 
-								// add to payments
-								$payments += $partial['total'];
+							switch ( $partial['type'] ) {
+								case __( 'Sale', 'zero-bs-crm' ):
+									// these count as debits against invoice.
+									$balance   = $balance - $partial['total'];
+									$payments += $partial['total'];
+
+									break;
+								case __( 'Refund', 'zero-bs-crm' ):
+								case __( 'Credit Note', 'zero-bs-crm' ):
+									// these count as credits against invoice, and should be added as a negative amount (thus being deducted).
+									$balance   = $balance + $partial['total'];
+									$payments += $partial['total'];
+
+									break;
 							}
 						}
 					} // /foreach
@@ -1092,11 +1095,10 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 
 					case __( 'Refund', 'zero-bs-crm' ):
 					case __( 'Credit Note', 'zero-bs-crm' ):
-						// these count as credits against invoice.
-						$balance = $balance - $partial['total'];
+						// these count as credits against invoice, and should be added as a negative amount (thus being deducted).
+						$balance = $balance + $partial['total'];
 						break;
-
-				} // / switch on type (sale/refund)
+				}
 
 				$partials_table .= '<tr class="total-top">';
 				$partials_table .= '<td class="bord bord-l" style="text-align:right">' . esc_html__( 'Payment', 'zero-bs-crm' ) . '<br/>(' . esc_html( $partial['ref'] ) . ')</td>';
