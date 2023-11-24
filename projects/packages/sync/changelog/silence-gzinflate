@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Silence the call to `gzinflate` to avoid a few PHP warnings.

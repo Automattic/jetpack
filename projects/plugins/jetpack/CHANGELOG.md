@@ -2,6 +2,33 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.9-a.11 - 2023-11-24
+### Enhancements
+- Adjust UpgradeNudge for tier plans [#34254]
+- Allow non wpcom sites to be suggested [#34112]
+- Display subscribers count on pre/post publish panels [#34267]
+- Prevent caching paywalled content [#34242]
+- Subscribe modal: apply dismissal cookie domain wide [#34245]
+
+### Bug fixes
+- Fix block name usage when unregistering Paywall block [#34274]
+- RNMobile: Revert setting default for video blocks added on mobile. [#34271]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add feature flag for new like widget layout. [#34264]
+- Add jetpack_verbum_subscription_modal setting to manage subscription modal show/hide on Verbum [#34258]
+- Add the latest tier plans for 750 and 1000 requests [#34270]
+- Add tier enabled filter status to the ai-feature payload. Include on the ai-assistant data store. [#34260]
+- Blocks: remove Beta Amazon block. [#34228]
+- Code Modernization: Replace usage of strpos() with str_contains() [#34137]
+- Code modernization: Replace usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+- fix paywall switch account on simple sites [#34250]
+- Introduce enable-tier-plans-ui beta flag [#34221]
+- Jetpack AI: Fix the Usage Panel upgrade button text to change depending on the next tier available. [#34251]
+- Jetpack AI: Handle Contact Us button on the Usage Panel when the site is a Simple or Atomic site. [#34273]
+- Odyssey Stats widget: only load scripts when the widget is visible [#34284]
+- Reuse email on memberships checkout form when recently subscribed but not logged in. [#34084]
+
 ## 12.9-a.9 - 2023-11-21
 ### Bug fixes
 - Fixed all Google font definitions being printed in the head, instead only printing fonts that are used in global styles or required by block settings. [#34157]

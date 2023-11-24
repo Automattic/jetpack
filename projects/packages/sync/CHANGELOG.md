@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2023-11-24
+### Added
+- Add jetpack_verbum_subscription_modal setting to manage subscription modal show/hide on Verbum [#34258]
+
+### Fixed
+- Silence the call to `gzinflate` to avoid a few PHP warnings. [#34186]
+
 ## [2.0.2] - 2023-11-21
 ### Changed
 - Replaced usage of strpos() with str_contains(). [#34137]
@@ -976,6 +983,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[2.1.0]: https://github.com/Automattic/jetpack-sync/compare/v2.0.2...v2.1.0
 [2.0.2]: https://github.com/Automattic/jetpack-sync/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/Automattic/jetpack-sync/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/Automattic/jetpack-sync/compare/v1.60.1...v2.0.0
