@@ -48,17 +48,17 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 	}
 
 	/**
-	 *  Returns a mock of Block_Patterns_Utils.
+	 *  Returns a mock of Wpcom_Block_Patterns_Utils.
 	 *
-	 * @param array      $pattern_mock_response     What we want Block_Patterns_Utils->remote_get() to return.
-	 * @param bool|array $cache_get                 What we want Block_Patterns_Utils->cache_get() to return.
-	 * @param bool       $cache_add                 What we want Block_Patterns_Utils->cache_add() to return.
-	 * @param string     $get_patterns_cache_key    What we want Block_Patterns_Utils->get_patterns_cache_key() to return.
-	 * @param string     $get_block_patterns_locale What we want Block_Patterns_Utils->get_block_patterns_locale() to return.
+	 * @param array      $pattern_mock_response     What we want Wpcom_Block_Patterns_Utils->remote_get() to return.
+	 * @param bool|array $cache_get                 What we want Wpcom_Block_Patterns_Utils->cache_get() to return.
+	 * @param bool       $cache_add                 What we want Wpcom_Block_Patterns_Utils->cache_add() to return.
+	 * @param string     $get_patterns_cache_key    What we want Wpcom_Block_Patterns_Utils->get_patterns_cache_key() to return.
+	 * @param string     $get_block_patterns_locale What we want Wpcom_Block_Patterns_Utils->get_block_patterns_locale() to return.
 	 * @return obj PHP Unit mock object.
 	 */
 	public function createBlockPatternsUtilsMock( $pattern_mock_response, $cache_get = false, $cache_add = true, $get_patterns_cache_key = 'key-largo', $get_block_patterns_locale = 'fr' ) {
-		$mock = $this->createMock( Block_Patterns_Utils::class );
+		$mock = $this->createMock( Wpcom_Block_Patterns_Utils::class );
 
 		$mock->method( 'remote_get' )
 			->willReturn( $pattern_mock_response );
