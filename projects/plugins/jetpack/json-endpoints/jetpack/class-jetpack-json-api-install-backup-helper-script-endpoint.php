@@ -68,17 +68,20 @@ class Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint extends Jetpack_JSO
 	 */
 	protected function install() {
 		$helper_script_manager = new Helper_Script_Manager();
-		$this->result = $helper_script_manager->install_helper_script( $this->helper_script );
+		$this->result          = $helper_script_manager->install_helper_script( $this->helper_script );
 		$helper_script_manager->cleanup_expired_helper_scripts();
 	}
 
 	/**
-	 * Returns the result of Helper Script installation. Returns one of:
-	 * - WP_Error on failure, or
-	 * - An array containing the access url ('url'), installation path ('path'), and WordPress root ('abspath') on
-	 *   success.
+	 * Return the success or failure of the backup helper script installation operation.
 	 *
-	 * @return array|WP_Error Success or failure information.
+	 * @return array|WP_Error An array with installation info on success:
+	 *
+	 *   'path'    (string) Helper script installation path on the filesystem.
+	 *   'url'     (string) URL to the helper script.
+	 *   'abspath' (string) WordPress root.
+	 *
+	 *   or an instance of WP_Error on failure.
 	 */
 	protected function result() {
 		return $this->result;

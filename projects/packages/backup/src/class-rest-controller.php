@@ -218,12 +218,14 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @return array|WP_Error Returns the result of Helper Script installation. Returns one of:
-	 * - WP_Error on failure, or
-	 * - An array with installation info on success:
-	 *  'path'    (string) The sinstallation path.
-	 *  'url'     (string) The access url.
-	 *  'abspath' (string) The abspath.
+	 *
+	 * @return array|WP_Error Array with installation info on success:
+	 *
+	 *   'path'    (string) Helper script installation path on the filesystem.
+	 *   'url'     (string) URL to the helper script.
+	 *   'abspath' (string) WordPress root.
+	 *
+	 *   or an instance of WP_Error on failure.
 	 */
 	public static function install_backup_helper_script( $request ) {
 		$helper_script = $request->get_param( 'helper' );
