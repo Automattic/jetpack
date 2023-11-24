@@ -8,7 +8,7 @@ export type UpgradeTypeProp = 'vip' | 'default';
 
 export type TierUnlimitedProps = {
 	slug: 'ai-assistant-tier-unlimited';
-	limit: number;
+	limit: 999999999;
 	value: 1;
 	readableLimit: string;
 };
@@ -37,6 +37,18 @@ export type Tier500Props = {
 	value: 500;
 };
 
+export type Tier750Props = {
+	slug: 'ai-assistant-tier-750';
+	limit: 750;
+	value: 750;
+};
+
+export type Tier1000Props = {
+	slug: 'ai-assistant-tier-1000';
+	limit: 1000;
+	value: 1000;
+};
+
 export type TierProp = {
 	slug: TierSlugProp;
 	limit: TierLimitProp;
@@ -49,21 +61,27 @@ export type TierLimitProp =
 	| TierFreeProps[ 'limit' ]
 	| Tier100Props[ 'limit' ]
 	| Tier200Props[ 'limit' ]
-	| Tier500Props[ 'limit' ];
+	| Tier500Props[ 'limit' ]
+	| Tier750Props[ 'limit' ]
+	| Tier1000Props[ 'limit' ];
 
 export type TierSlugProp =
 	| TierUnlimitedProps[ 'slug' ]
 	| TierFreeProps[ 'slug' ]
 	| Tier100Props[ 'slug' ]
 	| Tier200Props[ 'slug' ]
-	| Tier500Props[ 'slug' ];
+	| Tier500Props[ 'slug' ]
+	| Tier750Props[ 'slug' ]
+	| Tier1000Props[ 'slug' ];
 
 export type TierValueProp =
 	| TierUnlimitedProps[ 'value' ]
 	| TierFreeProps[ 'value' ]
 	| Tier100Props[ 'value' ]
 	| Tier200Props[ 'value' ]
-	| Tier500Props[ 'value' ];
+	| Tier500Props[ 'value' ]
+	| Tier750Props[ 'value' ]
+	| Tier1000Props[ 'value' ];
 
 export type AiFeatureProps = {
 	hasFeature: boolean;

@@ -456,6 +456,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
 						'subscription_options'             => (array) get_option( 'subscription_options' ),
+						'jetpack_verbum_subscription_modal' => (bool) get_option( 'jetpack_verbum_subscription_modal', true ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -747,6 +748,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'jetpack_portfolio':
 				case 'jetpack_comment_likes_enabled':
 				case 'wpcom_reader_views_enabled':
+				case 'jetpack_verbum_subscription_modal':
 					// settings are stored as 1|0.
 					$coerce_value = (int) $value;
 					if ( update_option( $key, $coerce_value ) ) {
