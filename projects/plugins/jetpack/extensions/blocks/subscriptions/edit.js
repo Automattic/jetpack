@@ -331,7 +331,7 @@ const withThemeProvider = WrappedComponent => props => (
 
 export default compose( [
 	withSelect( select => {
-		const newsletterPlans = select( 'jetpack/membership-products' )?.getNewsletterProducts();
+		const newsletterPlans = select( 'jetpack/membership-products' )?.getNewsletterTierProducts();
 		return {
 			hasTierPlans: newsletterPlans?.length !== 0,
 		};

@@ -27,6 +27,7 @@ import {
 } from './constants';
 import {
 	getFormattedCategories,
+	getFormattedSubscriptionsCount,
 	getShowMisconfigurationWarning,
 	MisconfigurationWarning,
 } from './utils';
@@ -80,8 +81,10 @@ export function useSetTier() {
 
 function TierSelector() {
 	// TODO: figure out how to handle different currencies
-	const products = useSelect( select => select( membershipProductsStore ).getProducts() )
-		.filter( product => product.subscribe_as_site_subscriber && product.interval === '1 month' )
+	const products = useSelect( select =>
+		select( membershipProductsStore ).getNewsletterTierProducts()
+	)
+		.filter( product => product.interval === '1 month' )
 		.sort( ( p1, p2 ) => Number( p2.price ) - Number( p1.price ) );
 
 	// Find the current tier meta
@@ -188,7 +191,7 @@ export function NewsletterAccessRadioButtons( {
 
 export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 	const { hasTierPlans, stripeConnectUrl, isLoading, foundPaywallBlock } = useSelect( select => {
-		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
+		const { getNewsletterTierProducts, getConnectUrl, isApiStateLoading } = select(
 			'jetpack/membership-products'
 		);
 		const { getBlocks } = select( 'core/block-editor' );
@@ -196,7 +199,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 		return {
 			isLoading: isApiStateLoading(),
 			stripeConnectUrl: getConnectUrl(),
-			hasTierPlans: getNewsletterProducts()?.length !== 0,
+			hasTierPlans: getNewsletterTierProducts()?.length !== 0,
 			foundPaywallBlock: getBlocks().find( block => block.name === paywallBlockMetadata.name ),
 		};
 	} );
@@ -285,7 +288,7 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 	const { isLoading, postHasPaywallBlock, newsletterCategories, newsletterCategoriesEnabled } =
 		useSelect( select => {
 			const {
-				getNewsletterProducts,
+				getNewsletterTierProducts,
 				getConnectUrl,
 				isApiStateLoading,
 				getNewsletterCategories,
@@ -296,7 +299,7 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 			return {
 				isLoading: isApiStateLoading(),
 				stripeConnectUrl: getConnectUrl(),
-				hasTierPlans: getNewsletterProducts()?.length !== 0,
+				hasTierPlans: getNewsletterTierProducts()?.length !== 0,
 				postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockMetadata.name ),
 				newsletterCategories: getNewsletterCategories(),
 				newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
@@ -307,6 +310,12 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 	const postCategories = useSelect( select =>
 		select( editorStore ).getEditedPostAttribute( 'categories' )
 	);
+
+	const subscriptionsCount = useSelect( select => {
+		return select( 'jetpack/membership-products' ).getNewsletterCategoriesSubscriptionsCount(
+			postCategories
+		);
+	} );
 
 	if ( isLoading ) {
 		return (
@@ -325,13 +334,16 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 		}
 		if ( newsletterCategoriesEnabled && newsletterCategories.length ) {
 			const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
+			const formattedSubscriptionsCount = getFormattedSubscriptionsCount( subscriptionsCount );
+			const categoryNamesAndSubscriptionsCount =
+				formattedCategoryNames + formattedSubscriptionsCount;
 
 			if ( formattedCategoryNames ) {
 				return createInterpolateElement(
 					sprintf(
-						// translators: %1$s: list of categories names
+						// translators: %1$s is the list of categories with subscriptions count
 						__( 'This post will be sent to everyone subscribed to %1$s.', 'jetpack' ),
-						formattedCategoryNames
+						categoryNamesAndSubscriptionsCount
 					),
 					{ strong: <strong /> }
 				);

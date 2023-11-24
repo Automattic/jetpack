@@ -127,6 +127,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'page_on_front'                           => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
 			'page_for_posts'                          => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
 			'subscription_options'                    => '(array) Array of three options used in subscription email templates: \'invitation\', \'welcome\' and \'comment_follow\' strings.',
+			'jetpack_verbum_subscription_modal'       => '(bool) Whether Subscription modal is enabled in Verbum comments',
 		),
 
 		'response_format' => array(
