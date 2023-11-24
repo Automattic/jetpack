@@ -255,7 +255,7 @@ class Helper_Script_Manager {
 				if ( is_array( $helper_scripts ) ) {
 					foreach ( $helper_scripts as $entry ) {
 						if (
-							preg_match( '/^jp-helper-*\.php$/', $entry['name'] ) &&
+							preg_match( '/^jp-helper-.*\.php$/', $entry['name'] ) &&
 							( null === $expiry_time || $entry['lastmodunix'] < $expiry_time )
 						) {
 							$this->delete_helper_script( trailingslashit( $temp_dir ) . $entry['name'] );
