@@ -14,6 +14,7 @@ import {
 	SocialImageGeneratorPanel,
 	PostPublishReviewPrompt,
 	PostPublishOneClickSharing,
+	SyncPostDataToStore,
 } from '@automattic/jetpack-publicize-components';
 import {
 	JetpackEditorPanelLogo,
@@ -63,6 +64,7 @@ const PublicizeSettings = () => {
 
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
+			<SyncPostDataToStore />
 			<JetpackPluginSidebar>
 				<PublicizePanel>
 					<UpsellNotice />
