@@ -2,7 +2,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo } from '@wordpress/element';
 import { getShareMessageMaxLength } from './get-share-message-max-length';
-import { useSyncPostDataToStore } from './use-sync-post-data-to-store';
 
 /**
  * Returns the post meta values.
@@ -11,7 +10,6 @@ import { useSyncPostDataToStore } from './use-sync-post-data-to-store';
  */
 export function usePostMeta() {
 	const { editPost } = useDispatch( editorStore );
-	useSyncPostDataToStore();
 
 	const metaValues = useSelect( select => {
 		const meta = select( editorStore ).getEditedPostAttribute( 'meta' ) || {};
