@@ -829,4 +829,16 @@ class Launchpad_Task_Lists {
 	private function disable_fullscreen_launchpad() {
 		return update_option( 'launchpad_screen', 'off' );
 	}
+
+	/**
+	 * Gets the title for a task list.
+	 *
+	 * @param string $id Task list id.
+	 * @return string|null The title for the task list.
+	 */
+	public function get_task_list_title( $id ) {
+		$task_list = $this->get_task_list( $id );
+
+		return $this->load_value_from_callback( $task_list, 'get_title', null );
+	}
 }
