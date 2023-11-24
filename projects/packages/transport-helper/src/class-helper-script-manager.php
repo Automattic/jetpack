@@ -119,13 +119,17 @@ class Helper_Script_Manager {
 	 */
 	public function install_helper_script( $script_body ) {
 		// Check that the script body contains the correct header.
-		if ( strncmp( $script_body, static::HELPER_HEADER, strlen( static::HELPER_HEADER ) ) !== 0 ) {
-			return new \WP_Error( 'invalid_helper', 'Invalid Helper Script header' );
+		if ( 0 !== strncmp( $script_body, static::HELPER_HEADER, strlen( static::HELPER_HEADER ) ) ) {
+			return new \WP_Error( 'invalid_header', 'Invalid helper script header' );
 		}
 
 		// Refuse to install a Helper Script that is too large.
-		if ( strlen( $script_body ) > $this->max_filesize ) {
-			return new \WP_Error( 'invalid_helper', 'Invalid Helper Script size' );
+		$helper_script_size = strlen( $script_body );
+		if ( $helper_script_size > $this->max_filesize ) {
+			return new \WP_Error(
+				'too_big',
+				"Helper script is bigger ($helper_script_size bytes) than the max. size ($this->max_filesize bytes)"
+			);
 		}
 
 		// Replace '[wp_path]' in the Helper Script with the WordPress installation location. Allows the Helper Script
