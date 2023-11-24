@@ -182,19 +182,23 @@ export default function reducer( state = INITIAL_STATE, action ) {
 		}
 
 		case ACTION_SET_AI_ASSISTANT_FEATURE_REQUIRE_UPGRADE: {
-			return { ...state };
-			// return {
-			// 	...state,
-			// 	features: {
-			// 		...state.features,
-			// 		aiAssistant: {
-			// 			...state.features.aiAssistant,
-			// 			requireUpgrade: action.requireUpgrade,
-			// 			hasFeature: ! action.requireUpgrade, // If we require an upgrade, we don't have the feature.
-			// 			isOverLimit: true, // If we require an upgrade, we are over the limit.
-			// 		},
-			// 	},
-			// };
+			/*
+			 * If we require an upgrade, we are also over the limit;
+			 * The opposite is not true, we can be over the limit without
+			 * requiring an upgrade, for example when we are on the highest tier.
+			 * In this case, we don't want to set isOverLimit to false.
+			 */
+			return {
+				...state,
+				features: {
+					...state.features,
+					aiAssistant: {
+						...state.features.aiAssistant,
+						requireUpgrade: action.requireUpgrade,
+						...( action.requireUpgrade ? { isOverLimit: true } : {} ),
+					},
+				},
+			};
 		}
 
 		case ACTION_SET_TIER_PLANS_ENABLED: {
