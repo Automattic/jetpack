@@ -63,7 +63,7 @@ class Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint extends Jetpack_JSON
 	 */
 	protected function delete() {
 		$helper_script_manager = new Helper_Script_Manager();
-		$this->result = $helper_script_manager->delete_helper_script( $this->script_path );
+		$this->result          = $helper_script_manager->delete_helper_script( $this->script_path );
 		$helper_script_manager->cleanup_expired_helper_scripts();
 	}
 
