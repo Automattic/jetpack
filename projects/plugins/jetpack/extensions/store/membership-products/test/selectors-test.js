@@ -3,7 +3,6 @@ import {
 	getNewsletterCategoriesEnabled,
 	getNewsletterTierProducts,
 	getNewsletterCategoriesSubscriptionsCount,
-	getNewsletterProducts,
 	getProducts,
 } from '../selectors';
 
