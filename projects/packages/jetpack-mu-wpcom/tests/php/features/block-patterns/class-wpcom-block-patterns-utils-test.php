@@ -1,6 +1,6 @@
 <?php
 /**
- * Test class for Block_Patterns_Utils.
+ * Test class for Wpcom_Block_Patterns_Utils.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -8,16 +8,16 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\TestCase;
 
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/block-patterns/class-block-patterns-utils.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/block-patterns/class-wpcom-block-patterns-utils.php';
 
 /**
- * Class Block_Patterns_Utils_Test
+ * Class Wpcom_Block_Patterns_Utils_Test
  */
-class Block_Patterns_Utils_Test extends TestCase {
+class Wpcom_Block_Patterns_Utils_Test extends TestCase {
 	/**
-	 * Block_Patterns_Utils
+	 * Wpcom_Block_Patterns_Utils
 	 *
-	 * @var Block_Patterns_Utils
+	 * @var Wpcom_Block_Patterns_Utils
 	 */
 	protected $utils;
 
@@ -28,7 +28,7 @@ class Block_Patterns_Utils_Test extends TestCase {
 	 */
 	public function custom_setup() {
 		parent::setUp();
-		$this->utils = new Block_Patterns_Utils();
+		$this->utils = new Wpcom_Block_Patterns_Utils();
 	}
 
 	/**
