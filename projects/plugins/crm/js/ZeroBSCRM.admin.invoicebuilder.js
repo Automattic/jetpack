@@ -1581,8 +1581,12 @@ function zbscrm_JS_calc_amount_due() {
 
 			// debug console.log('amount:',[jQuery('.zbs-partial-value',ele).text(),amount_due,v]);
 
-			// As a negative amount, this will be deducted from the amount due (deducting a negative = adding)
-			amount_due += v;
+			// if v is a negative number, add to amount_due, otherwise, deduct.
+			if ( v < 0 ) {
+				amount_due += v;
+			} else {
+				amount_due -= v;
+			}
 		} );
 
 		jQuery( '#inv-amount-due' ).html( amount_due.toFixed( zbs_root.currencyOptions.noOfDecimals ) );

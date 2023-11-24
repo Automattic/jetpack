@@ -632,8 +632,14 @@ function zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id = -1, $return
 									break;
 								case __( 'Refund', 'zero-bs-crm' ):
 								case __( 'Credit Note', 'zero-bs-crm' ):
-									// these count as credits against invoice, and should be added as a negative amount (thus being deducted).
-									$balance   = $balance + $partial['total'];
+									// These count as credits against invoice, and should be added.
+									// If inputted as negative, then add that amount.
+									if ( str_starts_with( $partial['total'], '-' ) ) {
+										$balance = $balance + $partial['total'];
+									} else {
+										// If inputted as positive, then subtract that amount.
+										$balance = $balance - $partial['total'];
+									}
 									$payments += $partial['total'];
 
 									break;
@@ -1095,9 +1101,16 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 
 					case __( 'Refund', 'zero-bs-crm' ):
 					case __( 'Credit Note', 'zero-bs-crm' ):
-						// these count as credits against invoice, and should be added as a negative amount (thus being deducted).
-						$balance = $balance + $partial['total'];
+						// These count as credits against invoice, and should be added.
+						// If inputted as negative, then add that amount.
+						if ( str_starts_with( $partial['total'], '-' ) ) {
+							$balance = $balance + $partial['total'];
+						} else {
+							// If inputted as positive, then subtract that amount.
+							$balance = $balance - $partial['total'];
+						}
 						break;
+
 				}
 
 				$partials_table .= '<tr class="total-top">';
