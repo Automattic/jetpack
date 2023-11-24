@@ -267,7 +267,7 @@ class Helper_Script_Manager {
 				}
 
 				// Delete the directory if it's empty now.
-				$this->delete_empty_helper_directory( $temp_dir );
+				$this->delete_helper_directory_if_empty( $temp_dir );
 			}
 		}
 	}
@@ -279,7 +279,7 @@ class Helper_Script_Manager {
 	 *
 	 * @return bool True if the directory is deleted
 	 */
-	protected function delete_empty_helper_directory( $dir ) {
+	protected function delete_helper_directory_if_empty( $dir ) {
 		$wp_filesystem = static::get_wp_filesystem();
 		if ( ! $wp_filesystem ) {
 			return false;
