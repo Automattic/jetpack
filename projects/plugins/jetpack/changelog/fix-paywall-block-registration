@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix block name usage when unregistering Paywall block
