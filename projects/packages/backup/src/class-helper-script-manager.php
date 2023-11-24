@@ -118,7 +118,8 @@ class Helper_Script_Manager {
 	 *
 	 * @param string $script_body Helper Script file contents.
 	 *
-	 * @return array|\WP_Error Either an array containing the path and url of the helper script, or an error.
+	 * @return array|\WP_Error Either an array containing the filesystem path ("path"), the URL ("url") of the helper
+	 *   script, and the WordPress root ("abspath"), or an instance of WP_Error.
 	 */
 	public function install_helper_script( $script_body ) {
 		// Check that the script body contains the correct header.
@@ -187,8 +188,9 @@ class Helper_Script_Manager {
 
 				// Success! Figure out the URL and return the path and URL.
 				return array(
-					'path' => $file_path,
-					'url'  => trailingslashit( $temp_directory['url'] ) . $file_name,
+					'path'    => $file_path,
+					'url'     => trailingslashit( $temp_directory['url'] ) . $file_name,
+					'abspath' => realpath( ABSPATH )
 				);
 			}
 		}

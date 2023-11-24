@@ -238,11 +238,6 @@ class REST_Controller {
 		$installation_info = $helper_script_manager->install_helper_script( $helper_script );
 		$helper_script_manager->cleanup_expired_helper_scripts();
 
-		// Include ABSPATH with successful result.
-		if ( ! is_wp_error( $installation_info ) ) {
-			$installation_info['abspath'] = ABSPATH;
-		}
-
 		return rest_ensure_response( $installation_info );
 	}
 
