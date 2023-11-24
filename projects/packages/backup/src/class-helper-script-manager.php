@@ -140,7 +140,7 @@ class Helper_Script_Manager {
 		$wp_path_marker = '[wp_path]';
 		$script_body = str_replace(
 			$wp_path_marker,
-			addslashes( ABSPATH ),
+			addslashes( realpath( ABSPATH ) ),
 			$script_body,
 			$wp_path_marker_replacement_count
 		);
