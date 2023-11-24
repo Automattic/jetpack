@@ -427,7 +427,7 @@ EOF
 				$ret = ChangeEntry::compare( $a, $b, $sortConfig );
 				if ( 0 === $ret ) {
 					// Stability.
-					$ret = array_search( $a, $changes, true ) - array_search( $b, $changes, true );
+					$ret = array_search( $a, $changes, true ) <=> array_search( $b, $changes, true );
 				}
 				return $ret;
 			}

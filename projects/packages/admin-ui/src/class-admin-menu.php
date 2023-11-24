@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.3.0';
+	const PACKAGE_VERSION = '0.3.1-alpha';
 
 	/**
 	 * Whether this class has been initialized
@@ -104,7 +104,7 @@ class Admin_Menu {
 			function ( $a, $b ) {
 				$position_a = empty( $a['position'] ) ? 0 : $a['position'];
 				$position_b = empty( $b['position'] ) ? 0 : $b['position'];
-				$result     = $position_a - $position_b;
+				$result     = $position_a <=> $position_b;
 
 				if ( 0 === $result ) {
 					$result = strcmp( $a['menu_title'], $b['menu_title'] );
