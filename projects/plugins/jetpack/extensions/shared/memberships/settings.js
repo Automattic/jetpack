@@ -27,6 +27,7 @@ import {
 } from './constants';
 import {
 	getFormattedCategories,
+	getFormattedSubscriptionsCount,
 	getShowMisconfigurationWarning,
 	MisconfigurationWarning,
 } from './utils';
@@ -310,6 +311,12 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 		select( editorStore ).getEditedPostAttribute( 'categories' )
 	);
 
+	const subscriptionsCount = useSelect( select => {
+		return select( 'jetpack/membership-products' ).getNewsletterCategoriesSubscriptionsCount(
+			postCategories
+		);
+	} );
+
 	if ( isLoading ) {
 		return (
 			<Flex direction="column" align="center">
@@ -327,13 +334,16 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 		}
 		if ( newsletterCategoriesEnabled && newsletterCategories.length ) {
 			const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
+			const formattedSubscriptionsCount = getFormattedSubscriptionsCount( subscriptionsCount );
+			const categoryNamesAndSubscriptionsCount =
+				formattedCategoryNames + formattedSubscriptionsCount;
 
 			if ( formattedCategoryNames ) {
 				return createInterpolateElement(
 					sprintf(
-						// translators: %1$s: list of categories names
+						// translators: %1$s is the list of categories with subscriptions count
 						__( 'This post will be sent to everyone subscribed to %1$s.', 'jetpack' ),
-						formattedCategoryNames
+						categoryNamesAndSubscriptionsCount
 					),
 					{ strong: <strong /> }
 				);
