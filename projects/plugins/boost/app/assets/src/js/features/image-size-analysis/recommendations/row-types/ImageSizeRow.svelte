@@ -50,6 +50,7 @@
 
 		<div class="jb-table-row__hover-content">
 			<TableRowHover
+				{details}
 				device_type={details.device_type}
 				edit_url={details.page.edit_url}
 				instructions={details.instructions}

@@ -11,11 +11,6 @@
 			return;
 		}
 
-		var adminbarBlogMenuList = adminbar.querySelector( '#wp-admin-bar-blog > .ab-sub-wrapper ul' );
-		if ( ! adminbarBlogMenuList ) {
-			return;
-		}
-
 		function setAriaExpanded( value ) {
 			var anchors = adminbar.querySelectorAll( '#wp-admin-bar-blog a' );
 			for ( var i = 0; i < anchors.length; i++ ) {
@@ -23,32 +18,35 @@
 			}
 		}
 
-		setFocusOnActiveMenuItem();
-		setAriaExpanded( 'false' );
+		var adminbarBlogMenuList = adminbar.querySelector( '#wp-admin-bar-blog > .ab-sub-wrapper ul' );
+		if ( adminbarBlogMenuList ) {
+			setFocusOnActiveMenuItem();
+			setAriaExpanded( 'false' );
 
-		var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog' );
-		// Toggle sidebar when toggle is clicked.
-		if ( adminbarBlog ) {
-			adminbarBlog.addEventListener( 'click', function ( event ) {
-				event.preventDefault();
+			var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog' );
+			// Toggle sidebar when toggle is clicked.
+			if ( adminbarBlog ) {
+				adminbarBlog.addEventListener( 'click', function ( event ) {
+					event.preventDefault();
 
-				// Close any open toolbar submenus.
-				var hovers = adminbar.querySelectorAll( '.hover' );
-				for ( var i = 0; i < hovers.length; i++ ) {
-					hovers[ i ].classList.remove( 'hover' );
-				}
-
-				wpwrap.classList.toggle( 'wp-responsive-open' );
-				if ( wpwrap.classList.contains( 'wp-responsive-open' ) ) {
-					setAriaExpanded( 'true' );
-					var first = document.querySelector( '#adminmenu a' );
-					if ( first ) {
-						first.focus();
+					// Close any open toolbar submenus.
+					var hovers = adminbar.querySelectorAll( '.hover' );
+					for ( var i = 0; i < hovers.length; i++ ) {
+						hovers[ i ].classList.remove( 'hover' );
 					}
-				} else {
-					setAriaExpanded( 'false' );
-				}
-			} );
+
+					wpwrap.classList.toggle( 'wp-responsive-open' );
+					if ( wpwrap.classList.contains( 'wp-responsive-open' ) ) {
+						setAriaExpanded( 'true' );
+						var first = document.querySelector( '#adminmenu a' );
+						if ( first ) {
+							first.focus();
+						}
+					} else {
+						setAriaExpanded( 'false' );
+					}
+				} );
+			}
 		}
 
 		if ( adminMenu ) {

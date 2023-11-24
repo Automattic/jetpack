@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Use correct sorting function in `Admin::grunion_ajax_shortcode()`

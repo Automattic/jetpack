@@ -332,17 +332,10 @@ class Jetpack_AI_Helper {
 	 * @return mixed
 	 */
 	public static function get_ai_assistance_feature() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
-		// Try to pick the AI Assistant feature from cache.
-		$transient_name = self::transient_name_for_ai_assistance_feature( $blog_id );
-		$cache          = get_transient( $transient_name );
-		if ( $cache ) {
-			return $cache;
-		}
-
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$has_ai_assistant_feature = \wpcom_site_has_feature( 'ai-assistant' );
+			// On WPCOM, we can get the ID from the site.
+			$blog_id                  = get_current_blog_id();
+			$has_ai_assistant_feature = \wpcom_site_has_feature( 'ai-assistant', $blog_id );
 
 			if ( ! class_exists( 'WPCOM\Jetpack_AI\Usage\Helper' ) ) {
 				if ( is_readable( WP_CONTENT_DIR . '/lib/jetpack-ai/usage/helper.php' ) ) {
@@ -355,13 +348,25 @@ class Jetpack_AI_Helper {
 				}
 			}
 
-			$blog_id        = get_current_blog_id();
-			$is_over_limit  = WPCOM\Jetpack_AI\Usage\Helper::is_over_limit( $blog_id );
-			$requests_limit = WPCOM\Jetpack_AI\Usage\Helper::get_free_requests_limit( $blog_id );
-			$requests_count = WPCOM\Jetpack_AI\Usage\Helper::get_all_time_requests_count( $blog_id );
+			$is_over_limit = WPCOM\Jetpack_AI\Usage\Helper::is_over_limit( $blog_id );
 
-			// Check if the site requires an upgrade.
-			$require_upgrade = $is_over_limit && ! $has_ai_assistant_feature;
+			/**
+			 * Check if the site requires an upgrade.
+			 *
+			 * The site will require an upgrade when it's
+			 * over the limit of requests, be it the free
+			 * allowance of the current tier allowance.
+			 *
+			 * Previously, we were checking if the site
+			 * does not have the AI Assistant feature,
+			 * meaning we only checked the free limit.
+			 *
+			 * With tiered plans, we need to check if the
+			 * site is over the limit even when it has the
+			 * feature, and this is now handled by Helper::is_over_limit.
+			 * site-require-upgrade/$require_upgrade remains for backward compatibility.
+			 */
+			$require_upgrade = $is_over_limit;
 
 			// Determine the upgrade type
 			$upgrade_type = wpcom_is_vip( $blog_id ) ? 'vip' : 'default';
@@ -369,15 +374,26 @@ class Jetpack_AI_Helper {
 			return array(
 				'has-feature'          => $has_ai_assistant_feature,
 				'is-over-limit'        => $is_over_limit,
-				'requests-count'       => $requests_count,
-				'requests-limit'       => $requests_limit,
+				'requests-count'       => WPCOM\Jetpack_AI\Usage\Helper::get_all_time_requests_count( $blog_id ),
+				'requests-limit'       => WPCOM\Jetpack_AI\Usage\Helper::get_free_requests_limit( $blog_id ),
 				'usage-period'         => WPCOM\Jetpack_AI\Usage\Helper::get_period_data( $blog_id ),
 				'site-require-upgrade' => $require_upgrade,
 				'upgrade-type'         => $upgrade_type,
 				'current-tier'         => WPCOM\Jetpack_AI\Usage\Helper::get_current_tier( $blog_id ),
 				'next-tier'            => WPCOM\Jetpack_AI\Usage\Helper::get_next_tier( $blog_id ),
 				'tier-plans'           => WPCOM\Jetpack_AI\Usage\Helper::get_tier_plans_list(),
+				'tier-plans-enabled'   => WPCOM\Jetpack_AI\Usage\Helper::ai_tier_plans_enabled(),
 			);
+		}
+
+		// Outside of WPCOM, we need to fetch the data from the site.
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		// Try to pick the AI Assistant feature from cache.
+		$transient_name = self::transient_name_for_ai_assistance_feature( $blog_id );
+		$cache          = get_transient( $transient_name );
+		if ( $cache ) {
+			return $cache;
 		}
 
 		$request_path = sprintf( '/sites/%d/jetpack-ai/ai-assistant-feature', $blog_id );

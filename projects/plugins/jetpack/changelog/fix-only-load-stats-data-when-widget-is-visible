@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Odyssey Stats widget: only load scripts when the widget is visible

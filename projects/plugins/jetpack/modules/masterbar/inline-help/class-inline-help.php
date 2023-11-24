@@ -34,7 +34,7 @@ class Inline_Help {
 		$is_framed = ! empty( $_GET['frame-nonce'] );
 
 		// Do not inject the FAB icon on Yoast screens to avoid overlap with the Yoast help icon.
-		$is_yoast = ! empty( $current_screen->base ) && false !== strpos( $current_screen->base, '_page_wpseo_' );
+		$is_yoast = ! empty( $current_screen->base ) && str_contains( $current_screen->base, '_page_wpseo_' );
 
 		if ( $is_framed || $is_yoast ) {
 			return;

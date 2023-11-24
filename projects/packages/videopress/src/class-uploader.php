@@ -57,7 +57,7 @@ class Uploader {
 		if ( ! $file_path || ! is_readable( $file_path ) ) {
 			return false;
 		}
-		if ( 0 !== strpos( get_post_mime_type( $attachment_id ), 'video/' ) ) {
+		if ( ! str_starts_with( get_post_mime_type( $attachment_id ), 'video/' ) ) {
 			return false;
 		}
 		return true;
@@ -124,7 +124,7 @@ class Uploader {
 	 * @return boolean
 	 */
 	public function file_has_supported_mime_type() {
-		return 0 === strpos( $this->get_file_mime_type(), 'video/' );
+		return str_starts_with( $this->get_file_mime_type(), 'video/' );
 	}
 
 	/**

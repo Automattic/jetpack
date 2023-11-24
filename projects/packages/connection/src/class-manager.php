@@ -278,7 +278,7 @@ class Manager {
 		$jetpack_methods = array();
 
 		foreach ( $methods as $method => $callback ) {
-			if ( 0 === strpos( $method, 'jetpack.' ) ) {
+			if ( str_starts_with( $method, 'jetpack.' ) ) {
 				$jetpack_methods[ $method ] = $callback;
 			}
 		}
@@ -445,7 +445,7 @@ class Manager {
 			$post_data   = $_POST;
 			$file_hashes = array();
 			foreach ( $post_data as $post_data_key => $post_data_value ) {
-				if ( 0 !== strpos( $post_data_key, '_jetpack_file_hmac_' ) ) {
+				if ( ! str_starts_with( $post_data_key, '_jetpack_file_hmac_' ) ) {
 					continue;
 				}
 				$post_data_key                 = substr( $post_data_key, strlen( '_jetpack_file_hmac_' ) );
@@ -1192,7 +1192,7 @@ class Manager {
 			$jetpack_public = false;
 		}
 
-		\Jetpack_Options::update_options(
+		Jetpack_Options::update_options(
 			array(
 				'id'     => (int) $registration_details->jetpack_id,
 				'public' => $jetpack_public,
@@ -1202,6 +1202,13 @@ class Manager {
 		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, $package_versions );
 
 		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
+
+		if ( ! Jetpack_Options::get_option( 'id' ) || ! $this->get_tokens()->get_access_token() ) {
+			return new WP_Error(
+				'connection_data_save_failed',
+				'Failed to save connection data in the database'
+			);
+		}
 
 		$alternate_authorization_url = isset( $registration_details->alternate_authorization_url ) ? $registration_details->alternate_authorization_url : '';
 
