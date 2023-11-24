@@ -72,15 +72,22 @@ class Helper_Script_Manager {
 		$max_filesize = 1024 * 1024
 	) {
 		if ( $install_locations === null ) {
-			// Include WordPress root and wp-content.
+
+			$upload_dir_info = \wp_upload_dir();
+
 			$install_locations = array(
-				\ABSPATH        => \get_site_url(),
-				\WP_CONTENT_DIR => \WP_CONTENT_URL,
+
+				// WordPress root:
+				\ABSPATH                    => \get_site_url(),
+
+				// wp-content:
+				\WP_CONTENT_DIR             => \WP_CONTENT_URL,
+
+				// wp-content/uploads:
+				$upload_dir_info['basedir'] => $upload_dir_info['baseurl'],
+
 			);
 
-			// Include uploads folder.
-			$upload_dir_info                                  = \wp_upload_dir();
-			$install_locations[ $upload_dir_info['basedir'] ] = $upload_dir_info['baseurl'];
 		}
 
 		$this->temp_directory    = $temp_directory;
