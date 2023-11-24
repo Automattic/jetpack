@@ -250,7 +250,7 @@ class Helper_Script_Manager {
 	 *
 	 * @param int|null $expiry_time If specified, only delete scripts older than $expiry_time.
 	 */
-	public function cleanup_helper_scripts( $expiry_time = null ) {
+	protected function cleanup_helper_scripts( $expiry_time = null ) {
 		$wp_filesystem = static::get_wp_filesystem();
 		if ( ! $wp_filesystem ) {
 			return;
