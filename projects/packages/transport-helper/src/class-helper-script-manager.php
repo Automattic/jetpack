@@ -217,7 +217,14 @@ class Helper_Script_Manager {
 			return false;
 		}
 
-		return $wp_filesystem->delete( $path );
+		if ( $wp_filesystem->delete( $path ) ) {
+			// Delete the directory if it's empty now.
+			$temp_dir = dirname( $path );
+			$this->delete_helper_directory_if_empty( $temp_dir );
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
