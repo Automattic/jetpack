@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react';
 import { store as coreStore } from '@wordpress/core-data';
 import { createRegistry, RegistryProvider, WPDataRegistry } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { store as socialStore } from '../../social-store';
 import { usePostMeta } from '../use-post-meta';
 
 const postId = 44;
@@ -60,6 +61,7 @@ function createRegistryWithStores() {
 	// Register stores.
 	registry.register( coreStore );
 	registry.register( editorStore );
+	registry.register( socialStore );
 
 	// Register post type entity.
 	registry.dispatch( coreStore ).addEntities( [ postTypeConfig ] );
