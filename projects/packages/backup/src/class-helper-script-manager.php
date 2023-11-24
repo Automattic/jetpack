@@ -139,7 +139,7 @@ class Helper_Script_Manager {
 		// Replace '[wp_path]' in the Helper Script with the WordPress installation location. Allows the Helper Script
 		// to find WordPress.
 		$wp_path_marker = '[wp_path]';
-		$script_body = str_replace(
+		$script_body    = str_replace(
 			$wp_path_marker,
 			addslashes( realpath( ABSPATH ) ),
 			$script_body,
@@ -190,7 +190,7 @@ class Helper_Script_Manager {
 				return array(
 					'path'    => $file_path,
 					'url'     => trailingslashit( $temp_directory['url'] ) . $file_name,
-					'abspath' => realpath( ABSPATH )
+					'abspath' => realpath( ABSPATH ),
 				);
 			}
 		}
