@@ -59,17 +59,17 @@ class Helper_Script_Manager {
 	/**
 	 * Create Helper Script Manager.
 	 *
+	 * @param array|null $install_locations Associative array of possible places to install a jetpack-temp directory,
+	 *   along with the URL to access each.
 	 * @param string     $temp_directory Name of a directory that will be created for storing the helper script.
 	 * @param int        $expiry_time How long until the helper script will "expire" and refuse taking requests, in seconds.
 	 * @param int        $max_filesize Maximum size of the helper script, in bytes.
-	 * @param array|null $install_locations Associative array of possible places to install a jetpack-temp directory,
-	 *   along with the URL to access each.
 	 */
 	public function __construct(
+		$install_locations = null,
 		$temp_directory = 'jetpack-temp',
 		$expiry_time = 60 * 60 * 8,
-		$max_filesize = 1024 * 1024,
-		$install_locations = null
+		$max_filesize = 1024 * 1024
 	) {
 		if ( $install_locations === null ) {
 			// Include WordPress root and wp-content.
