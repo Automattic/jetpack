@@ -180,13 +180,11 @@ const setDefaultProductIfNeeded = ( selectedProductId, setSelectedProductId, sel
 	}
 };
 
-export const getNewsletterProducts = (
+export const getNewsletterTierProducts = (
 	productType = PRODUCT_TYPE_PAYMENT_PLAN,
 	selectedProductId = 0,
 	setSelectedProductId = () => {}
-) =>
-	// Returns the products, but silences the snack bar if a default product is created
-	getProducts( productType, selectedProductId, setSelectedProductId, false );
+) => getProducts( productType, selectedProductId, setSelectedProductId, false );
 
 export const getProducts =
 	(

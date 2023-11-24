@@ -13,7 +13,7 @@ export const getProductsNoResolver = state => getProducts( state );
 export const getProduct = ( state, productId ) =>
 	getProducts( state ).find( product => product.id === productId );
 
-export const getNewsletterProducts = state =>
+export const getNewsletterTierProducts = state =>
 	state.products.filter( product => product.type === TYPE_TIER );
 
 export const getSiteSlug = state => state.siteSlug;

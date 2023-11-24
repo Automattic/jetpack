@@ -9,10 +9,10 @@ import useAutosaveAndRedirect from '../../use-autosave-and-redirect';
 
 export default function PlansSetupDialog( { showDialog, closeDialog } ) {
 	const { hasNewsletterPlans } = useSelect( select => {
-		const { getNewsletterProducts, getConnectUrl } = select( 'jetpack/membership-products' );
+		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
 		return {
 			stripeConnectUrl: getConnectUrl(),
-			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
+			hasNewsletterPlans: getNewsletterTierProducts()?.length !== 0,
 		};
 	} );
 
