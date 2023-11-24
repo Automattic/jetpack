@@ -28,5 +28,5 @@ export function useSyncPostDataToStore() {
 				mergeConnections( freshConnections );
 			}
 		}
-	}, [] );
+	} );
 }
