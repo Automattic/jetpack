@@ -10,6 +10,7 @@ import Text from '../text';
 /**
  * Internal dependencies
  */
+import ThemeProvider from '../theme-provider';
 import styles from './styles.module.scss';
 /**
  * Types
@@ -60,44 +61,46 @@ const ActionPopover = ( {
 
 	return (
 		<Popover { ...popoverProps }>
-			<div className={ styles.wrapper }>
-				<div className={ styles.header }>
-					<Text variant="title-small" className={ styles.title }>
-						{ title }
-					</Text>
-					{ ! hideCloseButton && (
-						<>
-							<Button
-								size="small"
-								variant="tertiary"
-								aria-label="close"
-								className={ styles[ 'close-button' ] }
-								icon={ close }
-								iconSize={ 16 }
-								onClick={ onClose }
-							/>
-						</>
-					) }
-				</div>
-				{ children }
-				<div className={ styles.footer }>
-					{ showSteps && (
-						<Text variant="body" className={ styles.steps }>
-							{ stepsText }
+			<ThemeProvider>
+				<div className={ styles.wrapper }>
+					<div className={ styles.header }>
+						<Text variant="title-small" className={ styles.title }>
+							{ title }
 						</Text>
-					) }
-					<Button
-						variant="primary"
-						className={ styles[ 'action-button' ] }
-						disabled={ buttonDisabled }
-						onClick={ onClick }
-						isExternalLink={ buttonExternalLink }
-						href={ buttonHref }
-					>
-						{ buttonContent }
-					</Button>
+						{ ! hideCloseButton && (
+							<>
+								<Button
+									size="small"
+									variant="tertiary"
+									aria-label="close"
+									className={ styles[ 'close-button' ] }
+									icon={ close }
+									iconSize={ 16 }
+									onClick={ onClose }
+								/>
+							</>
+						) }
+					</div>
+					{ children }
+					<div className={ styles.footer }>
+						{ showSteps && (
+							<Text variant="body" className={ styles.steps }>
+								{ stepsText }
+							</Text>
+						) }
+						<Button
+							variant="primary"
+							className={ styles[ 'action-button' ] }
+							disabled={ buttonDisabled }
+							onClick={ onClick }
+							isExternalLink={ buttonExternalLink }
+							href={ buttonHref }
+						>
+							{ buttonContent }
+						</Button>
+					</div>
 				</div>
-			</div>
+			</ThemeProvider>
 		</Popover>
 	);
 };

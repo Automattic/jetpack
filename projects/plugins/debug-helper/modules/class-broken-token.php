@@ -128,7 +128,7 @@ class Broken_Token {
 	 * @param string $hook Called hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( strpos( $hook, 'jetpack-debug_page_broken-token' ) === 0 ) {
+		if ( str_starts_with( $hook, 'jetpack-debug_page_broken-token' ) ) {
 			wp_enqueue_style( 'broken_token_style', plugin_dir_url( __FILE__ ) . 'inc/css/broken-token.css', array(), JETPACK_DEBUG_HELPER_VERSION );
 			wp_enqueue_script( 'broken_token_script', plugin_dir_url( __FILE__ ) . 'inc/js/broken-token.js', array(), JETPACK_DEBUG_HELPER_VERSION, true );
 		}

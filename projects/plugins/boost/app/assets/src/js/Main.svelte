@@ -1,10 +1,10 @@
 <script lang="ts">
-	import AdvancedCriticalCss from './pages/critical-css-advanced/CriticalCssAdvanced.svelte';
-	import GettingStarted from './pages/getting-started/GettingStarted.svelte';
+	import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
+	import GettingStarted from './pages/getting-started/getting-started';
 	import RecommendationsPage from './pages/image-size-analysis/ImageSizeAnalysis.svelte';
 	import Index from './pages/index/Index.svelte';
 	import PurchaseSuccess from './pages/purchase-success/purchase-success';
-	import Upgrade from './pages/upgrade/Upgrade.svelte';
+	import Upgrade from './pages/upgrade/upgrade';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Redirect from '$features/Redirect.svelte';
 	import SettingsPage from '$layout/SettingsPage/SettingsPage.svelte';
@@ -44,18 +44,19 @@
 </script>
 
 <Router history={routerHistory}>
-	<Route path="upgrade" let:location let:navigate>
-		<Upgrade {location} {navigate} {pricing} {siteDomain} {userConnected} />
+	<Route path="upgrade">
+		<ReactComponent this={Upgrade} {pricing} {siteDomain} {userConnected} />
 	</Route>
 
-	<Route
-		path="getting-started"
-		component={GettingStarted}
-		{userConnected}
-		{pricing}
-		{isPremium}
-		domain={siteDomain}
-	/>
+	<Route path="getting-started">
+		<ReactComponent
+			this={GettingStarted}
+			{userConnected}
+			{pricing}
+			{isPremium}
+			domain={siteDomain}
+		/>
+	</Route>
 
 	<Route path="purchase-successful">
 		<ReactComponent this={PurchaseSuccess} {isImageGuideActive} />
@@ -64,7 +65,7 @@
 	<Route path="critical-css-advanced">
 		<Redirect when={shouldGetStarted} to="/getting-started">
 			<SettingsPage>
-				<AdvancedCriticalCss issues={$criticalCssIssues} />
+				<ReactComponent this={AdvancedCriticalCss} issues={$criticalCssIssues} />
 			</SettingsPage>
 		</Redirect>
 	</Route>
