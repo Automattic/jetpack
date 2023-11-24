@@ -43,9 +43,10 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 			'/top-posts',
 			array(
 				array(
-					'methods'  => WP_REST_Server::READABLE,
-					'callback' => array( $this, 'get_top_posts' ),
-					'args'     => array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_top_posts' ),
+					'permission_callback' => '__return_true',
+					'args'                => array(
 						'period' => array(
 							'description'       => __( 'Timeframe for stats.', 'jetpack' ),
 							'type'              => array( 'string', 'integer' ),
