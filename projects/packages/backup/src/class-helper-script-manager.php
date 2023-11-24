@@ -75,20 +75,33 @@ class Helper_Script_Manager {
 
 			$upload_dir_info = \wp_upload_dir();
 
-			$abspath_dir            = realpath( \ABSPATH );
-			$wp_content_dir         = realpath( \WP_CONTENT_DIR );
-			$wp_content_uploads_dir = realpath( $upload_dir_info['basedir'] );
+			$abspath_dir    = realpath( \ABSPATH );
+			$wp_content_dir = realpath( \WP_CONTENT_DIR );
+			$wp_uploads_dir = realpath( $upload_dir_info['basedir'] );
+
+			$abspath_url    = \get_site_url();
+			$wp_content_url = \WP_CONTENT_URL;
+			$wp_uploads_url = $upload_dir_info['baseurl'];
+
+			// I think we mess up the order in which we load things somewhere in a test, so "wp-content" and
+			// "wp-content/uploads/" URLs don't actually have the scheme+host part in them.
+			if ( ! wp_http_validate_url( $wp_content_url ) ) {
+				$wp_content_url = $abspath_url . $wp_content_url;
+			}
+			if ( ! wp_http_validate_url( $wp_uploads_url ) ) {
+				$wp_uploads_url = $abspath_url . $wp_uploads_url;
+			}
 
 			$install_locations = array(
 
 				// WordPress root:
-				$abspath_dir            => \get_site_url(),
+				$abspath_dir    => $abspath_url,
 
 				// wp-content:
-				$wp_content_dir         => \WP_CONTENT_URL,
+				$wp_content_dir => $wp_content_url,
 
 				// wp-content/uploads:
-				$wp_content_uploads_dir => $upload_dir_info['baseurl'],
+				$wp_uploads_dir => $wp_uploads_url,
 
 			);
 
