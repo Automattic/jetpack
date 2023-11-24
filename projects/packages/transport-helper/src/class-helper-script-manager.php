@@ -38,7 +38,7 @@ class Helper_Script_Manager {
 	 *
 	 * Keys specify the full path of install locations, and values point to the equivalent URL.
 	 *
-	 * @var array
+	 * @var array|null
 	 */
 	protected $install_locations;
 
@@ -57,7 +57,7 @@ class Helper_Script_Manager {
 	 * Create Helper Script Manager.
 	 *
 	 * @param array|null $install_locations Associative array of possible places to install a jetpack-temp directory,
-	 *    along with the URL to access each.
+	 *   along with the URL to access each.
 	 * @param string     $temp_directory Name of a directory that will be created for storing the helper script.
 	 * @param int        $expiry_time How long until the helper script will "expire" and refuse taking requests, in seconds.
 	 * @param int        $max_filesize Maximum size of the helper script, in bytes.
@@ -68,6 +68,23 @@ class Helper_Script_Manager {
 		$expiry_time = 60 * 60 * 8,
 		$max_filesize = 1024 * 1024
 	) {
+		$this->temp_directory    = $temp_directory;
+		$this->expiry_time       = $expiry_time;
+		$this->max_filesize      = $max_filesize;
+		$this->install_locations = $install_locations;
+	}
+
+	/**
+	 * Get either the default install locations, or the ones configured in the constructor.
+	 *
+	 * Has to be done late, i.e. can't be done in constructor, because in __construct() not all constants / functions
+	 * might be available.
+	 *
+	 * @return array Keys specify the full path of install locations, and values point to the equivalent URL.
+	 */
+	private function get_install_locations() {
+		$install_locations = $this->install_locations;
+
 		if ( $install_locations === null ) {
 
 			$upload_dir_info = \wp_upload_dir();
@@ -104,10 +121,7 @@ class Helper_Script_Manager {
 
 		}
 
-		$this->temp_directory    = $temp_directory;
-		$this->expiry_time       = $expiry_time;
-		$this->max_filesize      = $max_filesize;
-		$this->install_locations = $install_locations;
+		return $install_locations;
 	}
 
 	/**
@@ -253,7 +267,7 @@ class Helper_Script_Manager {
 			return;
 		}
 
-		foreach ( $this->install_locations as $directory => $url ) {
+		foreach ( $this->get_install_locations() as $directory => $url ) {
 			$temp_dir = trailingslashit( $directory ) . $this->temp_directory;
 
 			if ( $wp_filesystem->is_dir( $temp_dir ) ) {
@@ -342,7 +356,7 @@ class Helper_Script_Manager {
 			return new \WP_Error( 'temp_directory', 'Failed to create jetpack-temp directory' );
 		}
 
-		foreach ( $this->install_locations as $directory => $url ) {
+		foreach ( $this->get_install_locations() as $directory => $url ) {
 			// Check if the installation location is writeable.
 			if ( ! $wp_filesystem->is_writable( $directory ) ) {
 				continue;
