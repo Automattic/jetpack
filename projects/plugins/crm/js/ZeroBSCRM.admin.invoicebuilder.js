@@ -1569,20 +1569,20 @@ function zbscrm_JS_calc_amount_due() {
 			// get
 			var v = jQuery( '.zbs-partial-value', ele ).text();
 
-			// detect +-
-			var multiplier = 1; // gets turned to -1 if negotive ()
+			var label = jQuery( '.zlabel', ele ).text();
 
-			// if there are brackets, this a credit or refund, so we are looking for a negative amount.
+			// detect +-
+			var multiplier = 1; // gets turned to -1 if negative ()
+
+			// got -?
 			if ( v.includes( '(' ) ) {
 				v = v.replace( '(', '' ).replace( ')', '' );
 				multiplier = -1;
 			}
 			v = parseFloat( v ) * multiplier;
 
-			// debug console.log('amount:',[jQuery('.zbs-partial-value',ele).text(),amount_due,v]);
-
-			// if v is a negative number, add to amount_due, otherwise, deduct.
-			if ( v < 0 ) {
+			// if v is a negative number and also a Credit or Refund, add to amount_due, otherwise, deduct.
+			if ( v < 0 && ( label.includes( 'Refund' ) || label.includes( 'Credit' ) ) ) {
 				amount_due += v;
 			} else {
 				amount_due -= v;
