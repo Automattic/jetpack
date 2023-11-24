@@ -104,7 +104,7 @@ const useUpgradeButtonText = ( planType: PlanType, nextTierRequestLimit: number 
  * Helper to get the Contact Us URL
  * @returns {object} an object with the Contact Us URL, the autosaveAndRedirect function and a boolean indicating if we are redirecting
  */
-const useAIContactUs = (): {
+const useContactUsLink = (): {
 	contactUsURL: string;
 	autosaveAndRedirectContactUs: () => void;
 	isRedirectingContactUs: boolean;
@@ -121,7 +121,7 @@ const useAIContactUs = (): {
 
 export default function UsagePanel() {
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
-	const { contactUsURL, autosaveAndRedirectContactUs } = useAIContactUs();
+	const { contactUsURL, autosaveAndRedirectContactUs } = useContactUsLink();
 	const canUpgrade = canUserPurchasePlan();
 
 	// fetch usage data
