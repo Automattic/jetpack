@@ -235,7 +235,7 @@ class REST_Controller {
 		}
 
 		$helper_script_manager = new Helper_Script_Manager();
-		$installation_info = $helper_script_manager->install_helper_script( $helper_script );
+		$installation_info     = $helper_script_manager->install_helper_script( $helper_script );
 		$helper_script_manager->cleanup_expired_helper_scripts();
 
 		return rest_ensure_response( $installation_info );
@@ -254,7 +254,7 @@ class REST_Controller {
 		$path_to_helper_script = $request->get_param( 'path' );
 
 		$helper_script_manager = new Helper_Script_Manager();
-		$deleted = $helper_script_manager->delete_helper_script( $path_to_helper_script );
+		$deleted               = $helper_script_manager->delete_helper_script( $path_to_helper_script );
 		$helper_script_manager->cleanup_expired_helper_scripts();
 
 		return rest_ensure_response(
