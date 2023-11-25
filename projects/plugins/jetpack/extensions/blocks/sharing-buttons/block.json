@@ -68,11 +68,5 @@
 				"padding": false
 			}
 		}
-	},
-	"styles": [
-		{ "name": "default", "label": "Icon & Text", "isDefault": true },
-		{ "name": "icon-only", "label": "Icon Only" },
-		{ "name": "text-only", "label": "Text Only" },
-		{ "name": "official-buttons", "label": "Official Buttons" }
-	]
+	}
 }

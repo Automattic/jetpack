@@ -17,6 +17,7 @@ const variations = [
 		name: 'linkedin',
 		attributes: { service: 'linkedin' },
 		title: 'LinkedIn',
+		isDefault: true,
 		icon: <SocialIcon icon={ 'linkedin' } size={ 24 } />,
 	},
 	{

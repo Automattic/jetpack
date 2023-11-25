@@ -10,7 +10,9 @@ export function SharingButtonsEdit( props ) {
 
 	const { styleType } = attributes;
 
-	const SharingButtonsPlaceholder = <li>{ __( 'Click plus to add', 'jetpack' ) }</li>;
+	const SharingButtonsPlaceholder = (
+		<li>{ __( 'Click plus to add a Sharing Button', 'jetpack' ) }</li>
+	);
 
 	const className = 'jetpack-sharing-buttons__services-list';
 

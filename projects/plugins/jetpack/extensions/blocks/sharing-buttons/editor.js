@@ -7,4 +7,26 @@ import './style.scss';
 registerJetpackBlockFromMetadata( metadata, {
 	edit,
 	save,
+	example: {
+		innerBlocks: [
+			{
+				name: 'jetpack/sharing-button',
+				attributes: {
+					service: 'facebook',
+				},
+			},
+			{
+				name: 'jetpack/sharing-button',
+				attributes: {
+					service: 'x',
+				},
+			},
+			{
+				name: 'jetpack/sharing-button',
+				attributes: {
+					service: 'mastodon',
+				},
+			},
+		],
+	},
 } );
