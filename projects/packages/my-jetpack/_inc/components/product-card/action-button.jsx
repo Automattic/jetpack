@@ -56,11 +56,7 @@ const ActionButton = ( {
 			case PRODUCT_STATUSES.ABSENT_WITH_PLAN: {
 				const buttonText =
 					status === PRODUCT_STATUSES.ABSENT
-						? sprintf(
-								/* translators: placeholder is product name. */
-								__( 'Get %s', 'jetpack-my-jetpack' ),
-								name
-						  )
+						? __( 'Learn more', 'jetpack-my-jetpack' )
 						: sprintf(
 								/* translators: placeholder is product name. */
 								__( 'Install %s', 'jetpack-my-jetpack' ),
@@ -113,9 +109,7 @@ const ActionButton = ( {
 					onClick: onAdd,
 				};
 			case PRODUCT_STATUSES.ACTIVE: {
-				const viewText = __( 'View', 'jetpack-my-jetpack' );
-				const manageText = __( 'Manage', 'jetpack-my-jetpack' );
-				const buttonText = purchaseUrl ? viewText : manageText;
+				const buttonText = __( 'View', 'jetpack-my-jetpack' );
 
 				return {
 					...buttonState,
