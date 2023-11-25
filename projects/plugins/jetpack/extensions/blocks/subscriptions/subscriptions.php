@@ -11,7 +11,6 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack;
@@ -807,7 +806,7 @@ function add_paywall( $the_content ) {
 	}
 
 	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-	$token_service              = is_wpcom() ? new WPCOM_Token_Subscription_Service() : new Jetpack_Token_Subscription_Service();
+	$token_service              = is_wpcom() ? new Jetpack_Token_Subscription_Service() : new Jetpack_Token_Subscription_Service();
 	$token                      = $token_service->get_and_set_token_from_request();
 	$payload                    = $token_service->decode_token( $token );
 	$is_valid_token             = ! empty( $payload );

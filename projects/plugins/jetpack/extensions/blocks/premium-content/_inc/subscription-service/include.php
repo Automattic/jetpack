@@ -20,7 +20,6 @@ require_once __DIR__ . '/class-unconfigured-subscription-service.php';
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Unconfigured_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 
 const PAYWALL_FILTER = 'earn_premium_content_subscription_service';
 
@@ -70,8 +69,8 @@ function default_service( $service ) {
 		return new WPCOM_Online_Subscription_Service();
 	}
 
-	if ( WPCOM_Token_Subscription_Service::available() ) {
-		return new WPCOM_Token_Subscription_Service();
+	if ( Jetpack_Token_Subscription_Service::available() ) {
+		return new Jetpack_Token_Subscription_Service();
 	}
 
 	if ( Jetpack_Token_Subscription_Service::available() ) {
