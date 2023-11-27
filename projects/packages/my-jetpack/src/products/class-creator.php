@@ -164,10 +164,6 @@ class Creator extends Product {
                         <p>Sites that are part of the creator network can gain exposure to new readers. Sites on the Creator plan have enhanced distribution to more areas of the Reader.</p>',
 						'jetpack-my-jetpack'
 					),
-					'link'    => array(
-						'id'    => 'jetpack-boost-lazy-load',
-						'title' => 'web.dev',
-					),
 				),
 				'tiers' => array(
 					self::FREE_TIER_SLUG     => array( 'included' => true ),
