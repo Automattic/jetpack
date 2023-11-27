@@ -829,12 +829,11 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 			message: `Found ${ totalProjects.length } project(s) that need a changelog. Create a changelog for each one?`,
 		};
 	} else if ( defaultProjects.length > 0 && uniqueProjects.length === 0 ) {
-		console.log( "Where I'm supposed to be" );
-		/* sameChangelog: Found N projects. Same to all? */
+		/* sameChangelogFiles: Found N projects. Same to all? */
 		prompts = [
 			{
 				type: 'confirm',
-				name: 'sameChangelog',
+				name: 'sameChangelogFiles',
 				message: `Found ${ defaultProjects.length } project(s) that need a changelog. Create and add the same changelog to all of them?`,
 			},
 			/* separateChangelogFiles: (else) For each individually? */
@@ -842,15 +841,15 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 				type: 'confirm',
 				name: 'separateChangelogFiles',
 				message: 'Create changelog for each project individually?',
-				when: answers => ! answers.sameChangelog,
+				when: answers => ! answers.sameChangelogFiles,
 			},
 		];
 	} else {
-		/* sameChangelog: Found N projects that can use the same changelog and M that need individual ones. Same to the N? */
+		/* sameChangelogFiles: Found N projects that can use the same changelog and M that need individual ones. Same to the N? */
 		prompts = [
 			{
 				type: 'confirm',
-				name: 'sameChangelog',
+				name: 'sameChangelogFiles',
 				message: `Found ${ defaultProjects.length } project(s) that can accept the same changelog and ${ uniqueProjects.length } project(s) that need individual ones. Create and add the same changelog to the ones we're able?`,
 			},
 			/* separateChangelogFiles: (else) For each individually? */
@@ -858,7 +857,7 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 				type: 'confirm',
 				name: 'separateChangelogFiles',
 				message: 'Create a changelog for each project individually?',
-				when: answers => ! answers.sameChangelog,
+				when: answers => ! answers.sameChangelogFiles,
 			},
 		];
 	}
