@@ -15,8 +15,11 @@ const SharingButtonsView = ( { attributes } ) => {
 	const socialLinkName = getNameBySite( service );
 	const socialLinkLabel = label ?? socialLinkName;
 
-	/* translators: %s refers to a string representation of sharing service, e.g. Facebook  */
-	const linkAriaLabel = sprintf( __( 'Share on %s', 'jetpack' ), socialLinkName );
+	const linkAriaLabel = sprintf(
+		/* translators: %s refers to a string representation of sharing service, e.g. Facebook  */
+		__( 'Share on %s', 'jetpack', /* dummy arg to avoid bad minification */ 0 ),
+		socialLinkName
+	);
 
 	return (
 		<li className="jetpack-sharing-button__list-item">
