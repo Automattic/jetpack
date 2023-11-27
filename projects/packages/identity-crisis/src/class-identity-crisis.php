@@ -91,7 +91,7 @@ class Identity_Crisis {
 
 		add_filter( 'jetpack_remote_request_url', array( $this, 'add_idc_query_args_to_url' ) );
 
-		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_secret_to_url_validation_response' ), 10, 2 );
+		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_secret_to_url_validation_response' ) );
 
 		add_filter( 'jetpack_options', array( static::class, 'reverse_wpcom_urls_for_idc' ) );
 
@@ -1332,18 +1332,15 @@ class Identity_Crisis {
 	 * Adds `url_secret_error` in case of an error.
 	 *
 	 * @param array $response The endpoint response that we're modifying.
-	 * @param bool  $verify_secret If true, we will not generate new secret, and rely on the existing one.
 	 *
 	 * @return array
 	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- The exception is being caught, false positive.
 	 */
-	public static function add_secret_to_url_validation_response( array $response, $verify_secret = false ) {
+	public static function add_secret_to_url_validation_response( array $response ) {
 		try {
 			$secret = new URL_Secret();
 
-			if ( ! $verify_secret || ! $secret->exists() ) {
-				$secret->create();
-			}
+			$secret->create();
 
 			if ( $secret->exists() ) {
 				$response['url_secret'] = $secret->get_secret();
