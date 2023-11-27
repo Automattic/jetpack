@@ -15,33 +15,29 @@ class Helper_Script_Manager {
 
 	/**
 	 * Name of a directory that will be created for storing the helper script.
-	 *
-	 * @var string
 	 */
-	protected $temp_directory;
+	const TEMP_DIRECTORY = 'jetpack-temp';
 
 	/**
 	 * How long until the helper script will "expire" and refuse taking requests, in seconds.
-	 *
-	 * @var int
 	 */
-	protected $expiry_time;
+	const EXPIRY_TIME = 60 * 60 * 8;
 
 	/**
 	 * Maximum size of the helper script, in bytes.
-	 *
-	 * @var int
 	 */
-	protected $max_filesize;
+	const MAX_FILESIZE = 1024 * 1024;
 
 	/**
 	 * Associative array of possible places to install a jetpack-temp directory, along with the URL to access each.
 	 *
 	 * Keys specify the full path of install locations, and values point to the equivalent URL.
 	 *
+	 * If null, then install locations will be determined dynamically at the point of an install.
+	 *
 	 * @var array|null
 	 */
-	protected $install_locations;
+	protected $custom_install_locations;
 
 	const HELPER_HEADER = "<?php /* Jetpack Backup Helper Script */\n";
 
@@ -59,22 +55,11 @@ class Helper_Script_Manager {
 	/**
 	 * Create Helper Script Manager.
 	 *
-	 * @param array|null $install_locations Associative array of possible places to install a jetpack-temp directory,
-	 *   along with the URL to access each.
-	 * @param string     $temp_directory Name of a directory that will be created for storing the helper script.
-	 * @param int        $expiry_time How long until the helper script will "expire" and refuse taking requests, in seconds.
-	 * @param int        $max_filesize Maximum size of the helper script, in bytes.
+	 * @param array|null $custom_install_locations Associative array of possible places to install a jetpack-temp
+	 *   directory, along with the URL to access each.
 	 */
-	public function __construct(
-		$install_locations = null,
-		$temp_directory = 'jetpack-temp',
-		$expiry_time = 60 * 60 * 8,
-		$max_filesize = 1024 * 1024
-	) {
-		$this->temp_directory    = $temp_directory;
-		$this->expiry_time       = $expiry_time;
-		$this->max_filesize      = $max_filesize;
-		$this->install_locations = $install_locations;
+	public function __construct( $custom_install_locations = null ) {
+		$this->custom_install_locations = $custom_install_locations;
 	}
 
 	/**
@@ -85,46 +70,42 @@ class Helper_Script_Manager {
 	 *
 	 * @return array Keys specify the full path of install locations, and values point to the equivalent URL.
 	 */
-	private function get_install_locations() {
-		$install_locations = $this->install_locations;
-
-		if ( $install_locations === null ) {
-
-			$upload_dir_info = \wp_upload_dir();
-
-			$abspath_dir    = realpath( \ABSPATH );
-			$wp_content_dir = realpath( \WP_CONTENT_DIR );
-			$wp_uploads_dir = realpath( $upload_dir_info['basedir'] );
-
-			$abspath_url    = \get_site_url();
-			$wp_content_url = \WP_CONTENT_URL;
-			$wp_uploads_url = $upload_dir_info['baseurl'];
-
-			// I think we mess up the order in which we load things somewhere in a test, so "wp-content" and
-			// "wp-content/uploads/" URLs don't actually have the scheme+host part in them.
-			if ( ! wp_http_validate_url( $wp_content_url ) ) {
-				$wp_content_url = $abspath_url . $wp_content_url;
-			}
-			if ( ! wp_http_validate_url( $wp_uploads_url ) ) {
-				$wp_uploads_url = $abspath_url . $wp_uploads_url;
-			}
-
-			$install_locations = array(
-
-				// WordPress root:
-				$abspath_dir    => $abspath_url,
-
-				// wp-content:
-				$wp_content_dir => $wp_content_url,
-
-				// wp-content/uploads:
-				$wp_uploads_dir => $wp_uploads_url,
-
-			);
-
+	public function install_locations() {
+		if ( $this->custom_install_locations !== null ) {
+			return $this->custom_install_locations;
 		}
 
-		return $install_locations;
+		$upload_dir_info = \wp_upload_dir();
+
+		$abspath_dir    = realpath( \ABSPATH );
+		$wp_content_dir = realpath( \WP_CONTENT_DIR );
+		$wp_uploads_dir = realpath( $upload_dir_info['basedir'] );
+
+		$abspath_url    = \get_site_url();
+		$wp_content_url = \WP_CONTENT_URL;
+		$wp_uploads_url = $upload_dir_info['baseurl'];
+
+		// I think we mess up the order in which we load things somewhere in a test, so "wp-content" and
+		// "wp-content/uploads/" URLs don't actually have the scheme+host part in them.
+		if ( ! wp_http_validate_url( $wp_content_url ) ) {
+			$wp_content_url = $abspath_url . $wp_content_url;
+		}
+		if ( ! wp_http_validate_url( $wp_uploads_url ) ) {
+			$wp_uploads_url = $abspath_url . $wp_uploads_url;
+		}
+
+		return array(
+
+			// WordPress root:
+			$abspath_dir    => $abspath_url,
+
+			// wp-content:
+			$wp_content_dir => $wp_content_url,
+
+			// wp-content/uploads:
+			$wp_uploads_dir => $wp_uploads_url,
+
+		);
 	}
 
 	/**
@@ -143,10 +124,11 @@ class Helper_Script_Manager {
 
 		// Refuse to install a Helper Script that is too large.
 		$helper_script_size = strlen( $script_body );
-		if ( $helper_script_size > $this->max_filesize ) {
+		if ( $helper_script_size > static::MAX_FILESIZE ) {
 			return new \WP_Error(
 				'too_big',
-				"Helper script is bigger ($helper_script_size bytes) than the max. size ($this->max_filesize bytes)"
+				"Helper script is bigger ($helper_script_size bytes) than the max. size " .
+				'(' . static::MAX_FILESIZE . ' bytes)'
 			);
 		}
 
@@ -196,7 +178,7 @@ class Helper_Script_Manager {
 
 				// Always schedule a cleanup run shortly after EXPIRY_TIME.
 				\wp_schedule_single_event(
-					time() + $this->expiry_time + 60,
+					time() + static::EXPIRY_TIME + 60,
 					'jetpack_backup_cleanup_helper_scripts'
 				);
 
@@ -238,6 +220,7 @@ class Helper_Script_Manager {
 			// Delete the directory if it's empty now.
 			$temp_dir = dirname( $path );
 			$this->delete_helper_directory_if_empty( $temp_dir );
+
 			return true;
 		} else {
 			return false;
@@ -248,7 +231,7 @@ class Helper_Script_Manager {
 	 * Search for Helper Scripts that are suspiciously old, and clean them out.
 	 */
 	public function cleanup_expired_helper_scripts() {
-		$this->cleanup_helper_scripts( time() - $this->expiry_time );
+		$this->cleanup_helper_scripts( time() - static::EXPIRY_TIME );
 	}
 
 	/**
@@ -270,8 +253,8 @@ class Helper_Script_Manager {
 			return;
 		}
 
-		foreach ( $this->get_install_locations() as $directory => $url ) {
-			$temp_dir = trailingslashit( $directory ) . $this->temp_directory;
+		foreach ( $this->install_locations() as $directory => $url ) {
+			$temp_dir = trailingslashit( $directory ) . static::TEMP_DIRECTORY;
 
 			if ( $wp_filesystem->is_dir( $temp_dir ) ) {
 				// Find expired helper scripts and delete them.
@@ -356,17 +339,17 @@ class Helper_Script_Manager {
 	protected function create_temp_directory() {
 		$wp_filesystem = static::get_wp_filesystem();
 		if ( ! $wp_filesystem ) {
-			return new \WP_Error( 'temp_directory', 'Failed to create jetpack-temp directory' );
+			return new \WP_Error( 'temp_directory', 'Failed to create "' . static::TEMP_DIRECTORY . '" directory' );
 		}
 
-		foreach ( $this->get_install_locations() as $directory => $url ) {
+		foreach ( $this->install_locations() as $directory => $url ) {
 			// Check if the installation location is writeable.
 			if ( ! $wp_filesystem->is_writable( $directory ) ) {
 				continue;
 			}
 
 			// Create if one doesn't already exist.
-			$temp_dir = trailingslashit( $directory ) . $this->temp_directory;
+			$temp_dir = trailingslashit( $directory ) . static::TEMP_DIRECTORY;
 			if ( ! $wp_filesystem->is_dir( $temp_dir ) ) {
 				if ( ! $wp_filesystem->mkdir( $temp_dir ) ) {
 					continue;
@@ -377,12 +360,12 @@ class Helper_Script_Manager {
 			}
 
 			return array(
-				'path' => trailingslashit( $directory ) . $this->temp_directory,
-				'url'  => trailingslashit( $url ) . $this->temp_directory,
+				'path' => trailingslashit( $directory ) . static::TEMP_DIRECTORY,
+				'url'  => trailingslashit( $url ) . static::TEMP_DIRECTORY,
 			);
 		}
 
-		return new \WP_Error( 'temp_directory', 'Failed to create jetpack-temp directory' );
+		return new \WP_Error( 'temp_directory', 'Failed to create "' . static::TEMP_DIRECTORY . '" directory' );
 	}
 
 	/**
@@ -436,7 +419,7 @@ class Helper_Script_Manager {
 
 		// Verify that the file isn't too big or small.
 		$file_size = $wp_filesystem->size( $file_path );
-		if ( $file_size < strlen( $expected_header ) || $file_size > $this->max_filesize ) {
+		if ( $file_size < strlen( $expected_header ) || $file_size > static::MAX_FILESIZE ) {
 			return false;
 		}
 
