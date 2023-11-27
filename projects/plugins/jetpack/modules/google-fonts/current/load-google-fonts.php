@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Tracking;
+
 /**
  * Gets the Google Fonts data
  *
@@ -220,9 +222,15 @@ function jetpack_google_fonts_user_global_styles_pre_save( $post_data ) {
 		return $post_data;
 	}
 
+	$prev_count = count( $raw_data['settings']['typography']['fontFamilies'] );
 	$raw_data['settings']['typography']['fontFamilies'] = jetpack_google_fonts_filter_out_deprecated_font_data(
 		$raw_data['settings']['typography']['fontFamilies']
 	);
+
+	if ( $prev_count !== count( $raw_data['settings']['typography']['fontFamilies'] ) ) {
+		$tracking = new Tracking();
+		$tracking->record_user_event( 'jetpack_google_fonts_clean_up_dirty_data' );
+	}
 
 	/**
 	 * Clean up the empty properties
