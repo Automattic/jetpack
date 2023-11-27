@@ -1,5 +1,5 @@
 /* global GitHub */
-const debug = require( './debug' );
+const debug = require( '../debug' );
 
 // Cache for getLabels.
 const cache = {};
