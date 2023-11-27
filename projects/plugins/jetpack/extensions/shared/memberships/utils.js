@@ -124,3 +124,15 @@ export const getFormattedCategories = ( postCategories, newsletterCategories ) =
 
 	return formattedCategories;
 };
+
+export const getFormattedSubscriptionsCount = subscriptionsCount => {
+	if ( subscriptionsCount === 1 ) {
+		return __( ' (1 subscriber)', 'jetpack' );
+	}
+
+	return sprintf(
+		// translators: %s is the number of subscribers in numerical format
+		__( ' (%s subscribers)', 'jetpack' ),
+		subscriptionsCount
+	);
+};

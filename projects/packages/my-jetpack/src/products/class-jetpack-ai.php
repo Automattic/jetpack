@@ -127,14 +127,13 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_long_description_by_usage_tier( $tier ) {
-		$long_descriptions = array(
+		$long_descriptions  = array(
 			1   => __( 'Jetpack AI Assistant brings the power of AI right into your WordPress editor, letting your content creation soar to new heights.', 'jetpack-my-jetpack' ),
 			100 => __( 'The most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' ),
-			200 => __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' ),
-			500 => __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' ),
 		);
+		$tiered_description = __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' );
 
-		return isset( $long_descriptions[ $tier ] ) ? $long_descriptions[ $tier ] : null;
+		return isset( $long_descriptions[ $tier ] ) ? $long_descriptions[ $tier ] : $tiered_description;
 	}
 
 	/**
@@ -155,7 +154,7 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_features_by_usage_tier( $tier ) {
-		$features = array(
+		$features        = array(
 			1   => array(
 				__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
 				__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
@@ -172,15 +171,13 @@ class Jetpack_Ai extends Product {
 				__( 'Priority support', 'jetpack-my-jetpack' ),
 				__( '100 requests per month', 'jetpack-my-jetpack' ),
 			),
-			200 => array(
-				__( '200 requests per month', 'jetpack-my-jetpack' ),
-			),
-			500 => array(
-				__( '500 requests per month', 'jetpack-my-jetpack' ),
-			),
+		);
+		$tiered_features = array(
+			/* translators: %d is the number of requests. */
+			sprintf( __( '%d requests per month', 'jetpack-my-jetpack' ), $tier ),
 		);
 
-		return isset( $features[ $tier ] ) ? $features[ $tier ] : array();
+		return isset( $features[ $tier ] ) ? $features[ $tier ] : $tiered_features;
 	}
 
 	/**
@@ -222,21 +219,18 @@ class Jetpack_Ai extends Product {
 			}
 		}
 
-		$tiers  = array( 100, 200, 500 );
 		$prices = array( 1 => $base_pricing );
 
-		foreach ( $tiers as $tier_value ) {
-			if ( isset( $yearly_prices[ $tier_value ] ) ) {
-					$prices[ $tier_value ] = array_merge(
-						$base_pricing,
-						array(
-							'full_price'            => $yearly_prices[ $tier_value ],
-							'discount_price'        => $yearly_prices[ $tier_value ],
-							'is_introductory_offer' => false,
-							'introductory_offer'    => null,
-						)
-					);
-			}
+		foreach ( $yearly_prices as $units => $price ) {
+			$prices[ $units ] = array_merge(
+				$base_pricing,
+				array(
+					'full_price'            => $price,
+					'discount_price'        => $price,
+					'is_introductory_offer' => false,
+					'introductory_offer'    => null,
+				)
+			);
 		}
 
 		return isset( $prices[ $tier ] ) ? $prices[ $tier ] : array();

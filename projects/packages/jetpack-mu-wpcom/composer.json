@@ -49,7 +49,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "5.0.x-dev"
+			"dev-trunk": "5.1.x-dev"
 		},
 		"textdomain": "jetpack-mu-wpcom",
 		"version-constants": {

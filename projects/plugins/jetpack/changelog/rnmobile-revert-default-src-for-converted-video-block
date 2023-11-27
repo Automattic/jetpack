@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+RNMobile: Revert setting default for video blocks added on mobile.
