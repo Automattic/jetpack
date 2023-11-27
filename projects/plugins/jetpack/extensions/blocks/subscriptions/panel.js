@@ -28,6 +28,7 @@ import {
 } from '../../shared/memberships/settings';
 import {
 	getFormattedCategories,
+	getFormattedSubscriptionsCount,
 	getShowMisconfigurationWarning,
 } from '../../shared/memberships/utils';
 import { store as membershipProductsStore } from '../../store/membership-products';
@@ -208,6 +209,12 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 		select( editorStore ).getEditedPostAttribute( 'categories' )
 	);
 
+	const subscriptionsCount = useSelect( select => {
+		return select( 'jetpack/membership-products' ).getNewsletterCategoriesSubscriptionsCount(
+			postCategories
+		);
+	} );
+
 	const reachCount = getReachForAccessLevelKey(
 		accessLevel,
 		emailSubscribers,
@@ -236,16 +243,18 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 		accessLevel !== accessOptions.paid_subscribers.key
 	) {
 		const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
+		const formattedSubscriptionsCount = getFormattedSubscriptionsCount( subscriptionsCount );
+		const categoryNamesAndSubscriptionsCount = formattedCategoryNames + formattedSubscriptionsCount;
 
 		if ( formattedCategoryNames ) {
 			numberOfSubscribersText = sprintf(
-				// translators: %1s is the post name,  %2s is the list of categories
+				// translators: %1s is the post name, %2s is the list of categories with subscriptions count
 				__(
 					'<postPublishedLink>%1$s</postPublishedLink> was sent to everyone subscribed to %2$s.',
 					'jetpack'
 				),
 				postName,
-				formattedCategoryNames
+				categoryNamesAndSubscriptionsCount
 			);
 		}
 	}

@@ -113,3 +113,9 @@ export const setNewsletterCategories = newsletterCategories => ( {
 	type: 'SET_NEWSLETTER_CATEGORIES',
 	newsletterCategories,
 } );
+
+export const setNewsletterCategoriesSubscriptionsCount =
+	newsletterCategoriesSubscriptionsCount => ( {
+		type: 'SET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT',
+		newsletterCategoriesSubscriptionsCount,
+	} );
