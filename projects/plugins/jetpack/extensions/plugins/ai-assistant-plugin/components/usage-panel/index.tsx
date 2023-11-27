@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
@@ -11,6 +13,7 @@ import './style.scss';
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../../../blocks/ai-assistant/lib/connection';
+import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import UsageControl from '../usage-bar';
 import './style.scss';
 import { PLAN_TYPE_FREE, PLAN_TYPE_TIERED, PLAN_TYPE_UNLIMITED } from '../usage-bar/types';
@@ -97,8 +100,28 @@ const useUpgradeButtonText = ( planType: PlanType, nextTierRequestLimit: number 
 	);
 };
 
+/**
+ * Helper to get the Contact Us URL
+ * @returns {object} an object with the Contact Us URL, the autosaveAndRedirect function and a boolean indicating if we are redirecting
+ */
+const useContactUsLink = (): {
+	contactUsURL: string;
+	autosaveAndRedirectContactUs: () => void;
+	isRedirectingContactUs: boolean;
+} => {
+	const contactUsURL = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
+	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( contactUsURL );
+
+	return {
+		contactUsURL,
+		autosaveAndRedirectContactUs: autosaveAndRedirect,
+		isRedirectingContactUs: isRedirecting,
+	};
+};
+
 export default function UsagePanel() {
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
+	const { contactUsURL, autosaveAndRedirectContactUs } = useContactUsLink();
 	const canUpgrade = canUserPurchasePlan();
 
 	// fetch usage data
@@ -120,6 +143,10 @@ export default function UsagePanel() {
 	// Determine the upgrade button text
 	const upgradeButtonText = useUpgradeButtonText( planType, nextTier?.limit );
 
+	// Handle upgrade for simple and atomic sites on the last plan
+	const showContactUsCallToAction =
+		( isSimpleSite() || isAtomicSite() ) && planType === PLAN_TYPE_TIERED && ! nextTier;
+
 	return (
 		<div className="jetpack-ai-usage-panel">
 			<>
@@ -133,15 +160,30 @@ export default function UsagePanel() {
 
 				{ ( planType === PLAN_TYPE_FREE || planType === PLAN_TYPE_TIERED ) && canUpgrade && (
 					<div className="jetpack-ai-usage-panel-upgrade-button">
-						<Button
-							variant="primary"
-							label="Upgrade your Jetpack AI plan"
-							href={ checkoutUrl }
-							onClick={ autosaveAndRedirect }
-							disabled={ isRedirecting }
-						>
-							{ upgradeButtonText }
-						</Button>
+						{ showContactUsCallToAction && (
+							<>
+								<p>{ __( 'Need more requests?', 'jetpack' ) }</p>
+								<Button
+									variant="primary"
+									label={ __( 'Contact us for more requests', 'jetpack' ) }
+									href={ contactUsURL }
+									onClick={ autosaveAndRedirectContactUs }
+								>
+									{ __( 'Contact Us', 'jetpack' ) }
+								</Button>
+							</>
+						) }
+						{ ! showContactUsCallToAction && (
+							<Button
+								variant="primary"
+								label={ __( 'Upgrade your Jetpack AI plan', 'jetpack' ) }
+								href={ checkoutUrl }
+								onClick={ autosaveAndRedirect }
+								disabled={ isRedirecting }
+							>
+								{ upgradeButtonText }
+							</Button>
+						) }
 					</div>
 				) }
 			</>

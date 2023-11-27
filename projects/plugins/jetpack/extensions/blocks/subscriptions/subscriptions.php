@@ -993,11 +993,20 @@ function get_paywall_blocks( $newsletter_access_level ) {
 
 	$sign_in         = '';
 	$switch_accounts = '';
-	$sign_in_link    = add_query_arg(
+
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		// On WPCOM we will redirect directly to the current page
+		$redirect_url = get_current_url();
+	} else {
+		// On self-hosted we will save and hide the token
+		$redirect_url = get_site_url() . '/wp-json/jetpack/v4/subscribers/auth';
+		$redirect_url = add_query_arg( 'redirect_url', get_current_url(), $redirect_url );
+	}
+
+	$sign_in_link = add_query_arg(
 		array(
 			'site_id'      => intval( \Jetpack_Options::get_option( 'id' ) ),
-			'redirect_url' => rawurlencode( get_current_url() ),
-			'v2'           => '',
+			'redirect_url' => rawurlencode( $redirect_url ),
 		),
 		'https://subscribe.wordpress.com/memberships/jwt'
 	);
