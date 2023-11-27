@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Class Jetpack_Token_Subscription_Service
@@ -23,8 +24,7 @@ class Jetpack_Token_Subscription_Service extends Token_Subscription_Service {
 	 * @return bool True if executing on WPCOM.
 	 */
 	private function is_wpcom() {
-	 // phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
-		return defined( 'IS_WPCOM' ) && IS_WPCOM === true;
+		return ( new Host() )->is_wpcom_simple();
 	}
 
 	/**
@@ -33,7 +33,7 @@ class Jetpack_Token_Subscription_Service extends Token_Subscription_Service {
 	 * @return bool Whether Jetpack_Options class exists.
 	 */
 	public static function available() {
-		return is_wpcom() || class_exists( '\Jetpack_Options' );
+		return static::is_wpcom() || class_exists( '\Jetpack_Options' );
 	}
 
 	/**
@@ -64,17 +64,5 @@ class Jetpack_Token_Subscription_Service extends Token_Subscription_Service {
 			return false;
 		}
 		return $token->secret;
-	}
-
-	/**
-	 * Returns true if the current authenticated user is subscribed to the current site.
-	 *
-	 * @return boolean
-	 */
-	public function is_current_user_subscribed() {
-		if ( $this->is_wpcom() ) {
-			return false;
-		}
-		return parent::is_current_user_subscribed();
 	}
 }
