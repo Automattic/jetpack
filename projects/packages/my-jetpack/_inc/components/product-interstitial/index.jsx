@@ -246,11 +246,7 @@ export function BoostInterstitial() {
  * @returns {object} CreatorInterstitial react component.
  */
 export function CreatorInterstitial() {
-	return (
-		<ProductInterstitial slug="creator" installsPlugin={ true }>
-			<img src={ boostImage } alt="Creator" />
-		</ProductInterstitial>
-	);
+	return <ProductInterstitial slug="creator" />;
 }
 
 /**
