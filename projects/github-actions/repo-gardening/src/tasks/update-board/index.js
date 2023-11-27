@@ -1,7 +1,9 @@
 const { getInput, setFailed } = require( '@actions/core' );
 const { getOctokit } = require( '@actions/github' );
 const debug = require( '../../utils/debug' );
-const getLabels = require( '../../utils/get-labels' );
+const getLabels = require( '../../utils/labels/get-labels' );
+const hasPriorityLabels = require( '../../utils/labels/has-priority-labels' );
+const isBug = require( '../../utils/labels/is-bug' );
 const { automatticAssignments } = require( './automattic-label-team-assignments' );
 
 /* global GitHub, WebhookPayloadIssue */

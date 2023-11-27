@@ -1,8 +1,9 @@
 const { getInput, setFailed } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
 const getComments = require( '../../utils/get-comments' );
-const getLabels = require( '../../utils/get-labels' );
-const sendSlackMessage = require( '../../utils/send-slack-message' );
+const getLabels = require( '../../utils/labels/get-labels' );
+const hasManySupportReferences = require( '../../utils/parse-content/has-many-support-references' );
+const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -136,14 +137,6 @@ async function replyToCustomersReminder( payload, octokit ) {
 	const { full_name, owner, name: repo } = repository;
 	const ownerLogin = owner.login;
 
-	const slackToken = getInput( 'slack_token' );
-	if ( ! slackToken ) {
-		setFailed(
-			`reply-to-customers-reminder: Input slack_token is required but missing. Aborting.`
-		);
-		return;
-	}
-
 	const channel = getInput( 'slack_he_triage_channel' );
 	if ( ! channel ) {
 		setFailed(
@@ -184,7 +177,7 @@ Before you send follow-up replies, you'll want to make sure the fix has been dep
 }`;
 
 	const slackMessageFormat = formatSlackMessage( payload, channel, message );
-	await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
+	await sendSlackMessage( message, channel, payload, slackMessageFormat );
 }
 
 module.exports = replyToCustomersReminder;

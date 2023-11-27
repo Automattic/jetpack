@@ -1,8 +1,8 @@
 const { getInput } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
 const getComments = require( '../../utils/get-comments' );
-const getLabels = require( '../../utils/get-labels' );
-const sendSlackMessage = require( '../../utils/send-slack-message' );
+const getLabels = require( '../../utils/labels/get-labels' );
+const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -230,7 +230,7 @@ async function checkForEscalation( issueReferences, commentBody, escalationNote,
 	);
 	const message = `:warning: This issue has now gathered more than 10 tickets. It may be time to reconsider its priority.`;
 	const slackMessageFormat = formatSlackMessage( payload, channel, message );
-	await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
+	await sendSlackMessage( message, channel, payload, slackMessageFormat );
 
 	return true;
 }

@@ -1,7 +1,13 @@
 const { getInput, setFailed } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
-const getLabels = require( '../../utils/get-labels' );
-const sendSlackMessage = require( '../../utils/send-slack-message' );
+const hasPriorityLabels = require( '../../utils/labels/has-priority-labels' );
+const isBug = require( '../../utils/labels/is-bug' );
+const findPlatforms = require( '../../utils/parse-content/find-platforms' );
+const findPlugins = require( '../../utils/parse-content/find-plugins' );
+const findPriority = require( '../../utils/parse-content/find-priority' );
+const formatSlackMessage = require( '../../utils/slack/format-slack-message' );
+const notifyImportantIssues = require( '../../utils/slack/notify-important-issues' );
+const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -214,15 +220,9 @@ function formatSlackMessage( payload, channel, message ) {
  */
 async function triageIssues( payload, octokit ) {
 	const { action, issue, label = {}, repository } = payload;
-	const { number, body, state } = issue;
+	const { number, body } = issue;
 	const { owner, name, full_name } = repository;
 	const ownerLogin = owner.login;
-
-	const slackToken = getInput( 'slack_token' );
-	if ( ! slackToken ) {
-		setFailed( 'triage-issues: Input slack_token is required but missing. Aborting.' );
-		return;
-	}
 
 	const channel = getInput( 'slack_quality_channel' );
 	if ( ! channel ) {
