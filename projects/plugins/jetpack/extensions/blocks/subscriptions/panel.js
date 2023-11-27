@@ -216,48 +216,56 @@ function getNumberOfSubscribersText( {
 		}
 	}
 
-	// No categories...
-	let text;
+	// Texts when no categories...
 	const isPaidPost = accessLevel === accessOptions.paid_subscribers.key;
 
 	// Paid subscribers, schedulled post
 	if ( isScheduledPost && isPaidPost ) {
-		text =
+		return sprintf(
 			/* translators: %1s is the post name, %2s is the number of subscribers in numerical format */
 			__(
 				'<postPublishedLink>%1$s</postPublishedLink> will be sent to <strong>%2$s paid subscribers</strong>.',
 				'jetpack'
-			);
+			),
+			postName,
+			reachCount
+		);
 	}
-	// No categories, paid subscribers, post is already published
+	// Paid subscribers, post is already published
 	else if ( isPaidPost ) {
-		text =
+		return sprintf(
 			/* translators: %1s is the post name, %2s is the number of subscribers in numerical format */
 			__(
 				'<postPublishedLink>%1$s</postPublishedLink> was sent to <strong>%2$s paid subscribers</strong>.',
 				'jetpack'
-			);
+			),
+			postName,
+			reachCount
+		);
 	}
 	// Free subscribers, schedulled post
 	else if ( isScheduledPost ) {
-		text =
+		return sprintf(
 			/* translators: %1s is the post name, %2s is the number of subscribers in numerical format */
 			__(
 				'<postPublishedLink>%1$s</postPublishedLink> will be sent to <strong>%2$s subscribers</strong>.',
 				'jetpack'
-			);
-	}
-	// Free subscribers
-	else {
-		text =
-			/* translators: %1s is the post name, %2s is the number of subscribers in numerical format */
-			__(
-				'<postPublishedLink>%1$s</postPublishedLink> was sent to <strong>%2$s subscribers</strong>.',
-				'jetpack'
-			);
+			),
+			postName,
+			reachCount
+		);
 	}
 
-	return sprintf( text, postName, reachCount );
+	// Free subscribers
+	return sprintf(
+		/* translators: %1s is the post name, %2s is the number of subscribers in numerical format */
+		__(
+			'<postPublishedLink>%1$s</postPublishedLink> was sent to <strong>%2$s subscribers</strong>.',
+			'jetpack'
+		),
+		postName,
+		reachCount
+	);
 }
 
 function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
