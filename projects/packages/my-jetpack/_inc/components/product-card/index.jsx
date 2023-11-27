@@ -32,7 +32,6 @@ const Menu = ( {
 } ) => {
 	return (
 		<Dropdown
-			className={ styles.dropdown }
 			popoverProps={ { noArrow: false, placement: 'bottom-end' } }
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Button
