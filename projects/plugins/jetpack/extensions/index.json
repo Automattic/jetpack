@@ -68,8 +68,7 @@
 		"create-with-voice",
 		"top-posts",
 		"ai-assistant-backend-prompts",
-		"sharing-buttons",
-		"ai-enable-tier-plans-ui"
+		"sharing-buttons"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

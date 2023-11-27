@@ -189,6 +189,7 @@ class Defaults {
 		'wpcom_reader_views_enabled',
 		'wpcom_site_setup',
 		'wpcom_subscription_emails_use_excerpt',
+		'jetpack_verbum_subscription_modal',
 	);
 
 	/**
