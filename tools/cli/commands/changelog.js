@@ -819,14 +819,14 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 		prompts = {
 			type: 'confirm',
 			name: 'changelogConfirm',
-			message: `Add changelog for ${ totalProjects[ 0 ] }?`,
+			message: `Add a changelog for ${ totalProjects[ 0 ] }?`,
 		};
 	} else if ( defaultProjects.length <= 1 && uniqueProjects.length > 0 ) {
 		/* separateChangelogFiles: Found N projects needing changelogs. Create for each one? */
 		prompts = {
 			type: 'confirm',
 			name: 'separateChangelogFiles',
-			message: `Found ${ totalProjects.length } project(s) that need a changelog. Create changelog for each one?`,
+			message: `Found ${ totalProjects.length } project(s) that need a changelog. Create a changelog for each one?`,
 		};
 	} else if ( defaultProjects.length > 0 && uniqueProjects.length === 0 ) {
 		console.log( "Where I'm supposed to be" );
@@ -835,7 +835,7 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 			{
 				type: 'confirm',
 				name: 'sameChangelog',
-				message: `Found ${ defaultProjects.length } project(s) that need a changelog. Create and add same changelog to all projects?`,
+				message: `Found ${ defaultProjects.length } project(s) that need a changelog. Create and add the same changelog to all of them?`,
 			},
 			/* separateChangelogFiles: (else) For each individually? */
 			{
@@ -851,7 +851,7 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 			{
 				type: 'confirm',
 				name: 'sameChangelog',
-				message: `Found ${ defaultProjects.length } project(s) that can accept the same changelog and ${ uniqueProjects.length } projects that need individual ones. Create and add same changelog to ones we're able?`,
+				message: `Found ${ defaultProjects.length } project(s) that can accept the same changelog and ${ uniqueProjects.length } project(s) that need individual ones. Create and add the same changelog to the ones we're able?`,
 			},
 			/* separateChangelogFiles: (else) For each individually? */
 			{
