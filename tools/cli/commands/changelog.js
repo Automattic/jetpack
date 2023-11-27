@@ -332,7 +332,7 @@ async function changelogAdd( argv ) {
 
 	// Confirm what projects we're adding a changelog to, and how we want to add them.
 	const promptConfirm = argv.project
-		? true
+		? { separateChangelogFiles: true }
 		: await changelogAddPrompt( argv, defaultProjects, uniqueProjects );
 
 	if ( ! promptConfirm ) {
