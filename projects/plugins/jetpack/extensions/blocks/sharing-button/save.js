@@ -1,3 +1,4 @@
+import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import SocialIcon from 'social-logos';
 import { getNameBySite } from './utils';
@@ -13,6 +14,8 @@ const SharingButtonsView = ( { attributes } ) => {
 
 	const socialLinkName = getNameBySite( service );
 	const socialLinkLabel = label ?? socialLinkName;
+	/* Translators: %s refers to a string representation of sharing service, e.g. Facebook  */
+	const linkAriaLabel = sprintf( __( 'Share on %s', 'jetpack' ), socialLinkName );
 
 	return (
 		<li className="jetpack-sharing-button__list-item">
@@ -22,10 +25,13 @@ const SharingButtonsView = ( { attributes } ) => {
 				href={ 'url_replaced_in_runtime' }
 				target="_blank"
 				data-shared={ 'data-shared_replaced_in_runtime' }
+				aria-label={ linkAriaLabel }
 				primary
 			>
 				<SocialIcon icon={ service } size={ 24 } />
-				<span className="jetpack-sharing-button__service-label">{ socialLinkLabel }</span>
+				<span className="jetpack-sharing-button__service-label" aria-hidden="true">
+					{ socialLinkLabel }
+				</span>
 			</a>
 		</li>
 	);

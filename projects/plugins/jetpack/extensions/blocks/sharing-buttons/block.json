@@ -68,5 +68,27 @@
 				"padding": false
 			}
 		}
+	},
+	"example": {
+		"innerBlocks": [
+			{
+				"name": "jetpack/sharing-button",
+				"attributes": {
+					"service": "facebook"
+				}
+			},
+			{
+				"name": "jetpack/sharing-button",
+				"attributes": {
+					"service": "x"
+				}
+			},
+			{
+				"name": "jetpack/sharing-button",
+				"attributes": {
+					"service": "mastodon"
+				}
+			}
+		]
 	}
 }
