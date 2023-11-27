@@ -54,19 +54,12 @@ const ActionButton = ( {
 		switch ( status ) {
 			case PRODUCT_STATUSES.ABSENT:
 			case PRODUCT_STATUSES.ABSENT_WITH_PLAN: {
-				const buttonText =
-					status === PRODUCT_STATUSES.ABSENT
-						? __( 'Learn more', 'jetpack-my-jetpack' )
-						: sprintf(
-								/* translators: placeholder is product name. */
-								__( 'Install %s', 'jetpack-my-jetpack' ),
-								name
-						  );
+				const buttonText = __( 'Learn more', 'jetpack-my-jetpack' );
 				return {
 					...buttonState,
 					href: `#/add-${ slug }`,
 					size: 'small',
-					variant: 'link',
+					variant: 'primary',
 					weight: 'regular',
 					label: buttonText,
 					onClick: null,
@@ -149,7 +142,6 @@ const ActionButton = ( {
 		buttonState,
 		isManageDisabled,
 		manageUrl,
-		name,
 		onActivate,
 		onAdd,
 		onFixConnection,
