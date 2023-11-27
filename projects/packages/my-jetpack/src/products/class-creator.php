@@ -361,7 +361,13 @@ class Creator extends Product {
 	 * @return boolean
 	 */
 	public static function is_upgradable() {
-		return true;
+		$has_required_plan = self::has_required_plan();
+
+		// Mark as not upgradable if user is on unlimited tier or does not have any plan.
+		if ( ! $has_required_plan ) {
+			return true;
+		}
+		return false;
 	}
 
 	/**

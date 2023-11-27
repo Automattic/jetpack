@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Social
  * Feature: Engagement
- * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter
+ * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter, creator
  */
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
