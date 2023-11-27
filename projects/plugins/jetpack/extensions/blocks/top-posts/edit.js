@@ -157,10 +157,11 @@ function TopPostsEdit( { attributes, className, setAttributes } ) {
 				<TopPostsBlockControls attributes={ attributes } setAttributes={ setAttributes } />
 			</BlockControls>
 
-			<div className={ classNames( className, `is-${ layout }-layout` ) }>
-				<div className="jetpack-top-posts-wrapper" data-item-count={ postsToDisplay.length }>
-					{ postsToDisplay }
-				</div>
+			<div
+				className={ classNames( className, `is-${ layout }-layout` ) }
+				data-item-count={ postsToDisplay.length }
+			>
+				<div className="jetpack-top-posts-wrapper">{ postsToDisplay }</div>
 			</div>
 		</>
 	);

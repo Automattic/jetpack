@@ -69,8 +69,8 @@ function load_assets( $attributes ) {
 		$output .= '<div class="jetpack-top-posts-item">';
 
 		if ( $attributes['displayThumbnail'] && ! empty( $item['thumbnail'] ) ) {
-			$output .= '<a class="jetpack-top-posts-thumbnail-link">';
-			$output .= '<img class="jetpack-top-posts-thumbnail" src="' . esc_url( $item['thumbnail'] ) . '" alt="' . esc_attr( $item['title'] ) . '" rel="nofollow noopener noreferrer" target="_blank">';
+			$output .= '<a class="jetpack-top-posts-thumbnail-link" href="' . esc_url( $item['href'] ) . '">';
+			$output .= '<img class="jetpack-top-posts-thumbnail" src="' . esc_url( $item['thumbnail'] ) . '" alt="' . esc_attr( $item['title'] ) . '">';
 			$output .= '</a>';
 		}
 
