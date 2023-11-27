@@ -818,7 +818,7 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 	if ( totalProjects.length === 1 ) {
 		prompts = {
 			type: 'confirm',
-			name: 'changelogConfirm',
+			name: 'separateChangelogFiles',
 			message: `Add a changelog for ${ totalProjects[ 0 ] }?`,
 		};
 	} else if ( defaultProjects.length <= 1 && uniqueProjects.length > 0 ) {
