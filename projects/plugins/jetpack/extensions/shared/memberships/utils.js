@@ -23,7 +23,7 @@ export const encodeValueForShortcodeAttribute = value => {
 };
 
 export const getPaidPlanLink = alreadyHasTierPlans => {
-	const link = 'https://wordpress.com/earn/payments-plans/' + location.hostname;
+	const link = 'https://wordpress.com/earn/payments/' + location.hostname;
 	// We force the "Newsletters plan" link only if there is no plans already created
 	return alreadyHasTierPlans ? link : link + '#add-tier-plan';
 };

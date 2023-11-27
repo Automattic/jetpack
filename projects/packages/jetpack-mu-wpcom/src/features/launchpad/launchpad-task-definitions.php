@@ -167,7 +167,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_visible_callback' => 'wpcom_launchpad_has_goal_paid_subscribers',
 			'get_calypso_path'    => function ( $task, $default, $data ) {
-				return '/earn/payments-plans/' . $data['site_slug_encoded'] . '#add-newsletter-payment-plan';
+				return '/earn/payments/' . $data['site_slug_encoded'] . '#add-newsletter-payment-plan';
 			},
 		),
 		'setup_newsletter'                => array(
@@ -479,7 +479,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_paid_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/earn/payments-plans/' . $data['site_slug_encoded'];
+				return '/earn/payments/' . $data['site_slug_encoded'];
 			},
 		),
 		'add_about_page'                  => array(
@@ -517,7 +517,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_has_paid_membership_plans',
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/earn/payments-plans/' . $data['site_slug_encoded'];
+				return '/earn/payments/' . $data['site_slug_encoded'];
 			},
 		),
 
