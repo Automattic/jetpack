@@ -69,28 +69,11 @@ const post = {
 };
 
 /**
- * Resolve connections.
- *
- * @param {WPDataRegistry} registry - Registry.
- */
-function resolveConnections( registry ) {
-	const dispatch = registry.dispatch( socialStore );
-	dispatch.startResolution( 'getConnections' );
-	dispatch.finishResolution( 'getEntityRecords' );
-
-	const connectionsFromPost = registry
-		.select( editorStore )
-		.getEditedPostAttribute( 'jetpack_publicize_connections' );
-
-	dispatch.setConnections( connectionsFromPost || [] );
-}
-
-/**
  * Create a registry with stores.
  *
  * @returns {WPDataRegistry} Registry.
  */
-function createRegistryWithStores() {
+async function createRegistryWithStores() {
 	// Create a registry.
 	const registry = createRegistry();
 
@@ -113,7 +96,7 @@ function createRegistryWithStores() {
 	// Setup editor with post.
 	registry.dispatch( editorStore ).setupEditor( post );
 
-	resolveConnections( registry );
+	await registry.resolveSelect( socialStore ).getConnections();
 
 	return registry;
 }
@@ -122,8 +105,8 @@ const getMethod = options =>
 	options.headers?.[ 'X-HTTP-Method-Override' ] || options.method || 'GET';
 
 describe( 'useSyncPostDataToStore', () => {
-	it( 'should do nothing by default', () => {
-		const registry = createRegistryWithStores();
+	it( 'should do nothing by default', async () => {
+		const registry = await createRegistryWithStores();
 		const prevConnections = registry.select( socialStore ).getConnections();
 
 		expect( prevConnections ).not.toEqual( [] );
@@ -140,7 +123,7 @@ describe( 'useSyncPostDataToStore', () => {
 	} );
 
 	it( 'should do nothing when post is not being published', async () => {
-		const registry = createRegistryWithStores();
+		const registry = await createRegistryWithStores();
 
 		const prevConnections = registry.select( socialStore ).getConnections();
 
@@ -162,7 +145,7 @@ describe( 'useSyncPostDataToStore', () => {
 	} );
 
 	it( 'should update connections when post is being published', async () => {
-		const registry = createRegistryWithStores();
+		const registry = await createRegistryWithStores();
 
 		// Mock apiFetch response.
 		apiFetch.setFetchHandler( async options => {
