@@ -5,6 +5,7 @@ import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
 import BoostCard from './boost-card';
+import CreatorCard from './creator-card';
 import CrmCard from './crm-card';
 import ScanAndProtectCard from './scan-protect-card';
 import SearchCard from './search-card';
@@ -33,6 +34,7 @@ const ProductCardsSection = () => {
 		videopress: VideopressCard,
 		stats: showJetpackStatsCard ? StatsCard : null,
 		crm: CrmCard,
+		creator: CreatorCard,
 		social: SocialCard,
 		ai: AiCard,
 	};

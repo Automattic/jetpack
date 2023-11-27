@@ -241,6 +241,19 @@ export function BoostInterstitial() {
 }
 
 /**
+ * CreatorInterstitial component
+ *
+ * @returns {object} CreatorInterstitial react component.
+ */
+export function CreatorInterstitial() {
+	return (
+		<ProductInterstitial slug="creator" installsPlugin={ true }>
+			<img src={ boostImage } alt="Creator" />
+		</ProductInterstitial>
+	);
+}
+
+/**
  * CRMInterstitial component
  *
  * @returns {object} CRMInterstitial react component.
