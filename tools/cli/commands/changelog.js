@@ -857,7 +857,7 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 		];
 	}
 	const response = await inquirer.prompt( prompts );
-	if ( ! response.sameChangelog && ! response.separateChangelogFiles ) {
+	if ( ! response.sameChangelogFiles && ! response.separateChangelogFiles ) {
 		return false;
 	}
 	return response;
