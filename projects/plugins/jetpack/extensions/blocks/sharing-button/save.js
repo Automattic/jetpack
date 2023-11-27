@@ -14,7 +14,8 @@ const SharingButtonsView = ( { attributes } ) => {
 
 	const socialLinkName = getNameBySite( service );
 	const socialLinkLabel = label ?? socialLinkName;
-	/* Translators: %s refers to a string representation of sharing service, e.g. Facebook  */
+
+	/* translators: %s refers to a string representation of sharing service, e.g. Facebook  */
 	const linkAriaLabel = sprintf( __( 'Share on %s', 'jetpack' ), socialLinkName );
 
 	return (
