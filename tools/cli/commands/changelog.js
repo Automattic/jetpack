@@ -814,7 +814,7 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 	const totalProjects = [ ...defaultProjects, ...uniqueProjects ];
 	let prompts;
 
-	/* changelogConfirm: Add changelog for the one project? */
+	// Determine if we can add the same changelog file to all, or if we need to add them individually.
 	if ( totalProjects.length === 1 ) {
 		prompts = {
 			type: 'confirm',
@@ -822,21 +822,18 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 			message: `Add a changelog for ${ totalProjects[ 0 ] }?`,
 		};
 	} else if ( defaultProjects.length <= 1 && uniqueProjects.length > 0 ) {
-		/* separateChangelogFiles: Found N projects needing changelogs. Create for each one? */
 		prompts = {
 			type: 'confirm',
 			name: 'separateChangelogFiles',
 			message: `Found ${ totalProjects.length } project(s) that need a changelog. Create a changelog for each one?`,
 		};
 	} else if ( defaultProjects.length > 0 && uniqueProjects.length === 0 ) {
-		/* sameChangelogFiles: Found N projects. Same to all? */
 		prompts = [
 			{
 				type: 'confirm',
 				name: 'sameChangelogFiles',
 				message: `Found ${ defaultProjects.length } project(s) that need a changelog. Create and add the same changelog to all of them?`,
 			},
-			/* separateChangelogFiles: (else) For each individually? */
 			{
 				type: 'confirm',
 				name: 'separateChangelogFiles',
@@ -845,14 +842,12 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 			},
 		];
 	} else {
-		/* sameChangelogFiles: Found N projects that can use the same changelog and M that need individual ones. Same to the N? */
 		prompts = [
 			{
 				type: 'confirm',
 				name: 'sameChangelogFiles',
 				message: `Found ${ defaultProjects.length } project(s) that can accept the same changelog and ${ uniqueProjects.length } project(s) that need individual ones. Create and add the same changelog to the ones we're able?`,
 			},
-			/* separateChangelogFiles: (else) For each individually? */
 			{
 				type: 'confirm',
 				name: 'separateChangelogFiles',
