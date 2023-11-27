@@ -68,7 +68,7 @@
 		"create-with-voice",
 		"top-posts",
 		"ai-assistant-backend-prompts",
-		"sharing-buttons",
+		"sharing-buttons"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
