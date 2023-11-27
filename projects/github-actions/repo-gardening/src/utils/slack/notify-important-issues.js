@@ -61,7 +61,7 @@ async function notifyImportantIssues( octokit, payload, channel ) {
 		await sendSlackMessage( message, channel, payload, slackMessageFormat );
 
 		debug(
-			`triage-issues: Adding a label to issue #${ number } to show that the triage team was warned.`
+			`notify-important-issues: Adding a label to issue #${ number } to show that the triage team was warned.`
 		);
 		await octokit.rest.issues.addLabels( {
 			owner: ownerLogin,

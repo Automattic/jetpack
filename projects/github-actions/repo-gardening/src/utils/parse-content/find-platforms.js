@@ -16,7 +16,7 @@ function findPlatforms( body ) {
 			.filter( platform => platform !== 'Self-hosted' && platform.trim() !== '' );
 	}
 
-	debug( `triage-issues: no platform indicators found.` );
+	debug( `find-platform: no platform indicators found.` );
 	return [];
 }
 

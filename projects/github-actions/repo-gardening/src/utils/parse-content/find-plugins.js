@@ -15,7 +15,7 @@ function findPlugins( body ) {
 		return plugins.split( ', ' ).filter( v => v.trim() !== '' );
 	}
 
-	debug( `triage-issues: No plugin indicators found.` );
+	debug( `find-plugins: No plugin indicators found.` );
 	return [];
 }
 

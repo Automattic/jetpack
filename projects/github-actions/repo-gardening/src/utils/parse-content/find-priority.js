@@ -16,7 +16,7 @@ function findPriority( body ) {
 		const [ , impact = '', blocking = '' ] = match;
 
 		debug(
-			`triage-issues: Reported priority indicators for issue: "${ impact }" / "${ blocking }"`
+			`find-priority: Reported priority indicators for issue: "${ impact }" / "${ blocking }"`
 		);
 
 		if ( blocking === 'No and the platform is unusable' ) {
@@ -31,7 +31,7 @@ function findPriority( body ) {
 		return 'TBD';
 	}
 
-	debug( `triage-issues: No priority indicators found.` );
+	debug( `find-priority: No priority indicators found.` );
 	return 'TBD';
 }
 
