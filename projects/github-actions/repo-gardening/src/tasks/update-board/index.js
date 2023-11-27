@@ -4,6 +4,7 @@ const debug = require( '../../utils/debug' );
 const getLabels = require( '../../utils/labels/get-labels' );
 const hasPriorityLabels = require( '../../utils/labels/has-priority-labels' );
 const isBug = require( '../../utils/labels/is-bug' );
+const notifyImportantIssues = require( '../../utils/slack/notify-important-issues' );
 const { automatticAssignments } = require( './automattic-label-team-assignments' );
 
 /* global GitHub, WebhookPayloadIssue */
@@ -460,39 +461,41 @@ async function loadTeamAssignments( ownerLogin ) {
  * or it could be that it's being added as part of the event that triggers this action.
  *
  * @param {GitHub} octokit    - Initialized Octokit REST client.
- * @param {string} owner      - Repository owner.
- * @param {string} repo       - Repository name.
- * @param {string} number     - Issue number.
- * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
- * @param {object} eventLabel - Label that was added to the issue.
+ * @param {object} payload    - Issue event payload.
  * @param {object} projectInfo - Info about our project board.
  * @param {string} projectItemId - The ID of the project item.
- * @param {object} teamAssignments - Mapping of teams <> labels.
+ * @param {Array} priorityLabels - Array of priority labels.
  * @returns {Promise<boolean>} Promise resolving to true if the issue was assigned to a team.
  */
-async function assignTeam(
-	octokit,
-	owner,
-	repo,
-	number,
-	action,
-	eventLabel,
-	projectInfo,
-	projectItemId,
-	teamAssignments
-) {
+async function assignTeam( octokit, payload, projectInfo, projectItemId, priorityLabels ) {
+	const {
+		action,
+		issue: { number },
+		label = {},
+		repository: { owner, name },
+	} = payload;
+	const ownerLogin = owner.login;
+
+	const teamAssignments = await loadTeamAssignments( ownerLogin );
+	if ( ! teamAssignments ) {
+		debug(
+			`update-board: No mapping of teams <> labels provided. Cannot automatically assign an issue to a specific team on the board. Aborting.`
+		);
+		return;
+	}
+
 	// Get the list of labels associated with this issue.
-	const labels = await getLabels( octokit, owner, repo, number );
-	if ( 'labeled' === action && eventLabel.name ) {
-		labels.push( eventLabel.name );
+	const labels = await getLabels( octokit, ownerLogin, name, number );
+	if ( 'labeled' === action && label.name ) {
+		labels.push( label.name );
 	}
 
 	// Check if any of the labels on this issue match a team.
 	// Loop through all the mappings in team assignments,
 	// and find the first one that includes a label that matches one present in the issue.
-	const { team } =
+	const { team, slack_id } =
 		Object.values( teamAssignments ).find( assignment =>
-			labels.some( label => assignment.labels.includes( label ) )
+			labels.some( mappedLabel => assignment.labels.includes( mappedLabel ) )
 		) || {};
 	if ( ! team ) {
 		debug(
@@ -506,7 +509,11 @@ async function assignTeam(
 		`update-board: Assigning the "${ team }" team for this project item, issue #${ number }.`
 	);
 	await setTeamField( octokit, projectInfo, projectItemId, team );
-	return true;
+
+	// Does the team want to be notified in Slack about high/blocker priority issues?
+	if ( slack_id && priorityLabels.length > 0 ) {
+		await notifyImportantIssues( octokit, payload, slack_id );
+	}
 }
 
 /**
@@ -651,24 +658,6 @@ async function updateBoard( payload, octokit ) {
 	}
 
 	// Try to assign the issue to a specific team, if we have a mapping of teams <> labels and a matching label on the issue.
-	const teamAssignments = await loadTeamAssignments( ownerLogin );
-	if ( ! teamAssignments ) {
-		debug(
-			`update-board: No mapping of teams <> labels provided. Cannot automatically assign an issue to a specific team on the board. Aborting.`
-		);
-		return;
-	}
-	await assignTeam(
-		octokit,
-		ownerLogin,
-		name,
-		number,
-		action,
-		label,
-		projectInfo,
-		projectItemId,
-		teamAssignments,
-		priorityLabels
-	);
+	await assignTeam( projectOctokit, payload, projectInfo, projectItemId, priorityLabels );
 }
 module.exports = updateBoard;

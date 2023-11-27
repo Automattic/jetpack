@@ -116,7 +116,7 @@ async function triageIssues( payload, octokit ) {
 
 	// Send a Slack notification if the issue is important.
 	if ( isBugIssue ) {
-		await notifyImportantIssues( octokit, payload );
+		await notifyImportantIssues( octokit, payload, channel );
 	}
 }
 module.exports = triageIssues;
