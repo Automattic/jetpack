@@ -2,6 +2,31 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.9-a.11 - 2023-11-24
+### Enhancements
+- Blogroll: Allowed non-WP.com sites to be suggested. [#34112]
+- Added subscribers count to pre- and post- publish panels when publishing posts in Newsletter Categories. [#34267]
+- Subscribe Modal: The modal is not shown at all after being dismissed, not just limited to the post it was dismissed on. [#34245]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Adjusted UpgradeNudge for tier plans. [#34254]
+- Prevented caching paywalled content. [#34242]
+- Fixed block name usage when unregistering Paywall block. [#34274]
+- Mobile: Reverted setting default for video blocks added on mobile. [#34271]
+- Added a feature flag for the new like widget layout. [#34264]
+- Added jetpack_verbum_subscription_modal setting to manage subscription modal show/hide on Verbum. [#34258]
+- Added the latest tier plans for 750 and 1000 requests. [#34270]
+- Added tier enabled filter status to the ai-feature payload. Include on the ai-assistant data store. [#34260]
+- Blocks: Remove Beta Amazon block. [#34228]
+- Code Modernization: Replaced usage of strpos() with str_contains() [#34137]
+- Code modernization: Replaced usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+- Fixed paywall switch account on simple sites. [#34250]
+- Introduced enable-tier-plans-ui beta flag. [#34221]
+- Jetpack AI: Fixed the Usage Panel upgrade button text to change depending on the next tier available. [#34251]
+- Jetpack AI: Handle Contact Us button on the Usage Panel when the site is a Simple or Atomic site. [#34273]
+- Odyssey Stats widget: Only loading scripts when the widget is visible. [#34284]
+- Reuse email on memberships checkout form when recently subscribed but not logged in. [#34084]
+
 ## 12.9-a.9 - 2023-11-21
 ### Bug fixes
 - Fixed all Google font definitions being printed in the head, instead only printing fonts that are used in global styles or required by block settings. [#34157]
