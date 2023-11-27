@@ -87,7 +87,7 @@ class Cookie_State {
 	 * @param string $hook Page hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( strpos( $hook, 'jetpack-debug_page_cookie-state' ) === 0 ) {
+		if ( str_starts_with( $hook, 'jetpack-debug_page_cookie-state' ) ) {
 			wp_enqueue_style( 'cookie_state_style', plugin_dir_url( __FILE__ ) . 'inc/css/cookie-state.css', array(), JETPACK_DEBUG_HELPER_VERSION );
 			wp_enqueue_script( 'cookie_state_script', plugin_dir_url( __FILE__ ) . 'inc/js/cookie-state.js', array( 'wp-api' ), JETPACK_DEBUG_HELPER_VERSION, true );
 

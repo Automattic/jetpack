@@ -13,11 +13,13 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "6f5cb1c67879b9e6cb9fd06b2e0b3a207daa724b"
+                "reference": "89185202e00673d6c11a84c10b6da8373e0f371c"
+            },
+            "require": {
+                "php": ">=7.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "wikimedia/at-ease": "^1.2 || ^2.0",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
             "type": "library",
@@ -28,7 +30,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "1.0.x-dev"
+                    "dev-trunk": "2.0.x-dev"
                 }
             },
             "autoload": {
@@ -58,12 +60,13 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "57c24117ebca34aebae43d0e18cd2930c4cef5ad"
+                "reference": "c81f1b181889c419a968b7bddc8b28b55bb3bd0e"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
                 "mediawiki/mediawiki-codesniffer": "^41.0",
+                "php": ">=7.4",
                 "phpcompatibility/phpcompatibility-wp": "^2.1",
                 "sirbrillig/phpcs-variable-analysis": "^2.10",
                 "wp-coding-standards/wpcs": "^3.0"
@@ -95,9 +98,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "skip-test-php": [
-                    "./tests/action-skip-test-php.sh"
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -124,10 +124,11 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "4df0aebbb617a0d04f29f3d79bf66a3d227656f7"
+                "reference": "f1db07c15d87025728fe8c7ceffed4a2dea848b4"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
+                "php": ">=7.0",
                 "squizlabs/php_codesniffer": "^3.6.1"
             },
             "require-dev": {
@@ -137,7 +138,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "1.1.x-dev"
+                    "dev-trunk": "2.0.x-dev"
                 }
             },
             "autoload": {

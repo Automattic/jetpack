@@ -84,7 +84,7 @@ function load_assets( $attr, $content ) {
 		}
 
 		// Render deprecated version of Calendly block if needed. New markup block button class before rendering here.
-		if ( false === strpos( $content, 'wp-block-jetpack-button' ) ) {
+		if ( ! str_contains( $content, 'wp-block-jetpack-button' ) ) {
 			$content = deprecated_render_button_v1( $attr, $block_id, $classes, $url );
 		} else {
 			$content = str_replace( 'calendly-widget-id', esc_attr( $block_id ), $content );

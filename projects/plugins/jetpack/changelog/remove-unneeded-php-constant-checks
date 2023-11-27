@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Remove unneeded `defined()` checks. Should be no change to functionality.
+
+

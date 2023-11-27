@@ -153,7 +153,7 @@ class Jetpack_Gutenberg {
 	 * @return string The unprefixed extension name.
 	 */
 	public static function remove_extension_prefix( $extension_name ) {
-		if ( 0 === strpos( $extension_name, 'jetpack/' ) || 0 === strpos( $extension_name, 'jetpack-' ) ) {
+		if ( str_starts_with( $extension_name, 'jetpack/' ) || str_starts_with( $extension_name, 'jetpack-' ) ) {
 			return substr( $extension_name, strlen( 'jetpack/' ) );
 		}
 		return $extension_name;

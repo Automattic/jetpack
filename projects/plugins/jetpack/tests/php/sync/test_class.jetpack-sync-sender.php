@@ -682,6 +682,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 */
 	public function test_do_dedicated_sync_and_exit_will_not_re_spawn_dedicated_sync_request_with_empty_queue() {
 		$this->expectException( ExitException::class );
+		$this->expectOutputString( Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING );
 
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 		self::factory()->post->create();
@@ -702,6 +703,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 */
 	public function test_do_dedicated_sync_and_exit_will_not_re_spawn_dedicated_sync_request_with_locked_queue() {
 		$this->expectException( ExitException::class );
+		$this->expectOutputString( Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING );
 
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 		$this->sender->get_sync_queue()->lock( 0 );
@@ -723,6 +725,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 */
 	public function test_do_dedicated_sync_and_exit_will_re_spawn_dedicated_sync_request() {
 		$this->expectException( ExitException::class );
+		$this->expectOutputString( Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING );
 
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 		// Process one action at each run.

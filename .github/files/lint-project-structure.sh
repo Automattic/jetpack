@@ -7,6 +7,7 @@ cd $(dirname "${BASH_SOURCE[0]}")/../..
 BASE=$PWD
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/.github/versions.sh"
 
 if [[ -n "$CI" ]]; then
 	function debug {
@@ -139,11 +140,11 @@ for PROJECT in projects/*/*; do
 			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["bugs","url"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
 			echo "::error file=$PROJECT/package.json$LINE::Setting the project's bug URL to the raw issues list makes no sense. Target the project's label instead, i.e. \"$URL2\"."
 		fi
-		if [[ "$URL" == "https://github.com/Automattic/jetpack/labels/"* && "$URL" != "$URL2" ]]; then
+		if [[ "$URL" == "https://github.com/Automattic/jetpack/labels/"* && "${URL,,}" != "${URL2,,}" ]]; then
 			EXIT=1
 			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["bugs","url"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
 			printf -v URL3 "%b" "$(sed -E 's/\\/\\\\/g;s/%([0-9a-fA-F]{2})/\\x\1/g' <<<"$URL")"
-			if [[ "$URL3" == "$URL2" ]]; then
+			if [[ "${URL3,,}" == "${URL2,,}" ]]; then
 				echo "::error file=$PROJECT/package.json$LINE::The \`.bugs.url\` gets (brokenly) passed through \`encodeURI\` by \`npm bugs\`, so it should not be encoded in package.json. Sigh. Try \"$URL2\" instead."
 			else
 				echo "::error file=$PROJECT/package.json$LINE::The \`.bugs.url\` appears to be pointing to the wrong label. Try \"$URL2\" instead."
@@ -224,6 +225,13 @@ for PROJECT in projects/*/*; do
 	if [[ "$TYPE" == "packages" ]] && ! jq -e '.extra["branch-alias"]["dev-trunk"]' "$PROJECT/composer.json" >/dev/null; then
 		EXIT=1
 		echo "::error file=$PROJECT/composer.json::Package $SLUG should set \`.extra.branch-alias.dev-trunk\` in composer.json."
+	fi
+
+	# - Packages must set `.require.php`.
+	if [[ "$TYPE" == "packages" ]] && ! jq -e '.require.php // null' "$PROJECT/composer.json" >/dev/null; then
+		EXIT=1
+		LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["require"] then ",line=\( input_line_number )" else empty end' "$PROJECT/composer.json")
+		echo "::error file=$PROJECT/composer.json$LINE::Package $SLUG should set \`.require.php\` in composer.json (probably to \">=$MIN_PHP_VERSION\")."
 	fi
 
 	SUGGESTION="You might add this with \`composer config autoloader-suffix '$(printf "%s" "$SLUG" | md5sum | sed -e 's/[[:space:]]*-$//')_$(sed -e 's/[^0-9a-zA-Z]/_/g' <<<"${SLUG##*/}")ⓥversion'\` in the appropriate directory."
@@ -453,7 +461,6 @@ for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/.eslintrc
 done
 
 # - .nvmrc should match .github/versions.sh.
-. .github/versions.sh
 debug "Checking .nvmrc vs versions.sh"
 if [[ "$(<.nvmrc)" != "$NODE_VERSION" ]]; then
 	EXIT=1

@@ -17,10 +17,10 @@ function PaywallEdit( { className } ) {
 	const accessLevel = useAccessLevel( postType );
 
 	const { stripeConnectUrl, hasNewsletterPlans } = useSelect( select => {
-		const { getNewsletterProducts, getConnectUrl } = select( 'jetpack/membership-products' );
+		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
 		return {
 			stripeConnectUrl: getConnectUrl(),
-			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
+			hasNewsletterPlans: getNewsletterTierProducts()?.length !== 0,
 		};
 	} );
 

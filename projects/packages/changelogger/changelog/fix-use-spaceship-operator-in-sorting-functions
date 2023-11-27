@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Use spaceship operator in sorting callbacks. No change to functionality.
+
+

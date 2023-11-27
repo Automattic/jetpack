@@ -1,6 +1,4 @@
-import { useDispatch } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
-import { getShareMessage, getShareMessageMaxLength } from '../../utils';
+import { getShareMessageMaxLength, usePostMeta } from '../../utils';
 
 /**
  * @typedef {object} MessageHook
@@ -15,17 +13,13 @@ import { getShareMessage, getShareMessageMaxLength } from '../../utils';
  * @returns {MessageHook} - An object with the message hook properties set.
  */
 export default function useSocialMediaMessage() {
-	const { editPost } = useDispatch( editorStore );
+	const { updateMeta, shareMessage } = usePostMeta();
 
 	return {
-		message: getShareMessage(),
+		message: shareMessage,
 		maxLength: getShareMessageMaxLength(),
 		updateMessage: function ( text ) {
-			editPost( {
-				meta: {
-					jetpack_publicize_message: text,
-				},
-			} );
+			updateMeta( 'jetpack_publicize_message', text );
 		},
 	};
 }

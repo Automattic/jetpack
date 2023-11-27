@@ -338,7 +338,6 @@ class Jetpack_Social {
 					'isSocialImageGeneratorEnabled'   => $settings['socialImageGeneratorSettings']['enabled'],
 					'autoConversionSettings'          => $settings['autoConversionSettings'],
 					'dismissedNotices'                => $publicize->get_dismissed_notices(),
-					'isNextdoorConnectionSupported'   => $publicize->has_nextdoor_connection_feature(),
 					'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
 				),
 			)
