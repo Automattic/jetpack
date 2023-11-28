@@ -140,11 +140,11 @@ for PROJECT in projects/*/*; do
 			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["bugs","url"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
 			echo "::error file=$PROJECT/package.json$LINE::Setting the project's bug URL to the raw issues list makes no sense. Target the project's label instead, i.e. \"$URL2\"."
 		fi
-		if [[ "$URL" == "https://github.com/Automattic/jetpack/labels/"* && "$URL" != "$URL2" ]]; then
+		if [[ "$URL" == "https://github.com/Automattic/jetpack/labels/"* && "${URL,,}" != "${URL2,,}" ]]; then
 			EXIT=1
 			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["bugs","url"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
 			printf -v URL3 "%b" "$(sed -E 's/\\/\\\\/g;s/%([0-9a-fA-F]{2})/\\x\1/g' <<<"$URL")"
-			if [[ "$URL3" == "$URL2" ]]; then
+			if [[ "${URL3,,}" == "${URL2,,}" ]]; then
 				echo "::error file=$PROJECT/package.json$LINE::The \`.bugs.url\` gets (brokenly) passed through \`encodeURI\` by \`npm bugs\`, so it should not be encoded in package.json. Sigh. Try \"$URL2\" instead."
 			else
 				echo "::error file=$PROJECT/package.json$LINE::The \`.bugs.url\` appears to be pointing to the wrong label. Try \"$URL2\" instead."

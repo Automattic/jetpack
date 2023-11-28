@@ -8,7 +8,7 @@ export function createBlockFromRecommendation( attrs ) {
 }
 
 export function createBlockFromSubscription( subscription ) {
-	const { blog_id, site_icon, URL, name, description } = subscription;
+	const { blog_id, site_icon, URL, name, description, is_non_wpcom_site } = subscription;
 
 	return createBlockFromRecommendation( {
 		id: blog_id,
@@ -16,6 +16,7 @@ export function createBlockFromSubscription( subscription ) {
 		url: URL,
 		name,
 		description,
+		is_non_wpcom_site,
 	} );
 }
 

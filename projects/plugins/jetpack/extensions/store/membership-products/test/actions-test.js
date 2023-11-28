@@ -10,6 +10,7 @@ import {
 	setSiteSlug,
 	setConnectedAccountDefaultCurrency,
 	setNewsletterCategories,
+	setNewsletterCategoriesSubscriptionsCount,
 } from '../actions';
 import * as utils from '../utils';
 
@@ -314,5 +315,19 @@ describe( 'Membership Products Actions', () => {
 
 		// Then
 		expect( result ).toStrictEqual( anyValidNewsletterCategoriesWithType );
+	} );
+
+	test( 'Set newsletter categories subscriptions count works as expected', () => {
+		// Given
+		const anyValidNewsletterCategoriesSubscriptionsCountWithType = {
+			type: 'SET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT',
+			newsletterCategoriesSubscriptionsCount: ANY_VALID_DATA,
+		};
+
+		// When
+		const result = setNewsletterCategoriesSubscriptionsCount( ANY_VALID_DATA );
+
+		// Then
+		expect( result ).toStrictEqual( anyValidNewsletterCategoriesSubscriptionsCountWithType );
 	} );
 } );

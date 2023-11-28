@@ -349,7 +349,6 @@ class Jetpack_Social {
 						'image'     => $auto_conversion_settings->is_enabled( 'image' ),
 					),
 					'dismissedNotices'                => $publicize->get_dismissed_notices(),
-					'isNextdoorConnectionSupported'   => $publicize->has_nextdoor_connection_feature(),
 					'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
 				),
 			)
