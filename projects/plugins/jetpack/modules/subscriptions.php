@@ -300,7 +300,17 @@ class Jetpack_Subscriptions {
 			$should_email = false;
 		}
 
-		return $should_email;
+		/**
+		 * Control whether the post should be sent to subscribers as an email.
+		 *
+		 * @module subscriptions
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool   $should_email If the post should be emailed to subscribers.
+		 * @param object $post A post object.
+		 */
+		return apply_filters( 'jetpack_should_email_post_to_subscribers', $should_email, $post );
 	}
 
 	/**
