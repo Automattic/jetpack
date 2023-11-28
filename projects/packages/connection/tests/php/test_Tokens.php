@@ -89,7 +89,7 @@ class TokensTest extends TestCase {
 
 		$this->tokens->expects( $this->exactly( 2 ) )
 			->method( 'get_access_token' )
-			->will( $this->onConsecutiveCalls( $blog_token, $user_token ) );
+			->willReturnOnConsecutiveCalls( $blog_token, $user_token );
 		$this->assertFalse( $this->tokens->validate() );
 	}
 
@@ -120,7 +120,7 @@ class TokensTest extends TestCase {
 
 		$this->tokens->expects( $this->exactly( 2 ) )
 			->method( 'get_access_token' )
-			->will( $this->onConsecutiveCalls( $blog_token, $user_token ) );
+			->willReturnOnConsecutiveCalls( $blog_token, $user_token );
 
 		$this->assertFalse( $this->tokens->validate() );
 
@@ -154,7 +154,7 @@ class TokensTest extends TestCase {
 
 		$this->tokens->expects( $this->exactly( 2 ) )
 			->method( 'get_access_token' )
-			->will( $this->onConsecutiveCalls( $blog_token, $user_token ) );
+			->willReturnOnConsecutiveCalls( $blog_token, $user_token );
 
 		$expected = array(
 			'blog_token' => array(
