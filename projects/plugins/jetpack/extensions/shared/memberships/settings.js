@@ -122,7 +122,7 @@ function TierSelector() {
 
 export function NewsletterAccessRadioButtons( {
 	accessLevel,
-	hasNewsletterPlans,
+	hasTierPlans,
 	stripeConnectUrl,
 	isEditorPanel = false,
 	postHasPaywallBlock: postHasPaywallBlock = false,
@@ -143,7 +143,7 @@ export function NewsletterAccessRadioButtons( {
 				onChange={ value => {
 					if (
 						accessOptions.paid_subscribers.key === value &&
-						( stripeConnectUrl || ! hasNewsletterPlans )
+						( stripeConnectUrl || ! hasTierPlans )
 					) {
 						setShowDialog( true );
 						return;
@@ -178,9 +178,9 @@ export function NewsletterAccessRadioButtons( {
 				] }
 				selected={ accessLevel }
 			/>
-			{ accessLevel === accessOptions.paid_subscribers.key &&
-				isStripeConnected &&
-				hasNewsletterPlans && <TierSelector></TierSelector> }
+			{ accessLevel === accessOptions.paid_subscribers.key && isStripeConnected && hasTierPlans && (
+				<TierSelector></TierSelector>
+			) }
 
 			{ isEditorPanel && (
 				<PlansSetupDialog closeDialog={ closeDialog } showDialog={ showDialog } />
@@ -190,21 +190,19 @@ export function NewsletterAccessRadioButtons( {
 }
 
 export function NewsletterAccessDocumentSettings( { accessLevel } ) {
-	const { hasNewsletterPlans, stripeConnectUrl, isLoading, foundPaywallBlock } = useSelect(
-		select => {
-			const { getNewsletterTierProducts, getConnectUrl, isApiStateLoading } = select(
-				'jetpack/membership-products'
-			);
-			const { getBlocks } = select( 'core/block-editor' );
+	const { hasTierPlans, stripeConnectUrl, isLoading, foundPaywallBlock } = useSelect( select => {
+		const { getNewsletterTierProducts, getConnectUrl, isApiStateLoading } = select(
+			'jetpack/membership-products'
+		);
+		const { getBlocks } = select( 'core/block-editor' );
 
-			return {
-				isLoading: isApiStateLoading(),
-				stripeConnectUrl: getConnectUrl(),
-				hasNewsletterPlans: getNewsletterTierProducts()?.length !== 0,
-				foundPaywallBlock: getBlocks().find( block => block.name === paywallBlockMetadata.name ),
-			};
-		}
-	);
+		return {
+			isLoading: isApiStateLoading(),
+			stripeConnectUrl: getConnectUrl(),
+			hasTierPlans: getNewsletterTierProducts()?.length !== 0,
+			foundPaywallBlock: getBlocks().find( block => block.name === paywallBlockMetadata.name ),
+		};
+	} );
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
 	const { selectBlock } = useDispatch( 'core/block-editor' );
@@ -269,7 +267,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 											isEditorPanel={ true }
 											accessLevel={ _accessLevel }
 											stripeConnectUrl={ stripeConnectUrl }
-											hasNewsletterPlans={ hasNewsletterPlans }
+											hasTierPlans={ hasTierPlans }
 											postHasPaywallBlock={ foundPaywallBlock }
 										/>
 									</div>
@@ -301,7 +299,7 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 			return {
 				isLoading: isApiStateLoading(),
 				stripeConnectUrl: getConnectUrl(),
-				hasNewsletterPlans: getNewsletterTierProducts()?.length !== 0,
+				hasTierPlans: getNewsletterTierProducts()?.length !== 0,
 				postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockMetadata.name ),
 				newsletterCategories: getNewsletterCategories(),
 				newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
