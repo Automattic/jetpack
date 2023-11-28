@@ -109,7 +109,7 @@ class Social_Image_Generator_Settings_Test extends BaseTestCase {
 	 * Test that it returns correct template if set.
 	 */
 	public function test_returns_correct_template_if_set() {
-		$this->settings->update_social_image_generator_settings( array( 'defaults' => array( 'template' => 'example_template' ) ) );
+		$this->settings->update_social_image_generator_settings( array( 'template' => 'example_template' ) );
 		$sig_settings = $this->settings->get_settings()['socialImageGeneratorSettings'];
 
 		$this->assertEquals( 'example_template', $sig_settings['template'] );
