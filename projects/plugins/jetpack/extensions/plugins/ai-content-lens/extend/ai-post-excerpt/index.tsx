@@ -185,7 +185,7 @@ ${ postContent }
 		reset();
 	}
 
-	const { requireUpgrade: isQuotaExceeded } = useAiFeature();
+	const { requireUpgrade, isOverLimit } = useAiFeature();
 
 	// Set the docs link depending on the site type
 	const docsLink =
@@ -219,7 +219,7 @@ ${ postContent }
 					</Notice>
 				) }
 
-				{ isQuotaExceeded && <UpgradePrompt /> }
+				{ isOverLimit && <UpgradePrompt /> }
 
 				<AiExcerptControl
 					words={ excerptWordsNumber }
@@ -242,7 +242,7 @@ ${ postContent }
 						setModel( newModel );
 						setReenable( true );
 					} }
-					disabled={ isBusy || isQuotaExceeded }
+					disabled={ isBusy || requireUpgrade }
 				/>
 
 				<BaseControl
@@ -255,14 +255,14 @@ ${ postContent }
 							onClick={ discardExcerpt }
 							variant="secondary"
 							isDestructive
-							disabled={ requestingState !== 'done' || isQuotaExceeded }
+							disabled={ requestingState !== 'done' || requireUpgrade }
 						>
 							{ __( 'Discard', 'jetpack' ) }
 						</Button>
 						<Button
 							onClick={ setExcerpt }
 							variant="secondary"
-							disabled={ requestingState !== 'done' || isQuotaExceeded }
+							disabled={ requestingState !== 'done' || requireUpgrade }
 						>
 							{ __( 'Accept', 'jetpack' ) }
 						</Button>
@@ -270,7 +270,7 @@ ${ postContent }
 							onClick={ requestExcerpt }
 							variant="secondary"
 							isBusy={ isBusy }
-							disabled={ isGenerateButtonDisabled || isQuotaExceeded || ! postContent }
+							disabled={ isGenerateButtonDisabled || requireUpgrade || ! postContent }
 						>
 							{ __( 'Generate', 'jetpack' ) }
 						</Button>

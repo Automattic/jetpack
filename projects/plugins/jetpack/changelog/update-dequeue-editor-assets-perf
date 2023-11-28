@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Gutenberg: Dequeue editor assets when they aren't in use
