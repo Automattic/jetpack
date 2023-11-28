@@ -652,9 +652,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Install the mobile app', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_legacy_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/mobile-apps/' . $data['site_slug_encoded'];
+			'is_complete_callback' => 'wpcom_launchpad_is_user_legacy_task_completed',
+			'get_calypso_path'     => function () {
+				return '/me/get-apps';
 			},
 		),
 		'professional_email_mailbox_created' => array(
@@ -673,7 +673,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_legacy_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/sharing/' . $data['site_slug_encoded'];
+				return '/marketing/connections/' . $data['site_slug_encoded'];
 			},
 		),
 	);
@@ -1381,6 +1381,16 @@ function wpcom_launchpad_is_task_option_completed( $task ) {
 function wpcom_launchpad_is_legacy_task_option_completed( $task ) {
 	$option_name = 'onboarding_checklist_task_' . $task['id'];
 	return get_option( $option_name, false );
+}
+
+/**
+ * Checks if a User task is marked as complete.
+ *
+ * @param array $task The task data.
+ * @return bool True if the option for the task is marked as complete, false otherwise.
+ */
+function wpcom_launchpad_is_user_legacy_task_completed( $task ) {
+	return (bool) get_user_attribute( get_current_user_id(), 'onboarding_checklist_task_' . $task['id'] );
 }
 
 /**
