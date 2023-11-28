@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Added type check to prevent unnecessary warnings in Coming Soon logic
