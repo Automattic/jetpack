@@ -448,7 +448,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					/>
 				) }
 				<InspectorControls>
-					<PanelBody title={ __( 'AI Assistant', 'jetpack' ) } initialOpen={ true }>
+					<PanelBody initialOpen={ true }>
 						<PanelRow>
 							<UsagePanel />
 						</PanelRow>
