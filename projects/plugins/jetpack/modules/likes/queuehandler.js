@@ -253,17 +253,26 @@ function JetpackLikesMessageListener( event ) {
 				}
 			} );
 
+			const containerStyle = getComputedStyle( container );
+			const isRtl = containerStyle.direction === 'rtl';
+
 			const el = document.querySelector( `*[name='${ data.parent }']` );
 			const rect = el.getBoundingClientRect();
 			const win = el.ownerDocument.defaultView;
 			const offset = {
 				top: rect.top + win.pageYOffset,
 				left: rect.left + win.pageXOffset,
+				right: rect.right + win.pageXOffset,
 			};
 
 			if ( newLayout ) {
-				container.style.left = offset.left + data.position.left + 'px';
 				container.style.top = offset.top + data.position.top - 1 + 'px';
+
+				if ( isRtl ) {
+					container.style.right = offset.right - data.position.left - 50 + 'px';
+				} else {
+					container.style.left = offset.left + data.position.left + 'px';
+				}
 			} else {
 				container.style.left = offset.left + data.position.left - 10 + 'px';
 				container.style.top = offset.top + data.position.top - 33 + 'px';

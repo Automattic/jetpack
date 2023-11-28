@@ -172,6 +172,7 @@ div.jetpack-comment-likes-widget-wrapper iframe {
 	margin: 0 !important;
 	padding: 0 !important;
 	position: static;
+	box-sizing: border-box;
 }
 
 #likes-other-gravatars.wpl-new-layout ul.wpl-avatars li a img {
