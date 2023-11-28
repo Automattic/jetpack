@@ -1,4 +1,3 @@
-import { select } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { setAutoConversionSettings } from './actions/auto-conversion-settings';
 import { setConnections } from './actions/connection-data';
@@ -70,11 +69,11 @@ export function* getAutoConversionSettings() {
  * @returns {Function} Resolver
  */
 export function getConnections() {
-	return function ( { dispatch } ) {
+	return function ( { dispatch, registry } ) {
 		// Get the initial connections from the post meta
-		const connections = select( editorStore ).getEditedPostAttribute(
-			'jetpack_publicize_connections'
-		);
+		const connections = registry
+			.select( editorStore )
+			.getEditedPostAttribute( 'jetpack_publicize_connections' );
 
 		dispatch( setConnections( connections || [] ) );
 	};
