@@ -33,14 +33,14 @@ export function buildInitialState() {
 						slug: 'jetpack_creator_yearly',
 						description:
 							'Craft stunning content, boost your subscriber base, and monetize your online presence.',
-						show_promotion: false,
+						show_promotion: true,
 						discount_percent: 50,
 						included_in_plans: [ 'complete' ],
 						features: [
 							'Unlimited subscriber imports',
 							'Earn more from your content',
 							'Accept payments with PayPal',
-							'Earn with WordAds',
+							'Increase earnings with WordAds',
 						],
 					},
 					scan: {
