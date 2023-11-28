@@ -2,14 +2,14 @@
 
 namespace Automattic\Jetpack\Backup;
 
-use PHPUnit\Framework\TestCase;
+use WorDBless\BaseTestCase;
 
 /**
  * Unit tests for the Helper_Script_Manager class.
  *
  * @package automattic/jetpack-backup
  */
-class Test_Helper_Script_Manager extends TestCase {
+class Test_Helper_Script_Manager extends BaseTestCase {
 
 	/**
 	 * Temporary directory where "jetpack-temp" will get created.
