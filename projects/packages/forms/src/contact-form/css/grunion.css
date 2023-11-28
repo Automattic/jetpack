@@ -1,11 +1,13 @@
 :root {
-    --jetpack--contact-form--border: 1px solid #8c8f94;
-    --jetpack--contact-form--border-color: #8c8f94;
-    --jetpack--contact-form--border-size: 1px;
-    --jetpack--contact-form--border-style: solid;
-    --jetpack--contact-form--border-radius: 0px;
-    --jetpack--contact-form--input-padding: 16px;
+	--jetpack--contact-form--border: 1px solid #8c8f94;
+	--jetpack--contact-form--border-color: #8c8f94;
+	--jetpack--contact-form--border-size: 1px;
+	--jetpack--contact-form--border-style: solid;
+	--jetpack--contact-form--border-radius: 0px;
+	--jetpack--contact-form--input-padding: 16px;
 	--jetpack--contact-form--font-size: 16px;
+	--jetpack--contact-form--error-color: #b32d2e;
+	--jetpack--contact-form--inverted-text-color: #ffffff;
 }
 
 .contact-form .clear-form {
@@ -210,7 +212,7 @@
 }
 
 .form-errors .form-error-message {
-	color: red;
+	color: var(--jetpack--contact-form--error-color);
 }
 
 .textwidget .contact-form input[type='text'],
@@ -281,11 +283,6 @@
 
 .grunion-field-consent-wrap {
 	align-self: center;
-}
-
-.grunion-field-checkbox-wrap {
-	display: inline-flex;
-	align-items: baseline;
 }
 
 @media only screen and ( min-width: 600px ) {
@@ -783,4 +780,47 @@ on production builds, the attributes are being reordered, causing side-effects
 	transform: unset;
 	visibility: inherit;
 	width: auto;
+}
+
+.contact-form__error,
+.contact-form__input-error {
+	display: flex;
+	align-items: center;
+	gap: 0.25em;
+
+	font-size: 1rem;
+}
+
+.contact-form__error {
+	margin-bottom: 0.25rem;
+	padding: 0.5em;
+
+	background-color: var(--jetpack--contact-form--error-color);
+	color: var(--jetpack--contact-form--inverted-text-color);
+}
+
+.contact-form__input-error {
+	margin: 0.25rem 0;
+
+	color: var(--jetpack--contact-form--error-color);
+}
+
+.contact-form__error:empty,
+.contact-form__input-error:empty {
+	display: none;
+}
+
+.contact-form [aria-invalid="true"]:not(fieldset),
+.contact-form .wp-block-jetpack-contact-form.is-style-outlined fieldset[aria-invalid="true"] {
+	border: solid 1px var(--jetpack--contact-form--error-color);
+}
+
+.contact-form .wp-block-jetpack-contact-form:not(.is-style-outlined) fieldset[aria-invalid="true"] {
+	outline: solid 1px var(--jetpack--contact-form--error-color);
+	outline-offset: 0.5em;
+}
+
+.contact-form__checkbox-wrap {
+	display: inline-flex;
+	align-items: baseline;
 }
