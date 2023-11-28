@@ -53,12 +53,18 @@ class Settings {
 		}
 
 		$sig_settings = get_option( 'jetpack_social_image_generator_settings' );
+		$template     = Templates::DEFAULT_TEMPLATE;
+
 		if ( isset( $sig_settings['defaults']['template'] ) ) {
+			$template = $sig_settings['defaults']['template'];
+		}
+
+		if ( ! isset( $sig_settings['template'] ) ) {
 			update_option(
 				self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS,
 				array(
 					'enabled'  => $sig_settings['enabled'],
-					'template' => $sig_settings['defaults']['template'],
+					'template' => $template,
 				)
 			);
 		}
@@ -242,6 +248,7 @@ class Settings {
 	 * @return string
 	 */
 	public function sig_get_default_template() {
+		$this->migrate_old_option();
 		$sig_settings = get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS );
 		if ( empty( $sig_settings ) || ! is_array( $sig_settings ) ) {
 			$sig_settings = self::DEFAULT_IMAGE_GENERATOR_SETTINGS;

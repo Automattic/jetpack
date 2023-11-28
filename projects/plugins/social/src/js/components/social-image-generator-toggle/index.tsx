@@ -40,7 +40,7 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 
 	useEffect( () => {
 		if ( currentTemplate ) {
-			const newOption = { defaults: { template: currentTemplate } };
+			const newOption = { template: currentTemplate };
 			updateOptions( newOption );
 		}
 	}, [ currentTemplate, updateOptions ] );
