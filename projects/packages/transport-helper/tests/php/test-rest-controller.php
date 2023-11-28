@@ -121,12 +121,32 @@ class Test_REST_Controller extends TestCase {
 		$request->set_header( 'content-type', 'application/json' );
 		$request->set_body( wp_json_encode( $body ) );
 
-		$response = $this->dispatch_request_signed_with_blog_token( $request );
-		$this->assertEquals( 200, $response->get_status() );
+		$response      = $this->dispatch_request_signed_with_blog_token( $request );
 		$response_data = $response->get_data();
-		$this->assertArrayHasKey( 'url', $response_data );
-		$this->assertArrayHasKey( 'abspath', $response_data );
-		$this->assertArrayHasKey( 'path', $response_data );
+		$this->assertEquals(
+			200,
+			$response->get_status(),
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+			'Non-HTTP 200 response with data: ' . var_export( $response_data, true )
+		);
+		$this->assertArrayHasKey(
+			'url',
+			$response_data,
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+			'Response should have "url" key: ' . var_export( $response_data, true )
+		);
+		$this->assertArrayHasKey(
+			'abspath',
+			$response_data,
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+			'Response should have "abspath" key: ' . var_export( $response_data, true )
+		);
+		$this->assertArrayHasKey(
+			'path',
+			$response_data,
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+			'Response should have "path" key: ' . var_export( $response_data, true )
+		);
 
 		// Cleanup.
 		wp_delete_file( $response_data['path'] );
