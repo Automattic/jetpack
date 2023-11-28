@@ -26,7 +26,7 @@ export function useSite( domain, enabled = true ) {
 	const debouncedDomain = useDebounce( validDomain, 500 );
 
 	useEffect( () => {
-		setIsLoading( enabled && debouncedDomain );
+		setIsLoading( Boolean( enabled && debouncedDomain ) );
 		if ( enabled && debouncedDomain ) {
 			const abortController = new AbortController();
 

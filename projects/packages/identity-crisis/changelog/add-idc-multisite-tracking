@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Connection: add idc query argument to url for tracking multisite idcs.

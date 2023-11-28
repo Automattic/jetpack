@@ -558,7 +558,7 @@ function grunion_esc_attr( $attr ) {
  */
 function grunion_sort_objects( $a, $b ) {
 	if ( isset( $a['order'] ) && isset( $b['order'] ) ) {
-		return $a['order'] - $b['order'];
+		return $a['order'] <=> $b['order'];
 	}
 	return 0;
 }

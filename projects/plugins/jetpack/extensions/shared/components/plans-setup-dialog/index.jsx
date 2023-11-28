@@ -8,15 +8,15 @@ import { getPaidPlanLink } from '../../memberships/utils';
 import useAutosaveAndRedirect from '../../use-autosave-and-redirect';
 
 export default function PlansSetupDialog( { showDialog, closeDialog } ) {
-	const { hasNewsletterPlans } = useSelect( select => {
-		const { getNewsletterProducts, getConnectUrl } = select( 'jetpack/membership-products' );
+	const { hasTierPlans } = useSelect( select => {
+		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
 		return {
 			stripeConnectUrl: getConnectUrl(),
-			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
+			hasTierPlans: getNewsletterTierProducts()?.length !== 0,
 		};
 	} );
 
-	const paidLink = getPaidPlanLink( hasNewsletterPlans );
+	const paidLink = getPaidPlanLink( hasTierPlans );
 	const { autosaveAndRedirect } = useAutosaveAndRedirect( paidLink );
 
 	return (

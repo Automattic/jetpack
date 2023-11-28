@@ -213,7 +213,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 			return new WP_Error( 'invalid_number', 'The NUMBER parameter must be less than or equal to 100.', 400 );
 		}
 
-		if ( false !== strpos( $path, '/posts/' ) ) {
+		if ( str_contains( $path, '/posts/' ) ) {
 			// We're looking for comments of a particular post.
 			$post_id    = $object_id;
 			$comment_id = 0;

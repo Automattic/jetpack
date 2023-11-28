@@ -1,7 +1,4 @@
-import { useDispatch } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
-import { useCallback } from '@wordpress/element';
-import { getAttachedMedia, getJetpackSocialOptions, shouldUploadAttachedMedia } from '../../utils';
+import { usePostMeta } from '../../utils';
 
 /**
  * @typedef {object} AttachedMediaHook
@@ -17,22 +14,11 @@ import { getAttachedMedia, getJetpackSocialOptions, shouldUploadAttachedMedia } 
  * @returns {AttachedMediaHook} - An object with the attached media hook properties set.
  */
 export default function useAttachedMedia() {
-	const { editPost } = useDispatch( editorStore );
-
-	const updateJetpackSocialOptions = useCallback(
-		( key, value ) => {
-			editPost( {
-				meta: {
-					jetpack_social_options: { ...getJetpackSocialOptions(), [ key ]: value },
-				},
-			} );
-		},
-		[ editPost ]
-	);
+	const { attachedMedia, shouldUploadAttachedMedia, updateJetpackSocialOptions } = usePostMeta();
 
 	return {
-		attachedMedia: getAttachedMedia(),
-		shouldUploadAttachedMedia: shouldUploadAttachedMedia(),
+		attachedMedia,
+		shouldUploadAttachedMedia,
 		updateAttachedMedia: media => updateJetpackSocialOptions( 'attached_media', media ),
 		updateShouldUploadAttachedMedia: option =>
 			updateJetpackSocialOptions( 'should_upload_attached_media', option ),
