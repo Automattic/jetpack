@@ -359,7 +359,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	public function get_status( \WP_REST_Request $request ) {
 		$product_type = $request['type'];
-		$source       = $request['source'];
+		$source       = sanitize_text_field( wp_unslash( $request['source'] ) );
 		$is_editable  = ! isset( $request['is_editable'] ) ? null : (bool) $request['is_editable'];
 
 		if ( $this->is_wpcom() ) {
@@ -369,7 +369,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		} else {
 			$payload = array(
 				'type'   => $request['type'],
-				'source' => $source,
+				'source' => sanitize_text_field( wp_unslash( $request['source'] ) ),
 			);
 
 			// If we pass directly is_editable as null, it would break API argument validation.
