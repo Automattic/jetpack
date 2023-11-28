@@ -10,6 +10,28 @@ export function getConnections( state ) {
 }
 
 /**
+ * Returns the initial connections list from the store.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ *
+ * @returns {Array<import("../types").Connection>} The connections list
+ */
+export function getInitialConnections( state ) {
+	return state.connectionData?.initialConnections ?? [];
+}
+
+/**
+ * Returns the number of initially enabled connections from the store.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ *
+ * @returns {number} The number of initially enabled connections.
+ */
+export function getInitialEnabledConnectionsCount( state ) {
+	return getInitialConnections( state ).filter( connection => connection.enabled ).length;
+}
+
+/**
  * Returns the connections admin URL from the store.
  * @param {import("../types").SocialStoreState} state - State object.
  * @returns {string|null} The connections admin URL.

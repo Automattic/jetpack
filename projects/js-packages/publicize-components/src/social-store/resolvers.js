@@ -1,6 +1,6 @@
 import { store as editorStore } from '@wordpress/editor';
 import { setAutoConversionSettings } from './actions/auto-conversion-settings';
-import { setConnections } from './actions/connection-data';
+import { setConnections, setInitialConnections } from './actions/connection-data';
 import { setJetpackSettings } from './actions/jetpack-settings';
 import { setSocialImageGeneratorSettings } from './actions/social-image-generator-settings';
 import {
@@ -75,6 +75,11 @@ export function getConnections() {
 		const connections = editor.getEditedPostAttribute( 'jetpack_publicize_connections' );
 
 		dispatch( setConnections( connections || [] ) );
+
+		// For now, we are interested in the initial connections only if the post is scheduled.
+		if ( editor.isCurrentPostScheduled() ) {
+			dispatch( setInitialConnections( connections || [] ) );
+		}
 	};
 }
 

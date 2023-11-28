@@ -19,6 +19,7 @@ export type Connection = {
 };
 
 export type ConnectionData = {
+	initialConnections?: Connection[];
 	connections: Connection[];
 };
 
