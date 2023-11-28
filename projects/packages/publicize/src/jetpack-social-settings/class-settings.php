@@ -64,7 +64,7 @@ class Settings {
 			$enabled = $sig_settings['enabled'];
 		}
 
-		if ( ! isset( $sig_settings['template'] ) || ! isset( $sig_settings['enabled'] ) ) {
+		if ( ! isset( $sig_settings['template'] ) ) {
 			update_option(
 				self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS,
 				array(
