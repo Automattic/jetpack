@@ -337,13 +337,7 @@ class Creator extends Product {
 		}
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_biyearly_product_slug() ) ) {
-					return true;
-				}
-				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_product_slug() ) ) {
-					return true;
-				}
-				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_monthly_product_slug() ) ) {
+				if ( strpos( $purchase->product_slug, 'jetpack_creator' ) !== false ) {
 					return true;
 				}
 			}
@@ -358,14 +352,8 @@ class Creator extends Product {
 	 */
 	public static function is_upgradable() {
 		$has_required_plan = self::has_required_plan();
-
-		// Mark as not upgradable if user is on unlimited tier or does not have any plan.
-		if ( ! $has_required_plan ) {
-			return true;
-		}
-		return false;
+		return ! $has_required_plan;
 	}
-
 	/**
 	 * Activates the product by installing and activating its plugin
 	 *
