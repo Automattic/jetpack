@@ -5,8 +5,8 @@ import { store as coreStore } from '@wordpress/core-data';
 import { createRegistry, RegistryProvider, WPDataRegistry } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as noticesStore } from '@wordpress/notices';
+import { useSyncPostDataToStore } from '../';
 import { store as socialStore } from '../../../social-store';
-import { useSyncPostDataToStore } from '../use-sync-post-data-to-store';
 
 const postId = 44;
 
