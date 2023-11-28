@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fixed the issue of publicize remaining ON after the post is published

@@ -348,36 +348,16 @@ class Jetpack_AI_Helper {
 				}
 			}
 
-			$is_over_limit = WPCOM\Jetpack_AI\Usage\Helper::is_over_limit( $blog_id );
-
-			/**
-			 * Check if the site requires an upgrade.
-			 *
-			 * The site will require an upgrade when it's
-			 * over the limit of requests, be it the free
-			 * allowance of the current tier allowance.
-			 *
-			 * Previously, we were checking if the site
-			 * does not have the AI Assistant feature,
-			 * meaning we only checked the free limit.
-			 *
-			 * With tiered plans, we need to check if the
-			 * site is over the limit even when it has the
-			 * feature, and this is now handled by Helper::is_over_limit.
-			 * site-require-upgrade/$require_upgrade remains for backward compatibility.
-			 */
-			$require_upgrade = $is_over_limit;
-
 			// Determine the upgrade type
 			$upgrade_type = wpcom_is_vip( $blog_id ) ? 'vip' : 'default';
 
 			return array(
 				'has-feature'          => $has_ai_assistant_feature,
-				'is-over-limit'        => $is_over_limit,
+				'is-over-limit'        => WPCOM\Jetpack_AI\Usage\Helper::is_over_limit( $blog_id ),
 				'requests-count'       => WPCOM\Jetpack_AI\Usage\Helper::get_all_time_requests_count( $blog_id ),
 				'requests-limit'       => WPCOM\Jetpack_AI\Usage\Helper::get_free_requests_limit( $blog_id ),
 				'usage-period'         => WPCOM\Jetpack_AI\Usage\Helper::get_period_data( $blog_id ),
-				'site-require-upgrade' => $require_upgrade,
+				'site-require-upgrade' => WPCOM\Jetpack_AI\Usage\Helper::site_requires_upgrade( $blog_id ),
 				'upgrade-type'         => $upgrade_type,
 				'current-tier'         => WPCOM\Jetpack_AI\Usage\Helper::get_current_tier( $blog_id ),
 				'next-tier'            => WPCOM\Jetpack_AI\Usage\Helper::get_next_tier( $blog_id ),
