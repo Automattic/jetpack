@@ -6,7 +6,7 @@ import styles from './styles.module.scss';
 export type ShareLimitsBarProps = {
 	currentCount: number;
 	scheduledCount: number;
-	activeConnectionsCount?: number;
+	enabledConnectionsCount?: number;
 	maxCount: number;
 	text?: string;
 	className?: string;
@@ -16,7 +16,7 @@ export const ShareLimitsBar = ( {
 	currentCount,
 	maxCount,
 	scheduledCount,
-	activeConnectionsCount,
+	enabledConnectionsCount,
 	text,
 	className,
 }: ShareLimitsBarProps ) => {
@@ -27,10 +27,10 @@ export const ShareLimitsBar = ( {
 				backgroundColor: 'var(--jp-gray-90)',
 				label: __( 'Shares used', 'jetpack' ),
 			},
-			activeConnectionsCount !== undefined && {
-				count: activeConnectionsCount,
+			enabledConnectionsCount !== undefined && {
+				count: enabledConnectionsCount,
 				backgroundColor: 'var(--jp-gray-40)',
-				label: __( 'Active connections', 'jetpack' ),
+				label: __( 'Enabled connections', 'jetpack' ),
 			},
 			{
 				count: scheduledCount,
@@ -38,7 +38,7 @@ export const ShareLimitsBar = ( {
 				label: __( 'Shares scheduled', 'jetpack' ),
 			},
 		].filter( Boolean );
-	}, [ currentCount, scheduledCount, activeConnectionsCount ] );
+	}, [ currentCount, scheduledCount, enabledConnectionsCount ] );
 	return (
 		<div className={ className }>
 			{ text ? <Text className={ styles.text }>{ text }</Text> : null }

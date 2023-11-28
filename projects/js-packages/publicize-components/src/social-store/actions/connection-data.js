@@ -1,7 +1,7 @@
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
-import { SET_CONNECTIONS, TOGGLE_CONNECTION } from './constants';
+import { SET_CONNECTIONS, SET_INITIAL_CONNECTIONS, TOGGLE_CONNECTION } from './constants';
 
 /**
  * Set connections list
@@ -11,6 +11,18 @@ import { SET_CONNECTIONS, TOGGLE_CONNECTION } from './constants';
 export function setConnections( connections ) {
 	return {
 		type: SET_CONNECTIONS,
+		connections,
+	};
+}
+
+/**
+ * Set initial connections list
+ * @param {Array} connections - list of connections
+ * @returns {object} - an action object.
+ */
+export function setInitialConnections( connections ) {
+	return {
+		type: SET_INITIAL_CONNECTIONS,
 		connections,
 	};
 }

@@ -142,7 +142,7 @@ describe( 'Social store selectors: sharesData', () => {
 								connections: createActiveConnections( 2 ),
 							},
 						},
-						{ includeActiveConnections: true }
+						{ includeEnabledConnections: true }
 					)
 				).toBe( result + 2 );
 			}

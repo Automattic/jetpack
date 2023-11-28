@@ -1,5 +1,5 @@
 import { SocialStoreState } from '../types';
-import { getEnabledConnections } from './connection-data';
+import { getEnabledConnections, getInitialEnabledConnectionsCount } from './connection-data';
 import settings from './jetpack-settings';
 /**
  * Whether the share limit is enabled.
@@ -63,7 +63,12 @@ export type TotalSharesCountOptions = {
 	/**
 	 * Whether to include active connections
 	 */
-	includeActiveConnections?: boolean;
+	includeEnabledConnections?: boolean;
+
+	/**
+	 * Whether to exclude initial enabled connections
+	 */
+	excludeInitialConnections?: boolean;
 };
 
 /**
@@ -78,15 +83,19 @@ export function getTotalSharesCount(
 	state: SocialStoreState,
 	options: TotalSharesCountOptions = {}
 ) {
-	const count = getSharesUsedCount( state ) + getScheduledSharesCount( state );
+	let count = getSharesUsedCount( state ) + getScheduledSharesCount( state );
 
-	if ( ! options.includeActiveConnections ) {
+	if ( options.excludeInitialConnections ) {
+		count -= getInitialEnabledConnectionsCount( state );
+	}
+
+	if ( ! options.includeEnabledConnections ) {
 		return count;
 	}
 
 	const enabledConnections = getEnabledConnections( state );
 
-	return count + enabledConnections.length;
+	return Math.max( count + enabledConnections.length, 0 );
 }
 
 /**

@@ -5,16 +5,18 @@ import { ShareLimitsBar } from '../share-limits-bar';
 import styles from './styles.module.scss';
 
 export const ShareCountInfo: React.FC = () => {
-	const { showShareLimits, scheduledSharesCount, shareCount, shareLimit, activeConnections } =
+	const { showShareLimits, scheduledSharesCount, shareCount, shareLimit, enabledConnections } =
 		useSelect( select => {
 			const store = select( socialStore );
 
+			const initialConnectionsCount = store.getInitialEnabledConnectionsCount();
+
 			return {
 				showShareLimits: store.showShareLimits(),
-				scheduledSharesCount: store.getScheduledSharesCount(),
+				scheduledSharesCount: store.getScheduledSharesCount() - initialConnectionsCount,
 				shareCount: store.getSharesUsedCount(),
 				shareLimit: store.getShareLimit(),
-				activeConnections: store.getEnabledConnections(),
+				enabledConnections: store.getEnabledConnections(),
 			};
 		}, [] );
 
@@ -29,7 +31,7 @@ export const ShareCountInfo: React.FC = () => {
 				currentCount={ shareCount }
 				scheduledCount={ scheduledSharesCount }
 				className={ styles[ 'bar-wrapper' ] }
-				activeConnectionsCount={ activeConnections.length }
+				enabledConnectionsCount={ enabledConnections.length }
 			/>
 		</ThemeProvider>
 	);

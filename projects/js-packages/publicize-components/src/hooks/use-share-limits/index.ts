@@ -44,7 +44,10 @@ export function useShareLimits(): ShareLimits {
 		const store = select( socialStore );
 
 		const shareLimit = store.getShareLimit();
-		const totalSharesCount = store.getTotalSharesCount( { includeActiveConnections: true } );
+		const totalSharesCount = store.getTotalSharesCount( {
+			includeEnabledConnections: true,
+			excludeInitialConnections: true,
+		} );
 		const scheduledShares = store.getScheduledSharesCount();
 		const usedSharesCount = store.getSharesUsedCount();
 		const messages = getMessages( shareLimit );

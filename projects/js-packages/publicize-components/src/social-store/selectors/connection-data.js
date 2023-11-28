@@ -1,17 +1,39 @@
 /**
- * Returns the connections object from the store.
+ * Returns the connections list from the store.
  *
- * @param {object} state - State object.
+ * @param {import("../types").SocialStoreState} state - State object.
  *
- * @returns {Array} The connections list
+ * @returns {Array<import("../types").Connection>} The connections list
  */
 export function getConnections( state ) {
 	return state.connectionData?.connections ?? [];
 }
 
 /**
+ * Returns the initial connections list from the store.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ *
+ * @returns {Array<import("../types").Connection>} The connections list
+ */
+export function getInitialConnections( state ) {
+	return state.connectionData?.initialConnections ?? [];
+}
+
+/**
+ * Returns the number of initially enabled connections from the store.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ *
+ * @returns {number} The number of initially enabled connections.
+ */
+export function getInitialEnabledConnectionsCount( state ) {
+	return getInitialConnections( state ).filter( connection => connection.enabled ).length;
+}
+
+/**
  * Returns the connections admin URL from the store.
- * @param {object} state - State object.
+ * @param {import("../types").SocialStoreState} state - State object.
  * @returns {string|null} The connections admin URL.
  */
 export function getConnectionsAdminUrl( state ) {
@@ -20,7 +42,7 @@ export function getConnectionsAdminUrl( state ) {
 
 /**
  * Returns whether there are connections in the store.
- * @param {object} state - State object.
+ * @param {import("../types").SocialStoreState} state - State object.
  * @returns {boolean} Whether there are connections.
  */
 export function hasConnections( state ) {
@@ -30,8 +52,8 @@ export function hasConnections( state ) {
 /**
  * Returns the failed Publicize connections.
  *
- * @param {object} state - State object.
- * @returns {Array} List of connections.
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {Array<import("../types").Connection>} List of connections.
  */
 export function getFailedConnections( state ) {
 	const connections = getConnections( state );
@@ -43,8 +65,8 @@ export function getFailedConnections( state ) {
  * Returns a list of Publicize connection service names that require reauthentication from users.
  * iFor example, when LinkedIn switched its API from v1 to v2.
  *
- * @param {object} state - State object.
- * @returns {Array} List of service names that need reauthentication.
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {Array<import("../types").Connection>} List of service names that need reauthentication.
  */
 export function getMustReauthConnections( state ) {
 	const connections = getConnections( state );
@@ -56,7 +78,7 @@ export function getMustReauthConnections( state ) {
 /**
  * Returns the Publicize connections that are enabled.
  *
- * @param {object} state - State object.
+ * @param {import("../types").SocialStoreState} state - State object.
  *
  * @returns {Array} List of enabled connections.
  */
@@ -67,9 +89,9 @@ export function getEnabledConnections( state ) {
 /**
  * Returns the Publicize connections that are disabled.
  *
- * @param {object} state - State object.
+ * @param {import("../types").SocialStoreState} state - State object.
  *
- * @returns {Array} List of disabled connections.
+ * @returns {Array<import("../types").Connection>} List of disabled connections.
  */
 export function getDisabledConnections( state ) {
 	return getConnections( state ).filter( connection => ! connection.enabled );
@@ -78,7 +100,7 @@ export function getDisabledConnections( state ) {
 /**
  * Get the profile details for a connection
  *
- * @param {object} state - State object.
+ * @param {import("../types").SocialStoreState} state - State object.
  * @param {string} service - The service name.
  * @param {object} args - Arguments.
  * @param {boolean} args.forceDefaults - Whether to use default values.
