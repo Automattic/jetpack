@@ -48,7 +48,7 @@ function jetpack_setup_blogging_prompt_response( $post_id ) {
 	if ( $prompt ) {
 		update_post_meta( $post_id, '_jetpack_blogging_prompt_key', $prompt_id );
 		wp_add_post_tags( $post_id, array( 'dailyprompt', "dailyprompt-$prompt_id" ) );
-		if ( ! empty( $prompt['bloganuary_id'] ) ) {
+		if ( array_key_exists( 'bloganuary_id', $prompt ) ) {
 			wp_add_post_tags( $post_id, array( 'bloganuary', $prompt['bloganuary_id'] ) );
 		}
 	}
