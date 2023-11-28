@@ -73,7 +73,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		};
 	}, [] );
 
-	const { requireUpgrade, increaseRequestsCount } = useAiFeature();
+	const { isOverLimit, requireUpgrade, increaseRequestsCount } = useAiFeature();
 
 	const focusOnPrompt = () => {
 		/*
@@ -505,7 +505,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					</InspectorControls>
 				) }
 
-				{ requireUpgrade && isSelected && <UpgradePrompt /> }
+				{ isOverLimit && isSelected && <UpgradePrompt /> }
 				{ ! connected && <ConnectPrompt /> }
 				{ ! isWaitingState && connected && ! requireUpgrade && (
 					<ToolbarControls

@@ -67,6 +67,7 @@
 		"videopress/video-chapters",
 		"create-with-voice",
 		"ai-assistant-backend-prompts",
+		"sharing-button",
 		"sharing-buttons"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
