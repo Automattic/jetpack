@@ -106,7 +106,10 @@
 	display: none;
 }
 
-.contact-form label.checkbox,
+.contact-form label.checkbox {
+	font-weight: normal;
+}
+
 .contact-form label.checkbox-multiple,
 .contact-form label.radio {
 	margin-bottom: 0;
@@ -276,9 +279,13 @@
 	max-width: 75%;
 }
 
-.grunion-field-checkbox-wrap,
 .grunion-field-consent-wrap {
 	align-self: center;
+}
+
+.grunion-field-checkbox-wrap {
+	display: inline-flex;
+	align-items: baseline;
 }
 
 @media only screen and ( min-width: 600px ) {
@@ -417,8 +424,8 @@
 }
 
 
-.contact-form .is-style-outlined .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap),
-.contact-form .is-style-animated .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap) {
+.contact-form .is-style-outlined .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap):not(.grunion-field-checkbox-multiple-wrap):not(.grunion-field-radio-wrap),
+.contact-form .is-style-animated .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap):not(.grunion-field-checkbox-multiple-wrap):not(.grunion-field-radio-wrap) {
 	--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 	position: relative;
 	display: flex;

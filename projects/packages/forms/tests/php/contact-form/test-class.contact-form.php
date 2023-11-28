@@ -1077,8 +1077,8 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$this->assertFieldClasses( $wrapper_div, $attributes );
 		$this->assertFieldLabel( $wrapper_div, $attributes );
 
-		$label = $this->getFirstElement( $wrapper_div, 'label' );
-		$input = $this->getFirstElement( $label, 'input' );
+		$label = $wrapper_div->getElementsByTagName( 'label' )->item( 0 );
+		$input = $wrapper_div->getElementsByTagName( 'input' )->item( 0 );
 
 		$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label ' . $attributes['type'], 'label class doesn\'t match' );
 
