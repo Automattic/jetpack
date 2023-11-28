@@ -8,7 +8,7 @@ import {
 	PublicizePanel,
 	PostPublishReviewPrompt,
 	PostPublishOneClickSharing,
-	SyncPostDataToStore,
+	useSyncPostDataToStore,
 } from '@automattic/jetpack-publicize-components';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody } from '@wordpress/components';
@@ -65,10 +65,10 @@ const JetpackSocialSidebar = () => {
 			} }
 		/>
 	);
+	useSyncPostDataToStore();
 
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
-			<SyncPostDataToStore />
 			{ isModalOpened && <SocialPreviewsModal onClose={ closeModal } /> }
 
 			<PluginSidebarMoreMenuItem target="jetpack-social" icon={ <SocialIcon /> }>
