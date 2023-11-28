@@ -9,7 +9,6 @@ import {
 	createRegistryWithStores,
 	testPost,
 } from '../../../utils/test-utils';
-import { useSyncPostDataToStore } from '../';
 
 const connections = connectionsList.map( connection => ( { ...connection, enabled: true } ) );
 
