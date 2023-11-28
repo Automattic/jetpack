@@ -84,9 +84,13 @@ function current_visitor_can_access( $attributes, $block ) {
 
 	if ( isset( $attributes['selectedPlanIds'] ) ) {
 		$selected_plan_ids = $attributes['selectedPlanIds'];
+	} elseif ( isset( $attributes['selectedPlanId'] ) ) {
+		$selected_plan_ids = array( $attributes['selectedPlanId'] );
 	}
 
-	if ( isset( $block ) && isset( $block->context['premium-content/planIds'] ) ) {
+	if ( isset( $block ) && ! empty( $block->context['premium-content/planId'] ) ) {
+		$selected_plan_ids = array( $block->context['premium-content/planId'] );
+	} elseif ( isset( $block ) && ! empty( $block->context['premium-content/planIds'] ) ) {
 		$selected_plan_ids = $block->context['premium-content/planIds'];
 	}
 
