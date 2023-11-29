@@ -503,6 +503,14 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @return array All inner blocks on the page.
 	 */
 	public function get_additional_blocks_on_page( $cart_or_checkout = 'cart' ) {
+
+		$additional_blocks_on_page_transient_name = 'jetpack_woocommerce_additional_blocks_on_' . $cart_or_checkout . '_page';
+		$additional_blocks_on_page                = get_transient( $additional_blocks_on_page_transient_name );
+
+		if ( false !== $additional_blocks_on_page ) {
+			return $additional_blocks_on_page;
+		}
+
 		$content = $this->cart_content_source;
 
 		if ( 'checkout' === $cart_or_checkout ) {
@@ -550,6 +558,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				$all_inner_blocks = array_merge( $all_inner_blocks, $this->get_inner_blocks( $inner_content ) );
 			}
 		}
+		set_transient( $additional_blocks_on_page_transient_name, $all_inner_blocks, DAY_IN_SECONDS );
 		return $all_inner_blocks;
 	}
 
