@@ -28,7 +28,6 @@ type AIControlProps = {
 	showButtonLabels?: boolean;
 	isTransparent?: boolean;
 	state?: RequestingStateProp;
-	showClearButton?: boolean;
 	showGuideLine?: boolean;
 	onChange?: ( newValue: string ) => void;
 	onSend?: ( currentValue: string ) => void;
@@ -56,7 +55,6 @@ export function AIControl(
 		showButtonLabels = true,
 		isTransparent = false,
 		state = 'init',
-		showClearButton = true,
 		showGuideLine = false,
 		onChange = noop,
 		onSend = noop,
@@ -128,14 +126,6 @@ export function AIControl(
 						ref={ promptUserInputRef }
 					/>
 				</div>
-
-				{ value?.length > 0 && showClearButton && ! loading && (
-					<Button
-						icon={ closeSmall }
-						className="jetpack-components-ai-control__clear"
-						onClick={ () => onChange( '' ) }
-					/>
-				) }
 
 				{ ! showAccept && value?.length > 0 && (
 					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
