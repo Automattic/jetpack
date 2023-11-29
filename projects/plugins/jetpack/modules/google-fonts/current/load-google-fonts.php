@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Tracking;
-
 /**
  * Gets the Google Fonts data
  *
@@ -203,56 +201,6 @@ function jetpack_unregister_deprecated_google_fonts_from_theme_json_data_user( $
 }
 
 add_filter( 'wp_theme_json_data_user', 'jetpack_unregister_deprecated_google_fonts_from_theme_json_data_user' );
-
-/**
- * Filter out the font families from the jetpack-google-fonts provider when saving the user global styles.
- *
- * @param array $post_data The post data to filter.
- * @return array The filtered post data.
- */
-function jetpack_google_fonts_user_global_styles_pre_save( $post_data ) {
-	if ( $post_data['post_type'] !== 'wp_global_styles' ) {
-		return $post_data;
-	}
-
-	$post_content        = stripslashes( $post_data['post_content'] );
-	$raw_data            = json_decode( $post_content, true );
-	$json_decoding_error = json_last_error();
-	if ( JSON_ERROR_NONE !== $json_decoding_error ) {
-		return $post_data;
-	}
-
-	if ( empty( $raw_data['settings']['typography']['fontFamilies'] ) ) {
-		return $post_data;
-	}
-
-	$prev_count = count( $raw_data['settings']['typography']['fontFamilies'] );
-	$raw_data['settings']['typography']['fontFamilies'] = jetpack_google_fonts_filter_out_deprecated_font_data(
-		$raw_data['settings']['typography']['fontFamilies']
-	);
-
-	if ( $prev_count !== count( $raw_data['settings']['typography']['fontFamilies'] ) ) {
-		$tracking = new Tracking();
-		$tracking->record_user_event( 'jetpack_google_fonts_clean_up_dirty_data' );
-	}
-
-	/**
-	 * Clean up the empty properties
-	 */
-	if ( empty( $raw_data['settings']['typography']['fontFamilies'] ) ) {
-		unset( $raw_data['settings']['typography']['fontFamilies'] );
-	}
-
-	if ( empty( $raw_data['settings']['typography'] ) ) {
-		unset( $raw_data['settings']['typography'] );
-	}
-
-	$post_data['post_content'] = wp_json_encode( $raw_data );
-
-	return $post_data;
-}
-
-add_filter( 'wp_insert_post_data', 'jetpack_google_fonts_user_global_styles_pre_save' );
 
 if ( ! class_exists( 'Jetpack_Google_Font_Face' ) ) {
 	/**
