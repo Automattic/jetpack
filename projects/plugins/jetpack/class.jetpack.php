@@ -6766,6 +6766,21 @@ endif;
 			),
 		);
 
+		$products['creator'] = array(
+			'title'             => __( 'Jetpack Creator', 'jetpack' ),
+			'slug'              => 'jetpack_creator_yearly',
+			'description'       => __( 'Craft stunning content, boost your subscriber base, and monetize your online presence.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 50,
+			'included_in_plans' => array( 'complete' ),
+			'features'          => array(
+				_x( 'Unlimited subscriber imports', 'Creator Product Feature', 'jetpack' ),
+				_x( 'Earn more from your content', 'Creator Product Feature', 'jetpack' ),
+				_x( 'Accept payments with PayPal', 'Creator Product Feature', 'jetpack' ),
+				_x( 'Increase earnings with WordAds', 'Creator Product Feature', 'jetpack' ),
+			),
+		);
+
 		$products['scan'] = array(
 			'title'             => __( 'Jetpack Scan', 'jetpack' ),
 			'slug'              => 'jetpack_scan',
