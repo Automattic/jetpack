@@ -124,19 +124,19 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @return array An array with 'success' key indicating the result of the delete operation.
+	 * @return array|\WP_Error An array with 'success' key indicating the result of the delete operation.
 	 */
 	public static function delete_helper_script( $request ) {
 		$path_to_helper_script = $request->get_param( 'path' );
 
 		$helper_script_manager = new Helper_Script_Manager();
-		$deleted               = $helper_script_manager->delete_helper_script( $path_to_helper_script );
+		$delete_result         = $helper_script_manager->delete_helper_script( $path_to_helper_script );
 		$helper_script_manager->cleanup_expired_helper_scripts();
 
-		return rest_ensure_response(
-			array(
-				'success' => $deleted,
-			)
-		);
+		if ( is_wp_error( $delete_result ) ) {
+			return $delete_result;
+		}
+
+		return rest_ensure_response( array( 'success' => true ) );
 	}
 }

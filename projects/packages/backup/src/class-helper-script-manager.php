@@ -7,9 +7,14 @@
 
 namespace Automattic\Jetpack\Backup;
 
+use Exception;
+
 /**
  * Helper_Script_Manager manages installation, deletion and cleanup of Helper Scripts
  * to assist with backing up Jetpack Sites.
+ *
+ * Does *not* use WP_Filesystem, because the helper script is something that we'll call over HTTP, so we don't want it
+ * to end up on an FTP server somewhere. Also, PHP provides us with better error reporting than WP_Filesystem.
  */
 class Helper_Script_Manager {
 
@@ -39,8 +44,21 @@ class Helper_Script_Manager {
 	 */
 	protected $custom_install_locations;
 
+	/**
+	 * Filenames to ignore in scandir()'s return value.
+	 *
+	 * @var string[]
+	 */
+	protected $scandir_ignored_names = array( '.', '..' );
+
+	/**
+	 * Header that the helper script is expected to start with.
+	 */
 	const HELPER_HEADER = "<?php /* Jetpack Backup Helper Script */\n";
 
+	/**
+	 * Lines that will be written to README in the helper directory.
+	 */
 	const README_LINES = array(
 		'These files have been put on your server by Jetpack to assist with backups and restores of your site ' .
 		'content. They are cleaned up automatically when we no longer need them.',
@@ -50,6 +68,9 @@ class Helper_Script_Manager {
 		'the fun – mention this file when you apply!;',
 	);
 
+	/**
+	 * Data that will be written to index.php in the helper directory.
+	 */
 	const INDEX_FILE = '<?php // Silence is golden';
 
 	/**
@@ -118,9 +139,12 @@ class Helper_Script_Manager {
 	 */
 	public function install_helper_script( $script_body ) {
 		// Check that the script body contains the correct header.
-		$header = substr( $script_body, 0, strlen( static::HELPER_HEADER ) );
-		if ( $header !== static::HELPER_HEADER ) {
-			return new \WP_Error( 'bad_header', 'Bad helper script header: 0x' . bin2hex( $header ) );
+		$actual_header = static::string_starts_with_substring( $script_body, static::HELPER_HEADER );
+		if ( true !== $actual_header ) {
+			return new \WP_Error(
+				'bad_header',
+				'Bad helper script header: 0x' . bin2hex( $actual_header )
+			);
 		}
 
 		// Refuse to install a Helper Script that is too large.
@@ -128,8 +152,8 @@ class Helper_Script_Manager {
 		if ( $helper_script_size > static::MAX_FILESIZE ) {
 			return new \WP_Error(
 				'too_big',
-				"Helper script is bigger ($helper_script_size bytes) than the max. size " .
-				'(' . static::MAX_FILESIZE . ' bytes)'
+				"Helper script is bigger ($helper_script_size bytes) " .
+				'than the max. size (' . static::MAX_FILESIZE . ' bytes)'
 			);
 		}
 
@@ -149,33 +173,11 @@ class Helper_Script_Manager {
 			);
 		}
 
-		$wp_filesystem = static::get_wp_filesystem();
-		if ( ! $wp_filesystem ) {
-			return new \WP_Error( 'install_failed', 'Failed to install Helper Script' );
-		}
+		$failure_paths_and_reasons = array();
 
-		// Create a jetpack-temp directory for the Helper Script.
-		$temp_directory = $this->create_temp_directory();
-		if ( \is_wp_error( $temp_directory ) ) {
-			return $temp_directory;
-		}
-
-		// Generate a random filename, avoid clashes.
-		$max_attempts = 5;
-		for ( $attempt = 0; $attempt < $max_attempts; $attempt++ ) {
-			$file_key  = wp_generate_password( 10, false );
-			$file_name = 'jp-helper-' . $file_key . '.php';
-			$file_path = trailingslashit( $temp_directory['path'] ) . $file_name;
-
-			if ( ! $wp_filesystem->exists( $file_path ) ) {
-				// Attempt to write helper script.
-				if ( ! static::put_contents( $file_path, $script_body ) ) {
-					if ( $wp_filesystem->exists( $file_path ) ) {
-						$wp_filesystem->delete( $file_path );
-					}
-
-					continue;
-				}
+		foreach ( $this->install_locations() as $directory => $url ) {
+			try {
+				$installed = $this->install_to_location_or_throw( $script_body, $directory, $url );
 
 				// Always schedule a cleanup run shortly after EXPIRY_TIME.
 				\wp_schedule_single_event(
@@ -183,90 +185,235 @@ class Helper_Script_Manager {
 					'jetpack_backup_cleanup_helper_scripts'
 				);
 
-				// Success! Figure out the URL and return the path and URL.
 				return array(
-					'path'    => $file_path,
-					'url'     => trailingslashit( $temp_directory['url'] ) . $file_name,
+					'path'    => $installed['path'],
+					'url'     => $installed['url'],
 					'abspath' => realpath( ABSPATH ),
 				);
+
+			} catch ( Exception $exception ) {
+				$failure_paths_and_reasons[] = "directory '$directory' (URL '$url'): " . $exception->getMessage();
 			}
 		}
 
-		return new \WP_Error( 'install_faied', 'Failed to install Helper Script' );
+		return new \WP_Error(
+			'all_locations_failed',
+			'Unable to write the helper script to any install locations; ' .
+			'tried: ' . implode( ';', $failure_paths_and_reasons )
+		);
 	}
 
 	/**
-	 * Given a path, verify it looks like a helper script and then delete it if so.
+	 * Install helper script to a directory, or throw an exception.
 	 *
-	 * @param string $path Path to Helper Script to delete.
+	 * @param string $script_body Helper script's body.
+	 * @param string $directory Candidate directory to create "jetpack-temp" in and write the helper script.
+	 * @param string $url Base URL that the files in a directory are expected to be available at.
 	 *
-	 * @return bool True if the file is deleted (or does not exist).
+	 * @return string[] Array with "path" (location to the installed helper script) and "url"
+	 *   (URL of the installed helper script) keys.
+	 * @throws Exception On I/O errors.
 	 */
-	public function delete_helper_script( $path ) {
-		$wp_filesystem = static::get_wp_filesystem();
-		if ( ! $wp_filesystem ) {
-			return false;
+	protected function install_to_location_or_throw( $script_body, $directory, $url ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+		if ( ! is_writable( $directory ) ) {
+			throw new Exception( "Directory '$directory' is not writable" );
 		}
 
-		if ( ! $wp_filesystem->exists( $path ) ) {
-			return true;
+		$temp_dir = trailingslashit( $directory ) . static::TEMP_DIRECTORY;
+
+		if ( ! is_dir( $temp_dir ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+			if ( ! mkdir( $temp_dir ) ) {
+				throw new Exception( "Unable to create directory '$temp_dir'" );
+			}
+		}
+
+		$readme_path = trailingslashit( $temp_dir ) . 'README';
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		if ( false === file_put_contents( $readme_path, implode( "\n\n", static::README_LINES ) ) ) {
+			throw new Exception( "Unable to write README to '$readme_path'" );
+		}
+
+		$index_path = trailingslashit( $temp_dir ) . 'index.php';
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		if ( false === file_put_contents( $index_path, static::INDEX_FILE ) ) {
+			throw new Exception( "Unable to write index.php to '$index_path'" );
+		}
+
+		$file_key  = wp_generate_password( 10, false );
+		$file_name = 'jp-helper-' . $file_key . '.php';
+		$file_path = trailingslashit( $temp_dir ) . $file_name;
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		if ( false === file_put_contents( $file_path, $script_body ) ) {
+			throw new Exception( "Unable to write helper script to '$file_path'" );
+		}
+
+		return array(
+			'path' => $file_path,
+			'url'  => trailingslashit( $url ) . trailingslashit( static::TEMP_DIRECTORY ) . $file_name,
+		);
+	}
+
+	/**
+	 * Ensure that the helper script is gone (by deleting it, if needed).
+	 *
+	 * @param string $path Path to the helper script to delete.
+	 *
+	 * @return true|\WP_Error True if the file helper script is gone (either it got deleted, or it was never there), or
+	 *   WP_Error instance on deletion failures.
+	 */
+	public function delete_helper_script( $path ) {
+		try {
+			$this->delete_helper_script_or_throw( $path );
+		} catch ( Exception $exception ) {
+			return new \WP_Error(
+				'deletion_failure',
+				"Unable to delete helper script at '$path': " . $exception->getMessage()
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Ensure that the helper script is gone (by deleting it, if needed), throw an exception on errors.
+	 *
+	 * @param string $path Path to the helper script to delete.
+	 *
+	 * @return void
+	 * @throws Exception On deletion failures.
+	 */
+	protected function delete_helper_script_or_throw( $path ) {
+
+		if ( ! file_exists( $path ) ) {
+			return;
+		}
+
+		if ( ! is_readable( $path ) ) {
+			throw new Exception( "File '$path' is not readable" );
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+		if ( ! is_writable( $path ) ) {
+			throw new Exception( "File '$path' is not writable" );
+		}
+
+		$helper_script_size = filesize( $path );
+		if ( false === $helper_script_size ) {
+			throw new Exception( "Unable to determine file size for file '$path'" );
 		}
 
 		// Check this file looks like a JPR helper script.
-		if ( ! $this->verify_file_header( $path, static::HELPER_HEADER ) ) {
-			return false;
+		$helper_header_size = strlen( static::HELPER_HEADER );
+		if ( $helper_script_size < $helper_header_size ) {
+			throw new Exception(
+				"Helper script is smaller ($helper_script_size bytes) " .
+				"than the expected header ($helper_header_size bytes)"
+			);
+		}
+		if ( $helper_script_size > static::MAX_FILESIZE ) {
+			throw new Exception(
+				"Helper script is bigger ($helper_script_size bytes) " .
+				'than the max. size (' . static::MAX_FILESIZE . ' bytes)'
+			);
 		}
 
-		if ( $wp_filesystem->delete( $path ) ) {
-			// Delete the directory if it's empty now.
-			$temp_dir = dirname( $path );
-			$this->delete_helper_directory_if_empty( $temp_dir );
-
-			return true;
-		} else {
-			return false;
+		$actual_header = static::verify_file_header( $path, static::HELPER_HEADER );
+		if ( true !== $actual_header ) {
+			throw new Exception( 'Bad helper script header: 0x' . bin2hex( $actual_header ) );
 		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+		if ( ! unlink( $path ) ) {
+			throw new Exception( 'Unable to delete helper script' );
+		}
+
+		$this->delete_helper_directory_if_empty( dirname( $path ) );
 	}
 
 	/**
 	 * Search for Helper Scripts that are suspiciously old, and clean them out.
+	 *
+	 * @return true|\WP_Error True if all expired helper scripts got cleaned up successfully, or an instance of
+	 *   WP_Error if one or more expired helper scripts didn't manage to get cleaned up.
 	 */
 	public function cleanup_expired_helper_scripts() {
-		$this->cleanup_helper_scripts( time() - static::EXPIRY_TIME );
+		try {
+			$this->cleanup_helper_scripts( time() - static::EXPIRY_TIME );
+		} catch ( Exception $exception ) {
+			return new \WP_Error(
+				'cleanup_failed',
+				'Unable to clean up expired helper scripts: ' . $exception->getMessage()
+			);
+		}
+
+		return true;
 	}
 
 	/**
 	 * Search for and delete all Helper Scripts. Used during uninstallation.
+	 *
+	 * @return true|\WP_Error True if all helper scripts got deleted successfully, or an instance of WP_Error if one or
+	 *   more helper scripts didn't manage to get deleted.
 	 */
 	public function delete_all_helper_scripts() {
-		$this->cleanup_helper_scripts();
+		try {
+			$this->cleanup_helper_scripts();
+		} catch ( Exception $exception ) {
+			return new \WP_Error(
+				'cleanup_failed',
+				'Unable to clean up all helper scripts: ' . $exception->getMessage()
+			);
+		}
+
+		return true;
 	}
 
 	/**
 	 * Search for and delete Helper Scripts. If an $expiry_time is specified, only delete Helper Scripts
-	 * with a mtime older than $expiry_time. Otherwise, delete them all.
+	 *   with a mtime older than $expiry_time. Otherwise, delete them all.
 	 *
-	 * @param int|null $expiry_time If specified, only delete scripts older than $expiry_time.
+	 * @param int|null $expiry_time If specified, only delete scripts older than this UNIX timestamp.
+	 *
+	 * @return void
+	 * @throws Exception If one or more helper scripts doesn't manage to get cleaned up.
 	 */
 	protected function cleanup_helper_scripts( $expiry_time = null ) {
-		$wp_filesystem = static::get_wp_filesystem();
-		if ( ! $wp_filesystem ) {
-			return;
-		}
+
+		$error_messages = array();
 
 		foreach ( $this->install_locations() as $directory => $url ) {
-			$temp_dir = trailingslashit( $directory ) . static::TEMP_DIRECTORY;
+			$temp_dir = trailingslashit( trailingslashit( $directory ) . static::TEMP_DIRECTORY );
 
-			if ( $wp_filesystem->is_dir( $temp_dir ) ) {
+			if ( is_dir( $temp_dir ) ) {
+
 				// Find expired helper scripts and delete them.
-				$helper_scripts = $wp_filesystem->dirlist( $temp_dir );
-				if ( is_array( $helper_scripts ) ) {
-					foreach ( $helper_scripts as $entry ) {
-						if (
-							preg_match( '/^jp-helper-.*\.php$/', $entry['name'] ) &&
-							( null === $expiry_time || $entry['lastmodunix'] < $expiry_time )
-						) {
-							$this->delete_helper_script( trailingslashit( $temp_dir ) . $entry['name'] );
+				$temp_dir_contents = scandir( $temp_dir );
+				if ( false === $temp_dir_contents ) {
+					throw new Exception( "Unable to list directory '$temp_dir_contents'" );
+				}
+
+				foreach ( $temp_dir_contents as $name ) {
+
+					if ( in_array( $name, $this->scandir_ignored_names, true ) ) {
+						continue;
+					}
+
+					$full_path = $temp_dir . $name;
+
+					$last_modified = filemtime( $full_path );
+					if ( false === $last_modified ) {
+						throw new Exception( "Unable to get modification time for file '$full_path'" );
+					}
+
+					if ( preg_match( '/^jp-helper-.*\.php$/', $name ) ) {
+						if ( null === $expiry_time || $last_modified < $expiry_time ) {
+							try {
+								$this->delete_helper_script_or_throw( $full_path );
+							} catch ( Exception $exception ) {
+								$error_messages[] = $exception->getMessage();
+							}
 						}
 					}
 				}
@@ -275,179 +422,141 @@ class Helper_Script_Manager {
 				$this->delete_helper_directory_if_empty( $temp_dir );
 			}
 		}
+
+		if ( count( $error_messages ) > 0 ) {
+			throw new Exception(
+				'Unable to clean up one or more helper scripts: ' . implode( ';', $error_messages )
+			);
+		}
 	}
 
 	/**
-	 * Delete a helper script directory if it's empty
+	 * Delete a helper script directory if it's empty.
 	 *
-	 * @param string $dir Path to Helper Script directory.
+	 * @param string $dir Path to the helper script directory.
 	 *
-	 * @return bool True if the directory is deleted
+	 * @return bool True if the directory is missing, or was empty and got deleted; false if directory still contains
+	 *   something and wasn't deleted.
+	 * @throws Exception On I/O errors.
 	 */
 	protected function delete_helper_directory_if_empty( $dir ) {
-		$wp_filesystem = static::get_wp_filesystem();
-		if ( ! $wp_filesystem ) {
-			return false;
-		}
 
-		if ( ! $wp_filesystem->is_dir( $dir ) ) {
-			return false;
-		}
-
-		// Tally the files in the target directory, and reject if there are too many.
-		$dir_contents = $wp_filesystem->dirlist( $dir );
-		if ( $dir_contents === false || count( $dir_contents ) > 2 ) {
-			return false;
+		if ( ! is_dir( $dir ) ) {
+			return true;
 		}
 
 		// Check that the only remaining files are a README and index.php generated by this system.
-		$allowed_files = array(
+		$allowed_files_and_headers = array(
 			'README'    => static::README_LINES[0],
 			'index.php' => static::INDEX_FILE,
 		);
 
-		foreach ( $dir_contents as $entry ) {
-			$basename = $entry['name'];
-			$path     = trailingslashit( $dir ) . $basename;
-			if ( ! isset( $allowed_files[ $basename ] ) ) {
+		$dir_contents = scandir( $dir );
+		if ( false === $dir_contents ) {
+			throw new Exception( "Unable to list directory '$dir'" );
+		}
+
+		if ( count( $dir_contents ) > count( $allowed_files_and_headers ) + count( $this->scandir_ignored_names ) ) {
+			return false;
+		}
+
+		foreach ( $dir_contents as $name ) {
+
+			if ( in_array( $name, $this->scandir_ignored_names, true ) ) {
+				continue;
+			}
+
+			$full_path = trailingslashit( $dir ) . $name;
+			if ( ! isset( $allowed_files_and_headers[ $name ] ) ) {
 				return false;
 			}
 
 			// Verify the file starts with the expected contents.
-			if ( ! $this->verify_file_header( $path, $allowed_files[ $basename ] ) ) {
-				return false;
+			$actual_header = static::verify_file_header( $full_path, $allowed_files_and_headers[ $name ] );
+			if ( true !== $actual_header ) {
+				throw new Exception( "Bad header for file '$full_path': 0x" . bin2hex( $actual_header ) );
 			}
 
-			if ( ! $wp_filesystem->delete( $path ) ) {
-				return false;
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+			if ( ! unlink( $full_path ) ) {
+				throw new Exception( "Unable to delete file '$full_path'" );
 			}
 		}
 
 		// If the directory is now empty, delete it.
-		$dir_contents = $wp_filesystem->dirlist( $dir );
-		if ( $dir_contents === false || count( $dir_contents ) === 0 ) {
-			return $wp_filesystem->rmdir( $dir );
+		$dir_contents_after_cleanup = scandir( $dir );
+		if ( false === $dir_contents_after_cleanup ) {
+			throw new Exception( "Unable to list directory '$dir' after cleanup" );
 		}
 
-		return false;
+		if ( count( $dir_contents_after_cleanup ) <= count( $this->scandir_ignored_names ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+			if ( ! rmdir( $dir ) ) {
+				throw new Exception( "Unable to remove directory '$dir'" );
+			}
+		}
+
+		return true;
 	}
 
 	/**
-	 * Find an appropriate location for a jetpack-temp folder, and create one
+	 * Test if string starts with a substring, and if it doesn't, return the actual prefix.
 	 *
-	 * @return array|\WP_Error Array containing the url and path of the temp directory if successful, WP_Error if not.
+	 * @param string $string String to search in.
+	 * @param string $expected_prefix Expected prefix.
+	 *
+	 * @return bool|string True if string starts with a substring, or the actual prefix that was found instead of the
+	 *   expected prefix.
 	 */
-	protected function create_temp_directory() {
-		$wp_filesystem = static::get_wp_filesystem();
-		if ( ! $wp_filesystem ) {
-			return new \WP_Error( 'temp_directory', 'Failed to create "' . static::TEMP_DIRECTORY . '" directory' );
+	protected static function string_starts_with_substring( $string, $expected_prefix ) {
+		$actual_prefix = substr( $string, 0, strlen( $expected_prefix ) );
+		if ( $actual_prefix !== $expected_prefix ) {
+			return $actual_prefix;
 		}
 
-		foreach ( $this->install_locations() as $directory => $url ) {
-			// Check if the installation location is writeable.
-			if ( ! $wp_filesystem->is_writable( $directory ) ) {
-				continue;
-			}
+		return true;
+	}
 
-			// Create if one doesn't already exist.
-			$temp_dir = trailingslashit( $directory ) . static::TEMP_DIRECTORY;
-			if ( ! $wp_filesystem->is_dir( $temp_dir ) ) {
-				if ( ! $wp_filesystem->mkdir( $temp_dir ) ) {
-					continue;
-				}
+	/**
+	 * Verify that a file exists, is readable, and has the expected header.
+	 *
+	 * @param string $path File to verify.
+	 * @param string $expected_header Header that the file should have.
+	 *
+	 * @return bool|string True if header matches, or an actual header if it doesn't match.
+	 * @throws Exception If the file doesn't exist, isn't readable, or is of the wrong size.
+	 */
+	protected static function verify_file_header( $path, $expected_header ) {
+		if ( ! file_exists( $path ) ) {
+			throw new Exception( "File '$path' does not exist" );
+		}
 
-				// Temp directory created. Drop a README and index.php file in there.
-				static::write_supplementary_temp_files( $temp_dir );
-			}
+		if ( ! is_readable( $path ) ) {
+			throw new Exception( "File '$path' is not readable" );
+		}
 
-			return array(
-				'path' => trailingslashit( $directory ) . static::TEMP_DIRECTORY,
-				'url'  => trailingslashit( $url ) . static::TEMP_DIRECTORY,
+		$file_size = filesize( $path );
+		if ( false === $file_size ) {
+			throw new Exception( "Unable to determine size for file '$path'" );
+		}
+
+		// Check this file looks like a JPR helper script.
+		$expected_header_size = strlen( $expected_header );
+		if ( $file_size < $expected_header_size ) {
+			throw new Exception(
+				"File is smaller ($file_size bytes) " .
+				"than the expected header ($expected_header_size bytes)"
+			);
+		}
+		if ( $file_size > static::MAX_FILESIZE ) {
+			throw new Exception(
+				"File is bigger ($file_size bytes) " .
+				'than the max. size (' . static::MAX_FILESIZE . ' bytes)'
 			);
 		}
 
-		return new \WP_Error( 'temp_directory', 'Failed to create "' . static::TEMP_DIRECTORY . '" directory' );
-	}
-
-	/**
-	 * Write out an index.php file and a README file for a new jetpack-temp directory.
-	 *
-	 * @param string $dir Path to Helper Script directory.
-	 */
-	protected static function write_supplementary_temp_files( $dir ) {
-		$readme_path = trailingslashit( $dir ) . 'README';
-		static::put_contents( $readme_path, implode( "\n\n", static::README_LINES ) );
-
-		$index_path = trailingslashit( $dir ) . 'index.php';
-		static::put_contents( $index_path, static::INDEX_FILE );
-	}
-
-	/**
-	 * Write a file to the specified location with the specified contents.
-	 *
-	 * @param string $file_path Path to write to.
-	 * @param string $contents File contents to write.
-	 *
-	 * @return bool True if successfully written.
-	 */
-	protected static function put_contents( $file_path, $contents ) {
-		$wp_filesystem = static::get_wp_filesystem();
-		if ( ! $wp_filesystem ) {
-			return false;
-		}
-
-		return $wp_filesystem->put_contents( $file_path, $contents );
-	}
-
-	/**
-	 * Checks that a file exists, is readable, and has the expected header.
-	 *
-	 * @param string $file_path File to verify.
-	 * @param string $expected_header Header that the file should have.
-	 *
-	 * @return bool True if the file exists, is readable, and the header matches.
-	 */
-	protected function verify_file_header( $file_path, $expected_header ) {
-		$wp_filesystem = static::get_wp_filesystem();
-		if ( ! $wp_filesystem ) {
-			return false;
-		}
-
-		// Verify the file exists and is readable.
-		if ( ! $wp_filesystem->exists( $file_path ) || ! $wp_filesystem->is_readable( $file_path ) ) {
-			return false;
-		}
-
-		// Verify that the file isn't too big or small.
-		$file_size = $wp_filesystem->size( $file_path );
-		if ( $file_size < strlen( $expected_header ) || $file_size > static::MAX_FILESIZE ) {
-			return false;
-		}
-
-		// Read the file and verify its header.
-		$contents = $wp_filesystem->get_contents( $file_path );
-
-		return ( strncmp( $contents, $expected_header, strlen( $expected_header ) ) === 0 );
-	}
-
-	/**
-	 * Get the WP_Filesystem.
-	 *
-	 * @return \WP_Filesystem|null
-	 */
-	protected static function get_wp_filesystem() {
-		global $wp_filesystem;
-
-		if ( ! $wp_filesystem ) {
-			if ( ! function_exists( '\\WP_Filesystem' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-			}
-
-			if ( ! \WP_Filesystem() ) {
-				return null;
-			}
-		}
-
-		return $wp_filesystem;
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$file_contents = file_get_contents( $path );
+		return static::string_starts_with_substring( $file_contents, $expected_header );
 	}
 }

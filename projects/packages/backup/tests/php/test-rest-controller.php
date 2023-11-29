@@ -153,6 +153,24 @@ class Test_REST_Controller extends TestCase {
 	}
 
 	/**
+	 * Testing the `POST /jetpack/v4/backup-helper-script` endpoint with bad helper script contents.
+	 */
+	public function test_install_backup_helper_script_bad_header() {
+		$body = array(
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+			'helper' => base64_encode( 'totally not a helper script' ),
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $body ) );
+
+		$response = $this->dispatch_request_signed_with_blog_token( $request );
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertStringContainsString( 'Bad header', $response->get_data()['message'] );
+	}
+
+	/**
 	 * Testing the `DELETE /jetpack/v4/backup-helper-script` endpoint when the `path` param is missing.
 	 */
 	public function test_delete_backup_helper_script_missing_required_param() {
@@ -197,6 +215,27 @@ class Test_REST_Controller extends TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 
 		$this->assertTrue( $response->get_data()['success'] );
+	}
+
+	/**
+	 * Testing the `DELETE /jetpack/v4/backup-helper-script` endpoint on success.
+	 */
+	public function test_delete_backup_helper_script_bad_header() {
+		$path = tempnam( sys_get_temp_dir(), 'helper-script' );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $path, str_repeat( 'a', 1024 ) );
+
+		$body = array( 'path' => $path );
+
+		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/backup-helper-script' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $body ) );
+
+		$response = $this->dispatch_request_signed_with_blog_token( $request );
+		$this->assertEquals( 500, $response->get_status() );
+		$this->assertStringContainsString( 'Bad helper script header', $response->get_data()['message'] );
+
+		wp_delete_file( $path );
 	}
 
 	/**

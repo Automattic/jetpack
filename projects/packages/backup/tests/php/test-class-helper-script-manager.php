@@ -139,26 +139,26 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	public function test_install_helper_script() {
 		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
 		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
-		$result                = $helper_script_manager->install_helper_script( $script_body );
+		$install_result        = $helper_script_manager->install_helper_script( $script_body );
 
-		$this->assertIsArray( $result );
+		$this->assertIsArray( $install_result );
 
-		$this->assertArrayHasKey( 'path', $result );
-		$this->assertStringStartsWith( $this->temp_dir . '/jetpack-temp/jp-helper-', $result['path'] );
-		$this->assertSame( strlen( 'jp-helper-0123456789.php' ), strlen( basename( $result['path'] ) ) );
+		$this->assertArrayHasKey( 'path', $install_result );
+		$this->assertStringStartsWith( $this->temp_dir . '/jetpack-temp/jp-helper-', $install_result['path'] );
+		$this->assertSame( strlen( 'jp-helper-0123456789.php' ), strlen( basename( $install_result['path'] ) ) );
 
-		$this->assertArrayHasKey( 'url', $result );
-		$this->assertStringStartsWith( $this->url . '/jetpack-temp/jp-helper-', $result['url'] );
-		$this->assertSame( strlen( 'jp-helper-0123456789.php' ), strlen( basename( $result['url'] ) ) );
+		$this->assertArrayHasKey( 'url', $install_result );
+		$this->assertStringStartsWith( $this->url . '/jetpack-temp/jp-helper-', $install_result['url'] );
+		$this->assertSame( strlen( 'jp-helper-0123456789.php' ), strlen( basename( $install_result['url'] ) ) );
 
-		$this->assertFileExists( $result['path'] );
+		$this->assertFileExists( $install_result['path'] );
 		$this->assertSame(
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			file_get_contents( $result['path'] ),
+			file_get_contents( $install_result['path'] ),
 			str_replace( '[wp_path]', realpath( ABSPATH ), $script_body )
 		);
 
-		$readme_path = dirname( $result['path'] ) . '/README';
+		$readme_path = dirname( $install_result['path'] ) . '/README';
 		$this->assertFileExists( $readme_path );
 
 		$this->assertSame(
@@ -167,7 +167,7 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 			file_get_contents( $readme_path )
 		);
 
-		$index_php_path = dirname( $result['path'] ) . '/index.php';
+		$index_php_path = dirname( $install_result['path'] ) . '/index.php';
 		$this->assertFileExists( $index_php_path );
 
 		$this->assertSame(
@@ -183,10 +183,13 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	public function test_install_helper_script_bad_header() {
 		$script_body           = 'foobarbaz';
 		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
-		$result                = $helper_script_manager->install_helper_script( $script_body );
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'bad_header', $result->get_error_code() );
-		$this->assertSame( 'Bad helper script header: 0x' . bin2hex( $script_body ), $result->get_error_message() );
+		$install_result        = $helper_script_manager->install_helper_script( $script_body );
+		$this->assertInstanceOf( \WP_Error::class, $install_result );
+		$this->assertSame( 'bad_header', $install_result->get_error_code() );
+		$this->assertSame(
+			'Bad helper script header: 0x' . bin2hex( $script_body ),
+			$install_result->get_error_message()
+		);
 	}
 
 	/**
@@ -196,13 +199,13 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 		$script_body           = Helper_Script_Manager::HELPER_HEADER .
 								str_repeat( str_repeat( 'a', 1024 ), 1024 );
 		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
-		$result                = $helper_script_manager->install_helper_script( $script_body );
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'too_big', $result->get_error_code() );
+		$install_result        = $helper_script_manager->install_helper_script( $script_body );
+		$this->assertInstanceOf( \WP_Error::class, $install_result );
+		$this->assertSame( 'too_big', $install_result->get_error_code() );
 		$this->assertSame(
 			'Helper script is bigger (' . strlen( $script_body ) . ' bytes) ' .
 			'than the max. size (' . Helper_Script_Manager::MAX_FILESIZE . ' bytes)',
-			$result->get_error_message()
+			$install_result->get_error_message()
 		);
 	}
 
@@ -212,12 +215,12 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	public function test_install_helper_script_no_wp_path() {
 		$script_body           = Helper_Script_Manager::HELPER_HEADER . 'hello';
 		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
-		$result                = $helper_script_manager->install_helper_script( $script_body );
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'no_wp_path_marker', $result->get_error_code() );
+		$install_result        = $helper_script_manager->install_helper_script( $script_body );
+		$this->assertInstanceOf( \WP_Error::class, $install_result );
+		$this->assertSame( 'no_wp_path_marker', $install_result->get_error_code() );
 		$this->assertSame(
 			"Helper script does not have the '[wp_path]' marker",
-			$result->get_error_message()
+			$install_result->get_error_message()
 		);
 	}
 
@@ -227,18 +230,20 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	public function test_delete_helper_script() {
 		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
 		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
-		$result                = $helper_script_manager->install_helper_script( $script_body );
+		$install_result        = $helper_script_manager->install_helper_script( $script_body );
 
-		$this->assertIsArray( $result );
+		$this->assertIsArray( $install_result );
 
-		$this->assertArrayHasKey( 'path', $result );
-		$this->assertFileExists( $result['path'] );
+		$this->assertArrayHasKey( 'path', $install_result );
+		$this->assertFileExists( $install_result['path'] );
 
-		$jetpack_temp_dir = dirname( $result['path'] );
+		$jetpack_temp_dir = dirname( $install_result['path'] );
 		$this->assertDirectoryExists( $jetpack_temp_dir );
 
-		$this->assertTrue( $helper_script_manager->delete_helper_script( $result['path'] ) );
-		$this->assertFileDoesNotExist( $result['path'] );
+		$delete_result = $helper_script_manager->delete_helper_script( $install_result['path'] );
+		$this->assertNotInstanceOf( \WP_Error::class, $delete_result );
+		$this->assertSame( true, $delete_result );
+		$this->assertFileDoesNotExist( $install_result['path'] );
 		$this->assertDirectoryDoesNotExist( $jetpack_temp_dir );
 	}
 
@@ -256,9 +261,12 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 		$this->assertFileExists( $result['path'] );
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		file_put_contents( $result['path'], 'not a helper script anymore' );
+		file_put_contents( $result['path'], str_repeat( 'a', strlen( $script_body ) ) );
 
-		$this->assertFalse( $helper_script_manager->delete_helper_script( $result['path'] ) );
+		$delete_result = $helper_script_manager->delete_helper_script( $result['path'] );
+		$this->assertInstanceOf( \WP_Error::class, $delete_result );
+		$this->assertStringStartsWith( 'Unable to delete helper script', $delete_result->get_error_message() );
+		$this->assertStringContainsString( 'Bad helper script header', $delete_result->get_error_message() );
 		$this->assertFileExists( $result['path'] );
 	}
 
@@ -269,32 +277,36 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
 		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
 
-		$results = array();
+		$install_results = array();
 		for ( $x = 0; $x < 3; ++$x ) {
-			$results[] = $helper_script_manager->install_helper_script( $script_body );
+			$install_results[] = $helper_script_manager->install_helper_script( $script_body );
 		}
 
-		foreach ( $results as $result ) {
-			$this->assertIsArray( $result );
-			$this->assertArrayHasKey( 'path', $result );
-			$this->assertFileExists( $result['path'] );
+		foreach ( $install_results as $install_result ) {
+			$this->assertIsArray( $install_result );
+			$this->assertArrayHasKey( 'path', $install_result );
+			$this->assertFileExists( $install_result['path'] );
 		}
 
-		$jetpack_temp_dir = dirname( $results[0]['path'] );
+		$jetpack_temp_dir = dirname( $install_results[0]['path'] );
 		$this->assertDirectoryExists( $jetpack_temp_dir );
+		$this->assertFileExists( "$jetpack_temp_dir/README" );
+		$this->assertFileExists( "$jetpack_temp_dir/index.php" );
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch
-		touch( $results[0]['path'], time() - 60 * 60 * 24 * 7 );
+		touch( $install_results[0]['path'], time() - 60 * 60 * 24 * 7 );
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch
-		touch( $results[1]['path'], time() + 60 * 60 );
+		touch( $install_results[1]['path'], time() + 60 * 60 );
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch
-		touch( $results[2]['path'], time() - 60 * 60 * 24 * 7 );
+		touch( $install_results[2]['path'], time() - 60 * 60 * 24 * 7 );
 
-		$helper_script_manager->cleanup_expired_helper_scripts();
+		$cleanup_result = $helper_script_manager->cleanup_expired_helper_scripts();
+		$this->assertNotInstanceOf( \WP_Error::class, $cleanup_result );
+		$this->assertSame( true, $cleanup_result );
 
-		$this->assertFileDoesNotExist( $results[0]['path'] );
-		$this->assertFileExists( $results[1]['path'] );
-		$this->assertFileDoesNotExist( $results[2]['path'] );
+		$this->assertFileDoesNotExist( $install_results[0]['path'] );
+		$this->assertFileExists( $install_results[1]['path'] );
+		$this->assertFileDoesNotExist( $install_results[2]['path'] );
 
 		$this->assertFileExists( "$jetpack_temp_dir/README" );
 		$this->assertFileExists( "$jetpack_temp_dir/index.php" );
@@ -308,27 +320,29 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
 		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
 
-		$results = array();
+		$install_results = array();
 		for ( $x = 0; $x < 3; ++$x ) {
-			$results[] = $helper_script_manager->install_helper_script( $script_body );
+			$install_results[] = $helper_script_manager->install_helper_script( $script_body );
 		}
 
-		foreach ( $results as $result ) {
-			$this->assertIsArray( $result );
-			$this->assertArrayHasKey( 'path', $result );
-			$this->assertFileExists( $result['path'] );
+		foreach ( $install_results as $install_result ) {
+			$this->assertIsArray( $install_result );
+			$this->assertArrayHasKey( 'path', $install_result );
+			$this->assertFileExists( $install_result['path'] );
 
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch
-			touch( $result['path'], time() - 60 * 60 * 24 * 7 );
+			touch( $install_result['path'], time() - 60 * 60 * 24 * 7 );
 		}
 
-		$jetpack_temp_dir = dirname( $results[0]['path'] );
+		$jetpack_temp_dir = dirname( $install_results[0]['path'] );
 		$this->assertDirectoryExists( $jetpack_temp_dir );
 
-		$helper_script_manager->cleanup_expired_helper_scripts();
+		$cleanup_result = $helper_script_manager->cleanup_expired_helper_scripts();
+		$this->assertNotInstanceOf( \WP_Error::class, $cleanup_result );
+		$this->assertSame( true, $cleanup_result );
 
-		foreach ( $results as $result ) {
-			$this->assertFileDoesNotExist( $result['path'] );
+		foreach ( $install_results as $install_result ) {
+			$this->assertFileDoesNotExist( $install_result['path'] );
 		}
 
 		$this->assertDirectoryDoesNotExist( $jetpack_temp_dir );
@@ -341,33 +355,43 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
 		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
 
-		$results = array();
+		$install_results = array();
 		for ( $x = 0; $x < 3; ++$x ) {
-			$results[] = $helper_script_manager->install_helper_script( $script_body );
+			$install_results[] = $helper_script_manager->install_helper_script( $script_body );
 		}
 
-		foreach ( $results as $result ) {
-			$this->assertIsArray( $result );
-			$this->assertArrayHasKey( 'path', $result );
-			$this->assertFileExists( $result['path'] );
+		foreach ( $install_results as $install_result ) {
+			$this->assertNotInstanceOf( \WP_Error::class, $install_result );
+			$this->assertIsArray( $install_result );
+			$this->assertArrayHasKey( 'path', $install_result );
+			$this->assertFileExists( $install_result['path'] );
 		}
 
-		$jetpack_temp_dir = dirname( $results[0]['path'] );
+		$jetpack_temp_dir = dirname( $install_results[0]['path'] );
 		$this->assertDirectoryExists( $jetpack_temp_dir );
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		file_put_contents( $results[1]['path'], 'not a helper script anymore' );
+		file_put_contents( $install_results[1]['path'], str_repeat( 'a', strlen( $script_body ) ) );
 
-		foreach ( $results as $result ) {
+		foreach ( $install_results as $install_result ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch
-			touch( $result['path'], time() - 60 * 60 * 24 * 7 );
+			touch( $install_result['path'], time() - 60 * 60 * 24 * 7 );
 		}
 
-		$helper_script_manager->cleanup_expired_helper_scripts();
+		$cleanup_result = $helper_script_manager->cleanup_expired_helper_scripts();
+		$this->assertInstanceOf( \WP_Error::class, $cleanup_result );
+		$this->assertStringStartsWith(
+			'Unable to clean up expired helper scripts',
+			$cleanup_result->get_error_message()
+		);
+		$this->assertStringContainsString(
+			'Bad helper script header',
+			$cleanup_result->get_error_message()
+		);
 
-		$this->assertFileDoesNotExist( $results[0]['path'] );
-		$this->assertFileExists( $results[1]['path'] );
-		$this->assertFileDoesNotExist( $results[2]['path'] );
+		$this->assertFileDoesNotExist( $install_results[0]['path'] );
+		$this->assertFileExists( $install_results[1]['path'] );
+		$this->assertFileDoesNotExist( $install_results[2]['path'] );
 
 		$this->assertFileExists( "$jetpack_temp_dir/README" );
 		$this->assertFileExists( "$jetpack_temp_dir/index.php" );
@@ -381,24 +405,27 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
 		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
 
-		$results = array();
+		$install_results = array();
 		for ( $x = 0; $x < 3; ++$x ) {
-			$results[] = $helper_script_manager->install_helper_script( $script_body );
+			$install_results[] = $helper_script_manager->install_helper_script( $script_body );
 		}
 
-		foreach ( $results as $result ) {
-			$this->assertIsArray( $result );
-			$this->assertArrayHasKey( 'path', $result );
-			$this->assertFileExists( $result['path'] );
+		foreach ( $install_results as $install_result ) {
+			$this->assertNotInstanceOf( \WP_Error::class, $install_result );
+			$this->assertIsArray( $install_result );
+			$this->assertArrayHasKey( 'path', $install_result );
+			$this->assertFileExists( $install_result['path'] );
 		}
 
-		$jetpack_temp_dir = dirname( $results[0]['path'] );
+		$jetpack_temp_dir = dirname( $install_results[0]['path'] );
 		$this->assertDirectoryExists( $jetpack_temp_dir );
 
-		$helper_script_manager->delete_all_helper_scripts();
+		$delete_result = $helper_script_manager->delete_all_helper_scripts();
+		$this->assertNotInstanceOf( \WP_Error::class, $delete_result );
+		$this->assertSame( true, $delete_result );
 
-		foreach ( $results as $result ) {
-			$this->assertFileDoesNotExist( $result['path'] );
+		foreach ( $install_results as $install_result ) {
+			$this->assertFileDoesNotExist( $install_result['path'] );
 		}
 
 		$this->assertDirectoryDoesNotExist( $jetpack_temp_dir );
@@ -411,28 +438,38 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
 		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
 
-		$results = array();
+		$install_results = array();
 		for ( $x = 0; $x < 3; ++$x ) {
-			$results[] = $helper_script_manager->install_helper_script( $script_body );
+			$install_results[] = $helper_script_manager->install_helper_script( $script_body );
 		}
 
-		foreach ( $results as $result ) {
-			$this->assertIsArray( $result );
-			$this->assertArrayHasKey( 'path', $result );
-			$this->assertFileExists( $result['path'] );
+		foreach ( $install_results as $install_result ) {
+			$this->assertNotInstanceOf( \WP_Error::class, $install_result );
+			$this->assertIsArray( $install_result );
+			$this->assertArrayHasKey( 'path', $install_result );
+			$this->assertFileExists( $install_result['path'] );
 		}
 
-		$jetpack_temp_dir = dirname( $results[0]['path'] );
+		$jetpack_temp_dir = dirname( $install_results[0]['path'] );
 		$this->assertDirectoryExists( $jetpack_temp_dir );
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		file_put_contents( $results[1]['path'], 'not a helper script anymore' );
+		file_put_contents( $install_results[1]['path'], str_repeat( 'a', strlen( $script_body ) ) );
 
-		$helper_script_manager->delete_all_helper_scripts();
+		$delete_result = $helper_script_manager->delete_all_helper_scripts();
+		$this->assertInstanceOf( \WP_Error::class, $delete_result );
+		$this->assertStringStartsWith(
+			'Unable to clean up all helper scripts',
+			$delete_result->get_error_message()
+		);
+		$this->assertStringContainsString(
+			'Bad helper script header',
+			$delete_result->get_error_message()
+		);
 
-		$this->assertFileDoesNotExist( $results[0]['path'] );
-		$this->assertFileExists( $results[1]['path'] );
-		$this->assertFileDoesNotExist( $results[2]['path'] );
+		$this->assertFileDoesNotExist( $install_results[0]['path'] );
+		$this->assertFileExists( $install_results[1]['path'] );
+		$this->assertFileDoesNotExist( $install_results[2]['path'] );
 
 		$this->assertFileExists( "$jetpack_temp_dir/README" );
 		$this->assertFileExists( "$jetpack_temp_dir/index.php" );
