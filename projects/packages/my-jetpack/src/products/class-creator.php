@@ -354,24 +354,4 @@ class Creator extends Product {
 		$has_required_plan = self::has_required_plan();
 		return ! $has_required_plan;
 	}
-	/**
-	 * Activates the product by installing and activating its plugin
-	 *
-	 * @param bool|WP_Error $current_result Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
-	 * @return boolean|\WP_Error
-	 */
-	public static function do_product_specific_activation( $current_result ) {
-
-		$product_activation = parent::do_product_specific_activation( $current_result );
-
-		if ( is_wp_error( $product_activation ) && 'module_activation_failed' === $product_activation->get_error_code() ) {
-			// A bundle is not a module. There's nothing in the plugin to be activated, so it's ok to fail to activate the module.
-			$product_activation = true;
-		}
-
-		// We just "got started" in My Jetpack, so skip the in-plugin experience.
-		update_option( 'jb_get_started', false );
-
-		return $product_activation;
-	}
 }
