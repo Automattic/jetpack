@@ -381,6 +381,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function order_process( $order_id ) {
 		$order = wc_get_order( $order_id );
 
+		$this->additional_blocks_on_cart_page     = $this->get_additional_blocks_on_page( 'cart' );
+		$this->additional_blocks_on_checkout_page = $this->get_additional_blocks_on_page( 'checkout' );
+
 		if (
 			! $order
 			|| ! $order instanceof WC_Order
@@ -427,19 +430,20 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			$this->record_event(
 				'woocommerceanalytics_product_purchase',
 				array(
-					'oi'                => $order->get_order_number(),
-					'pq'                => $order_item->get_quantity(),
-					'device'            => wp_is_mobile() ? 'mobile' : 'desktop',
-					'payment_option'    => $payment_option,
-					'create_account'    => $create_account,
-					'guest_checkout'    => $guest_checkout,
-					'express_checkout'  => $express_checkout,
-					'products_count'    => $order_items_count,
-					'coupon_used'       => $order_coupons_count,
-					'order_value'       => $order->get_total(),
-					'store_currency'    => get_woocommerce_currency(),
-					'additional_blocks' => $this->additional_blocks_on_page,
-					'template_used'     => $this->cart_checkout_templates_in_use ? '1' : '0',
+					'oi'                                 => $order->get_order_number(),
+					'pq'                                 => $order_item->get_quantity(),
+					'device'                             => wp_is_mobile() ? 'mobile' : 'desktop',
+					'payment_option'                     => $payment_option,
+					'create_account'                     => $create_account,
+					'guest_checkout'                     => $guest_checkout,
+					'express_checkout'                   => $express_checkout,
+					'products_count'                     => $order_items_count,
+					'coupon_used'                        => $order_coupons_count,
+					'order_value'                        => $order->get_total(),
+					'store_currency'                     => get_woocommerce_currency(),
+					'additional_blocks_on_cart_page'     => $this->additional_blocks_on_cart_page,
+					'additional_blocks_on_checkout_page' => $this->additional_blocks_on_checkout_page,
+					'template_used'                      => $this->cart_checkout_templates_in_use ? '1' : '0',
 				),
 				$product_id
 			);
