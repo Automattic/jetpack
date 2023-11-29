@@ -1,0 +1,24 @@
+$sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+
+.banner > .banner-card {
+	padding: 0;
+}
+
+.banner-container {
+	padding: 0;
+}
+
+.banner-description {
+	padding: 64px 48px;
+}
+
+.banner-image {
+	margin: 1px;
+	background-image: url(./assets/images/site-cards.png),
+				radial-gradient(circle at 80% 30%, rgba(6, 158, 8, 0.15) 0%, rgba(255, 255, 255, 0) 75%),
+				radial-gradient(circle at 40% 80%, rgba(206, 217, 242, 0.5) 5%, rgba(255, 255, 255, 0) 25%),
+				radial-gradient(circle at 65% 90%, rgba(245, 230, 179, 0.5) 0%, rgba(255, 255, 255, 0) 35%);
+	background-repeat: no-repeat;
+	background-size: cover;
+	border-radius: 0px var(--jp-border-radius) var(--jp-border-radius) 0px;
+}
