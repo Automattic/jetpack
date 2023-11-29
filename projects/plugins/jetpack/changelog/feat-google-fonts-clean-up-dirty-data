@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack Google Fonts: Clean up the old data when saving the user's global styles
