@@ -63,6 +63,11 @@ function wpcomsh_anyone_register_warning() {
 
 	$default_role = get_option( 'default_role' );
 
+	// only show notice for roles with higher permissions - requested in regards to Sensei p6rkRX-6NA-p2#comment-6691
+	if ( ! in_array( $default_role, array( 'administrator', 'shop_manager', 'editor', 'author' ), true ) ) {
+		return;
+	}
+
 	$warning_text_main = ( $pagenow !== 'options-general.php' ) ?
 	/* translators: %1$s default role, %2$s support doc URL, %3$s site options URL, %4$s string highlighting risks*/
 	__(
@@ -94,16 +99,6 @@ function wpcomsh_anyone_register_warning() {
 		case 'author':
 			$warning_text_role = __(
 				'It allows a user to post content.'
-			);
-			break;
-		case 'contributor':
-			$warning_text_role = __(
-				'It allows a user to create but not to post content.'
-			);
-			break;
-		case 'subscriber':
-			$warning_text_role = __(
-				'It could result in spam users but is commonly used in membership sites.'
 			);
 			break;
 		default:

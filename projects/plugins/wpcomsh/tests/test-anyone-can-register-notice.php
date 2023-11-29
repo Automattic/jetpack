@@ -28,13 +28,59 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test show warning for administrators when users_can_register option is active.
+	 * Test show warning for administrators when users_can_register option is active for intended roles: i.e. 'administrator`, `shop_manager`, `editor`, `author`
+	 *
+	 * @param string $role role to test
+	 * @dataProvider role_provider_show
 	 */
-	public function test_anyone_register_warning_added_for_administrator() {
+	public function test_anyone_register_warning_added_for_administrator( $role ) {
+		add_role( 'shop_manager', 'Shop Manager' ); // adding here because it's not a default role; added by WooCommerce generally
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		update_option( 'users_can_register', true );
+		update_option( 'default_role', $role );
 		$output = get_echo( 'wpcomsh_anyone_register_warning' );
 		$this->assertStringContainsString( 'anyone-can-register-notice', $output );
+	}
+
+	/**
+	 * Data provider for test_anyone_register_warning_added_for_administrator.
+	 *
+	 * @return array
+	 */
+	public function role_provider_show() {
+		return array(
+			array( 'administrator' ),
+			array( 'shop_manager' ),
+			array( 'editor' ),
+			array( 'author' ),
+		);
+	}
+
+	/**
+	 * Test confirm warning doesn't show for unintended roles: i.e. not 'administrator`, `shop_manager`, `editor`, `author`
+	 *
+	 * @param string $role role to test
+	 * @dataProvider role_provider_hide
+	 */
+	public function test_anyone_register_warning_displays_for_specific_roles( $role ) {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		update_option( 'users_can_register', true );
+		update_option( 'default_role', $role );
+		$output = get_echo( 'wpcomsh_anyone_register_warning' );
+		$this->assertStringNotContainsString( 'anyone-can-register-notice', $output );
+	}
+
+	/**
+	 * Data provider for test_anyone_register_warning_displays_for_specific_roles.
+	 *
+	 * @return array
+	 */
+	public function role_provider_hide() {
+		return array(
+			array( 'contributor' ),
+			array( 'subscriber' ),
+			array( 'member' ),
+		);
 	}
 
 	/**
@@ -62,27 +108,6 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	 * Test do not show warning for non-administrators when users_can_register is active
 	 */
 	public function test_anyone_register_warning_not_added_for_non_administrator_when_option_active() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
-		update_option( 'users_can_register', true );
-		$output = get_echo( 'wpcomsh_anyone_register_warning' );
-		$this->assertEmpty( $output );
-	}
-
-	/**
-	 * Test do not show warning for administrator when WPCOMSH_ACR_DISMISSED_METADATA is present.
-	 */
-	public function test_anyone_register_warning_not_added_for_administrator_when_metadata_present() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
-		update_option( 'users_can_register', true );
-		update_user_meta( get_current_user_id(), WPCOMSH_ACR_DISMISSED_METADATA, '1' );
-		$output = get_echo( 'wpcomsh_anyone_register_warning' );
-		$this->assertEmpty( $output );
-	}
-
-	/**
-	 * Test do not add notice to admin pages for non-administrators.
-	 */
-	public function test_anyone_register_warning_not_added_for_non_administrator() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 		update_option( 'users_can_register', true );
 		$output = get_echo( 'wpcomsh_anyone_register_warning' );
