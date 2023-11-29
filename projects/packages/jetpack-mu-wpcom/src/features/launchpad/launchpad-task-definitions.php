@@ -676,6 +676,27 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/marketing/connections/' . $data['site_slug_encoded'];
 			},
 		),
+		'front_page_updated'                 => array(
+			'get_title'            => function () {
+				return __( "Update your site's design", 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_legacy_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				$page_on_front = get_option( 'page_on_front', false );
+				if ( $page_on_front ) {
+					return '/page/' . $data['site_slug_encoded'] . '/' . $page_on_front;
+				}
+				return '/site-editor/' . $data['site_slug_encoded'] . '?canvas=edit';
+			},
+		),
+		'legacy_site_launched'               => array(
+			'get_title'             => function () {
+				return __( 'Launch your site', 'jetpack-mu-wpcom' );
+			},
+			'isLaunchTask'          => true,
+			'is_complete_callback'  => 'wpcom_launchpad_is_legacy_site_launched_task_completed',
+			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -1380,7 +1401,7 @@ function wpcom_launchpad_is_task_option_completed( $task ) {
  */
 function wpcom_launchpad_is_legacy_task_option_completed( $task ) {
 	$option_name = 'onboarding_checklist_task_' . $task['id'];
-	return get_option( $option_name, false );
+	return get_option( $option_name, false ) || wpcom_launchpad_is_task_option_completed( $task );
 }
 
 /**
@@ -1391,6 +1412,16 @@ function wpcom_launchpad_is_legacy_task_option_completed( $task ) {
  */
 function wpcom_launchpad_is_user_legacy_task_completed( $task ) {
 	return (bool) get_user_attribute( get_current_user_id(), 'onboarding_checklist_task_' . $task['id'] );
+}
+
+/**
+ * Checks site_launched legacy option is marked as complete.
+ *
+ * @return bool True if the option for the task is marked as complete, false otherwise.
+ */
+function wpcom_launchpad_is_legacy_site_launched_task_completed() {
+	$option_name = 'onboarding_checklist_task_site_launched';
+	return get_option( $option_name, false ) || wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_launched' ) );
 }
 
 /**
