@@ -34,6 +34,13 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	private $additional_blocks_on_cart_page;
 
 	/**
+	 * Tracks any additional blocks loaded on the Checkout page.
+	 *
+	 * @var array
+	 */
+	private $additional_blocks_on_checkout_page;
+
+	/**
 	 * Jetpack_WooCommerce_Analytics_Universal constructor.
 	 */
 	public function __construct() {
