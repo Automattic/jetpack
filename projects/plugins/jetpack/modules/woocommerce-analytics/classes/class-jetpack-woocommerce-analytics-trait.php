@@ -41,6 +41,87 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	protected $checkout_content_source;
 
 	/**
+	 * Gets the content of the cart/checkout page or where the cart/checkout page is ultimately derived from if using a template.
+	 * This method sets the class properties $checkout_content_source and $cart_content_source.
+	 *
+	 * @return void Does not return, but sets class properties.
+	 */
+	public function find_cart_checkout_content_sources() {
+
+		// Cart/Checkout *pages* are in use if the templates are not in use. Return their content and do nothing else.
+		if ( ! $this->cart_checkout_templates_in_use ) {
+			$cart_page_id     = wc_get_page_id( 'cart' );
+			$checkout_page_id = wc_get_page_id( 'checkout' );
+			$cart_page        = get_post( $cart_page_id );
+			$checkout_page    = get_post( $checkout_page_id );
+
+			if ( $cart_page && isset( $cart_page->post_content ) ) {
+				$this->cart_content_source = $cart_page->post_content;
+			}
+			if ( $checkout_page && isset( $checkout_page->post_content ) ) {
+				$this->checkout_content_source = $checkout_page->post_content;
+			}
+			return;
+		}
+
+		// We are in a Block theme - so we need to find out if the templates are being used.
+		// First look using `get_block_template` function -
+		if ( function_exists( 'get_block_template' ) ) {
+			$checkout_template = get_block_template( 'woocommerce/woocommerce//page-checkout' );
+			$cart_template     = get_block_template( 'woocommerce/woocommerce//page-cart' );
+			if ( ! $checkout_template ) {
+				$checkout_template = get_block_template( 'woocommerce/woocommerce//checkout' );
+			}
+			if ( ! $cart_template ) {
+				$cart_template = get_block_template( 'woocommerce/woocommerce//cart' );
+			}
+		}
+
+		if ( function_exists( 'gutenberg_get_block_template' ) ) {
+			$checkout_template = gutenberg_get_block_template( 'woocommerce/woocommerce//page-checkout' );
+			$cart_template     = gutenberg_get_block_template( 'woocommerce/woocommerce//page-cart' );
+			if ( ! $checkout_template ) {
+				$checkout_template = gutenberg_get_block_template( 'woocommerce/woocommerce//checkout' );
+			}
+			if ( ! $cart_template ) {
+				$cart_template = gutenberg_get_block_template( 'woocommerce/woocommerce//cart' );
+			}
+		}
+
+		if ( ! empty( $checkout_template->content ) ) {
+			// Checkout template is in use, but we need to see if the page-content-wrapper is in use, or if the template is being used directly.
+			$this->checkout_content_source = $checkout_template->content;
+			$is_using_page_content         = str_contains( $checkout_template->content, '<!-- wp:woocommerce/page-content-wrapper {"page":"checkout"}' );
+
+			if ( $is_using_page_content ) {
+				// The page-content-wrapper is in use, so we need to get the page content.
+				$checkout_page_id = wc_get_page_id( 'checkout' );
+				$checkout_page    = get_post( $checkout_page_id );
+
+				if ( $checkout_page && isset( $checkout_page->post_content ) ) {
+					$this->checkout_content_source = $checkout_page->post_content;
+				}
+			}
+		}
+
+		if ( ! empty( $cart_template->content ) ) {
+			// Cart template is in use, but we need to see if the page-content-wrapper is in use, or if the template is being used directly.
+			$this->cart_content_source = $cart_template->content;
+			$is_using_page_content     = str_contains( $cart_template->content, '<!-- wp:woocommerce/page-content-wrapper {"page":"cart"}' );
+
+			if ( $is_using_page_content ) {
+				// The page-content-wrapper is in use, so we need to get the page content.
+				$cart_page_id = wc_get_page_id( 'cart' );
+				$cart_page    = get_post( $cart_page_id );
+
+				if ( $cart_page && isset( $cart_page->post_content ) ) {
+					$this->cart_content_source = $cart_page->post_content;
+				}
+			}
+		}
+	}
+
+	/**
 	 * Default event properties which should be included with all events.
 	 *
 	 * @return array Array of standard event props.
