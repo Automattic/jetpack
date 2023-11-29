@@ -48,6 +48,16 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	 */
 	public function find_cart_checkout_content_sources() {
 
+		$cart_checkout_content_cache_transient_name = 'jetpack_woocommerce_analytics_cart_checkout_content_sources';
+
+		$transient_value = get_transient( $cart_checkout_content_cache_transient_name );
+
+		if ( $transient_value ) {
+			$this->cart_content_source     = $transient_value['cart_content_source'];
+			$this->checkout_content_source = $transient_value['checkout_content_source'];
+			return;
+		}
+
 		// Cart/Checkout *pages* are in use if the templates are not in use. Return their content and do nothing else.
 		if ( ! $this->cart_checkout_templates_in_use ) {
 			$cart_page_id     = wc_get_page_id( 'cart' );
@@ -61,6 +71,15 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			if ( $checkout_page && isset( $checkout_page->post_content ) ) {
 				$this->checkout_content_source = $checkout_page->post_content;
 			}
+
+			set_transient(
+				$cart_checkout_content_cache_transient_name,
+				array(
+					'cart_content_source'     => $this->cart_content_source,
+					'checkout_content_source' => $this->checkout_content_source,
+				),
+				DAY_IN_SECONDS
+			);
 			return;
 		}
 
@@ -118,6 +137,15 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 				}
 			}
 		}
+
+		set_transient(
+			$cart_checkout_content_cache_transient_name,
+			array(
+				'cart_content_source'     => $this->cart_content_source,
+				'checkout_content_source' => $this->checkout_content_source,
+			),
+			DAY_IN_SECONDS
+		);
 	}
 
 	/**
