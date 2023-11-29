@@ -29,12 +29,10 @@ export function DataSyncProvider( props: { children: React.ReactNode } ) {
 /**
  * React Query configuration type for DataSync.
  */
-type DataSyncConfig< Schema extends z.ZodSchema, Value extends z.infer< Schema > > = Omit<
-	UseMutationOptions< Value >,
-	'mutationKey'
-> &
-	Omit< UseQueryOptions< Value >, 'queryKey' >;
-
+type DataSyncConfig< Schema extends z.ZodSchema, Value extends z.infer< Schema > > = {
+	query?: Omit< UseQueryOptions< Value >, 'queryKey' >;
+	mutation?: Omit< UseMutationOptions< Value >, 'mutationKey' >;
+};
 /**
  * This is what `useDataSync` returns
  */
@@ -123,7 +121,7 @@ export function useDataSync<
 	};
 
 	return [
-		useQuery( { ...queryConfigDefaults, ...config } ),
-		useMutation( { ...mutationConfigDefaults, ...config } ),
+		useQuery( { ...queryConfigDefaults, ...config.query } ),
+		useMutation( { ...mutationConfigDefaults, ...config.mutation } ),
 	];
 }
