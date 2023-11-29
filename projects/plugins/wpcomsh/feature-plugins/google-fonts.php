@@ -100,6 +100,9 @@ add_action(
 			return;
 		}
 
+		// Sync changes, https://github.com/Automattic/jetpack/pull/34306, to resolve the font issues before next release of Jetpack.
+		require_once __DIR__ . '/google-fonts-unregistered-old-data.php';
+
 		if ( ! class_exists( 'Jetpack_Google_Font_Face' ) ) {
 			require_once __DIR__ . '/class-jetpack-google-font-face.php';
 
