@@ -88,7 +88,7 @@ class Tonesque {
 				$response = wp_safe_remote_get( $image_url );
 				if (
 					is_wp_error( $response )
-					|| ! str_starts_with( $response['headers']['content-type'], 'image/' )
+					|| 200 !== wp_remote_retrieve_response_code( $response )
 				) {
 					return false;
 				}
