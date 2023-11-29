@@ -34,6 +34,13 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	protected $cart_content_source;
 
 	/**
+	 * The content of the checkout page or where the cart page is ultimately derived from if using a template.
+	 *
+	 * @var string
+	 */
+	protected $checkout_content_source;
+
+	/**
 	 * Default event properties which should be included with all events.
 	 *
 	 * @return array Array of standard event props.
