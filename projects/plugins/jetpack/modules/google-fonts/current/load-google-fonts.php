@@ -186,7 +186,7 @@ function jetpack_google_fonts_filter_out_deprecated_font_data( $font_families ) 
  */
 function jetpack_unregister_deprecated_google_fonts_from_theme_json_data_user( $theme_json ) {
 	$raw_data = $theme_json->get_data();
-	$origin   = 'custom';
+	$origin   = 'theme';
 	if ( empty( $raw_data['settings']['typography']['fontFamilies'][ $origin ] ) ) {
 		return $theme_json;
 	}
