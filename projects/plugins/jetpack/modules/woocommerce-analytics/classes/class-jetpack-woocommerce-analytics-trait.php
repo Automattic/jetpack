@@ -31,14 +31,14 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	 *
 	 * @var string
 	 */
-	protected $cart_content_source;
+	protected $cart_content_source = '';
 
 	/**
 	 * The content of the checkout page or where the cart page is ultimately derived from if using a template.
 	 *
 	 * @var string
 	 */
-	protected $checkout_content_source;
+	protected $checkout_content_source = '';
 
 	/**
 	 * Gets the content of the cart/checkout page or where the cart/checkout page is ultimately derived from if using a template.
