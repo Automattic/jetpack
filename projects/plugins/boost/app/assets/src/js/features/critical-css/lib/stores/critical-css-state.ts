@@ -209,7 +209,7 @@ export const criticalCssProgress = derived(
 			return 0;
 		}
 
-		const totalCount = $criticalCssState.providers.length;
+		const totalCount = Math.max( 1, $criticalCssState.providers.length );
 		const doneCount = $criticalCssState.providers.filter(
 			provider => provider.status !== 'pending'
 		).length;
