@@ -817,14 +817,14 @@ async function promptChangelog( argv, needChangelog, types ) {
 			},
 		},
 	] );
-	const commands = {
+
+	return {
 		changelogName: changelogName.changelogName,
-		significance: significance,
-		type: type,
+		significance,
+		type,
 		entry: entry.entry,
 		comment: entry.comment,
 	};
-	return { ...commands };
 }
 
 /**
