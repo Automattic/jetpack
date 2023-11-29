@@ -112,7 +112,7 @@ function jetpack_get_theme_fonts_map() {
  */
 function jetpack_register_google_fonts_to_theme_json( $theme_json ) {
 	$google_fonts_data = jetpack_get_google_fonts_data();
-	if ( ! $google_fonts_data ) {
+	if ( ! $google_fonts_data || ! isset( $google_fonts_data['fontFamilies'] ) || ! is_array( $google_fonts_data['fontFamilies'] ) ) {
 		return $theme_json;
 	}
 
