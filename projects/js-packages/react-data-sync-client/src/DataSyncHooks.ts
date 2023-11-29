@@ -61,7 +61,7 @@ export function useDataSync<
 	namespace: string,
 	key: Key,
 	schema: Schema,
-	config: DataSyncConfig< Schema, Value >
+	config: DataSyncConfig< Schema, Value > = {}
 ): DataSyncHook< Schema, Value > {
 	const datasync = new DataSync( namespace, key, schema );
 	const queryKey = [ key ];
