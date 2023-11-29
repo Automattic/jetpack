@@ -174,7 +174,7 @@ for SLUG in "${TO_RELEASE[@]}"; do
 	# Avoid "There are no changes with content for this write. Proceed?" prompts and empty changelog entries.
 	ANY=false
 	for f in "$CHANGES_DIR"/*; do
-		if [[ -n $( sed -n '/^$/,$ { /[^ \t]/ p }' "$CHANGES_DIR"/* ) ]]; then
+		if [[ -n $( sed -n -e '/^$/,$ { /[^ \t]/ p }' "$f" ) ]]; then
 			ANY=true
 			break
 		fi
