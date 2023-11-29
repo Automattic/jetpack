@@ -59,11 +59,11 @@ export function useDataSync<
 	namespace: string,
 	key: Key,
 	schema: Schema,
-	config: DataSyncConfig< Schema, Value > = {}
+	config: DataSyncConfig< Schema, Value > = {},
+	params: Record< string, string | number > = {}
 ): DataSyncHook< Schema, Value > {
 	const datasync = new DataSync( namespace, key, schema );
-	const queryKey = [ key ];
-
+	const queryKey = [ key, ...Object.values( params ) ];
 	/**
 	 * Defaults for `useQuery`:
 	 * - `queryKey` is the key of the value that's being synced.
@@ -79,7 +79,7 @@ export function useDataSync<
 	 */
 	const queryConfigDefaults = {
 		queryKey,
-		queryFn: ( { signal } ) => datasync.GET( signal ),
+		queryFn: ( { signal } ) => datasync.GET( params, signal ),
 		initialData: datasync.getInitialValue(),
 	};
 
@@ -95,7 +95,7 @@ export function useDataSync<
 	 */
 	const mutationConfigDefaults = {
 		mutationKey: queryKey,
-		mutationFn: datasync.SET,
+		mutationFn: value => datasync.SET( value, params ),
 		onMutate: async data => {
 			const value = schema.parse( data );
 
