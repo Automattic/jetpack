@@ -20,28 +20,32 @@ use Jetpack_Gutenberg;
 function register_block() {
 	Blocks::jetpack_register_block(
 		__DIR__,
-		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+		array(
+			'api_version'     => 3,
+			'render_callback' => __NAMESPACE__ . '\render_block',
+		)
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Like block registration/dependency declaration.
+ * Like block render function.
  *
- * @param array  $attr    Array containing the Like block attributes.
- * @param string $content String containing the Like block content.
+ * @param array $attr    Array containing the Like block attributes.
  *
  * @return string
  */
-function load_assets( $attr, $content ) {
+function render_block( $attr ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
+	$output = 'This is where the like button will go.';
+
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
 		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
-		$content
+		$output
 	);
 }
