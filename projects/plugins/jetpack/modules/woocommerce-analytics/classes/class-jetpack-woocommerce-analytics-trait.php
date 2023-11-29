@@ -65,7 +65,6 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		}
 
 		// We are in a Block theme - so we need to find out if the templates are being used.
-		// First look using `get_block_template` function -
 		if ( function_exists( 'get_block_template' ) ) {
 			$checkout_template = get_block_template( 'woocommerce/woocommerce//page-checkout' );
 			$cart_template     = get_block_template( 'woocommerce/woocommerce//page-cart' );
