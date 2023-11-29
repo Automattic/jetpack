@@ -65,7 +65,7 @@ class WPCOM_REST_API_V2_Endpoint_Following extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_recommendations' ),
-					'permission_callback' => array( $this, 'permission_check' ),
+					'permission_callback' => 'is_user_logged_in',
 					'args'                => array(
 						'number' => array(
 							'type'              => 'number',
