@@ -129,7 +129,7 @@ export function AIControl(
 					/>
 				</div>
 
-				{ value?.length > 0 && showClearButton && (
+				{ value?.length > 0 && showClearButton && ! loading && (
 					<Button
 						icon={ closeSmall }
 						className="jetpack-components-ai-control__clear"
@@ -137,30 +137,38 @@ export function AIControl(
 					/>
 				) }
 
-				<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
-					{ ! loading ? (
-						<Button
-							className={ actionButtonClasses }
-							onClick={ () => onSend?.( value ) }
-							isSmall={ true }
-							disabled={ ! value?.length || disabled }
-							label={ __( 'Send request', 'jetpack-ai-client' ) }
-						>
-							<Icon icon={ arrowUp } />
-							{ showButtonLabels && __( 'Send', 'jetpack-ai-client' ) }
-						</Button>
-					) : (
-						<Button
-							className={ actionButtonClasses }
-							onClick={ onStop }
-							isSmall={ true }
-							label={ __( 'Stop request', 'jetpack-ai-client' ) }
-						>
-							<Icon icon={ closeSmall } />
-							{ showButtonLabels && __( 'Stop (ESC)', 'jetpack-ai-client' ) }
-						</Button>
-					) }
-				</div>
+				{ ! showAccept && value?.length > 0 && (
+					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
+						{ ! loading ? (
+							<Button
+								className="jetpack-components-ai-control__controls-prompt_button"
+								onClick={ () => onSend?.( value ) }
+								variant="primary"
+								disabled={ ! value?.length || disabled }
+								label={ __( 'Send request', 'jetpack-ai-client' ) }
+							>
+								{ showButtonLabels ? (
+									__( 'Generate', 'jetpack-ai-client' )
+								) : (
+									<Icon icon={ arrowUp } />
+								) }
+							</Button>
+						) : (
+							<Button
+								className="jetpack-components-ai-control__controls-prompt_button"
+								onClick={ onStop }
+								variant="secondary"
+								label={ __( 'Stop request', 'jetpack-ai-client' ) }
+							>
+								{ showButtonLabels ? (
+									__( 'Stop', 'jetpack-ai-client' )
+								) : (
+									<Icon icon={ closeSmall } />
+								) }
+							</Button>
+						) }
+					</div>
+				) }
 
 				{ showAccept && (
 					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
@@ -170,8 +178,7 @@ export function AIControl(
 							variant="primary"
 							label={ acceptLabel }
 						>
-							<Icon icon={ check } />
-							{ showButtonLabels && acceptLabel }
+							{ showButtonLabels ? acceptLabel : <Icon icon={ check } /> }
 						</Button>
 					</div>
 				) }
