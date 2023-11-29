@@ -301,7 +301,6 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	 */
 	public function get_cart_checkout_info() {
 		$info = array_merge(
-			array(),
 			$this->get_cart_page_block_usage(),
 			$this->get_checkout_page_block_usage()
 		);
