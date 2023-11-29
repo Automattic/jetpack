@@ -14,15 +14,7 @@ export interface Props {
 }
 
 export const useMetaQuery = ( key: MinifyMetaKeys ) => {
-	const [ { data }, { mutate } ] = useDataSync(
-		'jetpack_boost_ds',
-		key,
-		z.array( z.string() ),
-		{},
-		{
-			random_number: Math.round( Math.random() * 100 ),
-		}
-	);
+	const [ { data }, { mutate } ] = useDataSync( 'jetpack_boost_ds', key, z.array( z.string() ) );
 
 	function updateValues( text: string ) {
 		mutate( text.split( ',' ).map( item => item.trim() ) );
