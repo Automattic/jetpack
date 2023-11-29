@@ -499,47 +499,27 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	/**
 	 * Gets the IDs of additional blocks on the Cart/Checkout pages or templates.
 	 *
-	 * @return void
+	 * @param string $cart_or_checkout Whether to get blocks on the cart or checkout page.
+	 * @return array All inner blocks on the page.
 	 */
-	public function get_additional_blocks_on_page() {
-		global $post;
-		$content  = $post->post_content;
-		$template = null;
+	public function get_additional_blocks_on_page( $cart_or_checkout = 'cart' ) {
+		$content = $this->cart_content_source;
 
-		if ( $this->cart_checkout_templates_in_use ) {
-			if ( function_exists( 'get_block_template' ) ) {
-				$template = get_block_template( 'woocommerce/woocommerce//page-checkout' );
-				if ( ! $template ) {
-					$template = get_block_template( 'woocommerce/woocommerce//checkout' );
-				}
-			}
-
-			if ( function_exists( 'gutenberg_get_block_template' ) ) {
-				$template = gutenberg_get_block_template( 'woocommerce/woocommerce//page-checkout' );
-				if ( ! $template ) {
-					$template = gutenberg_get_block_template( 'woocommerce/woocommerce//checkout' );
-				}
-			}
-
-			if ( ! $template || empty( $template->content ) ) {
-				// $this->additional_blocks_on_page is an empty array already, so no need to reset it here we can just return.
-				return;
-			}
-
-			$content = $template->content;
+		if ( 'checkout' === $cart_or_checkout ) {
+			$content = $this->checkout_content_source;
 		}
 
 		$parsed_blocks = parse_blocks( $content );
 		$other_blocks  = array_filter(
 			$parsed_blocks,
-			function ( $block ) {
+			function ( $block ) use ( $cart_or_checkout ) {
 				if ( ! isset( $block['blockName'] ) ) {
 					return false;
 				}
-				if ( is_checkout() && 'woocommerce/checkout' !== $block['blockName'] ) {
+				if ( 'checkout' === $cart_or_checkout && 'woocommerce/checkout' !== $block['blockName'] ) {
 					return true;
 				}
-				if ( is_cart() && 'woocommerce/cart' !== $block['blockName'] ) {
+				if ( 'cart' === $cart_or_checkout && 'woocommerce/cart' !== $block['blockName'] ) {
 					return true;
 				}
 				return false;
@@ -564,7 +544,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				$all_inner_blocks = array_merge( $all_inner_blocks, $this->get_inner_blocks( $inner_content ) );
 			}
 		}
-		$this->additional_blocks_on_page = $all_inner_blocks;
+		return $all_inner_blocks;
 	}
 
 	/**
