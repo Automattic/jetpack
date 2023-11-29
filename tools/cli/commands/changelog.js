@@ -5,6 +5,7 @@ import process from 'process';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
+import autoComplete from 'inquirer-autocomplete-standalone';
 import { readComposerJson } from '../helpers/json.js';
 import { normalizeProject } from '../helpers/normalizeArgv.js';
 import { projectTypes, allProjects } from '../helpers/projectHelpers.js';
@@ -361,6 +362,7 @@ async function changelogAdd( argv ) {
 			)
 		);
 		const response = await promptChangelog( argv, defaultProjects, defaultTypes );
+		console.log( response );
 		for ( const proj of defaultProjects ) {
 			argv = await formatAutoArgs( proj, argv, response );
 			await changelogArgs( argv );
@@ -715,6 +717,17 @@ async function promptVersion( argv ) {
 }
 
 /**
+ * Takes the user input and searches for a matching item in the array.
+ *
+ * @param {string} input - the user input.
+ * @returns {Array} - the filtered array.
+ */
+async function searchSignificance( input = '' ) {
+	const choices = [ 'patch', 'minor', 'major' ];
+	return choices.filter( choice => choice.toLowerCase().includes( input.toLowerCase() ) );
+}
+
+/**
  * Prompts for changelog options.
  *
  * @param {object} argv - the arguments passed.
@@ -734,45 +747,47 @@ async function promptChangelog( argv, needChangelog, types ) {
 		value,
 		name: `[${ value.padEnd( maxLength, ' ' ) }] ${ name }`,
 	} ) );
-	const commands = await inquirer.prompt( [
-		{
-			type: 'string',
-			name: 'changelogName',
-			message: 'Name your changelog file:',
-			default: gitBranch,
-			validate: input => {
-				const fileExists = doesFilenameExist( input, needChangelog );
-				if ( fileExists ) {
-					return 'Please choose another file name, or delete the file manually.';
-				}
-				return true;
-			},
+	const significanceChoices = {
+		patch: '[patch] Backwards-compatible bug fixes.',
+		minor: '[minor] Added (or deprecated) functionality in a backwards-compatible manner.',
+		major: '[major] Broke backwards compatibility in some way.',
+	};
+
+	const changelogName = await inquirer.prompt( {
+		type: 'string',
+		name: 'changelogName',
+		message: 'Name your changelog file:',
+		default: gitBranch,
+		validate: input => {
+			const fileExists = doesFilenameExist( input, needChangelog );
+			if ( fileExists ) {
+				return 'Please choose another file name, or delete the file manually.';
+			}
+			return true;
 		},
-		{
-			type: 'list',
-			name: 'significance',
-			message: 'Significance of the change, in the style of semantic versioning.',
-			choices: [
-				{
-					value: 'patch',
-					name: '[patch] Backwards-compatible bug fixes.',
-				},
-				{
-					value: 'minor',
-					name: '[minor] Added (or deprecated) functionality in a backwards-compatible manner.',
-				},
-				{
-					value: 'major',
-					name: '[major] Broke backwards compatibility in some way.',
-				},
-			],
+	} );
+	const significance = await autoComplete( {
+		message: 'What is the significance of the change?',
+		source: async input => {
+			const filteredSignificance = await searchSignificance( input );
+			return filteredSignificance.map( choice => {
+				return {
+					value: choice,
+					description: significanceChoices[ choice ],
+				};
+			} );
 		},
-		{
-			type: 'list',
-			name: 'type',
-			message: 'Type of change.',
-			choices: choices,
-		},
+	} );
+	/*
+
+		*/
+	const type = await autoComplete( {
+		type: 'list',
+		name: 'type',
+		message: 'Type of change.',
+		choices: choices,
+	} );
+	const entry = await inquirer.prompt( [
 		{
 			type: 'string',
 			name: 'entry',
@@ -799,6 +814,13 @@ async function promptChangelog( argv, needChangelog, types ) {
 			},
 		},
 	] );
+	const commands = {
+		changelogName: changelogName.changelogName,
+		significance: significance.significance,
+		type: type.type,
+		entry: entry.entry,
+		comment: entry.comment,
+	};
 	return { ...commands };
 }
 
