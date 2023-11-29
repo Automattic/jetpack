@@ -516,6 +516,12 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				if ( ! isset( $block['blockName'] ) ) {
 					return false;
 				}
+				if ( 'woocommerce/classic-shortcode' === $block['blockName'] ) {
+					return false;
+				}
+				if ( 'core/shortcode' === $block['blockName'] ) {
+					return false;
+				}
 				if ( 'checkout' === $cart_or_checkout && 'woocommerce/checkout' !== $block['blockName'] ) {
 					return true;
 				}
