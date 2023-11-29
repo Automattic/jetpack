@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Google Fonts: resolve occasional bug resulting in PHP 8 with latest Gutenberg.
