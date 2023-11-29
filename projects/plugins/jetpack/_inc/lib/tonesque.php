@@ -85,10 +85,13 @@ class Tonesque {
 			}
 
 			if ( empty( $data ) ) {
-				$response = wp_safe_remote_get( $image_url );
+				$response      = wp_safe_remote_get( $image_url );
+				$response_code = wp_remote_retrieve_response_code( $response );
 				if (
 					is_wp_error( $response )
-					|| 200 !== wp_remote_retrieve_response_code( $response )
+					|| ! $response_code
+					|| $response_code < 200
+					|| $response_code >= 300
 				) {
 					return false;
 				}
