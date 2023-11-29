@@ -239,50 +239,54 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	/**
 	 * Gets an array containing the block or shortcode use properties for the Cart page.
 	 *
-	 * @param int $cart_page_id The Cart page's ID.
-	 * @return int[]            An array containing the block or shortcode use properties for the Cart page.
+	 * @return array            An array containing the block or shortcode use properties for the Cart page.
 	 */
-	public function get_cart_page_block_usage( $cart_page_id ) {
+	public function get_cart_page_block_usage() {
 		$new_info = array();
 
-		$new_info['cart_page_contains_cart_block'] = $this->post_contains_text(
-			$cart_page_id,
+		$content                    = $this->cart_content_source;
+		$block_presence             = str_contains(
+			$content,
 			'<!-- wp:woocommerce/cart'
-		) ? 1 : 0;
-
-		$new_info['cart_page_contains_cart_shortcode'] = ( $this->post_contains_text(
-			$cart_page_id,
+		);
+		$shortcode_presence         = str_contains(
+			$content,
 			'[woocommerce_cart]'
-		) || $this->post_contains_text(
-			$cart_page_id,
+		);
+		$classic_shortcode_presence = str_contains(
+			$content,
 			'<!-- wp:woocommerce/classic-shortcode'
-		) ) ? 1 : 0;
+		);
 
+		$new_info['cart_page_contains_cart_block']     = $block_presence ? '1' : '0';
+		$new_info['cart_page_contains_cart_shortcode'] = $shortcode_presence || $classic_shortcode_presence ? '1' : '0';
 		return $new_info;
 	}
 
 	/**
 	 * Gets an array containing the block or shortcode use properties for the Checkout page.
 	 *
-	 * @param int $checkout_page_id The Checkout page's ID.
-	 * @return int[]                An array containing the block or shortcode use properties for the Checkout page.
+	 * @return array                An array containing the block or shortcode use properties for the Checkout page.
 	 */
-	public function get_checkout_page_block_usage( $checkout_page_id ) {
+	public function get_checkout_page_block_usage() {
 		$new_info = array();
 
-		$new_info['checkout_page_contains_checkout_block'] = $this->post_contains_text(
-			$checkout_page_id,
+		$content                    = $this->checkout_content_source;
+		$block_presence             = str_contains(
+			$content,
 			'<!-- wp:woocommerce/checkout'
-		) ? 1 : 0;
-
-		$new_info['checkout_page_contains_checkout_shortcode'] = ( $this->post_contains_text(
-			$checkout_page_id,
+		);
+		$shortcode_presence         = str_contains(
+			$content,
 			'[woocommerce_checkout]'
-		) || $this->post_contains_text(
-			$checkout_page_id,
+		);
+		$classic_shortcode_presence = str_contains(
+			$content,
 			'<!-- wp:woocommerce/classic-shortcode'
-		) ) ? 1 : 0;
+		);
 
+		$new_info['checkout_page_contains_checkout_block']     = $block_presence ? '1' : '0';
+		$new_info['checkout_page_contains_checkout_shortcode'] = $shortcode_presence || $classic_shortcode_presence ? '1' : '0';
 		return $new_info;
 	}
 
@@ -313,8 +317,8 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 
 			$info = array_merge(
 				array(),
-				$this->get_cart_page_block_usage( $cart_page_id ),
-				$this->get_checkout_page_block_usage( $checkout_page_id )
+				$this->get_cart_page_block_usage(),
+				$this->get_checkout_page_block_usage()
 			);
 
 			set_transient( $transient_name, $info, DAY_IN_SECONDS );
