@@ -50,13 +50,6 @@ abstract class Publicize_Base {
 	public $POST_MESS = '_wpas_mess';
 
 	/**
-	 * Post meta key for flagging when the post is a tweetstorm.
-	 *
-	 * @var string
-	 */
-	public $POST_TWEETSTORM = '_wpas_is_tweetstorm';
-
-	/**
 	 * Post meta key for the flagging when the post share feature is disabled.
 	 *
 	 * @var string
@@ -1094,17 +1087,6 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
-		$tweetstorm_args = array(
-			'type'          => 'boolean',
-			'description'   => __( 'Whether or not the post should be treated as a Twitter thread.', 'jetpack-publicize-pkg' ),
-			'single'        => true,
-			'default'       => false,
-			'show_in_rest'  => array(
-				'name' => 'jetpack_is_tweetstorm',
-			),
-			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
-		);
-
 		$publicize_feature_enable_args = array(
 			'type'          => 'boolean',
 			'description'   => __( 'Whether or not the Share Post feature is enabled.', 'jetpack-publicize-pkg' ),
@@ -1197,13 +1179,11 @@ abstract class Publicize_Base {
 			}
 
 			$message_args['object_subtype']                  = $post_type;
-			$tweetstorm_args['object_subtype']               = $post_type;
 			$publicize_feature_enable_args['object_subtype'] = $post_type;
 			$already_shared_flag_args['object_subtype']      = $post_type;
 			$jetpack_social_options_args['object_subtype']   = $post_type;
 
 			register_meta( 'post', $this->POST_MESS, $message_args );
-			register_meta( 'post', $this->POST_TWEETSTORM, $tweetstorm_args );
 			register_meta( 'post', self::POST_PUBLICIZE_FEATURE_ENABLED, $publicize_feature_enable_args );
 			register_meta( 'post', $this->POST_DONE . 'all', $already_shared_flag_args );
 			register_meta( 'post', self::POST_JETPACK_SOCIAL_OPTIONS, $jetpack_social_options_args );
