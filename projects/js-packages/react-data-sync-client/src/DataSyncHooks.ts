@@ -17,7 +17,7 @@ const queryClient = new QueryClient();
 /**
  * React Query Provider for DataSync.
  * This is necessary for React Query to work.
- * @see https://tanstack.com/query/v4/docs/react/reference/QueryClientProvider
+ * @see https://tanstack.com/query/v5/docs/react/reference/QueryClientProvider
  */
 export function DataSyncProvider( props: { children: React.ReactNode } ) {
 	return QueryClientProvider( {
@@ -93,7 +93,7 @@ export function useDataSync<
 	 * - `onError` is used to revert the value back to the previous value if the request fails.
 	 * - `onSettled` is used to invalidate the query after the request is made.
 	 *
-	 * @see https://tanstack.com/query/v4/docs/react/guides/optimistic-updates
+	 * @see https://tanstack.com/query/v5/docs/react/guides/optimistic-updates
 	 */
 	const mutationConfigDefaults = {
 		mutationKey: queryKey,
