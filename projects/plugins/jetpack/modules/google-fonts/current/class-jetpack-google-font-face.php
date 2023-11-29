@@ -75,7 +75,7 @@ class Jetpack_Google_Font_Face {
 
 		$global_styles_font_slug = $this->get_font_slug_from_setting( $global_styles );
 		if ( $global_styles_font_slug ) {
-			$this->fonts_in_use[] = $global_styles_font_slug;
+			$this->add_font( $global_styles_font_slug );
 		}
 
 		if ( isset( $global_styles['blocks'] ) ) {
@@ -83,7 +83,7 @@ class Jetpack_Google_Font_Face {
 				$font_slug = $this->get_font_slug_from_setting( $setting );
 
 				if ( $font_slug ) {
-					$this->fonts_in_use[] = $font_slug;
+					$this->add_font( $font_slug );
 				}
 			}
 		}
@@ -93,7 +93,7 @@ class Jetpack_Google_Font_Face {
 				$font_slug = $this->get_font_slug_from_setting( $setting );
 
 				if ( $font_slug ) {
-					$this->fonts_in_use[] = $font_slug;
+					$this->add_font( $font_slug );
 				}
 			}
 		}
@@ -109,11 +109,20 @@ class Jetpack_Google_Font_Face {
 	 */
 	public function collect_block_fonts( $content, $parsed_block ) {
 		if ( ! is_admin() && isset( $parsed_block['attrs']['fontFamily'] ) ) {
-			$block_font_family    = $parsed_block['attrs']['fontFamily'];
-			$this->fonts_in_use[] = $block_font_family;
+			$block_font_family = $parsed_block['attrs']['fontFamily'];
+			$this->add_font( $block_font_family );
 		}
 
 		return $content;
+	}
+
+	/**
+	 * Add the specify font to the fonts_in_use list.
+	 *
+	 * @param string $font_slug The font slug.
+	 */
+	public function add_font( $font_slug ) {
+		$this->fonts_in_use[] = _wp_to_kebab_case( $font_slug );
 	}
 
 	/**

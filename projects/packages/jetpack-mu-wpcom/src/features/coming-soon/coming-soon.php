@@ -170,7 +170,7 @@ add_filter( 'site_settings_endpoint_get', __NAMESPACE__ . '\add_public_coming_so
  * @return mixed
  */
 function add_public_coming_soon_to_settings_endpoint_post( $input, $unfiltered_input ) {
-	if ( array_key_exists( 'wpcom_public_coming_soon', $unfiltered_input ) ) {
+	if ( is_array( $unfiltered_input ) && array_key_exists( 'wpcom_public_coming_soon', $unfiltered_input ) ) {
 		$input['wpcom_public_coming_soon'] = (int) $unfiltered_input['wpcom_public_coming_soon'];
 	}
 	return $input;
