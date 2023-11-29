@@ -12,6 +12,7 @@
  * Simple Site Calypso: fbhepr%2Skers%2Sgehax%2Sjc%2Qpbagrag%2Syvo%2Subzr%2Sivrjf.cuc%3Se%3Q232480%23179-og
  */
 function wpcomsh_plan_notices() {
+	// phpcs:ignore WordPress.WP.Capabilities.RoleFound
 	if ( ! current_user_can( 'editor' ) && ! current_user_can( 'administrator' ) ) {
 		return;
 	}
@@ -30,7 +31,7 @@ function wpcomsh_plan_notices() {
 
 	$atomic_supported_purchases = array_filter(
 		$purchases,
-		function( $purchase ) {
+		function ( $purchase ) {
 			return wpcom_purchase_has_feature( $purchase, WPCOM_Features::ATOMIC );
 		}
 	);
@@ -42,7 +43,7 @@ function wpcomsh_plan_notices() {
 	// For the off chance that there are more than one purchase, pick the one with the latest expiration.
 	usort(
 		$atomic_supported_purchases,
-		function( $purchase1, $purchase2 ) {
+		function ( $purchase1, $purchase2 ) {
 			if ( strtotime( $purchase1->expiry_date ) === strtotime( $purchase2->expiry_date ) ) {
 				return 0;
 			}

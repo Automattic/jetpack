@@ -153,13 +153,13 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 		 * write mode instead of append, so all the content gets overriden.
 		 */
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 		$log_file = fopen( $log_file_path, 'a' );
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fwrite
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 		fwrite( $log_file, gmdate( 'c' ) . ' ' . $message . "\n" );
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		fclose( $log_file );
 	}
 
@@ -407,6 +407,7 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 			$dir               = dirname( $destination );
 
 			if ( ! is_dir( $dir ) ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
 				mkdir( $dir, 0755, true );
 			}
 

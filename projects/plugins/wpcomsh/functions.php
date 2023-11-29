@@ -149,7 +149,7 @@ function wpcomsh_delete_symlinked_theme( $theme_slug ) {
 	$theme_dir = get_theme_root() . "/$theme_slug";
 
 	if ( file_exists( $theme_dir ) && is_link( $theme_dir ) ) {
-		unlink( $theme_dir );
+		unlink( $theme_dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 
 		return true;
 	}
@@ -208,7 +208,7 @@ function wpcomsh_count_child_themes( $template ) {
 			$theme->get_template() === $template &&
 			$theme->get_stylesheet() !== $theme->get_template()
 		) {
-			$child_count++;
+			++$child_count;
 		}
 	}
 

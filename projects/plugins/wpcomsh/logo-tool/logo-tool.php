@@ -71,7 +71,7 @@ function add_logotool_button( $wp_customize ) {
 
 	add_action(
 		'customize_controls_enqueue_scripts',
-		function() use ( $logo_control ) {
+		function () use ( $logo_control ) {
 			wp_enqueue_script( 'wpcom-logo-tool', plugins_url( 'js/customizer.js', __FILE__ ), array( 'customize-controls' ), '20210706', true );
 			wp_localize_script(
 				'wpcom-logo-tool',
@@ -84,6 +84,5 @@ function add_logotool_button( $wp_customize ) {
 			);
 		}
 	);
-
 }
 add_action( 'customize_register', 'add_logotool_button', 20 );

@@ -21,7 +21,7 @@ if ( ! class_exists( 'Jetpack_Options' ) ) {
 		 * @param string|boolen $default     Optional. Default false.
 		 * @return mixed Option value.
 		 */
-		public static function get_option( $option_name, $default = false ) {
+		public static function get_option( $option_name, $default = false ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.defaultFound
 			return apply_filters( 'jetpack_options', get_option( $option_name, $default ), $option_name );
 		}
 	}

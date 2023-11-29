@@ -29,7 +29,7 @@ class FunctionsTest extends WP_UnitTestCase {
 		define( 'ATOMIC_CLIENT_ID', '2' );
 		add_filter(
 			'wpcomsh_get_atomic_client_id',
-			function() {
+			function () {
 				return '3';
 			}
 		);
@@ -43,7 +43,7 @@ class FunctionsTest extends WP_UnitTestCase {
 	public function test_wpcomsh_get_atomic_client_id_filter() {
 		add_filter(
 			'wpcomsh_get_atomic_client_id',
-			function() {
+			function () {
 				return '1';
 			}
 		);

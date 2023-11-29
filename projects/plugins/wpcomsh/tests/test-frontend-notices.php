@@ -81,7 +81,7 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 	public function test_should_not_show_notice_when_locale_not_en() {
 		add_filter(
 			'locale',
-			function() {
+			function () {
 				return 'fr_FR';
 			}
 		);

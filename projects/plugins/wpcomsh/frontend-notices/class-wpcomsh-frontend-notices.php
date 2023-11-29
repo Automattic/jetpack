@@ -87,7 +87,7 @@ class WPCOMSH_Frontend_Notices {
 
 		return array_filter(
 			$purchases,
-			function( $purchase ) {
+			function ( $purchase ) {
 				return wpcom_purchase_has_feature( $purchase, WPCOM_Features::ATOMIC );
 			}
 		);
@@ -103,7 +103,7 @@ class WPCOMSH_Frontend_Notices {
 	private static function get_correct_purchase( $atomic_purchases ) {
 		usort(
 			$atomic_purchases,
-			function( $purchase1, $purchase2 ) {
+			function ( $purchase1, $purchase2 ) {
 				if ( strtotime( $purchase1->expiry_date ) === strtotime( $purchase2->expiry_date ) ) {
 					return 0;
 				}
@@ -168,5 +168,4 @@ class WPCOMSH_Frontend_Notices {
 	private static function is_english_locale() {
 		return strpos( get_locale(), 'en_' ) !== false;
 	}
-
 }

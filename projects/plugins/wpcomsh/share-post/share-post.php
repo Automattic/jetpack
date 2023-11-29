@@ -77,7 +77,6 @@ function wpcomsh_get_embed_content( $embed ) {
 		'<!-- wp:embed {"url":"%s"} --><figure><div class="wp-block-embed__wrapper">%s</div></figure><!-- /wp:embed -->',
 		esc_url( $embed )
 	);
-
 }
 
 /**

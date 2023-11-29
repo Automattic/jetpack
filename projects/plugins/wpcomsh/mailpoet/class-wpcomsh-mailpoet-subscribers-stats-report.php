@@ -58,6 +58,7 @@ class WPCOMSH_MailPoet_Subscribers_Stats_Report {
 
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$stats_data = $wpdb->get_results( 'SELECT count(id) as `count`, `status` FROM ' . $wpdb->prefix . 'mailpoet_subscribers GROUP BY `status`', ARRAY_A ); // db call ok; no-cache ok
 		$query_args = array( 'v' => 'wpcom-no-pv' );
 

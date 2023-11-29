@@ -43,7 +43,7 @@ class WPCOM_Block_Theme_Footer_Credits {
 
 		// Try to find link to either WordPress.com or .org.
 		// Here we're expecting something along the lines of `<p>Powered by <a href="https://wordpress.org">WordPress</a></p>`
-		$credit_regex   = '/[^>]*<a[^(<|>)]*href="(http|https):\/\/(www\.)?wordpress.(org|com)(\/)?(\?\w+\=\w+)?"(\s?\w+\="[\w\-]+")*>.*<\/a>[^<]*/'; // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+		$credit_regex   = '/[^>]*<a[^(<|>)]*href="(http|https):\/\/(www\.)?wordpress.(org|com)(\/)?(\?\w+\=\w+)?"(\s?\w+\="[\w\-]+")*>.*<\/a>[^<]*/'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 		$credit_matches = preg_match( $credit_regex, $block_content );
 
 		// If there's a successful match, replace with our content.

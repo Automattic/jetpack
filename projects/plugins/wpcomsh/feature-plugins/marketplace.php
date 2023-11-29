@@ -23,7 +23,7 @@ function maybe_limit_to_marketplace_plugins( $plugins ) {
 
 	return array_filter(
 		$plugins,
-		function( $plugin_file ) {
+		function ( $plugin_file ) {
 			// Woocommerce is never purchased, and might not be on this site, but should be shown if it's installed.
 			return $plugin_file === 'woocommerce/woocommerce.php' || wpcomsh_is_marketplace_plugin( $plugin_file );
 		},

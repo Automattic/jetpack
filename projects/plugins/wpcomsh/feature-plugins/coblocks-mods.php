@@ -54,4 +54,3 @@ function wpcomsh_coblocks_there_can_be_only_one_opentable_block() {
 }
 // Use later priority to give coblocks plenty of time to enqueue its scripts.
 add_action( 'enqueue_block_editor_assets', 'wpcomsh_coblocks_there_can_be_only_one_opentable_block', 99 );
-

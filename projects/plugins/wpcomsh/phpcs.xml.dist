@@ -29,6 +29,8 @@
 		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
 		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
 
+		<exclude name="Universal.Files.SeparateFunctionsFromOO.Mixed" />
+
 		<!-- Warning are displayed in GitHub diffs but not blocked from commit. Elevating them to errors will avoid that. -->
 		<type>error</type>
 	</rule>

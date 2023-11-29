@@ -31,7 +31,7 @@ function replace_version( $filename ) {
 		$lines[] = $line;
 	}
 
-	file_put_contents( $filename, $lines ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+	file_put_contents( $filename, $lines ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 }
 
 replace_version( 'wpcomsh.php' );

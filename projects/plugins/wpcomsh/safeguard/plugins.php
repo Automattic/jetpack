@@ -15,7 +15,7 @@ namespace Safeguard;
  * Author URI: http://automattic.com/
  */
 
-require_once dirname( __FILE__ ) . '/utils.php';
+require_once __DIR__ . '/utils.php';
 /**
  * `upgrader_pre_download` filter for checking plugin before install.
  *

@@ -124,5 +124,4 @@ class Marketplace_Webhook_Response extends WP_REST_Controller {
 
 		return ! in_array( $plugin, $folder_names, true );
 	}
-
 }

@@ -237,7 +237,6 @@ class Gifting_Banner {
 			$days_to_expire
 		);
 	}
-
 }
 
 /**

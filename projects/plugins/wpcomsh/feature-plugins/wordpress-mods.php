@@ -57,23 +57,23 @@ function wpcomsh_upgrade_transferred_db() {
 
 	// Logic derived from: https://github.com/WordPress/wordpress-develop/blob/b591209e141e0357a69fff1d01d2650ac2d916cb/src/wp-admin/includes/upgrade.php#L2176
 	if (
-		false !== get_option( 'comment_whitelist' ) &&
+		false !== get_option( 'comment_whitelist' ) && // phpcs:ignore WordPress.WP.DeprecatedParameterValues.Found
 		// Default value from: https://github.com/WordPress/wordpress-develop/blob/f0733600c9b8a0833d7e63f60fae651d46f22320/src/wp-admin/includes/schema.php#L536
 		in_array( get_option( 'comment_previously_approved' ), array( false, 1 /* default value */ ) ) //phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 	) {
-		$comment_previously_approved = get_option( 'comment_whitelist', '' );
+		$comment_previously_approved = get_option( 'comment_whitelist', '' ); // phpcs:ignore WordPress.WP.DeprecatedParameterValues.Found
 		update_option( 'comment_previously_approved', $comment_previously_approved );
 		delete_option( 'comment_whitelist' );
 	}
 
 	// Logic derived from: https://github.com/WordPress/wordpress-develop/blob/b591209e141e0357a69fff1d01d2650ac2d916cb/src/wp-admin/includes/upgrade.php#L2182
 	if (
-		false !== get_option( 'blacklist_keys' ) &&
+		false !== get_option( 'blacklist_keys' ) && // phpcs:ignore WordPress.WP.DeprecatedParameterValues.Found
 		// Default value from https://github.com/WordPress/wordpress-develop/blob/f0733600c9b8a0833d7e63f60fae651d46f22320/src/wp-admin/includes/schema.php#L535
 		in_array( get_option( 'disallowed_keys' ), array( false, '' /* default value */ ) ) //phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 	) {
 		// Use more clear and inclusive language.
-		$disallowed_list = get_option( 'blacklist_keys' );
+		$disallowed_list = get_option( 'blacklist_keys' ); // phpcs:ignore WordPress.WP.DeprecatedParameterValues.Found
 
 		/*
 		 * This option key was briefly renamed `blocklist_keys`.

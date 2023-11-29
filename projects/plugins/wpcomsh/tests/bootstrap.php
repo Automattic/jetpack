@@ -40,7 +40,7 @@ function _manually_load_plugin() {
 	if ( file_exists( WPMU_PLUGIN_DIR . '/wpcomsh-loader.php' ) ) {
 		return;
 	}
-	require_once dirname( dirname( __FILE__ ) ) . '/wpcomsh.php';
+	require_once dirname( __DIR__ ) . '/wpcomsh.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 

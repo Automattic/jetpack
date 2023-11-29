@@ -7,13 +7,13 @@
 
 namespace Safeguard;
 
-use \ZipArchive;
-use \RecursiveDirectoryIterator;
-use \RecursiveIteratorIterator;
-use \WP_Error;
-use \WPCOMSH_Log;
-use \Jetpack_Options;
-use \Jetpack_Client;
+use ZipArchive;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use WP_Error;
+use WPCOMSH_Log;
+use Jetpack_Options;
+use Jetpack_Client;
 
 const DOTORG_API_HOST             = 'https://api.wordpress.org';
 const DOTORG_PLUGINS_HOST         = DOTORG_API_HOST . '/plugins';
@@ -164,11 +164,14 @@ function clean_folder( $dir ) {
 
 	foreach ( $old_files as $old_file ) {
 		if ( $old_file->isDir() ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
 			rmdir( $old_file->getRealPath() );
 		} else {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 			unlink( $old_file->getRealPath() );
 		}
 	}
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
 	rmdir( $dir );
 
 	return true;
@@ -203,7 +206,7 @@ function get_plugin_data_from_package( $package ) {
 	$tmp_plugin_dir = @ opendir( $tmp_plugin_folder ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
 	$plugin_files   = array();
 	if ( $tmp_plugin_dir ) {
-		while ( ( $file = readdir( $tmp_plugin_dir ) ) !== false ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition
+		while ( ( $file = readdir( $tmp_plugin_dir ) ) !== false ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			if ( substr( $file, 0, 1 ) === '.' ) {
 				continue;
 			}
@@ -213,7 +216,7 @@ function get_plugin_data_from_package( $package ) {
 
 				$plugins_subdir = @ opendir( $tmp_plugin_folder . '/' . $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
 				if ( $plugins_subdir ) {
-					while ( ( $subfile = readdir( $plugins_subdir ) ) !== false ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition
+					while ( ( $subfile = readdir( $plugins_subdir ) ) !== false ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 						if ( substr( $subfile, 0, 1 ) === '.' ) {
 							continue;
 						}
@@ -223,13 +226,11 @@ function get_plugin_data_from_package( $package ) {
 					}
 					closedir( $plugins_subdir );
 				}
-			} else {
-				if ( substr( $file, -4 ) === '.php' ) {
+			} elseif ( substr( $file, -4 ) === '.php' ) {
 					$plugin_files[] = $file;
 
 					// Get plugin slug from the file.
 					$plugin_folder = $tmp_plugin_folder . '/' . $file;
-				}
 			}
 		}
 		closedir( $tmp_plugin_dir );

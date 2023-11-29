@@ -72,7 +72,7 @@ function wpcomsh_mimic_admin_page_load() {
 		define( 'WP_ADMIN', true );
 		add_action(
 			'wp_loaded',
-			function() {
+			function () {
 				require_once ABSPATH . 'wp-admin/includes/admin.php';
 			}
 		);

@@ -113,7 +113,7 @@ function wpcom_public_coming_soon_replace_yoast_seo_notice() {
 	// Only show the notice on certain admin pages and Yoast SEO admin pages.
 	if (
 		$should_replace_yoast_notice
-		&& $wpseo_options['ignore_search_engines_discouraged_notice'] == true // phpcs:ignore WordPress.PHP.StrictComparisons
+		&& $wpseo_options['ignore_search_engines_discouraged_notice'] == true // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 		&& ( $on_wpseo_admin_page || in_array( $pagenow, $notice_pages, true ) )
 	) {
 		// Get site slug & settings url.

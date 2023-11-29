@@ -48,14 +48,14 @@ function wpcom_post_has_changed_since_last_revision( $post_id, $post ) {
 	 * @param WP_Post $last_revision     The last revision post object.
 	 * @param WP_Post $post              The post object.
 	 */
-	if ( ! apply_filters( 'wp_save_post_revision_check_for_changes', $check_for_changes = true, $last_revision, $post ) ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition
+	if ( ! apply_filters( 'wp_save_post_revision_check_for_changes', $check_for_changes = true, $last_revision, $post ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.Found
 		return true;
 	}
 
 	$post_has_changed = false;
 
 	foreach ( array_keys( _wp_post_revision_fields( $post ) ) as $field ) {
-		if ( normalize_whitespace( $post->$field ) != normalize_whitespace( $last_revision->$field ) ) { // phpcs:ignore WordPress.PHP.StrictComparisons
+		if ( normalize_whitespace( $post->$field ) != normalize_whitespace( $last_revision->$field ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 			$post_has_changed = true;
 			break;
 		}

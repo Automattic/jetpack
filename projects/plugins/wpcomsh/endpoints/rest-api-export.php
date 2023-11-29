@@ -75,7 +75,7 @@ function wpcomsh_rest_api_export( $request = null ) {
 	// Capture and stream WXR output of export_wp to $upload_file.
 	ob_start(
 		function ( $data ) use ( $upload_file ) {
-			file_put_contents( $upload_file, $data, FILE_APPEND ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+			file_put_contents( $upload_file, $data, FILE_APPEND ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 			return '';
 		},
 		1048576
@@ -86,7 +86,7 @@ function wpcomsh_rest_api_export( $request = null ) {
 		// Exception occurred, delete failed export file before returning error.
 		ob_end_clean();
 		delete_transient( $export_name );
-		@unlink( $upload_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+		@unlink( $upload_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink,WordPress.PHP.NoSilencedErrors.Discouraged
 		return new WP_REST_Response(
 			array(
 				'error' => $e->getMessage(),

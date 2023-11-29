@@ -224,7 +224,7 @@ function fetch_option_from_wpcom( $option ) {
  *
  * @return bool
  */
-function site_is_coming_soon() : bool {
+function site_is_coming_soon(): bool {
 	if ( ! site_is_private() ) {
 		return false;
 	}
@@ -250,7 +250,7 @@ function site_is_coming_soon() : bool {
  *
  * @return bool
  */
-function site_is_public_coming_soon() : bool {
+function site_is_public_coming_soon(): bool {
 	if ( site_is_private() ) {
 		return false;
 	}
@@ -263,7 +263,7 @@ function site_is_public_coming_soon() : bool {
  *
  * @return string
  */
-function site_launch_status() : string {
+function site_launch_status(): string {
 	// We need to check for launch status for private by default sites and coming soon + public by default sites.
 	if ( ! site_is_private() && ! site_is_public_coming_soon() ) {
 		return '';
@@ -810,7 +810,7 @@ function hide_opml() {
 function filter_jetpack_active_modules( $modules ) {
 	return array_filter(
 		$modules,
-		function( $module_name ) {
+		function ( $module_name ) {
 			return ! in_array( $module_name, DISABLED_JETPACK_MODULES_WHEN_PRIVATE, true );
 		}
 	);
@@ -826,7 +826,7 @@ function filter_jetpack_active_modules( $modules ) {
 function filter_jetpack_get_available_modules( $modules ) {
 	return array_filter(
 		$modules,
-		function( $module_name ) {
+		function ( $module_name ) {
 			return ! in_array( $module_name, DISABLED_JETPACK_MODULES_WHEN_PRIVATE, true );
 		},
 		ARRAY_FILTER_USE_KEY
@@ -889,7 +889,7 @@ function use_classic_editor_if_requested() {
 	 */
 	add_filter(
 		'get_user_metadata',
-		function( $value, $object_id, $meta_key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		function ( $value, $object_id, $meta_key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 			if ( $meta_key === 'calypsoify' ) {
 				return 0;
 			}

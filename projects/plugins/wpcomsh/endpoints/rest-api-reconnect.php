@@ -121,7 +121,7 @@ function wpcomsh_rest_api_reconnect( $request = null ) { // phpcs:ignore Generic
 	}
 
 	$_blog_id = (int) Jetpack_Options::get_option( 'id' );
-	if ( $_blog_id != $package->blog_id ) { // phpcs:ignore WordPress.PHP.StrictComparisons
+	if ( $_blog_id != $package->blog_id ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 		return new WP_REST_Response(
 			array(
 				'error' => 'reconnect package blog_id invalid',

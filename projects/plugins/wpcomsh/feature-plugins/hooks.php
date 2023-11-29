@@ -240,7 +240,7 @@ function wpcomsh_maybe_disable_permalink_page() {
 	} else {
 		add_action(
 			'admin_notices',
-			function() {
+			function () {
 				echo '<div class="notice notice-warning"><p>' . esc_html__( 'Proxied only: You can see this because you are proxied. Do not use this if you don\'t know why you are here.', 'wpcomsh' ) . '</p></div>';
 			}
 		);

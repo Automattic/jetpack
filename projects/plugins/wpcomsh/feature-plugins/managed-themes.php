@@ -94,7 +94,7 @@ function wpcomsh_jetpack_wpcom_theme_skip_download( $skip_download_filter_result
 	// Skip the theme installation as we've "installed" (symlinked) it manually above.
 	add_filter(
 		'jetpack_wpcom_theme_install',
-		function() use ( $was_theme_symlinked ) {
+		function () use ( $was_theme_symlinked ) {
 			return $was_theme_symlinked;
 		},
 		10,

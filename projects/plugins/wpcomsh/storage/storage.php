@@ -158,7 +158,7 @@ function wpcomsh_allow_file_uploads_with_invalid_mime_types( $file_data, $file, 
 
 	// Duplicate the mime types as a work around for https://bugs.php.net/bug.php?id=78028
 	$_allowed = array_map(
-		function( $item ) {
+		function ( $item ) {
 			return $item . $item;
 		},
 		$allowed

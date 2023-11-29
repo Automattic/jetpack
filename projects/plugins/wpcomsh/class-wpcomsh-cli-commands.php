@@ -59,7 +59,7 @@ define( 'WPCOMSH_CLI_DEACTIVATED_PLUGIN_RECORD_CLEANUP_JOB', 'wpcomsh_cli_cleanu
  */
 WP_CLI::add_hook(
 	'before_run_command',
-	function() {
+	function () {
 		$runner            = WP_CLI::get_runner();
 		$disabled_commands = array(
 			array( 'core', 'multisite-install' ),
@@ -119,7 +119,7 @@ function wpcomsh_cli_get_plugins_with_status( $status ) {
 	}
 
 	return array_map(
-		function( $plugin ) {
+		function ( $plugin ) {
 			return $plugin->name; },
 		$decoded_result
 	);
@@ -430,7 +430,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 */
 		public function post_clone( $args, $assoc_args = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 				$plugins = array(
-					'woocommerce-payments' => function() {
+					'woocommerce-payments' => function () {
 						$account = \WC_Payments::get_account_service();
 						$account->clear_cache();
 					},
@@ -636,6 +636,7 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 		}
 
 		if ( is_link( $plugin_to_symlink ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 			if ( false === unlink( $plugin_to_symlink ) ) {
 				WP_CLI::error( "Failed to remove conflicting symlink '$plugin_to_symlink'" );
 				exit( -1 );
@@ -745,6 +746,7 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 		}
 
 		if ( is_link( $theme_to_symlink ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 			if ( false === unlink( $theme_to_symlink ) ) {
 				WP_CLI::error( "Failed to remove conflicting symlink '$theme_to_symlink'" );
 				exit( -1 );
@@ -801,7 +803,7 @@ if ( ! defined( 'WP_CLI' ) || true !== WP_CLI ) {
 // Force WordPress to always output English at the command line.
 WP_CLI::add_wp_hook(
 	'pre_option_WPLANG',
-	function() {
+	function () {
 		return 'en_US';
 	}
 );
@@ -839,4 +841,3 @@ add_action(
 		}
 	}
 );
-

@@ -64,7 +64,7 @@ add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file', 9
 // Load translations for wpcomsh itself via MO file.
 add_action(
 	'plugins_loaded',
-	function() {
+	function () {
 		load_muplugin_textdomain( 'wpcomsh', 'wpcomsh/languages' );
 	}
 );
@@ -75,7 +75,7 @@ add_action(
  */
 add_filter(
 	'load_script_textdomain_relative_path',
-	function( $relative, $src ) {
+	function ( $relative, $src ) {
 		if ( class_exists( 'Jetpack_Photon_Static_Assets_CDN' ) ) {
 			// Get the local path from a URL which was CDN'ed by cdnize_plugin_assets().
 			if ( preg_match( '#^' . preg_quote( Jetpack_Photon_Static_Assets_CDN::CDN, '#' ) . 'p/[^/]+/[^/]+/(.*)$#', $src, $m ) ) {
@@ -92,7 +92,7 @@ add_filter(
 // Ensure use of the correct local path when loading the JavaScript translation file for a CDN'ed asset.
 add_filter(
 	'load_script_translation_file',
-	function( $file, $handle ) {
+	function ( $file, $handle ) {
 		global $wp_scripts;
 		if ( class_exists( 'Jetpack_Photon_Static_Assets_CDN' ) ) {
 			// This is a rewritten plugin URL, so load the language file from the plugins path.

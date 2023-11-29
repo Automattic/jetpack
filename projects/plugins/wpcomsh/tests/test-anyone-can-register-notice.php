@@ -154,7 +154,6 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 		update_option( 'users_can_register', false );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$this->assertEquals( 0, $wpdb->query( $wpdb->prepare( "SELECT * FROM $wpdb->usermeta WHERE meta_key = %s", $metakey ) ) );
-
 	}
 
 	/**

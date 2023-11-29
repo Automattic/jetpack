@@ -248,7 +248,7 @@ function wpcomsh_apply_headstart_custom_term_meta( $custom_term_meta, $term_id_m
 		$has_term_meta      = has_term_meta( $new_term_id );
 		if ( ! empty( $has_term_meta ) ) {
 			$existing_meta_keys = array_map(
-				function( $row ) {
+				function ( $row ) {
 					return $row['meta_key'];
 				},
 				$has_term_meta

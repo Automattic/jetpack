@@ -5,7 +5,7 @@
  * @package wpcomsh
  */
 
-$current_dir = dirname( __FILE__ );
+$current_dir = __DIR__;
 
 // Base paths containing the location of WP.com and storefront themes, defined in Atomic.
 if ( ! defined( 'THEMES_SYMLINK_BASE' ) || ! defined( 'THEMES_PATH_BASE' ) ) {
