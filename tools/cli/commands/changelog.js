@@ -362,7 +362,6 @@ async function changelogAdd( argv ) {
 			)
 		);
 		const response = await promptChangelog( argv, defaultProjects, defaultTypes );
-		console.log( response );
 		for ( const proj of defaultProjects ) {
 			argv = await formatAutoArgs( proj, argv, response );
 			await changelogArgs( argv );
