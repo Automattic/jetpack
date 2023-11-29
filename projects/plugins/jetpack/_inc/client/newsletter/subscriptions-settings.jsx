@@ -122,8 +122,7 @@ function SubscriptionsSettings( props ) {
 							disabled={
 								! isSubscriptionsActive ||
 								unavailableInOfflineMode ||
-								isSavingAnyOption( [ 'subscriptions' ] ) ||
-								! isLinked
+								isSavingAnyOption( [ 'subscriptions' ] )
 							}
 							toggling={ isSavingAnyOption( [ 'stb_enabled' ] ) }
 							onChange={ handleSubscribeToBlogToggleChange }
@@ -137,8 +136,7 @@ function SubscriptionsSettings( props ) {
 							disabled={
 								! isSubscriptionsActive ||
 								unavailableInOfflineMode ||
-								isSavingAnyOption( [ 'subscriptions' ] ) ||
-								! isLinked
+								isSavingAnyOption( [ 'subscriptions' ] )
 							}
 							toggling={ isSavingAnyOption( [ 'stc_enabled' ] ) }
 							onChange={ handleSubscribeToCommentToggleChange }
@@ -152,8 +150,7 @@ function SubscriptionsSettings( props ) {
 							disabled={
 								! isSubscriptionsActive ||
 								unavailableInOfflineMode ||
-								isSavingAnyOption( [ 'subscriptions' ] ) ||
-								! isLinked
+								isSavingAnyOption( [ 'subscriptions' ] )
 							}
 							toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
 							onChange={ handleSubscribeModalToggleChange }
