@@ -156,7 +156,13 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 		$top_posts = array();
 
 		foreach ( $data['summary']['postviews'] as $post ) {
-			$post_id = $post['id'];
+			$post_id   = $post['id'];
+			$thumbnail = get_the_post_thumbnail_url( $post_id );
+
+			if ( ! $thumbnail ) {
+				$post_image = reset( get_attached_media( 'image', $post_id ) );
+				$thumbnail  = wp_get_attachment_url( $post_image->ID );
+			}
 
 			if ( $post['public'] ) {
 				$top_posts[] = array(
@@ -169,7 +175,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 					'type'      => $post['type'],
 					'public'    => $post['public'],
 					'views'     => $post['views'],
-					'thumbnail' => get_the_post_thumbnail_url( $post_id ),
+					'thumbnail' => $thumbnail,
 				);
 			}
 		}

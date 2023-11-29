@@ -68,9 +68,15 @@ function load_assets( $attributes ) {
 	foreach ( $data as $item ) {
 		$output .= '<div class="jetpack-top-posts-item">';
 
-		if ( $attributes['displayThumbnail'] && ! empty( $item['thumbnail'] ) ) {
+		if ( $attributes['displayThumbnail'] ) {
 			$output .= '<a class="jetpack-top-posts-thumbnail-link" href="' . esc_url( $item['href'] ) . '">';
-			$output .= '<img class="jetpack-top-posts-thumbnail" src="' . esc_url( $item['thumbnail'] ) . '" alt="' . esc_attr( $item['title'] ) . '">';
+
+			if ( ! empty( $item['thumbnail'] ) ) {
+				$output .= '<img class="jetpack-top-posts-thumbnail" src="' . esc_url( $item['thumbnail'] ) . '" alt="' . esc_attr( $item['title'] ) . '">';
+			} else {
+				$output .= '<div class="jetpack-top-posts-mock-thumbnail"></div>';
+			}
+
 			$output .= '</a>';
 		}
 

@@ -23,6 +23,11 @@ function TopPostsPreviewItem( props ) {
 					/>
 				</a>
 			) }
+			{ props.displayThumbnail && ! props.thumbnail && (
+				<a className="jetpack-top-posts-thumbnail-link">
+					<div className="jetpack-top-posts-mock-thumbnail"></div>
+				</a>
+			) }
 			<a className="jetpack-top-posts-title">{ props.title }</a>
 			{ props.displayDate && (
 				<span className="jetpack-top-posts-date has-small-font-size">{ props.date }</span>

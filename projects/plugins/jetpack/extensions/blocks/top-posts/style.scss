@@ -25,6 +25,7 @@
 
 	&.is-grid-layout {
 		.jetpack-top-posts-wrapper {
+			align-items: end;
 			display: grid;
 			grid: auto / repeat( 6, 1fr );
 			gap: 16px 12px;
@@ -32,10 +33,22 @@
 			@media only screen and ( max-width: $break-small ) {
 				display: block;
 
+				.jetpack-top-posts-mock-thumbnail {
+					display: none;
+				}
+
 				.jetpack-top-posts-item {
 					margin-bottom: $jetpack-block-margin-bottom;
 				}
 			}
+		}
+
+		.jetpack-top-posts-mock-thumbnail {
+			background-color: $gray-100;
+			height: 0;
+			padding-bottom: 65%;
+			position: relative;
+			width: 100%;
 		}
 
 		.jetpack-top-posts-item {
@@ -43,7 +56,7 @@
 		}
 
 		// These rows should display two items.
-		@for $i from 2 through 9 {
+		@for $i from 2 through 7 {
 			@if $i == 2 or $i == 4 {
 				&[data-item-count='#{$i}'] .jetpack-top-posts-item {
 					grid-column: span 3;
