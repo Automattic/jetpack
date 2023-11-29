@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: do not display any notices from third-party services.
