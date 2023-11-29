@@ -167,7 +167,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_visible_callback' => 'wpcom_launchpad_has_goal_paid_subscribers',
 			'get_calypso_path'    => function ( $task, $default, $data ) {
-				return '/earn/payments-plans/' . $data['site_slug_encoded'] . '#add-newsletter-payment-plan';
+				return '/earn/payments/' . $data['site_slug_encoded'] . '#add-newsletter-payment-plan';
 			},
 		),
 		'setup_newsletter'                => array(
@@ -479,7 +479,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_paid_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/earn/payments-plans/' . $data['site_slug_encoded'];
+				return '/earn/payments/' . $data['site_slug_encoded'];
 			},
 		),
 		'add_about_page'                  => array(
@@ -517,7 +517,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_has_paid_membership_plans',
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/earn/payments-plans/' . $data['site_slug_encoded'];
+				return '/earn/payments/' . $data['site_slug_encoded'];
 			},
 		),
 
@@ -1331,7 +1331,7 @@ function wpcom_launchpad_is_videopress_upload_disabled() {
 function wpcom_launchpad_track_video_uploaded_task( $post_id ) {
 	// Not using `wp_attachment_is` because it requires the actual file
 	// which is not the case for Atomic VideoPress.
-	if ( 0 !== strpos( get_post_mime_type( $post_id ), 'video/' ) ) {
+	if ( ! str_starts_with( get_post_mime_type( $post_id ), 'video/' ) ) {
 		return;
 	}
 	wpcom_mark_launchpad_task_complete( 'videopress_upload' );
@@ -1505,7 +1505,7 @@ function wpcom_launchpad_find_site_about_page_id() {
 				return false;
 			}
 
-			if ( 'about' === $page['post_name'] || false !== strpos( $page['post_title'], 'About' ) ) {
+			if ( 'about' === $page['post_name'] || str_contains( $page['post_title'], 'About' ) ) {
 				return true;
 			}
 		}
@@ -1562,7 +1562,7 @@ function wpcom_launchpad_has_translation( $string, $domain = 'jetpack-mu-wpcom' 
 	}
 
 	$current_locale = get_user_locale();
-	if ( is_string( $current_locale ) && 0 === strpos( $current_locale, 'en' ) ) {
+	if ( is_string( $current_locale ) && str_starts_with( $current_locale, 'en' ) ) {
 		return true;
 	}
 

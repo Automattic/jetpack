@@ -153,7 +153,7 @@ class UI {
 				$priority1 = ( array_key_exists( 'priority', $c1 ) && (int) $c1['priority'] ) ? (int) $c1['priority'] : 10;
 				$priority2 = ( array_key_exists( 'priority', $c2 ) && (int) $c2['priority'] ) ? (int) $c2['priority'] : 10;
 
-				return $priority1 > $priority2 ? 1 : -1;
+				return $priority1 <=> $priority2;
 			}
 		);
 
@@ -165,7 +165,7 @@ class UI {
 				continue;
 			}
 
-			if ( isset( $_SERVER['REQUEST_URI'] ) && 0 === strpos( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), $consumer['admin_page'] ) && strlen( $consumer['admin_page'] ) > $consumer_url_length ) {
+			if ( isset( $_SERVER['REQUEST_URI'] ) && str_starts_with( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), $consumer['admin_page'] ) && strlen( $consumer['admin_page'] ) > $consumer_url_length ) {
 				$consumer_chosen     = $consumer;
 				$consumer_url_length = strlen( $consumer['admin_page'] );
 			}

@@ -31,6 +31,7 @@ const ActionButton = ( {
 	isDeactivatingStandalone,
 	className,
 	onAdd,
+	upgradeInInterstitial,
 } ) => {
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 	const [ currentAction, setCurrentAction ] = useState( {} );
@@ -75,11 +76,21 @@ const ActionButton = ( {
 					onClick: null,
 				};
 			}
-			case PRODUCT_STATUSES.NEEDS_PURCHASE:
+			case PRODUCT_STATUSES.NEEDS_PURCHASE: {
+				return {
+					...buttonState,
+					href: purchaseUrl || `#/add-${ slug }`,
+					size: 'small',
+					variant: 'primary',
+					weight: 'regular',
+					label: __( 'Purchase', 'jetpack-my-jetpack' ),
+					onClick: onAdd,
+				};
+			}
 			case PRODUCT_STATUSES.CAN_UPGRADE: {
 				const upgradeText = __( 'Upgrade', 'jetpack-my-jetpack' );
 				const purchaseText = __( 'Purchase', 'jetpack-my-jetpack' );
-				const buttonText = purchaseUrl ? upgradeText : purchaseText;
+				const buttonText = purchaseUrl || upgradeInInterstitial ? upgradeText : purchaseText;
 
 				return {
 					...buttonState,
@@ -152,6 +163,7 @@ const ActionButton = ( {
 		purchaseUrl,
 		slug,
 		status,
+		upgradeInInterstitial,
 	] );
 
 	const allActions = useMemo(
@@ -182,8 +194,8 @@ const ActionButton = ( {
 	}
 
 	const dropdown = hasAdditionalActions && (
-		<div className={ styles.dropdown }>
-			<ul className={ styles.dropdownMenu }>
+		<div className={ styles[ 'action-button-dropdown' ] }>
+			<ul className={ styles[ 'dropdown-menu' ] }>
 				{ [ ...additionalActions, getStatusAction() ].map( ( { label, isExternalLink }, index ) => {
 					const onDropdownMenuItemClick = () => {
 						setCurrentAction( allActions[ index ] );
@@ -193,14 +205,14 @@ const ActionButton = ( {
 					return (
 						<li key={ index }>
 							{ /* eslint-disable-next-line react/jsx-no-bind */ }
-							<button onClick={ onDropdownMenuItemClick } className={ styles.dropdownItem }>
-								<div className={ styles.dropdownItemLabel }>
+							<button onClick={ onDropdownMenuItemClick } className={ styles[ 'dropdown-item' ] }>
+								<div className={ styles[ 'dropdown-item-label' ] }>
 									{ label }
 									{ isExternalLink && <Icon icon={ external } size={ 16 } /> }
 								</div>
 
 								{ label === currentAction.label && (
-									<div className={ styles.activeActionCheckmark }>
+									<div className={ styles[ 'active-action-checkmark' ] }>
 										<Icon icon={ check } size={ 24 } fill="white" />
 									</div>
 								) }
@@ -216,8 +228,8 @@ const ActionButton = ( {
 		<>
 			<div
 				className={ cs(
-					styles.actionButton,
-					hasAdditionalActions ? styles.hasAdditionalActions : null
+					styles[ 'action-button' ],
+					hasAdditionalActions ? styles[ 'has-additional-actions' ] : null
 				) }
 			>
 				<Button { ...buttonState } { ...currentAction }>
@@ -226,7 +238,7 @@ const ActionButton = ( {
 				{ hasAdditionalActions && (
 					<button
 						className={ cs(
-							styles.dropdownChevron,
+							styles[ 'dropdown-chevron' ],
 							currentAction.variant === 'primary' ? styles.primary : styles.secondary
 						) }
 						onClick={ onChevronClick }

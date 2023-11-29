@@ -1,7 +1,7 @@
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
-import { getJetpackSocialOptions, getImageGeneratorPostSettings } from '../../utils';
+import { usePostMeta } from '../../utils';
 
 const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
 	isEnabled: sigSettings?.enabled ?? ! isPostPublished,
@@ -31,44 +31,31 @@ const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
  * @returns {ImageGeneratorConfigHook} - An object with the attached media hook properties set.
  */
 export default function useImageGeneratorConfig() {
-	const { editPost } = useDispatch( editorStore );
+	const { imageGeneratorSettings, jetpackSocialOptions, updateJetpackSocialOptions } =
+		usePostMeta();
 
 	const { isPostPublished } = useSelect( select => ( {
 		isPostPublished: select( editorStore ).isCurrentPostPublished(),
 	} ) );
 
-	const _commitPostUpdate = useCallback(
-		settings => {
-			editPost( {
-				meta: {
-					jetpack_social_options: {
-						...getJetpackSocialOptions(),
-						image_generator_settings: settings,
-					},
-				},
-			} );
-		},
-		[ editPost ]
-	);
-
 	const updateProperty = useCallback(
 		( key, value ) => {
-			const settings = { ...getImageGeneratorPostSettings(), [ key ]: value };
-			_commitPostUpdate( settings );
+			const settings = { ...imageGeneratorSettings, [ key ]: value };
+			updateJetpackSocialOptions( 'image_generator_settings', settings );
 		},
-		[ _commitPostUpdate ]
+		[ imageGeneratorSettings, updateJetpackSocialOptions ]
 	);
 
 	const updateSettings = useCallback(
 		settings => {
-			const newSettings = { ...getImageGeneratorPostSettings(), ...settings };
-			_commitPostUpdate( newSettings );
+			const newSettings = { ...imageGeneratorSettings, ...settings };
+			updateJetpackSocialOptions( 'image_generator_settings', newSettings );
 		},
-		[ _commitPostUpdate ]
+		[ imageGeneratorSettings, updateJetpackSocialOptions ]
 	);
 
 	return {
-		...getCurrentSettings( getJetpackSocialOptions().image_generator_settings, isPostPublished ),
+		...getCurrentSettings( jetpackSocialOptions.image_generator_settings, isPostPublished ),
 		setIsEnabled: value => updateProperty( 'enabled', value ),
 		setToken: value => updateProperty( 'token', value ),
 		updateSettings,

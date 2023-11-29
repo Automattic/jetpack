@@ -935,7 +935,7 @@ class Admin {
 	 */
 	public function grunion_sort_objects( $a, $b ) {
 		if ( isset( $a['order'] ) && isset( $b['order'] ) ) {
-			return $a['order'] - $b['order'];
+			return $a['order'] <=> $b['order'];
 		}
 		return 0;
 	}
@@ -961,7 +961,7 @@ class Admin {
 
 		if ( isset( $_POST['fields'] ) && is_array( $_POST['fields'] ) ) {
 			$fields = sanitize_text_field( stripslashes_deep( $_POST['fields'] ) );
-			usort( $fields, 'grunion_sort_objects' );
+			usort( $fields, array( $this, 'grunion_sort_objects' ) );
 
 			$field_shortcodes = array();
 
