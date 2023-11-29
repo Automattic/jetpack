@@ -719,11 +719,12 @@ async function promptVersion( argv ) {
 /**
  * Takes the user input and searches for a matching item in the array.
  *
+ * @param {Array} choices - An array of choices we want to filter matches for.
  * @param {string} input - the user input.
+ *
  * @returns {Array} - the filtered array.
  */
-async function searchSignificance( input = '' ) {
-	const choices = [ 'patch', 'minor', 'major' ];
+async function filterInput( choices, input = '' ) {
 	return choices.filter( choice => choice.toLowerCase().includes( input.toLowerCase() ) );
 }
 
@@ -742,17 +743,11 @@ async function promptChangelog( argv, needChangelog, types ) {
 		.stdout.toString()
 		.trim()
 		.replace( /\//g, '-' );
-	const maxLength = Object.keys( types ).reduce( ( a, v ) => ( v.length > a ? v.length : a ), 0 );
-	const choices = Object.entries( types ).map( ( [ value, name ] ) => ( {
-		value,
-		name: `[${ value.padEnd( maxLength, ' ' ) }] ${ name }`,
-	} ) );
 	const significanceChoices = {
 		patch: '[patch] Backwards-compatible bug fixes.',
 		minor: '[minor] Added (or deprecated) functionality in a backwards-compatible manner.',
 		major: '[major] Broke backwards compatibility in some way.',
 	};
-
 	const changelogName = await inquirer.prompt( {
 		type: 'string',
 		name: 'changelogName',
@@ -769,37 +764,46 @@ async function promptChangelog( argv, needChangelog, types ) {
 	const significance = await autoComplete( {
 		message: 'What is the significance of the change?',
 		source: async input => {
-			const filteredSignificance = await searchSignificance( input );
+			const significanceArray = Object.keys( significanceChoices );
+			const filteredSignificance = await filterInput( significanceArray, input );
 			return filteredSignificance.map( choice => {
 				return {
 					value: choice,
-					description: significanceChoices[ choice ],
+					description: significanceChoices[ choice ]
+						? significanceChoices[ choice ]
+						: 'Unknown significance',
 				};
 			} );
 		},
 	} );
-	/*
 
-		*/
 	const type = await autoComplete( {
-		type: 'list',
-		name: 'type',
-		message: 'Type of change.',
-		choices: choices,
+		message: 'What type of change?',
+		source: async input => {
+			const typesArray = Object.keys( types );
+			const filteredType = await filterInput( typesArray, input );
+			return filteredType.map( choice => {
+				return {
+					value: choice,
+					description: types[ choice ] ? types[ choice ] : 'Unknown type',
+				};
+			} );
+		},
 	} );
+
 	const entry = await inquirer.prompt( [
 		{
 			type: 'string',
 			name: 'entry',
 			message: 'Changelog entry. May be left empty if this change is particularly insignificant.',
-			when: answers => answers.significance === 'patch',
+			when: significance === 'patch',
 		},
 		{
 			type: 'string',
 			name: 'comment',
 			message:
 				'You omitted the changelog entry, which is fine. But please comment as to why no entry is needed.',
-			when: answers => answers.significance === 'patch' && answers.entry === '',
+			when: answers => significance === 'patch' && answers.entry === '',
 		},
 		{
 			type: 'string',
@@ -816,8 +820,8 @@ async function promptChangelog( argv, needChangelog, types ) {
 	] );
 	const commands = {
 		changelogName: changelogName.changelogName,
-		significance: significance.significance,
-		type: type.type,
+		significance: significance,
+		type: type,
 		entry: entry.entry,
 		comment: entry.comment,
 	};
