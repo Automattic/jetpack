@@ -479,13 +479,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
-	 * Tracks any additional blocks loaded on the Cart/Checkout page.
-	 *
-	 * @var array
-	 */
-	private $additional_blocks_on_page = array();
-
-	/**
 	 * Gets the inner blocks of a block.
 	 *
 	 * @param array $inner_blocks The inner blocks.
