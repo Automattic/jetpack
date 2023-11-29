@@ -573,7 +573,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					showButtonLabels={ ! isMobileViewport }
 					showAccept={ contentIsLoaded && ! isWaitingState }
 					acceptLabel={ acceptLabel }
-					showClearButton={ ! isWaitingState }
+					showClearButton={ false }
 					showGuideLine={ contentIsLoaded }
 				/>
 
