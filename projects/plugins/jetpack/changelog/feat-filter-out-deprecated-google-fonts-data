@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack Google Fonts: Filter out the old google fonts data from user global styles
