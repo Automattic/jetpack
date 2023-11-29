@@ -301,90 +301,11 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	 * @return array
 	 */
 	public function get_cart_checkout_info() {
-		$transient_name = 'jetpack_woocommerce_analytics_cart_checkout_info_cache';
-
-		$info = get_transient( $transient_name );
-
-		// Return cached data early to prevent additional processing, the transient lasts for 1 day.
-		if ( false !== $info ) {
-			return $info;
-		}
-
-		$cart_page_id     = wc_get_page_id( 'cart' );
-		$checkout_page_id = wc_get_page_id( 'checkout' );
-
-		if ( ! $this->cart_checkout_templates_in_use ) {
-
-			$info = array_merge(
-				array(),
-				$this->get_cart_page_block_usage(),
-				$this->get_checkout_page_block_usage()
-			);
-
-			set_transient( $transient_name, $info, DAY_IN_SECONDS );
-			return $info;
-		}
-
-		// We will only reach here if the Cart/Checkout templates are in use.
-
-		$cart_template        = null;
-		$checkout_template    = null;
-		$cart_template_id     = null;
-		$checkout_template_id = null;
-		$block_controller     = Automattic\WooCommerce\Blocks\Package::container()->get( Automattic\WooCommerce\Blocks\BlockTemplatesController::class );
-		$templates            = $block_controller->get_block_templates( array( 'cart', 'checkout', 'page-checkout', 'page-cart' ) );
-
-		foreach ( $templates as $template ) {
-			if ( 'cart' === $template->slug || 'page-cart' === $template->slug ) {
-				$cart_template_id = ( $template->id );
-				continue;
-			}
-			if ( 'checkout' === $template->slug || 'page-checkout' === $template->slug ) {
-				$checkout_template_id = ( $template->id );
-			}
-		}
-
-		// Get the template and its contents from the IDs we found above.
-		if ( function_exists( 'get_block_template' ) ) {
-			$cart_template     = get_block_template( $cart_template_id );
-			$checkout_template = get_block_template( $checkout_template_id );
-		}
-
-		if ( function_exists( 'gutenberg_get_block_template' ) ) {
-			$cart_template     = get_block_template( $cart_template_id );
-			$checkout_template = get_block_template( $checkout_template_id );
-		}
-
-		// Something failed with the template retrieval, return early with 0 values rather than let a warning appear.
-		if ( ! $cart_template || ! $checkout_template ) {
-			return array(
-				'cart_page_contains_cart_block'         => 0,
-				'cart_page_contains_cart_shortcode'     => 0,
-				'checkout_page_contains_checkout_block' => 0,
-				'checkout_page_contains_checkout_shortcode' => 0,
-			);
-		}
-
-		// Update the info transient with data we got from the templates, if the site isn't using WC Blocks we
-		// won't be doing this so no concern about overwriting.
-		$info = array(
-			'cart_page_contains_cart_block'             => str_contains( $cart_template->content, '<!-- wp:woocommerce/cart' ) ? 1 : 0,
-			'cart_page_contains_cart_shortcode'         => ( str_contains( $cart_template->content, '[woocommerce_cart]' ) || str_contains( $cart_template->content, '<!-- wp:woocommerce/classic-shortcode' ) ) ? 1 : 0,
-			'checkout_page_contains_checkout_block'     => str_contains( $checkout_template->content, '<!-- wp:woocommerce/checkout' ) ? 1 : 0,
-			'checkout_page_contains_checkout_shortcode' => ( str_contains( $checkout_template->content, '[woocommerce_checkout]' ) || str_contains( $checkout_template->content, '<!-- wp:woocommerce/classic-shortcode' ) ) ? 1 : 0,
+		$info = array_merge(
+			array(),
+			$this->get_cart_page_block_usage(),
+			$this->get_checkout_page_block_usage()
 		);
-
-		$is_cart_using_page_content     = str_contains( $cart_template->content, '<!-- wp:woocommerce/page-content-wrapper {"page":"cart"}' );
-		$is_checkout_using_page_content = str_contains( $checkout_template->content, '<!-- wp:woocommerce/page-content-wrapper {"page":"checkout"}' );
-
-		if ( $is_cart_using_page_content ) {
-			$info = array_merge( $info, $this->get_cart_page_block_usage( $cart_page_id ) );
-		}
-		if ( $is_checkout_using_page_content ) {
-			$info = array_merge( $info, $this->get_checkout_page_block_usage( $checkout_page_id ) );
-		}
-
-		set_transient( $transient_name, $info, DAY_IN_SECONDS );
 		return $info;
 	}
 
