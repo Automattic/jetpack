@@ -109,10 +109,6 @@ export function AIControl(
 		}
 	);
 
-	const actionButtonClasses = classNames( 'jetpack-components-ai-control__controls-prompt_button', {
-		'has-label': showButtonLabels,
-	} );
-
 	return (
 		<div className="jetpack-components-ai-control__container">
 			<div
@@ -169,9 +165,9 @@ export function AIControl(
 				{ showAccept && (
 					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 						<Button
-							className={ actionButtonClasses }
+							className="jetpack-components-ai-control__controls-prompt_button"
 							onClick={ onAccept }
-							isSmall={ true }
+							variant="primary"
 							label={ acceptLabel }
 						>
 							<Icon icon={ check } />
