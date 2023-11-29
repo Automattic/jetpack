@@ -1105,7 +1105,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "c63399cef5132ba0ac82baac0a52342e9e15eaed"
+                "reference": "9dde3aec71ce650123a5018f64c349188b652f49"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1133,7 +1133,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.37.x-dev"
+                    "dev-trunk": "0.38.x-dev"
                 }
             },
             "autoload": {
