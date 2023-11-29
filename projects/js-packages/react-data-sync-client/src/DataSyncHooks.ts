@@ -108,7 +108,7 @@ export function useDataSync<
 			// Snapshot the previous value
 			const previousValue = queryClient.getQueryData( queryKey );
 
-			// Optimistically update to the new value
+			// Optimistically update the cached state to the new value
 			queryClient.setQueryData( queryKey, value );
 
 			// Return a context object with the snapshotted value
