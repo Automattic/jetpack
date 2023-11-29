@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Products: add more defensive check to avoid fatal errors.
+
+

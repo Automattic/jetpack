@@ -68,7 +68,9 @@ class REST_Product_Data {
 
 		// If site has backups and the realtime backup capability, add latest undo event
 		if (
-			in_array( 'backup-realtime', $capabilities->data['capabilities'], true )
+			property_exists( $capabilities, 'data' )
+			&& isset( $capabilities->data['capabilities'] )
+			&& in_array( 'backup-realtime', $capabilities->data['capabilities'], true )
 		) {
 			$body->backups->last_undoable_event = self::get_site_backup_undo_event();
 		}
