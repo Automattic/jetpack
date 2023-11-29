@@ -52,7 +52,11 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 
 		$transient_value = get_transient( $cart_checkout_content_cache_transient_name );
 
-		if ( $transient_value ) {
+		if (
+			false !== $transient_value &&
+			! empty( $transient_value['checkout_content_source'] ) &&
+			! empty( $transient_value['cart_content_source'] )
+		) {
 			$this->cart_content_source     = $transient_value['cart_content_source'];
 			$this->checkout_content_source = $transient_value['checkout_content_source'];
 			return;
