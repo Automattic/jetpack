@@ -115,8 +115,9 @@ class Helper_Script_Manager {
 	 */
 	public function install_helper_script( $script_body ) {
 		// Check that the script body contains the correct header.
-		if ( 0 !== strncmp( $script_body, static::HELPER_HEADER, strlen( static::HELPER_HEADER ) ) ) {
-			return new \WP_Error( 'bad_header', 'Bad helper script header' );
+		$header = substr( $script_body, 0, strlen( static::HELPER_HEADER ) );
+		if ( $header !== static::HELPER_HEADER ) {
+			return new \WP_Error( 'bad_header', 'Bad helper script header: 0x' . bin2hex( $header ) );
 		}
 
 		// Refuse to install a Helper Script that is too large.

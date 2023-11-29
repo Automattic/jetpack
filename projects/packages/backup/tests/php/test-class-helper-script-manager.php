@@ -186,7 +186,7 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 		$result                = $helper_script_manager->install_helper_script( $script_body );
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'bad_header', $result->get_error_code() );
-		$this->assertSame( 'Bad helper script header', $result->get_error_message() );
+		$this->assertSame( 'Bad helper script header: 0x' . bin2hex( $script_body ), $result->get_error_message() );
 	}
 
 	/**
