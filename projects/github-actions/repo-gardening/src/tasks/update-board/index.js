@@ -465,12 +465,12 @@ async function loadTeamAssignments( ownerLogin ) {
  * @param {object} projectInfo - Info about our project board.
  * @param {string} projectItemId - The ID of the project item.
  * @param {Array} priorityLabels - Array of priority labels.
- * @returns {Promise<boolean>} Promise resolving to true if the issue was assigned to a team.
+ * @returns {Promise<string>} - The new project item id.
  */
 async function assignTeam( octokit, payload, projectInfo, projectItemId, priorityLabels ) {
 	const {
 		action,
-		issue: { number },
+		issue: { number, node_id },
 		label = {},
 		repository: { owner, name },
 	} = payload;
@@ -481,7 +481,7 @@ async function assignTeam( octokit, payload, projectInfo, projectItemId, priorit
 		debug(
 			`update-board: No mapping of teams <> labels provided. Cannot automatically assign an issue to a specific team on the board. Aborting.`
 		);
-		return;
+		return projectItemId;
 	}
 
 	// Get the list of labels associated with this issue.
@@ -493,27 +493,68 @@ async function assignTeam( octokit, payload, projectInfo, projectItemId, priorit
 	// Check if any of the labels on this issue match a team.
 	// Loop through all the mappings in team assignments,
 	// and find the first one that includes a label that matches one present in the issue.
-	const { team, slack_id } =
-		Object.values( teamAssignments ).find( assignment =>
+	const [ featureName, { team, slack_id, board_id } = {} ] =
+		Object.entries( automatticAssignments ).find( ( [ , assignment ] ) =>
 			labels.some( mappedLabel => assignment.labels.includes( mappedLabel ) )
-		) || {};
+		) || [];
+
 	if ( ! team ) {
 		debug(
 			`update-board: Issue #${ number } does not have a label that matches a team. Aborting.`
 		);
-		return false;
+		return projectItemId;
 	}
 
 	// Set the status field for this project item.
 	debug(
 		`update-board: Assigning the "${ team }" team for this project item, issue #${ number }.`
 	);
-	await setTeamField( octokit, projectInfo, projectItemId, team );
+	projectItemId = await setTeamField( octokit, projectInfo, projectItemId, team );
 
 	// Does the team want to be notified in Slack about high/blocker priority issues?
 	if ( slack_id && priorityLabels.length > 0 ) {
+		debug(
+			`update-board: Issue #${ number } has the following priority labels: ${ priorityLabels.join(
+				', '
+			) }. The ${ team } team is interested in getting Slack updates for important issues. Let’s notify them.`
+		);
 		await notifyImportantIssues( octokit, payload, slack_id );
 	}
+
+	// Does the team have a Project board where they track work for this feature? We can add the issue to that board.
+	if ( board_id ) {
+		debug(
+			`update-board: Issue #${ number } is associated with the "${ featureName }" feature, and the ${ team } team has a dedicated project board for this feature. Let’s add the issue to that board.`
+		);
+
+		// Get details about our project board, to use in our requests.
+		const featureProjectInfo = await getProjectDetails( octokit, board_id );
+		if ( Object.keys( featureProjectInfo ).length === 0 || ! featureProjectInfo.projectNodeId ) {
+			setFailed(
+				`update-board: we cannot fetch info about the project board associated to the "${ featureName }" feature. Aborting task.`
+			);
+			return projectItemId;
+		}
+
+		// Check if the issue is already on the project board. If so, return its ID on the board.
+		let featureIssueItemId = await getIssueProjectItemId(
+			octokit,
+			featureProjectInfo,
+			name,
+			number
+		);
+		if ( ! featureIssueItemId ) {
+			debug( `update-board: Issue #${ number } is not on our project board. Let’s add it.` );
+
+			featureIssueItemId = await addIssueToBoard( octokit, featureProjectInfo, node_id );
+			if ( ! featureIssueItemId ) {
+				debug( `update-board: Failed to add issue to project board. Aborting.` );
+				return projectItemId;
+			}
+		}
+	}
+
+	return projectItemId;
 }
 
 /**
@@ -589,7 +630,12 @@ async function updateBoard( payload, octokit ) {
 		debug(
 			`update-board: Setting the "Needs Triage" status for this project item, issue #${ number }.`
 		);
-		await setStatusField( projectOctokit, projectInfo, projectItemId, 'Needs Triage' );
+		projectItemId = await setStatusField(
+			projectOctokit,
+			projectInfo,
+			projectItemId,
+			'Needs Triage'
+		);
 	}
 
 	// Check if priority needs to be updated for that issue.
@@ -621,7 +667,12 @@ async function updateBoard( payload, octokit ) {
 		debug(
 			`update-board: Setting the "${ priorityText }" priority for this project item, issue #${ number }.`
 		);
-		await setPriorityField( projectOctokit, projectInfo, projectItemId, priorityText );
+		projectItemId = await setPriorityField(
+			projectOctokit,
+			projectInfo,
+			projectItemId,
+			priorityText
+		);
 	}
 
 	// Check if the issue has a "Triaged" label.
@@ -658,6 +709,13 @@ async function updateBoard( payload, octokit ) {
 	}
 
 	// Try to assign the issue to a specific team, if we have a mapping of teams <> labels and a matching label on the issue.
-	await assignTeam( projectOctokit, payload, projectInfo, projectItemId, priorityLabels );
+	// When assigning, we can also do more to warn the team about the issue, if we have additional info (Slack, project board).
+	projectItemId = await assignTeam(
+		projectOctokit,
+		payload,
+		projectInfo,
+		projectItemId,
+		priorityLabels
+	);
 }
 module.exports = updateBoard;
