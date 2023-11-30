@@ -560,6 +560,41 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			$output             = wp_json_encode( array( 'missing_taxonomies' => $missing_taxonomies ), JSON_PRETTY_PRINT );
 			WP_CLI::log( $output );
 		}
+
+		/**
+		 * Import a backup .zip file.
+		 *
+		 * ## OPTIONS
+		 *
+		 * [--source]
+		 * : Source zip file path. (required)
+		 *
+		 * [--dest]
+		 * : destination file path to extract to. (required)
+		 *
+		 * @subcommand backup-import
+		 */
+		public function backup_import( $args, $assoc_args ) {
+			$source = WP_CLI\Utils\get_flag_value( $assoc_args, 'source' );
+			$dest   = WP_CLI\Utils\get_flag_value( $assoc_args, 'dest' );
+
+			if ( empty( $source ) ) {
+				WP_CLI::error( 'Missing file path passed to --source' );
+			}
+
+			if ( empty( $dest ) ) {
+				WP_CLI::error( 'Missing file path passed to --dest' );
+			}
+
+			$import_manager = new Imports\Backup_Import_Manager( $source, $dest );
+			$ret            = $import_manager->import();
+
+			if ( is_wp_error( $ret ) ) {
+				WP_CLI::error( $ret->get_error_message() );
+			}
+
+			WP_CLI::success( 'Import completed successfully.' );
+		}
 	}
 }
 

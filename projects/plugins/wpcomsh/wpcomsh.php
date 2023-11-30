@@ -32,6 +32,7 @@ require_once __DIR__ . '/block-theme-footer-credits/block-theme-footer-credits.p
 require_once __DIR__ . '/storefront/storefront.php';
 require_once __DIR__ . '/custom-colors/colors.php';
 require_once __DIR__ . '/storage/storage.php';
+require_once __DIR__ . '/imports/class-backup-import-manager.php';
 
 // Interoperability with the core WordPress data privacy functionality (See also "GDPR")
 require_once __DIR__ . '/privacy/class-wp-privacy-participating-plugins.php';
