@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Store persistent blog ID for multi-URL purposes.

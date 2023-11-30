@@ -327,14 +327,12 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance = $this->create_mock_instance();
 
 		$instance->method( 'get_meta_value' )
-			->will(
-				$this->returnValueMap(
-					array(
-						array( 1, 'public', '1' ),
-						array( 1, 'latitude', self::MOCK_LAT ),
-						array( 1, 'longitude', self::MOCK_LONG ),
-						array( 1, 'address', self::MOCK_ADDRESS ),
-					)
+			->willReturnMap(
+				array(
+					array( 1, 'public', '1' ),
+					array( 1, 'latitude', self::MOCK_LAT ),
+					array( 1, 'longitude', self::MOCK_LONG ),
+					array( 1, 'address', self::MOCK_ADDRESS ),
 				)
 			);
 
@@ -345,15 +343,13 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance = $this->create_mock_instance( array( 'get_meta_values' ) );
 
 		$instance->method( 'get_meta_values' )
-			->will(
-				$this->returnValue(
-					array(
-						'is_public'    => true,
-						'latitude'     => '<attack>',
-						'longitude'    => '<attack>',
-						'label'        => '<attack>',
-						'is_populated' => true,
-					)
+			->willReturn(
+				array(
+					'is_public'    => true,
+					'latitude'     => '<attack>',
+					'longitude'    => '<attack>',
+					'label'        => '<attack>',
+					'is_populated' => true,
 				)
 			);
 
@@ -364,14 +360,12 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance = $this->create_mock_instance();
 
 		$instance->method( 'get_meta_value' )
-			->will(
-				$this->returnValueMap(
-					array(
-						array( 1, 'public', '0' ),
-						array( 1, 'latitude', self::MOCK_LAT ),
-						array( 1, 'longitude', self::MOCK_LONG ),
-						array( 1, 'address', self::MOCK_ADDRESS ),
-					)
+			->willReturnMap(
+				array(
+					array( 1, 'public', '0' ),
+					array( 1, 'latitude', self::MOCK_LAT ),
+					array( 1, 'longitude', self::MOCK_LONG ),
+					array( 1, 'address', self::MOCK_ADDRESS ),
 				)
 			);
 
