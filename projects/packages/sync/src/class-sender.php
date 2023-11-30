@@ -43,6 +43,16 @@ class Sender {
 	const QUEUE_LOCKED_SYNC_DELAY = 10;
 
 	/**
+	 * Max bytes allowed for full sync upload.
+	 * Current Setting : 5MB.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_SIZE_FULL_SYNC = 5000000;
+
+	/**
 	 * Maximum bytes to checkout without exceeding the memory limit.
 	 *
 	 * @access private
@@ -487,7 +497,7 @@ class Sender {
 	 *
 	 * @param (array|Automattic\Jetpack\Sync\Queue_Buffer) $buffer_or_items Queue buffer or array of objects.
 	 * @param boolean                                      $encode Whether to encode the items.
-	 * @return array Sync items to send.
+	 * @return array|WP_Error Sync Items to send, or error object if during full sync upload_size is too big.
 	 */
 	public function get_items_to_send( $buffer_or_items, $encode = true ) {
 		// Track how long we've been processing so we can avoid request timeouts.
@@ -528,6 +538,10 @@ class Sender {
 			if ( empty( $item[0] ) || false === $item[1] ) {
 				$skipped_items_ids[] = $key;
 				continue;
+			}
+			if ( $this->action_is_full_sync( $item[0] ) && strlen( wp_json_encode( $item ) ) > self::MAX_SIZE_FULL_SYNC ) {
+				return new WP_Error( 'full_sync_max_upload_exceeded' );
+
 			}
 			$encoded_item = $this->codec->encode( $item );
 			$upload_size += strlen( $encoded_item );
@@ -675,7 +689,7 @@ class Sender {
 	 * @param string $action_name The action.
 	 * @param array  $data The data associated with the action.
 	 *
-	 * @return Items processed. TODO: this doesn't make much sense anymore, it should probably be just a bool.
+	 * @return mixed|WP_Error Empty array if Full Sync is not enabled. Items if processed. WP_Error if there was an error.
 	 */
 	public function send_action( $action_name, $data = null ) {
 		if ( ! Settings::is_sender_enabled( 'full_sync' ) ) {
@@ -685,7 +699,11 @@ class Sender {
 		// Compose the data to be sent.
 		$action_to_send = $this->create_action_to_send( $action_name, $data );
 
-		list( $items_to_send, $skipped_items_ids, $items, $preprocess_duration ) = $this->get_items_to_send( $action_to_send, true ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$items_to_send_result = $this->get_items_to_send( $action_to_send, true );
+		if ( is_wp_error( $items_to_send_result ) ) {
+			return $items_to_send_result;
+		}
+		list( $items_to_send, $skipped_items_ids, $items, $preprocess_duration ) = $items_to_send_result;  // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		Settings::set_is_sending( true );
 		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->get_codec()->name(), microtime( true ), 'immediate-send', 0, $preprocess_duration );
 		Settings::set_is_sending( false );
@@ -998,5 +1016,16 @@ class Sender {
 		// Clear the sync cron.
 		wp_clear_scheduled_hook( 'jetpack_sync_cron' );
 		wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
+	}
+
+	/**
+	 * Check if action is a full sync action.
+	 *
+	 * @access private
+	 *
+	 * @param string $action_name The action name.
+	 */
+	private function action_is_full_sync( $action_name ) {
+		return str_contains( $action_name, 'jetpack_full_sync' );
 	}
 }

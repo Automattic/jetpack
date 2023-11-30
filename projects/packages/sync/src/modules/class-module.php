@@ -346,6 +346,15 @@ SQL
 
 			$result = $this->send_action( 'jetpack_full_sync_' . $this->name(), array( $objects, $status['last_sent'] ) );
 
+			if ( is_wp_error( $result ) && 'full_sync_max_upload_exceeded' === $result->get_error_code() ) {
+				// If we hit the max upload size, we need to reduce the chunk size and try again.
+				// Also resetting send_until and chunks_sent to only send one chunk with the new chunk_size.
+				$limits['chunk_size'] = (int) ( $limits['chunk_size'] / 2 );
+				$chunks_sent          = $limits['max_chunks'] - 1;
+				$send_until           = microtime( true ) + Settings::get_setting( 'full_sync_send_duration' );
+				continue;
+			}
+
 			if ( is_wp_error( $result ) || $wpdb->last_error ) {
 				$status['error'] = true;
 				return $status;
