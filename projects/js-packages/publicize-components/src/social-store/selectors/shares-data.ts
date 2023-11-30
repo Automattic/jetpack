@@ -1,6 +1,6 @@
 import { SocialStoreState } from '../types';
-import { getEnabledConnections, getInitialEnabledConnectionsCount } from './connection-data';
 import settings from './jetpack-settings';
+
 /**
  * Whether the share limit is enabled.
  *
@@ -61,14 +61,14 @@ export function getScheduledSharesCount( state: SocialStoreState ) {
 
 export type TotalSharesCountOptions = {
 	/**
-	 * Whether to include active connections
+	 * Number of currently enabled connections
 	 */
-	includeEnabledConnections?: boolean;
+	enabledConnectionsCount?: number;
 
 	/**
-	 * Whether to exclude initial enabled connections
+	 * Number of initial enabled connections
 	 */
-	excludeInitialConnections?: boolean;
+	initialEnabledConnectionsCount?: number;
 };
 
 /**
@@ -85,17 +85,10 @@ export function getTotalSharesCount(
 ) {
 	let count = getSharesUsedCount( state ) + getScheduledSharesCount( state );
 
-	if ( options.excludeInitialConnections ) {
-		count -= getInitialEnabledConnectionsCount( state );
-	}
+	count -= options.initialEnabledConnectionsCount ?? 0;
+	count += options.enabledConnectionsCount ?? 0;
 
-	if ( ! options.includeEnabledConnections ) {
-		return count;
-	}
-
-	const enabledConnections = getEnabledConnections( state );
-
-	return Math.max( count + enabledConnections.length, 0 );
+	return Math.max( count, 0 );
 }
 
 /**
@@ -127,9 +120,9 @@ export type NumberOfSharesRemainingOptions = {
 	includeScheduled?: boolean;
 
 	/**
-	 * Whether to include the current post selected connections
+	 * Number of currently enabled connections
 	 */
-	includeEnabledConnections?: boolean;
+	enabledConnectionsCount?: number;
 };
 
 /**
@@ -149,16 +142,15 @@ export function numberOfSharesRemaining(
 	}
 
 	// Allow partial options to be passed in
-	const { includeScheduled, includeEnabledConnections } = {
+	const { includeScheduled, enabledConnectionsCount } = {
 		includeScheduled: true,
-		includeEnabledConnections: true,
+		enabledConnectionsCount: 0,
 		...options,
 	};
 
 	const sharesUsed = getSharesUsedCount( state );
 	const sharesLimit = getShareLimit( state );
 	const scheduledShares = includeScheduled ? getScheduledSharesCount( state ) : 0;
-	const enabledConnections = includeEnabledConnections ? getEnabledConnections( state ) : [];
 
-	return Math.max( sharesLimit - sharesUsed - scheduledShares - enabledConnections.length, 0 );
+	return Math.max( sharesLimit - sharesUsed - scheduledShares - enabledConnectionsCount, 0 );
 }
