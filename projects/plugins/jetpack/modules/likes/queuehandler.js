@@ -253,6 +253,9 @@ function JetpackLikesMessageListener( event ) {
 				}
 			} );
 
+			const containerStyle = getComputedStyle( container );
+			const isRtl = containerStyle.direction === 'rtl';
+
 			const el = document.querySelector( `*[name='${ data.parent }']` );
 			const rect = el.getBoundingClientRect();
 			const win = el.ownerDocument.defaultView;
@@ -262,8 +265,17 @@ function JetpackLikesMessageListener( event ) {
 			};
 
 			if ( newLayout ) {
-				container.style.left = offset.left + data.position.left + 'px';
 				container.style.top = offset.top + data.position.top - 1 + 'px';
+
+				if ( isRtl ) {
+					const visibleAvatarsCount = data && data.likers ? Math.min( data.likers.length, 5 ) : 0;
+					// 24px is the width of the avatar + 4px is the padding between avatars
+					container.style.left =
+						offset.left + data.position.left + 24 * visibleAvatarsCount + 4 + 'px';
+					container.style.transform = 'translateX(-100%)';
+				} else {
+					container.style.left = offset.left + data.position.left + 'px';
+				}
 			} else {
 				container.style.left = offset.left + data.position.left - 10 + 'px';
 				container.style.top = offset.top + data.position.top - 33 + 'px';
