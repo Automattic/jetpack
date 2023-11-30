@@ -697,7 +697,7 @@ function render_for_website( $data, $classes, $styles ) {
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
 						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
 						<?php
-						wp_nonce_field( 'blogsub_subscribe_' . $blog_id, '_wpnonce', false );
+						wp_nonce_field( 'blogsub_subscribe_' . $blog_id );
 
 						if ( ! empty( $post_id ) ) {
 							echo '<input type="hidden" name="post_id" value="' . esc_attr( $post_id ) . '"/>';
