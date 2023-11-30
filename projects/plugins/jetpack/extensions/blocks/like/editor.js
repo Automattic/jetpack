@@ -5,5 +5,5 @@ import './editor.scss';
 
 registerJetpackBlockFromMetadata( metadata, {
 	edit,
-	save: () => null, // TODO: Implement save.
+	save: () => null,
 } );
