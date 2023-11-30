@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Ensures an array key is set before usage.
