@@ -72,12 +72,17 @@ export default function PublicizeForm( {
 	const hasInstagramConnection = connections.some(
 		connection => connection.service_name === 'instagram-business'
 	);
-	const { showShareLimits, numberOfSharesRemaining } = useSelect( select => {
-		return {
-			showShareLimits: select( socialStore ).showShareLimits(),
-			numberOfSharesRemaining: select( socialStore ).numberOfSharesRemaining(),
-		};
-	} );
+	const { showShareLimits, numberOfSharesRemaining } = useSelect(
+		select => {
+			return {
+				showShareLimits: select( socialStore ).showShareLimits(),
+				numberOfSharesRemaining: select( socialStore ).numberOfSharesRemaining( {
+					enabledConnectionsCount: enabledConnections.length,
+				} ),
+			};
+		},
+		[ enabledConnections ]
+	);
 	const shouldShowInstagramNotice =
 		! hasInstagramConnection &&
 		getSupportedAdditionalConnections().includes( CONNECTION_SERVICE_INSTAGRAM_BUSINESS ) &&

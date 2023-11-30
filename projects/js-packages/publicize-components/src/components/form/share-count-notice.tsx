@@ -13,7 +13,14 @@ export const ShareCountNotice: React.FC = () => {
 	const { isEditedPostDirty } = useSelect( editorStore, [] );
 	const { autosave } = useDispatch( editorStore );
 
-	const showShareLimits = useSelect( select => select( socialStore ).showShareLimits(), [] );
+	const { showShareLimits, enabledConnectionsCount, initialEnabledConnectionsCount } = useSelect(
+		select => ( {
+			showShareLimits: select( socialStore ).showShareLimits(),
+			enabledConnectionsCount: select( socialStore ).getEnabledConnections().length,
+			initialEnabledConnectionsCount: select( socialStore ).getInitialEnabledConnectionsCount(),
+		} ),
+		[]
+	);
 
 	const autosaveAndRedirect = useCallback(
 		async ev => {
@@ -30,9 +37,12 @@ export const ShareCountNotice: React.FC = () => {
 		},
 		[ autosave, isEditedPostDirty ]
 	);
-	const { noticeType, message } = useShareLimits();
+	const { noticeType, message } = useShareLimits( {
+		enabledConnectionsCount,
+		initialEnabledConnectionsCount,
+	} );
 
-	if ( ! showShareLimits ) {
+	if ( ! showShareLimits || ! message ) {
 		return null;
 	}
 
