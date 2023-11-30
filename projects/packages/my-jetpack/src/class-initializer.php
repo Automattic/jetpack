@@ -49,6 +49,8 @@ class Initializer {
 			return;
 		}
 
+		\Jetpack_Options::update_option( 'dismissed_welcome_banner', false );
+
 		// Extend jetpack plugins action links.
 		Products::extend_plugins_action_links();
 
