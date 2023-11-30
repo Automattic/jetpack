@@ -46,7 +46,7 @@ const WelcomeBanner = ( { onDismissBanner, dismissedWelcomeBanner } ) => {
 						horizontalGap={ 0 }
 						className={ styles[ 'banner-content' ] }
 					>
-						<Col md={ 5 } lg={ 6 } className={ styles[ 'banner-description' ] }>
+						<Col sm={ 6 } md={ 8 } lg={ 6 } className={ styles[ 'banner-description' ] }>
 							<Text variant="headline-small" mb={ 4 }>
 								{ __( 'Welcome to Jetpack!', 'jetpack-my-jetpack' ) }
 							</Text>
@@ -63,7 +63,7 @@ const WelcomeBanner = ( { onDismissBanner, dismissedWelcomeBanner } ) => {
 								) }
 							</Text>
 						</Col>
-						<Col md={ 3 } lg={ 6 } className={ styles[ 'banner-image' ] }></Col>
+						<Col sm={ 6 } md={ 8 } lg={ 6 } className={ styles[ 'banner-image' ] }></Col>
 					</Container>
 				</CardWrapper>
 				<Button
