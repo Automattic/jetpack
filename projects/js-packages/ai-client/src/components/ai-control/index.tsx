@@ -4,7 +4,13 @@
 import { PlainText } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
-import { forwardRef, useImperativeHandle, useRef } from '@wordpress/element';
+import {
+	forwardRef,
+	useImperativeHandle,
+	useRef,
+	useEffect,
+	useCallback,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
 	Icon,
@@ -83,11 +89,24 @@ export function AIControl(
 		onSend?: ( currentValue: string ) => void;
 		onStop?: () => void;
 		onAccept?: () => void;
+		onDiscard?: () => void;
 	},
 	ref: React.MutableRefObject< null > // eslint-disable-line @typescript-eslint/ban-types
 ): React.ReactElement {
 	const promptUserInputRef = useRef( null );
 	const loading = state === 'requesting' || state === 'suggesting';
+	const [ editRequest, setEditRequest ] = React.useState( false );
+
+	useEffect( () => {
+		if ( editRequest ) {
+			promptUserInputRef?.current?.focus();
+		}
+	}, [ editRequest ] );
+
+	const sendRequest = useCallback( () => {
+		setEditRequest( false );
+		onSend?.( value );
+	}, [ value ] );
 
 	// Pass the ref to forwardRef.
 	useImperativeHandle( ref, () => promptUserInputRef.current );
@@ -108,7 +127,7 @@ export function AIControl(
 		'enter',
 		e => {
 			e.preventDefault();
-			onSend?.( value );
+			sendRequest();
 		},
 		{
 			target: promptUserInputRef,
@@ -135,22 +154,39 @@ export function AIControl(
 					/>
 				</div>
 
-				{ ! showAccept && value?.length > 0 && (
+				{ ( ! showAccept || editRequest ) && value?.length > 0 && (
 					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 						{ ! loading ? (
-							<Button
-								className="jetpack-components-ai-control__controls-prompt_button"
-								onClick={ () => onSend?.( value ) }
-								variant="primary"
-								disabled={ ! value?.length || disabled }
-								label={ __( 'Send request', 'jetpack-ai-client' ) }
-							>
-								{ showButtonLabels ? (
-									__( 'Generate', 'jetpack-ai-client' )
-								) : (
-									<Icon icon={ arrowUp } />
+							<>
+								{ editRequest && (
+									<Button
+										className="jetpack-components-ai-control__controls-prompt_button"
+										onClick={ () => setEditRequest( false ) }
+										variant="tertiary"
+										label={ __( 'Cancel', 'jetpack-ai-client' ) }
+									>
+										{ showButtonLabels ? (
+											__( 'Cancel', 'jetpack-ai-client' )
+										) : (
+											<Icon icon={ closeSmall } />
+										) }
+									</Button>
 								) }
-							</Button>
+
+								<Button
+									className="jetpack-components-ai-control__controls-prompt_button"
+									onClick={ sendRequest }
+									variant="primary"
+									disabled={ ! value?.length || disabled }
+									label={ __( 'Send request', 'jetpack-ai-client' ) }
+								>
+									{ showButtonLabels ? (
+										__( 'Generate', 'jetpack-ai-client' )
+									) : (
+										<Icon icon={ arrowUp } />
+									) }
+								</Button>
+							</>
 						) : (
 							<Button
 								className="jetpack-components-ai-control__controls-prompt_button"
@@ -168,12 +204,12 @@ export function AIControl(
 					</div>
 				) }
 
-				{ showAccept && value?.length > 0 && (
+				{ showAccept && ! editRequest && value?.length > 0 && (
 					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 						<Button
 							className="jetpack-components-ai-control__controls-prompt_button"
 							label={ __( 'Back to edit', 'jetpack-ai-client' ) }
-							onClick={ noop }
+							onClick={ () => setEditRequest( true ) }
 						>
 							<Icon icon={ arrowLeft } />
 						</Button>
