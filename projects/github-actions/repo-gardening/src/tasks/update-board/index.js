@@ -286,7 +286,7 @@ async function setPriorityField( octokit, projectInfo, projectItemId, priorityTe
 
 	const newProjectItemId = projectNewItemDetails.set_priority.projectV2Item.id;
 	if ( ! newProjectItemId ) {
-		debug( `update-board: Failed to set the "${ priorityText }" status for this project item.` );
+		debug( `update-board: Failed to set the "${ priorityText }" priority for this project item.` );
 		return '';
 	}
 
