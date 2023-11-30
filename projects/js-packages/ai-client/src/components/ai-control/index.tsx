@@ -6,7 +6,15 @@ import { Button } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { forwardRef, useImperativeHandle, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, closeSmall, check, arrowUp } from '@wordpress/icons';
+import {
+	Icon,
+	closeSmall,
+	check,
+	arrowUp,
+	arrowLeft,
+	trash,
+	reusableBlock,
+} from '@wordpress/icons';
 import classNames from 'classnames';
 import React from 'react';
 /**
@@ -160,8 +168,29 @@ export function AIControl(
 					</div>
 				) }
 
-				{ showAccept && (
+				{ showAccept && value?.length > 0 && (
 					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
+						<Button
+							className="jetpack-components-ai-control__controls-prompt_button"
+							label={ __( 'Back to edit', 'jetpack-ai-client' ) }
+							onClick={ noop }
+						>
+							<Icon icon={ arrowLeft } />
+						</Button>
+						<Button
+							className="jetpack-components-ai-control__controls-prompt_button"
+							label={ __( 'Discard', 'jetpack-ai-client' ) }
+							onClick={ noop }
+						>
+							<Icon icon={ trash } />
+						</Button>
+						<Button
+							className="jetpack-components-ai-control__controls-prompt_button"
+							label={ __( 'Regenerate', 'jetpack-ai-client' ) }
+							onClick={ () => onSend?.( value ) }
+						>
+							<Icon icon={ reusableBlock } />
+						</Button>
 						<Button
 							className="jetpack-components-ai-control__controls-prompt_button"
 							onClick={ onAccept }
