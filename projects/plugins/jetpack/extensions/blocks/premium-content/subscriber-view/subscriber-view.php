@@ -28,7 +28,7 @@ function register_subscriber_view_block() {
 		SUBSCRIBER_VIEW_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_subscriber_view_block',
-			$uses             => array( 'premium-content/planId' ),
+			$uses             => array( 'premium-content/planId', 'premium-content/planIds' ),
 		)
 	);
 }
