@@ -172,13 +172,15 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	 */
 	public function get_common_properties() {
 		$site_info          = array(
-			'blog_id'     => Jetpack::get_option( 'id' ),
-			'ui'          => $this->get_user_id(),
-			'url'         => home_url(),
-			'woo_version' => WC()->version,
-			'store_admin' => in_array( 'administrator', wp_get_current_user()->roles, true ) ? 1 : 0,
-			'device'         => wp_is_mobile() ? 'mobile' : 'desktop',
+			'blog_id'                            => Jetpack::get_option( 'id' ),
+			'ui'                                 => $this->get_user_id(),
+			'url'                                => home_url(),
+			'woo_version'                        => WC()->version,
+			'store_admin'                        => in_array( 'administrator', wp_get_current_user()->roles, true ) ? 1 : 0,
+			'device'                             => wp_is_mobile() ? 'mobile' : 'desktop',
 			'template_used'                      => $this->cart_checkout_templates_in_use ? '1' : '0',
+			'additional_blocks_on_cart_page'     => $this->additional_blocks_on_cart_page,
+			'additional_blocks_on_checkout_page' => $this->additional_blocks_on_checkout_page,
 			'store_currency'                     => get_woocommerce_currency(),
 		);
 		$cart_checkout_info = $this->get_cart_checkout_info();
