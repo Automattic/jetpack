@@ -13,7 +13,6 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { Icon, Notice, Path, SVG } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -27,7 +26,6 @@ import useChatAvailability from '../../hooks/use-chat-availability';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
 import { useProduct } from '../../hooks/use-product';
-import { STORE_ID } from '../../state/store';
 import ConnectionsSection from '../connections-section';
 import IDCModal from '../idc-modal';
 import PlansSection from '../plans-section';
@@ -95,7 +93,6 @@ export default function MyJetpackScreen() {
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { isAvailable, isFetchingChatAvailability } = useChatAvailability();
 	const { detail: statsDetails } = useProduct( 'stats' );
-	const { dismissWelcomeBanner } = useDispatch( STORE_ID );
 	const { jwt, isFetchingChatAuthentication } = useChatAuthentication();
 	const shouldShowZendeskChatWidget =
 		! isFetchingChatAuthentication && ! isFetchingChatAvailability && isAvailable && jwt;
@@ -128,10 +125,7 @@ export default function MyJetpackScreen() {
 						<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
 					</Col>
 				</Container>
-				<WelcomeBanner
-					onDismissBanner={ dismissWelcomeBanner }
-					dismissedWelcomeBanner={ window?.myJetpackInitialState?.dismissedWelcomeBanner === '1' }
-				/>
+				<WelcomeBanner />
 				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
 						<Text variant="headline-small">

@@ -147,6 +147,10 @@ const statsCountsSelectors = {
 	isFetchingStatsCounts,
 };
 
+const getWelcomeBannerHasBeen = state => {
+	return state.welcomeBanner?.hasBeenDismissed;
+};
+
 const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
@@ -158,6 +162,7 @@ const selectors = {
 	...pluginSelectors,
 	...productStatsSelectors,
 	...statsCountsSelectors,
+	getWelcomeBannerHasBeen,
 };
 
 export default selectors;

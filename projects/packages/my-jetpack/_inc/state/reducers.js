@@ -20,6 +20,8 @@ import {
 	SET_PRODUCT_DATA,
 	SET_STATS_COUNTS_IS_FETCHING,
 	SET_STATS_COUNTS,
+	SET_DISMISSED_WELCOME_BANNER_IS_FETCHING,
+	SET_DISMISSED_WELCOME_BANNER,
 } from './actions';
 
 const products = ( state = {}, action ) => {
@@ -253,6 +255,25 @@ const statsCounts = ( state = {}, action ) => {
 	}
 };
 
+const welcomeBanner = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_DISMISSED_WELCOME_BANNER_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_DISMISSED_WELCOME_BANNER:
+			return {
+				...state,
+				hasBeenDismissed: action.hasBeenDismissed,
+			};
+
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	products,
 	productData,
@@ -264,6 +285,7 @@ const reducers = combineReducers( {
 	plugins,
 	stats,
 	statsCounts,
+	welcomeBanner,
 } );
 
 export default reducers;

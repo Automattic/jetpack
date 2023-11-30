@@ -25,6 +25,8 @@ const SET_PRODUCT_DATA_IS_FETCHING = 'SET_PRODUCT_DATA_IS_FETCHING';
 const SET_PRODUCT_DATA = 'SET_PRODUCT_DATA';
 const SET_STATS_COUNTS_IS_FETCHING = 'SET_STATS_COUNTS_IS_FETCHING';
 const SET_STATS_COUNTS = 'SET_STATS_COUNTS';
+const SET_DISMISSED_WELCOME_BANNER_IS_FETCHING = 'SET_DISMISSED_WELCOME_BANNER_IS_FETCHING';
+const SET_DISMISSED_WELCOME_BANNER = 'SET_DISMISSED_WELCOME_BANNER';
 
 const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
 const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
@@ -94,6 +96,14 @@ const setRequestProductError = ( productId, error ) => ( {
 
 const setProductStatus = ( productId, status ) => {
 	return { type: SET_PRODUCT_STATUS, productId, status };
+};
+
+const setDismissedWelcomeBannerIsFetching = isFetching => {
+	return { type: SET_DISMISSED_WELCOME_BANNER_IS_FETCHING, isFetching };
+};
+
+const setDismissedWelcomeBanner = hasBeenDismissed => {
+	return { type: SET_DISMISSED_WELCOME_BANNER, hasBeenDismissed };
 };
 
 const setGlobalNotice = ( message, options ) => ( {
@@ -261,11 +271,21 @@ const installStandalonePluginForProduct = productId => async store => {
  *
  * @returns {Promise} - Promise which resolves when the banner is dismissed.
  */
-const dismissWelcomeBanner = () => async () => {
+const dismissWelcomeBanner = () => async store => {
+	const { dispatch } = store;
+
+	dispatch( setDismissedWelcomeBannerIsFetching( true ) );
+
 	return apiFetch( {
 		path: REST_API_SITE_DISMISS_BANNER,
 		method: 'POST',
-	} );
+	} )
+		.then( () => {
+			dispatch( setDismissedWelcomeBanner( true ) );
+		} )
+		.finally( () => {
+			dispatch( setDismissedWelcomeBannerIsFetching( false ) );
+		} );
 };
 
 const setProductStats = ( productId, stats ) => {
@@ -337,5 +357,7 @@ export {
 	SET_PRODUCT_DATA,
 	SET_STATS_COUNTS_IS_FETCHING,
 	SET_STATS_COUNTS,
+	SET_DISMISSED_WELCOME_BANNER_IS_FETCHING,
+	SET_DISMISSED_WELCOME_BANNER,
 	actions as default,
 };

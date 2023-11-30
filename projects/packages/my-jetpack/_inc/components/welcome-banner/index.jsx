@@ -3,20 +3,19 @@ import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { useEffect, useCallback, useState } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
+import useWelcomeBanner from '../../hooks/use-welcome-banner';
 import { CardWrapper } from '../card';
 import styles from './style.module.scss';
 
 /**
  * Component that renders the Welcome banner on My Jetpack.
  *
- * @param {object} props                         - Component props.
- * @param {object} props.onDismissBanner         - Callback called when the dismiss button is clicked.
- * @param {object} props.dismissedWelcomeBanner  - Whether the banner has been dismissed.
  * @returns {object} The WelcomeBanner component.
  */
-const WelcomeBanner = ( { onDismissBanner, dismissedWelcomeBanner } ) => {
+const WelcomeBanner = () => {
 	const { recordEvent } = useAnalytics();
-	const [ bannerVisible, setBannerVisible ] = useState( ! dismissedWelcomeBanner );
+	const { hasBeenDismissed, dismissWelcomeBanner } = useWelcomeBanner();
+	const [ bannerVisible, setBannerVisible ] = useState( ! hasBeenDismissed );
 
 	useEffect( () => {
 		if ( bannerVisible ) {
@@ -27,11 +26,8 @@ const WelcomeBanner = ( { onDismissBanner, dismissedWelcomeBanner } ) => {
 	const onDismissClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_welcome_banner_dismiss_click' );
 		setBannerVisible( false );
-
-		if ( typeof onDismissBanner === 'function' ) {
-			onDismissBanner();
-		}
-	}, [ recordEvent, onDismissBanner ] );
+		dismissWelcomeBanner();
+	}, [ recordEvent, dismissWelcomeBanner ] );
 
 	if ( ! bannerVisible ) {
 		return null;
