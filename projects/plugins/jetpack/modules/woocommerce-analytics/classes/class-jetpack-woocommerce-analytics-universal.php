@@ -504,7 +504,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 */
 	public function get_additional_blocks_on_page( $cart_or_checkout = 'cart' ) {
 
-		$additional_blocks_on_page_transient_name = 'jetpack_woocommerce_additional_blocks_on_' . $cart_or_checkout . '_page';
+		$additional_blocks_on_page_transient_name = 'jetpack_woocommerce_analytics_additional_blocks_on_' . $cart_or_checkout . '_page';
 		$additional_blocks_on_page                = get_transient( $additional_blocks_on_page_transient_name );
 
 		if ( false !== $additional_blocks_on_page ) {
