@@ -17,7 +17,7 @@ async function getLabels( octokit, owner, repo, number ) {
 	const labelList = [];
 	const cacheKey = `${ owner }/${ repo } #${ number }`;
 	if ( cache[ cacheKey ] ) {
-		debug( `get-labels: Returning list of lables on ${ cacheKey } from cache.` );
+		debug( `get-labels: Returning list of labels on ${ cacheKey } from cache.` );
 		return cache[ cacheKey ];
 	}
 
