@@ -529,21 +529,30 @@
 .jetpack-field-checkbox,
 .jetpack-field-consent {
 	display: flex;
+
+	.jetpack-field-label .jetpack-field-label__input {
+		font-weight: 400;
+	}
+}
+
+.jetpack-field-checkbox {
+	align-items: baseline;
+
+	.jetpack-field-label {
+		display: block;
+	}
+}
+
+.jetpack-field-consent {
 	align-items: center;
 
 	.jetpack-field-label {
 		flex-grow: 1;
 
 		.jetpack-field-label__input {
-			font-weight: 400;
+			font-size: 13px;
+			text-transform: uppercase;
 		}
-	}
-}
-
-.jetpack-field-consent {
-	.jetpack-field-label__input {
-		font-size: 13px;
-		text-transform: uppercase;
 	}
 }
 
