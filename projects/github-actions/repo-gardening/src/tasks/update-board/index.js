@@ -494,7 +494,7 @@ async function assignTeam( octokit, payload, projectInfo, projectItemId, priorit
 	// Loop through all the mappings in team assignments,
 	// and find the first one that includes a label that matches one present in the issue.
 	const [ featureName, { team, slack_id, board_id } = {} ] =
-		Object.entries( automatticAssignments ).find( ( [ , assignment ] ) =>
+		Object.entries( teamAssignments ).find( ( [ , assignment ] ) =>
 			labels.some( mappedLabel => assignment.labels.includes( mappedLabel ) )
 		) || [];
 
