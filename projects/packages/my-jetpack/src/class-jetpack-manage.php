@@ -33,6 +33,11 @@ class Jetpack_Manage {
 			return;
 		}
 
+		// Do not display the menu if Jetpack plugin is not installed.
+		if ( ! class_exists( 'Jetpack' ) ) {
+			return;
+		}
+
 		// Do not display the menu on Multisite.
 		if ( is_multisite() ) {
 			return;
@@ -40,11 +45,7 @@ class Jetpack_Manage {
 
 		// Do not display the menu if the user has <= 2 sites.
 		$user_data = ( new Connection_Manager() )->get_connected_user_data( get_current_user_id() );
-		if ( ! isset( $user_data['site_count'] ) ) {
-			return;
-		}
-
-		if ( $user_data['site_count'] <= 2 ) {
+		if ( ! isset( $user_data['site_count'] ) || $user_data['site_count'] < 2 ) {
 			return;
 		}
 
