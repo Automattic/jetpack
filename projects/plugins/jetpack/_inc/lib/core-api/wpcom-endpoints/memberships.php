@@ -369,7 +369,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		} else {
 			$payload = array(
 				'type'   => $request['type'],
-				'source' => sanitize_text_field( wp_unslash( $request['source'] ) ),
+				'source' => $source,
 			);
 
 			// If we pass directly is_editable as null, it would break API argument validation.
