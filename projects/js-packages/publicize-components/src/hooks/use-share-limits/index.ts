@@ -1,27 +1,26 @@
 import { useSelect } from '@wordpress/data';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 
 export type ShareLimits = {
 	status: 'approaching' | 'exceeded' | 'full' | 'none';
-	noticeType: 'default' | 'highlight' | 'warning' | 'error';
+	noticeType: 'default' | 'warning' | 'error';
 	message: string;
+};
+
+export type UseShareLimitsArgs = {
+	enabledConnectionsCount?: number;
+	initialEnabledConnectionsCount?: number;
 };
 
 /**
  * Returns the messages for the share limits
  *
- * @param {number} shareLimit - Share limit
- *
  * @returns {ReturnType<typeof getMessages>} Share limits messages
  */
-export function getMessages( shareLimit: number ) {
+export function getMessages() {
 	return {
-		default: sprintf(
-			// translators: %1$d is the number of shares allowed in 30 days.
-			__( 'Share limit for 30 days: %1$d.', 'jetpack' ),
-			shareLimit
-		),
+		default: '',
 		exceeded: __(
 			'You have exceeded your share limit. Your posts will no longer be shared.',
 			'jetpack'
@@ -37,20 +36,25 @@ export function getMessages( shareLimit: number ) {
 /**
  * Returns the share limits details
  *
+ * @param {UseShareLimitsArgs} args - Arguments
+ *
  * @returns {ShareLimits} Share limits details
  */
-export function useShareLimits(): ShareLimits {
+export function useShareLimits( {
+	enabledConnectionsCount = 0,
+	initialEnabledConnectionsCount = 0,
+}: UseShareLimitsArgs = {} ): ShareLimits {
 	return useSelect( select => {
 		const store = select( socialStore );
 
 		const shareLimit = store.getShareLimit();
 		const totalSharesCount = store.getTotalSharesCount( {
-			includeEnabledConnections: true,
-			excludeInitialConnections: true,
+			enabledConnectionsCount,
+			initialEnabledConnectionsCount,
 		} );
 		const scheduledShares = store.getScheduledSharesCount();
 		const usedSharesCount = store.getSharesUsedCount();
-		const messages = getMessages( shareLimit );
+		const messages = getMessages();
 
 		let noticeType: ShareLimits[ 'noticeType' ] = 'default';
 		let status: ShareLimits[ 'status' ] = 'none';

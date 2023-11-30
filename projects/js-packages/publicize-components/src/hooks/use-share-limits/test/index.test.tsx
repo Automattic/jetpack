@@ -53,7 +53,7 @@ function getStoreInitialState( data: DeepPartial< SocialStoreState > ) {
 	};
 }
 
-const messages = getMessages( 30 );
+const messages = getMessages();
 
 describe( 'useShareLimits', () => {
 	it( 'should return the default values', () => {
