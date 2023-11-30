@@ -8,10 +8,14 @@ import {
 	getRedirectUrl,
 	getUserLocale,
 } from '@automattic/jetpack-components';
-import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
-import { ShareLimitsBar, store as socialStore } from '@automattic/jetpack-publicize-components';
+import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import {
+	ShareLimitsBar,
+	store as socialStore,
+	useShareLimits,
+} from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
 import StatCards from '../stat-cards';
 import styles from './styles.module.scss';
@@ -52,6 +56,8 @@ const Header = () => {
 		compactDisplay: 'short',
 	} );
 
+	const { noticeType } = useShareLimits();
+
 	return (
 		<>
 			<Container horizontalSpacing={ 0 }>
@@ -82,14 +88,11 @@ const Header = () => {
 					{ showShareLimits ? (
 						<>
 							<ShareLimitsBar
-								maxCount={ shareLimit }
-								currentCount={ sharesCount }
+								limit={ shareLimit }
+								usedCount={ sharesCount }
 								scheduledCount={ scheduledShares }
-								text={ sprintf(
-									// translators: %1$d is the number of shares allowed in 30 days.
-									__( 'Share limit for 30 days: %1$d.', 'jetpack-social' ),
-									shareLimit
-								) }
+								text={ __( 'Auto-share usage', 'jetpack-social' ) }
+								noticeType={ noticeType }
 							/>
 							<ContextualUpgradeTrigger
 								className={ styles.cut }
