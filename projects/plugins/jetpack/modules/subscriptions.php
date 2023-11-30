@@ -759,7 +759,7 @@ class Jetpack_Subscriptions {
 	 */
 	public function widget_submit() {
 		// Check the nonce.
-		if ( ! wp_verify_nonce( 'blogsub_subscribe_' . \Jetpack_Options::get_option( 'id' ) ) ) {
+		if ( ! wp_verify_nonce( isset( $_REQUEST['_wpnonce'] ) ? sanitize_key( $_REQUEST['_wpnonce'] ) : '', 'blogsub_subscribe_' . \Jetpack_Options::get_option( 'id' ) ) ) {
 			return false;
 		}
 
