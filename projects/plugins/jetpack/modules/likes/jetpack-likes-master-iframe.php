@@ -36,7 +36,7 @@ function jetpack_likes_master_iframe() {
 
 	if ( $new_layout ) {
 		// The span content is be replaced by queuehandler when showOtherGravatars is called.
-		echo wp_kses( '<span>%d</span>', array( 'span' => array() ) );
+		$likers_text = wp_kses( '<span>%d</span>', array( 'span' => array() ) );
 	} else {
 		/* translators: The value of %d is not available at the time of output */
 		$likers_text = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
