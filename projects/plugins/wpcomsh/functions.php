@@ -414,3 +414,8 @@ function wpcomsh_newsletter_categories_location() {
 }
 
 add_filter( 'wpcom_newsletter_categories_location', 'wpcomsh_newsletter_categories_location', 10, 0 );
+
+/**
+ * Enables new likes layout on Atomic.
+ */
+add_filter( 'likes_new_layout', '__return_true' );
