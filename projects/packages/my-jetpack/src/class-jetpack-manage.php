@@ -39,8 +39,12 @@ class Jetpack_Manage {
 		}
 
 		// Do not display the menu if the user has <= 2 sites.
-		$number_of_sites = ( new Connection_Manager() )->get_connected_user_data( get_current_user_id() )['site_count'];
-		if ( $number_of_sites <= 2 ) {
+		$user_data = ( new Connection_Manager() )->get_connected_user_data( get_current_user_id() );
+		if ( ! isset( $user_data['site_count'] ) ) {
+			return;
+		}
+
+		if ( $user_data['site_count'] <= 2 ) {
 			return;
 		}
 
