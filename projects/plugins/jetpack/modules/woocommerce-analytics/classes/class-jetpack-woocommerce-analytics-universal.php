@@ -326,7 +326,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'order_value'                    => $order_value,
 						'additional_blocks_on_cart_page' => $this->additional_blocks_on_cart_page,
 						'additional_blocks_on_checkout_page' => $this->additional_blocks_on_checkout_page,
-						'template_used'                  => $this->cart_checkout_templates_in_use ? '1' : '0',
 					),
 					$product->get_id()
 				);
@@ -361,7 +360,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'order_value'                    => $order_value,
 						'additional_blocks_on_cart_page' => $this->additional_blocks_on_cart_page,
 						'additional_blocks_on_checkout_page' => $this->additional_blocks_on_checkout_page,
-						'template_used'                  => $this->cart_checkout_templates_in_use ? '1' : '0',
 					),
 					$product->get_id()
 				);
@@ -437,7 +435,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					'order_value'                        => $order->get_total(),
 					'additional_blocks_on_cart_page'     => $this->additional_blocks_on_cart_page,
 					'additional_blocks_on_checkout_page' => $this->additional_blocks_on_checkout_page,
-					'template_used'                      => $this->cart_checkout_templates_in_use ? '1' : '0',
 				),
 				$product_id
 			);

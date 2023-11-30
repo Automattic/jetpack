@@ -178,6 +178,7 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			'woo_version' => WC()->version,
 			'store_admin' => in_array( 'administrator', wp_get_current_user()->roles, true ) ? 1 : 0,
 			'device'         => wp_is_mobile() ? 'mobile' : 'desktop',
+			'template_used'                      => $this->cart_checkout_templates_in_use ? '1' : '0',
 			'store_currency'                     => get_woocommerce_currency(),
 		);
 		$cart_checkout_info = $this->get_cart_checkout_info();
