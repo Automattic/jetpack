@@ -27,6 +27,15 @@ class Creator extends Product {
 	public static $slug = 'creator';
 
 	/**
+	 * Get the plugin slug - ovewrite it and return Jetpack's
+	 *
+	 * @return ?string
+	 */
+	public static function get_plugin_slug() {
+		return self::JETPACK_PLUGIN_SLUG;
+	}
+
+	/**
 	 * Get the plugin filename - ovewrite it and return Jetpack's
 	 *
 	 * @return ?string
