@@ -1,7 +1,7 @@
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-import { REST_API_SITE_PRODUCTS_ENDPOINT } from './constants';
+import { REST_API_SITE_DISMISS_BANNER, REST_API_SITE_PRODUCTS_ENDPOINT } from './constants';
 
 /*
  * Action constants
@@ -256,6 +256,18 @@ const installStandalonePluginForProduct = productId => async store => {
 	} );
 };
 
+/**
+ * Request to set the welcome banner as dismissed
+ *
+ * @returns {Promise} - Promise which resolves when the banner is dismissed.
+ */
+const dismissWelcomeBanner = () => async () => {
+	return apiFetch( {
+		path: REST_API_SITE_DISMISS_BANNER,
+		method: 'POST',
+	} );
+};
+
 const setProductStats = ( productId, stats ) => {
 	return { type: SET_PRODUCT_STATS, productId, stats };
 };
@@ -296,6 +308,7 @@ const actions = {
 	setIsFetchingProductStats,
 	setStatsCounts,
 	setStatsCountsIsFetching,
+	dismissWelcomeBanner,
 	...noticeActions,
 	...productActions,
 };

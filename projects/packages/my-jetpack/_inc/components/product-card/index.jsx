@@ -1,11 +1,13 @@
 import { Button } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { moreVertical, download } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
+import { STORE_ID } from '../../state/store';
 import Card from '../card';
 import ActionButton, { PRODUCT_STATUSES } from './action-button';
 import Status from './status';
@@ -167,6 +169,7 @@ const ProductCard = props => {
 	} );
 
 	const { recordEvent } = useAnalytics();
+	const { dismissWelcomeBanner } = useDispatch( STORE_ID );
 
 	/**
 	 * Calls the passed function onActivate after firing Tracks event
@@ -175,8 +178,9 @@ const ProductCard = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
 			product: slug,
 		} );
+		dismissWelcomeBanner();
 		onActivate();
-	}, [ slug, onActivate, recordEvent ] );
+	}, [ slug, onActivate, dismissWelcomeBanner, recordEvent ] );
 
 	/**
 	 * Calls the passed function onAdd after firing Tracks event
@@ -185,7 +189,8 @@ const ProductCard = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_add_click', {
 			product: slug,
 		} );
-	}, [ slug, recordEvent ] );
+		dismissWelcomeBanner();
+	}, [ slug, recordEvent, dismissWelcomeBanner ] );
 
 	/**
 	 * Calls the passed function onManage after firing Tracks event
@@ -194,7 +199,8 @@ const ProductCard = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
 			product: slug,
 		} );
-	}, [ slug, recordEvent ] );
+		dismissWelcomeBanner();
+	}, [ slug, recordEvent, dismissWelcomeBanner ] );
 
 	/**
 	 * Calls the passed function onManage after firing Tracks event
@@ -203,7 +209,8 @@ const ProductCard = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_fixconnection_click', {
 			product: slug,
 		} );
-	}, [ slug, recordEvent ] );
+		dismissWelcomeBanner();
+	}, [ slug, recordEvent, dismissWelcomeBanner ] );
 
 	/**
 	 * Use a Tracks event to count a standalone plugin install request

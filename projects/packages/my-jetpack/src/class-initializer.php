@@ -166,24 +166,25 @@ class Initializer {
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
 			array(
-				'products'              => array(
+				'products'               => array(
 					'items' => Products::get_products(),
 				),
-				'purchases'             => array(
+				'purchases'              => array(
 					'items' => array(),
 				),
-				'plugins'               => Plugins_Installer::get_plugins(),
-				'myJetpackUrl'          => admin_url( 'admin.php?page=my-jetpack' ),
-				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
-				'siteSuffix'            => ( new Status() )->get_site_suffix(),
-				'myJetpackVersion'      => self::PACKAGE_VERSION,
-				'myJetpackFlags'        => self::get_my_jetpack_flags(),
-				'fileSystemWriteAccess' => self::has_file_system_write_access(),
-				'loadAddLicenseScreen'  => self::is_licensing_ui_enabled(),
-				'adminUrl'              => esc_url( admin_url() ),
-				'IDCContainerID'        => static::get_idc_container_id(),
-				'userIsAdmin'           => current_user_can( 'manage_options' ),
-				'isStatsModuleActive'   => $modules->is_active( 'stats' ),
+				'plugins'                => Plugins_Installer::get_plugins(),
+				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
+				'topJetpackMenuItemUrl'  => Admin_Menu::get_top_level_menu_item_url(),
+				'siteSuffix'             => ( new Status() )->get_site_suffix(),
+				'myJetpackVersion'       => self::PACKAGE_VERSION,
+				'myJetpackFlags'         => self::get_my_jetpack_flags(),
+				'fileSystemWriteAccess'  => self::has_file_system_write_access(),
+				'loadAddLicenseScreen'   => self::is_licensing_ui_enabled(),
+				'adminUrl'               => esc_url( admin_url() ),
+				'IDCContainerID'         => static::get_idc_container_id(),
+				'userIsAdmin'            => current_user_can( 'manage_options' ),
+				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
+				'dismissedWelcomeBanner' => \Jetpack_Options::get_option( 'dismissed_welcome_banner', false ),
 			)
 		);
 
@@ -249,6 +250,16 @@ class Initializer {
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
+
+		register_rest_route(
+			'my-jetpack/v1',
+			'site/dismiss-welcome-banner',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::dismiss_welcome_banner',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
 	}
 
 	/**
@@ -301,6 +312,16 @@ class Initializer {
 		}
 
 		return rest_ensure_response( $body, 200 );
+	}
+
+	/**
+	 * Dismiss the welcome banner.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function dismiss_welcome_banner() {
+		\Jetpack_Options::update_option( 'dismissed_welcome_banner', true );
+		return rest_ensure_response( array( 'success' => true ), 200 );
 	}
 
 	/**

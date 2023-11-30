@@ -1,23 +1,43 @@
 $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
 
-.banner > .banner-card {
-	padding: 0;
+.banner {
+	position: relative;
+
+	& > .banner-card {
+		padding: 0;
+	}
+
+	& > .dismiss {
+		position: absolute;
+		top: 16px;
+		right: 16px;
+		padding: 8px;
+		background-color: var(--jp-white);
+		box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.1);
+		border-radius: 50%;
+		transform: scale(0.75);
+
+		&:hover, &:focus {
+			background-color: var(--jp-white);
+		}
+	}
 }
+
 
 .banner-container {
 	padding: 0;
+	background: radial-gradient(circle at 90% 30%, rgba(6, 158, 8, 0.15) 0%, rgba(255, 255, 255, 0) 35%),
+				radial-gradient(circle at 75% 65%, rgba(206, 217, 242, 0.5) 5%, rgba(255, 255, 255, 0) 15%),
+				radial-gradient(circle at 90% 90%, rgba(245, 230, 179, 0.5) 0%, rgba(255, 255, 255, 0) 25%);
 }
 
 .banner-description {
-	padding: 64px 48px;
+	padding: 64px 12px 64px 48px;
 }
 
 .banner-image {
 	margin: 1px;
-	background-image: url(./assets/images/site-cards.png),
-				radial-gradient(circle at 80% 30%, rgba(6, 158, 8, 0.15) 0%, rgba(255, 255, 255, 0) 75%),
-				radial-gradient(circle at 40% 80%, rgba(206, 217, 242, 0.5) 5%, rgba(255, 255, 255, 0) 25%),
-				radial-gradient(circle at 65% 90%, rgba(245, 230, 179, 0.5) 0%, rgba(255, 255, 255, 0) 35%);
+	background-image: url(./assets/images/site-cards.png);
 	background-repeat: no-repeat;
 	background-size: cover;
 	border-radius: 0px var(--jp-border-radius) var(--jp-border-radius) 0px;
