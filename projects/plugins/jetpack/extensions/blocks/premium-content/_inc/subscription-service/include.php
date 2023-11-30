@@ -72,10 +72,6 @@ function default_service( $service ) {
 		return new Jetpack_Token_Subscription_Service();
 	}
 
-	if ( Jetpack_Token_Subscription_Service::available() ) {
-		return new Jetpack_Token_Subscription_Service();
-	}
-
 	return new Unconfigured_Subscription_Service();
 }
 add_filter( PAYWALL_FILTER, 'Automattic\Jetpack\Extensions\Premium_Content\default_service' );

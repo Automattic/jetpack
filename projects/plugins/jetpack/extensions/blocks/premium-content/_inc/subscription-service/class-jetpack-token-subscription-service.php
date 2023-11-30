@@ -33,10 +33,6 @@ class Jetpack_Token_Subscription_Service extends Token_Subscription_Service {
 	 * @return int The site ID.
 	 */
 	public function get_site_id() {
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			return get_current_blog_id();
-		}
-
 		return \Jetpack_Options::get_option( 'id' );
 	}
 
