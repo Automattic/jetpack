@@ -360,15 +360,13 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	public function get_status( \WP_REST_Request $request ) {
 		$product_type = $request['type'];
 
-		if ( ! empty( $_GET['source'] ) ) {
-		    $source = sanitize_text_field( wp_unslash( $_GET['source'] ) );
-		} elseif ( ! empty( $request['source'] ) ) {
-		    $source = sanitize_text_field( $request['source'] );
+		if ( ! empty( $request['source'] ) ) {
+			$source = sanitize_text_field( wp_unslash( $request['source'] ) );
 		} else {
-		    $source = 'gutenberg';
+			$source = 'gutenberg';
 		}
 
-		$is_editable  = ! isset( $request['is_editable'] ) ? null : (bool) $request['is_editable'];
+		$is_editable = ! isset( $request['is_editable'] ) ? null : (bool) $request['is_editable'];
 
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
