@@ -1,4 +1,4 @@
-const { getLabels } = require( './get-labels' );
+const getLabels = require( './get-labels' );
 
 /* global GitHub */
 
