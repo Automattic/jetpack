@@ -24,7 +24,7 @@ function jetpack_likes_master_iframe() {
 
 	$likes_locale = ( '' === $_locale || 'en' === $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
 	/** This filter is documented in projects/plugins/jetpack/modules/likes.php */
-	$new_layout       = apply_filters( 'likes_new_layout', false ) ? '&amp;n=1' : '';
+	$new_layout       = apply_filters( 'likes_new_layout', true ) ? '&amp;n=1' : '';
 	$new_layout_class = $new_layout ? 'wpl-new-layout' : '';
 
 	$src = sprintf(
