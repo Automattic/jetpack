@@ -254,7 +254,7 @@ export default function AiAssistantBar( {
 				<AIControl
 					ref={ inputRef }
 					disabled={ siteRequireUpgrade || ! connected }
-					value={ isLoading ? undefined : inputValue }
+					value={ inputValue }
 					placeholder={ isLoading ? loadingPlaceholder : placeholder }
 					onChange={ setInputValue }
 					onSend={ handleSend }
