@@ -1,38 +1,22 @@
 import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { initStore } from '../../../state/store';
-import StatsCards from '../cards.jsx';
+import WelcomeBanner from '../index.jsx';
 
 initStore();
 
 export default {
-	title: 'Packages/My Jetpack/Stats Cards',
-	component: StatsCards,
-};
-
-const DefaultArgs = {
-	counts: {
-		views: 4652,
-		visitors: 1500,
-		likes: 107,
-		comments: 32,
-	},
-	previousCounts: {
-		views: 3749,
-		visitors: 1200,
-		likes: 111,
-		comments: 34,
-	},
+	title: 'Packages/My Jetpack/Welcome Banner',
+	component: WelcomeBanner,
 };
 
 const Template = args => (
 	<HashRouter>
 		<Routes>
-			<Route path="/" element={ <StatsCards { ...args } /> } />
+			<Route path="/" element={ <WelcomeBanner { ...args } /> } />
 		</Routes>
 	</HashRouter>
 );
 
 export const Default = Template.bind( {} );
 Default.parameters = {};
-Default.args = DefaultArgs;
