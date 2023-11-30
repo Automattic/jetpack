@@ -5,12 +5,7 @@
 	width: 0;
 	opacity: 0;
 
-	&.is-requesting {
-		opacity: 1;
-		width: 38px;
-	}
-
-	&.is-suggesting {
+	&.is-requesting, &.is-suggesting {
 		opacity: 1;
 		width: 38px;
 	}
