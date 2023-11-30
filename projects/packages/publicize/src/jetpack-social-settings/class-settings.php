@@ -47,8 +47,8 @@ class Settings {
 	 */
 	private function migrate_old_option() {
 		$auto_conversion_settings = get_option( 'jetpack_social_settings' );
-		if ( ! empty( $auto_conversion_settings['image'] ) ) {
-			update_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES, array( 'enabled' => $auto_conversion_settings['image'] ) );
+		if ( ! empty( $auto_conversion_settings ) ) {
+			update_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES, array( 'enabled' => ! empty( $auto_conversion_settings['image'] ) ) );
 			delete_option( 'jetpack_social_settings' );
 		}
 

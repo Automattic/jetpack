@@ -144,4 +144,15 @@ class Jetpack_Social_Settings_Test extends BaseTestCase {
 		$this->settings = new SocialSettings();
 		$this->assertEquals( $expected_options, $this->settings->get_settings() );
 	}
+
+	/**
+	 * Tests that the auto-conversion settings are migrated even if it was false before.
+	 */
+	public function test_migrate_old_options_with_disabled_autoconversion() {
+		update_option( 'jetpack_social_settings', array( 'image' => false ) );
+		$expected_options = array( 'enabled' => false );
+
+		$this->settings = new SocialSettings();
+		$this->assertEquals( $expected_options, $this->settings->get_settings()['autoConversionSettings'] );
+	}
 }
