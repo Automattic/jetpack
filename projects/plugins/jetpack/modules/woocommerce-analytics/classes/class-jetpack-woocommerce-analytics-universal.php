@@ -317,7 +317,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					array(
 						'pq'                             => $cart_item['quantity'],
 						'payment_options'                => $enabled_payment_options,
-						'device'                         => wp_is_mobile() ? 'mobile' : 'desktop',
 						'guest_checkout'                 => 'Yes' === $guest_checkout ? 'Y' : 'N',
 						'create_account'                 => 'Yes' === $create_account ? 'Y' : 'N',
 						'express_checkout'               => 'null',
@@ -354,7 +353,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					array(
 						'pq'                             => $cart_item['quantity'],
 						'payment_options'                => $enabled_payment_options,
-						'device'                         => wp_is_mobile() ? 'mobile' : 'desktop',
 						'guest_checkout'                 => 'Yes' === $guest_checkout ? 'Y' : 'N',
 						'create_account'                 => 'Yes' === $create_account ? 'Y' : 'N',
 						'express_checkout'               => 'null',
@@ -432,7 +430,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				array(
 					'oi'                                 => $order->get_order_number(),
 					'pq'                                 => $order_item->get_quantity(),
-					'device'                             => wp_is_mobile() ? 'mobile' : 'desktop',
 					'payment_option'                     => $payment_option,
 					'create_account'                     => $create_account,
 					'guest_checkout'                     => $guest_checkout,
