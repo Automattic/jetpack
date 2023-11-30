@@ -747,8 +747,7 @@ async function promptChangelog( argv, needChangelog, types ) {
 		validate: input => {
 			const fileExists = doesFilenameExist( input, needChangelog );
 			if ( fileExists ) {
-				console.log( chalk.red( 'Please choose another file name.' ) );
-				return 'Please choose another file name, or delete the file manually.';
+				return 'Filename exists already. Please choose another file name, or delete the file existing manually.';
 			}
 			return true;
 		},
