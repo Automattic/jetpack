@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Admin Page: fix the focus on the admin navigation menu when the Activity Log menu is not available.
+
+
