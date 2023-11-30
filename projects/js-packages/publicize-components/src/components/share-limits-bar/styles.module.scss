@@ -1,5 +1,12 @@
 .bar-wrapper {
 	:global .record-meter-bar__items{
-		height: 1rem;
+		height: 0.5rem;
+	}
+}
+
+.wrapper {
+	.text {
+		font-weight: 600;
+		text-transform: uppercase;
 	}
 }
