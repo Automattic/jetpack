@@ -74,6 +74,7 @@ export function AIControl(
 		onSend = noop,
 		onStop = noop,
 		onAccept = noop,
+		onDiscard = noop,
 	}: {
 		disabled?: boolean;
 		value: string;
@@ -216,7 +217,7 @@ export function AIControl(
 						<Button
 							className="jetpack-components-ai-control__controls-prompt_button"
 							label={ __( 'Discard', 'jetpack-ai-client' ) }
-							onClick={ noop }
+							onClick={ () => onDiscard?.() }
 						>
 							<Icon icon={ trash } />
 						</Button>

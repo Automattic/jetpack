@@ -561,6 +561,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					onSend={ handleSend }
 					onStop={ handleStopSuggestion }
 					onAccept={ handleAccept }
+					onDiscard={ handleTryAgain }
 					state={ requestingState }
 					isTransparent={ requireUpgrade || ! connected }
 					showButtonLabels={ ! isMobileViewport }
