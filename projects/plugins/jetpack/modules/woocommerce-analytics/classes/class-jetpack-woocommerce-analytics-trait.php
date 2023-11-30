@@ -41,6 +41,20 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	protected $checkout_content_source = '';
 
 	/**
+	 * Tracks any additional blocks loaded on the Cart page.
+	 *
+	 * @var array
+	 */
+	private $additional_blocks_on_cart_page;
+
+	/**
+	 * Tracks any additional blocks loaded on the Checkout page.
+	 *
+	 * @var array
+	 */
+	private $additional_blocks_on_checkout_page;
+
+	/**
 	 * Gets the content of the cart/checkout page or where the cart/checkout page is ultimately derived from if using a template.
 	 * This method sets the class properties $checkout_content_source and $cart_content_source.
 	 *
@@ -74,6 +88,8 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			$this->checkout_content_source = $transient_value['checkout_content_source'];
 			return;
 		}
+
+		$this->cart_checkout_templates_in_use = wp_is_block_theme() && class_exists( 'Automattic\WooCommerce\Blocks\Package' ) && version_compare( Automattic\WooCommerce\Blocks\Package::get_version(), '10.6.0', '>=' );
 
 		// Cart/Checkout *pages* are in use if the templates are not in use. Return their content and do nothing else.
 		if ( ! $this->cart_checkout_templates_in_use ) {
@@ -217,6 +233,50 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	public function record_event( $event_name, $properties = array(), $product_id = null ) {
 		$js = $this->process_event_properties( $event_name, $properties, $product_id );
 		wc_enqueue_js( "_wca.push({$js});" );
+	}
+
+		/**
+		 * Gather relevant product information
+		 *
+		 * @param \WC_Product $product product.
+		 * @return array
+		 */
+	public function get_product_details( $product ) {
+		return array(
+			'id'       => $product->get_id(),
+			'name'     => $product->get_title(),
+			'category' => $this->get_product_categories_concatenated( $product ),
+			'price'    => $product->get_price(),
+			'type'     => $product->get_type(),
+		);
+	}
+
+		/**
+		 * Gets product categories or varation attributes as a formatted concatenated string
+		 *
+		 * @param object $product WC_Product.
+		 * @return string
+		 */
+	public function get_product_categories_concatenated( $product ) {
+
+		if ( ! $product instanceof WC_Product ) {
+			return '';
+		}
+
+		$variation_data = $product->is_type( 'variation' ) ? wc_get_product_variation_attributes( $product->get_id() ) : '';
+		if ( is_array( $variation_data ) && ! empty( $variation_data ) ) {
+			$line = wc_get_formatted_variation( $variation_data, true );
+		} else {
+			$out        = array();
+			$categories = get_the_terms( $product->get_id(), 'product_cat' );
+			if ( $categories ) {
+				foreach ( $categories as $category ) {
+					$out[] = $category->name;
+				}
+			}
+			$line = implode( '/', $out );
+		}
+		return $line;
 	}
 
 	/**

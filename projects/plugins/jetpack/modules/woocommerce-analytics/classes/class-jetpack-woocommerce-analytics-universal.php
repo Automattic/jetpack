@@ -6,8 +6,6 @@
  * @author Automattic
  */
 
-use Automattic\Jetpack\Assets;
-
 /**
  * Bail if accessed directly
  */
@@ -27,40 +25,16 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	use Jetpack_WooCommerce_Analytics_Trait;
 
 	/**
-	 * Tracks any additional blocks loaded on the Cart page.
-	 *
-	 * @var array
-	 */
-	private $additional_blocks_on_cart_page;
-
-	/**
-	 * Tracks any additional blocks loaded on the Checkout page.
-	 *
-	 * @var array
-	 */
-	private $additional_blocks_on_checkout_page;
-
-	/**
 	 * Jetpack_WooCommerce_Analytics_Universal constructor.
 	 */
 	public function __construct() {
-		$this->cart_checkout_templates_in_use = wp_is_block_theme() && class_exists( 'Automattic\WooCommerce\Blocks\Package' ) && version_compare( Automattic\WooCommerce\Blocks\Package::get_version(), '10.6.0', '>=' );
 		$this->find_cart_checkout_content_sources();
-
-		// loading _wca.
-		add_action( 'wp_head', array( $this, 'wp_head_top' ), 1 );
 
 		// add to carts from non-product pages or lists -- search, store etc.
 		add_action( 'wp_head', array( $this, 'loop_session_events' ), 2 );
 
-		// loading s.js.
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_tracking_script' ) );
-
 		// Capture cart events.
 		add_action( 'woocommerce_add_to_cart', array( $this, 'capture_add_to_cart' ), 10, 6 );
-
-		// single product page view.
-		add_action( 'woocommerce_after_single_product', array( $this, 'capture_product_view' ) );
 
 		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart' ) );
 		add_action( 'woocommerce_after_mini_cart', array( $this, 'remove_from_cart' ) );
@@ -78,28 +52,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart_via_quantity' ), 10, 1 );
 
 		add_filter( 'woocommerce_checkout_posted_data', array( $this, 'save_checkout_post_data' ), 10, 1 );
-	}
-
-	/**
-	 * Make _wca available to queue events
-	 */
-	public function wp_head_top() {
-		if ( is_cart() || is_checkout() || is_checkout_pay_page() || is_order_received_page() || is_add_payment_method_page() ) {
-			echo '<script>window._wca_prevent_referrer = true;</script>' . "\r\n";
-		}
-		echo '<script>window._wca = window._wca || [];</script>' . "\r\n";
-	}
-
-	/**
-	 * Place script to call s.js, Store Analytics.
-	 */
-	public function enqueue_tracking_script() {
-		$filename = sprintf(
-			'https://stats.wp.com/s-%d.js',
-			gmdate( 'YW' )
-		);
-
-		Assets::enqueue_async_script( 'woocommerce-analytics', esc_url( $filename ), esc_url( $filename ), array(), null, false );
 	}
 
 	/**
@@ -177,38 +129,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 		$url = str_replace( '">', $new_attributes, $url );
 		return $url;
-	}
-
-	/**
-	 * Gather relevant product information
-	 *
-	 * @param array $product product.
-	 * @return array
-	 */
-	public function get_product_details( $product ) {
-		return array(
-			'id'       => $product->get_id(),
-			'name'     => $product->get_title(),
-			'category' => $this->get_product_categories_concatenated( $product ),
-			'price'    => $product->get_price(),
-			'type'     => $product->get_type(),
-		);
-	}
-
-	/**
-	 * Track a product page view
-	 */
-	public function capture_product_view() {
-		global $product;
-		if ( ! $product instanceof WC_Product ) {
-			return;
-		}
-
-		$this->record_event(
-			'woocommerceanalytics_product_view',
-			array(),
-			$product->get_id()
-		);
 	}
 
 	/**
@@ -386,10 +306,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		if ( is_object( WC()->session ) ) {
 			$create_account = true === WC()->session->get( 'wc_checkout_createaccount_used' ) ? 'Y' : 'N';
 		} else {
-			$create_account = 'N';
+			$create_account = 'No';
 		}
 
-		$guest_checkout = $order->get_user() ? 'N' : 'Y';
+		$guest_checkout = $order->get_user() ? 'No' : 'Yes';
 
 		$express_checkout = 'null';
 		// When the payment option is woocommerce_payment
@@ -606,34 +526,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$data[] = $new_data;
 
 		WC()->session->set( 'wca_session_data', $data );
-	}
-
-	/**
-	 * Gets product categories or varation attributes as a formatted concatenated string
-	 *
-	 * @param object $product WC_Product.
-	 * @return string
-	 */
-	public function get_product_categories_concatenated( $product ) {
-
-		if ( ! $product instanceof WC_Product ) {
-			return '';
-		}
-
-		$variation_data = $product->is_type( 'variation' ) ? wc_get_product_variation_attributes( $product->get_id() ) : '';
-		if ( is_array( $variation_data ) && ! empty( $variation_data ) ) {
-			$line = wc_get_formatted_variation( $variation_data, true );
-		} else {
-			$out        = array();
-			$categories = get_the_terms( $product->get_id(), 'product_cat' );
-			if ( $categories ) {
-				foreach ( $categories as $category ) {
-					$out[] = $category->name;
-				}
-			}
-			$line = implode( '/', $out );
-		}
-		return $line;
 	}
 
 	/**
