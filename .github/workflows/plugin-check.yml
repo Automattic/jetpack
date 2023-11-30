@@ -6,16 +6,163 @@ on:
     - trunk
 
 jobs:
-  prepare:
-    name: "Check plugin"
-
+  check-backup-plugin:
+    name: "Check backup plugin"
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Run plugin check
         uses: swissspidy/wp-plugin-check-action@main
         with:
-            build-dir: ./projects/plugins
+          build-dir: ./projects/plugins/backup/
+  check-beta-plugin:
+    name: "Check beta plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@main
+        with:
+          build-dir: ./projects/plugins/beta/src
+  check-boost-plugin:
+    name: "Check boost plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@main
+        with:
+          build-dir: ./projects/plugins/boost/app
+  check-crm-plugin:
+    name: "Check crm plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@main
+        with:
+          build-dir: ./projects/plugins/crm
+  check-debug-helper-plugin:
+    name: "Check debug-helper plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@main
+        with:
+          build-dir: ./projects/plugins/debug-helper
+  check-inspect-plugin:
+    name: "Check inspect plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@main
+        with:
+          build-dir: ./projects/plugins/inspect
+  check-jetpack-plugin:
+    name: "Check jetpack plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@main
+        with:
+          build-dir: ./projects/plugins/jetpack
+  check-migration-plugin:
+    name: "Check migration plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@main
+        with:
+          build-dir: ./projects/plugins/migration
+  check-mu-wcom-plugin-plugin:
+    name: "Check mu-wcom-plugin plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@main
+        with:
+          build-dir: ./projects/plugins/mu-wcom-plugin
+  check-protect-plugin:
+    name: "Check protect plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@main
+        with:
+          build-dir: ./projects/plugins/protect
+  check-search-plugin:
+    name: "Check search plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@main
+        with:
+          build-dir: ./projects/plugins/search
+  check-social-plugin:
+    name: "Check social plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@main
+        with:
+          build-dir: ./projects/plugins/social
+  check-starter-plugin-plugin:
+    name: "Check starter-plugin plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@main
+        with:
+          build-dir: ./projects/plugins/starter-plugin
+  check-super-cache-plugin:
+    name: "Check super-cache plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@main
+        with:
+          build-dir: ./projects/plugins/super-cache
+  check-vaultpress-plugin:
+    name: "Check vaultpress plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@main
+        with:
+          build-dir: ./projects/plugins/vaultpress
+  check-videopress-plugin:
+    name: "Check videopress plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run plugin check
+        uses: swissspidy/wp-plugin-check-action@main
+        with:
+          build-dir: ./projects/plugins/videopress
