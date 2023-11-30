@@ -97,17 +97,36 @@ export function AIControl(
 	const promptUserInputRef = useRef( null );
 	const loading = state === 'requesting' || state === 'suggesting';
 	const [ editRequest, setEditRequest ] = React.useState( false );
+	const [ lastValue, setLastValue ] = React.useState( '' );
 
 	useEffect( () => {
 		if ( editRequest ) {
 			promptUserInputRef?.current?.focus();
 		}
-	}, [ editRequest ] );
+
+		if ( ! editRequest && lastValue && value !== lastValue ) {
+			onChange?.( lastValue );
+		}
+	}, [ editRequest, lastValue ] );
 
 	const sendRequest = useCallback( () => {
+		setLastValue( value );
 		setEditRequest( false );
 		onSend?.( value );
 	}, [ value ] );
+
+	const changeHandler = useCallback(
+		( newValue: string ) => {
+			onChange?.( newValue );
+			setEditRequest( state !== 'init' && lastValue && lastValue !== newValue );
+		},
+		[ lastValue, state ]
+	);
+
+	const discardHandler = useCallback( () => {
+		onDiscard?.();
+		onAccept?.();
+	}, [] );
 
 	// Pass the ref to forwardRef.
 	useImperativeHandle( ref, () => promptUserInputRef.current );
@@ -147,7 +166,7 @@ export function AIControl(
 				<div className="jetpack-components-ai-control__input-wrapper">
 					<PlainText
 						value={ value }
-						onChange={ onChange }
+						onChange={ changeHandler }
 						placeholder={ placeholder }
 						className="jetpack-components-ai-control__input"
 						disabled={ loading || disabled }
@@ -211,13 +230,15 @@ export function AIControl(
 							className="jetpack-components-ai-control__controls-prompt_button"
 							label={ __( 'Back to edit', 'jetpack-ai-client' ) }
 							onClick={ () => setEditRequest( true ) }
+							tooltipPosition="top"
 						>
 							<Icon icon={ arrowLeft } />
 						</Button>
 						<Button
 							className="jetpack-components-ai-control__controls-prompt_button"
 							label={ __( 'Discard', 'jetpack-ai-client' ) }
-							onClick={ () => onDiscard?.() }
+							onClick={ discardHandler }
+							tooltipPosition="top"
 						>
 							<Icon icon={ trash } />
 						</Button>
@@ -225,6 +246,7 @@ export function AIControl(
 							className="jetpack-components-ai-control__controls-prompt_button"
 							label={ __( 'Regenerate', 'jetpack-ai-client' ) }
 							onClick={ () => onSend?.( value ) }
+							tooltipPosition="top"
 						>
 							<Icon icon={ reusableBlock } />
 						</Button>
