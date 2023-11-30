@@ -38,13 +38,13 @@ const WelcomeBanner = ( { onDismissBanner, dismissedWelcomeBanner } ) => {
 	}
 
 	return (
-		<Container horizontalSpacing={ 5 }>
+		<Container horizontalSpacing={ 3 } className={ styles[ 'banner-container' ] }>
 			<Col lg={ 12 } className={ styles.banner }>
 				<CardWrapper className={ styles[ 'banner-card' ] }>
 					<Container
 						horizontalSpacing={ 0 }
 						horizontalGap={ 0 }
-						className={ styles[ 'banner-container' ] }
+						className={ styles[ 'banner-content' ] }
 					>
 						<Col md={ 5 } lg={ 6 } className={ styles[ 'banner-description' ] }>
 							<Text variant="headline-small" mb={ 4 }>

@@ -23,8 +23,11 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 	}
 }
 
-
 .banner-container {
+	margin-top: 24px;
+}
+
+.banner-content {
 	padding: 0;
 	background: radial-gradient(circle at 90% 30%, rgba(6, 158, 8, 0.15) 0%, rgba(255, 255, 255, 0) 35%),
 				radial-gradient(circle at 75% 65%, rgba(206, 217, 242, 0.5) 5%, rgba(255, 255, 255, 0) 15%),
