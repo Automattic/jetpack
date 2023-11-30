@@ -24,7 +24,8 @@ function jetpack_likes_master_iframe() {
 
 	$likes_locale = ( '' === $_locale || 'en' === $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
 	/** This filter is documented in projects/plugins/jetpack/modules/likes.php */
-	$new_layout = apply_filters( 'likes_new_layout', false ) ? '&amp;n=1' : '';
+	$new_layout       = apply_filters( 'likes_new_layout', false ) ? '&amp;n=1' : '';
+	$new_layout_class = $new_layout ? 'wpl-new-layout' : '';
 
 	$src = sprintf(
 		'https://widgets.wp.com/likes/master.html?ver=%1$s#ver=%1$s%2$s%3$s',
@@ -42,6 +43,6 @@ function jetpack_likes_master_iframe() {
 	}
 	?>
 	<iframe src='<?php echo esc_url( $src ); ?>' scrolling='no' id='likes-master' name='likes-master' style='display:none;'></iframe>
-	<div id='likes-other-gravatars'><div class="likes-text"><?php echo $likers_text; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
+	<div id='likes-other-gravatars' class='<?php echo esc_attr( $new_layout_class ); ?>'><div class="likes-text"><?php echo $likers_text; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
 	<?php
 }

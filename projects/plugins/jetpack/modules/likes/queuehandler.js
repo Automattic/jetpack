@@ -206,6 +206,8 @@ function JetpackLikesMessageListener( event ) {
 				break;
 			}
 
+			const newLayout = container.classList.contains( 'wpl-new-layout' );
+
 			const list = container.querySelector( 'ul' );
 
 			container.style.display = 'none';
@@ -222,20 +224,37 @@ function JetpackLikesMessageListener( event ) {
 				}
 
 				const element = document.createElement( 'li' );
-				element.innerHTML = `
-					<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
-						<img src="${ encodeURI( liker.avatar_URL ) }"
-							alt=""
-							style="width: 30px; height: 30px; padding-right: 3px;" />
-					</a>
-				`;
+				if ( newLayout ) {
+					element.innerHTML = `
+						<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
+							<img src="${ encodeURI( liker.avatar_URL ) }"
+								alt=""
+								style="width: 28px; height: 28px;" />
+							<span></span>
+						</a>
+					`;
+				} else {
+					element.innerHTML = `
+						<a href="${ encodeURI( liker.profile_URL ) }" rel="nofollow" target="_parent" class="wpl-liker">
+							<img src="${ encodeURI( liker.avatar_URL ) }"
+								alt=""
+								style="width: 30px; height: 30px; padding-right: 3px;" />
+						</a>
+					`;
+				}
 
 				list.append( element );
 
 				// Add some extra attributes through native methods, to ensure strings are sanitized.
 				element.classList.add( liker.css_class );
 				element.querySelector( 'img' ).alt = liker.name;
+				if ( newLayout ) {
+					element.querySelector( 'span' ).innerText = liker.name;
+				}
 			} );
+
+			const containerStyle = getComputedStyle( container );
+			const isRtl = containerStyle.direction === 'rtl';
 
 			const el = document.querySelector( `*[name='${ data.parent }']` );
 			const rect = el.getBoundingClientRect();
@@ -245,8 +264,22 @@ function JetpackLikesMessageListener( event ) {
 				left: rect.left + win.pageXOffset,
 			};
 
-			container.style.left = offset.left + data.position.left - 10 + 'px';
-			container.style.top = offset.top + data.position.top - 33 + 'px';
+			if ( newLayout ) {
+				container.style.top = offset.top + data.position.top - 1 + 'px';
+
+				if ( isRtl ) {
+					const visibleAvatarsCount = data && data.likers ? Math.min( data.likers.length, 5 ) : 0;
+					// 24px is the width of the avatar + 4px is the padding between avatars
+					container.style.left =
+						offset.left + data.position.left + 24 * visibleAvatarsCount + 4 + 'px';
+					container.style.transform = 'translateX(-100%)';
+				} else {
+					container.style.left = offset.left + data.position.left + 'px';
+				}
+			} else {
+				container.style.left = offset.left + data.position.left - 10 + 'px';
+				container.style.top = offset.top + data.position.top - 33 + 'px';
+			}
 
 			const rowLength = Math.floor( data.width / 37 );
 			let height = Math.ceil( data.likers.length / rowLength ) * 37 + 13;
@@ -254,20 +287,23 @@ function JetpackLikesMessageListener( event ) {
 				height = 204;
 			}
 
-			const containerWidth = rowLength * 37 - 7;
-			container.style.height = height + 'px';
-			container.style.width = containerWidth + 'px';
+			if ( ! newLayout ) {
+				// Avatars + padding
+				const containerWidth = rowLength * 37 - 7;
+				container.style.height = height + 'px';
+				container.style.width = containerWidth + 'px';
 
-			const listWidth = rowLength * 37;
-			list.style.width = listWidth + 'px';
+				const listWidth = rowLength * 37;
+				list.style.width = listWidth + 'px';
+
+				const scrollbarWidth = list.offsetWidth - list.clientWidth;
+				if ( scrollbarWidth > 0 ) {
+					container.style.width = containerWidth + scrollbarWidth + 'px';
+					list.style.width = listWidth + scrollbarWidth + 'px';
+				}
+			}
 
 			container.style.display = 'block';
-
-			const scrollbarWidth = list.offsetWidth - list.clientWidth;
-			if ( scrollbarWidth > 0 ) {
-				container.style.width = containerWidth + scrollbarWidth + 'px';
-				list.style.width = listWidth + scrollbarWidth + 'px';
-			}
 		}
 	}
 }
