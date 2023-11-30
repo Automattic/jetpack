@@ -48,6 +48,19 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	 */
 	public function find_cart_checkout_content_sources() {
 
+		/**
+		 * The steps we take to find the content are:
+		 * 1. Check the transient, if that contains content and is not expired, return that.
+		 * 2. Check if the cart/checkout templates are in use. If *not in use*, get the content from the pages and
+		 *    return it, there is no need to dig further.
+		 * 3. If the templates *are* in use, check if the `page-content-wrapper` block is in use. If so, get the content
+		 *    from the pages (same as step 2) and return it.
+		 * 4. If the templates are in use but `page-content-wrapper` is not, then get the content directly from the
+		 *    template and return it.
+		 * 5. At the end of each step, assign the found content to the relevant class properties and save them in a
+		 *    transient with a 1-day lifespan. This will prevent us from having to do this work on every page load.
+		 */
+
 		$cart_checkout_content_cache_transient_name = 'jetpack_woocommerce_analytics_cart_checkout_content_sources';
 
 		$transient_value = get_transient( $cart_checkout_content_cache_transient_name );
