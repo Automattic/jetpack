@@ -18,11 +18,13 @@ if ( ! function_exists( 'jetpack_unregister_deprecated_google_fonts_from_theme_j
 				$font_families,
 				function ( $font_family ) {
 					$has_deprecated_google_fonts_data = false;
-					foreach ( $font_family['fontFace'] as $font_face ) {
-						$provider = isset( $font_face['provider'] ) ? $font_face['provider'] : '';
-						if ( $provider === 'jetpack-google-fonts' ) {
-							$has_deprecated_google_fonts_data = true;
-							break;
+					if ( isset( $font_family['fontFace'] ) ) {
+						foreach ( $font_family['fontFace'] as $font_face ) {
+							$provider = isset( $font_face['provider'] ) ? $font_face['provider'] : '';
+							if ( $provider === 'jetpack-google-fonts' ) {
+								$has_deprecated_google_fonts_data = true;
+								break;
+							}
 						}
 					}
 
