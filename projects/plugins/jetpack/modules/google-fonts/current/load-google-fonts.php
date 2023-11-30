@@ -164,11 +164,14 @@ function jetpack_google_fonts_filter_out_deprecated_font_data( $font_families ) 
 			$font_families,
 			function ( $font_family ) {
 				$has_deprecated_google_fonts_data = false;
-				foreach ( $font_family['fontFace'] as $font_face ) {
-					$provider = isset( $font_face['provider'] ) ? $font_face['provider'] : '';
-					if ( $provider === 'jetpack-google-fonts' ) {
-						$has_deprecated_google_fonts_data = true;
-						break;
+
+				if ( isset( $font_family['fontFace'] ) ) {
+					foreach ( $font_family['fontFace'] as $font_face ) {
+						$provider = isset( $font_face['provider'] ) ? $font_face['provider'] : '';
+						if ( $provider === 'jetpack-google-fonts' ) {
+							$has_deprecated_google_fonts_data = true;
+							break;
+						}
 					}
 				}
 
