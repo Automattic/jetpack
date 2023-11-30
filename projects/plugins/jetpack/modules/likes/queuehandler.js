@@ -213,9 +213,15 @@ function JetpackLikesMessageListener( event ) {
 			container.style.display = 'none';
 			list.innerHTML = '';
 
-			container
-				.querySelectorAll( '.likes-text span' )
-				.forEach( item => ( item.textContent = data.total ) );
+			if ( newLayout ) {
+				container
+					.querySelectorAll( '.likes-text span' )
+					.forEach( item => ( item.textContent = data.totalLikesLabel ) );
+			} else {
+				container
+					.querySelectorAll( '.likes-text span' )
+					.forEach( item => ( item.textContent = data.total ) );
+			}
 
 			( data.likers || [] ).forEach( liker => {
 				if ( liker.profile_URL.substr( 0, 4 ) !== 'http' ) {
