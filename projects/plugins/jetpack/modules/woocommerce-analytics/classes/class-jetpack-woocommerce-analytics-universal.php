@@ -29,6 +29,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 */
 	public function __construct() {
 		$this->find_cart_checkout_content_sources();
+		$this->additional_blocks_on_cart_page     = $this->get_additional_blocks_on_page( 'cart' );
+		$this->additional_blocks_on_checkout_page = $this->get_additional_blocks_on_page( 'checkout' );
 
 		// add to carts from non-product pages or lists -- search, store etc.
 		add_action( 'wp_head', array( $this, 'loop_session_events' ), 2 );
@@ -52,6 +54,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart_via_quantity' ), 10, 1 );
 
 		add_filter( 'woocommerce_checkout_posted_data', array( $this, 'save_checkout_post_data' ), 10, 1 );
+
+		add_action( 'woocommerce_created_customer', array( $this, 'capture_created_customer' ), 10, 2 );
 	}
 
 	/**
@@ -181,9 +185,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function checkout_process() {
 		$cart = WC()->cart->get_cart();
 
-		$this->additional_blocks_on_cart_page     = $this->get_additional_blocks_on_page( 'cart' );
-		$this->additional_blocks_on_checkout_page = $this->get_additional_blocks_on_page( 'checkout' );
-
 		$guest_checkout = ucfirst( get_option( 'woocommerce_enable_guest_checkout', 'No' ) );
 		$create_account = ucfirst( get_option( 'woocommerce_enable_signup_and_login_from_checkout', 'No' ) );
 
@@ -237,8 +238,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					array(
 						'pq'               => $cart_item['quantity'],
 						'payment_options'  => $enabled_payment_options,
-						'guest_checkout'   => 'Yes' === $guest_checkout ? 'Y' : 'N',
-						'create_account'   => 'Yes' === $create_account ? 'Y' : 'N',
+						'guest_checkout'   => $guest_checkout,
+						'create_account'   => $create_account,
 						'express_checkout' => 'null',
 						'shipping_option'  => $this->get_shipping_option_for_item( $cart_item_key ),
 						'products_count'   => $products_count,
@@ -269,8 +270,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					array(
 						'pq'               => $cart_item['quantity'],
 						'payment_options'  => $enabled_payment_options,
-						'guest_checkout'   => 'Yes' === $guest_checkout ? 'Y' : 'N',
-						'create_account'   => 'Yes' === $create_account ? 'Y' : 'N',
+						'guest_checkout'   => $guest_checkout,
+						'create_account'   => $create_account,
 						'express_checkout' => 'null',
 						'shipping_option'  => $this->get_shipping_option_for_item( $cart_item_key ),
 						'products_count'   => $products_count,
@@ -291,9 +292,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function order_process( $order_id ) {
 		$order = wc_get_order( $order_id );
 
-		$this->additional_blocks_on_cart_page     = $this->get_additional_blocks_on_page( 'cart' );
-		$this->additional_blocks_on_checkout_page = $this->get_additional_blocks_on_page( 'checkout' );
-
 		if (
 			! $order
 			|| ! $order instanceof WC_Order
@@ -304,7 +302,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$payment_option = $order->get_payment_method();
 
 		if ( is_object( WC()->session ) ) {
-			$create_account = true === WC()->session->get( 'wc_checkout_createaccount_used' ) ? 'Y' : 'N';
+			$create_account = true === WC()->session->get( 'wc_checkout_createaccount_used' ) ? 'Yes' : 'No';
 		} else {
 			$create_account = 'No';
 		}
@@ -402,72 +400,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
-	 * Gets the IDs of additional blocks on the Cart/Checkout pages or templates.
-	 *
-	 * @param string $cart_or_checkout Whether to get blocks on the cart or checkout page.
-	 * @return array All inner blocks on the page.
-	 */
-	public function get_additional_blocks_on_page( $cart_or_checkout = 'cart' ) {
-
-		$additional_blocks_on_page_transient_name = 'jetpack_woocommerce_analytics_additional_blocks_on_' . $cart_or_checkout . '_page';
-		$additional_blocks_on_page                = get_transient( $additional_blocks_on_page_transient_name );
-
-		if ( false !== $additional_blocks_on_page ) {
-			return $additional_blocks_on_page;
-		}
-
-		$content = $this->cart_content_source;
-
-		if ( 'checkout' === $cart_or_checkout ) {
-			$content = $this->checkout_content_source;
-		}
-
-		$parsed_blocks = parse_blocks( $content );
-		$other_blocks  = array_filter(
-			$parsed_blocks,
-			function ( $block ) use ( $cart_or_checkout ) {
-				if ( ! isset( $block['blockName'] ) ) {
-					return false;
-				}
-				if ( 'woocommerce/classic-shortcode' === $block['blockName'] ) {
-					return false;
-				}
-				if ( 'core/shortcode' === $block['blockName'] ) {
-					return false;
-				}
-				if ( 'checkout' === $cart_or_checkout && 'woocommerce/checkout' !== $block['blockName'] ) {
-					return true;
-				}
-				if ( 'cart' === $cart_or_checkout && 'woocommerce/cart' !== $block['blockName'] ) {
-					return true;
-				}
-				return false;
-			}
-		);
-
-		$all_inner_blocks = array();
-
-		// Loop over each "block group". In templates the blocks are grouped up.
-		foreach ( $other_blocks as $block ) {
-
-			// This check is necessary because sometimes this is null when using templates.
-			if ( ! empty( $block['blockName'] ) ) {
-				$all_inner_blocks[] = $block['blockName'];
-			}
-
-			if ( ! isset( $block['innerBlocks'] ) || ! is_array( $block['innerBlocks'] ) || 0 === count( $block['innerBlocks'] ) ) {
-				continue;
-			}
-
-			foreach ( $block['innerBlocks'] as $inner_content ) {
-				$all_inner_blocks = array_merge( $all_inner_blocks, $this->get_inner_blocks( $inner_content ) );
-			}
-		}
-		set_transient( $additional_blocks_on_page_transient_name, $all_inner_blocks, DAY_IN_SECONDS );
-		return $all_inner_blocks;
-	}
-
-	/**
 	 * Track adding items to the cart.
 	 *
 	 * @param string $cart_item_key Cart item key.
@@ -544,5 +476,21 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			}
 		}
 		return $data;
+	}
+
+	/**
+	 * Capture the create account event. Similar to save_checkout_post_data but works with Store API.
+	 *
+	 * @param int   $customer_id Customer ID.
+	 * @param array $new_customer_data New customer data.
+	 */
+	public function capture_created_customer( $customer_id, $new_customer_data ) {
+		$session = WC()->session;
+		if ( is_object( $session ) ) {
+			if ( str_contains( $new_customer_data['source'], 'store-api' ) ) {
+				$session->set( 'wc_checkout_createaccount_used', true );
+				$session->save_data();
+			}
+		}
 	}
 }
