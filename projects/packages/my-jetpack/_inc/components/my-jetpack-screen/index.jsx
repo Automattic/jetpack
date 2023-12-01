@@ -26,6 +26,7 @@ import useChatAvailability from '../../hooks/use-chat-availability';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
 import { useProduct } from '../../hooks/use-product';
+import useWelcomeBanner from '../../hooks/use-welcome-banner';
 import ConnectionsSection from '../connections-section';
 import IDCModal from '../idc-modal';
 import PlansSection from '../plans-section';
@@ -96,6 +97,7 @@ export default function MyJetpackScreen() {
 	const { jwt, isFetchingChatAuthentication } = useChatAuthentication();
 	const shouldShowZendeskChatWidget =
 		! isFetchingChatAuthentication && ! isFetchingChatAvailability && isAvailable && jwt;
+	const { hasBeenDismissed: welcomeBannerHasBeenDismissed } = useWelcomeBanner;
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
@@ -132,7 +134,7 @@ export default function MyJetpackScreen() {
 							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
 						</Text>
 					</Col>
-					{ hasConnectionError && (
+					{ hasConnectionError && welcomeBannerHasBeenDismissed && (
 						<Col>
 							<ConnectionError />
 						</Col>
