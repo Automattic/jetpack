@@ -2,7 +2,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { STORE_ID } from '../../state/store';
 
 /**
- * React custom hook to get the status of the welcome banner.
+ * React custom hook to handle the welcome banner state.
  *
  * @returns {object} recent stats counts data
  */
