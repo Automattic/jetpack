@@ -14,6 +14,7 @@ export type ShareLimitsBarProps = {
 	remainingCount?: number;
 	limit: number;
 	text?: string;
+	textVariant?: string;
 	className?: string;
 	noticeType?: NoticeType;
 };
@@ -37,6 +38,7 @@ export const ShareLimitsBar = ( {
 	enabledConnectionsCount,
 	remainingCount,
 	text,
+	textVariant = 'body',
 	className,
 	noticeType = 'default',
 }: ShareLimitsBarProps ) => {
@@ -93,7 +95,11 @@ export const ShareLimitsBar = ( {
 
 	return (
 		<div className={ classNames( styles.wrapper, className ) }>
-			{ text ? <Text className={ styles.text }>{ text }</Text> : null }
+			{ text ? (
+				<Text variant={ textVariant } className={ styles.text }>
+					{ text }
+				</Text>
+			) : null }
 			<RecordMeterBar totalCount={ limit } items={ items } className={ styles[ 'bar-wrapper' ] } />
 		</div>
 	);

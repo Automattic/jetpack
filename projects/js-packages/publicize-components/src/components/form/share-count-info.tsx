@@ -48,6 +48,7 @@ export const ShareCountInfo: React.FC = () => {
 				enabledConnectionsCount={ enabledConnections.length }
 				noticeType={ noticeType }
 				text={ __( 'Auto-share usage', 'jetpack' ) }
+				textVariant="body-extra-small"
 			/>
 		</ThemeProvider>
 	);
