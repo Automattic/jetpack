@@ -757,7 +757,7 @@ async function promptChangelog( argv, needChangelog, types ) {
 		type: 'autocomplete',
 		name: 'significance',
 		message: 'Significance of the change, in the style of semantic versioning.',
-		suggest: ( input, significanceChoices = [ 'patch', 'minor', 'majo' ] ) => {
+		suggest: ( input, significanceChoices = [ 'patch', 'minor', 'major' ] ) => {
 			return Promise.resolve(
 				significanceChoices.filter( choice => choice.value.startsWith( input ) )
 			);
