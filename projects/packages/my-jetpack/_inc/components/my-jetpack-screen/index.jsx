@@ -90,7 +90,7 @@ export default function MyJetpackScreen() {
 	useConnectionWatcher();
 	// Check using the global state instead of Redux so it only has effect after refreshing the page
 	const welcomeBannerHasBeenDismissed =
-		window?.myJetpackInitialState?.welcomeBanner.hasBeenDismissed === '1';
+		window?.myJetpackInitialState?.welcomeBanner.hasBeenDismissed;
 	const isStatsModuleActive = window?.myJetpackInitialState?.isStatsModuleActive === '1';
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
