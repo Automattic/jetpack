@@ -32,6 +32,7 @@ import PlansSection from '../plans-section';
 import { PRODUCT_STATUSES } from '../product-card';
 import ProductCardsSection from '../product-cards-section';
 import StatsSection from '../stats-section';
+import WelcomeBanner from '../welcome-banner';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, options, clean } ) => {
@@ -124,9 +125,12 @@ export default function MyJetpackScreen() {
 						<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
 					</Col>
 				</Container>
+				<WelcomeBanner />
 				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						<Text variant="headline-small">{ __( 'My Jetpack', 'jetpack-my-jetpack' ) }</Text>
+						<Text variant="headline-small">
+							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
+						</Text>
 					</Col>
 					{ hasConnectionError && (
 						<Col>
