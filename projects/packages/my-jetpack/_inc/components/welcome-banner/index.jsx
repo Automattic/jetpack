@@ -21,7 +21,7 @@ const WelcomeBanner = () => {
 		if ( bannerVisible ) {
 			recordEvent( 'jetpack_myjetpack_welcome_banner_view' );
 		}
-	} );
+	}, [ bannerVisible, recordEvent ] );
 
 	const onDismissClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_welcome_banner_dismiss_click' );
