@@ -31,6 +31,7 @@ const ActionButton = ( {
 	isDeactivatingStandalone,
 	className,
 	onAdd,
+	onLearnMore,
 	upgradeInInterstitial,
 } ) => {
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
@@ -62,7 +63,7 @@ const ActionButton = ( {
 					variant: 'primary',
 					weight: 'regular',
 					label: buttonText,
-					onClick: null,
+					onClick: onLearnMore,
 				};
 			}
 			case PRODUCT_STATUSES.NEEDS_PURCHASE: {
@@ -146,6 +147,7 @@ const ActionButton = ( {
 		onAdd,
 		onFixConnection,
 		onManage,
+		onLearnMore,
 		purchaseUrl,
 		slug,
 		status,
