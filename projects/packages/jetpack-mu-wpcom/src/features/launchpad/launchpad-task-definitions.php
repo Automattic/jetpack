@@ -517,7 +517,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_has_paid_membership_plans',
 			'is_visible_callback'  => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/earn/payments/' . $data['site_slug_encoded'];
+				return '/earn/payments/' . $data['site_slug_encoded'] . '#add-new-payment-plan';
 			},
 		),
 
