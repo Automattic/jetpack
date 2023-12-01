@@ -97,7 +97,7 @@ export default function MyJetpackScreen() {
 	const { jwt, isFetchingChatAuthentication } = useChatAuthentication();
 	const shouldShowZendeskChatWidget =
 		! isFetchingChatAuthentication && ! isFetchingChatAvailability && isAvailable && jwt;
-	const { hasBeenDismissed: welcomeBannerHasBeenDismissed } = useWelcomeBanner;
+	const { hasBeenDismissed: welcomeBannerHasBeenDismissed } = useWelcomeBanner();
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
