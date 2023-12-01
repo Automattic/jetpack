@@ -37,7 +37,7 @@ export const ShareLimitsBar = ( {
 	usedCount,
 	limit,
 	scheduledCount,
-	enabledConnectionsCount,
+	enabledConnectionsCount = 0,
 	remainingCount,
 	text,
 	textVariant = 'body',
@@ -48,7 +48,7 @@ export const ShareLimitsBar = ( {
 	const isScheduled = isEditedPostBeingScheduled();
 
 	const remaining = Math.max(
-		remainingCount ?? limit - usedCount - scheduledCount - ( enabledConnectionsCount ?? 0 ),
+		remainingCount ?? limit - usedCount - scheduledCount - enabledConnectionsCount,
 		0
 	);
 
