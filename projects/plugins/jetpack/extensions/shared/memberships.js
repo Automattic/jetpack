@@ -1,5 +1,3 @@
-/* global tb_show, tb_remove */
-
 let premiumContentJWTTokenForCookie = '';
 
 /**
@@ -21,26 +19,37 @@ export function handleIframeResult( eventFromIframe ) {
 		} else if ( data && data.action === 'close' ) {
 			// User just aborted.
 			window.removeEventListener( 'message', handleIframeResult );
-			tb_remove && tb_remove();
+			// tb_remove && tb_remove();
+			const dialog = document.querySelector( 'dialog' );
+			dialog.close();
+			dialog.remove();
 		}
 	}
 }
 
-function setUpThickbox( button ) {
+function setUpModal( button ) {
 	button.addEventListener( 'click', event => {
 		event.preventDefault();
-		const url = button.getAttribute( 'href' );
 		window.scrollTo( 0, 0 );
-		tb_show(
-			null,
-			url + '&display=alternate&jwt_token=' + getTokenFromCookie() + '&TB_iframe=true',
-			null
-		);
-		window.addEventListener( 'message', handleIframeResult, false );
-		const tbWindow = document.querySelector( '#TB_window' );
-		tbWindow.classList.add( 'jetpack-memberships-modal' );
+		const url = button.getAttribute( 'href' );
+		const dialog = document.createElement( 'dialog' );
+		const iframe = document.createElement( 'iframe' );
+		dialog.appendChild( iframe );
+		event.target.parentElement.appendChild( dialog );
+		iframe.src = url + '&display=alternate&jwt_token=' + getTokenFromCookie();
+		dialog.style.border = 0;
+		dialog.style.backgroundColor = 'transparent';
+		dialog.style.width = '100%';
+		dialog.style.height = '100%';
+		iframe.setAttribute( 'frameborder', 0 );
+		iframe.setAttribute( 'allowfullscreen', 'true' );
+		dialog.showModal();
+		const size = dialog.getBoundingClientRect();
+		iframe.width = size.width;
+		iframe.height = size.height;
 
-		// This line has to come after the Thickbox has opened otherwise Firefox doesn't scroll to the top.
+		window.addEventListener( 'message', handleIframeResult, false );
+		dialog.classList.add( 'jetpack-memberships-modal' );
 		window.scrollTo( 0, 0 );
 	} );
 }
@@ -53,7 +62,7 @@ export const initializeMembershipButtons = selector => {
 		}
 
 		try {
-			setUpThickbox( button );
+			setUpModal( button );
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
 			console.error( 'Problem setting up Thickbox', err );

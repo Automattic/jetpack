@@ -375,8 +375,6 @@ class Jetpack_Memberships {
 		}
 		$plan_id = implode( '+', $valid_plans );
 
-		add_thickbox();
-
 		if ( ! empty( $content ) ) {
 			$block_id      = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
 			$content       = str_replace( 'recurring-payments-id', $block_id, $content );
