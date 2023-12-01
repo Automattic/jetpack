@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-07-20 11:26:11+0000\n"
+"PO-Revision-Date: 2023-07-20 20:10:09+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,23 +11,31 @@ msgstr ""
 "Language: ru\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:504
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:260
+msgid "Share your site"
+msgstr "Делитесь содержимым сайта"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:243
+msgid "Edit a page"
+msgstr "Редактировать страницу"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:520
 msgid "Your site contains custom styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "Ваш сайт содержит пользовательские стили. Перейдите на платный тарифный план, чтобы их опубликовать и получить массу других возможностей."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:243
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:252
 msgid "Customize your domain"
 msgstr "Измените доменное имя"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:235
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:236
 msgid "Add a new page"
 msgstr "Добавить новую страницу"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:228
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:229
 msgid "Drive traffic to your site"
 msgstr "Привлекайте посетителей на сайт"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:221
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:222
 msgid "Give your site a name"
 msgstr "Дайте имя своему сайту"
 
@@ -55,8 +63,8 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Поделиться"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:438
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:519
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:454
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:535
 msgid "Upgrade plan"
 msgstr "Обновить план"
 
@@ -76,7 +84,7 @@ msgstr "Подтвердите адрес эл. почты (проверьте �
 msgid "Choose a domain"
 msgstr "Выберите домен"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:189
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:190
 msgid "Launch your blog"
 msgstr "Запустите свой блог"
 
@@ -85,36 +93,36 @@ msgid "Edit site design"
 msgstr "Измените дизайн сайта"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:80
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:212
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:213
 msgid "Set up your site"
 msgstr "Настройте ваш сайт"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:196
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:197
 msgid "Name your blog"
 msgstr "Название блога"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:204
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:205
 msgid "Personalize your site"
 msgstr "Персонализируйте ваш сайт"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:178
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:179
 msgid "Upload your first video"
 msgstr "Загрузите ваше первое видео"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:171
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:172
 msgid "Set up your video site"
 msgstr "Настройте ваш видео-сайт"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:87
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:138
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:139
 msgid "Launch your site"
 msgstr "Запустите свой сайт"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:146
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:147
 msgid "Add links"
 msgstr "Добавить ссылки"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:155
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:156
 msgid "Personalize Link in Bio"
 msgstr "Персонализировать сайт-биографию"
 
@@ -821,7 +829,7 @@ msgid "Update visibility"
 msgstr "Изменение настроек отображения"
 
 #: private-site/logged-in-banner.php:85
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:164
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:165
 msgid "Launch site"
 msgstr "Запустить сайт"
 
@@ -1449,7 +1457,7 @@ msgstr "Размер аватара (пикс):"
 
 #: widgets/class-widget-authors-grid.php:121
 msgid "Display all authors (including those who have not written any posts)"
-msgstr "Отобразить всех авторов (включая тех, кто не создал ни одной записи)"
+msgstr "Отобразить всех авторов (��ключая тех, кто не создал ни одной записи)"
 
 #: widgets/class-gravatar-widget.php:157
 #: widgets/class-jetpack-i-voted-widget.php:69
