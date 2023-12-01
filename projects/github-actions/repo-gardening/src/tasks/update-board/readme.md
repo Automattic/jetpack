@@ -14,3 +14,28 @@ For now, we have 6 automations in place:
 ## Rationale
 
 * Ensuring our project board is as up to date as possible ensures that folks on each team can prioritize their work appropriately.
+
+## Usage
+
+- Set the `task: updateBoard` task as part of the workflow.
+- Pass a custom list of label mappings as a JSON object, using `labels_team_assignments`. When specifying a new mapping, you must provide a unique feature name as key, and then a `team` value matching a column in your GitHub project board, as well as a `labels` array matching existing labels in use in your repo. No wild cards or regular expressions are supported for those arrays. You can also optionally pass a `slack_id`, matching a Slack channel ID where that team would like to be notified, as well as `board_id`, matching a GitHub project board URL where that team would like to have issues added automatically.
+- **Note**: if you work in a repository in the Automattic organization, you do not need to pass a custom list. Instead, add your mappings to the existing `automatticAssignments` object in the `updateBoard` task.
+
+Example:
+```yml
+  ...
+  with:
+    tasks: 'updateBoard'
+    labels_team_assignments: |
+      {
+        "AI Tools": {
+          "team": "Korvax",
+          "labels": [
+            "[Feature] AI Tools",
+            "[Block] A Block Name"
+          ],
+          "slack_id": "CN2FSK7L4",
+          "board_id": "https://github.com/users/yourname/projects/3"
+        }
+      }
+```
