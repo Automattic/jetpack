@@ -207,6 +207,9 @@ class Jetpack_Ai extends Product {
 		// get info about the feature.
 		$info = self::get_ai_assistant_feature();
 
+		// flag to indicate if the tiers are enabled, case the info is available.
+		$tier_plans_enabled = ( ! is_wp_error( $info ) && isset( $info['tier-plans-enabled'] ) ) ? boolval( $info['tier-plans-enabled'] ) : false;
+
 		/*
 		 * when tiers are enabled and the price tier list is empty,
 		 * we may need to renew the cache for the product data so
@@ -215,7 +218,7 @@ class Jetpack_Ai extends Product {
 		 * if the list is still empty after the fresh data, we will
 		 * default to empty pricing (by returning an empty array).
 		 */
-		if ( empty( $product->price_tier_list ) && isset( $info['tier-plans-enabled'] ) && $info['tier-plans-enabled'] === true ) {
+		if ( empty( $product->price_tier_list ) && $tier_plans_enabled ) {
 			$product = Wpcom_Products::get_product( static::get_wpcom_product_slug(), true );
 		}
 
