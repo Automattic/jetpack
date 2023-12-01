@@ -39,3 +39,52 @@ function load_assets( $attr, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 	return $content;
 }
+
+/**
+ * Add sharing JavaScript to the footer of a page.
+ *
+ * @return void
+ */
+function sharing_add_footer() {
+	?>
+	<script>
+	const variations = ['print', 'facebook', 'linkedin', 'mail', 'mastodon', 'patreon', 'pinterest', 'pocket', 'reddit', 'skype', 'telegram', 'tumblr', 'twitch', 'whatsapp', 'x', 'nextdoor']
+	let windowOpen;
+
+	( function () {
+		function matches( el, sel ) {
+			if ( ! el ) {
+				return false;
+			}
+			return !! (
+				( el.matches && el.matches( sel ) ) ||
+				( el.msMatchesSelector && el.msMatchesSelector( sel ) )
+			);
+		}
+		variations.forEach(variation => {
+			document.querySelectorAll(`a.share-${variation}`).forEach(link => {
+				link.addEventListener('click', event => {
+					event.preventDefault();
+
+					const el = event.target.closest(`a.share-${variation}`);
+					if (!el) return;
+
+					if (windowOpen !== undefined) {
+						windowOpen.close();
+					}
+
+					const options = 'enubar=1,resizable=1,width=600,height=400';
+					windowOpen = window.open(el.getAttribute('href'), `wpcom${variation}`, options);
+					if (windowOpen) {
+						windowOpen.focus();
+					}
+				});
+			});
+		});
+	} )();
+
+	</script>
+	<?php
+}
+
+add_action( 'wp_footer', __NAMESPACE__ . '\sharing_add_footer' );
