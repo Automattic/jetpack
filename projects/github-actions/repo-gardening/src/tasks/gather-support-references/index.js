@@ -87,7 +87,11 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 			const correctedId = `${ wrongId[ 1 ] }-zen`;
 			correctedSupportIds.add( correctedId );
 		} else {
-			correctedSupportIds.add( supportId.toLowerCase() );
+			// Switch to lowercase when it's not a p2 comment reference.
+			const standardizedsupportId = supportId.includes( '#comment' )
+				? supportId
+				: supportId.toLowerCase();
+			correctedSupportIds.add( standardizedsupportId );
 		}
 	} );
 
