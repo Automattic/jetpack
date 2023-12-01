@@ -34,7 +34,7 @@ function LikeEdit( { noticeUI } ) {
 	const blogId = useSelect( select => select( CONNECTION_STORE_ID ).getBlogId() );
 	//console.log( postId );
 	//console.log( blogId );
-	const { fetchLikes } = useFetchPostLikes( blogId, postId );
+	const { fetchLikes, likes } = useFetchPostLikes( blogId, postId );
 
 	//console.log( 'isLoading', isLoading );
 	//console.log( 'error', error );
@@ -53,7 +53,7 @@ function LikeEdit( { noticeUI } ) {
 				icon={ <BlockIcon icon={ icon } /> }
 				notices={ noticeUI }
 			>
-				{ __( 'User input goes here?', 'jetpack' ) }
+				<img src={ likes?.likes[ 0 ]?.avatar_URL } alt="liker avatar" />
 			</Placeholder>
 		</div>
 	);
