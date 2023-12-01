@@ -257,6 +257,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @return WP_Error|array ['products']
 	 */
 	public function list_products( WP_REST_Request $request ) {
+		$query       = null;
 		$is_editable = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
 		$type        = isset( $request['type'] ) ? $request['type'] : null;
 
