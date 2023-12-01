@@ -29,13 +29,30 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
+ * Fetches likes data from the WordPress.com REST API.
+ */
+function fetch_likes_data( $blog_id, $post_id ) {
+	$api_url = 'https://public-api.wordpress.com/rest/v1.1/sites/' . $blog_id . '/posts/' . $post_id . '/likes/?force=wpcom';
+
+	$response = wp_remote_get( $api_url );
+
+	if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
+		return false;
+	}
+
+	$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+	return $data;
+}
+
+/**
  * Like block render function.
  *
  * @param array $attr    Array containing the Like block attributes.
  *
  * @return string
  */
-function render_block( $attr ) {
+function render_block( $attr, $content, $block ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
@@ -49,7 +66,19 @@ function render_block( $attr ) {
 		$type    = 'jetpack'; // Self-hosted (includes Atomic)
 	}
 
-	$output = 'This is where the like button will go.';
+	$post_id = $block->context['postId'];
+
+	$likes_data = fetch_likes_data( $blog_id, $post_id );
+	$like_avatar_url = '';
+
+	if ( ! empty( $likes_data ) && ! empty( $likes_data['likes'] ) ) {
+		$like_avatar_url = $likes_data['likes'][0]['avatar_URL']; // Adjust according to the actual data structure.
+	}
+
+	$output = '';
+	if ( ! empty( $like_avatar_url ) ) {
+		$output = sprintf( '<img src="%s" alt="Liker Avatar">', esc_url( $like_avatar_url ) );
+	}
 
 	return sprintf(
 		'<div class="%1$s" data-blog-id="%2$d" data-blog-type="%3$s">%4$s</div>',
