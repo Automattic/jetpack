@@ -54,7 +54,7 @@ if ( isset( $_GET['edit-provider'] ) && $zbs->oauth->legitimate_provider( $_GET[
 
 		?><table class="table table-bordered table-striped wtab">
 			<thead>
-				<tr><th colspan="3"><?php esc_html_e( 'OAuth Connections', 'zero-bs-crm' ); ?></th></tr>
+				<tr><th colspan="3"><?php esc_html_e( 'OAuth Connection', 'zero-bs-crm' ); ?></th></tr>
 			</thead>
 			<tbody>
 
