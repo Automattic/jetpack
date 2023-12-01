@@ -12,6 +12,8 @@ concurrency:
   group: build-${{ github.event_name == 'push' && github.run_id || 'pr' }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Editing this file causes everything to be built.
+
 env:
   COMPOSER_ROOT_VERSION: "dev-trunk"
   # Work around a bug in node 18.18.0. See https://github.com/webpack-contrib/thread-loader/issues/191 for details.
