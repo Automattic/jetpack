@@ -2,14 +2,14 @@
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { useState } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 
 export default function useFetchPostLikes( blogId, postId ) {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ likes, setLikes ] = useState( null );
 	const [ error, setError ] = useState( null );
 
-	const fetchLikes = async () => {
+	const fetchLikes = useCallback( async () => {
 		const path = `https://public-api.wordpress.com/rest/v1.1/sites/${ blogId }/posts/${ postId }/likes/?force=wpcom`;
 		//const path = `/wpcom/v2/related-posts`;
 
@@ -25,7 +25,7 @@ export default function useFetchPostLikes( blogId, postId ) {
 			.finally( () => {
 				setIsLoading( false );
 			} );
-	};
+	}, [ blogId, postId ] );
 
 	return {
 		isLoading,
