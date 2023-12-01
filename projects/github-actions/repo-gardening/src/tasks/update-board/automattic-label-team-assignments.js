@@ -8,6 +8,32 @@
  * - a project board ID if the team would like issues to be automatically added to a specific project board.
  */
 export const automatticAssignments = {
+	// WordPress.com Division.
+	'Blogging Prompts': {
+		team: 'Loop',
+		labels: [ '[Block] Blogging Prompt' ],
+		slack_id: 'C03NLNTPZ2T',
+		board_id: 'https://github.com/orgs/Automattic/projects/448',
+	},
+	'Earn Features': {
+		team: 'Gold',
+		labels: [ 'Earn', '[Block] Paid Content', '[Block] Payments', '[Feature] Memberships' ],
+		slack_id: 'C01B6KEJ5GE',
+		board_id: 'https://github.com/orgs/Automattic/projects/718',
+	},
+	Newsletter: {
+		team: 'Zap',
+		labels: [ '[Block] Subscriptions', '[Block] Paywall', '[Feature] Subscriptions' ],
+		slack_id: 'C02NQ4HMJKV',
+		board_id: 'https://github.com/orgs/Automattic/projects/657',
+	},
+	Reader: {
+		team: 'Loop',
+		labels: [ '[Feature] Reader' ],
+		slack_id: 'C03NLNTPZ2T',
+		board_id: 'https://github.com/orgs/Automattic/projects/448',
+	},
+	// Jetpack Division.
 	'AI Tools': {
 		team: 'Agora',
 		labels: [
@@ -22,27 +48,10 @@ export const automatticAssignments = {
 		slack_id: 'C054LN8RNVA',
 		board_id: 'https://github.com/orgs/Automattic/projects/667',
 	},
-	VideoPress: {
-		team: 'Agora',
-		labels: [ '[Package] VideoPress', '[Feature] VideoPress', '[Plugin] VideoPress' ],
-		slack_id: 'C02TQF5VAJD',
-		board_id: 'https://github.com/orgs/Automattic/projects/460',
-	},
-	'My Jetpack': {
-		team: 'Agora',
-		labels: [ '[Package] My Jetpack' ],
-		slack_id: 'C02TQF5VAJD',
-	},
 	Akismet: {
 		team: 'Akismet',
 		labels: [ '[Feature] Akismet' ],
 		slack_id: 'C029E4HPT',
-	},
-	CRM: {
-		team: 'Avengers',
-		labels: [ '[Plugin] CRM' ],
-		slack_id: 'CTXBP902X',
-		board_id: 'https://github.com/orgs/Automattic/projects/524',
 	},
 	Backups: {
 		team: 'Backup',
@@ -62,17 +71,52 @@ export const automatticAssignments = {
 		slack_id: 'C016BBAFHHS',
 		board_id: 'https://github.com/orgs/Automattic/projects/548',
 	},
-	'Super Cache': {
-		team: 'Heart of Gold',
-		labels: [ '[Plugin] Super Cache' ],
-		slack_id: 'C016BBAFHHS',
-		board_id: 'https://github.com/orgs/Automattic/projects/548',
+	'Blocks infrastructure': {
+		team: 'Vulcan',
+		labels: [ '[Package] Blocks', '[Focus] FSE', '[Focus] Blocks' ],
+		slack_id: 'CBG1CP4EN',
+		board_id: 'https://github.com/orgs/Automattic/projects/778',
+	},
+	Connection: {
+		team: 'Vulcan',
+		labels: [ '[Package] Connection', '[Package] Identity Crisis', '[Package] Sync' ],
+		slack_id: 'CBG1CP4EN',
+		board_id: 'https://github.com/orgs/Automattic/projects/778',
+	},
+	CRM: {
+		team: 'Avengers',
+		labels: [ '[Plugin] CRM' ],
+		slack_id: 'CTXBP902X',
+		board_id: 'https://github.com/orgs/Automattic/projects/524',
 	},
 	'Monorepo tooling': {
 		team: 'Jetpack Garage',
 		labels: [ '[Tools] Development CLI', 'Actions' ],
 		slack_id: 'CBG1CP4EN',
 		board_id: 'https://github.com/orgs/Automattic/projects/599',
+	},
+	'My Jetpack': {
+		team: 'Agora',
+		labels: [ '[Package] My Jetpack' ],
+		slack_id: 'C02TQF5VAJD',
+	},
+	Protect: {
+		team: 'Scan',
+		labels: [ '[Plugin] Protect', '[Feature] Protect', '[Package] WAF' ],
+		slack_id: 'C029WFNV69M',
+		board_id: 767,
+	},
+	'React Dashboard': {
+		team: 'Vulcan',
+		labels: [ 'Admin Page' ],
+		slack_id: 'CBG1CP4EN',
+		board_id: 'https://github.com/orgs/Automattic/projects/778',
+	},
+	Search: {
+		team: 'Red',
+		labels: [ '[Plugin] Search', '[Package] Search', 'Instant Search', '[Feature] Search' ],
+		slack_id: 'C02ME06LF',
+		board_id: 'https://github.com/orgs/Automattic/projects/408',
 	},
 	'Social tools': {
 		team: 'Reach',
@@ -99,59 +143,17 @@ export const automatticAssignments = {
 		slack_id: 'C0438NHCLSY',
 		board_id: 'https://github.com/orgs/Automattic/projects/484',
 	},
-	Search: {
-		team: 'Red',
-		labels: [ '[Plugin] Search', '[Package] Search', 'Instant Search', '[Feature] Search' ],
-		slack_id: 'C02ME06LF',
-		board_id: 'https://github.com/orgs/Automattic/projects/408',
+	'Super Cache': {
+		team: 'Heart of Gold',
+		labels: [ '[Plugin] Super Cache' ],
+		slack_id: 'C016BBAFHHS',
+		board_id: 'https://github.com/orgs/Automattic/projects/548',
 	},
-	Protect: {
-		team: 'Scan',
-		labels: [ '[Plugin] Protect', '[Feature] Protect', '[Package] WAF' ],
-		slack_id: 'C029WFNV69M',
-		board_id: 767,
-	},
-	'Blogging Prompts': {
-		team: 'Loop',
-		labels: [ '[Block] Blogging Prompt' ],
-		slack_id: 'C03NLNTPZ2T',
-		board_id: 'https://github.com/orgs/Automattic/projects/448',
-	},
-	Reader: {
-		team: 'Loop',
-		labels: [ '[Feature] Reader' ],
-		slack_id: 'C03NLNTPZ2T',
-		board_id: 'https://github.com/orgs/Automattic/projects/448',
-	},
-	Newsletter: {
-		team: 'Zap',
-		labels: [ '[Block] Subscriptions', '[Block] Paywall', '[Feature] Subscriptions' ],
-		slack_id: 'C02NQ4HMJKV',
-		board_id: 'https://github.com/orgs/Automattic/projects/657',
-	},
-	'Earn Features': {
-		team: 'Gold',
-		labels: [ 'Earn', '[Block] Paid Content', '[Block] Payments', '[Feature] Memberships' ],
-		slack_id: 'C01B6KEJ5GE',
-		board_id: 'https://github.com/orgs/Automattic/projects/718',
-	},
-	'React Dashboard': {
-		team: 'Vulcan',
-		labels: [ 'Admin Page' ],
-		slack_id: 'CBG1CP4EN',
-		board_id: 'https://github.com/orgs/Automattic/projects/778',
-	},
-	Connection: {
-		team: 'Vulcan',
-		labels: [ '[Package] Connection', '[Package] Identity Crisis', '[Package] Sync' ],
-		slack_id: 'CBG1CP4EN',
-		board_id: 'https://github.com/orgs/Automattic/projects/778',
-	},
-	'Blocks infrastructure': {
-		team: 'Vulcan',
-		labels: [ '[Package] Blocks', '[Focus] FSE', '[Focus] Blocks' ],
-		slack_id: 'CBG1CP4EN',
-		board_id: 'https://github.com/orgs/Automattic/projects/778',
+	VideoPress: {
+		team: 'Agora',
+		labels: [ '[Package] VideoPress', '[Feature] VideoPress', '[Plugin] VideoPress' ],
+		slack_id: 'C02TQF5VAJD',
+		board_id: 'https://github.com/orgs/Automattic/projects/460',
 	},
 	// Let this be the last item. It will act as a catch-all for any issues that haven't been matched until now.
 	'Jetpack plugin': {
