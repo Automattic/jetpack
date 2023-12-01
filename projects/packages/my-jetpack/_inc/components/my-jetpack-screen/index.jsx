@@ -26,7 +26,6 @@ import useChatAvailability from '../../hooks/use-chat-availability';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
 import { useProduct } from '../../hooks/use-product';
-import useWelcomeBanner from '../../hooks/use-welcome-banner';
 import ConnectionsSection from '../connections-section';
 import IDCModal from '../idc-modal';
 import PlansSection from '../plans-section';
@@ -89,6 +88,9 @@ const GlobalNotice = ( { message, options, clean } ) => {
  */
 export default function MyJetpackScreen() {
 	useConnectionWatcher();
+	// Check using the global state instead of Redux so it only has effect after refreshing the page
+	const welcomeBannerHasBeenDismissed =
+		window?.myJetpackInitialState?.welcomeBanner.hasBeenDismissed === '1';
 	const isStatsModuleActive = window?.myJetpackInitialState?.isStatsModuleActive === '1';
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -97,7 +99,6 @@ export default function MyJetpackScreen() {
 	const { jwt, isFetchingChatAuthentication } = useChatAuthentication();
 	const shouldShowZendeskChatWidget =
 		! isFetchingChatAuthentication && ! isFetchingChatAvailability && isAvailable && jwt;
-	const { hasBeenDismissed: welcomeBannerHasBeenDismissed } = useWelcomeBanner();
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
