@@ -1,33 +1,9 @@
-import { renderHook, act } from '@testing-library/react';
-import { store as coreStore } from '@wordpress/core-data';
-import { createRegistry, RegistryProvider, WPDataRegistry } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
+import { act, renderHook } from '@testing-library/react';
+import { RegistryProvider } from '@wordpress/data';
+import { createRegistryWithStores } from '../test-utils';
 import { usePostMeta } from '../use-post-meta';
 
-const postId = 44;
-
-const postTypeConfig = {
-	kind: 'postType',
-	name: 'post',
-	baseURL: '/wp/v2/posts',
-	transientEdits: { blocks: true, selection: true },
-	mergedEdits: { meta: true },
-	rawAttributes: [ 'title', 'excerpt', 'content' ],
-};
-
-const postTypeEntity = {
-	slug: 'post',
-	rest_base: 'posts',
-	labels: {},
-};
-
 const post = {
-	id: postId,
-	type: 'post',
-	title: 'bar',
-	content: 'bar',
-	excerpt: 'crackers',
-	status: 'draft',
 	meta: {
 		jetpack_publicize_message: 'test',
 		jetpack_publicize_feature_enabled: true,
@@ -48,39 +24,11 @@ const post = {
 	},
 };
 
-/**
- * Create a registry with stores.
- *
- * @returns {WPDataRegistry} Registry.
- */
-function createRegistryWithStores() {
-	// Create a registry.
-	const registry = createRegistry();
-
-	// Register stores.
-	registry.register( coreStore );
-	registry.register( editorStore );
-
-	// Register post type entity.
-	registry.dispatch( coreStore ).addEntities( [ postTypeConfig ] );
-
-	// Store post type entity.
-	registry.dispatch( coreStore ).receiveEntityRecords( 'root', 'postType', [ postTypeEntity ] );
-
-	// Store post.
-	registry.dispatch( coreStore ).receiveEntityRecords( 'postType', 'post', post );
-
-	// Setup editor with post.
-	registry.dispatch( editorStore ).setupEditor( post );
-
-	return registry;
-}
-
 describe( 'usePostMeta', () => {
 	it( 'should return the default values', () => {
 		const { result } = renderHook( () => usePostMeta(), {
 			wrapper: ( { children } ) => (
-				<RegistryProvider value={ createRegistryWithStores() }>{ children }</RegistryProvider>
+				<RegistryProvider value={ createRegistryWithStores( post ) }>{ children }</RegistryProvider>
 			),
 		} );
 
@@ -103,7 +51,7 @@ describe( 'usePostMeta', () => {
 	} );
 
 	it( 'should return the updated values', () => {
-		const registry = createRegistryWithStores();
+		const registry = createRegistryWithStores( post );
 		const { result } = renderHook( () => usePostMeta(), {
 			wrapper: ( { children } ) => (
 				<RegistryProvider value={ registry }>{ children }</RegistryProvider>

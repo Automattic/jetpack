@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
@@ -252,6 +253,28 @@ class Contact_Form_Plugin {
 		 */
 		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . 'contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
+
+		Assets::register_script(
+			'accessible-form',
+			'./js/accessible-form.js',
+			__FILE__,
+			array(
+				'async' => true,
+			)
+		);
+
+		wp_localize_script(
+			'accessible-form',
+			'jetpackContactForm',
+			array(
+				/* translators: text read by a screen reader when a warning icon is displayed in front of an error message. */
+				'warning'              => __( 'Warning.', 'jetpack-forms' ),
+				/* translators: error message shown when one or more fields of the form are invalid. */
+				'invalidForm'          => __( 'Please make sure all fields are valid.', 'jetpack-forms' ),
+				/* translators: error message shown when a multiple choice field requires at least one option to be selected. */
+				'checkboxMissingValue' => __( 'Please select at least one option.', 'jetpack-forms' ),
+			)
+		);
 
 		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );
 

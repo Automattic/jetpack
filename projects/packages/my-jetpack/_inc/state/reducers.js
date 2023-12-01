@@ -16,8 +16,10 @@ import {
 	CLEAN_GLOBAL_NOTICE,
 	SET_PRODUCT_STATS,
 	SET_IS_FETCHING_PRODUCT_STATS,
-	SET_PRODUCT_DATA_IS_FETCHING,
-	SET_PRODUCT_DATA,
+	SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING,
+	SET_BACKUP_REWINDABLE_EVENTS,
+	SET_COUNT_BACKUP_ITEMS_IS_FETCHING,
+	SET_COUNT_BACKUP_ITEMS,
 	SET_STATS_COUNTS_IS_FETCHING,
 	SET_STATS_COUNTS,
 } from './actions';
@@ -81,18 +83,37 @@ const products = ( state = {}, action ) => {
 	}
 };
 
-const productData = ( state = {}, action ) => {
+const backupRewindableEvents = ( state = {}, action ) => {
 	switch ( action.type ) {
-		case SET_PRODUCT_DATA_IS_FETCHING:
+		case SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING:
 			return {
 				...state,
 				isFetching: action.isFetching,
 			};
 
-		case SET_PRODUCT_DATA:
+		case SET_BACKUP_REWINDABLE_EVENTS:
 			return {
 				...state,
-				items: action?.productData || {},
+				items: action?.rewindableEvents || {},
+			};
+
+		default:
+			return state;
+	}
+};
+
+const countBackupItems = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_COUNT_BACKUP_ITEMS_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_COUNT_BACKUP_ITEMS:
+			return {
+				...state,
+				items: action?.backupItems || {},
 			};
 
 		default:
@@ -255,7 +276,8 @@ const statsCounts = ( state = {}, action ) => {
 
 const reducers = combineReducers( {
 	products,
-	productData,
+	backupRewindableEvents,
+	countBackupItems,
 	purchases,
 	chatAvailability,
 	chatAuthentication,

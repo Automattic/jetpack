@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Expose post retrieval from WPCOM_JSON_API_Get_Post_v1_1_Endpoint via a code API

@@ -1,7 +1,7 @@
 import { InspectorControls, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useMemo } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 import { useCallback } from 'react';
 import ProductManagementControls from '../../shared/components/product-management-controls';
@@ -16,11 +16,16 @@ const BLOCK_NAME = 'recurring-payments';
 
 export default function Edit( { attributes, clientId, setAttributes } ) {
 	const { align, planId, width } = attributes;
+	const planIds = useMemo( () => {
+		const _planIds = ( '' + planId ).split( '+' ).map( id => parseInt( id, 10 ) );
+		return _planIds;
+	}, [ planId ] );
 	const editorType = getEditorType();
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
 
-	const updateSubscriptionPlan = useCallback(
-		newPlanId => {
+	const updateSubscriptionPlans = useCallback(
+		newPlanIds => {
+			const newPlanId = newPlanIds !== planIds ? newPlanIds.join( '+' ) : planId;
 			const resolvePaymentUrl = paymentPlanId => {
 				if ( POST_EDITOR !== editorType || ! postLink ) {
 					return '#';
@@ -37,12 +42,12 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 				uniqueId: `recurring-payments-${ newPlanId }`,
 			} );
 		},
-		[ editorType, postLink, setAttributes ]
+		[ editorType, planId, planIds, postLink, setAttributes ]
 	);
 
 	useEffect( () => {
-		updateSubscriptionPlan( planId );
-	}, [ planId, updateSubscriptionPlan ] );
+		updateSubscriptionPlans( planIds );
+	}, [ planIds, updateSubscriptionPlans ] );
 
 	/**
 	 * Filters the editor settings of the Payment Button block (`jetpack/recurring-payments`).
@@ -90,8 +95,8 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 				<ProductManagementControls
 					blockName={ BLOCK_NAME }
 					clientId={ clientId }
-					selectedProductId={ planId }
-					setSelectedProductId={ updateSubscriptionPlan }
+					selectedProductIds={ planIds }
+					setSelectedProductIds={ updateSubscriptionPlans }
 				/>
 			) }
 			<InspectorControls>

@@ -7,6 +7,7 @@ import { transformToCoreGroup } from './_inc/transform-to-core-group';
 import metadata from './block.json';
 import { name as buttonsBlockName, settings as buttonsBlockSettings } from './buttons/.';
 import deprecatedV1 from './deprecated/v1';
+import deprecatedV2 from './deprecated/v2';
 import edit from './edit';
 import {
 	name as loggedOutViewBlockName,
@@ -118,7 +119,7 @@ registerJetpackBlockFromMetadata(
 				},
 			],
 		},
-		deprecated: [ deprecatedV1 ],
+		deprecated: [ deprecatedV2, deprecatedV1 ],
 	},
 	[
 		{ name: loggedOutViewBlockName, settings: loggedOutViewBlockSettings },
