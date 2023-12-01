@@ -1,5 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
+import { PanelRow } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
@@ -47,24 +48,26 @@ export const ShareCountNotice: React.FC = () => {
 	}
 
 	return (
-		<Notice type={ noticeType }>
-			{ message }
-			<br />
-			{ createInterpolateElement(
-				__( '<upgradeLink>Upgrade now</upgradeLink> to share more.', 'jetpack' ),
-				{
-					upgradeLink: (
-						<a
-							className={ styles[ 'upgrade-link' ] }
-							href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
-								site: getSiteFragment(),
-								query: 'redirect_to=' + encodeURIComponent( window.location.href ),
-							} ) }
-							onClick={ autosaveAndRedirect }
-						/>
-					),
-				}
-			) }
-		</Notice>
+		<PanelRow>
+			<Notice type={ noticeType }>
+				{ message }
+				<br />
+				{ createInterpolateElement(
+					__( '<upgradeLink>Upgrade now</upgradeLink> to share more.', 'jetpack' ),
+					{
+						upgradeLink: (
+							<a
+								className={ styles[ 'upgrade-link' ] }
+								href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
+									site: getSiteFragment(),
+									query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+								} ) }
+								onClick={ autosaveAndRedirect }
+							/>
+						),
+					}
+				) }
+			</Notice>
+		</PanelRow>
 	);
 };

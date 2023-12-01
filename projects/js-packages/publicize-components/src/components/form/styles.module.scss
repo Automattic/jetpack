@@ -28,7 +28,15 @@
 
 .bar-wrapper {
 	:global .record-meter-bar__legend--items{
-		flex-direction: column;
-		gap: 0.5rem
+		flex-wrap: wrap;
+	}
+
+	:global .record-meter-bar__items{
+		margin-bottom: 0.8em;
+	}
+
+	:global .record-meter-bar__legend--item-circle {
+		width: 0.5rem;
+		height: 0.5rem;
 	}
 }

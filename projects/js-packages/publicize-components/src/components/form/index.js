@@ -310,12 +310,12 @@ export default function PublicizeForm( {
 							</li>
 						</ul>
 					</PanelRow>
+					{ showShareLimits && <ShareCountNotice /> }
 					{ showShareLimits && (
 						<PanelRow>
-							<ShareCountNotice />
+							<ShareCountInfo />
 						</PanelRow>
 					) }
-					<ShareCountInfo />
 					{ renderNotices() }
 					{ showValidationNotice &&
 						( Object.values( validationErrors ).includes( NO_MEDIA_ERROR )

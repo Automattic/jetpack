@@ -1,4 +1,6 @@
 import { RecordMeterBar, Text } from '@automattic/jetpack-components';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -42,33 +44,32 @@ export const ShareLimitsBar = ( {
 	className,
 	noticeType = 'default',
 }: ShareLimitsBarProps ) => {
+	const { isEditedPostBeingScheduled } = useSelect( editorStore, [] );
+	const isScheduled = isEditedPostBeingScheduled();
+
 	const remaining = Math.max(
 		remainingCount ?? limit - usedCount - scheduledCount - ( enabledConnectionsCount ?? 0 ),
 		0
 	);
+
 	const items = useMemo( () => {
 		let widthConsumed = 0;
 
 		return [
 			{
-				count: usedCount,
+				count: usedCount + ( ! isScheduled ? enabledConnectionsCount : 0 ),
 				backgroundColor: colorsForUsed[ noticeType ],
 				label: __( 'used', 'jetpack' ),
 			},
 			{
-				count: scheduledCount,
+				count: scheduledCount + ( isScheduled ? enabledConnectionsCount : 0 ),
 				backgroundColor: colorsForScheduled[ noticeType ],
 				label: __( 'scheduled', 'jetpack' ),
-			},
-			enabledConnectionsCount !== undefined && {
-				count: enabledConnectionsCount,
-				backgroundColor: 'var(--jp-gray-40)',
-				label: __( 'enabled connections', 'jetpack' ),
 			},
 			{
 				count: remaining,
 				backgroundColor: 'var(--jp-gray-off)',
-				label: __( 'remaining', 'jetpack' ),
+				label: __( 'left', 'jetpack' ),
 			},
 		]
 			.filter( Boolean )
@@ -91,7 +92,15 @@ export const ShareLimitsBar = ( {
 					widthPercent,
 				};
 			} );
-	}, [ usedCount, noticeType, scheduledCount, enabledConnectionsCount, remaining, limit ] );
+	}, [
+		usedCount,
+		isScheduled,
+		enabledConnectionsCount,
+		noticeType,
+		scheduledCount,
+		remaining,
+		limit,
+	] );
 
 	return (
 		<div className={ classNames( styles.wrapper, className ) }>
