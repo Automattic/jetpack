@@ -27,13 +27,11 @@ class Creator extends Product {
 	public static $slug = 'creator';
 
 	/**
-	 * Get the plugin slug - ovewrite it and return Jetpack's
+	 * The slug of the plugin associated with this product - Creator functionalities are part of Jetpack's main plugin
 	 *
-	 * @return ?string
+	 * @var string
 	 */
-	public static function get_plugin_slug() {
-		return self::JETPACK_PLUGIN_SLUG;
-	}
+	public static $plugin_slug = self::JETPACK_PLUGIN_SLUG;
 
 	/**
 	 * Get the plugin filename - ovewrite it and return Jetpack's
@@ -43,13 +41,6 @@ class Creator extends Product {
 	public static function get_plugin_filename() {
 		return self::JETPACK_PLUGIN_FILENAME;
 	}
-
-	/**
-	 * The slug of the plugin associated with this product.
-	 *
-	 * @var string
-	 */
-	public static $plugin_slug = 'jetpack-creator';
 
 	/**
 	 * Whether this product requires a user connection
