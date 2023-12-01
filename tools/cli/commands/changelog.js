@@ -737,7 +737,6 @@ async function promptChangelog( argv, needChangelog, types ) {
 		value,
 		name: `[${ value.padEnd( maxLength, ' ' ) }] ${ name }`,
 	} ) );
-
 	// Get the changelog name.
 	const { changelogName } = await prompt( {
 		type: 'input',
@@ -758,6 +757,11 @@ async function promptChangelog( argv, needChangelog, types ) {
 		type: 'autocomplete',
 		name: 'significance',
 		message: 'Significance of the change, in the style of semantic versioning.',
+		suggest: ( input, significanceChoices = [ 'patch', 'minor', 'majo' ] ) => {
+			return Promise.resolve(
+				significanceChoices.filter( choice => choice.value.startsWith( input ) )
+			);
+		},
 		choices: [
 			{
 				value: 'patch',
@@ -779,6 +783,9 @@ async function promptChangelog( argv, needChangelog, types ) {
 		type: 'autocomplete',
 		name: 'type',
 		message: 'Type of change.',
+		suggest: ( input, typeChoices = choices.map( choice => choice.value ) ) => {
+			return Promise.resolve( typeChoices.filter( choice => choice.value.startsWith( input ) ) );
+		},
 		choices: choices,
 	} );
 
