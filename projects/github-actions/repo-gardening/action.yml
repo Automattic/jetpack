@@ -52,6 +52,10 @@ inputs:
     description: "URL of the GitHub project board to update"
     required: false
     default: ""
+  labels_team_assignments:
+    description: "Mapping of team assignments for labels"
+    required: false
+    default: ""
 runs:
   using: node16
   main: "dist/index.js"
