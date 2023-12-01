@@ -12,7 +12,14 @@ const ALLOWED_BLOCKS = [
 ];
 
 function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
-	const planId = context ? context[ 'premium-content/planId' ] : null;
+	const planIds = context[ 'premium-content/planIds' ] || [];
+	const planId = planIds.reduce( ( acc, plan ) => {
+		if ( acc === null ) {
+			return plan;
+		}
+		return acc + '+' + plan;
+	}, null );
+
 	const isPreview = context ? context[ 'premium-content/isPreview' ] : false;
 
 	const previewTemplate = [

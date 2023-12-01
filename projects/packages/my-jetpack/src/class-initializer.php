@@ -32,7 +32,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.0.4-alpha';
+	const PACKAGE_VERSION = '4.1.0-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -78,6 +78,9 @@ class Initializer {
 
 		// Add "Activity Log" menu item.
 		Activitylog::init();
+
+		// Add "Jetpack Manage" menu item.
+		Jetpack_Manage::init();
 
 		/**
 		 * Fires after the My Jetpack package is initialized

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Module active checks should always be true on WordPress.com simple sites.

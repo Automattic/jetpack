@@ -1,6 +1,5 @@
 import { Container, Col } from '@automattic/jetpack-components';
 import React from 'react';
-import useProductData from '../../hooks/use-product-data';
 import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
@@ -22,8 +21,6 @@ const { showJetpackStatsCard = false } = window.myJetpackInitialState?.myJetpack
  * @returns {object} ProductCardsSection React component.
  */
 const ProductCardsSection = () => {
-	const { productData, fetchingProductData } = useProductData();
-
 	const items = {
 		backups: BackupCard,
 		scan: ScanAndProtectCard,
@@ -52,11 +49,7 @@ const ProductCardsSection = () => {
 
 				return (
 					<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ key }>
-						<Item
-							admin={ !! window?.myJetpackInitialState?.userIsAdmin }
-							productData={ productData[ key ] }
-							fetchingProductData={ fetchingProductData }
-						/>
+						<Item admin={ !! window?.myJetpackInitialState?.userIsAdmin } />
 					</Col>
 				);
 			} ) }

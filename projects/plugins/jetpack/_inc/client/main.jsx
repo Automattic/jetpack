@@ -647,8 +647,12 @@ class Main extends React.Component {
 
 		if ( this.props.isWoaSite ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 1 } );
-		} else if ( ! this.props.showMyJetpack ) {
+		} else if ( ! this.props.isLinked && ! this.props.showMyJetpack ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 2 } );
+		} else if ( ! this.props.isLinked && this.props.showMyJetpack ) {
+			window.wpNavMenuClassChange( { myJetpack: 1, dashboard: 2, settings: 3 } );
+		} else if ( this.props.isLinked && ! this.props.showMyJetpack ) {
+			window.wpNavMenuClassChange( { activityLog: 1, dashboard: 2, settings: 3 } );
 		} else {
 			window.wpNavMenuClassChange();
 		}

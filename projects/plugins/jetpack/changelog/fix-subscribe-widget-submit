@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscribe Widget: Fix nonce validation
