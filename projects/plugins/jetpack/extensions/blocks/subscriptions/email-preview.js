@@ -37,7 +37,7 @@ export default function EmailPreview( { isModalOpen, closeModal } ) {
 
 		// Save post revision so that we send what they see in the editor, and not what previous draft/revision might've saved
 		// Introduced at GB 16.3 at https://github.com/WordPress/gutenberg/pull/44971
-		// @todo Remove the `if` check and `else` branch once WP 6.4 is the minimum supported version
+		// @todo Remove the `if` check once WP 6.4 is the minimum supported version
 		if ( typeof __unstableSaveForPreview === 'function' ) {
 			await __unstableSaveForPreview();
 		}
