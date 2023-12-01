@@ -139,7 +139,7 @@ export default function MyJetpackScreen() {
 							<ConnectionError />
 						</Col>
 					) }
-					{ message && (
+					{ message && welcomeBannerHasBeenDismissed && (
 						<Col>
 							<GlobalNotice message={ message } options={ options } clean={ clean } />
 						</Col>
