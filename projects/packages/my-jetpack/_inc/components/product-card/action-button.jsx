@@ -73,13 +73,13 @@ const ActionButton = ( {
 					size: 'small',
 					variant: 'primary',
 					weight: 'regular',
-					label: __( 'Purchase', 'jetpack-my-jetpack' ),
+					label: __( 'Learn more', 'jetpack-my-jetpack' ),
 					onClick: onAdd,
 				};
 			}
 			case PRODUCT_STATUSES.CAN_UPGRADE: {
 				const upgradeText = __( 'Upgrade', 'jetpack-my-jetpack' );
-				const purchaseText = __( 'Purchase', 'jetpack-my-jetpack' );
+				const purchaseText = __( 'Learn more', 'jetpack-my-jetpack' );
 				const buttonText = purchaseUrl || upgradeInInterstitial ? upgradeText : purchaseText;
 
 				return {
@@ -99,7 +99,7 @@ const ActionButton = ( {
 					size: 'small',
 					variant: 'primary',
 					weight: 'regular',
-					label: __( 'Start for free', 'jetpack-my-jetpack' ),
+					label: __( 'Learn more', 'jetpack-my-jetpack' ),
 					onClick: onAdd,
 				};
 			case PRODUCT_STATUSES.ACTIVE: {

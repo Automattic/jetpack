@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+To avoid overwhelming users with information, now that we have the welcome banner, we only display the connection message if the welcome banner has been dismissed, either by clicking on any CTA or the close button. We also updated some CTAs to be more consistent and clear for new users.
