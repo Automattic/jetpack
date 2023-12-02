@@ -90,5 +90,7 @@
 				}
 			}
 		]
-	}
+	},
+	"viewScript": "file:./view.js",
+	"style": "file:./view.css"
 }
