@@ -15,6 +15,15 @@ use WP_Query;
  * @covers \Automattic\Jetpack\Stats\Tracking_Pixel
  */
 class Test_Tracking_Pixel extends StatsBaseTestCase {
+	/**
+	 * Set up
+	 */
+	protected function set_up() {
+		parent::set_up();
+
+		$_GET['utm_source'] = 'a_source';
+		$_GET['utm_id']     = 'some_id';
+	}
 
 	/**
 	 * Clean up the testing environment.
@@ -26,6 +35,7 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 		global $wp_the_query;
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wp_the_query = new WP_Query();
+		$_GET         = array();
 	}
 
 	/**
@@ -39,11 +49,13 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 		$wp_the_query->queried_object = self::post( 7 );
 		$view_data                    = Tracking_Pixel::build_view_data();
 		$expected_view_data           = array(
-			'v'    => 'ext',
-			'blog' => 1234,
-			'post' => 7,
-			'tz'   => false,
-			'srv'  => 'example.org',
+			'v'          => 'ext',
+			'blog'       => 1234,
+			'post'       => 7,
+			'tz'         => false,
+			'srv'        => 'example.org',
+			'utm_id'     => 'some_id',
+			'utm_source' => 'a_source',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}
@@ -57,11 +69,13 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 		add_option( 'gmt_offset', '5' );
 		$view_data          = Tracking_Pixel::build_view_data();
 		$expected_view_data = array(
-			'v'    => 'ext',
-			'blog' => 1234,
-			'post' => '0',
-			'tz'   => '5',
-			'srv'  => 'example.org',
+			'v'          => 'ext',
+			'blog'       => 1234,
+			'post'       => '0',
+			'tz'         => '5',
+			'srv'        => 'example.org',
+			'utm_id'     => 'some_id',
+			'utm_source' => 'a_source',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}

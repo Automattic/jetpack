@@ -27,6 +27,18 @@ class Tracking_Pixel {
 	 */
 	const STATS_ARRAY_TO_STRING_FILTER = 'stats_array';
 
+	const TRACKED_UTM_PARAMETERS = array(
+		'utm_id',
+		'utm_source',
+		'utm_medium',
+		'utm_campaign',
+		'utm_term',
+		'utm_content',
+		'utm_source_platform',
+		'utm_creative_format',
+		'utm_marketing_tactic',
+	);
+
 	/**
 	 * Stats Build View Data.
 	 *
@@ -61,7 +73,16 @@ class Tracking_Pixel {
 		} else {
 			$post = '0';
 		}
-		return compact( 'v', 'blog', 'post', 'tz', 'srv' );
+		$view_data = compact( 'v', 'blog', 'post', 'tz', 'srv' );
+		foreach ( self::TRACKED_UTM_PARAMETERS as $utm_parameter ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( isset( $_GET[ $utm_parameter ] ) && is_scalar( $_GET[ $utm_parameter ] ) ) {
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
+				$view_data[ $utm_parameter ] = substr( (string) $_GET[ $utm_parameter ], 0, 255 );
+			}
+		}
+
+		return $view_data;
 	}
 
 	/**
