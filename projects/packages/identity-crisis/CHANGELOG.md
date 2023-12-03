@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.13.0] - 2023-12-03
 ### Added
-- Store persistent blog ID for multi-URL purposes. [#34262]
+- Store for persistent blog ID for multi-URL purposes. [#34262]
 
 ### Changed
 - Updated package dependencies. [#34411]

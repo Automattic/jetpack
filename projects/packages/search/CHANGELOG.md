@@ -7,11 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.40.2] - 2023-12-03
 ### Changed
-- Updated package dependencies. [#34411]
-- Updated package dependencies. [#34427]
+- Updated package dependencies. [#34411] [#34427]
 
 ### Fixed
-- Instant Search: fix title layout for product layout [#34263]
+- Instant Search: Fixed the title layout for product layout. [#34263]
 
 ## [0.40.1] - 2023-11-24
 ### Changed

@@ -7,18 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.24.2] - 2023-12-03
 ### Added
-- Contact Form: make form screen reader region [#34344]
+- Made forms a screen reader region. [#34344]
 
 ### Changed
-- Contact Form: improved checkbox field design [#34272]
-- Updated package dependencies. [#34411]
-- Updated package dependencies. [#34427]
+- Improved checkbox field design. [#34272]
+- Updated package dependencies. [#34411] [#34427]
 
 ### Fixed
-- Avoid PHP warnings when form has to process malformed data. [#34386]
-- Contact Form: add focus state to radio buttons and checkboxes [#34408]
-- Contact Form: fix styling issues for Outlined and Animated styles [#34272]
-- Make Contact Form error fixing accessible [#34173]
+- Fixed PHP warnings that occured when processing malformed data. [#34386]
+- Added focus state to radio buttons and checkboxes. [#34408]
+- Fixed styling issues for Outlined and Animated styles. [#34272]
+- Made Contact Form error fixing accessible. [#34173]
 
 ## [0.24.1] - 2023-11-24
 ### Changed

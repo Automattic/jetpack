@@ -7,22 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.1.0] - 2023-12-03
 ### Added
-- Adding Jetpack Creator to My Jetpack [#34307]
-- Add Welcome banner to My Jetpack [#34384]
+- Added Jetpack Creator to My Jetpack. [#34307]
+- Added the welcome banner to My Jetpack. [#34384]
 - Display a "Jetpack Manage" menu item to connected users. [#34353]
-- To avoid overwhelming users with information, now that we have the welcome banner, we only display the connection message if the welcome banner has been dismissed, either by clicking on any CTA or the close button. We also updated some CTAs to be more consistent and clear for new users. [#34420]
+- Updated connection message to only display if the welcome banner has been dismissed. [#34420]
 
 ### Changed
-- Updated package dependencies. [#34411]
-- Updated package dependencies. [#34427]
-- Update the API calls used for My Jetpack backup card [#34197]
-- Update the CTAs in My Jetpack for more clarity and to avoid inconsistencies [#34300]
+- Updated package dependencies. [#34411] [#34427]
+- Updated the API calls used for My Jetpack backup card. [#34197]
+- Updated the CTAs in My Jetpack for more clarity and to avoid inconsistencies. [#34300]
 
 ### Fixed
-- Dashboard: do not display any notices from third-party services. [#34364]
-- My Jetpack: Fix checkout error while selling the unlimited Jetpack AI plan. [#34339]
-- My Jetpack: Fix Jetpack AI bi-yearly plan on product card [#34276]
-- My Jetpack: Fix product card menus [#34285]
+- Dashboard: Prevented display of any notices from third-party services. [#34364]
+- Fixed checkout error while selling the unlimited Jetpack AI plan. [#34339]
+- Fixed Jetpack AI bi-yearly plan on product card. [#34276]
+- Fixed product card menus. [#34285]
 
 ## [4.0.3] - 2023-11-24
 ### Changed

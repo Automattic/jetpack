@@ -7,9 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.1] - 2023-12-03
 ### Changed
-- AI Assistant: change shadow for a better sense of depth [#34362]
-- Updated package dependencies. [#34411]
-- Updated package dependencies. [#34427]
+- Updated the prompt shadow for a better sense of depth. [#34362]
+- Updated package dependencies. [#34411] [#34427]
 
 ## [0.2.0] - 2023-11-20
 ### Changed

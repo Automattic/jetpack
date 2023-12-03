@@ -4,8 +4,7 @@
 
 ## [0.45.4] - 2023-12-03
 ### Changed
-- Updated package dependencies. [#34411]
-- Updated package dependencies. [#34427]
+- Updated package dependencies. [#34411] [#34427]
 
 ## [0.45.3] - 2023-11-21
 ### Fixed

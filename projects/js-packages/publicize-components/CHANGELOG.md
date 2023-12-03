@@ -7,13 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.41.8] - 2023-12-03
 ### Changed
-- Disabled quick share for scheduled posts [#34354]
-- Extracted test utils to make them reusable [#34309]
-- Updated package dependencies. [#34411]
-- Updated package dependencies. [#34427]
+- Disabled quick share for scheduled posts. [#34354]
+- Extracted test utils to make them reusable. [#34309]
+- Updated package dependencies. [#34411] [#34427]
 
 ### Fixed
-- Fixed the issue of publicize remaining ON after the post is published [#34289]
+- Fixed the issue of publicize remaining ON after the post is published. [#34289]
 
 ## [0.41.7] - 2023-11-24
 ### Fixed
