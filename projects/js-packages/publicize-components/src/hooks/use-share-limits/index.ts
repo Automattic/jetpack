@@ -1,35 +1,46 @@
 import { useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
+import { useScheduledPost } from '../use-scheduled-post';
 
 export type ShareLimits = {
 	status: 'approaching' | 'exceeded' | 'full' | 'none';
 	noticeType: 'default' | 'warning' | 'error';
 	message: string;
+	usedCount: number;
+	scheduledCount: number;
+	remainingCount: number;
 };
 
 export type UseShareLimitsArgs = {
-	enabledConnectionsCount?: number;
-	initialEnabledConnectionsCount?: number;
+	scheduledCountAdjustment?: number;
+	usedCountAdjustment?: number;
 };
 
 /**
  * Returns the messages for the share limits
  *
+ * @param {number} remainingCount - The number of shares left
  * @returns {ReturnType<typeof getMessages>} Share limits messages
  */
-export function getMessages() {
+export function getMessages( remainingCount: number ) {
 	return {
 		default: '',
 		exceeded: __(
-			'You have exceeded your share limit. Your posts will no longer be shared.',
+			'You have have reached your auto-share. Scheduled posts will not be shared until shares become available.',
 			'jetpack'
 		),
-		scheduled: __(
-			'You have scheduled posts that will not be shared because you will exceed the share limit.',
-			'jetpack'
+		full: __( 'You have reached your auto-share limit.', 'jetpack' ),
+		approaching: sprintf(
+			// translators: %d: The number of shares to social media remaining
+			_n(
+				'You have %d auto-share remaining',
+				'You have %d auto-shares remaining',
+				remainingCount,
+				'jetpack'
+			),
+			remainingCount
 		),
-		approaching: __( 'You are approaching your share limit.', 'jetpack' ),
 	};
 }
 
@@ -41,87 +52,84 @@ export function getMessages() {
  * @returns {ShareLimits} Share limits details
  */
 export function useShareLimits( {
-	enabledConnectionsCount = 0,
-	initialEnabledConnectionsCount = 0,
+	scheduledCountAdjustment = 0,
+	usedCountAdjustment = 0,
 }: UseShareLimitsArgs = {} ): ShareLimits {
-	return useSelect( select => {
-		const store = select( socialStore );
+	return useSelect(
+		select => {
+			const store = select( socialStore );
 
-		const shareLimit = store.getShareLimit();
-		const totalSharesCount = store.getTotalSharesCount( {
-			enabledConnectionsCount,
-			initialEnabledConnectionsCount,
-		} );
-		const scheduledShares = store.getScheduledSharesCount();
-		const usedSharesCount = store.getSharesUsedCount();
-		const messages = getMessages();
+			const shareLimit = store.getShareLimit();
+			const scheduledShares = store.getScheduledSharesCount() + scheduledCountAdjustment;
+			const usedSharesCount = store.getSharesUsedCount() + usedCountAdjustment;
+			const totalSharesCount = usedSharesCount + scheduledShares;
+			const remainingCount = Math.max( 0, shareLimit - usedSharesCount - scheduledShares );
+			const messages = getMessages( remainingCount );
 
-		let noticeType: ShareLimits[ 'noticeType' ] = 'default';
-		let status: ShareLimits[ 'status' ] = 'none';
-		let message = messages.default;
+			let noticeType: ShareLimits[ 'noticeType' ] = 'default';
+			let status: ShareLimits[ 'status' ] = 'none';
+			let message = messages.default;
 
-		// If they have exceeded their limit
-		if ( totalSharesCount > shareLimit ) {
-			status = 'exceeded';
-			message = messages.exceeded;
-
-			/**
-			 * Here we have these cases:
-			 * 1. used >= limit: they have exceeded their limit without scheduled shares or active connections
-			 * 2. used < limit: they have exceeded their limit with scheduled shares or active connections
-			 * 2a. scheduled > 0: it means they have scheduled shares
-			 * 2b. scheduled = 0: it means they have active connections
-			 */
-			// Case 1
-			if ( usedSharesCount >= shareLimit ) {
+			// If they have exceeded their limit
+			if ( totalSharesCount > shareLimit ) {
 				noticeType = 'error';
-			}
-			// Case 2a
-			else if ( scheduledShares > 0 ) {
-				noticeType = 'warning';
-				message = messages.scheduled;
-			}
-			// Case 2b
-			else {
-				noticeType = 'warning';
-				// May be we should use a different message here?
-			}
-		} else if ( totalSharesCount === shareLimit ) {
-			status = 'full';
-			noticeType = 'warning';
-			/**
-			 * Here we have these cases:
-			 * 1. used = limit & scheduled = 0 & active = 0: they have reached their limit without scheduled shares or active connections
-			 * 2. scheduled > 0: it means they have scheduled shares
-			 * 3. scheduled = 0: it means they have active connections
-			 *
-			 */
-			// Case 1
-			if ( usedSharesCount === shareLimit ) {
-				noticeType = 'error';
+				status = 'exceeded';
 				message = messages.exceeded;
-			}
-			// Case 2
-			else if ( scheduledShares > 0 ) {
-				message = messages.scheduled;
-			}
-			// Case 3
-			else {
+			} else if ( totalSharesCount === shareLimit ) {
+				status = 'full';
 				noticeType = 'error';
-				// May be we should use a different message here?
+				message = messages.full;
 			}
-		}
-		// If they have used 80% of their limit, they are approaching it
-		else if ( totalSharesCount >= shareLimit * 0.8 ) {
-			status = 'approaching';
-			noticeType = 'warning';
-			message = messages.approaching;
-		}
+			// If they have used 80% of their limit, they are approaching it
+			else if ( totalSharesCount >= shareLimit * 0.8 ) {
+				status = 'approaching';
+				noticeType = 'warning';
+				message = messages.approaching;
+			}
 
-		return {
-			status,
-			noticeType,
-			message,
-		};
-	}, [] );
+			return {
+				status,
+				noticeType,
+				message,
+				usedCount: usedSharesCount,
+				scheduledCount: scheduledShares,
+				remainingCount,
+			};
+		},
+		[ scheduledCountAdjustment, usedCountAdjustment ]
+	);
+}
+
+/**
+ * Wraps the useShareLimits hook with the current post context, so we adjust the share
+ * counts according to the connections selected on the post.
+ *
+ * @returns {ShareLimits} Share limits details
+ */
+export function usePostShareLimits() {
+	const { isScheduled, daysUntilPublish, isScheduledWithin30Days } = useScheduledPost();
+	const { enabledConnectionsCount, initialConnectionsCount } = useSelect(
+		select => {
+			const store = select( socialStore );
+
+			const initialConnections = isScheduledWithin30Days
+				? store.getInitialEnabledConnectionsCount()
+				: 0;
+			const enabledConnections = store.getEnabledConnections();
+
+			return {
+				enabledConnectionsCount:
+					! isScheduled || isScheduledWithin30Days ? enabledConnections.length : 0,
+				initialConnectionsCount: initialConnections,
+			};
+		},
+		[ isScheduled, daysUntilPublish, isScheduledWithin30Days ]
+	);
+
+	return useShareLimits( {
+		scheduledCountAdjustment: isScheduledWithin30Days
+			? enabledConnectionsCount - initialConnectionsCount
+			: 0,
+		usedCountAdjustment: ! isScheduled ? enabledConnectionsCount : 0,
+	} );
 }

@@ -5,7 +5,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useShareLimits } from '../../hooks/use-share-limits';
+import { usePostShareLimits } from '../../hooks/use-share-limits';
 import { store as socialStore } from '../../social-store';
 import Notice from '../notice';
 import styles from './styles.module.scss';
@@ -14,14 +14,7 @@ export const ShareCountNotice: React.FC = () => {
 	const { isEditedPostDirty } = useSelect( editorStore, [] );
 	const { autosave } = useDispatch( editorStore );
 
-	const { showShareLimits, enabledConnectionsCount, initialEnabledConnectionsCount } = useSelect(
-		select => ( {
-			showShareLimits: select( socialStore ).showShareLimits(),
-			enabledConnectionsCount: select( socialStore ).getEnabledConnections().length,
-			initialEnabledConnectionsCount: select( socialStore ).getInitialEnabledConnectionsCount(),
-		} ),
-		[]
-	);
+	const showShareLimits = useSelect( select => select( socialStore ).showShareLimits(), [] );
 
 	const autosaveAndRedirect = useCallback(
 		async ev => {
@@ -38,10 +31,7 @@ export const ShareCountNotice: React.FC = () => {
 		},
 		[ autosave, isEditedPostDirty ]
 	);
-	const { noticeType, message } = useShareLimits( {
-		enabledConnectionsCount,
-		initialEnabledConnectionsCount,
-	} );
+	const { message } = usePostShareLimits();
 
 	if ( ! showShareLimits || ! message ) {
 		return null;
@@ -49,7 +39,7 @@ export const ShareCountNotice: React.FC = () => {
 
 	return (
 		<PanelRow>
-			<Notice type={ noticeType }>
+			<Notice type="warning">
 				{ message }
 				<br />
 				{ createInterpolateElement(

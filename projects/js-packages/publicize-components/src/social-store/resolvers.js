@@ -75,11 +75,7 @@ export function getConnections() {
 		const connections = editor.getEditedPostAttribute( 'jetpack_publicize_connections' );
 
 		dispatch( setConnections( connections || [] ) );
-
-		// For now, we are interested in the initial connections only if the post is scheduled.
-		if ( editor.isCurrentPostScheduled() ) {
-			dispatch( setInitialConnections( connections || [] ) );
-		}
+		dispatch( setInitialConnections( connections || [] ) );
 	};
 }
 

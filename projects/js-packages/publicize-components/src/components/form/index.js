@@ -20,6 +20,7 @@ import useMediaDetails from '../../hooks/use-media-details';
 import useMediaRestrictions, { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions';
 import useRefreshAutoConversionSettings from '../../hooks/use-refresh-auto-conversion-settings';
 import useRefreshConnections from '../../hooks/use-refresh-connections';
+import { usePostShareLimits } from '../../hooks/use-share-limits';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { CONNECTION_SERVICE_INSTAGRAM_BUSINESS, store as socialStore } from '../../social-store';
@@ -68,10 +69,12 @@ export default function PublicizeForm( {
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 	const { dismissNotice, shouldShowNotice, NOTICES } = useDismissNotice();
+	const { remainingCount } = usePostShareLimits();
 
 	const hasInstagramConnection = connections.some(
 		connection => connection.service_name === 'instagram-business'
 	);
+
 	const { showShareLimits, numberOfSharesRemaining } = useSelect(
 		select => {
 			return {
@@ -102,7 +105,7 @@ export default function PublicizeForm( {
 		checkConnectionCode( connection, 'unsupported' )
 	);
 
-	const outOfConnections = showShareLimits && numberOfSharesRemaining <= enabledConnections.length;
+	const outOfConnections = remainingCount === 0;
 
 	const onAdvancedNudgeDismiss = useCallback(
 		() => dismissNotice( NOTICES.advancedUpgradeEditor, 3 * MONTH_IN_SECONDS ),
@@ -312,7 +315,7 @@ export default function PublicizeForm( {
 					</PanelRow>
 					{ showShareLimits && <ShareCountNotice /> }
 					{ showShareLimits && (
-						<PanelRow>
+						<PanelRow className={ styles[ 'share-count-info' ] }>
 							<ShareCountInfo />
 						</PanelRow>
 					) }

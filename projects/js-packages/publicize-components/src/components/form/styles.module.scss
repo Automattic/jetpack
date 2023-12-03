@@ -40,3 +40,9 @@
 		height: 0.5rem;
 	}
 }
+
+.share-count-info {
+	> div {
+		flex-grow: 1;
+	}
+}
