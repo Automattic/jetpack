@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Dashboard: display the Subscriptions and WordPress.com Toolbar controls even when your user is not connected to WordPress.com yet.
