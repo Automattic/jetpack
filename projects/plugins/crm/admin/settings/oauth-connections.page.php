@@ -1,7 +1,7 @@
 <?php
 /*
 !
- * Admin Page: Settings: OAuth Connections
+ * Admin Page: Settings: OAuth Connection
  */
 
 // stop direct access
