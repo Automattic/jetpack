@@ -223,8 +223,8 @@ class Identity_Crisis {
 			$query_args['migrate_for_idc'] = true;
 		}
 
-		if ( ! empty( self::url_is_ip() ) ) {
-			$query_args['url_secret'] = self::url_is_ip();
+		if ( self::url_is_ip() ) {
+			$query_args['url_secret'] = URL_Secret::create_secret( 'URL argument secret failed' );
 		}
 
 		if ( is_multisite() ) {
@@ -1357,26 +1357,13 @@ class Identity_Crisis {
 	}
 
 	/**
-	 * If URL is an IP the attempt to send a secret with a request.
+	 * Check if URL is an IP.
 	 *
 	 * @return string|null
 	 */
 	public static function url_is_ip() {
-		$is_ip    = null;
 		$hostname = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
-		if ( filter_var( $hostname, FILTER_VALIDATE_IP ) !== false ) {
-			try {
-				$secret = new URL_Secret();
-				$secret->create();
-
-				if ( $secret->exists() ) {
-					$is_ip = $secret->get_secret();
-				}
-			} catch ( Exception $e ) {
-				// No need to stop the registration flow, just track the error and proceed.
-				( new Tracking() )->record_user_event( 'registration_request_url_secret_failed', array( 'current_url' => Urls::site_url() ) );
-			}
-		}
+		$is_ip    = filter_var( $hostname, FILTER_VALIDATE_IP ) !== false ? true : false;
 		return $is_ip;
 	}
 
@@ -1392,8 +1379,8 @@ class Identity_Crisis {
 		if ( $persistent_blog_id ) {
 			$params['persistent_blog_id'] = $persistent_blog_id;
 			// If URL is IP, add secret to the request.
-			if ( ! empty( self::url_is_ip() ) ) {
-				$params['url_secret'] = self::url_is_ip();
+			if ( self::url_is_ip() ) {
+				$params['url_secret'] = URL_Secret::create_secret( 'registration_request_url_secret_failed' );
 			}
 		}
 
