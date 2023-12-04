@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Jetpack Google Fonts module: Filter out the old google fonts data from the user's global styles
