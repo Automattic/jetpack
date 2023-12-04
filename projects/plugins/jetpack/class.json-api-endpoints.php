@@ -288,6 +288,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'allowed_if_deleted'                   => false,
 			'description'                          => '',
 			'group'                                => '',
+			'stat'                                 => '',
 			'method'                               => 'GET',
 			'path'                                 => '/',
 			'min_version'                          => '0',

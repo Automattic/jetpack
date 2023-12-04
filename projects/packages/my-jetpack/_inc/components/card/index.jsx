@@ -4,13 +4,19 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import styles from './style.module.scss';
 
-const Card = props => {
-	const { title, headerRightContent, className, children } = props;
+export const CardWrapper = props => {
+	const { children, className } = props;
 
 	const containerClassName = classNames( styles.container, className );
 
+	return <div className={ containerClassName }>{ children }</div>;
+};
+
+const Card = props => {
+	const { title, headerRightContent, className, children } = props;
+
 	return (
-		<div className={ containerClassName }>
+		<CardWrapper className={ className }>
 			<div className={ styles.title }>
 				<div className={ styles.name }>
 					<Text variant="title-medium">{ title }</Text>
@@ -18,7 +24,7 @@ const Card = props => {
 				{ headerRightContent }
 			</div>
 			{ children }
-		</div>
+		</CardWrapper>
 	);
 };
 

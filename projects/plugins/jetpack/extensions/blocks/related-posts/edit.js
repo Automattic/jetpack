@@ -100,13 +100,16 @@ function RelatedPostsEditItem( props ) {
 				{ props.post.title }
 			</a>
 			{ props.displayThumbnails && props.post.img && props.post.img.src && (
-				<a className="jp-related-posts-i2__post-img-link" href={ props.post.url }>
+				<a
+					className="jp-related-posts-i2__post-img-link"
+					href={ props.post.url }
+					target="_blank"
+					rel="nofollow noopener noreferrer"
+				>
 					<img
 						className="jp-related-posts-i2__post-img"
 						src={ props.post.img.src }
 						alt={ props.post.title }
-						rel="nofollow noopener noreferrer"
-						target="_blank"
 					/>
 				</a>
 			) }

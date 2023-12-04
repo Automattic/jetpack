@@ -1,7 +1,7 @@
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-import { REST_API_SITE_PRODUCTS_ENDPOINT } from './constants';
+import { REST_API_SITE_DISMISS_BANNER, REST_API_SITE_PRODUCTS_ENDPOINT } from './constants';
 
 /*
  * Action constants
@@ -21,10 +21,16 @@ const SET_CHAT_AVAILABILITY_IS_FETCHING = 'SET_CHAT_AVAILABILITY_IS_FETCHING';
 const SET_CHAT_AVAILABILITY = 'SET_CHAT_AVAILABILITY';
 const SET_CHAT_AUTHENTICATION_IS_FETCHING = 'SET_CHAT_AUTHENTICATION_IS_FETCHING';
 const SET_CHAT_AUTHENTICATION = 'SET_CHAT_AUTHENTICATION';
-const SET_PRODUCT_DATA_IS_FETCHING = 'SET_PRODUCT_DATA_IS_FETCHING';
-const SET_PRODUCT_DATA = 'SET_PRODUCT_DATA';
 const SET_STATS_COUNTS_IS_FETCHING = 'SET_STATS_COUNTS_IS_FETCHING';
 const SET_STATS_COUNTS = 'SET_STATS_COUNTS';
+const SET_DISMISSED_WELCOME_BANNER_IS_FETCHING = 'SET_DISMISSED_WELCOME_BANNER_IS_FETCHING';
+const SET_DISMISSED_WELCOME_BANNER = 'SET_DISMISSED_WELCOME_BANNER';
+
+const SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING = 'SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING';
+const SET_BACKUP_REWINDABLE_EVENTS = 'SET_BACKUP_REWINDABLE_EVENTS';
+
+const SET_COUNT_BACKUP_ITEMS = 'SET_COUNT_BACKUP_ITEMS';
+const SET_COUNT_BACKUP_ITEMS_IS_FETCHING = 'SET_COUNT_BACKUP_ITEMS_IS_FETCHING';
 
 const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
 const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
@@ -44,8 +50,12 @@ const setChatAuthenticationIsFetching = isFetching => {
 	return { type: SET_CHAT_AUTHENTICATION_IS_FETCHING, isFetching };
 };
 
-const setProductDataIsFetching = isFetching => {
-	return { type: SET_PRODUCT_DATA_IS_FETCHING, isFetching };
+const setBackupRewindableEventsIsFetching = isFetching => {
+	return { type: SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING, isFetching };
+};
+
+const setCountBackupItemsIsFetching = isFetching => {
+	return { type: SET_COUNT_BACKUP_ITEMS_IS_FETCHING, isFetching };
 };
 
 const setStatsCountsIsFetching = isFetching => {
@@ -82,7 +92,15 @@ const setAvailableLicenses = availableLicenses => {
 
 const setProduct = product => ( { type: SET_PRODUCT, product } );
 
-const setProductData = productData => ( { type: SET_PRODUCT_DATA, productData } );
+const setBackupRewindableEvents = rewindableEvents => ( {
+	type: SET_BACKUP_REWINDABLE_EVENTS,
+	rewindableEvents,
+} );
+
+const setCountBackupItems = backupItems => ( {
+	type: SET_COUNT_BACKUP_ITEMS,
+	backupItems,
+} );
 
 const setStatsCounts = statsCounts => ( { type: SET_STATS_COUNTS, statsCounts } );
 
@@ -94,6 +112,14 @@ const setRequestProductError = ( productId, error ) => ( {
 
 const setProductStatus = ( productId, status ) => {
 	return { type: SET_PRODUCT_STATUS, productId, status };
+};
+
+const setDismissedWelcomeBannerIsFetching = isFetching => {
+	return { type: SET_DISMISSED_WELCOME_BANNER_IS_FETCHING, isFetching };
+};
+
+const setDismissedWelcomeBanner = hasBeenDismissed => {
+	return { type: SET_DISMISSED_WELCOME_BANNER, hasBeenDismissed };
 };
 
 const setGlobalNotice = ( message, options ) => ( {
@@ -256,6 +282,28 @@ const installStandalonePluginForProduct = productId => async store => {
 	} );
 };
 
+/**
+ * Request to set the welcome banner as dismissed
+ *
+ * @returns {Promise} - Promise which resolves when the banner is dismissed.
+ */
+const dismissWelcomeBanner = () => async store => {
+	const { dispatch } = store;
+
+	dispatch( setDismissedWelcomeBannerIsFetching( true ) );
+
+	return apiFetch( {
+		path: REST_API_SITE_DISMISS_BANNER,
+		method: 'POST',
+	} )
+		.then( () => {
+			dispatch( setDismissedWelcomeBanner( true ) );
+		} )
+		.finally( () => {
+			dispatch( setDismissedWelcomeBannerIsFetching( false ) );
+		} );
+};
+
 const setProductStats = ( productId, stats ) => {
 	return { type: SET_PRODUCT_STATS, productId, stats };
 };
@@ -287,15 +335,18 @@ const actions = {
 	setPurchases,
 	setChatAvailability,
 	setChatAuthentication,
-	setProductDataIsFetching,
-	setProductData,
 	setAvailableLicensesIsFetching,
 	fetchAvailableLicenses,
 	setAvailableLicenses,
 	setProductStats,
 	setIsFetchingProductStats,
+	setBackupRewindableEvents,
+	setBackupRewindableEventsIsFetching,
+	setCountBackupItems,
+	setCountBackupItemsIsFetching,
 	setStatsCounts,
 	setStatsCountsIsFetching,
+	dismissWelcomeBanner,
 	...noticeActions,
 	...productActions,
 };
@@ -320,9 +371,13 @@ export {
 	SET_CHAT_AVAILABILITY_IS_FETCHING,
 	SET_CHAT_AUTHENTICATION,
 	SET_CHAT_AUTHENTICATION_IS_FETCHING,
-	SET_PRODUCT_DATA_IS_FETCHING,
-	SET_PRODUCT_DATA,
+	SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING,
+	SET_BACKUP_REWINDABLE_EVENTS,
+	SET_COUNT_BACKUP_ITEMS_IS_FETCHING,
+	SET_COUNT_BACKUP_ITEMS,
 	SET_STATS_COUNTS_IS_FETCHING,
 	SET_STATS_COUNTS,
+	SET_DISMISSED_WELCOME_BANNER_IS_FETCHING,
+	SET_DISMISSED_WELCOME_BANNER,
 	actions as default,
 };

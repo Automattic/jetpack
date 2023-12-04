@@ -241,6 +241,15 @@ export function BoostInterstitial() {
 }
 
 /**
+ * CreatorInterstitial component
+ *
+ * @returns {object} CreatorInterstitial react component.
+ */
+export function CreatorInterstitial() {
+	return <ProductInterstitial slug="creator" installsPlugin={ true } />;
+}
+
+/**
  * CRMInterstitial component
  *
  * @returns {object} CRMInterstitial react component.
@@ -285,6 +294,9 @@ export function JetpackAIInterstitial() {
 	const { hasRequiredPlan } = detail;
 	const ctaLabel = hasRequiredPlan ? __( 'Upgrade Jetpack AI', 'jetpack-my-jetpack' ) : null;
 
+	// Decide the quantity value for the upgrade, but ignore the unlimited tier.
+	const quantity = nextTier?.value !== 1 ? nextTier?.value : null;
+
 	return (
 		<ProductInterstitial
 			slug="jetpack-ai"
@@ -292,7 +304,7 @@ export function JetpackAIInterstitial() {
 			imageContainerClassName={ styles.aiImageContainer }
 			ctaButtonLabel={ ctaLabel }
 			hideTOS={ true }
-			quantity={ nextTier.value }
+			quantity={ quantity }
 			directCheckout={ hasRequiredPlan }
 		>
 			<img src={ jetpackAiImage } alt="Jetpack AI" />
