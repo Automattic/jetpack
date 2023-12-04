@@ -1359,7 +1359,7 @@ class Identity_Crisis {
 	/**
 	 * Check if URL is an IP.
 	 *
-	 * @return string|null
+	 * @return bool
 	 */
 	public static function url_is_ip() {
 		$hostname = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
