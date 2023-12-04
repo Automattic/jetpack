@@ -11806,6 +11806,15 @@ packages:
       uuid: 9.0.1
     dev: false
 
+  /@wordpress/api-fetch@6.42.0:
+    resolution: {integrity: sha512-IVXF7PoYLsaLLYiIqdktcrri9UX+tQi+Ko5mTltRZ2DDdoapcExVLtQhGu1pQl9vJ5LG1yUncLKzcbYky/i5fQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.23.2
+      '@wordpress/i18n': 4.47.0
+      '@wordpress/url': 3.48.0
+    dev: false
+
   /@wordpress/api-fetch@6.44.0:
     resolution: {integrity: sha512-d8ouvBiKDFu67O9Y8MtlUR2YojCAjmLf0LuBKsSOS5r3MOiwte1tQwsLdzFmGYkdCK09mZhT3UVKdOOiAC3kKA==}
     engines: {node: '>=12'}
@@ -12904,6 +12913,13 @@ packages:
       - babel-plugin-macros
       - vite
     dev: true
+
+  /@wordpress/hooks@3.45.0:
+    resolution: {integrity: sha512-cqd5Dv4lp4S5UAip2/bMm2TZiFxs7/sKNq9/73BlKFSmc9hgqgkmcctfER+nVxiYafUNGATyQmDRpJU6R3NaDw==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.23.2
+    dev: false
 
   /@wordpress/hooks@3.47.0:
     resolution: {integrity: sha512-a0mZ+lSUBrmacJGXDnFTaz1O47sQgTCZi3LrY445WNc7cmiSlscTfeBxrUXaTF0ninzHJnE7evCIeKLbQC3dLQ==}
