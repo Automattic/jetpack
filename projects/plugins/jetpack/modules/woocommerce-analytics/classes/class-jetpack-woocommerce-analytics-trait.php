@@ -369,18 +369,23 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 				if ( ! isset( $block['blockName'] ) ) {
 					return false;
 				}
+
 				if ( 'woocommerce/classic-shortcode' === $block['blockName'] ) {
 					return false;
 				}
+				
 				if ( 'core/shortcode' === $block['blockName'] ) {
 					return false;
 				}
+				
 				if ( 'checkout' === $cart_or_checkout && 'woocommerce/checkout' !== $block['blockName'] ) {
 					return true;
 				}
+				
 				if ( 'cart' === $cart_or_checkout && 'woocommerce/cart' !== $block['blockName'] ) {
 					return true;
 				}
+				
 				return false;
 			}
 		);
