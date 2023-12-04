@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Contact Form: replace jQuery UI select by native element
