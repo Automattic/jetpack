@@ -55,6 +55,32 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	protected $additional_blocks_on_checkout_page;
 
 	/**
+	 * Format Cart Items or Order Items to an array
+	 *
+	 * @param array|WC_Order_Item[] $items Cart Items or Order Items.
+	 */
+	protected function format_items_to_json( $items ) {
+		$products = array();
+
+		foreach ( $items as $item ) {
+			if ( $item instanceof WC_Order_Item_Product ) {
+				$product = wc_get_product( $item->get_product_id() );
+			} else {
+				$product = $item['data'];
+			}
+			$data = $this->get_product_details( $product );
+			if ( $item instanceof WC_Order_Item_Product ) {
+				$data['pq'] = $item->get_quantity();
+			} else {
+				$data['pq'] = $item['quantity'];
+			}
+			$products[] = $data;
+	}
+
+		return wp_json_encode( $products );
+	}
+
+	/**
 	 * Gets the content of the cart/checkout page or where the cart/checkout page is ultimately derived from if using a template.
 	 * This method sets the class properties $checkout_content_source and $cart_content_source.
 	 *

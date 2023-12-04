@@ -143,32 +143,6 @@ class Jetpack_WooCommerce_Analytics_Checkout_Flow {
 	}
 
 	/**
-	 * Format Cart Items or Order Items to an array
-	 *
-	 * @param array|WC_Order_Item[] $items Cart Items or Order Items.
-	 */
-	protected function format_items_to_json( $items ) {
-		$products = array();
-
-		foreach ( $items as $item ) {
-			if ( $item instanceof WC_Order_Item_Product ) {
-				$product = wc_get_product( $item->get_product_id() );
-			} else {
-				$product = $item['data'];
-			}
-			$data = $this->get_product_details( $product );
-			if ( $item instanceof WC_Order_Item_Product ) {
-				$data['pq'] = $item->get_quantity();
-			} else {
-				$data['pq'] = $item['quantity'];
-			}
-			$products[] = $data;
-		}
-
-		return wp_json_encode( $products );
-	}
-
-	/**
 	 * Get Cart/Checkout page view shared data
 	 */
 	protected function get_cart_checkout_shared_data() {
