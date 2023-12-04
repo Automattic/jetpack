@@ -27,12 +27,9 @@ const Header = () => {
 		isModuleEnabled,
 		newPostUrl,
 		postsCount,
-		sharesCount,
 		totalShareCount,
 		siteSuffix,
 		showShareLimits,
-		shareLimit,
-		scheduledShares,
 	} = useSelect( select => {
 		const store = select( socialStore );
 		return {
@@ -42,11 +39,8 @@ const Header = () => {
 			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
 			postsCount: store.getSharedPostsCount(),
 			totalShareCount: store.getTotalSharesCount(),
-			sharesCount: store.getSharesUsedCount(),
 			siteSuffix: store.getSiteSuffix(),
 			showShareLimits: store.showShareLimits(),
-			shareLimit: store.getShareLimit(),
-			scheduledShares: store.getScheduledSharesCount(),
 		};
 	} );
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -56,7 +50,7 @@ const Header = () => {
 		compactDisplay: 'short',
 	} );
 
-	const { noticeType } = useShareLimits();
+	const { noticeType, usedCount, scheduledCount, remainingCount } = useShareLimits();
 
 	return (
 		<>
@@ -88,9 +82,9 @@ const Header = () => {
 					{ showShareLimits ? (
 						<>
 							<ShareLimitsBar
-								limit={ shareLimit }
-								usedCount={ sharesCount }
-								scheduledCount={ scheduledShares }
+								usedCount={ usedCount }
+								scheduledCount={ scheduledCount }
+								remainingCount={ remainingCount }
 								text={ __( 'Auto-share usage', 'jetpack-social' ) }
 								noticeType={ noticeType }
 							/>
