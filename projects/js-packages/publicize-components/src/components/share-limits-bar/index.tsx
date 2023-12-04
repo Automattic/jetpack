@@ -55,9 +55,7 @@ export const ShareLimitsBar = ( {
 			{
 				count: remainingCount,
 				backgroundColor: 'var(--jp-gray-off)',
-				label:
-					// translators: This is 'left' referring to the quantity remaning, not the direction.
-					__( 'left', 'jetpack' ),
+				label: __( 'remaining', 'jetpack' ),
 			},
 		].filter( Boolean );
 	}, [ usedCount, noticeType, scheduledCount, remainingCount ] );
