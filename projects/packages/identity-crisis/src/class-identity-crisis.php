@@ -223,6 +223,10 @@ class Identity_Crisis {
 			$query_args['migrate_for_idc'] = true;
 		}
 
+		if ( ! empty( url_is_ip() ) ) {
+			$query_args['url_secret'] = url_is_ip();
+		}
+
 		if ( is_multisite() ) {
 			$query_args['multisite'] = true;
 		}
@@ -1353,6 +1357,30 @@ class Identity_Crisis {
 	}
 
 	/**
+	 * If URL is an IP the attempt to send a secret with a request.
+	 *
+	 * @return string|null
+	 */
+	public static function url_is_ip() {
+		$is_ip    = null;
+		$hostname = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
+		if ( filter_var( $hostname, FILTER_VALIDATE_IP ) !== false ) {
+			try {
+				$secret = new URL_Secret();
+				$secret->create();
+
+				if ( $secret->exists() ) {
+					$is_ip = $secret->get_secret();
+				}
+			} catch ( Exception $e ) {
+				// No need to stop the registration flow, just track the error and proceed.
+				( new Tracking() )->record_user_event( 'registration_request_url_secret_failed', array( 'current_url' => Urls::site_url() ) );
+			}
+		}
+		return $is_ip;
+	}
+
+	/**
 	 * Add IDC-related data to the registration query.
 	 *
 	 * @param array $params The existing query params.
@@ -1363,20 +1391,9 @@ class Identity_Crisis {
 		$persistent_blog_id = get_option( static::PERSISTENT_BLOG_ID_OPTION_NAME );
 		if ( $persistent_blog_id ) {
 			$params['persistent_blog_id'] = $persistent_blog_id;
-
-			$hostname = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
-			if ( filter_var( $hostname, FILTER_VALIDATE_IP ) !== false ) {
-				try {
-					$secret = new URL_Secret();
-					$secret->create();
-
-					if ( $secret->exists() ) {
-						$params['url_secret'] = $secret->get_secret();
-					}
-				} catch ( Exception $e ) {
-					// No need to stop the registration flow, just track the error and proceed.
-					( new Tracking() )->record_user_event( 'registration_request_url_secret_failed', array( 'current_url' => Urls::site_url() ) );
-				}
+			// If URL is IP, add secret to the request.
+			if ( ! empty( url_is_ip() ) ) {
+				$params['url_secret'] = url_is_ip();
 			}
 		}
 
