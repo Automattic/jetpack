@@ -5,13 +5,14 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
+import React, { useCallback } from 'react';
 /**
  * Internal dependencies
  */
 import './style.scss';
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
+import useAnalytics from '../../../../blocks/ai-assistant/hooks/use-analytics';
 import { canUserPurchasePlan } from '../../../../blocks/ai-assistant/lib/connection';
 import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import UsageControl from '../usage-bar';
@@ -122,7 +123,21 @@ const useContactUsLink = (): {
 export default function UsagePanel() {
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
 	const { contactUsURL, autosaveAndRedirectContactUs } = useContactUsLink();
+	const { recordEvent } = useAnalytics();
 	const canUpgrade = canUserPurchasePlan();
+
+	const trackUpgradeClick = useCallback(
+		( event: object ) => {
+			recordEvent( 'jetpack_ai_assistant_usage_panel_upgrade_button_click' );
+			autosaveAndRedirect( event );
+		},
+		[ recordEvent, autosaveAndRedirect ]
+	);
+
+	const trackContactUsClick = useCallback( () => {
+		recordEvent( 'jetpack_ai_assistant_usage_panel_contact_button_click' );
+		autosaveAndRedirectContactUs();
+	}, [ recordEvent, autosaveAndRedirectContactUs ] );
 
 	// fetch usage data
 	const {
@@ -167,7 +182,7 @@ export default function UsagePanel() {
 									variant="primary"
 									label={ __( 'Contact us for more requests', 'jetpack' ) }
 									href={ contactUsURL }
-									onClick={ autosaveAndRedirectContactUs }
+									onClick={ trackContactUsClick }
 								>
 									{ __( 'Contact Us', 'jetpack' ) }
 								</Button>
@@ -178,7 +193,7 @@ export default function UsagePanel() {
 								variant="primary"
 								label={ __( 'Upgrade your Jetpack AI plan', 'jetpack' ) }
 								href={ checkoutUrl }
-								onClick={ autosaveAndRedirect }
+								onClick={ trackUpgradeClick }
 								disabled={ isRedirecting }
 							>
 								{ upgradeButtonText }
