@@ -90,11 +90,11 @@ importers:
         specifier: 0.36.1
         version: 0.36.1
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       nock:
-        specifier: 13.2.9
-        version: 13.2.9
+        specifier: 13.4.0
+        version: 13.4.0
 
   projects/js-packages/ai-client:
     dependencies:
@@ -163,8 +163,8 @@ importers:
         specifier: ^29.6.2
         version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.5.0
-        version: 29.5.0
+        specifier: 29.7.0
+        version: 29.7.0
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -175,11 +175,11 @@ importers:
         specifier: 4.3.4
         version: 4.3.4
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
 
   projects/js-packages/api:
     dependencies:
@@ -191,11 +191,11 @@ importers:
         version: 3.48.0
     devDependencies:
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
 
   projects/js-packages/babel-plugin-replace-textdomain:
     dependencies:
@@ -210,8 +210,8 @@ importers:
         specifier: 11.0.4
         version: 11.0.4(@babel/core@7.23.2)
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
 
   projects/js-packages/base-styles:
     devDependencies:
@@ -238,11 +238,11 @@ importers:
         specifier: 8.51.0
         version: 8.51.0
       jest:
-        specifier: 29.5.0
-        version: 29.5.0
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       ts-loader:
         specifier: 9.4.2
         version: 9.4.2(typescript@5.0.4)(webpack@5.76.0)
@@ -335,17 +335,17 @@ importers:
         specifier: 7.4.6
         version: 7.4.6(react-dom@18.2.0)(react@18.2.0)(typescript@5.0.4)
       '@testing-library/dom':
-        specifier: 8.19.1
-        version: 8.19.1
+        specifier: 8.20.1
+        version: 8.20.1
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
       '@testing-library/user-event':
-        specifier: 14.4.3
-        version: 14.4.3(@testing-library/dom@8.19.1)
+        specifier: 14.5.1
+        version: 14.5.1(@testing-library/dom@8.20.1)
       '@types/jest':
-        specifier: 29.2.5
-        version: 29.2.5
+        specifier: 29.5.10
+        version: 29.5.10
       '@types/qrcode.react':
         specifier: 1.0.4
         version: 1.0.4
@@ -365,11 +365,11 @@ importers:
         specifier: 5.14.9
         version: 5.14.9
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -401,11 +401,11 @@ importers:
   projects/js-packages/config:
     devDependencies:
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
 
   projects/js-packages/connection:
     dependencies:
@@ -465,20 +465,20 @@ importers:
         specifier: 7.4.6
         version: 7.4.6(react-dom@18.2.0)(react@18.2.0)
       '@testing-library/dom':
-        specifier: 8.19.1
-        version: 8.19.1
+        specifier: 8.20.1
+        version: 8.20.1
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
       '@testing-library/user-event':
-        specifier: 14.4.3
-        version: 14.4.3(@testing-library/dom@8.19.1)
+        specifier: 14.5.1
+        version: 14.5.1(@testing-library/dom@8.20.1)
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -502,8 +502,8 @@ importers:
         version: 0.8.1
     devDependencies:
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
 
   projects/js-packages/eslint-config-target-es:
     dependencies:
@@ -530,8 +530,8 @@ importers:
         specifier: 7.2.0
         version: 7.2.0(eslint@8.51.0)
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
 
   projects/js-packages/i18n-check-webpack-plugin:
     dependencies:
@@ -543,8 +543,8 @@ importers:
         specifier: 7.23.2
         version: 7.23.2
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -565,8 +565,8 @@ importers:
         specifier: 4.47.0
         version: 4.47.0
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -641,8 +641,8 @@ importers:
         specifier: 8.51.0
         version: 8.51.0
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       ts-loader:
         specifier: 9.4.2
         version: 9.4.2(typescript@5.0.4)(webpack@5.76.0)
@@ -696,20 +696,20 @@ importers:
         specifier: 7.22.15
         version: 7.22.15(@babel/core@7.23.2)
       '@testing-library/dom':
-        specifier: 8.19.1
-        version: 8.19.1
+        specifier: 8.20.1
+        version: 8.20.1
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
       '@testing-library/user-event':
-        specifier: 14.4.3
-        version: 14.4.3(@testing-library/dom@8.19.1)
+        specifier: 14.5.1
+        version: 14.5.1(@testing-library/dom@8.20.1)
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -751,14 +751,14 @@ importers:
         specifier: 7.22.15
         version: 7.22.15(@babel/core@7.23.2)
       '@testing-library/dom':
-        specifier: 8.19.1
-        version: 8.19.1
+        specifier: 8.20.1
+        version: 8.20.1
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
       '@testing-library/user-event':
-        specifier: 14.4.3
-        version: 14.4.3(@testing-library/dom@8.19.1)
+        specifier: 14.5.1
+        version: 14.5.1(@testing-library/dom@8.20.1)
       '@wordpress/base-styles':
         specifier: 4.38.0
         version: 4.38.0
@@ -766,14 +766,14 @@ importers:
         specifier: 9.17.0
         version: 9.17.0(react@18.2.0)
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-extended:
         specifier: 2.0.0
-        version: 2.0.0(jest@29.4.3)
+        version: 2.0.0(jest@29.7.0)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -881,14 +881,14 @@ importers:
         specifier: 7.23.2
         version: 7.23.2
       '@testing-library/dom':
-        specifier: 8.19.1
-        version: 8.19.1
+        specifier: 8.20.1
+        version: 8.20.1
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
       '@testing-library/user-event':
-        specifier: 14.4.3
-        version: 14.4.3(@testing-library/dom@8.19.1)
+        specifier: 14.5.1
+        version: 14.5.1(@testing-library/dom@8.20.1)
       '@types/react':
         specifier: 18.2.33
         version: 18.2.33
@@ -902,11 +902,11 @@ importers:
         specifier: 29.4.3
         version: 29.4.3(@babel/core@7.23.2)
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -954,8 +954,8 @@ importers:
         version: 4.3.4
     devDependencies:
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -1012,14 +1012,14 @@ importers:
         specifier: 7.22.15
         version: 7.22.15(@babel/core@7.23.2)
       '@testing-library/dom':
-        specifier: 8.19.1
-        version: 8.19.1
+        specifier: 8.20.1
+        version: 8.20.1
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
       '@testing-library/user-event':
-        specifier: 14.4.3
-        version: 14.4.3(@testing-library/dom@8.19.1)
+        specifier: 14.5.1
+        version: 14.5.1(@testing-library/dom@8.20.1)
       '@wordpress/babel-plugin-import-jsx-pragma':
         specifier: 4.30.0
         version: 4.30.0(@babel/core@7.23.2)
@@ -1027,11 +1027,11 @@ importers:
         specifier: 29.3.1
         version: 29.3.1(@babel/core@7.23.2)
       jest:
-        specifier: 29.3.1
-        version: 29.3.1
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.3.1
-        version: 29.3.1
+        specifier: 29.7.0
+        version: 29.7.0
       jetpack-js-tools:
         specifier: workspace:*
         version: link:../../../tools/js-tools
@@ -1145,8 +1145,8 @@ importers:
         specifier: 3.0.1
         version: 3.0.1(webpack@5.76.0)
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       postcss:
         specifier: 8.4.31
         version: 8.4.31
@@ -1208,8 +1208,8 @@ importers:
         specifier: 8.51.0
         version: 8.51.0
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       svelte:
         specifier: 3.58.0
         version: 3.58.0
@@ -1244,8 +1244,8 @@ importers:
         specifier: 7.22.15
         version: 7.22.15(@babel/core@7.23.2)
       '@types/jest':
-        specifier: 29.2.5
-        version: 29.2.5
+        specifier: 29.5.10
+        version: 29.5.10
       jest:
         specifier: '*'
         version: 29.7.0
@@ -1385,8 +1385,8 @@ importers:
         specifier: 5.30.0
         version: 5.30.0
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       md5-es:
         specifier: 1.8.2
         version: 1.8.2
@@ -1452,14 +1452,14 @@ importers:
         specifier: 7.23.2
         version: 7.23.2
       '@testing-library/dom':
-        specifier: 8.19.1
-        version: 8.19.1
+        specifier: 8.20.1
+        version: 8.20.1
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
       '@testing-library/user-event':
-        specifier: 14.4.3
-        version: 14.4.3(@testing-library/dom@8.19.1)
+        specifier: 14.5.1
+        version: 14.5.1(@testing-library/dom@8.20.1)
       '@wordpress/browserslist-config':
         specifier: 5.30.0
         version: 5.30.0
@@ -1467,11 +1467,11 @@ importers:
         specifier: 7.6.0
         version: 7.6.0
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       sass:
         specifier: 1.64.1
         version: 1.64.1
@@ -1702,8 +1702,8 @@ importers:
         specifier: 7.1.6
         version: 7.1.6
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jquery:
         specifier: 3.6.0
         version: 3.6.0
@@ -1785,7 +1785,37 @@ importers:
 
   projects/packages/import: {}
 
-  projects/packages/jetpack-mu-wpcom: {}
+  projects/packages/jetpack-mu-wpcom:
+    dependencies:
+      '@sentry/browser':
+        specifier: 7.80.1
+        version: 7.80.1
+      '@wordpress/api-fetch':
+        specifier: 6.42.0
+        version: 6.42.0
+      '@wordpress/hooks':
+        specifier: 3.45.0
+        version: 3.45.0
+    optionalDependencies:
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      typescript:
+        specifier: ^5.0.4
+        version: 5.0.4
+      webpack:
+        specifier: 5.76.0
+        version: 5.76.0(webpack-cli@4.9.1)
+      webpack-cli:
+        specifier: 4.9.1
+        version: 4.9.1(webpack@5.76.0)
 
   projects/packages/jitm:
     devDependencies:
@@ -1899,20 +1929,20 @@ importers:
         specifier: 7.4.6
         version: 7.4.6(react-dom@18.2.0)(react@18.2.0)(typescript@5.0.4)
       '@testing-library/dom':
-        specifier: 8.19.1
-        version: 8.19.1
+        specifier: 8.20.1
+        version: 8.20.1
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
       '@testing-library/user-event':
-        specifier: 14.4.3
-        version: 14.4.3(@testing-library/dom@8.19.1)
+        specifier: 14.5.1
+        version: 14.5.1(@testing-library/dom@8.20.1)
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -2104,8 +2134,8 @@ importers:
         specifier: 8.2.6
         version: 8.2.6(size-limit@8.2.6)
       '@testing-library/dom':
-        specifier: 8.19.1
-        version: 8.19.1
+        specifier: 8.20.1
+        version: 8.20.1
       '@testing-library/preact':
         specifier: 3.2.3
         version: 3.2.3(preact@10.12.1)
@@ -2134,11 +2164,11 @@ importers:
         specifier: 3.23.5
         version: 3.23.5
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       postcss:
         specifier: 8.4.31
         version: 8.4.31
@@ -2289,14 +2319,14 @@ importers:
         specifier: 7.4.6
         version: 7.4.6(react-dom@18.2.0)(react@18.2.0)(typescript@5.0.4)
       '@testing-library/dom':
-        specifier: 8.19.1
-        version: 8.19.1
+        specifier: 8.20.1
+        version: 8.20.1
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
       '@types/jest':
-        specifier: 29.2.5
-        version: 29.2.5
+        specifier: 29.5.10
+        version: 29.5.10
       '@types/react':
         specifier: 18.2.33
         version: 18.2.33
@@ -2319,11 +2349,11 @@ importers:
         specifier: 11.0.0
         version: 11.0.0(webpack@5.76.0)
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       postcss:
         specifier: 8.4.31
         version: 8.4.31
@@ -2458,8 +2488,8 @@ importers:
         specifier: 7.23.2
         version: 7.23.2
       '@testing-library/dom':
-        specifier: 8.19.1
-        version: 8.19.1
+        specifier: 8.20.1
+        version: 8.20.1
       '@testing-library/preact':
         specifier: 3.2.3
         version: 3.2.3(preact@10.12.1)
@@ -2485,11 +2515,11 @@ importers:
         specifier: 3.23.5
         version: 3.23.5
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       prettier:
         specifier: npm:wp-prettier@3.0.3
         version: /wp-prettier@3.0.3
@@ -2805,14 +2835,14 @@ importers:
         specifier: 7.23.2
         version: 7.23.2
       '@testing-library/dom':
-        specifier: 8.19.1
-        version: 8.19.1
+        specifier: 8.20.1
+        version: 8.20.1
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
       '@types/jest':
-        specifier: 29.2.5
-        version: 29.2.5
+        specifier: 29.5.10
+        version: 29.5.10
       '@types/react':
         specifier: 18.2.33
         version: 18.2.33
@@ -2832,11 +2862,11 @@ importers:
         specifier: 8.1.0
         version: 8.1.0
       jest:
-        specifier: 29.3.1
-        version: 29.3.1
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.3.1
-        version: 29.3.1
+        specifier: 29.7.0
+        version: 29.7.0
       sass:
         specifier: 1.64.1
         version: 1.64.1
@@ -3156,17 +3186,17 @@ importers:
         specifier: 7.0.0
         version: 7.0.0(typescript@5.0.4)
       '@testing-library/dom':
-        specifier: 8.19.1
-        version: 8.19.1
+        specifier: 8.20.1
+        version: 8.20.1
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
       '@testing-library/user-event':
-        specifier: 14.4.3
-        version: 14.4.3(@testing-library/dom@8.19.1)
+        specifier: 14.5.1
+        version: 14.5.1(@testing-library/dom@8.20.1)
       '@types/jest':
-        specifier: 29.2.5
-        version: 29.2.5
+        specifier: 29.5.10
+        version: 29.5.10
       '@types/react':
         specifier: 18.2.33
         version: 18.2.33
@@ -3228,11 +3258,11 @@ importers:
         specifier: 7.1.6
         version: 7.1.6
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jquery:
         specifier: 3.6.0
         version: 3.6.0
@@ -3544,8 +3574,8 @@ importers:
         specifier: 7.23.2
         version: 7.23.2
       '@testing-library/dom':
-        specifier: 8.19.1
-        version: 8.19.1
+        specifier: 8.20.1
+        version: 8.20.1
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
@@ -3568,11 +3598,11 @@ importers:
         specifier: 7.6.0
         version: 7.6.0
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       postcss:
         specifier: 8.4.31
         version: 8.4.31
@@ -3653,8 +3683,8 @@ importers:
         specifier: 7.23.2
         version: 7.23.2
       '@testing-library/dom':
-        specifier: 8.19.1
-        version: 8.19.1
+        specifier: 8.20.1
+        version: 8.20.1
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(react-dom@18.2.0)(react@18.2.0)
@@ -3668,11 +3698,11 @@ importers:
         specifier: 7.6.0
         version: 7.6.0
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       sass:
         specifier: 1.64.1
         version: 1.64.1
@@ -3724,8 +3754,8 @@ importers:
         specifier: 0.2.0
         version: 0.2.0
       ts-jest:
-        specifier: 29.0.3
-        version: 29.0.3(jest@29.7.0)(typescript@5.0.4)
+        specifier: 29.1.1
+        version: 29.1.1(jest@29.7.0)(typescript@5.0.4)
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -3876,11 +3906,11 @@ importers:
         version: 17.6.2
     devDependencies:
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       jest-extended:
         specifier: 2.0.0
-        version: 2.0.0(jest@29.4.3)
+        version: 2.0.0(jest@29.7.0)
 
   tools/e2e-commons:
     devDependencies:
@@ -3951,8 +3981,8 @@ importers:
         specifier: 1.3.3
         version: 1.3.3
       '@testing-library/jest-dom':
-        specifier: 5.16.5
-        version: 5.16.5
+        specifier: 5.17.0
+        version: 5.17.0
       '@typescript-eslint/eslint-plugin':
         specifier: 6.7.5
         version: 6.7.5(@typescript-eslint/parser@6.7.5)(eslint@8.51.0)(typescript@5.0.4)
@@ -3964,7 +3994,7 @@ importers:
         version: 17.4.0(@babel/core@7.23.2)(@typescript-eslint/eslint-plugin@6.7.5)(eslint-config-prettier@9.0.0)(eslint-plugin-import@2.28.1)(eslint-plugin-jest@27.4.2)(eslint-plugin-jsdoc@46.8.2)(eslint-plugin-jsx-a11y@6.7.1)(eslint-plugin-playwright@0.16.0)(eslint-plugin-prettier@5.0.1)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.33.2)(eslint@8.51.0)(typescript@5.0.4)(wp-prettier@3.0.3)
       '@wordpress/jest-console':
         specifier: 7.18.0
-        version: 7.18.0(jest@29.4.3)
+        version: 7.18.0(jest@29.7.0)
       babel-jest:
         specifier: 29.4.3
         version: 29.4.3(@babel/core@7.23.2)
@@ -3994,7 +4024,7 @@ importers:
         version: 2.2.1
       eslint-plugin-jest:
         specifier: 27.4.2
-        version: 27.4.2(@typescript-eslint/eslint-plugin@6.7.5)(eslint@8.51.0)(jest@29.4.3)(typescript@5.0.4)
+        version: 27.4.2(@typescript-eslint/eslint-plugin@6.7.5)(eslint@8.51.0)(jest@29.7.0)(typescript@5.0.4)
       eslint-plugin-jest-dom:
         specifier: 5.1.0
         version: 5.1.0(eslint@8.51.0)
@@ -4038,8 +4068,8 @@ importers:
         specifier: 7.3.3
         version: 7.3.3
       jest:
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       libsodium-wrappers:
         specifier: 0.7.10
         version: 0.7.10
@@ -4100,8 +4130,8 @@ packages:
       undici: 5.27.2
     dev: false
 
-  /@adobe/css-tools@4.3.1:
-    resolution: {integrity: sha512-/62yikz7NLScCGAAST5SHdnjaDJQBDq0M2muyRTpf2VQhw6StBg2ALiu73zSJQ4fMVLA+0uBhBHAle7Wg+2kSg==}
+  /@adobe/css-tools@4.3.2:
+    resolution: {integrity: sha512-DA5a1C0gD/pLOvhv33YMrbf2FK3oUzwNl9oOJqE4XVjuEtt6XIakRcsd7eLiOSPkp1kTRQGICTA8cKra/vFbjw==}
     dev: true
 
   /@ampproject/remapping@2.2.1:
@@ -8984,6 +9014,56 @@ packages:
       - zenObservable
     dev: false
 
+  /@sentry-internal/tracing@7.80.1:
+    resolution: {integrity: sha512-5gZ4LPIj2vpQl2/dHBM4uXMi9OI5E0VlOhJQt0foiuN6JJeiOjdpJFcfVqJk69wrc0deVENTtgKKktxqMwVeWQ==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/core': 7.80.1
+      '@sentry/types': 7.80.1
+      '@sentry/utils': 7.80.1
+    dev: false
+
+  /@sentry/browser@7.80.1:
+    resolution: {integrity: sha512-1dPR6vPJ9vOTzgXff9HGheb178XeEv5hyjBNhCO1f6rjCgnVj99XGNZIgO1Ee1ALJbqlfPWaeV+uSWbbcmgJMA==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry-internal/tracing': 7.80.1
+      '@sentry/core': 7.80.1
+      '@sentry/replay': 7.80.1
+      '@sentry/types': 7.80.1
+      '@sentry/utils': 7.80.1
+    dev: false
+
+  /@sentry/core@7.80.1:
+    resolution: {integrity: sha512-3Yh+O9Q86MxwIuJFYtuSSoUCpdx99P1xDAqL0FIPTJ+ekaVMiUJq9NmyaNh9uN2myPSmxvEXW6q3z37zta9ZHg==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/types': 7.80.1
+      '@sentry/utils': 7.80.1
+    dev: false
+
+  /@sentry/replay@7.80.1:
+    resolution: {integrity: sha512-yjpftIyybQeWD2i0Nd7C96tZwjNbSMRW515EL9jwlNxYbQtGtMs0HavP9Y7uQvQrzwSHY0Wp+ooe9PMuvzqbHw==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@sentry-internal/tracing': 7.80.1
+      '@sentry/core': 7.80.1
+      '@sentry/types': 7.80.1
+      '@sentry/utils': 7.80.1
+    dev: false
+
+  /@sentry/types@7.80.1:
+    resolution: {integrity: sha512-CVu4uPVTOI3U9kYiOdA085R7jX5H1oVODbs9y+A8opJ0dtJTMueCXgZyE8oXQ0NjGVs6HEeaLkOuiV0mj8X3yw==}
+    engines: {node: '>=8'}
+    dev: false
+
+  /@sentry/utils@7.80.1:
+    resolution: {integrity: sha512-bfFm2e/nEn+b9++QwjNEYCbS7EqmteT8uf0XUs7PljusSimIqqxDtK1pfD9zjynPgC8kW/fVBKv0pe2LufomeA==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/types': 7.80.1
+    dev: false
+
   /@sinclair/typebox@0.27.8:
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
 
@@ -10836,25 +10916,25 @@ packages:
       react: 18.2.0
     dev: true
 
-  /@testing-library/dom@8.19.1:
-    resolution: {integrity: sha512-P6iIPyYQ+qH8CvGauAqanhVnjrnRe0IZFSYCeGkSRW9q3u8bdVn2NPI+lasFyVsEQn1J/IFmp5Aax41+dAP9wg==}
+  /@testing-library/dom@8.20.1:
+    resolution: {integrity: sha512-/DiOQ5xBxgdYRC8LNk7U+RWat0S3qRLeIw3ZIkMQ9kkVlRmwD/Eg8k8CqIpD6GW7u20JIUOfMKbxtiLutpjQ4g==}
     engines: {node: '>=12'}
     dependencies:
       '@babel/code-frame': 7.22.13
       '@babel/runtime': 7.23.2
       '@types/aria-query': 5.0.4
-      aria-query: 5.3.0
+      aria-query: 5.1.3
       chalk: 4.1.2
       dom-accessibility-api: 0.5.16
       lz-string: 1.5.0
       pretty-format: 27.5.1
     dev: true
 
-  /@testing-library/jest-dom@5.16.5:
-    resolution: {integrity: sha512-N5ixQ2qKpi5OLYfwQmUb/5mSV9LneAcaUfp32pn4yCnpb8r/Yz0pXFPck21dIicKmi+ta5WRAknkZCfA8refMA==}
+  /@testing-library/jest-dom@5.17.0:
+    resolution: {integrity: sha512-ynmNeT7asXyH3aSVv4vvX4Rb+0qjOhdNHnO/3vuZNqPmhDpV/+rCSGwQ7bLcmU2cJ4dvoheIO85LQj0IbJHEtg==}
     engines: {node: '>=8', npm: '>=6', yarn: '>=1'}
     dependencies:
-      '@adobe/css-tools': 4.3.1
+      '@adobe/css-tools': 4.3.2
       '@babel/runtime': 7.23.2
       '@types/testing-library__jest-dom': 5.14.9
       aria-query: 5.3.0
@@ -10871,7 +10951,7 @@ packages:
     peerDependencies:
       preact: '>=10 || ^10.0.0-alpha.0 || ^10.0.0-beta.0'
     dependencies:
-      '@testing-library/dom': 8.19.1
+      '@testing-library/dom': 8.20.1
       preact: 10.12.1
     dev: true
 
@@ -10883,19 +10963,19 @@ packages:
       react-dom: ^18.0.0
     dependencies:
       '@babel/runtime': 7.23.2
-      '@testing-library/dom': 8.19.1
+      '@testing-library/dom': 8.20.1
       '@types/react-dom': 18.2.14
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: true
 
-  /@testing-library/user-event@14.4.3(@testing-library/dom@8.19.1):
-    resolution: {integrity: sha512-kCUc5MEwaEMakkO5x7aoD+DLi02ehmEM2QCGWvNqAS1dV/fAvORWEjnjsEIvml59M7Y5kCkWN6fCCyPOe8OL6Q==}
+  /@testing-library/user-event@14.5.1(@testing-library/dom@8.20.1):
+    resolution: {integrity: sha512-UCcUKrUYGj7ClomOo2SpNVvx4/fkd/2BbIHDCle8A0ax+P3bU7yJwDBDrS6ZwdTMARWTGODX1hEsCcO+7beJjg==}
     engines: {node: '>=12', npm: '>=6'}
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
     dependencies:
-      '@testing-library/dom': 8.19.1
+      '@testing-library/dom': 8.20.1
     dev: true
 
   /@tootallnate/once@2.0.0:
@@ -11083,8 +11163,8 @@ packages:
     dependencies:
       '@types/istanbul-lib-report': 3.0.3
 
-  /@types/jest@29.2.5:
-    resolution: {integrity: sha512-H2cSxkKgVmqNHXP7TC2L/WUorrZu8ZigyRywfVzv6EyBlxj39n4C00hjXYQWsbwqgElaj/CiAeSRmk5GoaKTgw==}
+  /@types/jest@29.5.10:
+    resolution: {integrity: sha512-tE4yxKEphEyxj9s4inideLHktW/x6DwesIwWZ9NN1FKf9zbJYsnhBoA9vrHA/IuIOKwPa5PcFBNV4lpMIOEzyQ==}
     dependencies:
       expect: 29.7.0
       pretty-format: 29.7.0
@@ -11270,7 +11350,7 @@ packages:
   /@types/testing-library__jest-dom@5.14.9:
     resolution: {integrity: sha512-FSYhIjFlfOpGSRyVoMBMuS3ws5ehFQODymf3vlI7U1K8c7PHwWwFY7VREfmsuzHSOnoKs/9/Y983ayOs7eRzqw==}
     dependencies:
-      '@types/jest': 29.2.5
+      '@types/jest': 29.5.10
     dev: true
 
   /@types/tinycolor2@1.4.6:
@@ -11724,6 +11804,15 @@ packages:
       react: 18.2.0
       rememo: 4.0.2
       uuid: 9.0.1
+    dev: false
+
+  /@wordpress/api-fetch@6.42.0:
+    resolution: {integrity: sha512-IVXF7PoYLsaLLYiIqdktcrri9UX+tQi+Ko5mTltRZ2DDdoapcExVLtQhGu1pQl9vJ5LG1yUncLKzcbYky/i5fQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.23.2
+      '@wordpress/i18n': 4.47.0
+      '@wordpress/url': 3.48.0
     dev: false
 
   /@wordpress/api-fetch@6.44.0:
@@ -12780,7 +12869,7 @@ packages:
       eslint: 8.51.0
       eslint-config-prettier: 9.0.0(eslint@8.51.0)
       eslint-plugin-import: 2.28.1(@typescript-eslint/parser@6.7.5)(eslint@8.51.0)
-      eslint-plugin-jest: 27.4.2(@typescript-eslint/eslint-plugin@6.7.5)(eslint@8.51.0)(jest@29.4.3)(typescript@5.0.4)
+      eslint-plugin-jest: 27.4.2(@typescript-eslint/eslint-plugin@6.7.5)(eslint@8.51.0)(jest@29.7.0)(typescript@5.0.4)
       eslint-plugin-jsdoc: 46.8.2(eslint@8.51.0)
       eslint-plugin-jsx-a11y: 6.7.1(eslint@8.51.0)
       eslint-plugin-playwright: 0.16.0(eslint-plugin-jest@27.4.2)(eslint@8.51.0)
@@ -12824,6 +12913,13 @@ packages:
       - babel-plugin-macros
       - vite
     dev: true
+
+  /@wordpress/hooks@3.45.0:
+    resolution: {integrity: sha512-cqd5Dv4lp4S5UAip2/bMm2TZiFxs7/sKNq9/73BlKFSmc9hgqgkmcctfER+nVxiYafUNGATyQmDRpJU6R3NaDw==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.23.2
+    dev: false
 
   /@wordpress/hooks@3.47.0:
     resolution: {integrity: sha512-a0mZ+lSUBrmacJGXDnFTaz1O47sQgTCZi3LrY445WNc7cmiSlscTfeBxrUXaTF0ninzHJnE7evCIeKLbQC3dLQ==}
@@ -12939,14 +13035,14 @@ packages:
     dependencies:
       '@babel/runtime': 7.23.2
 
-  /@wordpress/jest-console@7.18.0(jest@29.4.3):
+  /@wordpress/jest-console@7.18.0(jest@29.7.0):
     resolution: {integrity: sha512-OjPGbU1HgjLVNCLW9ROmdkw/qhpFL6Svlfv1aUVBrq5z1nJ7SrjRMeBSq4LJloOhTasSV9z7w4mhHJkMkfolJg==}
     engines: {node: '>=14'}
     peerDependencies:
       jest: '>=29'
     dependencies:
       '@babel/runtime': 7.23.2
-      jest: 29.4.3
+      jest: 29.7.0
       jest-matcher-utils: 29.7.0
     dev: true
 
@@ -13815,6 +13911,12 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       tslib: 2.5.0
+
+  /aria-query@5.1.3:
+    resolution: {integrity: sha512-R5iJ5lkuHybztUfuOAznmboyjWq8O6sqNqtK7CLOqdydi54VNbORp49mb14KbWgG1QD3JFO9hJdZ+y4KutfdOQ==}
+    dependencies:
+      deep-equal: 2.2.3
+    dev: true
 
   /aria-query@5.3.0:
     resolution: {integrity: sha512-b0P0sZPKtyu8HkeRAfCq0IfURZK+SuwMjY1UXGBU27wpAiTwQAIlq56IbIO+ytk/JjS1fMR14ee5WBBfKi5J6A==}
@@ -15405,6 +15507,30 @@ packages:
         optional: true
     dev: true
 
+  /deep-equal@2.2.3:
+    resolution: {integrity: sha512-ZIwpnevOurS8bpT4192sqAowWM76JDKSHYzMLty3BZGSswgq6pBaH3DhCSW5xVAZICZyKdOBPjwww5wfgT/6PA==}
+    engines: {node: '>= 0.4'}
+    dependencies:
+      array-buffer-byte-length: 1.0.0
+      call-bind: 1.0.5
+      es-get-iterator: 1.1.3
+      get-intrinsic: 1.2.2
+      is-arguments: 1.1.1
+      is-array-buffer: 3.0.2
+      is-date-object: 1.0.5
+      is-regex: 1.1.4
+      is-shared-array-buffer: 1.0.2
+      isarray: 2.0.5
+      object-is: 1.1.5
+      object-keys: 1.1.1
+      object.assign: 4.1.4
+      regexp.prototype.flags: 1.5.1
+      side-channel: 1.0.4
+      which-boxed-primitive: 1.0.2
+      which-collection: 1.0.1
+      which-typed-array: 1.1.13
+    dev: true
+
   /deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
     dev: true
@@ -15902,6 +16028,20 @@ packages:
       which-typed-array: 1.1.13
     dev: true
 
+  /es-get-iterator@1.1.3:
+    resolution: {integrity: sha512-sPZmqHBe6JIiTfN5q2pEi//TwxmAFHwj/XEuYjTuse78i8KxaqMTTzxPoFKuzRpDpTJ+0NAbpfenkmH2rePtuw==}
+    dependencies:
+      call-bind: 1.0.5
+      get-intrinsic: 1.2.2
+      has-symbols: 1.0.3
+      is-arguments: 1.1.1
+      is-map: 2.0.2
+      is-set: 2.0.2
+      is-string: 1.0.7
+      isarray: 2.0.5
+      stop-iteration-iterator: 1.0.0
+    dev: true
+
   /es-iterator-helpers@1.0.15:
     resolution: {integrity: sha512-GhoY8uYqd6iwUl2kgjTm4CZAf6oo5mHK7BPqx3rKgx893YSsy0LGHV6gfqqQvZt/8xM8xeOnfXBCfqclMKkJ5g==}
     dependencies:
@@ -16201,7 +16341,7 @@ packages:
       requireindex: 1.2.0
     dev: true
 
-  /eslint-plugin-jest@27.4.2(@typescript-eslint/eslint-plugin@6.7.5)(eslint@8.51.0)(jest@29.4.3)(typescript@5.0.4):
+  /eslint-plugin-jest@27.4.2(@typescript-eslint/eslint-plugin@6.7.5)(eslint@8.51.0)(jest@29.7.0)(typescript@5.0.4):
     resolution: {integrity: sha512-3Nfvv3wbq2+PZlRTf2oaAWXWwbdBejFRBR2O8tAO67o+P8zno+QGbcDYaAXODlreXVg+9gvWhKKmG2rgfb8GEg==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     peerDependencies:
@@ -16217,7 +16357,7 @@ packages:
       '@typescript-eslint/eslint-plugin': 6.7.5(@typescript-eslint/parser@6.7.5)(eslint@8.51.0)(typescript@5.0.4)
       '@typescript-eslint/utils': 5.62.0(eslint@8.51.0)(typescript@5.0.4)
       eslint: 8.51.0
-      jest: 29.4.3
+      jest: 29.7.0
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -16288,7 +16428,7 @@ packages:
         optional: true
     dependencies:
       eslint: 8.51.0
-      eslint-plugin-jest: 27.4.2(@typescript-eslint/eslint-plugin@6.7.5)(eslint@8.51.0)(jest@29.4.3)(typescript@5.0.4)
+      eslint-plugin-jest: 27.4.2(@typescript-eslint/eslint-plugin@6.7.5)(eslint@8.51.0)(jest@29.7.0)(typescript@5.0.4)
     dev: true
 
   /eslint-plugin-prettier@5.0.1(eslint-config-prettier@9.0.0)(eslint@8.51.0)(wp-prettier@3.0.3):
@@ -18463,54 +18603,8 @@ packages:
       pretty-format: 29.7.0
     dev: true
 
-  /jest-environment-jsdom@29.3.1:
-    resolution: {integrity: sha512-G46nKgiez2Gy4zvYNhayfMEAFlVHhWfncqvqS6yCd0i+a4NsSUD2WtrKSaYQrYiLQaupHXxCRi8xxVL2M9PbhA==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    peerDependencies:
-      canvas: ^2.5.0
-    peerDependenciesMeta:
-      canvas:
-        optional: true
-    dependencies:
-      '@jest/environment': 29.7.0
-      '@jest/fake-timers': 29.7.0
-      '@jest/types': 29.6.3
-      '@types/jsdom': 20.0.1
-      '@types/node': 20.9.0
-      jest-mock: 29.7.0
-      jest-util: 29.7.0
-      jsdom: 20.0.3
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
-    dev: true
-
-  /jest-environment-jsdom@29.4.3:
-    resolution: {integrity: sha512-rFjf8JXrw3OjUzzmSE5l0XjMj0/MSVEUMCSXBGPDkfwb1T03HZI7iJSL0cGctZApPSyJxbjyKDVxkZuyhHkuTw==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    peerDependencies:
-      canvas: ^2.5.0
-    peerDependenciesMeta:
-      canvas:
-        optional: true
-    dependencies:
-      '@jest/environment': 29.7.0
-      '@jest/fake-timers': 29.7.0
-      '@jest/types': 29.6.3
-      '@types/jsdom': 20.0.1
-      '@types/node': 20.9.0
-      jest-mock: 29.7.0
-      jest-util: 29.7.0
-      jsdom: 20.0.3
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
-    dev: true
-
-  /jest-environment-jsdom@29.5.0:
-    resolution: {integrity: sha512-/KG8yEK4aN8ak56yFVdqFDzKNHgF4BAymCx2LbPNPsUshUlfAl0eX402Xm1pt+eoG9SLZEUVifqXtX8SK74KCw==}
+  /jest-environment-jsdom@29.7.0:
+    resolution: {integrity: sha512-k9iQbsf9OyOfdzWH8HDmrRT0gSIcX+FLNW7IQq94tFX0gynPwqDTW0Ho6iMVNjGz/nb+l/vW3dWM2bbLLpkbXA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     peerDependencies:
       canvas: ^2.5.0
@@ -18544,13 +18638,13 @@ packages:
       jest-util: 29.7.0
     dev: true
 
-  /jest-extended@2.0.0(jest@29.4.3):
+  /jest-extended@2.0.0(jest@29.7.0):
     resolution: {integrity: sha512-6AgjJQVaBEKGSK3FH90kOiRUWJsbzn9NWtW0pjGkAFIdH0oPilfkV/gHPJdVvJeBiqT3jMHw8TUg9pUGC1azDg==}
     engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
     peerDependencies:
       jest: '>=27.2.5'
     dependencies:
-      jest: 29.4.3
+      jest: 29.7.0
       jest-diff: 27.5.1
       jest-get-type: 27.5.1
     dev: true
@@ -18808,69 +18902,6 @@ packages:
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
-
-  /jest@29.3.1:
-    resolution: {integrity: sha512-6iWfL5DTT0Np6UYs/y5Niu7WIfNv/wRTtN5RSXt2DIEft3dx3zPuw/3WJQBCJfmEzvDiEKwoqMbGD9n49+qLSA==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    hasBin: true
-    peerDependencies:
-      node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
-    peerDependenciesMeta:
-      node-notifier:
-        optional: true
-    dependencies:
-      '@jest/core': 29.7.0
-      '@jest/types': 29.6.3
-      import-local: 3.1.0
-      jest-cli: 29.7.0
-    transitivePeerDependencies:
-      - '@types/node'
-      - babel-plugin-macros
-      - supports-color
-      - ts-node
-    dev: true
-
-  /jest@29.4.3:
-    resolution: {integrity: sha512-XvK65feuEFGZT8OO0fB/QAQS+LGHvQpaadkH5p47/j3Ocqq3xf2pK9R+G0GzgfuhXVxEv76qCOOcMb5efLk6PA==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    hasBin: true
-    peerDependencies:
-      node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
-    peerDependenciesMeta:
-      node-notifier:
-        optional: true
-    dependencies:
-      '@jest/core': 29.7.0
-      '@jest/types': 29.6.3
-      import-local: 3.1.0
-      jest-cli: 29.7.0
-    transitivePeerDependencies:
-      - '@types/node'
-      - babel-plugin-macros
-      - supports-color
-      - ts-node
-    dev: true
-
-  /jest@29.5.0:
-    resolution: {integrity: sha512-juMg3he2uru1QoXX078zTa7pO85QyB9xajZc6bU+d9yEGwrKX6+vGmJQ3UdVZsvTEUARIdObzH68QItim6OSSQ==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    hasBin: true
-    peerDependencies:
-      node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
-    peerDependenciesMeta:
-      node-notifier:
-        optional: true
-    dependencies:
-      '@jest/core': 29.7.0
-      '@jest/types': 29.6.3
-      import-local: 3.1.0
-      jest-cli: 29.7.0
-    transitivePeerDependencies:
-      - '@types/node'
-      - babel-plugin-macros
-      - supports-color
-      - ts-node
-    dev: true
 
   /jest@29.7.0:
     resolution: {integrity: sha512-NIy3oAFp9shda19hy4HK0HRTWKtPJmGdnvywu01nOqNC2vZg+Z+fvJDxpMQA88eb2I9EcafcdjYgsDthnYTvGw==}
@@ -20154,13 +20185,12 @@ packages:
       lower-case: 2.0.2
       tslib: 2.5.0
 
-  /nock@13.2.9:
-    resolution: {integrity: sha512-1+XfJNYF1cjGB+TKMWi29eZ0b82QOvQs2YoLNzbpWGqFMtRQHTa57osqdGj4FrFPgkO4D4AZinzUJR9VvW3QUA==}
+  /nock@13.4.0:
+    resolution: {integrity: sha512-W8NVHjO/LCTNA64yxAPHV/K47LpGYcVzgKd3Q0n6owhwvD0Dgoterc25R4rnZbckJEb6Loxz1f5QMuJpJnbSyQ==}
     engines: {node: '>= 10.13'}
     dependencies:
       debug: 4.3.4
       json-stringify-safe: 5.0.1
-      lodash: 4.17.21
       propagate: 2.0.1
     transitivePeerDependencies:
       - supports-color
@@ -23002,6 +23032,13 @@ packages:
     engines: {node: '>= 0.8'}
     dev: true
 
+  /stop-iteration-iterator@1.0.0:
+    resolution: {integrity: sha512-iCGQj+0l0HOdZ2AEeBADlsRC+vsnDsZsbdSiH1yNSjcfKM7fdpCMfqAL/dwF5BLiw/XhRft/Wax6zQbhq2BcjQ==}
+    engines: {node: '>= 0.4'}
+    dependencies:
+      internal-slot: 1.0.6
+    dev: true
+
   /store2@2.14.2:
     resolution: {integrity: sha512-siT1RiqlfQnGqgT/YzXVUNsom9S0H1OX+dpdGN1xkyYATo4I6sep5NmsRD/40s3IIOvlCq6akxkqG82urIZW1w==}
 
@@ -23712,8 +23749,8 @@ packages:
     resolution: {integrity: sha512-q5W7tVM71e2xjHZTlgfTDoPF/SmqKG5hddq9SzR49CH2hayqRKJtQ4mtRlSxKaJlR/+9rEM+mnBHf7I2/BQcpQ==}
     engines: {node: '>=6.10'}
 
-  /ts-jest@29.0.3(jest@29.7.0)(typescript@5.0.4):
-    resolution: {integrity: sha512-Ibygvmuyq1qp/z3yTh9QTwVVAbFdDy/+4BtIQR2sp6baF2SJU/8CKK/hhnGIDY2L90Az2jIqTwZPnN2p+BweiQ==}
+  /ts-jest@29.1.1(jest@29.7.0)(typescript@5.0.4):
+    resolution: {integrity: sha512-D6xjnnbP17cC85nliwGiL+tpoKN0StpgE0TeOjXQTU6MVCfsB4v7aW05CgQ/1OywGb0x/oy9hHFnN+sczTiRaA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     hasBin: true
     peerDependencies:
@@ -23722,7 +23759,7 @@ packages:
       babel-jest: ^29.0.0
       esbuild: '*'
       jest: ^29.0.0
-      typescript: '>=4.3'
+      typescript: '>=4.3 <6'
     peerDependenciesMeta:
       '@babel/core':
         optional: true
@@ -23740,7 +23777,7 @@ packages:
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
-      semver: 7.5.2
+      semver: 7.5.4
       typescript: 5.0.4
       yargs-parser: 21.1.1
     dev: true
