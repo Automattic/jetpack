@@ -75,6 +75,10 @@ $allowed = array(
 		'wp-element',
 		'wp-primitives',
 	),
+	'sharing-buttons' => array(
+		'react',
+		'react-dom',
+	),
 	'story'           => array(
 		'lodash',
 		'react',
@@ -85,10 +89,6 @@ $allowed = array(
 		'wp-keycodes',
 		'wp-plugins',
 		'wp-primitives',
-	),
-	'sharing-buttons' => array(
-		'react',
-		'react-dom',
 	),
 );
 
