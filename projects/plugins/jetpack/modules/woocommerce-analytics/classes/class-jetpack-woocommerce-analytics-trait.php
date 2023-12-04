@@ -41,6 +41,20 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	protected $checkout_content_source = '';
 
 	/**
+	 * Tracks any additional blocks loaded on the Cart page.
+	 *
+	 * @var array
+	 */
+	protected $additional_blocks_on_cart_page;
+
+	/**
+	 * Tracks any additional blocks loaded on the Checkout page.
+	 *
+	 * @var array
+	 */
+	protected $additional_blocks_on_checkout_page;
+
+	/**
 	 * Gets the content of the cart/checkout page or where the cart/checkout page is ultimately derived from if using a template.
 	 * This method sets the class properties $checkout_content_source and $cart_content_source.
 	 *
@@ -74,6 +88,8 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			$this->checkout_content_source = $transient_value['checkout_content_source'];
 			return;
 		}
+
+		$this->cart_checkout_templates_in_use = wp_is_block_theme() && class_exists( 'Automattic\WooCommerce\Blocks\Package' ) && version_compare( Automattic\WooCommerce\Blocks\Package::get_version(), '10.6.0', '>=' );
 
 		// Cart/Checkout *pages* are in use if the templates are not in use. Return their content and do nothing else.
 		if ( ! $this->cart_checkout_templates_in_use ) {
@@ -219,6 +235,50 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		wc_enqueue_js( "_wca.push({$js});" );
 	}
 
+		/**
+		 * Gather relevant product information
+		 *
+		 * @param \WC_Product $product product.
+		 * @return array
+		 */
+	public function get_product_details( $product ) {
+		return array(
+			'pi' => $product->get_id(),
+			'pn' => $product->get_title(),
+			'pc' => $this->get_product_categories_concatenated( $product ),
+			'pp' => $product->get_price(),
+			'pt' => $product->get_type(),
+		);
+	}
+
+		/**
+		 * Gets product categories or varation attributes as a formatted concatenated string
+		 *
+		 * @param object $product WC_Product.
+		 * @return string
+		 */
+	public function get_product_categories_concatenated( $product ) {
+
+		if ( ! $product instanceof WC_Product ) {
+			return '';
+		}
+
+		$variation_data = $product->is_type( 'variation' ) ? wc_get_product_variation_attributes( $product->get_id() ) : '';
+		if ( is_array( $variation_data ) && ! empty( $variation_data ) ) {
+			$line = wc_get_formatted_variation( $variation_data, true );
+		} else {
+			$out        = array();
+			$categories = get_the_terms( $product->get_id(), 'product_cat' );
+			if ( $categories ) {
+				foreach ( $categories as $category ) {
+					$out[] = $category->name;
+				}
+			}
+			$line = implode( '/', $out );
+		}
+		return $line;
+	}
+
 	/**
 	 * Compose event properties.
 	 *
@@ -259,11 +319,7 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		$js = "{'_en': '" . esc_js( $event_name ) . "'";
 
 		if ( isset( $product_details ) ) {
-				$js .= ",'pi': '" . esc_js( $product_id ) . "'";
-				$js .= ",'pn': '" . esc_js( $product_details['name'] ) . "'";
-				$js .= ",'pc': '" . esc_js( $product_details['category'] ) . "'";
-				$js .= ",'pp': '" . esc_js( $product_details['price'] ) . "'";
-				$js .= ",'pt': '" . esc_js( $product_details['type'] ) . "'";
+				$all_props = array_merge( $all_props, $product_details );
 		}
 
 		$js .= ',' . $this->render_properties_as_js( $all_props ) . '}';
@@ -283,6 +339,77 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			return $blogid . ':' . $userid;
 		}
 		return 'null';
+	}
+
+	/**
+	 * Gets the IDs of additional blocks on the Cart/Checkout pages or templates.
+	 *
+	 * @param string $cart_or_checkout Whether to get blocks on the cart or checkout page.
+	 * @return array All inner blocks on the page.
+	 */
+	public function get_additional_blocks_on_page( $cart_or_checkout = 'cart' ) {
+
+		$additional_blocks_on_page_transient_name = 'jetpack_woocommerce_analytics_additional_blocks_on_' . $cart_or_checkout . '_page';
+		$additional_blocks_on_page                = get_transient( $additional_blocks_on_page_transient_name );
+
+		if ( false !== $additional_blocks_on_page ) {
+			return $additional_blocks_on_page;
+		}
+
+		$content = $this->cart_content_source;
+
+		if ( 'checkout' === $cart_or_checkout ) {
+			$content = $this->checkout_content_source;
+		}
+
+		$parsed_blocks = parse_blocks( $content );
+		$other_blocks  = array_filter(
+			$parsed_blocks,
+			function ( $block ) use ( $cart_or_checkout ) {
+				if ( ! isset( $block['blockName'] ) ) {
+					return false;
+				}
+
+				if ( 'woocommerce/classic-shortcode' === $block['blockName'] ) {
+					return false;
+				}
+				
+				if ( 'core/shortcode' === $block['blockName'] ) {
+					return false;
+				}
+				
+				if ( 'checkout' === $cart_or_checkout && 'woocommerce/checkout' !== $block['blockName'] ) {
+					return true;
+				}
+				
+				if ( 'cart' === $cart_or_checkout && 'woocommerce/cart' !== $block['blockName'] ) {
+					return true;
+				}
+				
+				return false;
+			}
+		);
+
+		$all_inner_blocks = array();
+
+		// Loop over each "block group". In templates the blocks are grouped up.
+		foreach ( $other_blocks as $block ) {
+
+			// This check is necessary because sometimes this is null when using templates.
+			if ( ! empty( $block['blockName'] ) ) {
+				$all_inner_blocks[] = $block['blockName'];
+			}
+
+			if ( ! isset( $block['innerBlocks'] ) || ! is_array( $block['innerBlocks'] ) || 0 === count( $block['innerBlocks'] ) ) {
+				continue;
+			}
+
+			foreach ( $block['innerBlocks'] as $inner_content ) {
+				$all_inner_blocks = array_merge( $all_inner_blocks, $this->get_inner_blocks( $inner_content ) );
+			}
+		}
+		set_transient( $additional_blocks_on_page_transient_name, $all_inner_blocks, DAY_IN_SECONDS );
+		return $all_inner_blocks;
 	}
 
 	/**
