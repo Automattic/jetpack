@@ -164,8 +164,7 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 
 			if ( $is_using_page_content ) {
 				// The page-content-wrapper is in use, so we need to get the page content.
-				$cart_page_id = wc_get_page_id( 'cart' );
-				$cart_page    = get_post( $cart_page_id );
+				$cart_page    = get_post( wc_get_page_id( 'cart' ) );
 
 				if ( $cart_page && isset( $cart_page->post_content ) ) {
 					$this->cart_content_source = $cart_page->post_content;
