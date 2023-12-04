@@ -223,8 +223,8 @@ class Identity_Crisis {
 			$query_args['migrate_for_idc'] = true;
 		}
 
-		if ( ! empty( url_is_ip() ) ) {
-			$query_args['url_secret'] = url_is_ip();
+		if ( ! empty( self::url_is_ip() ) ) {
+			$query_args['url_secret'] = self::url_is_ip();
 		}
 
 		if ( is_multisite() ) {
@@ -1392,8 +1392,8 @@ class Identity_Crisis {
 		if ( $persistent_blog_id ) {
 			$params['persistent_blog_id'] = $persistent_blog_id;
 			// If URL is IP, add secret to the request.
-			if ( ! empty( url_is_ip() ) ) {
-				$params['url_secret'] = url_is_ip();
+			if ( ! empty( self::url_is_ip() ) ) {
+				$params['url_secret'] = self::url_is_ip();
 			}
 		}
 
