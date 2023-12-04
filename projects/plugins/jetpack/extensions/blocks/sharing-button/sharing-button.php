@@ -37,12 +37,18 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attr, $content, $block ) {
+	global $post;
 	$post_id = $block->context['postId'];
 
 	$style_type  = $block->context['styleType'];
 	$style       = 'style-' . $style_type;
 	$data_shared = 'sharing-' . $attr['service'] . '-' . $post_id . $attr['service'];
-	$link_url    = get_permalink( $post_id ) . '?share=' . $attr['service'] . '&nb=1';
+	$query       = 'share=' . $attr['service'] . '&nb=1';
+
+	$services   = get_services();
+	$service    = new $services[ $attr['service'] ]( $attr['service'], array() );
+	$link_props = $service->get_link( $post, $query, $data_shared );
+	$link_url   = $link_props['url'];
 
 	$content = str_replace( 'url_replaced_in_runtime', $link_url, $content );
 	$content = str_replace( 'style_button_replace_at_runtime', $style, $content );
@@ -59,7 +65,7 @@ function render_block( $attr, $content, $block ) {
 function get_services() {
 	$services = array(
 		'print'     => Share_Print_Block::class,
-		'email'     => Share_Email_Block::class,
+		'mail'      => Share_Email_Block::class,
 		'facebook'  => Share_Facebook_Block::class,
 		'linkedin'  => Share_LinkedIn_Block::class,
 		'reddit'    => Share_Reddit_Block::class,
@@ -85,10 +91,9 @@ function get_services() {
 function sharing_process_requests() {
 	global $post;
 
-	$services = get_services();
-
 	// Only process if: single post and share={service} defined
 	if ( ( is_page() || is_single() ) && isset( $_GET['share'] ) && is_string( $_GET['share'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$services     = get_services();
 		$service_name = sanitize_text_field( wp_unslash( $_GET['share'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$service      = new $services[ ( $service_name ) ]( $service_name, array() ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( $service ) {

@@ -8,6 +8,9 @@ let windowOpen;
 	services.forEach( service => {
 		document.querySelectorAll( `a.share-${ service }` ).forEach( link => {
 			link.addEventListener( 'click', event => {
+				if ( service === 'print' || service === 'mail' ) {
+					return;
+				}
 				event.preventDefault();
 
 				const el = event.target.closest( `a.share-${ service }` );
@@ -19,7 +22,7 @@ let windowOpen;
 					windowOpen.close();
 				}
 
-				const options = 'enubar=1,resizable=1,width=600,height=400';
+				const options = 'menubar=1,resizable=1,width=600,height=400';
 				windowOpen = window.open( el.getAttribute( 'href' ), `wpcom${ service }`, options );
 				if ( windowOpen ) {
 					windowOpen.focus();
