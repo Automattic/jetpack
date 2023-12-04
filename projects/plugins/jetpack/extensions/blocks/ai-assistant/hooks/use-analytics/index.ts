@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 
 // Get user data from the inial state
 const tracksUserData = window?.Jetpack_Editor_Initial_State?.tracksUserData || {};
+const blogId = parseInt( window?.Jetpack_Editor_Initial_State?.wpcomBlogId ) || 0;
 
 const useAnalytics = () => {
 	/**
@@ -10,7 +11,11 @@ const useAnalytics = () => {
 	 */
 	useEffect( () => {
 		if ( tracksUserData?.userid && tracksUserData?.username ) {
-			jetpackAnalytics.initialize( tracksUserData.userid, tracksUserData?.username );
+			jetpackAnalytics.initialize(
+				tracksUserData.userid,
+				tracksUserData?.username,
+				blogId ? { blog_id: blogId } : {}
+			);
 		}
 	}, [] );
 
