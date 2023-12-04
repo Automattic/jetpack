@@ -1107,10 +1107,10 @@ function is_user_auth() {
  * @return string
  */
 function get_paywall_blocks_subscribe_pending( $email ) {
-	$access_heading = esc_html__( 'Confirm your email and continue reading', 'jetpack' );
+	$access_heading = esc_html__( 'Confirm your email to continue reading', 'jetpack' );
 
 	/* translators: %s is the email address */
-	$subscribe_text = esc_html__( 'Head to your inbox to confirm your email address (%s).', 'jetpack' );
+	$subscribe_text = esc_html__( 'Head to your inbox and confirm your email address (%s).', 'jetpack' );
 	$subscribe_text = sprintf( $subscribe_text, $email );
 
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
