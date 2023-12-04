@@ -123,7 +123,7 @@ const useContactUsLink = (): {
 export default function UsagePanel() {
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
 	const { contactUsURL, autosaveAndRedirectContactUs } = useContactUsLink();
-	const { recordEvent } = useAnalytics();
+	const { tracks } = useAnalytics();
 	const canUpgrade = canUserPurchasePlan();
 
 	// fetch usage data
@@ -143,23 +143,28 @@ export default function UsagePanel() {
 	const requestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTier?.limit;
 
 	const trackUpgradeClick = useCallback(
-		( event: object ) => {
-			recordEvent( 'jetpack_ai_assistant_usage_panel_upgrade_button_click', {
+		( event: React.MouseEvent< HTMLElement > ) => {
+			event.preventDefault();
+			tracks.recordEvent( 'jetpack_ai_usage_panel_upgrade_button_click', {
 				current_tier_slug: currentTier?.slug,
 				requests_count: requestsCount,
 			} );
 			autosaveAndRedirect( event );
 		},
-		[ recordEvent, currentTier, requestsCount, autosaveAndRedirect ]
+		[ tracks, currentTier, requestsCount, autosaveAndRedirect ]
 	);
 
-	const trackContactUsClick = useCallback( () => {
-		recordEvent( 'jetpack_ai_assistant_usage_panel_contact_button_click', {
-			current_tier_slug: currentTier?.slug,
-			requests_count: requestsCount,
-		} );
-		autosaveAndRedirectContactUs();
-	}, [ recordEvent, currentTier, requestsCount, autosaveAndRedirectContactUs ] );
+	const trackContactUsClick = useCallback(
+		( event: React.MouseEvent< HTMLElement > ) => {
+			event.preventDefault();
+			tracks.recordEvent( 'jetpack_ai_usage_panel_contact_button_click', {
+				current_tier_slug: currentTier?.slug,
+				requests_count: requestsCount,
+			} );
+			autosaveAndRedirectContactUs();
+		},
+		[ tracks, currentTier, requestsCount, autosaveAndRedirectContactUs ]
+	);
 
 	// Determine the upgrade button text
 	const upgradeButtonText = useUpgradeButtonText( planType, nextTier?.limit );
