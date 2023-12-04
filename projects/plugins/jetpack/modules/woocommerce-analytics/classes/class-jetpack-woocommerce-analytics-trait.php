@@ -93,10 +93,8 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 
 		// Cart/Checkout *pages* are in use if the templates are not in use. Return their content and do nothing else.
 		if ( ! $this->cart_checkout_templates_in_use ) {
-			$cart_page_id     = wc_get_page_id( 'cart' );
-			$checkout_page_id = wc_get_page_id( 'checkout' );
-			$cart_page        = get_post( $cart_page_id );
-			$checkout_page    = get_post( $checkout_page_id );
+			$cart_page        = get_post( wc_get_page_id( 'cart' ) );
+			$checkout_page    = get_post( wc_get_page_id( 'checkout' ) );
 
 			if ( $cart_page && isset( $cart_page->post_content ) ) {
 				$this->cart_content_source = $cart_page->post_content;
