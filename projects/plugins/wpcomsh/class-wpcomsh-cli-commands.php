@@ -567,18 +567,27 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 * ## OPTIONS
 		 *
 		 * [--source]
-		 * : Source zip file path. (required)
+		 * : Source zip file path.
 		 *
 		 * [--dest]
 		 * : destination file path to extract to. (required)
 		 *
+		 * [--skip-unpack]
+		 * : Skip unpacking the zip file. Defaults to false.
+		 *
+		 * [--actions]
+		 * : A comma-separated list of actions to perform. Defaults to all actions.
+		 *
 		 * @subcommand backup-import
 		 */
 		public function backup_import( $args, $assoc_args ) {
-			$source = WP_CLI\Utils\get_flag_value( $assoc_args, 'source' );
-			$dest   = WP_CLI\Utils\get_flag_value( $assoc_args, 'dest' );
+			$source      = WP_CLI\Utils\get_flag_value( $assoc_args, 'source', '' );
+			$dest        = WP_CLI\Utils\get_flag_value( $assoc_args, 'dest' );
+			$skip_unpack = WP_CLI\Utils\get_flag_value( $assoc_args, 'skip-unpack', false );
+			$actions     = WP_CLI\Utils\get_flag_value( $assoc_args, 'actions', '' );
+			$skip_unpack = filter_var( $skip_unpack, FILTER_VALIDATE_BOOLEAN );
 
-			if ( empty( $source ) ) {
+			if ( ! $skip_unpack && empty( $source ) ) {
 				WP_CLI::error( 'Missing file path passed to --source' );
 			}
 
@@ -586,7 +595,12 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				WP_CLI::error( 'Missing file path passed to --dest' );
 			}
 
-			$import_manager = new Imports\Backup_Import_Manager( $source, $dest );
+			$options = array(
+				'skip_unpack' => $skip_unpack,
+				'actions'     => $actions ? explode( ',', $actions ) : array(),
+			);
+
+			$import_manager = new Imports\Backup_Import_Manager( $source, $dest, $options );
 			$ret            = $import_manager->import();
 
 			if ( is_wp_error( $ret ) ) {

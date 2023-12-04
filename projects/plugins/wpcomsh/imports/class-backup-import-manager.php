@@ -43,6 +43,19 @@ class Backup_Import_Manager {
 		'clean_up',
 	);
 	/**
+	 * An array of options.
+	 *
+	 * @var array
+	 */
+	protected $options = array();
+
+	/**
+	 * An array of valid option keys.
+	 *
+	 * @var array
+	 */
+	protected $valid_option_keys = array( 'skip_unpack', 'actions' );
+	/**
 	 * Constant representing the WordPress Playground importer type.
 	 */
 	const WORDPRESS_PLAYGROUND = 'wordpress_playground';
@@ -66,10 +79,12 @@ class Backup_Import_Manager {
 	 *
 	 * @param string $zip_or_tar_file_path The path to the ZIP or TAR file to be imported.
 	 * @param string $destination_path The path where the backup will be imported.
+	 * @param array  $options An array of options.
 	 */
-	public function __construct( $zip_or_tar_file_path, $destination_path ) {
+	public function __construct( $zip_or_tar_file_path, $destination_path, $options = array() ) {
 		$this->zip_or_tar_file_path = $zip_or_tar_file_path;
 		$this->destination_path     = trailingslashit( $destination_path );
+		$this->options              = array_intersect_key( $options, array_flip( $this->valid_option_keys ) );
 	}
 	/**
 	 * Import the backup.
@@ -83,11 +98,17 @@ class Backup_Import_Manager {
 	 * @return bool|WP_Error True on success, or a WP_Error on failure.
 	 */
 	public function import() {
+		$skip_unpack = false;
+		if ( isset( $this->options['skip_unpack'] ) && is_bool( $this->options['skip_unpack'] ) ) {
+			$skip_unpack = $this->options['skip_unpack'];
+		}
 		// unzip/untar the file
-		$result = Utils\FileExtractor::extract( $this->zip_or_tar_file_path, $this->destination_path );
-		if ( is_wp_error( $result ) ) {
-			$this->update_status( array( 'status' => 'failed' ) );
-			return $result;
+		if ( ! $skip_unpack ) {
+			$result = Utils\FileExtractor::extract( $this->zip_or_tar_file_path, $this->destination_path );
+			if ( is_wp_error( $result ) ) {
+				$this->update_status( array( 'status' => 'failed' ) );
+				return $result;
+			}
 		}
 
 		// validate the type of the file
@@ -104,7 +125,9 @@ class Backup_Import_Manager {
 			return $importer;
 		}
 
-		foreach ( $this->importer_actions as $action ) {
+		$excute_actions = isset( $this->options['actions'] ) && count( $this->options['actions'] ) ? $this->options['actions'] : $this->importer_actions;
+
+		foreach ( $excute_actions as $action ) {
 			if ( ! method_exists( $importer, $action ) ) {
 				continue;
 			}
