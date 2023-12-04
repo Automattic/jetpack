@@ -16,6 +16,8 @@ class Jetpack_Mu_Wpcom {
 
 	const PACKAGE_VERSION = '5.2.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
+	const BASE_DIR        = __DIR__ . '/';
+	const BASE_FILE       = __FILE__;
 
 	/**
 	 * Initialize the class.
@@ -64,6 +66,8 @@ class Jetpack_Mu_Wpcom {
 	public static function load_features() {
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
 		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
+
+		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 
 		require_once __DIR__ . '/features/media/heif-support.php';
 
