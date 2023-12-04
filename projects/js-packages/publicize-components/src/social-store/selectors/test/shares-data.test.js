@@ -1,4 +1,3 @@
-import { createActiveConnections } from '../../../utils/test-utils';
 import {
 	getScheduledSharesCount,
 	getShareLimit,
@@ -138,11 +137,8 @@ describe( 'Social store selectors: sharesData', () => {
 								to_be_publicized_count,
 								publicized_count,
 							},
-							connectionData: {
-								connections: createActiveConnections( 2 ),
-							},
 						},
-						{ includeEnabledConnections: true }
+						{ enabledConnectionsCount: 2 }
 					)
 				).toBe( result + 2 );
 			}
@@ -201,7 +197,6 @@ describe( 'Social store selectors: sharesData', () => {
 				'should count used and scheduled shares along with enabled connections',
 				{
 					includeScheduled: true,
-					includeEnabledConnections: true,
 				},
 				[
 					{
@@ -234,32 +229,25 @@ describe( 'Social store selectors: sharesData', () => {
 				'should count used and scheduled shares but not the enabled connections',
 				{
 					includeScheduled: true,
-					includeEnabledConnections: false,
 				},
 				[
 					{
 						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 5,
-						result: 10,
+						scheduledShares: 15,
+						enabledConnections: 0,
+						result: 5,
 					},
 					{
 						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 10,
-						result: 10,
-					},
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 15,
-						result: 10,
+						scheduledShares: 0,
+						enabledConnections: 0,
+						result: 20,
 					},
 					{
 						sharesUsed: 0,
-						scheduledShares: 0,
+						scheduledShares: 20,
 						enabledConnections: 0,
-						result: 30,
+						result: 10,
 					},
 				],
 			],
@@ -267,7 +255,6 @@ describe( 'Social store selectors: sharesData', () => {
 				'should count used shares and enabled connections but not the scheduled shares',
 				{
 					includeScheduled: false,
-					includeEnabledConnections: true,
 				},
 				[
 					{
@@ -300,26 +287,25 @@ describe( 'Social store selectors: sharesData', () => {
 				'should count used shares but not the scheduled shares and enabled connections',
 				{
 					includeScheduled: false,
-					includeEnabledConnections: false,
 				},
 				[
 					{
 						sharesUsed: 10,
 						scheduledShares: 10,
 						enabledConnections: 5,
-						result: 20,
+						result: 15,
 					},
 					{
 						sharesUsed: 10,
 						scheduledShares: 10,
 						enabledConnections: 10,
-						result: 20,
+						result: 10,
 					},
 					{
 						sharesUsed: 10,
 						scheduledShares: 10,
 						enabledConnections: 15,
-						result: 20,
+						result: 5,
 					},
 					{
 						sharesUsed: 0,
@@ -343,11 +329,11 @@ describe( 'Social store selectors: sharesData', () => {
 									to_be_publicized_count: scheduledShares,
 									share_limit: 30,
 								},
-								connectionData: {
-									connections: createActiveConnections( enabledConnections ),
-								},
 							},
-							args
+							{
+								enabledConnectionsCount: enabledConnections,
+								...args,
+							}
 						)
 					).toBe( result );
 				}
