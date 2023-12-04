@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Fix PHP 8.3 deprecation warnings about calling `ReflectionProperty::setValue()` with a single argument in tests. No change to the project itself.
-
-

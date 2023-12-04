@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Moves the REST request `source` escaping from WPCOM to the Jetpack Memberships plugin for clarity.
