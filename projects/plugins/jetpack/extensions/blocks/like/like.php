@@ -30,6 +30,11 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
  * Fetches likes data from the WordPress.com REST API.
+ *
+ * @param int $blog_id The ID of the blog (site).
+ * @param int $post_id The ID of the post.
+ *
+ * @return array|bool|null The likes data retrieved from the API, or false on error.
  */
 function fetch_likes_data( $blog_id, $post_id ) {
 	$api_url = 'https://public-api.wordpress.com/rest/v1.1/sites/' . $blog_id . '/posts/' . $post_id . '/likes/?force=wpcom';
@@ -48,7 +53,9 @@ function fetch_likes_data( $blog_id, $post_id ) {
 /**
  * Like block render function.
  *
- * @param array $attr    Array containing the Like block attributes.
+ * @param array  $attr Array containing the Like block attributes.
+ * @param string $content String containing the Like block content.
+ * @param object $block Object containing the Like block data.
  *
  * @return string
  */
@@ -68,11 +75,11 @@ function render_block( $attr, $content, $block ) {
 
 	$post_id = $block->context['postId'];
 
-	$likes_data = fetch_likes_data( $blog_id, $post_id );
+	$likes_data      = fetch_likes_data( $blog_id, $post_id );
 	$like_avatar_url = '';
 
 	if ( ! empty( $likes_data ) && ! empty( $likes_data['likes'] ) ) {
-		$like_avatar_url = $likes_data['likes'][0]['avatar_URL']; // Adjust according to the actual data structure.
+		$like_avatar_url = $likes_data['likes'][0]['avatar_URL'];
 	}
 
 	$output = '';
