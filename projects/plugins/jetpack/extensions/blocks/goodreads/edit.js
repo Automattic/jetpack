@@ -14,7 +14,6 @@ const GoodreadsEdit = props => {
 	const [ displayPreview, setDisplayPreview ] = useState( false );
 	const [ url, setUrl ] = useState( '' );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
-
 	const prevPropsRef = useRef( null );
 
 	const { isFetchingData, goodreadsUserId, isError } = useFetchGoodreadsData( url );

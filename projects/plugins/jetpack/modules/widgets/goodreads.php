@@ -47,6 +47,18 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		if ( is_active_widget( '', '', 'wpcom-goodreads' ) || is_customize_preview() ) {
 			add_action( 'wp_print_styles', array( $this, 'enqueue_style' ) );
 		}
+		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+	}
+
+	/**
+	 * Remove the "Goodreads" widget from the Legacy Widget block
+	 *
+	 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+	 * @return array $widget_types New list of widgets that will be removed.
+	 */
+	public function hide_widget_in_block_editor( $widget_types ) {
+		$widget_types[] = 'wpcom-goodreads';
+		return $widget_types;
 	}
 
 	/**
