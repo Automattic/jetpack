@@ -786,6 +786,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$label_id_val = "$label_ns-$id";
 
 		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text, array( 'id' => $label_id_val ) );
+		$field .= "<div class='contact-form__select-wrapper'>";
 		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . "data-$label_id_key='" . esc_attr( $label_id_val ) . "'>\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
@@ -803,23 +804,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 		$field .= "\t</select>\n";
-
-		wp_enqueue_style(
-			'jquery-ui-selectmenu',
-			plugins_url( 'css/jquery-ui-selectmenu.css', __FILE__ ),
-			array(),
-			'1.13.2'
-		);
-
-		wp_enqueue_script( 'jquery-ui-selectmenu' );
-
-		wp_enqueue_script(
-			'contact-form-dropdown',
-			plugins_url( 'js/dropdown.js', __FILE__ ),
-			array( 'jquery', 'jquery-ui-selectmenu' ),
-			\JETPACK__VERSION,
-			true
-		);
+		$field .= "</div>\n";
 
 		return $field;
 	}

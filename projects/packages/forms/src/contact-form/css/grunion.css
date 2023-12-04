@@ -323,6 +323,50 @@
 	width: 100%;
 }
 
+.contact-form .contact-form__select-wrapper {
+	position: relative;
+}
+
+.contact-form .contact-form__select-wrapper::after {
+	position: absolute;
+	inset-inline-end: calc(var(--jetpack--contact-form--input-padding) + 4px);
+	top: calc(var(--jetpack--contact-form--input-padding) + 1lh / 2);  
+
+  content: "";
+  display: block;
+	width: 8px;
+	height: 8px;
+  
+	border-bottom: 2px solid;
+  border-right: 2px solid;
+  
+	transform: translate(-2px, calc(-50% + 2px)) translateY(-50%) rotate(45deg) ;
+
+	pointer-events: none;
+}
+
+.contact-form .contact-form-dropdown {
+	box-sizing: border-box;
+	width: 100%;
+	padding: var(--jetpack--contact-form--input-padding);
+	padding-inline-end: calc(var(--jetpack--contact-form--input-padding) * 3);
+	
+	appearance: none;
+	background-color: var(--jetpack--contact-form--input-background);
+	border: var(--jetpack--contact-form--border);
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width: var(--jetpack--contact-form--border-size);
+	border-radius: var(--jetpack--contact-form--border-radius);
+	color: var(--jetpack--contact-form--text-color);
+	
+	font-size: var(--jetpack--contact-form--font-size);
+	font-family: var(--jetpack--contact-form--font-family);
+	line-height: var(--jetpack--contact-form--line-height);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .contact-form .contact-form-dropdown__button.ui-button {
 	width: 100%;
 	box-sizing: border-box;
