@@ -373,19 +373,19 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 				if ( 'woocommerce/classic-shortcode' === $block['blockName'] ) {
 					return false;
 				}
-				
+
 				if ( 'core/shortcode' === $block['blockName'] ) {
 					return false;
 				}
-				
+
 				if ( 'checkout' === $cart_or_checkout && 'woocommerce/checkout' !== $block['blockName'] ) {
 					return true;
 				}
-				
+
 				if ( 'cart' === $cart_or_checkout && 'woocommerce/cart' !== $block['blockName'] ) {
 					return true;
 				}
-				
+
 				return false;
 			}
 		);
@@ -421,18 +421,9 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		$new_info = array();
 
 		$content                    = $this->cart_content_source;
-		$block_presence             = str_contains(
-			$content,
-			'<!-- wp:woocommerce/cart'
-		);
-		$shortcode_presence         = str_contains(
-			$content,
-			'[woocommerce_cart]'
-		);
-		$classic_shortcode_presence = str_contains(
-			$content,
-			'<!-- wp:woocommerce/classic-shortcode'
-		);
+		$block_presence             = str_contains( $content, '<!-- wp:woocommerce/cart' );
+		$shortcode_presence         = str_contains( $content, '[woocommerce_cart]' );
+		$classic_shortcode_presence = str_contains( $content, '<!-- wp:woocommerce/classic-shortcode' );
 
 		$new_info['cart_page_contains_cart_block']     = $block_presence ? '1' : '0';
 		$new_info['cart_page_contains_cart_shortcode'] = $shortcode_presence || $classic_shortcode_presence ? '1' : '0';
@@ -448,18 +439,9 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		$new_info = array();
 
 		$content                    = $this->checkout_content_source;
-		$block_presence             = str_contains(
-			$content,
-			'<!-- wp:woocommerce/checkout'
-		);
-		$shortcode_presence         = str_contains(
-			$content,
-			'[woocommerce_checkout]'
-		);
-		$classic_shortcode_presence = str_contains(
-			$content,
-			'<!-- wp:woocommerce/classic-shortcode'
-		);
+		$block_presence             = str_contains( $content, '<!-- wp:woocommerce/checkout' );
+		$shortcode_presence         = str_contains( $content, '[woocommerce_checkout]' );
+		$classic_shortcode_presence = str_contains( $content, '<!-- wp:woocommerce/classic-shortcode' );
 
 		$new_info['checkout_page_contains_checkout_block']     = $block_presence ? '1' : '0';
 		$new_info['checkout_page_contains_checkout_shortcode'] = $shortcode_presence || $classic_shortcode_presence ? '1' : '0';
