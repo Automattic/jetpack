@@ -2800,9 +2800,6 @@ importers:
       '@wordpress/icons':
         specifier: 9.38.0
         version: 9.38.0(react@18.2.0)
-      axios:
-        specifier: 1.6.2
-        version: 1.6.2
       classnames:
         specifier: 2.3.2
         version: 2.3.2
