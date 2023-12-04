@@ -93,13 +93,13 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 
 		// Cart/Checkout *pages* are in use if the templates are not in use. Return their content and do nothing else.
 		if ( ! $this->cart_checkout_templates_in_use ) {
-			$cart_page        = get_post( wc_get_page_id( 'cart' ) );
-			$checkout_page    = get_post( wc_get_page_id( 'checkout' ) );
+			$cart_page     = get_post( wc_get_page_id( 'cart' ) );
+			$checkout_page = get_post( wc_get_page_id( 'checkout' ) );
 
 			if ( $cart_page && isset( $cart_page->post_content ) ) {
 				$this->cart_content_source = $cart_page->post_content;
 			}
-			
+
 			if ( $checkout_page && isset( $checkout_page->post_content ) ) {
 				$this->checkout_content_source = $checkout_page->post_content;
 			}
@@ -119,11 +119,11 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		if ( function_exists( 'get_block_template' ) ) {
 			$checkout_template = get_block_template( 'woocommerce/woocommerce//page-checkout' );
 			$cart_template     = get_block_template( 'woocommerce/woocommerce//page-cart' );
-			
+
 			if ( ! $checkout_template ) {
 				$checkout_template = get_block_template( 'woocommerce/woocommerce//checkout' );
 			}
-			
+
 			if ( ! $cart_template ) {
 				$cart_template = get_block_template( 'woocommerce/woocommerce//cart' );
 			}
@@ -132,11 +132,11 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		if ( function_exists( 'gutenberg_get_block_template' ) ) {
 			$checkout_template = gutenberg_get_block_template( 'woocommerce/woocommerce//page-checkout' );
 			$cart_template     = gutenberg_get_block_template( 'woocommerce/woocommerce//page-cart' );
-			
+
 			if ( ! $checkout_template ) {
 				$checkout_template = gutenberg_get_block_template( 'woocommerce/woocommerce//checkout' );
 			}
-			
+
 			if ( ! $cart_template ) {
 				$cart_template = gutenberg_get_block_template( 'woocommerce/woocommerce//cart' );
 			}
@@ -149,7 +149,7 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 
 			if ( $is_using_page_content ) {
 				// The page-content-wrapper is in use, so we need to get the page content.
-				$checkout_page    = get_post( wc_get_page_id( 'checkout' ) );
+				$checkout_page = get_post( wc_get_page_id( 'checkout' ) );
 
 				if ( $checkout_page && isset( $checkout_page->post_content ) ) {
 					$this->checkout_content_source = $checkout_page->post_content;
@@ -164,7 +164,7 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 
 			if ( $is_using_page_content ) {
 				// The page-content-wrapper is in use, so we need to get the page content.
-				$cart_page    = get_post( wc_get_page_id( 'cart' ) );
+				$cart_page = get_post( wc_get_page_id( 'cart' ) );
 
 				if ( $cart_page && isset( $cart_page->post_content ) ) {
 					$this->cart_content_source = $cart_page->post_content;
