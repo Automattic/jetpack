@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { PlainText } from '@wordpress/block-editor';
-import { Button } from '@wordpress/components';
+import { Button, ButtonGroup } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import {
 	forwardRef,
@@ -182,7 +182,7 @@ export function AIControl(
 									<Button
 										className="jetpack-components-ai-control__controls-prompt_button"
 										onClick={ () => setEditRequest( false ) }
-										variant="tertiary"
+										variant="secondary"
 										label={ __( 'Cancel', 'jetpack-ai-client' ) }
 									>
 										{ showButtonLabels ? (
@@ -226,30 +226,32 @@ export function AIControl(
 
 				{ showAccept && ! editRequest && value?.length > 0 && (
 					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
-						<Button
-							className="jetpack-components-ai-control__controls-prompt_button"
-							label={ __( 'Back to edit', 'jetpack-ai-client' ) }
-							onClick={ () => setEditRequest( true ) }
-							tooltipPosition="top"
-						>
-							<Icon icon={ arrowLeft } />
-						</Button>
-						<Button
-							className="jetpack-components-ai-control__controls-prompt_button"
-							label={ __( 'Discard', 'jetpack-ai-client' ) }
-							onClick={ discardHandler }
-							tooltipPosition="top"
-						>
-							<Icon icon={ trash } />
-						</Button>
-						<Button
-							className="jetpack-components-ai-control__controls-prompt_button"
-							label={ __( 'Regenerate', 'jetpack-ai-client' ) }
-							onClick={ () => onSend?.( value ) }
-							tooltipPosition="top"
-						>
-							<Icon icon={ reusableBlock } />
-						</Button>
+						<ButtonGroup>
+							<Button
+								className="jetpack-components-ai-control__controls-prompt_button"
+								label={ __( 'Back to edit', 'jetpack-ai-client' ) }
+								onClick={ () => setEditRequest( true ) }
+								tooltipPosition="top"
+							>
+								<Icon icon={ arrowLeft } />
+							</Button>
+							<Button
+								className="jetpack-components-ai-control__controls-prompt_button"
+								label={ __( 'Discard', 'jetpack-ai-client' ) }
+								onClick={ discardHandler }
+								tooltipPosition="top"
+							>
+								<Icon icon={ trash } />
+							</Button>
+							<Button
+								className="jetpack-components-ai-control__controls-prompt_button"
+								label={ __( 'Regenerate', 'jetpack-ai-client' ) }
+								onClick={ () => onSend?.( value ) }
+								tooltipPosition="top"
+							>
+								<Icon icon={ reusableBlock } />
+							</Button>
+						</ButtonGroup>
 						<Button
 							className="jetpack-components-ai-control__controls-prompt_button"
 							onClick={ onAccept }
@@ -261,7 +263,7 @@ export function AIControl(
 					</div>
 				) }
 			</div>
-			{ showGuideLine && <GuidelineMessage /> }
+			{ showGuideLine && ! loading && ! editRequest && <GuidelineMessage /> }
 		</div>
 	);
 }
