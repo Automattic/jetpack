@@ -157,7 +157,7 @@ export default function UsagePanel() {
 	const trackContactUsClick = useCallback(
 		( event: React.MouseEvent< HTMLElement > ) => {
 			event.preventDefault();
-			tracks.recordEvent( 'jetpack_ai_usage_panel_contact_button_click', {
+			tracks.recordEvent( 'jetpack_ai_usage_panel_upgrade_button_click', {
 				current_tier_slug: currentTier?.slug,
 				requests_count: requestsCount,
 			} );
