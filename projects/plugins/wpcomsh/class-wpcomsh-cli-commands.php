@@ -665,6 +665,133 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				WP_CLI::log( 'Generated file: ' . $ret );
 			}
 		}
+
+		/**
+		 * Manage user's global styles.
+		 *
+		 * ## OPTIONS
+		 *
+		 * <action>
+		 * : The action you want to run, e.g.: list, update, remove.
+		 *
+		 * [--field=<field>]
+		 * : The path of the data field to retrieve or remove.
+		 *
+		 * [--value=<value>]
+		 * : The value of the data field you want to set.
+		 *
+		 * [--dry-run]
+		 * : Enable dry run mode
+		 *
+		 * @subcommand global-styles
+		 */
+		public function global_styles( $args, $assoc_args ) {
+			if ( empty( $args[0] ) ) {
+				WP_CLI::error( 'Missing the action.' );
+			}
+
+			$available_actions = array( 'list', 'update', 'remove' );
+			$action            = $args[0];
+			if ( ! in_array( $action, $available_actions, true ) ) {
+				WP_CLI::error( 'The action is not supported yet' );
+			}
+
+			/**
+			 * Get the global styles
+			 */
+			$active_global_styles_id = WP_Theme_JSON_Resolver::get_user_global_styles_post_id();
+			$request                 = new \WP_REST_Request( 'GET', "/wp/v2/global-styles/$active_global_styles_id" );
+			$request->set_query_params(
+				array(
+					'context' => 'edit',
+					'id'      => $active_global_styles_id,
+				)
+			);
+
+			$global_styles_controller = new WP_REST_Global_Styles_Controller();
+			$response                 = $global_styles_controller->get_item( $request );
+			if ( $response->is_error() ) {
+				WP_CLI::error( $response->as_error() );
+			}
+
+			$global_styles = $response->get_data();
+			$field         = isset( $assoc_args['field'] ) ? $assoc_args['field'] : '';
+			$field_path    = ! empty( $field ) ? explode( '.', $field ) : array();
+			if ( $action === 'list' ) {
+				$global_styles = $response->get_data();
+				$global_styles = ! empty( $field_path ) ? _wp_array_get( $global_styles, $field_path ) : $global_styles;
+				WP_CLI::log( wp_json_encode( $global_styles, JSON_PRETTY_PRINT ) );
+				return;
+			}
+
+			$dry_run = isset( $assoc_args['dry-run'] ) ? filter_var( $assoc_args['dry-run'], FILTER_VALIDATE_BOOLEAN ) : false;
+			if ( $action === 'update' ) {
+				if ( empty( $field_path ) ) {
+					WP_CLI::error( 'Missing the data field you want to remove, e.g.: settings.typography.fontFamilies.theme' );
+				}
+
+				if ( ! isset( $assoc_args['value'] ) ) {
+					WP_CLI::error( 'Missing the value you want to set.' );
+				}
+
+				$value               = json_decode( $assoc_args['value'], true );
+				$json_decoding_error = json_last_error();
+				if ( JSON_ERROR_NONE !== $json_decoding_error ) {
+					WP_CLI::error( 'The provided value is invalid.' );
+				}
+
+				_wp_array_set( $global_styles, $field_path, $value );
+
+				if ( $dry_run ) {
+					WP_CLI::log( wp_json_encode( $global_styles, JSON_PRETTY_PRINT ) );
+				} else {
+					$request = new \WP_REST_Request( 'POST', "/wp/v2/global-styles/$active_global_styles_id" );
+					$request->set_query_params( $global_styles );
+					$response = $global_styles_controller->update_item( $request );
+					if ( $response->is_error() ) {
+						WP_CLI::error( $response->as_error() );
+					}
+
+					WP_CLI::log( wp_json_encode( $response->get_data(), JSON_PRETTY_PRINT ) );
+				}
+
+				WP_CLI::success( "Update the data field `$field` successfully" );
+			}
+
+			if ( $action === 'remove' ) {
+				if ( empty( $field_path ) ) {
+					WP_CLI::error( 'Missing the data field you want to remove, e.g.: settings.typography.fontFamilies.theme' );
+				}
+
+				$length  = count( $field_path );
+				$current = &$global_styles;
+				for ( $i = 0; $i < $length - 1; ++$i ) {
+					$path = $field_path[ $i ];
+					if ( ! array_key_exists( $path, $current ) || ! is_array( $current[ $path ] ) ) {
+						WP_CLI::error( "The data field `$field` doesn't exist" );
+					}
+
+					$current = &$current[ $path ];
+				}
+
+				unset( $current[ $field_path[ $i ] ] );
+
+				if ( $dry_run ) {
+					WP_CLI::log( wp_json_encode( $global_styles, JSON_PRETTY_PRINT ) );
+				} else {
+					$request = new \WP_REST_Request( 'POST', "/wp/v2/global-styles/$active_global_styles_id" );
+					$request->set_query_params( $global_styles );
+					$response = $global_styles_controller->update_item( $request );
+					if ( $response->is_error() ) {
+						WP_CLI::error( $response->as_error() );
+					}
+
+					WP_CLI::log( wp_json_encode( $response->get_data(), JSON_PRETTY_PRINT ) );
+				}
+
+				WP_CLI::success( "Removing the data field `$field` successfully" );
+			}
+		}
 	}
 }
 
