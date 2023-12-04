@@ -50,6 +50,10 @@
 		"customSystemPrompt": {
 			"type": "string",
 			"default": ""
+		},
+		"userPrompt": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"example": {

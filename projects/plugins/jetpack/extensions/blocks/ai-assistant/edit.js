@@ -51,7 +51,6 @@ const isPlaygroundVisible =
 	window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-playground-visible' ];
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId, isSelected } ) {
-	const [ userPrompt, setUserPrompt ] = useState();
 	const [ errorData, setError ] = useState( {} );
 	const [ loadingImages, setLoadingImages ] = useState( false );
 	const [ resultImages, setResultImages ] = useState( [] );
@@ -124,7 +123,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		content: attributes.content,
 		setError,
 		tracks,
-		userPrompt,
+		userPrompt: attributes.userPrompt,
 		requireUpgrade,
 	} );
 
@@ -310,7 +309,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const handleChange = value => {
 		setErrorDismissed( true );
-		setUserPrompt( value );
+		setAttributes( { userPrompt: value } );
 	};
 
 	const handleSend = () => {
@@ -386,7 +385,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		setError( {} );
 
 		getImagesFromOpenAI(
-			userPrompt.trim() === '' ? __( 'What would you like to see?', 'jetpack' ) : userPrompt,
+			attributes.userPrompt.trim() === ''
+				? __( 'What would you like to see?', 'jetpack' )
+				: attributes.userPrompt,
 			setAttributes,
 			setLoadingImages,
 			setResultImages,
@@ -545,7 +546,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 							// Add a typing effect in the text area
 							for ( let i = 0; i < prompt.length; i++ ) {
 								setTimeout( () => {
-									setUserPrompt( prompt.slice( 0, i + 1 ) );
+									setAttributes( { userPrompt: prompt.slice( 0, i + 1 ) } );
 								}, 25 * i );
 							}
 						} }
@@ -556,7 +557,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 				<AIControl
 					ref={ aiControlRef }
 					disabled={ requireUpgrade || ! connected }
-					value={ userPrompt }
+					value={ attributes.userPrompt }
 					placeholder={ promptPlaceholder || __( 'Ask Jetpack AI', 'jetpack' ) }
 					onChange={ handleChange }
 					onSend={ handleSend }
