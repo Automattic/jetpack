@@ -114,7 +114,7 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			'guest_checkout'         => $guest_checkout,
 			'express_checkout'       => 'null', // TODO: not solved yet.
 			'products_count'         => $cart->get_cart_contents_count(),
-			'order_value'            => $cart->get_cart_contents_total(),
+			'order_value'            => $cart->get_cart_total(),
 			'shipping_options_count' => 'null', // TODO: not solved yet.
 			'coupon_used'            => $coupon_used,
 			'payment_options'        => $enabled_payment_options,
