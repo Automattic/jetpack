@@ -37,6 +37,7 @@ export type RecordMeterBarProps = {
 	 * The sort style for legend item. If not provided, it defaults to no sorting.
 	 */
 	sortByCount?: 'ascending' | 'descending';
+
 	/**
 	 * Additional class name to be added to the component
 	 */
