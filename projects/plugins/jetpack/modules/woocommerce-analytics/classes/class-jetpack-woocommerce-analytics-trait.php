@@ -121,9 +121,11 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		if ( function_exists( 'get_block_template' ) ) {
 			$checkout_template = get_block_template( 'woocommerce/woocommerce//page-checkout' );
 			$cart_template     = get_block_template( 'woocommerce/woocommerce//page-cart' );
+			
 			if ( ! $checkout_template ) {
 				$checkout_template = get_block_template( 'woocommerce/woocommerce//checkout' );
 			}
+			
 			if ( ! $cart_template ) {
 				$cart_template = get_block_template( 'woocommerce/woocommerce//cart' );
 			}
