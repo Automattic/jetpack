@@ -1,6 +1,6 @@
 import { RecordMeterBar, Text } from '@automattic/jetpack-components';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { ShareLimits } from '../../hooks/use-share-limits';
 import styles from './styles.module.scss';
@@ -55,7 +55,11 @@ export const ShareLimitsBar = ( {
 			{
 				count: remainingCount,
 				backgroundColor: 'var(--jp-gray-off)',
-				label: __( 'remaining', 'jetpack' ),
+				label: _x(
+					'left',
+					'Referring to the quantity remaning, not the direction - left/right.',
+					'jetpack'
+				),
 			},
 		].filter( Boolean );
 	}, [ usedCount, noticeType, scheduledCount, remainingCount ] );
