@@ -12,12 +12,14 @@
  32 | WARNING | [x] assertEquals accepts many non-string values, please use strict alternatives like assertSame (MediaWiki.PHPUnit.AssertEquals.NumericString)
  35 | WARNING | [x] The expected value goes before the actual value in assertions (MediaWiki.PHPUnit.AssertionOrder.WrongOrder)
  36 | WARNING | [x] The expected value goes before the actual value in assertions (MediaWiki.PHPUnit.AssertionOrder.WrongOrder)
- 39 | WARNING | [x] assertArrayHasKey should be used instead of manually using assertTrue with the result of array_key_exists (MediaWiki.PHPUnit.SpecificAssertions.assertArrayHasKey)
- 40 | WARNING | [x] assertArrayNotHasKey should be used instead of manually using assertFalse with the result of array_key_exists (MediaWiki.PHPUnit.SpecificAssertions.assertArrayNotHasKey)
- 41 | WARNING | [x] assertContains should be used instead of manually using assertTrue with the result of in_array (MediaWiki.PHPUnit.SpecificAssertions.assertContains)
- 42 | WARNING | [x] assertNotContains should be used instead of manually using assertFalse with the result of in_array (MediaWiki.PHPUnit.SpecificAssertions.assertNotContains)
- 43 | WARNING | [x] assertStringNotContainsString should be used instead of manually using assertFalse with the result of strpos
+ 40 | WARNING | [x] Matcher ->exactly( 1 ) should be replaced with shortcut ->once() (MediaWiki.PHPUnit.MockBoilerplate.ExactlyOnce)
+ 42 | WARNING | [x] Use the shortcut willReturn() rather that manually stubbing a method with returnValue() (MediaWiki.PHPUnit.MockBoilerplate.returnValue)
+ 45 | WARNING | [x] assertArrayHasKey should be used instead of manually using assertTrue with the result of array_key_exists (MediaWiki.PHPUnit.SpecificAssertions.assertArrayHasKey)
+ 46 | WARNING | [x] assertArrayNotHasKey should be used instead of manually using assertFalse with the result of array_key_exists (MediaWiki.PHPUnit.SpecificAssertions.assertArrayNotHasKey)
+ 47 | WARNING | [x] assertContains should be used instead of manually using assertTrue with the result of in_array (MediaWiki.PHPUnit.SpecificAssertions.assertContains)
+ 48 | WARNING | [x] assertNotContains should be used instead of manually using assertFalse with the result of in_array (MediaWiki.PHPUnit.SpecificAssertions.assertNotContains)
+ 49 | WARNING | [x] assertStringNotContainsString should be used instead of manually using assertFalse with the result of strpos
     |         |     (MediaWiki.PHPUnit.SpecificAssertions.assertStringNotContainsString)
- 44 | WARNING | [x] assertStringContainsString should be used instead of manually using assertNotFalse with the result of strpos
+ 50 | WARNING | [x] assertStringContainsString should be used instead of manually using assertNotFalse with the result of strpos
     |         |     (MediaWiki.PHPUnit.SpecificAssertions.assertStringContainsString)
- 45 | WARNING | [x] assertStringContainsString should be used instead of manually using assertIsInt with the result of strpos (MediaWiki.PHPUnit.SpecificAssertions.assertStringContainsString)
+ 51 | WARNING | [x] assertStringContainsString should be used instead of manually using assertIsInt with the result of strpos (MediaWiki.PHPUnit.SpecificAssertions.assertStringContainsString)

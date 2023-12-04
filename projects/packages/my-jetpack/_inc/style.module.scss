@@ -12,7 +12,7 @@
 
 	#wpbody-content {
 		& > .notice {
-			display: none;
+			display: none !important;
 		}
 	}
 	#wpwrap {

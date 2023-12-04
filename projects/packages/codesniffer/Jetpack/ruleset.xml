@@ -15,6 +15,7 @@
 	<rule ref="MediaWiki.PHPUnit.AssertCount" />
 	<rule ref="MediaWiki.PHPUnit.AssertEquals" />
 	<rule ref="MediaWiki.PHPUnit.AssertionOrder" />
+	<rule ref="MediaWiki.PHPUnit.MockBoilerplate" />
 	<rule ref="MediaWiki.PHPUnit.SpecificAssertions" />
 	<rule ref="MediaWiki.Usage.DoubleNotOperator" />
 	<rule ref="MediaWiki.Usage.InArrayUsage" />

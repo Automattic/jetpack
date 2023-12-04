@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+EU Cookie Widget: move away from deprecated jQuery method
