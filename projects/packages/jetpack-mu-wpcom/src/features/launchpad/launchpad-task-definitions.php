@@ -1425,6 +1425,54 @@ function wpcom_launchpad_is_legacy_site_launched_task_completed() {
 }
 
 /**
+ * Migrates the legacy site setup tasks status.
+ *
+ * @return void
+ */
+function wpcom_launchpad_migrate_legacy_tasks_status() {
+	if ( get_option( 'launchpad_legacy_tasks_status_migrated', false ) ) {
+		return;
+	}
+
+	$tasks_statuses = array();
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		// migrate legacy tasks status for wpcom.
+		$tasks_statuses = wpcom_get_launchpad_legacy_site_setup_tasks_status();
+	} else {
+		// Fetch the legacy tasks status.
+		$wpcom_request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+			'/sites/' . get_current_blog_id() . '/launchpad/legacy-tasks-status',
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'content-type'    => 'application/json',
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+				),
+			)
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 !== $response_code ) {
+			return new \WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' ),
+				array( 'status' => $response_code )
+			);
+		}
+		$result = json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
+
+		if ( empty( $result ) || ! isset( $result['tasks_statuses'] ) ) {
+			return;
+		}
+		$tasks_statuses = $result['tasks_statuses'];
+	}
+
+	wpcom_launchpad_update_task_status( $tasks_statuses );
+	update_option( 'launchpad_legacy_tasks_status_migrated', true );
+}
+
+/**
  * Helper function to detect whether we've reached the number of repetitions for a task, or if
  * the task has already been marked as complete.
  * This is most useful for cases where it's simpler to look at the cached action count than
