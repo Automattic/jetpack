@@ -812,8 +812,8 @@ function add_paywall( $the_content ) {
 	$payload                    = $token_service->decode_token( $token );
 	$is_valid_token             = ! empty( $payload );
 	$email_confirmation_pending = $is_valid_token && isset( $payload['blog_sub'] ) && $payload['blog_sub'] === 'pending';
-
-	$paywalled_content = get_paywall_content( $post_access_level, $email_confirmation_pending ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$email                      = $token_service->get_subscriber_email();
+	$paywalled_content          = get_paywall_content( $post_access_level, $email_confirmation_pending, $email ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	if ( has_block( \Automattic\Jetpack\Extensions\Paywall\BLOCK_NAME ) ) {
 		if ( strpos( $the_content, \Automattic\Jetpack\Extensions\Paywall\BLOCK_HTML ) ) {
@@ -870,11 +870,12 @@ function maybe_gate_existing_comments( $comment ) {
  *
  * @param string $post_access_level The newsletter access level.
  * @param string $email_confirmation_pending True if the current user needs to validate their email.
+ * @param string $email The subscriber email.
  * @return string
  */
-function get_paywall_content( $post_access_level, $email_confirmation_pending = false ) {
+function get_paywall_content( $post_access_level, $email_confirmation_pending = false, $email = '' ) {
 	if ( $email_confirmation_pending ) {
-		return get_paywall_blocks_subscribe_pending();
+		return get_paywall_blocks_subscribe_pending( $email );
 	}
 	if ( doing_filter( 'get_the_excerpt' ) ) {
 		return '';
@@ -1102,12 +1103,15 @@ function is_user_auth() {
 /**
  * Returns paywall content blocks when email confirmation is pending
  *
+ * @param string $email The subscriber email.
  * @return string
  */
-function get_paywall_blocks_subscribe_pending() {
-	$access_heading = esc_html__( 'Verify your email to continue reading', 'jetpack' );
+function get_paywall_blocks_subscribe_pending( $email ) {
+	$access_heading = esc_html__( 'Confirm your email and continue reading', 'jetpack' );
 
-	$subscribe_text = esc_html__( 'Please check your inbox to confirm your subscription.', 'jetpack' );
+	/* translators: %s is the email address */
+	$subscribe_text = esc_html__( 'Head to your inbox to confirm your email address (%s).', 'jetpack' );
+	$subscribe_text = sprintf( $subscribe_text, $email );
 
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
 
