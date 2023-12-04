@@ -149,8 +149,7 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 
 			if ( $is_using_page_content ) {
 				// The page-content-wrapper is in use, so we need to get the page content.
-				$checkout_page_id = wc_get_page_id( 'checkout' );
-				$checkout_page    = get_post( $checkout_page_id );
+				$checkout_page    = get_post( wc_get_page_id( 'checkout' ) );
 
 				if ( $checkout_page && isset( $checkout_page->post_content ) ) {
 					$this->checkout_content_source = $checkout_page->post_content;
