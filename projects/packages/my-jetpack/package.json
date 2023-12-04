@@ -47,8 +47,8 @@
 	],
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.23.2",
-		"@babel/preset-env": "7.23.2",
+		"@babel/core": "7.23.5",
+		"@babel/preset-env": "7.23.5",
 		"@storybook/react": "7.4.6",
 		"@testing-library/dom": "8.20.1",
 		"@testing-library/react": "13.4.0",
