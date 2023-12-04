@@ -201,7 +201,7 @@ class Jetpack_WooCommerce_Analytics_Checkout_Flow {
 			'create_account'         => $create_account,
 			'guest_checkout'         => $guest_checkout,
 			'express_checkout'       => 'null', // TODO: not solved yet.
-			'number_products'        => $cart->get_cart_contents_count(),
+			'products_count'         => $cart->get_cart_contents_count(),
 			'order_value'            => $cart->get_cart_contents_total(),
 			'shipping_options_count' => 'null', // TODO: not solved yet.
 			'coupon_used'            => $coupon_used,
