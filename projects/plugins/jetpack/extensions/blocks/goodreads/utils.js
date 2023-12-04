@@ -7,7 +7,7 @@ export const GOODREADS_SHELF_OPTIONS = [
 	},
 	{ label: __( 'Currently reading', 'jetpack' ), value: 'currently-reading' },
 	{
-		label: _x( 'To read', 'future participle - eg. I have this to read.', 'jetpack' ),
+		label: _x( 'To read', 'future participle - eg. I have this to read tomorrow.', 'jetpack' ),
 		value: 'to-read',
 	},
 ];
@@ -29,7 +29,10 @@ export const GOODREADS_SORT_OPTIONS = [
 	{ label: _x( 'Notes', 'noun', 'jetpack' ), value: 'notes' },
 	{ label: __( 'Number of pages', 'jetpack' ), value: 'num_pages' },
 	{ label: __( 'Number of ratings', 'jetpack' ), value: 'num_ratings' },
-	{ label: _x( 'Owned', 'possessive - eg. I owned it for a year', 'jetpack' ), value: 'owned' },
+	{
+		label: _x( 'Owned', 'possessive - eg. I owned this book for a year', 'jetpack' ),
+		value: 'owned',
+	},
 	{ label: _x( 'Position', 'noun', 'jetpack' ), value: 'position' },
 	{ label: __( 'Random', 'jetpack', 'jetpack' ), value: 'random' },
 	{ label: _x( 'Rating', 'noun', 'jetpack' ), value: 'rating' },

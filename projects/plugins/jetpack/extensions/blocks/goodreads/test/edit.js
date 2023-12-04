@@ -1,22 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { GoodreadsEdit } from '../edit';
+import GoodreadsEdit from '../edit';
+import useFetchGoodreadsData from '../hooks/use-fetch-goodreads-data';
 
-jest.mock( '@wordpress/block-editor', () => ( {
-	...jest.requireActual( '@wordpress/block-editor' ),
-} ) );
-
-jest.mock( '../../../shared/test-embed-url', () => ( {
-	__esModule: true,
-	default: jest.fn().mockImplementation( ( url, setIsResolvingUrl ) => {
-		setIsResolvingUrl( true );
-		return new Promise( ( resolve, reject ) => {
-			if ( url === 'https://www.goodreads.com/username' ) {
-				setIsResolvingUrl( false );
-			}
-			url === 'https://www.goodreads.com/invalid-url' ? reject() : resolve( url );
-		} );
-	} ),
-} ) );
+jest.mock( './../hooks/use-fetch-goodreads-data' );
 
 describe( 'GoodreadsEdit', () => {
 	const defaultAttributes = {
@@ -43,6 +29,7 @@ describe( 'GoodreadsEdit', () => {
 	const setAttributes = jest.fn();
 	const removeAllNotices = jest.fn();
 	const createErrorNotice = jest.fn();
+	const fetchGoodreadsData = jest.fn();
 	const defaultProps = {
 		attributes: defaultAttributes,
 		noticeOperations: {
@@ -50,6 +37,7 @@ describe( 'GoodreadsEdit', () => {
 			createErrorNotice,
 		},
 		setAttributes,
+		fetchGoodreadsData,
 	};
 
 	beforeEach( () => {
@@ -58,7 +46,15 @@ describe( 'GoodreadsEdit', () => {
 		setAttributes.mockClear();
 	} );
 
-	test( 'renders form by default', async () => {
+	test( 'renders placeholder by default', async () => {
+		useFetchGoodreadsData.mockImplementation( () => {
+			return {
+				isFetchingData: false,
+				goodreadsUserId: false,
+				isError: false,
+			};
+		} );
+
 		render( <GoodreadsEdit { ...defaultProps } /> );
 
 		await waitFor( () => {
@@ -68,7 +64,15 @@ describe( 'GoodreadsEdit', () => {
 		} );
 	} );
 
-	test( 'displays a spinner while the block is embedding', async () => {
+	test( 'renders spinner while embedding', async () => {
+		useFetchGoodreadsData.mockImplementation( () => {
+			return {
+				isFetchingData: true,
+				goodreadsUserId: false,
+				isError: false,
+			};
+		} );
+
 		const attributes = {
 			...defaultAttributes,
 			goodreadsId: '1176283',
@@ -77,5 +81,27 @@ describe( 'GoodreadsEdit', () => {
 		render( <GoodreadsEdit { ...{ ...defaultProps, attributes } } /> );
 
 		await expect( screen.findByText( 'Embedding…' ) ).resolves.toBeInTheDocument();
+	} );
+
+	test( 'renders preview when finished embedding', async () => {
+		useFetchGoodreadsData.mockImplementation( () => {
+			return {
+				isFetchingData: false,
+				goodreadsUserId: '100',
+				isError: false,
+			};
+		} );
+
+		const attributes = {
+			...defaultAttributes,
+			goodreadsId: '1176283',
+			userInput: 'https://www.goodreads.com/user/show/1176283-matt-mullenweg',
+		};
+		render( <GoodreadsEdit { ...{ ...defaultProps, attributes } } /> );
+
+		let iframe;
+		await waitFor( () => ( iframe = screen.getByTitle( 'Goodreads' ) ) );
+
+		expect( iframe ).toBeInTheDocument();
 	} );
 } );

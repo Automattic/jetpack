@@ -57,9 +57,10 @@ class WPCOM_REST_API_V2_Endpoint_Goodreads extends WP_REST_Controller {
 		$profile_id = $request->get_param( 'id' );
 		$url        = 'https://www.goodreads.com/author/show/' . $profile_id;
 		$response   = wp_remote_get( esc_url_raw( $url ) );
+		$not_found  = new WP_Error( 'not_found', 'Goodreads user not found.', array( 'status' => 404 ) );
 
 		if ( is_wp_error( $response ) ) {
-			return 404;
+			return $not_found;
 		}
 
 		$body    = wp_remote_retrieve_body( $response );
@@ -70,7 +71,7 @@ class WPCOM_REST_API_V2_Endpoint_Goodreads extends WP_REST_Controller {
 			return $user_id;
 		}
 
-		return 404;
+		return $not_found;
 	}
 }
 

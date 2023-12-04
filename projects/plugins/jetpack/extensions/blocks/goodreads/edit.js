@@ -1,42 +1,51 @@
-import apiFetch from '@wordpress/api-fetch';
-import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
-import {
-	Placeholder,
-	SandBox,
-	Button,
-	Spinner,
-	TextControl,
-	ToolbarButton,
-	ToggleControl,
-	PanelBody,
-	SelectControl,
-	withNotices,
-} from '@wordpress/components';
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
+import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { Placeholder, SandBox, Button, Spinner, withNotices } from '@wordpress/components';
 import { useState, useEffect, useRef } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import BlockStylesSelector from '../../shared/components/block-styles-selector';
-import testEmbedUrl from '../../shared/test-embed-url';
-import defaultExample from './default-example.png';
-import gridExample from './grid-example.png';
-import icon from './icon';
-import {
-	GOODREADS_SHELF_OPTIONS,
-	GOODREADS_ORDER_OPTIONS,
-	GOODREADS_SORT_OPTIONS,
-	createGoodreadsEmbedLink,
-} from './utils';
+import metadata from './block.json';
+import { GoodreadsBlockControls, GoodreadsInspectorControls } from './controls';
+import useFetchGoodreadsData from './hooks/use-fetch-goodreads-data';
+import { createGoodreadsEmbedLink } from './utils';
 
 const GoodreadsEdit = props => {
-	const { attributes, className, clientId, noticeOperations, noticeUI, setAttributes } = props;
-
+	const { attributes, className, noticeOperations, noticeUI, setAttributes } = props;
 	const [ userInput, setUserInput ] = useState( '' );
 	const [ displayPreview, setDisplayPreview ] = useState( false );
+	const [ url, setUrl ] = useState( '' );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
+
 	const prevPropsRef = useRef( null );
 
+	const { isFetchingData, goodreadsUserId, isError } = useFetchGoodreadsData( url );
+
 	useEffect( () => {
-		setUrl( attributes.userInput );
-	}, [ attributes.userInput ] );
+		if ( attributes.link ) {
+			setDisplayPreview( true );
+		}
+	}, [] );
+
+	useEffect( () => {
+		if ( isFetchingData ) {
+			setIsResolvingUrl( true );
+		}
+
+		if ( ! isFetchingData ) {
+			setIsResolvingUrl( false );
+
+			if ( isError ) {
+				setAttributes( { widgetId: undefined, goodreadsId: undefined, link: undefined } );
+				setErrorNotice();
+				setDisplayPreview( false );
+			}
+
+			if ( goodreadsUserId && ! isError ) {
+				setAttributes( { goodreadsId: goodreadsUserId.toString() } );
+				setRequestLink();
+				setDisplayPreview( true );
+			}
+		}
+	}, [ goodreadsUserId, isFetchingData, isResolvingUrl, isError ] );
 
 	useEffect( () => {
 		if (
@@ -44,63 +53,9 @@ const GoodreadsEdit = props => {
 			attributes.widgetId === prevPropsRef.current.attributes.widgetId
 		) {
 			setRequestLink();
-			setAttributes( { widgetId: Math.floor( Math.random() * 9999999 ) } );
 		}
 		prevPropsRef.current = props;
 	}, [ props ] );
-
-	const setUrl = input => {
-		if ( ! input ) {
-			setIsResolvingUrl( false );
-			return;
-		}
-
-		const widgetId = Math.floor( Math.random() * 9999999 );
-		const regex = /\/(user|author)\/show\/(\d+)/;
-		const goodreadsId = input.match( regex ) ? input.match( regex )[ 2 ] : false;
-
-		if ( ! goodreadsId || ! /^(https?:\/\/)?(www\.)?goodreads\.com/.test( input ) ) {
-			return setErrorNotice();
-		}
-
-		if ( /\/author\//.test( input ) ) {
-			setIsResolvingUrl( true );
-			apiFetch( { path: `/wpcom/v2/goodreads/user-id?id=${ goodreadsId }` } )
-				.then( response => {
-					if ( response === 404 ) {
-						setAttributes( { widgetId: undefined, userInput: input } );
-						setErrorNotice();
-						return;
-					}
-					setAttributes( { goodreadsId: response, widgetId, input } );
-					setRequestLink();
-					setDisplayPreview( true );
-					setIsResolvingUrl( false );
-				} )
-				.catch( () => {
-					setAttributes( { widgetId: undefined, userInput: undefined } );
-					setErrorNotice();
-				} );
-		} else {
-			testEmbedUrl( input, setIsResolvingUrl )
-				.then( response => {
-					if ( response.endsWith( '/author' ) ) {
-						setAttributes( { widgetId: undefined, userInput: undefined } );
-						setErrorNotice();
-						return;
-					}
-
-					setAttributes( { goodreadsId: goodreadsId, widgetId, userInput: input } );
-					setRequestLink();
-					setDisplayPreview( true );
-					setIsResolvingUrl( false );
-				} )
-				.catch( () => {
-					setAttributes( { widgetId: undefined, userInput: undefined } );
-					setErrorNotice();
-				} );
-		}
-	};
 
 	const setErrorNotice = () => {
 		noticeOperations.removeAllNotices();
@@ -110,8 +65,9 @@ const GoodreadsEdit = props => {
 	};
 
 	const setRequestLink = () => {
-		const selector = attributes.style === 'grid' ? 'gr_grid_widget_' : 'gr_custom_widget';
+		const selector = attributes.style === 'grid' ? 'gr_grid_widget_' : 'gr_custom_widget_';
 		setAttributes( {
+			widgetId: Math.floor( Math.random() * 9999999 ),
 			link: createGoodreadsEmbedLink( { attributes } ),
 			id: selector + attributes.widgetId,
 		} );
@@ -122,11 +78,8 @@ const GoodreadsEdit = props => {
 			event.preventDefault();
 		}
 
-		setUrl( userInput.trim() );
-	};
-
-	const cannotEmbed = () => {
-		return ! isResolvingUrl && attributes.url;
+		setUrl( userInput );
+		setIsResolvingUrl( true );
 	};
 
 	const renderLoading = () => {
@@ -138,146 +91,13 @@ const GoodreadsEdit = props => {
 		);
 	};
 
-	const renderDisplaySettings = () => {
-		const { showCover, showAuthor, showTitle, showRating, showReview, showTags } = attributes;
-
-		return (
-			<>
-				<ToggleControl
-					label={ __( 'Show cover', 'jetpack' ) }
-					checked={ showCover }
-					onChange={ () => setAttributes( { showCover: ! showCover } ) }
-				/>
-
-				<ToggleControl
-					label={ __( 'Show author', 'jetpack' ) }
-					checked={ showAuthor }
-					onChange={ () => setAttributes( { showAuthor: ! showAuthor } ) }
-				/>
-
-				<ToggleControl
-					label={ __( 'Show title', 'jetpack' ) }
-					checked={ showTitle }
-					onChange={ () => setAttributes( { showTitle: ! showTitle } ) }
-				/>
-
-				<ToggleControl
-					label={ __( 'Show rating', 'jetpack' ) }
-					checked={ showRating }
-					onChange={ () => setAttributes( { showRating: ! showRating } ) }
-				/>
-
-				<ToggleControl
-					label={ __( 'Show review', 'jetpack' ) }
-					checked={ showReview }
-					onChange={ () => setAttributes( { showReview: ! showReview } ) }
-				/>
-
-				<ToggleControl
-					label={ __( 'Show tags', 'jetpack' ) }
-					checked={ showTags }
-					onChange={ () => setAttributes( { showTags: ! showTags } ) }
-				/>
-			</>
-		);
-	};
-
-	const renderInspectorControls = () => {
-		const { style, shelfOption, bookNumber, orderOption, customTitle, sortOption } = attributes;
-
-		const embedTypes = [
-			{
-				value: 'default',
-				label: __( 'Default', 'jetpack' ),
-				preview: (
-					<div className="block-editor-block-preview__container">
-						<img
-							src={ defaultExample }
-							alt={ __( 'Example of Goodreads default block', 'jetpack' ) }
-						/>
-					</div>
-				),
-			},
-			{
-				value: 'grid',
-				label: __( 'Grid', 'jetpack' ),
-				preview: (
-					<div className="block-editor-block-preview__container">
-						<img
-							src={ gridExample }
-							alt={ __( 'Default example of Goodreads grid block', 'jetpack' ) }
-						/>
-					</div>
-				),
-			},
-		];
-
-		return (
-			<InspectorControls>
-				<BlockStylesSelector
-					title={ _x(
-						'Embed Type',
-						'option for how the embed displays on a page, e.g. inline or as a modal',
-						'jetpack'
-					) }
-					clientId={ clientId }
-					styleOptions={ embedTypes }
-					onSelectStyle={ setAttributes }
-					activeStyle={ style }
-					attributes={ attributes }
-					viewportWidth={ 130 }
-				/>
-				<PanelBody PanelBody title={ __( 'Goodreads Settings', 'jetpack' ) } initialOpen>
-					<SelectControl
-						label={ __( 'Shelf', 'jetpack' ) }
-						value={ shelfOption }
-						onChange={ value => setAttributes( { shelfOption: value } ) }
-						options={ GOODREADS_SHELF_OPTIONS }
-					/>
-
-					<TextControl
-						label={ __( 'Title', 'jetpack' ) }
-						value={ customTitle || __( 'My Bookshelf', 'jetpack' ) }
-						onChange={ value => setAttributes( { customTitle: value } ) }
-					/>
-
-					<SelectControl
-						label={ __( 'Sort by', 'jetpack' ) }
-						value={ sortOption }
-						onChange={ value => setAttributes( { sortOption: value } ) }
-						options={ GOODREADS_SORT_OPTIONS }
-					/>
-
-					<SelectControl
-						label={ __( 'Order', 'jetpack' ) }
-						value={ orderOption }
-						onChange={ value => setAttributes( { orderOption: value } ) }
-						options={ GOODREADS_ORDER_OPTIONS }
-					/>
-
-					<TextControl
-						label={ __( 'Number of books', 'jetpack' ) }
-						type="number"
-						inputMode="numeric"
-						min="1"
-						max={ style === 'grid' ? 200 : 100 }
-						value={ bookNumber || 5 }
-						onChange={ value => setAttributes( { bookNumber: value } ) }
-					/>
-
-					{ style === 'default' && renderDisplaySettings() }
-				</PanelBody>
-			</InspectorControls>
-		);
-	};
-
 	const renderEditEmbed = () => {
 		return (
 			<div className={ className }>
 				<Placeholder
 					label={ __( 'Goodreads', 'jetpack' ) }
 					instructions={ __( 'Paste a link to a Goodreads profile.', 'jetpack' ) }
-					icon={ <BlockIcon icon={ icon } /> }
+					icon={ getBlockIconComponent( metadata ) }
 					notices={ noticeUI }
 				>
 					<form onSubmit={ submitForm }>
@@ -295,19 +115,6 @@ const GoodreadsEdit = props => {
 					</form>
 				</Placeholder>
 			</div>
-		);
-	};
-
-	const renderBlockControls = () => {
-		return (
-			<BlockControls>
-				<ToolbarButton
-					className="components-toolbar__control"
-					label={ __( 'Edit URL', 'jetpack' ) }
-					icon="edit"
-					onClick={ () => setDisplayPreview( false ) }
-				/>
-			</BlockControls>
 		);
 	};
 
@@ -332,10 +139,6 @@ const GoodreadsEdit = props => {
 		);
 	};
 
-	useEffect( () => {
-		setUrl( attributes.userInput );
-	}, [] );
-
 	if ( isResolvingUrl ) {
 		return renderLoading();
 	}
@@ -345,11 +148,21 @@ const GoodreadsEdit = props => {
 		return renderInlinePreview();
 	}
 
-	if ( displayPreview && ! cannotEmbed() ) {
+	if ( displayPreview ) {
 		return (
 			<>
-				{ renderInspectorControls() }
-				{ renderBlockControls() }
+				<InspectorControls>
+					<GoodreadsInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
+				</InspectorControls>
+
+				<BlockControls>
+					<GoodreadsBlockControls
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+						setDisplayPreview={ setDisplayPreview }
+					/>
+				</BlockControls>
+
 				{ renderInlinePreview() }
 			</>
 		);
