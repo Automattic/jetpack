@@ -29,6 +29,8 @@
 	display: flex;
 	flex-grow: 1;
 	align-self: center;
+	min-height: 36px; // need compat height with buttons wrapper
+	align-items: center;
 
 	textarea.jetpack-components-ai-control__input {
 		background-color: var( --jp-white );
