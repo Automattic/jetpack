@@ -5,6 +5,8 @@
  * @package wpcomsh
  */
 
+namespace Imports;
+
 /**
  * Abstract class representing a backup importer.
  *
@@ -24,13 +26,15 @@ abstract class Backup_Importer {
 	 * @param string $destination_path The path where the backup will be imported.
 	 */
 	public function __construct( $destination_path ) {
-		$this->destination_path = $destination_path;
+		$this->destination_path = trailingslashit( $destination_path );
 	}
 
 	/**
 	 * Preprocess the backup before importing.
 	 *
 	 * This method should be implemented by subclasses to perform any necessary preprocessing.
+	 *
+	 * @return bool|WP_Error True on success, or a WP_Error on failure.
 	 */
 	abstract public function preprocess();
 
@@ -38,6 +42,8 @@ abstract class Backup_Importer {
 	 * Process the files in the backup.
 	 *
 	 * This method should be implemented by subclasses to process the files in the backup.
+	 *
+	 * @return bool|WP_Error True on success, or a WP_Error on failure.
 	 */
 	abstract public function process_files();
 
@@ -45,6 +51,8 @@ abstract class Backup_Importer {
 	 * Recreate the database from the backup.
 	 *
 	 * This method should be implemented by subclasses to recreate the database from the backup.
+	 *
+	 * @return bool|WP_Error True on success, or a WP_Error on failure.
 	 */
 	abstract public function recreate_database();
 
@@ -52,6 +60,8 @@ abstract class Backup_Importer {
 	 * Postprocess the database after importing.
 	 *
 	 * This method should be implemented by subclasses to perform any necessary postprocessing.
+	 *
+	 * @return bool|WP_Error True on success, or a WP_Error on failure.
 	 */
 	abstract public function postprocess_database();
 
@@ -59,6 +69,8 @@ abstract class Backup_Importer {
 	 * Clean up after the import.
 	 *
 	 * This method should be implemented by subclasses to clean up any temporary files or data.
+	 *
+	 * @return bool|WP_Error True on success, or a WP_Error on failure.
 	 */
 	abstract public function clean_up();
 }

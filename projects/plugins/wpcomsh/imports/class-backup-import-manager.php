@@ -10,6 +10,8 @@ namespace Imports;
 // Include the file extractor.
 require_once __DIR__ . '/utils/class-fileextractor.php';
 
+use WP_Error;
+
 /**
  * Class Backup_Import_Manager
  *
@@ -67,7 +69,7 @@ class Backup_Import_Manager {
 	 */
 	public function __construct( $zip_or_tar_file_path, $destination_path ) {
 		$this->zip_or_tar_file_path = $zip_or_tar_file_path;
-		$this->destination_path     = $destination_path;
+		$this->destination_path     = trailingslashit( $destination_path );
 	}
 	/**
 	 * Import the backup.
@@ -87,11 +89,34 @@ class Backup_Import_Manager {
 			$this->update_status( array( 'status' => 'failed' ) );
 			return $result;
 		}
+
 		// validate the type of the file
 		$importer_type = self::determine_importer_type( $this->destination_path );
 		if ( is_wp_error( $importer_type ) ) {
 			$this->update_status( array( 'status' => 'failed' ) );
 			return $importer_type;
+		}
+
+		// get the importer
+		$importer = self::get_importer( $importer_type, $this->destination_path );
+		if ( is_wp_error( $importer ) ) {
+			$this->update_status( array( 'status' => 'failed' ) );
+			return $importer;
+		}
+
+		foreach ( $this->importer_actions as $action ) {
+			if ( ! method_exists( $importer, $action ) ) {
+				continue;
+			}
+
+			$this->update_status( array( 'status' => $action ) );
+
+			// Call the importer's method.
+			$result = $importer->$action();
+			if ( is_wp_error( $result ) ) {
+				$this->update_status( array( 'status' => 'failed' ) );
+				return $result;
+			}
 		}
 
 		/*
@@ -128,31 +153,36 @@ class Backup_Import_Manager {
 	/**
 	 * Updates the deployment status option.
 	 *
-	 * @param Array $content The contents to be merged to the existing option.
+	 * @param array $content The contents to be merged to the existing option.
+	 *
+	 * @return bool
 	 */
-	private function update_status( $content ) {
-		$existing = get_option( self::$backup_import_status_option, array() );
-		$new      = array_merge( $existing, $content );
+	private function update_status( $content ): bool { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+		// $existing = get_option( self::$backup_import_status_option, array() );
+		// $new      = array_merge( $existing, $content );
 
-		update_option( self::$backup_import_status_option, $new );
+		// update_option( self::$backup_import_status_option, $new );
+
+		return true;
 	}
 
 	/**
 	 * Determine the type of the importer based on the file in destination path.
 	 *
 	 * @param string $destination_path The path where the backup will be imported.
+	 *
 	 * @return string|WP_Error The type of the importer or a WP_Error if the type could not be determined.
 	 */
 	public static function determine_importer_type( $destination_path ) {
-		if ( file_exists( $destination_path . '/wordpress/wp-content/database/.ht.sqlite' ) ) {
+		if ( file_exists( $destination_path . 'wp-content/database/.ht.sqlite' ) ) {
 			return self::WORDPRESS_PLAYGROUND;
 		}
 
-		if ( file_exists( $destination_path . '/wp-config.php' ) ) {
+		if ( file_exists( $destination_path . 'wp-config.php' ) ) {
 			return self::JETPACK_BACKUP;
 		}
 
-		return new WP_Error( 'unknown_importer_type', __( 'Could not determine importer type' ) );
+		return new WP_Error( 'unknown_importer_type', __( 'Could not determine importer type.', 'wpcomsh' ) );
 	}
 
 	/**
@@ -160,18 +190,21 @@ class Backup_Import_Manager {
 	 *
 	 * @param string $type The type of the importer.
 	 * @param string $destination_path The path where the backup will be imported.
+	 *
 	 * @return Importer|WP_Error An instance of the appropriate importer or a WP_Error if the type is unknown.
 	 */
-	public static function get_importer( string $type, string $destination_path ): Importer {
+	public static function get_importer( string $type, string $destination_path ) {
 		switch ( $type ) {
 			case self::WORDPRESS_PLAYGROUND:
 				require_once __DIR__ . '/playground/class-playground-importer.php';
 				return new Playground_Importer( $destination_path );
-			case self::JETPACK_BACKUP:
-				require_once __DIR__ . '/jetpack-backup/class-jetpack-backup-importer.php';
-				return new Jetpack_Backup_Importer( $destination_path );
+
+			// case self::JETPACK_BACKUP:
+			// require_once __DIR__ . '/jetpack-backup/class-jetpack-backup-importer.php';
+			// return new Jetpack_Backup_Importer( $destination_path );
+
 			default:
-				return new WP_Error( 'unknown_importer_type', __( 'Could not determine importer type' ) );
+				return new WP_Error( 'unknown_importer_type', __( 'Could not determine importer type.', 'wpcomsh' ) );
 		}
 	}
 }
