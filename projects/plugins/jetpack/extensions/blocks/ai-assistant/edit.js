@@ -335,7 +335,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			 * - Create blocks from HTML code
 			 */
 			const HTML = markdownConverter
-				.render( attributes.content )
+				.render( attributes.content || '' )
 				// Fix list indentation
 				.replace( /<li>\s+<p>/g, '<li>' )
 				.replace( /<\/p>\s+<\/li>/g, '</li>' );
@@ -362,7 +362,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const handleAcceptTitle = () => {
 		if ( isInBlockEditor ) {
-			editPost( { title: attributes.content.trim() } );
+			editPost( { title: attributes.content ? attributes.content.trim() : '' } );
 			removeBlock( clientId );
 		} else {
 			handleAcceptContent();
@@ -568,10 +568,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					onSend={ handleSend }
 					onStop={ handleStopSuggestion }
 					onAccept={ handleAccept }
+					onDiscard={ handleTryAgain }
 					state={ requestingState }
 					isTransparent={ requireUpgrade || ! connected }
 					showButtonLabels={ ! isMobileViewport }
-					showAccept={ contentIsLoaded && ! isWaitingState }
+					showAccept={ requestingState !== 'init' && contentIsLoaded && ! isWaitingState }
 					acceptLabel={ acceptLabel }
 					showGuideLine={ contentIsLoaded }
 				/>
