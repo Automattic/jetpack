@@ -224,7 +224,7 @@ class Identity_Crisis {
 		}
 
 		if ( self::url_is_ip() ) {
-			$query_args['url_secret'] = URL_Secret::create_secret( 'URL argument secret failed' );
+			$query_args['url_secret'] = URL_Secret::create_secret( 'URL_argument_secret_failed' );
 		}
 
 		if ( is_multisite() ) {

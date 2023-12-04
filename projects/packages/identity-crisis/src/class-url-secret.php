@@ -138,13 +138,15 @@ class URL_Secret {
 	 * @param string $flow used to tell which flow generated the exception.
 	 * @return string
 	 */
-	public static function create_secret( $flow = 'generating secret failed' ) {
+	public static function create_secret( $flow = 'generating_secret_failed' ) {
 		$secret = null;
 		try {
-			$secret = self::create();
 
-			if ( self::exists() ) {
-				$secret = self::get_secret();
+			$secret = new self();
+			$secret->create();
+
+			if ( $secret->exists() ) {
+				$secret = $secret->get_secret();
 			}
 		} catch ( Exception $e ) {
 			// Track the error and proceed.
