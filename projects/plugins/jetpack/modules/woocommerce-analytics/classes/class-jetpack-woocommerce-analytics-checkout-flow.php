@@ -141,47 +141,4 @@ class Jetpack_WooCommerce_Analytics_Checkout_Flow {
 			)
 		);
 	}
-
-	/**
-	 * Get Cart/Checkout page view shared data
-	 */
-	protected function get_cart_checkout_shared_data() {
-		$cart = WC()->cart;
-
-		$guest_checkout = ucfirst( get_option( 'woocommerce_enable_guest_checkout', 'No' ) );
-		$create_account = ucfirst( get_option( 'woocommerce_enable_signup_and_login_from_checkout', 'No' ) );
-
-		$coupons     = $cart->get_coupons();
-		$coupon_used = 0;
-		if ( is_countable( $coupons ) ) {
-			$coupon_used = count( $coupons ) ? 1 : 0;
-		}
-
-		$enabled_payment_options = array_filter(
-			WC()->payment_gateways->get_available_payment_gateways(),
-			function ( $payment_gateway ) {
-				if ( ! $payment_gateway instanceof WC_Payment_Gateway ) {
-					return false;
-				}
-
-				return $payment_gateway->is_available();
-			}
-		);
-
-		$enabled_payment_options = array_keys( $enabled_payment_options );
-
-		$shared_data = array(
-			'products'               => $this->format_items_to_json( $cart->get_cart() ),
-			'create_account'         => $create_account,
-			'guest_checkout'         => $guest_checkout,
-			'express_checkout'       => 'null', // TODO: not solved yet.
-			'products_count'         => $cart->get_cart_contents_count(),
-			'order_value'            => $cart->get_cart_contents_total(),
-			'shipping_options_count' => 'null', // TODO: not solved yet.
-			'coupon_used'            => $coupon_used,
-			'payment_options'        => $enabled_payment_options,
-		);
-
-		return $shared_data;
-	}
 }
