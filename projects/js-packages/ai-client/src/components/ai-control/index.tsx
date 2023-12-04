@@ -4,9 +4,23 @@
 import { PlainText } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
-import { forwardRef, useImperativeHandle, useRef } from '@wordpress/element';
+import {
+	forwardRef,
+	useImperativeHandle,
+	useRef,
+	useEffect,
+	useCallback,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, closeSmall, check, arrowUp } from '@wordpress/icons';
+import {
+	Icon,
+	closeSmall,
+	check,
+	arrowUp,
+	arrowLeft,
+	trash,
+	reusableBlock,
+} from '@wordpress/icons';
 import classNames from 'classnames';
 import React from 'react';
 /**
@@ -60,6 +74,7 @@ export function AIControl(
 		onSend = noop,
 		onStop = noop,
 		onAccept = noop,
+		onDiscard = noop,
 	}: {
 		disabled?: boolean;
 		value: string;
@@ -75,11 +90,43 @@ export function AIControl(
 		onSend?: ( currentValue: string ) => void;
 		onStop?: () => void;
 		onAccept?: () => void;
+		onDiscard?: () => void;
 	},
 	ref: React.MutableRefObject< null > // eslint-disable-line @typescript-eslint/ban-types
 ): React.ReactElement {
 	const promptUserInputRef = useRef( null );
 	const loading = state === 'requesting' || state === 'suggesting';
+	const [ editRequest, setEditRequest ] = React.useState( false );
+	const [ lastValue, setLastValue ] = React.useState( '' );
+
+	useEffect( () => {
+		if ( editRequest ) {
+			promptUserInputRef?.current?.focus();
+		}
+
+		if ( ! editRequest && lastValue && value !== lastValue ) {
+			onChange?.( lastValue );
+		}
+	}, [ editRequest, lastValue ] );
+
+	const sendRequest = useCallback( () => {
+		setLastValue( value );
+		setEditRequest( false );
+		onSend?.( value );
+	}, [ value ] );
+
+	const changeHandler = useCallback(
+		( newValue: string ) => {
+			onChange?.( newValue );
+			setEditRequest( state !== 'init' && lastValue && lastValue !== newValue );
+		},
+		[ lastValue, state ]
+	);
+
+	const discardHandler = useCallback( () => {
+		onDiscard?.();
+		onAccept?.();
+	}, [] );
 
 	// Pass the ref to forwardRef.
 	useImperativeHandle( ref, () => promptUserInputRef.current );
@@ -100,7 +147,7 @@ export function AIControl(
 		'enter',
 		e => {
 			e.preventDefault();
-			onSend?.( value );
+			sendRequest();
 		},
 		{
 			target: promptUserInputRef,
@@ -119,7 +166,7 @@ export function AIControl(
 				<div className="jetpack-components-ai-control__input-wrapper">
 					<PlainText
 						value={ value }
-						onChange={ onChange }
+						onChange={ changeHandler }
 						placeholder={ placeholder }
 						className="jetpack-components-ai-control__input"
 						disabled={ loading || disabled }
@@ -127,22 +174,39 @@ export function AIControl(
 					/>
 				</div>
 
-				{ ! showAccept && value?.length > 0 && (
+				{ ( ! showAccept || editRequest ) && value?.length > 0 && (
 					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 						{ ! loading ? (
-							<Button
-								className="jetpack-components-ai-control__controls-prompt_button"
-								onClick={ () => onSend?.( value ) }
-								variant="primary"
-								disabled={ ! value?.length || disabled }
-								label={ __( 'Send request', 'jetpack-ai-client' ) }
-							>
-								{ showButtonLabels ? (
-									__( 'Generate', 'jetpack-ai-client' )
-								) : (
-									<Icon icon={ arrowUp } />
+							<>
+								{ editRequest && (
+									<Button
+										className="jetpack-components-ai-control__controls-prompt_button"
+										onClick={ () => setEditRequest( false ) }
+										variant="tertiary"
+										label={ __( 'Cancel', 'jetpack-ai-client' ) }
+									>
+										{ showButtonLabels ? (
+											__( 'Cancel', 'jetpack-ai-client' )
+										) : (
+											<Icon icon={ closeSmall } />
+										) }
+									</Button>
 								) }
-							</Button>
+
+								<Button
+									className="jetpack-components-ai-control__controls-prompt_button"
+									onClick={ sendRequest }
+									variant="primary"
+									disabled={ ! value?.length || disabled }
+									label={ __( 'Send request', 'jetpack-ai-client' ) }
+								>
+									{ showButtonLabels ? (
+										__( 'Generate', 'jetpack-ai-client' )
+									) : (
+										<Icon icon={ arrowUp } />
+									) }
+								</Button>
+							</>
 						) : (
 							<Button
 								className="jetpack-components-ai-control__controls-prompt_button"
@@ -160,8 +224,32 @@ export function AIControl(
 					</div>
 				) }
 
-				{ showAccept && (
+				{ showAccept && ! editRequest && value?.length > 0 && (
 					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
+						<Button
+							className="jetpack-components-ai-control__controls-prompt_button"
+							label={ __( 'Back to edit', 'jetpack-ai-client' ) }
+							onClick={ () => setEditRequest( true ) }
+							tooltipPosition="top"
+						>
+							<Icon icon={ arrowLeft } />
+						</Button>
+						<Button
+							className="jetpack-components-ai-control__controls-prompt_button"
+							label={ __( 'Discard', 'jetpack-ai-client' ) }
+							onClick={ discardHandler }
+							tooltipPosition="top"
+						>
+							<Icon icon={ trash } />
+						</Button>
+						<Button
+							className="jetpack-components-ai-control__controls-prompt_button"
+							label={ __( 'Regenerate', 'jetpack-ai-client' ) }
+							onClick={ () => onSend?.( value ) }
+							tooltipPosition="top"
+						>
+							<Icon icon={ reusableBlock } />
+						</Button>
 						<Button
 							className="jetpack-components-ai-control__controls-prompt_button"
 							onClick={ onAccept }
