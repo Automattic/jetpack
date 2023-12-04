@@ -5,13 +5,16 @@
  * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 
+namespace Automattic\Jetpack\Extensions\Sharing_Button_Block;
+
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Jetpack_PostImages;
 
 /**
  * Base class for sharing sources.
  * See individual sharing classes below for the implementation of this class.
  */
-abstract class Sharing_Source_Beta {
+abstract class Sharing_Source_Block {
 	/**
 	 * Button style (icon, icon-text, text, or official).
 	 *
@@ -387,7 +390,7 @@ abstract class Sharing_Source_Beta {
 /**
  * Handle the display of the email sharing button.
  */
-class Share_Email_Beta extends Sharing_Source_Beta {
+class Share_Email_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
@@ -459,7 +462,7 @@ class Share_Email_Beta extends Sharing_Source_Beta {
 /**
  * Facebook sharing button.
  */
-class Share_Facebook_Beta extends Sharing_Source_Beta {
+class Share_Facebook_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
@@ -504,7 +507,7 @@ class Share_Facebook_Beta extends Sharing_Source_Beta {
 /**
  * Print button.
  */
-class Share_Print_Beta extends Sharing_Source_Beta {
+class Share_Print_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
@@ -525,7 +528,7 @@ class Share_Print_Beta extends Sharing_Source_Beta {
 /**
  * Tumblr sharing service.
  */
-class Share_Tumblr_Beta extends Sharing_Source_Beta {
+class Share_Tumblr_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
@@ -564,7 +567,7 @@ class Share_Tumblr_Beta extends Sharing_Source_Beta {
 /**
  * Pinterest sharing service.
  */
-class Share_Pinterest_Beta extends Sharing_Source_Beta {
+class Share_Pinterest_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
@@ -579,6 +582,33 @@ class Share_Pinterest_Beta extends Sharing_Source_Beta {
 	 */
 	public function get_name() {
 		return __( 'Pinterest', 'jetpack' );
+	}
+
+	/**
+	 * Get image representative of the post to pass on to Pinterest.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return string
+	 */
+	public function get_image( $post ) {
+		if ( class_exists( 'Jetpack_PostImages' ) ) {
+			$image = Jetpack_PostImages::get_image( $post->ID, array( 'fallback_to_avatars' => true ) );
+			if ( ! empty( $image ) ) {
+				return $image['src'];
+			}
+		}
+
+		/**
+		 * Filters the default image used by the Pinterest Pin It share button.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 3.6.0
+		 *
+		 * @param string $url Default image URL.
+		 */
+		return apply_filters( 'jetpack_sharing_pinterest_default_image', 'https://s0.wp.com/i/blank.jpg' );
 	}
 
 	/**
@@ -648,7 +678,7 @@ class Share_Pinterest_Beta extends Sharing_Source_Beta {
 /**
  * Pocket sharing service.
  */
-class Share_Pocket_Beta extends Sharing_Source_Beta {
+class Share_Pocket_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
@@ -686,7 +716,7 @@ class Share_Pocket_Beta extends Sharing_Source_Beta {
 /**
  * Telegram sharing service.
  */
-class Share_Telegram_Beta extends Sharing_Source_Beta {
+class Share_Telegram_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
@@ -724,7 +754,7 @@ class Share_Telegram_Beta extends Sharing_Source_Beta {
 /**
  * WhatsApp sharing service.
  */
-class Jetpack_Share_WhatsApp_Beta extends Sharing_Source_Beta {
+class Jetpack_Share_WhatsApp_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
@@ -769,7 +799,7 @@ class Jetpack_Share_WhatsApp_Beta extends Sharing_Source_Beta {
 /**
  * Mastodon sharing service.
  */
-class Share_Mastodon_Beta extends Sharing_Source_Beta {
+class Share_Mastodon_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
@@ -844,7 +874,7 @@ class Share_Mastodon_Beta extends Sharing_Source_Beta {
 /**
  * Nextdoor sharing service.
  */
-class Share_Nextdoor_Beta extends Sharing_Source_Beta {
+class Share_Nextdoor_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
@@ -886,7 +916,7 @@ class Share_Nextdoor_Beta extends Sharing_Source_Beta {
  * While the old Twitter button had an official button,
  * this new X button does not, since there is no official X button yet.
  */
-class Share_X_Beta extends Sharing_Source_Beta {
+class Share_X_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
@@ -1028,7 +1058,7 @@ class Share_X_Beta extends Sharing_Source_Beta {
 /**
  * Twitter sharing button.
  */
-class Share_Twitter_Beta extends Sharing_Source_Beta {
+class Share_Twitter_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
@@ -1198,7 +1228,7 @@ class Share_Twitter_Beta extends Sharing_Source_Beta {
 /**
  * Reddit sharing button.
  */
-class Share_Reddit_Beta extends Sharing_Source_Beta {
+class Share_Reddit_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
@@ -1236,7 +1266,7 @@ class Share_Reddit_Beta extends Sharing_Source_Beta {
 /**
  * LinkedIn sharing button.
  */
-class Share_LinkedIn_Beta extends Sharing_Source_Beta {
+class Share_LinkedIn_Block extends Sharing_Source_Block {
 	/**
 	 * Service short name.
 	 *
@@ -1287,5 +1317,26 @@ class Share_LinkedIn_Beta extends Sharing_Source_Beta {
 		parent::process_request( $post, $post_data );
 
 		parent::redirect_request( $linkedin_url );
+	}
+}
+
+/**
+ * Skype sharing service.
+ */
+class Share_Skype_Block extends Sharing_Source_Block {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'skype';
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'Skype', 'jetpack' );
 	}
 }
