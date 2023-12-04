@@ -101,6 +101,7 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			if ( $cart_page && isset( $cart_page->post_content ) ) {
 				$this->cart_content_source = $cart_page->post_content;
 			}
+			
 			if ( $checkout_page && isset( $checkout_page->post_content ) ) {
 				$this->checkout_content_source = $checkout_page->post_content;
 			}
