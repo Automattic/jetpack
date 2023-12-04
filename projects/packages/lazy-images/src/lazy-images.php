@@ -82,6 +82,11 @@ class Jetpack_Lazy_Images {
 	 * @return bool
 	 */
 	public static function should_force_deactivate() {
+		// Don't try disabling when running phpunit tests. A bug in packages/status makes that fail.
+		if ( Constants::is_true( 'IS_JETPACK_LAZY_IMAGES_TESTS' ) ) {
+			return false;
+		}
+
 		// If Gutenberg is not installed,
 		// check if we run a version of WP that would conflict with Lazy Images.
 		if ( ! Constants::is_true( 'IS_GUTENBERG_PLUGIN' ) ) {
@@ -324,7 +329,7 @@ class Jetpack_Lazy_Images {
 		}
 
 		foreach ( $blocked_classes as $class ) {
-			if ( false !== strpos( $classes, $class ) ) {
+			if ( str_contains( $classes, $class ) ) {
 				return true;
 			}
 		}
@@ -617,7 +622,7 @@ class Jetpack_Lazy_Images {
 	 * @return bool If core's lazy loading should be bypassed, `false`. Otherwise, the original `$value`.
 	 */
 	public function maybe_skip_core_loading_attribute( $value, $image ) {
-		if ( false !== strpos( $image, 'jetpack-lazy-image' ) ) {
+		if ( str_contains( $image, 'jetpack-lazy-image' ) ) {
 			return false;
 		}
 
@@ -646,7 +651,7 @@ class Jetpack_Lazy_Images {
 			}
 		}
 
-		if ( isset( $attributes['class'] ) && false !== strpos( $attributes['class'], 'jetpack-lazy-image' ) ) {
+		if ( isset( $attributes['class'] ) && str_contains( $attributes['class'], 'jetpack-lazy-image' ) ) {
 			return true;
 		}
 

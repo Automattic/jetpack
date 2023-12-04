@@ -1,10 +1,10 @@
 === Jetpack CRM - Clients, Leads, Invoices, Billing, Email Marketing, & Automation ===
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
-Tested up to: 6.3
+Tested up to: 6.4
 Stable tag: 6.2.0
-Requires at least: 5.0
-Requires PHP: 7.3
+Requires at least: 6.0
+Requires PHP: 7.4
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -389,28 +389,26 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.2.0 - 2023-10-11
+### 6.3.0 - 2023-11-15
 #### Added
-- Tests: Add mock globals for testing.
-- Automations: Add new backend in preparation for future release.
+- API: Add support for creating transactions with custom fields.
 
 #### Changed
-- Quotes: Allow admin users to accept quotes.
-- Tasks: Use consistent language in code.
-- Increase PHP required version to 7.3.
-- Updated package dependencies.
+- Requires PHP 7.4 or higher.
+- Requires WordPress 6.0 or higher.
 
 #### Fixed
-- API: Rewrite rules are now flushed after enabling module.
-- API: Task reminder param is no longer ignored.
-- Better PHP 8.2 support.
-- CRM Forms: Removed reference to old branding.
-- CSV Importer: Fixed assignment to companies by name.
-- Custom Fields: Corrected bug that prevented new address custom fields from being shown.
-- Invoices: Handle status translations consistently.
-- Segments: Fixed error 219 occurring when using date ranges.
-- Tags: Better slug generation and added tag slug migration.
-- Tags: Prevent duplicate slugs, and adding more robust slug fallback support.
-- Tasks: Corrected placeholders for contacts and companies in the task reminder email.
-- Transactions: Filters now work for custom statuses.
+- API: Allow events endpoint to be filtered by owner.
+- API: The `create_event` endpoint no longer throws a 100 error.
+- API: Restrict what owner data is returned with events endpoint.
+- Backend: Prevent error if OpenSSL functions aren't available in PHP.
+- Backend: Changing how styles are added to the page on several stand-alone pages to prevent WordPress 6.4 compatibility issues.
+- Client Portal: Better PHP 8.2 support.
+- Contacts: Fixed display issues on the Add and Edit pages that occurred when moving fields.
+- Listviews: Remove legacy code.
+- Mail Delivery: Removed usage of deprecated function utf8_encode.
+- Quote Templates: Fix issue with notes field rendering HTML entities in some cases.
+- Quote Templates: Make sure quote titles with apostrophes do not have backslashes added when rendered.
+- WooSync: Catch PHP error in Client Portal invoice if WooCommerce is disabled.
+- WooSync: Contacts can now be assigned to existing companies.
 

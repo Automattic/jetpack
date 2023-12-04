@@ -1,3 +1,4 @@
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import {
 	Flex,
 	FlexBlock,
@@ -11,10 +12,11 @@ import { useViewportMatch } from '@wordpress/compose';
 import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useState } from 'react';
-import { icon as paywallIcon, blockName as paywallBlockName } from '../../blocks/paywall';
+import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import './settings.scss';
 import PlansSetupDialog from '../components/plans-setup-dialog';
@@ -23,7 +25,14 @@ import {
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
-import { getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
+import {
+	getFormattedCategories,
+	getFormattedSubscriptionsCount,
+	getShowMisconfigurationWarning,
+	MisconfigurationWarning,
+} from './utils';
+
+const paywallIcon = getBlockIconComponent( paywallBlockMetadata );
 
 export function Link( { href, children } ) {
 	return (
@@ -48,10 +57,12 @@ export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, pai
 
 export function useSetAccess() {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
-
+	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	return value => {
+		// We are removing the tier ID meta
+		delete metas[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
 		setPostMeta( {
+			...metas,
 			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: value,
 		} );
 	};
@@ -59,10 +70,10 @@ export function useSetAccess() {
 
 export function useSetTier() {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
-
+	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	return value => {
 		setPostMeta( {
+			...metas,
 			[ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: value,
 		} );
 	};
@@ -70,14 +81,16 @@ export function useSetTier() {
 
 function TierSelector() {
 	// TODO: figure out how to handle different currencies
-	const products = useSelect( select => select( membershipProductsStore ).getProducts() )
-		.filter( product => product.subscribe_as_site_subscriber && product.interval === '1 month' )
+	const products = useSelect( select =>
+		select( membershipProductsStore ).getNewsletterTierProducts()
+	)
+		.filter( product => product.interval === '1 month' )
 		.sort( ( p1, p2 ) => Number( p2.price ) - Number( p1.price ) );
 
 	// Find the current tier meta
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	// Destructure the tierId from the meta (set tierId using the META_NAME_FOR_POST_TIER_ID_SETTINGS constant)
-	let [ { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: tierId } ] = useEntityProp(
+	const [ { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: tierId } ] = useEntityProp(
 		'postType',
 		postType,
 		'meta'
@@ -88,12 +101,6 @@ function TierSelector() {
 	// the hooks have to run before any early returns)
 	if ( products.length < 2 ) {
 		return;
-	}
-
-	// if no tier are selected, we select the lowest one
-	if ( ! tierId ) {
-		tierId = products[ products.length - 1 ].id;
-		setTimeout( () => setTier( tierId ) );
 	}
 
 	return (
@@ -115,7 +122,7 @@ function TierSelector() {
 
 export function NewsletterAccessRadioButtons( {
 	accessLevel,
-	hasNewsletterPlans,
+	hasTierPlans,
 	stripeConnectUrl,
 	isEditorPanel = false,
 	postHasPaywallBlock: postHasPaywallBlock = false,
@@ -136,7 +143,7 @@ export function NewsletterAccessRadioButtons( {
 				onChange={ value => {
 					if (
 						accessOptions.paid_subscribers.key === value &&
-						( stripeConnectUrl || ! hasNewsletterPlans )
+						( stripeConnectUrl || ! hasTierPlans )
 					) {
 						setShowDialog( true );
 						return;
@@ -171,9 +178,9 @@ export function NewsletterAccessRadioButtons( {
 				] }
 				selected={ accessLevel }
 			/>
-			{ accessLevel === accessOptions.paid_subscribers.key &&
-				isStripeConnected &&
-				hasNewsletterPlans && <TierSelector></TierSelector> }
+			{ accessLevel === accessOptions.paid_subscribers.key && isStripeConnected && hasTierPlans && (
+				<TierSelector></TierSelector>
+			) }
 
 			{ isEditorPanel && (
 				<PlansSetupDialog closeDialog={ closeDialog } showDialog={ showDialog } />
@@ -183,21 +190,19 @@ export function NewsletterAccessRadioButtons( {
 }
 
 export function NewsletterAccessDocumentSettings( { accessLevel } ) {
-	const { hasNewsletterPlans, stripeConnectUrl, isLoading, foundPaywallBlock } = useSelect(
-		select => {
-			const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
-				'jetpack/membership-products'
-			);
-			const { getBlocks } = select( 'core/block-editor' );
+	const { hasTierPlans, stripeConnectUrl, isLoading, foundPaywallBlock } = useSelect( select => {
+		const { getNewsletterTierProducts, getConnectUrl, isApiStateLoading } = select(
+			'jetpack/membership-products'
+		);
+		const { getBlocks } = select( 'core/block-editor' );
 
-			return {
-				isLoading: isApiStateLoading(),
-				stripeConnectUrl: getConnectUrl(),
-				hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
-				foundPaywallBlock: getBlocks().find( block => block.name === paywallBlockName ),
-			};
-		}
-	);
+		return {
+			isLoading: isApiStateLoading(),
+			stripeConnectUrl: getConnectUrl(),
+			hasTierPlans: getNewsletterTierProducts()?.length !== 0,
+			foundPaywallBlock: getBlocks().find( block => block.name === paywallBlockMetadata.name ),
+		};
+	} );
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
 	const { selectBlock } = useDispatch( 'core/block-editor' );
@@ -262,7 +267,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 											isEditorPanel={ true }
 											accessLevel={ _accessLevel }
 											stripeConnectUrl={ stripeConnectUrl }
-											hasNewsletterPlans={ hasNewsletterPlans }
+											hasTierPlans={ hasTierPlans }
 											postHasPaywallBlock={ foundPaywallBlock }
 										/>
 									</div>
@@ -280,21 +285,37 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 }
 
 export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
-	const { isLoading, postHasPaywallBlock } = useSelect( select => {
-		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
-			'jetpack/membership-products'
-		);
-		const { getBlocks } = select( 'core/block-editor' );
+	const { isLoading, postHasPaywallBlock, newsletterCategories, newsletterCategoriesEnabled } =
+		useSelect( select => {
+			const {
+				getNewsletterTierProducts,
+				getConnectUrl,
+				isApiStateLoading,
+				getNewsletterCategories,
+				getNewsletterCategoriesEnabled,
+			} = select( 'jetpack/membership-products' );
+			const { getBlocks } = select( 'core/block-editor' );
 
-		return {
-			isLoading: isApiStateLoading(),
-			stripeConnectUrl: getConnectUrl(),
-			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
-			postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockName ),
-		};
-	} );
+			return {
+				isLoading: isApiStateLoading(),
+				stripeConnectUrl: getConnectUrl(),
+				hasTierPlans: getNewsletterTierProducts()?.length !== 0,
+				postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockMetadata.name ),
+				newsletterCategories: getNewsletterCategories(),
+				newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
+			};
+		} );
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
+	const postCategories = useSelect( select =>
+		select( editorStore ).getEditedPostAttribute( 'categories' )
+	);
+
+	const subscriptionsCount = useSelect( select => {
+		return select( 'jetpack/membership-products' ).getNewsletterCategoriesSubscriptionsCount(
+			postCategories
+		);
+	} );
 
 	if ( isLoading ) {
 		return (
@@ -305,11 +326,27 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 	}
 
 	const _accessLevel = accessLevel ?? accessOptions.everybody.key;
-
 	const getText = () => {
 		if ( _accessLevel === accessOptions.paid_subscribers.key ) {
 			if ( ! postHasPaywallBlock ) {
 				return __( 'This post will be sent to paid subscribers only.', 'jetpack' );
+			}
+		}
+		if ( newsletterCategoriesEnabled && newsletterCategories.length ) {
+			const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
+			const formattedSubscriptionsCount = getFormattedSubscriptionsCount( subscriptionsCount );
+			const categoryNamesAndSubscriptionsCount =
+				formattedCategoryNames + formattedSubscriptionsCount;
+
+			if ( formattedCategoryNames ) {
+				return createInterpolateElement(
+					sprintf(
+						// translators: %1$s is the list of categories with subscriptions count
+						__( 'This post will be sent to everyone subscribed to %1$s.', 'jetpack' ),
+						categoryNamesAndSubscriptionsCount
+					),
+					{ strong: <strong /> }
+				);
 			}
 		}
 		return __( 'This post will be sent to all subscribers.', 'jetpack' );

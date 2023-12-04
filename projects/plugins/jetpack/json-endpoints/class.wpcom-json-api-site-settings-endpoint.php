@@ -456,11 +456,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
 						'subscription_options'             => (array) get_option( 'subscription_options' ),
+						'jetpack_verbum_subscription_modal' => (bool) get_option( 'jetpack_verbum_subscription_modal', true ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-						$response[ $key ]['wpcom_publish_posts_with_markdown']    = (bool) WPCom_Markdown::is_posting_enabled();
-						$response[ $key ]['wpcom_publish_comments_with_markdown'] = (bool) WPCom_Markdown::is_commenting_enabled();
+						$response[ $key ]['wpcom_publish_posts_with_markdown']    = (bool) WPCom_Markdown::get_instance()->is_posting_enabled();
+						$response[ $key ]['wpcom_publish_comments_with_markdown'] = (bool) WPCom_Markdown::get_instance()->is_commenting_enabled();
 
 						// WPCOM-specific Infinite Scroll Settings.
 						if ( is_callable( array( 'The_Neverending_Home_Page', 'get_settings' ) ) ) {
@@ -533,7 +534,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					 * - 5 days before the monthly plan expiration.
 					 * This is to match the gifting banner logic.
 					 */
-					$days_of_warning          = false !== strpos( $purchase->product_slug, 'monthly' ) ? 5 : 54;
+					$days_of_warning          = str_contains( $purchase->product_slug, 'monthly' ) ? 5 : 54;
 					$seconds_until_expiration = strtotime( $purchase->expiry_date ) - time();
 					if ( $seconds_until_expiration >= $days_of_warning * DAY_IN_SECONDS ) {
 						return false;
@@ -572,8 +573,20 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * Get GA tracking code.
 	 */
 	protected function get_google_analytics() {
-		$option_name = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'wga' : 'jetpack_wga';
+		$option_name = $this->get_google_analytics_option_name();
+
 		return get_option( $option_name );
+	}
+
+	/**
+	 * Get GA tracking code option name.
+	 */
+	protected function get_google_analytics_option_name() {
+		/** This filter is documented in class.json-api-endpoints.php */
+		$is_jetpack  = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
+		$option_name = $is_jetpack ? 'jetpack_wga' : 'wga';
+
+		return $option_name;
 	}
 
 	/**
@@ -690,8 +703,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						return new WP_Error( 'invalid_code', 'Invalid UA ID' );
 					}
 
-					$is_wpcom    = defined( 'IS_WPCOM' ) && IS_WPCOM;
-					$option_name = $is_wpcom ? 'wga' : 'jetpack_wga';
+					$option_name = $this->get_google_analytics_option_name();
 
 					$wga         = get_option( $option_name, array() );
 					$wga['code'] = $value['code']; // maintain compatibility with wp-google-analytics.
@@ -715,6 +727,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					/** This action is documented in modules/widgets/social-media-icons.php */
 					do_action( 'jetpack_bump_stats_extras', 'google-analytics', $enabled_or_disabled );
 
+					$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
 					if ( $is_wpcom ) {
 						$business_plugins = WPCOM_Business_Plugins::instance();
 						$business_plugins->activate_plugin( 'wp-google-analytics' );
@@ -735,6 +748,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'jetpack_portfolio':
 				case 'jetpack_comment_likes_enabled':
 				case 'wpcom_reader_views_enabled':
+				case 'jetpack_verbum_subscription_modal':
 					// settings are stored as 1|0.
 					$coerce_value = (int) $value;
 					if ( update_option( $key, $coerce_value ) ) {

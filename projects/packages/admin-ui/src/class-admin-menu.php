@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.2.23';
+	const PACKAGE_VERSION = '0.3.1';
 
 	/**
 	 * Whether this class has been initialized
@@ -49,7 +49,7 @@ class Admin_Menu {
 	 * we use this method to move the menu item.
 	 */
 	private static function handle_akismet_menu() {
-		if ( ! class_exists( 'Jetpack' ) && class_exists( 'Akismet_Admin' ) ) {
+		if ( class_exists( 'Akismet_Admin' ) ) {
 			// Prevent Akismet from adding a menu item.
 			add_action(
 				'admin_menu',
@@ -104,7 +104,7 @@ class Admin_Menu {
 			function ( $a, $b ) {
 				$position_a = empty( $a['position'] ) ? 0 : $a['position'];
 				$position_b = empty( $b['position'] ) ? 0 : $b['position'];
-				$result     = $position_a - $position_b;
+				$result     = $position_a <=> $position_b;
 
 				if ( 0 === $result ) {
 					$result = strcmp( $a['menu_title'], $b['menu_title'] );

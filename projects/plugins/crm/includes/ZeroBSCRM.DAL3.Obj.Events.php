@@ -958,7 +958,10 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                         // some weird case where getting empties, so added check
                         if (isset($field['key']) && !empty($field['key'])){ 
 
-                            $dePrefixed = ''; if (substr($field['key'],0,strlen('zbse_')) === 'zbse_') $dePrefixed = substr($field['key'], strlen('zbse_'));
+						$dePrefixed = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( str_starts_with( $field['key'], 'zbse_' ) ) {
+							$dePrefixed = substr( $field['key'], strlen( 'zbse_' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
 
                             if (isset($customFields[$field['key']])){
 
@@ -1844,7 +1847,6 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
     
     /**
      * Returns an ownerid against a event
-     * Replaces zeroBS_getCustomerOwner
      *
      * @param int id event ID
      *

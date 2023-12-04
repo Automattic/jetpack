@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
@@ -252,6 +253,28 @@ class Contact_Form_Plugin {
 		 */
 		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . 'contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
+
+		Assets::register_script(
+			'accessible-form',
+			'./js/accessible-form.js',
+			__FILE__,
+			array(
+				'async' => true,
+			)
+		);
+
+		wp_localize_script(
+			'accessible-form',
+			'jetpackContactForm',
+			array(
+				/* translators: text read by a screen reader when a warning icon is displayed in front of an error message. */
+				'warning'              => __( 'Warning.', 'jetpack-forms' ),
+				/* translators: error message shown when one or more fields of the form are invalid. */
+				'invalidForm'          => __( 'Please make sure all fields are valid.', 'jetpack-forms' ),
+				/* translators: error message shown when a multiple choice field requires at least one option to be selected. */
+				'checkboxMissingValue' => __( 'Please select at least one option.', 'jetpack-forms' ),
+			)
+		);
 
 		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );
 
@@ -572,9 +595,9 @@ class Contact_Form_Plugin {
 			check_admin_referer( "contact-form_{$id}" );
 		}
 
-		$is_widget              = 0 === strpos( $id, 'widget-' );
-		$is_block_template      = 0 === strpos( $id, 'block-template-' );
-		$is_block_template_part = 0 === strpos( $id, 'block-template-part-' );
+		$is_widget              = str_starts_with( $id, 'widget-' );
+		$is_block_template      = str_starts_with( $id, 'block-template-' );
+		$is_block_template_part = str_starts_with( $id, 'block-template-part-' );
 
 		$form = false;
 
@@ -960,7 +983,7 @@ class Contact_Form_Plugin {
 			} elseif ( in_array( $key, array( 'REMOTE_ADDR', 'REQUEST_URI', 'DOCUMENT_URI' ), true ) ) {
 				// All three of these are relevant indicators and should be passed along.
 				$form[ $key ] = $value;
-			} elseif ( substr( $key, 0, 5 ) === 'HTTP_' ) {
+			} elseif ( str_starts_with( $key, 'HTTP_' ) ) {
 				// Any other HTTP header indicators.
 				$form[ $key ] = $value;
 			}
@@ -1468,7 +1491,7 @@ class Contact_Form_Plugin {
 		 * Limits search to `post_content` only, and we only match the
 		 * author's email address whenever it's on a line by itself.
 		 */
-		if ( $this->pde_email_address && false !== strpos( $search, '..PDE..AUTHOR EMAIL:..PDE..' ) ) {
+		if ( $this->pde_email_address && str_contains( $search, '..PDE..AUTHOR EMAIL:..PDE..' ) ) {
 			$search = $wpdb->prepare(
 				" AND (
 					{$wpdb->posts}.post_content LIKE %s
@@ -2011,7 +2034,7 @@ class Contact_Form_Plugin {
 
 		if ( count( $content ) > 1 ) {
 			$content = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
-			if ( strpos( $content, 'JSON_DATA' ) !== false ) {
+			if ( str_contains( $content, 'JSON_DATA' ) ) {
 				$chunks     = explode( "\nJSON_DATA", $content );
 				$all_values = json_decode( $chunks[1], true );
 				if ( is_array( $all_values ) ) {

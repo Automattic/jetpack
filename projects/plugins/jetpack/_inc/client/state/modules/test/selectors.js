@@ -166,7 +166,7 @@ describe( 'items selectors', () => {
 				jetpack: {
 					modules: {
 						items: {
-							'lazy-images': {},
+							photon: {},
 						},
 					},
 				},

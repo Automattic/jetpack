@@ -42,7 +42,8 @@ export const Publicize = withModuleSettingsFormHelpers(
 				activeFeatures &&
 				activeFeatures.length > 0 &&
 				isActive &&
-				! hasSocialAdvancedFeatures;
+				! hasSocialAdvancedFeatures &&
+				isLinked;
 
 			const shouldShowChildElements = isActive && ! this.props.isSavingAnyOption( 'publicize' );
 
@@ -147,7 +148,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 							) }
 							<ModuleToggle
 								slug="publicize"
-								disabled={ unavailableInOfflineMode || ! this.props.isLinked }
+								disabled={ unavailableInOfflineMode }
 								activated={ isActive }
 								toggling={ this.props.isSavingAnyOption( 'publicize' ) }
 								toggleModule={ this.props.toggleModuleNow }

@@ -18,6 +18,7 @@ import StatCards from '../stat-cards';
 import styles from './styles.module.scss';
 
 const Header = () => {
+	const connectionData = window.jetpackSocialInitialState.connectionData ?? {};
 	const {
 		connectionsAdminUrl,
 		hasConnections,
@@ -31,8 +32,8 @@ const Header = () => {
 	} = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID );
 		return {
-			connectionsAdminUrl: store.getConnectionsAdminUrl(),
-			hasConnections: store.hasConnections(),
+			connectionsAdminUrl: connectionData.adminUrl,
+			hasConnections: Object.keys( connectionData.connections || {} ).length > 0,
 			hasPaidPlan: select( SOCIAL_STORE_ID ).hasPaidPlan(),
 			isModuleEnabled: store.isModuleEnabled(),
 			isShareLimitEnabled: select( SOCIAL_STORE_ID ).isShareLimitEnabled(),

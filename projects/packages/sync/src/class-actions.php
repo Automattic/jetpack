@@ -110,7 +110,7 @@ class Actions {
 		// rely on 'jetpack_sync_before_send_queue_sync' are picked up and added to the queue if needed.
 		if ( Settings::is_dedicated_sync_enabled() && Dedicated_Sender::is_dedicated_sync_request() ) {
 			self::initialize_listener();
-			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 90 );
+			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 200 );
 			return;
 		}
 
@@ -1059,7 +1059,7 @@ class Actions {
 		);
 
 		// Verify $sync_module is not false.
-		if ( ( $sync_module ) && false === strpos( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
+		if ( ( $sync_module ) && ! str_contains( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
 			$result['full_queue_size'] = $full_queue->size();
 			$result['full_queue_lag']  = $full_queue->lag();
 		}

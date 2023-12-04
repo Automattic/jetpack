@@ -338,7 +338,6 @@ class Jetpack_Plugin_Search {
 				array_flip(
 					array(
 						'contact-form',
-						'lazy-images',
 						'monitor',
 						'photon',
 						'photon-cdn',
@@ -475,7 +474,7 @@ class Jetpack_Plugin_Search {
 	 * @param array $m2 Array 2 to sort.
 	 */
 	private function by_sorting_option( $m1, $m2 ) {
-		return $m1['sort'] - $m2['sort'];
+		return $m1['sort'] <=> $m2['sort'];
 	}
 
 	/**

@@ -215,7 +215,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'site_segment'                                 => 'pineapple',
 			'site_vertical'                                => 'pineapple',
 			'jetpack_excluded_extensions'                  => 'pineapple',
-			'jetpack-memberships-connected-account-id'     => '340',
 			'jetpack-memberships-has-connected-account'    => true,
 			'jetpack_publicize_options'                    => array(),
 			'jetpack_connection_active_plugins'            => array( 'jetpack' ),
@@ -242,6 +241,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wpcom_locked_mode'                            => false,
 			'wpcom_reader_views_enabled'                   => true,
 			'wpcom_site_setup'                             => '',
+			'jetpack_verbum_subscription_modal'            => true,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
@@ -264,7 +264,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		// Are we testing all the options
 		$unique_whitelist = array_unique( $whitelist );
 
-		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) );
+		$this->assertSameSize( $unique_whitelist, $whitelist, 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) );
 		$this->assertEmpty( $whitelist_and_option_keys_difference, 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
 	}
 
@@ -293,9 +293,9 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		// Are we testing all the options
 		$unique_contentless_options = array_unique( $contentless_options );
 
-		$this->assertEquals(
-			count( $unique_contentless_options ),
-			count( $contentless_options ),
+		$this->assertSameSize(
+			$unique_contentless_options,
+			$contentless_options,
 			'The duplicate keys are: ' . print_r( array_diff_key( $contentless_options, array_unique( $contentless_options ) ), 1 )
 		);
 		$this->assertEmpty(

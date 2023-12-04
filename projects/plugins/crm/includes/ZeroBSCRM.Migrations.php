@@ -663,12 +663,12 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 		// There was some old usage of pwmanager on companys with CPTs, for now we're skipping support.
 		// $pws = get_post_meta($id,$zbsPasswordManager['dbkey'],true);
 
-		// hash secret if not already hashed
-		$api_secret = $zbs->DAL->setting( 'api_secret' );
-		if ( strpos( $api_secret, 'zbscrm_' ) === 0 ) {
-			$hashed_api_secret = $zbs->encryption->hash( $api_secret );
-			$zbs->DAL->updateSetting( 'api_secret', $hashed_api_secret );
-    }
+	// hash secret if not already hashed
+	$api_secret = $zbs->DAL->setting( 'api_secret' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	if ( str_starts_with( $api_secret, 'zbscrm_' ) ) {
+		$hashed_api_secret = $zbs->encryption->hash( $api_secret );
+		$zbs->DAL->updateSetting( 'api_secret', $hashed_api_secret ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	}
 
 		global $wpdb, $ZBSCRM_t;
 		// add indexes for performance
@@ -1025,7 +1025,7 @@ function zeroBSCRM_migration_560_move_file_array( $meta_row ) { // phpcs:ignore 
 		// Skip if this file doesn`t exist (user may have deleted using the filesystem).
 		if (
 			! isset( $outdated_file_meta['file'] )
-			|| strpos( $outdated_file_meta['file'], "/$previous_folder/" ) === false
+			|| ! str_contains( $outdated_file_meta['file'], "/$previous_folder/" )
 			|| ! file_exists( $outdated_file_meta['file'] )
 		) {
 			$new_file_array[] = $outdated_file_meta;
@@ -1209,7 +1209,7 @@ function zeroBSCRM_migration_invoice_language_fixes() {
 
 			foreach ( $woosync_settings as $setting => $value ) {
 				// if not a setting we care about, continue
-				if ( strpos( $setting, 'order_invoice_map_' ) !== 0 ) {
+				if ( ! str_starts_with( $setting, 'order_invoice_map_' ) ) {
 					continue;
 				}
 

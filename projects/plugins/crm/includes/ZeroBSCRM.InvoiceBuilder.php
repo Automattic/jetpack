@@ -843,6 +843,10 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 
 		$inv_to = $zbs->DAL->contacts->getContact( $zbs_customer_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
+		if ( ! $inv_to ) {
+			$inv_to = array();
+		}
+
 		// object type flag used downstream, I wonder if we should put these in at the DAL level..
 		$inv_to['objtype'] = ZBS_TYPE_CONTACT;
 	}

@@ -111,6 +111,9 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @param array $instance The settings for the particular instance of the widget.
 	 */
 	public function widget( $args, $instance ) {
+		if ( self::is_wpcom() && ! self::wpcom_has_status_message() && self::is_current_user_subscribed() ) {
+			return null;
+		}
 		if ( self::is_jetpack() &&
 			/** This filter is documented in modules/contact-form/grunion-contact-form.php */
 			false === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
@@ -510,11 +513,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						<input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>"/>
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>"/>
 						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
-						<?php
-						if ( is_user_logged_in() ) {
-							wp_nonce_field( 'blogsub_subscribe_' . get_current_blog_id(), '_wpnonce', false );
-						}
-						?>
+						<?php wp_nonce_field( 'blogsub_subscribe_' . \Jetpack_Options::get_option( 'id' ) ); ?>
 						<button type="submit"
 							<?php if ( ! empty( $submit_button_classes ) ) { ?>
 								class="<?php echo esc_attr( $submit_button_classes ); ?>"
@@ -834,7 +833,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 }
 
-if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'class_alias' ) ) {
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	class_alias( 'Jetpack_Subscriptions_Widget', 'Blog_Subscription_Widget' );
 }
 

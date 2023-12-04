@@ -7,6 +7,7 @@ import { addFilter } from '@wordpress/hooks';
 /**
  * Internal dependencies
  */
+import metadata from '../../blocks/ai-assistant/block.json';
 import { isPossibleToExtendBlock } from '../../blocks/ai-assistant/extensions/ai-assistant';
 import { aiExcerptPluginName, aiExcerptPluginSettings } from '.';
 
@@ -24,19 +25,15 @@ const isAiAssistantSupportExtensionEnabled =
  * @returns {object}          Block settings.
  */
 function extendAiContentLensFeatures( settings, name ) {
-	// Do not extend if the site requires an upgrade.
-	const siteRequireUpgrade =
-		window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'site-require-upgrade' ];
-	if ( siteRequireUpgrade ) {
-		return settings;
-	}
-
 	// Bail early when the block is not the AI Assistant.
-	if ( name !== 'jetpack/ai-assistant' ) {
+	if ( name !== metadata.name ) {
 		return settings;
 	}
 
-	// Bail early when the block is not registered.
+	/*
+	 * Bail early when the AI Assistant block is not registered.
+	 * It will handle with the site requires an upgrade.
+	 */
 	if ( ! isPossibleToExtendBlock() ) {
 		return settings;
 	}

@@ -270,6 +270,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			// (like VideoPress does), the style tag gets "printed" the first time and discarded, leaving the contact form unstyled.
 			// when WordPress does the real loop.
 			wp_enqueue_style( 'grunion.css' );
+			wp_enqueue_script( 'accessible-form' );
 		}
 
 		$container_classes        = array( 'wp-block-jetpack-contact-form-container' );
@@ -349,16 +350,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 			 * @param int $id Contact Form ID.
 			 */
 			$url                     = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
-			$has_submit_button_block = ! ( false === strpos( $content, 'wp-block-jetpack-button' ) );
+			$has_submit_button_block = str_contains( $content, 'wp-block-jetpack-button' );
 			$form_classes            = 'contact-form commentsblock';
 
 			if ( $has_submit_button_block ) {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
-			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "'>\n";
-			$r .= self::get_script_for_form();
-
+			$r .= "<form role='form' action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' novalidate>\n";
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
@@ -468,29 +467,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Returns a script that disables the contact form button after a form submission.
-	 *
-	 * @return string The script.
-	 */
-	private static function get_script_for_form() {
-		return "<script>
-			( function () {
-				const contact_forms = document.getElementsByClassName('contact-form');
-
-				for ( const form of contact_forms ) {
-					form.onsubmit = function() {
-						const buttons = form.getElementsByTagName('button');
-
-						for( const button of buttons ) {
-							button.setAttribute('disabled', true);
-						}
-					}
-				}
-			} )();
-		</script>";
-	}
-
-	/**
 	 * Returns a compiled form with labels and values in a form of  an array
 	 * of lines.
 	 *
@@ -526,7 +502,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					}
 				} else {
 					// The feedback content is stored as the first "half" of post_content
-					$value         = $feedback->post_content;
+					$value         = is_a( $feedback, '\WP_Post' ) ? $feedback->post_content : '';
 					list( $value ) = explode( '<!--more-->', $value );
 					$value         = trim( $value );
 				}
@@ -619,7 +595,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					}
 				} else {
 					// The feedback content is stored as the first "half" of post_content
-					$value         = $feedback->post_content;
+					$value         = is_a( $feedback, '\WP_Post' ) ? $feedback->post_content : '';
 					list( $value ) = explode( '<!--more-->', $value );
 					$value         = trim( $value );
 				}
@@ -1665,7 +1641,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static function wrap_message_in_html_tags( $title, $body, $footer ) {
 		// Don't do anything if the message was already wrapped in HTML tags
 		// That could have be done by a plugin via filters
-		if ( false !== strpos( $body, '<html' ) ) {
+		if ( str_contains( $body, '<html' ) ) {
 			return $body;
 		}
 

@@ -48,7 +48,7 @@
 				"blockGap": true
 			}
 		},
-		"__experimentalLayout": {
+		"layout": {
 			"allowSwitching": false,
 			"allowInheriting": false,
 			"default": {
@@ -64,6 +64,5 @@
 			}
 		}
 	},
-	"attributes": {},
-	"editorScript": "file:../editor.js"
+	"attributes": {}
 }

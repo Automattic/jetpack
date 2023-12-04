@@ -602,7 +602,7 @@ class Tus_Client {
 
 		$key = $this->get_key();
 
-		if ( false !== strpos( $key, self::PARTIAL_UPLOAD_NAME_SEPARATOR ) ) {
+		if ( str_contains( $key, self::PARTIAL_UPLOAD_NAME_SEPARATOR ) ) {
 			list($key, /* $partialKey */) = explode( self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key );
 		}
 

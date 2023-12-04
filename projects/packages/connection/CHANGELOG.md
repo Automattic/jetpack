@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3] - 2023-11-24
+
+## [2.0.2] - 2023-11-21
+### Changed
+- Replaced usage of strpos() with str_contains(). [#34137]
+
+## [2.0.1] - 2023-11-21
+
+## [2.0.0] - 2023-11-20
+### Added
+- Confirm blog ID and access token were saved before proceeding with connection flow. [#34136]
+
+### Changed
+- Replace usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+
+### Fixed
+- Ensured that partner partners are passed on during the connection process, regardless of the plugin you use to connect. [#33832]
+
+## [1.60.1] - 2023-11-14
+### Changed
+- Updated package dependencies. [#34093]
+
+## [1.60.0] - 2023-11-13
+### Added
+- Added a 'source' query param to the Jetpack connect URL. [#33984]
+
+## [1.59.0] - 2023-11-08
+### Added
+- Added a method to check if Jetpack is ready for uninstall cleanup. [#33920]
+
+## [1.58.3] - 2023-11-03
+### Fixed
+- Make sure scheme history option is an array. [#33905]
+
 ## [1.58.2] - 2023-10-19
 ### Changed
 - Updated package dependencies. [#33687]
@@ -896,6 +931,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[2.0.3]: https://github.com/Automattic/jetpack-connection/compare/v2.0.2...v2.0.3
+[2.0.2]: https://github.com/Automattic/jetpack-connection/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/Automattic/jetpack-connection/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Automattic/jetpack-connection/compare/v1.60.1...v2.0.0
+[1.60.1]: https://github.com/Automattic/jetpack-connection/compare/v1.60.0...v1.60.1
+[1.60.0]: https://github.com/Automattic/jetpack-connection/compare/v1.59.0...v1.60.0
+[1.59.0]: https://github.com/Automattic/jetpack-connection/compare/v1.58.3...v1.59.0
+[1.58.3]: https://github.com/Automattic/jetpack-connection/compare/v1.58.2...v1.58.3
 [1.58.2]: https://github.com/Automattic/jetpack-connection/compare/v1.58.1...v1.58.2
 [1.58.1]: https://github.com/Automattic/jetpack-connection/compare/v1.58.0...v1.58.1
 [1.58.0]: https://github.com/Automattic/jetpack-connection/compare/v1.57.5...v1.58.0

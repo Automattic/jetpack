@@ -1,8 +1,12 @@
 import { unregisterBlockType } from '@wordpress/blocks';
 import { subscribe, select } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import registerJetpackBlock from '../../shared/register-jetpack-block';
-import { name, settings } from '.';
+import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
+import metadata from './block.json';
+import edit from './edit';
+import transforms from './transforms';
+
+import './editor.scss';
 
 const unsubscribe = subscribe( () => {
 	const postType = select( editorStore ).getCurrentPostType();
@@ -14,8 +18,12 @@ const unsubscribe = subscribe( () => {
 	unsubscribe();
 	// If postType is defined and not 'post', unregister the block.
 	if ( postType && postType !== 'post' ) {
-		unregisterBlockType( 'jetpack/' + name );
+		unregisterBlockType( metadata.name );
 	}
 } );
 
-registerJetpackBlock( name, settings );
+registerJetpackBlockFromMetadata( metadata, {
+	edit,
+	save: () => null,
+	transforms,
+} );

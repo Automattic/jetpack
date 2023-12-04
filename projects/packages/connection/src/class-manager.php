@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\A8c_Mc_Stats;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
+use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -138,6 +139,9 @@ class Manager {
 
 		// Initialize token locks.
 		new Tokens_Locks();
+
+		// Initial Partner management.
+		Partner::init();
 	}
 
 	/**
@@ -274,7 +278,7 @@ class Manager {
 		$jetpack_methods = array();
 
 		foreach ( $methods as $method => $callback ) {
-			if ( 0 === strpos( $method, 'jetpack.' ) ) {
+			if ( str_starts_with( $method, 'jetpack.' ) ) {
 				$jetpack_methods[ $method ] = $callback;
 			}
 		}
@@ -441,7 +445,7 @@ class Manager {
 			$post_data   = $_POST;
 			$file_hashes = array();
 			foreach ( $post_data as $post_data_key => $post_data_value ) {
-				if ( 0 !== strpos( $post_data_key, '_jetpack_file_hmac_' ) ) {
+				if ( ! str_starts_with( $post_data_key, '_jetpack_file_hmac_' ) ) {
 					continue;
 				}
 				$post_data_key                 = substr( $post_data_key, strlen( '_jetpack_file_hmac_' ) );
@@ -1188,7 +1192,7 @@ class Manager {
 			$jetpack_public = false;
 		}
 
-		\Jetpack_Options::update_options(
+		Jetpack_Options::update_options(
 			array(
 				'id'     => (int) $registration_details->jetpack_id,
 				'public' => $jetpack_public,
@@ -1198,6 +1202,13 @@ class Manager {
 		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, $package_versions );
 
 		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
+
+		if ( ! Jetpack_Options::get_option( 'id' ) || ! $this->get_tokens()->get_access_token() ) {
+			return new WP_Error(
+				'connection_data_save_failed',
+				'Failed to save connection data in the database'
+			);
+		}
 
 		$alternate_authorization_url = isset( $registration_details->alternate_authorization_url ) ? $registration_details->alternate_authorization_url : '';
 
@@ -1916,6 +1927,7 @@ class Manager {
 				'site_created'          => $this->get_assumed_site_creation_date(),
 				'allow_site_connection' => ! $this->has_connected_owner(),
 				'calypso_env'           => ( new Host() )->get_calypso_env(),
+				'source'                => ( new Host() )->get_source_query(),
 			)
 		);
 
@@ -1923,7 +1935,10 @@ class Manager {
 
 		$api_url = $this->api_url( 'authorize' );
 
-		return add_query_arg( $body, $api_url );
+		$url = add_query_arg( $body, $api_url );
+
+		/** This filter is documented in plugins/jetpack/class-jetpack.php  */
+		return apply_filters( 'jetpack_build_authorize_url', $url );
 	}
 
 	/**
@@ -2557,5 +2572,19 @@ class Manager {
 			);
 		}
 		return (int) $site_id;
+	}
+
+	/**
+	 * Check if Jetpack is ready for uninstall cleanup.
+	 *
+	 * @param string $current_plugin_slug The current plugin's slug.
+	 *
+	 * @return bool
+	 */
+	public static function is_ready_for_cleanup( $current_plugin_slug ) {
+		$active_plugins = get_option( Plugin_Storage::ACTIVE_PLUGINS_OPTION_NAME );
+
+		return empty( $active_plugins ) || ! is_array( $active_plugins )
+			|| ( count( $active_plugins ) === 1 && array_key_exists( $current_plugin_slug, $active_plugins ) );
 	}
 }

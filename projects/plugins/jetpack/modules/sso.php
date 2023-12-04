@@ -400,6 +400,13 @@ class Jetpack_SSO {
 	}
 
 	/**
+	 * Checks to determine if the user has indicated they want to use the wp-admin interface.
+	 */
+	private function use_wp_admin_interface() {
+		return 'wp-admin' === get_option( 'wpcom_admin_interface' );
+	}
+
+	/**
 	 * Initialization for a SSO request.
 	 */
 	public function login_init() {
@@ -456,7 +463,7 @@ class Jetpack_SSO {
 			 * to the WordPress.com login page AND  that the request to wp-login.php
 			 * is not something other than login (Like logout!)
 			 */
-			if ( Jetpack_SSO_Helpers::bypass_login_forward_wpcom() && $this->wants_to_login() ) {
+			if ( ! $this->use_wp_admin_interface() && Jetpack_SSO_Helpers::bypass_login_forward_wpcom() && $this->wants_to_login() ) {
 				add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
 				$reauth  = ! empty( $_GET['force_reauth'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$sso_url = $this->get_sso_url_or_die( $reauth );

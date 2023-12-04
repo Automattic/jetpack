@@ -63,7 +63,6 @@ class Defaults {
 		'image_default_link_type',
 		'infinite_scroll',
 		'infinite_scroll_google_analytics',
-		'jetpack-memberships-connected-account-id',
 		'jetpack-memberships-has-connected-account',
 		'jetpack-twitter-cards-site-tag',
 		'jetpack_activated',
@@ -190,6 +189,7 @@ class Defaults {
 		'wpcom_reader_views_enabled',
 		'wpcom_site_setup',
 		'wpcom_subscription_emails_use_excerpt',
+		'jetpack_verbum_subscription_modal',
 	);
 
 	/**

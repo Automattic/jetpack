@@ -5,12 +5,14 @@ import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
+import metadata from './block.json';
 import { RelatedPostsBlockControls, RelatedPostsInspectorControls } from './controls';
 import { useRelatedPostsStatus } from './hooks/use-status-toggle';
 import { InactiveRelatedPostsPlaceholder } from './inactive-placeholder';
 import { RelatedPostsSkeletonLoader } from './skeleton-loader';
-import { name } from './';
 import './editor.scss';
+
+const featureName = metadata.name.replace( 'jetpack/', '' );
 
 export const MAX_POSTS_TO_SHOW = 6;
 
@@ -98,13 +100,16 @@ function RelatedPostsEditItem( props ) {
 				{ props.post.title }
 			</a>
 			{ props.displayThumbnails && props.post.img && props.post.img.src && (
-				<a className="jp-related-posts-i2__post-img-link" href={ props.post.url }>
+				<a
+					className="jp-related-posts-i2__post-img-link"
+					href={ props.post.url }
+					target="_blank"
+					rel="nofollow noopener noreferrer"
+				>
 					<img
 						className="jp-related-posts-i2__post-img"
 						src={ props.post.img.src }
 						alt={ props.post.title }
-						rel="nofollow noopener noreferrer"
-						target="_blank"
 					/>
 				</a>
 			) }
@@ -162,7 +167,7 @@ function RelatedPostsPreviewRows( props ) {
 export default function RelatedPostsEdit( props ) {
 	// Related Posts can be controlled by a module on self-hosted sites.
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
-		useModuleStatus( name );
+		useModuleStatus( featureName );
 	// They can also be toggled via an option on WordPress.com Simple.
 	const { isEnabled, enable, isFetchingStatus, isUpdatingStatus } = useRelatedPostsStatus();
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix wrong like count in dialog after liking

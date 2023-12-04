@@ -106,4 +106,46 @@ describe( 'Membership products reducer testing', () => {
 		// Then
 		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, siteSlug: anySiteSlug } );
 	} );
+
+	test( 'set newsletter categories action type adds the newsletter categories to the returned state.', () => {
+		// Given
+		const anyNewsletterCategories = {
+			enabled: true,
+			categories: [ { name: 'Any Category' } ],
+		};
+		const anySetNewsletterCategoriesAction = {
+			type: 'SET_NEWSLETTER_CATEGORIES',
+			newsletterCategories: anyNewsletterCategories,
+		};
+
+		// When
+		const returnedState = reducer( DEFAULT_STATE, anySetNewsletterCategoriesAction );
+
+		// Then
+		expect( returnedState ).toStrictEqual( {
+			...DEFAULT_STATE,
+			newsletterCategories: anyNewsletterCategories,
+		} );
+	} );
+
+	test( 'set newsletter categories subscriptions count action type adds the newsletter categories subscriptions count to the returned state.', () => {
+		// Given
+		const anyNewsletterCategoriesSubscriptionsCount = 1;
+		const anySetNewsletterCategoriesSubscriptionsCountAction = {
+			type: 'SET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT',
+			newsletterCategoriesSubscriptionsCount: anyNewsletterCategoriesSubscriptionsCount,
+		};
+
+		// When
+		const returnedState = reducer(
+			DEFAULT_STATE,
+			anySetNewsletterCategoriesSubscriptionsCountAction
+		);
+
+		// Then
+		expect( returnedState ).toStrictEqual( {
+			...DEFAULT_STATE,
+			newsletterCategoriesSubscriptionsCount: anyNewsletterCategoriesSubscriptionsCount,
+		} );
+	} );
 } );

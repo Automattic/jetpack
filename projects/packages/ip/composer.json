@@ -3,7 +3,9 @@
 	"description": "Utilities for working with IP addresses.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"php": ">=7.0"
+	},
 	"require-dev": {
 		"brain/monkey": "2.6.1",
 		"yoast/phpunit-polyfills": "1.1.0",
@@ -43,7 +45,7 @@
 			"link-template": "https://github.com/automattic/jetpack-ip/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.1.x-dev"
+			"dev-trunk": "0.2.x-dev"
 		},
 		"textdomain": "jetpack-ip",
 		"version-constants": {

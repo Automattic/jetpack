@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
@@ -91,13 +92,8 @@ class Jetpack_Admin {
 					4
 				);
 
-				// Add an Anti-spam menu item for Jetpack.
-				add_action(
-					'jetpack_admin_menu',
-					function () {
-						add_submenu_page( 'jetpack', __( 'Anti-Spam', 'jetpack' ), __( 'Anti-Spam', 'jetpack' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
-					}
-				);
+				// Add an Anti-spam menu item for Jetpack. This is handled automatically by the Admin_Menu as long as it has been initialized.
+				Admin_Menu::init();
 				add_action( 'admin_enqueue_scripts', array( $this, 'akismet_logo_replacement_styles' ) );
 			}
 		}
@@ -232,15 +228,7 @@ class Jetpack_Admin {
 	 * @return int Indicating the relative ordering of module1 and module2.
 	 */
 	public static function sort_requires_connection_last( $module1, $module2 ) {
-		if ( (bool) $module1['requires_connection'] === (bool) $module2['requires_connection'] ) {
-			return 0;
-		} elseif ( $module1['requires_connection'] ) {
-			return 1;
-		} elseif ( $module2['requires_connection'] ) {
-			return -1;
-		}
-
-		return 0;
+		return ( (bool) $module1['requires_connection'] ) <=> ( (bool) $module2['requires_connection'] );
 	}
 
 	/**

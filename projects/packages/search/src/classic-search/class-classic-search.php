@@ -1870,7 +1870,7 @@ class Classic_Search {
 		$changed = false;
 
 		foreach ( $sidebars_widgets as $sidebar => $widgets ) {
-			if ( 'wp_inactive_widgets' === $sidebar || 'orphaned_widgets' === substr( $sidebar, 0, 16 ) ) {
+			if ( 'wp_inactive_widgets' === $sidebar || str_starts_with( $sidebar, 'orphaned_widgets' ) ) {
 				continue;
 			}
 

@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { find, isEmpty, isEqual, map, times } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import defaultAttributes from './attributes';
+import metadata from './block.json';
 import { NEW_INSTAGRAM_CONNECTION } from './constants';
 import InstagramGalleryInspectorControls from './controls';
 import ImageTransition from './image-transition';
@@ -20,7 +20,7 @@ const InstagramGalleryEdit = props => {
 	const { accessToken, align, columns, count, isStackedOnMobile, spacing } = attributes;
 
 	useEffect( () => {
-		const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
+		const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 		if ( ! isEqual( validatedAttributes, attributes ) ) {
 			setAttributes( validatedAttributes );
 		}

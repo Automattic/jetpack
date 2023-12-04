@@ -451,7 +451,7 @@ abstract class Publicize_Base {
 		$cmeta = $this->get_connection_meta( $connection );
 
 		if ( isset( $cmeta['connection_data']['meta']['link'] ) ) {
-			if ( 'facebook' === $service_name && 0 === strpos( wp_parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
+			if ( 'facebook' === $service_name && str_starts_with( wp_parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
 				// App-scoped Facebook user IDs are not usable profile links.
 				return false;
 			}
@@ -1253,7 +1253,7 @@ abstract class Publicize_Base {
 				APP_REQUEST
 			)
 		&&
-			0 === strpos( $post->post_title, 'Temporary Post Used For Theme Detection' )
+			str_starts_with( $post->post_title, 'Temporary Post Used For Theme Detection' )
 		) {
 			$submit_post = false;
 		}
@@ -1804,21 +1804,37 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Check if Instagram connection is enabled.
+	 * Check if a connection is enabled.
+	 *
+	 * @param string $connection The connection name like 'instagram', 'mastodon', 'nextdoor' etc.
 	 *
 	 * @return bool
 	 */
-	public function has_instagram_connection_feature() {
-		return Current_Plan::supports( 'social-instagram-connection' );
+	public function has_connection_feature( $connection ) {
+		return Current_Plan::supports( "social-$connection-connection" );
 	}
 
 	/**
-	 * Check if Mastodon connection is enabled.
+	 * Get a list of additional connections that are supported by the current plan.
 	 *
-	 * @return bool
+	 * @return array
 	 */
-	public function has_mastodon_connection_feature() {
-		return Current_Plan::supports( 'social-mastodon-connection' );
+	public function get_supported_additional_connections() {
+		$additional_connections = array();
+
+		if ( $this->has_connection_feature( 'instagram' ) ) {
+			$additional_connections[] = 'instagram-business';
+		}
+
+		if ( $this->has_connection_feature( 'mastodon' ) ) {
+			$additional_connections[] = 'mastodon';
+		}
+
+		if ( $this->has_connection_feature( 'nextdoor' ) ) {
+			$additional_connections[] = 'nextdoor';
+		}
+
+		return $additional_connections;
 	}
 
 	/**

@@ -7,8 +7,7 @@ import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
  */
-import { blockName } from '../..';
-import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
+import metadata from '../../block.json';
 import { isUserConnected } from '../../lib/connection';
 
 /*
@@ -38,7 +37,7 @@ export const isAiAssistantSupportExtensionEnabled =
  * @returns {boolean} True if it is possible to extend the block.
  */
 export function isPossibleToExtendBlock(): boolean {
-	const isBlockRegistered = getBlockType( blockName );
+	const isBlockRegistered = getBlockType( metadata.name );
 	if ( ! isBlockRegistered ) {
 		return false;
 	}
@@ -55,7 +54,8 @@ export function isPossibleToExtendBlock(): boolean {
 	}
 
 	// Do not extend if there is an error getting the feature.
-	if ( AI_Assistant_Initial_State.errorCode ) {
+	const { errorCode } = select( 'wordpress-com/plans' )?.getAiAssistantFeature?.() || {};
+	if ( errorCode ) {
 		return false;
 	}
 
@@ -66,7 +66,7 @@ export function isPossibleToExtendBlock(): boolean {
 	 */
 	const { getHiddenBlockTypes } = select( 'core/edit-post' ) || {};
 	const hiddenBlocks = getHiddenBlockTypes?.() || []; // It will extend the block if the function is undefined.
-	if ( hiddenBlocks.includes( blockName ) ) {
+	if ( hiddenBlocks.includes( metadata.name ) ) {
 		return false;
 	}
 

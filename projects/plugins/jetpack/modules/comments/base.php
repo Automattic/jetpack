@@ -160,11 +160,7 @@ class Highlander_Comments_Base {
 	 * @return int
 	 */
 	public function sort_comments_by_comment_date_gmt( $a, $b ) {
-		if ( $a->comment_date_gmt === $b->comment_date_gmt ) {
-			return 0;
-		}
-
-		return $a->comment_date_gmt < $b->comment_date_gmt ? -1 : 1;
+		return $a->comment_date_gmt <=> $b->comment_date_gmt;
 	}
 
 	/**
@@ -201,13 +197,14 @@ class Highlander_Comments_Base {
 	}
 
 	/**
-	 * Allows a logged out user to leave a comment as a facebook credentialed user.
+	 * Allows a logged out user to leave a comment as a facebook/wp.com credentialed user.
 	 * Overrides WordPress' core comment_registration option to treat these commenters as "registered" (verified) users.
 	 *
 	 * @since 1.4
 	 */
 	public function allow_logged_out_user_to_comment_as_external() {
-		if ( ! $this->is_highlander_comment_post( 'facebook' ) ) {
+		// phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+		if ( ! $this->is_highlander_comment_post( 'facebook', 'wordpress' ) ) {
 			return;
 		}
 

@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2023-11-21
+### Changed
+- Added a note of non-usage of PHP8+ functions yet. [#34137]
+
+## [2.0.0] - 2023-11-20
+### Changed
+- Updated required PHP version to >= 7.0. [#34192]
+
+## [1.5.1] - 2023-11-14
+
+## [1.5.0] - 2023-11-13
+### Added
+- Added 'cookieinformationscanner' and 'facebookexternalhit' to the bot user agent list. [#34026]
+
 ## [1.4.27] - 2023-08-23
 ### Changed
 - Updated package dependencies. [#32605]
@@ -163,6 +177,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Moving jetpack_is_mobile into a package
 
+[2.0.1]: https://github.com/Automattic/jetpack-device-detection/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Automattic/jetpack-device-detection/compare/v1.5.1...v2.0.0
+[1.5.1]: https://github.com/Automattic/jetpack-device-detection/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.27...v1.5.0
 [1.4.27]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.26...v1.4.27
 [1.4.26]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.25...v1.4.26
 [1.4.25]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.24...v1.4.25

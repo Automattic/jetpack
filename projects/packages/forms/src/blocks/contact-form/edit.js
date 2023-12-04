@@ -1,9 +1,5 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import {
-	getJetpackData,
-	isSimpleSite,
-	useModuleStatus,
-} from '@automattic/jetpack-shared-extension-utils';
+import { getJetpackData, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
 	InnerBlocks,
 	InspectorControls,
@@ -64,6 +60,8 @@ const ALLOWED_BLOCKS = [
 	'core/video',
 ];
 
+const PRIORITIZED_INSERTER_BLOCKS = [ ...map( validFields, block => `jetpack/${ block.name }` ) ];
+
 const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?post_type=feedback`;
 const CUSTOMIZING_FORMS_URL = 'https://jetpack.com/support/jetpack-blocks/contact-form/';
 
@@ -86,6 +84,10 @@ export const JetpackContactFormEdit = forwardRef(
 			defaultVariation,
 			canUserInstallPlugins,
 			style,
+			isModuleActive,
+			isLoadingModules,
+			isChangingStatus,
+			updateJetpackModuleStatus,
 		},
 		ref
 	) => {
@@ -102,9 +104,6 @@ export const JetpackContactFormEdit = forwardRef(
 		} = attributes;
 
 		const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
-
-		const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
-			useModuleStatus( 'contact-form' );
 
 		const formClassnames = classnames( className, 'jetpack-contact-form', {
 			'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
@@ -277,14 +276,18 @@ export const JetpackContactFormEdit = forwardRef(
 			);
 		};
 
-		if ( isLoadingModules ) {
-			return <ContactFormSkeletonLoader />;
-		}
-
 		if ( ! isModuleActive ) {
+			if ( isLoadingModules ) {
+				return <ContactFormSkeletonLoader />;
+			}
 			return (
 				<ContactFormPlaceholder
-					changeStatus={ changeStatus }
+					changeStatus={ val => {
+						updateJetpackModuleStatus( {
+							name: 'contact-form',
+							active: val,
+						} );
+					} }
 					isModuleActive={ isModuleActive }
 					isLoading={ isChangingStatus }
 				/>
@@ -342,7 +345,11 @@ export const JetpackContactFormEdit = forwardRef(
 				</InspectorControls>
 
 				<div className={ formClassnames } style={ style } ref={ ref }>
-					<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateInsertUpdatesSelection={ false } />
+					<InnerBlocks
+						allowedBlocks={ ALLOWED_BLOCKS }
+						prioritizedInserterBlocks={ PRIORITIZED_INSERTER_BLOCKS }
+						templateInsertUpdatesSelection={ false }
+					/>
 				</div>
 			</>
 		);
@@ -361,6 +368,7 @@ export default compose( [
 		const { getBlocks } = select( 'core/block-editor' );
 		const { getEditedPostAttribute } = select( 'core/editor' );
 		const { getSite, getUser, canUser } = select( 'core' );
+		const { isModuleActive, areModulesLoading, areModulesUpdating } = select( 'jetpack-modules' );
 		const innerBlocks = getBlocks( props.clientId );
 
 		const authorId = getEditedPostAttribute( 'author' );
@@ -385,11 +393,15 @@ export default compose( [
 			siteTitle: get( getSite && getSite(), [ 'title' ] ),
 			postTitle: postTitle,
 			postAuthorEmail: authorEmail,
+			isModuleActive: isModuleActive( 'contact-form' ),
+			isLoadingModules: areModulesLoading(),
+			isChangingStatus: areModulesUpdating(),
 		};
 	} ),
 	withDispatch( dispatch => {
 		const { replaceInnerBlocks, selectBlock } = dispatch( 'core/block-editor' );
-		return { replaceInnerBlocks, selectBlock };
+		const { updateJetpackModuleStatus } = dispatch( 'jetpack-modules' );
+		return { replaceInnerBlocks, selectBlock, updateJetpackModuleStatus };
 	} ),
 	withInstanceId,
 	withThemeProvider,

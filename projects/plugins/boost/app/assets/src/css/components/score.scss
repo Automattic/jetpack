@@ -39,7 +39,7 @@ $no_boost_score_size: 28px;
 		}
 	}
 
-	button {
+	.action-button {
 		color: $gray_90;
 
 		&.components-button.is-link {
@@ -156,7 +156,7 @@ $no_boost_score_size: 28px;
 				height:12px;
 				transform:translate(-50%,50%) rotate(45deg);
 				background-color:$primary-white;
-				
+
 				@include box-shadow();
 			}
 		}

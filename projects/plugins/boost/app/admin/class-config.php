@@ -15,6 +15,11 @@ use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
  */
 class Config {
 
+	/**
+	 * Nonce action for setting the statuses of rating and score prompts.
+	 */
+	const FIX_IMAGE_DIMENSIONS_NONCE = 'fix_image_dimensions';
+
 	public function init() {
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_change' ), 10, 2 );
 	}
@@ -22,6 +27,7 @@ class Config {
 	public function constants() {
 		$optimizations = ( new Modules_Setup() )->get_status();
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
+		$static_path   = 'app/assets/static/';
 
 		$constants = array(
 			'version'       => JETPACK_BOOST_VERSION,
@@ -32,17 +38,19 @@ class Config {
 			'optimizations' => $optimizations,
 			'locale'        => get_locale(),
 			'site'          => array(
-				'domain'    => ( new Status() )->get_site_suffix(),
-				'url'       => get_home_url(),
-				'online'    => ! ( new Status() )->is_offline_mode(),
-				'assetPath' => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
-				'isAtomic'  => ( new Host() )->is_woa_site(),
-				'postTypes' => self::get_custom_post_types(),
+				'domain'          => ( new Status() )->get_site_suffix(),
+				'url'             => get_home_url(),
+				'online'          => ! ( new Status() )->is_offline_mode(),
+				'assetPath'       => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
+				'staticAssetPath' => plugins_url( $static_path, JETPACK_BOOST_PATH ),
+				'isAtomic'        => ( new Host() )->is_woa_site(),
+				'postTypes'       => self::get_custom_post_types(),
 			),
 			'isPremium'     => Premium_Features::has_any(),
 			'preferences'   => array(
 				'prioritySupport' => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
 			),
+			'fixImageNonce' => wp_create_nonce( self::FIX_IMAGE_DIMENSIONS_NONCE ),
 
 			/**
 			 * A bit of necessary magic,
@@ -52,6 +60,8 @@ class Config {
 			 */
 			'nonces'        => Nonce::get_generated_nonces(),
 		);
+
+		$constants['isaFixButton'] = defined( 'ISA_FIX_BUTTON' ) && ISA_FIX_BUTTON ? true : false;
 
 		// Give each module an opportunity to define extra constants.
 		return apply_filters( 'jetpack_boost_js_constants', $constants );

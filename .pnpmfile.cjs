@@ -28,6 +28,12 @@ function fixDeps( pkg ) {
 		pkg.peerDependencies.react = '^18';
 	}
 
+	// Unnecessary dep, should be a dev dep.
+	// https://github.com/WordPress/gutenberg/pull/56091
+	if ( pkg.name === '@wordpress/components' && pkg.dependencies[ '@ariakit/test' ] ) {
+		delete pkg.dependencies[ '@ariakit/test' ];
+	}
+
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
@@ -42,6 +48,12 @@ function fixDeps( pkg ) {
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
+	}
+
+	// Update localtunnel axios dep to avoid CVE
+	// https://github.com/localtunnel/localtunnel/issues/632
+	if ( pkg.name === 'localtunnel' && pkg.dependencies.axios === '0.21.4' ) {
+		pkg.dependencies.axios = '^1.6.0';
 	}
 
 	// Avoid annoying flip-flopping of sub-dep peer deps.

@@ -22,9 +22,6 @@ use Jetpack_Gutenberg;
  * @since 7.3
  */
 class Tiled_Gallery {
-	const FEATURE_NAME = 'tiled-gallery';
-	const BLOCK_NAME   = 'jetpack/' . self::FEATURE_NAME;
-
 	/* Values for building srcsets */
 	const IMG_SRCSET_WIDTH_MAX  = 2000;
 	const IMG_SRCSET_WIDTH_MIN  = 600;
@@ -40,7 +37,7 @@ class Tiled_Gallery {
 			|| ( new Status() )->is_offline_mode()
 		) {
 			Blocks::jetpack_register_block(
-				self::BLOCK_NAME,
+				__DIR__,
 				array(
 					'render_callback' => array( __CLASS__, 'render' ),
 				)
@@ -57,7 +54,7 @@ class Tiled_Gallery {
 	 * @return string
 	 */
 	public static function render( $attr, $content ) {
-		Jetpack_Gutenberg::load_assets_as_required( self::FEATURE_NAME );
+		Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 		$is_squareish_layout = self::is_squareish_layout( $attr );
 
@@ -90,7 +87,7 @@ class Tiled_Gallery {
 
 					// Because URLs are already "photon", the photon function used short-circuits
 					// before ssl is added. Detect ssl and add is if necessary.
-					$is_ssl = ! empty( $src_parts[1] ) && false !== strpos( $src_parts[1], 'ssl=1' );
+					$is_ssl = ! empty( $src_parts[1] ) && str_contains( $src_parts[1], 'ssl=1' );
 
 					if ( ! $orig_width || ! $orig_height || ! $orig_src ) {
 						continue;

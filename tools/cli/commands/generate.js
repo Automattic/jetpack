@@ -548,6 +548,8 @@ async function createComposerJson( composerJson, answers ) {
 
 	switch ( answers.type ) {
 		case 'package':
+			composerJson.require = composerJson.require || {};
+			composerJson.require.php = '>=7.0';
 			composerJson.extra = composerJson.extra || {};
 			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
 			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
@@ -750,9 +752,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 6.2\n' +
-		'Requires PHP: 5.6\n' +
-		'Tested up to: 6.3\n' +
+		'Requires at least: 6.3\n' +
+		'Requires PHP: 7.0\n' +
+		'Tested up to: 6.4\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +

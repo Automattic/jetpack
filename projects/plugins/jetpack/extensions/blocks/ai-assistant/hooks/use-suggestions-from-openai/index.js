@@ -31,7 +31,6 @@ const useSuggestionsFromOpenAI = ( {
 	onSuggestionDone,
 	onUnclearPrompt,
 	onModeration,
-	refreshFeatureData,
 	requireUpgrade,
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
@@ -40,6 +39,8 @@ const useSuggestionsFromOpenAI = ( {
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ lastPrompt, setLastPrompt ] = useState( '' );
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
+	const { dequeueAiAssistantFeatureAyncRequest, setAiAssistantFeatureRequireUpgrade } =
+		useDispatch( 'wordpress-com/plans' );
 	const [ requestingState, setRequestingState ] = useState( 'init' );
 	const source = useRef();
 
@@ -119,6 +120,13 @@ const useSuggestionsFromOpenAI = ( {
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
 	const getStreamedSuggestionFromOpenAI = async ( type, options = {} ) => {
+		/*
+		 * Always dequeue/cancel the AI Assistant feature async request,
+		 * in case there is one pending,
+		 * when performing a new AI suggestion request.
+		 */
+		dequeueAiAssistantFeatureAyncRequest();
+
 		const implementedFunctions = options?.functions?.reduce( ( acc, { name, implementation } ) => {
 			return {
 				...acc,
@@ -344,8 +352,6 @@ const useSuggestionsFromOpenAI = ( {
 			const blocks = parse( detail );
 			const validBlocks = blocks.filter( block => block.isValid );
 			replaceInnerBlocks( clientId, validBlocks );
-
-			refreshFeatureData();
 		};
 
 		const onErrorUnclearPrompt = () => {
@@ -445,6 +451,10 @@ const useSuggestionsFromOpenAI = ( {
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( false );
+
+			// Dispatch the action to set the feature as requiring an upgrade.
+			setAiAssistantFeatureRequireUpgrade( true );
+
 			setError( {
 				code: 'error_quota_exceeded',
 				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),

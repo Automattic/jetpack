@@ -55,6 +55,38 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	}
 
 	/**
+	 * Get the token payload .
+	 *
+	 * @return array.
+	 */
+	public function get_token_payload() {
+		$token = $this->get_and_set_token_from_request();
+		if ( empty( $token ) ) {
+			return array();
+		}
+		$token_payload = $this->decode_token( $token );
+		if ( ! is_array( $token_payload ) ) {
+			return array();
+		}
+		return $token_payload;
+	}
+
+	/**
+	 * Get a token property, otherwise return false.
+	 *
+	 * @param string $key the property name.
+	 *
+	 * @return mixed|false.
+	 */
+	public function get_token_property( $key ) {
+		$token_payload = $this->get_token_payload();
+		if ( ! isset( $token_payload[ $key ] ) ) {
+			return false;
+		}
+		return $token_payload[ $key ];
+	}
+
+	/**
 	 * The user is visiting with a subscriber token cookie.
 	 *
 	 * This is theoretically where the cookie JWT signature verification
@@ -74,8 +106,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		global $current_user;
 		$old_user = $current_user; // backup the current user so we can set the current user to the token user for paywall purposes
 
-		$token          = $this->get_and_set_token_from_request();
-		$payload        = $this->decode_token( $token );
+		$payload        = $this->get_token_payload();
 		$is_valid_token = ! empty( $payload );
 
 		if ( $is_valid_token && isset( $payload['user_id'] ) ) {
@@ -109,6 +140,28 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$current_user = $old_user;
 		return $has_access;
+	}
+
+	/**
+	 * Retrieves the email of the currently authenticated subscriber.
+	 *
+	 * @return string The email address of the current user.
+	 */
+	public function get_subscriber_email() {
+		$email = $this->get_token_property( 'blog_subscriber' );
+		if ( empty( $email ) ) {
+			return '';
+		}
+		return $email;
+	}
+
+	/**
+	 * Returns true if the current authenticated user is subscribed to the current site.
+	 *
+	 * @return boolean
+	 */
+	public function is_current_user_subscribed() {
+		return $this->get_token_property( 'blog_sub' ) === 'active';
 	}
 
 	/**
@@ -361,6 +414,15 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			return $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ];
 		}
+	}
+
+	/**
+	 * Check whether the JWT_TOKEN cookie is set
+	 *
+	 * @return bool
+	 */
+	public static function has_token_from_cookie() {
+		return isset( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] ) && ! empty( $_COOKIE[ self::JWT_AUTH_TOKEN_COOKIE_NAME ] );
 	}
 
 	/**

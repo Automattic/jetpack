@@ -19,7 +19,7 @@ import {
 } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { RawHTML, useState } from '@wordpress/element';
+import { RawHTML, useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import MarkdownIt from 'markdown-it';
@@ -27,13 +27,14 @@ import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
+import UsagePanel from '../../plugins/ai-assistant-plugin/components/usage-panel';
 import ConnectPrompt from './components/connect-prompt';
 import ImageWithSelect from './components/image-with-select';
 import { promptTemplates } from './components/prompt-templates-control';
 import ToolbarControls from './components/toolbar-controls';
 import UpgradePrompt from './components/upgrade-prompt';
 import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
-import useAIFeature from './hooks/use-ai-feature';
+import useAiFeature from './hooks/use-ai-feature';
 import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
 import { isUserConnected } from './lib/connection';
 import { getImagesFromOpenAI } from './lib/image';
@@ -48,7 +49,7 @@ const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'po
 const isPlaygroundVisible =
 	window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-playground-visible' ];
 
-export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
+export default function AIAssistantEdit( { attributes, setAttributes, clientId, isSelected } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
 	const [ errorData, setError ] = useState( {} );
 	const [ loadingImages, setLoadingImages ] = useState( false );
@@ -73,7 +74,13 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		};
 	}, [] );
 
+	const { isOverLimit, requireUpgrade, increaseRequestsCount } = useAiFeature();
+
 	const focusOnPrompt = () => {
+		/*
+		 * Increase the AI Suggestion counter.
+		 * @todo: move this at store level.
+		 */
 		// Small delay to avoid focus crash
 		setTimeout( () => {
 			aiControlRef.current?.focus?.();
@@ -89,10 +96,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
-	const { requireUpgrade: requireUpgradeOnStart, refresh: refreshFeatureData } = useAIFeature();
-
-	const requireUpgrade = requireUpgradeOnStart || errorData?.code === 'error_quota_exceeded';
-
 	const {
 		isLoadingCategories,
 		isLoadingCompletion,
@@ -106,8 +109,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		wholeContent,
 		requestingState,
 	} = useSuggestionsFromOpenAI( {
-		onSuggestionDone: focusOnPrompt,
-		onUnclearPrompt: focusOnPrompt,
+		onSuggestionDone: useCallback( () => {
+			focusOnPrompt();
+			increaseRequestsCount();
+		}, [ increaseRequestsCount ] ),
+		onUnclearPrompt: useCallback( () => {
+			focusOnBlock();
+			increaseRequestsCount();
+		}, [ increaseRequestsCount ] ),
 		onModeration: focusOnPrompt,
 		attributes,
 		clientId,
@@ -115,7 +124,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		setError,
 		tracks,
 		userPrompt,
-		refreshFeatureData,
 		requireUpgrade,
 	} );
 
@@ -439,6 +447,13 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 						{ ...innerBlocks }
 					/>
 				) }
+				<InspectorControls>
+					<PanelBody initialOpen={ true }>
+						<PanelRow>
+							<UsagePanel />
+						</PanelRow>
+					</PanelBody>
+				</InspectorControls>
 
 				{ isPlaygroundVisible && (
 					<InspectorControls>
@@ -498,7 +513,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 					</InspectorControls>
 				) }
 
-				{ requireUpgrade && <UpgradePrompt /> }
+				{ isOverLimit && isSelected && <UpgradePrompt /> }
 				{ ! connected && <ConnectPrompt /> }
 				{ ! isWaitingState && connected && ! requireUpgrade && (
 					<ToolbarControls

@@ -136,8 +136,8 @@ class Jetpack_Subscribe_Modal {
 		$subscribe_text     = __( 'Subscribe now to keep reading and get access to the full archive.', 'jetpack' );
 
 		return <<<HTML
-	<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|70","left":"var:preset|spacing|70","right":"var:preset|spacing|70"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
-	<div class="wp-block-group has-border-color" style="border-color:#dddddd;border-width:1px;margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--70);padding-right:var(--wp--preset--spacing--70);padding-bottom:var(--wp--preset--spacing--70);padding-left:var(--wp--preset--spacing--70)">
+	<!-- wp:group {"style":{"spacing":{"top":"32px","bottom":"32px","left":"32px","right":"32px"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
+	<div class="wp-block-group has-border-color" style="border-color:#dddddd;border-width:1px;margin-top:0;margin-bottom:0;padding-top:32px;padding-right:32px;padding-bottom:32px;padding-left:32px">
 
 	<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"10px"}}}} -->
 		<h2 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px;font-size:26px;font-style:normal;font-weight:600">$discover_more_from</h2>
@@ -169,6 +169,12 @@ HTML;
 			return false;
 		}
 
+		// Don't show when previewing blog posts or site's theme
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['preview'] ) || isset( $_GET['theme_preview'] ) || isset( $_GET['customize_preview'] ) || isset( $_GET['hide_banners'] ) ) {
+			return false;
+		}
+
 		// Don't show if one of subscribe query params is set.
 		// They are set when user submits the subscribe form.
 		// The nonce is checked elsewhere before redirect back to this page with query params.
@@ -191,26 +197,10 @@ HTML;
 
 		// Don't show if user is subscribed to blog.
 		require_once __DIR__ . '/../views.php';
-		if ( $this->has_subscription_cookie() || Jetpack_Subscriptions_Widget::is_current_user_subscribed() ) {
+		if ( Jetpack_Memberships::is_current_user_subscribed() ) {
 			return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Returns true if site visitor has subscribed
-	 * to the blog and has a subscription cookie.
-	 *
-	 * @return bool
-	 */
-	public function has_subscription_cookie() {
-		$cookies = $_COOKIE;
-		foreach ( $cookies as $name => $value ) {
-			if ( strpos( $name, 'jetpack_blog_subscribe_' ) !== false ) {
-				return true;
-			}
-		}
-		return false;
 	}
 }
 
