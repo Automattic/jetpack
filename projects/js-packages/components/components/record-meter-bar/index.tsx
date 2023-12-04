@@ -18,10 +18,6 @@ type RecordMeterBarItem = {
 	 * Color code for the background color for the item
 	 */
 	backgroundColor: string;
-	/**
-	 * Width of the item in percentage.
-	 */
-	widthPercent?: number;
 };
 
 export type RecordMeterBarProps = {
@@ -83,10 +79,11 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 	return (
 		<div className={ classNames( 'record-meter-bar', className ) }>
 			<div className="record-meter-bar__items" aria-hidden="true">
-				{ itemsToRender.map( ( { count, label, backgroundColor, widthPercent } ) => {
-					const width = ( widthPercent ?? ( count / total ) * 100 ).toPrecision( 2 );
-
-					return <div key={ label } style={ { backgroundColor, flexBasis: `${ width }%` } }></div>;
+				{ itemsToRender.map( ( { count, label, backgroundColor } ) => {
+					const widthPercent = ( ( count / total ) * 100 ).toPrecision( 2 );
+					return (
+						<div key={ label } style={ { backgroundColor, flexBasis: `${ widthPercent }%` } }></div>
+					);
 				} ) }
 			</div>
 			<div className="record-meter-bar__legend" aria-hidden="true">
