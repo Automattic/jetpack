@@ -39,6 +39,8 @@ export const ShareLimitsBar = ( {
 	noticeType = 'default',
 }: ShareLimitsBarProps ) => {
 	const items = useMemo( () => {
+		const scheduledMessage = __( 'scheduled', 'jetpack' );
+		const usedAndScheduledMessage = __( 'used and scheduled', 'jetpack' );
 		return [
 			( noticeType === 'default' || scheduledCount === 0 ) && {
 				count: usedCount,
@@ -48,10 +50,7 @@ export const ShareLimitsBar = ( {
 			scheduledCount > 0 && {
 				count: noticeType === 'default' ? scheduledCount : scheduledCount + usedCount,
 				backgroundColor: colorsForScheduled[ noticeType ],
-				label:
-					noticeType === 'default'
-						? __( 'scheduled', 'jetpack' )
-						: __( 'used and scheduled', 'jetpack' ),
+				label: noticeType === 'default' ? scheduledMessage : usedAndScheduledMessage,
 			},
 			{
 				count: remainingCount,
