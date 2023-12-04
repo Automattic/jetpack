@@ -158,6 +158,8 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	 * Open a SQLite database with a valid cache table.
 	 */
 	public function test_open_a_database_with_a_valid_cache_table() {
+		global $wpdb;
+
 		$this->generate_sqlite_database(
 			array(
 				'cache_table' => true,
@@ -169,13 +171,15 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 
 		$this->assertIsString( $result );
 		$this->assertStringContainsString( 'START TRANSACTION;', $result );
-		$this->assertStringContainsString( 'CREATE TABLE `test_table`', $result );
+		$this->assertStringContainsString( "CREATE TABLE `{$wpdb->prefix}test_table`", $result );
 	}
 
 	/**
 	 * Generate a sql dump with temporary tables.
 	 */
 	public function test_generate_sql_with_tmp_tables() {
+		global $wpdb;
+
 		$this->generate_sqlite_database(
 			array(
 				'cache_table' => true,
@@ -190,14 +194,72 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 
 		$this->assertIsString( $result );
 		$this->assertStringNotContainsString( 'START TRANSACTION;', $result );
-		$this->assertStringContainsString( 'CREATE TABLE `tmp_test_table`', $result );
+		$this->assertStringContainsString( "CREATE TABLE `tmp_{$wpdb->prefix}test_table`", $result );
 
 		$options['tmp_prefix'] = 'test_';
 		$result                = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path, $options );
 
 		$this->assertIsString( $result );
 		$this->assertStringNotContainsString( 'START TRANSACTION;', $result );
-		$this->assertStringContainsString( 'CREATE TABLE `test_test_table`', $result );
+		$this->assertStringContainsString( "CREATE TABLE `test_{$wpdb->prefix}test_table`", $result );
+	}
+
+	/**
+	 * Generate a sql dump with custom output prefix.
+	 */
+	public function test_generate_sql_with_custom_output_prefix() {
+		global $wpdb;
+
+		$this->generate_sqlite_database(
+			array(
+				'cache_table' => true,
+				'queries'     => $this->get_base_queries(),
+			)
+		);
+
+		$options = array(
+			'output_prefix' => 'testprefix_',
+		);
+		$result  = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path, $options );
+
+		$this->assertIsString( $result );
+		$this->assertStringContainsString( 'CREATE TABLE `testprefix_test_table`', $result );
+
+		$options = array(
+			'output_prefix' => null, // Not output prefix.
+		);
+		$result  = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path, $options );
+
+		$this->assertIsString( $result );
+		$this->assertStringContainsString( 'CREATE TABLE `test_table`', $result );
+	}
+
+	/**
+	 * Generate a sql dump with custom input prefix.
+	 */
+	public function test_generate_sql_with_custom_input_prefix() {
+		global $wpdb;
+
+		$this->generate_sqlite_database(
+			array(
+				'cache_table' => true,
+				'queries'     => $this->get_base_queries( 'wptest_test_table' ),
+			)
+		);
+
+		$options = array(
+			'prefix' => 'wptest_',
+		);
+		$result  = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path, $options );
+
+		$this->assertIsString( $result );
+		$this->assertStringContainsString( "CREATE TABLE `{$wpdb->prefix}test_table`", $result );
+
+		$options['output_prefix'] = null; // Not output prefix.
+		$result                   = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path, $options );
+
+		$this->assertIsString( $result );
+		$this->assertStringContainsString( 'CREATE TABLE `test_table`', $result );
 	}
 
 	/**

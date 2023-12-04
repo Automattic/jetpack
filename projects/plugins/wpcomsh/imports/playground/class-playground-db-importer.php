@@ -34,13 +34,6 @@ class Playground_DB_Importer {
 	private ?SQLite3 $db;
 
 	/**
-	 * The tables prefix.
-	 *
-	 * @var string
-	 */
-	private ?string $tables_prefix;
-
-	/**
 	 * The options.
 	 *
 	 * @var array
@@ -60,15 +53,18 @@ class Playground_DB_Importer {
 	 *     @type string $home           The home to use for the generated SQL.
 	 *     @type string $output_file    The output file path. If not set, a temporary file will be used.
 	 *     @type int    $output_mode    Output mode. Defaults to SQL_Generator::OUTPUT_TYPE_STRING.
+	 *     @type string $output_prefix  The generated tables prefix.
+	 *     @type string $prefix         The input tables prefix. (Always `wp_` for Playground databases)
 	 *     @type string $siteurl        The siteurl to use for the generated SQL.
-	 *     @type string $tables_prefix  The tables prefix.
-	 *     @type bool   $tmp_tables     Whether to generate temporary tables instead of TRANSACTION. Defaults to false.
 	 *     @type string $tmp_prefix     The temporary tables prefix.
+	 *     @type bool   $tmp_tables     Whether to generate temporary tables instead of TRANSACTION. Defaults to false.
 	 * }
 	 *
 	 * @return string|WP_Error
 	 */
 	public function generate_sql( string $database_file_path, $options = array() ) {
+		global $wpdb;
+
 		$defaults = array(
 			'all_tables'     => true,
 			'collation'      => null,
@@ -76,10 +72,11 @@ class Playground_DB_Importer {
 			'home'           => null,
 			'output_file'    => null,
 			'output_mode'    => SQL_Generator::OUTPUT_TYPE_STRING,
+			'output_prefix'  => $wpdb->prefix,
+			'prefix'         => 'wp_',
 			'siteurl'        => null,
-			'tables_prefix'  => 'wp_',
-			'tmp_tables'     => false,
 			'tmp_prefix'     => 'tmp_',
+			'tmp_tables'     => false,
 		);
 
 		$this->options = wp_parse_args( $options, $defaults );
@@ -93,8 +90,6 @@ class Playground_DB_Importer {
 		if ( filesize( $database_file_path ) <= 0 ) {
 			return new WP_Error( 'database-file-empty', 'Database file is empty' );
 		}
-
-		$this->tables_prefix = $this->options['tables_prefix'];
 
 		// Set the output file.
 		if ( $this->options['output_mode'] === SQL_Generator::OUTPUT_TYPE_FILE ) {
@@ -127,8 +122,7 @@ class Playground_DB_Importer {
 			// Return the SQL string.
 			return $ret;
 		} catch ( \Exception $e ) {
-			$this->db            = null;
-			$this->tables_prefix = null;
+			$this->db = null;
 
 			return new WP_Error( 'sqlite-open-error', $e->getMessage() );
 		}
@@ -147,17 +141,10 @@ class Playground_DB_Importer {
 		}
 
 		// Check if the bind table and the sequence table exist.
-		$query = $wpdb->prepare(
-			'SELECT COUNT(*) FROM sqlite_master WHERE type=%s AND (name=%s OR name=%s)',
-			'table',
-			self::SQLITE_DATA_TYPES_TABLE,
-			self::SQLITE_SEQUENCE_TABLE
-		);
-		$count = $this->db->querySingle( $query );
+		$valid_db = $this->check_database_integrity();
 
-		if ( $count !== 2 ) {
-			// Probably not a real WordPress SQLite database.
-			return new WP_Error( 'not-valid-sqlite-file', 'Query error: not a valid SQLite database' );
+		if ( is_wp_error( $valid_db ) ) {
+			return $valid_db;
 		}
 
 		$core_tables = array_flip( $wpdb->tables );
@@ -182,7 +169,7 @@ class Playground_DB_Importer {
 
 		// Check if the table exists in the core tables list.
 		while ( $table = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			$table_name = $this->get_table_name( $table['name'] );
+			$table_name = $this->get_input_table_name( $table['name'] );
 
 			// This is not a core table. Skip if all tables needed.
 			if ( ! $this->options['all_tables'] && ! array_key_exists( $table_name, $core_tables ) ) {
@@ -210,11 +197,11 @@ class Playground_DB_Importer {
 			}
 
 			// Force a temporary table name if needed.
-			$generated_table = $this->options['tmp_tables'] ? $this->options['tmp_prefix'] . $table['name'] : $table['name'];
+			$output_table = $this->get_output_table_name( $table_name );
 
-			$generator->start_table( $generated_table, $types_map['map'], $types_map['auto_increment'], ! $this->options['tmp_tables'] );
+			$generator->start_table( $output_table, $types_map['map'], $types_map['auto_increment'], ! $this->options['tmp_tables'] );
 			$this->generate_inserts( $generator, $table['name'], $types_map['format'], $types_map['field_names'] );
-			$generator->end_table_inserts( $generated_table );
+			$generator->end_table_inserts( $output_table );
 
 			if ( ! $this->options['all_tables'] ) {
 				// Remove the table from the core tables list.
@@ -233,6 +220,33 @@ class Playground_DB_Importer {
 
 		// Found all the tables, return the SQL.
 		return $generator->get_dump();
+	}
+
+	/**
+	 * Check the database integrity.
+	 *
+	 * The `_mysql_data_types_cache` and `sqlite_sequence` tables must exist.
+	 *
+	 * @return bool|WP_Error
+	 */
+	private function check_database_integrity() {
+		global $wpdb;
+
+		// Check if the bind table and the sequence table exist.
+		$query = $wpdb->prepare(
+			'SELECT COUNT(*) FROM sqlite_master WHERE type=%s AND (name=%s OR name=%s)',
+			'table',
+			self::SQLITE_DATA_TYPES_TABLE,
+			self::SQLITE_SEQUENCE_TABLE
+		);
+		$count = $this->db->querySingle( $query );
+
+		if ( $count !== 2 ) {
+			// Not a real WordPress SQLite database.
+			return new WP_Error( 'not-valid-sqlite-file', 'Query error: not a valid SQLite database' );
+		}
+
+		return true;
 	}
 
 	/**
@@ -274,16 +288,33 @@ class Playground_DB_Importer {
 	}
 
 	/**
-	 * Get the table name without the prefix.
+	 * Get the input table name without the prefix.
 	 *
 	 * @param string $table_name The table name.
 	 *
 	 * @return string
 	 */
-	private function get_table_name( string $table_name ): string {
-		return substr( $table_name, 0, strlen( $this->tables_prefix ) ) === $this->tables_prefix ?
-			substr( $table_name, strlen( $this->tables_prefix ) ) :
+	private function get_input_table_name( string $table_name ): string {
+		return substr( $table_name, 0, strlen( $this->options['prefix'] ) ) === $this->options['prefix'] ?
+			substr( $table_name, strlen( $this->options['prefix'] ) ) :
 			$table_name;
+	}
+
+	/**
+	 * Get the output table name.
+	 *
+	 * @param string $table_name The table name.
+	 *
+	 * @return string
+	 */
+	private function get_output_table_name( string $table_name ): string {
+		// Add the temporary prefix, if needed.
+		$prefix = $this->options['tmp_tables'] ? $this->options['tmp_prefix'] : '';
+
+		// Add the output prefix, if needed.
+		$prefix .= $this->options['output_prefix'] ? $this->options['output_prefix'] : '';
+
+		return $prefix . $table_name;
 	}
 
 	/**
