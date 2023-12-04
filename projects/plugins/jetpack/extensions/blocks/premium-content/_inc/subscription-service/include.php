@@ -64,14 +64,19 @@ function default_service( $service ) {
 		return $service;
 	}
 
+	// Prefer to use the WPCOM_Online_Subscription_Service if this code is executing on WPCOM.
 	if ( WPCOM_Online_Subscription_Service::available() ) {
+		// Return the WPCOM Online subscription service when we are on WPCOM.
 		return new WPCOM_Online_Subscription_Service();
 	}
 
+	// Fallback on using the Jetpack_Token_Subscription_Service if this is not executing on WPCOM but is executing on a Jetpack site.
 	if ( Jetpack_Token_Subscription_Service::available() ) {
+		// Return the Jetpack Token Subscription Service when it is available.
 		return new Jetpack_Token_Subscription_Service();
 	}
 
+	// Return an Unconfigured Subscription Service if this is not a WPCOM or Jetpack site or if both of those services are not available.
 	return new Unconfigured_Subscription_Service();
 }
 add_filter( PAYWALL_FILTER, 'Automattic\Jetpack\Extensions\Premium_Content\default_service' );
