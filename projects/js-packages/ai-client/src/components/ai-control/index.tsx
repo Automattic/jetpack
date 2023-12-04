@@ -263,7 +263,7 @@ export function AIControl(
 					</div>
 				) }
 			</div>
-			{ showGuideLine && <GuidelineMessage /> }
+			{ showGuideLine && ! loading && ! editRequest && <GuidelineMessage /> }
 		</div>
 	);
 }
