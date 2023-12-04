@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix sending email preview if content in the editor is different from latest in the database.
