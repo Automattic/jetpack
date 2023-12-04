@@ -64,7 +64,7 @@ class WPCOM_REST_API_V2_Endpoint_Goodreads extends WP_REST_Controller {
 		}
 
 		$body    = wp_remote_retrieve_body( $response );
-        $pattern = '/goodreads\.com\/user\/updates_rss\/(\d+)/';
+		$pattern = '/goodreads\.com\/user\/updates_rss\/(\d+)/';
 
 		if ( preg_match( $pattern, $body, $matches ) ) {
 			$user_id = intval( $matches[1] );
