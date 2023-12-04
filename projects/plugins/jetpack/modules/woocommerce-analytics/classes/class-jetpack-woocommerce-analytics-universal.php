@@ -185,9 +185,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function checkout_process() {
 		$cart = WC()->cart->get_cart();
 
-		$guest_checkout = ucfirst( get_option( 'woocommerce_enable_guest_checkout', 'No' ) );
-		$create_account = ucfirst( get_option( 'woocommerce_enable_signup_and_login_from_checkout', 'No' ) );
-
 		$enabled_payment_options = array_filter(
 			WC()->payment_gateways->get_available_payment_gateways(),
 			function ( $payment_gateway ) {
@@ -222,32 +219,25 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				continue;
 			}
 
-			$cart           = wc()->cart->get_cart();
-			$products_count = is_array( $cart ) ? count( $cart ) : '0';
-			$coupons        = wc()->cart->applied_coupons;
-			$coupon_used    = is_array( $coupons ) && count( $coupons ) > 0 ? '1' : '0';
-			$order_totals   = wc()->cart->get_totals();
-			$order_value    = '0';
-			if ( isset( $order_totals['total'] ) ) {
-				$order_value = $order_totals['total'];
+			$data = $this->get_cart_checkout_shared_data();
+
+			if ( ! empty( $data['products'] ) ) {
+				unset( $data['products'] );
 			}
 
+			if ( ! empty( $data['shipping_options_count'] ) ) {
+				unset( $data['shipping_options_count'] );
+			}
+
+			$data['pq'] = $cart_item['quantity'];
+
+			$properties = $this->process_event_properties(
+				'woocommerceanalytics_product_checkout',
+				$data,
+				$product->get_id()
+			);
+
 			if ( true === $include_express_payment ) {
-				$properties = $this->process_event_properties(
-					'woocommerceanalytics_product_checkout',
-					array(
-						'pq'               => $cart_item['quantity'],
-						'payment_options'  => $enabled_payment_options,
-						'guest_checkout'   => $guest_checkout,
-						'create_account'   => $create_account,
-						'express_checkout' => 'null',
-						'shipping_option'  => $this->get_shipping_option_for_item( $cart_item_key ),
-						'products_count'   => $products_count,
-						'coupon_used'      => $coupon_used,
-						'order_value'      => $order_value,
-					),
-					$product->get_id()
-				);
 				wc_enqueue_js(
 					"
 					// wcpay.payment-request.availability event gets fired twice.
@@ -267,17 +257,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			} else {
 				$this->record_event(
 					'woocommerceanalytics_product_checkout',
-					array(
-						'pq'               => $cart_item['quantity'],
-						'payment_options'  => $enabled_payment_options,
-						'guest_checkout'   => $guest_checkout,
-						'create_account'   => $create_account,
-						'express_checkout' => 'null',
-						'shipping_option'  => $this->get_shipping_option_for_item( $cart_item_key ),
-						'products_count'   => $products_count,
-						'coupon_used'      => $coupon_used,
-						'order_value'      => $order_value,
-					),
+					$data,
 					$product->get_id()
 				);
 			}
