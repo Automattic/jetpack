@@ -2,6 +2,12 @@
 
 // AI CONTROL
 
+.jetpack-components-ai-control__container-wrapper {
+	position: sticky;
+	bottom: 0;
+	padding-bottom: 8px;
+}
+
 .jetpack-components-ai-control__container {
 	color: var( --jp-gray-80 );
 	background-color: var( --jp-white );
@@ -10,8 +16,6 @@
 	width: 100%;
 	border-radius: 6px;
 	border: 1px solid var(--gutenberg-gray-400, #CCC);
-	position: sticky;
-	bottom: 0;
 }
 
 .jetpack-components-ai-control__wrapper {
