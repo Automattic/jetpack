@@ -7,17 +7,12 @@ import { Panel, PanelBody, PanelRow } from '@wordpress/components';
 import { navigate } from '$lib/utils/navigate';
 
 import styles from './performance-history.module.scss';
-import { useEffect } from 'react';
 
 /*
  * @TODO: Fix fetching. currently returning 403
  */
 const PerformanceHistoryBody = ( { isFreshStart, onDismissFreshStart, needsUpgrade } ) => {
 	const { data, isFetching, isError, error, refetch } = usePerformanceHistoryQuery();
-
-	useEffect( () => {
-		refetch();
-	}, [ refetch ] );
 
 	if ( isError && ! isFetching ) {
 		return (
