@@ -685,7 +685,7 @@ function render_for_website( $data, $classes, $styles ) {
 								: 'width: 95%; padding: 1px 10px'
 							),
 							$is_subscribed ? esc_attr( $data['subscribe_email'] ) : esc_attr( $data['subscribe_placeholder'] ),
-							esc_attr( $data['subscribe_email'] ),
+							$is_subscribed ? '' : esc_attr( $data['subscribe_email'] ),
 							esc_attr( $subscribe_field_id ),
 							$is_subscribed ? 'disabled' : ''
 						);
