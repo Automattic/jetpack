@@ -80,7 +80,6 @@
 .contact-form input[type='checkbox'] {
 	width: 1rem;
 	height: 1rem;
-	float: none;
 	margin: 0 0.75rem 0 0;
 }
 
@@ -115,11 +114,8 @@
 .contact-form label.checkbox-multiple,
 .contact-form label.radio {
 	margin-bottom: 0;
-	float: none;
 	font-weight: normal;
-	display: inline-flex;
-	align-items: center;
-	line-height: 1;
+	flex: 1;
 }
 
 .contact-form .grunion-checkbox-multiple-options,
@@ -160,6 +156,7 @@
 .contact-form .grunion-checkbox-multiple-options .contact-form-field,
 .contact-form .grunion-radio-options .contact-form-field {
 	display: flex;
+	align-items: baseline;
 
 	margin: 0;
 }
@@ -633,65 +630,51 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .grunion-field-wrap input.checkbox-multiple,
 .contact-form .grunion-field-wrap input.radio {
-	align-items: center;
-	appearance: none;
-	color: var(--jetpack--contact-form--text-color);
-	border: none;
-	font-size: var(--jetpack--contact-form--font-size);
-	font-family: var(--jetpack--contact-form--font-family);
-	height: var(--jetpack--contact-form--font-size);
-	justify-content: center;
-	margin: 0 10px 0 0;
-	padding: 0;
 	position: relative;
-	width: var(--jetpack--contact-form--font-size);
-}
 
-.contact-form .grunion-field-wrap input.checkbox-multiple::after,
-.contact-form .grunion-field-wrap input.checkbox-multiple::before,
-.contact-form .grunion-field-wrap input.radio::after,
-.contact-form .grunion-field-wrap input.radio::before {
-	all: initial;
-	color: inherit;
-	font-size: inherit;
-	font-family: inherit;
-}
-
-.contact-form .grunion-field-wrap input.checkbox-multiple::before,
-.contact-form .grunion-field-wrap input.radio::before {
-	align-items: center;
-	border-color: currentColor;
-	border-radius: min(var(--jetpack--contact-form--button-outline--border-radius, 0px), 4px);
-	border-style: solid;
-	border-width: 1px;
 	box-sizing: border-box;
-	content: ' ';
-	display: flex;
-	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-	font-weight: 400;
-	height: var(--jetpack--contact-form--font-size);
-	justify-content: center;
 	width: var(--jetpack--contact-form--font-size);
+	height: var(--jetpack--contact-form--font-size);
+	margin-inline-end: calc(var(--jetpack--contact-form--font-size) / 2);
+	padding: 0;
+
+	appearance: none;
+	border: solid 1px var(--jetpack--contact-form--text-color);
+
+	outline-offset: 4px;
 }
 
-.contact-form .grunion-field-wrap input.radio::before {
+.contact-form .grunion-field-wrap input.radio {
 	border-radius: 50%;
+
+	transform: translateY(15%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
 }
 
 .contact-form .grunion-field-wrap input.checkbox-multiple:checked::before {
 	content: "\2713";
+	
+	position: absolute;
+	top: calc(var(--jetpack--contact-form--font-size) / 2);
+	left: calc(var(--jetpack--contact-form--font-size) / 2);
+
+	display: block;
+
+	font-size: var(--jetpack--contact-form--font-size);
+	line-height: 1;
+	
+  transform: translate(-50%, -50%);
 }
 
-.contact-form .grunion-field-wrap input.radio:checked::after {
+.contact-form .grunion-field-wrap input.radio:checked::before {
 	background: currentColor;
 	border-radius: 50%;
 	content: '';
-	height: 0.5em;
+	height: calc(var(--jetpack--contact-form--font-size) / 2);
+	margin-left: 50%;
+	margin-top: 50%;
 	position: absolute;
 	transform: translate(-50%, -50%);
-	width: 0.5em;
-	top: calc(var(--jetpack--contact-form--font-size) / 2);
-	inset-inline-start: calc(var(--jetpack--contact-form--font-size) / 2);
+	width: calc(var(--jetpack--contact-form--font-size) / 2);
 }
 
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-checkbox-multiple-label,
