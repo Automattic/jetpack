@@ -350,20 +350,29 @@ SQL
 				return $status;
 			}
 			// The $ids are ordered in descending order.
-			// TODO Need to separate this into a method and override it in the modules that need it.
-			if ( is_int( $objects[0] ) ) {
-				$status['last_sent'] = end( $objects );
-				$status['sent']     += count( $objects );
-			} else {
-				$status['last_sent'] = end( $objects[0] );
-				$status['sent']     += count( $objects[0] );
-			}
+			$status = $this->set_send_full_sync_actions_status( $status, $objects );
 		}
 
 		if ( ! $wpdb->last_error ) {
 			$status['finished'] = true;
 		}
 
+		return $status;
+	}
+
+	/**
+	 * Set the status of the full sync action based on the objects that were sent.
+	 *
+	 * @access protected
+	 *
+	 * @param array $status This module Full Sync status.
+	 * @param array $objects This module Full Sync objects.
+	 *
+	 * @return array The updated status.
+	 */
+	protected function set_send_full_sync_actions_status( $status, $objects ) {
+		$status['last_sent'] = end( $objects );
+		$status['sent']     += count( $objects );
 		return $status;
 	}
 

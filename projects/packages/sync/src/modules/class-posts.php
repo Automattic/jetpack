@@ -826,7 +826,7 @@ class Posts extends Module {
 		$filtered_post_ids  = array();
 		$current_size       = 0;
 		foreach ( $posts as $post ) {
-			$post_content_size = strlen( $post->post_content );
+			$post_content_size = isset( $post->post_content ) ? strlen( $post->post_content ) : 0;
 			$current_metadatas = array();
 			$metadatas_size    = 0;
 			foreach ( $metadatas as $metadata ) {
@@ -855,5 +855,21 @@ class Posts extends Module {
 			$filtered_posts,
 			$filtered_metadatas,
 		);
+	}
+
+	/**
+	 * Set the status of the full sync action based on the objects that were sent.
+	 *
+	 * @access public
+	 *
+	 * @param array $status This module Full Sync status.
+	 * @param array $objects This module Full Sync objects.
+	 *
+	 * @return array The updated status.
+	 */
+	public function set_send_full_sync_actions_status( $status, $objects ) {
+		$status['last_sent'] = end( $objects[0] );
+		$status['sent']     += count( $objects[0] );
+		return $status;
 	}
 }
