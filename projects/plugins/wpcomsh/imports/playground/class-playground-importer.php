@@ -9,6 +9,7 @@ namespace Imports;
 
 require_once __DIR__ . '/../class-backup-importer.php';
 require_once __DIR__ . '/class-playground-db-importer.php';
+require_once __DIR__ . '/class-sql-importer.php';
 
 /**
  * Playground backup importer.
@@ -51,7 +52,7 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	 * @return bool|WP_Error True on success, or a WP_Error on failure.
 	 */
 	public function recreate_database() {
-		return true;
+		return SQL_Importer::import( $this->destination_path . 'database.sql' );
 	}
 
 	/**
