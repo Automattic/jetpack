@@ -822,3 +822,28 @@ on production builds, the attributes are being reordered, causing side-effects
 	display: inline-flex;
 	align-items: baseline;
 }
+
+.contact-form :is([type="submit"],button:not([type="reset"])) {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
+}
+
+.contact-form .contact-form__spinner {
+	fill: currentColor;
+}
+
+.contact-form .contact-form__spinner svg {
+	/* Ensure container is of the exact same dimension */
+	display: block;
+}
+
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
