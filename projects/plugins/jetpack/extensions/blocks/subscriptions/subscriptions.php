@@ -535,12 +535,13 @@ function render_block( $attributes ) {
 		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 	}
 
-	$subscribe_email = Jetpack_Memberships::get_current_user_email();
+	apply_filters( 'jetpack_auto_fill_logged_in_user', '_return true' );
 
 	/** This filter is documented in modules/contact-form/grunion-contact-form.php */
 	if ( is_wpcom() || false !== apply_filters( 'jetpack_auto_fill_logged_in_user', false ) ) {
-		$current_user    = wp_get_current_user();
-		$subscribe_email = ! empty( $current_user->user_email ) ? $current_user->user_email : '';
+		$token_subscribe_email = Jetpack_Memberships::get_current_user_email();
+		$current_user          = wp_get_current_user();
+		$subscribe_email       = ! empty( $current_user->user_email ) ? $current_user->user_email : $token_subscribe_email;
 	}
 
 	// The block is using the Jetpack_Subscriptions_Widget backend, hence the need to increase the instance count.
@@ -562,7 +563,7 @@ function render_block( $attributes ) {
 		),
 		'subscribe_placeholder'         => get_attribute( $attributes, 'subscribePlaceholder', __( 'Type your email…', 'jetpack' ) ),
 		'submit_button_text'            => get_attribute( $attributes, 'submitButtonText', __( 'Subscribe', 'jetpack' ) ),
-		'submit_button_text_subscribed' => get_attribute( $attributes, 'submitButtonTextSubscribed', __( 'Subscribed', 'jetpack' ) ),
+		'submit_button_text_subscribed' => get_attribute( $attributes, 'submitButtonTextSubscribed', __( 'Manage Subscription', 'jetpack' ) ),
 		'submit_button_text_upgrade'    => get_attribute( $attributes, 'submitButtonTextUpgrade', __( 'Upgrade subscription', 'jetpack' ) ),
 		'success_message'               => get_attribute(
 			$attributes,
@@ -627,7 +628,7 @@ function render_for_website( $data, $classes, $styles ) {
 
 	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
 	$tier_id            = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
-	$is_subscribed      = Jetpack_Memberships::is_current_user_subscribed();
+	$is_subscribed      = Jetpack_Memberships::is_current_user_subscribed() || is_user_auth();
 	$button_text        = get_submit_button_text( $data );
 
 	ob_start();
@@ -639,7 +640,7 @@ function render_for_website( $data, $classes, $styles ) {
 	);
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
-		<div class="wp-block-jetpack-subscriptions__container<?php echo ! $is_subscribed ? ' is-not-subscriber' : ''; ?>">
+		<div class="wp-block-jetpack-subscriptions__container<?php echo ! $is_subscribed ? ' is-not-subscriber' : 'is_subscriber'; ?>">
 			<form
 				action="<?php echo esc_url( $form_url ); ?>"
 				method="post"
@@ -650,14 +651,18 @@ function render_for_website( $data, $classes, $styles ) {
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
 				<div class="wp-block-jetpack-subscriptions__form-elements">
-					<?php if ( ! $is_subscribed ) : ?>
 					<p id="subscribe-email">
 						<label
 							id="<?php echo esc_attr( $subscribe_field_id . '-label' ); ?>"
 							for="<?php echo esc_attr( $subscribe_field_id ); ?>"
 							class="screen-reader-text"
 						>
-							<?php echo esc_html( $data['subscribe_placeholder'] ); ?>
+							<?php
+								if ( $is_subscribed ) {
+									echo esc_html( $data['subscribe_email'] );
+								 } else {
+									echo esc_html( $data['subscribe_placeholder'] );
+								 } ?>
 						</label>
 						<?php
 						printf(
@@ -670,6 +675,7 @@ function render_for_website( $data, $classes, $styles ) {
 								placeholder="%3$s"
 								value="%4$s"
 								id="%5$s"
+								%6$s
 							/>',
 							( ! empty( $classes['email_field'] )
 								? 'class="' . esc_attr( $classes['email_field'] ) . '"'
@@ -679,13 +685,13 @@ function render_for_website( $data, $classes, $styles ) {
 								? esc_attr( $styles['email_field'] )
 								: 'width: 95%; padding: 1px 10px'
 							),
-							esc_attr( $data['subscribe_placeholder'] ),
+							$is_subscribed ? esc_attr( $data['subscribe_email'] ) : esc_attr( $data['subscribe_placeholder'] ),
 							esc_attr( $data['subscribe_email'] ),
-							esc_attr( $subscribe_field_id )
+							esc_attr( $subscribe_field_id ),
+							$is_subscribed ? 'disabled' : ''
 						);
 						?>
 					</p>
-					<?php endif; ?>
 					<p id="subscribe-submit"
 						<?php if ( ! empty( $styles['submit_button_wrapper'] ) ) : ?>
 							style="<?php echo esc_attr( $styles['submit_button_wrapper'] ); ?>"
@@ -922,7 +928,7 @@ function get_current_url() {
  * @return string
  */
 function get_submit_button_text( $data ) {
-	if ( ! Jetpack_Memberships::is_current_user_subscribed() ) {
+	if ( ! Jetpack_Memberships::is_current_user_subscribed() && ! is_user_auth() ) {
 		return $data['submit_button_text'];
 	}
 	if ( ! Jetpack_Memberships::user_can_view_post() ) {
