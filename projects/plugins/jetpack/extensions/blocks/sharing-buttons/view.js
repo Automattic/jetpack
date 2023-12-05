@@ -1,7 +1,20 @@
-//import './style.scss';
-import variations from '../sharing-button/variations.js';
+import './style.scss';
 
-const services = variations.map( variation => variation.name );
+const services = [
+	'print',
+	'facebook',
+	'linkedin',
+	'mail',
+	'mastodon',
+	'pinterest',
+	'pocket',
+	'reddit',
+	'telegram',
+	'tumblr',
+	'whatsapp',
+	'x',
+	'nextdoor',
+];
 let windowOpen;
 
 ( function () {

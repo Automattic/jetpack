@@ -59,14 +59,14 @@ $ok_wp_deps = array(
  * @var string[][] Keys are block names, value is an array of dependencies to not complain about.
  */
 $allowed = array(
-	'ai-chat'         => array(
+	'ai-chat'        => array(
 		'react',
 		'react-dom',
 		'wp-components',
 		'wp-compose',
 		'wp-element',
 	),
-	'podcast-player'  => array(
+	'podcast-player' => array(
 		'lodash',
 		'react',
 		'react-dom',
@@ -75,11 +75,7 @@ $allowed = array(
 		'wp-element',
 		'wp-primitives',
 	),
-	'sharing-buttons' => array(
-		'react',
-		'react-dom',
-	),
-	'story'           => array(
+	'story'          => array(
 		'lodash',
 		'react',
 		'react-dom',
