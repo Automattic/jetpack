@@ -22,31 +22,24 @@ const performanceHistoryDataSchema = z.object( {
 } );
 
 export const usePerformanceHistoryQuery = () => {
-	const { useQuery } = useDataSync(
+	const [ query ] = useDataSync(
 		'jetpack_boost_ds',
 		'performance_history',
-		performanceHistoryDataSchema
+		performanceHistoryDataSchema.nullable()
 	);
-	return useQuery( {
-		initialData: {
-			periods: [],
-			startDate: 0,
-			endDate: 0,
-		},
-	} );
+
+	return query;
 };
 
 /**
  * A custom hook to handle performance history panel being open or closed.
  */
 export const usePerformanceHistoryPanelQuery = () => {
-	const { useQuery, useMutation } = useDataSync(
+	const [ { data }, { mutate } ] = useDataSync(
 		'jetpack_boost_ds',
 		'performance_history_toggle',
 		z.boolean()
 	);
-	const { data } = useQuery();
-	const { mutate } = useMutation();
 
 	return [ data, mutate ] as const;
 };
