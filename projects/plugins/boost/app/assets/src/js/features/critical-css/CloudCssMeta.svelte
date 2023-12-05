@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
-	import CriticalCssStatus from './CriticalCssStatus.svelte';
 	import { CriticalCssState } from './lib/stores/critical-css-state-types';
+	import Status from './status/status';
+	import ReactComponent from '$features/ReactComponent.svelte';
 
 	export let cssState: CriticalCssState;
 	export let isCloudCssAvailable: boolean;
@@ -25,7 +26,8 @@
 		{regenerateCriticalCss}
 	/>
 {:else}
-	<CriticalCssStatus
+	<ReactComponent
+		this={Status}
 		{isCloudCssAvailable}
 		status={cssState.status}
 		{successCount}
