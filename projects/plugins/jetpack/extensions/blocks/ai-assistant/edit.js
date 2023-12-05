@@ -532,7 +532,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 						handleAcceptTitle={ handleAcceptTitle }
 						handleGetSuggestion={ handleGetSuggestion }
 						handleImageRequest={ handleImageRequest }
-						handleTryAgain={ handleTryAgain }
+						handleTryAgain={ null }
 						showRetry={ showRetry }
 						contentBefore={ contentBefore }
 						hasPostTitle={ !! postTitle?.length }
