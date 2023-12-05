@@ -466,8 +466,10 @@ class Jetpack_Likes {
 
 		$beta_blocks_active = defined( 'JETPACK_BLOCKS_VARIATION' ) && JETPACK_BLOCKS_VARIATION === 'beta';
 
+		// If we're using a block-based theme and the Like block (beta) is available, return content without the Like button widget.
+		// Otherwise return content with the Like button widget.
 		if ( wp_is_block_theme() && $beta_blocks_active ) {
-			return $content; // don't add the like button widget to the content if we're using the block theme and Like block (beta) is available.
+			return $content;
 		} else {
 			return $content . $html;
 		}
