@@ -17,6 +17,7 @@ use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
+use function Automattic\Jetpack\Extensions\Premium_Content\subscription_service;
 
 require_once __DIR__ . '/constants.php';
 
@@ -806,7 +807,7 @@ function add_paywall( $the_content ) {
 	}
 
 	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-	$token_service              = is_wpcom() ? new WPCOM_Token_Subscription_Service() : new Jetpack_Token_Subscription_Service();
+	$token_service              = subscription_service();
 	$token                      = $token_service->get_and_set_token_from_request();
 	$payload                    = $token_service->decode_token( $token );
 	$is_valid_token             = ! empty( $payload );
