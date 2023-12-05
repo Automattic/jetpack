@@ -54,7 +54,7 @@ const initForm = form => {
 
 		clearForm( form, inputListenerMap, opts );
 
-		if ( form.checkValidity() ) {
+		if ( isFormValid( form ) ) {
 			inputListenerMap = {};
 
 			submitForm( form );
@@ -67,6 +67,31 @@ const initForm = form => {
 /******************************************************************************
  * CHECKS
  ******************************************************************************/
+
+/**
+ * Check if a form has valid entries.
+ * @param {HTMLFormElement} form FormElement
+ * @returns {boolean}
+ */
+const isFormValid = form => {
+	let isValid = form.checkValidity();
+
+	if ( ! isValid ) {
+		return false;
+	}
+
+	// Handle the Multiple Choice fields separately since checkboxes can't have a required attribute
+	// in that case.
+	const multipleChoiceFields = getMultipleChoiceFields( form );
+
+	for ( const field of multipleChoiceFields ) {
+		if ( isMultipleChoiceFieldRequired( field ) && ! isMultipleChoiceFieldValid( field ) ) {
+			return false;
+		}
+	}
+
+	return isValid;
+};
 
 /**
  * Check if a form is submitting.
@@ -197,6 +222,15 @@ const getFormSubmitBtn = form => {
 	return (
 		form.querySelector( '[type="submit"]' ) || form.querySelector( 'button:not([type="reset"])' )
 	);
+};
+
+/**
+ * Return the Multiple Choice fields of a form.
+ * @param {HTMLFormElement} form Form element
+ * @returns {HTMLFieldSetElement[]} Fieldset elements
+ */
+const getMultipleChoiceFields = form => {
+	return Array.from( form.querySelectorAll( '.grunion-checkbox-multiple-options' ) );
 };
 
 /**
