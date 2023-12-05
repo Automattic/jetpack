@@ -1,5 +1,5 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { useEffect } from 'react';
+import { useEffect } from '@wordpress/element';
 
 // Get user data from the inial state
 const tracksUserData = window?.Jetpack_Editor_Initial_State?.tracksUserData || null;

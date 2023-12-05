@@ -4,8 +4,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import React from 'react';
 /**
  * Internal dependencies
  */
