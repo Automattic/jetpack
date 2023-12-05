@@ -25,7 +25,7 @@ require_once __DIR__ . '/launchpad-task-definitions.php';
  */
 function wpcom_launchpad_get_task_list_definitions() {
 	$core_task_list_definitions = array(
-		'build'                  => array(
+		'build'                   => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -40,7 +40,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'free'                   => array(
+		'free'                    => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -56,7 +56,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'link-in-bio'            => array(
+		'link-in-bio'             => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -70,7 +70,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'link-in-bio-tld'        => array(
+		'link-in-bio-tld'         => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -84,7 +84,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'newsletter'             => array(
+		'newsletter'              => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -100,7 +100,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'videopress'             => array(
+		'videopress'              => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -113,7 +113,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'write'                  => array(
+		'write'                   => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -127,7 +127,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'start-writing'          => array(
+		'start-writing'           => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -141,7 +141,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'design-first'           => array(
+		'design-first'            => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -156,7 +156,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'intent-build'           => array(
+		'intent-build'            => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -173,7 +173,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),
-		'intent-write'           => array(
+		'intent-write'            => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -187,7 +187,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_intent_write_enabled',
 		),
-		'intent-free-newsletter' => array(
+		'intent-free-newsletter'  => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -201,7 +201,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_free_newsletter_enabled',
 		),
-		'intent-paid-newsletter' => array(
+		'intent-paid-newsletter'  => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -217,14 +217,14 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_paid_newsletter_enabled',
 		),
-		'earn'                   => array(
+		'earn'                    => array(
 			'task_ids'            => array(
 				'stripe_connected',
 				'paid_offer_created',
 			),
 			'is_enabled_callback' => '__return_true',
 		),
-		'host-site'              => array(
+		'host-site'               => array(
 			'task_ids'            => array(
 				'site_theme_selected',
 				'install_custom_plugin',
@@ -235,14 +235,14 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_hosting_flow_enabled',
 		),
-		'subscribers'            => array(
+		'subscribers'             => array(
 			'task_ids' => array(
 				'import_subscribers',
 				'add_subscribe_block',
 				'share_site',
 			),
 		),
-		'assembler-first'        => array(
+		'assembler-first'         => array(
 			'get_title'           => function () {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
@@ -258,7 +258,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'legacy-site-setup'      => array(
+		'legacy-site-setup'       => array(
 			'get_title' => function () {
 				return __( 'Site setup', 'jetpack-mu-wpcom' );
 			},
@@ -270,6 +270,20 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'mobile_app_installed',
 				'setup_professional_email',
 				'post_sharing_enabled',
+				'site_launched',
+			),
+		),
+		'legacy-site-setup-write' => array(
+			'get_title' => function () {
+				return __( 'Site setup', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'  => array(
+				'blog_previewed',
+				'themes_browsed',
+				'first_post_published',
+				'post_sharing_enabled',
+				'mobile_app_installed',
+				'setup_professional_email',
 				'site_launched',
 			),
 		),

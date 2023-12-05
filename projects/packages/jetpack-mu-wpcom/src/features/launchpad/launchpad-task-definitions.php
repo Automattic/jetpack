@@ -628,6 +628,24 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/site-editor/' . $data['site_slug_encoded'] . '?canvas=edit';
 			},
 		),
+		'blog_previewed'                     => array(
+			'get_title'            => function () {
+				return __( 'Preview your site', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/site-editor/' . $data['site_slug_encoded'] . '?canvas=preview';
+			},
+		),
+		'themes_browsed'                     => array(
+			'get_title'            => function () {
+				return __( 'Browse themes', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/themes/' . $data['site_slug_encoded'];
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
