@@ -10,6 +10,8 @@
 	width: 100%;
 	border-radius: 6px;
 	border: 1px solid var(--gutenberg-gray-400, #CCC);
+	position: sticky;
+	bottom: 0;
 }
 
 .jetpack-components-ai-control__wrapper {
