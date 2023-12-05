@@ -295,9 +295,8 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 12.9 - 2023-12-05
 #### Enhancements
-- Blogroll: Allowed non-WP.com sites to be suggested in the blogroll.
+- Blogroll Block: Allowed non-WP.com sites to be suggested in the blogroll.
 - CSS Concatenation: Optimized concatenation to avoid loading CSS with less than two modules requiring it active.
-- Jetpack AI: Enabled the AI Assistant usage panel.
 - Likes: Updated the likes popover design and added RTL support.
 - My Jetpack: Added Creator to My Jetpack overview.
 - Newsletters: Updated the pre- and post-publish panels to display the selected newsletter categories an subscriber count.
@@ -307,9 +306,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - VideoPress: Added support for gated content.
 
 #### Improved compatibility
-- Added a check for connected plugins before cleaning up plugin options or uninstalling Jetpack.
 - Block Editor: Dequeued editor assets when they aren't in use.
 - Dashboard: Improved the display of controls and toggles for WordPress.com Toolbar, Auto-sharing and Markdown for comments.
+- Plugin Connection: Added a check for connected plugins before cleaning up plugin options or uninstalling Jetpack.
 - Updated PHP version requirements to PHP 7.0 or newer.
 - Updated WordPress version requirements to WordPress 6.3.
 
@@ -318,17 +317,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Contact Form: Prevented errors when a saved submitted contact form is requested but does not exist anymore.
 - Contact Info Block: Ensured text is always visible in the Contact Info Block on mobile.
 - Custom-CSS: Disabled loading `@import` directives from the filesystem. `@import` of CSS from URLs can still be done.
-- Email Preview: Fixed email preview when content in the editor is different from the latest version in the database.
-- Font Library: Fixed all Google font definitions being printed in the head and resolved compatibility issues with PHP 8.
 - Likes: Fixed wrong like count in the like dialog after liking.
 - Media: Fixed VideoPress videos and media length not being displayed when available.
+- Newsletters: Fixed email preview when content in the editor is different from the latest version in the database.
 - Paywall Block: Fixed lack of spacing in some themes.
-- Related Posts Block: Fixed thumbnails opening in the same tab.
+- Performance: Fixed all Google font definitions being printed in the head and resolved compatibility issues with PHP 8.
 - Shortcode Embeds: Fixed and updated the display of Gravatars and Gravatar profiles.
 - Subscribe Block: Fixed style and rendering issues.
 - Subscribe Block: Fixed incorrect redirects from the block when shown outside of a post page.
 - Subscribe Block: Fixed the button in a new line option not working.
-- Subscribe Widget: Fixed nonce validation.
+- Subscribe Widget: Fixed subscribe widget not working.
 - VaultPress: Fixed the VaultPress submenu sometimes not being registered correctly.
 
 --------
