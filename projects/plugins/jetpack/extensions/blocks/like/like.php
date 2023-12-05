@@ -13,23 +13,6 @@ use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 /**
- * Load scripts and styles for front end.
- */
-function load_styles_register_scripts() {
-	wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
-	wp_register_script(
-		'jetpack_likes_queuehandler',
-		Assets::get_file_url_for_environment(
-			'_inc/build/likes/queuehandler.min.js',
-			'modules/likes/queuehandler.js'
-		),
-		array(),
-		JETPACK__VERSION,
-		true
-	);
-}
-
-/**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
  * registration if we need to.
