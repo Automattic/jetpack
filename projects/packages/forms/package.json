@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-forms",
-	"version": "0.24.2-alpha",
+	"version": "0.24.3-alpha",
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
 	"bugs": {
@@ -60,8 +60,8 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
-		"@babel/core": "7.23.2",
-		"@babel/runtime": "7.23.2",
+		"@babel/core": "7.23.5",
+		"@babel/runtime": "7.23.5",
 		"@wordpress/api-fetch": "6.44.0",
 		"@wordpress/babel-plugin-import-jsx-pragma": "4.30.0",
 		"@wordpress/browserslist-config": "5.30.0",

@@ -60,7 +60,7 @@ class WP_Test_Jetpack_Premium_Content extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Stubs WPCOM_Token_Subscription_Service in order to return the provided token.
+	 * Stubs Jetpack_Token_Subscription_Service in order to return the provided token.
 	 *
 	 * @param array $payload
 	 * @return mixed

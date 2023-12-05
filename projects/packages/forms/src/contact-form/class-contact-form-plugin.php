@@ -273,6 +273,8 @@ class Contact_Form_Plugin {
 				'invalidForm'          => __( 'Please make sure all fields are valid.', 'jetpack-forms' ),
 				/* translators: error message shown when a multiple choice field requires at least one option to be selected. */
 				'checkboxMissingValue' => __( 'Please select at least one option.', 'jetpack-forms' ),
+				/* translators: text read by a screen reader when a form is being submitted */
+				'submittingForm'       => __( 'Submitting form', 'jetpack-forms' ),
 			)
 		);
 

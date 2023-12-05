@@ -33,19 +33,26 @@ const initForm = form => {
 	}
 
 	form.addEventListener( 'submit', e => {
+		e.preventDefault();
+
+		const submitBtn = getFormSubmitBtn( form );
+
+		// If form is submitting, do nothing.
+		if ( submitBtn && submitBtn.getAttribute( 'aria-disabled' ) === 'true' ) {
+			return;
+		}
+
 		clearErrors( form );
 
 		if ( form.checkValidity() ) {
-			const submitBtn = getFormSubmitBtn( form );
+			// We should avoid using `disabled` when possible. One of the reasons is that `disabled`
+			// buttons lose their focus, which can be confusing. Better use `aria-disabled` instead.
+			// Ref. https://css-tricks.com/making-disabled-buttons-more-inclusive/#aa-aria-to-the-rescue
+			submitBtn.setAttribute( 'aria-disabled', true );
+			submitBtn.appendChild( createSpinner() );
 
-			if ( submitBtn ) {
-				// TODO: implement loading state
-				// Temporarily prevents the user from submitting the form multiple times.
-				submitBtn.disabled = true;
-			}
+			form.submit();
 		} else {
-			e.preventDefault();
-
 			setErrors( form );
 		}
 	} );
@@ -109,6 +116,33 @@ const getFormInvalidFields = form => {
 /******************************************************************************
  * BUILDERS
  ******************************************************************************/
+
+/**
+ * Create a new spinner.
+ * @returns {HTMLSpanElement} Spinner
+ */
+const createSpinner = () => {
+	const elt = document.createElement( 'span' );
+	const spinner = document.createElement( 'span' );
+	const srText = document.createElement( 'span' );
+
+	// Hide SVG from screen readers
+	spinner.setAttribute( 'aria-hidden', true );
+	// Inlining the SVG rather than embedding it in an <img> tag allows us to set the `fill` property
+	// in CSS.
+	spinner.innerHTML =
+		'<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25"/><path d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"><animateTransform attributeName="transform" type="rotate" dur="0.75s" values="0 12 12;360 12 12" repeatCount="indefinite"/></path></svg>';
+
+	// Spinner replacement for screen readers
+	srText.classList.add( 'visually-hidden' );
+	srText.textContent = L10N.submittingForm || 'Submitting form';
+
+	elt.classList.add( 'contact-form__spinner' );
+	elt.appendChild( spinner );
+	elt.appendChild( srText );
+
+	return elt;
+};
 
 /**
  * Create a new warning icon.
