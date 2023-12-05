@@ -27,7 +27,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.13.1-alpha';
+	const PACKAGE_VERSION = '0.14.0-alpha';
 
 	/**
 	 * Persistent WPCOM blog ID that stays in the options after disconnect.
@@ -221,6 +221,10 @@ class Identity_Crisis {
 
 		if ( \Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
 			$query_args['migrate_for_idc'] = true;
+		}
+
+		if ( self::url_is_ip() ) {
+			$query_args['url_secret'] = URL_Secret::create_secret( 'URL_argument_secret_failed' );
 		}
 
 		if ( is_multisite() ) {
@@ -1353,6 +1357,17 @@ class Identity_Crisis {
 	}
 
 	/**
+	 * Check if URL is an IP.
+	 *
+	 * @return bool
+	 */
+	public static function url_is_ip() {
+		$hostname = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
+		$is_ip    = filter_var( $hostname, FILTER_VALIDATE_IP ) !== false ? true : false;
+		return $is_ip;
+	}
+
+	/**
 	 * Add IDC-related data to the registration query.
 	 *
 	 * @param array $params The existing query params.
@@ -1363,20 +1378,9 @@ class Identity_Crisis {
 		$persistent_blog_id = get_option( static::PERSISTENT_BLOG_ID_OPTION_NAME );
 		if ( $persistent_blog_id ) {
 			$params['persistent_blog_id'] = $persistent_blog_id;
-
-			$hostname = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
-			if ( filter_var( $hostname, FILTER_VALIDATE_IP ) !== false ) {
-				try {
-					$secret = new URL_Secret();
-					$secret->create();
-
-					if ( $secret->exists() ) {
-						$params['url_secret'] = $secret->get_secret();
-					}
-				} catch ( Exception $e ) {
-					// No need to stop the registration flow, just track the error and proceed.
-					( new Tracking() )->record_user_event( 'registration_request_url_secret_failed', array( 'current_url' => Urls::site_url() ) );
-				}
+			// If URL is IP, add secret to the request.
+			if ( self::url_is_ip() ) {
+				$params['url_secret'] = URL_Secret::create_secret( 'registration_request_url_secret_failed' );
 			}
 		}
 
