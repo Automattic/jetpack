@@ -54,7 +54,7 @@ class Backup_Import_Manager {
 	 *
 	 * @var array
 	 */
-	protected $valid_option_keys = array( 'skip_unpack', 'actions' );
+	protected $valid_option_keys = array( 'skip_unpack', 'actions', 'test' );
 	/**
 	 * Constant representing the WordPress Playground importer type.
 	 */
@@ -63,7 +63,6 @@ class Backup_Import_Manager {
 	 * Constant representing the Jetpack Backup importer type.
 	 */
 	const JETPACK_BACKUP = 'jetpack_backup';
-
 
 	/**
 	 * Backup import status option name.
@@ -125,9 +124,10 @@ class Backup_Import_Manager {
 			return $importer;
 		}
 
-		$excute_actions = isset( $this->options['actions'] ) && count( $this->options['actions'] ) ? $this->options['actions'] : $this->importer_actions;
+		$execute_actions = isset( $this->options['actions'] ) && count( $this->options['actions'] ) ? $this->options['actions'] : $this->importer_actions;
+		$is_test         = isset( $this->options['test'] ) && $this->options['test'];
 
-		foreach ( $excute_actions as $action ) {
+		foreach ( $execute_actions as $action ) {
 			if ( ! method_exists( $importer, $action ) ) {
 				continue;
 			}
@@ -136,6 +136,12 @@ class Backup_Import_Manager {
 
 			// Call the importer's method.
 			$result = $importer->$action();
+
+			if ( $is_test ) {
+				// Wait for 15-20 seconds in test mode.
+				sleep( \wp_rand( 15, 20 ) );
+			}
+
 			if ( is_wp_error( $result ) ) {
 				$this->update_status( array( 'status' => 'failed' ) );
 				return $result;
@@ -143,27 +149,6 @@ class Backup_Import_Manager {
 		}
 
 		/*
-		// get the importer
-		$importer = self::get_importer( $importer_type, $this->destination_path );
-		if ( is_wp_error( $importer ) ) {
-			$this->update_status( array( 'status' => 'failed' ) );
-			return $importer;
-		}
-
-		foreach ( $this->importer_actions as $action ) {
-			if ( ! method_exists( $importer, $action ) ) {
-				continue;
-			}
-
-			$this->update_status( array( 'status' => $action ) );
-
-			$result = $importer->$method();
-			if ( is_wp_error( $result ) ) {
-				$this->update_status( array( 'status' => 'failed' ) );
-				return $result;
-			}
-		}
-
 		$remove_tmp_file_result = $this->remove_tmp_files();
 		if ( is_wp_error( $remove_tmp_file_result ) ) {
 			$this->update_status( array( 'status' => 'failed' ) );
@@ -180,11 +165,11 @@ class Backup_Import_Manager {
 	 *
 	 * @return bool
 	 */
-	private function update_status( $content ): bool { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
-		// $existing = get_option( self::$backup_import_status_option, array() );
-		// $new      = array_merge( $existing, $content );
+	private function update_status( $content ): bool {
+		$existing = \get_option( self::$backup_import_status_option, array() );
+		$new      = array_merge( $existing, $content );
 
-		// update_option( self::$backup_import_status_option, $new );
+		\update_option( self::$backup_import_status_option, $new );
 
 		return true;
 	}
