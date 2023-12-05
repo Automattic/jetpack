@@ -259,7 +259,10 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'legacy-site-setup'      => array(
-			'task_ids' => array(
+			'get_title' => function () {
+				return __( 'Site setup', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'  => array(
 				'blogname_set',
 				'front_page_updated',
 				'verify_domain_email',
