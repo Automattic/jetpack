@@ -8,10 +8,16 @@ let windowOpen;
 	services.forEach( service => {
 		document.querySelectorAll( `a.share-${ service }` ).forEach( link => {
 			link.addEventListener( 'click', event => {
-				if ( service === 'print' || service === 'mail' ) {
+				if ( service === 'mail' ) {
 					return;
 				}
 				event.preventDefault();
+				event.stopPropagation();
+
+				if ( service === 'print' ) {
+					window.print();
+					return;
+				}
 
 				const el = event.target.closest( `a.share-${ service }` );
 				if ( ! el ) {
