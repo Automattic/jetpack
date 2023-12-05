@@ -114,7 +114,7 @@ function load_assets( $attr, $content ) {
 		$script  = <<<JS_END
 jetpackInitCalendly( '%s', '%s' );
 JS_END;
-		wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), esc_js( $block_id ) ) );
+		wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url_raw( $url ), esc_js( $block_id ) ) );
 	}
 
 	return $content;
