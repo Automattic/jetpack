@@ -535,8 +535,6 @@ function render_block( $attributes ) {
 		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 	}
 
-	apply_filters( 'jetpack_auto_fill_logged_in_user', '_return true' );
-
 	/** This filter is documented in modules/contact-form/grunion-contact-form.php */
 	if ( is_wpcom() || false !== apply_filters( 'jetpack_auto_fill_logged_in_user', false ) ) {
 		$token_subscribe_email = Jetpack_Memberships::get_current_user_email();
@@ -658,11 +656,12 @@ function render_for_website( $data, $classes, $styles ) {
 							class="screen-reader-text"
 						>
 							<?php
-								if ( $is_subscribed ) {
-									echo esc_html( $data['subscribe_email'] );
-								 } else {
-									echo esc_html( $data['subscribe_placeholder'] );
-								 } ?>
+							if ( $is_subscribed ) {
+								echo esc_html( $data['subscribe_email'] );
+							} else {
+								echo esc_html( $data['subscribe_placeholder'] );
+							}
+							?>
 						</label>
 						<?php
 						printf(
