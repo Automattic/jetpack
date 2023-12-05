@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e8a68d366789840179db62e6b18b05ba",
+    "content-hash": "2cccc2a5cf87fa69cb5379e30a6ba553",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1511,16 +1511,16 @@
         },
         {
             "name": "automattic/jetpack-my-jetpack",
-            "version": "v4.1.0",
+            "version": "v4.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-my-jetpack.git",
-                "reference": "8af8e04856b66043d452f052829a0b3bd9008c60"
+                "reference": "4f7940fa732217d0854d9046c40fc54b0b1b561b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/8af8e04856b66043d452f052829a0b3bd9008c60",
-                "reference": "8af8e04856b66043d452f052829a0b3bd9008c60",
+                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/4f7940fa732217d0854d9046c40fc54b0b1b561b",
+                "reference": "4f7940fa732217d0854d9046c40fc54b0b1b561b",
                 "shasum": ""
             },
             "require": {
@@ -1571,9 +1571,9 @@
             ],
             "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v4.1.0"
+                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v4.1.1"
             },
-            "time": "2023-12-03T23:58:37+00:00"
+            "time": "2023-12-05T16:02:41+00:00"
         },
         {
             "name": "automattic/jetpack-password-checker",
