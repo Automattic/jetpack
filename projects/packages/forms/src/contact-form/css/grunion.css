@@ -565,7 +565,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	--field-padding: calc(var(--label-left) - var(--jetpack--contact-form--border-size));
 }
 
-.contact-form .is-style-animated .grunion-field-wrap input {
+.contact-form .is-style-animated .grunion-field-wrap input:not([type="checkbox"]):not([type="radio"]) {
 	outline: none;
 }
 
@@ -634,17 +634,15 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .grunion-field-wrap input.checkbox-multiple,
 .contact-form .grunion-field-wrap input.radio {
 	align-items: center;
-	all: initial;
 	appearance: none;
 	color: var(--jetpack--contact-form--text-color);
-	display: flex !important;
 	border: none;
 	font-size: var(--jetpack--contact-form--font-size);
 	font-family: var(--jetpack--contact-form--font-family);
 	height: var(--jetpack--contact-form--font-size);
 	justify-content: center;
 	margin: 0 10px 0 0;
-	outline: none;
+	padding: 0;
 	position: relative;
 	width: var(--jetpack--contact-form--font-size);
 }
@@ -689,11 +687,11 @@ on production builds, the attributes are being reordered, causing side-effects
 	border-radius: 50%;
 	content: '';
 	height: 0.5em;
-	margin-left: 50%;
-	margin-top: 50%;
 	position: absolute;
 	transform: translate(-50%, -50%);
 	width: 0.5em;
+	top: calc(var(--jetpack--contact-form--font-size) / 2);
+	inset-inline-start: calc(var(--jetpack--contact-form--font-size) / 2);
 }
 
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-checkbox-multiple-label,
