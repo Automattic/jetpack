@@ -155,115 +155,117 @@ export function AIControl(
 	);
 
 	return (
-		<div className="jetpack-components-ai-control__container">
-			<div
-				className={ classNames( 'jetpack-components-ai-control__wrapper', {
-					'is-transparent': isTransparent,
-				} ) }
-			>
-				<AiStatusIndicator state={ state } />
+		<div className="jetpack-components-ai-control__container-wrapper">
+			<div className="jetpack-components-ai-control__container">
+				<div
+					className={ classNames( 'jetpack-components-ai-control__wrapper', {
+						'is-transparent': isTransparent,
+					} ) }
+				>
+					<AiStatusIndicator state={ state } />
 
-				<div className="jetpack-components-ai-control__input-wrapper">
-					<PlainText
-						value={ value }
-						onChange={ changeHandler }
-						placeholder={ placeholder }
-						className="jetpack-components-ai-control__input"
-						disabled={ loading || disabled }
-						ref={ promptUserInputRef }
-					/>
-				</div>
+					<div className="jetpack-components-ai-control__input-wrapper">
+						<PlainText
+							value={ value }
+							onChange={ changeHandler }
+							placeholder={ placeholder }
+							className="jetpack-components-ai-control__input"
+							disabled={ loading || disabled }
+							ref={ promptUserInputRef }
+						/>
+					</div>
 
-				{ ( ! showAccept || editRequest ) && value?.length > 0 && (
-					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
-						{ ! loading ? (
-							<>
-								{ editRequest && (
+					{ ( ! showAccept || editRequest ) && value?.length > 0 && (
+						<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
+							{ ! loading ? (
+								<>
+									{ editRequest && (
+										<Button
+											className="jetpack-components-ai-control__controls-prompt_button"
+											onClick={ () => setEditRequest( false ) }
+											variant="secondary"
+											label={ __( 'Cancel', 'jetpack-ai-client' ) }
+										>
+											{ showButtonLabels ? (
+												__( 'Cancel', 'jetpack-ai-client' )
+											) : (
+												<Icon icon={ closeSmall } />
+											) }
+										</Button>
+									) }
+
 									<Button
 										className="jetpack-components-ai-control__controls-prompt_button"
-										onClick={ () => setEditRequest( false ) }
-										variant="secondary"
-										label={ __( 'Cancel', 'jetpack-ai-client' ) }
+										onClick={ sendRequest }
+										variant="primary"
+										disabled={ ! value?.length || disabled }
+										label={ __( 'Send request', 'jetpack-ai-client' ) }
 									>
 										{ showButtonLabels ? (
-											__( 'Cancel', 'jetpack-ai-client' )
+											__( 'Generate', 'jetpack-ai-client' )
 										) : (
-											<Icon icon={ closeSmall } />
+											<Icon icon={ arrowUp } />
 										) }
 									</Button>
-								) }
-
+								</>
+							) : (
 								<Button
 									className="jetpack-components-ai-control__controls-prompt_button"
-									onClick={ sendRequest }
-									variant="primary"
-									disabled={ ! value?.length || disabled }
-									label={ __( 'Send request', 'jetpack-ai-client' ) }
+									onClick={ onStop }
+									variant="secondary"
+									label={ __( 'Stop request', 'jetpack-ai-client' ) }
 								>
 									{ showButtonLabels ? (
-										__( 'Generate', 'jetpack-ai-client' )
+										__( 'Stop', 'jetpack-ai-client' )
 									) : (
-										<Icon icon={ arrowUp } />
+										<Icon icon={ closeSmall } />
 									) }
 								</Button>
-							</>
-						) : (
-							<Button
-								className="jetpack-components-ai-control__controls-prompt_button"
-								onClick={ onStop }
-								variant="secondary"
-								label={ __( 'Stop request', 'jetpack-ai-client' ) }
-							>
-								{ showButtonLabels ? (
-									__( 'Stop', 'jetpack-ai-client' )
-								) : (
-									<Icon icon={ closeSmall } />
-								) }
-							</Button>
-						) }
-					</div>
-				) }
+							) }
+						</div>
+					) }
 
-				{ showAccept && ! editRequest && value?.length > 0 && (
-					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
-						<ButtonGroup>
+					{ showAccept && ! editRequest && value?.length > 0 && (
+						<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
+							<ButtonGroup>
+								<Button
+									className="jetpack-components-ai-control__controls-prompt_button"
+									label={ __( 'Back to edit', 'jetpack-ai-client' ) }
+									onClick={ () => setEditRequest( true ) }
+									tooltipPosition="top"
+								>
+									<Icon icon={ arrowLeft } />
+								</Button>
+								<Button
+									className="jetpack-components-ai-control__controls-prompt_button"
+									label={ __( 'Discard', 'jetpack-ai-client' ) }
+									onClick={ discardHandler }
+									tooltipPosition="top"
+								>
+									<Icon icon={ trash } />
+								</Button>
+								<Button
+									className="jetpack-components-ai-control__controls-prompt_button"
+									label={ __( 'Regenerate', 'jetpack-ai-client' ) }
+									onClick={ () => onSend?.( value ) }
+									tooltipPosition="top"
+								>
+									<Icon icon={ reusableBlock } />
+								</Button>
+							</ButtonGroup>
 							<Button
 								className="jetpack-components-ai-control__controls-prompt_button"
-								label={ __( 'Back to edit', 'jetpack-ai-client' ) }
-								onClick={ () => setEditRequest( true ) }
-								tooltipPosition="top"
+								onClick={ onAccept }
+								variant="primary"
+								label={ acceptLabel }
 							>
-								<Icon icon={ arrowLeft } />
+								{ showButtonLabels ? acceptLabel : <Icon icon={ check } /> }
 							</Button>
-							<Button
-								className="jetpack-components-ai-control__controls-prompt_button"
-								label={ __( 'Discard', 'jetpack-ai-client' ) }
-								onClick={ discardHandler }
-								tooltipPosition="top"
-							>
-								<Icon icon={ trash } />
-							</Button>
-							<Button
-								className="jetpack-components-ai-control__controls-prompt_button"
-								label={ __( 'Regenerate', 'jetpack-ai-client' ) }
-								onClick={ () => onSend?.( value ) }
-								tooltipPosition="top"
-							>
-								<Icon icon={ reusableBlock } />
-							</Button>
-						</ButtonGroup>
-						<Button
-							className="jetpack-components-ai-control__controls-prompt_button"
-							onClick={ onAccept }
-							variant="primary"
-							label={ acceptLabel }
-						>
-							{ showButtonLabels ? acceptLabel : <Icon icon={ check } /> }
-						</Button>
-					</div>
-				) }
+						</div>
+					) }
+				</div>
+				{ showGuideLine && ! loading && ! editRequest && <GuidelineMessage /> }
 			</div>
-			{ showGuideLine && ! loading && ! editRequest && <GuidelineMessage /> }
 		</div>
 	);
 }
