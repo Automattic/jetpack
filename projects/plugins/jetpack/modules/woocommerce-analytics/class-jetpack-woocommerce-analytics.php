@@ -95,7 +95,9 @@ class Jetpack_WooCommerce_Analytics {
 
 		self::$analytics = new Jetpack_WooCommerce_Analytics_Universal();
 		self::$myaccount = new Jetpack_WooCommerce_Analytics_My_Account();
-		self::$views     = new Jetpack_WooCommerce_Analytics_Checkout_Flow();
+		if ( class_exists( 'Automattic\WooCommerce\Blocks\Package' ) && version_compare( Automattic\WooCommerce\Blocks\Package::get_version(), '11.6.2', '>=' ) ) {
+			self::$views = new Jetpack_WooCommerce_Analytics_Checkout_Flow();
+		}
 	}
 
 		/**
