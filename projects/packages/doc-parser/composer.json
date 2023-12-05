@@ -1,0 +1,54 @@
+{
+	"name": "automattic/jetpack-doc-parser",
+	"description": "A parser for Jetpack Monorepo to gather inline documentation.",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.0"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-doc-parser",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-doc-parser/compare/v${old}...v${new}"
+		},
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "0.1.x-dev"
+		},
+		"textdomain": "jetpack-doc-parser",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-doc-parser.php"
+		}
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	}
+}
