@@ -1,6 +1,10 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Define all sharing sources.
+ *
+ * @since 11.x
+ *
+ * @package automattic/jetpack
  *
  * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
@@ -16,27 +20,6 @@ use Jetpack_PostImages;
  */
 abstract class Sharing_Source_Block {
 	/**
-	 * Button style (icon, icon-text, text, or official).
-	 *
-	 * @var string
-	 */
-	public $button_style;
-
-	/**
-	 * Does the service have an official version.
-	 *
-	 * @var bool
-	 */
-	public $smart;
-
-	/**
-	 * Should the sharing link open in a new tab.
-	 *
-	 * @var bool
-	 */
-	protected $open_link_in_new;
-
-	/**
 	 * Sharing unique ID.
 	 *
 	 * @var int
@@ -50,18 +33,6 @@ abstract class Sharing_Source_Block {
 	 */
 	public function __construct( $id ) {
 		$this->id = $id;
-		/**
-		 * Filter the way sharing links open.
-		 *
-		 * By default, sharing links open in a new window.
-		 *
-		 * @module sharedaddy
-		 *
-		 * @since 3.4.0
-		 *
-		 * @param bool true Should Sharing links open in a new window. Default to true.
-		 */
-		$this->open_link_in_new = apply_filters( 'jetpack_open_sharing_in_new_window', true );
 	}
 
 	/**
@@ -70,7 +41,7 @@ abstract class Sharing_Source_Block {
 	 * @return string
 	 */
 	public function http() {
-		return is_ssl() ? 'https' : 'http';
+		return 'https';
 	}
 
 	/**
@@ -1336,15 +1307,6 @@ class Share_LinkedIn_Block extends Sharing_Source_Block {
 	 */
 	public function get_name() {
 		return __( 'LinkedIn', 'jetpack' );
-	}
-
-	/**
-	 * Does this sharing source have a custom style.
-	 *
-	 * @return bool
-	 */
-	public function has_custom_button_style() {
-		return $this->smart;
 	}
 
 	/**

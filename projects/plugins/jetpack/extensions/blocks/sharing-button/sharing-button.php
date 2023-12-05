@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Extensions\Sharing_Button_Block;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-require_once __DIR__ . '/sharing-sources-block.php';
+require_once __DIR__ . '/class-sharing-source-block.php';
 
 /**
  * Registers the block for use in Gutenberg
