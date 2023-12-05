@@ -539,10 +539,6 @@ class Sender {
 				$skipped_items_ids[] = $key;
 				continue;
 			}
-			if ( $this->action_is_full_sync( $item[0] ) && strlen( wp_json_encode( $item ) ) > self::MAX_SIZE_FULL_SYNC ) {
-				return new WP_Error( 'full_sync_max_upload_exceeded' );
-
-			}
 			$encoded_item = $this->codec->encode( $item );
 			$upload_size += strlen( $encoded_item );
 			if ( $upload_size > $this->upload_max_bytes && array() !== $items_to_send ) {
@@ -700,9 +696,6 @@ class Sender {
 		$action_to_send = $this->create_action_to_send( $action_name, $data );
 
 		$items_to_send_result = $this->get_items_to_send( $action_to_send, true );
-		if ( is_wp_error( $items_to_send_result ) ) {
-			return $items_to_send_result;
-		}
 		list( $items_to_send, $skipped_items_ids, $items, $preprocess_duration ) = $items_to_send_result;  // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		Settings::set_is_sending( true );
 		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->get_codec()->name(), microtime( true ), 'immediate-send', 0, $preprocess_duration );
