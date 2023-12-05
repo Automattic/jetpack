@@ -1,3 +1,4 @@
+const { getInput, setFailed } = require( '@actions/core' );
 const fetch = require( 'node-fetch' );
 
 /* global WebhookPayloadPullRequest, WebhookPayloadIssue */
@@ -7,12 +8,17 @@ const fetch = require( 'node-fetch' );
  *
  * @param {string}                                        message             - Message to post to Slack
  * @param {string}                                        channel             - Slack channel ID.
- * @param {string}                                        token               - Slack token.
  * @param {WebhookPayloadPullRequest|WebhookPayloadIssue} payload             - Pull request event payload.
  * @param {object}                                        customMessageFormat - Custom message formatting. If defined, takes over from message completely.
  * @returns {Promise<boolean>} Promise resolving to a boolean, whether message was successfully posted or not.
  */
-async function sendSlackMessage( message, channel, token, payload, customMessageFormat = {} ) {
+async function sendSlackMessage( message, channel, payload, customMessageFormat = {} ) {
+	const token = getInput( 'slack_token' );
+	if ( ! token ) {
+		setFailed( 'triage-issues: Input slack_token is required but missing. Aborting.' );
+		return;
+	}
+
 	let slackMessage = '';
 
 	// If we have a custom message format, use it.
