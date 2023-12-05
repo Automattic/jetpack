@@ -6,6 +6,7 @@ import { cleanDefine } from './commands/clean.js';
 import { cliDefine } from './commands/cli.js';
 import * as dependenciesCommand from './commands/dependencies.js';
 import { dockerDefine } from './commands/docker.js';
+import { docsDefine } from './commands/docs.js';
 import { draftDefine } from './commands/draft.js';
 import { generateDefine } from './commands/generate.js';
 import * as installCommand from './commands/install.js';
@@ -37,6 +38,7 @@ export async function cli() {
 	argv.completion( 'completion', 'Generate bash/zsh completions' ); // Placed here to keep things alphabetical.
 	argv.command( dependenciesCommand );
 	argv = dockerDefine( argv );
+	argv = docsDefine( argv );
 	argv = draftDefine( argv );
 	argv = generateDefine( argv );
 	argv.command( installCommand );

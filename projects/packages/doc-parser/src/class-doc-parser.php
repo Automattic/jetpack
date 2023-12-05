@@ -59,7 +59,7 @@ class Doc_Parser {
 	 * @return string
 	 */
 	protected function get_phpdoc_data( $path, $format = 'json' ) {
-		printf( 'Extracting PHPDoc from %1$s. This may take a few minutes...', $path ); // phpcs:ignore
+		printf( 'Extracting PHPDoc from %1$s. This may take a few minutes...' . PHP_EOL, $path ); // phpcs:ignore
 
 		// Find the files to get the PHPDoc data from. $path can either be a folder or an absolute ref to a file.
 		if ( is_file( $path ) ) {

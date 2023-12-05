@@ -1574,6 +1574,8 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.76.0)
 
+  projects/packages/doc-parser: {}
+
   projects/packages/forms:
     dependencies:
       '@automattic/jetpack-analytics':
