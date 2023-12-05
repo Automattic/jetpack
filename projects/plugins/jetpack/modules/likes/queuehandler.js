@@ -200,6 +200,18 @@ function JetpackLikesMessageListener( event ) {
 			}
 			break;
 
+		case 'hideOtherGravatars': {
+			const container = document.querySelector( '#likes-other-gravatars' );
+			if ( ! container ) {
+				break;
+			}
+
+			if ( container.style.display === 'block' ) {
+				container.style.display = 'none';
+			}
+			break;
+		}
+
 		case 'showOtherGravatars': {
 			const container = document.querySelector( '#likes-other-gravatars' );
 			if ( ! container ) {

@@ -275,7 +275,7 @@ const ProductDetailCard = ( {
 					) ) }
 				</ul>
 
-				{ needsPurchase && (
+				{ needsPurchase && discountPrice && (
 					<>
 						<div className={ styles[ 'price-container' ] }>
 							{ discountPrice < price && (

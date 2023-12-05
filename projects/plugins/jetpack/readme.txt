@@ -293,90 +293,72 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.8 - 2023-11-06
+### 12.9-beta - 2023-12-03
 #### Enhancements
-- Add a filter that allows disabling Scan module.
-- Adds new modifications for the admin menu on Atomic sites that ensures that all links go to wp-admin except those that are only available in Calypso.
-- Add support for welcome message inside WP Admin.
-- AI Assistant: Add scaffolding for the Usage Panel.
-- AI Assistant: Add strikethrough Markdown syntax to Markdown generator.
-- AI Assistant: Add Upgrade button component on the UsagePanel.
-- AI Assistant: Add UsageBar component and add a sample of it to the Usage Panel.
-- AI Assistant: Connect real usage data on the UsagePanel.
-- AI Assistant: Enable backend prompts.
-- AI Assistant: Enhance toolbar UX.
-- AI Assistant: Register ai-assistant-usage-panel beta extension.
-- AI Extension: Change the filter to populate the Jetpack Form block with AI components.
-- AI Extension: Consolidate upgrade section of proofread and usage sections.
-- AI Extension: Do not skip React hook instances.
-- AI Extension: Enable Form extension inside query loops.
-- AI Extension: Implement usage message in the UsageBar component.
-- AI Extension: Improve info message when selected blocks don't have content to modify.
-- AI Extension: Show "no content" notice when the extended block content is empty.
-- AI Extension: Use registerBlockType filter to extend Jetpack Form / children block instances.
-- AI Extension: Use registerBlockType to connect components with AI Data and UI Handler.
-- Allow users to retrieve subscriptions on self-hosted.
-- Alter the admin toolbar when the wpcom-admin-interface setting is set to wp-admin (fall back to the original WordPress menu).
-- Change links for 'Appearance > Themes' on Atomic sites with wpcom_admin_interface option set to wp-admin to point to WP.com Marketplace.
-- Earn: Rename Earn to Monetize.
-- Jetpack: Add @wordpress/wordcount dependency.
-- Jetpack: Add UsagePanel story.
-- Jetpack: Handle Proofread feature availability via jetpack_ai_enabled filter.
-- Jetpack: Improve process to extend paid blocks with upgrade banner.
-- Jetpack AI: Cache the AI assistant feature data for Jetpack sites.
-- Jetpack AI: Expose current period usage data on feature endpoint.
-- Jetpack AI: Expose current plan tier information on feature endpoint.
-- Jetpack Dashboard: improve Akismet tooltip.
-- Link plugins to WP.com Marketplace on Atomic sites.
-- Metered billing: Hide usage bar when site has AI plan.
-- Paywall: Improve already subscriber experience.
-- Refactor blocks registration.
-- Register WordAds block earlier to make it more discoverable.
-- Remove Jetpack option jetpack-memberships-connected-account-id.
-- SEO Title & Description: Display the current nucount of characters, even when over the suggested limit.
-- Sitemaps: Update the colors used on the sitemap page to match updated Jetpack branding colors.
-- Subscribers: Allow admins to see subscribe modal.
-- Subscription block: Improve wording to get access to content.
-- Subscriptions: Do not display token in URL.
-- Utilize the Jetpack Admin UI package for handling the Akismet menu.
+- Added subscribers count to pre- and post- publish panels when publishing posts in Newsletter Categories.
+- AI Assistant: Updated AI Assistant to display an upgrade banner when the feature endpoint returns with 'quota exceeded'.
+- AI Assistant: Updated the AI Assistant block to display the upgrade banner only once a block is selected.
+- Blocks: Added capability for editing Subscription block placeholder text and button label.
+- Blocks: Added the Jetpack Sharing Buttons block.
+- Blogroll: Allowed non-WP.com sites to be suggested.
+- CSS Concatenation: Avoid optimizing CSS loading when less than 2 modules that require it are active.
+- Jetpack AI: Enabled the AI Assistant usage panel.
+- Likes: Updated the likes popover design and added RTL support.
+- My Jetpack: Added Creator to My Jetpack overview.
+- Newsletters: Updated the pre-publish and post-publish panels to display the newsletter categories that the post will be sent to.
+- Paid Content Block: Added support for selecting multiple plans.
+- Subscribe Block: Improved the redirect logic after confirming a subscriptions.
+- Subscribe Modal: Added a subscribe modal toggle to the Newsletter settings.
+- Subscribe Modal: The modal is not shown at all after being dismissed, not just limited to the post it was dismissed on.
+- Subscribe modal: Updated the modal to not show when previewing post or theme.
+- VideoPress: Added support for gated content.
+- WoA: Added "Subscribers" and "My profile" under the "Users" menu in the Calypso sidebar.
+- WoA: Updated the wording on the profile menu for WoA sites using the classic style.
 
 #### Improved compatibility
-- Connection: added protection for wpcom urls stored in the database during identity crisis.
-- Donations Block: Update to be compatible with the upcoming version of WordPress, 6.4.
-- General: Indicate full compatibility with the latest version of WordPress, 6.4.
-- Lazy Images: Remove the feature from the plugin. You can now rely on WordPress' own Lazy Image features on your site.
-- Make the jetpack_ai_enabled filter decide whether to register AI editor extensions.
-- Memberships: Prevent data to be retrieved from cache sites on WP.com.
-- Social: Remove the tweetstorm editor components.
+- Added a check for connected plugins before cleaning up plugin options or uninstalling Jetpack.
+- Block Editor: Dequeued editor assets when they aren't in use.
+- Blocks: Fixed lack of spacing for the Paywall block in some themes.
+- Google Fonts: Resolved occasional bug resulting in fatal errors on PHP 8 with latest Gutenberg.
+- Improved the consistency of the "Users" admin menu across all environments.
+- Subscribe Modal: Fixed lack of spacing in the modal for some themes.
+- Updated PHP version reqirements to PHP 7.0 or newer.
+- Updated WordPress version requirements to WordPress 6.3.
 
 #### Bug fixes
-- AI Assistant: Fix issue when getting AI assistant block instance.
-- AI Extension: Fix undefined 'disabled' I18nMenuDropdown prop bug.
-- AI Extension: Improve performance bug when extending blocks with AI Assistant.
-- Block Editor: Disable some of Twitter's Thread publishing tools since the feature is no longer accessible.
-- Blogging prompts block: Add default gravatar attribute to prevent js error.
-- Carousel: Resolve warning with AMP plugin.
-- Do not list one-time interval payment plans as newsletter plans.
-- Fix block paid icon rendering error on simple sites.
-- Fixed a bug that prevent customers from downloading invoices from the my account page in WooCommerce.
-- Fixed an issue where initial state is not in sync.
-- Fixes style for multiple choice checkbox in Froms block.
-- Fix issue in tier selector when tier is null.
-- Fix issue when email was double encoded.
-- Fix Map block not rendering.
-- Fix missing block translations.
-- Fix the google fonts module is not loaded after the late initialization.
-- Jetpack: Fix performance issues by not calling useAnalytics hook for all paragraphs.
-- Newsletter: If site has no plan, downgrade post access to subscribers-only.
-- Prevent a PHP Warning when accessing inner blocks on cart and checkout pages.
-- Prevent issue on jetpack proxy when tier is added.
-- Require login on wpcom for paid content access without cookie or token.
-- REST API: Fix GA settings field, wga, for settings endpoints on API version 1.3 and 1.4.
-- REST API settings endpoint: Fix google analytics option handling for Jetpack sites.
-- Subscribe modal: Match block markup with params.
-- The Google Photos media inserter only checks for the connection status when needed.
-- VideoPress: Avoid performance issues by calling useEffect for every block on typing.
-- YouTube embeds: Avoid errors when opening YouTube in a new window from a YouTube embed.
+- Added missing BLOCK_NAME constant to SimplePayments block.
+- AI Assistant: Fixed an AI error sometimes being rendered for prompts marked unclear.
+- Block Editor: Fixed console errors being thrown for Jetpack blocks inside the Full Site Editor.
+- Contact Form: Prevented errors when a saved submitted contact form is requested but does not exist anymore.
+- Custom-CSS: Disabled loading `@import` directives from the filesystem. `@import` of CSS from URLs can still be done.
+- Dashboard: Fixed the display of Subscriptions and WordPress.com Toolbar controls when the user is not connected to WordPress.com.
+- Dashboard: Fixed the display of the Auto-sharing feature toggle when the user is not connected to WordPress.com.
+- Dashboard: Fixed the display of the settings for Markdown for comments.
+- EU Cookie Widget: Moved away from deprecated jQuery methods.
+- Fixed all Google font definitions being printed in the head, instead only printing fonts that are used in global styles or required by block settings.
+- Fixed a PHP Warning triggered when WooCommerce templates were not found due to a name change.
+- Fixed fatal error triggered by not checking get_product_list() result correctly.
+- Fixed sending email preview when content in the editor is different from the latest version in the database.
+- Fixed wrong like count in the like dialog after liking.
+- Font Library: Fixed PHP warnings that happen when the font name is not defined.
+- Google Fonts: Added filtering for old google fonts data in the user's global styles.
+- Media: Fixed VideoPress videos and media length not being displayed when available.
+- Mobile: Ensured text is always visible in Contact Info block on mobile.
+- Mobile: Fix a regression preventing correct block registration on mobile.
+- Mobile: Prevented converted video blocks from displaying empty thumbnails on mobile.
+- Monetize: Fixed membership products resolver not filtering tiers correctly.
+- Monetize: Updated the link to the plans page.
+- Related Posts: Ensured the Related Posts Block can be displayed properly.
+- Related Posts Block: Fixed thumbnails opening in the same tab.
+- Shortcode embeds: Fixed and updated the display of Gravatars and Gravatar profiles.
+- Subscribe Block: Fix display in the editor.
+- Subscribe Block: Fixed incorrect redirects from the block when shown outside of a post page.
+- Subscribe Block: Fixed the button in a new line option not working.
+- Subscribe Modal: Fixed the issue with the block being shown to subscribers.
+- Subscribe Widget: Fixed nonce validation.
+- VaultPress: Fixed an issue with the VaultPress submenu not being registered when the standalone plugin is inactive and the product is active.
+- WoA: Added back the "Stats" menu item for WoA sites in Calypso.
+- WoA: Restored Woo Express free trial upgrade JITM.
 
 --------
 

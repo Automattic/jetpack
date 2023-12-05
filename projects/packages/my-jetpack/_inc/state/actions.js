@@ -1,7 +1,7 @@
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-import { REST_API_SITE_PRODUCTS_ENDPOINT } from './constants';
+import { REST_API_SITE_DISMISS_BANNER, REST_API_SITE_PRODUCTS_ENDPOINT } from './constants';
 
 /*
  * Action constants
@@ -23,6 +23,8 @@ const SET_CHAT_AUTHENTICATION_IS_FETCHING = 'SET_CHAT_AUTHENTICATION_IS_FETCHING
 const SET_CHAT_AUTHENTICATION = 'SET_CHAT_AUTHENTICATION';
 const SET_STATS_COUNTS_IS_FETCHING = 'SET_STATS_COUNTS_IS_FETCHING';
 const SET_STATS_COUNTS = 'SET_STATS_COUNTS';
+const SET_DISMISSED_WELCOME_BANNER_IS_FETCHING = 'SET_DISMISSED_WELCOME_BANNER_IS_FETCHING';
+const SET_DISMISSED_WELCOME_BANNER = 'SET_DISMISSED_WELCOME_BANNER';
 
 const SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING = 'SET_BACKUP_REWINDABLE_EVENTS_IS_FETCHING';
 const SET_BACKUP_REWINDABLE_EVENTS = 'SET_BACKUP_REWINDABLE_EVENTS';
@@ -110,6 +112,14 @@ const setRequestProductError = ( productId, error ) => ( {
 
 const setProductStatus = ( productId, status ) => {
 	return { type: SET_PRODUCT_STATUS, productId, status };
+};
+
+const setDismissedWelcomeBannerIsFetching = isFetching => {
+	return { type: SET_DISMISSED_WELCOME_BANNER_IS_FETCHING, isFetching };
+};
+
+const setDismissedWelcomeBanner = hasBeenDismissed => {
+	return { type: SET_DISMISSED_WELCOME_BANNER, hasBeenDismissed };
 };
 
 const setGlobalNotice = ( message, options ) => ( {
@@ -272,6 +282,28 @@ const installStandalonePluginForProduct = productId => async store => {
 	} );
 };
 
+/**
+ * Request to set the welcome banner as dismissed
+ *
+ * @returns {Promise} - Promise which resolves when the banner is dismissed.
+ */
+const dismissWelcomeBanner = () => async store => {
+	const { dispatch } = store;
+
+	dispatch( setDismissedWelcomeBannerIsFetching( true ) );
+
+	return apiFetch( {
+		path: REST_API_SITE_DISMISS_BANNER,
+		method: 'POST',
+	} )
+		.then( () => {
+			dispatch( setDismissedWelcomeBanner( true ) );
+		} )
+		.finally( () => {
+			dispatch( setDismissedWelcomeBannerIsFetching( false ) );
+		} );
+};
+
 const setProductStats = ( productId, stats ) => {
 	return { type: SET_PRODUCT_STATS, productId, stats };
 };
@@ -314,6 +346,7 @@ const actions = {
 	setCountBackupItemsIsFetching,
 	setStatsCounts,
 	setStatsCountsIsFetching,
+	dismissWelcomeBanner,
 	...noticeActions,
 	...productActions,
 };
@@ -344,5 +377,7 @@ export {
 	SET_COUNT_BACKUP_ITEMS,
 	SET_STATS_COUNTS_IS_FETCHING,
 	SET_STATS_COUNTS,
+	SET_DISMISSED_WELCOME_BANNER_IS_FETCHING,
+	SET_DISMISSED_WELCOME_BANNER,
 	actions as default,
 };
