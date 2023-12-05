@@ -101,9 +101,9 @@ const ToolbarControls = ( {
 					</>
 				) }
 
-				{ ( showRetry || contentIsLoaded ) && (
+				{ ( showRetry || handleTryAgain ) && (
 					<ToolbarGroup>
-						{ ! showRetry && contentIsLoaded && (
+						{ ! showRetry && contentIsLoaded && handleTryAgain && (
 							<ToolbarButton onClick={ handleTryAgain }>
 								{ __( 'Try Again', 'jetpack' ) }
 							</ToolbarButton>
