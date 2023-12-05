@@ -388,6 +388,8 @@ class WPCOM_Features {
 	public const PERFORMANCE_HISTORY               = 'performance-history';
 	public const POLLDADDY                         = 'polldaddy';
 	public const PREMIUM_CONTENT_CONTAINER         = 'premium-content/container';
+
+	public const PERSONAL_THEMES                   = 'personal-themes';
 	public const PREMIUM_THEMES                    = 'premium-themes';
 	public const PRIORITY_SUPPORT                  = 'priority_support';
 	public const PRIVATE_WHOIS                     = 'private_whois';
@@ -856,6 +858,13 @@ class WPCOM_Features {
 		self::PREMIUM_CONTENT_CONTAINER        => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
+		),
+		self::PERSONAL_THEMES                  => array(
+			self::WPCOM_UNLIMITED_THEMES,
+			self::BUNDLE_ENTERPRISE,
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
 		),
 		self::PREMIUM_THEMES                   => array(
 			self::WPCOM_UNLIMITED_THEMES,
