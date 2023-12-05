@@ -513,11 +513,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						<input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>"/>
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>"/>
 						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
-						<?php
-						if ( is_user_logged_in() ) {
-							wp_nonce_field( 'blogsub_subscribe_' . get_current_blog_id(), '_wpnonce', false );
-						}
-						?>
+						<?php wp_nonce_field( 'blogsub_subscribe_' . \Jetpack_Options::get_option( 'id' ) ); ?>
 						<button type="submit"
 							<?php if ( ! empty( $submit_button_classes ) ) { ?>
 								class="<?php echo esc_attr( $submit_button_classes ); ?>"

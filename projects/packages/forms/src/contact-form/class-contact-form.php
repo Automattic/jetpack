@@ -357,8 +357,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
-			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' novalidate>\n";
-
+			$r .= "<form role='form' action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' novalidate>\n";
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
