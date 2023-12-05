@@ -2,7 +2,7 @@
 /**
  * Like Block.
  *
- * @since $$next-version$$
+ * @since 12.9
  *
  * @package automattic/jetpack
  */

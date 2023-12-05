@@ -88,6 +88,9 @@ const GlobalNotice = ( { message, options, clean } ) => {
  */
 export default function MyJetpackScreen() {
 	useConnectionWatcher();
+	// Check using the global state instead of Redux so it only has effect after refreshing the page
+	const welcomeBannerHasBeenDismissed =
+		window?.myJetpackInitialState?.welcomeBanner.hasBeenDismissed;
 	const isStatsModuleActive = window?.myJetpackInitialState?.isStatsModuleActive === '1';
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -132,12 +135,12 @@ export default function MyJetpackScreen() {
 							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
 						</Text>
 					</Col>
-					{ hasConnectionError && (
+					{ hasConnectionError && welcomeBannerHasBeenDismissed && (
 						<Col>
 							<ConnectionError />
 						</Col>
 					) }
-					{ message && (
+					{ message && welcomeBannerHasBeenDismissed && (
 						<Col>
 							<GlobalNotice message={ message } options={ options } clean={ clean } />
 						</Col>
