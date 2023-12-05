@@ -1072,7 +1072,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 						}
 
 						// Immediate Full Sync does not wait for WP.com to process data so we need to enforce a wait.
-						if ( false !== strpos( get_class( Modules::get_module( 'full-sync' ) ), 'Full_Sync_Immediately' ) ) {
+						if ( str_contains( get_class( Modules::get_module( 'full-sync' ) ), 'Full_Sync_Immediately' ) ) {
 							sleep( 15 );
 						}
 					}
@@ -1445,7 +1445,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			? json_decode( $named_args['body'], true )
 			: false;
 
-		$resource_url = ( false === strpos( $named_args['resource'], '%d' ) )
+		$resource_url = ( ! str_contains( $named_args['resource'], '%d' ) )
 			? $named_args['resource']
 			: sprintf( $named_args['resource'], Jetpack_Options::get_option( 'id' ) );
 
@@ -1727,7 +1727,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				! defined( 'JETPACK_DEV_DEBUG' ) &&
 				! has_filter( 'jetpack_development_mode' ) &&
 				! has_filter( 'jetpack_offline_mode' ) &&
-				false === strpos( site_url(), '.' )
+				! str_contains( site_url(), '.' )
 			) {
 				WP_CLI::error( __( "Jetpack is current in offline mode because the site url does not contain a '.', which often occurs when dynamically setting the WP_SITEURL constant. While in offline mode, the Jetpack Social module will not load.", 'jetpack' ) );
 			}

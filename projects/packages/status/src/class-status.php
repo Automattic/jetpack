@@ -167,6 +167,7 @@ class Status {
 		$site_url = site_url();
 
 		// Check for localhost and sites using an IP only first.
+		// Note: str_contains() is not used here, as wp-includes/compat.php is not loaded in this file.
 		$is_local = $site_url && false === strpos( $site_url, '.' );
 
 		// Use Core's environment check, if available.

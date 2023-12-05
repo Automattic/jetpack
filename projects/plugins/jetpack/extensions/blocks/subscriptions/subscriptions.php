@@ -11,13 +11,13 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
+use function Automattic\Jetpack\Extensions\Premium_Content\subscription_service;
 
 require_once __DIR__ . '/constants.php';
 
@@ -697,7 +697,7 @@ function render_for_website( $data, $classes, $styles ) {
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
 						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
 						<?php
-						wp_nonce_field( 'blogsub_subscribe_' . $blog_id, '_wpnonce', false );
+						wp_nonce_field( 'blogsub_subscribe_' . $blog_id );
 
 						if ( ! empty( $post_id ) ) {
 							echo '<input type="hidden" name="post_id" value="' . esc_attr( $post_id ) . '"/>';
@@ -772,7 +772,7 @@ function render_for_email( $data, $styles ) {
 function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
 	// The blogmagazine theme is overriding WP core `get_the_excerpt` filter and only passing the excerpt
 	// TODO: Until this is fixed, return the excerpt without gating. See https://github.com/Automattic/jetpack/pull/28102#issuecomment-1369161116
-	if ( $post && false !== strpos( $post->post_content, '<!-- wp:jetpack/subscriptions -->' ) ) {
+	if ( $post && str_contains( $post->post_content, '<!-- wp:jetpack/subscriptions -->' ) ) {
 		$excerpt .= sprintf(
 			// translators: %s is the permalink url to the current post.
 			__( "<p><a href='%s'>View post</a> to subscribe to site newsletter.</p>", 'jetpack' ),
@@ -807,7 +807,7 @@ function add_paywall( $the_content ) {
 	}
 
 	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-	$token_service              = is_wpcom() ? new WPCOM_Token_Subscription_Service() : new Jetpack_Token_Subscription_Service();
+	$token_service              = subscription_service();
 	$token                      = $token_service->get_and_set_token_from_request();
 	$payload                    = $token_service->decode_token( $token );
 	$is_valid_token             = ! empty( $payload );
@@ -901,7 +901,7 @@ function get_current_url() {
 		$path   = ! empty( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
 
 		// Support for local plugin development and testing using ngrok.
-		if ( ! empty( $_SERVER['HTTP_X_ORIGINAL_HOST'] ) && false !== strpos( $_SERVER['HTTP_X_ORIGINAL_HOST'], 'ngrok.io' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
+		if ( ! empty( $_SERVER['HTTP_X_ORIGINAL_HOST'] ) && str_contains( $_SERVER['HTTP_X_ORIGINAL_HOST'], 'ngrok.io' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			$host = wp_unslash( $_SERVER['HTTP_X_ORIGINAL_HOST'] );
 		}
 		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -993,9 +993,26 @@ function get_paywall_blocks( $newsletter_access_level ) {
 
 	$sign_in         = '';
 	$switch_accounts = '';
+
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		// On WPCOM we will redirect directly to the current page
+		$redirect_url = get_current_url();
+	} else {
+		// On self-hosted we will save and hide the token
+		$redirect_url = get_site_url() . '/wp-json/jetpack/v4/subscribers/auth';
+		$redirect_url = add_query_arg( 'redirect_url', get_current_url(), $redirect_url );
+	}
+
+	$sign_in_link = add_query_arg(
+		array(
+			'site_id'      => intval( \Jetpack_Options::get_option( 'id' ) ),
+			'redirect_url' => rawurlencode( $redirect_url ),
+		),
+		'https://subscribe.wordpress.com/memberships/jwt'
+	);
 	if ( is_user_auth() ) {
 		if ( ( new Host() )->is_wpcom_simple() ) {
-			$switch_accounts_link = wp_logout_url( get_current_url() );
+			$switch_accounts_link = wp_logout_url( $sign_in_link );
 			$switch_accounts      = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
 <p class="has-text-align-center" style="font-size:14px"><a href="' . $switch_accounts_link . '">' . __( 'Switch Accounts', 'jetpack' ) . '</a></p>
 <!-- /wp:paragraph -->';
@@ -1005,15 +1022,6 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			// custom domain
 			$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link', get_current_blog_id() );
-		} else {
-			$sign_in_link = add_query_arg(
-				array(
-					'site_id'      => intval( \Jetpack_Options::get_option( 'id' ) ),
-					'redirect_url' => rawurlencode( get_current_url() ),
-					'v2'           => '',
-				),
-				'https://subscribe.wordpress.com/memberships/jwt'
-			);
 		}
 		$access_question = get_paywall_access_question( $newsletter_access_level );
 		$sign_in         = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->

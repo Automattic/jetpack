@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.30.9] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411] [#34427]
+
+## [0.30.8] - 2023-11-20
+### Added
+- Add optional quantity to product checkout workflow hook. [#34177]
+
 ## [0.30.7] - 2023-11-14
 ### Changed
 - Updated package dependencies. [#34093]
@@ -660,6 +668,8 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.30.9]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.8...v0.30.9
+[0.30.8]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.7...v0.30.8
 [0.30.7]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.6...v0.30.7
 [0.30.6]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.5...v0.30.6
 [0.30.5]: https://github.com/Automattic/jetpack-connection-js/compare/v0.30.4...v0.30.5

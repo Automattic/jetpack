@@ -7,7 +7,7 @@
 		"codeception/module-asserts": "^2.0 || ^3.0",
 		"codeception/module-phpbrowser": "^2.0 || ^3.0",
 		"codeception/module-webdriver": "^2.0 || ^3.0 || ^4.0",
-		"codeception/module-db": "^2.0 || ^3.0",
+		"codeception/module-db": "^2.0 || 3.1.0 || ^3.1.2",
 		"codeception/module-filesystem": "^2.0 || ^3.0",
 		"codeception/util-universalframework": "^1.0",
 		"yoast/phpunit-polyfills": "1.1.0"

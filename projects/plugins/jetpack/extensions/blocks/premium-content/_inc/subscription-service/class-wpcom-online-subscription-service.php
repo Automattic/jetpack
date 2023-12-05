@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
  *
  * @package Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service
  */
-class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service {
+class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Service {
 
 	/**
 	 * Is available()

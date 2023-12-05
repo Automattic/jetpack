@@ -2,6 +2,113 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.9-beta - 2023-12-03
+### Enhancements
+- My Jetpack: Added Creator to My Jetpack overview. [#34307]
+- Paid Content Block: Added support for selecting multiple plans. [#33903]
+- Likes: Updated the likes popover design and added RTL support. [#34396]
+
+### Improved compatibility
+- Google Fonts: Resolved occasional bug resulting in fatal errors on PHP 8 with latest Gutenberg. [#34382]
+- Block Editor: Dequeued editor assets when they aren't in use. [#34268]
+
+### Bug fixes
+- Dashboard: Fixed the display of the Auto-sharing feature toggle when the user is not connected to WordPress.com. [#34203]
+- Dashboard: Fixed the display of Subscriptions and WordPress.com Toolbar controls when the user is not connected to WordPress.com. [#34358]
+- Monetize: Updated the link to the plans page. [#34316]
+- EU Cookie Widget: Moved away from deprecated jQuery methods. [#34363]
+- Block Editor: Fixed console errors being thrown for Jetpack blocks inside the Full Site Editor. [#34305]
+- Fixed sending email preview when content in the editor is different from the latest version in the database. [#34419]
+- Fixed wrong like count in the like dialog after liking. [#34393]
+- Google Fonts: Added filtering for old google fonts data in the user's global styles. [#34388]
+- Monetize: Fixed membership products resolver not filtering tiers correctly. [#34107]
+- Related Posts Block: Fixed thumbnails opening in the same tab. [#34410]
+- Subscribe Widget: Fixed nonce validation. [#34369]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added the Like Button Block (Beta). [#34340]
+- Added a product upsell for Creator to the Newsletter recommendation card. [#34350]
+- Enhanced Sharing Buttons UI to match Social Icons behavior. [#34181]
+- Exposed post retrieval from WPCOM_JSON_API_Get_Post_v1_1_Endpoint via a code API. [#34290]
+- Likes: Added RTL support to the likes popover. [#34308]
+- Likes: Updated the likes popover design. [#34308]
+- Ensures an array key is set before usage. [#34402]
+- Fixed the issue of publicize remaining ON after the post is published. [#34289]
+- Jetpack AI: Add Usage Panel to the block settings sidebar. [#34341]
+- Moves the REST request `source` escaping from WPCOM to the Jetpack Memberships plugin for clarity. [#34349]
+- Refactor isOverLimit and how to reduce requireUpgrade. [#34287]
+- Rename hasNewsletterPlans to hasTierPlans for memberships. [#34286]
+- Tonesque: Avoid errors when called against a non-image. [#34164]
+- Updated package dependencies. [#34411] [#34427]
+
+## 12.9-a.11 - 2023-11-24
+### Enhancements
+- Blogroll: Allowed non-WP.com sites to be suggested. [#34112]
+- Added subscribers count to pre- and post- publish panels when publishing posts in Newsletter Categories. [#34267]
+- Subscribe Modal: The modal is not shown at all after being dismissed, not just limited to the post it was dismissed on. [#34245]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Adjusted UpgradeNudge for tier plans. [#34254]
+- Prevented caching paywalled content. [#34242]
+- Fixed block name usage when unregistering Paywall block. [#34274]
+- Mobile: Reverted setting default for video blocks added on mobile. [#34271]
+- Added a feature flag for the new like widget layout. [#34264]
+- Added jetpack_verbum_subscription_modal setting to manage subscription modal show/hide on Verbum. [#34258]
+- Added the latest tier plans for 750 and 1000 requests. [#34270]
+- Added tier enabled filter status to the ai-feature payload. Include on the ai-assistant data store. [#34260]
+- Blocks: Remove Beta Amazon block. [#34228]
+- Code Modernization: Replaced usage of strpos() with str_contains() [#34137]
+- Code modernization: Replaced usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+- Fixed paywall switch account on simple sites. [#34250]
+- Introduced enable-tier-plans-ui beta flag. [#34221]
+- Jetpack AI: Fixed the Usage Panel upgrade button text to change depending on the next tier available. [#34251]
+- Jetpack AI: Handle Contact Us button on the Usage Panel when the site is a Simple or Atomic site. [#34273]
+- Odyssey Stats widget: Only loading scripts when the widget is visible. [#34284]
+- Reuse email on memberships checkout form when recently subscribed but not logged in. [#34084]
+
+## 12.9-a.9 - 2023-11-21
+### Bug fixes
+- Fixed all Google font definitions being printed in the head, instead only printing fonts that are used in global styles or required by block settings. [#34157]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Replaced nested `dirname` with use of the php 7.0+ `$levels` parameter. No change in functionality. [#34218]
+- Subscriber Button: Added pointer cursor on hover. [#34190]
+- Jetpack AI: Added support for tiered plans on the usage panel. [#34195]
+
+## 12.9-a.7 - 2023-11-20
+### Enhancements
+- Subscribe Modal: Added a subscribe modal toggle to the Newsletter settings. [#33909]
+- CSS Concatenation: Avoid optimizing CSS loading when less than 2 modules that require it are active. [#34110]
+- Jetpack AI: Enabled the AI Assistant usage panel. [#34122]
+
+### Improved compatibility
+- Updated PHP version reqirements to PHP 7.0 or newer. [#34126]
+- Updated WordPress version requirements to WordPress 6.3. [#34127]
+
+### Bug fixes
+- Added missing BLOCK_NAME constant to SimplePayments block. [#34143]
+- Contact Form: Prevented errors when a saved submitted contact form is requested but does not exist anymore. [#34129]
+- WoA: Restored Woo Express free trial upgrade JITM. [#34167]
+- Mobile: Ensured text is always visible in Contact Info block on mobile. [#33873]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Jetpack AI: Compute if the site requires an upgrade depending on the current tier. [#34083]
+- Jetpack AI: Stopped requesting AI Assistant feature data from the backend. [#34132]
+- Jetpack AI: Ensured the client performs the AI data feature request at least once. [#34109]
+- Jetpack AI: Updated logic for the require upgrade field to also work for tiered sites. [#34170]
+- Jetpack AI: Use the Usage Helper to set fields on the ai-assistant-feature endpoint. [#34151]
+- Use new async flow to get isOverLimit from useAiFeature. [#34156]
+- Blocks: Updated block support from __experimentalLayout to layout. [#34128]
+- Subscribe Modal: Updated wording. [#34130]
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Dashboard: Ensured the menu item focus supports the new "activity log" menu item. [#34174]
+- Partnerships: Stopped initializing the Partner package in the Jetpack plugin, it is now done directly in the Connection package. [#33832]
+- Rearranged the code for readability and made use of specific calls on different contexts. [#34176]
+- Removed the 'jetpack/publicize' store. [#34111]
+- Subscribe Block: Link to https://wordpress.com/email-subscriptions when subscribed. [#34148]
+- Updated package dependencies. [#34119]
+- Use the same value as in backend for unlimited plan limit (needed for int comparisons), 999.999.999 (almost a billion), as a constant. [#34169]
+
 ## 12.9-a.5 - 2023-11-14
 ### Enhancements
 - Subscribe Block: Improved the redirect logic after confirming a subscriptions. [#34086]

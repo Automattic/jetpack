@@ -70,7 +70,7 @@ export const WorkflowRow: React.FC< WorkflowRowProps > = props => {
 					<div className={ styles.triggers }>
 						{ workflow.triggers.map( ( trigger: Trigger ) => {
 							return (
-								<div className={ styles.triggers__item }>
+								<div key={ trigger.slug } className={ styles.triggers__item }>
 									{ trigger.title }
 									<IconTooltip
 										title={ trigger.title }

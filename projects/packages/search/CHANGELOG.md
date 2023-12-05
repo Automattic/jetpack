@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.40.2] - 2023-12-03
+### Changed
+- Updated package dependencies. [#34411] [#34427]
+
+### Fixed
+- Instant Search: Fixed the title layout for product layout. [#34263]
+
+## [0.40.1] - 2023-11-24
+### Changed
+- Replaced usage of strpos() with str_contains(). [#34137]
+- Replaced usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+
+## [0.40.0] - 2023-11-20
+### Changed
+- Replaced usage of strpos() with str_starts_with(). [#34135]
+- Updated required PHP version to >= 7.0. [#34192]
+
 ## [0.39.7] - 2023-11-14
 ### Changed
 - Updated package dependencies. [#34093]
@@ -840,6 +857,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.40.2]: https://github.com/Automattic/jetpack-search/compare/v0.40.1...v0.40.2
+[0.40.1]: https://github.com/Automattic/jetpack-search/compare/v0.40.0...v0.40.1
+[0.40.0]: https://github.com/Automattic/jetpack-search/compare/v0.39.7...v0.40.0
 [0.39.7]: https://github.com/Automattic/jetpack-search/compare/v0.39.6...v0.39.7
 [0.39.6]: https://github.com/Automattic/jetpack-search/compare/v0.39.5...v0.39.6
 [0.39.5]: https://github.com/Automattic/jetpack-search/compare/v0.39.4...v0.39.5

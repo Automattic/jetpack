@@ -46,7 +46,9 @@ function jetpack_get_google_fonts_data() {
 		}
 	}
 
-	return $data;
+	if ( is_array( $data ) && is_array( $data['fontFamilies'] ) ) {
+		return $data;
+	}
 }
 
 /**
@@ -147,3 +149,67 @@ function jetpack_register_google_fonts_to_theme_json( $theme_json ) {
 }
 
 add_filter( 'wp_theme_json_data_default', 'jetpack_register_google_fonts_to_theme_json' );
+
+/**
+ * Filter out the deprecated font families that are from the jetpack-google-fonts provider.
+ *
+ * @param object[] $font_families The font families.
+ * @return object[] The filtered font families.
+ */
+function jetpack_google_fonts_filter_out_deprecated_font_data( $font_families ) {
+	return array_values(
+		array_filter(
+			$font_families,
+			function ( $font_family ) {
+				$has_deprecated_google_fonts_data = false;
+
+				if ( isset( $font_family['fontFace'] ) ) {
+					foreach ( $font_family['fontFace'] as $font_face ) {
+						$provider = isset( $font_face['provider'] ) ? $font_face['provider'] : '';
+						if ( $provider === 'jetpack-google-fonts' ) {
+							$has_deprecated_google_fonts_data = true;
+							break;
+						}
+					}
+				}
+
+				return ! $has_deprecated_google_fonts_data;
+			}
+		)
+	);
+}
+
+/**
+ * Unregister the google fonts data from user's theme json data that were stored by accident.
+ *
+ * @param WP_Theme_JSON_Data $theme_json The theme json data of user.
+ * @return WP_Theme_JSON_Data The filtered theme json data.
+ */
+function jetpack_unregister_deprecated_google_fonts_from_theme_json_data_user( $theme_json ) {
+	$raw_data = $theme_json->get_data();
+	$origin   = 'theme';
+	if ( empty( $raw_data['settings']['typography']['fontFamilies'][ $origin ] ) ) {
+		return $theme_json;
+	}
+
+	// Filter out the font definitions that are from the jetpack-google-fonts provider.
+	$raw_data['settings']['typography']['fontFamilies'][ $origin ] = jetpack_google_fonts_filter_out_deprecated_font_data(
+		$raw_data['settings']['typography']['fontFamilies'][ $origin ]
+	);
+
+	$theme_json_class = get_class( $theme_json );
+	return new $theme_json_class( $raw_data, 'custom' );
+}
+
+add_filter( 'wp_theme_json_data_user', 'jetpack_unregister_deprecated_google_fonts_from_theme_json_data_user' );
+
+if ( ! class_exists( 'Jetpack_Google_Font_Face' ) ) {
+	/**
+	 * Load Jetpack Google Font Face
+	 */
+	require_once __DIR__ . '/class-jetpack-google-font-face.php';
+
+	// Initialize Jetpack Google Font Face to avoid printing **ALL** google fonts provided by this module.
+	// See p1700040028362329-slack-C4GAQ900P and p7DVsv-jib-p2
+	new Jetpack_Google_Font_Face();
+}

@@ -278,7 +278,7 @@ class Manager {
 		$jetpack_methods = array();
 
 		foreach ( $methods as $method => $callback ) {
-			if ( 0 === strpos( $method, 'jetpack.' ) ) {
+			if ( str_starts_with( $method, 'jetpack.' ) ) {
 				$jetpack_methods[ $method ] = $callback;
 			}
 		}
@@ -445,7 +445,7 @@ class Manager {
 			$post_data   = $_POST;
 			$file_hashes = array();
 			foreach ( $post_data as $post_data_key => $post_data_value ) {
-				if ( 0 !== strpos( $post_data_key, '_jetpack_file_hmac_' ) ) {
+				if ( ! str_starts_with( $post_data_key, '_jetpack_file_hmac_' ) ) {
 					continue;
 				}
 				$post_data_key                 = substr( $post_data_key, strlen( '_jetpack_file_hmac_' ) );

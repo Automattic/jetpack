@@ -141,7 +141,7 @@ function formatSlackMessage( payload, channel, message ) {
 	const { issue, repository } = payload;
 	const { html_url, title } = issue;
 
-	let dris = '@kitkat-team';
+	let dris = '';
 	switch ( repository.full_name ) {
 		case 'Automattic/jetpack':
 			dris = '@jpop-da';
