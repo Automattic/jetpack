@@ -19,6 +19,7 @@ import useAutosaveAndRedirect from '../../../../shared/use-autosave-and-redirect
 import UsageControl from '../usage-bar';
 import './style.scss';
 import { PLAN_TYPE_FREE, PLAN_TYPE_TIERED, PLAN_TYPE_UNLIMITED } from '../usage-bar/types';
+import type { UsagePanelProps } from './types';
 import type { PlanType } from '../usage-bar/types';
 
 /**
@@ -121,7 +122,7 @@ const useContactUsLink = (): {
 	};
 };
 
-export default function UsagePanel() {
+export default function UsagePanel( { placement = null }: UsagePanelProps ) {
 	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
 	const { contactUsURL, autosaveAndRedirectContactUs } = useContactUsLink();
 	const { tracks } = useAnalytics();
@@ -149,10 +150,11 @@ export default function UsagePanel() {
 			tracks.recordEvent( 'jetpack_ai_usage_panel_upgrade_button_click', {
 				current_tier_slug: currentTier?.slug,
 				requests_count: requestsCount,
+				...( placement ? { placement } : {} ),
 			} );
 			autosaveAndRedirect( event );
 		},
-		[ tracks, currentTier, requestsCount, autosaveAndRedirect ]
+		[ tracks, currentTier, requestsCount, placement, autosaveAndRedirect ]
 	);
 
 	const trackContactUsClick = useCallback(
@@ -161,10 +163,11 @@ export default function UsagePanel() {
 			tracks.recordEvent( 'jetpack_ai_usage_panel_upgrade_button_click', {
 				current_tier_slug: currentTier?.slug,
 				requests_count: requestsCount,
+				...( placement ? { placement } : {} ),
 			} );
 			autosaveAndRedirectContactUs();
 		},
-		[ tracks, currentTier, requestsCount, autosaveAndRedirectContactUs ]
+		[ tracks, currentTier, requestsCount, placement, autosaveAndRedirectContactUs ]
 	);
 
 	// Determine the upgrade button text
