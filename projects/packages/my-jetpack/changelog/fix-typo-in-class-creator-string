@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Class-creator.php: fixes a small typo in "Newsletter" where the "E" was forgotten.
