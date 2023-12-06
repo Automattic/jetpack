@@ -12,11 +12,11 @@ use Automattic\Jetpack\Stats\WPCOM_Stats;
  */
 class Jetpack_Top_Posts_Helper {
 	/**
-	 * Returns user's top posts. 
+	 * Returns user's top posts.
 	 *
-	 * @param int $period       Period of days to draw stats from.
-	 * @param int $items_count  Number of items to display.
-	 * @param string $types     Content types to include.
+	 * @param int    $period       Period of days to draw stats from.
+	 * @param int    $items_count  Number of items to display.
+	 * @param string $types        Content types to include.
 	 * @return array
 	 */
 	public static function get_top_posts( $period, $items_count, $types ) {
