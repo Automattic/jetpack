@@ -845,7 +845,7 @@ function ZeroBSCRM_get_quote_template() {
 					}
 				}
 			}
-			$workingHTML = $placeholder_templating->replace_placeholders( array( 'global', 'contact', 'quote' ), $workingHTML, $replacements, array( ZBS_TYPE_CONTACT => $contact_object ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$workingHTML = $placeholder_templating->replace_placeholders( array( 'global', 'contact', 'quote' ), $workingHTML, $replacements, array( ZBS_TYPE_CONTACT => $contact_object ), false, false ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// } replace the rest (#fname, etc)
 			// WH: moved to nice filter :) $workingHTML = zeroBSCRM_replace_customer_placeholders($customer_ID, $workingHTML);

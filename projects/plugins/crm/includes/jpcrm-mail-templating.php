@@ -520,7 +520,7 @@ function zeroBSCRM_quote_generateAcceptNotifHTML( $quoteID = -1, $quoteSignedBy 
 				if ( !empty( $quote['title'] ) ) {
 					$proposalTitle = $quote['title'];
 				}
-				$quote_url = jpcrm_esc_link( 'edit', $quoteID, 'zerobs_quote' );
+				$quote_url = zeroBSCRM_portal_linkObj( $quoteID, ZBS_TYPE_QUOTE );
 				$quote_edit_url = jpcrm_esc_link( 'edit', $quoteID, 'zerobs_quote' );
 				$message_content = zeroBSCRM_mailTemplate_get( ZBSEMAIL_QUOTEACCEPTED );
 				$bodyHTML = $message_content->zbsmail_body;
@@ -530,6 +530,8 @@ function zeroBSCRM_quote_generateAcceptNotifHTML( $quoteID = -1, $quoteSignedBy 
 				$zbs_biz_extra = zeroBSCRM_getSetting( 'businessextra' );
 				$zbs_biz_youremail = zeroBSCRM_getSetting( 'businessyouremail' );
 				$zbs_biz_yoururl = zeroBSCRM_getSetting( 'businessyoururl' );
+				$replacements['quote-url'] = $quote_url;
+				$replacements['quote-edit-url'] = $quote_edit_url;
 
 				// build msg-content html
 				$bodyHTML = $placeholder_templating->replace_placeholders( array( 'global', 'quote', 'contact' ), $bodyHTML, $replacements, array( ZBS_TYPE_QUOTE => $quote, ZBS_TYPE_CONTACT => $quote_contact ) );
