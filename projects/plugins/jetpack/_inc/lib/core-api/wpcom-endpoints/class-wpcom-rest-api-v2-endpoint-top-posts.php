@@ -126,7 +126,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 		$data = ( new WPCOM_Stats() )->get_top_posts( $query_args, $override_cache );
 
 		if ( is_wp_error( $data ) ) {
-			$data['summary']['postviews'] = array();
+			$data = array( 'summary' => array( 'postviews' => array() ) );
 		}
 
 		$posts_retrieved = count( $data['summary']['postviews'] );
