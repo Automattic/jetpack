@@ -248,6 +248,63 @@
             }
         },
         {
+            "name": "automattic/jetpack-backup-helper-script-manager",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/backup-helper-script-manager",
+                "reference": "8f11db0375d6189daadc57c615e5a74af8a345bd"
+            },
+            "require": {
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/wordbless": "@dev",
+                "yoast/phpunit-polyfills": "1.1.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-backup-helper-script-manager",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Install / delete helper script for backup and transport server. Not visible to site owners.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-composer-plugin",
             "version": "dev-trunk",
             "dist": {
@@ -1329,9 +1386,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/transport-helper",
-                "reference": "bc316ac1f2946a9f629f6c4b8de99190ad4660d1"
+                "reference": "66a49c7a53a5d6c4a380c7ff3b6e75b964ec20da"
             },
             "require": {
+                "automattic/jetpack-backup-helper-script-manager": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "php": ">=7.0"
             },
