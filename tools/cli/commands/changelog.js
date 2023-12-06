@@ -779,9 +779,8 @@ async function promptChangelog( argv, needChangelog, types ) {
 		type: 'autocomplete',
 		name: 'type',
 		message: 'Type of change.',
-		suggest: ( input, typeChoices = choices.map( choice => choice.value ) ) => {
-			return Promise.resolve( typeChoices.filter( choice => choice.value.startsWith( input ) ) );
-		},
+		suggest: ( input, choices ) => choices.filter( choice => choice.value.startsWith( input ) ),
+		highlight: v => v,
 		choices: choices,
 	} );
 
