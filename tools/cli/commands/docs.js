@@ -35,15 +35,31 @@ export function docsDefine( yargs ) {
  * @param {argv}  argv - the arguments passed.
  */
 export async function docsCli( argv ) {
-	child_process.spawnSync(
-		'php',
-		[
-			path.resolve( './projects/packages/doc-parser/runner.php' ),
-			path.resolve( `./projects/plugins/${ argv.$0 }` ),
-		],
-		{
+	const parser_options = [
+		path.resolve( './projects/packages/doc-parser/runner.php' ),
+		path.resolve( `./projects/plugins/${ argv.$0 }` ),
+	];
+
+	let data = child_process.spawnSync( 'php', parser_options, {
+		cwd: path.resolve( './' ),
+		stdio: [ 'inherit', 'inherit', 'ignore' ],
+	} );
+
+	if ( data.status !== 0 ) {
+		// Something is wrong, let's try to run composer update.
+		console.debug( 'Preparing doc-parser package...' );
+		child_process.spawnSync( 'composer', [ 'update' ], {
+			cwd: path.resolve( './projects/packages/doc-parser' ),
+			stdio: 'ignore',
+		} );
+		data = child_process.spawnSync( 'php', parser_options, {
 			cwd: path.resolve( './' ),
-			stdio: 'inherit',
+			stdio: 'ignore',
+		} );
+		if ( data.status !== 0 ) {
+			console.error(
+				"Failed to prepare the doc-parser package. Try running 'jetpack install -v packages/doc-parser'."
+			);
 		}
-	);
+	}
 }
