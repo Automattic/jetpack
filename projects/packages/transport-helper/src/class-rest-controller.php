@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\Transport_Helper;
 
+use Automattic\Jetpack\Backup\Helper_Script_Manager\Helper_Script_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use WP_Error;
 use WP_REST_Request;

@@ -7,7 +7,7 @@
 
 // If WordPress's plugin API is available already, use it. If not,
 // drop data into `$wp_filter` for `WP_Hook::build_preinitialized_hooks()`.
-use Automattic\Jetpack\Transport_Helper\Helper_Script_Manager;
+use Automattic\Jetpack\Backup\Helper_Script_Manager;
 
 if ( function_exists( 'add_filter' ) ) {
 	$add_filter = 'add_filter';
