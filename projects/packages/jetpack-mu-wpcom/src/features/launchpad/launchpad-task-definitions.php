@@ -189,7 +189,8 @@ function wpcom_launchpad_get_task_definitions() {
 				if ( function_exists( 'get_memberships_connected_account_redirect' ) ) {
 					return get_memberships_connected_account_redirect(
 						get_current_user_id(),
-						get_current_blog_id()
+						get_current_blog_id(),
+						$data['launchpad_context']
 					);
 				}
 				return '/earn/payments/' . $data['site_slug_encoded'];
