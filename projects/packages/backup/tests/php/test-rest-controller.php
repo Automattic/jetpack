@@ -166,8 +166,8 @@ class Test_REST_Controller extends TestCase {
 		$request->set_body( wp_json_encode( $body ) );
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
-		$this->assertEquals( 403, $response->get_status() );
-		$this->assertStringContainsString( 'Bad header', $response->get_data()['message'] );
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertStringContainsString( 'Bad helper script header', $response->get_data()['message'] );
 	}
 
 	/**

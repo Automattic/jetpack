@@ -140,7 +140,8 @@ class Helper_Script_Manager {
 		if ( true !== $actual_header ) {
 			return new \WP_Error(
 				'bad_header',
-				'Bad helper script header: 0x' . bin2hex( $actual_header )
+				'Bad helper script header: 0x' . bin2hex( $actual_header ),
+				array( 'status' => 400 )
 			);
 		}
 
@@ -150,7 +151,8 @@ class Helper_Script_Manager {
 			return new \WP_Error(
 				'too_big',
 				"Helper script is bigger ($helper_script_size bytes) " .
-				'than the max. size (' . static::MAX_FILESIZE . ' bytes)'
+				'than the max. size (' . static::MAX_FILESIZE . ' bytes)',
+				array( 'status' => 413 )
 			);
 		}
 
@@ -166,7 +168,8 @@ class Helper_Script_Manager {
 		if ( 0 === $wp_path_marker_replacement_count ) {
 			return new \WP_Error(
 				'no_wp_path_marker',
-				"Helper script does not have the '$wp_path_marker' marker"
+				"Helper script does not have the '$wp_path_marker' marker",
+				array( 'status' => 400 )
 			);
 		}
 
@@ -196,7 +199,8 @@ class Helper_Script_Manager {
 		return new \WP_Error(
 			'all_locations_failed',
 			'Unable to write the helper script to any install locations; ' .
-			'tried: ' . implode( ';', $failure_paths_and_reasons )
+			'tried: ' . implode( ';', $failure_paths_and_reasons ),
+			array( 'status' => 500 )
 		);
 	}
 
@@ -266,7 +270,8 @@ class Helper_Script_Manager {
 		} catch ( Exception $exception ) {
 			return new \WP_Error(
 				'deletion_failure',
-				"Unable to delete helper script at '$path': " . $exception->getMessage()
+				"Unable to delete helper script at '$path': " . $exception->getMessage(),
+				array( 'status' => 500 )
 			);
 		}
 
@@ -341,7 +346,8 @@ class Helper_Script_Manager {
 		} catch ( Exception $exception ) {
 			return new \WP_Error(
 				'cleanup_failed',
-				'Unable to clean up expired helper scripts: ' . $exception->getMessage()
+				'Unable to clean up expired helper scripts: ' . $exception->getMessage(),
+				array( 'status' => 500 )
 			);
 		}
 
@@ -360,7 +366,8 @@ class Helper_Script_Manager {
 		} catch ( Exception $exception ) {
 			return new \WP_Error(
 				'cleanup_failed',
-				'Unable to clean up all helper scripts: ' . $exception->getMessage()
+				'Unable to clean up all helper scripts: ' . $exception->getMessage(),
+				array( 'status' => 500 )
 			);
 		}
 
