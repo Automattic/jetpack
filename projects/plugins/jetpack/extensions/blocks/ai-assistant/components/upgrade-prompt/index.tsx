@@ -107,7 +107,7 @@ const DefaultUpgradePrompt = (): React.ReactNode => {
 			className={ 'jetpack-ai-upgrade-banner' }
 			description={ createInterpolateElement(
 				__(
-					'Congratulations on exploring Jetpack AI and reaching the free requests limit!<br /><strong>Upgrade now to keep using it.</strong>',
+					'Congratulations on exploring Jetpack AI and reaching the free <br />requests limit! <strong>Upgrade now to keep using it.</strong>',
 					'jetpack'
 				),
 				{
