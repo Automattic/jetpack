@@ -259,7 +259,8 @@ class Contact_Form_Plugin {
 			'./js/accessible-form.js',
 			__FILE__,
 			array(
-				'async' => true,
+				'async'   => true,
+				'version' => \JETPACK__VERSION,
 			)
 		);
 

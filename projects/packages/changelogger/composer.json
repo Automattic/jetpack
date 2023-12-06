@@ -16,7 +16,7 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
-		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0"
+		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0"
 	},
 	"autoload": {
 		"psr-4": {

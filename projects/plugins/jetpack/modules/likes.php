@@ -464,7 +464,15 @@ class Jetpack_Likes {
 		// Let's make sure that the script is enqueued.
 		wp_enqueue_script( 'jetpack_likes_queuehandler' );
 
-		return $content . $html;
+		$beta_blocks_active = defined( 'JETPACK_BLOCKS_VARIATION' ) && JETPACK_BLOCKS_VARIATION === 'beta';
+
+		// If we're using a block-based theme and the Like block (beta) is available, return content without the Like button widget.
+		// Otherwise return content with the Like button widget.
+		if ( wp_is_block_theme() && $beta_blocks_active ) {
+			return $content;
+		} else {
+			return $content . $html;
+		}
 	}
 
 	/** Checks if admin bar is visible.*/

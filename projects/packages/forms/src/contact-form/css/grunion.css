@@ -773,7 +773,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form__error {
-	margin-bottom: 0.25rem;
+	margin-bottom: var(--wp--style--block-gap, 1.5rem);
 	padding: 0.5em;
 
 	background-color: var(--jetpack--contact-form--error-color);
