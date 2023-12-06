@@ -732,7 +732,7 @@ async function promptChangelog( argv, needChangelog, types ) {
 		.trim()
 		.replace( /\//g, '-' );
 	const maxLength = Object.keys( types ).reduce( ( a, v ) => ( v.length > a ? v.length : a ), 0 );
-	const choices = Object.entries( types ).map( ( [ value, name ] ) => ( {
+	const typeChoices = Object.entries( types ).map( ( [ value, name ] ) => ( {
 		value,
 		name: `[${ value.padEnd( maxLength, ' ' ) }] ${ name }`,
 	} ) );
@@ -781,7 +781,7 @@ async function promptChangelog( argv, needChangelog, types ) {
 		message: 'Type of change.',
 		suggest: ( input, choices ) => choices.filter( choice => choice.value.startsWith( input ) ),
 		highlight: v => v,
-		choices: choices,
+		choices: typeChoices,
 	} );
 
 	// Get the entry, if it's a patch type it can be left blank.
