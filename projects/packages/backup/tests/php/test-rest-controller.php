@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack\Backup;
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use PHPUnit\Framework\TestCase;
+use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
@@ -15,7 +15,7 @@ use WP_REST_Server;
  *
  * @package automattic/jetpack-backup
  */
-class Test_REST_Controller extends TestCase {
+class Test_REST_Controller extends BaseTestCase {
 
 	/**
 	 * REST Server object.
