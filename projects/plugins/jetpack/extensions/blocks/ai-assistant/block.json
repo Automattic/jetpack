@@ -54,6 +54,10 @@
 		"userPrompt": {
 			"type": "string",
 			"default": ""
+		},
+		"requestingState": {
+			"type": "string",
+			"default": "init"
 		}
 	},
 	"example": {

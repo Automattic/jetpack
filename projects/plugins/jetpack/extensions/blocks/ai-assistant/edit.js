@@ -125,6 +125,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		tracks,
 		userPrompt: attributes.userPrompt,
 		requireUpgrade,
+		requestingState: attributes.requestingState,
 	} );
 
 	const connected = isUserConnected();
@@ -216,6 +217,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 		return () => clearInterval( interval );
 	}, [ promptPlaceholder, currentIndex ] );
+
+	useEffect( () => {
+		setAttributes( { requestingState } );
+	}, [ requestingState, setAttributes ] );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
