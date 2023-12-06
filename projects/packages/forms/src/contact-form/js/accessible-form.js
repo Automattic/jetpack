@@ -41,6 +41,9 @@ const initForm = form => {
 		hasInsetLabel: hasFormInsetLabels( form ),
 	};
 
+	// Hold references to the input event listeners.
+	let inputListenerMap = {};
+
 	form.addEventListener( 'submit', e => {
 		e.preventDefault();
 
@@ -49,12 +52,14 @@ const initForm = form => {
 			return;
 		}
 
-		clearForm( form, opts );
+		clearForm( form, inputListenerMap, opts );
 
-		if ( form.checkValidity() ) {
+		if ( isFormValid( form ) ) {
+			inputListenerMap = {};
+
 			submitForm( form );
 		} else {
-			invalidateForm( form, opts );
+			inputListenerMap = invalidateForm( form, opts );
 		}
 	} );
 };
@@ -62,6 +67,31 @@ const initForm = form => {
 /******************************************************************************
  * CHECKS
  ******************************************************************************/
+
+/**
+ * Check if a form has valid entries.
+ * @param {HTMLFormElement} form FormElement
+ * @returns {boolean}
+ */
+const isFormValid = form => {
+	let isValid = form.checkValidity();
+
+	if ( ! isValid ) {
+		return false;
+	}
+
+	// Handle the Multiple Choice fields separately since checkboxes can't have a required attribute
+	// in that case.
+	const multipleChoiceFields = getMultipleChoiceFields( form );
+
+	for ( const field of multipleChoiceFields ) {
+		if ( isMultipleChoiceFieldRequired( field ) && ! isMultipleChoiceFieldValid( field ) ) {
+			return false;
+		}
+	}
+
+	return isValid;
+};
 
 /**
  * Check if a form is submitting.
@@ -103,6 +133,17 @@ const isSingleChoiceField = elt => {
 const isMultipleChoiceFieldRequired = fieldset => {
 	// Unlike radio buttons, we can't use the `required` attribute on checkboxes.
 	return fieldset.hasAttribute( 'data-required' );
+};
+
+/**
+ * Check if a Single Choice field is required.
+ * @param {HTMLFieldSetElementi} fieldset Fieldset element
+ * @returns {boolean}
+ */
+const isSingleChoiceFieldRequired = fieldset => {
+	return Array.from( fieldset.querySelectorAll( 'input[type="radio"]' ) ).some(
+		input => input.hasAttribute( 'required' ) || input.hasAttribute( 'aria-required' )
+	);
 };
 
 /**
@@ -181,6 +222,15 @@ const getFormSubmitBtn = form => {
 	return (
 		form.querySelector( '[type="submit"]' ) || form.querySelector( 'button:not([type="reset"])' )
 	);
+};
+
+/**
+ * Return the Multiple Choice fields of a form.
+ * @param {HTMLFormElement} form Form element
+ * @returns {HTMLFieldSetElement[]} Fieldset elements
+ */
+const getMultipleChoiceFields = form => {
+	return Array.from( form.querySelectorAll( '.grunion-checkbox-multiple-options' ) );
 };
 
 /**
@@ -408,12 +458,19 @@ const groupInputs = inputs => {
  ******************************************************************************/
 
 /**
- * Clear all errors in a form.
+ * Clear all errors and remove all input event listeners in a form.
  * @param {HTMLFormElement} form Form element
+ * @param {object} inputListenerMap Map of input event listeners (name: handler)
  * @param {object} opts Form options
  */
-const clearForm = ( form, opts ) => {
+const clearForm = ( form, inputListenerMap, opts ) => {
 	clearErrors( form, opts );
+
+	for ( const name in inputListenerMap ) {
+		form
+			.querySelectorAll( `[name="${ name }"]` )
+			.forEach( input => input.removeEventListener( 'blur', inputListenerMap[ name ] ) );
+	}
 };
 
 /**
@@ -531,12 +588,135 @@ const showFormSubmittingIndicator = form => {
  ******************************************************************************/
 
 /**
- * Show errors in the form.
+ * Show errors in the form and trigger revalidation on inputs blur.
  * @param {HTMLFormElement} form Form element
  * @param {object} opts Form options
+ * @returns {object} Map of the input event listeners set (name: handler)
  */
 const invalidateForm = ( form, opts ) => {
 	setErrors( form, opts );
+
+	return listenToInvalidFields( form, opts );
+};
+
+/**
+ * Trigger the fields revalidation on a form inputs blur.
+ * @param {HTMLFormElement} form Form element
+ * @param {object} opts Form options
+ * @returns {object} Map of the input event listeners set (name: handler)
+ */
+const listenToInvalidFields = ( form, opts ) => {
+	let listenerMap = {};
+
+	const eventCb = () => updateFormErrorMessage( form );
+
+	for ( const field of getInvalidFields( form ) ) {
+		let obj;
+
+		if ( isSingleChoiceField( field ) && isSingleChoiceFieldRequired( field ) ) {
+			obj = listenToInvalidSingleChoiceField( field, eventCb, form, opts );
+		} else if ( isMultipleChoiceField( field ) && isMultipleChoiceFieldRequired( field ) ) {
+			obj = listenToInvalidMultipleChoiceField( field, eventCb, form, opts );
+		} else {
+			obj = listenToInvalidSimpleField( field, eventCb, form, opts );
+		}
+
+		listenerMap = {
+			...listenerMap,
+			...obj,
+		};
+	}
+
+	return listenerMap;
+};
+
+/**
+ * Trigger the revalidation of a Single Choice field on its inputs blur.
+ * @param {HTMLFieldSetElement} fieldset Fieldset element
+ * @param {Function} cb Function to call on event
+ * @param {HTMLFormElement} form Form element
+ * @param {object} opts Form options
+ * @returns {object} Map of the input event listeners set (name: handler)
+ */
+const listenToInvalidSingleChoiceField = ( fieldset, cb, form, opts ) => {
+	const listenerMap = {};
+	const blurHandler = () => {
+		if ( isSingleChoiceFieldValid( fieldset ) ) {
+			clearGroupInputError( fieldset );
+		} else {
+			setSingleChoiceFieldError( fieldset, form, opts );
+		}
+
+		cb();
+	};
+
+	const inputs = fieldset.querySelectorAll( 'input[type="radio"]' );
+
+	for ( const input of inputs ) {
+		input.addEventListener( 'blur', blurHandler );
+
+		listenerMap[ input.name ] = blurHandler;
+	}
+
+	return listenerMap;
+};
+
+/**
+ * Trigger the revalidation of a Multiple Choice field on its inputs blur.
+ * @param {HTMLFieldSetElement} fieldset Fieldset element
+ * @param {Function} cb Function to call on event
+ * @param {HTMLFormElement} form Form element
+ * @param {object} opts Form options
+ * @returns {object} Map of the input event listeners set (name: handler)
+ */
+const listenToInvalidMultipleChoiceField = ( fieldset, cb, form, opts ) => {
+	const listenerMap = {};
+	const blurHandler = () => {
+		if ( isMultipleChoiceFieldValid( fieldset ) ) {
+			clearGroupInputError( fieldset );
+		} else {
+			setMultipleChoiceFieldError( fieldset, form, opts );
+		}
+
+		cb();
+	};
+
+	const inputs = fieldset.querySelectorAll( 'input[type="checkbox"]' );
+
+	for ( const input of inputs ) {
+		input.addEventListener( 'blur', blurHandler );
+
+		listenerMap[ input.name ] = blurHandler;
+	}
+
+	return listenerMap;
+};
+
+/**
+ * Trigger the revalidation of a simple field (single input) on its input blur.
+ * @param {HTMLElement} input Input element
+ * @param {Function} cb Function to call on event
+ * @param {HTMLFormElement} form Form element
+ * @param {object} opts Form options
+ * @returns {object} Map of the input event listeners set (name: handler)
+ */
+const listenToInvalidSimpleField = ( input, cb, form, opts ) => {
+	const listenerMap = {};
+	const blurHandler = () => {
+		if ( isSimpleFieldValid( input ) ) {
+			clearInputError( input, opts );
+		} else {
+			setSimpleFieldError( input, form, opts );
+		}
+
+		cb();
+	};
+
+	input.addEventListener( 'blur', blurHandler );
+
+	listenerMap[ input.name ] = blurHandler;
+
+	return listenerMap;
 };
 
 /******************************************************************************
@@ -575,6 +755,19 @@ const setFormError = form => {
 	error.appendChild(
 		createError( L10N.invalidForm || 'Please make sure all fields are correct.' )
 	);
+};
+
+/**
+ * Update the error message of a form based on its validity.
+ * @param {HTMLFormElement} form Form element
+ * @param {object} opts Form options
+ */
+const updateFormErrorMessage = form => {
+	clearFormError( form );
+
+	if ( ! form.checkValidity() ) {
+		setFormError( form );
+	}
 };
 
 /**
