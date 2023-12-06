@@ -151,7 +151,7 @@ const createSpinner = () => {
 const createWarningIcon = () => {
 	const elt = document.createElement( 'span' );
 
-	elt.classList.add( 'dashicons', 'dashicons-warning' );
+	elt.classList.add( 'contact-form__warning-icon' );
 	elt.setAttribute( 'aria-label', L10N.warning || 'Warning' );
 
 	return elt;
