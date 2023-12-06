@@ -167,7 +167,7 @@ class Test_REST_Controller extends TestCase {
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 		$this->assertEquals( 400, $response->get_status() );
-		$this->assertStringContainsString( 'Bad helper script header', $response->get_data()['message'] );
+		$this->assertTrue( false !== strpos( $response->get_data()['message'], 'Bad helper script header' ) );
 	}
 
 	/**
@@ -233,7 +233,7 @@ class Test_REST_Controller extends TestCase {
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 		$this->assertEquals( 500, $response->get_status() );
-		$this->assertStringContainsString( 'Bad helper script header', $response->get_data()['message'] );
+		$this->assertTrue( false !== strpos( $response->get_data()['message'], 'Bad helper script header' ) );
 
 		wp_delete_file( $path );
 	}
