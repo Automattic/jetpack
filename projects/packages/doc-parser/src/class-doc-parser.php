@@ -39,15 +39,14 @@ class Doc_Parser {
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		if ( $error ) {
 			printf(
-				'Problem writing %1$s bytes of data to %2$s',
+				'Problem writing %1$s bytes of data to %2$s' . PHP_EOL,
 				strlen( $json ),
 				$output_file
 			);
-			exit;
+			exit( 1 );
 		}
 
-		printf( 'Data exported to %1$s', $output_file );
-		echo PHP_EOL;
+		printf( 'Data exported to %1$s' . PHP_EOL, $output_file );
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
@@ -72,8 +71,8 @@ class Doc_Parser {
 			$error = ob_get_clean();
 
 			if ( $error ) {
-				printf( 'Problem with %1$s: %2$s', $path, $error ); // phpcs:ignore
-				exit;
+				printf( 'Problem with %1$s: %2$s' . PHP_EOL, $path, $error ); // phpcs:ignore
+				exit( 1 );
 			}
 		}
 
