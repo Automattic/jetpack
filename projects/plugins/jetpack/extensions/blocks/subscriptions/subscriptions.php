@@ -535,11 +535,14 @@ function render_block( $attributes ) {
 		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 	}
 
+	$token_subscribe_email = Jetpack_Memberships::get_current_user_email();
+
 	/** This filter is documented in modules/contact-form/grunion-contact-form.php */
 	if ( is_wpcom() || false !== apply_filters( 'jetpack_auto_fill_logged_in_user', false ) ) {
-		$token_subscribe_email = Jetpack_Memberships::get_current_user_email();
-		$current_user          = wp_get_current_user();
-		$subscribe_email       = ! empty( $current_user->user_email ) ? $current_user->user_email : $token_subscribe_email;
+		$current_user    = wp_get_current_user();
+		$subscribe_email = ! empty( $current_user->user_email ) ? $current_user->user_email : $token_subscribe_email;
+	} else {
+		$subscribe_email = $token_subscribe_email ?? '';
 	}
 
 	// The block is using the Jetpack_Subscriptions_Widget backend, hence the need to increase the instance count.
