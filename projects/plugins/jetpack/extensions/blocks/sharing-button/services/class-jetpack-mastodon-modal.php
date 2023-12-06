@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+namespace Automattic\Jetpack\Extensions\Sharing_Button_Block;
+
 /**
  * Class Mastodon_Modal
  */
