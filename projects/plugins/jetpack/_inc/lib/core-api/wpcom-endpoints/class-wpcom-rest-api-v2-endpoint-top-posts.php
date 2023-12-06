@@ -165,8 +165,11 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 			$thumbnail = get_the_post_thumbnail_url( $post_id );
 
 			if ( ! $thumbnail ) {
-				$post_image = reset( get_attached_media( 'image', $post_id ) );
-				$thumbnail  = wp_get_attachment_url( $post_image->ID );
+				$post_images = get_attached_media( 'image', $post_id );
+				$post_image  = reset( $post_images );
+				if ( $post_image ) {
+					$thumbnail = wp_get_attachment_url( $post_image->ID );
+				}
 			}
 
 			if ( $post['public'] ) {
