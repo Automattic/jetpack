@@ -210,7 +210,7 @@ class Creator extends Product {
 				),
 			),
 			array(
-				'name'  => __( 'Newsltter', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Newsletter', 'jetpack-my-jetpack' ),
 				'info'  => array(
 					'content' => __(
 						'Start a Newsletter by sending your content as an email newsletter direct to your fans email inboxes.',
