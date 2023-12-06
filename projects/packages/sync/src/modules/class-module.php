@@ -349,7 +349,7 @@ SQL
 			// The $ids are ordered in descending order.
 			$status = $this->set_send_full_sync_actions_status( $status, $objects );
 
-			if ( $chunks_sent++ === $limits['max_chunks'] || microtime( true ) >= $send_until ) {
+			if ( ++$chunks_sent === $limits['max_chunks'] || microtime( true ) >= $send_until ) {
 				return $status;
 			}
 		}
