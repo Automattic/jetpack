@@ -106,12 +106,10 @@ function jpcrm_quote_generate_pdf( $quote_id = false ) {
 
 	// load templating
 	global $zbs;
-	$placeholder_templating = $zbs->get_templating();
-	$replacements = $placeholder_templating->get_generic_replacements();
+	$placeholder_templating    = $zbs->get_templating();
+	$replacements              = $placeholder_templating->get_generic_replacements();
 	$replacements['quote-url'] = zeroBSCRM_portal_linkObj( $quote_id, ZBS_TYPE_QUOTE );
 
-	// build HTML
-	$content = zeroBS_getQuoteBuilderContent( $quote_id );
 	// Retrieve quote (for any quote placeholders within the template)
 	$quote = zeroBS_getQuote( $quote_id, true );
 	// replacements

@@ -1655,7 +1655,7 @@ class jpcrm_templating_placeholders {
 		$replacements = array(),
 		$replacement_objects = false,
 		$retain_unset_placeholders = false,
-		$include_quote_id_url = true,
+		$include_quote_id_url = true
 
 	) {
 
@@ -1757,9 +1757,9 @@ class jpcrm_templating_placeholders {
 					// Replace main key.
 					// In the Quote editor itself we don't want to render the Quote ID or Quote URL placeholders,
 					// So, $include_quote_id_url will be set to false in that case. See ZeroBSCRM_get_quote_template().
-					if ( $include_quote_id_url || (!$include_quote_id_url && ! in_array($replacement_info['key'], ['quote-ID', 'quote-url'] ) ) ) {
+					if ( $include_quote_id_url || ( ! $include_quote_id_url && ! in_array( $replacement_info['key'], array( 'quote-ID', 'quote-url' ), true ) ) ) {
 
-						$string = str_replace($replace_string, $replace_with, $string );
+						$string = str_replace( $replace_string, $replace_with, $string );
 
 					}
 				}
