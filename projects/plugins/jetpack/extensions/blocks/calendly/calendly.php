@@ -112,14 +112,17 @@ function load_assets( $attr, $content ) {
 			esc_attr( $block_id )
 		);
 		$script  = <<<JS_END
-jetpackInitCalendly( %s, '%s' );
+jetpackInitCalendly( %s, %s );
 JS_END;
 		wp_add_inline_script(
 			'jetpack-calendly-external-js',
 			sprintf(
 				$script,
-				wp_json_encode( esc_url_raw( $url ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ),
-				esc_attr( $block_id )
+				wp_json_encode(
+					esc_url_raw( $url ),
+					JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+				),
+				wp_json_encode( $block_id, JSON_HEX_TAG | JSON_HEX_AMP )
 			)
 		);
 	}
