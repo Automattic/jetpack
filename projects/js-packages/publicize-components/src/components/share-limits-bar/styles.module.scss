@@ -1,12 +1,16 @@
 .bar-wrapper {
 	:global .record-meter-bar__items{
-		height: 0.5rem;
+		height: 1.5rem;
 	}
 }
 
 .wrapper {
-	.text {
+	.title {
 		font-weight: 600;
 		text-transform: uppercase;
+	}
+	:global .record-meter-bar__legend {
+		display: flex;
+		gap: 1rem;
 	}
 }

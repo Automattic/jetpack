@@ -85,7 +85,7 @@ const Header = () => {
 								usedCount={ usedCount }
 								scheduledCount={ scheduledCount }
 								remainingCount={ remainingCount }
-								text={ __( 'Auto-share usage', 'jetpack-social' ) }
+								legendCaption={ __( 'Auto-share usage', 'jetpack-social' ) }
 								noticeType={ noticeType }
 							/>
 							<ContextualUpgradeTrigger

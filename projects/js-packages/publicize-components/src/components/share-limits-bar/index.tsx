@@ -11,10 +11,11 @@ export type ShareLimitsBarProps = {
 	usedCount: number;
 	scheduledCount: number;
 	remainingCount?: number;
-	text?: string;
+	title?: string;
 	textVariant?: string;
 	className?: string;
 	noticeType?: NoticeType;
+	legendCaption?: string;
 };
 
 const colorsForUsed: Record< NoticeType, string > = {
@@ -33,10 +34,11 @@ export const ShareLimitsBar = ( {
 	usedCount,
 	scheduledCount,
 	remainingCount,
-	text,
+	title,
 	textVariant = 'body',
 	className,
 	noticeType = 'default',
+	legendCaption,
 }: ShareLimitsBarProps ) => {
 	const items = useMemo( () => {
 		const scheduledMessage = __( 'scheduled', 'jetpack' );
@@ -66,15 +68,19 @@ export const ShareLimitsBar = ( {
 
 	return (
 		<div className={ classNames( styles.wrapper, className ) }>
-			{ text ? (
-				<Text variant={ textVariant } className={ styles.text }>
-					{ text }
+			{ title ? (
+				<Text variant={ textVariant } className={ styles.title }>
+					{ title }
 				</Text>
 			) : null }
 			<RecordMeterBar
 				totalCount={ usedCount + scheduledCount + remainingCount }
 				items={ items }
 				className={ styles[ 'bar-wrapper' ] }
+				tableCaption={ legendCaption }
+				legendTitle={ legendCaption }
+				recordTypeLabel={ __( 'Share type', 'jetpack' ) }
+				recordCountLabel={ __( 'Usage', 'jetpack' ) }
 			/>
 		</div>
 	);

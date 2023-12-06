@@ -22,7 +22,7 @@ export const ShareCountInfo: React.FC = () => {
 				remainingCount={ remainingCount }
 				className={ styles[ 'bar-wrapper' ] }
 				noticeType={ noticeType }
-				text={ __( 'Auto-share usage', 'jetpack' ) }
+				title={ __( 'Auto-share usage', 'jetpack' ) }
 				textVariant="body-extra-small"
 			/>
 		</ThemeProvider>
