@@ -75,6 +75,16 @@ class Posts extends Module {
 	const MAX_POST_META_LENGTH = 2000000;
 
 	/**
+	 * Max bytes allowed for full sync upload.
+	 * Current Setting : 7MB.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_SIZE_FULL_SYNC = 7000000;
+
+	/**
 	 * Default previous post state.
 	 * Used for default previous post status.
 	 *
@@ -885,7 +895,7 @@ class Posts extends Module {
 				}
 			}
 			// Always allow the first post with its metadata.
-			if ( empty( $filtered_post_ids ) || ( $current_size + $post_content_size + $metadatas_size ) <= ( self::MAX_POST_META_LENGTH + self::MAX_POST_CONTENT_LENGTH ) ) {
+			if ( empty( $filtered_post_ids ) || ( $current_size + $post_content_size + $metadatas_size ) <= ( self::MAX_SIZE_FULL_SYNC ) ) {
 				$filtered_post_ids[] = $post->ID;
 				$filtered_posts[]    = $post;
 				$filtered_metadatas  = array_merge( $filtered_metadatas, $current_metadatas );
