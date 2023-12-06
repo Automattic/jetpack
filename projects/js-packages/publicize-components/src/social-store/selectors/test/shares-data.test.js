@@ -120,29 +120,6 @@ describe( 'Social store selectors: sharesData', () => {
 				).toBe( result );
 			}
 		} );
-
-		it( 'should take connections into consideration', () => {
-			const cases = [
-				[ [ 100, 100 ], 200 ],
-				[ [ 0, 0 ], 0 ],
-				[ [ 100, 0 ], 100 ],
-				[ [ 0, 100 ], 100 ],
-			];
-
-			for ( const [ [ publicized_count, to_be_publicized_count ], result ] of cases ) {
-				expect(
-					getTotalSharesCount(
-						{
-							sharesData: {
-								to_be_publicized_count,
-								publicized_count,
-							},
-						},
-						{ enabledConnectionsCount: 2 }
-					)
-				).toBe( result + 2 );
-			}
-		} );
 	} );
 
 	describe( 'getSharedPostsCount', () => {
@@ -194,7 +171,7 @@ describe( 'Social store selectors: sharesData', () => {
 
 		const suites = [
 			[
-				'should count used and scheduled shares along with enabled connections',
+				'should count used and scheduled shares',
 				{
 					includeScheduled: true,
 				},
@@ -202,115 +179,39 @@ describe( 'Social store selectors: sharesData', () => {
 					{
 						sharesUsed: 10,
 						scheduledShares: 10,
-						enabledConnections: 5,
-						result: 5,
+						result: 10,
 					},
 					{
-						sharesUsed: 10,
+						sharesUsed: 20,
 						scheduledShares: 10,
-						enabledConnections: 10,
-						result: 0,
-					},
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 15,
 						result: 0,
 					},
 					{
 						sharesUsed: 0,
 						scheduledShares: 0,
-						enabledConnections: 0,
 						result: 30,
 					},
 				],
 			],
 			[
-				'should count used and scheduled shares but not the enabled connections',
+				'should count used shares but not the scheduled shares',
 				{
-					includeScheduled: true,
+					includeScheduled: false,
 				},
 				[
 					{
 						sharesUsed: 10,
-						scheduledShares: 15,
-						enabledConnections: 0,
-						result: 5,
-					},
-					{
-						sharesUsed: 10,
-						scheduledShares: 0,
-						enabledConnections: 0,
+						scheduledShares: 10,
 						result: 20,
 					},
 					{
-						sharesUsed: 0,
-						scheduledShares: 20,
-						enabledConnections: 0,
-						result: 10,
-					},
-				],
-			],
-			[
-				'should count used shares and enabled connections but not the scheduled shares',
-				{
-					includeScheduled: false,
-				},
-				[
-					{
-						sharesUsed: 10,
+						sharesUsed: 30,
 						scheduledShares: 10,
-						enabledConnections: 5,
-						result: 15,
-					},
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 10,
-						result: 10,
-					},
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 15,
-						result: 5,
+						result: 0,
 					},
 					{
 						sharesUsed: 0,
 						scheduledShares: 0,
-						enabledConnections: 0,
-						result: 30,
-					},
-				],
-			],
-			[
-				'should count used shares but not the scheduled shares and enabled connections',
-				{
-					includeScheduled: false,
-				},
-				[
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 5,
-						result: 15,
-					},
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 10,
-						result: 10,
-					},
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 15,
-						result: 5,
-					},
-					{
-						sharesUsed: 0,
-						scheduledShares: 0,
-						enabledConnections: 0,
 						result: 30,
 					},
 				],
@@ -319,7 +220,7 @@ describe( 'Social store selectors: sharesData', () => {
 
 		for ( const [ name, args, cases ] of suites ) {
 			it( `${ name }`, () => {
-				for ( const { sharesUsed, scheduledShares, enabledConnections, result } of cases ) {
+				for ( const { sharesUsed, scheduledShares, result } of cases ) {
 					expect(
 						numberOfSharesRemaining(
 							{
@@ -330,10 +231,7 @@ describe( 'Social store selectors: sharesData', () => {
 									share_limit: 30,
 								},
 							},
-							{
-								enabledConnectionsCount: enabledConnections,
-								...args,
-							}
+							args
 						)
 					).toBe( result );
 				}

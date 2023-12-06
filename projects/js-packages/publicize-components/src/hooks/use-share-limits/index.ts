@@ -23,16 +23,18 @@ export type UseShareLimitsArgs = {
  * @returns {ReturnType<typeof getMessages>} Share limits messages
  */
 export function getMessages( remainingCount: number ) {
-	const remaining = sprintf(
-		// translators: %d: The number of shares to social media remaining
-		_n(
-			'You have %d auto-share remaining.',
-			'You have %d auto-shares remaining.',
-			remainingCount,
-			'jetpack'
-		),
-		remainingCount
-	);
+	const remaining = Number.isFinite( remainingCount )
+		? sprintf(
+				// translators: %d: The number of shares to social media remaining
+				_n(
+					'You have %d auto-share remaining.',
+					'You have %d auto-shares remaining.',
+					remainingCount,
+					'jetpack'
+				),
+				remainingCount
+		  )
+		: '';
 	return {
 		default: remaining,
 		exceeded: __(

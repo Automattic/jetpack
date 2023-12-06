@@ -61,10 +61,10 @@ describe( 'useShareLimits', () => {
 		expect( result.current ).toEqual( {
 			status: 'none',
 			noticeType: 'default',
-			message: messages.default,
+			message: getMessages( Infinity ).default,
 			usedCount: 0,
 			scheduledCount: 0,
-			remainingCount: 30,
+			remainingCount: Infinity,
 		} );
 	} );
 
@@ -78,14 +78,14 @@ describe( 'useShareLimits', () => {
 			expected: {
 				status: 'none',
 				noticeType: 'default',
-				message: messages.default,
+				message: getMessages( 30 ).default,
 				usedCount: 0,
 				scheduledCount: 0,
 				remainingCount: 30,
 			},
 		},
 		{
-			name: 'should return "none" with default message when used + scheduled < limit',
+			name: 'should return "default" with default message when used + scheduled < limit',
 			sharesData: {
 				publicized_count: 5,
 				to_be_publicized_count: 5,
@@ -93,7 +93,7 @@ describe( 'useShareLimits', () => {
 			expected: {
 				status: 'none',
 				noticeType: 'default',
-				message: messages.default,
+				message: getMessages( 20 ).default,
 				usedCount: 5,
 				scheduledCount: 5,
 				remainingCount: 20,
