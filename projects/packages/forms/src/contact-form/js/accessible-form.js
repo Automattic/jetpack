@@ -1,5 +1,10 @@
 /**
  * @file Overwrites native form validation to provide an accessible experience to all users.
+ *
+ * In the code below, be aware that the terms "input" and "field" mean different things. An input
+ * refers to a UI element a user can interact with, such as a text field or a checbkox. A field
+ * represents a question of a form and can hold multiple inputs, such as the Single Choice
+ * (multiple radio buttons) or Multiple Choice fields (multiple checkboxes).
  */
 
 const L10N = window.jetpackContactForm || {};
@@ -22,7 +27,7 @@ const initAllForms = () => {
 };
 
 /**
- * Register event listeners on the specified form and disable native validation.
+ * Implement a form custom validation.
  * @param {HTMLFormElement} form Form element
  */
 const initForm = form => {
@@ -32,30 +37,135 @@ const initForm = form => {
 		form.setAttribute( 'novalidate', true );
 	}
 
+	const opts = {
+		hasInsetLabel: hasFormInsetLabels( form ),
+	};
+
 	form.addEventListener( 'submit', e => {
 		e.preventDefault();
 
-		const submitBtn = getFormSubmitBtn( form );
-
-		// If form is submitting, do nothing.
-		if ( submitBtn && submitBtn.getAttribute( 'aria-disabled' ) === 'true' ) {
+		// Prevent multiple submissions.
+		if ( isFormSubmitting( form ) ) {
 			return;
 		}
 
-		clearErrors( form );
+		clearForm( form, opts );
 
 		if ( form.checkValidity() ) {
-			// We should avoid using `disabled` when possible. One of the reasons is that `disabled`
-			// buttons lose their focus, which can be confusing. Better use `aria-disabled` instead.
-			// Ref. https://css-tricks.com/making-disabled-buttons-more-inclusive/#aa-aria-to-the-rescue
-			submitBtn.setAttribute( 'aria-disabled', true );
-			submitBtn.appendChild( createSpinner() );
-
-			form.submit();
+			submitForm( form );
 		} else {
-			setErrors( form );
+			invalidateForm( form, opts );
 		}
 	} );
+};
+
+/******************************************************************************
+ * CHECKS
+ ******************************************************************************/
+
+/**
+ * Check if a form is submitting.
+ * @param {HTMLFormElement} form Form element
+ * @returns {boolean}
+ */
+const isFormSubmitting = form => {
+	return form.getAttribute( 'data-submitting' ) === true;
+};
+
+/**
+ * Check if an element is a Multiple Choice field (i.e., a fieldset with checkboxes).
+ * @param {HTMLElement} elt Element
+ * @returns {boolean}
+ */
+const isMultipleChoiceField = elt => {
+	return (
+		elt.tagName.toLowerCase() === 'fieldset' &&
+		elt.classList.contains( 'grunion-checkbox-multiple-options' )
+	);
+};
+
+/**
+ * Check if an element is a Single Choice field (i.e., a fieldset with radio buttons).
+ * @param {HTMLElement} elt Element
+ * @returns {boolean}
+ */
+const isSingleChoiceField = elt => {
+	return (
+		elt.tagName.toLowerCase() === 'fieldset' && elt.classList.contains( 'grunion-radio-options' )
+	);
+};
+
+/**
+ * Check if a Multiple Choice field is required.
+ * @param {HTMLFieldSetElementi} fieldset Fieldset element
+ * @returns {boolean}
+ */
+const isMultipleChoiceFieldRequired = fieldset => {
+	// Unlike radio buttons, we can't use the `required` attribute on checkboxes.
+	return fieldset.hasAttribute( 'data-required' );
+};
+
+/**
+ * Check if a simple field (with a single input) is valid.
+ * @param {HTMLElement} input Field input element
+ * @returns {boolean}
+ */
+const isSimpleFieldValid = input => {
+	return input.validity.valid;
+};
+
+/**
+ * Check if a required single choice field (with radio buttons) is valid.
+ * @param {HTMLFieldSetElement} fieldset Fieldset element
+ * @returns {boolean}
+ */
+const isSingleChoiceFieldValid = fieldset => {
+	const inputs = Array.from( fieldset.querySelectorAll( 'input[type="radio"]' ) );
+
+	if ( inputs.length > 0 ) {
+		return inputs.every( input => input.validity.valid );
+	}
+
+	return false;
+};
+
+/**
+ * Check if a required multiple choice field (with checkboxes) is valid.
+ * @param {HTMLFieldSetElement} fieldset Fieldset element
+ * @returns {boolean}
+ */
+const isMultipleChoiceFieldValid = fieldset => {
+	if ( ! isMultipleChoiceFieldRequired( fieldset ) ) {
+		return true;
+	}
+
+	const inputs = Array.from( fieldset.querySelectorAll( 'input[type="checkbox"]' ) );
+
+	if ( inputs.length > 0 ) {
+		return inputs.some( input => input.checked );
+	}
+
+	return false;
+};
+
+/**
+ * Return whether a form has inset labels (like with the Outlined and Animates styles).
+ * @param {HTMLFormElement} form Form element
+ * @returns {boolean}
+ */
+const hasFormInsetLabels = form => {
+	// The style "container" is insde the form.
+	const block = form.querySelector( '.wp-block-jetpack-contact-form' );
+
+	if ( ! block ) {
+		return false;
+	}
+
+	const blockClassList = block.classList;
+
+	return (
+		blockClassList.contains( 'is-style-outlined' ) || blockClassList.contains( 'is-style-animated' )
+	);
 };
 
 /******************************************************************************
@@ -63,31 +173,84 @@ const initForm = form => {
  ******************************************************************************/
 
 /**
- * Return the submit button of the specified form.
+ * Return the submit button of a form.
  * @param {HTMLFormElement} form Form element
  * @returns {HTMLButtonElement|HTMLInputElement|undefined} Submit button
  */
 const getFormSubmitBtn = form => {
 	return (
-		form.querySelector( 'input[type="submit"]' ) ||
-		form.querySelector( 'button:not([type="reset"])' )
+		form.querySelector( '[type="submit"]' ) || form.querySelector( 'button:not([type="reset"])' )
 	);
 };
 
 /**
- * Return the inputs of the specified form.
+ * Return the inputs of a specified form.
  * @param {HTMLFormElement} form Form element
- * @returns {NodeListOf<HTMLElement>} Form inputs
+ * @returns {HTMLElement[]} Form inputs
  */
 const getFormInputs = form => {
-	return [ ...form.elements ].filter(
+	return Array.from( form.elements ).filter(
 		// input.offsetParent filters out inputs of which the parent is hidden.
 		input => ! [ 'hidden', 'submit' ].includes( input.type ) && input.offsetParent !== null
 	);
 };
 
 /**
- * Return the error element associated to the specified form.
+ * Get the fields of a form.
+ * @param {HTMLFormElement} form Form element
+ * @returns {object} Form fields (type: fields[])
+ */
+const getFormFields = form => {
+	const groupedInputs = groupInputs( getFormInputs( form ) );
+	const fields = {
+		simple: groupedInputs.default,
+		singleChoice: [],
+		multipleChoice: [],
+	};
+
+	// Single Choice fields (i.e., fieldsets with radio buttons)
+	const uniqueRadioNames = groupedInputs.radios.reduce(
+		( acc, input ) => ( acc.includes( input.name ) ? acc : [ ...acc, input.name ] ),
+		[]
+	);
+
+	for ( const name of uniqueRadioNames ) {
+		// Get the first radio button of the group.
+		const input = form.querySelector( `input[type="radio"][name="${ name }"]` );
+
+		if ( input ) {
+			const fieldset = input.closest( 'fieldset' );
+
+			if ( fieldset ) {
+				fields.singleChoice.push( fieldset );
+			}
+		}
+	}
+
+	// Multiple Choice fields (i.e., fieldsets with checkboxes)
+	const uniqueCheckboxNames = groupedInputs.checkboxes.reduce(
+		( acc, input ) => ( acc.includes( input.name ) ? acc : [ ...acc, input.name ] ),
+		[]
+	);
+
+	for ( const name of uniqueCheckboxNames ) {
+		// Get the first checkbox of the group.
+		const input = form.querySelector( `input[type="checkbox"][name="${ name }"]` );
+
+		if ( input ) {
+			const fieldset = input.closest( 'fieldset' );
+
+			if ( fieldset ) {
+				fields.multipleChoice.push( fieldset );
+			}
+		}
+	}
+
+	return fields;
+};
+
+/**
+ * Return the error element of a form.
  * @param {HTMLFormElement} form Form element
  * @returns {HTMLElement|undefined} Error element
  */
@@ -96,20 +259,11 @@ const getFormError = form => {
 };
 
 /**
- * Return the error elements associated to the inputs of the specified form.
- * @param {HTMLFormElement} form Form element
- * @returns {NodeListOf<HTMLElement>} Error elements
- */
-const getFormInputErrors = form => {
-	return form.querySelectorAll( '.contact-form__input-error' );
-};
-
-/**
- * Return the elements marked as invalid in the specified form.
+ * Return the fields marked as invalid in a form.
  * @param {HTMLFormElement} form Form element
  * @returns {NodeListOf<HTMLElement>} Invalid elements
  */
-const getFormInvalidFields = form => {
+const getInvalidFields = form => {
 	return form.querySelectorAll( '[aria-invalid]' );
 };
 
@@ -200,11 +354,10 @@ const createFormErrorContainer = () => {
 
 /**
  * Create a new error container for a form input.
- * @param {HTMLElement} input Input element
  * @param {string} errorId Error element ID
  * @returns {HTMLDivElement} Error container
  */
-const createFormInputErrorContainer = ( input, errorId ) => {
+const createInputErrorContainer = errorId => {
 	const elt = document.createElement( 'div' );
 
 	elt.id = errorId;
@@ -218,32 +371,13 @@ const createFormInputErrorContainer = ( input, errorId ) => {
  ******************************************************************************/
 
 /**
- * Return whether the form has inset labels (like with the Outlined and Animates styles).
- * @param {HTMLFormElement} form Form element
- * @returns {boolean}
- */
-const hasFormInsetLabels = form => {
-	const block = form.querySelector( '.wp-block-jetpack-contact-form' );
-
-	if ( ! block ) {
-		return;
-	}
-
-	const blockClassList = block.classList;
-
-	return (
-		blockClassList.contains( 'is-style-outlined' ) || blockClassList.contains( 'is-style-animated' )
-	);
-};
-
-/**
  * Group radio inputs and checkbox inputs with multiple values.
  * Single inputs, checkbox groups and radio buttons handle validation and error
  * messages differently.
- * @param {NodeListOf<HTMLElement>} inputs Form inputs
+ * @param {HTMLElement[]} inputs Form inputs
  * @returns {object} Grouped inputs
  */
-const groupFormInputs = inputs => {
+const groupInputs = inputs => {
 	return inputs.reduce(
 		( acc, input ) => {
 			switch ( input.type ) {
@@ -270,57 +404,172 @@ const groupFormInputs = inputs => {
 };
 
 /******************************************************************************
- * DOM UPDATES
+ * CLEANUP
  ******************************************************************************/
 
 /**
- * Empty the error element of the specified form and its inputs and mark the latter as valid.
+ * Clear all errors in a form.
+ * @param {HTMLFormElement} form Form element
+ * @param {object} opts Form options
+ */
+const clearForm = ( form, opts ) => {
+	clearErrors( form, opts );
+};
+
+/**
+ * Remove the errors in a form.
+ * @param {HTMLFormElement} form Form element
+ * @param {object} opts Form options
+ */
+const clearErrors = ( form, opts ) => {
+	clearFormError( form );
+	clearFieldErrors( form, opts );
+};
+
+/**
+ * Empty the error element of a form.
  * @param {HTMLFormElement} form Form element
  */
-const clearErrors = form => {
+const clearFormError = form => {
 	const formError = getFormError( form );
 
 	if ( formError ) {
-		formError.textContent = '';
-	}
-
-	for ( const inputError of getFormInputErrors( form ) ) {
-		inputError.textContent = '';
-	}
-
-	for ( const field of getFormInvalidFields( form ) ) {
-		field.removeAttribute( 'aria-invalid' );
-		field.removeAttribute( 'aria-describedby' );
+		formError.replaceChildren();
 	}
 };
 
 /**
- * Set the errors of the specified form and its inputs.
+ * Empty the error element of form fields and mark them as valid.
  * @param {HTMLFormElement} form Form element
+ * @param {object} opts Form options
  */
-const setErrors = form => {
-	setFormError( form );
-	setFormInputErrors( form );
+const clearFieldErrors = ( form, opts ) => {
+	for ( const field of getInvalidFields( form ) ) {
+		if ( isSingleChoiceField( field ) ) {
+			clearGroupInputError( field );
+		} else if ( isMultipleChoiceField( field ) ) {
+			clearGroupInputError( field );
+		} else {
+			clearInputError( field, opts );
+		}
+	}
 };
 
 /**
- * Set the error element of the specified form.
- * @param {HTMLFormElement} form Form element
+ * Empty the error element of a field with multiple inputs (e.g., Multiple Choice or Single Choice
+ * fields) and mark it as valid.
+ * @param {HTMLFieldSetElement} fieldset Fieldset element
  */
-const setFormError = form => {
-	const submitBtn = getFormSubmitBtn( form );
+const clearGroupInputError = fieldset => {
+	fieldset.removeAttribute( 'aria-invalid' );
+	fieldset.removeAttribute( 'aria-describedby' );
 
-	// Bail out, something's wrong with the form.
-	if ( ! submitBtn ) {
+	const error = fieldset.querySelector( '.contact-form__input-error' );
+
+	if ( error ) {
+		error.replaceChildren();
+	}
+};
+
+/**
+ * Empty the error element a simple field (unique input) and mark it as valid.
+ * @param {HTMLElement} input Input element
+ * @param {object} opts Form options
+ */
+const clearInputError = ( input, opts ) => {
+	input.removeAttribute( 'aria-invalid' );
+	input.removeAttribute( 'aria-describedby' );
+
+	const fieldWrap = input.closest(
+		opts.hasInsetLabel ? '.contact-form__inset-label-wrap' : '.grunion-field-wrap'
+	);
+
+	if ( ! fieldWrap ) {
 		return;
 	}
 
+	const error = fieldWrap.querySelector( '.contact-form__input-error' );
+
+	if ( error ) {
+		error.replaceChildren();
+	}
+};
+
+/******************************************************************************
+ * SUBMISSION
+ ******************************************************************************/
+
+/**
+ * Submit a form and set its submitting state.
+ * @param {HTMLFormElement} form Form element
+ */
+const submitForm = form => {
+	showFormSubmittingIndicator( form );
+
+	form.setAttribute( 'data-submitting', true );
+	form.submit();
+};
+
+/**
+ * Show a spinner in the submit button of a form.
+ * @param {HTMLFormElement} form Form element
+ */
+const showFormSubmittingIndicator = form => {
+	const submitBtn = getFormSubmitBtn( form );
+
+	if ( submitBtn ) {
+		// We should avoid using `disabled` when possible. One of the reasons is that `disabled`
+		// buttons lose their focus, which can be confusing. Better use `aria-disabled` instead.
+		// Ref. https://css-tricks.com/making-disabled-buttons-more-inclusive/#aa-aria-to-the-rescue
+		submitBtn.setAttribute( 'aria-disabled', true );
+		submitBtn.appendChild( createSpinner() );
+	}
+};
+
+/******************************************************************************
+ * INVALIDATION
+ ******************************************************************************/
+
+/**
+ * Show errors in the form.
+ * @param {HTMLFormElement} form Form element
+ * @param {object} opts Form options
+ */
+const invalidateForm = ( form, opts ) => {
+	setErrors( form, opts );
+};
+
+/******************************************************************************
+ * ERRORS
+ ******************************************************************************/
+
+/**
+ * Set form errors.
+ * @param {HTMLFormElement} form Form element
+ * @param {object} opts Form options
+ */
+const setErrors = ( form, opts ) => {
+	setFormError( form );
+	setFieldErrors( form, opts );
+};
+
+/**
+ * Set the error element of a form.
+ * @param {HTMLFormElement} form Form element
+ */
+const setFormError = form => {
 	let error = getFormError( form );
 
 	if ( ! error ) {
 		error = createFormErrorContainer( form );
 
-		submitBtn.parentNode.insertBefore( error, submitBtn );
+		const submitBtn = getFormSubmitBtn( form );
+
+		if ( submitBtn ) {
+			submitBtn.parentNode.insertBefore( error, submitBtn );
+		} else {
+			form.appendChild( error );
+		}
 	}
 
 	error.appendChild(
@@ -329,75 +578,45 @@ const setFormError = form => {
 };
 
 /**
- * Set the error elements of the inputs of the specified form.
+ * Set the error element of a form fields.
  * @param {HTMLFormElement} form Form element
+ * @param {object} opts Form options
  */
-const setFormInputErrors = form => {
-	const opts = {
-		hasInsetLabel: hasFormInsetLabels( form ),
-	};
-	const groupedInputs = groupFormInputs( getFormInputs( form ) );
+const setFieldErrors = ( form, opts ) => {
+	const { simple, singleChoice, multipleChoice } = getFormFields( form );
 
-	// Handle individual inputs
-	for ( const input of groupedInputs.default ) {
-		if ( ! input.validity.valid ) {
-			setFormInputError( input, form, opts );
+	for ( const field of simple ) {
+		if ( ! isSimpleFieldValid( field ) ) {
+			setSimpleFieldError( field, form, opts );
 		}
 	}
 
-	// Handle radio buttons
-	const radioButtonNames = groupedInputs.radios.reduce(
-		( acc, input ) => ( acc.includes( input.name ) ? acc : [ ...acc, input.name ] ),
-		[]
-	);
-
-	for ( const name of radioButtonNames ) {
-		// Get the first radio button of the group.
-		const input = form.querySelector( `input[type="radio"][name="${ name }"]` );
-
-		// If one of the group radio buttons is checked, all radio buttons are valid.
-		if ( ! input.validity.valid ) {
-			setFormGroupInputError( input, form, opts );
+	for ( const field of singleChoice ) {
+		if ( ! isSingleChoiceFieldValid( field ) ) {
+			setSingleChoiceFieldError( field, form, opts );
 		}
 	}
 
-	// Handle checkbox groups
-	const checkboxNames = groupedInputs.checkboxes.reduce(
-		( acc, input ) => ( acc.includes( input.name ) ? acc : [ ...acc, input.name ] ),
-		[]
-	);
-
-	for ( const name of checkboxNames ) {
-		// Get the first checkbox of the group.
-		const input = form.querySelector( `input[type="checkbox"][name="${ name }"]` );
-		const fieldset = input.closest( 'fieldset' );
-		const isRequired = fieldset && fieldset.hasAttribute( 'data-required' );
-
-		if ( isRequired ) {
-			const formData = new FormData( form );
-
-			if ( formData.getAll( name ).length === 0 ) {
-				setFormGroupInputError( input, form, {
-					...opts,
-					message: L10N.checkboxMissingValue || 'Please select at least one option.',
-				} );
-			}
+	for ( const field of multipleChoice ) {
+		if ( ! isMultipleChoiceFieldValid( field ) ) {
+			setMultipleChoiceFieldError( field, form, opts );
 		}
 	}
 };
 
 /**
- * Set the error element of the specified input.
+ * Set the error element of a simple field (single input) and mark it as invalid.
  * @param {HTMLElement} input Input element
  * @param {HTMLFormElement} form Parent form element
- * @param {object} opts Options
+ * @param {object} opts Form options
  */
-const setFormInputError = ( input, form, opts ) => {
+const setSimpleFieldError = ( input, form, opts ) => {
 	const errorId = `${ input.name }-error`;
+
 	let error = form.querySelector( `#${ errorId }` );
 
 	if ( ! error ) {
-		error = createFormInputErrorContainer( input, errorId );
+		error = createInputErrorContainer( errorId );
 
 		const wrap = input.closest(
 			opts.hasInsetLabel ? '.contact-form__inset-label-wrap' : '.grunion-field-wrap'
@@ -415,29 +634,55 @@ const setFormInputError = ( input, form, opts ) => {
 };
 
 /**
+ * Set the error element of a Single Choice field.
+ * @param {HTMLFieldSetElement} fieldset Fieldset element
+ * @param {HTMLFormElement} form Parent form element
+ * @param {object} opts Form options
+ */
+const setSingleChoiceFieldError = ( fieldset, form, opts ) => {
+	setGroupInputError( fieldset, form, opts );
+};
+
+/**
+ * Set the error element of a Multiple Choice field.
+ * @param {HTMLFieldSetElement} fieldset Fieldset element
+ * @param {HTMLFormElement} form Parent form element
+ * @param {object} opts Form options
+ */
+const setMultipleChoiceFieldError = ( fieldset, form, opts ) => {
+	setGroupInputError( fieldset, form, {
+		...opts,
+		message: L10N.checkboxMissingValue || 'Please select at least one option.',
+	} );
+};
+
+/**
  * Set the error element of a group of inputs, i.e. a group of radio buttons or checkboxes.
  * These types of inputs are handled differently because the error message and invalidity
  * apply to the group as a whole, not to each individual input.
- * @param {HTMLElement} input An input element of the group
+ * @param {HTMLFieldSetElement} fieldset Fieldset element
  * @param {HTMLFormElement} form Parent form element
  * @param {object} opts Options
  */
-const setFormGroupInputError = ( input, form, opts ) => {
-	const errorId = `${ input.name.replace( '[]', '' ) }-error`;
+const setGroupInputError = ( fieldset, form, opts ) => {
+	const firstInput = fieldset.querySelector( 'input' );
+
+	if ( ! firstInput ) {
+		return;
+	}
+
+	const inputName = firstInput.name.replace( '[]', '' );
+	const errorId = `${ inputName }-error`;
+
 	let error = form.querySelector( `#${ errorId }` );
 
 	if ( ! error ) {
-		error = createFormInputErrorContainer( input, errorId );
+		error = createInputErrorContainer( errorId );
 	}
 
-	error.replaceChildren( createError( input.validationMessage || opts.message || 'Error' ) );
+	error.replaceChildren( createError( firstInput.validationMessage || opts.message || 'Error' ) );
 
-	const fieldset = input.closest( 'fieldset' );
-
-	if ( fieldset ) {
-		// Add the error after all the inputs.
-		fieldset.appendChild( error );
-		fieldset.setAttribute( 'aria-invalid', 'true' );
-		fieldset.setAttribute( 'aria-describedby', errorId );
-	}
+	fieldset.appendChild( error );
+	fieldset.setAttribute( 'aria-invalid', 'true' );
+	fieldset.setAttribute( 'aria-describedby', errorId );
 };
