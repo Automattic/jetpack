@@ -24,7 +24,7 @@ class Doc_Parser {
 		list( $directory, $output_file ) = $args;
 
 		if ( empty( $output_file ) ) {
-			$output_file = 'phpdoc.xml';
+			$output_file = 'phpdoc.json';
 		}
 
 		$directory = realpath( $directory );

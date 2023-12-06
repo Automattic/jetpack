@@ -11,4 +11,4 @@
 require __DIR__ . '/vendor/autoload.php';
 
 $parser = new \Automattic\Jetpack\Doc_Parser();
-$parser->generate( array( $argv[1], 'phpdoc.xml' ) );
+$parser->generate( array( $argv[1], 'phpdoc.json' ) );
