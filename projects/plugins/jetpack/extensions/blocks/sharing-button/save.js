@@ -1,6 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
-import SocialIcon from 'social-logos';
+import { getSocialIcon } from './components/social-icons';
 import { getNameBySite } from './utils';
 import './style.scss';
 
@@ -31,7 +31,8 @@ const SharingButtonsView = ( { attributes } ) => {
 				aria-label={ linkAriaLabel }
 				primary
 			>
-				<SocialIcon icon={ service } size={ 24 } />
+				{ getSocialIcon( service ) }
+
 				<span className="jetpack-sharing-button__service-label" aria-hidden="true">
 					{ socialLinkLabel }
 				</span>

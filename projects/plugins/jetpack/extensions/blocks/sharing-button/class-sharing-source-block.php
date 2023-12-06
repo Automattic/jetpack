@@ -852,7 +852,7 @@ class Share_Mastodon_Block extends Sharing_Source_Block {
 	 */
 	public function process_request( $post, array $post_data ) {
 		if ( empty( $_POST['jetpack-mastodon-instance'] ) ) {
-			require_once __DIR__ . '/services/class-jetpack-mastodon-modal.php';
+			require_once __DIR__ . '/components/class-jetpack-mastodon-modal.php';
 			add_action( 'template_redirect', array( Jetpack_Mastodon_Modal::class, 'modal' ) );
 			return;
 		}
