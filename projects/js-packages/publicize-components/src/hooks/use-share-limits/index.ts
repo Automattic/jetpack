@@ -63,7 +63,7 @@ export function useShareLimits( {
 			const scheduledShares = store.getScheduledSharesCount() + scheduledCountAdjustment;
 			const usedSharesCount = store.getSharesUsedCount() + usedCountAdjustment;
 			const totalSharesCount = usedSharesCount + scheduledShares;
-			const remainingCount = Math.max( 0, shareLimit - usedSharesCount - scheduledShares );
+			const remainingCount = store.numberOfSharesRemaining();
 			const messages = getMessages( remainingCount );
 
 			let noticeType: ShareLimits[ 'noticeType' ] = 'default';
