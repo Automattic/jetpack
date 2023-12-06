@@ -19,10 +19,10 @@ export function handleIframeResult( eventFromIframe ) {
 		} else if ( data && data.action === 'close' ) {
 			// User just aborted.
 			window.removeEventListener( 'message', handleIframeResult );
-			// tb_remove && tb_remove();
-			const dialog = document.querySelector( 'dialog' );
+			const dialog = document.getElementById( 'memberships-modal-window' );
 			dialog.close();
 			dialog.remove();
+			document.body.classList.remove( 'modal-open' );
 		}
 	}
 }
@@ -31,25 +31,43 @@ function setUpModal( button ) {
 	button.addEventListener( 'click', event => {
 		event.preventDefault();
 		window.scrollTo( 0, 0 );
+
+		document.body.classList.add( 'modal-open' );
+
 		const url = button.getAttribute( 'href' );
 		const dialog = document.createElement( 'dialog' );
+		dialog.setAttribute( 'id', 'memberships-modal-window' );
 		const iframe = document.createElement( 'iframe' );
+		iframe.setAttribute( 'id', 'memberships-modal-iframe' );
+		dialog.classList.add( 'jetpack-memberships-modal' );
+
+		document.body.appendChild( dialog );
 		dialog.appendChild( iframe );
-		event.target.parentElement.appendChild( dialog );
 		iframe.src = url + '&display=alternate&jwt_token=' + getTokenFromCookie();
-		dialog.style.border = 0;
-		dialog.style.backgroundColor = 'transparent';
-		dialog.style.width = '100%';
-		dialog.style.height = '100%';
-		iframe.setAttribute( 'frameborder', 0 );
+		iframe.setAttribute( 'frameborder', '0' );
+		iframe.setAttribute( 'allowtransparency', 'true' );
 		iframe.setAttribute( 'allowfullscreen', 'true' );
+		/*
+		iframe.addEventListener( 'load', iframeEvent => {
+		} );
+		*/
+
+		// resize
+		const size = document.body.getBoundingClientRect();
+		dialog.width = size.width;
+		dialog.height = size.height;
+
+		// not clear if this is needed
+		/*
+		const MODAL_WIDTH = 630;
+		const MODAL_HEIGHT = 440;
+		iframe.style.marginLeft = '-' + parseInt( MODAL_WIDTH / 2, 10 ) + 'px';
+		iframe.style.marginTop = '-' + parseInt( MODAL_HEIGHT / 2, 10 ) + 'px';
+		*/
+
 		dialog.showModal();
-		const size = dialog.getBoundingClientRect();
-		iframe.width = size.width;
-		iframe.height = size.height;
 
 		window.addEventListener( 'message', handleIframeResult, false );
-		dialog.classList.add( 'jetpack-memberships-modal' );
 		window.scrollTo( 0, 0 );
 	} );
 }
