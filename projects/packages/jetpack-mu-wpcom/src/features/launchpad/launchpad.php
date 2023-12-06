@@ -411,7 +411,7 @@ function wpcom_is_checklist_task_complete( $task_id ) {
  *
  * @return Task[] Collection of tasks for a given checklist
  */
-function wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context ) {
+function wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context = null ) {
 	if ( ! $checklist_slug ) {
 		return array();
 	}

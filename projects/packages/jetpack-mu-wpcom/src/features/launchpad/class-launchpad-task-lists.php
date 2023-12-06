@@ -295,7 +295,7 @@ class Launchpad_Task_Lists {
 	 *
 	 * @return Task[] Collection of tasks associated with a task list.
 	 */
-	public function build( $id, $launchpad_context ) {
+	public function build( $id, $launchpad_context = null ) {
 		$task_list           = $this->get_task_list( $id );
 		$tasks_for_task_list = array();
 
@@ -342,7 +342,7 @@ class Launchpad_Task_Lists {
 	 * @param string $launchpad_context Screen where Laucnhpad is loading.
 	 * @return Task Task with current state.
 	 */
-	private function build_task( $task, $launchpad_context ) {
+	private function build_task( $task, $launchpad_context = null ) {
 		$built_task = array(
 			'id' => $task['id'],
 		);
@@ -464,7 +464,7 @@ class Launchpad_Task_Lists {
 	 * @param string $launchpad_context Screen where Launchpad is loading.
 	 * @return string|null
 	 */
-	private function load_calypso_path( $task, $launchpad_context ) {
+	private function load_calypso_path( $task, $launchpad_context = null ) {
 		if ( null === $this->site_slug ) {
 			$this->site_slug = wpcom_get_site_slug();
 		}
