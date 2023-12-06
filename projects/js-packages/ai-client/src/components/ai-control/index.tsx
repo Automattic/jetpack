@@ -97,7 +97,7 @@ export function AIControl(
 	const promptUserInputRef = useRef( null );
 	const loading = state === 'requesting' || state === 'suggesting';
 	const [ editRequest, setEditRequest ] = React.useState( false );
-	const [ lastValue, setLastValue ] = React.useState( '' );
+	const [ lastValue, setLastValue ] = React.useState( value || '' );
 
 	useEffect( () => {
 		if ( editRequest ) {
