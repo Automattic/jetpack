@@ -1,14 +1,13 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
-import { PanelRow } from '@wordpress/components';
+import { Button, PanelRow } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { createInterpolateElement, useCallback } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useShareLimits } from '../../hooks/use-share-limits';
 import { store as socialStore } from '../../social-store';
 import Notice from '../notice';
-import styles from './styles.module.scss';
 
 export const ShareCountNotice: React.FC = () => {
 	const { isEditedPostDirty } = useSelect( editorStore, [] );
@@ -31,7 +30,7 @@ export const ShareCountNotice: React.FC = () => {
 		},
 		[ autosave, isEditedPostDirty ]
 	);
-	const { message, noticeType } = useShareLimits();
+	const { message } = useShareLimits();
 
 	if ( ! showShareLimits ) {
 		return null;
@@ -39,24 +38,23 @@ export const ShareCountNotice: React.FC = () => {
 
 	return (
 		<PanelRow>
-			<Notice type={ noticeType }>
+			<Notice
+				type="warning"
+				actions={ [
+					<Button
+						key="upgrade"
+						variant="primary"
+						onClick={ autosaveAndRedirect }
+						href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
+							site: getSiteFragment(),
+							query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+						} ) }
+					>
+						{ __( 'Upgrade', 'jetpack' ) }
+					</Button>,
+				] }
+			>
 				{ message }
-				<br />
-				{ createInterpolateElement(
-					__( '<upgradeLink>Upgrade now</upgradeLink> to share more.', 'jetpack' ),
-					{
-						upgradeLink: (
-							<a
-								className={ styles[ 'upgrade-link' ] }
-								href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
-									site: getSiteFragment(),
-									query: 'redirect_to=' + encodeURIComponent( window.location.href ),
-								} ) }
-								onClick={ autosaveAndRedirect }
-							/>
-						),
-					}
-				) }
 			</Notice>
 		</PanelRow>
 	);
