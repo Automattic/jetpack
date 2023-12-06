@@ -760,6 +760,7 @@ const setFormError = form => {
 /**
  * Update the error message of a form based on its validity.
  * @param {HTMLFormElement} form Form element
+ * @param {object} opts Form options
  */
 const updateFormErrorMessage = form => {
 	clearFormError( form );
