@@ -182,7 +182,7 @@ class WPCOM_REST_API_V2_Endpoint_Top_Posts extends WP_REST_Controller {
 					'title'     => $post['title'],
 					'type'      => $post['type'],
 					'public'    => $post['public'],
-					'views'     => $post['views'],
+					'views'     => isset( $post['views'] ) ? $post['views'] : 0,
 					'thumbnail' => $thumbnail,
 				);
 			}
