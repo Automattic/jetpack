@@ -12,7 +12,7 @@ namespace Automattic\Jetpack;
  */
 class Doc_Parser {
 
-	const PACKAGE_VERSION = '1.0.0-alpha';
+	const PACKAGE_VERSION = '0.1.0-alpha';
 
 	/**
 	 * Generate a JSON file containing the PHPDoc markup, and save to filesystem.
