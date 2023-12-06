@@ -5,7 +5,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { usePostShareLimits } from '../../hooks/use-share-limits';
+import { useShareLimits } from '../../hooks/use-share-limits';
 import { store as socialStore } from '../../social-store';
 import Notice from '../notice';
 import styles from './styles.module.scss';
@@ -31,15 +31,15 @@ export const ShareCountNotice: React.FC = () => {
 		},
 		[ autosave, isEditedPostDirty ]
 	);
-	const { message } = usePostShareLimits();
+	const { message, noticeType } = useShareLimits();
 
-	if ( ! showShareLimits || ! message ) {
+	if ( ! showShareLimits ) {
 		return null;
 	}
 
 	return (
 		<PanelRow>
-			<Notice type="warning">
+			<Notice type={ noticeType }>
 				{ message }
 				<br />
 				{ createInterpolateElement(

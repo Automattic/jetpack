@@ -1,7 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
-import { useScheduledPost } from '../use-scheduled-post';
 
 export type ShareLimits = {
 	status: 'approaching' | 'exceeded' | 'full' | 'none';
@@ -24,23 +23,24 @@ export type UseShareLimitsArgs = {
  * @returns {ReturnType<typeof getMessages>} Share limits messages
  */
 export function getMessages( remainingCount: number ) {
+	const remaining = sprintf(
+		// translators: %d: The number of shares to social media remaining
+		_n(
+			'You have %d auto-share remaining.',
+			'You have %d auto-shares remaining.',
+			remainingCount,
+			'jetpack'
+		),
+		remainingCount
+	);
 	return {
-		default: '',
+		default: remaining,
 		exceeded: __(
 			'You have have reached your auto-share. Scheduled posts will not be shared until shares become available.',
 			'jetpack'
 		),
 		full: __( 'You have reached your auto-share limit.', 'jetpack' ),
-		approaching: sprintf(
-			// translators: %d: The number of shares to social media remaining
-			_n(
-				'You have %d auto-share remaining',
-				'You have %d auto-shares remaining',
-				remainingCount,
-				'jetpack'
-			),
-			remainingCount
-		),
+		approaching: remaining,
 	};
 }
 
@@ -98,38 +98,4 @@ export function useShareLimits( {
 		},
 		[ scheduledCountAdjustment, usedCountAdjustment ]
 	);
-}
-
-/**
- * Wraps the useShareLimits hook with the current post context, so we adjust the share
- * counts according to the connections selected on the post.
- *
- * @returns {ShareLimits} Share limits details
- */
-export function usePostShareLimits() {
-	const { isScheduled, daysUntilPublish, isScheduledWithin30Days } = useScheduledPost();
-	const { enabledConnectionsCount, initialConnectionsCount } = useSelect(
-		select => {
-			const store = select( socialStore );
-
-			const initialConnections = isScheduledWithin30Days
-				? store.getInitialEnabledConnectionsCount()
-				: 0;
-			const enabledConnections = store.getEnabledConnections();
-
-			return {
-				enabledConnectionsCount:
-					! isScheduled || isScheduledWithin30Days ? enabledConnections.length : 0,
-				initialConnectionsCount: initialConnections,
-			};
-		},
-		[ isScheduled, daysUntilPublish, isScheduledWithin30Days ]
-	);
-
-	return useShareLimits( {
-		scheduledCountAdjustment: isScheduledWithin30Days
-			? enabledConnectionsCount - initialConnectionsCount
-			: 0,
-		usedCountAdjustment: ! isScheduled ? enabledConnectionsCount : 0,
-	} );
 }
