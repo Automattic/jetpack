@@ -21,4 +21,17 @@
 		</properties>
 	</rule>
 
+	<rule ref="PHPCompatibility.Syntax.NewArrayUnpacking">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.Security.EscapeOutput.OutputNotEscaped">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.json_encode_json_encode">
+		<severity>0</severity>
+	</rule>
+
 </ruleset>

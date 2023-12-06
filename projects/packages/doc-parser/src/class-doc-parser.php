@@ -21,22 +21,27 @@ class Doc_Parser {
 	 * as well as optionally an output file name.
 	 */
 	public function generate( $args ) {
-		list( $directory, $output_file ) = $args;
+		list( $directories, $output_file ) = $args;
 
 		if ( empty( $output_file ) ) {
 			$output_file = 'phpdoc.json';
 		}
 
-		$directory = realpath( $directory );
-		echo PHP_EOL;
+		$json = array();
+		foreach ( $directories as $directory ) {
+			$directory = realpath( $directory );
+			echo PHP_EOL;
 
-		// Get data from the PHPDoc
-		$json = $this->get_phpdoc_data( $directory );
+			// Get data from the PHPDoc
+			$json = array(
+				...$json,
+				$this->get_phpdoc_data( $directory ),
+			);
+		}
 
 		// Write to $output_file
-		$error = ! file_put_contents( $output_file, $json ); // phpcs:ignore
+		$error = ! file_put_contents( $output_file, $json );
 
-		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		if ( $error ) {
 			printf(
 				'Problem writing %1$s bytes of data to %2$s' . PHP_EOL,
@@ -47,7 +52,6 @@ class Doc_Parser {
 		}
 
 		printf( 'Data exported to %1$s' . PHP_EOL, $output_file );
-		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -71,7 +75,7 @@ class Doc_Parser {
 			$error = ob_get_clean();
 
 			if ( $error ) {
-				printf( 'Problem with %1$s: %2$s' . PHP_EOL, $path, $error ); // phpcs:ignore
+				printf( 'Problem with %1$s: %2$s' . PHP_EOL, $path, $error );
 				exit( 1 );
 			}
 		}
@@ -80,7 +84,7 @@ class Doc_Parser {
 		$output = \WP_Parser\parse_files( $files, $path );
 
 		if ( $format === 'json' ) {
-			$output = json_encode( $output, JSON_PRETTY_PRINT ); // phpcs:ignore
+			$output = json_encode( $output, JSON_PRETTY_PRINT );
 		}
 
 		return $output;

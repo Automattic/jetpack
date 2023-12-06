@@ -14,8 +14,11 @@ export function docsDefine( yargs ) {
 		yarg => {
 			yarg.positional( 'project', {
 				describe:
-					'Project in the form of type/name, e.g. plugins/jetpack, or type, e.g. plugins, or "all"',
+					'Project in the form of type/name, e.g. plugins/jetpack, ' +
+					'or type, e.g. plugins, or "all". Note that "all" means' +
+					'the Jetpack plugin plus all packages.',
 				type: 'string',
+				default: 'all',
 			} );
 		},
 		async argv => {
@@ -35,10 +38,16 @@ export function docsDefine( yargs ) {
  * @param {argv}  argv - the arguments passed.
  */
 export async function docsCli( argv ) {
-	const parser_options = [
-		path.resolve( './projects/packages/doc-parser/runner.php' ),
-		path.resolve( `./projects/plugins/${ argv.$0 }` ),
-	];
+	let paths;
+	if ( 'all' === argv.project ) {
+		// "All" is a keyword for Jetpack plus packages.
+
+		paths = [ path.resolve( './projects/plugins/jetpack' ), path.resolve( './projects/packages' ) ];
+	} else {
+		paths = [ path.resolve( `./projects/plugins/${ argv.project }` ) ];
+	}
+
+	const parser_options = [ path.resolve( './projects/packages/doc-parser/runner.php' ), ...paths ];
 
 	let data = child_process.spawnSync( 'php', parser_options, {
 		cwd: path.resolve( './' ),
