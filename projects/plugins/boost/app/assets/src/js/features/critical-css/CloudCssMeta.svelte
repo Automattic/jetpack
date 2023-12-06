@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
-	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import { CriticalCssState } from './lib/stores/critical-css-state-types';
+	import ShowStopperError from './show-stopper-error/show-stopper-error';
 	import Status from './status/status';
 	import ReactComponent from '$features/ReactComponent.svelte';
 
@@ -18,7 +18,8 @@
 </script>
 
 {#if isFatalError}
-	<CriticalCssShowStopperError
+	<ReactComponent
+		this={ShowStopperError}
 		supportLink="https://jetpackme.wordpress.com/contact-support/"
 		status={cssState.status}
 		{primaryErrorSet}
