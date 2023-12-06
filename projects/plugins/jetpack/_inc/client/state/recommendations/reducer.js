@@ -5,6 +5,7 @@ import {
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
+	PLAN_JETPACK_CREATOR_YEARLY,
 	getPlanClass,
 } from 'lib/plans/constants';
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
@@ -62,6 +63,7 @@ import {
 	getSitePurchases,
 	hasActiveProductPurchase,
 	hasActiveSecurityPurchase,
+	hasActiveCreatorPurchase,
 	siteHasFeature,
 	isFetchingSiteData,
 	hasActiveAntiSpamPurchase,
@@ -549,6 +551,11 @@ export const getProductSlugForStep = ( state, step ) => {
 				! isJetpackPlanWithBackup( getSitePlan( state ) )
 			) {
 				return PLAN_JETPACK_BACKUP_T1_YEARLY;
+			}
+			break;
+		case 'newsletter':
+			if ( ! hasActiveCreatorPurchase( state ) ) {
+				return PLAN_JETPACK_CREATOR_YEARLY;
 			}
 			break;
 		case 'anti-spam':

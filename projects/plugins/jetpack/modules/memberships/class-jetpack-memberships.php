@@ -350,7 +350,7 @@ class Jetpack_Memberships {
 	 * @param string   $content - Recurring Payment block content.
 	 * @param WP_Block $block - Recurring Payment block instance.
 	 *
-	 * @return string|void
+	 * @return string|void - HTML for the button, void removes the button.
 	 */
 	public function render_button( $attributes, $content = null, $block = null ) {
 		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name, array( 'thickbox', 'wp-polyfill' ) );
@@ -363,20 +363,36 @@ class Jetpack_Memberships {
 			return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npi', __( 'No plan was configured for this button.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that an existing payment plan is selected for this block.', 'jetpack' ) ) );
 		}
 
-		$plan_id = (int) $attributes['planId'];
-		$product = get_post( $plan_id );
-		if ( ! $product ) {
-			return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npf', __( 'Could not find a plan for this button.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
+		// This is string of '+` separated plan ids. Loop through them and
+		// filter out the ones that are not valid.
+		$plan_ids    = explode( '+', $attributes['planId'] );
+		$valid_plans = array();
+		foreach ( $plan_ids as $plan_id ) {
+			if ( ! is_numeric( $plan_id ) ) {
+				continue;
+			}
+			$product = get_post( $plan_id );
+			if ( ! $product ) {
+				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npf', __( 'Could not find a plan for this button.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
+			}
+			if ( is_wp_error( $product ) ) {
+				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npf-we', __( 'Encountered an error when getting the plan associated with this button:', 'jetpack' ) . ' ' . $product->get_error_message() . '. ' . __( ' Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
+			}
+			if ( $product->post_type !== self::$post_type_plan ) {
+				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-pnplan', __( 'The payment plan selected is not actually a payment plan.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
+			}
+			if ( 'publish' !== $product->post_status ) {
+				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-psnpub', __( 'The selected payment plan is not active.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
+			}
+			$valid_plans[] = $plan_id;
 		}
-		if ( is_wp_error( $product ) ) {
-			return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npf-we', __( 'Encountered an error when getting the plan associated with this button:', 'jetpack' ) . ' ' . $product->get_error_message() . '. ' . __( ' Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
+
+		// If none are valid, return.
+		// (Returning like this makes the button disappear.)
+		if ( empty( $valid_plans ) ) {
+			return;
 		}
-		if ( $product->post_type !== self::$post_type_plan ) {
-			return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-pnplan', __( 'The payment plan selected is not actually a payment plan.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
-		}
-		if ( 'publish' !== $product->post_status ) {
-			return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-psnpub', __( 'The selected payment plan is not active.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
-		}
+		$plan_id = implode( '+', $valid_plans );
 
 		add_thickbox();
 

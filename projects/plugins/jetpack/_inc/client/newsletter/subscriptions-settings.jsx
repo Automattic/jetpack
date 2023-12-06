@@ -91,6 +91,9 @@ function SubscriptionsSettings( props ) {
 		);
 	};
 
+	const isDisabled =
+		! isSubscriptionsActive || unavailableInOfflineMode || isSavingAnyOption( [ 'subscriptions' ] );
+
 	return (
 		<SettingsCard { ...props } hideButton module="subscriptions">
 			<SettingsGroup
@@ -108,7 +111,7 @@ function SubscriptionsSettings( props ) {
 			>
 				<ModuleToggle
 					slug="subscriptions"
-					disabled={ unavailableInOfflineMode || ! isLinked }
+					disabled={ unavailableInOfflineMode }
 					activated={ isSubscriptionsActive }
 					toggling={ isSavingAnyOption( 'subscriptions' ) }
 					toggleModule={ toggleModuleNow }
@@ -119,12 +122,7 @@ function SubscriptionsSettings( props ) {
 					<FormFieldset>
 						<ToggleControl
 							checked={ isSubscriptionsActive && isStbEnabled }
-							disabled={
-								! isSubscriptionsActive ||
-								unavailableInOfflineMode ||
-								isSavingAnyOption( [ 'subscriptions' ] ) ||
-								! isLinked
-							}
+							disabled={ isDisabled }
 							toggling={ isSavingAnyOption( [ 'stb_enabled' ] ) }
 							onChange={ handleSubscribeToBlogToggleChange }
 							label={ __(
@@ -134,12 +132,7 @@ function SubscriptionsSettings( props ) {
 						/>
 						<ToggleControl
 							checked={ isSubscriptionsActive && isStcEnabled }
-							disabled={
-								! isSubscriptionsActive ||
-								unavailableInOfflineMode ||
-								isSavingAnyOption( [ 'subscriptions' ] ) ||
-								! isLinked
-							}
+							disabled={ isDisabled }
 							toggling={ isSavingAnyOption( [ 'stc_enabled' ] ) }
 							onChange={ handleSubscribeToCommentToggleChange }
 							label={ __(
@@ -149,12 +142,7 @@ function SubscriptionsSettings( props ) {
 						/>
 						<ToggleControl
 							checked={ isSubscriptionsActive && isSmEnabled }
-							disabled={
-								! isSubscriptionsActive ||
-								unavailableInOfflineMode ||
-								isSavingAnyOption( [ 'subscriptions' ] ) ||
-								! isLinked
-							}
+							disabled={ isDisabled }
 							toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
 							onChange={ handleSubscribeModalToggleChange }
 							label={ __( 'Enable subscriber pop-up', 'jetpack' ) }

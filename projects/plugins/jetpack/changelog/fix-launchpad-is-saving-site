@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Launchpad: Fix the Save modal doesn't show after saving changes in the editor

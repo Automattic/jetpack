@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Membership products resolver would not filter tiers

@@ -36,7 +36,7 @@ export const saveProduct =
 	(
 		product,
 		productType = PRODUCT_TYPE_PAYMENT_PLAN,
-		setSelectedProductId = () => {},
+		setSelectedProductIds = () => {},
 		callback = () => {},
 		shouldDisplayProductCreationNotice = true
 	) =>
@@ -87,7 +87,8 @@ export const saveProduct =
 			const products = registry.select( STORE_NAME ).getProducts();
 
 			dispatch( setProducts( products.concat( [ newProduct ] ) ) );
-			setSelectedProductId( newProduct.id );
+			// TODO: Should we check the current selected product ids and add the new product id if it's not there?
+			setSelectedProductIds( [ newProduct.id ] );
 			if ( shouldDisplayProductCreationNotice ) {
 				onSuccess(
 					getMessageByProductType( 'successfully created product', productType ),

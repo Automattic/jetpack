@@ -124,7 +124,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "335ee318534ab58327f45abc5da1748a76dd531d"
+                "reference": "1f713fb83a98dab43f325fe71331d40f9ca47334"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -133,7 +133,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "brain/monkey": "2.6.1",
-                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
             "suggest": {
@@ -352,7 +352,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "4f8e17d95c9b8b02be47085199719093a03a2c45"
+                "reference": "4fd8bc081e357da1c38738db38da5e8750db3535"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -384,7 +384,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.0.x-dev"
+                    "dev-trunk": "2.1.x-dev"
                 }
             },
             "autoload": {
@@ -529,7 +529,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "9be1d2458361ba5bb8505c48071c11261bf9044a"
+                "reference": "e7f53dc4d861086ba733fc32571824c19350b9ca"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -559,7 +559,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.12.x-dev"
+                    "dev-trunk": "0.14.x-dev"
                 }
             },
             "autoload": {
@@ -841,7 +841,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "0c6e86b2596c29ab1d0ad6afb91854324e324537"
+                "reference": "3b915a71708fa11091e035d006b975201def6bb8"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -873,7 +873,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.0.x-dev"
+                    "dev-trunk": "4.1.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1410,7 +1410,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "28b3a05e274c08410b266fa803ed73520d5c2874"
+                "reference": "a3fe745d83642d741dffe5e1884cc53c65fd056b"
             },
             "require": {
                 "php": ">=7.0",
@@ -1418,7 +1418,7 @@
                 "symfony/process": "^3.4 || ^4.4 || ^5.2 || ^6.0"
             },
             "require-dev": {
-                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
             "bin": [
