@@ -341,14 +341,6 @@ async function changelogAdd( argv ) {
 		return;
 	}
 
-	console.log(
-		chalk.yellow(
-			"When writing your changelog entry, please use the format 'Subject: change description.'\n" +
-				'Here is an example of a good changelog entry:\n' +
-				'  Sitemaps: ensure that the Home URL is slashed on subdirectory websites.\n'
-		)
-	);
-
 	if ( promptConfirm.separateChangelogFiles ) {
 		uniqueProjects.unshift( ...defaultProjects.splice( 0 ) );
 	}
@@ -783,6 +775,14 @@ async function promptChangelog( argv, needChangelog, types ) {
 		highlight: v => v,
 		choices: typeChoices,
 	} );
+
+	console.log(
+		chalk.yellow(
+			"When writing your changelog entry, please use the format 'Subject: change description.'\n" +
+				'Here is an example of a good changelog entry:\n' +
+				'  Sitemaps: ensure that the Home URL is slashed on subdirectory websites.\n'
+		)
+	);
 
 	// Get the entry, if it's a patch type it can be left blank.
 	let entryResponse;
