@@ -872,7 +872,7 @@ class Posts extends Module {
 			$post_content_size = isset( $post->post_content ) ? strlen( $post->post_content ) : 0;
 			$current_metadatas = array();
 			$metadatas_size    = 0;
-			foreach ( $metadatas as $metadata ) {
+			foreach ( $metadatas as $key => $metadata ) {
 				if ( (int) $metadata->post_id === $post->ID ) {
 					// Trimming metadata if it exceeds limit. Similar to trim_post_meta.
 					$metadata_size = strlen( maybe_serialize( $metadata->meta_value ) );
@@ -881,6 +881,7 @@ class Posts extends Module {
 					}
 					$current_metadatas[] = $metadata;
 					$metadatas_size     += $metadata_size >= self::MAX_POST_META_LENGTH ? 0 : $metadata_size;
+					unset( $metadatas[ $key ] );
 				}
 			}
 			// Always allow the first post with its metadata.
