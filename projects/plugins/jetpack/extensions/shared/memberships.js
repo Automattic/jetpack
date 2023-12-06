@@ -17,7 +17,7 @@ export function handleIframeResult( eventFromIframe ) {
 		}
 		if ( data && data.action === 'close' && premiumContentJWTTokenForCookie ) {
 			// The token was set during the purchase flow, we want to reload the whole page so the content is displayed
-			window.location.reload();
+			window.location.reload( true );
 		} else if ( data && data.action === 'close' ) {
 			// User just aborted.
 			window.removeEventListener( 'message', handleIframeResult );

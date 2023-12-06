@@ -629,7 +629,7 @@ function render_for_website( $data, $classes, $styles ) {
 
 	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field' . $widget_id_suffix, $data['widget_id'] );
 	$tier_id            = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
-	$is_subscribed      = Jetpack_Memberships::is_current_user_subscribed() || is_user_auth();
+	$is_subscribed      = Jetpack_Memberships::is_current_user_subscribed() || Jetpack_Token_Subscription_Service::has_token_from_cookie();
 	$button_text        = get_submit_button_text( $data );
 
 	ob_start();
@@ -641,7 +641,7 @@ function render_for_website( $data, $classes, $styles ) {
 	);
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
-		<div class="wp-block-jetpack-subscriptions__container<?php echo ! $is_subscribed ? ' is-not-subscriber' : 'is_subscriber'; ?>">
+		<div class="wp-block-jetpack-subscriptions__container<?php echo ! $is_subscribed ? ' is-not-subscriber' : ' is_subscriber'; ?>">
 			<form
 				action="<?php echo esc_url( $form_url ); ?>"
 				method="post"
@@ -930,7 +930,7 @@ function get_current_url() {
  * @return string
  */
 function get_submit_button_text( $data ) {
-	if ( ! Jetpack_Memberships::is_current_user_subscribed() && ! is_user_auth() ) {
+	if ( ! Jetpack_Memberships::is_current_user_subscribed() && ! Jetpack_Token_Subscription_Service::has_token_from_cookie() ) {
 		return $data['submit_button_text'];
 	}
 	if ( ! Jetpack_Memberships::user_can_view_post() ) {
