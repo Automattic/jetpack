@@ -73,15 +73,12 @@ export default function PublicizeForm( {
 		connection => connection.service_name === 'instagram-business'
 	);
 
-	const { showShareLimits, numberOfSharesRemaining } = useSelect(
-		select => {
-			return {
-				showShareLimits: select( socialStore ).showShareLimits(),
-				numberOfSharesRemaining: select( socialStore ).numberOfSharesRemaining(),
-			};
-		},
-		[ enabledConnections ]
-	);
+	const { showShareLimits, numberOfSharesRemaining } = useSelect( select => {
+		return {
+			showShareLimits: select( socialStore ).showShareLimits(),
+			numberOfSharesRemaining: select( socialStore ).numberOfSharesRemaining(),
+		};
+	}, [] );
 	const shouldShowInstagramNotice =
 		! hasInstagramConnection &&
 		getSupportedAdditionalConnections().includes( CONNECTION_SERVICE_INSTAGRAM_BUSINESS ) &&
@@ -101,7 +98,7 @@ export default function PublicizeForm( {
 		checkConnectionCode( connection, 'unsupported' )
 	);
 
-	const outOfConnections = numberOfSharesRemaining === 0;
+	const outOfConnections = showShareLimits && numberOfSharesRemaining <= enabledConnections.length;
 
 	const onAdvancedNudgeDismiss = useCallback(
 		() => dismissNotice( NOTICES.advancedUpgradeEditor, 3 * MONTH_IN_SECONDS ),
