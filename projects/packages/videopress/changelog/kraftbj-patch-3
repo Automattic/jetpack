@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: It is only updating the URL in the package.json for capitalization. Not important for any changelog.
-
-

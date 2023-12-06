@@ -43,8 +43,17 @@ describe( 'reducer', () => {
 					requestsLimit: FREE_PLAN_REQUESTS_LIMIT,
 					requireUpgrade: false,
 					upgradeType: 'default',
-					currentTier: null,
-					nextTier: null,
+					currentTier: {
+						slug: 'ai-assistant-tier-free',
+						value: 0,
+						limit: 20,
+					},
+					nextTier: {
+						// the next tier now is important, so we need to set some on the testing data
+						slug: 'ai-assistant-tier-100',
+						value: 100,
+						limit: 100,
+					},
 					usagePeriod: {
 						currentStart: 'ai-assistant-tier-free',
 						nextStart: '',

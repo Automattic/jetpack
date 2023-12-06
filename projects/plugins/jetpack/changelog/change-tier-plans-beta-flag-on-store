@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Add tier enabled filter status to the ai-feature payload. Include on the ai-assistant data store.

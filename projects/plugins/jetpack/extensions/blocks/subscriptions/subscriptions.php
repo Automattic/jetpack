@@ -11,13 +11,13 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
+use function Automattic\Jetpack\Extensions\Premium_Content\subscription_service;
 
 require_once __DIR__ . '/constants.php';
 
@@ -697,7 +697,7 @@ function render_for_website( $data, $classes, $styles ) {
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
 						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
 						<?php
-						wp_nonce_field( 'blogsub_subscribe_' . $blog_id, '_wpnonce', false );
+						wp_nonce_field( 'blogsub_subscribe_' . $blog_id );
 
 						if ( ! empty( $post_id ) ) {
 							echo '<input type="hidden" name="post_id" value="' . esc_attr( $post_id ) . '"/>';
@@ -807,7 +807,7 @@ function add_paywall( $the_content ) {
 	}
 
 	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-	$token_service              = is_wpcom() ? new WPCOM_Token_Subscription_Service() : new Jetpack_Token_Subscription_Service();
+	$token_service              = subscription_service();
 	$token                      = $token_service->get_and_set_token_from_request();
 	$payload                    = $token_service->decode_token( $token );
 	$is_valid_token             = ! empty( $payload );
@@ -993,11 +993,20 @@ function get_paywall_blocks( $newsletter_access_level ) {
 
 	$sign_in         = '';
 	$switch_accounts = '';
-	$sign_in_link    = add_query_arg(
+
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		// On WPCOM we will redirect directly to the current page
+		$redirect_url = get_current_url();
+	} else {
+		// On self-hosted we will save and hide the token
+		$redirect_url = get_site_url() . '/wp-json/jetpack/v4/subscribers/auth';
+		$redirect_url = add_query_arg( 'redirect_url', get_current_url(), $redirect_url );
+	}
+
+	$sign_in_link = add_query_arg(
 		array(
 			'site_id'      => intval( \Jetpack_Options::get_option( 'id' ) ),
-			'redirect_url' => rawurlencode( get_current_url() ),
-			'v2'           => '',
+			'redirect_url' => rawurlencode( $redirect_url ),
 		),
 		'https://subscribe.wordpress.com/memberships/jwt'
 	);

@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.4] - 2023-11-30
+### Changed
+- Internal updates.
+
+## [4.0.3] - 2023-11-24
+
 ## [4.0.2] - 2023-11-21
 ### Removed
 - Removed `Utils::error_clear_last()`, the function can be called directly now. [#34222]
@@ -194,6 +200,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[4.0.4]: https://github.com/Automattic/jetpack-changelogger/compare/4.0.3...4.0.4
+[4.0.3]: https://github.com/Automattic/jetpack-changelogger/compare/4.0.2...4.0.3
 [4.0.2]: https://github.com/Automattic/jetpack-changelogger/compare/4.0.1...4.0.2
 [4.0.1]: https://github.com/Automattic/jetpack-changelogger/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/Automattic/jetpack-changelogger/compare/3.3.11...4.0.0

@@ -44,7 +44,7 @@
 		"html": false
 	},
 	"providesContext": {
-		"premium-content/planId": "selectedPlanId",
+		"premium-content/planIds": "selectedPlanIds",
 		"premium-content/isPreview": "isPreview",
 		"isPremiumContentChild": "isPremiumContentChild"
 	},
@@ -65,9 +65,9 @@
 			"type": "string",
 			"default": "1 month"
 		},
-		"selectedPlanId": {
-			"type": "number",
-			"default": 0
+		"selectedPlanIds": {
+			"type": "array",
+			"default": []
 		},
 		"isPreview": {
 			"type": "boolean",
