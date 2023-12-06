@@ -48,7 +48,7 @@ class WPCOM_REST_API_V2_Endpoint_Following extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_following' ),
-					'permission_callback' => array( $this, 'permission_check' ),
+					'permission_callback' => 'is_user_logged_in',
 					'args'                => array(
 						'ignore_user_blogs' => array(
 							'type' => 'boolean',
@@ -65,7 +65,7 @@ class WPCOM_REST_API_V2_Endpoint_Following extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_recommendations' ),
-					'permission_callback' => array( $this, 'permission_check' ),
+					'permission_callback' => 'is_user_logged_in',
 					'args'                => array(
 						'number' => array(
 							'type'              => 'number',
@@ -78,15 +78,6 @@ class WPCOM_REST_API_V2_Endpoint_Following extends WP_REST_Controller {
 				),
 			)
 		);
-	}
-
-	/**
-	 * Check if user has edit post permission.
-	 *
-	 * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
-	 */
-	public function permission_check() {
-		return current_user_can( 'edit_posts' );
 	}
 
 	/**

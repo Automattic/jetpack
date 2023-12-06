@@ -28,7 +28,7 @@ function register_loggedout_view_block() {
 		LOGGEDOUT_VIEW_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_loggedout_view_block',
-			$uses             => array( 'premium-content/planId' ),
+			$uses             => array( 'premium-content/planId', 'premium-content/planIds' ),
 		)
 	);
 }

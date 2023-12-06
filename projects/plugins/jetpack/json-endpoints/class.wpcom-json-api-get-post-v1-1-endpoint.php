@@ -63,33 +63,51 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_End
 
 		$args = $this->query_args();
 
-		$site = $this->get_platform()->get_site( $blog_id );
-
 		if ( str_contains( $path, '/posts/slug:' ) ) {
+			$site = $this->get_platform()->get_site( $blog_id );
+
 			$post_id = $site->get_post_id_by_name( $post_id );
 			if ( is_wp_error( $post_id ) ) {
 				return $post_id;
 			}
 		}
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM &&
-				! in_array( get_post_type( $post_id ), array( false, 'post', 'revision' ), true ) ) {
+		return $this->fetch_post( $blog_id, $post_id, $args['context'] );
+	}
+
+	/**
+	 * Helper function to fetch the content of a post. User validation
+	 * should be handled by the caller.
+	 *
+	 * @param int    $blog_id The blog ID for the post.
+	 * @param int    $post_id The post ID.
+	 * @param string $context The context we're fetching for.
+	 * @return array|SAL_Post|WP_Error
+	 */
+	public function fetch_post( $blog_id, $post_id, $context ) {
+		$site = $this->get_platform()->get_site( $blog_id );
+
+		if (
+			defined( 'IS_WPCOM' )
+			&& IS_WPCOM
+			&& ! in_array( get_post_type( $post_id ), array( false, 'post', 'revision' ), true )
+		) {
 			$this->load_theme_functions();
 		}
 
-		$return = $this->get_post_by( 'ID', $post_id, $args['context'] );
+		$post = $this->get_post_by( 'ID', $post_id, $context );
 
-		if ( ! $return || is_wp_error( $return ) ) {
-			return $return;
+		if ( ! $post || is_wp_error( $post ) ) {
+			return $post;
 		}
 
-		if ( ! $site->current_user_can_access_post_type( $return['type'], $args['context'] ) ) {
+		if ( ! $site->current_user_can_access_post_type( $post['type'], $context ) ) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
 		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
-		return $return;
+		return $post;
 	}
 }
