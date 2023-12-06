@@ -370,8 +370,7 @@ async function changelogAdd( argv ) {
 
 	for ( const proj of uniqueProjects ) {
 		console.log( chalk.green( `Running changelogger for ${ proj }!` ) );
-		const projArray = [ proj ];
-		const response = await promptChangelog( argv, projArray, projectChangeTypes[ proj ] );
+		const response = await promptChangelog( argv, [ proj ], projectChangeTypes[ proj ] );
 		argv = await formatAutoArgs( proj, argv, response );
 		await changelogArgs( argv );
 	}
