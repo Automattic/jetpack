@@ -47,7 +47,10 @@
 		"textdomain": "jetpack-doc-parser",
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-doc-parser.php"
-		}
+		},
+		"installer-disable": [
+			"wordpress"
+		]
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
