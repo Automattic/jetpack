@@ -36,10 +36,14 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_data' ),
 					'permission_callback' => array( $this, 'can_access' ),
 					'args'                => array(
-						'checklist_slug' => array(
+						'checklist_slug'    => array(
 							'description' => 'Checklist slug',
 							'type'        => 'string',
 							'enum'        => $this->get_checklist_slug_enums(),
+						),
+						'launchpad_context' => array(
+							'description' => 'Screen where Launchpand instance is loaded.',
+							'type'        => 'string',
 						),
 					),
 				),

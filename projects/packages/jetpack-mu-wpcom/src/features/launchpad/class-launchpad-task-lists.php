@@ -291,10 +291,11 @@ class Launchpad_Task_Lists {
 	 * Builds a collection of tasks for a given task list
 	 *
 	 * @param string $id Task list id.
+	 * @param string $launchpad_context Context/screen in which launchpad is loading.
 	 *
 	 * @return Task[] Collection of tasks associated with a task list.
 	 */
-	public function build( $id ) {
+	public function build( $id, $launchpad_context ) {
 		$task_list           = $this->get_task_list( $id );
 		$tasks_for_task_list = array();
 
@@ -312,7 +313,7 @@ class Launchpad_Task_Lists {
 
 			// if task can't be found don't add anything
 			if ( $this->is_visible( $task_definition ) ) {
-				$tasks_for_task_list[] = $this->build_task( $task_definition );
+				$tasks_for_task_list[] = $this->build_task( $task_definition, $launchpad_context );
 			}
 		}
 
@@ -337,10 +338,11 @@ class Launchpad_Task_Lists {
 	/**
 	 * Builds a single task with current state
 	 *
-	 * @param Task $task Task definition.
+	 * @param Task   $task Task definition.
+	 * @param string $launchpad_context Screen where Laucnhpad is loading.
 	 * @return Task Task with current state.
 	 */
-	private function build_task( $task ) {
+	private function build_task( $task, $launchpad_context ) {
 		$built_task = array(
 			'id' => $task['id'],
 		);
@@ -363,7 +365,7 @@ class Launchpad_Task_Lists {
 		}
 
 		if ( isset( $task['get_calypso_path'] ) ) {
-			$calypso_path = $this->load_calypso_path( $task );
+			$calypso_path = $this->load_calypso_path( $task, $launchpad_context );
 
 			if ( ! empty( $calypso_path ) ) {
 				$built_task['calypso_path'] = $calypso_path;
@@ -458,10 +460,11 @@ class Launchpad_Task_Lists {
 	/**
 	 * Helper function to load the Calypso path for a task.
 	 *
-	 * @param array $task A task definition.
+	 * @param array  $task A task definition.
+	 * @param string $launchpad_context Screen where Launchpad is loading.
 	 * @return string|null
 	 */
-	private function load_calypso_path( $task ) {
+	private function load_calypso_path( $task, $launchpad_context ) {
 		if ( null === $this->site_slug ) {
 			$this->site_slug = wpcom_get_site_slug();
 		}
@@ -469,6 +472,7 @@ class Launchpad_Task_Lists {
 		$data = array(
 			'site_slug'         => $this->site_slug,
 			'site_slug_encoded' => rawurlencode( $this->site_slug ),
+			'launchpad_context' => $launchpad_context,
 		);
 
 		$calypso_path = $this->load_value_from_callback( $task, 'get_calypso_path', null, $data );
