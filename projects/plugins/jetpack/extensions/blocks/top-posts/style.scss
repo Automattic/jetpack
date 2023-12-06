@@ -25,7 +25,7 @@
 
 	&.is-grid-layout {
 		.jetpack-top-posts-wrapper {
-			align-items: end;
+			align-items: flex-start;
 			display: grid;
 			grid: auto / repeat( 6, 1fr );
 			gap: 16px 12px;
