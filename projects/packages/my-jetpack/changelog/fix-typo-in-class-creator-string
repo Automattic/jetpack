@@ -1,4 +1,4 @@
-Significance: minor
-Type: enhancement
+Significance: patch
+Type: fixed
 
-Class-creator.php: fixes a small typo in "Newsletter" where the "E" was forgotten.
+Creator Card: fix typo.
