@@ -43,7 +43,6 @@ export async function docsCli( argv ) {
 		],
 		{
 			cwd: path.resolve( './' ),
-			shell: true,
 			stdio: 'inherit',
 		}
 	);
