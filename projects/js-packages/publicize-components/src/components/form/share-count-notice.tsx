@@ -4,7 +4,7 @@ import { Button, PanelRow } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { _x } from '@wordpress/i18n';
 import { useShareLimits } from '../../hooks/use-share-limits';
 import { store as socialStore } from '../../social-store';
 import Notice from '../notice';
@@ -50,7 +50,7 @@ export const ShareCountNotice: React.FC = () => {
 							query: 'redirect_to=' + encodeURIComponent( window.location.href ),
 						} ) }
 					>
-						{ __( 'Upgrade', 'jetpack' ) }
+						{ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 					</Button>,
 				] }
 			>
