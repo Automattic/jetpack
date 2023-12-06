@@ -340,6 +340,9 @@ SQL
 		$chunks_sent = 0;
 		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 		while ( $objects = $this->get_next_chunk( $config, $status, $limits['chunk_size'] ) ) {
+			if ( $chunks_sent++ === $limits['max_chunks'] || microtime( true ) >= $send_until ) {
+				return $status;
+			}
 
 			$result = $this->send_action( 'jetpack_full_sync_' . $this->name(), array( $objects, $status['last_sent'] ) );
 			if ( is_wp_error( $result ) || $wpdb->last_error ) {
@@ -348,10 +351,6 @@ SQL
 			}
 			// The $ids are ordered in descending order.
 			$status = $this->set_send_full_sync_actions_status( $status, $objects );
-
-			if ( ++$chunks_sent === $limits['max_chunks'] || microtime( true ) >= $send_until ) {
-				return $status;
-			}
 		}
 
 		if ( ! $wpdb->last_error ) {
