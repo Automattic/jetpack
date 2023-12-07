@@ -50,9 +50,9 @@ export function showModal( url ) {
 
 		document.body.appendChild( dialog );
 		dialog.appendChild( iframe );
-		window.addEventListener( 'message', handleIframeResult, false );
 	}
 
+	window.addEventListener( 'message', handleIframeResult, false );
 	dialog.showModal();
 
 	// This line has to come after the modal has opened otherwise Firefox doesn't scroll to the top.
