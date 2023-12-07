@@ -220,6 +220,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	}, [ promptPlaceholder, currentIndex ] );
 
 	useEffect( () => {
+		// we don't want to store "half way" states
+		if ( ! [ 'init', 'done' ].includes( requestingState ) ) {
+			return;
+		}
+
 		setAttributes( { requestingState } );
 	}, [ requestingState, setAttributes ] );
 
