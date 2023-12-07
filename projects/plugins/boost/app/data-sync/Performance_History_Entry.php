@@ -11,7 +11,7 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 
 	public function __construct() {
 		// Default to the last 30 days
-		$this->start_date = ( time() - 60 * 60 * 24 * 300 ) * 1000;
+		$this->start_date = ( time() - 60 * 60 * 24 * 30 ) * 1000;
 		$this->end_date   = time() * 1000;
 	}
 
