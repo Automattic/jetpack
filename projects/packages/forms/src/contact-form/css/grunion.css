@@ -749,10 +749,11 @@ on production builds, the attributes are being reordered, causing side-effects
 	color: var(--jetpack--contact-form--inverted-text-color);
 }
 
-.contact-form__warning-icon::after {
+.contact-form__warning-icon i::after {
 	content: "\0021";
 
 	font-size: 0.8em;
+	font-style: normal;
 	font-weight: bold;
 }
 
