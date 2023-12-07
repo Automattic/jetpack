@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.0",
+		"php": ">=8.2",
 		"wordpress/phpdoc-parser": "dev-master"
 	},
 	"require-dev": {
