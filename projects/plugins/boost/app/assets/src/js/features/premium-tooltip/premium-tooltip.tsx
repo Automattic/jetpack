@@ -1,4 +1,3 @@
-// PremiumTooltip/index.tsx
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { Tooltip } from '$features/ui';
@@ -13,7 +12,6 @@ const PremiumTooltip = () => {
 		recordBoostEvent( 'upsell_cta_from_settings_page_tooltip_in_plugin', eventProps );
 		navigate( '/upgrade' );
 	}
-
 	return (
 		<Tooltip title={ __( 'Manual Critical CSS regeneration', 'jetpack-boost' ) }>
 			<p className={ styles.paragraph }>
