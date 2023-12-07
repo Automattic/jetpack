@@ -4,7 +4,7 @@ import { Button, PanelRow } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
-import { _x } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { useShareLimits } from '../../hooks/use-share-limits';
 import { store as socialStore } from '../../social-store';
 import Notice from '../notice';
@@ -30,31 +30,37 @@ export const ShareCountNotice: React.FC = () => {
 		},
 		[ autosave, isEditedPostDirty ]
 	);
-	const { message } = useShareLimits();
+	const { noticeType, message } = useShareLimits();
 
 	if ( ! showShareLimits ) {
 		return null;
 	}
 
+	const upgradeAction = (
+		<Button
+			key="upgrade"
+			variant={ noticeType === 'default' ? 'link' : 'primary' }
+			onClick={ autosaveAndRedirect }
+			href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
+				site: getSiteFragment(),
+				query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+			} ) }
+		>
+			{ noticeType === 'default'
+				? __( 'Upgrade to share more.', 'jetpack' )
+				: _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
+		</Button>
+	);
+
 	return (
 		<PanelRow>
 			<Notice
-				type="warning"
-				actions={ [
-					<Button
-						key="upgrade"
-						variant="primary"
-						onClick={ autosaveAndRedirect }
-						href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
-							site: getSiteFragment(),
-							query: 'redirect_to=' + encodeURIComponent( window.location.href ),
-						} ) }
-					>
-						{ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
-					</Button>,
-				] }
+				type={ noticeType === 'default' ? 'default' : 'warning' }
+				actions={ noticeType === 'default' ? undefined : [ upgradeAction ] }
 			>
 				{ message }
+				&nbsp;
+				{ noticeType === 'default' && upgradeAction }
 			</Notice>
 		</PanelRow>
 	);
