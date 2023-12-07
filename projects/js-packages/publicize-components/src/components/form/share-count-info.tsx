@@ -22,8 +22,8 @@ export const ShareCountInfo: React.FC = () => {
 
 	return (
 		<PanelRow>
-			<ThemeProvider>
-				<div className={ styles[ 'share-count-info' ] }>
+			<div className={ styles[ 'share-count-info' ] }>
+				<ThemeProvider>
 					<Text variant="body-extra-small" className={ styles[ 'auto-share-title' ] }>
 						{ __( 'Auto-share usage', 'jetpack' ) }
 					</Text>
@@ -48,8 +48,8 @@ export const ShareCountInfo: React.FC = () => {
 							{ _x( 'Upgrade to share more.', 'Call to action to buy a new plan', 'jetpack' ) }
 						</Button>
 					) : null }
-				</div>
-			</ThemeProvider>
+				</ThemeProvider>
+			</div>
 		</PanelRow>
 	);
 };
