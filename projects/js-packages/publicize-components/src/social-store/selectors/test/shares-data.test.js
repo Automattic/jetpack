@@ -1,4 +1,3 @@
-import { createActiveConnections } from '../../../utils/test-utils';
 import {
 	getScheduledSharesCount,
 	getShareLimit,
@@ -121,32 +120,6 @@ describe( 'Social store selectors: sharesData', () => {
 				).toBe( result );
 			}
 		} );
-
-		it( 'should take connections into consideration', () => {
-			const cases = [
-				[ [ 100, 100 ], 200 ],
-				[ [ 0, 0 ], 0 ],
-				[ [ 100, 0 ], 100 ],
-				[ [ 0, 100 ], 100 ],
-			];
-
-			for ( const [ [ publicized_count, to_be_publicized_count ], result ] of cases ) {
-				expect(
-					getTotalSharesCount(
-						{
-							sharesData: {
-								to_be_publicized_count,
-								publicized_count,
-							},
-							connectionData: {
-								connections: createActiveConnections( 2 ),
-							},
-						},
-						{ includeEnabledConnections: true }
-					)
-				).toBe( result + 2 );
-			}
-		} );
 	} );
 
 	describe( 'getSharedPostsCount', () => {
@@ -198,133 +171,47 @@ describe( 'Social store selectors: sharesData', () => {
 
 		const suites = [
 			[
-				'should count used and scheduled shares along with enabled connections',
+				'should count used and scheduled shares',
 				{
 					includeScheduled: true,
-					includeEnabledConnections: true,
 				},
 				[
 					{
 						sharesUsed: 10,
 						scheduledShares: 10,
-						enabledConnections: 5,
-						result: 5,
+						result: 10,
 					},
 					{
-						sharesUsed: 10,
+						sharesUsed: 20,
 						scheduledShares: 10,
-						enabledConnections: 10,
-						result: 0,
-					},
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 15,
 						result: 0,
 					},
 					{
 						sharesUsed: 0,
 						scheduledShares: 0,
-						enabledConnections: 0,
 						result: 30,
 					},
 				],
 			],
 			[
-				'should count used and scheduled shares but not the enabled connections',
-				{
-					includeScheduled: true,
-					includeEnabledConnections: false,
-				},
-				[
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 5,
-						result: 10,
-					},
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 10,
-						result: 10,
-					},
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 15,
-						result: 10,
-					},
-					{
-						sharesUsed: 0,
-						scheduledShares: 0,
-						enabledConnections: 0,
-						result: 30,
-					},
-				],
-			],
-			[
-				'should count used shares and enabled connections but not the scheduled shares',
+				'should count used shares but not the scheduled shares',
 				{
 					includeScheduled: false,
-					includeEnabledConnections: true,
 				},
 				[
 					{
 						sharesUsed: 10,
 						scheduledShares: 10,
-						enabledConnections: 5,
-						result: 15,
+						result: 20,
 					},
 					{
-						sharesUsed: 10,
+						sharesUsed: 30,
 						scheduledShares: 10,
-						enabledConnections: 10,
-						result: 10,
-					},
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 15,
-						result: 5,
+						result: 0,
 					},
 					{
 						sharesUsed: 0,
 						scheduledShares: 0,
-						enabledConnections: 0,
-						result: 30,
-					},
-				],
-			],
-			[
-				'should count used shares but not the scheduled shares and enabled connections',
-				{
-					includeScheduled: false,
-					includeEnabledConnections: false,
-				},
-				[
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 5,
-						result: 20,
-					},
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 10,
-						result: 20,
-					},
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						enabledConnections: 15,
-						result: 20,
-					},
-					{
-						sharesUsed: 0,
-						scheduledShares: 0,
-						enabledConnections: 0,
 						result: 30,
 					},
 				],
@@ -333,7 +220,7 @@ describe( 'Social store selectors: sharesData', () => {
 
 		for ( const [ name, args, cases ] of suites ) {
 			it( `${ name }`, () => {
-				for ( const { sharesUsed, scheduledShares, enabledConnections, result } of cases ) {
+				for ( const { sharesUsed, scheduledShares, result } of cases ) {
 					expect(
 						numberOfSharesRemaining(
 							{
@@ -342,9 +229,6 @@ describe( 'Social store selectors: sharesData', () => {
 									publicized_count: sharesUsed,
 									to_be_publicized_count: scheduledShares,
 									share_limit: 30,
-								},
-								connectionData: {
-									connections: createActiveConnections( enabledConnections ),
 								},
 							},
 							args

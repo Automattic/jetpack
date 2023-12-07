@@ -4,7 +4,6 @@ import { WPDataRegistry } from '@wordpress/data/build-types/registry';
 import { getMessages, useShareLimits } from '../';
 import { SOCIAL_STORE_CONFIG, SOCIAL_STORE_ID } from '../../../social-store';
 import { SocialStoreState } from '../../../social-store/types';
-import { createActiveConnections } from '../../../utils/test-utils';
 
 type DeepPartial< T > = T extends object
 	? {
@@ -19,7 +18,7 @@ type DeepPartial< T > = T extends object
  *
  * @returns {WPDataRegistry} Registry.
  */
-function createRegistryWithStores( initialState = {} ) {
+function createRegistryWithStores( initialState = {} ): WPDataRegistry {
 	// Create a registry.
 	const registry = createRegistry();
 
@@ -53,7 +52,7 @@ function getStoreInitialState( data: DeepPartial< SocialStoreState > ) {
 	};
 }
 
-const messages = getMessages( 30 );
+const messages = getMessages( 0 );
 
 describe( 'useShareLimits', () => {
 	it( 'should return the default values', () => {
@@ -62,7 +61,10 @@ describe( 'useShareLimits', () => {
 		expect( result.current ).toEqual( {
 			status: 'none',
 			noticeType: 'default',
-			message: messages.default,
+			message: getMessages( Infinity ).default,
+			usedCount: 0,
+			scheduledCount: 0,
+			remainingCount: Infinity,
 		} );
 	} );
 
@@ -76,11 +78,14 @@ describe( 'useShareLimits', () => {
 			expected: {
 				status: 'none',
 				noticeType: 'default',
-				message: messages.default,
+				message: getMessages( 30 ).default,
+				usedCount: 0,
+				scheduledCount: 0,
+				remainingCount: 30,
 			},
 		},
 		{
-			name: 'should return "none" with default messages when used + scheduled < limit',
+			name: 'should return "default" with default message when used + scheduled < limit',
 			sharesData: {
 				publicized_count: 5,
 				to_be_publicized_count: 5,
@@ -88,7 +93,10 @@ describe( 'useShareLimits', () => {
 			expected: {
 				status: 'none',
 				noticeType: 'default',
-				message: messages.default,
+				message: getMessages( 20 ).default,
+				usedCount: 5,
+				scheduledCount: 5,
+				remainingCount: 20,
 			},
 		},
 		{
@@ -100,7 +108,10 @@ describe( 'useShareLimits', () => {
 			expected: {
 				status: 'full',
 				noticeType: 'error',
-				message: messages.exceeded,
+				message: messages.full,
+				usedCount: 30,
+				scheduledCount: 0,
+				remainingCount: 0,
 			},
 		},
 		{
@@ -111,8 +122,11 @@ describe( 'useShareLimits', () => {
 			},
 			expected: {
 				status: 'full',
-				noticeType: 'warning',
-				message: messages.scheduled,
+				noticeType: 'error',
+				message: messages.full,
+				usedCount: 15,
+				scheduledCount: 15,
+				remainingCount: 0,
 			},
 		},
 		{
@@ -125,6 +139,9 @@ describe( 'useShareLimits', () => {
 				status: 'exceeded',
 				noticeType: 'error',
 				message: messages.exceeded,
+				usedCount: 35,
+				scheduledCount: 0,
+				remainingCount: 0,
 			},
 		},
 		{
@@ -137,6 +154,9 @@ describe( 'useShareLimits', () => {
 				status: 'exceeded',
 				noticeType: 'error',
 				message: messages.exceeded,
+				usedCount: 30,
+				scheduledCount: 5,
+				remainingCount: 0,
 			},
 		},
 		{
@@ -148,7 +168,10 @@ describe( 'useShareLimits', () => {
 			expected: {
 				status: 'approaching',
 				noticeType: 'warning',
-				message: messages.approaching,
+				message: getMessages( 5 ).approaching,
+				usedCount: 25,
+				scheduledCount: 0,
+				remainingCount: 5,
 			},
 		},
 		{
@@ -160,67 +183,10 @@ describe( 'useShareLimits', () => {
 			expected: {
 				status: 'approaching',
 				noticeType: 'warning',
-				message: messages.approaching,
-			},
-		},
-		{
-			name: 'should return "none" when everything including active connections is well below the limit',
-			sharesData: {
-				publicized_count: 5,
-				to_be_publicized_count: 5,
-			},
-			connectionData: {
-				connections: createActiveConnections( 5 ),
-			},
-			expected: {
-				status: 'none',
-				noticeType: 'default',
-				message: messages.default,
-			},
-		},
-		{
-			name: 'should return "approaching" when approaching the limit with active connections',
-			sharesData: {
-				publicized_count: 10,
-				to_be_publicized_count: 10,
-			},
-			connectionData: {
-				connections: createActiveConnections( 5 ),
-			},
-			expected: {
-				status: 'approaching',
-				noticeType: 'warning',
-				message: messages.approaching,
-			},
-		},
-		{
-			name: 'should return "full" with a warning when the limit is reached with active connections',
-			sharesData: {
-				publicized_count: 15,
-				to_be_publicized_count: 10,
-			},
-			connectionData: {
-				connections: createActiveConnections( 5 ),
-			},
-			expected: {
-				status: 'full',
-				noticeType: 'warning',
-				message: messages.scheduled,
-			},
-		},
-		{
-			name: 'should return "crossed" with a warning when the limit is crossed with active connections',
-			sharesData: {
-				publicized_count: 20,
-				to_be_publicized_count: 10,
-			},
-			connectionData: {
-				connections: createActiveConnections( 5 ),
-			},
-			expected: {
-				status: 'exceeded',
-				noticeType: 'warning',
-				message: messages.scheduled,
+				message: getMessages( 5 ).approaching,
+				usedCount: 20,
+				scheduledCount: 5,
+				remainingCount: 5,
 			},
 		},
 	];

@@ -8,10 +8,14 @@ import {
 	getRedirectUrl,
 	getUserLocale,
 } from '@automattic/jetpack-components';
-import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
-import { ShareLimitsBar, store as socialStore } from '@automattic/jetpack-publicize-components';
+import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import {
+	ShareLimitsBar,
+	store as socialStore,
+	useShareLimits,
+} from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
 import StatCards from '../stat-cards';
 import styles from './styles.module.scss';
@@ -24,12 +28,9 @@ const Header = () => {
 		isModuleEnabled,
 		newPostUrl,
 		postsCount,
-		sharesCount,
 		totalShareCount,
 		siteSuffix,
 		showShareLimits,
-		shareLimit,
-		scheduledShares,
 	} = useSelect( select => {
 		const store = select( socialStore );
 		return {
@@ -39,11 +40,8 @@ const Header = () => {
 			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
 			postsCount: store.getSharedPostsCount(),
 			totalShareCount: store.getTotalSharesCount(),
-			sharesCount: store.getSharesUsedCount(),
 			siteSuffix: store.getSiteSuffix(),
 			showShareLimits: store.showShareLimits(),
-			shareLimit: store.getShareLimit(),
-			scheduledShares: store.getScheduledSharesCount(),
 		};
 	} );
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -52,6 +50,8 @@ const Header = () => {
 		notation: 'compact',
 		compactDisplay: 'short',
 	} );
+
+	const { noticeType, usedCount, scheduledCount, remainingCount } = useShareLimits();
 
 	return (
 		<>
@@ -83,14 +83,12 @@ const Header = () => {
 					{ showShareLimits ? (
 						<>
 							<ShareLimitsBar
-								maxCount={ shareLimit }
-								currentCount={ sharesCount }
-								scheduledCount={ scheduledShares }
-								text={ sprintf(
-									// translators: %1$d is the number of shares allowed in 30 days.
-									__( 'Share limit for 30 days: %1$d.', 'jetpack-social' ),
-									shareLimit
-								) }
+								usedCount={ usedCount }
+								scheduledCount={ scheduledCount }
+								remainingCount={ remainingCount }
+								legendCaption={ __( 'Auto-share usage', 'jetpack-social' ) }
+								noticeType={ noticeType }
+								className={ styles[ 'bar-wrapper' ] }
 							/>
 							<ContextualUpgradeTrigger
 								className={ styles.cut }
