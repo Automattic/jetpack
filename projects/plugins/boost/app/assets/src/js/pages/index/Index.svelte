@@ -14,7 +14,7 @@
 	import Notice from '$features/Notice.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import TemplatedString from '$features/TemplatedString.svelte';
-	import CloudCssMeta from '$features/critical-css/CloudCssMeta.svelte';
+	import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 	import CriticalCssMeta from '$features/critical-css/CriticalCssMeta.svelte';
 	import ImageCdnQualitySettings from '$features/image-cdn/ImageCdnQualitySettings.svelte';
 	import MinifyMeta from '$features/minify-meta/minify-meta';
@@ -187,7 +187,8 @@
 		</div>
 
 		<div slot="meta" class="jb-feature-toggle__meta">
-			<CloudCssMeta
+			<ReactComponent
+				this={CloudCssMeta}
 				cssState={$criticalCssState}
 				isCloudCssAvailable={$modulesState.cloud_css?.available}
 				criticalCssProgress={$criticalCssProgress}
