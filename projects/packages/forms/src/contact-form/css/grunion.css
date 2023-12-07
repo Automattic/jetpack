@@ -701,6 +701,7 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form__input-error {
 	display: flex;
 	align-items: center;
+	flex-wrap: wrap;
 	gap: 0.33em;
 
 	font-size: 1rem;
@@ -712,6 +713,22 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	background-color: var(--jetpack--contact-form--error-color);
 	color: var(--jetpack--contact-form--inverted-text-color);
+}
+
+.contact-form__error ul {
+	flex-basis: 100%;
+	margin: 0 0 0.5em;
+	padding-inline-start: calc( 1.25em + 0.33em); /* icon width + flex gap */
+
+	list-style-position: inside;
+}
+
+.contact-form__error ul:empty {
+	display: none;
+}
+
+.contact-form__error a {
+	color: inherit;
 }
 
 .contact-form__input-error {
