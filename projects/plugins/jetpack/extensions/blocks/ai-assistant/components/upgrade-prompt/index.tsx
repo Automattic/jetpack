@@ -12,6 +12,7 @@ import { Nudge } from '../../../../shared/components/upgrade-nudge';
 import useAICheckout from '../../hooks/use-ai-checkout';
 import useAiFeature from '../../hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../lib/connection';
+import './style.scss';
 
 /**
  * The default upgrade prompt for the AI Assistant block, containing the Upgrade button and linking
@@ -32,11 +33,10 @@ const DefaultUpgradePrompt = (): React.ReactNode => {
 				className={ 'jetpack-ai-upgrade-banner' }
 				description={ createInterpolateElement(
 					__(
-						'Congratulations on exploring Jetpack AI and reaching the free requests limit!<br /><strong>Reach out to the site administrator to upgrade and keep using Jetpack AI.</strong>',
+						'Congratulations on exploring Jetpack AI and reaching the free requests limit! <strong>Reach out to the site administrator to upgrade and keep using Jetpack AI.</strong>',
 						'jetpack'
 					),
 					{
-						br: <br />,
 						strong: <strong />,
 					}
 				) }
@@ -80,13 +80,12 @@ const DefaultUpgradePrompt = (): React.ReactNode => {
 					sprintf(
 						/* Translators: number of requests */
 						__(
-							'You have reached the requests limit for your current plan.<br /><strong>Upgrade now to increase your requests limit to %d.</strong>',
+							'You have reached the requests limit for your current plan. <strong>Upgrade now to increase your requests limit to %d.</strong>',
 							'jetpack'
 						),
 						nextTier.limit
 					),
 					{
-						br: <br />,
 						strong: <strong />,
 					}
 				) }
@@ -107,11 +106,10 @@ const DefaultUpgradePrompt = (): React.ReactNode => {
 			className={ 'jetpack-ai-upgrade-banner' }
 			description={ createInterpolateElement(
 				__(
-					'Congratulations on exploring Jetpack AI and reaching the free requests limit!<br /><strong>Upgrade now to keep using it.</strong>',
+					'Congratulations on exploring Jetpack AI and reaching the free requests limit! <strong>Upgrade now to keep using it.</strong>',
 					'jetpack'
 				),
 				{
-					br: <br />,
 					strong: <strong />,
 				}
 			) }

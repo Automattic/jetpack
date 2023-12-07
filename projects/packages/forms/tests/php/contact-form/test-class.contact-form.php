@@ -975,10 +975,6 @@ class WP_Test_Contact_Form extends BaseTestCase {
 
 		$css_class = "grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap grunion-field-wrap";
 
-		if ( 'select' === $attributes['type'] ) {
-			$css_class .= ' contact-form-dropdown-wrap ui-front';
-		}
-
 		$this->assertEquals(
 			$wrapper_div->getAttribute( 'class' ),
 			$css_class,
@@ -1123,7 +1119,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 				'label for does not equal input name!'
 			);
 
-			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'] . ' grunion-field contact-form-dropdown', ' select class does not match expected' );
+			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'] . ' grunion-field', ' select class does not match expected' );
 
 			// Options.
 			$options = $select->getElementsByTagName( 'option' );
