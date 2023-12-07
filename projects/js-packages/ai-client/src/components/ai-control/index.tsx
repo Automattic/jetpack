@@ -77,7 +77,7 @@ export function AIControl(
 		onSend = noop,
 		onStop = noop,
 		onAccept = noop,
-		onDiscard = noop,
+		onDiscard = null,
 	}: AiControlProps,
 	ref: React.MutableRefObject< null > // eslint-disable-line @typescript-eslint/ban-types
 ): React.ReactElement {
@@ -162,7 +162,7 @@ export function AIControl(
 						/>
 					</div>
 
-					{ ( ! showAccept || editRequest ) && value?.length > 0 && (
+					{ ( ! showAccept || editRequest ) && (
 						<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 							{ ! loading ? (
 								<>
@@ -181,19 +181,36 @@ export function AIControl(
 										</Button>
 									) }
 
-									<Button
-										className="jetpack-components-ai-control__controls-prompt_button"
-										onClick={ sendRequest }
-										variant="primary"
-										disabled={ ! value?.length || disabled }
-										label={ __( 'Send request', 'jetpack-ai-client' ) }
-									>
-										{ showButtonLabels ? (
-											__( 'Generate', 'jetpack-ai-client' )
-										) : (
-											<Icon icon={ arrowUp } />
-										) }
-									</Button>
+									{ ! editRequest && ! value?.length && onDiscard && (
+										<Button
+											className="jetpack-components-ai-control__controls-prompt_button"
+											onClick={ discardHandler }
+											variant="secondary"
+											label={ __( 'Cancel', 'jetpack-ai-client' ) }
+										>
+											{ showButtonLabels ? (
+												__( 'Cancel', 'jetpack-ai-client' )
+											) : (
+												<Icon icon={ closeSmall } />
+											) }
+										</Button>
+									) }
+
+									{ value?.length > 0 && (
+										<Button
+											className="jetpack-components-ai-control__controls-prompt_button"
+											onClick={ sendRequest }
+											variant="primary"
+											disabled={ ! value?.length || disabled }
+											label={ __( 'Send request', 'jetpack-ai-client' ) }
+										>
+											{ showButtonLabels ? (
+												__( 'Generate', 'jetpack-ai-client' )
+											) : (
+												<Icon icon={ arrowUp } />
+											) }
+										</Button>
+									) }
 								</>
 							) : (
 								<Button
