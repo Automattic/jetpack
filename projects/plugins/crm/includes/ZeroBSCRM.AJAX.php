@@ -792,7 +792,7 @@ function ZeroBSCRM_get_quote_template() {
 				$quote_val = '[QUOTEVALUE]';
 			}
 			if ( empty( $quote_date ) ) {
-				$quote_date = date( 'd/m/Y', time() );
+				$quote_date = gmdate( 'Y-m-d' );
 			}
 
 			if ( empty( $quote_notes ) ) {
