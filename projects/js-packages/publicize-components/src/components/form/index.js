@@ -29,6 +29,7 @@ import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
 import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
+import { EnabledConnectionsNotice } from './enabled-connections-notice';
 import { ShareCountInfo } from './share-count-info';
 import { ShareCountNotice } from './share-count-notice';
 import styles from './styles.module.scss';
@@ -306,6 +307,7 @@ export default function PublicizeForm( {
 							</li>
 						</ul>
 					</PanelRow>
+					<EnabledConnectionsNotice />
 					{ showShareLimits && <ShareCountNotice /> }
 					{ showShareLimits && (
 						<PanelRow className={ styles[ 'share-count-info' ] }>
