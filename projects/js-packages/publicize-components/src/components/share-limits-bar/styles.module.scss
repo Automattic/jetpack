@@ -5,10 +5,6 @@
 }
 
 .wrapper {
-	.title {
-		font-weight: 600;
-		text-transform: uppercase;
-	}
 	:global .record-meter-bar__legend {
 		display: flex;
 		gap: 1rem;

@@ -36,7 +36,7 @@ export function getMessages( remainingCount: number ) {
 		  )
 		: '';
 	return {
-		default: remaining,
+		default: '',
 		exceeded: __(
 			'You have reached your auto-share limit. Scheduled posts will not be shared until shares become available.',
 			'jetpack'

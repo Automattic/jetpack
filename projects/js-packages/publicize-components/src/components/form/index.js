@@ -31,7 +31,6 @@ import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
 import { EnabledConnectionsNotice } from './enabled-connections-notice';
 import { ShareCountInfo } from './share-count-info';
-import { ShareCountNotice } from './share-count-notice';
 import styles from './styles.module.scss';
 
 const MONTH_IN_SECONDS = 30 * 24 * 60 * 60;
@@ -308,9 +307,8 @@ export default function PublicizeForm( {
 						</ul>
 					</PanelRow>
 					<EnabledConnectionsNotice />
-					{ showShareLimits && <ShareCountNotice /> }
 					{ showShareLimits && (
-						<PanelRow className={ styles[ 'share-count-info' ] }>
+						<PanelRow>
 							<ShareCountInfo />
 						</PanelRow>
 					) }

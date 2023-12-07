@@ -1,4 +1,4 @@
-import { RecordMeterBar, Text } from '@automattic/jetpack-components';
+import { RecordMeterBar } from '@automattic/jetpack-components';
 import { useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -11,8 +11,6 @@ export type ShareLimitsBarProps = {
 	usedCount: number;
 	scheduledCount: number;
 	remainingCount?: number;
-	title?: string;
-	textVariant?: string;
 	className?: string;
 	noticeType?: NoticeType;
 	legendCaption?: string;
@@ -34,8 +32,6 @@ export const ShareLimitsBar = ( {
 	usedCount,
 	scheduledCount,
 	remainingCount,
-	title,
-	textVariant = 'body',
 	className,
 	noticeType = 'default',
 	legendCaption,
@@ -68,11 +64,6 @@ export const ShareLimitsBar = ( {
 
 	return (
 		<div className={ classNames( styles.wrapper, className ) }>
-			{ title ? (
-				<Text variant={ textVariant } className={ styles.title }>
-					{ title }
-				</Text>
-			) : null }
 			<RecordMeterBar
 				totalCount={ usedCount + scheduledCount + remainingCount }
 				items={ items }
