@@ -4,8 +4,8 @@ import { once } from 'node:events';
 import { createInterface as rlcreateInterface } from 'node:readline';
 import npath from 'path';
 import chalk from 'chalk';
+import enquirer from 'enquirer';
 import { execa } from 'execa';
-import inquirer from 'inquirer';
 import Listr from 'listr';
 import ListrState from 'listr/lib/state.js';
 import SilentRenderer from 'listr-silent-renderer';
@@ -392,11 +392,12 @@ async function promptForDeps( options ) {
 		return options;
 	}
 
-	const answers = await inquirer.prompt( [
+	const answers = await enquirer.prompt( [
 		{
 			type: 'confirm',
 			name: 'deps',
 			message: `Build dependencies of ${ options.project } too?`,
+			initial: true,
 		},
 	] );
 	return {
@@ -428,12 +429,11 @@ async function setupForMirroring( argv ) {
 			console.error( 'Please stage, merge, or revert them before trying to use --for-mirrors.' );
 			return false;
 		}
-		const answers = await inquirer.prompt( [
+		const answers = await enquirer.prompt( [
 			{
 				type: 'confirm',
 				name: 'ok',
 				message: `Build with --for-mirrors is intended for a CI environment and will leave changes in the working tree. Proceed anyway?`,
-				default: false,
 			},
 		] );
 		if ( ! answers.ok ) {

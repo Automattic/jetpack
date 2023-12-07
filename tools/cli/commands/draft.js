@@ -6,7 +6,7 @@ import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import enquirer from 'enquirer';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 
 /**
@@ -66,11 +66,10 @@ export async function draftDisable( argv ) {
 			)
 		);
 
-		const preCommitAnswers = await inquirer.prompt( [
+		const preCommitAnswers = await enquirer.prompt( [
 			{
 				type: 'confirm',
 				name: 'runPreCommit',
-				default: false,
 				message: 'Would you like to run pre-commit checks now?',
 			},
 		] );
@@ -79,7 +78,7 @@ export async function draftDisable( argv ) {
 			const data = child_process.spawnSync(
 				path.join( process.cwd(), '.git/hooks/pre-commit' ),
 				[],
-				{ shell: true, stdio: 'inherit' }
+				{ stdio: 'inherit' }
 			);
 
 			// Node.js exit code status 0 === success
@@ -92,11 +91,10 @@ export async function draftDisable( argv ) {
 
 		// TODO: figure out why this is stalling out
 
-		// const prePushAnswers = await inquirer.prompt( [
+		// const prePushAnswers = await enquirer.prompt( [
 		// 	{
 		// 		type: 'confirm',
 		// 		name: 'runPrePush',
-		// 		default: false,
 		// 		message: 'Would you like to run pre-push checks now?',
 		// 	},
 		// ] );
@@ -105,7 +103,7 @@ export async function draftDisable( argv ) {
 		// 	const data = child_process.spawnSync(
 		// 		path.join( process.cwd(), '.git/hooks/pre-push' ),
 		// 		[],
-		// 		{ shell: true, stdio: "inherit" }
+		// 		{ stdio: "inherit" }
 		// 	);
 
 		// 	// Node.js exit code status 0 === success
