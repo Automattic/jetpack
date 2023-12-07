@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant: restrict stored states to init and done to prevent half way states of the block
