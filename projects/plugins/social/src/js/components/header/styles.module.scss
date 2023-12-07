@@ -62,3 +62,9 @@
 .connection-error-col {
 	margin-top: 25px;
 }
+
+.bar-wrapper {
+	:global .record-meter-bar {
+		padding-block: 0;
+	}
+}

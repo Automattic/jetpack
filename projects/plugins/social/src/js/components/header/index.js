@@ -87,6 +87,7 @@ const Header = () => {
 								remainingCount={ remainingCount }
 								legendCaption={ __( 'Auto-share usage', 'jetpack-social' ) }
 								noticeType={ noticeType }
+								className={ styles[ 'bar-wrapper' ] }
 							/>
 							<ContextualUpgradeTrigger
 								className={ styles.cut }
