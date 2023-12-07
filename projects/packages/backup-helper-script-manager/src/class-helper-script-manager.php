@@ -60,8 +60,8 @@ class Helper_Script_Manager {
 	 * Lines that will be written to README in the helper directory.
 	 */
 	const README_LINES = array(
-		'These files have been put on your server by Jetpack to assist with backups and restores of your site ' .
-		'content. They are cleaned up automatically when we no longer need them.',
+		'These files have been put on your server by Jetpack to assist with backups, restores, and scans of your ' .
+		'site content. They are cleaned up automatically when we no longer need them.',
 		'If you no longer have Jetpack connected to your site, you can delete them manually.',
 		'If you have questions or need assistance, please contact Jetpack Support at https://jetpack.com/support/',
 		'If you like to build amazing things with WordPress, you should visit automattic.com/jobs and apply to join ' .
