@@ -391,7 +391,7 @@ function wp_cache_postload() {
 	global $wp_cache_request_uri;
 
 	// have to sanitize here because formatting.php is loaded after wp_cache_request_uri is set
-	$wp_cache_request_uri = esc_url_raw( wp_unslash( $wp_cache_request_uri ) );
+	$wp_cache_request_uri = esc_url_raw( wp_unslash( $wp_cache_request_uri ? $wp_cache_request_uri : '' ) );
 
 	if ( ! $cache_enabled ) {
 		return true;
