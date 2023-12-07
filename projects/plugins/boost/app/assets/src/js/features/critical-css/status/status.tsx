@@ -12,23 +12,23 @@ import { navigate } from '$lib/utils/navigate';
 type StatusTypes = {
 	status: CriticalCssState[ 'status' ];
 	updated: CriticalCssState[ 'updated' ];
-	isCloudCssAvailable: boolean;
-	issues: CriticalCssState[ 'providers' ];
-	successCount: number;
 	progress: number;
 	suggestRegenerate: unknown;
-	generateText: string;
-	generateMoreText: string;
+	isCloudCssAvailable?: boolean;
+	issues?: CriticalCssState[ 'providers' ];
+	successCount?: number;
+	generateText?: string;
+	generateMoreText?: string;
 };
 
 const Status: React.FC< StatusTypes > = ( {
 	status,
 	updated,
+	progress,
+	suggestRegenerate,
 	isCloudCssAvailable = false,
 	issues = [],
 	successCount = 0,
-	progress,
-	suggestRegenerate,
 	generateText = '',
 	generateMoreText = '',
 } ) => {
