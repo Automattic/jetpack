@@ -28,6 +28,7 @@ import { useEffect, useRef } from 'react';
  * Internal dependencies
  */
 import UsagePanel from '../../plugins/ai-assistant-plugin/components/usage-panel';
+import { USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } from '../../plugins/ai-assistant-plugin/components/usage-panel/types';
 import ConnectPrompt from './components/connect-prompt';
 import ImageWithSelect from './components/image-with-select';
 import { promptTemplates } from './components/prompt-templates-control';
@@ -450,7 +451,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 				<InspectorControls>
 					<PanelBody initialOpen={ true }>
 						<PanelRow>
-							<UsagePanel />
+							<UsagePanel placement={ USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } />
 						</PanelRow>
 					</PanelBody>
 				</InspectorControls>

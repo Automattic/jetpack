@@ -87,7 +87,11 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 			const correctedId = `${ wrongId[ 1 ] }-zen`;
 			correctedSupportIds.add( correctedId );
 		} else {
-			correctedSupportIds.add( supportId.toLowerCase() );
+			// Switch to lowercase when it's not a p2 comment reference.
+			const standardizedsupportId = supportId.match( /[a-zA-Z0-9-]+-p2#comment-[0-9]*/ )
+				? supportId
+				: supportId.toLowerCase();
+			correctedSupportIds.add( standardizedsupportId );
 		}
 	} );
 
@@ -430,9 +434,19 @@ async function addHappinessLabel( octokit, ownerLogin, repo, number ) {
  * @param {GitHub}              octokit - Initialized Octokit REST client.
  */
 async function gatherSupportReferences( payload, octokit ) {
-	const { issue, repository } = payload;
-	const { number } = issue;
+	const {
+		issue: { number, pull_request },
+		repository,
+	} = payload;
 	const { name: repo, owner } = repository;
+
+	// Do not run this task on pull requests.
+	if ( pull_request ) {
+		debug(
+			`gather-support-references: do not gather support references on Pull Requests, here #${ number }. Aborting.`
+		);
+		return;
+	}
 
 	const issueComments = await getComments( octokit, owner.login, repo, number );
 	const issueReferences = await getIssueReferences( octokit, owner, repo, number, issueComments );
