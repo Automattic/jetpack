@@ -21,7 +21,7 @@ class Test_Throw_On_Errors extends TestCase {
 	 */
 	public function testRealpath() {
 		$this->assertSame( '/', Throw_On_Errors::t_realpath( '/' ) );
-		$this->assertSame( '/', Throw_On_Errors::t_realpath( '/bin/../' ) );
+		$this->assertSame( '/', Throw_On_Errors::t_realpath( '/usr/../' ) );
 	}
 
 	/**
