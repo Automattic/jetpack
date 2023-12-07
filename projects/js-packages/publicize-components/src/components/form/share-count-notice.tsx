@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
-import { Button, PanelRow } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { _x } from '@wordpress/i18n';
 import { useShareLimits } from '../../hooks/use-share-limits';
@@ -19,25 +19,23 @@ export const ShareCountNotice: React.FC = () => {
 	}
 
 	return (
-		<PanelRow>
-			<Notice
-				type="warning"
-				actions={ [
-					<Button
-						key="upgrade"
-						variant="primary"
-						onClick={ autosaveAndRedirect }
-						href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
-							site: getSiteFragment(),
-							query: 'redirect_to=' + encodeURIComponent( window.location.href ),
-						} ) }
-					>
-						{ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
-					</Button>,
-				] }
-			>
-				{ message }
-			</Notice>
-		</PanelRow>
+		<Notice
+			type="warning"
+			actions={ [
+				<Button
+					key="upgrade"
+					variant="primary"
+					onClick={ autosaveAndRedirect }
+					href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
+						site: getSiteFragment(),
+						query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+					} ) }
+				>
+					{ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
+				</Button>,
+			] }
+		>
+			{ message }
+		</Notice>
 	);
 };
