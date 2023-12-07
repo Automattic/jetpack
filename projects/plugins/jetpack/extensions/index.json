@@ -68,11 +68,9 @@
 		"videopress/video-chapters",
 		"create-with-voice",
 		"top-posts",
-		"ai-assistant-backend-prompts",
-		"sharing-button",
-		"sharing-buttons"
+		"ai-assistant-backend-prompts"
 	],
-	"experimental": [ "ai-image", "ai-paragraph" ],
+	"experimental": [ "ai-image", "ai-paragraph", "sharing-button", "sharing-buttons" ],
 	"no-post-editor": [
 		"ai-assistant",
 		"business-hours",
