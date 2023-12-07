@@ -870,36 +870,36 @@ class Posts extends Module {
 	 * @access private
 	 *
 	 * @param array $posts The array of posts to filter.
-	 * @param array $metadatas The array of metadatas to filter.
-	 * @return array An array containing the filtered post IDs, filtered posts, and filtered metadatas.
+	 * @param array $metadata The array of metadata to filter.
+	 * @return array An array containing the filtered post IDs, filtered posts, and filtered metadata.
 	 */
-	private function filter_posts_and_metadata_max_size( $posts, $metadatas ) {
-		$filtered_posts     = array();
-		$filtered_metadatas = array();
-		$filtered_post_ids  = array();
-		$current_size       = 0;
+	private function filter_posts_and_metadata_max_size( $posts, $metadata ) {
+		$filtered_posts    = array();
+		$filtered_metadata = array();
+		$filtered_post_ids = array();
+		$current_size      = 0;
 		foreach ( $posts as $post ) {
 			$post_content_size = isset( $post->post_content ) ? strlen( $post->post_content ) : 0;
-			$current_metadatas = array();
-			$metadatas_size    = 0;
-			foreach ( $metadatas as $key => $metadata ) {
-				if ( (int) $metadata->post_id === $post->ID ) {
+			$current_metadata  = array();
+			$metadata_size     = 0;
+			foreach ( $metadata as $key => $metadata_item ) {
+				if ( (int) $metadata_item->post_id === $post->ID ) {
 					// Trimming metadata if it exceeds limit. Similar to trim_post_meta.
-					$metadata_size = strlen( maybe_serialize( $metadata->meta_value ) );
+					$metadata_size = strlen( maybe_serialize( $metadata_item->meta_value ) );
 					if ( $metadata_size >= self::MAX_POST_META_LENGTH ) {
-						$metadata->meta_value = '';
+						$metadata_item->meta_value = '';
 					}
-					$current_metadatas[] = $metadata;
-					$metadatas_size     += $metadata_size >= self::MAX_POST_META_LENGTH ? 0 : $metadata_size;
-					unset( $metadatas[ $key ] );
+					$current_metadata[] = $metadata_item;
+					$metadata_size     += $metadata_size >= self::MAX_POST_META_LENGTH ? 0 : $metadata_size;
+					unset( $metadata[ $key ] );
 				}
 			}
 			// Always allow the first post with its metadata.
-			if ( empty( $filtered_post_ids ) || ( $current_size + $post_content_size + $metadatas_size ) <= ( self::MAX_SIZE_FULL_SYNC ) ) {
+			if ( empty( $filtered_post_ids ) || ( $current_size + $post_content_size + $metadata_size ) <= ( self::MAX_SIZE_FULL_SYNC ) ) {
 				$filtered_post_ids[] = $post->ID;
 				$filtered_posts[]    = $post;
-				$filtered_metadatas  = array_merge( $filtered_metadatas, $current_metadatas );
-				$current_size       += $post_content_size + $metadatas_size;
+				$filtered_metadata   = array_merge( $filtered_metadata, $current_metadata );
+				$current_size       += $post_content_size + $metadata_size;
 			} else {
 				break;
 			}
@@ -907,7 +907,7 @@ class Posts extends Module {
 		return array(
 			$filtered_post_ids,
 			$filtered_posts,
-			$filtered_metadatas,
+			$filtered_metadata,
 		);
 	}
 
