@@ -5,8 +5,9 @@
 	import ImageCdnQualityControl from './ImageCdnQualityControl.svelte';
 	import { imageCdnQuality } from './lib/stores/image-cdn-store';
 	import TemplatedString from '$features/TemplatedString.svelte';
-	import Tooltip from '$features/ui/Tooltip.svelte';
+	import { Tooltip } from '$features/ui';
 	import actionLinkTemplateVar from '$lib/utils/action-link-template-var';
+	import ReactComponent from '$features/ReactComponent.svelte';
 
 	const navigate = useNavigate();
 	export let isPremium: boolean;
@@ -19,15 +20,15 @@
 	>
 		<div slot="header" class="jb-image-cdn-quality__section-title">
 			{__( 'Image Quality', 'jetpack-boost' )}
-			<Tooltip>
-				<div slot="title">
-					{__( 'Image Quality', 'jetpack-boost' )}
-				</div>
-				{__(
+			<ReactComponent
+				this={Tooltip}
+				title={__( 'Image Quality', 'jetpack-boost' )}
+				inline
+				children={__(
 					'Select the quality for images served by the CDN. Choosing a lower quality will compress your images and load them faster. If you choose lossless, we will not compress your images.',
 					'jetpack-boost'
 				)}
-			</Tooltip>
+			></ReactComponent>
 
 			<span class="jb-badge">{__( 'Upgraded', 'jetpack-boost' )}</span>
 		</div>
