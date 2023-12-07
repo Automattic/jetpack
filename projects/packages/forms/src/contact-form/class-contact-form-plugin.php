@@ -273,8 +273,12 @@ class Contact_Form_Plugin {
 				'warning'              => __( 'Warning.', 'jetpack-forms' ),
 				/* translators: error message shown when one or more fields of the form are invalid. */
 				'invalidForm'          => __( 'Please make sure all fields are valid.', 'jetpack-forms' ),
-				/* translators: %s is the number of errors to fix in a form */
-				'errorCount'           => __( 'You need to fix %s errors.', 'jetpack-forms' ),
+				'errorCount'           => array(
+					/* translators: message displayed when a single error needs to be fixed. %s is 1 in this case. */
+					'one'   => __( 'You need to fix %s error.', 'jetpack-forms' ),
+					/* translators: message displayed when a multiple errors need to be fixed. %s is the number of errors. */
+					'other' => __( 'You need to fix %s errors.', 'jetpack-forms' ),
+				),
 				/* translators: error message shown when a multiple choice field requires at least one option to be selected. */
 				'checkboxMissingValue' => __( 'Please select at least one option.', 'jetpack-forms' ),
 				/* translators: text read by a screen reader when a form is being submitted */
