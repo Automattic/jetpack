@@ -19,7 +19,7 @@ const useSharedValue = () => {
 };
 
 type ShowStopperErrorTypes = {
-	supportLink: string;
+	supportLink?: string;
 	status: CriticalCssState[ 'status' ];
 	primaryErrorSet;
 	statusError;
