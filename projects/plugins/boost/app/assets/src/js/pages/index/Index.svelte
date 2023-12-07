@@ -115,7 +115,7 @@
 						b: [ 'strong', {}, '' ],
 					}}
 				/>
-				<ReactComponent this={PremiumTooltip} />
+				<ReactComponent inline this={PremiumTooltip} />
 			</p>
 		</div>
 
