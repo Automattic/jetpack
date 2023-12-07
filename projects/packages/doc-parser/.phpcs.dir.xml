@@ -1,37 +1,7 @@
 <?xml version="1.0"?>
 <ruleset>
 
-	<rule ref="WordPress.WP.I18n">
-		<properties>
-			<property name="text_domain" type="array">
-				<element value="jetpack-doc-parser" />
-			</property>
-		</properties>
-	</rule>
-	<rule ref="Jetpack.Functions.I18n">
-		<properties>
-			<property name="text_domain" value="jetpack-doc-parser" />
-		</properties>
-	</rule>
-
-	<rule ref="WordPress.Utils.I18nTextDomainFixer">
-		<properties>
-			<property name="old_text_domain" type="array" />
-			<property name="new_text_domain" value="jetpack-doc-parser" />
-		</properties>
-	</rule>
-
-	<rule ref="PHPCompatibility.Syntax.NewArrayUnpacking">
-		<severity>0</severity>
-	</rule>
-	<rule ref="WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents">
-		<severity>0</severity>
-	</rule>
-	<rule ref="WordPress.Security.EscapeOutput.OutputNotEscaped">
-		<severity>0</severity>
-	</rule>
-	<rule ref="WordPress.WP.AlternativeFunctions.json_encode_json_encode">
-		<severity>0</severity>
-	</rule>
+	<rule ref="Jetpack-NoWP" />
+	<rule ref="Jetpack-Compat-82" />
 
 </ruleset>
