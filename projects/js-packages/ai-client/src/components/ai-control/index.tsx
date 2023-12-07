@@ -33,7 +33,7 @@ import { GuidelineMessage } from './message';
  * Types
  */
 import type { RequestingStateProp } from '../../types';
-type AIControlProps = {
+type AiControlProps = {
 	disabled?: boolean;
 	value: string;
 	placeholder?: string;
@@ -43,10 +43,12 @@ type AIControlProps = {
 	isTransparent?: boolean;
 	state?: RequestingStateProp;
 	showGuideLine?: boolean;
+	customFooter?: React.ReactElement;
 	onChange?: ( newValue: string ) => void;
 	onSend?: ( currentValue: string ) => void;
 	onStop?: () => void;
 	onAccept?: () => void;
+	onDiscard?: () => void;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -55,7 +57,7 @@ const noop = () => {};
 /**
  * AI Control component.
  *
- * @param {AIControlProps} props       - Component props.
+ * @param {AiControlProps} props       - Component props.
  * @param {React.MutableRefObject} ref - Ref to the component.
  * @returns {React.ReactElement}         Rendered component.
  */
@@ -70,28 +72,13 @@ export function AIControl(
 		isTransparent = false,
 		state = 'init',
 		showGuideLine = false,
+		customFooter = null,
 		onChange = noop,
 		onSend = noop,
 		onStop = noop,
 		onAccept = noop,
 		onDiscard = noop,
-	}: {
-		disabled?: boolean;
-		value: string;
-		placeholder?: string;
-		showAccept?: boolean;
-		acceptLabel?: string;
-		showButtonLabels?: boolean;
-		isTransparent?: boolean;
-		state?: RequestingStateProp;
-		showClearButton?: boolean;
-		showGuideLine?: boolean;
-		onChange?: ( newValue: string ) => void;
-		onSend?: ( currentValue: string ) => void;
-		onStop?: () => void;
-		onAccept?: () => void;
-		onDiscard?: () => void;
-	},
+	}: AiControlProps,
 	ref: React.MutableRefObject< null > // eslint-disable-line @typescript-eslint/ban-types
 ): React.ReactElement {
 	const promptUserInputRef = useRef( null );
@@ -264,7 +251,7 @@ export function AIControl(
 						</div>
 					) }
 				</div>
-				{ showGuideLine && ! loading && ! editRequest && <GuidelineMessage /> }
+				{ showGuideLine && ! loading && ! editRequest && ( customFooter || <GuidelineMessage /> ) }
 			</div>
 		</div>
 	);
