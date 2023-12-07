@@ -62,7 +62,7 @@ class Doc_Parser {
 	 * @return string
 	 */
 	protected function get_phpdoc_data( $path, $format = 'json' ) {
-		printf( 'Extracting PHPDoc from %1$s. This may take a few minutes...' . PHP_EOL, $path ); // phpcs:ignore
+		printf( 'Extracting PHPDoc from %1$s.' . PHP_EOL, $path );
 
 		// Find the files to get the PHPDoc data from. $path can either be a folder or an absolute ref to a file.
 		if ( is_file( $path ) ) {
@@ -81,7 +81,9 @@ class Doc_Parser {
 		}
 
 		// Extract PHPDoc
+		ob_start();
 		$output = \WP_Parser\parse_files( $files, $path );
+		ob_get_clean();
 
 		if ( $format === 'json' ) {
 			$output = json_encode( $output, JSON_PRETTY_PRINT );
