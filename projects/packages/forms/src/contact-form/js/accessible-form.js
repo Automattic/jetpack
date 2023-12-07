@@ -9,6 +9,7 @@
 
 const L10N = window.jetpackContactForm || {};
 const lang = document.documentElement.lang || 'en-US';
+const pluralRules = new Intl.PluralRules( lang );
 
 document.addEventListener( 'DOMContentLoaded', () => {
 	initAllForms();
@@ -398,6 +399,47 @@ const createError = str => {
 };
 
 /**
+ * Create a list of links to the invalid fields of a form.
+ * @param {HTMLFormElement} form Form element
+ * @param {HTMLElement[]} invalidFields Invalid fields
+ * @returns {HTMLUListElement} List element
+ */
+const createInvalidFieldsList = ( form, invalidFields ) => {
+	const list = document.createElement( 'ul' );
+
+	for ( const field of invalidFields ) {
+		const id = field.id;
+
+		if ( ! id ) {
+			continue;
+		}
+
+		let label;
+
+		if ( isMultipleChoiceField( field ) || isSingleChoiceField( field ) ) {
+			label = field.querySelector( 'legend' );
+		} else {
+			label = form.querySelector( `label[for="${ id }"]` );
+		}
+
+		if ( ! label ) {
+			continue;
+		}
+
+		const li = document.createElement( 'li' );
+		const a = document.createElement( 'a' );
+
+		a.textContent = label.innerText;
+		a.setAttribute( 'href', `#${ id }` );
+
+		li.appendChild( a );
+		list.appendChild( li );
+	}
+
+	return list;
+};
+
+/**
  * Create a new error container for a form.
  * @returns {HTMLDivElement} Error container
  */
@@ -771,9 +813,6 @@ const setErrors = ( form, opts ) => {
  * @param {object} opts Options
  */
 const setFormError = ( form, invalidFields, opts = {} ) => {
-	const { disableLiveRegion } = opts;
-	const errorCount = invalidFields.length;
-
 	let error = getFormError( form );
 
 	if ( ! error ) {
@@ -788,14 +827,7 @@ const setFormError = ( form, invalidFields, opts = {} ) => {
 		}
 	}
 
-	const pr = new Intl.PluralRules( lang );
-	const rule = pr.select( errorCount ); // zero, one, two, few, many, or other
-	const countText = ( L10N.errorCount[ rule ] || L10N.errorCount.other || '' ).replace(
-		'%s',
-		errorCount
-	);
-	const invalidText = L10N.invalidForm || 'Please make sure all fields are valid.';
-	const errorText = [ invalidText, countText ].join( ' ' );
+	const { disableLiveRegion } = opts;
 
 	if ( disableLiveRegion ) {
 		error.removeAttribute( 'aria-live' );
@@ -805,7 +837,17 @@ const setFormError = ( form, invalidFields, opts = {} ) => {
 		error.setAttribute( 'role', 'alert' );
 	}
 
+	const errorCount = invalidFields.length;
+	const rule = pluralRules.select( errorCount ); // zero, one, two, few, many, or other
+	const countText = ( L10N.errorCount[ rule ] || L10N.errorCount.other || '' ).replace(
+		'%s',
+		errorCount
+	);
+	const invalidText = L10N.invalidForm || 'Please make sure all fields are valid.';
+	const errorText = [ invalidText, countText ].join( ' ' );
+
 	error.appendChild( createError( errorText ) );
+	error.appendChild( createInvalidFieldsList( form, invalidFields ) );
 };
 
 /**
