@@ -6,7 +6,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import classNames from 'classnames';
 import { useEffect } from 'react';
-import { getSocialIcon } from './components/social-icons';
+import SocialIcon from 'social-logos';
 import { getNameBySite } from './utils';
 import './style.scss';
 
@@ -53,7 +53,7 @@ const SharingButtonEdit = ( { attributes, context, setAttributes, post } ) => {
 		<>
 			<li { ...blockProps }>
 				<Button className={ sharingButtonClass }>
-					{ getSocialIcon( service ) }
+					<SocialIcon icon={ service } size={ 24 } />
 					<span className={ 'jetpack-sharing-button__service-label' }>{ socialLinkLabel }</span>
 				</Button>
 			</li>
