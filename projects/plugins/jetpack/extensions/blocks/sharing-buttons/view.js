@@ -1,20 +1,6 @@
 import './style.scss';
 
-const services = [
-	'print',
-	'facebook',
-	'linkedin',
-	'mail',
-	'mastodon',
-	'pinterest',
-	'pocket',
-	'reddit',
-	'telegram',
-	'tumblr',
-	'whatsapp',
-	'x',
-	'nextdoor',
-];
+const services = window?.jetpack_sharing_buttons_services || [];
 let windowOpen;
 
 ( function () {
