@@ -752,15 +752,17 @@ const listenToInvalidSimpleField = ( input, cb, form, opts ) => {
  * @param {object} opts Form options
  */
 const setErrors = ( form, opts ) => {
-	setFormError( form );
-	setFieldErrors( form, opts );
+	const invalidFields = setFieldErrors( form, opts );
+
+	setFormError( form, invalidFields );
 };
 
 /**
  * Set the error element of a form.
  * @param {HTMLFormElement} form Form element
+ * @param {HTMLElement[]} invalidFields Invalid fields
  */
-const setFormError = form => {
+const setFormError = ( form, invalidFields ) => {
 	let error = getFormError( form );
 
 	if ( ! error ) {
@@ -776,7 +778,10 @@ const setFormError = form => {
 	}
 
 	error.appendChild(
-		createError( L10N.invalidForm || 'Please make sure all fields are correct.' )
+		createError(
+			[ L10N.invalidForm, L10N.errorCount.replace( '%s', invalidFields.length ) ].join( ' ' ) ||
+				'Please make sure all fields are valid.'
+		)
 	);
 };
 
@@ -797,27 +802,37 @@ const updateFormErrorMessage = form => {
  * Set the error element of a form fields.
  * @param {HTMLFormElement} form Form element
  * @param {object} opts Form options
+ * @return {HTMLElement[]} Invalid fields
  */
 const setFieldErrors = ( form, opts ) => {
+	const invalidFields = [];
 	const { simple, singleChoice, multipleChoice } = getFormFields( form );
 
 	for ( const field of simple ) {
 		if ( ! isSimpleFieldValid( field ) ) {
 			setSimpleFieldError( field, form, opts );
+
+			invalidFields.push( field );
 		}
 	}
 
 	for ( const field of singleChoice ) {
 		if ( ! isSingleChoiceFieldValid( field ) ) {
 			setSingleChoiceFieldError( field, form, opts );
+
+			invalidFields.push( field );
 		}
 	}
 
 	for ( const field of multipleChoice ) {
 		if ( ! isMultipleChoiceFieldValid( field ) ) {
 			setMultipleChoiceFieldError( field, form, opts );
+
+			invalidFields.push( field );
 		}
 	}
+
+	return invalidFields;
 };
 
 /**
