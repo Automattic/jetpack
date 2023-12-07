@@ -13,6 +13,11 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Jetpack_Gutenberg;
+use Jetpack_Top_Posts_Helper;
+
+if ( ! class_exists( 'Jetpack_Top_Posts_Helper' ) ) {
+	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-top-posts-helper.php';
+}
 
 /**
  * Registers the block for use in Gutenberg
@@ -46,19 +51,15 @@ function load_assets( $attributes ) {
 	/*
 	 * We cannot rely on obtaining posts from the block because
 	 * top posts might have changed since then. As such, we must
-	 * make another request to check for updated stats.
+	 * check for updated stats.
 	 */
-	$request_url = sprintf(
-		'/wp-json/wpcom/v2/top-posts?period=%1$s&number=%2$s&types=%3$s',
-		$attributes['period'],
-		$attributes['postsToShow'],
-		implode( ',', array_keys( array_filter( $attributes['postTypes'] ) ) )
-	);
+	$period = $attributes['period'];
+	$number = $attributes['postsToShow'];
+	$types  = implode( ',', array_keys( array_filter( $attributes['postTypes'] ) ) );
 
-	$request = wp_remote_get( home_url( $request_url ) );
-	$data    = json_decode( wp_remote_retrieve_body( $request ), true );
+	$data = Jetpack_Top_Posts_Helper::get_top_posts( $period, $number, $types );
 
-	if ( is_wp_error( $request ) || ! is_array( $data ) ) {
+	if ( ! is_array( $data ) ) {
 		return;
 	}
 
@@ -100,7 +101,7 @@ function load_assets( $attributes ) {
 
 		if ( $attributes['displayContext'] && ! empty( $item['context'] ) && is_array( $item['context'] ) ) {
 			$context = reset( $item['context'] );
-			$output .= '<a class="jetpack-top-posts-context has-small-font-size" href="' . esc_url( get_category_link( $context['term_id'] ) ) . '">' . esc_html( $context['name'] ) . '</a>';
+			$output .= '<a class="jetpack-top-posts-context has-small-font-size" href="' . esc_url( get_category_link( $context->term_id ) ) . '">' . esc_html( $context->name ) . '</a>';
 		}
 
 		$output .= '</div>';

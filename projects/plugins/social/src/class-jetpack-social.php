@@ -229,13 +229,13 @@ class Jetpack_Social {
 		);
 
 		if ( $this->is_connected() ) {
-			$sig_settings             = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
-			$auto_conversion_settings = new Automattic\Jetpack\Publicize\Auto_Conversion\Settings();
+			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
+			$settings                = $jetpack_social_settings->get_settings( true );
 
 			$state = array_merge(
 				$state,
 				array(
-					'jetpackSettings'              => array(
+					'jetpackSettings' => array(
 						'publicize_active'               => self::is_publicize_active(),
 						'show_pricing_page'              => self::should_show_pricing_page(),
 						'showNudge'                      => ! $publicize->has_paid_plan( true ),
@@ -243,21 +243,13 @@ class Jetpack_Social {
 						'dismissedNotices'               => $publicize->get_dismissed_notices(),
 						'supportedAdditionalConnections' => $publicize->get_supported_additional_connections(),
 					),
-					'connectionData'               => array(
+					'connectionData'  => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
 						'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 					),
-					'sharesData'                   => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-					'socialImageGeneratorSettings' => array(
-						'available'       => $sig_settings->is_available(),
-						'enabled'         => $sig_settings->is_enabled(),
-						'defaultTemplate' => $sig_settings->get_default_template(),
-					),
-					'autoConversionSettings'       => array(
-						'available' => $auto_conversion_settings->is_available( 'image' ),
-						'image'     => $auto_conversion_settings->is_enabled( 'image' ),
-					),
-				)
+					'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+				),
+				$settings
 			);
 		}
 
@@ -324,8 +316,8 @@ class Jetpack_Social {
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
 
-		$sig_settings             = ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() );
-		$auto_conversion_settings = ( new Automattic\Jetpack\Publicize\Auto_Conversion\Settings() );
+		$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
+		$settings                = $jetpack_social_settings->get_settings( true );
 
 		wp_localize_script(
 			'jetpack-social-editor',
@@ -342,12 +334,9 @@ class Jetpack_Social {
 					),
 					'hasPaidPlan'                     => $publicize->has_paid_plan(),
 					'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
-					'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
-					'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
-					'autoConversionSettings'          => array(
-						'available' => $auto_conversion_settings->is_available( 'image' ),
-						'image'     => $auto_conversion_settings->is_enabled( 'image' ),
-					),
+					'isSocialImageGeneratorAvailable' => $settings['socialImageGeneratorSettings']['available'],
+					'isSocialImageGeneratorEnabled'   => $settings['socialImageGeneratorSettings']['enabled'],
+					'autoConversionSettings'          => $settings['autoConversionSettings'],
 					'dismissedNotices'                => $publicize->get_dismissed_notices(),
 					'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
 				),

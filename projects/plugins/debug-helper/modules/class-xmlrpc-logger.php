@@ -154,6 +154,27 @@ class XMLRPC_Logger {
 	}
 
 	/**
+	 * Logs a message.
+	 *
+	 * Checks if WP_DEBUG_LOG is enabled and logs the message.
+	 * If the l() function exists, it is used to log the message.
+	 * Otherwise, the message is logged using error_log().
+	 *
+	 * @param string $message The message to log.
+	 */
+	public function log( $message ) {
+		if ( ! ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) ) {
+			return;
+		}
+		if ( function_exists( 'l' ) ) {
+			l( $message );
+		} else {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( $message );
+		}
+	}
+
+	/**
 	 * Logs the XML-RPC request.
 	 * Captures the request data, formats it, and logs it if WP_DEBUG_LOG is enabled.
 	 */
@@ -161,7 +182,7 @@ class XMLRPC_Logger {
 		// Load the XML from the raw POST data
 		$xml_string = file_get_contents( 'php://input' );
 		if ( ! $xml_string ) {
-			l( 'XML-RPC Request: Empty payload' );
+			$this->log( 'XML-RPC Request: Empty payload' );
 			return;
 		}
 		libxml_use_internal_errors( true );
@@ -177,10 +198,10 @@ class XMLRPC_Logger {
 			if ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 				$log_message  = "XML-RPC Request - Method: $method_name\n";
 				$log_message .= "Payload:\n" . $formatted . "\n";
-				l( $log_message );
+				$this->log( $log_message );
 			}
 		} else {
-			l( 'XML-RPC Request: Invalid XML - ' . libxml_get_errors()[0]->message );
+			$this->log( 'XML-RPC Request: Invalid XML - ' . libxml_get_errors()[0]->message );
 			libxml_clear_errors();
 			return;
 		}
