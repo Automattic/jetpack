@@ -60,6 +60,8 @@ const ALLOWED_BLOCKS = [
 	'core/video',
 ];
 
+const PRIORITIZED_INSERTER_BLOCKS = [ ...map( validFields, block => `jetpack/${ block.name }` ) ];
+
 const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?post_type=feedback`;
 const CUSTOMIZING_FORMS_URL = 'https://jetpack.com/support/jetpack-blocks/contact-form/';
 
@@ -343,7 +345,11 @@ export const JetpackContactFormEdit = forwardRef(
 				</InspectorControls>
 
 				<div className={ formClassnames } style={ style } ref={ ref }>
-					<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateInsertUpdatesSelection={ false } />
+					<InnerBlocks
+						allowedBlocks={ ALLOWED_BLOCKS }
+						prioritizedInserterBlocks={ PRIORITIZED_INSERTER_BLOCKS }
+						templateInsertUpdatesSelection={ false }
+					/>
 				</div>
 			</>
 		);

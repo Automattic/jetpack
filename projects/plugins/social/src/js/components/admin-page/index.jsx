@@ -7,8 +7,8 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
-import { useSelect } from '@wordpress/data';
-import { useState, useCallback } from '@wordpress/element';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import React from 'react';
 import AdvancedUpsellNotice from '../advanced-upsell-notice';
 import AutoConversionToggle from '../auto-conversion-toggle';
@@ -27,6 +27,8 @@ const Admin = () => {
 	const { isUserConnected, isRegistered } = useConnection();
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	const [ forceDisplayPricingPage, setForceDisplayPricingPage ] = useState( false );
+
+	const refreshJetpackSocialSettings = useDispatch( SOCIAL_STORE_ID ).refreshJetpackSocialSettings;
 
 	const onUpgradeToggle = useCallback( () => setForceDisplayPricingPage( true ), [] );
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
@@ -55,6 +57,24 @@ const Admin = () => {
 			isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
 		};
 	} );
+
+	const hasEnabledModule = useRef( isModuleEnabled );
+
+	useEffect( () => {
+		if (
+			isModuleEnabled &&
+			! hasEnabledModule.current &&
+			( isAutoConversionAvailable || isSocialImageGeneratorAvailable )
+		) {
+			hasEnabledModule.current = true;
+			refreshJetpackSocialSettings();
+		}
+	}, [
+		isAutoConversionAvailable,
+		isModuleEnabled,
+		isSocialImageGeneratorAvailable,
+		refreshJetpackSocialSettings,
+	] );
 
 	const moduleName = `Jetpack Social ${ pluginVersion }`;
 
@@ -89,11 +109,11 @@ const Admin = () => {
 						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
 						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
-						{ ! isUpdatingJetpackSettings && isModuleEnabled && isAutoConversionAvailable && (
-							<AutoConversionToggle shouldRefresh />
+						{ isModuleEnabled && isAutoConversionAvailable && (
+							<AutoConversionToggle disabled={ isUpdatingJetpackSettings } />
 						) }
-						{ ! isUpdatingJetpackSettings && isModuleEnabled && isSocialImageGeneratorAvailable && (
-							<SocialImageGeneratorToggle shouldRefresh />
+						{ isModuleEnabled && isSocialImageGeneratorAvailable && (
+							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
 						) }
 					</AdminSection>
 					<AdminSectionHero>

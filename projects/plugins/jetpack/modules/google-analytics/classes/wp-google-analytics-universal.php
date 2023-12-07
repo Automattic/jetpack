@@ -291,7 +291,7 @@ class Jetpack_Google_Analytics_Universal {
 	 * @param string $key Unique Key ID for a cart item.
 	 */
 	public function remove_from_cart_attributes( $url, $key ) {
-		if ( false !== strpos( $url, 'data-product_id' ) ) {
+		if ( str_contains( $url, 'data-product_id' ) ) {
 			return $url;
 		}
 

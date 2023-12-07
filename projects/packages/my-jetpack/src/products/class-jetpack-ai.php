@@ -98,20 +98,17 @@ class Jetpack_Ai extends Product {
 	 * @return int
 	 */
 	public static function get_next_usage_tier() {
-		$current_tier = self::get_current_usage_tier();
+		$info = self::get_ai_assistant_feature();
 
-		if ( null === $current_tier ) {
-			return 1;
-		}
-
-		// If the current tier is 1 or 500, there is no next tier.
-		if ( 1 === $current_tier || 500 === $current_tier ) {
+		// Bail early if it's not possible to fetch the feature data.
+		if ( is_wp_error( $info ) ) {
 			return null;
 		}
 
-		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-		// return $info['next-tier']['value'];
-		return 1; // Return the unlimited tier for now.
+		// Trust the next tier provided by the feature data.
+		$next_tier = isset( $info['next-tier']['value'] ) ? $info['next-tier']['value'] : null;
+
+		return $next_tier;
 	}
 
 	/**
@@ -130,14 +127,13 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_long_description_by_usage_tier( $tier ) {
-		$long_descriptions = array(
+		$long_descriptions  = array(
 			1   => __( 'Jetpack AI Assistant brings the power of AI right into your WordPress editor, letting your content creation soar to new heights.', 'jetpack-my-jetpack' ),
 			100 => __( 'The most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' ),
-			200 => __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' ),
-			500 => __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' ),
 		);
+		$tiered_description = __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' );
 
-		return isset( $long_descriptions[ $tier ] ) ? $long_descriptions[ $tier ] : null;
+		return isset( $long_descriptions[ $tier ] ) ? $long_descriptions[ $tier ] : $tiered_description;
 	}
 
 	/**
@@ -158,7 +154,7 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_features_by_usage_tier( $tier ) {
-		$features = array(
+		$features        = array(
 			1   => array(
 				__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
 				__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
@@ -175,15 +171,13 @@ class Jetpack_Ai extends Product {
 				__( 'Priority support', 'jetpack-my-jetpack' ),
 				__( '100 requests per month', 'jetpack-my-jetpack' ),
 			),
-			200 => array(
-				__( '200 requests per month', 'jetpack-my-jetpack' ),
-			),
-			500 => array(
-				__( '500 requests per month', 'jetpack-my-jetpack' ),
-			),
+		);
+		$tiered_features = array(
+			/* translators: %d is the number of requests. */
+			sprintf( __( '%d requests per month', 'jetpack-my-jetpack' ), $tier ),
 		);
 
-		return isset( $features[ $tier ] ) ? $features[ $tier ] : array();
+		return isset( $features[ $tier ] ) ? $features[ $tier ] : $tiered_features;
 	}
 
 	/**
@@ -204,16 +198,32 @@ class Jetpack_Ai extends Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui_by_usage_tier( $tier ) {
-		$product      = Wpcom_Products::get_product( static::get_wpcom_product_slug() );
-		$base_pricing = Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() );
+		$product = Wpcom_Products::get_product( static::get_wpcom_product_slug() );
 
 		if ( empty( $product ) ) {
 			return array();
 		}
 
-		if ( empty( $product->price_tier_list ) ) {
-			return $base_pricing;
+		// get info about the feature.
+		$info = self::get_ai_assistant_feature();
+
+		// flag to indicate if the tiers are enabled, case the info is available.
+		$tier_plans_enabled = ( ! is_wp_error( $info ) && isset( $info['tier-plans-enabled'] ) ) ? boolval( $info['tier-plans-enabled'] ) : false;
+
+		/*
+		 * when tiers are enabled and the price tier list is empty,
+		 * we may need to renew the cache for the product data so
+		 * we get the new price tier list.
+		 *
+		 * if the list is still empty after the fresh data, we will
+		 * default to empty pricing (by returning an empty array).
+		 */
+		if ( empty( $product->price_tier_list ) && $tier_plans_enabled ) {
+			$product = Wpcom_Products::get_product( static::get_wpcom_product_slug(), true );
 		}
+
+		// get the base pricing for the unlimited plan, for compatibility
+		$base_pricing = Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() );
 
 		$price_tier_list = $product->price_tier_list;
 		$yearly_prices   = array();
@@ -225,21 +235,19 @@ class Jetpack_Ai extends Product {
 			}
 		}
 
-		$tiers  = array( 100, 200, 500 );
+		// add the base pricing to the list
 		$prices = array( 1 => $base_pricing );
 
-		foreach ( $tiers as $tier_value ) {
-			if ( isset( $yearly_prices[ $tier_value ] ) ) {
-					$prices[ $tier_value ] = array_merge(
-						$base_pricing,
-						array(
-							'full_price'            => $yearly_prices[ $tier_value ],
-							'discount_price'        => $yearly_prices[ $tier_value ],
-							'is_introductory_offer' => false,
-							'introductory_offer'    => null,
-						)
-					);
-			}
+		foreach ( $yearly_prices as $units => $price ) {
+			$prices[ $units ] = array_merge(
+				$base_pricing,
+				array(
+					'full_price'            => $price,
+					'discount_price'        => $price,
+					'is_introductory_offer' => false,
+					'introductory_offer'    => null,
+				)
+			);
 		}
 
 		return isset( $prices[ $tier ] ) ? $prices[ $tier ] : array();
@@ -265,7 +273,7 @@ class Jetpack_Ai extends Product {
 	/**
 	 * Get the WPCOM product slug used to make the purchase
 	 *
-	 * @return ?string
+	 * @return string
 	 */
 	public static function get_wpcom_product_slug() {
 		return 'jetpack_ai_yearly';
@@ -274,10 +282,19 @@ class Jetpack_Ai extends Product {
 	/**
 	 * Get the WPCOM monthly product slug used to make the purchase
 	 *
-	 * @return ?string
+	 * @return string
 	 */
 	public static function get_wpcom_monthly_product_slug() {
 		return 'jetpack_ai_monthly';
+	}
+
+	/**
+	 * Get the WPCOM bi-yearly product slug used to make the purchase
+	 *
+	 * @return string
+	 */
+	public static function get_wpcom_bi_yearly_product_slug() {
+		return 'jetpack_ai_bi_yearly';
 	}
 
 	/**
@@ -296,6 +313,9 @@ class Jetpack_Ai extends Product {
 					return true;
 				}
 				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_monthly_product_slug() ) ) {
+					return true;
+				}
+				if ( str_starts_with( $purchase->product_slug, static::get_wpcom_bi_yearly_product_slug() ) ) {
 					return true;
 				}
 			}

@@ -761,7 +761,7 @@ class iCalendarReader {
 			if ( 2 === count( $keyword ) ) {
 				$tparam = $keyword[1];
 
-				if ( strpos( $tparam, 'TZID' ) !== false ) {
+				if ( str_contains( $tparam, 'TZID' ) ) {
 					$tzid = $this->timezone_from_string( str_replace( 'TZID=', '', $tparam ) );
 				}
 			}

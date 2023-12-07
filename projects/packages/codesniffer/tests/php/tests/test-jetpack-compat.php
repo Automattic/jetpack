@@ -38,6 +38,8 @@ ini_get( 'session.cookie_samesite' );
 ini_get( 'opcache.cache_id' );
 ini_get( 'zend.exception_string_param_max_len' );
 ini_get( 'fiber.stack_size' );
+ini_get( 'error_log_mode' );
+ini_get( 'zend.max_allowed_stack_size' );
 
 EOF;
 
@@ -115,6 +117,7 @@ EOF;
 		yield array( 'Jetpack-Compat-80', self::SRC1, array_slice( $lines1, 5 ) );
 		yield array( 'Jetpack-Compat-81', self::SRC1, array_slice( $lines1, 6 ) );
 		yield array( 'Jetpack-Compat-82', self::SRC1, array_slice( $lines1, 7 ) );
+		yield array( 'Jetpack-Compat-83', self::SRC1, array_slice( $lines1, 8 ) );
 
 		$lines2 = array(
 			' 3 | WARNING | INI directive \'hard_timeout\' is not present in PHP version 7.0 or earlier (PHPCompatibility.IniDirectives.NewIniDirectives.hard_timeoutFound)',
@@ -132,5 +135,6 @@ EOF;
 		yield array( 'Jetpack-Compat-80', self::SRC2, array_slice( $lines2, 5 ) );
 		yield array( 'Jetpack-Compat-81', self::SRC2, array_slice( $lines2, 6 ) );
 		yield array( 'Jetpack-Compat-82', self::SRC2, array_slice( $lines2, 7 ) );
+		yield array( 'Jetpack-Compat-83', self::SRC2, array_slice( $lines2, 8 ) );
 	}
 }

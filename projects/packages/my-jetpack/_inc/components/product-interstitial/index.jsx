@@ -241,6 +241,15 @@ export function BoostInterstitial() {
 }
 
 /**
+ * CreatorInterstitial component
+ *
+ * @returns {object} CreatorInterstitial react component.
+ */
+export function CreatorInterstitial() {
+	return <ProductInterstitial slug="creator" installsPlugin={ true } />;
+}
+
+/**
  * CRMInterstitial component
  *
  * @returns {object} CRMInterstitial react component.
@@ -276,17 +285,17 @@ export function JetpackAIInterstitial() {
 	const { detail } = useProduct( slug );
 	const { onClickGoBack } = useGoBack( { slug } );
 
-	const currentTier = detail?.[ 'ai-assistant-feature' ]?.[ 'current-tier' ]?.value;
-	const nextTier = detail?.[ 'ai-assistant-feature' ]?.[ 'next-tier' ]?.value;
-	const hasNextTier = !! nextTier && ! [ 1, 500 ].includes( currentTier );
-	const quantity = hasNextTier ? nextTier : null;
+	const nextTier = detail?.[ 'ai-assistant-feature' ]?.[ 'next-tier' ] || null;
 
-	if ( ! hasNextTier ) {
+	if ( ! nextTier ) {
 		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
 	}
 
 	const { hasRequiredPlan } = detail;
 	const ctaLabel = hasRequiredPlan ? __( 'Upgrade Jetpack AI', 'jetpack-my-jetpack' ) : null;
+
+	// Decide the quantity value for the upgrade, but ignore the unlimited tier.
+	const quantity = nextTier?.value !== 1 ? nextTier?.value : null;
 
 	return (
 		<ProductInterstitial
