@@ -219,7 +219,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	}, [ promptPlaceholder, currentIndex ] );
 
 	useEffect( () => {
-		setAttributes( { requestingState } );
+		// we don't want to store "half way" states
+		const stateToSet = requestingState === 'init' ? 'init' : 'done';
+		setAttributes( { stateToSet } );
 	}, [ requestingState, setAttributes ] );
 
 	const saveImage = async image => {
