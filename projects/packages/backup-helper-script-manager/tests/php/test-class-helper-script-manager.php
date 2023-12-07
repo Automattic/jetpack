@@ -225,6 +225,36 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	}
 
 	/**
+	 * Test install_helper_script() to a location that we can't write to.
+	 */
+	public function test_install_helper_script_bad_location() {
+		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
+		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
+
+		$first_install_dir = array_keys( $this->install_locations )[0];
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod
+		chmod( $first_install_dir, 0000 );
+		$install_result = $helper_script_manager->install_helper_script( $script_body );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod
+		chmod( $first_install_dir, 0777 );
+
+		$this->assertInstanceOf( \WP_Error::class, $install_result );
+		$this->assertSame( 'all_locations_failed', $install_result->get_error_code() );
+		$this->assertStringContainsString(
+			'Unable to write the helper script to any install locations; tried: ',
+			$install_result->get_error_message()
+		);
+		$this->assertStringContainsString(
+			"directory '$first_install_dir'",
+			$install_result->get_error_message()
+		);
+		$this->assertStringContainsString(
+			'is not writable',
+			$install_result->get_error_message()
+		);
+	}
+
+	/**
 	 * Test delete_helper_script().
 	 */
 	public function test_delete_helper_script() {
