@@ -2,7 +2,7 @@
 /**
  * Define all sharing sources.
  *
- * @since 11.x
+ * @since $$next-version$$
  *
  * @package automattic/jetpack
  *
