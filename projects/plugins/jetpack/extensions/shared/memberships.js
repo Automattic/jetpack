@@ -26,37 +26,45 @@ export function handleIframeResult( eventFromIframe ) {
 	}
 }
 
+export function showModal( url ) {
+	window.scrollTo( 0, 0 );
+
+	// prevent double scroll bars. We use the entire viewport for the modal so we need to hide overflow on the body element.
+	document.body.classList.add( 'modal-open' );
+
+	const existingModal = document.getElementById( 'memberships-modal-window' );
+	const dialog = existingModal ?? document.createElement( 'dialog' );
+
+	if ( ! existingModal ) {
+		dialog.setAttribute( 'id', 'memberships-modal-window' );
+
+		const iframe = document.createElement( 'iframe' );
+		iframe.setAttribute( 'id', 'memberships-modal-iframe' );
+		iframe.innerText =
+			'This feature requires inline frames. You have iframes disabled or your browser does not support them.';
+		iframe.src = url + '&display=alternate&jwt_token=' + getTokenFromCookie();
+		iframe.setAttribute( 'frameborder', '0' );
+		iframe.setAttribute( 'allowtransparency', 'true' );
+		iframe.setAttribute( 'allowfullscreen', 'true' );
+		dialog.classList.add( 'jetpack-memberships-modal' );
+
+		document.body.appendChild( dialog );
+		dialog.appendChild( iframe );
+		window.addEventListener( 'message', handleIframeResult, false );
+	}
+
+	dialog.showModal();
+
+	// This line has to come after the modal has opened otherwise Firefox doesn't scroll to the top.
+	window.scrollTo( 0, 0 );
+}
+
 function setUpModal( button ) {
 	button.addEventListener( 'click', event => {
 		event.preventDefault();
-		window.scrollTo( 0, 0 );
-
-		// prevent double scroll bars. We use the entire viewport for the modal so we need to hide overflow on the body element.
-		document.body.classList.add( 'modal-open' );
-
-		const url = button.getAttribute( 'href' );
-		const existingModal = document.getElementById( 'memberships-modal-window' );
-		const dialog = existingModal ?? document.createElement( 'dialog' );
-		if ( ! existingModal ) {
-			dialog.setAttribute( 'id', 'memberships-modal-window' );
-
-			const iframe = document.createElement( 'iframe' );
-			iframe.setAttribute( 'id', 'memberships-modal-iframe' );
-			iframe.innerText =
-				'This feature requires inline frames. You have iframes disabled or your browser does not support them.';
-			dialog.classList.add( 'jetpack-memberships-modal' );
-
-			document.body.appendChild( dialog );
-			dialog.appendChild( iframe );
-			iframe.src = url + '&display=alternate&jwt_token=' + getTokenFromCookie();
-			iframe.setAttribute( 'frameborder', '0' );
-			iframe.setAttribute( 'allowtransparency', 'true' );
-			iframe.setAttribute( 'allowfullscreen', 'true' );
-			window.addEventListener( 'message', handleIframeResult, false );
-		}
-		dialog.showModal();
-
-		window.scrollTo( 0, 0 );
+		showModal( button.getAttribute( 'href' ) );
+		this.blur();
+		return false;
 	} );
 }
 
@@ -71,7 +79,7 @@ export const initializeMembershipButtons = selector => {
 			setUpModal( button );
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
-			console.error( 'Problem setting up Thickbox', err );
+			console.error( 'Problem setting up Modal', err );
 		}
 
 		button.setAttribute( 'data-jetpack-memberships-button-initialized', 'true' );
