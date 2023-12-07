@@ -743,6 +743,17 @@ async function promptChangelog( argv, needChangelog, types ) {
 		},
 	} );
 
+	let userFacing = false;
+	// Ask if this is a user facing change if we detect Jetpack.
+	if ( argv.project === 'plugins/jetpack' ) {
+		userFacing = await prompt( {
+			type: 'confirm',
+			name: 'userFacing',
+			message: 'Is this a change Jetpack users would like to know about? (Y/n)',
+			default: 'true',
+		} );
+	}
+
 	// Get the significance.
 	const { significance } = await prompt( {
 		type: 'autocomplete',
@@ -766,15 +777,22 @@ async function promptChangelog( argv, needChangelog, types ) {
 		],
 	} );
 
-	// Get the type of change.
-	const { type } = await prompt( {
-		type: 'autocomplete',
-		name: 'type',
-		message: 'Type of change.',
-		suggest: ( input, choices ) => choices.filter( choice => choice.value.startsWith( input ) ),
-		highlight: v => v,
-		choices: typeChoices,
-	} );
+	// Get the type, set it to other if this isn't a user facing change.
+	let typeResponse;
+	if ( ! userFacing.userFacing && argv.project === 'plugins/jetpack' ) {
+		typeResponse = { type: 'other' };
+	} else {
+		// Get the type of change.
+		typeResponse = await prompt( {
+			type: 'autocomplete',
+			name: 'type',
+			message: 'Type of change.',
+			suggest: ( input, choices ) => choices.filter( choice => choice.value.startsWith( input ) ),
+			highlight: v => v,
+			choices: typeChoices,
+		} );
+	}
+	const { type } = typeResponse;
 
 	console.log(
 		chalk.yellow(
