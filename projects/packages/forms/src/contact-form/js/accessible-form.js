@@ -8,6 +8,7 @@
  */
 
 const L10N = window.jetpackContactForm || {};
+const lang = document.documentElement.lang || 'en-US';
 
 document.addEventListener( 'DOMContentLoaded', () => {
 	initAllForms();
@@ -396,8 +397,6 @@ const createFormErrorContainer = () => {
 	const elt = document.createElement( 'div' );
 
 	elt.classList.add( 'contact-form__error' );
-	elt.setAttribute( 'aria-live', 'assertive' );
-	elt.setAttribute( 'role', 'alert' );
 
 	return elt;
 };
@@ -761,8 +760,12 @@ const setErrors = ( form, opts ) => {
  * Set the error element of a form.
  * @param {HTMLFormElement} form Form element
  * @param {HTMLElement[]} invalidFields Invalid fields
+ * @param {object} opts Options
  */
-const setFormError = ( form, invalidFields ) => {
+const setFormError = ( form, invalidFields, opts = {} ) => {
+	const { disableLiveRegion } = opts;
+	const errorCount = invalidFields.length;
+
 	let error = getFormError( form );
 
 	if ( ! error ) {
@@ -777,12 +780,24 @@ const setFormError = ( form, invalidFields ) => {
 		}
 	}
 
-	error.appendChild(
-		createError(
-			[ L10N.invalidForm, L10N.errorCount.replace( '%s', invalidFields.length ) ].join( ' ' ) ||
-				'Please make sure all fields are valid.'
-		)
+	const pr = new Intl.PluralRules( lang );
+	const rule = pr.select( errorCount ); // zero, one, two, few, many, or other
+	const countText = ( L10N.errorCount[ rule ] || L10N.errorCount.other || '' ).replace(
+		'%s',
+		errorCount
 	);
+	const invalidText = L10N.invalidForm || 'Please make sure all fields are valid.';
+	const errorText = [ invalidText, countText ].join( ' ' );
+
+	if ( disableLiveRegion ) {
+		error.removeAttribute( 'aria-live' );
+		error.removeAttribute( 'role' );
+	} else {
+		error.setAttribute( 'aria-live', 'assertive' );
+		error.setAttribute( 'role', 'alert' );
+	}
+
+	error.appendChild( createError( errorText ) );
 };
 
 /**
@@ -794,7 +809,8 @@ const updateFormErrorMessage = form => {
 	clearFormError( form );
 
 	if ( ! form.checkValidity() ) {
-		setFormError( form );
+		// Prevent screen readers from announcing the error message on each update.
+		setFormError( form, getInvalidFields( form ), { disableLiveRegion: true } );
 	}
 };
 
