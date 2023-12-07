@@ -101,3 +101,25 @@ function render_block( $attr, $content, $block ) {
 		$html
 	);
 }
+
+/**
+ * Add the initial state for the Like block.
+ */
+function add_like_block_data() {
+	if ( ! is_admin() ) {
+		return;
+	}
+
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$blog_id = get_current_blog_id();
+	} else {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+	}
+
+	wp_add_inline_script(
+		'jetpack-blocks-editor',
+		'var Jetpack_LikeBlock_BlogId = ' . $blog_id . ';',
+		'before'
+	);
+}
+add_action( 'enqueue_block_assets', __NAMESPACE__ . '\add_like_block_data' );

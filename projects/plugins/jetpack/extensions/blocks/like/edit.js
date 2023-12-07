@@ -1,11 +1,12 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
+import { BlockIcon, useBlockProps, InspectorControls } from '@wordpress/block-editor';
 //import { Placeholder, withNotices } from '@wordpress/components';
-import { Placeholder } from '@wordpress/components';
-//import { useState } from '@wordpress/element';
+import { Placeholder, ToggleControl, PanelBody } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import metadata from './block.json';
 import './editor.scss';
+//import useFetchReblogSetting from './use-fetch-reblog-setting';
 
 const icon = getBlockIconComponent( metadata );
 
@@ -25,9 +26,33 @@ function LikeEdit( { noticeUI } ) {
 	}; */
 
 	const blockProps = useBlockProps();
+	const [ hasFixedBackground, setHasFixedBackground ] = useState( false );
+
+	//console.log( window?.Jetpack_LikeBlock_BlogId );
+	//console.log( 'blogId', blogId );
+
+	//const { fetchReblogSetting, reblogSetting } = useFetchReblogSetting( blogId );
+
+	//useEffect( () => {
+	//	fetchReblogSetting();
+	//}, [ fetchReblogSetting ] );
+
+	//console.log( 'reblogSetting', reblogSetting );
 
 	return (
 		<div { ...blockProps }>
+			<InspectorControls>
+				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+					<ToggleControl
+						label="Show reblog button"
+						help={ hasFixedBackground ? 'Has fixed background.' : 'No fixed background.' }
+						checked={ hasFixedBackground }
+						onChange={ newValue => {
+							setHasFixedBackground( newValue );
+						} }
+					/>
+				</PanelBody>
+			</InspectorControls>
 			<Placeholder
 				label={ __( 'Like', 'jetpack' ) }
 				instructions={ __( 'Instructions go here.', 'jetpack' ) }
