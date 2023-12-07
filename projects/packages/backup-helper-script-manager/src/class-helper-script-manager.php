@@ -89,44 +89,77 @@ class Helper_Script_Manager {
 	 * Has to be done late, i.e. can't be done in constructor, because in __construct() not all constants / functions
 	 * might be available.
 	 *
-	 * @return array Keys specify the full path of install locations, and values point to the equivalent URL.
+	 * @return array<string, string|\WP_Error> Array with keys specifying the full path of install locations, and values
+	 *   either pointing to the equivalent URL, or being WP_Error if a specific path is not accessible.
 	 */
 	public function install_locations() {
 		if ( $this->custom_install_locations !== null ) {
 			return $this->custom_install_locations;
 		}
 
+		$abspath_url = \get_site_url();
+
+		$locations = array();
+
+		try {
+			if ( Throw_On_Errors::t_is_dir( \ABSPATH ) ) {
+				$abspath_dir               = Throw_On_Errors::t_realpath( \ABSPATH );
+				$locations[ $abspath_dir ] = $abspath_url;
+			}
+		} catch ( Exception $exception ) {
+			$locations[ \ABSPATH ] = new \WP_Error(
+				'abspath_missing',
+				'Unable to access WordPress root "' . \ABSPATH . '": ' . $exception->getMessage(),
+				array( 'status' => 500 )
+			);
+		}
+
+		try {
+			if ( Throw_On_Errors::t_is_dir( \WP_CONTENT_DIR ) ) {
+				$wp_content_dir = Throw_On_Errors::t_realpath( \WP_CONTENT_DIR );
+				$wp_content_url = \WP_CONTENT_URL;
+
+				// I think we mess up the order in which we load things somewhere in a test, so "wp-content" and
+				// "wp-content/uploads/" URLs don't actually have the scheme+host part in them.
+				if ( ! wp_http_validate_url( $wp_content_url ) ) {
+					$wp_content_url = $abspath_url . $wp_content_url;
+				}
+
+				$locations[ $wp_content_dir ] = $wp_content_url;
+			}
+		} catch ( Exception $exception ) {
+			$locations[ \WP_CONTENT_DIR ] = new \WP_Error(
+				'content_path_missing',
+				'Unable to access content path "' . \WP_CONTENT_DIR . '"' . $exception->getMessage(),
+				array( 'status' => 500 )
+			);
+		}
+
 		$upload_dir_info = \wp_upload_dir();
+		$wp_uploads_dir  = $upload_dir_info['basedir'];
 
-		$abspath_dir    = realpath( \ABSPATH );
-		$wp_content_dir = realpath( \WP_CONTENT_DIR );
-		$wp_uploads_dir = realpath( $upload_dir_info['basedir'] );
+		try {
+			if ( Throw_On_Errors::t_is_dir( $wp_uploads_dir ) ) {
 
-		$abspath_url    = \get_site_url();
-		$wp_content_url = \WP_CONTENT_URL;
-		$wp_uploads_url = $upload_dir_info['baseurl'];
+				$wp_uploads_dir = Throw_On_Errors::t_realpath( $wp_uploads_dir );
+				$wp_uploads_url = $upload_dir_info['baseurl'];
 
-		// I think we mess up the order in which we load things somewhere in a test, so "wp-content" and
-		// "wp-content/uploads/" URLs don't actually have the scheme+host part in them.
-		if ( ! wp_http_validate_url( $wp_content_url ) ) {
-			$wp_content_url = $abspath_url . $wp_content_url;
+				if ( ! wp_http_validate_url( $wp_uploads_url ) ) {
+					$wp_uploads_url = $abspath_url . $wp_uploads_url;
+				}
+
+				$locations[ $wp_uploads_dir ] = $wp_uploads_url;
+			}
+		} catch ( Exception $exception ) {
+			$locations[ $wp_uploads_dir ] = new \WP_Error(
+				'uploads_path_missing',
+				'Unable to access uploads path "' . $wp_uploads_dir . '"' . $exception->getMessage(),
+				$exception->getMessage(),
+				array( 'status' => 500 )
+			);
 		}
-		if ( ! wp_http_validate_url( $wp_uploads_url ) ) {
-			$wp_uploads_url = $abspath_url . $wp_uploads_url;
-		}
 
-		return array(
-
-			// WordPress root:
-			$abspath_dir    => $abspath_url,
-
-			// wp-content:
-			$wp_content_dir => $wp_content_url,
-
-			// wp-content/uploads:
-			$wp_uploads_dir => $wp_uploads_url,
-
-		);
+		return $locations;
 	}
 
 	/**
@@ -162,9 +195,18 @@ class Helper_Script_Manager {
 		// Replace '[wp_path]' in the Helper Script with the WordPress installation location. Allows the Helper Script
 		// to find WordPress.
 		$wp_path_marker = '[wp_path]';
-		$script_body    = str_replace(
+		try {
+			$normalized_abspath = addslashes( Throw_On_Errors::t_realpath( ABSPATH ) );
+		} catch ( Exception $exception ) {
+			return new \WP_Error(
+				'abspath_missing',
+				'Error while resolving ABSPATH "' . ABSPATH . '": ' . $exception->getMessage(),
+				array( 'status' => 500 )
+			);
+		}
+		$script_body = str_replace(
 			$wp_path_marker,
-			addslashes( realpath( ABSPATH ) ),
+			$normalized_abspath,
 			$script_body,
 			$wp_path_marker_replacement_count
 		);
@@ -179,6 +221,12 @@ class Helper_Script_Manager {
 		$failure_paths_and_reasons = array();
 
 		foreach ( $this->install_locations() as $directory => $url ) {
+
+			if ( is_wp_error( $url ) ) {
+				$failure_paths_and_reasons[] = "directory '$directory': " . $url->get_error_message();
+				continue;
+			}
+
 			try {
 				$installed = $this->install_to_location_or_throw( $script_body, $directory, $url );
 
@@ -191,7 +239,7 @@ class Helper_Script_Manager {
 				return array(
 					'path'    => $installed['path'],
 					'url'     => $installed['url'],
-					'abspath' => realpath( ABSPATH ),
+					'abspath' => Throw_On_Errors::t_realpath( ABSPATH ),
 				);
 
 			} catch ( Exception $exception ) {
@@ -219,39 +267,26 @@ class Helper_Script_Manager {
 	 * @throws Exception On I/O errors.
 	 */
 	protected function install_to_location_or_throw( $script_body, $directory, $url ) {
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
-		if ( ! is_writable( $directory ) ) {
+		if ( ! Throw_On_Errors::t_is_writable( $directory ) ) {
 			throw new Exception( "Directory '$directory' is not writable" );
 		}
 
 		$temp_dir = trailingslashit( $directory ) . static::TEMP_DIRECTORY;
 
-		if ( ! is_dir( $temp_dir ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-			if ( ! mkdir( $temp_dir ) ) {
-				throw new Exception( "Unable to create directory '$temp_dir'" );
-			}
+		if ( ! Throw_On_Errors::t_is_dir( $temp_dir ) ) {
+			Throw_On_Errors::t_mkdir( $temp_dir );
 		}
 
 		$readme_path = trailingslashit( $temp_dir ) . 'README';
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		if ( false === file_put_contents( $readme_path, implode( "\n\n", static::README_LINES ) ) ) {
-			throw new Exception( "Unable to write README to '$readme_path'" );
-		}
+		Throw_On_Errors::t_file_put_contents( $readme_path, implode( "\n\n", static::README_LINES ) );
 
 		$index_path = trailingslashit( $temp_dir ) . 'index.php';
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		if ( false === file_put_contents( $index_path, static::INDEX_FILE ) ) {
-			throw new Exception( "Unable to write index.php to '$index_path'" );
-		}
+		Throw_On_Errors::t_file_put_contents( $index_path, static::INDEX_FILE );
 
 		$file_key  = wp_generate_password( 10, false );
 		$file_name = 'jp-helper-' . $file_key . '.php';
 		$file_path = trailingslashit( $temp_dir ) . $file_name;
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		if ( false === file_put_contents( $file_path, $script_body ) ) {
-			throw new Exception( "Unable to write helper script to '$file_path'" );
-		}
+		Throw_On_Errors::t_file_put_contents( $file_path, $script_body );
 
 		return array(
 			'path' => $file_path,
@@ -291,23 +326,19 @@ class Helper_Script_Manager {
 	 */
 	protected function delete_helper_script_or_throw( $path ) {
 
-		if ( ! file_exists( $path ) ) {
+		if ( ! Throw_On_Errors::t_file_exists( $path ) ) {
 			return;
 		}
 
-		if ( ! is_readable( $path ) ) {
+		if ( ! Throw_On_Errors::t_is_readable( $path ) ) {
 			throw new Exception( "File '$path' is not readable" );
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
-		if ( ! is_writable( $path ) ) {
+		if ( ! Throw_On_Errors::t_is_writable( $path ) ) {
 			throw new Exception( "File '$path' is not writable" );
 		}
 
-		$helper_script_size = filesize( $path );
-		if ( false === $helper_script_size ) {
-			throw new Exception( "Unable to determine file size for file '$path'" );
-		}
+		$helper_script_size = Throw_On_Errors::t_filesize( $path );
 
 		// Check this file looks like a JPR helper script.
 		$helper_header_size = strlen( static::HELPER_HEADER );
@@ -329,10 +360,7 @@ class Helper_Script_Manager {
 			throw new Exception( 'Bad helper script header: 0x' . bin2hex( $actual_header ) );
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-		if ( ! unlink( $path ) ) {
-			throw new Exception( 'Unable to delete helper script' );
-		}
+		Throw_On_Errors::t_unlink( $path );
 
 		$this->delete_helper_directory_if_empty( dirname( $path ) );
 	}
@@ -391,15 +419,18 @@ class Helper_Script_Manager {
 		$error_messages = array();
 
 		foreach ( $this->install_locations() as $directory => $url ) {
+
+			if ( is_wp_error( $url ) ) {
+				$error_messages[] = $url->get_error_message();
+				continue;
+			}
+
 			$temp_dir = trailingslashit( trailingslashit( $directory ) . static::TEMP_DIRECTORY );
 
-			if ( is_dir( $temp_dir ) ) {
+			if ( Throw_On_Errors::t_is_dir( $temp_dir ) ) {
 
 				// Find expired helper scripts and delete them.
-				$temp_dir_contents = scandir( $temp_dir );
-				if ( false === $temp_dir_contents ) {
-					throw new Exception( "Unable to list directory '$temp_dir_contents'" );
-				}
+				$temp_dir_contents = Throw_On_Errors::t_scandir( $temp_dir );
 
 				foreach ( $temp_dir_contents as $name ) {
 
@@ -409,10 +440,7 @@ class Helper_Script_Manager {
 
 					$full_path = $temp_dir . $name;
 
-					$last_modified = filemtime( $full_path );
-					if ( false === $last_modified ) {
-						throw new Exception( "Unable to get modification time for file '$full_path'" );
-					}
+					$last_modified = Throw_On_Errors::t_filemtime( $full_path );
 
 					if ( preg_match( '/^jp-helper-.*\.php$/', $name ) ) {
 						if ( null === $expiry_time || $last_modified < $expiry_time ) {
@@ -448,7 +476,7 @@ class Helper_Script_Manager {
 	 */
 	protected function delete_helper_directory_if_empty( $dir ) {
 
-		if ( ! is_dir( $dir ) ) {
+		if ( ! Throw_On_Errors::t_is_dir( $dir ) ) {
 			return true;
 		}
 
@@ -458,10 +486,7 @@ class Helper_Script_Manager {
 			'index.php' => static::INDEX_FILE,
 		);
 
-		$dir_contents = scandir( $dir );
-		if ( false === $dir_contents ) {
-			throw new Exception( "Unable to list directory '$dir'" );
-		}
+		$dir_contents = Throw_On_Errors::t_scandir( $dir );
 
 		if ( count( $dir_contents ) > count( $allowed_files_and_headers ) + count( $this->scandir_ignored_names ) ) {
 			return false;
@@ -484,23 +509,14 @@ class Helper_Script_Manager {
 				throw new Exception( "Bad header for file '$full_path': 0x" . bin2hex( $actual_header ) );
 			}
 
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-			if ( ! unlink( $full_path ) ) {
-				throw new Exception( "Unable to delete file '$full_path'" );
-			}
+			Throw_On_Errors::t_unlink( $full_path );
 		}
 
 		// If the directory is now empty, delete it.
-		$dir_contents_after_cleanup = scandir( $dir );
-		if ( false === $dir_contents_after_cleanup ) {
-			throw new Exception( "Unable to list directory '$dir' after cleanup" );
-		}
+		$dir_contents_after_cleanup = Throw_On_Errors::t_scandir( $dir );
 
 		if ( count( $dir_contents_after_cleanup ) <= count( $this->scandir_ignored_names ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
-			if ( ! rmdir( $dir ) ) {
-				throw new Exception( "Unable to remove directory '$dir'" );
-			}
+			Throw_On_Errors::t_rmdir( $dir );
 		}
 
 		return true;
@@ -534,18 +550,15 @@ class Helper_Script_Manager {
 	 * @throws Exception If the file doesn't exist, isn't readable, or is of the wrong size.
 	 */
 	protected static function verify_file_header( $path, $expected_header ) {
-		if ( ! file_exists( $path ) ) {
+		if ( ! Throw_On_Errors::t_file_exists( $path ) ) {
 			throw new Exception( "File '$path' does not exist" );
 		}
 
-		if ( ! is_readable( $path ) ) {
+		if ( ! Throw_On_Errors::t_is_readable( $path ) ) {
 			throw new Exception( "File '$path' is not readable" );
 		}
 
-		$file_size = filesize( $path );
-		if ( false === $file_size ) {
-			throw new Exception( "Unable to determine size for file '$path'" );
-		}
+		$file_size = Throw_On_Errors::t_filesize( $path );
 
 		// Check this file looks like a JPR helper script.
 		$expected_header_size = strlen( $expected_header );
@@ -562,8 +575,7 @@ class Helper_Script_Manager {
 			);
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		$file_contents = file_get_contents( $path );
+		$file_contents = Throw_On_Errors::t_file_get_contents( $path );
 		return static::string_starts_with_substring( $file_contents, $expected_header );
 	}
 }
