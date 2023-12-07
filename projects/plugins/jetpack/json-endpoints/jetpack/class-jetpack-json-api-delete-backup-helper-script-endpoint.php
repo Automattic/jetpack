@@ -35,7 +35,7 @@ class Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint extends Jetpack_JSON
 	protected $script_path = null;
 
 	/**
-	 * True if the specified file has been successfully deleted.
+	 * An array with 'success' => true if the specified file has been successfully deleted, or an instance of WP_Error.
 	 *
 	 * @var array|WP_Error
 	 */
