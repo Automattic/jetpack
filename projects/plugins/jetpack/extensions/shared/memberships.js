@@ -21,7 +21,6 @@ export function handleIframeResult( eventFromIframe ) {
 			window.removeEventListener( 'message', handleIframeResult );
 			const dialog = document.getElementById( 'memberships-modal-window' );
 			dialog.close();
-			dialog.remove();
 			document.body.classList.remove( 'modal-open' );
 		}
 	}
@@ -32,42 +31,31 @@ function setUpModal( button ) {
 		event.preventDefault();
 		window.scrollTo( 0, 0 );
 
+		// prevent double scroll bars. We use the entire viewport for the modal so we need to hide overflow on the body element.
 		document.body.classList.add( 'modal-open' );
 
 		const url = button.getAttribute( 'href' );
-		const dialog = document.createElement( 'dialog' );
-		dialog.setAttribute( 'id', 'memberships-modal-window' );
-		const iframe = document.createElement( 'iframe' );
-		iframe.setAttribute( 'id', 'memberships-modal-iframe' );
-		dialog.classList.add( 'jetpack-memberships-modal' );
+		const existingModal = document.getElementById( 'memberships-modal-window' );
+		const dialog = existingModal ?? document.createElement( 'dialog' );
+		if ( ! existingModal ) {
+			dialog.setAttribute( 'id', 'memberships-modal-window' );
 
-		document.body.appendChild( dialog );
-		dialog.appendChild( iframe );
-		iframe.src = url + '&display=alternate&jwt_token=' + getTokenFromCookie();
-		iframe.setAttribute( 'frameborder', '0' );
-		iframe.setAttribute( 'allowtransparency', 'true' );
-		iframe.setAttribute( 'allowfullscreen', 'true' );
-		/*
-		iframe.addEventListener( 'load', iframeEvent => {
-		} );
-		*/
+			const iframe = document.createElement( 'iframe' );
+			iframe.setAttribute( 'id', 'memberships-modal-iframe' );
+			iframe.innerText =
+				'This feature requires inline frames. You have iframes disabled or your browser does not support them.';
+			dialog.classList.add( 'jetpack-memberships-modal' );
 
-		// resize
-		const size = document.body.getBoundingClientRect();
-		dialog.width = size.width;
-		dialog.height = size.height;
-
-		// not clear if this is needed
-		/*
-		const MODAL_WIDTH = 630;
-		const MODAL_HEIGHT = 440;
-		iframe.style.marginLeft = '-' + parseInt( MODAL_WIDTH / 2, 10 ) + 'px';
-		iframe.style.marginTop = '-' + parseInt( MODAL_HEIGHT / 2, 10 ) + 'px';
-		*/
-
+			document.body.appendChild( dialog );
+			dialog.appendChild( iframe );
+			iframe.src = url + '&display=alternate&jwt_token=' + getTokenFromCookie();
+			iframe.setAttribute( 'frameborder', '0' );
+			iframe.setAttribute( 'allowtransparency', 'true' );
+			iframe.setAttribute( 'allowfullscreen', 'true' );
+			window.addEventListener( 'message', handleIframeResult, false );
+		}
 		dialog.showModal();
 
-		window.addEventListener( 'message', handleIframeResult, false );
 		window.scrollTo( 0, 0 );
 	} );
 }
