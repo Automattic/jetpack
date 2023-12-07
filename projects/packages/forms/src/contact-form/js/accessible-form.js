@@ -355,9 +355,17 @@ const createSpinner = () => {
  */
 const createWarningIcon = () => {
 	const elt = document.createElement( 'span' );
+	const srOnly = document.createElement( 'span' );
+	const icon = document.createElement( 'i' );
+
+	srOnly.textContent = L10N.warning || 'Warning';
+	srOnly.classList.add( 'visually-hidden' );
+
+	icon.setAttribute( 'aria-hidden', true );
 
 	elt.classList.add( 'contact-form__warning-icon' );
-	elt.setAttribute( 'aria-label', L10N.warning || 'Warning' );
+	elt.appendChild( srOnly );
+	elt.appendChild( icon );
 
 	return elt;
 };
