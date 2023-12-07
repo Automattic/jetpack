@@ -122,7 +122,7 @@ JS_END;
 					esc_url_raw( $url ),
 					JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 				),
-				wp_json_encode( $block_id, JSON_HEX_TAG | JSON_HEX_AMP )
+				wp_json_encode( $block_id, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
 			)
 		);
 	}
