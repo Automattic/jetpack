@@ -89,7 +89,7 @@ function load_assets( $attributes ) {
 			$output .= '</a>';
 		}
 
-		$output .= '<span><a class="jetpack-top-posts-title" href="' . esc_url( $item['href'] ) . '">' . esc_html( $item['title'] ) . '</a></span>';
+		$output .= '<span class="jetpack-top-posts-title"><a href="' . esc_url( $item['href'] ) . '">' . esc_html( $item['title'] ) . '</a></span>';
 
 		if ( $attributes['displayDate'] ) {
 			$output .= '<span class="jetpack-top-posts-date has-small-font-size">' . esc_html( $item['date'] ) . '</span>';
@@ -101,7 +101,7 @@ function load_assets( $attributes ) {
 
 		if ( $attributes['displayContext'] && ! empty( $item['context'] ) && is_array( $item['context'] ) ) {
 			$context = reset( $item['context'] );
-			$output .= '<span><a class="jetpack-top-posts-context has-small-font-size" href="' . esc_url( get_category_link( $context->term_id ) ) . '">' . esc_html( $context->name ) . '</a></span>';
+			$output .= '<span class="jetpack-top-posts-context has-small-font-size"><a href="' . esc_url( get_category_link( $context->term_id ) ) . '">' . esc_html( $context->name ) . '</a></span>';
 		}
 
 		$output .= '</div>';
