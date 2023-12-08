@@ -305,7 +305,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Personalize your site', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => '__return_true',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/settings/general/' . $data['site_slug_encoded'];
 			},
@@ -1352,6 +1352,32 @@ function wpcom_launchpad_mark_site_title_complete( $old_value, $value ) {
 	}
 }
 add_action( 'update_option_blogname', 'wpcom_launchpad_mark_site_title_complete', 10, 3 );
+
+/**
+ * Mark the setup site task as complete if the value is changed.
+ *
+ * @param string $old_value The old value of the site title.
+ * @param string $value The new value of the site title.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_setup_site_tasks_complete( $old_value, $value ) {
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	if ( wp_installing() ) {
+		return;
+	}
+
+	if ( $value !== $old_value ) {
+		wpcom_mark_launchpad_task_complete( 'setup_free' );
+	}
+}
+add_action( 'update_option_blogname', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
+add_action( 'update_option_blogdescription', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
+add_action( 'update_option_site_icon', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
+add_action( 'update_option_site_logo', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
 
 /**
  * Mark the enable_subscribers_modal task complete
