@@ -124,7 +124,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "335ee318534ab58327f45abc5da1748a76dd531d"
+                "reference": "1f713fb83a98dab43f325fe71331d40f9ca47334"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -133,7 +133,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "brain/monkey": "2.6.1",
-                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
             "suggest": {
@@ -529,7 +529,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "39eb9595c27599391f98ef53ead52300ccfe2901"
+                "reference": "e7f53dc4d861086ba733fc32571824c19350b9ca"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -559,7 +559,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.13.x-dev"
+                    "dev-trunk": "0.14.x-dev"
                 }
             },
             "autoload": {
@@ -1261,7 +1261,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "3f6f169a99069651197b86e530b80fd96333d2c4"
+                "reference": "1336c2b2d1ca4b780142c047150ec14b00372167"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1293,7 +1293,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.1.x-dev"
+                    "dev-trunk": "2.2.x-dev"
                 }
             },
             "autoload": {
@@ -1524,7 +1524,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "28b3a05e274c08410b266fa803ed73520d5c2874"
+                "reference": "a3fe745d83642d741dffe5e1884cc53c65fd056b"
             },
             "require": {
                 "php": ">=7.0",
@@ -1532,7 +1532,7 @@
                 "symfony/process": "^3.4 || ^4.4 || ^5.2 || ^6.0"
             },
             "require-dev": {
-                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
             "bin": [

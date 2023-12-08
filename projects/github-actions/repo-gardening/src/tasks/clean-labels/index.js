@@ -1,5 +1,5 @@
 const debug = require( '../../utils/debug' );
-const getLabels = require( '../../utils/get-labels' );
+const getLabels = require( '../../utils/labels/get-labels' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 

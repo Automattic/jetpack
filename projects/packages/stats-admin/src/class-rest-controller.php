@@ -141,6 +141,17 @@ class REST_Controller {
 			)
 		);
 
+		// Stats Plan Usage.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/jetpack-stats/usage', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_site_plan_usage' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
 		// WordAds Earnings.
 		register_rest_route(
 			static::$namespace,
@@ -558,6 +569,29 @@ class REST_Controller {
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/subscribers/counts?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$this->filter_and_build_query_string(
+					$req->get_query_params()
+				)
+			),
+			'v2',
+			array( 'timeout' => 5 ),
+			null,
+			'wpcom'
+		);
+	}
+
+	/**
+	 * Get site plan usage.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 *
+	 * @return array
+	 */
+	public function get_site_plan_usage( $req ) {
+		return WPCOM_Client::request_as_blog_cached(
+			sprintf(
+				'/sites/%d/jetpack-stats/usage?%s',
 				Jetpack_Options::get_option( 'id' ),
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
