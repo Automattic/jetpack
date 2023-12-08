@@ -10,16 +10,10 @@
 	"category": "embed",
 	"parent": [ "jetpack/sharing-buttons" ],
 	"attributes": {
-		"url": {
-			"type": "string"
-		},
 		"service": {
 			"type": "string"
 		},
 		"label": {
-			"type": "string"
-		},
-		"rel": {
 			"type": "string"
 		}
 	},
