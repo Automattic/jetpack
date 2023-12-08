@@ -867,13 +867,13 @@ class Posts extends Module {
 	 * Filters posts and metadata based on maximum size constraints.
 	 * It always allows the first post with its metadata even if they exceed the limit, otherwise they will never be synced.
 	 *
-	 * @access private
+	 * @access public
 	 *
 	 * @param array $posts The array of posts to filter.
 	 * @param array $metadata The array of metadata to filter.
 	 * @return array An array containing the filtered post IDs, filtered posts, and filtered metadata.
 	 */
-	private function filter_posts_and_metadata_max_size( $posts, $metadata ) {
+	public function filter_posts_and_metadata_max_size( $posts, $metadata ) {
 		$filtered_posts    = array();
 		$filtered_metadata = array();
 		$filtered_post_ids = array();
