@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Supercache: add "days" to "Next preload scheduled" message.

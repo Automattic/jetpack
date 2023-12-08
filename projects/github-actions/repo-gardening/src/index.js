@@ -89,7 +89,7 @@ const automations = [
 	},
 	{
 		event: 'issues',
-		action: [ 'labeled', 'created' ],
+		action: [ 'labeled', 'opened' ],
 		task: updateBoard,
 	},
 ];

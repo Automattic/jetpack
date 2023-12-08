@@ -88,7 +88,7 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 			correctedSupportIds.add( correctedId );
 		} else {
 			// Switch to lowercase when it's not a p2 comment reference.
-			const standardizedsupportId = supportId.includes( '#comment' )
+			const standardizedsupportId = supportId.match( /[a-zA-Z0-9-]+-p2#comment-[0-9]*/ )
 				? supportId
 				: supportId.toLowerCase();
 			correctedSupportIds.add( standardizedsupportId );
