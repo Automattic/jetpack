@@ -57,7 +57,9 @@
 		"blogroll",
 		"blogroll-item",
 		"nextdoor",
-		"ai-assistant-usage-panel"
+		"ai-assistant-usage-panel",
+		"sharing-button",
+		"sharing-buttons"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -68,9 +70,7 @@
 		"videopress/video-chapters",
 		"create-with-voice",
 		"top-posts",
-		"ai-assistant-backend-prompts",
-		"sharing-button",
-		"sharing-buttons"
+		"ai-assistant-backend-prompts"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
