@@ -15,7 +15,7 @@
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import TemplatedString from '$features/TemplatedString.svelte';
 	import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
-	import CriticalCssMeta from '$features/critical-css/CriticalCssMeta.svelte';
+	import CriticalCssMeta from '$features/critical-css/critical-css-meta/critical-css-meta';
 	import ImageCdnQualitySettings from '$features/image-cdn/ImageCdnQualitySettings.svelte';
 	import MinifyMeta from '$features/minify-meta/minify-meta';
 	import Module from '$features/Module.svelte';
@@ -121,7 +121,8 @@
 		</div>
 
 		<div slot="meta">
-			<CriticalCssMeta
+			<ReactComponent
+				this={CriticalCssMeta}
 				cssState={$criticalCssState}
 				isCloudCssAvailable={$modulesState.cloud_css?.available}
 				criticalCssProgress={$criticalCssProgress}
