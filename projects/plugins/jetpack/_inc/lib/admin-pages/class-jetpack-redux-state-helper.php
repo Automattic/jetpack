@@ -23,6 +23,7 @@ use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
+use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Dismissed_Notices;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -147,7 +148,7 @@ class Jetpack_Redux_State_Helper {
 			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				? Jetpack::init()->build_connect_url( true, false, false )
 				: '',
-			'dismissedNotices'            => self::get_dismissed_jetpack_notices(),
+			'dismissedNotices'            => Dismissed_Notices::get_dismissed_notices(),
 			'isDevVersion'                => Jetpack::is_development_version(),
 			'currentVersion'              => JETPACK__VERSION,
 			'is_gutenberg_available'      => true,
