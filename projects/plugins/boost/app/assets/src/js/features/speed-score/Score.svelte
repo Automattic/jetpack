@@ -3,22 +3,21 @@
 		getScoreLetter,
 		requestSpeedScores,
 		didScoresChange,
+		getScoreMovementPercentage,
 	} from '@automattic/jetpack-boost-score-api';
 	import { BoostScoreBar } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import ContextTooltip from './context-tooltip/context-tooltip';
 	import History from '../performance-history/History.svelte';
-	import PopOut from './PopOut.svelte';
 	import ErrorNotice from '$features/ErrorNotice.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
-	import { scoreChangeModal, ScoreChangeMessage } from '$lib/api/speed-scores';
 	import { dismissedAlerts } from '$lib/stores/dismissed-alerts';
 	import { modulesState } from '$lib/stores/modules';
-	import { dismissedScorePromptStore } from '$lib/stores/prompt';
 	import { recordBoostEvent } from '$lib/utils/analytics';
 	import { castToString } from '$lib/utils/cast-to-string';
 	import debounce from '$lib/utils/debounce';
 	import RefreshIcon from '$svg/refresh.svg';
+	import PopOut from './pop-out/pop-out';
 
 	// @todo - move score-context markup/styles here, as it's not used anywhere else.
 
@@ -34,6 +33,7 @@
 	let scoreLetter = '';
 
 	let isLoading = false;
+	let closedScorePopOut = false;
 
 	let scores = {
 		current: {
@@ -79,6 +79,7 @@
 
 		isLoading = true;
 		loadError = undefined;
+		closedScorePopOut = false;
 
 		try {
 			lastSpeedScoreConfigString = currentScoreConfigString;
@@ -101,21 +102,10 @@
 		}
 	}
 
-	let modalData: ScoreChangeMessage | null = null;
-	$: modalData = ! isLoading && ! scores.isStale && scoreChangeModal( scores );
-	$: showModal =
-		modalData &&
-		$dismissedScorePromptStore &&
-		! $dismissedScorePromptStore.includes( modalData.id );
-
-	function dismissModal() {
-		modalData = null;
-	}
-
-	async function disableModal( id ) {
-		$dismissedScorePromptStore = [ ...$dismissedScorePromptStore, id ];
-		dismissModal();
-	}
+	// Work out if there is a score change to show in the score popout dialog.
+	let showScoreChange: number | false = false;
+	$: showScoreChange =
+		! isLoading && ! scores.isStale && ! closedScorePopOut && getScoreMovementPercentage( scores );
 
 	const onPerformanceHistoryDismissFreshStart = () => {
 		$dismissedAlerts.performance_history_fresh_start = true;
@@ -206,13 +196,8 @@
 	{/if}
 </div>
 
-{#if showModal}
-	<PopOut
-		title={modalData.title}
-		on:dismiss={() => dismissModal()}
-		on:disable-modal={() => disableModal( modalData.id )}
-		message={modalData.message}
-		ctaLink={modalData.ctaLink}
-		cta={modalData.cta}
-	/>
-{/if}
+<ReactComponent
+	this={PopOut}
+	scoreChange={showScoreChange}
+	onClose={() => ( closedScorePopOut = true )}
+/>
