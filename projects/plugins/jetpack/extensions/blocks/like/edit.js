@@ -34,7 +34,7 @@ function LikeEdit( { noticeUI } ) {
 					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 						<ToggleControl
 							label="Show reblog button"
-							checked={ reblogSetting }
+							checked={ ! reblogSetting }
 							onChange={ newValue => {
 								setReblogSetting( newValue );
 							} }
