@@ -743,16 +743,13 @@ async function promptChangelog( argv, needChangelog, types ) {
 		},
 	} );
 
-	let userFacing = false;
-	// Ask if this is a user facing change if we detect Jetpack.
-	if ( needChangelog.includes( 'plugins/jetpack' ) ) {
-		userFacing = await prompt( {
-			type: 'confirm',
-			name: 'userFacing',
-			message: 'Is this a Jetpack change that site admins would like to know about?',
-			initial: true,
-		} );
-	}
+	const userFacingResponse = await enquirer.prompt( {
+		type: 'confirm',
+		name: 'userFacing',
+		message: 'Is this a Jetpack change that site admins would like to know about?',
+		initial: true,
+		skip: ! needChangelog.includes( 'plugins/jetpack' ),
+	} );
 
 	// Get the significance.
 	const { significance } = await prompt( {
@@ -779,7 +776,7 @@ async function promptChangelog( argv, needChangelog, types ) {
 
 	// Get the type, set it to other if this isn't a user facing change.
 	let typeResponse;
-	if ( ! userFacing.userFacing && argv.project === 'plugins/jetpack' ) {
+	if ( ! userFacingResponse.userFacing ) {
 		typeResponse = { type: 'other' };
 	} else {
 		// Get the type of change.
