@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Ai Client: use default last value (not empty), allows for handling 'one click' prompts (empty prompts)

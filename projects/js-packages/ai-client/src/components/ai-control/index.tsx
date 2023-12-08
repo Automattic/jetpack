@@ -54,6 +54,8 @@ type AiControlProps = {
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
 
+const DEFAULT_LAST_VALUE = '--LAST-VALUE--';
+
 /**
  * AI Control component.
  *
@@ -84,14 +86,14 @@ export function AIControl(
 	const promptUserInputRef = useRef( null );
 	const loading = state === 'requesting' || state === 'suggesting';
 	const [ editRequest, setEditRequest ] = React.useState( false );
-	const [ lastValue, setLastValue ] = React.useState( value || '' );
+	const [ lastValue, setLastValue ] = React.useState( value || DEFAULT_LAST_VALUE );
 
 	useEffect( () => {
 		if ( editRequest ) {
 			promptUserInputRef?.current?.focus();
 		}
 
-		if ( ! editRequest && lastValue && value !== lastValue ) {
+		if ( ! editRequest && lastValue !== DEFAULT_LAST_VALUE && value !== lastValue ) {
 			onChange?.( lastValue );
 		}
 	}, [ editRequest, lastValue ] );
@@ -229,34 +231,39 @@ export function AIControl(
 						</div>
 					) }
 
-					{ showAccept && ! editRequest && value?.length > 0 && (
+					{ showAccept && ! editRequest && (
 						<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
-							<ButtonGroup>
-								<Button
-									className="jetpack-components-ai-control__controls-prompt_button"
-									label={ __( 'Back to edit', 'jetpack-ai-client' ) }
-									onClick={ () => setEditRequest( true ) }
-									tooltipPosition="top"
-								>
-									<Icon icon={ arrowLeft } />
-								</Button>
-								<Button
-									className="jetpack-components-ai-control__controls-prompt_button"
-									label={ __( 'Discard', 'jetpack-ai-client' ) }
-									onClick={ discardHandler }
-									tooltipPosition="top"
-								>
-									<Icon icon={ trash } />
-								</Button>
-								<Button
-									className="jetpack-components-ai-control__controls-prompt_button"
-									label={ __( 'Regenerate', 'jetpack-ai-client' ) }
-									onClick={ () => onSend?.( value ) }
-									tooltipPosition="top"
-								>
-									<Icon icon={ reusableBlock } />
-								</Button>
-							</ButtonGroup>
+							{ ( value?.length > 0 || lastValue === DEFAULT_LAST_VALUE ) && (
+								<ButtonGroup>
+									{ value.length > 0 && (
+										<Button
+											className="jetpack-components-ai-control__controls-prompt_button"
+											label={ __( 'Back to edit', 'jetpack-ai-client' ) }
+											onClick={ () => setEditRequest( true ) }
+											tooltipPosition="top"
+										>
+											<Icon icon={ arrowLeft } />
+										</Button>
+									) }
+									<Button
+										className="jetpack-components-ai-control__controls-prompt_button"
+										label={ __( 'Discard', 'jetpack-ai-client' ) }
+										onClick={ discardHandler }
+										tooltipPosition="top"
+									>
+										<Icon icon={ trash } />
+									</Button>
+									<Button
+										className="jetpack-components-ai-control__controls-prompt_button"
+										label={ __( 'Regenerate', 'jetpack-ai-client' ) }
+										onClick={ () => onSend?.( value ) }
+										tooltipPosition="top"
+										disabled={ ! value?.length || disabled }
+									>
+										<Icon icon={ reusableBlock } />
+									</Button>
+								</ButtonGroup>
+							) }
 							<Button
 								className="jetpack-components-ai-control__controls-prompt_button"
 								onClick={ onAccept }
