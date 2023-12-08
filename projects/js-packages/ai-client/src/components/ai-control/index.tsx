@@ -54,8 +54,6 @@ type AiControlProps = {
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
 
-const DEFAULT_LAST_VALUE = '--LAST-VALUE--';
-
 /**
  * AI Control component.
  *
@@ -86,14 +84,14 @@ export function AIControl(
 	const promptUserInputRef = useRef( null );
 	const loading = state === 'requesting' || state === 'suggesting';
 	const [ editRequest, setEditRequest ] = React.useState( false );
-	const [ lastValue, setLastValue ] = React.useState( value || DEFAULT_LAST_VALUE );
+	const [ lastValue, setLastValue ] = React.useState( value || null );
 
 	useEffect( () => {
 		if ( editRequest ) {
 			promptUserInputRef?.current?.focus();
 		}
 
-		if ( ! editRequest && lastValue !== DEFAULT_LAST_VALUE && value !== lastValue ) {
+		if ( ! editRequest && lastValue !== null && value !== lastValue ) {
 			onChange?.( lastValue );
 		}
 	}, [ editRequest, lastValue ] );
@@ -233,7 +231,7 @@ export function AIControl(
 
 					{ showAccept && ! editRequest && (
 						<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
-							{ ( value?.length > 0 || lastValue === DEFAULT_LAST_VALUE ) && (
+							{ ( value?.length > 0 || lastValue === null ) && (
 								<ButtonGroup>
 									{ value.length > 0 && (
 										<Button
@@ -258,7 +256,7 @@ export function AIControl(
 										label={ __( 'Regenerate', 'jetpack-ai-client' ) }
 										onClick={ () => onSend?.( value ) }
 										tooltipPosition="top"
-										disabled={ ! value?.length || disabled }
+										disabled={ ! value?.length || value === null || disabled }
 									>
 										<Icon icon={ reusableBlock } />
 									</Button>
