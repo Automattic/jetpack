@@ -33,7 +33,9 @@ export async function draftEnable( argv ) {
 		fs.closeSync( fs.openSync( getDraftFile(), 'w' ) );
 
 		console.log(
-			chalkJetpackGreen( 'You are now in draft mode. No nags for you, but be careful.' )
+			chalkJetpackGreen(
+				'You are now in draft mode. Some pre-commit and pre-push hooks are disabled, please be careful.'
+			)
 		);
 
 		if ( argv.v ) {
