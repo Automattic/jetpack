@@ -7,7 +7,11 @@
 	let root;
 	afterUpdate( () => {
 		const { this: component, children, ...props } = $$props;
-		root = WPElement.createRoot( container );
+
+		if ( ! root ) {
+			root = WPElement.createRoot( container );
+		}
+
 		root.render( React.createElement( component, props, children ) );
 	} );
 	onDestroy( () => {
