@@ -717,29 +717,31 @@ function ZeroBSCRM_get_quote_template() {
 	// } Retrive deets
 	$customer_ID = -1;
 	if ( isset( $_POST['cust_id'] ) ) {
-		$customer_ID = (int) sanitize_text_field( $_POST['cust_id'] );
+		$customer_ID = (int) sanitize_text_field( wp_unslash( $_POST['cust_id'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
-	$quote_template_ID = -1;
+	$quote_template_id = -1;
 	if ( isset( $_POST['quote_type'] ) ) {
-		$quote_template_ID = (int) sanitize_text_field( $_POST['quote_type'] );
+		$quote_template_id = (int) sanitize_text_field( wp_unslash( $_POST['quote_type'] ) );
 	}
 
 	// <DAL3
 	$quote_title = '';
 	if ( isset( $_POST['quote_title'] ) ) {
-		$quote_title = sanitize_text_field( $_POST['quote_title'] );
+		$quote_title = sanitize_text_field( wp_unslash( $_POST['quote_title'] ) );
 	}
 	$quote_val = '';
 	if ( isset( $_POST['quote_val'] ) ) {
-		$quote_val = sanitize_text_field( $_POST['quote_val'] );
+		$quote_val = sanitize_text_field( wp_unslash( $_POST['quote_val'] ) );
 	}
 	$quote_date = '';
 	if ( isset( $_POST['quote_dt'] ) ) {
-		$quote_date = sanitize_text_field( $_POST['quote_dt'] );
+		$quote_date = sanitize_text_field( wp_unslash( $_POST['quote_dt'] ) );
 	}
 
+	$quote_notes = '';
+
 	// } needs at least customer id + template id
-	if ( $customer_ID !== -1 && $quote_template_ID !== -1 ) {
+	if ( $customer_ID !== -1 && $quote_template_id !== -1 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		global $zbs;
 
@@ -752,10 +754,13 @@ function ZeroBSCRM_get_quote_template() {
 				$quote_title = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_title'] ) );
 			}
 			if ( isset( $_POST['quote_fields']['zbscq_value'] ) && ! empty( $_POST['quote_fields']['zbscq_value'] ) ) {
-				$quote_val = sanitize_text_field( $_POST['quote_fields']['zbscq_value'] );
+				$quote_val = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_value'] ) );
 			}
 			if ( isset( $_POST['quote_fields']['zbscq_date'] ) && ! empty( $_POST['quote_fields']['zbscq_date'] ) ) {
-				$quote_date = sanitize_text_field( $_POST['quote_fields']['zbscq_date'] );
+				$quote_date = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_date'] ) );
+			}
+			if ( isset( $_POST['quote_fields']['zbscq_notes'] ) && ! empty( $_POST['quote_fields']['zbscq_notes'] ) ) {
+				$quote_notes = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_notes'] ) );
 			}
 		}
 
@@ -772,16 +777,19 @@ function ZeroBSCRM_get_quote_template() {
 		$placeholder_templating = $zbs->get_templating();
 
 		// } Load template
-		$quoteTemplate = zeroBS_getQuoteTemplate( $quote_template_ID );
+		$quote_template = zeroBS_getQuoteTemplate( $quote_template_id );
 
-		if ( isset( $quoteTemplate ) && is_array( $quoteTemplate ) && isset( $quoteTemplate['content'] ) ) {
+		if ( isset( $quote_template ) && is_array( $quote_template ) && isset( $quote_template['content'] ) ) {
 
 			// if no title/value is passed at this point, but there is one seet in quote template, we should use those values
-			if ( empty( $quote_title ) && ! empty( $quoteTemplate['title'] ) ) {
-				$quote_title = $quoteTemplate['title'];
+			if ( empty( $quote_title ) && ! empty( $quote_template['title'] ) ) {
+				$quote_title = $quote_template['title'];
 			}
-			if ( empty( $quote_val ) && ! empty( $quoteTemplate['value'] ) ) {
-				$quote_val = $quoteTemplate['value'];
+			if ( empty( $quote_val ) && ! empty( $quote_template['value'] ) ) {
+				$quote_val = $quote_template['value'];
+			}
+			if ( empty( $quote_notes ) && ! empty( $quote_template['notes'] ) ) {
+				$quote_notes = $quote_template['notes'];
 			}
 
 			// catch empty pass...
@@ -794,15 +802,12 @@ function ZeroBSCRM_get_quote_template() {
 			if ( empty( $quote_date ) ) {
 				$quote_date = gmdate( 'Y-m-d' );
 			}
-
 			if ( empty( $quote_notes ) ) {
-				if ( isset( $_POST['quote_fields']['zbscq_notes'] ) ) {
-					$quote_notes = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_notes'] ) );
-				}
+				$quote_notes = '[QUOTENOTES]';
 			}
 
 			// HTML is escaped just prior to the complete HTML in this function being returned
-			$working_html = wpautop( $quoteTemplate['content'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$working_html = wpautop( $quote_template['content'] );
 
 			// replacements
 			$replacements = $placeholder_templating->get_generic_replacements();
@@ -875,9 +880,9 @@ function ZeroBSCRM_get_quote_template() {
 
 			// } set return
 			$content['html']           = wp_kses( $working_html, $zbs->acceptable_html );
-			$content['template_title'] = $quoteTemplate['title'];
-			$content['template_value'] = $quoteTemplate['value'];
-			$content['template_notes'] = $quoteTemplate['notes'];
+			$content['template_title'] = $quote_template['title'];
+			$content['template_value'] = $quote_template['value'];
+			$content['template_notes'] = $quote_template['notes'];
 
 			// } return
 			wp_send_json( $content );
@@ -3483,7 +3488,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				}
 
 				// } Retrieve data
-				$quoteTemplates = zeroBS_getQuoteTemplates( false, $per_page, $page_number, $possibleSearchTerm );
+				$quote_templates = zeroBS_getQuoteTemplates( false, $per_page, $page_number, $possibleSearchTerm );// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				// } If using pagination, also return total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
@@ -3493,11 +3498,11 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				}
 
 				// } Tidy
-				if ( count( $quoteTemplates ) > 0 ) {
-					foreach ( $quoteTemplates as $quoteTemplate ) {
+				if ( count( $quote_templates ) > 0 ) {
+					foreach ( $quote_templates as $quote_template ) {
 
 						// DAL3 now processes these in the OBJ class (starting to centralise properly.)
-						$res['objects'][] = $zbs->DAL->quotetemplates->listViewObj( $quoteTemplate, $columnsRequired );
+						$res['objects'][] = $zbs->DAL->quotetemplates->listViewObj( $quote_template, $columnsRequired ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 					} // / foreach
 				}
