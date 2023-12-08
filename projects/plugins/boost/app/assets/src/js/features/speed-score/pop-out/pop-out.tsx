@@ -13,7 +13,7 @@ type Props = {
 };
 
 /**
- * Mesages which can be shown to the user based on direction of score change.
+ * Messages which can be shown to the user based on direction of score change.
  */
 type ScoreChangeMessage = {
 	id: string;
