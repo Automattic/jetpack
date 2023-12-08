@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Changed dismissed notices endpoint to be a core endpoint
