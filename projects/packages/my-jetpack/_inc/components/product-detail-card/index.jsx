@@ -68,6 +68,7 @@ function Price( { value, currency, isOld } ) {
  * @param {string} [props.ctaButtonLabel]        - The label for the Call To Action button
  * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
  * @param {number} [props.quantity]              - The quantity of the product to purchase
+ * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature of the list of features
  * @returns {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( {
@@ -80,6 +81,7 @@ const ProductDetailCard = ( {
 	ctaButtonLabel = null,
 	hideTOS = false,
 	quantity = null,
+	highlightLastFeature = false,
 } ) => {
 	const { fileSystemWriteAccess, siteSuffix, adminUrl, myJetpackUrl } =
 		window?.myJetpackInitialState ?? {};
@@ -266,7 +268,11 @@ const ProductDetailCard = ( {
 				<H3>{ productMoniker }</H3>
 				<Text mb={ 3 }>{ longDescription }</Text>
 
-				<ul className={ styles.features }>
+				<ul
+					className={ classnames( styles.features, {
+						[ styles[ 'highlight-last-feature' ] ]: highlightLastFeature,
+					} ) }
+				>
 					{ features.map( ( feature, id ) => (
 						<Text component="li" key={ `feature-${ id }` } variant="body">
 							<Icon icon={ check } size={ 24 } />
