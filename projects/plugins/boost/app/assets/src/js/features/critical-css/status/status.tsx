@@ -73,24 +73,26 @@ const Status: React.FC< StatusTypes > = ( {
 							<div className="failures">
 								<InfoIcon />
 
-								{ createInterpolateElement(
-									sprintf(
-										// translators: %d is a number of CSS Files which failed to generate
-										_n(
-											'%d file could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize this file.',
-											'%d files could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize these files.',
-											issues.length,
-											'jetpack-boost'
+								<>
+									{ createInterpolateElement(
+										sprintf(
+											// translators: %d is a number of CSS Files which failed to generate
+											_n(
+												'%d file could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize this file.',
+												'%d files could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize these files.',
+												issues.length,
+												'jetpack-boost'
+											),
+											issues.length
 										),
-										issues.length
-									),
-									{
-										...actionLinkInterpolateVar(
-											() => navigate( 'critical-css-advanced' ),
-											'advanced'
-										),
-									}
-								) }
+										{
+											...actionLinkInterpolateVar(
+												() => navigate( 'critical-css-advanced' ),
+												'advanced'
+											),
+										}
+									) }
+								</>
 							</div>
 						) }
 					</>
