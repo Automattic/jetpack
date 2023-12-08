@@ -738,22 +738,19 @@ class Jetpack_Gutenberg {
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
-			$publicize                = publicize_init();
-			$sig_settings             = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
-			$auto_conversion_settings = new Automattic\Jetpack\Publicize\Auto_Conversion\Settings();
+			$publicize               = publicize_init();
+			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
+			$settings                = $jetpack_social_settings->get_settings( true );
 
 			$initial_state['social'] = array(
 				'sharesData'                      => $publicize->get_publicize_shares_info( $blog_id ),
 				'hasPaidPlan'                     => $publicize->has_paid_plan(),
 				'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
-				'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
-				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
+				'isSocialImageGeneratorAvailable' => $settings['socialImageGeneratorSettings']['available'],
+				'isSocialImageGeneratorEnabled'   => $settings['socialImageGeneratorSettings']['enabled'],
 				'dismissedNotices'                => $publicize->get_dismissed_notices(),
 				'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
-				'autoConversionSettings'          => array(
-					'available' => $auto_conversion_settings->is_available( 'image' ),
-					'image'     => $auto_conversion_settings->is_enabled( 'image' ),
-				),
+				'autoConversionSettings'          => $settings['autoConversionSettings'],
 				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
 			);
 		}

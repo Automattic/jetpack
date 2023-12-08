@@ -1,6 +1,6 @@
 /* global GitHub */
 
-const getLabels = require( './get-labels' );
+const getLabels = require( './labels/get-labels' );
 
 /**
  * Get the name of the plugin concerned by this PR.

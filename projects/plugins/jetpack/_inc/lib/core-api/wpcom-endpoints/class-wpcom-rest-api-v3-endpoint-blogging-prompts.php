@@ -128,6 +128,10 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 			return $this->proxy_request_to_wpcom( $request, $request->get_param( 'id' ) );
 		}
 
+		if ( $request->get_param( 'force_year' ) ) {
+			$this->force_year = $request->get_param( 'force_year' );
+		}
+
 		switch_to_blog( self::TEMPLATE_BLOG_ID );
 		$item = parent::get_item( $request );
 		restore_current_blog();
@@ -533,11 +537,11 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 		}
 
 		$response_status = wp_remote_retrieve_response_code( $response );
-		$response_body   = json_decode( wp_remote_retrieve_body( $response ) );
+		$response_body   = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( $response_status >= 400 ) {
-			$code    = isset( $response_body->code ) ? $response_body->code : 'unknown_error';
-			$message = isset( $response_body->message ) ? $response_body->message : __( 'An unknown error occurred.', 'jetpack' );
+			$code    = isset( $response_body['code'] ) ? $response_body['code'] : 'unknown_error';
+			$message = isset( $response_body['message'] ) ? $response_body['message'] : __( 'An unknown error occurred.', 'jetpack' );
 			return new WP_Error( $code, $message, array( 'status' => $response_status ) );
 		}
 

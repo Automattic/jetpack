@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-XMLRPC endpoint 'jetpack.idcUrlValidation' now accepts an argument to specify whether we should try to reuse existing URL secret.

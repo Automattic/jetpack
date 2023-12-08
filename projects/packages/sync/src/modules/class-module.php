@@ -345,20 +345,34 @@ SQL
 			}
 
 			$result = $this->send_action( 'jetpack_full_sync_' . $this->name(), array( $objects, $status['last_sent'] ) );
-
 			if ( is_wp_error( $result ) || $wpdb->last_error ) {
 				$status['error'] = true;
 				return $status;
 			}
 			// The $ids are ordered in descending order.
-			$status['last_sent'] = end( $objects );
-			$status['sent']     += count( $objects );
+			$status = $this->set_send_full_sync_actions_status( $status, $objects );
 		}
 
 		if ( ! $wpdb->last_error ) {
 			$status['finished'] = true;
 		}
 
+		return $status;
+	}
+
+	/**
+	 * Set the status of the full sync action based on the objects that were sent.
+	 *
+	 * @access protected
+	 *
+	 * @param array $status This module Full Sync status.
+	 * @param array $objects This module Full Sync objects.
+	 *
+	 * @return array The updated status.
+	 */
+	protected function set_send_full_sync_actions_status( $status, $objects ) {
+		$status['last_sent'] = end( $objects );
+		$status['sent']     += count( $objects );
 		return $status;
 	}
 

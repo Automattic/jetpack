@@ -259,7 +259,8 @@ class Contact_Form_Plugin {
 			'./js/accessible-form.js',
 			__FILE__,
 			array(
-				'async' => true,
+				'async'   => true,
+				'version' => \JETPACK__VERSION,
 			)
 		);
 
@@ -273,6 +274,8 @@ class Contact_Form_Plugin {
 				'invalidForm'          => __( 'Please make sure all fields are valid.', 'jetpack-forms' ),
 				/* translators: error message shown when a multiple choice field requires at least one option to be selected. */
 				'checkboxMissingValue' => __( 'Please select at least one option.', 'jetpack-forms' ),
+				/* translators: text read by a screen reader when a form is being submitted */
+				'submittingForm'       => __( 'Submitting form', 'jetpack-forms' ),
 			)
 		);
 
@@ -1378,6 +1381,8 @@ class Contact_Form_Plugin {
 		$post_ids     = $this->personal_data_post_ids_by_email( $email, $per_page, $page, $last_post_id );
 
 		foreach ( $post_ids as $post_id ) {
+			$last_post_id = $post_id;
+
 			/**
 			 * Filters whether to erase a particular Feedback post.
 			 *
@@ -1422,7 +1427,7 @@ class Contact_Form_Plugin {
 		if ( $done ) {
 			delete_option( $option_name );
 		} else {
-			update_option( $option_name, (int) $post_id );
+			update_option( $option_name, (int) $last_post_id );
 		}
 
 		return array(
