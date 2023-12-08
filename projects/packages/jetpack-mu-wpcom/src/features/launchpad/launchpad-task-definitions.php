@@ -94,7 +94,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Choose a plan', 'jetpack-mu-wpcom' );
 			},
+			'subtitle'             => 'wpcom_launchpad_get_plan_selected_subtitle',
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'badge_text_callback'  => 'wpcom_launchpad_get_plan_selected_badge_text',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				$flow = get_option( 'site_intent' );
 				return '/setup/' . $flow . '/plans?siteSlug=' . $data['site_slug_encoded'];
@@ -305,7 +307,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Personalize your site', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => '__return_true',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/settings/general/' . $data['site_slug_encoded'];
 			},
@@ -1354,6 +1356,32 @@ function wpcom_launchpad_mark_site_title_complete( $old_value, $value ) {
 add_action( 'update_option_blogname', 'wpcom_launchpad_mark_site_title_complete', 10, 3 );
 
 /**
+ * Mark the setup site task as complete if the value is changed.
+ *
+ * @param string $old_value The old value of the site title.
+ * @param string $value The new value of the site title.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_setup_site_tasks_complete( $old_value, $value ) {
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	if ( wp_installing() ) {
+		return;
+	}
+
+	if ( $value !== $old_value ) {
+		wpcom_mark_launchpad_task_complete( 'setup_free' );
+	}
+}
+add_action( 'update_option_blogname', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
+add_action( 'update_option_blogdescription', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
+add_action( 'update_option_site_icon', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
+add_action( 'update_option_site_logo', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
+
+/**
  * Mark the enable_subscribers_modal task complete
  * if its option is updated to `true`.
  *
@@ -1904,6 +1932,25 @@ function wpcom_launchpad_mark_domain_tasks_complete( $blog_id, $user_id, $produc
 	wpcom_mark_launchpad_task_complete( 'domain_upsell_deferred' );
 }
 add_action( 'activate_product', 'wpcom_launchpad_mark_domain_tasks_complete', 10, 6 );
+
+/**
+ * Mark `plan_selected`, and `plan_completed` tasks complete when a plan product is purchased.
+ *
+ * @param int $blog_id The blog ID.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_plan_tasks_complete( $blog_id ) {
+	require_once WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
+	$current_plan = WPCOM_Store_API::get_current_plan( $blog_id );
+	if ( $current_plan['is_free'] ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'plan_selected' );
+	wpcom_mark_launchpad_task_complete( 'plan_completed' );
+}
+add_action( 'activate_product', 'wpcom_launchpad_mark_plan_tasks_complete', 10, 6 );
 
 /**
  * Re-trigger email campaigns for blog onboarding after user edit one of the fields in the launchpad.
