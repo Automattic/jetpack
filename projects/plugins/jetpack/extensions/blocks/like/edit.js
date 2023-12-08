@@ -1,4 +1,4 @@
-import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
+import { getBlockIconComponent, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { BlockIcon, useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { Placeholder, ToggleControl, PanelBody } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
@@ -21,22 +21,27 @@ function LikeEdit( { noticeUI } ) {
 	};
 
 	useEffect( () => {
+		if ( ! isSimpleSite() ) {
+			return;
+		}
 		fetchReblogSetting();
 	}, [ fetchReblogSetting ] );
 
 	return (
 		<div { ...blockProps }>
-			<InspectorControls>
-				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
-					<ToggleControl
-						label="Show reblog button"
-						checked={ reblogSetting }
-						onChange={ newValue => {
-							setReblogSetting( newValue );
-						} }
-					/>
-				</PanelBody>
-			</InspectorControls>
+			{ isSimpleSite() && (
+				<InspectorControls>
+					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+						<ToggleControl
+							label="Show reblog button"
+							checked={ reblogSetting }
+							onChange={ newValue => {
+								setReblogSetting( newValue );
+							} }
+						/>
+					</PanelBody>
+				</InspectorControls>
+			) }
 			<Placeholder
 				label={ __( 'Like', 'jetpack' ) }
 				instructions={ __( 'Instructions go here.', 'jetpack' ) }

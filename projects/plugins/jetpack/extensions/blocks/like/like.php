@@ -112,16 +112,13 @@ function add_like_block_data() {
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$blog_id = get_current_blog_id();
-		$type    = 'wpcom'; // WPCOM simple sites.
 	} else {
 		$blog_id = \Jetpack_Options::get_option( 'id' );
-		$type    = 'jetpack'; // Self-hosted (includes Atomic)
 	}
 
 	// Create an array to store both $blog_id and $type.
 	$like_block_data = array(
 		'blog_id' => $blog_id,
-		'type'    => $type,
 	);
 
 	wp_add_inline_script(
