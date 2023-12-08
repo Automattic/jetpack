@@ -802,7 +802,7 @@ function ZeroBSCRM_get_quote_template() {
 			}
 
 			// HTML is escaped just prior to the complete HTML in this function being returned
-			$workingHTML = wpautop( $quoteTemplate['content'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$working_html = wpautop( $quoteTemplate['content'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// replacements
 			$replacements = $placeholder_templating->get_generic_replacements();
@@ -835,24 +835,46 @@ function ZeroBSCRM_get_quote_template() {
 							$v = '';
 							if ( isset( $_POST['quote_fields'][ 'zbscq_' . $key ] ) ) {
 								$v = sanitize_text_field( $_POST['quote_fields'][ 'zbscq_' . $key ] );
+
+								// Here is where we search and replace placeholders for dates with a date string and date time strings), initially checking the value is similar to that of a Unix timestamp
+								if ( preg_match( '/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/', $v ) ) {
+
+									// Additional date validation to confirm the date is valid
+									$date_time = DateTime::createFromFormat( 'Y-m-d', $v );
+									if ( $date_time && $date_time->format( 'Y-m-d' ) === $v ) {
+
+										$datetime_key       = $key . '_datetime_str';
+										$string_to_datetime = gmdate( 'd F Y H:i:s', strtotime( $v ) );
+										$date_key           = $key . '_date_str';
+										$string_to_date     = gmdate( 'd F Y', strtotime( $v ) );
+
+										$working_html = str_replace( '##QUOTE-' . strtoupper( $datetime_key ) . '##', $string_to_datetime, $working_html );
+										$working_html = str_replace( '##QUOTE-' . strtolower( $datetime_key ) . '##', $string_to_datetime, $working_html );
+										$working_html = str_replace( '##quote-' . strtolower( $datetime_key ) . '##', $string_to_datetime, $working_html );
+										$working_html = str_replace( '##QUOTE-' . strtoupper( $date_key ) . '##', $string_to_date, $working_html );
+										$working_html = str_replace( '##QUOTE-' . strtolower( $date_key ) . '##', $string_to_date, $working_html );
+										$working_html = str_replace( '##quote-' . strtolower( $date_key ) . '##', $string_to_date, $working_html );
+
+									}
+								}
 							}
 
 							// allow upper or lower to catch various uses
-							$workingHTML = str_replace( '##QUOTE-' . strtoupper( $key ) . '##', $v, $workingHTML );
-							$workingHTML = str_replace( '##QUOTE-' . strtolower( $key ) . '##', $v, $workingHTML );
-							$workingHTML = str_replace( '##quote-' . strtolower( $key ) . '##', $v, $workingHTML );
+							$working_html = str_replace( '##QUOTE-' . strtoupper( $key ) . '##', $v, $working_html );
+							$working_html = str_replace( '##QUOTE-' . strtolower( $key ) . '##', $v, $working_html );
+							$working_html = str_replace( '##quote-' . strtolower( $key ) . '##', $v, $working_html );
 						}
 					}
 				}
 			}
-			$workingHTML = $placeholder_templating->replace_placeholders( array( 'global', 'contact', 'quote' ), $workingHTML, $replacements, array( ZBS_TYPE_CONTACT => $contact_object ), false, false ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$working_html = $placeholder_templating->replace_placeholders( array( 'global', 'contact', 'quote' ), $working_html, $replacements, array( ZBS_TYPE_CONTACT => $contact_object ), false, false ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// } replace the rest (#fname, etc)
-			// WH: moved to nice filter :) $workingHTML = zeroBSCRM_replace_customer_placeholders($customer_ID, $workingHTML);
-			$workingHTML = apply_filters( 'zerobscrm_quote_html_generate', $workingHTML, $customer_ID );
+			// WH: moved to nice filter :) $working_html = zeroBSCRM_replace_customer_placeholders($customer_ID, $working_html);
+			$working_html = apply_filters( 'zerobscrm_quote_html_generate', $working_html, $customer_ID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// } set return
-			$content['html']           = wp_kses( $workingHTML, $zbs->acceptable_html );
+			$content['html']           = wp_kses( $working_html, $zbs->acceptable_html );
 			$content['template_title'] = $quoteTemplate['title'];
 			$content['template_value'] = $quoteTemplate['value'];
 			$content['template_notes'] = $quoteTemplate['notes'];
