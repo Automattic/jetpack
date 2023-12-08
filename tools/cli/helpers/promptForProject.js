@@ -54,7 +54,7 @@ export async function promptForType( options = { type: '' } ) {
 			type: 'select',
 			name: 'type',
 			message: 'What type of project are you working on today?',
-			choices: projectTypes.sort(),
+			choices: [ ...projectTypes.sort() ],
 		} );
 	} else if ( ! projectTypes.includes( options.type ) ) {
 		throw new Error( 'Must be an accepted project type.' );
