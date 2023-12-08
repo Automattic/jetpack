@@ -743,14 +743,6 @@ async function promptChangelog( argv, needChangelog, types ) {
 		},
 	} );
 
-	const userFacingResponse = await enquirer.prompt( {
-		type: 'confirm',
-		name: 'userFacing',
-		message: 'Is this a Jetpack change that site admins would like to know about?',
-		initial: true,
-		skip: ! needChangelog.includes( 'plugins/jetpack' ),
-	} );
-
 	// Get the significance.
 	const { significance } = await prompt( {
 		type: 'autocomplete',
@@ -772,6 +764,14 @@ async function promptChangelog( argv, needChangelog, types ) {
 				name: '[major] Broke backwards compatibility in some way.',
 			},
 		],
+	} );
+
+	const userFacingResponse = await enquirer.prompt( {
+		type: 'confirm',
+		name: 'userFacing',
+		message: 'Is this a Jetpack change that site admins would like to know about?',
+		initial: true,
+		skip: ! needChangelog.includes( 'plugins/jetpack' ),
 	} );
 
 	// Get the type, set it to other if this isn't a user facing change.
