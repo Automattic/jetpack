@@ -19,7 +19,7 @@ class PlaygroundImporterTest extends WP_UnitTestCase {
 	 * Open an empty path.
 	 */
 	public function test_error_open_an_empty_file() {
-		$importer = new Playground_Importer( sys_get_temp_dir() );
+		$importer = new Playground_Importer( 'rand-file', sys_get_temp_dir() );
 		$result   = $importer->preprocess();
 
 		$this->assertWPError( $result );

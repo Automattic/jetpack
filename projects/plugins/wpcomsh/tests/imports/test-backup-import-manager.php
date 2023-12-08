@@ -5,10 +5,6 @@
  * @package wpcomsh
  */
 
-// Include base classes.
-require_once __DIR__ . '/../../imports/utils/class-fs-operations.php';
-
-use Imports\Utils\FS_Operations;
 use Imports\Backup_Import_Manager;
 
 /**

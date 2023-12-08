@@ -54,7 +54,7 @@ class Backup_Import_Manager {
 	 *
 	 * @var array
 	 */
-	protected $valid_option_keys = array( 'skip_unpack', 'actions', 'test' );
+	protected $valid_option_keys = array( 'skip_unpack', 'skip_clean_up', 'actions', 'dry_run' );
 	/**
 	 * Constant representing the WordPress Playground importer type.
 	 */
@@ -97,12 +97,19 @@ class Backup_Import_Manager {
 	 * @return bool|WP_Error True on success, or a WP_Error on failure.
 	 */
 	public function import() {
+		$skip_clean_up = false;
+		if ( isset( $this->options['skip_clean_up'] ) && is_bool( $this->options['skip_clean_up'] ) ) {
+			$skip_clean_up = $this->options['skip_clean_up'];
+		}
+
 		$skip_unpack = false;
 		if ( isset( $this->options['skip_unpack'] ) && is_bool( $this->options['skip_unpack'] ) ) {
 			$skip_unpack = $this->options['skip_unpack'];
 		}
+
 		// unzip/untar the file
 		if ( ! $skip_unpack ) {
+			$this->update_status( array( 'status' => 'unpack_file' ) );
 			$result = Utils\FileExtractor::extract( $this->zip_or_tar_file_path, $this->destination_path );
 			if ( is_wp_error( $result ) ) {
 				$this->update_status( array( 'status' => 'failed' ) );
@@ -118,14 +125,23 @@ class Backup_Import_Manager {
 		}
 
 		// get the importer
-		$importer = self::get_importer( $importer_type, $this->destination_path );
+		$importer = self::get_importer( $importer_type, $this->zip_or_tar_file_path, $this->destination_path );
 		if ( is_wp_error( $importer ) ) {
 			$this->update_status( array( 'status' => 'failed' ) );
 			return $importer;
 		}
 
 		$execute_actions = isset( $this->options['actions'] ) && count( $this->options['actions'] ) ? $this->options['actions'] : $this->importer_actions;
-		$is_test         = isset( $this->options['test'] ) && $this->options['test'];
+		$dry_run         = isset( $this->options['dry_run'] ) && $this->options['dry_run'];
+
+		if ( $skip_clean_up ) {
+			foreach ( $execute_actions as $key => $action ) {
+				// Remove the cleanup action if the user has specified to skip cleanup.
+				if ( $action === 'clean_up' ) {
+					unset( $execute_actions[ $key ] );
+				}
+			}
+		}
 
 		foreach ( $execute_actions as $action ) {
 			if ( ! method_exists( $importer, $action ) ) {
@@ -134,27 +150,20 @@ class Backup_Import_Manager {
 
 			$this->update_status( array( 'status' => $action ) );
 
-			// Call the importer's method.
-			$result = $importer->$action();
-
-			if ( $is_test ) {
-				// Wait for 15-20 seconds in test mode.
+			if ( $dry_run ) {
+				// Wait for 15-20 seconds in dry-run mode.
 				sleep( \wp_rand( 15, 20 ) );
-			}
+			} else {
+				// Call the importer's method.
+				$result = $importer->$action();
 
-			if ( is_wp_error( $result ) ) {
-				$this->update_status( array( 'status' => 'failed' ) );
-				return $result;
+				if ( is_wp_error( $result ) ) {
+					$this->update_status( array( 'status' => 'failed' ) );
+					return $result;
+				}
 			}
 		}
 
-		/*
-		$remove_tmp_file_result = $this->remove_tmp_files();
-		if ( is_wp_error( $remove_tmp_file_result ) ) {
-			$this->update_status( array( 'status' => 'failed' ) );
-			return $remove_tmp_file_result;
-		}
-		*/
 		return $this->update_status( array( 'status' => 'success' ) );
 	}
 
@@ -197,15 +206,16 @@ class Backup_Import_Manager {
 	 * Get an instance of the appropriate importer based on the type.
 	 *
 	 * @param string $type The type of the importer.
+	 * @param string $zip_or_tar_file_path The path to the ZIP or TAR file to be imported.
 	 * @param string $destination_path The path where the backup will be imported.
 	 *
 	 * @return Importer|WP_Error An instance of the appropriate importer or a WP_Error if the type is unknown.
 	 */
-	public static function get_importer( string $type, string $destination_path ) {
+	public static function get_importer( string $type, string $zip_or_tar_file_path, string $destination_path ) {
 		switch ( $type ) {
 			case self::WORDPRESS_PLAYGROUND:
 				require_once __DIR__ . '/playground/class-playground-importer.php';
-				return new Playground_Importer( $destination_path );
+				return new Playground_Importer( $zip_or_tar_file_path, $destination_path );
 
 			// case self::JETPACK_BACKUP:
 			// require_once __DIR__ . '/jetpack-backup/class-jetpack-backup-importer.php';

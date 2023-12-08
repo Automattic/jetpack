@@ -199,7 +199,7 @@ class Playground_DB_Importer {
 			// Force a temporary table name if needed.
 			$output_table = $this->get_output_table_name( $table_name );
 
-			$generator->start_table( $output_table, $types_map['map'], $types_map['auto_increment'], ! $this->options['tmp_tables'] );
+			$generator->start_table( $output_table, $types_map['map'], $types_map['auto_increment'] );
 			$this->generate_inserts( $generator, $table['name'], $types_map['format'], $types_map['field_names'] );
 			$generator->end_table_inserts( $output_table );
 

@@ -14,6 +14,13 @@ namespace Imports;
  */
 abstract class Backup_Importer {
 	/**
+	 * The path to the ZIP or TAR file to be imported.
+	 *
+	 * @var string
+	 */
+	protected $zip_or_tar_file_path;
+
+	/**
 	 * The path where the backup will be imported.
 	 *
 	 * @var string
@@ -23,10 +30,12 @@ abstract class Backup_Importer {
 	/**
 	 * Constructor.
 	 *
+	 * @param string $zip_or_tar_file_path The path to the ZIP or TAR file to be imported.
 	 * @param string $destination_path The path where the backup will be imported.
 	 */
-	public function __construct( $destination_path ) {
-		$this->destination_path = trailingslashit( $destination_path );
+	public function __construct( string $zip_or_tar_file_path, string $destination_path ) {
+		$this->zip_or_tar_file_path = $zip_or_tar_file_path;
+		$this->destination_path     = trailingslashit( $destination_path );
 	}
 
 	/**

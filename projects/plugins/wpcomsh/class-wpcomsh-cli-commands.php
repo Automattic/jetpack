@@ -572,23 +572,28 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 * [--dest]
 		 * : destination file path to extract to. (required)
 		 *
+		 * [--skip-clean-up]
+		 * : Skip cleaning up the temprary files. Defaults to false.
+		 *
 		 * [--skip-unpack]
 		 * : Skip unpacking the zip file. Defaults to false.
 		 *
 		 * [--actions]
 		 * : A comma-separated list of actions to perform. Defaults to all actions.
 		 *
-		 * [--test]
-		 * : Run the importer in test mode. Defaults to true.
+		 * [--dry-run]
+		 * : Run the importer in dry run mode. Defaults to true.
 		 *
 		 * @subcommand backup-import
 		 */
 		public function backup_import( $args, $assoc_args ) {
-			$source      = WP_CLI\Utils\get_flag_value( $assoc_args, 'source', '' );
-			$dest        = WP_CLI\Utils\get_flag_value( $assoc_args, 'dest' );
-			$skip_unpack = WP_CLI\Utils\get_flag_value( $assoc_args, 'skip-unpack', false );
-			$actions     = WP_CLI\Utils\get_flag_value( $assoc_args, 'actions', '' );
-			$test        = WP_CLI\Utils\get_flag_value( $assoc_args, 'test', true );
+			$source        = WP_CLI\Utils\get_flag_value( $assoc_args, 'source', '' );
+			$dest          = WP_CLI\Utils\get_flag_value( $assoc_args, 'dest' );
+			$skip_clean_up = WP_CLI\Utils\get_flag_value( $assoc_args, 'skip-clean-up', false );
+			$skip_unpack   = WP_CLI\Utils\get_flag_value( $assoc_args, 'skip-unpack', false );
+			$actions       = WP_CLI\Utils\get_flag_value( $assoc_args, 'actions', '' );
+			$dry_run       = WP_CLI\Utils\get_flag_value( $assoc_args, 'dry-run', true );
+
 			$skip_unpack = filter_var( $skip_unpack, FILTER_VALIDATE_BOOLEAN );
 
 			if ( ! $skip_unpack && empty( $source ) ) {
@@ -600,9 +605,10 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			}
 
 			$options = array(
-				'skip_unpack' => $skip_unpack,
-				'actions'     => $actions ? explode( ',', $actions ) : array(),
-				'test'        => filter_var( $test, FILTER_VALIDATE_BOOLEAN ),
+				'skip_clean_up' => filter_var( $skip_clean_up, FILTER_VALIDATE_BOOLEAN ),
+				'skip_unpack'   => $skip_unpack,
+				'actions'       => $actions ? explode( ',', $actions ) : array(),
+				'dry_run'       => filter_var( $dry_run, FILTER_VALIDATE_BOOLEAN ),
 			);
 
 			$import_manager = new Imports\Backup_Import_Manager( $source, $dest, $options );
