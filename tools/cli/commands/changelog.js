@@ -745,7 +745,7 @@ async function promptChangelog( argv, needChangelog, types ) {
 
 	let userFacing = false;
 	// Ask if this is a user facing change if we detect Jetpack.
-	if ( argv.project === 'plugins/jetpack' ) {
+	if ( needChangelog.includes( 'plugins/jetpack' ) ) {
 		userFacing = await prompt( {
 			type: 'confirm',
 			name: 'userFacing',
