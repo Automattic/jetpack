@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sync:Update Full Sync to limit max amount of data sent in one request.

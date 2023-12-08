@@ -68,7 +68,7 @@ const FirewallSubheadingPopover = ( {
 		>
 			<Icon icon={ help } />
 			{ showPopover && (
-				<Popover noArrow={ false } offset={ 5 }>
+				<Popover noArrow={ false } offset={ 5 } inline={ true }>
 					<Text className={ styles[ 'popover-text' ] } variant={ 'body-small' }>
 						{ children }
 					</Text>

@@ -460,7 +460,7 @@ const groupInputs = inputs => {
 /**
  * Clear all errors and remove all input event listeners in a form.
  * @param {HTMLFormElement} form Form element
- * @param {object} inputListenerMap Map of input event listeners (name: handler)
+ * @param {object} inputListenerMap Map of input event listeners (name: [event, handler])
  * @param {object} opts Form options
  */
 const clearForm = ( form, inputListenerMap, opts ) => {
@@ -469,7 +469,9 @@ const clearForm = ( form, inputListenerMap, opts ) => {
 	for ( const name in inputListenerMap ) {
 		form
 			.querySelectorAll( `[name="${ name }"]` )
-			.forEach( input => input.removeEventListener( 'blur', inputListenerMap[ name ] ) );
+			.forEach( input =>
+				input.removeEventListener( inputListenerMap[ name ][ 0 ], inputListenerMap[ name ][ 1 ] )
+			);
 	}
 };
 
@@ -636,11 +638,11 @@ const listenToInvalidFields = ( form, opts ) => {
  * @param {Function} cb Function to call on event
  * @param {HTMLFormElement} form Form element
  * @param {object} opts Form options
- * @returns {object} Map of the input event listeners set (name: handler)
+ * @returns {object} Map of the input event listeners set (name: [event, handler])
  */
 const listenToInvalidSingleChoiceField = ( fieldset, cb, form, opts ) => {
 	const listenerMap = {};
-	const blurHandler = () => {
+	const eventHandler = () => {
 		if ( isSingleChoiceFieldValid( fieldset ) ) {
 			clearGroupInputError( fieldset );
 		} else {
@@ -653,9 +655,11 @@ const listenToInvalidSingleChoiceField = ( fieldset, cb, form, opts ) => {
 	const inputs = fieldset.querySelectorAll( 'input[type="radio"]' );
 
 	for ( const input of inputs ) {
-		input.addEventListener( 'blur', blurHandler );
+		input.addEventListener( 'blur', eventHandler );
+		input.addEventListener( 'change', eventHandler );
 
-		listenerMap[ input.name ] = blurHandler;
+		listenerMap[ input.name ] = [ 'blur', eventHandler ];
+		listenerMap[ input.name ] = [ 'change', eventHandler ];
 	}
 
 	return listenerMap;
@@ -667,11 +671,11 @@ const listenToInvalidSingleChoiceField = ( fieldset, cb, form, opts ) => {
  * @param {Function} cb Function to call on event
  * @param {HTMLFormElement} form Form element
  * @param {object} opts Form options
- * @returns {object} Map of the input event listeners set (name: handler)
+ * @returns {object} Map of the input event listeners set (name: [event, handler])
  */
 const listenToInvalidMultipleChoiceField = ( fieldset, cb, form, opts ) => {
 	const listenerMap = {};
-	const blurHandler = () => {
+	const eventHandler = () => {
 		if ( isMultipleChoiceFieldValid( fieldset ) ) {
 			clearGroupInputError( fieldset );
 		} else {
@@ -684,9 +688,11 @@ const listenToInvalidMultipleChoiceField = ( fieldset, cb, form, opts ) => {
 	const inputs = fieldset.querySelectorAll( 'input[type="checkbox"]' );
 
 	for ( const input of inputs ) {
-		input.addEventListener( 'blur', blurHandler );
+		input.addEventListener( 'blur', eventHandler );
+		input.addEventListener( 'change', eventHandler );
 
-		listenerMap[ input.name ] = blurHandler;
+		listenerMap[ input.name ] = [ 'blur', eventHandler ];
+		listenerMap[ input.name ] = [ 'change', eventHandler ];
 	}
 
 	return listenerMap;
@@ -698,9 +704,10 @@ const listenToInvalidMultipleChoiceField = ( fieldset, cb, form, opts ) => {
  * @param {Function} cb Function to call on event
  * @param {HTMLFormElement} form Form element
  * @param {object} opts Form options
- * @returns {object} Map of the input event listeners set (name: handler)
+ * @returns {object} Map of the input event listeners set (name: [event, handler])
  */
 const listenToInvalidSimpleField = ( input, cb, form, opts ) => {
+	const isValueMissing = input.validity.valueMissing;
 	const listenerMap = {};
 	const blurHandler = () => {
 		if ( isSimpleFieldValid( input ) ) {
@@ -711,10 +718,26 @@ const listenToInvalidSimpleField = ( input, cb, form, opts ) => {
 
 		cb();
 	};
+	const inputHandler = () => {
+		if ( ! input.validity.valueMissing ) {
+			clearInputError( input, opts );
+		} else {
+			setSimpleFieldError( input, form, opts );
+		}
+
+		cb();
+	};
 
 	input.addEventListener( 'blur', blurHandler );
+	listenerMap[ input.name ] = [ 'blur', blurHandler ];
 
-	listenerMap[ input.name ] = blurHandler;
+	// A missing value is the only error for which we want to discard the error message as a user
+	// updates the field. The native error message of an email input, for instance, changes as a user
+	// types, which is more distracting than helpful.
+	if ( isValueMissing ) {
+		input.addEventListener( 'input', inputHandler );
+		listenerMap[ input.name ] = [ 'input', inputHandler ];
+	}
 
 	return listenerMap;
 };

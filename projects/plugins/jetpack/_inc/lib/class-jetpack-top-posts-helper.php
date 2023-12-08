@@ -44,7 +44,7 @@ class Jetpack_Top_Posts_Helper {
 			$data = array( 'summary' => array( 'postviews' => array() ) );
 		}
 
-		$posts_retrieved = count( $data['summary']['postviews'] );
+		$posts_retrieved = is_countable( $data['summary']['postviews'] ) ? count( $data['summary']['postviews'] ) : 0;
 
 		// Fallback to random posts if user does not have enough top content.
 		if ( $posts_retrieved < $posts_to_obtain_count ) {
