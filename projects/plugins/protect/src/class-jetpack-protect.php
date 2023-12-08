@@ -447,6 +447,7 @@ class Jetpack_Protect {
 		}
 
 		return array(
+			'blockedRequests'           => Plan::has_required_plan() ? Waf_Stats::get_blocked_requests() : false,
 			'ipAllowListCount'          => Waf_Stats::get_ip_allow_list_count(),
 			'ipBlockListCount'          => Waf_Stats::get_ip_block_list_count(),
 			'rulesVersion'              => Waf_Stats::get_rules_version(),

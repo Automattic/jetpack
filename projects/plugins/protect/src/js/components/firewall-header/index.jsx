@@ -1,8 +1,17 @@
-import { AdminSectionHero, Container, Col, Text, H3, Button } from '@automattic/jetpack-components';
+import {
+	AdminSectionHero,
+	Container,
+	Col,
+	Text,
+	H3,
+	Button,
+	useBreakpointMatch,
+	StatCard,
+} from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { Spinner, Popover } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, help } from '@wordpress/icons';
+import { Icon, help, shield, chartBar } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useState, useCallback } from 'react';
 import { JETPACK_SCAN_SLUG } from '../../constants';
@@ -153,7 +162,59 @@ const FirewallHeader = ( {
 	jetpackWafAutomaticRules,
 	bruteForceProtectionIsEnabled,
 	wafSupported,
+	oneDayStats,
+	thirtyDayStats,
 } ) => {
+	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+
+	// TODO: Fix mobile display when value is too large
+	const oneDayArgs = {
+		className: hasRequiredPlan ? styles.active : styles.disabled,
+		icon: (
+			<span className={ styles[ 'stat-card-icon' ] }>
+				<Icon icon={ shield } />
+				{ ! isSmall && ! hasRequiredPlan && (
+					<Text variant={ 'label' }>{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
+				) }
+			</span>
+		),
+		label: isSmall ? (
+			<span>{ __( 'Blocked requests last 24 hours', 'jetpack-protect' ) }</span>
+		) : (
+			<span className={ styles[ 'stat-card-label' ] }>
+				<span>{ __( 'Blocked requests', 'jetpack-protect' ) }</span>
+				<br />
+				<span>{ __( 'Last 24 hours', 'jetpack-protect' ) }</span>
+			</span>
+		),
+		value: oneDayStats ? oneDayStats : 0,
+		variant: isSmall ? 'horizontal' : 'square',
+	};
+
+	// TODO: Fix mobile display when value is too large
+	const thirtyDayArgs = {
+		className: hasRequiredPlan ? styles.active : styles.disabled,
+		icon: (
+			<span className={ styles[ 'stat-card-icon' ] }>
+				<Icon icon={ chartBar } />
+				{ ! isSmall && ! hasRequiredPlan && (
+					<Text variant={ 'label' }>{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
+				) }
+			</span>
+		),
+		label: isSmall ? (
+			<span>{ __( 'Blocked requests last 30 days', 'jetpack-protect' ) }</span>
+		) : (
+			<span className={ styles[ 'stat-card-label' ] }>
+				<span>{ __( 'Blocked requests', 'jetpack-protect' ) }</span>
+				<br />
+				<span>{ __( 'Last 30 days', 'jetpack-protect' ) }</span>
+			</span>
+		),
+		value: thirtyDayStats ? thirtyDayStats : 0,
+		variant: isSmall ? 'horizontal' : 'square',
+	};
+
 	return (
 		<AdminSectionHero>
 			<Container
@@ -227,7 +288,10 @@ const FirewallHeader = ( {
 					) }
 				</Col>
 				<Col>
-					<div className={ styles[ 'stat-card-wrapper' ] }></div>
+					<div className={ styles[ 'stat-card-wrapper' ] }>
+						<StatCard { ...oneDayArgs } />
+						<StatCard { ...thirtyDayArgs } />
+					</div>
 				</Col>
 			</Container>
 		</AdminSectionHero>
@@ -244,12 +308,15 @@ const ConnectedFirewallHeader = () => {
 		},
 		isToggling,
 		wafSupported,
+		stats,
 	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
 	const currentStatus =
 		( wafSupported && ( jetpackWafAutomaticRules || jetpackWafIpList ) ) || bruteForceProtection
 			? 'on'
 			: 'off';
+	const { blockedRequests } = stats;
+	const { oneDayStats, thirtyDayStats } = blockedRequests;
 
 	return (
 		<FirewallHeader
@@ -261,6 +328,8 @@ const ConnectedFirewallHeader = () => {
 			jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
 			bruteForceProtectionIsEnabled={ bruteForceProtection }
 			wafSupported={ wafSupported }
+			oneDayStats={ oneDayStats }
+			thirtyDayStats={ thirtyDayStats }
 		/>
 	);
 };

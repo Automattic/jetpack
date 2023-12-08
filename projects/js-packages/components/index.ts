@@ -71,3 +71,4 @@ export { default as ActionPopover } from './components/action-popover';
 export { default as ZendeskChat } from './components/zendesk-chat';
 export { default as ProgressBar } from './components/progress-bar';
 export { getUserLocale, cleanLocale } from './lib/locale';
+export { default as StatCard } from './components/stat-card';
