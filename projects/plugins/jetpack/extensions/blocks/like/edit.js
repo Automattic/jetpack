@@ -11,7 +11,7 @@ const icon = getBlockIconComponent( metadata );
 
 function LikeEdit( { noticeUI } ) {
 	const blockProps = useBlockProps();
-	const blogId = window?.Jetpack_LikeBlock_BlogId;
+	const blogId = window?.Jetpack_LikeBlock?.blog_id;
 
 	const { fetchReblogSetting, reblogSetting } = useFetchReblogSetting( blogId );
 
