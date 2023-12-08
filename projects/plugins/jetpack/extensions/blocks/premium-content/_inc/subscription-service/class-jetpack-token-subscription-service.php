@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Class Jetpack_Token_Subscription_Service
@@ -23,7 +24,7 @@ class Jetpack_Token_Subscription_Service extends Token_Subscription_Service {
 	 * @return bool Whether Jetpack_Options class exists.
 	 */
 	public static function available() {
-		return class_exists( '\Jetpack_Options' );
+		return ( new Host() )->is_wpcom_simple() || class_exists( '\Jetpack_Options' );
 	}
 
 	/**
@@ -41,6 +42,10 @@ class Jetpack_Token_Subscription_Service extends Token_Subscription_Service {
 	 * @return string The key.
 	 */
 	public function get_key() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
+			return defined( 'EARN_JWT_SIGNING_KEY' ) ? EARN_JWT_SIGNING_KEY : false;
+		}
 		$token = ( new Tokens() )->get_access_token();
 		if ( ! isset( $token->secret ) ) {
 			return false;

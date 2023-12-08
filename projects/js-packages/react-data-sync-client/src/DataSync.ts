@@ -4,7 +4,7 @@ import type { JSONSchema, ParsedValue } from './types';
 
 type RequestParams = string | JSONSchema;
 type RequestMethods = 'GET' | 'POST' | 'DELETE';
-
+type GetRequestParams = Record< string, string | number | null | Array< string | number | null > >;
 /**
  * DataSync class for synchronizing data between the client and the server.
  *
@@ -162,10 +162,18 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	private async request(
 		method: RequestMethods,
 		partialPathname: string,
-		params?: RequestParams,
+		value?: RequestParams,
+		params?: GetRequestParams,
 		abortSignal?: AbortSignal
 	) {
-		const url = `${ this.wpDatasyncUrl }/${ partialPathname }`;
+		const url = new URL( `${ this.wpDatasyncUrl }/${ partialPathname }` );
+
+		if ( params ) {
+			Object.keys( params ).forEach( key => {
+				url.searchParams.append( key, params[ key ].toString() );
+			} );
+		}
+
 		const args: RequestInit = {
 			method,
 			signal: abortSignal,
@@ -179,10 +187,10 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		};
 
 		if ( method === 'POST' ) {
-			args.body = JSON.stringify( { JSON: params } );
+			args.body = JSON.stringify( { JSON: value } );
 		}
 
-		const result = await this.attemptRequest( url, args );
+		const result = await this.attemptRequest( url.toString(), args );
 
 		let data;
 		const text = await result.text();
@@ -191,7 +199,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		} catch ( e ) {
 			// eslint-disable-next-line no-console
 			console.error( 'Failed to parse the response\n', { url, text, result, error: e } );
-			throw new ApiError( url, 'json_parse_error', 'Failed to parse the response' );
+			throw new ApiError( url.toString(), 'json_parse_error', 'Failed to parse the response' );
 		}
 
 		/**
@@ -204,7 +212,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		if ( ! data || data.JSON === undefined ) {
 			// eslint-disable-next-line no-console
 			console.error( 'JSON response is empty.\n', { url, text, result } );
-			throw new ApiError( url, 'json_empty', 'JSON response is empty' );
+			throw new ApiError( url.toString(), 'json_empty', 'JSON response is empty' );
 		}
 
 		return data.JSON;
@@ -214,17 +222,18 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	 * Method to parse the request.
 	 * @param method - The request method.
 	 * @param requestPath - The request path.
-	 * @param params - The request parameters.
+	 * @param value - The request parameters.
 	 * @param abortSignal - The abort signal.
 	 * @returns The parsed value.
 	 */
 	private async parsedRequest(
 		method: RequestMethods,
 		requestPath = '',
-		params?: Value,
+		value?: Value,
+		params: GetRequestParams = {},
 		abortSignal?: AbortSignal
 	): Promise< Value > {
-		const data = await this.request( method, requestPath, params, abortSignal );
+		const data = await this.request( method, requestPath, value, params, abortSignal );
 		try {
 			const parsed = this.schema.parse( data );
 			return parsed;
@@ -263,20 +272,29 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	 * to be bound to the class instance, to make it easier to pass them
 	 * around as callbacks without losing the `this` context.
 	 */
-	public GET = async ( abortSignal?: AbortSignal ): Promise< Value > => {
-		return await this.parsedRequest( 'GET', this.endpoint, undefined, abortSignal );
+	public GET = async (
+		params: GetRequestParams = {},
+		abortSignal?: AbortSignal
+	): Promise< Value > => {
+		return await this.parsedRequest( 'GET', this.endpoint, undefined, params, abortSignal );
 	};
 
-	public SET = async ( params: Value, abortSignal?: AbortSignal ): Promise< Value > => {
-		return await this.parsedRequest( 'POST', `${ this.endpoint }/set`, params, abortSignal );
+	public SET = async (
+		value: Value,
+		params: GetRequestParams = {},
+		abortSignal?: AbortSignal
+	): Promise< Value > => {
+		return await this.parsedRequest( 'POST', `${ this.endpoint }/set`, value, params, abortSignal );
 	};
 
-	public MERGE = async ( params: Value, abortSignal?: AbortSignal ): Promise< Value > => {
-		return await this.parsedRequest( 'POST', `${ this.endpoint }/merge`, params, abortSignal );
-	};
-
-	public DELETE = async ( abortSignal?: AbortSignal ) => {
-		return await this.parsedRequest( 'POST', `${ this.endpoint }/delete`, undefined, abortSignal );
+	public DELETE = async ( params: GetRequestParams = {}, abortSignal?: AbortSignal ) => {
+		return await this.parsedRequest(
+			'POST',
+			`${ this.endpoint }/delete`,
+			undefined,
+			params,
+			abortSignal
+		);
 	};
 
 	/**

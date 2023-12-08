@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.2] - 2023-12-06
+### Changed
+- Updated package dependencies. [#34416]
+
+### Fixed
+- Creator Card: fix typo. [#34478]
+
+## [4.1.1] - 2023-12-05
+### Fixed
+- My Jetpack: Fix outdated product cache issue when enabling tiers. [#34428]
+
+## [4.1.0] - 2023-12-03
+### Added
+- Added Jetpack Creator to My Jetpack. [#34307]
+- Added the welcome banner to My Jetpack. [#34384]
+- Display a "Jetpack Manage" menu item to connected users. [#34353]
+- Updated connection message to only display if the welcome banner has been dismissed. [#34420]
+
+### Changed
+- Updated package dependencies. [#34411] [#34427]
+- Updated the API calls used for My Jetpack backup card. [#34197]
+- Updated the CTAs in My Jetpack for more clarity and to avoid inconsistencies. [#34300]
+
+### Fixed
+- Dashboard: Prevented display of any notices from third-party services. [#34364]
+- Fixed checkout error while selling the unlimited Jetpack AI plan. [#34339]
+- Fixed Jetpack AI bi-yearly plan on product card. [#34276]
+- Fixed product card menus. [#34285]
+
 ## [4.0.3] - 2023-11-24
 ### Changed
 - Changed Jetpack AI insterstitial contact link to Jetpack Redirect. [#34252]
@@ -1125,6 +1154,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.1.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.1.1...4.1.2
+[4.1.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.1.0...4.1.1
+[4.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.0.3...4.1.0
 [4.0.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.0.2...4.0.3
 [4.0.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.0.1...4.0.2
 [4.0.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.0.0...4.0.1

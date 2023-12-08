@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Social
  * Feature: Engagement
- * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter
+ * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter, creator
  */
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
@@ -759,7 +759,7 @@ class Jetpack_Subscriptions {
 	 */
 	public function widget_submit() {
 		// Check the nonce.
-		if ( ! wp_verify_nonce( 'blogsub_subscribe_' . \Jetpack_Options::get_option( 'id' ) ) ) {
+		if ( ! wp_verify_nonce( isset( $_REQUEST['_wpnonce'] ) ? sanitize_key( $_REQUEST['_wpnonce'] ) : '', 'blogsub_subscribe_' . \Jetpack_Options::get_option( 'id' ) ) ) {
 			return false;
 		}
 
