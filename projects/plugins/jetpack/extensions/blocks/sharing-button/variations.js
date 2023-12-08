@@ -33,12 +33,7 @@ const variations = [
 		title: 'Mastodon',
 		icon: <SocialIcon icon={ 'mastodon' } size={ 24 } />,
 	},
-	{
-		name: 'patreon',
-		attributes: { service: 'patreon' },
-		title: 'Patreon',
-		icon: <SocialIcon icon={ 'patreon' } size={ 24 } />,
-	},
+
 	{
 		name: 'pinterest',
 		attributes: { service: 'pinterest' },
@@ -58,12 +53,6 @@ const variations = [
 		icon: <SocialIcon icon={ 'reddit' } size={ 24 } />,
 	},
 	{
-		name: 'skype',
-		attributes: { service: 'skype' },
-		title: 'Skype',
-		icon: <SocialIcon icon={ 'skype' } size={ 24 } />,
-	},
-	{
 		name: 'telegram',
 		attributes: { service: 'telegram' },
 		title: 'Telegram',
@@ -75,12 +64,7 @@ const variations = [
 		title: 'Tumblr',
 		icon: <SocialIcon icon={ 'tumblr' } size={ 24 } />,
 	},
-	{
-		name: 'twitch',
-		attributes: { service: 'twitch' },
-		title: 'Twitch',
-		icon: <SocialIcon icon={ 'twitch' } size={ 24 } />,
-	},
+
 	{
 		name: 'whatsapp',
 		attributes: { service: 'whatsapp' },
@@ -112,7 +96,7 @@ variations.forEach( variation => {
 
 export default variations;
 
-// TODO: add these in the future
+// TODO: possibly add these in the future
 // {
 // 	name: 'threads',
 // 	attributes: { service: 'threads' },
@@ -130,4 +114,22 @@ export default variations;
 // 	attributes: { service: 'instagram' },
 // 	title: 'Instagram',
 // 	icon: InstagramIcon,
+// },
+// {
+// 	name: 'twitch',
+// 	attributes: { service: 'twitch' },
+// 	title: 'Twitch',
+// 	icon: <SocialIcon icon={ 'twitch' } size={ 24 } />,
+// },
+// {
+// 	name: 'patreon',
+// 	attributes: { service: 'patreon' },
+// 	title: 'Patreon',
+// 	icon: <SocialIcon icon={ 'patreon' } size={ 24 } />,
+// },
+// {
+// 	name: 'skype',
+// 	attributes: { service: 'skype' },
+// 	title: 'Skype',
+// 	icon: <SocialIcon icon={ 'skype' } size={ 24 } />,
 // },

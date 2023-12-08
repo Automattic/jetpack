@@ -32,6 +32,7 @@ const SharingButtonsView = ( { attributes } ) => {
 				primary
 			>
 				<SocialIcon icon={ service } size={ 24 } />
+
 				<span className="jetpack-sharing-button__service-label" aria-hidden="true">
 					{ socialLinkLabel }
 				</span>
