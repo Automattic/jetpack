@@ -8,10 +8,8 @@ import { DataSyncProvider, useDataSync } from '@automattic/jetpack-react-data-sy
 import { z } from 'zod';
 
 type Props = {
-	scoreChange:
-		| number
-		| false /** False if there is no change to show, number of score points increased/decreased otherwise. */;
-	onClose: () => void /** Callback to use when the user closes this score change popout. It is up to the parent to track closure and update scoreChange to false. */;
+	scoreChange: number | false; // Speed score shift to show, or false if none.
+	onClose: () => void; // Callback to use when closing the popout.
 };
 
 /**
