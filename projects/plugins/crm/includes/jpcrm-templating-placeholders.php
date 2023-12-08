@@ -1655,7 +1655,7 @@ class jpcrm_templating_placeholders {
 		$replacements = array(),
 		$replacement_objects = false,
 		$retain_unset_placeholders = false,
-		$include_quote_id_url = true
+		$include_non_rendered_quote_keys = true
 
 	) {
 
@@ -1766,10 +1766,19 @@ class jpcrm_templating_placeholders {
 						}
 					}
 
+					// If this is a Quote Accepted key and it is not set, let's print out a message saying the quote isn't accepted.
+					if ( $key === 'quote-accepted' || $key === 'quote-accepted_date_str' || $key === 'quote-accepted_datetime_str' ) {
+
+						if ( empty( $replace_with ) || str_starts_with( $replace_with, '1 January 1970' ) ) {
+							$replace_with = __( 'Quote not yet accepted', 'zero-bs-crm' );
+						}
+					}
+
 					// Replace main key.
-					// In the Quote editor itself we don't want to render the Quote ID or Quote URL placeholders,
-					// So, $include_quote_id_url will be set to false in that case. See ZeroBSCRM_get_quote_template().
-					if ( $include_quote_id_url || ( ! $include_quote_id_url && ! in_array( $replacement_info['key'], array( 'quote-ID', 'quote-url' ), true ) ) ) {
+					// In the Quote editor itself we don't want to render the Quote ID, URL, Created, Accepted or Lastu Updated placeholders,
+					// So, $include_non_rendered_quote_keys will be set to false in that case. See ZeroBSCRM_get_quote_template().
+					$non_rendered_quote_keys = array( 'quote-ID', 'quote-url', 'quote-created', 'quote-created_datetime_str', 'quote-created_date_str', 'quote-accepted', 'quote-accepted_datetime_str', 'quote-accepted_date_str', 'quote-lastupdated', 'quote-lastupdated_datetime_str', 'quote-lastupdated_date_str' );
+					if ( $include_non_rendered_quote_keys || ( ! $include_non_rendered_quote_keys && ! in_array( $replacement_info['key'], $non_rendered_quote_keys, true ) ) ) {
 
 						$string = str_replace( $replace_string, $replace_with, $string );
 
