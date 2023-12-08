@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+WordPress.com API: add the export and import capabilities to the sites endpoint response
