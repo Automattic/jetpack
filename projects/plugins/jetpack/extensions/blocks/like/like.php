@@ -119,7 +119,6 @@ function add_like_block_data() {
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 	}
 
-	// Create an array to store both $blog_id and $type.
 	$like_block_data = array(
 		'blog_id' => $blog_id,
 	);
