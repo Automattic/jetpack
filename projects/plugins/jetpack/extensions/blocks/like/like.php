@@ -89,11 +89,11 @@ function render_block( $attr, $content, $block ) {
 	$name    = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 	$wrapper = sprintf( 'like-post-wrapper-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 
-	$html  = "<div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name' data-title='$title'>";
-	$html .= $headline;
-	$html .= "<div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='button'><span>" . esc_html__( 'Like', 'jetpack' ) . '</span></span> <span class="loading">' . esc_html__( 'Loading...', 'jetpack' ) . '</span></div>';
-	$html .= "<span class='sd-text-color'></span><a class='sd-link-color'></a>";
-	$html .= '</div>';
+	$html = "<div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='" . esc_attr( $wrapper ) . "' data-src='" . esc_attr( $src ) . "' data-name='" . esc_attr( $name ) . "' data-title='" . esc_attr( $title ) . "'>"
+		. $headline
+		. "<div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='button'><span>" . esc_html__( 'Like', 'jetpack' ) . "</span></span> <span class='loading'>" . esc_html__( 'Loading...', 'jetpack' ) . '</span></div>'
+		. "<span class='sd-text-color'></span><a class='sd-link-color'></a>"
+		. '</div>';
 
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
