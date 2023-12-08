@@ -5,34 +5,14 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=8.2",
-		"wordpress/phpdoc-parser": "dev-master"
-	},
-	"require-dev": {
-		"yoast/phpunit-polyfills": "1.1.0",
-		"automattic/jetpack-changelogger": "@dev"
+		"wordpress/phpdoc-parser": "dev-master",
+		"michelf/php-markdown": "^2.0"
 	},
 	"autoload": {
 		"classmap": [
 			"src/"
 		]
 	},
-	"scripts": {
-		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-php": [
-			"@composer phpunit"
-		]
-	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
