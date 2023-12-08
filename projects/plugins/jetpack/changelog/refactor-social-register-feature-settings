@@ -1,0 +1,4 @@
+Significance: major
+Type: enhancement
+
+Social: Refactored storing of feature options to use core functions
