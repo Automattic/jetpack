@@ -37,7 +37,7 @@ export function* getSocialImageGeneratorSettings() {
 	try {
 		const settings = yield fetchSocialImageGeneratorSettings();
 		if ( settings ) {
-			return setSocialImageGeneratorSettings( settings );
+			return setSocialImageGeneratorSettings( settings.jetpack_social_image_generator_settings );
 		}
 	} catch ( e ) {
 		// TODO: Add proper error handling here
@@ -55,7 +55,7 @@ export function* getAutoConversionSettings() {
 	try {
 		const settings = yield fetchAutoConversionSettings();
 		if ( settings ) {
-			return setAutoConversionSettings( settings );
+			return setAutoConversionSettings( settings.jetpack_social_autoconvert_images );
 		}
 	} catch ( e ) {
 		// TODO: Add proper error handling here

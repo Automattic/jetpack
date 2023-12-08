@@ -66,6 +66,7 @@ function render_block( $attr, $content, $block ) {
 		$domain   = $bloginfo->domain;
 		$version  = '20231201';
 		$src      = sprintf( '//widgets.wp.com/likes/index.html?ver=%1$d#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s%6$s', $version, $blog_id, $post_id, $domain, $uniqid, $new_layout );
+		$headline = '';
 
 		// provide the mapped domain when needed
 		if ( isset( $_SERVER['HTTP_HOST'] ) && strpos( sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ), '.wordpress.com' ) === false ) {

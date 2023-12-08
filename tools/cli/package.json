@@ -25,9 +25,9 @@
 		"@octokit/rest": "19.0.13",
 		"chalk": "4.1.2",
 		"configstore": "5.0.1",
+		"enquirer": "2.4.1",
 		"envfile": "6.17.0",
 		"execa": "7.0.0",
-		"tmp": "0.2.1",
 		"glob": "7.1.6",
 		"ignore": "5.1.8",
 		"inquirer": "7.3.3",
@@ -42,6 +42,7 @@
 		"process": "0.11.10",
 		"semver": "7.5.2",
 		"sprintf-js": "1.1.2",
+		"tmp": "0.2.1",
 		"yargs": "17.6.2"
 	},
 	"devDependencies": {
