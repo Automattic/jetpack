@@ -145,7 +145,6 @@ class Helper_Script_Manager {
 			$locations[ $wp_uploads_dir ] = new \WP_Error(
 				'uploads_path_missing',
 				'Unable to access uploads path "' . $wp_uploads_dir . '"' . $exception->getMessage(),
-				$exception->getMessage(),
 				array( 'status' => 500 )
 			);
 		}
