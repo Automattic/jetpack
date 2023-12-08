@@ -101,18 +101,9 @@ class Helper_Script_Manager {
 
 		$locations = array();
 
-		try {
-			if ( Throw_On_Errors::t_is_dir( \ABSPATH ) ) {
-				$abspath_dir               = Throw_On_Errors::t_realpath( \ABSPATH );
-				$locations[ $abspath_dir ] = $abspath_url;
-			}
-		} catch ( Exception $exception ) {
-			$locations[ \ABSPATH ] = new \WP_Error(
-				'abspath_missing',
-				'Unable to access WordPress root "' . \ABSPATH . '": ' . $exception->getMessage(),
-				array( 'status' => 500 )
-			);
-		}
+		// Prioritize trying to write to "wp-content/" and "wp-content/uploads/" first, because those locations are
+		// expected to be writable more often (unlike ABSPATH), and ABSPATH on some setups might have a weird value
+		// which doesn't point to document root.
 
 		try {
 			if ( Throw_On_Errors::t_is_dir( \WP_CONTENT_DIR ) ) {
@@ -155,6 +146,19 @@ class Helper_Script_Manager {
 				'uploads_path_missing',
 				'Unable to access uploads path "' . $wp_uploads_dir . '"' . $exception->getMessage(),
 				$exception->getMessage(),
+				array( 'status' => 500 )
+			);
+		}
+
+		try {
+			if ( Throw_On_Errors::t_is_dir( \ABSPATH ) ) {
+				$abspath_dir               = Throw_On_Errors::t_realpath( \ABSPATH );
+				$locations[ $abspath_dir ] = $abspath_url;
+			}
+		} catch ( Exception $exception ) {
+			$locations[ \ABSPATH ] = new \WP_Error(
+				'abspath_missing',
+				'Unable to access WordPress root "' . \ABSPATH . '": ' . $exception->getMessage(),
 				array( 'status' => 500 )
 			);
 		}
