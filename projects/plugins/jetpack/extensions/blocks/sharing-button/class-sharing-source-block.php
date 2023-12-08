@@ -54,6 +54,24 @@ abstract class Sharing_Source_Block {
 	}
 
 	/**
+	 * Get unique sharing ID. Similar to get_id().
+	 *
+	 * @return int
+	 */
+	public function get_class() {
+		return $this->id;
+	}
+
+	/**
+	 * Get sharing stats for a specific post or sharing service.
+	 *
+	 * @return int This is a placeholder that returns 0 at the moment. We might want to implement this in the future.
+	 */
+	public function get_total() {
+		return 0;
+	}
+
+	/**
 	 * Get a post's permalink to use for sharing.
 	 *
 	 * @param int $post_id Post ID.
