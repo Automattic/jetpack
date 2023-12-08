@@ -750,7 +750,7 @@ async function promptChangelog( argv, needChangelog, types ) {
 			type: 'confirm',
 			name: 'userFacing',
 			message: 'Is this a Jetpack change that site admins would like to know about? (Y/n)',
-			default: 'true',
+			initial: true,
 		} );
 	}
 
