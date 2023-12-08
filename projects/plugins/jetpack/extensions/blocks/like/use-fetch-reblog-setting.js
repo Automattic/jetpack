@@ -11,12 +11,11 @@ export default function useFetchReblogSetting( blogId ) {
 
 	const fetchReblogSetting = useCallback( async () => {
 		const path = `https://public-api.wordpress.com/rest/v1.3/sites/${ blogId }/settings/`;
-		//const path = `/wpcom/v2/related-posts`;
 
 		setIsLoading( true );
 		await apiFetch( { url: path, method: 'GET' } )
 			.then( response => {
-				setReblogSetting( response );
+				setReblogSetting( response?.settings?.disabled_reblogs );
 				setError( null );
 			} )
 			.catch( err => {

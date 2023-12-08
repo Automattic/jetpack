@@ -1,43 +1,28 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { BlockIcon, useBlockProps, InspectorControls } from '@wordpress/block-editor';
-//import { Placeholder, withNotices } from '@wordpress/components';
 import { Placeholder, ToggleControl, PanelBody } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import metadata from './block.json';
 import './editor.scss';
-//import useFetchReblogSetting from './use-fetch-reblog-setting';
+import useFetchReblogSetting from './use-fetch-reblog-setting';
 
 const icon = getBlockIconComponent( metadata );
 
-//function LikeEdit( { attributes, className, noticeOperations, noticeUI, setAttributes } ) {
 function LikeEdit( { noticeUI } ) {
-	/**
-	 * Write the block editor UI.
-	 *
-	 * @returns {object} The UI displayed when user edits this block.
-	 */
-	//const [ notice, setNotice ] = useState();
-
-	/* Call this function when you want to show an error in the placeholder. */
-	/* const setErrorNotice = () => {
-		noticeOperations.removeAllNotices();
-		noticeOperations.createErrorNotice( __( 'Put error message here.', 'jetpack' ) );
-	}; */
-
 	const blockProps = useBlockProps();
-	const [ hasFixedBackground, setHasFixedBackground ] = useState( false );
+	const blogId = window?.Jetpack_LikeBlock_BlogId;
 
-	//console.log( window?.Jetpack_LikeBlock_BlogId );
-	//console.log( 'blogId', blogId );
+	const { fetchReblogSetting, reblogSetting } = useFetchReblogSetting( blogId );
 
-	//const { fetchReblogSetting, reblogSetting } = useFetchReblogSetting( blogId );
+	const setReblogSetting = newValue => {
+		// eslint-disable-next-line no-console
+		console.log( newValue );
+	};
 
-	//useEffect( () => {
-	//	fetchReblogSetting();
-	//}, [ fetchReblogSetting ] );
-
-	//console.log( 'reblogSetting', reblogSetting );
+	useEffect( () => {
+		fetchReblogSetting();
+	}, [ fetchReblogSetting ] );
 
 	return (
 		<div { ...blockProps }>
@@ -45,10 +30,9 @@ function LikeEdit( { noticeUI } ) {
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 					<ToggleControl
 						label="Show reblog button"
-						help={ hasFixedBackground ? 'Has fixed background.' : 'No fixed background.' }
-						checked={ hasFixedBackground }
+						checked={ reblogSetting }
 						onChange={ newValue => {
-							setHasFixedBackground( newValue );
+							setReblogSetting( newValue );
 						} }
 					/>
 				</PanelBody>
