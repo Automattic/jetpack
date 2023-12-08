@@ -5,10 +5,10 @@
  * @package automattic/jetpack-transport-helper
  */
 
-// If WordPress's plugin API is available already, use it. If not,
-// drop data into `$wp_filter` for `WP_Hook::build_preinitialized_hooks()`.
 use Automattic\Jetpack\Backup\Helper_Script_Manager;
 
+// If WordPress's plugin API is available already, use it. If not,
+// drop data into `$wp_filter` for `WP_Hook::build_preinitialized_hooks()`.
 if ( function_exists( 'add_filter' ) ) {
 	$add_filter = 'add_filter';
 	$add_action = 'add_action';
