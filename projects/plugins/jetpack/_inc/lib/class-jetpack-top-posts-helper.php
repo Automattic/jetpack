@@ -94,7 +94,7 @@ class Jetpack_Top_Posts_Helper {
 					'context'   => get_the_category( $post_id ) ? get_the_category( $post_id ) : get_the_tags( $post_id ),
 					'href'      => $post['href'],
 					'date'      => get_the_date( '', $post_id ),
-					'title'     => strlen( $post['title'] ) > 90 ? sprintf( '%s...', substr( $post['title'], 0, 90 ) ) : $post['title'],
+					'title'     => $post['title'],
 					'type'      => $post['type'],
 					'public'    => $post['public'],
 					'views'     => isset( $post['views'] ) ? $post['views'] : 0,
