@@ -885,12 +885,12 @@ class Posts extends Module {
 			foreach ( $metadata as $key => $metadata_item ) {
 				if ( (int) $metadata_item->post_id === $post->ID ) {
 					// Trimming metadata if it exceeds limit. Similar to trim_post_meta.
-					$metadata_size = strlen( maybe_serialize( $metadata_item->meta_value ) );
-					if ( $metadata_size >= self::MAX_POST_META_LENGTH ) {
+					$metadata_item_size = strlen( maybe_serialize( $metadata_item->meta_value ) );
+					if ( $metadata_item_size >= self::MAX_POST_META_LENGTH ) {
 						$metadata_item->meta_value = '';
 					}
 					$current_metadata[] = $metadata_item;
-					$metadata_size     += $metadata_size >= self::MAX_POST_META_LENGTH ? 0 : $metadata_size;
+					$metadata_size     += $metadata_item_size >= self::MAX_POST_META_LENGTH ? 0 : $metadata_item_size;
 					unset( $metadata[ $key ] );
 				}
 			}
