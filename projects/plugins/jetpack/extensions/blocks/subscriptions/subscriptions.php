@@ -868,13 +868,13 @@ function maybe_gate_existing_comments( $comment ) {
 /**
  * Returns paywall content blocks
  *
- * @param string $post_access_level The newsletter access level.
+ * @param string $post_access_level The post access level.
  * @param string $email_confirmation_pending True if the current user needs to validate their email.
  * @return string
  */
 function get_paywall_content( $post_access_level, $email_confirmation_pending = false ) {
 	if ( $email_confirmation_pending ) {
-		return get_paywall_blocks_subscribe_pending();
+		return get_paywall_blocks_subscribe_pending( $post_access_level );
 	}
 	if ( doing_filter( 'get_the_excerpt' ) ) {
 		return '';
@@ -963,10 +963,10 @@ function sanitize_submit_text( $text ) {
 /**
  * Returns paywall content blocks if user is not authenticated
  *
- * @param string $newsletter_access_level The newsletter access level.
+ * @param string $post_access_level  The post access level.
  * @return string
  */
-function get_paywall_blocks( $newsletter_access_level ) {
+function get_paywall_blocks( $post_access_level ) {
 	$custom_paywall = apply_filters( 'jetpack_custom_paywall_blocks', false );
 	if ( ! empty( $custom_paywall ) ) {
 		return $custom_paywall;
@@ -976,7 +976,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 	}
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	// Only display paid texts when Stripe is connected and the post is marked for paid subscribers
-	$is_paid_post       = $newsletter_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
+	$is_paid_post       = $post_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
 	$is_paid_subscriber = Jetpack_Memberships::user_is_paid_subscriber();
 
 	$access_heading = $is_paid_subscriber
@@ -1023,7 +1023,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 			// custom domain
 			$sign_in_link = wpcom_logmein_redirect_url( get_current_url(), false, null, 'link', get_current_blog_id() );
 		}
-		$access_question = get_paywall_access_question( $newsletter_access_level );
+		$access_question = get_paywall_access_question( $post_access_level );
 		$sign_in         = '<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}}} -->
 <p class="has-text-align-center" style="font-size:14px"><a href="' . $sign_in_link . '">' . $access_question . '</a></p>
 <!-- /wp:paragraph -->';
@@ -1102,14 +1102,22 @@ function is_user_auth() {
 /**
  * Returns paywall content blocks when email confirmation is pending
  *
+ * @param string $post_access_level The post access level.
  * @return string
  */
-function get_paywall_blocks_subscribe_pending() {
+function get_paywall_blocks_subscribe_pending( $post_access_level ) {
 	$access_heading = esc_html__( 'Verify your email to continue reading', 'jetpack' );
 
 	$subscribe_text = esc_html__( 'Please check your inbox to confirm your subscription.', 'jetpack' );
 
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
+
+	$is_paid_post       = $post_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
+	$is_paid_subscriber = Jetpack_Memberships::user_is_paid_subscriber();
+
+	$nudge_to_paid = $is_paid_post && ! $is_paid_subscriber
+		? '<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact","isPaidSubscriber":false} /-->'
+		: '';
 
 	return '
 <!-- wp:group {"style":{"border":{"width":"1px","radius":"4px"},"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|70","left":"32px","right":"32px"}}},"borderColor":"primary","className":"jetpack-subscribe-paywall","layout":{"type":"constrained","contentSize":"400px"}} -->
@@ -1125,6 +1133,8 @@ function get_paywall_blocks_subscribe_pending() {
 <!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"},"spacing":{"margin":{"top":"10px","bottom":"10px"}}}} -->
 <p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:14px">' . $subscribe_text . '</p>
 <!-- /wp:paragraph -->
+
+' . $nudge_to_paid . '
 </div>
 <!-- /wp:group -->
 ';
