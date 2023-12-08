@@ -23,7 +23,7 @@ class FileLogger implements LoggerInterface {
 	 *
 	 * @var string
 	 */
-	private $log_file;
+	private $log_file = '/tmp/restore_log/file_restoration_log.txt';
 
 	/**
 	 * FileLogger constructor.
@@ -34,9 +34,8 @@ class FileLogger implements LoggerInterface {
 	 *
 	 * @param string $log_file The path to the log file.
 	 */
-	public function __construct( $log_file ) {
-		$result = $this->check_and_clear_file( $log_file );
-		if ( $result ) {
+	public function __construct( $log_file = '' ) {
+		if ( $log_file ) {
 			$this->log_file = $log_file;
 		}
 	}
@@ -67,17 +66,43 @@ class FileLogger implements LoggerInterface {
 	/**
 	 * Checks and clears a file.
 	 *
-	 * @param string $file_path The path of the file to check and clear.
 	 * @return bool True if the directory exists or was successfully created and the file was created or truncated, false otherwise.
 	 */
-	private function check_and_clear_file( $file_path ) {
+	public function check_and_clear_file() {
+		$file_path = $this->log_file;
 		$directory = pathinfo( $file_path, PATHINFO_DIRNAME );
 		if ( ! is_dir( $directory ) && ! wp_mkdir_p( $directory ) ) {
+			$this->log_file = null;
 			return false;
 		}
 
 		// Create or truncate the file
 		file_put_contents( $file_path, '' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		return true;
+	}
+
+	/**
+	 * Reads the last line of the log file.
+	 *
+	 * @return string|null The last line of the log file, or null if the file could not be read.
+	 */
+	public function read_last_log_line() {
+		if ( ! $this->log_file || ! file_exists( $this->log_file ) ) {
+			return null;
+		}
+
+		$log_lines = file( $this->log_file, FILE_IGNORE_NEW_LINES );
+		$last_line = end( $log_lines );
+
+		// Find the position of the first space after the timestamp
+		$pos = strpos( $last_line, ' ' );
+
+		// If a space was found, return the part of the string after it
+		if ( $pos !== false ) {
+			return substr( $last_line, $pos + 1 );
+		}
+
+		// If no space was found, return the whole line
+		return $last_line;
 	}
 }

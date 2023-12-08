@@ -8,6 +8,7 @@
 // Require endpoint files.
 require_once 'class-marketplace-webhook-response.php';
 require_once 'class-github-hosting-webhook-response.php';
+require_once 'class-backup-import-response.php';
 require_once 'rest-api-export.php';
 require_once 'rest-api-logout.php';
 require_once 'rest-api-reconnect.php';
@@ -21,6 +22,9 @@ function wpcomsh_rest_api_init() {
 	$controller->register_routes();
 
 	$controller = new GitHub_Hosting_Webhook_Response();
+	$controller->register_routes();
+
+	$controller = new Backup_Import_Response();
 	$controller->register_routes();
 
 	wpcomsh_rest_api_export_init();

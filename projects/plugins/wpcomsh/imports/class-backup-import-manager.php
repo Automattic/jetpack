@@ -69,7 +69,7 @@ class Backup_Import_Manager {
 	 *
 	 * @var string
 	 */
-	private static $backup_import_status_option = 'backup_import_status';
+	public static $backup_import_status_option = 'backup_import_status';
 
 	/**
 	 * Constructor for the Backup_Import_Manager class.

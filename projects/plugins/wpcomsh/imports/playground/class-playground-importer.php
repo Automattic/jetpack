@@ -49,8 +49,9 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	 * @return bool|WP_Error True on success, or a WP_Error on failure.
 	 */
 	public function process_files() {
-		$final_path    = '/srv/htdocs/';
-		$logger        = new FileLogger( '/tmp/restore_log/file_restoration_log.txt' );
+		$final_path = '/srv/htdocs/';
+		$logger     = new FileLogger();
+		$logger->check_and_clear_file();
 		$file_restorer = new FileRestorer( $this->destination_path, $final_path, $logger );
 		$queue_result  = $file_restorer->enqueue_files();
 
