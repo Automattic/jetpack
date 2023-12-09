@@ -49,6 +49,18 @@ function load_assets( $attributes ) {
 
 	$views = 0;
 
+	// For when there's no post ID - eg. search pages.
+	if ( $attributes['statsOption'] === 'post' && ! get_the_ID() ) {
+		if ( current_user_can( 'edit_theme_options' ) ) {
+			return sprintf(
+				'<p>%s</p>',
+				esc_html( __( 'There are no stats to display for this post.', 'jetpack' ) )
+			);
+		}
+
+		return;
+	}
+
 	if ( $attributes['statsOption'] === 'post' ) {
 		$data = convert_stats_array_to_object( ( new WPCOM_Stats() )->get_post_views( get_the_ID(), array( 'fields' => 'views' ) ) );
 
