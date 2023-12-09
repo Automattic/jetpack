@@ -41,6 +41,18 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 			$widget_ops
 		);
 		$this->alt_option_name = 'widget_statscounter';
+		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+	}
+
+	/**
+	 * Remove the "Blog Stats" widget from the Legacy Widget block
+	 *
+	 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+	 * @return array $widget_types New list of widgets that will be removed.
+	 */
+	public function hide_widget_in_block_editor( $widget_types ) {
+		$widget_types[] = 'blog-stats';
+		return $widget_types;
 	}
 
 	/**

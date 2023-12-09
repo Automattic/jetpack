@@ -1,0 +1,16 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.wp-block-jetpack-blog-stats {
+	.loading-stats {
+		// Same as Core placeholder opacity.
+		opacity: 0.62;
+	}
+
+	.components-placeholder__fieldset {
+		display: block;
+	}
+
+	&__notice {
+		color: $gray-600;
+	}
+}
