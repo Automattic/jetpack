@@ -1381,6 +1381,8 @@ class Contact_Form_Plugin {
 		$post_ids     = $this->personal_data_post_ids_by_email( $email, $per_page, $page, $last_post_id );
 
 		foreach ( $post_ids as $post_id ) {
+			$last_post_id = $post_id;
+
 			/**
 			 * Filters whether to erase a particular Feedback post.
 			 *
@@ -1425,7 +1427,7 @@ class Contact_Form_Plugin {
 		if ( $done ) {
 			delete_option( $option_name );
 		} else {
-			update_option( $option_name, (int) $post_id );
+			update_option( $option_name, (int) $last_post_id );
 		}
 
 		return array(
