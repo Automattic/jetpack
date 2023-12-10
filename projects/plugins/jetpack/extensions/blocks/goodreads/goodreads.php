@@ -28,7 +28,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Goodreads block registration/dependency declaration.
  *
- * @param array  $attr    Array containing the Goodreads block attributes.
+ * @param array $attr    Array containing the Goodreads block attributes.
  *
  * @return string
  */

@@ -30,7 +30,7 @@ class WPCOM_REST_API_V2_Endpoint_Goodreads extends WP_REST_Controller {
 					'permission_callback' => function () {
 						return current_user_can( 'edit_posts' );
 					},
-					'args' => array(
+					'args'                => array(
 						'id' => array(
 							'description'       => __( 'Goodreads user ID', 'jetpack' ),
 							'type'              => 'integer',
