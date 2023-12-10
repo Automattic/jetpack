@@ -4,6 +4,7 @@ import path from 'path';
 import process from 'process';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
+import enquirer from 'enquirer';
 import inquirer from 'inquirer';
 import { readComposerJson } from '../helpers/json.js';
 import { normalizeProject } from '../helpers/normalizeArgv.js';
@@ -13,7 +14,7 @@ import { runCommand } from '../helpers/runCommand.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 
 let changeloggerPath = null;
-
+const { prompt } = enquirer;
 /**
  * Comand definition for changelog subcommand.
  *
@@ -340,14 +341,6 @@ async function changelogAdd( argv ) {
 		return;
 	}
 
-	console.log(
-		chalk.yellow(
-			"When writing your changelog entry, please use the format 'Subject: change description.'\n" +
-				'Here is an example of a good changelog entry:\n' +
-				'  Sitemaps: ensure that the Home URL is slashed on subdirectory websites.\n'
-		)
-	);
-
 	if ( promptConfirm.separateChangelogFiles ) {
 		uniqueProjects.unshift( ...defaultProjects.splice( 0 ) );
 	}
@@ -369,7 +362,7 @@ async function changelogAdd( argv ) {
 
 	for ( const proj of uniqueProjects ) {
 		console.log( chalk.green( `Running changelogger for ${ proj }!` ) );
-		const response = await promptChangelog( argv, proj, projectChangeTypes[ proj ] );
+		const response = await promptChangelog( argv, [ proj ], projectChangeTypes[ proj ] );
 		argv = await formatAutoArgs( proj, argv, response );
 		await changelogArgs( argv );
 	}
@@ -623,6 +616,7 @@ function doesFilenameExist( fileName, needChangelog ) {
 			fileURLToPath( new URL( './', import.meta.url ) ),
 			`../../../projects/${ proj }/changelog/${ fileName }`
 		);
+
 		try {
 			if ( fs.existsSync( projPath ) ) {
 				console.log(
@@ -730,76 +724,123 @@ async function promptChangelog( argv, needChangelog, types ) {
 		.trim()
 		.replace( /\//g, '-' );
 	const maxLength = Object.keys( types ).reduce( ( a, v ) => ( v.length > a ? v.length : a ), 0 );
-	const choices = Object.entries( types ).map( ( [ value, name ] ) => ( {
+	const typeChoices = Object.entries( types ).map( ( [ value, name ] ) => ( {
 		value,
 		name: `[${ value.padEnd( maxLength, ' ' ) }] ${ name }`,
 	} ) );
-	const commands = await inquirer.prompt( [
-		{
-			type: 'string',
-			name: 'changelogName',
-			message: 'Name your changelog file:',
-			default: gitBranch,
-			validate: input => {
-				const fileExists = doesFilenameExist( input, needChangelog );
-				if ( fileExists ) {
-					return 'Please choose another file name, or delete the file manually.';
-				}
-				return true;
+	// Get the changelog name.
+	const { changelogName } = await prompt( {
+		type: 'input',
+		name: 'changelogName',
+		message: 'Name your changelog file:',
+		default: gitBranch,
+		validate: input => {
+			const fileExists = doesFilenameExist( input, needChangelog );
+			if ( fileExists ) {
+				return 'Filename exists already. Please choose another file name, or delete the file existing manually.';
+			}
+			return true;
+		},
+	} );
+
+	// Get the significance.
+	const { significance } = await prompt( {
+		type: 'autocomplete',
+		name: 'significance',
+		message: 'Significance of the change, in the style of semantic versioning.',
+		suggest: ( input, choices ) => choices.filter( choice => choice.value.startsWith( input ) ),
+		highlight: v => v,
+		choices: [
+			{
+				value: 'patch',
+				name: '[patch] Backwards-compatible bug fixes.',
 			},
-		},
-		{
-			type: 'list',
-			name: 'significance',
-			message: 'Significance of the change, in the style of semantic versioning.',
-			choices: [
-				{
-					value: 'patch',
-					name: '[patch] Backwards-compatible bug fixes.',
-				},
-				{
-					value: 'minor',
-					name: '[minor] Added (or deprecated) functionality in a backwards-compatible manner.',
-				},
-				{
-					value: 'major',
-					name: '[major] Broke backwards compatibility in some way.',
-				},
-			],
-		},
-		{
-			type: 'list',
+			{
+				value: 'minor',
+				name: '[minor] Added (or deprecated) functionality in a backwards-compatible manner.',
+			},
+			{
+				value: 'major',
+				name: '[major] Broke backwards compatibility in some way.',
+			},
+		],
+	} );
+
+	const userFacingResponse = await enquirer.prompt( {
+		type: 'confirm',
+		name: 'userFacing',
+		message: 'Is this a Jetpack change that site admins would like to know about?',
+		initial: true,
+		skip: ! needChangelog.includes( 'plugins/jetpack' ),
+	} );
+
+	// Get the type, set it to other if this isn't a user facing change.
+	let typeResponse;
+	if ( ! userFacingResponse.userFacing ) {
+		typeResponse = { type: 'other' };
+	} else {
+		// Get the type of change.
+		typeResponse = await prompt( {
+			type: 'autocomplete',
 			name: 'type',
 			message: 'Type of change.',
-			choices: choices,
-		},
-		{
-			type: 'string',
-			name: 'entry',
-			message: 'Changelog entry. May be left empty if this change is particularly insignificant.',
-			when: answers => answers.significance === 'patch',
-		},
-		{
-			type: 'string',
-			name: 'comment',
-			message:
-				'You omitted the changelog entry, which is fine. But please comment as to why no entry is needed.',
-			when: answers => answers.significance === 'patch' && answers.entry === '',
-		},
-		{
-			type: 'string',
+			suggest: ( input, choices ) => choices.filter( choice => choice.value.startsWith( input ) ),
+			highlight: v => v,
+			choices: typeChoices,
+		} );
+	}
+	const { type } = typeResponse;
+
+	console.log(
+		chalk.yellow(
+			"When writing your changelog entry, please use the format 'Subject: change description.'\n" +
+				'Here is an example of a good changelog entry:\n' +
+				'  Sitemaps: ensure that the Home URL is slashed on subdirectory websites.\n'
+		)
+	);
+
+	// Get the entry, if it's a patch type it can be left blank.
+	let entryResponse;
+	if ( significance !== 'patch' ) {
+		entryResponse = await prompt( {
+			type: 'input',
 			name: 'entry',
 			message: 'Changelog entry. May not be empty.',
-			when: answers => answers.significance === 'minor' || 'major',
 			validate: input => {
 				if ( ! input || ! input.trim() ) {
 					return `Changelog entry can't be blank`;
 				}
 				return true;
 			},
-		},
-	] );
-	return { ...commands };
+		} );
+	} else {
+		entryResponse = await prompt( {
+			type: 'input',
+			name: 'entry',
+			message: 'Changelog entry. May be left empty if this change is particularly insignificant.',
+		} );
+	}
+	const { entry } = entryResponse;
+
+	// Get the comment if the entry is left blank for a patch level change.
+	let commentResponse;
+	if ( entry === '' ) {
+		commentResponse = await prompt( {
+			type: 'input',
+			name: 'comment',
+			message:
+				'You omitted the changelog entry, which is fine. But please comment as to why no entry is needed.',
+		} );
+	}
+	const { comment } = commentResponse || {};
+
+	return {
+		changelogName,
+		significance,
+		type,
+		entry,
+		comment,
+	};
 }
 
 /**
