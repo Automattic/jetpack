@@ -42,9 +42,6 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attributes ) {
-	/*
-	 * Enqueue necessary scripts and styles.
-	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$views = 0;
@@ -62,21 +59,32 @@ function load_assets( $attributes ) {
 	}
 
 	if ( $attributes['statsOption'] === 'post' ) {
-		$data = convert_stats_array_to_object( ( new WPCOM_Stats() )->get_post_views( get_the_ID(), array( 'fields' => 'views' ) ) );
+		$data = convert_stats_array_to_object(
+			( new WPCOM_Stats() )->get_post_views( get_the_ID(), array( 'fields' => 'views' ) )
+		);
 
 		if ( isset( $data->views ) ) {
 			$views = $data->views;
 		}
 	} else {
-		$data = convert_stats_array_to_object( ( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) ) );
+		$data = convert_stats_array_to_object(
+			( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) )
+		);
 
 		if ( isset( $data->stats->views ) ) {
 			$views = $data->stats->views;
 		}
 	}
 
-	/* Translators: Number of views, plural */
-	$label = $attributes['label'] ? $attributes['label'] : esc_html__( 'hits', 'jetpack' );
+	$label = $attributes['label'] ? $attributes['label'] : esc_html(
+		/* Translators: Number of views */
+		_n(
+			'hit',
+			'hits',
+			$views,
+			'jetpack'
+		)
+	);
 
 	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 

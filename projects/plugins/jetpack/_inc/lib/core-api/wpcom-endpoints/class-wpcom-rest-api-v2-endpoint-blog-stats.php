@@ -56,8 +56,12 @@ class WPCOM_REST_API_V2_Endpoint_Blog_Stats extends WP_REST_Controller {
 	 */
 	public function get_blog_stats( $request ) {
 		$post_id   = $request->get_param( 'post_id' );
-		$post_data = convert_stats_array_to_object( ( new WPCOM_Stats() )->get_post_views( $post_id, array( 'fields' => 'views' ) ) );
-		$blog_data = convert_stats_array_to_object( ( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) ) );
+		$post_data = convert_stats_array_to_object(
+			( new WPCOM_Stats() )->get_post_views( $post_id, array( 'fields' => 'views' ) )
+		);
+		$blog_data = convert_stats_array_to_object(
+			( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) )
+		);
 
 		if ( ! isset( $blog_data->stats->views ) ) {
 			return false;
@@ -68,8 +72,8 @@ class WPCOM_REST_API_V2_Endpoint_Blog_Stats extends WP_REST_Controller {
 		}
 
 		return array(
-			'post-views' => number_format_i18n( $post_data->views ),
-			'blog-views' => number_format_i18n( $blog_data->stats->views ),
+			'post-views' => $post_data->views,
+			'blog-views' => $blog_data->stats->views,
 		);
 	}
 }

@@ -111,7 +111,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 			<label for="<?php echo esc_attr( $this->get_field_id( 'hits' ) ); ?>"><?php esc_html_e( 'Pageview Description:', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'hits' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'hits' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['hits'] ); ?>" />
 		</p>
-		<p><?php esc_html_e( 'Hit counter is delayed by up to 60 seconds.', 'jetpack' ); ?></p>
+		<p><?php esc_html_e( 'Hit counter is delayed by up to 5 minutes.', 'jetpack' ); ?></p>
 
 		<?php
 	}

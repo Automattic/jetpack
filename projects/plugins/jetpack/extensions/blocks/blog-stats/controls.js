@@ -25,7 +25,7 @@ export function BlogStatsInspectorControls( { attributes, setAttributes } ) {
 					options={ RADIO_OPTIONS }
 				/>
 				<span className="wp-block-jetpack-blog-stats__notice">
-					{ __( 'Stats are delayed for up to 60 seconds.', 'jetpack' ) }
+					{ __( 'Stats are delayed for up to 5 minutes.', 'jetpack' ) }
 				</span>
 			</PanelBody>
 		</>
