@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import metadata from './block.json';
 import './editor.scss';
 import useFetchReblogSetting from './use-fetch-reblog-setting';
+import useSetReblogSetting from './use-set-reblog-setting';
 
 const icon = getBlockIconComponent( metadata );
 
@@ -14,10 +15,11 @@ function LikeEdit( { noticeUI } ) {
 	const blogId = window?.Jetpack_LikeBlock?.blog_id;
 
 	const { fetchReblogSetting, reblogSetting } = useFetchReblogSetting( blogId );
+	const { setReblogSetting, success } = useSetReblogSetting( blogId );
 
-	const setReblogSetting = newValue => {
-		// eslint-disable-next-line no-console
-		console.log( newValue );
+	const handleReblogSetting = newValue => {
+		setReblogSetting( newValue );
+		//console.log( newValue )
 	};
 
 	useEffect( () => {
@@ -26,6 +28,16 @@ function LikeEdit( { noticeUI } ) {
 		}
 		fetchReblogSetting();
 	}, [ fetchReblogSetting ] );
+
+	useEffect( () => {
+		if ( ! isSimpleSite() ) {
+			return;
+		}
+		// console.log('success is: ', success);
+		if ( success ) {
+			fetchReblogSetting();
+		}
+	}, [ success, fetchReblogSetting ] );
 
 	return (
 		<div { ...blockProps }>
@@ -36,7 +48,7 @@ function LikeEdit( { noticeUI } ) {
 							label="Show reblog button"
 							checked={ reblogSetting }
 							onChange={ newValue => {
-								setReblogSetting( newValue );
+								handleReblogSetting( newValue );
 							} }
 						/>
 					</PanelBody>
