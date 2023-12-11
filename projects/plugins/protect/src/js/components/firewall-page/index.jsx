@@ -455,7 +455,7 @@ const FirewallPage = () => {
 						disabled={ ! isEnabled || formIsSubmitting || ! canToggleAutomaticRules }
 					/>
 					{ hasRequiredPlan && upgradeIsSeen === false && (
-						<Popover noArrow={ false } offset={ 8 } position={ 'top right' }>
+						<Popover noArrow={ false } offset={ 8 } position={ 'top right' } inline={ true }>
 							<div className={ styles.popover }>
 								<div className={ styles.popover__header }>
 									<Text className={ styles.popover__title } variant={ 'title-small' }>
