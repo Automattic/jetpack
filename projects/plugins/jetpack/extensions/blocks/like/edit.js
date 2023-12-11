@@ -1,16 +1,11 @@
-import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps } from '@wordpress/block-editor';
 //import { Placeholder, withNotices } from '@wordpress/components';
-import { Placeholder } from '@wordpress/components';
 //import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import metadata from './block.json';
+import ServerSideRender from '@wordpress/server-side-render';
 import './editor.scss';
 
-const icon = getBlockIconComponent( metadata );
-
 //function LikeEdit( { attributes, className, noticeOperations, noticeUI, setAttributes } ) {
-function LikeEdit( { noticeUI } ) {
+function LikeEdit() {
 	/**
 	 * Write the block editor UI.
 	 *
@@ -28,14 +23,7 @@ function LikeEdit( { noticeUI } ) {
 
 	return (
 		<div { ...blockProps }>
-			<Placeholder
-				label={ __( 'Like', 'jetpack' ) }
-				instructions={ __( 'Instructions go here.', 'jetpack' ) }
-				icon={ <BlockIcon icon={ icon } /> }
-				notices={ noticeUI }
-			>
-				{ __( 'User input goes here?', 'jetpack' ) }
-			</Placeholder>
+			<ServerSideRender block="jetpack/like" />
 		</div>
 	);
 }
