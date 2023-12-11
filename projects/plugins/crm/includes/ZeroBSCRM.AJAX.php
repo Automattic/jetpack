@@ -757,7 +757,8 @@ function ZeroBSCRM_get_quote_template() {
 				$quote_val = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_value'] ) );
 			}
 			if ( isset( $_POST['quote_fields']['zbscq_date'] ) && ! empty( $_POST['quote_fields']['zbscq_date'] ) ) {
-				$quote_date = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_date'] ) );
+				$sanitized_date = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_date'] ) );
+				$quote_date     = wp_date( get_option( 'date_time' ), strtotime( $sanitized_date ) );
 			}
 		}
 
@@ -794,7 +795,7 @@ function ZeroBSCRM_get_quote_template() {
 				$quote_val = '[QUOTEVALUE]';
 			}
 			if ( empty( $quote_date ) ) {
-				$quote_date = gmdate( 'Y-m-d' );
+				$quote_date = wp_date( get_option( 'date_format' ) );
 			}
 			if ( empty( $quote_notes ) ) {
 				if ( isset( $_POST['quote_fields']['zbscq_notes'] ) ) {
@@ -844,17 +845,7 @@ function ZeroBSCRM_get_quote_template() {
 									$date_time = DateTime::createFromFormat( 'Y-m-d', $v );
 									if ( $date_time && $date_time->format( 'Y-m-d' ) === $v ) {
 
-										$datetime_key       = $key . '_datetime_str';
-										$string_to_datetime = gmdate( 'd F Y H:i:s', strtotime( $v ) );
-										$date_key           = $key . '_date_str';
-										$string_to_date     = gmdate( 'd F Y', strtotime( $v ) );
-
-										$working_html = str_replace( '##QUOTE-' . strtoupper( $datetime_key ) . '##', $string_to_datetime, $working_html );
-										$working_html = str_replace( '##QUOTE-' . strtolower( $datetime_key ) . '##', $string_to_datetime, $working_html );
-										$working_html = str_replace( '##quote-' . strtolower( $datetime_key ) . '##', $string_to_datetime, $working_html );
-										$working_html = str_replace( '##QUOTE-' . strtoupper( $date_key ) . '##', $string_to_date, $working_html );
-										$working_html = str_replace( '##QUOTE-' . strtolower( $date_key ) . '##', $string_to_date, $working_html );
-										$working_html = str_replace( '##quote-' . strtolower( $date_key ) . '##', $string_to_date, $working_html );
+										$working_html = jpcrm_process_date_variables( $v, $key, $working_html, $custom_field = true );
 
 									}
 								}
