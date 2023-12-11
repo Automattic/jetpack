@@ -1,5 +1,6 @@
+import React, { useEffect } from 'react';
 import type { Meta } from '@storybook/react';
-import { PerformanceHistory } from '../performance-history';
+import GraphComponent from '../graph-component/graph-component';
 
 const exampleRawResponse = {
 	data: {
@@ -155,15 +156,13 @@ const exampleRawResponse = {
 	},
 };
 
-const meta: Meta< typeof PerformanceHistory > = {
-	title: 'Plugins/Boost/Performance History',
-	component: PerformanceHistory,
+const meta: Meta< typeof GraphComponent > = {
+	title: 'Plugins/Boost/Performance History Graph',
+	component: GraphComponent,
 	argTypes: {
 		startDate: { control: 'date' },
 		endDate: { control: 'date' },
 		periods: { control: 'object' },
-		onToggle: { action: 'toggled' },
-		isOpen: { control: 'boolean' },
 		isLoading: { control: 'boolean' },
 		needsUpgrade: { control: 'boolean' },
 		isFreshStart: { control: 'boolean' },
@@ -181,13 +180,30 @@ const defaultValues = {
 	startDate: exampleRawResponse.data._meta.start,
 	endDate: exampleRawResponse.data._meta.end,
 	periods: exampleRawResponse.data.periods,
-	isOpen: true,
 	isLoading: false,
 	needsUpgrade: false,
+	isFreshStart: false,
 };
 
 export default meta;
 
-const Template = args => <PerformanceHistory { ...args } />;
+const Template = args => {
+	const [isFreshStart, setIsFreshStart] = React.useState( args.isFreshStart );
+	const [needsUpgrade, setNeedsUpgrade] = React.useState( args.needsUpgrade );
+
+	// Update the state when the args change
+	useEffect( () => {
+		setIsFreshStart( args.isFreshStart );
+		setNeedsUpgrade( args.needsUpgrade );
+	}, [args.isFreshStart, args.needsUpgrade] );
+
+	args.handleUpgrade = () => {
+		setNeedsUpgrade( false );
+	}
+	args.handleDismissFreshStart = () => {
+		setIsFreshStart( false );
+	}
+	return <GraphComponent { ...args } isFreshStart={isFreshStart} needsUpgrade={needsUpgrade} />
+};
 export const _default = Template.bind( {} );
 _default.args = defaultValues;

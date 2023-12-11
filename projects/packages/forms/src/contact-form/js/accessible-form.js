@@ -7,11 +7,30 @@
  * (multiple radio buttons) or Multiple Choice fields (multiple checkboxes).
  */
 
-const L10N = window.jetpackContactForm || {};
-
 document.addEventListener( 'DOMContentLoaded', () => {
 	initAllForms();
 } );
+
+/******************************************************************************
+ * LOCALIZATION
+ ******************************************************************************/
+
+const { __, _n } = wp.i18n;
+const L10N = {
+	/* translators: text read by a screen reader when a warning icon is displayed in front of an error message. */
+	warning: __( 'Warning.', 'jetpack-forms' ),
+	/* translators: error message shown when one or more fields of the form are invalid. */
+	invalidForm: __( 'Please make sure all fields are valid.', 'jetpack-forms' ),
+	/* translators: error message shown when a multiple choice field requires at least one option to be selected. */
+	checkboxMissingValue: __( 'Please select at least one option.', 'jetpack-forms' ),
+	/* translators: text read by a screen reader when a form is being submitted */
+	submittingForm: __( 'Submitting form', 'jetpack-forms' ),
+	/* translators: generic error message */
+	genericError: __( 'Please correct this field', 'jetpack-forms' ),
+	/* translators: message displayed when errors need to be fixed. %d is the number of errors. */
+	errorCount: d =>
+		_n( 'You need to fix %d error.', 'You need to fix %d errors.', d, 'jetpack-forms' ),
+};
 
 /******************************************************************************
  * INITIALIZATION
@@ -339,7 +358,7 @@ const createSpinner = () => {
 
 	// Spinner replacement for screen readers
 	srText.classList.add( 'visually-hidden' );
-	srText.textContent = L10N.submittingForm || 'Submitting form';
+	srText.textContent = L10N.submittingForm;
 
 	elt.classList.add( 'contact-form__spinner' );
 	elt.appendChild( spinner );
@@ -354,9 +373,17 @@ const createSpinner = () => {
  */
 const createWarningIcon = () => {
 	const elt = document.createElement( 'span' );
+	const srOnly = document.createElement( 'span' );
+	const icon = document.createElement( 'i' );
+
+	srOnly.textContent = L10N.warning;
+	srOnly.classList.add( 'visually-hidden' );
+
+	icon.setAttribute( 'aria-hidden', true );
 
 	elt.classList.add( 'contact-form__warning-icon' );
-	elt.setAttribute( 'aria-label', L10N.warning || 'Warning' );
+	elt.appendChild( srOnly );
+	elt.appendChild( icon );
 
 	return elt;
 };
@@ -389,6 +416,47 @@ const createError = str => {
 };
 
 /**
+ * Create a list of links to the invalid fields of a form.
+ * @param {HTMLFormElement} form Form element
+ * @param {HTMLElement[]} invalidFields Invalid fields
+ * @returns {HTMLUListElement} List element
+ */
+const createInvalidFieldsList = ( form, invalidFields ) => {
+	const list = document.createElement( 'ul' );
+
+	for ( const field of invalidFields ) {
+		const id = field.id;
+
+		if ( ! id ) {
+			continue;
+		}
+
+		let label;
+
+		if ( isMultipleChoiceField( field ) || isSingleChoiceField( field ) ) {
+			label = field.querySelector( 'legend' );
+		} else {
+			label = form.querySelector( `label[for="${ id }"]` );
+		}
+
+		if ( ! label ) {
+			continue;
+		}
+
+		const li = document.createElement( 'li' );
+		const a = document.createElement( 'a' );
+
+		a.textContent = label.innerText;
+		a.setAttribute( 'href', `#${ id }` );
+
+		li.appendChild( a );
+		list.appendChild( li );
+	}
+
+	return list;
+};
+
+/**
  * Create a new error container for a form.
  * @returns {HTMLDivElement} Error container
  */
@@ -396,8 +464,6 @@ const createFormErrorContainer = () => {
 	const elt = document.createElement( 'div' );
 
 	elt.classList.add( 'contact-form__error' );
-	elt.setAttribute( 'aria-live', 'assertive' );
-	elt.setAttribute( 'role', 'alert' );
 
 	return elt;
 };
@@ -752,15 +818,18 @@ const listenToInvalidSimpleField = ( input, cb, form, opts ) => {
  * @param {object} opts Form options
  */
 const setErrors = ( form, opts ) => {
-	setFormError( form );
-	setFieldErrors( form, opts );
+	const invalidFields = setFieldErrors( form, opts );
+
+	setFormError( form, invalidFields );
 };
 
 /**
  * Set the error element of a form.
  * @param {HTMLFormElement} form Form element
+ * @param {HTMLElement[]} invalidFields Invalid fields
+ * @param {object} opts Options
  */
-const setFormError = form => {
+const setFormError = ( form, invalidFields, opts = {} ) => {
 	let error = getFormError( form );
 
 	if ( ! error ) {
@@ -775,9 +844,23 @@ const setFormError = form => {
 		}
 	}
 
-	error.appendChild(
-		createError( L10N.invalidForm || 'Please make sure all fields are correct.' )
+	const { disableLiveRegion } = opts;
+
+	if ( disableLiveRegion ) {
+		error.removeAttribute( 'aria-live' );
+		error.removeAttribute( 'role' );
+	} else {
+		error.setAttribute( 'aria-live', 'assertive' );
+		error.setAttribute( 'role', 'alert' );
+	}
+
+	const count = invalidFields.length;
+	const errorText = [ L10N.invalidForm, L10N.errorCount( count ).replace( '%d', count ) ].join(
+		' '
 	);
+
+	error.appendChild( createError( errorText ) );
+	error.appendChild( createInvalidFieldsList( form, invalidFields ) );
 };
 
 /**
@@ -789,7 +872,8 @@ const updateFormErrorMessage = form => {
 	clearFormError( form );
 
 	if ( ! form.checkValidity() ) {
-		setFormError( form );
+		// Prevent screen readers from announcing the error message on each update.
+		setFormError( form, getInvalidFields( form ), { disableLiveRegion: true } );
 	}
 };
 
@@ -797,27 +881,37 @@ const updateFormErrorMessage = form => {
  * Set the error element of a form fields.
  * @param {HTMLFormElement} form Form element
  * @param {object} opts Form options
+ * @return {HTMLElement[]} Invalid fields
  */
 const setFieldErrors = ( form, opts ) => {
+	const invalidFields = [];
 	const { simple, singleChoice, multipleChoice } = getFormFields( form );
 
 	for ( const field of simple ) {
 		if ( ! isSimpleFieldValid( field ) ) {
 			setSimpleFieldError( field, form, opts );
+
+			invalidFields.push( field );
 		}
 	}
 
 	for ( const field of singleChoice ) {
 		if ( ! isSingleChoiceFieldValid( field ) ) {
 			setSingleChoiceFieldError( field, form, opts );
+
+			invalidFields.push( field );
 		}
 	}
 
 	for ( const field of multipleChoice ) {
 		if ( ! isMultipleChoiceFieldValid( field ) ) {
 			setMultipleChoiceFieldError( field, form, opts );
+
+			invalidFields.push( field );
 		}
 	}
+
+	return invalidFields;
 };
 
 /**
@@ -868,7 +962,7 @@ const setSingleChoiceFieldError = ( fieldset, form, opts ) => {
 const setMultipleChoiceFieldError = ( fieldset, form, opts ) => {
 	setGroupInputError( fieldset, form, {
 		...opts,
-		message: L10N.checkboxMissingValue || 'Please select at least one option.',
+		message: L10N.checkboxMissingValue,
 	} );
 };
 
@@ -896,7 +990,9 @@ const setGroupInputError = ( fieldset, form, opts ) => {
 		error = createInputErrorContainer( errorId );
 	}
 
-	error.replaceChildren( createError( firstInput.validationMessage || opts.message || 'Error' ) );
+	error.replaceChildren(
+		createError( firstInput.validationMessage || opts.message || L10N.genericError )
+	);
 
 	fieldset.appendChild( error );
 	fieldset.setAttribute( 'aria-invalid', 'true' );

@@ -699,23 +699,48 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form__error,
 .contact-form__input-error {
+	--warning-icon-size: 1.25em;
+	--warning-icon-margin: 0.75em;
+
 	display: flex;
 	align-items: center;
-	gap: 0.33em;
+	flex-wrap: wrap;
 
 	font-size: 1rem;
 }
 
 .contact-form__error {
 	margin-bottom: var(--wp--style--block-gap, 1.5rem);
-	padding: 0.5em;
+	padding: 1em;
+	gap: var(--warning-icon-margin);
 
 	background-color: var(--jetpack--contact-form--error-color);
 	color: var(--jetpack--contact-form--inverted-text-color);
 }
 
+.contact-form__error ul {
+	flex-basis: 100%;
+	margin: 0;
+	padding-inline-start: calc(var(--warning-icon-size) + var(--warning-icon-margin));
+
+	list-style-position: inside;
+}
+
+.contact-form__error ul:empty {
+	display: none;
+}
+
+.contact-form__error ul li {
+	padding: 0.25em 0;
+}
+
+.contact-form__error a {
+	color: inherit;
+}
+
 .contact-form__input-error {
 	margin: 0.25rem 0;
+	gap: 0.33em;
 
 	color: var(--jetpack--contact-form--error-color);
 }
@@ -740,8 +765,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	justify-content: center;
 	align-items: center;
 
-	width: 1.25em;
-	height: 1.25em;
+	width: var(--warning-icon-size);
+	height: var(--warning-icon-size);
 
 	background-color: var(--jetpack--contact-form--error-color);
 	border-radius: 50%;
@@ -749,10 +774,11 @@ on production builds, the attributes are being reordered, causing side-effects
 	color: var(--jetpack--contact-form--inverted-text-color);
 }
 
-.contact-form__warning-icon::after {
+.contact-form__warning-icon i::after {
 	content: "\0021";
 
 	font-size: 0.8em;
+	font-style: normal;
 	font-weight: bold;
 }
 
