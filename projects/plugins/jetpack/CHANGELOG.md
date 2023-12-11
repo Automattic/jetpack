@@ -2,6 +2,46 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.0-a.1 - 2023-12-11
+### Enhancements
+- add force_year param to individual get for blogging prompt. Add bloganuary tags for prompts in january. [#34041]
+- Adding controls for Sharing Buttons Block [#34414]
+- AI Usage panel: use a yellowish color for usage panel over soft limit [#34555]
+- Gutenberg: Add Top Posts & Pages block. [#34153]
+- Jetpack AI: Add event tracking on the usage panel button. [#34442]
+- Like: Add iframe to the new Like block (beta) [#34450]
+- Like block (beta): Add Reblog setting [#34514]
+- Newsletter: update post-publish panel copy for scheduled posts [#34310]
+- Social: Refactored storing of feature options to use core functions [#34113]
+- Top Posts and Pages block: refactor endpoint to use helper. [#34479]
+- Top Posts and Pages block: set aspect ratio for thumbnail images. [#34558]
+- Top Posts and Pages block: tidy up display of titles. [#34510]
+
+### Improved compatibility
+- Moving rendering of Sharing Buttons block to backend to have better consistency and avoid issue with `unfiltered_html` [#34527]
+- Patreon: update icon to match the update Patreon branding guidelines. [#34570]
+
+### Bug fixes
+- Added limit for full sync uploads [#34390]
+- Calendly block: fix custom colours being stripped. [#34474]
+- Dashboard: disable VideoPress card in offline mode. [#34465]
+- Improving likes: fix popover closing area [#34430]
+- Launchpad: Fix the Save modal doesn't show after saving changes in the editor [#34449]
+- Show Seo tools on atomic sites only for Business plan and higher [#34546]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Consolidate WPCOM/Jetpack Token Subscription Service classes. [#34299]
+- Google Fonts Module: Fix the error when parsing a font family that has a reference to a path [#34560]
+- Jetpack AI: Add feedback control to display a feedback request on the AI Assistant block inspector. [#34525]
+- Jetpack AI: Change line splitting on upgrade prompt to reduce the chance of orphan words. [#34495]
+- Jetpack AI: fix element spacing on usage panel when it's on the block inspector. [#34494]
+- Jetpack AI: Force button from upgrade nudge to use black and white styles. [#34552]
+- Jetpack AI: Move feedback control below usage panel to obey relevance ordering. [#34578]
+- Like block (beta): Escape block output attributes [#34536]
+- Remove Blogroll block "beta" text [#34485]
+- Removed like avatar border inside the popup [#34440]
+- Updated package dependencies. [#34416]
+
 ## 12.9-beta - 2023-12-03
 ### Enhancements
 - My Jetpack: Added Creator to My Jetpack overview. [#34307]
