@@ -1,5 +1,6 @@
 import { PanelRow } from '@wordpress/components';
 import { _n, sprintf } from '@wordpress/i18n';
+import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import styles from './styles.module.scss';
 
@@ -10,8 +11,9 @@ import styles from './styles.module.scss';
  */
 export function EnabledConnectionsNotice() {
 	const { enabledConnections } = useSocialMediaConnections();
+	const { isPublicizeEnabled } = usePublicizeConfig();
 
-	return enabledConnections.length ? (
+	return enabledConnections.length && isPublicizeEnabled ? (
 		<PanelRow>
 			<p className={ styles[ 'enabled-connections-notice' ] }>
 				{ sprintf(
