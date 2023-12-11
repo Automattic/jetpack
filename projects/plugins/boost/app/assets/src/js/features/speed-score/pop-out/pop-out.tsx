@@ -3,9 +3,9 @@ import CloseButton from '$features/ui/close-button/close-button';
 import styles from './pop-out.module.scss';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, ReactNode } from 'react';
-import classNames from 'classnames';
 import { DataSyncProvider, useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
+import { Button } from '@wordpress/components';
 
 type Props = {
 	scoreChange: number | false; // Speed score shift to show, or false if none.
@@ -139,12 +139,14 @@ function _PopOut( { scoreChange, onClose }: Props ) {
 						{ message && message.cta }
 					</a>
 
-					<button
-						className={ classNames( 'jb-link', styles.dismissLink ) }
+					<Button
+						variant="link"
+						size="small"
+						className={ styles.dismissLink }
 						onClick={ handleDismiss }
 					>
 						{ __( 'Do not show me again', 'jetpack-boost' ) }
-					</button>
+					</Button>
 				</div>
 			</CSSTransition>
 		</div>
