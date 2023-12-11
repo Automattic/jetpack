@@ -1,5 +1,8 @@
 _The versioning refers to the React component build._
 
+### v2.5.7 (2023-12-11)
+* Updated Patreon icon.
+
 ### v2.5.6 (2023-10-13)
 * Updated X icon.
 * Removed unnecessary aria label attributes from Threads and X SVGs.
