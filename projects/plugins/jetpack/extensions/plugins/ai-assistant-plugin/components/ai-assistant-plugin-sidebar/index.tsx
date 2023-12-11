@@ -12,13 +12,12 @@ import React from 'react';
  * Internal dependencies
  */
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
-import useAiFeature, {
-	UpgradeTypeProp,
-} from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
+import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import Proofread from '../proofread';
 import UsagePanel from '../usage-panel';
 import { USAGE_PANEL_PLACEMENT_JETPACK_SIDEBAR } from '../usage-panel/types';
+import type { UpgradeTypeProp } from '../../../../../extensions/store/wordpress-com/types';
 
 // Determine if the usage panel is enabled or not
 const isUsagePanelAvailable =
