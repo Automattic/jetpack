@@ -5,6 +5,7 @@ import ErrorNotice from '$features/error-notice/error-notice';
 import { __ } from '@wordpress/i18n';
 import { Panel, PanelBody, PanelRow } from '@wordpress/components';
 import { navigate } from '$lib/utils/navigate';
+import { PerformanceHistoryData } from './lib/types';
 
 import styles from './performance-history.module.scss';
 
@@ -36,7 +37,7 @@ const PerformanceHistoryBody = ( { isFreshStart, onDismissFreshStart, needsUpgra
 
 	return (
 		<GraphComponent
-			{ ...data }
+			{ ...( data as PerformanceHistoryData ) }
 			isFreshStart={ isFreshStart }
 			needsUpgrade={ needsUpgrade }
 			handleUpgrade={ () => navigate( '/upgrade' ) }

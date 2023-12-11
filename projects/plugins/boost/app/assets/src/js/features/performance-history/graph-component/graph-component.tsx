@@ -7,7 +7,7 @@ import {
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import styles from './graph-component.module.scss';
-import { PerformanceHistoryData } from '../lib/stores/store';
+import { PerformanceHistoryData } from '../lib/types';
 
 const DummyGraph = ( { children } ) => {
 	return (

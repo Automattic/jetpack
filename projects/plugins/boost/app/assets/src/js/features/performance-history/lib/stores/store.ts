@@ -23,8 +23,6 @@ const performanceHistoryDataSchema = z
 	} )
 	.nullable();
 
-export type PerformanceHistoryData = z.infer< typeof performanceHistoryDataSchema >;
-
 export const usePerformanceHistoryQuery = () => {
 	const [ query ] = useDataSync(
 		'jetpack_boost_ds',
