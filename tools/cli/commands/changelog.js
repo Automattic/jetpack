@@ -769,7 +769,8 @@ async function promptChangelog( argv, needChangelog, types ) {
 	const userFacingResponse = await enquirer.prompt( {
 		type: 'confirm',
 		name: 'userFacing',
-		message: 'Is this a Jetpack change that site admins would like to know about?',
+		message:
+			'Is this change something an end user or site administrator of a standalone Jetpack site would like to know about?',
 		initial: true,
 		skip: ! needChangelog.includes( 'plugins/jetpack' ),
 	} );
