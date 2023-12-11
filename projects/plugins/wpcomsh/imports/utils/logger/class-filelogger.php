@@ -7,9 +7,9 @@
 
 namespace Imports\Utils\Logger;
 
-use Imports\Utils\LoggerInterface;
-
 require_once __DIR__ . '/class-logger-interface.php';
+
+use Imports\Utils\LoggerInterface;
 
 /**
  * Class FileLogger
@@ -79,30 +79,5 @@ class FileLogger implements LoggerInterface {
 		// Create or truncate the file
 		file_put_contents( $file_path, '' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		return true;
-	}
-
-	/**
-	 * Reads the last line of the log file.
-	 *
-	 * @return string|null The last line of the log file, or null if the file could not be read.
-	 */
-	public function read_last_log_line() {
-		if ( ! $this->log_file || ! file_exists( $this->log_file ) ) {
-			return null;
-		}
-
-		$log_lines = file( $this->log_file, FILE_IGNORE_NEW_LINES );
-		$last_line = end( $log_lines );
-
-		// Find the position of the first space after the timestamp
-		$pos = strpos( $last_line, ' ' );
-
-		// If a space was found, return the part of the string after it
-		if ( $pos !== false ) {
-			return substr( $last_line, $pos + 1 );
-		}
-
-		// If no space was found, return the whole line
-		return $last_line;
 	}
 }

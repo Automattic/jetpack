@@ -7,15 +7,15 @@
 
 namespace Imports;
 
-use Imports\Utils\FileRestorer;
-use Imports\Utils\Logger\FileLogger;
-
 require_once __DIR__ . '/../class-backup-importer.php';
 require_once __DIR__ . '/class-playground-db-importer.php';
 require_once __DIR__ . '/class-playground-clean-up.php';
 require_once __DIR__ . '/class-sql-importer.php';
 require_once __DIR__ . '/../utils/class-filerestorer.php';
 require_once __DIR__ . '/../utils/logger/class-filelogger.php';
+
+use Imports\Utils\FileRestorer;
+use Imports\Utils\Logger\FileLogger;
 
 /**
  * Playground backup importer.

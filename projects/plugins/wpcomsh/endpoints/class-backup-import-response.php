@@ -6,7 +6,6 @@
  */
 
 use Imports\Backup_Import_Manager;
-use Imports\Utils\Logger\FileLogger;
 
 /**
  * Backup Import response endpoint.
@@ -74,8 +73,7 @@ class Backup_Import_Response extends WP_REST_Controller {
 
 		if ( $backup_import_status && $backup_import_status['status'] === 'process_files' ) {
 			// Read the log file and return last line of the log
-			$file_logger = new FileLogger();
-			$message     = $file_logger->read_last_log_line();
+			$message = $this->read_last_log_line();
 		}
 
 		return new WP_REST_Response(
@@ -96,5 +94,31 @@ class Backup_Import_Response extends WP_REST_Controller {
 	 */
 	public function verify_xml_rpc_signature( $request ) { //phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass
 		return method_exists( 'Automattic\Jetpack\Connection\Manager', 'verify_xml_rpc_signature' ) && ( new Automattic\Jetpack\Connection\Manager() )->verify_xml_rpc_signature();
+	}
+
+	/**
+	 * Reads the last line of the log file.
+	 *
+	 * @return string|null The last line of the log file, or null if the file could not be read.
+	 */
+	public function read_last_log_line() {
+		$log_file = '/tmp/restore_log/file_restoration_log.txt';
+		if ( ! $log_file || ! file_exists( $log_file ) ) {
+			return null;
+		}
+
+		$log_lines = file( $log_file, FILE_IGNORE_NEW_LINES );
+		$last_line = end( $log_lines );
+
+		// Find the position of the first space after the timestamp
+		$pos = strpos( $last_line, ' ' );
+
+		// If a space was found, return the part of the string after it
+		if ( $pos !== false ) {
+			return substr( $last_line, $pos + 1 );
+		}
+
+		// If no space was found, return the whole line
+		return $last_line;
 	}
 }
