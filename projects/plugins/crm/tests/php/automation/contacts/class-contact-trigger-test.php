@@ -58,8 +58,8 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_update action.
@@ -97,8 +97,8 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_status_update action.
@@ -133,8 +133,8 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_created action.
@@ -169,8 +169,8 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_email_update action.
@@ -205,8 +205,8 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_deleted action.
@@ -240,8 +240,8 @@ class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
-			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$trigger,
+			$contact_data
 		);
 
 		// Run the contact_before_deleted action.

@@ -149,11 +149,12 @@ class Wpcom_Products {
 	 * Get one product
 	 *
 	 * @param string $product_slug The product slug.
+	 * @param bool   $renew_cache A flag to force the cache to be renewed.
 	 *
 	 * @return ?Object The product details if found
 	 */
-	public static function get_product( $product_slug ) {
-		$products = self::get_products();
+	public static function get_product( $product_slug, $renew_cache = false ) {
+		$products = self::get_products( $renew_cache );
 		if ( ! empty( $products->$product_slug ) ) {
 			return $products->$product_slug;
 		}
