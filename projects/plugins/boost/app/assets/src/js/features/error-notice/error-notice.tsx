@@ -9,7 +9,7 @@ type ErrorNoticeProps = {
 	data?: string;
 	suggestion?: string;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	vars?: Record< string, React.ReactNode >;
+	vars?: Record< string, React.ReactElement >;
 	children?: React.ReactNode;
 	actionButton?: React.ReactNode;
 };
