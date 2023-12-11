@@ -176,6 +176,13 @@ class Jetpack_Google_Font_Face {
 
 		$font_family = $setting['typography']['fontFamily'];
 
+		// The font family may be a reference to a path to the value stored at that location,
+		// e.g.: { "ref": "styles.elements.heading.typography.fontFamily" }.
+		// Ignore it as we also get the value stored at that location from the setting.
+		if ( ! is_string( $font_family ) ) {
+			return null;
+		}
+
 		// Full string: var(--wp--preset--font-family--slug).
 		// We do not care about the origin of the font, only its slug.
 		preg_match( '/font-family--(?P<slug>.+)\)$/', $font_family, $matches );
