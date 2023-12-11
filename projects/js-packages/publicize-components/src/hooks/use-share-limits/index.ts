@@ -82,6 +82,12 @@ export function useShareLimits( {
 				noticeType = 'error';
 				message = messages.full;
 			}
+			// If they have used 90% of their limit, they are almost at the end
+			else if ( totalSharesCount >= shareLimit * 0.9 ) {
+				status = 'approaching';
+				noticeType = 'error';
+				message = messages.approaching;
+			}
 			// If they have used 80% of their limit, they are approaching it
 			else if ( totalSharesCount >= shareLimit * 0.8 ) {
 				status = 'approaching';
