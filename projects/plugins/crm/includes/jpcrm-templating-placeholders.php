@@ -1755,6 +1755,16 @@ class jpcrm_templating_placeholders {
 					
 					}
 
+					// If the key is quote-currency and the value is empty, let's use the currency set in the site settings.
+					if ( $key === 'quote-currency' && $replace_with === '' ) {
+
+						$settings = $zbs->settings->getAll();
+						if ( $settings['currency'] && $settings['currency']['strval'] ) {
+
+							$replace_with = $settings['currency']['strval'];
+						}
+					}
+
 					// Replace main key.
 					// In the Quote editor itself we don't want to render the Quote ID or URL placeholders,
 					// So, $include_non_rendered_quote_keys will be set to false in that case. See ZeroBSCRM_get_quote_template().

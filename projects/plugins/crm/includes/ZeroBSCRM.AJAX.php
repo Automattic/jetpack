@@ -759,6 +759,9 @@ function ZeroBSCRM_get_quote_template() {
 			if ( isset( $_POST['quote_fields']['zbscq_date'] ) && ! empty( $_POST['quote_fields']['zbscq_date'] ) ) {
 				$quote_date = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_date'] ) );
 			}
+			if ( isset( $_POST['quote_fields']['zbscq_notes'] ) && ! empty( $_POST['quote_fields']['zbscq_notes'] ) ) {
+				$quote_notes = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_notes'] ) );
+			}
 		}
 
 		// } Fill out rest
