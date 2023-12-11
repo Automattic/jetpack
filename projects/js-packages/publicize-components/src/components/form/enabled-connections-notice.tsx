@@ -15,10 +15,10 @@ export function EnabledConnectionsNotice() {
 		<PanelRow>
 			<p className={ styles[ 'enabled-connections-notice' ] }>
 				{ sprintf(
-					/* translators: %d: number of networks */
+					/* translators: %d: number of connections */
 					_n(
-						'This post will be shared to %d network.',
-						'This post will be shared to %d networks.',
+						'This post will be shared to %d connection.',
+						'This post will be shared to %d connections.',
 						enabledConnections.length,
 						'jetpack'
 					),
