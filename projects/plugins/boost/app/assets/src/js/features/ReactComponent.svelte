@@ -5,8 +5,9 @@
 	import * as WPElement from '@wordpress/element';
 	let container: HTMLDivElement;
 	let root;
+	export let inline = false;
 	afterUpdate( () => {
-		const { this: component, children, ...props } = $$props;
+		const { this: component, children, inline, ...props } = $$props;
 
 		if ( ! root ) {
 			root = WPElement.createRoot( container );
@@ -21,4 +22,11 @@
 	} );
 </script>
 
-<div bind:this={container} />
+<div bind:this={container} class:inline />
+
+<style>
+	.inline {
+		display: inline;
+		display: contents;
+	}
+</style>
