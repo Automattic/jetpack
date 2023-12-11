@@ -82,9 +82,3 @@
 		<Route path="image-size-analysis/:group/:page" component={RecommendationsPage} />
 	{/if}
 </Router>
-
-<style lang="scss">
-	.jb-section--main {
-		z-index: 14;
-	}
-</style>
