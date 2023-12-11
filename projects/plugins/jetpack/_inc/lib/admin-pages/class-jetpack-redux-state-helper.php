@@ -289,24 +289,14 @@ class Jetpack_Redux_State_Helper {
 	 * @return array|null
 	 */
 	public static function get_publicize_initial_state() {
-		$sig_settings             = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
-		$auto_conversion_settings = new Automattic\Jetpack\Publicize\Auto_Conversion\Settings();
+		$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
+		$settings                = $jetpack_social_settings->get_settings( true );
 
-		if ( empty( $sig_settings ) && empty( $auto_conversion_settings ) ) {
+		if ( empty( $settings ) ) {
 			return null;
 		}
 
-		return array(
-			'socialImageGeneratorSettings' => array(
-				'available'       => $sig_settings->is_available(),
-				'enabled'         => $sig_settings->is_enabled(),
-				'defaultTemplate' => $sig_settings->get_default_template(),
-			),
-			'autoConversionSettings'       => array(
-				'available' => $auto_conversion_settings->is_available( 'image' ),
-				'image'     => $auto_conversion_settings->is_enabled( 'image' ),
-			),
-		);
+		return $settings;
 	}
 
 	/**
