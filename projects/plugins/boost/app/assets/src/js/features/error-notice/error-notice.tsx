@@ -9,7 +9,7 @@ type ErrorNoticeProps = {
 	data?: string;
 	suggestion?: string;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	vars?: Record< string, React.ReactElement< any, string | React.JSXElementConstructor< any > > >;
+	vars?: Record< string, React.ReactElement >;
 	children?: React.ReactNode;
 	actionButton?: React.ReactNode;
 };
@@ -29,7 +29,7 @@ const ErrorNotice = ( {
 		<div className={ styles[ 'error-notice' ] }>
 			<NoticeOutline className={ styles.icon } />
 
-			<div>
+			<div className={ styles.offset }>
 				<div className={ styles.description }>{ title }</div>
 
 				<div className={ styles.message }>

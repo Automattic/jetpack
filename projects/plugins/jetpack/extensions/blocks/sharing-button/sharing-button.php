@@ -13,6 +13,7 @@ use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 require_once __DIR__ . '/class-sharing-source-block.php';
+require_once __DIR__ . '/components/social-icons.php';
 
 /**
  * Registers the block for use in Gutenberg
@@ -39,6 +40,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function render_block( $attr, $content, $block ) {
 	global $post;
 	$post_id = $block->context['postId'];
+	$title   = $attr['label'] ?? $attr['service'];
 
 	$style_type  = $block->context['styleType'];
 	$style       = 'style-' . $style_type;
@@ -50,11 +52,26 @@ function render_block( $attr, $content, $block ) {
 	$link_props = $service->get_link( $post, $query, $data_shared );
 	$link_url   = $link_props['url'];
 
-	$content = str_replace( 'url_replaced_in_runtime', $link_url, $content );
-	$content = str_replace( 'style_button_replace_at_runtime', $style, $content );
-	$content = str_replace( 'data-shared_replaced_in_runtime', $data_shared, $content );
+	$icon = get_social_logo( $attr['service'] );
+
+	$sharing_link_class = 'jetpack-sharing-button__button ' . $style . ' share-' . $attr['service'];
+
+	$link_aria_label = sprintf(
+		/* translators: %s refers to a string representation of sharing service, e.g. Facebook  */
+		esc_html__( 'Share on %s', 'jetpack' ),
+		esc_html( $title )
+	);
+
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
-	return $content;
+
+	$component  = '<li class="jetpack-sharing-button__list-item">';
+	$component .= '<a rel="nofollow noopener noreferrer" class="' . $sharing_link_class . '" href="' . $link_url . '" target="_blank" data-shared="' . $data_shared . '" aria-label="' . $link_aria_label . '" primary>';
+	$component .= $icon;
+	$component .= '<span class="jetpack-sharing-button__service-label" aria-hidden="true">' . $title . '</span>';
+	$component .= '</a>';
+	$component .= '</li>';
+
+	return $component;
 }
 
 /**

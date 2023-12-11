@@ -5,14 +5,17 @@
 	import * as WPElement from '@wordpress/element';
 	let container: HTMLDivElement;
 	let root;
+	export let inline = false;
 	afterUpdate( () => {
-		const { this: component, children, ...props } = $$props;
+		// Remove `inline` from the props passed to the component.
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-shadow
+		const { this: component, children, inline, ...otherProps } = $$props;
 
 		if ( ! root ) {
 			root = WPElement.createRoot( container );
 		}
 
-		root.render( React.createElement( component, props, children ) );
+		root.render( React.createElement( component, otherProps, children ) );
 	} );
 	onDestroy( () => {
 		if ( root ) {
@@ -21,4 +24,11 @@
 	} );
 </script>
 
-<div bind:this={container} />
+<div bind:this={container} class:inline />
+
+<style>
+	.inline {
+		display: inline;
+		display: contents;
+	}
+</style>
