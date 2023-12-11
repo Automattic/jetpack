@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { __, sprintf } from '@wordpress/i18n';
-	import MultiProgress from './MultiProgress.svelte';
+	import MultiProgress from './multi-progress/multi-progress.tsx';
 	import Button from './Button.svelte';
 	import { resetIsaQuery } from './lib/stores/isa-data';
 	import {
@@ -164,9 +164,8 @@
 
 	<!-- Show progress if a job is rolling. -->
 	{#if ! requestingReport && [ ISAStatus.Completed, ISAStatus.Queued ].includes( status )}
-		<MultiProgress summaryProgress={getSummaryProgress( groups )} />
+		<ReactComponent this={MultiProgress} summaryProgress={getSummaryProgress( groups )} />
 	{/if}
-
 	<!-- Show recommendation to enable Image CDN if it was inactive and issues have been found -->
 	{#if showCDNRecommendation}
 		<div class="jb-notice">
