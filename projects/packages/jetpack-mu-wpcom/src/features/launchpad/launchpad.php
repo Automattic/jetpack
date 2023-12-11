@@ -258,6 +258,37 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
+		'ai-assembler'           => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'            => array(
+				'verify_domain_email',
+				'plan_completed',
+				'setup_free',
+				'design_selected',
+				'domain_upsell',
+				'first_post_published',
+				'design_edited',
+				'site_launched',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
+		),
+		'legacy-site-setup'      => array(
+			'get_title' => function () {
+				return __( 'Site setup', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'  => array(
+				'blogname_set',
+				'front_page_updated',
+				'verify_domain_email',
+				'verify_email',
+				'mobile_app_installed',
+				'setup_professional_email',
+				'post_sharing_enabled',
+				'site_launched',
+			),
+		),
 	);
 
 	$extended_task_list_definitions = apply_filters( 'wpcom_launchpad_extended_task_list_definitions', array() );

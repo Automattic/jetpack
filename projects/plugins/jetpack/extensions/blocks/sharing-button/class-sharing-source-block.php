@@ -2,7 +2,7 @@
 /**
  * Define all sharing sources.
  *
- * @since $$next-version$$
+ * @since 13.0
  *
  * @package automattic/jetpack
  *
@@ -51,6 +51,24 @@ abstract class Sharing_Source_Block {
 	 */
 	public function get_id() {
 		return $this->id;
+	}
+
+	/**
+	 * Get unique sharing ID. Similar to get_id().
+	 *
+	 * @return int
+	 */
+	public function get_class() {
+		return $this->id;
+	}
+
+	/**
+	 * Get sharing stats for a specific post or sharing service.
+	 *
+	 * @return int This is a placeholder that returns 0 at the moment. We might want to implement this in the future.
+	 */
+	public function get_total() {
+		return 0;
 	}
 
 	/**
