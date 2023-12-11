@@ -49,7 +49,7 @@ interface Subscription_Service {
 	public function visitor_can_view_content( $valid_plan_ids, $access_level );
 
 	/**
-	 * is the current user a pending subscriber for the current site?
+	 * Is the current user a pending subscriber for the current site?
 	 *
 	 * @return boolean
 	 */

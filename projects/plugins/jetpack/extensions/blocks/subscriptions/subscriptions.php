@@ -861,7 +861,6 @@ function maybe_gate_existing_comments( $comment ) {
  * Returns paywall content blocks
  *
  * @param string $post_access_level The newsletter access level.
- * @param string $email_confirmation_pending True if the current user needs to validate their email.
  * @return string
  */
 function get_paywall_content( $post_access_level ) {
