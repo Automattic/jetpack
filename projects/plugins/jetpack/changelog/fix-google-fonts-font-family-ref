@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Google Fonts Module: Fix the error when parsing a font family that has a reference to a path
