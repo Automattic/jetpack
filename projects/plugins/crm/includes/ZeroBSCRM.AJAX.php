@@ -788,6 +788,9 @@ function ZeroBSCRM_get_quote_template() {
 			if ( empty( $quote_val ) && ! empty( $quote_template['value'] ) ) {
 				$quote_val = $quote_template['value'];
 			}
+			if ( empty( $quote_notes ) && ! empty( $quote_template['notes'] ) ) {
+				$quote_notes = $quote_template['notes'];
+			}
 
 			// catch empty pass...
 			if ( empty( $quote_title ) ) {
@@ -800,9 +803,7 @@ function ZeroBSCRM_get_quote_template() {
 				$quote_date = gmdate( 'Y-m-d' );
 			}
 			if ( empty( $quote_notes ) ) {
-				if ( isset( $_POST['quote_fields']['zbscq_notes'] ) ) {
-					$quote_notes = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_notes'] ) );
-				}
+				$quote_notes = '[QUOTENOTES]';
 			}
 
 			// HTML is escaped just prior to the complete HTML in this function being returned
