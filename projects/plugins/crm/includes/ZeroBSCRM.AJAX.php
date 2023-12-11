@@ -757,8 +757,7 @@ function ZeroBSCRM_get_quote_template() {
 				$quote_val = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_value'] ) );
 			}
 			if ( isset( $_POST['quote_fields']['zbscq_date'] ) && ! empty( $_POST['quote_fields']['zbscq_date'] ) ) {
-				$sanitized_date = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_date'] ) );
-				$quote_date     = wp_date( get_option( 'date_time' ), strtotime( $sanitized_date ) );
+				$quote_date = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_date'] ) );
 			}
 			if ( isset( $_POST['quote_fields']['zbscq_notes'] ) && ! empty( $_POST['quote_fields']['zbscq_notes'] ) ) {
 				$quote_notes = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_notes'] ) );
@@ -801,7 +800,7 @@ function ZeroBSCRM_get_quote_template() {
 				$quote_val = '[QUOTEVALUE]';
 			}
 			if ( empty( $quote_date ) ) {
-				$quote_date = wp_date( get_option( 'date_format' ) );
+				$quote_date = gmdate( 'Y-m-d' );
 			}
 			if ( empty( $quote_notes ) ) {
 				$quote_notes = '[QUOTENOTES]';
@@ -841,18 +840,6 @@ function ZeroBSCRM_get_quote_template() {
 							$v = '';
 							if ( isset( $_POST['quote_fields'][ 'zbscq_' . $key ] ) ) {
 								$v = sanitize_text_field( $_POST['quote_fields'][ 'zbscq_' . $key ] );
-
-								// Here is where we search and replace placeholders for dates with a date string and date time strings), initially checking the value is similar to that of a Unix timestamp
-								if ( preg_match( '/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/', $v ) ) {
-
-									// Additional date validation to confirm the date is valid
-									$date_time = DateTime::createFromFormat( 'Y-m-d', $v );
-									if ( $date_time && $date_time->format( 'Y-m-d' ) === $v ) {
-
-										$working_html = jpcrm_process_date_variables( $v, $key, $working_html, $custom_field = true );
-
-									}
-								}
 							}
 
 							// allow upper or lower to catch various uses

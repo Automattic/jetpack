@@ -1755,27 +1755,6 @@ class jpcrm_templating_placeholders {
 					
 					}
 
-					// We want to check if a quote field is a unix timestamp, so this light approach will check if the value is numeric initially to lower the searches,
-					// then check if its _datetime_str equivalent exists (unless it's the 'quote-date' key), confirming our current key is a timestamp.
-					// Then we can convert the replace_with value to a human readable format based on site date settings.
-					if ( str_starts_with( $key, 'quote-' ) && is_numeric( $replace_with ) ) {
-
-						$new_key = '##' . strtoupper( $key ) . '_DATETIME_STR##';
-						if ( array_key_exists( $new_key, $to_replace ) || $key === 'quote-date' ) {
-							$replace_with = wp_date( get_option( 'date_format' ), $replace_with );
-							$string       = jpcrm_process_date_variables( $replace_with, $key, $string );
-						}
-					}
-
-					// If this is a Quote date key and is not set (Quote accepted or last viewed), let's print out a message saying the quote isn't accepted or viewed.
-					$possible_empty_quote_keys = array( 'quote-accepted', 'quote-accepted_date_str', 'quote-accepted_datetime_str', 'quote-lastviewed', 'quote-lastviewed_datetime_str', 'quote-lastviewed_date_str' );
-					if ( in_array( $key, $possible_empty_quote_keys, true ) ) {
-						// 82799 is 23hrs, 59mins, 59secs on Jan 1, 1970 (so a blank timestamp, allowing for systems to update the time within that day for any reason)
-						if ( empty( $replace_with ) || strtotime( $replace_with ) <= 82799 ) {
-							$replace_with = str_starts_with( $key, 'quote-accepted' ) ? __( 'Quote not yet accepted', 'zero-bs-crm' ) : __( 'Quote not yet viewed', 'zero-bs-crm' );
-						}
-					}
-
 					// If the key is quote-currency and the value is empty, let's use the currency set in the site settings.
 					if ( $key === 'quote-currency' && $replace_with === '' ) {
 
@@ -1787,9 +1766,9 @@ class jpcrm_templating_placeholders {
 					}
 
 					// Replace main key.
-					// In the Quote editor itself we don't want to render the Quote ID, URL, Created, Accepted or Lastu Updated placeholders,
+					// In the Quote editor itself we don't want to render the Quote ID or URL placeholders,
 					// So, $include_non_rendered_quote_keys will be set to false in that case. See ZeroBSCRM_get_quote_template().
-					$non_rendered_quote_keys = array( 'quote-ID', 'quote-url', 'quote-created', 'quote-created_datetime_str', 'quote-created_date_str', 'quote-accepted', 'quote-accepted_datetime_str', 'quote-accepted_date_str', 'quote-lastupdated', 'quote-lastupdated_datetime_str', 'quote-lastupdated_date_str' );
+					$non_rendered_quote_keys = array( 'quote-ID', 'quote-url' );
 					if ( $include_non_rendered_quote_keys || ( ! $include_non_rendered_quote_keys && ! in_array( $replacement_info['key'], $non_rendered_quote_keys, true ) ) ) {
 
 						$string = str_replace( $replace_string, $replace_with, $string );
