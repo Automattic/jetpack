@@ -423,7 +423,6 @@ function zeroBSCRM_quote_generateNotificationHTML( $quoteID = -1, $return = true
 				// replacements $bodyHTML
 				$replacements['quote-url'] = $quote_url;
 				$replacements['quote-title'] = $proposalTitle;
-				$replacements['quote-value'] = $quote['value'] ? zeroBSCRM_formatCurrency( $quote['value'] ) : '';
 
 				$viewInPortal = '';
 				$quoteID = '';
@@ -535,7 +534,7 @@ function zeroBSCRM_quote_generateAcceptNotifHTML( $quoteID = -1, $quoteSignedBy 
 				$quote_edit_url                 = jpcrm_esc_link( 'edit', $quoteID, 'zerobs_quote' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				$replacements['quote-url']      = $quote_url;
 				$replacements['quote-edit-url'] = $quote_edit_url;
-				$replacements['quote-value']    = $quote['value'] ? zeroBSCRM_formatCurrency( $quote['value'] ) : '';
+
 				// build msg-content html
 				$bodyHTML = $placeholder_templating->replace_placeholders( array( 'global', 'quote', 'contact' ), $bodyHTML, $replacements, array( ZBS_TYPE_QUOTE => $quote, ZBS_TYPE_CONTACT => $quote_contact ) );
 
