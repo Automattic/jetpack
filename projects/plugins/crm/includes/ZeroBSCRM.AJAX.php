@@ -836,6 +836,28 @@ function ZeroBSCRM_get_quote_template() {
 							$v = '';
 							if ( isset( $_POST['quote_fields'][ 'zbscq_' . $key ] ) ) {
 								$v = sanitize_text_field( $_POST['quote_fields'][ 'zbscq_' . $key ] );
+
+								// Here is where we search and replace placeholders for dates with a date string and date time strings), initially checking the value is similar to that of a Unix timestamp
+								if ( preg_match( '/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/', $v ) ) {
+
+									// Additional date validation to confirm the date is valid
+									$date_time = DateTime::createFromFormat( 'Y-m-d', $v );
+									if ( $date_time && $date_time->format( 'Y-m-d' ) === $v ) {
+
+										$datetime_key       = $key . '_datetime_str';
+										$string_to_datetime = gmdate( 'd F Y H:i:s', strtotime( $v ) );
+										$date_key           = $key . '_date_str';
+										$string_to_date     = gmdate( 'd F Y', strtotime( $v ) );
+
+										$working_html = str_replace( '##QUOTE-' . strtoupper( $datetime_key ) . '##', $string_to_datetime, $working_html );
+										$working_html = str_replace( '##QUOTE-' . strtolower( $datetime_key ) . '##', $string_to_datetime, $working_html );
+										$working_html = str_replace( '##quote-' . strtolower( $datetime_key ) . '##', $string_to_datetime, $working_html );
+										$working_html = str_replace( '##QUOTE-' . strtoupper( $date_key ) . '##', $string_to_date, $working_html );
+										$working_html = str_replace( '##QUOTE-' . strtolower( $date_key ) . '##', $string_to_date, $working_html );
+										$working_html = str_replace( '##quote-' . strtolower( $date_key ) . '##', $string_to_date, $working_html );
+
+									}
+								}
 							}
 
 							// allow upper or lower to catch various uses

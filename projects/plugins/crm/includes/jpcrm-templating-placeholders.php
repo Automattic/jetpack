@@ -1755,6 +1755,17 @@ class jpcrm_templating_placeholders {
 					
 					}
 
+					// We want to check if a quote field is a unix timestamp, so this light approach will check if the value is numeric initially to lower the searches,
+					// then check if its _datetime_str equivalent exists (unless it's the 'quote-date' key), confirming our current key is a timestamp.
+					// Then we can convert the replace_with value to a human readable 'Y-m-d' format.
+					if ( str_starts_with( $key, 'quote-' ) && is_numeric( $replace_with ) ) {
+
+						$new_key = '##' . strtoupper( $key ) . '_DATETIME_STR##';
+						if ( array_key_exists( $new_key, $to_replace ) || $key === 'quote-date' ) {
+							$replace_with = gmdate( 'Y-m-d', $replace_with );
+						}
+					}
+
 					// Replace main key.
 					// In the Quote editor itself we don't want to render the Quote ID or URL placeholders,
 					// So, $include_non_rendered_quote_keys will be set to false in that case. See ZeroBSCRM_get_quote_template().
