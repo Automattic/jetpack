@@ -109,7 +109,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		try {
 			// Nonces always exist, even when the values are lazy-loaded.
 			// That's why we don't care what the value schema is, we just want the nonce.
-			const { nonce } = this.getWindowValue( this.key, z.any() );
+			const { nonce } = this.getWindowValue( this.key, z.unknown() );
 			this.endpointNonce = nonce;
 		} catch ( e ) {
 			// eslint-disable-next-line no-console
