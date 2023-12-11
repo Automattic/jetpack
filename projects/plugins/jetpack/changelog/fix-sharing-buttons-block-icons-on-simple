@@ -1,4 +1,0 @@
-Significance: minor
-Type: compat
-
-Moving rendering of Sharing Buttons block to backend to have better consistency and avoid issue with `unfiltered_html`
