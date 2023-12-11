@@ -15,7 +15,7 @@ export default function useFetchReblogSetting( blogId ) {
 		setIsLoading( true );
 		await apiFetch( { url: path, method: 'GET' } )
 			.then( response => {
-				setReblogSetting( response?.settings?.disabled_reblogs );
+				setReblogSetting( ! response?.settings?.disabled_reblogs );
 				setError( null );
 			} )
 			.catch( err => {
