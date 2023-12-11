@@ -1757,20 +1757,22 @@ class jpcrm_templating_placeholders {
 
 					// We want to check if a quote field is a unix timestamp, so this light approach will check if the value is numeric initially to lower the searches,
 					// then check if its _datetime_str equivalent exists (unless it's the 'quote-date' key), confirming our current key is a timestamp.
-					// Then we can convert the replae_with value to a human readable 'Y-m-d' format.
+					// Then we can convert the replace_with value to a human readable format based on site date settings.
 					if ( str_starts_with( $key, 'quote-' ) && is_numeric( $replace_with ) ) {
 
 						$new_key = '##' . strtoupper( $key ) . '_DATETIME_STR##';
 						if ( array_key_exists( $new_key, $to_replace ) || $key === 'quote-date' ) {
-							$replace_with = gmdate( 'Y-m-d', $replace_with );
+							$replace_with = wp_date( get_option( 'date_format' ), $replace_with );
+							$string       = jpcrm_process_date_variables( $replace_with, $key, $string );
 						}
 					}
 
-					// If this is a Quote Accepted key and it is not set, let's print out a message saying the quote isn't accepted.
-					if ( $key === 'quote-accepted' || $key === 'quote-accepted_date_str' || $key === 'quote-accepted_datetime_str' ) {
-
-						if ( empty( $replace_with ) || str_starts_with( $replace_with, '1 January 1970' ) ) {
-							$replace_with = __( 'Quote not yet accepted', 'zero-bs-crm' );
+					// If this is a Quote date key and is not set (Quote accepted or last viewed), let's print out a message saying the quote isn't accepted or viewed.
+					$possible_empty_quote_keys = array( 'quote-accepted', 'quote-accepted_date_str', 'quote-accepted_datetime_str', 'quote-lastviewed', 'quote-lastviewed_datetime_str', 'quote-lastviewed_date_str' );
+					if ( in_array( $key, $possible_empty_quote_keys, true ) ) {
+						// 82799 is 23hrs, 59mins, 59secs on Jan 1, 1970 (so a blank timestamp, allowing for systems to update the time within that day for any reason)
+						if ( empty( $replace_with ) || strtotime( $replace_with ) <= 82799 ) {
+							$replace_with = str_starts_with( $key, 'quote-accepted' ) ? __( 'Quote not yet accepted', 'zero-bs-crm' ) : __( 'Quote not yet viewed', 'zero-bs-crm' );
 						}
 					}
 
