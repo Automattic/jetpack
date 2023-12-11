@@ -94,7 +94,7 @@ export function AIControl(
 		if ( ! editRequest && lastValue !== null && value !== lastValue ) {
 			onChange?.( lastValue );
 		}
-	}, [ editRequest, lastValue ] );
+	}, [ editRequest, lastValue, value ] );
 
 	const sendRequest = useCallback( () => {
 		setLastValue( value );
@@ -105,7 +105,17 @@ export function AIControl(
 	const changeHandler = useCallback(
 		( newValue: string ) => {
 			onChange?.( newValue );
-			setEditRequest( state !== 'init' && lastValue && lastValue !== newValue );
+			if ( state === 'init' ) {
+				return;
+			}
+
+			if ( ! lastValue ) {
+				// here we're coming from a one-click action
+				setEditRequest( newValue.length > 0 );
+			} else {
+				// here we're coming from an edit action
+				setEditRequest( newValue !== lastValue );
+			}
 		},
 		[ lastValue, state ]
 	);
@@ -114,6 +124,11 @@ export function AIControl(
 		onDiscard?.();
 		onAccept?.();
 	}, [] );
+
+	const cancelEdit = useCallback( () => {
+		onChange( lastValue || '' );
+		setEditRequest( false );
+	}, [ lastValue ] );
 
 	// Pass the ref to forwardRef.
 	useImperativeHandle( ref, () => promptUserInputRef.current );
@@ -169,7 +184,7 @@ export function AIControl(
 									{ editRequest && (
 										<Button
 											className="jetpack-components-ai-control__controls-prompt_button"
-											onClick={ () => setEditRequest( false ) }
+											onClick={ cancelEdit }
 											variant="secondary"
 											label={ __( 'Cancel', 'jetpack-ai-client' ) }
 										>
