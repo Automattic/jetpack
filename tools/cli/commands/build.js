@@ -163,6 +163,7 @@ export async function handler( argv ) {
 				await t.setStatus( 'installing' );
 				await t.execa( 'pnpm', await getInstallArgs( 'monorepo', 'pnpm', argv ), {
 					cwd: process.cwd(),
+					stdio: [ 'ignore', 'inherit', 'inherit' ],
 					buffer: false,
 				} );
 			} )
@@ -293,28 +294,15 @@ function createBuildTask( project, argv, title, build ) {
 						ctx,
 						cwd: projectDir( project ),
 					};
+
+					let stdout, stderr;
 					if ( argv.v ) {
 						const streamArgs = { prefix: ctx.concurrent ? project : null, time: !! argv.timing };
-						const stdout = new PrefixStream( streamArgs );
-						const stderr = new PrefixStream( streamArgs );
+						stdout = new PrefixStream( streamArgs );
+						stderr = new PrefixStream( streamArgs );
 						stdout.pipe( process.stdout, { end: false } );
 						stderr.pipe( process.stderr, { end: false } );
 
-						t.execa = ( file, args = [], options = {} ) => {
-							const stdio = options.stdio || [];
-							stdio[ 0 ] ||= 'ignore';
-							const p = execa( file, args, {
-								...options,
-								stdio,
-							} );
-							if ( ! stdio[ 1 ] ) {
-								p.stdout.pipe( stdout, { end: false } );
-							}
-							if ( ! stdio[ 2 ] ) {
-								p.stderr.pipe( stderr, { end: false } );
-							}
-							return p;
-						};
 						t.output = m =>
 							new Promise( resolve => {
 								stdout.write( m, 'utf8', resolve );
@@ -322,20 +310,43 @@ function createBuildTask( project, argv, title, build ) {
 						t.setStatus = s =>
 							t.output( '\n' + chalk.bold( `== ${ title } [${ s }] ==` ) + '\n\n' );
 					} else {
-						t.execa = ( file, args = [], options = {} ) => {
-							const stdio = options.stdio || [];
-							stdio[ 0 ] ||= 'ignore';
-							stdio[ 1 ] ||= 'ignore';
-							stdio[ 2 ] ||= 'ignore';
-							const p = execa( file, args, {
-								...options,
-								stdio,
-							} );
-							return p;
-						};
 						t.output = () => Promise.resolve();
 						t.setStatus = setStatus;
 					}
+
+					t.execa = ( file, args = [], options = {} ) => {
+						// Match `child_process` default behavior.
+						let stdio = options.stdio || [];
+						if ( typeof stdio === 'string' ) {
+							stdio = [ stdio, stdio, stdio ];
+						}
+						stdio[ 0 ] ||= 'pipe';
+						stdio[ 1 ] ||= 'pipe';
+						stdio[ 2 ] ||= 'pipe';
+
+						// For actually passing to execa, though, map "inherit" to either piping to our PrefixStreams or ignoring.
+						const estdio = [ ...stdio ];
+						if ( stdio[ 1 ] === 'inherit' ) {
+							estdio[ 1 ] = stdout ? 'pipe' : 'ignore';
+						}
+						if ( stdio[ 2 ] === 'inherit' ) {
+							estdio[ 2 ] = stderr ? 'pipe' : 'ignore';
+						}
+
+						const p = execa( file, args, {
+							...options,
+							stdio: estdio,
+						} );
+
+						if ( stdout && stdio[ 1 ] === 'inherit' ) {
+							p.stdout.pipe( stdout, { end: false } );
+						}
+						if ( stderr && stdio[ 2 ] === 'inherit' ) {
+							p.stderr.pipe( stderr, { end: false } );
+						}
+
+						return p;
+					};
 
 					// Build!
 					const t0 = Date.now();
@@ -419,7 +430,7 @@ async function setupForMirroring( argv ) {
 	if ( ! process.env.CI || process.env.CI === '' ) {
 		try {
 			await execa( 'git', [ 'diff', '--quiet' ], {
-				stdio: 'inherit',
+				stdio: [ 'ignore', 'inherit', 'inherit' ],
 				buffer: false,
 				cwd: process.cwd(),
 			} );
@@ -652,6 +663,7 @@ async function buildProject( t ) {
 				if ( await fsExists( `${ t.cwd }/composer.lock` ) ) {
 					await t.execa( 'composer', [ 'update', '--no-install', ...Object.keys( versions ) ], {
 						cwd: t.cwd,
+						stdio: [ 'ignore', 'inherit', 'inherit' ],
 						buffer: false,
 					} );
 				}
@@ -665,6 +677,7 @@ async function buildProject( t ) {
 	} else {
 		await t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
 			cwd: t.cwd,
+			stdio: [ 'ignore', 'inherit', 'inherit' ],
 			buffer: false,
 		} );
 	}
@@ -674,7 +687,11 @@ async function buildProject( t ) {
 	if ( script === null ) {
 		await t.output( `No build scripts are defined for ${ t.project }\n` );
 	} else {
-		await t.execa( 'composer', [ 'run', '--timeout=0', script ], { cwd: t.cwd, buffer: false } );
+		await t.execa( 'composer', [ 'run', '--timeout=0', script ], {
+			cwd: t.cwd,
+			stdio: [ 'ignore', 'inherit', 'inherit' ],
+			buffer: false,
+		} );
 	}
 
 	// If we're not mirroring, the build is done. Mirroring has a bunch of stuff to do yet.
@@ -705,7 +722,7 @@ async function buildProject( t ) {
 				const m = (
 					await t.execa( changelogger, [ 'version', 'current', '--default-first-version' ], {
 						cwd: t.cwd,
-						stdio: [ null, 'pipe', null ],
+						stdio: [ 'ignore', 'pipe', 'inherit' ],
 					} )
 				).stdout.match( /^.*-a\.(\d+)$/ );
 				prerelease = 'a.' + ( m ? ( parseInt( m[ 1 ] ) & ~1 ) + 2 : 0 );
@@ -722,20 +739,20 @@ async function buildProject( t ) {
 					`--yes`,
 					`-vvv`,
 				],
-				{ cwd: t.cwd, buffer: false }
+				{ cwd: t.cwd, stdio: [ 'ignore', 'inherit', 'inherit' ], buffer: false }
 			);
 
 			t.output( '\n=== Updating $$next-version$$ ===\n\n' );
 			const ver = (
 				await t.execa( changelogger, [ 'version', 'current' ], {
 					cwd: t.cwd,
-					stdio: [ null, 'pipe', null ],
+					stdio: [ 'ignore', 'pipe', 'inherit' ],
 				} )
 			).stdout;
 			await t.execa(
 				npath.resolve( 'tools/replace-next-version-tag.sh' ),
 				[ '-v', t.project, ver ],
-				{ buffer: false }
+				{ stdio: [ 'ignore', 'inherit', 'inherit' ], buffer: false }
 			);
 		} else {
 			t.output( 'Not updating changelog, there are no change files\n' );
@@ -1004,7 +1021,7 @@ async function buildProject( t ) {
 		const ts = (
 			await t.execa( 'git', [ 'log', '-1', '--format=%ct', '.' ], {
 				cwd: t.cwd,
-				stdio: [ null, 'pipe', null ],
+				stdio: [ 'ignore', 'pipe', 'inherit' ],
 			} )
 		).stdout;
 		if ( ts.match( /^\d+$/ ) ) {
