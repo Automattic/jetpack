@@ -643,7 +643,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field  = '<fieldset id="' . esc_attr( "$id-label" ) . '" class="grunion-radio-options">';
+		$field  = '<fieldset class="grunion-radio-options">';
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
 		$field_style = 'style="' . $this->option_styles . '"';
@@ -737,7 +737,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		// checkbox is checked. Unlike radio buttons, for which the required attribute is satisfied if
 		// any of the radio buttons in the group is selected, adding a required attribute directly to
 		// a checkbox means that this specific checkbox must be checked.
-		$field  = '<fieldset id="' . esc_attr( "$id-label" ) . '" class="grunion-checkbox-multiple-options"' . ( $required ? 'data-required' : '' ) . '>';
+		$field  = '<fieldset class="grunion-checkbox-multiple-options"' . ( $required ? 'data-required' : '' ) . '>';
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
 		$field_style = 'style="' . $this->option_styles . '"';
