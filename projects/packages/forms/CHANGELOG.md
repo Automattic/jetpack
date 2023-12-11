@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.0] - 2023-12-11
+### Added
+- Contact Form: Added submitting state. [#34367]
+- Contact Form: Improved form error message. [#34520]
+- Contact Form: Added revalidation for fields on focus out. [#34401]
+- Contact Form: Added revalidation for missing value as the user types. [#34518]
+
+### Changed
+- Contact Form: Aligned checkbox and radio button baselines. [#34429]
+- Contact Form: Refactored accessible-form.js. [#34400]
+- Updated package dependencies. [#34416]
+
+### Fixed
+- Contact Form: Added margin below global error message. [#34447]
+- Contact Form: Ensured warning icons are visible. [#34455]
+- Contact Form: Fixed checkbox field layout in editor. [#34405]
+- Contact Form: Replaced jQuery UI select by native element. [#34441]
+- Contact Form: Specified version for accessible-form script. [#34457]
+- Fixed potential undefined variable access in Contact_Form_Plugin. [#34500]
+
 ## [0.24.2] - 2023-12-03
 ### Added
 - Made forms a screen reader region. [#34344]
@@ -396,6 +416,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.25.0]: https://github.com/automattic/jetpack-forms/compare/v0.24.2...v0.25.0
 [0.24.2]: https://github.com/automattic/jetpack-forms/compare/v0.24.1...v0.24.2
 [0.24.1]: https://github.com/automattic/jetpack-forms/compare/v0.24.0...v0.24.1
 [0.24.0]: https://github.com/automattic/jetpack-forms/compare/v0.23.1...v0.24.0

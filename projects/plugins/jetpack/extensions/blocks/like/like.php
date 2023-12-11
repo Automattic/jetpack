@@ -18,11 +18,14 @@ use Jetpack_Gutenberg;
  * registration if we need to.
  */
 function register_block() {
+	$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+
 	Blocks::jetpack_register_block(
 		__DIR__,
 		array(
 			'api_version'     => 3,
 			'render_callback' => __NAMESPACE__ . '\render_block',
+			'description'     => $is_wpcom ? __( 'Give your readers the ability to show appreciation for your posts and easily share them with others.', 'jetpack' ) : __( 'Give your readers the ability to show appreciation for your posts.', 'jetpack' ),
 		)
 	);
 }
@@ -101,3 +104,29 @@ function render_block( $attr, $content, $block ) {
 		$html
 	);
 }
+
+/**
+ * Add the initial state for the Like block.
+ */
+function add_like_block_data() {
+	if ( ! is_admin() ) {
+		return;
+	}
+
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$blog_id = get_current_blog_id();
+	} else {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+	}
+
+	$like_block_data = array(
+		'blog_id' => $blog_id,
+	);
+
+	wp_add_inline_script(
+		'jetpack-blocks-editor',
+		'var Jetpack_LikeBlock = ' . wp_json_encode( $like_block_data, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+		'before'
+	);
+}
+add_action( 'enqueue_block_assets', __NAMESPACE__ . '\add_like_block_data' );
