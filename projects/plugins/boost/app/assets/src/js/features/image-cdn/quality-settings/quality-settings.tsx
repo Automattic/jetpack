@@ -1,7 +1,6 @@
 import React from 'react';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import CollapsibleMeta from '../collapsible-meta/collapsible-meta';
-import { navigate } from '$lib/utils/navigate';
 import { __, sprintf } from '@wordpress/i18n';
 
 import styles from './quality-settings.module.scss';
@@ -10,6 +9,7 @@ import QualityControl from '../quality-control/quality-control';
 import { DataSyncProvider, useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { type QualityConfig, imageCdnSettingsSchema } from '../lib/stores';
 import { z } from 'zod';
+import NavigationLink from '$features/ui/navigation-link/navigation-link';
 
 type QualitySettingsProps = {
 	isPremium: boolean;
@@ -20,15 +20,7 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 		return createInterpolateElement(
 			__( `For more control over image quality, <link>upgrade now!</link>`, 'jetpack-boost' ),
 			{
-				link: (
-					// eslint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid
-					<a
-						href="#"
-						onClick={ () => {
-							navigate( 'upgrade' );
-						} }
-					/>
-				),
+				link: <NavigationLink route="/upgrade" />,
 			}
 		);
 	}
