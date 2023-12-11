@@ -8,9 +8,6 @@ import { navigate } from '$lib/utils/navigate';
 
 import styles from './performance-history.module.scss';
 
-/*
- * @TODO: Fix fetching. currently returning 403
- */
 const PerformanceHistoryBody = ( { isFreshStart, onDismissFreshStart, needsUpgrade } ) => {
 	const { data, isFetching, isError, error, refetch } = usePerformanceHistoryQuery();
 
