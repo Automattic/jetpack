@@ -766,15 +766,30 @@ async function promptChangelog( argv, needChangelog, types ) {
 		],
 	} );
 
-	// Get the type of change.
-	const { type } = await prompt( {
-		type: 'autocomplete',
-		name: 'type',
-		message: 'Type of change.',
-		suggest: ( input, choices ) => choices.filter( choice => choice.value.startsWith( input ) ),
-		highlight: v => v,
-		choices: typeChoices,
+	const userFacingResponse = await enquirer.prompt( {
+		type: 'confirm',
+		name: 'userFacing',
+		message: 'Is this a Jetpack change that site admins would like to know about?',
+		initial: true,
+		skip: ! needChangelog.includes( 'plugins/jetpack' ),
 	} );
+
+	// Get the type, set it to other if this isn't a user facing change.
+	let typeResponse;
+	if ( ! userFacingResponse.userFacing ) {
+		typeResponse = { type: 'other' };
+	} else {
+		// Get the type of change.
+		typeResponse = await prompt( {
+			type: 'autocomplete',
+			name: 'type',
+			message: 'Type of change.',
+			suggest: ( input, choices ) => choices.filter( choice => choice.value.startsWith( input ) ),
+			highlight: v => v,
+			choices: typeChoices,
+		} );
+	}
+	const { type } = typeResponse;
 
 	console.log(
 		chalk.yellow(

@@ -38,3 +38,9 @@
 
 	<ReactComponent this={Footer} />
 </div>
+
+<style lang="scss">
+	.jb-section--main {
+		z-index: 14;
+	}
+</style>

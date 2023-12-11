@@ -1,33 +1,47 @@
-import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
-//import { Placeholder, withNotices } from '@wordpress/components';
-import { Placeholder } from '@wordpress/components';
-//import { useState } from '@wordpress/element';
+import { getBlockIconComponent, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { BlockIcon, useBlockProps, InspectorControls } from '@wordpress/block-editor';
+import { Placeholder, ToggleControl, PanelBody } from '@wordpress/components';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import metadata from './block.json';
 import './editor.scss';
+import useFetchReblogSetting from './use-fetch-reblog-setting';
 
 const icon = getBlockIconComponent( metadata );
 
-//function LikeEdit( { attributes, className, noticeOperations, noticeUI, setAttributes } ) {
 function LikeEdit( { noticeUI } ) {
-	/**
-	 * Write the block editor UI.
-	 *
-	 * @returns {object} The UI displayed when user edits this block.
-	 */
-	//const [ notice, setNotice ] = useState();
-
-	/* Call this function when you want to show an error in the placeholder. */
-	/* const setErrorNotice = () => {
-		noticeOperations.removeAllNotices();
-		noticeOperations.createErrorNotice( __( 'Put error message here.', 'jetpack' ) );
-	}; */
-
 	const blockProps = useBlockProps();
+	const blogId = window?.Jetpack_LikeBlock?.blog_id;
+
+	const { fetchReblogSetting, reblogSetting } = useFetchReblogSetting( blogId );
+
+	const setReblogSetting = newValue => {
+		// eslint-disable-next-line no-console
+		console.log( newValue );
+	};
+
+	useEffect( () => {
+		if ( ! isSimpleSite() ) {
+			return;
+		}
+		fetchReblogSetting();
+	}, [ fetchReblogSetting ] );
 
 	return (
 		<div { ...blockProps }>
+			{ isSimpleSite() && (
+				<InspectorControls>
+					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+						<ToggleControl
+							label="Show reblog button"
+							checked={ reblogSetting }
+							onChange={ newValue => {
+								setReblogSetting( newValue );
+							} }
+						/>
+					</PanelBody>
+				</InspectorControls>
+			) }
 			<Placeholder
 				label={ __( 'Like', 'jetpack' ) }
 				instructions={ __( 'Instructions go here.', 'jetpack' ) }
