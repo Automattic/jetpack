@@ -170,7 +170,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return boolean
 	 */
 	public function is_current_user_pending_subscriber() {
-		return $this->get_token_property( 'blog_sub' ) === 'pending';
+		return false;
 	}
 
 	/**

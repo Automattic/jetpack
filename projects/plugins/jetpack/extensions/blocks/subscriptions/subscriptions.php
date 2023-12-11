@@ -865,7 +865,7 @@ function maybe_gate_existing_comments( $comment ) {
  * @return string
  */
 function get_paywall_content( $post_access_level ) {
-	if ( $email_confirmation_pending ) {
+	if ( Jetpack_Memberships::user_is_pending_subscriber() ) {
 		return get_paywall_blocks_subscribe_pending();
 	}
 	if ( doing_filter( 'get_the_excerpt' ) ) {
