@@ -97,6 +97,10 @@ class zeroBSCRM_list{
 				'notmerged'           => __( 'Not Merged', 'zero-bs-crm' ),
 				'yesmerge'            => __( 'Yes, merge them', 'zero-bs-crm' ),
 
+				// error handling
+				'badperms'            => __( 'Invalid permissions', 'zero-bs-crm' ),
+				'badperms_desc'       => __( 'You do not have permissions to make this change.', 'zero-bs-crm' ),
+
 			),
 			'bulkActions' => array(),
 			'sortables'   => array( 'id' ),
