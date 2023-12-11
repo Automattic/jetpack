@@ -8,6 +8,7 @@ const WarningOutline = () => (
 		y="0px"
 		viewBox="0 0 24 24"
 		xmlSpace="preserve"
+		className="icon"
 	>
 		<g id="notice-outline">
 			<path

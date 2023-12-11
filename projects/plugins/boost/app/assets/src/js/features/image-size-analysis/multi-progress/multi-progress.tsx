@@ -47,7 +47,7 @@ const MultiProgress: React.FC< MultiProgressProps > = ( { summaryProgress } ) =>
 								}` }
 							>
 								{ summary.has_issues ? (
-									<WarningIcon className="icon" />
+									<WarningIcon />
 								) : summary.done ? (
 									'✓'
 								) : (
