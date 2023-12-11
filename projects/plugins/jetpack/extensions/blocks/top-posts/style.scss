@@ -11,12 +11,9 @@
 		width: 100%;
 	}
 
-	a {
-		display: inline;
-	}
-
 	span {
 		display: block;
+		word-wrap: break-word;
 	}
 
 	&.is-list-layout .jetpack-top-posts-item {

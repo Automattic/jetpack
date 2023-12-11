@@ -28,7 +28,9 @@ function TopPostsPreviewItem( props ) {
 					<div className="jetpack-top-posts-mock-thumbnail"></div>
 				</a>
 			) }
-			<a className="jetpack-top-posts-title">{ props.title }</a>
+			<span className="jetpack-top-posts-title">
+				<a>{ props.title }</a>
+			</span>
 			{ props.displayDate && (
 				<span className="jetpack-top-posts-date has-small-font-size">{ props.date }</span>
 			) }
@@ -36,9 +38,9 @@ function TopPostsPreviewItem( props ) {
 				<span className="jetpack-top-posts-author has-small-font-size">{ props.author }</span>
 			) }
 			{ props.displayContext && props.context && (
-				<a className="jetpack-top-posts-context has-small-font-size">
-					{ props.context[ 0 ].cat_name }
-				</a>
+				<span className="jetpack-top-posts-context has-small-font-size">
+					<a>{ props.context[ 0 ].cat_name }</a>
+				</span>
 			) }
 		</div>
 	);
