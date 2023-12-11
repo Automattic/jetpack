@@ -452,12 +452,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 				<InspectorControls>
 					<PanelBody initialOpen={ true }>
 						<PanelRow>
-							<FeedbackControl />
+							<UsagePanel placement={ USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } />
 						</PanelRow>
 					</PanelBody>
 					<PanelBody initialOpen={ true }>
 						<PanelRow>
-							<UsagePanel placement={ USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } />
+							<FeedbackControl />
 						</PanelRow>
 					</PanelBody>
 				</InspectorControls>
