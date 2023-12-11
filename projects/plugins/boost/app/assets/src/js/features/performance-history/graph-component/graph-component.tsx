@@ -7,6 +7,7 @@ import {
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import styles from './graph-component.module.scss';
+import { PerformanceHistoryData } from '../lib/stores/store';
 
 const DummyGraph = ( { children } ) => {
 	return (
@@ -18,6 +19,14 @@ const DummyGraph = ( { children } ) => {
 	);
 };
 
+type GraphComponentProps = PerformanceHistoryData & {
+	needsUpgrade: boolean;
+	handleUpgrade: () => void;
+	isFreshStart: boolean;
+	handleDismissFreshStart: () => void;
+	isLoading: boolean;
+};
+
 const GraphComponent = ( {
 	periods = [],
 	startDate = 0,
@@ -27,7 +36,7 @@ const GraphComponent = ( {
 	isFreshStart,
 	handleDismissFreshStart,
 	isLoading,
-} ) => {
+}: GraphComponentProps ) => {
 	if ( isLoading ) {
 		return (
 			<div className={ styles.dummy }>
