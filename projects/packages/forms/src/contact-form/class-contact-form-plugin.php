@@ -262,6 +262,7 @@ class Contact_Form_Plugin {
 				'async'        => true,
 				'version'      => \JETPACK__VERSION,
 				'dependencies' => array( 'wp-i18n' ),
+				'textdomain'   => 'jetpack-forms',
 			)
 		);
 

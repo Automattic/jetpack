@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Aavoid warnings by specifying the textdomain with new script.
