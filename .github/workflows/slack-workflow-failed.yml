@@ -8,6 +8,7 @@ on:
       - Build Docker
       - Tests
       - Gardening
+      - Monorepo Auto-tagger
       - Post-Build
       - PR is up-to-date
       - Update Jetpack Staging Test Sites

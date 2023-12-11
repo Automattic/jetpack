@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "335ee318534ab58327f45abc5da1748a76dd531d"
+                "reference": "1f713fb83a98dab43f325fe71331d40f9ca47334"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -21,7 +21,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "brain/monkey": "2.6.1",
-                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
             "suggest": {
@@ -576,7 +576,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "28b3a05e274c08410b266fa803ed73520d5c2874"
+                "reference": "a3fe745d83642d741dffe5e1884cc53c65fd056b"
             },
             "require": {
                 "php": ">=7.0",
@@ -584,7 +584,7 @@
                 "symfony/process": "^3.4 || ^4.4 || ^5.2 || ^6.0"
             },
             "require-dev": {
-                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
             "bin": [
