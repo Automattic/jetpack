@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.15.0 - 2023-12-11
 ### Added
-- Introduce the plan usage API route porting to wpcom. [#34516]
+- Introduced the plan usage API route porting to wpcom. [#34516]
 
 ## 0.14.0 - 2023-11-24
 ### Added

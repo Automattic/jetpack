@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.42.0] - 2023-12-11
 ### Changed
-- Social: Refactored storing of feature options to use core functions [#34113]
+- Refactored storing of feature options to use core functions. [#34113]
 
 ## [0.41.9] - 2023-12-06
 ### Changed

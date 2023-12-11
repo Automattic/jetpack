@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.2.0] - 2023-12-11
 ### Added
-- Social: Add auto-conversion option to sync to WPCOM [#34113]
+- Social: Add auto-conversion option to sync to WPCOM. [#34113]
 
 ### Fixed
 - Fixed a missing sanity check in Sync Posts handler logic that created failed builds. [#34548]
-- Sync:Update Full Sync to limit max amount of data sent in one request. [#34390]
+- Sync: Update Full Sync to limit max amount of data sent in one request. [#34390]
 
 ## [2.1.2] - 2023-12-06
 ### Changed

@@ -4,7 +4,7 @@
 
 ## [0.45.6] - 2023-12-11
 ### Fixed
-- Fixed resizing of the graph [#34185]
+- Fixed resizing of the performance history graph. [#34185]
 
 ## [0.45.5] - 2023-12-06
 ### Changed

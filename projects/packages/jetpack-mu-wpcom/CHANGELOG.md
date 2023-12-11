@@ -7,16 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.3.0] - 2023-12-11
 ### Added
-- Added Editor error handling from ETK [#34158]
-- Add initial JS and TS build logic [#34158]
-- Add the Site Setup Launchpad, to allow us to retire the old checklist card [#34320]
-- Launchpad: Add tasks for the new ai-assembler flow [#34532]
-- Launchpad: Complete the plan tasks when the user purchses a plan [#34480]
-- Launchpad: Complete the task, Personalize your site, when the user updates the site title, site tagline or site logo [#34511]
-- Launchpad: Set up tasks for the new assembler-first flow [#34451]
+- Added editor error handling from ETK. [#34158]
+- Added initial JS and TS build logic. [#34158]
+- Added the Site Setup Launchpad, to allow us to retire the old checklist card. [#34320]
+- Launchpad: Added tasks for the new ai-assembler flow. [#34532]
+- Launchpad: Completed the plan tasks when the user purchses a plan. [#34480]
+- Launchpad: Completed the task, Personalize your site, when the user updates the site title, site tagline or site logo. [#34511]
+- Launchpad: Set up tasks for the new assembler-first flow. [#34451]
 
 ### Changed
-- Launchpad: Add source to Earn stripe task [#34448]
+- Launchpad: Added source to Earn stripe task. [#34448]
 
 ## [5.2.0] - 2023-12-03
 ### Changed

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.1.3] - 2023-12-11
 ### Changed
-- My Jetpack: Update Jetpack AI interstitial to repeat the feature's list on all the tiers. [#34541]
+- Updated Jetpack AI interstitial to repeat the feature's list on all the tiers. [#34541]
 
 ## [4.1.2] - 2023-12-06
 ### Changed
