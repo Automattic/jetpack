@@ -7,8 +7,8 @@ const path = require( 'path' );
 const { createTokenAuth } = require( '@octokit/auth-token' );
 const { Octokit } = require( '@octokit/rest' );
 const chalk = require( 'chalk' );
+const enquirer = require( 'enquirer' );
 const glob = require( 'glob' );
-const inquirer = require( 'inquirer' );
 
 /**
  * List secrets.
@@ -52,13 +52,12 @@ async function main() {
 			return;
 		}
 	} else {
+		const cwd = path.resolve( __dirname, '../..' );
 		repos = [];
 		repos = glob
-			.sync( 'projects/*/*/composer.json', {
-				cwd: path.resolve( __dirname, '../..' ),
-			} )
+			.sync( 'projects/*/*/composer.json', { cwd } )
 			.flatMap( file => {
-				const data = JSON.parse( fs.readFileSync( file, 'utf8' ) );
+				const data = JSON.parse( fs.readFileSync( path.resolve( cwd, file ), 'utf8' ) );
 				if ( data.extra && data.extra[ 'mirror-repo' ] ) {
 					return [ data.extra[ 'mirror-repo' ] ];
 				}
@@ -70,7 +69,7 @@ async function main() {
 
 	let token = process.env.GITHUB_TOKEN;
 	if ( ! token ) {
-		token = await inquirer
+		token = await enquirer
 			.prompt( [
 				{
 					type: 'password',
