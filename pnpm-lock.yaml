@@ -15745,7 +15745,6 @@ packages:
     dependencies:
       '@babel/runtime': 7.23.5
       csstype: 3.1.3
-    dev: false
 
   /dom-scroll-into-view@1.2.1:
     resolution: {integrity: sha512-LwNVg3GJOprWDO+QhLL1Z9MMgWe/KAFLxVWKzjRTxNSPn8/LLDIfmuG71YHznXCqaqTjvHJDYO1MEAgX6XCNbQ==}
