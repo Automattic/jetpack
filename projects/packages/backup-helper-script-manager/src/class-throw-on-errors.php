@@ -430,8 +430,8 @@ class Throw_On_Errors {
 	 * @param string $filename Path to the file where to write the data.
 	 * @param string $data The data to write.
 	 *
-	 * @return int Number of bytes that were written to the file.
-	 * @throws Exception If file_put_contents() has thrown warnings, or has failed.
+	 * @return void
+	 * @throws Exception If file_put_contents() has thrown warnings, has failed, or if it didn't write all the bytes.
 	 */
 	public static function t_file_put_contents( $filename, $data ) {
 
@@ -443,9 +443,11 @@ class Throw_On_Errors {
 			throw new Exception( 'Data to write is null' );
 		}
 
-		$label = "file_put_contents( '$filename', " . strlen( $data ) . ' bytes of data )';
+		$data_length = strlen( $data );
 
-		$file_put_contents_result = static::throw_on_warnings(
+		$label = "file_put_contents( '$filename', $data_length bytes of data )";
+
+		$number_of_bytes_written = static::throw_on_warnings(
 			function () use ( $filename, $data ) {
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 				return file_put_contents( $filename, $data );
@@ -453,11 +455,15 @@ class Throw_On_Errors {
 			$label
 		);
 
-		if ( false === $file_put_contents_result ) {
+		if ( false === $number_of_bytes_written ) {
 			throw new Exception( "Unable to $label" );
 		}
 
-		return $file_put_contents_result;
+		if ( $number_of_bytes_written !== $data_length ) {
+			throw new Exception(
+				"$label was expected to write $data_length bytes, but wrote $number_of_bytes_written bytes"
+			);
+		}
 	}
 
 	/**
