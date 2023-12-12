@@ -7,6 +7,7 @@
 namespace Automattic\Jetpack\Backup;
 
 use Exception;
+use Throwable;
 
 /**
  * Wrappers for functions which throw an exception on errors and warnings instead of silently continuing operation.
@@ -63,22 +64,10 @@ class Throw_On_Errors {
 
 		$result        = null;
 		$error_message = null;
-		if ( PHP_MAJOR_VERSION >= 7 ) {
-			// On PHP 7.x, all Exception and Error are subclasses of Throwable.
-			try {
-				$result = $callable();
-			} catch ( Throwable $throwable ) {
-				$error_message = $throwable->getMessage();
-			} catch ( Exception $exception ) {
-				$error_message = $exception->getMessage();
-			}
-		} else {
-			// On PHP 5.x, there's only Exception.
-			try {
-				$result = $callable();
-			} catch ( Exception $exception ) {
-				$error_message = $exception->getMessage();
-			}
+		try {
+			$result = $callable();
+		} catch ( Throwable $throwable ) {
+			$error_message = $throwable->getMessage();
 		}
 
 		restore_error_handler();
