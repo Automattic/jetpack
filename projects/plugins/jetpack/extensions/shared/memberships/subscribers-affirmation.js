@@ -2,7 +2,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement, Spinner, Flex } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
-import { name as paywallBlockName } from '../../blocks/paywall/block.json';
+import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { accessOptions } from '../../shared/memberships/constants';
 import { getReachForAccessLevelKey } from '../../shared/memberships/settings';
 import { store as membershipProductsStore } from '../../store/membership-products';
@@ -173,7 +173,7 @@ function SubscribersAffirmation( { accessLevel, prePublish } ) {
 	const postHasPaywallBlock = useSelect( select =>
 		select( 'core/block-editor' )
 			.getBlocks()
-			.some( block => block.name === paywallBlockName )
+			.some( block => block.name === paywallBlockMetadata.name )
 	);
 
 	const { isScheduledPost, postCategories } = useSelect( select => {
