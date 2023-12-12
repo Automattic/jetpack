@@ -861,23 +861,18 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
  */
 function jpcrm_process_date_variables( $value, $key, $working_html, $placeholder_str_start = '##' ) {
 
-	$base_date_key       = $key;
-	$string_to_base_date = jpcrm_uts_to_date_str( strtotime( $value ), get_option( 'date_format' ) );
-	$datetime_key        = $key . '_datetime_str';
-	$string_to_datetime  = jpcrm_uts_to_date_str( strtotime( $value ), 'd F Y ' . get_option( 'time_format' ) );
-	$date_key            = $key . '_date_str';
-	$string_to_date      = jpcrm_uts_to_date_str( strtotime( $value ), 'd F Y' );
+	$base_date_key        = $key;
+	$date_to_uts          = jpcrm_date_str_to_uts( $value );
+	$datetime_key         = $key . '_datetime_str';
+	$date_uts_to_datetime = jpcrm_uts_to_datetime_str( $date_to_uts );
+	$date_key             = $key . '_date_str';
+	$date_uts__to_date    = jpcrm_uts_to_date_str( $date_to_uts );
 
 	$search_replace_pairs = array(
-		$placeholder_str_start . strtoupper( $base_date_key ) . '##' => $string_to_base_date,
-		$placeholder_str_start . strtolower( $base_date_key ) . '##' => $string_to_base_date,
-		$placeholder_str_start . strtolower( $base_date_key ) . '##' => $string_to_base_date,
-		$placeholder_str_start . strtoupper( $datetime_key ) . '##' => $string_to_datetime,
-		$placeholder_str_start . strtolower( $datetime_key ) . '##' => $string_to_datetime,
-		$placeholder_str_start . strtolower( $datetime_key ) . '##' => $string_to_datetime,
-		$placeholder_str_start . strtoupper( $date_key ) . '##' => $string_to_date,
-		$placeholder_str_start . strtolower( $date_key ) . '##' => $string_to_date,
-		$placeholder_str_start . strtolower( $date_key ) . '##' => $string_to_date,
+		$placeholder_str_start . strtoupper( $base_date_key ) . '##' => $date_to_uts,
+		$placeholder_str_start . strtoupper( $datetime_key ) . '##' => $date_uts_to_datetime,
+		$placeholder_str_start . strtoupper( $date_key ) . '##' => $date_uts__to_date,
+
 	);
 
 	$working_html = str_replace( array_keys( $search_replace_pairs ), $search_replace_pairs, $working_html );

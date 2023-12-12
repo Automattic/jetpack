@@ -757,8 +757,8 @@ function ZeroBSCRM_get_quote_template() {
 				$quote_val = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_value'] ) );
 			}
 			if ( isset( $_POST['quote_fields']['zbscq_date'] ) && ! empty( $_POST['quote_fields']['zbscq_date'] ) ) {
-				$sanitized_date = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_date'] ) );
-				$quote_date     = jpcrm_uts_to_date_str( strtotime( $sanitized_date ), get_option( 'date_format' ) );
+				$sanitized_date = jpcrm_date_str_to_uts( sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_date'] ) ) );
+				$quote_date     = jpcrm_uts_to_date_str( $sanitized_date );
 			}
 		}
 
@@ -841,7 +841,7 @@ function ZeroBSCRM_get_quote_template() {
 								// Here is where we search and replace placeholders for dates with a date string and date time strings), initially checking the value is similar to that of 'yyyy-mm-dd'.
 								if ( preg_match( '/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/', $v ) ) {
 
-									// Additional date validation to confirm the date is valid
+									// Additional date validation to confirm the date is valid, before processing (creating placeholder strings for searching and replacing).
 									$date_time = DateTime::createFromFormat( 'Y-m-d', $v );
 									if ( $date_time && $date_time->format( 'Y-m-d' ) === $v ) {
 
