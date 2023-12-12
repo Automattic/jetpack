@@ -289,6 +289,12 @@ class Helper_Script_Manager {
 		$file_key  = wp_generate_password( 10, false );
 		$file_name = 'jp-helper-' . $file_key . '.php';
 		$file_path = trailingslashit( $temp_dir ) . $file_name;
+
+		// Very unlikely, but check nonetheless.
+		if ( Throw_On_Errors::t_file_exists( $file_path ) ) {
+			throw new Exception( "Helper script at '$file_path' already exists" );
+		}
+
 		Throw_On_Errors::t_file_put_contents( $file_path, $script_body );
 
 		return array(
