@@ -17,7 +17,7 @@ const SuperCacheInfo = () => {
 		'super_cache_notice_disabled',
 		z.boolean()
 	);
-	//const isNoticeDismissed = false;
+
 	const isNoticeDismissed = data;
 	const setNoticeDismissed = mutate;
 
