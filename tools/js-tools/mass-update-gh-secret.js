@@ -5,7 +5,7 @@
 const { createTokenAuth } = require( '@octokit/auth-token' );
 const { Octokit } = require( '@octokit/rest' );
 const chalk = require( 'chalk' );
-const inquirer = require( 'inquirer' );
+const enquirer = require( 'enquirer' );
 const sodium = require( 'libsodium-wrappers' );
 
 /**
@@ -60,7 +60,7 @@ async function main() {
 
 	let token = process.env.GITHUB_TOKEN;
 	if ( ! token ) {
-		token = await inquirer
+		token = await enquirer
 			.prompt( [
 				{
 					type: 'password',
@@ -73,7 +73,7 @@ async function main() {
 	const auth = await createTokenAuth( token );
 	const octokit = new Octokit( { auth: ( await auth() ).token } );
 
-	const { name, value } = await inquirer.prompt( [
+	const { name, value } = await enquirer.prompt( [
 		{
 			type: 'input',
 			name: 'name',
