@@ -52,4 +52,14 @@ class Jetpack_Token_Subscription_Service extends Token_Subscription_Service {
 		}
 		return $token->secret;
 	}
+
+	/**
+	 * Returns true if the current authenticated user has a pending subscription to the current site.
+	 *
+	 * @return boolean
+	 */
+	public function is_current_user_pending_subscriber() {
+
+		return $this->get_token_property( 'blog_sub' ) === 'pending';
+	}
 }
