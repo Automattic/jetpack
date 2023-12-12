@@ -35,9 +35,37 @@ const SuperCacheInfo = () => {
 		window.location.href = './options-general.php?page=wpsupercache';
 	};
 
-	if ( isSuperCacheEnabled() ) {
-		if ( state.status === 'testing' ) {
-			return (
+	if ( isNoticeDismissed ) {
+		return null;
+	}
+
+	if ( ! isSuperCachePluginActive() ) {
+		return null;
+	}
+
+	if ( ! isSuperCacheEnabled() ) {
+		return (
+			<Notice
+				level="warning"
+				title={ __( 'Super Cache is installed but not enabled', 'jetpack-boost' ) }
+				actions={ [
+					<Button key="start" isPrimary onClick={ () => navToSuperCacheSettings() }>
+						{ __( 'Set up', 'jetpack-boost' ) }
+					</Button>,
+				] }
+				hideCloseButton={ false }
+				onClose={ () => {
+					setNoticeDismissed( true );
+				} }
+			>
+				{ __( 'Enable Super Cache to speed your site up further.', 'jetpack-boost' ) }
+			</Notice>
+		);
+	}
+
+	return (
+		<>
+			{ state.status === 'testing' && (
 				<Notice
 					level="info"
 					title={ __( 'Measuring Super Cache Speed', 'jetpack-boost' ) }
@@ -50,9 +78,8 @@ const SuperCacheInfo = () => {
 				>
 					<p>{ __( 'Jetpack Boost is testing the speed of your cache.', 'jetpack-boost' ) }</p>
 				</Notice>
-			);
-		} else if ( state.status === 'idle' ) {
-			return (
+			) }
+			{ state.status === 'idle' && (
 				<Notice
 					level="info"
 					title={ __( 'Super Cache detected', 'jetpack-boost' ) }
@@ -71,9 +98,8 @@ const SuperCacheInfo = () => {
 				>
 					<p>{ __( 'Find out how much difference it makes for your users.', 'jetpack-boost' ) }</p>
 				</Notice>
-			);
-		} else if ( state.status === 'complete' ) {
-			return (
+			) }
+			{ state.status === 'complete' && (
 				<Notice
 					level="success"
 					title={ __( 'Super Cache Speed', 'jetpack-boost' ) }
@@ -98,9 +124,8 @@ const SuperCacheInfo = () => {
 						) }
 					</p>
 				</Notice>
-			);
-		} else if ( state.status === 'error' ) {
-			return (
+			) }
+			{ state.status === 'error' && (
 				<Notice
 					level="error"
 					title={ __( 'Super Cache Speed', 'jetpack-boost' ) }
@@ -125,35 +150,9 @@ const SuperCacheInfo = () => {
 						) }
 					</p>
 				</Notice>
-			);
-		}
-	} else {
-		if ( isNoticeDismissed ) {
-			return null;
-		}
-
-		if ( isSuperCachePluginActive() ) {
-			return (
-				<Notice
-					level="warning"
-					title={ __( 'Super Cache is installed but not enabled', 'jetpack-boost' ) }
-					actions={ [
-						<Button key="start" isPrimary onClick={ () => navToSuperCacheSettings() }>
-							{ __( 'Set up', 'jetpack-boost' ) }
-						</Button>,
-					] }
-					hideCloseButton={ false }
-					onClose={ () => {
-						setNoticeDismissed( true );
-					} }
-				>
-					{ __( 'Enable Super Cache to speed your site up further.', 'jetpack-boost' ) }
-				</Notice>
-			);
-		}
-	}
-
-	return null;
+			) }
+		</>
+	);
 };
 
 export default function () {
