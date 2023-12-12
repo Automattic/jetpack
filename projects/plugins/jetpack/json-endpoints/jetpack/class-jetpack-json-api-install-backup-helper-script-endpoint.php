@@ -67,9 +67,8 @@ class Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint extends Jetpack_JSO
 	 * Installs the uploaded Helper Script.
 	 */
 	protected function install() {
-		$helper_script_manager = new Helper_Script_Manager();
-		$this->result          = $helper_script_manager->install_helper_script( $this->helper_script );
-		$helper_script_manager->cleanup_expired_helper_scripts();
+		$this->result = Helper_Script_Manager::install_helper_script( $this->helper_script );
+		Helper_Script_Manager::cleanup_expired_helper_scripts();
 	}
 
 	/**

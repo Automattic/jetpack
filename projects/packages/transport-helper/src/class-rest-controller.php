@@ -111,9 +111,8 @@ class REST_Controller {
 			return new WP_Error( 'invalid_args', __( 'Helper Script body must be base64 encoded', 'jetpack-transport-helper' ), 400 );
 		}
 
-		$helper_script_manager = new Helper_Script_Manager();
-		$installation_info     = $helper_script_manager->install_helper_script( $helper_script );
-		$helper_script_manager->cleanup_expired_helper_scripts();
+		$installation_info = Helper_Script_Manager::install_helper_script( $helper_script );
+		Helper_Script_Manager::cleanup_expired_helper_scripts();
 
 		return rest_ensure_response( $installation_info );
 	}
@@ -130,9 +129,8 @@ class REST_Controller {
 	public static function delete_helper_script( $request ) {
 		$path_to_helper_script = $request->get_param( 'path' );
 
-		$helper_script_manager = new Helper_Script_Manager();
-		$delete_result         = $helper_script_manager->delete_helper_script( $path_to_helper_script );
-		$helper_script_manager->cleanup_expired_helper_scripts();
+		$delete_result = Helper_Script_Manager::delete_helper_script( $path_to_helper_script );
+		Helper_Script_Manager::cleanup_expired_helper_scripts();
 
 		if ( is_wp_error( $delete_result ) ) {
 			return $delete_result;

@@ -5,11 +5,11 @@ namespace Automattic\Jetpack\Backup;
 use WorDBless\BaseTestCase;
 
 /**
- * Unit tests for the Helper_Script_Manager class.
+ * Unit tests for the Helper_Script_Manager_Impl class.
  *
  * @package automattic/jetpack-backup
  */
-class Test_Helper_Script_Manager extends BaseTestCase {
+class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 
 	/**
 	 * Temporary directory where "jetpack-temp" will get created.
@@ -101,7 +101,7 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	 * Test default install locations set by the constructor.
 	 */
 	public function test_default_install_locations() {
-		$helper_script_manager     = new Helper_Script_Manager();
+		$helper_script_manager     = new Helper_Script_Manager_Impl();
 		$default_install_locations = $helper_script_manager->install_locations();
 
 		$this->assertCount( 3, $default_install_locations );
@@ -127,7 +127,7 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	 * Test constructor with custom install locations.
 	 */
 	public function test_custom_install_locations() {
-		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
+		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 		$install_locations     = $helper_script_manager->install_locations();
 
 		$this->assertSame( $this->install_locations, $install_locations );
@@ -137,8 +137,8 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	 * Test install_helper_script().
 	 */
 	public function test_install_helper_script() {
-		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
-		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
+		$script_body           = Helper_Script_Manager_Impl::HELPER_HEADER . '$path = "[wp_path]"';
+		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 		$install_result        = $helper_script_manager->install_helper_script( $script_body );
 
 		$this->assertIsArray( $install_result );
@@ -162,7 +162,7 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 		$this->assertFileExists( $readme_path );
 
 		$this->assertSame(
-			implode( "\n\n", Helper_Script_Manager::README_LINES ),
+			implode( "\n\n", Helper_Script_Manager_Impl::README_LINES ),
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			file_get_contents( $readme_path )
 		);
@@ -171,7 +171,7 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 		$this->assertFileExists( $index_php_path );
 
 		$this->assertSame(
-			Helper_Script_Manager::INDEX_FILE,
+			Helper_Script_Manager_Impl::INDEX_FILE,
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			file_get_contents( $index_php_path )
 		);
@@ -182,7 +182,7 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	 */
 	public function test_install_helper_script_bad_header() {
 		$script_body           = 'foobarbaz';
-		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
+		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 		$install_result        = $helper_script_manager->install_helper_script( $script_body );
 		$this->assertInstanceOf( \WP_Error::class, $install_result );
 		$this->assertSame( 'bad_header', $install_result->get_error_code() );
@@ -196,15 +196,15 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	 * Test install_helper_script() with a script body that's too big.
 	 */
 	public function test_install_helper_script_too_big() {
-		$script_body           = Helper_Script_Manager::HELPER_HEADER .
+		$script_body           = Helper_Script_Manager_Impl::HELPER_HEADER .
 								str_repeat( str_repeat( 'a', 1024 ), 1024 );
-		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
+		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 		$install_result        = $helper_script_manager->install_helper_script( $script_body );
 		$this->assertInstanceOf( \WP_Error::class, $install_result );
 		$this->assertSame( 'too_big', $install_result->get_error_code() );
 		$this->assertSame(
 			'Helper script is bigger (' . strlen( $script_body ) . ' bytes) ' .
-			'than the max. size (' . Helper_Script_Manager::MAX_FILESIZE . ' bytes)',
+			'than the max. size (' . Helper_Script_Manager_Impl::MAX_FILESIZE . ' bytes)',
 			$install_result->get_error_message()
 		);
 	}
@@ -213,8 +213,8 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	 * Test install_helper_script() with a script body that has the "[wp_path]" marker missing.
 	 */
 	public function test_install_helper_script_no_wp_path() {
-		$script_body           = Helper_Script_Manager::HELPER_HEADER . 'hello';
-		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
+		$script_body           = Helper_Script_Manager_Impl::HELPER_HEADER . 'hello';
+		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 		$install_result        = $helper_script_manager->install_helper_script( $script_body );
 		$this->assertInstanceOf( \WP_Error::class, $install_result );
 		$this->assertSame( 'no_wp_path_marker', $install_result->get_error_code() );
@@ -228,8 +228,8 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	 * Test install_helper_script() to a location that we can't write to.
 	 */
 	public function test_install_helper_script_bad_location() {
-		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
-		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
+		$script_body           = Helper_Script_Manager_Impl::HELPER_HEADER . '$path = "[wp_path]"';
+		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 
 		$first_install_dir = array_keys( $this->install_locations )[0];
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod
@@ -258,8 +258,8 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	 * Test delete_helper_script().
 	 */
 	public function test_delete_helper_script() {
-		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
-		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
+		$script_body           = Helper_Script_Manager_Impl::HELPER_HEADER . '$path = "[wp_path]"';
+		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 		$install_result        = $helper_script_manager->install_helper_script( $script_body );
 
 		$this->assertIsArray( $install_result );
@@ -281,8 +281,8 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	 * Test delete_helper_script(), but make the helper script into an invalid one first.
 	 */
 	public function test_delete_helper_script_bad_contents() {
-		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
-		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
+		$script_body           = Helper_Script_Manager_Impl::HELPER_HEADER . '$path = "[wp_path]"';
+		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 		$result                = $helper_script_manager->install_helper_script( $script_body );
 
 		$this->assertIsArray( $result );
@@ -304,8 +304,8 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	 * Test cleanup_expired_helper_scripts() when only some of them have expired.
 	 */
 	public function test_cleanup_expired_helper_scripts() {
-		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
-		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
+		$script_body           = Helper_Script_Manager_Impl::HELPER_HEADER . '$path = "[wp_path]"';
+		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 
 		$install_results = array();
 		for ( $x = 0; $x < 3; ++$x ) {
@@ -347,8 +347,8 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	 * Test cleanup_expired_helper_scripts() when all of them have expired.
 	 */
 	public function test_cleanup_expired_helper_scripts_all_expired() {
-		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
-		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
+		$script_body           = Helper_Script_Manager_Impl::HELPER_HEADER . '$path = "[wp_path]"';
+		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 
 		$install_results = array();
 		for ( $x = 0; $x < 3; ++$x ) {
@@ -382,8 +382,8 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	 * Test cleanup_expired_helper_scripts(), but make one of the helper scripts into an invalid one first.
 	 */
 	public function test_cleanup_expired_helper_scripts_bad_contents() {
-		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
-		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
+		$script_body           = Helper_Script_Manager_Impl::HELPER_HEADER . '$path = "[wp_path]"';
+		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 
 		$install_results = array();
 		for ( $x = 0; $x < 3; ++$x ) {
@@ -432,8 +432,8 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	 * Test delete_all_helper_scripts().
 	 */
 	public function test_delete_all_helper_scripts() {
-		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
-		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
+		$script_body           = Helper_Script_Manager_Impl::HELPER_HEADER . '$path = "[wp_path]"';
+		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 
 		$install_results = array();
 		for ( $x = 0; $x < 3; ++$x ) {
@@ -465,8 +465,8 @@ class Test_Helper_Script_Manager extends BaseTestCase {
 	 * Test delete_all_helper_scripts(), but make one of the helper scripts into an invalid one first.
 	 */
 	public function test_delete_all_helper_scripts_bad_contents() {
-		$script_body           = Helper_Script_Manager::HELPER_HEADER . '$path = "[wp_path]"';
-		$helper_script_manager = new Helper_Script_Manager( $this->install_locations );
+		$script_body           = Helper_Script_Manager_Impl::HELPER_HEADER . '$path = "[wp_path]"';
+		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 
 		$install_results = array();
 		for ( $x = 0; $x < 3; ++$x ) {

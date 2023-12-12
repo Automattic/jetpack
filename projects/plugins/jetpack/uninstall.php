@@ -52,8 +52,7 @@ function jetpack_uninstall() {
 	Sender::get_instance()->uninstall();
 
 	// Jetpack Backup: Cleanup any leftover Helper Scripts.
-	$helper_script_manager = new Helper_Script_Manager();
-	$helper_script_manager->delete_all_helper_scripts();
+	Helper_Script_Manager::delete_all_helper_scripts();
 }
 
 jetpack_uninstall();

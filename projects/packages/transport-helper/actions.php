@@ -5,8 +5,6 @@
  * @package automattic/jetpack-transport-helper
  */
 
-use Automattic\Jetpack\Backup\Helper_Script_Manager;
-
 // If WordPress's plugin API is available already, use it. If not,
 // drop data into `$wp_filter` for `WP_Hook::build_preinitialized_hooks()`.
 if ( function_exists( 'add_filter' ) ) {
@@ -25,8 +23,7 @@ if ( function_exists( 'add_filter' ) ) {
 }
 
 // Clean up expired Jetpack Helper Scripts from a scheduled event.
-$helper_script_manager = new Helper_Script_Manager();
-$add_action( 'jetpack_cleanup_helper_scripts', array( $helper_script_manager, 'cleanup_expired_helper_scripts' ) );
+$add_action( 'jetpack_cleanup_helper_scripts', array( 'Automattic\\Jetpack\\Backup\\Helper_Script_Manager', 'cleanup_expired_helper_scripts' ) );
 
 // Register REST routes.
 $add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Transport_Helper\\REST_Controller', 'register_rest_routes' ) );
