@@ -54,7 +54,7 @@ function LikeEdit( { noticeUI } ) {
 				<InspectorControls>
 					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 						<ToggleControl
-							label="Show reblog button"
+							label={ __( 'Show reblog button', 'jetpack' ) }
 							checked={ currentReblogSetting }
 							disabled={ settingReblog || fetchingReblog }
 							onChange={ newValue => {
