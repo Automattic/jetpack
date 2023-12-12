@@ -384,6 +384,7 @@ SQL
 			$status = $this->set_send_full_sync_actions_status( $status, $objects );
 			if ( $last_item === $status['last_sent'] ) {
 				$status['finished'] = true;
+				return $status;
 			}
 			++$chunks_sent;
 		}
