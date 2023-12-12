@@ -10,6 +10,7 @@ import {
 	setSiteSlug,
 	setConnectedAccountDefaultCurrency,
 	setNewsletterCategories,
+	setNewsletterCategoriesSubscriptionsCount,
 } from '../actions';
 import * as utils from '../utils';
 
@@ -113,7 +114,7 @@ describe( 'Membership Products Actions', () => {
 
 	test.each( productsForTitleTesting )( '$name', async testCase => {
 		// Given
-		const selectedProductIdCallback = anyFunction;
+		const selectedProductIdsCallback = anyFunction;
 		const paymentPlanProductType = PRODUCT_TYPE_PAYMENT_PLAN;
 		const noticeMock = jest.spyOn( utils, 'onError' ).mockImplementation( anyFunction );
 		const getMessageMock = jest
@@ -124,7 +125,7 @@ describe( 'Membership Products Actions', () => {
 		await saveProduct(
 			testCase.product,
 			paymentPlanProductType,
-			selectedProductIdCallback
+			selectedProductIdsCallback
 		)( anyFunction, anyFunction );
 
 		// Then
@@ -222,7 +223,7 @@ describe( 'Membership Products Actions', () => {
 			products: registryProductList.concat( [ apiResponseProduct ] ),
 			type: 'SET_PRODUCTS',
 		} );
-		expect( selectedProductCallback ).toHaveBeenCalledWith( apiResponseProduct.id );
+		expect( selectedProductCallback ).toHaveBeenCalledWith( [ apiResponseProduct.id ] );
 		expect( noticeMock ).toHaveBeenCalled();
 		expect( getMessageMock ).toHaveBeenCalledWith(
 			'successfully created product',
@@ -297,7 +298,7 @@ describe( 'Membership Products Actions', () => {
 			products: registryProductList.concat( [ apiResponseProduct ] ),
 			type: 'SET_PRODUCTS',
 		} );
-		expect( selectedProductCallback ).toHaveBeenCalledWith( apiResponseProduct.id );
+		expect( selectedProductCallback ).toHaveBeenCalledWith( [ apiResponseProduct.id ] );
 		expect( noticeMock ).not.toHaveBeenCalled();
 		expect( getMessageMock ).not.toHaveBeenCalled();
 	} );
@@ -314,5 +315,19 @@ describe( 'Membership Products Actions', () => {
 
 		// Then
 		expect( result ).toStrictEqual( anyValidNewsletterCategoriesWithType );
+	} );
+
+	test( 'Set newsletter categories subscriptions count works as expected', () => {
+		// Given
+		const anyValidNewsletterCategoriesSubscriptionsCountWithType = {
+			type: 'SET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT',
+			newsletterCategoriesSubscriptionsCount: ANY_VALID_DATA,
+		};
+
+		// When
+		const result = setNewsletterCategoriesSubscriptionsCount( ANY_VALID_DATA );
+
+		// Then
+		expect( result ).toStrictEqual( anyValidNewsletterCategoriesSubscriptionsCountWithType );
 	} );
 } );

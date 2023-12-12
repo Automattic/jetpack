@@ -149,9 +149,6 @@ const useSuggestionsFromOpenAI = ( {
 				status: 'info',
 			} );
 
-			// Dispatch the action to set the feature as requiring an upgrade.
-			setAiAssistantFeatureRequireUpgrade( true );
-
 			return;
 		}
 

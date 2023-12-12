@@ -1133,7 +1133,7 @@ abstract class Publicize_Base {
 			'single'        => true,
 			'default'       => array(
 				'image_generator_settings' => array(
-					'template' => ( new Social_Image_Generator\Settings() )->get_default_template(),
+					'template' => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_template(),
 					'enabled'  => false,
 				),
 			),
@@ -1835,33 +1835,6 @@ abstract class Publicize_Base {
 		}
 
 		return $additional_connections;
-	}
-
-	/**
-	 * Check if Instagram connection is enabled.
-	 *
-	 * @return bool
-	 */
-	public function has_instagram_connection_feature() {
-		return Current_Plan::supports( 'social-instagram-connection' );
-	}
-
-	/**
-	 * Check if Mastodon connection is enabled.
-	 *
-	 * @return bool
-	 */
-	public function has_mastodon_connection_feature() {
-		return Current_Plan::supports( 'social-mastodon-connection' );
-	}
-
-	/**
-	 * Check if Nextdoor connection is enabled.
-	 *
-	 * @return bool
-	 */
-	public function has_nextdoor_connection_feature() {
-		return Current_Plan::supports( 'social-nextdoor-connection' );
 	}
 
 	/**

@@ -14,6 +14,7 @@ import {
 	setConnectedAccountDefaultCurrency,
 	setSubscriberCounts,
 	setNewsletterCategories,
+	setNewsletterCategoriesSubscriptionsCount,
 } from './actions';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
 import { onError } from './utils';
@@ -22,6 +23,8 @@ const EXECUTION_KEY = 'membership-products-resolver-getProducts';
 const SUBSCRIBER_COUNT_EXECUTION_KEY = 'membership-products-resolver-getSubscriberCounts';
 const GET_NEWSLETTER_CATEGORIES_EXECUTION_KEY =
 	'membership-products-resolver-getNewsletterCategories';
+const GET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT_EXECUTION_KEY =
+	'membership-products-resolver-getNewsletterCategoriesSubscriptionsCount';
 let hydratedFromAPI = false;
 
 const fetchMemberships = async () => {
@@ -116,9 +119,35 @@ const fetchNewsletterCategories = async () => {
 	return response;
 };
 
+export const fetchNewsletterCategoriesSubscriptionsCount = async termIds => {
+	const response = await apiFetch( {
+		path: `/wpcom/v2/newsletter-categories/count?term_ids=${ termIds.join( ',' ) }`,
+		method: 'GET',
+	} );
+
+	if ( ! response || typeof response !== 'object' ) {
+		throw new Error( 'Unexpected API response' );
+	}
+
+	/**
+	 * WP_Error returns a list of errors with custom names:
+	 * `errors: { foo: [ 'message' ], bar: [ 'message' ] }`
+	 * Since we don't know their names, to get the message, we transform the object
+	 * into an array, and just pick the first message of the first error.
+	 *
+	 * @see https://developer.wordpress.org/reference/classes/wp_error/
+	 */
+	const wpError = response?.errors && Object.values( response.errors )?.[ 0 ]?.[ 0 ];
+	if ( wpError ) {
+		throw new Error( wpError );
+	}
+
+	return response;
+};
+
 const createDefaultProduct = async (
 	productType,
-	setSelectedProductId,
+	setSelectedProductIds,
 	dispatch,
 	shouldDisplayProductCreationNotice
 ) => {
@@ -131,7 +160,7 @@ const createDefaultProduct = async (
 				interval: '1 month',
 			},
 			productType,
-			setSelectedProductId,
+			setSelectedProductIds,
 			() => {},
 			shouldDisplayProductCreationNotice
 		)
@@ -141,35 +170,33 @@ const createDefaultProduct = async (
 const shouldCreateDefaultProduct = response =>
 	! response.products.length && response.connected_account_id;
 
-const setDefaultProductIfNeeded = ( selectedProductId, setSelectedProductId, select ) => {
-	if ( selectedProductId ) {
+const setDefaultProductIfNeeded = ( selectedProductIds, setSelectedProductIds, select ) => {
+	if ( selectedProductIds.length > 0 ) {
 		return;
 	}
 	const defaultProductId = select.getProductsNoResolver()[ 0 ]?.id;
 	if ( defaultProductId ) {
-		setSelectedProductId( defaultProductId );
+		setSelectedProductIds( [ defaultProductId ] );
 	}
 };
 
-export const getNewsletterProducts = (
+export const getNewsletterTierProducts = (
 	productType = PRODUCT_TYPE_PAYMENT_PLAN,
-	selectedProductId = 0,
-	setSelectedProductId = () => {}
-) =>
-	// Returns the products, but silences the snack bar if a default product is created
-	getProducts( productType, selectedProductId, setSelectedProductId, false );
+	selectedProductIds = [],
+	setSelectedProductIds = () => {}
+) => getProducts( productType, selectedProductIds, setSelectedProductIds, false );
 
 export const getProducts =
 	(
 		productType = PRODUCT_TYPE_PAYMENT_PLAN,
-		selectedProductId = 0,
-		setSelectedProductId = () => {},
+		selectedProductIds = [],
+		setSelectedProductIds = () => {},
 		shouldDisplayProductCreationNotice = true
 	) =>
 	async ( { dispatch, registry, select } ) => {
 		await executionLock.blockExecution( EXECUTION_KEY );
 		if ( hydratedFromAPI ) {
-			setDefaultProductIfNeeded( selectedProductId, setSelectedProductId, select );
+			setDefaultProductIfNeeded( selectedProductIds, setSelectedProductIds, select );
 			return;
 		}
 
@@ -182,13 +209,13 @@ export const getProducts =
 				// Is ready to use and has no product set up yet. Let's create one!
 				await createDefaultProduct(
 					productType,
-					setSelectedProductId,
+					setSelectedProductIds,
 					dispatch,
 					shouldDisplayProductCreationNotice
 				);
 			}
 
-			setDefaultProductIfNeeded( selectedProductId, setSelectedProductId, select );
+			setDefaultProductIfNeeded( selectedProductIds, setSelectedProductIds, select );
 
 			hydratedFromAPI = true;
 		} catch ( error ) {
@@ -236,6 +263,27 @@ export const getNewsletterCategories =
 					categories: response.newsletter_categories,
 				} )
 			);
+		} catch ( error ) {
+			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
+			onError( error.message, registry );
+		}
+		executionLock.release( lock );
+	};
+
+export const getNewsletterCategoriesSubscriptionsCount =
+	( termIds = [] ) =>
+	async ( { dispatch, registry } ) => {
+		await executionLock.blockExecution(
+			GET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT_EXECUTION_KEY
+		);
+
+		const lock = executionLock.acquire(
+			GET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT_EXECUTION_KEY
+		);
+
+		try {
+			const response = await fetchNewsletterCategoriesSubscriptionsCount( termIds );
+			dispatch( setNewsletterCategoriesSubscriptionsCount( response.subscriptions_count ) );
 		} catch ( error ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( error.message, registry );

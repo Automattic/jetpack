@@ -41,6 +41,7 @@ import videoPressImage from './videopress.png';
  * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
  * @param {number} [props.quantity]              - The quantity of the product to purchase
  * @param {number} [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
+ * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature in the list of features
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -56,6 +57,7 @@ export default function ProductInterstitial( {
 	hideTOS = false,
 	quantity = null,
 	directCheckout = false,
+	highlightLastFeature = false,
 } ) {
 	const { activate, detail } = useProduct( slug );
 	const { isUpgradableByBundle, tiers } = detail;
@@ -169,6 +171,7 @@ export default function ProductInterstitial( {
 									ctaButtonLabel={ ctaButtonLabel }
 									hideTOS={ hideTOS }
 									quantity={ quantity }
+									highlightLastFeature={ highlightLastFeature }
 								/>
 							</Col>
 							<Col
@@ -184,6 +187,7 @@ export default function ProductInterstitial( {
 										onClick={ clickHandler }
 										className={ isUpgradableByBundle ? styles.container : null }
 										quantity={ quantity }
+										highlightLastFeature={ highlightLastFeature }
 									/>
 								) : (
 									children
@@ -241,6 +245,15 @@ export function BoostInterstitial() {
 }
 
 /**
+ * CreatorInterstitial component
+ *
+ * @returns {object} CreatorInterstitial react component.
+ */
+export function CreatorInterstitial() {
+	return <ProductInterstitial slug="creator" installsPlugin={ true } />;
+}
+
+/**
  * CRMInterstitial component
  *
  * @returns {object} CRMInterstitial react component.
@@ -276,17 +289,20 @@ export function JetpackAIInterstitial() {
 	const { detail } = useProduct( slug );
 	const { onClickGoBack } = useGoBack( { slug } );
 
-	const currentTier = detail?.[ 'ai-assistant-feature' ]?.[ 'current-tier' ]?.value;
-	const nextTier = detail?.[ 'ai-assistant-feature' ]?.[ 'next-tier' ]?.value;
-	const hasNextTier = !! nextTier && ! [ 1, 500 ].includes( currentTier );
-	const quantity = hasNextTier ? nextTier : null;
+	const nextTier = detail?.[ 'ai-assistant-feature' ]?.[ 'next-tier' ] || null;
 
-	if ( ! hasNextTier ) {
+	if ( ! nextTier ) {
 		return <JetpackAIInterstitialMoreRequests onClickGoBack={ onClickGoBack } />;
 	}
 
 	const { hasRequiredPlan } = detail;
 	const ctaLabel = hasRequiredPlan ? __( 'Upgrade Jetpack AI', 'jetpack-my-jetpack' ) : null;
+
+	// Decide the quantity value for the upgrade, but ignore the unlimited tier.
+	const quantity = nextTier?.value !== 1 ? nextTier?.value : null;
+
+	// Highlight the last feature in the table for all the tiers except the unlimited one.
+	const highlightLastFeature = nextTier?.value !== 1;
 
 	return (
 		<ProductInterstitial
@@ -297,6 +313,7 @@ export function JetpackAIInterstitial() {
 			hideTOS={ true }
 			quantity={ quantity }
 			directCheckout={ hasRequiredPlan }
+			highlightLastFeature={ highlightLastFeature }
 		>
 			<img src={ jetpackAiImage } alt="Jetpack AI" />
 		</ProductInterstitial>

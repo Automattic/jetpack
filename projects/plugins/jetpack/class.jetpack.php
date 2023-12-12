@@ -4856,11 +4856,7 @@ endif;
 	 * @return int 0 if the same sort or (+/-) to indicate which is greater.
 	 */
 	public static function sort_modules( $a, $b ) {
-		if ( $a['sort'] === $b['sort'] ) {
-			return 0;
-		}
-
-		return ( $a['sort'] < $b['sort'] ) ? -1 : 1;
+		return $a['sort'] <=> $b['sort'];
 	}
 
 	/**
@@ -6767,6 +6763,21 @@ endif;
 				'text'      => __( '* Subject to your usage and storage limit.', 'jetpack' ),
 				'link_text' => __( 'Learn more', 'jetpack' ),
 				'url'       => Redirect::get_url( 'jetpack-faq-backup-disclaimer' ),
+			),
+		);
+
+		$products['creator'] = array(
+			'title'             => __( 'Jetpack Creator', 'jetpack' ),
+			'slug'              => 'jetpack_creator_yearly',
+			'description'       => __( 'Craft stunning content, boost your subscriber base, and monetize your online presence.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 50,
+			'included_in_plans' => array( 'complete' ),
+			'features'          => array(
+				_x( 'Unlimited subscriber imports', 'Creator Product Feature', 'jetpack' ),
+				_x( 'Earn more from your content', 'Creator Product Feature', 'jetpack' ),
+				_x( 'Accept payments with PayPal', 'Creator Product Feature', 'jetpack' ),
+				_x( 'Increase earnings with WordAds', 'Creator Product Feature', 'jetpack' ),
 			),
 		);
 

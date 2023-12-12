@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2023-12-03
+### Added
+- Added the welcome banner to My Jetpack. [#34384]
+- Updated XMLRPC endpoint 'jetpack.idcUrlValidation' to accept an argument specifying whether to attempt reusing existing URL secret. [#34262]
+
+### Changed
+- Updated package dependencies. [#34411]
+
+## [2.0.3] - 2023-11-24
+
+## [2.0.2] - 2023-11-21
+### Changed
+- Replaced usage of strpos() with str_contains(). [#34137]
+
 ## [2.0.1] - 2023-11-21
 
 ## [2.0.0] - 2023-11-20
@@ -925,6 +939,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[2.1.0]: https://github.com/Automattic/jetpack-connection/compare/v2.0.3...v2.1.0
+[2.0.3]: https://github.com/Automattic/jetpack-connection/compare/v2.0.2...v2.0.3
+[2.0.2]: https://github.com/Automattic/jetpack-connection/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/Automattic/jetpack-connection/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/Automattic/jetpack-connection/compare/v1.60.1...v2.0.0
 [1.60.1]: https://github.com/Automattic/jetpack-connection/compare/v1.60.0...v1.60.1

@@ -8,7 +8,7 @@
  * Auto Activate: Public
  * Module Tags: Writing
  * Feature: Engagement
- * Additional Search Queries: google, seo, firehose, search, broadcast, broadcasting
+ * Additional Search Queries: google, seo, firehose, search, broadcast, broadcasting, creator
  *
  * @package automattic/jetpack
  */

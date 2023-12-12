@@ -88,6 +88,7 @@ class Defaults {
 		'jetpack_publicize_options',
 		'jetpack_relatedposts',
 		'jetpack_social_settings',
+		'jetpack_social_autoconvert_images',
 		'jetpack_sso_match_by_email',
 		'jetpack_sso_require_two_step',
 		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.
@@ -189,6 +190,7 @@ class Defaults {
 		'wpcom_reader_views_enabled',
 		'wpcom_site_setup',
 		'wpcom_subscription_emails_use_excerpt',
+		'jetpack_verbum_subscription_modal',
 	);
 
 	/**
