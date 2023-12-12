@@ -12,13 +12,14 @@ import { z } from 'zod';
 const SuperCacheInfo = () => {
 	const [ state, setState ] = useState( { status: 'idle' } ); // idle, testing, error, complete
 
-	const { useQuery, useMutation } = useDataSync(
+	const [ { data }, { mutate } ] = useDataSync(
 		'jetpack_boost_ds',
 		'super_cache_notice_disabled',
 		z.boolean()
 	);
-	const { data: isNoticeDismissed } = useQuery();
-	const { mutate: setNoticeDismissed } = useMutation();
+	//const isNoticeDismissed = false;
+	const isNoticeDismissed = data;
+	const setNoticeDismissed = mutate;
 
 	const runTest = async () => {
 		setState( { status: 'testing' } );
