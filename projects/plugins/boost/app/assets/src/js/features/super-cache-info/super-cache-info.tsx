@@ -110,13 +110,7 @@ const SuperCacheInfo = () => {
 					level="warning"
 					title={ __( 'Super Cache is installed but not enabled', 'jetpack-boost' ) }
 					actions={ [
-						<Button
-							key="start"
-							isPrimary
-							onClick={ () => {
-								navToSuperCacheSettings();
-							} }
-						>
+						<Button key="start" isPrimary onClick={ () => navToSuperCacheSettings() }>
 							{ __( 'Set up', 'jetpack-boost' ) }
 						</Button>,
 					] }
