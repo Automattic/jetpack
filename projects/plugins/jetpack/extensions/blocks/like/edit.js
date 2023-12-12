@@ -21,7 +21,7 @@ function LikeEdit( { noticeUI } ) {
 	} = useFetchReblogSetting( blogId );
 	const {
 		setReblog,
-		success: reblogSet,
+		success: reblogSetSuccessfully,
 		resetSuccess: clearReblogSetStatus,
 		isLoading: settingReblog,
 	} = useSetReblogSetting( blogId );
@@ -42,11 +42,11 @@ function LikeEdit( { noticeUI } ) {
 			return;
 		}
 
-		if ( reblogSet ) {
+		if ( reblogSetSuccessfully ) {
 			fetchReblog();
 			clearReblogSetStatus();
 		}
-	}, [ reblogSet, fetchReblog, clearReblogSetStatus ] );
+	}, [ reblogSetSuccessfully, fetchReblog, clearReblogSetStatus ] );
 
 	return (
 		<div { ...blockProps }>
