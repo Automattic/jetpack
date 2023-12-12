@@ -1754,11 +1754,16 @@ class jpcrm_templating_placeholders {
 					}
 
 					// If this is a Quote date key and is not set (Quote accepted or last viewed), let's print out a message saying the quote isn't accepted or viewed.
-					$possible_empty_quote_keys = array( 'quote-accepted', 'quote-accepted_date_str', 'quote-accepted_datetime_str', 'quote-lastviewed', 'quote-lastviewed_datetime_str', 'quote-lastviewed_date_str' );
-					if ( in_array( $key, $possible_empty_quote_keys, true ) ) {
+					if ( in_array( $key, array( 'quote-accepted', 'quote-lastviewed' ), true ) && ( empty( $replace_with ) || jpcrm_date_str_to_uts( $replace_with ) === 0 ) ) {
 
-						if ( empty( $replace_with ) || jpcrm_date_str_to_uts( $replace_with ) === 0 || jpcrm_date_str_to_uts( $replace_with ) === false ) {
-							$replace_with = str_starts_with( $key, 'quote-accepted' ) ? __( 'Quote not yet accepted', 'zero-bs-crm' ) : __( 'Quote not yet viewed', 'zero-bs-crm' );
+						if ( $key === 'quote-accepted' ) {
+							$replace_with = __( 'Quote not yet accepted', 'zero-bs-crm' );
+							$string       = str_replace( '##QUOTE-ACCEPTED_DATETIME_STR##', $replace_with, $string );
+							$string       = str_replace( '##QUOTE-ACCEPTED_DATE_STR##', $replace_with, $string );
+						} else {
+							$replace_with = __( 'Quote not yet viewed', 'zero-bs-crm' );
+							$string       = str_replace( '##QUOTE-LASTVIEWED_DATETIME_STR##', $replace_with, $string );
+							$string       = str_replace( '##QUOTE-LASTVIEWED_DATE_STR##', $replace_with, $string );
 						}
 					}
 
