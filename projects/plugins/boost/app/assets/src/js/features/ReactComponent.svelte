@@ -7,13 +7,14 @@
 	let root;
 	export let inline = false;
 	afterUpdate( () => {
-		const { this: component, children, inline, ...props } = $$props;
+		const { this: component, children, inline: inlineProp, ...otherProps } = $$props;
+		inline = inlineProp;
 
 		if ( ! root ) {
 			root = WPElement.createRoot( container );
 		}
 
-		root.render( React.createElement( component, props, children ) );
+		root.render( React.createElement( component, otherProps, children ) );
 	} );
 	onDestroy( () => {
 		if ( root ) {
