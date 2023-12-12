@@ -816,6 +816,11 @@ function ZeroBSCRM_get_quote_template() {
 			$replacements['biz-state']        = $bizState;
 			$replacements['contact-fullname'] = $customerName;
 
+			$settings = $zbs->settings->getAll();
+			if ( $settings['currency'] && $settings['currency']['strval'] ) {
+				$replacements['quote-currency'] = $settings['currency']['strval'];
+			}
+
 			// if DAL3, also replace any custom fields
 			if ( isset( $_POST['quote_fields'] ) && is_array( $_POST['quote_fields'] ) ) {
 

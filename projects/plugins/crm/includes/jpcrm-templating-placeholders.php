@@ -1659,8 +1659,6 @@ class jpcrm_templating_placeholders {
 
 	) {
 
-		global $zbs;
-
 		// retrieve replacements for this tooling
 		$to_replace = $this->get_placeholders_for_tooling( $tooling );
 
@@ -1753,16 +1751,6 @@ class jpcrm_templating_placeholders {
 					
 						$string = str_replace( $replacement_info['aliases'], $replace_with, $string );
 					
-					}
-
-					// If the key is quote-currency and the value is empty, let's use the currency set in the site settings.
-					if ( $key === 'quote-currency' && $replace_with === '' ) {
-
-						$settings = $zbs->settings->getAll();
-						if ( $settings['currency'] && $settings['currency']['strval'] ) {
-
-							$replace_with = $settings['currency']['strval'];
-						}
 					}
 
 					// Replace main key.
