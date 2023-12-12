@@ -14,7 +14,15 @@ use Exception;
  * to assist with backing up Jetpack Sites.
  *
  * Does *not* use WP_Filesystem, because the helper script is something that we'll call over HTTP, so we don't want it
- * to end up on an FTP server somewhere. Also, PHP provides us with better error reporting than WP_Filesystem.
+ * to end up on an FTP server somewhere (even if it's the very same host). If there are permissions issues between the
+ * webserver's user and the FTP/SSH user, then we'll just install the helper script and do a backup/restore using
+ * FTP/SSH credentials (that we collect ourselves), without using WP_Filesystem in any way.
+ *
+ * Also, if we can't write that helper script somewhere (due to writes being inaccessible to the webserver's user, or
+ * for other reasons), we want to know about it (in the form of an error response), instead of having that helper
+ * script silently uploaded via FTP/SFTP, so that we could fall back to a backup/restore using credentials.
+ *
+ * Lastly, PHP provides us with better error reporting than WP_Filesystem.
  */
 class Helper_Script_Manager {
 
