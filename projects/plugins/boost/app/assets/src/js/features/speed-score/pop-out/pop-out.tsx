@@ -142,7 +142,7 @@ function _PopOut( { scoreChange, onClose }: Props ) {
 					<Button
 						variant="link"
 						size="small"
-						className={ styles.dismissLink }
+						className={ styles.dismiss }
 						onClick={ handleDismiss }
 					>
 						{ __( 'Do not show me again', 'jetpack-boost' ) }
