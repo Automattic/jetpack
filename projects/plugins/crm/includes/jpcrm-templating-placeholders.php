@@ -1655,7 +1655,7 @@ class jpcrm_templating_placeholders {
 		$replacements = array(),
 		$replacement_objects = false,
 		$retain_unset_placeholders = false,
-		$include_non_rendered_quote_keys = true
+		$keys_staying_unrendered = array(),
 
 	) {
 
@@ -1777,10 +1777,7 @@ class jpcrm_templating_placeholders {
 					}
 
 					// Replace main key.
-					// In the Quote editor itself we don't want to render the Quote ID, URL, Created, Accepted or Last Updated placeholders,
-					// So, $include_non_rendered_quote_keys will be set to false in that case. See ZeroBSCRM_get_quote_template().
-					$non_rendered_quote_keys = array( 'quote-ID', 'quote-url', 'quote-created', 'quote-created_datetime_str', 'quote-created_date_str', 'quote-accepted', 'quote-accepted_datetime_str', 'quote-accepted_date_str', 'quote-lastupdated', 'quote-lastupdated_datetime_str', 'quote-lastupdated_date_str' );
-					if ( $include_non_rendered_quote_keys || ( ! $include_non_rendered_quote_keys && ! in_array( $replacement_info['key'], $non_rendered_quote_keys, true ) ) ) {
+					if ( empty( $keys_staying_unrendered ) || ! in_array( $replacement_info['key'], $keys_staying_unrendered, true ) ) {
 
 						$string = str_replace( $replace_string, $replace_with, $string );
 
