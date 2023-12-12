@@ -758,7 +758,7 @@ function ZeroBSCRM_get_quote_template() {
 			}
 			if ( isset( $_POST['quote_fields']['zbscq_date'] ) && ! empty( $_POST['quote_fields']['zbscq_date'] ) ) {
 				$sanitized_date = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_date'] ) );
-				$quote_date     = wp_date( get_option( 'date_format' ), strtotime( $sanitized_date ) );
+				$quote_date     = jpcrm_uts_to_date_str( strtotime( $sanitized_date ), get_option( 'date_format' ) );
 			}
 		}
 
@@ -795,7 +795,7 @@ function ZeroBSCRM_get_quote_template() {
 				$quote_val = '[QUOTEVALUE]';
 			}
 			if ( empty( $quote_date ) ) {
-				$quote_date = wp_date( get_option( 'date_format' ) );
+				$quote_date = jpcrm_uts_to_date_str( time(), get_option( 'date_format' ) );
 			}
 			if ( empty( $quote_notes ) ) {
 				if ( isset( $_POST['quote_fields']['zbscq_notes'] ) ) {
@@ -845,7 +845,7 @@ function ZeroBSCRM_get_quote_template() {
 									$date_time = DateTime::createFromFormat( 'Y-m-d', $v );
 									if ( $date_time && $date_time->format( 'Y-m-d' ) === $v ) {
 
-										$working_html = jpcrm_process_date_variables( $v, $key, $working_html, $custom_field = true );
+										$working_html = jpcrm_process_date_variables( $v, $key, $working_html, $placeholder_str_start = '##QUOTE-' );
 
 									}
 								}

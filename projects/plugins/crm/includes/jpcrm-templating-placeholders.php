@@ -1771,7 +1771,7 @@ class jpcrm_templating_placeholders {
 
 						$new_key = '##' . strtoupper( $key ) . '_DATETIME_STR##';
 						if ( array_key_exists( $new_key, $to_replace ) || $key === 'quote-date' ) {
-							$replace_with = wp_date( get_option( 'date_format' ), $replace_with );
+							$replace_with = gmdate( 'Y-m-d', $replace_with );
 							$string       = jpcrm_process_date_variables( $replace_with, $key, $string );
 						}
 					}

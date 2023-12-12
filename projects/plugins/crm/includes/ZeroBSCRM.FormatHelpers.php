@@ -851,30 +851,27 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
 	}
 
 /**
- * Return an updated HTML string, replacing quote date placeholders with correct date strings based on site settings.
- * @param  string  $value         The value of the date variable to be replaced.
- * @param  string  $key           The key of the date variable to be replaced.
- * @param  string  $working_html  The HTML string to be updated.
- * @param  boolean $custom_field Whether the key in question is a custom quote field.
+ * Return an updated HTML string, replacing date placeholders with correct date strings based on site settings.
+ * @param  string $value                 The value of the date variable to be replaced.
+ * @param  string $key                   The key of the date variable to be replaced.
+ * @param  string $working_html          The HTML string to be updated.
+ * @param  string $placeholder_str_start The string to add to the beginning of the placeholder string (eg. ##QUOTE-).
  *
  * @return string                The updated HTML string.
  */
-function jpcrm_process_date_variables( $value, $key, $working_html, $custom_field = false ) {
-	$placeholder_str_start = '##';
-	if ( $custom_field ) {
-		$placeholder_str_start = '##QUOTE-';
-	}
-	$numeric_date_key       = $key;
-	$string_to_numeric_date = wp_date( get_option( 'date_format' ), strtotime( $value ) );
-	$datetime_key           = $key . '_datetime_str';
-	$string_to_datetime     = wp_date( 'd F Y ' . get_option( 'time_format' ), strtotime( $value ) );
-	$date_key               = $key . '_date_str';
-	$string_to_date         = wp_date( 'd F Y', strtotime( $value ) );
+function jpcrm_process_date_variables( $value, $key, $working_html, $placeholder_str_start = '##' ) {
+
+	$base_date_key       = $key;
+	$string_to_base_date = jpcrm_uts_to_date_str( strtotime( $value ), get_option( 'date_format' ) );
+	$datetime_key        = $key . '_datetime_str';
+	$string_to_datetime  = jpcrm_uts_to_date_str( strtotime( $value ), 'd F Y ' . get_option( 'time_format' ) );
+	$date_key            = $key . '_date_str';
+	$string_to_date      = jpcrm_uts_to_date_str( strtotime( $value ), 'd F Y' );
 
 	$search_replace_pairs = array(
-		$placeholder_str_start . strtoupper( $numeric_date_key ) . '##' => $string_to_numeric_date,
-		$placeholder_str_start . strtolower( $numeric_date_key ) . '##' => $string_to_numeric_date,
-		$placeholder_str_start . strtolower( $numeric_date_key ) . '##' => $string_to_numeric_date,
+		$placeholder_str_start . strtoupper( $base_date_key ) . '##' => $string_to_base_date,
+		$placeholder_str_start . strtolower( $base_date_key ) . '##' => $string_to_base_date,
+		$placeholder_str_start . strtolower( $base_date_key ) . '##' => $string_to_base_date,
 		$placeholder_str_start . strtoupper( $datetime_key ) . '##' => $string_to_datetime,
 		$placeholder_str_start . strtolower( $datetime_key ) . '##' => $string_to_datetime,
 		$placeholder_str_start . strtolower( $datetime_key ) . '##' => $string_to_datetime,
