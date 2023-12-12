@@ -531,12 +531,6 @@ function zeroBSCRM_quote_generateAcceptNotifHTML( $quoteID = -1, $quoteSignedBy 
 				$zbs_biz_youremail = zeroBSCRM_getSetting( 'businessyouremail' );
 				$zbs_biz_yoururl = zeroBSCRM_getSetting( 'businessyoururl' );
 
-				$quote_url                      = zeroBSCRM_portal_linkObj( $quoteID, ZBS_TYPE_QUOTE ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				$quote_edit_url                 = jpcrm_esc_link( 'edit', $quoteID, 'zerobs_quote' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				$replacements['quote-url']      = $quote_url;
-				$replacements['quote-edit-url'] = $quote_edit_url;
-				$replacements['quote-value']    = $quote['value'] ? zeroBSCRM_formatCurrency( $quote['value'] ) : '';
-
 				// build msg-content html
 				$bodyHTML = $placeholder_templating->replace_placeholders( array( 'global', 'quote', 'contact' ), $bodyHTML, $replacements, array( ZBS_TYPE_QUOTE => $quote, ZBS_TYPE_CONTACT => $quote_contact ) );
 
@@ -565,6 +559,9 @@ function zeroBSCRM_quote_generateAcceptNotifHTML( $quoteID = -1, $quoteSignedBy 
 				$replacements['msg-content'] = $bodyHTML;
 				$replacements['unsub-line'] = $unsub_line;
 				$replacements['biz-info'] = $bizInfoTable;
+				$replacements['quote-url']      = zeroBSCRM_portal_linkObj( $quoteID, ZBS_TYPE_QUOTE ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$replacements['quote-edit-url'] = jpcrm_esc_link( 'edit', $quoteID, 'zerobs_quote' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+        $replacements['quote-value']    = $quote['value'] ? zeroBSCRM_formatCurrency( $quote['value'] ) : '';
 				$html = $placeholder_templating->replace_placeholders( array( 'global', 'quote' ), $templatedHTML, $replacements );
 
 			}

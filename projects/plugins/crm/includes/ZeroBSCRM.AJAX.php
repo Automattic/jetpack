@@ -717,11 +717,11 @@ function ZeroBSCRM_get_quote_template() {
 	// } Retrive deets
 	$customer_ID = -1;
 	if ( isset( $_POST['cust_id'] ) ) {
-		$customer_ID = (int) sanitize_text_field( wp_unslash( $_POST['cust_id'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$customer_ID = (int) $_POST['cust_id']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
 	$quote_template_id = -1;
 	if ( isset( $_POST['quote_type'] ) ) {
-		$quote_template_id = (int) sanitize_text_field( wp_unslash( $_POST['quote_type'] ) );
+		$quote_template_id = (int) $_POST['quote_type'];
 	}
 
 	// <DAL3
@@ -850,7 +850,8 @@ function ZeroBSCRM_get_quote_template() {
 					}
 				}
 			}
-			$working_html = $placeholder_templating->replace_placeholders( array( 'global', 'contact', 'quote' ), $working_html, $replacements, array( ZBS_TYPE_CONTACT => $contact_object ), false, false ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$keys_staying_unrendered = array( 'quote-ID', 'quote-url' );
+			$working_html            = $placeholder_templating->replace_placeholders( array( 'global', 'contact', 'quote' ), $working_html, $replacements, array( ZBS_TYPE_CONTACT => $contact_object ), false, $keys_staying_unrendered ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// } replace the rest (#fname, etc)
 			// WH: moved to nice filter :) $working_html = zeroBSCRM_replace_customer_placeholders($customer_ID, $working_html);
