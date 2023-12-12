@@ -1659,8 +1659,6 @@ class jpcrm_templating_placeholders {
 
 	) {
 
-		global $zbs;
-
 		// retrieve replacements for this tooling
 		$to_replace = $this->get_placeholders_for_tooling( $tooling );
 

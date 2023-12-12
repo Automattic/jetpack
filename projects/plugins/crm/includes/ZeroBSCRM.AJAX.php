@@ -760,6 +760,9 @@ function ZeroBSCRM_get_quote_template() {
 				$sanitized_date = jpcrm_date_str_to_uts( sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_date'] ) ) );
 				$quote_date     = jpcrm_uts_to_date_str( $sanitized_date );
 			}
+			if ( isset( $_POST['quote_fields']['zbscq_notes'] ) && ! empty( $_POST['quote_fields']['zbscq_notes'] ) ) {
+				$quote_notes = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_notes'] ) );
+			}
 		}
 
 		// } Fill out rest
@@ -786,6 +789,9 @@ function ZeroBSCRM_get_quote_template() {
 			if ( empty( $quote_val ) && ! empty( $quote_template['value'] ) ) {
 				$quote_val = $quote_template['value'];
 			}
+			if ( empty( $quote_notes ) && ! empty( $quote_template['notes'] ) ) {
+				$quote_notes = $quote_template['notes'];
+			}
 
 			// catch empty pass...
 			if ( empty( $quote_title ) ) {
@@ -796,11 +802,6 @@ function ZeroBSCRM_get_quote_template() {
 			}
 			if ( empty( $quote_date ) ) {
 				$quote_date = jpcrm_uts_to_date_str( time(), get_option( 'date_format' ) );
-			}
-			if ( empty( $quote_notes ) ) {
-				if ( isset( $_POST['quote_fields']['zbscq_notes'] ) ) {
-					$quote_notes = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_notes'] ) );
-				}
 			}
 
 			// HTML is escaped just prior to the complete HTML in this function being returned
@@ -815,6 +816,11 @@ function ZeroBSCRM_get_quote_template() {
 			$replacements['quote-notes']      = $quote_notes;
 			$replacements['biz-state']        = $bizState;
 			$replacements['contact-fullname'] = $customerName;
+
+			$settings = $zbs->settings->getAll();
+			if ( $settings['currency'] && $settings['currency']['strval'] ) {
+				$replacements['quote-currency'] = $settings['currency']['strval'];
+			}
 
 			// if DAL3, also replace any custom fields
 			if ( isset( $_POST['quote_fields'] ) && is_array( $_POST['quote_fields'] ) ) {
