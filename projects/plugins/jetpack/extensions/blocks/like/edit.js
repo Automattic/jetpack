@@ -15,38 +15,38 @@ function LikeEdit( { noticeUI } ) {
 	const blogId = window?.Jetpack_LikeBlock?.blog_id;
 
 	const {
-		fetchReblogSetting,
-		reblogSetting,
+		fetchReblog,
+		reblogSetting: currentReblogSetting,
 		isLoading: fetchingReblog,
 	} = useFetchReblogSetting( blogId );
 	const {
-		setReblogSetting,
-		success: reblogSettingSet,
-		resetSuccess: clearReblogSettingStatus,
+		setReblog,
+		success: reblogSet,
+		resetSuccess: clearReblogSetStatus,
 		isLoading: settingReblog,
 	} = useSetReblogSetting( blogId );
 
 	const handleReblogSetting = newValue => {
-		setReblogSetting( newValue );
+		setReblog( newValue );
 	};
 
 	useEffect( () => {
 		if ( ! isSimpleSite() ) {
 			return;
 		}
-		fetchReblogSetting();
-	}, [ fetchReblogSetting ] );
+		fetchReblog();
+	}, [ fetchReblog ] );
 
 	useEffect( () => {
 		if ( ! isSimpleSite() ) {
 			return;
 		}
 
-		if ( reblogSettingSet ) {
-			fetchReblogSetting();
-			clearReblogSettingStatus();
+		if ( reblogSet ) {
+			fetchReblog();
+			clearReblogSetStatus();
 		}
-	}, [ reblogSettingSet, fetchReblogSetting, clearReblogSettingStatus ] );
+	}, [ reblogSet, fetchReblog, clearReblogSetStatus ] );
 
 	return (
 		<div { ...blockProps }>
@@ -55,7 +55,7 @@ function LikeEdit( { noticeUI } ) {
 					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 						<ToggleControl
 							label="Show reblog button"
-							checked={ reblogSetting }
+							checked={ currentReblogSetting }
 							disabled={ settingReblog || fetchingReblog }
 							onChange={ newValue => {
 								handleReblogSetting( newValue );

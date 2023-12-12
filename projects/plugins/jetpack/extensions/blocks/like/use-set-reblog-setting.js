@@ -13,7 +13,7 @@ export default function useSetReblogSetting( blogId ) {
 		setSuccess( null );
 	};
 
-	const setReblogSetting = useCallback(
+	const setReblog = useCallback(
 		async reblogSetting => {
 			const path = `https://public-api.wordpress.com/rest/v1.3/sites/${ blogId }/settings/`;
 			const data = {
@@ -45,7 +45,7 @@ export default function useSetReblogSetting( blogId ) {
 		isLoading,
 		success,
 		error,
-		setReblogSetting,
+		setReblog,
 		resetSuccess,
 	};
 }

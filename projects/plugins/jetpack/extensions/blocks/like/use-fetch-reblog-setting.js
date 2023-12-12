@@ -9,7 +9,7 @@ export default function useFetchReblogSetting( blogId ) {
 	const [ reblogSetting, setReblogSetting ] = useState( null );
 	const [ error, setError ] = useState( null );
 
-	const fetchReblogSetting = useCallback( async () => {
+	const fetchReblog = useCallback( async () => {
 		const path = `https://public-api.wordpress.com/rest/v1.3/sites/${ blogId }/settings/`;
 
 		setIsLoading( true );
@@ -30,6 +30,6 @@ export default function useFetchReblogSetting( blogId ) {
 		isLoading,
 		reblogSetting,
 		error,
-		fetchReblogSetting,
+		fetchReblog,
 	};
 }
