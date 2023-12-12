@@ -1,7 +1,5 @@
 import React, { ReactNode, MouseEventHandler } from 'react';
-import { Link } from '$lib/utils/router'; // Adjust the import according to your project structure
-import { recordBoostEvent } from '$lib/utils/analytics'; // Adjust the import according to your project structure
-
+import { recordBoostEvent } from '$lib/utils/analytics';
 interface ConditionalLinkProps {
 	isLink?: boolean;
 	trackEvent?: string;

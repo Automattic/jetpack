@@ -6,7 +6,7 @@
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
-	import RecommendationsMeta from '$features/image-size-analysis/RecommendationsMeta.svelte';
+	import RecommendationsMeta from '$features/image-size-analysis/recommendations-meta/recommendations-meta';
 	import {
 		initializeIsaSummary,
 		isaSummary,
@@ -332,7 +332,8 @@
 
 			<svelte:fragment slot="meta">
 				{#if $modulesState.image_size_analysis.active}
-					<RecommendationsMeta
+					<ReactComponent
+						this={RecommendationsMeta}
 						isaSummary={$isaSummary}
 						isCdnActive={$modulesState.image_cdn.active}
 					/>
