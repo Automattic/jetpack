@@ -9,9 +9,12 @@ export default function useSetReblogSetting( blogId ) {
 	const [ success, setSuccess ] = useState( null );
 	const [ error, setError ] = useState( null );
 
+	const resetSuccess = () => {
+		setSuccess( null );
+	};
+
 	const setReblogSetting = useCallback(
 		async reblogSetting => {
-			// console.log( 'disabled_reblogs is going to be set to: ', ! reblogSetting );
 			const path = `https://public-api.wordpress.com/rest/v1.3/sites/${ blogId }/settings/`;
 			const data = {
 				disabled_reblogs: ! reblogSetting,
@@ -43,5 +46,6 @@ export default function useSetReblogSetting( blogId ) {
 		success,
 		error,
 		setReblogSetting,
+		resetSuccess,
 	};
 }

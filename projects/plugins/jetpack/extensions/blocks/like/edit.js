@@ -14,12 +14,20 @@ function LikeEdit( { noticeUI } ) {
 	const blockProps = useBlockProps();
 	const blogId = window?.Jetpack_LikeBlock?.blog_id;
 
-	const { fetchReblogSetting, reblogSetting } = useFetchReblogSetting( blogId );
-	const { setReblogSetting, success } = useSetReblogSetting( blogId );
+	const {
+		fetchReblogSetting,
+		reblogSetting,
+		isLoading: fetchingReblog,
+	} = useFetchReblogSetting( blogId );
+	const {
+		setReblogSetting,
+		success: reblogSettingSet,
+		resetSuccess: clearReblogSettingStatus,
+		isLoading: settingReblog,
+	} = useSetReblogSetting( blogId );
 
 	const handleReblogSetting = newValue => {
 		setReblogSetting( newValue );
-		// console.log( newValue )
 	};
 
 	useEffect( () => {
@@ -33,11 +41,12 @@ function LikeEdit( { noticeUI } ) {
 		if ( ! isSimpleSite() ) {
 			return;
 		}
-		// console.log('success is: ', success);
-		if ( success ) {
+
+		if ( reblogSettingSet ) {
 			fetchReblogSetting();
+			clearReblogSettingStatus();
 		}
-	}, [ success, fetchReblogSetting ] );
+	}, [ reblogSettingSet, fetchReblogSetting, clearReblogSettingStatus ] );
 
 	return (
 		<div { ...blockProps }>
@@ -47,6 +56,7 @@ function LikeEdit( { noticeUI } ) {
 						<ToggleControl
 							label="Show reblog button"
 							checked={ reblogSetting }
+							disabled={ settingReblog || fetchingReblog }
 							onChange={ newValue => {
 								handleReblogSetting( newValue );
 							} }
