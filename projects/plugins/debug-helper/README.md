@@ -1,4 +1,4 @@
-# Jetpack Debug tools
+# Jetpack Debug tools!
 
 This is a plugin to help developers debug some Jetpack features. 
 

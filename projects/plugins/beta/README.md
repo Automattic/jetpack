@@ -1,4 +1,4 @@
-# Jetpack Beta Tester
+# Jetpack Beta Tester!
 
 This plugin can be used **alongside [the Jetpack plugin](https://wordpress.org/plugins/jetpack/)**, and will allow you run specific versions of Jetpack on your site:
 - Bleeding Edge (`master` or `trunk`)
