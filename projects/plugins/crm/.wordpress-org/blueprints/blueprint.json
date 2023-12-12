@@ -1,0 +1,15 @@
+{
+	"landingPage": "/wp-admin/admin.php?page=zerobscrm-dash",
+	"preferredVersions": {
+		"php": "8.0",
+		"wp": "latest"
+	},
+	"phpExtensionBundles": [ "kitchen-sink" ],
+	"steps": [
+		{
+			"step": "login",
+			"username": "admin",
+			"password": "password"
+		}
+	]
+}
