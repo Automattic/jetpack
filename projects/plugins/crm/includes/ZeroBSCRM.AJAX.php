@@ -717,7 +717,7 @@ function ZeroBSCRM_get_quote_template() {
 	// } Retrive deets
 	$customer_ID = -1;
 	if ( isset( $_POST['cust_id'] ) ) {
-		$customer_ID = (int) sanitize_text_field( wp_unslash( $_POST['cust_id'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$customer_ID = (int) $_POST['cust_id']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
 	$quote_template_id = -1;
 	if ( isset( $_POST['quote_type'] ) ) {
