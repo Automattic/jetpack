@@ -1655,7 +1655,7 @@ class jpcrm_templating_placeholders {
 		$replacements = array(),
 		$replacement_objects = false,
 		$retain_unset_placeholders = false,
-		$keys_staying_unrendered = array(),
+		$keys_staying_unrendered = array()
 
 	) {
 
