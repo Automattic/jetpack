@@ -289,13 +289,11 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 		<PostVisibilityCheck
 			render={ () => (
 				<PanelRow className="edit-post-post-visibility">
-					<Flex direction="column">
-						{ showMisconfigurationWarning ? (
-							<MisconfigurationWarning />
-						) : (
-							<SubscribersAffirmation prePublish accessLevel={ _accessLevel } />
-						) }
-					</Flex>
+					{ showMisconfigurationWarning ? (
+						<MisconfigurationWarning />
+					) : (
+						<SubscribersAffirmation prePublish accessLevel={ _accessLevel } />
+					) }
 				</PanelRow>
 			) }
 		/>
