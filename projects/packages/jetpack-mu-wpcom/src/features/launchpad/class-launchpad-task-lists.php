@@ -339,7 +339,7 @@ class Launchpad_Task_Lists {
 	 * Builds a single task with current state
 	 *
 	 * @param Task   $task Task definition.
-	 * @param string $launchpad_context Screen where Laucnhpad is loading.
+	 * @param string $launchpad_context Screen where Launchpad is loading.
 	 * @return Task Task with current state.
 	 */
 	private function build_task( $task, $launchpad_context = null ) {
