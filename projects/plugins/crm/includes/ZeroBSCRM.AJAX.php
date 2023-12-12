@@ -721,7 +721,7 @@ function ZeroBSCRM_get_quote_template() {
 	}
 	$quote_template_id = -1;
 	if ( isset( $_POST['quote_type'] ) ) {
-		$quote_template_id = (int) sanitize_text_field( wp_unslash( $_POST['quote_type'] ) );
+		$quote_template_id = (int) $_POST['quote_type'];
 	}
 
 	// <DAL3
