@@ -100,21 +100,35 @@ export const getCopyForSubscribers = ( {
 	postHasPaywallBlock,
 	reachCount,
 } ) => {
-	// Paid subscribers, schedulled post
-	if ( futureTense && isPaidPost ) {
+	// Schedulled post
+	if ( futureTense ) {
+		// Paid post without paywall: sent only to paid subscribers
+		if ( isPaidPost && ! postHasPaywallBlock ) {
+			return sprintf(
+				/* translators: %d is the number of subscribers */
+				_n(
+					'This post will be sent to <strong>%d paid subscriber</strong>.',
+					'This post will be sent to <strong>%d paid subscribers</strong>.',
+					reachCount,
+					'jetpack'
+				),
+				reachCount
+			);
+		}
+		// Paid post with paywall or Free post, sent to all subscribers
 		return sprintf(
 			/* translators: %d is the number of subscribers */
 			_n(
-				'This post will be sent to <strong>%d paid subscriber</strong>.',
-				'This post will be sent to <strong>%d paid subscribers</strong>.',
+				'This post will be sent to <strong>%d subscriber</strong>.',
+				'This post will be sent to <strong>%d subscribers</strong>.',
 				reachCount,
 				'jetpack'
 			),
 			reachCount
 		);
 	}
-	// Paid post sent to paid & free subscribers, with paywall, post is already published
-	else if ( isPaidPost && postHasPaywallBlock ) {
+	// Paid post without paywall: sent only to paid subscribers
+	if ( isPaidPost && ! postHasPaywallBlock ) {
 		return sprintf(
 			/* translators: %d is the number of subscribers */
 			_n(
@@ -127,7 +141,7 @@ export const getCopyForSubscribers = ( {
 		);
 	}
 	// Paid post sent only to paid subscribers, post is already published
-	else if ( isPaidPost && ! postHasPaywallBlock ) {
+	if ( isPaidPost && ! postHasPaywallBlock ) {
 		return sprintf(
 			/* translators: %d is the number of subscribers */
 			_n(
@@ -139,21 +153,8 @@ export const getCopyForSubscribers = ( {
 			reachCount
 		);
 	}
-	// Free subscribers, schedulled post
-	else if ( futureTense ) {
-		return sprintf(
-			/* translators: %d is the number of subscribers */
-			_n(
-				'This post will be sent to <strong>%d subscriber</strong>.',
-				'This post will be sent to <strong>%d subscribers</strong>.',
-				reachCount,
-				'jetpack'
-			),
-			reachCount
-		);
-	}
 
-	// Free subscribers
+	// Paid post with paywall or Free post, sent to all subscribers, post is already published
 	return sprintf(
 		/* translators: %d is the number of subscribers */
 		_n(
