@@ -99,6 +99,33 @@ const SuperCacheInfo = () => {
 					</p>
 				</Notice>
 			);
+		} else if ( state.status === 'error' ) {
+			return (
+				<Notice
+					level="error"
+					title={ __( 'Super Cache Speed', 'jetpack-boost' ) }
+					hideCloseButton={ true }
+					actions={ [
+						<Button
+							key="start"
+							isPrimary
+							onClick={ () => {
+								runTest();
+							} }
+						>
+							{ __( 'Re-run test', 'jetpack-boost' ) }
+						</Button>,
+					] }
+				>
+					<p>
+						{ sprintf(
+							// translators: %s refers to the error message returned by the Super Cache test.
+							__( 'We ran into an error measuring your speed: %s', 'jetpack-boost' ),
+							state.error
+						) }
+					</p>
+				</Notice>
+			);
 		}
 	} else {
 		if ( isNoticeDismissed ) {
