@@ -367,6 +367,7 @@ SQL
 			$objects = $this->get_next_chunk( $config, $status, $limits['chunk_size'] );
 
 			if ( $wpdb->last_error ) {
+				$status['error'] = true;
 				return $status;
 			}
 
