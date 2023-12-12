@@ -526,7 +526,7 @@ function render_block( $attributes ) {
 
 	if ( class_exists( '\Jetpack_Memberships' ) ) {
 		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript.
-		jetpack_gutenberg::load_assets_as_required( __DIR__ );
+		Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 	} else {
 		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 	}
