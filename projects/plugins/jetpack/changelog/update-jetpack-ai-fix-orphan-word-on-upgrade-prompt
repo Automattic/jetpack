@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Jetpack AI: Change line splitting on upgrade prompt to reduce the chance of orphan words.

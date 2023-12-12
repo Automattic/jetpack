@@ -189,10 +189,12 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_visible_callback' => 'wpcom_launchpad_has_goal_paid_subscribers',
 			'get_calypso_path'    => function ( $task, $default, $data ) {
 				if ( function_exists( 'get_memberships_connected_account_redirect' ) ) {
-					return get_memberships_connected_account_redirect(
-						get_current_user_id(),
-						get_current_blog_id()
-					);
+					$user_id = get_current_user_id();
+					$blog_id = get_current_blog_id();
+					$source = $data['launchpad_context'];
+					return $source
+						? get_memberships_connected_account_redirect( $user_id, $blog_id, $source )
+						: get_memberships_connected_account_redirect( $user_id, $blog_id );
 				}
 				return '/earn/payments/' . $data['site_slug_encoded'];
 			},

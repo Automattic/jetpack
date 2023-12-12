@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Avoid PHP warnings when methods are called too early.

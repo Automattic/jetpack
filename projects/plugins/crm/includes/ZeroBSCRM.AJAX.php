@@ -3733,21 +3733,20 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 	// } Check nonce
 	check_ajax_referer( 'zbscrmjs-ajax-nonce', 'sec' );
 
-	// } Check perms
-	if ( ! zeroBSCRM_permsCustomers() ) {
-		header( 'Content-Type: application/json' );
-		exit( '{err:1}' ); }
+	global $zbs;
+
+	// Get object type (string, not ID)
+	$objtype = empty( $_POST['objtype'] ) ? '' : sanitize_text_field( $_POST['objtype'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+
+	// Check perms for given object
+	$has_perms = zeroBSCRM_permsObjType( $zbs->DAL->objTypeID( $objtype ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	if ( ! $has_perms ) {
+		jpcrm_api_forbidden_request();
+	}
 
 	// ret
 	$passBack = array();
 
-		global $zbs;
-
-		// } Retrieve
-		$objtype = '';
-	if ( isset( $_POST['objtype'] ) ) {
-		$objtype = sanitize_text_field( $_POST['objtype'] );
-	}
 		$actionstr = '';
 	if ( isset( $_POST['actionstr'] ) ) {
 		$actionstr = sanitize_text_field( $_POST['actionstr'] );
