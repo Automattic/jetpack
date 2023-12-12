@@ -15,7 +15,7 @@ export default function useSetReblogSetting( blogId ) {
 
 	const setReblog = useCallback(
 		async reblogSetting => {
-			const path = `https://public-api.wordpress.com/rest/v1.3/sites/${ blogId }/settings/`;
+			const path = `https://public-api.wordpress.com/rest/v1.4/sites/${ blogId }/settings/`;
 			const data = {
 				disabled_reblogs: ! reblogSetting,
 			};

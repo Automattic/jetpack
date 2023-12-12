@@ -10,7 +10,7 @@ export default function useFetchReblogSetting( blogId ) {
 	const [ error, setError ] = useState( null );
 
 	const fetchReblog = useCallback( async () => {
-		const path = `https://public-api.wordpress.com/rest/v1.3/sites/${ blogId }/settings/`;
+		const path = `https://public-api.wordpress.com/rest/v1.4/sites/${ blogId }/settings/`;
 
 		setIsLoading( true );
 		await apiFetch( { url: path, method: 'GET' } )
