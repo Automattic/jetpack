@@ -802,9 +802,6 @@ function ZeroBSCRM_get_quote_template() {
 			if ( empty( $quote_date ) ) {
 				$quote_date = gmdate( 'Y-m-d' );
 			}
-			if ( empty( $quote_notes ) ) {
-				$quote_notes = '[QUOTENOTES]';
-			}
 
 			// HTML is escaped just prior to the complete HTML in this function being returned
 			$working_html = wpautop( $quote_template['content'] );
