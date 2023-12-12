@@ -1,20 +1,21 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import {
+	Button,
 	Flex,
 	FlexBlock,
 	PanelRow,
-	VisuallyHidden,
-	Spinner,
-	Button,
 	RadioControl,
+	Spinner,
+	ToggleControl,
+	VisuallyHidden,
 } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import { useState } from 'react';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import './settings.scss';
@@ -22,9 +23,9 @@ import PlansSetupDialog from '../components/plans-setup-dialog';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
-import SubscribersAffirmation from './subscribers-affirmation';
 import { getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 
 const paywallIcon = getBlockIconComponent( paywallBlockMetadata );
@@ -287,23 +288,38 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 	);
 }
 
-export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
-	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
+export function NewsletterEmailDocumentSettings() {
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
-	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
-	const _accessLevel = accessLevel ?? accessOptions.everybody.key;
+	const toggleSendEmail = value => {
+		const postMetaUpdate = {
+			...postMeta,
+			// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
+			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: ! value,
+		};
+		setPostMeta( postMetaUpdate );
+	};
+
+	const isSendEmailEnabled = useSelect( select => {
+		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
+		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
+		return ! meta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
+	} );
 
 	return (
 		<PostVisibilityCheck
-			render={ () => (
-				<PanelRow className="edit-post-post-visibility">
-					{ showMisconfigurationWarning ? (
-						<MisconfigurationWarning />
-					) : (
-						<SubscribersAffirmation prePublish={ true } accessLevel={ _accessLevel } />
-					) }
-				</PanelRow>
-			) }
+			render={ ( { canEdit } ) => {
+				return (
+					<ToggleControl
+						checked={ isSendEmailEnabled }
+						disabled={ isPostPublished || ! canEdit }
+						label={ __( 'Send an email', 'jetpack' ) }
+						onChange={ toggleSendEmail }
+					/>
+				);
+			} }
 		/>
 	);
 }
