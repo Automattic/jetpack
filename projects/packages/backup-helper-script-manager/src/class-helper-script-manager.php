@@ -65,7 +65,7 @@ class Helper_Script_Manager {
 		'If you no longer have Jetpack connected to your site, you can delete them manually.',
 		'If you have questions or need assistance, please contact Jetpack Support at https://jetpack.com/support/',
 		'If you like to build amazing things with WordPress, you should visit automattic.com/jobs and apply to join ' .
-		'the fun – mention this file when you apply!;',
+		'the fun – mention this file when you apply!',
 	);
 
 	/**
