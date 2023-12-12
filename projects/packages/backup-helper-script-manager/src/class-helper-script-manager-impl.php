@@ -1,6 +1,6 @@
 <?php
 /**
- * The Jetpack Backup Helper Script Manager class.
+ * The Jetpack Backup Helper Script Manager class (implementation).
  *
  * @package automattic/jetpack-backup
  */
