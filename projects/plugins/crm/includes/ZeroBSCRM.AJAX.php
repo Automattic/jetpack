@@ -758,7 +758,7 @@ function ZeroBSCRM_get_quote_template() {
 			}
 			if ( isset( $_POST['quote_fields']['zbscq_date'] ) && ! empty( $_POST['quote_fields']['zbscq_date'] ) ) {
 				$sanitized_date = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_date'] ) );
-				$quote_date     = wp_date( get_option( 'date_time' ), strtotime( $sanitized_date ) );
+				$quote_date     = wp_date( get_option( 'date_format' ), strtotime( $sanitized_date ) );
 			}
 		}
 
