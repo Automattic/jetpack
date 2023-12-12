@@ -207,7 +207,7 @@ function getNumberOfSubscribersText( {
 			return sprintf(
 				// translators: %1s is the post name, %2s is the list of categories with subscriptions count
 				__(
-					'<postPublishedLink>%1$s</postPublishedLink>was sent to everyone subscribed to %2$s.',
+					'<postPublishedLink>%1$s</postPublishedLink> was sent to everyone subscribed to %2$s.',
 					'jetpack'
 				),
 				postName,
