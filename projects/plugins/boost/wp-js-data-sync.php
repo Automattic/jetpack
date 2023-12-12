@@ -218,6 +218,35 @@ jetpack_boost_register_option(
 jetpack_boost_register_option( 'premium_features', $premium_features_schema, new Premium_Features_Entry() );
 
 jetpack_boost_register_option( 'performance_history_toggle', Schema::as_boolean()->fallback( false ) );
+jetpack_boost_register_option(
+	'performance_history',
+	Schema::as_assoc_array(
+		array(
+			'periods'   => Schema::as_array(
+				Schema::as_assoc_array(
+					array(
+						'timestamp'  => Schema::as_number(),
+						'dimensions' => Schema::as_assoc_array(
+							array(
+								'desktop_overall_score' => Schema::as_number(),
+								'mobile_overall_score'  => Schema::as_number(),
+								'desktop_cls'           => Schema::as_number(),
+								'desktop_lcp'           => Schema::as_number(),
+								'desktop_tbt'           => Schema::as_number(),
+								'mobile_cls'            => Schema::as_number(),
+								'mobile_lcp'            => Schema::as_number(),
+								'mobile_tbt'            => Schema::as_number(),
+							)
+						),
+					)
+				)
+			),
+			'startDate' => Schema::as_number(),
+			'endDate'   => Schema::as_number(),
+		)
+	),
+	new Performance_History_Entry()
+);
 
 /**
  * Register Super Cache Notice Disabled store.

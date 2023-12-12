@@ -1,124 +1,85 @@
-import {
-	BoostScoreGraph,
-	Button,
-	Gridicon,
-	Popover,
-	Spinner,
-} from '@automattic/jetpack-components';
-import { Panel, PanelBody, PanelRow } from '@wordpress/components';
+import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
+import { usePerformanceHistoryPanelQuery, usePerformanceHistoryQuery } from './lib/stores/store';
+import GraphComponent from './graph-component/graph-component';
+import ErrorNotice from '$features/error-notice/error-notice';
 import { __ } from '@wordpress/i18n';
+import { Panel, PanelBody, PanelRow } from '@wordpress/components';
+import { navigate } from '$lib/utils/navigate';
+import { PerformanceHistoryData } from './lib/types';
 
-const DummyGraph = ( { children } ) => {
+import styles from './performance-history.module.scss';
+
+const PerformanceHistoryBody = ( { isFreshStart, onDismissFreshStart, needsUpgrade } ) => {
+	const { data, isFetching, isError, error, refetch } = usePerformanceHistoryQuery();
+
+	if ( isError && ! isFetching ) {
+		return (
+			<ErrorNotice
+				title={ __( 'Failed to load performance history', 'jetpack-boost' ) }
+				error={ error }
+				data={ JSON.stringify( error, null, 2 ) }
+				suggestion={ __( '<action>Try again</action>', 'jetpack-boost' ) }
+				vars={ {
+					action: (
+						// eslint-disable-next-line jsx-a11y/anchor-is-valid, jsx-a11y/anchor-has-content
+						<a
+							onClick={ event => {
+								event.preventDefault();
+								refetch();
+							} }
+							href="#"
+						/>
+					),
+				} }
+			/>
+		);
+	}
+
 	return (
-		<div className="jb-performance-history__dummy">
-			{ children }
+		<GraphComponent
+			{ ...( data as PerformanceHistoryData ) }
+			isFreshStart={ isFreshStart }
+			needsUpgrade={ needsUpgrade }
+			handleUpgrade={ () => navigate( '/upgrade' ) }
+			handleDismissFreshStart={ onDismissFreshStart }
+			isLoading={ isFetching }
+		/>
+	);
+};
 
-			<BoostScoreGraph isPlaceholder={ true } />
+const PerformanceHistory = ( { needsUpgrade, isFreshStart, onDismissFreshStart } ) => {
+	const [ isPanelOpen, setPanelOpen ] = usePerformanceHistoryPanelQuery();
+
+	return (
+		<div className={ styles[ 'performance-history' ] }>
+			<Panel className={ styles[ 'components-panel' ] }>
+				<PanelBody
+					title={ __( 'Historical Performance', 'jetpack-boost' ) }
+					initialOpen={ isPanelOpen }
+					onToggle={ value => {
+						setPanelOpen( value );
+					} }
+					className={ styles[ 'performance-history-body' ] }
+				>
+					<PanelRow>
+						<div style={ { flexGrow: 1, minHeight: '300px' } }>
+							<PerformanceHistoryBody
+								isFreshStart={ isFreshStart }
+								onDismissFreshStart={ onDismissFreshStart }
+								needsUpgrade={ needsUpgrade }
+							/>
+						</div>
+					</PanelRow>
+				</PanelBody>
+			</Panel>
 		</div>
 	);
 };
 
-const GraphComponent = ( {
-	periods,
-	startDate,
-	endDate,
-	needsUpgrade,
-	handleUpgrade,
-	isFreshStart,
-	handleDismissFreshStart,
-	isLoading,
-} ) => {
-	if ( isLoading ) {
-		return (
-			<div className="jb-performance-history__dummy">
-				<Spinner color="#000000" />
-			</div>
-		);
-	}
-
-	if ( needsUpgrade ) {
-		return (
-			<DummyGraph>
-				<Popover
-					icon={ <Gridicon icon="lock" /> }
-					action={
-						<Button onClick={ handleUpgrade }>{ __( 'Upgrade now!', 'jetpack-boost' ) }</Button>
-					}
-				>
-					<p>
-						{ __(
-							'Upgrade and learn more about your site performance over time.',
-							'jetpack-boost'
-						) }
-					</p>
-				</Popover>
-			</DummyGraph>
-		);
-	}
-
-	if ( isFreshStart ) {
-		return (
-			<DummyGraph>
-				<Popover
-					icon={ <Gridicon icon="checkmark" /> }
-					action={
-						<Button onClick={ handleDismissFreshStart }>
-							{ __( 'Okay, got it!', 'jetpack-boost' ) }
-						</Button>
-					}
-				>
-					<p>
-						{ __( 'Hello there! Jetpack Boost premium has been activated.', 'jetpack-boost' ) }
-						<br />
-						{ __( 'Your scores will be recorded from now on.', 'jetpack-boost' ) }
-					</p>
-				</Popover>
-			</DummyGraph>
-		);
-	}
-
-	return <BoostScoreGraph periods={ periods } startDate={ startDate } endDate={ endDate } />;
-};
-
-export const PerformanceHistory = ( {
-	periods,
-	onToggle,
-	isOpen,
-	startDate,
-	endDate,
-	isLoading,
-	needsUpgrade = false,
-	handleUpgrade = () => {
-		/* noop */
-	},
-	isFreshStart = true,
-	onDismissFreshStart = () => {
-		/* noop */
-	},
-} ) => {
+export default function ( props ) {
 	return (
-		<Panel>
-			<PanelBody
-				title={ __( 'Historical Performance', 'jetpack-boost' ) }
-				initialOpen={ isOpen }
-				onToggle={ onToggle }
-				className="jb-performance-history__panel"
-			>
-				<PanelRow>
-					<div style={ { flexGrow: 1, minHeight: '300px' } }>
-						<GraphComponent
-							periods={ periods }
-							startDate={ startDate }
-							endDate={ endDate }
-							isFreshStart={ isFreshStart }
-							needsUpgrade={ needsUpgrade }
-							handleUpgrade={ handleUpgrade }
-							handleDismissFreshStart={ onDismissFreshStart }
-							isLoading={ isLoading }
-						/>
-					</div>
-				</PanelRow>
-			</PanelBody>
-		</Panel>
+		<DataSyncProvider>
+			<PerformanceHistory { ...props } />
+		</DataSyncProvider>
 	);
-};
+}

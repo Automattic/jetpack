@@ -107,14 +107,16 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		 * Setup the endpoint nonce
 		 */
 		try {
-			const { nonce } = this.getWindowValue( this.key, schema );
+			// Nonces always exist, even when the values are lazy-loaded.
+			// That's why we don't care what the value schema is, we just want the nonce.
+			const { nonce } = this.getWindowValue( this.key, z.unknown() );
 			this.endpointNonce = nonce;
 		} catch ( e ) {
 			// eslint-disable-next-line no-console
 			console.error(
 				`Failed to connect to REST API because of an invalid "window.${ this.namespace }.${ this.key }" value:\n`,
 				`	Expected Example: `,
-				{ value: '<any>', nonce: 'abc123' },
+				{ value: '<any>', nonce: 'abc123', lazy: '<optional>' },
 				`\n	Received Value: `,
 				window[ namespace ]?.[ this.key ],
 				'\n\nError originated from: \n ',
