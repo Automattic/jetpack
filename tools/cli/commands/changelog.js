@@ -4,7 +4,7 @@ import path from 'path';
 import process from 'process';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import enquirer from 'enquirer';
 import { readComposerJson } from '../helpers/json.js';
 import { normalizeProject } from '../helpers/normalizeArgv.js';
 import { projectTypes, allProjects } from '../helpers/projectHelpers.js';
@@ -340,14 +340,6 @@ async function changelogAdd( argv ) {
 		return;
 	}
 
-	console.log(
-		chalk.yellow(
-			"When writing your changelog entry, please use the format 'Subject: change description.'\n" +
-				'Here is an example of a good changelog entry:\n' +
-				'  Sitemaps: ensure that the Home URL is slashed on subdirectory websites.\n'
-		)
-	);
-
 	if ( promptConfirm.separateChangelogFiles ) {
 		uniqueProjects.unshift( ...defaultProjects.splice( 0 ) );
 	}
@@ -369,7 +361,7 @@ async function changelogAdd( argv ) {
 
 	for ( const proj of uniqueProjects ) {
 		console.log( chalk.green( `Running changelogger for ${ proj }!` ) );
-		const response = await promptChangelog( argv, proj, projectChangeTypes[ proj ] );
+		const response = await promptChangelog( argv, [ proj ], projectChangeTypes[ proj ] );
 		argv = await formatAutoArgs( proj, argv, response );
 		await changelogArgs( argv );
 	}
@@ -623,6 +615,7 @@ function doesFilenameExist( fileName, needChangelog ) {
 			fileURLToPath( new URL( './', import.meta.url ) ),
 			`../../../projects/${ proj }/changelog/${ fileName }`
 		);
+
 		try {
 			if ( fs.existsSync( projPath ) ) {
 				console.log(
@@ -671,8 +664,8 @@ function validatePath( argv, dir ) {
  * @returns {argv}.
  */
 async function promptCommand( argv ) {
-	const response = await inquirer.prompt( {
-		type: 'list',
+	const response = await enquirer.prompt( {
+		type: 'select',
 		name: 'cmd',
 		message: 'What changelogger command do you want to run?',
 		choices: [ 'add', 'validate', 'version', 'write', 'squash' ],
@@ -688,8 +681,8 @@ async function promptCommand( argv ) {
  * @returns {argv}.
  */
 async function promptForFile( argv ) {
-	const response = await inquirer.prompt( {
-		type: 'list',
+	const response = await enquirer.prompt( {
+		type: 'select',
 		name: 'file',
 		message: 'What are you looking to squash?',
 		choices: [ 'readme', 'changelog' ],
@@ -704,8 +697,8 @@ async function promptForFile( argv ) {
  * @returns {argv}.
  */
 async function promptVersion( argv ) {
-	const response = await inquirer.prompt( {
-		type: 'list',
+	const response = await enquirer.prompt( {
+		type: 'select',
 		name: 'ver',
 		message: 'Which version would you like to get?',
 		choices: [ 'current', 'next', 'previous' ],
@@ -730,76 +723,124 @@ async function promptChangelog( argv, needChangelog, types ) {
 		.trim()
 		.replace( /\//g, '-' );
 	const maxLength = Object.keys( types ).reduce( ( a, v ) => ( v.length > a ? v.length : a ), 0 );
-	const choices = Object.entries( types ).map( ( [ value, name ] ) => ( {
+	const typeChoices = Object.entries( types ).map( ( [ value, name ] ) => ( {
 		value,
 		name: `[${ value.padEnd( maxLength, ' ' ) }] ${ name }`,
 	} ) );
-	const commands = await inquirer.prompt( [
-		{
-			type: 'string',
-			name: 'changelogName',
-			message: 'Name your changelog file:',
-			default: gitBranch,
-			validate: input => {
-				const fileExists = doesFilenameExist( input, needChangelog );
-				if ( fileExists ) {
-					return 'Please choose another file name, or delete the file manually.';
-				}
-				return true;
+	// Get the changelog name.
+	const { changelogName } = await enquirer.prompt( {
+		type: 'input',
+		name: 'changelogName',
+		message: 'Name your changelog file:',
+		default: gitBranch,
+		validate: input => {
+			const fileExists = doesFilenameExist( input, needChangelog );
+			if ( fileExists ) {
+				return 'Filename exists already. Please choose another file name, or delete the file existing manually.';
+			}
+			return true;
+		},
+	} );
+
+	// Get the significance.
+	const { significance } = await enquirer.prompt( {
+		type: 'autocomplete',
+		name: 'significance',
+		message: 'Significance of the change, in the style of semantic versioning.',
+		suggest: ( input, choices ) => choices.filter( choice => choice.value.startsWith( input ) ),
+		highlight: v => v,
+		choices: [
+			{
+				value: 'patch',
+				name: '[patch] Backwards-compatible bug fixes.',
 			},
-		},
-		{
-			type: 'list',
-			name: 'significance',
-			message: 'Significance of the change, in the style of semantic versioning.',
-			choices: [
-				{
-					value: 'patch',
-					name: '[patch] Backwards-compatible bug fixes.',
-				},
-				{
-					value: 'minor',
-					name: '[minor] Added (or deprecated) functionality in a backwards-compatible manner.',
-				},
-				{
-					value: 'major',
-					name: '[major] Broke backwards compatibility in some way.',
-				},
-			],
-		},
-		{
-			type: 'list',
+			{
+				value: 'minor',
+				name: '[minor] Added (or deprecated) functionality in a backwards-compatible manner.',
+			},
+			{
+				value: 'major',
+				name: '[major] Broke backwards compatibility in some way.',
+			},
+		],
+	} );
+
+	const userFacingResponse = await enquirer.prompt( {
+		type: 'confirm',
+		name: 'userFacing',
+		message:
+			'Is this change something an end user or site administrator of a standalone Jetpack site would like to know about?',
+		initial: true,
+		skip: ! needChangelog.includes( 'plugins/jetpack' ),
+	} );
+
+	// Get the type, set it to other if this isn't a user facing change.
+	let typeResponse;
+	if ( ! userFacingResponse.userFacing ) {
+		typeResponse = { type: 'other' };
+	} else {
+		// Get the type of change.
+		typeResponse = await enquirer.prompt( {
+			type: 'autocomplete',
 			name: 'type',
 			message: 'Type of change.',
-			choices: choices,
-		},
-		{
-			type: 'string',
-			name: 'entry',
-			message: 'Changelog entry. May be left empty if this change is particularly insignificant.',
-			when: answers => answers.significance === 'patch',
-		},
-		{
-			type: 'string',
-			name: 'comment',
-			message:
-				'You omitted the changelog entry, which is fine. But please comment as to why no entry is needed.',
-			when: answers => answers.significance === 'patch' && answers.entry === '',
-		},
-		{
-			type: 'string',
+			suggest: ( input, choices ) => choices.filter( choice => choice.value.startsWith( input ) ),
+			highlight: v => v,
+			choices: typeChoices,
+		} );
+	}
+	const { type } = typeResponse;
+
+	console.log(
+		chalk.yellow(
+			"When writing your changelog entry, please use the format 'Subject: change description.'\n" +
+				'Here is an example of a good changelog entry:\n' +
+				'  Sitemaps: ensure that the Home URL is slashed on subdirectory websites.\n'
+		)
+	);
+
+	// Get the entry, if it's a patch type it can be left blank.
+	let entryResponse;
+	if ( significance !== 'patch' ) {
+		entryResponse = await enquirer.prompt( {
+			type: 'input',
 			name: 'entry',
 			message: 'Changelog entry. May not be empty.',
-			when: answers => answers.significance === 'minor' || 'major',
 			validate: input => {
 				if ( ! input || ! input.trim() ) {
 					return `Changelog entry can't be blank`;
 				}
 				return true;
 			},
-		},
-	] );
-	return { ...commands };
+		} );
+	} else {
+		entryResponse = await enquirer.prompt( {
+			type: 'input',
+			name: 'entry',
+			message: 'Changelog entry. May be left empty if this change is particularly insignificant.',
+		} );
+	}
+	const { entry } = entryResponse;
+
+	// Get the comment if the entry is left blank for a patch level change.
+	let commentResponse;
+	if ( entry === '' ) {
+		commentResponse = await enquirer.prompt( {
+			type: 'input',
+			name: 'comment',
+			message:
+				'You omitted the changelog entry, which is fine. But please comment as to why no entry is needed.',
+		} );
+	}
+	const { comment } = commentResponse || {};
+
+	return {
+		changelogName,
+		significance,
+		type,
+		entry,
+		comment,
+	};
 }
 
 /**
@@ -820,12 +861,14 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 			type: 'confirm',
 			name: 'separateChangelogFiles',
 			message: `Add a changelog for ${ totalProjects[ 0 ] }?`,
+			initial: true,
 		};
 	} else if ( defaultProjects.length <= 1 && uniqueProjects.length > 0 ) {
 		prompts = {
 			type: 'confirm',
 			name: 'separateChangelogFiles',
 			message: `Found ${ totalProjects.length } project(s) that need a changelog. Create a changelog for each one?`,
+			initial: true,
 		};
 	} else if ( defaultProjects.length > 0 && uniqueProjects.length === 0 ) {
 		prompts = [
@@ -833,12 +876,18 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 				type: 'confirm',
 				name: 'sameChangelogFiles',
 				message: `Found ${ defaultProjects.length } project(s) that need a changelog. Create and add the same changelog to all of them?`,
+				initial: true,
 			},
 			{
 				type: 'confirm',
 				name: 'separateChangelogFiles',
 				message: 'Create a changelog for each project individually?',
-				when: answers => ! answers.sameChangelogFiles,
+				initial() {
+					return this.skipped ? undefined : true; // https://github.com/enquirer/enquirer/issues/340
+				},
+				skip() {
+					return this.state.answers.sameChangelogFiles;
+				},
 			},
 		];
 	} else {
@@ -847,16 +896,22 @@ async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 				type: 'confirm',
 				name: 'sameChangelogFiles',
 				message: `Found ${ defaultProjects.length } project(s) that can accept the same changelog and ${ uniqueProjects.length } project(s) that need individual ones. Create and add the same changelog to the ones we're able?`,
+				initial: true,
 			},
 			{
 				type: 'confirm',
 				name: 'separateChangelogFiles',
 				message: 'Create a changelog for each project individually?',
-				when: answers => ! answers.sameChangelogFiles,
+				initial() {
+					return this.skipped ? undefined : true; // https://github.com/enquirer/enquirer/issues/340
+				},
+				skip() {
+					return this.state.answers.sameChangelogFiles;
+				},
 			},
 		];
 	}
-	const response = await inquirer.prompt( prompts );
+	const response = await enquirer.prompt( prompts );
 	if ( ! response.sameChangelogFiles && ! response.separateChangelogFiles ) {
 		return false;
 	}

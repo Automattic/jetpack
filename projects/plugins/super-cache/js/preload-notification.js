@@ -79,6 +79,7 @@ jQuery( document ).ready( function () {
 				const seconds = diff % 60;
 				const minutes = Math.floor( diff / 60 ) % 60;
 				const hours = Math.floor( diff / 3600 ) % 24;
+				const days = Math.floor( diff / 86400 );
 
 				// If we're preloading within the next minute, start loading faster.
 				if ( minutes + hours === 0 ) {
@@ -89,11 +90,12 @@ jQuery( document ).ready( function () {
 				p.append(
 					jQuery( '<b>' ).html(
 						sprintf(
-							/* Translators: 1: Number of hours, 2: Number of minutes, 3: Number of seconds */
+							/* Translators: 1: Number of days, 2: Number of hours, 3: Number of minutes, 4: Number of seconds */
 							__(
-								'<b>Next preload scheduled</b> in %1$s hours, %2$s minutes and %3$s seconds.',
+								'<b>Next preload scheduled</b> in %1$s days, %2$s hours, %3$s minutes and %4$s seconds.',
 								'wp-super-cache'
 							),
+							days,
 							hours,
 							minutes,
 							seconds

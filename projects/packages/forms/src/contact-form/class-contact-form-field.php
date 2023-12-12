@@ -781,12 +781,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$label_ns     = 'contact-form-label';
-		$label_id_key = "$label_ns-id";
-		$label_id_val = "$label_ns-$id";
-
-		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text, array( 'id' => $label_id_val ) );
-		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . "data-$label_id_key='" . esc_attr( $label_id_val ) . "'>\n";
+		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
+		$field .= "<div class='contact-form__select-wrapper'>";
+		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
@@ -803,23 +800,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 		$field .= "\t</select>\n";
-
-		wp_enqueue_style(
-			'jquery-ui-selectmenu',
-			plugins_url( 'css/jquery-ui-selectmenu.css', __FILE__ ),
-			array(),
-			'1.13.2'
-		);
-
-		wp_enqueue_script( 'jquery-ui-selectmenu' );
-
-		wp_enqueue_script(
-			'contact-form-dropdown',
-			plugins_url( 'js/dropdown.js', __FILE__ ),
-			array( 'jquery', 'jquery-ui-selectmenu' ),
-			\JETPACK__VERSION,
-			true
-		);
+		$field .= "</div>\n";
 
 		return $field;
 	}
@@ -977,10 +958,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text ) {
 		$class .= ' grunion-field';
 
-		if ( $type === 'select' ) {
-			$class .= ' contact-form-dropdown';
-		}
-
 		$form_style = $this->get_form_style();
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
 			if ( empty( $placeholder ) ) {
@@ -995,10 +972,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$wrap_classes      = empty( $class ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $class ) ) ) . '-wrap'; // this adds
 		// Label is displayed inside the input instead of above it.
 		$has_inset_label = in_array( $form_style, array( 'outlined', 'animated' ), true );
-
-		if ( $type === 'select' ) {
-			$wrap_classes .= ' ui-front';
-		}
 
 		if ( empty( $label ) ) {
 			$wrap_classes .= ' no-label';

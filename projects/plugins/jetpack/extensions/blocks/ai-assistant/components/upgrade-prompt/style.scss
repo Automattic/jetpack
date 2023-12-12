@@ -1,0 +1,14 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jetpack-upgrade-plan-banner__wrapper {
+    column-gap: 32px;
+}
+
+.jetpack-upgrade-plan-banner.jetpack-ai-upgrade-banner {
+    .jetpack-upgrade-plan-banner__wrapper {
+        .components-button.is-primary.is-busy {
+            background: var( --jp-white );
+            color: var( --jp-black );
+        }
+    }
+}
