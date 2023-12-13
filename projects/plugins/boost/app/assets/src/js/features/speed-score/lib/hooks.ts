@@ -15,7 +15,7 @@ type SpeedScoreState = {
 			mobile: number;
 			desktop: number;
 		};
-		noBoost: null | {
+		noBoost: {
 			mobile: number;
 			desktop: number;
 		};
