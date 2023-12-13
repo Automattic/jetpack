@@ -1,4 +1,4 @@
-import { SET_CONNECTIONS, SET_INITIAL_CONNECTIONS, TOGGLE_CONNECTION } from '../actions/constants';
+import { SET_CONNECTIONS, TOGGLE_CONNECTION } from '../actions/constants';
 
 const connectionData = ( state = {}, action ) => {
 	switch ( action.type ) {
@@ -6,12 +6,6 @@ const connectionData = ( state = {}, action ) => {
 			return {
 				...state,
 				connections: action.connections,
-			};
-
-		case SET_INITIAL_CONNECTIONS:
-			return {
-				...state,
-				initialConnections: action.connections,
 			};
 
 		case TOGGLE_CONNECTION:

@@ -16,12 +16,9 @@ export type Connection = {
 	done: boolean;
 	toggleable: boolean;
 	connection_id: string;
-	is_healthy?: boolean;
-	error_code?: string;
 };
 
 export type ConnectionData = {
-	initialConnections?: Connection[];
 	connections: Connection[];
 };
 
