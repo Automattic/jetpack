@@ -5,6 +5,8 @@ import {
 	getFailedConnections,
 	getMustReauthConnections,
 	getConnectionProfileDetails,
+	getEnabledConnections,
+	getDisabledConnections,
 } from '../connection-data';
 
 const state = {
@@ -27,7 +29,7 @@ const state = {
 				display_name: 'Some name',
 				profile_picture: 'https://wordpress.com/some-url-of-another-picture',
 				username: 'username',
-				enabled: false,
+				enabled: true,
 				connection_id: '198765432',
 				test_success: false,
 			},
@@ -105,6 +107,31 @@ describe( 'Social store selectors: connectionData', () => {
 			const mustReauthConnections = getMustReauthConnections( state );
 			expect( mustReauthConnections ).toEqual( [
 				state.connectionData.connections[ 2 ].service_name,
+			] );
+		} );
+	} );
+
+	describe( 'getEnabledConnections', () => {
+		it( 'should return empty array if no connections', () => {
+			expect( getEnabledConnections( {} ) ).toEqual( [] );
+		} );
+
+		it( 'should return enabled connections', () => {
+			const enabledConnections = getEnabledConnections( state );
+			expect( enabledConnections ).toEqual( [ state.connectionData.connections[ 1 ] ] );
+		} );
+	} );
+
+	describe( 'getDisabledConnections', () => {
+		it( 'should return empty array if no connections', () => {
+			expect( getDisabledConnections( {} ) ).toEqual( [] );
+		} );
+
+		it( 'should return disabled connections', () => {
+			const disabledConnections = getDisabledConnections( state );
+			expect( disabledConnections ).toEqual( [
+				state.connectionData.connections[ 0 ],
+				state.connectionData.connections[ 2 ],
 			] );
 		} );
 	} );
