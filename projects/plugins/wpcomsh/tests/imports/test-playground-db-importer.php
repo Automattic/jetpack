@@ -21,6 +21,20 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	private $tmp_db_path;
 
 	/**
+	 * Playground DB Importer instance.
+	 *
+	 * @var Playground_DB_Importer
+	 */
+	private $db_importer;
+
+	/**
+	 * Sets up the test environment before each test.
+	 */
+	protected function setUp(): void {
+		$this->db_importer = new Playground_DB_Importer();
+	}
+
+	/**
 	 * Clear values for each test
 	 *
 	 * @return void
@@ -37,17 +51,10 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Ensure that the Playground_DB_Importer singleton return a valid instance.
-	 */
-	public function test_can_get_singleton() {
-		$this->assertInstanceOf( Playground_DB_Importer::class, Playground_DB_Importer::get_instance() );
-	}
-
-	/**
 	 * Open an empty path.
 	 */
 	public function test_error_open_an_empty_file_path() {
-		$result = Playground_DB_Importer::get_instance()->generate_sql( '' );
+		$result = $this->db_importer->generate_sql( '' );
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'database-file-not-exists', $result->get_error_code() );
@@ -58,7 +65,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	 */
 	public function test_error_open_an_empty_file() {
 		$tmp_file = $this->generate_tmp_file();
-		$result   = Playground_DB_Importer::get_instance()->generate_sql( $tmp_file['path'] );
+		$result   = $this->db_importer->generate_sql( $tmp_file['path'] );
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'database-file-empty', $result->get_error_code() );
@@ -72,7 +79,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	 */
 	public function test_error_open_a_not_valid_file() {
 		$tmp_file = $this->generate_tmp_file( 0 );
-		$result   = Playground_DB_Importer::get_instance()->generate_sql( $tmp_file['path'] );
+		$result   = $this->db_importer->generate_sql( $tmp_file['path'] );
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'not-valid-sqlite-file', $result->get_error_code() );
@@ -86,7 +93,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	 */
 	public function test_error_open_an_empty_database() {
 		$this->generate_sqlite_database();
-		$result = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path );
+		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'database-file-empty', $result->get_error_code() );
@@ -102,7 +109,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 			)
 		);
 
-		$result = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path );
+		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'not-valid-sqlite-file', $result->get_error_code() );
@@ -119,7 +126,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 			)
 		);
 
-		$result = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path );
+		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'missing-column', $result->get_error_code() );
@@ -139,7 +146,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$options = array(
 			'exclude_tables' => array( 'test_table' ),
 		);
-		$result  = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path, $options );
+		$result  = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
 
 		$this->assertIsString( $result );
 		$this->assertStringContainsString( 'START TRANSACTION;', $result );
@@ -148,7 +155,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$options = array(
 			'all_tables' => false,
 		);
-		$result  = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path, $options );
+		$result  = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
 
 		$this->assertWPError( $result );
 		$this->assertEquals( 'missing-tables', $result->get_error_code() );
@@ -167,7 +174,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 			)
 		);
 
-		$result = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path );
+		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
 
 		$this->assertIsString( $result );
 		$this->assertStringContainsString( 'START TRANSACTION;', $result );
@@ -190,14 +197,14 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$options = array(
 			'tmp_tables' => true,
 		);
-		$result  = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path, $options );
+		$result  = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
 
 		$this->assertIsString( $result );
 		$this->assertStringNotContainsString( 'START TRANSACTION;', $result );
 		$this->assertStringContainsString( "CREATE TABLE `tmp_{$wpdb->prefix}test_table`", $result );
 
 		$options['tmp_prefix'] = 'test_';
-		$result                = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path, $options );
+		$result                = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
 
 		$this->assertIsString( $result );
 		$this->assertStringNotContainsString( 'START TRANSACTION;', $result );
@@ -220,7 +227,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$options = array(
 			'output_prefix' => 'testprefix_',
 		);
-		$result  = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path, $options );
+		$result  = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
 
 		$this->assertIsString( $result );
 		$this->assertStringContainsString( 'CREATE TABLE `testprefix_test_table`', $result );
@@ -228,7 +235,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$options = array(
 			'output_prefix' => null, // Not output prefix.
 		);
-		$result  = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path, $options );
+		$result  = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
 
 		$this->assertIsString( $result );
 		$this->assertStringContainsString( 'CREATE TABLE `test_table`', $result );
@@ -250,13 +257,13 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$options = array(
 			'prefix' => 'wptest_',
 		);
-		$result  = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path, $options );
+		$result  = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
 
 		$this->assertIsString( $result );
 		$this->assertStringContainsString( "CREATE TABLE `{$wpdb->prefix}test_table`", $result );
 
 		$options['output_prefix'] = null; // Not output prefix.
-		$result                   = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path, $options );
+		$result                   = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
 
 		$this->assertIsString( $result );
 		$this->assertStringContainsString( 'CREATE TABLE `test_table`', $result );
@@ -273,7 +280,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 			)
 		);
 
-		$result = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path );
+		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
 
 		$this->assertIsString( $result );
 		$this->assertStringNotContainsString( SQL_Generator::DEFAULT_COLLATION, $result );
@@ -281,7 +288,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$options = array(
 			'collation' => SQL_Generator::DEFAULT_COLLATION,
 		);
-		$result  = Playground_DB_Importer::get_instance()->generate_sql( $this->tmp_db_path, $options );
+		$result  = $this->db_importer->generate_sql( $this->tmp_db_path, $options );
 
 		$this->assertIsString( $result );
 		$this->assertStringContainsString( SQL_Generator::DEFAULT_COLLATION, $result );

@@ -37,7 +37,7 @@ class Playground_Importer extends \Imports\Backup_Importer {
 			'tmp_tables'  => true,
 		);
 		$db_path  = $this->destination_path . self::SQLITE_DB_PATH;
-		$importer = Playground_DB_Importer::get_instance();
+		$importer = new Playground_DB_Importer();
 		$results  = $importer->generate_sql( $db_path, $options );
 
 		return is_wp_error( $results ) ? $results : true;

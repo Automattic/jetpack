@@ -50,12 +50,10 @@ class Playground_DB_Importer {
 	 *     @type bool   $all_tables     Generate all tables, not only core. Defaults to true.
 	 *     @type string $collation      The collation to use for the generated SQL. Defaults to null.
 	 *     @type array  $exclude_tables A list of tables to exclude from the generated SQL.
-	 *     @type string $home           The home to use for the generated SQL.
 	 *     @type string $output_file    The output file path. If not set, a temporary file will be used.
 	 *     @type int    $output_mode    Output mode. Defaults to SQL_Generator::OUTPUT_TYPE_STRING.
 	 *     @type string $output_prefix  The generated tables prefix.
 	 *     @type string $prefix         The input tables prefix. (Always `wp_` for Playground databases)
-	 *     @type string $siteurl        The siteurl to use for the generated SQL.
 	 *     @type string $tmp_prefix     The temporary tables prefix.
 	 *     @type bool   $tmp_tables     Whether to generate temporary tables instead of TRANSACTION. Defaults to false.
 	 * }
@@ -69,12 +67,10 @@ class Playground_DB_Importer {
 			'all_tables'     => true,
 			'collation'      => null,
 			'exclude_tables' => array(),
-			'home'           => null,
 			'output_file'    => null,
 			'output_mode'    => SQL_Generator::OUTPUT_TYPE_STRING,
 			'output_prefix'  => $wpdb->prefix,
 			'prefix'         => 'wp_',
-			'siteurl'        => null,
 			'tmp_prefix'     => 'tmp_',
 			'tmp_tables'     => false,
 		);
@@ -262,26 +258,13 @@ class Playground_DB_Importer {
 	private function generate_inserts( SQL_Generator $generator, string $table_name, string $format, string $field_names ) {
 		global $wpdb;
 
-		$entries          = $this->db->query( "SELECT * FROM {$table_name}" );
-		$check_wp_options = $table_name === 'wp_options' ? 2 : 0;
+		$entries = $this->db->query( "SELECT * FROM {$table_name}" );
 
 		if ( ! $entries ) {
 			return new WP_Error( 'missing-table', 'Query error: can\'t read source entry.' );
 		}
 
 		while ( $entry = $entries->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			if ( $check_wp_options ) {
-				if ( $this->options['siteurl'] !== null && $entry['option_name'] === 'siteurl' ) {
-					$entry['option_value'] = $this->options['siteurl'];
-					--$check_wp_options;
-				}
-
-				if ( $this->options['home'] !== null && $entry['option_name'] === 'home' ) {
-					$entry['option_value'] = $this->options['home'];
-					--$check_wp_options;
-				}
-			}
-
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared outside.
 			$generator->table_insert( $field_names, $wpdb->prepare( $format, $entry ) );
 		}
@@ -549,20 +532,5 @@ class Playground_DB_Importer {
 	private function get_tmp_file_name(): string {
 		// A random string to avoid collisions.
 		return 'sqlite-export-' . uniqid() . '.sql';
-	}
-
-	/**
-	 * Ensure that only one instance of this class exists at a time.
-	 *
-	 * @return Playground_DB_Importer
-	 */
-	public static function get_instance(): Playground_DB_Importer {
-		static $instance = null;
-
-		if ( $instance === null ) {
-			$instance = new self();
-		}
-
-		return $instance;
 	}
 }
