@@ -25,7 +25,7 @@ const Button: React.FC< ButtonProps > = ( {
 		width: width || 'auto',
 	};
 
-	const buttonClassNames = classNames( 'jb-button jb-button--outline', styles.button, {
+	const buttonClassNames = classNames( 'button', styles.button, {
 		[ styles.small ]: small,
 		[ styles.fill ]: fill,
 	} );
