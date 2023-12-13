@@ -81,7 +81,7 @@ function zeroBS_dashboard_crm_list_growth(){
 					<div class="jpcrm-div-message">
 						<?php ##WLREMOVE ?>
 						<a href="<?php echo esc_url( $zbs->urls['kbfirstcontact'] ); ?>" target="_blank" class="jpcrm-button white-bg"><?php echo esc_html__( 'Read guide', 'zero-bs-crm' ); ?></a>
-						<?php ##W/LREMOVE ?>
+						<?php ##/WLREMOVE ?>
 						<a href="<?php echo jpcrm_esc_link( 'create', -1, 'zerobs_customer', false, false ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>" class="jpcrm-button"><?php esc_html_e( 'Add a contact', 'zero-bs-crm' ); ?></a>
 					</div>
 				</div>
