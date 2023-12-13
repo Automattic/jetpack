@@ -1,14 +1,12 @@
 import { IconTooltip } from '@automattic/jetpack-components';
 import classNames from 'classnames';
-import { createInterpolateElement } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { _n, sprintf } from '@wordpress/i18n';
 import styles from './hero.module.scss';
 import ImageCdnRecommendation from '$features/image-size-analysis/image-cdn-recommendation/image-cdn-recommendation';
 
 // removed in:fade={{ duration: 300, easing: quadOut }} from .jb-hero
 
 export const Hero = ( {
-	refresh,
 	isImageCdnModuleActive,
 	isaLastUpdated,
 	hasActiveGroup,

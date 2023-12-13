@@ -11,7 +11,6 @@ import { ISASummary, ISAStatus } from '../../lib/stores/isa-summary';
 import classnames from 'classnames';
 
 interface TableProps {
-	needsRefresh: boolean;
 	refresh: () => Promise< void >;
 	isaDataLoading: boolean;
 	activeGroup: string;
