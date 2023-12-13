@@ -423,6 +423,7 @@ function zeroBSCRM_quote_generateNotificationHTML( $quoteID = -1, $return = true
 				// replacements $bodyHTML
 				$replacements['quote-url'] = $quote_url;
 				$replacements['quote-title'] = $proposalTitle;
+				$replacements['quote-value'] = $quote['value'] ? zeroBSCRM_formatCurrency( $quote['value'] ) : '';
 
 				$viewInPortal = '';
 				$quoteID = '';
@@ -462,6 +463,11 @@ function zeroBSCRM_quote_generateNotificationHTML( $quoteID = -1, $return = true
 				$replacements['msg-content'] = $bodyHTML;
 				$replacements['unsub-line'] = $unsub_line;
 				$replacements['biz-info'] = $bizInfoTable;
+
+				$settings = $zbs->settings->getAll();
+				if ( $settings['currency'] && $settings['currency']['strval'] ) {
+					$replacements['quote-currency'] = $settings['currency']['strval'];
+				}
 				$html = $placeholder_templating->replace_placeholders( array( 'global', 'quote' ), $templatedHTML, $replacements );
 
 			}
@@ -520,8 +526,7 @@ function zeroBSCRM_quote_generateAcceptNotifHTML( $quoteID = -1, $quoteSignedBy 
 				if ( !empty( $quote['title'] ) ) {
 					$proposalTitle = $quote['title'];
 				}
-				$quote_url = jpcrm_esc_link( 'edit', $quoteID, 'zerobs_quote' );
-				$quote_edit_url = jpcrm_esc_link( 'edit', $quoteID, 'zerobs_quote' );
+
 				$message_content = zeroBSCRM_mailTemplate_get( ZBSEMAIL_QUOTEACCEPTED );
 				$bodyHTML = $message_content->zbsmail_body;
 				$proposalEmailTitle = __( 'Proposal Notification', 'zero-bs-crm' );
@@ -559,6 +564,14 @@ function zeroBSCRM_quote_generateAcceptNotifHTML( $quoteID = -1, $quoteSignedBy 
 				$replacements['msg-content'] = $bodyHTML;
 				$replacements['unsub-line'] = $unsub_line;
 				$replacements['biz-info'] = $bizInfoTable;
+				$replacements['quote-url']      = zeroBSCRM_portal_linkObj( $quoteID, ZBS_TYPE_QUOTE ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$replacements['quote-edit-url'] = jpcrm_esc_link( 'edit', $quoteID, 'zerobs_quote' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$replacements['quote-value']    = $quote['value'] ? zeroBSCRM_formatCurrency( $quote['value'] ) : '';
+
+				$settings = $zbs->settings->getAll();
+				if ( $settings['currency'] && $settings['currency']['strval'] ) {
+					$replacements['quote-currency'] = $settings['currency']['strval'];
+				}
 				$html = $placeholder_templating->replace_placeholders( array( 'global', 'quote' ), $templatedHTML, $replacements );
 
 			}

@@ -567,6 +567,17 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * Determines whether the current user has a pending subscription.
+	 *
+	 * @return bool Whether the user has a pending subscription
+	 */
+	public static function user_is_pending_subscriber() {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		return $subscription_service->is_current_user_pending_subscriber();
+	}
+
+	/**
 	 * Determines whether the current user can view the post based on the newsletter access level
 	 * and caches the result.
 	 *

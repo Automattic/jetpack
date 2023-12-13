@@ -165,6 +165,15 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	}
 
 	/**
+	 * Returns true if the current authenticated user has a pending subscription to the current site.
+	 *
+	 * @return boolean
+	 */
+	public function is_current_user_pending_subscriber() {
+		return false;
+	}
+
+	/**
 	 * Return if the user has access to the content depending on the access level and the user rights
 	 *
 	 * @param string $access_level Post or blog access level.

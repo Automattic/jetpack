@@ -20,7 +20,12 @@ export const criticalCssState = {
 	subscribe: cssStateStore.subscribe,
 	refresh: async () => {
 		const status = await stateClient.endpoint.GET();
-		if ( status ) {
+		const storeStatus = get( cssStateStore );
+
+		// This is a temporary fix.
+		// Compare status and storeStatus by serializing and update store if they differ.
+		// This is to avoid unnecessary updates to the store, which can cause rerenders.
+		if ( JSON.stringify( status ) !== JSON.stringify( storeStatus ) ) {
 			// .override will set the store values without triggering
 			// an update back to the server.
 			cssStateStore.override( status );
@@ -209,7 +214,7 @@ export const criticalCssProgress = derived(
 			return 0;
 		}
 
-		const totalCount = $criticalCssState.providers.length;
+		const totalCount = Math.max( 1, $criticalCssState.providers.length );
 		const doneCount = $criticalCssState.providers.filter(
 			provider => provider.status !== 'pending'
 		).length;

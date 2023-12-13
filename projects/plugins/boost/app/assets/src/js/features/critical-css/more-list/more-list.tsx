@@ -9,7 +9,7 @@ type MoreListTypes = {
 };
 
 const MoreList: React.FC< MoreListTypes > = ( { entries = [], showLimit = 2 } ) => {
-	const { expanded, setExpanded } = useState( false );
+	const [ expanded, setExpanded ] = useState( false );
 	const listItems = expanded ? entries : entries.slice( 0, showLimit );
 	const showExpandButton = ! expanded && entries.length > showLimit;
 
