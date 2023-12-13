@@ -16,7 +16,6 @@
 	import TemplatedString from '$features/TemplatedString.svelte';
 	import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 	import CriticalCssMeta from '$features/critical-css/critical-css-meta/critical-css-meta';
-	import ImageCdnQualitySettings from '$features/image-cdn/ImageCdnQualitySettings.svelte';
 	import MinifyMeta from '$features/minify-meta/minify-meta';
 	import Module from '$features/Module.svelte';
 	import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
@@ -42,6 +41,7 @@
 		stopPollingCloudCssStatus,
 	} from '$features/critical-css/lib/cloud-css';
 	import externalLinkTemplateVar from '$lib/utils/external-link-template-var';
+	import { QualitySettings } from '$features/image-cdn';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
@@ -290,7 +290,10 @@
 		</p>
 
 		<div slot="meta">
-			<ImageCdnQualitySettings isPremium={$premiumFeatures.includes( 'image-cdn-quality' )} />
+			<ReactComponent
+				this={QualitySettings}
+				isPremium={$premiumFeatures.includes( 'image-cdn-quality' )}
+			/>
 		</div>
 	</Module>
 

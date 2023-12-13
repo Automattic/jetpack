@@ -62,10 +62,10 @@ add_action( 'admin_print_styles', 'grunion_admin_css' );
  */
 function grunion_admin_css() {
 	global $current_screen;
-	if ( $current_screen === null ) {
-		return;
-	}
-	if ( 'edit-feedback' !== $current_screen->id ) {
+	if (
+		$current_screen === null
+		|| 'edit-feedback' !== $current_screen->id
+	) {
 		return;
 	}
 
@@ -86,8 +86,10 @@ add_action( 'admin_print_scripts', 'grunion_admin_js' );
  */
 function grunion_admin_js() {
 	global $current_screen;
-
-	if ( 'edit-feedback' !== $current_screen->id ) {
+	if (
+		$current_screen === null
+		|| 'edit-feedback' !== $current_screen->id
+	) {
 		return;
 	}
 
@@ -218,8 +220,11 @@ add_filter( 'bulk_actions-edit-feedback', 'grunion_admin_bulk_actions' );
  */
 function grunion_admin_bulk_actions( $actions ) {
 	global $current_screen;
-	if ( 'edit-feedback' !== $current_screen->id ) {
-		return $actions;
+	if (
+		$current_screen === null
+		|| 'edit-feedback' !== $current_screen->id
+	) {
+		return;
 	}
 
 	unset( $actions['edit'] );
@@ -235,8 +240,11 @@ add_filter( 'views_edit-feedback', 'grunion_admin_view_tabs' );
  */
 function grunion_admin_view_tabs( $views ) {
 	global $current_screen;
-	if ( 'edit-feedback' !== $current_screen->id ) {
-		return $views;
+	if (
+		$current_screen === null
+		|| 'edit-feedback' !== $current_screen->id
+	) {
+		return;
 	}
 
 	unset( $views['publish'] );

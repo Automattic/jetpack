@@ -449,10 +449,10 @@ class Admin {
 	 */
 	public function grunion_admin_css() {
 		global $current_screen;
-		if ( $current_screen === null ) {
-			return;
-		}
-		if ( 'edit-feedback' !== $current_screen->id ) {
+		if (
+			$current_screen === null
+			|| 'edit-feedback' !== $current_screen->id
+		) {
 			return;
 		}
 
@@ -471,8 +471,10 @@ class Admin {
 	 */
 	public function grunion_admin_js() {
 		global $current_screen;
-
-		if ( 'edit-feedback' !== $current_screen->id ) {
+		if (
+			$current_screen === null
+			|| 'edit-feedback' !== $current_screen->id
+		) {
 			return;
 		}
 
@@ -601,7 +603,10 @@ class Admin {
 	 */
 	public function grunion_admin_bulk_actions( $actions ) {
 		global $current_screen;
-		if ( 'edit-feedback' !== $current_screen->id ) {
+		if (
+			$current_screen === null
+			|| 'edit-feedback' !== $current_screen->id
+		) {
 			return $actions;
 		}
 
@@ -617,7 +622,10 @@ class Admin {
 	 */
 	public function grunion_admin_view_tabs( $views ) {
 		global $current_screen;
-		if ( 'edit-feedback' !== $current_screen->id ) {
+		if (
+			$current_screen === null
+			|| 'edit-feedback' !== $current_screen->id
+		) {
 			return $views;
 		}
 

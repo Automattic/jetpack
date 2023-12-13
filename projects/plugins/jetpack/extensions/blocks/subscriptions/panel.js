@@ -15,22 +15,17 @@ import {
 	PluginPostPublishPanel,
 } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
-import { useState, createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel, isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
 import {
-	Link,
-	getReachForAccessLevelKey,
 	NewsletterAccessDocumentSettings,
 	NewsletterAccessPrePublishSettings,
 } from '../../shared/memberships/settings';
-import {
-	getFormattedCategories,
-	getFormattedSubscriptionsCount,
-	getShowMisconfigurationWarning,
-} from '../../shared/memberships/utils';
+import SubscribersAffirmation from '../../shared/memberships/subscribers-affirmation';
+import { getShowMisconfigurationWarning } from '../../shared/memberships/utils';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import metadata from './block.json';
 import EmailPreview from './email-preview';
@@ -172,117 +167,7 @@ function NewsletterPrePublishSettingsPanel( {
 	);
 }
 
-// Determines copy to show in post-publish panel to confirm number and type of subscribers who received the post as email, or will receive in case of scheduled post.
-function getNumberOfSubscribersText( {
-	accessLevel,
-	isScheduledPost,
-	newsletterCategories,
-	newsletterCategoriesEnabled,
-	postCategories,
-	postName,
-	reachCount,
-	subscriptionsCount,
-} ) {
-	// Text when categories are enabled
-	if (
-		newsletterCategoriesEnabled &&
-		newsletterCategories.length &&
-		accessLevel !== accessOptions.paid_subscribers.key
-	) {
-		const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
-		const formattedSubscriptionsCount = getFormattedSubscriptionsCount( subscriptionsCount );
-		const categoryNamesAndSubscriptionsCount = formattedCategoryNames + formattedSubscriptionsCount;
-
-		if ( isScheduledPost && formattedCategoryNames ) {
-			return sprintf(
-				// translators: %1s is the post name, %2s is the list of categories with subscriptions count
-				__(
-					'<postPublishedLink>%1$s</postPublishedLink> will be sent to everyone subscribed to %2$s.',
-					'jetpack'
-				),
-				postName,
-				categoryNamesAndSubscriptionsCount
-			);
-		} else if ( formattedCategoryNames ) {
-			return sprintf(
-				// translators: %1s is the post name, %2s is the list of categories with subscriptions count
-				__(
-					'<postPublishedLink>%1$s</postPublishedLink>was sent to everyone subscribed to %2$s.',
-					'jetpack'
-				),
-				postName,
-				categoryNamesAndSubscriptionsCount
-			);
-		}
-	}
-
-	// Texts when no categories...
-	const isPaidPost = accessLevel === accessOptions.paid_subscribers.key;
-
-	// Paid subscribers, schedulled post
-	if ( isScheduledPost && isPaidPost ) {
-		return sprintf(
-			/* translators: %1s is the post name, %2s is the number of subscribers in numerical format */
-			__(
-				'<postPublishedLink>%1$s</postPublishedLink> will be sent to <strong>%2$s paid subscribers</strong>.',
-				'jetpack'
-			),
-			postName,
-			reachCount
-		);
-	}
-	// Paid subscribers, post is already published
-	else if ( isPaidPost ) {
-		return sprintf(
-			/* translators: %1s is the post name, %2s is the number of subscribers in numerical format */
-			__(
-				'<postPublishedLink>%1$s</postPublishedLink> was sent to <strong>%2$s paid subscribers</strong>.',
-				'jetpack'
-			),
-			postName,
-			reachCount
-		);
-	}
-	// Free subscribers, schedulled post
-	else if ( isScheduledPost ) {
-		return sprintf(
-			/* translators: %1s is the post name, %2s is the number of subscribers in numerical format */
-			__(
-				'<postPublishedLink>%1$s</postPublishedLink> will be sent to <strong>%2$s subscribers</strong>.',
-				'jetpack'
-			),
-			postName,
-			reachCount
-		);
-	}
-
-	// Free subscribers
-	return sprintf(
-		/* translators: %1s is the post name, %2s is the number of subscribers in numerical format */
-		__(
-			'<postPublishedLink>%1$s</postPublishedLink> was sent to <strong>%2$s subscribers</strong>.',
-			'jetpack'
-		),
-		postName,
-		reachCount
-	);
-}
-
 function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
-	const isScheduledPost = useSelect( select => select( editorStore ).isCurrentPostScheduled(), [] );
-
-	const { emailSubscribers, paidSubscribers } = useSelect( select =>
-		select( membershipProductsStore ).getSubscriberCounts()
-	);
-
-	const { postName, postPublishedLink } = useSelect( select => {
-		const currentPost = select( editorStore ).getCurrentPost();
-		return {
-			postName: currentPost.title,
-			postPublishedLink: currentPost.link,
-		};
-	} );
-
 	const { isStripeConnected } = useSelect( select => {
 		const { getConnectUrl } = select( membershipProductsStore );
 		return {
@@ -292,43 +177,6 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
 
-	const { newsletterCategories, newsletterCategoriesEnabled } = useSelect( select => {
-		const { getNewsletterCategories, getNewsletterCategoriesEnabled } = select(
-			'jetpack/membership-products'
-		);
-
-		return {
-			newsletterCategories: getNewsletterCategories(),
-			newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
-		};
-	} );
-
-	const postCategories = useSelect( select =>
-		select( editorStore ).getEditedPostAttribute( 'categories' )
-	);
-
-	const subscriptionsCount = useSelect( select => {
-		return select( 'jetpack/membership-products' ).getNewsletterCategoriesSubscriptionsCount(
-			postCategories
-		);
-	} );
-
-	const reachCount = getReachForAccessLevelKey(
-		accessLevel,
-		emailSubscribers,
-		paidSubscribers
-	).toLocaleString();
-
-	const numberOfSubscribersText = getNumberOfSubscribersText( {
-		accessLevel,
-		isScheduledPost,
-		newsletterCategories,
-		newsletterCategoriesEnabled,
-		postCategories,
-		postName,
-		reachCount,
-		subscriptionsCount,
-	} );
 	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
 
 	return (
@@ -347,15 +195,9 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 				}
 				className="jetpack-subscribe-newsletters-panel jetpack-subscribe-post-publish-panel"
 				icon={ <JetpackEditorPanelLogo /> }
+				name="jetpack-subscribe-newsletters-panel"
 			>
-				{ ! showMisconfigurationWarning && (
-					<Notice className="jetpack-subscribe-post-publish-panel__notice" isDismissible={ false }>
-						{ createInterpolateElement( numberOfSubscribersText, {
-							strong: <strong />,
-							postPublishedLink: <Link href={ postPublishedLink } />,
-						} ) }
-					</Notice>
-				) }
+				{ ! showMisconfigurationWarning && <SubscribersAffirmation accessLevel={ accessLevel } /> }
 			</PluginPostPublishPanel>
 
 			{ ! isStripeConnected && (
