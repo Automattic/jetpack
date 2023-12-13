@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-AI Assistant bar: fix issues introduced by latest block sticky positioning, make sure assistant bar is always AFTER main toolbar
