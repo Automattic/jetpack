@@ -865,7 +865,7 @@ function ZeroBSCRM_get_quote_template() {
 					}
 				}
 			}
-			$keys_staying_unrendered = array( 'quote-ID', 'quote-url', 'quote-created', 'quote-created_datetime_str', 'quote-created_date_str', 'quote-accepted', 'quote-accepted_datetime_str', 'quote-accepted_date_str', 'quote-lastupdated', 'quote-lastupdated_datetime_str', 'quote-lastupdated_date_str' );
+			$keys_staying_unrendered = array( 'quote-ID', 'quote-url', 'quote-created', 'quote-created_datetime_str', 'quote-created_date_str', 'quote-accepted', 'quote-accepted_datetime_str', 'quote-accepted_date_str', 'quote-lastupdated', 'quote-lastupdated_datetime_str', 'quote-lastupdated_date_str', 'quote-lastviewed', 'quote-lastviewed_datetime_str', 'quote-lastviewed_date_str' );
 			$working_html            = $placeholder_templating->replace_placeholders( array( 'global', 'contact', 'quote' ), $working_html, $replacements, array( ZBS_TYPE_CONTACT => $contact_object ), false, $keys_staying_unrendered ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// } replace the rest (#fname, etc)

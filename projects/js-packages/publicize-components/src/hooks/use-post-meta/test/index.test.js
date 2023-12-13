@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { RegistryProvider } from '@wordpress/data';
-import { createRegistryWithStores } from '../test-utils';
-import { usePostMeta } from '../use-post-meta';
+import { usePostMeta } from '../';
+import { createRegistryWithStores } from '../../../utils/test-utils';
 
 const post = {
 	meta: {
