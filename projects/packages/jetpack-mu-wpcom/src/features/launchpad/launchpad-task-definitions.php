@@ -633,6 +633,16 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/site-editor/' . $data['site_slug_encoded'] . '?canvas=edit';
 			},
 		),
+		'woocommerce_setup'                  => array(
+			'get_title'            => function () {
+				return __( 'Finish store setup', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
+			'get_calypso_path'     => function () {
+				return site_url( '/wp-admin/admin.php?page=wc-admin' );
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -950,6 +960,21 @@ function wpcom_launchpad_is_domain_upsell_task_visible() {
 	);
 
 	return empty( $bundle_purchases );
+}
+
+/**
+ * Determines whether or not the WooCommerce setup task should be visible.
+ *
+ * @return bool True if the site is a WOA site and WooCommerce is active.
+ */
+function wpcom_launchpad_is_woocommerce_setup_visible() {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( ! $is_atomic_site ) {
+		return false;
+	}
+
+	$active_plugins = get_option( 'active_plugins' );
+	return in_array( 'woocommerce/woocommerce.php', $active_plugins, true );
 }
 
 /**
