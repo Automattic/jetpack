@@ -28,7 +28,7 @@ class Jetpack_Top_Posts_Helper {
 
 		// We should not override cache when displaying the block on the frontend.
 		// But we should allow instant preview of changes when editing the block.
-		$is_rendering_block = isset( $types );
+		$is_rendering_block = ! empty( $types );
 		$override_cache     = ! $is_rendering_block;
 
 		$query_args = array(
