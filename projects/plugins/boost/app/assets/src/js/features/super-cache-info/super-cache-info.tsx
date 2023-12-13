@@ -6,7 +6,7 @@ import {
 	measureSuperCacheSaving,
 	isSuperCachePluginActive,
 	isSuperCacheEnabled,
-} from './lib/utils/measure';
+} from '$lib/utils/measure-super-cache-saving';
 import { z } from 'zod';
 type State = {
 	status: 'idle' | 'testing' | 'error' | 'complete';
