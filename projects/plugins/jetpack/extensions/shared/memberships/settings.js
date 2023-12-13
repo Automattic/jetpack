@@ -12,7 +12,8 @@ import { useViewportMatch } from '@wordpress/compose';
 import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useState } from 'react';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
@@ -24,8 +25,12 @@ import {
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
-import SubscribersAffirmation from './subscribers-affirmation';
-import { getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
+import {
+	getFormattedCategories,
+	getFormattedSubscriptionsCount,
+	getShowMisconfigurationWarning,
+	MisconfigurationWarning,
+} from './utils';
 
 const paywallIcon = getBlockIconComponent( paywallBlockMetadata );
 
@@ -280,20 +285,83 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 }
 
 export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
+	const { isLoading, postHasPaywallBlock, newsletterCategories, newsletterCategoriesEnabled } =
+		useSelect( select => {
+			const {
+				getNewsletterTierProducts,
+				getConnectUrl,
+				isApiStateLoading,
+				getNewsletterCategories,
+				getNewsletterCategoriesEnabled,
+			} = select( 'jetpack/membership-products' );
+			const { getBlocks } = select( 'core/block-editor' );
+
+			return {
+				isLoading: isApiStateLoading(),
+				stripeConnectUrl: getConnectUrl(),
+				hasTierPlans: getNewsletterTierProducts()?.length !== 0,
+				postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockMetadata.name ),
+				newsletterCategories: getNewsletterCategories(),
+				newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
+			};
+		} );
+
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
+	const postCategories = useSelect( select =>
+		select( editorStore ).getEditedPostAttribute( 'categories' )
+	);
+
+	const subscriptionsCount = useSelect( select => {
+		return select( 'jetpack/membership-products' ).getNewsletterCategoriesSubscriptionsCount(
+			postCategories
+		);
+	} );
+
+	if ( isLoading ) {
+		return (
+			<Flex direction="column" align="center">
+				<Spinner />
+			</Flex>
+		);
+	}
+
+	const _accessLevel = accessLevel ?? accessOptions.everybody.key;
+	const getText = () => {
+		if ( _accessLevel === accessOptions.paid_subscribers.key ) {
+			if ( ! postHasPaywallBlock ) {
+				return __( 'This post will be sent to paid subscribers only.', 'jetpack' );
+			}
+		}
+		if ( newsletterCategoriesEnabled && newsletterCategories.length ) {
+			const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
+			const formattedSubscriptionsCount = getFormattedSubscriptionsCount( subscriptionsCount );
+			const categoryNamesAndSubscriptionsCount =
+				formattedCategoryNames + formattedSubscriptionsCount;
+
+			if ( formattedCategoryNames ) {
+				return createInterpolateElement(
+					sprintf(
+						// translators: %1$s is the list of categories with subscriptions count
+						__( 'This post will be sent to everyone subscribed to %1$s.', 'jetpack' ),
+						categoryNamesAndSubscriptionsCount
+					),
+					{ strong: <strong /> }
+				);
+			}
+		}
+		return __( 'This post will be sent to all subscribers.', 'jetpack' );
+	};
 
 	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
-	const _accessLevel = accessLevel ?? accessOptions.everybody.key;
 
 	return (
 		<PostVisibilityCheck
 			render={ () => (
 				<PanelRow className="edit-post-post-visibility">
-					{ showMisconfigurationWarning ? (
-						<MisconfigurationWarning />
-					) : (
-						<SubscribersAffirmation prePublish accessLevel={ _accessLevel } />
-					) }
+					<Flex direction="column">
+						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
+						<p>{ getText() }</p>
+					</Flex>
 				</PanelRow>
 			) }
 		/>
