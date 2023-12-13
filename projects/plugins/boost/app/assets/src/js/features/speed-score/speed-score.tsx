@@ -13,11 +13,7 @@ import ErrorNotice from '$features/error-notice/error-notice';
 import classNames from 'classnames';
 import React, { useState, useEffect } from 'react';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
-import {
-	useDebouncedRefreshScore,
-	usePerformanceHistoryFreshStartState,
-	useSpeedScores,
-} from './lib/hooks';
+import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
 
 const siteIsOnline = Jetpack_Boost.site.online;
 
@@ -36,9 +32,6 @@ const SpeedScore = ( {
 	const [ { status, error, scores }, loadScore ] = useSpeedScores();
 	const scoreLetter = scores ? getScoreLetter( scores.current.mobile, scores.current.desktop ) : '';
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;
-
-	const [ isPerformanceHistoryFreshStart, dismissPerformanceHistoryFreshStart ] =
-		usePerformanceHistoryFreshStartState();
 
 	const [ closedScorePopOut, setClosePopOut ] = useState( false );
 	const showScoreChange =
@@ -131,13 +124,7 @@ const SpeedScore = ( {
 						noBoostScoreTooltip={ __( 'Your desktop score without Boost', 'jetpack-boost' ) }
 					/>
 				</div>
-				{ siteIsOnline && (
-					<PerformanceHistory
-						needsUpgrade={ performanceHistoryNeedsUpgrade }
-						onDismissFreshStart={ dismissPerformanceHistoryFreshStart }
-						isFreshStart={ isPerformanceHistoryFreshStart }
-					/>
-				) }
+				{ siteIsOnline && <PerformanceHistory needsUpgrade={ performanceHistoryNeedsUpgrade } /> }
 			</div>
 
 			<PopOut scoreChange={ showScoreChange } onClose={ () => setClosePopOut( true ) } />

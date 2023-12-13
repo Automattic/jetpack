@@ -45,3 +45,22 @@ export const usePerformanceHistoryPanelQuery = () => {
 
 	return [ data, mutate ] as const;
 };
+
+/**
+ * Check if performance history fresh start alert should be shown. And provide a method to dismiss it.
+ *
+ * @return {[ boolean, () => void ]} - A tuple with the state and a method to dismiss the alert.
+ */
+export const usePerformanceHistoryFreshStartState = () => {
+	const [ { data: dismissedAlerts }, { mutate } ] = useDataSync(
+		'jetpack_boost_ds',
+		'dismissed_alerts',
+		z.record( z.string().min( 1 ), z.boolean() )
+	);
+	const dismiss = () => {
+		mutate( { ...dismissedAlerts, performance_history_fresh_start: true } );
+	};
+	const isFreshStart = dismissedAlerts.performance_history_fresh_start !== true;
+
+	return [ isFreshStart, dismiss ] as const;
+};

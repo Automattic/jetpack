@@ -1,5 +1,9 @@
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
-import { usePerformanceHistoryPanelQuery, usePerformanceHistoryQuery } from './lib/stores/store';
+import {
+	usePerformanceHistoryFreshStartState,
+	usePerformanceHistoryPanelQuery,
+	usePerformanceHistoryQuery,
+} from './lib/stores/store';
 import GraphComponent from './graph-component/graph-component';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { __ } from '@wordpress/i18n';
@@ -9,8 +13,13 @@ import { PerformanceHistoryData } from './lib/types';
 
 import styles from './performance-history.module.scss';
 
-const PerformanceHistoryBody = ( { isFreshStart, onDismissFreshStart, needsUpgrade } ) => {
+type PerformanceHistoryProps = {
+	needsUpgrade: boolean;
+};
+
+const PerformanceHistoryBody = ( { needsUpgrade }: PerformanceHistoryProps ) => {
 	const { data, isFetching, isError, error, refetch } = usePerformanceHistoryQuery();
+	const [ isFreshStart, dismissFreshStart ] = usePerformanceHistoryFreshStartState();
 
 	if ( isError && ! isFetching ) {
 		return (
@@ -41,13 +50,13 @@ const PerformanceHistoryBody = ( { isFreshStart, onDismissFreshStart, needsUpgra
 			isFreshStart={ isFreshStart }
 			needsUpgrade={ needsUpgrade }
 			handleUpgrade={ () => navigate( '/upgrade' ) }
-			handleDismissFreshStart={ onDismissFreshStart }
+			handleDismissFreshStart={ dismissFreshStart }
 			isLoading={ isFetching }
 		/>
 	);
 };
 
-const PerformanceHistory = ( { needsUpgrade, isFreshStart, onDismissFreshStart } ) => {
+const PerformanceHistory = ( { needsUpgrade }: PerformanceHistoryProps ) => {
 	const [ isPanelOpen, setPanelOpen ] = usePerformanceHistoryPanelQuery();
 
 	return (
@@ -63,11 +72,7 @@ const PerformanceHistory = ( { needsUpgrade, isFreshStart, onDismissFreshStart }
 				>
 					<PanelRow>
 						<div style={ { flexGrow: 1, minHeight: '300px' } }>
-							<PerformanceHistoryBody
-								isFreshStart={ isFreshStart }
-								onDismissFreshStart={ onDismissFreshStart }
-								needsUpgrade={ needsUpgrade }
-							/>
+							<PerformanceHistoryBody needsUpgrade={ needsUpgrade } />
 						</div>
 					</PanelRow>
 				</PanelBody>
@@ -76,7 +81,7 @@ const PerformanceHistory = ( { needsUpgrade, isFreshStart, onDismissFreshStart }
 	);
 };
 
-export default function ( props ) {
+export default function ( props: PerformanceHistoryProps ) {
 	return (
 		<DataSyncProvider>
 			<PerformanceHistory { ...props } />

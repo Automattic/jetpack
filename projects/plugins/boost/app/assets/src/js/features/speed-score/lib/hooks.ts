@@ -3,8 +3,6 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import { castToString } from '$lib/utils/cast-to-string';
 import debounce from '$lib/utils/debounce';
 import { useState, useCallback, useEffect, useMemo, useReducer } from 'react';
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
-import { z } from 'zod';
 
 const siteIsOnline = Jetpack_Boost.site.online;
 const siteUrl = Jetpack_Boost.site.url;
@@ -127,23 +125,4 @@ export const useDebouncedRefreshScore = (
 		debouncedRefreshScore,
 		scoreConfigString,
 	] );
-};
-
-/**
- * Check if performance history fresh start alert should be shown. And provide a method to dismiss it.
- *
- * @return {[ boolean, () => void ]} - A tuple with the state and a method to dismiss the alert.
- */
-export const usePerformanceHistoryFreshStartState = () => {
-	const [ { data: dismissedAlerts }, { mutate } ] = useDataSync(
-		'jetpack_boost_ds',
-		'dismissed_alerts',
-		z.record( z.string().min( 1 ), z.boolean() )
-	);
-	const onPerformanceHistoryDismissFreshStart = () => {
-		mutate( { ...dismissedAlerts, performance_history_fresh_start: true } );
-	};
-	const performanceHistoryIsFreshStart = dismissedAlerts.performance_history_fresh_start !== true;
-
-	return [ performanceHistoryIsFreshStart, onPerformanceHistoryDismissFreshStart ] as const;
 };
