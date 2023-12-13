@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import metadata from './block.json';
 import './editor.scss';
 import useFetchReblogSetting from './use-fetch-reblog-setting';
+import useSetReblogSetting from './use-set-reblog-setting';
 
 const icon = getBlockIconComponent( metadata );
 
@@ -13,19 +14,39 @@ function LikeEdit( { noticeUI } ) {
 	const blockProps = useBlockProps();
 	const blogId = window?.Jetpack_LikeBlock?.blog_id;
 
-	const { fetchReblogSetting, reblogSetting } = useFetchReblogSetting( blogId );
+	const {
+		fetchReblog,
+		reblogSetting: currentReblogSetting,
+		isLoading: fetchingReblog,
+	} = useFetchReblogSetting( blogId );
+	const {
+		setReblog,
+		success: reblogSetSuccessfully,
+		resetSuccess: clearReblogSetStatus,
+		isLoading: settingReblog,
+	} = useSetReblogSetting( blogId );
 
-	const setReblogSetting = newValue => {
-		// eslint-disable-next-line no-console
-		console.log( newValue );
+	const handleReblogSetting = newValue => {
+		setReblog( newValue );
 	};
 
 	useEffect( () => {
 		if ( ! isSimpleSite() ) {
 			return;
 		}
-		fetchReblogSetting();
-	}, [ fetchReblogSetting ] );
+		fetchReblog();
+	}, [ fetchReblog ] );
+
+	useEffect( () => {
+		if ( ! isSimpleSite() ) {
+			return;
+		}
+
+		if ( reblogSetSuccessfully ) {
+			fetchReblog();
+			clearReblogSetStatus();
+		}
+	}, [ reblogSetSuccessfully, fetchReblog, clearReblogSetStatus ] );
 
 	return (
 		<div { ...blockProps }>
@@ -33,10 +54,11 @@ function LikeEdit( { noticeUI } ) {
 				<InspectorControls>
 					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 						<ToggleControl
-							label="Show reblog button"
-							checked={ reblogSetting }
+							label={ __( 'Show reblog button', 'jetpack' ) }
+							checked={ currentReblogSetting }
+							disabled={ settingReblog || fetchingReblog }
 							onChange={ newValue => {
-								setReblogSetting( newValue );
+								handleReblogSetting( newValue );
 							} }
 						/>
 					</PanelBody>
