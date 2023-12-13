@@ -1474,7 +1474,6 @@ function wpcom_launchpad_mark_setup_general_task_complete( $old_value, $value ) 
 		return;
 	}
 
-	l( 'CALLING wpcom_launchpad_mark_setup_site_tasks_complete', $old_value, $value );
 	if ( $old_value !== $value ) {
 		wpcom_mark_launchpad_task_complete( 'setup_general' );
 	}
