@@ -75,8 +75,8 @@ const Main: React.FC< MainProps > = ( { title, pillColor, details, potentialSize
 			<div className="jb-table-row__hover-content">
 				<TableRowHover
 					details={ details }
-					device_type={ details.device_type }
-					edit_url={ details.page.edit_url }
+					deviceType={ details.device_type }
+					editUrl={ details.page.edit_url }
 					instructions={ details.instructions }
 				/>
 			</div>
