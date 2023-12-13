@@ -12,7 +12,7 @@ for FILE in $(git -c core.quotepath=off ls-files 'composer.lock' '**/composer.lo
 	composer install
 	echo "::endgroup::"
 	echo "::group::$FILE - composer update"
-	"$BASE/tools/composer-update-monorepo.sh" --root-reqs .
+	"$BASE/tools/composer-update-monorepo.sh" .
 	echo "::endgroup::"
 	if ! git diff --exit-code composer.lock; then
 		echo "---" # Bracket message containing newlines for better visibility in GH's logs.

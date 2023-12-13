@@ -154,27 +154,25 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_features_by_usage_tier( $tier ) {
-		$features        = array(
-			1   => array(
+		$features = array(
+			1 => array(
 				__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
 				__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
 				__( 'Refine the tone and content to your liking', 'jetpack-my-jetpack' ),
 				__( 'Get feedback about your post', 'jetpack-my-jetpack' ),
 				__( 'Seamless WordPress editor integration', 'jetpack-my-jetpack' ),
 			),
-			100 => array(
-				__( 'Prompt based content generation', 'jetpack-my-jetpack' ),
-				__( 'Generate text, tables, and lists', 'jetpack-my-jetpack' ),
-				__( 'Adaptive tone adjustment', 'jetpack-my-jetpack' ),
-				__( 'Superior spelling and grammar correction', 'jetpack-my-jetpack' ),
-				__( 'Title & summary generation', 'jetpack-my-jetpack' ),
-				__( 'Priority support', 'jetpack-my-jetpack' ),
-				__( '100 requests per month', 'jetpack-my-jetpack' ),
-			),
 		);
+
 		$tiered_features = array(
+			__( 'Prompt based content generation', 'jetpack-my-jetpack' ),
+			__( 'Generate text, tables, and lists', 'jetpack-my-jetpack' ),
+			__( 'Adaptive tone adjustment', 'jetpack-my-jetpack' ),
+			__( 'Superior spelling and grammar correction', 'jetpack-my-jetpack' ),
+			__( 'Title & summary generation', 'jetpack-my-jetpack' ),
+			__( 'Priority support', 'jetpack-my-jetpack' ),
 			/* translators: %d is the number of requests. */
-			sprintf( __( '%d requests per month', 'jetpack-my-jetpack' ), $tier ),
+			sprintf( __( 'Up to %d requests per month', 'jetpack-my-jetpack' ), $tier ),
 		);
 
 		return isset( $features[ $tier ] ) ? $features[ $tier ] : $tiered_features;

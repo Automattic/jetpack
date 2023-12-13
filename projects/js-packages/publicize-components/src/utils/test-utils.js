@@ -98,3 +98,23 @@ export function createRegistryWithStores( postAttributes = {} ) {
 
 	return registry;
 }
+
+/**
+ * Creates an array of active connections.
+ *
+ * @param {number} count - Number of active connections to create.
+ *
+ * @returns {Array} Array of active connections.
+ */
+export function createActiveConnections( count ) {
+	return [
+		{
+			enabled: false,
+		},
+		// create number of connections based on the count
+		...Array.from( { length: count }, () => ( { enabled: true } ) ),
+		{
+			enabled: false,
+		},
+	];
+}

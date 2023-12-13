@@ -232,7 +232,7 @@ class Posts extends Module {
 		add_filter( 'jetpack_sync_before_send_deleted_post_meta', array( $this, 'trim_post_meta' ) );
 		// Full sync.
 		$sync_module = Modules::get_module( 'full-sync' );
-		if ( str_contains( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
+		if ( $sync_module && str_contains( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
 			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'add_term_relationships' ) );
 		} else {
 			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_posts_with_metadata_and_terms' ) );
@@ -896,7 +896,7 @@ class Posts extends Module {
 			}
 			// Always allow the first post with its metadata.
 			if ( empty( $filtered_post_ids ) || ( $current_size + $post_content_size + $metadata_size ) <= ( self::MAX_SIZE_FULL_SYNC ) ) {
-				$filtered_post_ids[] = $post->ID;
+				$filtered_post_ids[] = strval( $post->ID );
 				$filtered_posts[]    = $post;
 				$filtered_metadata   = array_merge( $filtered_metadata, $current_metadata );
 				$current_size       += $post_content_size + $metadata_size;
