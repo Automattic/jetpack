@@ -1,6 +1,10 @@
-import { getBlockIconComponent, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	getBlockIconComponent,
+	isSimpleSite,
+	isAtomicSite,
+} from '@automattic/jetpack-shared-extension-utils';
 import { BlockIcon, useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { Placeholder, ToggleControl, PanelBody } from '@wordpress/components';
+import { ExternalLink, Placeholder, ToggleControl, PanelBody } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import metadata from './block.json';
@@ -48,10 +52,18 @@ function LikeEdit( { noticeUI } ) {
 		}
 	}, [ reblogSetSuccessfully, fetchReblog, clearReblogSetStatus ] );
 
+	const learnMoreUrl =
+		isAtomicSite() || isSimpleSite()
+			? 'https://wordpress.com/support/likes/'
+			: 'https://jetpack.com/support/likes/';
+
 	return (
 		<div { ...blockProps }>
-			{ isSimpleSite() && (
-				<InspectorControls>
+			<InspectorControls key="like-inspector">
+				<div className="wp-block-jetpack-like__learn-more">
+					<ExternalLink href={ learnMoreUrl }>{ __( 'Learn more', 'jetpack' ) }</ExternalLink>
+				</div>
+				{ isSimpleSite() && (
 					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 						<ToggleControl
 							label={ __( 'Show reblog button', 'jetpack' ) }
@@ -62,8 +74,8 @@ function LikeEdit( { noticeUI } ) {
 							} }
 						/>
 					</PanelBody>
-				</InspectorControls>
-			) }
+				) }
+			</InspectorControls>
 			<Placeholder
 				label={ __( 'Like', 'jetpack' ) }
 				instructions={ __( 'Instructions go here.', 'jetpack' ) }
