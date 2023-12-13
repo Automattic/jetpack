@@ -5,6 +5,13 @@
  * @package automattic/jetpack
  */
 
+if ( ! class_exists( 'Jetpack_Google_Font_Face' ) ) {
+	/**
+	 * Load Jetpack Google Font Face
+	 */
+	require_once __DIR__ . '/class-jetpack-google-font-face.php';
+}
+
 /**
  * Gets the Google Fonts data
  *
@@ -94,8 +101,12 @@ function jetpack_get_theme_fonts_map() {
 
 	$theme_fonts_map = array();
 	foreach ( $raw_data['settings']['typography']['fontFamilies'] as $font_family ) {
-		if ( isset( $font_family['name'] ) ) {
-			$theme_fonts_map[ $font_family['name'] ] = true;
+		$font_family_name = isset( $font_family['name'] )
+			? $font_family['name']
+			: Jetpack_Google_Font_Face::get_font_family_name( $font_family );
+
+		if ( $font_family_name ) {
+			$theme_fonts_map[ $font_family_name ] = true;
 		}
 	}
 
@@ -203,13 +214,6 @@ function jetpack_unregister_deprecated_google_fonts_from_theme_json_data_user( $
 
 add_filter( 'wp_theme_json_data_user', 'jetpack_unregister_deprecated_google_fonts_from_theme_json_data_user' );
 
-if ( ! class_exists( 'Jetpack_Google_Font_Face' ) ) {
-	/**
-	 * Load Jetpack Google Font Face
-	 */
-	require_once __DIR__ . '/class-jetpack-google-font-face.php';
-
-	// Initialize Jetpack Google Font Face to avoid printing **ALL** google fonts provided by this module.
-	// See p1700040028362329-slack-C4GAQ900P and p7DVsv-jib-p2
-	new Jetpack_Google_Font_Face();
-}
+// Initialize Jetpack Google Font Face to avoid printing **ALL** google fonts provided by this module.
+// See p1700040028362329-slack-C4GAQ900P and p7DVsv-jib-p2
+new Jetpack_Google_Font_Face();
