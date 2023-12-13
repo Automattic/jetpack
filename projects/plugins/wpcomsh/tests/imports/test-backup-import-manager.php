@@ -16,10 +16,10 @@ class BackupImportManagerTest extends WP_UnitTestCase {
 	 * Open an empty path.
 	 */
 	public function test_error_open_an_empty_file_path() {
-		$importer = new Backup_Import_Manager( '', sys_get_temp_dir() );
+		$importer = new Backup_Import_Manager( '', sys_get_temp_dir(), array( 'bump_stats' => false ) );
 		$result   = $importer->import();
 
-		$this->assertWPError( $importer->import() );
+		$this->assertWPError( $result );
 		$this->assertEquals( 'file_not_exists', $result->get_error_code() );
 	}
 
@@ -27,10 +27,10 @@ class BackupImportManagerTest extends WP_UnitTestCase {
 	 * Open a not existing path.
 	 */
 	public function test_error_open_a_not_existing_path() {
-		$importer = new Backup_Import_Manager( uniqid() . '.tmp', sys_get_temp_dir() );
+		$importer = new Backup_Import_Manager( uniqid() . '.tmp', sys_get_temp_dir(), array( 'bump_stats' => false ) );
 		$result   = $importer->import();
 
-		$this->assertWPError( $importer->import() );
+		$this->assertWPError( $result );
 		$this->assertEquals( 'file_not_exists', $result->get_error_code() );
 	}
 
@@ -41,10 +41,10 @@ class BackupImportManagerTest extends WP_UnitTestCase {
 		$tmp_file  = tmpfile();
 		$meta_data = stream_get_meta_data( $tmp_file );
 		$tmp_path  = $meta_data['uri'];
-		$importer  = new Backup_Import_Manager( $tmp_path, sys_get_temp_dir() );
+		$importer  = new Backup_Import_Manager( $tmp_path, sys_get_temp_dir(), array( 'bump_stats' => false ) );
 		$result    = $importer->import();
 
-		$this->assertWPError( $importer->import() );
+		$this->assertWPError( $result );
 		$this->assertEquals( 'file_type_not_supported', $result->get_error_code() );
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose

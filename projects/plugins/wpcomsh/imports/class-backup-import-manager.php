@@ -54,7 +54,21 @@ class Backup_Import_Manager {
 	 *
 	 * @var array
 	 */
-	protected $valid_option_keys = array( 'skip_unpack', 'skip_clean_up', 'actions', 'dry_run' );
+	protected $valid_option_keys = array(
+		'actions',
+		'bump_stats',
+		'dry_run',
+		'skip_clean_up',
+		'skip_unpack',
+	);
+
+	/**
+	 * Importer type.
+	 *
+	 * @var string
+	 */
+	protected $importer_type = null;
+
 	/**
 	 * Constant representing the WordPress Playground importer type.
 	 */
@@ -111,12 +125,23 @@ class Backup_Import_Manager {
 			$skip_unpack = $this->options['skip_unpack'];
 		}
 
+		$bump_stats = true;
+		if ( isset( $this->options['bump_stats'] ) && is_bool( $this->options['bump_stats'] ) ) {
+			$bump_stats = $this->options['bump_stats'];
+		}
+
 		// unzip/untar the file
 		if ( ! $skip_unpack ) {
 			$this->update_status( array( 'status' => 'unpack_file' ) );
 			$result = Utils\FileExtractor::extract( $this->zip_or_tar_file_path, $this->destination_path );
+
 			if ( is_wp_error( $result ) ) {
 				$this->update_status( array( 'status' => 'failed' ) );
+
+				if ( $bump_stats ) {
+					$this->bump_import_stats( $result->get_error_code() );
+				}
+
 				return $result;
 			}
 		}
@@ -125,6 +150,11 @@ class Backup_Import_Manager {
 		$importer_type = self::determine_importer_type( $this->destination_path );
 		if ( is_wp_error( $importer_type ) ) {
 			$this->update_status( array( 'status' => 'failed' ) );
+
+			if ( $bump_stats ) {
+				$this->bump_import_stats( $importer_type->get_error_code() );
+			}
+
 			return $importer_type;
 		}
 
@@ -132,7 +162,14 @@ class Backup_Import_Manager {
 		$importer = self::get_importer( $importer_type, $this->zip_or_tar_file_path, $this->destination_path );
 		if ( is_wp_error( $importer ) ) {
 			$this->update_status( array( 'status' => 'failed' ) );
+
+			if ( $bump_stats ) {
+				$this->bump_import_stats( $importer->get_error_code() );
+			}
+
 			return $importer;
+		} else {
+			$this->importer_type = $importer_type;
 		}
 
 		$execute_actions = isset( $this->options['actions'] ) && count( $this->options['actions'] ) ? $this->options['actions'] : $this->importer_actions;
@@ -163,9 +200,18 @@ class Backup_Import_Manager {
 
 				if ( is_wp_error( $result ) ) {
 					$this->update_status( array( 'status' => 'failed' ) );
+
+					if ( $bump_stats ) {
+						$this->bump_import_stats( $result->get_error_code() );
+					}
+
 					return $result;
 				}
 			}
+		}
+
+		if ( $bump_stats ) {
+			$this->bump_import_stats( 'success' );
 		}
 
 		return $this->update_status( array( 'status' => 'success' ) );
@@ -178,11 +224,40 @@ class Backup_Import_Manager {
 	 *
 	 * @return bool
 	 */
-	private function update_status( $content ): bool {
+	private function update_status( array $content ): bool {
 		$existing = \get_option( self::$backup_import_status_option, array() );
 		$new      = array_merge( $existing, $content );
 
 		\update_option( self::$backup_import_status_option, $new );
+
+		return true;
+	}
+
+	/**
+	 * Bump the import stats.
+	 *
+	 * @param string $status The status of the import.
+	 *
+	 * @return bool|WP_Error True on success, or a WP_Error on failure.
+	 */
+	private function bump_import_stats( string $status ) {
+		if ( isset( $this->options['dry_run'] ) && $this->options['dry_run'] ) {
+			return;
+		}
+
+		// Bumping at the same time the status and the type.
+		$query_args = array(
+			'x_backup-import'      => $status,
+			'x_backup-import-type' => is_null( $this->importer_type ) ? 'unknown' : $this->importer_type,
+			'v'                    => 'wpcom-no-pv',
+		);
+
+		$stats_track_url = 'http://pixel.wp.com/b.gif?' . http_build_query( $query_args );
+		$result          = wp_remote_get( $stats_track_url );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
 
 		return true;
 	}
