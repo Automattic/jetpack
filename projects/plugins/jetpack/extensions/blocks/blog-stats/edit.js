@@ -45,7 +45,11 @@ function BlogStatsEdit( { attributes, className, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<BlogStatsInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
+				<BlogStatsInspectorControls
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					className={ className }
+				/>
 			</InspectorControls>
 
 			<div className={ className }>

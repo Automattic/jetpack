@@ -86,12 +86,7 @@ class WPCOM_Stats {
 	public function get_top_posts( $args = array(), $override_cache = false ) {
 		$this->resource = 'top-posts';
 
-		// Needed for the Top Posts block, so users can preview changes instantly.
-		if ( $override_cache ) {
-			return $this->fetch_remote_stats( $this->build_endpoint(), $args );
-		}
-
-		return $this->fetch_stats( $args );
+		return $this->fetch_stats( $args, $override_cache );
 	}
 
 	/**
@@ -205,12 +200,13 @@ class WPCOM_Stats {
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/post/%24post_id/
 	 * @param int   $post_id The video's ID.
 	 * @param array $args    Optional query parameters.
+	 * @param bool  $override_cache Optional override cache.
 	 * @return array|WP_Error
 	 */
-	public function get_post_views( $post_id, $args = array() ) {
+	public function get_post_views( $post_id, $args = array(), $override_cache = false ) {
 		$this->resource = sprintf( 'post/%d', $post_id );
 
-		return $this->fetch_stats( $args );
+		return $this->fetch_stats( $args, $override_cache );
 	}
 
 	/**
@@ -368,11 +364,16 @@ class WPCOM_Stats {
 	 * Fetches stats data from WPCOM or local Cache. Caches locally for 5 minutes.
 	 *
 	 * @param array $args Optional query parameters.
-	 *
+	 * @param bool  $override_cache Optional override cache.
 	 * @return array|WP_Error
 	 */
-	protected function fetch_stats( $args = array() ) {
-		$endpoint       = $this->build_endpoint();
+	protected function fetch_stats( $args = array(), $override_cache = false ) {
+		$endpoint = $this->build_endpoint();
+
+		if ( $override_cache ) {
+			return $this->fetch_remote_stats( $endpoint, $args );
+		}
+
 		$api_version    = self::STATS_REST_API_VERSION;
 		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args ) ) ) );
 		$transient_name = self::STATS_CACHE_TRANSIENT_PREFIX . $cache_key;

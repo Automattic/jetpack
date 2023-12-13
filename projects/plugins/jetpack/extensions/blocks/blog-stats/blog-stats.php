@@ -59,8 +59,15 @@ function load_assets( $attributes ) {
 	}
 
 	if ( $attributes['statsOption'] === 'post' ) {
-		$data = convert_stats_array_to_object(
-			( new WPCOM_Stats() )->get_post_views( get_the_ID(), array( 'fields' => 'views' ) )
+		// Override cache to prevent wp_options blowing up when retrieving views for multiple posts
+		// at the same time, such as when user inserts block into a page template.
+		$override_cache = true;
+		$data           = convert_stats_array_to_object(
+			( new WPCOM_Stats() )->get_post_views(
+				get_the_ID(),
+				array( 'fields' => 'views' ),
+				$override_cache
+			)
 		);
 
 		if ( isset( $data->views ) ) {

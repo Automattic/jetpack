@@ -10,7 +10,7 @@
 		display: block;
 	}
 
-	&__notice {
-		color: $gray-600;
+	&.stats-notice {
+		color: $gray-700;
 	}
 }
