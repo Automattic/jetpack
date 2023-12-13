@@ -7,10 +7,10 @@
 	import Table from '$features/image-size-analysis/recommendations/table/table';
 	import Tabs from '$features/image-size-analysis/recommendations/tabs/tabs';
 	import {
+		image_size_analysis,
 		initializeIsaData,
 		isaData,
 		isaDataLoading,
-		refreshIsaData,
 	} from '$features/image-size-analysis/lib/stores/isa-data';
 	import {
 		imageDataActiveGroup,
@@ -52,7 +52,7 @@
 	async function refresh() {
 		// Don't let the UI show a refresh button until we get fresh ISA data.
 		countAtLastDataUpdate = Infinity;
-		await refreshIsaData();
+		image_size_analysis.refresh();
 	}
 </script>
 

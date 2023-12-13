@@ -31,27 +31,12 @@ const Table: React.FC< TableProps > = ( {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ activeImages, setActiveImages ] = useState< ISA_Data[] >( [] );
 	const [ jobFinished, setJobFinished ] = useState( false );
-	const [ activeFilter, setActiveFilter ] = useState( 'active' );
 
 	useEffect( () => {
 		setIsLoading( isaDataLoading );
-		setActiveFilter( activeGroup === 'ignored' ? 'ignored' : 'active' );
 		setJobFinished( isaSummary?.status === ISAStatus.Completed );
-		setActiveImages( getActiveImages( images, isLoading ) );
-	}, [ isaDataLoading, activeGroup, images, isaSummary, isLoading ] );
-
-	const getActiveImages = ( _images: ISA_Data[], loading: boolean ) => {
-		if ( loading ) {
-			return [];
-		}
-
-		const filteredImages = _images.filter( image => image.status === activeFilter );
-		if ( filteredImages.length === 0 && loading ) {
-			return _images;
-		}
-
-		return filteredImages;
-	};
+		setActiveImages( images );
+	}, [ isaDataLoading, activeGroup, images, isaSummary ] );
 
 	return (
 		<>
