@@ -138,7 +138,7 @@ class Jetpack_Google_Font_Face {
 		if ( ! empty( $raw_data['settings']['typography']['fontFamilies'] ) ) {
 			foreach ( $raw_data['settings']['typography']['fontFamilies'] as $font ) {
 				$font_family_name = $this->get_font_family_name( $font );
-				$font_slug        = isset( $font['slug'] ) ? $font['slug'] : '';
+				$font_slug        = $font['slug'] ?? '';
 				if ( $font_slug && ! array_key_exists( $font_slug, $fonts ) && array_key_exists( $font_family_name, $fonts ) ) {
 					$fonts[ $font_slug ] = $fonts[ $font_family_name ];
 				}

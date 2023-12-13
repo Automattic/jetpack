@@ -101,10 +101,7 @@ function jetpack_get_theme_fonts_map() {
 
 	$theme_fonts_map = array();
 	foreach ( $raw_data['settings']['typography']['fontFamilies'] as $font_family ) {
-		$font_family_name = isset( $font_family['name'] )
-			? $font_family['name']
-			: Jetpack_Google_Font_Face::get_font_family_name( $font_family );
-
+		$font_family_name = $font_family['name'] ?? Jetpack_Google_Font_Face::get_font_family_name( $font_family );
 		if ( $font_family_name ) {
 			$theme_fonts_map[ $font_family_name ] = true;
 		}
@@ -138,9 +135,7 @@ function jetpack_register_google_fonts_to_theme_json( $theme_json ) {
 					return false;
 				}
 
-				return isset( $available_google_fonts_map[ $name ] )
-					? $available_google_fonts_map[ $name ]
-					: false;
+				return $available_google_fonts_map[ $name ] ?? false;
 			}
 		)
 	);
@@ -176,7 +171,7 @@ function jetpack_google_fonts_filter_out_deprecated_font_data( $font_families ) 
 
 				if ( isset( $font_family['fontFace'] ) ) {
 					foreach ( $font_family['fontFace'] as $font_face ) {
-						$provider = isset( $font_face['provider'] ) ? $font_face['provider'] : '';
+						$provider = $font_face['provider'] ?? '';
 						if ( $provider === 'jetpack-google-fonts' ) {
 							$has_deprecated_google_fonts_data = true;
 							break;
