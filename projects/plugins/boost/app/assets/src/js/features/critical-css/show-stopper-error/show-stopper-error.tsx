@@ -1,29 +1,17 @@
 import { __ } from '@wordpress/i18n';
 import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import ErrorNotice from '$features/error-notice/error-notice';
-import { useEffect, useState } from 'react';
 import FoldingElement from '../folding-element/folding-element';
 import ErrorDescription from '../error-description/error-description';
-
-// This simulates a global variable that is shared between all instances of this component.
-let globalValue = true;
-
-const useSharedValue = () => {
-	const [ value, setValue ] = useState( globalValue );
-	const setGlobalValue = newValue => {
-		globalValue = newValue;
-		setValue( newValue );
-	};
-
-	return [ value, setGlobalValue ];
-};
+import type { ErrorSet } from '../lib/stores/critical-css-state-errors';
 
 type ShowStopperErrorTypes = {
 	supportLink?: string;
 	status: CriticalCssState[ 'status' ];
-	primaryErrorSet;
+	primaryErrorSet: ErrorSet;
 	statusError;
 	regenerateCriticalCss;
+	showRetry?: boolean;
 };
 
 const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
@@ -32,23 +20,20 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 	primaryErrorSet,
 	statusError,
 	regenerateCriticalCss,
+	showRetry,
 } ) => {
-	const [ firstTime, setFirstTime ] = useSharedValue();
 	const showErrorDescription = primaryErrorSet && status === 'generated';
 	const showFoldingElement = showErrorDescription || statusError;
-
-	useEffect( () => {
-		return () => {
-			setFirstTime( false );
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
 
 	return (
 		<ErrorNotice
 			title={ __( 'Failed to generate Critical CSS', 'jetpack-boost' ) }
 			actionButton={
-				firstTime === false ? (
+				showRetry ? (
+					<button className="secondary" onClick={ regenerateCriticalCss }>
+						{ __( 'Refresh', 'jetpack-boost' ) }
+					</button>
+				) : (
 					<a
 						className="button button-secondary"
 						href={ supportLink }
@@ -57,21 +42,17 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 					>
 						{ __( 'Contact Support', 'jetpack-boost' ) }
 					</a>
-				) : (
-					<button className="secondary" onClick={ regenerateCriticalCss }>
-						{ __( 'Refresh', 'jetpack-boost' ) }
-					</button>
 				)
 			}
 		>
 			<p>
-				{ firstTime === false
+				{ showRetry
 					? __(
-							"Hmm, looks like something went wrong. We're still seeing an unexpected error. Please reach out to our support to get help.",
+							'An unexpected error has occurred. As this error may be temporary, please try and refresh the Critical CSS.',
 							'jetpack-boost'
 					  )
 					: __(
-							'An unexpected error has occurred. As this error may be temporary, please try and refresh the Critical CSS.',
+							"Hmm, looks like something went wrong. We're still seeing an unexpected error. Please reach out to our support to get help.",
 							'jetpack-boost'
 					  ) }
 			</p>
