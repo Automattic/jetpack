@@ -258,6 +258,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 		 * @param array $kvs Array of options about the site and page you're on.
 		 */
 		$kvs = (array) apply_filters( self::STATS_ARRAY_TO_STRING_FILTER, $kvs );
+		$kvs = array_map( 'strval', $kvs );
 
 		// Encode into JSON object, and then encode it into a string that's safe to embed into Javascript.
 		// We will then use JSON.parse method in JS to read the array.
