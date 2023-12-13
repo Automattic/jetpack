@@ -75,10 +75,10 @@ class Tracking_Pixel {
 		}
 		$view_data = compact( 'v', 'blog', 'post', 'tz', 'srv' );
 		foreach ( self::TRACKED_UTM_PARAMETERS as $utm_parameter ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- UTMs are standardized parameters coming from outside WordPress, adding nonce is not possible
 			if ( isset( $_GET[ $utm_parameter ] ) && is_scalar( $_GET[ $utm_parameter ] ) ) {
-				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
-				$view_data[ $utm_parameter ] = substr( (string) $_GET[ $utm_parameter ], 0, 255 );
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- UTMs are standardized parameters coming from outside WordPress, adding nonce is not possible
+				$view_data[ $utm_parameter ] = substr( sanitize_textarea_field( wp_unslash( $_GET[ $utm_parameter ] ) ), 0, 255 );
 			}
 		}
 
