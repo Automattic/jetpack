@@ -15,6 +15,8 @@ import React, { useState, useEffect } from 'react';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
 
+import styles from './speed-score.module.scss';
+
 const siteIsOnline = Jetpack_Boost.site.online;
 
 type SpeedScoreProps = {
@@ -62,16 +64,18 @@ const SpeedScore = ( {
 		<>
 			<div className="jb-container">
 				<div id="jp-admin-notices" className="jetpack-boost-jitm-card" />
-				<div className={ classNames( 'jb-site-score', { loading: status === 'loading' } ) }>
+				<div
+					className={ classNames( styles[ 'speed-scores' ], { loading: status === 'loading' } ) }
+				>
 					{ siteIsOnline ? (
-						<div className="jb-site-score__top">
+						<div className={ styles.top }>
 							<h2>{ heading }</h2>
 							{ status === 'loaded' && <ContextTooltip /> }
 							<Button
 								variant="link"
 								size="small"
 								weight="regular"
-								className="action-button"
+								className={ styles[ 'action-button' ] }
 								onClick={ () => loadScore( true ) }
 								disabled={ status === 'loading' }
 								icon={ <RefreshIcon /> }
@@ -80,7 +84,7 @@ const SpeedScore = ( {
 							</Button>
 						</div>
 					) : (
-						<div className="jb-site-score__offline">
+						<div className={ styles.offline }>
 							<h2>{ __( 'Website Offline', 'jetpack-boost' ) }</h2>
 							<p>
 								{ __(
@@ -97,9 +101,7 @@ const SpeedScore = ( {
 							error={ error }
 							suggestion={ __( '<action>Try again</action>', 'jetpack-boost' ) }
 							vars={ {
-								action: (
-									<Button variant="link" className="action" onClick={ () => loadScore( true ) } />
-								),
+								action: <Button size="small" variant="link" onClick={ () => loadScore( true ) } />,
 							} }
 						/>
 					) }
