@@ -7,7 +7,6 @@ import Device from '$features/image-size-analysis/recommendations/ui/device/devi
 import Pill from '$features/image-size-analysis/recommendations/ui/pill/pill';
 import RowTitle from '$features/image-size-analysis/recommendations/ui/row-title/row-title';
 import { removeGetParams } from '$lib/utils/remove-get-params';
-import styles from './image-missing-row.module.scss';
 
 interface ImageMissingRowProps {
 	enableTransition: boolean;
@@ -19,23 +18,21 @@ const ImageMissingRow: React.FC< ImageMissingRowProps > = ( { enableTransition, 
 
 	return (
 		<TableRow enableTransition={ enableTransition } expandable={ false }>
-			<div className={ styles[ 'thumbnail-image-missing' ] }>
-				{ __( 'Image Missing', 'jetpack-boost' ) }
-			</div>
+			<div className="jb-thumbnail-image-missing">{ __( 'Image Missing', 'jetpack-boost' ) }</div>
 
-			<div className={ styles[ 'table-row-title' ] }>
+			<div className="jb-table-row-title">
 				<RowTitle title={ removeGetParams( title ) } url={ details.page.url } />
 			</div>
 
-			<div className={ styles[ 'table-row-potential-size' ] }>
+			<div className="jb-table-row-potential-size">
 				<Pill color="#facfd2">? KB</Pill>
 
-				<div className={ styles.arrow }>→</div>
+				<div className="jb-arrow">→</div>
 
 				<Pill color="#d0e6b8">? KB</Pill>
 			</div>
 
-			<div className={ styles[ 'table-row-hover-content' ] }>
+			<div className="jb-table-row-hover-content">
 				<TableRowHover
 					edit_url={ details.page.edit_url }
 					instructions={ createInterpolateElement(
@@ -48,11 +45,11 @@ const ImageMissingRow: React.FC< ImageMissingRowProps > = ( { enableTransition, 
 				/>
 			</div>
 
-			<div className={ styles[ 'table-row-device' ] }>
+			<div className="jb-table-row-device">
 				<Device device={ details.device_type } />
 			</div>
 
-			<div className={ styles[ 'table-row-page' ] }>
+			<div className="jb-table-row-page">
 				<a href={ details.page.url }>{ details.page.title }</a>
 			</div>
 		</TableRow>
