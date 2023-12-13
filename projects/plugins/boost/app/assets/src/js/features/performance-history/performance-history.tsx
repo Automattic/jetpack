@@ -1,9 +1,8 @@
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import {
 	usePerformanceHistoryFreshStartState,
 	usePerformanceHistoryPanelQuery,
 	usePerformanceHistoryQuery,
-} from './lib/stores/store';
+} from './lib/hooks';
 import GraphComponent from './graph-component/graph-component';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { __ } from '@wordpress/i18n';
@@ -12,6 +11,7 @@ import { navigate } from '$lib/utils/navigate';
 import { PerformanceHistoryData } from './lib/types';
 
 import styles from './performance-history.module.scss';
+import { Button } from '@automattic/jetpack-components';
 
 type PerformanceHistoryProps = {
 	needsUpgrade: boolean;
@@ -29,16 +29,7 @@ const PerformanceHistoryBody = ( { needsUpgrade }: PerformanceHistoryProps ) => 
 				data={ JSON.stringify( error, null, 2 ) }
 				suggestion={ __( '<action>Try again</action>', 'jetpack-boost' ) }
 				vars={ {
-					action: (
-						// eslint-disable-next-line jsx-a11y/anchor-is-valid, jsx-a11y/anchor-has-content
-						<a
-							onClick={ event => {
-								event.preventDefault();
-								refetch();
-							} }
-							href="#"
-						/>
-					),
+					action: <Button variant="link" onClick={ refetch } />,
 				} }
 			/>
 		);
@@ -81,10 +72,4 @@ const PerformanceHistory = ( { needsUpgrade }: PerformanceHistoryProps ) => {
 	);
 };
 
-export default function ( props: PerformanceHistoryProps ) {
-	return (
-		<DataSyncProvider>
-			<PerformanceHistory { ...props } />
-		</DataSyncProvider>
-	);
-}
+export default PerformanceHistory;
