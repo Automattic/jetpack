@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
-## [0.45.7] - 2023-12-14
+## [0.45.7] - 2023-12-13
 ### Added
 - Added `className` prop to RecordMeterBar component [#34182]
 
