@@ -218,6 +218,7 @@ describe( 'Inspector controls', () => {
 			await user.click( screen.getByLabelText( 'Show subscriber count' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
+				includeSocialFollowers: false,
 				showSubscribersTotal: false,
 			} );
 		} );
@@ -229,7 +230,7 @@ describe( 'Inspector controls', () => {
 			await user.click( screen.getByLabelText( 'Include social followers in count' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
-				includeSocialFollowers: true,
+				includeSocialFollowers: false,
 			} );
 		} );
 
