@@ -50,36 +50,15 @@ function LikeEdit() {
 			? 'https://wordpress.com/support/likes/'
 			: 'https://jetpack.com/support/likes/';
 
-	// TODO: Remove true at the end
-	const showReblogButton = currentReblogSetting || true;
+	const showReblogButton = currentReblogSetting;
 
-	// TODO: Replace the names & images with something else
-	const likers = [
-		{
-			name: 'Yan Sern',
-			imageUrl:
-				'https://1.gravatar.com/avatar/73dd953a7aa0d5e1c623cdb1ee2bb73575a29649264be20064188d9a952e9cde?s=96&d=identicon&r=G',
-		},
-		{
-			name: 'Veselin',
-			imageUrl:
-				'https://2.gravatar.com/avatar/5f0ee9d86c04bc37653bb6adfeba93e6d5b57f2356d32c06fd2de25ad4adfbe6?s=96&d=identicon&r=G',
-		},
-		{
-			name: 'Mikael Korpela',
-			imageUrl:
-				'https://2.gravatar.com/avatar/8337f2645519be33dbb5497e73ed4dcb2a69ca9eee8486c774db5bb95d41b019?s=96&d=identicon&r=G',
-		},
-		{
-			name: 'Dale du Preez',
-			imageUrl:
-				'https://2.gravatar.com/avatar/e41b9ac486d96628e9667c1c302829fa93cb80254f3812cb453e62b0fa526a24?s=96&d=identicon&r=G',
-		},
-		{
-			name: 'Jeffikus',
-			imageUrl:
-				'https://1.gravatar.com/avatar/1a939a5d268b9c93805dda20d80cd49941b29bfa70539f5e8e57d57523254c92?s=96&d=identicon&r=G',
-		},
+	// These A12s gave their permission to use their gravatars.
+	const gravatarHashes = [
+		'7fdcad31a04def0ab9583af475c9036c',
+		'4d346581a3340e32cf93703c9ce46bd4',
+		'c0ccdd53794779bcc07fcae7b79c4d80',
+		'0619d4de8aef78c81b2194ff1d164d85',
+		'b3618d70c63bbc5cc7caee0beded5ff0',
 	];
 
 	const preventDefault = event => event.preventDefault();
@@ -122,21 +101,15 @@ function LikeEdit() {
 					</a>
 				</div>
 				<ul className="wpl-avatars">
-					{ likers.map( ( liker, i ) => (
-						<li key={ `liker-${ i }` } className="wp-liker-me">
-							<a
-								className="wpl-liker"
-								href="#"
-								title={ liker.name }
-								rel="nofollow"
-								onClick={ preventDefault }
-							>
+					{ gravatarHashes.map( gravatarHash => (
+						<li key={ gravatarHash } className="wp-liker-me">
+							<a className="wpl-liker" href="#" rel="nofollow" onClick={ preventDefault }>
 								<img
-									src={ liker.imageUrl }
+									src={ `https://0.gravatar.com/avatar/${ gravatarHash }` }
 									className="avatar avatar-30"
-									alt={ liker.name }
 									width={ 30 }
 									height={ 30 }
+									alt=""
 								/>
 							</a>
 						</li>
@@ -149,7 +122,7 @@ function LikeEdit() {
 								sprintf(
 									// translators: %$1s: Number of likes
 									__( '<span>%1$d</span> likes', 'jetpack' ),
-									likers.length
+									gravatarHashes.length
 								),
 								{
 									span: <span className="wpl-count-number"></span>,
