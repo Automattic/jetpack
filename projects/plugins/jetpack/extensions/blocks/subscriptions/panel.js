@@ -59,6 +59,7 @@ function NewsletterEditorSettingsPanel( { accessLevel } ) {
 			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Access', 'jetpack' ) }
 			icon={ <JetpackEditorPanelLogo /> }
+			name="jetpack-subscribe-newsletters-panel"
 		>
 			<NewsletterAccessDocumentSettings accessLevel={ accessLevel } />
 		</PluginDocumentSettingPanel>
