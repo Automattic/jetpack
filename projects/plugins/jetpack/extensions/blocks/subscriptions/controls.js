@@ -255,10 +255,13 @@ export default function SubscriptionControls( {
 						disabled={ ! showSubscribersTotal }
 						label={ __( 'Include social followers in count', 'jetpack' ) }
 						checked={
-							typeof includeSocialFollowers === 'undefined' ? false : includeSocialFollowers
+							typeof includeSocialFollowers === 'undefined' ? true : includeSocialFollowers
 						}
 						onChange={ () => {
-							setAttributes( { includeSocialFollowers: ! includeSocialFollowers } );
+							setAttributes( {
+								includeSocialFollowers:
+									typeof includeSocialFollowers === 'undefined' ? false : ! includeSocialFollowers,
+							} );
 						} }
 					/>
 				) }
