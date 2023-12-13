@@ -292,7 +292,7 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 					{ showMisconfigurationWarning ? (
 						<MisconfigurationWarning />
 					) : (
-						<SubscribersAffirmation prePublish accessLevel={ _accessLevel } />
+						<SubscribersAffirmation prePublish={ true } accessLevel={ _accessLevel } />
 					) }
 				</PanelRow>
 			) }
