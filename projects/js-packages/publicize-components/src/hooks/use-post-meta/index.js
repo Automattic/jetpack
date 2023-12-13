@@ -1,7 +1,7 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo } from '@wordpress/element';
-import { getShareMessageMaxLength } from './get-share-message-max-length';
+import { getShareMessageMaxLength } from '../../utils';
 
 /**
  * Returns the post meta values.
