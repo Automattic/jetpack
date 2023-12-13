@@ -250,9 +250,13 @@ function SubscribersAffirmation( { accessLevel, prePublish } ) {
 		} );
 	}
 
-	return createInterpolateElement( text, {
-		strong: <strong />,
-	} );
+	return (
+		<p>
+			{ createInterpolateElement( text, {
+				strong: <strong />,
+			} ) }
+		</p>
+	);
 }
 
 export default SubscribersAffirmation;
