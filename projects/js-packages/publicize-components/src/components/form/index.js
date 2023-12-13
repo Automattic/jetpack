@@ -8,10 +8,10 @@
 
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
-import { Button, PanelRow, Disabled, ExternalLink } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { Fragment, createInterpolateElement, useMemo, useCallback } from '@wordpress/element';
-import { _n, sprintf, __ } from '@wordpress/i18n';
+import { Button, Disabled, ExternalLink, PanelRow } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { createInterpolateElement, Fragment, useCallback, useMemo } from '@wordpress/element';
+import { __, _n } from '@wordpress/i18n';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useDismissNotice from '../../hooks/use-dismiss-notice';
 import useFeaturedImage from '../../hooks/use-featured-image';
@@ -22,13 +22,15 @@ import useRefreshAutoConversionSettings from '../../hooks/use-refresh-auto-conve
 import useRefreshConnections from '../../hooks/use-refresh-connections';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
-import { CONNECTION_SERVICE_INSTAGRAM_BUSINESS, SOCIAL_STORE_ID } from '../../social-store';
+import { CONNECTION_SERVICE_INSTAGRAM_BUSINESS, store as socialStore } from '../../social-store';
 import { getSupportedAdditionalConnections } from '../../utils';
 import PublicizeConnection from '../connection';
 import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
 import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
+import { EnabledConnectionsNotice } from './enabled-connections-notice';
+import { ShareCountInfo } from './share-count-info';
 import styles from './styles.module.scss';
 
 const MONTH_IN_SECONDS = 30 * 24 * 60 * 60;
@@ -42,7 +44,6 @@ const checkConnectionCode = ( connection, code ) =>
  * @param {object} props                                  - The component props.
  * @param {boolean} props.isPublicizeEnabled              - Whether Publicize is enabled for this post.
  * @param {boolean} props.isPublicizeDisabledBySitePlan   - A combination of the republicize feature being enabled and/or the post not being published.
- * @param {number} props.numberOfSharesRemaining          - The number of shares remaining for the current period. Optional.
  * @param {boolean} props.isEnhancedPublishingEnabled     - Whether enhanced publishing options are available. Optional.
  * @param {boolean} props.isSocialImageGeneratorAvailable - Whether the Social Image Generator feature is available. Optional.
  * @param {string} props.connectionsAdminUrl              - URL to the Admin connections page
@@ -54,7 +55,6 @@ const checkConnectionCode = ( connection, code ) =>
 export default function PublicizeForm( {
 	isPublicizeEnabled,
 	isPublicizeDisabledBySitePlan,
-	numberOfSharesRemaining = null,
 	isEnhancedPublishingEnabled = false,
 	shouldShowAdvancedPlanNudge = false,
 	isSocialImageGeneratorAvailable = false,
@@ -73,6 +73,12 @@ export default function PublicizeForm( {
 		connection => connection.service_name === 'instagram-business'
 	);
 
+	const { showShareLimits, numberOfSharesRemaining } = useSelect( select => {
+		return {
+			showShareLimits: select( socialStore ).showShareLimits(),
+			numberOfSharesRemaining: select( socialStore ).numberOfSharesRemaining(),
+		};
+	}, [] );
 	const shouldShowInstagramNotice =
 		! hasInstagramConnection &&
 		getSupportedAdditionalConnections().includes( CONNECTION_SERVICE_INSTAGRAM_BUSINESS ) &&
@@ -92,26 +98,7 @@ export default function PublicizeForm( {
 		checkConnectionCode( connection, 'unsupported' )
 	);
 
-	const outOfConnections =
-		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
-
-	const { isEditedPostDirty } = useSelect( 'core/editor' );
-	const { autosave } = useDispatch( 'core/editor' );
-	const autosaveAndRedirect = useCallback(
-		async ev => {
-			const target = ev.target.getAttribute( 'target' );
-			if ( isEditedPostDirty() && ! target ) {
-				ev.preventDefault();
-				await autosave();
-				window.location.href = ev.target.href;
-			}
-			if ( target ) {
-				ev.preventDefault();
-				window.open( ev.target.href, target, 'noreferrer' );
-			}
-		},
-		[ autosave, isEditedPostDirty ]
-	);
+	const outOfConnections = showShareLimits && numberOfSharesRemaining <= enabledConnections.length;
 
 	const onAdvancedNudgeDismiss = useCallback(
 		() => dismissNotice( NOTICES.advancedUpgradeEditor, 3 * MONTH_IN_SECONDS ),
@@ -124,7 +111,7 @@ export default function PublicizeForm( {
 	);
 
 	const isAutoConversionEnabled = useSelect(
-		select => select( SOCIAL_STORE_ID ).isAutoConversionEnabled(),
+		select => select( socialStore ).isAutoConversionEnabled(),
 		[]
 	);
 
@@ -319,53 +306,8 @@ export default function PublicizeForm( {
 							</li>
 						</ul>
 					</PanelRow>
-					{ numberOfSharesRemaining !== null && (
-						<PanelRow>
-							<Notice type={ numberOfSharesRemaining < connections.length ? 'warning' : 'default' }>
-								<Fragment>
-									{ createInterpolateElement(
-										sprintf(
-											/* translators: %d is the number of shares remaining, upgradeLink is the link to upgrade to a different plan */
-											_n(
-												'You have %d share remaining in the next 30 days. <upgradeLink>Upgrade now</upgradeLink> to share more.',
-												'You have %d shares remaining in the next 30 days. <upgradeLink>Upgrade now</upgradeLink> to share more.',
-												numberOfSharesRemaining,
-												'jetpack'
-											),
-											numberOfSharesRemaining
-										),
-										{
-											upgradeLink: (
-												<a
-													className={ styles[ 'upgrade-link' ] }
-													href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
-														site: getSiteFragment(),
-														query: 'redirect_to=' + encodeURIComponent( window.location.href ),
-													} ) }
-													onClick={ autosaveAndRedirect }
-												/>
-											),
-										}
-									) }
-									<br />
-									<a
-										className={ styles[ 'more-link' ] }
-										href={ getRedirectUrl( 'jetpack-social-block-editor-more-info', {
-											site: getSiteFragment(),
-											...( adminUrl
-												? { query: 'redirect_to=' + encodeURIComponent( adminUrl ) }
-												: {} ),
-										} ) }
-										target="_blank"
-										rel="noopener noreferrer"
-										onClick={ autosaveAndRedirect }
-									>
-										{ __( 'More about Jetpack Social.', 'jetpack' ) }
-									</a>
-								</Fragment>
-							</Notice>
-						</PanelRow>
-					) }
+					<EnabledConnectionsNotice />
+					<ShareCountInfo />
 					{ renderNotices() }
 					{ showValidationNotice &&
 						( Object.values( validationErrors ).includes( NO_MEDIA_ERROR )

@@ -6,7 +6,7 @@ import React from 'react';
 
 type ErrorNoticeProps = {
 	title: string;
-	error: string | Error;
+	error?: string | Error;
 	data?: string;
 	suggestion?: string;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,7 +17,7 @@ type ErrorNoticeProps = {
 
 const ErrorNotice = ( {
 	title,
-	error,
+	error = new Error( title ),
 	data,
 	suggestion,
 	vars = {},

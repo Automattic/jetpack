@@ -1,4 +1,4 @@
-const RefreshIcon = () => (
+const Refresh = () => (
 	<svg
 		className="gridicon gridicons-refresh"
 		height="15"
@@ -12,4 +12,4 @@ const RefreshIcon = () => (
 	</svg>
 );
 
-export default RefreshIcon;
+export default Refresh;

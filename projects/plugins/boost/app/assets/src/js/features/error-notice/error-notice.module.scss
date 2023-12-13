@@ -19,6 +19,10 @@
 		color: $red_50;
 	}
 
+	:global(.raw-error) {
+		color: $primary-black;
+	}
+
 	pre {
 		background-color: #f1f1f1;
 		padding: 25px;
