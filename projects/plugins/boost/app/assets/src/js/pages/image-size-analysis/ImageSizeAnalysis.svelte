@@ -28,14 +28,6 @@
 	initializeIsaData();
 	onMount( initializeIsaSummary );
 
-	// Keep track of the total count from the summary the last time we got a data update.
-	// Useful for identify when a summary change might mean we need a refresh.
-	let countAtLastDataUpdate = 0;
-	isaData.subscribe( () => {
-		countAtLastDataUpdate = get( totalIssueCount );
-	} );
-
-	$: needsRefresh = $totalIssueCount > countAtLastDataUpdate;
 	$: isImageCdnModuleActive = $modulesState.image_cdn.active;
 	$: isaLastUpdated = $isaData.data.last_updated;
 	$: hasActiveGroup = !! $imageDataActiveGroup;
@@ -45,12 +37,6 @@
 	$: dataLoading = $isaDataLoading;
 	$: summary = $isaSummary;
 	$: dataGroupTabs = $imageDataGroupTabs;
-
-	async function refresh() {
-		// Don't let the UI show a refresh button until we get fresh ISA data.
-		countAtLastDataUpdate = Infinity;
-		image_size_analysis.refresh();
-	}
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
@@ -59,8 +45,6 @@
 		<div class="jb-container">
 			<ReactComponent
 				this={Hero}
-				{needsRefresh}
-				{refresh}
 				{isImageCdnModuleActive}
 				{isaLastUpdated}
 				{hasActiveGroup}
@@ -77,8 +61,6 @@
 		<div class="jb-table-wrap">
 			<ReactComponent
 				this={Table}
-				{needsRefresh}
-				{refresh}
 				isaDataLoading={dataLoading}
 				{activeGroup}
 				{images}

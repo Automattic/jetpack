@@ -1,6 +1,5 @@
 import type React from 'react';
 import { __ } from '@wordpress/i18n';
-import { createInterpolateElement } from '@wordpress/element';
 import { useState, useEffect } from 'react';
 import BrokenDataRow from '../row-types/broken-data-row/broken-data-row';
 import ImageMissingRow from '../row-types/image-missing-row/image-missing-row';
@@ -9,8 +8,8 @@ import LoadingRow from '../row-types/loading-row/loading-row';
 import Spinner from '$features/ui/spinner/spinner';
 import type { ISA_Data } from '../../lib/stores/isa-data';
 import { ISASummary, ISAStatus } from '../../lib/stores/isa-summary';
-import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
 import classnames from 'classnames';
+
 interface TableProps {
 	needsRefresh: boolean;
 	refresh: () => Promise< void >;
@@ -20,14 +19,7 @@ interface TableProps {
 	isaSummary: ISASummary | null;
 }
 
-const Table: React.FC< TableProps > = ( {
-	needsRefresh,
-	refresh,
-	isaDataLoading,
-	activeGroup,
-	images,
-	isaSummary,
-} ) => {
+const Table: React.FC< TableProps > = ( { isaDataLoading, activeGroup, images, isaSummary } ) => {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ activeImages, setActiveImages ] = useState< ISA_Data[] >( [] );
 	const [ jobFinished, setJobFinished ] = useState( false );
@@ -46,15 +38,7 @@ const Table: React.FC< TableProps > = ( {
 
 			{ ! isLoading && activeImages.length === 0 ? (
 				<h1>
-					{ needsRefresh
-						? createInterpolateElement(
-								__(
-									'<refresh>Refresh</refresh> to see the latest recommendations.',
-									'jetpack-boost'
-								),
-								actionLinkInterpolateVar( refresh, 'refresh' )
-						  )
-						: jobFinished
+					{ jobFinished
 						? __( '🥳 No image size issues found!', 'jetpack-boost' )
 						: __( 'No image size issues found yet…', 'jetpack-boost' ) }
 				</h1>

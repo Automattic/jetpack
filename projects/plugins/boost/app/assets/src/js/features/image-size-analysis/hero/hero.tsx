@@ -8,7 +8,6 @@ import ImageCdnRecommendation from '$features/image-size-analysis/image-cdn-reco
 // removed in:fade={{ duration: 300, easing: quadOut }} from .jb-hero
 
 export const Hero = ( {
-	needsRefresh,
 	refresh,
 	isImageCdnModuleActive,
 	isaLastUpdated,
@@ -57,31 +56,6 @@ export const Hero = ( {
 								</IconTooltip>
 							) }
 						</h1>
-					) }
-
-					{ needsRefresh && (
-						<span>
-							{ createInterpolateElement(
-								__(
-									'More recommendations have been found. <refresh>Refresh</refresh> to see the latest recommendations.',
-									'jetpack-boost'
-								),
-								{
-									refresh: (
-										// eslint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid
-										<a
-											className="action"
-											onClick={ event => {
-												event.preventDefault();
-
-												refresh();
-											} }
-											href="#"
-										/>
-									),
-								}
-							) }
-						</span>
 					) }
 				</div>
 			) : (
