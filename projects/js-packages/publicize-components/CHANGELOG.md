@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.42.0] - 2023-12-11
+### Changed
+- Refactored storing of feature options to use core functions. [#34113]
+
 ## [0.41.9] - 2023-12-06
 ### Changed
 - Updated package dependencies. [#34416]
@@ -530,6 +534,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.42.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.41.9...v0.42.0
 [0.41.9]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.41.8...v0.41.9
 [0.41.8]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.41.7...v0.41.8
 [0.41.7]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.41.6...v0.41.7
