@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import { createInterpolateElement } from '@wordpress/element';
 import TableRow from '../table-row/table-row';
 import TableRowHover from '../table-row-hover/table-row-hover';
 import type { ImageDataType } from '../../../lib/stores/zod-types';
@@ -35,12 +34,9 @@ const ImageMissingRow: React.FC< ImageMissingRowProps > = ( { enableTransition, 
 			<div className="jb-table-row-hover-content">
 				<TableRowHover
 					edit_url={ details.page.edit_url }
-					instructions={ createInterpolateElement(
-						__(
-							'This image does not appear to load. Please check the URL in the relevant page.',
-							'jetpack-boost'
-						),
-						{}
+					instructions={ __(
+						'This image does not appear to load. Please check the URL in the relevant page.',
+						'jetpack-boost'
 					) }
 				/>
 			</div>
