@@ -108,9 +108,7 @@ const SuperCacheInfo = () => {
 						<Button
 							key="start"
 							isPrimary
-							onClick={ () => {
-								runTest();
-							} }
+							onClick={ runTest }
 						>
 							{ __( 'Re-run test', 'jetpack-boost' ) }
 						</Button>,
