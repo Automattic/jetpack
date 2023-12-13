@@ -23,7 +23,6 @@
 	import { RegenerateCriticalCssSuggestion } from '$features/critical-css';
 	import ResizingUnavailable from '../../features/ResizingUnavailable.svelte';
 	import SuperCacheInfo from '$features/SuperCacheInfo.svelte';
-	import UpgradeCTA from '$features/UpgradeCTA.svelte';
 	import config from '$lib/stores/config';
 	import {
 		criticalCssState,
@@ -44,6 +43,7 @@
 	import externalLinkTemplateVar from '$lib/utils/external-link-template-var';
 	import { QualitySettings } from '$features/image-cdn';
 	import ReactModule from '$features/module/module';
+	import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 	import { createInterpolateElement } from '@wordpress/element';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -137,6 +137,12 @@
 				show: $suggestRegenerate && $criticalCssState.status !== 'pending',
 				type: $suggestRegenerate,
 			} ),
+			React.createElement( UpgradeCTA, {
+				description: __(
+					'Save time by upgrading to Automatic Critical CSS generation.',
+					'jetpack-boost'
+				),
+			} ),
 		]}
 		onEnabled={resume}
 		onMountEnabled={resume}
@@ -200,12 +206,12 @@
 		</div>
 
 		<svelte:fragment slot="cta">
-			<UpgradeCTA
+			<ReactComponent
+				this={UpgradeCTA}
 				description={__(
 					'Save time by upgrading to Automatic Critical CSS generation.',
 					'jetpack-boost'
 				)}
-				{yearlyPricing}
 			/>
 		</svelte:fragment>
 	</Module>
@@ -371,7 +377,8 @@
 
 			<svelte:fragment slot="cta">
 				{#if ! $modulesState.image_size_analysis.available}
-					<UpgradeCTA
+					<ReactComponent
+						this={UpgradeCTA}
 						description={__(
 							'Upgrade to scan your site for issues - automatically!',
 							'jetpack-boost'
