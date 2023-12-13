@@ -1,6 +1,5 @@
-import type React from 'react';
 import { __ } from '@wordpress/i18n';
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from '@wordpress/element';
 import BrokenDataRow from '../row-types/broken-data-row/broken-data-row';
 import ImageMissingRow from '../row-types/image-missing-row/image-missing-row';
 import ImageSizeRow from '../row-types/image-size-row/image-size-row';
@@ -18,7 +17,7 @@ interface TableProps {
 	isaSummary: ISASummary | null;
 }
 
-const Table: React.FC< TableProps > = ( { isaDataLoading, activeGroup, images, isaSummary } ) => {
+const Table = ( { isaDataLoading, activeGroup, images, isaSummary }: TableProps ) => {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ activeImages, setActiveImages ] = useState< ISA_Data[] >( [] );
 	const [ jobFinished, setJobFinished ] = useState( false );
