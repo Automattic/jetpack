@@ -133,7 +133,9 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 								'You can customize the sharing buttons and choose which services to display.',
 								'jetpack'
 							),
-							link: getRedirectUrl( 'jetpack-support-sharing' ),
+							link: shouldShowSharingBlock
+								? getRedirectUrl( 'jetpack-support-sharing-block' )
+								: getRedirectUrl( 'jetpack-support-sharing' ),
 						} }
 					>
 						<p>
