@@ -37,6 +37,18 @@ const SuperCacheInfo = () => {
 		window.location.href = './options-general.php?page=wpsupercache';
 	};
 
+	// Function to render action button
+	const renderActionButton = (
+		key: string,
+		label: string,
+		onClick: () => void,
+		isLoading = false
+	) => (
+		<Button key={ key } isPrimary onClick={ onClick } isLoading={ isLoading }>
+			{ label }
+		</Button>
+	);
+
 	if ( isNoticeDismissed ) {
 		return null;
 	}
@@ -51,9 +63,7 @@ const SuperCacheInfo = () => {
 				level="warning"
 				title={ __( 'Super Cache is installed but not enabled', 'jetpack-boost' ) }
 				actions={ [
-					<Button key="start" isPrimary onClick={ navToSuperCacheSettings }>
-						{ __( 'Set up', 'jetpack-boost' ) }
-					</Button>,
+					renderActionButton( 'start', __( 'Set up', 'jetpack-boost' ), navToSuperCacheSettings ),
 				] }
 				hideCloseButton={ false }
 				onClose={ () => {
@@ -73,9 +83,7 @@ const SuperCacheInfo = () => {
 					title={ __( 'Measuring Super Cache Speed', 'jetpack-boost' ) }
 					hideCloseButton={ true }
 					actions={ [
-						<Button key="running" isPrimary isLoading>
-							{ __( 'Run test', 'jetpack-boost' ) }
-						</Button>,
+						renderActionButton( 'running', __( 'Run test', 'jetpack-boost' ), () => {}, true ),
 					] }
 				>
 					<p>{ __( 'Jetpack Boost is testing the speed of your cache.', 'jetpack-boost' ) }</p>
@@ -86,17 +94,7 @@ const SuperCacheInfo = () => {
 					level="info"
 					title={ __( 'Super Cache detected', 'jetpack-boost' ) }
 					hideCloseButton={ true }
-					actions={ [
-						<Button
-							key="start"
-							isPrimary
-							onClick={ () => {
-								runTest();
-							} }
-						>
-							{ __( 'Run test', 'jetpack-boost' ) }
-						</Button>,
-					] }
+					actions={ [ renderActionButton( 'start', __( 'Run test', 'jetpack-boost' ), runTest ) ] }
 				>
 					<p>{ __( 'Find out how much difference it makes for your users.', 'jetpack-boost' ) }</p>
 				</Notice>
@@ -107,15 +105,7 @@ const SuperCacheInfo = () => {
 					title={ __( 'Super Cache Speed', 'jetpack-boost' ) }
 					hideCloseButton={ true }
 					actions={ [
-						<Button
-							key="start"
-							isPrimary
-							onClick={ () => {
-								runTest();
-							} }
-						>
-							{ __( 'Re-run test', 'jetpack-boost' ) }
-						</Button>,
+						renderActionButton( 'start', __( 'Re-run test', 'jetpack-boost' ), runTest ),
 					] }
 				>
 					<p>
@@ -133,15 +123,7 @@ const SuperCacheInfo = () => {
 					title={ __( 'Super Cache Speed', 'jetpack-boost' ) }
 					hideCloseButton={ true }
 					actions={ [
-						<Button
-							key="start"
-							isPrimary
-							onClick={ () => {
-								runTest();
-							} }
-						>
-							{ __( 'Re-run test', 'jetpack-boost' ) }
-						</Button>,
+						renderActionButton( 'start', __( 'Re-run test', 'jetpack-boost' ), runTest ),
 					] }
 				>
 					<p>
