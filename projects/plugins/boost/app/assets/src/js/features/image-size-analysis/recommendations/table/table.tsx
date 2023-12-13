@@ -54,7 +54,7 @@ const Table: React.FC< TableProps > = ( {
 	};
 
 	return (
-		<div>
+		<>
 			<div className={ classnames( 'jb-loading-spinner', { 'jb-active': isLoading } ) }>
 				<Spinner size="3rem" lineWidth="4px" />
 			</div>
@@ -103,7 +103,7 @@ const Table: React.FC< TableProps > = ( {
 						  ) }
 				</div>
 			) }
-		</div>
+		</>
 	);
 };
 

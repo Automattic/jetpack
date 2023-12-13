@@ -29,14 +29,17 @@ const ImageSizeRow: React.FC< ImageSizeRowProps > = ( { enableTransition, detail
 	const sizeDifference = ( potentialSavings / currentSize ) * 100;
 	const pillColor = sizeDifference <= 30 ? '#f5e5b3' : '#facfd2';
 	return (
-		<TableRow enableTransition={ enableTransition } expandable={ true }>
+		<TableRow
+			enableTransition={ enableTransition }
+			expandable={ true }
+			expandedContent={ <Expanded details={ details } /> }
+		>
 			<Main
 				title={ title }
 				details={ details }
 				potentialSize={ potentialSize }
 				pillColor={ pillColor }
 			/>
-			<Expanded details={ details } />
 		</TableRow>
 	);
 };
@@ -52,7 +55,7 @@ interface MainProps {
 
 const Main: React.FC< MainProps > = ( { title, pillColor, details, potentialSize } ) => {
 	return (
-		<div>
+		<>
 			<div className="jb-table-row__thumbnail">
 				<Thumbnail title={ title } url={ details.image.url } width={ 65 } height={ 65 } />
 			</div>
@@ -87,7 +90,7 @@ const Main: React.FC< MainProps > = ( { title, pillColor, details, potentialSize
 					{ details.page.title }
 				</a>
 			</div>
-		</div>
+		</>
 	);
 };
 

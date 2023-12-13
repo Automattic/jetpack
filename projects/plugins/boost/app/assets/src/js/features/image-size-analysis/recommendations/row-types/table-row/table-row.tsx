@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-
+import classnames from 'classnames';
 interface TableRowProps {
 	expandable: boolean;
 	enableTransition: boolean;
@@ -38,14 +38,14 @@ const TableRow: React.FC< TableRowProps > = ( {
 
 	return (
 		<div
-			className={ `jb-table-row-container ${ expanded ? 'expanded' : '' }` }
+			className={ classnames( 'jb-table-row-container', { expanded } ) }
 			style={ transitionStyle }
 		>
 			{ /* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */ }
 			<div className="jb-table-row jb-recommendation-page-grid" onClick={ toggleExpand }>
 				{ children }
 
-				{ expandable && <div className="jb-table-row__expand">{ /* SVG goes here */ }</div> }
+				{ expandable && <div className="jb-table-row__expand">{ expanded ? '↑' : '↓' }</div> }
 			</div>
 
 			{ expanded && expandable && (
