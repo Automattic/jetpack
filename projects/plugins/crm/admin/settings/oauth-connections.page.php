@@ -137,7 +137,11 @@ if ( isset( $_GET['edit-provider'] ) && $zbs->oauth->legitimate_provider( $_GET[
 	} else {
 
 		// OAuth not enabled, probably lacking PHP version >= 7.3
-		echo wp_kses( sprintf( __( 'Currently your system does not support an OAuth API connection. <a href="%s" target="_blank">Read More</a>', 'zero-bs-crm' ), $zbs->urls['kb-oauth-requirements'] ), $zbs->acceptable_restricted_html ); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
-
+		esc_html_e( 'Currently your system does not support OAuth API connection.', 'zero-bs-crm' );
+		?>
+		<a href="<?php echo esc_url( $zbs->urls['kb-oauth-requirements'] ); ?>" target="_blank">
+		<?php esc_html_e( 'Read More', 'zero-bs-crm' ); ?>
+		</a>
+		<?php
 	}
 }
