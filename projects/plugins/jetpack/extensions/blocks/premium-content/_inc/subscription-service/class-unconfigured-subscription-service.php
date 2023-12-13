@@ -47,6 +47,15 @@ class Unconfigured_Subscription_Service implements Subscription_Service {
 	}
 
 	/**
+	 * is the current user a pending subscriber for the current site?
+	 * 
+	 * @return boolean
+	 */
+	public function is_current_user_pending_subscriber() {
+		return false;
+	}
+
+	/**
 	 * The current visitor would like to obtain access. Where do they go?
 	 *
 	 * @param string $mode .
