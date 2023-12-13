@@ -1,3 +1,4 @@
+import type React from 'react';
 import { __ } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
 import { useState, useEffect } from 'react';
@@ -6,11 +7,10 @@ import ImageMissingRow from '../row-types/image-missing-row/image-missing-row';
 import ImageSizeRow from '../row-types/image-size-row/image-size-row';
 import LoadingRow from '../row-types/loading-row/loading-row';
 import Spinner from '$features/ui/spinner/spinner';
-import actionLinkTemplateVar from '$lib/utils/action-link-template-var';
 import type { ISA_Data } from '../../lib/stores/isa-data';
 import { ISASummary, ISAStatus } from '../../lib/stores/isa-summary';
-import styles from './table.module.scss';
-
+import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
+import classnames from 'classnames';
 interface TableProps {
 	needsRefresh: boolean;
 	refresh: () => Promise< void >;
@@ -55,7 +55,7 @@ const Table: React.FC< TableProps > = ( {
 
 	return (
 		<div>
-			<div className={ `${ styles.loadingSpinner } ${ isLoading ? styles.active : '' }` }>
+			<div className={ classnames( 'jb-loading-spinner', { 'jb-active': isLoading } ) }>
 				<Spinner size="3rem" lineWidth="4px" />
 			</div>
 
@@ -67,19 +67,14 @@ const Table: React.FC< TableProps > = ( {
 									'<refresh>Refresh</refresh> to see the latest recommendations.',
 									'jetpack-boost'
 								),
-								{
-									refresh: (
-										// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-										<span onClick={ () => refresh() } { ...actionLinkTemplateVar( 'refresh' ) } />
-									),
-								}
+								actionLinkInterpolateVar( refresh, 'refresh' )
 						  )
 						: jobFinished
 						? __( '🥳 No image size issues found!', 'jetpack-boost' )
 						: __( 'No image size issues found yet…', 'jetpack-boost' ) }
 				</h1>
 			) : (
-				<div className={ `${ styles.table } ${ isLoading ? styles.loading : '' }` }>
+				<div className={ classnames( 'jb-table', { 'jb-loading': isLoading } ) }>
 					<div className="jb-table-header jb-recommendation-page-grid">
 						<div className="jb-table-header__image">Image</div>
 						<div className="jb-table-header__potential-size">Potential Size</div>
