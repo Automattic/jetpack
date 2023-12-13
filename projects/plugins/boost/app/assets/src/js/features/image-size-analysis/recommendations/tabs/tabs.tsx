@@ -32,7 +32,7 @@ const Tabs: React.FC< TabsProps > = ( { activeGroup, imageDataGroupTabs, isaGrou
 				{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 				<div className="jb-dropdown__head-bar" onClick={ onClickDropdown }>
 					{ isaGroupLabels[ activeGroup ] }
-					{ currentTab?.issue_count > 0 && (
+					{ currentTab && currentTab?.issue_count > 0 && (
 						<span className="jb-dropdown__issues">{ currentTab.issue_count }</span>
 					) }
 					<span className="dashicons dashicons-arrow-down-alt2" />
