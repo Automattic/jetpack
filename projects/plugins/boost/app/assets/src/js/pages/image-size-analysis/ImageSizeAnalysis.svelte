@@ -3,9 +3,9 @@
 	import { get } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
 	import { Hero } from '$features/image-size-analysis/hero/hero';
-	import Pagination from '$features/image-size-analysis/recommendations/Pagination.svelte';
-	import Table from '$features/image-size-analysis/recommendations/Table.svelte';
-	import Tabs from '$features/image-size-analysis/recommendations/Tabs.svelte';
+	import Pagination from '$features/image-size-analysis/recommendations/pagination/pagination';
+	import Table from '$features/image-size-analysis/recommendations/table/table';
+	import Tabs from '$features/image-size-analysis/recommendations/tabs/tabs';
 	import {
 		initializeIsaData,
 		isaData,
@@ -69,11 +69,17 @@
 				{hasActiveGroup}
 				totalIssueCount={issueCount}
 			/>
-			<Tabs {activeGroup} imageDataGroupTabs={dataGroupTabs} {isaGroupLabels} />
+			<ReactComponent
+				this={Tabs}
+				{activeGroup}
+				imageDataGroupTabs={dataGroupTabs}
+				{isaGroupLabels}
+			/>
 		</div>
 
 		<div class="jb-table-wrap">
-			<Table
+			<ReactComponent
+				this={Table}
 				{needsRefresh}
 				{refresh}
 				isaDataLoading={dataLoading}
@@ -84,7 +90,8 @@
 		</div>
 
 		<div class="jb-container">
-			<Pagination
+			<ReactComponent
+				this={Pagination}
 				group={$isaData.query.group}
 				current={$isaData.query.page}
 				total={$isaData.data.total_pages}
