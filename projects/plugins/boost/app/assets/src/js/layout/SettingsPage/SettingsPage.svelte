@@ -23,7 +23,7 @@
 <div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
 	<ReactComponent this={Header} />
 
-	<div class="jb-section jb-section--alt jb-section--scores">
+	<div class="jb-section jb-section--alt">
 		<ReactComponent
 			this={SpeedScore}
 			{moduleStates}

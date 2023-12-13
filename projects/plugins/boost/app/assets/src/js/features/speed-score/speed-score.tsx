@@ -65,10 +65,11 @@ const SpeedScore = ( {
 			<div className="jb-container">
 				<div id="jp-admin-notices" className="jetpack-boost-jitm-card" />
 				<div
+					data-testid="speed-scores"
 					className={ classNames( styles[ 'speed-scores' ], { loading: status === 'loading' } ) }
 				>
 					{ siteIsOnline ? (
-						<div className={ styles.top }>
+						<div className={ styles.top } data-testid="speed-scores-top">
 							<h2>{ heading }</h2>
 							{ status === 'loaded' && <ContextTooltip /> }
 							<Button
@@ -84,7 +85,7 @@ const SpeedScore = ( {
 							</Button>
 						</div>
 					) : (
-						<div className={ styles.offline }>
+						<div className={ styles.offline } data-testid="speed-scores-offline">
 							<h2>{ __( 'Website Offline', 'jetpack-boost' ) }</h2>
 							<p>
 								{ __(
