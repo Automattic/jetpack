@@ -17,14 +17,11 @@ type State = {
 const SuperCacheInfo = () => {
 	const [ state, setState ] = useState< State >( { status: 'idle' } );
 
-	const [ { data }, { mutate } ] = useDataSync(
+	const [ { data: isNoticeDismissed }, { mutate: setNoticeDismissed } ] = useDataSync(
 		'jetpack_boost_ds',
 		'super_cache_notice_disabled',
 		z.boolean()
 	);
-
-	const isNoticeDismissed = data;
-	const setNoticeDismissed = mutate;
 
 	const runTest = async () => {
 		setState( { status: 'testing' } );
