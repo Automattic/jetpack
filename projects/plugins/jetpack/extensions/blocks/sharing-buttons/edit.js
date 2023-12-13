@@ -38,8 +38,6 @@ export function SharingButtonsEdit( props ) {
 							{ value: 'icon', label: __( 'Icon Only', 'jetpack' ) },
 							/* translators: Sharing: Sharing button option label. */
 							{ value: 'text', label: __( 'Text Only', 'jetpack' ) },
-							/* translators: Sharing: Sharing button option label. */
-							{ value: 'official', label: __( 'Official Buttons', 'jetpack' ), disabled: true },
 						] }
 						value={ styleType }
 						onSelect={ value => setAttributes( { styleType: value } ) }
