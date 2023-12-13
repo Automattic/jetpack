@@ -3,7 +3,6 @@
   <coverage>
     <include>
       <directory suffix=".php">src</directory>
-      <file>actions.php</file>
     </include>
   </coverage>
   <testsuites>
