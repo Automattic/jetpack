@@ -1,6 +1,5 @@
 import { derived } from 'svelte/store';
 import { z } from 'zod';
-import { __ } from '@wordpress/i18n';
 import { isaData } from './isa-data';
 import api from '$lib/api/api';
 import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
@@ -57,22 +56,6 @@ export const isaSummary = image_size_analysis_summary.store;
 export const isaGroups = derived( isaSummary, () => ( {
 	core_front_page: { name: 'Front Page', progress: 10, issues: 0, done: false },
 } ) );
-
-export const isaGroupLabels = {
-	all: __( 'All', 'jetpack-boost' ),
-	core_front_page: __( 'Homepage', 'jetpack-boost' ),
-	singular_page: __( 'Pages', 'jetpack-boost' ),
-	singular_post: __( 'Posts', 'jetpack-boost' ),
-	other: __( 'Other', 'jetpack-boost' ),
-	fixed: __( 'Fixed Images', 'jetpack-boost' ),
-};
-
-export function isaGroupLabel( group: keyof typeof isaGroupLabels | string ) {
-	if ( ! isaGroupLabels[ group ] ) {
-		return group;
-	}
-	return isaGroupLabels[ group ];
-}
 
 export function getSummaryProgress( summaryGroups: Record< string, ISASummaryGroup > ) {
 	return Object.entries( summaryGroups ).map( ( [ group, data ] ) => {

@@ -13,7 +13,6 @@
 		refreshIsaData,
 	} from '$features/image-size-analysis/lib/stores/isa-data';
 	import {
-		isaGroupLabels,
 		imageDataActiveGroup,
 		imageDataGroupTabs,
 		initializeIsaSummary,
@@ -24,6 +23,7 @@
 	import Footer from '$layout/footer/footer';
 	import Header from '$layout/header/header';
 	import { modulesState } from '$lib/stores/modules';
+	import { isaGroupLabels } from '$features/image-size-analysis/lib/isa-groups';
 
 	initializeIsaData();
 
