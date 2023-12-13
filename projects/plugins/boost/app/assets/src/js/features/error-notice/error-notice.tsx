@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { createInterpolateElement } from '@wordpress/element';
 import { standardizeError } from '$lib/utils/standardize-error';
 import NoticeOutline from '$svg/notice-outline';
