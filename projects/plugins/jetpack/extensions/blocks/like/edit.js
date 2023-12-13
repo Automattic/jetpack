@@ -3,6 +3,9 @@ import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { ExternalLink, ToggleControl, PanelBody } from '@wordpress/components';
 import { useEffect, createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import avatar1 from '../blogging-prompt/example-avatars/avatar1.jpg';
+import avatar2 from '../blogging-prompt/example-avatars/avatar2.jpg';
+import avatar3 from '../blogging-prompt/example-avatars/avatar3.jpg';
 import useFetchReblogSetting from './use-fetch-reblog-setting';
 import useSetReblogSetting from './use-set-reblog-setting';
 import './editor.scss';
@@ -52,14 +55,7 @@ function LikeEdit() {
 
 	const showReblogButton = currentReblogSetting;
 
-	// These A12s gave their permission to use their gravatars.
-	const gravatarHashes = [
-		'7fdcad31a04def0ab9583af475c9036c',
-		'4d346581a3340e32cf93703c9ce46bd4',
-		'c0ccdd53794779bcc07fcae7b79c4d80',
-		'0619d4de8aef78c81b2194ff1d164d85',
-		'b3618d70c63bbc5cc7caee0beded5ff0',
-	];
+	const avatars = [ avatar1, avatar2, avatar3 ];
 
 	const preventDefault = event => event.preventDefault();
 
@@ -101,11 +97,11 @@ function LikeEdit() {
 					</a>
 				</div>
 				<ul className="wpl-avatars">
-					{ gravatarHashes.map( gravatarHash => (
-						<li key={ gravatarHash } className="wp-liker-me">
+					{ avatars.map( ( avatar, i ) => (
+						<li key={ `liker-${ i }` } className="wp-liker-me">
 							<a className="wpl-liker" href="#" rel="nofollow" onClick={ preventDefault }>
 								<img
-									src={ `https://0.gravatar.com/avatar/${ gravatarHash }` }
+									src={ avatar }
 									className="avatar avatar-30"
 									width={ 30 }
 									height={ 30 }
@@ -122,7 +118,7 @@ function LikeEdit() {
 								sprintf(
 									// translators: %$1s: Number of likes
 									__( '<span>%1$d</span> likes', 'jetpack' ),
-									gravatarHashes.length
+									avatars.length
 								),
 								{
 									span: <span className="wpl-count-number"></span>,
