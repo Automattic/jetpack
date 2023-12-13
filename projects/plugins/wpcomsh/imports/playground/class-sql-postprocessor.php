@@ -90,21 +90,28 @@ class SQL_Postprocessor {
 			return $ret;
 		}
 
-		// 2. Preserve Jetpack options.
-		$ret = $this->save_jetpack_options();
+		// 2. Preserve a whitelist of options.
+		$ret = $this->save_whitelist_options();
 
 		if ( is_wp_error( $ret ) ) {
 			return $ret;
 		}
 
-		// 3. Merge plugins.
+		// 3. Remove a list of options.
+		$ret = $this->remove_options();
+
+		if ( is_wp_error( $ret ) ) {
+			return $ret;
+		}
+
+		// 4. Merge plugins.
 		$ret = $this->merge_plugins();
 
 		if ( is_wp_error( $ret ) ) {
 			return $ret;
 		}
 
-		// 4. Replace temporary users.
+		// 5. Replace temporary users.
 		$ret = $this->replace_users();
 
 		if ( is_wp_error( $ret ) ) {
@@ -123,7 +130,7 @@ class SQL_Postprocessor {
 		if ( ! $this->dry_run ) {
 			$this->log( 'Replace tables' );
 
-			// 5. Replace tables with temporary ones.
+			// 6. Replace tables with temporary ones.
 			foreach ( $replace_query as $query ) {
 				$wpdb->query( $query );
 			}
@@ -182,22 +189,30 @@ class SQL_Postprocessor {
 	}
 
 	/**
-	 * Save Jetpack options in temporary tables.
+	 * Save a whitelist of options in temporary tables.
 	 *
 	 * @return bool|WP_Error
 	 */
-	public function save_jetpack_options() {
+	public function save_whitelist_options() {
 		global $wpdb;
+
+		// A list of options to save.
+		$whitelist = array(
+			'admin_email',
+			'jetpack_active_modules',
+			'jetpack_options',
+			'jetpack_private_options',
+			'permalink_structure',
+		);
 
 		// Substitute the options.
 		$tmp_options = $this->tmp_table_name( 'options' );
-		$options     = implode( "', '", array( 'jetpack_active_modules', 'jetpack_options', 'jetpack_private_options' ) );
+		$options     = implode( "', '", $whitelist );
 		$query       = "SELECT option_name, option_value FROM %s WHERE option_name IN ('{$options}')";
 		$options     = $wpdb->get_results( sprintf( $query, $wpdb->prefix . 'options' ), ARRAY_A );
-		// $tmp_options = $wpdb->get_results( sprintf( $query, $this->tmp_prefix . $wpdb->prefix . 'options' ), ARRAY_A );
 
 		if ( ! count( $options ) ) {
-			$this->log( 'No Jetpack options' );
+			$this->log( 'No whitelist options' );
 
 			return false;
 		}
@@ -223,12 +238,34 @@ class SQL_Postprocessor {
 		}
 
 		if ( $inserted > 0 ) {
-			$this->log( 'Jetpack options saved' );
+			$this->log( 'Whitelist options saved' );
 
 			return true;
 		} else {
-			return $this->error( 'error-save-jetpack-option', __( 'Error saving Jetpack options.', 'wpcomsh' ) );
+			return $this->error( 'error-save-whitelist-option', __( 'Error saving whitelist options.', 'wpcomsh' ) );
 		}
+	}
+
+	/**
+	 * Remove a list of options.
+	 */
+	public function remove_options() {
+		global $wpdb;
+
+		// A list of options to remove.
+		$remove = array(
+			'new_admin_email', // This option is saved by default in Playground, not needed.
+		);
+
+		// Substitute the options.
+		$tmp_options = $this->tmp_table_name( 'options' );
+		$options     = implode( "', '", $remove );
+		$query       = "DELETE FROM %s WHERE option_name IN ('{$options}')";
+		$deleted     = $wpdb->query( sprintf( $query, $tmp_options ) );
+
+		$this->log( 'Options removed: ' . (int) $deleted );
+
+		return true;
 	}
 
 	/**
