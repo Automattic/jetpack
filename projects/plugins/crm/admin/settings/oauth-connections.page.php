@@ -137,11 +137,13 @@ if ( isset( $_GET['edit-provider'] ) && $zbs->oauth->legitimate_provider( $_GET[
 	} else {
 
 		// OAuth not enabled, probably lacking PHP version >= 7.3
-		esc_html_e( 'Currently your system does not support OAuth API connection.', 'zero-bs-crm' );
+		esc_html_e( 'Currently your system does not support an OAuth API connection.', 'zero-bs-crm' );
 		?>
+		<?php ##WLREMOVE ?>
 		<a href="<?php echo esc_url( $zbs->urls['kb-oauth-requirements'] ); ?>" target="_blank">
 		<?php esc_html_e( 'Read More', 'zero-bs-crm' ); ?>
 		</a>
+		<?php ##/WLREMOVE ?>
 		<?php
 	}
 }
