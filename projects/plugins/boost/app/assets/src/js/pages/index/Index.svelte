@@ -14,8 +14,8 @@
 	import Notice from '$features/Notice.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import TemplatedString from '$features/TemplatedString.svelte';
-	import CloudCssMeta from '$features/critical-css/CloudCssMeta.svelte';
-	import CriticalCssMeta from '$features/critical-css/CriticalCssMeta.svelte';
+	import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
+	import CriticalCssMeta from '$features/critical-css/critical-css-meta/critical-css-meta';
 	import MinifyMeta from '$features/minify-meta/minify-meta';
 	import Module from '$features/Module.svelte';
 	import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
@@ -120,7 +120,8 @@
 		</div>
 
 		<div slot="meta">
-			<CriticalCssMeta
+			<ReactComponent
+				this={CriticalCssMeta}
 				cssState={$criticalCssState}
 				isCloudCssAvailable={$modulesState.cloud_css?.available}
 				criticalCssProgress={$criticalCssProgress}
@@ -186,7 +187,8 @@
 		</div>
 
 		<div slot="meta" class="jb-feature-toggle__meta">
-			<CloudCssMeta
+			<ReactComponent
+				this={CloudCssMeta}
 				cssState={$criticalCssState}
 				isCloudCssAvailable={$modulesState.cloud_css?.available}
 				criticalCssProgress={$criticalCssProgress}
