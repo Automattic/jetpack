@@ -28,14 +28,30 @@ abstract class Backup_Importer {
 	protected $destination_path;
 
 	/**
+	 * The table prefix to use when generating database temporary tables.
+	 *
+	 * @var string
+	 */
+	protected $tmp_prefix;
+
+	/**
+	 * The temporary database name.
+	 *
+	 * @var string
+	 */
+	protected $tmp_database;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string $zip_or_tar_file_path The path to the ZIP or TAR file to be imported.
 	 * @param string $destination_path The path where the backup will be imported.
+	 * @param string $tmp_prefix       The table prefix to use when importing the database.
 	 */
-	public function __construct( string $zip_or_tar_file_path, string $destination_path ) {
+	public function __construct( string $zip_or_tar_file_path, string $destination_path, string $tmp_prefix ) {
 		$this->zip_or_tar_file_path = $zip_or_tar_file_path;
 		$this->destination_path     = trailingslashit( $destination_path );
+		$this->tmp_prefix           = $tmp_prefix;
 	}
 
 	/**

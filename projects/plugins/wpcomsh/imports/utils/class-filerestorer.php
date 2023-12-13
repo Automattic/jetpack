@@ -187,7 +187,15 @@ class FileRestorer {
 		$symlinked_dirs = array();
 
 		foreach ( $dirs as $dir ) {
-			$dir_iterator = new \DirectoryIterator( $dir );
+			$dir_iterator = array();
+
+			try {
+				$dir_iterator = new \DirectoryIterator( $dir );
+			} catch ( \Exception $e ) {
+				// The directory does not exist.
+				continue;
+			}
+
 			foreach ( $dir_iterator as $fileinfo ) {
 				$dest_dir = str_replace( $this->source_dir, $this->dest_dir, $fileinfo->getPathname() );
 				// check if it's symlinked and not a dot directory on destination

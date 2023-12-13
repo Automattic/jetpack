@@ -23,7 +23,7 @@ class FileLogger implements LoggerInterface {
 	 *
 	 * @var string
 	 */
-	private $log_file = '/tmp/restore_log/file_restoration_log.txt';
+	private $log_file = '/tmp/restore_log/restoration_log.txt';
 
 	/**
 	 * FileLogger constructor.

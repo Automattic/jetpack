@@ -13,6 +13,7 @@ require_once __DIR__ . '/class-playground-clean-up.php';
 require_once __DIR__ . '/class-sql-importer.php';
 require_once __DIR__ . '/../utils/class-filerestorer.php';
 require_once __DIR__ . '/../utils/logger/class-filelogger.php';
+require_once __DIR__ . '/class-sql-postprocessor.php';
 
 use Imports\Utils\FileRestorer;
 use Imports\Utils\Logger\FileLogger;
@@ -26,6 +27,29 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	const SQLITE_DB_PATH = 'wp-content/database/.ht.sqlite';
 
 	/**
+	 * File logger
+	 *
+	 * @var FileLogger
+	 */
+	private FileLogger $logger;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param string $zip_or_tar_file_path The path to the ZIP or TAR file to be imported.
+	 * @param string $destination_path The path where the backup will be imported.
+	 * @param string $tmp_prefix       The table prefix to use when importing the database.
+	 */
+	public function __construct( string $zip_or_tar_file_path, string $destination_path, string $tmp_prefix ) {
+		parent::__construct( $zip_or_tar_file_path, $destination_path, $tmp_prefix );
+
+		$this->logger = new FileLogger();
+		$this->logger->check_and_clear_file();
+
+		$this->tmp_database = $this->destination_path . 'database.sql';
+	}
+
+	/**
 	 * Preprocess the backup before importing.
 	 *
 	 * @return bool|WP_Error True on success, or a WP_Error on failure.
@@ -33,8 +57,9 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	public function preprocess() {
 		$options  = array(
 			'output_mode' => SQL_Generator::OUTPUT_TYPE_FILE,
-			'output_file' => $this->destination_path . 'database.sql',
+			'output_file' => $this->tmp_database,
 			'tmp_tables'  => true,
+			'tmp_prefix'  => $this->tmp_prefix,
 		);
 		$db_path  = $this->destination_path . self::SQLITE_DB_PATH;
 		$importer = new Playground_DB_Importer();
@@ -49,10 +74,8 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	 * @return bool|WP_Error True on success, or a WP_Error on failure.
 	 */
 	public function process_files() {
-		$final_path = '/srv/htdocs/';
-		$logger     = new FileLogger();
-		$logger->check_and_clear_file();
-		$file_restorer = new FileRestorer( $this->destination_path, $final_path, $logger );
+		$final_path    = '/srv/htdocs/';
+		$file_restorer = new FileRestorer( $this->destination_path, $final_path, $this->logger );
 		$queue_result  = $file_restorer->enqueue_files();
 
 		if ( is_wp_error( $queue_result ) ) {
@@ -74,7 +97,7 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	 * @return bool|WP_Error True on success, or a WP_Error on failure.
 	 */
 	public function recreate_database() {
-		return SQL_Importer::import( $this->destination_path . 'database.sql' );
+		return SQL_Importer::import( $this->tmp_database );
 	}
 
 	/**
@@ -83,7 +106,9 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	 * @return bool|WP_Error True on success, or a WP_Error on failure.
 	 */
 	public function postprocess_database() {
-		return true;
+		$processor = new SQL_Postprocessor( get_home_url(), get_site_url(), $this->tmp_prefix, false, $this->logger );
+
+		return $processor->postprocess();
 	}
 
 	/**

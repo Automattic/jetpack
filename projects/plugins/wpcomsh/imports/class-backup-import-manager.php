@@ -63,6 +63,10 @@ class Backup_Import_Manager {
 	 * Constant representing the Jetpack Backup importer type.
 	 */
 	const JETPACK_BACKUP = 'jetpack_backup';
+	/**
+	 * The prefix to use for temporary databases.
+	 */
+	const TEMPORARY_DB_PREFIX = 'tmp_';
 
 	/**
 	 * Backup import status option name.
@@ -215,7 +219,7 @@ class Backup_Import_Manager {
 		switch ( $type ) {
 			case self::WORDPRESS_PLAYGROUND:
 				require_once __DIR__ . '/playground/class-playground-importer.php';
-				return new Playground_Importer( $zip_or_tar_file_path, $destination_path );
+				return new Playground_Importer( $zip_or_tar_file_path, $destination_path, self::TEMPORARY_DB_PREFIX );
 
 			// case self::JETPACK_BACKUP:
 			// require_once __DIR__ . '/jetpack-backup/class-jetpack-backup-importer.php';

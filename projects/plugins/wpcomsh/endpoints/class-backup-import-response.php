@@ -102,7 +102,7 @@ class Backup_Import_Response extends WP_REST_Controller {
 	 * @return string|null The last line of the log file, or null if the file could not be read.
 	 */
 	public function read_last_log_line() {
-		$log_file = '/tmp/restore_log/file_restoration_log.txt';
+		$log_file = '/tmp/restore_log/restoration_log.txt';
 		if ( ! $log_file || ! file_exists( $log_file ) ) {
 			return null;
 		}
