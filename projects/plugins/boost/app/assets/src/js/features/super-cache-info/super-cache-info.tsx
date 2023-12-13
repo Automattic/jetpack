@@ -8,9 +8,14 @@ import {
 	isSuperCacheEnabled,
 } from './lib/utils/measure';
 import { z } from 'zod';
+type State = {
+	status: 'idle' | 'testing' | 'error' | 'complete';
+	error?: string;
+	saving?: number;
+};
 
 const SuperCacheInfo = () => {
-	const [ state, setState ] = useState( { status: 'idle' } ); // idle, testing, error, complete
+	const [ state, setState ] = useState< State >( { status: 'idle' } );
 
 	const [ { data }, { mutate } ] = useDataSync(
 		'jetpack_boost_ds',
