@@ -114,7 +114,9 @@ class Helper_Script_Manager_Impl {
 		try {
 			if ( Throw_On_Errors::t_is_dir( \WP_CONTENT_DIR ) ) {
 				$wp_content_dir = Throw_On_Errors::t_realpath( \WP_CONTENT_DIR );
-				$wp_content_url = \WP_CONTENT_URL;
+
+				// Using content_url() instead of WP_CONTENT_URL as it tests for whether we're using SSL.
+				$wp_content_url = \content_url();
 
 				// I think we mess up the order in which we load things somewhere in a test, so "wp-content" and
 				// "wp-content/uploads/" URLs don't actually have the scheme+host part in them.
@@ -140,6 +142,13 @@ class Helper_Script_Manager_Impl {
 
 				$wp_uploads_dir = Throw_On_Errors::t_realpath( $wp_uploads_dir );
 				$wp_uploads_url = $upload_dir_info['baseurl'];
+
+				// wp_upload_dir() doesn't check for whether we're using SSL:
+				//
+				// https://core.trac.wordpress.org/ticket/25449
+				//
+				// so set the scheme manually.
+				$wp_uploads_url = \set_url_scheme( $wp_uploads_url );
 
 				if ( ! wp_http_validate_url( $wp_uploads_url ) ) {
 					$wp_uploads_url = $abspath_url . $wp_uploads_url;
