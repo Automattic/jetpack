@@ -242,7 +242,7 @@ export default function SubscriptionControls( {
 						}
 					} }
 				/>
-				{ showSubscribersTotal && isPublicizeEnabled ? (
+				{ isPublicizeEnabled && (
 					<ToggleControl
 						disabled={ ! showSubscribersTotal }
 						label={ __( 'Include social followers in count', 'jetpack' ) }
@@ -251,7 +251,7 @@ export default function SubscriptionControls( {
 							setAttributes( { includeSocialFollowers: ! includeSocialFollowers } );
 						} }
 					/>
-				) : null }
+				) }
 
 				<ToggleControl
 					label={ __( 'Place button on new line', 'jetpack' ) }
