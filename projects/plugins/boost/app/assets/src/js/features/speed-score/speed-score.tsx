@@ -36,7 +36,7 @@ const SpeedScore = ( {
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;
 
 	const [ closedScorePopOut, setClosePopOut ] = useState( false );
-	const showScoreChange =
+	const showScoreChangePopOut =
 		status === 'loaded' &&
 		! scores.isStale &&
 		! closedScorePopOut &&
@@ -129,7 +129,7 @@ const SpeedScore = ( {
 				{ siteIsOnline && <PerformanceHistory needsUpgrade={ performanceHistoryNeedsUpgrade } /> }
 			</div>
 
-			<PopOut scoreChange={ showScoreChange } onClose={ () => setClosePopOut( true ) } />
+			<PopOut scoreChange={ showScoreChangePopOut } onClose={ () => setClosePopOut( true ) } />
 		</>
 	);
 };
