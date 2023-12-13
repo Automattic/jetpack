@@ -38,7 +38,7 @@
 		},
 		"includeSocialFollowers": {
 			"type": "boolean",
-			"default": true
+			"default": false
 		},
 		"buttonOnNewLine": {
 			"type": "boolean",
