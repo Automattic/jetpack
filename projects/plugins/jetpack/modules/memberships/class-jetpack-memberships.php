@@ -337,7 +337,7 @@ class Jetpack_Memberships {
 	 * @param string   $content - Recurring Payment block content.
 	 * @param WP_Block $block - Recurring Payment block instance.
 	 *
-	 * @return string|void
+	 * @return string|void - HTML for the button, void removes the button.
 	 */
 	public function render_button( $attributes, $content = null, $block = null ) {
 		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name, array( 'thickbox', 'wp-polyfill' ) );
@@ -350,14 +350,30 @@ class Jetpack_Memberships {
 			return;
 		}
 
-		$plan_id = (int) $attributes['planId'];
-		$product = get_post( $plan_id );
-		if ( ! $product || is_wp_error( $product ) ) {
+		// This is string of '+` separated plan ids. Loop through them and
+		// filter out the ones that are not valid.
+		$plan_ids    = explode( '+', $attributes['planId'] );
+		$valid_plans = array();
+		foreach ( $plan_ids as $plan_id ) {
+			if ( ! is_numeric( $plan_id ) ) {
+				continue;
+			}
+			$product = get_post( $plan_id );
+			if ( ! $product || is_wp_error( $product ) ) {
+				continue;
+			}
+			if ( $product->post_type !== self::$post_type_plan || 'publish' !== $product->post_status ) {
+				continue;
+			}
+			$valid_plans[] = $plan_id;
+		}
+
+		// If none are valid, return.
+		// (Returning like this makes the button disappear.)
+		if ( empty( $valid_plans ) ) {
 			return;
 		}
-		if ( $product->post_type !== self::$post_type_plan || 'publish' !== $product->post_status ) {
-			return;
-		}
+		$plan_id = implode( '+', $valid_plans );
 
 		add_thickbox();
 
@@ -548,6 +564,17 @@ class Jetpack_Memberships {
 
 		self::$user_is_paid_subscriber_cache[ $user_id ] = $is_paid_subscriber;
 		return $is_paid_subscriber;
+	}
+
+	/**
+	 * Determines whether the current user has a pending subscription.
+	 *
+	 * @return bool Whether the user has a pending subscription
+	 */
+	public static function user_is_pending_subscriber() {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		return $subscription_service->is_current_user_pending_subscriber();
 	}
 
 	/**

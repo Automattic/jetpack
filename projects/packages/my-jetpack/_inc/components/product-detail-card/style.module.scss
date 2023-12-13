@@ -103,6 +103,12 @@
 	}
 }
 
+.highlight-last-feature {
+	li:last-of-type {
+		font-weight: bold;
+	}
+}
+
 .disclaimers {
 	margin-top: calc( var( --spacing-base ) * 2 );
 }

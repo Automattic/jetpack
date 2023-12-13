@@ -28,12 +28,6 @@ function fixDeps( pkg ) {
 		pkg.peerDependencies.react = '^18';
 	}
 
-	// Unnecessary dep, should be a dev dep.
-	// https://github.com/WordPress/gutenberg/pull/56091
-	if ( pkg.name === '@wordpress/components' && pkg.dependencies[ '@ariakit/test' ] ) {
-		delete pkg.dependencies[ '@ariakit/test' ];
-	}
-
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
@@ -86,16 +80,6 @@ function fixDeps( pkg ) {
 		! pkg.peerDependencies?.[ '@babel/runtime' ]
 	) {
 		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
-	}
-
-	// Typo in package.json caused a missing peer dep.
-	// Already fixed by https://github.com/yjs/y-webrtc/pull/48, not yet released.
-	// Already fixed by https://github.com/yjs/y-protocols/pull/12, not yet released.
-	if (
-		( pkg.name === 'y-webrtc' && pkg.version === '10.2.5' ) ||
-		( pkg.name === 'y-protocols' && pkg.version === '1.0.5' )
-	) {
-		pkg.peerDependencies.yjs = '^13.5.6';
 	}
 
 	return pkg;

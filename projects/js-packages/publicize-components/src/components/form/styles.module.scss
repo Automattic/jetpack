@@ -1,3 +1,5 @@
+@import '@automattic/jetpack-base-styles/root-variables';
+
 .connections-list {
 	list-style-type: none;
 	display: inherit;
@@ -11,10 +13,6 @@
 	}
 }
 
-.upgrade-link {
-	white-space: nowrap;
-}
-
 .more-link {
 	display: inline-block;
 	margin-top: 6px;
@@ -24,4 +22,35 @@
 	padding: 0;
 	height: auto;
 	margin-inline-start: 15px;
+}
+
+.bar-wrapper {
+	:global .record-meter-bar {
+		.record-meter-bar__legend--items {
+			flex-wrap: wrap;
+		}
+		.record-meter-bar__items {
+			height: 0.5rem;
+			margin-bottom: 0.8em;
+		}
+	
+		.record-meter-bar__legend--item-circle {
+			width: 0.5rem;
+			height: 0.5rem;
+		}
+	}
+}
+
+.share-count-info {
+	flex-grow: 1;
+	margin-block-end: 1rem;
+}
+
+.enabled-connections-notice {
+	color: var(--jp-gray-50);
+}
+
+p.auto-share-title {
+	font-weight: 600;
+	text-transform: uppercase;
 }

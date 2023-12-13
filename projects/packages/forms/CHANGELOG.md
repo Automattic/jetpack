@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.0] - 2023-12-11
+### Added
+- Contact Form: Added submitting state. [#34367]
+- Contact Form: Improved form error message. [#34520]
+- Contact Form: Added revalidation for fields on focus out. [#34401]
+- Contact Form: Added revalidation for missing value as the user types. [#34518]
+
+### Changed
+- Contact Form: Aligned checkbox and radio button baselines. [#34429]
+- Contact Form: Refactored accessible-form.js. [#34400]
+- Updated package dependencies. [#34416]
+
+### Fixed
+- Contact Form: Added margin below global error message. [#34447]
+- Contact Form: Ensured warning icons are visible. [#34455]
+- Contact Form: Fixed checkbox field layout in editor. [#34405]
+- Contact Form: Replaced jQuery UI select by native element. [#34441]
+- Contact Form: Specified version for accessible-form script. [#34457]
+- Fixed potential undefined variable access in Contact_Form_Plugin. [#34500]
+
+## [0.24.2] - 2023-12-03
+### Added
+- Made forms a screen reader region. [#34344]
+
+### Changed
+- Improved checkbox field design. [#34272]
+- Updated package dependencies. [#34411] [#34427]
+
+### Fixed
+- Fixed PHP warnings that occured when processing malformed data. [#34386]
+- Added focus state to radio buttons and checkboxes. [#34408]
+- Fixed styling issues for Outlined and Animated styles. [#34272]
+- Made Contact Form error fixing accessible. [#34173]
+
+## [0.24.1] - 2023-11-24
+### Changed
+- Replaced usage of strpos() with str_contains(). [#34137]
+- Replaced usage of substr() with str_starts_with() and str_ends_with(). [#34207]
+- Fixed markup accessibility issues for Contact Form's single and multiple choice inputs. [#34147]
+- Updated form blocks to prioritize the use of form elements in the block inserter. [#34247]
+
+### Fixed
+- Improved Contact Form required label contrast. [#34237]
+- Updated `Admin::grunion_ajax_shortcode()` to use the correct sorting function. [#34230]
+
 ## [0.24.0] - 2023-11-20
 ### Changed
 - Replaced usage of strpos() with str_starts_with(). [#34135]
@@ -371,6 +416,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.25.0]: https://github.com/automattic/jetpack-forms/compare/v0.24.2...v0.25.0
+[0.24.2]: https://github.com/automattic/jetpack-forms/compare/v0.24.1...v0.24.2
+[0.24.1]: https://github.com/automattic/jetpack-forms/compare/v0.24.0...v0.24.1
 [0.24.0]: https://github.com/automattic/jetpack-forms/compare/v0.23.1...v0.24.0
 [0.23.1]: https://github.com/automattic/jetpack-forms/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/automattic/jetpack-forms/compare/v0.22.6...v0.23.0
