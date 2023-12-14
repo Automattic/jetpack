@@ -88,6 +88,7 @@ class Settings {
 				'default'      => array(
 					'enabled' => true,
 				),
+				'type'         => 'object',
 				'show_in_rest' => array(
 					'schema' => array(
 						'type'       => 'object',
@@ -98,7 +99,6 @@ class Settings {
 						),
 					),
 				),
-				'type'         => 'boolean',
 			)
 		);
 
@@ -140,9 +140,12 @@ class Settings {
 	public function get_settings( $with_available = false ) {
 		$this->migrate_old_option();
 
+		$auto_conversion_settings = get_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES, self::DEFAULT_AUTOCONVERT_IMAGES_SETTINGS );
+		$sig_settings             = get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS, self::DEFAULT_IMAGE_GENERATOR_SETTINGS );
+
 		$settings = array(
-			'autoConversionSettings'       => get_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES, self::DEFAULT_AUTOCONVERT_IMAGES_SETTINGS ),
-			'socialImageGeneratorSettings' => get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS, self::DEFAULT_IMAGE_GENERATOR_SETTINGS ),
+			'autoConversionSettings'       => is_array( $auto_conversion_settings ) ? $auto_conversion_settings : self::DEFAULT_AUTOCONVERT_IMAGES_SETTINGS,
+			'socialImageGeneratorSettings' => is_array( $sig_settings ) ? $sig_settings : self::DEFAULT_IMAGE_GENERATOR_SETTINGS,
 		);
 
 		// The feature cannot be enabled without Publicize.
