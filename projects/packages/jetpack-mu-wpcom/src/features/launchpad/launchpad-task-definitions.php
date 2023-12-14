@@ -998,8 +998,7 @@ function wpcom_launchpad_is_sensei_setup_visible() {
 		return false;
 	}
 
-	$active_plugins = get_option( 'active_plugins' );
-	return in_array( 'sensei-lms/sensei-lms.php', $active_plugins, true );
+	return is_plugin_active( 'sensei-lms/sensei-lms.php' );
 }
 
 /**
