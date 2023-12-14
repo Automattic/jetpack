@@ -37,14 +37,22 @@ export function Link( { href, children } ) {
 	);
 }
 
-export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, paidSubscribers ) {
-	switch ( accessOptions[ accessLevelKey ].key ) {
+export function getReachForAccessLevelKey( {
+	accessLevel,
+	emailSubscribers,
+	paidSubscribers,
+	postHasPaywallBlock = false,
+} ) {
+	emailSubscribers = emailSubscribers ?? 0;
+	paidSubscribers = paidSubscribers ?? 0;
+
+	switch ( accessOptions[ accessLevel ]?.key ) {
 		case accessOptions.everybody.key:
-			return emailSubscribers || 0;
+			return emailSubscribers;
 		case accessOptions.subscribers.key:
-			return emailSubscribers || 0;
+			return emailSubscribers;
 		case accessOptions.paid_subscribers.key:
-			return paidSubscribers || 0;
+			return postHasPaywallBlock ? emailSubscribers : paidSubscribers;
 		default:
 			return 0;
 	}
@@ -155,19 +163,19 @@ export function NewsletterAccessRadioButtons( {
 						  ]
 						: [] ),
 					{
-						label: `${ accessOptions.subscribers.label } (${ getReachForAccessLevelKey(
-							accessOptions.subscribers.key,
+						label: `${ accessOptions.subscribers.label } (${ getReachForAccessLevelKey( {
+							accessLevel: accessOptions.subscribers.key,
 							emailSubscribers,
-							paidSubscribers
-						) })`,
+							paidSubscribers,
+						} ) })`,
 						value: accessOptions.subscribers.key,
 					},
 					{
-						label: `${ accessOptions.paid_subscribers.label } (${ getReachForAccessLevelKey(
-							accessOptions.paid_subscribers.key,
+						label: `${ accessOptions.paid_subscribers.label } (${ getReachForAccessLevelKey( {
+							accessLevel: accessOptions.paid_subscribers.key,
 							emailSubscribers,
-							paidSubscribers
-						) })`,
+							paidSubscribers,
+						} ) })`,
 						value: accessOptions.paid_subscribers.key,
 					},
 				] }
