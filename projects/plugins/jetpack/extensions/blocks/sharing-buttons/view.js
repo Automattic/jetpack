@@ -3,7 +3,7 @@ import './style.scss';
 let sharingWindowOpen;
 
 ( function () {
-	const servicesContainer = document.getElementById( 'serivces-list' );
+	const servicesContainer = document.getElementById( 'jetpack-sharing-serivces-list' );
 	if ( ! servicesContainer ) {
 		return;
 	}
