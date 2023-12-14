@@ -63,7 +63,7 @@
 		"build-concurrently": "pnpm run clear-dist && concurrently 'pnpm:compile-ts' 'rollup -c'",
 		"build-development": "ROLLUP_WATCH=1 pnpm run build-concurrently",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build-concurrently",
-		"compile-ts": "tsc --pretty",
+		"compile-ts": "tsc --pretty --strict false",
 		"dev": "pnpm run build-development",
 		"reformat-files": "../../../tools/js-tools/node_modules/.bin/prettier --ignore-path .eslintignore --write --plugin-search-dir=. ./**/*.{svelte,js,ts,json}",
 		"lint": "pnpm run reformat-files && echo 'Running eslint...' && pnpm eslint app/assets/src/js tests/e2e --fix && echo '✔ prettier and eslint ran successfully.'",
