@@ -41,7 +41,9 @@ test.describe( 'Speed Score feature', () => {
 
 	test( 'Should be able to click info icon next to overall score and see the detailed overall score description popin', async () => {
 		await jetpackBoostPage.waitForScoreLoadingToFinish();
-		await jetpackBoostPage.page.click( '.jb-site-score__top .icon-tooltip-wrapper > button' );
+		await jetpackBoostPage.page.click(
+			'[data-testid="speed-scores-top"] .icon-tooltip-wrapper > button'
+		);
 		expect(
 			await jetpackBoostPage.isScoreDescriptionPopinVisible(),
 			'Score description should be visible'
