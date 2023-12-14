@@ -1,6 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { createInterpolateElement, Spinner, Flex } from '@wordpress/element';
+import { createInterpolateElement, Spinner } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { accessOptions } from '../../shared/memberships/constants';
@@ -213,9 +213,9 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 	if ( isLoading ) {
 		return (
-			<Flex direction="column" align="center">
+			<p>
 				<Spinner />
-			</Flex>
+			</p>
 		);
 	}
 
