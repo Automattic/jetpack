@@ -383,7 +383,6 @@
 							'Upgrade to scan your site for issues - automatically!',
 							'jetpack-boost'
 						)}
-						{yearlyPricing}
 					/>
 				{/if}
 			</svelte:fragment>
