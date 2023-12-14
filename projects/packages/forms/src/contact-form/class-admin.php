@@ -1255,18 +1255,17 @@ class Admin {
 		}
 
 		// Add the scripts that handle the spam check event.
-		wp_register_script(
+		Assets::register_script(
 			'grunion-admin',
-			Assets::get_file_url_for_environment(
-				'_inc/build/contact-form/js/grunion-admin.min.js',
-				'modules/contact-form/js/grunion-admin.js'
-			),
-			array( 'jquery' ),
-			\JETPACK__VERSION,
-			true
+			'../../dist/contact-form/js/grunion-admin.js',
+			__FILE__,
+			array(
+				'enqueue'      => true,
+				'dependencies' => array( 'jquery' ),
+				'version'      => \JETPACK__VERSION,
+				'in_footer'    => true,
+			)
 		);
-
-		wp_enqueue_script( 'grunion-admin' );
 
 		wp_enqueue_style( 'grunion.css' );
 
