@@ -206,6 +206,30 @@ class REST_Controller {
 				},
 			)
 		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'protect-onboarding-dismissed',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::api_set_protect_onboarding_dismissed_status',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'protect-onboarding-dismissed',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::api_set_protect_onboarding_dismissed_status',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -423,5 +447,23 @@ class REST_Controller {
 	 */
 	public static function api_set_waf_upgrade_seen_status() {
 		return Jetpack_Protect::set_waf_upgrade_seen_status();
+	}
+
+	/**
+	 * Get Protect Onboarding "Dismissed" Status for the API endpoint
+	 *
+	 * @return bool Whether the current user has dismissed the onboarding popover.
+	 */
+	public static function api_get_protect_onboarding_dismissed_status() {
+		return Jetpack_Protect::get_protect_onboarding_dismissed_status();
+	}
+
+	/**
+	 * Set Protect Onboarding "Dismissed" Status for the API endpoint
+	 *
+	 * @return bool True if onboarding dismissed status updated to true, false on failure.
+	 */
+	public static function api_set_protect_onboarding_dismissed_status() {
+		return Jetpack_Protect::set_protect_onboarding_dismissed_status();
 	}
 }

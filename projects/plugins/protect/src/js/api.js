@@ -32,6 +32,12 @@ const API = {
 			path: 'jetpack-protect/v1/waf-upgrade-seen',
 			method: 'POST',
 		} ),
+
+	protectOnboardingDismissed: () =>
+		apiFetch( {
+			path: 'jetpack-protect/v1/protect-onboarding-dismissed',
+			method: 'POST',
+		} ),
 };
 
 export default API;
