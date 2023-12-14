@@ -16,7 +16,7 @@ use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID
  *
  * @package Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service
  */
-abstract class Asbtract_Token_Subscription_Service implements Subscription_Service {
+abstract class Abstract_Token_Subscription_Service implements Subscription_Service {
 
 	const JWT_AUTH_TOKEN_COOKIE_NAME                   = 'jp-premium-content-session';
 	const DECODE_EXCEPTION_FEATURE                     = 'memberships';
