@@ -59,7 +59,7 @@ function NewsletterEditorSettingsPanel( { accessLevel } ) {
 			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Access', 'jetpack' ) }
 			icon={ <JetpackEditorPanelLogo /> }
-			name="jetpack-subscribe-newsletters-panel"
+			name="jetpack-subscribe-newsletters-editor-panel"
 		>
 			<NewsletterAccessDocumentSettings accessLevel={ accessLevel } />
 		</PluginDocumentSettingPanel>
@@ -196,7 +196,7 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 				}
 				className="jetpack-subscribe-newsletters-panel jetpack-subscribe-post-publish-panel"
 				icon={ <JetpackEditorPanelLogo /> }
-				name="jetpack-subscribe-newsletters-panel"
+				name="jetpack-subscribe-newsletters-postpublish-panel"
 			>
 				{ ! showMisconfigurationWarning && (
 					<SubscribersAffirmation prePublish={ false } accessLevel={ accessLevel } />
