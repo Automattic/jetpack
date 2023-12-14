@@ -1,4 +1,5 @@
-import { getShareMessageMaxLength, usePostMeta } from '../../utils';
+import { getShareMessageMaxLength } from '../../utils';
+import { usePostMeta } from '../use-post-meta';
 
 /**
  * @typedef {object} MessageHook

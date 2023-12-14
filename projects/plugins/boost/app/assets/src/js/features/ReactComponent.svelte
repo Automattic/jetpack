@@ -7,10 +7,13 @@
 	let root;
 	export let inline = false;
 	afterUpdate( () => {
-		// Remove `inline` from the props passed to the component.
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-shadow
-		const { this: component, children, inline, ...otherProps } = $$props;
-		root = WPElement.createRoot( container );
+		const { this: component, children, inline: inlineProp, ...otherProps } = $$props;
+		inline = inlineProp;
+
+		if ( ! root ) {
+			root = WPElement.createRoot( container );
+		}
+
 		root.render( React.createElement( component, otherProps, children ) );
 	} );
 	onDestroy( () => {

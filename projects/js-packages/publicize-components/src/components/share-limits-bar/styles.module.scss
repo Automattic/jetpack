@@ -1,0 +1,12 @@
+.bar-wrapper {
+	:global .record-meter-bar__items{
+		height: 1.5rem;
+	}
+}
+
+.wrapper {
+	:global .record-meter-bar__legend {
+		display: flex;
+		gap: 1rem;
+	}
+}

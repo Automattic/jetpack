@@ -1,0 +1,11 @@
+.performance-history {
+	margin-top: 3em;
+
+	:global(.components-panel) {
+		border-radius: 8px;
+	}
+
+	&-body {
+		border-color: transparent;
+	}
+}

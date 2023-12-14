@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Quotes: Consistent rendering of values and currency in placeholders.
