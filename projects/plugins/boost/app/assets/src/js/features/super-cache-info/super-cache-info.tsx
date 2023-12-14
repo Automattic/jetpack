@@ -49,15 +49,15 @@ const SuperCacheInfo = () => {
 		</Button>
 	);
 
-	if ( isNoticeDismissed ) {
-		return null;
-	}
-
 	if ( ! isSuperCachePluginActive() ) {
 		return null;
 	}
 
 	if ( ! isSuperCacheEnabled() ) {
+		if ( isNoticeDismissed ) {
+			return null;
+		}
+
 		return (
 			<Notice
 				level="warning"
