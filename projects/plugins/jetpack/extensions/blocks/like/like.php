@@ -18,6 +18,11 @@ use Jetpack_Gutenberg;
  * registration if we need to.
  */
 function register_block() {
+	// The Like block is only available when the Likes module is active and either the Likes or Reblogs option is enabled.
+	if ( ! \Jetpack::is_module_active( 'likes' ) || ( get_option( 'disabled_likes' ) && get_option( 'disabled_reblogs' ) ) ) {
+		return;
+	}
+
 	$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
 
 	Blocks::jetpack_register_block(
