@@ -4,7 +4,7 @@
 
 This guide is designed to get you up and running working with the Jetpack Monorepo quickly following recommended and supported guidelines.
 
-This guide assumes you are using MacOS or a Linux machine and are an Automattician. For more detailed information, including alternate local dev environments, running unit tests, best coding practices, and more, you can use the [full Development Environment guide here](development-environment.md#clone-the-repository). 
+**This guide assumes you are using MacOS or a Linux machine and are an Automattician**. For more detailed information, including setting up local dev environments for all contributors, running unit tests, best coding practices, and more, you can use the [full Development Environment guide here](development-environment.md#clone-the-repository).
 
 ## Installation
 
