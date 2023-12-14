@@ -7,16 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.3.1] - 2023-12-14
 ### Security
-- Bulk actions: Stricter permissions checks [#34586]
+- Bulk actions: Stricter permissions checks. [#34586]
 
 ### Added
-- WooSync: New `jpcrm_woo_sync_order_data` hook [#34212]
+- WooSync: New `jpcrm_woo_sync_order_data` hook. [#34212]
 
 ### Fixed
-- OAuth Connection: Updated typo to remove plural connection"s", and removed doc reference for whitelabel builds [#34446]
-- Placeholders: Fixing quote placeholders on the quote template, client portal, pdf and emails [#34490]
-- Quotes: Consistent rendering of dates in placeholders [#34490]
-- Quotes: Consistent rendering of values and currency in placeholders [#34490]
+- OAuth Connection: Updated typo to remove plural connection"s", and removed doc reference for whitelabel builds. [#34446]
+- Placeholders: Fixing quote placeholders on the quote template, client portal, pdf and emails. [#34490]
+- Quotes: Consistent rendering of dates in placeholders. [#34490]
+- Quotes: Consistent rendering of values and currency in placeholders. [#34490]
 
 ## [6.3.0] - 2023-11-15
 ### Added
