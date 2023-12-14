@@ -855,12 +855,17 @@ const setFormError = ( form, invalidFields, opts = {} ) => {
 	}
 
 	const count = invalidFields.length;
-	const errorText = [ L10N.invalidForm, L10N.errorCount( count ).replace( '%d', count ) ].join(
-		' '
-	);
+	const errors = [ L10N.invalidForm ];
 
-	error.appendChild( createError( errorText ) );
-	error.appendChild( createInvalidFieldsList( form, invalidFields ) );
+	if ( count > 0 ) {
+		errors.push( L10N.errorCount( count ).replace( '%d', count ) );
+	}
+
+	error.appendChild( createError( errors.join( ' ' ) ) );
+
+	if ( count > 0 ) {
+		error.appendChild( createInvalidFieldsList( form, invalidFields ) );
+	}
 };
 
 /**
@@ -871,7 +876,7 @@ const setFormError = ( form, invalidFields, opts = {} ) => {
 const updateFormErrorMessage = form => {
 	clearFormError( form );
 
-	if ( ! form.checkValidity() ) {
+	if ( ! isFormValid( form ) ) {
 		// Prevent screen readers from announcing the error message on each update.
 		setFormError( form, getInvalidFields( form ), { disableLiveRegion: true } );
 	}
