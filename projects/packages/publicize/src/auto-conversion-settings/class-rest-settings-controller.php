@@ -3,8 +3,8 @@
  * Class used to register REST API auto-conversion settings endpoints.
  *
  * Flagged to be removed after deprecation.
- * Jetpack version: 12.9
- * Jetpack Social version: 3.0.0
+ *
+ * @deprecated $$next_version$$
  *
  * @package automattic/jetpack-publicize
  */
