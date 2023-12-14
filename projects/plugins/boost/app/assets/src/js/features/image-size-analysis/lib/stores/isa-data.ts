@@ -51,7 +51,7 @@ export function resetIsaQuery() {
 	image_size_analysis.store.override( emptyImageSizeAnalysisData );
 }
 
-type ISA = z.infer< typeof ImageSizeAnalysis >;
+export type ISA = z.infer< typeof ImageSizeAnalysis >;
 
 async function maybeRefreshStore( prevValue: ISA, value: ISA, signal?: AbortSignal ) {
 	if (

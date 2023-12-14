@@ -1,6 +1,5 @@
-import { derived } from 'svelte/store';
 import { z } from 'zod';
-import { isaData } from './isa-data';
+import { type ISA } from './isa-data';
 import api from '$lib/api/api';
 import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
 import { setPromiseInterval } from '$lib/utils/set-promise-interval';
@@ -53,9 +52,6 @@ const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 image_size_analysis_summary.setSyncAction( async ( _, value ) => value );
 
 export const isaSummary = image_size_analysis_summary.store;
-export const isaGroups = derived( isaSummary, () => ( {
-	core_front_page: { name: 'Front Page', progress: 10, issues: 0, done: false },
-} ) );
 
 export function getSummaryProgress( summaryGroups: Record< string, ISASummaryGroup > ) {
 	return Object.entries( summaryGroups ).map( ( [ group, data ] ) => {
@@ -74,43 +70,55 @@ export function getSummaryProgress( summaryGroups: Record< string, ISASummaryGro
 }
 
 /**
- * Derived store tracking the total number of issues.
+ * Function tracking the total number of issues.
+ * @param summary
  */
-export const totalIssueCount = derived( isaSummary, $isaSummary => {
-	return Object.values( $isaSummary?.groups || {} )
+export function getTotalIssueCount( summary: ISASummary ) {
+	return Object.values( summary?.groups || {} )
 		.map( group => group.issue_count )
 		.reduce( ( a, b ) => a + b, 0 );
-} );
+}
 
 /**
- * Derived store tracking the number of total pages being scanned.
+ * Function tracking the number of total pages being scanned.
+ * @param summary
  */
-export const totalPagesCount = derived( isaSummary, $isaSummary => {
-	return Object.values( $isaSummary?.groups || {} )
+export function getTotalPagesCount( summary: ISASummary ) {
+	return Object.values( summary?.groups || {} )
 		.map( group => group.total_pages )
 		.reduce( ( a, b ) => a + b, 0 );
-} );
+}
 
 /**
- * Derived store which describes tabs to display in the UI.
+ * Function which describes tabs to display in the UI.
+ * @param summary
+ * @param totalIssueCount
  */
-export const imageDataGroupTabs = derived(
-	[ isaSummary, totalIssueCount ],
-	( [ $isaSummary, $totalIssueCount ] ) => ( {
-		all: { issue_count: $totalIssueCount },
-		...$isaSummary?.groups,
-	} )
-);
+export function imageDataGroupTabs( summary: ISASummary ): Record< string, ISASummaryGroup > {
+	return {
+		all: {
+			total_pages: getTotalPagesCount( summary ),
+			scanned_pages: getTotalPagesCount( summary ),
+			issue_count: getTotalIssueCount( summary )
+		},
+		...summary?.groups,
+	};
+}
 
 /**
- * Derived store which describes the currently active tab.
+ * Function which describes the currently active tab.
+ * @param summary
+ * @param data
  */
-export const imageDataActiveGroup = derived(
-	[ imageDataGroupTabs, isaData ],
-	( [ $groups, $imageData ] ): z.infer< typeof zSummaryGroup > => {
-		return $groups[ $imageData.query.group ];
+export function imageDataActiveGroup( summary: ISASummary, data: ISA ) {
+	// Get the tabs from the imageDataGroupTabs function
+	const tabs = imageDataGroupTabs( summary );
+	const group = data.query.group;
+	if( group in tabs ) {
+		return tabs[group] as ISASummaryGroup;
 	}
-);
+	return tabs.all;
+}
 
 export type ISA_Group = z.infer< typeof zSummaryGroup >;
 

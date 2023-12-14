@@ -14,7 +14,7 @@
 		imageDataActiveGroup,
 		imageDataGroupTabs,
 		initializeIsaSummary,
-		totalIssueCount,
+		getTotalIssueCount,
 		isaSummary,
 	} from '$features/image-size-analysis/lib/stores/isa-summary';
 	import ReactComponent from '$features/ReactComponent.svelte';
@@ -28,13 +28,13 @@
 
 	$: isImageCdnModuleActive = $modulesState.image_cdn.active;
 	$: isaLastUpdated = $isaData.data.last_updated;
-	$: hasActiveGroup = !! $imageDataActiveGroup;
+	$: hasActiveGroup = !! imageDataActiveGroup( $isaSummary, $isaData );
 	$: images = $isaData.data.images;
 	$: activeGroup = $isaData.query.group;
-	$: issueCount = $totalIssueCount;
+	$: issueCount = getTotalIssueCount( $isaSummary );
 	$: dataLoading = $isaDataLoading;
 	$: summary = $isaSummary;
-	$: dataGroupTabs = $imageDataGroupTabs;
+	$: dataGroupTabs = imageDataGroupTabs( $isaSummary );
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
