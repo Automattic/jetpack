@@ -7,40 +7,33 @@ const Dimensions = z.object( {
 	height: z.number(),
 } );
 
-export const ImageData = z
-	.object( {
-		id: z.string(),
-		status: z.enum( [ 'active', 'ignored' ] ).default( 'active' ),
-		type: z.enum( [ 'image_size', 'image_missing', 'bad_entry' ] ),
-		thumbnail: z.string(),
-		image: z.object( {
-			url: z.string(),
-			fixed: z.boolean(),
-			dimensions: z.object( {
-				file: Dimensions,
-				expected: Dimensions,
-				size_on_screen: Dimensions,
-			} ),
-			weight: z.object( {
-				current: z.number(),
-				potential: z.number(),
-			} ),
+export const ImageData = z.object( {
+	id: z.string(),
+	status: z.enum( [ 'active', 'ignored' ] ).default( 'active' ),
+	type: z.enum( [ 'image_size', 'image_missing', 'bad_entry' ] ),
+	thumbnail: z.string(),
+	image: z.object( {
+		url: z.string(),
+		fixed: z.boolean(),
+		dimensions: z.object( {
+			file: Dimensions,
+			expected: Dimensions,
+			size_on_screen: Dimensions,
 		} ),
-		page: z.object( {
-			id: z.number(),
-			url: z.string().url(),
-			title: z.string(),
-			edit_url: z.string().url().nullable().default( null ),
+		weight: z.object( {
+			current: z.number(),
+			potential: z.number(),
 		} ),
-		device_type: z.enum( [ 'phone', 'desktop' ] ),
-		instructions: z.string(),
-	} )
-
-	.catch( {
-		id: Math.random().toString(),
-		type: 'bad_entry',
-		status: 'active', // We still want to show the UI for this.
-	} );
+	} ),
+	page: z.object( {
+		id: z.number(),
+		url: z.string().url(),
+		title: z.string(),
+		edit_url: z.string().url().nullable().default( null ),
+	} ),
+	device_type: z.enum( [ 'phone', 'desktop' ] ),
+	instructions: z.string(),
+} );
 
 export type ImageDataType = z.infer< typeof ImageData >;
 
