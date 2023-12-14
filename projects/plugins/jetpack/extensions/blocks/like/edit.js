@@ -65,7 +65,7 @@ function LikeEdit() {
 				<div className="wp-block-jetpack-like__learn-more">
 					<ExternalLink href={ learnMoreUrl }>{ __( 'Learn more', 'jetpack' ) }</ExternalLink>
 				</div>
-				{ isSimpleSite() && (
+				{ false && isSimpleSite() && (
 					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 						<ToggleControl
 							label={ __( 'Show reblog button', 'jetpack' ) }
