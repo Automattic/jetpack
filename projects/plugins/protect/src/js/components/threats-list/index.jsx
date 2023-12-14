@@ -28,7 +28,7 @@ const ThreatsList = ( {
 	closeOnboarding,
 	getRef,
 } ) => {
-	const { siteSuffix } = window.jetpackProtectInitialState;
+	const { siteSuffix, onboardingDismissed } = window.jetpackProtectInitialState;
 
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
@@ -108,7 +108,7 @@ const ThreatsList = ( {
 	return (
 		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
 			<Col lg={ 4 }>
-				{ onboardingStep === 1 && (
+				{ ! onboardingDismissed && onboardingStep === 1 && (
 					<ActionPopover
 						title={ __( 'Your scan results', 'jetpack-protect' ) }
 						buttonContent={ __( 'Next', 'jetpack-protect' ) }
@@ -143,7 +143,7 @@ const ThreatsList = ( {
 								<>
 									{ fixableList.length > 0 && (
 										<>
-											{ onboardingStep === 2 && (
+											{ ! onboardingDismissed && onboardingStep === 2 && (
 												<ActionPopover
 													title={ __( 'Auto-fix with one click', 'jetpack-protect' ) }
 													buttonContent={ __( 'Next', 'jetpack-protect' ) }
@@ -200,7 +200,7 @@ const ThreatsList = ( {
 											</Button>
 										</>
 									) }
-									{ hasRequiredPlan && onboardingStep === totalSteps && (
+									{ ! onboardingDismissed && hasRequiredPlan && onboardingStep === totalSteps && (
 										<ActionPopover
 											title={ __( 'Daily & manual scanning', 'jetpack-protect' ) }
 											buttonContent={ __( 'Finish', 'jetpack-protect' ) }
@@ -235,7 +235,7 @@ const ThreatsList = ( {
 							) }
 						</div>
 						<>
-							{ hasRequiredPlan && onboardingStep === totalSteps - 1 && (
+							{ ! onboardingDismissed && hasRequiredPlan && onboardingStep === totalSteps - 1 && (
 								<ActionPopover
 									title={ __( 'Understand severity', 'jetpack-protect' ) }
 									buttonContent={ __( 'Next', 'jetpack-protect' ) }

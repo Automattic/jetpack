@@ -4,6 +4,7 @@ import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useCallback, useState, useRef, createRef } from 'react';
+import API from '../../api';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
@@ -51,6 +52,7 @@ const ScanPage = () => {
 	}, [ onboardingStep ] );
 
 	const closeOnboarding = useCallback( () => {
+		API.protectOnboardingDismissed();
 		setOnboardingStep( null );
 	}, [] );
 

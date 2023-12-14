@@ -31,7 +31,7 @@ const Summary = ( {
 	const { scan } = useDispatch( STORE_ID );
 	const Icon = getIconBySlug( 'protect' );
 
-	const { adminUrl } = window.jetpackProtectInitialState || {};
+	const { adminUrl, onboardingDismissed } = window.jetpackProtectInitialState || {};
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: adminUrl,
@@ -52,7 +52,7 @@ const Summary = ( {
 			<Col>
 				<div className={ styles.summary }>
 					<div>
-						{ ! hasRequiredPlan && onboardingStep === 2 && (
+						{ ! onboardingDismissed && ! hasRequiredPlan && onboardingStep === 2 && (
 							<ActionPopover
 								title={ __( 'Daily automated scans', 'jetpack-protect' ) }
 								buttonContent={ __( 'Finish', 'jetpack-protect' ) }
@@ -102,7 +102,7 @@ const Summary = ( {
 					</div>
 					{ hasRequiredPlan && numThreats === 0 && (
 						<>
-							{ onboardingStep === 2 && (
+							{ ! onboardingDismissed && onboardingStep === 2 && (
 								<ActionPopover
 									title={ __( 'Daily & manual scanning', 'jetpack-protect' ) }
 									buttonContent={ __( 'Finish', 'jetpack-protect' ) }
