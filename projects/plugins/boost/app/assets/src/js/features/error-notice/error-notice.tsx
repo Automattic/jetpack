@@ -3,6 +3,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { standardizeError } from '$lib/utils/standardize-error';
 import NoticeOutline from '$svg/notice-outline';
 import styles from './error-notice.module.scss';
+import React from 'react';
 
 type ErrorNoticeProps = {
 	title: string;
@@ -28,7 +29,9 @@ const ErrorNotice = ( {
 
 	return (
 		<div className={ styles[ 'error-notice' ] }>
-			<NoticeOutline className={ styles.icon } />
+			<div>
+				<NoticeOutline className={ styles.icon } />
+			</div>
 
 			<div className={ styles.offset }>
 				<div className={ styles.description }>{ title }</div>
