@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-AI Client: add internal state management to toggle editing last prompt. Add discard handler prop
