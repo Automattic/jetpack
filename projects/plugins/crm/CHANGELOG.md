@@ -6,13 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [6.3.1] - 2023-12-14
-### Security
-- Bulk actions: Stricter permissions checks. [#34586]
-
 ### Added
 - WooSync: New `jpcrm_woo_sync_order_data` hook. [#34212]
 
 ### Fixed
+- Bulk actions: Stricter permissions checks. [#34586]
 - OAuth Connection: Updated typo to remove plural connection"s", and removed doc reference for whitelabel builds. [#34446]
 - Placeholders: Fixing quote placeholders on the quote template, client portal, pdf and emails. [#34490]
 - Quotes: Consistent rendering of dates in placeholders. [#34490]
