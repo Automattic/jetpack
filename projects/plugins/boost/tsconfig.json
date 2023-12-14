@@ -10,7 +10,6 @@
 	"compilerOptions": {
 		"target": "es6",
 		"types": [ "svelte" ],
-		"jsx": "react-jsx",
 		"typeRoots": [ "./node_modules/@types/", "./app/assets/src/js" ],
 		"paths": {
 			"$lib/*": [ "./app/assets/src/js/lib/*" ],
