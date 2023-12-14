@@ -12,7 +12,7 @@ use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 /**
- * Class Token_Subscription_Service
+ * Class Abstract_Token_Subscription_Service
  *
  * @package Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service
  */
