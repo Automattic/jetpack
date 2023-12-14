@@ -394,7 +394,7 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 - Bulk actions: Stricter permissions checks
 
 #### Added
-- WooSync: New `jpcrm_woo_sync_order_data` hook
+- WooSync: New `jpcrm_woo_sync_order_data` hook.
 
 #### Fixed
 - OAuth Connection: Updated typo to remove plural connection"s", and removed doc reference for whitelabel builds.
