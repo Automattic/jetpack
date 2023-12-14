@@ -46,7 +46,7 @@ The Jetpack Monorepo requires various software to be installed on your machine.
 	- Jetpack CLI (an internal tool that assists with development): `pnpm install && pnpm jetpack cli link`
 		- [You can read more about using the CLI here](https://github.com/Automattic/jetpack/blob/trunk/tools/cli/README.md).
 
-## Check if your environment is ready for Jetpack development
+### Check if your environment is ready for Jetpack development
 
 We provide a script to help you in assessing if everything's ready on your system to contribute to Jetpack.
 
@@ -78,7 +78,7 @@ To setup Docker:
 
 For more in depth Docker instructions, follow the [Docker environment for Jetpack Development guide](../tools/docker/README.md).
 
-### Setting up Jurassic Tube
+## Setting up Jurassic Tube
 
 In order to test features that require a WordPress.com connection and other network related Jetpack features, you'll need a test site that can create local HTTP tunnels. If you're an Automattician, we recommend using Jurassic Tube:
 
@@ -97,10 +97,6 @@ In order to test features that require a WordPress.com connection and other netw
 
 Note: This is for Automattician use only. For other methods, check out [ngrok](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
 
-### Running Tests
-
-To run PHP and JS tests, you can use the Jetpack CLI: `jetpack test` and then choose the project and type of test you'd like to run.
-
 ## Development Workflow
 
 Once you have a local copy of Jetpack and all development tools installed, you can start developing.
@@ -114,6 +110,8 @@ By default the development build above will run once and if you change any of th
 ```sh
 jetpack watch
 ```
+### Running Tests
 
-That's all! 
+To run PHP and JS tests, you can use the Jetpack CLI: `jetpack test` and then choose the project and type of test you'd like to run.
 
+That's all!
