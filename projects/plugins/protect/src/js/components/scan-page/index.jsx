@@ -3,7 +3,7 @@ import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-c
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
@@ -37,6 +37,22 @@ const ScanPage = () => {
 	} else {
 		currentScanStatus = 'active';
 	}
+
+	const [ onboardingStep, setOnboardingStep ] = useState( 1 );
+	const [ anchors, setAnchors ] = useState( {} );
+
+	const incrementOnboardingStep = useCallback( () => {
+		if ( onboardingStep === 4 ) {
+			setOnboardingStep( null );
+			return;
+		}
+
+		setOnboardingStep( onboardingStep + 1 );
+	}, [ onboardingStep ] );
+
+	const closeOnboarding = useCallback( () => {
+		setOnboardingStep( null );
+	}, [] );
 
 	useStatusPolling();
 	useCredentials();
@@ -173,10 +189,22 @@ const ScanPage = () => {
 				</Container>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
 					<Col>
-						<Summary />
+						<Summary
+							anchors={ anchors }
+							setAnchors={ setAnchors }
+							onboardingStep={ onboardingStep }
+							incrementOnboardingStep={ incrementOnboardingStep }
+							closeOnboarding={ closeOnboarding }
+						/>
 					</Col>
 					<Col>
-						<ThreatsList />
+						<ThreatsList
+							anchors={ anchors }
+							setAnchors={ setAnchors }
+							onboardingStep={ onboardingStep }
+							incrementOnboardingStep={ incrementOnboardingStep }
+							closeOnboarding={ closeOnboarding }
+						/>
 					</Col>
 				</Container>
 			</AdminSectionHero>
