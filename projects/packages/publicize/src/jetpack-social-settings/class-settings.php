@@ -46,10 +46,16 @@ class Settings {
 	 * @return void
 	 */
 	private function migrate_old_option() {
-		$auto_conversion_settings = get_option( 'jetpack_social_settings' );
-		if ( ! empty( $auto_conversion_settings ) ) {
-			update_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES, array( 'enabled' => ! empty( $auto_conversion_settings['image'] ) ) );
+		// Migrating from the old option.
+		$old_auto_conversion_settings = get_option( 'jetpack_social_settings' );
+		if ( ! empty( $old_auto_conversion_settings ) ) {
+			update_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES, array( 'enabled' => ! empty( $old_auto_conversion_settings['image'] ) ) );
 			delete_option( 'jetpack_social_settings' );
+		}
+		// Checking if the new option is valid.
+		$auto_conversion_settings = get_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES );
+		if ( ! is_array( $auto_conversion_settings ) || ! isset( $auto_conversion_settings['enabled'] ) ) {
+			update_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES, self::DEFAULT_AUTOCONVERT_IMAGES_SETTINGS );
 		}
 
 		$sig_settings = get_option( 'jetpack_social_image_generator_settings' );
@@ -140,12 +146,9 @@ class Settings {
 	public function get_settings( $with_available = false ) {
 		$this->migrate_old_option();
 
-		$auto_conversion_settings = get_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES, self::DEFAULT_AUTOCONVERT_IMAGES_SETTINGS );
-		$sig_settings             = get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS, self::DEFAULT_IMAGE_GENERATOR_SETTINGS );
-
 		$settings = array(
-			'autoConversionSettings'       => is_array( $auto_conversion_settings ) ? $auto_conversion_settings : self::DEFAULT_AUTOCONVERT_IMAGES_SETTINGS,
-			'socialImageGeneratorSettings' => is_array( $sig_settings ) ? $sig_settings : self::DEFAULT_IMAGE_GENERATOR_SETTINGS,
+			'autoConversionSettings'       => get_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES, self::DEFAULT_AUTOCONVERT_IMAGES_SETTINGS ),
+			'socialImageGeneratorSettings' => get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS, self::DEFAULT_IMAGE_GENERATOR_SETTINGS ),
 		);
 
 		// The feature cannot be enabled without Publicize.
