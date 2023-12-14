@@ -1,6 +1,6 @@
 import { ToggleControl } from '@automattic/jetpack-components';
 import styles from './module.module.scss';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 type ModuleProps = {
 	title: string;
@@ -23,19 +23,25 @@ const Module = ( {
 	toggle = true,
 	onEnable = defaultCallback,
 	onDisable = defaultCallback,
-	onMountEnabled: _onMountEnabled = defaultCallback,
+	onMountEnabled = defaultCallback,
 }: ModuleProps ) => {
 	const isModuleActive = true;
 	const isModuleAvailable = true;
 	const handleToggle = () => {};
 
-	// TODO: If the module is active at the time of mounting, call onMountEnabled.
+	const isFirstRender = useRef( true );
 
-	// Call onEnable and onDisable when the toggle is changed.
 	useEffect( () => {
-		if ( isModuleActive ) {
+		if ( isFirstRender.current && isModuleActive ) {
+			onMountEnabled();
+			isFirstRender.current = false;
+		}
+	}, [ isModuleActive, onMountEnabled ] );
+
+	useEffect( () => {
+		if ( isModuleActive && ! isFirstRender.current ) {
 			onEnable();
-		} else {
+		} else if ( ! isModuleActive && ! isFirstRender.current ) {
 			onDisable();
 		}
 	}, [ isModuleActive, onEnable, onDisable ] );
