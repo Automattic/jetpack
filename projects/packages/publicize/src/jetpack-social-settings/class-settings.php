@@ -55,7 +55,7 @@ class Settings {
 		// Checking if the new option is valid.
 		$auto_conversion_settings = get_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES );
 		if ( ! is_array( $auto_conversion_settings ) || ! isset( $auto_conversion_settings['enabled'] ) ) {
-			update_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES, self::DEFAULT_AUTOCONVERT_IMAGES_SETTINGS );
+			delete_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES );
 		}
 
 		$sig_settings = get_option( 'jetpack_social_image_generator_settings' );
