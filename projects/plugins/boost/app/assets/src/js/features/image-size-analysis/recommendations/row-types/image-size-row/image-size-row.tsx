@@ -19,41 +19,44 @@ interface ImageSizeRowProps {
 const ImageSizeRow: React.FC< ImageSizeRowProps > = ( { enableTransition, details } ) => {
 	const title = details.image.url.split( '/' ).pop();
 
-	const potentialSavings = Math.max(
-		0,
-		Math.min( details.image.weight.current - 2, details.image.weight.potential )
-	);
-	const potentialSize =
-		potentialSavings > 0 ? Math.round( details.image.weight.current - potentialSavings ) : '?';
-	const currentSize = details.image.weight.current;
-	const sizeDifference = ( potentialSavings / currentSize ) * 100;
-	const pillColor = sizeDifference <= 30 ? '#f5e5b3' : '#facfd2';
 	return (
 		<TableRow
 			enableTransition={ enableTransition }
 			expandable={ true }
 			expandedContent={ <Expanded details={ details } /> }
 		>
-			<Main
-				title={ title }
-				details={ details }
-				potentialSize={ potentialSize }
-				pillColor={ pillColor }
-			/>
+			<TableRowContent title={ title } details={ details } />
 		</TableRow>
 	);
 };
 
 export default ImageSizeRow;
 
-interface MainProps {
-	title: string;
+interface ContentProps {
+	title?: string;
 	details: ImageDataType;
-	potentialSize: number | string;
-	pillColor: string;
 }
 
-const Main: React.FC< MainProps > = ( { title, pillColor, details, potentialSize } ) => {
+function getPillColor( details: ImageDataType ) {
+	const potentialSavings = Math.max(
+		0,
+		Math.min( details.image.weight.current - 2, details.image.weight.potential )
+	);
+	const sizeDifference = ( potentialSavings / details.image.weight.current ) * 100;
+	return sizeDifference <= 30 ? '#f5e5b3' : '#facfd2';
+}
+
+function getPotentialSize( details: ImageDataType ) {
+	const potentialSavings = Math.max(
+		0,
+		Math.min( details.image.weight.current - 2, details.image.weight.potential )
+	);
+	return potentialSavings > 0 ? Math.round( details.image.weight.current - potentialSavings ) : '?';
+}
+
+const TableRowContent: React.FC< ContentProps > = ( { title, details } ) => {
+	const pillColor = getPillColor( details );
+	const potentialSize = getPotentialSize( details );
 	return (
 		<>
 			<div className="jb-table-row__thumbnail">
@@ -61,7 +64,10 @@ const Main: React.FC< MainProps > = ( { title, pillColor, details, potentialSize
 			</div>
 
 			<div className="jb-table-row__title">
-				<RowTitle title={ removeGetParams( title ) } url={ details.page.url } />
+				<RowTitle
+					title={ title ? removeGetParams( title ) : __( 'Untitled', 'jetpack-boost' ) }
+					url={ details.page.url }
+				/>
 			</div>
 
 			<div className="jb-table-row__potential-size">
@@ -75,8 +81,8 @@ const Main: React.FC< MainProps > = ( { title, pillColor, details, potentialSize
 			<div className="jb-table-row__hover-content">
 				<TableRowHover
 					details={ details }
-					deviceType={ details.device_type }
-					editUrl={ details.page.edit_url }
+					device_type={ details.device_type }
+					edit_url={ details.page.edit_url }
 					instructions={ details.instructions }
 				/>
 			</div>
@@ -94,13 +100,9 @@ const Main: React.FC< MainProps > = ( { title, pillColor, details, potentialSize
 	);
 };
 
-interface ExpandedProps {
-	details: ImageDataType;
-	pillColor: string;
-	potentialSize: number;
-}
-
-const Expanded: React.FC< ExpandedProps > = ( { details, pillColor, potentialSize } ) => {
+const Expanded: React.FC< { details: ImageDataType } > = ( { details } ) => {
+	const pillColor = getPillColor( details );
+	const potentialSize = getPotentialSize( details );
 	return (
 		<>
 			<div className="jb-expanded-info jb-mobile-only">
@@ -160,13 +162,13 @@ const Expanded: React.FC< ExpandedProps > = ( { details, pillColor, potentialSiz
 						<Button
 							width="auto"
 							fill
-							onClick={ () =>
+							onClick={ () => {
 								recordBoostEventAndRedirect(
-									details.page.edit_url,
+									details.page.edit_url!,
 									'clicked_fix_on_page_on_isa_report',
 									{ device_type: details.device_type }
-								)
-							}
+								);
+							} }
 						>
 							{ __( 'Fix on page', 'jetpack-boost' ) }
 						</Button>

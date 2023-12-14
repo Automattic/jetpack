@@ -4,28 +4,34 @@ import Button from '$features/image-size-analysis/button/button';
 import { recordBoostEvent, recordBoostEventAndRedirect } from '$lib/utils/analytics';
 import type { ImageDataType } from '../../../lib/stores/zod-types';
 import api from '$lib/api/api';
-import config from '$lib/stores/config';
+
+// @TODO: Move this to a DataSync Store.
+const __DEV_ENABLE_FIX_BUTTON = false;
 
 interface TableRowHoverProps {
-	editUrl: string | null;
+	edit_url?: string;
 	instructions: string;
-	deviceType: string | null;
+	device_type: string | null;
 	details: ImageDataType;
 }
 
 const TableRowHover: React.FC< TableRowHoverProps > = ( {
-	editUrl,
+	edit_url,
 	instructions,
-	deviceType,
+	device_type,
 	details,
 } ) => {
 	const [ imageDetails, setImageDetails ] = useState( details );
 
 	const fixImageSize = useCallback( async () => {
 		let postId = '0';
-		if ( imageDetails.page.editUrl ) {
-			const url = new URL( imageDetails.page.editUrl );
+		if ( edit_url ) {
+			const url = new URL( edit_url );
 			postId = new URLSearchParams( url.search ).get( 'post' ) || '0';
+		}
+
+		if ( ! Jetpack_Boost.fixImageNonce ) {
+			throw new Error( 'Missing Nonce: Jetpack Boost Image Autofix' );
 		}
 
 		const data = {
@@ -62,9 +68,9 @@ const TableRowHover: React.FC< TableRowHoverProps > = ( {
 		<div className="jb-row-hover">
 			<p className="jb-row-hover__instruction">{ instructions }</p>
 
-			{ editUrl && (
+			{ edit_url && (
 				<div className="jb-row-hover__button-container">
-					{ config.isaFixButton && deviceType === 'desktop' ? (
+					{ __DEV_ENABLE_FIX_BUTTON && device_type === 'desktop' ? (
 						<Button width="auto" fill onClick={ handleFixClick }>
 							{ imageDetails.image.fixed
 								? __( 'Undo Fix', 'jetpack-boost' )
@@ -75,8 +81,8 @@ const TableRowHover: React.FC< TableRowHoverProps > = ( {
 							small
 							fill
 							onClick={ () =>
-								recordBoostEventAndRedirect( editUrl, 'clicked_edit_page_on_isa_report', {
-									deviceType,
+								recordBoostEventAndRedirect( edit_url, 'clicked_edit_page_on_isa_report', {
+									device_type: device_type || 'unknown',
 								} )
 							}
 						>

@@ -29,7 +29,7 @@ export const ImageData = z.object( {
 		id: z.number(),
 		url: z.string().url(),
 		title: z.string(),
-		edit_url: z.string().url().nullable().default( null ),
+		edit_url: z.string().url().optional(),
 	} ),
 	device_type: z.enum( [ 'phone', 'desktop' ] ),
 	instructions: z.string(),
