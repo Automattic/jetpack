@@ -98,12 +98,7 @@ const NewsletterDisabledPanels = () => (
 	</>
 );
 
-function NewsletterPrePublishSettingsPanel( {
-	accessLevel,
-	setPostMeta,
-	isModuleActive,
-	showPreviewModal,
-} ) {
+function NewsletterPrePublishSettingsPanel( { accessLevel, isModuleActive, showPreviewModal } ) {
 	const { tracks } = useAnalytics();
 	const { changeStatus, isLoadingModules, isChangingStatus } = useModuleStatus( name );
 
@@ -136,10 +131,7 @@ function NewsletterPrePublishSettingsPanel( {
 		>
 			{ isModuleActive && (
 				<>
-					<NewsletterAccessPrePublishSettings
-						accessLevel={ accessLevel }
-						setPostMeta={ setPostMeta }
-					/>
+					<NewsletterAccessPrePublishSettings accessLevel={ accessLevel } />
 					<Button variant="secondary" onClick={ showPreviewModal }>
 						{ __( 'Send test email', 'jetpack' ) }
 					</Button>
