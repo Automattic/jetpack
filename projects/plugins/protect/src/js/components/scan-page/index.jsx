@@ -3,7 +3,7 @@ import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-c
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useRef, createRef } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
@@ -53,6 +53,31 @@ const ScanPage = () => {
 	const closeOnboarding = useCallback( () => {
 		setOnboardingStep( null );
 	}, [] );
+
+	const refs = useRef( {} ).current;
+
+	// Function to get/create a ref by a unique key
+	const getRef = useCallback(
+		key => {
+			if ( ! refs[ key ] ) {
+				refs[ key ] = createRef();
+			}
+			return refs[ key ];
+		},
+		[ refs ]
+	);
+
+	useEffect( () => {
+		const updatedAnchors = Object.keys( refs ).reduce( ( acc, key ) => {
+			acc[ key ] = refs[ key ].current;
+			return acc;
+		}, {} );
+
+		setAnchors( prevAnchors => ( {
+			...prevAnchors,
+			...updatedAnchors,
+		} ) );
+	}, [ refs, setAnchors ] );
 
 	useStatusPolling();
 	useCredentials();
@@ -191,19 +216,19 @@ const ScanPage = () => {
 					<Col>
 						<Summary
 							anchors={ anchors }
-							setAnchors={ setAnchors }
 							onboardingStep={ onboardingStep }
 							incrementOnboardingStep={ incrementOnboardingStep }
 							closeOnboarding={ closeOnboarding }
+							getRef={ getRef }
 						/>
 					</Col>
 					<Col>
 						<ThreatsList
 							anchors={ anchors }
-							setAnchors={ setAnchors }
 							onboardingStep={ onboardingStep }
 							incrementOnboardingStep={ incrementOnboardingStep }
 							closeOnboarding={ closeOnboarding }
+							getRef={ getRef }
 						/>
 					</Col>
 				</Container>

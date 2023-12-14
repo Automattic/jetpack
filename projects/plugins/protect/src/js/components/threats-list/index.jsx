@@ -11,7 +11,7 @@ import {
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useCallback, useMemo, useRef, useEffect } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
 import EmptyList from './empty';
@@ -23,10 +23,10 @@ import useThreatsList from './use-threats-list';
 
 const ThreatsList = ( {
 	anchors,
-	setAnchors,
 	onboardingStep,
 	incrementOnboardingStep,
 	closeOnboarding,
+	getRef,
 } ) => {
 	const { siteSuffix } = window.jetpackProtectInitialState;
 
@@ -67,21 +67,6 @@ const ThreatsList = ( {
 
 		return 4;
 	}, [ hasRequiredPlan, list, fixableList ] );
-
-	const anchor1Ref = useRef( null );
-	const anchor2Ref = useRef( null );
-	const anchor3Ref = useRef( null );
-	const anchor4Ref = useRef( null );
-
-	useEffect( () => {
-		setAnchors( prevAnchors => ( {
-			...prevAnchors, // Spread the existing anchors
-			anchor1: anchor1Ref.current,
-			anchor2: anchor2Ref.current,
-			anchor3: anchor3Ref.current,
-			anchor4: anchor4Ref.current,
-		} ) );
-	}, [ anchor1Ref, anchor2Ref, anchor3Ref, anchor4Ref, setAnchors ] );
 
 	const getTitle = useCallback( () => {
 		switch ( selected ) {
@@ -145,7 +130,7 @@ const ThreatsList = ( {
 						</Text>
 					</ActionPopover>
 				) }
-				<div ref={ anchor1Ref }>
+				<div ref={ getRef( 'anchor1' ) }>
 					<ThreatsNavigation selected={ selected } onSelect={ setSelected } />
 				</div>
 			</Col>
@@ -202,7 +187,7 @@ const ThreatsList = ( {
 												</ActionPopover>
 											) }
 											<Button
-												ref={ anchor2Ref }
+												ref={ getRef( 'anchor2' ) }
 												variant="primary"
 												className={ styles[ 'list-header-button' ] }
 												onClick={ handleFixAllThreatsClick( fixableList ) }
@@ -238,7 +223,7 @@ const ThreatsList = ( {
 										</ActionPopover>
 									) }
 									<Button
-										ref={ anchor4Ref }
+										ref={ getRef( 'anchor4' ) }
 										variant="secondary"
 										className={ styles[ 'list-header-button' ] }
 										isLoading={ scanIsEnqueuing }
@@ -273,7 +258,7 @@ const ThreatsList = ( {
 								</ActionPopover>
 							) }
 							{ hasRequiredPlan ? (
-								<div ref={ anchor3Ref }>
+								<div ref={ getRef( 'anchor3' ) }>
 									<PaidList list={ list } />
 								</div>
 							) : (

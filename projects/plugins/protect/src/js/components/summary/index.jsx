@@ -12,7 +12,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
@@ -21,10 +21,10 @@ import styles from './styles.module.scss';
 
 const Summary = ( {
 	anchors,
-	setAnchors,
 	onboardingStep,
 	incrementOnboardingStep,
 	closeOnboarding,
+	getRef,
 } ) => {
 	const { numThreats, lastChecked, hasRequiredPlan } = useProtectData();
 	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
@@ -46,17 +46,6 @@ const Summary = ( {
 			scan();
 		};
 	};
-
-	const anchor2aRef = useRef( null );
-	const anchor2bRef = useRef( null );
-
-	useEffect( () => {
-		setAnchors( prevAnchors => ( {
-			...prevAnchors, // Spread the existing anchors
-			anchor2a: anchor2aRef.current,
-			anchor2b: anchor2bRef.current,
-		} ) );
-	}, [ anchor2aRef, anchor2bRef, setAnchors ] );
 
 	return (
 		<Container fluid>
@@ -92,7 +81,7 @@ const Summary = ( {
 						) }
 						<Title size="small" className={ styles.summary__title }>
 							<Icon size={ 32 } className={ styles.summary__icon } />
-							<span ref={ ! hasRequiredPlan ? anchor2aRef : null }>
+							<span ref={ ! hasRequiredPlan ? getRef( 'anchor2a' ) : null }>
 								{ sprintf(
 									/* translators: %s: Latest check date  */
 									__( 'Latest results as of %s', 'jetpack-protect' ),
@@ -136,7 +125,7 @@ const Summary = ( {
 								</ActionPopover>
 							) }
 							<Button
-								ref={ anchor2bRef }
+								ref={ getRef( 'anchor2b' ) }
 								variant="secondary"
 								className={ styles[ 'summary__scan-button' ] }
 								isLoading={ scanIsEnqueuing }
