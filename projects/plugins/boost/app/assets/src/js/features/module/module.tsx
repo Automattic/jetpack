@@ -46,6 +46,7 @@ const Module = ( {
 				{ toggle && (
 					<ToggleControl
 						className={ `jb-feature-toggle-${ slug }` }
+						size="small"
 						checked={ isModuleActive }
 						disabled={ ! isModuleAvailable }
 						onChange={ handleToggle }
