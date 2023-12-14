@@ -237,11 +237,12 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	// Show all copy in future tense
 	const futureTense = prePublish || isScheduledPost;
 
-	const reachForAccessLevel = getReachForAccessLevelKey(
+	const reachForAccessLevel = getReachForAccessLevelKey( {
 		accessLevel,
-		emailSubscribersCount,
-		paidSubscribersCount
-	).toLocaleString();
+		emailSubscribers: emailSubscribersCount,
+		paidSubscribers: paidSubscribersCount,
+		postHasPaywallBlock,
+	} ).toLocaleString();
 
 	let text;
 
