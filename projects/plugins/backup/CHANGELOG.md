@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - General: updated PHP requirement to PHP 7.0+ [#34126]
 - General: update WordPress version requirements to WordPress 6.3. [#34127]
 - Updated package dependencies. [#33498]
-- Updated package dependencies. [#34087]
-- Updated package dependencies. [#34559]
 - Update lockfile [#33607]
 
 ### Fixed
