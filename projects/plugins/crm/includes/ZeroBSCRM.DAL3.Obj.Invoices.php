@@ -2783,13 +2783,7 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 									case __( 'Refund', 'zero-bs-crm' ):
 									case __( 'Credit Note', 'zero-bs-crm' ):
 										// These count as credits against invoice, and should be added.
-										// If inputted as negative, then add that amount.
-										if ( str_starts_with( $transaction_amount, '-' ) ) {
-											$transactions_total_value += $transaction_amount;
-										} else {
-											// If inputted as positive, then subtract that amount.
-											$transactions_total_value -= $transaction_amount;
-										}
+										$transactions_total_value -= abs( (float) $transaction_amount );
 
 										break;
 
