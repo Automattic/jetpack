@@ -59,8 +59,13 @@ class Settings {
 		}
 
 		$sig_settings = get_option( 'jetpack_social_image_generator_settings' );
-		$enabled      = false;
-		$template     = Templates::DEFAULT_TEMPLATE;
+		// If the option is not set, we don't need to migrate.
+		if ( $sig_settings === false ) {
+			return;
+		}
+
+		$enabled  = false;
+		$template = Templates::DEFAULT_TEMPLATE;
 
 		if ( isset( $sig_settings['defaults']['template'] ) ) {
 			$template = $sig_settings['defaults']['template'];
