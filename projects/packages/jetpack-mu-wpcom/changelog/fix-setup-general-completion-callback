@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Will mark the setup_general task as complete based on wether blogname or bogdescription options changed

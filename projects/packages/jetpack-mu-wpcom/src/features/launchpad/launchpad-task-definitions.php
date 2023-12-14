@@ -117,7 +117,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Set up your site', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => '__return_true',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_disabled_callback' => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/settings/general/' . $data['site_slug_encoded'];
@@ -1456,6 +1456,30 @@ add_action( 'update_option_blogname', 'wpcom_launchpad_mark_setup_site_tasks_com
 add_action( 'update_option_blogdescription', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
 add_action( 'update_option_site_icon', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
 add_action( 'update_option_site_logo', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
+
+/**
+ * Mark the setup_general task as complete if the site title or the site description is changed.
+ *
+ * @param string $old_value The old value of the site title.
+ * @param string $value The new value of the site title.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_setup_general_task_complete( $old_value, $value ) {
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	if ( wp_installing() ) {
+		return;
+	}
+
+	if ( $old_value !== $value ) {
+		wpcom_mark_launchpad_task_complete( 'setup_general' );
+	}
+}
+add_action( 'update_option_blogname', 'wpcom_launchpad_mark_setup_general_task_complete', 10, 3 );
+add_action( 'update_option_blogdescription', 'wpcom_launchpad_mark_setup_general_task_complete', 10, 3 );
 
 /**
  * Mark the enable_subscribers_modal task complete
