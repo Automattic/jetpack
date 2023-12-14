@@ -96,7 +96,7 @@ class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Servi
 		}
 		$blog_id             = $this->get_site_id();
 		$subscription_status = \Blog_Subscription::get_subscription_status_for_blog( $subscriber_object, $blog_id );
-		if ( 'pending' !== $subscription_status ) {
+		if ( self::BLOG_SUB_PENDING !== $subscription_status ) {
 			return false;
 		}
 		return true;
