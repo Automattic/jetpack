@@ -13,7 +13,7 @@ import { store as membershipProductsStore } from '../../store/membership-product
  * @param {Array} newsletterCategories - list of the site's newsletter categories
  * @returns {string} - formatted list of categories
  */
-export const getFormattedCategories = ( postCategories, newsletterCategories ) => {
+const getFormattedCategories = ( postCategories, newsletterCategories ) => {
 	// If the post has no categories, then it's going to have the 'Uncategorized' category
 	const updatedPostCategories = postCategories.length ? postCategories : [ 1 ];
 
@@ -58,7 +58,7 @@ export const getFormattedCategories = ( postCategories, newsletterCategories ) =
 	return formattedCategories;
 };
 
-export const getCopyForCategorySubscribers = ( {
+const getCopyForCategorySubscribers = ( {
 	futureTense,
 	newsletterCategories,
 	postCategories,
