@@ -66,7 +66,7 @@ async function maybeRefreshStore( prevValue: ISA, value: ISA, signal?: AbortSign
 	const fresh = await image_size_analysis.endpoint.SET( value, signal );
 
 	// If the request was aborted, return the original value.
-	if ( signal.aborted ) {
+	if ( signal?.aborted ) {
 		return value;
 	}
 	// Override store value without triggering another SET request.
