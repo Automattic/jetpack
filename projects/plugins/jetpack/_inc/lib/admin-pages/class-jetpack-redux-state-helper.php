@@ -303,6 +303,7 @@ class Jetpack_Redux_State_Helper {
 	/**
 	 * Gets array of any Jetpack notices that have been dismissed.
 	 *
+	 * @deprecated $$next_version$$
 	 * @return mixed|void
 	 */
 	public static function get_dismissed_jetpack_notices() {
