@@ -1,6 +1,8 @@
 import { ToggleControl } from '@automattic/jetpack-components';
+import { useEffect } from 'react';
+import { useModuleState } from './lib/stores';
+import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import styles from './module.module.scss';
-import { useEffect, useRef } from 'react';
 
 type ModuleProps = {
 	title: string;
@@ -10,10 +12,8 @@ type ModuleProps = {
 	toggle?: boolean;
 	onEnable?: () => void;
 	onDisable?: () => void;
-	onMountEnabled?: () => void;
+	onMountEnable?: () => void;
 };
-
-const defaultCallback = () => {};
 
 const Module = ( {
 	title,
@@ -21,30 +21,27 @@ const Module = ( {
 	children,
 	slug,
 	toggle = true,
-	onEnable = defaultCallback,
-	onDisable = defaultCallback,
-	onMountEnabled = defaultCallback,
+	onEnable,
+	onDisable,
+	onMountEnable,
 }: ModuleProps ) => {
-	const isModuleActive = true;
-	const isModuleAvailable = true;
-	const handleToggle = () => {};
+	const [ status, setStatus ] = useModuleState( slug );
+	const isModuleActive = status?.active ?? false;
+	const isModuleAvailable = status?.available ?? false;
 
-	const isFirstRender = useRef( true );
-
-	useEffect( () => {
-		if ( isFirstRender.current && isModuleActive ) {
-			onMountEnabled();
-			isFirstRender.current = false;
-		}
-	}, [ isModuleActive, onMountEnabled ] );
+	const handleToggle = () => {
+		setStatus( ! isModuleActive, {
+			onEnable,
+			onDisable,
+		} );
+	};
 
 	useEffect( () => {
-		if ( isModuleActive && ! isFirstRender.current ) {
-			onEnable();
-		} else if ( ! isModuleActive && ! isFirstRender.current ) {
-			onDisable();
+		if ( isModuleActive ) {
+			onMountEnable?.();
 		}
-	}, [ isModuleActive, onEnable, onDisable ] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	return (
 		<div className={ styles.module }>
@@ -71,4 +68,10 @@ const Module = ( {
 	);
 };
 
-export default Module;
+export default ( props: ModuleProps ) => {
+	return (
+		<DataSyncProvider>
+			<Module { ...props } />
+		</DataSyncProvider>
+	);
+};
