@@ -170,7 +170,7 @@ export const getCopyForSubscribers = ( {
 /*
  * Determines copy to show in pre/post-publish panels to confirm number and type of subscribers receiving the post as email.
  */
-function SubscribersAffirmation( { accessLevel, prePublish } ) {
+function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	const postHasPaywallBlock = useSelect( select =>
 		select( 'core/block-editor' )
 			.getBlocks()

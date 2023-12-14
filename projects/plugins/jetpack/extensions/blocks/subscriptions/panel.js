@@ -198,9 +198,7 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 				icon={ <JetpackEditorPanelLogo /> }
 				name="jetpack-subscribe-newsletters-postpublish-panel"
 			>
-				{ ! showMisconfigurationWarning && (
-					<SubscribersAffirmation prePublish={ false } accessLevel={ accessLevel } />
-				) }
+				{ ! showMisconfigurationWarning && <SubscribersAffirmation accessLevel={ accessLevel } /> }
 			</PluginPostPublishPanel>
 
 			{ ! isStripeConnected && (
