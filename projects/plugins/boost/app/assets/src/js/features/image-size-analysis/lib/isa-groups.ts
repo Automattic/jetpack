@@ -6,9 +6,9 @@ export const isaGroupLabels = {
 	singular_post: __( 'Posts', 'jetpack-boost' ),
 	other: __( 'Other', 'jetpack-boost' ),
 	fixed: __( 'Fixed Images', 'jetpack-boost' ),
-};
+} as const;
 
-export function isaGroupLabel( group: keyof typeof isaGroupLabels | string ) {
+export function isaGroupLabel( group: keyof typeof isaGroupLabels ) {
 	if ( ! isaGroupLabels[ group ] ) {
 		return group;
 	}
