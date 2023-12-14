@@ -11,12 +11,16 @@ This guide is designed to get you up and running working with the Jetpack Monore
 ### Using the installation script
 
 To speed up the installation process, you may use our monorepo installation script. To do so:
- - clone the Jetpack repo using one of these two methods: 
- 	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/jetpack.git` 
-	- HTTPS: `git clone https://github.com/Automattic/jetpack.git` 
- - `cd` into the cloned `jetpack` folder.
- - run `tools/install-monorepo.sh` from the monorepo root.
- Once the installation is complete, continue onto the section [Running Jetpack locally](#running-jetpack-locally). 
+
+- Clone the Jetpack Monorepo:
+	- Using a public SSH key ([recommended](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)): `git clone git@github.com:Automattic/jetpack.git` 
+		- Or use HTTPS: `git clone https://github.com/Automattic/jetpack.git` 
+	- Note that the monorepo should not be cloned into the WordPress plugins directory. If you plan on not using the provided Docker environment, read the [full Development Environment guide here](development-environment.md#clone-the-repository) to find out how to add symlinks.
+- `cd` into the cloned `jetpack` folder.
+- Run `tools/install-monorepo.sh` from the monorepo root.
+- You can use the [environment checker script](#check-if-your-environment-is-ready-for-jetpack-development) to confirm that all required tools are installed.
+
+Once the installation is complete, continue onto the section [Running Jetpack locally](#running-jetpack-locally).
 
 ### Installing manually
 
@@ -26,11 +30,11 @@ Prior to installation, we recommend using [`Homebrew`](https://brew.sh/) to mana
 - nvm: `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash`
 
 The Jetpack Monorepo requires various software to be installed on your machine.
-- Start by cloning the GitHub repo using one of these two methods:
-	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/Jetpack.git` 
-		- HTTPS: `git clone https://github.com/Automattic/jetpack.git` 
-		- If you're not an Automattician, you can [fork the repo following the instructions here](https://docs.github.com/en/get-started/quickstart/contributing-to-projects).
-	- Note that the Monorepo should not be cloned into the WordPress plugins directory (you will see a warning on your plugins page in that case saying that the Jetpack Monorepo is not a plugin and shouldn't be installed as one). If you are not cloning into a Docker environment, read the [full Development Environment guide here](development-environment.md#clone-the-repository) to find out how to add symlinks.
+
+- Clone the Jetpack Monorepo:
+ 	- Using a public SSH key ([recommended](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)): `git clone git@github.com:Automattic/jetpack.git`
+		- Or use HTTPS: `git clone https://github.com/Automattic/jetpack.git`
+	- Note that the monorepo should not be cloned into the WordPress plugins directory. If you plan on not using the provided Docker environment, read the [full Development Environment guide here](development-environment.md#clone-the-repository) to find out how to add symlinks.
 - This software needs to be installed or updated system-wide:
 	- Bash (will need to be updated from default Mac version): `brew install bash`
 	- jq (JSON processor used in scripts): `brew install jq` 
