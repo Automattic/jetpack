@@ -391,7 +391,7 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 == Changelog ==
 ### 6.3.1 - 2023-12-14
 #### Security
-- Bulk actions: Stricter permissions checks
+- Bulk actions: Stricter permissions checks.
 
 #### Added
 - WooSync: New `jpcrm_woo_sync_order_data` hook.
