@@ -187,32 +187,40 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	} );
 
 	const {
-		isLoading,
+		emailSubscribersCount,
+		hasFinishedLoading,
 		newsletterCategories,
 		newsletterCategoriesEnabled,
 		newsletterCategorySubscriberCount,
+		paidSubscribersCount,
 	} = useSelect( select => {
 		const {
 			getNewsletterCategories,
 			getNewsletterCategoriesEnabled,
 			getNewsletterCategoriesSubscriptionsCount,
-			isApiStateLoading,
+			getSubscriberCounts,
+			hasFinishedResolution,
 		} = select( membershipProductsStore );
 
+		// Free and paid subscriber counts
+		const { emailSubscribers, paidSubscribers } = getSubscriberCounts();
+
 		return {
-			isLoading: isApiStateLoading(),
+			hasFinishedLoading: [
+				// getNewsletterCategoriesEnabled state is set by getNewsletterCategories so no need to check for it here.
+				hasFinishedResolution( 'getSubscriberCounts' ),
+				hasFinishedResolution( 'getNewsletterCategories' ),
+				hasFinishedResolution( 'getNewsletterCategoriesSubscriptionsCount' ),
+			].every( Boolean ),
+			emailSubscribersCount: emailSubscribers,
 			newsletterCategories: getNewsletterCategories(),
 			newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
 			newsletterCategorySubscriberCount: getNewsletterCategoriesSubscriptionsCount(),
+			paidSubscribersCount: paidSubscribers,
 		};
 	} );
 
-	// Free and paid subscriber counts
-	const { emailSubscribers, paidSubscribers } = useSelect( select =>
-		select( membershipProductsStore ).getSubscriberCounts()
-	);
-
-	if ( isLoading ) {
+	if ( ! hasFinishedLoading ) {
 		return (
 			<Animate type="loading">
 				{ ( { className } ) => (
@@ -231,8 +239,8 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 	const reachForAccessLevel = getReachForAccessLevelKey(
 		accessLevel,
-		emailSubscribers,
-		paidSubscribers
+		emailSubscribersCount,
+		paidSubscribersCount
 	).toLocaleString();
 
 	let text;
