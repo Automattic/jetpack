@@ -88,7 +88,7 @@ class Settings {
 	 */
 	public function register_settings() {
 		register_setting(
-			'general',
+			'jetpack_social',
 			self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES,
 			array(
 				'default'      => array(
@@ -109,7 +109,7 @@ class Settings {
 		);
 
 		register_setting(
-			'general',
+			'jetpack_social',
 			self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS,
 			array(
 				'type'         => 'object',
