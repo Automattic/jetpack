@@ -91,7 +91,7 @@ if ( $settings['feat_api'] == 1 ) {
 	$tabs['mail']          = __( 'Mail', 'zero-bs-crm' );
 	$tabs['maildelivery']  = __( 'Mail Delivery', 'zero-bs-crm' );
 	$tabs['mailtemplates'] = __( 'Mail Templates', 'zero-bs-crm' );
-	$tabs['oauth']         = __( 'OAuth Connections', 'zero-bs-crm' );
+	$tabs['oauth']         = __( 'OAuth Connection', 'zero-bs-crm' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 	// make these filterable for the extensions..
 	$tabs = apply_filters( 'zbs_settings_tabs', $tabs );

@@ -2,4 +2,9 @@
  * Editor styles for Like
  */
 
-.wp-block-jetpack-like { }
+.wp-block-jetpack-like {
+	&__learn-more {
+		padding: 0 16px 16px 52px;
+		margin-top: -12px;
+	}
+}

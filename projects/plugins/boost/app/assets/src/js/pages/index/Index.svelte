@@ -21,7 +21,7 @@
 	import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
 	import { RegenerateCriticalCssSuggestion } from '$features/critical-css';
 	import ResizingUnavailable from '../../features/ResizingUnavailable.svelte';
-	import SuperCacheInfo from '$features/SuperCacheInfo.svelte';
+	import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 	import UpgradeCTA from '$features/UpgradeCTA.svelte';
 	import config from '$lib/stores/config';
 	import {
@@ -347,7 +347,7 @@
 		</Module>
 	</div>
 
-	<SuperCacheInfo />
+	<ReactComponent this={SuperCacheInfo} />
 </div>
 
 <style lang="scss">
