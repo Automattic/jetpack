@@ -46,6 +46,20 @@ The Jetpack Monorepo requires various software to be installed on your machine.
 	- Jetpack CLI (an internal tool that assists with development): `pnpm install && pnpm jetpack cli link`
 		- [You can read more about using the CLI here](https://github.com/Automattic/jetpack/blob/trunk/tools/cli/README.md).
 
+## Check if your environment is ready for Jetpack development
+
+We provide a script to help you in assessing if everything's ready on your system to contribute to Jetpack.
+
+```sh
+tools/check-development-environment.sh
+```
+
+Running the script will tell you if you have your environment already set up and what you need to do in order to get it ready for Jetpack development:
+
+- All green `YES` or `OK` messages mean you're ready to start
+- Red `NO` messages mean something is wrong or missing, and a link will be provided to help you with a fix.
+- Yellow messages indicate something optional is broken or missing.
+
 ## Running Jetpack locally
 
 After everything is installed, you're ready to run Jetpack locally! While there are other supported methods of doing this, we recommend and support using Docker containers. 
@@ -83,25 +97,11 @@ In order to test features that require a WordPress.com connection and other netw
 
 Note: This is for Automattician use only. For other methods, check out [ngrok](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
 
-### Check if your environment is ready for Jetpack development
-
-We provide a script to help you in assessing if everything's ready on your system to contribute to Jetpack.
-
-```sh
-tools/check-development-environment.sh
-```
-
-Running the script will tell you if you have your environment already set up and what you need to do in order to get it ready for Jetpack development:
-
-- All green `YES` or `OK` messages mean you're ready to start
-- Red `NO` messages mean something is wrong or missing, and a link will be provided to help you with a fix.
-- Yellow messages indicate something optional is broken or missing.
-
-#### Running Tests
+### Running Tests
 
 To run PHP and JS tests, you can use the Jetpack CLI: `jetpack test` and then choose the project and type of test you'd like to run.
 
-# Development Workflow
+## Development Workflow
 
 Once you have a local copy of Jetpack and all development tools installed, you can start developing.
 
