@@ -167,9 +167,9 @@ abstract class Asbtract_Token_Subscription_Service implements Subscription_Servi
 	/**
 	 * Returns true if the current authenticated user has a pending subscription to the current site.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	abstract public function is_current_user_pending_subscriber();
+	abstract public function is_current_user_pending_subscriber(): bool;
 
 	/**
 	 * Return if the user has access to the content depending on the access level and the user rights
