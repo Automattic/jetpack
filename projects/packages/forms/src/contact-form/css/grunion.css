@@ -761,10 +761,6 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form__warning-icon {
-	display: inline-flex;
-	justify-content: center;
-	align-items: center;
-
 	width: var(--warning-icon-size);
 	height: var(--warning-icon-size);
 
@@ -776,6 +772,10 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form__warning-icon i::after {
 	content: "\0021";
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
 
 	font-size: 0.8em;
 	font-style: normal;
