@@ -28,7 +28,7 @@ import useCredentials from './use-credentials';
 import useStatusPolling from './use-status-polling';
 
 const ScanPage = () => {
-	const { getRef, onboardingPopoverArgs } = useOnboardingPopover();
+	const { getRef, onboardingPopoverArgs, closeOnboardingPopover } = useOnboardingPopover();
 	const { lastChecked, currentStatus, errorCode, errorMessage, hasRequiredPlan } = useProtectData();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { refreshStatus } = useDispatch( STORE_ID );
@@ -185,7 +185,7 @@ const ScanPage = () => {
 						<Summary getRef={ getRef } />
 					</Col>
 					<Col>
-						<ThreatsList getRef={ getRef } />
+						<ThreatsList getRef={ getRef } closeOnboardingPopover={ closeOnboardingPopover } />
 					</Col>
 					<ActionPopover { ...onboardingPopoverArgs } />
 				</Container>
