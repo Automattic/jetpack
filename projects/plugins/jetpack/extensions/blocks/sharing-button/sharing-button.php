@@ -65,7 +65,7 @@ function render_block( $attr, $content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$component  = '<li class="jetpack-sharing-button__list-item">';
-	$component .= '<a rel="nofollow noopener noreferrer" class="' . $sharing_link_class . '" href="' . esc_attr( $link_url ) . '" target="_blank" ';
+	$component .= '<a rel="nofollow noopener noreferrer" class="' . esc_attr( $sharing_link_class ) . '" href="' . esc_attr( $link_url ) . '" target="_blank" ';
 	$component .= 'data-service="' . esc_attr( $attr['service'] ) . '" data-shared="' . esc_attr( $data_shared ) . '" aria-label="' . esc_attr( $link_aria_label ) . '" primary>';
 	$component .= $icon;
 	$component .= '<span class="jetpack-sharing-button__service-label" aria-hidden="true">' . esc_html( $title ) . '</span>';
