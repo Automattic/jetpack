@@ -357,7 +357,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
-			$r .= "<form role='form' action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' novalidate>\n";
+			$r .= "<form role='form' action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' " . $form->get_form_label( $content ) . " novalidate>\n";
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
@@ -1740,5 +1740,96 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return '';
 		}
 		return $align_to_class_map[ $attributes['align'] ];
+	}
+
+	/**
+	 * Get the form's accessible name
+	 *
+	 * @param string $content The form's content.
+	 * @return string The form's accessible name.
+	 */
+	public function get_form_label( $content ) {
+		global $post;
+
+		$headings = array_map(
+			function ( $i ) {
+				return "h$i";
+			},
+			range( 1, 6 )
+		);
+
+		// 1. Look for a heading inside the form
+
+		$dom = new \DOMDocument();
+		$dom->loadHTML( $content );
+
+		foreach ( $headings as $heading ) {
+			$heading = $dom->getElementsByTagName( $heading )->item( 0 );
+
+			if ( isset( $heading ) ) {
+				$id = $heading->getAttribute( 'id' );
+
+				if ( isset( $id ) && ! empty( $id ) ) {
+					return "aria-labelledby='$id'";
+				}
+
+				return "aria-label='$heading->textContent'";
+			}
+		}
+
+		// 2. Look for a heading as a previous sibling
+
+		if ( has_blocks( $post->post_content ) ) {
+			$blocks = parse_blocks( $post->post_content );
+			// Filter out empty blocks
+			$blocks = array_values(
+				array_filter(
+					$blocks,
+					function ( $block ) {
+						return ! empty( $block['blockName'] );
+					}
+				)
+			);
+
+			foreach ( $blocks as $index => $block ) {
+				if ( $block['blockName'] !== 'jetpack/contact-form' ) {
+					continue;
+				}
+
+				$prev_block = $blocks[ $index - 1 ];
+
+				if ( isset( $prev_block ) && $prev_block['blockName'] === 'core/heading' ) {
+					$dom = new \DOMDocument();
+					$dom->loadHTML( $prev_block['innerHTML'] );
+
+					foreach ( $headings as $heading ) {
+						$heading = $dom->getElementsByTagName( $heading )->item( 0 );
+
+						if ( isset( $heading ) ) {
+							$id = $heading->getAttribute( 'id' );
+
+							if ( isset( $id ) && ! empty( $id ) ) {
+								return "aria-labelledby='$id'";
+							}
+
+							return "aria-label='$heading->textContent'";
+						}
+					}
+				}
+			}
+		}
+
+		// 3. Look for the post title
+
+		$title = Contact_Form_Plugin::strip_tags( $post->post_title );
+
+		if ( isset( $title ) && ! empty( $title ) ) {
+			/* translators: the name of the form read by screen readers. %s is the post title. */
+			$label = sprintf( __( '%s Form', 'jetpack-forms' ), $title );
+
+			return "aria-label='$label'";
+		}
+
+		return '';
 	}
 }
