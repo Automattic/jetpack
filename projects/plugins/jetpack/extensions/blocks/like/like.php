@@ -67,7 +67,7 @@ function render_block( $attr, $content, $block ) {
 	 */
 	$new_layout = apply_filters( 'likes_new_layout', true ) ? '&amp;n=1' : '';
 
-	static $master_iframe_added = false;
+	static $main_iframe_added = false;
 
 	$is_wpcom                 = defined( 'IS_WPCOM' ) && IS_WPCOM;
 	$is_likes_module_inactive = ! \Jetpack::is_module_active( 'likes' );
@@ -75,9 +75,9 @@ function render_block( $attr, $content, $block ) {
 	$is_disabled_on_non_wpcom = ! $is_wpcom && get_option( 'disabled_likes' );
 	$like_widget_inactive     = $is_likes_module_inactive || $is_disabled_on_wpcom || $is_disabled_on_non_wpcom;
 
-	if ( ! $master_iframe_added && $like_widget_inactive ) {
+	if ( ! $main_iframe_added && $like_widget_inactive ) {
 		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
-		$master_iframe_added = true;
+		$main_iframe_added = true;
 	}
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
