@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed the media validation notice shown even when auto conversion is enabled.
