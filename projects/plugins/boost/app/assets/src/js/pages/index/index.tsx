@@ -23,6 +23,7 @@ import MinifyMeta from '$features/minify-meta/minify-meta';
 import { QualitySettings } from '$features/image-cdn';
 import { z } from 'zod';
 import styles from './index.module.scss';
+import { RecommendationsMeta } from '$features/image-size-analysis/recommendations-meta/recommendations-meta';
 
 type IndexProps = {
 	/*
@@ -378,12 +379,7 @@ const Index = ( { criticalCss }: IndexProps ) => {
 						</p>
 					}
 				>
-					{ `modulesState.image_size_analysis.active && (
-							<RecommendationsMeta
-								isaSummary={isaSummary}
-								isCdnActive={modulesState.image_cdn.active}
-							/>
-						) ` }
+					{ isaState?.active && <RecommendationsMeta /> }
 				</Module>
 			</div>
 		</div>
