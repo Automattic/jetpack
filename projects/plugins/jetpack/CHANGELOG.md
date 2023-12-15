@@ -2,6 +2,27 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.0-a.3 - 2023-12-14
+### Improved compatibility
+- Contact Form: avoid PHP warnings in the WordPress dashboard when used alongside other plugins making changes to admin pages. [#34576]
+
+### Bug fixes
+- Widgets: Fix console JS error in EU Cookie Widget. [#34591]
+- Paywall: Fix stuck pending subscription state when email isn't verified. [#34543]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add page view tracking for WooCommerce Checkout Flow. [#34065]
+- AI Assistant: Register ai-logo-generator beta flag. [#34641]
+- Backup: Bug fixes in helper script installation class. [#34297]
+- Ensure block use, shortcode use, and additional blocks in use are tracked correctly on classic themes. [#34065]
+- Fix fatal in Simple. [#34602]
+- Like block (beta): Handle Reblog toggle change. [#34572]
+- Like block (beta): Temporarily hide the Reblog setting toggle. [#34646]
+- Like block: Add Learn more link to the Like block inspector. [#34625]
+- OpenTable: Keep input form at a constant width so button doesn't jump out from under the cursor. [#34654]
+- Subscriptions: consolidate pre/post panel copy to a component [#34631]
+- Updated package dependencies. [#34559]
+
 ## 13.0-a.1 - 2023-12-11
 ### Enhancements
 - AI Usage panel: Added yellow color to indicate going over the soft limit. [#34555]

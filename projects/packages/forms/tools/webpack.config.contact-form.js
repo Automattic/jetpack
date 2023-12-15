@@ -7,6 +7,9 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
+const glob = require( 'glob' );
+
+const scriptSrcDir = path.join( __dirname, '../src/contact-form/js' );
 
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
@@ -36,6 +39,11 @@ const sharedWebpackConfig = {
 	module: {
 		strictExportPresence: true,
 		rules: [
+			// Transpile JavaScript
+			jetpackWebpackConfig.TranspileRule( {
+				exclude: /node_modules\//,
+			} ),
+
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
@@ -77,7 +85,9 @@ const sharedWebpackConfig = {
 		} ),
 		// Delete the dummy JS files Webpack would otherwise create.
 		new RemoveAssetWebpackPlugin( {
-			assets: /\.js(\.map)?$/,
+			assets: name =>
+				name.startsWith( 'src/contact-form/css' ) &&
+				( name.endsWith( '.js' ) || name.endsWith( 'map' ) ),
 		} ),
 	],
 };
@@ -134,5 +144,16 @@ module.exports = [
 					.map( n => path.relative( path.dirname( __dirname ), n ) ),
 			} ),
 		],
+	},
+	{
+		...sharedWebpackConfig,
+		entry: glob.sync( path.join( scriptSrcDir, '*.js' ) ).reduce( ( acc, filepath ) => {
+			acc[ 'js/' + path.parse( filepath ).name ] = filepath;
+			return acc;
+		}, {} ),
+		output: {
+			...jetpackWebpackConfig.output,
+			path: path.join( __dirname, '../dist/contact-form' ),
+		},
 	},
 ];
