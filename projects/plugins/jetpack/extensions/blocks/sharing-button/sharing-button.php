@@ -52,9 +52,9 @@ function render_block( $attr, $content, $block ) {
 	$service    = new $services[ $attr['service'] ]( $attr['service'], array() );
 	$link_props = $service->get_link( $post, $query, $data_shared );
 
-	$link_url           = esc_html( $link_props['url'] );
+	$link_url           = $link_props['url'];
 	$icon               = get_social_logo( $attr['service'] );
-	$sharing_link_class = esc_html( 'jetpack-sharing-button__button ' . $style . ' share-' . $attr['service'] );
+	$sharing_link_class = 'jetpack-sharing-button__button ' . $style . ' share-' . $attr['service'];
 
 	$link_aria_label = sprintf(
 		/* translators: %s refers to a string representation of sharing service, e.g. Facebook  */
@@ -65,8 +65,8 @@ function render_block( $attr, $content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$component  = '<li class="jetpack-sharing-button__list-item">';
-	$component .= '<a rel="nofollow noopener noreferrer" class="' . $sharing_link_class . '" href="' . $link_url . '" target="_blank" ';
-	$component .= 'data-service="' . esc_html( $attr['service'] ) . '" data-shared="' . esc_html( $data_shared ) . '" aria-label="' . $link_aria_label . '" primary>';
+	$component .= '<a rel="nofollow noopener noreferrer" class="' . $sharing_link_class . '" href="' . esc_attr( $link_url ) . '" target="_blank" ';
+	$component .= 'data-service="' . esc_attr( $attr['service'] ) . '" data-shared="' . esc_attr( $data_shared ) . '" aria-label="' . esc_attr( $link_aria_label ) . '" primary>';
 	$component .= $icon;
 	$component .= '<span class="jetpack-sharing-button__service-label" aria-hidden="true">' . esc_html( $title ) . '</span>';
 	$component .= '</a>';
