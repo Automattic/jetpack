@@ -175,7 +175,6 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 	return (
 		<>
 			<PluginPostPublishPanel
-				initialOpen
 				title={
 					<>
 						{ __( 'Newsletter:', 'jetpack' ) }
@@ -195,7 +194,6 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 
 			{ ! isStripeConnected && (
 				<PluginPostPublishPanel
-					initialOpen
 					className="jetpack-subscribe-newsletters-panel paid-newsletters-post-publish-panel"
 					title={ __( 'Set up a paid newsletter', 'jetpack' ) }
 					icon={ <JetpackEditorPanelLogo /> }
