@@ -12,15 +12,7 @@ import {
 	useCallback,
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import {
-	Icon,
-	closeSmall,
-	check,
-	arrowUp,
-	arrowLeft,
-	trash,
-	reusableBlock,
-} from '@wordpress/icons';
+import { Icon, closeSmall, check, arrowUp, trash, reusableBlock } from '@wordpress/icons';
 import classNames from 'classnames';
 import React from 'react';
 /**
@@ -248,16 +240,6 @@ export function AIControl(
 						<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 							{ ( value?.length > 0 || lastValue === null ) && (
 								<ButtonGroup>
-									{ value.length > 0 && (
-										<Button
-											className="jetpack-components-ai-control__controls-prompt_button"
-											label={ __( 'Back to edit', 'jetpack-ai-client' ) }
-											onClick={ () => setEditRequest( true ) }
-											tooltipPosition="top"
-										>
-											<Icon icon={ arrowLeft } />
-										</Button>
-									) }
 									<Button
 										className="jetpack-components-ai-control__controls-prompt_button"
 										label={ __( 'Discard', 'jetpack-ai-client' ) }
