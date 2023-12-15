@@ -64,7 +64,7 @@ class Dismissed_Notices {
 
 		$notice            = $value['notice'];
 		$reappearance_time = $value['reappearance_time'];
-		$dismissed_notices = get_option( self::DISMISSED_NOTICES_OPTION );
+		$dismissed_notices = self::get_dismissed_notices();
 
 		if ( ! is_array( $dismissed_notices ) ) {
 			$dismissed_notices = array();
