@@ -49,6 +49,7 @@ type AiControlProps = {
 	onStop?: () => void;
 	onAccept?: () => void;
 	onDiscard?: () => void;
+	showRemove?: boolean;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -78,6 +79,7 @@ export function AIControl(
 		onStop = noop,
 		onAccept = noop,
 		onDiscard = null,
+		showRemove = false,
 	}: AiControlProps,
 	ref: React.MutableRefObject< null > // eslint-disable-line @typescript-eslint/ban-types
 ): React.ReactElement {
@@ -196,7 +198,7 @@ export function AIControl(
 										</Button>
 									) }
 
-									{ ! editRequest && ! value?.length && onDiscard && (
+									{ showRemove && ! editRequest && ! value?.length && onDiscard && (
 										<Button
 											className="jetpack-components-ai-control__controls-prompt_button"
 											onClick={ discardHandler }

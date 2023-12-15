@@ -586,6 +586,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					showAccept={ requestingState !== 'init' && contentIsLoaded && ! isWaitingState }
 					acceptLabel={ acceptLabel }
 					showGuideLine={ contentIsLoaded }
+					showRemove={ attributes?.content?.length > 0 }
 				/>
 
 				{ ! loadingImages && resultImages.length > 0 && (
