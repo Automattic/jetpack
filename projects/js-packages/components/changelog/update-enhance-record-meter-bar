@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Added `className` prop to RecordMeterBar component

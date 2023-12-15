@@ -833,16 +833,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			);
 		}
 
-		wp_enqueue_script(
+		Assets::register_script(
 			'grunion-frontend',
-			Assets::get_file_url_for_environment(
-				'_inc/build/contact-form/js/grunion-frontend.min.js',
-				'modules/contact-form/js/grunion-frontend.js'
-			),
-			array( 'jquery', 'jquery-ui-datepicker' ),
-			\JETPACK__VERSION,
-			false
+			'../../dist/contact-form/js/grunion-frontend.js',
+			__FILE__,
+			array(
+				'enqueue'      => true,
+				'dependencies' => array( 'jquery', 'jquery-ui-datepicker' ),
+				'version'      => \JETPACK__VERSION,
+			)
 		);
+
 		wp_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( 'css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );
 
 		// Using Core's built-in datepicker localization routine

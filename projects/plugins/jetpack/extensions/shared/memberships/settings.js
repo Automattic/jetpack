@@ -12,8 +12,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
-import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { useState } from 'react';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
@@ -25,12 +24,8 @@ import {
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
-import {
-	getFormattedCategories,
-	getFormattedSubscriptionsCount,
-	getShowMisconfigurationWarning,
-	MisconfigurationWarning,
-} from './utils';
+import SubscribersAffirmation from './subscribers-affirmation';
+import { getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 
 const paywallIcon = getBlockIconComponent( paywallBlockMetadata );
 
@@ -42,14 +37,22 @@ export function Link( { href, children } ) {
 	);
 }
 
-export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, paidSubscribers ) {
-	switch ( accessOptions[ accessLevelKey ].key ) {
+export function getReachForAccessLevelKey( {
+	accessLevel,
+	emailSubscribers,
+	paidSubscribers,
+	postHasPaywallBlock = false,
+} ) {
+	emailSubscribers = emailSubscribers ?? 0;
+	paidSubscribers = paidSubscribers ?? 0;
+
+	switch ( accessOptions[ accessLevel ]?.key ) {
 		case accessOptions.everybody.key:
-			return emailSubscribers || 0;
+			return emailSubscribers;
 		case accessOptions.subscribers.key:
-			return emailSubscribers || 0;
+			return emailSubscribers;
 		case accessOptions.paid_subscribers.key:
-			return paidSubscribers || 0;
+			return postHasPaywallBlock ? emailSubscribers : paidSubscribers;
 		default:
 			return 0;
 	}
@@ -160,19 +163,19 @@ export function NewsletterAccessRadioButtons( {
 						  ]
 						: [] ),
 					{
-						label: `${ accessOptions.subscribers.label } (${ getReachForAccessLevelKey(
-							accessOptions.subscribers.key,
+						label: `${ accessOptions.subscribers.label } (${ getReachForAccessLevelKey( {
+							accessLevel: accessOptions.subscribers.key,
 							emailSubscribers,
-							paidSubscribers
-						) })`,
+							paidSubscribers,
+						} ) })`,
 						value: accessOptions.subscribers.key,
 					},
 					{
-						label: `${ accessOptions.paid_subscribers.label } (${ getReachForAccessLevelKey(
-							accessOptions.paid_subscribers.key,
+						label: `${ accessOptions.paid_subscribers.label } (${ getReachForAccessLevelKey( {
+							accessLevel: accessOptions.paid_subscribers.key,
 							emailSubscribers,
-							paidSubscribers
-						) })`,
+							paidSubscribers,
+						} ) })`,
 						value: accessOptions.paid_subscribers.key,
 					},
 				] }
@@ -285,83 +288,20 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 }
 
 export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
-	const { isLoading, postHasPaywallBlock, newsletterCategories, newsletterCategoriesEnabled } =
-		useSelect( select => {
-			const {
-				getNewsletterTierProducts,
-				getConnectUrl,
-				isApiStateLoading,
-				getNewsletterCategories,
-				getNewsletterCategoriesEnabled,
-			} = select( 'jetpack/membership-products' );
-			const { getBlocks } = select( 'core/block-editor' );
-
-			return {
-				isLoading: isApiStateLoading(),
-				stripeConnectUrl: getConnectUrl(),
-				hasTierPlans: getNewsletterTierProducts()?.length !== 0,
-				postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockMetadata.name ),
-				newsletterCategories: getNewsletterCategories(),
-				newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
-			};
-		} );
-
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
-	const postCategories = useSelect( select =>
-		select( editorStore ).getEditedPostAttribute( 'categories' )
-	);
-
-	const subscriptionsCount = useSelect( select => {
-		return select( 'jetpack/membership-products' ).getNewsletterCategoriesSubscriptionsCount(
-			postCategories
-		);
-	} );
-
-	if ( isLoading ) {
-		return (
-			<Flex direction="column" align="center">
-				<Spinner />
-			</Flex>
-		);
-	}
-
-	const _accessLevel = accessLevel ?? accessOptions.everybody.key;
-	const getText = () => {
-		if ( _accessLevel === accessOptions.paid_subscribers.key ) {
-			if ( ! postHasPaywallBlock ) {
-				return __( 'This post will be sent to paid subscribers only.', 'jetpack' );
-			}
-		}
-		if ( newsletterCategoriesEnabled && newsletterCategories.length ) {
-			const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
-			const formattedSubscriptionsCount = getFormattedSubscriptionsCount( subscriptionsCount );
-			const categoryNamesAndSubscriptionsCount =
-				formattedCategoryNames + formattedSubscriptionsCount;
-
-			if ( formattedCategoryNames ) {
-				return createInterpolateElement(
-					sprintf(
-						// translators: %1$s is the list of categories with subscriptions count
-						__( 'This post will be sent to everyone subscribed to %1$s.', 'jetpack' ),
-						categoryNamesAndSubscriptionsCount
-					),
-					{ strong: <strong /> }
-				);
-			}
-		}
-		return __( 'This post will be sent to all subscribers.', 'jetpack' );
-	};
 
 	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
+	const _accessLevel = accessLevel ?? accessOptions.everybody.key;
 
 	return (
 		<PostVisibilityCheck
 			render={ () => (
 				<PanelRow className="edit-post-post-visibility">
-					<Flex direction="column">
-						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
-						<p>{ getText() }</p>
-					</Flex>
+					{ showMisconfigurationWarning ? (
+						<MisconfigurationWarning />
+					) : (
+						<SubscribersAffirmation prePublish={ true } accessLevel={ _accessLevel } />
+					) }
 				</PanelRow>
 			) }
 		/>
