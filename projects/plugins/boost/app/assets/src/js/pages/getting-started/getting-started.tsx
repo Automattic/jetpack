@@ -8,22 +8,24 @@ import ActivateLicense from '$features/activate-license/activate-license';
 import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import styles from './getting-started.module.scss';
+import { useConfig } from '$lib/stores/config-ds';
+import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 
 type GettingStartedProps = {
 	userConnected: boolean;
-	pricing: ( typeof Jetpack_Boost )[ 'pricing' ];
 	isPremium: boolean;
 	domain: string;
 };
 
 const GettingStarted: React.FC< GettingStartedProps > = ( {
 	userConnected,
-	pricing,
 	isPremium,
 	domain,
 } ) => {
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
 	const [ snackbarMessage, setSnackbarMessage ] = useState< string >( '' );
+
+	const { pricing } = useConfig();
 
 	async function initialize(
 		plan: 'free' | 'premium',
@@ -86,4 +88,10 @@ const GettingStarted: React.FC< GettingStartedProps > = ( {
 	);
 };
 
-export default GettingStarted;
+export default ( props: GettingStartedProps ) => {
+	return (
+		<DataSyncProvider>
+			<GettingStarted { ...props } />
+		</DataSyncProvider>
+	);
+};

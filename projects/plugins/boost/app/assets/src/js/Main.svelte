@@ -39,8 +39,6 @@
 		}, 10 )
 	);
 
-	$: pricing = $config.pricing;
-
 	$: siteDomain = $config.site.domain;
 	$: userConnected = $connection.userConnected;
 	$: isPremium = $config.isPremium;
@@ -53,17 +51,11 @@
 
 <Router history={routerHistory}>
 	<Route path="upgrade">
-		<ReactComponent this={Upgrade} {pricing} {siteDomain} {userConnected} />
+		<ReactComponent this={Upgrade} {siteDomain} {userConnected} />
 	</Route>
 
 	<Route path="getting-started">
-		<ReactComponent
-			this={GettingStarted}
-			{userConnected}
-			{pricing}
-			{isPremium}
-			domain={siteDomain}
-		/>
+		<ReactComponent this={GettingStarted} {userConnected} {isPremium} domain={siteDomain} />
 	</Route>
 
 	<Route path="purchase-successful">

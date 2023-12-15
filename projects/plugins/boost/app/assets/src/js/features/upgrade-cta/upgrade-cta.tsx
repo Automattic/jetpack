@@ -5,6 +5,7 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import { navigate } from '$lib/utils/navigate';
 import { useEffect } from 'react';
 import styles from './upgrade-cta.module.scss';
+import { useConfig } from '$lib/stores/config-ds';
 
 type UpgradeCTAProps = {
 	description: string;
@@ -20,13 +21,13 @@ const UpgradeCTA = ( { description }: UpgradeCTAProps ) => {
 		recordBoostEvent( 'view_upsell_cta_in_settings_page_in_plugin', {} );
 	}, [] );
 
-	const yearlyPricing = Jetpack_Boost.pricing.yearly;
-	const currencyObjectAfter = getCurrencyObject(
-		yearlyPricing?.priceAfter / 12,
-		yearlyPricing?.currencyCode
-	);
-	const priceString =
-		currencyObjectAfter.symbol + currencyObjectAfter.integer + currencyObjectAfter.fraction;
+	const { pricing } = useConfig();
+	const currencyObjectAfter = ! pricing
+		? null
+		: getCurrencyObject( pricing.priceAfter / 12, pricing.currencyCode );
+	const priceString = currencyObjectAfter
+		? currencyObjectAfter.symbol + currencyObjectAfter.integer + currencyObjectAfter.fraction
+		: '_';
 
 	return (
 		<button className={ styles[ 'upgrade-cta' ] } onClick={ showBenefits }>
