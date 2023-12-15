@@ -42,19 +42,19 @@ function render_block( $attr, $content, $block ) {
 	$post_id = $block->context['postId'];
 	$title   = $attr['label'] ?? $attr['service'];
 
-	$style_type  = $block->context['styleType'];
-	$style       = 'style-' . $style_type;
+	$style_type = $block->context['styleType'];
+	$style      = 'style-' . $style_type;
+	$query      = 'share=' . $attr['service'] . '&nb=1';
+
 	$data_shared = 'sharing-' . $attr['service'] . '-' . $post_id;
-	$query       = 'share=' . $attr['service'] . '&nb=1';
 
 	$services   = get_services();
 	$service    = new $services[ $attr['service'] ]( $attr['service'], array() );
 	$link_props = $service->get_link( $post, $query, $data_shared );
-	$link_url   = $link_props['url'];
 
-	$icon = get_social_logo( $attr['service'] );
-
-	$sharing_link_class = 'jetpack-sharing-button__button ' . $style . ' share-' . $attr['service'];
+	$link_url           = esc_html( $link_props['url'] );
+	$icon               = get_social_logo( $attr['service'] );
+	$sharing_link_class = esc_html( 'jetpack-sharing-button__button ' . $style . ' share-' . $attr['service'] );
 
 	$link_aria_label = sprintf(
 		/* translators: %s refers to a string representation of sharing service, e.g. Facebook  */
@@ -66,9 +66,9 @@ function render_block( $attr, $content, $block ) {
 
 	$component  = '<li class="jetpack-sharing-button__list-item">';
 	$component .= '<a rel="nofollow noopener noreferrer" class="' . $sharing_link_class . '" href="' . $link_url . '" target="_blank" ';
-	$component .= 'data-service="' . $attr['service'] . '" data-shared="' . $data_shared . '" aria-label="' . $link_aria_label . '" primary>';
+	$component .= 'data-service="' . esc_html( $attr['service'] ) . '" data-shared="' . esc_html( $data_shared ) . '" aria-label="' . $link_aria_label . '" primary>';
 	$component .= $icon;
-	$component .= '<span class="jetpack-sharing-button__service-label" aria-hidden="true">' . $title . '</span>';
+	$component .= '<span class="jetpack-sharing-button__service-label" aria-hidden="true">' . esc_html( $title ) . '</span>';
 	$component .= '</a>';
 	$component .= '</li>';
 
