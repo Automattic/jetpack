@@ -19,6 +19,7 @@ use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
 
 require_once __DIR__ . '/constants.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
 /**
  * These block defaults should match ./constants.js
@@ -93,6 +94,20 @@ function register_block() {
 
 	register_post_meta(
 		'post',
+		META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+		array(
+			'default'       => false,
+			'show_in_rest'  => true,
+			'single'        => true,
+			'type'          => 'boolean',
+			'auth_callback' => function () {
+				return wp_get_current_user()->has_cap( 'edit_posts' );
+			},
+		)
+	);
+
+	register_post_meta(
+		'post',
 		META_NAME_FOR_POST_TIER_ID_SETTINGS,
 		array(
 			'show_in_rest'  => true,
@@ -108,7 +123,13 @@ function register_block() {
 	add_filter(
 		'jetpack_sync_post_meta_whitelist',
 		function ( $allowed_meta ) {
-			return array_merge( $allowed_meta, array( META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
+			return array_merge(
+				$allowed_meta,
+				array(
+					META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+					META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+				)
+			);
 		}
 	);
 
