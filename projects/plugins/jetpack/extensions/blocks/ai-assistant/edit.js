@@ -408,10 +408,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const innerBlocks = useInnerBlocksProps( blockProps );
 
 	const promptPlaceholder = __( 'Ask Jetpack AI…', 'jetpack' );
-	const promptPlaceholderWithSamples = __(
-		'Ask Jetpack AI… Post about… Make a table for…',
-		'jetpack'
-	);
+	const promptPlaceholderWithSamples = __( 'Write about… Make a table for…', 'jetpack' );
 	return (
 		<KeyboardShortcuts
 			bindGlobal
