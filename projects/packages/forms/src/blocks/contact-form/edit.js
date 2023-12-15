@@ -1,5 +1,9 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { getJetpackData, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	getJetpackData,
+	isAtomicSite,
+	isSimpleSite,
+} from '@automattic/jetpack-shared-extension-utils';
 import {
 	InnerBlocks,
 	InspectorControls,
@@ -327,7 +331,7 @@ export const JetpackContactFormEdit = forwardRef(
 							instanceId={ instanceId }
 						/>
 					) }
-					{ ! isSimpleSite() && (
+					{ ! ( isSimpleSite() || isAtomicSite() ) && (
 						<Fragment>
 							{ canUserInstallPlugins && (
 								<PanelBody title={ __( 'CRM Connection', 'jetpack-forms' ) } initialOpen={ false }>
