@@ -256,11 +256,12 @@ class Contact_Form_Plugin {
 
 		Assets::register_script(
 			'accessible-form',
-			'./js/accessible-form.js',
+			'../../dist/contact-form/js/accessible-form.js',
 			__FILE__,
 			array(
-				'async'   => true,
-				'version' => \JETPACK__VERSION,
+				'async'      => true,
+				'textdomain' => 'jetpack-forms',
+				'version'    => \JETPACK__VERSION,
 			)
 		);
 

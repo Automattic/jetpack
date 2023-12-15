@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-OAuth Connection: updated typo to remove plural connection"s", and removed doc reference for whitelabel builds.
