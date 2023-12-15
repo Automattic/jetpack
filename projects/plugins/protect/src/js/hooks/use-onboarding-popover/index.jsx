@@ -40,7 +40,7 @@ const useOnboardingPopover = () => {
 		return 4;
 	}, [ hasRequiredPlan, list, fixableList ] );
 
-	const incrementOnboardingStep = useCallback( () => {
+	const incrementOnboardingPopoverStep = useCallback( () => {
 		if ( onboardingStep === 4 ) {
 			setOnboardingStep( null );
 			return;
@@ -48,7 +48,11 @@ const useOnboardingPopover = () => {
 		setOnboardingStep( onboardingStep + 1 );
 	}, [ onboardingStep ] );
 
-	const closeOnboarding = useCallback( () => {
+	const closeOnboardingPopover = useCallback( () => {
+		setOnboardingStep( null );
+	}, [] );
+
+	const dismissOnboardingPopover = useCallback( () => {
 		API.protectOnboardingDismissed();
 		setOnboardingStep( null );
 	}, [] );
@@ -67,8 +71,8 @@ const useOnboardingPopover = () => {
 		title: __( 'Your scan results', 'jetpack-protect' ),
 		buttonContent: __( 'Next', 'jetpack-protect' ),
 		anchor: anchors.anchor1,
-		onClose: closeOnboarding,
-		onClick: incrementOnboardingStep,
+		onClose: dismissOnboardingPopover,
+		onClick: incrementOnboardingPopoverStep,
 		noArrow: false,
 		position: 'middle top',
 		offset: 15,
@@ -88,8 +92,8 @@ const useOnboardingPopover = () => {
 		title: __( 'Auto-fix with one click', 'jetpack-protect' ),
 		buttonContent: __( 'Next', 'jetpack-protect' ),
 		anchor: anchors.anchor2,
-		onClose: closeOnboarding,
-		onClick: incrementOnboardingStep,
+		onClose: dismissOnboardingPopover,
+		onClick: incrementOnboardingPopoverStep,
 		noArrow: false,
 		position: isSm ? 'bottom right' : 'middle left',
 		offset: 15,
@@ -128,8 +132,8 @@ const useOnboardingPopover = () => {
 		title: __( 'Daily automated scans', 'jetpack-protect' ),
 		buttonContent: __( 'Finish', 'jetpack-protect' ),
 		anchor: anchors.anchor2a,
-		onClose: closeOnboarding,
-		onClick: incrementOnboardingStep,
+		onClose: dismissOnboardingPopover,
+		onClick: dismissOnboardingPopover,
 		noArrow: false,
 		position: 'middle right',
 		offset: 15,
@@ -154,8 +158,8 @@ const useOnboardingPopover = () => {
 		title: __( 'Understand severity', 'jetpack-protect' ),
 		buttonContent: __( 'Next', 'jetpack-protect' ),
 		anchor: anchors.anchor3,
-		onClose: closeOnboarding,
-		onClick: incrementOnboardingStep,
+		onClose: dismissOnboardingPopover,
+		onClick: incrementOnboardingPopoverStep,
 		noArrow: false,
 		position: 'top middle',
 		offset: 15,
@@ -174,8 +178,8 @@ const useOnboardingPopover = () => {
 	const dailyAndManualScansPopoverArgs = {
 		title: __( 'Daily & manual scanning', 'jetpack-protect' ),
 		buttonContent: __( 'Finish', 'jetpack-protect' ),
-		onClose: closeOnboarding,
-		onClick: closeOnboarding,
+		onClose: dismissOnboardingPopover,
+		onClick: dismissOnboardingPopover,
 		noArrow: false,
 		position: isSm ? 'bottom left' : 'middle left',
 		offset: 15,
@@ -234,6 +238,7 @@ const useOnboardingPopover = () => {
 		};
 
 		setOnboardingPopoverArgs( getOnboardingPopoverArgs() );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ onboardingStep, onboardingDismissed, hasRequiredPlan, anchors ] );
 
 	useEffect( () => {
@@ -249,10 +254,8 @@ const useOnboardingPopover = () => {
 	}, [ refs, setAnchors ] );
 
 	return {
-		anchors,
-		onboardingStep,
 		onboardingPopoverArgs,
-		closeOnboarding,
+		closeOnboardingPopover,
 		getRef,
 	};
 };
