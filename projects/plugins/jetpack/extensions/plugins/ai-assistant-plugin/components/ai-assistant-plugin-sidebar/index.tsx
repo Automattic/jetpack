@@ -7,13 +7,13 @@ import { Button, PanelBody, PanelRow, BaseControl } from '@wordpress/components'
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 /**
  * Internal dependencies
  */
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
+import OnboardingGuide from '../onboarding-guide';
 import Proofread from '../proofread';
 import UsagePanel from '../usage-panel';
 import { USAGE_PANEL_PLACEMENT_JETPACK_SIDEBAR } from '../usage-panel/types';
@@ -93,6 +93,9 @@ export default function AiAssistantPluginSidebar() {
 							<UsagePanel placement={ USAGE_PANEL_PLACEMENT_JETPACK_SIDEBAR } />
 						</PanelRow>
 					) }
+					<PanelRow>
+						<OnboardingGuide />
+					</PanelRow>
 				</PanelBody>
 			</JetpackPluginSidebar>
 
