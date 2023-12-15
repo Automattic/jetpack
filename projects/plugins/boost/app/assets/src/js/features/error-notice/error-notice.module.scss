@@ -14,11 +14,6 @@
 		justify-content: left;
 	}
 
-	p {
-		margin: .25em 0;
-		color: $red_50;
-	}
-
 	:global(.raw-error) {
 		color: $primary-black;
 	}
@@ -47,7 +42,7 @@
 		width: 20px;
 	}
 	
-	.offset {
+	&:not(.variant-module) .offset {
 		padding-left: 0.5em;
 	}
 	
@@ -70,6 +65,11 @@
 	.message {
 		list-style-type: disc;
 		color: $red_50;
+
+		p {
+			margin: .25em 0;
+			color: $red_50;
+		}
 	
 		button {
 			color: $primary-black;

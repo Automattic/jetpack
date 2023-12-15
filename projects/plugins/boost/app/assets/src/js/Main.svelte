@@ -2,7 +2,6 @@
 	import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
 	import GettingStarted from './pages/getting-started/getting-started';
 	import RecommendationsPage from './pages/image-size-analysis/ImageSizeAnalysis.svelte';
-	import Index from './pages/index/Index.svelte';
 	import ReactIndex from './pages/index/index';
 	import PurchaseSuccess from './pages/purchase-success/purchase-success';
 	import Upgrade from './pages/upgrade/upgrade';
@@ -94,7 +93,6 @@
 						primaryErrorSet: $primaryErrorSet,
 					}}
 				/>
-				<Index />
 			</SettingsPage>
 		</Redirect>
 	</Route>

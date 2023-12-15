@@ -30,7 +30,7 @@ const UpgradeCTA = ( { description }: UpgradeCTAProps ) => {
 
 	return (
 		<button className={ styles[ 'upgrade-cta' ] } onClick={ showBenefits }>
-			<div>
+			<div className={ styles.body }>
 				<p>{ description }</p>
 				<p className={ styles[ 'action-line' ] }>
 					{ sprintf(
