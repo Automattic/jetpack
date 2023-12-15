@@ -32,7 +32,6 @@ import { USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } from '../../plugins/ai-a
 import ConnectPrompt from './components/connect-prompt';
 import FeedbackControl from './components/feedback-control';
 import ImageWithSelect from './components/image-with-select';
-import { promptTemplates } from './components/prompt-templates-control';
 import ToolbarControls from './components/toolbar-controls';
 import UpgradePrompt from './components/upgrade-prompt';
 import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
@@ -200,24 +199,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		// Populate block inner blocks
 		replaceBlocks( clientId, storedInnerBlocks );
 	}, [ initialContent, clientId, replaceBlocks, getBlock, attributes?.useGutenbergSyntax ] );
-
-	const [ promptPlaceholder, setPromptPlaceholder ] = useState( '' );
-	const [ currentIndex, setCurrentIndex ] = useState( 0 );
-
-	// Loop through placeholder prompts for a nice UX effect.
-	useEffect( () => {
-		const interval = setInterval( () => {
-			if ( currentIndex < promptTemplates.length ) {
-				setPromptPlaceholder( promptTemplates[ currentIndex ].label );
-				setCurrentIndex( prevIndex => prevIndex + 1 );
-			} else {
-				clearInterval( interval );
-				setPromptPlaceholder( __( 'Ask Jetpack AI', 'jetpack' ) );
-			}
-		}, 1600 );
-
-		return () => clearInterval( interval );
-	}, [ promptPlaceholder, currentIndex ] );
 
 	useEffect( () => {
 		// we don't want to store "half way" states
@@ -426,6 +407,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const innerBlocks = useInnerBlocksProps( blockProps );
 
+	const promptPlaceholder = __( 'Ask Jetpack AI…', 'jetpack' );
+	const promptPlaceholderWithSamples = __( 'Write about… Make a table for…', 'jetpack' );
 	return (
 		<KeyboardShortcuts
 			bindGlobal
@@ -559,12 +542,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 							// Focus the text area
 							userPromptInput.focus();
 
-							// Add a typing effect in the text area
-							for ( let i = 0; i < prompt.length; i++ ) {
-								setTimeout( () => {
-									setAttributes( { userPrompt: prompt.slice( 0, i + 1 ) } );
-								}, 25 * i );
-							}
+							setAttributes( { userPrompt: prompt } );
 						} }
 						recordEvent={ tracks.recordEvent }
 						isGeneratingTitle={ isGeneratingTitle }
@@ -574,7 +552,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					ref={ aiControlRef }
 					disabled={ requireUpgrade || ! connected }
 					value={ attributes.userPrompt }
-					placeholder={ promptPlaceholder || __( 'Ask Jetpack AI', 'jetpack' ) }
+					placeholder={ attributes?.content ? promptPlaceholder : promptPlaceholderWithSamples }
 					onChange={ handleChange }
 					onSend={ handleSend }
 					onStop={ handleStopSuggestion }
