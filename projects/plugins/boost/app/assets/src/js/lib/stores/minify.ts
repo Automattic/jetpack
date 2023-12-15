@@ -10,7 +10,6 @@ export interface Props {
 	inputLabel: string;
 	buttonText: string;
 	placeholder: string;
-	value: string[];
 }
 
 export const useMetaQuery = ( key: MinifyMetaKeys ) => {

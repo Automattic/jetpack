@@ -3,7 +3,6 @@
 </script>
 
 <script lang="ts">
-	import React from 'react';
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
@@ -42,9 +41,7 @@
 	} from '$features/critical-css/lib/cloud-css';
 	import externalLinkTemplateVar from '$lib/utils/external-link-template-var';
 	import { QualitySettings } from '$features/image-cdn';
-	import ReactModule from '$features/module/module';
 	import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
-	import { createInterpolateElement } from '@wordpress/element';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
@@ -87,67 +84,6 @@
 </script>
 
 <div class="jb-container--narrow">
-	<ReactComponent
-		this={ReactModule}
-		slug="critical_css"
-		title={__( 'Optimize Critical CSS Loading (test)', 'jetpack-boost' )}
-		description={[
-			React.createElement(
-				'p',
-				{},
-				createInterpolateElement(
-					__(
-						`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
-						'jetpack-boost'
-					),
-					{
-						link: React.createElement( 'a', {
-							href: criticalCssLink,
-							target: '_blank',
-							rel: 'noopener noreferrer',
-						} ),
-					}
-				)
-			),
-			React.createElement( 'p', {}, [
-				createInterpolateElement(
-					__(
-						`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
-						'jetpack-boost'
-					),
-					{
-						b: React.createElement( 'strong', {}, '' ),
-					}
-				),
-				React.createElement( PremiumTooltip ),
-			] ),
-		]}
-		children={[
-			React.createElement( CriticalCssMeta, {
-				cssState: $criticalCssState,
-				isCloudCssAvailable: $modulesState.cloud_css?.available,
-				criticalCssProgress: $criticalCssProgress,
-				issues: $criticalCssIssues,
-				isFatalError: $isFatalError,
-				primaryErrorSet: $primaryErrorSet,
-				suggestRegenerate: $suggestRegenerate,
-				regenerateCriticalCss,
-			} ),
-			React.createElement( RegenerateCriticalCssSuggestion, {
-				show: $suggestRegenerate && $criticalCssState.status !== 'pending',
-				type: $suggestRegenerate,
-			} ),
-			React.createElement( UpgradeCTA, {
-				description: __(
-					'Save time by upgrading to Automatic Critical CSS generation.',
-					'jetpack-boost'
-				),
-			} ),
-		]}
-		onEnabled={resume}
-		onMountEnabled={resume}
-		onDisabled={() => ( alreadyResumed = false )}
-	/>
 	<Module
 		slug="critical_css"
 		on:enabled={resume}

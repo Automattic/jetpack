@@ -1,10 +1,6 @@
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
 
-export type Optimizations = {
-	[ slug: string ]: boolean;
-};
-
 const modulesStateSchema = z.record(
 	z.string().min( 1 ),
 	z.object( {

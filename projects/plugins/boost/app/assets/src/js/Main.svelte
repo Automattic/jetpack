@@ -3,6 +3,7 @@
 	import GettingStarted from './pages/getting-started/getting-started';
 	import RecommendationsPage from './pages/image-size-analysis/ImageSizeAnalysis.svelte';
 	import Index from './pages/index/Index.svelte';
+	import ReactIndex from './pages/index/index';
 	import PurchaseSuccess from './pages/purchase-success/purchase-success';
 	import Upgrade from './pages/upgrade/upgrade';
 	import ReactComponent from '$features/ReactComponent.svelte';
@@ -10,12 +11,20 @@
 	import SettingsPage from '$layout/SettingsPage/SettingsPage.svelte';
 	import config from '$lib/stores/config';
 	import { connection } from '$lib/stores/connection';
-	import { criticalCssIssues } from '$features/critical-css';
 	import { modulesState } from '$lib/stores/modules';
 	import { recordBoostEvent } from '$lib/utils/analytics';
 	import debounce from '$lib/utils/debounce';
 	import { Route, Router } from '$lib/utils/router';
 	import routerHistory from '$lib/utils/router-history';
+	import {
+		criticalCssState,
+		continueGeneratingLocalCriticalCss,
+		regenerateCriticalCss,
+		criticalCssProgress,
+		isFatalError,
+		criticalCssIssues,
+		primaryErrorSet,
+	} from '$features/critical-css';
 
 	routerHistory.listen(
 		debounce( history => {
@@ -73,6 +82,18 @@
 	<Route path="/">
 		<Redirect when={shouldGetStarted} to="/getting-started">
 			<SettingsPage>
+				<ReactComponent
+					this={ReactIndex}
+					criticalCss={{
+						criticalCssState: $criticalCssState,
+						continueGeneratingLocalCriticalCss,
+						regenerateCriticalCss,
+						criticalCssProgress: $criticalCssProgress,
+						isFatalError: $isFatalError,
+						criticalCssIssues: $criticalCssIssues,
+						primaryErrorSet: $primaryErrorSet,
+					}}
+				/>
 				<Index />
 			</SettingsPage>
 		</Redirect>

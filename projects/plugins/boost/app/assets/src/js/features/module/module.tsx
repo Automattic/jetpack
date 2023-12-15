@@ -5,9 +5,9 @@ import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import styles from './module.module.scss';
 
 type ModuleProps = {
-	title: string;
+	title: React.ReactNode;
 	description: React.ReactNode;
-	children: React.ReactNode;
+	children?: React.ReactNode;
 	slug: string;
 	toggle?: boolean;
 	onEnable?: () => void;
@@ -42,6 +42,10 @@ const Module = ( {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
+
+	if ( ! isModuleAvailable && slug !== 'lazy_images' ) {
+		return null;
+	}
 
 	return (
 		<div className={ styles.module }>
