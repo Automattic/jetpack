@@ -179,6 +179,25 @@ class Term_Relationships extends Module {
 	}
 
 	/**
+	 * Return last_item to send for Module Full Sync Configuration.
+	 *
+	 * @param array $config This module Full Sync configuration.
+	 *
+	 * @return array|object|null
+	 */
+	public function get_last_item( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
+		return $wpdb->get_results(
+			"SELECT object_id, term_taxonomy_id 
+			FROM $wpdb->term_relationships 
+			ORDER BY object_id , term_taxonomy_id
+			LIMIT 1",
+			ARRAY_A
+		);
+	}
+
+	/**
 	 *
 	 * Enqueue all $items within `jetpack_full_sync_term_relationships` actions.
 	 *

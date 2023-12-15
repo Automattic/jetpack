@@ -1,8 +1,8 @@
 import { TwitterPreviews } from '@automattic/social-previews';
 import { useSelect } from '@wordpress/data';
 import React from 'react';
+import { usePostMeta } from '../../hooks/use-post-meta';
 import { SOCIAL_STORE_ID, CONNECTION_SERVICE_TWITTER } from '../../social-store';
-import { usePostMeta } from '../../utils';
 
 /**
  * The twitter tab component.
