@@ -6,6 +6,7 @@
  * sharing message.
  */
 
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Disabled, ExternalLink, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { Fragment, useMemo } from '@wordpress/element';
@@ -110,7 +111,9 @@ export default function PublicizeForm() {
 					<ShareCountInfo />
 					<BrokenConnectionsNotice />
 					<UnsupportedConnectionsNotice />
-					{ shouldAutoConvert && showValidationNotice && mediaId && <AutoConversionNotice /> }
+					{ shouldAutoConvert && showValidationNotice && mediaId && (
+						<AutoConversionNotice canChangeSettings={ ! isSimpleSite } />
+					) }
 					{ showValidationNotice &&
 						( Object.values( validationErrors ).includes( NO_MEDIA_ERROR ) ? (
 							<InstagramNoMediaNotice />
