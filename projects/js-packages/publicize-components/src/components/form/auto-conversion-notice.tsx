@@ -6,7 +6,16 @@ import useDismissNotice from '../../hooks/use-dismiss-notice';
 import Notice from '../notice';
 import styles from './styles.module.scss';
 
-export const AutoConversionNotice: React.FC = () => {
+type AutoConversionNoticeProps = {
+	/*
+	 * Whether the user can change the conversion settings.
+	 */
+	canChangeSettings: boolean;
+};
+
+export const AutoConversionNotice: React.FC< AutoConversionNoticeProps > = ( {
+	canChangeSettings = false,
+} ) => {
 	const { dismissNotice, shouldShowNotice, NOTICES } = useDismissNotice();
 
 	const onAutoConversionNoticeDismiss = useCallback(
@@ -23,15 +32,19 @@ export const AutoConversionNotice: React.FC = () => {
 					<Button onClick={ onAutoConversionNoticeDismiss } key="dismiss" variant="primary">
 						{ __( 'Got it', 'jetpack' ) }
 					</Button>,
-					<Button
-						className={ styles[ 'change-settings-button' ] }
-						key="change-settings"
-						href={ adminUrl || jetpackSharingSettingsUrl }
-						target="_blank"
-						rel="noreferrer noopener"
-					>
-						{ __( 'Change settings', 'jetpack' ) }
-					</Button>,
+					...( canChangeSettings
+						? [
+								<Button
+									className={ styles[ 'change-settings-button' ] }
+									key="change-settings"
+									href={ adminUrl || jetpackSharingSettingsUrl }
+									target="_blank"
+									rel="noreferrer noopener"
+								>
+									{ __( 'Change settings', 'jetpack' ) }
+								</Button>,
+						  ]
+						: [] ),
 				] }
 			>
 				{ __(
