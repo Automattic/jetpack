@@ -332,7 +332,32 @@ const Index = ( { criticalCss }: IndexProps ) => {
 						</>
 					}
 				>
-					{ '{false === Jetpack_Boost.site.canResizeImages && <ResizingUnavailable />' }
+					{ false === Jetpack_Boost.site.canResizeImages && (
+						<Notice
+							level="warning"
+							title={ __( 'Image resizing is unavailable', 'jetpack-boost' ) }
+							hideCloseButton={ true }
+						>
+							<p>
+								{ __(
+									"It looks like your server doesn't have Imagick or GD extensions installed.",
+									'jetpack-boost'
+								) }
+							</p>
+							<p>
+								{ __(
+									"Jetpack Boost is able to work without these extensions, but it's likely that it's going to be difficult for you to optimize the images that the Image Guide will identify without one of these extensions.",
+									'jetpack-boost'
+								) }
+							</p>
+							<p>
+								{ __(
+									'Please contact your hosting provider or system administrator and ask them to install or activate one of these extensions.',
+									'jetpack-boost'
+								) }
+							</p>
+						</Notice>
+					) }
 				</Module>
 
 				<Module
