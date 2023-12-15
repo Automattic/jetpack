@@ -407,10 +407,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const innerBlocks = useInnerBlocksProps( blockProps );
 
-	const promptPlaceholder = attributes?.content
-		? __( 'Ask Jetpack AI…', 'jetpack' )
-		: __( 'Ask Jetpack AI… Post about… Make a table for…', 'jetpack' );
-
+	const promptPlaceholder = __( 'Ask Jetpack AI…', 'jetpack' );
+	const promptPlaceholderWithSamples = __(
+		'Ask Jetpack AI… Post about… Make a table for…',
+		'jetpack'
+	);
 	return (
 		<KeyboardShortcuts
 			bindGlobal
@@ -554,7 +555,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					ref={ aiControlRef }
 					disabled={ requireUpgrade || ! connected }
 					value={ attributes.userPrompt }
-					placeholder={ promptPlaceholder }
+					placeholder={ attributes?.content ? promptPlaceholder : promptPlaceholderWithSamples }
 					onChange={ handleChange }
 					onSend={ handleSend }
 					onStop={ handleStopSuggestion }
