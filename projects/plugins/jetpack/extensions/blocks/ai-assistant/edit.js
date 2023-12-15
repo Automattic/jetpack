@@ -559,12 +559,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 							// Focus the text area
 							userPromptInput.focus();
 
-							// Add a typing effect in the text area
-							for ( let i = 0; i < prompt.length; i++ ) {
-								setTimeout( () => {
-									setAttributes( { userPrompt: prompt.slice( 0, i + 1 ) } );
-								}, 25 * i );
-							}
+							setAttributes( { userPrompt: prompt } );
 						} }
 						recordEvent={ tracks.recordEvent }
 						isGeneratingTitle={ isGeneratingTitle }
