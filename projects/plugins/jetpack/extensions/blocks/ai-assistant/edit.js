@@ -550,7 +550,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					ref={ aiControlRef }
 					disabled={ requireUpgrade || ! connected }
 					value={ attributes.userPrompt }
-					placeholder={ __( 'Ask Jetpack AI… Post about… Make a table for…', 'jetpack' ) }
+					placeholder={
+						attributes?.content
+							? __( 'Ask Jetpack AI…', 'jetpack' )
+							: __( 'Ask Jetpack AI… Post about… Make a table for…', 'jetpack' )
+					}
 					onChange={ handleChange }
 					onSend={ handleSend }
 					onStop={ handleStopSuggestion }
