@@ -17,3 +17,13 @@ export const useSuggestRegenerate = () =>
 		'critical_css_suggest_regenerate',
 		z.enum( allowedSuggestions ).nullable()
 	);
+
+export const usePremiumFeatures = () => {
+	const [ { data: premiumFeatures } ] = useDataSync(
+		'jetpack_boost_ds',
+		'premium_features',
+		z.array( z.string() )
+	);
+
+	return premiumFeatures;
+};

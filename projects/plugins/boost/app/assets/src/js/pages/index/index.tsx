@@ -4,16 +4,16 @@ import { useModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 import { Button, Notice, getRedirectUrl } from '@automattic/jetpack-components';
-import { DataSyncProvider, useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSuggestRegenerate } from './lib/hooks';
+import { usePremiumFeatures, useSuggestRegenerate } from './lib/hooks';
 import {
 	RegenerateCriticalCssSuggestion,
 	continueGeneratingLocalCriticalCss,
 	regenerateCriticalCss,
 } from '$features/critical-css';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
 	startPollingCloudStatus,
 	stopPollingCloudCssStatus,
@@ -21,9 +21,10 @@ import {
 import CloudCssMeta from '$features/critical-css/cloud-css-meta/cloud-css-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
 import { QualitySettings } from '$features/image-cdn';
-import { z } from 'zod';
 import styles from './index.module.scss';
 import { RecommendationsMeta } from '$features/image-size-analysis/recommendations-meta/recommendations-meta';
+import { initializeIsaSummary } from '$features/image-size-analysis/lib/stores/isa-summary';
+import SuperCacheInfo from '$features/super-cache-info/super-cache-info';
 
 type IndexProps = {
 	/*
@@ -80,11 +81,13 @@ const Index = ( { criticalCss }: IndexProps ) => {
 		  );
 
 	const [ { data: suggestRegenerate } ] = useSuggestRegenerate();
-	const [ { data: premiumFeatures } ] = useDataSync(
-		'jetpack_boost_ds',
-		'premium_features',
-		z.array( z.string() )
-	);
+	const premiumFeatures = usePremiumFeatures();
+
+	useEffect( () => {
+		if ( isaState?.active ) {
+			initializeIsaSummary();
+		}
+	}, [ isaState?.active ] );
 
 	return (
 		<div className="jb-container--narrow">
@@ -382,6 +385,8 @@ const Index = ( { criticalCss }: IndexProps ) => {
 					{ isaState?.active && <RecommendationsMeta /> }
 				</Module>
 			</div>
+
+			<SuperCacheInfo />
 		</div>
 	);
 };
