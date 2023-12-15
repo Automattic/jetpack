@@ -3,9 +3,9 @@ import { Button } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { requestImageAnalysis } from '$features/image-size-analysis/lib/stores/isa-summary';
-import enableCloudCss from '$lib/utils/enable-cloud-css';
 import { navigate } from '$lib/utils/navigate';
 import Logo from '$svg/jetpack-green';
+import { useModuleState } from '$features/module/lib/stores';
 
 type PurchaseSuccessProps = {
 	isImageGuideActive: boolean;
@@ -13,7 +13,8 @@ type PurchaseSuccessProps = {
 
 const PurchaseSuccess: React.FC< PurchaseSuccessProps > = ( { isImageGuideActive } ) => {
 	useEffect( () => {
-		enableCloudCss();
+		const [ , setCloudCssState ] = useModuleState( 'cloud_css' );
+		setCloudCssState( true );
 
 		// If image guide is enabled, request a new ISA report.
 		if ( isImageGuideActive && false !== Jetpack_Boost.site.canResizeImages ) {
