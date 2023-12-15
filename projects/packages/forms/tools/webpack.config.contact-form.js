@@ -1,7 +1,5 @@
 /**
- * This takes care of minifying CSS for the legacy contact-form bundle which leads its own life.
- *
- * This config is based on plugins/jetpack/tools/webpack.config.css.js, at the time of the migration to a separate package.
+ * This takes care of minifying CSS and JS.
  */
 
 const path = require( 'path' );
@@ -10,13 +8,14 @@ const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plug
 const glob = require( 'glob' );
 
 const scriptSrcDir = path.join( __dirname, '../src/contact-form/js' );
+const styleSrcDir = path.join( __dirname, '../src/contact-form/css' );
 
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	output: {
 		...jetpackWebpackConfig.output,
-		path: path.join( __dirname, '..' ),
+		path: path.join( __dirname, '../dist/contact-form' ),
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
@@ -86,74 +85,24 @@ const sharedWebpackConfig = {
 		// Delete the dummy JS files Webpack would otherwise create.
 		new RemoveAssetWebpackPlugin( {
 			assets: name =>
-				name.startsWith( 'src/contact-form/css' ) &&
-				( name.endsWith( '.js' ) || name.endsWith( 'map' ) ),
+				name.startsWith( 'css' ) && ( name.endsWith( '.js' ) || name.endsWith( 'map' ) ),
 		} ),
 	],
 };
 
-// Entries to minify
-const entries = {};
-
-// Entries to not minify
-const nominEntries = {};
-
-// Admin CSS files to insert into weirdRtlNominEntries and weirdRtlEntries.
-for ( const name of [
-	'src/contact-form/css/editor-inline-editing-style',
-	'src/contact-form/css/editor-style',
-	'src/contact-form/css/editor-ui',
-] ) {
-	entries[ name ] = path.join( __dirname, '..', name + '.css' );
-	nominEntries[ name + '.min' ] = path.join( __dirname, '..', name + '.css' );
-}
-
-// Weird frontend CSS files, only a minified rtl is built (and without the ".min" extension).
-// The ltr version is apparently used unminified.
-for ( const name of [ 'src/contact-form/css/grunion' ] ) {
-	entries[ name ] = path.join( __dirname, '..', name + '.css' );
-}
-
 module.exports = [
-	{
-		...sharedWebpackConfig,
-		entry: entries,
-		plugins: [
-			...sharedWebpackConfig.plugins,
-			// In some cases an output filename is the same as the input. Don't overwrite in that case.
-			new RemoveAssetWebpackPlugin( {
-				assets: Object.values( entries )
-					.filter( n => typeof n === 'string' )
-					.map( n => path.relative( path.dirname( __dirname ), n ) ),
-			} ),
-		],
-	},
-	{
-		...sharedWebpackConfig,
-		entry: nominEntries,
-		optimization: {
-			...sharedWebpackConfig.optimization,
-			minimize: false,
-		},
-		plugins: [
-			...sharedWebpackConfig.plugins,
-			// In some cases an output filename is the same as the input. Don't overwrite in that case.
-			new RemoveAssetWebpackPlugin( {
-				assets: Object.values( nominEntries )
-					.filter( n => typeof n === 'string' )
-					.map( n => path.relative( path.dirname( __dirname ), n ) ),
-			} ),
-		],
-	},
 	{
 		...sharedWebpackConfig,
 		entry: glob.sync( path.join( scriptSrcDir, '*.js' ) ).reduce( ( acc, filepath ) => {
 			acc[ 'js/' + path.parse( filepath ).name ] = filepath;
 			return acc;
 		}, {} ),
-		output: {
-			...jetpackWebpackConfig.output,
-			path: path.join( __dirname, '../dist/contact-form' ),
-		},
+	},
+	{
+		...sharedWebpackConfig,
+		entry: glob.sync( path.join( styleSrcDir, '*.css' ) ).reduce( ( acc, filepath ) => {
+			acc[ 'css/' + path.parse( filepath ).name ] = filepath;
+			return acc;
+		}, {} ),
 	},
 ];
