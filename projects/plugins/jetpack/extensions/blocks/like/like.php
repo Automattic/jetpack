@@ -20,15 +20,6 @@ use Jetpack_Gutenberg;
 function register_block() {
 	$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
 
-	$is_likes_module_inactive = ! \Jetpack::is_module_active( 'likes' );
-	$is_disabled_on_wpcom     = $is_wpcom && get_option( 'disabled_likes' ) && get_option( 'disabled_reblogs' );
-	$is_disabled_on_non_wpcom = ! $is_wpcom && get_option( 'disabled_likes' );
-	$disable_like_block       = $is_likes_module_inactive || $is_disabled_on_wpcom || $is_disabled_on_non_wpcom;
-
-	if ( $disable_like_block ) {
-		return;
-	}
-
 	Blocks::jetpack_register_block(
 		__DIR__,
 		array(
@@ -72,6 +63,13 @@ function render_block( $attr, $content, $block ) {
 	 */
 	$new_layout = apply_filters( 'likes_new_layout', true ) ? '&amp;n=1' : '';
 
+	static $master_iframe_added = false;
+
+	if ( ! $master_iframe_added && ! \Jetpack::is_module_active( 'likes' ) ) {
+		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
+		$master_iframe_added = true;
+	}
+
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$blog_id  = get_current_blog_id();
 		$bloginfo = get_blog_details( (int) $blog_id );
@@ -106,7 +104,6 @@ function render_block( $attr, $content, $block ) {
 		. "<div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='button'><span>" . esc_html__( 'Like', 'jetpack' ) . "</span></span> <span class='loading'>" . esc_html__( 'Loading...', 'jetpack' ) . '</span></div>'
 		. "<span class='sd-text-color'></span><a class='sd-link-color'></a>"
 		. '</div>';
-
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
 		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
@@ -138,4 +135,5 @@ function add_like_block_data() {
 		'before'
 	);
 }
+
 add_action( 'enqueue_block_assets', __NAMESPACE__ . '\add_like_block_data' );
