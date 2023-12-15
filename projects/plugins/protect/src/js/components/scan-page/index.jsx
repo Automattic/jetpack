@@ -1,11 +1,18 @@
-import { AdminSectionHero, Container, Col, H3, Text } from '@automattic/jetpack-components';
+import {
+	AdminSectionHero,
+	Container,
+	Col,
+	H3,
+	Text,
+	ActionPopover,
+} from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React, { useEffect, useCallback, useState, useRef, createRef } from 'react';
-import API from '../../api';
+import React, { useEffect } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useOnboardingPopover from '../../hooks/use-onboarding-popover';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
 import AdminPage from '../admin-page';
@@ -21,6 +28,7 @@ import useCredentials from './use-credentials';
 import useStatusPolling from './use-status-polling';
 
 const ScanPage = () => {
+	const { getRef, onboardingPopoverArgs } = useOnboardingPopover();
 	const { lastChecked, currentStatus, errorCode, errorMessage, hasRequiredPlan } = useProtectData();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { refreshStatus } = useDispatch( STORE_ID );
@@ -38,48 +46,6 @@ const ScanPage = () => {
 	} else {
 		currentScanStatus = 'active';
 	}
-
-	const [ onboardingStep, setOnboardingStep ] = useState( 1 );
-	const [ anchors, setAnchors ] = useState( {} );
-
-	const incrementOnboardingStep = useCallback( () => {
-		if ( onboardingStep === 4 ) {
-			setOnboardingStep( null );
-			return;
-		}
-
-		setOnboardingStep( onboardingStep + 1 );
-	}, [ onboardingStep ] );
-
-	const closeOnboarding = useCallback( () => {
-		API.protectOnboardingDismissed();
-		setOnboardingStep( null );
-	}, [] );
-
-	const refs = useRef( {} ).current;
-
-	// Function to get/create a ref by a unique key
-	const getRef = useCallback(
-		key => {
-			if ( ! refs[ key ] ) {
-				refs[ key ] = createRef();
-			}
-			return refs[ key ];
-		},
-		[ refs ]
-	);
-
-	useEffect( () => {
-		const updatedAnchors = Object.keys( refs ).reduce( ( acc, key ) => {
-			acc[ key ] = refs[ key ].current;
-			return acc;
-		}, {} );
-
-		setAnchors( prevAnchors => ( {
-			...prevAnchors,
-			...updatedAnchors,
-		} ) );
-	}, [ refs, setAnchors ] );
 
 	useStatusPolling();
 	useCredentials();
@@ -216,23 +182,12 @@ const ScanPage = () => {
 				</Container>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
 					<Col>
-						<Summary
-							anchors={ anchors }
-							onboardingStep={ onboardingStep }
-							incrementOnboardingStep={ incrementOnboardingStep }
-							closeOnboarding={ closeOnboarding }
-							getRef={ getRef }
-						/>
+						<Summary getRef={ getRef } />
 					</Col>
 					<Col>
-						<ThreatsList
-							anchors={ anchors }
-							onboardingStep={ onboardingStep }
-							incrementOnboardingStep={ incrementOnboardingStep }
-							closeOnboarding={ closeOnboarding }
-							getRef={ getRef }
-						/>
+						<ThreatsList getRef={ getRef } />
 					</Col>
+					<ActionPopover { ...onboardingPopoverArgs } />
 				</Container>
 			</AdminSectionHero>
 			<ScanFooter />
