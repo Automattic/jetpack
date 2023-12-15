@@ -52,6 +52,10 @@ function render_block( $attr, $content, $block ) {
 	$post_id = $block->context['postId'];
 	$title   = esc_html__( 'Like or Reblog', 'jetpack' );
 
+	if ( ! $post_id ) {
+		return;
+	}
+
 	/**
 	 * Enable an alternate Likes layout.
 	 *
