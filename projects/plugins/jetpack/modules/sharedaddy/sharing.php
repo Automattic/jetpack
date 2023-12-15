@@ -376,7 +376,15 @@ class Sharing_Admin {
 		do_action( 'pre_admin_screen_sharing' );
 		?>
 
-		<?php if ( current_user_can( 'manage_options' ) ) : ?>
+		<?php
+			$block_availability = Jetpack_Gutenberg::get_cached_availability();
+			$is_block_available = (bool) isset( $block_availability['sharing-buttons'] ) && $block_availability['sharing-buttons']['available'];
+			$current_theme      = wp_get_theme();
+			$is_block_theme     = $current_theme->is_block_theme();
+			$show_block_message = $is_block_available && $is_block_theme;
+		?>
+
+		<?php if ( current_user_can( 'manage_options' ) && ! $show_block_message ) : ?>
 
 		<div class="share_manage_options">
 		<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
@@ -675,6 +683,48 @@ class Sharing_Admin {
 		</form>
 	</div>
 	</div>
+
+	<!-- Showing Sharing Buttons Block message -->
+	<?php elseif ( current_user_can( 'manage_options' ) ) : ?>
+		
+		<?php
+			$sharer            = new Sharing_Service();
+			$showcase_services = array(
+				$sharer->get_service( 'twitter' ),
+				$sharer->get_service( 'facebook' ),
+				$sharer->get_service( 'email' ),
+				$sharer->get_service( 'reddit' ),
+			);
+			?>
+		
+		<div class="share_manage_options">
+			<br class="clearing" />
+			<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
+			<div class="sharing-block-message__items-wrapper">
+				<div>
+					<p><?php esc_html_e( 'Add sharing buttons to your blog and allow your visitors to share posts with their friends.', 'jetpack' ); ?></p>
+					
+					<div class="sharing-block-message__buttons-wrapper">
+						<a href="<?php echo esc_url( 'https://wordpress.com' ); ?>" class="button button-primary"><?php esc_html_e( 'Go to the site editor', 'jetpack' ); ?></a>
+						<a href="<?php echo esc_url( 'https://wordpress.com' ); ?>" class="button"><?php esc_html_e( 'Learn how to add Sharing Buttons', 'jetpack' ); ?></a>
+					</div>
+				</div>
+				<div>
+					<p><?php esc_html_e( 'Sharing Buttons example: ', 'jetpack' ); ?></p>
+					<div class="sharedaddy sd-sharing-enabled">
+						<div class="sd-content">
+							<ul class="preview">
+								<?php foreach ( $showcase_services as $id => $service ) : ?>
+									<?php $this->output_preview( $service ); ?>
+								<?php endforeach; ?>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+			<br class="clearing" />
+		</div>
+		
 
 	<?php endif; ?>
 

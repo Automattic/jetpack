@@ -438,3 +438,17 @@ body.settings_page_sharing .advanced input[type=submit] {
 	width: 0;
 	text-indent: 100%;
 }
+
+.sharing-block-message__items-wrapper {
+	display: flex;
+	flex-wrap: wrap;
+	column-gap: 6rem;
+}
+
+.sharing-block-message__buttons-wrapper {
+	display: inline-flex;
+}
+
+.sharing-block-message__buttons-wrapper a {
+	margin-right:1rem;
+}
