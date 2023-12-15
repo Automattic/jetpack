@@ -32,7 +32,6 @@ import { USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } from '../../plugins/ai-a
 import ConnectPrompt from './components/connect-prompt';
 import FeedbackControl from './components/feedback-control';
 import ImageWithSelect from './components/image-with-select';
-import { promptTemplates } from './components/prompt-templates-control';
 import ToolbarControls from './components/toolbar-controls';
 import UpgradePrompt from './components/upgrade-prompt';
 import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
@@ -200,24 +199,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		// Populate block inner blocks
 		replaceBlocks( clientId, storedInnerBlocks );
 	}, [ initialContent, clientId, replaceBlocks, getBlock, attributes?.useGutenbergSyntax ] );
-
-	const [ promptPlaceholder, setPromptPlaceholder ] = useState( '' );
-	const [ currentIndex, setCurrentIndex ] = useState( 0 );
-
-	// Loop through placeholder prompts for a nice UX effect.
-	useEffect( () => {
-		const interval = setInterval( () => {
-			if ( currentIndex < promptTemplates.length ) {
-				setPromptPlaceholder( promptTemplates[ currentIndex ].label );
-				setCurrentIndex( prevIndex => prevIndex + 1 );
-			} else {
-				clearInterval( interval );
-				setPromptPlaceholder( __( 'Ask Jetpack AI', 'jetpack' ) );
-			}
-		}, 1600 );
-
-		return () => clearInterval( interval );
-	}, [ promptPlaceholder, currentIndex ] );
 
 	useEffect( () => {
 		// we don't want to store "half way" states
@@ -569,7 +550,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					ref={ aiControlRef }
 					disabled={ requireUpgrade || ! connected }
 					value={ attributes.userPrompt }
-					placeholder={ promptPlaceholder || __( 'Ask Jetpack AI', 'jetpack' ) }
+					placeholder={ __( 'Ask Jetpack AI… Post about… Make a table for…', 'jetpack' ) }
 					onChange={ handleChange }
 					onSend={ handleSend }
 					onStop={ handleStopSuggestion }
