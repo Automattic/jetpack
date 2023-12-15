@@ -1,0 +1,54 @@
+.jetpack-subscription-modal {
+	visibility: hidden;
+	position: fixed;
+    z-index: 50000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    transition: all 0.4s;
+    display: flex;
+    justify-content: space-evenly;
+    align-content: center;
+    flex-wrap: wrap;
+}
+
+.jetpack-subscription-modal.open {
+	background-color: rgba(0,0,0,0.3);
+	visibility: visible;
+}
+
+.jetpack-subscription-modal__modal-content {
+	text-align: center;
+	background-color: #fefefe;
+	width: 100%;
+	max-width: 650px;
+	box-sizing: border-box;
+	transition: all .4s;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	justify-content: center;
+}
+
+.jetpack-subscription-modal.open .jetpack-subscription-modal__modal-content {
+	top: 0;
+	visibility: visible;
+}
+
+/*
+ * These text-wrap properties still have limited browser
+ * support, but based on feedback still adding them for when
+ * they are supported.
+ */
+.jetpack-subscription-modal__modal-content p {
+	text-wrap: balance;
+	text-wrap: pretty;
+}
+
+@media screen and (max-width: 640px) {
+	.jetpack-subscription-modal__modal-content {
+		width: 94%;
+	}
+}

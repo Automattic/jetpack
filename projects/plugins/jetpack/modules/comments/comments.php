@@ -613,6 +613,10 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return $url;
 		}
+
+		// TODO: Add a check if user is logged-in and already subscribed
+		$modal_enabled = get_option( 'jetpack_verbum_subscription_modal', true );
+
 		?>
 		<!DOCTYPE html>
 		<html <?php language_attributes(); ?>>
@@ -682,6 +686,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		<body>
 		<h1>
 			<?php
+			if ( ! $modal_enabled ) {
 				wp_kses_post(
 					printf(
 						/* translators: %s is replaced by HTML markup to include an ellipsis */
@@ -689,9 +694,15 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 						'<span id="ellipsis" class="hidden">&hellip;</span>'
 					)
 				);
+			} else {
+				wp_kses_post(
+					print __( 'Comment sent', 'jetpack' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				);
+			}
 			?>
 			</h1>
 		<script type="text/javascript">
+			<?php if ( ! $modal_enabled ) : ?>
 			try {
 				window.parent.location = <?php echo wp_json_encode( $url ); ?>;
 				window.parent.location.reload(true);
@@ -706,6 +717,20 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			}
 
 			setInterval(toggleEllipsis, 1200);
+			<?php else : ?>
+				if ( window.parent && window.parent !== window ) {
+					console.log('aaaaaaaaaa');
+					window.parent.postMessage(
+						{
+							type: 'subscriptionModalShow',
+							data: {
+								url: <?php echo wp_json_encode( $url ); ?>
+							}
+						},
+						window.location.origin
+					);
+				}
+			<?php endif; ?>
 		</script>
 		</body>
 		</html>
