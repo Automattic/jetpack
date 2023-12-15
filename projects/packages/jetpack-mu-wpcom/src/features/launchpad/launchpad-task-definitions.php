@@ -643,6 +643,16 @@ function wpcom_launchpad_get_task_definitions() {
 				return site_url( '/wp-admin/admin.php?page=wc-admin' );
 			},
 		),
+		'sensei_setup'                       => array(
+			'get_title'            => function () {
+				return __( 'Finish Sensei setup', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_sensei_setup_visible',
+			'get_calypso_path'     => function () {
+				return site_url( '/wp-admin/admin.php?page=sensei' );
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -975,6 +985,20 @@ function wpcom_launchpad_is_woocommerce_setup_visible() {
 
 	$active_plugins = get_option( 'active_plugins' );
 	return in_array( 'woocommerce/woocommerce.php', $active_plugins, true );
+}
+
+/**
+ * Determines wheter or not the sensei setup task should be visible.
+ *
+ * @return bool True if the sensei setup task should be visible.
+ */
+function wpcom_launchpad_is_sensei_setup_visible() {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( ! $is_atomic_site ) {
+		return false;
+	}
+
+	return is_plugin_active( 'sensei-lms/sensei-lms.php' );
 }
 
 /**
