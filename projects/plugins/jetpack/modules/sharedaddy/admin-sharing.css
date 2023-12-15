@@ -445,10 +445,7 @@ body.settings_page_sharing .advanced input[type=submit] {
 	column-gap: 6rem;
 }
 
-.sharing-block-message__buttons-wrapper {
-	display: inline-flex;
-}
 
-.sharing-block-message__buttons-wrapper a {
+.sharing-block-message__buttons-wrapper .button {
 	margin-right:1rem;
 }

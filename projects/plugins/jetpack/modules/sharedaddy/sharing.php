@@ -8,6 +8,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
@@ -686,14 +687,12 @@ class Sharing_Admin {
 
 	<!-- Showing Sharing Buttons Block message -->
 	<?php elseif ( current_user_can( 'manage_options' ) ) : ?>
-		
 		<?php
-			$sharer            = new Sharing_Service();
 			$showcase_services = array(
-				$sharer->get_service( 'twitter' ),
-				$sharer->get_service( 'facebook' ),
-				$sharer->get_service( 'email' ),
-				$sharer->get_service( 'reddit' ),
+				new Share_Tumblr( 'tumblr', array() ),
+				new Share_Facebook( 'facebook', array() ),
+				new Share_Email( 'email', array() ),
+				new Share_Reddit( 'reddit', array() ),
 			);
 			?>
 		
@@ -705,8 +704,12 @@ class Sharing_Admin {
 					<p><?php esc_html_e( 'Add sharing buttons to your blog and allow your visitors to share posts with their friends.', 'jetpack' ); ?></p>
 					
 					<div class="sharing-block-message__buttons-wrapper">
-						<a href="<?php echo esc_url( 'https://wordpress.com' ); ?>" class="button button-primary"><?php esc_html_e( 'Go to the site editor', 'jetpack' ); ?></a>
-						<a href="<?php echo esc_url( 'https://wordpress.com' ); ?>" class="button"><?php esc_html_e( 'Learn how to add Sharing Buttons', 'jetpack' ); ?></a>
+						<a href="<?php echo esc_url( admin_url( 'site-editor.php?path=%2Fwp_template' ) ); ?>" class="button button-primary">
+							<?php esc_html_e( 'Go to the site editor', 'jetpack' ); ?>
+						</a>
+						<a href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-sharing-block' ) ); ?>" class="button" target="_blank" rel="noopener noreferrer">
+							<?php esc_html_e( 'Learn how to add Sharing Buttons', 'jetpack' ); ?>
+						</a>
 					</div>
 				</div>
 				<div>
