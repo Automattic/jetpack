@@ -74,6 +74,24 @@ class REST_Endpoints {
 				'permission_callback' => array( static::class, 'url_secret_permission_check' ),
 			)
 		);
+
+		// Fetch URL verification secret.
+		register_rest_route(
+			'jetpack/v4',
+			'/identity-crisis/url-secret',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( static::class, 'compare_url_secret' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'secret' => array(
+						'description' => __( 'URL secret to compare to the ones stored in the database.', 'jetpack-idc' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -215,6 +233,31 @@ class REST_Endpoints {
 					'secret'     => $secret->get_secret(),
 					'expires_at' => $secret->get_expires_at(),
 				),
+			)
+		);
+	}
+
+	/**
+	 * Endpoint for comparing the existing secret.
+	 *
+	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_Error|\WP_REST_Response
+	 */
+	public static function compare_url_secret( $request ) {
+		$match = false;
+
+		$storage = new URL_Secret();
+
+		if ( $storage->exists() ) {
+			$remote_secret = $request->get_param( 'secret' );
+			$match         = $remote_secret && $storage->get_secret() === $remote_secret;
+		}
+
+		return rest_ensure_response(
+			array(
+				'code'  => 'success',
+				'match' => $match,
 			)
 		);
 	}
