@@ -74,11 +74,15 @@ class Tracking_Pixel {
 			$post = '0';
 		}
 		$view_data = compact( 'v', 'blog', 'post', 'tz', 'srv' );
+		// Batcache removes some of the UTM params from $_GET, we need to extract them from uri directly instead.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- We're sanitizing individual params in the loop.
+		$url_query = wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_QUERY );
+		parse_str( (string) $url_query, $url_params );
 		foreach ( self::TRACKED_UTM_PARAMETERS as $utm_parameter ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- UTMs are standardized parameters coming from outside WordPress, adding nonce is not possible
-			if ( isset( $_GET[ $utm_parameter ] ) && is_scalar( $_GET[ $utm_parameter ] ) ) {
+			if ( isset( $url_params[ $utm_parameter ] ) && is_scalar( $url_params[ $utm_parameter ] ) ) {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- UTMs are standardized parameters coming from outside WordPress, adding nonce is not possible
-				$view_data[ $utm_parameter ] = substr( sanitize_textarea_field( wp_unslash( $_GET[ $utm_parameter ] ) ), 0, 255 );
+				$view_data[ $utm_parameter ] = substr( sanitize_textarea_field( wp_unslash( $url_params[ $utm_parameter ] ) ), 0, 255 );
 			}
 		}
 

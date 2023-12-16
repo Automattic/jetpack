@@ -21,8 +21,7 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 	protected function set_up() {
 		parent::set_up();
 
-		$_GET['utm_source'] = 'a_source';
-		$_GET['utm_id']     = 'some_id';
+		$_SERVER['REQUEST_URI'] = 'index.html?utm_source=a_source&utm_id=some_id';
 	}
 
 	/**
@@ -34,8 +33,8 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 		parent::tear_down();
 		global $wp_the_query;
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_the_query = new WP_Query();
-		$_GET         = array();
+		$wp_the_query           = new WP_Query();
+		$_SERVER['REQUEST_URI'] = '';
 	}
 
 	/**
