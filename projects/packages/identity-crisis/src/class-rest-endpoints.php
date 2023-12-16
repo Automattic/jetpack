@@ -78,7 +78,7 @@ class REST_Endpoints {
 		// Fetch URL verification secret.
 		register_rest_route(
 			'jetpack/v4',
-			'/identity-crisis/url-secret',
+			'/identity-crisis/compare-url-secret',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( static::class, 'compare_url_secret' ),
