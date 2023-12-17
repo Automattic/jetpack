@@ -4,6 +4,7 @@ import PlaceholderSiteIcon from './placeholder-site-icon.svg';
 export function createBlockFromRecommendation( attrs ) {
 	return createBlock( 'jetpack/blogroll-item', {
 		...attrs,
+		...( ! attrs.name && { name: attrs.url } ),
 	} );
 }
 
