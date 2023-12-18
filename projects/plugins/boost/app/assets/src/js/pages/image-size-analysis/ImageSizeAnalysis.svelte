@@ -11,11 +11,9 @@
 		isaDataLoading,
 	} from '$features/image-size-analysis/lib/stores/isa-data';
 	import {
-		imageDataActiveGroup,
-		getImageDataGroupTabs,
 		initializeIsaSummary,
-		getTotalIssueCount,
 		isaSummary,
+		getGroupedSummary,
 	} from '$features/image-size-analysis/lib/stores/isa-summary';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Footer from '$layout/footer/footer';
@@ -28,13 +26,12 @@
 
 	$: isImageCdnModuleActive = $modulesState.image_cdn.active;
 	$: isaLastUpdated = $isaData.data.last_updated;
-	$: hasActiveGroup = !! imageDataActiveGroup( $isaSummary, $isaData );
 	$: images = $isaData.data.images;
 	$: activeGroup = $isaData.query.group;
+	$: hasActiveGroup = activeGroup !== 'all' && $isaSummary && activeGroup in $isaSummary;
 	$: dataLoading = $isaDataLoading;
 	$: summary = $isaSummary;
-	$: issueCount = getTotalIssueCount( $isaSummary );
-	$: dataGroupTabs = getImageDataGroupTabs( $isaSummary );
+	$: dataGroupTabs = getGroupedSummary( $isaSummary );
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
@@ -46,7 +43,7 @@
 				{isImageCdnModuleActive}
 				{isaLastUpdated}
 				{hasActiveGroup}
-				totalIssueCount={issueCount}
+				totalIssueCount={dataGroupTabs.all.issue_count}
 			/>
 			<ReactComponent
 				this={Tabs}

@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { type ISA } from './isa-data';
 import api from '$lib/api/api';
 import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
 import { setPromiseInterval } from '$lib/utils/set-promise-interval';
+import { type ISAGroupLabels } from '../isa-groups';
 
 /**
  * Valid values for the status field.
@@ -60,7 +60,7 @@ export function getSummaryProgress( summaryGroups: Record< string, ISASummaryGro
 			: 100;
 
 		return {
-			group,
+			group: group as ISAGroupLabels,
 			progress,
 			done: progress === 100,
 			has_issues: data.issue_count > 0,
@@ -73,50 +73,19 @@ export function getSummaryProgress( summaryGroups: Record< string, ISASummaryGro
  * Function tracking the total number of issues.
  * @param summary
  */
-export function getTotalIssueCount( summary: ISASummary ) {
-	return Object.values( summary?.groups || {} )
+export function getGroupedSummary( summary: ISASummary ) {
+	const totalIssueCount = Object.values( summary?.groups || {} )
 		.map( group => group.issue_count )
 		.reduce( ( a, b ) => a + b, 0 );
-}
 
-/**
- * Function tracking the number of total pages being scanned.
- * @param summary
- */
-function getTotalPagesCount( summary: ISASummary ) {
-	return Object.values( summary?.groups || {} )
-		.map( group => group.total_pages )
-		.reduce( ( a, b ) => a + b, 0 );
-}
-
-/**
- * Function which describes tabs to display in the UI.
- * @param summary
- */
-export function getImageDataGroupTabs( summary: ISASummary ): Record< string, ISASummaryGroup > {
-	return {
+	const dataGroupTabs = {
 		all: {
-			total_pages: getTotalPagesCount( summary ),
-			scanned_pages: getTotalPagesCount( summary ),
-			issue_count: getTotalIssueCount( summary ),
+			issue_count: totalIssueCount,
 		},
 		...summary?.groups,
 	};
-}
 
-/**
- * Function which describes the currently active tab.
- * @param summary
- * @param data
- */
-export function imageDataActiveGroup( summary: ISASummary, data: ISA ) {
-	// Get the tabs from the imageDataGroupTabs function
-	const tabs = getImageDataGroupTabs( summary );
-	const group = data.query.group;
-	if ( group in tabs ) {
-		return tabs[ group ] as ISASummaryGroup;
-	}
-	return tabs.all;
+	return dataGroupTabs;
 }
 
 export type ISA_Group = z.infer< typeof zSummaryGroup >;
