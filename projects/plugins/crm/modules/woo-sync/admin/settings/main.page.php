@@ -387,7 +387,7 @@ function jpcrm_settings_page_html_woosync_main() {
 				<tbody>
 
 					<tr>
-						<td colspan="2" class="wmid"><button type="submit" class="button button-primary button-large"><?php esc_html_e( 'Save Settings', 'zero-bs-crm' ); ?></button></td>
+						<td class="wmid"><button type="submit" class="button button-primary button-large"><?php esc_html_e( 'Save Settings', 'zero-bs-crm' ); ?></button></td>
 					</tr>
 
 				</tbody>
