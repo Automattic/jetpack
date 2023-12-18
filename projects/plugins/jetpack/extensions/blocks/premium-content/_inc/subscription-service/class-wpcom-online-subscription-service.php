@@ -65,9 +65,9 @@ class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Servi
 	/**
 	 * Returns true if the current authenticated user is subscribed to the current site.
 	 *
-	 * @return boolean
+	 * @return boole
 	 */
-	public function is_current_user_subscribed() {
+	public function is_current_user_subscribed(): bool {
 		include_once WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
 		$email             = wp_get_current_user()->user_email;
 		$subscriber_object = \Blog_Subscriber::get( $email );
@@ -85,9 +85,9 @@ class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Servi
 	/**
 	 * Returns true if the current authenticated user has a pending subscription to the current site.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public function is_current_user_pending_subscriber() {
+	public function is_current_user_pending_subscriber(): bool {
 		include_once WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
 		$email             = wp_get_current_user()->user_email;
 		$subscriber_object = \Blog_Subscriber::get( $email );
@@ -96,7 +96,7 @@ class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Servi
 		}
 		$blog_id             = $this->get_site_id();
 		$subscription_status = \Blog_Subscription::get_subscription_status_for_blog( $subscriber_object, $blog_id );
-		if ( 'pending' !== $subscription_status ) {
+		if ( self::BLOG_SUB_PENDING !== $subscription_status ) {
 			return false;
 		}
 		return true;

@@ -7,7 +7,7 @@
  */
 
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Status\Host;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
@@ -520,12 +520,12 @@ class Jetpack_Memberships {
 			$post_id = get_the_ID();
 		}
 		if ( ! $post_id ) {
-			return Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+			return Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 
 		$post_access_level = get_post_meta( $post_id, self::$post_access_level_meta_name, true );
 		if ( empty( $post_access_level ) ) {
-			$post_access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 		return $post_access_level;
 	}
@@ -577,7 +577,7 @@ class Jetpack_Memberships {
 
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$paywall            = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$is_paid_subscriber = $paywall->visitor_can_view_content( self::get_all_newsletter_plan_ids(), Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS );
+		$is_paid_subscriber = $paywall->visitor_can_view_content( self::get_all_newsletter_plan_ids(), Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS );
 
 		self::$user_is_paid_subscriber_cache[ $user_id ] = $is_paid_subscriber;
 		return $is_paid_subscriber;
@@ -618,14 +618,14 @@ class Jetpack_Memberships {
 		}
 
 		$post_access_level = self::get_post_access_level();
-		if ( Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $post_access_level ) {
+		if ( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $post_access_level ) {
 			self::$user_can_view_post_cache[ $cache_key ] = true;
 			return true;
 		}
 
 		if ( $user_id === 0 ) {
 			if ( defined( 'WPCOM_SENDING_POST_TO_SUBSCRIBERS' ) && WPCOM_SENDING_POST_TO_SUBSCRIBERS ) {
-				if ( Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS === $post_access_level ) {
+				if ( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS === $post_access_level ) {
 					return true;
 				}
 			}
@@ -637,17 +637,17 @@ class Jetpack_Memberships {
 		$all_newsletters_plan_ids = self::get_all_newsletter_plan_ids();
 
 		if ( 0 === count( $all_newsletters_plan_ids ) &&
-			Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS === $post_access_level ||
-			Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS === $post_access_level
+			Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS === $post_access_level ||
+			Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS === $post_access_level
 		) {
 			// The post is paywalled but there is no newsletter plans on the site.
 			// We downgrade the post level to subscribers-only
-			$post_access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
+			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
 		}
 
 		$can_view_post = $paywall->visitor_can_view_content( $all_newsletters_plan_ids, $post_access_level );
 
-		if ( $can_view_post && $post_access_level !== Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY ) {
+		if ( $can_view_post && $post_access_level !== Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY ) {
 			// Prevent batcache to cache paywalled content
 			if ( function_exists( 'batcache_cancel' ) ) {
 				batcache_cancel();
