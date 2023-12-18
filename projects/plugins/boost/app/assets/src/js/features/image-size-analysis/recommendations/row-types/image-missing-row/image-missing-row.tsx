@@ -1,11 +1,11 @@
 import { __ } from '@wordpress/i18n';
 import TableRow from '../table-row/table-row';
-import TableRowHover from '../table-row-hover/table-row-hover';
 import type { ImageDataType } from '../../../lib/stores/zod-types';
 import Device from '$features/image-size-analysis/recommendations/ui/device/device';
 import Pill from '$features/image-size-analysis/recommendations/ui/pill/pill';
 import RowTitle from '$features/image-size-analysis/recommendations/ui/row-title/row-title';
 import { removeGetParams } from '$lib/utils/remove-get-params';
+import TableRowHover from '../table-row-hover/table-row-hover';
 
 interface ImageMissingRowProps {
 	enableTransition: boolean;
@@ -16,7 +16,7 @@ const ImageMissingRow: React.FC< ImageMissingRowProps > = ( { enableTransition, 
 	const title = details.image.url.split( '/' ).pop() || '';
 
 	return (
-		<TableRow enableTransition={ enableTransition } expandable={ false }>
+		<TableRow enableTransition={ enableTransition }>
 			<div className="jb-thumbnail-image-missing">{ __( 'Image Missing', 'jetpack-boost' ) }</div>
 
 			<div className="jb-table-row-title">
@@ -34,6 +34,8 @@ const ImageMissingRow: React.FC< ImageMissingRowProps > = ( { enableTransition, 
 			<div className="jb-table-row-hover-content">
 				<TableRowHover
 					edit_url={ details.page.edit_url }
+					details={ details }
+					device_type={ null }
 					instructions={ __(
 						'This image does not appear to load. Please check the URL in the relevant page.',
 						'jetpack-boost'

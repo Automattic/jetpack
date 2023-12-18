@@ -22,7 +22,6 @@ const ImageSizeRow: React.FC< ImageSizeRowProps > = ( { enableTransition, detail
 	return (
 		<TableRow
 			enableTransition={ enableTransition }
-			expandable={ true }
 			expandedContent={ <Expanded details={ details } /> }
 		>
 			<TableRowContent title={ title } details={ details } />

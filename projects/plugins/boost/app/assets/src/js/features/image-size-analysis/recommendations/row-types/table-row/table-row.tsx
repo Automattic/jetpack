@@ -1,23 +1,18 @@
 import React, { useState, useCallback } from 'react';
 import classnames from 'classnames';
 interface TableRowProps {
-	expandable: boolean;
 	enableTransition: boolean;
 	children: React.ReactNode;
-	expandedContent: React.ReactNode;
+	expandedContent?: React.ReactNode;
 }
 
-const TableRow: React.FC< TableRowProps > = ( {
-	expandable,
-	enableTransition,
-	children,
-	expandedContent,
-} ) => {
+const TableRow: React.FC< TableRowProps > = ( { enableTransition, children, expandedContent } ) => {
+	const canExpand = !! expandedContent;
 	const [ expanded, setExpanded ] = useState( false );
 
 	const toggleExpand = useCallback(
 		( e: React.MouseEvent< HTMLDivElement > ) => {
-			if ( ! expandable ) {
+			if ( ! canExpand ) {
 				return;
 			}
 
@@ -28,7 +23,7 @@ const TableRow: React.FC< TableRowProps > = ( {
 
 			setExpanded( ! expanded );
 		},
-		[ expandable, expanded ]
+		[ expanded, canExpand ]
 	);
 
 	const transitionDuration = enableTransition ? 250 : 0;
@@ -45,12 +40,10 @@ const TableRow: React.FC< TableRowProps > = ( {
 			<div className="jb-table-row jb-recommendation-page-grid" onClick={ toggleExpand }>
 				{ children }
 
-				{ expandable && <div className="jb-table-row__expand">{ expanded ? '↑' : '↓' }</div> }
+				{ canExpand && <div className="jb-table-row__expand">{ expanded ? '↑' : '↓' }</div> }
 			</div>
 
-			{ expanded && expandable && (
-				<div className="jb-table-row__expanded">{ expandedContent }</div>
-			) }
+			{ expanded && canExpand && <div className="jb-table-row__expanded">{ expandedContent }</div> }
 		</div>
 	);
 };

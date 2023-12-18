@@ -176,9 +176,10 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 						</div>
 					) }
 
-					{ ! requestingReport && [ ISAStatus.Completed, ISAStatus.Queued ].includes( status ) && (
-						<MultiProgress summaryProgress={ getSummaryProgress( groups ) } />
-					) }
+					{ ! requestingReport &&
+						[ ISAStatus.Completed, ISAStatus.Queued ].includes( status as ISAStatus ) && (
+							<MultiProgress summaryProgress={ getSummaryProgress( groups ) } />
+						) }
 
 					{ showCDNRecommendation && (
 						<div className="jb-notice">
@@ -188,24 +189,25 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 						</div>
 					) }
 
-					{ [ ISAStatus.Queued, ISAStatus.Completed ].includes( status ) && ! requestingReport && (
-						<div className="jb-button-area">
-							<Button
-								disabled={ requestingReport }
-								onClick={ () =>
-									recordBoostEventAndRedirect(
-										'#image-size-analysis/all/1',
-										'clicked_view_isa_report_on_summary_page',
-										{}
-									)
-								}
-							>
-								{ status === ISAStatus.Completed
-									? __( 'See full report', 'jetpack-boost' )
-									: __( 'View report in progress', 'jetpack-boost' ) }
-							</Button>
-						</div>
-					) }
+					{ [ ISAStatus.Queued, ISAStatus.Completed ].includes( status as ISAStatus ) &&
+						! requestingReport && (
+							<div className="jb-button-area">
+								<Button
+									disabled={ requestingReport }
+									onClick={ () =>
+										recordBoostEventAndRedirect(
+											'#image-size-analysis/all/1',
+											'clicked_view_isa_report_on_summary_page',
+											{}
+										)
+									}
+								>
+									{ status === ISAStatus.Completed
+										? __( 'See full report', 'jetpack-boost' )
+										: __( 'View report in progress', 'jetpack-boost' ) }
+								</Button>
+							</div>
+						) }
 
 					{ ! [ ISAStatus.New, ISAStatus.Queued, ISAStatus.Completed ].includes( status ) && (
 						<div className="jb-button-area">
