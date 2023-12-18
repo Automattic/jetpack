@@ -259,10 +259,102 @@ function jetpack_is_new_post_screen() {
 }
 
 /**
+ * Determines if the user selected a "blogging" intent or goal when creating the site.
+ *
+ * @return bool
+ */
+function _jetpack_has_selected_blogging_goal_or_intent() {
+	$intent = get_option( 'site_intent', '' );
+	if ( 'write' === $intent || 'design-first' === $intent || 'start-writing' === $intent ) {
+		return true;
+	}
+
+	$goals = get_option( 'goals', array() );
+	if ( is_array( $goals ) && in_array( 'write', $goals, true ) ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Determines if the user has started setting up an ecommerce site, or selected "sell" as the site intent.
+ *
+ * @return bool
+ */
+function _jetpack_is_potential_ecommerce_site() {
+	$goals       = get_option( 'goals', array() );
+	$site_intent = get_option( 'site_intent', '' );
+
+	if ( 'sell' === $site_intent || ( is_array( $goals ) && in_array( 'sell', $goals, true ) ) ) {
+		return true;
+	}
+
+	// if user has started setting up woocommerce
+	$woo_profile = get_blog_option( 'woocommerce_onboarding_profile', false );
+	if ( $woo_profile ) {
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Determines if the user has selected "promote" as the site goal.
+ *
+ * @return bool
+ */
+function _jetpack_is_potential_promotion_site() {
+	$goals = get_option( 'goals', array() );
+
+	if ( ( is_array( $goals ) && in_array( 'promote', $goals, true ) ) ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Determines if the blog has more posts than pages.
+ *
+ * @return bool
+ */
+function _jetpack_has_more_posts_than_pages() {
+	$posts = wp_count_posts( 'post' );
+	$pages = wp_count_posts( 'page' );
+
+	return $posts->publish > $pages->publish;
+}
+
+/**
+ * Determines if the site is set up to show posts on the front page.
+ *
+ * @return bool
+ */
+function _jetpack_show_posts_on_front() {
+	if ( 'posts' === get_option( 'show_on_front' ) ) {
+		return true;
+	}
+}
+
+/**
  * Determines if the site might have a blog.
  *
  * @return bool
  */
 function jetpack_is_potential_blogging_site() {
-	return jetpack_has_write_intent() || jetpack_has_posts_page() || jetpack_has_or_will_publish_posts();
+	if ( _jetpack_has_selected_blogging_goal_or_intent() ) {
+		return true;
+	}
+	if ( _jetpack_is_potential_ecommerce_site() || _jetpack_is_potential_promotion_site() ) {
+		return false;
+	}
+	// only consider it a blog if the posts are shown on front, because
+	// some "promotion" style themes will add a secondary "blog" page by default
+	if ( _jetpack_show_posts_on_front() ) {
+		return true;
+	}
+	if ( _jetpack_has_more_posts_than_pages() ) {
+		return true;
+	}
+	return false;
 }
