@@ -718,19 +718,6 @@ function zeroBSCRM_permsCustomers() {
 	    return false;
 	}
 
-/**
- * Determine if the current user is allowed to manage segments.
- *
- * @return bool
- */
-function jpcrm_perms_segments() {
-	$current_user = wp_get_current_user();
-	if ( $current_user->has_cap( 'admin_zerobs_customers' ) ) {
-		return true;
-	}
-	return false;
-}
-
 	// LOGS
 
 
