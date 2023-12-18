@@ -334,6 +334,7 @@ function _jetpack_show_posts_on_front() {
 	if ( 'posts' === get_option( 'show_on_front' ) ) {
 		return true;
 	}
+	return false;
 }
 
 /**
