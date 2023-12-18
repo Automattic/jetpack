@@ -9,7 +9,7 @@
     &.is-fixed {
 		.jetpack-components-ai-control__container-wrapper {
 			position: relative;
-			padding-bottom: 0;
+			bottom: 0;
 		}
 
 		.jetpack-components-ai-control__container {
@@ -32,11 +32,12 @@
 
 	.jetpack-ai-assistant__bar-wrapper {
 		position: relative;
+		bottom: 0;
 	}
 }
 
 .jetpack-ai-assistant__bar-wrapper {
 	position: sticky;
-	bottom: 0;
 	z-index: 30;
+	bottom: 16px;
 }
