@@ -285,6 +285,9 @@ function jpcrm_settings_page_html_woosync_main() {
 
 					<tr>
 						<td class="wfieldname">
+							<?php ##WLREMOVE ?>
+							<div class="ui teal label right floated"><i class="circle info icon link"></i>  <a href="<?php echo esc_url( $zbs->urls['kb-contact-fields'] ); ?>" target="_blank"><?php esc_html_e( 'Read more', 'zero-bs-crm' ); ?></a></div>
+							<?php ##/WLREMOVE ?>
 							<label for="wpzbscrm_port"><?php esc_html_e( 'WooCommerce My Account', 'zero-bs-crm' ); ?>:</label><br />
 							<?php esc_html_e( 'Enter a comma-separated list of Jetpack CRM fields to let customers edit these via WooCommerce My Account.', 'zero-bs-crm' ); ?>
 						</td>
