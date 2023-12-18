@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\Like;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
@@ -69,14 +70,11 @@ function render_block( $attr, $content, $block ) {
 
 	static $main_iframe_added = false;
 
-	$is_wpcom                 = defined( 'IS_WPCOM' ) && IS_WPCOM;
-	$is_likes_module_inactive = ! \Jetpack::is_module_active( 'likes' );
-	$is_disabled_on_wpcom     = $is_wpcom && get_option( 'disabled_likes' ) && get_option( 'disabled_reblogs' );
-	$is_disabled_on_non_wpcom = ! $is_wpcom && get_option( 'disabled_likes' );
-	$like_widget_inactive     = $is_likes_module_inactive || $is_disabled_on_wpcom || $is_disabled_on_non_wpcom;
-
-	if ( ! $main_iframe_added && $like_widget_inactive ) {
+	if ( ! $main_iframe_added && is_legacy_likes_disabled() ) {
+		require_once JETPACK__PLUGIN_DIR . 'modules/likes.php';
 		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
+		wp_enqueue_script( 'jetpack_likes_queuehandler' );
+		wp_enqueue_style( 'jetpack_likes' );
 		$main_iframe_added = true;
 	}
 
@@ -122,13 +120,9 @@ function render_block( $attr, $content, $block ) {
 }
 
 /**
- * Add the initial state for the Like block.
+ * Add the initial state for the Like block in the editor
  */
 function add_like_block_data() {
-	if ( ! is_admin() ) {
-		return;
-	}
-
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$blog_id = get_current_blog_id();
 	} else {
@@ -146,4 +140,49 @@ function add_like_block_data() {
 	);
 }
 
-add_action( 'enqueue_block_assets', __NAMESPACE__ . '\add_like_block_data' );
+add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\add_like_block_data' );
+
+/**
+ * Helper function to determine whether the Like module has been disabled
+ */
+function is_legacy_likes_disabled() {
+	$is_wpcom                 = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$is_likes_module_inactive = ! \Jetpack::is_module_active( 'likes' );
+	$is_disabled_on_wpcom     = $is_wpcom && get_option( 'disabled_likes' ) && get_option( 'disabled_reblogs' );
+	$is_disabled_on_non_wpcom = ! $is_wpcom && get_option( 'disabled_likes' );
+
+	return $is_likes_module_inactive || $is_disabled_on_wpcom || $is_disabled_on_non_wpcom;
+}
+
+/**
+ * Registers and enqueues script and style for Jetpack Likes.
+ *
+ * This function conditionally registers and enqueues the Jetpack Likes
+ * CSS and JavaScript files based on the environment. It handles both
+ * WordPress.com and self-hosted WordPress environments. The function
+ * relies on `IS_WPCOM` to determine the environment and uses different
+ * paths for script and style files accordingly.
+ *
+ * @return void Early return if legacy likes are not disabled.
+ */
+function register_script_and_style() {
+	if ( ! is_legacy_likes_disabled() ) {
+		return;
+	}
+
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$style_url  = content_url( 'mu-plugins/likes/jetpack-likes.css' );
+		$script_url = content_url( 'mu-plugins/likes/queuehandler.js' );
+	} else {
+		$style_url  = plugins_url( 'modules/likes/style.css', dirname( __DIR__, 2 ) );
+		$script_url = Assets::get_file_url_for_environment(
+			'_inc/build/likes/queuehandler.min.js',
+			'modules/likes/queuehandler.js'
+		);
+	}
+
+	wp_register_style( 'jetpack_likes', $style_url, array(), JETPACK__VERSION );
+	wp_register_script( 'jetpack_likes_queuehandler', $script_url, array(), JETPACK__VERSION, true );
+}
+
+add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\register_script_and_style' );
