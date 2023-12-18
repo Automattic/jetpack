@@ -234,7 +234,7 @@ if ( ! $confirmAct ) {
 
 	?>
 
-	<p id="sbDescOLD"><?php echo wp_kses( sprintf( __( 'From this page you can choose global settings for your CRM, and using the tabs above you can set up different <a href="%s" target="_blank">Extensions</a>', 'zero-bs-crm' ), esc_url( $zbs->urls['products'] ) ), $zbs->acceptable_restricted_html ); ?></p>
+	<p id="sbDescOLD"><?php esc_html_e( 'From this page you can choose global settings for your CRM.', 'zero-bs-crm' ); ?></p>
 
 	<?php
 	if ( isset( $sbupdated ) ) {
