@@ -11,12 +11,6 @@
 
 	$: criticalCssCreated = $criticalCssState.created;
 	$: criticalCssIsGenerating = $isGenerating;
-	$: moduleStates = Object.entries( $modulesState ).reduce( ( acc, [ key, value ] ) => {
-		if ( key !== 'image_guide' && key !== 'image_size_analysis' ) {
-			acc.push( value.active );
-		}
-		return acc;
-	}, [] );
 	$: performanceHistoryNeedsUpgrade = ! $modulesState.performance_history.available;
 </script>
 
@@ -26,7 +20,6 @@
 	<div class="jb-section jb-section--alt jb-section--scores">
 		<ReactComponent
 			this={SpeedScore}
-			{moduleStates}
 			{criticalCssCreated}
 			{criticalCssIsGenerating}
 			{performanceHistoryNeedsUpgrade}

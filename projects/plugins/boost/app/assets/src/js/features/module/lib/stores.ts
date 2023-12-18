@@ -10,13 +10,16 @@ const modulesStateSchema = z.record(
 	} )
 );
 
+export const useModulesState = () => {
+	return useDataSync( 'jetpack_boost_ds', 'modules_state', modulesStateSchema );
+};
+
 export type ModulesState = z.infer< typeof modulesStateSchema >;
-export const useModuleState = ( moduleSlug: string, onSuccess?: ( state: boolean ) => void ) => {
-	const [ { data }, { mutate } ] = useDataSync(
-		'jetpack_boost_ds',
-		'modules_state',
-		modulesStateSchema
-	);
+export const useSingleModuleState = (
+	moduleSlug: string,
+	onSuccess?: ( state: boolean ) => void
+) => {
+	const [ { data }, { mutate } ] = useModulesState();
 
 	const setModuleState = useCallback(
 		( state: boolean ) => {

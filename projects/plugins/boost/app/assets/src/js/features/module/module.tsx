@@ -1,6 +1,6 @@
 import { ToggleControl } from '@automattic/jetpack-components';
 import { useEffect } from 'react';
-import { useModuleState } from './lib/stores';
+import { useSingleModuleState } from './lib/stores';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import styles from './module.module.scss';
 
@@ -25,7 +25,7 @@ const Module = ( {
 	onDisable,
 	onMountEnable,
 }: ModuleProps ) => {
-	const [ status, setStatus ] = useModuleState( slug, active => {
+	const [ status, setStatus ] = useSingleModuleState( slug, active => {
 		if ( active ) {
 			onEnable?.();
 		} else {

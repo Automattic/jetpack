@@ -1,6 +1,6 @@
 import CriticalCssMeta from '$features/critical-css/critical-css-meta/critical-css-meta';
 import { CriticalCssState } from '$features/critical-css/lib/stores/critical-css-state-types';
-import { useModuleState } from '$features/module/lib/stores';
+import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 import { Button, Notice, getRedirectUrl } from '@automattic/jetpack-components';
@@ -66,9 +66,9 @@ const Index = ( { criticalCss }: IndexProps ) => {
 		window.open( getRedirectUrl( 'jetpack-boost-lazy-load-deprecation' ), '_blank' );
 	};
 
-	const [ lazyLoadState ] = useModuleState( 'lazy_images' );
-	const [ cloudCssState ] = useModuleState( 'cloud_css' );
-	const [ isaState ] = useModuleState( 'image_size_analysis' );
+	const [ lazyLoadState ] = useSingleModuleState( 'lazy_images' );
+	const [ cloudCssState ] = useSingleModuleState( 'cloud_css' );
+	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 
 	const lazyLoadDeprecationMessage = lazyLoadState?.available
 		? __(

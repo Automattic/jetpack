@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { requestImageAnalysis } from '$features/image-size-analysis/lib/stores/isa-summary';
 import { navigate } from '$lib/utils/navigate';
 import Logo from '$svg/jetpack-green';
-import { useModuleState } from '$features/module/lib/stores';
+import { useSingleModuleState } from '$features/module/lib/stores';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 
 type PurchaseSuccessProps = {
@@ -13,7 +13,7 @@ type PurchaseSuccessProps = {
 };
 
 const PurchaseSuccess: React.FC< PurchaseSuccessProps > = ( { isImageGuideActive } ) => {
-	const [ , setCloudCssState ] = useModuleState( 'cloud_css' );
+	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
 	useEffect( () => {
 		setCloudCssState( true );
 
