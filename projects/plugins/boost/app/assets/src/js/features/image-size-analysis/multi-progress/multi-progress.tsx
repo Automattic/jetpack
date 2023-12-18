@@ -23,7 +23,6 @@ interface MultiProgressProps {
 
 const MultiProgress: React.FC< MultiProgressProps > = ( { summaryProgress } ) => {
 	return (
-
 		<div className="jb-multi-progress">
 			{ summaryProgress.map( ( summary, index ) => (
 				<div key={ index } className="jb-entry">
@@ -46,13 +45,7 @@ const MultiProgress: React.FC< MultiProgressProps > = ( { summaryProgress } ) =>
 									summary.has_issues ? 'has-issues' : ''
 								}` }
 							>
-								{ summary.has_issues ? (
-									<WarningIcon />
-								) : summary.done ? (
-									'✓'
-								) : (
-									index + 1
-								) }
+								{ summary.has_issues ? <WarningIcon /> : summary.done ? '✓' : index + 1 }
 							</span>
 						</ConditionalLink>
 					) }
@@ -80,8 +73,8 @@ const MultiProgress: React.FC< MultiProgressProps > = ( { summaryProgress } ) =>
 								trackEventProps={ summary.group }
 							>
 								{ summary.has_issues
-									// translators: %d: The number of issues
-									? sprintf( __( '%d issues', 'jetpack-boost' ), summary.issue_count )
+									? // translators: %d: The number of issues
+									  sprintf( __( '%d issues', 'jetpack-boost' ), summary.issue_count )
 									: __( 'No issues', 'jetpack-boost' ) }
 							</ConditionalLink>
 						</div>
