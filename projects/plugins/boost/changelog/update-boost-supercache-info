@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Rewrite SuperCacheInfo component in React

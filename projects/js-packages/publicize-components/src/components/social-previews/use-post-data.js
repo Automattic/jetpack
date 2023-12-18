@@ -1,6 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { usePostMeta } from '../../utils';
+import { usePostMeta } from '../../hooks/use-post-meta';
 import { getSigImageUrl } from '../generated-image-preview/utils';
 import { getMediaSourceUrl } from './utils';
 

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-WooSync: New `jpcrm_woo_sync_order_data` hook

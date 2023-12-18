@@ -70,7 +70,8 @@
 		"top-posts",
 		"ai-assistant-backend-prompts",
 		"sharing-button",
-		"sharing-buttons"
+		"sharing-buttons",
+		"ai-logo-generator"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
