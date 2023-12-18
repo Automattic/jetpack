@@ -98,4 +98,13 @@ abstract class Backup_Importer {
 	 * @return bool|WP_Error True on success, or a WP_Error on failure.
 	 */
 	abstract public function clean_up();
+
+	/**
+	 * Verify the integrity of the site after importing.
+	 *
+	 * This method should be implemented by subclasses to verify the integrity of the site after importing.
+	 *
+	 * @return bool|WP_Error True on success, or a WP_Error on failure.
+	 */
+	abstract public function verify_site_integrity();
 }

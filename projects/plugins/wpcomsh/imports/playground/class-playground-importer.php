@@ -14,6 +14,7 @@ require_once __DIR__ . '/class-sql-importer.php';
 require_once __DIR__ . '/../utils/class-filerestorer.php';
 require_once __DIR__ . '/../utils/logger/class-filelogger.php';
 require_once __DIR__ . '/class-sql-postprocessor.php';
+require_once __DIR__ . '/class-playground-site-integrity-check.php';
 
 use Imports\Utils\FileRestorer;
 use Imports\Utils\Logger\FileLogger;
@@ -118,6 +119,16 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	 */
 	public function clean_up() {
 		return Playground_Clean_Up::remove_tmp_files( $this->zip_or_tar_file_path, $this->destination_path );
+	}
+
+	/**
+	 * Verify the integrity of the site after importing.
+	 *
+	 * @return bool always true for now
+	 */
+	public function verify_site_integrity() {
+		$checker = new Playground_Site_Integrity_Check( $this->logger );
+		return $checker->check();
 	}
 
 	/**

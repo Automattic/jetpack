@@ -40,6 +40,7 @@ class Backup_Import_Manager {
 		'process_files',
 		'recreate_database',
 		'postprocess_database',
+		'verify_site_integrity',
 		'clean_up',
 	);
 	/**

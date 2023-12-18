@@ -15,13 +15,14 @@
 
 namespace Imports;
 
+require_once __DIR__ . '/../class-backup-import-action.php';
+
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use WP_Error;
 
 /**
  * Postprocess a SQL database.
  */
-class SQL_Postprocessor {
+class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 
 	/**
 	 * The home URL.
@@ -52,13 +53,6 @@ class SQL_Postprocessor {
 	private bool $dry_run;
 
 	/**
-	 * An optional logger for logging operations.
-	 *
-	 * @var null|Logger
-	 */
-	private $logger;
-
-	/**
 	 * SQL_Postprocessor constructor.
 	 *
 	 * @param string      $home_url   The home URL.
@@ -68,11 +62,11 @@ class SQL_Postprocessor {
 	 * @param null|Logger $logger     An optional logger for logging operations.
 	 */
 	public function __construct( string $home_url, string $site_url, string $tmp_prefix, $dry_run = true, $logger = null ) {
+		parent::__construct( $logger );
 		$this->home_url   = $home_url;
 		$this->site_url   = $site_url;
 		$this->tmp_prefix = $tmp_prefix;
 		$this->dry_run    = $dry_run;
-		$this->logger     = $logger;
 	}
 
 	/**
@@ -485,31 +479,6 @@ class SQL_Postprocessor {
 		global $wpdb;
 
 		return $this->tmp_prefix . $wpdb->prefix . $table_name;
-	}
-
-	/**
-	 * Logs a message if a logger is set.
-	 *
-	 * @param string $message The message to log.
-	 */
-	private function log( $message ) {
-		if ( $this->logger ) {
-			$this->logger->log( $message );
-		}
-	}
-
-	/**
-	 * Logs an error if a logger is set and generates a WP_Error.
-	 *
-	 * @param string $code    The error code.
-	 * @param string $message The error message.
-	 *
-	 * @return WP_Error
-	 */
-	private function error( $code, $message ) {
-		$this->log( "Error: {$code} {$message}" );
-
-		return new WP_Error( $code, $message );
 	}
 }
 

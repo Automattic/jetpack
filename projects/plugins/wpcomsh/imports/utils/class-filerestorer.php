@@ -7,6 +7,8 @@
 
 namespace Imports\Utils;
 
+require_once __DIR__ . '/../class-backup-import-action.php';
+
 use SplQueue;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -19,7 +21,7 @@ use WP_Error;
  * to a destination directory. It uses a queue to manage the files to be
  * restored, and it can optionally log its operations.
  */
-class FileRestorer {
+class FileRestorer extends \Imports\Backup_Import_Action {
 	/**
 	 * The source directory from which files will be restored.
 	 *
@@ -38,12 +40,6 @@ class FileRestorer {
 	 * @var SplQueue
 	 */
 	private $queue;
-	/**
-	 * An optional logger for logging operations.
-	 *
-	 * @var null|Logger
-	 */
-	private $logger;
 	/**
 	 * The list of symlinked directories.
 	 *
@@ -70,10 +66,10 @@ class FileRestorer {
 	 * @param null|Logger $logger An optional logger.
 	 */
 	public function __construct( $source_dir, $dest_dir, $logger = null ) {
+		parent::__construct( $logger );
 		$this->source_dir     = trailingslashit( $source_dir );
 		$this->dest_dir       = trailingslashit( $dest_dir );
 		$this->queue          = new SplQueue();
-		$this->logger         = $logger;
 		$this->total_count    = 0;
 		$this->symlinked_dirs = array();
 	}
@@ -99,6 +95,9 @@ class FileRestorer {
 		if ( $this->total_count === 0 ) {
 			return new WP_Error( 'file_queue_failed', __( 'No files are queued.' ) );
 		}
+		// This shouldn't be a hard stop, but we should log it.
+		$this->install_default_themes();
+
 		return true;
 	}
 
@@ -407,6 +406,35 @@ class FileRestorer {
 	}
 
 	/**
+	 * Installs default themes on the destination site via wp cli and skip if it's already symlinked.
+	 *
+	 * This function scans the themes directory in the source directory, identifies the default themes,
+	 * and installs them on the destination site if they are not already installed.
+	 */
+	public function install_default_themes() {
+		$source_themes_dir = $this->source_dir . self::THEMES_DIR;
+		$dest_themes_dir   = $this->dest_dir . self::THEMES_DIR;
+
+		if ( ! is_dir( $source_themes_dir ) ) {
+			$this->log( 'Install default themes: Source themes directory does not exist.' );
+			// Handle the case where the source themes directory does not exist
+			return;
+		}
+
+		$default_themes = glob( $source_themes_dir . '/twentytwenty*', GLOB_ONLYDIR );
+
+		foreach ( $default_themes as $theme_dir ) {
+			$theme_slug = basename( $theme_dir );
+			if ( ! is_dir( $dest_themes_dir . '/' . $theme_slug ) ) {
+				// The theme is not installed on the destination site, so install it
+				$this->log( 'Installing theme: ' . $theme_slug );
+				$result = self::install_theme( $theme_slug );
+				$this->log( 'Install theme result: ' . $result );
+			}
+		}
+	}
+
+	/**
 	 * Returns the list of file exclusion patterns.
 	 *
 	 * @return array The list of file exclusion patterns.
@@ -441,17 +469,36 @@ class FileRestorer {
 				'pattern' => '/\/wp-config\.php$/',
 				'message' => 'Excluded because file is wp-config.php.',
 			),
+			array(
+				'pattern' => '/\/wp-content\/themes\/twentytwenty.*/',
+				'message' => 'Excluded because path includes a theme starting with twentytwenty.',
+			),
 		);
 	}
 
 	/**
-	 * Logs a message if a logger is set.
+	 * Installs a theme using WP-CLI.
 	 *
-	 * @param string $message The message to log.
+	 * @param string $theme_slug The slug of the theme to install.
+	 * @return mixed
 	 */
-	public function log( $message ) {
-		if ( $this->logger ) {
-			$this->logger->log( $message );
+	public static function install_theme( $theme_slug ) {
+		return self::run_command( '--skip-plugins --skip-themes --format=json theme install ' . $theme_slug, array( 'return' => true ) );
+	}
+
+	/**
+	 * Run a WP-CLI command.
+	 *
+	 * @param string $command The command to run.
+	 * @param array  $args    The arguments to pass to the command.
+	 *
+	 * @return mixed
+	 */
+	public static function run_command( $command, $args = array() ) {
+		if ( class_exists( 'WP_CLI' ) ) {
+			return \WP_CLI::runcommand( $command, $args );
 		}
+
+		return false;
 	}
 }
