@@ -65,12 +65,12 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async toggleModule( moduleName ) {
-		this.page.click( `#jb-feature-toggle-${ moduleName }` );
+		this.page.click( `.jb-feature-toggle-${ moduleName }` );
 		await this.waitForApiResponse( 'modules-state' );
 	}
 
 	async isModuleEnabled( moduleName ) {
-		const toggle = await this.page.waitForSelector( `#jb-feature-toggle-${ moduleName }` );
+		const toggle = await this.page.waitForSelector( `.jb-feature-toggle-${ moduleName }` );
 		const toggleParent = await toggle.waitForSelector( 'xpath=..' );
 		const classNames = await toggleParent.getAttribute( 'class' );
 
