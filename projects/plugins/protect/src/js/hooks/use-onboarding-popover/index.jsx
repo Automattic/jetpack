@@ -1,28 +1,24 @@
 import { Text, Button, getRedirectUrl, useBreakpointMatch } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useState, useEffect, useMemo, useCallback, useRef, createRef } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import API from '../../api';
 import useThreatsList from '../../components/threats-list/use-threats-list';
 import { JETPACK_SCAN_SLUG } from '../../constants';
-import { STORE_ID } from '../../state/store';
 import useAnalyticsTracks from '../use-analytics-tracks';
 import useProtectData from '../use-protect-data';
+import useDynamicRefs from './use-dynamic-refs';
 
 const useOnboardingPopover = () => {
 	const { adminUrl, siteSuffix, freeOnboardingDismissed, paidOnboardingDismissed } =
 		window.jetpackProtectInitialState;
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const { hasRequiredPlan } = useProtectData();
+	const { getRef, anchors } = useDynamicRefs();
 
 	const { list } = useThreatsList();
 	const fixableList = list.filter( obj => obj.fixable );
-
-	const { status } = useSelect( select => ( {
-		status: select( STORE_ID ).getStatus(),
-	} ) );
 
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
@@ -31,11 +27,8 @@ const useOnboardingPopover = () => {
 	const { recordEventHandler } = useAnalyticsTracks();
 	const getScan = recordEventHandler( 'jetpack_protect_onboarding_get_scan_link_click', run );
 
-	const refs = useRef( {} ).current;
-
 	const [ onboardingPopoverArgs, setOnboardingPopoverArgs ] = useState( null );
 	const [ onboardingStep, setOnboardingStep ] = useState( 1 );
-	const [ anchors, setAnchors ] = useState( {} );
 
 	const totalSteps = useMemo( () => {
 		if ( ! hasRequiredPlan || list.length === 0 ) {
@@ -63,16 +56,6 @@ const useOnboardingPopover = () => {
 		API.protectOnboardingDismissed();
 		setOnboardingStep( null );
 	}, [] );
-
-	const getRef = useCallback(
-		key => {
-			if ( ! refs[ key ] ) {
-				refs[ key ] = createRef();
-			}
-			return refs[ key ];
-		},
-		[ refs ]
-	);
 
 	const yourScanResultsPopoverArgs = {
 		title: __( 'Your scan results', 'jetpack-protect' ),
@@ -269,20 +252,6 @@ const useOnboardingPopover = () => {
 		hasRequiredPlan,
 		anchors,
 	] );
-
-	useEffect( () => {
-		if ( status.status === 'idle' ) {
-			const updatedAnchors = Object.keys( refs ).reduce( ( acc, key ) => {
-				acc[ key ] = refs[ key ].current;
-				return acc;
-			}, {} );
-
-			setAnchors( prevAnchors => ( {
-				...prevAnchors,
-				...updatedAnchors,
-			} ) );
-		}
-	}, [ refs, setAnchors, status.status ] );
 
 	return {
 		anchors,
