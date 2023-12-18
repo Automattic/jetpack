@@ -20,6 +20,15 @@ use Jetpack_Gutenberg;
 function register_block() {
 	$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
 
+	$is_likes_module_inactive = ! \Jetpack::is_module_active( 'likes' );
+	$is_disabled_on_wpcom     = $is_wpcom && get_option( 'disabled_likes' ) && get_option( 'disabled_reblogs' );
+	$is_disabled_on_non_wpcom = ! $is_wpcom && get_option( 'disabled_likes' );
+	$disable_like_block       = $is_likes_module_inactive || $is_disabled_on_wpcom || $is_disabled_on_non_wpcom;
+
+	if ( $disable_like_block ) {
+		return;
+	}
+
 	Blocks::jetpack_register_block(
 		__DIR__,
 		array(

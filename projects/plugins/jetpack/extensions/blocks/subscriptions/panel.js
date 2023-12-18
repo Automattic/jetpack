@@ -18,14 +18,20 @@ import { store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
-import { accessOptions } from '../../shared/memberships/constants';
+import {
+	accessOptions,
+	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+} from '../../shared/memberships/constants';
 import { useAccessLevel, isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
 import {
 	NewsletterAccessDocumentSettings,
-	NewsletterAccessPrePublishSettings,
+	NewsletterEmailDocumentSettings,
 } from '../../shared/memberships/settings';
 import SubscribersAffirmation from '../../shared/memberships/subscribers-affirmation';
-import { getShowMisconfigurationWarning } from '../../shared/memberships/utils';
+import {
+	getShowMisconfigurationWarning,
+	MisconfigurationWarning,
+} from '../../shared/memberships/utils';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import metadata from './block.json';
 import EmailPreview from './email-preview';
@@ -56,7 +62,7 @@ const SubscriptionsPanelPlaceholder = ( { children } ) => {
 function NewsletterEditorSettingsPanel( { accessLevel } ) {
 	return (
 		<PluginDocumentSettingPanel
-			className="jetpack-subscribe-newsletters-panel"
+			className="jetpack-subscribe-newsletter-panel"
 			title={ __( 'Access', 'jetpack' ) }
 			icon={ <JetpackEditorPanelLogo /> }
 			name="jetpack-subscribe-newsletters-editor-panel"
@@ -76,21 +82,21 @@ const NewsletterDisabledPanels = () => (
 	<>
 		<PluginDocumentSettingPanel
 			className="jetpack-subscribe-newsletters-panel"
-			title={ __( 'Newsletter visibility', 'jetpack' ) }
+			title={ __( 'Access', 'jetpack' ) }
 			icon={ <JetpackEditorPanelLogo /> }
 		>
 			<NewsletterDisabledNotice />
 		</PluginDocumentSettingPanel>
 		<PluginPrePublishPanel
 			className="jetpack-subscribe-newsletters-panel"
-			title={ __( 'Newsletter visibility', 'jetpack' ) }
+			title={ __( 'Newsletter', 'jetpack' ) }
 			icon={ <JetpackEditorPanelLogo /> }
 		>
 			<NewsletterDisabledNotice />
 		</PluginPrePublishPanel>
 		<PluginPostPublishPanel
 			className="jetpack-subscribe-newsletters-panel"
-			title={ __( 'Newsletter visibility', 'jetpack' ) }
+			title={ __( 'Newsletter', 'jetpack' ) }
 			icon={ <JetpackEditorPanelLogo /> }
 		>
 			<NewsletterDisabledNotice />
@@ -113,32 +119,24 @@ function NewsletterPrePublishSettingsPanel( { accessLevel, isModuleActive, showP
 		return ! isModuleActive && ! isLoadingModules && ! meta?.jetpack_post_was_ever_published;
 	} );
 
-	return (
-		<PluginPrePublishPanel
-			initialOpen
-			className="jetpack-subscribe-newsletters-panel"
-			title={
-				<>
-					{ __( 'Newsletter:', 'jetpack' ) }
-					{ accessLevel && (
-						<span className={ 'jetpack-subscribe-post-publish-panel__heading' }>
-							{ accessOptions[ accessLevel ].panelHeading }
-						</span>
-					) }
-				</>
-			}
-			icon={ <JetpackEditorPanelLogo /> }
-		>
-			{ isModuleActive && (
-				<>
-					<NewsletterAccessPrePublishSettings accessLevel={ accessLevel } />
-					<Button variant="secondary" onClick={ showPreviewModal }>
-						{ __( 'Send test email', 'jetpack' ) }
-					</Button>
-				</>
-			) }
+	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
+	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
 
-			{ shouldLoadSubscriptionPlaceholder && (
+	const isSendEmailEnabled = useSelect( select => {
+		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
+		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
+		return ! meta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
+	} );
+
+	// Nudge to enable module
+	if ( ! isModuleActive && shouldLoadSubscriptionPlaceholder ) {
+		return (
+			<PluginPrePublishPanel
+				initialOpen
+				name="jetpack-subscribe-newsletters-panel"
+				title={ __( 'Newsletter', 'jetpack' ) }
+				icon={ <JetpackEditorPanelLogo /> }
+			>
 				<SubscriptionsPanelPlaceholder>
 					<Button
 						variant="secondary"
@@ -155,8 +153,53 @@ function NewsletterPrePublishSettingsPanel( { accessLevel, isModuleActive, showP
 							  ) }
 					</Button>
 				</SubscriptionsPanelPlaceholder>
-			) }
-		</PluginPrePublishPanel>
+			</PluginPrePublishPanel>
+		);
+	}
+
+	return (
+		<>
+			<PluginPrePublishPanel
+				initialOpen
+				name="jetpack-subscribe-access-panel"
+				className="jetpack-subscribe-newsletters-panel"
+				title={
+					<>
+						{ __( 'Access:', 'jetpack' ) }
+						{ accessLevel && (
+							<span className={ 'jetpack-subscribe-post-publish-panel__heading' }>
+								{ accessOptions[ accessLevel ].panelHeading }
+							</span>
+						) }
+					</>
+				}
+				icon={ <JetpackEditorPanelLogo /> }
+			>
+				<NewsletterAccessDocumentSettings accessLevel={ accessLevel } />
+			</PluginPrePublishPanel>
+			<PluginPrePublishPanel
+				initialOpen
+				name="jetpack-subscribe-newsletters-panel"
+				title={ __( 'Newsletter', 'jetpack' ) }
+				icon={ <JetpackEditorPanelLogo /> }
+			>
+				{ isModuleActive && (
+					<>
+						<NewsletterEmailDocumentSettings />
+						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
+
+						{ ! isSendEmailEnabled || showMisconfigurationWarning ? (
+							<p>{ __( 'Only publishing, not sending this post.', 'jetpack' ) }</p>
+						) : (
+							<SubscribersAffirmation prePublish={ true } accessLevel={ accessLevel } />
+						) }
+						<Button variant="link" onClick={ showPreviewModal }>
+							{ __( 'Send test email', 'jetpack' ) }
+						</Button>
+					</>
+				) }
+			</PluginPrePublishPanel>
+		</>
 	);
 }
 
@@ -172,10 +215,15 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 
 	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
 
+	const isSendEmailEnabled = useSelect( select => {
+		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
+		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
+		return ! meta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
+	} );
+
 	return (
 		<>
 			<PluginPostPublishPanel
-				initialOpen
 				title={
 					<>
 						{ __( 'Newsletter:', 'jetpack' ) }
@@ -190,12 +238,15 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 				icon={ <JetpackEditorPanelLogo /> }
 				name="jetpack-subscribe-newsletters-postpublish-panel"
 			>
-				{ ! showMisconfigurationWarning && <SubscribersAffirmation accessLevel={ accessLevel } /> }
+				{ ! isSendEmailEnabled || showMisconfigurationWarning ? (
+					<p>{ __( 'Only published, did not send this post.', 'jetpack' ) }</p>
+				) : (
+					<SubscribersAffirmation accessLevel={ accessLevel } />
+				) }
 			</PluginPostPublishPanel>
 
 			{ ! isStripeConnected && (
 				<PluginPostPublishPanel
-					initialOpen
 					className="jetpack-subscribe-newsletters-panel paid-newsletters-post-publish-panel"
 					title={ __( 'Set up a paid newsletter', 'jetpack' ) }
 					icon={ <JetpackEditorPanelLogo /> }
