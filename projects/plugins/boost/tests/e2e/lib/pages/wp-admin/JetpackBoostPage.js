@@ -71,8 +71,8 @@ export default class JetpackBoostPage extends WpPage {
 
 	async isModuleEnabled( moduleName ) {
 		const toggle = await this.page.waitForSelector( `.jb-feature-toggle-${ moduleName }` );
-		const toggleParent = await toggle.waitForSelector( 'xpath=..' );
-		const classNames = await toggleParent.getAttribute( 'class' );
+		const toggleSwitch = await toggle.waitForSelector( '.components-form-toggle' );
+		const classNames = await toggleSwitch.getAttribute( 'class' );
 
 		return classNames.includes( 'is-checked' );
 	}
