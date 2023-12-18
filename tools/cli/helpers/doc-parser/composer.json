@@ -20,9 +20,6 @@
 			"wordpress"
 		]
 	},
-	"suggest": {
-		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-	},
 	"config": {
 		"allow-plugins": {
 			"composer/installers": true
