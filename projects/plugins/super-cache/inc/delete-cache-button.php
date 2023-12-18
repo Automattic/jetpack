@@ -86,8 +86,8 @@ function wpsc_admin_bar_delete_cache_ajax() {
 		if ( defined( 'WPSCDELETEERROR' ) ) {
 			return json_decode( constant( 'WPSCDELETEERROR' ) );
 		} else {
-			$req_path = !empty($_POST['path']) ? $_POST['path'] : '/';
-			$referer = !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : admin_url();
+			$req_path = isset( $_POST['path'] ) ? sanitize_text_field( stripslashes( $_POST['path'] ) ) : '';
+			$referer = wp_get_referer();
 			/**
 			 * Hook into the cache deletion process after a successful cache deletion from the admin bar button.
 			 *
