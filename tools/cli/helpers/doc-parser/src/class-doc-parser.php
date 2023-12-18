@@ -33,10 +33,7 @@ class Doc_Parser {
 			echo PHP_EOL;
 
 			// Get data from the PHPDoc
-			$json = array(
-				...$json,
-				$this->get_phpdoc_data( $directory ),
-			);
+			$json[] = $this->get_phpdoc_data( $directory );
 		}
 
 		// Write to $output_file
