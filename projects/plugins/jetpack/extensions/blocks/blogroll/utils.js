@@ -2,9 +2,10 @@ import { createBlock } from '@wordpress/blocks';
 import PlaceholderSiteIcon from './placeholder-site-icon.svg';
 
 export function createBlockFromRecommendation( attrs ) {
+	const trimmedURL = attrs?.url?.replace( /^(?:https?:\/\/)?(?:www\.)?/i, '' ).split( '/' )[ 0 ];
 	return createBlock( 'jetpack/blogroll-item', {
 		...attrs,
-		...( ! attrs.name && { name: attrs.url } ),
+		...( ! attrs.name && { name: trimmedURL } ),
 	} );
 }
 
