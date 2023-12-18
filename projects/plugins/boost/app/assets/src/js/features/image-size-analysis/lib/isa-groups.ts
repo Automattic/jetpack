@@ -8,6 +8,8 @@ export const isaGroupLabels = {
 	fixed: __( 'Fixed Images', 'jetpack-boost' ),
 } as const;
 
+export type ISAGroupLabels = keyof typeof isaGroupLabels;
+
 export function isaGroupLabel( group: keyof typeof isaGroupLabels ) {
 	if ( ! isaGroupLabels[ group ] ) {
 		return group;

@@ -23,7 +23,7 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 } ) => {
 	const [ requestingReport, setRequestingReport ] = useState< boolean >( false );
 	const [ errorCode, setErrorCode ] = useState< number | undefined >( undefined );
-	const [ status, setStatus ] = useState< string | undefined >( undefined );
+	const [ status, setStatus ] = useState< ISAStatus | undefined >( undefined );
 	const [ groups, setGroups ] = useState< Record< string, ISASummaryGroup > >( {} );
 	const [ scannedPages, setScannedPages ] = useState< number >( 0 );
 	const [ totalIssues, setTotalIssues ] = useState< number >( 0 );
@@ -68,7 +68,10 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 			.reduce( ( a, b ) => a + b, 0 );
 	};
 
-	const getErrorMessage = ( error: string | undefined, currentStatus: string | undefined ) => {
+	const getErrorMessage = (
+		error: string | undefined,
+		currentStatus: string | false | undefined
+	) => {
 		return (
 			error ||
 			( currentStatus === ISAStatus.Stuck &&
@@ -177,7 +180,8 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 					) }
 
 					{ ! requestingReport &&
-						[ ISAStatus.Completed, ISAStatus.Queued ].includes( status as ISAStatus ) && (
+						status &&
+						[ ISAStatus.Completed, ISAStatus.Queued ].includes( status ) && (
 							<MultiProgress summaryProgress={ getSummaryProgress( groups ) } />
 						) }
 
@@ -189,7 +193,8 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 						</div>
 					) }
 
-					{ [ ISAStatus.Queued, ISAStatus.Completed ].includes( status as ISAStatus ) &&
+					{ status &&
+						[ ISAStatus.Queued, ISAStatus.Completed ].includes( status ) &&
 						! requestingReport && (
 							<div className="jb-button-area">
 								<Button
@@ -202,14 +207,15 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 										)
 									}
 								>
-									{ status === ISAStatus.Completed
+									{ ( status as ISAStatus ) === ISAStatus.Completed
 										? __( 'See full report', 'jetpack-boost' )
 										: __( 'View report in progress', 'jetpack-boost' ) }
 								</Button>
 							</div>
 						) }
 
-					{ ! [ ISAStatus.New, ISAStatus.Queued, ISAStatus.Completed ].includes( status ) && (
+					{ ( ! status ||
+						! [ ISAStatus.New, ISAStatus.Queued, ISAStatus.Completed ].includes( status ) ) && (
 						<div className="jb-button-area">
 							<Button disabled={ requestingReport } onClick={ handleAnalyzeClick }>
 								{ status === ISAStatus.Completed

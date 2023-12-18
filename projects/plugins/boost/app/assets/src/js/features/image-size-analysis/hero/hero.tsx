@@ -11,6 +11,11 @@ export const Hero = ( {
 	isaLastUpdated,
 	hasActiveGroup,
 	totalIssueCount,
+}: {
+	isImageCdnModuleActive: boolean;
+	isaLastUpdated: Date;
+	hasActiveGroup: boolean;
+	totalIssueCount: number;
 } ) => {
 	const formatter = new Intl.DateTimeFormat( 'en-US', {
 		month: 'long',
