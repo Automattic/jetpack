@@ -1,7 +1,7 @@
 <script lang="ts">
 	import SpeedScore from '../../features/speed-score/speed-score';
 	import Support from './support/support';
-	import Tips from './Tips.svelte';
+	import Tips from './tips/tips';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Footer from '$layout/footer/footer';
 	import Header from '$layout/header/header';
@@ -37,7 +37,7 @@
 		<slot />
 	</div>
 
-	<Tips />
+	<ReactComponent this={Tips} />
 
 	{#if $hasPrioritySupport}
 		<ReactComponent this={Support} />
