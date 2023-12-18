@@ -10,7 +10,8 @@ import useAnalyticsTracks from '../use-analytics-tracks';
 import useProtectData from '../use-protect-data';
 
 const useOnboardingPopover = () => {
-	const { adminUrl, siteSuffix, onboardingDismissed } = window.jetpackProtectInitialState;
+	const { adminUrl, siteSuffix, freeOnboardingDismissed, paidOnboardingDismissed } =
+		window.jetpackProtectInitialState;
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const { hasRequiredPlan } = useProtectData();
 
@@ -71,7 +72,7 @@ const useOnboardingPopover = () => {
 		title: __( 'Your scan results', 'jetpack-protect' ),
 		buttonContent: __( 'Next', 'jetpack-protect' ),
 		anchor: anchors.anchor1,
-		onClose: dismissOnboardingPopover,
+		onClose: closeOnboardingPopover,
 		onClick: incrementOnboardingPopoverStep,
 		noArrow: false,
 		position: 'middle top',
@@ -92,7 +93,7 @@ const useOnboardingPopover = () => {
 		title: __( 'Auto-fix with one click', 'jetpack-protect' ),
 		buttonContent: __( 'Next', 'jetpack-protect' ),
 		anchor: anchors.anchor2,
-		onClose: dismissOnboardingPopover,
+		onClose: closeOnboardingPopover,
 		onClick: incrementOnboardingPopoverStep,
 		noArrow: false,
 		position: isSm ? 'bottom right' : 'middle left',
@@ -132,7 +133,7 @@ const useOnboardingPopover = () => {
 		title: __( 'Daily automated scans', 'jetpack-protect' ),
 		buttonContent: __( 'Finish', 'jetpack-protect' ),
 		anchor: anchors.anchor2a,
-		onClose: dismissOnboardingPopover,
+		onClose: closeOnboardingPopover,
 		onClick: dismissOnboardingPopover,
 		noArrow: false,
 		position: 'middle right',
@@ -158,7 +159,7 @@ const useOnboardingPopover = () => {
 		title: __( 'Understand severity', 'jetpack-protect' ),
 		buttonContent: __( 'Next', 'jetpack-protect' ),
 		anchor: anchors.anchor3,
-		onClose: dismissOnboardingPopover,
+		onClose: closeOnboardingPopover,
 		onClick: incrementOnboardingPopoverStep,
 		noArrow: false,
 		position: 'top middle',
@@ -178,7 +179,7 @@ const useOnboardingPopover = () => {
 	const dailyAndManualScansPopoverArgs = {
 		title: __( 'Daily & manual scanning', 'jetpack-protect' ),
 		buttonContent: __( 'Finish', 'jetpack-protect' ),
-		onClose: dismissOnboardingPopover,
+		onClose: closeOnboardingPopover,
 		onClick: dismissOnboardingPopover,
 		noArrow: false,
 		position: isSm ? 'bottom left' : 'middle left',
@@ -197,40 +198,56 @@ const useOnboardingPopover = () => {
 
 	useEffect( () => {
 		const getOnboardingPopoverArgs = () => {
-			if ( onboardingDismissed ) {
+			// No popovers if both free and paid onboarding have been dismissed
+			if ( freeOnboardingDismissed && paidOnboardingDismissed ) {
 				return null;
 			}
 
 			switch ( onboardingStep ) {
 				case 1:
-					return yourScanResultsPopoverArgs;
+					// Show yourScanResultsPopoverArgs only if the respective onboarding is not dismissed
+					if ( ! hasRequiredPlan && ! freeOnboardingDismissed ) {
+						return yourScanResultsPopoverArgs;
+					}
+					if ( hasRequiredPlan && ! paidOnboardingDismissed ) {
+						return yourScanResultsPopoverArgs;
+					}
+					break;
 
 				case 2:
 					if ( ! hasRequiredPlan ) {
-						return dailyAutomatedScansPopoverArgs;
+						if ( ! freeOnboardingDismissed ) {
+							return dailyAutomatedScansPopoverArgs;
+						}
+					} else {
+						if ( paidOnboardingDismissed ) {
+							return null;
+						}
+
+						if ( list.length === 0 ) {
+							return { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor2b };
+						}
+						if ( fixableList.length === 0 ) {
+							return understandSeverityPopoverArgs;
+						}
+						return fixAllThreatsPopoverArgs;
 					}
-					if ( list.length === 0 ) {
-						return { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor2b };
-					}
-					if ( fixableList.length === 0 ) {
-						return understandSeverityPopoverArgs;
-					}
-					return fixAllThreatsPopoverArgs;
+					break;
 
 				case 3:
-					if ( ! hasRequiredPlan ) {
-						return null;
+					if ( hasRequiredPlan && ! paidOnboardingDismissed ) {
+						if ( fixableList.length === 0 ) {
+							return { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor4 };
+						}
+						return understandSeverityPopoverArgs;
 					}
-					if ( fixableList.length === 0 ) {
-						return { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor4 };
-					}
-					return understandSeverityPopoverArgs;
+					break;
 
 				case 4:
-					if ( ! hasRequiredPlan ) {
-						return null;
+					if ( hasRequiredPlan && ! paidOnboardingDismissed ) {
+						return { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor4 };
 					}
-					return { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor4 };
+					break;
 
 				default:
 					return null;
@@ -239,7 +256,13 @@ const useOnboardingPopover = () => {
 
 		setOnboardingPopoverArgs( getOnboardingPopoverArgs() );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ onboardingStep, onboardingDismissed, hasRequiredPlan, anchors ] );
+	}, [
+		onboardingStep,
+		freeOnboardingDismissed,
+		paidOnboardingDismissed,
+		hasRequiredPlan,
+		anchors,
+	] );
 
 	useEffect( () => {
 		const updatedAnchors = Object.keys( refs ).reduce( ( acc, key ) => {
@@ -254,6 +277,7 @@ const useOnboardingPopover = () => {
 	}, [ refs, setAnchors ] );
 
 	return {
+		anchors,
 		onboardingPopoverArgs,
 		closeOnboardingPopover,
 		getRef,
