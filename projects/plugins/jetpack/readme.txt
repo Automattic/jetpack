@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jasmussen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 12.7
+Stable tag: 12.9
 Requires at least: 6.3
 Requires PHP: 7.0
 Tested up to: 6.4
@@ -293,43 +293,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.9 - 2023-12-05
-#### Enhancements
-- Blogroll: Allowed non-WP.com sites to be suggested in the blogroll.
-- CSS Concatenation: Optimized concatenation to avoid loading CSS with less than two modules requiring it active.
-- Jetpack AI: Enabled the AI Assistant usage panel.
-- Likes: Updated the likes popover design and added RTL support.
-- My Jetpack: Added Creator to My Jetpack overview.
-- Newsletters: Updated the pre- and post-publish panels to display the selected newsletter categories an subscriber count.
-- Paid Content Block: Added support for selecting multiple plans.
-- Subscribe Block: Added support for editing placeholder text and button label.
-- Subscribe Modal: Added the subscribe modal feature that can be enabled from the Newsletter settings.
-- VideoPress: Added support for gated content.
-
-#### Improved compatibility
-- Added a check for connected plugins before cleaning up plugin options or uninstalling Jetpack.
-- Block Editor: Dequeued editor assets when they aren't in use.
-- Dashboard: Improved the display of controls and toggles for WordPress.com Toolbar, Auto-sharing and Markdown for comments.
-- Updated PHP version requirements to PHP 7.0 or newer.
-- Updated WordPress version requirements to WordPress 6.3.
-
+### 12.9.1 - 2023-12-18
 #### Bug fixes
-- AI Assistant: Fixed an AI error sometimes being rendered for prompts marked as unclear.
-- Contact Form: Prevented errors when a saved submitted contact form is requested but does not exist anymore.
-- Contact Info Block: Ensured text is always visible in the Contact Info Block on mobile.
-- Custom-CSS: Disabled loading `@import` directives from the filesystem. `@import` of CSS from URLs can still be done.
-- Email Preview: Fixed email preview when content in the editor is different from the latest version in the database.
-- Font Library: Fixed all Google font definitions being printed in the head and resolved compatibility issues with PHP 8.
-- Likes: Fixed wrong like count in the like dialog after liking.
-- Media: Fixed VideoPress videos and media length not being displayed when available.
-- Paywall Block: Fixed lack of spacing in some themes.
-- Related Posts Block: Fixed thumbnails opening in the same tab.
-- Shortcode Embeds: Fixed and updated the display of Gravatars and Gravatar profiles.
-- Subscribe Block: Fixed style and rendering issues.
-- Subscribe Block: Fixed incorrect redirects from the block when shown outside of a post page.
-- Subscribe Block: Fixed the button in a new line option not working.
-- Subscribe Widget: Fixed nonce validation.
-- VaultPress: Fixed the VaultPress submenu sometimes not being registered correctly.
+- Carousel: fix unresponsive navigation on Chrome browsers.
 
 --------
 

@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.9.1 - 2023-12-18
+### Bug fixes
+- Carousel: fix unresponsive navigation on Chrome browsers. [#34678]
+
 ## 12.9 - 2023-12-05
 ### Enhancements
 - Likes: Updated the likes popover design and added RTL support. [#34396]
