@@ -71,7 +71,6 @@ function render_block( $attr, $content, $block ) {
 	static $main_iframe_added = false;
 
 	if ( ! $main_iframe_added && is_legacy_likes_disabled() ) {
-		require_once JETPACK__PLUGIN_DIR . 'modules/likes.php';
 		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
 		wp_enqueue_script( 'jetpack_likes_queuehandler' );
 		wp_enqueue_style( 'jetpack_likes' );
