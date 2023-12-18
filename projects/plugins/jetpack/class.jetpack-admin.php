@@ -82,7 +82,7 @@ class Jetpack_Admin {
 			$site_products         = array_column( Jetpack_Plan::get_products(), 'product_slug' );
 			$has_anti_spam_product = count( array_intersect( array( 'jetpack_anti_spam', 'jetpack_anti_spam_monthly' ), $site_products ) ) > 0;
 
-			if ( Jetpack_Plan::supports( 'antispam' ) || $has_anti_spam_product ) {
+			if ( Jetpack_Plan::supports( 'akismet' ) || Jetpack_Plan::supports( 'antispam' ) || $has_anti_spam_product ) {
 				// Prevent Akismet from adding a menu item.
 				add_action(
 					'admin_menu',

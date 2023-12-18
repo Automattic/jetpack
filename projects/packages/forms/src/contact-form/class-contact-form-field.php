@@ -342,7 +342,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$this->label_styles .= 'line-height: ' . (int) $this->get_attribute( 'labellineheight' ) . ';';
 		}
 
-		if ( ! empty( $field_width ) ) {
+		if ( ! empty( $field_width ) && ! $this->has_inset_label() ) {
 			$class .= ' grunion-field-width-' . $field_width;
 		}
 
@@ -643,7 +643,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field  = '<fieldset class="grunion-radio-options">';
+		$field  = '<fieldset id="' . esc_attr( "$id-label" ) . '" class="grunion-radio-options">';
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
 		$field_style = 'style="' . $this->option_styles . '"';
@@ -737,7 +737,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		// checkbox is checked. Unlike radio buttons, for which the required attribute is satisfied if
 		// any of the radio buttons in the group is selected, adding a required attribute directly to
 		// a checkbox means that this specific checkbox must be checked.
-		$field  = '<fieldset class="grunion-checkbox-multiple-options"' . ( $required ? 'data-required' : '' ) . '>';
+		$field  = '<fieldset id="' . esc_attr( "$id-label" ) . '" class="grunion-checkbox-multiple-options"' . ( $required ? 'data-required' : '' ) . '>';
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
 		$field_style = 'style="' . $this->option_styles . '"';
@@ -833,16 +833,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			);
 		}
 
-		wp_enqueue_script(
+		Assets::register_script(
 			'grunion-frontend',
-			Assets::get_file_url_for_environment(
-				'_inc/build/contact-form/js/grunion-frontend.min.js',
-				'modules/contact-form/js/grunion-frontend.js'
-			),
-			array( 'jquery', 'jquery-ui-datepicker' ),
-			\JETPACK__VERSION,
-			false
+			'../../dist/contact-form/js/grunion-frontend.js',
+			__FILE__,
+			array(
+				'enqueue'      => true,
+				'dependencies' => array( 'jquery', 'jquery-ui-datepicker' ),
+				'version'      => \JETPACK__VERSION,
+			)
 		);
+
 		wp_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( 'css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );
 
 		// Using Core's built-in datepicker localization routine
@@ -970,8 +971,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 		$field_class       = "class='" . trim( esc_attr( $type ) . ' ' . esc_attr( $class ) ) . "' ";
 		$wrap_classes      = empty( $class ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $class ) ) ) . '-wrap'; // this adds
-		// Label is displayed inside the input instead of above it.
-		$has_inset_label = in_array( $form_style, array( 'outlined', 'animated' ), true );
+		$has_inset_label   = $this->has_inset_label();
 
 		if ( empty( $label ) ) {
 			$wrap_classes .= ' no-label';
@@ -996,7 +996,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		// Fields with an inset label need an extra wrapper to show the error message below the input.
 		if ( $has_inset_label ) {
-			$field .= "\n<div class='contact-form__inset-label-wrap'>\n";
+			$field_width       = $this->get_attribute( 'width' );
+			$inset_label_class = array( 'contact-form__inset-label-wrap' );
+
+			if ( ! empty( $field_width ) ) {
+				array_push( $inset_label_class, 'grunion-field-width-' . $field_width . '-wrap' );
+			}
+
+			$field .= "\n<div class='" . implode( ' ', $inset_label_class ) . "'>\n";
 		}
 
 		$field .= "\n<div {$block_style} {$shell_field_class} >\n"; // new in Jetpack 6.8.0
@@ -1105,5 +1112,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$class_name = $this->form->get_attribute( 'className' );
 		preg_match( '/is-style-([^\s]+)/i', $class_name, $matches );
 		return count( $matches ) >= 2 ? $matches[1] : null;
+	}
+
+	/**
+	 * Checks if the field has an inset label, i.e., a label displayed inside the field instead of above.
+	 *
+	 * @return boolean
+	 */
+	private function has_inset_label() {
+		$form_style = $this->get_form_style();
+
+		return in_array( $form_style, array( 'outlined', 'animated' ), true );
 	}
 }

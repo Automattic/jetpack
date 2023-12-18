@@ -279,6 +279,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Site setup', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'  => array(
+				'woocommerce_setup',
+				'sensei_setup',
 				'blogname_set',
 				'front_page_updated',
 				'verify_domain_email',
