@@ -17,9 +17,9 @@ use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
-use function Automattic\Jetpack\Extensions\Premium_Content\subscription_service;
 
 require_once __DIR__ . '/constants.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
 /**
  * These block defaults should match ./constants.js
@@ -94,6 +94,20 @@ function register_block() {
 
 	register_post_meta(
 		'post',
+		META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+		array(
+			'default'       => false,
+			'show_in_rest'  => true,
+			'single'        => true,
+			'type'          => 'boolean',
+			'auth_callback' => function () {
+				return wp_get_current_user()->has_cap( 'edit_posts' );
+			},
+		)
+	);
+
+	register_post_meta(
+		'post',
 		META_NAME_FOR_POST_TIER_ID_SETTINGS,
 		array(
 			'show_in_rest'  => true,
@@ -109,7 +123,13 @@ function register_block() {
 	add_filter(
 		'jetpack_sync_post_meta_whitelist',
 		function ( $allowed_meta ) {
-			return array_merge( $allowed_meta, array( META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
+			return array_merge(
+				$allowed_meta,
+				array(
+					META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+					META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+				)
+			);
 		}
 	);
 
@@ -526,11 +546,8 @@ function render_block( $attributes ) {
 	}
 
 	if ( class_exists( '\Jetpack_Memberships' ) ) {
-		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript and thickbox.
-		Jetpack_Gutenberg::load_assets_as_required( __DIR__, array( 'thickbox' ) );
-		if ( ! wp_style_is( 'enqueued' ) ) {
-			wp_enqueue_style( 'thickbox' );
-		}
+		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript.
+		Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 	} else {
 		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 	}
@@ -806,14 +823,7 @@ function add_paywall( $the_content ) {
 		return $the_content;
 	}
 
-	require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-	$token_service              = subscription_service();
-	$token                      = $token_service->get_and_set_token_from_request();
-	$payload                    = $token_service->decode_token( $token );
-	$is_valid_token             = ! empty( $payload );
-	$email_confirmation_pending = $is_valid_token && isset( $payload['blog_sub'] ) && $payload['blog_sub'] === 'pending';
-
-	$paywalled_content = get_paywall_content( $post_access_level, $email_confirmation_pending ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$paywalled_content = get_paywall_content( $post_access_level ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	if ( has_block( \Automattic\Jetpack\Extensions\Paywall\BLOCK_NAME ) ) {
 		if ( strpos( $the_content, \Automattic\Jetpack\Extensions\Paywall\BLOCK_HTML ) ) {
@@ -869,11 +879,10 @@ function maybe_gate_existing_comments( $comment ) {
  * Returns paywall content blocks
  *
  * @param string $post_access_level The newsletter access level.
- * @param string $email_confirmation_pending True if the current user needs to validate their email.
  * @return string
  */
-function get_paywall_content( $post_access_level, $email_confirmation_pending = false ) {
-	if ( $email_confirmation_pending ) {
+function get_paywall_content( $post_access_level ) {
+	if ( Jetpack_Memberships::user_is_pending_subscriber() ) {
 		return get_paywall_blocks_subscribe_pending();
 	}
 	if ( doing_filter( 'get_the_excerpt' ) ) {

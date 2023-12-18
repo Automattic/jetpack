@@ -258,11 +258,29 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
+		'ai-assembler'           => array(
+			'get_title'           => function () {
+				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
+			},
+			'task_ids'            => array(
+				'verify_domain_email',
+				'plan_completed',
+				'setup_free',
+				'design_selected',
+				'domain_upsell',
+				'first_post_published',
+				'design_edited',
+				'site_launched',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
+		),
 		'legacy-site-setup'      => array(
 			'get_title' => function () {
 				return __( 'Site setup', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'  => array(
+				'woocommerce_setup',
+				'sensei_setup',
 				'blogname_set',
 				'front_page_updated',
 				'verify_domain_email',
@@ -391,15 +409,16 @@ function wpcom_is_checklist_task_complete( $task_id ) {
  * Returns launchpad checklist by checklist slug.
  *
  * @param string $checklist_slug Checklist slug.
+ * @param string $launchpad_context Screen where Launchpad is loading.
  *
  * @return Task[] Collection of tasks for a given checklist
  */
-function wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug ) {
+function wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context = null ) {
 	if ( ! $checklist_slug ) {
 		return array();
 	}
 
-	return wpcom_launchpad_checklists()->build( $checklist_slug );
+	return wpcom_launchpad_checklists()->build( $checklist_slug, $launchpad_context );
 }
 
 // TODO: Write code p2 post or dotcom post

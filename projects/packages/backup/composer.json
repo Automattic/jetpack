@@ -8,6 +8,7 @@
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-backup-helper-script-manager": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",

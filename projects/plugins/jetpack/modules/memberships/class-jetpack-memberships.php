@@ -284,6 +284,19 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * Show an error to the user (or embed a clue in the HTML) when the button does not get rendered properly.
+	 *
+	 * @param WP_Error $error The error message with error code.
+	 * @return string The error message rendered as HTML.
+	 */
+	public function render_button_error( $error ) {
+		if ( $this->user_can_edit() ) {
+			return '<div><strong>Jetpack Memberships Error: ' . $error->get_error_code() . '</strong><br />' . $error->get_error_message() . '</div>';
+		}
+		return '<div>Sorry! This product is not available for purchase at this time.</div><!-- Jetpack Memberships Error: ' . $error->get_error_code() . ' -->';
+	}
+
+	/**
 	 * Renders a preview of the Recurring Payment button, which is not hooked
 	 * up to the subscription url. Used to preview the block on the frontend
 	 * for site editors when Stripe has not been connected.
@@ -340,14 +353,14 @@ class Jetpack_Memberships {
 	 * @return string|void - HTML for the button, void removes the button.
 	 */
 	public function render_button( $attributes, $content = null, $block = null ) {
-		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name, array( 'thickbox', 'wp-polyfill' ) );
+		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name );
 
 		if ( $this->should_render_button_preview( $block ) ) {
 			return $this->render_button_preview( $attributes, $content );
 		}
 
 		if ( empty( $attributes['planId'] ) ) {
-			return;
+			return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npi', __( 'No plan was configured for this button.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that an existing payment plan is selected for this block.', 'jetpack' ) ) );
 		}
 
 		// This is string of '+` separated plan ids. Loop through them and
@@ -359,11 +372,17 @@ class Jetpack_Memberships {
 				continue;
 			}
 			$product = get_post( $plan_id );
-			if ( ! $product || is_wp_error( $product ) ) {
-				continue;
+			if ( ! $product ) {
+				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npf', __( 'Could not find a plan for this button.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
 			}
-			if ( $product->post_type !== self::$post_type_plan || 'publish' !== $product->post_status ) {
-				continue;
+			if ( is_wp_error( $product ) ) {
+				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npf-we', __( 'Encountered an error when getting the plan associated with this button:', 'jetpack' ) . ' ' . $product->get_error_message() . '. ' . __( ' Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
+			}
+			if ( $product->post_type !== self::$post_type_plan ) {
+				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-pnplan', __( 'The payment plan selected is not actually a payment plan.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
+			}
+			if ( 'publish' !== $product->post_status ) {
+				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-psnpub', __( 'The selected payment plan is not active.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
 			}
 			$valid_plans[] = $plan_id;
 		}
@@ -374,8 +393,6 @@ class Jetpack_Memberships {
 			return;
 		}
 		$plan_id = implode( '+', $valid_plans );
-
-		add_thickbox();
 
 		if ( ! empty( $content ) ) {
 			$block_id      = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
@@ -564,6 +581,17 @@ class Jetpack_Memberships {
 
 		self::$user_is_paid_subscriber_cache[ $user_id ] = $is_paid_subscriber;
 		return $is_paid_subscriber;
+	}
+
+	/**
+	 * Determines whether the current user has a pending subscription.
+	 *
+	 * @return bool Whether the user has a pending subscription
+	 */
+	public static function user_is_pending_subscriber() {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		return $subscription_service->is_current_user_pending_subscriber();
 	}
 
 	/**

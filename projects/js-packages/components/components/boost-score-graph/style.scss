@@ -15,3 +15,8 @@
     }
 
 }
+
+.boost-uplot-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+}

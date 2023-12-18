@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Segments: Fixing a bug to ensure segments can be deleted with Advanced Segments active
