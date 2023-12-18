@@ -71,7 +71,11 @@ function render_block( $attr, $content, $block ) {
 	static $main_iframe_added = false;
 
 	if ( ! $main_iframe_added && is_legacy_likes_disabled() ) {
-		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			add_action( 'wp_footer', array( 'Jetpack_Likes', 'likes_master' ), 21 );
+		} else {
+			add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
+		}
 		wp_enqueue_script( 'jetpack_likes_queuehandler' );
 		wp_enqueue_style( 'jetpack_likes' );
 		$main_iframe_added = true;
