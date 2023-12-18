@@ -49,8 +49,29 @@ export async function docsCli( argv ) {
 
 	const parser_options = [ path.resolve( './tools/cli/helpers/doc-parser/runner.php' ), ...paths ];
 
-	child_process.spawnSync( 'php', parser_options, {
+	let data = child_process.spawnSync( 'php', parser_options, {
 		cwd: path.resolve( './' ),
 		stdio: [ 'inherit', 'inherit', 'ignore' ],
 	} );
+
+	if ( data.status !== 0 ) {
+		// Something is wrong, let's try to run composer update.
+		console.debug( 'Preparing doc-parser package...' );
+		data = child_process.spawnSync( 'composer', [ 'update' ], {
+			cwd: path.resolve( './tools/cli/helpers/doc-parser' ),
+			stdio: [ 'inherit', 'inherit', 'ignore' ],
+		} );
+		if ( data.status !== 0 ) {
+			// Running composer update didn't help, exiting.
+			console.error(
+				"Failed to prepare the doc-parser package. Try running 'jetpack install -v packages/doc-parser'."
+			);
+		} else {
+			// Retrying the parser.
+			child_process.spawnSync( 'php', parser_options, {
+				cwd: path.resolve( './' ),
+				stdio: [ 'inherit', 'inherit', 'ignore' ],
+			} );
+		}
+	}
 }

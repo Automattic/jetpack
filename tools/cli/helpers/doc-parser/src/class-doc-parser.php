@@ -36,13 +36,14 @@ class Doc_Parser {
 			$json[] = $this->get_phpdoc_data( $directory );
 		}
 
+		$output = json_encode( $json );
 		// Write to $output_file
-		$error = ! file_put_contents( $output_file, $json );
+		$error = ! file_put_contents( $output_file, $output );
 
 		if ( $error ) {
 			printf(
 				'Problem writing %1$s bytes of data to %2$s' . PHP_EOL,
-				strlen( $json ),
+				strlen( $output ),
 				$output_file
 			);
 			exit( 1 );
