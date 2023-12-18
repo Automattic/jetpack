@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.38.2] - 2023-12-15
+### Fixed
+- Social: Fixed issue with auto-conversion option logic. [#34666]
+
+## [0.38.1] - 2023-12-14
+### Fixed
+- Fixed Jetpack Social scheduled post messaging. [#34182]
+- Social: Fixed bug with PHP conversion error. [#34636]
+- Updated version. [#34182]
+
 ## [0.38.0] - 2023-12-11
 ### Changed
 - Social: Refactored storing of feature options to use core functions. [#34113]
@@ -433,6 +443,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.38.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.38.1...v0.38.2
+[0.38.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.38.0...v0.38.1
 [0.38.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.37.2...v0.38.0
 [0.37.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.37.1...v0.37.2
 [0.37.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.37.0...v0.37.1
