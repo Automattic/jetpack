@@ -18,7 +18,7 @@ interface Subscription_Service {
 	/**
 	 * The subscription service can be used.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public static function available();
 
@@ -42,11 +42,18 @@ interface Subscription_Service {
 	 * can the visitor see the premium content?
 	 *
 	 * @param array  $valid_plan_ids .
-	 * @param string $access_level   .
+	 * @param string $access_level .
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function visitor_can_view_content( $valid_plan_ids, $access_level );
+
+	/**
+	 * Is the current user a pending subscriber for the current site?
+	 *
+	 * @return bool
+	 */
+	public function is_current_user_pending_subscriber(): bool;
 
 	/**
 	 * The current visitor would like to obtain access. Where do they go?

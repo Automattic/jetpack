@@ -6,7 +6,7 @@
  * @since 12.4
  */
 
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 /**
@@ -190,7 +190,8 @@ HTML;
 		} else {
 			$access_level = get_post_meta( $post->ID, '_jetpack_newsletter_access', true );
 		}
-		$is_accessible_by_everyone = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level || empty( $access_level );
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$is_accessible_by_everyone = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level || empty( $access_level );
 		if ( ! $is_accessible_by_everyone ) {
 			return false;
 		}

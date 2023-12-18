@@ -15,7 +15,7 @@ use Automattic\Jetpack\Connection\Tokens;
  *
  * @package Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service
  */
-class Jetpack_Token_Subscription_Service extends Token_Subscription_Service {
+class Jetpack_Token_Subscription_Service extends Abstract_Token_Subscription_Service {
 
 	/**
 	 * Is the Jetpack_Options class available?
@@ -46,5 +46,15 @@ class Jetpack_Token_Subscription_Service extends Token_Subscription_Service {
 			return false;
 		}
 		return $token->secret;
+	}
+
+	/**
+	 * Returns true if the current authenticated user has a pending subscription to the current site.
+	 *
+	 * @return bool
+	 */
+	public function is_current_user_pending_subscriber(): bool {
+
+		return self::BLOG_SUB_PENDING === $this->get_token_property( 'blog_sub' );
 	}
 }
