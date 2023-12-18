@@ -186,64 +186,57 @@ const useOnboardingPopover = () => {
 	};
 
 	useEffect( () => {
-		const getOnboardingPopoverArgs = () => {
-			// No popovers if both free and paid onboarding have been dismissed
-			if ( freeOnboardingDismissed && paidOnboardingDismissed ) {
-				return null;
-			}
+		if ( freeOnboardingDismissed && paidOnboardingDismissed ) {
+			setOnboardingPopoverArgs( null );
+			return;
+		}
 
-			switch ( onboardingStep ) {
-				case 1:
-					// Show yourScanResultsPopoverArgs only if the respective onboarding is not dismissed
-					if ( ! hasRequiredPlan && ! freeOnboardingDismissed ) {
-						return yourScanResultsPopoverArgs;
-					}
-					if ( hasRequiredPlan && ! paidOnboardingDismissed ) {
-						return yourScanResultsPopoverArgs;
-					}
-					break;
+		let args = null;
 
-				case 2:
-					if ( ! hasRequiredPlan ) {
-						if ( ! freeOnboardingDismissed ) {
-							return dailyAutomatedScansPopoverArgs;
-						}
+		switch ( onboardingStep ) {
+			case 1:
+				if (
+					( ! hasRequiredPlan && ! freeOnboardingDismissed ) ||
+					( hasRequiredPlan && ! paidOnboardingDismissed )
+				) {
+					args = yourScanResultsPopoverArgs;
+				}
+				break;
+
+			case 2:
+				if ( ! hasRequiredPlan && ! freeOnboardingDismissed ) {
+					args = dailyAutomatedScansPopoverArgs;
+				} else if ( ! paidOnboardingDismissed ) {
+					if ( list.length === 0 ) {
+						args = { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor2b };
+					} else if ( fixableList.length === 0 ) {
+						args = understandSeverityPopoverArgs;
 					} else {
-						if ( paidOnboardingDismissed ) {
-							return null;
-						}
-
-						if ( list.length === 0 ) {
-							return { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor2b };
-						}
-						if ( fixableList.length === 0 ) {
-							return understandSeverityPopoverArgs;
-						}
-						return fixAllThreatsPopoverArgs;
+						args = fixAllThreatsPopoverArgs;
 					}
-					break;
+				}
+				break;
 
-				case 3:
-					if ( hasRequiredPlan && ! paidOnboardingDismissed ) {
-						if ( fixableList.length === 0 ) {
-							return { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor4 };
-						}
-						return understandSeverityPopoverArgs;
-					}
-					break;
+			case 3:
+				if ( hasRequiredPlan && ! paidOnboardingDismissed ) {
+					args =
+						fixableList.length === 0
+							? { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor4 }
+							: understandSeverityPopoverArgs;
+				}
+				break;
 
-				case 4:
-					if ( hasRequiredPlan && ! paidOnboardingDismissed ) {
-						return { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor4 };
-					}
-					break;
+			case 4:
+				if ( hasRequiredPlan && ! paidOnboardingDismissed ) {
+					args = { ...dailyAndManualScansPopoverArgs, anchor: anchors.anchor4 };
+				}
+				break;
 
-				default:
-					return null;
-			}
-		};
+			default:
+				args = null;
+		}
 
-		setOnboardingPopoverArgs( getOnboardingPopoverArgs() );
+		setOnboardingPopoverArgs( args );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		onboardingStep,
