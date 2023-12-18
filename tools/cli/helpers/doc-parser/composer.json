@@ -17,9 +17,6 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-doc-parser",
-		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-doc-parser/compare/v${old}...v${new}"
-		},
 		"autotagger": true,
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"
