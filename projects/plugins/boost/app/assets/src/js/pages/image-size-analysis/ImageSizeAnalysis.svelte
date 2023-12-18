@@ -12,7 +12,7 @@
 	} from '$features/image-size-analysis/lib/stores/isa-data';
 	import {
 		imageDataActiveGroup,
-		imageDataGroupTabs,
+		getImageDataGroupTabs,
 		initializeIsaSummary,
 		getTotalIssueCount,
 		isaSummary,
@@ -31,10 +31,10 @@
 	$: hasActiveGroup = !! imageDataActiveGroup( $isaSummary, $isaData );
 	$: images = $isaData.data.images;
 	$: activeGroup = $isaData.query.group;
-	$: issueCount = getTotalIssueCount( $isaSummary );
 	$: dataLoading = $isaDataLoading;
 	$: summary = $isaSummary;
-	$: dataGroupTabs = imageDataGroupTabs( $isaSummary );
+	$: issueCount = getTotalIssueCount( $isaSummary );
+	$: dataGroupTabs = getImageDataGroupTabs( $isaSummary );
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">

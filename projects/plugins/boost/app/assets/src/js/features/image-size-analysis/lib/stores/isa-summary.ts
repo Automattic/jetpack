@@ -83,7 +83,7 @@ export function getTotalIssueCount( summary: ISASummary ) {
  * Function tracking the number of total pages being scanned.
  * @param summary
  */
-export function getTotalPagesCount( summary: ISASummary ) {
+function getTotalPagesCount( summary: ISASummary ) {
 	return Object.values( summary?.groups || {} )
 		.map( group => group.total_pages )
 		.reduce( ( a, b ) => a + b, 0 );
@@ -92,14 +92,13 @@ export function getTotalPagesCount( summary: ISASummary ) {
 /**
  * Function which describes tabs to display in the UI.
  * @param summary
- * @param totalIssueCount
  */
-export function imageDataGroupTabs( summary: ISASummary ): Record< string, ISASummaryGroup > {
+export function getImageDataGroupTabs( summary: ISASummary ): Record< string, ISASummaryGroup > {
 	return {
 		all: {
 			total_pages: getTotalPagesCount( summary ),
 			scanned_pages: getTotalPagesCount( summary ),
-			issue_count: getTotalIssueCount( summary )
+			issue_count: getTotalIssueCount( summary ),
 		},
 		...summary?.groups,
 	};
@@ -112,10 +111,10 @@ export function imageDataGroupTabs( summary: ISASummary ): Record< string, ISASu
  */
 export function imageDataActiveGroup( summary: ISASummary, data: ISA ) {
 	// Get the tabs from the imageDataGroupTabs function
-	const tabs = imageDataGroupTabs( summary );
+	const tabs = getImageDataGroupTabs( summary );
 	const group = data.query.group;
-	if( group in tabs ) {
-		return tabs[group] as ISASummaryGroup;
+	if ( group in tabs ) {
+		return tabs[ group ] as ISASummaryGroup;
 	}
 	return tabs.all;
 }
