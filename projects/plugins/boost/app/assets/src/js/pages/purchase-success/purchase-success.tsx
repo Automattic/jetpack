@@ -6,6 +6,7 @@ import { requestImageAnalysis } from '$features/image-size-analysis/lib/stores/i
 import { navigate } from '$lib/utils/navigate';
 import Logo from '$svg/jetpack-green';
 import { useModuleState } from '$features/module/lib/stores';
+import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 
 type PurchaseSuccessProps = {
 	isImageGuideActive: boolean;
@@ -89,4 +90,10 @@ const PurchaseSuccess: React.FC< PurchaseSuccessProps > = ( { isImageGuideActive
 	);
 };
 
-export default PurchaseSuccess;
+export default ( props: PurchaseSuccessProps ) => {
+	return (
+		<DataSyncProvider>
+			<PurchaseSuccess { ...props } />
+		</DataSyncProvider>
+	);
+};

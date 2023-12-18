@@ -1,4 +1,5 @@
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { useCallback } from 'react';
 import { z } from 'zod';
 
 const modulesStateSchema = z.record(
@@ -17,9 +18,12 @@ export const useModuleState = ( moduleSlug: string, onSuccess?: ( state: boolean
 		modulesStateSchema
 	);
 
-	return [
-		data?.[ moduleSlug ],
+	const setModuleState = useCallback(
 		( state: boolean ) => {
+			if ( data?.[ moduleSlug ]?.active === state ) {
+				return;
+			}
+
 			mutate(
 				{
 					...data,
@@ -36,5 +40,8 @@ export const useModuleState = ( moduleSlug: string, onSuccess?: ( state: boolean
 				}
 			);
 		},
-	] as const;
+		[ data, moduleSlug, mutate, onSuccess ]
+	);
+
+	return [ data?.[ moduleSlug ], setModuleState ] as const;
 };
