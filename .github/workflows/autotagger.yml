@@ -70,6 +70,7 @@ jobs:
           export GIT_COMMITTER_NAME=matticbot
           export GIT_COMMITTER_EMAIL=matticbot@users.noreply.github.com
 
+          EXIT=0
           echo "Creating tags..."
           TOPUSH=()
           for T in "${TAGS[@]}"; do
@@ -79,8 +80,22 @@ jobs:
           done
           if [[ ${#TOPUSH[@]} -gt 0 ]]; then
             echo "Pushing tags..."
-            git push origin "${TOPUSH[@]}"
-            echo "::notice::Created tags: ${TOPUSH[*]}"
+            # GitHub has a limit on the number of tags that can be updated in a single push. So do them in batches.
+            DONE=()
+            while [[ ${#TOPUSH[@]} -gt 0 ]]; do
+              BATCH=( "${TOPUSH[@]:0:5}" )
+              if git push origin "${BATCH[@]}"; then
+                DONE+=( "${BATCH[@]}" )
+              else
+                echo "::error::Failed to create tags: ${BATCH[*]}"
+                EXIT=1
+              fi
+              TOPUSH=( "${TOPUSH[@]:5}" )
+            done
+            if [[ ${#DONE[@]} -gt 0 ]]; then
+              echo "::notice::Created tags: ${DONE[*]}"
+            fi
           else
             echo "::notice::No tags needed creation."
           fi
+          exit $EXIT

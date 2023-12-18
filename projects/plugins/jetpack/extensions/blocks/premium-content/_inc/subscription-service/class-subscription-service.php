@@ -49,6 +49,13 @@ interface Subscription_Service {
 	public function visitor_can_view_content( $valid_plan_ids, $access_level );
 
 	/**
+	 * Is the current user a pending subscriber for the current site?
+	 *
+	 * @return boolean
+	 */
+	public function is_current_user_pending_subscriber();
+
+	/**
 	 * The current visitor would like to obtain access. Where do they go?
 	 *
 	 * @param string $mode .

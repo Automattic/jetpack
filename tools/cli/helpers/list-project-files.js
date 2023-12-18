@@ -28,7 +28,7 @@ export async function* listProjectFiles( src, spawn ) {
 	// Create the `ls-files` process.
 	const lsFiles = doSpawn( 'git', [ '-c', 'core.quotepath=off', 'ls-files' ], {
 		cwd: src,
-		stdio: [ 'ignore', 'pipe', null ],
+		stdio: [ 'ignore', 'pipe', 'inherit' ],
 		buffer: false,
 	} );
 
@@ -38,7 +38,7 @@ export async function* listProjectFiles( src, spawn ) {
 		[ '-c', 'core.quotepath=off', 'check-attr', '--stdin', 'production-exclude' ],
 		{
 			cwd: src,
-			stdio: [ 'pipe', 'pipe', null ],
+			stdio: [ 'pipe', 'pipe', 'inherit' ],
 			buffer: false,
 		}
 	);
@@ -54,7 +54,7 @@ export async function* listProjectFiles( src, spawn ) {
 		const lsIgnoredFiles = doSpawn(
 			'git',
 			[ '-c', 'core.quotepath=off', 'ls-files', '--others', '--ignored', '--exclude-standard' ],
-			{ cwd: src, stdio: [ 'ignore', 'pipe', null ], buffer: false }
+			{ cwd: src, stdio: [ 'ignore', 'pipe', 'inherit' ], buffer: false }
 		);
 
 		const checkAttrInclude = doSpawn(
@@ -62,7 +62,7 @@ export async function* listProjectFiles( src, spawn ) {
 			[ '-c', 'core.quotepath=off', 'check-attr', '--stdin', 'production-include' ],
 			{
 				cwd: src,
-				stdio: [ lsIgnoredFiles.stdout, 'pipe', null ],
+				stdio: [ lsIgnoredFiles.stdout, 'pipe', 'inherit' ],
 				buffer: false,
 			}
 		);

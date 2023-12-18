@@ -75,7 +75,7 @@ class DashVideoPress extends Component {
 						/* dummy arg to avoid bad minification */ 0
 				  );
 
-		if ( this.props.getOptionValue( 'videopress' ) && hasConnectedOwner ) {
+		if ( this.props.getOptionValue( 'videopress' ) && hasConnectedOwner && ! isOffline ) {
 			return (
 				<DashItem
 					className="jp-dash-item__videopress"

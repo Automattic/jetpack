@@ -449,10 +449,10 @@ class Admin {
 	 */
 	public function grunion_admin_css() {
 		global $current_screen;
-		if ( $current_screen === null ) {
-			return;
-		}
-		if ( 'edit-feedback' !== $current_screen->id ) {
+		if (
+			$current_screen === null
+			|| 'edit-feedback' !== $current_screen->id
+		) {
 			return;
 		}
 
@@ -471,8 +471,10 @@ class Admin {
 	 */
 	public function grunion_admin_js() {
 		global $current_screen;
-
-		if ( 'edit-feedback' !== $current_screen->id ) {
+		if (
+			$current_screen === null
+			|| 'edit-feedback' !== $current_screen->id
+		) {
 			return;
 		}
 
@@ -601,7 +603,10 @@ class Admin {
 	 */
 	public function grunion_admin_bulk_actions( $actions ) {
 		global $current_screen;
-		if ( 'edit-feedback' !== $current_screen->id ) {
+		if (
+			$current_screen === null
+			|| 'edit-feedback' !== $current_screen->id
+		) {
 			return $actions;
 		}
 
@@ -617,7 +622,10 @@ class Admin {
 	 */
 	public function grunion_admin_view_tabs( $views ) {
 		global $current_screen;
-		if ( 'edit-feedback' !== $current_screen->id ) {
+		if (
+			$current_screen === null
+			|| 'edit-feedback' !== $current_screen->id
+		) {
 			return $views;
 		}
 
@@ -1247,18 +1255,17 @@ class Admin {
 		}
 
 		// Add the scripts that handle the spam check event.
-		wp_register_script(
+		Assets::register_script(
 			'grunion-admin',
-			Assets::get_file_url_for_environment(
-				'_inc/build/contact-form/js/grunion-admin.min.js',
-				'modules/contact-form/js/grunion-admin.js'
-			),
-			array( 'jquery' ),
-			\JETPACK__VERSION,
-			true
+			'../../dist/contact-form/js/grunion-admin.js',
+			__FILE__,
+			array(
+				'enqueue'      => true,
+				'dependencies' => array( 'jquery' ),
+				'version'      => \JETPACK__VERSION,
+				'in_footer'    => true,
+			)
 		);
-
-		wp_enqueue_script( 'grunion-admin' );
 
 		wp_enqueue_style( 'grunion.css' );
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Resort to error_log if l() is not available

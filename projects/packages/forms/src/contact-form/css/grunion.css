@@ -62,25 +62,10 @@
 	min-width: 150px;
 }
 
-/*
-	On Grunion Forms, the regular HTML select is replaced by a custom select by jQuery UI.
- 	To keep the required validation working the select can't be 'display: none'
- 	This solution will keep the select hidden without using 'display: none'
- */
-.contact-form .contact-form-dropdown[aria-hidden="true"] {
-	position: absolute;
-	z-index: -1;
-	width: 100%;
-	display: block !important;
-	opacity: 0;
-	pointer-events: none;
-}
-
 .contact-form input[type='radio'],
 .contact-form input[type='checkbox'] {
 	width: 1rem;
 	height: 1rem;
-	float: none;
 	margin: 0 0.75rem 0 0;
 }
 
@@ -115,11 +100,8 @@
 .contact-form label.checkbox-multiple,
 .contact-form label.radio {
 	margin-bottom: 0;
-	float: none;
 	font-weight: normal;
-	display: inline-flex;
-	align-items: center;
-	line-height: 1;
+	flex: 1;
 }
 
 .contact-form .grunion-checkbox-multiple-options,
@@ -160,6 +142,7 @@
 .contact-form .grunion-checkbox-multiple-options .contact-form-field,
 .contact-form .grunion-radio-options .contact-form-field {
 	display: flex;
+	align-items: baseline;
 
 	margin: 0;
 }
@@ -323,107 +306,58 @@
 	width: 100%;
 }
 
-.contact-form .contact-form-dropdown__button.ui-button {
-	width: 100%;
+.contact-form .contact-form__select-wrapper {
+	position: relative;
+}
+
+.contact-form .contact-form__select-wrapper::after {
+	position: absolute;
+	inset-inline-end: calc(var(--jetpack--contact-form--input-padding) + 4px);
+	top: calc(var(--jetpack--contact-form--input-padding) + var(--jetpack--contact-form--line-height) / 2);  
+
+  content: "";
+  display: block;
+	width: 8px;
+	height: 8px;
+  
+	border-bottom: 2px solid;
+  border-right: 2px solid;
+  
+	transform: translateY(-50%) rotate(45deg);
+	transform-origin: center center;
+
+	pointer-events: none;
+}
+
+.contact-form .contact-form__select-wrapper select {
 	box-sizing: border-box;
-	display: flex;
-	align-items: center;
-	flex-direction: row-reverse;
-	justify-content: space-between;
+	width: 100%;
+	padding: var(--jetpack--contact-form--input-padding);
+	padding-inline-end: calc(var(--jetpack--contact-form--input-padding) * 3);
+
+	appearance: none;
+	background-color: var(--jetpack--contact-form--input-background);
 	border: var(--jetpack--contact-form--border);
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
 	border-width: var(--jetpack--contact-form--border-size);
 	border-radius: var(--jetpack--contact-form--border-radius);
-	background-color: var(--jetpack--contact-form--input-background);
 	color: var(--jetpack--contact-form--text-color);
+
 	font-size: var(--jetpack--contact-form--font-size);
 	font-family: var(--jetpack--contact-form--font-family);
 	line-height: var(--jetpack--contact-form--line-height);
-	padding: var(--jetpack--contact-form--input-padding);
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
-.contact-form .contact-form-dropdown__button.ui-button .ui-selectmenu-icon.ui-icon {
-	background: none;
-}
-
-.contact-form .contact-form-dropdown__button .ui-selectmenu-icon,
-.contact-form .contact-form-dropdown__button.ui-selectmenu-button-open .ui-selectmenu-icon {
-	width: 0.8em;
-	height: 0.8em;
-	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	box-sizing: border-box;
-	border: 2px solid transparent;
-	overflow: visible;
-	margin-right: 4px;
-}
-
-.contact-form .contact-form-dropdown__button .ui-selectmenu-icon::after {
-	content: "";
-	display: block;
-	box-sizing: border-box;
-	width: 100%;
-	height: 100%;
-	border-bottom: 2px solid;
-	border-right: 2px solid;
-	transform: rotate(45deg);
-	margin-top: -5px;
-	transition: all 0.2s ease-in-out;
-}
-
-.contact-form .contact-form-dropdown__button.ui-selectmenu-button-open .ui-selectmenu-icon::after {
-	transform: rotate(225deg);
-	margin-top: 8px;
-}
-.contact-form .contact-form-dropdown__menu {
-	z-index: 1;
-}
-
-.contact-form .contact-form-dropdown__menu ul.ui-menu {
-	border: var(--jetpack--contact-form--border);
-	border-color: var(--jetpack--contact-form--border-color);
-	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
-	border-radius: var(--jetpack--contact-form--border-radius);
-	background-color: var(--jetpack--contact-form--input-background-fallback);
-	color: var(--jetpack--contact-form--text-color);
-	font-size: var(--jetpack--contact-form--font-size);
-	font-family: var(--jetpack--contact-form--font-family);
-	max-height: 230px;
-	overflow: auto;
-	padding: 0;
-	line-height: normal;
-	box-shadow: 0 2px 6px rgb(0 0 0 / 5%);
-	list-style: none;
-	margin: 0;
-}
-
-.contact-form .contact-form-dropdown__menu .ui-menu-item {
-	margin: 0;
-}
-
-.contact-form .contact-form-dropdown__menu .ui-menu {
-	margin-top: 8px;
-}
-
-.contact-form .contact-form-dropdown__menu .ui-menu .ui-menu-item-wrapper {
-	padding: var(--jetpack--contact-form--input-padding);
-}
-
-.contact-form .contact-form-dropdown__menu .ui-menu .ui-menu-item-wrapper.ui-state-active {
-	position: relative;
-	border: none;
-	color: var(--jetpack--contact-form--input-background-fallback);
-	background-color: var(--jetpack--contact-form--text-color);
-}
-
-
-.contact-form .is-style-outlined .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap):not(.grunion-field-checkbox-multiple-wrap):not(.grunion-field-radio-wrap),
-.contact-form .is-style-animated .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap):not(.grunion-field-checkbox-multiple-wrap):not(.grunion-field-radio-wrap) {
+.contact-form .is-style-outlined,
+.contact-form .is-style-animated {
 	--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap):not(.grunion-field-checkbox-multiple-wrap):not(.grunion-field-radio-wrap):not(.grunion-field-select-wrap),
+.contact-form .is-style-animated .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap):not(.grunion-field-checkbox-multiple-wrap):not(.grunion-field-radio-wrap):not(.grunion-field-select-wrap) {
 	position: relative;
 	display: flex;
 	flex-direction: row-reverse;
@@ -453,6 +387,10 @@
 	box-sizing: border-box;
 	text-align: left;
 	pointer-events: none;
+}
+
+.contact-form .contact-form__select-wrapper + .notched-label {
+	top: 0;
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__leading {
@@ -522,7 +460,8 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .notched-label .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-field.has-placeholder ~ .notched-label .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options ~ .notched-label .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__notch
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__notch
 {
 	border-top-color: transparent;
 }
@@ -531,7 +470,8 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .notched-label .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-field.has-placeholder ~ .notched-label .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options ~ .notched-label .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__label
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label
 {
 	top: calc(var(--jetpack--contact-form--border-size) * -1);
 	transform: translateY(-50%);
@@ -540,7 +480,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-outlined .grunion-field-wrap > input,
 .contact-form .is-style-outlined .grunion-field-wrap > textarea,
-.contact-form .is-style-outlined .grunion-field-wrap .contact-form-dropdown__button
+.contact-form .is-style-outlined .grunion-field-wrap select
 {
 	border-color: transparent !important; /* Need to override styles coming from the style attribute*/
 	outline: none;
@@ -550,11 +490,6 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-outlined .grunion-field-wrap textarea {
 	padding: var(--jetpack--contact-form--input-padding, 16px);
-	padding-left: calc(var(--notch-width) + 4px);
-	padding-right: calc(var(--notch-width) + 4px);
-}
-
-.contact-form .is-style-outlined .contact-form-dropdown__menu .ui-menu-item-wrapper {
 	padding-left: calc(var(--notch-width) + 4px);
 	padding-right: calc(var(--notch-width) + 4px);
 }
@@ -576,14 +511,9 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > input,
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > textarea,
-.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) .contact-form-dropdown__button
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) select
 {
 	padding-top: 1.4em;
-	padding-left: var(--field-padding);
-	padding-right: var(--field-padding);
-}
-
-.contact-form .is-style-animated .grunion-field-wrap .contact-form-dropdown__menu .ui-menu-item-wrapper {
 	padding-left: var(--field-padding);
 	padding-right: var(--field-padding);
 }
@@ -608,7 +538,8 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-animated .grunion-field-wrap .grunion-field:focus ~ .animated-label__label,
 .contact-form .is-style-animated .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-field.has-placeholder ~ .animated-label__label
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field.has-placeholder ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label
 {
 	font-size: 0.75em;
 	transform: translateY(0);
@@ -633,65 +564,51 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .grunion-field-wrap input.checkbox-multiple,
 .contact-form .grunion-field-wrap input.radio {
-	align-items: center;
-	appearance: none;
-	color: var(--jetpack--contact-form--text-color);
-	border: none;
-	font-size: var(--jetpack--contact-form--font-size);
-	font-family: var(--jetpack--contact-form--font-family);
-	height: var(--jetpack--contact-form--font-size);
-	justify-content: center;
-	margin: 0 10px 0 0;
-	padding: 0;
 	position: relative;
-	width: var(--jetpack--contact-form--font-size);
-}
 
-.contact-form .grunion-field-wrap input.checkbox-multiple::after,
-.contact-form .grunion-field-wrap input.checkbox-multiple::before,
-.contact-form .grunion-field-wrap input.radio::after,
-.contact-form .grunion-field-wrap input.radio::before {
-	all: initial;
-	color: inherit;
-	font-size: inherit;
-	font-family: inherit;
-}
-
-.contact-form .grunion-field-wrap input.checkbox-multiple::before,
-.contact-form .grunion-field-wrap input.radio::before {
-	align-items: center;
-	border-color: currentColor;
-	border-radius: min(var(--jetpack--contact-form--button-outline--border-radius, 0px), 4px);
-	border-style: solid;
-	border-width: 1px;
 	box-sizing: border-box;
-	content: ' ';
-	display: flex;
-	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-	font-weight: 400;
-	height: var(--jetpack--contact-form--font-size);
-	justify-content: center;
 	width: var(--jetpack--contact-form--font-size);
+	height: var(--jetpack--contact-form--font-size);
+	margin-inline-end: calc(var(--jetpack--contact-form--font-size) / 2);
+	padding: 0;
+
+	appearance: none;
+	border: solid 1px var(--jetpack--contact-form--text-color);
+
+	outline-offset: 4px;
 }
 
-.contact-form .grunion-field-wrap input.radio::before {
+.contact-form .grunion-field-wrap input.radio {
 	border-radius: 50%;
+
+	transform: translateY(15%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
 }
 
 .contact-form .grunion-field-wrap input.checkbox-multiple:checked::before {
 	content: "\2713";
+	
+	position: absolute;
+	top: calc(var(--jetpack--contact-form--font-size) / 2);
+	left: calc(var(--jetpack--contact-form--font-size) / 2);
+
+	display: block;
+
+	font-size: var(--jetpack--contact-form--font-size);
+	line-height: 1;
+	
+  transform: translate(-50%, -50%);
 }
 
-.contact-form .grunion-field-wrap input.radio:checked::after {
+.contact-form .grunion-field-wrap input.radio:checked::before {
 	background: currentColor;
 	border-radius: 50%;
 	content: '';
-	height: 0.5em;
+	height: calc(var(--jetpack--contact-form--font-size) / 2);
+	margin-left: 50%;
+	margin-top: 50%;
 	position: absolute;
 	transform: translate(-50%, -50%);
-	width: 0.5em;
-	top: calc(var(--jetpack--contact-form--font-size) / 2);
-	inset-inline-start: calc(var(--jetpack--contact-form--font-size) / 2);
+	width: calc(var(--jetpack--contact-form--font-size) / 2);
 }
 
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-checkbox-multiple-label,
@@ -782,23 +699,48 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form__error,
 .contact-form__input-error {
+	--warning-icon-size: 1.25em;
+	--warning-icon-margin: 0.75em;
+
 	display: flex;
 	align-items: center;
-	gap: 0.25em;
+	flex-wrap: wrap;
 
 	font-size: 1rem;
 }
 
 .contact-form__error {
-	margin-bottom: 0.25rem;
-	padding: 0.5em;
+	margin-bottom: var(--wp--style--block-gap, 1.5rem);
+	padding: 1em;
+	gap: var(--warning-icon-margin);
 
 	background-color: var(--jetpack--contact-form--error-color);
 	color: var(--jetpack--contact-form--inverted-text-color);
 }
 
+.contact-form__error ul {
+	flex-basis: 100%;
+	margin: 0;
+	padding-inline-start: calc(var(--warning-icon-size) + var(--warning-icon-margin));
+
+	list-style-position: inside;
+}
+
+.contact-form__error ul:empty {
+	display: none;
+}
+
+.contact-form__error ul li {
+	padding: 0.25em 0;
+}
+
+.contact-form__error a {
+	color: inherit;
+}
+
 .contact-form__input-error {
 	margin: 0.25rem 0;
+	gap: 0.33em;
 
 	color: var(--jetpack--contact-form--error-color);
 }
@@ -818,7 +760,54 @@ on production builds, the attributes are being reordered, causing side-effects
 	outline-offset: 0.5em;
 }
 
+.contact-form__warning-icon {
+	width: var(--warning-icon-size);
+	height: var(--warning-icon-size);
+
+	background-color: var(--jetpack--contact-form--error-color);
+	border-radius: 50%;
+	border: solid 1px var(--jetpack--contact-form--inverted-text-color);
+	color: var(--jetpack--contact-form--inverted-text-color);
+}
+
+.contact-form__warning-icon i::after {
+	content: "\0021";
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	font-size: 0.8em;
+	font-style: normal;
+	font-weight: bold;
+}
+
 .contact-form__checkbox-wrap {
 	display: inline-flex;
 	align-items: baseline;
+}
+
+.contact-form :is([type="submit"],button:not([type="reset"])) {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
+}
+
+.contact-form .contact-form__spinner {
+	fill: currentColor;
+}
+
+.contact-form .contact-form__spinner svg {
+	/* Ensure container is of the exact same dimension */
+	display: block;
+}
+
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }

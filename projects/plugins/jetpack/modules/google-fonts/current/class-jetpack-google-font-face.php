@@ -138,7 +138,7 @@ class Jetpack_Google_Font_Face {
 		if ( ! empty( $raw_data['settings']['typography']['fontFamilies'] ) ) {
 			foreach ( $raw_data['settings']['typography']['fontFamilies'] as $font ) {
 				$font_family_name = $this->get_font_family_name( $font );
-				$font_slug        = isset( $font['slug'] ) ? $font['slug'] : '';
+				$font_slug        = $font['slug'] ?? '';
 				if ( $font_slug && ! array_key_exists( $font_slug, $fonts ) && array_key_exists( $font_family_name, $fonts ) ) {
 					$fonts[ $font_slug ] = $fonts[ $font_family_name ];
 				}
@@ -153,7 +153,7 @@ class Jetpack_Google_Font_Face {
 	 *
 	 * @param array $font The font definition object.
 	 */
-	public function get_font_family_name( $font ) {
+	public static function get_font_family_name( $font ) {
 		$font_family = $font['fontFamily'];
 		if ( str_contains( $font_family, ',' ) ) {
 			$font_family = explode( ',', $font_family )[0];
@@ -175,6 +175,13 @@ class Jetpack_Google_Font_Face {
 		}
 
 		$font_family = $setting['typography']['fontFamily'];
+
+		// The font family may be a reference to a path to the value stored at that location,
+		// e.g.: { "ref": "styles.elements.heading.typography.fontFamily" }.
+		// Ignore it as we also get the value stored at that location from the setting.
+		if ( ! is_string( $font_family ) ) {
+			return null;
+		}
 
 		// Full string: var(--wp--preset--font-family--slug).
 		// We do not care about the origin of the font, only its slug.

@@ -67,9 +67,11 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"create-with-voice",
+		"top-posts",
 		"ai-assistant-backend-prompts",
 		"sharing-button",
-		"sharing-buttons"
+		"sharing-buttons",
+		"ai-logo-generator"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
