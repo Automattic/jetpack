@@ -21,7 +21,7 @@ const useDynamicRefs = () => {
 	);
 
 	useEffect( () => {
-		if ( status.status === 'idle' ) {
+		if ( status.status === 'idle' || status.status === 'in_progress' ) {
 			const updatedAnchors = Object.keys( refs ).reduce( ( acc, key ) => {
 				if ( refs[ key ].current !== null ) {
 					acc[ key ] = refs[ key ].current;
