@@ -48,7 +48,15 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 		/**
 		 * Work out if there is an error to show in the UI.
 		 */
-		setErrorMessage( getErrorMessage( undefined, status ) );
+		if ( status === ISAStatus.Stuck ) {
+			setErrorMessage(
+				__(
+					'Your Image Size Analysis task seems to have gotten stuck, or our system is under unusual load. Please try again. If the issue persists, please contact support.',
+					'jetpack-boost'
+				)
+			);
+		}
+
 		/**
 		 * Update suggestion based on error code.
 		 */
@@ -66,20 +74,6 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 		return Object.values( isaGroups )
 			.map( group => group.scanned_pages )
 			.reduce( ( a, b ) => a + b, 0 );
-	};
-
-	const getErrorMessage = (
-		error: string | undefined,
-		currentStatus: string | false | undefined
-	) => {
-		return (
-			error ||
-			( currentStatus === ISAStatus.Stuck &&
-				__(
-					'Your Image Size Analysis task seems to have gotten stuck, or our system is under unusual load. Please try again. If the issue persists, please contact support.',
-					'jetpack-boost'
-				) )
-		);
 	};
 
 	const getWaitNotice = ( isRequesting: boolean, currentStatus: string | undefined ) => {
