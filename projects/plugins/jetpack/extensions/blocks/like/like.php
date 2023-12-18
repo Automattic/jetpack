@@ -74,6 +74,7 @@ function render_block( $attr, $content, $block ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'wp_footer', array( 'Jetpack_Likes', 'likes_master' ), 21 );
 		} else {
+			require_once JETPACK__PLUGIN_DIR . 'modules/likes.php';
 			add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
 		}
 		wp_enqueue_script( 'jetpack_likes_queuehandler' );
