@@ -131,6 +131,20 @@ class Backup_Import_Manager {
 			$bump_stats = $this->options['bump_stats'];
 		}
 
+		// check if there are import process that's already running
+		$check_bail_result = $this->should_bail_out();
+
+		if ( is_wp_error( $check_bail_result ) ) {
+
+			// We don't update status to failed here, because we don't want to overwrite the status
+
+			if ( $bump_stats ) {
+				$this->bump_import_stats( $check_bail_result->get_error_code() );
+			}
+
+			return $check_bail_result;
+		}
+
 		// unzip/untar the file
 		if ( ! $skip_unpack ) {
 			$this->update_status( array( 'status' => 'unpack_file' ) );
@@ -304,5 +318,32 @@ class Backup_Import_Manager {
 			default:
 				return new WP_Error( 'unknown_importer_type', __( 'Could not determine importer type.', 'wpcomsh' ) );
 		}
+	}
+
+	/**
+	 * Checks if an import process is already running.
+	 *
+	 * @return bool Returns true if an import process is running, false otherwise.
+	 */
+	private function should_bail_out() {
+		$additional_status_to_check = array( 'unpack_file' );
+		$import_status              = get_option( self::$backup_import_status_option );
+		$import_in_progress         = false;
+
+		if ( ! empty( $import_status ) ) {
+			// check if the status is one of other status
+			if ( in_array( $import_status['status'], $additional_status_to_check, true ) ) {
+				$import_in_progress = true;
+			}
+			// check if the status is one of the actions
+			if ( in_array( $import_status['status'], $this->importer_actions, true ) ) {
+				$import_in_progress = true;
+			}
+		}
+
+		if ( $import_in_progress ) {
+			return new WP_Error( 'import_in_progress', __( 'An import is already running.', 'wpcomsh' ) );
+		}
+		return false;
 	}
 }
