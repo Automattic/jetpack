@@ -276,8 +276,9 @@ class Masterbar {
 		/*
 		 * Notifications need the admin bar styles,
 		 * so let's not remove them when the module is active.
+		 * Also, don't remove the styles if the user has opted to use wp-admin.
 		 */
-		if ( ! Jetpack::is_module_active( 'notes' ) ) {
+		if ( ! Jetpack::is_module_active( 'notes' ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 			wp_dequeue_style( 'admin-bar' );
 		}
 	}
