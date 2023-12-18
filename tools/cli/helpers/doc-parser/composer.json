@@ -16,15 +16,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-doc-parser",
-		"autotagger": true,
-		"branch-alias": {
-			"dev-trunk": "0.1.x-dev"
-		},
-		"textdomain": "jetpack-doc-parser",
-		"version-constants": {
-			"::PACKAGE_VERSION": "src/class-doc-parser.php"
-		},
 		"installer-disable": [
 			"wordpress"
 		]
