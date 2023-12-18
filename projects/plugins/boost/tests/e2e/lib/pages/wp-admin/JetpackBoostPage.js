@@ -2,7 +2,7 @@ import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 
 const apiEndpointsRegex = {
-	'modules-state': /jetpack-boost-ds\/modules-state\/merge/,
+	'modules-state': /jetpack-boost-ds\/modules-state\/set/,
 	connection: /jetpack-boost\/v1\/connection/,
 };
 
