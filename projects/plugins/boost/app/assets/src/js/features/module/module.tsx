@@ -25,15 +25,18 @@ const Module = ( {
 	onDisable,
 	onMountEnable,
 }: ModuleProps ) => {
-	const [ status, setStatus ] = useModuleState( slug );
+	const [ status, setStatus ] = useModuleState( slug, active => {
+		if ( active ) {
+			onEnable?.();
+		} else {
+			onDisable?.();
+		}
+	} );
 	const isModuleActive = status?.active ?? false;
 	const isModuleAvailable = status?.available ?? false;
 
 	const handleToggle = () => {
-		setStatus( ! isModuleActive, {
-			onEnable,
-			onDisable,
-		} );
+		setStatus( ! isModuleActive );
 	};
 
 	useEffect( () => {
@@ -43,6 +46,7 @@ const Module = ( {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
+	// Don't show unavailable modules, except for lazy_images.
 	if ( ! isModuleAvailable && slug !== 'lazy_images' ) {
 		return null;
 	}
