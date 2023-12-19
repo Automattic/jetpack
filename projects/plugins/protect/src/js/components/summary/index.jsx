@@ -27,13 +27,13 @@ const Summary = ( { getRef } ) => {
 					<div>
 						<Title size="small" className={ styles.summary__title }>
 							<Icon size={ 32 } className={ styles.summary__icon } />
-							<span ref={ ! hasRequiredPlan ? getRef( 'anchor2a' ) : null }>
+							<div ref={ ! hasRequiredPlan ? getRef( 'anchor2a' ) : null }>
 								{ sprintf(
 									/* translators: %s: Latest check date  */
 									__( 'Latest results as of %s', 'jetpack-protect' ),
 									dateI18n( 'F jS', lastChecked )
 								) }
-							</span>
+							</div>
 						</Title>
 						{ numThreats > 0 && (
 							<Text variant="headline-small" component="h1">
