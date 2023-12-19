@@ -155,10 +155,10 @@ fi
 
 # Make sure we're standing on trunk and working directory is clean
 CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
-#if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
-	#proceed_p "Not currently checked out to trunk." "Check out trunk before continuing?"
-	#git checkout trunk && git pull
-#fi
+if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
+	proceed_p "Not currently checked out to trunk." "Check out trunk before continuing?"
+	git checkout trunk && git pull
+fi
 
 if [[ -n "$(git status --porcelain)" ]]; then
 	die "Working directory not clean, make sure you're working from a clean checkout and try again."
@@ -218,7 +218,6 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 	pnpm jetpack release "$PLUGIN" readme "${ARGS[@]}"
 done
 
-exit 0
 yellow "Committing changes."
 git add --all
 git commit -am "Changelog and readme.txt edits."
