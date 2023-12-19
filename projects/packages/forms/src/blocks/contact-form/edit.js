@@ -20,6 +20,7 @@ import {
 	SelectControl,
 	TextareaControl,
 	TextControl,
+	Notice,
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
@@ -160,7 +161,7 @@ export const JetpackContactFormEdit = forwardRef(
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [] );
 
-		useFormAccessibleName( postTitle, formTitle, clientId, setAttributes );
+		useFormAccessibleName( formTitle, clientId, setAttributes );
 
 		useEffect( () => {
 			if ( to === undefined && postAuthorEmail ) {
@@ -308,6 +309,16 @@ export const JetpackContactFormEdit = forwardRef(
 		return (
 			<>
 				<InspectorControls>
+					{ ! attributes.formTitle && (
+						<PanelBody>
+							<Notice status="warning" isDismissible={ false }>
+								{ __(
+									'Add a heading inside the form or before it to help everybody identify it.',
+									'jetpack-forms'
+								) }
+							</Notice>{ ' ' }
+						</PanelBody>
+					) }
 					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
 					</PanelBody>

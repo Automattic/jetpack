@@ -20,14 +20,13 @@ const getNameFromBlockPreviousHeadings = ( block, pageBlocks ) => {
  * content changes. The heuristic is as follows:
  * 1. Look for a heading inside the form
  * 2. Look for a heading in the previous siblings
- * 3. Use the post title
+ * 3. Use the post title (in Contact_Form::parse, server side)
  *
- * @param {string} postTitle - The post title
  * @param {string} formTitle - The form title
  * @param {string} clientId - The block unique identifier
  * @param {Function} setAttributes - Function to call to update one or more attributes
  */
-export default function useFormAccessibleName( postTitle, formTitle, clientId, setAttributes ) {
+export default function useFormAccessibleName( formTitle, clientId, setAttributes ) {
 	const { pageBlocks } = useSelect( select => ( {
 		pageBlocks: select( 'core/block-editor' ).getBlocks(),
 	} ) );
@@ -35,7 +34,7 @@ export default function useFormAccessibleName( postTitle, formTitle, clientId, s
 	useEffect( () => {
 		const currentBlock = pageBlocks.find( block => block.clientId === clientId );
 
-		let name;
+		let name = '';
 
 		if ( currentBlock ) {
 			// #1
@@ -47,11 +46,8 @@ export default function useFormAccessibleName( postTitle, formTitle, clientId, s
 			}
 		}
 
-		// #3
-		name = name || postTitle;
-
 		if ( formTitle !== name ) {
 			setAttributes( { formTitle: name } );
 		}
-	}, [ postTitle, clientId, formTitle, setAttributes, pageBlocks ] );
+	}, [ clientId, formTitle, setAttributes, pageBlocks ] );
 }
