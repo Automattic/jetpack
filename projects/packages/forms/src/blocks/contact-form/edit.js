@@ -36,6 +36,7 @@ import JetpackEmailConnectionSettings from './components/jetpack-email-connectio
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
+import useFormAccessibleName from './hooks/use-form-accessible-name';
 import { withStyleVariables } from './util/with-style-variables';
 import defaultVariations from './variations';
 
@@ -158,6 +159,8 @@ export const JetpackContactFormEdit = forwardRef(
 			}
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [] );
+
+		useFormAccessibleName( postTitle, attributes.formTitle, clientId, setAttributes );
 
 		useEffect( () => {
 			if ( to === undefined && postAuthorEmail ) {
