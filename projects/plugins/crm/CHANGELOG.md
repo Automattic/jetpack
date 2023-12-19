@@ -5,6 +5,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.3.2] - 2023-12-19
+### Changed
+- Settings: Make support document links more consistent. [#34695]
+
+### Fixed
+- Segments: Fixed an issue preventing segments from being deleted. [#34690]
+
 ## [6.3.1] - 2023-12-14
 ### Added
 - WooSync: New `jpcrm_woo_sync_order_data` hook. [#34212]
@@ -263,6 +270,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Added a migration to remove outdated AKA lines
 
 [5.5.4-a.1]: https://github.com/Automattic/jetpack-crm/compare/v5.5.3...v5.5.4-a.1
+[6.3.2]: https://github.com/Automattic/jetpack-crm/compare/6.3.1...6.3.2
 [6.3.1]: https://github.com/Automattic/jetpack-crm/compare/6.3.0...6.3.1
 [6.3.0]: https://github.com/Automattic/jetpack-crm/compare/6.2.0...6.3.0
 [6.2.0]: https://github.com/Automattic/jetpack-crm/compare/6.1.0...6.2.0

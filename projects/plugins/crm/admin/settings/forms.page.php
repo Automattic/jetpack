@@ -115,7 +115,7 @@ if ( isset( $sbupdated ) ) {
 			<tbody>
 
 			<tr>
-				<td colspan="2" class="wmid"><button type="submit" class="ui button primary"><?php esc_html_e( 'Save Settings', 'zero-bs-crm' ); ?></button></td>
+				<td class="wmid"><button type="submit" class="ui button primary"><?php esc_html_e( 'Save Settings', 'zero-bs-crm' ); ?></button></td>
 			</tr>
 
 			</tbody>

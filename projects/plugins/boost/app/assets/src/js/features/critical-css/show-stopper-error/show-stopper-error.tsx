@@ -28,6 +28,7 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 	return (
 		<ErrorNotice
 			title={ __( 'Failed to generate Critical CSS', 'jetpack-boost' ) }
+			variant="module"
 			actionButton={
 				showRetry ? (
 					<button className="secondary" onClick={ regenerateCriticalCss }>

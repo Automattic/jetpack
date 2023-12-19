@@ -566,13 +566,10 @@ class MyPlanHeader extends React.Component {
 						} ) }
 					>
 						{ showPurchasesLink && (
-							<Button
-								onClick={ this.trackAllPurchasesClick }
-								href={ getRedirectUrl( 'calypso-purchases' ) }
-								compact
-								rna
-							>
-								<ExternalLink>{ __( 'View all purchases', 'jetpack' ) }</ExternalLink>
+							<Button onClick={ this.trackAllPurchasesClick } compact rna>
+								<ExternalLink href={ getRedirectUrl( 'calypso-purchases' ) }>
+									{ __( 'View all purchases', 'jetpack' ) }
+								</ExternalLink>
 							</Button>
 						) }
 

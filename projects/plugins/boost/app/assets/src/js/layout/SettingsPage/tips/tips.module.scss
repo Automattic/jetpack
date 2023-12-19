@@ -1,15 +1,19 @@
-.jb-dashboard .jb-tips {
+@import '../../../../css/main/variables.scss';
+@import '../../../../css/main/mixins.scss';
+
+.tips {
 	margin: 0 auto;
 
-	&__title {
+	.tips-title {
 		margin-bottom: $padding;
 	}
 
-	&__items {
+	.tips-items {
 		@include breakpoint(md) {
 			display: grid;
 			grid-template-columns: 1fr 1fr;
-			grid-gap: 2em;		}
+			grid-gap: 2em;
+		}
 	}
 
 	.item {
@@ -17,13 +21,12 @@
 			display: grid;
 			grid-template-columns: 80px 1fr;
 			grid-gap: 1em;
-
 		}
 
 		margin-bottom: 2em;
 
 
-		&__rate {
+		.item-rate {
 			font-size: 24px;
 			font-weight: 400;
 			line-height: 30px;
@@ -36,7 +39,7 @@
 			}
 		}
 
-		&__description {
+		.item-description {
 			flex-basis: 70%;
 			font-weight: 400;
 			line-height: 24px;

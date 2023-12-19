@@ -7,7 +7,7 @@
  */
 
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Status\Host;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
@@ -284,6 +284,19 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * Show an error to the user (or embed a clue in the HTML) when the button does not get rendered properly.
+	 *
+	 * @param WP_Error $error The error message with error code.
+	 * @return string The error message rendered as HTML.
+	 */
+	public function render_button_error( $error ) {
+		if ( $this->user_can_edit() ) {
+			return '<div><strong>Jetpack Memberships Error: ' . $error->get_error_code() . '</strong><br />' . $error->get_error_message() . '</div>';
+		}
+		return '<div>Sorry! This product is not available for purchase at this time.</div><!-- Jetpack Memberships Error: ' . $error->get_error_code() . ' -->';
+	}
+
+	/**
 	 * Renders a preview of the Recurring Payment button, which is not hooked
 	 * up to the subscription url. Used to preview the block on the frontend
 	 * for site editors when Stripe has not been connected.
@@ -347,7 +360,7 @@ class Jetpack_Memberships {
 		}
 
 		if ( empty( $attributes['planId'] ) ) {
-			return;
+			return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npi', __( 'No plan was configured for this button.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that an existing payment plan is selected for this block.', 'jetpack' ) ) );
 		}
 
 		// This is string of '+` separated plan ids. Loop through them and
@@ -359,11 +372,17 @@ class Jetpack_Memberships {
 				continue;
 			}
 			$product = get_post( $plan_id );
-			if ( ! $product || is_wp_error( $product ) ) {
-				continue;
+			if ( ! $product ) {
+				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npf', __( 'Could not find a plan for this button.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
 			}
-			if ( $product->post_type !== self::$post_type_plan || 'publish' !== $product->post_status ) {
-				continue;
+			if ( is_wp_error( $product ) ) {
+				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-npf-we', __( 'Encountered an error when getting the plan associated with this button:', 'jetpack' ) . ' ' . $product->get_error_message() . '. ' . __( ' Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
+			}
+			if ( $product->post_type !== self::$post_type_plan ) {
+				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-pnplan', __( 'The payment plan selected is not actually a payment plan.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
+			}
+			if ( 'publish' !== $product->post_status ) {
+				return $this->render_button_error( new WP_Error( 'jetpack-memberships-rb-psnpub', __( 'The selected payment plan is not active.', 'jetpack' ) . ' ' . __( 'Edit this post and confirm that the selected payment plan still exists and is available for purchase.', 'jetpack' ) ) );
 			}
 			$valid_plans[] = $plan_id;
 		}
@@ -501,12 +520,12 @@ class Jetpack_Memberships {
 			$post_id = get_the_ID();
 		}
 		if ( ! $post_id ) {
-			return Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+			return Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 
 		$post_access_level = get_post_meta( $post_id, self::$post_access_level_meta_name, true );
 		if ( empty( $post_access_level ) ) {
-			$post_access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 		return $post_access_level;
 	}
@@ -558,7 +577,7 @@ class Jetpack_Memberships {
 
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$paywall            = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$is_paid_subscriber = $paywall->visitor_can_view_content( self::get_all_newsletter_plan_ids(), Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS );
+		$is_paid_subscriber = $paywall->visitor_can_view_content( self::get_all_newsletter_plan_ids(), Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS );
 
 		self::$user_is_paid_subscriber_cache[ $user_id ] = $is_paid_subscriber;
 		return $is_paid_subscriber;
@@ -599,14 +618,14 @@ class Jetpack_Memberships {
 		}
 
 		$post_access_level = self::get_post_access_level();
-		if ( Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $post_access_level ) {
+		if ( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $post_access_level ) {
 			self::$user_can_view_post_cache[ $cache_key ] = true;
 			return true;
 		}
 
 		if ( $user_id === 0 ) {
 			if ( defined( 'WPCOM_SENDING_POST_TO_SUBSCRIBERS' ) && WPCOM_SENDING_POST_TO_SUBSCRIBERS ) {
-				if ( Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS === $post_access_level ) {
+				if ( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS === $post_access_level ) {
 					return true;
 				}
 			}
@@ -618,17 +637,17 @@ class Jetpack_Memberships {
 		$all_newsletters_plan_ids = self::get_all_newsletter_plan_ids();
 
 		if ( 0 === count( $all_newsletters_plan_ids ) &&
-			Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS === $post_access_level ||
-			Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS === $post_access_level
+			Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS === $post_access_level ||
+			Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS === $post_access_level
 		) {
 			// The post is paywalled but there is no newsletter plans on the site.
 			// We downgrade the post level to subscribers-only
-			$post_access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
+			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
 		}
 
 		$can_view_post = $paywall->visitor_can_view_content( $all_newsletters_plan_ids, $post_access_level );
 
-		if ( $can_view_post && $post_access_level !== Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY ) {
+		if ( $can_view_post && $post_access_level !== Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY ) {
 			// Prevent batcache to cache paywalled content
 			if ( function_exists( 'batcache_cancel' ) ) {
 				batcache_cancel();

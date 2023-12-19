@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 
 require_once __DIR__ . '/subscription-service/include.php';
 
@@ -99,7 +99,7 @@ function current_visitor_can_access( $attributes, $block ) {
 	}
 
 	$paywall      = subscription_service();
-	$access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS; // Only paid subscribers should be granted access to the premium content
+	$access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS; // Only paid subscribers should be granted access to the premium content
 	$tier_ids     = \Jetpack_Memberships::get_all_newsletter_plan_ids();
 	$tier_ids     = array_intersect( $tier_ids, $selected_plan_ids );
 	if ( ! empty( $tier_ids ) ) {

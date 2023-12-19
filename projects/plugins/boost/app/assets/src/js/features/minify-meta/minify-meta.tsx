@@ -1,7 +1,8 @@
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useEffect, useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { type Props, useMetaQuery, useConfig } from '$lib/stores/minify';
+import { type Props, useMetaQuery } from '$lib/stores/minify';
+import { useConfig } from '$lib/stores/config-ds';
 
 const MetaComponent = ( { inputLabel, buttonText, placeholder, datasyncKey }: Props ) => {
 	const config = useConfig();
