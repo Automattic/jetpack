@@ -1,14 +1,25 @@
 import api from '$lib/api/api';
 import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
 import { setPromiseInterval } from '$lib/utils/set-promise-interval';
+import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { type isaGroupKeys } from '../isa-groups';
 import { IsaReport, IsaCounts } from './types';
 
-const isaReportDS = jetpack_boost_ds.createAsyncStore( 'image_size_analysis_summary', IsaReport );
+const isaReportDS = jetpack_boost_ds.createAsyncStore(
+	'image_size_analysis_summary',
+	IsaReport.nullable()
+);
 // Prevent updates to image_size_analysis_report from being pushed back to the server.
 isaReportDS.setSyncAction( async ( _, value ) => value );
 
 export const isaReport = isaReportDS.store;
+
+export const useIsaReport = () =>
+	useDataSync( 'jetpack_boost_ds', 'image_size_analysis_summary', IsaReport.nullable().optional(), {
+		query: {
+			initialData: () => undefined,
+		},
+	} );
 
 export function getReportProgress( groups: Record< string, IsaCounts > ) {
 	return Object.entries( groups ).map( ( [ group, data ] ) => {
@@ -30,7 +41,7 @@ export function getReportProgress( groups: Record< string, IsaCounts > ) {
  * Function tracking the total number of issues.
  * @param report
  */
-export function getGroupedReport( report: IsaReport ): Record< string, IsaCounts > {
+export function getGroupedReport( report: IsaReport ) {
 	const groups = Object.values( report?.groups || {} );
 	const totalIssueCount = groups.map( group => group.issue_count ).reduce( ( a, b ) => a + b, 0 );
 	const page_count = groups.map( group => group.total_pages ).reduce( ( a, b ) => a + b, 0 );
