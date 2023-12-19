@@ -4,38 +4,47 @@ import Status from '../status/status';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
+import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
+import { useCriticalCssState } from '../lib/stores/critical-css-state';
+// import generateCriticalCss from '../lib/generate-critical-css';
 
 type CriticalCssMetaProps = {
-	cssState: CriticalCssState;
 	isCloudCssAvailable: boolean;
 	criticalCssProgress: number;
 	issues: CriticalCssState[ 'providers' ];
 	isFatalError: boolean;
 	primaryErrorSet;
 	suggestRegenerate;
-	regenerateCriticalCss;
 };
 
 const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
-	cssState,
 	isCloudCssAvailable,
 	criticalCssProgress,
 	issues = [],
 	isFatalError,
 	primaryErrorSet,
 	suggestRegenerate,
-	regenerateCriticalCss,
 } ) => {
+	const { cssState, requestRegenerate } = useCriticalCssState( false );
 	const [ hasRetried, setHasRetried ] = useState( false );
 
 	const successCount = cssState.providers
 		? cssState.providers.filter( provider => provider.status === 'success' ).length
 		: 0;
 
+	// Make sure that Critical CSS generation begins when requested.
+	useEffect( () => {
+		if ( cssState.status === 'not_generated' ) {
+			requestRegenerate();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- only run when status changes.
+	}, [ cssState.status ] );
+
 	function retry() {
+		console.log( 'retry' );
 		setHasRetried( true );
-		regenerateCriticalCss();
+		requestRegenerate();
 	}
 
 	if ( cssState.status === 'pending' ) {
@@ -71,8 +80,15 @@ const CriticalCssMeta: React.FC< CriticalCssMetaProps > = ( {
 			issues={ issues }
 			progress={ criticalCssProgress }
 			suggestRegenerate={ suggestRegenerate }
+			regenerateCriticalCss={ requestRegenerate }
 		/>
 	);
 };
 
-export default CriticalCssMeta;
+export default function ( props: CriticalCssMetaProps ) {
+	return (
+		<DataSyncProvider>
+			<CriticalCssMeta { ...props } />
+		</DataSyncProvider>
+	);
+}

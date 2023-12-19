@@ -7,6 +7,8 @@ import {
 	useQuery,
 	useMutation,
 	QueryClientProvider,
+	DefaultError,
+	MutationOptions,
 } from '@tanstack/react-query';
 import React from 'react';
 import { z } from 'zod';
@@ -26,12 +28,21 @@ export function DataSyncProvider( props: { children: React.ReactNode } ) {
 	} );
 }
 
+type Context< Value > = { previousValue: Value };
+
 /**
  * React Query configuration type for DataSync.
  */
-type DataSyncConfig< Schema extends z.ZodSchema, Value extends z.infer< Schema > > = {
+type DataSyncConfig<
+	Schema extends z.ZodSchema,
+	Value extends z.infer< Schema >,
+	ActionType = Value,
+> = {
 	query?: Omit< UseQueryOptions< Value >, 'queryKey' >;
-	mutation?: Omit< UseMutationOptions< Value >, 'mutationKey' >;
+	mutation?: Omit<
+		UseMutationOptions< Value, DefaultError, ActionType, Context< Value > >,
+		'mutationKey'
+	>;
 };
 /**
  * This is what `useDataSync` returns
@@ -55,11 +66,12 @@ export function useDataSync<
 	Schema extends z.ZodSchema,
 	Value extends z.infer< Schema >,
 	Key extends string,
+	ActionType = Value,
 >(
 	namespace: string,
 	key: Key,
 	schema: Schema,
-	config: DataSyncConfig< Schema, Value > = {},
+	config: DataSyncConfig< Schema, Value, ActionType > = {},
 	params: Record< string, string | number > = {}
 ): DataSyncHook< Schema, Value > {
 	const datasync = new DataSync( namespace, key, schema );
@@ -93,10 +105,15 @@ export function useDataSync<
 	 *
 	 * @see https://tanstack.com/query/v5/docs/react/guides/optimistic-updates
 	 */
-	const mutationConfigDefaults = {
+	const mutationConfigDefaults: MutationOptions<
+		Value,
+		DefaultError,
+		ActionType,
+		{ previousValue: Value }
+	> = {
 		mutationKey: queryKey,
 		mutationFn: value => datasync.SET( value, params ),
-		onMutate: async data => {
+		onMutate: async ( data: Value ) => {
 			const value = schema.parse( data );
 
 			// Cancel any outgoing refetches
@@ -104,7 +121,7 @@ export function useDataSync<
 			await queryClient.cancelQueries( { queryKey } );
 
 			// Snapshot the previous value
-			const previousValue = queryClient.getQueryData( queryKey );
+			const previousValue = queryClient.getQueryData( queryKey ) as Value;
 
 			// Optimistically update the cached state to the new value
 			queryClient.setQueryData( queryKey, value );
@@ -122,6 +139,9 @@ export function useDataSync<
 
 	return [
 		useQuery( { ...queryConfigDefaults, ...config.query } ),
-		useMutation( { ...mutationConfigDefaults, ...config.mutation } ),
+		useMutation< Value, DefaultError, ActionType, Context< Value > >( {
+			...mutationConfigDefaults,
+			...config.mutation,
+		} ),
 	];
 }

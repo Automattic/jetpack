@@ -89,6 +89,7 @@ $critical_css_state_schema = Schema::as_assoc_array(
 					'key'           => Schema::as_string(),
 					'label'         => Schema::as_string(),
 					'urls'          => Schema::as_array( Schema::as_string() ),
+					'css'           => Schema::as_string()->nullable(), // Only used when the client is sending completed CSS to the server.
 					'success_ratio' => Schema::as_float(),
 					'status'        => Schema::enum( array( 'success', 'pending', 'error', 'validation-error' ) )->fallback( 'validation-error' ),
 					'error_status'  => Schema::enum( array( 'active', 'dismissed' ) )->nullable(),

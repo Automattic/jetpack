@@ -1,6 +1,5 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
-import { regenerateCriticalCss } from '../lib/stores/critical-css-state';
 import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import TimeAgo from '../time-ago/time-ago';
 import InfoIcon from '$svg/info';
@@ -19,6 +18,7 @@ type StatusTypes = {
 	successCount?: number;
 	generateText?: string;
 	generateMoreText?: string;
+	regenerateCriticalCss: () => void;
 };
 
 const Status: React.FC< StatusTypes > = ( {
@@ -31,6 +31,7 @@ const Status: React.FC< StatusTypes > = ( {
 	successCount = 0,
 	generateText = '',
 	generateMoreText = '',
+	regenerateCriticalCss,
 } ) => {
 	return (
 		<div className="jb-critical-css__meta">

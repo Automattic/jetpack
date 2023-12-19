@@ -122,6 +122,10 @@ class Critical_CSS_State {
 	}
 
 	public function has_errors() {
+		if ( empty( $this->state['providers'] ) ) {
+			return false;
+		}
+
 		// Check if any of the providers have errors as well.
 		$any_provider_has_error = in_array(
 			'error',

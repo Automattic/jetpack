@@ -44,7 +44,7 @@ const ProviderSchema = z.object( {
 export const CriticalCssStateSchema = z
 	.object( {
 		// Source provider information - which URLs to generate CSS for.
-		providers: z.array( ProviderSchema ),
+		providers: z.array( ProviderSchema ).catch( [] ),
 		status: z.enum( [ 'not_generated', 'generated', 'pending', 'error' ] ),
 		status_error: z.union( [ z.coerce.string(), CriticalCssErrorDetailsSchema ] ).optional(),
 		created: z.coerce.number().optional(),

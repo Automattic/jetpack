@@ -1,14 +1,130 @@
-/* eslint-disable no-console */
 import { derived, get, writable } from 'svelte/store';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import api from '$lib/api/api';
-import { startPollingCloudStatus } from '../cloud-css';
 import { CriticalCssStateSchema } from './critical-css-state-types';
 import { jetpack_boost_ds, JSONObject } from '$lib/stores/data-sync-client';
 import { suggestRegenerateDS } from './suggest-regenerate';
 import { modulesState } from '$lib/stores/modules';
 import type { CriticalCssState, Provider } from './critical-css-state-types';
-import generateCriticalCss from '../generate-critical-css';
+import { startLocalGenerator } from '../generate-critical-css';
+import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { useEffect, useState } from 'react';
+
+type RegenerateAction = { type: 'regenerate' };
+type ProviderSuccess = { type: 'provider-success'; key: string; css: string };
+type ProviderError = { type: 'provider-error'; key: string; errors: string[] };
+type GenerateFinished = { type: 'finished' };
+type GenerateError = { type: 'error'; error: Error };
+type CriticalCssAction =
+	| RegenerateAction
+	| ProviderSuccess
+	| ProviderError
+	| GenerateFinished
+	| GenerateError;
+
+type GenerationResponse = {
+	status: 'success';
+	data: CriticalCssState;
+};
+
+export function useCriticalCssState( isCloud: boolean ) {
+	const [ generatorRunning, setGeneratorRunning ] = useState( false );
+	const [ autoStarted, setAutoStarted ] = useState( false );
+
+	const [ { data: cssState }, { mutate, mutateAsync } ] = useDataSync(
+		'jetpack_boost_ds',
+		'critical_css_state',
+		CriticalCssStateSchema,
+		{
+			query: {
+				refetchInterval: s => ( isCloud && s.state.status === 'pending' ? 2000 : false ),
+			},
+
+			mutation: {
+				mutationFn: async ( action: CriticalCssAction ): Promise< CriticalCssState > => {
+					console.trace( action );
+
+					switch ( action.type ) {
+						case 'regenerate':
+							return await sendRegenerateRequest();
+
+						default:
+							throw new Error( 'Invalid action type' );
+					}
+				},
+			},
+		}
+	);
+
+	function runGenerator() {
+		setGeneratorRunning( true );
+
+		return startLocalGenerator( {
+			targets: cssState!.providers.filter( provider => provider.status === 'pending' ) as any,
+
+			onProviderSuccess: async ( key, css ) => {
+				await mutateAsync( { type: 'provider-success', key, css } );
+			},
+
+			onProviderError: async ( key, errors ) => {
+				await mutateAsync( { type: 'provider-error', key, errors } );
+			},
+
+			onSuccess: async () => {
+				setGeneratorRunning( false );
+				await mutateAsync( { type: 'finished' } );
+			},
+
+			onError: async error => {
+				setGeneratorRunning( false );
+				await mutateAsync( { type: 'error', error } );
+			},
+		} );
+	}
+
+	// One time only - if we are in a pending state when this component mounts, start the generator.
+	useEffect( () => {
+		if (
+			! autoStarted &&
+			cssState?.status === 'pending' &&
+			! isCloud &&
+			cssState?.providers.length > 0
+		) {
+			setAutoStarted( true );
+			return runGenerator();
+		}
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- only ever update on status change.
+	}, [] );
+
+	async function requestRegenerate() {
+		// @TODO: Move me to React, too.
+		suggestRegenerateDS.store.set( null );
+
+		await mutate( { type: 'regenerate' } );
+	}
+
+	if ( ! cssState ) {
+		throw new Error( 'Critical CSS state not available' );
+	}
+
+	return {
+		cssState,
+		requestRegenerate,
+		generatorRunning,
+	};
+}
+
+async function sendRegenerateRequest() {
+	const result = await api.post< GenerationResponse >( '/critical-css/regenerate' );
+	if ( result.status !== 'success' ) {
+		throw new Error( JSON.stringify( result ) );
+	}
+
+	console.log( result.data );
+	return result.data as CriticalCssState;
+}
+
+/* Old stuff */
 
 const stateClient = jetpack_boost_ds.createAsyncStore(
 	'critical_css_state',
@@ -43,7 +159,7 @@ export const replaceCssState = ( value: CriticalCssState ) => {
  * Derived datastore: Returns whether to show an error.
  * Show an error if in error state, or if a success has 0 results.
  */
-export const showError = derived( cssStateStore, $criticalCssState => {
+const showError = derived( cssStateStore, $criticalCssState => {
 	if ( $criticalCssState.status === 'generated' ) {
 		return (
 			$criticalCssState.providers.filter( ( provider: Provider ) => provider.status === 'error' )
@@ -79,22 +195,7 @@ export const isGenerating = derived(
 	}
 );
 
-type GenerationResponse = {
-	status: 'success';
-	data: CriticalCssState;
-};
-export async function generateCriticalCssRequest(): Promise< CriticalCssState | false > {
-	// @REFACTOR: Use the WP JS Stores API instead and ensure that the CSS has indeed been reset.
-	const result = await api.post< GenerationResponse >( '/critical-css/start' );
-	if ( result.status !== 'success' ) {
-		throw new Error( JSON.stringify( result ) );
-	}
-	return result.data as Partial< CriticalCssState >;
-}
-
-export function criticalCssFatalError(): void {
-	replaceCssState( { status: 'error' } );
-}
+export function criticalCssFatalError(): void {}
 
 type CriticalCssInsertResponse = {
 	status: 'success' | 'error' | 'module-unavailable';
@@ -131,12 +232,7 @@ export async function saveCriticalCssChunk(
 	return true;
 }
 
-export function storeGenerateError( error: Error ): void {
-	replaceCssState( {
-		status: 'error',
-		status_error: error,
-	} );
-}
+export function storeGenerateError( error: Error ): void {}
 
 export function updateProvider( providerKey: string, data: Partial< Provider > ): void {
 	return cssStateStore.update( $state => {
@@ -157,34 +253,7 @@ export const refreshCriticalCssState = async () => {
 	return state;
 };
 
-export const regenerateCriticalCss = async () => {
-	// Clear regeneration suggestions
-	suggestRegenerateDS.store.set( null );
-
-	// Immediately set the status to pending to disable the regenerate button
-	replaceCssState( { status: 'pending' } );
-
-	// This will clear the CSS from the database
-	// And return fresh nonce, provider and viewport data.
-	const freshState = await generateCriticalCssRequest();
-	if ( ! freshState ) {
-		// @REFACTORING - Handle error. Currently this dies silently.
-		return false;
-	}
-
-	// We received a fresh state from the server,
-	// it's already saved there,
-	// This will update the store without triggering a save back to the server.
-	cssStateStore.override( freshState );
-
-	const isCloudCssEnabled = get( modulesState ).cloud_css?.active || false;
-
-	if ( isCloudCssEnabled ) {
-		startPollingCloudStatus();
-	} else {
-		await continueGeneratingLocalCriticalCss( freshState );
-	}
-};
+export const regenerateCriticalCss = async () => {};
 
 /**
  * Call generateCriticalCss if it hasn't been called before this app execution
@@ -192,14 +261,7 @@ export const regenerateCriticalCss = async () => {
  *
  * @param state
  */
-export async function continueGeneratingLocalCriticalCss( state: CriticalCssState ) {
-	if ( state.status === 'generated' ) {
-		return;
-	}
-	const generatingSucceeded = await generateCriticalCss( state );
-	const status = generatingSucceeded ? 'generated' : 'error';
-	replaceCssState( { status } );
-}
+export async function continueGeneratingLocalCriticalCss( state: CriticalCssState ) {}
 
 export const localCriticalCSSProgress = writable< undefined | number >( undefined );
 

@@ -59,6 +59,7 @@ const CloudCssMeta: React.FC< CloudCssMetaProps > = ( {
 				'jetpack-boost'
 			) }
 			generateMoreText={ __( 'Jetpack Boost is generating more Critical CSS.', 'jetpack-boost' ) }
+			regenerateCriticalCss={ regenerateCriticalCss }
 		/>
 	);
 };

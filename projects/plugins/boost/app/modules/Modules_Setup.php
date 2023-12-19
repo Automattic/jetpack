@@ -89,4 +89,12 @@ class Modules_Setup implements Has_Setup {
 			( new Regenerate() )->start();
 		}
 	}
+
+	/**
+	 * Returns true if the cloud_css module is enabled.
+	 */
+	public function has_cloud_css() {
+		$optimizations = $this->get_status();
+		return isset( $optimizations[ Cloud_CSS::get_slug() ] ) && $optimizations[ Cloud_CSS::get_slug() ];
+	}
 }

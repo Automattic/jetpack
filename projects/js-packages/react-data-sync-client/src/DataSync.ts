@@ -19,7 +19,12 @@ type GetRequestParams = Record< string, string | number | null | Array< string |
  *
  * Note: The keys are converted to be snake_case in Objects, but kebab-case in URLs.
  */
-export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema > > {
+export class DataSync<
+	Schema extends z.ZodSchema,
+	Value extends z.infer< Schema >,
+	ChangeSchema extends z.ZodSchema = z.ZodSchema,
+	Change extends z.infer< ChangeSchema > = null,
+> {
 	/**
 	 * WordPress REST API Endpoint configuration.
 	 * @param wpDatasyncUrl - For example: http://localhost/wp-json/jetpack-favorites
@@ -71,7 +76,8 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	constructor(
 		namespace: string,
 		key: string,
-		private schema: Schema
+		private schema: Schema,
+		private changeSchema: ChangeSchema | null = null
 	) {
 		this.namespace = namespace;
 		this.key = key;
@@ -231,7 +237,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 	private async parsedRequest(
 		method: RequestMethods,
 		requestPath = '',
-		value?: Value,
+		value?: Value | Change,
 		params: GetRequestParams = {},
 		abortSignal?: AbortSignal
 	): Promise< Value > {
@@ -287,6 +293,24 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		abortSignal?: AbortSignal
 	): Promise< Value > => {
 		return await this.parsedRequest( 'POST', `${ this.endpoint }/set`, value, params, abortSignal );
+	};
+
+	public MERGE = async (
+		change: Value,
+		params: GetRequestParams = {},
+		abortSignal?: AbortSignal
+	): Promise< Value > => {
+		if ( this.changeSchema === null ) {
+			throw new Error( 'Cannot call MERGE without a change schema' );
+		}
+
+		return await this.parsedRequest(
+			'POST',
+			`${ this.endpoint }/merge`,
+			change,
+			params,
+			abortSignal
+		);
 	};
 
 	public DELETE = async ( params: GetRequestParams = {}, abortSignal?: AbortSignal ) => {

@@ -1,13 +1,7 @@
 import { get } from 'svelte/store';
 import { criticalCssMeta } from './stores/critical-css-meta';
 import {
-	localCriticalCSSProgress,
-	saveCriticalCssChunk,
-	criticalCssFatalError,
-	storeGenerateError,
-	updateProvider,
-} from './stores/critical-css-state';
-import {
+	CriticalCssErrorDetails,
 	CriticalCssState,
 	Critical_CSS_Error_Type,
 	Provider,
@@ -20,100 +14,97 @@ import { isSameOrigin } from '$lib/utils/is-same-origin';
 import { loadCriticalCssLibrary } from '$lib/utils/load-critical-css-library';
 import { prepareAdminAjaxRequest } from '$lib/utils/make-admin-ajax-request';
 import type { Viewport } from '$lib/utils/types';
+import { SuccessTargetError, UrlError } from 'jetpack-boost-critical-css-gen';
+import { normalizeError } from '$lib/utils/normalize-error';
 
-/**
- * Generate Critical CSS for this site. Will load the Critical CSS Generator
- * library dynamically as needed.
- *
- * @param {CriticalCssState} cssState
- */
-export default async function generateCriticalCss(
-	cssState: CriticalCssState
-): Promise< boolean > {
-	const cancelling = false;
+interface GenerationTarget {
+	key: string;
+	urls: string[];
+	success_ratio: number;
+}
 
+type ProviderSuccessHandler = ( key: string, css: string ) => Promise< void >;
+type ProviderErrorHandler = ( key: string, errors: CriticalCssErrorDetails[] ) => Promise< void >; // For when a single provider fails
+type SuccessHandler = () => void; // For when the whole process finishes.
+type ErrorHandler = ( error: Error ) => void; // For when the whole process fails.
+
+type GenerationParams = {
+	targets: GenerationTarget[];
+	onProviderSuccess: ProviderSuccessHandler;
+	onProviderError: ProviderErrorHandler;
+	onSuccess: SuccessHandler;
+	onError: ErrorHandler;
+};
+
+export function startLocalGenerator( {
+	targets,
+	onProviderSuccess,
+	onProviderError,
+	onSuccess,
+	onError,
+}: GenerationParams ) {
+	const abortController: AbortController = new AbortController();
+
+	generatorProcess(
+		targets,
+		onProviderSuccess,
+		onProviderError,
+		onSuccess,
+		onError,
+		abortController
+	);
+
+	// Return a function to stop the process.
+	return () => {
+		abortController.abort();
+	};
+}
+
+async function generatorProcess(
+	targets: GenerationTarget[],
+	onProviderSuccess: ProviderSuccessHandler,
+	onProviderError: ProviderErrorHandler,
+	onSuccess: SuccessHandler,
+	onError: ErrorHandler,
+	abortController: AbortController
+) {
 	try {
 		// Load Critical CSS gen library if not already loaded.
 		await loadCriticalCssLibrary();
 
-		// Prepare GET parameters to include with each request.
-		const requestGetParameters = {
-			'jb-generate-critical-css': Date.now().toString(),
-		};
-
+		// Let users know that console warnings are normal during Critical CSS generation.
 		logPreCriticalCSSGeneration();
 
-		const { viewports, callback_passthrough, proxy_nonce } = get( criticalCssMeta );
+		// @TODO convert me to react/config.
+		const { viewports, proxy_nonce } = get( criticalCssMeta );
 
-		const pendingProviders = cssState.providers.filter( provider => provider.status === 'pending' );
-		if ( pendingProviders.length > 0 ) {
-			return await generateForKeys(
-				pendingProviders,
-				requestGetParameters,
-				viewports as Viewport[],
-				callback_passthrough as JSONObject,
-				proxy_nonce
-			);
-		}
+		// Generate Critical CSS for each target.
+		await generateForKeys(
+			targets,
+			viewports! as Viewport[],
+			proxy_nonce!,
+			onProviderSuccess,
+			onProviderError,
+			abortController.signal
+		);
+
+		onSuccess();
 	} catch ( err ) {
 		// Swallow errors if cancelling the process.
-		// eslint-disable-next-line no-console
-		console.error( err );
-		if ( ! cancelling ) {
-			// Record thrown errors as Critical CSS status.
-			storeGenerateError( err );
+		if ( ! abortController.signal.aborted ) {
+			onError( normalizeError( err ) );
 		}
 	}
-	return true;
 }
 
-/**
- * Helper method to prepare a Browser Interface for Critical CSS generation.
- *
- * @param {Object} requestGetParameters - GET parameters to include with each request.
- * @param {string} proxyNonce           - Nonce to use when proxying CSS requests.
- */
-function createBrowserInterface( requestGetParameters, proxyNonce ) {
-	return new ( class extends CriticalCSSGenerator.BrowserInterfaceIframe {
-		constructor() {
-			super( {
-				requestGetParameters,
-				verifyPage,
-				allowScripts: false,
-			} );
-		}
-
-		fetch( url, options, context ) {
-			if ( context === 'css' && ! isSameOrigin( url ) ) {
-				return prepareAdminAjaxRequest( {
-					action: 'boost_proxy_css',
-					proxy_url: url,
-					nonce: proxyNonce,
-				} );
-			}
-
-			return fetch( url, options );
-		}
-	} )();
-}
-
-/**
- * Generate Critical CSS for the specified Provider Keys, sending each block
- * to the server. Throws on error or cancellation.
- *
- * @param {Object}     providers            - Set of URLs to use for each provider key
- * @param {Object}     requestGetParameters - GET parameters to include with each request.
- * @param {Viewport[]} viewports            - Viewports to generate with.
- * @param {JSONObject} passthrough          - JSON data to include in callbacks to API.
- * @param {string}     proxyNonce           - Nonce to use when proxying CSS requests.
- */
 async function generateForKeys(
-	providers: Provider[],
-	requestGetParameters: { [ key: string ]: string },
+	targets: GenerationTarget[],
 	viewports: Viewport[],
-	passthrough: JSONObject,
-	proxyNonce: string
-): Promise< boolean > {
+	proxyNonce: string,
+	onProviderSuccess: ProviderSuccessHandler,
+	onProviderError: ProviderErrorHandler,
+	abortSignal: AbortSignal
+): Promise< void > {
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
 	const startTime = Date.now();
 	let totalSize = 0;
@@ -122,100 +113,65 @@ async function generateForKeys(
 	let maxSize = 0;
 
 	// Run through each set of URLs.
-	for ( const { urls, success_ratio, key } of providers ) {
+	for ( const { urls, success_ratio: successRatio, key } of targets ) {
 		try {
-			const [ css, warnings ] = await CriticalCSSGenerator.generateCriticalCSS( {
-				browserInterface: createBrowserInterface( requestGetParameters, proxyNonce ),
+			const [ css ] = await CriticalCSSGenerator.generateCriticalCSS( {
+				browserInterface: createBrowserInterface( proxyNonce, abortSignal ),
 				urls,
 				viewports,
-				progressCallback: ( step: number, total: number ) => {
-					localCriticalCSSProgress.set( step / total );
-				},
-				filters: {
-					atRules: keepAtRule,
-					properties: keepProperty,
-				},
-				successRatio: success_ratio,
+				successRatio,
+				//				progressCallback: ( step: number, total: number ) => {},
+				filters: { properties: keepProperty },
 				maxPages: 10,
 			} );
 
-			const updateResult = await saveCriticalCssChunk( key, css, passthrough );
+			if ( abortSignal.aborted ) {
+				return;
+			}
 
-			const status = warnings.length > 0 ? 'error' : 'success';
-			updateProvider( key, {
-				status,
-				errors: warnings,
-			} );
+			await onProviderSuccess( key, css );
 
 			// Reset local progress whenever a provider is finished to prevent progress bar jank.
-			localCriticalCSSProgress.set( 0 );
-
-			if ( updateResult === false ) {
-				return false;
-			}
+			// localCriticalCSSProgress.set( 0 );
 
 			stepsPassed++;
 			totalSize += css.length;
 			maxSize = css.length > maxSize ? css.length : maxSize;
 		} catch ( err ) {
-			// Success Target Errors indicate that URLs failed, but the process itself succeeded.
-			if ( err.isSuccessTargetError ) {
+			// SuccessTargetError is used to indicate the generator couldn't load URLs.
+			if ( err instanceof SuccessTargetError ) {
+				// @TODO: This kind of type conversion is ugly.
+				// Convert {url:error} to [{url,...error}], as that is how our provider errors are stored.
+				const flatErrors = Object.entries( err.urlErrors ).map(
+					( [ url, details ] ) => ( { url, ...details } ) as CriticalCssErrorDetails
+				);
+
+				await onProviderError( key, flatErrors );
+
+				// Track Critical CSS generation errors.
 				stepsFailed++;
-				const urlErrors = err.urlErrors as {
-					// These come from Jetpack Boost Critical CSS Generator
-					// In this shape:
-					[ url: string ]: {
-						message: string;
-						type: Critical_CSS_Error_Type;
-						meta: { [ key: string ]: JSONObject };
-					};
-				};
-				const errorsWithURLs = Object.keys( urlErrors ).map( url => {
-					const error = urlErrors[ url ];
-					return {
-						...error,
-						url,
-					};
-				} );
-
-				if ( key ) {
-					updateProvider( key, {
-						status: 'error',
-						error_status: 'active',
-						errors: errorsWithURLs,
-					} );
-				}
-
-				for ( const [ url, error ] of Object.entries( urlErrors ) ) {
-					// Track individual Critical CSS generation error.
-					const eventProps: TracksEventProperties = {
+				for ( const { url, message, type } of flatErrors ) {
+					recordBoostEvent( 'critical_css_url_error', {
 						url,
 						provider_key: key,
-						error_message: error.message,
-						error_type: error.type,
-					};
-					if (
-						error.type === 'HttpError' &&
-						typeof error.meta === 'object' &&
-						error.meta !== null &&
-						'code' in error.meta
-					) {
-						eventProps.error_meta = castToNumber( error.meta.code );
-					}
-					recordBoostEvent( 'critical_css_url_error', eventProps );
+						error_message: message,
+						error_type: type,
+					} );
 				}
 			} else {
-				criticalCssFatalError();
+				const errorObject = normalizeError( err );
+				const explicitType =
+					'type' in errorObject && typeof errorObject.type === 'string' && errorObject.type;
+				const impliedType = errorObject.constructor && errorObject.constructor.name;
 
-				// Track showstopper Critical CSS generation error.
-				const eventProps = {
-					time: Date.now() - startTime,
+				// Track error.
+				recordBoostEvent( 'critical_css_error', {
 					provider_key: key,
-					error_message: err.message,
-					error_type: err.type || ( err.constructor && err.constructor.name ) || 'unknown',
-				};
-				recordBoostEvent( 'critical_css_failure', eventProps );
-				return false;
+					error_message: errorObject.message,
+					error_type: explicitType || impliedType || 'unknown',
+				} );
+
+				throw errorObject;
 			}
 		}
 	}
@@ -235,11 +191,43 @@ async function generateForKeys(
 			error_count: stepsFailed,
 			average_size: totalSize / Math.max( 1, stepsPassed ),
 			max_size: maxSize,
-			provider_keys: Object.keys( providers ).join( ',' ),
+			provider_keys: Object.keys( targets ).join( ',' ),
 		};
 		recordBoostEvent( 'critical_css_success', eventProps );
 	}
-	return true;
+}
+
+/**
+ * Helper method to prepare a Browser Interface for Critical CSS generation.
+ *
+ * @param {string}      proxyNonce - Nonce to use when proxying CSS requests.
+ * @param {AbortSignal} signal     - AbortSignal to use for aborting the process.
+ */
+function createBrowserInterface( proxyNonce: string, signal: AbortSignal ) {
+	// Prepare GET parameters to include with each request; both as a cache-buster, and to turn off other optimizations.
+	const requestGetParameters = { 'jb-generate-critical-css': Date.now().toString() };
+
+	return new ( class extends CriticalCSSGenerator.BrowserInterfaceIframe {
+		constructor() {
+			super( {
+				requestGetParameters,
+				verifyPage,
+				allowScripts: false,
+			} );
+		}
+
+		fetch( url: string, options: RequestInit, context: string ) {
+			if ( context === 'css' && ! isSameOrigin( url ) ) {
+				return prepareAdminAjaxRequest( {
+					action: 'boost_proxy_css',
+					proxy_url: url,
+					nonce: proxyNonce,
+				} );
+			}
+
+			return fetch( url, { ...options, signal } );
+		}
+	} )();
 }
 
 /**
@@ -256,16 +244,6 @@ function stripVendorPrefix( name: string ): string {
 	}
 
 	return name;
-}
-
-/**
- * Helper method to filter out at-rules that we don't want.
- *
- * @param {string} name Name of the at-rule to evaluate
- * @return {boolean} indicating whether or not the at-rule is wanted.
- */
-function keepAtRule( name: string ): boolean {
-	return ! name.endsWith( 'keyframes' );
 }
 
 /**
