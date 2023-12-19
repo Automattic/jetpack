@@ -1125,7 +1125,7 @@ function get_paywall_blocks_subscribe_pending() {
 	$access_heading = esc_html__( 'Confirm your subscription to continue reading', 'jetpack' );
 
 	/* translators: %s: email address */
-	$subscribe_text = wp_kses( sprintf( __( 'Head to your inbox and confirm your email address %s.', 'jetpack' ), $subscribe_email ), array() );
+	$subscribe_text = sprintf( esc_html__( 'Head to your inbox and confirm your email address %s.', 'jetpack' ), $subscribe_email );
 
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
 
