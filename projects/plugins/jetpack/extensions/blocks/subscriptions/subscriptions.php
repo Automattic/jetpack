@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Extensions\Subscriptions;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack;
@@ -196,16 +195,16 @@ function render_newsletter_access_rows( $column_id, $post_id ) {
 	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 
 	switch ( $access_level ) {
-		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
 			echo esc_html__( 'Paid Subscribers (all plans)', 'jetpack' );
 			break;
-		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
 			echo esc_html__( 'Paid Subscribers', 'jetpack' );
 			break;
-		case Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS:
 			echo esc_html__( 'Subscribers', 'jetpack' );
 			break;
-		case Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY:
 			echo esc_html__( 'Everybody', 'jetpack' );
 			break;
 		default:
@@ -610,7 +609,7 @@ function render_block( $attributes ) {
 function get_post_access_level_for_current_post() {
 	if ( ! is_singular() ) {
 		// There is no "actual" current post.
-		return Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+		return Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 	}
 
 	return Jetpack_Memberships::get_post_access_level();
@@ -812,7 +811,7 @@ function add_paywall( $the_content ) {
 	$post_access_level = Jetpack_Memberships::get_post_access_level();
 
 	if ( Jetpack_Memberships::user_can_view_post() ) {
-		if ( $post_access_level !== Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY ) {
+		if ( $post_access_level !== Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY ) {
 			do_action(
 				'earn_track_paywalled_post_view',
 				array(
@@ -1071,8 +1070,8 @@ function get_paywall_blocks( $newsletter_access_level ) {
  */
 function get_paywall_access_question( $post_access_level ) {
 	switch ( $post_access_level ) {
-		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
-		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
+		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
 			$tier = Jetpack_Memberships::get_post_tier();
 			if ( $tier !== null ) {
 				return sprintf(

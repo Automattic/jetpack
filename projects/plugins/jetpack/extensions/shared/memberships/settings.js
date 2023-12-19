@@ -168,7 +168,7 @@ export function NewsletterAccessRadioButtons( {
 							accessLevel: accessOptions.subscribers.key,
 							emailSubscribers,
 							paidSubscribers,
-						} ) })`,
+						} ).toLocaleString() })`,
 						value: accessOptions.subscribers.key,
 					},
 					{
@@ -176,7 +176,7 @@ export function NewsletterAccessRadioButtons( {
 							accessLevel: accessOptions.paid_subscribers.key,
 							emailSubscribers,
 							paidSubscribers,
-						} ) })`,
+						} ).toLocaleString() })`,
 						value: accessOptions.paid_subscribers.key,
 					},
 				] }

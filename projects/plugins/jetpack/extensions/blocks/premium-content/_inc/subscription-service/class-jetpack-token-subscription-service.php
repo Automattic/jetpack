@@ -16,7 +16,7 @@ use Automattic\Jetpack\Status\Host;
  *
  * @package Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service
  */
-class Jetpack_Token_Subscription_Service extends Token_Subscription_Service {
+class Jetpack_Token_Subscription_Service extends Abstract_Token_Subscription_Service {
 
 	/**
 	 * Is the Jetpack_Options class available?
@@ -56,10 +56,10 @@ class Jetpack_Token_Subscription_Service extends Token_Subscription_Service {
 	/**
 	 * Returns true if the current authenticated user has a pending subscription to the current site.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public function is_current_user_pending_subscriber() {
+	public function is_current_user_pending_subscriber(): bool {
 
-		return $this->get_token_property( 'blog_sub' ) === 'pending';
+		return self::BLOG_SUB_PENDING === $this->get_token_property( 'blog_sub' );
 	}
 }

@@ -66,31 +66,32 @@ const getCopyForCategorySubscribers = ( {
 	reachCount,
 } ) => {
 	const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
+	const reachCountString = reachCount.toLocaleString();
 
 	if ( futureTense ) {
 		return sprintf(
 			// translators: %1s is the list of categories, %2d is subscriptions count
 			_n(
-				'This post will be sent to everyone subscribed to %1$s (%2$d subscriber).',
-				'This post will be sent to everyone subscribed to %1$s (%2$d subscribers).',
+				'This post will be sent to everyone subscribed to %1$s (%2$s subscriber).',
+				'This post will be sent to everyone subscribed to %1$s (%2$s subscribers).',
 				reachCount,
 				'jetpack'
 			),
 			formattedCategoryNames,
-			reachCount
+			reachCountString
 		);
 	}
 
 	return sprintf(
 		// translators: %1s is the list of categories, %2d is subscriptions count
 		_n(
-			'This post was sent to everyone subscribed to %1$s (%2$d subscriber).',
-			'This post was sent to everyone subscribed to %1$s (%2$d subscribers).',
+			'This post was sent to everyone subscribed to %1$s (%2$s subscriber).',
+			'This post was sent to everyone subscribed to %1$s (%2$s subscribers).',
 			reachCount,
 			'jetpack'
 		),
 		formattedCategoryNames,
-		reachCount
+		reachCountString
 	);
 };
 
@@ -101,70 +102,72 @@ export const getCopyForSubscribers = ( {
 	postHasPaywallBlock,
 	reachCount,
 } ) => {
+	const reachCountString = reachCount.toLocaleString();
+
 	// Schedulled post
 	if ( futureTense ) {
 		// Paid post without paywall: sent only to paid subscribers
 		if ( isPaidPost && ! postHasPaywallBlock ) {
 			return sprintf(
-				/* translators: %d is the number of subscribers */
+				/* translators: %s is the number of subscribers */
 				_n(
-					'This post will be sent to <strong>%d paid subscriber</strong>.',
-					'This post will be sent to <strong>%d paid subscribers</strong>.',
+					'This post will be sent to <strong>%s paid subscriber</strong>.',
+					'This post will be sent to <strong>%s paid subscribers</strong>.',
 					reachCount,
 					'jetpack'
 				),
-				reachCount
+				reachCountString
 			);
 		}
 		// Paid post with paywall or Free post, sent to all subscribers
 		return sprintf(
-			/* translators: %d is the number of subscribers */
+			/* translators: %s is the number of subscribers */
 			_n(
-				'This post will be sent to <strong>%d subscriber</strong>.',
-				'This post will be sent to <strong>%d subscribers</strong>.',
+				'This post will be sent to <strong>%s subscriber</strong>.',
+				'This post will be sent to <strong>%s subscribers</strong>.',
 				reachCount,
 				'jetpack'
 			),
-			reachCount
+			reachCountString
 		);
 	}
 	// Paid post without paywall: sent only to paid subscribers
 	if ( isPaidPost && ! postHasPaywallBlock ) {
 		return sprintf(
-			/* translators: %d is the number of subscribers */
+			/* translators: %s is the number of subscribers */
 			_n(
-				'This post was sent to <strong>%d paid subscriber</strong>.',
-				'This post was sent to <strong>%d paid subscribers</strong>.',
+				'This post was sent to <strong>%s paid subscriber</strong>.',
+				'This post was sent to <strong>%s paid subscribers</strong>.',
 				reachCount,
 				'jetpack'
 			),
-			reachCount
+			reachCountString
 		);
 	}
 	// Paid post sent only to paid subscribers, post is already published
 	if ( isPaidPost && ! postHasPaywallBlock ) {
 		return sprintf(
-			/* translators: %d is the number of subscribers */
+			/* translators: %s is the number of subscribers */
 			_n(
-				'This post was sent to <strong>%d paid subscriber</strong> only.',
-				'This post was sent to <strong>%d paid subscribers</strong> only.',
+				'This post was sent to <strong>%s paid subscriber</strong> only.',
+				'This post was sent to <strong>%s paid subscribers</strong> only.',
 				reachCount,
 				'jetpack'
 			),
-			reachCount
+			reachCountString
 		);
 	}
 
 	// Paid post with paywall or Free post, sent to all subscribers, post is already published
 	return sprintf(
-		/* translators: %d is the number of subscribers */
+		/* translators: %s is the number of subscribers */
 		_n(
-			'This post was sent to <strong>%d subscriber</strong>.',
-			'This post was sent to <strong>%d subscribers</strong>.',
+			'This post was sent to <strong>%s subscriber</strong>.',
+			'This post was sent to <strong>%s subscribers</strong>.',
 			reachCount,
 			'jetpack'
 		),
-		reachCount
+		reachCountString
 	);
 };
 
@@ -242,7 +245,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		emailSubscribers: emailSubscribersCount,
 		paidSubscribers: paidSubscribersCount,
 		postHasPaywallBlock,
-	} ).toLocaleString();
+	} );
 
 	let text;
 

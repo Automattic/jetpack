@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Updates the WC visibility check to use the `is_plugin_active` function.

@@ -18,6 +18,7 @@
 			- [Composer](#composer)
 			- [jetpack CLI](#jetpack-cli)
 		- [Check if your environment is ready for Jetpack development](#check-if-your-environment-is-ready-for-jetpack-development)
+		- [Testing Jetpack cloud features](#testing-jetpack-cloud-features)
 - [Development workflow](#development-workflow)
 	- [Building your project](#building-your-project)
 		- [Syncing local changes with Unison](#syncing-local-changes-with-unison)
@@ -164,6 +165,14 @@ If you're ready to start, you should see all green `SUCCESS` messages. If the sc
 Once you're all set here, you can continue developing. If you're setting up an local environment and want to start testing immediately, please ensure you build the projects you need.
 
 `jetpack build` will provide prompts to determine the project you need or you can pass it a complete command, like `jetpack build plugins/jetpack --with-deps`
+
+### Testing Jetpack cloud features
+
+In order to test features that require a WordPress.com connection and other network related Jetpack features, you'll need a test site that can create local HTTP tunnels.
+
+If you're an Automattician, we recommend using [Jurassic Tube](./quick-start.md#setting-up-jurassic-tube).
+
+For other methods, check out [ngrok](../tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
 
 # Development workflow
 

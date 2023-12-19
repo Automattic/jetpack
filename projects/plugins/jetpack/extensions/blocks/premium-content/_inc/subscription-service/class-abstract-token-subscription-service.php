@@ -12,11 +12,11 @@ use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 /**
- * Class Token_Subscription_Service
+ * Class Abstract_Token_Subscription_Service
  *
  * @package Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service
  */
-abstract class Token_Subscription_Service implements Subscription_Service {
+abstract class Abstract_Token_Subscription_Service implements Subscription_Service {
 
 	const JWT_AUTH_TOKEN_COOKIE_NAME                   = 'jp-premium-content-session';
 	const DECODE_EXCEPTION_FEATURE                     = 'memberships';
@@ -167,11 +167,9 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	/**
 	 * Returns true if the current authenticated user has a pending subscription to the current site.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public function is_current_user_pending_subscriber() {
-		return false;
-	}
+	abstract public function is_current_user_pending_subscriber(): bool;
 
 	/**
 	 * Return if the user has access to the content depending on the access level and the user rights
