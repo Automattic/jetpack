@@ -20,6 +20,16 @@ const sortThreats = ( a, b ) => b.severity - a.severity;
  * @returns {object[]} Array of threats with additional properties from the threat category and function argument.
  */
 const flattenThreats = ( data, newData ) => {
+	// If "data" is an empty array or null/undefined
+	if ( ! data || ( Array.isArray( data ) && data.length === 0 ) ) {
+		return [];
+	}
+
+	// If "data" is an object with an empty or non-existent threats array
+	if ( typeof data === 'object' && ( ! data.threats || data.threats.length === 0 ) ) {
+		return [];
+	}
+
 	// If "data" has multiple entries, recursively flatten each one.
 	if ( Array.isArray( data ) ) {
 		return data.map( extension => flattenThreats( extension, newData ) ).flat();
