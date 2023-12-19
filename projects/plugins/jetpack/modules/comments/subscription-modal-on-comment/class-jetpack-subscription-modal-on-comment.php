@@ -1,6 +1,7 @@
 <?php
 /**
  * Adds support for Jetpack Subscription Modal On Comment feature
+ * Limited to Atomic sites.
  *
  * @package automattic/jetpack-mu-wpcom
  * @since 12.4
@@ -45,6 +46,7 @@ class Jetpack_Subscription_Modal_On_Comment {
 
 	/**
 	 * Jetpack_Subscription_Modal_On_Comment class constructor.
+	 * Limited to Atomic sites.
 	 */
 	public function __construct() {
 		if ( ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true ) ) {
@@ -182,11 +184,6 @@ HTML;
 			return false;
 		}
 
-		// Don't show if user is subscribed to blog.
-		// require_once __DIR__ . '/../views.php';
-		if ( Jetpack_Memberships::is_current_user_subscribed() ) {
-			return false;
-		}
 		return true;
 	}
 }

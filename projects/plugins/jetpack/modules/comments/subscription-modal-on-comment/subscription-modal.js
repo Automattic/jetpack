@@ -1,6 +1,7 @@
-const { domReady } = wp;
+// eslint-disable-next-line no-undef
+const smDomReady = typeof domReady !== 'undefined' ? domReady : wp.domReady;
 
-domReady( function () {
+smDomReady( function () {
 	const modal = document.getElementsByClassName( 'jetpack-subscription-modal' )[ 0 ];
 
 	if ( ! modal ) {
@@ -30,7 +31,7 @@ domReady( function () {
 
 		// TODO: add a check for origin
 
-		// TODO: Add a check for Times the user has seen the modal
+		// TODO: Check number of times shown. If shown more than 5 times, don't show again.
 		if ( ! hasLoaded ) {
 			modal.classList.toggle( 'open' );
 			hasLoaded = true;
