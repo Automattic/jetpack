@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Extensions\Seo;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
@@ -20,11 +19,10 @@ use Jetpack_Gutenberg;
  */
 function register_plugins() {
 	// Register SEO.
-	// We want to show SEO tools only for Business plans and above.
+	// On Simple sites we handle plan with Upsell message if needed
 	$is_wpcom_simple = ( new Host() )->is_wpcom_simple();
-	$show_on_atomic  = $is_wpcom_simple && Jetpack_Plan::supports( 'advanced-seo' );
 	if (
-		$show_on_atomic
+		$is_wpcom_simple
 		|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
 	) {
 		Jetpack_Gutenberg::set_extension_available( 'jetpack-seo' );
@@ -32,3 +30,21 @@ function register_plugins() {
 }
 
 add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_plugins' );
+
+// Populate the available extensions with Advanced SEO.
+add_filter(
+	'jetpack_set_available_extensions',
+	function ( $extensions ) {
+		return array_merge(
+			$extensions,
+			array( 'advanced-seo' )
+		);
+	}
+);
+
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		\Jetpack_Gutenberg::set_availability_for_plan( 'advanced-seo' );
+	}
+);
