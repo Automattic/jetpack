@@ -79,6 +79,8 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 	 * Enqueues the files to be restored.
 	 *
 	 * This method iterate over the files in the source directory and enqueue them for restoration.
+	 *
+	 * @return bool|\WP_Error True if at least one file was enqueued, or a WP_Error if no files were enqueued.
 	 */
 	public function enqueue_files() {
 		$dir_iterator         = new RecursiveDirectoryIterator( $this->source_dir, RecursiveDirectoryIterator::SKIP_DOTS );
@@ -123,22 +125,22 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 			$file_info_array = $this->queue->dequeue();
 			$file_path       = $file_info_array['source_file_path'];
 			$dest_path       = $file_info_array['dest_file_path'];
-			$relativa_path   = $file_info_array['relative_file_path'];
+			$relative_path   = $file_info_array['relative_file_path'];
 			$file_type       = $file_info_array['file_type'];
 			++$file_seen_count;
 
 			// Skip if the file is inside a symlinked theme or plugin
 			if ( $file_type === 'theme_files' || $file_type === 'plugin_files' ) {
-				if ( $this->is_in_symlinked_directory( $file_type, $relativa_path ) ) {
+				if ( $this->is_in_symlinked_directory( $file_type, $relative_path ) ) {
 					++$skipped_count;
-					$this->log( "$file_seen_count/$this->total_count entries seen. $relativa_path is inside a symlinked directory, skipping..." );
+					$this->log( "$file_seen_count/$this->total_count entries seen. $relative_path is inside a symlinked directory, skipping..." );
 					continue;
 				}
 			}
 
 			if ( is_link( $dest_path ) ) {
 				++$skipped_count;
-				$this->log( "$file_seen_count/$this->total_count entries seen. $relativa_path is a symbolic link, skipping..." );
+				$this->log( "$file_seen_count/$this->total_count entries seen. $relative_path is a symbolic link, skipping..." );
 				continue;
 			}
 
@@ -153,10 +155,10 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 
 			if ( ! copy( $file_path, $dest_path ) ) {
 				++$failed_count;
-				$this->log( "$file_seen_count/$this->total_count entries seen. Failed to copy: $relativa_path" );
+				$this->log( "$file_seen_count/$this->total_count entries seen. Failed to copy: $relative_path" );
 			} else {
 				++$copied_count;
-				$this->log( "$file_seen_count/$this->total_count entries seen. Restoring: $relativa_path" );
+				$this->log( "$file_seen_count/$this->total_count entries seen. Restoring: $relative_path" );
 			}
 		}
 
