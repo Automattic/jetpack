@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import type { ISASummaryGroup } from '$features/image-size-analysis';
+import type { IsaCounts } from '$features/image-size-analysis';
 import { navigate } from '$lib/utils/navigate';
 
 interface TabsProps {
 	activeGroup: string;
-	imageDataGroupTabs: Record< string, ISASummaryGroup >;
+	imageDataGroupTabs: Record< string, IsaCounts >;
 	isaGroupLabels: Record< string, string >;
 }
 
 const Tabs: React.FC< TabsProps > = ( { activeGroup, imageDataGroupTabs, isaGroupLabels } ) => {
 	const [ dropdownOpen, setDropdownOpen ] = useState( false );
-	const [ currentTab, setCurrentTab ] = useState< ISASummaryGroup | undefined >( undefined );
+	const [ currentTab, setCurrentTab ] = useState< IsaCounts | undefined >( undefined );
 
 	useEffect( () => {
 		setCurrentTab( imageDataGroupTabs[ activeGroup ] );

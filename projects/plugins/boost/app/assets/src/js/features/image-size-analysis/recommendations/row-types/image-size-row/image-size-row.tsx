@@ -1,6 +1,6 @@
 import React from 'react';
 import TableRow from '../table-row/table-row';
-import { type ImageDataType } from '$features/image-size-analysis';
+import { type IsaImage } from '$features/image-size-analysis';
 import Button from '../../../button/button';
 import Device from '../../ui/device/device';
 import Pill from '../../ui/pill/pill';
@@ -13,7 +13,7 @@ import { recordBoostEventAndRedirect } from '$lib/utils/analytics';
 
 interface ImageSizeRowProps {
 	enableTransition: boolean;
-	details: ImageDataType;
+	details: IsaImage;
 }
 
 const ImageSizeRow: React.FC< ImageSizeRowProps > = ( { enableTransition, details } ) => {
@@ -33,10 +33,10 @@ export default ImageSizeRow;
 
 interface ContentProps {
 	title?: string;
-	details: ImageDataType;
+	details: IsaImage;
 }
 
-function getPillColor( details: ImageDataType ) {
+function getPillColor( details: IsaImage ) {
 	const potentialSavings = Math.max(
 		0,
 		Math.min( details.image.weight.current - 2, details.image.weight.potential )
@@ -45,7 +45,7 @@ function getPillColor( details: ImageDataType ) {
 	return sizeDifference <= 30 ? '#f5e5b3' : '#facfd2';
 }
 
-function getPotentialSize( details: ImageDataType ) {
+function getPotentialSize( details: IsaImage ) {
 	const potentialSavings = Math.max(
 		0,
 		Math.min( details.image.weight.current - 2, details.image.weight.potential )
@@ -99,7 +99,7 @@ const TableRowContent: React.FC< ContentProps > = ( { title, details } ) => {
 	);
 };
 
-const Expanded: React.FC< { details: ImageDataType } > = ( { details } ) => {
+const Expanded: React.FC< { details: IsaImage } > = ( { details } ) => {
 	const pillColor = getPillColor( details );
 	const potentialSize = getPotentialSize( details );
 	return (

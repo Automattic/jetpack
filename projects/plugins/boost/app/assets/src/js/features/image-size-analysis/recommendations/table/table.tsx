@@ -5,27 +5,27 @@ import ImageMissingRow from '../row-types/image-missing-row/image-missing-row';
 import ImageSizeRow from '../row-types/image-size-row/image-size-row';
 import LoadingRow from '../row-types/loading-row/loading-row';
 import Spinner from '$features/ui/spinner/spinner';
-import { type ISA_Data, type ISASummary, ISAStatus } from '$features/image-size-analysis';
+import { type IsaImage, type IsaReport, ISAStatus } from '$features/image-size-analysis';
 import classnames from 'classnames';
 
 interface TableProps {
 	refresh: () => Promise< void >;
 	isaDataLoading: boolean;
 	activeGroup: string;
-	images: ISA_Data[];
-	isaSummary: ISASummary | null;
+	images: IsaImage[];
+	isaReport: IsaReport | null;
 }
 
-const Table = ( { isaDataLoading, activeGroup, images, isaSummary }: TableProps ) => {
+const Table = ( { isaDataLoading, activeGroup, images, isaReport }: TableProps ) => {
 	const [ isLoading, setIsLoading ] = useState( false );
-	const [ activeImages, setActiveImages ] = useState< ISA_Data[] >( [] );
+	const [ activeImages, setActiveImages ] = useState< IsaImage[] >( [] );
 	const [ jobFinished, setJobFinished ] = useState( false );
 
 	useEffect( () => {
 		setIsLoading( isaDataLoading );
-		setJobFinished( isaSummary?.status === ISAStatus.Completed );
+		setJobFinished( isaReport?.status === ISAStatus.Completed );
 		setActiveImages( images );
-	}, [ isaDataLoading, activeGroup, images, isaSummary ] );
+	}, [ isaDataLoading, activeGroup, images, isaReport ] );
 
 	return (
 		<>

@@ -1,14 +1,10 @@
 import { useParams } from 'svelte-navigator';
-import { ISA, ImageSizeAnalysis } from './types';
+import { IsaGlobal } from './types';
 import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
-
 /**
  * Initialize the stores
  */
-export const isaDataDS = jetpack_boost_ds.createAsyncStore(
-	'image_size_analysis',
-	ImageSizeAnalysis
-);
+export const isaDataDS = jetpack_boost_ds.createAsyncStore( 'image_size_analysis', IsaGlobal );
 
 /**
  * Export the stores
@@ -42,7 +38,7 @@ export function initializeIsaData() {
 	} );
 }
 
-async function maybeRefreshStore( prevValue: ISA, value: ISA, signal?: AbortSignal ) {
+async function maybeRefreshStore( prevValue: IsaGlobal, value: IsaGlobal, signal?: AbortSignal ) {
 	if (
 		prevValue.query.page === value.query.page &&
 		prevValue.query.group === value.query.group &&

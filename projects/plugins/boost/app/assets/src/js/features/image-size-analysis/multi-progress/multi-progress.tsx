@@ -7,7 +7,7 @@ import ProgressBar from '$features/image-size-analysis/progress-bar/progress-bar
 import { Spinner } from '$features/ui';
 import WarningIcon from '$svg/warning-outline';
 
-interface SummaryProgress {
+interface ReportProgress {
 	group: ISAGroupLabels;
 	issue_count?: number;
 	scanned_pages?: number;
@@ -18,63 +18,63 @@ interface SummaryProgress {
 }
 
 interface MultiProgressProps {
-	summaryProgress: SummaryProgress[];
+	reportProgress: ReportProgress[];
 }
 
-const MultiProgress: React.FC< MultiProgressProps > = ( { summaryProgress } ) => {
+const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => {
 	return (
 		<div className="jb-multi-progress">
-			{ summaryProgress.map( ( summary, index ) => (
+			{ reportProgress.map( ( report, index ) => (
 				<div key={ index } className="jb-entry">
 					<div className="jb-progress">
-						<ProgressBar progress={ summary.progress } />
+						<ProgressBar progress={ report.progress } />
 					</div>
 
-					{ summary.progress > 0 && summary.progress < 100 ? (
+					{ report.progress > 0 && report.progress < 100 ? (
 						<Spinner />
 					) : (
 						<ConditionalLink
-							isLink={ summary.has_issues }
+							isLink={ report.has_issues }
 							className="jb-navigator-link"
-							to={ `/image-size-analysis/${ summary.group }/1` }
-							trackEvent="clicked_isa_group_on_summary_page"
-							trackEventProps={ summary.group }
+							to={ `/image-size-analysis/${ report.group }/1` }
+							trackEvent="clicked_isa_group_on_report_page"
+							trackEventProps={ report.group }
 						>
 							<span
-								className={ `jb-bubble ${ summary.done ? 'done' : '' } ${
-									summary.has_issues ? 'has-issues' : ''
+								className={ `jb-bubble ${ report.done ? 'done' : '' } ${
+									report.has_issues ? 'has-issues' : ''
 								}` }
 							>
-								{ summary.has_issues ? <WarningIcon /> : summary.done ? '✓' : index + 1 }
+								{ report.has_issues ? <WarningIcon /> : report.done ? '✓' : index + 1 }
 							</span>
 						</ConditionalLink>
 					) }
 
 					<div className="jb-category-name">
 						<ConditionalLink
-							isLink={ summary.has_issues }
+							isLink={ report.has_issues }
 							className="jb-navigator-link"
-							to={ `/image-size-analysis/${ summary.group }/1` }
-							trackEvent="clicked_isa_group_on_summary_page"
-							trackEventProps={ summary.group }
+							to={ `/image-size-analysis/${ report.group }/1` }
+							trackEvent="clicked_isa_group_on_report_page"
+							trackEventProps={ report.group }
 						>
-							{ isaGroupLabel( summary.group ) }
+							{ isaGroupLabel( report.group ) }
 						</ConditionalLink>
-						{ summary.group === 'other' && <OtherGroupContext /> }
+						{ report.group === 'other' && <OtherGroupContext /> }
 					</div>
 
-					{ ( summary.done || summary.has_issues ) && (
-						<div className={ `jb-status ${ summary.has_issues ? 'has-issues' : '' }` }>
+					{ ( report.done || report.has_issues ) && (
+						<div className={ `jb-status ${ report.has_issues ? 'has-issues' : '' }` }>
 							<ConditionalLink
-								isLink={ summary.has_issues }
+								isLink={ report.has_issues }
 								className="jb-navigator-link"
-								to={ `/image-size-analysis/${ summary.group }/1` }
-								trackEvent="clicked_isa_group_on_summary_page"
-								trackEventProps={ summary.group }
+								to={ `/image-size-analysis/${ report.group }/1` }
+								trackEvent="clicked_isa_group_on_report_page"
+								trackEventProps={ report.group }
 							>
-								{ summary.has_issues
+								{ report.has_issues
 									? // translators: %d: The number of issues
-									  sprintf( __( '%d issues', 'jetpack-boost' ), summary.issue_count )
+									  sprintf( __( '%d issues', 'jetpack-boost' ), report.issue_count )
 									: __( 'No issues', 'jetpack-boost' ) }
 							</ConditionalLink>
 						</div>

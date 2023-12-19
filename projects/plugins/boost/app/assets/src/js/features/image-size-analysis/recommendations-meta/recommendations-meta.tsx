@@ -2,28 +2,32 @@ import { useState, useEffect } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import MultiProgress from '../multi-progress/multi-progress';
 import Button from '../button/button';
-import { requestImageAnalysis, getSummaryProgress } from '../lib/stores/isa-summary';
 import ErrorNotice from '$features/error-notice/error-notice';
 import ImageCdnRecommendation from '$features/image-size-analysis/image-cdn-recommendation/image-cdn-recommendation';
 import { recordBoostEvent, recordBoostEventAndRedirect } from '$lib/utils/analytics';
 import getIsaErrorSuggestion from '$lib/utils/get-isa-error-suggestion';
 import RefreshIcon from '$svg/refresh';
 import WarningIcon from '$svg/warning-outline';
-import { type ISASummaryGroup, type ISASummary, ISAStatus } from '$features/image-size-analysis';
-
+import {
+	type IsaCounts,
+	type IsaReport,
+	ISAStatus,
+	requestImageAnalysis,
+	getReportProgress,
+} from '$features/image-size-analysis';
 interface RecommendationsMetaProps {
 	isCdnActive: boolean;
-	isaSummary: ISASummary | null;
+	isaReport: IsaReport | null;
 }
 
 const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 	isCdnActive,
-	isaSummary,
+	isaReport,
 } ) => {
 	const [ requestingReport, setRequestingReport ] = useState< boolean >( false );
 	const [ errorCode, setErrorCode ] = useState< number | undefined >( undefined );
 	const [ status, setStatus ] = useState< ISAStatus | undefined >( undefined );
-	const [ groups, setGroups ] = useState< Record< string, ISASummaryGroup > >( {} );
+	const [ groups, setGroups ] = useState< Record< string, IsaCounts > >( {} );
 	const [ scannedPages, setScannedPages ] = useState< number >( 0 );
 	const [ totalIssues, setTotalIssues ] = useState< number >( 0 );
 	const [ errorMessage, setErrorMessage ] = useState< string | undefined >( undefined );
@@ -32,14 +36,14 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 	const [ showCDNRecommendation, setShowCDNRecommendation ] = useState< boolean >( false );
 
 	useEffect( () => {
-		setStatus( isaSummary?.status );
-		setGroups( isaSummary?.groups || {} );
-		setScannedPages( scannedPagesCount( isaSummary?.groups || {} ) );
+		setStatus( isaReport?.status );
+		setGroups( isaReport?.groups || {} );
+		setScannedPages( scannedPagesCount( isaReport?.groups || {} ) );
 		/**
 		 * Calculate total number of issues.
 		 */
 		setTotalIssues(
-			Object.values( isaSummary?.groups || {} ).reduce(
+			Object.values( isaReport?.groups || {} ).reduce(
 				( total, group ) => total + group.issue_count,
 				0
 			)
@@ -67,9 +71,9 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 		setShowCDNRecommendation(
 			! isCdnActive && ( totalIssues > 0 || status === ISAStatus.NotFound )
 		);
-	}, [ isCdnActive, isaSummary, errorCode, requestingReport, status, totalIssues ] );
+	}, [ isCdnActive, isaReport, errorCode, requestingReport, status, totalIssues ] );
 
-	const scannedPagesCount = ( isaGroups: Record< string, ISASummaryGroup > ) => {
+	const scannedPagesCount = ( isaGroups: Record< string, IsaCounts > ) => {
 		return Object.values( isaGroups )
 			.map( group => group.scanned_pages )
 			.reduce( ( a, b ) => a + b, 0 );
@@ -108,8 +112,8 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 	const handleAnalyzeClick = () => {
 		const eventName =
 			status === ISAStatus.Completed
-				? 'clicked_restart_isa_on_summary_page'
-				: 'clicked_start_isa_on_summary_page';
+				? 'clicked_restart_isa_on_report_page'
+				: 'clicked_start_isa_on_report_page';
 		recordBoostEvent( eventName, {} );
 		return startAnalysis();
 	};
@@ -117,7 +121,7 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 	return (
 		<div>
 			{ ! groups ? (
-				<div className="jb-summary">{ __( 'Loading…', 'jetpack-boost' ) }</div>
+				<div className="jb-report">{ __( 'Loading…', 'jetpack-boost' ) }</div>
 			) : (
 				<>
 					{ errorMessage ? (
@@ -129,13 +133,13 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 							/>
 						</div>
 					) : waitNotice ? (
-						<div className="jb-summary-line jb-wait-notice">{ waitNotice }</div>
+						<div className="jb-report-line jb-wait-notice">{ waitNotice }</div>
 					) : null }
 
 					{ ! requestingReport && status === ISAStatus.Completed && (
-						<div className="jb-summary-line">
+						<div className="jb-report-line">
 							{ totalIssues > 0 ? (
-								<div className="jb-has-issues jb-summary">
+								<div className="jb-has-issues jb-report">
 									<WarningIcon />
 									{ sprintf(
 										// translators: 1: Number of scanned issues found 2: Number of scanned pages
@@ -148,7 +152,7 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 									) }
 								</div>
 							) : (
-								<div className="jb-summary">
+								<div className="jb-report">
 									{ sprintf(
 										// translators: %d: Number of pages scanned
 										__(
@@ -174,7 +178,7 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 					{ ! requestingReport &&
 						status &&
 						[ ISAStatus.Completed, ISAStatus.Queued ].includes( status ) && (
-							<MultiProgress summaryProgress={ getSummaryProgress( groups ) } />
+							<MultiProgress reportProgress={ getReportProgress( groups ) } />
 						) }
 
 					{ showCDNRecommendation && (
@@ -194,7 +198,7 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 									onClick={ () =>
 										recordBoostEventAndRedirect(
 											'#image-size-analysis/all/1',
-											'clicked_view_isa_report_on_summary_page',
+											'clicked_view_isa_report_on_report_page',
 											{}
 										)
 									}

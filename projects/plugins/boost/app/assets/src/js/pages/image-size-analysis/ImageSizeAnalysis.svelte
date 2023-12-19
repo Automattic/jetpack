@@ -9,12 +9,10 @@
 		initializeIsaData,
 		isaData,
 		isaDataLoading,
-	} from '$features/image-size-analysis/lib/stores/isa-data';
-	import {
-		initializeIsaSummary,
-		isaSummary,
-		getGroupedSummary,
-	} from '$features/image-size-analysis/lib/stores/isa-summary';
+		getGroupedReport,
+		initializeIsaReport,
+		isaReport,
+	} from '$features/image-size-analysis';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Footer from '$layout/footer/footer';
 	import Header from '$layout/header/header';
@@ -22,15 +20,15 @@
 	import { isaGroupLabels } from '$features/image-size-analysis/lib/isa-groups';
 
 	initializeIsaData();
-	onMount( initializeIsaSummary );
+	onMount( initializeIsaReport );
 
 	$: isImageCdnModuleActive = $modulesState.image_cdn.active;
 	$: isaLastUpdated = $isaData.data.last_updated;
 	$: images = $isaData.data.images;
 	$: activeGroup = dataGroupTabs[ $isaData.query.group ];
 	$: dataLoading = $isaDataLoading;
-	$: summary = $isaSummary;
-	$: dataGroupTabs = getGroupedSummary( $isaSummary ); // the counts are off now
+	$: summary = $isaReport;
+	$: dataGroupTabs = getGroupedReport( $isaReport ); // the counts are off now
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
