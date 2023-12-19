@@ -33,7 +33,7 @@ class Doc_Parser {
 			echo PHP_EOL;
 
 			// Get data from the PHPDoc
-			$json[] = $this->get_phpdoc_data( $directory );
+			$json[] = $this->get_phpdoc_data( $directory, 'raw' );
 		}
 
 		$output = json_encode( $json );
@@ -78,12 +78,38 @@ class Doc_Parser {
 			}
 		}
 
-		// Extract PHPDoc
+		// Maybe we should automatically import definitions from .gitignore.
+		$ignore = array(
+			'/.sass-cache/',
+			'/node_modules',
+			'vendor/',
+			'jetpack_vendor/',
+			'/.nova/',
+			'/.vscode/',
+			'/logs',
+			'/allure-results/',
+			'tests/',
+			'wordpress/',
+		);
+
+		$files = array_filter(
+			$files,
+			function ( $item ) use ( $ignore ) {
+				foreach ( $ignore as $path_chunk ) {
+					if ( false !== strpos( $item, $path_chunk ) ) {
+						return false;
+					}
+				}
+				return true;
+			}
+		);
+
+		// Extract PHPDoc.
 		ob_start();
 		$output = \WP_Parser\parse_files( $files, $path );
 		ob_get_clean();
 
-		if ( $format === 'json' ) {
+		if ( 'json' === $format ) {
 			$output = json_encode( $output, JSON_PRETTY_PRINT );
 		}
 
