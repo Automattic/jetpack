@@ -56,14 +56,6 @@ declare global {
 		nonces: {
 			[ key: string ]: string;
 		};
-		pricing: {
-			yearly?: {
-				priceBefore: number;
-				priceAfter: number;
-				currencyCode: string;
-				isIntroductoryOffer: boolean;
-			};
-		};
 	};
 
 	// Critical CSS Generator library.

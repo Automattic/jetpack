@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+My Plan: Fix JS errors due to nested anchor tags
