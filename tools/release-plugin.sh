@@ -201,8 +201,21 @@ read -r -s -p $'Edit all the changelog entries you want (in a separate terminal 
 echo ""
 
 for PLUGIN in "${!PROJECTS[@]}"; do
+	# check if the plugin even has a readme.txt file.
+	if [[ ! -e "$BASE/projects/$PLUGIN/readme.txt" ]]; then
+		yellow "$PLUGIN has no readme.txt file, skipping."
+		continue
+	fi
 	yellow "Updating the readme.txt file for $PLUGIN."
-	pnpm jetpack release "$PLUGIN" readme
+	ARGS=()
+	# Add alpha and beta flags.
+	VERSION="${PROJECTS[$PLUGIN]}"
+	case $VERSION in
+		*-a* ) ARGS+=('-a');;
+		*-beta ) ARGS+=('-b');;
+		* ) ARGS+=('-s');;
+	esac
+	pnpm jetpack release "$PLUGIN" readme "${ARGS[@]}"
 done
 
 exit 0
