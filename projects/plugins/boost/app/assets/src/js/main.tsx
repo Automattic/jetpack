@@ -1,10 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createHashRouter, redirect, RouterProvider, useParams } from 'react-router-dom';
+import {
+	createHashRouter,
+	redirect,
+	RouterProvider,
+	useLocation,
+	useParams,
+} from 'react-router-dom';
 import Upgrade from './pages/upgrade/upgrade';
 import Index from './pages/index';
 import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
 import GettingStarted from './pages/getting-started/getting-started';
 import PurchaseSuccess from './pages/purchase-success/purchase-success';
+import { useEffect } from 'react';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 const isGettingStarted = false;
 
@@ -38,36 +46,84 @@ const makeRouter = ( {
 		{
 			path: '/',
 			loader: checkIfGettingStarted,
-			element: <Index { ...indexProps } />,
+			element: (
+				<Tracks>
+					<Index { ...indexProps } />
+				</Tracks>
+			),
 		},
 		{
 			path: '/critical-css-advanced',
 			loader: checkIfGettingStarted,
-			element: <AdvancedCriticalCss { ...criticalCssAdvancedProps } />,
+			element: (
+				<Tracks>
+					<AdvancedCriticalCss { ...criticalCssAdvancedProps } />
+				</Tracks>
+			),
 		},
 		{
 			path: 'image-size-analysis/:group/:page',
 			loader: checkIfGettingStarted,
-			element: <ISAPage />,
+			element: (
+				<Tracks>
+					<ISAPage />
+				</Tracks>
+			),
 		},
 		{
 			path: '/upgrade',
-			element: <Upgrade { ...upgradeProps } />,
+			element: (
+				<Tracks>
+					<Upgrade { ...upgradeProps } />
+				</Tracks>
+			),
 		},
 		{
 			path: '/getting-started',
-			element: <GettingStarted { ...gettingStartedProps } />,
+			element: (
+				<Tracks>
+					<GettingStarted { ...gettingStartedProps } />
+				</Tracks>
+			),
 		},
 		{
 			path: '/purchase-successful',
-			element: <PurchaseSuccess { ...purchaseSuccessProps } />,
+			element: (
+				<Tracks>
+					<PurchaseSuccess { ...purchaseSuccessProps } />
+				</Tracks>
+			),
 		},
 	] );
 };
 
 export default function Main( props: MainProps ) {
-	return <RouterProvider router={ makeRouter( props ) } />;
+	const router = makeRouter( props );
+	return <RouterProvider router={ router } />;
 }
+
+/**
+ * Track the page view.
+ *
+ * @param props
+ * @param props.children - The actual page to render
+ */
+const Tracks = ( { children }: { children: JSX.Element } ) => {
+	const location = useLocation();
+
+	useEffect( () => {
+		let path = location.pathname.replace( /[-/]/g, '_' );
+		if ( path === '_' ) {
+			path = '_settings';
+		}
+
+		recordBoostEvent( `page_view${ path }`, {
+			path: location.pathname,
+		} );
+	}, [ location ] );
+
+	return children;
+};
 
 const ISAPage = () => {
 	const { group, page } = useParams< { group: string; page: string } >();
