@@ -1408,7 +1408,7 @@ class Share_X extends Sharing_Source {
 		} else {
 			if (
 				/** This filter is documented in modules/sharedaddy/sharing-sources.php */
-				apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'twitter' )
+				apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'x' )
 			) {
 				sharing_register_post_for_share_counts( $post->ID );
 			}
