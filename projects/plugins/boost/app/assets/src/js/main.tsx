@@ -13,8 +13,7 @@ import GettingStarted from './pages/getting-started/getting-started';
 import PurchaseSuccess from './pages/purchase-success/purchase-success';
 import { useEffect } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
-
-const isGettingStarted = false;
+import { useGettingStarted } from '$lib/stores/getting-started';
 
 /*
  * For the time being, we will pass the props from a svelte file.
@@ -35,12 +34,13 @@ const makeRouter = ( {
 	gettingStartedProps,
 	purchaseSuccessProps,
 }: MainProps ) => {
-	const checkIfGettingStarted = () => {
-		if ( isGettingStarted ) {
+	const { shouldGetStarted } = useGettingStarted();
+	const checkIfGettingStarted = useCallback( () => {
+		if ( shouldGetStarted ) {
 			return redirect( '/getting-started' );
 		}
 		return null;
-	};
+	}, [ shouldGetStarted ] );
 
 	return createHashRouter( [
 		{

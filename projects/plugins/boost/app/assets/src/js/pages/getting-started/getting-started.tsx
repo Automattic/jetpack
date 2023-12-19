@@ -10,6 +10,7 @@ import Header from '$layout/header/header';
 import styles from './getting-started.module.scss';
 import { useConfig } from '$lib/stores/config-ds';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
+import { useGettingStarted } from '$lib/stores/getting-started';
 
 type GettingStartedProps = {
 	userConnected: boolean;
@@ -25,7 +26,8 @@ const GettingStarted: React.FC< GettingStartedProps > = ( {
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
 	const [ snackbarMessage, setSnackbarMessage ] = useState< string >( '' );
 
-	const { pricing } = useConfig();
+
+	const { markGettingStartedComplete } = useGettingStarted();
 
 	async function initialize(
 		plan: 'free' | 'premium',
@@ -44,6 +46,8 @@ const GettingStarted: React.FC< GettingStartedProps > = ( {
 			// * free_cta_from_getting_started_page_in_plugin
 			// * premium_cta_from_getting_started_page_in_plugin
 			await recordBoostEvent( `${ plan }_cta_from_getting_started_page_in_plugin`, {} );
+
+			markGettingStartedComplete();
 
 			// Go to the purchase flow if the user doesn't have a premium plan.
 			if ( ! isPremiumValue && plan === 'premium' ) {
