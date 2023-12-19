@@ -27,24 +27,17 @@
 	$: isImageCdnModuleActive = $modulesState.image_cdn.active;
 	$: isaLastUpdated = $isaData.data.last_updated;
 	$: images = $isaData.data.images;
-	$: activeGroup = $isaData.query.group;
-	$: hasActiveGroup = activeGroup !== 'all' && $isaSummary && activeGroup in $isaSummary;
+	$: activeGroup = dataGroupTabs[ $isaData.query.group ];
 	$: dataLoading = $isaDataLoading;
 	$: summary = $isaSummary;
-	$: dataGroupTabs = getGroupedSummary( $isaSummary );
+	$: dataGroupTabs = getGroupedSummary( $isaSummary ); // the counts are off now
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
 	<ReactComponent this={Header} subPageTitle={__( 'Image analysis report', 'jetpack-boost' )} />
 	<div class="jb-recommendations-page jb-section--alt">
 		<div class="jb-container">
-			<ReactComponent
-				this={Hero}
-				{isImageCdnModuleActive}
-				{isaLastUpdated}
-				{hasActiveGroup}
-				totalIssueCount={dataGroupTabs.all.issue_count}
-			/>
+			<ReactComponent this={Hero} {isImageCdnModuleActive} {isaLastUpdated} group={activeGroup} />
 			<ReactComponent
 				this={Tabs}
 				{activeGroup}

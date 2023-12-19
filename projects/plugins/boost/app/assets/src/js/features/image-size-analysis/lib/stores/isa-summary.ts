@@ -73,14 +73,17 @@ export function getSummaryProgress( summaryGroups: Record< string, ISASummaryGro
  * Function tracking the total number of issues.
  * @param summary
  */
-export function getGroupedSummary( summary: ISASummary ) {
-	const totalIssueCount = Object.values( summary?.groups || {} )
-		.map( group => group.issue_count )
-		.reduce( ( a, b ) => a + b, 0 );
+export function getGroupedSummary( summary: ISASummary ): Record< string, ISA_Group > {
+	const groups = Object.values( summary?.groups || {} );
+	const totalIssueCount = groups.map( group => group.issue_count ).reduce( ( a, b ) => a + b, 0 );
+	const page_count = groups.map( group => group.total_pages ).reduce( ( a, b ) => a + b, 0 );
+	const scanned_pages = groups.map( group => group.scanned_pages ).reduce( ( a, b ) => a + b, 0 );
 
 	const dataGroupTabs = {
 		all: {
 			issue_count: totalIssueCount,
+			scanned_pages,
+			total_pages: page_count,
 		},
 		...summary?.groups,
 	};
