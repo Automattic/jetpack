@@ -1,7 +1,7 @@
 import api from '$lib/api/api';
 import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
 import { setPromiseInterval } from '$lib/utils/set-promise-interval';
-import { type isGroupLabels } from '../isa-groups';
+import { type isaGroupKeys } from '../isa-groups';
 import { IsaReport, IsaCounts } from './types';
 
 const isaReportDS = jetpack_boost_ds.createAsyncStore( 'image_size_analysis_summary', IsaReport );
@@ -17,7 +17,7 @@ export function getReportProgress( groups: Record< string, IsaCounts > ) {
 			: 100;
 
 		return {
-			group: group as isGroupLabels,
+			group: group as isaGroupKeys,
 			progress,
 			done: progress === 100,
 			has_issues: data.issue_count > 0,

@@ -8,9 +8,9 @@ export const isaGroupLabels = {
 	fixed: __( 'Fixed Images', 'jetpack-boost' ),
 } as const;
 
-export type isGroupLabels = keyof typeof isaGroupLabels;
+export type isaGroupKeys = keyof typeof isaGroupLabels;
 
-export function getGroupLabel( group: isGroupLabels ) {
+export function getGroupLabel( group: isaGroupKeys ) {
 	if ( ! isaGroupLabels[ group ] ) {
 		return group;
 	}
