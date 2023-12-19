@@ -1,6 +1,7 @@
 import { useParams } from 'svelte-navigator';
 import { IsaGlobal } from './types';
 import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
+import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 /**
  * Initialize the stores
  */
@@ -23,6 +24,14 @@ export function updateIsaQuery( group: string, page = 1, search = '' ) {
 				search,
 			},
 		};
+	} );
+}
+
+export function useIsaData() {
+	return useDataSync( 'jetpack_boost_ds', 'image_size_analysis', IsaGlobal, {
+		query: {
+			initialData: () => undefined,
+		},
 	} );
 }
 
