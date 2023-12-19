@@ -270,6 +270,24 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Testing the `/jetpack/v4/identity-crisis/compare-url-secret` endpoint for non-matching secret.
+	 */
+	public function test_compare_url_secret_no_access() {
+		Jetpack_Options::update_option( 'blog_token', 'new.blogtoken' );
+		Jetpack_Options::update_option( 'id', 42 );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/compare-url-secret' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'secret' => '54321fdsa' ) ) );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 401, $response->get_status() );
+		$this->assertEquals( 'invalid_user_permission_identity_crisis', $data['code'] );
+	}
+
+	/**
 	 * Mock blog token authorization for API requests.
 	 *
 	 * @return void

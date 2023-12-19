@@ -82,7 +82,7 @@ class REST_Endpoints {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( static::class, 'compare_url_secret' ),
-				'permission_callback' => '__return_true',
+				'permission_callback' => array( static::class, 'compare_url_secret_permission_check' ),
 				'args'                => array(
 					'secret' => array(
 						'description' => __( 'URL secret to compare to the ones stored in the database.', 'jetpack-idc' ),
@@ -251,7 +251,7 @@ class REST_Endpoints {
 
 		if ( $storage->exists() ) {
 			$remote_secret = $request->get_param( 'secret' );
-			$match         = $remote_secret && $storage->get_secret() === $remote_secret;
+			$match         = $remote_secret && hash_equals( $storage->get_secret(), $remote_secret );
 		}
 
 		return rest_ensure_response(
@@ -275,5 +275,21 @@ class REST_Endpoints {
 				esc_html__( 'You do not have the correct user permissions to perform this action.', 'jetpack-idc' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
+	}
+
+	/**
+	 * The endpoint is only available on non-connected sites.
+	 * use `/identity-crisis/url-secret` for connected sites.
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function compare_url_secret_permission_check() {
+		return ( new Connection_Manager() )->is_connected()
+			? new WP_Error(
+				'invalid_user_permission_identity_crisis',
+				esc_html__( 'You do not have the correct user permissions to perform this action.', 'jetpack-idc' ),
+				array( 'status' => rest_authorization_required_code() )
+			)
+			: true;
 	}
 }
