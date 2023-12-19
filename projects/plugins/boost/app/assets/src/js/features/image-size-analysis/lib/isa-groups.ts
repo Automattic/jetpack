@@ -10,9 +10,9 @@ export const isaGroupLabels = {
 
 export type isaGroupKeys = keyof typeof isaGroupLabels;
 
-export function getGroupLabel( group: isaGroupKeys ) {
-	if ( ! isaGroupLabels[ group ] ) {
+export function getGroupLabel( group: string ) {
+	if ( ! ( group in isaGroupLabels ) ) {
 		return group;
 	}
-	return isaGroupLabels[ group ];
+	return isaGroupLabels[ group as isaGroupKeys ];
 }
