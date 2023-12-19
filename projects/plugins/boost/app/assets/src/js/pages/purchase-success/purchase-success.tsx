@@ -3,23 +3,25 @@ import { Button } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { requestImageAnalysis } from '$features/image-size-analysis/lib/stores/isa-summary';
-import enableCloudCss from '$lib/utils/enable-cloud-css';
 import { navigate } from '$lib/utils/navigate';
 import Logo from '$svg/jetpack-green';
+import { useSingleModuleState } from '$features/module/lib/stores';
+import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 
 type PurchaseSuccessProps = {
 	isImageGuideActive: boolean;
 };
 
 const PurchaseSuccess: React.FC< PurchaseSuccessProps > = ( { isImageGuideActive } ) => {
+	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
 	useEffect( () => {
-		enableCloudCss();
+		setCloudCssState( true );
 
 		// If image guide is enabled, request a new ISA report.
 		if ( isImageGuideActive && false !== Jetpack_Boost.site.canResizeImages ) {
 			requestImageAnalysis();
 		}
-	}, [ isImageGuideActive ] );
+	}, [ isImageGuideActive, setCloudCssState ] );
 
 	const wpcomPricingUrl = getRedirectUrl( 'wpcom-pricing' );
 
@@ -88,4 +90,10 @@ const PurchaseSuccess: React.FC< PurchaseSuccessProps > = ( { isImageGuideActive
 	);
 };
 
-export default PurchaseSuccess;
+export default ( props: PurchaseSuccessProps ) => {
+	return (
+		<DataSyncProvider>
+			<PurchaseSuccess { ...props } />
+		</DataSyncProvider>
+	);
+};
