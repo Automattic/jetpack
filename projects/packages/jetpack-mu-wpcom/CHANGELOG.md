@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.5.0] - 2023-12-15
+### Changed
+- Updates the WC visibility check to use the `is_plugin_active` function. [#34648]
+
+## [5.4.0] - 2023-12-14
+### Added
+- Add the Sensei and WooCommerce Setup Task, to allow us to retire the old checklist card. [#34551] [#34564]
+- Launchpad: Add context param to endpoint. [#34498]
+
+### Changed
+- Mark the setup_general task as complete based on whether blogname or blog description options changed. [#34579]
+
+## [5.3.0] - 2023-12-11
+### Added
+- Added editor error handling from ETK. [#34158]
+- Added initial JS and TS build logic. [#34158]
+- Added the Site Setup Launchpad, to allow us to retire the old checklist card. [#34320]
+- Launchpad: Added tasks for the new ai-assembler flow. [#34532]
+- Launchpad: Completed the plan tasks when the user purchses a plan. [#34480]
+- Launchpad: Completed the task, Personalize your site, when the user updates the site title, site tagline or site logo. [#34511]
+- Launchpad: Set up tasks for the new assembler-first flow. [#34451]
+
+### Changed
+- Launchpad: Added source to Earn stripe task. [#34448]
+
 ## [5.2.0] - 2023-12-03
 ### Changed
 - Launchpad: Updated link for paid offer task. [#34413]
@@ -462,6 +487,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.5.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.4.0...v5.5.0
+[5.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.3.0...v5.4.0
+[5.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.2.0...v5.3.0
 [5.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.1.1...v5.2.0
 [5.1.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.1.0...v5.1.1
 [5.1.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.0.0...v5.1.0

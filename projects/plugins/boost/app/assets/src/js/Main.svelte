@@ -2,7 +2,7 @@
 	import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
 	import GettingStarted from './pages/getting-started/getting-started';
 	import RecommendationsPage from './pages/image-size-analysis/ImageSizeAnalysis.svelte';
-	import Index from './pages/index/Index.svelte';
+	import ReactIndex from './pages/index/index';
 	import PurchaseSuccess from './pages/purchase-success/purchase-success';
 	import Upgrade from './pages/upgrade/upgrade';
 	import ReactComponent from '$features/ReactComponent.svelte';
@@ -10,12 +10,20 @@
 	import SettingsPage from '$layout/SettingsPage/SettingsPage.svelte';
 	import config from '$lib/stores/config';
 	import { connection } from '$lib/stores/connection';
-	import { criticalCssIssues } from '$features/critical-css';
 	import { modulesState } from '$lib/stores/modules';
 	import { recordBoostEvent } from '$lib/utils/analytics';
 	import debounce from '$lib/utils/debounce';
 	import { Route, Router } from '$lib/utils/router';
 	import routerHistory from '$lib/utils/router-history';
+	import {
+		criticalCssState,
+		continueGeneratingLocalCriticalCss,
+		regenerateCriticalCss,
+		criticalCssProgress,
+		isFatalError,
+		criticalCssIssues,
+		primaryErrorSet,
+	} from '$features/critical-css';
 
 	routerHistory.listen(
 		debounce( history => {
@@ -31,8 +39,6 @@
 		}, 10 )
 	);
 
-	$: pricing = $config.pricing;
-
 	$: siteDomain = $config.site.domain;
 	$: userConnected = $connection.userConnected;
 	$: isPremium = $config.isPremium;
@@ -45,17 +51,11 @@
 
 <Router history={routerHistory}>
 	<Route path="upgrade">
-		<ReactComponent this={Upgrade} {pricing} {siteDomain} {userConnected} />
+		<ReactComponent this={Upgrade} {siteDomain} {userConnected} />
 	</Route>
 
 	<Route path="getting-started">
-		<ReactComponent
-			this={GettingStarted}
-			{userConnected}
-			{pricing}
-			{isPremium}
-			domain={siteDomain}
-		/>
+		<ReactComponent this={GettingStarted} {userConnected} {isPremium} domain={siteDomain} />
 	</Route>
 
 	<Route path="purchase-successful">
@@ -73,7 +73,18 @@
 	<Route path="/">
 		<Redirect when={shouldGetStarted} to="/getting-started">
 			<SettingsPage>
-				<Index />
+				<ReactComponent
+					this={ReactIndex}
+					criticalCss={{
+						criticalCssState: $criticalCssState,
+						continueGeneratingLocalCriticalCss,
+						regenerateCriticalCss,
+						criticalCssProgress: $criticalCssProgress,
+						isFatalError: $isFatalError,
+						criticalCssIssues: $criticalCssIssues,
+						primaryErrorSet: $primaryErrorSet,
+					}}
+				/>
 			</SettingsPage>
 		</Redirect>
 	</Route>
@@ -82,9 +93,3 @@
 		<Route path="image-size-analysis/:group/:page" component={RecommendationsPage} />
 	{/if}
 </Router>
-
-<style lang="scss">
-	.jb-section--main {
-		z-index: 14;
-	}
-</style>

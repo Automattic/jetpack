@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Score from '../../features/speed-score/Score.svelte';
+	import SpeedScore from '../../features/speed-score/speed-score';
 	import Support from './support/support';
-	import Tips from './Tips.svelte';
+	import Tips from './tips/tips';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Footer from '$layout/footer/footer';
 	import Header from '$layout/header/header';
@@ -11,26 +11,26 @@
 
 	$: criticalCssCreated = $criticalCssState.created;
 	$: criticalCssIsGenerating = $isGenerating;
-	$: activeModules = Object.entries( $modulesState ).reduce( ( acc, [ key, value ] ) => {
-		if ( key !== 'image_guide' && key !== 'image_size_analysis' ) {
-			acc.push( value.active );
-		}
-		return acc;
-	}, [] );
+	$: performanceHistoryNeedsUpgrade = ! $modulesState.performance_history.available;
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
 	<ReactComponent this={Header} />
 
 	<div class="jb-section jb-section--alt jb-section--scores">
-		<Score {activeModules} {criticalCssCreated} {criticalCssIsGenerating} />
+		<ReactComponent
+			this={SpeedScore}
+			{criticalCssCreated}
+			{criticalCssIsGenerating}
+			{performanceHistoryNeedsUpgrade}
+		/>
 	</div>
 
 	<div class="jb-section jb-section--main">
 		<slot />
 	</div>
 
-	<Tips />
+	<ReactComponent this={Tips} />
 
 	{#if $hasPrioritySupport}
 		<ReactComponent this={Support} />
@@ -38,3 +38,9 @@
 
 	<ReactComponent this={Footer} />
 </div>
+
+<style lang="scss">
+	.jb-section--main {
+		z-index: 14;
+	}
+</style>

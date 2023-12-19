@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/ai-assistant",
 	"title": "AI Assistant (Experimental)",
-	"description": "Elevate your content creation with our AI-powered Gutenberg Block, offering seamless customization and generation. Bear in mind that, as an evolving tool, occasional imprecision may occur. Your feedback is valuable in our commitment to refine and improve this feature.",
+	"description": "Elevate your content creation with our AI-powered Gutenberg Block, offering seamless customization and generation. Bear in mind that, as an evolving tool, occasional imprecision may occur.",
 	"keywords": [ "AI", "GPT", "AL", "Magic", "help", "assistant" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
@@ -50,6 +50,14 @@
 		"customSystemPrompt": {
 			"type": "string",
 			"default": ""
+		},
+		"userPrompt": {
+			"type": "string",
+			"default": ""
+		},
+		"requestingState": {
+			"type": "string",
+			"default": "init"
 		}
 	},
 	"example": {

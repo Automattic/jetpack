@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Show an error message when unable to render payment button.

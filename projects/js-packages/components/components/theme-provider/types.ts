@@ -12,7 +12,7 @@ export type ThemeProviderProps = {
 	/**
 	 * Content
 	 */
-	children?: React.ReactElement;
+	children?: React.ReactNode;
 	/**
 	 * Inser global/reset styles
 	 */

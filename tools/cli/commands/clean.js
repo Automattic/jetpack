@@ -1,7 +1,7 @@
 import child_process from 'child_process';
 import fs from 'fs';
 import chalk from 'chalk';
-import inquirer from 'inquirer';
+import enquirer from 'enquirer';
 import { normalizeCleanArgv } from '../helpers/normalizeArgv.js';
 import { allProjects } from '../helpers/projectHelpers.js';
 import promptForProject, { promptForType } from '../helpers/promptForProject.js';
@@ -228,11 +228,10 @@ async function collectAllFiles( toClean, argv ) {
 				}\` instead.`
 			)
 		);
-		const response = await inquirer.prompt( {
+		const response = await enquirer.prompt( {
 			type: 'confirm',
 			name: 'confirm',
 			message: 'Delete checked in composer.lock files anyway?',
-			default: false,
 		} );
 		if ( response.confirm ) {
 			let composerLockFiles = child_process.execSync(
@@ -368,10 +367,11 @@ async function confirmRemove( argv, toCleanFiles ) {
 		confirmMessage =
 			'You want to clean absolutely everything from the monorepo? (untracked files, node_modules, vendor, and git-ignored files?)';
 	}
-	const response = await inquirer.prompt( {
+	const response = await enquirer.prompt( {
 		type: 'confirm',
 		name: 'confirm',
 		message: chalk.green( confirmMessage ),
+		initial: true,
 	} );
 
 	return response;
@@ -384,22 +384,22 @@ async function confirmRemove( argv, toCleanFiles ) {
  * @returns {object} argv
  */
 export async function promptForScope( argv ) {
-	const response = await inquirer.prompt( [
+	const response = await enquirer.prompt( [
 		{
-			type: 'list',
+			type: 'select',
 			name: 'scope',
 			message: 'What are you trying to clean?',
 			choices: [
 				{
-					name: '[Project] - Specific project (plugins/jetpack, etc)',
+					message: 'Specific project (plugins/jetpack, etc)',
 					value: 'project',
 				},
 				{
-					name: '[Type   ] - Everything in a project type (plugins, packages, etc)',
+					message: 'Everything in a project type (plugins, packages, etc)',
 					value: 'type',
 				},
 				{
-					name: '[All    ] - Everything in the monorepo',
+					message: 'Everything in the monorepo',
 					value: 'all',
 				},
 			],
@@ -420,34 +420,34 @@ export async function promptForClean( argv ) {
 	if ( argv.project === '.' || argv.project === 'all' ) {
 		promptProject = 'everywhere in the monorepo';
 	}
-	const response = await inquirer.prompt( [
+	const response = await enquirer.prompt( [
 		{
-			type: 'checkbox',
+			type: 'multiselect',
 			name: 'toClean',
 			message: `What files and folders are you looking to delete for ${ promptProject }?`,
 			choices: [
 				{
-					name: 'Untracked Files',
+					message: 'Untracked Files',
 					value: 'untracked',
 				},
 				{
-					name: 'Other Ignored Files',
+					message: 'Other Ignored Files',
 					value: 'ignored',
 				},
 				{
-					name: 'Docker Environment',
+					message: 'Docker Environment',
 					value: 'docker',
 				},
 				{
-					name: 'node_modules',
+					message: 'node_modules',
 					value: 'node_modules',
 				},
 				{
-					name: 'composer.lock',
+					message: 'composer.lock',
 					value: 'composer.lock',
 				},
 				{
-					name: 'vendor',
+					message: 'vendor',
 					value: 'vendor',
 				},
 			],

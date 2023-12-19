@@ -3,8 +3,8 @@ import path from 'path';
 import process from 'process';
 import chalk from 'chalk';
 import Configstore from 'configstore';
+import enquirer from 'enquirer';
 import { execa } from 'execa';
-import inquirer from 'inquirer';
 import tmp from 'tmp';
 import { projectDir } from '../helpers/install.js';
 import { listProjectFiles } from '../helpers/list-project-files.js';
@@ -74,11 +74,12 @@ export async function rsyncInit( argv ) {
 async function promptToManageConfig() {
 	const promptClearAll = async () => {
 		console.log( rsyncConfigStore.all );
-		await inquirer
+		await enquirer
 			.prompt( {
 				type: 'confirm',
 				name: 'clearAll',
 				message: 'are you sure you want to clear them all?',
+				initial: true,
 			} )
 			.then( answer => {
 				if ( answer.clearAll ) {
@@ -88,8 +89,8 @@ async function promptToManageConfig() {
 			} );
 	};
 	const clearOne = key => rsyncConfigStore.delete( escapeKey( key ) );
-	const configManage = await inquirer.prompt( {
-		type: 'list',
+	const configManage = await enquirer.prompt( {
+		type: 'select',
 		name: 'manageConfig',
 		message: 'Manage saved destination paths.',
 		choices: [ 'list', 'add', 'remove' ],
@@ -107,8 +108,8 @@ async function promptToManageConfig() {
 	if ( configManage.manageConfig === 'remove' ) {
 		const configKeys = Object.keys( rsyncConfigStore.all );
 		configKeys.push( 'All of them!' );
-		const removeDest = await inquirer.prompt( {
-			type: 'list',
+		const removeDest = await enquirer.prompt( {
+			type: 'select',
 			name: 'removeKey',
 			message: 'which would you like to remove?',
 			choices: configKeys,
@@ -297,9 +298,9 @@ async function promptForRsyncConfig( pluginDestPath ) {
 	if ( foundValue ) {
 		return;
 	}
-	const createPrompt = await inquirer.prompt( {
+	const createPrompt = await enquirer.prompt( {
 		name: 'createConfig',
-		type: 'list',
+		type: 'select',
 		message: `No saved entries for ${ pluginDestPath }. Create one for easier use later?`,
 		choices: [ 'Hell yeah!', 'Nah' ],
 	} );
@@ -314,19 +315,19 @@ async function promptForRsyncConfig( pluginDestPath ) {
  * @param { string } pluginDestPath - String to destination path.
  */
 async function promptForSetAlias( pluginDestPath ) {
-	const aliasSetPrompt = await inquirer.prompt( {
+	const aliasSetPrompt = await enquirer.prompt( {
 		name: 'alias',
 		type: 'input',
 		message: 'Enter an alias for easier reference? (Press enter to skip.)',
 	} );
 	const alias = aliasSetPrompt.alias || pluginDestPath;
 	if ( rsyncConfigStore.has( escapeKey( alias ) ) ) {
-		const alreadyFound = await inquirer.prompt( {
+		const alreadyFound = await enquirer.prompt( {
 			name: 'overwrite',
 			type: 'confirm',
-			message: `This alias already exists for dest: ${ rsyncConfigStore.get(
-				escapeKey( alias )
-			) }. Overwrite it?`,
+			initial: true,
+			// prettier-ignore
+			message: `This alias already exists for dest: ${ rsyncConfigStore.get( escapeKey( alias ) ) }. Overwrite it?`,
 		} );
 		if ( ! alreadyFound.overwrite ) {
 			console.log( 'Okay!' );
@@ -353,17 +354,21 @@ async function maybePromptForDest( argv ) {
 		return argv;
 	}
 	const savedDests = Object.keys( rsyncConfigStore.all );
-	savedDests.unshift( 'Create new' );
-	const response = await inquirer.prompt( {
-		name: 'dest',
-		type: 'list',
-		message: 'Choose destination:',
-		choices: savedDests,
-	} );
-	if ( 'Create new' === response.dest ) {
+	if ( savedDests.length === 0 ) {
 		argv.dest = await promptNewDest();
 	} else {
-		argv.dest = rsyncConfigStore.get( escapeKey( response.dest ) );
+		savedDests.unshift( 'Create new' );
+		const response = await enquirer.prompt( {
+			type: 'select',
+			name: 'dest',
+			message: 'Choose destination:',
+			choices: savedDests,
+		} );
+		if ( 'Create new' === response.dest ) {
+			argv.dest = await promptNewDest();
+		} else {
+			argv.dest = rsyncConfigStore.get( escapeKey( response.dest ) );
+		}
 	}
 	return argv;
 }
@@ -374,7 +379,7 @@ async function maybePromptForDest( argv ) {
  * @returns {Promise<*|string>} - Destination path
  */
 async function promptNewDest() {
-	const response = await inquirer.prompt( {
+	const response = await enquirer.prompt( {
 		name: 'dest',
 		type: 'input',
 		message: "Input destination host:path to the plugin's dir or the /plugins or /mu-plugins dir: ",
@@ -398,8 +403,8 @@ export async function maybePromptForPlugin( argv ) {
 		whichPlugin.length === 0 ||
 		( whichPlugin.length > 0 && ! validatePlugin( whichPlugin ) )
 	) {
-		whichPlugin = await inquirer.prompt( {
-			type: 'list',
+		whichPlugin = await enquirer.prompt( {
+			type: 'autocomplete',
 			name: 'plugin',
 			message: 'Which plugin?',
 			choices: dirs( './projects/plugins' ),
