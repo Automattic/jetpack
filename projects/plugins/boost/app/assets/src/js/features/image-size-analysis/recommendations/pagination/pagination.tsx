@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import PaginationArrow from '../ui/pagination-arrow/pagination-arrow';
 import ChevronLeft from '$svg/chevron-left';
 import ChevronRight from '$svg/chevron-right';
-import { navigate } from '$lib/utils/navigate';
 
 interface PaginationProps {
 	group: string;
@@ -23,28 +22,23 @@ const Pagination: React.FC< PaginationProps > = ( { group, current, total } ) =>
 		return new Array( last - first + 1 ).fill( 0 ).map( ( _, i ) => first + i );
 	};
 
-	const generatePagination = ( currentPage: number, maxPage: number ) => {
-		const padding = 2;
-		const pagination = slidingWindow( currentPage, maxPage );
-
-		if ( pagination[ 0 ] - padding >= 0 ) {
-			pagination.splice( 0, padding, 1, MORE_ICON );
-		}
-
-		if ( pagination[ pagination.length - padding ] <= maxPage - padding ) {
-			pagination.splice( pagination.length - padding, padding, MORE_ICON, maxPage );
-		}
-
-		return pagination;
-	};
-
 	useEffect( () => {
-		setPages( generatePagination( current, total ) );
-	}, [ current, total ] );
+		const generatePagination = ( currentPage: number, maxPage: number ) => {
+			const padding = 2;
+			const pagination = slidingWindow( currentPage, maxPage );
 
-	const handlePageClick = ( page: number ) => {
-		navigate( `/image-size-analysis/${ group }/${ page }` );
-	};
+			if ( pagination[ 0 ] - padding >= 0 ) {
+				pagination.splice( 0, padding, 1, MORE_ICON );
+			}
+
+			if ( pagination[ pagination.length - padding ] <= maxPage - padding ) {
+				pagination.splice( pagination.length - padding, padding, MORE_ICON, maxPage );
+			}
+
+			return pagination;
+		};
+		setPages( generatePagination( current, total ) );
+	}, [ MORE_ICON, current, total ] );
 
 	return (
 		<div className="jb-pagination">
@@ -62,8 +56,7 @@ const Pagination: React.FC< PaginationProps > = ( { group, current, total } ) =>
 								) : (
 									// eslint-disable-next-line jsx-a11y/anchor-is-valid
 									<a
-										href="#"
-										onClick={ () => handlePageClick( page ) }
+										href={ `#/image-size-analysis/${ group }/${ page }` }
 										className={ `jb-pagination__page${
 											page === current ? ' jb-pagination__page--current' : ''
 										}` }
