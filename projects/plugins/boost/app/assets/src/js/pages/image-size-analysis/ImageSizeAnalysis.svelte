@@ -28,7 +28,7 @@
 	$: activeGroup = dataGroupTabs[ $isaData.query.group ];
 	$: dataLoading = $isaDataLoading;
 	$: summary = $isaReport;
-	$: dataGroupTabs = getGroupedReport( $isaReport ); // the counts are off now
+	$: dataGroupTabs = getGroupedReport( $isaReport );
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
