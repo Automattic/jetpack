@@ -6,7 +6,7 @@ import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-adva
 import GettingStarted from './pages/getting-started/getting-started';
 import PurchaseSuccess from './pages/purchase-success/purchase-success';
 
-const isGetingStarted = false;
+const isGettingStarted = false;
 
 /*
  * For the time being, we will pass the props from a svelte file.
@@ -31,7 +31,7 @@ const makeRouter = ( {
 		{
 			path: '/',
 			loader: () => {
-				if ( isGetingStarted ) {
+				if ( isGettingStarted ) {
 					return redirect( '/getting-started' );
 				}
 				return null;
@@ -41,7 +41,7 @@ const makeRouter = ( {
 		{
 			path: '/critical-css-advanced',
 			loader: () => {
-				if ( isGetingStarted ) {
+				if ( isGettingStarted ) {
 					return redirect( '/getting-started' );
 				}
 				return null;
