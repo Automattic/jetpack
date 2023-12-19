@@ -7,6 +7,7 @@
 
 require __DIR__ . '/base.php';
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Main Comments class
@@ -605,6 +606,23 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
+	 * Should show the subscription modal
+	 *
+	 * @return boolean
+	 */
+	public function should_show_subscription_modal() {
+		// Atomic sites with jetpack_verbum_subscription_modal option enabled
+		$modal_enabled      = ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true );
+		$user_is_subscribed = false;
+
+		// if ( is_user_logged_in() ) {
+		// TODO: Check if user is subscribed
+		// }
+
+		return $modal_enabled && ! $user_is_subscribed;
+	}
+
+	/**
 	 * POST the submitted comment to the iframe
 	 *
 	 * @param string $url The comment URL origin.
@@ -614,9 +632,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			return $url;
 		}
 
-		// TODO: Add a check if user is logged-in and already subscribed
-		$modal_enabled = get_option( 'jetpack_verbum_subscription_modal', true );
-
+		$should_show_subscription_modal = $this->should_show_subscription_modal();
 		?>
 		<!DOCTYPE html>
 		<html <?php language_attributes(); ?>>
@@ -684,9 +700,9 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			</style>
 		</head>
 		<body>
+		<?php if ( ! $should_show_subscription_modal ) { ?>
 		<h1>
 			<?php
-			if ( ! $modal_enabled ) {
 				wp_kses_post(
 					printf(
 						/* translators: %s is replaced by HTML markup to include an ellipsis */
@@ -694,15 +710,9 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 						'<span id="ellipsis" class="hidden">&hellip;</span>'
 					)
 				);
-			} else {
-				wp_kses_post(
-					print __( 'Comment sent', 'jetpack' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				);
-			}
 			?>
-			</h1>
+		</h1>
 		<script type="text/javascript">
-			<?php if ( ! $modal_enabled ) : ?>
 			try {
 				window.parent.location = <?php echo wp_json_encode( $url ); ?>;
 				window.parent.location.reload(true);
@@ -717,21 +727,30 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			}
 
 			setInterval(toggleEllipsis, 1200);
-			<?php else : ?>
-				if ( window.parent && window.parent !== window ) {
-					console.log('aaaaaaaaaa');
-					window.parent.postMessage(
-						{
-							type: 'subscriptionModalShow',
-							data: {
-								url: <?php echo wp_json_encode( $url ); ?>
-							}
-						},
-						window.location.origin
-					);
-				}
-			<?php endif; ?>
 		</script>
+		<?php } else { ?>
+		<h1>
+			<?php
+				wp_kses_post(
+					print __( 'Comment sent', 'jetpack' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				);
+			?>
+		</h1>
+		<script type="text/javascript">
+			if ( window.parent && window.parent !== window ) {
+				console.log('aaaaaaaaaa');
+				window.parent.postMessage(
+					{
+						type: 'subscriptionModalShow',
+						data: {
+							url: <?php echo wp_json_encode( $url ); ?>
+						}
+					},
+					window.location.origin
+				);
+			}
+		</script>
+		<?php } ?>
 		</body>
 		</html>
 		<?php
