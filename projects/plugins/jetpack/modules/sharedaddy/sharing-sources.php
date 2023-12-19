@@ -1372,57 +1372,6 @@ class Share_X extends Sharing_Source {
 	}
 
 	/**
-	 * Determine the Twitter 'via' value for a post.
-	 *
-	 * @param  WP_Post|int $post Post object or post ID.
-	 * @return string Twitter handle without the preceding @.
-	 **/
-	public static function sharing_twitter_via( $post ) {
-		$post = get_post( $post );
-		/**
-		 * Allow third-party plugins to customize the Twitter username used as "twitter:site" Twitter Card Meta Tag.
-		 *
-		 * @module sharedaddy
-		 *
-		 * @since 3.0.0
-		 *
-		 * @param string $string Twitter Username.
-		 * @param array $args Array of Open Graph Meta Tags and Twitter Cards tags.
-		 */
-		$twitter_site_tag_value = apply_filters(
-			'jetpack_twitter_cards_site_tag',
-			'',
-			/** This action is documented in modules/sharedaddy/sharing-sources.php */
-			array( 'twitter:creator' => apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID ) )
-		);
-
-		/*
-		 * Hack to remove the unwanted behavior of adding 'via @jetpack' which
-		 * was introduced with the adding of the Twitter cards.
-		 * This should be a temporary solution until a better method is setup.
-		 */
-		if ( 'jetpack' === $twitter_site_tag_value ) {
-			$twitter_site_tag_value = '';
-		}
-
-		/**
-		 * Filters the Twitter username used as "via" in the Twitter sharing button.
-		 *
-		 * @module sharedaddy
-		 *
-		 * @since 1.7.0
-		 *
-		 * @param string $twitter_site_tag_value Twitter Username.
-		 * @param int $post->ID Post ID.
-		 */
-		$twitter_site_tag_value = apply_filters( 'jetpack_sharing_twitter_via', $twitter_site_tag_value, $post->ID );
-
-		// Strip out anything other than a letter, number, or underscore.
-		// This will prevent the inadvertent inclusion of an extra @, as well as normalizing the handle.
-		return preg_replace( '/[^\da-z_]+/i', '', $twitter_site_tag_value );
-	}
-
-	/**
 	 * Get the markup of the sharing button.
 	 *
 	 * @param WP_Post $post Post object.
