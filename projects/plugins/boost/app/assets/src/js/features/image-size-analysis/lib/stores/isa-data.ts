@@ -1,6 +1,5 @@
 import { useParams } from 'svelte-navigator';
-import { z } from 'zod';
-import { ISA, ImageSizeAnalysis, emptyImageSizeAnalysisData } from './types';
+import { ISA, ImageSizeAnalysis } from './types';
 import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
 
 /**
@@ -41,14 +40,6 @@ export function initializeIsaData() {
 	queryParams.subscribe( $params => {
 		updateIsaQuery( $params.group, parseInt( $params.page ), $params.search );
 	} );
-}
-
-/**
- * Whenever a new report is requested, clear the search results from the store otherwise
- * it might show old data when you visit the table view.
- */
-export function resetIsaQuery() {
-	isaDataDS.store.override( emptyImageSizeAnalysisData );
 }
 
 async function maybeRefreshStore( prevValue: ISA, value: ISA, signal?: AbortSignal ) {

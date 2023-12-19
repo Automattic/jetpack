@@ -18,19 +18,6 @@ const Dimensions = z.object( {
 	height: z.number(),
 } );
 
-export const emptyImageSizeAnalysisData = {
-	query: {
-		page: 0,
-		group: '',
-		search: '',
-	},
-	data: {
-		last_updated: 0,
-		total_pages: 0,
-		images: [],
-	},
-};
-
 export const ImageData = z.object( {
 	id: z.string(),
 	status: z.enum( [ 'active', 'ignored' ] ).default( 'active' ),
@@ -73,7 +60,18 @@ export const ImageSizeAnalysis = z
 		} ),
 	} )
 	// Prevent fatal error when this module isn't available.
-	.catch( emptyImageSizeAnalysisData );
+	.catch( {
+		query: {
+			page: 0,
+			group: '',
+			search: '',
+		},
+		data: {
+			last_updated: 0,
+			total_pages: 0,
+			images: [],
+		},
+	} );
 
 /**
  * Valid values for the status field.

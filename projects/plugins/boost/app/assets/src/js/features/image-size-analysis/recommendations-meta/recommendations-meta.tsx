@@ -3,7 +3,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import MultiProgress from '../multi-progress/multi-progress';
 import Button from '../button/button';
 import { requestImageAnalysis, getSummaryProgress } from '../lib/stores/isa-summary';
-import { resetIsaQuery } from '../lib/stores/isa-data';
 import ErrorNotice from '$features/error-notice/error-notice';
 import ImageCdnRecommendation from '$features/image-size-analysis/image-cdn-recommendation/image-cdn-recommendation';
 import { recordBoostEvent, recordBoostEventAndRedirect } from '$lib/utils/analytics';
@@ -98,7 +97,6 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 			setErrorMessage( undefined );
 			setRequestingReport( true );
 			await requestImageAnalysis();
-			resetIsaQuery();
 		} catch ( err ) {
 			setErrorCode( err.body?.code );
 			setErrorMessage( err.message );
