@@ -1114,9 +1114,18 @@ function is_user_auth() {
  * @return string
  */
 function get_paywall_blocks_subscribe_pending() {
-	$access_heading = esc_html__( 'Verify your email to continue reading', 'jetpack' );
+	$subscribe_email = Jetpack_Memberships::get_current_user_email();
 
-	$subscribe_text = esc_html__( 'Please check your inbox to confirm your subscription.', 'jetpack' );
+	/** This filter is documented in modules/contact-form/grunion-contact-form.php */
+	if ( is_wpcom() || false !== apply_filters( 'jetpack_auto_fill_logged_in_user', false ) ) {
+		$current_user    = wp_get_current_user();
+		$subscribe_email = ! empty( $current_user->user_email ) ? $current_user->user_email : '';
+	}
+
+	$access_heading = esc_html__( 'Confirm your subscription to continue reading', 'jetpack' );
+
+	/* translators: %s: email address */
+	$subscribe_text = sprintf( esc_html__( 'Head to your inbox and confirm your email address %s.', 'jetpack' ), $subscribe_email );
 
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
 
