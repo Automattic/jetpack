@@ -64,7 +64,7 @@ export async function docsCli( argv ) {
 		if ( data.status !== 0 ) {
 			// Running composer update didn't help, exiting.
 			console.error(
-				"Failed to prepare the doc-parser package. Try running 'jetpack install -v packages/doc-parser'."
+				`Failed to prepare the doc-parser package. Try running 'composer -d ${ path.resolve( './tools/cli/helpers/doc-parser' ) } update'.`
 			);
 		} else {
 			// Retrying the parser.
