@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createHashRouter, RouterProvider } from 'react-router-dom';
+import { createHashRouter, redirect, RouterProvider } from 'react-router-dom';
 import Upgrade from './pages/upgrade/upgrade';
 import Index from './pages/index';
 import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
 import GettingStarted from './pages/getting-started/getting-started';
 import PurchaseSuccess from './pages/purchase-success/purchase-success';
+
+const isGetingStarted = false;
 
 /*
  * For the time being, we will pass the props from a svelte file.
@@ -28,10 +30,22 @@ const makeRouter = ( {
 	return createHashRouter( [
 		{
 			path: '/',
+			loader: () => {
+				if ( isGetingStarted ) {
+					return redirect( '/getting-started' );
+				}
+				return null;
+			},
 			element: <Index { ...indexProps } />,
 		},
 		{
 			path: '/critical-css-advanced',
+			loader: () => {
+				if ( isGetingStarted ) {
+					return redirect( '/getting-started' );
+				}
+				return null;
+			},
 			element: <AdvancedCriticalCss { ...criticalCssAdvancedProps } />,
 		},
 		{
