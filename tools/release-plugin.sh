@@ -200,9 +200,14 @@ done
 read -r -s -p $'Edit all the changelog entries you want (in a separate terminal or your text editor of choice (make sure to save)), then press enter when finished to continue the release process.'
 echo ""
 
+for PLUGIN in "${!PROJECTS[@]}"; do
+	yellow "Updating the readme.txt file for $PLUGIN."
+	pnpm jetpack changelog readme "$PLUGIN"
+done
+
 yellow "Committing changes."
 git add --all
-git commit -am "Changelog edits."
+git commit -am "Changelog and readme.txt edits."
 
 # If we're releasing Jetpack and it's a beta, amend the readme.txt
 if [[ -v PROJECTS["plugins/jetpack"] && "${PROJECTS[plugins/jetpack]}" == *-beta ]]; then
