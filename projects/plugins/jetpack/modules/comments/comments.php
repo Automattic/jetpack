@@ -738,7 +738,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		</h1>
 		<script type="text/javascript">
 			if ( window.parent && window.parent !== window ) {
-				console.log('aaaaaaaaaa');
+
 				window.parent.postMessage(
 					{
 						type: 'subscriptionModalShow',

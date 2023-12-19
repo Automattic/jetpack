@@ -29,7 +29,9 @@ smDomReady( function () {
 			return;
 		}
 
-		// TODO: add a check for origin
+		if ( ! event.origin.includes( window.location.host ) ) {
+			return;
+		}
 
 		// TODO: Check number of times shown. If shown more than 5 times, don't show again.
 		if ( ! hasLoaded ) {
