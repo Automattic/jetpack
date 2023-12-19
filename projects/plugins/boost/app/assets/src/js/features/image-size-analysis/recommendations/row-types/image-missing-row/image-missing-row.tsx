@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import TableRow from '../table-row/table-row';
-import type { ImageDataType } from '../../../lib/stores/zod-types';
+import { type ImageDataType } from '$features/image-size-analysis';
 import Device from '$features/image-size-analysis/recommendations/ui/device/device';
 import Pill from '$features/image-size-analysis/recommendations/ui/pill/pill';
 import RowTitle from '$features/image-size-analysis/recommendations/ui/row-title/row-title';

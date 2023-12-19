@@ -1,6 +1,6 @@
 import React from 'react';
 import TableRow from '../table-row/table-row';
-import { ImageDataType } from '../../../lib/stores/zod-types';
+import { type ImageDataType } from '$features/image-size-analysis';
 import Button from '../../../button/button';
 import Device from '../../ui/device/device';
 import Pill from '../../ui/pill/pill';

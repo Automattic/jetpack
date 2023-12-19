@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { __ } from '@wordpress/i18n';
 import Button from '$features/image-size-analysis/button/button';
 import { recordBoostEvent, recordBoostEventAndRedirect } from '$lib/utils/analytics';
-import type { ImageDataType } from '../../../lib/stores/zod-types';
+import { type ImageDataType } from '$features/image-size-analysis';
 import api from '$lib/api/api';
 
 // @TODO: Move this to a DataSync Store.

@@ -1,12 +1,12 @@
 import { useParams } from 'svelte-navigator';
 import { z } from 'zod';
-import { ImageData, ImageSizeAnalysis, emptyImageSizeAnalysisData } from './zod-types';
+import { ISA, ImageSizeAnalysis, emptyImageSizeAnalysisData } from './types';
 import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
 
 /**
  * Initialize the stores
  */
-export const image_size_analysis = jetpack_boost_ds.createAsyncStore(
+export const isaDataDS = jetpack_boost_ds.createAsyncStore(
 	'image_size_analysis',
 	ImageSizeAnalysis
 );
@@ -14,12 +14,12 @@ export const image_size_analysis = jetpack_boost_ds.createAsyncStore(
 /**
  * Export the stores
  */
-export type ISA_Data = z.infer< typeof ImageData >;
-export const isaData = image_size_analysis.store;
-export const isaDataLoading = image_size_analysis.pending;
+
+export const isaData = isaDataDS.store;
+export const isaDataLoading = isaDataDS.pending;
 
 export function updateIsaQuery( group: string, page = 1, search = '' ) {
-	image_size_analysis.store.update( value => {
+	isaDataDS.store.update( value => {
 		return {
 			...value,
 			query: {
@@ -48,10 +48,8 @@ export function initializeIsaData() {
  * it might show old data when you visit the table view.
  */
 export function resetIsaQuery() {
-	image_size_analysis.store.override( emptyImageSizeAnalysisData );
+	isaDataDS.store.override( emptyImageSizeAnalysisData );
 }
-
-export type ISA = z.infer< typeof ImageSizeAnalysis >;
 
 async function maybeRefreshStore( prevValue: ISA, value: ISA, signal?: AbortSignal ) {
 	if (
@@ -63,17 +61,17 @@ async function maybeRefreshStore( prevValue: ISA, value: ISA, signal?: AbortSign
 	}
 
 	// Send a request to the SET endpoint.
-	const fresh = await image_size_analysis.endpoint.SET( value, signal );
+	const fresh = await isaDataDS.endpoint.SET( value, signal );
 
 	// If the request was aborted, return the original value.
 	if ( signal?.aborted ) {
 		return value;
 	}
 	// Override store value without triggering another SET request.
-	image_size_analysis.store.override( fresh );
+	isaDataDS.store.override( fresh );
 }
 
-image_size_analysis.setSyncAction( async ( prevValue, value, signal ) => {
+isaDataDS.setSyncAction( async ( prevValue, value, signal ) => {
 	// See if the query changed, if it did, update the store.
 	await maybeRefreshStore( prevValue, value, signal );
 

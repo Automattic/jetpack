@@ -5,8 +5,7 @@ import ImageMissingRow from '../row-types/image-missing-row/image-missing-row';
 import ImageSizeRow from '../row-types/image-size-row/image-size-row';
 import LoadingRow from '../row-types/loading-row/loading-row';
 import Spinner from '$features/ui/spinner/spinner';
-import type { ISA_Data } from '../../lib/stores/isa-data';
-import { type ISASummary, ISAStatus } from '$features/image-size-analysis';
+import { type ISA_Data, type ISASummary, ISAStatus } from '$features/image-size-analysis';
 import classnames from 'classnames';
 
 interface TableProps {
