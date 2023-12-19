@@ -202,7 +202,7 @@ echo ""
 
 for PLUGIN in "${!PROJECTS[@]}"; do
 	yellow "Updating the readme.txt file for $PLUGIN."
-	pnpm jetpack changelog readme "$PLUGIN"
+	pnpm jetpack release "$PLUGIN" readme
 done
 
 yellow "Committing changes."
