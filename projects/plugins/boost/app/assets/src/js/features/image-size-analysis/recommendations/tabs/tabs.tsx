@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import type { ISASummaryGroup } from '../../lib/stores/isa-summary';
+import type { ISASummaryGroup } from '$features/image-size-analysis';
 import { navigate } from '$lib/utils/navigate';
 
 interface TabsProps {

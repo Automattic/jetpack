@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import MultiProgress from '../multi-progress/multi-progress';
 import Button from '../button/button';
-import { requestImageAnalysis, ISAStatus, getSummaryProgress } from '../lib/stores/isa-summary';
+import { requestImageAnalysis, getSummaryProgress } from '../lib/stores/isa-summary';
 import { resetIsaQuery } from '../lib/stores/isa-data';
 import ErrorNotice from '$features/error-notice/error-notice';
 import ImageCdnRecommendation from '$features/image-size-analysis/image-cdn-recommendation/image-cdn-recommendation';
@@ -10,7 +10,7 @@ import { recordBoostEvent, recordBoostEventAndRedirect } from '$lib/utils/analyt
 import getIsaErrorSuggestion from '$lib/utils/get-isa-error-suggestion';
 import RefreshIcon from '$svg/refresh';
 import WarningIcon from '$svg/warning-outline';
-import type { ISASummaryGroup, ISASummary } from '../lib/stores/isa-summary';
+import { type ISASummaryGroup, type ISASummary, ISAStatus } from '$features/image-size-analysis';
 
 interface RecommendationsMetaProps {
 	isCdnActive: boolean;

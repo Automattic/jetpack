@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { _n, sprintf } from '@wordpress/i18n';
 import styles from './hero.module.scss';
 import ImageCdnRecommendation from '$features/image-size-analysis/image-cdn-recommendation/image-cdn-recommendation';
-import { ISASummaryGroup } from '../lib/stores/isa-summary';
+import { ISASummaryGroup } from '$features/image-size-analysis';
 
 // removed in:fade={{ duration: 300, easing: quadOut }} from .jb-hero
 

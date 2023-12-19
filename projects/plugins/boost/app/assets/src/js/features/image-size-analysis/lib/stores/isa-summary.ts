@@ -1,48 +1,8 @@
-import { z } from 'zod';
 import api from '$lib/api/api';
 import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
 import { setPromiseInterval } from '$lib/utils/set-promise-interval';
 import { type ISAGroupLabels } from '../isa-groups';
-
-/**
- * Valid values for the status field.
- */
-export enum ISAStatus {
-	NotFound = 'not-found',
-	New = 'new',
-	Queued = 'queued',
-	Completed = 'completed',
-	Error = 'error',
-	Stuck = 'error_stuck',
-}
-
-const zSummaryGroup = z.object( {
-	issue_count: z.number(),
-	scanned_pages: z.number(),
-	total_pages: z.number(),
-} );
-
-export type ISASummaryGroup = z.infer< typeof zSummaryGroup >;
-
-const zSummary = z
-	.object( {
-		status: z.nativeEnum( ISAStatus ).default( ISAStatus.NotFound ),
-		report_id: z.number().optional(),
-		groups: z
-			.object( {
-				core_front_page: zSummaryGroup,
-				singular_page: zSummaryGroup.optional(),
-				singular_post: zSummaryGroup.optional(),
-				other: zSummaryGroup.optional(),
-				fixed: zSummaryGroup.optional(),
-			} )
-			.nullable()
-			.optional(),
-	} )
-	// Default data if deactivated or not loaded yet.
-	.nullable();
-
-export type ISASummary = z.infer< typeof zSummary >;
+import { ISASummary, ISASummaryGroup, ISA_Group, zSummary } from './types';
 
 const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 	'image_size_analysis_summary',
@@ -90,8 +50,6 @@ export function getGroupedSummary( summary: ISASummary ): Record< string, ISA_Gr
 
 	return dataGroupTabs;
 }
-
-export type ISA_Group = z.infer< typeof zSummaryGroup >;
 
 /**
  * Request a new image size analysis.
