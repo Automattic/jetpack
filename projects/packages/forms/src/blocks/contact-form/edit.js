@@ -160,7 +160,7 @@ export const JetpackContactFormEdit = forwardRef(
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [] );
 
-		useFormAccessibleName( postTitle, attributes.formTitle, clientId, setAttributes );
+		useFormAccessibleName( postTitle, formTitle, clientId, setAttributes );
 
 		useEffect( () => {
 			if ( to === undefined && postAuthorEmail ) {
@@ -309,10 +309,7 @@ export const JetpackContactFormEdit = forwardRef(
 			<>
 				<InspectorControls>
 					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
-						<JetpackManageResponsesSettings
-							formTitle={ formTitle }
-							setAttributes={ setAttributes }
-						/>
+						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
 					</PanelBody>
 					<PanelBody title={ __( 'Submission Settings', 'jetpack-forms' ) } initialOpen={ false }>
 						{ renderSubmissionSettings() }
