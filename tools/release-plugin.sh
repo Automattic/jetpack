@@ -299,7 +299,7 @@ rm .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
 
 yellow "Release script complete! Next steps: "
 echo -e "\t1. Merge the above PR into trunk."
-echo -e "\t2. On trunk, start a new branch and make any changes you want to CHANGELOG.md."
-echo -e "\t3. After merging the changelog edit PR, cherry pick that to the release branch."
-echo -e "\t4. After the changes make it to the mirror repo, conduct a GitHub release."
-echo -e "\t5. Then run ./tools/deploy-to-svn.sh <plugin-name> <tag> to deploy to SVN."
+echo -e "\t2. If this is NOT the Jetpack core plugin, the release will shortly be tagged to GitHub and released to SVN."
+echo -e "\t3. You can then smoke test the release and use .tools/stable-tag.sh <plugin> to update the stable tag, and you're done!"
+echo -e "\t4. If you are releasing Jetpack-the-plugin, after the changes make it to the mirror repo, conduct a GitHub release."
+echo -e "\t5. Then run ./tools/deploy-to-svn.sh <plugin-name> <tag> to deploy to SVN, smoke test, and flip stable tag."
