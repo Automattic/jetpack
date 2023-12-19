@@ -53,7 +53,7 @@ class Sharing_Admin {
 				'modules/sharedaddy/admin-sharing.js'
 			),
 			array( 'jquery', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-form' ),
-			2,
+			JETPACK__VERSION,
 			false
 		);
 
