@@ -11,6 +11,11 @@ const configSchema = z.object( {
 			isIntroductoryOffer: z.boolean(),
 		} )
 		.nullable(),
+	site: z.object( {
+		domain: z.string(),
+		online: z.boolean(),
+	} ),
+	is_premium: z.boolean(),
 } );
 
 export type ConfigType = z.infer< typeof configSchema >;

@@ -14,18 +14,17 @@ import { useGettingStarted } from '$lib/stores/getting-started';
 
 type GettingStartedProps = {
 	userConnected: boolean;
-	isPremium: boolean;
-	domain: string;
 };
 
-const GettingStarted: React.FC< GettingStartedProps > = ( {
-	userConnected,
-	isPremium,
-	domain,
-} ) => {
+const GettingStarted: React.FC< GettingStartedProps > = ( { userConnected } ) => {
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
 	const [ snackbarMessage, setSnackbarMessage ] = useState< string >( '' );
 
+	const {
+		pricing,
+		is_premium: isPremium,
+		site: { domain },
+	} = useConfig();
 
 	const { markGettingStartedComplete } = useGettingStarted();
 

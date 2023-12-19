@@ -11,30 +11,29 @@ import Index from './pages/index';
 import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
 import GettingStarted from './pages/getting-started/getting-started';
 import PurchaseSuccess from './pages/purchase-success/purchase-success';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useGettingStarted } from '$lib/stores/getting-started';
+import { useSingleModuleState } from '$features/module/lib/stores';
 
 /*
  * For the time being, we will pass the props from a svelte file.
  * Ones the stores are converted to react, we wont need to do this.
  */
 type MainProps = {
+	connection: {
+		connected: boolean;
+		userConnected: boolean;
+	};
 	indexProps: any;
-	upgradeProps: any;
 	criticalCssAdvancedProps: any;
-	gettingStartedProps: any;
-	purchaseSuccessProps: any;
 };
 
-const makeRouter = ( {
-	upgradeProps,
-	indexProps,
-	criticalCssAdvancedProps,
-	gettingStartedProps,
-	purchaseSuccessProps,
-}: MainProps ) => {
+const useBoostRouter = ( { connection, indexProps, criticalCssAdvancedProps }: MainProps ) => {
 	const { shouldGetStarted } = useGettingStarted();
+	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
+
 	const checkIfGettingStarted = useCallback( () => {
 		if ( shouldGetStarted ) {
 			return redirect( '/getting-started' );
@@ -63,7 +62,12 @@ const makeRouter = ( {
 		},
 		{
 			path: 'image-size-analysis/:group/:page',
-			loader: checkIfGettingStarted,
+			loader: () => {
+				if ( ! isaState?.available ) {
+					return redirect( '/' );
+				}
+				return null;
+			},
 			element: (
 				<Tracks>
 					<ISAPage />
@@ -74,7 +78,7 @@ const makeRouter = ( {
 			path: '/upgrade',
 			element: (
 				<Tracks>
-					<Upgrade { ...upgradeProps } />
+					<Upgrade userConnected={ connection.userConnected } />
 				</Tracks>
 			),
 		},
@@ -82,7 +86,7 @@ const makeRouter = ( {
 			path: '/getting-started',
 			element: (
 				<Tracks>
-					<GettingStarted { ...gettingStartedProps } />
+					<GettingStarted userConnected={ connection.userConnected } />
 				</Tracks>
 			),
 		},
@@ -90,15 +94,15 @@ const makeRouter = ( {
 			path: '/purchase-successful',
 			element: (
 				<Tracks>
-					<PurchaseSuccess { ...purchaseSuccessProps } />
+					<PurchaseSuccess />
 				</Tracks>
 			),
 		},
 	] );
 };
 
-export default function Main( props: MainProps ) {
-	const router = makeRouter( props );
+function Main( props: MainProps ) {
+	const router = useBoostRouter( { ...props } );
 	return <RouterProvider router={ router } />;
 }
 
@@ -131,5 +135,13 @@ const ISAPage = () => {
 		<h1>
 			ISA Page for group: { group }, page: { page }
 		</h1>
+	);
+};
+
+export default ( props: MainProps ) => {
+	return (
+		<DataSyncProvider>
+			<Main { ...props } />
+		</DataSyncProvider>
 	);
 };

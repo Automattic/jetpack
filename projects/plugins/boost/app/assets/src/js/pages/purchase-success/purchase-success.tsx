@@ -8,12 +8,11 @@ import Logo from '$svg/jetpack-green';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 
-type PurchaseSuccessProps = {
-	isImageGuideActive: boolean;
-};
-
-const PurchaseSuccess: React.FC< PurchaseSuccessProps > = ( { isImageGuideActive } ) => {
+const PurchaseSuccess: React.FC = () => {
 	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
+	const [ imageGuideState ] = useSingleModuleState( 'image_guide' );
+	const isImageGuideActive = imageGuideState?.active;
+
 	useEffect( () => {
 		setCloudCssState( true );
 
@@ -90,10 +89,10 @@ const PurchaseSuccess: React.FC< PurchaseSuccessProps > = ( { isImageGuideActive
 	);
 };
 
-export default ( props: PurchaseSuccessProps ) => {
+export default () => {
 	return (
 		<DataSyncProvider>
-			<PurchaseSuccess { ...props } />
+			<PurchaseSuccess />
 		</DataSyncProvider>
 	);
 };

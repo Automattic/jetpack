@@ -13,19 +13,21 @@ import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useConfig } from '$lib/stores/config-ds';
 
 type UpgradeProps = {
-	siteDomain: string;
 	userConnected: boolean;
 };
 
-const Upgrade: React.FC< UpgradeProps > = ( { siteDomain, userConnected } ) => {
+const Upgrade: React.FC< UpgradeProps > = ( { userConnected } ) => {
+	const {
+		pricing,
+		site: { domain: siteDomain },
+	} = useConfig();
+
 	const goToCheckout = () => {
 		recordBoostEventAndRedirect(
 			getUpgradeURL( siteDomain, userConnected ),
 			'checkout_from_pricing_page_in_plugin'
 		);
 	};
-
-	const { pricing } = useConfig();
 
 	if ( ! pricing ) {
 		goToCheckout();
