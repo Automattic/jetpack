@@ -1,3 +1,4 @@
+import { useConnection } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { useRef, useCallback, useState, useEffect, createRef } from 'react';
 import { STORE_ID } from '../../state/store';
@@ -5,6 +6,7 @@ import { STORE_ID } from '../../state/store';
 const useDynamicRefs = () => {
 	const refs = useRef( {} ).current;
 	const [ anchors, setAnchors ] = useState( {} );
+	const { isRegistered } = useConnection();
 
 	const { status } = useSelect( select => ( {
 		status: select( STORE_ID ).getStatus(),
@@ -34,7 +36,7 @@ const useDynamicRefs = () => {
 				...updatedAnchors,
 			} ) );
 		}
-	}, [ refs, setAnchors, status.status ] );
+	}, [ refs, setAnchors, status.status, isRegistered ] );
 
 	return { getRef, anchors };
 };
