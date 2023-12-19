@@ -41,7 +41,7 @@ export function getReportProgress( groups: Record< string, IsaCounts > ) {
  * Function tracking the total number of issues.
  * @param report
  */
-export function getGroupedReport( report: IsaReport ) {
+export function getGroupedReports( report: IsaReport ) {
 	const groups = Object.values( report?.groups || {} );
 	const totalIssueCount = groups.map( group => group.issue_count ).reduce( ( a, b ) => a + b, 0 );
 	const page_count = groups.map( group => group.total_pages ).reduce( ( a, b ) => a + b, 0 );

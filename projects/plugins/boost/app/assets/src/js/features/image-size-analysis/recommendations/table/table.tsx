@@ -9,11 +9,10 @@ import { type IsaImage, type IsaReport, ISAStatus } from '$features/image-size-a
 import classnames from 'classnames';
 
 interface TableProps {
-	refresh: () => Promise< void >;
 	isaDataLoading: boolean;
-	activeGroup: string;
+	activeGroup?: string;
 	images: IsaImage[];
-	isaReport: IsaReport | null;
+	isaReport?: IsaReport;
 }
 
 const Table = ( { isaDataLoading, activeGroup, images, isaReport }: TableProps ) => {

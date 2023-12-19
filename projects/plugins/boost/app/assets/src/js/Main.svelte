@@ -1,7 +1,7 @@
 <script lang="ts">
 	import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
 	import GettingStarted from './pages/getting-started/getting-started';
-	import RecommendationsPage from './pages/image-size-analysis/ImageSizeAnalysis.svelte';
+	import ImageSizeAnalysis from './pages/image-size-analysis/image-size-analysis';
 	import Index from './pages/index/Index.svelte';
 	import PurchaseSuccess from './pages/purchase-success/purchase-success';
 	import Upgrade from './pages/upgrade/upgrade';
@@ -16,7 +16,6 @@
 	import debounce from '$lib/utils/debounce';
 	import { Route, Router } from '$lib/utils/router';
 	import routerHistory from '$lib/utils/router-history';
-
 	routerHistory.listen(
 		debounce( history => {
 			// Event names must conform to the following regex: ^[a-z_][a-z0-9_]*$
@@ -79,6 +78,11 @@
 	</Route>
 
 	{#if isImageSizeAnalysisAvailable && isImageSizeAnalysisActive}
-		<Route path="image-size-analysis/:group/:page" component={RecommendationsPage} />
+		<Route path="image-size-analysis/:group/:page">
+			<ReactComponent
+				this={ImageSizeAnalysis}
+				isImageCdnModuleActive={$modulesState.image_cdn.active}
+			/>
+		</Route>
 	{/if}
 </Router>

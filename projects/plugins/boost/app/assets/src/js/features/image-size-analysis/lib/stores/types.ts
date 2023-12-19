@@ -108,3 +108,6 @@ export type IsaReport = z.infer< typeof IsaReport >;
 export type IsaCounts = z.infer< typeof IsaCounts >;
 export type IsaImage = z.infer< typeof IsaImage >;
 export type IsaGlobal = z.infer< typeof IsaGlobal >;
+export type IsaReportGroups = {
+	[ K in keyof IsaReport[ 'groups' ] | 'all' ]?: IsaCounts;
+};

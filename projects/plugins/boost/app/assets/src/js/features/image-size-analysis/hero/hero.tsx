@@ -7,14 +7,14 @@ import { type IsaCounts } from '$features/image-size-analysis';
 
 // removed in:fade={{ duration: 300, easing: quadOut }} from .jb-hero
 
-export const Hero = ( {
+const Hero = ( {
 	isImageCdnModuleActive,
 	isaLastUpdated,
 	group,
 }: {
 	isImageCdnModuleActive: boolean;
 	isaLastUpdated: number;
-	group: IsaCounts;
+	group?: IsaCounts;
 } ) => {
 	const formatter = new Intl.DateTimeFormat( 'en-US', {
 		month: 'long',
@@ -68,3 +68,5 @@ export const Hero = ( {
 		</>
 	);
 };
+
+export default Hero;
