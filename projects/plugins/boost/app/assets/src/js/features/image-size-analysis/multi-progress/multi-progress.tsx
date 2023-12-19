@@ -1,14 +1,14 @@
 import React from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
 import OtherGroupContext from '$features/image-size-analysis/other-group-context/other-group-context';
-import { type ISAGroupLabels, isaGroupLabel } from '../lib/isa-groups';
+import { type isGroupLabels, getGroupLabel } from '../lib/isa-groups';
 import ConditionalLink from '$features/image-size-analysis/conditional-link/conditional-link';
 import ProgressBar from '$features/image-size-analysis/progress-bar/progress-bar';
 import { Spinner } from '$features/ui';
 import WarningIcon from '$svg/warning-outline';
 
 interface ReportProgress {
-	group: ISAGroupLabels;
+	group: isGroupLabels;
 	issue_count?: number;
 	scanned_pages?: number;
 	total_pages?: number;
@@ -58,7 +58,7 @@ const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => 
 							trackEvent="clicked_isa_group_on_report_page"
 							trackEventProps={ report.group }
 						>
-							{ isaGroupLabel( report.group ) }
+							{ getGroupLabel( report.group ) }
 						</ConditionalLink>
 						{ report.group === 'other' && <OtherGroupContext /> }
 					</div>
