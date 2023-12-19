@@ -20,6 +20,7 @@ import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import './settings.scss';
 import PlansSetupDialog from '../components/plans-setup-dialog';
+import usePostWasPublished from '../use-post-was-published';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
@@ -293,6 +294,9 @@ export function NewsletterEmailDocumentSettings() {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
+	// Subscriptions will not be triggered for a post that was already published in the past.
+	const { postWasEverPublished } = usePostWasPublished();
+
 	const toggleSendEmail = value => {
 		const postMetaUpdate = {
 			...postMeta,
@@ -314,7 +318,7 @@ export function NewsletterEmailDocumentSettings() {
 				return (
 					<ToggleControl
 						checked={ isSendEmailEnabled }
-						disabled={ isPostPublished || ! canEdit }
+						disabled={ isPostPublished || postWasEverPublished || ! canEdit }
 						label={ __( 'Send an email', 'jetpack' ) }
 						onChange={ toggleSendEmail }
 					/>

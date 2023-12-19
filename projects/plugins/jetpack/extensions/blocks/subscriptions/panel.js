@@ -32,6 +32,7 @@ import {
 	getShowMisconfigurationWarning,
 	MisconfigurationWarning,
 } from '../../shared/memberships/utils';
+import usePostWasPublished from '../../shared/use-post-was-published';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import metadata from './block.json';
 import EmailPreview from './email-preview';
@@ -114,10 +115,9 @@ function NewsletterPrePublishSettingsPanel( { accessLevel, isModuleActive, showP
 	};
 
 	// Subscriptions will not be triggered for a post that was already published in the past.
-	const shouldLoadSubscriptionPlaceholder = useSelect( select => {
-		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
-		return ! isModuleActive && ! isLoadingModules && ! meta?.jetpack_post_was_ever_published;
-	} );
+	const { postWasEverPublished } = usePostWasPublished();
+	const shouldLoadSubscriptionPlaceholder =
+		! isModuleActive && ! isLoadingModules && ! postWasEverPublished;
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
 	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
