@@ -2,12 +2,12 @@ import SpeedScore from '$features/speed-score/speed-score';
 import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import { criticalCssStateCreated, isGenerating } from '$features/critical-css';
-import { hasPrioritySupport } from '$lib/utils/paid-plan';
 import Support from './support/support';
 import Tips from './tips/tips';
 import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import styles from './settings-page.module.scss';
+import { usePremiumFeatures } from '../../pages/index/lib/hooks';
 
 type SettingsPageProps = {
 	children: React.ReactNode;
@@ -15,6 +15,8 @@ type SettingsPageProps = {
 
 const SettingsPage = ( { children }: SettingsPageProps ) => {
 	const [ isGeneratingValue, setIsGeneratingValue ] = useState( false );
+	const premiumFeatures = usePremiumFeatures();
+	const hasPrioritySupport = premiumFeatures?.includes( 'support' );
 
 	useEffect( () => {
 		const unsubscribe = isGenerating.subscribe( value => {
