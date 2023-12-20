@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Re-add Token_Subscription_Service for backward-compatibility
