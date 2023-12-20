@@ -321,8 +321,8 @@ export function NewsletterEmailDocumentSettings() {
 						onChange={ toggleSendEmail }
 						isBlock
 					>
-						<ToggleGroupControlOption label="Post & Email" value={ true } />
-						<ToggleGroupControlOption label="Post Only" value={ false } />
+						<ToggleGroupControlOption label={ __( 'Post & email', 'jetpack' ) } value={ true } />
+						<ToggleGroupControlOption label={ __( 'Post only', 'jetpack' ) } value={ false } />
 					</ToggleGroupControl>
 				);
 			} }
