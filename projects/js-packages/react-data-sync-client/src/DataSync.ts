@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { ApiError } from './ApiError';
 import type { JSONSchema, ParsedValue } from './types';
 
-type RequestParams = string | JSONSchema;
+export type RequestParams = string | JSONSchema;
 type RequestMethods = 'GET' | 'POST' | 'DELETE';
 type GetRequestParams = Record< string, string | number | null | Array< string | number | null > >;
 /**
@@ -161,6 +161,17 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		return result as ParsedValue< V >;
 	}
 
+	/**
+	 * Method to make a request to the endpoint.
+	 * @param method - The request method.
+	 * @param partialPathname - The request path.
+	 * @param value - Data to send when using POST.
+	 * @param params - Append query params to the URL. Takes in an object of key/value pairs.
+	 * @param abortSignal - The abort signal.
+	 * @returns The parsed value.
+	 * @throws ApiError
+	 * @throws Error
+	 */
 	private async request(
 		method: RequestMethods,
 		partialPathname: string,
@@ -299,6 +310,20 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		);
 	};
 
+	/**
+	 * Trigger an endpoint action
+	 * @param name - The name of the action.
+	 * @param value - The value to send to the endpoint.
+	 * @returns A direct response from the endpoint.
+	 */
+	public ACTION = async < T extends RequestParams, R extends z.ZodSchema >(
+		name: string,
+		value: T,
+		schema: R
+	): Promise< z.infer< R > > => {
+		const result = await this.request( 'POST', `${ this.endpoint }/action/${ name }`, value, {} );
+		return schema.parse( result );
+	};
 	/**
 	 * Method to get the initial value from the window object.
 	 * @returns The initial value.
