@@ -5,5 +5,6 @@ jQuery( function ( $ ) {
 	$input.datepicker( {
 		dateFormat,
 		constrainInput: false,
+		showOptions: { direction: 'down' },
 	} );
 } );
