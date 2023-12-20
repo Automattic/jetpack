@@ -611,13 +611,13 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @return boolean
 	 */
 	public function should_show_subscription_modal() {
-		// Atomic sites with jetpack_verbum_subscription_modal option enabled
-		$modal_enabled      = ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true );
-		$user_is_subscribed = false;
+		$post_array = stripslashes_deep( $_POST );
 
-		// if ( is_user_logged_in() ) {
-		// TODO: Check if user is subscribed
-		// }
+		$user_is_subscribed = (bool) $post_array['hc_wpcom_user_is_subscribed'];
+		echo '<br><br>hc_wpcom_user_is_subscribed: ' . $user_is_subscribed . '<br><br>';
+
+		// Atomic sites with jetpack_verbum_subscription_modal option enabled
+		$modal_enabled = ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true );
 
 		return $modal_enabled && ! $user_is_subscribed;
 	}
