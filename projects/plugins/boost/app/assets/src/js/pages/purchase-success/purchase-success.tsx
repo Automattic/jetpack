@@ -10,16 +10,20 @@ import { useSingleModuleState } from '$features/module/lib/stores';
 const PurchaseSuccess: React.FC = () => {
 	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
 	const [ imageGuideState ] = useSingleModuleState( 'image_guide' );
-	const isImageGuideActive = imageGuideState?.active;
+	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 
 	useEffect( () => {
 		setCloudCssState( true );
 
 		// If image guide is enabled, request a new ISA report.
-		if ( isImageGuideActive && false !== Jetpack_Boost.site.canResizeImages ) {
+		if (
+			imageGuideState?.active &&
+			isaState?.active &&
+			false !== Jetpack_Boost.site.canResizeImages
+		) {
 			requestImageAnalysis();
 		}
-	}, [ isImageGuideActive, setCloudCssState ] );
+	}, [ imageGuideState?.active, isaState?.active, setCloudCssState ] );
 
 	const wpcomPricingUrl = getRedirectUrl( 'wpcom-pricing' );
 
