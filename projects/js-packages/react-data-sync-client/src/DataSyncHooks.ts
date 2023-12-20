@@ -10,7 +10,7 @@ import {
 } from '@tanstack/react-query';
 import React from 'react';
 import { z } from 'zod';
-import { DataSync } from './DataSync';
+import { DataSync, RequestParams } from './DataSync';
 
 const queryClient = new QueryClient();
 
@@ -124,4 +124,82 @@ export function useDataSync<
 		useQuery( { ...queryConfigDefaults, ...config.query } ),
 		useMutation( { ...mutationConfigDefaults, ...config.mutation } ),
 	];
+}
+
+/**
+ * Use React Query mutations to dispatch custom DataSync Actions.
+ */
+export function useDataSyncAction< ActionData extends RequestParams >() {
+	return function <
+		Schema extends z.ZodSchema,
+		State extends z.infer< Schema >,
+		Key extends string,
+		ActionName extends string,
+		ActionSchema extends z.ZodSchema,
+		ActionResult extends z.infer< ActionSchema >,
+		Config extends DataSyncConfig< ActionSchema, ActionData >[ 'mutation' ],
+	>(
+		namespace: string,
+		key: Key,
+		name: ActionName,
+		stateSchema: Schema,
+		actionSchema: ActionSchema,
+		callback: ( result: ActionResult, currentValue: State ) => void | State,
+		config: Config = {} as Config,
+		params: Record< string, string | number > = {}
+	) {
+		const datasync = new DataSync( namespace, key, stateSchema );
+		const queryKey = [ key, ...Object.values( params ) ];
+		const mutationConfigDefaults: UseMutationOptions<
+			ActionResult,
+			unknown,
+			ActionData,
+			{
+				previousValue: State;
+			}
+		> = {
+			mutationKey: queryKey,
+			mutationFn: async ( value: ActionData ) => {
+				console.log( 'mutationFn', value );
+				console.log( 'Current queryClient data', queryClient.getQueryData( queryKey ) );
+				const result = await datasync.ACTION( name, value, actionSchema );
+				try {
+					const currentValue = queryClient.getQueryData< State >( queryKey );
+					const processedResult = await callback( result, currentValue );
+					return processedResult === undefined
+						? currentValue
+						: stateSchema.parse( processedResult );
+				} catch ( e ) {
+					// return;
+					return queryClient.getQueryData( queryKey );
+				}
+			},
+			onMutate: async data => {
+				console.log( 'onMutate', data );
+				// Cancel any outgoing refetches
+				// (so they don't overwrite our optimistic update)
+				await queryClient.cancelQueries( { queryKey } );
+
+				// Snapshot the previous value
+				const previousValue = queryClient.getQueryData< State >( queryKey );
+
+				// Optimistically update the cached state to the new value
+				// queryClient.setQueryData( queryKey, value );
+
+				// Return a context object with the snapshotted value
+				return { previousValue };
+			},
+			onError: ( _, __, context ) => {
+				queryClient.setQueryData( queryKey, context.previousValue );
+			},
+			onSettled: () => {
+				// queryClient.invalidateQueries( { queryKey } );
+			},
+		};
+
+		return useMutation< Config, unknown, ActionData >( {
+			...mutationConfigDefaults,
+			...config,
+		} );
+	};
 }
