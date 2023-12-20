@@ -316,8 +316,9 @@ body.settings_page_sharing .advanced input[type=submit] {
 	margin-left: -4px;
 }
 
-.preview-twitter .option-smart-on {
-	background: url(images/smart-twitter.png?1) no-repeat top left;
+.preview-twitter .option-smart-on,
+.preview-x .option-smart-on {
+	background: url(images/smart-x.png?1) no-repeat top left;
 	background-size: 60px 20px;
 	width:60px;
 	height:20px;
@@ -370,8 +371,9 @@ body.settings_page_sharing .advanced input[type=submit] {
 		background-image: url(images/smart-like@2x.png);
 	}
 
-	.preview-twitter .option-smart-on {
-		background-image: url(images/smart-twitter@2x.png?1);
+	.preview-twitter .option-smart-on,
+	.preview-x .option-smart-on {
+		background-image: url(images/smart-x@2x.png?1);
 	}
 
 	.preview-linkedin .option-smart-on {
