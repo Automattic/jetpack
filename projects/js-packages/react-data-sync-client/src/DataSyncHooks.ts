@@ -64,7 +64,7 @@ export function useDataSync<
 	params: Record< string, string | number > = {}
 ): DataSyncHook< Schema, Value > {
 	const datasync = new DataSync( namespace, key, schema );
-	const queryKey = [ key, ...Object.values( params ) ];
+	const queryKey = [ key, ...Object.values( params ).sort() ];
 	/**
 	 * Defaults for `useQuery`:
 	 * - `queryKey` is the key of the value that's being synced.
@@ -129,8 +129,39 @@ export function useDataSync<
 
 /**
  * Use React Query mutations to dispatch custom DataSync Actions.
+ *
+ * ### Usage:
+ *
+ * ```ts
+ * const action = useDataSyncAction<{ foo: string }>()( 'namespace', 'key', 'action', schema, schema, callback );
+ * ``` Notice double function call ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ *
+ * ## Anatomy of a callback:
+ * Return value to set the new state.
+ * Throw an error to cancel.
+ * Return undefined to keep the current state.
+ * ```ts
+ * callback: ( result: ActionResult, currentValue: State ) => void | State,
+ * ```
+ *
+ * ### Trigger a mutation:
+ * ```ts
+ * action.mutate( { foo: 'bar' } );
+ * ````
+ *
+ *
  */
 export function useDataSyncAction< ActionData extends RequestParams >() {
+	/*
+	 * Yes, this is a function that returns a function.
+	 * Also yes - this is dumb.
+	 * But TypeScript still doesn't allow partial type inference.
+	 *
+	 * This is what happens when you rush development
+	 * - you get legacy code that can't be fixed for years.
+	 * @see https://github.com/microsoft/TypeScript/issues/26242
+	 */
+
 	return function <
 		Schema extends z.ZodSchema,
 		State extends z.infer< Schema >,
@@ -150,7 +181,9 @@ export function useDataSyncAction< ActionData extends RequestParams >() {
 		params: Record< string, string | number > = {}
 	) {
 		const datasync = new DataSync( namespace, key, stateSchema );
-		const queryKey = [ key, ...Object.values( params ) ];
+		// @TODO: order sensitive bug is hiding in Object.values
+		// This `sort` of fixes it, but I'd like a more elegant solution.
+		const queryKey = [ key, ...Object.values( params ).sort() ];
 		const mutationConfigDefaults: UseMutationOptions<
 			ActionResult,
 			unknown,
@@ -165,11 +198,14 @@ export function useDataSyncAction< ActionData extends RequestParams >() {
 				try {
 					const currentValue = queryClient.getQueryData< State >( queryKey );
 					const processedResult = await callback( result, currentValue );
-					return processedResult === undefined
-						? currentValue
-						: stateSchema.parse( processedResult );
+
+					const data =
+						processedResult === undefined ? currentValue : stateSchema.parse( processedResult );
+					if ( processedResult !== undefined ) {
+						queryClient.setQueryData( queryKey, data );
+					}
+					return data;
 				} catch ( e ) {
-					// return;
 					return queryClient.getQueryData( queryKey );
 				}
 			},
@@ -182,6 +218,10 @@ export function useDataSyncAction< ActionData extends RequestParams >() {
 				const previousValue = queryClient.getQueryData< State >( queryKey );
 
 				// Optimistically update the cached state to the new value
+				// @TODO: We need a way to render optimistic updates
+				// Right now the provided `callback` function can "compose" the new state from the returned data
+				// But there's no mechanism to "compose" an optimistic update - that should go here.
+				// This is what DataSync is doing, but "value" doesn't work here for us.
 				// queryClient.setQueryData( queryKey, value );
 
 				// Return a context object with the snapshotted value
@@ -191,7 +231,7 @@ export function useDataSyncAction< ActionData extends RequestParams >() {
 				queryClient.setQueryData( queryKey, context.previousValue );
 			},
 			onSettled: () => {
-				// queryClient.invalidateQueries( { queryKey } );
+				queryClient.invalidateQueries( { queryKey } );
 			},
 		};
 
