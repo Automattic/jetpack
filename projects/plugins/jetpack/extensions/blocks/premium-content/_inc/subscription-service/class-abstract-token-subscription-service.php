@@ -538,3 +538,13 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		return $subscriptions;
 	}
 }
+
+/**
+ * Class Token_Subscription_Service
+ *
+ * This class is intended for backward compatibility on WPCOM and
+ * we'll fully transition when the rest of the references will ve moved to Abstract_Token_Subscription_Service
+ *
+ * @package Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service
+ */
+abstract class Token_Subscription_Service extends Abstract_Token_Subscription_Service{} // phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
