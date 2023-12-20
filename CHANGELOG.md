@@ -1,5 +1,8 @@
 _The versioning refers to the React component build._
 
+### v2.5.8 (2023-12-20)
+* Added Bluesky icon.
+
 ### v2.5.7 (2023-12-11)
 * Updated Patreon icon.
 
