@@ -117,7 +117,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Set up your site', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => '__return_true',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_disabled_callback' => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/settings/general/' . $data['site_slug_encoded'];
@@ -633,6 +633,26 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/site-editor/' . $data['site_slug_encoded'] . '?canvas=edit';
 			},
 		),
+		'woocommerce_setup'                  => array(
+			'get_title'            => function () {
+				return __( 'Finish store setup', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
+			'get_calypso_path'     => function () {
+				return site_url( '/wp-admin/admin.php?page=wc-admin' );
+			},
+		),
+		'sensei_setup'                       => array(
+			'get_title'            => function () {
+				return __( 'Finish Sensei setup', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_sensei_setup_visible',
+			'get_calypso_path'     => function () {
+				return site_url( '/wp-admin/admin.php?page=sensei' );
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -950,6 +970,34 @@ function wpcom_launchpad_is_domain_upsell_task_visible() {
 	);
 
 	return empty( $bundle_purchases );
+}
+
+/**
+ * Determines whether or not the WooCommerce setup task should be visible.
+ *
+ * @return bool True if the site is a WOA site and WooCommerce is active.
+ */
+function wpcom_launchpad_is_woocommerce_setup_visible() {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( ! $is_atomic_site ) {
+		return false;
+	}
+
+	return is_plugin_active( 'woocommerce/woocommerce.php' );
+}
+
+/**
+ * Determines wheter or not the sensei setup task should be visible.
+ *
+ * @return bool True if the sensei setup task should be visible.
+ */
+function wpcom_launchpad_is_sensei_setup_visible() {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( ! $is_atomic_site ) {
+		return false;
+	}
+
+	return is_plugin_active( 'sensei-lms/sensei-lms.php' );
 }
 
 /**
@@ -1431,6 +1479,30 @@ add_action( 'update_option_blogname', 'wpcom_launchpad_mark_setup_site_tasks_com
 add_action( 'update_option_blogdescription', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
 add_action( 'update_option_site_icon', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
 add_action( 'update_option_site_logo', 'wpcom_launchpad_mark_setup_site_tasks_complete', 10, 3 );
+
+/**
+ * Mark the setup_general task as complete if the site title or the site description is changed.
+ *
+ * @param string $old_value The old value of the site title.
+ * @param string $value The new value of the site title.
+ *
+ * @return void
+ */
+function wpcom_launchpad_mark_setup_general_task_complete( $old_value, $value ) {
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	if ( wp_installing() ) {
+		return;
+	}
+
+	if ( $old_value !== $value ) {
+		wpcom_mark_launchpad_task_complete( 'setup_general' );
+	}
+}
+add_action( 'update_option_blogname', 'wpcom_launchpad_mark_setup_general_task_complete', 10, 3 );
+add_action( 'update_option_blogdescription', 'wpcom_launchpad_mark_setup_general_task_complete', 10, 3 );
 
 /**
  * Mark the enable_subscribers_modal task complete

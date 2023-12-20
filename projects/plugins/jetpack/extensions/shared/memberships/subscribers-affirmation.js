@@ -1,6 +1,7 @@
+import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { createInterpolateElement, Spinner, Flex } from '@wordpress/element';
+import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { accessOptions } from '../../shared/memberships/constants';
@@ -13,7 +14,7 @@ import { store as membershipProductsStore } from '../../store/membership-product
  * @param {Array} newsletterCategories - list of the site's newsletter categories
  * @returns {string} - formatted list of categories
  */
-export const getFormattedCategories = ( postCategories, newsletterCategories ) => {
+const getFormattedCategories = ( postCategories, newsletterCategories ) => {
 	// If the post has no categories, then it's going to have the 'Uncategorized' category
 	const updatedPostCategories = postCategories.length ? postCategories : [ 1 ];
 
@@ -58,38 +59,39 @@ export const getFormattedCategories = ( postCategories, newsletterCategories ) =
 	return formattedCategories;
 };
 
-export const getCopyForCategorySubscribers = ( {
+const getCopyForCategorySubscribers = ( {
 	futureTense,
 	newsletterCategories,
 	postCategories,
 	reachCount,
 } ) => {
 	const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
+	const reachCountString = reachCount.toLocaleString();
 
 	if ( futureTense ) {
 		return sprintf(
 			// translators: %1s is the list of categories, %2d is subscriptions count
 			_n(
-				'This post will be sent to everyone subscribed to %1$s (%2$d subscriber).',
-				'This post will be sent to everyone subscribed to %1$s (%2$d subscribers).',
+				'This post will be sent to everyone subscribed to %1$s (%2$s subscriber).',
+				'This post will be sent to everyone subscribed to %1$s (%2$s subscribers).',
 				reachCount,
 				'jetpack'
 			),
 			formattedCategoryNames,
-			reachCount
+			reachCountString
 		);
 	}
 
 	return sprintf(
 		// translators: %1s is the list of categories, %2d is subscriptions count
 		_n(
-			'This post was sent to everyone subscribed to %1$s (%2$d subscriber).',
-			'This post was sent to everyone subscribed to %1$s (%2$d subscribers).',
+			'This post was sent to everyone subscribed to %1$s (%2$s subscriber).',
+			'This post was sent to everyone subscribed to %1$s (%2$s subscribers).',
 			reachCount,
 			'jetpack'
 		),
 		formattedCategoryNames,
-		reachCount
+		reachCountString
 	);
 };
 
@@ -100,77 +102,79 @@ export const getCopyForSubscribers = ( {
 	postHasPaywallBlock,
 	reachCount,
 } ) => {
+	const reachCountString = reachCount.toLocaleString();
+
 	// Schedulled post
 	if ( futureTense ) {
 		// Paid post without paywall: sent only to paid subscribers
 		if ( isPaidPost && ! postHasPaywallBlock ) {
 			return sprintf(
-				/* translators: %d is the number of subscribers */
+				/* translators: %s is the number of subscribers */
 				_n(
-					'This post will be sent to <strong>%d paid subscriber</strong>.',
-					'This post will be sent to <strong>%d paid subscribers</strong>.',
+					'This post will be sent to <strong>%s paid subscriber</strong>.',
+					'This post will be sent to <strong>%s paid subscribers</strong>.',
 					reachCount,
 					'jetpack'
 				),
-				reachCount
+				reachCountString
 			);
 		}
 		// Paid post with paywall or Free post, sent to all subscribers
 		return sprintf(
-			/* translators: %d is the number of subscribers */
+			/* translators: %s is the number of subscribers */
 			_n(
-				'This post will be sent to <strong>%d subscriber</strong>.',
-				'This post will be sent to <strong>%d subscribers</strong>.',
+				'This post will be sent to <strong>%s subscriber</strong>.',
+				'This post will be sent to <strong>%s subscribers</strong>.',
 				reachCount,
 				'jetpack'
 			),
-			reachCount
+			reachCountString
 		);
 	}
 	// Paid post without paywall: sent only to paid subscribers
 	if ( isPaidPost && ! postHasPaywallBlock ) {
 		return sprintf(
-			/* translators: %d is the number of subscribers */
+			/* translators: %s is the number of subscribers */
 			_n(
-				'This post was sent to <strong>%d paid subscriber</strong>.',
-				'This post was sent to <strong>%d paid subscribers</strong>.',
+				'This post was sent to <strong>%s paid subscriber</strong>.',
+				'This post was sent to <strong>%s paid subscribers</strong>.',
 				reachCount,
 				'jetpack'
 			),
-			reachCount
+			reachCountString
 		);
 	}
 	// Paid post sent only to paid subscribers, post is already published
 	if ( isPaidPost && ! postHasPaywallBlock ) {
 		return sprintf(
-			/* translators: %d is the number of subscribers */
+			/* translators: %s is the number of subscribers */
 			_n(
-				'This post was sent to <strong>%d paid subscriber</strong> only.',
-				'This post was sent to <strong>%d paid subscribers</strong> only.',
+				'This post was sent to <strong>%s paid subscriber</strong> only.',
+				'This post was sent to <strong>%s paid subscribers</strong> only.',
 				reachCount,
 				'jetpack'
 			),
-			reachCount
+			reachCountString
 		);
 	}
 
 	// Paid post with paywall or Free post, sent to all subscribers, post is already published
 	return sprintf(
-		/* translators: %d is the number of subscribers */
+		/* translators: %s is the number of subscribers */
 		_n(
-			'This post was sent to <strong>%d subscriber</strong>.',
-			'This post was sent to <strong>%d subscribers</strong>.',
+			'This post was sent to <strong>%s subscriber</strong>.',
+			'This post was sent to <strong>%s subscribers</strong>.',
 			reachCount,
 			'jetpack'
 		),
-		reachCount
+		reachCountString
 	);
 };
 
 /*
  * Determines copy to show in pre/post-publish panels to confirm number and type of subscribers receiving the post as email.
  */
-function SubscribersAffirmation( { accessLevel, prePublish } ) {
+function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	const postHasPaywallBlock = useSelect( select =>
 		select( 'core/block-editor' )
 			.getBlocks()
@@ -186,36 +190,48 @@ function SubscribersAffirmation( { accessLevel, prePublish } ) {
 	} );
 
 	const {
-		isLoading,
+		emailSubscribersCount,
+		hasFinishedLoading,
 		newsletterCategories,
 		newsletterCategoriesEnabled,
 		newsletterCategorySubscriberCount,
+		paidSubscribersCount,
 	} = useSelect( select => {
 		const {
 			getNewsletterCategories,
 			getNewsletterCategoriesEnabled,
 			getNewsletterCategoriesSubscriptionsCount,
-			isApiStateLoading,
+			getSubscriberCounts,
+			hasFinishedResolution,
 		} = select( membershipProductsStore );
 
+		// Free and paid subscriber counts
+		const { emailSubscribers, paidSubscribers } = getSubscriberCounts();
+
 		return {
-			isLoading: isApiStateLoading(),
+			hasFinishedLoading: [
+				// getNewsletterCategoriesEnabled state is set by getNewsletterCategories so no need to check for it here.
+				hasFinishedResolution( 'getSubscriberCounts' ),
+				hasFinishedResolution( 'getNewsletterCategories' ),
+				hasFinishedResolution( 'getNewsletterCategoriesSubscriptionsCount' ),
+			].every( Boolean ),
+			emailSubscribersCount: emailSubscribers,
 			newsletterCategories: getNewsletterCategories(),
 			newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
 			newsletterCategorySubscriberCount: getNewsletterCategoriesSubscriptionsCount(),
+			paidSubscribersCount: paidSubscribers,
 		};
 	} );
 
-	// Free and paid subscriber counts
-	const { emailSubscribers, paidSubscribers } = useSelect( select =>
-		select( membershipProductsStore ).getSubscriberCounts()
-	);
-
-	if ( isLoading ) {
+	if ( ! hasFinishedLoading ) {
 		return (
-			<Flex direction="column" align="center">
-				<Spinner />
-			</Flex>
+			<Animate type="loading">
+				{ ( { className } ) => (
+					<p className={ `jetpack-subscribe-affirmation-loading ${ className }` }>
+						{ __( 'Loading…', 'jetpack' ) }
+					</p>
+				) }
+			</Animate>
 		);
 	}
 
@@ -224,11 +240,12 @@ function SubscribersAffirmation( { accessLevel, prePublish } ) {
 	// Show all copy in future tense
 	const futureTense = prePublish || isScheduledPost;
 
-	const reachForAccessLevel = getReachForAccessLevelKey(
+	const reachForAccessLevel = getReachForAccessLevelKey( {
 		accessLevel,
-		emailSubscribers,
-		paidSubscribers
-	).toLocaleString();
+		emailSubscribers: emailSubscribersCount,
+		paidSubscribers: paidSubscribersCount,
+		postHasPaywallBlock,
+	} );
 
 	let text;
 
@@ -250,9 +267,13 @@ function SubscribersAffirmation( { accessLevel, prePublish } ) {
 		} );
 	}
 
-	return createInterpolateElement( text, {
-		strong: <strong />,
-	} );
+	return (
+		<p>
+			{ createInterpolateElement( text, {
+				strong: <strong />,
+			} ) }
+		</p>
+	);
 }
 
 export default SubscribersAffirmation;

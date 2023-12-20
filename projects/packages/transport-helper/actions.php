@@ -23,7 +23,7 @@ if ( function_exists( 'add_filter' ) ) {
 }
 
 // Clean up expired Jetpack Helper Scripts from a scheduled event.
-$add_action( 'jetpack_cleanup_helper_scripts', array( 'Automattic\\Jetpack\\Transport_Helper\\Helper_Script_Manager', 'cleanup_expired_helper_scripts' ) );
+$add_action( 'jetpack_cleanup_helper_scripts', array( 'Automattic\\Jetpack\\Backup\\Helper_Script_Manager', 'cleanup_expired_helper_scripts' ) );
 
 // Register REST routes.
 $add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Transport_Helper\\REST_Controller', 'register_rest_routes' ) );

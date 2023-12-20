@@ -8,9 +8,8 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 require_once __DIR__ . '/class-jwt.php';
-require_once __DIR__ . '/class-subscription-service.php';
-require_once __DIR__ . '/class-token-subscription.php';
-require_once __DIR__ . '/class-token-subscription-service.php';
+require_once __DIR__ . '/interface-subscription-service.php';
+require_once __DIR__ . '/class-abstract-token-subscription-service.php';
 require_once __DIR__ . '/class-jetpack-token-subscription-service.php';
 require_once __DIR__ . '/class-wpcom-online-subscription-service.php';
 require_once __DIR__ . '/class-wpcom-offline-subscription-service.php';

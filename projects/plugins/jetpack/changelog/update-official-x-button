@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Sharing Buttons: add the official X button to the list of supported X services.

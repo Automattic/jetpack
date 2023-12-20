@@ -26,7 +26,7 @@ type ScoreChangeMessage = {
 const fasterMessage = {
 	id: 'score-increase',
 	title: __( 'Your site got faster', 'jetpack-boost' ),
-	body: __( `That's great! If you’re happy, why not rate Boost?`, 'jetpack-boost' ),
+	body: <p>{ __( `That's great! If you’re happy, why not rate Boost?`, 'jetpack-boost' ) }</p>,
 	cta: __( 'Rate the Plugin', 'jetpack-boost' ),
 	ctaLink: 'https://wordpress.org/support/plugin/jetpack-boost/reviews/#new-post',
 };
@@ -127,7 +127,7 @@ function _PopOut( { scoreChange, onClose }: Props ) {
 
 					<h3 className={ styles.headline }>{ message && message.title }</h3>
 
-					<p>{ message && message.body }</p>
+					<>{ message && message.body }</>
 
 					<a
 						className="jb-button--primary"

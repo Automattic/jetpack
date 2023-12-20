@@ -2,20 +2,27 @@
 
 // AI CONTROL
 
+.jetpack-components-ai-control__container-wrapper {
+	position: sticky;
+	bottom: 16px;
+}
+
 .jetpack-components-ai-control__container {
 	color: var( --jp-gray-80 );
 	background-color: var( --jp-white );
 	box-shadow: 0px 12px 15px 0px rgba(0, 0, 0, 0.12), 0px 3px 9px 0px rgba(0, 0, 0, 0.12), 0px 1px 3px 0px rgba(0, 0, 0, 0.15);
 	font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-	width: 100%;
+	border-radius: 6px;
+	border: 1px solid var(--gutenberg-gray-400, #CCC);
 }
 
 .jetpack-components-ai-control__wrapper {
 	display: flex;
-	padding: 12px 14px;
-	gap: 8px;
-	align-items: center;
+	padding: 8px 8px 8px var(--grid-unit-15, 12px);
+	align-items: flex-end;
 	box-sizing: border-box;
+	border-radius: 6px 6px 0 0;
+	gap: 6px;
 
 	&.is-transparent {
 		opacity: 0.4;
@@ -23,10 +30,11 @@
 }
 
 .jetpack-components-ai-control__input-wrapper {
-	position: relative;
 	display: flex;
 	flex-grow: 1;
-	width: 100%;
+	align-self: center;
+	min-height: 36px; // need compat height with buttons wrapper
+	align-items: center;
 
 	textarea.jetpack-components-ai-control__input {
 		background-color: var( --jp-white );
@@ -63,67 +71,28 @@
 	}
 }
 
-.jetpack-components-ai-control__clear.components-button.has-icon {
-	width: 24px;
-	min-width: 24px;
-	height: 24px;
-	padding: 0;
-	border-radius: 50%;
-	background-color: black;
-	opacity: 0.2;
-	color: white;
-
-	&:hover {
-		opacity: 0.4;
-	}
-}
-
-.jetpack-components-ai-controlton__icon {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-
-	.input-icon {
-		// Brand green regardless of theme
-		color: var( --jp-green-40 );
-	}
-
-	.input-spinner {
-		margin: 0;
-		width: 24px;
-		height: 24px;
-
-		path {
-			color: var( --jp-green-40 );
-		}
-	}
-}
-
 .jetpack-components-ai-control__controls-prompt_button_wrapper {
 	text-transform: uppercase;
 	font-size: 11px;
 	font-weight: 600;
-	line-height: 16px;
+	line-height: 1em;
 	user-select: none;
 	white-space: nowrap;
 	display: flex;
 	align-items: center;
+	gap: 8px;
 
 	.components-button.is-small:not(.has-label) {
 		padding: 0;
 	}
+
+	.components-button-group .components-button {
+		box-shadow: none;
+		padding: 6px 8px;
+	}
 }
 
 .jetpack-components-ai-control__controls-prompt_button {
-	color: var( --jp-gray-80 );
-	text-transform: uppercase;
-
-	&:hover,
-	&:active {
-		color: var( --wp-components-color-accent, var( --wp-admin-theme-color ) );
-	}
-
 	&:disabled {
 		opacity: 0.6;
 		cursor: not-allowed;
@@ -134,24 +103,26 @@
 
 .jetpack-ai-assistant__message {
 	display: flex;
-    line-height: 28px;
-    font-size: 12px;
-    align-self: center;
-    align-items: center;
-    background-color: var( --jp-white-off );
-    padding: 0 12px;
+	line-height: 28px;
+	font-size: 12px;
+	align-self: center;
+	align-items: center;
+	background-color: var( --jp-white-off );
+	padding: 0 12px;
+	border-radius: 0 0 6px 6px;
 
-    > svg {
-        fill: var( --jp-gray-40 );
-    }
+	> svg {
+		fill: var( --jp-gray-40 );
+	}
 
-    .jetpack-ai-assistant__message-content {
-        flex-grow: 2;
-        margin: 0 8px;
-        color: var( --jp-gray-70 );
+	.jetpack-ai-assistant__message-content {
+		flex-grow: 2;
+		margin: 0 8px;
+		color: var( --jp-gray-50 );
+		line-height: 1.4em;
 
-        .components-external-link {
-            color: var( --jp-gray-50 );
-        }
-    }
+		.components-external-link {
+			color: var( --jp-gray-50 );
+		}
+	}
 }

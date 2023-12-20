@@ -32,10 +32,12 @@ export function SharingButtonsEdit( props ) {
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 					<MenuItemsChoice
 						choices={ [
-							{ value: 'icon-text', label: 'Icon & Text' },
-							{ value: 'icon', label: 'Icon Only' },
-							{ value: 'text', label: 'Text Only' },
-							{ value: 'official', label: 'Official Buttons' },
+							/* translators: Sharing: Sharing button option label. */
+							{ value: 'icon-text', label: __( 'Icon & Text', 'jetpack' ) },
+							/* translators: Sharing: Sharing button option label. */
+							{ value: 'icon', label: __( 'Icon Only', 'jetpack' ) },
+							/* translators: Sharing: Sharing button option label. */
+							{ value: 'text', label: __( 'Text Only', 'jetpack' ) },
 						] }
 						value={ styleType }
 						onSelect={ value => setAttributes( { styleType: value } ) }
