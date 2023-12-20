@@ -1,7 +1,4 @@
-// eslint-disable-next-line no-undef
-const smDomReady = typeof domReady !== 'undefined' ? domReady : wp.domReady;
-
-smDomReady( function () {
+document.addEventListener( 'DOMContentLoaded', function () {
 	const modal = document.getElementsByClassName( 'jetpack-subscription-modal' )[ 0 ];
 
 	if ( ! modal ) {
