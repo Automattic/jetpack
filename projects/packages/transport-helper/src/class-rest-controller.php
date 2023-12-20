@@ -6,10 +6,10 @@
  * @package automattic/jetpack-transport-helper
  */
 
-// After changing this file, consider increasing the version number ("VXXX") in the namespace, in order to ensure that
-// the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide to load an
-// older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin are
-// installed, or in some other cases).
+// After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
+// order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
+// to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
+// are installed, or in some other cases).
 namespace Automattic\Jetpack\Transport_Helper\V0001;
 
 use Automattic\Jetpack\Backup\V0001\Helper_Script_Manager;
