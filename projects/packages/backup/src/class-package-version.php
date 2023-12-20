@@ -5,7 +5,11 @@
  * @package automattic/jetpack-backup
  */
 
-namespace Automattic\Jetpack\Backup;
+// After changing this file, consider increasing the version number ("VXXX") in the namespace, in order to ensure that
+// the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide to load an
+// older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin are
+// installed, or in some other cases).
+namespace Automattic\Jetpack\Backup\V0001;
 
 /**
  * The Package_Version class.
@@ -21,7 +25,7 @@ class Package_Version {
 	 *
 	 * @param array $package_versions The package version array.
 	 *
-	 * @return array The packge version array.
+	 * @return array The package version array.
 	 */
 	public static function send_package_version_to_tracker( $package_versions ) {
 		$package_versions[ self::PACKAGE_SLUG ] = self::PACKAGE_VERSION;

@@ -1,6 +1,10 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-namespace Automattic\Jetpack\Backup;
+// After changing this file, consider increasing the version number ("VXXX") in the namespace, in order to ensure that
+// the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide to load an
+// older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin are
+// installed, or in some other cases).
+namespace Automattic\Jetpack\Backup\V0001;
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use PHPUnit\Framework\TestCase;
@@ -51,7 +55,7 @@ class Test_REST_Controller extends TestCase {
 		wp_set_current_user( 0 );
 
 		// Register REST routes.
-		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\REST_Controller', 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0001\\REST_Controller', 'register_rest_routes' ) );
 
 		do_action( 'rest_api_init' );
 	}
