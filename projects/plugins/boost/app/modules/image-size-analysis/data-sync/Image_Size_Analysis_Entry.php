@@ -4,24 +4,19 @@ namespace Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync;
 
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
-use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis_Fixer;
 
-class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_Set {
-
-	private $page         = 1;
-	private $group        = 'all';
-	private $search_query = '';
+class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get {
 
 	public function get() {
 		$report_id = defined( 'JETPACK_BOOST_FORCE_REPORT_ID' ) ? JETPACK_BOOST_FORCE_REPORT_ID : 'latest';
 		$data      = Boost_API::get(
 			'image-guide/reports/' . $report_id . '/issues',
 			array(
-				'page'     => $this->page,
-				'group'    => $this->group,
+				'page'     => (int) $_GET['page'],
+				'group'    => sanitize_title( $_GET['group'] ),
 				'per_page' => 20,
 			)
 		);
@@ -49,20 +44,11 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 			);
 		}
 
-		$results = array(
-			'query' => array(
-				'page'   => $this->page,
-				'group'  => $this->group,
-				'search' => $this->search_query,
-			),
-			'data'  => array(
-				'last_updated' => strtotime( $data->last_updated ) * 1000,
-				'total_pages'  => $data->pagination->total_pages,
-				'images'       => $issues,
-			),
+		return array(
+			'last_updated' => strtotime( $data->last_updated ) * 1000,
+			'total_pages'  => $data->pagination->total_pages,
+			'images'       => $issues,
 		);
-
-		return $results;
 	}
 
 	/**
@@ -122,12 +108,6 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 				'potential' => (int) $issue->meta->potentialSavings,
 			),
 		);
-	}
-
-	public function set( $value ) {
-		$this->page         = $value['query']['page'];
-		$this->group        = $value['query']['group'];
-		$this->search_query = $value['query']['search'];
 	}
 
 	/**

@@ -66,20 +66,9 @@ $image_data = Schema::as_assoc_array(
 
 $image_size_analysis = Schema::as_assoc_array(
 	array(
-		'query' => Schema::as_assoc_array(
-			array(
-				'page'   => Schema::as_number(),
-				'group'  => Schema::as_string(),
-				'search' => Schema::as_string(),
-			)
-		),
-		'data'  => Schema::as_assoc_array(
-			array(
-				'last_updated' => Schema::as_number(),
-				'total_pages'  => Schema::as_number(),
-				'images'       => Schema::as_array( $image_data ),
-			)
-		),
+		'last_updated' => Schema::as_number(),
+		'total_pages'  => Schema::as_number(),
+		'images'       => Schema::as_array( $image_data ),
 	)
 );
 

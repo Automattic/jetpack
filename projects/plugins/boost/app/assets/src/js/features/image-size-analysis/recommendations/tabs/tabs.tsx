@@ -2,15 +2,21 @@ import { useState, useEffect } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import type { IsaCounts } from '$features/image-size-analysis';
 import { navigate } from '$lib/utils/navigate';
-import { getGroupLabel } from '$features/image-size-analysis/lib/isa-groups';
+import { getGroupLabel, isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
 
 interface TabsProps {
 	currentTab?: IsaCounts;
-	activeGroupKey?: string;
-	imageDataGroupTabs?: Record< string, IsaCounts >;
+	activeGroupKey: string;
+	imageDataGroupTabs?: Record< isaGroupKeys | string, IsaCounts >;
+	setActiveTab: ( tab: isaGroupKeys ) => void;
 }
 
-const Tabs: React.FC< TabsProps > = ( { currentTab, activeGroupKey, imageDataGroupTabs } ) => {
+const Tabs: React.FC< TabsProps > = ( {
+	currentTab,
+	activeGroupKey,
+	imageDataGroupTabs,
+	setActiveTab,
+} ) => {
 	const [ dropdownOpen, setDropdownOpen ] = useState( false );
 
 	const selectGroup = ( group: string ) => {
@@ -75,6 +81,7 @@ const Tabs: React.FC< TabsProps > = ( { currentTab, activeGroupKey, imageDataGro
 											onClick={ e => {
 												e.preventDefault();
 												recordBoostEvent( 'clicked_isa_report_group', { group } );
+												setActiveTab( group as isaGroupKeys );
 												navigate( `/image-size-analysis/${ group }/1` );
 											} }
 										>

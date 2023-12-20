@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react';
 import PaginationArrow from '../ui/pagination-arrow/pagination-arrow';
 import ChevronLeft from '$svg/chevron-left';
 import ChevronRight from '$svg/chevron-right';
+import { navigate } from '$lib/utils/navigate';
 
 interface PaginationProps {
 	group: string;
 	current: number;
 	total: number;
+	setCurrentPage: ( page: number ) => void;
 }
 
-const Pagination: React.FC< PaginationProps > = ( { group, current, total } ) => {
+const Pagination: React.FC< PaginationProps > = ( { group, current, total, setCurrentPage } ) => {
 	const MORE_ICON = -1;
 	const [ pages, setPages ] = useState< number[] >( [] );
 
@@ -57,6 +59,11 @@ const Pagination: React.FC< PaginationProps > = ( { group, current, total } ) =>
 									// eslint-disable-next-line jsx-a11y/anchor-is-valid
 									<a
 										href={ `#/image-size-analysis/${ group }/${ page }` }
+										onClick={ e => {
+											e.preventDefault();
+											setCurrentPage( page );
+											navigate( `/image-size-analysis/${ group }/${ page }` );
+										} }
 										className={ `jb-pagination__page${
 											page === current ? ' jb-pagination__page--current' : ''
 										}` }

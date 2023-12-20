@@ -48,29 +48,15 @@ export const IsaImage = z.object( {
 
 export const IsaGlobal = z
 	.object( {
-		query: z.object( {
-			page: z.number(),
-			group: z.string(),
-			search: z.string(),
-		} ),
-		data: z.object( {
-			last_updated: z.number(),
-			total_pages: z.number(),
-			images: z.array( IsaImage ),
-		} ),
+		last_updated: z.number(),
+		total_pages: z.number(),
+		images: z.array( IsaImage ),
 	} )
 	// Prevent fatal error when this module isn't available.
 	.catch( {
-		query: {
-			page: 0,
-			group: '',
-			search: '',
-		},
-		data: {
-			last_updated: 0,
-			total_pages: 0,
-			images: [],
-		},
+		last_updated: 0,
+		total_pages: 0,
+		images: [],
 	} );
 
 /**
