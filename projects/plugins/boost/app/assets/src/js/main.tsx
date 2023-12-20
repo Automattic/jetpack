@@ -22,15 +22,10 @@ import { useSingleModuleState } from '$features/module/lib/stores';
  * Ones the stores are converted to react, we wont need to do this.
  */
 type MainProps = {
-	connection: {
-		connected: boolean;
-		userConnected: boolean;
-	};
-	indexProps: any;
-	criticalCssAdvancedProps: any;
+	criticalCss: any;
 };
 
-const useBoostRouter = ( { connection, indexProps, criticalCssAdvancedProps }: MainProps ) => {
+const useBoostRouter = ( { criticalCss }: MainProps ) => {
 	const { shouldGetStarted } = useGettingStarted();
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 
@@ -47,7 +42,7 @@ const useBoostRouter = ( { connection, indexProps, criticalCssAdvancedProps }: M
 			loader: checkIfGettingStarted,
 			element: (
 				<Tracks>
-					<Index { ...indexProps } />
+					<Index criticalCss={ criticalCss } />
 				</Tracks>
 			),
 		},
@@ -56,7 +51,7 @@ const useBoostRouter = ( { connection, indexProps, criticalCssAdvancedProps }: M
 			loader: checkIfGettingStarted,
 			element: (
 				<Tracks>
-					<AdvancedCriticalCss { ...criticalCssAdvancedProps } />
+					<AdvancedCriticalCss issues={ criticalCss.issues } />
 				</Tracks>
 			),
 		},
@@ -78,7 +73,7 @@ const useBoostRouter = ( { connection, indexProps, criticalCssAdvancedProps }: M
 			path: '/upgrade',
 			element: (
 				<Tracks>
-					<Upgrade userConnected={ connection.userConnected } />
+					<Upgrade />
 				</Tracks>
 			),
 		},
@@ -86,7 +81,7 @@ const useBoostRouter = ( { connection, indexProps, criticalCssAdvancedProps }: M
 			path: '/getting-started',
 			element: (
 				<Tracks>
-					<GettingStarted userConnected={ connection.userConnected } />
+					<GettingStarted />
 				</Tracks>
 			),
 		},

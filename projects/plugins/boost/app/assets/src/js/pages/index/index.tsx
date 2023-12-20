@@ -37,7 +37,7 @@ type IndexProps = {
 		regenerateCriticalCss: unknown;
 		criticalCssProgress: number;
 		isFatalError: boolean;
-		criticalCssIssues: CriticalCssState[ 'providers' ];
+		issues: CriticalCssState[ 'providers' ];
 		primaryErrorSet: unknown;
 	};
 };
@@ -129,7 +129,7 @@ const Index = ( { criticalCss }: IndexProps ) => {
 					cssState={ criticalCss.criticalCssState }
 					isCloudCssAvailable={ cloudCssState?.available === true }
 					criticalCssProgress={ criticalCss.criticalCssProgress }
-					issues={ criticalCss.criticalCssIssues }
+					issues={ criticalCss.issues }
 					isFatalError={ criticalCss.isFatalError }
 					primaryErrorSet={ criticalCss.primaryErrorSet }
 					suggestRegenerate={ suggestRegenerate }
@@ -189,7 +189,7 @@ const Index = ( { criticalCss }: IndexProps ) => {
 					cssState={ criticalCss.criticalCssState }
 					isCloudCssAvailable={ cloudCssState?.available === true }
 					criticalCssProgress={ criticalCss.criticalCssProgress }
-					issues={ criticalCss.criticalCssIssues }
+					issues={ criticalCss.issues }
 					isFatalError={ criticalCss.isFatalError }
 					primaryErrorSet={ criticalCss.primaryErrorSet }
 					suggestRegenerate={ suggestRegenerate }

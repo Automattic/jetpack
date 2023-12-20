@@ -1,7 +1,6 @@
 <script lang="ts">
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Main from './main';
-	import { connection } from '$lib/stores/connection';
 	import {
 		criticalCssState,
 		continueGeneratingLocalCriticalCss,
@@ -16,20 +15,14 @@
 <div>
 	<ReactComponent
 		this={Main}
-		connection={$connection}
-		criticalCssAdvancedProps={{
+		criticalCss={{
+			criticalCssState: $criticalCssState,
+			continueGeneratingLocalCriticalCss,
+			regenerateCriticalCss,
+			criticalCssProgress: $criticalCssProgress,
+			isFatalError: $isFatalError,
 			issues: $criticalCssIssues,
-		}}
-		indexProps={{
-			criticalCss: {
-				criticalCssState: $criticalCssState,
-				continueGeneratingLocalCriticalCss,
-				regenerateCriticalCss,
-				criticalCssProgress: $criticalCssProgress,
-				isFatalError: $isFatalError,
-				criticalCssIssues: $criticalCssIssues,
-				primaryErrorSet: $primaryErrorSet,
-			},
+			primaryErrorSet: $primaryErrorSet,
 		}}
 	/>
 </div>

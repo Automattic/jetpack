@@ -2,7 +2,7 @@ import { PricingCard } from '@automattic/jetpack-components';
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import ActivateLicense from '$features/activate-license/activate-license';
-import { getUpgradeURL } from '$lib/stores/connection';
+import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEventAndRedirect } from '$lib/utils/analytics';
 import BackButton from '$features/ui/back-button/back-button';
 import Footer from '$layout/footer/footer';
@@ -12,19 +12,17 @@ import styles from './upgrade.module.scss';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useConfig } from '$lib/stores/config-ds';
 
-type UpgradeProps = {
-	userConnected: boolean;
-};
-
-const Upgrade: React.FC< UpgradeProps > = ( { userConnected } ) => {
+const Upgrade: React.FC = () => {
 	const {
 		pricing,
 		site: { domain: siteDomain },
 	} = useConfig();
 
+	const { connection } = useConnection();
+
 	const goToCheckout = () => {
 		recordBoostEventAndRedirect(
-			getUpgradeURL( siteDomain, userConnected ),
+			getUpgradeURL( siteDomain, connection.userConnected ),
 			'checkout_from_pricing_page_in_plugin'
 		);
 	};
@@ -114,10 +112,10 @@ const Upgrade: React.FC< UpgradeProps > = ( { userConnected } ) => {
 	);
 };
 
-export default ( props: UpgradeProps ) => {
+export default () => {
 	return (
 		<DataSyncProvider>
-			<Upgrade { ...props } />
+			<Upgrade />
 		</DataSyncProvider>
 	);
 };

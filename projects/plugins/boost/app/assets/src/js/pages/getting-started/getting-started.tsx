@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Snackbar } from '@wordpress/components';
-import { initializeConnection, getUpgradeURL } from '$lib/stores/connection';
+import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { navigate } from '$lib/utils/navigate';
 import { BoostPricingTable } from '$features/boost-pricing-table/boost-pricing-table';
@@ -12,11 +12,7 @@ import { useConfig } from '$lib/stores/config-ds';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useGettingStarted } from '$lib/stores/getting-started';
 
-type GettingStartedProps = {
-	userConnected: boolean;
-};
-
-const GettingStarted: React.FC< GettingStartedProps > = ( { userConnected } ) => {
+const GettingStarted: React.FC = () => {
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
 	const [ snackbarMessage, setSnackbarMessage ] = useState< string >( '' );
 
@@ -27,6 +23,11 @@ const GettingStarted: React.FC< GettingStartedProps > = ( { userConnected } ) =>
 	} = useConfig();
 
 	const { markGettingStartedComplete } = useGettingStarted();
+
+	const {
+		connection: { userConnected },
+		initializeConnection,
+	} = useConnection();
 
 	async function initialize(
 		plan: 'free' | 'premium',
@@ -91,10 +92,10 @@ const GettingStarted: React.FC< GettingStartedProps > = ( { userConnected } ) =>
 	);
 };
 
-export default ( props: GettingStartedProps ) => {
+export default () => {
 	return (
 		<DataSyncProvider>
-			<GettingStarted { ...props } />
+			<GettingStarted />
 		</DataSyncProvider>
 	);
 };

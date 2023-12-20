@@ -27,12 +27,11 @@ class Connection {
 	 */
 	private $manager;
 
-	/**
-	 * Constructor.
-	 */
 	public function __construct() {
 		$this->manager = new Manager( 'jetpack-boost' );
+	}
 
+	public function init() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_connection_config_data' ) );

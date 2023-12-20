@@ -85,6 +85,7 @@ class Jetpack_Boost {
 		$this->plugin_name = 'jetpack-boost';
 
 		$this->connection = new Connection();
+		$this->connection->init();
 
 		// Require plugin features.
 		$this->init_textdomain();
