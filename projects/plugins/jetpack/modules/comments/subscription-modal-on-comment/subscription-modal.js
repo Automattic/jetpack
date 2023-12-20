@@ -39,17 +39,33 @@ document.addEventListener( 'DOMContentLoaded', function () {
 
 	window.addEventListener( 'message', JetpackSubscriptionModalOnCommentMessageListener );
 
+	function reloadOnCloseSubscriptionModal() {
+		const destinationUrl = new URL( redirectUrl );
+
+		// current URL without hash
+		const currentUrlWithoutHash = location.href.replace( location.hash, '' );
+		// destination URL without hash
+		const destinationUrlWithoutHash = destinationUrl.href.replace( destinationUrl.hash, '' );
+		window.location.href = redirectUrl;
+
+		// reload the page if the user is already on the comment page
+		if ( currentUrlWithoutHash === destinationUrlWithoutHash ) {
+			window.location.reload();
+		}
+	}
+
 	if ( close ) {
-		close.onclick = function () {
+		close.onclick = function ( event ) {
+			event.preventDefault();
 			modal.classList.toggle( 'open' );
-			window.location.href = redirectUrl;
+			reloadOnCloseSubscriptionModal();
 		};
 	}
 
 	window.onclick = function ( event ) {
 		if ( event.target === modal ) {
 			modal.style.display = 'none';
-			window.location.href = redirectUrl;
+			reloadOnCloseSubscriptionModal();
 		}
 	};
 } );
