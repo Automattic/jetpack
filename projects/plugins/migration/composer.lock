@@ -253,7 +253,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "39a5a54f7c84d5446edae05d72541d060c29629c"
+                "reference": "5d79f481fb8e4b83fe62012381151b89c2beb72b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -288,7 +288,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.0.x-dev"
+                    "dev-trunk": "3.0.x-dev"
                 }
             },
             "autoload": {
@@ -340,7 +340,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup-helper-script-manager",
-                "reference": "8f11db0375d6189daadc57c615e5a74af8a345bd"
+                "reference": "ec1665a5730b66aad2b6b5744c884056de856f58"
             },
             "require": {
                 "php": ">=7.0"
@@ -361,7 +361,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 }
             },
             "autoload": {
