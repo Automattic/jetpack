@@ -22,13 +22,8 @@ const siteIsOnline = Jetpack_Boost.site.online;
 type SpeedScoreProps = {
 	criticalCssCreated: number;
 	criticalCssIsGenerating: boolean;
-	performanceHistoryNeedsUpgrade: boolean;
 };
-const SpeedScore = ( {
-	criticalCssCreated,
-	criticalCssIsGenerating,
-	performanceHistoryNeedsUpgrade,
-}: SpeedScoreProps ) => {
+const SpeedScore = ( { criticalCssCreated, criticalCssIsGenerating }: SpeedScoreProps ) => {
 	const [ { status, error, scores }, loadScore ] = useSpeedScores();
 	const scoreLetter = scores ? getScoreLetter( scores.current.mobile, scores.current.desktop ) : '';
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;
@@ -138,7 +133,7 @@ const SpeedScore = ( {
 						noBoostScoreTooltip={ __( 'Your desktop score without Boost', 'jetpack-boost' ) }
 					/>
 				</div>
-				{ siteIsOnline && <PerformanceHistory needsUpgrade={ performanceHistoryNeedsUpgrade } /> }
+				{ siteIsOnline && <PerformanceHistory /> }
 			</div>
 
 			<PopOut scoreChange={ showScoreChangePopOut } onClose={ () => setClosePopOut( true ) } />

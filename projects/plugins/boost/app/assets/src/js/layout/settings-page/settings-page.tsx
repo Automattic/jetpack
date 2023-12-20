@@ -5,7 +5,6 @@ import { criticalCssStateCreated, isGenerating } from '$features/critical-css';
 import { hasPrioritySupport } from '$lib/utils/paid-plan';
 import Support from './support/support';
 import Tips from './tips/tips';
-import { useSingleModuleState } from '$features/module/lib/stores';
 import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import styles from './settings-page.module.scss';
@@ -16,7 +15,6 @@ type SettingsPageProps = {
 
 const SettingsPage = ( { children }: SettingsPageProps ) => {
 	const [ isGeneratingValue, setIsGeneratingValue ] = useState( false );
-	const [ performanceHistoryState ] = useSingleModuleState( 'performance_history' );
 
 	useEffect( () => {
 		const unsubscribe = isGenerating.subscribe( value => {
@@ -36,7 +34,6 @@ const SettingsPage = ( { children }: SettingsPageProps ) => {
 				<SpeedScore
 					criticalCssCreated={ criticalCssStateCreated }
 					criticalCssIsGenerating={ isGeneratingValue }
-					performanceHistoryNeedsUpgrade={ ! performanceHistoryState?.available }
 				/>
 			</div>
 
