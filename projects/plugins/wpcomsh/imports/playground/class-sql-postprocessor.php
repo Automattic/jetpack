@@ -23,6 +23,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  * Postprocess a SQL database.
  */
 class SQL_Postprocessor extends \Imports\Backup_Import_Action {
+	const PLAYGROUND_SCOPED_URL = 'https://playground.wordpress.net/scope:';
 
 	/**
 	 * The home URL.
@@ -175,8 +176,17 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 
 		if ( $prev_home !== $prev_siteurl ) {
 			// 2. Replace the (home) URLs.
-			$this->log( "Replace home '{$prev_siteurl}' with '{$this->site_url}'" );
+			$this->log( "Replace home '{$prev_home}' with '{$this->home_url}'" );
 			$this->search_replace( $prev_home, esc_url_raw( $this->home_url ), $this->tmp_prefix . '*' );
+		}
+
+		$app_scope = $this->get_app_scope();
+
+		if ( $app_scope !== null ) {
+			$scope = self::PLAYGROUND_SCOPED_URL . $app_scope;
+			// 3. Replace the app scope.
+			$this->log( "Replace app scope '{$scope}' with '{$this->site_url}'" );
+			$this->search_replace( $scope, esc_url_raw( $this->site_url ), $this->tmp_prefix . '*' );
 		}
 
 		return true;
@@ -479,6 +489,54 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 		global $wpdb;
 
 		return $this->tmp_prefix . $wpdb->prefix . $table_name;
+	}
+
+	/**
+	 * Get the app scope.
+	 *
+	 * The app scope is a guid like https://playground.wordpress.net/scope:app-scope.
+	 *
+	 * @see https://wordpress.github.io/wordpress-playground/architecture/browser-scopes/
+	 *
+	 * @return bool|WP_Error
+	 */
+	public function get_app_scope() {
+		global $wpdb;
+
+		// Get the first scoped URL from database, if any.
+		$tmp_posts = $this->tmp_table_name( 'posts' );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$query = $wpdb->prepare( "SELECT guid FROM {$tmp_posts} WHERE guid LIKE %s LIMIT 1", self::PLAYGROUND_SCOPED_URL . '%' );
+		$guid  = $wpdb->get_var( $query );
+
+		if ( $guid === null ) {
+			// Nothing to replace.
+			return null;
+		}
+
+		// See setURLScope function in playground.js.
+		return $this->get_url_scope( $guid );
+	}
+
+	/**
+	 * Get the scope from a URL.
+	 *
+	 * @param string $url The URL.
+	 * @param string $scope The scope.
+	 *
+	 * @return string|null
+	 */
+	public function get_url_scope( string $url, string $scope = self::PLAYGROUND_SCOPED_URL ): ?string {
+		// See setURLScope function in Playground.
+		$pattern = '/' . preg_quote( $scope, '/' ) . '([^\/]+)\/.*/';
+		$matches = array();
+		$ret     = preg_match( $pattern, $url, $matches );
+
+		if ( $ret !== 1 || ! isset( $matches[1] ) ) {
+			return null;
+		}
+
+		return $matches[1];
 	}
 }
 

@@ -23,6 +23,15 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 
 	const TEMPORARY_PREFIX = 'playground_';
 
+	const TABLES = array(
+		'options',
+		'posts',
+		'postmeta',
+		'term_relationships',
+		'term_taxonomy',
+		'terms',
+	);
+
 	/**
 	 * The old prefix.
 	 *
@@ -35,11 +44,14 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 	 */
 	public static function setUpBeforeClass(): void {
 		global $wpdb;
+
 		$tmp_prefix = self::TEMPORARY_PREFIX;
 
-		// Create a new table.
-		$wpdb->query( "CREATE TABLE {$tmp_prefix}{$wpdb->prefix}options LIKE {$wpdb->prefix}options" );
-		$wpdb->query( "INSERT INTO {$tmp_prefix}{$wpdb->prefix}options SELECT * FROM {$wpdb->prefix}options" );
+		foreach ( self::TABLES as $table ) {
+			$table = $wpdb->prefix . $table;
+			$wpdb->query( "CREATE TABLE {$tmp_prefix}{$table} LIKE {$table}" );
+			$wpdb->query( "INSERT INTO {$tmp_prefix}{$table} SELECT * FROM {$table}" );
+		}
 	}
 
 	/**
@@ -49,8 +61,10 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 		global $wpdb;
 		$tmp_prefix = self::TEMPORARY_PREFIX;
 
-		// Drop the new table.
-		$wpdb->query( "DROP TABLE IF EXISTS {$tmp_prefix}{$wpdb->prefix}options" );
+		foreach ( self::TABLES as $table ) {
+			$table = $tmp_prefix . $wpdb->prefix . $table;
+			$wpdb->query( "DROP TABLE IF EXISTS {$table}" );
+		}
 	}
 
 	/**
@@ -134,6 +148,57 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 		$this->assertIsArray( $result );
 		$this->assertCount( 5, $result );
 		$this->assertStringContainsString( self::TEMPORARY_PREFIX . $wpdb->prefix . 'options', $result[2] );
+	}
+
+	/**
+	 * Test an app with no scoped posts.
+	 */
+	public function test_get_no_app_scope() {
+		$processor = new SQL_Postprocessor( 'test', 'test', self::TEMPORARY_PREFIX );
+
+		$this->assertNull( $processor->get_app_scope() );
+	}
+
+	/**
+	 * Test an app with at least one scoped posts.
+	 */
+	public function test_get_app_scope() {
+		global $wpdb;
+
+		$processor       = new SQL_Postprocessor( 'test', 'test', self::TEMPORARY_PREFIX );
+		$previous_prefix = $wpdb->prefix;
+
+		$wpdb->set_prefix( self::TEMPORARY_PREFIX . $wpdb->prefix );
+
+		wp_insert_post(
+			array(
+				'post_title'   => 'Test',
+				'post_content' => 'Test',
+				'post_status'  => 'publish',
+				'post_type'    => 'post',
+				'guid'         => SQL_Postprocessor::PLAYGROUND_SCOPED_URL . 'test-scope/test',
+			)
+		);
+
+		$wpdb->set_prefix( $previous_prefix );
+
+		$this->assertSame( 'test-scope', $processor->get_app_scope() );
+	}
+
+	/**
+	 * Test various scoped URLs.
+	 */
+	public function test_get_url_scope() {
+		$processor  = new SQL_Postprocessor( 'test', 'test', self::TEMPORARY_PREFIX );
+		$scoped_url = SQL_Postprocessor::PLAYGROUND_SCOPED_URL;
+
+		$this->assertNull( $processor->get_url_scope( '' ) );
+		$this->assertNull( $processor->get_url_scope( $scoped_url ) );
+		$this->assertNull( $processor->get_url_scope( $scoped_url . 'test' ) );
+		$this->assertSame( 'test', $processor->get_url_scope( $scoped_url . 'test/' ) );
+		$this->assertSame( 'test-1', $processor->get_url_scope( $scoped_url . 'test-1/test-2' ) );
+		$this->assertNull( $processor->get_url_scope( $scoped_url . 'test/', 'https://example.com' ) );
+		$this->assertNull( $processor->get_url_scope( $scoped_url . 'test-1/test-2', 'https://example.com' ) );
 	}
 
 	/**
