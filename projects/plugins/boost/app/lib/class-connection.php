@@ -34,20 +34,7 @@ class Connection {
 	public function init() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
-		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_connection_config_data' ) );
-
 		$this->initialize_deactivate_disconnect();
-	}
-
-	/**
-	 * Add connection data to the array of constants
-	 *
-	 * @param array $constants The associative array of constants.
-	 */
-	public function add_connection_config_data( $constants ) {
-		$constants['connection'] = $this->get_connection_api_response();
-
-		return $constants;
 	}
 
 	/**
