@@ -9,7 +9,6 @@ import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import styles from './getting-started.module.scss';
 import { useConfig } from '$lib/stores/config-ds';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useGettingStarted } from '$lib/stores/getting-started';
 
 const GettingStarted: React.FC = () => {
@@ -92,10 +91,4 @@ const GettingStarted: React.FC = () => {
 	);
 };
 
-export default () => {
-	return (
-		<DataSyncProvider>
-			<GettingStarted />
-		</DataSyncProvider>
-	);
-};
+export default GettingStarted;

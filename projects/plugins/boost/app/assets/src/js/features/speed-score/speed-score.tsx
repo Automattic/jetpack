@@ -12,7 +12,6 @@ import PerformanceHistory from '$features/performance-history/performance-histor
 import ErrorNotice from '$features/error-notice/error-notice';
 import classNames from 'classnames';
 import { useState, useEffect, useMemo } from 'react';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
 
 import styles from './speed-score.module.scss';
@@ -147,10 +146,4 @@ const SpeedScore = ( {
 	);
 };
 
-export default function ( props: SpeedScoreProps ) {
-	return (
-		<DataSyncProvider>
-			<SpeedScore { ...props } />
-		</DataSyncProvider>
-	);
-}
+export default SpeedScore;

@@ -6,7 +6,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import styles from './quality-settings.module.scss';
 import { IconTooltip } from '@automattic/jetpack-components';
 import QualityControl from '../quality-control/quality-control';
-import { DataSyncProvider, useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { type QualityConfig, imageCdnSettingsSchema } from '../lib/stores';
 import { z } from 'zod';
 import NavigationLink from '$features/ui/navigation-link/navigation-link';
@@ -106,10 +106,4 @@ const Header = () => (
 	</div>
 );
 
-export default function QualitySettingsWrapper( props: QualitySettingsProps ) {
-	return (
-		<DataSyncProvider>
-			<QualitySettings { ...props } />
-		</DataSyncProvider>
-	);
-}
+export default QualitySettings;

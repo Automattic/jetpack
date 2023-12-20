@@ -9,7 +9,6 @@ import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import JetpackLogo from '$svg/jetpack-green';
 import styles from './upgrade.module.scss';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useConfig } from '$lib/stores/config-ds';
 
 const Upgrade: React.FC = () => {
@@ -112,10 +111,4 @@ const Upgrade: React.FC = () => {
 	);
 };
 
-export default () => {
-	return (
-		<DataSyncProvider>
-			<Upgrade />
-		</DataSyncProvider>
-	);
-};
+export default Upgrade;

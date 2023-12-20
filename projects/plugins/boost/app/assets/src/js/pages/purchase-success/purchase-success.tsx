@@ -6,7 +6,6 @@ import { requestImageAnalysis } from '$features/image-size-analysis/lib/stores/i
 import { navigate } from '$lib/utils/navigate';
 import Logo from '$svg/jetpack-green';
 import { useSingleModuleState } from '$features/module/lib/stores';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 
 const PurchaseSuccess: React.FC = () => {
 	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
@@ -89,10 +88,4 @@ const PurchaseSuccess: React.FC = () => {
 	);
 };
 
-export default () => {
-	return (
-		<DataSyncProvider>
-			<PurchaseSuccess />
-		</DataSyncProvider>
-	);
-};
+export default PurchaseSuccess;

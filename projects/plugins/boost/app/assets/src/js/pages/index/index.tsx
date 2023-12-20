@@ -4,7 +4,6 @@ import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 import { Button, Notice, getRedirectUrl } from '@automattic/jetpack-components';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures, useSuggestRegenerate } from './lib/hooks';
@@ -391,10 +390,4 @@ const Index = ( { criticalCss }: IndexProps ) => {
 	);
 };
 
-export default function ( props: IndexProps ) {
-	return (
-		<DataSyncProvider>
-			<Index { ...props } />
-		</DataSyncProvider>
-	);
-}
+export default Index;
