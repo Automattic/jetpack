@@ -8,6 +8,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
@@ -327,12 +328,6 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function management_page() {
-		$sharer  = new Sharing_Service();
-		$enabled = $sharer->get_blog_services();
-		$global  = $sharer->get_global_options();
-
-		$shows = array_values( get_post_types( array( 'public' => true ) ) );
-		array_unshift( $shows, 'index' );
 
 		if ( ! function_exists( 'mb_stripos' ) ) {
 			echo '<div id="message" class="updated fade"><h3>' . esc_html__( 'Warning! Multibyte support missing!', 'jetpack' ) . '</h3>';
@@ -355,10 +350,6 @@ class Sharing_Admin {
 		if ( isset( $_GET['update'] ) && 'saved' === $_GET['update'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only used to display a message.
 			echo '<div class="updated"><p>' . esc_html__( 'Settings have been saved', 'jetpack' ) . '</p></div>';
 		}
-
-		if ( ! isset( $global['sharing_label'] ) ) {
-			$global['sharing_label'] = __( 'Share this:', 'jetpack' );
-		}
 		?>
 
 	<div class="wrap">
@@ -376,8 +367,57 @@ class Sharing_Admin {
 		do_action( 'pre_admin_screen_sharing' );
 		?>
 
-		<?php if ( current_user_can( 'manage_options' ) ) : ?>
+		<?php
+			$block_availability = Jetpack_Gutenberg::get_cached_availability();
+			$is_block_available = (bool) isset( $block_availability['sharing-buttons'] ) && $block_availability['sharing-buttons']['available'];
+			$is_block_theme     = wp_is_block_theme();
+			$show_block_message = $is_block_available && $is_block_theme;
 
+			// We either show old services config or the sharing block message.
+		if ( current_user_can( 'manage_options' ) ) :
+			$show_block_message ? $this->sharing_block_display() : $this->services_config_display();
+			endif;
+		?>
+	</div>
+
+	<script type="text/javascript">
+		var sharing_loading_icon = '<?php echo esc_js( admin_url( '/images/loading.gif' ) ); ?>';
+		<?php
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- we handle the nonce on the PHP side.
+		if (
+			isset( $_GET['create_new_service'] ) && isset( $_GET['name'] ) && isset( $_GET['url'] ) && isset( $_GET['icon'] )
+			&& 'true' == $_GET['create_new_service'] // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		) :
+			?>
+		jQuery(document).ready(function() {
+			// Prefill new service box and then open it
+			jQuery( '#new_sharing_name' ).val( '<?php echo esc_js( sanitize_text_field( wp_unslash( $_GET['name'] ) ) ); ?>' );
+			jQuery( '#new_sharing_url' ).val( '<?php echo esc_js( sanitize_text_field( wp_unslash( $_GET['url'] ) ) ); ?>' );
+			jQuery( '#new_sharing_icon' ).val( '<?php echo esc_js( sanitize_text_field( wp_unslash( $_GET['icon'] ) ) ); ?>' );
+			jQuery( '#add-a-new-service' ).click();
+		});
+		<?php endif; ?>
+	</script>
+		<?php
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Display services admin UI for settings.
+	 *
+	 * @return void
+	 */
+	public function services_config_display() {
+		$sharer  = new Sharing_Service();
+		$enabled = $sharer->get_blog_services();
+		$global  = $sharer->get_global_options();
+
+		$shows = array_values( get_post_types( array( 'public' => true ) ) );
+		array_unshift( $shows, 'index' );
+		if ( ! isset( $global['sharing_label'] ) ) {
+			$global['sharing_label'] = __( 'Share this:', 'jetpack' );
+		}
+		?>
 		<div class="share_manage_options">
 		<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
 		<p><?php esc_html_e( 'Add sharing buttons to your blog and allow your visitors to share posts with their friends.', 'jetpack' ); ?></p>
@@ -674,33 +714,55 @@ class Sharing_Admin {
 			<input type="hidden" name="_wpnonce" value="<?php echo esc_attr( wp_create_nonce( 'sharing-new_service' ) ); ?>" />
 		</form>
 	</div>
-	</div>
-
-	<?php endif; ?>
-
-
-	</div>
-
-	<script type="text/javascript">
-		var sharing_loading_icon = '<?php echo esc_js( admin_url( '/images/loading.gif' ) ); ?>';
 		<?php
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- we handle the nonce on the PHP side.
-		if (
-			isset( $_GET['create_new_service'] ) && isset( $_GET['name'] ) && isset( $_GET['url'] ) && isset( $_GET['icon'] )
-			&& 'true' == $_GET['create_new_service'] // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-		) :
-			?>
-		jQuery(document).ready(function() {
-			// Prefill new service box and then open it
-			jQuery( '#new_sharing_name' ).val( '<?php echo esc_js( sanitize_text_field( wp_unslash( $_GET['name'] ) ) ); ?>' );
-			jQuery( '#new_sharing_url' ).val( '<?php echo esc_js( sanitize_text_field( wp_unslash( $_GET['url'] ) ) ); ?>' );
-			jQuery( '#new_sharing_icon' ).val( '<?php echo esc_js( sanitize_text_field( wp_unslash( $_GET['icon'] ) ) ); ?>' );
-			jQuery( '#add-a-new-service' ).click();
-		});
-		<?php endif; ?>
-	</script>
+	}
+
+	/**
+	 * Display sharing block admin UI for settings.
+	 *
+	 * @return void
+	 */
+	public function sharing_block_display() {
+		$showcase_services = array(
+			new Share_Tumblr( 'tumblr', array() ),
+			new Share_Facebook( 'facebook', array() ),
+			new Share_Email( 'email', array() ),
+			new Share_Reddit( 'reddit', array() ),
+		);
+		?>
+		
+		<div class="share_manage_options">
+			<br class="clearing" />
+			<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
+			<div class="sharing-block-message__items-wrapper">
+				<div>
+					<p><?php esc_html_e( 'Add sharing buttons to your blog and allow your visitors to share posts with their friends.', 'jetpack' ); ?></p>
+					
+					<div class="sharing-block-message__buttons-wrapper">
+						<a href="<?php echo esc_url( admin_url( 'site-editor.php?path=%2Fwp_template' ) ); ?>" class="button button-primary">
+							<?php esc_html_e( 'Go to the site editor', 'jetpack' ); ?>
+						</a>
+						<a href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-sharing-block' ) ); ?>" class="button" target="_blank" rel="noopener noreferrer">
+							<?php esc_html_e( 'Learn how to add Sharing Buttons', 'jetpack' ); ?>
+						</a>
+					</div>
+				</div>
+				<div>
+					<p><?php esc_html_e( 'Sharing Buttons example:', 'jetpack' ); ?></p>
+					<div class="sharedaddy sd-sharing-enabled">
+						<div class="sd-content">
+							<ul class="preview">
+								<?php foreach ( $showcase_services as $service ) : ?>
+									<?php $this->output_preview( $service ); ?>
+								<?php endforeach; ?>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+			<br class="clearing" />
+		</div>
 		<?php
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 	}
 }
 
