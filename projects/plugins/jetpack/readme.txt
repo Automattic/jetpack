@@ -293,72 +293,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.9-beta - 2023-12-03
+### 13.0-a.7 - 2023-12-20
 #### Enhancements
-- Added subscribers count to pre- and post- publish panels when publishing posts in Newsletter Categories.
-- AI Assistant: Updated AI Assistant to display an upgrade banner when the feature endpoint returns with 'quota exceeded'.
-- AI Assistant: Updated the AI Assistant block to display the upgrade banner only once a block is selected.
-- Blocks: Added capability for editing Subscription block placeholder text and button label.
-- Blocks: Added the Jetpack Sharing Buttons block.
-- Blogroll: Allowed non-WP.com sites to be suggested.
-- CSS Concatenation: Avoid optimizing CSS loading when less than 2 modules that require it are active.
-- Jetpack AI: Enabled the AI Assistant usage panel.
-- Likes: Updated the likes popover design and added RTL support.
-- My Jetpack: Added Creator to My Jetpack overview.
-- Newsletters: Updated the pre-publish and post-publish panels to display the newsletter categories that the post will be sent to.
-- Paid Content Block: Added support for selecting multiple plans.
-- Subscribe Block: Improved the redirect logic after confirming a subscriptions.
-- Subscribe Modal: Added a subscribe modal toggle to the Newsletter settings.
-- Subscribe Modal: The modal is not shown at all after being dismissed, not just limited to the post it was dismissed on.
-- Subscribe modal: Updated the modal to not show when previewing post or theme.
-- VideoPress: Added support for gated content.
-- WoA: Added "Subscribers" and "My profile" under the "Users" menu in the Calypso sidebar.
-- WoA: Updated the wording on the profile menu for WoA sites using the classic style.
+- Sharing Buttons Block: update the admin's setting screen when the sharing block is available.
 
 #### Improved compatibility
-- Added a check for connected plugins before cleaning up plugin options or uninstalling Jetpack.
-- Block Editor: Dequeued editor assets when they aren't in use.
-- Blocks: Fixed lack of spacing for the Paywall block in some themes.
-- Google Fonts: Resolved occasional bug resulting in fatal errors on PHP 8 with latest Gutenberg.
-- Improved the consistency of the "Users" admin menu across all environments.
-- Subscribe Modal: Fixed lack of spacing in the modal for some themes.
-- Updated PHP version reqirements to PHP 7.0 or newer.
-- Updated WordPress version requirements to WordPress 6.3.
+- Sharing Buttons: add the official X button to the list of supported services.
 
 #### Bug fixes
-- Added missing BLOCK_NAME constant to SimplePayments block.
-- AI Assistant: Fixed an AI error sometimes being rendered for prompts marked unclear.
-- Block Editor: Fixed console errors being thrown for Jetpack blocks inside the Full Site Editor.
-- Contact Form: Prevented errors when a saved submitted contact form is requested but does not exist anymore.
-- Custom-CSS: Disabled loading `@import` directives from the filesystem. `@import` of CSS from URLs can still be done.
-- Dashboard: Fixed the display of Subscriptions and WordPress.com Toolbar controls when the user is not connected to WordPress.com.
-- Dashboard: Fixed the display of the Auto-sharing feature toggle when the user is not connected to WordPress.com.
-- Dashboard: Fixed the display of the settings for Markdown for comments.
-- EU Cookie Widget: Moved away from deprecated jQuery methods.
-- Fixed all Google font definitions being printed in the head, instead only printing fonts that are used in global styles or required by block settings.
-- Fixed a PHP Warning triggered when WooCommerce templates were not found due to a name change.
-- Fixed fatal error triggered by not checking get_product_list() result correctly.
-- Fixed sending email preview when content in the editor is different from the latest version in the database.
-- Fixed wrong like count in the like dialog after liking.
-- Font Library: Fixed PHP warnings that happen when the font name is not defined.
-- Google Fonts: Added filtering for old google fonts data in the user's global styles.
-- Media: Fixed VideoPress videos and media length not being displayed when available.
-- Mobile: Ensured text is always visible in Contact Info block on mobile.
-- Mobile: Fix a regression preventing correct block registration on mobile.
-- Mobile: Prevented converted video blocks from displaying empty thumbnails on mobile.
-- Monetize: Fixed membership products resolver not filtering tiers correctly.
-- Monetize: Updated the link to the plans page.
-- Related Posts: Ensured the Related Posts Block can be displayed properly.
-- Related Posts Block: Fixed thumbnails opening in the same tab.
-- Shortcode embeds: Fixed and updated the display of Gravatars and Gravatar profiles.
-- Subscribe Block: Fix display in the editor.
-- Subscribe Block: Fixed incorrect redirects from the block when shown outside of a post page.
-- Subscribe Block: Fixed the button in a new line option not working.
-- Subscribe Modal: Fixed the issue with the block being shown to subscribers.
-- Subscribe Widget: Fixed nonce validation.
-- VaultPress: Fixed an issue with the VaultPress submenu not being registered when the standalone plugin is inactive and the product is active.
-- WoA: Added back the "Stats" menu item for WoA sites in Calypso.
-- WoA: Restored Woo Express free trial upgrade JITM.
+- My Plan: Fix JS errors due to nested anchor tags.
+- Payments Block: show an error message when unable to render payment button.
+- Subscribers: fix the subscriber count display if above 1000 subscribers.
 
 --------
 
