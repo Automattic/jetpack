@@ -5,7 +5,12 @@ import ImageMissingRow from '../row-types/image-missing-row/image-missing-row';
 import ImageSizeRow from '../row-types/image-size-row/image-size-row';
 import LoadingRow from '../row-types/loading-row/loading-row';
 import Spinner from '$features/ui/spinner/spinner';
-import { type IsaImage, type IsaReport, ISAStatus } from '$features/image-size-analysis';
+import {
+	useImageFixer,
+	type IsaImage,
+	type IsaReport,
+	ISAStatus,
+} from '$features/image-size-analysis';
 import classnames from 'classnames';
 
 interface TableProps {
@@ -19,6 +24,32 @@ const Table = ( { isaDataLoading, activeGroup, images, isaReport }: TableProps )
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ activeImages, setActiveImages ] = useState< IsaImage[] >( [] );
 	const [ jobFinished, setJobFinished ] = useState( false );
+	const imageFixer = useImageFixer();
+
+	function toggleImageFix( imageId: IsaImage[ 'id' ] ) {
+		const imageDetails = images.find( image => image.id === imageId );
+
+		if ( ! imageDetails ) {
+			return;
+		}
+
+		const edit_url = imageDetails?.page.edit_url;
+		let postId = '0';
+		if ( edit_url ) {
+			const url = new URL( edit_url );
+			postId = new URLSearchParams( url.search ).get( 'post' ) || '0';
+		}
+
+		imageFixer.mutate( {
+			image_id: imageId,
+			image_url: imageDetails.image.url,
+			image_width: imageDetails.image.dimensions.expected.width.toString(),
+			image_height: imageDetails.image.dimensions.expected.height.toString(),
+			post_id: postId,
+			nonce: Jetpack_Boost.fixImageNonce as string, // @TODO: Use a real nonce....
+			fix: ! imageDetails.image.fixed,
+		} );
+	}
 
 	useEffect( () => {
 		setIsLoading( isaDataLoading );
@@ -55,9 +86,7 @@ const Table = ( { isaDataLoading, activeGroup, images, isaReport }: TableProps )
 										key={ image.id }
 										enableTransition={ images.length > 0 }
 										details={ image }
-										toggleImageFix={ (imageId) => {
-											console.log(imageId)
-										} }
+										toggleImageFix={ toggleImageFix }
 									/>
 								) : image.type === 'image_missing' ? (
 									<ImageMissingRow

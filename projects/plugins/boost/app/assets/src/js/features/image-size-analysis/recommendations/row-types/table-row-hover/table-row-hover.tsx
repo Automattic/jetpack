@@ -8,13 +8,12 @@ import { type IsaImage } from '$features/image-size-analysis';
 const __DEV_ENABLE_FIX_BUTTON = true;
 
 interface TableRowHoverProps {
-	imageId: IsaImage[ 'id' ];
+	imageId?: IsaImage[ 'id' ];
 	edit_url?: string;
 	instructions: string;
 	device_type: string | null;
-	details: IsaImage;
-	isFixed: boolean;
-	toggleImageFix: ( imageId: IsaImage[ 'id' ] ) => void;
+	isFixed?: boolean;
+	toggleImageFix?: ( imageId: IsaImage[ 'id' ] ) => void;
 }
 
 const TableRowHover: React.FC< TableRowHoverProps > = ( {
@@ -31,7 +30,7 @@ const TableRowHover: React.FC< TableRowHoverProps > = ( {
 
 			{ edit_url && (
 				<div className="jb-row-hover__button-container">
-					{ __DEV_ENABLE_FIX_BUTTON && device_type === 'desktop' ? (
+					{ __DEV_ENABLE_FIX_BUTTON && imageId && toggleImageFix && device_type === 'desktop' ? (
 						<Button width="auto" fill onClick={ () => toggleImageFix( imageId ) }>
 							{ isFixed ? __( 'Undo Fix', 'jetpack-boost' ) : __( 'Fix', 'jetpack-boost' ) }
 						</Button>
