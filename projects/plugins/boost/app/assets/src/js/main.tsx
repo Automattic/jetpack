@@ -11,6 +11,7 @@ import Index from './pages/index';
 import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
 import GettingStarted from './pages/getting-started/getting-started';
 import PurchaseSuccess from './pages/purchase-success/purchase-success';
+import SettingsPage from '$layout/settings-page/settings-page';
 import { useEffect } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
@@ -39,9 +40,11 @@ const useBoostRouter = ( { criticalCss }: MainProps ) => {
 				return null;
 			},
 			element: (
-				<Tracks>
-					<Index criticalCss={ criticalCss } />
-				</Tracks>
+				<SettingsPage>
+					<Tracks>
+						<Index criticalCss={ criticalCss } />
+					</Tracks>
+				</SettingsPage>
 			),
 		},
 		{
@@ -58,9 +61,11 @@ const useBoostRouter = ( { criticalCss }: MainProps ) => {
 				return null;
 			},
 			element: (
-				<Tracks>
-					<AdvancedCriticalCss issues={ criticalCss.issues } />
-				</Tracks>
+				<SettingsPage>
+					<Tracks>
+						<AdvancedCriticalCss issues={ criticalCss.issues } />
+					</Tracks>
+				</SettingsPage>
 			),
 		},
 		{
