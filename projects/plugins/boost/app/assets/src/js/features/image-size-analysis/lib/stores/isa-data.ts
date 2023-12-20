@@ -1,5 +1,5 @@
 import { IsaGlobal } from './types';
-import { useDataSync, useDataSyncAction } from '@automattic/jetpack-react-data-sync-client';
+import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 export function useIsaData( page = 1, group = 'all' ) {
 	return useDataSync(
 		'jetpack_boost_ds',
@@ -17,24 +17,5 @@ export function useIsaData( page = 1, group = 'all' ) {
 			page,
 			group,
 		}
-	);
-}
-
-type FixImage = {
-	imageUrl: string;
-	imageWidth: number;
-	imageHeight: number;
-	postId: string;
-	nonce: string;
-	fix: boolean;
-};
-export function useIsaDataAction() {
-	return useDataSyncAction()(
-		'jetpack_boost_ds',
-		'image_size_analysis',
-		'fix',
-		IsaGlobal,
-		IsaGlobal,
-		result => result
 	);
 }
