@@ -632,10 +632,13 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	public function get_subscription_modal_data_to_parent( $url ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$current_user_email = isset( $_POST['email'] ) ? filter_var( wp_unslash( $_POST['email'] ) ) : null;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$post_id = isset( $_POST['comment_post_ID'] ) ? filter_var( wp_unslash( $_POST['comment_post_ID'] ) ) : null;
 		return array(
 			'url'     => $url,
 			'email'   => $current_user_email,
 			'blog_id' => esc_attr( \Jetpack_Options::get_option( 'id' ) ),
+			'post_id' => esc_attr( $post_id ),
 			'lang'    => esc_attr( get_locale() ),
 		);
 	}
