@@ -41,6 +41,17 @@ class Backup_Import_Response extends WP_REST_Controller {
 				'permission_callback' => array( $this, 'verify_xml_rpc_signature' ),
 			)
 		);
+
+		// POST https://<atomic-site-address>/wp-json/wpcomsh/v1/backup-import/status.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/status',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'reset_backup_import_status' ),
+				'permission_callback' => array( $this, 'verify_xml_rpc_signature' ),
+			)
+		);
 	}
 
 	/**
@@ -53,10 +64,10 @@ class Backup_Import_Response extends WP_REST_Controller {
 	}
 
 	/**
-	 * Retrieves the backup import status option,
-	 * so we can show the progress on WPCOM.
+	 * Gets the backup import status.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response Returns a WP_REST_Response with the backup import status.
 	 */
 	public function get_backup_import_status( $request ) { //phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 		if ( ! $this->verify_import_permissions() ) {
@@ -68,7 +79,7 @@ class Backup_Import_Response extends WP_REST_Controller {
 			);
 		}
 
-		$backup_import_status = get_option( Backup_Import_Manager::$backup_import_status_option, null );
+		$backup_import_status = Backup_Import_Manager::get_backup_import_status();
 		$message              = '';
 
 		if ( $backup_import_status && $backup_import_status['status'] === 'process_files' ) {
@@ -80,6 +91,51 @@ class Backup_Import_Response extends WP_REST_Controller {
 			array(
 				'status'  => $backup_import_status ? $backup_import_status['status'] : '',
 				'message' => $message,
+			),
+			200
+		);
+	}
+
+	/**
+	 * Resets the backup import status.
+	 *
+	 * @return WP_REST_Response Returns a WP_REST_Response with either a success message or an error message.
+	 */
+	public function reset_backup_import_status() {
+		if ( ! $this->verify_import_permissions() ) {
+			return new WP_REST_Response(
+				array(
+					'error' => 'User or Token does not have access to specified site.',
+				),
+				400
+			);
+		}
+
+		$backup_import_status = Backup_Import_Manager::get_backup_import_status();
+
+		if ( empty( $backup_import_status ) ) {
+			return new WP_REST_Response(
+				array(
+					'error' => 'No backup import found.',
+				),
+				400
+			);
+		}
+		$result = Backup_Import_Manager::reset_import_status();
+
+		if ( is_wp_error( $result ) ) {
+			return new WP_REST_Response(
+				array(
+					'error' => $result->get_error_message(),
+				),
+				400
+			);
+		}
+
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'message' => 'Reset backup import status successfully.',
 			),
 			200
 		);

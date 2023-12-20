@@ -82,6 +82,18 @@ class Backup_Import_Manager {
 	 * The prefix to use for temporary databases.
 	 */
 	const TEMPORARY_DB_PREFIX = 'tmp_';
+	/**
+	 * Constant representing the success status.
+	 */
+	const SUCCESS = 'success';
+	/**
+	 * Constant representing the failed status.
+	 */
+	const FAILED = 'failed';
+	/**
+	 * Constant representing the cancelled status.
+	 */
+	const CANCELLED = 'cancelled';
 
 	/**
 	 * Backup import status option name.
@@ -145,13 +157,16 @@ class Backup_Import_Manager {
 			return $check_bail_result;
 		}
 
+		// reset the import status before everything starts
+		self::delete_backup_import_status();
+
 		// unzip/untar the file
 		if ( ! $skip_unpack ) {
 			$this->update_status( array( 'status' => 'unpack_file' ) );
 			$result = Utils\FileExtractor::extract( $this->zip_or_tar_file_path, $this->destination_path );
 
 			if ( is_wp_error( $result ) ) {
-				$this->update_status( array( 'status' => 'failed' ) );
+				$this->update_status( array( 'status' => self::FAILED ) );
 
 				if ( $bump_stats ) {
 					$this->bump_import_stats( $result->get_error_code() );
@@ -164,7 +179,7 @@ class Backup_Import_Manager {
 		// validate the type of the file
 		$importer_type = self::determine_importer_type( $this->destination_path );
 		if ( is_wp_error( $importer_type ) ) {
-			$this->update_status( array( 'status' => 'failed' ) );
+			$this->update_status( array( 'status' => self::FAILED ) );
 
 			if ( $bump_stats ) {
 				$this->bump_import_stats( $importer_type->get_error_code() );
@@ -176,7 +191,7 @@ class Backup_Import_Manager {
 		// get the importer
 		$importer = self::get_importer( $importer_type, $this->zip_or_tar_file_path, $this->destination_path );
 		if ( is_wp_error( $importer ) ) {
-			$this->update_status( array( 'status' => 'failed' ) );
+			$this->update_status( array( 'status' => self::FAILED ) );
 
 			if ( $bump_stats ) {
 				$this->bump_import_stats( $importer->get_error_code() );
@@ -204,6 +219,20 @@ class Backup_Import_Manager {
 				continue;
 			}
 
+			// Before calling the importer's method, let's check if the status is cancelled.
+			$cancel_result = $this->is_import_cancelled();
+
+			if ( true === $cancel_result ) {
+				// Clear the status.
+				self::delete_backup_import_status();
+
+				if ( $bump_stats ) {
+					$this->bump_import_stats( 'backup_import_cancelled' );
+				}
+
+				return new WP_Error( 'backup_import_cancelled', __( 'The backup import has been cancelled.', 'wpcomsh' ) );
+			}
+
 			$this->update_status( array( 'status' => $action ) );
 
 			if ( $dry_run ) {
@@ -214,7 +243,7 @@ class Backup_Import_Manager {
 				$result = $importer->$action();
 
 				if ( is_wp_error( $result ) ) {
-					$this->update_status( array( 'status' => 'failed' ) );
+					$this->update_status( array( 'status' => self::FAILED ) );
 
 					if ( $bump_stats ) {
 						$this->bump_import_stats( $result->get_error_code() );
@@ -229,7 +258,7 @@ class Backup_Import_Manager {
 			$this->bump_import_stats( 'success' );
 		}
 
-		return $this->update_status( array( 'status' => 'success' ) );
+		return $this->update_status( array( 'status' => self::SUCCESS ) );
 	}
 
 	/**
@@ -244,6 +273,7 @@ class Backup_Import_Manager {
 		$new      = array_merge( $existing, $content );
 
 		\update_option( self::$backup_import_status_option, $new );
+		self::force_cache_unset();
 
 		return true;
 	}
@@ -327,7 +357,7 @@ class Backup_Import_Manager {
 	 */
 	private function should_bail_out() {
 		$additional_status_to_check = array( 'unpack_file' );
-		$import_status              = get_option( self::$backup_import_status_option );
+		$import_status              = self::get_backup_import_status();
 		$import_in_progress         = false;
 
 		if ( ! empty( $import_status ) ) {
@@ -345,5 +375,92 @@ class Backup_Import_Manager {
 			return new WP_Error( 'import_in_progress', __( 'An import is already running.', 'wpcomsh' ) );
 		}
 		return false;
+	}
+
+	/**
+	 * Reset the import status.
+	 *
+	 * @return bool|WP_Error True on success, or a WP_Error on failure.
+	 */
+	public static function reset_import_status() {
+		$backup_import_status = self::get_backup_import_status();
+
+		if ( empty( $backup_import_status ) ) {
+			return new WP_Error( 'no_backup_import_found', __( 'No backup import found.', 'wpcomsh' ) );
+		}
+
+		if ( $backup_import_status['status'] === self::SUCCESS || $backup_import_status['status'] === self::FAILED ) {
+			// if it's a success or failed, we can delete the option directly
+			self::delete_backup_import_status();
+		} else {
+			// Otherwise we set the status to cancelled and update the option
+			update_option(
+				self::$backup_import_status_option,
+				array(
+					'status' => self::CANCELLED,
+				),
+			);
+			self::force_cache_unset();
+		}
+
+		return true;
+	}
+
+	/**
+	 * Deletes the backup import status option.
+	 *
+	 * @return void
+	 */
+	public static function delete_backup_import_status() {
+		delete_option( self::$backup_import_status_option );
+		self::force_cache_unset();
+	}
+
+	/**
+	 * Checks if the import process has been cancelled.
+	 *
+	 * @return mixed Returns WP_Error if the import has been cancelled, false otherwise.
+	 */
+	public function is_import_cancelled() {
+
+		$backup_import_status = self::get_backup_import_status();
+
+		if ( empty( $backup_import_status ) ) {
+			// The import status doesn't exist, so we should stop here.
+			return new WP_Error( 'no_backup_import_found', __( 'No backup import found.', 'wpcomsh' ) );
+		}
+
+		if ( $backup_import_status && $backup_import_status['status'] === self::CANCELLED ) {
+			// The import has been cancelled, so we should stop here.
+			return true;
+		}
+
+		return false;
+	}
+	/**
+	 * Get the backup import status.
+	 *
+	 * @return array|null Returns the backup import status or null if it doesn't exist.
+	 */
+	public static function get_backup_import_status() {
+		$backup_import_status = get_option( self::$backup_import_status_option, null );
+		if ( is_array( $backup_import_status ) ) {
+			return $backup_import_status;
+		}
+		return null;
+	}
+	/**
+	 * Force unset the cache for the backup import status option.
+	 *
+	 * @return void
+	 */
+	public static function force_cache_unset() {
+		$alloptions = wp_load_alloptions();
+		if ( isset( $alloptions[ self::$backup_import_status_option ] ) ) {
+			unset( $alloptions[ self::$backup_import_status_option ] );
+			wp_cache_set( 'alloptions', $alloptions, 'options' );
+		} else {
+			wp_cache_delete( self::$backup_import_status_option, 'options' );
+		}
 	}
 }
