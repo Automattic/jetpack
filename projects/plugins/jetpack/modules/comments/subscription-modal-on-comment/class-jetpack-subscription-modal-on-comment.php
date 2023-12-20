@@ -135,6 +135,7 @@ class Jetpack_Subscription_Modal_On_Comment {
 	public function get_subscribe_template_content() {
 		$discover_more_from = __( 'Never miss a beat!', 'jetpack' );
 		$subscribe_text     = __( 'Interested in getting blog post updates? Simply click the button below to stay in the loop!', 'jetpack' );
+		$subscribe_button   = __( 'Subscribe', 'jetpack' );
 
 		return <<<HTML
 	<!-- wp:group {"style":{"spacing":{"top":"32px","bottom":"32px","left":"32px","right":"32px"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
@@ -152,8 +153,20 @@ class Jetpack_Subscription_Modal_On_Comment {
 		<p class='has-text-align-center' style='margin-top:4px;margin-bottom:0px;font-size:15px'>$subscribe_text</p>
 		<!-- /wp:paragraph -->
 
-		<!-- wp:jetpack/subscriptions {"buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
-
+		<!-- wp:group {"style":{"spacing":{"top":"32px","bottom":"32px","left":"32px","right":"32px"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
+		<div class="jetpack-subscription-modal__form">
+			<input
+				class="jetpack-subscription-modal__form-email"
+				required="required"
+				type="email"
+				name="email"
+				/>
+			<button
+				class="jetpack-subscription-modal__form-submit"
+				type="submit"
+				name="jetpack_subscriptions_widget" >$subscribe_button</button>
+		</div>
+		<!-- /wp:group -->
 	</div>
 	<!-- /wp:group -->
 HTML;

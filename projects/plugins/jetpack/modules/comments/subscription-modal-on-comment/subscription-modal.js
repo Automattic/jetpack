@@ -6,8 +6,66 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	}
 
 	const close = document.getElementsByClassName( 'jetpack-subscription-modal__close' )[ 0 ];
+	const subscribeBtn = document.getElementsByClassName(
+		'jetpack-subscription-modal__form-submit'
+	)[ 0 ];
 	let redirectUrl = '';
+	let subscriptionData = '';
 	let hasLoaded = false;
+
+	function reloadOnCloseSubscriptionModal() {
+		const destinationUrl = new URL( redirectUrl );
+
+		// current URL without hash
+		const currentUrlWithoutHash = location.href.replace( location.hash, '' );
+		// destination URL without hash
+		const destinationUrlWithoutHash = destinationUrl.href.replace( destinationUrl.hash, '' );
+		window.location.href = redirectUrl;
+
+		// reload the page if the user is already on the comment page
+		if ( currentUrlWithoutHash === destinationUrlWithoutHash ) {
+			window.location.reload();
+		}
+	}
+
+
+	function handleSubscriptionModalIframeResult( eventFromIframe ) {
+		if ( eventFromIframe.origin === 'https://subscribe.wordpress.com' && eventFromIframe.data ) {
+			const data = JSON.parse( eventFromIframe.data );
+			if ( data && data.action === 'close' ) {
+				window.removeEventListener( 'message', handleSubscriptionModalIframeResult );
+				reloadOnCloseSubscriptionModal();
+			}
+		}
+	}
+
+	function showSubscriptionIframe( subscriptionData ) {
+		const subscribeData = {
+			email: subscriptionData.email,
+			post_id: subscriptionData.post_id,
+			plan: 'newsletter',
+			blog: subscriptionData.blog_id,
+			source: 'jetpack_subscribe',
+			display: 'alternate',
+			app_source: 'verbum-subscription-modal',
+			locale: subscriptionData.lang,
+		};
+
+		const params = new URLSearchParams( subscribeData );
+
+		const url = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
+
+		window.scrollTo( 0, 0 );
+		// eslint-disable-next-line no-undef
+		tb_show( null, url + '&TB_iframe=true', null );
+
+		window.addEventListener( 'message', handleSubscriptionModalIframeResult, false );
+		const tbWindow = document.querySelector( '#TB_window' );
+		tbWindow.classList.add( 'jetpack-memberships-modal' );
+
+		// This line has to come after the Thickbox has opened otherwise Firefox doesnt scroll to the top.
+		window.scrollTo( 0, 0 );
+	}
 
 	function JetpackSubscriptionModalOnCommentMessageListener( event ) {
 		let message = event && event.data;
@@ -30,6 +88,11 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			return;
 		}
 
+		if ( data.email ) {
+			const emailInput = document.querySelector( '.jetpack-subscription-modal__form-email' );
+			emailInput.value = data.email;
+		}
+
 		if ( ! hasLoaded ) {
 			const storedCount = parseInt(
 				sessionStorage.getItem( 'jetpack-subscription-modal-shown-count' )
@@ -43,33 +106,25 @@ document.addEventListener( 'DOMContentLoaded', function () {
 
 			modal.classList.toggle( 'open' );
 			hasLoaded = true;
-			redirectUrl = data.url;
+			redirectUrl = subscriptionData.url;
+			subscriptionData = data;
 			return;
 		}
 	}
 
 	window.addEventListener( 'message', JetpackSubscriptionModalOnCommentMessageListener );
 
-	function reloadOnCloseSubscriptionModal() {
-		const destinationUrl = new URL( redirectUrl );
-
-		// current URL without hash
-		const currentUrlWithoutHash = location.href.replace( location.hash, '' );
-		// destination URL without hash
-		const destinationUrlWithoutHash = destinationUrl.href.replace( destinationUrl.hash, '' );
-		window.location.href = redirectUrl;
-
-		// reload the page if the user is already on the comment page
-		if ( currentUrlWithoutHash === destinationUrlWithoutHash ) {
-			window.location.reload();
-		}
-	}
-
 	if ( close ) {
 		close.onclick = function ( event ) {
 			event.preventDefault();
 			modal.classList.toggle( 'open' );
 			reloadOnCloseSubscriptionModal();
+		};
+	}
+
+	if ( subscribeBtn ) {
+		subscribeBtn.onclick = function () {
+			showSubscriptionIframe( subscriptionData );
 		};
 	}
 
