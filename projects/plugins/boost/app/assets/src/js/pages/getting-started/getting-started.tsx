@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Snackbar } from '@wordpress/components';
 import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { navigate } from '$lib/utils/navigate';
 import { BoostPricingTable } from '$features/boost-pricing-table/boost-pricing-table';
 import ActivateLicense from '$features/activate-license/activate-license';
 import Footer from '$layout/footer/footer';
@@ -10,10 +9,12 @@ import Header from '$layout/header/header';
 import styles from './getting-started.module.scss';
 import { useConfig } from '$lib/stores/config-ds';
 import { useGettingStarted } from '$lib/stores/getting-started';
+import { useNavigate } from 'react-router-dom';
 
 const GettingStarted: React.FC = () => {
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
 	const [ snackbarMessage, setSnackbarMessage ] = useState< string >( '' );
+	const navigate = useNavigate();
 
 	const {
 		pricing,
@@ -52,10 +53,7 @@ const GettingStarted: React.FC = () => {
 			if ( ! isPremiumValue && plan === 'premium' ) {
 				window.location.href = getUpgradeURL( domainValue, userConnectedValue );
 			} else {
-				// Otherwise go to dashboard home.
-				// @todo - fix when react routing
-				// navigate( '/', { replace: true } );
-				navigate( '/' );
+				navigate( '/', { replace: true } );
 			}
 		} catch ( e ) {
 			// Display the error in a snackbar message

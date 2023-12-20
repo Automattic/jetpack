@@ -7,11 +7,11 @@ import GraphComponent from './graph-component/graph-component';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { __ } from '@wordpress/i18n';
 import { Panel, PanelBody, PanelRow } from '@wordpress/components';
-import { navigate } from '$lib/utils/navigate';
 import { PerformanceHistoryData } from './lib/types';
 
 import styles from './performance-history.module.scss';
 import { Button } from '@automattic/jetpack-components';
+import { useNavigate } from 'react-router-dom';
 
 type PerformanceHistoryProps = {
 	needsUpgrade: boolean;
@@ -20,6 +20,7 @@ type PerformanceHistoryProps = {
 const PerformanceHistoryBody = ( { needsUpgrade }: PerformanceHistoryProps ) => {
 	const { data, isFetching, isError, error, refetch } = usePerformanceHistoryQuery();
 	const [ isFreshStart, dismissFreshStart ] = usePerformanceHistoryFreshStartState();
+	const navigate = useNavigate();
 
 	if ( isError && ! isFetching ) {
 		return (

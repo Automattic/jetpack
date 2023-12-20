@@ -11,7 +11,7 @@ import Index from './pages/index';
 import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
 import GettingStarted from './pages/getting-started/getting-started';
 import PurchaseSuccess from './pages/purchase-success/purchase-success';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useGettingStarted } from '$lib/stores/getting-started';
@@ -29,17 +29,15 @@ const useBoostRouter = ( { criticalCss }: MainProps ) => {
 	const { shouldGetStarted } = useGettingStarted();
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 
-	const checkIfGettingStarted = useCallback( () => {
-		if ( shouldGetStarted ) {
-			return redirect( '/getting-started' );
-		}
-		return null;
-	}, [ shouldGetStarted ] );
-
 	return createHashRouter( [
 		{
 			path: '/',
-			loader: checkIfGettingStarted,
+			loader: () => {
+				if ( shouldGetStarted ) {
+					return redirect( '/getting-started' );
+				}
+				return null;
+			},
 			element: (
 				<Tracks>
 					<Index criticalCss={ criticalCss } />
@@ -48,7 +46,17 @@ const useBoostRouter = ( { criticalCss }: MainProps ) => {
 		},
 		{
 			path: '/critical-css-advanced',
-			loader: checkIfGettingStarted,
+			loader: () => {
+				if ( shouldGetStarted ) {
+					return redirect( '/getting-started' );
+				}
+
+				if ( criticalCss?.issues?.length === 0 ) {
+					return redirect( '/' );
+				}
+
+				return null;
+			},
 			element: (
 				<Tracks>
 					<AdvancedCriticalCss issues={ criticalCss.issues } />

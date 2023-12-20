@@ -3,14 +3,15 @@ import { Button } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { requestImageAnalysis } from '$features/image-size-analysis/lib/stores/isa-summary';
-import { navigate } from '$lib/utils/navigate';
 import Logo from '$svg/jetpack-green';
 import { useSingleModuleState } from '$features/module/lib/stores';
+import { useNavigate } from 'react-router-dom';
 
 const PurchaseSuccess: React.FC = () => {
 	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
 	const [ imageGuideState ] = useSingleModuleState( 'image_guide' );
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
+	const navigate = useNavigate();
 
 	useEffect( () => {
 		setCloudCssState( true );
