@@ -7,7 +7,6 @@ import Support from './support/support';
 import Tips from './tips/tips';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { useEffect, useState } from 'react';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import classNames from 'classnames';
 import styles from './settings-page.module.scss';
 
@@ -56,12 +55,4 @@ const SettingsPage = ( { children }: SettingsPageProps ) => {
 	);
 };
 
-export default function ( props: SettingsPageProps ) {
-	return (
-		<DataSyncProvider>
-			<SettingsPage { ...props } />
-		</DataSyncProvider>
-	);
-}
-
-// export default SettingsPage;
+export default SettingsPage;
