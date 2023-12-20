@@ -92,7 +92,7 @@ class Connection {
 	 * Get the WordPress.com blog ID of this site, if it's connected
 	 */
 	public static function wpcom_blog_id() {
-		return defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
+		return defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : (int) \Jetpack_Options::get_option( 'id' );
 	}
 
 	/**
