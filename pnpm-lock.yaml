@@ -3133,8 +3133,8 @@ importers:
         specifier: 7.5.2
         version: 7.5.2
       social-logos:
-        specifier: 2.5.7
-        version: 2.5.7(react@18.2.0)
+        specifier: 2.5.8
+        version: 2.5.8(react@18.2.0)
       swiper:
         specifier: 6.7.0
         version: 6.7.0
@@ -22411,8 +22411,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /social-logos@2.5.7(react@18.2.0):
-    resolution: {integrity: sha512-4+SCMIWAicxk3Z1TKVTLI+bo1TH6jq1q9fylpNKbfvgemia84DmJYdsnRoE9/XXm0HMTj/ZlPU5NoUF1G4fPrw==}
+  /social-logos@2.5.8(react@18.2.0):
+    resolution: {integrity: sha512-NqHmubqls14MUjsquYbkQIygTVdq1UZ9ogEbIqPbkRkF1iiAQXqiw2XC1/5+Ra0VQv3hxb7l9J9UmOCUACnbbw==}
     peerDependencies:
       react: 15 - 18
     dependencies:
