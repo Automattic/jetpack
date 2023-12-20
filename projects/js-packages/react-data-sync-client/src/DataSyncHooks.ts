@@ -161,8 +161,6 @@ export function useDataSyncAction< ActionData extends RequestParams >() {
 		> = {
 			mutationKey: queryKey,
 			mutationFn: async ( value: ActionData ) => {
-				console.log( 'mutationFn', value );
-				console.log( 'Current queryClient data', queryClient.getQueryData( queryKey ) );
 				const result = await datasync.ACTION( name, value, actionSchema );
 				try {
 					const currentValue = queryClient.getQueryData< State >( queryKey );
@@ -175,8 +173,7 @@ export function useDataSyncAction< ActionData extends RequestParams >() {
 					return queryClient.getQueryData( queryKey );
 				}
 			},
-			onMutate: async data => {
-				console.log( 'onMutate', data );
+			onMutate: async () => {
 				// Cancel any outgoing refetches
 				// (so they don't overwrite our optimistic update)
 				await queryClient.cancelQueries( { queryKey } );
