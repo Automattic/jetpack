@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2cccc2a5cf87fa69cb5379e30a6ba553",
+    "content-hash": "c65614c577196060eb120485f375e77f",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -2244,16 +2244,16 @@
         },
         {
             "name": "automattic/jetpack-videopress",
-            "version": "v0.21.3",
+            "version": "v0.21.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-videopress.git",
-                "reference": "c527df5bcf4021fcd878faba12a536e2dbfd20b8"
+                "reference": "1e7af183c7ce9b92fa7f9557c674858b1a79468f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-videopress/zipball/c527df5bcf4021fcd878faba12a536e2dbfd20b8",
-                "reference": "c527df5bcf4021fcd878faba12a536e2dbfd20b8",
+                "url": "https://api.github.com/repos/Automattic/jetpack-videopress/zipball/1e7af183c7ce9b92fa7f9557c674858b1a79468f",
+                "reference": "1e7af183c7ce9b92fa7f9557c674858b1a79468f",
                 "shasum": ""
             },
             "require": {
@@ -2298,9 +2298,9 @@
             ],
             "description": "VideoPress package",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-videopress/tree/v0.21.3"
+                "source": "https://github.com/Automattic/jetpack-videopress/tree/v0.21.3.1"
             },
-            "time": "2023-12-03T23:58:33+00:00"
+            "time": "2023-12-20T22:00:49+00:00"
         },
         {
             "name": "automattic/jetpack-waf",
