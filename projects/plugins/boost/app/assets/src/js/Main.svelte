@@ -2,12 +2,12 @@
 	import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
 	import GettingStarted from './pages/getting-started/getting-started';
 	import RecommendationsPage from './pages/image-size-analysis/ImageSizeAnalysis.svelte';
-	import ReactIndex from './pages/index/index';
+	import Index from './pages/index/index';
 	import PurchaseSuccess from './pages/purchase-success/purchase-success';
 	import Upgrade from './pages/upgrade/upgrade';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Redirect from '$features/Redirect.svelte';
-	import SettingsPage from '$layout/SettingsPage/SettingsPage.svelte';
+	import SettingsPage from '$layout/settings-page/settings-page';
 	import config from '$lib/stores/config';
 	import { connection } from '$lib/stores/connection';
 	import { modulesState } from '$lib/stores/modules';
@@ -24,6 +24,7 @@
 		criticalCssIssues,
 		primaryErrorSet,
 	} from '$features/critical-css';
+	import React from 'react';
 
 	routerHistory.listen(
 		debounce( history => {
@@ -47,6 +48,21 @@
 	$: isImageSizeAnalysisActive = $modulesState.image_size_analysis.active;
 
 	$: shouldGetStarted = ! $connection.connected && $config.site.online;
+
+	const ReactAdvancedCriticalCss = React.createElement( AdvancedCriticalCss, {
+		issues: $criticalCssIssues,
+	} );
+	const ReactIndex = React.createElement( Index, {
+		criticalCss: {
+			criticalCssState: $criticalCssState,
+			continueGeneratingLocalCriticalCss,
+			regenerateCriticalCss,
+			criticalCssProgress: $criticalCssProgress,
+			isFatalError: $isFatalError,
+			criticalCssIssues: $criticalCssIssues,
+			primaryErrorSet: $primaryErrorSet,
+		},
+	} );
 </script>
 
 <Router history={routerHistory}>
@@ -64,28 +80,13 @@
 
 	<Route path="critical-css-advanced">
 		<Redirect when={shouldGetStarted} to="/getting-started">
-			<SettingsPage>
-				<ReactComponent this={AdvancedCriticalCss} issues={$criticalCssIssues} />
-			</SettingsPage>
+			<ReactComponent this={SettingsPage} children={ReactAdvancedCriticalCss} />
 		</Redirect>
 	</Route>
 
 	<Route path="/">
 		<Redirect when={shouldGetStarted} to="/getting-started">
-			<SettingsPage>
-				<ReactComponent
-					this={ReactIndex}
-					criticalCss={{
-						criticalCssState: $criticalCssState,
-						continueGeneratingLocalCriticalCss,
-						regenerateCriticalCss,
-						criticalCssProgress: $criticalCssProgress,
-						isFatalError: $isFatalError,
-						criticalCssIssues: $criticalCssIssues,
-						primaryErrorSet: $primaryErrorSet,
-					}}
-				/>
-			</SettingsPage>
+			<ReactComponent this={SettingsPage} children={ReactIndex} />
 		</Redirect>
 	</Route>
 
