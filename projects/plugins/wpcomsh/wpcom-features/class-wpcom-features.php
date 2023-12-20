@@ -198,7 +198,7 @@ class WPCOM_Features {
 	private const WPCOM_PRO_PLANS               = array( self::PRO_PLAN, self::PRO_PLAN_MONTHLY, self::PRO_PLAN_2Y );
 	private const WPCOM_MIGRATION_TRIAL_PLANS   = array( self::WPCOM_MIGRATION_TRIAL_BUNDLE_MONTHLY );
 	private const WPCOM_HOSTING_TRIAL_PLANS     = array( self::WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY );
-	private const WPCOM_BUSINESS_PLANS          = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y, self::BUSINESS_BUNDLE_3Y, self::WPCOM_MIGRATION_TRIAL_PLANS, self::WPCOM_HUNDRED_YEAR_BUNDLE, self::WPCOM_HOSTING_TRIAL_PLANS );
+	private const WPCOM_BUSINESS_PLANS          = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y, self::BUSINESS_BUNDLE_3Y, self::WPCOM_MIGRATION_TRIAL_PLANS, self::WPCOM_HUNDRED_YEAR_BUNDLE, self::WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY );
 	private const WPCOM_ECOMMERCE_PLANS         = array( self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y, self::ECOMMERCE_BUNDLE_3Y );
 	private const WPCOM_ECOMMERCE_TRIAL_PLANS   = array( self::ECOMMERCE_TRIAL_BUNDLE_MONTHLY );
 	private const WPCOM_WOOEXPRESS_MEDIUM_PLANS = array( self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_MONTHLY, self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_YEARLY );
@@ -910,7 +910,7 @@ class WPCOM_Features {
 		self::REDUCED_ATOMIC_EMAIL_PRIORITY    => array(
 			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			self::WPCOM_MIGRATION_TRIAL_PLANS,
-			self::WPCOM_HOSTING_TRIAL_PLANS
+			self::WPCOM_HOSTING_TRIAL_PLANS,
 		),
 
 		/*
@@ -1247,7 +1247,6 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 				self::WPCOM_MIGRATION_TRIAL_PLANS,
-				self::WPCOM_HOSTING_TRIAL_PLANS
 			),
 		),
 		self::VIDEOPRESS                       => array(
@@ -1345,7 +1344,7 @@ class WPCOM_Features {
 	 * This is an array of blog IDs where these features are enabled.
 	 */
 	public const A8C_SITES_WITH_ADDITIONAL_SEO_FEATURES = array(
-		1,  // https://wordpress.com/
+		1, // https://wordpress.com/
 		69197545, // br.support.wordpress.com
 		69197545, // br.support.wordpress.com
 		12084301, // he.support.wordpress.com
@@ -1365,7 +1364,7 @@ class WPCOM_Features {
 		150881074, // tr.support.wordpress.com
 		151397720, // zh-cn.support.wordpress.com
 		151397956, // zh-tw.support.wordpress.com
-		3584907,  // en.blog.wordpress.com
+		3584907, // en.blog.wordpress.com
 		7944537, // ja.blog.wordpress.com
 		11241806, // es.blog.wordpress.com
 		8181651, // pt.blog.wordpress.com
@@ -1379,8 +1378,9 @@ class WPCOM_Features {
 		163161552, // brwpgo.wordpress.com
 		53424024, // discover.wordpress.com
 		489937, // dailypost.wordpress.com
-		33534099,  // developer.wordpress.com
-		22994,  // theme.wordpress.com
+		33534099, // developer.wordpress.com
+		22994, // theme.wordpress.com
+		16390, // learn.wordpress.com
 	);
 
 	/**
