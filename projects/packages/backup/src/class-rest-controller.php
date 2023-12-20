@@ -12,6 +12,7 @@
 // installed, or in some other cases).
 namespace Automattic\Jetpack\Backup\V0001;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Sync\Actions as Sync_Actions;
 use WP_Error;
@@ -529,7 +530,7 @@ class REST_Controller {
 	public static function get_site_backup_undo_event() {
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 
-		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_user(
 			'/sites/' . $blog_id . '/activity?force=wpcom',
 			'v2',
 			array(),

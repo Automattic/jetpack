@@ -17,6 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -110,7 +111,7 @@ class Jetpack_Backup {
 		add_action(
 			'plugins_loaded',
 			function () {
-				$config = new Automattic\Jetpack\Config();
+				$config = new Config();
 				// Connection package.
 				$config->ensure(
 					'connection',
@@ -374,7 +375,7 @@ class Jetpack_Backup {
 	public static function get_recent_backups() {
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 
-		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/rewind/backups',
 			'v2',
 			array(),
@@ -440,7 +441,7 @@ class Jetpack_Backup {
 	public static function get_backup_capabilities() {
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 
-		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_user(
 			'/sites/' . $blog_id . '/rewind/capabilities',
 			'v2',
 			array(),
@@ -471,7 +472,7 @@ class Jetpack_Backup {
 	 */
 	public static function get_recent_restores() {
 		$blog_id  = \Jetpack_Options::get_option( 'id' );
-		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/rewind/restores',
 			'v2',
 			array(),
@@ -548,7 +549,7 @@ class Jetpack_Backup {
 	public static function get_site_current_purchases() {
 
 		$request  = sprintf( '/sites/%d/purchases', \Jetpack_Options::get_option( 'id' ) );
-		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog( $request, '1.1' );
+		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1' );
 
 		// Bail if there was an error or malformed response.
 		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
@@ -593,7 +594,7 @@ class Jetpack_Backup {
 	public static function get_site_backup_size() {
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 
-		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_user(
 			'/sites/' . $blog_id . '/rewind/size?force=wpcom',
 			'v2',
 			array(),
@@ -619,7 +620,7 @@ class Jetpack_Backup {
 	public static function get_site_backup_policies() {
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 
-		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_user(
 			'/sites/' . $blog_id . '/rewind/policies?force=wpcom',
 			'v2',
 			array(),
