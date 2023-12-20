@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.9.2 - 2023-12-20
+### Bug fixes
+- VideoPress: fix an issue when using VideoPress inside a subscription block. [#34723]
+
 ## 12.9.1 - 2023-12-18
 ### Bug fixes
 - Carousel: fix unresponsive navigation on Chrome browsers. [#34678]
