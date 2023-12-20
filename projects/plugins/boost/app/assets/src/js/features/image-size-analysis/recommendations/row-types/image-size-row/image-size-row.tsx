@@ -14,9 +14,14 @@ import { recordBoostEventAndRedirect } from '$lib/utils/analytics';
 interface ImageSizeRowProps {
 	enableTransition: boolean;
 	details: IsaImage;
+	toggleImageFix: ( imageId: IsaImage[ 'id' ] ) => void;
 }
 
-const ImageSizeRow: React.FC< ImageSizeRowProps > = ( { enableTransition, details } ) => {
+const ImageSizeRow: React.FC< ImageSizeRowProps > = ( {
+	enableTransition,
+	details,
+	toggleImageFix,
+} ) => {
 	const title = details.image.url.split( '/' ).pop();
 
 	return (
@@ -24,7 +29,7 @@ const ImageSizeRow: React.FC< ImageSizeRowProps > = ( { enableTransition, detail
 			enableTransition={ enableTransition }
 			expandedContent={ <Expanded details={ details } /> }
 		>
-			<TableRowContent title={ title } details={ details } />
+			<TableRowContent title={ title } details={ details } toggleImageFix={ toggleImageFix } />
 		</TableRow>
 	);
 };
@@ -34,6 +39,7 @@ export default ImageSizeRow;
 interface ContentProps {
 	title?: string;
 	details: IsaImage;
+	toggleImageFix: ( imageId: IsaImage[ 'id' ] ) => void;
 }
 
 function getPillColor( details: IsaImage ) {
@@ -53,7 +59,7 @@ function getPotentialSize( details: IsaImage ) {
 	return potentialSavings > 0 ? Math.round( details.image.weight.current - potentialSavings ) : '?';
 }
 
-const TableRowContent: React.FC< ContentProps > = ( { title, details } ) => {
+const TableRowContent: React.FC< ContentProps > = ( { title, details, toggleImageFix } ) => {
 	const pillColor = getPillColor( details );
 	const potentialSize = getPotentialSize( details );
 	return (
@@ -83,6 +89,9 @@ const TableRowContent: React.FC< ContentProps > = ( { title, details } ) => {
 					device_type={ details.device_type }
 					edit_url={ details.page.edit_url }
 					instructions={ details.instructions }
+					imageId={ details.id }
+					isFixed={ details.image.fixed }
+					toggleImageFix={ toggleImageFix }
 				/>
 			</div>
 

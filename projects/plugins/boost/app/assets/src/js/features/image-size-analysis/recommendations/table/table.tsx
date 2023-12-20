@@ -55,6 +55,9 @@ const Table = ( { isaDataLoading, activeGroup, images, isaReport }: TableProps )
 										key={ image.id }
 										enableTransition={ images.length > 0 }
 										details={ image }
+										toggleImageFix={ (imageId) => {
+											console.log(imageId)
+										} }
 									/>
 								) : image.type === 'image_missing' ? (
 									<ImageMissingRow
