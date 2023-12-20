@@ -34,7 +34,6 @@ const ImageMissingRow: React.FC< ImageMissingRowProps > = ( { enableTransition, 
 			<div className="jb-table-row-hover-content">
 				<TableRowHover
 					edit_url={ details.page.edit_url }
-					details={ details }
 					device_type={ null }
 					instructions={ __(
 						'This image does not appear to load. Please check the URL in the relevant page.',

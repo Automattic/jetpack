@@ -85,7 +85,6 @@ const TableRowContent: React.FC< ContentProps > = ( { title, details, toggleImag
 
 			<div className="jb-table-row__hover-content">
 				<TableRowHover
-					details={ details }
 					device_type={ details.device_type }
 					edit_url={ details.page.edit_url }
 					instructions={ details.instructions }
