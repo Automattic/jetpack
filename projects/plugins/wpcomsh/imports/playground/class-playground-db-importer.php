@@ -231,7 +231,7 @@ class Playground_DB_Importer {
 		global $wpdb;
 
 		// Check if the bind table and the sequence table exist.
-		$query = $wpdb->prepare(
+		$query = $this->prepare(
 			'SELECT COUNT(*) FROM sqlite_master WHERE type=%s AND (name=%s OR name=%s)',
 			'table',
 			self::SQLITE_DATA_TYPES_TABLE,
@@ -268,7 +268,7 @@ class Playground_DB_Importer {
 
 		while ( $entry = $entries->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared outside.
-			$generator->table_insert( $field_names, $wpdb->prepare( $format, $entry ) );
+			$generator->table_insert( $field_names, $this->prepare( $format, $entry ) );
 		}
 	}
 
@@ -318,7 +318,7 @@ class Playground_DB_Importer {
 
 		// Get the "type map" of the table.
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQLITE_DATA_TYPES_TABLE is a constant string.
-		$query   = $wpdb->prepare( 'SELECT column_or_index, mysql_type from ' . self::SQLITE_DATA_TYPES_TABLE . ' where `table`=%s;', $table_name );
+		$query   = $this->prepare( 'SELECT column_or_index, mysql_type from ' . self::SQLITE_DATA_TYPES_TABLE . ' where `table`=%s;', $table_name );
 		$results = $this->db->query( $query );
 
 		if ( ! $results ) {
@@ -334,7 +334,7 @@ class Playground_DB_Importer {
 		}
 
 		// Get the "table info" of the table.
-		$query         = $wpdb->prepare( 'PRAGMA TABLE_INFO(%s)', $table_name );
+		$query         = $this->prepare( 'PRAGMA TABLE_INFO(%s)', $table_name );
 		$results       = $this->db->query( $query );
 		$primary_count = 0;
 
@@ -395,7 +395,7 @@ class Playground_DB_Importer {
 		}
 
 		// Load table indices.
-		$query   = $wpdb->prepare( 'SELECT name, sql FROM sqlite_master WHERE type=\'index\' AND tbl_name=%s', $table_name );
+		$query   = $this->prepare( 'SELECT name, sql FROM sqlite_master WHERE type=\'index\' AND tbl_name=%s', $table_name );
 		$results = $this->db->query( $query );
 
 		if ( ! $results ) {
@@ -521,7 +521,7 @@ class Playground_DB_Importer {
 
 		// return $this->db->querySingle( "SELECT MAX(`{$index_name}`) from `{$table_name}`" ) ?? 0;
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQLITE_SEQUENCE_TABLE is a constant string.
-		$query = $wpdb->prepare( 'SELECT seq from ' . self::SQLITE_SEQUENCE_TABLE . ' WHERE name=%s', $table_name );
+		$query = $this->prepare( 'SELECT seq from ' . self::SQLITE_SEQUENCE_TABLE . ' WHERE name=%s', $table_name );
 
 		return $this->db->querySingle( $query ) ?? 0;
 	}
@@ -534,5 +534,23 @@ class Playground_DB_Importer {
 	private function get_tmp_file_name(): string {
 		// A random string to avoid collisions.
 		return 'sqlite-export-' . uniqid() . '.sql';
+	}
+
+	/**
+	 * Prepare a query.
+	 *
+	 * @param string $query The query.
+	 * @param mixed  ...$args The arguments.
+	 *
+	 * @return string|void
+	 */
+	private function prepare( $query, ...$args ) {
+		global $wpdb;
+
+		$query = call_user_func_array( array( $wpdb, 'prepare' ), array_merge( array( $query ), $args ) );
+
+		if ( is_string( $query ) ) {
+			return $wpdb->remove_placeholder_escape( $query );
+		}
 	}
 }
