@@ -19,7 +19,6 @@ class Image_Size_Analysis_Summary_Action_Start implements Data_Sync_Action {
 	 */
 	public function handle( $data, $request ) {
 
-
 		// @TODO: Add a proper feature flag for this instead of just checking if priority support available.
 		if ( ! Premium_Features::has_feature( Premium_Features::IMAGE_SIZE_ANALYSIS ) ) {
 			return new \WP_Error( 'not-allowed', 'Feature not enabled' );
@@ -52,9 +51,5 @@ class Image_Size_Analysis_Summary_Action_Start implements Data_Sync_Action {
 		return array(
 			'ok' => true,
 		);
-
 	}
 }
-
-
-
