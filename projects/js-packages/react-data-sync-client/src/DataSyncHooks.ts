@@ -151,6 +151,25 @@ export function useDataSync<
  *
  *
  */
+type MutationOptions< Value > = Omit< UseMutationOptions< Value >, 'mutationKey' >;
+export type DataSyncActionConfig<
+	ActionData extends RequestParams,
+	StateSchema extends z.ZodSchema,
+	ActionSchema extends z.ZodSchema,
+	ActionResult extends z.infer< ActionSchema >,
+	CurrentState extends z.infer< StateSchema >,
+> = {
+	namespace: string;
+	key: string;
+	name: string;
+	schema: {
+		state: StateSchema;
+		action: ActionSchema;
+	};
+	callback: ( result: ActionResult, currentValue: CurrentState ) => void | CurrentState;
+	config?: UseMutationOptions< ActionResult, unknown, ActionData, { previousValue: CurrentState } >;
+	params?: Record< string, string | number >;
+};
 export function useDataSyncAction< ActionData extends RequestParams >() {
 	/*
 	 * Yes, this is a function that returns a function.
@@ -163,24 +182,20 @@ export function useDataSyncAction< ActionData extends RequestParams >() {
 	 */
 
 	return function <
-		Schema extends z.ZodSchema,
-		State extends z.infer< Schema >,
-		Key extends string,
-		ActionName extends string,
+		StateSchema extends z.ZodSchema,
 		ActionSchema extends z.ZodSchema,
 		ActionResult extends z.infer< ActionSchema >,
-		Config extends DataSyncConfig< ActionSchema, ActionData >[ 'mutation' ],
-	>(
-		namespace: string,
-		key: Key,
-		name: ActionName,
-		stateSchema: Schema,
-		actionSchema: ActionSchema,
-		callback: ( result: ActionResult, currentValue: State ) => void | State,
-		config: Config = {} as Config,
-		params: Record< string, string | number > = {}
-	) {
-		const datasync = new DataSync( namespace, key, stateSchema );
+		CurrentState extends z.infer< StateSchema >,
+	>( {
+		namespace,
+		key,
+		name,
+		schema,
+		callback,
+		config,
+		params,
+	}: DataSyncActionConfig< ActionData, StateSchema, ActionSchema, ActionResult, CurrentState > ) {
+		const datasync = new DataSync( namespace, key, schema.state );
 		// @TODO: order sensitive bug is hiding in Object.values
 		// This `sort` of fixes it, but I'd like a more elegant solution.
 		const queryKey = [ key, ...Object.values( params ).sort() ];
@@ -189,18 +204,18 @@ export function useDataSyncAction< ActionData extends RequestParams >() {
 			unknown,
 			ActionData,
 			{
-				previousValue: State;
+				previousValue: CurrentState;
 			}
 		> = {
 			mutationKey: queryKey,
 			mutationFn: async ( value: ActionData ) => {
-				const result = await datasync.ACTION( name, value, actionSchema );
+				const result = await datasync.ACTION( name, value, schema.action );
 				try {
-					const currentValue = queryClient.getQueryData< State >( queryKey );
+					const currentValue = queryClient.getQueryData< CurrentState >( queryKey );
 					const processedResult = await callback( result, currentValue );
 
 					const data =
-						processedResult === undefined ? currentValue : stateSchema.parse( processedResult );
+						processedResult === undefined ? currentValue : schema.state.parse( processedResult );
 					if ( processedResult !== undefined ) {
 						queryClient.setQueryData( queryKey, data );
 					}
@@ -215,7 +230,7 @@ export function useDataSyncAction< ActionData extends RequestParams >() {
 				await queryClient.cancelQueries( { queryKey } );
 
 				// Snapshot the previous value
-				const previousValue = queryClient.getQueryData< State >( queryKey );
+				const previousValue = queryClient.getQueryData< CurrentState >( queryKey );
 
 				// Optimistically update the cached state to the new value
 				// @TODO: We need a way to render optimistic updates
@@ -235,7 +250,7 @@ export function useDataSyncAction< ActionData extends RequestParams >() {
 			},
 		};
 
-		return useMutation< Config, unknown, ActionData >( {
+		return useMutation< MutationOptions< CurrentState >, unknown, ActionData >( {
 			...mutationConfigDefaults,
 			...config,
 		} );

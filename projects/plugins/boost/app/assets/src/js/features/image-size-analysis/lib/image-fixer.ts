@@ -1,4 +1,7 @@
-import { useDataSyncAction } from '@automattic/jetpack-react-data-sync-client';
+import {
+	type DataSyncActionConfig,
+	useDataSyncAction,
+} from '@automattic/jetpack-react-data-sync-client';
 import { IsaGlobal, IsaImage } from './stores/types';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { z } from 'zod';
@@ -20,13 +23,20 @@ const ImageSizeActionResult = z.object( {
 } );
 
 export function useImageFixer() {
-	return useDataSyncAction< FixImageData >()(
-		'jetpack_boost_ds',
-		'image_size_analysis',
-		'fix',
-		IsaGlobal,
-		ImageSizeActionResult,
-		( result, state ) => {
+	return useDataSyncAction< FixImageData >()( {
+		namespace: 'jetpack_boost_ds',
+		key: 'fix',
+		name: 'image_size_analysis',
+		schema: {
+			state: IsaGlobal,
+			action: ImageSizeActionResult,
+		},
+		config: {},
+		params: {
+			group: 'all',
+			page: 1,
+		},
+		callback: ( result, state ) => {
 			if ( result.status !== 'success' ) {
 				recordBoostEvent( 'isa_fix_image_failure', {} );
 				throw new Error( 'Failed to save fixes' );
@@ -41,10 +51,5 @@ export function useImageFixer() {
 			recordBoostEvent( event, {} );
 			return updatedState;
 		},
-		{},
-		{
-			group: 'all',
-			page: 1,
-		}
-	);
+	} );
 }
