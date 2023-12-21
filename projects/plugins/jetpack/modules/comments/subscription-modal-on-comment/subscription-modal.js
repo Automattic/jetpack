@@ -110,7 +110,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			if ( showCount > 5 ) {
 				new Image().src =
 					document.location.protocol +
-					'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_verbum-subscription-modal=hidden_views_limit_jetpack&r=' +
+					'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_jetpack-subscribe-modal-on-comment=hidden_views_limit&r=' +
 					Math.random();
 
 				reloadOnCloseSubscriptionModal( data.url );
@@ -119,7 +119,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 
 			new Image().src =
 				document.location.protocol +
-				'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_verbum-subscription-modal=showed_jetpack&r=' +
+				'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_jetpack-subscribe-modal-on-comment=showed&r=' +
 				Math.random();
 
 			modal.classList.toggle( 'open' );
