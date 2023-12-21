@@ -57,13 +57,13 @@ export async function docsCli( argv ) {
 	if ( data.status !== 0 ) {
 		// Something is wrong, let's try to run composer update.
 		console.debug( 'Preparing doc-parser package...' );
+		const cwd = path.resolve( './tools/cli/helpers/doc-parser' );
 		data = child_process.spawnSync( 'composer', [ 'update' ], {
-			cwd: path.resolve( './tools/cli/helpers/doc-parser' ),
+			cwd,
 			stdio: [ 'inherit', 'inherit', 'ignore' ],
 		} );
 		if ( data.status !== 0 ) {
 			// Running composer update didn't help, exiting.
-			const cwd = path.resolve( './tools/cli/helpers/doc-parser' );
 			console.error(
 				"Failed to prepare the doc-parser package. Try running 'composer -d " + cwd + " update'."
 			);
