@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import PaginationArrow from '../ui/pagination-arrow/pagination-arrow';
 import ChevronLeft from '$svg/chevron-left';
 import ChevronRight from '$svg/chevron-right';
-import { navigate } from '$lib/utils/navigate';
 
 interface PaginationProps {
 	group: string;
@@ -46,7 +45,13 @@ const Pagination: React.FC< PaginationProps > = ( { group, current, total, setCu
 		<div className="jb-pagination">
 			{ total > 1 && (
 				<>
-					<PaginationArrow direction="left" group={ group } current={ current } total={ total }>
+					<PaginationArrow
+						setCurrentPage={ setCurrentPage }
+						direction="left"
+						group={ group }
+						current={ current }
+						total={ total }
+					>
 						<ChevronLeft />
 					</PaginationArrow>
 
@@ -59,10 +64,8 @@ const Pagination: React.FC< PaginationProps > = ( { group, current, total, setCu
 									// eslint-disable-next-line jsx-a11y/anchor-is-valid
 									<a
 										href={ `#/image-size-analysis/${ group }/${ page }` }
-										onClick={ e => {
-											e.preventDefault();
+										onClick={ () => {
 											setCurrentPage( page );
-											navigate( `/image-size-analysis/${ group }/${ page }` );
 										} }
 										className={ `jb-pagination__page${
 											page === current ? ' jb-pagination__page--current' : ''
@@ -75,7 +78,13 @@ const Pagination: React.FC< PaginationProps > = ( { group, current, total, setCu
 						) ) }
 					</ul>
 
-					<PaginationArrow direction="right" group={ group } current={ current } total={ total }>
+					<PaginationArrow
+						setCurrentPage={ setCurrentPage }
+						direction="right"
+						group={ group }
+						current={ current }
+						total={ total }
+					>
 						<ChevronRight />
 					</PaginationArrow>
 				</>

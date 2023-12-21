@@ -7,6 +7,7 @@ interface PaginationLinkProps {
 	current: number;
 	total: number;
 	children: React.ReactNode;
+	setCurrentPage: ( page: number ) => void;
 }
 
 const PaginationLink: React.FC< PaginationLinkProps > = ( {
@@ -15,6 +16,7 @@ const PaginationLink: React.FC< PaginationLinkProps > = ( {
 	current,
 	total,
 	children,
+	setCurrentPage,
 } ) => {
 	const inactive = useMemo(
 		() => ( direction === 'left' ? current === 1 : current === total ),
@@ -32,7 +34,9 @@ const PaginationLink: React.FC< PaginationLinkProps > = ( {
 	return (
 		<a
 			href={ `#/image-size-analysis/${ group }/${ page }` }
-			onClick={ () => navigate( `/image-size-analysis/${ group }/${ page }` ) }
+			onClick={ () => {
+				setCurrentPage( page );
+			} }
 			className="jb-pagination__page"
 		>
 			{ children }
