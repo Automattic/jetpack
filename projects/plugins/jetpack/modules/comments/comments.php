@@ -654,7 +654,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * Track the hidden event for the subscription modal
 	 */
 	public function subscription_modal_status_track_event() {
-		$tracking_event = 'hidden_disabled_jetpack';
+		$tracking_event = 'hidden_disabled';
 		// Not allow it to run on self-hosted or simple sites
 		if ( ! ( new Host() )->is_wpcom_platform() || ( new Host() )->is_wpcom_simple() ) {
 			$tracking_event = 'hidden_self_hosted';
@@ -664,12 +664,12 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
 
 		if ( $is_current_user_subscribed ) {
-			$tracking_event = 'hidden_already_subscribed_jetpack';
+			$tracking_event = 'hidden_already_subscribed';
 		}
 
 		$jetpack = Jetpack::init();
 		// $jetpack->stat automatically prepends the stat group with 'jetpack-'
-		$jetpack->stat( 'subscribe-modal-on-comment', $tracking_event );
+		$jetpack->stat( 'subscribe-modal-comm', $tracking_event );
 		$jetpack->do_stats( 'server_side' );
 	}
 
