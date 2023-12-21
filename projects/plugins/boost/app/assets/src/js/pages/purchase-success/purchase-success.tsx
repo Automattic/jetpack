@@ -3,24 +3,29 @@ import { Button } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useImageAnalysisRequest } from '$features/image-size-analysis';
-import enableCloudCss from '$lib/utils/enable-cloud-css';
-import { navigate } from '$lib/utils/navigate';
 import Logo from '$svg/jetpack-green';
+import { useSingleModuleState } from '$features/module/lib/stores';
+import { useNavigate } from 'react-router-dom';
 
-type PurchaseSuccessProps = {
-	isImageGuideActive: boolean;
-};
+const PurchaseSuccess: React.FC = () => {
+	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
+	const [ imageGuideState ] = useSingleModuleState( 'image_guide' );
+	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
+	const navigate = useNavigate();
 
-const PurchaseSuccess: React.FC< PurchaseSuccessProps > = ( { isImageGuideActive } ) => {
 	const requestNewReport = useImageAnalysisRequest();
 	useEffect( () => {
-		enableCloudCss();
+		setCloudCssState( true );
 
 		// If image guide is enabled, request a new ISA report.
-		if ( isImageGuideActive && false !== Jetpack_Boost.site.canResizeImages ) {
 			requestNewReport();
+		if (
+			imageGuideState?.active &&
+			isaState?.active &&
+			false !== Jetpack_Boost.site.canResizeImages
+		) {
 		}
-	}, [ isImageGuideActive, requestNewReport ] );
+	}, [ imageGuideState?.active, isaState?.active, setCloudCssState ] );
 
 	const wpcomPricingUrl = getRedirectUrl( 'wpcom-pricing' );
 
