@@ -7,6 +7,14 @@ export const useIsaReport = () =>
 	useDataSync( 'jetpack_boost_ds', 'image_size_analysis_summary', IsaReport.nullable().optional(), {
 		query: {
 			initialData: () => undefined,
+			/**
+			 * Automatically poll if the state is an active one.
+			 * @param query
+			 */
+			refetchInterval: query => {
+				const status = query.state.data?.status || '';
+				return [ 'new', 'queued' ].includes( status ) ? 3000 : false;
+			},
 		},
 	} );
 
