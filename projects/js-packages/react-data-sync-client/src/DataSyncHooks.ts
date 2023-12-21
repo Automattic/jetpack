@@ -19,26 +19,26 @@ const queryClient = new QueryClient();
  * This is necessary for React Query to work.
  * @see https://tanstack.com/query/v5/docs/react/reference/QueryClientProvider
  */
-export function DataSyncProvider(props: { children: React.ReactNode }) {
-	return QueryClientProvider({
+export function DataSyncProvider( props: { children: React.ReactNode } ) {
+	return QueryClientProvider( {
 		client: queryClient,
 		...props,
-	});
+	} );
 }
 
 /**
  * React Query configuration type for DataSync.
  */
-type DataSyncConfig<Schema extends z.ZodSchema, Value extends z.infer<Schema>> = {
-	query?: Omit<UseQueryOptions<Value>, 'queryKey'>;
-	mutation?: Omit<UseMutationOptions<Value>, 'mutationKey'>;
+type DataSyncConfig< Schema extends z.ZodSchema, Value extends z.infer< Schema > > = {
+	query?: Omit< UseQueryOptions< Value >, 'queryKey' >;
+	mutation?: Omit< UseMutationOptions< Value >, 'mutationKey' >;
 };
 /**
  * This is what `useDataSync` returns
  */
-type DataSyncHook<Schema extends z.ZodSchema, Value extends z.infer<Schema>> = [
-	UseQueryResult<Value>,
-	UseMutationResult<Value>,
+type DataSyncHook< Schema extends z.ZodSchema, Value extends z.infer< Schema > > = [
+	UseQueryResult< Value >,
+	UseMutationResult< Value >,
 ];
 
 /**
@@ -54,17 +54,17 @@ type DataSyncHook<Schema extends z.ZodSchema, Value extends z.infer<Schema>> = [
  */
 export function useDataSync<
 	Schema extends z.ZodSchema,
-	Value extends z.infer<Schema>,
+	Value extends z.infer< Schema >,
 	Key extends string,
 >(
 	namespace: string,
 	key: Key,
 	schema: Schema,
-	config: DataSyncConfig<Schema, Value> = {},
-	params: Record<string, string | number> = {}
-): DataSyncHook<Schema, Value> {
-	const datasync = new DataSync(namespace, key, schema);
-	const queryKey = [key, ...Object.values(params).sort()];
+	config: DataSyncConfig< Schema, Value > = {},
+	params: Record< string, string | number > = {}
+): DataSyncHook< Schema, Value > {
+	const datasync = new DataSync( namespace, key, schema );
+	const queryKey = [ key, ...Object.values( params ).sort() ];
 	/**
 	 * Defaults for `useQuery`:
 	 * - `queryKey` is the key of the value that's being synced.
@@ -80,7 +80,7 @@ export function useDataSync<
 	 */
 	const queryConfigDefaults = {
 		queryKey,
-		queryFn: ({ signal }) => datasync.GET(params, signal),
+		queryFn: ( { signal } ) => datasync.GET( params, signal ),
 		initialData: datasync.getInitialValue(),
 	};
 
@@ -96,34 +96,34 @@ export function useDataSync<
 	 */
 	const mutationConfigDefaults = {
 		mutationKey: queryKey,
-		mutationFn: value => datasync.SET(value, params),
+		mutationFn: value => datasync.SET( value, params ),
 		onMutate: async data => {
-			const value = schema.parse(data);
+			const value = schema.parse( data );
 
 			// Cancel any outgoing refetches
 			// (so they don't overwrite our optimistic update)
-			await queryClient.cancelQueries({ queryKey });
+			await queryClient.cancelQueries( { queryKey } );
 
 			// Snapshot the previous value
-			const previousValue = queryClient.getQueryData(queryKey);
+			const previousValue = queryClient.getQueryData( queryKey );
 
 			// Optimistically update the cached state to the new value
-			queryClient.setQueryData(queryKey, value);
+			queryClient.setQueryData( queryKey, value );
 
 			// Return a context object with the snapshotted value
 			return { previousValue };
 		},
-		onError: (_, __, context) => {
-			queryClient.setQueryData(queryKey, context.previousValue);
+		onError: ( _, __, context ) => {
+			queryClient.setQueryData( queryKey, context.previousValue );
 		},
 		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey });
+			queryClient.invalidateQueries( { queryKey } );
 		},
 	};
 
 	return [
-		useQuery({ ...queryConfigDefaults, ...config.query }),
-		useMutation({ ...mutationConfigDefaults, ...config.mutation }),
+		useQuery( { ...queryConfigDefaults, ...config.query } ),
+		useMutation( { ...mutationConfigDefaults, ...config.mutation } ),
 	];
 }
 
@@ -151,61 +151,59 @@ export function useDataSync<
  *
  *
  */
-type MutationOptions<Value> = Omit<UseMutationOptions<Value>, 'mutationKey'>;
+type MutationOptions< Value > = Omit< UseMutationOptions< Value >, 'mutationKey' >;
 export type DataSyncActionConfig<
 	ActionRequestSchema extends z.ZodSchema,
-	ActionRequestData extends z.infer<ActionRequestSchema>,
+	ActionRequestData extends z.infer< ActionRequestSchema >,
 	StateSchema extends z.ZodSchema,
 	ActionSchema extends z.ZodSchema,
-	ActionResult extends z.infer<ActionSchema>,
-	CurrentState extends z.infer<StateSchema>,
+	ActionResult extends z.infer< ActionSchema >,
+	CurrentState extends z.infer< StateSchema >,
 > = {
 	namespace: string;
 	key: string;
-	name: string;
+	action_name: string;
 	schema: {
 		state: StateSchema;
 		action: ActionSchema;
 		action_request: ActionRequestSchema;
 	};
-	callback: (result: ActionResult, currentValue: CurrentState) => void | CurrentState;
+	callback: ( result: ActionResult, currentValue: CurrentState ) => void | CurrentState;
 	config?: UseMutationOptions<
 		ActionResult,
 		unknown,
 		ActionRequestData,
 		{ previousValue: CurrentState }
 	>;
-	params?: Record<string, string | number>;
+	params?: Record< string, string | number >;
 };
 export function useDataSyncAction<
 	StateSchema extends z.ZodSchema,
 	ActionSchema extends z.ZodSchema,
 	ActionRequestSchema extends z.ZodSchema,
-	ActionRequestData extends z.infer<ActionRequestSchema>,
-	ActionResult extends z.infer<ActionSchema>,
-	CurrentState extends z.infer<StateSchema>,
->(
-	{
-		namespace,
-		key,
-		name,
-		schema,
-		callback,
-		config,
-		params,
-	}: DataSyncActionConfig<
-		ActionRequestSchema,
-		ActionRequestData,
-		StateSchema,
-		ActionSchema,
-		ActionResult,
-		CurrentState
-	>
-) {
-	const datasync = new DataSync(namespace, key, schema.state);
+	ActionRequestData extends z.infer< ActionRequestSchema >,
+	ActionResult extends z.infer< ActionSchema >,
+	CurrentState extends z.infer< StateSchema >,
+>( {
+	namespace,
+	key,
+	action_name: name,
+	schema,
+	callback,
+	config,
+	params,
+}: DataSyncActionConfig<
+	ActionRequestSchema,
+	ActionRequestData,
+	StateSchema,
+	ActionSchema,
+	ActionResult,
+	CurrentState
+> ) {
+	const datasync = new DataSync( namespace, key, schema.state );
 	// @TODO: order sensitive bug is hiding in Object.values
 	// This `sort` of fixes it, but I'd like a more elegant solution.
-	const queryKey = [key, ...Object.values(params).sort()];
+	const queryKey = [ key, ...Object.values( params ).sort() ];
 	const mutationConfigDefaults: UseMutationOptions<
 		ActionResult,
 		unknown,
@@ -215,29 +213,33 @@ export function useDataSyncAction<
 		}
 	> = {
 		mutationKey: queryKey,
-		mutationFn: async (value: ActionRequestData) => {
-			const result = await datasync.ACTION(name, value, schema.action);
+		mutationFn: async ( value: ActionRequestData ) => {
+			const result = await datasync.ACTION(
+				name,
+				schema.action_request.parse( value ),
+				schema.action
+			);
 			try {
-				const currentValue = queryClient.getQueryData<CurrentState>(queryKey);
-				const processedResult = await callback(result, currentValue);
+				const currentValue = queryClient.getQueryData< CurrentState >( queryKey );
+				const processedResult = await callback( result, currentValue );
 
 				const data =
-					processedResult === undefined ? currentValue : schema.state.parse(processedResult);
-				if (processedResult !== undefined) {
-					queryClient.setQueryData(queryKey, data);
+					processedResult === undefined ? currentValue : schema.state.parse( processedResult );
+				if ( processedResult !== undefined ) {
+					queryClient.setQueryData( queryKey, data );
 				}
 				return data;
-			} catch (e) {
-				return queryClient.getQueryData(queryKey);
+			} catch ( e ) {
+				return queryClient.getQueryData( queryKey );
 			}
 		},
 		onMutate: async () => {
 			// Cancel any outgoing refetches
 			// (so they don't overwrite our optimistic update)
-			await queryClient.cancelQueries({ queryKey });
+			await queryClient.cancelQueries( { queryKey } );
 
 			// Snapshot the previous value
-			const previousValue = queryClient.getQueryData<CurrentState>(queryKey);
+			const previousValue = queryClient.getQueryData< CurrentState >( queryKey );
 
 			// Optimistically update the cached state to the new value
 			// @TODO: We need a way to render optimistic updates
@@ -249,17 +251,16 @@ export function useDataSyncAction<
 			// Return a context object with the snapshotted value
 			return { previousValue };
 		},
-		onError: (_, __, context) => {
-			queryClient.setQueryData(queryKey, context.previousValue);
+		onError: ( _, __, context ) => {
+			queryClient.setQueryData( queryKey, context.previousValue );
 		},
 		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey });
+			queryClient.invalidateQueries( { queryKey } );
 		},
 	};
 
-	return useMutation<MutationOptions<CurrentState>, unknown, ActionRequestData>({
+	return useMutation< MutationOptions< CurrentState >, unknown, ActionRequestData >( {
 		...mutationConfigDefaults,
 		...config,
-	});
-};
+	} );
 }
