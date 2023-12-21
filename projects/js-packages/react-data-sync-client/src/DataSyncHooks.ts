@@ -10,7 +10,7 @@ import {
 } from '@tanstack/react-query';
 import React from 'react';
 import { z } from 'zod';
-import { DataSync, RequestParams } from './DataSync';
+import { DataSync } from './DataSync';
 
 const queryClient = new QueryClient();
 
