@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface PaginationLinkProps {
 	group: string;
@@ -6,7 +7,6 @@ interface PaginationLinkProps {
 	current: number;
 	total: number;
 	children: React.ReactNode;
-	setCurrentPage: ( page: number ) => void;
 }
 
 const PaginationLink: React.FC< PaginationLinkProps > = ( {
@@ -15,7 +15,6 @@ const PaginationLink: React.FC< PaginationLinkProps > = ( {
 	current,
 	total,
 	children,
-	setCurrentPage,
 } ) => {
 	const inactive = useMemo(
 		() => ( direction === 'left' ? current === 1 : current === total ),
@@ -31,13 +30,7 @@ const PaginationLink: React.FC< PaginationLinkProps > = ( {
 		return <span className="jb-pagination__page jb-pagination__page--inactive">{ children }</span>;
 	}
 	return (
-		<a
-			href={ `#/image-size-analysis/${ group }/${ page }` }
-			onClick={ () => {
-				setCurrentPage( page );
-			} }
-			className="jb-pagination__page"
-		>
+		<a href={ `#/image-size-analysis/${ group }/${ page }` } className="jb-pagination__page">
 			{ children }
 		</a>
 	);

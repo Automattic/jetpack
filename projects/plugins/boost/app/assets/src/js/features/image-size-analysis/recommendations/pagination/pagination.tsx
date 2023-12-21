@@ -7,10 +7,9 @@ interface PaginationProps {
 	group: string;
 	current: number;
 	total: number;
-	setCurrentPage: ( page: number ) => void;
 }
 
-const Pagination: React.FC< PaginationProps > = ( { group, current, total, setCurrentPage } ) => {
+const Pagination: React.FC< PaginationProps > = ( { group, current, total } ) => {
 	const MORE_ICON = -1;
 	const [ pages, setPages ] = useState< number[] >( [] );
 
@@ -45,46 +44,30 @@ const Pagination: React.FC< PaginationProps > = ( { group, current, total, setCu
 		<div className="jb-pagination">
 			{ total > 1 && (
 				<>
-					<PaginationArrow
-						setCurrentPage={ setCurrentPage }
-						direction="left"
-						group={ group }
-						current={ current }
-						total={ total }
-					>
+					<PaginationArrow direction="left" group={ group } current={ current } total={ total }>
 						<ChevronLeft />
 					</PaginationArrow>
 
 					<ul className="jb-pagination__list">
-						{ pages.map( ( page, index ) => (
+						{ pages.map( ( paginationPage, index ) => (
 							<li key={ index } className="jb-pagination__item">
-								{ page === MORE_ICON ? (
+								{ paginationPage === MORE_ICON ? (
 									<span className="jb-pagination__page jb-pagination__more"> ... </span>
 								) : (
-									// eslint-disable-next-line jsx-a11y/anchor-is-valid
 									<a
-										href={ `#/image-size-analysis/${ group }/${ page }` }
-										onClick={ () => {
-											setCurrentPage( page );
-										} }
+										href={ `#/image-size-analysis/${ group }/${ paginationPage }` }
 										className={ `jb-pagination__page${
-											page === current ? ' jb-pagination__page--current' : ''
+											paginationPage === current ? ' jb-pagination__page--current' : ''
 										}` }
 									>
-										{ page }
+										{ paginationPage }
 									</a>
 								) }
 							</li>
 						) ) }
 					</ul>
 
-					<PaginationArrow
-						setCurrentPage={ setCurrentPage }
-						direction="right"
-						group={ group }
-						current={ current }
-						total={ total }
-					>
+					<PaginationArrow direction="right" group={ group } current={ current } total={ total }>
 						<ChevronRight />
 					</PaginationArrow>
 				</>

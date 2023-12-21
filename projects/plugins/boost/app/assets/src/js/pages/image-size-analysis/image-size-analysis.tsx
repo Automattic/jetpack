@@ -11,14 +11,19 @@ import {
 import Footer from '../../layout/footer/footer';
 import Header from '../../layout/header/header';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
-import { useState } from 'react';
 import { isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
+import { useNavigate } from 'react-router-dom';
 
-const _ImageSizeAnalysis = ( { isImageCdnModuleActive }: { isImageCdnModuleActive: boolean } ) => {
-	const [ page, setPage ] = useState( 1 );
-	const [ group, setGroup ] = useState< isaGroupKeys >( 'all' );
+type Props = {
+	isImageCdnModuleActive: boolean;
+	page: number;
+	group: isaGroupKeys;
+};
+
+const _ImageSizeAnalysis = ( { page, group, isImageCdnModuleActive }: Props ) => {
 	const [ isaData ] = useIsaData( page, group );
 	const [ isaReport ] = useIsaReport();
+	const navigate = useNavigate();
 	const dataGroupTabs = isaReport.data ? getGroupedReports( isaReport.data ) : undefined;
 	const activeGroupName = group as keyof typeof dataGroupTabs;
 	const activeReport =
@@ -38,8 +43,7 @@ const _ImageSizeAnalysis = ( { isImageCdnModuleActive }: { isImageCdnModuleActiv
 						activeGroupKey={ group }
 						imageDataGroupTabs={ dataGroupTabs }
 						setActiveTab={ groupName => {
-							setGroup( groupName );
-							setPage( 1 );
+							navigate( `/image-size-analysis/${ groupName }/1` );
 						} }
 					/>
 				</div>
@@ -54,12 +58,7 @@ const _ImageSizeAnalysis = ( { isImageCdnModuleActive }: { isImageCdnModuleActiv
 				</div>
 
 				<div className="jb-container">
-					<Pagination
-						setCurrentPage={ setPage }
-						group={ group }
-						current={ page }
-						total={ isaData.data?.total_pages || 1 }
-					/>
+					<Pagination group={ group } current={ page } total={ isaData.data?.total_pages || 1 } />
 					<Footer />
 				</div>
 			</div>
@@ -67,10 +66,10 @@ const _ImageSizeAnalysis = ( { isImageCdnModuleActive }: { isImageCdnModuleActiv
 	);
 };
 
-const ImageSizeAnalysis = ( { isImageCdnModuleActive }: { isImageCdnModuleActive: boolean } ) => {
+const ImageSizeAnalysis = ( props: Props ) => {
 	return (
 		<DataSyncProvider>
-			<_ImageSizeAnalysis isImageCdnModuleActive={ isImageCdnModuleActive } />
+			<_ImageSizeAnalysis { ...props } />
 		</DataSyncProvider>
 	);
 };
