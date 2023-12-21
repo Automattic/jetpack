@@ -9,7 +9,7 @@ use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis_Fix
 /**
  * Image Size Analysis: Action to fix an image
  */
-class Image_Analysis_Fixer_Action implements Data_Sync_Action {
+class Image_Analysis_Action_Fix implements Data_Sync_Action {
 
 	/**
 	 * Handles the action logic.

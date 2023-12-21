@@ -1,10 +1,14 @@
-import api from '$lib/api/api';
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import {
+	queryClient,
+	useDataSync,
+	useDataSyncAction,
+} from '@automattic/jetpack-react-data-sync-client';
 import { type isaGroupKeys } from '../isa-groups';
 import { IsaReport, IsaCounts } from './types';
+import { z } from 'zod';
 
 export const useIsaReport = () =>
-	useDataSync( 'jetpack_boost_ds', 'image_size_analysis_summary', IsaReport.nullable().optional(), {
+	useDataSync( 'jetpack_boost_ds', 'image_size_analysis_summary', IsaReport, {
 		query: {
 			initialData: () => undefined,
 			/**
@@ -59,7 +63,24 @@ export function getGroupedReports( report: IsaReport ) {
 /**
  * Request a new image size analysis.
  */
-export async function requestImageAnalysis() {
-	await api.post( '/image-size-analysis/start' );
-	// await isaReportDS.refresh();// start polling?
+export function useImageAnalysisRequest() {
+	const mutate = useDataSyncAction( {
+		namespace: 'jetpack_boost_ds',
+		key: 'image_size_analysis_summary',
+		action_name: 'start',
+		schema: {
+			state: IsaReport,
+			action_response: z.any(),
+			action_request: z.any(),
+		},
+		callbacks: {
+			onResult: () => {
+				queryClient.refetchQueries( {
+					queryKey: [ 'image_size_analysis_summary' ],
+				} );
+			},
+		},
+	} );
+
+	return () => mutate.mutate( null );
 }

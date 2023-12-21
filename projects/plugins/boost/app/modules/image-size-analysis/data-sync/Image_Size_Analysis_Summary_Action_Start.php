@@ -3,21 +3,23 @@
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Action;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
-use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
-use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
 /**
- * API Endpoint for starting an Image Size Analysis run.
- * Lives at POST jetpack-boost/v1/image-size-analysis/start
+ * Image Size Analysis: Action to fix an image
  */
-class Image_Analysis_Start implements Endpoint {
+class Image_Size_Analysis_Summary_Action_Start implements Data_Sync_Action {
 
-	public function request_methods() {
-		return \WP_REST_Server::EDITABLE;
-	}
+	/**
+	 * Handles the action logic.
+	 *
+	 * @param mixed            $data    JSON Data passed to the action.
+	 * @param \WP_REST_Request $request The request object.
+	 */
+	public function handle( $data, $request ) {
 
-	public function response( $_request ) {
+
 		// @TODO: Add a proper feature flag for this instead of just checking if priority support available.
 		if ( ! Premium_Features::has_feature( Premium_Features::IMAGE_SIZE_ANALYSIS ) ) {
 			return new \WP_Error( 'not-allowed', 'Feature not enabled' );
@@ -36,7 +38,7 @@ class Image_Analysis_Start implements Endpoint {
 			return new \WP_Error(
 				$response->get_error_code(),
 				sprintf(
-					/* translators: %s is the original error message from WPCOM */
+				/* translators: %s is the original error message from WPCOM */
 					__(
 						'Error received while communicating with the back-end service: %s',
 						'jetpack-boost'
@@ -47,20 +49,12 @@ class Image_Analysis_Start implements Endpoint {
 		}
 
 		// Send a success response.
-		return rest_ensure_response(
-			array(
-				'ok' => true,
-			)
-		);
-	}
-
-	public function permissions() {
 		return array(
-			new Current_User_Admin(),
+			'ok' => true,
 		);
-	}
 
-	public function name() {
-		return 'image-size-analysis/start';
 	}
 }
+
+
+

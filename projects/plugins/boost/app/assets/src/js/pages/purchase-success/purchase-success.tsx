@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { requestImageAnalysis } from '$features/image-size-analysis';
+import { useImageAnalysisRequest } from '$features/image-size-analysis';
 import enableCloudCss from '$lib/utils/enable-cloud-css';
 import { navigate } from '$lib/utils/navigate';
 import Logo from '$svg/jetpack-green';
@@ -12,14 +12,15 @@ type PurchaseSuccessProps = {
 };
 
 const PurchaseSuccess: React.FC< PurchaseSuccessProps > = ( { isImageGuideActive } ) => {
+	const requestNewReport = useImageAnalysisRequest();
 	useEffect( () => {
 		enableCloudCss();
 
 		// If image guide is enabled, request a new ISA report.
 		if ( isImageGuideActive && false !== Jetpack_Boost.site.canResizeImages ) {
-			requestImageAnalysis();
+			requestNewReport();
 		}
-	}, [ isImageGuideActive ] );
+	}, [ isImageGuideActive, requestNewReport ] );
 
 	const wpcomPricingUrl = getRedirectUrl( 'wpcom-pricing' );
 

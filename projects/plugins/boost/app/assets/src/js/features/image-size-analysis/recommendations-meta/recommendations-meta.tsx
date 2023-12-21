@@ -10,18 +10,17 @@ import RefreshIcon from '$svg/refresh';
 import WarningIcon from '$svg/warning-outline';
 import {
 	type IsaCounts,
-	type IsaReport,
 	ISAStatus,
-	requestImageAnalysis,
 	getReportProgress,
 	useIsaReport,
+	useImageAnalysisRequest,
 } from '$features/image-size-analysis';
+import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 interface RecommendationsMetaProps {
 	isCdnActive: boolean;
-	isaReport: IsaReport | null;
 }
 
-const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActive } ) => {
+const _RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActive } ) => {
 	const [ requestingReport, setRequestingReport ] = useState< boolean >( false );
 	const [ errorCode, setErrorCode ] = useState< number | undefined >( undefined );
 	const [ status, setStatus ] = useState< ISAStatus | undefined >( undefined );
@@ -33,6 +32,8 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActiv
 	const [ waitNotice, setWaitNotice ] = useState< string | undefined >( undefined );
 	const [ showCDNRecommendation, setShowCDNRecommendation ] = useState< boolean >( false );
 	const [ { data: isaReport } ] = useIsaReport();
+	const requestNewReport = useImageAnalysisRequest();
+
 	useEffect( () => {
 		setStatus( isaReport?.status );
 		setGroups( isaReport?.groups || {} );
@@ -40,12 +41,12 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActiv
 		/**
 		 * Calculate total number of issues.
 		 */
-		setTotalIssues(
-			Object.values( isaReport?.groups || {} ).reduce(
-				( total, group ) => total + group.issue_count,
-				0
-			)
-		);
+		if ( isaReport?.groups ) {
+			setTotalIssues(
+				Object.values( isaReport.groups ).reduce( ( total, group ) => total + group.issue_count, 0 )
+			);
+		}
+
 		/**
 		 * Work out if there is an error to show in the UI.
 		 */
@@ -98,7 +99,7 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActiv
 			setErrorCode( undefined );
 			setErrorMessage( undefined );
 			setRequestingReport( true );
-			await requestImageAnalysis();
+			requestNewReport();
 		} catch ( err ) {
 			setErrorCode( err.body?.code );
 			setErrorMessage( err.message );
@@ -221,6 +222,14 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActiv
 				</>
 			) }
 		</div>
+	);
+};
+
+const RecommendationsMeta = ( { isCdnActive }: { isCdnActive: boolean } ) => {
+	return (
+		<DataSyncProvider>
+			<_RecommendationsMeta isCdnActive={ isCdnActive } />
+		</DataSyncProvider>
 	);
 };
 
