@@ -468,6 +468,10 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 				'message' => 'Excluded because path includes /wp-content/plugins/wordpress-importer/.',
 			),
 			array(
+				'pattern' => '/\/wp-content\/plugins\/sqlite-database-integration\//',
+				'message' => 'Excluded because path includes /wp-content/plugins/sqlite-database-integration/.',
+			),
+			array(
 				'pattern' => '/\/wp-config\.php$/',
 				'message' => 'Excluded because file is wp-config.php.',
 			),
