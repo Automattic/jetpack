@@ -315,6 +315,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$commenter                     = wp_get_current_commenter();
 			$params['show_cookie_consent'] = (int) has_action( 'set_comment_cookies', 'wp_set_comment_cookies' );
 			$params['has_cookie_consent']  = (int) ! empty( $commenter['comment_author_email'] );
+			// Jetpack_Memberships for logged out users only checks for the jp-premium-content-session cookie
+			$params['is_current_user_subscribed'] = (int) Jetpack_Memberships::is_current_user_subscribed();
 		}
 
 		list( $token_key ) = explode( '.', $blog_token->secret, 2 );
@@ -611,15 +613,13 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @return boolean
 	 */
 	public function should_show_subscription_modal() {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
+
 		// Atomic sites with jetpack_verbum_subscription_modal option enabled
-		$modal_enabled      = ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true );
-		$user_is_subscribed = false;
+		$modal_enabled = ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true );
 
-		// if ( is_user_logged_in() ) {
-		// TODO: Check if user is subscribed
-		// }
-
-		return $modal_enabled && ! $user_is_subscribed;
+		return $modal_enabled && ! $is_current_user_subscribed;
 	}
 
 	/**
