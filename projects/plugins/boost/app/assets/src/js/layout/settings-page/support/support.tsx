@@ -1,8 +1,12 @@
 import { __ } from '@wordpress/i18n';
 import styles from './support.module.scss';
-import { openPaidSupport } from '$lib/utils/paid-plan';
 
 const Support = () => {
+	const openPaidSupport = () => {
+		const supportUrl = 'https://jetpackme.wordpress.com/contact-support/';
+		window.open( supportUrl, '_blank' );
+	};
+
 	return (
 		<div className="jb-section">
 			<div className="jb-container--narrow">
