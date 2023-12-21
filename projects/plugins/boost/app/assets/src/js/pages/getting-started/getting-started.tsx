@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Snackbar } from '@wordpress/components';
 import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEvent } from '$lib/utils/analytics';
@@ -23,19 +23,25 @@ const GettingStarted: React.FC = () => {
 		site: { domain },
 	} = useConfig();
 
-	const { markGettingStartedComplete } = useGettingStarted();
+	const { shouldGetStarted, markGettingStartedComplete } = useGettingStarted();
 
 	const {
 		connection: { userConnected },
 		initializeConnection,
 	} = useConnection();
 
-	async function initialize(
-		plan: 'free' | 'premium',
-		isPremiumValue: boolean,
-		domainValue: string,
-		userConnectedValue: boolean
-	) {
+	useEffect( () => {
+		if ( ! shouldGetStarted && selectedPlan ) {
+			// Go to the purchase flow if the user doesn't have a premium plan.
+			if ( ! isPremium && selectedPlan === 'premium' ) {
+				window.location.href = getUpgradeURL( domain, userConnected );
+			} else {
+				navigate( '/', { replace: true } );
+			}
+		}
+	}, [ domain, isPremium, navigate, selectedPlan, shouldGetStarted, userConnected ] );
+
+	async function initialize( plan: 'free' | 'premium' ) {
 		setSelectedPlan( plan );
 
 		try {
@@ -48,16 +54,7 @@ const GettingStarted: React.FC = () => {
 			// * premium_cta_from_getting_started_page_in_plugin
 			await recordBoostEvent( `${ plan }_cta_from_getting_started_page_in_plugin`, {} );
 
-			if ( await markGettingStartedComplete() ) {
-				// Go to the purchase flow if the user doesn't have a premium plan.
-				if ( ! isPremiumValue && plan === 'premium' ) {
-					window.location.href = getUpgradeURL( domainValue, userConnectedValue );
-				} else {
-					navigate( '/', { replace: true } );
-				}
-			} else {
-				throw new Error();
-			}
+			markGettingStartedComplete();
 		} catch ( e ) {
 			// Display the error in a snackbar message
 			setSnackbarMessage(
@@ -78,8 +75,8 @@ const GettingStarted: React.FC = () => {
 					<div className={ styles[ 'pricing-table' ] }>
 						<BoostPricingTable
 							pricing={ pricing }
-							onPremiumCTA={ () => initialize( 'premium', isPremium, domain, userConnected ) }
-							onFreeCTA={ () => initialize( 'free', isPremium, domain, userConnected ) }
+							onPremiumCTA={ () => initialize( 'premium' ) }
+							onFreeCTA={ () => initialize( 'free' ) }
 							chosenFreePlan={ selectedPlan === 'free' }
 							chosenPaidPlan={ selectedPlan === 'premium' }
 						/>
