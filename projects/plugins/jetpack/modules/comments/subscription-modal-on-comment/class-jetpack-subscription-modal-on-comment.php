@@ -7,9 +7,7 @@
  * @since 12.4
  */
 
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Status\Host;
-use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 /**
  * Jetpack_Subscription_Modal_On_Comment class.
@@ -49,11 +47,14 @@ class Jetpack_Subscription_Modal_On_Comment {
 	 * Limited to Atomic sites.
 	 */
 	public function __construct() {
-		if ( ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true ) ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-			add_action( 'wp_footer', array( $this, 'add_subscription_modal_to_frontend' ) );
+		// Only Automattitians for now
+		if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) {
+			if ( ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true ) ) {
+				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+				add_action( 'wp_footer', array( $this, 'add_subscription_modal_to_frontend' ) );
+			}
+			add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
 		}
-		add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
 	}
 
 	/**
@@ -185,17 +186,18 @@ HTML;
 		}
 
 		// Don't show if post is for subscribers only or has paywall block
-		global $post;
-		if ( defined( 'Automattic\\Jetpack\\Extensions\\Subscriptions\\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS' ) ) {
-			$access_level = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
-		} else {
-			$access_level = get_post_meta( $post->ID, '_jetpack_newsletter_access', true );
-		}
+		// global $post;
+		// TODO: Review why this was generating a fatal error
+		// if ( defined( 'Automattic\\Jetpack\\Extensions\\Subscriptions\\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS' ) ) {
+		// $access_level = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+		// } else {
+		// $access_level = get_post_meta( $post->ID, '_jetpack_newsletter_access', true );
+		// }
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-		$is_accessible_by_everyone = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level || empty( $access_level );
-		if ( ! $is_accessible_by_everyone ) {
-			return false;
-		}
+		// $is_accessible_by_everyone = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level || empty( $access_level );
+		// if ( ! $is_accessible_by_everyone ) {
+		// return false;
+		// }
 
 		return true;
 	}
