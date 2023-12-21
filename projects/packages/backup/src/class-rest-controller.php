@@ -189,7 +189,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_site_backup_undo_event',
-				'permission_callback' => '\Jetpack_Backup::backups_permissions_callback',
+				'permission_callback' => __NAMESPACE__ . '\Jetpack_Backup::backups_permissions_callback',
 			)
 		);
 	}
