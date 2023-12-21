@@ -30,8 +30,17 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			return;
 		}
 
-		// TODO: Check number of times shown. If shown more than 5 times, don't show again.
 		if ( ! hasLoaded ) {
+			const storedCount = parseInt(
+				sessionStorage.getItem( 'jetpack-subscription-modal-shown-count' )
+			);
+			const showCount = ( isNaN( storedCount ) ? 0 : 1 ) + 1;
+			sessionStorage.setItem( 'jetpack-subscription-modal-shown-count', showCount );
+
+			if ( showCount >= 5 ) {
+				return;
+			}
+
 			modal.classList.toggle( 'open' );
 			hasLoaded = true;
 			redirectUrl = data.url;
