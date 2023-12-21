@@ -137,7 +137,7 @@
 				$( '.sharing-hidden ul li' ).remove();
 
 				// Add hidden items into the inner panel
-				$( 'ul.services-hidden li' ).each( function (/*pos, item*/) {
+				$( 'ul.services-hidden li' ).each( function ( /*pos, item*/ ) {
 					if ( $( this ).hasClass( 'service' ) ) {
 						var service = $( this ).attr( 'id' );
 						$( '.sharing-hidden .inner ul' ).append(
@@ -161,7 +161,7 @@
 				$( '#live-preview div.sharedaddy' ).addClass( 'sd-social-icon' );
 			} else if ( 'official' === button_style ) {
 				$( '#live-preview ul.preview .advanced, .sharing-hidden .inner ul .advanced' ).each(
-					function (/*i*/) {
+					function ( /*i*/ ) {
 						if (
 							! $( this ).hasClass( 'preview-press-this' ) &&
 							! $( this ).hasClass( 'preview-email' ) &&
@@ -171,7 +171,6 @@
 							! $( this ).hasClass( 'preview-reddit' ) &&
 							! $( this ).hasClass( 'preview-telegram' ) &&
 							! $( this ).hasClass( 'preview-jetpack-whatsapp' ) &&
-							! $( this ).hasClass( 'preview-x' ) &&
 							! $( this ).hasClass( 'share-custom' ) &&
 							! $( this ).hasClass( 'share-deprecated' )
 						) {
@@ -296,21 +295,21 @@
 		}
 
 		$( '#enabled-services .services ul' ).sortable( {
-			receive: function (/*event, ui*/) {
+			receive: function ( /*event, ui*/ ) {
 				save_services();
 			},
 			stop: function () {
 				save_services();
 				$( 'li.service' ).enableSelection(); // Fixes a problem with Chrome
 			},
-			over: function (/*event, ui*/) {
+			over: function ( /*event, ui*/ ) {
 				$( this ).find( 'ul' ).addClass( 'dropping' );
 
 				// Ensure the 'end-fix' is at the end
 				$( '#enabled-services li.end-fix' ).remove();
 				$( '#enabled-services ul' ).append( '<li class="end-fix"></li>' );
 			},
-			out: function (/*event, ui*/) {
+			out: function ( /*event, ui*/ ) {
 				$( this ).find( 'ul' ).removeClass( 'dropping' );
 
 				// Ensure the 'end-fix' is at the end
@@ -322,7 +321,7 @@
 
 				return ui.clone();
 			},
-			start: function (/*event, ui*/) {
+			start: function ( /*event, ui*/ ) {
 				// Make sure that the advanced section is closed
 				$( '.advanced-form' ).hide();
 				$( 'li.service' ).disableSelection(); // Fixes a problem with Chrome
@@ -487,7 +486,7 @@
 						.css( 'backgroundImage', 'url("' + sharing_loading_icon + '")' );
 
 					// Save
-					form.ajaxSubmit( function (/*response*/) {
+					form.ajaxSubmit( function ( /*response*/ ) {
 						// Remove the item
 						form.parents( 'li:first' ).fadeOut( function () {
 							$( this ).remove();

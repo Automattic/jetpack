@@ -243,6 +243,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wpcom_reader_views_enabled'                   => true,
 			'wpcom_site_setup'                             => '',
 			'jetpack_verbum_subscription_modal'            => true,
+			'wpcom_ai_site_prompt'                         => '',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
