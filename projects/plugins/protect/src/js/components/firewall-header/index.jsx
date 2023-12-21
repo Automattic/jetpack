@@ -153,6 +153,7 @@ const FirewallHeader = ( {
 	jetpackWafAutomaticRules,
 	bruteForceProtectionIsEnabled,
 	wafSupported,
+	standaloneMode,
 } ) => {
 	return (
 		<AdminSectionHero>
@@ -165,7 +166,9 @@ const FirewallHeader = ( {
 					{ 'on' === status && (
 						<>
 							<Text className={ classnames( styles.status, styles.active ) } variant={ 'label' }>
-								{ __( 'Active', 'jetpack-protect' ) }
+								{ standaloneMode
+									? __( 'Standalone mode', 'jetpack-protect' )
+									: __( 'Active', 'jetpack-protect' ) }
 							</Text>
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
 								{ ! wafSupported && __( 'Brute force protection is active', 'jetpack-protect' ) }
@@ -244,6 +247,7 @@ const ConnectedFirewallHeader = () => {
 		},
 		isToggling,
 		wafSupported,
+		standaloneMode,
 	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
 	const currentStatus =
@@ -261,6 +265,7 @@ const ConnectedFirewallHeader = () => {
 			jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
 			bruteForceProtectionIsEnabled={ bruteForceProtection }
 			wafSupported={ wafSupported }
+			standaloneMode={ standaloneMode }
 		/>
 	);
 };

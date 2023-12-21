@@ -228,6 +228,7 @@ class Jetpack_Protect {
 				'isUpdating'          => false,
 				'config'              => Waf_Runner::get_config(),
 				'stats'               => self::get_waf_stats(),
+				'standaloneMode'      => self::get_waf_standalone_mode_status(),
 			),
 		);
 
@@ -452,5 +453,14 @@ class Jetpack_Protect {
 			'rulesVersion'              => Waf_Stats::get_rules_version(),
 			'automaticRulesLastUpdated' => Waf_Stats::get_automatic_rules_last_updated(),
 		);
+	}
+
+	/**
+	 * Get WAF standalone mode status
+	 *
+	 * @return bool|array True if WAF standalone mode is enabled, false otherwise.
+	 */
+	public static function get_waf_standalone_mode_status() {
+		return defined( 'JETPACK_WAF_RUN' ) && JETPACK_WAF_RUN === 'preload';
 	}
 }
