@@ -1,14 +1,19 @@
 <?php
 
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
+use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Premium_Features_Entry;
+use Automattic\Jetpack_Boost\Lib\Connection;
+use Automattic\Jetpack_Boost\Lib\Premium_Features;
+use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 
@@ -285,6 +290,15 @@ jetpack_boost_register_option(
 function jetpack_boost_ui_config() {
 	return array(
 		'plugin_dir_url' => untrailingslashit( JETPACK_BOOST_PLUGINS_DIR_URL ),
+		'pricing'        => Premium_Pricing::get_yearly_pricing(),
+		'site'           => array(
+			'domain' => ( new Status() )->get_site_suffix(),
+			'online' => ! ( new Status() )->is_offline_mode(),
+		),
+		'is_premium'     => Premium_Features::has_any(),
+		'connection'     => ( new Connection() )->get_connection_api_response(),
 	);
 }
 jetpack_boost_register_readonly_option( 'config', 'jetpack_boost_ui_config' );
+
+jetpack_boost_register_option( 'getting_started', Schema::as_boolean()->fallback( false ), new Getting_Started_Entry() );

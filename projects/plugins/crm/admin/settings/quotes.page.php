@@ -85,7 +85,9 @@ if ( isset( $sbupdated ) ) {
 			</tr>
 			<tr>
 				<td class="wfieldname">
+					<?php ##WLREMOVE ?>
 					<div class="ui teal label right floated"><i class="circle info icon link"></i>  <a href="<?php echo esc_url( $zbs->urls['kbtemplatefiles'] ); ?>" target="_blank"><?php esc_html_e( 'Read more', 'zero-bs-crm' ); ?></a></div>
+					<?php ##/WLREMOVE ?>
 					<label for="quote_pdf_template"><?php esc_html_e( 'Quote PDF Template', 'zero-bs-crm' ); ?>:</label><br />
 					<?php esc_html_e( 'Select a template for quote PDFs.', 'zero-bs-crm' ); ?>                                
 				</td>
