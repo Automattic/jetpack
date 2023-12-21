@@ -34,7 +34,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			const storedCount = parseInt(
 				sessionStorage.getItem( 'jetpack-subscription-modal-shown-count' )
 			);
-			const showCount = ( isNaN( storedCount ) ? 0 : 1 ) + 1;
+			const showCount = ( isNaN( storedCount ) ? 0 : storedCount ) + 1;
 			sessionStorage.setItem( 'jetpack-subscription-modal-shown-count', showCount );
 
 			if ( showCount >= 5 ) {
