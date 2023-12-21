@@ -23,13 +23,21 @@ const ImageSizeActionResult = z.object( {
 } );
 
 export function useImageFixer() {
-	return useDataSyncAction< FixImageData >()( {
+	return useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
 		key: 'fix',
 		name: 'image_size_analysis',
 		schema: {
 			state: IsaGlobal,
 			action: ImageSizeActionResult,
+			action_request: z.object( {
+				image_id: z.string(),
+				image_url: z.string(),
+				image_width: z.string(),
+				image_height: z.string(),
+				post_id: z.string(),
+				fix: z.boolean(),
+			} ),
 		},
 		config: {},
 		params: {
