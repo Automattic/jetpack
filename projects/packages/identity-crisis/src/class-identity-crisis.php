@@ -1439,10 +1439,10 @@ class Identity_Crisis {
 						}
 					}
 				}
-			}
 				$result = Jetpack_Options::update_option( 'identity_crisis_ip_requester', $updated_data );
-			if ( ! $result ) {
-				throw new Exception( esc_html__( 'Unable to save new ip requester', 'jetpack-idc' ) );
+				if ( ! $result ) {
+					throw new Exception( esc_html__( 'Unable to save new ip requester', 'jetpack-idc' ) );
+				}
 			}
 		}
 		return false;
@@ -1457,14 +1457,13 @@ class Identity_Crisis {
 	 */
 	public static function add_ip_requester_to_url_validation_response( array $response ) {
 		$requesters = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
-		$response   = null;
 		if ( $requesters ) {
 			foreach ( $requesters as $ip ) {
 				if ( $ip['expires_at'] > time() ) {
 					$response['ip_requester'][] = $ip['ip'];
 				}
 			}
+			return $response;
 		}
-		return $response;
 	}
 }
