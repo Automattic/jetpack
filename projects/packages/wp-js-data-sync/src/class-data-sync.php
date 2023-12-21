@@ -113,12 +113,12 @@ final class Data_Sync {
 	private function get_action_nonces_for_entry( $entry_key ) {
 		// Assuming a method in Registry class to retrieve all action names for an entry
 		$action_names = $this->registry->get_action_names_for_entry( $entry_key );
-		$nonces = array();
+		$nonces       = array();
 
-		foreach ($action_names as $action_name) {
+		foreach ( $action_names as $action_name ) {
 			$nonce = $this->registry->get_action_nonce( $entry_key, $action_name );
-			if ($nonce) {
-				$nonces[$action_name] = $nonce;
+			if ( $nonce ) {
+				$nonces[ $action_name ] = $nonce;
 			}
 		}
 
@@ -152,7 +152,7 @@ final class Data_Sync {
 
 			// Include nonces for action endpoints associated with this entry
 			$action_nonces = $this->get_action_nonces_for_entry( $key );
-			if (!empty($action_nonces)) {
+			if ( ! empty( $action_nonces ) ) {
 				$data[ $key ]['actions'] = $action_nonces;
 			}
 		}

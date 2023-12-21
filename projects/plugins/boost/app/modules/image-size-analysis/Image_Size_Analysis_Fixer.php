@@ -205,10 +205,9 @@ class Image_Size_Analysis_Fixer {
 			throw new \Exception( 'Missing fix' );
 		}
 
-		if( ! isset( $params['image_id'] ) ) {
+		if ( ! isset( $params['image_id'] ) ) {
 			throw new \Exception( 'Missing image_id' );
 		}
-
 
 		$out                 = array();
 		$out['image_id']     = absint( $params['image_id'] );

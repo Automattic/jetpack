@@ -302,6 +302,3 @@ function jetpack_boost_ui_config() {
 	);
 }
 jetpack_boost_register_readonly_option( 'config', 'jetpack_boost_ui_config' );
-
-
-

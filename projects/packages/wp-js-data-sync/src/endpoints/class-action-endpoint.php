@@ -39,7 +39,7 @@ class Action_Endpoint {
 		$this->action_class   = $action_class;
 		$this->rest_namespace = $namespace;
 		$this->route          = $key . '/action/' . $action_name;
-		$this->nonce        = new Authenticated_Nonce( "{$namespace}_{$this->route}_action" );
+		$this->nonce          = new Authenticated_Nonce( "{$namespace}_{$this->route}_action" );
 	}
 
 	public function register_rest_routes() {
@@ -74,7 +74,6 @@ class Action_Endpoint {
 				new \WP_Error( 500, $e->getMessage(), array( 'status' => 500 ) )
 			);
 		}
-
 	}
 
 	public function create_nonce() {

@@ -37,7 +37,7 @@ class Image_Analysis_Fixer_Action implements Data_Sync_Action {
 				unset( $fixes[ md5( $image_url ) ] );
 			}
 			$changed = 'removed';
-		} else if ( $attachment_id ) {
+		} elseif ( $attachment_id ) {
 			$fixes[ $attachment_id ] = $params;
 			$changed                 = 'fix';
 		} else {

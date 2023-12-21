@@ -136,7 +136,7 @@ class Registry {
 			return array_keys( $this->action_endpoints[ $entry_key ] );
 
 		}
-		return [];
+		return array();
 	}
 
 	/**
