@@ -3,9 +3,11 @@ import { __ } from '@wordpress/i18n';
 import { Tooltip } from '$features/ui';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './premium-tooltip.module.scss';
-import { navigate } from '$lib/utils/navigate';
+import { useNavigate } from 'react-router-dom';
 
 const PremiumTooltip = () => {
+	const navigate = useNavigate();
+
 	function showBenefits( event: React.MouseEvent< HTMLAnchorElement > ) {
 		event.preventDefault();
 		const eventProps = {};
