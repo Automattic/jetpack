@@ -12,7 +12,6 @@ import PerformanceHistory from '$features/performance-history/performance-histor
 import ErrorNotice from '$features/error-notice/error-notice';
 import classNames from 'classnames';
 import { useState, useEffect, useMemo } from 'react';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
 
 import styles from './speed-score.module.scss';
@@ -23,13 +22,8 @@ const siteIsOnline = Jetpack_Boost.site.online;
 type SpeedScoreProps = {
 	criticalCssCreated: number;
 	criticalCssIsGenerating: boolean;
-	performanceHistoryNeedsUpgrade: boolean;
 };
-const SpeedScore = ( {
-	criticalCssCreated,
-	criticalCssIsGenerating,
-	performanceHistoryNeedsUpgrade,
-}: SpeedScoreProps ) => {
+const SpeedScore = ( { criticalCssCreated, criticalCssIsGenerating }: SpeedScoreProps ) => {
 	const [ { status, error, scores }, loadScore ] = useSpeedScores();
 	const scoreLetter = scores ? getScoreLetter( scores.current.mobile, scores.current.desktop ) : '';
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;
@@ -139,7 +133,7 @@ const SpeedScore = ( {
 						noBoostScoreTooltip={ __( 'Your desktop score without Boost', 'jetpack-boost' ) }
 					/>
 				</div>
-				{ siteIsOnline && <PerformanceHistory needsUpgrade={ performanceHistoryNeedsUpgrade } /> }
+				{ siteIsOnline && <PerformanceHistory /> }
 			</div>
 
 			<PopOut scoreChange={ showScoreChangePopOut } onClose={ () => setClosePopOut( true ) } />
@@ -147,10 +141,4 @@ const SpeedScore = ( {
 	);
 };
 
-export default function ( props: SpeedScoreProps ) {
-	return (
-		<DataSyncProvider>
-			<SpeedScore { ...props } />
-		</DataSyncProvider>
-	);
-}
+export default SpeedScore;
