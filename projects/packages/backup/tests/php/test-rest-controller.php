@@ -12,7 +12,16 @@ use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
-use WP_REST_Server;
+use WP_REST_Response;
+use function add_action;
+use function add_filter;
+use function do_action;
+use function remove_filter;
+use function wp_delete_file;
+use function wp_insert_post;
+use function wp_insert_user;
+use function wp_json_encode;
+use function wp_set_current_user;
 
 /**
  * Unit tests for the REST_Controller class.
@@ -455,6 +464,7 @@ class Test_REST_Controller extends TestCase {
 	 * request, this would all happen earlier).
 	 *
 	 * @param WP_REST_Request $request The request to sign before dispatching.
+	 *
 	 * @return WP_REST_Response
 	 */
 	private function dispatch_request_signed_with_blog_token( $request ) {

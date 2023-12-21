@@ -17,6 +17,12 @@ use Automattic\Jetpack\Connection\Rest_Authentication;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
+// phpcs:ignore WordPress.Utils.I18nTextDomainFixer.MissingArgs
+use function esc_html__;
+use function is_wp_error;
+use function register_rest_route;
+use function rest_authorization_required_code;
+use function rest_ensure_response;
 
 /**
  * Registers the REST routes.
@@ -128,7 +134,8 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @return array|\WP_Error An array with 'success' key indicating the result of the delete operation.
+	 *
+	 * @return array|WP_Error An array with 'success' key indicating the result of the delete operation.
 	 */
 	public static function delete_helper_script( $request ) {
 		$path_to_helper_script = $request->get_param( 'path' );

@@ -11,6 +11,9 @@
 // are installed, or in some other cases).
 namespace Automattic\Jetpack\Backup\V0001;
 
+use function get_option;
+use function update_option;
+
 /**
  * The Upgrades class.
  */

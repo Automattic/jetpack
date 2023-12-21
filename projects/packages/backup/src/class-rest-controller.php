@@ -15,9 +15,26 @@ namespace Automattic\Jetpack\Backup\V0001;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Sync\Actions as Sync_Actions;
+use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
+// phpcs:ignore WordPress.Utils.I18nTextDomainFixer.MissingArgs
+use function esc_html__;
+use function get_comment;
+use function get_comment_meta;
+use function get_metadata;
+use function get_post;
+use function get_post_meta;
+use function get_term;
+use function get_term_meta;
+use function get_user_by;
+use function get_user_meta;
+use function is_wp_error;
+use function register_rest_route;
+use function rest_authorization_required_code;
+use function rest_ensure_response;
+use function wp_remote_retrieve_response_code;
 
 /**
  * Registers the REST routes for Backup.
@@ -254,6 +271,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array|WP_Error An array with 'success' key, or an instance of WP_Error on failure.
 	 */
 	public static function delete_backup_helper_script( $request ) {
@@ -276,6 +294,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array
 	 */
 	public static function fetch_database_object_backup( $request ) {
@@ -333,6 +352,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array
 	 */
 	public static function fetch_options_backup( $request ) {
@@ -352,6 +372,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array
 	 */
 	public static function fetch_comment_backup( $request ) {
@@ -400,6 +421,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array
 	 */
 	public static function fetch_post_backup( $request ) {
@@ -437,6 +459,7 @@ class REST_Controller {
 	 * @static
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
 	 * @return array
 	 */
 	public static function fetch_term_backup( $request ) {
@@ -528,7 +551,7 @@ class REST_Controller {
 	 * the last rewind_id prior to that.
 	 */
 	public static function get_site_backup_undo_event() {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
+		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		$response = Client::wpcom_json_api_request_as_user(
 			'/sites/' . $blog_id . '/activity?force=wpcom',

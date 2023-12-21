@@ -13,6 +13,17 @@ namespace Automattic\Jetpack\Backup\V0001;
 
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Status;
+use Jetpack_Options;
+use function add_action;
+use function admin_url;
+use function esc_url;
+use function esc_url_raw;
+use function get_bloginfo;
+use function get_site_url;
+use function plugins_url;
+use function rest_url;
+use function wp_create_nonce;
+use function wp_json_encode;
 
 /**
  * The React initial state.
@@ -35,7 +46,7 @@ class Initial_State {
 			),
 			'connectedPlugins' => Connection_Plugin_Storage::get_all(),
 			'siteData'         => array(
-				'id'       => \Jetpack_Options::get_option( 'id' ),
+				'id'       => Jetpack_Options::get_option( 'id' ),
 				'title'    => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
 				'adminUrl' => esc_url( admin_url() ),
 			),

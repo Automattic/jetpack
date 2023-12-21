@@ -7,6 +7,8 @@
 namespace Automattic\Jetpack\Transport_Helper\V0001;
 
 use PHPUnit\Framework\TestCase;
+use function add_filter;
+use function apply_filters;
 
 /**
  * Unit tests for the Package_Version class.

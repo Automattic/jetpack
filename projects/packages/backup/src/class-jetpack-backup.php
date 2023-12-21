@@ -27,6 +27,26 @@ use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Jetpack_Options;
+use WP_Error;
+use WP_REST_Server;
+// phpcs:ignore WordPress.Utils.I18nTextDomainFixer.MissingArgs
+use function __;
+// phpcs:ignore WordPress.Utils.I18nTextDomainFixer.MissingArgs
+use function _x;
+use function add_action;
+use function add_filter;
+use function did_action;
+use function do_action;
+use function esc_url_raw;
+use function get_option;
+use function is_wp_error;
+use function rest_ensure_response;
+use function update_option;
+use function wp_add_inline_script;
+use function wp_remote_get;
+use function wp_remote_retrieve_body;
+use function wp_remote_retrieve_response_code;
 
 /**
  * Class Jetpack_Backup
@@ -293,7 +313,7 @@ class Jetpack_Backup {
 			'jetpack/v4',
 			'/site/dismissed-review-request',
 			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
+				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::manage_dismissed_backup_review_request',
 				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 				'args'                => array(
@@ -374,7 +394,7 @@ class Jetpack_Backup {
 	 * @return array An array of recent backups
 	 */
 	public static function get_recent_backups() {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
+		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/rewind/backups',
@@ -440,7 +460,7 @@ class Jetpack_Backup {
 	 * @return array An array of capabilities
 	 */
 	public static function get_backup_capabilities() {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
+		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		$response = Client::wpcom_json_api_request_as_user(
 			'/sites/' . $blog_id . '/rewind/capabilities',
@@ -472,7 +492,7 @@ class Jetpack_Backup {
 	 * @return array An array of recent restores
 	 */
 	public static function get_recent_restores() {
-		$blog_id  = \Jetpack_Options::get_option( 'id' );
+		$blog_id  = Jetpack_Options::get_option( 'id' );
 		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/rewind/restores',
 			'v2',
@@ -549,7 +569,7 @@ class Jetpack_Backup {
 	 */
 	public static function get_site_current_purchases() {
 
-		$request  = sprintf( '/sites/%d/purchases', \Jetpack_Options::get_option( 'id' ) );
+		$request  = sprintf( '/sites/%d/purchases', Jetpack_Options::get_option( 'id' ) );
 		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1' );
 
 		// Bail if there was an error or malformed response.
@@ -580,11 +600,11 @@ class Jetpack_Backup {
 		if ( ! $request['should_dismiss'] ) {
 
 			return rest_ensure_response(
-				\Jetpack_Options::get_option( 'dismissed_backup_review_' . $request['option_name'] )
+				Jetpack_Options::get_option( 'dismissed_backup_review_' . $request['option_name'] )
 			);
 		}
 
-		return \Jetpack_Options::update_option( 'dismissed_backup_review_' . $request['option_name'], true );
+		return Jetpack_Options::update_option( 'dismissed_backup_review_' . $request['option_name'], true );
 	}
 
 	/**
@@ -593,7 +613,7 @@ class Jetpack_Backup {
 	 * @return string|WP_Error A JSON object with the site storage size if the request was successful, or a WP_Error otherwise.
 	 */
 	public static function get_site_backup_size() {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
+		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		$response = Client::wpcom_json_api_request_as_user(
 			'/sites/' . $blog_id . '/rewind/size?force=wpcom',
@@ -619,7 +639,7 @@ class Jetpack_Backup {
 	 *                         or a WP_Error otherwise.
 	 */
 	public static function get_site_backup_policies() {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
+		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		$response = Client::wpcom_json_api_request_as_user(
 			'/sites/' . $blog_id . '/rewind/policies?force=wpcom',
@@ -695,6 +715,7 @@ class Jetpack_Backup {
 	 * Get the best addon offer for this site, including pricing details
 	 *
 	 * @param WP_Request $request Object including storage usage.
+	 *
 	 * @return string|WP_Error A JSON object with the suggested storage addon details if the request was successful,
 	 *                         or a WP_Error otherwise.
 	 */

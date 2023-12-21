@@ -7,6 +7,7 @@
 namespace Automattic\Jetpack\Backup\V0001;
 
 use PHPUnit\Framework\TestCase;
+use function add_filter;
 
 /**
  * Unit tests for the Package_Version class.
