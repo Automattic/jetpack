@@ -54,7 +54,9 @@ class Settings {
 		}
 		// Checking if the new option is valid.
 		$auto_conversion_settings = get_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES );
-		if ( ! is_array( $auto_conversion_settings ) || ! isset( $auto_conversion_settings['enabled'] ) ) {
+		// If the option is not set, we don't need to delete it.
+		// If it is set, but it is not an array or it does not have the enabled key, we delete it.
+		if ( false !== $auto_conversion_settings && ( ! is_array( $auto_conversion_settings ) || ! isset( $auto_conversion_settings['enabled'] ) ) ) {
 			delete_option( self::OPTION_PREFIX . self::AUTOCONVERT_IMAGES );
 		}
 

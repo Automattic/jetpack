@@ -33,6 +33,8 @@ export const criticalCssState = {
 	},
 };
 
+export const criticalCssStateCreated = get( criticalCssState ).created ?? 0;
+
 export const replaceCssState = ( value: CriticalCssState ) => {
 	cssStateStore.update( oldValue => {
 		return { ...oldValue, ...value };
