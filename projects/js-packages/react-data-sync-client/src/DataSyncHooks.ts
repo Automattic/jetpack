@@ -216,7 +216,7 @@ export function useDataSyncAction<
 	schema,
 	callbacks,
 	mutationOptions,
-	params,
+	params = {},
 }: DataSyncActionConfig<
 	ActionRequestSchema,
 	ActionRequestData,
