@@ -34,20 +34,25 @@ export function useImageFixer() {
 			group: 'all',
 			page: 1,
 		},
-		callback: ( result, state ) => {
-			if ( result.status !== 'success' ) {
-				recordBoostEvent( 'isa_fix_image_failure', {} );
-				throw new Error( 'Failed to save fixes' );
-			}
-			const image_id = result.image_id as IsaImage[ 'id' ];
-			const updatedState = { ...state };
-			const imageIndex = updatedState.images.findIndex( image => image.id === image_id );
-			updatedState.images[ imageIndex ].image.fixed = result.changed === 'fix';
-
-			const event =
-				result.changed === 'fix' ? 'isa_fix_image_success' : 'isa_undo_fix_image_success';
-			recordBoostEvent( event, {} );
-			return updatedState;
+		callbacks: {
+			onResult: ( result, state ) => {
+				if ( result.status !== 'success' ) {
+					recordBoostEvent( 'isa_fix_image_failure', {} );
+					throw new Error( 'Failed to save fixes' );
+				}
+				const event =
+					result.changed === 'fix' ? 'isa_fix_image_success' : 'isa_undo_fix_image_success';
+				recordBoostEvent( event, {} );
+				return state;
+			},
+			optimisticUpdate: ( value, state ) => {
+				const image_id = value.image_id;
+				const updatedState = { ...state };
+				const imageIndex = updatedState.images.findIndex( image => image.id === image_id );
+				updatedState.images[ imageIndex ].image.fixed =
+					! updatedState.images[ imageIndex ].image.fixed;
+				return updatedState;
+			},
 		},
 	} );
 }

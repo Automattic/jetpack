@@ -168,7 +168,10 @@ export type DataSyncActionConfig<
 		action: ActionSchema;
 		action_request: ActionRequestSchema;
 	};
-	callback: ( result: ActionResult, currentValue: CurrentState ) => void | CurrentState;
+	callbacks: {
+		onResult: ( result: ActionResult, state: CurrentState ) => void | CurrentState;
+		optimisticUpdate?: ( requestData: ActionRequestData, state: CurrentState ) => CurrentState;
+	};
 	config?: UseMutationOptions<
 		ActionResult,
 		unknown,
@@ -187,9 +190,9 @@ export function useDataSyncAction<
 >( {
 	namespace,
 	key,
-	action_name: name,
+	action_name,
 	schema,
-	callback,
+	callbacks,
 	config,
 	params,
 }: DataSyncActionConfig<
@@ -215,13 +218,13 @@ export function useDataSyncAction<
 		mutationKey: queryKey,
 		mutationFn: async ( value: ActionRequestData ) => {
 			const result = await datasync.ACTION(
-				name,
+				action_name,
 				schema.action_request.parse( value ),
 				schema.action
 			);
 			try {
 				const currentValue = queryClient.getQueryData< CurrentState >( queryKey );
-				const processedResult = await callback( result, currentValue );
+				const processedResult = await callbacks.onResult( result, currentValue );
 
 				const data =
 					processedResult === undefined ? currentValue : schema.state.parse( processedResult );
@@ -233,7 +236,7 @@ export function useDataSyncAction<
 				return queryClient.getQueryData( queryKey );
 			}
 		},
-		onMutate: async () => {
+		onMutate: async ( requestData: ActionRequestData ) => {
 			// Cancel any outgoing refetches
 			// (so they don't overwrite our optimistic update)
 			await queryClient.cancelQueries( { queryKey } );
@@ -241,12 +244,10 @@ export function useDataSyncAction<
 			// Snapshot the previous value
 			const previousValue = queryClient.getQueryData< CurrentState >( queryKey );
 
-			// Optimistically update the cached state to the new value
-			// @TODO: We need a way to render optimistic updates
-			// Right now the provided `callback` function can "compose" the new state from the returned data
-			// But there's no mechanism to "compose" an optimistic update - that should go here.
-			// This is what DataSync is doing, but "value" doesn't work here for us.
-			// queryClient.setQueryData( queryKey, value );
+			if ( callbacks.optimisticUpdate ) {
+				const value = await callbacks.optimisticUpdate( requestData, previousValue );
+				queryClient.setQueryData( queryKey, value );
+			}
 
 			// Return a context object with the snapshotted value
 			return { previousValue };
