@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
@@ -18,16 +19,6 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			} );
 		}
 
-		disableSharingModule = () => {
-			analytics.tracks.recordJetpackClick( {
-				target: 'disable-sharing-module',
-				page: 'sharing',
-			} );
-			this.props.updateOptions( {
-				sharedaddy: false,
-			} );
-		};
-
 		render() {
 			const isLinked = this.props.isLinked,
 				siteRawUrl = this.props.siteRawUrl,
@@ -38,6 +29,9 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				isActive = this.props.getOptionValue( 'sharedaddy' );
 
 			const shouldShowSharingBlock = isBlockTheme && hasSharingBlock;
+
+			const sharingBlockSupporUrl = getRedirectUrl( 'jetpack-support-sharing-block' );
+			const sharingModuleSupportUrl = getRedirectUrl( 'jetpack-support-sharing' );
 
 			/**
 			 * Sharing configuration link.
@@ -71,51 +65,59 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			};
 
 			/**
-			 * Sharing module toggle, or suggestion to disable the module.
+			 * Sharing module toggle, and suggestion to use the sharing block.
 			 *
 			 * If the sharing block is available,
-			 * we suggest disabling the legacy module if it is active.
+			 * we suggest to use it instead of the legacy module.
 			 *
 			 * @returns {React.ReactNode} A module toggle.
 			 */
 			const moduleToggle = () => {
+				const toggle = (
+					<ModuleToggle
+						slug="sharedaddy"
+						activated={ isActive }
+						toggling={ this.props.isSavingAnyOption( 'sharedaddy' ) }
+						toggleModule={ this.props.toggleModuleNow }
+					>
+						{ __( 'Add sharing buttons to your posts and pages', 'jetpack' ) }
+					</ModuleToggle>
+				);
+
 				// If the sharing block is not available,
 				// only display the legacy module toggle.
 				if ( ! shouldShowSharingBlock ) {
-					return (
-						<ModuleToggle
-							slug="sharedaddy"
-							activated={ isActive }
-							toggling={ this.props.isSavingAnyOption( 'sharedaddy' ) }
-							toggleModule={ this.props.toggleModuleNow }
-						>
-							{ __( 'Add sharing buttons to your posts and pages', 'jetpack' ) }
-						</ModuleToggle>
-					);
+					return toggle;
 				}
 
-				// If the sharing block is available and the module is active,
-				// Let's suggest disabling the module ; it is not needed anymore.
-				if ( isActive ) {
-					return (
-						<p className="jp-settings-sharing__block-theme-description">
-							{ createInterpolateElement(
-								__(
-									'You are using a block-based theme. You can <a>disable Jetpack’s legacy sharing buttons</a>, and add a sharing buttons block to your themes’s template instead.',
-									'jetpack'
-								),
-								{
-									/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */
-									a: <a className="dops-card__link" onClick={ this.disableSharingModule } />,
-								}
-							) }
-						</p>
-					);
-				}
+				const featureDescription = isActive
+					? createInterpolateElement(
+							__(
+								'You are using a block-based theme. You can continue using Jetpack’s legacy sharing buttons and configure them below. As an alternative, you could disable the legacy sharing feature below and add a sharing button block to your themes’s template instead. <a>Discover how</a>.',
+								'jetpack'
+							),
+							{
+								a: <ExternalLink href={ sharingBlockSupporUrl } />,
+							}
+					  )
+					: createInterpolateElement(
+							__(
+								'You are using a block-based theme. You can enable Jetpack’s legacy sharing buttons above, but you could also add a sharing button block to your themes’s template instead. <a>Discover how</a>.',
+								'jetpack'
+							),
+							{
+								a: <ExternalLink href={ sharingBlockSupporUrl } />,
+							}
+					  );
 
-				// If the sharing block is available and the module is not active,
-				// Do not display any module toggle.
-				return;
+				// If the sharing block is available,
+				// Let's suggest the sharing block as an alternative.
+				return (
+					<>
+						{ toggle }
+						<p className="jp-settings-sharing__block-theme-description">{ featureDescription }</p>
+					</>
+				);
 			};
 
 			return (
@@ -133,9 +135,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 								'You can customize the sharing buttons and choose which services to display.',
 								'jetpack'
 							),
-							link: shouldShowSharingBlock
-								? getRedirectUrl( 'jetpack-support-sharing-block' )
-								: getRedirectUrl( 'jetpack-support-sharing' ),
+							link: shouldShowSharingBlock ? sharingBlockSupporUrl : sharingModuleSupportUrl,
 						} }
 					>
 						<p>
