@@ -1102,6 +1102,12 @@ class WPCOM_Features {
 			self::JETPACK_STATS_PLANS,
 		),
 		self::STATS_PAID                       => array(
+			array(
+				'before' => '2023-12-19',
+				self::WPCOM_PERSONAL_PLANS,
+			),
+			self::WP_P2_PLUS_MONTHLY,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_STATS_PWYW,
 			self::JETPACK_STATS_MONTHLY,
 			self::JETPACK_STATS_BI_YEARLY,
