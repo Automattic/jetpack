@@ -490,7 +490,6 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'icon'  => 'blogger',
 				'label' => 'Blogger',
 			),
-			array(),
 			array(
 				'url'   => array( 'bsky.app' ),
 				'icon'  => 'bluesky',
