@@ -1433,9 +1433,9 @@ class Identity_Crisis {
 					$updated_data[] = $ip_requester;
 				} else {
 					// If same IP, update expiry.
-					foreach ( $updated_data as $key => $value ) {
-						if ( $value['ip'] === $ip ) {
-							$updated_data[ $key ]['expires_at'] = time() + 300;
+					foreach ( $updated_data as $item ) {
+						if ( $item['ip'] === $ip ) {
+							$updated_data[ $item ]['expires_at'] = time() + 300;
 						}
 					}
 				}
