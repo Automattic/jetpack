@@ -29,13 +29,12 @@ export function useImageFixer( group = 'all', page = 1 ) {
 			action: ImageSizeActionResult,
 			action_request: ImageSizeActionRequest,
 		},
-		config: {},
 		params: {
 			group,
 			page,
 		},
 		callbacks: {
-			onResult: ( result, state ) => {
+			onResult: result => {
 				if ( result.status !== 'success' ) {
 					recordBoostEvent( 'isa_fix_image_failure', {} );
 					throw new Error( 'Failed to save fixes' );
@@ -43,7 +42,6 @@ export function useImageFixer( group = 'all', page = 1 ) {
 				const event =
 					result.changed === 'fix' ? 'isa_fix_image_success' : 'isa_undo_fix_image_success';
 				recordBoostEvent( event, {} );
-				return state;
 			},
 			optimisticUpdate: ( value, state ) => {
 				const image_id = value.image_id;

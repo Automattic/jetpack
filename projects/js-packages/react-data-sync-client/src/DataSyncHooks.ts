@@ -168,11 +168,11 @@ export type DataSyncActionConfig<
 		action: ActionSchema;
 		action_request: ActionRequestSchema;
 	};
-	callbacks: {
-		onResult: ( result: ActionResult, state: CurrentState ) => void | CurrentState;
+	callbacks?: {
+		onResult?: ( result: ActionResult, state: CurrentState ) => void | CurrentState;
 		optimisticUpdate?: ( requestData: ActionRequestData, state: CurrentState ) => CurrentState;
 	};
-	config?: UseMutationOptions<
+	mutationOptions?: UseMutationOptions<
 		ActionResult,
 		unknown,
 		ActionRequestData,
@@ -193,7 +193,7 @@ export function useDataSyncAction<
 	action_name,
 	schema,
 	callbacks,
-	config,
+	mutationOptions,
 	params,
 }: DataSyncActionConfig<
 	ActionRequestSchema,
@@ -203,10 +203,10 @@ export function useDataSyncAction<
 	ActionResult,
 	CurrentState
 > ) {
-	const datasync = new DataSync( namespace, key, schema.state );
 	// @TODO: order sensitive bug is hiding in Object.values
 	// This `sort` of fixes it, but I'd like a more elegant solution.
 	const queryKey = [ key, ...Object.values( params ).sort() ];
+	const datasync = new DataSync( namespace, key, schema.state );
 	const mutationConfigDefaults: UseMutationOptions<
 		ActionResult,
 		unknown,
@@ -262,6 +262,6 @@ export function useDataSyncAction<
 
 	return useMutation< MutationOptions< CurrentState >, unknown, ActionRequestData >( {
 		...mutationConfigDefaults,
-		...config,
+		...mutationOptions,
 	} );
 }
