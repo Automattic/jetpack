@@ -286,9 +286,9 @@ class REST_Endpoints {
 	public static function compare_url_secret_permission_check() {
 		return ( new Connection_Manager() )->is_connected()
 			? new WP_Error(
-				'invalid_user_permission_identity_crisis',
-				esc_html__( 'You do not have the correct user permissions to perform this action.', 'jetpack-idc' ),
-				array( 'status' => rest_authorization_required_code() )
+				'invalid_connection_status',
+				esc_html__( 'The endpoint is not available on connected sites.', 'jetpack-idc' ),
+				array( 'status' => 403 )
 			)
 			: true;
 	}

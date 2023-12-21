@@ -283,8 +283,8 @@ class Test_REST_Endpoints extends TestCase {
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( 401, $response->get_status() );
-		$this->assertEquals( 'invalid_user_permission_identity_crisis', $data['code'] );
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 'invalid_connection_status', $data['code'] );
 	}
 
 	/**
