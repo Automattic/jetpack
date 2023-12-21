@@ -737,8 +737,6 @@ class Sharing_Admin {
 			<div class="sharing-block-message__items-wrapper">
 				<div>
 					<p><?php esc_html_e( 'Add sharing buttons to your blog and allow your visitors to share posts with their friends.', 'jetpack' ); ?></p>
-
-					<p className="jp-settings-sharing__block-theme-description">
 					<div class="sharing-block-message__buttons-wrapper">
 						<a href="<?php echo esc_url( admin_url( 'site-editor.php?path=%2Fwp_template' ) ); ?>" class="button button-primary">
 							<?php esc_html_e( 'Go to the site editor', 'jetpack' ); ?>
