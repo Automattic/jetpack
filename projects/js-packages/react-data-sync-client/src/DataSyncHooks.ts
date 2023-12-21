@@ -12,7 +12,11 @@ import React from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
 
-const queryClient = new QueryClient();
+/**
+ * @REACT-TODO This is temporary. We need to allow each app to define their own QueryClient.
+ * All of the functions below will have to be moved to a factory wrapper
+ */
+export const queryClient = new QueryClient();
 
 /**
  * React Query Provider for DataSync.
@@ -225,7 +229,7 @@ export function useDataSyncAction<
 	ActionResult,
 	CurrentState
 > ) {
-	// @TODO: order sensitive bug is hiding in Object.values
+	// @REACT-TODO: order sensitive bug is hiding in Object.values
 	// This `sort` of fixes it, but I'd like a more elegant solution.
 	const mutationKey = [ key, ...Object.values( params ).sort() ];
 	const datasync = new DataSync( namespace, key, schema.state );
