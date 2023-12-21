@@ -13,6 +13,7 @@ use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
 use WP_REST_Response;
+use WP_REST_Server;
 use function add_action;
 use function do_action;
 use function remove_filter;
