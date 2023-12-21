@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import type { IsaCounts } from '$features/image-size-analysis';
-import { navigate } from '$lib/utils/navigate';
+import { useNavigate } from 'react-router-dom';
 import { getGroupLabel, isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
 
 interface TabsProps {
@@ -18,7 +18,7 @@ const Tabs: React.FC< TabsProps > = ( {
 	setActiveTab,
 } ) => {
 	const [ dropdownOpen, setDropdownOpen ] = useState( false );
-
+	const navigate = useNavigate();
 	const selectGroup = ( group: string ) => {
 		navigate( `/image-size-analysis/${ group }/1` );
 		setDropdownOpen( false );

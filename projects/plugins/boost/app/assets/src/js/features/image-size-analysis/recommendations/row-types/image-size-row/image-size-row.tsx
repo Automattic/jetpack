@@ -17,18 +17,11 @@ interface ImageSizeRowProps {
 	toggleImageFix: ( imageId: IsaImage[ 'id' ] ) => void;
 }
 
-const ImageSizeRow: React.FC< ImageSizeRowProps > = ( {
-	enableTransition,
-	details,
-	toggleImageFix,
-} ) => {
+const ImageSizeRow: React.FC< ImageSizeRowProps > = ( { details, toggleImageFix } ) => {
 	const title = details.image.url.split( '/' ).pop();
 
 	return (
-		<TableRow
-			enableTransition={ enableTransition }
-			expandedContent={ <Expanded details={ details } /> }
-		>
+		<TableRow expandedContent={ <Expanded details={ details } /> }>
 			<TableRowContent title={ title } details={ details } toggleImageFix={ toggleImageFix } />
 		</TableRow>
 	);

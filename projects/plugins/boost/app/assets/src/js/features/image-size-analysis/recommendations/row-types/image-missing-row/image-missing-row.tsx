@@ -12,11 +12,11 @@ interface ImageMissingRowProps {
 	details: IsaImage;
 }
 
-const ImageMissingRow: React.FC< ImageMissingRowProps > = ( { enableTransition, details } ) => {
+const ImageMissingRow: React.FC< ImageMissingRowProps > = ( { details } ) => {
 	const title = details.image.url.split( '/' ).pop() || '';
 
 	return (
-		<TableRow enableTransition={ enableTransition }>
+		<TableRow>
 			<div className="jb-thumbnail-image-missing">{ __( 'Image Missing', 'jetpack-boost' ) }</div>
 
 			<div className="jb-table-row-title">

@@ -100,7 +100,9 @@ const _RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActi
 			setErrorMessage( undefined );
 			setRequestingReport( true );
 			requestNewReport();
-		} catch ( err ) {
+			// @REACT-TODO: Add typed errors
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch ( err: any ) {
 			setErrorCode( err.body?.code );
 			setErrorMessage( err.message );
 		} finally {

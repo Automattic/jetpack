@@ -1,4 +1,3 @@
-import { navigate } from '$lib/utils/navigate';
 import React, { useMemo } from 'react';
 
 interface PaginationLinkProps {

@@ -20,3 +20,4 @@ export { default as Hero } from './hero/hero';
 export { default as Pagination } from './recommendations/pagination/pagination';
 export { default as Table } from './recommendations/table/table';
 export { default as Tabs } from './recommendations/tabs/tabs';
+export { default as RecommendationsMeta } from './recommendations-meta/recommendations-meta';

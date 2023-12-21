@@ -3,7 +3,7 @@ import TableRow from '../table-row/table-row';
 
 const BrokenDataRow: React.FC = () => {
 	return (
-		<TableRow enableTransition={ false }>
+		<TableRow>
 			<div className="jb-table-row-title">
 				{ __( 'An error occurred while loading this entry.', 'jetpack-boost' ) }
 			</div>
