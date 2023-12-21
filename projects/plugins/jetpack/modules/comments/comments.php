@@ -613,6 +613,12 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @return boolean
 	 */
 	public function should_show_subscription_modal() {
+
+		// Not allow it to run on self-hosted or simple sites
+		if ( ! ( new Host() )->is_wpcom_platform() || ( new Host() )->is_wpcom_simple() ) {
+			return false;
+		}
+
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
 
