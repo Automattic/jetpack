@@ -6,11 +6,8 @@ import {
 	PanelRow,
 	RadioControl,
 	Spinner,
+	ToggleControl,
 	VisuallyHidden,
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalToggleGroupControl as ToggleGroupControl,
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useEntityProp } from '@wordpress/core-data';
@@ -171,7 +168,7 @@ export function NewsletterAccessRadioButtons( {
 							accessLevel: accessOptions.subscribers.key,
 							emailSubscribers,
 							paidSubscribers,
-						} ).toLocaleString() })`,
+						} ) })`,
 						value: accessOptions.subscribers.key,
 					},
 					{
@@ -179,7 +176,7 @@ export function NewsletterAccessRadioButtons( {
 							accessLevel: accessOptions.paid_subscribers.key,
 							emailSubscribers,
 							paidSubscribers,
-						} ).toLocaleString() })`,
+						} ) })`,
 						value: accessOptions.paid_subscribers.key,
 					},
 				] }
@@ -315,15 +312,12 @@ export function NewsletterEmailDocumentSettings() {
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => {
 				return (
-					<ToggleGroupControl
-						value={ isSendEmailEnabled }
+					<ToggleControl
+						checked={ isSendEmailEnabled }
 						disabled={ isPostPublished || ! canEdit }
+						label={ __( 'Send an email', 'jetpack' ) }
 						onChange={ toggleSendEmail }
-						isBlock
-					>
-						<ToggleGroupControlOption label={ __( 'Post & email', 'jetpack' ) } value={ true } />
-						<ToggleGroupControlOption label={ __( 'Post only', 'jetpack' ) } value={ false } />
-					</ToggleGroupControl>
+					/>
 				);
 			} }
 		/>

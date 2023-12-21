@@ -5,13 +5,6 @@
  * @package automattic/jetpack
  */
 
-if ( ! class_exists( 'Jetpack_Google_Font_Face' ) ) {
-	/**
-	 * Load Jetpack Google Font Face
-	 */
-	require_once __DIR__ . '/class-jetpack-google-font-face.php';
-}
-
 /**
  * Gets the Google Fonts data
  *
@@ -101,9 +94,8 @@ function jetpack_get_theme_fonts_map() {
 
 	$theme_fonts_map = array();
 	foreach ( $raw_data['settings']['typography']['fontFamilies'] as $font_family ) {
-		$font_family_name = $font_family['name'] ?? Jetpack_Google_Font_Face::get_font_family_name( $font_family );
-		if ( $font_family_name ) {
-			$theme_fonts_map[ $font_family_name ] = true;
+		if ( isset( $font_family['name'] ) ) {
+			$theme_fonts_map[ $font_family['name'] ] = true;
 		}
 	}
 
@@ -135,7 +127,9 @@ function jetpack_register_google_fonts_to_theme_json( $theme_json ) {
 					return false;
 				}
 
-				return $available_google_fonts_map[ $name ] ?? false;
+				return isset( $available_google_fonts_map[ $name ] )
+					? $available_google_fonts_map[ $name ]
+					: false;
 			}
 		)
 	);
@@ -171,7 +165,7 @@ function jetpack_google_fonts_filter_out_deprecated_font_data( $font_families ) 
 
 				if ( isset( $font_family['fontFace'] ) ) {
 					foreach ( $font_family['fontFace'] as $font_face ) {
-						$provider = $font_face['provider'] ?? '';
+						$provider = isset( $font_face['provider'] ) ? $font_face['provider'] : '';
 						if ( $provider === 'jetpack-google-fonts' ) {
 							$has_deprecated_google_fonts_data = true;
 							break;
@@ -209,6 +203,13 @@ function jetpack_unregister_deprecated_google_fonts_from_theme_json_data_user( $
 
 add_filter( 'wp_theme_json_data_user', 'jetpack_unregister_deprecated_google_fonts_from_theme_json_data_user' );
 
-// Initialize Jetpack Google Font Face to avoid printing **ALL** google fonts provided by this module.
-// See p1700040028362329-slack-C4GAQ900P and p7DVsv-jib-p2
-new Jetpack_Google_Font_Face();
+if ( ! class_exists( 'Jetpack_Google_Font_Face' ) ) {
+	/**
+	 * Load Jetpack Google Font Face
+	 */
+	require_once __DIR__ . '/class-jetpack-google-font-face.php';
+
+	// Initialize Jetpack Google Font Face to avoid printing **ALL** google fonts provided by this module.
+	// See p1700040028362329-slack-C4GAQ900P and p7DVsv-jib-p2
+	new Jetpack_Google_Font_Face();
+}

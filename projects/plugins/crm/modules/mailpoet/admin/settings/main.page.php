@@ -143,18 +143,18 @@ function jpcrm_settings_page_html_mailpoet_main(){
             </tbody>
         </table>
 
-			<table class="table table-bordered table-striped wtab">
-				<tbody>
+        <table class="table table-bordered table-striped wtab">
+            <tbody>
 
-					<tr>
-						<td class="wmid"><button type="submit" class="button button-primary button-large"><?php esc_html_e( 'Save Settings', 'zero-bs-crm' ); ?></button></td>
-					</tr>
+            <tr>
+                <td colspan="2" class="wmid"><button type="submit" class="button button-primary button-large"><?php esc_html_e('Save Settings','zero-bs-crm'); ?></button></td>
+            </tr>
 
-				</tbody>
-			</table>
+            </tbody>
+        </table>
 
-		</form>
+    </form>
 
-	</div>
-	<?php
+    </div><?php
+
 }

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.31
+// @version      1.30
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      jurassic.ninja
@@ -89,6 +89,7 @@
 
 		const host = 'https://jurassic.ninja';
 		const currentBranch = jQuery( '.head-ref:first' ).text();
+		const branchIsForked = currentBranch.includes( ':' );
 		const branchStatus = $( '.gh-header-meta .State' ).text().trim();
 		const repo = determineRepo();
 
@@ -100,6 +101,11 @@
 				</a></p>
 			`;
 			appendHtml( markdownBody, contents );
+		} else if ( branchIsForked ) {
+			appendHtml(
+				markdownBody,
+				"<p><strong>This branch can't be tested live because it comes from a forked version of this repo.</strong></p>"
+			);
 		} else if ( ! repo ) {
 			appendHtml(
 				markdownBody,

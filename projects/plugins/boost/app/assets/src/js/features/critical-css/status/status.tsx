@@ -6,7 +6,8 @@ import TimeAgo from '../time-ago/time-ago';
 import InfoIcon from '$svg/info';
 import RefreshIcon from '$svg/refresh';
 import { createInterpolateElement } from '@wordpress/element';
-import { Link } from 'react-router-dom';
+import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
+import { navigate } from '$lib/utils/navigate';
 
 type StatusTypes = {
 	status: CriticalCssState[ 'status' ];
@@ -85,7 +86,10 @@ const Status: React.FC< StatusTypes > = ( {
 											issues.length
 										),
 										{
-											advanced: <Link to="/critical-css-advanced" />,
+											...actionLinkInterpolateVar(
+												() => navigate( 'critical-css-advanced' ),
+												'advanced'
+											),
 										}
 									) }
 								</>

@@ -2,7 +2,7 @@ import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 
 const apiEndpointsRegex = {
-	'modules-state': /jetpack-boost-ds\/modules-state\/set/,
+	'modules-state': /jetpack-boost-ds\/modules-state\/merge/,
 	connection: /jetpack-boost\/v1\/connection/,
 };
 
@@ -65,14 +65,14 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async toggleModule( moduleName ) {
-		this.page.click( `.jb-feature-toggle-${ moduleName }` );
+		this.page.click( `#jb-feature-toggle-${ moduleName }` );
 		await this.waitForApiResponse( 'modules-state' );
 	}
 
 	async isModuleEnabled( moduleName ) {
-		const toggle = await this.page.waitForSelector( `.jb-feature-toggle-${ moduleName }` );
-		const toggleSwitch = await toggle.waitForSelector( '.components-form-toggle' );
-		const classNames = await toggleSwitch.getAttribute( 'class' );
+		const toggle = await this.page.waitForSelector( `#jb-feature-toggle-${ moduleName }` );
+		const toggleParent = await toggle.waitForSelector( 'xpath=..' );
+		const classNames = await toggleParent.getAttribute( 'class' );
 
 		return classNames.includes( 'is-checked' );
 	}

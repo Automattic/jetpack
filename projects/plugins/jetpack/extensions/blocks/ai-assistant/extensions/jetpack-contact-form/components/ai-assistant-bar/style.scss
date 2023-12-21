@@ -1,16 +1,16 @@
 .jetpack-ai-assistant__bar {
+    width: 100%;
 
     &:not(.is-fixed) {
         position: relative;
         z-index: 30;
+
         margin-top: 10px;
+        background-color: white;
     }
 
     &.is-fixed {
-		.jetpack-components-ai-control__container-wrapper {
-			position: relative;
-			bottom: 0;
-		}
+		border-bottom: 1px solid #e0e0e0;
 
 		.jetpack-components-ai-control__container {
 			border-radius: 0;
@@ -29,15 +29,4 @@
 	display: block;
 	position: sticky;
 	z-index: 31;
-
-	.jetpack-ai-assistant__bar-wrapper {
-		position: relative;
-		bottom: 0;
-	}
-}
-
-.jetpack-ai-assistant__bar-wrapper {
-	position: sticky;
-	z-index: 30;
-	bottom: 16px;
 }

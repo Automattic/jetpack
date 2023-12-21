@@ -5,11 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.2.1] - 2023-12-21
-### Fixed
-- Defer JS: added importmap to the exclusion list to fix compatibility issues. [#34746]
-
-## [2.2.0] - 2023-10-31
+## [2.2.0-beta] - 2023-10-26
 ### Changed
 - General: Indicate full compatibility with the latest version of WordPress, 6.4. [#33776]
 - Getting Started: Improved how features are sorted in the getting started page. [#33766]
@@ -345,8 +341,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[2.2.1]: https://github.com/Automattic/jetpack-boost-production/compare/2.2.0...2.2.1
-[2.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/2.1.1...2.2.0
+[2.2.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/2.1.1...2.2.0-beta
 [2.1.1]: https://github.com/Automattic/jetpack-boost-production/compare/2.0.2...2.1.1
 [2.0.2]: https://github.com/Automattic/jetpack-boost-production/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/Automattic/jetpack-boost-production/compare/2.0.0...2.0.1

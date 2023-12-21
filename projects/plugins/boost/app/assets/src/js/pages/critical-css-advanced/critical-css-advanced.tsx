@@ -6,6 +6,7 @@ import {
 } from '$features/critical-css/lib/stores/critical-css-state';
 import { groupErrorsByFrequency } from '$features/critical-css/lib/stores/critical-css-state-errors';
 import { type Provider } from '$features/critical-css/lib/stores/critical-css-state-types';
+import { navigate } from '$lib/utils/navigate';
 import { BackButton, CloseButton } from '$features/ui';
 import CriticalCssErrorDescription from '$features/critical-css/error-description/error-description';
 import InfoIcon from '$svg/info';
@@ -16,6 +17,14 @@ type PropTypes = {
 };
 
 const AdvancedCriticalCss: React.FC< PropTypes > = ( { issues } ) => {
+	/**
+	 * Automatically navigate back to main Settings page if generator isn't done.
+	 */
+	if ( issues.length === 0 ) {
+		navigate( '/' );
+		return null;
+	}
+
 	const [ dismissedIssues, setDismissedIssues ] = useState( [] );
 	const [ activeIssues, setActiveIssues ] = useState( [] );
 

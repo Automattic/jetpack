@@ -13,7 +13,6 @@ import {
 	ToggleControl,
 	RangeControl,
 } from '@wordpress/components';
-import { isValidElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useFormStyle, FORM_STYLE, getBlockStyle } from '../util/form';
 import ToolbarRequiredGroup from './block-controls/toolbar-required-group';
@@ -32,7 +31,6 @@ const JetpackFieldControls = ( {
 	setAttributes,
 	type,
 	width,
-	extraFieldSettings = [],
 } ) => {
 	const formStyle = useFormStyle( clientId );
 	const blockStyle = getBlockStyle( blockClassNames );
@@ -105,50 +103,6 @@ const JetpackFieldControls = ( {
 		setAttributes( { id: newValue } );
 	};
 
-	let fieldSettings = [
-		<ToggleControl
-			label={ __( 'Field is required', 'jetpack-forms' ) }
-			className="jetpack-field-label__required"
-			checked={ required }
-			onChange={ value => setAttributes( { required: value } ) }
-			help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
-		/>,
-		! hidePlaceholder && (
-			<TextControl
-				label={ __( 'Placeholder text', 'jetpack-forms' ) }
-				value={ placeholder || '' }
-				onChange={ value => setAttributes( { [ placeholderField ]: value } ) }
-				help={ __(
-					'Show visitors an example of the type of content expected. Otherwise, leave blank.',
-					'jetpack-forms'
-				) }
-			/>
-		),
-		<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />,
-		<ToggleControl
-			label={ __( 'Sync fields style', 'jetpack-forms' ) }
-			checked={ attributes.shareFieldAttributes }
-			onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
-			help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
-		/>,
-	];
-
-	extraFieldSettings.forEach( ( { element, index } ) => {
-		if ( ! isValidElement( element ) ) {
-			return;
-		}
-
-		if ( index >= 0 && index < fieldSettings.length ) {
-			fieldSettings = [
-				...fieldSettings.slice( 0, index ),
-				element,
-				...fieldSettings.slice( index ),
-			];
-		} else {
-			fieldSettings.push( element );
-		}
-	} );
-
 	return (
 		<>
 			<BlockControls>
@@ -163,9 +117,31 @@ const JetpackFieldControls = ( {
 					<JetpackManageResponsesSettings isChildBlock />
 				</PanelBody>
 				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
-					{ fieldSettings.filter( Boolean ).map( ( elt, index ) => (
-						<div key={ index }>{ elt }</div>
-					) ) }
+					<ToggleControl
+						label={ __( 'Field is required', 'jetpack-forms' ) }
+						className="jetpack-field-label__required"
+						checked={ required }
+						onChange={ value => setAttributes( { required: value } ) }
+						help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
+					/>
+					{ ! hidePlaceholder && (
+						<TextControl
+							label={ __( 'Placeholder text', 'jetpack-forms' ) }
+							value={ placeholder || '' }
+							onChange={ value => setAttributes( { [ placeholderField ]: value } ) }
+							help={ __(
+								'Show visitors an example of the type of content expected. Otherwise, leave blank.',
+								'jetpack-forms'
+							) }
+						/>
+					) }
+					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
+					<ToggleControl
+						label={ __( 'Sync fields style', 'jetpack-forms' ) }
+						checked={ attributes.shareFieldAttributes }
+						onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
+						help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
+					/>
 				</PanelBody>
 				<PanelColorSettings
 					title={ __( 'Color', 'jetpack-forms' ) }

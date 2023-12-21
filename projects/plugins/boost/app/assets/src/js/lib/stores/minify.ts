@@ -10,6 +10,7 @@ export interface Props {
 	inputLabel: string;
 	buttonText: string;
 	placeholder: string;
+	value: string[];
 }
 
 export const useMetaQuery = ( key: MinifyMetaKeys ) => {
@@ -20,4 +21,16 @@ export const useMetaQuery = ( key: MinifyMetaKeys ) => {
 	}
 
 	return [ data, updateValues ] as const;
+};
+
+export const useConfig = () => {
+	const [ { data } ] = useDataSync(
+		'jetpack_boost_ds',
+		'config',
+		z.object( {
+			plugin_dir_url: z.string().url(),
+		} )
+	);
+
+	return data;
 };

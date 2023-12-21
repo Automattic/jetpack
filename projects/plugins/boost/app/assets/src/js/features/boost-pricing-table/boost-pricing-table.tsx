@@ -1,4 +1,3 @@
-import { ConfigType, useConfig } from '$lib/stores/config-ds';
 import {
 	Button,
 	getRedirectUrl,
@@ -104,28 +103,24 @@ const isaContext = __(
 	'jetpack-boost'
 );
 
-type BoostPricingTableProps = {
-	pricing: ConfigType[ 'pricing' ];
-	onPremiumCTA: () => void;
-	onFreeCTA: () => void;
-	chosenFreePlan: boolean;
-	chosenPaidPlan: boolean;
-};
-
 export const BoostPricingTable = ( {
+	pricing,
 	onPremiumCTA,
 	onFreeCTA,
 	chosenFreePlan,
 	chosenPaidPlan,
-}: BoostPricingTableProps ) => {
-	const { pricing } = useConfig();
+} ) => {
+	// If no pricing info is available, set up a fake object to avoid errors.
+	if ( ! pricing || ! pricing.yearly ) {
+		pricing = { yearly: {} };
+	}
 
 	// If the first year discount ends, we want to show the default label.
-	const legend = pricing?.isIntroductoryOffer
+	const legend = pricing.yearly.isIntroductoryOffer
 		? __( '/month for the first year, billed yearly', 'jetpack-boost' )
 		: undefined;
 
-	const isDiscounted = pricing?.priceBefore && pricing?.priceBefore > pricing?.priceAfter;
+	const isDiscounted = pricing.yearly.priceBefore > pricing.yearly.priceAfter;
 
 	return (
 		<PricingTable
@@ -176,9 +171,9 @@ export const BoostPricingTable = ( {
 			<PricingTableColumn primary>
 				<PricingTableHeader>
 					<ProductPrice
-						price={ ( pricing?.priceBefore ?? 0 ) / 12 }
-						offPrice={ isDiscounted ? ( pricing?.priceAfter ?? 0 ) / 12 : undefined }
-						currency={ pricing?.currencyCode }
+						price={ pricing.yearly.priceBefore / 12 }
+						offPrice={ isDiscounted ? pricing.yearly.priceAfter / 12 : null }
+						currency={ pricing.yearly.currencyCode }
 						hideDiscountLabel={ false }
 						legend={ legend }
 					/>
@@ -215,7 +210,7 @@ export const BoostPricingTable = ( {
 					<ProductPrice
 						price={ 0 }
 						legend=""
-						currency={ pricing?.currencyCode }
+						currency={ pricing.yearly.currencyCode }
 						hidePriceFraction
 					/>
 					<Button

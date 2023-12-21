@@ -166,3 +166,29 @@
 		min-width: 48px;
 	}
 }
+
+.jb-premium-cta {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px 24px;
+	margin: 32px 0;
+	border: 2px solid $jetpack-green;
+	border-radius: $border-radius;
+	background-color: #ffffff;
+	text-align: left;
+	cursor: pointer;
+
+	p {
+		margin: 0;
+	}
+
+	&__action-line {
+		font-weight: bold;
+	}
+
+	&__icon svg {
+		fill: $jetpack-green;
+	}
+}

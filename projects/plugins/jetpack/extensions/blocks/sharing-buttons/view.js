@@ -1,46 +1,38 @@
-import domReady from '@wordpress/dom-ready';
 import './style.scss';
 
-let sharingWindowOpen;
+const services = window?.jetpack_sharing_buttons_services || [];
+let windowOpen;
 
-if ( typeof window !== 'undefined' ) {
-	domReady( () => {
-		const servicesContainer = document.getElementById( 'jetpack-sharing-serivces-list' );
-		if ( ! servicesContainer ) {
-			return;
-		}
-		servicesContainer.addEventListener( 'click', event => {
-			const link = event.target.closest( 'a' );
-			const service = link?.dataset?.service;
+( function () {
+	services.forEach( service => {
+		document.querySelectorAll( `a.share-${ service }` ).forEach( link => {
+			link.addEventListener( 'click', event => {
+				if ( service === 'mail' ) {
+					return;
+				}
+				event.preventDefault();
+				event.stopPropagation();
 
-			if ( ! link || ! link.classList.contains( `share-${ service }` ) ) {
-				return;
-			}
+				if ( service === 'print' ) {
+					window.print();
+					return;
+				}
 
-			if ( service === 'mail' ) {
-				return;
-			}
+				const el = event.target.closest( `a.share-${ service }` );
+				if ( ! el ) {
+					return;
+				}
 
-			event.preventDefault();
-			event.stopPropagation();
+				if ( windowOpen !== undefined ) {
+					windowOpen.close();
+				}
 
-			if ( service === 'print' ) {
-				window.print();
-				return;
-			}
-			if ( sharingWindowOpen ) {
-				sharingWindowOpen.close();
-			}
-
-			sharingWindowOpen = window.open(
-				link.getAttribute( 'href' ),
-				`wpcom${ service }`,
-				'menubar=1,resizable=1,width=600,height=400'
-			);
-
-			if ( sharingWindowOpen ) {
-				sharingWindowOpen.focus();
-			}
+				const options = 'menubar=1,resizable=1,width=600,height=400';
+				windowOpen = window.open( el.getAttribute( 'href' ), `wpcom${ service }`, options );
+				if ( windowOpen ) {
+					windowOpen.focus();
+				}
+			} );
 		} );
 	} );
-}
+} )();

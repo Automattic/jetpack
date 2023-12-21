@@ -48,11 +48,10 @@ class Unconfigured_Subscription_Service implements Subscription_Service {
 
 	/**
 	 * is the current user a pending subscriber for the current site?
-	 *
-	 * @return bool
+	 * 
+	 * @return boolean
 	 */
-	public function is_current_user_pending_subscriber(): bool
-	{
+	public function is_current_user_pending_subscriber() {
 		return false;
 	}
 

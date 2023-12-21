@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { DataSyncProvider, useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { __, sprintf } from '@wordpress/i18n';
 import { Notice, Button } from '@automattic/jetpack-components';
 import {
@@ -139,4 +139,10 @@ const SuperCacheInfo = () => {
 	);
 };
 
-export default SuperCacheInfo;
+export default function () {
+	return (
+		<DataSyncProvider>
+			<SuperCacheInfo />
+		</DataSyncProvider>
+	);
+}

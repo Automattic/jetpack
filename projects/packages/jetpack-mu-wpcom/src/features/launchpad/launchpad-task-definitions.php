@@ -983,7 +983,8 @@ function wpcom_launchpad_is_woocommerce_setup_visible() {
 		return false;
 	}
 
-	return is_plugin_active( 'woocommerce/woocommerce.php' );
+	$active_plugins = get_option( 'active_plugins' );
+	return in_array( 'woocommerce/woocommerce.php', $active_plugins, true );
 }
 
 /**

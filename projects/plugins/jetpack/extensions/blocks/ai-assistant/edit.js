@@ -32,6 +32,7 @@ import { USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } from '../../plugins/ai-a
 import ConnectPrompt from './components/connect-prompt';
 import FeedbackControl from './components/feedback-control';
 import ImageWithSelect from './components/image-with-select';
+import { promptTemplates } from './components/prompt-templates-control';
 import ToolbarControls from './components/toolbar-controls';
 import UpgradePrompt from './components/upgrade-prompt';
 import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
@@ -51,6 +52,7 @@ const isPlaygroundVisible =
 	window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-playground-visible' ];
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId, isSelected } ) {
+	const [ userPrompt, setUserPrompt ] = useState();
 	const [ errorData, setError ] = useState( {} );
 	const [ loadingImages, setLoadingImages ] = useState( false );
 	const [ resultImages, setResultImages ] = useState( [] );
@@ -123,9 +125,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		content: attributes.content,
 		setError,
 		tracks,
-		userPrompt: attributes.userPrompt,
+		userPrompt,
 		requireUpgrade,
-		requestingState: attributes.requestingState,
 	} );
 
 	const connected = isUserConnected();
@@ -200,14 +201,23 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		replaceBlocks( clientId, storedInnerBlocks );
 	}, [ initialContent, clientId, replaceBlocks, getBlock, attributes?.useGutenbergSyntax ] );
 
-	useEffect( () => {
-		// we don't want to store "half way" states
-		if ( ! [ 'init', 'done' ].includes( requestingState ) ) {
-			return;
-		}
+	const [ promptPlaceholder, setPromptPlaceholder ] = useState( '' );
+	const [ currentIndex, setCurrentIndex ] = useState( 0 );
 
-		setAttributes( { requestingState } );
-	}, [ requestingState, setAttributes ] );
+	// Loop through placeholder prompts for a nice UX effect.
+	useEffect( () => {
+		const interval = setInterval( () => {
+			if ( currentIndex < promptTemplates.length ) {
+				setPromptPlaceholder( promptTemplates[ currentIndex ].label );
+				setCurrentIndex( prevIndex => prevIndex + 1 );
+			} else {
+				clearInterval( interval );
+				setPromptPlaceholder( __( 'Ask Jetpack AI', 'jetpack' ) );
+			}
+		}, 1600 );
+
+		return () => clearInterval( interval );
+	}, [ promptPlaceholder, currentIndex ] );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
@@ -301,7 +311,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const handleChange = value => {
 		setErrorDismissed( true );
-		setAttributes( { userPrompt: value } );
+		setUserPrompt( value );
 	};
 
 	const handleSend = () => {
@@ -325,7 +335,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			 * - Create blocks from HTML code
 			 */
 			const HTML = markdownConverter
-				.render( attributes.content || '' )
+				.render( attributes.content )
 				// Fix list indentation
 				.replace( /<li>\s+<p>/g, '<li>' )
 				.replace( /<\/p>\s+<\/li>/g, '</li>' );
@@ -352,7 +362,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const handleAcceptTitle = () => {
 		if ( isInBlockEditor ) {
-			editPost( { title: attributes.content ? attributes.content.trim() : '' } );
+			editPost( { title: attributes.content.trim() } );
 			removeBlock( clientId );
 		} else {
 			handleAcceptContent();
@@ -377,9 +387,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		setError( {} );
 
 		getImagesFromOpenAI(
-			attributes.userPrompt.trim() === ''
-				? __( 'What would you like to see?', 'jetpack' )
-				: attributes.userPrompt,
+			userPrompt.trim() === '' ? __( 'What would you like to see?', 'jetpack' ) : userPrompt,
 			setAttributes,
 			setLoadingImages,
 			setResultImages,
@@ -407,8 +415,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const innerBlocks = useInnerBlocksProps( blockProps );
 
-	const promptPlaceholder = __( 'Ask Jetpack AI…', 'jetpack' );
-	const promptPlaceholderWithSamples = __( 'Write about… Make a table for…', 'jetpack' );
 	return (
 		<KeyboardShortcuts
 			bindGlobal
@@ -526,7 +532,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 						handleAcceptTitle={ handleAcceptTitle }
 						handleGetSuggestion={ handleGetSuggestion }
 						handleImageRequest={ handleImageRequest }
-						handleTryAgain={ null }
+						handleTryAgain={ handleTryAgain }
 						showRetry={ showRetry }
 						contentBefore={ contentBefore }
 						hasPostTitle={ !! postTitle?.length }
@@ -542,7 +548,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 							// Focus the text area
 							userPromptInput.focus();
 
-							setAttributes( { userPrompt: prompt } );
+							// Add a typing effect in the text area
+							for ( let i = 0; i < prompt.length; i++ ) {
+								setTimeout( () => {
+									setUserPrompt( prompt.slice( 0, i + 1 ) );
+								}, 25 * i );
+							}
 						} }
 						recordEvent={ tracks.recordEvent }
 						isGeneratingTitle={ isGeneratingTitle }
@@ -551,20 +562,19 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 				<AIControl
 					ref={ aiControlRef }
 					disabled={ requireUpgrade || ! connected }
-					value={ attributes.userPrompt }
-					placeholder={ attributes?.content ? promptPlaceholder : promptPlaceholderWithSamples }
+					value={ userPrompt }
+					placeholder={ promptPlaceholder || __( 'Ask Jetpack AI', 'jetpack' ) }
 					onChange={ handleChange }
 					onSend={ handleSend }
 					onStop={ handleStopSuggestion }
 					onAccept={ handleAccept }
-					onDiscard={ handleTryAgain }
 					state={ requestingState }
 					isTransparent={ requireUpgrade || ! connected }
 					showButtonLabels={ ! isMobileViewport }
-					showAccept={ requestingState !== 'init' && contentIsLoaded && ! isWaitingState }
+					showAccept={ contentIsLoaded && ! isWaitingState }
 					acceptLabel={ acceptLabel }
+					showClearButton={ ! isWaitingState }
 					showGuideLine={ contentIsLoaded }
-					showRemove={ attributes?.content?.length > 0 }
 				/>
 
 				{ ! loadingImages && resultImages.length > 0 && (

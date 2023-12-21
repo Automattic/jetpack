@@ -2,7 +2,7 @@
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
 Tested up to: 6.4
-Stable tag: 6.3.2
+Stable tag: 6.3.1
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPLv2
@@ -389,10 +389,16 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.3.2 - 2023-12-19
-#### Changed
-- Settings: Make support document links more consistent.
+### 6.3.1 - 2023-12-14
+#### Security
+- Bulk actions: Stricter permissions checks.
+
+#### Added
+- WooSync: New `jpcrm_woo_sync_order_data` hook.
 
 #### Fixed
-- Segments: Fixed an issue preventing segments from being deleted.
+- OAuth Connection: Updated typo to remove plural connection"s", and removed doc reference for whitelabel builds.
+- Placeholders: Fixing quote placeholders on the quote template, client portal, pdf and emails.
+- Quotes: Consistent rendering of dates in placeholders.
+- Quotes: Consistent rendering of values and currency in placeholders.
 

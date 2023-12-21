@@ -6,7 +6,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-membership
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
 use Tests\Automattic\Jetpack\Extensions\Premium_Content\Test_Jetpack_Token_Subscription_Service;
@@ -439,7 +439,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			setup_postdata( $post );
 			$level = get_post_meta( $current_post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 			if ( empty( $level ) ) {
-				$level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+				$level = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 			}
 
 			$this->assertEquals( $level, Jetpack_Memberships::get_post_access_level() );

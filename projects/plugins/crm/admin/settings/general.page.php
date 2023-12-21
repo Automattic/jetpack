@@ -234,7 +234,7 @@ if ( ! $confirmAct ) {
 
 	?>
 
-	<p id="sbDescOLD"><?php esc_html_e( 'From this page you can choose global settings for your CRM.', 'zero-bs-crm' ); ?></p>
+	<p id="sbDescOLD"><?php echo wp_kses( sprintf( __( 'From this page you can choose global settings for your CRM, and using the tabs above you can set up different <a href="%s" target="_blank">Extensions</a>', 'zero-bs-crm' ), esc_url( $zbs->urls['products'] ) ), $zbs->acceptable_restricted_html ); ?></p>
 
 	<?php
 	if ( isset( $sbupdated ) ) {
@@ -274,12 +274,7 @@ if ( ! $confirmAct ) {
 			<tbody>
 
 			<tr>
-				<td class="wfieldname">
-					<?php ##WLREMOVE ?>
-					<div class="ui teal label right floated"><i class="circle info icon link"></i>  <a href="<?php echo esc_url( $zbs->urls['kbshowwpmenus'] ); ?>" target="_blank"><?php esc_html_e( 'Read more', 'zero-bs-crm' ); ?></a></div>
-					<?php ##/WLREMOVE ?>
-					<label for="wpzbscrm_menulayout"><?php esc_html_e( 'Menu Layout', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'How do you want your WordPress Admin Menu to Display?', 'zero-bs-crm' ); ?>
-				</td>
+				<td class="wfieldname"><label for="wpzbscrm_menulayout"><?php esc_html_e( 'Menu Layout', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'How do you want your WordPress Admin Menu to Display?', 'zero-bs-crm' ); ?></td>
 				<td style="width:540px">
 					<select class="winput" name="wpzbscrm_menulayout" id="wpzbscrm_menulayout">
 						<!-- common currencies first -->
@@ -305,7 +300,10 @@ if ( ! $confirmAct ) {
 					<br />
 					<div>
 						<?php esc_html_e( 'Are you looking for your other WordPress menu items? (e.g.', 'zero-bs-crm' ); ?> <a href="<?php echo esc_url( admin_url( 'plugins.php' ) ); ?>"><?php esc_html_e( 'Plugins', 'zero-bs-crm' ); ?></a>, <?php esc_html_e( 'or', 'zero-bs-crm' ); ?> <a href="<?php echo esc_url( admin_url( 'users.php' ) ); ?>"><?php esc_html_e( 'Users', 'zero-bs-crm' ); ?></a>)?<br />
-						<?php esc_html_e( "If you can't see these, (and you want to), select 'Slimline' or 'Full' from the above menu, then make sure 'Override WordPress (For All WP Users):' is disabled below", 'zero-bs-crm' ); ?> (<a href="#override-allusers"><?php esc_html_e( 'here', 'zero-bs-crm' ); ?></a>).
+						<?php esc_html_e( "If you can't see these, (and you want to), select 'Slimline' or 'Full' from the above menu, then make sure 'Override WordPress (For All WP Users):' is disabled below", 'zero-bs-crm' ); ?> (<a href="#override-allusers"><?php esc_html_e( 'here', 'zero-bs-crm' ); ?></a>).<br />
+						<?php ##WLREMOVE ?>
+						<a href="<?php echo esc_url( $zbs->urls['kbshowwpmenus'] ); ?>" target="_blank"><?php esc_html_e( 'View Guide', 'zero-bs-crm' ); ?></a>
+						<?php ##/WLREMOVE ?>
 					</div>
 				</td>
 			</tr>
@@ -572,11 +570,8 @@ if ( ! $confirmAct ) {
 
 			<?php ##WLREMOVE ?>
 			<tr>
-				<td class="wfieldname">
-					<?php ##WLREMOVE ?>
-					<div class="ui teal label right floated"><i class="circle info icon link"></i>  <a href="<?php echo esc_url( $zbs->urls['usageinfo'] ); ?>" target="_blank"><?php esc_html_e( 'Read more', 'zero-bs-crm' ); ?></a></div>
-					<?php ##/WLREMOVE ?>
-					<label for="wpzbscrm_shareessentials"><?php esc_html_e( 'Usage Tracking', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Share CRM usage with us. No contact or sensitive CRM data is shared.', 'zero-bs-crm' ); ?>
+				<td class="wfieldname"><label for="wpzbscrm_shareessentials"><?php esc_html_e( 'Usage Tracking', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Share CRM usage with us. No contact or sensitive CRM data is shared.', 'zero-bs-crm' ); ?>
+				<a href="<?php echo esc_url( $zbs->urls['usageinfo'] ); ?>" target="_blank"><?php esc_html_e( 'Learn More', 'zero-bs-crm' ); ?>.</a>
 				</td>
 				<td style="width:540px"><input type="checkbox" class="winput form-control" name="wpzbscrm_shareessentials" id="wpzbscrm_shareessentials" value="1"
 				<?php

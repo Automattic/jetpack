@@ -9,14 +9,13 @@ const meta: Meta< typeof ErrorNotice > = {
 	argTypes: {
 		title: { control: 'text' },
 		error: { control: 'text' },
-		variant: { control: 'select', options: [ 'normal', 'module' ] },
 		data: { control: 'text' },
 		description: { control: 'text' },
 		suggestion: { control: 'text' },
 	},
 	decorators: [
 		Story => (
-			<div style={ { maxWidth: '1320px', padding: '0 100px', margin: '200px auto', fontSize: '16px' } }>
+			<div style={ { maxWidth: '1320px', margin: '200px auto', fontSize: '16px' } }>
 				<Story />
 			</div>
 		),
@@ -28,7 +27,6 @@ export const _default = Template.bind( {} );
 _default.args = {
 	title: 'Error',
 	error: 'This is an error message',
-	variant: 'normal',
 	data: "{\n\t\"errorData\": \"This is some more error data\"\n}",
 	description: 'This is error description ErrorNotice is wrapping.',
 	suggestion: 'Contact <support>support</support> for help.',

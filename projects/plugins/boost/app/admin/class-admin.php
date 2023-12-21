@@ -14,6 +14,7 @@ use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
+use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 
@@ -49,6 +50,7 @@ class Admin {
 		$this->modules     = $modules;
 		$this->speed_score = new Speed_Score( $modules, 'boost-plugin' );
 		Environment_Change_Detector::init();
+		Premium_Pricing::init();
 
 		$this->config = new Config();
 		$this->config->init();

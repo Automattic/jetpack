@@ -189,7 +189,7 @@ function NewsletterPrePublishSettingsPanel( { accessLevel, isModuleActive, showP
 						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
 
 						{ ! isSendEmailEnabled || showMisconfigurationWarning ? (
-							<p>{ __( 'Not sent via email.', 'jetpack' ) }</p>
+							<p>{ __( 'Only publishing, not sending this post.', 'jetpack' ) }</p>
 						) : (
 							<SubscribersAffirmation prePublish={ true } accessLevel={ accessLevel } />
 						) }

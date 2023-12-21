@@ -5,13 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.3.0] - 2023-12-20
-### Added
-- Add wpcom_ai_site_prompt option to the site settings endpoint. [#34709]
-
-### Fixed
-- Added preemptive check to break expanding metadata for posts loop in Full Sync. [#34661]
-
 ## [2.2.1] - 2023-12-13
 ### Changed
 - Refactored loop to improve efficiency and code readability [#34565]
@@ -1010,7 +1003,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
-[2.3.0]: https://github.com/Automattic/jetpack-sync/compare/v2.2.1...v2.3.0
 [2.2.1]: https://github.com/Automattic/jetpack-sync/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/Automattic/jetpack-sync/compare/v2.1.2...v2.2.0
 [2.1.2]: https://github.com/Automattic/jetpack-sync/compare/v2.1.1...v2.1.2

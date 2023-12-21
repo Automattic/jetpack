@@ -1,3 +1,6 @@
+.jb-feature-toggle__content h3:focus-visible, .jb-connection__title:focus-visible {
+	outline: none;
+}
 
 .jb-section {
 	padding-top: $padding;

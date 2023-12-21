@@ -5,7 +5,7 @@ Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
 Tested up to: 6.4
 Requires PHP: 7.0
-Stable tag: 2.2.1
+Stable tag: 2.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -187,9 +187,19 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 2.2.1 - 2023-12-21
+### 2.2.0-beta - 2023-10-26
+#### Changed
+- General: Indicate full compatibility with the latest version of WordPress, 6.4.
+- Getting Started: Improved how features are sorted in the getting started page.
+- Performance History: Improvements in design.
+
+#### Deprecated
+- Lazy Images: Added deprecation notice.
+- Lazy Images: Force disable feature to avoid conflict with new version of Gutenberg and WordPress 6.4.
+
 #### Fixed
-- Defer JS: added importmap to the exclusion list to fix compatibility issues.
+- Concatenate JS/CSS: Fixed generating invalid html ID values for concatenated stylesheets.
+- Image CDN: Update quality slider UI.
 
 --------
 

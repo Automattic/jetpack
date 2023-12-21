@@ -6,10 +6,10 @@ import { __, sprintf } from '@wordpress/i18n';
 import styles from './quality-settings.module.scss';
 import { IconTooltip } from '@automattic/jetpack-components';
 import QualityControl from '../quality-control/quality-control';
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { DataSyncProvider, useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { type QualityConfig, imageCdnSettingsSchema } from '../lib/stores';
 import { z } from 'zod';
-import { Link } from 'react-router-dom';
+import NavigationLink from '$features/ui/navigation-link/navigation-link';
 
 type QualitySettingsProps = {
 	isPremium: boolean;
@@ -20,7 +20,7 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 		return createInterpolateElement(
 			__( `For more control over image quality, <link>upgrade now!</link>`, 'jetpack-boost' ),
 			{
-				link: <Link to="/upgrade" />,
+				link: <NavigationLink route="/upgrade" />,
 			}
 		);
 	}
@@ -106,4 +106,10 @@ const Header = () => (
 	</div>
 );
 
-export default QualitySettings;
+export default function QualitySettingsWrapper( props: QualitySettingsProps ) {
+	return (
+		<DataSyncProvider>
+			<QualitySettings { ...props } />
+		</DataSyncProvider>
+	);
+}

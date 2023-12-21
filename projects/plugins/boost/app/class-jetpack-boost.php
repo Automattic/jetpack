@@ -17,8 +17,8 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
+use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
-use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Features\Setup_Prompt\Setup_Prompt;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
@@ -85,7 +85,6 @@ class Jetpack_Boost {
 		$this->plugin_name = 'jetpack-boost';
 
 		$this->connection = new Connection();
-		$this->connection->init();
 
 		// Require plugin features.
 		$this->init_textdomain();
@@ -138,7 +137,7 @@ class Jetpack_Boost {
 	 */
 	public static function activate() {
 		// Make sure user sees the "Get Started" when first time opening.
-		( new Getting_Started_Entry() )->set( true );
+		Config::set_getting_started( true );
 		Analytics::record_user_event( 'activate_plugin' );
 	}
 
@@ -146,14 +145,13 @@ class Jetpack_Boost {
 	 * Plugin connected to Jetpack handler.
 	 */
 	public function handle_jetpack_connection() {
-		$getting_started = new Getting_Started_Entry();
-		if ( $getting_started->get() === true ) {
+		if ( Config::is_getting_started() ) {
 			// Special case: when getting started, ensure that the Critical CSS module is enabled.
 			$status = new Status( 'critical_css' );
 			$status->update( true );
 		}
 
-		$getting_started->set( false );
+		Config::clear_getting_started();
 	}
 
 	/**
@@ -251,6 +249,6 @@ class Jetpack_Boost {
 		Transient::delete_by_prefix( '' );
 
 		// Clear getting started value
-		( new Getting_Started_Entry() )->set( false );
+		Config::clear_getting_started();
 	}
 }

@@ -6,15 +6,13 @@ import Notice from '../notice';
 export type ValidationNoticeProps = {
 	connectionsCount: number;
 	invalidConnectionIdsCount: number;
-	shouldAutoConvert: boolean;
 };
 
 export const ValidationNotice: React.FC< ValidationNoticeProps > = ( {
 	connectionsCount,
 	invalidConnectionIdsCount,
-	shouldAutoConvert,
 } ) => {
-	return shouldAutoConvert ? null : (
+	return (
 		<Notice type={ 'warning' }>
 			<p>
 				{ connectionsCount === invalidConnectionIdsCount

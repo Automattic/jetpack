@@ -5,8 +5,8 @@
 
 namespace Automattic\Jetpack_Boost\Features\Setup_Prompt;
 
+use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
-use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 
 class Setup_Prompt implements Has_Setup {
 
@@ -22,7 +22,7 @@ class Setup_Prompt implements Has_Setup {
 	}
 
 	public function load_banner() {
-		if ( ( new Getting_Started_Entry() )->get() === false || $this->is_banner_dismissed() ) {
+		if ( ! Config::is_getting_started() || $this->is_banner_dismissed() ) {
 			return;
 		}
 

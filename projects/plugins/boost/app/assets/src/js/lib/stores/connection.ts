@@ -1,9 +1,15 @@
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { writable } from 'svelte/store';
 import api from '../api/api';
-import { configSchema } from './config-ds';
-import { useModulesState } from '$features/module/lib/stores';
-import { useCallback } from 'react';
-import { z } from 'zod';
+import { reloadModulesState } from './modules';
+
+export type ConnectionStatus = {
+	connected: boolean;
+	userConnected: boolean;
+	wpcomBlogId: number;
+};
+
+const initialState = Jetpack_Boost.connection;
+const connectionStatus = writable< ConnectionStatus >( initialState );
 
 /**
  * Get the URL to upgrade boost.
@@ -37,28 +43,24 @@ export function getUpgradeURL( domain: string, isUserConnected = false ) {
 	return checkoutProductUrl.toString();
 }
 
-export const useConnection = () => {
-	const [ { data, refetch: reloadConfig } ] = useDataSync(
-		'jetpack_boost_ds',
-		'config',
-		configSchema
-	);
-	const [ { refetch: reloadModules } ] = useModulesState();
+export async function initializeConnection(): Promise< void > {
+	const connection = ( await api.post( '/connection' ) ) as ConnectionStatus;
 
-	const connection = data?.connection as z.infer< typeof configSchema >[ 'connection' ];
+	// As a part of connecting (before marking the connection as ready)
+	// refresh the modules state to fetch the latest.
+	// Ideally, we should replace this with a more general server-state update thing.
+	// 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻
+	if ( connection.connected ) {
+		await reloadModulesState();
+	}
+	// 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺
 
-	return {
-		connection,
-		initializeConnection: useCallback( async () => {
-			if ( connection?.connected ) {
-				return;
-			}
-			return api.post( '/connection' ).then( results => {
-				if ( results.connected ) {
-					reloadConfig();
-					reloadModules();
-				}
-			} );
-		}, [ connection, reloadConfig, reloadModules ] ),
-	};
+	connectionStatus.update( store => {
+		return { ...store, ...connection };
+	} );
+}
+
+// Export only the readable store.
+export const connection = {
+	subscribe: connectionStatus.subscribe,
 };

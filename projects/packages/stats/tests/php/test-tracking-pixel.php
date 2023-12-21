@@ -15,14 +15,6 @@ use WP_Query;
  * @covers \Automattic\Jetpack\Stats\Tracking_Pixel
  */
 class Test_Tracking_Pixel extends StatsBaseTestCase {
-	/**
-	 * Set up
-	 */
-	protected function set_up() {
-		parent::set_up();
-
-		$_SERVER['REQUEST_URI'] = 'index.html?utm_source=a_source&utm_id=some_id';
-	}
 
 	/**
 	 * Clean up the testing environment.
@@ -33,8 +25,7 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 		parent::tear_down();
 		global $wp_the_query;
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_the_query           = new WP_Query();
-		$_SERVER['REQUEST_URI'] = '';
+		$wp_the_query = new WP_Query();
 	}
 
 	/**
@@ -48,13 +39,11 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 		$wp_the_query->queried_object = self::post( 7 );
 		$view_data                    = Tracking_Pixel::build_view_data();
 		$expected_view_data           = array(
-			'v'          => 'ext',
-			'blog'       => 1234,
-			'post'       => 7,
-			'tz'         => false,
-			'srv'        => 'example.org',
-			'utm_id'     => 'some_id',
-			'utm_source' => 'a_source',
+			'v'    => 'ext',
+			'blog' => 1234,
+			'post' => 7,
+			'tz'   => false,
+			'srv'  => 'example.org',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}
@@ -68,13 +57,11 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 		add_option( 'gmt_offset', '5' );
 		$view_data          = Tracking_Pixel::build_view_data();
 		$expected_view_data = array(
-			'v'          => 'ext',
-			'blog'       => 1234,
-			'post'       => '0',
-			'tz'         => '5',
-			'srv'        => 'example.org',
-			'utm_id'     => 'some_id',
-			'utm_source' => 'a_source',
+			'v'    => 'ext',
+			'blog' => 1234,
+			'post' => '0',
+			'tz'   => '5',
+			'srv'  => 'example.org',
 		);
 		$this->assertSame( $expected_view_data, $view_data );
 	}
@@ -135,9 +122,9 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 		$method->setAccessible( true );
 		$pixel_details = $method->invoke( new Tracking_Pixel(), $data );
 
-		$expected_pixel_details = '_stq = window._stq || [];
-_stq.push([ "view", JSON.parse("{\"v\":\"ext\",\"blog\":\"1234\",\"post\":\"0\",\"tz\":\"\",\"srv\":\"replaced.com\"}") ]);
-_stq.push([ "clickTrackerInit", "1234", "0" ]);';
+		$expected_pixel_details = "_stq = window._stq || [];
+_stq.push([ \"view\", {v:'ext',blog:'1234',post:'0',tz:'',srv:'replaced.com'} ]);
+_stq.push([ \"clickTrackerInit\", \"1234\", \"0\" ]);";
 
 		remove_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ) );
 		$this->assertSame( $expected_pixel_details, $pixel_details );

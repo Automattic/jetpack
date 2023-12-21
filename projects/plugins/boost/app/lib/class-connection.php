@@ -27,14 +27,28 @@ class Connection {
 	 */
 	private $manager;
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		$this->manager = new Manager( 'jetpack-boost' );
-	}
 
-	public function init() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
+		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_connection_config_data' ) );
+
 		$this->initialize_deactivate_disconnect();
+	}
+
+	/**
+	 * Add connection data to the array of constants
+	 *
+	 * @param array $constants The associative array of constants.
+	 */
+	public function add_connection_config_data( $constants ) {
+		$constants['connection'] = $this->get_connection_api_response();
+
+		return $constants;
 	}
 
 	/**
@@ -92,7 +106,7 @@ class Connection {
 	 * Get the WordPress.com blog ID of this site, if it's connected
 	 */
 	public static function wpcom_blog_id() {
-		return defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : (int) \Jetpack_Options::get_option( 'id' );
+		return defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
 	}
 
 	/**
