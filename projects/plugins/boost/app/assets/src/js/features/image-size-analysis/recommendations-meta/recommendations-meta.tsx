@@ -122,7 +122,7 @@ const _RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActi
 	return (
 		<div>
 			{ ! groups ? (
-				<div className="jb-report">{ __( 'Loading…', 'jetpack-boost' ) }</div>
+				<div className="jb-summary">{ __( 'Loading…', 'jetpack-boost' ) }</div>
 			) : (
 				<>
 					{ errorMessage ? (
@@ -134,13 +134,13 @@ const _RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActi
 							/>
 						</div>
 					) : waitNotice ? (
-						<div className="jb-report-line jb-wait-notice">{ waitNotice }</div>
+						<div className="jb-summary-line jb-wait-notice">{ waitNotice }</div>
 					) : null }
 
 					{ ! requestingReport && status === ISAStatus.Completed && (
-						<div className="jb-report-line">
+						<div className="jb-summary-line">
 							{ totalIssues > 0 ? (
-								<div className="jb-has-issues jb-report">
+								<div className="jb-has-issues jb-summary">
 									<WarningIcon />
 									{ sprintf(
 										// translators: 1: Number of scanned issues found 2: Number of scanned pages
@@ -153,7 +153,7 @@ const _RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActi
 									) }
 								</div>
 							) : (
-								<div className="jb-report">
+								<div className="jb-summary">
 									{ sprintf(
 										// translators: %d: Number of pages scanned
 										__(
