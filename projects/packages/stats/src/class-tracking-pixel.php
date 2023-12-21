@@ -61,7 +61,7 @@ class Tracking_Pixel {
 		} else {
 			$post = '0';
 		}
-		return compact( 'v', 'blog', 'post', 'tz', 'srv' );
+		return compact( 'v', 'blog', 'post', 'tz', 'srv', 'cat' );
 	}
 
 	/**
