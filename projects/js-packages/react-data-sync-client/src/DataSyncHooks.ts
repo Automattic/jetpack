@@ -141,24 +141,65 @@ export type DataSyncActionConfig<
 	ActionResult extends z.infer< ActionSchema >,
 	CurrentState extends z.infer< StateSchema >,
 > = {
+	/**
+	 * The project namespace, fore example: 'jetpack_boost_ds'
+	 */
 	namespace: string;
+
+	/**
+	 * The name of the DataSync option.
+	 */
 	key: string;
+
+	/**
+	 * The name of the DataSync action.
+	 */
 	action_name: string;
+
+	/**
+	 * The Zod schema for the DataSync state.
+	 */
 	schema: {
+		/**
+		 * The DataSync state schema
+		 */
 		state: StateSchema;
-		action: ActionSchema;
+		/**
+		 * The action endpoint response schema.
+		 */
+		action_response: ActionSchema;
+		/**
+		 * Data that's sent to the action endpoint.
+		 */
 		action_request: ActionRequestSchema;
 	};
 	callbacks?: {
-		onResult?: ( result: ActionResult, state: CurrentState ) => void | CurrentState;
+		/**
+		 * Callback that's called when the action is dispatched.
+		 * This is useful for optimistic updates, must return the new state.
+		 */
 		optimisticUpdate?: ( requestData: ActionRequestData, state: CurrentState ) => CurrentState;
+		/**
+		 * Callback that's called after the action endpoint response is received.
+		 * If a state object is returned, it will be used to update the state.
+		 */
+		onResult?: ( result: ActionResult, state: CurrentState ) => void | CurrentState;
 	};
+	/**
+	 * React Query mutation options passed to `useMutate`.
+	 * @see https://tanstack.com/query/v5/docs/react/reference/useMutation
+	 */
 	mutationOptions?: UseMutationOptions<
 		ActionResult,
 		unknown,
 		ActionRequestData,
 		{ previousValue: CurrentState }
 	>;
+	/**
+	 * GET parameters to be passed to the action endpoint.
+	 * These are used to build the query key.
+	 * @see https://tanstack.com/query/v5/docs/guides/query-keys
+	 */
 	params?: Record< string, string | number >;
 };
 export function useDataSyncAction<
@@ -186,7 +227,7 @@ export function useDataSyncAction<
 > ) {
 	// @TODO: order sensitive bug is hiding in Object.values
 	// This `sort` of fixes it, but I'd like a more elegant solution.
-	const queryKey = [ key, ...Object.values( params ).sort() ];
+	const mutationKey = [ key, ...Object.values( params ).sort() ];
 	const datasync = new DataSync( namespace, key, schema.state );
 	const mutationConfigDefaults: UseMutationOptions<
 		ActionResult,
@@ -196,48 +237,48 @@ export function useDataSyncAction<
 			previousValue: CurrentState;
 		}
 	> = {
-		mutationKey: queryKey,
+		mutationKey,
 		mutationFn: async ( value: ActionRequestData ) => {
 			const result = await datasync.ACTION(
 				action_name,
 				schema.action_request.parse( value ),
-				schema.action
+				schema.action_response
 			);
 			try {
-				const currentValue = queryClient.getQueryData< CurrentState >( queryKey );
+				const currentValue = queryClient.getQueryData< CurrentState >( mutationKey );
 				const processedResult = await callbacks.onResult( result, currentValue );
 
 				const data =
 					processedResult === undefined ? currentValue : schema.state.parse( processedResult );
 				if ( processedResult !== undefined ) {
-					queryClient.setQueryData( queryKey, data );
+					queryClient.setQueryData( mutationKey, data );
 				}
 				return data;
 			} catch ( e ) {
-				return queryClient.getQueryData( queryKey );
+				return queryClient.getQueryData( mutationKey );
 			}
 		},
 		onMutate: async ( requestData: ActionRequestData ) => {
 			// Cancel any outgoing refetches
 			// (so they don't overwrite our optimistic update)
-			await queryClient.cancelQueries( { queryKey } );
+			await queryClient.cancelQueries( { queryKey: mutationKey } );
 
 			// Snapshot the previous value
-			const previousValue = queryClient.getQueryData< CurrentState >( queryKey );
+			const previousValue = queryClient.getQueryData< CurrentState >( mutationKey );
 
 			if ( callbacks.optimisticUpdate ) {
 				const value = await callbacks.optimisticUpdate( requestData, previousValue );
-				queryClient.setQueryData( queryKey, value );
+				queryClient.setQueryData( mutationKey, value );
 			}
 
 			// Return a context object with the snapshotted value
 			return { previousValue };
 		},
 		onError: ( _, __, context ) => {
-			queryClient.setQueryData( queryKey, context.previousValue );
+			queryClient.setQueryData( mutationKey, context.previousValue );
 		},
 		onSettled: () => {
-			queryClient.invalidateQueries( { queryKey } );
+			queryClient.invalidateQueries( { queryKey: mutationKey } );
 		},
 	};
 

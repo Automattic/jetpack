@@ -26,7 +26,7 @@ export function useImageFixer( group = 'all', page = 1 ) {
 		action_name: 'fix',
 		schema: {
 			state: IsaGlobal,
-			action: ImageSizeActionResult,
+			action_response: ImageSizeActionResult,
 			action_request: ImageSizeActionRequest,
 		},
 		params: {
