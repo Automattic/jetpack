@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c0e20ca6a6f185e059c42d7f8f9baf3b",
+    "content-hash": "b748629b2605fcb4ba419c5b5e395d9f",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -976,6 +976,7 @@
             "support": {
                 "source": "https://github.com/Automattic/jetpack-partner/tree/v1.7.25"
             },
+            "abandoned": "automattic/jetpack-connection",
             "time": "2023-09-19T18:19:51+00:00"
         },
         {
@@ -1236,23 +1237,23 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "v1.18.5",
+            "version": "v1.19.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-status.git",
-                "reference": "fe08772e2005b8cd78ec5e0d416b73a04ae57c10"
+                "reference": "3281c2311752e9df1b2809d8feacb7bf7b9b7b8d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/fe08772e2005b8cd78ec5e0d416b73a04ae57c10",
-                "reference": "fe08772e2005b8cd78ec5e0d416b73a04ae57c10",
+                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/3281c2311752e9df1b2809d8feacb7bf7b9b7b8d",
+                "reference": "3281c2311752e9df1b2809d8feacb7bf7b9b7b8d",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6.23"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.3.10",
+                "automattic/jetpack-changelogger": "^3.3.11",
                 "automattic/jetpack-ip": "^0.1.6",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.1.0"
@@ -1268,7 +1269,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.18.x-dev"
+                    "dev-trunk": "1.19.x-dev"
                 }
             },
             "autoload": {
@@ -1282,9 +1283,9 @@
             ],
             "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-status/tree/v1.18.5"
+                "source": "https://github.com/Automattic/jetpack-status/tree/v1.19.0"
             },
-            "time": "2023-09-25T19:07:29+00:00"
+            "time": "2023-11-13T13:50:12+00:00"
         },
         {
             "name": "automattic/jetpack-wp-js-data-sync",

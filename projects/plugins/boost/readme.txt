@@ -187,19 +187,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 2.2.0 - 2023-10-31
-#### Changed
-- General: Indicate full compatibility with the latest version of WordPress, 6.4.
-- Getting Started: Improved how features are sorted in the getting started page.
-- Performance History: Improvements in design.
-
-#### Deprecated
-- Lazy Images: Added deprecation notice.
-- Lazy Images: Force disable feature to avoid conflict with new version of Gutenberg and WordPress 6.4.
-
+### 2.2.1 - 2023-12-21
 #### Fixed
-- Concatenate JS/CSS: Fixed generating invalid html ID values for concatenated stylesheets.
-- Image CDN: Update quality slider UI.
+- Defer JS: added importmap to the exclusion list to fix compatibility issues.
 
 --------
 
