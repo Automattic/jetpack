@@ -16,11 +16,16 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	function reloadOnCloseSubscriptionModal( customUrl ) {
 		const destinationUrl = customUrl ? new URL( customUrl ) : new URL( redirectUrl );
 
+		// Prevent redirect to external sites.
+		if ( destinationUrl.hostname !== window.location.hostname ) {
+			return;
+		}
+
 		// current URL without hash
 		const currentUrlWithoutHash = location.href.replace( location.hash, '' );
 		// destination URL without hash
 		const destinationUrlWithoutHash = destinationUrl.href.replace( destinationUrl.hash, '' );
-		window.location.href = customUrl ? customUrl : redirectUrl;
+		window.location.href = destinationUrl.href;
 
 		// reload the page if the user is already on the comment page
 		if ( currentUrlWithoutHash === destinationUrlWithoutHash ) {
