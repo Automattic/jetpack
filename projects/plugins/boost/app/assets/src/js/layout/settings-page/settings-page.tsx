@@ -2,14 +2,12 @@ import SpeedScore from '$features/speed-score/speed-score';
 import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import { criticalCssStateCreated, isGenerating } from '$features/critical-css';
-import { hasPrioritySupport } from '$lib/utils/paid-plan';
 import Support from './support/support';
 import Tips from './tips/tips';
-import { useSingleModuleState } from '$features/module/lib/stores';
 import { useEffect, useState } from 'react';
-import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import classNames from 'classnames';
 import styles from './settings-page.module.scss';
+import { usePremiumFeatures } from '../../pages/index/lib/hooks';
 
 type SettingsPageProps = {
 	children: React.ReactNode;
@@ -17,7 +15,8 @@ type SettingsPageProps = {
 
 const SettingsPage = ( { children }: SettingsPageProps ) => {
 	const [ isGeneratingValue, setIsGeneratingValue ] = useState( false );
-	const [ performanceHistoryState ] = useSingleModuleState( 'performance_history' );
+	const premiumFeatures = usePremiumFeatures();
+	const hasPrioritySupport = premiumFeatures?.includes( 'support' );
 
 	useEffect( () => {
 		const unsubscribe = isGenerating.subscribe( value => {
@@ -37,7 +36,6 @@ const SettingsPage = ( { children }: SettingsPageProps ) => {
 				<SpeedScore
 					criticalCssCreated={ criticalCssStateCreated }
 					criticalCssIsGenerating={ isGeneratingValue }
-					performanceHistoryNeedsUpgrade={ ! performanceHistoryState?.available }
 				/>
 			</div>
 
@@ -56,12 +54,4 @@ const SettingsPage = ( { children }: SettingsPageProps ) => {
 	);
 };
 
-export default function ( props: SettingsPageProps ) {
-	return (
-		<DataSyncProvider>
-			<SettingsPage { ...props } />
-		</DataSyncProvider>
-	);
-}
-
-// export default SettingsPage;
+export default SettingsPage;
