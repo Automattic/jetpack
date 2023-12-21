@@ -496,7 +496,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "4fd8bc081e357da1c38738db38da5e8750db3535"
+                "reference": "e86b44dea170b4c686715e5937ca404d259bf622"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -528,7 +528,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.1.x-dev"
+                    "dev-trunk": "2.2.x-dev"
                 }
             },
             "autoload": {
@@ -673,7 +673,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "e7f53dc4d861086ba733fc32571824c19350b9ca"
+                "reference": "a0250717669c335a2696024c473a306309765ee7"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -703,7 +703,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.14.x-dev"
+                    "dev-trunk": "0.15.x-dev"
                 }
             },
             "autoload": {

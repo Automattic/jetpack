@@ -1,6 +1,10 @@
 {
 	"name": "jetpack-identity-crisis",
+<<<<<<< HEAD
 	"version": "0.14.1",
+=======
+	"version": "0.15.0-alpha",
+>>>>>>> af902926b1 (Packages version updates)
 	"description": "Jetpack Identity Crisis",
 	"main": "_inc/admin.jsx",
 	"repository": {

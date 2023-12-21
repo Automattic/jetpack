@@ -27,7 +27,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.14.1';
+	const PACKAGE_VERSION = '0.15.0-alpha';
 
 	/**
 	 * Persistent WPCOM blog ID that stays in the options after disconnect.
@@ -1461,7 +1461,7 @@ class Identity_Crisis {
 		if ( $requesters ) {
 			foreach ( $requesters as $ip ) {
 				if ( $ip['expires_at'] > time() ) {
-					$response['ip_requester'] .= md5( $ip['ip'] ) . ',';
+					$response['ip_requester'][] = $ip['ip'];
 				}
 			}
 		}
