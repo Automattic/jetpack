@@ -461,3 +461,7 @@ body.settings_page_sharing .advanced input[type=submit] {
 a.dops-card__link {
 	cursor: pointer;
 }
+
+.settings-sharing__block-theme-description {
+	font-style: italic;
+}

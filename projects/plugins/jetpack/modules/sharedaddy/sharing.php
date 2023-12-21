@@ -760,7 +760,7 @@ class Sharing_Admin {
 						</div>
 					</div>
 				</div>
-				<p class="jp-settings-sharing__block-theme-description">
+				<p class="settings-sharing__block-theme-description">
 					<?php
 					printf(
 						wp_kses(
