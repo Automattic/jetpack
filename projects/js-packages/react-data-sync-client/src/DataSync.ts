@@ -322,6 +322,18 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		value: T,
 		schema: R
 	): Promise< z.infer< R > > => {
+		if ( ! window ) {
+			throw new Error( `Window object not found` );
+		}
+
+		if ( ! window[ this.namespace ] ) {
+			throw new Error( `"${ this.namespace }" not found in window object` );
+		}
+
+		if ( ! window[ this.namespace ][ this.key ] ) {
+			throw new Error( `"${ this.key }" not found in "${ this.namespace }"` );
+		}
+
 		const actions = window[ this.namespace ][ this.key ].actions
 			? window[ this.namespace ][ this.key ].actions
 			: false;
@@ -345,7 +357,6 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			undefined,
 			nonce
 		);
-		console.log( 'Result: ', result );
 		return schema.parse( result );
 	};
 	/**
