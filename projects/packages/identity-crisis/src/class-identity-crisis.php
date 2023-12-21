@@ -90,8 +90,10 @@ class Identity_Crisis {
 		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( __CLASS__, 'jetpack_connection_disconnect_site_wpcom_filter' ) );
 
 		add_filter( 'jetpack_remote_request_url', array( $this, 'add_idc_query_args_to_url' ) );
+		add_filter( 'jetpack_remote_request_url', array( $this, 'set_ip_requester_for_idc' ) );
 
 		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_secret_to_url_validation_response' ) );
+		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_ip_requester_to_url_validation_response' ) );
 
 		add_filter( 'jetpack_options', array( static::class, 'reverse_wpcom_urls_for_idc' ) );
 
@@ -221,10 +223,6 @@ class Identity_Crisis {
 
 		if ( \Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
 			$query_args['migrate_for_idc'] = true;
-		}
-
-		if ( self::url_is_ip() ) {
-			$query_args['url_secret'] = URL_Secret::create_secret( 'URL_argument_secret_failed' );
 		}
 
 		if ( is_multisite() ) {
@@ -1335,7 +1333,7 @@ class Identity_Crisis {
 	 * Adds `url_secret` to the `jetpack.idcUrlValidation` URL validation endpoint.
 	 * Adds `url_secret_error` in case of an error.
 	 *
-	 * @param array $response The endpoint response that we're modifying.
+	 * @param array $response The endurl_is_ippoint response that we're modifying.
 	 *
 	 * @return array
 	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- The exception is being caught, false positive.
@@ -1393,5 +1391,80 @@ class Identity_Crisis {
 	 */
 	public static function site_registered( $blog_id ) {
 		update_option( static::PERSISTENT_BLOG_ID_OPTION_NAME, (int) $blog_id, false );
+	}
+
+	/**
+	 * If URL is an IP, add the IP value to the ip_requester option with its expiry value.
+	 *
+	 * @throws Exception Thrown if unable to save the new IP requester.
+	 *
+	 * @return array|null
+	 */
+	public static function set_ip_requester_for_idc() {
+		// Check if URL is an IP.
+		if ( self::url_is_ip() ) {
+			// Check if option exists
+			$data = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+			// If not set it
+			$ip           = wp_parse_url( Urls::site_url(), PHP_URL_HOST );
+			$ip_requester = array(
+				'ip'         => $ip,
+				'expires_at' => time() + 300,
+			);
+			if ( ! $data && ! empty( $ip_requester ) ) {
+				$data[] = $ip_requester;
+				$result = Jetpack_Options::update_option( 'identity_crisis_ip_requester', $data );
+				if ( ! $result ) {
+					throw new Exception( esc_html__( 'Unable to save new ip requester', 'jetpack-idc' ) );
+				}
+			} else {
+				$updated_data = null;
+				foreach ( $data as $item ) {
+					// If set, delete any expired values first
+					if ( time() > $item['expires_at'] ) {
+						$item = null;
+					}
+					if ( $item ) {
+						$updated_data[] = $item;
+					}
+				}
+				// If nothing was left after cleanup or only different IPs exist, add data.
+				if ( empty( $updated_data ) || ( in_array( $ip, array_column( $updated_data, 'ip' ), true ) === false ) ) {
+					$updated_data[] = $ip_requester;
+				} else {
+					// If same IP, update expiry.
+					foreach ( $updated_data as $key => $value ) {
+						if ( $value['ip'] === $ip ) {
+							$updated_data[ $key ]['expires_at'] = time() + 300;
+						}
+					}
+				}
+			}
+				$result = Jetpack_Options::update_option( 'identity_crisis_ip_requester', $updated_data );
+			if ( ! $result ) {
+				throw new Exception( esc_html__( 'Unable to save new ip requester', 'jetpack-idc' ) );
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Adds `ip_requester` to the `jetpack.idcUrlValidation` URL validation endpoint.
+	 *
+	 * @param array $response The enpoint response that we're modifying.
+	 *
+	 * @return array
+	 */
+	public static function add_ip_requester_to_url_validation_response( array $response ) {
+		$requesters = Jetpack_Options::get_option( 'identity_crisis_ip_requester' );
+		$response   = null;
+		if ( $requesters ) {
+			foreach ( $requesters as $ip ) {
+				if ( $ip['expires_at'] > time() ) {
+					$response['ip_requester'] .= md5( $ip['ip'] ) . ',';
+				}
+			}
+		}
+		return $response;
 	}
 }
