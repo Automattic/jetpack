@@ -12,6 +12,7 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get {
 
 	public function get() {
 
+		// @REACT-TODO: This could be moved to DataSync actions
 		if ( ! isset( $_GET['page'] ) || ! isset( $_GET['group'] ) ) {
 			throw new \Exception( 'Required GET parameters are missing.' );
 		}
