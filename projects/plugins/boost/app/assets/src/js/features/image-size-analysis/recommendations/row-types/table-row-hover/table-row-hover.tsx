@@ -4,8 +4,8 @@ import Button from '$features/image-size-analysis/button/button';
 import { recordBoostEventAndRedirect } from '$lib/utils/analytics';
 import { type IsaImage } from '$features/image-size-analysis';
 
-// @TODO: Move this to a DataSync Store.
-const __DEV_ENABLE_FIX_BUTTON = true;
+// @REACT-TODO: Move this to a DataSync Store.
+const __DEV_ENABLE_FIX_BUTTON = false;
 
 interface TableRowHoverProps {
 	imageId?: IsaImage[ 'id' ];

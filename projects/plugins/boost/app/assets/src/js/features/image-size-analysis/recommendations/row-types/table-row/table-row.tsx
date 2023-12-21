@@ -1,12 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import classnames from 'classnames';
 interface TableRowProps {
-	enableTransition: boolean;
 	children: React.ReactNode;
 	expandedContent?: React.ReactNode;
 }
 
-const TableRow: React.FC< TableRowProps > = ( { enableTransition, children, expandedContent } ) => {
+const TableRow: React.FC< TableRowProps > = ( { children, expandedContent } ) => {
 	const canExpand = !! expandedContent;
 	const [ expanded, setExpanded ] = useState( false );
 
@@ -26,16 +25,8 @@ const TableRow: React.FC< TableRowProps > = ( { enableTransition, children, expa
 		[ expanded, canExpand ]
 	);
 
-	const transitionDuration = enableTransition ? 250 : 0;
-	const transitionStyle = {
-		transition: `height ${ transitionDuration }ms ease-out`,
-	};
-
 	return (
-		<div
-			className={ classnames( 'jb-table-row-container', { expanded } ) }
-			style={ transitionStyle }
-		>
+		<div className={ classnames( 'jb-table-row-container', { expanded } ) }>
 			{ /* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */ }
 			<div className="jb-table-row jb-recommendation-page-grid" onClick={ toggleExpand }>
 				{ children }
