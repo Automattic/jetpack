@@ -19,7 +19,7 @@ const ImageSizeActionRequest = z.object( {
 	fix: z.boolean(),
 } );
 
-export function useImageFixer() {
+export function useImageFixer( group = 'all', page = 1 ) {
 	return useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
 		key: 'image_size_analysis',
@@ -31,8 +31,8 @@ export function useImageFixer() {
 		},
 		config: {},
 		params: {
-			group: 'all',
-			page: 1,
+			group,
+			page,
 		},
 		callbacks: {
 			onResult: ( result, state ) => {
