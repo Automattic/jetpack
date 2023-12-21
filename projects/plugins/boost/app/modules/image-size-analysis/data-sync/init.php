@@ -3,6 +3,7 @@
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync\Image_Size_Analysis_Entry;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync\Image_Size_Analysis_Summary;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Image_Analysis_Fixer_Action;
 
 $image_data = Schema::as_assoc_array(
 	array(
@@ -74,6 +75,7 @@ $image_size_analysis = Schema::as_assoc_array(
 
 $entry = new Image_Size_Analysis_Entry();
 jetpack_boost_register_option( 'image_size_analysis', $image_size_analysis, $entry );
+jetpack_boost_register_action( 'image_size_analysis', 'fix', new Image_Analysis_Fixer_Action());
 
 $group_schema = Schema::as_assoc_array(
 	array(
@@ -118,3 +120,5 @@ jetpack_boost_register_option(
 	$summary_schema,
 	new Image_Size_Analysis_Summary()
 );
+
+

@@ -6,7 +6,6 @@ use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Image_Analysis_Fix;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Image_Analysis_Start;
 
 class Image_Size_Analysis implements Pluggable, Has_Endpoints, Is_Always_On {
@@ -26,7 +25,6 @@ class Image_Size_Analysis implements Pluggable, Has_Endpoints, Is_Always_On {
 	public function get_endpoints() {
 		return array(
 			new Image_Analysis_Start(),
-			new Image_Analysis_Fix(),
 		);
 	}
 }

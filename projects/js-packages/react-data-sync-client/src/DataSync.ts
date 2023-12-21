@@ -177,7 +177,8 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		partialPathname: string,
 		value?: RequestParams,
 		params?: GetRequestParams,
-		abortSignal?: AbortSignal
+		abortSignal?: AbortSignal,
+		nonce?: string
 	) {
 		const url = new URL( `${ this.wpDatasyncUrl }/${ partialPathname }` );
 
@@ -193,7 +194,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			headers: {
 				'Content-Type': 'application/json',
 				'X-WP-Nonce': this.wpRestNonce,
-				'X-Jetpack-WP-JS-Sync-Nonce': this.endpointNonce,
+				'X-Jetpack-WP-JS-Sync-Nonce': nonce || this.endpointNonce,
 			},
 			credentials: 'same-origin',
 			body: null,
@@ -321,7 +322,30 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		value: T,
 		schema: R
 	): Promise< z.infer< R > > => {
-		const result = await this.request( 'POST', `${ this.endpoint }/action/${ name }`, value, {} );
+		const actions = window[ this.namespace ][ this.key ].actions
+			? window[ this.namespace ][ this.key ].actions
+			: false;
+
+		// Check if the specific action name exists
+		if ( ! actions || ! actions[ name ] ) {
+			const errorMessage = `Nonce for Action "${ name }" not found in window.${ this.namespace }.${ this.key }.actions`;
+			// eslint-disable-next-line no-console
+			console.error( errorMessage );
+			throw new Error( errorMessage );
+		}
+
+		// Get the nonce for the specific action
+		const nonce = actions[ name ];
+
+		const result = await this.request(
+			'POST',
+			`${ this.endpoint }/action/${ name }`,
+			value,
+			{},
+			undefined,
+			nonce
+		);
+		console.log( 'Result: ', result );
 		return schema.parse( result );
 	};
 	/**

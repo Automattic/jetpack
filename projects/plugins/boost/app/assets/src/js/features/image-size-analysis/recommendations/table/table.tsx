@@ -46,7 +46,6 @@ const Table = ( { isaDataLoading, activeGroup, images, isaReport }: TableProps )
 			image_width: imageDetails.image.dimensions.expected.width.toString(),
 			image_height: imageDetails.image.dimensions.expected.height.toString(),
 			post_id: postId,
-			nonce: Jetpack_Boost.fixImageNonce as string, // @TODO: Use a real nonce....
 			fix: ! imageDetails.image.fixed,
 		} );
 	}

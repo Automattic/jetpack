@@ -9,7 +9,6 @@ type FixImageData = {
 	image_width: string;
 	image_height: string;
 	post_id: string;
-	nonce: string;
 	fix: boolean;
 };
 
