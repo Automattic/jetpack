@@ -115,6 +115,10 @@
 	@include breakpoint(md) {
 		padding: 0 70px;
 	}
+
+	&:focus-visible {
+		outline: none;
+	}
 }
 
 .jb-connection-overlay {

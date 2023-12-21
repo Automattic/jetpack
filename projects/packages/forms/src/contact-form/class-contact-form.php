@@ -240,6 +240,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string HTML for the concat form.
 	 */
 	public static function parse( $attributes, $content ) {
+		global $post;
+
 		if ( Settings::is_syncing() ) {
 			return '';
 		}
@@ -352,12 +354,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$url                     = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
 			$has_submit_button_block = str_contains( $content, 'wp-block-jetpack-button' );
 			$form_classes            = 'contact-form commentsblock';
+			$form_accessible_name    = $attributes['formTitle'] ? $attributes['formTitle'] : $post->post_title;
+			$form_aria_label         = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';
 
 			if ( $has_submit_button_block ) {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
-			$r .= "<form role='form' action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' novalidate>\n";
+			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' $form_aria_label novalidate>\n";
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
