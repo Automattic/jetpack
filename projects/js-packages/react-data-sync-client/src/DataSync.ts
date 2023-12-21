@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { ApiError } from './ApiError';
 import type { JSONSchema, ParsedValue } from './types';
 
-type RequestParams = string | JSONSchema;
+export type RequestParams = string | JSONSchema;
 type RequestMethods = 'GET' | 'POST' | 'DELETE';
 type GetRequestParams = Record< string, string | number | null | Array< string | number | null > >;
 /**
@@ -161,12 +161,24 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		return result as ParsedValue< V >;
 	}
 
+	/**
+	 * Method to make a request to the endpoint.
+	 * @param method - The request method.
+	 * @param partialPathname - The request path.
+	 * @param value - Data to send when using POST.
+	 * @param params - Append query params to the URL. Takes in an object of key/value pairs.
+	 * @param abortSignal - The abort signal.
+	 * @returns The parsed value.
+	 * @throws ApiError
+	 * @throws Error
+	 */
 	private async request(
 		method: RequestMethods,
 		partialPathname: string,
 		value?: RequestParams,
 		params?: GetRequestParams,
-		abortSignal?: AbortSignal
+		abortSignal?: AbortSignal,
+		nonce?: string
 	) {
 		const url = new URL( `${ this.wpDatasyncUrl }/${ partialPathname }` );
 
@@ -182,7 +194,7 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 			headers: {
 				'Content-Type': 'application/json',
 				'X-WP-Nonce': this.wpRestNonce,
-				'X-Jetpack-WP-JS-Sync-Nonce': this.endpointNonce,
+				'X-Jetpack-WP-JS-Sync-Nonce': nonce || this.endpointNonce,
 			},
 			credentials: 'same-origin',
 			body: null,
@@ -299,6 +311,54 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 		);
 	};
 
+	/**
+	 * Trigger an endpoint action
+	 * @param name - The name of the action.
+	 * @param value - The value to send to the endpoint.
+	 * @returns A direct response from the endpoint.
+	 */
+	public ACTION = async < T extends RequestParams, R extends z.ZodSchema >(
+		name: string,
+		value: T,
+		schema: R
+	): Promise< z.infer< R > > => {
+		if ( ! window ) {
+			throw new Error( `Window object not found` );
+		}
+
+		if ( ! window[ this.namespace ] ) {
+			throw new Error( `"${ this.namespace }" not found in window object` );
+		}
+
+		if ( ! window[ this.namespace ][ this.key ] ) {
+			throw new Error( `"${ this.key }" not found in "${ this.namespace }"` );
+		}
+
+		const actions = window[ this.namespace ][ this.key ].actions
+			? window[ this.namespace ][ this.key ].actions
+			: false;
+
+		// Check if the specific action name exists
+		if ( ! actions || ! actions[ name ] ) {
+			const errorMessage = `Nonce for Action "${ name }" not found in window.${ this.namespace }.${ this.key }.actions`;
+			// eslint-disable-next-line no-console
+			console.error( errorMessage );
+			throw new Error( errorMessage );
+		}
+
+		// Get the nonce for the specific action
+		const nonce = actions[ name ];
+
+		const result = await this.request(
+			'POST',
+			`${ this.endpoint }/action/${ name }`,
+			value,
+			{},
+			undefined,
+			nonce
+		);
+		return schema.parse( result );
+	};
 	/**
 	 * Method to get the initial value from the window object.
 	 * @returns The initial value.
