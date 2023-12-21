@@ -623,6 +623,28 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
+	 * Get the data to send as an event to the parent window on subscription modal
+	 *
+	 * @param string $url url to redirect to.
+	 *
+	 * @return array
+	 */
+	public function get_subscription_modal_data_to_parent( $url ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$current_user_email = isset( $_POST['email'] ) ? filter_var( wp_unslash( $_POST['email'] ) ) : null;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$post_id = isset( $_POST['comment_post_ID'] ) ? filter_var( wp_unslash( $_POST['comment_post_ID'] ) ) : null;
+		return array(
+			'url'          => $url,
+			'email'        => $current_user_email,
+			'blog_id'      => esc_attr( \Jetpack_Options::get_option( 'id' ) ),
+			'post_id'      => esc_attr( $post_id ),
+			'lang'         => esc_attr( get_locale() ),
+			'is_logged_in' => isset( $_POST['hc_userid'] ),
+		);
+	}
+
+	/**
 	 * POST the submitted comment to the iframe
 	 *
 	 * @param string $url The comment URL origin.
@@ -742,9 +764,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 				window.parent.postMessage(
 					{
 						type: 'subscriptionModalShow',
-						data: {
-							url: <?php echo wp_json_encode( $url ); ?>
-						}
+						data: <?php echo wp_json_encode( $this->get_subscription_modal_data_to_parent( $url ) ); ?>,
 					},
 					window.location.origin
 				);
