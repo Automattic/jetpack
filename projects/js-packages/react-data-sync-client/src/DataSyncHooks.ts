@@ -83,7 +83,7 @@ export function useDataSync<
 	const queryConfigDefaults = {
 		queryKey,
 		queryFn: ( { signal } ) => datasync.GET( params, signal ),
-		initialData: datasync.getInitialValue(),
+		initialData: () => datasync.getInitialValue(),
 	};
 
 	/**
