@@ -1,19 +1,7 @@
-import {
-	type DataSyncActionConfig,
-	useDataSyncAction,
-} from '@automattic/jetpack-react-data-sync-client';
+import { useDataSyncAction } from '@automattic/jetpack-react-data-sync-client';
 import { IsaGlobal, IsaImage } from './stores/types';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { z } from 'zod';
-
-type FixImageData = {
-	image_id: IsaImage[ 'id' ];
-	image_url: string;
-	image_width: string;
-	image_height: string;
-	post_id: string;
-	fix: boolean;
-};
 
 const ImageSizeActionResult = z.object( {
 	image_id: z.string(),
@@ -22,22 +10,24 @@ const ImageSizeActionResult = z.object( {
 	changed: z.enum( [ 'fix', 'removed' ] ).optional(),
 } );
 
+const ImageSizeActionRequest = z.object( {
+	image_id: z.coerce.string(),
+	image_url: z.string(),
+	image_width: z.coerce.string(),
+	image_height: z.coerce.string(),
+	post_id: z.coerce.string(),
+	fix: z.boolean(),
+} );
+
 export function useImageFixer() {
 	return useDataSyncAction( {
 		namespace: 'jetpack_boost_ds',
-		key: 'fix',
-		name: 'image_size_analysis',
+		key: 'image_size_analysis',
+		action_name: 'fix',
 		schema: {
 			state: IsaGlobal,
 			action: ImageSizeActionResult,
-			action_request: z.object( {
-				image_id: z.string(),
-				image_url: z.string(),
-				image_width: z.string(),
-				image_height: z.string(),
-				post_id: z.string(),
-				fix: z.boolean(),
-			} ),
+			action_request: ImageSizeActionRequest,
 		},
 		config: {},
 		params: {
