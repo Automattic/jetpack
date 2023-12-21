@@ -619,6 +619,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			return false;
 		}
 
+		// Only Automattitians for now
+		if ( ! ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) ) {
+			return false;
+		}
+
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
 
