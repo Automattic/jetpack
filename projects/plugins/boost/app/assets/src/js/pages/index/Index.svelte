@@ -4,10 +4,8 @@
 
 <script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
-	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
 	import RecommendationsMeta from '$features/image-size-analysis/recommendations-meta/recommendations-meta';
-	import { initializeIsaReport, isaReport } from '$features/image-size-analysis';
 	import Notice from '$features/Notice.svelte';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import TemplatedString from '$features/TemplatedString.svelte';
@@ -72,12 +70,6 @@
 		}
 		await continueGeneratingLocalCriticalCss( $criticalCssState );
 	}
-
-	onMount( () => {
-		if ( $modulesState.image_size_analysis.active ) {
-			initializeIsaReport();
-		}
-	} );
 </script>
 
 <div class="jb-container--narrow">
@@ -334,11 +326,7 @@
 
 			<svelte:fragment slot="meta">
 				{#if $modulesState.image_size_analysis.active}
-					<ReactComponent
-						this={RecommendationsMeta}
-						isaSummary={$isaReport}
-						isCdnActive={$modulesState.image_cdn.active}
-					/>
+					<ReactComponent this={RecommendationsMeta} isCdnActive={$modulesState.image_cdn.active} />
 				{/if}
 			</svelte:fragment>
 		</Module>

@@ -14,16 +14,14 @@ import {
 	ISAStatus,
 	requestImageAnalysis,
 	getReportProgress,
+	useIsaReport,
 } from '$features/image-size-analysis';
 interface RecommendationsMetaProps {
 	isCdnActive: boolean;
 	isaReport: IsaReport | null;
 }
 
-const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
-	isCdnActive,
-	isaReport,
-} ) => {
+const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( { isCdnActive } ) => {
 	const [ requestingReport, setRequestingReport ] = useState< boolean >( false );
 	const [ errorCode, setErrorCode ] = useState< number | undefined >( undefined );
 	const [ status, setStatus ] = useState< ISAStatus | undefined >( undefined );
@@ -34,7 +32,7 @@ const RecommendationsMeta: React.FC< RecommendationsMetaProps > = ( {
 	const [ errorSuggestion, setErrorSuggestion ] = useState< string | undefined >( undefined );
 	const [ waitNotice, setWaitNotice ] = useState< string | undefined >( undefined );
 	const [ showCDNRecommendation, setShowCDNRecommendation ] = useState< boolean >( false );
-
+	const [ { data: isaReport } ] = useIsaReport();
 	useEffect( () => {
 		setStatus( isaReport?.status );
 		setGroups( isaReport?.groups || {} );

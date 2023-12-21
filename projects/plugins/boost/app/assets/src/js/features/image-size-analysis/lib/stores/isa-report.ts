@@ -1,18 +1,7 @@
 import api from '$lib/api/api';
-import { jetpack_boost_ds } from '$lib/stores/data-sync-client';
-import { setPromiseInterval } from '$lib/utils/set-promise-interval';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { type isaGroupKeys } from '../isa-groups';
 import { IsaReport, IsaCounts } from './types';
-
-const isaReportDS = jetpack_boost_ds.createAsyncStore(
-	'image_size_analysis_summary',
-	IsaReport.nullable()
-);
-// Prevent updates to image_size_analysis_report from being pushed back to the server.
-isaReportDS.setSyncAction( async ( _, value ) => value );
-
-export const isaReport = isaReportDS.store;
 
 export const useIsaReport = () =>
 	useDataSync( 'jetpack_boost_ds', 'image_size_analysis_summary', IsaReport.nullable().optional(), {
@@ -64,38 +53,5 @@ export function getGroupedReports( report: IsaReport ) {
  */
 export async function requestImageAnalysis() {
 	await api.post( '/image-size-analysis/start' );
-	await isaReportDS.refresh();
+	// await isaReportDS.refresh();// start polling?
 }
-
-/**
- * Ask for the image size analysis store to be populated.
- * Not automatically populated at load-time, as it is lazy. zzz.
- */
-let initialized = false;
-export function initializeIsaReport() {
-	if ( ! initialized ) {
-		initialized = true;
-		isaReportDS.refresh();
-	}
-}
-
-/**
- * Automatically poll if the state is an active one.
- */
-let clearPromiseInterval: ReturnType< typeof setPromiseInterval > | undefined;
-isaReport.subscribe( report => {
-	if ( ! report ) {
-		return;
-	}
-
-	const shouldPoll = [ 'new', 'queued' ].includes( report.status );
-
-	if ( shouldPoll && ! clearPromiseInterval ) {
-		clearPromiseInterval = setPromiseInterval( async () => {
-			await isaReportDS.refresh();
-		}, 3000 );
-	} else if ( ! shouldPoll && clearPromiseInterval ) {
-		clearPromiseInterval();
-		clearPromiseInterval = undefined;
-	}
-} );
