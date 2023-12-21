@@ -32,7 +32,7 @@ const useBoostRouter = ( { criticalCss }: MainProps ) => {
 
 	return createHashRouter( [
 		{
-			path: '/',
+			path: '*',
 			loader: () => {
 				if ( shouldGetStarted ) {
 					return redirect( '/getting-started' );
