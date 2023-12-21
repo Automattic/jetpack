@@ -635,11 +635,12 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$post_id = isset( $_POST['comment_post_ID'] ) ? filter_var( wp_unslash( $_POST['comment_post_ID'] ) ) : null;
 		return array(
-			'url'     => $url,
-			'email'   => $current_user_email,
-			'blog_id' => esc_attr( \Jetpack_Options::get_option( 'id' ) ),
-			'post_id' => esc_attr( $post_id ),
-			'lang'    => esc_attr( get_locale() ),
+			'url'          => $url,
+			'email'        => $current_user_email,
+			'blog_id'      => esc_attr( \Jetpack_Options::get_option( 'id' ) ),
+			'post_id'      => esc_attr( $post_id ),
+			'lang'         => esc_attr( get_locale() ),
+			'is_logged_in' => isset( $_POST['hc_userid'] ),
 		);
 	}
 

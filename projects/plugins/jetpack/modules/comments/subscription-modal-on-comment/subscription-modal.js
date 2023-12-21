@@ -13,14 +13,14 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	let subscriptionData = '';
 	let hasLoaded = false;
 
-	function reloadOnCloseSubscriptionModal() {
-		const destinationUrl = new URL( redirectUrl );
+	function reloadOnCloseSubscriptionModal( customUrl ) {
+		const destinationUrl = customUrl ? new URL( customUrl ) : new URL( redirectUrl );
 
 		// current URL without hash
 		const currentUrlWithoutHash = location.href.replace( location.hash, '' );
 		// destination URL without hash
 		const destinationUrlWithoutHash = destinationUrl.href.replace( destinationUrl.hash, '' );
-		window.location.href = redirectUrl;
+		window.location.href = customUrl ? customUrl : redirectUrl;
 
 		// reload the page if the user is already on the comment page
 		if ( currentUrlWithoutHash === destinationUrlWithoutHash ) {
@@ -28,20 +28,19 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		}
 	}
 
-
 	function handleSubscriptionModalIframeResult( eventFromIframe ) {
 		if ( eventFromIframe.origin === 'https://subscribe.wordpress.com' && eventFromIframe.data ) {
 			const data = JSON.parse( eventFromIframe.data );
 			if ( data && data.action === 'close' ) {
 				window.removeEventListener( 'message', handleSubscriptionModalIframeResult );
-				reloadOnCloseSubscriptionModal();
+				reloadOnCloseSubscriptionModal( subscriptionData.url );
 			}
 		}
 	}
 
 	function showSubscriptionIframe( subscriptionData ) {
 		const subscribeData = {
-			email: subscriptionData.email,
+			email: document.querySelector( '.jetpack-subscription-modal__form-email' ).value,
 			post_id: subscriptionData.post_id,
 			plan: 'newsletter',
 			blog: subscriptionData.blog_id,
@@ -91,6 +90,9 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		if ( data.email ) {
 			const emailInput = document.querySelector( '.jetpack-subscription-modal__form-email' );
 			emailInput.value = data.email;
+			if ( data.is_logged_in ) {
+				emailInput.setAttribute( 'readonly', 'readonly' );
+			}
 		}
 
 		if ( ! hasLoaded ) {
@@ -101,12 +103,13 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			sessionStorage.setItem( 'jetpack-subscription-modal-shown-count', showCount );
 
 			if ( showCount > 5 ) {
+				reloadOnCloseSubscriptionModal( data.url );
 				return;
 			}
 
 			modal.classList.toggle( 'open' );
 			hasLoaded = true;
-			redirectUrl = subscriptionData.url;
+			redirectUrl = data.url;
 			subscriptionData = data;
 			return;
 		}
