@@ -7,7 +7,6 @@ import { __ } from '@wordpress/i18n';
 import { ManualSharingInfo } from '../manual-sharing/info';
 import { ShareButtons } from '../share-buttons/share-buttons';
 import styles from './styles.module.scss';
-
 /**
  * Post Publish Manual Sharing component.
  *
