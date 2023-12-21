@@ -108,9 +108,19 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			sessionStorage.setItem( 'jetpack-subscription-modal-shown-count', showCount );
 
 			if ( showCount > 5 ) {
+				new Image().src =
+					document.location.protocol +
+					'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_verbum-subscription-modal=hidden_views_limit_jetpack&r=' +
+					Math.random();
+
 				reloadOnCloseSubscriptionModal( data.url );
 				return;
 			}
+
+			new Image().src =
+				document.location.protocol +
+				'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_verbum-subscription-modal=showed_jetpack&r=' +
+				Math.random();
 
 			modal.classList.toggle( 'open' );
 			hasLoaded = true;
