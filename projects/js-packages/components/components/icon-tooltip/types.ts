@@ -73,4 +73,9 @@ export type IconTooltipProps = {
 	 * Uses a wider content area when enabled.
 	 */
 	wide?: boolean;
+
+	/**
+	 * Whether to render the popover inline or as a portal.
+	 */
+	inline?: boolean;
 };

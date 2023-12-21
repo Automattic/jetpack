@@ -39,6 +39,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	popoverAnchorStyle = 'icon',
 	forceShow = false,
 	wide = false,
+	inline = true,
 } ) => {
 	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
@@ -57,7 +58,8 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		focusOnMount: 'container' as const,
 		onClose: hideTooltip,
 		className: 'icon-tooltip-container',
-		inline: true,
+		inline,
+		shift: true,
 	};
 
 	const isAnchorWrapper = popoverAnchorStyle === 'wrapper';
