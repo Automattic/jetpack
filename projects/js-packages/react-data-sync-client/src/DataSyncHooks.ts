@@ -29,9 +29,11 @@ export function DataSyncProvider( props: { children: React.ReactNode } ) {
 /**
  * React Query configuration type for DataSync.
  */
+type DataSyncMutation< Value > = Omit< UseMutationOptions< Value >, 'mutationKey' >;
+type DataSyncQuery< Value > = Omit< UseQueryOptions< Value >, 'queryKey' >;
 type DataSyncConfig< Schema extends z.ZodSchema, Value extends z.infer< Schema > > = {
-	query?: Omit< UseQueryOptions< Value >, 'queryKey' >;
-	mutation?: Omit< UseMutationOptions< Value >, 'mutationKey' >;
+	query?: DataSyncQuery< Value >;
+	mutation?: DataSyncMutation< Value >;
 };
 /**
  * This is what `useDataSync` returns
@@ -129,29 +131,8 @@ export function useDataSync<
 
 /**
  * Use React Query mutations to dispatch custom DataSync Actions.
- *
- * ### Usage:
- *
- * ```ts
- * const action = useDataSyncAction<{ foo: string }>()( 'namespace', 'key', 'action', schema, schema, callback );
- * ``` Notice double function call ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- *
- * ## Anatomy of a callback:
- * Return value to set the new state.
- * Throw an error to cancel.
- * Return undefined to keep the current state.
- * ```ts
- * callback: ( result: ActionResult, currentValue: State ) => void | State,
- * ```
- *
- * ### Trigger a mutation:
- * ```ts
- * action.mutate( { foo: 'bar' } );
- * ````
- *
- *
  */
-type MutationOptions< Value > = Omit< UseMutationOptions< Value >, 'mutationKey' >;
+
 export type DataSyncActionConfig<
 	ActionRequestSchema extends z.ZodSchema,
 	ActionRequestData extends z.infer< ActionRequestSchema >,
@@ -260,7 +241,7 @@ export function useDataSyncAction<
 		},
 	};
 
-	return useMutation< MutationOptions< CurrentState >, unknown, ActionRequestData >( {
+	return useMutation< DataSyncMutation< CurrentState >, unknown, ActionRequestData >( {
 		...mutationConfigDefaults,
 		...mutationOptions,
 	} );
