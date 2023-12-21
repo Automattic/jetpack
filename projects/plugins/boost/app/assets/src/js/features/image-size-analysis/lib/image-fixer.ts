@@ -1,5 +1,5 @@
 import { useDataSyncAction } from '@automattic/jetpack-react-data-sync-client';
-import { IsaGlobal, IsaImage } from './stores/types';
+import { IsaGlobal } from './stores/types';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { z } from 'zod';
 
