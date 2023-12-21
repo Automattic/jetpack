@@ -2,7 +2,7 @@ import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { z } from 'zod';
 
 export const useGettingStarted = () => {
-	const [ { data }, { mutate } ] = useDataSync(
+	const [ { data }, { mutateAsync } ] = useDataSync(
 		'jetpack_boost_ds',
 		'getting_started',
 		z.boolean()
@@ -10,6 +10,6 @@ export const useGettingStarted = () => {
 
 	return {
 		shouldGetStarted: data,
-		markGettingStartedComplete: () => mutate( false ),
+		markGettingStartedComplete: async () => await mutateAsync( false ),
 	};
 };

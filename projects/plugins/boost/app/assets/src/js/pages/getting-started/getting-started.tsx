@@ -10,6 +10,7 @@ import styles from './getting-started.module.scss';
 import { useConfig } from '$lib/stores/config-ds';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import { useNavigate } from 'react-router-dom';
+import { __ } from '@wordpress/i18n';
 
 const GettingStarted: React.FC = () => {
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
@@ -47,17 +48,22 @@ const GettingStarted: React.FC = () => {
 			// * premium_cta_from_getting_started_page_in_plugin
 			await recordBoostEvent( `${ plan }_cta_from_getting_started_page_in_plugin`, {} );
 
-			markGettingStartedComplete();
-
-			// Go to the purchase flow if the user doesn't have a premium plan.
-			if ( ! isPremiumValue && plan === 'premium' ) {
-				window.location.href = getUpgradeURL( domainValue, userConnectedValue );
+			if ( await markGettingStartedComplete() ) {
+				// Go to the purchase flow if the user doesn't have a premium plan.
+				if ( ! isPremiumValue && plan === 'premium' ) {
+					window.location.href = getUpgradeURL( domainValue, userConnectedValue );
+				} else {
+					navigate( '/', { replace: true } );
+				}
 			} else {
-				navigate( '/', { replace: true } );
+				throw new Error();
 			}
 		} catch ( e ) {
 			// Display the error in a snackbar message
-			setSnackbarMessage( e.message || 'Unknown error occurred during the plan selection.' );
+			setSnackbarMessage(
+				( e as Error ).message ||
+					__( 'Unknown error occurred. Please reload the page and try again.', 'jetpack-boost' )
+			);
 		}
 	}
 
