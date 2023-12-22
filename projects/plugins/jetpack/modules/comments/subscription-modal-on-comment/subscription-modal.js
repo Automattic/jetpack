@@ -44,6 +44,11 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	}
 
 	function showSubscriptionIframe( subscriptionData ) {
+		const modalContainer = document.querySelector( '.jetpack-subscription-modal' );
+		const iframeContainer = document.querySelector(
+			'.jetpack-subscription-modal__iframe-container'
+		);
+		const iframeElement = document.querySelector( '.jetpack-subscription-modal__iframe' );
 		const subscribeData = {
 			email: document.querySelector( '.jetpack-subscription-modal__form-email' ).value,
 			post_id: subscriptionData.post_id,
@@ -54,18 +59,15 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			app_source: 'verbum-subscription-modal',
 			locale: subscriptionData.lang,
 		};
-
 		const params = new URLSearchParams( subscribeData );
 
-		const url = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
+		iframeElement.src = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
 
 		window.scrollTo( 0, 0 );
-		// eslint-disable-next-line no-undef
-		tb_show( null, url + '&TB_iframe=true', null );
+
+		modalContainer.classList.add( 'has-iframe' );
 
 		window.addEventListener( 'message', handleSubscriptionModalIframeResult, false );
-		const tbWindow = document.querySelector( '#TB_window' );
-		tbWindow.classList.add( 'jetpack-memberships-modal' );
 
 		// This line has to come after the Thickbox has opened otherwise Firefox doesnt scroll to the top.
 		window.scrollTo( 0, 0 );

@@ -41,6 +41,54 @@
 	visibility: visible;
 }
 
+/* Hide the modal content when iframe is present */
+.jetpack-subscription-modal.has-iframe .jetpack-subscription-modal__modal-content {
+	background: transparent;
+}
+
+.jetpack-subscription-modal.has-iframe .jetpack-subscription-modal__modal-content-form {
+	visibility: hidden;
+	opacity: 0;
+}
+
+.jetpack-subscription-modal__modal-content .jetpack-subscription-modal__iframe-container {
+	visibility: hidden;
+	opacity: 0;
+	background-image: url( 'https://s0.wp.com/i/loading/dark-200.gif' );
+	background-size: 50px;
+	background-repeat: no-repeat;
+	background-position: center 150px;
+	margin: 0 !important;
+	box-shadow: none;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	border: none;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	top: 0;
+	width: 100% !important;
+	height: 100%;
+	position: absolute;
+}
+
+.jetpack-subscription-modal.has-iframe .jetpack-subscription-modal__iframe-container {
+	opacity: 1;
+	visibility: visible;
+
+}
+
+.jetpack-subscription-modal__iframe {
+	margin: 0 !important;
+	height: 100% !important;
+	width: 100% !important;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
 /*
  * These text-wrap properties still have limited browser
  * support, but based on feedback still adding them for when
