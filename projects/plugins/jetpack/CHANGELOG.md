@@ -2,13 +2,17 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.9.2 - 2023-12-20
+## 12.9.3 - 2023-12-22
 ### Bug fixes
-- VideoPress: fix an issue when using VideoPress inside a subscription block. [#34723]
+- VideoPress: Fix an issue when using VideoPress inside a subscription block. [#34723]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Newsletters: Consolidate WPCOM/Jetpack Token Subscription Service classes. [#34299]
+- Newsletters: Refactor Subscription services. [#34635]
 
 ## 12.9.1 - 2023-12-18
 ### Bug fixes
-- Carousel: fix unresponsive navigation on Chrome browsers. [#34678]
+- Carousel: Fix unresponsive navigation on Chrome browsers. [#34678]
 
 ## 12.9 - 2023-12-05
 ### Enhancements
