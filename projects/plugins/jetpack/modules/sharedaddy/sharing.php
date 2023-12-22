@@ -763,7 +763,7 @@ class Sharing_Admin {
 					printf(
 						wp_kses(
 							/* translators: Link to Jetpack sharing settings. */
-							__( 'You are using a block-based theme. You can <a class="dops-card__link" href="%s">disable Jetpack’s legacy sharing buttons</a>, and add a sharing buttons block to your theme’s template instead.', 'jetpack' ),
+							__( 'You are using a block-based theme. You can <a class="dops-card__link" href="%s">disable Jetpack’s legacy sharing buttons</a> and add a sharing block to your theme’s template instead.', 'jetpack' ),
 							array(
 								'a' => array( 'href' => array() ),
 							)
