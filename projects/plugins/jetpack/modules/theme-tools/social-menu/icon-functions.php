@@ -143,6 +143,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'behance.net'       => 'behance',
 			'blogger.com'       => 'blogger',
 			'blogspot.com'      => 'blogger',
+			'bsky.app'          => 'bluesky',
 			'codepen.io'        => 'codepen',
 			'deviantart.com'    => 'deviantart',
 			'discord.gg'        => 'discord',
