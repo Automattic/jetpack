@@ -22,7 +22,7 @@ const GoodreadsEdit = props => {
 		if ( attributes.link ) {
 			setDisplayPreview( true );
 		}
-	}, [] );
+	}, [ attributes.link ] );
 
 	useEffect( () => {
 		if ( isFetchingData ) {
@@ -44,7 +44,8 @@ const GoodreadsEdit = props => {
 				setDisplayPreview( true );
 			}
 		}
-	}, [ goodreadsUserId, isFetchingData, isResolvingUrl, isError ] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ goodreadsUserId, isFetchingData, isResolvingUrl, isError, setAttributes ] );
 
 	useEffect( () => {
 		if (
@@ -54,7 +55,8 @@ const GoodreadsEdit = props => {
 			setRequestLink();
 		}
 		prevPropsRef.current = props;
-	}, [ props ] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ props, attributes.widgetId ] );
 
 	const setErrorNotice = () => {
 		noticeOperations.removeAllNotices();
