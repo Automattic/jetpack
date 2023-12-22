@@ -45,9 +45,6 @@ document.addEventListener( 'DOMContentLoaded', function () {
 
 	function showSubscriptionIframe( subscriptionData ) {
 		const modalContainer = document.querySelector( '.jetpack-subscription-modal' );
-		const iframeContainer = document.querySelector(
-			'.jetpack-subscription-modal__iframe-container'
-		);
 		const iframeElement = document.querySelector( '.jetpack-subscription-modal__iframe' );
 		const subscribeData = {
 			email: document.querySelector( '.jetpack-subscription-modal__form-email' ).value,
