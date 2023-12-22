@@ -21,8 +21,10 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			return;
 		}
 
-		localStorage.setItem( 'jetpack-subscription-modal-goto', location.hash );
-		window.location.reload();
+		localStorage.setItem( 'jetpack-subscription-modal-goto', destinationUrl.hash );
+
+		// For avoiding Firefox reload, we need to force reload bypassing the cache.
+		window.location.reload( true );
 	}
 
 	function handleSubscriptionModalIframeResult( eventFromIframe ) {
