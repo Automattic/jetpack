@@ -66,7 +66,7 @@ export default function useFetchGoodreadsData( input ) {
 			setIsFetchingData( true );
 			fetchData( goodreadsId );
 		}
-	}, [ input, isError ] );
+	}, [ input, isError ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return {
 		isFetchingData,
