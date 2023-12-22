@@ -207,6 +207,7 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 			'jetpack_options',
 			'jetpack_private_options',
 			'permalink_structure',
+			'db_version',
 		);
 
 		// Substitute the options.
