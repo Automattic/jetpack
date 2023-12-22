@@ -1425,23 +1425,17 @@ class Identity_Crisis {
 						$item = null;
 					}
 					if ( $item ) {
+						if ( $item['ip'] === $ip ) {
+							$item['expires_at'] = time() + 300;
+						}
 						$updated_data[] = $item;
 					}
 				}
-				// If nothing was left after cleanup or only different IPs exist, add data.
-				if ( empty( $updated_data ) || ( in_array( $ip, array_column( $updated_data, 'ip' ), true ) === false ) ) {
-					$updated_data[] = $ip_requester;
-				} else {
-					// If same IP, update expiry.
-					foreach ( $updated_data as $item ) {
-						if ( $item['ip'] === $ip ) {
-							$updated_data[ $item ]['expires_at'] = time() + 300;
-						}
+				if ( $data !== $updated_data ) {
+					$result = Jetpack_Options::update_option( 'identity_crisis_ip_requester', $updated_data );
+					if ( ! $result ) {
+						throw new Exception( esc_html__( 'Unable to save new ip requester', 'jetpack-idc' ) );
 					}
-				}
-				$result = Jetpack_Options::update_option( 'identity_crisis_ip_requester', $updated_data );
-				if ( ! $result ) {
-					throw new Exception( esc_html__( 'Unable to save new ip requester', 'jetpack-idc' ) );
 				}
 			}
 		}
