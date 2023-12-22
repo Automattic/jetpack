@@ -2,20 +2,29 @@
 	import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
 	import GettingStarted from './pages/getting-started/getting-started';
 	import RecommendationsPage from './pages/image-size-analysis/ImageSizeAnalysis.svelte';
-	import Index from './pages/index/Index.svelte';
+	import Index from './pages/index/index';
 	import PurchaseSuccess from './pages/purchase-success/purchase-success';
 	import Upgrade from './pages/upgrade/upgrade';
 	import ReactComponent from '$features/ReactComponent.svelte';
 	import Redirect from '$features/Redirect.svelte';
-	import SettingsPage from '$layout/SettingsPage/SettingsPage.svelte';
+	import SettingsPage from '$layout/settings-page/settings-page';
 	import config from '$lib/stores/config';
 	import { connection } from '$lib/stores/connection';
-	import { criticalCssIssues } from '$features/critical-css';
 	import { modulesState } from '$lib/stores/modules';
 	import { recordBoostEvent } from '$lib/utils/analytics';
 	import debounce from '$lib/utils/debounce';
 	import { Route, Router } from '$lib/utils/router';
 	import routerHistory from '$lib/utils/router-history';
+	import {
+		criticalCssState,
+		continueGeneratingLocalCriticalCss,
+		regenerateCriticalCss,
+		criticalCssProgress,
+		isFatalError,
+		criticalCssIssues,
+		primaryErrorSet,
+	} from '$features/critical-css';
+	import React from 'react';
 
 	routerHistory.listen(
 		debounce( history => {
@@ -31,8 +40,6 @@
 		}, 10 )
 	);
 
-	$: pricing = $config.pricing;
-
 	$: siteDomain = $config.site.domain;
 	$: userConnected = $connection.userConnected;
 	$: isPremium = $config.isPremium;
@@ -41,21 +48,30 @@
 	$: isImageSizeAnalysisActive = $modulesState.image_size_analysis.active;
 
 	$: shouldGetStarted = ! $connection.connected && $config.site.online;
+
+	const ReactAdvancedCriticalCss = React.createElement( AdvancedCriticalCss, {
+		issues: $criticalCssIssues,
+	} );
+	const ReactIndex = React.createElement( Index, {
+		criticalCss: {
+			criticalCssState: $criticalCssState,
+			continueGeneratingLocalCriticalCss,
+			regenerateCriticalCss,
+			criticalCssProgress: $criticalCssProgress,
+			isFatalError: $isFatalError,
+			criticalCssIssues: $criticalCssIssues,
+			primaryErrorSet: $primaryErrorSet,
+		},
+	} );
 </script>
 
 <Router history={routerHistory}>
 	<Route path="upgrade">
-		<ReactComponent this={Upgrade} {pricing} {siteDomain} {userConnected} />
+		<ReactComponent this={Upgrade} {siteDomain} {userConnected} />
 	</Route>
 
 	<Route path="getting-started">
-		<ReactComponent
-			this={GettingStarted}
-			{userConnected}
-			{pricing}
-			{isPremium}
-			domain={siteDomain}
-		/>
+		<ReactComponent this={GettingStarted} {userConnected} {isPremium} domain={siteDomain} />
 	</Route>
 
 	<Route path="purchase-successful">
@@ -64,17 +80,13 @@
 
 	<Route path="critical-css-advanced">
 		<Redirect when={shouldGetStarted} to="/getting-started">
-			<SettingsPage>
-				<ReactComponent this={AdvancedCriticalCss} issues={$criticalCssIssues} />
-			</SettingsPage>
+			<ReactComponent this={SettingsPage} children={ReactAdvancedCriticalCss} />
 		</Redirect>
 	</Route>
 
 	<Route path="/">
 		<Redirect when={shouldGetStarted} to="/getting-started">
-			<SettingsPage>
-				<Index />
-			</SettingsPage>
+			<ReactComponent this={SettingsPage} children={ReactIndex} />
 		</Redirect>
 	</Route>
 

@@ -1754,7 +1754,11 @@ class jpcrm_templating_placeholders {
 					}
 
 					// If this is a Quote date key and is not set (Quote accepted or last viewed), let's print out a message saying the quote isn't accepted or viewed.
-					if ( in_array( $key, array( 'quote-accepted', 'quote-lastviewed' ), true ) && ( empty( $replace_with ) || jpcrm_date_str_to_uts( $replace_with ) === 0 ) ) {
+					if (
+						in_array( $key, array( 'quote-accepted', 'quote-lastviewed' ), true ) &&
+						! in_array( $replacement_info['key'], $keys_staying_unrendered, true ) &&
+						( empty( $replace_with ) || jpcrm_date_str_to_uts( $replace_with ) === 0 )
+						) {
 
 						if ( $key === 'quote-accepted' ) {
 							$replace_with = __( 'Quote not yet accepted', 'zero-bs-crm' );

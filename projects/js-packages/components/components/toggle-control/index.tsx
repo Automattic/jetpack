@@ -22,6 +22,9 @@ interface ToggleControlProps {
 	/** The label for the toggle. */
 	label?: React.ReactNode;
 
+	/** The size of the toggle. */
+	size?: 'small' | 'normal';
+
 	/** A callback function invoked when the toggle is clicked. */
 	onChange: ( value: boolean ) => void;
 }
@@ -33,6 +36,7 @@ const ToggleControl: React.FC< ToggleControlProps > = ( {
 	help,
 	toggling,
 	label,
+	size = 'normal',
 	onChange,
 } ) => {
 	const showChecked =
@@ -55,6 +59,8 @@ const ToggleControl: React.FC< ToggleControlProps > = ( {
 			checked={ showChecked }
 			className={ classNames( styles.toggle, className, {
 				[ styles[ 'is-toggling' ] ]: toggling,
+				[ styles[ 'is-small' ] ]: size === 'small',
+				[ styles[ 'no-label' ] ]: ! label,
 			} ) }
 			disabled={ disabled }
 			help={ help }

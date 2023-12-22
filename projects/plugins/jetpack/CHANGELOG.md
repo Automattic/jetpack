@@ -2,6 +2,66 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.0-a.7 - 2023-12-20
+### Enhancements
+- Sharing Buttons Block: update the admin's setting screen when the sharing block is available. [#34673]
+
+### Improved compatibility
+- Sharing Buttons: add the official X button to the list of supported services. [#34719]
+
+### Bug fixes
+- My Plan: Fix JS errors due to nested anchor tags. [#34707]
+- Payments Block: show an error message when unable to render payment button. [#34380]
+- Subscribers: fix the subscriber count display if above 1000 subscribers. [#34689]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add wpcom_ai_site_prompt option to the site settings endpoint [#34709]
+- AI Assistant: handle new AI Control UI/UX improvements, fix DOM manipulation, remove "Try Again" toolbar button [#34383]
+- Carousel: fix unresponsive navigation [#34678]
+- Dashboard: avoid React warning when loading the VideoPress card. [#34713]
+- Jetpack Google Fonts: Don't print font definition if the font is provided by the active theme. [#34608]
+- Remove like block dependency on Like module and insert iframe once. [#34664]
+- Small refactor Subscription services [#34635]
+- Subscriptions: localize number format in access panel [#34691]
+- Subscriptions: update "verify your email" wall copy [#34716]
+- Updated package dependencies. [#34694]
+- update feature not released yet [#34724]
+
+## 13.0-a.5 - 2023-12-15
+### Enhancements
+- Subscriptions: adds toggle to disable email sending. [#34592]
+
+### Bug fixes
+- Subscribers: pre/post-publish panel, show correct subscription count when using paywall. [#34643]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add a flag for sites that have upgraded from the ecommerce trial. [#34597]
+- Like block (beta): Make sure the block is not available when the Likes module or Likes / Reblog site options are disabled. [#34639]
+- Like block (beta): remove the condition that decided whether to display Like block or Like widget. [#34650]
+- Newsletter post-publish panel: closed initially [#34663]
+- Refactor checkout modal to be more performant. [#34412]
+
+## 13.0-a.3 - 2023-12-14
+### Improved compatibility
+- Contact Form: avoid PHP warnings in the WordPress dashboard when used alongside other plugins making changes to admin pages. [#34576]
+
+### Bug fixes
+- Widgets: Fix console JS error in EU Cookie Widget. [#34591]
+- Paywall: Fix stuck pending subscription state when email isn't verified. [#34543]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add page view tracking for WooCommerce Checkout Flow. [#34065]
+- AI Assistant: Register ai-logo-generator beta flag. [#34641]
+- Backup: Bug fixes in helper script installation class. [#34297]
+- Ensure block use, shortcode use, and additional blocks in use are tracked correctly on classic themes. [#34065]
+- Fix fatal in Simple. [#34602]
+- Like block (beta): Handle Reblog toggle change. [#34572]
+- Like block (beta): Temporarily hide the Reblog setting toggle. [#34646]
+- Like block: Add Learn more link to the Like block inspector. [#34625]
+- OpenTable: Keep input form at a constant width so button doesn't jump out from under the cursor. [#34654]
+- Subscriptions: consolidate pre/post panel copy to a component [#34631]
+- Updated package dependencies. [#34559]
+
 ## 13.0-a.1 - 2023-12-11
 ### Enhancements
 - AI Usage panel: Added yellow color to indicate going over the soft limit. [#34555]

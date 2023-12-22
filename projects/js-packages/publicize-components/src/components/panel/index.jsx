@@ -23,18 +23,7 @@ const PublicizePanel = ( { prePublish, children } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
-	const {
-		isPublicizeEnabled,
-		hidePublicizeFeature,
-		isPublicizeDisabledBySitePlan,
-		togglePublicizeFeature,
-		connectionsAdminUrl,
-		adminUrl,
-		isEnhancedPublishingEnabled,
-		isSocialImageGeneratorAvailable,
-		shouldShowAdvancedPlanNudge,
-		jetpackSharingSettingsUrl,
-	} = usePublicizeConfig();
+	const { isPublicizeEnabled, hidePublicizeFeature, togglePublicizeFeature } = usePublicizeConfig();
 
 	// Refresh connections when the post is just published.
 	usePostJustPublished(
@@ -86,16 +75,7 @@ const PublicizePanel = ( { prePublish, children } ) => {
 					) }
 
 					<PublicizeConnectionVerify />
-					<PublicizeForm
-						isPublicizeEnabled={ isPublicizeEnabled }
-						isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
-						connectionsAdminUrl={ connectionsAdminUrl }
-						isEnhancedPublishingEnabled={ isEnhancedPublishingEnabled }
-						isSocialImageGeneratorAvailable={ isSocialImageGeneratorAvailable }
-						adminUrl={ adminUrl }
-						shouldShowAdvancedPlanNudge={ shouldShowAdvancedPlanNudge }
-						jetpackSharingSettingsUrl={ jetpackSharingSettingsUrl }
-					/>
+					<PublicizeForm />
 					<SharePostRow />
 				</Fragment>
 			) }
