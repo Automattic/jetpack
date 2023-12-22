@@ -21,16 +21,8 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			return;
 		}
 
-		// current URL without hash
-		const currentUrlWithoutHash = location.href.replace( location.hash, '' );
-		// destination URL without hash
-		const destinationUrlWithoutHash = destinationUrl.href.replace( destinationUrl.hash, '' );
-		window.location.href = destinationUrl.href;
-
-		// reload the page if the user is already on the comment page
-		if ( currentUrlWithoutHash === destinationUrlWithoutHash ) {
-			window.location.reload();
-		}
+		localStorage.setItem( 'jetpack-subscription-modal-goto', location.hash );
+		window.location.reload();
 	}
 
 	function handleSubscriptionModalIframeResult( eventFromIframe ) {
@@ -153,4 +145,19 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			reloadOnCloseSubscriptionModal();
 		}
 	};
+
+	window.addEventListener( 'load', () => {
+		// Scroll to the last comment.
+		const subscriptionScroll = localStorage.getItem( 'jetpack-subscription-modal-goto' );
+
+		if ( subscriptionScroll ) {
+			window.location.hash = subscriptionScroll;
+			localStorage.removeItem( 'jetpack-subscription-modal-goto' );
+
+			const comment = document.querySelector( subscriptionScroll );
+			if ( comment ) {
+				comment.scrollIntoView( { block: 'center', behavior: 'smooth' } );
+			}
+		}
+	} );
 } );
