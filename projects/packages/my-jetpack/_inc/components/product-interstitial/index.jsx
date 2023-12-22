@@ -377,6 +377,15 @@ export function SearchInterstitial() {
 }
 
 /**
+ * StatsInterstitial component
+ *
+ * @returns {object} StatsInterstitial react component.
+ */
+export function StatsInterstitial() {
+	return <ProductInterstitial slug="stats" installsPlugin={ true } />;
+}
+
+/**
  * VideoPressInterstitial component
  *
  * @returns {object} VideoPressInterstitial react component.
